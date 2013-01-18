@@ -84,8 +84,6 @@ void print_opcodes()
 	FILE* fp=fopen("opcodes.tmp", "w");
 	if (!fp) return;
 
-	fprintf(fp, "MCODE_OP_EXIT=0x%X // принудительно закончить выполнение макропоследовательности\n", MCODE_OP_EXIT);
-
 	/* ************************************************************************* */
 	// функции
 	fprintf(fp, "MCODE_F_NOFUNC=0x%X\n", MCODE_F_NOFUNC);
@@ -1873,11 +1871,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
 	// проверка на область
-	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST) //FIXME: CheckCode range
+	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST)
 	{
 		return PassBoolean (Global->WaitInMainLoop ?
 			CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode() :
-		  CheckCode == Global->CtrlObject->Macro.GetMode(), Data);
+		  CheckCode == GetMode(), Data);
 	}
 
 	Panel *ActivePanel=Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel : nullptr;
@@ -2012,7 +2010,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_BOF:
 		case MCODE_C_EOF:
 		{
-			int CurMMode=Global->CtrlObject->Macro.GetMode();
+			int CurMMode=GetMode();
 
 			if (!(m_Mode == MACRO_USERMENU || m_Mode == MACRO_MAINMENU || m_Mode == MACRO_MENU) && CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
 			{
@@ -2478,7 +2476,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
 				ptr=L"";
 
-			if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
+			if (GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 			{
 				if (CheckCode == MCODE_V_EDITORFILENAME)
 				{
@@ -2510,7 +2508,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
 		{
 			const wchar_t* ptr=L"";
-			if (Global->CtrlObject->Macro.GetMode() == MACRO_HELP)
+			if (GetMode() == MACRO_HELP)
 			{
 				CurFrame->VMProcess(CheckCode,&strFileName,0);
 				ptr=strFileName.CPtr();
@@ -2521,7 +2519,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
 		case MCODE_V_VIEWERSTATE: // Viewer.State
 		{
-			if ((Global->CtrlObject->Macro.GetMode()==MACRO_VIEWER || Global->CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
+			if ((GetMode()==MACRO_VIEWER || GetMode()==MACRO_QVIEWPANEL) &&
 							Global->CtrlObject->Plugins->CurViewer && Global->CtrlObject->Plugins->CurViewer->IsVisible())
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
@@ -2707,7 +2705,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			tmpVar.toInteger();
 
-			int CurMMode=Global->CtrlObject->Macro.GetMode();
+			int CurMMode=GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
@@ -2786,7 +2784,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			int CurMMode=Global->CtrlObject->Macro.GetMode();
+			int CurMMode=GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
@@ -2820,7 +2818,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (tmpAction.isUnknown())
 				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
 
-			int CurMMode=Global->CtrlObject->Macro.GetMode();
+			int CurMMode=GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{

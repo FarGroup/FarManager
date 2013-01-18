@@ -335,8 +335,8 @@ for _,pan in ipairs{APanel,PPanel} do
   assert(type(pan.Width)       =="number")
 end
 
-Keys "Home" assert(APanel.Bof==true)
 Keys "End" assert(APanel.Eof==true)
+Keys "Home" assert(APanel.Bof==true)
 
 assert(Panel.FAttr(0,":")==-1)
 assert(Panel.FAttr(1,":")==-1)

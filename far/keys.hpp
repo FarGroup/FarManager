@@ -245,12 +245,9 @@ enum BaseDefKeyboard
 
 	// см macroopcode.hpp
 	KEY_MACRO_BASE           =INTERNAL_MACRO_BASE,
-	KEY_MACRO_OP_BASE        =INTERNAL_MACRO_BASE+0x0000,     // opcode             0x00080000 - 0x000803FF
 	KEY_MACRO_C_BASE         =INTERNAL_MACRO_BASE+0x0400,     // булевые условия    0x00080400 - 0x000807FF
 	KEY_MACRO_V_BASE         =INTERNAL_MACRO_BASE+0x0800,     // разные переменные  0x00080800 - 0x00080BFF
 	KEY_MACRO_F_BASE         =INTERNAL_MACRO_BASE+0x0C00,     // функции            0x00080C00 -
-
-	KEY_MACRO_U_BASE         =INTERNAL_MACRO_BASE+0x8000,     // внешние функции    0x00088000 -
 
 	KEY_MACRO_ENDBASE        =0x000FFFFF,
 };

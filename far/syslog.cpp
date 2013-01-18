@@ -1146,7 +1146,6 @@ string __MCODE_ToName(DWORD OpCode)
 #define DEF_MCODE_(m) { MCODE_##m , L#m }
 	__XXX_Name MCODE[]=
 	{
-		DEF_MCODE_(OP_EXIT),  // принудительно закончить выполнение макропоследовательности
 		DEF_MCODE_(F_NOFUNC),
 		DEF_MCODE_(F_ABS),                      // N=abs(N)
 		DEF_MCODE_(F_AKEY),                     // V=akey(Mode[,Type])

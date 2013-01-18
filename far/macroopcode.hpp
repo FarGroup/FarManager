@@ -45,9 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum MACRO_OP_CODE
 {
 	/* ************************************************************************* */
-	MCODE_OP_EXIT=KEY_MACRO_OP_BASE,  // принудительно закончить выполнение макропоследовательности
-
-	/* ************************************************************************* */
 	// функции
 	MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
 	MCODE_F_ABS,                      // N=abs(N)
@@ -302,5 +299,3 @@ enum MACRO_OP_CODE
 	MCODE_V_MENU_VALUE,               // Menu.Value
 	MCODE_V_MENUINFOID,               // Menu.Info.Id
 };
-
-typedef enum MACRO_OP_CODE TMacroOpCode;
