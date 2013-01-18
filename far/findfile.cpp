@@ -78,7 +78,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 
 const int CHAR_TABLE_SIZE=5;
-const int LIST_DELTA=64;
 const DWORD LIST_INDEX_NONE = static_cast<DWORD>(-1);
 
 const size_t readBufferSizeA=32768;
@@ -114,12 +113,8 @@ private:
 	int FileCount;
 	int DirCount;
 
-	FINDLIST **FindList;
-	size_t FindListCapacity;
-	size_t FindListCount;
-	ARCLIST **ArcList;
-	size_t ArcListCapacity;
-	size_t ArcListCount;
+	std::vector<FINDLIST*> FindList;
+	std::vector<ARCLIST*> ArcList;
 	string strFindMessage;
 
 public:
@@ -132,12 +127,8 @@ public:
 		LastFoundNumber=0;
 		FileCount=0;
 		DirCount=0;
-		FindList=nullptr;
-		FindListCapacity=0;
-		FindListCount=0;
-		ArcList=nullptr;
-		ArcListCapacity=0;
-		ArcListCount=0;
+		FindList.clear();
+		ArcList.clear();
 		strFindMessage.Clear();
 	}
 
@@ -156,7 +147,7 @@ public:
 	int GetDirCount(){CriticalSectionLock Lock(DataCS); return DirCount;}
 	void SetDirCount(int Value){CriticalSectionLock Lock(DataCS); DirCount=Value;}
 
-	size_t GetFindListCount(){CriticalSectionLock Lock(DataCS); return FindListCount;}
+	size_t GetFindListCount(){CriticalSectionLock Lock(DataCS); return FindList.size();}
 
 	void GetFindMessage(string& To)
 	{
@@ -209,98 +200,67 @@ public:
 		CriticalSectionLock Lock(DataCS);
 		FindFileArcIndex=LIST_INDEX_NONE;
 
-		if (FindList)
+		if (!FindList.empty())
 		{
-			for (size_t i = 0; i < FindListCount; i++)
+			std::for_each(RANGE(FindList, i)
 			{
-				if (FindList[i]->FreeData)
+				if (i->FreeData)
 				{
 					FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),nullptr};
-					if(FindList[i]->ArcIndex!=LIST_INDEX_NONE)
+					if(i->ArcIndex!=LIST_INDEX_NONE)
 					{
 						ARCLIST ArcItem;
-						GetArcListItem(FindList[i]->ArcIndex, ArcItem);
+						GetArcListItem(i->ArcIndex, ArcItem);
 						info.hPlugin=ArcItem.hPlugin;
 					}
-					FindList[i]->FreeData(FindList[i]->Data,&info);
+					i->FreeData(i->Data,&info);
 				}
-				delete FindList[i];
-			}
-			xf_free(FindList);
+				delete i;
+			});
+			FindList.clear();
 		}
-		FindList = nullptr;
-		FindListCapacity = FindListCount = 0;
 
-		if (ArcList)
+		if (!ArcList.empty())
 		{
-			for (size_t i = 0; i < ArcListCount; i++)
+			std::for_each(RANGE(ArcList, i)
 			{
-				delete ArcList[i];
-			}
-			xf_free(ArcList);
+				delete i;
+			});
+			ArcList.clear();
 		}
-		ArcList = nullptr;
-		ArcListCapacity = ArcListCount = 0;
-	}
-
-	bool FindListGrow()
-	{
-		CriticalSectionLock Lock(DataCS);
-		bool Result=false;
-		size_t Delta=(FindListCapacity<256)?LIST_DELTA:FindListCapacity/2;
-		FINDLIST** NewList = static_cast<FINDLIST**>(xf_realloc(FindList,(FindListCapacity+Delta)*sizeof(*FindList)));
-		if (NewList)
-		{
-			FindList=NewList;
-			FindListCapacity+=Delta;
-			Result=true;
-		}
-		return Result;
-	}
-
-	bool ArcListGrow()
-	{
-		CriticalSectionLock Lock(DataCS);
-		bool Result=false;
-		size_t Delta=(ArcListCapacity<256)?LIST_DELTA:ArcListCapacity/2;
-		ARCLIST** NewList=static_cast<ARCLIST**>(xf_realloc(ArcList,(ArcListCapacity+Delta)*sizeof(*ArcList)));
-
-		if (NewList)
-		{
-			ArcList = NewList;
-			ArcListCapacity+= Delta;
-			Result=true;
-		}
-		return Result;
 	}
 
 	size_t AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,UINT64 dwFlags,const wchar_t *RootPath)
 	{
 		CriticalSectionLock Lock(DataCS);
-		if ((ArcListCount == ArcListCapacity) && (!ArcListGrow()))
-			return LIST_INDEX_NONE;
 
-		ArcList[ArcListCount] = new ARCLIST;
-		ArcList[ArcListCount]->strArcName = ArcName;
-		ArcList[ArcListCount]->hPlugin = hPlugin;
-		ArcList[ArcListCount]->Flags = dwFlags;
-		ArcList[ArcListCount]->strRootPath = RootPath;
-		AddEndSlash(ArcList[ArcListCount]->strRootPath);
-		return ArcListCount++;
+		if (ArcList.size() == ArcList.capacity())
+			ArcList.reserve(ArcList.size() + 4096);
+
+		auto NewItem = new ARCLIST;
+		NewItem->strArcName = ArcName;
+		NewItem->hPlugin = hPlugin;
+		NewItem->Flags = dwFlags;
+		NewItem->strRootPath = RootPath;
+		AddEndSlash(NewItem->strRootPath);
+		ArcList.push_back(NewItem);
+		return ArcList.size() - 1;
 	}
 
 	size_t AddFindListItem(const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		CriticalSectionLock Lock(DataCS);
-		if ((FindListCount == FindListCapacity)&&(!FindListGrow()))
-			return LIST_INDEX_NONE;
 
-		FindList[FindListCount] = new FINDLIST;
-		FindList[FindListCount]->FindData = FindData;
-		FindList[FindListCount]->ArcIndex = LIST_INDEX_NONE;
-		FindList[FindListCount]->Data = Data;
-		FindList[FindListCount]->FreeData = FreeData;
-		return FindListCount++;
+		if (FindList.size() == FindList.capacity())
+			FindList.reserve(ArcList.size() + 4096);
+
+		auto NewItem = new FINDLIST;
+		NewItem->FindData = FindData;
+		NewItem->ArcIndex = LIST_INDEX_NONE;
+		NewItem->Data = Data;
+		NewItem->FreeData = FreeData;
+		FindList.push_back(NewItem);
+		return FindList.size() - 1;
 	}
 }
 *itd;
