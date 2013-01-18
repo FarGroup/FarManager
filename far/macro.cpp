@@ -810,7 +810,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 		if (m_Recording==MACROMODE_NOMACRO)
 		{
-			if (ctrldot||ctrlshiftdot)
+			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
 				// Полиция 18
 				if (Global->Opt->Policies.DisabledOptions&FFPOL_CREATEMACRO)
