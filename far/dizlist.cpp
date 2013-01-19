@@ -182,7 +182,7 @@ desc_map::iterator DizList::AddRecord(const string& DizText)
 	}
 
 	Modified=true;
-	string Text = DizText.SubStr(NameLength + 1);
+	string Text = DizText.SubStr(NameStart + NameLength + 1);
 	RemoveExternalSpaces(Text);
 	std::list<string> DescStrings;
 	DescStrings.push_back(Text);
@@ -340,7 +340,9 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			for (auto i = DizData.begin(); i != DizData.end(); ++i)
 			{
-				string dump = i->first + L" " + i->second.front();
+				string dump = i->first;
+				QuoteSpaceOnly(dump);
+				dump += L" " + i->second.front();
 				if(i->second.size() > 1)
 				{
 					auto start = i->second.begin();
