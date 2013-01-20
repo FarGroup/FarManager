@@ -1935,10 +1935,10 @@ rule sets.
 
    #Has more than one hardlink#
 
-                   Used only on disks with NTFS file system. Condition
-                   evaluates to true, if piece of data, which current
-                   file is pointing, is also pointed by, at least,
-                   one another file.
+    Used only on disks with NTFS file system. Condition evaluates to true,
+if piece of data, which current file is pointing, is also pointed at least
+by one another file.
+    #Warning#: Enabling of this option can cause a significant slowdown.  
 
 
     To quickly disable one or several conditions, uncheck the corresponding

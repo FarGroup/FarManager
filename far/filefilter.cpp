@@ -327,6 +327,7 @@ bool FileFilter::FilterEdit()
 					}
 					else
 					{
+						delete NewFilter;
 						FilterData->erase(FilterData->begin()+SelPos);
 						break;
 					}
@@ -346,8 +347,10 @@ bool FileFilter::FilterEdit()
 					bNeedUpdate=true;
 				}
 				else
+				{
+					delete NewFilter;
 					FilterData->erase(FilterData->begin()+SelPos);
-
+				}
 				break;
 			}
 			case KEY_NUMDEL:
@@ -365,7 +368,9 @@ bool FileFilter::FilterEdit()
 					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
 					            strQuotedTitle,MSG(MDelete),MSG(MCancel)))
 					{
-						FilterData->erase(FilterData->begin()+SelPos);
+						auto i = FilterData->begin()+SelPos;
+						delete *i;
+						FilterData->erase(i);
 						FilterList.DeleteItem(SelPos);
 						FilterList.SetSelectPos(SelPos,1);
 						bNeedUpdate=true;
@@ -556,7 +561,9 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 						if (bCheckedNowhere)
 						{
-							TempFilterData->erase(TempFilterData->begin()+j);
+							auto i = TempFilterData->begin()+j;
+							delete *i;
+							TempFilterData->erase(i);
 							continue;
 						}
 					}
