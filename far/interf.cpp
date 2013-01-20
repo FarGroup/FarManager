@@ -987,9 +987,10 @@ bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Si
 			i1 = (i2 = 1 + Length) - thickness;
 		else
 		{
-			i1 = 1 + static_cast<UINT>((Start*Length + Size/2)/ Size);
-			if ( i1 == 1 && Start > 0 )
-				++i1;
+			i1 = 1 + static_cast<UINT>((Start*Length)/ Size);
+			if (i1 > Length)
+				i1 = Length;
+
 			i2 = i1 + thickness;
 			if ( i2 >= Length+1 )
 			{
