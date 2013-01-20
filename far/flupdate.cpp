@@ -219,11 +219,29 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	else
 		DeleteListData(ListData,FileCount);
 
+	DWORD FileSystemFlags = 0;
+	string PathRoot;
+	GetPathRoot(strCurDir, PathRoot);
+	apiGetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
+
 	ListData=nullptr;
-	int ReadOwners=IsColumnDisplayed(OWNER_COLUMN);
-	int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
-	int ReadNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
-	int ReadStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
+
+	bool ReadOwners = IsColumnDisplayed(OWNER_COLUMN);
+	bool ReadNumLinks = IsColumnDisplayed(NUMLINK_COLUMN);
+	bool ReadNumStreams = IsColumnDisplayed(NUMSTREAMS_COLUMN);
+	bool ReadStreamsSize = IsColumnDisplayed(STREAMSSIZE_COLUMN);
+
+	if (!(FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) && Global->WinVer() >= _WIN32_WINNT_WIN7)
+	{
+		ReadNumLinks = false;
+	}
+
+	if(!(FileSystemFlags&FILE_NAMED_STREAMS))
+	{
+		ReadNumStreams = false;
+		ReadStreamsSize = false;
+	}
+
 	string strComputerName;
 
 	if (ReadOwners)

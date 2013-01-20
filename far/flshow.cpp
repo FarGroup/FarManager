@@ -1412,22 +1412,22 @@ bool FileList::IsModeFullScreen(int Mode)
 }
 
 
-int FileList::IsDizDisplayed()
+bool FileList::IsDizDisplayed()
 {
 	return IsColumnDisplayed(DIZ_COLUMN);
 }
 
 
-int FileList::IsColumnDisplayed(int Type)
+bool FileList::IsColumnDisplayed(int Type)
 {
 
 	for (int i=0; i<ViewSettings.ColumnCount; i++)
 		if ((int)(ViewSettings.ColumnType[i] & 0xff)==Type)
-			return TRUE;
+			return true;
 
 	for (int i=0; i<ViewSettings.StatusColumnCount; i++)
 		if ((int)(ViewSettings.StatusColumnType[i] & 0xff)==Type)
-			return TRUE;
+			return true;
 
-	return FALSE;
+	return false;
 }

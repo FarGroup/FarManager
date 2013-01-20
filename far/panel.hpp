@@ -327,8 +327,8 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void FlushDiz() {}
 		virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
 		virtual bool IsFullScreen() {return (ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;}
-		virtual int IsDizDisplayed() {return FALSE;}
-		virtual int IsColumnDisplayed(int Type) {return FALSE;}
+		virtual bool IsDizDisplayed() {return false;}
+		virtual bool IsColumnDisplayed(int Type) {return false;}
 		virtual int GetColumnsCount() { return 1;}
 		virtual void SetReturnCurrentFile(int Mode) {}
 		virtual void QViewDelTempName() {}

@@ -380,8 +380,8 @@ class FileList:public Panel
 		virtual void GetDizName(string &strDizName);
 		virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz);
 		virtual bool IsFullScreen();
-		virtual int IsDizDisplayed();
-		virtual int IsColumnDisplayed(int Type);
+		virtual bool IsDizDisplayed();
+		virtual bool IsColumnDisplayed(int Type);
 		virtual int GetColumnsCount() { return Columns;};
 		virtual void SetReturnCurrentFile(int Mode);
 		virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
