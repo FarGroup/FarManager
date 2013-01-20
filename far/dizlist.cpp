@@ -427,8 +427,8 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 	if (i == DizData.end())
 		return false;
 
-	DestDiz->DeleteDiz(Name,ShortName);
-	DestDiz->DizData.insert(desc_map::value_type(Name, i->second));
+	DestDiz->DeleteDiz(DestName, DestShortName);
+	DestDiz->DizData.insert(desc_map::value_type(DestName, i->second));
 	DestDiz->Modified = true;
 
 	return true;
