@@ -545,13 +545,11 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 
 Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 {
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	auto i = std::find_if(PluginsData.begin(), PluginsData.end(), [&lpwszModuleName](VALUE_TYPE(PluginsData) i)
 	{
-		if (!StrCmpI(lpwszModuleName, (*i)->GetModuleName()))
-			return *i;
-	}
-
-	return nullptr;
+		return !StrCmpI(lpwszModuleName, i->GetModuleName());
+	});
+	return i == PluginsData.end()? nullptr : *i;
 }
 
 void PluginManager::LoadPlugins()
@@ -985,13 +983,11 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;
-
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	std::for_each(RANGE(PluginsData, i)
 	{
-		if ((*i)->HasProcessViewerEvent())
-			nResult = (*i)->ProcessViewerEvent(Event, Param, ViewerID);
-	}
-
+		if (i->HasProcessViewerEvent())
+			nResult = i->ProcessViewerEvent(Event, Param, ViewerID);
+	});
 	return nResult;
 }
 
@@ -2135,10 +2131,10 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 
 void PluginManager::ReloadLanguage()
 {
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	std::for_each(RANGE(PluginsData, i)
 	{
-		(*i)->CloseLang();
-	}
+		i->CloseLang();
+	});
 
 	DiscardCache();
 }
@@ -2146,10 +2142,10 @@ void PluginManager::ReloadLanguage()
 
 void PluginManager::DiscardCache()
 {
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	std::for_each(RANGE(PluginsData, i)
 	{
-		(*i)->Load();
-	}
+		i->Load();
+	});
 
 	Global->Db->PlCacheCfg()->DiscardCache();
 }
@@ -2159,10 +2155,10 @@ void PluginManager::LoadIfCacheAbsent()
 {
 	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
 	{
-		for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+		std::for_each(RANGE(PluginsData, i)
 		{
-			(*i)->Load();
-		}
+			i->Load();
+		});
 	}
 }
 
@@ -2626,20 +2622,20 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 {
 	NTPath FilePath(ListItem->strName);
 
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	std::for_each(RANGE(PluginsData, i)
 	{
 		wchar_t *CustomData = nullptr;
 
-		if ((*i)->HasGetCustomData() && (*i)->GetCustomData(FilePath.CPtr(), &CustomData))
+		if (i->HasGetCustomData() && i->GetCustomData(FilePath.CPtr(), &CustomData))
 		{
 			if (!ListItem->strCustomData.IsEmpty())
 				ListItem->strCustomData += L" ";
 			ListItem->strCustomData += CustomData;
 
-			if ((*i)->HasFreeCustomData())
-				(*i)->FreeCustomData(CustomData);
+			if (i->HasFreeCustomData())
+				i->FreeCustomData(CustomData);
 		}
-	}
+	});
 }
 
 const GUID& PluginManager::GetGUID(HANDLE hPlugin)

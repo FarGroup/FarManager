@@ -492,12 +492,12 @@ void ScreenBuf::Flush()
 
 			if (Changes)
 			{
-				for (auto i = WriteList.begin(); i != WriteList.end(); ++i)
+				std::for_each(RANGE(WriteList, i)
 				{
-					COORD BufferSize={BufX, BufY}, BufferCoord={i->Left, i->Top};
-					SMALL_RECT WriteRegion=*i;
+					COORD BufferSize={BufX, BufY}, BufferCoord={i.Left, i.Top};
+					SMALL_RECT WriteRegion = i;
 					Global->Console->WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
-				}
+				});
 				Global->Console->Commit();
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
 			}

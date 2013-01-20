@@ -2738,16 +2738,11 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			{
 				continue;
 			}
-			bool Mounted = false;
-			for(auto i = Volumes.begin(); i != Volumes.end(); ++i)
+
+			if (std::find_if(Volumes.begin(), Volumes.end(), [&VolumeName](VALUE_TYPE(Volumes) i)
 			{
-				if(i->IsSubStrAt(0,VolumeName))
-				{
-					Mounted = true;
-					break;
-				}
-			}
-			if(!Mounted)
+				return i.IsSubStrAt(0,VolumeName);
+			}) == Volumes.end())
 			{
 				List.AddItem(VolumeName);
 			}
@@ -2915,17 +2910,10 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	AnySetFindList = false;
-	for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd(); ++i)
+	if(std::find_if(Global->CtrlObject->Plugins->GetBegin(), Global->CtrlObject->Plugins->GetEnd(), [](const Plugin* i)
 	{
-		if ((*i)->HasSetFindList())
-		{
-			AnySetFindList=true;
-			break;
-		}
-	}
-
-	if (!AnySetFindList)
+		return i->HasSetFindList();
+	}) == Global->CtrlObject->Plugins->GetEnd())
 	{
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}

@@ -164,10 +164,10 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 			//recursive symlinks guard
 			bool Recursion = false;
 
-			for(auto i = ScanItems.begin(); !Recursion && i != ScanItems.end(); ++i)
+			std::for_each(RANGE(ScanItems, i)
 			{
-				Recursion = (*i)->RealPath == RealPath;
-			}
+				Recursion = i->RealPath == RealPath;
+			});
 
 			if (!Recursion)
 			{

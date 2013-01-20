@@ -2817,13 +2817,13 @@ int Database::ShowProblems()
 	if (!m_Problems.empty())
 	{
 		const wchar_t* *msgs = new const wchar_t*[m_Problems.size()+2];
-		int i = 0;
-		for(auto Problem = m_Problems.begin(); Problem != m_Problems.end(); ++Problem, ++i)
+		int n = 0;
+		std::for_each(RANGE(m_Problems, i)
 		{
-			msgs[i] = *Problem;
-		}
-		msgs[i] = MSG(MShowConfigFolders);
-		msgs[i+1] = MSG(MIgnore);
+			msgs[n] = i;
+		});
+		msgs[n] = MSG(MShowConfigFolders);
+		msgs[n+1] = MSG(MIgnore);
 		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, m_Problems.size()+2) == 0 ? +1 : -1;
 		delete[] msgs;
 	}

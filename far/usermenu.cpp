@@ -116,30 +116,30 @@ const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
 static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 {
-	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem)
+	std::for_each(RANGE(Menu, i)
 	{
-		CW.Write(MenuItem->strHotKey.CPtr(), static_cast<DWORD>(MenuItem->strHotKey.GetLength()*sizeof(WCHAR)));
+		CW.Write(i.strHotKey.CPtr(), static_cast<DWORD>(i.strHotKey.GetLength()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
-		CW.Write(MenuItem->strLabel.CPtr(), static_cast<DWORD>(MenuItem->strLabel.GetLength()*sizeof(WCHAR)));
+		CW.Write(i.strLabel.CPtr(), static_cast<DWORD>(i.strLabel.GetLength()*sizeof(WCHAR)));
 		CW.Write(L"\r\n", 2*sizeof(WCHAR));
 
-		if (MenuItem->Submenu)
+		if (i.Submenu)
 		{
 			CW.Write(L"{\r\n", 3*sizeof(WCHAR));
-			if (MenuItem->Menu)
-				MenuListToFile(*MenuItem->Menu, CW);
+			if (i.Menu)
+				MenuListToFile(*i.Menu, CW);
 			CW.Write(L"}\r\n", 3*sizeof(WCHAR));
 		}
 		else
 		{
-			for (auto str=MenuItem->Commands.begin(); str != MenuItem->Commands.end(); ++str)
+			std::for_each(RANGE(i.Commands, str)
 			{
 				CW.Write(L"    ", 4*sizeof(WCHAR));
-				CW.Write(str->CPtr(), static_cast<DWORD>(str->GetLength()*sizeof(WCHAR)));
+				CW.Write(str.CPtr(), static_cast<DWORD>(str.GetLength()*sizeof(WCHAR)));
 				CW.Write(L"\r\n", 2*sizeof(WCHAR));
-			}
+			});
 		}
-	}
+	});
 }
 
 static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
@@ -425,16 +425,16 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 	MenuItemEx FarUserMenuItem;
 	int NumLines=0;
 
-	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem, ++NumLines)
+	std::for_each(RANGE(Menu, MenuItem)
 	{
 		FarUserMenuItem.Clear();
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"
-		if (!StrCmp(MenuItem->strHotKey,L"--"))
+		if (!StrCmp(MenuItem.strHotKey,L"--"))
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
-			FarUserMenuItem.strName=MenuItem->strLabel;
+			FarUserMenuItem.strName=MenuItem.strLabel;
 
 			if (NumLines==MenuPos)
 			{
@@ -443,16 +443,16 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 		}
 		else
 		{
-			string strLabel = MenuItem->strLabel;
+			string strLabel = MenuItem.strLabel;
 			SubstFileName(strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			apiExpandEnvironmentStrings(strLabel, strLabel);
-			string strHotKey = MenuItem->strHotKey;
+			string strHotKey = MenuItem.strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			int Offset = strHotKey.At(0)==L'&'?5:4;
 			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 
-			if (MenuItem->Submenu)
+			if (MenuItem.Submenu)
 			{
 				FarUserMenuItem.Flags|=MIF_SUBMENU;
 			}
@@ -468,7 +468,8 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 		{
 			FuncPos[FuncNum-1]=ItemPos;
 		}
-	}
+		++NumLines;
+	});
 
 	FarUserMenuItem.Clear();
 	FarUserMenuItem.SetSelect(NumLines==MenuPos);
@@ -759,9 +760,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// Цикл исполнения команд меню (CommandX)
-		for (auto str=(*CurrentMenuItem)->Commands.begin(); str != (*CurrentMenuItem)->Commands.end(); ++str)
+		std::for_each(RANGE((*CurrentMenuItem)->Commands, str)
 		{
-			string strCommand = *str;
+			string strCommand = str;
 
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
@@ -843,8 +844,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 			if (!strAnotherShortListName.IsEmpty())
 				apiDeleteFile(strAnotherShortListName);
-
-		} // while (1)
+		});
 
 		Global->CtrlObject->CmdLine->LockUpdatePanel(FALSE);
 

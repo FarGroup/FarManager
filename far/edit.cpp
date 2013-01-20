@@ -3427,10 +3427,10 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 			}
 		}
 
-		for(auto i = List.begin(); i != List.end(); ++i)
+		std::for_each(RANGE(List, i)
 		{
-			DestMenu->AddItem(*i);
-		}
+			DestMenu->AddItem(i);
+		});
 	}
 	return Result;
 }

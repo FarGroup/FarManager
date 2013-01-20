@@ -347,9 +347,9 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{
 					auto start = i->second.begin();
 					++start;
-					std::for_each(start, i->second.end(), [&dump](decltype(i->second.front()) i)
+					std::for_each(start, i->second.end(), [&dump](VALUE_TYPE(i->second) j)
 					{
-						dump.Append(L"\r\n ").Append(i);
+						dump.Append(L"\r\n ").Append(j);
 					});
 				}
 				DWORD Size=static_cast<DWORD>((dump.GetLength() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
