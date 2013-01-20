@@ -3,6 +3,103 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.01.2013 21:47:14 +0200 - build 3101
+
+1. A couple of leaks in filters.
+
+2. Correction in help.
+
+drkns 20.01.2013 21:26:25 +0200 - build 3100
+
+1. Slightly optimization: do not try to read the number of hard links and info about streams if FS does not support it.
+
+drkns 20.01.2013 20:08:29 +0200 - build 3099
+
+1. Correction of 3094.
+
+w17 20.01.2013 16:30:39 +0400 - build 3098
+
+1. M#2265: Scrollbar errors in editor/viewer
+
+drkns 19.01.2013 21:18:14 +0200 - build 3097
+
+1. Correction of 3094.
+
+shmuel 18.01.2013 21:07:42 +0200 - build 3096
+
+1. Refactoring.
+
+drkns 18.01.2013 15:38:50 +0200 - build 3095
+
+1. Refactoring.
+
+drkns 18.01.2013 14:41:12 +0200 - build 3094
+
+1. Refactoring of descriptions.
+
+2. 0002261: Expand environment variables in folder shortcuts menu
+
+shmuel 18.01.2013 12:25:16 +0200 - build 3093
+
+1. There was a possibility of recording a macro while another macro playing.
+
+drkns 17.01.2013 23:40:28 +0200 - build 3092
+
+1. Continuation of 3087 - panel focus moved to local settings.
+
+drkns 17.01.2013 22:37:25 +0200 - build 3091
+
+1. Another correction of 3076.
+
+drkns 17.01.2013 22:12:27 +0200 - build 3090
+
+1. Correction of 3076 and rollback of 3089, will be done later.
+
+shmuel 17.01.2013 16:34:27 +0200 - build 3089
+
+1. Partial rollback of 3076 (Undo/Redo in editor).
+
+shmuel 16.01.2013 23:53:39 +0200 - build 3088
+
+1. GCC warnings.
+
+drkns 16.01.2013 22:58:06 +0200 - build 3087
+
+1. 0001969: Separate "Save panels state" setting from other settings and make it local
+
+svs 16.01.2013 23:56:44 +0400 - build 3086
+
+1. Mantins#0002260: GUID is needed in file reopen dialog 
+     EditorReloadId={AFDAD388-494C-41e8-BAC6-BBE9115E1CC0}
+
+drkns 15.01.2013 23:37:28 +0200 - build 3085
+
+1. Correction of 3084.
+
+drkns 15.01.2013 22:03:55 +0200 - build 3084
+
+1. 0002256: Fix warnings: member variable is not initialized in constructor
+
+shmuel 15.01.2013 00:27:59 +0200 - build 3083
+
+1. Refactoring.
+
+w17 15.01.2013 00:33:06 +0400 - build 3082
+
+1. Highlight Ctrl-Up/Down fix = correction of 3076
+
+w17 14.01.2013 21:28:05 +0400 - build 3081
+
+1. M#2254: In window - PgDn in menu = correction of 3076
+
+w17 14.01.2013 18:14:07 +0400 - build 3080
+
+1. correction of 3076 - shortcuts fix
+
+w17 14.01.2013 06:39:14 +0400 - build 3079
+
+1. correction of 3076
+
 shmuel 13.01.2013 11:40:40 +0200 - build 3078
 
 1. Changes related to macros.
@@ -236,22 +333,22 @@ svs 21.12.2012 16:15:36 +0400 - build 3040
    Changes (minor ones) in API.
    
    In SetDirectoryInfo (there was UserData and no FreeData)
-     а) "intptr_t UserData" -> "intptr_t Reserved"
-     б) "struct UserDataItem UserData" added
+     a) "intptr_t UserData" -> "intptr_t Reserved"
+     b) "struct UserDataItem UserData" added
 
    In OpenPanelInfo
-     а) "struct UserDataItem UserData" added
+     a) "struct UserDataItem UserData" added
         this component is related to OpenPanelInfo::CurDir; a plugin must (if it fills them) 
         place data here, related to CurDir, FAR will place these values in SetDirectoryInfo.
 
    Obscurities:
-     а) PluginManager::CallPlugin() - here UserData = {0,0}
+     a) PluginManager::CallPlugin() - here UserData = {0,0}
         (an obscure solution)
-     б) Panel::ExecShortcutFolder() - here UserData = {0,0}
+     b) Panel::ExecShortcutFolder() - here UserData = {0,0}
         (an obscure solution)
-     в) GetPluginDirList()          - here UserData = {0,0}
+     c) GetPluginDirList()          - here UserData = {0,0}
         the obscurity: a plugin says "I want info on this dir on that panel" and then we refer to catalog's "Name" instead of a panel item.
-     г) lack for FreeData calls for OpenPanelInfo
+     d) lack for FreeData calls for OpenPanelInfo
         handle it separately...
 
 
@@ -403,8 +500,8 @@ svs 14.12.2012 16:33:53 +0400 - build 3013
        DIF_SEPARATORUSER = 0x0000000000080000ULL
 
    DI_TEXT and DI_VTEXT with DIF_SEPARATORUSER flag:
-      а) both X1 and X2 coordinates must be specified (Y1 and Y2 for DI_VTEXT)
-      б) FarDialogItem::Mask contains a three character set desribing the separator - 3 symbols C string is expected: "Left-Center-Right"/"Top-Center-Bottom".
+      a) both X1 and X2 coordinates must be specified (Y1 and Y2 for DI_VTEXT)
+      b) FarDialogItem::Mask contains a three character set desribing the separator - 3 symbols C string is expected: "Left-Center-Right"/"Top-Center-Bottom".
          Missing symbols will contain spaces for such a separator.
          If FarDialogItem::Mask=nullptr, standard separators are used.
 
@@ -650,7 +747,7 @@ shmuel 21.11.2012 23:59:49 +0200 - build 2967
 
 shmuel 21.11.2012 22:19:38 +0200 - build 2966
 
-1. M#2163: LUA: не работает флаг DisableOutput
+1. M#2163: LUA: DisableOutput flag does not work
 
 w17 21.11.2012 22:16:55 +0400 - build 2965
 
@@ -845,7 +942,7 @@ shmuel 06.11.2012 21:41:14 +0200 - build 2935
 
 lort 06.11.2012 20:21:06 +0400 - build 2934
 
-1. Не работали Dlg.Id и Dlg.Owner при открытом меню автодополнения.
+1. Dlg.Id and Dlg.Owner malfunction with open autocompletion menu.
 
 2. Correction of 2897.3
 
