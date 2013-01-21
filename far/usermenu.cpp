@@ -571,7 +571,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RIGHT:
 				case KEY_NUMPAD6:
 				case KEY_MSWHEEL_RIGHT:
-					if (CurrentMenuItem && (*CurrentMenuItem)->Submenu)
+					if ((CurrentMenuItem && *CurrentMenuItem != Menu.end()) && (*CurrentMenuItem)->Submenu)
 						UserMenu.Close(MenuPos);
 					break;
 
@@ -584,7 +584,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_NUMDEL:
 				case KEY_DEL:
-					if (CurrentMenuItem)
+					if (CurrentMenuItem && *CurrentMenuItem != Menu.end())
 					{
 						DeleteMenuRecord(Menu,(*CurrentMenuItem));
 						NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
@@ -597,7 +597,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_NUMPAD0:
 				{
 					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-					if (!bNew && !CurrentMenuItem)
+					if (!bNew && (!CurrentMenuItem || *CurrentMenuItem == Menu.end()))
 						break;
 
 					EditMenu(Menu,*CurrentMenuItem,bNew);
@@ -612,7 +612,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				{
 					int Pos=UserMenu.GetSelectPos();
 
-					if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
+					if (Pos!=UserMenu.GetItemCount()-1 && (CurrentMenuItem && *CurrentMenuItem != Menu.end()))
 					{
 						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
 						{
@@ -628,7 +628,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 								++Other;
 								++MenuPos;
 							}
-							std::swap(*Other, **CurrentMenuItem);
+							(*Other).Swap(**CurrentMenuItem);
 								
 							FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 						}

@@ -43,6 +43,15 @@ struct UserMenuItem {
 
 	UserMenuItem() { Submenu=false; Menu=nullptr; }
 	~UserMenuItem() { if (Menu) delete Menu; }
+
+	void Swap(UserMenuItem &item)
+	{
+		std::swap(strHotKey, item.strHotKey);
+		std::swap(strLabel, item.strLabel);
+		std::swap(Commands, item.Commands);
+		std::swap(Submenu, item.Submenu);
+		std::swap(Menu, item.Menu);
+	}
 };
 
 ENUM(MENUMODE);
