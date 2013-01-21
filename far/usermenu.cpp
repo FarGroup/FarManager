@@ -529,11 +529,16 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		int ReturnCode=1;
 
 		NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-		std::list<UserMenuItem>::iterator* CurrentMenuItem;
+		std::list<UserMenuItem>::iterator dummy, *CurrentMenuItem;
 		ExitCode=UserMenu.Run([&](int Key)->int
 		{
 			MenuPos=UserMenu.GetSelectPos();
 			void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+			if (!userdata)
+			{
+				dummy = Menu.end();
+				userdata = &dummy;
+			}
 			CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
 
 			if (Key==KEY_SHIFTF1)
