@@ -617,14 +617,14 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 							{
 								--Other;
 								--MenuPos;
+								Menu.splice(Other, Menu, *CurrentMenuItem);
 							}
 							else
 							{
 								++Other;
 								++MenuPos;
+								Menu.splice(*CurrentMenuItem, Menu, Other);
 							}
-							std::swap(*Other, **CurrentMenuItem);
-
 							FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 						}
 					}
