@@ -425,16 +425,16 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 	MenuItemEx FarUserMenuItem;
 	int NumLines=0;
 
-	std::for_each(RANGE(Menu, MenuItem)
+	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem, ++NumLines)
 	{
 		FarUserMenuItem.Clear();
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"
-		if (!StrCmp(MenuItem.strHotKey,L"--"))
+		if (!StrCmp(MenuItem->strHotKey,L"--"))
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
-			FarUserMenuItem.strName=MenuItem.strLabel;
+			FarUserMenuItem.strName=MenuItem->strLabel;
 
 			if (NumLines==MenuPos)
 			{
@@ -443,16 +443,16 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 		}
 		else
 		{
-			string strLabel = MenuItem.strLabel;
+			string strLabel = MenuItem->strLabel;
 			SubstFileName(strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			apiExpandEnvironmentStrings(strLabel, strLabel);
-			string strHotKey = MenuItem.strHotKey;
+			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			int Offset = strHotKey.At(0)==L'&'?5:4;
 			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 
-			if (MenuItem.Submenu)
+			if (MenuItem->Submenu)
 			{
 				FarUserMenuItem.Flags|=MIF_SUBMENU;
 			}
@@ -468,8 +468,7 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 		{
 			FuncPos[FuncNum-1]=ItemPos;
 		}
-		++NumLines;
-	});
+	}
 
 	FarUserMenuItem.Clear();
 	FarUserMenuItem.SetSelect(NumLines==MenuPos);
