@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
+#include "DlgGuid.hpp"
 
 Manager *FrameManager;
 long CurrentWindowType=-1;
@@ -731,7 +732,9 @@ void Manager::ExitMainLoop(int Ask)
 		Global->CloseFARMenu=TRUE;
 	};
 
-	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo)))
+	const wchar_t* const Items[] = {MSG(MAskQuit),MSG(MYes),MSG(MNo)};
+
+	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0,2,MSG(MQuit),Items, ARRAYSIZE(Items), nullptr, nullptr, &FarAskQuitId))
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

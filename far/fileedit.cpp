@@ -578,8 +578,8 @@ void FileEditor::Init(
 	        )
 	   )
 	{
-		if (Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
-		            MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+		const wchar_t* const Items[] = {Name,MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
+		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorOpenRSHId))
 		{
 			ExitCode=XC_OPEN_ERROR;
 			return;
@@ -863,10 +863,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (m_editor->IsFileChanged() && // в текущем сеансе были изменения?
 				        apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
 				{
-					switch (Message(MSG_WARNING,2,MSG(MEditTitle),
-					                MSG(MEditSavedChangedNonFile),
-					                MSG(MEditSavedChangedNonFile2),
-					                MSG(MHYes),MSG(MHNo)))
+					const wchar_t* const Items[] = {MSG(MEditSavedChangedNonFile),MSG(MEditSavedChangedNonFile2),MSG(MHYes),MSG(MHNo)};
+					switch (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSaveF6DeletedId))
 					{
 						case 0:
 
@@ -1239,20 +1237,19 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
 					        FilePlaced) // а сам файл то еще на месте?
 					{
-						int Res;
+						int Res=100;
 
+						LNGID MsgLine1=MNewFileName;
 						if (m_editor->IsFileChanged() && FilePlaced)
-							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
-							            MSG(MEditSavedChangedNonFile),
-							            MSG(MEditSavedChangedNonFile2),
-							            MSG(MHYes),MSG(MHNo),MSG(MHCancel));
+							MsgLine1=MEditSavedChangedNonFile;
 						else if (!m_editor->IsFileChanged() && FilePlaced)
-							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
-							            MSG(MEditSavedChangedNonFile1),
-							            MSG(MEditSavedChangedNonFile2),
-						                MSG(MHYes),MSG(MHNo),MSG(MHCancel));
-						else
-							Res=100;
+							MsgLine1=MEditSavedChangedNonFile1;
+
+						if (MsgLine1 != MNewFileName)
+						{
+							const wchar_t* const Items[] = {MSG(MsgLine1),MSG(MEditSavedChangedNonFile2),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
+							Res=Message(MSG_WARNING,3,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSaveExitDeletedId);
+						}
 
 						switch (Res)
 						{
@@ -1684,7 +1681,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		if (Ask)
 		{
-			int Code = Global->AllowCancelExit?Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)):Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo));
+			const wchar_t* const Items[] = {MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)};
+			int Code = Global->AllowCancelExit?
+					Message(MSG_WARNING,3,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditAskSaveId):
+					Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items)-1, nullptr, nullptr, &EditAskSaveId);
 			if(Code < 0 && !Global->AllowCancelExit)
 			{
 				Code = 1; // close == not save
@@ -1721,8 +1721,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
 				{
 					const wchar_t* const Items[] = {MSG(MEditAskSaveExt), MSG(MHYes), MSG(MEditBtnSaveAs), MSG(MHCancel)};
-
-					switch (Message(MSG_WARNING, 3, MSG(MEditTitle), Items, ARRAYSIZE(Items), L"WarnEditorSavedEx"))
+					switch (Message(MSG_WARNING, 3, MSG(MEditTitle), Items, ARRAYSIZE(Items), L"WarnEditorSavedEx", nullptr, &EditAskSaveExtId))
 					{
 						case -1:
 						case -2:
@@ -1748,8 +1747,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
-			                         MSG(MEditOvr),MSG(MYes),MSG(MNo));
+			const wchar_t* const Items[] = {Name,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSavedROId);
 
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
@@ -2838,7 +2837,8 @@ bool FileEditor::AskOverwrite(const string& FileName)
 
 	if (FNAttr!=INVALID_FILE_ATTRIBUTES)
 	{
-		if (Message(MSG_WARNING,2,MSG(MEditTitle),FileName,MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)))
+		const wchar_t* const Items[] = {FileName,MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorAskOverwriteId))
 		{
 			result=false;
 		}
