@@ -836,13 +836,6 @@ void SetFolderInfoFiles()
 	}
 }
 
-template<class T>const GeneralConfig::OptionType TypeId(const T& Type);
-
-template<>const GeneralConfig::OptionType TypeId<BoolOption>(const BoolOption& Type){return GeneralConfig::TYPE_BOOLEAN;}
-template<>const GeneralConfig::OptionType TypeId<Bool3Option>(const Bool3Option& Type){return GeneralConfig::TYPE_BOOLEAN3;}
-template<>const GeneralConfig::OptionType TypeId<IntOption>(const IntOption& Type){return GeneralConfig::TYPE_INTEGER;}
-template<>const GeneralConfig::OptionType TypeId<StringOption>(const StringOption& Type){return GeneralConfig::TYPE_STRING;}
-
 // Структура, описывающая всю конфигурацию(!)
 struct FARConfigItem
 {
@@ -850,7 +843,7 @@ struct FARConfigItem
 	const wchar_t *KeyName;
 	const wchar_t *ValName;
 	Option* Value;   // адрес переменной, куда помещаем данные
-	GeneralConfig::OptionType ValueType;  // TYPE_BOOLEAN, TYPE_BOOLEAN3, TYPE_INTEGER, TYPE_STRING
+	Option::OptionType ValueType;  // TYPE_BOOLEAN, TYPE_BOOLEAN3, TYPE_INTEGER, TYPE_STRING
 	union
 	{
 		const void* Default;
@@ -858,6 +851,81 @@ struct FARConfigItem
 		int iDefault;
 		bool bDefault;
 	};
+
+	bool Edit(bool Hex)
+	{
+		if(ValueType == Option::TYPE_BOOLEAN)
+		{
+			*static_cast<BoolOption*>(Value) = !*static_cast<BoolOption*>(Value);
+			return true;
+		}
+		else if(ValueType == Option::TYPE_BOOLEAN3)
+		{
+			++(*static_cast<Bool3Option*>(Value));
+			return true;
+		}
+		else
+		{
+			DialogBuilder Builder;
+			Builder.AddText(string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):");
+			switch(ValueType)
+			{
+			case Option::TYPE_BOOLEAN:
+			case Option::TYPE_BOOLEAN3:
+				// only to suppress C4062, TYPE_BOOLEAN is handled above
+				break;
+			case Option::TYPE_INTEGER:
+				if (Hex)
+					Builder.AddHexEditField(*static_cast<IntOption*>(Value), 40);
+				else
+					Builder.AddIntEditField(*static_cast<IntOption*>(Value), 40);
+				break;
+			case Option::TYPE_STRING:
+				Builder.AddEditField(*static_cast<StringOption*>(Value), 40);
+				break;
+			}
+			static_cast<DialogBuilderBase<DialogItemEx>*>(&Builder)->AddOKCancel(MOk, MConfigResetValue, MCancel);
+			int Result = Builder.ShowDialogEx();
+			if(Result == 0 || Result == 1)
+			{
+				if(Result == 1)
+				{
+					// reset to default
+					switch(ValueType)
+					{
+					case Option::TYPE_BOOLEAN:
+					case Option::TYPE_BOOLEAN3:
+						// only to suppress C4062, TYPE_BOOLEAN is handled above
+						break;
+					case Option::TYPE_INTEGER:
+						*static_cast<IntOption*>(Value) = iDefault;
+						break;
+					case Option::TYPE_STRING:
+						*static_cast<StringOption*>(Value) = sDefault;
+						break;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Changed() const
+	{
+		switch(ValueType)
+		{
+		case Option::TYPE_BOOLEAN:
+			return static_cast<BoolOption*>(Value)->Get() != bDefault;
+		case Option::TYPE_BOOLEAN3:
+			return static_cast<Bool3Option*>(Value)->Get() != iDefault;
+		case Option::TYPE_INTEGER:
+			return static_cast<IntOption*>(Value)->Get() != iDefault;
+		case Option::TYPE_STRING:
+			return static_cast<StringOption*>(Value)->Get() != sDefault;
+		}
+		return false;
+	}
 };
 
 struct farconfig
@@ -867,7 +935,7 @@ struct farconfig
 }
 FARConfig = {}, FARLocalConfig = {};
 
-#define AddressAndType(x) &x, TypeId(x)
+#define AddressAndType(x) &x, x.getType()
 #define Default(x) reinterpret_cast<const void*>(x)
 
 void InitCFG()
@@ -1253,7 +1321,7 @@ bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 	return false;
 }
 
-bool GetConfigValue(size_t Root, const wchar_t* Name, GeneralConfig::OptionType& Type, Option*& Data)
+bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data)
 {
 	if(FSSF_PRIVATE!=Root)
 	{
@@ -1570,56 +1638,28 @@ void Options::Save(bool Ask)
 	/* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 
-inline const wchar_t* TypeToText(GeneralConfig::OptionType Type)
-{
-	static const wchar_t* OptionTypeNames[] =
-	{
-		L"boolean",
-		L"3-state",
-		L"integer",
-		L"string",
-	};
-	static_assert(ARRAYSIZE(OptionTypeNames)==GeneralConfig::TYPE_LAST+1, "not all GeneralConfig types handled");
-	return OptionTypeNames[Type];
-}
-
 void FillListItem(FarListItem& Item, FormatString& fs, FARConfigItem& cfg)
 {
 	Item.Flags = 0;
 	Item.Reserved[0] = Item.Reserved[1] = 0;
 	fs.Clear();
 	fs << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(cfg.KeyName) + "." + cfg.ValName) << BoxSymbols[BS_V1]
-	<< fmt::ExactWidth(7) << fmt::LeftAlign() << TypeToText(cfg.ValueType) << BoxSymbols[BS_V1];
-	bool Changed = false;
+	<< fmt::ExactWidth(7) << fmt::LeftAlign() << cfg.Value->typeToString() << BoxSymbols[BS_V1];
 	fs << cfg.Value->toString();
-	switch(cfg.ValueType)
+	if (cfg.ValueType == Option::TYPE_INTEGER)
 	{
-	case GeneralConfig::TYPE_BOOLEAN:
-		Changed = static_cast<BoolOption*>(cfg.Value)->Get() != cfg.bDefault;
-		break;
-	case GeneralConfig::TYPE_BOOLEAN3:
-		Changed = static_cast<Bool3Option*>(cfg.Value)->Get() != cfg.iDefault;
-		break;
-	case GeneralConfig::TYPE_INTEGER:
-		Changed = static_cast<IntOption*>(cfg.Value)->Get() != cfg.iDefault;
+		int v = static_cast<IntOption*>(cfg.Value)->Get();
+		wchar_t w1 = static_cast<wchar_t>(v);
+		wchar_t w2 = static_cast<wchar_t>(v >> 16);
+		fs << L" = 0x" << fmt::MaxWidth(8) << fmt::Radix(16) << v;
+		if (w1 > 0x001f && w1 < 0x8000)
 		{
-			int v = static_cast<IntOption*>(cfg.Value)->Get();
-			wchar_t w1 = static_cast<wchar_t>(v);
-			wchar_t w2 = static_cast<wchar_t>(v >> 16);
-			fs << L" = 0x" << fmt::MaxWidth(8) << fmt::Radix(16) << v;
-			if (w1 > 0x001f && w1 < 0x8000)
-			{
-				fs << L" = '" << w1;
-				if (w2 > 0x001f && w2 < 0x8000) fs << w2;
-				fs << L"'";
-			}
+			fs << L" = '" << w1;
+			if (w2 > 0x001f && w2 < 0x8000) fs << w2;
+			fs << L"'";
 		}
-		break;
-	case GeneralConfig::TYPE_STRING:
-		Changed = static_cast<StringOption*>(cfg.Value)->Get() != cfg.sDefault;
-		break;
 	}
-	if(Changed)
+	if(cfg.Changed())
 	{
 		Item.Flags = LIF_CHECKED|L'*';
 	}
@@ -1723,64 +1763,7 @@ intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			bool Changed = false;
-
-			if(FARConfig.Items[ListInfo.SelectPos].ValueType == GeneralConfig::TYPE_BOOLEAN)
-			{
-				Changed = true;
-				*static_cast<BoolOption*>(FARConfig.Items[ListInfo.SelectPos].Value) = !*static_cast<BoolOption*>(FARConfig.Items[ListInfo.SelectPos].Value);
-			}
-			else if(FARConfig.Items[ListInfo.SelectPos].ValueType == GeneralConfig::TYPE_BOOLEAN3)
-			{
-				Changed = true;
-				++(*static_cast<Bool3Option*>(FARConfig.Items[ListInfo.SelectPos].Value));
-			}
-			else
-			{
-				DialogBuilder Builder;
-				Builder.AddText(string(FARConfig.Items[ListInfo.SelectPos].KeyName) + "." + FARConfig.Items[ListInfo.SelectPos].ValName + L" (" + TypeToText(FARConfig.Items[ListInfo.SelectPos].ValueType) + L"):");
-				switch(FARConfig.Items[ListInfo.SelectPos].ValueType)
-				{
-				case GeneralConfig::TYPE_BOOLEAN:
-				case GeneralConfig::TYPE_BOOLEAN3:
-					// only to suppress C4062, TYPE_BOOLEAN is handled above
-					break;
-				case GeneralConfig::TYPE_INTEGER:
-					if (Param1)
-						Builder.AddHexEditField(*static_cast<IntOption*>(FARConfig.Items[ListInfo.SelectPos].Value), 40);
-					else
-						Builder.AddIntEditField(*static_cast<IntOption*>(FARConfig.Items[ListInfo.SelectPos].Value), 40);
-					break;
-				case GeneralConfig::TYPE_STRING:
-					Builder.AddEditField(*static_cast<StringOption*>(FARConfig.Items[ListInfo.SelectPos].Value), 40);
-					break;
-				}
-				static_cast<DialogBuilderBase<DialogItemEx>*>(&Builder)->AddOKCancel(MOk, MConfigResetValue, MCancel);
-				int Result = Builder.ShowDialogEx();
-				if(Result == 0 || Result == 1)
-				{
-					Changed = true;
-					if(Result == 1)
-					{
-						// reset to default
-						switch(FARConfig.Items[ListInfo.SelectPos].ValueType)
-						{
-						case GeneralConfig::TYPE_BOOLEAN:
-						case GeneralConfig::TYPE_BOOLEAN3:
-							// only to suppress C4062, TYPE_BOOLEAN is handled above
-							break;
-						case GeneralConfig::TYPE_INTEGER:
-							*static_cast<IntOption*>(FARConfig.Items[ListInfo.SelectPos].Value) = FARConfig.Items[ListInfo.SelectPos].iDefault;
-							break;
-						case GeneralConfig::TYPE_STRING:
-							*static_cast<StringOption*>(FARConfig.Items[ListInfo.SelectPos].Value) = FARConfig.Items[ListInfo.SelectPos].sDefault;
-							break;
-						}
-					}
-				}
-			}
-
-			if(Changed)
+			if (FARConfig.Items[ListInfo.SelectPos].Edit(Param1 != 0))
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};

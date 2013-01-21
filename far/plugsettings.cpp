@@ -341,26 +341,26 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
-	GeneralConfig::OptionType Type;
+	Option::OptionType Type;
 	Option* Data;
 	if(GetConfigValue(Item.Root,Item.Name,Type,Data))
 	{
 		Item.Type=FST_UNKNOWN;
 		switch(Type)
 		{
-			case GeneralConfig::TYPE_BOOLEAN:
+			case Option::TYPE_BOOLEAN:
 				Item.Type=FST_QWORD;
 				Item.Number=static_cast<BoolOption*>(Data)->Get();
 				break;
-			case GeneralConfig::TYPE_BOOLEAN3:
+			case Option::TYPE_BOOLEAN3:
 				Item.Type=FST_QWORD;
 				Item.Number=static_cast<Bool3Option*>(Data)->Get();
 				break;
-			case GeneralConfig::TYPE_INTEGER:
+			case Option::TYPE_INTEGER:
 				Item.Type=FST_QWORD;
 				Item.Number=static_cast<IntOption*>(Data)->Get();
 				break;
-			case GeneralConfig::TYPE_STRING:
+			case Option::TYPE_STRING:
 				Item.Type=FST_STRING;
 				Item.String=(wchar_t*)Add(static_cast<StringOption*>(Data)->Get());
 				break;

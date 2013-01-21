@@ -102,12 +102,22 @@ enum FarPoliciesFlags
 class Option
 {
 public:
+	enum OptionType
+	{
+		TYPE_BOOLEAN,
+		TYPE_BOOLEAN3,
+		TYPE_INTEGER,
+		TYPE_STRING,
+		TYPE_LAST = TYPE_STRING,
+	};
 	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false), IsString(true){}
 	explicit Option(const int Value):iValue(Value), ValueChanged(false), IsString(false){}
 	virtual ~Option(){if(IsString) delete sValue;}
 	bool Changed(){return ValueChanged;}
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName) = 0;
 	virtual const string toString() = 0;
+	virtual const OptionType getType() = 0;
+	virtual const string typeToString() = 0;
 protected:
 	const string& GetString() const {return *sValue;}
 	const int GetInt() const {return iValue;}
@@ -137,6 +147,8 @@ public:
 	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){return Get()? L"true":L"false";}
+	virtual const OptionType getType() {return TYPE_BOOLEAN;}
+	virtual const string typeToString() {return L"boolean";}
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
 
@@ -157,6 +169,8 @@ public:
 	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, int Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
+	virtual const OptionType getType() {return TYPE_BOOLEAN3;}
+	virtual const string typeToString() {return L"3-state";}
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
 };
@@ -180,6 +194,8 @@ public:
 	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){FormatString s; s << Get(); return s;}
+	virtual const OptionType getType() {return TYPE_INTEGER;}
+	virtual const string typeToString() {return L"integer";}
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
 };
@@ -206,6 +222,8 @@ public:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<const wchar_t*>(Default));}
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){return Get();}
+	virtual const OptionType getType() {return TYPE_STRING;}
+	virtual const string typeToString() {return L"string";}
 };
 
 struct PanelOptions
@@ -807,6 +825,6 @@ void AutoCompleteSettings();
 void TreeSettings();
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &Value);
-bool GetConfigValue(size_t Root, const wchar_t* Name, GeneralConfig::OptionType& Type, Option*& Data);
+bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
 
 bool AdvancedConfig();

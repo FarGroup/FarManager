@@ -62,16 +62,6 @@ public:
 class GeneralConfig: public XmlConfig, public Transactional {
 
 public:
-
-	enum OptionType
-	{
-		TYPE_BOOLEAN,
-		TYPE_BOOLEAN3,
-		TYPE_INTEGER,
-		TYPE_STRING,
-		TYPE_LAST = TYPE_STRING,
-	};
-
 	virtual ~GeneralConfig() {}
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
