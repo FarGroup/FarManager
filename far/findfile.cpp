@@ -2910,10 +2910,12 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	if(std::find_if(Global->CtrlObject->Plugins->GetBegin(), Global->CtrlObject->Plugins->GetEnd(), [](const Plugin* i)
+	AnySetFindList = (std::find_if(Global->CtrlObject->Plugins->GetBegin(), Global->CtrlObject->Plugins->GetEnd(), [](const Plugin* i)
 	{
 		return i->HasSetFindList();
-	}) == Global->CtrlObject->Plugins->GetEnd())
+	}) != Global->CtrlObject->Plugins->GetEnd());
+
+	if (!AnySetFindList)
 	{
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}

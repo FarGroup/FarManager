@@ -596,7 +596,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, bNew);
-					FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+					NumLine = FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					break;
 				}
 
