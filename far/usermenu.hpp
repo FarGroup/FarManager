@@ -43,15 +43,6 @@ struct UserMenuItem {
 
 	UserMenuItem() { Submenu=false; Menu=nullptr; }
 	~UserMenuItem() { if (Menu) delete Menu; }
-
-	void Swap(UserMenuItem &item)
-	{
-		std::swap(strHotKey, item.strHotKey);
-		std::swap(strLabel, item.strLabel);
-		std::swap(Commands, item.Commands);
-		std::swap(Submenu, item.Submenu);
-		std::swap(Menu, item.Menu);
-	}
 };
 
 ENUM(MENUMODE);
@@ -65,7 +56,7 @@ public:
 private:
 	void ProcessUserMenu(bool ChoiceMenuType);
 	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem);
-	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem, bool Create);
+	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);

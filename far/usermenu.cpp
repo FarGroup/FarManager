@@ -529,16 +529,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		int ReturnCode=1;
 
 		NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-		std::list<UserMenuItem>::iterator dummy, *CurrentMenuItem;
+		std::list<UserMenuItem>::iterator* CurrentMenuItem;
 		ExitCode=UserMenu.Run([&](int Key)->int
 		{
 			MenuPos=UserMenu.GetSelectPos();
 			void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
-			if (!userdata)
-			{
-				dummy = Menu.end();
-				userdata = &dummy;
-			}
 			CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
 
 			if (Key==KEY_SHIFTF1)
@@ -571,7 +566,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RIGHT:
 				case KEY_NUMPAD6:
 				case KEY_MSWHEEL_RIGHT:
-					if ((CurrentMenuItem && *CurrentMenuItem != Menu.end()) && (*CurrentMenuItem)->Submenu)
+					if (CurrentMenuItem && (*CurrentMenuItem)->Submenu)
 						UserMenu.Close(MenuPos);
 					break;
 
@@ -584,7 +579,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_NUMDEL:
 				case KEY_DEL:
-					if (CurrentMenuItem && *CurrentMenuItem != Menu.end())
+					if (CurrentMenuItem)
 					{
 						DeleteMenuRecord(Menu,(*CurrentMenuItem));
 						NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
@@ -597,10 +592,10 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_NUMPAD0:
 				{
 					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-					if (!bNew && (!CurrentMenuItem || *CurrentMenuItem == Menu.end()))
+					if (!bNew && !CurrentMenuItem)
 						break;
 
-					EditMenu(Menu,*CurrentMenuItem,bNew);
+					EditMenu(Menu, CurrentMenuItem, bNew);
 					FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					break;
 				}
@@ -612,7 +607,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				{
 					int Pos=UserMenu.GetSelectPos();
 
-					if (Pos!=UserMenu.GetItemCount()-1 && (CurrentMenuItem && *CurrentMenuItem != Menu.end()))
+					if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
 					{
 						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
 						{
@@ -628,8 +623,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 								++Other;
 								++MenuPos;
 							}
-							(*Other).Swap(**CurrentMenuItem);
-								
+							std::swap(*Other, **CurrentMenuItem);
+
 							FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 						}
 					}
@@ -982,7 +977,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 }
 
 
-bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem, bool Create)
+bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create)
 {
 	bool Result = false;
 	bool SubMenu = false;
@@ -1002,7 +997,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	}
 	else
 	{
-		SubMenu = MenuItem->Submenu;
+		SubMenu = (*MenuItem)->Submenu;
 	}
 
 	if (Continue)
@@ -1045,8 +1040,8 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 		if (!Create)
 		{
-			EditDlg[EM_HOTKEY_EDIT].strData = MenuItem->strHotKey;
-			EditDlg[EM_LABEL_EDIT].strData = MenuItem->strLabel;
+			EditDlg[EM_HOTKEY_EDIT].strData = (*MenuItem)->strHotKey;
+			EditDlg[EM_LABEL_EDIT].strData = (*MenuItem)->strLabel;
 #if defined(PROJECT_DI_MEMOEDIT)
 			/*
 				...
@@ -1063,7 +1058,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 			int CommandNumber=0;
-			for (auto str = MenuItem->Commands.begin(); str != MenuItem->Commands.end() && CommandNumber < DI_EDIT_COUNT; ++str)
+			for (auto str = (*MenuItem)->Commands.begin(); str != (*MenuItem)->Commands.end() && CommandNumber < DI_EDIT_COUNT; ++str)
 			{
 				EditDlg[EM_EDITLINE_0+CommandNumber].strData = *str;
 				CommandNumber++;
@@ -1079,20 +1074,22 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		if (Dlg.GetExitCode()==EM_BUTTON_OK)
 		{
 			MenuModified=true;
+			auto NewItemIterator = Menu.end();
 
 			if (Create)
 			{
-				MenuItem = Menu.insert(MenuItem, UserMenuItem());
+				NewItemIterator = Menu.insert(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
+				MenuItem = &NewItemIterator;
 			}
 
-			MenuItem->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
-			MenuItem->strLabel = EditDlg[EM_LABEL_EDIT].strData;
-			MenuItem->Submenu = SubMenu;
+			(*MenuItem)->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
+			(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
+			(*MenuItem)->Submenu = SubMenu;
 
 			if (SubMenu)
 			{
 				if (Create)
-					MenuItem->Menu = new std::list<UserMenuItem>();
+					(*MenuItem)->Menu = new std::list<UserMenuItem>();
 			}
 			else
 			{
@@ -1109,13 +1106,13 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 					if (!EditDlg[i+EM_EDITLINE_0].strData.IsEmpty())
 						CommandNumber=i+1;
 
-				MenuItem->Commands.clear();
+				(*MenuItem)->Commands.clear();
 				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
 				{
 					if (i>=CommandNumber)
 						break;
 					else
-						MenuItem->Commands.push_back(EditDlg[i+EM_EDITLINE_0].strData);
+						(*MenuItem)->Commands.push_back(EditDlg[i+EM_EDITLINE_0].strData);
 				}
 #endif
 			}
