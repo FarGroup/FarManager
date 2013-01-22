@@ -372,10 +372,6 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 		TypesMenu->SetUserData(&id, sizeof(id), TypesMenu->AddItem(&TypesMenuItem));
 	}
 
-	TypesMenuItem.Clear();
-	TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);
-	TypesMenu->AddItem(&TypesMenuItem);
-
 	return (int)(Index-1);
 }
 
@@ -598,19 +594,16 @@ void EditFileTypes()
 				case KEY_CTRLDOWN:
 				case KEY_RCTRLDOWN:
 				{
-					if (MenuPos!=TypesMenu.GetItemCount()-1)
+					if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
+						!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && MenuPos==TypesMenu.GetItemCount()-1))
 					{
-						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
-							!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && MenuPos==TypesMenu.GetItemCount()-2))
-						{
-							int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
-							unsigned __int64 id2=0;
-							if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
-								if (TypesMenu.GetUserData(&id2,sizeof(id2),NewMenuPos))
-									if (Global->Db->AssocConfig()->SwapPositions(id,id2))
-										MenuPos=NewMenuPos;
-							NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
-						}
+						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
+						unsigned __int64 id2=0;
+						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
+							if (TypesMenu.GetUserData(&id2,sizeof(id2),NewMenuPos))
+								if (Global->Db->AssocConfig()->SwapPositions(id,id2))
+									MenuPos=NewMenuPos;
+						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 					}
 				}
 				break;

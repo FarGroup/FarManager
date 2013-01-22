@@ -2195,32 +2195,25 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					for (unsigned int J=0; Ptr[J+3]; J++)
 					{
-						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName.At(J) : 0;
-						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName.At(J) : 0;
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J);
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J);
+
+						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName.At(J+PCorrection) : 0;
+						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName.At(J+NCorrection) : 0;
 
 						if (!PrevItem && !NextItem)
 							break;
 
 						if (PrevItem==BoxSymbols[BS_V1])
 						{
-							int Correction = 0;
-
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J))
-								Correction = 1;
-
 							if (NextItem==BoxSymbols[BS_V1])
-								Ptr[J-Correction+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_C_H1V1];
+								Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_C_H1V1];
 							else
-								Ptr[J-Correction+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_B_H1V1];
+								Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_B_H1V1];
 						}
 						else if (NextItem==BoxSymbols[BS_V1])
 						{
-							int Correction = 0;
-
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J))
-								Correction = 1;
-
-							Ptr[J-Correction+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_T_H1V1];
+							Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_T_H1V1];
 						}
 					}
 				}

@@ -1,3 +1,9 @@
+drkns 22.01.2013 23:14:46 +0200 - build 3112
+
+1. В shortcuts menu работают CtrlUp и CtrlDown.
+
+2. Из user menu, associations menu и filters menu убраны пустые строки, т. к. есть CtrlUp и CtrlDown.
+
 drkns 22.01.2013 00:53:06 +0200 - build 3111
 
 1. Рефакторинг far:config.

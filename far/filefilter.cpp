@@ -121,13 +121,6 @@ bool FileFilter::FilterEdit()
 		FilterList.AddItem(&ListItem);
 	});
 
-	ListItem.Clear();
-
-	if (FilterData->empty())
-		ListItem.Flags|=LIF_SELECTED;
-
-	FilterList.AddItem(&ListItem);
-
 	if (m_FilterType != FFT_CUSTOM)
 	{
 		wchar_t *ExtPtr=nullptr;
@@ -399,7 +392,7 @@ bool FileFilter::FilterEdit()
 					MenuItemEx CurItem  = *FilterList.GetItemPtr(SelPos);
 					MenuItemEx NextItem = *FilterList.GetItemPtr(NewPos);
 					auto i1 = FilterData->begin() + NewPos, i2 = FilterData->begin() + SelPos;
-					std::swap(i1, i2);
+					std::swap(*i1, *i2);
 
 					if (NewPos<SelPos)
 					{

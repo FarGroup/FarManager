@@ -469,10 +469,6 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 			FuncPos[FuncNum-1]=ItemPos;
 		}
 	}
-
-	FarUserMenuItem.Clear();
-	FarUserMenuItem.SetSelect(NumLines==MenuPos);
-	FarUserMenu.AddItem(&FarUserMenuItem);
 	return NumLines;
 }
 
@@ -605,11 +601,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_CTRLDOWN:
 				case KEY_RCTRLDOWN:
 				{
-					int Pos=UserMenu.GetSelectPos();
 
-					if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
+					if (CurrentMenuItem)
 					{
-						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
+						int Pos=UserMenu.GetSelectPos();
+						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-1))
 						{
 							MenuModified = true;
 							auto Other = *CurrentMenuItem;

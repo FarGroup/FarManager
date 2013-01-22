@@ -268,6 +268,19 @@ static string MakeName(const ShortcutItem& Item)
 	return result;
 }
 
+static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List)
+{
+	Menu.DeleteItems();
+	for(auto i = List.begin(); i != List.end(); ++i)
+	{
+		MenuItemEx ListItem={};
+		ListItem.strName = MakeName(*i);
+		ListItem.UserData = &i;
+		ListItem.UserDataSize = sizeof(i);
+		Menu.AddItem(&ListItem);
+	}
+}
+
 bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
 {
 	bool Result = false;
@@ -280,14 +293,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			FolderList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 			FolderList.SetHelp(HelpFolderShortcuts);
 			FolderList.SetBottomTitle(MSG(MFolderShortcutBottomSub));
-			for(auto i = Items[Pos].begin(); i != Items[Pos].end(); ++i)
-			{
-				MenuItemEx ListItem={};
-				ListItem.strName = MakeName(*i);
-				ListItem.UserData = &i;
-				ListItem.UserDataSize = sizeof(i);
-				FolderList.AddItem(&ListItem);
-			}
+			FillMenu(FolderList, Items[Pos]);
 
 			int ExitCode=FolderList.Run([&](int Key)->int
 			{
@@ -351,6 +357,34 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 					}
 					break;
 
+				case KEY_CTRLUP:
+				case KEY_RCTRLUP:
+					{
+						if (*Item != Items[Pos].begin())
+						{
+							auto i = *Item;
+							--i;
+							Items[Pos].splice(i, Items[Pos], *Item);
+							FillMenu(FolderList, Items[Pos]);
+							FolderList.SetSelectPos(--ItemPos);
+							Changed = true;
+						}
+					}
+					break;
+				case KEY_CTRLDOWN:
+				case KEY_RCTRLDOWN:
+					{
+						auto i = *Item;
+						++i;
+						if (i != Items[Pos].end())
+						{
+							Items[Pos].splice(*Item, Items[Pos], i);
+							FillMenu(FolderList, Items[Pos]);
+							FolderList.SetSelectPos(++ItemPos);
+							Changed = true;
+						}
+					}
+					break;
 				default:
 					KeyProcessed = 0;
 				}
