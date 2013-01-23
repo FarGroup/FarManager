@@ -259,7 +259,7 @@ void TreeList::DisplayTree(int Fast)
 		}
 	}
 
-	for (size_t I=Y1+1,J=CurTopFile; I<Y2-2-ModalMode; I++,J++)
+	for (size_t I=Y1+1,J=CurTopFile; I<static_cast<size_t>(Y2-2-ModalMode); I++,J++)
 	{
 		GotoXY(X1+1, static_cast<int>(I));
 		SetColor(COL_PANELTEXT);
@@ -327,7 +327,7 @@ void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
 	if (WhereX()>X2-4)
 		GotoXY(X2-4,WhereY());
 
-	if (Pos==CurFile)
+	if (Pos==static_cast<size_t>(CurFile))
 	{
 		GotoXY(WhereX()-1,WhereY());
 
@@ -1141,14 +1141,14 @@ int TreeList::GetNextNavPos()
 {
 	int NextPos=CurFile;
 
-	if (CurFile+1 < ListData.size())
+	if (static_cast<size_t>(CurFile+1) < ListData.size())
 	{
 		int CurDepth=ListData[CurFile]->Depth;
 
-		for (int I=CurFile+1; I < ListData.size(); ++I)
+		for (size_t I=CurFile+1; I < ListData.size(); ++I)
 			if (ListData[I]->Depth == CurDepth)
 			{
-				NextPos=I;
+				NextPos=static_cast<int>(I);
 				break;
 			}
 	}
@@ -1205,19 +1205,19 @@ void TreeList::CorrectPosition()
 
 	int Height=Y2-Y1-3-(ModalMode);
 
-	if (CurTopFile+Height > ListData.size())
+	if (CurTopFile+Height > static_cast<int>(ListData.size()))
 		CurTopFile = static_cast<int>(ListData.size() - Height);
 
 	if (CurFile<0)
 		CurFile=0;
 
-	if (CurFile > ListData.size() - 1)
+	if (CurFile > static_cast<int>(ListData.size() - 1))
 		CurFile = static_cast<int>(ListData.size() - 1);
 
 	if (CurTopFile<0)
 		CurTopFile=0;
 
-	if (CurTopFile > ListData.size() - 1)
+	if (CurTopFile > static_cast<int>(ListData.size() - 1))
 		CurTopFile = static_cast<int>(ListData.size() - 1);
 
 	if (CurFile<CurTopFile)
@@ -1533,7 +1533,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
 	}
 
-	for (int i=CurFile+(Next?Direct:0); i >= 0 && i < ListData.size(); i+=Direct)
+	for (int i=CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < ListData.size(); i+=Direct)
 	{
 		if (CmpName(strMask,ListData[i]->strName,true,(i==CurFile)))
 		{
@@ -1544,7 +1544,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 		}
 	}
 
-	for (size_t i=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? i < CurFile:i > CurFile; i+=Direct)
+	for (size_t i=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? i < static_cast<size_t>(CurFile):i > static_cast<size_t>(CurFile); i+=Direct)
 	{
 		if (CmpName(strMask,ListData[i]->strName,true))
 		{
@@ -1852,7 +1852,7 @@ void TreeList::UpdateViewPanel()
 
 int TreeList::GoToFile(long idxItem)
 {
-	if (idxItem < ListData.size())
+	if (static_cast<size_t>(idxItem) < ListData.size())
 	{
 		CurFile=idxItem;
 		CorrectPosition();
@@ -1891,7 +1891,7 @@ long TreeList::FindFirst(const wchar_t *Name)
 
 long TreeList::FindNext(int StartPos, const wchar_t *Name)
 {
-	if (StartPos < ListData.size())
+	if (static_cast<size_t>(StartPos) < ListData.size())
 	{
 		for (size_t i = StartPos; i < ListData.size(); ++i)
 		{
@@ -1906,7 +1906,7 @@ long TreeList::FindNext(int StartPos, const wchar_t *Name)
 
 int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 {
-	if (Pos < 0 || Pos >= ListData.size())
+	if (Pos < 0 || static_cast<size_t>(Pos) >= ListData.size())
 		return FALSE;
 
 	strName = ListData[Pos]->strName;
@@ -1955,7 +1955,7 @@ void TreeList::SetFocus()
 
 void TreeList::KillFocus()
 {
-	if (CurFile < ListData.size())
+	if (static_cast<size_t>(CurFile) < ListData.size())
 	{
 		if (apiGetFileAttributes(ListData[CurFile]->strName)==INVALID_FILE_ATTRIBUTES)
 		{
@@ -2140,7 +2140,7 @@ bool TreeList::RestoreState()
 	if (!SaveListData.empty())
 	{
 		ListData.reserve(SaveListData.size());
-		for (int i=0; i < SaveListData.size(); ++i)
+		for (size_t i=0; i < SaveListData.size(); ++i)
 		{
 			auto NewItem = new TreeItem;
 			*NewItem = SaveListData[i];

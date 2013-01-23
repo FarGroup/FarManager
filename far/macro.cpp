@@ -4896,7 +4896,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{
-							if (I == CurPos)
+							if (I == static_cast<size_t>(CurPos))
 							{
 								Ret=(__int64)(idxFoundItem+1);
 								break;
