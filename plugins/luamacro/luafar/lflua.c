@@ -150,6 +150,15 @@ int luaB_loadfileW(lua_State *L)
 	return load_aux(L, LF_LoadFile(L, fname));
 }
 
+// Taken from Lua 5.1 and modified
+int luaB_dofileW (lua_State *L) {
+  const wchar_t *fname = opt_utf8_string(L, 1, NULL);
+  int n = lua_gettop(L);
+  if (LF_LoadFile(L, fname) != 0) lua_error(L);
+  lua_call(L, 0, LUA_MULTRET);
+  return lua_gettop(L) - n;
+}
+
 // Taken from Lua 5.1 (luaL_gsub) and modified
 const wchar_t *LF_Gsub(lua_State *L, const wchar_t *s, const wchar_t *p,
                        const wchar_t *r)

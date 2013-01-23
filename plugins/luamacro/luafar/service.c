@@ -30,6 +30,7 @@ extern int luaopen_unicode(lua_State *L);
 extern int luaopen_upackage(lua_State *L);
 extern int luaopen_win(lua_State *L);
 
+extern int  luaB_dofileW(lua_State *L);
 extern int  luaB_loadfileW(lua_State *L);
 extern int  pcall_msg(lua_State* L, int narg, int nret);
 extern void push_flags_table(lua_State *L);
@@ -5667,6 +5668,8 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 
 	if(aOpenLibs) aOpenLibs(L);
 
+	lua_pushcfunction(L, luaB_dofileW);
+	lua_setglobal(L, "dofile");
 	lua_pushcfunction(L, luaB_loadfileW);
 	lua_setglobal(L, "loadfile");
 }

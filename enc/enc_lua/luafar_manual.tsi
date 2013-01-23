@@ -78,7 +78,7 @@ lv=1
 dt=Text
 nm=Unicode support
 ctime=3480525243
-mtime=3560953458
+mtime=3568137943
 <article>
 #_<markdown>
 #_
@@ -104,6 +104,7 @@ mtime=3560953458
 #_in order to work with file names and paths in UTF-8 encoding:
 #_
 #_* `io`
+#_* `dofile`
 #_* `loadfile`
 #_* `require`
 #_* `package.loadlib`
