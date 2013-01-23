@@ -360,7 +360,7 @@ class FileList:public Panel
 		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
 
 		virtual int IsSelected(const wchar_t *Name);
-		virtual int IsSelected(long idxItem);
+		virtual int IsSelected(size_t idxItem);
 
 		virtual long FindFirst(const wchar_t *Name);
 		virtual long FindNext(int StartPos, const wchar_t *Name);
@@ -372,7 +372,7 @@ class FileList:public Panel
 		virtual void SaveSelection();
 		virtual void RestoreSelection();
 		virtual void EditFilter();
-		virtual bool FileInFilter(long idxItem);
+		virtual bool FileInFilter(size_t idxItem);
 		virtual bool FilterIsEnabled();
 		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0);
 		virtual void DeleteDiz(const string& Name, const string& ShortName);
@@ -403,7 +403,7 @@ class FileList:public Panel
 		virtual void SetTitle();
 		//virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		int PluginPanelHelp(HANDLE hPlugin);
-		virtual long GetFileCount() {return FileCount;}
+		virtual size_t GetFileCount() {return FileCount;}
 
 		string &CreateFullPathName(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 

@@ -271,7 +271,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;}
 
 		virtual int IsSelected(const wchar_t *Name) {return FALSE;}
-		virtual int IsSelected(long indItem) {return FALSE;}
+		virtual int IsSelected(size_t indItem) {return FALSE;}
 
 		virtual long FindFirst(const wchar_t *Name) {return -1;}
 		virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
@@ -319,7 +319,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void RestoreSelection() {}
 		virtual void SortFileList(int KeepPosition) {}
 		virtual void EditFilter() {}
-		virtual bool FileInFilter(long idxItem) {return true;}
+		virtual bool FileInFilter(size_t idxItem) {return true;}
 		virtual bool FilterIsEnabled() {return false;}
 		virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
 		virtual void DeleteDiz(const string& Name,const string& ShortName) {}
@@ -350,7 +350,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		*/
 		virtual BOOL UpdateKeyBar() { return FALSE; }
 
-		virtual long GetFileCount() {return 0;}
+		virtual size_t GetFileCount() {return 0;}
 		virtual BOOL GetItem(int,void *) {return FALSE;}
 
 		bool ExecShortcutFolder(int Pos);

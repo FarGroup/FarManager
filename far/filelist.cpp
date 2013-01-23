@@ -3292,9 +3292,9 @@ int FileList::IsSelected(const wchar_t *Name)
 	return(Pos!=-1 && (ListData[Pos]->Selected || (!SelFileCount && Pos==CurFile)));
 }
 
-int FileList::IsSelected(long idxItem)
+int FileList::IsSelected(size_t idxItem)
 {
-	if ((DWORD)idxItem < (DWORD)FileCount)
+	if ((DWORD)idxItem < (DWORD)FileCount) // BUGBUG
 		return(ListData[idxItem]->Selected); //  || (Sel!FileCount && idxItem==CurFile) ???
 	return FALSE;
 }
@@ -3304,9 +3304,9 @@ bool FileList::FilterIsEnabled()
 	return Filter && Filter->IsEnabledOnPanel()?true:false;
 }
 
-bool FileList::FileInFilter(long idxItem)
+bool FileList::FileInFilter(size_t idxItem)
 {
-	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(*ListData[idxItem]) ) )
+	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(*ListData[idxItem]) ) ) // BUGBUG, cast
 		return true;
 	return false;
 }

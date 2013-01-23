@@ -2079,7 +2079,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (SelPanel)
 			{
 				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-				int GetFileCount=SelPanel->GetFileCount();
+				size_t GetFileCount=SelPanel->GetFileCount();
 				ret=(!GetFileCount || (GetFileCount == 1 && TestParentFolderName(strFileName))) ? 1:0;
 			}
 			return PassBoolean(ret, Data);
@@ -4814,8 +4814,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 		if (TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
 		{
-			long EndPos=SelPanel->GetFileCount();
-			long I;
+			size_t EndPos=SelPanel->GetFileCount();
 			long idxFoundItem=0;
 
 			if (idxItem) // < 0 || > 0
@@ -4823,7 +4822,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 				EndPos--;
 				if ( EndPos > 0 )
 				{
-					long StartPos;
+					size_t StartPos;
 					long Direct=idxItem < 0?-1:1;
 
 					if( Direct < 0 )
@@ -4840,7 +4839,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 					bool found=false;
 
-					for ( I=StartPos ; ; I+=Direct )
+					for (size_t I=StartPos ; ; I+=Direct )
 					{
 						if (Direct > 0)
 						{
@@ -4857,7 +4856,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						{
 							if (idxFoundItem == idxItem)
 							{
-								idxItem=I;
+								idxItem = static_cast<long>(I);
 								if (SelPanel->FilterIsEnabled())
 									idxItem--;
 								found=true;
@@ -4893,7 +4892,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 				else
 				{
 					long CurPos=SelPanel->GetCurrentPos();
-					for ( I=0 ; I < EndPos ; I++ )
+					for (size_t I=0 ; I < EndPos ; I++ )
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{

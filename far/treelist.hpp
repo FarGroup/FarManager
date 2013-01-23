@@ -173,24 +173,22 @@ class TreeList: public Panel
 {
 	private:
 		MACROMODEAREA PrevMacroMode;
-		TreeItem **ListData;
+		std::vector<TreeItem*> ListData;
 		string strRoot;
-		long TreeCount;
-		long WorkDir;
+		size_t WorkDir;
 		long GetSelPosition;
 		int NumericSort;
 		int CaseSensitiveSort;
 		int ExitCode; // актуально только для дерева, вызванного из копира!
 
-		struct TreeItem *SaveListData;
-		long SaveTreeCount;
-		long SaveWorkDir;
+		std::vector<TreeItem> SaveListData;
+		size_t SaveWorkDir;
 
 	private:
 		void SetMacroMode(int Restore = FALSE);
 		virtual void DisplayObject();
 		void DisplayTree(int Fast);
-		void DisplayTreeName(const wchar_t *Name,int Pos);
+		void DisplayTreeName(const wchar_t *Name, size_t Pos);
 		void Up(int Count);
 		void Down(int Count);
 		void Scroll(int Count);
@@ -215,7 +213,7 @@ class TreeList: public Panel
 		bool RestoreState();
 
 	private:
-		static int MsgReadTree(int TreeCount,int &FirstCall);
+		static int MsgReadTree(size_t TreeCount,int &FirstCall);
 		static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
 
 	public:
@@ -254,7 +252,7 @@ class TreeList: public Panel
 		virtual long FindNext(int StartPos, const wchar_t *Name);
 
 		int GetExitCode() {return ExitCode;}
-		virtual long GetFileCount() {return TreeCount;}
+		virtual size_t GetFileCount() {return ListData.size();}
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 
 		virtual void SetTitle();
