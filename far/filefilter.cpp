@@ -225,7 +225,7 @@ bool FileFilter::FilterEdit()
 			{
 				int SelPos=FilterList.GetSelectPos();
 
-				if (SelPos<0 || SelPos==(int)FilterData->size())
+				if (SelPos<0)
 					break;
 
 				int Check=FilterList.GetCheck(SelPos);
@@ -504,11 +504,11 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 		{
 			CurFilterData = FilterData->at(i);
 		}
-		else if (i == (int)(FilterData->size() + 2))
+		else if (i == (int)(FilterData->size() + 1))
 		{
 			CurFilterData = FoldersFilter;
 		}
-		else if (i > (int)(FilterData->size() + 2))
+		else if (i > (int)(FilterData->size() + 1))
 		{
 			const wchar_t *FMask=nullptr;
 			string Mask(static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, i)));
