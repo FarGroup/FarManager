@@ -680,7 +680,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		pPlugin = *i;
 
@@ -861,7 +861,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 	auto pResult = items.end();
 	Plugin *pPlugin=nullptr;
 
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		pPlugin = *i;
 
@@ -921,7 +921,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 		}
 	}
 
-	for(auto i = items.begin(); i != items.end(); ++i)
+	FOR_RANGE(items, i)
 	{
 		if (i!=pResult)
 		{
@@ -953,7 +953,7 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		if ((*i)->HasProcessEditorInput() && (*i)->ProcessEditorInput(Rec))
 			return TRUE;
@@ -969,7 +969,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 
 	if (Global->CtrlObject->Plugins->CurEditor)
 	{
-		for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+		FOR_RANGE(PluginsData, i)
 		{
 			if ((*i)->HasProcessEditorEvent())
 				nResult = (*i)->ProcessEditorEvent(Event, Param, EditorID);
@@ -993,7 +993,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		Plugin *pPlugin = *i;
 
@@ -1035,7 +1035,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
 
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		Plugin *pPlugin = *i;
 
@@ -1379,7 +1379,7 @@ void PluginManager::Configure(int StartPos)
 				string strHotKey, strName;
 				GUID guid;
 
-				for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+				FOR_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -1553,7 +1553,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				string strHotKey, strName;
 				GUID guid;
 
-				for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+				FOR_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -2194,7 +2194,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
-	for (auto i = PluginsData.begin(); i != PluginsData.end(); ++i)
+	FOR_RANGE(PluginsData, i)
 	{
 		UINT64 PluginFlags=0;
 

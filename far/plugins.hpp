@@ -229,8 +229,10 @@ class PluginManager
 
 		Plugin *GetPlugin(const wchar_t *lpwszModuleName);
 
-		std::list<Plugin*>::iterator GetBegin() { return PluginsData.begin(); }
-		std::list<Plugin*>::iterator GetEnd() { return PluginsData.end(); }
+		std::list<Plugin*>::iterator begin() { return PluginsData.begin(); }
+		std::list<Plugin*>::iterator end() { return PluginsData.end(); }
+		Plugin*& front() { return PluginsData.front(); }
+		Plugin*& back() { return PluginsData.back(); }
 
 		size_t GetPluginsCount() { return PluginsData.size(); }
 #ifndef NO_WRAPPER

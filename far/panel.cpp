@@ -240,8 +240,10 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	string strPluginText;
 	size_t PluginMenuItemsCount = 0;
 
-	for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd() && !Done; ++i)
+	FOR_RANGE(*Global->CtrlObject->Plugins, i)
 	{
+		if(Done)
+			break;
 		for (PluginItem=0;; ++PluginItem)
 		{
 			Plugin *pPlugin = *i;

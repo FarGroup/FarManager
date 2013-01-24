@@ -2165,11 +2165,11 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					auto it = std::find_if(Global->CtrlObject->Plugins->GetBegin(), Global->CtrlObject->Plugins->GetEnd(), [&strPath](Plugin* i)
+					auto it = std::find_if(RANGE(*Global->CtrlObject->Plugins, i)
 					{
 						return !StrCmpI(i->GetModuleName(), strPath);
 					});
-					if (it != Global->CtrlObject->Plugins->GetEnd())
+					if (it != Global->CtrlObject->Plugins->end())
 					{
 						plugin = *it;
 					}
@@ -2208,9 +2208,11 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					HANDLE* Plugins = static_cast<HANDLE*>(Param2);
 					size_t Count = std::min(static_cast<size_t>(Param1), PluginsCount);
 					size_t index = 0;
-					for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd() && index < Count; ++i, ++index)
+					FOR_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						Plugins[index] = *i;
+						Plugins[index++] = *i;
+						if(index == Count)
+							break;
 					}
 				}
 				return PluginsCount;

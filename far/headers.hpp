@@ -197,6 +197,7 @@ inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 
 #define VALUE_TYPE(T) decltype((T).front())
 #define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T) i)
+#define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
 
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}

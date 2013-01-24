@@ -76,7 +76,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "FarGuid.hpp"
 
-static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortNumeric;
 static int StaticSortCaseSensitive;
 static clock_t TreeStartTime;
@@ -133,11 +132,19 @@ struct list_less
 }
 ListLess;
 
-int _cdecl SortCacheList(const void *el1,const void *el2)
+struct cache_less
 {
-	return TreeCmp(*(wchar_t **)el1, *(wchar_t **)el2, StaticSortNumeric, 0);
+	bool operator()(const string& a, const string& b)
+	{
+		return TreeCmp(a, b, StaticSortNumeric, 0) < 0;
+	}
 }
+CacheLess;
 
+void TreeListCache::Sort()
+{
+	std::sort(ListName.begin(), ListName.end(), CacheLess);
+}
 
 TreeList::TreeList(bool IsPanel):
 	PrevMacroMode(MACRO_INVALID),
@@ -731,10 +738,9 @@ bool TreeList::FillLastData()
 
 		for (auto j = i; j != SubDirPos + 1; ++j)
 		{
-			if (Depth > (*j)->LastCount)
+ 			if (Depth > (*j)->Last.size())
 			{
-				(*j)->LastCount<<=1;
-				(*j)->Last=static_cast<int*>(xf_realloc((*j)->Last, (*j)->LastCount*sizeof(int)));
+				(*j)->Last.resize((*j)->Last.size() + MAX_PATH, 0);
 			}
 			(*j)->Last[Depth-1]=Last;
 		}
@@ -919,16 +925,14 @@ int TreeList::ProcessKey(int Key)
 
 				if (ToPlugin==1)
 				{
-					PluginPanelItem *ItemList=new PluginPanelItem[1];
+					PluginPanelItem Item;
 					int ItemNumber=1;
 					HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-					FileList::FileNameToPluginItem(ListData[CurFile]->strName,ItemList);
-					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
+					FileList::FileNameToPluginItem(ListData[CurFile]->strName, &Item);
+					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
 
 					if (PutCode==1 || PutCode==2)
 						AnotherPanel->SetPluginModified();
-
-					if (ItemList) xf_free(ItemList);
 
 					if (Move)
 						ReadSubTree(ListData[CurFile]->strName);
@@ -1502,7 +1506,7 @@ int TreeList::ReadTreeFile()
 
 	NumericSort=FALSE;
 	CaseSensitiveSort=FALSE;
-	far_qsort(Global->TreeCache->ListName,Global->TreeCache->TreeCount,sizeof(wchar_t*),SortCacheList);
+	Global->TreeCache->Sort();
 	return FillLastData();
 }
 
@@ -1621,16 +1625,16 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 	ReadCache(strRoot);
 
-	for (long CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
+	FOR_RANGE(Global->TreeCache->ListName, i)
 	{
-		int Result = StrCmpI(Global->TreeCache->ListName[CachePos], Name);
+		int Result = StrCmpI(*i, Name);
 
 		if (!Result)
 			break;
 
 		if (Result > 0)
 		{
-			Global->TreeCache->Insert(CachePos, Name);
+			i = Global->TreeCache->Insert(i, Name);
 			break;
 		}
 	}
@@ -1649,18 +1653,15 @@ void TreeList::DelTreeName(const wchar_t *Name)
 	Name += strRoot.GetLength() - 1;
 	ReadCache(strRoot);
 
-	for (long CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
+	FOR_RANGE(Global->TreeCache->ListName, i)
 	{
-		const wchar_t* wszDirName = Global->TreeCache->ListName[CachePos];
-		int Length = StrLength(Name);
-		int DirLength = StrLength(wszDirName);
+		size_t Length = StrLength(Name);
 
-		if (DirLength < Length) continue;
+		if (i->GetLength() < Length) continue;
 
-		if (!StrCmpNI(Name, wszDirName, Length) && (!wszDirName[Length] || IsSlash(wszDirName[Length])))
+		if (!StrCmpNI(Name, *i, static_cast<int>(Length)) && (!i->At(Length) || IsSlash(i->At(Length))))
 		{
-			Global->TreeCache->Delete(CachePos);
-			CachePos--;
+			i = Global->TreeCache->Delete(i);
 		}
 	}
 }
@@ -1687,19 +1688,13 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	ReadCache(strSrcRoot);
 	int SrcLength = StrLength(SrcName);
 
-	for (int CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
+	for (int CachePos = 0; CachePos < Global->TreeCache->ListName.size(); CachePos++)
 	{
 		const wchar_t* DirName = Global->TreeCache->ListName[CachePos];
 
 		if (!StrCmpNI(SrcName,DirName,SrcLength) && (!DirName[SrcLength] || IsSlash(DirName[SrcLength])))
 		{
-			string strNewName = DestName;
-			strNewName += DirName + SrcLength;
-
-			if (Global->TreeCache->ListName[CachePos])
-				xf_free(Global->TreeCache->ListName[CachePos]);
-
-			Global->TreeCache->ListName[CachePos] = xf_wcsdup(strNewName);
+			Global->TreeCache->ListName[CachePos] = string(DestName) + DirName + SrcLength;
 		}
 	}
 }
@@ -1763,7 +1758,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 	if (!StrCmp(MkTreeFileName(TreeRoot,strTreeName),Global->TreeCache->strTreeName))
 		return;
 
-	if (Global->TreeCache->TreeCount)
+	if (!Global->TreeCache->ListName.empty())
 		FlushCache();
 
 	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName,L"rb")))
@@ -1815,9 +1810,9 @@ void TreeList::FlushCache()
 			return;
 		}
 
-		far_qsort(Global->TreeCache->ListName,Global->TreeCache->TreeCount,sizeof(wchar_t*),SortCacheList);
+		Global->TreeCache->Sort();
 
-		for (int i=0; i<Global->TreeCache->TreeCount; i++)
+		for (int i=0; i<Global->TreeCache->ListName.size(); i++)
 			fwprintf(TreeFile,L"%s\n",Global->TreeCache->ListName[i]);
 
 		if (fclose(TreeFile)==EOF)
@@ -2114,13 +2109,13 @@ bool TreeList::SaveState()
 
 	if (!ListData.empty())
 	{
-		SaveListData.reserve(ListData.size());
+		SaveListData.resize(ListData.size());
 
 		for (size_t i=0; i < ListData.size(); ++i)
 			SaveListData[i] = *ListData[i];
 
 		SaveWorkDir=WorkDir;
-		Global->TreeCache->Copy(Global->tempTreeCache);
+		*Global->tempTreeCache = *Global->TreeCache;
 		return true;
 	}
 
@@ -2139,7 +2134,7 @@ bool TreeList::RestoreState()
 
 	if (!SaveListData.empty())
 	{
-		ListData.reserve(SaveListData.size());
+		ListData.resize(SaveListData.size());
 		for (size_t i=0; i < SaveListData.size(); ++i)
 		{
 			auto NewItem = new TreeItem;
@@ -2148,7 +2143,7 @@ bool TreeList::RestoreState()
 		}
 
 		WorkDir=SaveWorkDir;
-		Global->tempTreeCache->Copy(Global->TreeCache);
+		*Global->TreeCache = *Global->tempTreeCache;
 		Global->tempTreeCache->Clean();
 		return true;
 	}

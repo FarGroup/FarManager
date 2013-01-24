@@ -338,7 +338,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!AnyError)
 		{
-			for (auto i = DizData.begin(); i != DizData.end(); ++i)
+			FOR_RANGE(DizData, i)
 			{
 				string dump = i->first;
 				QuoteSpaceOnly(dump);

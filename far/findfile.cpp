@@ -2910,10 +2910,10 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	AnySetFindList = (std::find_if(Global->CtrlObject->Plugins->GetBegin(), Global->CtrlObject->Plugins->GetEnd(), [](const Plugin* i)
+	AnySetFindList = (std::find_if(RANGE(*Global->CtrlObject->Plugins, i)
 	{
 		return i->HasSetFindList();
-	}) != Global->CtrlObject->Plugins->GetEnd());
+	}) != Global->CtrlObject->Plugins->end());
 
 	if (!AnySetFindList)
 	{

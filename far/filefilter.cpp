@@ -128,7 +128,7 @@ bool FileFilter::FilterEdit()
 		{
 			enumFileFilterFlagsType FFFT = GetFFFT();
 
-			for(auto i = TempFilterData->begin(); i != TempFilterData->end(); ++i)
+			FOR_RANGE(*TempFilterData, i)
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню

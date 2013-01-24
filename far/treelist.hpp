@@ -46,26 +46,13 @@ enum
 struct TreeItem
 {
 	string strName;
-	int *Last;
-	size_t LastCount;
+	std::vector<int> Last;
 	int Depth;             // уровень вложенности
 
-	TreeItem()
+	TreeItem():
+		Depth(0)
 	{
-		LastCount=MAX_PATH/2;
-		Last=static_cast<int*>(xf_malloc(LastCount*sizeof(*Last)));
-		Clear();
-	}
-	~TreeItem()
-	{
-		xf_free(Last);
-	}
-
-	void Clear()
-	{
-		strName.Clear();
-		memset(Last,0,LastCount*sizeof(*Last));
-		Depth=0;
+		Last.resize(MAX_PATH/2, 0);
 	}
 
 	TreeItem& operator=(const TreeItem &tiCopy)
@@ -73,8 +60,7 @@ struct TreeItem
 		if (this != &tiCopy)
 		{
 			strName=tiCopy.strName;
-			*Last=*tiCopy.Last;
-			LastCount = tiCopy.LastCount;
+			Last = tiCopy.Last;
 			Depth=tiCopy.Depth;
 		}
 
@@ -94,79 +80,56 @@ class TreeListCache
 public:
 	TreeListCache()
 	{
-		ListName=nullptr;
-		TreeCount=0;
-		TreeSize=0;
+		ListName.reserve(32);
 	}
 
-	void Resize()
+	~TreeListCache()
 	{
-		if (TreeCount==TreeSize)
-		{
-			TreeSize+=TreeSize?TreeSize>>2:32;
-			wchar_t **NewPtr=(wchar_t**)xf_realloc(ListName,sizeof(wchar_t*)*TreeSize);
-
-			if (!NewPtr)
-				return;
-
-			ListName=NewPtr;
-		}
+		ListName.clear();
 	}
 
 	void Add(const wchar_t* name)
 	{
-		Resize();
-		ListName[TreeCount++]=xf_wcsdup(name);
+		Reserve();
+		ListName.push_back(name);
 	}
 
-	void Insert(int idx,const wchar_t* name)
+	std::vector<string>::iterator Insert(std::vector<string>::iterator Where, const string& name)
 	{
-		Resize();
-		memmove(ListName+idx+1,ListName+idx,sizeof(wchar_t*)*(TreeCount-idx));
-		ListName[idx]=xf_wcsdup(name);
-		TreeCount++;
+		Reserve();
+		return ListName.insert(Where, name);
 	}
 
-	void Delete(int idx)
+	std::vector<string>::iterator Delete(std::vector<string>::iterator Where)
 	{
-		if (ListName[idx]) xf_free(ListName[idx]);
-
-		memmove(ListName+idx,ListName+idx+1,sizeof(wchar_t*)*(TreeCount-idx-1));
-		TreeCount--;
+		return ListName.erase(Where);
 	}
 
 	void Clean()
 	{
-		if (!TreeSize)return;
-
-		for (int i=0; i<TreeCount; i++)
-		{
-			if (ListName[i]) xf_free(ListName[i]);
-		}
-
-		if (ListName) xf_free(ListName);
-
-		ListName=nullptr;
-		TreeCount=0;
-		TreeSize=0;
+		ListName.clear();
 		strTreeName.Clear();
 	}
 
-	//TODO: необходимо оптимизировать!
-	void Copy(TreeListCache *Dest)
+	TreeListCache& operator=(const TreeListCache& from)
 	{
-		Dest->Clean();
-
-		for (int I=0; I < TreeCount; I++)
-			Dest->Add(ListName[I]);
+		strTreeName = from.strTreeName;
+		ListName = from.ListName;
+		return *this;
 	}
 
-	//BUGBUG
-//private:
+	void Sort();
+
 	string strTreeName;
-	wchar_t **ListName;
-	int TreeCount;
-	int TreeSize;
+	std::vector<string> ListName;
+
+private:
+	void Reserve()
+	{
+		if (ListName.size() == ListName.capacity())
+			ListName.reserve(ListName.size() + 32);
+	}
+
 };
 
 class TreeList: public Panel

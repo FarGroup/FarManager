@@ -271,7 +271,7 @@ static string MakeName(const ShortcutItem& Item)
 static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List)
 {
 	Menu.DeleteItems();
-	for(auto i = List.begin(); i != List.end(); ++i)
+	FOR_RANGE(List, i)
 	{
 		MenuItemEx ListItem={};
 		ListItem.strName = MakeName(*i);
