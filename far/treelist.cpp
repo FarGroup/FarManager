@@ -1688,7 +1688,7 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	ReadCache(strSrcRoot);
 	int SrcLength = StrLength(SrcName);
 
-	for (int CachePos = 0; CachePos < Global->TreeCache->ListName.size(); CachePos++)
+	for (size_t CachePos = 0; CachePos < Global->TreeCache->ListName.size(); CachePos++)
 	{
 		const wchar_t* DirName = Global->TreeCache->ListName[CachePos];
 
@@ -1812,8 +1812,8 @@ void TreeList::FlushCache()
 
 		Global->TreeCache->Sort();
 
-		for (int i=0; i<Global->TreeCache->ListName.size(); i++)
-			fwprintf(TreeFile,L"%s\n",Global->TreeCache->ListName[i]);
+		for (size_t i=0; i<Global->TreeCache->ListName.size(); i++)
+			fwprintf(TreeFile,L"%s\n",Global->TreeCache->ListName[i].CPtr());
 
 		if (fclose(TreeFile)==EOF)
 		{
