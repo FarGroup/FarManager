@@ -63,7 +63,7 @@ public:
 	~HighlightFiles();
 
 	void UpdateCurrentTime();
-	void GetHiColor(FileListItem **FileItem,size_t FileCount,bool UseAttrHighlighting=false);
+	void GetHiColor(const std::vector<FileListItem*>::iterator& From, size_t Count, bool UseAttrHighlighting = false);
 	int GetGroup(const FileListItem *fli);
 	void HiEdit(int MenuPos);
 	void UpdateHighlighting(bool RefreshMasks = false);

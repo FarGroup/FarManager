@@ -141,9 +141,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
 	FAR_FIND_DATA_EX fdata;
-	FileListItem *CurPtr=0,**OldData=0;
+	decltype(ListData) OldData;
 	string strCurName, strNextCurName;
-	int OldFileCount=0;
 	StopFSWatcher();
 
 	if (this!=Global->CtrlObject->Cp()->LeftPanel && this!=Global->CtrlObject->Cp()->RightPanel)
@@ -192,19 +191,17 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 	}
 
-	if (FileCount>0)
+	if (!ListData.empty())
 	{
 		strCurName = ListData[CurFile]->strName;
 
 		if (ListData[CurFile]->Selected)
 		{
-			for (int i=CurFile+1; i < FileCount; i++)
+			for (size_t i=CurFile+1; i < ListData.size(); i++)
 			{
-				CurPtr = ListData[i];
-
-				if (!CurPtr->Selected)
+				if (!ListData[i]->Selected)
 				{
-					strNextCurName = CurPtr->strName;
+					strNextCurName = ListData[i]->strName;
 					break;
 				}
 			}
@@ -213,18 +210,17 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData=ListData;
-		OldFileCount=FileCount;
+		OldData = ListData;
 	}
 	else
-		DeleteListData(ListData,FileCount);
+		DeleteListData(ListData);
 
 	DWORD FileSystemFlags = 0;
 	string PathRoot;
 	GetPathRoot(strCurDir, PathRoot);
 	apiGetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
 
-	ListData=nullptr;
+	ListData.clear();
 
 	bool ReadOwners = IsColumnDisplayed(OWNER_COLUMN);
 	bool ReadNumLinks = IsColumnDisplayed(NUMLINK_COLUMN);
@@ -252,8 +248,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	}
 
 	SetLastError(ERROR_SUCCESS);
-	int AllocatedCount=0;
-	FileListItem *NewPtr;
 	// сформируем заголовок вне цикла
 	wchar_t Title[2048];
 	int TitleLength=std::min((int)X2-X1-1,(int)(ARRAYSIZE(Title))-1);
@@ -274,7 +268,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
 	bool NetRoot = bCurDirRoot && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
 
-	FileCount = 0;
 	string strFind = strCurDir;
 	AddEndSlash(strFind);
 	strFind+=L'*';
@@ -291,73 +284,63 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
-			if (FileCount>=AllocatedCount)
-			{
-				AllocatedCount+=4096;
-				FileListItem **pTemp;
+			if (ListData.size() == ListData.capacity())
+				ListData.reserve(ListData.size() + 4096);
 
-				if (!(pTemp=(FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData))))
-					break;
-
-				ListData=pTemp;
-			}
-
-			ListData[FileCount] = new FileListItem;
-			ListData[FileCount]->Clear();
-			NewPtr=ListData[FileCount];
-			NewPtr->FileAttr = fdata.dwFileAttributes;
-			NewPtr->CreationTime = fdata.ftCreationTime;
-			NewPtr->AccessTime = fdata.ftLastAccessTime;
-			NewPtr->WriteTime = fdata.ftLastWriteTime;
-			NewPtr->ChangeTime = fdata.ftChangeTime;
-			NewPtr->FileSize = fdata.nFileSize;
-			NewPtr->AllocationSize = fdata.nAllocationSize;
-			NewPtr->strName = fdata.strFileName;
-			NewPtr->strShortName = fdata.strAlternateFileName;
-			NewPtr->Position=FileCount++;
-			NewPtr->NumberOfLinks=1;
+			auto NewItem = new FileListItem;
+			NewItem->Clear();
+			NewItem->FileAttr = fdata.dwFileAttributes;
+			NewItem->CreationTime = fdata.ftCreationTime;
+			NewItem->AccessTime = fdata.ftLastAccessTime;
+			NewItem->WriteTime = fdata.ftLastWriteTime;
+			NewItem->ChangeTime = fdata.ftChangeTime;
+			NewItem->FileSize = fdata.nFileSize;
+			NewItem->AllocationSize = fdata.nAllocationSize;
+			NewItem->strName = fdata.strFileName;
+			NewItem->strShortName = fdata.strAlternateFileName;
+			NewItem->Position = ListData.size();
+			NewItem->NumberOfLinks=1;
 
 			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
-				NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
+				NewItem->ReparseTag=fdata.dwReserved0; //MSDN
 			}
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				TotalFileSize += NewPtr->FileSize;
+				TotalFileSize += NewItem->FileSize;
 
 				if (ReadNumLinks)
-					NewPtr->NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
+					NewItem->NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
 			}
 			else
 			{
-				NewPtr->AllocationSize = 0;
+				NewItem->AllocationSize = 0;
 			}
 
-			NewPtr->SortGroup=DEFAULT_SORT_GROUP;
+			NewItem->SortGroup=DEFAULT_SORT_GROUP;
 
 			if (ReadOwners)
 			{
 				string strOwner;
-				GetFileOwner(strComputerName, NewPtr->strName,strOwner);
-				NewPtr->strOwner = strOwner;
+				GetFileOwner(strComputerName, NewItem->strName,strOwner);
+				NewItem->strOwner = strOwner;
 			}
 
-			NewPtr->NumberOfStreams=NewPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
-			NewPtr->StreamsSize=NewPtr->FileSize;
+			NewItem->NumberOfStreams=NewItem->FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
+			NewItem->StreamsSize=NewItem->FileSize;
 
 			if (ReadNumStreams||ReadStreamsSize)
 			{
-				EnumStreams(TestParentFolderName(fdata.strFileName)?strCurDir:fdata.strFileName,NewPtr->StreamsSize,NewPtr->NumberOfStreams);
+				EnumStreams(TestParentFolderName(fdata.strFileName)? strCurDir : fdata.strFileName, NewItem->StreamsSize, NewItem->NumberOfStreams);
 			}
 
 			if (ReadCustomData)
-				Global->CtrlObject->Plugins->GetCustomData(NewPtr);
+				Global->CtrlObject->Plugins->GetCustomData(NewItem);
+
+			ListData.push_back(NewItem);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
-
-			//memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
-//      FileCount++;
 
 			DWORD CurTime = GetTickCount();
 			if (CurTime - StartTime > (DWORD)Global->Opt->RedrawTimeout)
@@ -376,7 +359,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					}
 
 					LangString strReadMsg(MReadingFiles);
-					strReadMsg << FileCount;
+					strReadMsg << ListData.size();
 
 					if (DrawMessage)
 					{
@@ -404,37 +387,26 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
 	{
-		if (FileCount>=AllocatedCount)
-		{
-			FileListItem **pTemp;
+		auto NewItem = new FileListItem;
 
-			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData))))
-				ListData=pTemp;
+		string TwoDotsOwner;
+		if (ReadOwners)
+		{
+			GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
 		}
 
-		if (ListData)
+		FILETIME TwoDotsTimes[4]={};
+		if(apiGetFindDataEx(strCurDir,fdata))
 		{
-			ListData[FileCount] = new FileListItem;
-
-			string TwoDotsOwner;
-			if (ReadOwners)
-			{
-				GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
-			}
-
-			FILETIME TwoDotsTimes[4]={};
-			if(apiGetFindDataEx(strCurDir,fdata))
-			{
-				TwoDotsTimes[0]=fdata.ftCreationTime;
-				TwoDotsTimes[1]=fdata.ftLastAccessTime;
-				TwoDotsTimes[2]=fdata.ftLastWriteTime;
-				TwoDotsTimes[3]=fdata.ftChangeTime;
-			}
-
-			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
-
-			FileCount++;
+			TwoDotsTimes[0]=fdata.ftCreationTime;
+			TwoDotsTimes[1]=fdata.ftLastAccessTime;
+			TwoDotsTimes[2]=fdata.ftLastWriteTime;
+			TwoDotsTimes[3]=fdata.ftChangeTime;
 		}
+
+		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
+
+		ListData.push_back(NewItem);
 	}
 
 	if (IsColumnDisplayed(DIZ_COLUMN))
@@ -442,7 +414,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (NeedHighlight)
 	{
-		Global->CtrlObject->HiFiles->GetHiColor(ListData, FileCount);
+		Global->CtrlObject->HiFiles->GetHiColor(ListData.begin(), ListData.size());
 	}
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
@@ -456,32 +428,25 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
 		{
-			FileListItem **pTemp;
+			auto OldSize = ListData.size(), Position = OldSize - 1;
+			ListData.resize(ListData.size() + PanelCount);
 
-			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData))))
+			auto PluginPtr = PanelData;
+			for (auto i = ListData.begin() + OldSize; i != ListData.end(); ++i, ++PluginPtr, ++Position)
 			{
-				ListData=pTemp;
+				PluginToFileListItem(PluginPtr, *i);
+				(*i)->Position = Position;
+				TotalFileSize += PluginPtr->FileSize;
+				(*i)->PrevSelected = (*i)->Selected=0;
+				(*i)->ShowFolderSize = 0;
+				(*i)->SortGroup=Global->CtrlObject->HiFiles->GetGroup(*i);
 
-				for (size_t i=0; i < PanelCount; i++)
-				{
-					CurPtr = ListData[FileCount+i];
-					PluginPanelItem &pfdata=PanelData[i];
-					PluginToFileListItem(&PanelData[i],CurPtr);
-					CurPtr->Position=FileCount;
-					TotalFileSize += pfdata.FileSize;
-					CurPtr->PrevSelected=CurPtr->Selected=0;
-					CurPtr->ShowFolderSize=0;
-					CurPtr->SortGroup=Global->CtrlObject->HiFiles->GetGroup(CurPtr);
-
-					if (!TestParentFolderName(pfdata.FileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-						TotalFileCount++;
-				}
-
-				// цветовую боевую раскраску в самом конце, за один раз
-				Global->CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],PanelCount);
-				FileCount+=static_cast<int>(PanelCount);
+				if (!TestParentFolderName(PluginPtr->FileName) && !((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					TotalFileCount++;
 			}
 
+			// цветовую боевую раскраску в самом конце, за один раз
+			Global->CtrlObject->HiFiles->GetHiColor(ListData.begin() + OldSize, PanelCount);
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
 	}
@@ -493,13 +458,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		if (LastSelPosition >= 0 && LastSelPosition < OldFileCount)
+		if (LastSelPosition >= 0 && static_cast<size_t>(LastSelPosition) < OldData.size())
 			strLastSel = OldData[LastSelPosition]->strName;
-		if (GetSelPosition >= 0 && GetSelPosition < OldFileCount)
+		if (GetSelPosition >= 0 && static_cast<size_t>(GetSelPosition) < OldData.size())
 			strGetSel = OldData[GetSelPosition]->strName;
 
-		MoveSelection(ListData,FileCount,OldData,OldFileCount);
-		DeleteListData(OldData,OldFileCount);
+		MoveSelection(OldData, ListData);
+		DeleteListData(OldData);
 	}
 
 	if (SortGroups)
@@ -518,7 +483,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!strGetSel.IsEmpty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
 			GoToFile(strNextCurName);
 
@@ -537,7 +502,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 int FileList::UpdateIfChanged(int UpdateMode)
 {
 	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
-	if (!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(FileCount) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit))
+	if (!Global->Opt->AutoUpdateLimit || ListData.size() <= static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */
@@ -609,42 +574,41 @@ void FileList::StopFSWatcher()
 	FSWatcher.Release();
 }
 
-static int WINAPI SortSearchList(const void *el1,const void *el2,void*)
+struct search_list_less
 {
-	FileListItem **SPtr1=(FileListItem **)el1,**SPtr2=(FileListItem **)el2;
-	return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
+	bool operator()(const FileListItem* a, const FileListItem* b)
+	{
+		return StrCmp(a->strName, b->strName) < 0;
+	}
 }
+SearchListLess;
 
-void FileList::MoveSelection(FileListItem **ListData,long FileCount,
-                             FileListItem **OldData,long OldFileCount)
+void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To)
 {
-	FileListItem **OldPtr;
 	SelFileCount=0;
 	SelFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
-	qsortex(reinterpret_cast<char*>(OldData),OldFileCount,sizeof(*OldData),SortSearchList,nullptr);
 
-	while (FileCount--)
+	std::sort(From.begin(), From.end(), SearchListLess);
+
+	std::for_each(RANGE(To, i)
 	{
-		OldPtr=(FileListItem **)bsearchex(ListData,(void *)OldData,
-		                                OldFileCount,sizeof(*ListData),SortSearchList,nullptr);
-
-		if (OldPtr)
+		auto Iterator = std::lower_bound(From.begin(), From.end(), i, SearchListLess);
+		if (Iterator != From.end())
 		{
-			if (OldPtr[0]->ShowFolderSize)
+			auto OldItem = *Iterator;
+			if (OldItem->ShowFolderSize)
 			{
-				ListData[0]->ShowFolderSize=2;
-				ListData[0]->FileSize=OldPtr[0]->FileSize;
-				ListData[0]->AllocationSize=OldPtr[0]->AllocationSize;
+				i->ShowFolderSize = 2;
+				i->FileSize = OldItem->FileSize;
+				i->AllocationSize = OldItem->AllocationSize;
 			}
 
-			Select(ListData[0],OldPtr[0]->Selected);
-			ListData[0]->PrevSelected=OldPtr[0]->PrevSelected;
+			this->Select(i, OldItem->Selected);
+			i->PrevSelected = OldItem->PrevSelected;
 		}
-
-		ListData++;
-	}
+	});
 }
 
 void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
@@ -660,7 +624,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	DizRead=FALSE;
-	FileListItem *CurPtr, **OldData=0;
+	std::vector<FileListItem*> OldData;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
 	StopFSWatcher();
@@ -684,7 +648,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	if (!Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
 	{
-		DeleteListData(ListData,FileCount);
+		DeleteListData(ListData);
 		PopPlugin(TRUE);
 		Update(KeepSelection);
 
@@ -704,14 +668,14 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CacheSelClearIndex=-1;
 	strPluginDizName.Clear();
 
-	if (FileCount>0)
+	if (!ListData.empty())
 	{
-		CurPtr=ListData[CurFile];
+		auto CurPtr=ListData[CurFile];
 		strCurName = CurPtr->strName;
 
 		if (CurPtr->Selected)
 		{
-			for (int i=CurFile+1; i < FileCount; i++)
+			for (size_t i = CurFile + 1; i < ListData.size(); ++i)
 			{
 				CurPtr = ListData[i];
 
@@ -731,24 +695,16 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	if (KeepSelection || PrevSelFileCount>0)
 	{
 		OldData=ListData;
-		OldFileCount=FileCount;
 	}
 	else
 	{
-		DeleteListData(ListData,FileCount);
+		DeleteListData(ListData);
 	}
 
-	FileCount=static_cast<int>(PluginFileCount);
-	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
-
-	if (!ListData)
-	{
-		FileCount=0;
-		return;
-	}
+	ListData.resize(PluginFileCount);
 
 	if (!Filter)
-		Filter=new FileFilter(this,FFT_PANEL);
+		Filter = new FileFilter(this, FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
@@ -757,7 +713,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	int FileListCount=0;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 
-	for (int i=0; i < FileCount; i++)
+	for (size_t i = 0; i < ListData.size(); i++)
 	{
 		ListData[FileListCount] = new FileListItem;
 		FileListItem *CurListData=ListData[FileListCount];
@@ -803,19 +759,19 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-		Global->CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+		Global->CtrlObject->HiFiles->GetHiColor(ListData.begin(), ListData.size(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
-	FileCount=FileListCount;
+	ListData.resize(FileListCount);
 
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{
-		ListData[FileCount] = new FileListItem;
-		CurPtr = ListData[FileCount];
-		CurPtr->Clear();
-		AddParentPoint(CurPtr,FileCount);
+		auto NewItem = new FileListItem;
+		NewItem->Clear();
+		AddParentPoint(NewItem, ListData.size());
+		ListData.push_back(NewItem);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			Global->CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(ListData.end() - 1, 1, (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -823,18 +779,16 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 			if (apiGetFindDataEx(Info.HostFile, FindData))
 			{
-				CurPtr->WriteTime=FindData.ftLastWriteTime;
-				CurPtr->CreationTime=FindData.ftCreationTime;
-				CurPtr->AccessTime=FindData.ftLastAccessTime;
-				CurPtr->ChangeTime=FindData.ftChangeTime;
+				NewItem->WriteTime=FindData.ftLastWriteTime;
+				NewItem->CreationTime=FindData.ftCreationTime;
+				NewItem->AccessTime=FindData.ftLastAccessTime;
+				NewItem->ChangeTime=FindData.ftChangeTime;
 			}
 		}
-
-		FileCount++;
 	}
 
-	if (CurFile >= FileCount)
-		CurFile = FileCount ? FileCount-1 : 0;
+	if (CurFile >= static_cast<int>(ListData.size()))
+		CurFile = ListData.size() ? static_cast<int>(ListData.size() - 1) : 0;
 
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
@@ -853,8 +807,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		if (GetSelPosition >= 0 && GetSelPosition < OldFileCount)
 			strGetSel = OldData[GetSelPosition]->strName;
 
-		MoveSelection(ListData,FileCount,OldData,OldFileCount);
-		DeleteListData(OldData,OldFileCount);
+		MoveSelection(OldData, ListData);
+		DeleteListData(OldData);
 	}
 
 	if (!KeepSelection && PrevSelFileCount>0)
@@ -870,7 +824,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	if (!strGetSel.IsEmpty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
 			GoToFile(strNextCurName);
 
@@ -953,14 +907,14 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		}
 	}
 
-	for (int I=0; I<FileCount; I++)
+	std::for_each(RANGE(ListData, i)
 	{
-		if (!ListData[I]->DizText)
+		if (!i->DizText)
 		{
-			ListData[I]->DeleteDiz=FALSE;
-			ListData[I]->DizText=(wchar_t*)Diz.GetDizTextAddr(ListData[I]->strName,ListData[I]->strShortName,ListData[I]->FileSize);
+			i->DeleteDiz = FALSE;
+			i->DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i->strName, i->strShortName, i->FileSize));
 		}
-	}
+	});
 }
 
 
@@ -975,15 +929,15 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		SortGroupsRead=TRUE;
 
-		for (int i=0; i<FileCount; i++)
+		std::for_each(RANGE(ListData, i)
 		{
-			ListData[i]->SortGroup=Global->CtrlObject->HiFiles->GetGroup(ListData[i]);
-		}
+			i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i);
+		});
 	}
 }
 
 // Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
-void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times,string Owner)
+void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, FILETIME* Times, const string& Owner)
 {
 	CurPtr->Clear();
 	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;

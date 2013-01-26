@@ -122,7 +122,7 @@ Panel::Panel():
 	Type(0),
 	EnableUpdate(TRUE),
 	PanelMode(NORMAL_PANEL),
-	SortMode(0),
+	SortMode(UNSORTED),
 	SortOrder(0),
 	SortGroups(0),
 	PrevViewMode(VIEW_3),

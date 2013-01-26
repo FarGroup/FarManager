@@ -140,8 +140,8 @@ class TreeList: public Panel
 		string strRoot;
 		size_t WorkDir;
 		long GetSelPosition;
-		int NumericSort;
-		int CaseSensitiveSort;
+		bool NumericSort;
+		bool CaseSensitiveSort;
 		int ExitCode; // актуально только для дерева, вызванного из копира!
 
 		std::vector<TreeItem> SaveListData;

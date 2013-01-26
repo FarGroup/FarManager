@@ -172,20 +172,20 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 	{
 		PrevDataItem* Item=PrevDataList.back();
 		PrevDataList.pop_back();
-		if (Item->PrevFileCount>0)
+		if (!Item->PrevListData.empty())
 		{
-			MoveSelection(ListData,FileCount,Item->PrevListData,Item->PrevFileCount);
+			MoveSelection(Item->PrevListData, ListData);
 			UpperFolderTopFile = Item->PrevTopFile;
 
 			if (UsePrev)
 				strName = Item->strPrevName;
 
-			DeleteListData(Item->PrevListData,Item->PrevFileCount);
+			DeleteListData(Item->PrevListData);
 			delete Item;
 
 			if (SelectedFirst)
 				SortFileList(FALSE);
-			else if (FileCount>0)
+			else if (!ListData.empty())
 				SortFileList(TRUE);
 		}
 	}
@@ -230,7 +230,7 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 }
 
 
-void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
+void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 {
 	pi->FileName = xf_wcsdup(fi->strName);
 	pi->AlternateFileName = xf_wcsdup(fi->strShortName);
@@ -415,7 +415,7 @@ HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENF
 
 void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot)
 {
-	if (!ListData)
+	if (ListData.empty())
 		return;
 
 	long SaveSelPosition=GetSelPosition;
@@ -431,7 +431,7 @@ void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber
 
 		while (GetSelName(&strSelName,FileAttr))
 			if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName))
-			        && LastSelPosition>=0 && LastSelPosition<FileCount)
+			        && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < ListData.size())
 			{
 				FileListToPluginItem(ListData[LastSelPosition],ItemList+ItemNumber);
 				ItemNumber++;
@@ -797,14 +797,14 @@ void FileList::PluginPutFilesToNew()
 		FileList *TmpPanel=new FileList;
 		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
 		TmpPanel->SetModalMode(TRUE);
-		int PrevFileCount=FileCount;
+		auto PrevFileCount = ListData.size();
 		/* $ 12.04.2002 IS
 		   Если PluginPutFilesToAnother вернула число, отличное от 2, то нужно
 		   попробовать установить курсор на созданный файл.
 		*/
 		int rc=PluginPutFilesToAnother(FALSE,TmpPanel);
 
-		if (rc!=2 && FileCount==PrevFileCount+1)
+		if (rc != 2 && ListData.size() == PrevFileCount+1)
 		{
 			int LastPos = 0;
 			/* Место, где вычисляются координаты вновь созданного файла
@@ -813,28 +813,28 @@ void FileList::PluginPutFilesToNew()
 			   в текущем каталоге файло с датой создания поболее текущей,
 			   то корректного позиционирования не произойдет!
 			*/
-			FileListItem *PtrListData, *PtrLastPos = nullptr;
-
-			for (int i = 0; i < FileCount; i++)
+			FileListItem *PtrLastPos = nullptr;
+			int n = 0;
+			std::for_each(RANGE(ListData, i)
 			{
-				PtrListData = ListData[i];
-				if ((PtrListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+				if ((i->FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
 					if (PtrLastPos)
 					{
-						if (FileTimeDifference(&PtrListData->CreationTime, &PtrLastPos->CreationTime) > 0)
+						if (FileTimeDifference(&i->CreationTime, &PtrLastPos->CreationTime) > 0)
 						{
-							LastPos = i;
-							PtrLastPos = PtrListData;
+							LastPos = n;
+							PtrLastPos = i;
 						}
 					}
 					else
 					{
-						LastPos = i;
-						PtrLastPos = PtrListData;
+						LastPos = n;
+						PtrLastPos = i;
 					}
 				}
-			}
+				++n;
+			});
 
 			if (PtrLastPos)
 			{
@@ -923,7 +923,7 @@ void FileList::ProcessHostFile()
 	_ALGO(CleverSysLog clv(L"FileList::ProcessHostFile()"));
 
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
-	if (FileCount>0 && SetCurPath())
+	if (!ListData.empty() && SetCurPath())
 	{
 		int Done=FALSE;
 		SaveSelection();
@@ -959,14 +959,14 @@ void FileList::ProcessHostFile()
 
 			if (SCount > 0)
 			{
-				for (int I=0; I < FileCount; ++I)
+				FOR_RANGE(ListData, i)
 				{
-					if (ListData[I]->Selected)
+					if ((*i)->Selected)
 					{
-						Done=ProcessOneHostFile(I);
+						Done=ProcessOneHostFile(i);
 
 						if (Done == 1)
-							Select(ListData[I],0);
+							Select(*i, 0);
 						else if (Done == -1)
 							continue;
 						else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
@@ -979,7 +979,7 @@ void FileList::ProcessHostFile()
 			}
 			else
 			{
-				if ((Done=ProcessOneHostFile(CurFile)) == 1)
+				if ((Done=ProcessOneHostFile(ListData.begin() + CurFile)) == 1)
 					ClearSelection();
 			}
 		}
@@ -1002,12 +1002,11 @@ void FileList::ProcessHostFile()
      0 - Плагин вернул FALSE
      1 - Плагин вернул TRUE
 */
-int FileList::ProcessOneHostFile(int Idx)
+int FileList::ProcessOneHostFile(std::vector<FileListItem*>::iterator Idx)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
-	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
-	HANDLE hNewPlugin=OpenPluginForFile(&ListData[Idx]->strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
+	HANDLE hNewPlugin=OpenPluginForFile(&(*Idx)->strName, (*Idx)->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
@@ -1075,15 +1074,15 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	Info.CurrentItem=CurFile;
 	Info.TopPanelItem=CurTopFile;
 	if(ShowShortNames) Info.Flags|=PFLAGS_ALTERNATIVENAMES;
-	Info.ItemsNumber=FileCount;
-	Info.SelectedItemsNumber=ListData?GetSelCount():0;
+	Info.ItemsNumber = ListData.size();
+	Info.SelectedItemsNumber=ListData.empty()? 0 : GetSelCount();
 }
 
 size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 {
 	size_t result=0;
 
-	if (ListData && ItemNumber<FileCount)
+	if (static_cast<size_t>(ItemNumber) < ListData.size())
 	{
 		result=FileListToPluginItem2(ListData[ItemNumber],Item);
 	}
@@ -1095,7 +1094,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 {
 	size_t result=0;
 
-	if (ListData && ItemNumber<FileCount)
+	if (static_cast<size_t>(ItemNumber) < ListData.size())
 	{
 		if (ItemNumber==CacheSelIndex)
 		{
@@ -1107,7 +1106,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 			int CurSel=CacheSelIndex,StartValue=CacheSelIndex>=0?CacheSelPos+1:0;
 
-			for (int i=StartValue; i<FileCount; i++)
+			for (size_t i=StartValue; i<ListData.size(); i++)
 			{
 				if (ListData[i]->Selected)
 					CurSel++;
@@ -1116,7 +1115,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 				{
 					result=FileListToPluginItem2(ListData[i],Item);
 					CacheSelIndex=ItemNumber;
-					CacheSelPos=i;
+					CacheSelPos=static_cast<int>(i);
 					break;
 				}
 			}
@@ -1150,7 +1149,7 @@ void FileList::PluginSetSelection(int ItemNumber,bool Selection)
 
 void FileList::PluginClearSelection(int SelectedItemNumber)
 {
-	if (ListData && SelectedItemNumber<FileCount)
+	if (static_cast<size_t>(SelectedItemNumber) < ListData.size())
 	{
 		if (SelectedItemNumber<=CacheSelClearIndex)
 		{
@@ -1159,7 +1158,7 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 
 		int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
 
-		for (int i=StartValue; i<FileCount; i++)
+		for (size_t i=StartValue; i < ListData.size(); i++)
 		{
 			if (ListData[i]->Selected)
 			{
@@ -1170,7 +1169,7 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 			{
 				Select(ListData[i],FALSE);
 				CacheSelClearIndex=SelectedItemNumber;
-				CacheSelClearPos=i;
+				CacheSelClearPos=static_cast<int>(i);
 				break;
 			}
 		}
@@ -1234,16 +1233,16 @@ int FileList::ProcessPluginEvent(int Event,void *Param)
 void FileList::PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber)
 {
 	SaveSelection();
-	int FileNumber=0,PluginNumber=0;
+	size_t FileNumber=0,PluginNumber=0;
 
-	while (PluginNumber<ItemNumber)
+	while (PluginNumber < static_cast<size_t>(ItemNumber))
 	{
 		PluginPanelItem *CurPluginPtr=ItemList+PluginNumber;
 
 		if (!(CurPluginPtr->Flags & PPIF_SELECTED))
 		{
 			while (StrCmpI(CurPluginPtr->FileName,ListData[FileNumber]->strName))
-				if (++FileNumber>=FileCount)
+				if (++FileNumber >= ListData.size())
 					return;
 
 			Select(ListData[FileNumber++],0);

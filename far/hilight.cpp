@@ -466,35 +466,31 @@ void HighlightFiles::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-void HighlightFiles::GetHiColor(FileListItem **FileItem,size_t FileCount,bool UseAttrHighlighting)
+void HighlightFiles::GetHiColor(const std::vector<FileListItem*>::iterator& From, size_t Count, bool UseAttrHighlighting)
 {
-	if (!FileItem || !FileCount)
-		return;
-
-	for (size_t FCnt=0; FCnt < FileCount; ++FCnt)
+	for (size_t i = 0; i < Count; ++i)
 	{
-		FileListItem& fli = *FileItem[FCnt];
-		ApplyDefaultStartingColors(&fli.Colors);
+		auto Item = *(From + i);
+		ApplyDefaultStartingColors(&Item->Colors);
 
-		for (size_t i=0; i < HiData.size(); i++)
+		for (size_t j=0; j < HiData.size(); j++)
 		{
-			FileFilterParams* CurHiData = HiData[i];
+			auto CurHiData = HiData[j];
 
 			if (UseAttrHighlighting && CurHiData->GetMask(nullptr))
 				continue;
 
-			if (CurHiData->FileInFilter(fli, CurrentTime))
+			if (CurHiData->FileInFilter(*Item, CurrentTime))
 			{
 				HighlightDataColor TempColors;
 				CurHiData->GetColors(&TempColors);
-				ApplyColors(&fli.Colors,&TempColors);
+				ApplyColors(&Item->Colors,&TempColors);
 
 				if (!CurHiData->GetContinueProcessing())// || !HasTransparent(&fli->Colors))
 					break;
 			}
 		}
-
-		ApplyFinalColors(&fli.Colors);
+		ApplyFinalColors(&Item->Colors);
 	}
 }
 

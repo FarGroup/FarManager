@@ -56,7 +56,7 @@ struct FileListItem
 	void* UserData;
 	FARPANELITEMFREECALLBACK Callback;
 
-	int Position;
+	size_t Position;
 	int SortGroup;
 	wchar_t *DizText;
 	char DeleteDiz;
@@ -175,8 +175,7 @@ struct PluginsListItem
 struct PrevDataItem
 {
 	string strPrevName;
-	FileListItem **PrevListData;
-	int PrevFileCount;
+	std::vector<FileListItem*> PrevListData;
 	int PrevTopFile;
 };
 
@@ -194,8 +193,7 @@ class FileList:public Panel
 
 		string strOriginalCurDir;
 		string strPluginDizName;
-		FileListItem **ListData;
-		int FileCount;
+		std::vector<FileListItem*> ListData;
 		HANDLE hPlugin;
 		std::list<PrevDataItem*>PrevDataList;
 		std::list<PluginsListItem*>PluginsList;
@@ -231,7 +229,7 @@ class FileList:public Panel
 		virtual void SetSelectedFirstMode(int Mode);
 		virtual int GetSelectedFirstMode() {return SelectedFirst;};
 		virtual void DisplayObject();
-		void DeleteListData(FileListItem **(&ListData),int &FileCount);
+		void DeleteListData(std::vector<FileListItem*>& ListData);
 		void Up(int Count);
 		void Down(int Count);
 		void Scroll(int Count);
@@ -256,7 +254,7 @@ class FileList:public Panel
 		void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
 		void UpdatePlugin(int KeepSelection, int IgnoreVisible);
 
-		void MoveSelection(FileListItem **FileList,long FileCount,FileListItem **OldList,long OldFileCount);
+		void MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To);
 		virtual size_t GetSelCount();
 		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fde=nullptr);
 		virtual void UngetSelName();
@@ -297,8 +295,8 @@ class FileList:public Panel
 		void PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber);
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=nullptr,string Owner=L"");
-		int  ProcessOneHostFile(int Idx);
+		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, FILETIME* Times=nullptr, const string& Owner = L"");
+		int  ProcessOneHostFile(std::vector<FileListItem*>::iterator Idx);
 		void HighlightBorder(int Level, int ListPos);
 
 	protected:
@@ -403,7 +401,7 @@ class FileList:public Panel
 		virtual void SetTitle();
 		//virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		int PluginPanelHelp(HANDLE hPlugin);
-		virtual size_t GetFileCount() {return FileCount;}
+		virtual size_t GetFileCount() {return ListData.size();}
 
 		string &CreateFullPathName(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
@@ -420,7 +418,7 @@ class FileList:public Panel
 		static void SavePanelModes();
 		static void ReadPanelModes();
 		static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
-		static void FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi);
+		static void FileListToPluginItem(const FileListItem *fi,PluginPanelItem *pi);
 		static void FreePluginPanelItem(PluginPanelItem *pi);
 		size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
 		static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
