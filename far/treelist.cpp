@@ -514,13 +514,16 @@ void TreeList::SaveTreeFile()
 	File TreeFile;
 	if (!TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 	{
-		/* $ 16.10.2000 tran
-		   если диск должен кешироваться, то и пытаться не стоит */
 		if (MustBeCached(strRoot))
-			if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
+		{	if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
+			{
 				return;
-
-		/* tran $ */
+			}
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	bool Success=true;
