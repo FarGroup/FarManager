@@ -476,13 +476,15 @@ local function RunStartMacro()
   if not Areas then return end -- macros not loaded
   for _,macros in pairs(Areas.shell) do
     local m = macros.recorded
-    if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") then
+    if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
+      m.autostartdone=true
       if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
         MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
       end
     end
     for _,m in ipairs(macros) do
-      if not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") then
+      if not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
+        m.autostartdone=true
         if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
           if not m.condition or m.condition() then
             MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
