@@ -179,7 +179,7 @@ bool FileFilter::FilterEdit()
 					break;
 		}
 
-		far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
+		cfunctions::far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
 		ListItem.Clear();
 
 		for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h?h++:h=0)))

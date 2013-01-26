@@ -2737,7 +2737,7 @@ void Edit::AddColor(ColorItem *col,bool skipsort)
 	if (!skipsort)
 	{
 		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
-		far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+		cfunctions::far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
 	}
 }
 
@@ -2758,7 +2758,7 @@ void Edit::SortColorUnlocked()
 	{
 		ColorListNeedSort=false;
 		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
-		far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+		cfunctions::far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
 	}
 }
 

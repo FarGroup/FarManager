@@ -149,14 +149,14 @@ void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(
 {
 	if (base && fcmp)
 	{
-		qsortex((char*)base,nelem,width,fcmp,user);
+		cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
 	}
 }
 
 void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user)
 {
 	if (key && fcmp && base)
-		return bsearchex(key,base,nelem,width,fcmp,user);
+		return cfunctions::bsearchex(key,base,nelem,width,fcmp,user);
 
 	return nullptr;
 }

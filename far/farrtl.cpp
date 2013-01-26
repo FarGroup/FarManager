@@ -96,7 +96,7 @@ void* xf_realloc(void* block, size_t size)
 	return ReleaseReallocator(block, size);
 }
 
-void* _cdecl xf_realloc_nomove(void * block, size_t size)
+void* xf_realloc_nomove(void * block, size_t size)
 {
 	if (!block)
 	{
@@ -113,22 +113,22 @@ void* _cdecl xf_realloc_nomove(void * block, size_t size)
 	}
 }
 
-void* _cdecl operator new(size_t size) throw()
+void* operator new(size_t size) throw()
 {
 	return ReleaseAllocator(size);
 }
 
-void* _cdecl operator new[](size_t size) throw()
+void* operator new[](size_t size) throw()
 {
 	return ReleaseAllocator(size);
 }
 
-void _cdecl operator delete(void* block)
+void operator delete(void* block)
 {
 	return ReleaseDeallocator(block);
 }
 
-void _cdecl operator delete[](void* block)
+void operator delete[](void* block)
 {
 	return ReleaseDeallocator(block);
 }
@@ -180,8 +180,8 @@ struct MEMINFO
 };
 
 static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*4, "MEMINFO not aligned");
-inline void* ToReal(void* address) { return static_cast<MEMINFO*>(address)-1; }
-inline void* ToUser(void* address) { return static_cast<MEMINFO*>(address)+1; }
+inline MEMINFO* ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
+inline void* ToUser(MEMINFO* address) { return address + 1; }
 
 static void CheckChain()
 {
@@ -248,10 +248,7 @@ static void UnregisterBlock(memblock *block)
 static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
 {
 	size_t realSize = size + sizeof(MEMINFO);
-
-	void* realBlock = ReleaseAllocator(realSize);
-
-	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+	MEMINFO* Info = static_cast<MEMINFO*>(ReleaseAllocator(realSize));
 	Info->AllocationType = type;
 	Info->Size = realSize;
 	Info->Function = Function;
@@ -259,7 +256,7 @@ static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Functi
 	Info->Line = Line;
 	Info->MemBlock.block = Info;
 	RegisterBlock(&Info->MemBlock);
-	return ToUser(realBlock);
+	return ToUser(Info);
 }
 
 static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
@@ -279,43 +276,40 @@ static void* DebugReallocator(void* block, size_t size, const char* Function, co
 	if(!block)
 		return DebugAllocator(size, AT_RAW, Function, File, Line);
 
-	void* realBlock = ToReal(block);
-	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+	MEMINFO* Info = ToReal(block);
 	assert(Info->AllocationType == AT_RAW);
 	UnregisterBlock(&Info->MemBlock);
 	size_t realSize = size + sizeof(MEMINFO);
 
-	realBlock = ReleaseReallocator(realBlock, realSize);
+	Info = static_cast<MEMINFO*>(ReleaseReallocator(Info, realSize));
 
-	Info = static_cast<MEMINFO*>(realBlock);
 	Info->AllocationType = AT_RAW;
 	Info->MemBlock.block = Info;
 	Info->Size = realSize;
 	RegisterBlock(&Info->MemBlock);
-	return ToUser(realBlock);
+	return ToUser(Info);
 }
 
-static void* _cdecl DebugExpander(void* block, size_t size)
+static void* DebugExpander(void* block, size_t size)
 {
-	void* realBlock = ToReal(block);
-	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+	MEMINFO* Info = ToReal(block);
 	assert(Info->AllocationType == AT_RAW);
 	size_t realSize = size + sizeof(MEMINFO);
 
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
 	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
-	realBlock = ReleaseExpander(realBlock, realSize);
+	Info = static_cast<MEMINFO*>(ReleaseExpander(Info, realSize));
 	//RtlNtStatusToDosError also remembers the status code value in the TEB:
 	Global->ifn->RtlNtStatusToDosError(status);
 
-	if(realBlock)
+	if(Info)
 	{
 		global::AllocatedMemorySize-=Info->Size;
 		Info->Size = realSize;
 		global::AllocatedMemorySize+=Info->Size;
 	}
 
-	return realBlock? ToUser(realBlock) : nullptr;
+	return Info? ToUser(Info) : nullptr;
 }
 
 
@@ -334,7 +328,7 @@ void* xf_realloc(void* block, size_t size, const char* Function, const char* Fil
 	return DebugReallocator(block, size, Function, File, Line);
 }
 
-void* _cdecl xf_realloc_nomove(void * block, size_t size, const char* Function, const char* File, int Line)
+void* xf_realloc_nomove(void * block, size_t size, const char* Function, const char* File, int Line)
 {
 	if (!block)
 	{
@@ -351,32 +345,32 @@ void* _cdecl xf_realloc_nomove(void * block, size_t size, const char* Function, 
 	}
 }
 
-void* _cdecl operator new(size_t size)
+void* operator new(size_t size)
 {
 	return DebugAllocator(size, AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
 }
 
-void* _cdecl operator new[](size_t size)
+void* operator new[](size_t size)
 {
 	return DebugAllocator(size, AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
 }
 
-void* _cdecl operator new(size_t size, const char* Function, const char* File, int Line)
+void* operator new(size_t size, const char* Function, const char* File, int Line)
 {
 	return DebugAllocator(size, AT_SCALAR, Function, File, Line);
 }
 
-void* _cdecl operator new[](size_t size, const char* Function, const char* File, int Line)
+void* operator new[](size_t size, const char* Function, const char* File, int Line)
 {
 	return DebugAllocator(size, AT_VECTOR, Function, File, Line);
 }
 
-void _cdecl operator delete(void* block)
+void operator delete(void* block)
 {
 	return DebugDeallocator(block, AT_SCALAR);
 }
 
-void _cdecl operator delete[](void* block)
+void operator delete[](void* block)
 {
 	return DebugDeallocator(block, AT_VECTOR);
 }
@@ -467,6 +461,9 @@ wchar_t * xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 	*dest = 0;
 	return tmpsrc;
 }
+
+namespace cfunctions
+{
 
 void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
 {
@@ -1386,3 +1383,5 @@ static void  swap_m(
 }
 
 /* end qsort */
+
+};

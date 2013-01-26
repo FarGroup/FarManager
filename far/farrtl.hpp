@@ -37,13 +37,12 @@ void  xf_free(void* block);
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-
-
-extern "C"
-{
-	void __cdecl qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
-	void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
-	void __cdecl far_qsort(void *base, size_t num, size_t width, int (__cdecl *comp)(const void *, const void *));
-}
-
 #define ALIGN(value) ((value+(sizeof(void*)-1))&~(sizeof(void*)-1))
+
+namespace cfunctions
+{
+	void qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
+	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
+	void far_qsort(void *base, size_t num, size_t width, int (*comp)(const void *, const void *));
+};
+

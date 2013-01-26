@@ -200,20 +200,17 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 		if (iswdigit(*DizText))
 		{
-			wchar_t SizeText[30];
+			FormatString SizeText;
+			SizeText << FileSize;
 			const wchar_t *DizPtr=DizText;
 			bool SkipSize=true;
-			_snwprintf(SizeText,ARRAYSIZE(SizeText),L"%I64u", FileSize);
 
-			for (int I=0; SizeText[I]; DizPtr++)
+			for (size_t i = 0; i < SizeText.GetLength(); ++i, ++DizPtr)
 			{
-				if (*DizPtr!=L',' && *DizPtr!=L'.')
+				if (*DizPtr!=L',' && *DizPtr!=L'.' && *DizPtr != SizeText.At(i))
 				{
-					if (SizeText[I++]!=*DizPtr)
-					{
-						SkipSize=false;
-						break;
-					}
+					SkipSize=false;
+					break;
 				}
 			}
 
