@@ -1862,7 +1862,7 @@ int FileList::ProcessKey(int Key)
 			_ALGO(CleverSysLog clv(L"Shift-F5/Shift-F6"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
-			if (!ListData.size() && SetCurPath())
+			if (!ListData.empty() && SetCurPath())
 			{
 				size_t OldFileCount=ListData.size();
 				int OldCurFile=CurFile;
