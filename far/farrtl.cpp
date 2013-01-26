@@ -465,7 +465,7 @@ wchar_t * xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 namespace cfunctions
 {
 
-void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
+void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
 {
 	if(width)
 	{
