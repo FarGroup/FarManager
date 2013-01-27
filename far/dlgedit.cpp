@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "history.hpp"
 
-DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
+DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 	LastPartLength(-1),
 	m_Dialog(pOwner),
 	m_Index(Index),
@@ -66,7 +66,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 			DWORD iFlags=0;
 			if(pOwner)
 			{
-				DialogItemEx* CurItem=pOwner->Item[Index];
+				auto CurItem=pOwner->Items[Index];
 				if(Global->Opt->Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;

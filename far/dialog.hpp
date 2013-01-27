@@ -189,6 +189,7 @@ public:
 	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount):
 		bInitOK(false)
 	{
+		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
 		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
 	}
 	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
@@ -231,9 +232,8 @@ public:
 	void ClearDone();
 	intptr_t CloseDialog();
 	// For MACRO
-	const DialogItemEx **GetAllItem() const {return (const DialogItemEx**)Item;}
-	unsigned GetAllItemCount() const {return ItemCount;}
-	unsigned GetDlgFocusPos() const {return FocusPos;}
+	const std::vector<DialogItemEx*>& GetAllItem() const { return Items; }
+	size_t GetDlgFocusPos() const {return FocusPos;}
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
@@ -246,7 +246,7 @@ public:
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 
 protected:
-	unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
+	size_t InitDialogObjects(size_t ID=(size_t)-1);
 	
 private:
 	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
@@ -254,32 +254,32 @@ private:
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
 	virtual void DisplayObject();
 	void DeleteDialogObjects();
-	int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
-	void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
-	intptr_t CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
+	int  LenStrItem(size_t ID, const wchar_t *lpwszStr = nullptr);
+	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
+	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
 	/* $ 28.07.2000 SVS
 		+ Изменяет фокус ввода между двумя элементами.
 		    Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
 	*/
-	void ChangeFocus2(unsigned SetFocusPos);
-	unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
+	void ChangeFocus2(size_t SetFocusPos);
+	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup);
 	BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
 	int AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr);
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
-	int ProcessHighlighting(int Key,unsigned FocusPos,int Translate);
+	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
-	void SelectOnEntry(unsigned Pos,BOOL Selected);
+	void SelectOnEntry(size_t Pos,BOOL Selected);
 	void CheckDialogCoord();
-	BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
+	BOOL GetItemRect(size_t I,SMALL_RECT& Rect);
 	bool ItemHasDropDownArrow(const DialogItemEx *Item) const;
 	const wchar_t *GetDialogTitle();
-	BOOL SetItemRect(unsigned ID,SMALL_RECT *Rect);
+	BOOL SetItemRect(size_t ID,SMALL_RECT *Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	int GetDropDownOpened() const { return DropDownOpened; }
 	void ProcessCenterGroup();
-	unsigned ProcessRadioButton(unsigned);
-	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
+	size_t ProcessRadioButton(size_t);
+	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
 	int ProcessMoveDialog(DWORD Key);
 	int Do_ProcessTab(int Next);
 	int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
@@ -287,18 +287,17 @@ private:
 	int Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
 	void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
-	void ProcessKey(int Key, unsigned ItemPos);
+	void ProcessKey(int Key, size_t ItemPos);
 
 	bool bInitOK;               // диалог был успешно инициализирован
 	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
-	unsigned FocusPos;               // всегда известно какой элемент в фокусе
-	unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
+	size_t FocusPos;               // всегда известно какой элемент в фокусе
+	size_t PrevFocusPos;           // всегда известно какой элемент был в фокусе
 	int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 	BitFlags DialogMode;        // Флаги текущего режима диалога
 	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
-	DialogItemEx **Item; // массив элементов диалога
-	DialogItemEx * pSaveItemEx; // пользовательский массив элементов диалога
-	unsigned ItemCount;         // количество элементов диалога
+	std::vector<DialogItemEx*> Items; // массив элементов диалога
+	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
 	ConsoleTitle *OldTitle;     // предыдущий заголовок
 	MACROMODEAREA PrevMacroMode;          // предыдущий режим макро
 	DialogOwner *OwnerClass;

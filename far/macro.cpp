@@ -4249,7 +4249,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	{
 		Dialog* Dlg = static_cast<Dialog*>(CurFrame);
 		TVarType typeIndex=Params[0].type();
-		unsigned Index=(unsigned)Params[0].getInteger()-1;
+		size_t Index=(unsigned)Params[0].getInteger()-1;
 		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
 			Index=Dlg->GetDlgFocusPos();
 
@@ -4259,8 +4259,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			InfoID=0;
 
 		FarGetValue fgv={sizeof(FarGetValue),InfoID,FMVT_UNKNOWN};
-		unsigned DlgItemCount=Dlg->GetAllItemCount();
-		const DialogItemEx **DlgItem=Dlg->GetAllItem();
+		auto DlgItem = Dlg->GetAllItem();
 		bool CallDialog=true;
 
 		if (Index == (unsigned)-1)
@@ -4271,7 +4270,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			{
 				switch (InfoID)
 				{
-					case 0: Ret=(__int64)DlgItemCount; break;
+					case 0: Ret=(__int64)DlgItem.size(); break;
 					case 2: Ret=(__int64)Rect.Left; break;
 					case 3: Ret=(__int64)Rect.Top; break;
 					case 4: Ret=(__int64)Rect.Right; break;
@@ -4281,7 +4280,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				}
 			}
 		}
-		else if (Index < DlgItemCount && DlgItem)
+		else if (Index < DlgItem.size() && !DlgItem.empty())
 		{
 			const DialogItemEx *Item=DlgItem[Index];
 			FARDIALOGITEMTYPES ItemType=Item->Type;
@@ -4374,7 +4373,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				}
 			}
 		}
-		else if (Index >= DlgItemCount)
+		else if (Index >= DlgItem.size())
 		{
 			Ret=(__int64)InfoID;
 		}

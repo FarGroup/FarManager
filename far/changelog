@@ -1,3 +1,7 @@
+drkns 28.01.2013 01:20:00 +0200 - build 3123
+
+1. Рефакторинг.
+
 shmuel 27.01.2013 17:48:50 +0200 - build 3122
 
 1. Функции 'akey' и 'mmode', будучи вызваны из функции 'condition' макроса, возвращают false.
@@ -18106,7 +18110,7 @@ drkns 18.01.2008 23:48:39 +0200 - build 414
      а также конветрирования одного в другой. Теперь (по идее) корректно и без утечек
      обрабатываются DM_GETDLGITEM и прочие сообщения, передающие плагину FarDialogItem.
 
-   - в макросы EXECUTE_FUNCTION/EXECUTE_FUNCTION_EX (pluginA.cpp) добавлена SetFileApisToOEM();
+   - в макросы EXECUTE_FUNCTION/EXECUTE_FUNCTION (pluginA.cpp) добавлена SetFileApisToOEM();
 
    - добавлен "режим совместимости" - возможность задать версию FAR, возвращаемую в
      ACTL_GETFARVERSION - как оказалось, не все плагины понимают, что 1.80 > 1.70 :-)

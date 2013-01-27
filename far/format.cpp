@@ -109,12 +109,12 @@ BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 
 BaseFormat& BaseFormat::operator<<(INT64 Value)
 {
-	return ToString(Value, true);
+	return ToString(Value);
 }
 
 BaseFormat& BaseFormat::operator<<(UINT64 Value)
 {
-	return ToString(Value, false);
+	return ToString(Value);
 }
 
 BaseFormat& BaseFormat::operator<<(short Value)
@@ -217,10 +217,12 @@ void BaseFormat::Reset()
 	Radix = fmt::Radix::GetDefault();
 }
 
-BaseFormat& BaseFormat::ToString(INT64 Value, bool Signed)
+template<class T>
+BaseFormat& BaseFormat::ToString(T Value)
 {
+	static_assert(std::is_integral<T>::value, "Value type is not integral");
 	wchar_t Buffer[65];
-	Signed?_i64tow(Value, Buffer, Radix):_ui64tow(Value, Buffer, Radix);
+	std::is_signed<T>::value? _i64tow(Value, Buffer, Radix) : _ui64tow(Value, Buffer, Radix);
 	if (Radix > 10)
 	{
 		UpperBuf(Buffer, ARRAYSIZE(Buffer));

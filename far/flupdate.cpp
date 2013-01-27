@@ -758,10 +758,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		FileListCount++;
 	}
 
+	ListData.resize(FileListCount);
+
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
 		Global->CtrlObject->HiFiles->GetHiColor(ListData.begin(), ListData.size(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
-
-	ListData.resize(FileListCount);
 
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{

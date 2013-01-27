@@ -113,6 +113,8 @@ bool RawWritePipe(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 template<typename T>
 inline bool ReadPipe(HANDLE Pipe, T& Data)
 {
+	static_assert(!std::is_pointer<T>::value, "ReadPipe template requires a reference to an object");
+
 	bool Result=false;
 	size_t DataSize = 0;
 	if(RawReadPipe(Pipe, &DataSize, sizeof(DataSize)))
@@ -170,9 +172,6 @@ inline bool ReadPipe(HANDLE Pipe, AutoObject& Data)
 	return Result;
 }
 
-template<typename T>
-inline bool ReadPipe(HANDLE Pipe, T* Data) {static_assert(sizeof(T) < 0 /* always false */, "ReadPipe template requires a reference to an object"); return false;}
-
 bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
 {
 	bool Result=false;
@@ -186,11 +185,10 @@ bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
 template<typename T>
 inline bool WritePipe(HANDLE Pipe, const T& Data)
 {
+	static_assert(!std::is_pointer<T>::value, "WritePipe template requires a reference to an object");
+
 	return WritePipe(Pipe, &Data, sizeof(Data));
 }
-
-template<typename T>
-inline bool WritePipe(HANDLE Pipe, const T* Data) {static_assert(sizeof(T) < 0 /* always false */, "WritePipe template requires a reference to an object"); return false;}
 
 DisableElevation::DisableElevation()
 {
@@ -1185,7 +1183,7 @@ void CreateFileHandler()
 			}
 		}
 		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
+		if(WritePipe(Pipe, reinterpret_cast<intptr_t>(Result)))
 		{
 			WritePipe(Pipe, ErrorCodes);
 		}
@@ -1235,7 +1233,7 @@ void OpenVirtualDiskHandler()
 		{
 			if(Result)
 			{
-				WritePipe(Pipe, Handle);
+				WritePipe(Pipe, reinterpret_cast<intptr_t>(Handle));
 			}
 		}
 	}

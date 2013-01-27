@@ -165,13 +165,26 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
 
 template<typename T>
-inline void ClearStruct(T& s) { memset(&s, 0, sizeof(s)); } // POD types only!
+inline void ClearStruct(T& s)
+{
+	static_assert(std::is_pod<T>::value, "ClearStruct template requires a POD type");
+	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
+	memset(&s, 0, sizeof(s));
+}
 
 template<typename T>
-inline void ClearStruct(T* s) { static_assert(sizeof(T) < 0 /* always false */, "ClearStruct template requires a reference to an object"); }
+inline void ClearStructUnsafe(T& s)
+{
+	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
+	memset(&s, 0, sizeof(s));
+}
 
-template<typename T, size_t N>
-inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
+template<typename T>
+inline void ClearArray(T& a)
+{
+	static_assert(std::is_array<T>::value, "ClearArray template requires an array");
+	memset(a, 0, sizeof(a));
+}
 
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE

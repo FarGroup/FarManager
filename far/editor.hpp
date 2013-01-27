@@ -68,9 +68,14 @@ struct EditorUndoData
 	int Length;
 	wchar_t *Str;
 
-	EditorUndoData()
+	EditorUndoData():
+		Type(0),
+		StrPos(0),
+		StrNum(0),
+		Length(0),
+		Str(nullptr)
 	{
-		ClearStruct(*this);
+		ClearArray(EOL);
 	}
 	~EditorUndoData()
 	{

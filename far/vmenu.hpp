@@ -223,7 +223,7 @@ class VMenu: public Modal
 		BitFlags VMOldFlags;
 
 		Dialog *ParentDialog;         // Для LisBox - родитель в виде диалога
-		int DialogItemID;
+		size_t DialogItemID;
 		FARWINDOWPROC VMenuProc;      // функция обработки меню
 
 		ConsoleTitle *OldTitle;     // предыдущий заголовок
@@ -368,8 +368,8 @@ class VMenu: public Modal
 
 		void SetMaxHeight(int NewMaxHeight);
 
-		int GetVDialogItemID() const {return DialogItemID;};
-		void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
+		size_t GetVDialogItemID() const {return DialogItemID;};
+		void SetVDialogItemID(size_t NewDialogItemID) {DialogItemID=NewDialogItemID;}
 
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);

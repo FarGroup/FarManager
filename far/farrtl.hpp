@@ -37,7 +37,8 @@ void  xf_free(void* block);
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-#define ALIGN(value) ((value+(sizeof(void*)-1))&~(sizeof(void*)-1))
+#define ALIGNAS(value, alignment) ((value+(alignment-1))&~(alignment-1))
+#define ALIGN(value) ALIGNAS(value, sizeof(void*))
 
 namespace cfunctions
 {

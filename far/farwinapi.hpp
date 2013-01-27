@@ -422,5 +422,6 @@ HANDLE apiCreateThreadImpl(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int 
 template<class T, typename Y>
 HANDLE apiCreateThread(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, T* OwnerClass, Y HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
 {
+	static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
 	return apiCreateThreadImpl(ThreadAttributes, StackSize, reinterpret_cast<ThreadOwner*>(OwnerClass), reinterpret_cast<ThreadHandlerFunction>(HandlerFunction), Parameter, CreationFlags, ThreadId);
 }

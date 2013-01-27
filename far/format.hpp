@@ -116,7 +116,8 @@ private:
 	int Radix;
 
 	void Reset();
-	BaseFormat& ToString(INT64 Value, bool Signed);
+	template<class T>
+	BaseFormat& ToString(T Value);
 };
 
 class FormatString:public BaseFormat, public string

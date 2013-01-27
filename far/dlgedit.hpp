@@ -62,7 +62,7 @@ public:
 
 	BitFlags& Flags();
 
-	DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
+	DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type);
 	virtual ~DlgEdit();
 
 	virtual int  ProcessKey(int Key);
@@ -149,7 +149,7 @@ public:
 
 private:
 	Dialog* m_Dialog;
-	unsigned m_Index;
+	size_t m_Index;
 	DLGEDITTYPE Type;
 	History* iHistory;
 

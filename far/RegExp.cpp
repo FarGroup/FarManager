@@ -527,7 +527,7 @@ struct REOpCode
 #else
 	REOpCode()
 	{
-		ClearStruct(*this);
+		ClearStructUnsafe(*this);
 	}
 	~REOpCode();
 #endif

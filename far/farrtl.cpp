@@ -151,15 +151,6 @@ enum ALLOCATION_TYPE
 	AT_VECTOR = 0xa77ec10e,
 };
 
-struct memblock
-{
-	struct MEMINFO* block;
-	memblock* prev;
-	memblock* next;
-};
-
-memblock FirstMemBlock = {};
-memblock* LastMemBlock = &FirstMemBlock;
 CriticalSection CS;
 
 struct MEMINFO
@@ -170,14 +161,18 @@ struct MEMINFO
 		{
 			ALLOCATION_TYPE AllocationType;
 			size_t Size;
-			memblock MemBlock;
 			const char* Function;
 			const char* File;
 			int Line;
+			MEMINFO* prev;
+			MEMINFO* next;
 		};
 		char c[MEMORY_ALLOCATION_ALIGNMENT*4];
 	};
 };
+
+MEMINFO FirstMemBlock = {};
+MEMINFO* LastMemBlock = &FirstMemBlock;
 
 static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*4, "MEMINFO not aligned");
 inline MEMINFO* ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
@@ -186,7 +181,7 @@ inline void* ToUser(MEMINFO* address) { return address + 1; }
 static void CheckChain()
 {
 #if 0
-	memblock* p = &FirstMemBlock;
+	auto p = &FirstMemBlock;
 
 	while(p->next)
 		p = p->next;
@@ -209,7 +204,7 @@ static inline void updateCallCount(ALLOCATION_TYPE type, bool increment)
 	}
 }
 
-static void RegisterBlock(memblock *block)
+static void RegisterBlock(MEMINFO *block)
 {
 	CriticalSectionLock lock(CS);
 
@@ -221,13 +216,13 @@ static void RegisterBlock(memblock *block)
 
 	CheckChain();
 
-	updateCallCount(block->block->AllocationType, true);
+	updateCallCount(block->AllocationType, true);
 	++global::AllocatedMemoryBlocks;
 	++global::TotalAllocationCalls;
-	global::AllocatedMemorySize+=block->block->Size;
+	global::AllocatedMemorySize+=block->Size;
 }
 
-static void UnregisterBlock(memblock *block)
+static void UnregisterBlock(MEMINFO *block)
 {
 	CriticalSectionLock lock(CS);
 
@@ -240,9 +235,9 @@ static void UnregisterBlock(memblock *block)
 
 	CheckChain();
 
-	updateCallCount(block->block->AllocationType, false);
+	updateCallCount(block->AllocationType, false);
 	--global::AllocatedMemoryBlocks;
-	global::AllocatedMemorySize-=block->block->Size;
+	global::AllocatedMemorySize-=block->Size;
 }
 
 static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
@@ -254,8 +249,7 @@ static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Functi
 	Info->Function = Function;
 	Info->File = File;
 	Info->Line = Line;
-	Info->MemBlock.block = Info;
-	RegisterBlock(&Info->MemBlock);
+	RegisterBlock(Info);
 	return ToUser(Info);
 }
 
@@ -266,7 +260,7 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 	{
 		MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
 		assert(Info->AllocationType == type);
-		UnregisterBlock(&Info->MemBlock);
+		UnregisterBlock(Info);
 	}
 	ReleaseDeallocator(realBlock);
 }
@@ -278,15 +272,14 @@ static void* DebugReallocator(void* block, size_t size, const char* Function, co
 
 	MEMINFO* Info = ToReal(block);
 	assert(Info->AllocationType == AT_RAW);
-	UnregisterBlock(&Info->MemBlock);
+	UnregisterBlock(Info);
 	size_t realSize = size + sizeof(MEMINFO);
 
 	Info = static_cast<MEMINFO*>(ReleaseReallocator(Info, realSize));
 
 	Info->AllocationType = AT_RAW;
-	Info->MemBlock.block = Info;
 	Info->Size = realSize;
-	RegisterBlock(&Info->MemBlock);
+	RegisterBlock(Info);
 	return ToUser(Info);
 }
 
@@ -428,9 +421,9 @@ void PrintMemory()
 
 
 		printf("Not freed blocks:\n");
-		for(memblock* i = FirstMemBlock.next; i; i = i->next)
+		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			printf("%s:%u -> %s: %s (%u bytes)\n", i->block->File, i->block->Line, i->block->Function, getAllocationTypeString(i->block->AllocationType), i->block->Size - sizeof(MEMINFO));
+			printf("%s:%u -> %s: %s (%u bytes)\n", i->File, i->Line, i->Function, getAllocationTypeString(i->AllocationType), i->Size - sizeof(MEMINFO));
 		}
 	}
 #endif
