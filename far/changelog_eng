@@ -3,6 +3,113 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 27.01.2013 17:48:50 +0200 - build 3122
+
+1. 'akey' and 'mmode' functions being called from 'condition' macro function return false.
+
+drkns 26.01.2013 21:15:16 +0200 - build 3121
+
+1. Correction of tree file saving.
+
+drkns 26.01.2013 18:04:57 +0200 - build 3120
+
+1. Correction of 3119.
+
+drkns 26.01.2013 17:54:44 +0200 - build 3119
+
+1. Refactoring.
+
+drkns 26.01.2013 15:03:56 +0200 - build 3118
+
+1. Correction of 3117.1.
+
+drkns 26.01.2013 12:06:30 +0200 - build 3117
+
+1. Refactoring.
+
+2. Correction of sorting by time/size/links and streams number.
+   "Direct" sorting now means the descending order, "reverse" - the ascending one.
+   Ctrl-Fx and default menu selection turn reverse sorting order for these modes.
+
+w17 25.01.2013 12:14:49 +0400 - build 3116
+
+1. gcc build fix
+
+drkns 24.01.2013 23:55:14 +0200 - build 3115
+
+1. Refactoring.
+
+drkns 23.01.2013 23:57:06 +0200 - build 3114
+
+1. Refactoring.
+
+drkns 23.01.2013 20:15:10 +0200 - build 3113
+
+1. Correction of 3112.2.
+
+drkns 22.01.2013 23:14:46 +0200 - build 3112
+
+1. CtrlUp and CtrlDown work in shortcuts menu.
+
+2. Empty lines are removed from user menu, associations menu and filters menu, because of CtrlUp and CtrlDown available.
+
+drkns 22.01.2013 00:53:06 +0200 - build 3111
+
+1. Refactoring of far:config.
+
+drkns 21.01.2013 23:05:46 +0200 - build 3110
+
+1. And once more.
+
+drkns 21.01.2013 22:08:36 +0200 - build 3109
+
+1. And once more.
+
+drkns 21.01.2013 21:39:57 +0200 - build 3108
+
+1. Correction of correction of correction of 3102.
+
+w17 21.01.2013 20:58:56 +0400 - build 3107
+
+1. Correction of correction of 3102 (usermenu).
+
+svs 21.01.2013 17:37:30 +0400 - build 3106
+
+1. Mantis#0002266: GUIDs needed
+     Editor: read-only file rewrite.
+               {3F9311F5-3CA3-4169-A41C-89C76B3A8C1D}
+     FAR: exit confirmation dialog.
+               {72E6E6D8-0BC6-4265-B9C4-C8DB712136AF}
+     Editor: file save after it has been changed with an external app (or deleted).
+               {40A699F1-BBDD-4e21-A137-97FFF798B0C8}
+     Editor: file save on exit.
+               {F776FEC0-50F7-4e7e-BDA6-2A63F84A957B}
+     Editor: file with RSH attributes open prompt
+               {D8AA706F-DA7E-4bbf-AB78-6B7BDB49E006}
+     Редактор: file save when switching to the viewer if the file (or containing directory) was deleted.
+               {85532BD5-1583-456d-A810-41AB345995A9}
+     Редактор: file save and exiting the editor if the file (or containing directory) was deleted.
+               {2D71DCCE-F0B8-4e29-A3A9-1F6D8C1128C2}
+     Редактор: file rewrite prompt
+               {4109C8B3-760D-4011-B1D5-14C36763B23E}
+
+
+w17 21.01.2013 14:25:04 +0400 - build 3105
+
+1. Correction of 3102 (usermenu).
+
+drkns 21.01.2013 08:55:54 +0200 - build 3104
+
+1. Correction of 3102.
+
+w17 21.01.2013 04:06:32 +0400 - build 3103
+
+1. Correction of 3102.
+
+drkns 20.01.2013 23:13:49 +0200 - build 3102
+
+1. Refactoring.
+
 drkns 20.01.2013 21:47:14 +0200 - build 3101
 
 1. A couple of leaks in filters.
