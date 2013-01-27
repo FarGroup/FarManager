@@ -1534,6 +1534,11 @@ static int far_Menu(lua_State *L)
 			DWORD mod = 0;
 			const char* s;
 			char* vk;  // virtual key
+			WORD VirtualKeyCode;
+
+			BreakKeys[ind].VirtualKeyCode = 0xFF; // preset to invalid value !=0, since 0 marks end-of-array for Far.
+			BreakKeys[ind].ControlKeyState = LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED;
+
 			// get next break key (optional modifier plus virtual key)
 			lua_pushinteger(L,ind+1);       // vk=-3; bk=-2;
 			lua_gettable(L,-2);             // vk=-3; bk=-2; bki=-1;
@@ -1569,8 +1574,12 @@ static int far_Menu(lua_State *L)
 
 			// get virtual key and break key values
 			lua_rawget(L,-4);               // vk=-4; bk=-3;
-			BreakKeys[ind].VirtualKeyCode = (WORD)lua_tointeger(L,-1);
-			BreakKeys[ind].ControlKeyState = mod;
+			VirtualKeyCode = (WORD)lua_tointeger(L,-1);
+			if (VirtualKeyCode)
+			{
+				BreakKeys[ind].VirtualKeyCode = VirtualKeyCode;
+				BreakKeys[ind].ControlKeyState = mod;
+			}
 			lua_pop(L,2);                   // vk=-2; bk=-1;
 		}
 
