@@ -2875,6 +2875,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			int tmpMode=(int)Params[0].getInteger();
 
 			MacroRecord* MR=GetTopMacro();
+			if (MR==nullptr)
+			{
+				PassBoolean(0,Data);
+				return 1;
+			}
+
 			DWORD aKey=MR->Key();
 
 			if (!tmpType)
@@ -2926,6 +2932,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& Action(Params[0]);
 
 			MacroRecord* MR=GetTopMacro();
+			if (MR==nullptr)
+			{
+				PassBoolean(0,Data);
+				return 1;
+			}
+
 			__int64 Result=0;
 
 			switch (Action.getInteger())
