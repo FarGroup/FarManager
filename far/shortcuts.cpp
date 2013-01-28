@@ -330,7 +330,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								NewItem.strPluginFile = L"";
 								NewItem.strPluginData = L"";
 							}
-							auto newIter = Items[Pos].insert(*Item, NewItem);
+							auto newIter = Items[Pos].insert(Item ? *Item : Items[Pos].end(), NewItem);
 
 							MenuItemEx NewMenuItem = {};
 							NewMenuItem.strName = NewItem.strFolder;
