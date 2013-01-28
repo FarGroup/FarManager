@@ -4778,7 +4778,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 	}
 
 	// предварительно проверим...
-	if (static_cast<size_t>(Param1) >= Items.size() && Items.empty())
+	if (Items.empty() || static_cast<size_t>(Param1) >= Items.size())
 		return 0;
 
 	if (Param1>=0)
