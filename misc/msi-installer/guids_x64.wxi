@@ -172,6 +172,7 @@
 <?define Guid.BrackRus.lng = "A5B905F8-6073-45E7-9B2D-099C7C05CB39" ?>
 <?define Guid.BrackSky.lng = "423DFE88-65B6-4076-BEFC-F8C1204A7A69" ?>
 <?define Guid.BrackRus.lua = "D4DDA963-7501-4345-93D4-31F710AF4882" ?>
+<?define Guid.Hotkey.farconfig_2 = "87305DFF-EF36-41CC-85BC-CD238E896E72" ?>
 <?define Guid.changelog_4 = "E829040E-8768-46A0-B6DA-83AEF39BC780" ?>
 <?define Guid.changelog_5 = "9E626F77-E819-4775-8512-4F20EF3A43B1" ?>
 <?define Guid.CmpEng.hlf = "1B9D4791-2BE0-4A59-9639-8491EC214FFB" ?>

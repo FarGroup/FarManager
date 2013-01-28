@@ -243,6 +243,7 @@
             <ComponentRef Id="BrackSky.lng" />
             <ComponentRef Id="BrackEng.lua" />
             <ComponentRef Id="Brackets.dll" />
+            <ComponentRef Id="Hotkey.farconfig_2" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />

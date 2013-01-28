@@ -524,6 +524,9 @@
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
           </Component>
+          <Component Id="Hotkey.farconfig_2" Guid="$(var.Guid.Hotkey.farconfig_2)" Win64="$(var.Win64)">
+            <File Id="Hotkey.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Hotkey.farconfig" />
+          </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="Brackets.map" Guid="$(var.Guid.Brackets.map)" Win64="$(var.Win64)">
             <File Id="Brackets.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.map" />
