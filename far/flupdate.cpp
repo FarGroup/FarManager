@@ -598,15 +598,18 @@ void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileL
 		if (Iterator != From.end())
 		{
 			auto OldItem = *Iterator;
-			if (OldItem->ShowFolderSize)
+			if (0 == StrCmp(OldItem->strName, i->strName))
 			{
-				i->ShowFolderSize = 2;
-				i->FileSize = OldItem->FileSize;
-				i->AllocationSize = OldItem->AllocationSize;
-			}
+				if (OldItem->ShowFolderSize)
+				{
+					i->ShowFolderSize = 2;
+					i->FileSize = OldItem->FileSize;
+					i->AllocationSize = OldItem->AllocationSize;
+				}
 
-			this->Select(i, OldItem->Selected);
-			i->PrevSelected = OldItem->PrevSelected;
+				this->Select(i, OldItem->Selected);
+				i->PrevSelected = OldItem->PrevSelected;
+			}
 		}
 	});
 }
