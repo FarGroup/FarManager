@@ -742,16 +742,19 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 
 	if (mpr)
 	{
-		Data->Name        = TextKey;
-		Data->MacroId     = (int)mpr->Values[0].Double;
-		Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
-		Data->Code        = mpr->Values[2].String;
-		Data->Description = mpr->Values[3].String;
-		Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
+		Data->MacroId = (int)mpr->Values[0].Double;
+		if (Data->MacroId != 0)
+		{
+			Data->Name        = TextKey;
+			Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
+			Data->Code        = mpr->Values[2].String;
+			Data->Description = mpr->Values[3].String;
+			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
 
-		Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
-		Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
-		Data->CallbackId  = (mpr->Count>=8 && mpr->Values[7].Type==FMVT_POINTER) ? mpr->Values[7].Pointer : nullptr;
+			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
+			Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
+			Data->CallbackId  = (mpr->Count>=8 && mpr->Values[7].Type==FMVT_POINTER) ? mpr->Values[7].Pointer : nullptr;
+		}
 		return true;
 	}
 	return false;
@@ -856,7 +859,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
-						if (PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
+						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
 						{
 							m_CurState->HistoryDisable=0;
 							m_CurState->cRec=Rec->Rec;
@@ -5846,7 +5849,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true))
+		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true) && Data.MacroId)
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.IsEmpty() || Data.Area!=MACRO_COMMON)

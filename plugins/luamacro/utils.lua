@@ -398,8 +398,8 @@ local function GetMacro (Mode, Key, UseCommon, CheckOnly)
     if macrolist[1] then
       local toplist = GetTopMacros(areaname, macrolist, CheckOnly)
       if toplist then
-        local macro = (CheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist)
-        if macro then return macro, areaname; end
+        local macro = (CheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
+        return macro, areaname
       end
     end
   end
@@ -408,8 +408,8 @@ end
 local function GetMacroWrapper (args)
   local macro,area = GetMacro(unpack(args))
   if macro then
-    LastMessage = pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
-                       macro.flags, macro.guid, macro.callback, macro.callbackId)
+    LastMessage = macro.id and pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
+      macro.flags, macro.guid, macro.callback, macro.callbackId) or pack(0)
     return F.MPRT_COMMONCASE, LastMessage
   end
 end
