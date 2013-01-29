@@ -236,6 +236,7 @@
 <?define Guid.scripts.ini.ent.hrc = "9558584D-6F2B-1014-A171-B6E82808B87E" ?>
 <?define Guid.scripts.msg.ent.hrc = "9558592F-6F2B-1014-BC9C-F20F568718AB" ?>
 <?define Guid.common.jar = "95585A11-6F2B-1014-8497-EC58BC7DACCA" ?>
+<?define Guid.types = "7BAFF9F5-6C15-1014-9FF3-EFD77A744CEB" ?>
 <?define Guid.empty.hrc = "95585B1B-6F2B-1014-919E-87E368162E4B" ?>
 <?define Guid.catalog_console.xml = "95585C01-6F2B-1014-A753-80DB300C8DF9" ?>
 <?define Guid.catalog_rgb.xml = "95585CE3-6F2B-1014-ACC6-81C66B5C5743" ?>

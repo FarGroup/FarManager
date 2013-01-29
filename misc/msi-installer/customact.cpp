@@ -652,6 +652,7 @@ void update_feature_state(MSIHANDLE h_install) {
 
     bool inst = true;
     for (list<wstring>::const_iterator feature = sub_features.begin(); feature != sub_features.end(); feature++) {
+      if (*feature == L"Ignore") break;
       if (!is_feature_installed(h_install, *feature)) {
         inst = false;
         break;

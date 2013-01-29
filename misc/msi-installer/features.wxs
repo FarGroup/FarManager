@@ -380,9 +380,9 @@
           <ComponentRef Id="README" />
           <ComponentRef Id="hrcsettings.xml" />
           <ComponentRef Id="shortcuts.farconfig" />
-          <Feature Id="FarColorer.base" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="FarColorer.Ignore.base" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="catalog.xml" />
-            <Feature Id="FarColorer.base.hrc" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="FarColorer.Ignore.base_hrc" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="php_prot.ent.hrc" />
               <ComponentRef Id="proto.hrc" />
               <ComponentRef Id="rare.gen.ent.hrc" />
@@ -395,15 +395,16 @@
               <ComponentRef Id="scripts.ini.ent.hrc" />
               <ComponentRef Id="scripts.msg.ent.hrc" />
               <ComponentRef Id="common.jar" />
-              <Feature Id="FarColorer.base.hrc.auto" Level="1" Display="hidden" AllowAdvertise="no">
+              <Feature Id="FarColorer.Ignore.base_hrc_auto" Level="1" Display="hidden" AllowAdvertise="no">
+                <ComponentRef Id="types" />
                 <ComponentRef Id="empty.hrc" />
               </Feature>
             </Feature>
-            <Feature Id="FarColorer.base.hrd" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="FarColorer.Ignore.base_hrd" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="catalog_console.xml" />
               <ComponentRef Id="catalog_rgb.xml" />
               <ComponentRef Id="catalog_text.xml" />
-              <Feature Id="FarColorer.base.hrd.console" Level="1" Display="hidden" AllowAdvertise="no">
+              <Feature Id="FarColorer.Ignore.base_hrd_console" Level="1" Display="hidden" AllowAdvertise="no">
                 <ComponentRef Id="black.hrd" />
                 <ComponentRef Id="blue.hrd" />
                 <ComponentRef Id="default.hrd" />
@@ -414,7 +415,7 @@
                 <ComponentRef Id="nc.hrd" />
                 <ComponentRef Id="white.hrd" />
                 <ComponentRef Id="xmastree.hrd" />
-                <Feature Id="FarColorer.base.hrd.console.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                <Feature Id="FarColorer.Ignore.base_hrd_console_con" Level="1" Display="hidden" AllowAdvertise="no">
                   <ComponentRef Id="black_ay.hrd" />
                   <ComponentRef Id="black_sezal.hrd" />
                   <ComponentRef Id="classic.hrd" />
@@ -424,11 +425,11 @@
                   <ComponentRef Id="take4.hrd" />
                   <ComponentRef Id="visual.hrd" />
                 </Feature>
-                <Feature Id="FarColorer.base.hrd.console.emu" Level="1" Display="hidden" AllowAdvertise="no">
+                <Feature Id="FarColorer.Ignore.base_hrd_console_emu" Level="1" Display="hidden" AllowAdvertise="no">
                   <ComponentRef Id="mirror.hrd_2" />
                 </Feature>
               </Feature>
-              <Feature Id="FarColorer.base.hrd.css" Level="1" Display="hidden" AllowAdvertise="no">
+              <Feature Id="FarColorer.Ignore.base_hrd_css" Level="1" Display="hidden" AllowAdvertise="no">
                  <ComponentRef Id="black.css" />
                  <ComponentRef Id="blue.css" />
                  <ComponentRef Id="eclipse.css" />
@@ -439,13 +440,13 @@
                  <ComponentRef Id="navy.css" />
                  <ComponentRef Id="neo.css" />
                  <ComponentRef Id="white.css" />
-                <Feature Id="FarColorer.base.hrd.css.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                <Feature Id="FarColorer.Ignore.base_hrd_css_contrib" Level="1" Display="hidden" AllowAdvertise="no">
                   <ComponentRef Id="bred3.css" />
                   <ComponentRef Id="fmx.css" />
                   <ComponentRef Id="visual_rgb.css" />
                 </Feature>
               </Feature>
-              <Feature Id="FarColorer.base.hrd.rgb" Level="1" Display="hidden" AllowAdvertise="no">
+              <Feature Id="FarColorer.Ignore.base_hrd_rgb" Level="1" Display="hidden" AllowAdvertise="no">
                 <ComponentRef Id="black.hrd_2" />
                 <ComponentRef Id="blue.hrd_2" />
                 <ComponentRef Id="eclipse.hrd" />
@@ -456,13 +457,13 @@
                 <ComponentRef Id="navy.hrd" />
                 <ComponentRef Id="neo.hrd" />
                 <ComponentRef Id="white.hrd_2" />
-                <Feature Id="FarColorer.base.hrd.rgb.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                <Feature Id="FarColorer.Ignore.base_hrd_rgb_contrib" Level="1" Display="hidden" AllowAdvertise="no">
                   <ComponentRef Id="bred3.hrd" />
                   <ComponentRef Id="fmx.hrd" />
                   <ComponentRef Id="visual_rgb.hrd" />
                 </Feature>
               </Feature>
-              <Feature Id="FarColorer.base.hrd.text" Level="1" Display="hidden" AllowAdvertise="no">
+              <Feature Id="FarColorer.Ignore.base_hrd_text" Level="1" Display="hidden" AllowAdvertise="no">
                 <ComponentRef Id="htmlcss.hrd" />
                 <ComponentRef Id="tags.hrd" />
               </Feature>

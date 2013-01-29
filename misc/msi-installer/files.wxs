@@ -759,6 +759,9 @@
               </Component>
               <Directory Id="FarColorer.base.hrc.auto" Name="auto">
                 <Directory Id="FarColorer.base.hrc.auto.types" Name="types">
+                  <Component Id="types" Guid="$(var.Guid.types)" Win64="$(var.Win64)">
+                    <CreateFolder />
+                  </Component>
                 </Directory>
                 <Component Id="empty.hrc" Guid="$(var.Guid.empty.hrc)" Win64="$(var.Win64)">
                   <File Id="empty.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\auto\empty.hrc" />
