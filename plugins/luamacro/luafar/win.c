@@ -192,6 +192,49 @@ static int win_DeleteRegKey(lua_State *L)
 	return 1;
 }
 
+// Result = EnumRegKey (Root, Key, Index)
+//   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
+//   Key:       registry key, [string]
+//   Index:     integer
+//   Result:    string or nil
+static int win_EnumRegKey(lua_State *L)
+{
+	HKEY hKey;
+	LONG ret;
+	HKEY hRoot = CheckHKey(L, 1);
+	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
+	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
+	wchar_t Name[512];
+	DWORD NameSize = DIM(Name);
+	FILETIME LastWriteTime;
+
+	if(RegOpenKeyExW(hRoot, Key, 0, KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
+	{
+		lua_pushnil(L);
+		lua_pushstring(L, "OpenRegKey failed.");
+		return 2;
+	}
+
+	ret = RegEnumKeyEx(
+		hKey,             // handle of key to enumerate
+		dwIndex,          // index of subkey to enumerate
+		Name,             // address of buffer for subkey name
+		&NameSize,        // address for size of subkey buffer
+		NULL,             // reserved
+		NULL,             // address of buffer for class string
+		NULL,             // address for size of class buffer
+		&LastWriteTime);  // address for time key last written to
+
+	RegCloseKey(hKey);
+
+	if (ret == ERROR_SUCCESS)
+		push_utf8_string(L, Name, NameSize);
+	else
+		lua_pushnil(L);
+
+	return 1;
+}
+
 // Based on "CheckForEsc" function, by Ivan Sintyurin (spinoza@mail.ru)
 static WORD ExtractKey()
 {
@@ -529,6 +572,7 @@ const luaL_Reg win_funcs[] =
 	{"CreateDir",           win_CreateDir},
 	{"DeleteFile",          win_DeleteFile},
 	{"DeleteRegKey",        win_DeleteRegKey},
+	{"EnumRegKey",          win_EnumRegKey},
 	{"ExtractKey",          win_ExtractKey},
 	{"FileTimeToLocalFileTime", win_FileTimeToLocalFileTime},
 	{"FileTimeToSystemTime",win_FileTimeToSystemTime},

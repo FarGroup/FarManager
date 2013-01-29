@@ -8274,6 +8274,31 @@ mtime=3540381906
 </article>
 </node>
 <node>
+id=482
+lv=2
+dt=Text
+nm=win.EnumRegKey
+ctime=3568652034
+mtime=3568652241
+<article>
+#_Subkey = win.EnumRegKey (RootKey, Key, Index)
+#_
+#_**Parameters:**
+#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:       string
+#_  Index:     integer
+#_
+#_**Returns:**
+#_  Subkey:    string, or nil
+#_
+#_**Description:**
+#_  This function enumerates subkeys of the given registry key.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=394
 lv=2
 dt=Text
