@@ -538,7 +538,6 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 	}
 	m_CurState->HistoryDisable=0;
 	m_Recording=MACROMODE_NOMACRO;
-	m_StateStack.Free();
 	m_InternalInput=0;
 }
 
