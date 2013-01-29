@@ -268,7 +268,7 @@ static string MakeName(const ShortcutItem& Item)
 	return result;
 }
 
-static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List)
+static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List, bool raw_mode=false)
 {
 	Menu.DeleteItems();
 	FOR_RANGE(List, i)
@@ -277,11 +277,24 @@ static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List)
 		ListItem.strName = MakeName(*i);
 		ListItem.UserData = &i;
 		ListItem.UserDataSize = sizeof(i);
+		if (!raw_mode && (*i).PluginGuid == FarGuid && (*i).strFolder.IsEmpty())
+		{
+			if (ListItem.strName != L"--")
+			{
+				if (Menu.GetItemCount() == 0)
+					Menu.SetTitle(ListItem.strName);
+
+				continue;
+			}
+
+			ListItem.strName.Clear();
+			ListItem.Flags = LIF_SEPARATOR;
+		}
 		Menu.AddItem(&ListItem);
 	}
 }
 
-bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
+bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData, bool raw)
 {
 	bool Result = false;
 	if(!Items[Pos].empty())
@@ -293,7 +306,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			FolderList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 			FolderList.SetHelp(HelpFolderShortcuts);
 			FolderList.SetBottomTitle(MSG(MFolderShortcutBottomSub));
-			FillMenu(FolderList, Items[Pos]);
+			FillMenu(FolderList, Items[Pos], raw);
 
 			int ExitCode=FolderList.Run([&](int Key)->int
 			{
@@ -353,7 +366,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 
 				case KEY_F4:
 					{
-						EditItem(&FolderList, **Item, false);
+						EditItem(&FolderList, **Item, false, raw);
 					}
 					break;
 
@@ -365,7 +378,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 							auto i = *Item;
 							--i;
 							Items[Pos].splice(i, Items[Pos], *Item);
-							FillMenu(FolderList, Items[Pos]);
+							FillMenu(FolderList, Items[Pos], raw);
 							FolderList.SetSelectPos(--ItemPos);
 							Changed = true;
 						}
@@ -379,7 +392,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						if (i != Items[Pos].end())
 						{
 							Items[Pos].splice(*Item, Items[Pos], i);
-							FillMenu(FolderList, Items[Pos]);
+							FillMenu(FolderList, Items[Pos], raw);
 							FolderList.SetSelectPos(++ItemPos);
 							Changed = true;
 						}
@@ -464,7 +477,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 	}
 }
 
-void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root)
+void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 {
 	ShortcutItem NewItem = Item;
 
@@ -500,7 +513,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root)
 			string strTemp(NewItem.strFolder);
 			apiExpandEnvironmentStrings(NewItem.strFolder,strTemp);
 
-			if (apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+			if ((!raw || !strTemp.IsEmpty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
 				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 			}
@@ -536,6 +549,8 @@ void Shortcuts::Configure()
 		MakeItemName(I, &ListItem);
 		FolderList.AddItem(&ListItem);
 	}
+
+	bool raw_mode = false;
 
 	int ExitCode=FolderList.Run([&](int Key)->int
 	{
@@ -597,6 +612,7 @@ void Shortcuts::Configure()
 			break;
 
 		case KEY_F4:
+			raw_mode = true;
 			{
 				if(Item == Items[Pos].end())
 				{
@@ -623,7 +639,7 @@ void Shortcuts::Configure()
 
 	if(ExitCode>=0)
 	{
-		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode);
+		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode, raw_mode);
 	}
 }
 

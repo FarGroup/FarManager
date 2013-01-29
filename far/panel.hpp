@@ -354,7 +354,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual size_t GetFileCount() {return 0;}
 		virtual BOOL GetItem(int,void *) {return FALSE;}
 
-		bool ExecShortcutFolder(int Pos);
+		bool ExecShortcutFolder(int Pos, bool raw=false);
 		bool ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType);
 		bool SaveShortcutFolder(int Pos, bool Add);
 

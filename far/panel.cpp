@@ -2666,12 +2666,12 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 }
 */
 
-bool Panel::ExecShortcutFolder(int Pos)
+bool Panel::ExecShortcutFolder(int Pos, bool raw)
 {
 	string strShortcutFolder,strPluginFile,strPluginData;
 	GUID PluginGuid;
 
-	if (Global->CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
+	if (Global->CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData, raw))
 	{
 		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
 	}
