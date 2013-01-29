@@ -85,7 +85,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 		apiExpandEnvironmentStrings(strSrc, strSrc);
 	}
 
-	if (!StrCmp(strSrc,L"/"))
+	if (strSrc == L"/")
 	{
 		strSrc = Global->g_strFarPath;
 

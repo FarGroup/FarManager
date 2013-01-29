@@ -1478,7 +1478,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
-	if (DestPlugin && !StrCmp(CopyDlg[ID_SC_TARGETEDIT].strData,strInitDestDir))
+	if (DestPlugin && CopyDlg[ID_SC_TARGETEDIT].strData == strInitDestDir)
 	{
 		ToPlugin=1;
 		return;
@@ -1544,7 +1544,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
 					PrepareDiskPath(strNameTmp);
 
-				if (!StrCmp(strNameTmp,L"..") && IsRootPath(strSrcDir))
+				if (strNameTmp == L".." && IsRootPath(strSrcDir))
 				{
 					if (!Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)))
 						continue;
@@ -1764,7 +1764,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
 
-	if (Dest.IsEmpty() || !StrCmp(Dest,L"."))
+	if (Dest.IsEmpty() || Dest == L".")
 		return COPY_FAILURE; //????
 
 	SetCursorType(FALSE,0);
@@ -2377,7 +2377,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					string strSrcFullName;
 					ConvertNameToFull(Src,strSrcFullName);
-					return(!StrCmp(strDestPath,strSrcFullName) ? COPY_NEXT:COPY_SUCCESS);
+					return(strDestPath == strSrcFullName? COPY_NEXT : COPY_SUCCESS);
 				}
 
 				int Type=apiGetFileTypeByName(strDestPath);
@@ -2648,7 +2648,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		}
 	}
 
-	int NWFS_Attr=(Global->Opt->Nowell.MoveRO && !StrCmp(strDestFSName,L"NWFS"))?TRUE:FALSE;
+	bool NWFS_Attr = Global->Opt->Nowell.MoveRO && strDestFSName == L"NWFS";
 	{
 		for (;;)
 		{
@@ -2659,7 +2659,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				int MoveCode=FALSE,AskDelete;
 
-				if ((!StrCmp(strDestFSName,L"NWFS")) && !Append &&
+				if (strDestFSName == L"NWFS" && !Append &&
 				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
 					apiDeleteFile(strDestPath); //BUGBUG
@@ -2693,7 +2693,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							IsSetSecuty=TRUE;
 					}
 
-					if (!StrCmp(strDestFSName,L"NWFS"))
+					if (strDestFSName == L"NWFS")
 						MoveCode=apiMoveFile(strSrcFullName,strDestPath);
 					else
 						MoveCode=apiMoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -2793,7 +2793,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							ShellSetAttr(strDestPath,SrcData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 
 						if (DestAttr!=INVALID_FILE_ATTRIBUTES && !StrCmpI(strCopiedName,DestData.strFileName) &&
-						        StrCmp(strCopiedName,DestData.strFileName))
+						        strCopiedName != DestData.strFileName)
 							apiMoveFile(strDestPath,strDestPath); //???
 					}
 

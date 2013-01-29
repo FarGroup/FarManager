@@ -2278,7 +2278,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 				if (!IsSlash(strPathName.At(0)))
 					AddEndSlash(strArcPathName);
 
-				strArcPathName+=(!StrCmp(strPathName,L".\\")?L"\\":strPathName.CPtr());
+				strArcPathName += strPathName == L".\\"? L"\\" : strPathName.CPtr();
 				strPathName = strArcPathName;
 			}
 		}
@@ -2442,7 +2442,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, string& strRoot)
 			if (!Global->CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
 				break;
 
-			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || !StrCmp(strSelName,L"."))
+			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || strSelName == L".")
 				continue;
 
 			strCurRoot = strRoot;
@@ -2608,7 +2608,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& R
 			string strCurName=CurPanelItem->FileName;
 			string strFullName;
 
-			if (!StrCmp(strCurName,L".") || TestParentFolderName(strCurName))
+			if (strCurName == L"." || TestParentFolderName(strCurName))
 				continue;
 
 			strFullName = strPluginSearchPath;

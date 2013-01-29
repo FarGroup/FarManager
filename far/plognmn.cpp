@@ -60,7 +60,7 @@ PreserveLongName::~PreserveLongName()
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if (!apiGetFindDataEx(strSaveShortName, FindData) || StrCmp(strSaveLongName,FindData.strFileName))
+		if (!apiGetFindDataEx(strSaveShortName, FindData) || strSaveLongName != FindData.strFileName)
 		{
 			string strNewName;
 			strNewName = strSaveShortName;

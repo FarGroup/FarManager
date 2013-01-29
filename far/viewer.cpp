@@ -259,7 +259,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	SelectSize = -1; // —бросим выделение
 	strFileName = Name;
 
-	if (Global->Opt->OnlyEditorViewerUsed && !StrCmp(strFileName, L"-"))
+	if (Global->Opt->OnlyEditorViewerUsed && strFileName == L"-")
 	{
 		string strTempName;
 

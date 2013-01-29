@@ -431,7 +431,7 @@ int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"
-		if (!StrCmp(MenuItem->strHotKey,L"--"))
+		if (MenuItem->strHotKey == L"--")
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
 			FarUserMenuItem.strName=MenuItem->strLabel;

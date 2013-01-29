@@ -427,7 +427,7 @@ void FileEditor::Init(
 	};
 	SmartLock __smartlock;
 	SysErrorCode=0;
-	int BlankFileName=!StrCmp(Name,MSG(MNewFileName)) || !*Name;
+	int BlankFileName = Name == MSG(MNewFileName) || !*Name;
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
@@ -1413,7 +1413,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 			break;
 		}
 
-		if (!StrCmp(strFileName,MSG(MNewFileName)))
+		if (strFileName == MSG(MNewFileName))
 		{
 			if (!ProcessKey(KEY_SHIFTF2))
 			{
@@ -2214,7 +2214,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 {
 	strFileName = NewFileName;
 
-	if (StrCmp(strFileName,MSG(MNewFileName)))
+	if (strFileName != MSG(MNewFileName))
 	{
 		ConvertNameToFull(strFileName, strFullFileName);
 		string strFilePath=strFullFileName;
@@ -2419,7 +2419,7 @@ BOOL FileEditor::UpdateFileList()
 	AddEndSlash(strPanelPath);
 	AddEndSlash(strFilePath);
 
-	if (!StrCmp(strPanelPath, strFilePath))
+	if (strPanelPath == strFilePath)
 	{
 		ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
 		return TRUE;

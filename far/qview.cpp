@@ -425,7 +425,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		return;
 	}
 
-	bool SameFile=!StrCmp(strCurFileName,FileName);
+	bool SameFile = strCurFileName == FileName;
 	strCurFileName = FileName;
 	size_t pos;
 

@@ -140,7 +140,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 		strFarTitle+=GetFarTitleAddons();
 		TitleModified=true;
 
-		if (StrCmp(strOldFarTitle, strFarTitle) &&
+		if (strOldFarTitle != strFarTitle &&
 		        /*((Global->CtrlObject->Macro.IsExecuting() && !Global->CtrlObject->Macro.IsDisableOutput()) ||
 		         !Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsExecutingLastKey())*/ Global->ScrBuf->GetLockCount()==0)
 		{

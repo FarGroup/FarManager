@@ -79,7 +79,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 		Item.Clear();
 		Item.strName = printer->pPrinterName;
 
-		if (!StrCmp(printer->pPrinterName, strDefaultPrinter))
+		if (strDefaultPrinter == printer->pPrinterName)
 		{
 			bDefaultPrinterFound = true;
 			Item.SetCheck(TRUE);

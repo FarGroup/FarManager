@@ -1182,7 +1182,7 @@ int KeyMacro::PeekKey()
 	int key=0;
 	if (!m_InternalInput && IsExecuting())
 	{
-		if (!StrCmp(m_LastKey, L"first_key")) //FIXME
+		if (m_LastKey == L"first_key") //FIXME
 			return KEY_NONE;
 		if ((key=KeyNameToKey(m_LastKey)) == -1)
 			key=0;

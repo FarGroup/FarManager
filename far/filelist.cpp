@@ -2585,7 +2585,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		FarChDir(strCurDir);
 
 	strSetDir = NewDir;
-	bool dot2Present = !StrCmp(strSetDir, L"..");
+	bool dot2Present = strSetDir == L"..";
 
 	bool RootPath = false;
 	bool NetPath = false;
@@ -2618,7 +2618,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 			AddEndSlash(strSetDir);
 	}
 
-	if (!dot2Present && StrCmp(strSetDir,L"\\"))
+	if (!dot2Present && strSetDir != L"\\")
 		UpperFolderTopFile=CurTopFile;
 
 	if (SelFileCount>0)
@@ -2642,7 +2642,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		*/
 		bool SetDirectorySuccess = true;
 
-		if (dot2Present && (strInfoCurDir.IsEmpty() || !StrCmp(strInfoCurDir,L"\\")))
+		if (dot2Present && (strInfoCurDir.IsEmpty() || strInfoCurDir == L"\\"))
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 				return TRUE;
@@ -2741,7 +2741,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 	int UpdateFlags = 0;
 	BOOL SetDirectorySuccess = TRUE;
 
-	if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
+	if (PanelMode!=PLUGIN_PANEL && strSetDir == L"\\")
 	{
 		strSetDir = ExtractPathRoot(strCurDir);
 	}

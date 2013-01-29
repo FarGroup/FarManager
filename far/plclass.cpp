@@ -723,7 +723,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 
 			string strPluginID = PlCache.GetSignature(id);
 
-			if (StrCmp(strPluginID, strCurPluginID))   //одинаковые ли бинарники?
+			if (strPluginID != strCurPluginID)   //одинаковые ли бинарники?
 				return false;
 		}
 

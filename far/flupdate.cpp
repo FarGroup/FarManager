@@ -157,7 +157,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		{
 			FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
 
-			if (!StrCmp(strCurDir, strOldCurDir)) //?? i??
+			if (strCurDir == strOldCurDir) //?? i??
 			{
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
@@ -578,7 +578,7 @@ struct search_list_less
 {
 	bool operator()(const FileListItem* a, const FileListItem* b)
 	{
-		return StrCmp(a->strName, b->strName) < 0;
+		return a->strName < b->strName;
 	}
 }
 SearchListLess;
@@ -598,7 +598,7 @@ void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileL
 		if (Iterator != From.end())
 		{
 			auto OldItem = *Iterator;
-			if (0 == StrCmp(OldItem->strName, i->strName))
+			if (OldItem->strName == i->strName)
 			{
 				if (OldItem->ShowFolderSize)
 				{

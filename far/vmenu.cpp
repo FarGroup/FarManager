@@ -3106,7 +3106,7 @@ bool VMenu::Pack()
 		{
 			if (!(Item[FirstIndex]->Flags & LIF_SEPARATOR) && !(Item[LastIndex]->Flags & LIF_SEPARATOR))
 			{
-				if (StrCmp(Item[FirstIndex]->strName,Item[LastIndex]->strName)==0)
+				if (Item[FirstIndex]->strName == Item[LastIndex]->strName)
 				{
 					DeleteItem(static_cast<int>(LastIndex));
 				}

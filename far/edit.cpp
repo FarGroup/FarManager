@@ -3473,7 +3473,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 		{
 			for(size_t i=0;i<pList->ItemsNumber;i++)
 			{
-				if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
+				if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && pList->Items[i].Text != strTemp)
 				{
 					ComplMenu.AddItem(pList->Items[i].Text);
 				}
@@ -3562,7 +3562,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							GetString(strPrev);
 							ProcessKey(MenuKey);
 							GetString(strTemp);
-							if(StrCmp(strPrev,strTemp))
+							if(strPrev != strTemp)
 							{
 								ComplMenu.DeleteItems();
 								PrevPos=0;
@@ -3579,7 +3579,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 									{
 										for(size_t i=0;i<pList->ItemsNumber;i++)
 										{
-											if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
+											if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && pList->Items[i].Text != strTemp)
 											{
 												ComplMenu.AddItem(pList->Items[i].Text);
 											}

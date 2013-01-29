@@ -81,7 +81,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 		{
 			strCurDir = NewDir;
 
-			if (!StrCmp(strCurDir,L"\\"))
+			if (strCurDir == L"\\")
 				apiGetCurrentDirectory(strCurDir); // здесь берем корень
 
 			ReplaceSlashToBSlash(strCurDir);
@@ -147,7 +147,7 @@ int TestFolder(const wchar_t *Path)
 		// поэтому посмотрим на Root
 		GetPathRoot(Path,strFindPath);
 
-		if (!StrCmp(Path,strFindPath))
+		if (strFindPath == Path)
 		{
 			// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
 			if (apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
@@ -163,7 +163,7 @@ int TestFolder(const wchar_t *Path)
 
 		if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
 		{
-			if (StrCmp(Path,strFindPath))
+			if (strFindPath != Path)
 				return TSTFLD_NOTFOUND;
 		}
 

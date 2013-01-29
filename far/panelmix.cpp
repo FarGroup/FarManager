@@ -403,7 +403,7 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 					{
 						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
 						{
-							if (!StrCmp(strArgName,ColumnSymbol[I]))
+							if (strArgName == ColumnSymbol[I])
 							{
 								ViewColumnTypes[ColumnCount]=I;
 								break;

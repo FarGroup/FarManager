@@ -232,7 +232,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 		strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:Global->g_strFarPath;
 	}
 
-	if (!StrCmp(StackData.strHelpTopic,PluginContents))
+	if (StackData.strHelpTopic == PluginContents)
 	{
 		strFullHelpPathName.Clear();
 		ReadDocumentsHelp(HIDX_PLUGINS);
@@ -294,7 +294,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 	HelpList.clear();
 
-	if (!StrCmp(StackData.strHelpTopic,FoundContents))
+	if (StackData.strHelpTopic == FoundContents)
 	{
 		Search(HelpFile,nCodePage);
 		fclose(HelpFile);
@@ -429,14 +429,14 @@ int Help::ReadHelp(const wchar_t *Mask)
 		{
 			if (TopicFound)
 			{
-				if (!StrCmp(strReadStr,L"@+"))
+				if (strReadStr == L"@+")
 				{
 					Formatting=TRUE;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (!StrCmp(strReadStr,L"@-"))
+				if (strReadStr == L"@-")
 				{
 					Formatting=FALSE;
 					PrevSymbol=0;
@@ -1473,7 +1473,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-	if (!StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StrCmp(StackData.strSelTopic,HelpOnHelpTopic))
+	if (!StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StackData.strSelTopic != HelpOnHelpTopic)
 	{
 		if (StackData.strSelTopic.At(0)==L':')
 		{
@@ -1487,7 +1487,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	}
 	else
 	{
-		strNewTopic = StackData.strSelTopic.CPtr()+(!StrCmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
+		strNewTopic = StackData.strSelTopic.CPtr() + (StackData.strSelTopic == HelpOnHelpTopic? 1 : 0);
 	}
 
 	// удалим ссылку на .DLL

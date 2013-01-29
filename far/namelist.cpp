@@ -82,7 +82,7 @@ void NamesList::SetCurName(const wchar_t *Name)
 {
 	auto it = std::find_if(Names.begin(), Names.end(), [&Name](VALUE_TYPE(Names) i)
 	{
-		return !StrCmp(Name, i.Value.strName);
+		return i.Value.strName == Name;
 	});
 
 	if (it != Names.end())

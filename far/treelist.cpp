@@ -1724,7 +1724,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 	string strTreeName;
 	FILE *TreeFile=nullptr;
 
-	if (!StrCmp(MkTreeFileName(TreeRoot,strTreeName),Global->TreeCache->strTreeName))
+	if (MkTreeFileName(TreeRoot,strTreeName) == Global->TreeCache->strTreeName)
 		return;
 
 	if (!Global->TreeCache->ListName.empty())
