@@ -672,6 +672,269 @@
             <File Id="HotkeyProperties.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.lua" />
           </Component>
         </Directory>
+        <Directory Id="FarColorer" Name="FarColorer">
+          <Component Id="LICENSE" Guid="$(var.Guid.LICENSE)" Win64="$(var.Win64)">
+            <File Id="LICENSE" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\LICENSE" />
+          </Component>
+          <Component Id="README" Guid="$(var.Guid.README)" Win64="$(var.Win64)">
+            <File Id="README" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\README" />
+          </Component>
+          <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
+            <File Id="changelog_20" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\changelog" />
+          </Component>
+          <Component Id="history.ru.txt" Guid="$(var.Guid.history.ru.txt)" Win64="$(var.Win64)">
+            <File Id="history.ru.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\history.ru.txt" />
+          </Component>
+          <Directory Id="FarColorer.bin" Name="bin">
+            <Component Id="colorer.dll" Guid="$(var.Guid.colorer.dll)" Win64="$(var.Win64)">
+              <File Id="colorer.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorer.dll" />
+            </Component>
+            <Component Id="colorere.hlf" Guid="$(var.Guid.colorere.hlf)" Win64="$(var.Win64)">
+              <File Id="colorere.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorere.hlf" />
+            </Component>
+            <Component Id="colorere.lng" Guid="$(var.Guid.colorere.lng)" Win64="$(var.Win64)">
+              <File Id="colorere.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorere.lng" />
+            </Component>
+            <Component Id="colorerr.hlf" Guid="$(var.Guid.colorerr.hlf)" Win64="$(var.Win64)">
+              <File Id="colorerr.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorerr.hlf" />
+            </Component>
+            <Component Id="colorerr.lng" Guid="$(var.Guid.colorerr.lng)" Win64="$(var.Win64)">
+              <File Id="colorerr.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorerr.lng" />
+            </Component>
+<?if $(var.Platform) = x86 ?>
+            <Component Id="colorer.map" Guid="$(var.Guid.colorer.map)" Win64="$(var.Win64)">
+              <File Id="colorer.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorer.map" />
+            </Component>
+<?endif?>
+            <Component Id="hrcsettings.xml" Guid="$(var.Guid.hrcsettings.xml)" Win64="$(var.Win64)">
+              <File Id="hrcsettings.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\hrcsettings.xml" />
+            </Component>
+            <Component Id="shortcuts.farconfig" Guid="$(var.Guid.shortcuts.farconfig)" Win64="$(var.Win64)">
+              <File Id="shortcuts.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\shortcuts.farconfig" />
+            </Component>
+          </Directory>
+          <Directory Id="FarColorer.base" Name="base">
+            <Component Id="catalog.xml" Guid="$(var.Guid.catalog.xml)" Win64="$(var.Win64)">
+              <File Id="catalog.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\catalog.xml" />
+            </Component>
+            <Directory Id="FarColorer.base.hrc" Name="hrc">
+              <Component Id="CHANGELOG_21" Guid="$(var.Guid.CHANGELOG_21)" Win64="$(var.Win64)">
+                <File Id="CHANGELOG_21" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\CHANGELOG" />
+              </Component>
+              <Component Id="php_prot.ent.hrc" Guid="$(var.Guid.php_prot.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="php_prot.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\php-prot.ent.hrc" />
+              </Component>
+              <Component Id="proto.hrc" Guid="$(var.Guid.proto.hrc)" Win64="$(var.Win64)">
+                <File Id="proto.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\proto.hrc" />
+              </Component>
+              <Component Id="rare.gen.ent.hrc" Guid="$(var.Guid.rare.gen.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="rare.gen.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\rare.gen.ent.hrc" />
+              </Component>
+              <Component Id="rare.ie_weidu.ent.hrc" Guid="$(var.Guid.rare.ie_weidu.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="rare.ie_weidu.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\rare.ie-weidu.ent.hrc" />
+              </Component>
+              <Component Id="rare.j2ee.ent.hrc" Guid="$(var.Guid.rare.j2ee.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="rare.j2ee.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\rare.j2ee.ent.hrc" />
+              </Component>
+              <Component Id="rare.qrm.ent.hrc" Guid="$(var.Guid.rare.qrm.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="rare.qrm.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\rare.qrm.ent.hrc" />
+              </Component>
+              <Component Id="rare.scripts.ent.hrc" Guid="$(var.Guid.rare.scripts.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="rare.scripts.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\rare.scripts.ent.hrc" />
+              </Component>
+              <Component Id="scripts.colorer.ent.hrc" Guid="$(var.Guid.scripts.colorer.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="scripts.colorer.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\scripts.colorer.ent.hrc" />
+              </Component>
+              <Component Id="scripts.far.ent.hrc" Guid="$(var.Guid.scripts.far.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="scripts.far.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\scripts.far.ent.hrc" />
+              </Component>
+              <Component Id="scripts.ini.ent.hrc" Guid="$(var.Guid.scripts.ini.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="scripts.ini.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\scripts.ini.ent.hrc" />
+              </Component>
+              <Component Id="scripts.msg.ent.hrc" Guid="$(var.Guid.scripts.msg.ent.hrc)" Win64="$(var.Win64)">
+                <File Id="scripts.msg.ent.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\scripts.msg.ent.hrc" />
+              </Component>
+              <Component Id="common.jar" Guid="$(var.Guid.common.jar)" Win64="$(var.Win64)">
+                <File Id="common.jar" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\common.jar" />
+              </Component>
+              <Directory Id="FarColorer.base.hrc.auto" Name="auto">
+                <Directory Id="FarColorer.base.hrc.auto.types" Name="types">
+                </Directory>
+                <Component Id="empty.hrc" Guid="$(var.Guid.empty.hrc)" Win64="$(var.Win64)">
+                  <File Id="empty.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrc\auto\empty.hrc" />
+                </Component>
+              </Directory>
+            </Directory>
+            <Directory Id="FarColorer.base.hrd" Name="hrd">
+              <Component Id="catalog_console.xml" Guid="$(var.Guid.catalog_console.xml)" Win64="$(var.Win64)">
+                <File Id="catalog_console.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\catalog-console.xml" />
+              </Component>
+              <Component Id="catalog_rgb.xml" Guid="$(var.Guid.catalog_rgb.xml)" Win64="$(var.Win64)">
+                <File Id="catalog_rgb.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\catalog-rgb.xml" />
+              </Component>
+              <Component Id="catalog_text.xml" Guid="$(var.Guid.catalog_text.xml)" Win64="$(var.Win64)">
+                <File Id="catalog_text.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\catalog-text.xml" />
+              </Component>
+              <Directory Id="FarColorer.base.hrd.console" Name="console">
+                <Component Id="black.hrd" Guid="$(var.Guid.black.hrd)" Win64="$(var.Win64)">
+                  <File Id="black.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\black.hrd" />
+                </Component>
+                <Component Id="blue.hrd" Guid="$(var.Guid.blue.hrd)" Win64="$(var.Win64)">
+                  <File Id="blue.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\blue.hrd" />
+                </Component>
+                <Component Id="default.hrd" Guid="$(var.Guid.default.hrd)" Win64="$(var.Win64)">
+                  <File Id="default.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\default.hrd" />
+                </Component>
+                <Component Id="dnlike.hrd" Guid="$(var.Guid.dnlike.hrd)" Win64="$(var.Win64)">
+                  <File Id="dnlike.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\dnlike.hrd" />
+                </Component>
+                <Component Id="gray.hrd" Guid="$(var.Guid.gray.hrd)" Win64="$(var.Win64)">
+                  <File Id="gray.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\gray.hrd" />
+                </Component>
+                <Component Id="hack.hrd" Guid="$(var.Guid.hack.hrd)" Win64="$(var.Win64)">
+                  <File Id="hack.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\hack.hrd" />
+                </Component>
+                <Component Id="mirror.hrd" Guid="$(var.Guid.mirror.hrd)" Win64="$(var.Win64)">
+                  <File Id="mirror.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\mirror.hrd" />
+                </Component>
+                <Component Id="nc.hrd" Guid="$(var.Guid.nc.hrd)" Win64="$(var.Win64)">
+                  <File Id="nc.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\nc.hrd" />
+                </Component>
+                <Component Id="white.hrd" Guid="$(var.Guid.white.hrd)" Win64="$(var.Win64)">
+                  <File Id="white.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\white.hrd" />
+                </Component>
+                <Component Id="xmastree.hrd" Guid="$(var.Guid.xmastree.hrd)" Win64="$(var.Win64)">
+                  <File Id="xmastree.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\xmastree.hrd" />
+                </Component>
+                <Directory Id="FarColorer.base.hrd.console.contrib" Name="contrib">
+                  <Component Id="black_ay.hrd" Guid="$(var.Guid.black_ay.hrd)" Win64="$(var.Win64)">
+                    <File Id="black_ay.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\black_ay.hrd" />
+                  </Component>
+                  <Component Id="black_sezal.hrd" Guid="$(var.Guid.black_sezal.hrd)" Win64="$(var.Win64)">
+                    <File Id="black_sezal.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\black_sezal.hrd" />
+                  </Component>
+                  <Component Id="classic.hrd" Guid="$(var.Guid.classic.hrd)" Win64="$(var.Win64)">
+                    <File Id="classic.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\classic.hrd" />
+                  </Component>
+                  <Component Id="cyberpunk.hrd" Guid="$(var.Guid.cyberpunk.hrd)" Win64="$(var.Win64)">
+                    <File Id="cyberpunk.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\cyberpunk.hrd" />
+                  </Component>
+                  <Component Id="gray_pult.hrd" Guid="$(var.Guid.gray_pult.hrd)" Win64="$(var.Win64)">
+                    <File Id="gray_pult.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\gray_pult.hrd" />
+                  </Component>
+                  <Component Id="ocean.hrd" Guid="$(var.Guid.ocean.hrd)" Win64="$(var.Win64)">
+                    <File Id="ocean.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\ocean.hrd" />
+                  </Component>
+                  <Component Id="take4.hrd" Guid="$(var.Guid.take4.hrd)" Win64="$(var.Win64)">
+                    <File Id="take4.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\take4.hrd" />
+                  </Component>
+                  <Component Id="visual.hrd" Guid="$(var.Guid.visual.hrd)" Win64="$(var.Win64)">
+                    <File Id="visual.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\contrib\visual.hrd" />
+                  </Component>
+                </Directory>
+                <Directory Id="FarColorer.base.hrd.console.emu" Name="emu">
+                  <Component Id="mirror.hrd_2" Guid="$(var.Guid.mirror.hrd_2)" Win64="$(var.Win64)">
+                    <File Id="mirror.hrd_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\emu\mirror.hrd" />
+                  </Component>
+                </Directory>
+              </Directory>
+              <Directory Id="FarColorer.base.hrd.css" Name="css">
+                 <Component Id="black.css" Guid="$(var.Guid.black.css)" Win64="$(var.Win64)">
+                   <File Id="black.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\black.css" />
+                 </Component>
+                 <Component Id="blue.css" Guid="$(var.Guid.blue.css)" Win64="$(var.Win64)">
+                   <File Id="blue.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\blue.css" />
+                 </Component>
+                 <Component Id="eclipse.css" Guid="$(var.Guid.eclipse.css)" Win64="$(var.Win64)">
+                   <File Id="eclipse.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\eclipse.css" />
+                 </Component>
+                 <Component Id="grayscale.css" Guid="$(var.Guid.grayscale.css)" Win64="$(var.Win64)">
+                   <File Id="grayscale.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\grayscale.css" />
+                 </Component>
+                 <Component Id="hs.css" Guid="$(var.Guid.hs.css)" Win64="$(var.Win64)">
+                   <File Id="hs.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\hs.css" />
+                 </Component>
+                 <Component Id="mirice.css" Guid="$(var.Guid.mirice.css)" Win64="$(var.Win64)">
+                   <File Id="mirice.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\mirice.css" />
+                 </Component>
+                 <Component Id="mirror.css" Guid="$(var.Guid.mirror.css)" Win64="$(var.Win64)">
+                   <File Id="mirror.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\mirror.css" />
+                 </Component>
+                 <Component Id="navy.css" Guid="$(var.Guid.navy.css)" Win64="$(var.Win64)">
+                   <File Id="navy.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\navy.css" />
+                 </Component>
+                 <Component Id="neo.css" Guid="$(var.Guid.neo.css)" Win64="$(var.Win64)">
+                   <File Id="neo.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\neo.css" />
+                 </Component>
+                 <Component Id="white.css" Guid="$(var.Guid.white.css)" Win64="$(var.Win64)">
+                   <File Id="white.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\white.css" />
+                 </Component>
+                <Directory Id="FarColorer.base.hrd.css.contrib" Name="contrib">
+                  <Component Id="bred3.css" Guid="$(var.Guid.bred3.css)" Win64="$(var.Win64)">
+                    <File Id="bred3.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\contrib\bred3.css" />
+                  </Component>
+                  <Component Id="fmx.css" Guid="$(var.Guid.fmx.css)" Win64="$(var.Win64)">
+                    <File Id="fmx.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\contrib\fmx.css" />
+                  </Component>
+                  <Component Id="visual_rgb.css" Guid="$(var.Guid.visual_rgb.css)" Win64="$(var.Win64)">
+                    <File Id="visual_rgb.css" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\css\contrib\visual-rgb.css" />
+                  </Component>
+                </Directory>
+              </Directory>
+              <Directory Id="FarColorer.base.hrd.rgb" Name="rgb">
+                <Component Id="black.hrd_2" Guid="$(var.Guid.black.hrd_2)" Win64="$(var.Win64)">
+                  <File Id="black.hrd_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\black.hrd" />
+                </Component>
+                <Component Id="blue.hrd_2" Guid="$(var.Guid.blue.hrd_2)" Win64="$(var.Win64)">
+                  <File Id="blue.hrd_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\blue.hrd" />
+                </Component>
+                <Component Id="eclipse.hrd" Guid="$(var.Guid.eclipse.hrd)" Win64="$(var.Win64)">
+                  <File Id="eclipse.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\eclipse.hrd" />
+                </Component>
+                <Component Id="grayscale.hrd" Guid="$(var.Guid.grayscale.hrd)" Win64="$(var.Win64)">
+                  <File Id="grayscale.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\grayscale.hrd" />
+                </Component>
+                <Component Id="hs.hrd" Guid="$(var.Guid.hs.hrd)" Win64="$(var.Win64)">
+                  <File Id="hs.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\hs.hrd" />
+                </Component>
+                <Component Id="mirice.hrd" Guid="$(var.Guid.mirice.hrd)" Win64="$(var.Win64)">
+                  <File Id="mirice.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\mirice.hrd" />
+                </Component>
+                <Component Id="mirror.hrd_3" Guid="$(var.Guid.mirror.hrd_3)" Win64="$(var.Win64)">
+                  <File Id="mirror.hrd_3" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\mirror.hrd" />
+                </Component>
+                <Component Id="navy.hrd" Guid="$(var.Guid.navy.hrd)" Win64="$(var.Win64)">
+                  <File Id="navy.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\navy.hrd" />
+                </Component>
+                <Component Id="neo.hrd" Guid="$(var.Guid.neo.hrd)" Win64="$(var.Win64)">
+                  <File Id="neo.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\neo.hrd" />
+                </Component>
+                <Component Id="white.hrd_2" Guid="$(var.Guid.white.hrd_2)" Win64="$(var.Win64)">
+                  <File Id="white.hrd_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\white.hrd" />
+                </Component>
+                <Directory Id="FarColorer.base.hrd.rgb.contrib" Name="contrib">
+                  <Component Id="bred3.hrd" Guid="$(var.Guid.bred3.hrd)" Win64="$(var.Win64)">
+                    <File Id="bred3.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\contrib\bred3.hrd" />
+                  </Component>
+                  <Component Id="fmx.hrd" Guid="$(var.Guid.fmx.hrd)" Win64="$(var.Win64)">
+                    <File Id="fmx.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\contrib\fmx.hrd" />
+                  </Component>
+                  <Component Id="visual_rgb.hrd" Guid="$(var.Guid.visual_rgb.hrd)" Win64="$(var.Win64)">
+                    <File Id="visual_rgb.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\contrib\visual-rgb.hrd" />
+                  </Component>
+                </Directory>
+              </Directory>
+              <Directory Id="FarColorer.base.hrd.text" Name="text">
+                <Component Id="htmlcss.hrd" Guid="$(var.Guid.htmlcss.hrd)" Win64="$(var.Win64)">
+                  <File Id="htmlcss.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\text\htmlcss.hrd" />
+                </Component>
+                <Component Id="tags.hrd" Guid="$(var.Guid.tags.hrd)" Win64="$(var.Win64)">
+                  <File Id="tags.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\text\tags.hrd" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
         <Directory Id="FarCmds" Name="FarCmds">
           <Component Id="changelog_9" Guid="$(var.Guid.changelog_9)" Win64="$(var.Win64)">
             <File Id="changelog_9" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\changelog" />

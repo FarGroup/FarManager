@@ -372,6 +372,117 @@
             <ComponentRef Id="changelog_8" />
           </Feature>
         </Feature>
+        <Feature Id="FarColorer" Level="1" Title="!(loc.Feature.Title.FarColorer)" AllowAdvertise="no" Description="!(loc.Feature.Description.FarColorer)">
+          <ComponentRef Id="colorer.dll" />
+          <ComponentRef Id="colorere.hlf" />
+          <ComponentRef Id="colorere.lng" />
+          <ComponentRef Id="LICENSE" />
+          <ComponentRef Id="README" />
+          <ComponentRef Id="hrcsettings.xml" />
+          <ComponentRef Id="shortcuts.farconfig" />
+          <Feature Id="FarColorer.base" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="catalog.xml" />
+            <Feature Id="FarColorer.base.hrc" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="php_prot.ent.hrc" />
+              <ComponentRef Id="proto.hrc" />
+              <ComponentRef Id="rare.gen.ent.hrc" />
+              <ComponentRef Id="rare.ie_weidu.ent.hrc" />
+              <ComponentRef Id="rare.j2ee.ent.hrc" />
+              <ComponentRef Id="rare.qrm.ent.hrc" />
+              <ComponentRef Id="rare.scripts.ent.hrc" />
+              <ComponentRef Id="scripts.colorer.ent.hrc" />
+              <ComponentRef Id="scripts.far.ent.hrc" />
+              <ComponentRef Id="scripts.ini.ent.hrc" />
+              <ComponentRef Id="scripts.msg.ent.hrc" />
+              <ComponentRef Id="common.jar" />
+              <Feature Id="FarColorer.base.hrc.auto" Level="1" Display="hidden" AllowAdvertise="no">
+                <ComponentRef Id="empty.hrc" />
+              </Feature>
+            </Feature>
+            <Feature Id="FarColorer.base.hrd" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="catalog_console.xml" />
+              <ComponentRef Id="catalog_rgb.xml" />
+              <ComponentRef Id="catalog_text.xml" />
+              <Feature Id="FarColorer.base.hrd.console" Level="1" Display="hidden" AllowAdvertise="no">
+                <ComponentRef Id="black.hrd" />
+                <ComponentRef Id="blue.hrd" />
+                <ComponentRef Id="default.hrd" />
+                <ComponentRef Id="dnlike.hrd" />
+                <ComponentRef Id="gray.hrd" />
+                <ComponentRef Id="hack.hrd" />
+                <ComponentRef Id="mirror.hrd" />
+                <ComponentRef Id="nc.hrd" />
+                <ComponentRef Id="white.hrd" />
+                <ComponentRef Id="xmastree.hrd" />
+                <Feature Id="FarColorer.base.hrd.console.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                  <ComponentRef Id="black_ay.hrd" />
+                  <ComponentRef Id="black_sezal.hrd" />
+                  <ComponentRef Id="classic.hrd" />
+                  <ComponentRef Id="cyberpunk.hrd" />
+                  <ComponentRef Id="gray_pult.hrd" />
+                  <ComponentRef Id="ocean.hrd" />
+                  <ComponentRef Id="take4.hrd" />
+                  <ComponentRef Id="visual.hrd" />
+                </Feature>
+                <Feature Id="FarColorer.base.hrd.console.emu" Level="1" Display="hidden" AllowAdvertise="no">
+                  <ComponentRef Id="mirror.hrd_2" />
+                </Feature>
+              </Feature>
+              <Feature Id="FarColorer.base.hrd.css" Level="1" Display="hidden" AllowAdvertise="no">
+                 <ComponentRef Id="black.css" />
+                 <ComponentRef Id="blue.css" />
+                 <ComponentRef Id="eclipse.css" />
+                 <ComponentRef Id="grayscale.css" />
+                 <ComponentRef Id="hs.css" />
+                 <ComponentRef Id="mirice.css" />
+                 <ComponentRef Id="mirror.css" />
+                 <ComponentRef Id="navy.css" />
+                 <ComponentRef Id="neo.css" />
+                 <ComponentRef Id="white.css" />
+                <Feature Id="FarColorer.base.hrd.css.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                  <ComponentRef Id="bred3.css" />
+                  <ComponentRef Id="fmx.css" />
+                  <ComponentRef Id="visual_rgb.css" />
+                </Feature>
+              </Feature>
+              <Feature Id="FarColorer.base.hrd.rgb" Level="1" Display="hidden" AllowAdvertise="no">
+                <ComponentRef Id="black.hrd_2" />
+                <ComponentRef Id="blue.hrd_2" />
+                <ComponentRef Id="eclipse.hrd" />
+                <ComponentRef Id="grayscale.hrd" />
+                <ComponentRef Id="hs.hrd" />
+                <ComponentRef Id="mirice.hrd" />
+                <ComponentRef Id="mirror.hrd_3" />
+                <ComponentRef Id="navy.hrd" />
+                <ComponentRef Id="neo.hrd" />
+                <ComponentRef Id="white.hrd_2" />
+                <Feature Id="FarColorer.base.hrd.rgb.contrib" Level="1" Display="hidden" AllowAdvertise="no">
+                  <ComponentRef Id="bred3.hrd" />
+                  <ComponentRef Id="fmx.hrd" />
+                  <ComponentRef Id="visual_rgb.hrd" />
+                </Feature>
+              </Feature>
+              <Feature Id="FarColorer.base.hrd.text" Level="1" Display="hidden" AllowAdvertise="no">
+                <ComponentRef Id="htmlcss.hrd" />
+                <ComponentRef Id="tags.hrd" />
+              </Feature>
+            </Feature>
+          </Feature>
+          <Feature Id="FarColorer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="colorerr.hlf" />
+            <ComponentRef Id="colorerr.lng" />
+          </Feature>
+<?if $(var.Platform) = x86 ?>
+          <Feature Id="FarColorer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="colorer.map" />
+          </Feature>
+<?endif?>
+          <Feature Id="FarColorer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="changelog_20" />
+            <ComponentRef Id="history.ru.txt" />
+            <ComponentRef Id="CHANGELOG_21" />
+          </Feature>
+        </Feature>
         <Feature Id="FARCmds" Level="1" Title="!(loc.Feature.Title.FARCmds)" AllowAdvertise="no" Description="!(loc.Feature.Description.FARCmds)">
           <ComponentRef Id="FARCmds.dll" />
           <ComponentRef Id="FARCmdsEng.hlf" />

@@ -64,7 +64,7 @@
 <String Id="Feature.Description.DrawLine">Pseudo-graphic lines drawing.</String>
 <String Id="Feature.Title.EditCase">EditCase</String>
 <String Id="Feature.Description.EditCase">Text case conversion.</String>
-<String Id="Feature.Title.arclite">arclite</String>
+<String Id="Feature.Title.arclite">ArcLite</String>
 <String Id="Feature.Description.arclite">Archive management based on 7-Zip format library. Plugin is able to create 7z and zip archives and extract many other archive formats.</String>
 <String Id="Feature.Title._7z.dll">7z.dll</String>
 <String Id="Feature.Description._7z.dll">7-Zip format library. Do not install if you wish to use library shipped with 7-Zip.</String>
@@ -84,6 +84,8 @@
 <String Id="Feature.Description.Compare">Advanced compare.</String>
 <String Id="Feature.Title.EMenu">EMenu</String>
 <String Id="Feature.Description.EMenu">Explorer context menu.</String>
+<String Id="Feature.Title.FarColorer">FarColorer</String>
+<String Id="Feature.Description.FarColorer">Syntax highlighting.</String>
 <String Id="Feature.Title.FARCmds">FARCmds</String>
 <String Id="Feature.Description.FARCmds">Advanced commands.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>

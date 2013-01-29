@@ -64,7 +64,7 @@
 <String Id="Feature.Description.DrawLine">Рисование линий псевдографическими символами.</String>
 <String Id="Feature.Title.EditCase">EditCase</String>
 <String Id="Feature.Description.EditCase">Преобразование регистра.</String>
-<String Id="Feature.Title.arclite">arclite</String>
+<String Id="Feature.Title.arclite">ArcLite</String>
 <String Id="Feature.Description.arclite">Работа с архивами на основе библиотеки 7-Zip. Поддерживается создание архивов 7z и zip, а также распаковка множества других форматов.</String>
 <String Id="Feature.Title._7z.dll">7z.dll</String>
 <String Id="Feature.Description._7z.dll">Библиотека 7-Zip. Не устанавливайте чтобы использовать библиотеку из поставки 7-Zip.</String>
@@ -84,6 +84,8 @@
 <String Id="Feature.Description.Compare">Расширенное сравнение файлов.</String>
 <String Id="Feature.Title.EMenu">EMenu</String>
 <String Id="Feature.Description.EMenu">Контекстное меню Проводника.</String>
+<String Id="Feature.Title.FarColorer">FarColorer</String>
+<String Id="Feature.Description.FarColorer">Подсветка синтаксиса.</String>
 <String Id="Feature.Title.FARCmds">FARCmds</String>
 <String Id="Feature.Description.FARCmds">Расширенные команды управления Far Manager.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
