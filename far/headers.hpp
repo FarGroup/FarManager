@@ -208,8 +208,17 @@ inline void ClearArray(T& a)
 # endif
 #endif
 
-#define VALUE_TYPE(T) decltype((T).front())
-#define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T) i)
+// trick to allow usage of operator :: with decltype(T)
+#define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
+
+#define DECLTYPEOF(T, subtype) std::remove_reference<std::remove_pointer<DECLTYPE(T)>::type>::type::subtype
+#define VALUE_TYPE(T) DECLTYPEOF(T, value_type)
+#define ITERATOR(T) DECLTYPEOF(T, iterator)
+#define CONST_ITERATOR(T) DECLTYPEOF(T, const_iterator)
+#define REVERSE_ITERATOR(T) DECLTYPEOF(T, reverse_iterator)
+#define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
+
+#define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T)& i)
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
 
 template <typename T>

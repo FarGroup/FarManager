@@ -186,7 +186,7 @@ desc_map::iterator DizList::AddRecord(const string& DizText)
 	RemoveExternalSpaces(Text);
 	std::list<string> DescStrings;
 	DescStrings.push_back(Text);
-	return DizData.insert(DizData.begin(), desc_map::value_type(DizText.SubStr(NameStart, NameLength), DescStrings));
+	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(DizText.SubStr(NameStart, NameLength), DescStrings));
 }
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
@@ -344,7 +344,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{
 					auto start = i->second.begin();
 					++start;
-					std::for_each(start, i->second.end(), [&dump](VALUE_TYPE(i->second) j)
+					std::for_each(start, i->second.end(), [&dump](VALUE_TYPE(i->second)& j)
 					{
 						dump.Append(L"\r\n ").Append(j);
 					});
@@ -425,7 +425,7 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 		return false;
 
 	DestDiz->DeleteDiz(DestName, DestShortName);
-	DestDiz->DizData.insert(desc_map::value_type(DestName, i->second));
+	DestDiz->DizData.insert(VALUE_TYPE(DizData)(DestName, i->second));
 	DestDiz->Modified = true;
 
 	return true;

@@ -1366,8 +1366,8 @@ void Options::InitConfig()
 	{
 		InitCFG();
 		InitLocalCFG();
-		ConfigList.push_back(std::list<std::pair<GeneralConfig*, farconfig*>>::value_type(Global->Db->GeneralCfg(), &FARConfig));
-		ConfigList.push_back(std::list<std::pair<GeneralConfig*, farconfig*>>::value_type(Global->Db->LocalGeneralCfg(), &FARLocalConfig));
+		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->GeneralCfg(), &FARConfig));
+		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->LocalGeneralCfg(), &FARLocalConfig));
 	}
 }
 

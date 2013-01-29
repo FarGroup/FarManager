@@ -545,7 +545,7 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 
 Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 {
-	auto i = std::find_if(PluginsData.begin(), PluginsData.end(), [&lpwszModuleName](VALUE_TYPE(PluginsData) i)
+	auto i = std::find_if(PluginsData.begin(), PluginsData.end(), [&lpwszModuleName](VALUE_TYPE(PluginsData)& i)
 	{
 		return !StrCmpI(lpwszModuleName, i->GetModuleName());
 	});

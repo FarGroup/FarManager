@@ -2739,7 +2739,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 
-			if (std::find_if(Volumes.begin(), Volumes.end(), [&VolumeName](VALUE_TYPE(Volumes) i)
+			if (std::find_if(Volumes.begin(), Volumes.end(), [&VolumeName](VALUE_TYPE(Volumes)& i)
 			{
 				return i.IsSubStrAt(0,VolumeName);
 			}) == Volumes.end())

@@ -299,7 +299,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 	bool Result = false;
 	if(!Items[Pos].empty())
 	{
-		std::list<ShortcutItem>::iterator RetItem = Items[Pos].end();
+		auto RetItem = Items[Pos].end();
 		if(Items[Pos].size()>1)
 		{
 			VMenu2 FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
@@ -311,7 +311,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			int ExitCode=FolderList.Run([&](int Key)->int
 			{
 				int ItemPos = FolderList.GetSelectPos();
-				std::list<ShortcutItem>::iterator* Item = static_cast<decltype(Item)>(FolderList.GetUserData(nullptr, 0, ItemPos));
+				ITERATOR(Items[Pos])* Item = static_cast<decltype(Item)>(FolderList.GetUserData(nullptr, 0, ItemPos));
 				int KeyProcessed = 1;
 				switch (Key)
 				{

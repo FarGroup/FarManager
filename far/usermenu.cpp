@@ -525,7 +525,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		int ReturnCode=1;
 
 		NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-		std::list<UserMenuItem>::iterator* CurrentMenuItem;
+		ITERATOR(Menu)* CurrentMenuItem;
 		ExitCode=UserMenu.Run([&](int Key)->int
 		{
 			MenuPos=UserMenu.GetSelectPos();

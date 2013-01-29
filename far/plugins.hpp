@@ -233,6 +233,7 @@ class PluginManager
 		std::list<Plugin*>::iterator end() { return PluginsData.end(); }
 		Plugin*& front() { return PluginsData.front(); }
 		Plugin*& back() { return PluginsData.back(); }
+		typedef Plugin* value_type;
 
 		size_t GetPluginsCount() { return PluginsData.size(); }
 #ifndef NO_WRAPPER
