@@ -221,14 +221,15 @@ typedef class UnicodeString
 		bool IsSubStrAt(size_t Pos, const wchar_t* Str) const { return IsSubStrAt(Pos, StrLength(Str), Str, StrLength(Str)); }
 		bool IsSubStrAt(size_t Pos, const UnicodeString& Str) const { return IsSubStrAt(Pos, Str.GetLength(), Str.CPtr(), Str.GetLength()); }
 		bool IsSubStrAt(size_t Pos, wchar_t Ch) const { return IsSubStrAt(Pos, 1, &Ch, 1); }
+
 		bool operator==(const UnicodeString& Str) const { return IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
 		bool operator==(const wchar_t* Str) const { return IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
 		bool operator==(wchar_t Ch) const { return IsSubStrAt(0, GetLength(), &Ch, 1); }
 		bool operator!=(const UnicodeString& Str) const { return !IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
 		bool operator!=(const wchar_t* Str) const { return !IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
 		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
-		bool operator <(const UnicodeString& Str) {return StrCmpI(*this, Str) < 0;}
-		bool operator <(const wchar_t* Str) {return StrCmpI(*this, Str) < 0;}
+		bool operator<(const UnicodeString& Str) const { return StrCmpI(*this, Str) < 0; }
+		bool operator<(const wchar_t* Str) const { return StrCmpI(*this, Str) < 0; }
 
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
