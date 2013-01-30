@@ -8279,13 +8279,13 @@ lv=2
 dt=Text
 nm=win.EnumRegKey
 ctime=3568652034
-mtime=3568652241
+mtime=3568712434
 <article>
 #_Subkey = win.EnumRegKey (RootKey, Key, Index)
 #_
 #_**Parameters:**
 #_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
-#_  Key:       string
+#_  Key:       string (specify "" if RootKey itself is enumerated)
 #_  Index:     integer
 #_
 #_**Returns:**
@@ -8293,6 +8293,31 @@ mtime=3568652241
 #_
 #_**Description:**
 #_  This function enumerates subkeys of the given registry key.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=483
+lv=2
+dt=Text
+nm=win.EnumRegValue
+ctime=3568712149
+mtime=3568712451
+<article>
+#_ValueName = win.EnumRegValue (RootKey, Key, Index)
+#_
+#_**Parameters:**
+#_  RootKey:   string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
+#_  Key:       string (specify "" if RootKey itself is enumerated)
+#_  Index:     integer
+#_
+#_**Returns:**
+#_  ValueName: string, or nil
+#_
+#_**Description:**
+#_  This function enumerates values of the given registry key.
 #_
 #_@@@
 #_

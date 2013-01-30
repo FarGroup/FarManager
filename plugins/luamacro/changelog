@@ -1,3 +1,7 @@
+shmuel 30.01.2013 13:18:49 +0200 - build 77
+
+1. LuaFAR: добавлена функция 'win.EnumRegValue'.
+
 shmuel 29.01.2013 20:19:19 +0200 - build 76
 
 1. LuaFAR: добавлена функция 'win.EnumRegKey'.

@@ -211,7 +211,7 @@ static int win_EnumRegKey(lua_State *L)
 	if(RegOpenKeyExW(hRoot, Key, 0, KEY_ENUMERATE_SUB_KEYS, &hKey)!=ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
-		lua_pushstring(L, "OpenRegKey failed.");
+		lua_pushstring(L, "RegOpenKeyExW failed.");
 		return 2;
 	}
 
@@ -224,6 +224,50 @@ static int win_EnumRegKey(lua_State *L)
 		NULL,             // address of buffer for class string
 		NULL,             // address for size of class buffer
 		&LastWriteTime);  // address for time key last written to
+
+	RegCloseKey(hKey);
+
+	if (ret == ERROR_SUCCESS)
+		push_utf8_string(L, Name, NameSize);
+	else
+		lua_pushnil(L);
+
+	return 1;
+}
+
+// Result = EnumRegValue (Root, Key, Index)
+//   Root:      [string], one of "HKLM", "HKCC", "HKCR", "HKCU", "HKU"
+//   Key:       registry key, [string]
+//   Index:     integer
+//   Result:    string or nil
+static int win_EnumRegValue(lua_State *L)
+{
+	HKEY hKey;
+	LONG ret;
+	HKEY hRoot = CheckHKey(L, 1);
+	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
+	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
+	wchar_t Name[512];
+	DWORD NameSize = DIM(Name);
+	DWORD Type;
+
+	if(RegOpenKeyExW(hRoot, Key, 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+	{
+		lua_pushnil(L);
+		lua_pushstring(L, "RegOpenKeyExW failed.");
+		return 2;
+	}
+
+	ret = RegEnumValue(
+    hKey,             // handle of key to query
+    dwIndex,          // index of value to query
+    Name,             // address of buffer for value string
+    &NameSize,        // address for size of value buffer
+    NULL,             // reserved
+    &Type,            // address of buffer for type code
+    NULL,             // address of buffer for value data
+    NULL              // address for size of data buffer
+   );
 
 	RegCloseKey(hKey);
 
@@ -573,6 +617,7 @@ const luaL_Reg win_funcs[] =
 	{"DeleteFile",          win_DeleteFile},
 	{"DeleteRegKey",        win_DeleteRegKey},
 	{"EnumRegKey",          win_EnumRegKey},
+	{"EnumRegValue",        win_EnumRegValue},
 	{"ExtractKey",          win_ExtractKey},
 	{"FileTimeToLocalFileTime", win_FileTimeToLocalFileTime},
 	{"FileTimeToSystemTime",win_FileTimeToSystemTime},
