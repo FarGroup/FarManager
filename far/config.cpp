@@ -995,7 +995,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", AddressAndType(Global->Opt->EdOpt.EditOpenedForWrite), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", AddressAndType(Global->Opt->EdOpt.CursorBeyondEOL), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorF7Rules", AddressAndType(Global->Opt->EdOpt.F7Rules), Default(0)},
-		{FSSF_PRIVATE,       NKeyEditor,L"EditorUndoSize", AddressAndType(Global->Opt->EdOpt.UndoSize), Default(0)},
+		{FSSF_PRIVATE,       NKeyEditor,L"UndoDataSize", AddressAndType(Global->Opt->EdOpt.UndoSize), Default(100*1024*1024)},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExpandTabs", AddressAndType(Global->Opt->EdOpt.ExpandTabs), Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", AddressAndType(Global->Opt->strExternalEditor), Default(L"")},
 		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", AddressAndType(Global->Opt->EdOpt.FileSizeLimitLo), Default(0)},

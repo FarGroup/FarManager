@@ -174,6 +174,7 @@ class Editor:public ScreenObject
 		std::list<EditorUndoData>::iterator UndoPos;
 		std::list<EditorUndoData>::iterator UndoSavePos;
 		int UndoSkipLevel;
+		size_t UndoDataSize;
 
 		int LastChangeStrPos;
 		int NumLastLine;
