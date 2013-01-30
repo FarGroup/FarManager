@@ -898,7 +898,7 @@ static int editor_SetPosition(lua_State *L)
 		esp.Overtype  = luaL_optinteger(L, 7, -1);
 	}
 
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SETPOSITION, 0, &esp));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SETPOSITION, 0, &esp));
 	return 1;
 }
 
@@ -906,7 +906,7 @@ static int editor_Redraw(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_REDRAW, 0, 0));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_REDRAW, 0, 0));
 	return 1;
 }
 
@@ -915,7 +915,7 @@ static int editor_ExpandTabs(lua_State *L)
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t line_num = luaL_optinteger(L, 2, -1);
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_EXPANDTABS, 0, &line_num));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_EXPANDTABS, 0, &line_num));
 	return 1;
 }
 
@@ -1011,7 +1011,7 @@ static int editor_SetTitle(lua_State *L)
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t* text = opt_utf8_string(L, 2, NULL);
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SETTITLE, 0, (void*)text));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SETTITLE, 0, (void*)text));
 	return 1;
 }
 
@@ -1019,7 +1019,7 @@ static int editor_Quit(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_QUIT, 0, 0));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_QUIT, 0, 0));
 	return 1;
 }
 
@@ -1070,7 +1070,7 @@ static int editor_Select(lua_State *L)
 		es.BlockHeight    = luaL_optinteger(L, 6, -1);
 	}
 
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
 	return 1;
 }
 
@@ -1270,7 +1270,7 @@ static int editor_SaveFile(lua_State *L)
 	esf.StructSize = sizeof(esf);
 	esf.FileName = opt_utf8_string(L, 2, L"");
 	esf.FileEOL = opt_utf8_string(L, 3, NULL);
-	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf));
+	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf));
 	return 1;
 }
 
@@ -1833,7 +1833,7 @@ static int panel_CheckPanelsExist(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-	lua_pushboolean(L, Info->PanelControl(handle, FCTL_CHECKPANELSEXIST, 0, 0));
+	lua_pushboolean(L, (int)Info->PanelControl(handle, FCTL_CHECKPANELSEXIST, 0, 0));
 	return 1;
 }
 
@@ -1842,7 +1842,7 @@ static int panel_ClosePanel(lua_State *L)
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
 	const wchar_t *dir = opt_utf8_string(L, 2, NULL);
-	lua_pushboolean(L, Info->PanelControl(handle, FCTL_CLOSEPANEL, 0, (void*)dir));
+	lua_pushboolean(L, (int)Info->PanelControl(handle, FCTL_CLOSEPANEL, 0, (void*)dir));
 	return 1;
 }
 
@@ -2591,7 +2591,7 @@ static int SetDlgItem(lua_State *L, HANDLE hDlg, int numitem, int pos_table,
 	luaL_checktype(L, pos_table, LUA_TTABLE);
 	lua_pushvalue(L, pos_table);
 	SetFarDialogItem(L, &DialogItem, numitem, 1);
-	lua_pushboolean(L, Info->SendDlgMessage(hDlg, DM_SETDLGITEM, numitem, &DialogItem));
+	lua_pushboolean(L, (int)Info->SendDlgMessage(hDlg, DM_SETDLGITEM, numitem, &DialogItem));
 	return 1;
 }
 
