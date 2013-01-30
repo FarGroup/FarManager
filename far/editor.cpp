@@ -3653,18 +3653,22 @@ void Editor::ScrollUp()
 	CurLine->SetTabCurPos(CurPos);
 }
 
-/* $ 21.01.2001 SVS
-   Диалоги поиска/замены выведен из Editor::Search
-   в отдельную функцию GetSearchReplaceString
-   (файл stddlg.cpp)
-*/
+struct FindCoord
+{
+	UINT Line;
+	UINT Pos;
+	UINT SearchLen;
+};
 
-	struct FindCoord
-	{
-		UINT Line;
-		UINT Pos;
-		UINT SearchLen;
-	};
+class AutoUndoBlock {
+		Editor *e;
+		bool b;
+	public:
+		AutoUndoBlock(Editor *e) : e(e), b(false) {}
+		void Start() { e->AddUndoData(UNDO_BEGIN); b=true; }
+		~AutoUndoBlock() { if (b) e->AddUndoData(UNDO_END); }
+};
+
 BOOL Editor::Search(int Next)
 {
 	Edit *CurPtr,*TmpPtr;
@@ -3674,6 +3678,7 @@ BOOL Editor::Search(int Next)
 	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 	int CurPos, NewNumLine;
 	bool Case,WholeWords,ReverseSearch,Regexp,Match,UserBreak;
+	AutoUndoBlock aub(this);
 
 	if (Next && strLastSearchStr.IsEmpty())
 		return TRUE;
@@ -3749,26 +3754,6 @@ BOOL Editor::Search(int Next)
 		Match=0;
 		UserBreak=0;
 		CurPos=CurLine->GetCurPos();
-		/* $ 16.10.2000 tran
-		   CurPos увеличивается при следующем поиске
-		*/
-		/* $ 28.11.2000 SVS
-		   "О, это не ощибка - это свойство моей программы" :-)
-		   Новое поведение стало подконтрольным
-		*/
-		/* $ 21.12.2000 SVS
-		   - В предыдущем исправлении было задано неверное условие для
-		     правила EditorF7Rules
-		*/
-		/* $ 10.06.2001 IS
-		   - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
-		     _вперед_.
-		*/
-
-		/* $ 09.11.2001 IS
-		     проклятое место, блин.
-		     опять фиксим, т.к. не соответствует заявленному
-		*/
 		if (!ReverseSearch && (Next || (EdOpt.F7Rules && !ReplaceMode)))
 			CurPos++;
 
@@ -3789,6 +3774,9 @@ BOOL Editor::Search(int Next)
 		wakeful W;
 
 		int LastCheckedLine = -1;
+
+		if (ReplaceMode)
+			aub.Start();
 
 		while (CurPtr)
 		{

@@ -135,12 +135,12 @@ enum FLAGS_CLASS_EDITOR
 
 class Edit;
 
-
-
 class Editor:public ScreenObject
 {
 		friend class DlgEdit;
 		friend class FileEditor;
+		friend class AutoUndoBlock;
+
 	private:
 
 		/* $ 04.11.2003 SKV
