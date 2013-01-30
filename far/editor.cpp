@@ -3665,7 +3665,7 @@ class AutoUndoBlock {
 		bool b;
 	public:
 		AutoUndoBlock(Editor *e) : e(e), b(false) {}
-		void Start() { e->AddUndoData(UNDO_BEGIN); b=true; }
+		void Start() { if (!b) { e->AddUndoData(UNDO_BEGIN); b=true; } }
 		~AutoUndoBlock() { if (b) e->AddUndoData(UNDO_END); }
 };
 
@@ -3678,7 +3678,7 @@ BOOL Editor::Search(int Next)
 	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 	int CurPos, NewNumLine;
 	bool Case,WholeWords,ReverseSearch,Regexp,Match,UserBreak;
-	AutoUndoBlock aub(this);
+	AutoUndoBlock UndoBlock(this);
 
 	if (Next && strLastSearchStr.IsEmpty())
 		return TRUE;
@@ -3774,9 +3774,6 @@ BOOL Editor::Search(int Next)
 		wakeful W;
 
 		int LastCheckedLine = -1;
-
-		if (ReplaceMode)
-			aub.Start();
 
 		while (CurPtr)
 		{
@@ -3909,6 +3906,9 @@ BOOL Editor::Search(int Next)
 								break;
 							}
 						}
+
+						if (ReplaceAll)
+							UndoBlock.Start();
 
 						if (!MsgCode || MsgCode==1)
 						{
