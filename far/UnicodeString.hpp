@@ -141,12 +141,13 @@ typedef class UnicodeString
 
 		UnicodeString() { SetEUS(); }
 		UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
+		UnicodeString(UnicodeString&& rvalString):m_pData(rvalString.m_pData) { rvalString.m_pData = nullptr; }
 		UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
 		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
 		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
 		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
 
-		~UnicodeString() { /*if (m_pData) он не должен быть nullptr*/ m_pData->DecRef(); }
+		~UnicodeString() { if (m_pData) m_pData->DecRef(); }
 
 		void Inflate(size_t nSize);
 		wchar_t *GetBuffer(size_t nSize = (size_t)-1);
@@ -203,6 +204,7 @@ typedef class UnicodeString
 		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
 		UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
+		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData->DecRef(); m_pData = rvalString.m_pData; rvalString.m_pData = nullptr; } return *this; }
 		UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
 		UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
 		UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
@@ -243,3 +245,4 @@ typedef class UnicodeString
 		bool ContainsAny(const wchar_t *Chars, size_t nStartPos=0) const { return wcspbrk(m_pData->GetData()+nStartPos,Chars) != nullptr; }
 		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind) != nullptr; }
 } string;
+
