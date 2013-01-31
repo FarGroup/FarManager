@@ -65,7 +65,7 @@ private:
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
 	int LookForString(const string& Name);
-	bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr);
+	bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
 	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData);

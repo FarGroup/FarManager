@@ -1383,7 +1383,7 @@ exit:
 #undef RETURN
 }
 
-bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr)
+bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName)
 {
 	bool FileFound=FileMaskForFindFile->Compare(PointToName(FullName));
 	size_t ArcIndex=itd->GetFindFileArcIndex();
@@ -1407,6 +1407,8 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullNam
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				break;
+
+			itd->SetFindMessage(strDisplayName);
 
 			string strSearchFileName;
 			bool RemoveTemp=false;
@@ -1475,7 +1477,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				LangString strDataStr(MFindFound);
 				strDataStr << itd->GetFileCount() << itd->GetDirCount();
-				Dlg->SendMessage(DM_SETTEXTPTR,2,const_cast<wchar_t*>(strDataStr.CPtr()));
+				Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1,const_cast<wchar_t*>(strDataStr.CPtr()));
 
 				LangString strSearchStr(MFindSearchingIn);
 
@@ -1507,7 +1509,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					itd->SetLastFoundNumber(0);
 
 					if (ListBox->UpdateRequired())
-						Dlg->SendMessage(DM_SHOWITEM,1,ToPtr(1));
+						Dlg->SendMessage(DM_SHOWITEM,FD_LISTBOX,ToPtr(1));
 				}
 			}
 		}
@@ -2545,13 +2547,12 @@ void FindFiles::DoScanTree(Dialog* Dlg, string& strRoot)
 					}
 				}
 
-				if (((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
-				        (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
+				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
 					itd->SetFindMessage(strFullName);
 				}
 
-				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes))
+				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes,strFullName))
 				{
 					AddMenuRecord(Dlg,strFullStreamName, FindData, nullptr, nullptr);
 				}
@@ -2616,13 +2617,12 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& R
 
 			if (!UseFilter || Filter->FileInFilter(*CurPanelItem))
 			{
-				if (((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
-				        (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
+				if (CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
 					itd->SetFindMessage(strFullName);
 				}
 
-				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes))
+				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes,strFullName))
 					AddMenuRecord(Dlg,strFullName, *CurPanelItem);
 
 				if (SearchInArchives && hPlugin && (Flags & OPIF_REALNAMES))
