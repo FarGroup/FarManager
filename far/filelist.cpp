@@ -511,7 +511,7 @@ static struct list_less
 		if (!NameCmp)
 			NameCmp = SPtr1->Position < SPtr2->Position ? -1 : 1;
 
-		return less_opt(NameCmp < 0);
+		return NameCmp < 0;
 	}
 }
 ListLess;
