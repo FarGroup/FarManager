@@ -1716,6 +1716,7 @@ intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 					break;
 
 				case KEY_CTRLH:
+				case KEY_RCTRLH:
 					{
 						static bool HideUnchanged = true;
 						Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
