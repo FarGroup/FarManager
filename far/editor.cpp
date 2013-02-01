@@ -75,7 +75,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	UndoPos(UndoData.end()),
 	UndoSavePos(UndoData.end()),
 	UndoSkipLevel(0),
-	UndoDataSize(0),
 	LastChangeStrPos(0),
 	NumLastLine(0),
 	NumLine(0),
@@ -153,7 +152,6 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	UndoSavePos=UndoData.end();
 	UndoPos=UndoData.end();
 	UndoSkipLevel=0;
-	UndoDataSize=0;
 	ClearSessionBookmarks();
 	TopList=EndList=CurLine=nullptr;
 	NumLastLine = 0;
@@ -4850,6 +4848,8 @@ void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
 	return ;
 }
 
+size_t EditorUndoData::UndoDataSize = 0;
+
 void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length)
 {
 	if (Flags.Check(FEDITOR_DISABLEUNDO))
@@ -4870,8 +4870,6 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 			Flags.Set(FEDITOR_UNDOSAVEPOSLOST);
 		}
 
-		if (u->Length > 0)
-			UndoDataSize -= u->Length;
 		u = UndoData.erase(u);
 	}
 
@@ -4893,8 +4891,6 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 				if (PrevUndo != UndoData.end() && PrevUndo->Type==UNDO_BEGIN)
 				{
 					bool eq = PrevUndo==UndoSavePos;
-					if (PrevUndo->Length > 0)
-						UndoDataSize -= PrevUndo->Length;
 					UndoData.erase(PrevUndo);
 					UndoPos=UndoData.end();
 					if(!UndoData.empty())
@@ -4924,12 +4920,10 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 	UndoPos=UndoData.end();
 	--UndoPos;
 	UndoPos->SetData(Type,Str,Eol,StrNum,StrPos,Length);
-	if (UndoPos->Length > 0)
-		UndoDataSize += UndoPos->Length;
 
 	if (EdOpt.UndoSize>0)
 	{
-		while (!UndoData.empty() && (UndoDataSize>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
+		while (!UndoData.empty() && (EditorUndoData::UndoDataSize>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
 			auto u=UndoData.begin();
 
@@ -4945,8 +4939,6 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 			if (u==UndoSavePos)
 				UndoSavePos == UndoData.end();
 
-			if (u->Length > 0)
-				UndoDataSize -= u->Length;
 			UndoData.pop_front();
 		}
 

@@ -67,6 +67,7 @@ struct EditorUndoData
 	wchar_t EOL[10];
 	int Length;
 	wchar_t *Str;
+	static size_t UndoDataSize;
 
 	EditorUndoData():
 		Type(0),
@@ -79,6 +80,8 @@ struct EditorUndoData
 	}
 	~EditorUndoData()
 	{
+		if (Length > 0)
+			UndoDataSize -= Length;
 		if (Str)
 		{
 			delete[] Str;
@@ -92,6 +95,10 @@ struct EditorUndoData
 		this->Type=Type;
 		this->StrPos=StrPos;
 		this->StrNum=StrNum;
+		if (this->Length > 0)
+			UndoDataSize -= this->Length;
+		if (Length > 0)
+			UndoDataSize += Length;
 		this->Length=Length;
 		xwcsncpy(EOL,Eol?Eol:L"",ARRAYSIZE(EOL)-1);
 
@@ -174,7 +181,6 @@ class Editor:public ScreenObject
 		std::list<EditorUndoData>::iterator UndoPos;
 		std::list<EditorUndoData>::iterator UndoSavePos;
 		int UndoSkipLevel;
-		size_t UndoDataSize;
 
 		int LastChangeStrPos;
 		int NumLastLine;
