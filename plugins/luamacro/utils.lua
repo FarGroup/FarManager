@@ -233,6 +233,7 @@ local function LoadMacros (allAreas, unload)
   if not unload then
     local NoMacro = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
+    win.CreateDir(dir.."\\scripts",true)
     for k=1,2 do
       local root = k==1 and dir.."\\scripts" or dir.."\\internal"
       local flags = k==1 and F.FRS_RECUR or 0
