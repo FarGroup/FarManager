@@ -641,7 +641,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		if (!StrCmpNI(strStr,strName,Length) && strStr != strName)
 		{
 			if (bAppend)
-				strStr += &strName[Length];
+				strStr += strName.CPtr() + Length;
 			else
 				strStr = strName;
 

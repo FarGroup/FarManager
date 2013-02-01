@@ -555,7 +555,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		{
 			if (strTitle[0] == L'$')        // begin of history name
 			{
-				const wchar_t *p = &strTitle[1];
+				const wchar_t *p = strTitle.CPtr() + 1;
 				const wchar_t *p1 = wcschr(p,L'$');
 
 				if (p1)

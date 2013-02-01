@@ -78,58 +78,23 @@ enum TREELIST_FLAGS
 class TreeListCache
 {
 public:
-	TreeListCache()
-	{
-		ListName.reserve(32);
-	}
-
-	~TreeListCache()
-	{
-		ListName.clear();
-	}
-
-	void Add(const wchar_t* name)
-	{
-		Reserve();
-		ListName.push_back(name);
-	}
-
-	std::vector<string>::iterator Insert(std::vector<string>::iterator Where, const string& name)
-	{
-		Reserve();
-		return ListName.insert(Where, name);
-	}
-
-	std::vector<string>::iterator Delete(std::vector<string>::iterator Where)
-	{
-		return ListName.erase(Where);
-	}
-
 	void Clean()
 	{
-		ListName.clear();
+		Names.clear();
 		strTreeName.Clear();
 	}
 
 	TreeListCache& operator=(const TreeListCache& from)
 	{
 		strTreeName = from.strTreeName;
-		ListName = from.ListName;
+		Names = from.Names;
 		return *this;
 	}
 
 	void Sort();
 
 	string strTreeName;
-	std::vector<string> ListName;
-
-private:
-	void Reserve()
-	{
-		if (ListName.size() == ListName.capacity())
-			ListName.reserve(ListName.size() + 32);
-	}
-
+	std::list<string> Names;
 };
 
 class TreeList: public Panel

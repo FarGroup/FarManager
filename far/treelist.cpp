@@ -130,18 +130,12 @@ static struct list_less
 }
 ListLess;
 
-static struct cache_less
-{
-	bool operator()(const string& a, const string& b)
-	{
-		return TreeCmp(a, b, StaticSortNumeric, 0) < 0;
-	}
-}
-CacheLess;
-
 void TreeListCache::Sort()
 {
-	std::sort(ListName.begin(), ListName.end(), CacheLess);
+	Names.sort([](const string& a, const string& b)
+	{
+		return TreeCmp(a, b, StaticSortNumeric, 0) < 0;
+	});
 }
 
 
@@ -1599,7 +1593,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 	ReadCache(strRoot);
 
-	FOR_RANGE(Global->TreeCache->ListName, i)
+	FOR_RANGE(Global->TreeCache->Names, i)
 	{
 		int Result = StrCmpI(*i, Name);
 
@@ -1608,7 +1602,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 		if (Result > 0)
 		{
-			i = Global->TreeCache->Insert(i, Name);
+			i = Global->TreeCache->Names.insert(i, Name);
 			break;
 		}
 	}
@@ -1626,15 +1620,15 @@ void TreeList::DelTreeName(const wchar_t *Name)
 	Name += strRoot.GetLength() - 1;
 	ReadCache(strRoot);
 
-	FOR_RANGE(Global->TreeCache->ListName, i)
-	{
-		size_t Length = StrLength(Name);
+	size_t Length = StrLength(Name);
 
+	FOR_RANGE(Global->TreeCache->Names, i)
+	{
 		if (i->GetLength() < Length) continue;
 
 		if (!StrCmpNI(Name, *i, static_cast<int>(Length)) && (!i->At(Length) || IsSlash(i->At(Length))))
 		{
-			i = Global->TreeCache->Delete(i);
+			i = Global->TreeCache->Names.erase(i);
 		}
 	}
 }
@@ -1658,17 +1652,15 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	const wchar_t* DestName = strDestName;
 	DestName += strDestRoot.GetLength() - 1;
 	ReadCache(strSrcRoot);
-	int SrcLength = StrLength(SrcName);
+	size_t SrcLength = StrLength(SrcName);
 
-	for (size_t CachePos = 0; CachePos < Global->TreeCache->ListName.size(); CachePos++)
+	std::for_each(RANGE(Global->TreeCache->Names, i)
 	{
-		const wchar_t* DirName = Global->TreeCache->ListName[CachePos];
-
-		if (!StrCmpNI(SrcName,DirName,SrcLength) && (!DirName[SrcLength] || IsSlash(DirName[SrcLength])))
+		if ((i.GetLength() == SrcLength || IsSlash(i[SrcLength])) && !StrCmpNI(SrcName, i, static_cast<int>(SrcLength)))
 		{
-			Global->TreeCache->ListName[CachePos] = string(DestName) + DirName + SrcLength;
+			i = string(DestName) + i + SrcLength;
 		}
-	}
+	});
 }
 
 void TreeList::ReadSubTree(const string& Path)
@@ -1727,7 +1719,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 	if (MkTreeFileName(TreeRoot,strTreeName) == Global->TreeCache->strTreeName)
 		return;
 
-	if (!Global->TreeCache->ListName.empty())
+	if (!Global->TreeCache->Names.empty())
 		FlushCache();
 
 	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName,L"rb")))
@@ -1752,7 +1744,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 			if (ChPtr)
 				*ChPtr=0;
 
-			Global->TreeCache->Add(DirName);
+			Global->TreeCache->Names.push_back(DirName);
 		}
 
 		delete[] DirName;
@@ -1781,7 +1773,7 @@ void TreeList::FlushCache()
 		Global->TreeCache->Sort();
 
 		bool WriteError = false;
-		FOR_RANGE(Global->TreeCache->ListName, i)
+		FOR_RANGE(Global->TreeCache->Names, i)
 		{
 			if (!Cache.Write(i->CPtr(), i->GetLength() * sizeof(wchar_t)) || !Cache.Write(L"\n", 1 * sizeof(wchar_t)))
 			{

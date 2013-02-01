@@ -828,7 +828,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 	int J=0;
 	while (I+LenFindStr <= L)
 	{
-		int Res=IgnoreCase?StrCmpNI(&strStr[I], FindStr, LenFindStr):StrCmpN(&strStr[I], FindStr, LenFindStr);
+		int Res=IgnoreCase? StrCmpNI(strStr.CPtr() + I, FindStr, LenFindStr) : StrCmpN(strStr.CPtr() + I, FindStr, LenFindStr);
 
 		if (!Res)
 		{

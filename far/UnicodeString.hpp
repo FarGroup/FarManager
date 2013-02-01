@@ -141,13 +141,13 @@ typedef class UnicodeString
 
 		UnicodeString() { SetEUS(); }
 		UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
-		UnicodeString(UnicodeString&& rvalString):m_pData(rvalString.m_pData) { rvalString.m_pData = nullptr; }
+		UnicodeString(UnicodeString&& rvalString):m_pData(rvalString.m_pData) { rvalString.SetEUS(); }
 		UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
 		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
 		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
 		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
 
-		~UnicodeString() { if (m_pData) m_pData->DecRef(); }
+		~UnicodeString() { /*if (m_pData) он не должен быть nullptr*/ m_pData->DecRef(); }
 
 		void Inflate(size_t nSize);
 		wchar_t *GetBuffer(size_t nSize = (size_t)-1);
@@ -204,7 +204,7 @@ typedef class UnicodeString
 		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
 		UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
-		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData->DecRef(); m_pData = rvalString.m_pData; rvalString.m_pData = nullptr; } return *this; }
+		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData->DecRef(); m_pData = rvalString.m_pData; rvalString.SetEUS(); } return *this; }
 		UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
 		UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
 		UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
@@ -232,6 +232,8 @@ typedef class UnicodeString
 		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
 		bool operator<(const UnicodeString& Str) const { return StrCmpI(*this, Str) < 0; }
 		bool operator<(const wchar_t* Str) const { return StrCmpI(*this, Str) < 0; }
+
+		wchar_t operator [](size_t nIndex) const { return At(nIndex); }
 
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
