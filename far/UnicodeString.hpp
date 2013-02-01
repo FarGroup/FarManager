@@ -233,8 +233,6 @@ typedef class UnicodeString
 		bool operator<(const UnicodeString& Str) const { return StrCmpI(*this, Str) < 0; }
 		bool operator<(const wchar_t* Str) const { return StrCmpI(*this, Str) < 0; }
 
-		wchar_t operator [](size_t nIndex) const { return At(nIndex); }
-
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
 
