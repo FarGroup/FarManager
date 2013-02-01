@@ -110,9 +110,9 @@ public:
 		TYPE_STRING,
 		TYPE_LAST = TYPE_STRING,
 	};
-	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false), IsString(true){}
-	explicit Option(const int Value):iValue(Value), ValueChanged(false), IsString(false){}
-	virtual ~Option(){if(IsString) delete sValue;}
+	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false){}
+	explicit Option(const int Value):iValue(Value), ValueChanged(false){}
+	virtual ~Option(){}
 	bool Changed(){return ValueChanged;}
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName) = 0;
 	virtual const string toString() = 0;
@@ -124,6 +124,7 @@ protected:
 	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
 	void Set(const int NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
 	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) = 0;
+	void Free() {delete sValue;}
 private:
 	void MakeUnchanged(){ValueChanged = false;}
 	union
@@ -132,7 +133,6 @@ private:
 		int iValue;
 	};
 	bool ValueChanged;
-	bool IsString;
 	friend class Options;
 };
 
@@ -142,8 +142,8 @@ public:
 	BoolOption():Option(false){}
 	BoolOption(const bool& Value):Option(Value){}
 	BoolOption& operator=(bool Value){Set(Value); return *this;}
-	const bool Get() const {return GetInt() != false;}
-	operator bool() const {return GetInt() != false;}
+	const bool Get() const {return GetInt() != 0;}
+	operator bool() const {return GetInt() != 0;}
 	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){return Get()? L"true":L"false";}
@@ -206,6 +206,7 @@ public:
 	StringOption():Option(L""){}
 	StringOption(const StringOption& Value):Option(Value){}
 	StringOption(const string& Value):Option(Value){}
+	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
 	operator const wchar_t *() const {return GetString();}
 	operator const string&() const {return GetString();}
@@ -517,8 +518,8 @@ struct MacroOptions
 	StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
 	StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
 	// internal
-	int KeyMacroCtrlDot, KeyMacroRCtrlDot;
-	int KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
+	DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
+	DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
 	StringOption strMacroCONVFMT; // формат преобразования double в строку
 	StringOption strDateFormat; // Для $Date
 };

@@ -805,8 +805,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 	//if (InputRecordToText(&Rec->Rec,textKey))//FIXME: на голом Ctrl даёт код символа, а не текст.
 	if (KeyToText(Rec->IntKey,textKey))
 	{
-		bool ctrldot=(0==StrCmpI(textKey,L"Ctrl.")||0==StrCmpI(textKey,L"RCtrl."));
-		bool ctrlshiftdot=(0==StrCmpI(textKey,L"CtrlShift.")||0==StrCmpI(textKey,L"RCtrlShift."));
+		bool ctrldot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlDot;
+		bool ctrlshiftdot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlShiftDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlShiftDot;
 
 		if (m_Recording==MACROMODE_NOMACRO)
 		{
