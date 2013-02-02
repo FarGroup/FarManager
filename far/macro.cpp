@@ -3725,10 +3725,24 @@ static bool menushowFunc(FarMacroCall* Data)
 	bool bSetMenuFilter = (Flags & 0x100)?true:false;
 	bool bAutoNumbering = (Flags & 0x200)?true:false;
 	bool bExitAfterNavigate = (Flags & 0x400)?true:false;
-	int nLeftShift=bAutoNumbering?9:0;
 	int X = -1;
 	int Y = -1;
 	unsigned __int64 MenuFlags = VMENU_WRAPMODE;
+
+	int nLeftShift=0;
+	if (bAutoNumbering)
+	{
+		int numlines=0;
+		for (const wchar_t* p=strItems; *p; p++)
+		{
+			if (*p==L'\n') numlines++;
+		}
+		for (; numlines; numlines/=10)
+		{
+			nLeftShift++;
+		}
+		nLeftShift+=3;
+	}
 
 	if (!VX.isUnknown())
 		X=VX.toInteger();
@@ -3812,7 +3826,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.strName.Format(L"%6d - %s", LineCount, NewItem.strName.CPtr());
+			NewItem.strName.Format(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.CPtr());
 		}
 		Menu.AddItem(&NewItem);
 		CurrentPos=PosLF+1;
@@ -3833,7 +3847,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item->Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item->strName.Format(L"%6d - %s", LineCount, Item->strName.CPtr());
+				Item->strName.Format(L"%*d - %s", nLeftShift-3, LineCount, Item->strName.CPtr());
 			}
 		}
 	}
