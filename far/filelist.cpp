@@ -287,6 +287,7 @@ static struct list_less
 	bool operator()(FileListItem* SPtr1, FileListItem* SPtr2)
 	{
 		int RetCode;
+		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 
 		if (SPtr1->strName.GetLength() == 2 && SPtr1->strName.At(0)==L'.' && SPtr1->strName.At(1)==L'.')
@@ -333,144 +334,145 @@ static struct list_less
 				return less_opt(RetCode < 0);
 		}
 
-		// ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
-		if (!(ListSortMode == BY_EXT && !Global->Opt->SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))))
+		__int64 RetCode64;
+		switch (ListSortMode)
 		{
-			__int64 RetCode64;
-			switch (ListSortMode)
-			{
-				case BY_NAME:
+			case BY_NAME:
+				UseReverseNameSort = true;
+				break;
+
+			case BY_EXT:
+				// ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
+				if (!Global->Opt->SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 					break;
 
-				case BY_EXT:
-					Ext1=PointToExt(SPtr1->strName);
-					Ext2=PointToExt(SPtr2->strName);
-
-					if (!*Ext1)
-					{
-						if (!*Ext2)
-							break;
-						else
-							return less_opt(true);
-					}
+				Ext1=PointToExt(SPtr1->strName);
+				Ext2=PointToExt(SPtr2->strName);
+				if (!*Ext1)
+				{
 					if (!*Ext2)
-						return less_opt(false);
-
-					RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(Ext1+1, Ext2+1) : NumStrCmpI(Ext1+1, Ext2+1)) :
-						(ListCaseSensitiveSort? StrCmpC(Ext1+1, Ext2+1) : StrCmpI(Ext1+1, Ext2+1));
-					if (RetCode)
-						return less_opt(RetCode < 0);
-					break;
-
-				case BY_MTIME:
-					if ((RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)))
-						return less_opt(RetCode64 < 0);
-					break;
-
-				case BY_CTIME:
-					if ((RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)))
-						return less_opt(RetCode64 < 0);
-					break;
-
-				case BY_ATIME:
-					if (!(RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)))
 						break;
-					return less_opt(RetCode64 < 0);
-
-				case BY_CHTIME:
-					if ((RetCode64=FileTimeDifference(&SPtr1->ChangeTime, &SPtr2->ChangeTime)))
-						return less_opt(RetCode64 < 0);
-					break;
-
-				case BY_SIZE:
-					if (SPtr1->FileSize != SPtr2->FileSize)
-						return less_opt(SPtr1->FileSize < SPtr2->FileSize);
-					break;
-
-				case BY_DIZ:
-					if (!SPtr1->DizText)
-					{
-						if (!SPtr2->DizText)
-							break;
-						else
-							return less_opt(false);
-					}
-
-					if (!SPtr2->DizText)
-						return less_opt(true);
-
-					RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->DizText, SPtr2->DizText) : NumStrCmpI(SPtr1->DizText, SPtr2->DizText)) :
-						(ListCaseSensitiveSort? StrCmpC(SPtr1->DizText, SPtr2->DizText) : StrCmpI(SPtr1->DizText, SPtr2->DizText));
-					if (RetCode)
-						return less_opt(RetCode < 0);
-					break;
-
-				case BY_OWNER:
-					RetCode = StrCmpI(SPtr1->strOwner, SPtr2->strOwner);
-					if (RetCode)
-						return less_opt(RetCode < 0);
-					break;
-
-				case BY_COMPRESSEDSIZE:
-					if (SPtr1->AllocationSize != SPtr2->AllocationSize)
-						return less_opt(SPtr1->AllocationSize < SPtr2->AllocationSize);
-					break;
-
-				case BY_NUMLINKS:
-					if (SPtr1->NumberOfLinks != SPtr2->NumberOfLinks)
-						return less_opt(SPtr1->NumberOfLinks < SPtr2->NumberOfLinks);
-					break;
-
-				case BY_NUMSTREAMS:
-					if (SPtr1->NumberOfStreams != SPtr2->NumberOfStreams)
-						return less_opt(SPtr1->NumberOfStreams < SPtr2->NumberOfStreams);
-					break;
-
-				case BY_STREAMSSIZE:
-					if (SPtr1->StreamsSize != SPtr2->StreamsSize)
-						return less_opt(SPtr1->StreamsSize < SPtr2->StreamsSize);
-					break;
-
-				case BY_FULLNAME:
-					if (ListNumericSort)
-					{
-						const wchar_t *Path1 = SPtr1->strName.CPtr();
-						const wchar_t *Path2 = SPtr2->strName.CPtr();
-						const wchar_t *Name1 = PointToName(SPtr1->strName);
-						const wchar_t *Name2 = PointToName(SPtr2->strName);
-						RetCode = ListCaseSensitiveSort ? StrCmpNNC(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
-						if (!RetCode)
-							RetCode = ListCaseSensitiveSort ? NumStrCmpC(Name1, Name2) : NumStrCmpI(Name1, Name2);
-						else
-							RetCode = ListCaseSensitiveSort ? StrCmpC(Path1, Path2) : StrCmpI(Path1, Path2);
-					}
 					else
-					{
-						RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
-					}
-					if (RetCode)
-						return less_opt(RetCode < 0);
-					break;
-
-				case BY_CUSTOMDATA:
-					if (SPtr1->strCustomData.IsEmpty())
-					{
-						if (SPtr2->strCustomData.IsEmpty())
-							break;
-						else
-							return less_opt(false);
-					}
-
-					if (SPtr2->strCustomData.IsEmpty())
 						return less_opt(true);
+				}
+				if (!*Ext2)
+					return less_opt(false);
 
-					RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData)) :
-						(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
-					if (RetCode)
-						return less_opt(RetCode < 0);
+				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(Ext1+1, Ext2+1) : NumStrCmpI(Ext1+1, Ext2+1)) :
+					(ListCaseSensitiveSort? StrCmpC(Ext1+1, Ext2+1) : StrCmpI(Ext1+1, Ext2+1));
+				if (RetCode)
+					return less_opt(RetCode < 0);
+				break;
+
+			case BY_MTIME:
+				if ((RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)))
+					return less_opt(RetCode64 < 0);
+				break;
+
+			case BY_CTIME:
+				if ((RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)))
+					return less_opt(RetCode64 < 0);
+				break;
+
+			case BY_ATIME:
+				if (!(RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)))
 					break;
+				return less_opt(RetCode64 < 0);
+
+			case BY_CHTIME:
+				if ((RetCode64=FileTimeDifference(&SPtr1->ChangeTime, &SPtr2->ChangeTime)))
+					return less_opt(RetCode64 < 0);
+				break;
+
+			case BY_SIZE:
+				if (SPtr1->FileSize != SPtr2->FileSize)
+					return less_opt(SPtr1->FileSize < SPtr2->FileSize);
+				break;
+
+			case BY_DIZ:
+				if (!SPtr1->DizText)
+				{
+					if (!SPtr2->DizText)
+						break;
+					else
+						return less_opt(false);
+				}
+
+				if (!SPtr2->DizText)
+					return less_opt(true);
+
+				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->DizText, SPtr2->DizText) : NumStrCmpI(SPtr1->DizText, SPtr2->DizText)) :
+					(ListCaseSensitiveSort? StrCmpC(SPtr1->DizText, SPtr2->DizText) : StrCmpI(SPtr1->DizText, SPtr2->DizText));
+				if (RetCode)
+					return less_opt(RetCode < 0);
+				break;
+
+			case BY_OWNER:
+				RetCode = StrCmpI(SPtr1->strOwner, SPtr2->strOwner);
+				if (RetCode)
+					return less_opt(RetCode < 0);
+				break;
+
+			case BY_COMPRESSEDSIZE:
+				if (SPtr1->AllocationSize != SPtr2->AllocationSize)
+					return less_opt(SPtr1->AllocationSize < SPtr2->AllocationSize);
+				break;
+
+			case BY_NUMLINKS:
+				if (SPtr1->NumberOfLinks != SPtr2->NumberOfLinks)
+					return less_opt(SPtr1->NumberOfLinks < SPtr2->NumberOfLinks);
+				break;
+
+			case BY_NUMSTREAMS:
+				if (SPtr1->NumberOfStreams != SPtr2->NumberOfStreams)
+					return less_opt(SPtr1->NumberOfStreams < SPtr2->NumberOfStreams);
+				break;
+
+			case BY_STREAMSSIZE:
+				if (SPtr1->StreamsSize != SPtr2->StreamsSize)
+					return less_opt(SPtr1->StreamsSize < SPtr2->StreamsSize);
+				break;
+
+			case BY_FULLNAME:
+				UseReverseNameSort = true;
+				if (ListNumericSort)
+				{
+					const wchar_t *Path1 = SPtr1->strName.CPtr();
+					const wchar_t *Path2 = SPtr2->strName.CPtr();
+					const wchar_t *Name1 = PointToName(SPtr1->strName);
+					const wchar_t *Name2 = PointToName(SPtr2->strName);
+					RetCode = ListCaseSensitiveSort ? StrCmpNNC(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
+					if (!RetCode)
+						RetCode = ListCaseSensitiveSort ? NumStrCmpC(Name1, Name2) : NumStrCmpI(Name1, Name2);
+					else
+						RetCode = ListCaseSensitiveSort ? StrCmpC(Path1, Path2) : StrCmpI(Path1, Path2);
+				}
+				else
+				{
+					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+				}
+				if (RetCode)
+					return less_opt(RetCode < 0);
+				break;
+
+			case BY_CUSTOMDATA:
+				if (SPtr1->strCustomData.IsEmpty())
+				{
+					if (SPtr2->strCustomData.IsEmpty())
+						break;
+					else
+						return less_opt(false);
+				}
+
+				if (SPtr2->strCustomData.IsEmpty())
+					return less_opt(true);
+
+				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData)) :
+					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+				if (RetCode)
+					return less_opt(RetCode < 0);
+				break;
 			}
-		}
 
 		int NameCmp=0;
 
@@ -511,7 +513,7 @@ static struct list_less
 		if (!NameCmp)
 			NameCmp = SPtr1->Position < SPtr2->Position ? -1 : 1;
 
-		return NameCmp < 0;
+		return UseReverseNameSort? less_opt(NameCmp < 0) : NameCmp < 0;
 	}
 }
 ListLess;
