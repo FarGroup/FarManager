@@ -342,8 +342,9 @@ static struct list_less
 				break;
 
 			case BY_EXT:
+				UseReverseNameSort = true;
 				// ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
-				if (!Global->Opt->SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+				if (!Global->Opt->SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 					break;
 
 				Ext1=PointToExt(SPtr1->strName);
