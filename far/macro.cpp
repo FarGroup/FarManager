@@ -4866,16 +4866,16 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 					bool found=false;
 
-					for (size_t I=StartPos ; ; I+=Direct )
+					for (intptr_t I=StartPos ; ; I+=Direct ) // Важно: переменная I должна быть signed!
 					{
 						if (Direct > 0)
 						{
-							if(I > EndPos)
+							if(I > (intptr_t)EndPos)
 								break;
 						}
 						else
 						{
-							if(I < EndPos)
+							if(I < (intptr_t)EndPos)
 								break;
 						}
 
