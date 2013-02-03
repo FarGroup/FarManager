@@ -191,7 +191,7 @@ desc_map::iterator DizList::AddRecord(const string& DizText)
 		}
 	}
 
-	return AddRecord(DizText.SubStr(NameStart, NameLength), DizText.SubStr(NameStart + NameLength + 1));
+	return AddRecord(DizText.SubStr(NameStart, NameLength), DizText.SubStr(NameLength + (NameStart? 2: 0)));
 }
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
@@ -222,11 +222,10 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 			if (SkipSize && IsSpace(*DizPtr))
 			{
 				DizText=DizPtr;
-
-				while (*DizText && IsSpace(*DizText))
-					DizText++;
 			}
 		}
+		while (*DizText && IsSpace(*DizText))
+			DizText++;
 	}
 
 	return DizText;
@@ -344,7 +343,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			{
 				string dump = i->first;
 				QuoteSpaceOnly(dump);
-				dump += L" " + i->second.front();
+				dump += i->second.front();
 				if(i->second.size() > 1)
 				{
 					auto start = i->second.begin();
