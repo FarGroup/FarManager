@@ -383,14 +383,54 @@ TMacroKeywords2 MKeywordsFlags[] =
 	{L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS},
 };
 
-const string FlagsToString(FARKEYMACROFLAGS Flags)
+static const string FlagsToString(FARKEYMACROFLAGS Flags)
 {
-	return FlagsToString(Flags&MFLAGS_PUBLIC_MASK, MKeywordsFlags);
+	string Str;
+	for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
+	{
+		if (Flags & MKeywordsFlags[i].Value)
+		{
+			if (!Str.IsEmpty())
+				Str+=L" ";
+
+			Str+=MKeywordsFlags[i].Name;
+		}
+	}
+	return Str;
 }
 
-FARKEYMACROFLAGS StringToFlags(const string& strFlags)
+static FARKEYMACROFLAGS StringToFlags(const string& strFlags)
 {
-	return StringToFlags(strFlags, MKeywordsFlags);
+	FARKEYMACROFLAGS Flags=0;
+	wchar_t *buf = wcsdup(strFlags);
+	wchar_t *p1=buf;
+	bool stop=false;
+	do
+	{
+		while (*p1==L' ' || *p1==L'|')
+			p1++;
+		if (*p1==0) break;
+
+		wchar_t *p2=p1+1;
+		while(*p2 && *p2!=L' ' && *p2!=L'|')
+			p2++;
+		if (*p2==0) stop=true;
+		else *p2=0;
+
+		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
+		{
+			if (!wcsicmp(p1,MKeywordsFlags[i].Name))
+			{
+				Flags |= MKeywordsFlags[i].Value;
+				break;
+			}
+		}
+		p1=p2+1;
+	}
+	while (!stop);
+
+	free(buf);
+	return Flags;
 }
 
 static bool ToDouble(__int64 v, double *d)
