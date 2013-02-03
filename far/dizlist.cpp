@@ -138,7 +138,10 @@ void DizList::Read(const string& Path, const string* DizName)
 					}
 					else
 					{
-						LastAdded->second.push_back(DizText);
+						if (LastAdded != DizData.end())
+						{
+							LastAdded->second.push_back(DizText);
+						}
 					}
 				}
 			}
@@ -155,6 +158,13 @@ void DizList::Read(const string& Path, const string* DizName)
 
 	Modified=false;
 	strDizFileName.Clear();
+}
+desc_map::iterator DizList::AddRecord(const string& Name, const string& Description)
+{
+	Modified=true;
+	std::list<string> DescStrings;
+	DescStrings.push_back(Description);
+	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(Name, DescStrings));
 }
 
 desc_map::iterator DizList::AddRecord(const string& DizText)
@@ -181,12 +191,7 @@ desc_map::iterator DizList::AddRecord(const string& DizText)
 		}
 	}
 
-	Modified=true;
-	string Text = DizText.SubStr(NameStart + NameLength + 1);
-	RemoveExternalSpaces(Text);
-	std::list<string> DescStrings;
-	DescStrings.push_back(Text);
-	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(DizText.SubStr(NameStart, NameLength), DescStrings));
+	return AddRecord(DizText.SubStr(NameStart, NameLength), DizText.SubStr(NameStart + NameLength + 1));
 }
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)

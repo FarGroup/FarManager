@@ -64,6 +64,7 @@ public:
 
 private:
 	desc_map::iterator Find(const string& Name, const string& ShortName);
+	desc_map::iterator AddRecord(const string& Name, const string& Description);
 	desc_map::iterator AddRecord(const string& DizText);
 
 	string strDizFileName;
