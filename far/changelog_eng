@@ -3,6 +3,124 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 03.02.2013 16:56:54 +0200 - build 3149
+
+1. When a macro is saved to a file, spaces are used as flag separators.
+   When a macro is loaded from a file, spaces and '|' characters are considered separators.
+
+drkns 03.02.2013 09:32:05 +0200 - build 3148
+
+1. Correction of 3094.
+
+shmuel 02.02.2013 23:13:23 +0200 - build 3147
+
+1. Forum: If Panel.SetPosIdx(0,-1,1) is called from a macro while there's no selected files in panel then FAR freezes.
+
+shmuel 02.02.2013 22:36:31 +0200 - build 3146
+
+1. M#2228: Menu items shift to the right if automatic numbering of items is used in Menu.Show.
+
+drkns 02.02.2013 16:50:15 +0200 - build 3145
+
+1. And once more.
+
+drkns 02.02.2013 16:20:21 +0200 - build 3144
+
+1. Correction of 3141.
+
+t-rex 01.02.2013 21:23:22 +0200 - build 3143
+
+1. RCtrlH did not work in far:config.
+
+drkns 01.02.2013 18:50:55 +0200 - build 3142
+
+1. Malfunction of macro recording keys redefinition.
+
+drkns 01.02.2013 17:36:21 +0200 - build 3141
+
+1. If panel items are equal from the current sorting criterion's point of view (and, therefore, are sorted by name) 
+   then change of sorting direction does not affect them.
+
+t-rex 01.02.2013 12:24:37 +0200 - build 3140
+
+1. Correction of 3134.
+
+drkns 01.02.2013 10:22:46 +0200 - build 3139
+
+1. Correction of 3138.
+
+2. Refactoring.
+
+drkns 31.01.2013 02:45:16 +0200 - build 3138
+
+1. Adding support for move semantics to UnicodeString.
+
+t-rex 31.01.2013 01:59:09 +0200 - build 3137
+
+1. Mantis#2247. More comprehensible display of string search progress in files.
+
+t-rex 30.01.2013 23:45:01 +0200 - build 3136
+
+1. The previous fix must work only at 'replace all'.
+
+t-rex 30.01.2013 22:48:47 +0200 - build 3135
+
+1. Mantis#1376: Undo replace all.
+   On replace, undo rolls back all changes at once.
+
+t-rex 30.01.2013 22:04:15 +0200 - build 3134
+
+1. Mantis#2281: Memory exhaustion at search with replace in editor.
+   Now there is a limit for the amount of memory used for undo buffer in editor в редакторе, 100MB by default.
+   It is set up in Editor.UndoDataSize (size in bytes), old and useless Editor.EditorUndoSize setting is removed.
+
+w17 30.01.2013 15:33:36 +0400 - build 3133
+
+1. operator< should be const (also another fix for selection in panels)
+
+drkns 30.01.2013 00:27:32 +0200 - build 3132
+
+1. Adding some clever macros to simplify the use of template containers.
+
+drkns 29.01.2013 20:56:19 +0200 - build 3131
+
+1. Refactoring.
+
+shmuel 29.01.2013 19:03:01 +0200 - build 3130
+
+1. Forum: if Keys() call is placed after far.MacroLoadAll() then the macro is terminated after return from Keys.
+
+shmuel 29.01.2013 10:46:39 +0200 - build 3129
+
+1. After macro selection menu cancel the key was passed to FAR for further processing.
+
+w17 29.01.2013 09:13:35 +0400 - build 3128
+
+1. Experimental. Separators and submenu caption in shortcuts.
+   If "Folder" field in shortcuts submenu is empty then
+   a) if the name = "--" then it is a separator
+   b) else if the name is the first item then it is a submenu caption, otherwise it is ignored
+
+w17 29.01.2013 08:49:52 +0400 - build 3127
+
+1. Panel selection fix.
+
+drkns 28.01.2013 22:53:29 +0200 - build 3126
+
+1. More correct "once more".
+
+w17 28.01.2013 19:49:34 +0400 - build 3125
+
+1. Once more...
+
+w17 28.01.2013 18:27:46 +0400 - build 3124
+
+1. Correction of refactoring (I don't know which one of them ......)
+
+drkns 28.01.2013 01:20:00 +0200 - build 3123
+
+1. Refactoring.
+
 shmuel 27.01.2013 17:48:50 +0200 - build 3122
 
 1. 'akey' and 'mmode' functions being called from 'condition' macro function return false.
