@@ -523,6 +523,14 @@ void VMenu2::SetPosition(int X1,int Y1,int X2,int Y2)
 	Resize();
 }
 
+void VMenu2::GetPosition(int &X1,int &Y1,int &X2,int &Y2)
+{
+	X1=this->X1;
+	Y1=this->Y1;
+	X2=this->X2;
+	Y2=this->Y2;
+}
+
 intptr_t VMenu2::RunEx(function<int(int Msg, void *param)> fn)
 {
 	cancel=false;

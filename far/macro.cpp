@@ -3900,7 +3900,6 @@ static bool menushowFunc(FarMacroCall* Data)
 	int PrevSelectedPos=Menu.GetSelectPos();
 	DWORD LastKey=0;
 	bool CheckFlag;
-	int X1, Y1, X2, Y2, NewY2;
 
 	Menu.Key(KEY_NONE);
 	Menu.Run([&](int Key)->int
@@ -3952,13 +3951,10 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_CTRLA:
 			case KEY_RCTRLA:
 			{
-				Menu.GetPosition(X1, Y1, X2, Y2);
-				NewY2=Y1+Menu.GetShowItemCount()+1;
-
-				if (NewY2>ScrY-2)
-					NewY2=ScrY-2;
-
-				Menu.SetPosition(X1,Y1,X2,NewY2);
+				int ItemCount=Menu.GetShowItemCount();
+				if(ItemCount>ScrY-4)
+					ItemCount=ScrY-4;
+				Menu.SetMaxHeight(ItemCount);
 				break;
 			}
 

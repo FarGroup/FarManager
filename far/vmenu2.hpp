@@ -113,8 +113,9 @@ class VMenu2 : public Dialog
 		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
 
+		void GetPosition(int &X1,int &Y1,int &X2,int &Y2);
 		void SetPosition(int X1,int Y1,int X2,int Y2);
-		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight;}
+		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 
 		/*
 			функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
