@@ -383,7 +383,7 @@ TMacroKeywords2 MKeywordsFlags[] =
 	{L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS},
 };
 
-static const string FlagsToString(FARKEYMACROFLAGS Flags)
+static const string FlagsToString(MACROFLAGS_MFLAGS Flags)
 {
 	string Str;
 	for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
@@ -399,37 +399,23 @@ static const string FlagsToString(FARKEYMACROFLAGS Flags)
 	return Str;
 }
 
-static FARKEYMACROFLAGS StringToFlags(const string& strFlags)
+static MACROFLAGS_MFLAGS StringToFlags(const string& strFlags)
 {
-	FARKEYMACROFLAGS Flags=0;
-	wchar_t *buf = wcsdup(strFlags);
-	wchar_t *p1=buf;
-	bool stop=false;
-	do
+	MACROFLAGS_MFLAGS Flags=0;
+	UserDefinedList FlagsList(ULF_UNIQUE, L"| ");
+	FlagsList.Set(strFlags);
+	const wchar_t* Flag = nullptr;
+	while((Flag = FlagsList.GetNext()))
 	{
-		while (*p1==L' ' || *p1==L'|')
-			p1++;
-		if (*p1==0) break;
-
-		wchar_t *p2=p1+1;
-		while(*p2 && *p2!=L' ' && *p2!=L'|')
-			p2++;
-		if (*p2==0) stop=true;
-		else *p2=0;
-
 		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
 		{
-			if (!wcsicmp(p1,MKeywordsFlags[i].Name))
+			if (!StrCmpI(Flag, MKeywordsFlags[i].Name))
 			{
 				Flags |= MKeywordsFlags[i].Value;
 				break;
 			}
 		}
-		p1=p2+1;
 	}
-	while (!stop);
-
-	free(buf);
 	return Flags;
 }
 
@@ -733,7 +719,7 @@ void KeyMacro::RestoreMacroChar(void)
 	}
 }
 
-static unsigned __int64 FixFlags(MACROMODEAREA Area, unsigned __int64 MFlags)
+static MACROFLAGS_MFLAGS FixFlags(MACROMODEAREA Area, MACROFLAGS_MFLAGS MFlags)
 {
 	if (Area == MACRO_EDITOR || Area == MACRO_DIALOG || Area == MACRO_VIEWER)
 	{
@@ -759,7 +745,7 @@ struct GetMacroData
 	const wchar_t *Name;
 	const wchar_t *Code;
 	const wchar_t *Description;
-	unsigned __int64 Flags;
+	MACROFLAGS_MFLAGS Flags;
 	GUID Guid;
 	FARMACROCALLBACK Callback;
 	void* CallbackId;
@@ -2679,7 +2665,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count >= 2)
 			{
 				MACROMODEAREA Area = (MACROMODEAREA)(int)Data->Values[0].Double;
-				unsigned __int64 Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
+				MACROFLAGS_MFLAGS Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
 				void* CallbackId = (Data->Count>=4  && Data->Values[3].Type==FMVT_POINTER) ?
