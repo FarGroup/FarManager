@@ -697,7 +697,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	}
 
 	FarList NameList={sizeof(FarList)};
-	string *strLinks=nullptr;
+	std::vector<string> Links;
 
 	if (!DlgParam.Plugin)
 	{
@@ -928,23 +928,21 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 				AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
 				NameList.Items=new FarListItem[NameList.ItemsNumber]();
-				strLinks=new string[NameList.ItemsNumber];
-				HANDLE hFind=apiFindFirstFileName(strSelName,0,strLinks[0]);
+				Links.resize(NameList.ItemsNumber);
+				HANDLE hFind=apiFindFirstFileName(strSelName,0, Links[0]);
 
 				if (hFind!=INVALID_HANDLE_VALUE)
 				{
 					string strRoot;
 					GetPathRoot(strSelName,strRoot);
 					DeleteEndSlash(strRoot);
-					strLinks[0]=strRoot+strLinks[0];
-					int Current=0;
-					NameList.Items[Current++].Text=strLinks[0];
+					Links[0] = strRoot + Links[0];
+					NameList.Items[0].Text = Links[0];
 
-					while (apiFindNextFileName(hFind,strLinks[Current]))
+					for (int i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
 					{
-						strLinks[Current]=strRoot+strLinks[Current];
-						NameList.Items[Current].Text=strLinks[Current];
-						Current++;
+						Links[i] = strRoot + Links[i];
+						NameList.Items[i].Text = Links[i];
 					}
 
 					FindClose(hFind);
@@ -1162,9 +1160,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		if (NameList.Items)
 			delete[] NameList.Items;
-
-		if (strLinks)
-			delete[] strLinks;
 
 		switch(Dlg.GetExitCode())
 		{

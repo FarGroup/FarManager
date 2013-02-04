@@ -187,11 +187,27 @@ Message::Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *
 
 	Init(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr);
 }
+
 Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
 	m_ExitCode(0)
 {
 	Init(Flags, Buttons, Title, Items, ItemsNumber, HelpTopic, PluginNumber, Id);
 }
+
+Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const std::vector<string>& Items, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+	m_ExitCode(0)
+{
+	// BUGBUG
+	const wchar_t** pItems = new const wchar_t*[Items.size()];
+	size_t n = 0;
+	std::for_each(Items.begin(), Items.end(), [&](const VALUE_TYPE(Items)& i)
+	{
+		pItems[n++] = i;
+	});
+	Init(Flags, Buttons, Title, pItems, Items.size(), HelpTopic, PluginNumber, Id);
+	delete[] pItems;
+}
+
 
 void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id)
 {

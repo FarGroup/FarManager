@@ -2816,16 +2816,15 @@ int Database::ShowProblems()
 	int rc = 0;
 	if (!m_Problems.empty())
 	{
-		const wchar_t* *msgs = new const wchar_t*[m_Problems.size()+2];
-		int n = 0;
+		std::vector<string> msgs;
+		msgs.reserve(m_Problems.size()+2);
 		std::for_each(RANGE(m_Problems, i)
 		{
-			msgs[n] = i;
+			msgs.push_back(i);
 		});
-		msgs[n] = MSG(MShowConfigFolders);
-		msgs[n+1] = MSG(MIgnore);
-		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, m_Problems.size()+2) == 0 ? +1 : -1;
-		delete[] msgs;
+		msgs.push_back(MSG(MShowConfigFolders));
+		msgs.push_back(MSG(MIgnore));
+		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs) == 0 ? +1 : -1;
 	}
 	return rc;
 }

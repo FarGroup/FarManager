@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <bitset>
 
 #ifdef __GNUC__
 #include <cctype>

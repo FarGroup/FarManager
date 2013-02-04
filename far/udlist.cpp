@@ -48,21 +48,6 @@ bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 	return StrCmpI(Str, rhs.Str) == 0;
 }
 
-int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
-{
-	if (!Str)
-		return 1;
-	else if (!rhs.Str)
-		return -1;
-	else
-		return StrCmpI(Str, rhs.Str)<0;
-}
-
-bool UDItemLess(const UserDefinedListItem& a, const UserDefinedListItem& b)
-{
-	return a.index < b.index;
-}
-
 UserDefinedList::UserDefinedList()
 {
 	Reset();
@@ -109,11 +94,11 @@ void UserDefinedList::Free()
 	Reset();
 }
 
-bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
+bool UserDefinedList::Set(const string& List, bool AddToList)
 {
 	if (AddToList)
 	{
-		if (List && !*List) // пусто, нечего добавлять
+		if (List.IsEmpty()) // пусто, нечего добавлять
 			return true;
 	}
 	else
@@ -121,95 +106,71 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 	bool rc=false;
 
-	if (CheckSeparators() && List && *List)
+	if (CheckSeparators() && !List.IsEmpty())
 	{
 		UserDefinedListItem item;
 		item.index=ItemsList.size();
 
-		if (!strSeparators.Contains(*List))
+		bool Error=false;
+		const wchar_t *CurList=List;
+		int Length, RealLength;
+		while (!Error && CurList && *CurList)
 		{
-			bool Error=false;
-			const wchar_t *CurList=List;
-			int Length, RealLength;
-			while (!Error && CurList && *CurList)
+			CurList=Skip(CurList, Length, RealLength, Error);
+			if (Length > 0)
 			{
-				CurList=Skip(CurList, Length, RealLength, Error);
-				if (Length > 0)
+				if (Flags.Check(ULF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
 				{
-					if (Flags.Check(ULF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
-					{
-						item.Str = L"*";
-						ItemsList.push_back(item);
-					}
-					else
-					{
-						item.Str.Copy(CurList, Length);
-
-						if (Flags.Check(ULF_PACKASTERISKS))
-						{
-							int i=0;
-							bool lastAsterisk=false;
-
-							while (i<Length)
-							{
-								if (item.Str[i]==L'*')
-								{
-									if (!lastAsterisk)
-										lastAsterisk=true;
-									else
-									{
-										item.Str.Remove(i);
-										--i;
-									}
-								}
-								else
-									lastAsterisk=false;
-
-								++i;
-							}
-						}
-
-						if (Flags.Check(ULF_ADDASTERISK) && !wcspbrk(item.Str,L"?*."))
-						{
-							item.Str+=L"*";
-						}
-						ItemsList.push_back(item);
-					}
-
-					CurList+=RealLength;
-					++item.index;
-				}
-			}
-
-			rc=true;
-		}
-		else
-		{
-			const wchar_t *End=List+1;
-
-			if (!Flags.Check(ULF_NOTRIM))
-				while (IsSpace(*End)) ++End; // пропустим мусор
-
-			if (!*End) // Если кроме разделителя ничего больше в строке нет,
-			{         // то считается, что это не разделитель, а простой символ
-				item.Str = L" ";
-
-				if (item.Str)
-				{
-					item.Str.Replace(0, *List);
-
+					item.Str = L"*";
 					ItemsList.push_back(item);
-					rc=true;
 				}
+				else
+				{
+					item.Str.Copy(CurList, Length);
+
+					if (Flags.Check(ULF_PACKASTERISKS))
+					{
+						int i=0;
+						bool lastAsterisk=false;
+
+						while (i<Length)
+						{
+							if (item.Str[i]==L'*')
+							{
+								if (!lastAsterisk)
+									lastAsterisk=true;
+								else
+								{
+									item.Str.Remove(i);
+									--i;
+								}
+							}
+							else
+								lastAsterisk=false;
+
+							++i;
+						}
+					}
+					ItemsList.push_back(item);
+				}
+
+				CurList+=RealLength;
+				++item.index;
 			}
 		}
+
+		rc=true;
 	}
 
 	if (rc)
 	{
 		if (Flags.Check(ULF_UNIQUE|ULF_SORT))
 		{
-			ItemsList.sort(UDItemLess);
+			ItemsList.sort([](const UserDefinedListItem& a, const UserDefinedListItem& b)
+			{
+				return a.index < b.index;
+			});
+
 			if(Flags.Check(ULF_UNIQUE))
 			{
 				ItemsList.unique([](UserDefinedListItem& a, UserDefinedListItem& b)->bool

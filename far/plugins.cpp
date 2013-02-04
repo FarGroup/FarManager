@@ -573,15 +573,15 @@ void PluginManager::LoadPlugins()
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
-			PluginPathList.AddItem(strPluginsDir);
+			PluginPathList.Add(strPluginsDir);
 
 			// ...а персональные есть?
 			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
-				PluginPathList.AddItem(Global->Opt->LoadPlug.strPersonalPluginsPath);
+				PluginPathList.Add(Global->Opt->LoadPlug.strPersonalPluginsPath);
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
 		{
-			PluginPathList.AddItem(Global->Opt->LoadPlug.strCustomPluginsPath);
+			PluginPathList.Add(Global->Opt->LoadPlug.strCustomPluginsPath);
 		}
 
 		const wchar_t *NamePtr;

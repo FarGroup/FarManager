@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum UDL_FLAGS
 {
-	// добавл€ть '*' к концу элемента списка, если он не содержит '?', '*' и '.'
-	ULF_ADDASTERISK    =0x00000001,
 	// вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
 	ULF_PACKASTERISKS  =0x00000002,
 	// учитывать квадратные скобки при анализе строки инициализации
@@ -87,8 +85,6 @@ class UserDefinedList:NonCopyable
 		// квадратных скобок.
 		// ≈сли разделители не заданы, то восстанавливаютс€ разделители по
 		// умолчанию (';' & ',').
-		// ≈сли AddAsterisk равно true, то к концу элемента списка будет
-		// добавл€тьс€ '*', если этот элемент не содержит '?', '*' и '.'
 		// ¬озвращает false, если один из разделителей €вл€етс€ кавычкой или
 		// включена обработка скобок и один из разделителей €вл€етс€ квадратной
 		// скобкой.
@@ -96,15 +92,12 @@ class UserDefinedList:NonCopyable
 
 		// »нициализирует список. ѕринимает список, разделенный разделител€ми.
 		// ¬озвращает false при неудаче.
-		// ‘ича: если List==nullptr, то происходит освобождение зан€той ранее пам€ти
-		bool Set(const wchar_t *List, bool AddToList=false);
+		bool Set(const string& List, bool AddToList=false);
 
 		// ƒобавление к уже существующему списку
-		// ‘ича: если NewItem==nullptr, то происходит освобождение зан€той ранее
-		// пам€ти
-		bool AddItem(const wchar_t *NewItem)
+		bool Add(const string& List)
 		{
-			return Set(NewItem,true);
+			return Set(List, true);
 		}
 
 		// ¬ызывать перед началом работы со списком
@@ -120,7 +113,7 @@ class UserDefinedList:NonCopyable
 		bool IsEmpty();
 
 		// ¬ернуть количество элементов в списке
-		size_t GetTotal() const { return ItemsList.size(); }
+		size_t GetSize() const { return ItemsList.size(); }
 
 	private:
 		bool CheckSeparators() const; // проверка разделителей на корректность

@@ -568,7 +568,8 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	}
 	int ButtonCount = (AllowSkip? 4 : 2) + (SwitchBtn? 1 : 0);
 	size_t LineCount = 1 + 1 + (Msg.empty()? 0 : Msg.size() + 1) + ButtonCount;
-	const wchar_t** Msgs = new const wchar_t*[LineCount];
+	std::vector<string> Msgs;
+	Msgs.resize(LineCount);
 	Msgs[0] = Description;
 	string qObj(Object);
 	QuoteLeadingSpace(qObj);
@@ -601,7 +602,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	for(;;)
 	{
 		GuardLastError gle;
-		Result = Message(MSG_WARNING|MSG_ERRORTYPE, ButtonCount, MSG(Title), Msgs, LineCount);
+		Result = Message(MSG_WARNING|MSG_ERRORTYPE, ButtonCount, MSG(Title), Msgs);
 
 		if(SwitchBtn)
 		{

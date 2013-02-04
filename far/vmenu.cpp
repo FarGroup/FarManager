@@ -75,7 +75,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	BoxType(DOUBLE_BOX),
 	ParentDialog(ParentDialog),
 	OldTitle(nullptr),
-	Used(new bool[WCHAR_MAX]),
 	bFilterEnabled(false),
 	bFilterLocked(false),
 	ItemHiddenCount(0),
@@ -132,7 +131,6 @@ VMenu::~VMenu()
 	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
 	Hide();
 	DeleteItems();
-	delete[] Used;
 	SetCursorType(PrevCursorVisible,PrevCursorSize);
 
 	if (!CheckFlags(VMENU_LISTBOX))
@@ -2454,7 +2452,7 @@ void VMenu::AssignHighlights(int Reverse)
 {
 	CriticalSectionLock Lock(CS);
 
-	memset(Used,0,WCHAR_MAX);
+	std::bitset<65536> Used;
 
 	/* $ 02.12.2001 KM
 	   + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной

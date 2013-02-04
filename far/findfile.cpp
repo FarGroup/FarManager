@@ -2628,7 +2628,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			{
 				Volumes.push_back(strGuidVolime);
 			}
-			List.AddItem(Root);
+			List.Add(Root);
 		}
 		WCHAR VolumeName[50];
 
@@ -2649,7 +2649,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				return i.IsSubStrAt(0,VolumeName);
 			}) == Volumes.end())
 			{
-				List.AddItem(VolumeName);
+				List.Add(VolumeName);
 			}
 		}
 		if (hFind != INVALID_HANDLE_VALUE)

@@ -113,7 +113,7 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 
 		if (rc)
 		{
-			rc = Include.Set(*MasksStr?MasksStr:L"*",(Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
+			rc = Include.Set(*MasksStr? MasksStr:L"*", 0);
 
 			if (rc)
 				rc=Exclude.Set(pExclude, 0);

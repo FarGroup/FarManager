@@ -38,13 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include  "RegExp.hpp"
 #include  "udlist.hpp"
 
-enum FMP_FLAGS
-{
-	FMPF_ADDASTERISK = 0x00000001 // Добавлять '*', если маска не содержит
-	// ни одного из следующих
-	// символов: '*', '?', '.'
-};
-
 class FileMasksProcessor : public BaseFileMask
 {
 	public:

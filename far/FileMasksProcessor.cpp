@@ -143,9 +143,6 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	// разделителем масок является не только запятая, но и точка с запятой!
 	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
 
-	if (Flags&FMPF_ADDASTERISK)
-		flags|=ULF_ADDASTERISK;
-
 	Masks.SetParameters(flags, L",;");
 	return Masks.Set(expmasks);
 }
