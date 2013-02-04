@@ -12022,7 +12022,7 @@ MMenuOwnersView
 "Vlastníci s&úboru         LCtrl-8"
 
 MMenuLinksView
-"Ссылки файлов             LCtrl-9"
+"Ссылки файлов            LCtrl-9"
 "File lin&ks         LCtrl-9"
 "Souborové lin&ky          LCtrl-9"
 "Dateilin&ks           LStrg-9"
