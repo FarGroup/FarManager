@@ -58,7 +58,10 @@ bool NamesList::GetNextName(string &strName, string &strShortName)
 {
 	++CurrentName;
 	if (CurrentName == Names.end())
+	{
+		--CurrentName;
 		return false;
+	}
 
 	strName = CurrentName->Value.strName;
 	strShortName = CurrentName->Value.strShortName;

@@ -61,7 +61,7 @@ private:
 	intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData);
+	bool GetPluginFile(struct ArcListItem* ArcItem, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData);
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
 	int LookForString(const string& Name);
@@ -104,10 +104,7 @@ private:
 	bool InFileSearchInited;
 	class CFileMask* FileMaskForFindFile;
 	class FileFilter *Filter;
-
-	// Используются для отправки файлов на временную панель.
-	// индекс текущего элемента в списке и флаг для отправки.
-	DWORD FindExitIndex;
+	struct FindListItem* FindExitItem;
 	bool FindFoldersChanged;
 	bool SearchFromChanged;
 	bool FindPositionChanged;

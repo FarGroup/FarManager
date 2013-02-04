@@ -83,19 +83,8 @@ const DWORD LIST_INDEX_NONE = static_cast<DWORD>(-1);
 const size_t readBufferSizeA=32768;
 const size_t readBufferSize=(readBufferSizeA*sizeof(wchar_t));
 
-
-// Список найденных файлов. Индекс из списка хранится в меню.
-struct FINDLIST
-{
-	FAR_FIND_DATA_EX FindData;
-	size_t ArcIndex;
-	DWORD Used;
-	void* Data;
-	FARPANELITEMFREECALLBACK FreeData;
-};
-
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
-struct ARCLIST
+struct ArcListItem
 {
 	string strArcName;
 	HANDLE hPlugin;    // Plugin handle
@@ -103,18 +92,28 @@ struct ARCLIST
 	string strRootPath; // Root path in plugin after opening.
 };
 
+// Список найденных файлов. Индекс из списка хранится в меню.
+struct FindListItem
+{
+	FAR_FIND_DATA_EX FindData;
+	ArcListItem* Arc;
+	DWORD Used;
+	void* Data;
+	FARPANELITEMFREECALLBACK FreeData;
+};
+
 struct InterThreadData
 {
 private:
 	CriticalSection DataCS;
-	size_t FindFileArcIndex;
+	ArcListItem* FindFileArcItem;
 	int Percent;
 	int LastFoundNumber;
 	int FileCount;
 	int DirCount;
 
-	std::vector<FINDLIST*> FindList;
-	std::vector<ARCLIST*> ArcList;
+	std::list<FindListItem> FindList;
+	std::list<ArcListItem> ArcList;
 	string strFindMessage;
 
 public:
@@ -122,7 +121,7 @@ public:
 	void Init()
 	{
 		CriticalSectionLock Lock(DataCS);
-		FindFileArcIndex=LIST_INDEX_NONE;
+		FindFileArcItem = nullptr;
 		Percent=0;
 		LastFoundNumber=0;
 		FileCount=0;
@@ -132,8 +131,13 @@ public:
 		strFindMessage.Clear();
 	}
 
-	size_t GetFindFileArcIndex(){CriticalSectionLock Lock(DataCS); return FindFileArcIndex;}
-	void SetFindFileArcIndex(size_t Value){CriticalSectionLock Lock(DataCS); FindFileArcIndex=Value;}
+	std::list<FindListItem>& GetFindList() {return FindList;}
+
+	void Lock() {DataCS.Enter();}
+	void Unlock() {DataCS.Leave();}
+
+	ArcListItem* GetFindFileArcItem(){CriticalSectionLock Lock(DataCS); return FindFileArcItem;}
+	void SetFindFileArcItem(ArcListItem* Value){CriticalSectionLock Lock(DataCS); FindFileArcItem = Value;}
 
 	int GetPercent(){CriticalSectionLock Lock(DataCS); return Percent;}
 	void SetPercent(int Value){CriticalSectionLock Lock(DataCS); Percent=Value;}
@@ -161,106 +165,56 @@ public:
 		strFindMessage=From;
 	}
 
-	void GetFindListItem(size_t index, FINDLIST& Item)
-	{
-		CriticalSectionLock Lock(DataCS);
-		Item.FindData=FindList[index]->FindData;
-		Item.ArcIndex=FindList[index]->ArcIndex;
-		Item.Used=FindList[index]->Used;
-	}
-
-	void SetFindListItem(size_t index, const FINDLIST& Item)
-	{
-		CriticalSectionLock Lock(DataCS);
-		FindList[index]->FindData=Item.FindData;
-		FindList[index]->ArcIndex=Item.ArcIndex;
-		FindList[index]->Used=Item.Used;
-	}
-
-	void GetArcListItem(size_t index, ARCLIST& Item)
-	{
-		CriticalSectionLock Lock(DataCS);
-		Item.strArcName=ArcList[index]->strArcName;
-		Item.hPlugin=ArcList[index]->hPlugin;
-		Item.Flags=ArcList[index]->Flags;
-		Item.strRootPath=ArcList[index]->strRootPath;
-	}
-
-	void SetArcListItem(size_t index, const ARCLIST& Item)
-	{
-		CriticalSectionLock Lock(DataCS);
-		ArcList[index]->strArcName=Item.strArcName;
-		ArcList[index]->hPlugin=Item.hPlugin;
-		ArcList[index]->Flags=Item.Flags;
-		ArcList[index]->strRootPath=Item.strRootPath;
-	}
-
 	void ClearAllLists()
 	{
 		CriticalSectionLock Lock(DataCS);
-		FindFileArcIndex=LIST_INDEX_NONE;
+		FindFileArcItem = nullptr;
 
 		if (!FindList.empty())
 		{
 			std::for_each(RANGE(FindList, i)
 			{
-				if (i->FreeData)
+				if (i.FreeData)
 				{
 					FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),nullptr};
-					if(i->ArcIndex!=LIST_INDEX_NONE)
+					if(i.Arc)
 					{
-						ARCLIST ArcItem;
-						GetArcListItem(i->ArcIndex, ArcItem);
-						info.hPlugin=ArcItem.hPlugin;
+						info.hPlugin=i.Arc->hPlugin;
 					}
-					i->FreeData(i->Data,&info);
+					i.FreeData(i.Data,&info);
 				}
-				delete i;
 			});
 			FindList.clear();
 		}
 
-		if (!ArcList.empty())
-		{
-			std::for_each(RANGE(ArcList, i)
-			{
-				delete i;
-			});
-			ArcList.clear();
-		}
+		ArcList.clear();
 	}
 
-	size_t AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,UINT64 dwFlags,const wchar_t *RootPath)
+	ArcListItem& AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,UINT64 dwFlags,const wchar_t *RootPath)
 	{
 		CriticalSectionLock Lock(DataCS);
 
-		if (ArcList.size() == ArcList.capacity())
-			ArcList.reserve(ArcList.size() + 4096);
-
-		auto NewItem = new ARCLIST;
-		NewItem->strArcName = ArcName;
-		NewItem->hPlugin = hPlugin;
-		NewItem->Flags = dwFlags;
-		NewItem->strRootPath = RootPath;
-		AddEndSlash(NewItem->strRootPath);
+		ArcListItem NewItem;
+		NewItem.strArcName = ArcName;
+		NewItem.hPlugin = hPlugin;
+		NewItem.Flags = dwFlags;
+		NewItem.strRootPath = RootPath;
+		AddEndSlash(NewItem.strRootPath);
 		ArcList.push_back(NewItem);
-		return ArcList.size() - 1;
+		return ArcList.back();
 	}
 
-	size_t AddFindListItem(const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+	FindListItem& AddFindListItem(const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		CriticalSectionLock Lock(DataCS);
 
-		if (FindList.size() == FindList.capacity())
-			FindList.reserve(ArcList.size() + 4096);
-
-		auto NewItem = new FINDLIST;
-		NewItem->FindData = FindData;
-		NewItem->ArcIndex = LIST_INDEX_NONE;
-		NewItem->Data = Data;
-		NewItem->FreeData = FreeData;
-		FindList.push_back(NewItem);
-		return FindList.size() - 1;
+		FindListItem NewItem;
+		NewItem.FindData = FindData;
+		NewItem.Arc = nullptr;
+		NewItem.Data = Data;
+		NewItem.FreeData = FreeData;
+		FindList.push_back(std::move(NewItem));
+		return FindList.back();
 	}
 }
 *itd;
@@ -1040,25 +994,23 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
-	ARCLIST ArcItem;
-	itd->GetArcListItem(ArcIndex, ArcItem);
 	OpenPanelInfo Info;
-	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
-	Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
-	//SetPluginDirectory(ArcList[ArcIndex]->strRootPath,hPlugin);
-	SetPluginDirectory(FindData.strFileName,ArcItem.hPlugin,false,UserData);
+	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
+	//SetPluginDirectory(ArcItem->strRootPath,hPlugin);
+	SetPluginDirectory(FindData.strFileName,ArcItem->hPlugin,false,UserData);
 	const wchar_t *lpFileNameToFind = PointToName(FindData.strFileName);
 	const wchar_t *lpFileNameToFindShort = PointToName(FindData.strAlternateFileName);
 	PluginPanelItem *pItems;
 	size_t nItemsNumber;
 	bool nResult=false;
 
-	if (Global->CtrlObject->Plugins->GetFindData(ArcItem.hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
+	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
 	{
 		for (size_t i=0; i<nItemsNumber; i++)
 		{
@@ -1068,16 +1020,16 @@ bool FindFiles::GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData,
 
 			if (!StrCmp(lpFileNameToFind,Item.FileName) && !StrCmp(lpFileNameToFindShort,Item.AlternateFileName))
 			{
-				nResult=Global->CtrlObject->Plugins->GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
+				nResult=Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
 				break;
 			}
 		}
 
-		Global->CtrlObject->Plugins->FreeFindData(ArcItem.hPlugin,pItems,nItemsNumber,true);
+		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin,pItems,nItemsNumber,true);
 	}
 
-	Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
-	SetPluginDirectory(strSaveDir,ArcItem.hPlugin);
+	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
+	SetPluginDirectory(strSaveDir,ArcItem->hPlugin);
 	return nResult;
 }
 
@@ -1386,13 +1338,11 @@ exit:
 bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName)
 {
 	bool FileFound=FileMaskForFindFile->Compare(PointToName(FullName));
-	size_t ArcIndex=itd->GetFindFileArcIndex();
+	ArcListItem* ArcItem = itd->GetFindFileArcItem();
 	HANDLE hPlugin=nullptr;
-	if(ArcIndex!=LIST_INDEX_NONE)
+	if(ArcItem)
 	{
-		ARCLIST ArcItem;
-		itd->GetArcListItem(ArcIndex, ArcItem);
-		hPlugin=ArcItem.hPlugin;
+		hPlugin = ArcItem->hPlugin;
 	}
 
 	while (FileFound)
@@ -1701,50 +1651,41 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						return TRUE;
 					}
 
-					size_t ItemIndex = *reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr,0));
+					FindListItem* FindItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr,0));
 					bool RemoveTemp=false;
 					// Плагины надо закрывать, если открыли.
 					bool ClosePanel=false;
 					string strSearchFileName;
 					string strTempDir;
 
-					FINDLIST FindItem;
-					itd->GetFindListItem(ItemIndex, FindItem);
-					if (FindItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					if (FindItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
 						return TRUE;
 					}
 
 					bool real_name = true;
 
-					// FindFileArcIndex нельзя здесь использовать
-					// Он может быть уже другой.
-					if(FindItem.ArcIndex != LIST_INDEX_NONE)
+					if(FindItem->Arc)
 					{
-						ARCLIST ArcItem;
-						itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-
-						if(!(ArcItem.Flags & OPIF_REALNAMES))
+						if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 						{
 							real_name = false;
 
-							string strFindArcName = ArcItem.strArcName;
-							if(!ArcItem.hPlugin)
+							string strFindArcName = FindItem->Arc->strArcName;
+							if(!FindItem->Arc->hPlugin)
 							{
 								int SavePluginsOutput=Global->DisablePluginsOutput;
 								Global->DisablePluginsOutput=TRUE;
 								{
 									CriticalSectionLock Lock(PluginCS);
-									ArcItem.hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
+									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
 								}
-								itd->SetArcListItem(FindItem.ArcIndex, ArcItem);
 								Global->DisablePluginsOutput=SavePluginsOutput;
 
-								if (ArcItem.hPlugin == PANEL_STOP ||
-										!ArcItem.hPlugin)
+								if (FindItem->Arc->hPlugin == PANEL_STOP ||
+										!FindItem->Arc->hPlugin)
 								{
-									ArcItem.hPlugin = nullptr;
-									itd->SetArcListItem(FindItem.ArcIndex, ArcItem);
+									FindItem->Arc->hPlugin = nullptr;
 									return TRUE;
 								}
 
@@ -1753,18 +1694,16 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							FarMkTempEx(strTempDir);
 							apiCreateDirectory(strTempDir, nullptr);
 							CriticalSectionLock Lock(PluginCS);
-							struct UserDataItem UserData={FindItem.Data,FindItem.FreeData};
-							bool bGet=GetPluginFile(FindItem.ArcIndex,FindItem.FindData,strTempDir,strSearchFileName,&UserData);
-							itd->SetFindListItem(ItemIndex, FindItem);
+							struct UserDataItem UserData={FindItem->Data,FindItem->FreeData};
+							bool bGet=GetPluginFile(FindItem->Arc,FindItem->FindData,strTempDir,strSearchFileName,&UserData);
 							if (!bGet)
 							{
 								apiRemoveDirectory(strTempDir);
 
 								if (ClosePanel)
 								{
-									Global->CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
-									ArcItem.hPlugin = nullptr;
-									itd->SetArcListItem(FindItem.ArcIndex, ArcItem);
+									Global->CtrlObject->Plugins->ClosePanel(FindItem->Arc->hPlugin);
+									FindItem->Arc->hPlugin = nullptr;
 								}
 								return FALSE;
 							}
@@ -1772,9 +1711,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							{
 								if (ClosePanel)
 								{
-									Global->CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
-									ArcItem.hPlugin = nullptr;
-									itd->SetArcListItem(FindItem.ArcIndex, ArcItem);
+									Global->CtrlObject->Plugins->ClosePanel(FindItem->Arc->hPlugin);
+									FindItem->Arc->hPlugin = nullptr;
 								}
 							}
 							RemoveTemp=true;
@@ -1783,9 +1721,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (real_name)
 					{
-						strSearchFileName = FindItem.FindData.strFileName;
-						if (apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindItem.FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
-							strSearchFileName = FindItem.FindData.strAlternateFileName;
+						strSearchFileName = FindItem->FindData.strFileName;
+						if (apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindItem->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
+							strSearchFileName = FindItem->FindData.strAlternateFileName;
 					}
 
 					DWORD FileAttr=apiGetFileAttributes(strSearchFileName);
@@ -1803,32 +1741,28 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							// Возьмем все файлы, которые имеют реальные имена...
 							if (Global->Opt->FindOpt.CollectFiles)
 							{
-								for (size_t I=0; I<itd->GetFindListCount(); I++)
+								itd->Lock();
+								std::for_each(RANGE(itd->GetFindList(), i)
 								{
-									FINDLIST FindItem;
-									itd->GetFindListItem(I, FindItem);
-
 									bool RealNames=true;
-									if(FindItem.ArcIndex != LIST_INDEX_NONE)
+									if(i.Arc)
 									{
-										ARCLIST ArcItem;
-										itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-										if(!(ArcItem.Flags & OPIF_REALNAMES))
+										if(!(i.Arc->Flags & OPIF_REALNAMES))
 										{
 											RealNames=false;
 										}
 									}
 									if (RealNames)
 									{
-										if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+										if (!i.FindData.strFileName.IsEmpty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 										{
 											++list_count;
-											ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
+											ViewList.AddName(i.FindData.strFileName, i.FindData.strAlternateFileName);
 										}
 									}
-								}
-
-								string strCurDir = FindItem.FindData.strFileName;
+								});
+								itd->Unlock();
+								string strCurDir = FindItem->FindData.strFileName;
 								ViewList.SetCurName(strCurDir);
 							}
 
@@ -1839,13 +1773,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								ShellViewer.SetDynamicallyBorn(FALSE);
 								ShellViewer.SetEnableF6(TRUE);
 
-								// FindFileArcIndex нельзя здесь использовать
-								// Он может быть уже другой.
-								if(FindItem.ArcIndex != LIST_INDEX_NONE)
+								if(FindItem->Arc)
 								{
-									ARCLIST ArcItem;
-									itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-									if(!(ArcItem.Flags & OPIF_REALNAMES))
+									if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 									{
 										ShellViewer.SetSaveToSaveAs(true);
 									}
@@ -1919,13 +1849,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									ShellEditor.SetDynamicallyBorn(FALSE);
 									ShellEditor.SetEnableF6(TRUE);
 
-									// FindFileArcIndex нельзя здесь использовать
-									// Он может быть уже другой.
-									if(FindItem.ArcIndex != LIST_INDEX_NONE)
+									if(FindItem->Arc)
 									{
-										ARCLIST ArcItem;
-										itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-										if(!(ArcItem.Flags & OPIF_REALNAMES))
+										if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 										{
 											ShellEditor.SetSaveToSaveAs(TRUE);
 										}
@@ -2000,7 +1926,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						return TRUE;
 					}
-					FindExitIndex = static_cast<DWORD>(*reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr, 0)));
+					FindExitItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr, 0));
 					if (TB)
 					{
 						delete TB;
@@ -2178,7 +2104,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 				UINT64 StreamsSize=0;
 				DWORD StreamsCount=0;
 
-				if (itd->GetFindFileArcIndex() == LIST_INDEX_NONE)
+				if (itd->GetFindFileArcItem())
 				{
 					if (CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == STREAMSSIZE_COLUMN)
 						EnumStreams(FindData.strFileName,StreamsSize,StreamsCount);
@@ -2242,7 +2168,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 	// к примеру временная панель.
 
 	const wchar_t *DisplayName0=DisplayName;
-	if (itd->GetFindFileArcIndex() != LIST_INDEX_NONE)
+	if (itd->GetFindFileArcItem())
 		DisplayName0 = PointToName(DisplayName0);
 	MenuText << DisplayName0;
 
@@ -2268,13 +2194,12 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 
 		strLastDirName = strPathName;
 
-		if (itd->GetFindFileArcIndex() != LIST_INDEX_NONE)
+		if (itd->GetFindFileArcItem())
 		{
-			ARCLIST ArcItem;
-			itd->GetArcListItem(itd->GetFindFileArcIndex(), ArcItem);
-			if(!(ArcItem.Flags & OPIF_REALNAMES) && !ArcItem.strArcName.IsEmpty())
+			ArcListItem* ArcItem = itd->GetFindFileArcItem();
+			if(!(ArcItem->Flags & OPIF_REALNAMES) && !ArcItem->strArcName.IsEmpty())
 			{
-				string strArcPathName=ArcItem.strArcName;
+				string strArcPathName=ArcItem->strArcName;
 				strArcPathName+=L":";
 
 				if (!IsSlash(strPathName.At(0)))
@@ -2285,48 +2210,30 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 			}
 		}
 		ListItem.strName = strPathName;
-		size_t ItemIndex = itd->AddFindListItem(FindData,Data,nullptr);
+		FindListItem& FindItem = itd->AddFindListItem(FindData,Data,nullptr);
+		// Сбросим данные в FindData. Они там от файла
+		FindItem.FindData.Clear();
+		// Используем LastDirName, т.к. PathName уже может быть искажена
+		FindItem.FindData.strFileName = strLastDirName;
+		// Used=0 - Имя не попададёт во временную панель.
+		FindItem.Used=0;
+		// Поставим атрибут у каталога, что-бы он не был файлом :)
+		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+		FindItem.Arc = itd->GetFindFileArcItem();;
 
-		if (ItemIndex != LIST_INDEX_NONE)
-		{
-			// Сбросим данные в FindData. Они там от файла
-			FINDLIST FindItem;
-			itd->GetFindListItem(ItemIndex, FindItem);
-			FindItem.FindData.Clear();
-			// Используем LastDirName, т.к. PathName уже может быть искажена
-			FindItem.FindData.strFileName = strLastDirName;
-			// Used=0 - Имя не попададёт во временную панель.
-			FindItem.Used=0;
-			// Поставим атрибут у каталога, что-бы он не был файлом :)
-			FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-
-			size_t ArcIndex=itd->GetFindFileArcIndex();
-			if (ArcIndex != LIST_INDEX_NONE)
-			{
-				FindItem.ArcIndex = ArcIndex;
-			}
-			itd->SetFindListItem(ItemIndex, FindItem);
-			ListBox->SetUserData(&ItemIndex,sizeof(ItemIndex),ListBox->AddItem(&ListItem));
-		}
+		auto Ptr = &FindItem;
+		ListBox->SetUserData(&Ptr,sizeof(Ptr),ListBox->AddItem(&ListItem));
 	}
 
-	size_t ItemIndex = itd->AddFindListItem(FindData,Data,FreeData);
-
-	if (ItemIndex != LIST_INDEX_NONE)
-	{
-		FINDLIST FindItem;
-		itd->GetFindListItem(ItemIndex, FindItem);
-		FindItem.FindData.strFileName = FullName;
-		FindItem.Used=1;
-		size_t ArcIndex=itd->GetFindFileArcIndex();
-		if (ArcIndex != LIST_INDEX_NONE)
-			FindItem.ArcIndex = ArcIndex;
-		itd->SetFindListItem(ItemIndex, FindItem);
-	}
+	FindListItem& FindItem = itd->AddFindListItem(FindData,Data,FreeData);
+	FindItem.FindData.strFileName = FullName;
+	FindItem.Used=1;
+	FindItem.Arc = itd->GetFindFileArcItem();
 
 	ListItem.strName = MenuText;
 	int ListPos = ListBox->AddItem(&ListItem);
-	ListBox->SetUserData(&ItemIndex,sizeof(ItemIndex), ListPos);
+	auto Ptr = &FindItem;
+	ListBox->SetUserData(&Ptr, sizeof(Ptr), ListPos);
 
 	// Выделим как положено - в списке.
 	int FC=itd->GetFileCount(), DC=itd->GetDirCount(), LF=itd->GetLastFoundNumber();
@@ -2388,7 +2295,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
 	}
 
 	int SaveSearchMode=SearchMode;
-	size_t SaveArcIndex = itd->GetFindFileArcIndex();
+	ArcListItem* SaveArcItem = itd->GetFindFileArcItem();
 	{
 		int SavePluginsOutput=Global->DisablePluginsOutput;
 		Global->DisablePluginsOutput=TRUE;
@@ -2396,7 +2303,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
 		SearchMode=FINDAREA_FROM_CURRENT;
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hArc,&Info);
-		itd->SetFindFileArcIndex(itd->AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir));
+		itd->SetFindFileArcItem(&itd->AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir));
 		// Запомним каталог перед поиском в архиве. И если ничего не нашли - не рисуем его снова.
 		{
 			string strSaveDirName, strSaveSearchPath;
@@ -2407,14 +2314,12 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
 			strLastDirName.Clear();
 			DoPreparePluginList(Dlg,true);
 			strPluginSearchPath = strSaveSearchPath;
-			ARCLIST ArcItem;
-			itd->GetArcListItem(itd->GetFindFileArcIndex(), ArcItem);
+			ArcListItem* ArcItem = itd->GetFindFileArcItem();
 			{
 				CriticalSectionLock Lock(PluginCS);
-				Global->CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
+				Global->CtrlObject->Plugins->ClosePanel(ArcItem->hPlugin);
 			}
-			ArcItem.hPlugin = nullptr;
-			itd->SetArcListItem(itd->GetFindFileArcIndex(), ArcItem);
+			ArcItem->hPlugin = nullptr;
 
 			if (SaveListCount == itd->GetFindListCount())
 				strLastDirName = strSaveDirName;
@@ -2422,7 +2327,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
 
 		Global->DisablePluginsOutput=SavePluginsOutput;
 	}
-	itd->SetFindFileArcIndex(SaveArcIndex);
+	itd->SetFindFileArcItem(SaveArcItem);
 	SearchMode=SaveSearchMode;
 }
 
@@ -2769,18 +2674,17 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 
 void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 {
-	ARCLIST ArcItem;
-	itd->GetArcListItem(itd->GetFindFileArcIndex(), ArcItem);
+	ArcListItem* ArcItem = itd->GetFindFileArcItem();
 	OpenPanelInfo Info;
 	string strSaveDir;
 	{
 		CriticalSectionLock Lock(PluginCS);
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 		strSaveDir = Info.CurDir;
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 		{
-			Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_FIND);
-			Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+			Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_FIND);
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 		}
 	}
 
@@ -2790,12 +2694,12 @@ void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 		AddEndSlash(strPluginSearchPath);
 
 	int RecurseLevel=0;
-	ScanPluginTree(Dlg,ArcItem.hPlugin,ArcItem.Flags, RecurseLevel);
+	ScanPluginTree(Dlg,ArcItem->hPlugin,ArcItem->Flags, RecurseLevel);
 
 	if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 	{
 		CriticalSectionLock Lock(PluginCS);
-		Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,strSaveDir,OPM_FIND,&Info.UserData);
+		Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,strSaveDir,OPM_FIND,&Info.UserData);
 	}
 
 	if (!Internal)
@@ -2898,9 +2802,9 @@ bool FindFiles::FindFilesProcess()
 		HANDLE hPlugin=ActivePanel->GetPluginHandle();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		itd->SetFindFileArcIndex(itd->AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir));
+		itd->SetFindFileArcItem(&itd->AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir));
 
-		if (itd->GetFindFileArcIndex() == LIST_INDEX_NONE)
+		if (!itd->GetFindFileArcItem())
 			return false;
 
 		if (!(Info.Flags & OPIF_REALNAMES))
@@ -2955,47 +2859,38 @@ bool FindFiles::FindFilesProcess()
 			case FD_BUTTON_PANEL:
 			// Отработаем переброску на временную панель
 			{
-				size_t ListSize = itd->GetFindListCount();
+				itd->Lock();
+				size_t ListSize = itd->GetFindList().size();
 				PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
-
-				if (!PanelItems)
-					ListSize=0;
 
 				int ItemsNumber=0;
 
-				for (size_t i=0; i<ListSize; i++)
+				std::for_each(RANGE(itd->GetFindList(), i)
 				{
-					FINDLIST FindItem;
-					itd->GetFindListItem(i, FindItem);
-					if (!FindItem.FindData.strFileName.IsEmpty() && FindItem.Used)
+					if (!i.FindData.strFileName.IsEmpty() && i.Used)
 					// Добавляем всегда, если имя задано
 					{
 						// Для плагинов с виртуальными именами заменим имя файла на имя архива.
 						// панель сама уберет лишние дубли.
 						bool IsArchive=false;
-						if(FindItem.ArcIndex != LIST_INDEX_NONE)
+						if(i.Arc)
 						{
-							ARCLIST ArcItem;
-							itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-							if(!(ArcItem.Flags&OPIF_REALNAMES))
+							if(!(i.Arc->Flags&OPIF_REALNAMES))
 							{
 								IsArchive=true;
 							}
 						}
 						// Добавляем только файлы или имена архивов или папки когда просили
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
-							    !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+							    !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 						{
 							if (IsArchive)
 							{
-								ARCLIST ArcItem;
-								itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-								FindItem.FindData.strFileName = ArcItem.strArcName;
-								itd->SetFindListItem(i, FindItem);
+								i.FindData.strFileName = i.Arc->strArcName;
 							}
 							PluginPanelItem *pi=&PanelItems[ItemsNumber++];
 							ClearStruct(*pi);
-							FindDataExToPluginPanelItem(&FindItem.FindData, pi);
+							FindDataExToPluginPanelItem(&i.FindData, pi);
 
 							if (IsArchive)
 								pi->FileAttributes = 0;
@@ -3006,8 +2901,8 @@ bool FindFiles::FindFilesProcess()
 							}
 						}
 					}
-				}
-
+				});
+				itd->Unlock();
 				HANDLE hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems,ItemsNumber);
 
 				if (hNewPlugin)
@@ -3017,8 +2912,8 @@ bool FindFiles::FindFilesProcess()
 					NewPanel->SetPluginMode(hNewPlugin,L"",true);
 					NewPanel->SetVisible(TRUE);
 					NewPanel->Update(0);
-					//if (FindExitIndex != LIST_INDEX_NONE)
-					//NewPanel->GoToFile(FindList[FindExitIndex].FindData.cFileName);
+					//if (FindExitItem)
+					//NewPanel->GoToFile(FindExitItem->FindData.cFileName);
 					NewPanel->Show();
 				}
 
@@ -3031,19 +2926,14 @@ bool FindFiles::FindFilesProcess()
 			case FD_BUTTON_GOTO:
 			case FD_LISTBOX:
 			{
-				FINDLIST FindItem;
-				itd->GetFindListItem(FindExitIndex, FindItem);
-				string strFileName=FindItem.FindData.strFileName;
+				string strFileName=FindExitItem->FindData.strFileName;
 				Panel *FindPanel=Global->CtrlObject->Cp()->ActivePanel;
 
-				if (FindItem.ArcIndex != LIST_INDEX_NONE)
+				if (FindExitItem->Arc)
 				{
-					ARCLIST ArcItem;
-					itd->GetArcListItem(FindItem.ArcIndex, ArcItem);
-
-					if (!ArcItem.hPlugin)
+					if (!FindExitItem->Arc->hPlugin)
 					{
-						string strArcName = ArcItem.strArcName;
+						string strArcName = FindExitItem->Arc->strArcName;
 
 						if (FindPanel->GetType()!=FILE_PANEL)
 						{
@@ -3053,24 +2943,23 @@ bool FindFiles::FindFilesProcess()
 						string strArcPath=strArcName;
 						CutToSlash(strArcPath);
 						FindPanel->SetCurDir(strArcPath,TRUE);
-						ArcItem.hPlugin=((FileList *)FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
-						if (ArcItem.hPlugin==PANEL_STOP)
-							ArcItem.hPlugin = nullptr;
-						itd->SetArcListItem(FindItem.ArcIndex, ArcItem);
+						FindExitItem->Arc->hPlugin=((FileList *)FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
+						if (FindExitItem->Arc->hPlugin==PANEL_STOP)
+							FindExitItem->Arc->hPlugin = nullptr;
 					}
 
-					if (ArcItem.hPlugin)
+					if (FindExitItem->Arc->hPlugin)
 					{
 						OpenPanelInfo Info;
-						Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+						Global->CtrlObject->Plugins->GetOpenPanelInfo(FindExitItem->Arc->hPlugin,&Info);
 
 						if (SearchMode==FINDAREA_ROOT ||
 							    SearchMode==FINDAREA_ALL ||
 							    SearchMode==FINDAREA_ALL_BUTNETWORK ||
 							    SearchMode==FINDAREA_INPATH)
-							Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",0);
+							Global->CtrlObject->Plugins->SetDirectory(FindExitItem->Arc->hPlugin,L"\\",0);
 
-						SetPluginDirectory(strFileName,ArcItem.hPlugin,true); // ??? ,FindItem.Data ???
+						SetPluginDirectory(strFileName, FindExitItem->Arc->hPlugin, true); // ??? ,FindItem.Data ???
 					}
 				}
 				else
@@ -3190,7 +3079,7 @@ FindFiles::FindFiles():
 
 	do
 	{
-		FindExitIndex=LIST_INDEX_NONE;
+		FindExitItem = nullptr;
 		FindFoldersChanged=false;
 		SearchFromChanged=false;
 		FindPositionChanged=false;
