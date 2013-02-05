@@ -213,7 +213,7 @@ void InitConsole(int FirstInit)
 
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
-		KeyQueue=new FarQueue<DWORD>(1024);
+		KeyQueue=new PTRTYPE(KeyQueue);
 
 	SetFarConsoleMode();
 

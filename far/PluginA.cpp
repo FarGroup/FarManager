@@ -1795,19 +1795,34 @@ FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 	return &FindDialogData(hDlg)->l[ItemNumber];
 }
 
-TStack<FarDialogEvent>OriginalEvents;
+std::stack<FarDialogEvent>* OriginalEvents;
 
 class StackHandler
 {
 public:
-	StackHandler(FarDialogEvent& e){OriginalEvents.Push(e);}
-	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
+	StackHandler(FarDialogEvent& e)
+	{
+		if (!OriginalEvents)
+		{
+			OriginalEvents = new PTRTYPE(OriginalEvents);
+		}
+		OriginalEvents->push(e);
+	}
+	~StackHandler()
+	{
+		OriginalEvents->pop();
+		if (!OriginalEvents->size())
+		{
+			delete OriginalEvents;
+			OriginalEvents = nullptr;
+		}
+	}
 };
 
 intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	FarDialogEvent* TopEvent = OriginalEvents.Peek();
-	intptr_t Result = NativeInfo.DefDlgProc(TopEvent->hDlg, TopEvent->Msg, TopEvent->Param1, TopEvent->Param2);
+	FarDialogEvent& TopEvent = OriginalEvents->top();
+	intptr_t Result = NativeInfo.DefDlgProc(TopEvent.hDlg, TopEvent.Msg, TopEvent.Param1, TopEvent.Param2);
 	switch(Msg)
 	{
 	case DN_CTLCOLORDIALOG:

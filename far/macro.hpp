@@ -33,8 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TStack.hpp"
 #include "tvar.hpp"
+
 class Panel;
 struct GetMacroData;
 
@@ -207,7 +207,7 @@ class KeyMacro
 	private:
 		MACROMODEAREA m_Mode;
 		MacroState* m_CurState;
-		TStack<MacroState*> m_StateStack;
+		std::stack<MacroState*> m_StateStack;
 		MACRORECORDANDEXECUTETYPE m_Recording;
 		string m_RecCode;
 		string m_RecDescription;
@@ -234,7 +234,7 @@ class KeyMacro
 		bool InitMacroExecution(void);
 		bool UpdateLockScreen(bool recreate=false);
 		MacroRecord* GetCurMacro() { return m_CurState->GetCurMacro(); }
-		MacroRecord* GetTopMacro() { return m_StateStack.empty()?nullptr:(*m_StateStack.Peek())->GetCurMacro(); }
+		MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top()->GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 		void RestoreMacroChar(void);
 		bool PostNewMacro(int macroId,const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);

@@ -503,7 +503,7 @@ void KeyMacro::PushState(bool withClip)
 	if (withClip)
 		m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
 
-	m_StateStack.Push(m_CurState);
+	m_StateStack.push(m_CurState);
 	m_CurState = new MacroState();
 }
 
@@ -513,14 +513,15 @@ void KeyMacro::PopState(bool withClip)
 	{
 		if(!m_CurState->m_MacroQueue.empty())
 		{
-			MacroState* dst=(*m_StateStack.Peek());
+			MacroState* dst = m_StateStack.top();
 			std::for_each(RANGE(m_CurState->m_MacroQueue, i)
 			{
 				dst->m_MacroQueue.push_back(i);
 			});
 		}
 		delete m_CurState;
-		m_StateStack.Pop(m_CurState);
+		m_CurState = m_StateStack.top();
+		m_StateStack.pop();
 
 		if (withClip)
 			Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
@@ -1086,7 +1087,7 @@ int KeyMacro::GetKey()
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
 						bool CallPluginRules = (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0;
-						DWORD EntryStackSize = m_StateStack.size();
+						size_t EntryStackSize = m_StateStack.size();
 
 						if (CallPluginRules)
 						{
@@ -2915,7 +2916,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
 				{
-					INPUT_RECORD *inRec=&(*m_StateStack.Peek())->cRec;
+					INPUT_RECORD *inRec = &m_StateStack.top()->cRec;
 					if (!inRec->EventType)
 						inRec->EventType = KEY_EVENT;
 					if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
@@ -2944,7 +2945,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			DWORD oldHistoryDisable=0;
 			if (!m_StateStack.empty())
 			{
-				MacroState* ms=*m_StateStack.Peek();
+				MacroState* ms = m_StateStack.top();
 				oldHistoryDisable=ms->HistoryDisable;
 
 				if (!State.isUnknown())

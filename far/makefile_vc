@@ -132,7 +132,6 @@ LINK_OBJS = \
 	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\farexcpt.obj" \
-	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\farversion.obj" \
 	"$(INTDIR)\farwinapi.obj" \

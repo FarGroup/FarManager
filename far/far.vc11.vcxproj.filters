@@ -131,9 +131,6 @@
     <ClCompile Include="farexcpt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="farqueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="farrtl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -655,9 +652,6 @@
     <ClInclude Include="FarGuid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="farqueue.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="farrtl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -932,9 +926,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="treelist.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TStack.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tvar.hpp">

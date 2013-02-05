@@ -47,6 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <algorithm>
 #include <bitset>
+#include <stack>
+#include <queue>
 
 #ifdef __GNUC__
 #include <cctype>
@@ -211,6 +213,7 @@ inline void ClearArray(T& a)
 
 // trick to allow usage of operator :: with decltype(T)
 #define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
+#define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
 
 #define DECLTYPEOF(T, subtype) std::remove_reference<std::remove_pointer<DECLTYPE(T)>::type>::type::subtype
 #define VALUE_TYPE(T) DECLTYPEOF(T, value_type)

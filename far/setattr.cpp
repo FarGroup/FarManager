@@ -939,7 +939,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					Links[0] = strRoot + Links[0];
 					NameList.Items[0].Text = Links[0];
 
-					for (int i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
+					for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
 					{
 						Links[i] = strRoot + Links[i];
 						NameList.Items[i].Text = Links[i];

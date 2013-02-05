@@ -338,7 +338,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
-    <ClCompile Include="farqueue.cpp" />
     <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farversion.cpp" />
     <ClCompile Include="farwinapi.cpp" />
@@ -730,7 +729,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="FarDlgBuilder.hpp" />
     <ClInclude Include="farexcpt.hpp" />
     <ClInclude Include="FarGuid.hpp" />
-    <ClInclude Include="farqueue.hpp" />
     <ClInclude Include="farrtl.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="farwinapi.hpp" />
@@ -852,7 +850,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tree.hpp" />
     <ClInclude Include="treelist.hpp" />
-    <ClInclude Include="TStack.hpp" />
     <ClInclude Include="tvar.hpp" />
     <ClInclude Include="udlist.hpp" />
     <ClInclude Include="UnicodeString.hpp" />

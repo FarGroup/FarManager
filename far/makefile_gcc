@@ -41,7 +41,6 @@ SRCS = \
 	elevation.cpp \
 	execute.cpp \
 	farexcpt.cpp \
-	farqueue.cpp \
 	farrtl.cpp \
 	farversion.cpp \
 	farwinapi.cpp \

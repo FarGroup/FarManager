@@ -578,7 +578,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 							*/
 						case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
 						{
-							DWORD ppstacksize=ppstack.size();
+							size_t ppstacksize=ppstack.size();
 
 							if (ppstacksize)
 							{
@@ -978,7 +978,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
-			ppstack.Push(prec);
+			ppstack.push(prec);
 			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName);
 		}
 		else
@@ -995,13 +995,17 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
-		PushPopRecord prec;
-
-		if (ppstack.Pop(prec))
+		if (ppstack.size())
 		{
+			PushPopRecord& prec = ppstack.top();
+			ppstack.pop();
 			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
-			PushPopRecord *ptrprec=ppstack.Peek();
-			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():nullptr));
+			const wchar_t* Ptr = nullptr;
+			if (ppstack.size())
+			{
+				Ptr = ppstack.top().strName;
+			}
+			SetEnvironmentVariable(L"FARDIRSTACK", Ptr);
 			return Ret;
 		}
 
@@ -1010,7 +1014,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// CLRD
 	else if (!StrCmpI(CmdLine,L"CLRD"))
 	{
-		ppstack.Free();
+		DECLTYPE(ppstack)().swap(ppstack);
 		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
 		return TRUE;
 	}

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "edit.hpp"
-#include "TStack.hpp"
 
 struct PushPopRecord
 {
@@ -92,7 +91,7 @@ private:
 	string strCurDir;
 	string strLastCmdStr;
 	int LastCmdPartLength;
-	TStack<PushPopRecord> ppstack;
+	std::stack<PushPopRecord> ppstack;
 	friend class SetAutocomplete;
 
 };

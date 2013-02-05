@@ -70,8 +70,6 @@ FarDlgBuilder.hpp
 farexcpt.cpp
 farexcpt.hpp
 FarGuid.hpp
-farqueue.cpp
-farqueue.hpp
 farrtl.cpp
 farrtl.hpp
 farversion.cpp
@@ -263,7 +261,6 @@ TPreRedrawFunc.hpp
 tree.hpp
 treelist.cpp
 treelist.hpp
-TStack.hpp
 tvar.cpp
 tvar.hpp
 udlist.cpp

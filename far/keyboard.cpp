@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "keyboard.hpp"
 #include "keys.hpp"
-#include "farqueue.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -63,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* start Глобальные переменные */
 
 // "дополнительная" очередь кодов клавиш
-FarQueue<DWORD> *KeyQueue=nullptr;
+std::queue<DWORD>* KeyQueue=nullptr;
 
 FarKeyboardState IntKeyState={};
 
@@ -717,9 +716,10 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		}
 	}
 
-	if (KeyQueue && KeyQueue->Peek())
+	if (KeyQueue && KeyQueue->size())
 	{
-		CalcKey=KeyQueue->Get();
+		CalcKey=KeyQueue->front();
+		KeyQueue->pop();
 		NotMacros=CalcKey&0x80000000?1:0;
 		CalcKey&=~0x80000000;
 
@@ -1413,7 +1413,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	DWORD Key;
 	Global->ScrBuf->Flush();
 
-	if (KeyQueue && (Key=KeyQueue->Peek()) )
+	if (KeyQueue && (Key=KeyQueue->front()) )
 	{
 		int VirtKey,ControlState;
 		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
@@ -1514,12 +1514,13 @@ int WriteInput(int Key,DWORD Flags)
 
 		return Global->Console->WriteInput(&Rec, 1, WriteCount);
 	}
-	else if (KeyQueue)
+	else if (KeyQueue && KeyQueue->size() < 1024)
 	{
-		return KeyQueue->Put(((DWORD)Key)|(Flags&SKEY_NOTMACROS?0x80000000:0));
+		KeyQueue->push(Key|(Flags&SKEY_NOTMACROS?0x80000000:0));
+		return TRUE;
 	}
 	else
-		return 0;
+		return FALSE;
 }
 
 
