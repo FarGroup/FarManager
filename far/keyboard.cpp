@@ -1413,7 +1413,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	DWORD Key;
 	Global->ScrBuf->Flush();
 
-	if (KeyQueue && (Key=KeyQueue->front()) )
+	if (KeyQueue && KeyQueue->size() && (Key=KeyQueue->front()) )
 	{
 		int VirtKey,ControlState;
 		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
