@@ -218,7 +218,11 @@ function export.Open (OpenFrom, ...)
 
   elseif OpenFrom == F.OPEN_FROMMACRO then
     local guid, args = ...
-    if args[1]=="argtest" then return unpack(args,2) end -- argtest: return received arguments
+    if args[1]=="argtest" then -- argtest: return received arguments
+      return unpack(args,2)
+    elseif args[1]=="macropost" then -- this test fails (Mantis # 2222)
+      return far.MacroPost([[far.Message"macropost"]])
+    end
   end
 end
 

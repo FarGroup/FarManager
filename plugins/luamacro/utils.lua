@@ -2,6 +2,7 @@ local args = ...
 local ErrMsg, pack = args.ErrMsg, args.pack
 
 local F = far.Flags
+local band,bor = bit64.band,bit64.bor
 local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
@@ -34,9 +35,11 @@ local MCODE_F_GETOPTIONS   = 0x80C66
 local Areas, AreaNames
 local LoadedMacros
 local EnumState = {}
+local export_ProcessEditorEvent
+local export_ProcessViewerEvent
 
 local AddMacro_filename
-local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition"}
+local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
@@ -135,6 +138,7 @@ local function AddMacro (srctable)
     if type(macro.flags)~="string" then macro.flags="" end
     if type(macro.description)~="string" then macro.description=nil end
     if type(macro.condition)~="function" then macro.condition=nil end
+    if type(macro.filemask)~="string" then macro.filemask=nil end
 
     if type(macro.priority)~="number" then macro.priority=nil
     elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
@@ -230,7 +234,11 @@ local function LoadMacros (allAreas, unload)
   AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do Areas[name]={} end
 
-  if not unload then
+  if unload then
+    export.ProcessEditorEvent = nil
+  else
+    export.ProcessEditorEvent = export_ProcessEditorEvent
+    export.ProcessViewerEvent = export_ProcessViewerEvent
     local NoMacro = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
     win.CreateDir(dir.."\\scripts",true)
@@ -314,20 +322,37 @@ local function WriteMacros()
   end
 end
 
+local function CheckFileName (mask, name)
+  return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
+end
+
 local function GetTopMacros (area, macrolist, checkonly)
   local topmacros = { n=0 }
   local max_priority = -1
+
+  local filename
+  if not checkonly then
+    if area=="editor" then filename=editor.GetFileName()
+    elseif area=="viewer" then filename=viewer.GetFileName()
+    end
+  end
+
   for _,macro in ipairs(macrolist) do
     local priority = macro.priority or (area=="common" and 40) or 50
-    local pr = priority
+    local pr = checkonly and priority
     if not checkonly then
-      if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
+      local check = not (filename and macro.filemask) or CheckFileName(macro.filemask, filename)
+      if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
         if macro.condition then
           pr = macro.condition() -- unprotected call
-          pr = (type(pr)=="number") and (pr>100 and 100 or pr<0 and 0 or pr) or (pr and priority)
+          if pr then
+            if type(pr)=="number" then pr = pr>100 and 100 or pr<0 and 0 or pr
+            else pr = priority
+            end
+          end
+        else
+          pr = priority
         end
-      else
-        pr = nil
       end
     end
     if pr then
@@ -500,6 +525,40 @@ end
 
 local function GetMacroById (id)
   return LoadedMacros[id]
+end
+
+function export_ProcessEditorEvent (EditorID, Event, Param)
+  if Event == F.EE_READ then
+    if Areas and Areas.editor.read then
+      local filename = editor.GetFileName(EditorID)
+      for _,m in ipairs(Areas.editor.read) do
+        local check = not m.filemask or CheckFileName(m.filemask, filename)
+        if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Editor"), m.flags) then
+          if not m.condition or m.condition(EditorID) then
+            MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+            --if m.action then m.action(EditorID) end
+          end
+        end
+      end
+    end
+  end
+end
+
+function export_ProcessViewerEvent (ViewerID, Event, Param)
+  if Event == F.VE_READ then
+    if Areas and Areas.viewer.read then
+      local filename = viewer.GetFileName(ViewerID)
+      for _,m in ipairs(Areas.viewer.read) do
+        local check = not m.filemask or CheckFileName(m.filemask, filename)
+        if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Viewer"), m.flags) then
+          if not m.condition or m.condition(ViewerID) then
+            MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+            --if m.action then m.action(ViewerID) end
+          end
+        end
+      end
+    end
+  end
 end
 
 return {

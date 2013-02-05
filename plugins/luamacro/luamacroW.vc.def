@@ -3,5 +3,7 @@ EXPORTS
     GetMinFarVersionW
     GetPluginInfoW
     OpenW
+    ProcessEditorEventW
     ProcessSynchroEventW
+    ProcessViewerEventW
     SetStartupInfoW
