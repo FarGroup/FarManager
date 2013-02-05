@@ -530,7 +530,7 @@ end
 function export_ProcessEditorEvent (EditorID, Event, Param)
   if Event == F.EE_READ then
     if Areas and Areas.editor.read then
-      local filename = editor.GetFileName(EditorID)
+      local filename = editor.GetFileName(--[[EditorID]]) -- it fails when EditorID is specified
       for _,m in ipairs(Areas.editor.read) do
         local check = not m.filemask or CheckFileName(m.filemask, filename)
         if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Editor"), m.flags) then
@@ -547,7 +547,7 @@ end
 function export_ProcessViewerEvent (ViewerID, Event, Param)
   if Event == F.VE_READ then
     if Areas and Areas.viewer.read then
-      local filename = viewer.GetFileName(ViewerID)
+      local filename = viewer.GetFileName(--[[ViewerID]])
       for _,m in ipairs(Areas.viewer.read) do
         local check = not m.filemask or CheckFileName(m.filemask, filename)
         if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Viewer"), m.flags) then
