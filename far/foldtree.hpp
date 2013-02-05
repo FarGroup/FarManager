@@ -38,14 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 
 class TreeList;
-class Edit;
+class EditControl;
 class SaveScreen;
 
 class FolderTree:public Frame
 {
 	private:
 		TreeList *Tree;
-		Edit *FindEdit;
+		EditControl *FindEdit;
 
 		KeyBar TreeKeyBar;     // ךויבאנ
 		int ModalMode;

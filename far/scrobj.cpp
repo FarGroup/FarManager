@@ -98,7 +98,7 @@ void ScreenObject::SetOwner(ScreenObject *pOwner)
 	ScreenObject::pOwner = pOwner;
 }
 
-ScreenObject* ScreenObject::GetOwner()
+ScreenObject* ScreenObject::GetOwner() const
 {
 	return pOwner;
 }

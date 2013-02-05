@@ -98,13 +98,15 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	SortColorUpdate(false),
 	EditorControlLock(0),
 	buffer_line(nullptr),
-	buffer_size(0)
+	buffer_size(0),
+	Color(ColorIndexToColor(COL_EDITORTEXT)),
+	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT))
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
 	EdOpt = Global->Opt->EdOpt;
-	SetOwner(pOwner);
 
+	SetOwner(pOwner);
 	if (DialogUsed)
 		Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
@@ -274,6 +276,9 @@ void Editor::ShowEditor(void)
 {
 	if (Locked() || !TopList)
 		return;
+
+	Color = ColorIndexToColor(COL_EDITORTEXT);
+	SelColor = ColorIndexToColor(COL_EDITORSELECTEDTEXT);
 
 	Edit *CurPtr;
 	int LeftPos,CurPos,Y;
@@ -2880,7 +2885,7 @@ int Editor::ProcessKey(int Key)
 					  в начале строки, и нажимаем tab, который заменяется
 					  на пробелы, выделение съедет. Это фикс.
 					*/
-					if (Key==KEY_TAB && CurLine->GetConvertTabs() &&
+					if (Key==KEY_TAB && GetConvertTabs() &&
 					        BlockStart && BlockStart!=CurLine)
 					{
 						CurLine->GetSelection(SelStart,SelEnd);
@@ -7076,13 +7081,6 @@ void Editor::SetTabSize(int NewSize)
                           на самом деле изменился */
 	{
 		EdOpt.TabSize=NewSize;
-		Edit *CurPtr=TopList;
-
-		while (CurPtr)
-		{
-			CurPtr->SetTabSize(NewSize);
-			CurPtr=CurPtr->m_next;
-		}
 	}
 }
 
@@ -7099,8 +7097,6 @@ void Editor::SetConvertTabs(int NewMode)
 
 		while (CurPtr)
 		{
-			CurPtr->SetConvertTabs(NewMode);
-
 			if (NewMode == EXPAND_ALLTABS)
 			{
 				if(CurPtr->ReplaceTabs())
@@ -7252,18 +7248,14 @@ Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 	{
 		pEdit->m_next = nullptr;
 		pEdit->m_prev = nullptr;
-		pEdit->SetTabSize(EdOpt.TabSize);
 		pEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
-		pEdit->SetConvertTabs(EdOpt.ExpandTabs);
 		pEdit->SetCodePage(m_codepage, false, buffer_line, buffer_size);
 
 		if (lpwszStr)
 			pEdit->SetBinaryString(lpwszStr, nLength);
 
 		pEdit->SetCurPos(0);
-		pEdit->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode(TRUE);
-		pEdit->SetWordDiv(&EdOpt.strWordDiv);
 		pEdit->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
 	}
 
@@ -7549,12 +7541,6 @@ void Editor::SetCursorType(bool Visible, DWORD Size)
 void Editor::GetCursorType(bool& Visible,DWORD& Size)
 {
 	CurLine->GetCursorType(Visible,Size); //???
-}
-
-void Editor::SetObjectColor(PaletteColors Color,PaletteColors SelColor)
-{
-	for (Edit *CurPtr=TopList; CurPtr; CurPtr=CurPtr->m_next) //???
-		CurPtr->SetObjectColor(Color,SelColor);
 }
 
 void Editor::DrawScrollbar()

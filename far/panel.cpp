@@ -1354,7 +1354,7 @@ void Panel::FastFind(int FirstKey)
 		ChangeMacroMode MacroMode(MACRO_SEARCH);
 		SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
 		FastFindShow(FindX,FindY);
-		Edit FindEdit;
+		EditControl FindEdit(this);
 		FindEdit.SetPosition(FindX+2,FindY+1,FindX+19,FindY+1);
 		FindEdit.SetEditBeyondEnd(FALSE);
 		FindEdit.SetObjectColor(COL_DIALOGEDIT);

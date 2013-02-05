@@ -95,12 +95,6 @@ public:
 	virtual void Changed(bool DelBlock=false){};
 	DWORD SetCodePage(uintptr_t codepage, bool check_only, char * &buff, int &bsize); //BUGBUG
 	uintptr_t GetCodePage();  //BUGBUG
-	// ! Функция установки текущих Color,SelColor и ColorUnChanged!
-	void SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED);
-	void SetObjectColor(const FarColor& Color,const FarColor& SelColor);
-	void GetObjectColor(FarColor& Color, FarColor& SelColor) {Color = this->Color; SelColor = this->SelColor;}
-	void SetTabSize(int NewSize) { TabSize=NewSize; }
-	int GetTabSize() {return TabSize; }
 	void SetDelRemovesBlocks(bool Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 	void SetPersistentBlocks(bool Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
@@ -134,12 +128,8 @@ public:
 	void SetMaxLength(int Length) {MaxLength=Length;};
 	// Получение максимального значения строки для потребностей Dialod API
 	int GetMaxLength() {return MaxLength;};
-	void SetInputMask(const wchar_t *InputMask);
-	const wchar_t* GetInputMask() {return Mask;}
 	void SetOvertypeMode(bool Mode) {Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
-	void SetConvertTabs(int Mode) { TabExpandMode = Mode;};
-	int GetConvertTabs() {return TabExpandMode;};
 	int RealPosToTab(int Pos);
 	int TabPosToReal(int Pos);
 	void Select(int Start,int End);
@@ -161,12 +151,12 @@ public:
 	void GetCursorType(bool& Visible, DWORD& Size);
 	bool GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
 	void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
-	void SetWordDiv(const class StringOption* WordDiv) {strWordDiv=WordDiv;}
 
 protected:
-	void DeleteBlock();
 	virtual void DisableCallback(){};
 	virtual void RevertCallback(){};
+	void RefreshStrByMask(int InitMode=FALSE);
+	void DeleteBlock();
 
 	wchar_t *Str;
 	int StrSize;
@@ -175,12 +165,19 @@ protected:
 
 private:
 	virtual void DisplayObject();
-	virtual void SetUnchangedColor(){};
+	virtual const FarColor& GetNormalColor() const;
+	virtual const FarColor& GetSelectedColor() const;
+	virtual const FarColor& GetUnchangedColor() const;
+	virtual const int GetTabSize() const;
+	virtual const EXPAND_TABS GetTabExpandMode() const;
+	virtual const void SetInputMask(const wchar_t *InputMask) {}
+	virtual const wchar_t* GetInputMask() const {return nullptr;}
+	virtual const wchar_t* WordDiv() const;
+
 	int InsertKey(int Key);
 	int RecurseProcessKey(int Key);
-	void ApplyColor();
+	void ApplyColor(const FarColor& SelColor);
 	int GetNextCursorPos(int Position,int Where);
-	void RefreshStrByMask(int InitMode=FALSE);
 	int KeyMatchedMask(int Key);
 	int ProcessCtrlQ();
 	int ProcessInsDate(const wchar_t *Str);
@@ -188,30 +185,23 @@ private:
 	int CheckCharMask(wchar_t Chr);
 	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
-	const wchar_t* WordDiv();
 	void FixLeftPos(int TabCurPos=-1);
 
 	Edit *m_next;
 	Edit *m_prev;
 	int MaxLength;
-	wchar_t *Mask;
 	ColorItem *ColorList;
 	int ColorCount;
 	int MaxColorCount;
 	bool ColorListNeedSort;
 	bool ColorListNeedFree;
-	FarColor Color;
-	FarColor SelColor;
 	int PrevCurPos;       // 12.08.2000 KM - предыдущее положение курсора
-	int TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Global->Opt->TabSize;
-	int TabExpandMode;
 	int MSelStart;
 	int SelStart;
 	int SelEnd;
-	int EndType;
-	int CursorSize;
+	unsigned char EndType;
+	signed char CursorSize; // BUGBUG
 	int CursorPos;
-	const class StringOption* strWordDiv;
 	UINT m_codepage; //BUGBUG
 
 	friend class DlgEdit;
@@ -238,20 +228,20 @@ class EditControl:public Edit
 	};
 
 public:
-	EditControl(ScreenObject *pOwner=nullptr, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	EditControl(ScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 	virtual void Show();
 	virtual void Changed(bool DelBlock=false);
-	virtual void SetUnchangedColor();
+
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
 	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
 	void SetMacroAreaAC(MACROMODEAREA Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
-	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-	void  SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
-	void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
-	int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
+	void SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
+	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
+	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
 	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 
 	enum ECFLAGS
@@ -263,8 +253,14 @@ public:
 	};
 
 private:
-	void SetMenuPos(VMenu2& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
+	virtual const FarColor& GetNormalColor() const;
+	virtual const FarColor& GetSelectedColor() const;
+	virtual const FarColor& GetUnchangedColor() const;
+	virtual const int GetTabSize() const;
+	virtual const EXPAND_TABS GetTabExpandMode() const;
+	virtual const wchar_t* GetInputMask() const {return Mask;}
+	virtual const void SetInputMask(const wchar_t *InputMask);
+	virtual const wchar_t* WordDiv() const;
 	virtual void DisableCallback()
 	{
 		CallbackSaveState = m_Callback.Active;
@@ -275,12 +271,18 @@ private:
 		m_Callback.Active = CallbackSaveState;
 	};
 
+	void SetMenuPos(VMenu2& menu);
+	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
+
+	string Mask;
 	bool Selection;
 	int SelectionStart;
 	MACROMODEAREA MacroAreaAC;
 	History* pHistory;
 	FarList* pList;
-	FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога
+	FarColor Color;
+	FarColor SelColor;
+	FarColor ColorUnChanged;
 	BitFlags ECFlags;
 	bool ACState;
 	bool CallbackSaveState;

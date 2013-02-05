@@ -88,7 +88,7 @@ class ScreenObject
 		bool Locked();
 
 		void SetOwner(ScreenObject *pOwner);
-		ScreenObject* GetOwner();
+		ScreenObject* GetOwner() const;
 
 		void SavePrevScreen();
 		void Redraw();

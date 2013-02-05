@@ -238,6 +238,9 @@ class Editor:public ScreenObject
 		char *buffer_line;
 		int   buffer_size;
 
+		FarColor Color;
+		FarColor SelColor;
+
 	private:
 		virtual void DisplayObject();
 		void ShowEditor(void);
@@ -345,7 +348,7 @@ class Editor:public ScreenObject
 		int  GetTabSize() const {return EdOpt.TabSize; }
 
 		void SetConvertTabs(int NewMode);
-		int  GetConvertTabs() const {return EdOpt.ExpandTabs; }
+		EXPAND_TABS GetConvertTabs() const {return static_cast<EXPAND_TABS>(static_cast<int>(EdOpt.ExpandTabs)); }
 
 		void SetDelRemovesBlocks(bool NewMode);
 		bool  GetDelRemovesBlocks() const {return EdOpt.DelRemovesBlocks; }
@@ -429,11 +432,14 @@ class Editor:public ScreenObject
 		void SetCurPos(int NewCol, int NewRow=-1);
 		void SetCursorType(bool Visible, DWORD Size);
 		void GetCursorType(bool& Visible, DWORD& Size);
-		void SetObjectColor(PaletteColors Color,PaletteColors SelColor);
 		void DrawScrollbar();
 
 		void SortColorLock();
 		void SortColorUnlock();
 		bool SortColorLocked();
 		bool EditorControlLocked() {return EditorControlLock?true:false;}
+
+		const FarColor& GetNormalColor() const { return Color; }
+		const FarColor& GetSelectedColor() const { return SelColor; }
+
 };

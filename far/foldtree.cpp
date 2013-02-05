@@ -81,7 +81,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			if (!(FindEdit=new Edit))
+			if (!(FindEdit=new EditControl(this)))
 			{
 				SetExitCode(XC_OPEN_ERROR);
 				return;

@@ -82,7 +82,6 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	m_next(nullptr),
 	m_prev(nullptr),
 	MaxLength(-1),
-	Mask(nullptr),
 	PrevCurPos(0),
 	MSelStart(-1),
 	SelStart(-1),
@@ -91,19 +90,15 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	CursorPos(0)
 {
 	SetOwner(pOwner);
-	SetWordDiv(&Global->Opt->strWordDiv);
 
 	if (bAllocateData)
 		*Str=0;
 
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
-	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);
 	EndType=EOL_NONE;
 	ColorList=nullptr;
 	ColorCount=MaxColorCount=0;
 	ColorListNeedSort=ColorListNeedFree=false;
-	TabSize=Global->Opt->EdOpt.TabSize;
-	TabExpandMode = EXPAND_NOTABS;
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Global->Opt->EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Global->Opt->EdOpt.PersistentBlocks);
 	Flags.Change(FEDITLINE_SHOWWHITESPACE,Global->Opt->EdOpt.ShowWhiteSpace!=0);
@@ -116,9 +111,6 @@ Edit::~Edit()
 {
 	if (ColorList)
 		xf_free(ColorList);
-
-	if (Mask)
-		xf_free(Mask);
 
 	if (Str)
 		xf_free(Str);
@@ -259,6 +251,7 @@ void Edit::GetCursorType(bool& Visible, DWORD& Size)
 int Edit::GetNextCursorPos(int Position,int Where)
 {
 	int Result=Position;
+	auto Mask = GetInputMask();
 
 	if (Mask && *Mask && (Where==-1 || Where==1))
 	{
@@ -344,6 +337,7 @@ void Edit::FastShow()
 	   все "постоянные" символы в маске, не являющиеся шаблонными
 	   должны постоянно присутствовать в Str
 	*/
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 		RefreshStrByMask();
 
@@ -400,8 +394,8 @@ void Edit::FastShow()
 
 			if (*p == L'\t')
 			{
-				int S=TabSize-((UnfixedLeftPos+OutStrLength) % TabSize);
-				OutStr[OutStrLength]=(((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces)) && (OutStrLength || S==TabSize))?L'\x2192':L' ';
+				int S=GetTabSize()-((UnfixedLeftPos+OutStrLength) % GetTabSize());
+				OutStr[OutStrLength]=(((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces)) && (OutStrLength || S==GetTabSize()))?L'\x2192':L' ';
 				OutStrLength++;
 				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
 				{
@@ -460,19 +454,19 @@ void Edit::FastShow()
 	}
 
 	OutStr[OutStrLength]=0;
-	SetColor(Color);
+	SetColor(GetNormalColor());
 
 	if (TabSelStart==-1)
 	{
 		if (Flags.Check(FEDITLINE_CLEARFLAG))
 		{
-			SetUnchangedColor();
+			SetColor(GetUnchangedColor());
 
 			if (Mask && *Mask)
 				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
 
 			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
-			SetColor(Color);
+			SetColor(GetNormalColor());
 			int BlankLength=EditLength-OutStrLength;
 
 			if (BlankLength > 0)
@@ -509,7 +503,7 @@ void Edit::FastShow()
 		{
 			if (Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
-				SetColor(SelColor);
+				SetColor(GetSelectedColor());
 				Global->FS << fmt::MinWidth(X2-X1+1)<<OutStr;
 			}
 			else
@@ -518,7 +512,7 @@ void Edit::FastShow()
 		else
 		{
 			Global->FS << fmt::MaxWidth(TabSelStart)<<OutStr;
-			SetColor(SelColor);
+			SetColor(GetSelectedColor());
 
 			if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
@@ -527,7 +521,7 @@ void Edit::FastShow()
 				if (TabSelEnd<EditLength)
 				{
 					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
-					SetColor(Color);
+					SetColor(GetNormalColor());
 					Text(OutStr+TabSelEnd);
 				}
 			}
@@ -544,7 +538,7 @@ void Edit::FastShow()
 	/* $ 26.07.2000 tran
 	   при дроп-даун цвета нам не нужны */
 	if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
-		ApplyColor();
+		ApplyColor(GetSelectedColor());
 }
 
 
@@ -704,6 +698,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Edit::ProcessKey(int Key)
 {
+	auto Mask = GetInputMask();
 	switch (Key)
 	{
 		case KEY_ADD:
@@ -1510,7 +1505,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_SHIFTTAB:
 		{
 			PrevCurPos=CurPos;
-			CursorPos-=(CursorPos-1) % TabSize+1;
+			CursorPos-=(CursorPos-1) % GetTabSize()+1;
 
 			if (CursorPos<0) CursorPos=0; //CursorPos=0,TabSize=1 case
 
@@ -1605,11 +1600,12 @@ int Edit::InsertKey(int Key)
 	if (Key==KEY_TAB && Flags.Check(FEDITLINE_OVERTYPE))
 	{
 		PrevCurPos=CurPos;
-		CursorPos+=TabSize - (CursorPos % TabSize);
+		CursorPos+=GetTabSize() - (CursorPos % GetTabSize());
 		SetTabCurPos(CursorPos);
 		return TRUE;
 	}
 
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		int MaskLen=StrLength(Mask);
@@ -1677,7 +1673,7 @@ int Edit::InsertKey(int Key)
 			else if (!Flags.Check(FEDITLINE_OVERTYPE))
 				StrSize++;
 
-			if (Key==KEY_TAB && (TabExpandMode==EXPAND_NEWTABS || TabExpandMode==EXPAND_ALLTABS))
+			if (Key==KEY_TAB && (GetTabExpandMode()==EXPAND_NEWTABS || GetTabExpandMode()==EXPAND_ALLTABS))
 			{
 				StrSize--;
 				InsertTab();
@@ -1725,18 +1721,6 @@ int Edit::InsertKey(int Key)
 	if (changed) Changed();
 
 	return TRUE;
-}
-
-void Edit::SetObjectColor(PaletteColors Color,PaletteColors SelColor)
-{
-	this->Color=ColorIndexToColor(Color);
-	this->SelColor=ColorIndexToColor(SelColor);
-}
-
-void Edit::SetObjectColor(const FarColor& Color,const FarColor& SelColor)
-{
-	this->Color=Color;
-	this->SelColor=SelColor;
 }
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
@@ -1854,6 +1838,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 
 	CurPos=0;
 
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		RefreshStrByMask(TRUE);
@@ -1901,7 +1886,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 		wmemcpy(this->Str,Str,Length);
 		this->Str[Length]=0;
 
-		if (TabExpandMode == EXPAND_ALLTABS)
+		if (GetTabExpandMode() == EXPAND_ALLTABS)
 			ReplaceTabs();
 
 		PrevCurPos=CurPos;
@@ -1989,6 +1974,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 
 	Flags.Clear(FEDITLINE_CLEARFLAG);
 
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		int Pos=CurPos;
@@ -2085,7 +2071,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			this->Str[StrSize]=0;
 			delete[] TmpStr;
 
-			if (TabExpandMode == EXPAND_ALLTABS)
+			if (GetTabExpandMode() == EXPAND_ALLTABS)
 				ReplaceTabs();
 
 			Changed();
@@ -2101,28 +2087,10 @@ int Edit::GetLength()
 	return(StrSize);
 }
 
-
-// Функция установки маски ввода в объект Edit
-void Edit::SetInputMask(const wchar_t *InputMask)
-{
-	if (Mask)
-		xf_free(Mask);
-
-	if (InputMask && *InputMask)
-	{
-		if (!(Mask=xf_wcsdup(InputMask)))
-			return;
-
-		RefreshStrByMask(TRUE);
-	}
-	else
-		Mask=nullptr;
-}
-
-
 // Функция обновления состояния строки ввода по содержимому Mask
 void Edit::RefreshStrByMask(int InitMode)
 {
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		int MaskLen=StrLength(Mask);
@@ -2349,7 +2317,7 @@ void Edit::InsertTab()
 		return;
 
 	Pos=CurPos;
-	S=TabSize-(Pos % TabSize);
+	S=GetTabSize()-(Pos % GetTabSize());
 
 	if (SelStart!=-1)
 	{
@@ -2390,7 +2358,7 @@ bool Edit::ReplaceTabs()
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);
-		S=TabSize-((int)(TabPtr-Str) % TabSize);
+		S=GetTabSize()-((int)(TabPtr-Str) % GetTabSize());
 
 		if (SelStart!=-1)
 		{
@@ -2431,6 +2399,7 @@ int Edit::GetTabCurPos()
 
 void Edit::SetTabCurPos(int NewPos)
 {
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		wchar_t *ShortStr=new wchar_t[StrSize+1];
@@ -2455,11 +2424,6 @@ int Edit::RealPosToTab(int Pos)
 	return RealPosToTab(0, 0, Pos, nullptr);
 }
 
-const wchar_t* Edit::WordDiv()
-{
-	return *strWordDiv;
-}
-
 int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 {
 	// Корректировка табов
@@ -2469,7 +2433,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 		*CorrectPos = 0;
 
 	// Если у нас все табы преобразуются в пробелы, то просто вычисляем расстояние
-	if (TabExpandMode == EXPAND_ALLTABS)
+	if (GetTabExpandMode() == EXPAND_ALLTABS)
 		return PrevLength+Pos-PrevPos;
 
 	// Инциализируем результирующую длину предыдущим значением
@@ -2501,7 +2465,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 				}
 
 				// Расчитываем длину таба с учётом настроек и текущей позиции в строке
-				TabPos += TabSize-(TabPos%TabSize);
+				TabPos += GetTabSize()-(TabPos%GetTabSize());
 			}
 		// Обрабатываем все отсальные симовлы
 			else
@@ -2518,7 +2482,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 
 int Edit::TabPosToReal(int Pos)
 {
-	if (TabExpandMode == EXPAND_ALLTABS)
+	if (GetTabExpandMode() == EXPAND_ALLTABS)
 		return Pos;
 
 	int Index = 0;
@@ -2533,7 +2497,7 @@ int Edit::TabPosToReal(int Pos)
 
 		if (Str[Index] == L'\t')
 		{
-			int NewTabPos = TabPos+TabSize-(TabPos%TabSize);
+			int NewTabPos = TabPos+GetTabSize()-(TabPos%GetTabSize());
 
 			if (NewTabPos > Pos)
 				break;
@@ -2633,6 +2597,7 @@ void Edit::DeleteBlock()
 
 	PrevCurPos=CurPos;
 
+	auto Mask = GetInputMask();
 	if (Mask && *Mask)
 	{
 		for (int i=SelStart; i<SelEnd; i++)
@@ -2829,7 +2794,7 @@ int Edit::GetColor(ColorItem *col,int Item)
 }
 
 
-void Edit::ApplyColor()
+void Edit::ApplyColor(const FarColor& SelColor)
 {
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
@@ -3062,6 +3027,7 @@ int Edit::KeyMatchedMask(int Key)
 {
 	int Inserted=FALSE;
 
+	auto Mask = GetInputMask();
 	if (Mask[CurPos]==EDMASK_ANY)
 		Inserted=TRUE;
 	else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
@@ -3110,8 +3076,42 @@ void Edit::FixLeftPos(int TabCurPos)
 		LeftPos=TabCurPos;
 }
 
-EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,bAllocateData), MenuUp(false)
+const FarColor& Edit::GetNormalColor() const
 {
+	return static_cast<Editor*>(GetOwner())->GetNormalColor();
+}
+
+const FarColor& Edit::GetSelectedColor() const
+{
+	return static_cast<Editor*>(GetOwner())->GetSelectedColor();
+}
+
+const FarColor& Edit::GetUnchangedColor() const
+{
+	return static_cast<Editor*>(GetOwner())->GetNormalColor();
+}
+
+const int Edit::GetTabSize() const
+{
+	return static_cast<Editor*>(GetOwner())->GetTabSize();
+}
+
+const EXPAND_TABS Edit::GetTabExpandMode() const
+{
+	return static_cast<Editor*>(GetOwner())->GetConvertTabs();
+}
+
+const wchar_t* Edit::WordDiv() const
+{
+	return static_cast<Editor*>(GetOwner())->GetWordDiv();
+}
+
+EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
+	Edit(pOwner,bAllocateData),
+	MenuUp(false)
+{
+	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);
+
 	if (aCallback)
 	{
 		m_Callback=*aCallback;
@@ -3826,23 +3826,62 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
 {
-	Edit::SetObjectColor(Color, SelColor);
+	this->Color=ColorIndexToColor(Color);
+	this->SelColor=ColorIndexToColor(SelColor);
 	this->ColorUnChanged=ColorIndexToColor(ColorUnChanged);
 }
 
 void EditControl::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)
 {
-	Edit::SetObjectColor(Color, SelColor);
+	this->Color=Color;
+	this->SelColor=SelColor;
 	this->ColorUnChanged=ColorUnChanged;
 }
 
 void EditControl::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
 {
-	Edit::GetObjectColor(Color, SelColor);
+	Color = this->Color;
+	SelColor = this->SelColor;
 	ColorUnChanged = this->ColorUnChanged;
 }
 
-void EditControl::SetUnchangedColor()
+const FarColor& EditControl::GetNormalColor() const
 {
-	SetColor(ColorUnChanged);
+	return Color;
+}
+
+const FarColor& EditControl::GetSelectedColor() const
+{
+	return SelColor;
+}
+
+const FarColor& EditControl::GetUnchangedColor() const
+{
+	return ColorUnChanged;
+}
+
+const int EditControl::GetTabSize() const
+{
+	return Global->Opt->EdOpt.TabSize;
+}
+
+const EXPAND_TABS EditControl::GetTabExpandMode() const
+{
+	return EXPAND_NOTABS;
+}
+
+const void EditControl::SetInputMask(const wchar_t *InputMask)
+{
+	if (InputMask && *InputMask)
+	{
+		Mask = InputMask;
+		RefreshStrByMask(TRUE);
+	}
+	else
+		Mask.Clear();
+}
+
+const wchar_t* EditControl::WordDiv() const
+{
+	return Global->Opt->strWordDiv;
 }
