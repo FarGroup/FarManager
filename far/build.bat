@@ -19,7 +19,7 @@
   rem if auto-detection doesn't work - change/uncomment line(s) below
   rem ---------------------------------------------------------------
   rem set VSDIR=Your_VS2010_Path\
-  rem set MSSDK=Your_W7Sdk_Path\ 
+  rem set MSSDK=Your_W7Sdk_Path\
   rem set MINGW32=Your_MinGW32_Path\
   rem set MINGW64=Your_MinGW64_Path\
   rem set GMAKE=gmake.exe
@@ -101,7 +101,7 @@ goto :EOF
 
 :build_gcc
   if "" == "%gmake%" set gmake=mingw32-make.exe
-  set m=%gmake% --no-print-directory -f makefile_gcc DIRBIT=%dirbit%
+  set m=%gmake% --no-print-directory -j -f makefile_gcc DIRBIT=%dirbit%
   if /i "Y" == "%dwarf%" set m=%m% DW2=-dw2
 :do_make
   if /i "Y" == "%deb_b%" set m=%m% DEBUG=1
