@@ -56,7 +56,7 @@ class FileFilter
 		unsigned __int64 CurrentTime;
 
 		Panel *GetHostPanel();
-		int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check);
+		int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const wchar_t *FileName, DWORD FileAttr, int Check);
 		void ProcessSelection(VMenu2 *FilterList);
 		enumFileFilterFlagsType GetFFFT();
 		int  GetCheck(FileFilterParams *FFP);

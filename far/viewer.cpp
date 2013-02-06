@@ -2156,7 +2156,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 		else
 		{
 			lcache_base = (lcache_base + 1) % lcache_size; // ++start
-			lcache_first = _abs64(lcache_lines[lcache_base]);
+			lcache_first = llabs(lcache_lines[lcache_base]);
 		}
 	}
 	else if (start+length == lcache_first)
@@ -2169,7 +2169,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 		else
 		{
 			int i = (lcache_base + lcache_size - 1) % lcache_size; // i = start - 1
-			lcache_last = _abs64(lcache_lines[i]);
+			lcache_last = llabs(lcache_lines[i]);
 		}
 	}
 	else
@@ -2178,11 +2178,11 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 		if ( reset )
 		{
 			int i = CacheFindUp(start+length);
-			reset = (i < 0 || _abs64(lcache_lines[i]) != start);
+			reset = (i < 0 || llabs(lcache_lines[i]) != start);
 			if ( !reset )
 			{
 				int j = (i + 1) % lcache_size;
-				reset = (_abs64(lcache_lines[j]) != start+length);
+				reset = (llabs(lcache_lines[j]) != start+length);
 			}
 		}
 #if defined(_DEBUG) && 1 // it is legal case if file changed...
@@ -2218,7 +2218,7 @@ int Viewer::CacheFindUp( __int64 start )
 
 		i = (i1 + i2) / 2;
 		j = (lcache_base + i) % lcache_size;
-		if (_abs64(lcache_lines[j]) < start)
+		if (llabs(lcache_lines[j]) < start)
 			i1 = i;
 		else
 			i2 = i;
@@ -2251,7 +2251,7 @@ void Viewer::Up( int nlines, bool adjust )
 	{
 		for (;;)
 		{
-			fpos = _abs64(lcache_lines[i]);
+			fpos = llabs(lcache_lines[i]);
 			if (--nlines == 0)
 			{
 				FilePos = fpos;

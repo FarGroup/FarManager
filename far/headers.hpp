@@ -33,33 +33,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <new>
-#include <functional>
-#include <cstdlib>
-#include <cstdio>
-#include <cassert>
-#include <cwchar>
-#include <ctime>
-#include <cmath>
-#include <cfloat>
-#include <list>
-#include <vector>
-#include <map>
 #include <algorithm>
 #include <bitset>
-#include <stack>
 #include <queue>
+#include <list>
+#include <map>
+#include <stack>
+#include <vector>
+#include <cassert>
+#include <ctime>
 
 #ifdef __GNUC__
-#include <cctype>
 #include <climits>
-#include <stdint.h>
+#include <cfloat>
 #include <malloc.h>
 #endif //__GNUC__
 
 #include <process.h>
-#include <search.h>
-#include <share.h>
 
 #undef _W32API_OLD
 
@@ -153,7 +143,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 # include "SDK/sdk.gcc.h"
-# define _abs64 llabs
 # define _wcstoi64 wcstoll
 # define SEH_TRY
 # define SEH_EXCEPT(x) if(false)

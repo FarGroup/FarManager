@@ -51,8 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "keyboard.hpp"
 
-static int _cdecl ExtSort(const void *el1,const void *el2);
-
 static std::vector<FileFilterParams*> *FilterData, *TempFilterData;
 
 FileFilterParams *FoldersFilter;
@@ -123,8 +121,7 @@ bool FileFilter::FilterEdit()
 
 	if (m_FilterType != FFT_CUSTOM)
 	{
-		wchar_t *ExtPtr=nullptr;
-		int ExtCount=0;
+		std::list<std::pair<string, int>> Extensions;
 		{
 			enumFileFilterFlagsType FFFT = GetFFFT();
 
@@ -140,7 +137,7 @@ bool FileFilter::FilterEdit()
 				string strMask = FMask;
 				Unquote(strMask);
 
-				if (!ParseAndAddMasks(&ExtPtr,strMask,0,ExtCount,GetCheck(*i)))
+				if (!ParseAndAddMasks(Extensions, strMask, 0, GetCheck(*i)))
 					break;
 			}
 		}
@@ -166,7 +163,7 @@ bool FileFilter::FilterEdit()
 			ScTree.SetFindPath(strCurDir,L"*");
 
 			while (ScTree.GetNextName(&fdata,strFileName))
-				if (!ParseAndAddMasks(&ExtPtr,fdata.strFileName,fdata.dwFileAttributes,ExtCount,0))
+				if (!ParseAndAddMasks(Extensions, fdata.strFileName, fdata.dwFileAttributes, 0))
 					break;
 		}
 		else
@@ -175,23 +172,21 @@ bool FileFilter::FilterEdit()
 			DWORD FileAttr;
 
 			for (int i=0; GetHostPanel()->GetFileName(strFileName,i,FileAttr); i++)
-				if (!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
+				if (!ParseAndAddMasks(Extensions, strFileName, FileAttr, 0))
 					break;
 		}
 
-		cfunctions::far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
+		Extensions.sort();
 		ListItem.Clear();
 
-		for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h?h++:h=0)))
+		wchar_t h = L'1';
+		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
-			wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
-			MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
-			int Length = StrLength(CurExtPtr)+1;
-			ListItem.SetCheck(CurExtPtr[Length]);
-			FilterList.SetUserData(CurExtPtr, Length*sizeof(wchar_t), FilterList.AddItem(&ListItem));
+			MenuString(ListItem.strName, nullptr, false, h, true, i->first, MSG(MPanelFileType));
+			size_t Length = i->first.GetLength() + 1;
+			ListItem.SetCheck(i->second);
+			FilterList.SetUserData(i->first.CPtr(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
 		}
-
-		xf_free(ExtPtr);
 	}
 
 	ExitCode=FilterList.RunEx([&](int Msg, void *param)->int
@@ -1041,7 +1036,7 @@ void FileFilter::SwapFilter()
 		SwapPanelFlags(TempFilterData->at(i));
 }
 
-int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check)
+int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const wchar_t *FileName, DWORD FileAttr, int Check)
 {
 	if (!StrCmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return -1;
@@ -1057,28 +1052,12 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	else
 		strMask = FormatString() << L'*' << DotPtr;
 
-	// сначала поиск...
-	unsigned int Cnt=ExtCount;
-
-	if (_lfind(strMask.CPtr(),*ExtPtr,&Cnt,MAX_PATH*sizeof(wchar_t),ExtSort))
+	if (std::find_if(Extensions.begin(), Extensions.end(), [&strMask](const VALUE_TYPE(Extensions)& i)
+	{
+		return !StrCmpI(strMask, i.first);
+	}) != Extensions.end())
 		return -1;
 
-	// ... а потом уже выделение памяти!
-	wchar_t *NewPtr;
-
-	if (!(NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))))
-		return 0;
-
-	*ExtPtr=NewPtr;
-	NewPtr=*ExtPtr+ExtCount*MAX_PATH;
-	xwcsncpy(NewPtr,strMask,MAX_PATH-1);
-	NewPtr=NewPtr+StrLength(NewPtr)+1;
-	*NewPtr=Check;
-	ExtCount++;
+	Extensions.push_back(VALUE_TYPE(Extensions)(strMask, Check));
 	return 1;
-}
-
-int _cdecl ExtSort(const void *el1,const void *el2)
-{
-	return StrCmpI((const wchar_t *)el1,(const wchar_t *)el2);
 }
