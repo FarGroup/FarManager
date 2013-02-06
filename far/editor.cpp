@@ -7249,7 +7249,6 @@ Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 		pEdit->m_next = nullptr;
 		pEdit->m_prev = nullptr;
 		pEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
-		pEdit->SetCodePage(m_codepage, false, buffer_line, buffer_size);
 
 		if (lpwszStr)
 			pEdit->SetBinaryString(lpwszStr, nLength);
@@ -7430,25 +7429,92 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 	pc.bm=SavePos;
 }
 
+DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, char * &decoded, int &bsize)
+{
+	DWORD Ret = SETCP_NOERROR;
+	if (codepage == m_codepage)
+		return Ret;
+
+	//DWORD wc2mbFlags=WC_NO_BEST_FIT_CHARS;
+	BOOL UsedDefaultChar=FALSE;
+	LPBOOL lpUsedDefaultChar = &UsedDefaultChar;
+	if (m_codepage==CP_UTF7 || m_codepage==CP_UTF8) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
+	{
+		//wc2mbFlags=0;
+		lpUsedDefaultChar=nullptr;
+	}
+	DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
+
+	if ( edit->Str )
+	{
+		if ( 3*edit->StrSize + 1 > bsize )
+		{
+			delete[] decoded;
+			decoded = new char[bsize = 256 + 4*edit->StrSize];
+			if ( !decoded )
+			{
+				bsize = 0;
+				return Ret | SETCP_OTHERERROR;
+			}
+		}
+
+		int length = WideCharToMultiByte(m_codepage, 0, edit->Str, edit->StrSize, decoded, bsize, nullptr, lpUsedDefaultChar);
+		if (UsedDefaultChar)
+		{
+			Ret |= SETCP_WC2MBERROR;
+			if ( check_only )
+				return Ret;
+		}
+
+		int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
+		if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+		{
+			Ret |= SETCP_MB2WCERROR;
+			if ( !check_only )
+				length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
+		}
+		if ( check_only )
+			return Ret;
+
+		if ( edit->StrSize < length2 )
+		{
+			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
+			if (!encoded)
+				return Ret | SETCP_OTHERERROR;
+			xf_free(edit->Str);
+			edit->Str = encoded;
+		}
+
+		length2 = MultiByteToWideChar(codepage, 0, decoded, length, edit->Str, length2);
+		edit->Str[edit->StrSize = length2] = L'\0';
+	}
+
+	if ( !check_only )
+	{
+		edit->Changed();
+	}
+	return Ret;
+}
+
 
 bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 {
 	if ( m_codepage == codepage )
 		return true;
 
-   int line = 0;
+	int line = 0;
 	Edit *current = TopList;
 
 	while (current)
 	{
-		DWORD Result = current->SetCodePage(codepage, true, buffer_line, buffer_size);
+		DWORD Result = EditSetCodePage(current, codepage, true, buffer_line, buffer_size);
 		if ( Result )
 		{
 			Y = line;
 			X = 0;
 			BOOL def = FALSE, *p_def = (m_codepage == CP_UTF8 || m_codepage == CP_UTF7 ? nullptr : &def);
 			DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS);
-         for (int i=0; i < current->StrSize; ++i)
+			for (int i=0; i < current->StrSize; ++i)
 			{
 				char s[10];
 				int len = WideCharToMultiByte(m_codepage, 0, current->Str+i, 1, s, sizeof(s), nullptr, p_def);
@@ -7475,13 +7541,14 @@ bool Editor::SetCodePage(uintptr_t codepage)
 
 	DWORD Result = 0;
 	Edit *current = TopList;
-	m_codepage = codepage;
 
 	while (current)
 	{
-		Result |= current->SetCodePage(codepage, false, buffer_line, buffer_size);
+		Result |= EditSetCodePage(current, codepage, false, buffer_line, buffer_size);
 		current = current->m_next;
 	}
+
+	m_codepage = codepage;
 
 	Show();
 	return (Result == 0); // BUGBUG, more details

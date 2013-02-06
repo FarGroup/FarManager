@@ -93,8 +93,6 @@ public:
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 	virtual void Changed(bool DelBlock=false){};
-	DWORD SetCodePage(uintptr_t codepage, bool check_only, char * &buff, int &bsize); //BUGBUG
-	uintptr_t GetCodePage();  //BUGBUG
 	void SetDelRemovesBlocks(bool Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 	void SetPersistentBlocks(bool Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
@@ -202,7 +200,6 @@ private:
 	unsigned char EndType;
 	signed char CursorSize; // BUGBUG
 	int CursorPos;
-	UINT m_codepage; //BUGBUG
 
 	friend class DlgEdit;
 	friend class Editor;

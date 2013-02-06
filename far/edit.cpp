@@ -103,7 +103,6 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Global->Opt->EdOpt.PersistentBlocks);
 	Flags.Change(FEDITLINE_SHOWWHITESPACE,Global->Opt->EdOpt.ShowWhiteSpace!=0);
 	Flags.Change(FEDITLINE_SHOWLINEBREAK,Global->Opt->EdOpt.ShowWhiteSpace==1);
-	m_codepage = 0; //BUGBUG
 }
 
 
@@ -115,82 +114,6 @@ Edit::~Edit()
 	if (Str)
 		xf_free(Str);
 }
-
-
-DWORD Edit::SetCodePage(uintptr_t codepage, bool check_only, char * &decoded, int &bsize)
-{
-	DWORD Ret = SETCP_NOERROR;
-	if (codepage == m_codepage)
-		return Ret;
-
-	//DWORD wc2mbFlags=WC_NO_BEST_FIT_CHARS;
-	BOOL UsedDefaultChar=FALSE;
-	LPBOOL lpUsedDefaultChar = &UsedDefaultChar;
-	if (m_codepage==CP_UTF7 || m_codepage==CP_UTF8) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
-	{
-		//wc2mbFlags=0;
-		lpUsedDefaultChar=nullptr;
-	}
-	DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
-
-	if ( Str )
-	{
-		if ( 3*StrSize + 1 > bsize )
-		{
-			delete[] decoded;
-			decoded = new char[bsize = 256 + 4*StrSize];
-			if ( !decoded )
-			{
-				bsize = 0;
-				return Ret | SETCP_OTHERERROR;
-			}
-		}
-
-		int length = WideCharToMultiByte(m_codepage, 0, Str, StrSize, decoded, bsize, nullptr, lpUsedDefaultChar);
-		if (UsedDefaultChar)
-		{
-			Ret |= SETCP_WC2MBERROR;
-			if ( check_only )
-				return Ret;
-		}
-
-		int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
-		if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
-		{
-			Ret |= SETCP_MB2WCERROR;
-			if ( !check_only )
-				length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
-		}
-		if ( check_only )
-			return Ret;
-
-		if ( StrSize < length2 )
-		{
-			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
-			if (!encoded)
-				return Ret | SETCP_OTHERERROR;
-			xf_free(Str);
-			Str = encoded;
-		}
-
-		length2 = MultiByteToWideChar(codepage, 0, decoded, length, Str, length2);
-		Str[StrSize = length2] = L'\0';
-	}
-
-	if ( !check_only )
-	{
-		m_codepage = codepage;
-		Changed();
-	}
-	return Ret;
-}
-
-
-uintptr_t Edit::GetCodePage()
-{
-	return m_codepage;
-}
-
 
 void Edit::DisplayObject()
 {

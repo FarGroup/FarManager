@@ -320,6 +320,7 @@ class Editor:public ScreenObject
 		void SetCacheParams(EditorPosCache &pc, bool count_bom=false);
 		void GetCacheParams(EditorPosCache &pc);
 
+		DWORD EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, char * &decoded, int &bsize);
 		bool TryCodePage(uintptr_t codepage, int &X, int &Y);
 		bool SetCodePage(uintptr_t codepage);  //BUGBUG
 		uintptr_t GetCodePage();  //BUGBUG
