@@ -35,8 +35,6 @@ local MCODE_F_GETOPTIONS   = 0x80C66
 local Areas, AreaNames
 local LoadedMacros
 local EnumState = {}
-local export_ProcessEditorEvent
-local export_ProcessViewerEvent
 
 local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
@@ -234,11 +232,7 @@ local function LoadMacros (allAreas, unload)
   AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do Areas[name]={} end
 
-  if unload then
-    export.ProcessEditorEvent = nil
-  else
-    export.ProcessEditorEvent = export_ProcessEditorEvent
-    export.ProcessViewerEvent = export_ProcessViewerEvent
+  if not unload then
     local NoMacro = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
     win.CreateDir(dir.."\\scripts",true)
@@ -527,9 +521,10 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-function export_ProcessEditorEvent (EditorID, Event, Param)
+function export.ProcessEditorEvent (EditorID, Event, Param)
+  if not Areas then return end
   if Event == F.EE_READ then
-    if Areas and Areas.editor.read then
+    if Areas.editor.read then
       local filename = editor.GetFileName(--[[EditorID]]) -- it fails when EditorID is specified
       for _,m in ipairs(Areas.editor.read) do
         local check = not m.filemask or CheckFileName(m.filemask, filename)
@@ -544,9 +539,10 @@ function export_ProcessEditorEvent (EditorID, Event, Param)
   end
 end
 
-function export_ProcessViewerEvent (ViewerID, Event, Param)
+function export.ProcessViewerEvent (ViewerID, Event, Param)
+  if not Areas then return end
   if Event == F.VE_READ then
-    if Areas and Areas.viewer.read then
+    if Areas.viewer.read then
       local filename = viewer.GetFileName(--[[ViewerID]])
       for _,m in ipairs(Areas.viewer.read) do
         local check = not m.filemask or CheckFileName(m.filemask, filename)
