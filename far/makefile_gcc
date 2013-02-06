@@ -32,7 +32,6 @@ SRCS = \
 	dirinfo.cpp \
 	dirmix.cpp \
 	dizlist.cpp \
-	DlgBuilder.cpp \
 	dlgedit.cpp \
 	drivemix.cpp \
 	edit.cpp \
@@ -40,6 +39,7 @@ SRCS = \
 	eject.cpp \
 	elevation.cpp \
 	execute.cpp \
+	FarDlgBuilder.cpp \
 	farexcpt.cpp \
 	farrtl.cpp \
 	farversion.cpp \

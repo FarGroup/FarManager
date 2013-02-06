@@ -123,7 +123,6 @@ LINK_OBJS = \
 	"$(INTDIR)\dirinfo.obj" \
 	"$(INTDIR)\dirmix.obj" \
 	"$(INTDIR)\dizlist.obj" \
-	"$(INTDIR)\DlgBuilder.obj" \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\drivemix.obj" \
 	"$(INTDIR)\edit.obj" \
@@ -131,6 +130,7 @@ LINK_OBJS = \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\execute.obj" \
+	"$(INTDIR)\FarDlgBuilder.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\farversion.obj" \

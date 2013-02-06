@@ -91,6 +91,8 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		// Добавляет выпадающий список с указанными значениями.
 		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 		DialogItemEx *AddComboBox(IntOption& Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(int *Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(IntOption& Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0, bool ThreeState=false)
 		{

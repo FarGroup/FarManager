@@ -371,9 +371,9 @@ void InfoPanelSettings()
 	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, Global->Opt->InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, Global->Opt->InfoPanel.ShowCDInfo);
 	Builder.AddText(MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(Global->Opt->InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Global->Opt->InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(Global->Opt->InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Global->Opt->InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -605,11 +605,11 @@ void VMenuSettings()
 	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
 
 	Builder.AddText(MConfigVMenuLBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Global->Opt->VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuRBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Global->Opt->VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuMBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Global->Opt->VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
@@ -713,11 +713,12 @@ void SetDizConfig()
 void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 {
 	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings");
+	DialogItemEx *ExternalViewer = nullptr;
 	if (!Local)
 	{
 		Builder.AddCheckbox(MViewConfigExternalF3, Global->Opt->ViOpt.UseExternalViewer);
 		Builder.AddText(MViewConfigExternalCommand);
-		Builder.AddEditField(Global->Opt->strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		ExternalViewer = Builder.AddEditField(Global->Opt->strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
 
@@ -743,7 +744,10 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(Global->Opt->ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.AddCheckbox(MViewAutoDetectCodePage, Global->Opt->ViOpt.AutoDetectCodePage);
-		Builder.AddCheckbox(MViewConfigAnsiCodePageAsDefault, Global->Opt->ViOpt.AnsiCodePageAsDefault);
+		std::vector<DialogBuilderListItem2> Items;
+		DialogItemEx *CodePageCombo = Builder.AddComboBox(Global->Opt->ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddTextBefore(CodePageCombo, MViewConfigDefaultCodePage);
+		CodePageCombo->X2 = ExternalViewer->X2;
 	}
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
@@ -778,7 +782,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOpt.ExpandTabs, 64, ExpandTabsItems, 3, DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(EdOpt.ExpandTabs, 64, ExpandTabsItems, 3, DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOpt.PersistentBlocks);
@@ -1249,8 +1253,8 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", AddressAndType(Global->Opt->Exec.ExecuteUseAppPath), Default(1)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", AddressAndType(Global->Opt->Exec.UseHomeDir), Default(1)},
 
-		{FSSF_PRIVATE,       NKeyViewer,L"AnsiCodePageAsDefault", AddressAndType(Global->Opt->ViOpt.AnsiCodePageAsDefault), Default(1)},
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", AddressAndType(Global->Opt->ViOpt.AutoDetectCodePage), Default(1)},
+		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", AddressAndType(Global->Opt->ViOpt.DefaultCodePage), Default(GetACP())},
 		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", AddressAndType(Global->Opt->strExternalViewer), Default(L"")},
 		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", AddressAndType(Global->Opt->ViOpt.ViewerIsWrap), Default(1)},
 		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", AddressAndType(Global->Opt->ViOpt.MaxLineSize), Default(ViewerOptions::eDefLineSize)},

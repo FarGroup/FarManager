@@ -2728,15 +2728,15 @@ MViewConfigPersistentSelection
 "Selección &persistente"
 "Trvalý &výber"
 
-MViewConfigAnsiCodePageAsDefault
-"&Использовать кодовую страницу ANSI по умолчанию"
-"Use ANS&I code page by default"
-"Používat výchozí kódovou stránku ANS&I"
-upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
-"Fájlok eredeti megnyitása ANS&I kódlappal"
-"&Otwieraj pliki w kodowaniu Windows"
-"Usar página de código ANS&I por defecto"
-"Predvolená tabuľka znakov ANS&I"
+MViewConfigDefaultCodePage
+"Кодовая стран&ица по умолчанию:"
+"&Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
 
 MViewConfigMaxLineSize
 "&Максимальная ширина строки"

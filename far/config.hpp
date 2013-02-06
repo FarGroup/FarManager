@@ -324,7 +324,7 @@ struct EditorOptions
 	BoolOption SaveShortPos;
 	BoolOption F7Rules;
 	BoolOption AllowEmptySpaceAfterEof;
-	IntOption ReadOnlyLock; 
+	IntOption ReadOnlyLock;
 	IntOption UndoSize;
 	BoolOption UseExternalEditor;
 	IntOption FileSizeLimitLo;
@@ -369,7 +369,7 @@ struct ViewerOptions
 	BoolOption SaveShortPos;
 	BoolOption UseExternalViewer;
 	BoolOption ShowKeyBar;
-	BoolOption AnsiCodePageAsDefault;
+	IntOption  DefaultCodePage;
 	BoolOption ShowTitleBar;
 	BoolOption SearchRegexp;
 	IntOption  MaxLineSize; // 1000..100000, default=10000

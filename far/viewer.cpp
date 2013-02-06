@@ -385,7 +385,9 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			}
 
 			if (VM.CodePage==CP_DEFAULT)
-				VM.CodePage=Global->Opt->ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
+			{
+				VM.CodePage=GetDefaultCodePage();
+			}
 		}
 		else
 		{
@@ -1331,7 +1333,6 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			DWORD MacroViewerState=0;
 			MacroViewerState |= ViOpt.AutoDetectCodePage     ? 0x00000001 : 0; //autodetect
-			MacroViewerState |= !ViOpt.AnsiCodePageAsDefault ? 0x00000002 : 0; //not use ANSI as default
 			MacroViewerState |=                                0x00000004;     //? always UNICODE
 			MacroViewerState |= VM.Wrap                      ? 0x00000008 : 0; //wrap mode
 			MacroViewerState |= VM.WordWrap                  ? 0x00000010 : 0; //word wrap
@@ -1651,7 +1652,7 @@ int Viewer::ProcessKey(int Key)
 					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && Global->CodePages->IsCodePageSupported(nCodePage);
 					vseek(fpos, SEEK_SET);
 					if (!detect)
-						nCodePage = Global->Opt->ViOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
+						nCodePage = GetDefaultCodePage();
 				}
 				CodePageChangedByUser=TRUE;
 				VM.CodePage=nCodePage;
@@ -4435,4 +4436,12 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 
 	Global->Opt->ViOpt.ViewerWrap = VM.WordWrap != 0;
 	return oldTypeWrap;
+}
+
+uintptr_t Viewer::GetDefaultCodePage()
+{
+	intptr_t cp = Global->Opt->ViOpt.DefaultCodePage;
+	if (cp < 0 || !Global->CodePages->IsCodePageSupported(cp))
+		cp = GetACP();
+	return cp;
 }

@@ -47,7 +47,6 @@ dirmix.hpp
 dizlist.cpp
 dizlist.hpp
 dizviewer.hpp
-DlgBuilder.cpp
 DlgBuilder.hpp
 dlgedit.cpp
 dlgedit.hpp
@@ -66,6 +65,7 @@ event.hpp
 execute.cpp
 execute.hpp
 exitcode.hpp
+FarDlgBuilder.cpp
 FarDlgBuilder.hpp
 farexcpt.cpp
 farexcpt.hpp

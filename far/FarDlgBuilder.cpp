@@ -1,7 +1,7 @@
 /*
-DlgBuilder.cpp
+FarDlgBuilder.cpp
 
-Динамическое построение диалогов
+Динамическое построение диалогов - версия для внутреннего употребления в FAR
 */
 /*
 Copyright © 2009 Far Group
@@ -438,6 +438,58 @@ DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width,
 	List->StructSize = sizeof(FarList);
 	List->Items = ListItems;
 	List->ItemsNumber = ItemCount;
+	Item->ListItems = List;
+
+	SetLastItemBinding(new FarComboBoxBinding<IntOption>(Value, List));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	Item->Flags |= DIF_DROPDOWNLIST|Flags;
+
+	size_t ItemsCount = Items.size();
+	FarListItem *ListItems = new FarListItem[ItemsCount];
+	for (size_t i=0; i<ItemsCount; i++)
+	{
+		ListItems[i].Text = Items[i].Text;
+		ListItems[i].Flags = (*Value == Items[i].ItemValue) ? LIF_SELECTED : 0;
+		ListItems[i].Flags |= Items[i].Flags;
+		ListItems[i].Reserved[0] = Items[i].ItemValue;
+	}
+	FarList *List = new FarList;
+	List->StructSize = sizeof(FarList);
+	List->Items = ListItems;
+	List->ItemsNumber = ItemsCount;
+	Item->ListItems = List;
+
+	SetLastItemBinding(new ComboBoxBinding<DialogItemEx>(Value, List));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width, const std::vector<DialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	Item->Flags |= DIF_DROPDOWNLIST|Flags;
+
+	size_t ItemsCount = Items.size();
+	FarListItem *ListItems = new FarListItem[ItemsCount];
+	for(size_t i=0; i<ItemsCount; i++)
+	{
+		ListItems[i].Text = Items[i].Text;
+		ListItems[i].Flags = (Value == Items[i].ItemValue) ? LIF_SELECTED : 0;
+		ListItems[i].Reserved[0] = Items[i].ItemValue;
+		ListItems[i].Flags |= Items[i].Flags;
+	}
+	FarList *List = new FarList;
+	List->StructSize = sizeof(FarList);
+	List->Items = ListItems;
+	List->ItemsNumber = ItemsCount;
 	Item->ListItems = List;
 
 	SetLastItemBinding(new FarComboBoxBinding<IntOption>(Value, List));

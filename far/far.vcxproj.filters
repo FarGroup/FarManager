@@ -107,7 +107,7 @@
     <ClCompile Include="dizlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DlgBuilder.cpp">
+    <ClCompile Include="FarDlgBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dlgedit.cpp">

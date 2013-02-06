@@ -52,6 +52,18 @@ struct DialogBuilderListItem
 	int ItemValue;
 };
 
+// Элемент выпадающего списка в диалоге.
+struct DialogBuilderListItem2
+{
+	// Строчка, которая будет показана в диалоге.
+	const wchar_t *Text;
+
+	LISTITEMFLAGS Flags;
+
+	// Значение, которое будет записано в поле Value при выборе этой строчки.
+	int ItemValue;
+};
+
 template<class T>
 struct DialogItemBinding
 {
@@ -191,7 +203,7 @@ class DialogBuilderBase
 			// AddDialogItem и аналогичных методов, поэтому размер массива подбираем такой,
 			// чтобы все нормальные диалоги помещались без реаллокации
 			// TODO хорошо бы, чтобы они вообще не инвалидировались
-			DialogItemsAllocated += 32;
+			DialogItemsAllocated += 64;
 			if (!DialogItems)
 			{
 				DialogItems = new T[DialogItemsAllocated];

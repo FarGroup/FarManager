@@ -215,6 +215,8 @@ class Viewer:public ScreenObject
 
 		void ChangeViewKeyBar();
 
+		uintptr_t GetDefaultCodePage();
+
 		void Search(int Next,int FirstChar);
 		//
 		struct search_data;

@@ -467,7 +467,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dirinfo.cpp" />
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
-    <ClCompile Include="DlgBuilder.cpp" />
+    <ClCompile Include="FarDlgBuilder.cpp" />
     <ClCompile Include="dlgedit.cpp" />
     <ClCompile Include="drivemix.cpp" />
     <ClCompile Include="edit.cpp" />
