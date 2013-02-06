@@ -1773,26 +1773,38 @@ std::list<DialogData>* DialogList;
 
 oldfar::FarDialogItem* OneDialogItem=nullptr;
 
-std::list<DialogData>::const_iterator FindDialogData(HANDLE hDlg)
+DialogData* FindDialogData(HANDLE hDlg)
 {
-	return std::find_if(DialogList->begin(), DialogList->end(), [&hDlg](const DialogData& i)
+	DialogData* Result = nullptr;
+	if (DialogList)
 	{
-		return i.hDlg == hDlg;
-	});
+		auto iter = std::find_if(DialogList->begin(), DialogList->end(), [&hDlg](const DialogData& i)
+		{
+			return i.hDlg == hDlg;
+		});
+		if (iter != DialogList->end())
+		{
+			Result = &(*iter);
+		}
+	}
+	return Result;
 }
+
+// can be nullptr in case of the ansi dialog plugin
 oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
-	return &FindDialogData(hDlg)->diA[ItemNumber];
+	auto current = FindDialogData(hDlg);
+	return current? &current->diA[ItemNumber] : nullptr;
 }
 
-FarDialogItem* CurrentDialogItem(HANDLE hDlg,int ItemNumber)
+FarDialogItem& CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
-	return &FindDialogData(hDlg)->di[ItemNumber];
+	return FindDialogData(hDlg)->di[ItemNumber];
 }
 
-FarList* CurrentList(HANDLE hDlg,int ItemNumber)
+FarList& CurrentList(HANDLE hDlg,int ItemNumber)
 {
-	return &FindDialogData(hDlg)->l[ItemNumber];
+	return FindDialogData(hDlg)->l[ItemNumber];
 }
 
 std::stack<FarDialogEvent>* OriginalEvents;
@@ -2687,14 +2699,14 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2)
 				return FALSE;
 
-			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
+			FarDialogItem& di=CurrentDialogItem(hDlg,Param1);
 
-			if (di->Type==DI_LISTBOX || di->Type==DI_COMBOBOX)
-				di->ListItems=CurrentList(hDlg,Param1);
+			if (di.Type==DI_LISTBOX || di.Type==DI_COMBOBOX)
+				di.ListItems = &CurrentList(hDlg,Param1);
 
-			FreeUnicodeDialogItem(*di);
+			FreeUnicodeDialogItem(di);
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
-			AnsiDialogItemToUnicode(*diA,*di,*di->ListItems);
+			AnsiDialogItemToUnicode(*diA, di, *di.ListItems);
 
 			// save color info
 			if(diA->Flags&oldfar::DIF_SETCOLOR)
@@ -2703,7 +2715,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				diA_Copy->Flags = diA->Flags;
 			}
 
-			return NativeInfo.SendDlgMessage(hDlg, DM_SETDLGITEM, Param1, di);
+			return NativeInfo.SendDlgMessage(hDlg, DM_SETDLGITEM, Param1, &di);
 		}
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
 		case oldfar::DM_REDRAW:   Msg = DM_REDRAW; break;
@@ -3054,10 +3066,10 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, 0);
 			else
 			{
-				FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
-				xf_free((void*)di->History);
-				di->History = AnsiToUnicode((const char *)Param2);
-				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di->History));
+				FarDialogItem& di = CurrentDialogItem(hDlg,Param1);
+				xf_free((void*)di.History);
+				di.History = AnsiToUnicode((const char *)Param2);
+				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di.History));
 			}
 
 		case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;
@@ -3274,7 +3286,7 @@ int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const 
 		for (int i=0; i<ItemsNumber; i++)
 		{
 			if (di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
-				di[i].ListItems=CurrentList(hDlg,i);
+				di[i].ListItems = &CurrentList(hDlg,i);
 
 			FreeUnicodeDialogItem(di[i]);
 		}

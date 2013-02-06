@@ -50,9 +50,9 @@ struct TreeItem
 	int Depth;             // уровень вложенности
 
 	TreeItem():
+		Last(MAX_PATH/2),
 		Depth(0)
 	{
-		Last.resize(MAX_PATH/2, 0);
 	}
 
 	TreeItem& operator=(const TreeItem &tiCopy)
