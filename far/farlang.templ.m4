@@ -3011,25 +3011,15 @@ upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
 
-MEditConfigAnsiCodePageAsDefault
-"&Использовать кодовую страницу ANSI по умолчанию"
-"Use ANS&I code page by default"
-"Používat výchozí kódovou stránku &WIN"
-upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
-"Fájlok eredeti megnyitása ANS&I kódlappal"
-"&Próbuj otwierać pliki w kodowaniu Windows"
-"Usar página de códigos ANS&I por defecto"
-"Automaticky otvárať súbory kódovaní W&IN"
-
-MEditConfigAnsiCodePageForNewFile
-"Использо&вать кодовую страницу ANSI при создании файлов"
-"Use ANSI code page when c&reating new files"
-"V&ytvářet nové soubory ve WIN kódování"
-upd:"Neue Dateien mit Windows-Ko&dierung erstellen"
-"Új &fájl létrehozása ANSI kódlappal"
-"&Twórz nowe pliki w kodowaniu Windows"
-"Usar página de códigos ANSI al crear archi&vos nuevos"
-"V&ytvárať nové súbory v kódovaní WIN"
+MEditConfigDefaultCodePage
+"Кодовая стран&ица по умолчанию:"
+"Default code pa&ge:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
+upd:"Default code page:"
 
 MSaveSetupTitle
 l:

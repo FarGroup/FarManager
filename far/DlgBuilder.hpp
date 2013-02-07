@@ -52,18 +52,6 @@ struct DialogBuilderListItem
 	int ItemValue;
 };
 
-// Элемент выпадающего списка в диалоге.
-struct DialogBuilderListItem2
-{
-	// Строчка, которая будет показана в диалоге.
-	const wchar_t *Text;
-
-	LISTITEMFLAGS Flags;
-
-	// Значение, которое будет записано в поле Value при выборе этой строчки.
-	int ItemValue;
-};
-
 template<class T>
 struct DialogItemBinding
 {

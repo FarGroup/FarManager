@@ -4615,8 +4615,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 				Ret=(__int64)EdOpt.AutoIndent; break;
 			case 5:  // AutoDetectCodePage;
 				Ret=(__int64)EdOpt.AutoDetectCodePage; break;
-			case 6:  // AnsiCodePageForNewFile;
-				Ret=(__int64)EdOpt.AnsiCodePageForNewFile; break;
 			case 7:  // CursorBeyondEOL;
 				Ret=(__int64)EdOpt.CursorBeyondEOL; break;
 			case 8:  // BSLikeDel;
@@ -4665,8 +4663,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 					EdOpt.AutoIndent=longState != 0; break;
 				case 5:  // AutoDetectCodePage;
 					EdOpt.AutoDetectCodePage=longState != 0; break;
-				case 6:  // AnsiCodePageForNewFile;
-					EdOpt.AnsiCodePageForNewFile=longState != 0; break;
 				case 7:  // CursorBeyondEOL;
 					EdOpt.CursorBeyondEOL=longState != 0; break;
 				case 8:  // BSLikeDel;

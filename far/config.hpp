@@ -315,8 +315,7 @@ struct EditorOptions
 	BoolOption DelRemovesBlocks;
 	BoolOption AutoIndent;
 	BoolOption AutoDetectCodePage;
-	BoolOption AnsiCodePageForNewFile;
-	BoolOption AnsiCodePageAsDefault;
+	IntOption DefaultCodePage;
 	BoolOption CursorBeyondEOL;
 	BoolOption BSLikeDel;
 	IntOption CharCodeBase;

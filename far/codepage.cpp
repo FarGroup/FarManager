@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
+#include "FarDlgBuilder.hpp"
 
 // Ключ где хранятся имена кодовых страниц
 const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
@@ -129,7 +130,7 @@ BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 		// Увеличиваем счётчик выбранных таблиц символов
 		cp.favoriteCodePages++;
 	}
-	else if (cp.CallbackCallSource == CodePagesFill || !Global->Opt->CPMenuMode)
+	else if (cp.CallbackCallSource == CodePagesFill || cp.CallbackCallSource == CodePagesFill2 || !Global->Opt->CPMenuMode)
 	{
 		// добавляем разделитель между стандартными и системными таблицами символов
 		if (!cp.favoriteCodePages && !cp.normalCodePages)
@@ -158,6 +159,7 @@ BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 codepages::codepages():
 	dialog(nullptr),
 	control(0),
+	DialogBuilderList(nullptr),
 	CodePagesMenu(nullptr),
 	currentCodePage(0),
 	favoriteCodePages(0),
@@ -205,7 +207,7 @@ void codepages::FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePage
 {
 	if (static_cast<intptr_t>(CodePage) >= 0)  // CodePage != CP_DEFAULT, CP_REDETECT
 	{
-		CodePageNameString<<fmt::MinWidth(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill?L' ':L'*');
+		CodePageNameString<<fmt::MinWidth(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill||CallbackCallSource==CodePagesFill2?L' ':L'*');
 	}
 	CodePageNameString<<CodePageName;
 }
@@ -232,12 +234,12 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 
 		if (selectedCodePages && checked)
 		{
-			item.Item.Flags |= MIF_CHECKED;
+			item.Item.Flags |= LIF_CHECKED;
 		}
 
 		if (!enabled)
 		{
-			item.Item.Flags |= MIF_GRAYED;
+			item.Item.Flags |= LIF_GRAYED;
 		}
 
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
@@ -247,6 +249,38 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		data.Data = &codePage;
 		data.DataSize = sizeof(codePage);
 		dialog->SendMessage(DM_LISTSETDATA, control, &data);
+	}
+	else if (CallbackCallSource == CodePagesFill2)
+	{
+		// Вставляем элемент
+		DialogBuilderListItem2 item;
+
+		FormatString name;
+		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
+		item.Text = name;
+		item.Flags = LIF_NONE;
+
+		if (selectedCodePages && checked)
+		{
+			item.Flags |= LIF_CHECKED;
+		}
+
+		if (!enabled)
+		{
+			item.Flags |= LIF_GRAYED;
+		}
+
+		item.ItemValue = static_cast<int>(codePage);
+
+		// Вычисляем позицию вставляемого элемента
+		if (position==-1 || position>=static_cast<int>(DialogBuilderList->size()))
+		{
+			DialogBuilderList->push_back(item);
+		}
+		else
+		{
+			DialogBuilderList->insert(DialogBuilderList->begin()+position, item);
+		}
 	}
 	else
 	{
@@ -315,6 +349,24 @@ void codepages::AddSeparator(LPCWSTR Label, int position)
 		item.Item.Flags = LIF_SEPARATOR;
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
 	}
+	else if (CallbackCallSource == CodePagesFill2)
+	{
+		// Вставляем элемент
+		DialogBuilderListItem2 item;
+		item.Text = Label;
+		item.Flags = LIF_SEPARATOR;
+		item.ItemValue = 0;
+
+		// Вычисляем позицию вставляемого элемента
+		if (position==-1 || position>=static_cast<int>(DialogBuilderList->size()))
+		{
+			DialogBuilderList->push_back(item);
+		}
+		else
+		{
+			DialogBuilderList->insert(DialogBuilderList->begin()+position, item);
+		}
+	}
 	else
 	{
 		MenuItemEx item;
@@ -336,6 +388,10 @@ int codepages::GetItemsCount()
 	{
 		return CodePagesMenu->GetItemCount();
 	}
+	else if (CallbackCallSource == CodePagesFill2)
+	{
+		return static_cast<int>(DialogBuilderList->size());
+	}
 	else
 	{
 		FarListInfo info={sizeof(FarListInfo)};
@@ -353,6 +409,8 @@ int codepages::GetCodePageInsertPosition(uintptr_t codePage, int start, int leng
 
 		if (CallbackCallSource == CodePageSelect)
 			itemCodePage = GetMenuItemCodePage(position);
+		else if (CallbackCallSource == CodePagesFill2)
+			itemCodePage = (*DialogBuilderList)[position].ItemValue;
 		else
 			itemCodePage = GetListItemCodePage(position);
 
@@ -743,6 +801,20 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bSho
 	CodePagesMenu = nullptr;
 	return Result;
 }
+
+// Заполняем список таблицами символов
+void codepages::FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2)
+{
+	CallbackCallSource = CodePagesFill2;
+	// Устанавливаем переменные для доступа из каллбака
+	DialogBuilderList = &List;
+	favoriteCodePages = normalCodePages = 0;
+	selectedCodePages = !allowAuto && allowAll;
+	// Добавляем стндартные элементы в список
+	AddCodePages((allowM2 ? ::AllowM2 : 0) | (allowDefault ? ::DefaultCP : 0) | (allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
+	DialogBuilderList = nullptr;
+}
+
 
 // Заполняем список таблицами символов
 UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2)

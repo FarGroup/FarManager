@@ -59,10 +59,12 @@ enum CodePagesCallbackCallSource
 {
 	CodePageSelect,
 	CodePagesFill,
+	CodePagesFill2,
 	CodePageCheck
 };
 
 class Dialog;
+struct DialogBuilderListItem2;
 
 class codepages
 {
@@ -71,6 +73,7 @@ public:
 	bool IsCodePageSupported(uintptr_t CodePage);
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
 	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2);
 	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
 
 private:
@@ -95,8 +98,9 @@ private:
 
 	friend BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage);
 
-	class Dialog* dialog;
+	Dialog* dialog;
 	UINT control;
+	std::vector<DialogBuilderListItem2> *DialogBuilderList;
 	class VMenu2 *CodePagesMenu;
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;

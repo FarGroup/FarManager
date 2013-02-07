@@ -642,7 +642,7 @@ void FileEditor::Init(
 		}
 
 		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
-			m_codepage=Global->Opt->EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
+			m_codepage = GetDefaultCodePage();
 
 		m_editor->SetCodePage(m_codepage);
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
@@ -1561,7 +1561,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 
 		if (m_codepage==CP_DEFAULT)
-			m_codepage=Global->Opt->EdOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
+			m_codepage = GetDefaultCodePage();
 	}
 	else
 	{
@@ -2849,4 +2849,12 @@ bool FileEditor::AskOverwrite(const string& FileName)
 	}
 
 	return result;
+}
+
+uintptr_t FileEditor::GetDefaultCodePage()
+{
+	intptr_t cp = Global->Opt->EdOpt.DefaultCodePage;
+	if (cp < 0 || !Global->CodePages->IsCodePageSupported(cp))
+		cp = GetACP();
+	return cp;
 }

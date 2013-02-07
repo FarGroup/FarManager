@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "FarGuid.hpp"
 #include "vmenu2.hpp"
+#include "codepage.hpp"
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
@@ -713,12 +714,12 @@ void SetDizConfig()
 void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 {
 	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings");
-	DialogItemEx *ExternalViewer = nullptr;
+
 	if (!Local)
 	{
 		Builder.AddCheckbox(MViewConfigExternalF3, Global->Opt->ViOpt.UseExternalViewer);
 		Builder.AddText(MViewConfigExternalCommand);
-		ExternalViewer = Builder.AddEditField(Global->Opt->strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		Builder.AddEditField(Global->Opt->strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
 
@@ -738,18 +739,20 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	Builder.AddCheckbox(MViewConfigScrollbar, ViOpt.ShowScrollbar);
 	Builder.EndColumns();
 
+	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
 	if (!Local)
 	{
 		Builder.AddEmptyLine();
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(Global->Opt->ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.AddCheckbox(MViewAutoDetectCodePage, Global->Opt->ViOpt.AutoDetectCodePage);
-		std::vector<DialogBuilderListItem2> Items;
-		DialogItemEx *CodePageCombo = Builder.AddComboBox(Global->Opt->ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
-		Builder.AddTextBefore(CodePageCombo, MViewConfigDefaultCodePage);
-		CodePageCombo->X2 = ExternalViewer->X2;
+		Builder.AddText(MViewConfigDefaultCodePage);
+		Global->CodePages->FillCodePagesList(Items, false, false, false, false);
+		Builder.AddComboBox(Global->Opt->ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
+
 	Builder.AddOKCancel();
+
 	if (Builder.ShowDialog())
 	{
 		if (Global->Opt->ViOpt.SavePos)
@@ -768,6 +771,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 void EditorConfig(EditorOptions &EdOpt,bool Local)
 {
 	DialogBuilder Builder(MEditConfigTitle, L"EditorSettings");
+
 	if (!Local)
 	{
 		Builder.AddCheckbox(MEditConfigEditorF4, Global->Opt->EdOpt.UseExternalEditor);
@@ -802,6 +806,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOpt.SearchCursorAtEnd);
 	Builder.EndColumns();
 
+	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
 	if (!Local)
 	{
 		Builder.AddEmptyLine();
@@ -809,8 +814,9 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 		Builder.AddCheckbox(MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
 		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
 		Builder.AddCheckbox(MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
-		Builder.AddCheckbox(MEditConfigAnsiCodePageAsDefault, EdOpt.AnsiCodePageAsDefault);
-		Builder.AddCheckbox(MEditConfigAnsiCodePageForNewFile, EdOpt.AnsiCodePageForNewFile);
+		Builder.AddText(MEditConfigDefaultCodePage);
+		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
+		Builder.AddComboBox(EdOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
 	Builder.AddOKCancel();
@@ -989,12 +995,11 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", AddressAndType(Global->Opt->Dialogs.MouseButton), Default(0xFFFF)},
 
 		{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", AddressAndType(Global->Opt->EdOpt.AllowEmptySpaceAfterEof),Default(0)},
-		{FSSF_PRIVATE,       NKeyEditor,L"AnsiCodePageAsDefault", AddressAndType(Global->Opt->EdOpt.AnsiCodePageAsDefault), Default(1)},
-		{FSSF_PRIVATE,       NKeyEditor,L"AnsiCodePageForNewFile", AddressAndType(Global->Opt->EdOpt.AnsiCodePageForNewFile), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"AutoDetectCodePage", AddressAndType(Global->Opt->EdOpt.AutoDetectCodePage), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"AutoIndent", AddressAndType(Global->Opt->EdOpt.AutoIndent), Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"BSLikeDel", AddressAndType(Global->Opt->EdOpt.BSLikeDel), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"CharCodeBase", AddressAndType(Global->Opt->EdOpt.CharCodeBase), Default(1)},
+		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", AddressAndType(Global->Opt->EdOpt.DefaultCodePage), Default(GetACP())},
 		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", AddressAndType(Global->Opt->EdOpt.DelRemovesBlocks), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", AddressAndType(Global->Opt->EdOpt.EditOpenedForWrite), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", AddressAndType(Global->Opt->EdOpt.CursorBeyondEOL), Default(1)},

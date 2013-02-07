@@ -171,6 +171,7 @@ class FileEditor : public Frame
 		const wchar_t *GetPluginData() {return strPluginData.CPtr();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
+		uintptr_t GetDefaultCodePage();
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);

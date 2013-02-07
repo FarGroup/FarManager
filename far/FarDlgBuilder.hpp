@@ -37,6 +37,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct DialogItemEx;
 
+// Элемент выпадающего списка в диалоге.
+struct DialogBuilderListItem2
+{
+	// Строчка, которая будет показана в диалоге.
+	string Text;
+
+	LISTITEMFLAGS Flags;
+
+	// Значение, которое будет записано в поле Value при выборе этой строчки.
+	int ItemValue;
+};
+
 /*
 Класс для динамического построения диалогов, используемый внутри кода FAR.
 Использует FAR'овский класс string для работы с текстовыми полями.
