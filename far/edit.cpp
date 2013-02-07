@@ -82,7 +82,6 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	m_next(nullptr),
 	m_prev(nullptr),
 	MaxLength(-1),
-	PrevCurPos(0),
 	MSelStart(-1),
 	SelStart(-1),
 	SelEnd(0),
@@ -126,7 +125,7 @@ void Edit::DisplayObject()
 	}
 
 	//   Вычисление нового положения курсора в строке с учётом Mask.
-	int Value=(PrevCurPos>CurPos)?-1:1;
+	int Value=(GetPrevCurPos()>CurPos)?-1:1;
 	CurPos=GetNextCursorPos(CurPos,Value);
 	FastShow();
 
@@ -173,7 +172,7 @@ void Edit::GetCursorType(bool& Visible, DWORD& Size)
 //   Вычисление нового положения курсора в строке с учётом Mask.
 int Edit::GetNextCursorPos(int Position,int Where)
 {
-	int Result=Position;
+	int Result = Position;
 	auto Mask = GetInputMask();
 
 	if (Mask && *Mask && (Where==-1 || Where==1))
@@ -819,7 +818,7 @@ int Edit::ProcessKey(int Key)
 		{
 			if (CurPos>StrSize)
 			{
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				CurPos=StrSize;
 			}
 
@@ -912,7 +911,7 @@ int Edit::ProcessKey(int Key)
 			if (CurPos<=0)
 				return FALSE;
 
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			CurPos--;
 
 			if (CurPos<=LeftPos)
@@ -948,7 +947,7 @@ int Edit::ProcessKey(int Key)
 		{
 			if (CurPos>StrSize)
 			{
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				CurPos=StrSize;
 			}
 
@@ -1093,7 +1092,7 @@ int Edit::ProcessKey(int Key)
 			if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 				return (TRUE);
 
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			LeftPos=CurPos=0;
 			*Str=0;
 			StrSize=0;
@@ -1135,7 +1134,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			CurPos=0;
 			Show();
 			return TRUE;
@@ -1146,7 +1145,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_CTRLSHIFTEND:  case KEY_CTRLSHIFTNUMPAD1:
 		case KEY_RCTRLSHIFTEND: case KEY_RCTRLSHIFTNUMPAD1:
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 
 			if (Mask && *Mask)
 			{
@@ -1170,7 +1169,7 @@ int Edit::ProcessKey(int Key)
 		{
 			if (CurPos>0)
 			{
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				CurPos--;
 				Show();
 			}
@@ -1180,7 +1179,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_RIGHT:       case KEY_NUMPAD6:        case KEY_MSWHEEL_RIGHT:
 		case KEY_CTRLD:       case KEY_RCTRLD:
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 
 			if (Mask && *Mask)
 			{
@@ -1264,7 +1263,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 
 			if (CurPos>StrSize)
 				CurPos=StrSize;
@@ -1290,7 +1289,7 @@ int Edit::ProcessKey(int Key)
 			if (CurPos>=StrSize)
 				return FALSE;
 
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			int Len;
 
 			if (Mask && *Mask)
@@ -1427,7 +1426,7 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_SHIFTTAB:
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			CursorPos-=(CursorPos-1) % GetTabSize()+1;
 
 			if (CursorPos<0) CursorPos=0; //CursorPos=0,TabSize=1 case
@@ -1522,7 +1521,7 @@ int Edit::InsertKey(int Key)
 
 	if (Key==KEY_TAB && Flags.Check(FEDITLINE_OVERTYPE))
 	{
-		PrevCurPos=CurPos;
+		SetPrevCurPos(CurPos);
 		CursorPos+=GetTabSize() - (CursorPos % GetTabSize());
 		SetTabCurPos(CursorPos);
 		return TRUE;
@@ -1562,7 +1561,7 @@ int Edit::InsertKey(int Key)
 					}
 				}
 
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				Str[CurPos++]=Key;
 				changed=true;
 			}
@@ -1574,7 +1573,7 @@ int Edit::InsertKey(int Key)
 		}
 		else if (CurPos<StrSize)
 		{
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			Str[CurPos++]=Key;
 			changed=true;
 		}
@@ -1622,7 +1621,7 @@ int Edit::InsertKey(int Key)
 				}
 			}
 
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			Str[CurPos++]=Key;
 			changed=true;
 		}
@@ -1630,7 +1629,7 @@ int Edit::InsertKey(int Key)
 		{
 			if (CurPos < StrSize)
 			{
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				Str[CurPos++]=Key;
 				changed=true;
 			}
@@ -1784,7 +1783,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 			}
 			else
 			{
-				PrevCurPos=CurPos;
+				SetPrevCurPos(CurPos);
 				CurPos++;
 			}
 
@@ -1812,7 +1811,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 		if (GetTabExpandMode() == EXPAND_ALLTABS)
 			ReplaceTabs();
 
-		PrevCurPos=CurPos;
+		SetPrevCurPos(CurPos);
 		CurPos=StrSize;
 	}
 
@@ -1936,7 +1935,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 					{
 						j++;
 					}
-					PrevCurPos=CurPos;
+					SetPrevCurPos(CurPos);
 					CurPos++;
 				}
 
@@ -1988,7 +1987,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 
 			this->Str=NewStr;
 			wmemcpy(&this->Str[CurPos],Str,Length);
-			PrevCurPos=CurPos;
+			SetPrevCurPos(CurPos);
 			CurPos+=Length;
 			wmemcpy(this->Str+CurPos,TmpStr,TmpSize);
 			this->Str[StrSize]=0;
@@ -2518,7 +2517,7 @@ void Edit::DeleteBlock()
 	if (SelStart==-1 || SelStart>=SelEnd)
 		return;
 
-	PrevCurPos=CurPos;
+	SetPrevCurPos(CurPos);
 
 	auto Mask = GetInputMask();
 	if (Mask && *Mask)
@@ -3048,6 +3047,7 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 
 	MacroAreaAC=MACRO_DIALOGAUTOCOMPLETION;
 
+	PrevCurPos=0;
 	ECFlags=iFlags;
 	pHistory=iHistory;
 	pList=iList;

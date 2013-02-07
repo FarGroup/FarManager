@@ -116,7 +116,7 @@ public:
 	int Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength);
 	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() {return Flags.Check(FEDITLINE_CLEARFLAG);}
-	void SetCurPos(int NewPos) {CurPos=NewPos; PrevCurPos=NewPos;}
+	void SetCurPos(int NewPos) {CurPos=NewPos; SetPrevCurPos(NewPos);}
 	int GetCurPos() {return(CurPos);}
 	int GetTabCurPos();
 	void SetTabCurPos(int NewPos);
@@ -171,6 +171,8 @@ private:
 	virtual const void SetInputMask(const wchar_t *InputMask) {}
 	virtual const wchar_t* GetInputMask() const {return nullptr;}
 	virtual const wchar_t* WordDiv() const;
+	virtual int GetPrevCurPos() const { return 0; }
+	virtual void SetPrevCurPos(int Pos) {}
 
 	int InsertKey(int Key);
 	int RecurseProcessKey(int Key);
@@ -193,7 +195,6 @@ private:
 	int MaxColorCount;
 	bool ColorListNeedSort;
 	bool ColorListNeedFree;
-	int PrevCurPos;       // 12.08.2000 KM - предыдущее положение курсора
 	int MSelStart;
 	int SelStart;
 	int SelEnd;
@@ -258,6 +259,8 @@ private:
 	virtual const wchar_t* GetInputMask() const {return Mask;}
 	virtual const void SetInputMask(const wchar_t *InputMask);
 	virtual const wchar_t* WordDiv() const;
+	virtual int GetPrevCurPos() const { return PrevCurPos; }
+	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }
 	virtual void DisableCallback()
 	{
 		CallbackSaveState = m_Callback.Active;
@@ -272,6 +275,7 @@ private:
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
 
 	string Mask;
+	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
 	bool Selection;
 	int SelectionStart;
 	MACROMODEAREA MacroAreaAC;
