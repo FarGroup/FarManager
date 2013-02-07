@@ -554,14 +554,14 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-local function EV_Loop (macros, filename, area, windowID)
+local function EV_Loop (macros, filename, area, windowID, param)
   if macros then
     for _,m in ipairs(macros) do
-      local check = not m.filemask or CheckFileName(m.filemask, filename)
+      local check = not (m.filemask and filename) or CheckFileName(m.filemask, filename)
       if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), m.flags) then
-        if not m.condition or m.condition(windowID) then
+        if not m.condition or m.condition(windowID, param) then
           --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-          if m.action then m.action(windowID) end
+          if m.action then m.action(windowID, param) end
         end
       end
     end
@@ -570,17 +570,27 @@ end
 
 function export.ProcessEditorEvent (EditorID, Event, Param)
   if not Events then return end
-  if Event == F.EE_READ then
-    EV_Loop(Events.editorevent.read, editor.GetFileName(--[[EditorID]]), "Editor", EditorID)
+  if Event == F.EE_REDRAW then
+    EV_Loop(Events.editorevent.redraw, editor.GetFileName(nil), "Editor", EditorID, Param)
+  elseif Event == F.EE_CHANGE then
+    EV_Loop(Events.editorevent.change, editor.GetFileName(--[[EditorID]]), "Editor", EditorID, Param)
+  elseif Event == F.EE_CLOSE then
+    EV_Loop(Events.editorevent.close, nil, "Editor", EditorID, Param)
+  elseif Event == F.EE_READ then
+    EV_Loop(Events.editorevent.read, editor.GetFileName(nil), "Editor", EditorID, Param)
   elseif Event == F.EE_SAVE then
-    EV_Loop(Events.editorevent.save, editor.GetFileName(--[[EditorID]]), "Editor", EditorID)
+    EV_Loop(Events.editorevent.save, editor.GetFileName(nil), "Editor", EditorID, Param)
+  elseif Event == F.EE_KILLFOCUS then
+    EV_Loop(Events.editorevent.killfocus, editor.GetFileName(nil), "Editor", EditorID, Param)
+  elseif Event == F.EE_GOTFOCUS then
+    EV_Loop(Events.editorevent.gotfocus, editor.GetFileName(nil), "Editor", EditorID, Param)
   end
 end
 
 function export.ProcessViewerEvent (ViewerID, Event, Param)
   if not Events then return end
   if Event == F.VE_READ then
-    EV_Loop(Events.viewerevent.read, viewer.GetFileName(--[[ViewerID]]), "Viewer", ViewerID)
+    EV_Loop(Events.viewerevent.read, viewer.GetFileName(--[[ViewerID]]), "Viewer", ViewerID, Param)
   end
 end
 
