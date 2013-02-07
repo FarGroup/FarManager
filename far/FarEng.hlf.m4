@@ -2983,8 +2983,8 @@ $ #Editor: Open/Create file#
     With #Shift-F4#, one can open the existing file or create a new file.
 
     Если файл с заданным именем не найден, то создаётся новый.
-По умолчанию используется кодовая страница ANSI или OEM
-(в зависимости от ~настроек редактора~@EditorSettings@).
+По умолчанию используется кодовая страница ANSI, кодовую страницу по умолчанию можно изменить
+в ~настройках редактора~@EditorSettings@).
 При необходимости из #списка# можно выбрать другую кодовую страницу.
 
     При открытии существующего файла кодовая страница выбирается
@@ -3010,7 +3010,7 @@ $ #Editor: Open/Create file#
 страницу ~автоматически~@CodePageAuto@.
 
     4) Если автоматическое определение кодовой страницы отключено,
-то используется ANSI или OEM (в зависимости от ~настроек редактора~@EditorSettings@).
+то используется кодировка по умолчанию выбранная в ~настройках редактора~@EditorSettings@).
 
 
 @FileSaveAs
@@ -3430,8 +3430,7 @@ $ #Settings dialog: viewer#
   #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
   #code page#               the file being viewed.
 
-  #Use ANSI code page#      Use ANSI code page for viewing files,
-  #by default#              instead of OEM.
+  #Default code page#       Select the default code page.
 
     If the external viewer is assigned to #F3# key, it will be executed only if
 the ~associated~@FileAssoc@ viewer for the current file type is not defined.
@@ -3535,11 +3534,7 @@ $ #Settings dialog: editor#
   #read-only files#         is opened for editing, a warning message
                           will be shown.
 
-  #Use ANSI code page#      Use ANSI code page for editing files,
-  #by default#              instead of OEM.
-
-  #Use ANSI code page#      Use ANSI code page when creating new files,
-  #when creating new files# instead of OEM.
+  #Default code page#       Select the default code page.
 
     If the external editor is assigned to #F4# key, it will be executed only if
 ~associated~@FileAssoc@ editor for the current file type is not defined.
