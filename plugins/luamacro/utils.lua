@@ -35,6 +35,8 @@ local MCODE_F_GETOPTIONS   = 0x80C66
 local Areas, AreaNames
 local LoadedMacros
 local EnumState = {}
+local Events
+local EventGroups = {"consoleinput","dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
@@ -186,6 +188,36 @@ local function AddRecordedMacro (srctable)
   LoadedMacros[macro.id] = macro
 end
 
+local AddEvent_fields = {"group","name","action","flags","description","priority","condition","filemask"}
+local function AddEvent (srctable)
+  local group = type(srctable)=="table" and type(srctable.group)=="string" and srctable.group:lower()
+  if not (group and Events[group]) then return end
+
+  local name = type(srctable.name)=="string" and srctable.name:lower()
+  if not name then return end
+
+  if type(srctable.action)~="function" then return end
+
+  local macro={}
+  Events[group][name] = Events[group][name] or {}
+  table.insert(Events[group][name], macro)
+
+  for _,v in ipairs(AddEvent_fields) do macro[v]=srctable[v] end
+  macro.FileName = AddMacro_filename
+
+  if type(macro.flags)~="string" then macro.flags="" end
+  if type(macro.description)~="string" then macro.description=nil end
+  if type(macro.condition)~="function" then macro.condition=nil end
+  if type(macro.filemask)~="string" then macro.filemask=nil end
+
+  if type(macro.priority)~="number" then macro.priority=nil
+  elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
+  end
+
+  macro.id = #LoadedMacros+1
+  LoadedMacros[macro.id] = macro
+end
+
 local function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
@@ -226,14 +258,15 @@ local function EnumMacros (strArea, resetEnum)
 end
 
 local function LoadMacros (allAreas, unload)
-  Areas = {}
+  Areas,Events = {},{}
   EnumState = {}
   LoadedMacros = {}
   AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do Areas[name]={} end
+  for _,name in ipairs(EventGroups) do Events[name]={} end
 
   if not unload then
-    local NoMacro = function() end
+    local DummyFunc = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
     win.CreateDir(dir.."\\scripts",true)
     for k=1,2 do
@@ -245,14 +278,14 @@ local function LoadMacros (allAreas, unload)
           if not f then
             ErrMsg(msg) return
           end
-          local env = k==1 and {Macro=AddMacro, NoMacro=NoMacro} or {}
+          local env = k==1 and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
           if k==1 then setmetatable(env,gmeta) end
           setfenv(f, env)
           AddMacro_filename = FullPath
           local ok, msg = pcall(f)
           if ok then
             if k==1 then
-              env.Macro,env.NoMacro = nil,nil
+              env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
             else
               AddRecordedMacro(env)
             end
@@ -521,39 +554,33 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-function export.ProcessEditorEvent (EditorID, Event, Param)
-  if not Areas then return end
-  if Event == F.EE_READ then
-    if Areas.editor.read then
-      local filename = editor.GetFileName(--[[EditorID]]) -- it fails when EditorID is specified
-      for _,m in ipairs(Areas.editor.read) do
-        local check = not m.filemask or CheckFileName(m.filemask, filename)
-        if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Editor"), m.flags) then
-          if not m.condition or m.condition(EditorID) then
-            MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-            --if m.action then m.action(EditorID) end
-          end
+local function EV_Loop (macros, filename, area, windowID)
+  if macros then
+    for _,m in ipairs(macros) do
+      local check = not m.filemask or CheckFileName(m.filemask, filename)
+      if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), m.flags) then
+        if not m.condition or m.condition(windowID) then
+          --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+          if m.action then m.action(windowID) end
         end
       end
     end
   end
 end
 
+function export.ProcessEditorEvent (EditorID, Event, Param)
+  if not Events then return end
+  if Event == F.EE_READ then
+    EV_Loop(Events.editorevent.read, editor.GetFileName(--[[EditorID]]), "Editor", EditorID)
+  elseif Event == F.EE_SAVE then
+    EV_Loop(Events.editorevent.save, editor.GetFileName(--[[EditorID]]), "Editor", EditorID)
+  end
+end
+
 function export.ProcessViewerEvent (ViewerID, Event, Param)
-  if not Areas then return end
+  if not Events then return end
   if Event == F.VE_READ then
-    if Areas.viewer.read then
-      local filename = viewer.GetFileName(--[[ViewerID]])
-      for _,m in ipairs(Areas.viewer.read) do
-        local check = not m.filemask or CheckFileName(m.filemask, filename)
-        if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Viewer"), m.flags) then
-          if not m.condition or m.condition(ViewerID) then
-            MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-            --if m.action then m.action(ViewerID) end
-          end
-        end
-      end
-    end
+    EV_Loop(Events.viewerevent.read, viewer.GetFileName(--[[ViewerID]]), "Viewer", ViewerID)
   end
 end
 
