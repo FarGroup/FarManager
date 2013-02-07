@@ -1,3 +1,8 @@
+shmuel 07.02.2013 12:23:50 +0200 - build
+
+1. Добавлен файл: Brackets.lua.
+   Удалены файлы: BrackEng.lua, BrackRus.lua, Hotkey.farconfig.
+
 zg 22.10.2012 02:11:46 +0200 - build 31
 
 1. уточнение для Plugin.Call.

@@ -72,10 +72,7 @@
     <CustomBuild Include="BrackRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackEng.lua">
-      <Filter>Configuration Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BrackRus.lua">
+    <CustomBuild Include="Brackets.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
   </ItemGroup>

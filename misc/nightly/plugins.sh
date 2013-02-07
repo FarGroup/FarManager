@@ -150,7 +150,7 @@ cd ../..
 
 bplugin "align" "Align" "Align.dll AlignEng.lng AlignRus.lng AlignSky.lng Align.map"
 bplugin "autowrap" "AutoWrap" "AutoWrap.dll WrapEng.lng WrapRus.lng WrapSky.lng AutoWrap.map"
-bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackEng.lua BrackRus.lua Hotkey.farconfig Brackets.map"
+bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng Brackets.lua Brackets.map"
 bplugin "compare" "Compare" "Compare.dll CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng Compare.map"
 bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng DrawLine.map"
 bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng EditCase.map"
