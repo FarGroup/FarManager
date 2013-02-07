@@ -241,13 +241,11 @@
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
             <ComponentRef Id="BrackSky.lng" />
-            <ComponentRef Id="BrackEng.lua" />
+            <ComponentRef Id="Brackets.lua" />
             <ComponentRef Id="Brackets.dll" />
-            <ComponentRef Id="Hotkey.farconfig_2" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />
-              <ComponentRef Id="BrackRus.lua" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">

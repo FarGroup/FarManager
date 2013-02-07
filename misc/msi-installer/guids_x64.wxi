@@ -165,14 +165,12 @@
 <?define Guid.WrapSky.lng = "FB2169F9-29E0-48A5-AFBD-D3BDACEC23DA" ?>
 <?define Guid.BrackEng.hlf = "7A3125FB-07B7-466E-A5B8-31E8A31F2916" ?>
 <?define Guid.BrackEng.lng = "C2D8BAA4-666D-4FEA-A1C5-6E2594FD1297" ?>
-<?define Guid.BrackEng.lua = "2B24F286-0ECC-406A-8136-9DB2F2F2B7C4" ?>
+<?define Guid.Brackets.lua = "8EBA3FC5-BFE1-4569-91E3-F2AF6074CBA6" ?>
 <?define Guid.Brackets.dll = "817AE355-AB97-493F-93A9-5AC21BA87B07" ?>
 <?define Guid.Brackets.map = "6B34681E-7165-4753-AC7E-94B970BC6017" ?>
 <?define Guid.BrackRus.hlf = "06F23C16-478C-448F-947F-A01C6F63ACCF" ?>
 <?define Guid.BrackRus.lng = "A5B905F8-6073-45E7-9B2D-099C7C05CB39" ?>
 <?define Guid.BrackSky.lng = "423DFE88-65B6-4076-BEFC-F8C1204A7A69" ?>
-<?define Guid.BrackRus.lua = "D4DDA963-7501-4345-93D4-31F710AF4882" ?>
-<?define Guid.Hotkey.farconfig_2 = "87305DFF-EF36-41CC-85BC-CD238E896E72" ?>
 <?define Guid.changelog_4 = "E829040E-8768-46A0-B6DA-83AEF39BC780" ?>
 <?define Guid.changelog_5 = "9E626F77-E819-4775-8512-4F20EF3A43B1" ?>
 <?define Guid.CmpEng.hlf = "1B9D4791-2BE0-4A59-9639-8491EC214FFB" ?>

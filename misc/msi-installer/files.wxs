@@ -518,14 +518,11 @@
           <Component Id="BrackEng.lng" Guid="$(var.Guid.BrackEng.lng)" Win64="$(var.Win64)">
             <File Id="BrackEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lng" />
           </Component>
-          <Component Id="BrackEng.lua" Guid="$(var.Guid.BrackEng.lua)" Win64="$(var.Win64)">
-            <File Id="BrackEng.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lua" />
+          <Component Id="Brackets.lua" Guid="$(var.Guid.Brackets.lua)" Win64="$(var.Win64)">
+            <File Id="Brackets.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.lua" />
           </Component>
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
-          </Component>
-          <Component Id="Hotkey.farconfig_2" Guid="$(var.Guid.Hotkey.farconfig_2)" Win64="$(var.Win64)">
-            <File Id="Hotkey.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Hotkey.farconfig" />
           </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="Brackets.map" Guid="$(var.Guid.Brackets.map)" Win64="$(var.Win64)">
@@ -540,9 +537,6 @@
           </Component>
           <Component Id="BrackSky.lng" Guid="$(var.Guid.BrackSky.lng)" Win64="$(var.Win64)">
             <File Id="BrackSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackSky.lng" />
-          </Component>
-          <Component Id="BrackRus.lua" Guid="$(var.Guid.BrackRus.lua)" Win64="$(var.Win64)">
-            <File Id="BrackRus.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lua" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
