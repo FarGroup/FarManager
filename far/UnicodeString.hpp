@@ -196,8 +196,6 @@ typedef class UnicodeString
 
 		UnicodeString& Clear();
 
-		UnicodeString& Unlink() {Inflate(m_pData->GetLength()+1); return *this;}
-
 		const wchar_t *CPtr() const { return m_pData->GetData(); }
 		operator const wchar_t *() const { return m_pData->GetData(); }
 

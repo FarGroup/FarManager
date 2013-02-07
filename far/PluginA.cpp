@@ -1848,7 +1848,7 @@ intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	auto Data = FindDialogData(hDlg);
-	return Data->DlgProc? Data->DlgProc(Data->hDlg, Msg, Param1, Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
+	return (Data->DlgProc? Data->DlgProc : FarDefDlgProcA)(hDlg, Msg, Param1, Param2);
 }
 
 void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)

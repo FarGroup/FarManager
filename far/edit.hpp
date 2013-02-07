@@ -168,8 +168,8 @@ private:
 	virtual const FarColor& GetUnchangedColor() const;
 	virtual const int GetTabSize() const;
 	virtual const EXPAND_TABS GetTabExpandMode() const;
-	virtual const void SetInputMask(const wchar_t *InputMask) {}
-	virtual const wchar_t* GetInputMask() const {return nullptr;}
+	virtual const void SetInputMask(const string& InputMask) {}
+	virtual const string GetInputMask() const {return string();}
 	virtual const wchar_t* WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}
@@ -178,7 +178,7 @@ private:
 	int RecurseProcessKey(int Key);
 	void ApplyColor(const FarColor& SelColor);
 	int GetNextCursorPos(int Position,int Where);
-	int KeyMatchedMask(int Key);
+	int KeyMatchedMask(int Key, const string& Mask);
 	int ProcessCtrlQ();
 	int ProcessInsDate(const wchar_t *Str);
 	int ProcessInsPlainText(const wchar_t *Str);
@@ -256,8 +256,8 @@ private:
 	virtual const FarColor& GetUnchangedColor() const;
 	virtual const int GetTabSize() const;
 	virtual const EXPAND_TABS GetTabExpandMode() const;
-	virtual const wchar_t* GetInputMask() const {return Mask;}
-	virtual const void SetInputMask(const wchar_t *InputMask);
+	virtual const string GetInputMask() const {return Mask;}
+	virtual const void SetInputMask(const string& InputMask);
 	virtual const wchar_t* WordDiv() const;
 	virtual int GetPrevCurPos() const { return PrevCurPos; }
 	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }

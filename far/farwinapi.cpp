@@ -973,7 +973,6 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 		if (Size > ARRAYSIZE(Buffer))
 		{
 			string SrcCopy(Src);
-			SrcCopy.Unlink(); //src can point to strDest data
 			wchar_t *lpwszDest = Dest.GetBuffer(Size);
 			Dest.ReleaseBuffer(ExpandEnvironmentStrings(SrcCopy, lpwszDest, Size)-1);
 		}
