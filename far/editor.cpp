@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "vmenu2.hpp"
+#include "codepage.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -6319,8 +6320,11 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						/* $ 07.08.2001 IS сменить кодировку из плагина */
 					case ESPT_CODEPAGE:
 					{
-						//BUGBUG
-						if ((UINT)espar->iParam==CP_DEFAULT)
+						if (!Global->CodePages->IsCodePageSupported(espar->iParam))
+						{
+							rc = FALSE;
+						}
+						else if ((UINT)espar->iParam==CP_DEFAULT) //BUGBUG
 						{
 							rc=FALSE;
 						}
