@@ -239,8 +239,8 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		m_Enum.push_back(new Vector<FarSettingsName>);
-		auto array = m_Enum.front();
+		auto array = new Vector<FarSettingsName>;
+		m_Enum.push_back(array);
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
