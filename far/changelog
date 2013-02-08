@@ -23,7 +23,7 @@ shmuel 07.02.2013 20:15:14 +0200 - build
      Если эти функции необходимы, можно их вызвать посредством far.MacroPost().
    * Пример:
        Event {
-         group="EditorEvent"; name="Read"; flags="DisableOutput";
+         group="EditorEvent"; name="Read";
          action=function() ...... end;
        }
 
