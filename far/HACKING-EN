@@ -17,10 +17,8 @@ to the project, please follow those guidelines:
    easiest way to create a patch is:
    svn diff > file.diff
    Please create the patch against the latest code from the repository.
-6. To submit a patch you should send it to one of the people mentioned in the
-   MAINTAINERS file, please use their preferred method of contact - either way
-   patches should be submitted through Mantis or E-Mail only. You should
-   receive a response about your submission in not more than 10 days.
+6. Patches should be submitted through our bug tracker:
+   http://bugs.farmanager.com
 7. If you plan on creating large patches or want to keep current with the
    development of Far Manager, subscribe to the Developers mailing list
    http://groups.google.com/group/fardeven (fardeven@googlegroups.com).
