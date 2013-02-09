@@ -15,6 +15,9 @@ shmuel 08.02.2013 01:25:45 +0200 - build
 1. Макросы: продолжение.
    * В группе EditorEvent, 'name' может иметь следующие значения:
      'Read', 'Save', 'Change', 'Close', 'Redraw', 'KillFocus', 'GotFocus'.
+   * Во всех ныне реализованных событиях функция action() получает 2 аргумента:
+     1. ID - идентификатор окна редактора или просмотрщика (число).
+     2. Param - в соответствии с документацией LuaFAR на функции export.ProcessEditorEvent, export.ProcessViewerEvent.
 
 shmuel 07.02.2013 20:15:14 +0200 - build
 
