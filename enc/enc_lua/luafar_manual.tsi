@@ -4056,17 +4056,17 @@ id=39
 lv=2
 dt=Text
 nm=editor.RealToTab
-mtime=3507543159
+mtime=3569538146
 <article>
 #_result = editor.RealToTab (EditorId, StringNumber, SrcPos)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
 #_  StringNumber: integer (0-based), or nil
-#_  SrcPos:       integer
+#_  SrcPos:       integer (0-based)
 #_
 #_**Returns:**
-#_  result:       integer, or nil
+#_  result:       integer (0-based), or nil
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_REALTOTAB
@@ -4317,17 +4317,17 @@ id=48
 lv=2
 dt=Text
 nm=editor.TabToReal
-mtime=3507543313
+mtime=3569538170
 <article>
 #_result = editor.TabToReal (EditorId, StringNumber, SrcPos)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
 #_  StringNumber: integer (0-based), or nil
-#_  SrcPos:       integer
+#_  SrcPos:       integer (0-based)
 #_
 #_**Returns:**
-#_  result:       integer, or nil
+#_  result:       integer (0-based), or nil
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_TABTOREAL
