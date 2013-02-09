@@ -1184,8 +1184,6 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 
 		switch(Info->Event)
 		{
-			case EE_REDRAW:
-				lua_pushinteger(L, (intptr_t)Info->Param); break;
 			case EE_CHANGE:
 			{
 				const struct EditorChange *ec = (const struct EditorChange*) Info->Param;
@@ -1195,7 +1193,8 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				break;
 			}
 			default:
-				lua_pushnil(L); break;
+				lua_pushinteger(L, (intptr_t)Info->Param);
+				break;
 		}
 
 		if(pcall_msg(L, 3, 1) == 0)       //+1

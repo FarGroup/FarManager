@@ -1,3 +1,8 @@
+shmuel 09.02.2013 13:20:11 +0200 - build 84
+
+1. LuaFAR: в export.ProcessEditorEvent(Id,Event,Param) во всех случаях,
+   кроме Event==EE_CHANGE, Param передаёт в Lua число, полученное от Фара.
+
 shmuel 08.02.2013 01:16:32 +0200 - build 83
 
 1. Продолжение 82.
