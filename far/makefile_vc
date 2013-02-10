@@ -176,7 +176,6 @@ LINK_OBJS = \
 	"$(INTDIR)\local.obj" \
 	"$(INTDIR)\lockscrn.obj" \
 	"$(INTDIR)\macro.obj" \
-	"$(INTDIR)\macrocompiler.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \

@@ -84,7 +84,6 @@ SRCS = \
 	local.cpp \
 	lockscrn.cpp \
 	macro.cpp \
-	macrocompiler.cpp \
 	main.cpp \
 	manager.cpp \
 	menubar.cpp \

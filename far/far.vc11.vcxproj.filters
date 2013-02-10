@@ -260,9 +260,6 @@
     <ClCompile Include="macro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="macrocompiler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -776,9 +773,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="macro.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="macrocompiler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="macroopcode.hpp">
