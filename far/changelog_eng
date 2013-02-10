@@ -3,6 +3,161 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.02.2013 22:22:59 +0200 - build 3172
+
+1. Continuation of 3171.
+
+drkns 10.02.2013 19:50:21 +0200 - build 3171
+
+1. Correction of 3169.
+
+2. Refactoring of panel states storage. Variety of bugs is possible.
+
+shmuel 10.02.2013 16:55:25 +0200 - build
+
+1. Macros (specification of events):
+   In ViewerEvent group, 'name' field can have the following values: 'Read', 'Close', 'KillFocus', 'GotFocus'.
+
+shmuel 10.02.2013 15:46:55 +0200 - build 3170
+
+1. Refactoring.
+
+drkns 10.02.2013 04:31:36 +0200 - build 3169
+
+1. Continuing 3157. 8/16 bytes less.
+
+drkns 10.02.2013 03:06:35 +0200 - build 3168
+
+1. Continuing 3157. 20 bytes less in x86 and 32 in x64.
+
+t-rex 08.02.2013 16:52:35 +0200 - build 3167
+
+1. SCTL_ENUM returned wrong value.
+
+w17 08.02.2013 18:51:02 +0400 - build 3166
+
+1. 0002292: ESPT_CODEPAGE corrupts the file
+
+drkns 08.02.2013 01:56:40 +0200 - build 3165
+
+1. Refactoring.
+
+shmuel 08.02.2013 01:25:45 +0200 - build
+
+1. Macros: continuation.
+   * In EditorEvent group, 'name' can have the following values:
+     'Read', 'Save', 'Change', 'Close', 'Redraw', 'KillFocus', 'GotFocus'.
+   * In each events implemented by now, action() function gets 2 parameters:
+     1. ID - viewer/editor window ID (a number).
+     2. Param - according to LuaFAR documentation on export.ProcessEditorEvent, export.ProcessViewerEvent functions.
+
+shmuel 07.02.2013 20:15:14 +0200 - build
+
+1. Макросы: new specification for events handler (modifies the specification from 05.02.2013).
+   * key="Read" key in the table-parameter of Macro function is cancelled.
+   * New boot function 'Event'; as well as 'Macro' function, it accepts one parameter - a table.
+   * Differences of the fields from the fields of the table-parameter of the Macro function: instead of 'area' and 'key' fields there are
+     'group' и 'name' fields.
+   * At the moment, 'group' can have the following values: 'EditorEvent' and 'ViewerEvent'.
+   * In EditorEvent group, 'name' can have the 'Read' and 'Save' values.
+   * In ViewerEvent group, 'name' can have the 'Read' value.
+   * New function NoEvent similar to NoMacro.
+   * One cannot call functions listed in the article "Limitations on the use of certain functions" 
+     of the MacroAPI manual, from 'action' function.
+     If these functions are necessary, one can call them via far.MacroPost().
+   * Example:
+       Event {
+         group="EditorEvent"; name="Read";
+         action=function() ...... end;
+       }
+
+t-rex 07.02.2013 16:44:49 +0200 - build 3164
+
+1. Continuing 3157.
+
+t-rex 07.02.2013 14:53:35 +0200 - build 3163
+
+1. From Denis: http://forum.farmanager.com/viewtopic.php?p=103451#p103451
+   Where "If text in dialog input field is ended with spaces or tabs, highlight them." has gone?
+
+t-rex 07.02.2013 04:14:49 +0200 - build 3162
+
+1. The choice of default encoding in viewer settings (now it works).
+
+2. The choice of default encoding in editor settings.
+
+drkns 07.02.2013 01:13:11 +0200 - build 3161
+
+1. Correction of wrapper.
+
+t-rex 07.02.2013 00:01:22 +0200 - build 3160
+
+1. The choice of default encoding in viewer settings (does not work by now).
+
+drkns 06.02.2013 23:47:36 +0200 - build 3159
+
+1. Refactoring.
+
+trex 06.02.2013 20:13:18 +0200 - build 3158
+
+1. Continuing 3157. Now the class Edit has no 'codepage' entity.
+
+drkns 06.02.2013 01:28:10 +0200 - build 3157
+
+1. Edit class size reduced, editor must be using a bit less memory on large amount of lines.
+
+shmuel 05.02.2013 17:11:26 +0200 - build
+
+1. Macros specification: a new optional field "filemask" of string type.
+   * For Editor and Viewer areas, with the field present, conformity of
+     the file name (without path) to a given file mask is checked.
+   * The mask must match the rules used for file masks
+     in file search dialog (Alt-F7 at panels).
+   * When the macro is checked for run, this field is checked first,
+     i. e. before flags check and 'condition' function call.
+
+2. In Editor and Viewer areas, a special key "Read" is processed in macro specifications.
+   This means that the macro can run on a loading file event into either the editor or
+   the viewer appropriately. For those macros the following actions are taken:
+
+     a) Matching of "filemask" field (if specified) to the file name is checked.
+     b) Flagged conditions are checked.
+     c) If 'condition' function is present then it is called with the parameter 
+        ID (the identifier of this editor/viewer instance).
+     d) If (a,b,c) conditions do not prevent it, 'action' function is called.
+
+   * 'priority' field is not used.
+   * On condition() call, only logical equality of the returned value to true does matter.
+   * These macros are run one after one, i.e. all of them, not one of them.
+
+drkns 05.02.2013 08:32:09 +0200 - build 3156
+
+1. Correction of 3155.
+
+drkns 05.02.2013 02:11:39 +0200 - build 3155
+
+1. Using standard stacks and queues.
+
+drkns 04.02.2013 23:38:27 +0200 - build 3154
+
+1. Refactoring.
+
+lort 04.02.2013 21:52:31 +0400 - build 3153
+
+1. Incorrect adjustment of Menu.Show macro function menu height
+
+drkns 04.02.2013 03:18:25 +0200 - build 3152
+
+1. Refactoring.
+
+drkns 04.02.2013 02:45:41 +0200 - build 3151
+
+1. Refactoring.
+
+drkns 03.02.2013 22:59:12 +0200 - build 3150
+
+1. Correction of 3094.
+
 shmuel 03.02.2013 16:56:54 +0200 - build 3149
 
 1. When a macro is saved to a file, spaces are used as flag separators.
