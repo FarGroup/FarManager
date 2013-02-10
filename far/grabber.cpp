@@ -571,8 +571,8 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return FALSE;
 
-	GArea.CurX=std::min(std::max(static_cast<SHORT>(0),IntKeyState.MouseX),ScrX);
-	GArea.CurY=std::min(std::max(static_cast<SHORT>(0),IntKeyState.MouseY),ScrY);
+	GArea.CurX=std::min(std::max(static_cast<USHORT>(0),static_cast<USHORT>(IntKeyState.MouseX)),ScrX);
+	GArea.CurY=std::min(std::max(static_cast<USHORT>(0),static_cast<USHORT>(IntKeyState.MouseY)),ScrY);
 
 	if (!MouseEvent->dwEventFlags)
 		ResetArea=TRUE;

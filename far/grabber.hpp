@@ -38,8 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct GrabberArea
 {
-	SHORT X1,Y1,X2,Y2;
-	SHORT CurX,CurY;
+	USHORT X1,Y1,X2,Y2;
+	USHORT CurX,CurY;
 };
 
 class Grabber:Modal

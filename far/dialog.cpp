@@ -423,7 +423,7 @@ void Dialog::CheckDialogCoord()
 
 	// задано центрирование диалога по горизонтали?
 	// X2 при этом = ширине диалога.
-	if (X1 == -1)
+	if (X1 == static_cast<USHORT>(-1))
 	{
 		X1 = (ScrX - X2 + 1) / 2;
 		X2 += X1 - 1;
@@ -431,7 +431,7 @@ void Dialog::CheckDialogCoord()
 
 	// задано центрирование диалога по вертикали?
 	// Y2 при этом = высоте диалога.
-	if (Y1 == -1)
+	if (Y1 == static_cast<USHORT>(-1))
 	{
 		Y1 = (ScrY - Y2 + 1) / 2;
 		Y2 += Y1 - 1;
@@ -1745,9 +1745,9 @@ void Dialog::ShowDialog(size_t ID)
 
 					if (X1+X+LenText > X2)
 					{
-						int tmpCW=ObjWidth;
+						int tmpCW=ObjWidth();
 
-						if (CW < ObjWidth)
+						if (CW < ObjWidth())
 							tmpCW=CW+1;
 
 						strStr.SetLength(tmpCW-1);
@@ -1867,9 +1867,9 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Y1+Y+LenText > Y2)
 				{
-					int tmpCH=ObjHeight;
+					int tmpCH=ObjHeight();
 
-					if (CH < ObjHeight)
+					if (CH < ObjHeight())
 						tmpCH=CH+1;
 
 					strStr.SetLength(tmpCH-1);
@@ -1954,7 +1954,7 @@ void Dialog::ShowDialog(size_t ID)
 				LenText=LenStrItem(I, strStr);
 
 				if (X1+CX1+LenText > X2)
-					strStr.SetLength(ObjWidth-1);
+					strStr.SetLength(ObjWidth()-1);
 
 				if (CurItem->Flags & DIF_SHOWAMPERSAND)
 					Text(strStr);

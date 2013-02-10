@@ -176,7 +176,7 @@ void DlgEdit::Show()
 		lineEdit->Show();
 }
 
-void DlgEdit::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
+void DlgEdit::GetPosition(int& X1,int& Y1,int& X2,int& Y2) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

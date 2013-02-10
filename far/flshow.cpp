@@ -335,7 +335,7 @@ void FileList::ShowFileList(int Fast)
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(ScrX-4,X2):X2;
+	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(static_cast<USHORT>(ScrX-4),X2):X2;
 	int TruncSize=TitleX2-X1-3;
 
 	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode && Filter && Filter->IsEnabledOnPanel())

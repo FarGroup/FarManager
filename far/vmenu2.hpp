@@ -61,7 +61,6 @@ class VMenu2 : public Dialog
 
 
 		int Call(int Msg, void *param);
-		void Redraw();
 		void Resize(bool force=false);
 		LISTITEMFLAGS GetItemFlags(int Position=-1);
 		string GetTitles(int bottom=0);
@@ -113,8 +112,8 @@ class VMenu2 : public Dialog
 		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
 
-		void GetPosition(int &X1,int &Y1,int &X2,int &Y2);
-		void SetPosition(int X1,int Y1,int X2,int Y2);
+		virtual void GetPosition(int &X1,int &Y1,int &X2,int &Y2) const;
+		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 
 		/*

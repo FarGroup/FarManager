@@ -52,7 +52,7 @@ enum MODALFRAME_TYPE
 	MODALTYPE_USER,
 };
 
-class Frame: public ScreenObject
+class Frame: public ScreenObjectWithShadow
 {
 		friend class Manager;
 	private:

@@ -748,7 +748,7 @@ void Viewer::ShowDump()
 
 		if (EndFile)
 		{
-			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
 			continue;
 		}
 		bpos = vtell();
@@ -764,7 +764,7 @@ void Viewer::ShowDump()
 
 		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
 
-		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth)<<OutStr;
+		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth())<<OutStr;
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
 			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
 			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
@@ -782,7 +782,7 @@ void Viewer::ShowHex()
 	int X,Y,TextPos;
 	int SelStart, SelEnd;
 	bool bSelStartFound = false, bSelEndFound = false;
-	__int64 HexLeftPos=((LeftPos>80-ObjWidth) ? std::max(80-ObjWidth,0):LeftPos);
+	__int64 HexLeftPos=((LeftPos>80-ObjWidth()) ? std::max(80-ObjWidth(),0):LeftPos);
 
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
 	int border_len = (int)wcslen(BorderLine);
@@ -797,7 +797,7 @@ void Viewer::ShowHex()
 
 		if (EndFile)
 		{
-			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
 			continue;
 		}
 
@@ -945,11 +945,11 @@ void Viewer::ShowHex()
 
 		if (StrLength(OutStr)>HexLeftPos)
 		{
-			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
+			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ObjWidth())<<OutStr+static_cast<size_t>(HexLeftPos);
 		}
 		else
 		{
-			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
 		}
 
 		if (bSelStartFound && bSelEndFound)
@@ -2083,7 +2083,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY != Y1-1)
 			return TRUE;
 
-		int NameLen = std::max(20, ObjWidth-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
+		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
 		wchar_t tt[10];
 		int cp_len = wsprintf(tt, L"%u", VM.CodePage);
 		//                           ViewMode     CopdePage             Goto
@@ -4188,7 +4188,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			{
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
 				Info->ViewerID=Viewer::ViewerID;
-				Info->WindowSizeX=ObjWidth;
+				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;

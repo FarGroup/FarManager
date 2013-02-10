@@ -127,8 +127,8 @@ WCHAR BoxSymbols[64];
 
 COORD InitSize={};
 COORD CurSize={};
-SHORT ScrX=0,ScrY=0;
-SHORT PrevScrX=-1,PrevScrY=-1;
+USHORT ScrX=0,ScrY=0;
+USHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
 SMALL_RECT InitWindowRect;
 COORD InitialSize;
@@ -513,7 +513,7 @@ void MoveCursor(int X,int Y)
 }
 
 
-void GetCursorPos(SHORT& X,SHORT& Y)
+void GetCursorPos(USHORT& X,USHORT& Y)
 {
 	Global->ScrBuf->GetCursorPos(X,Y);
 }

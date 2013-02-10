@@ -1163,7 +1163,8 @@ int Editor::ProcessKey(int Key)
 						CurLine->Select(CurLength,-1);
 				}
 
-				CurLine->ObjWidth=XX2-X1;
+				//BUGBUG_OBJWIDTH
+				//CurLine->ObjWidth=XX2-X1;
 				ProcessKey(KEY_END);
 				Pasting--;
 				Unlock();
@@ -2875,7 +2876,9 @@ int Editor::ProcessKey(int Key)
 				CurLine->GetSelection(PreSelStart,PreSelEnd);
 				// </comment>
 				//AY: Это что бы при FastShow LeftPos не становился в конец строки.
-				CurLine->ObjWidth=XX2-X1+1;
+
+				//BUGBUG_OBJWIDTH
+				//CurLine->ObjWidth=XX2-X1+1;
 
 				if (CurLine->ProcessKey(Key))
 				{
@@ -3874,8 +3877,8 @@ BOOL Editor::Search(int Next)
 					int LeftPos=CurPtr->GetLeftPos();
 					int TabCurPos=CurPtr->GetTabCurPos();
 
-					if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
-						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
+					if (ObjWidth()>8 && TabCurPos-LeftPos+SearchLength>ObjWidth()-8)
+						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth()+8);
 
 					if (ReplaceMode)
 					{
@@ -3884,7 +3887,7 @@ BOOL Editor::Search(int Next)
 						if (!ReplaceAll)
 						{
 							Show();
-							SHORT CurX,CurY;
+							USHORT CurX,CurY;
 							GetCursorPos(CurX,CurY);
 							int lpos = CurPtr->LeftPos;
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
@@ -5886,7 +5889,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (CheckStructSize(Info))
 			{
 				Info->EditorID=Editor::EditorID;
-				Info->WindowSizeX=ObjWidth;
+				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->TotalLines=NumLastLine;
 				Info->CurLine=NumLine;
@@ -5989,7 +5992,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				if (Pos->LeftPos >= 0)
 					CurLine->SetLeftPos(Pos->LeftPos);
 
-				CurLine->ObjWidth=XX2-X1+1; //BUGBUG: вообще-то должно быть корректное значение.
+				//BUGBUG_OBJWIDTH
+				//CurLine->ObjWidth=XX2-X1+1; //BUGBUG: вообще-то должно быть корректное значение.
 				CurLine->FixLeftPos();
 
 				/* $ 30.08.2001 IS
@@ -7390,7 +7394,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 		if (StartLine!=-1)
 		{
 			pc.Line = StartLine-1;
-			pc.ScreenLine = ObjHeight/2; //ScrY
+			pc.ScreenLine = ObjHeight()/2; //ScrY
 
 			if (pc.ScreenLine > pc.Line)
 				pc.ScreenLine = pc.Line;
@@ -7403,8 +7407,8 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 			}
 		}
 
-		if (pc.ScreenLine > ObjHeight) //ScrY //BUGBUG
-			pc.ScreenLine=ObjHeight;//ScrY;
+		if (pc.ScreenLine > ObjHeight()) //ScrY //BUGBUG
+			pc.ScreenLine=ObjHeight();//ScrY;
 
 		if (pc.Line >= pc.ScreenLine)
 		{

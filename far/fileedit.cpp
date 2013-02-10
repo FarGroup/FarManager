@@ -2290,7 +2290,7 @@ void FileEditor::ShowStatus()
 		NameLength += (X2-80);
 
 	if (!strPluginTitle.IsEmpty() || !strTitle.IsEmpty())
-		TruncPathStr(strLocalTitle, (ObjWidth<NameLength?ObjWidth:NameLength));
+		TruncPathStr(strLocalTitle, (ObjWidth()<NameLength?ObjWidth():NameLength));
 	else
 		TruncPathStr(strLocalTitle, NameLength);
 
@@ -2321,7 +2321,7 @@ void FileEditor::ShowStatus()
 
 
 	fmt::MinWidth(3)<<strAttr;
-	int StatusWidth=ObjWidth - ((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
+	int StatusWidth=ObjWidth() - ((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
 
 	if (StatusWidth<0)
 		StatusWidth=0;

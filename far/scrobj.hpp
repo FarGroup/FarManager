@@ -48,54 +48,62 @@ enum
 
 class ScreenObject
 {
-	protected:
-		BitFlags Flags;
-		SaveScreen *ShadowSaveScr;
-		int X1,Y1,X2,Y2;
-		int ObjWidth,ObjHeight;
+public:
+	ScreenObject();
+	virtual ~ScreenObject();
 
-		int nLockCount;
-		ScreenObject *pOwner;
+	int ObjWidth() const {return X2 - X1 + 1;}
+	int ObjHeight() const {return Y2 - Y1 + 1;};
 
-	public:
-		SaveScreen *SaveScr;
-		static ScreenObject *CaptureMouseObject;
+	virtual int ProcessKey(int Key) { return 0; };
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; };
 
-	private:
-		virtual void DisplayObject() {};
+	virtual void Hide();
+	virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
+	virtual void Show();
+	virtual void ShowConsoleTitle() {};
+	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
+	virtual void SetScreenPosition();
+	virtual void ResizeConsole() {};
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;};
 
-	public:
-		ScreenObject();
-		virtual ~ScreenObject();
+	void Lock();
+	void Unlock();
+	bool Locked();
+	void SavePrevScreen();
+	void Redraw();
+	int IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
+	void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);}
+	void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
+	void SetOwner(ScreenObject *pOwner) {this->pOwner = pOwner;}
+	ScreenObject* GetOwner() const {return pOwner;}
 
-	public:
-		virtual int ProcessKey(int Key) { return 0; };
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; };
+private:
+	virtual void DisplayObject() {};
 
-		virtual void Hide();
-		virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
-		virtual void Show();
-		virtual void ShowConsoleTitle() {};
-		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-		virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
-		virtual void SetScreenPosition();
-		virtual void ResizeConsole() {};
+public:
+	SaveScreen *SaveScr;
 
-		virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;};
+protected:
+	ScreenObject *pOwner;
+	BitFlags Flags;
+	int nLockCount;
+	USHORT X1, Y1, X2, Y2;
+};
 
-		void Lock();
-		void Unlock();
-		bool Locked();
 
-		void SetOwner(ScreenObject *pOwner);
-		ScreenObject* GetOwner() const;
+class ScreenObjectWithShadow:public ScreenObject
+{
+protected:
+	SaveScreen *ShadowSaveScr;
+public:
+	ScreenObjectWithShadow():
+		ShadowSaveScr(nullptr)
+	{}
+	virtual ~ScreenObjectWithShadow();
 
-		void SavePrevScreen();
-		void Redraw();
-		int  IsVisible() { return Flags.Check(FSCROBJ_VISIBLE); };
-		void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
-		void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
-		void Shadow(bool Full=false);
+	virtual void Hide();
 
-		static void SetCapture(ScreenObject *Obj);
+	void Shadow(bool Full=false);
 };

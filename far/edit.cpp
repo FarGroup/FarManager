@@ -221,7 +221,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 void Edit::FastShow()
 {
-	const int EditLength=ObjWidth;
+	const int EditLength=ObjWidth();
 
 	if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
 		CurPos=StrSize;
@@ -2990,8 +2990,8 @@ void Edit::SetDialogParent(DWORD Sets)
 void Edit::FixLeftPos(int TabCurPos)
 {
 	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //оптимизация, чтобы два раза не дёргать
-	if (TabCurPos-LeftPos>ObjWidth-1)
-		LeftPos=TabCurPos-ObjWidth+1;
+	if (TabCurPos-LeftPos>ObjWidth()-1)
+		LeftPos=TabCurPos-ObjWidth()+1;
 
 	if (TabCurPos<LeftPos)
 		LeftPos=TabCurPos;
@@ -3087,7 +3087,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), std::min(ScrX-2,X2), Y1-1);
+		menu.SetPosition(X1, std::max(0, static_cast<int>(Y1-1-MaxHeight)), std::min(static_cast<USHORT>(ScrX-2),X2), Y1-1);
 	}
 	else
 	{

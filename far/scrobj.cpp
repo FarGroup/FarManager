@@ -38,19 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "interf.hpp"
 
-ScreenObject *ScreenObject::CaptureMouseObject=nullptr;
-
 ScreenObject::ScreenObject():
-	ShadowSaveScr(nullptr),
+	SaveScr(nullptr),
+	pOwner(nullptr),
+	nLockCount(0),
 	X1(0),
 	Y1(0),
 	X2(0),
-	Y2(0),
-	ObjWidth(0),
-	ObjHeight(0),
-	nLockCount(0),
-	pOwner(nullptr),
-	SaveScr(nullptr)
+	Y2(0)
 {
 //  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
 }
@@ -61,15 +56,9 @@ ScreenObject::~ScreenObject()
 //  _OT(SysLog(L"[%p] ScreenObject::~ScreenObject()", this));
 	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
 	{
-		if (ShadowSaveScr)
-			ShadowSaveScr->Discard();
-
 		if (SaveScr)
 			SaveScr->Discard();
 	}
-
-	if (ShadowSaveScr)
-		delete ShadowSaveScr;
 
 	if (SaveScr)
 		delete SaveScr;
@@ -93,16 +82,6 @@ bool ScreenObject::Locked()
 	return (nLockCount > 0) || (pOwner?pOwner->Locked():false);
 }
 
-void ScreenObject::SetOwner(ScreenObject *pOwner)
-{
-	ScreenObject::pOwner = pOwner;
-}
-
-ScreenObject* ScreenObject::GetOwner() const
-{
-	return pOwner;
-}
-
 void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 {
 	/* $ 13.04.2002 KM
@@ -121,8 +100,6 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 	ScreenObject::Y1=Y1;
 	ScreenObject::X2=X2;
 	ScreenObject::Y2=Y2;
-	ObjWidth=X2-X1+1;
-	ObjHeight=Y2-Y1+1;
 	Flags.Set(FSCROBJ_SETPOSITIONDONE);
 }
 
@@ -132,7 +109,7 @@ void ScreenObject::SetScreenPosition()
 }
 
 
-void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
+void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2) const
 {
 	X1=ScreenObject::X1;
 	Y1=ScreenObject::Y1;
@@ -143,17 +120,10 @@ void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
 
 void ScreenObject::Hide()
 {
-//  _tran(SysLog(L"[%p] ScreenObject::Hide()",this));
 	if (!Flags.Check(FSCROBJ_VISIBLE))
 		return;
 
 	Flags.Clear(FSCROBJ_VISIBLE);
-
-	if (ShadowSaveScr)
-	{
-		delete ShadowSaveScr;
-		ShadowSaveScr=nullptr;
-	}
 
 	if (SaveScr)
 	{
@@ -210,8 +180,32 @@ void ScreenObject::Redraw()
 		Show();
 }
 
+ScreenObjectWithShadow::~ScreenObjectWithShadow()
+{
+	if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
+	{
+		if (ShadowSaveScr)
+			ShadowSaveScr->Discard();
+	}
+	if (ShadowSaveScr)
+		delete ShadowSaveScr;
+}
 
-void ScreenObject::Shadow(bool Full)
+void ScreenObjectWithShadow::Hide()
+{
+	if (!Flags.Check(FSCROBJ_VISIBLE))
+		return;
+
+	if (ShadowSaveScr)
+	{
+		delete ShadowSaveScr;
+		ShadowSaveScr=nullptr;
+	}
+
+	ScreenObject::Hide();
+}
+
+void ScreenObjectWithShadow::Shadow(bool Full)
 {
 	if (Flags.Check(FSCROBJ_VISIBLE))
 	{
@@ -231,9 +225,4 @@ void ScreenObject::Shadow(bool Full)
 			MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
 		}
 	}
-}
-
-void ScreenObject::SetCapture(ScreenObject *Obj)
-{
-	ScreenObject::CaptureMouseObject=Obj;
 }

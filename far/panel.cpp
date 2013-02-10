@@ -1350,7 +1350,7 @@ void Panel::FastFind(int FirstKey)
 	Global->WaitInFastFind++;
 	{
 		int FindX=std::min(X1+9,ScrX-22);
-		int FindY=std::min(Y2,ScrY-2);
+		int FindY=std::min(Y2,static_cast<USHORT>(ScrY-2));
 		ChangeMacroMode MacroMode(MACRO_SEARCH);
 		SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
 		FastFindShow(FindX,FindY);

@@ -70,7 +70,7 @@ public:
 
 	virtual void Show();
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
 
 	virtual void Hide();
 	virtual void Hide0();

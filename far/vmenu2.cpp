@@ -163,8 +163,7 @@ int VMenu2::Call(int Msg, void *param)
 
 	bool Visible;
 	DWORD Size;
-	SHORT X;
-	SHORT Y;
+	USHORT X, Y;
 	GetCursorType(Visible, Size);
 	GetCursorPos(X, Y);
 
@@ -523,7 +522,7 @@ void VMenu2::SetPosition(int X1,int Y1,int X2,int Y2)
 	Resize();
 }
 
-void VMenu2::GetPosition(int &X1,int &Y1,int &X2,int &Y2)
+void VMenu2::GetPosition(int &X1,int &Y1,int &X2,int &Y2) const
 {
 	X1=this->X1;
 	Y1=this->Y1;
