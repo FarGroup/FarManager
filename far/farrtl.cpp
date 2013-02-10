@@ -420,11 +420,11 @@ void PrintMemory()
 		wprintf(L"\n");
 
 
-		/*printf("Not freed blocks:\n");
+		printf("Not freed blocks:\n");
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
 			printf("%s:%u -> %s: %s (%u bytes)\n", i->File, i->Line, i->Function, getAllocationTypeString(i->AllocationType), i->Size - sizeof(MEMINFO));
-		}*/
+		}
 	}
 #endif
 }
