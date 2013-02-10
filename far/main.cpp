@@ -143,7 +143,7 @@ static int MainProcess(
 		{
 			Global->Opt->OnlyEditorViewerUsed=1;
 			PanelOptions DummyOptions;
-			Panel *DummyPanel=new Panel(DummyOptions);
+			Panel *DummyPanel=new Panel(&DummyOptions);
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
@@ -201,7 +201,7 @@ static int MainProcess(
 				}
 
 				// Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
-				if (Global->Opt->LeftPanel.Focus)
+				if (Global->Opt->LeftFocus)
 				{
 					Global->Opt->LeftPanel.Type=FILE_PANEL;  // сменим моду панели
 					Global->Opt->LeftPanel.Visible=TRUE;     // и включим ее
@@ -229,7 +229,7 @@ static int MainProcess(
 					}
 
 					// а здесь наоборот - обрабатываем пассивную панель
-					if (Global->Opt->LeftPanel.Focus)
+					if (Global->Opt->LeftFocus)
 					{
 						Global->Opt->RightPanel.Type=FILE_PANEL; // сменим моду панели
 						Global->Opt->RightPanel.Visible=TRUE;    // и включим ее

@@ -774,7 +774,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				{
 					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.CPtr()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
-						string strTempFileName=Options.Folder.Get();
+						string strTempFileName=Options->Folder.Get();
 
 						if (ShortNames)
 							ConvertNameToShort(strTempFileName,strTempFileName);

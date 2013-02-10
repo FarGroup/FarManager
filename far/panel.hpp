@@ -172,8 +172,8 @@ public:
 class Panel:public ScreenObject, public DelayedDestroy
 {
 	protected:
-		PanelOptions& Options;
-
+		PanelOptions* Options;
+		bool Focus;
 		int EnableUpdate;
 		int PanelMode;
 		int PrevViewMode;
@@ -184,6 +184,8 @@ class Panel:public ScreenObject, public DelayedDestroy
 		string strPluginParam;
 
 	public:
+		void SwapOptions(Panel* Another) {std::swap(Options, Another->Options);}
+
 		struct PanelViewSettings ViewSettings;
 		int ProcessingPluginCommand;
 
@@ -216,7 +218,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void ClearAllItem(){}
 
 	public:
-		Panel(PanelOptions& Options);
+		Panel(PanelOptions* Options);
 	protected:
 		virtual ~Panel();
 
@@ -240,7 +242,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
 
 		virtual int GetCurrentPos() {return 0;}
-		virtual void SetFocus(bool Force = false);
+		virtual void SetFocus();
 		virtual void KillFocus();
 		virtual void Update(int Mode) {}
 		/*$ 22.06.2001 SKV
@@ -276,33 +278,33 @@ class Panel:public ScreenObject, public DelayedDestroy
 		void SetMode(int Mode) {PanelMode=Mode;}
 		int GetModalMode() {return(ModalMode);}
 		void SetModalMode(int ModalMode) {Panel::ModalMode=ModalMode;}
-		int GetViewMode() {return(Options.ViewMode);}
+		int GetViewMode() {return(Options->ViewMode);}
 		virtual void SetViewMode(int ViewMode);
 		virtual int GetPrevViewMode() {return(PrevViewMode);}
 		void SetPrevViewMode(int PrevViewMode) {Panel::PrevViewMode=PrevViewMode;}
-		virtual int GetPrevSortMode() {return(Options.SortMode);}
-		virtual int GetPrevSortOrder() {return(Options.SortOrder);}
-		int GetSortMode() {return(Options.SortMode);}
-		virtual bool GetPrevNumericSort() {return Options.NumericSort;}
-		bool GetNumericSort() { return Options.NumericSort; }
-		void SetNumericSort(bool Mode) { Options.NumericSort = Mode; }
+		virtual int GetPrevSortMode() {return(Options->SortMode);}
+		virtual int GetPrevSortOrder() {return(Options->SortOrder);}
+		int GetSortMode() {return(Options->SortMode);}
+		virtual bool GetPrevNumericSort() {return Options->NumericSort;}
+		bool GetNumericSort() { return Options->NumericSort; }
+		void SetNumericSort(bool Mode) { Options->NumericSort = Mode; }
 		virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
-		virtual bool GetPrevCaseSensitiveSort() {return Options.CaseSensitiveSort;}
-		bool GetCaseSensitiveSort() {return Options.CaseSensitiveSort;}
-		void SetCaseSensitiveSort(bool Mode) {Options.CaseSensitiveSort = Mode;}
+		virtual bool GetPrevCaseSensitiveSort() {return Options->CaseSensitiveSort;}
+		bool GetCaseSensitiveSort() {return Options->CaseSensitiveSort;}
+		void SetCaseSensitiveSort(bool Mode) {Options->CaseSensitiveSort = Mode;}
 		virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
-		virtual bool GetPrevDirectoriesFirst() {return Options.DirectoriesFirst;}
-		bool GetDirectoriesFirst() { return Options.DirectoriesFirst; }
-		void SetDirectoriesFirst(bool Mode) { Options.DirectoriesFirst = Mode != 0; }
+		virtual bool GetPrevDirectoriesFirst() {return Options->DirectoriesFirst;}
+		bool GetDirectoriesFirst() { return Options->DirectoriesFirst; }
+		void SetDirectoriesFirst(bool Mode) { Options->DirectoriesFirst = Mode != 0; }
 		virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
-		virtual void SetSortMode(int SortMode) {Options.SortMode=SortMode;}
-		int GetSortOrder() {return(Options.SortOrder);}
-		void SetSortOrder(int SortOrder) {Options.SortOrder=SortOrder;}
+		virtual void SetSortMode(int SortMode) {Options->SortMode=SortMode;}
+		int GetSortOrder() {return(Options->SortOrder);}
+		void SetSortOrder(int SortOrder) {Options->SortOrder=SortOrder;}
 		virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);}
-		bool GetSortGroups() {return(Options.SortGroups);}
-		void SetSortGroups(bool SortGroups) {Options.SortGroups=SortGroups;}
-		bool GetShowShortNamesMode() {return(Options.ShowShortNames);}
-		void SetShowShortNamesMode(bool Mode) {Options.ShowShortNames=Mode;}
+		bool GetSortGroups() {return(Options->SortGroups);}
+		void SetSortGroups(bool SortGroups) {Options->SortGroups=SortGroups;}
+		bool GetShowShortNamesMode() {return(Options->ShowShortNames);}
+		void SetShowShortNamesMode(bool Mode) {Options->ShowShortNames=Mode;}
 		void InitCurDir(const wchar_t *CurDir);
 		virtual void CloseFile() {}
 		virtual void UpdateViewPanel() {}
@@ -357,9 +359,9 @@ class Panel:public ScreenObject, public DelayedDestroy
 		int SetPluginCommand(int Command,int Param1,void* Param2);
 		int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
 		void ChangeDisk();
-		bool GetFocus() {return(Options.Focus);}
-		int GetType() {return(Options.Type);}
-		void SetType(int Type) {Options.Type = Type;}
+		bool GetFocus() {return Focus;}
+		int GetType() {return(Options->Type);}
+		void SetType(int Type) {Options->Type = Type;}
 		void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
 		bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
 		int SetCurPath();

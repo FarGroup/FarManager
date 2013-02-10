@@ -141,7 +141,9 @@ class BoolOption:public Option
 public:
 	BoolOption():Option(false){}
 	BoolOption(const bool& Value):Option(Value){}
+	BoolOption(const BoolOption& Value):Option(Value.Get()){}
 	BoolOption& operator=(bool Value){Set(Value); return *this;}
+	BoolOption& operator=(const BoolOption& Value){Set(Value); return *this;}
 	const bool Get() const {return GetInt() != 0;}
 	operator bool() const {return GetInt() != 0;}
 	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
@@ -159,8 +161,10 @@ class Bool3Option:public Option
 public:
 	Bool3Option():Option(0){}
 	Bool3Option(const int& Value):Option(Value % 3){}
+	Bool3Option(const Bool3Option& Value):Option(Value.Get() % 3){}
 	const int Get() const {return GetInt() % 3;}
 	Bool3Option& operator=(int Value){Set(Value % 3); return *this;}
+	Bool3Option& operator=(const Bool3Option& Value){Set(Value); return *this;}
 	Bool3Option& operator--(){Set((GetInt()+2) % 3); return *this;}
 	Bool3Option& operator++(){Set((GetInt()+1) % 3); return *this;}
 	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
@@ -180,8 +184,10 @@ class IntOption:public Option
 public:
 	IntOption():Option(0){}
 	IntOption(const intptr_t& Value):Option(Value){}
+	IntOption(const IntOption& Value):Option(Value.Get()){}
 	const intptr_t Get() const {return GetInt();}
 	IntOption& operator=(intptr_t Value){Set(Value); return *this;}
+	IntOption& operator=(const IntOption& Value){Set(Value); return *this;}
 	IntOption& operator|=(const intptr_t& Value){Set(GetInt()|Value); return *this;}
 	IntOption& operator&=(const intptr_t& Value){Set(GetInt()&Value); return *this;}
 	IntOption& operator%=(const intptr_t& Value){Set(GetInt()%Value); return *this;}
@@ -204,7 +210,7 @@ class StringOption:public Option
 {
 public:
 	StringOption():Option(L""){}
-	StringOption(const StringOption& Value):Option(Value){}
+	StringOption(const StringOption& Value):Option(Value.Get()){}
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
@@ -231,7 +237,6 @@ struct PanelOptions
 {
 	IntOption Type;
 	BoolOption Visible;
-	BoolOption Focus;
 	IntOption ViewMode;
 	IntOption SortMode;
 	IntOption SortOrder;
@@ -640,6 +645,7 @@ public:
 	BoolOption ShellRightLeftArrowsRule;
 	PanelOptions LeftPanel;
 	PanelOptions RightPanel;
+	BoolOption LeftFocus;
 
 	AutoCompleteOptions AutoComplete;
 

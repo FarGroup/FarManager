@@ -226,7 +226,7 @@ class FileList:public Panel
 
 	private:
 		virtual void SetSelectedFirstMode(bool Mode);
-		virtual bool GetSelectedFirstMode() {return Options.SelectedFirst;}
+		virtual bool GetSelectedFirstMode() {return Options->SelectedFirst;}
 		virtual void DisplayObject();
 		void DeleteListData(std::vector<FileListItem*>& ListData);
 		void Up(int Count);
@@ -302,7 +302,7 @@ class FileList:public Panel
 		virtual void ClearAllItem();
 
 	public:
-		FileList(PanelOptions& Options);
+		FileList(PanelOptions* Options);
 	private:
 		virtual ~FileList();
 
@@ -311,7 +311,7 @@ class FileList:public Panel
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual void SetFocus(bool Force = false);
+		virtual void SetFocus();
 		virtual void Update(int Mode);
 		/*$ 22.06.2001 SKV
 		  ѕараметр дл€ игнорировани€ времени последнего Update.

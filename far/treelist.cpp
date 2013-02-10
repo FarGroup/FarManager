@@ -139,7 +139,7 @@ void TreeListCache::Sort()
 }
 
 
-TreeList::TreeList(PanelOptions& Options, bool IsPanel):
+TreeList::TreeList(PanelOptions* Options, bool IsPanel):
 	Panel(Options),
 	PrevMacroMode(MACRO_INVALID),
 	WorkDir(0),
@@ -147,9 +147,10 @@ TreeList::TreeList(PanelOptions& Options, bool IsPanel):
 	NumericSort(FALSE),
 	CaseSensitiveSort(FALSE),
 	ExitCode(1),
-	SaveWorkDir(0)
+	SaveWorkDir(0),
+	OriginalFolder(Options->Folder)
 {
-	Options.Type=TREE_PANEL;
+	Options->Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
 	Flags.Set(FTREELIST_UPDATEREQUIRED);
 	Flags.Clear(FTREELIST_TREEISPREPARED);
@@ -167,12 +168,13 @@ TreeList::~TreeList()
 	Global->tempTreeCache->Clean();
 	FlushCache();
 	SetMacroMode(TRUE);
+	Options->Folder = OriginalFolder;
 }
 
 void TreeList::SetRootDir(const wchar_t *NewRootDir)
 {
 	strRoot = NewRootDir;
-	Options.Folder = NewRootDir;
+	Options->Folder = NewRootDir;
 }
 
 void TreeList::DisplayObject()
@@ -240,7 +242,7 @@ void TreeList::DisplayTree(int Fast)
 	CorrectPosition();
 
 	if (!ListData.empty())
-		Options.Folder = ListData[CurFile]->strName; //BUGBUG
+		Options->Folder = ListData[CurFile]->strName; //BUGBUG
 
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
@@ -251,7 +253,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (!strTitle.IsEmpty())
 		{
-			SetColor((Options.Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+			SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 			GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
 			Text(strTitle);
 		}
@@ -328,7 +330,7 @@ void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
 	{
 		GotoXY(WhereX()-1,WhereY());
 
-		if (Options.Focus || ModalMode)
+		if (Focus || ModalMode)
 		{
 			SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
 			Global->FS << L" "<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L" ";
@@ -1249,14 +1251,14 @@ const string& TreeList::GetCurDir()
 	if (ListData.empty())
 	{
 		if (ModalMode==MODALTREE_FREE)
-			Options.Folder = strRoot;
+			Options->Folder = strRoot;
 		else
-			Options.Folder.Clear();
+			Options->Folder.Clear();
 	}
 	else
-		Options.Folder = ListData[CurFile]->strName; //BUGBUG
+		Options->Folder = ListData[CurFile]->strName; //BUGBUG
 
-	return Options.Folder;
+	return Options->Folder;
 }
 
 int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -1898,9 +1900,9 @@ int TreeList::MustBeCached(const wchar_t *Root)
 	return FALSE;
 }
 
-void TreeList::SetFocus(bool Force)
+void TreeList::SetFocus()
 {
-	Panel::SetFocus(Force);
+	Panel::SetFocus();
 	SetTitle();
 	SetMacroMode(FALSE);
 }

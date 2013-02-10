@@ -65,7 +65,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	SetCoords();
 
 	PanelOptions DummyOptions;
-	if ((Tree=new TreeList(DummyOptions, false)))
+	if ((Tree=new TreeList(&DummyOptions, false)))
 	{
 		Global->CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
 		MacroMode = MACRO_FINDFOLDER;

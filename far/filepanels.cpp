@@ -58,8 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FilePanels::FilePanels():
 	LastLeftFilePanel(nullptr),
 	LastRightFilePanel(nullptr),
-	LeftPanel(CreatePanel(Global->Opt->LeftPanel)),
-	RightPanel(CreatePanel(Global->Opt->RightPanel)),
+	LeftPanel(CreatePanel(&Global->Opt->LeftPanel)),
+	RightPanel(CreatePanel(&Global->Opt->RightPanel)),
 	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
@@ -111,7 +111,7 @@ void FilePanels::Init(int DirCount)
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
 
-	if (Global->Opt->LeftPanel.Focus)
+	if (Global->Opt->LeftFocus)
 	{
 		ActivePanel=LeftPanel;
 		PassivePanel=RightPanel;
@@ -124,7 +124,7 @@ void FilePanels::Init(int DirCount)
 		PassiveIsLeftFlag=TRUE;
 	}
 
-	ActivePanel->SetFocus(true);
+	ActivePanel->SetFocus();
 	// пытаемся избавится от зависания при запуске
 	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
 	string strLeft = Global->Opt->LeftPanel.Folder.Get(), strRight = Global->Opt->RightPanel.Folder.Get();
@@ -285,11 +285,11 @@ void FilePanels::RedrawKeyBar()
 }
 
 
-Panel* FilePanels::CreatePanel(PanelOptions& Options)
+Panel* FilePanels::CreatePanel(PanelOptions* Options)
 {
 	Panel *pResult = nullptr;
 
-	switch (Options.Type)
+	switch (Options->Type)
 	{
 		case FILE_PANEL:
 			pResult = new FileList(Options);
@@ -384,6 +384,13 @@ int FilePanels::SwapPanels()
 		LastLeftType=LastRightType;
 		LastRightType=SwapType;
 		FileFilter::SwapFilter();
+
+		LeftPanel->SwapOptions(RightPanel);
+
+		bool LeftVisible = Global->Opt->LeftPanel.Visible;
+		Global->Opt->LeftPanel.Visible = Global->Opt->RightPanel.Visible;
+		Global->Opt->RightPanel.Visible = LeftVisible;
+
 		Ret=TRUE;
 	}
 	SetScreenPosition();
@@ -975,7 +982,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	{
 		PanelOptions& Options = LeftPosition? Global->Opt->LeftPanel : Global->Opt->RightPanel;
 		Options.Type = NewType;
-		NewPanel=CreatePanel(Options);
+		NewPanel=CreatePanel(&Options);
 	}
 	if (Current==ActivePanel)
 		ActivePanel=NewPanel;

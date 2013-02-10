@@ -70,7 +70,7 @@ class FilePanels:public Frame
 	public:
 		void Init(int DirCount);
 
-		Panel* CreatePanel(PanelOptions& Options);
+		Panel* CreatePanel(PanelOptions* Options);
 		void   DeletePanel(Panel *Deleted);
 		Panel* GetAnotherPanel(Panel *Current);
 		Panel* ChangePanelToFilled(Panel *Current,int NewType);

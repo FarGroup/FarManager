@@ -1302,12 +1302,13 @@ void InitLocalCFG()
 	static FARConfigItem _CFG[] =
 	{
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->LeftPanel.CurFile), Default(L"")},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Focus", AddressAndType(Global->Opt->LeftPanel.Focus), Default(true)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->LeftPanel.Folder), Default(L"")},
 
 		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->RightPanel.CurFile), Default(L"")},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Focus", AddressAndType(Global->Opt->RightPanel.Focus), Default(false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->RightPanel.Folder), Default(L"")},
+
+		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", AddressAndType(Global->Opt->LeftFocus), Default(true)},
+		
 	};
 	FARLocalConfig.Items = _CFG;
 	FARLocalConfig.Size = ARRAYSIZE(_CFG);
@@ -1569,7 +1570,7 @@ void Options::Load()
 
 void Options::Save(bool Ask)
 {
- 	InitConfig();
+	InitConfig();
 
 	if (Policies.DisabledOptions&0x20000) // Bit 17 - Ñîõðàíèòü ïàðàìåòðû
 		return;
@@ -1587,6 +1588,8 @@ void Options::Save(bool Ask)
 
 	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
 	RightPanel.CurFile = strTemp1;
+
+	LeftFocus = Global->CtrlObject->Cp()->ActivePanel == LeftPanelPtr;
 
 	Global->CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ÏÐÅÏÐÎÖÅÑÑÛ> */

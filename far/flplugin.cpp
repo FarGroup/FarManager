@@ -58,15 +58,15 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->hPlugin=hPlugin;
 	stItem->strHostFile = HostFile;
 	stItem->strPrevOriginalCurDir = strOriginalCurDir;
-	strOriginalCurDir = Options.Folder.Get();
+	strOriginalCurDir = Options->Folder.Get();
 	stItem->Modified=FALSE;
-	stItem->PrevViewMode=Options.ViewMode;
-	stItem->PrevSortMode=Options.SortMode;
-	stItem->PrevSortOrder=Options.SortOrder;
-	stItem->PrevNumericSort=Options.NumericSort;
-	stItem->PrevCaseSensitiveSort=Options.CaseSensitiveSort;
+	stItem->PrevViewMode=Options->ViewMode;
+	stItem->PrevSortMode=Options->SortMode;
+	stItem->PrevSortOrder=Options->SortOrder;
+	stItem->PrevNumericSort=Options->NumericSort;
+	stItem->PrevCaseSensitiveSort=Options->CaseSensitiveSort;
 	stItem->PrevViewSettings=ViewSettings;
-	stItem->PrevDirectoriesFirst=Options.DirectoriesFirst;
+	stItem->PrevDirectoriesFirst=Options->DirectoriesFirst;
 	PluginsList.push_back(stItem);
 	++Global->PluginPanelsCount;
 }
@@ -100,11 +100,11 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		if (EnableRestoreViewMode)
 		{
 			SetViewMode(PStack->PrevViewMode);
-			Options.SortMode=PStack->PrevSortMode;
-			Options.NumericSort=PStack->PrevNumericSort;
-			Options.CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
-			Options.SortOrder=PStack->PrevSortOrder;
-			Options.DirectoriesFirst=PStack->PrevDirectoriesFirst;
+			Options->SortMode=PStack->PrevSortMode;
+			Options->NumericSort=PStack->PrevNumericSort;
+			Options->CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
+			Options->SortOrder=PStack->PrevSortOrder;
+			Options->DirectoriesFirst=PStack->PrevDirectoriesFirst;
 		}
 
 		if (PStack->Modified)
@@ -143,11 +143,11 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		if (EnableRestoreViewMode)
 		{
 			SetViewMode(PStack->PrevViewMode);
-			Options.SortMode=PStack->PrevSortMode;
-			Options.NumericSort=PStack->PrevNumericSort;
-			Options.CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
-			Options.SortOrder=PStack->PrevSortOrder;
-			Options.DirectoriesFirst=PStack->PrevDirectoriesFirst;
+			Options->SortMode=PStack->PrevSortMode;
+			Options->NumericSort=PStack->PrevNumericSort;
+			Options->CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
+			Options->SortOrder=PStack->PrevSortOrder;
+			Options->DirectoriesFirst=PStack->PrevDirectoriesFirst;
 		}
 	}
 
@@ -183,7 +183,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 			DeleteListData(Item->PrevListData);
 			delete Item;
 
-			if (Options.SelectedFirst)
+			if (Options->SelectedFirst)
 				SortFileList(FALSE);
 			else if (!ListData.empty())
 				SortFileList(TRUE);
@@ -795,7 +795,7 @@ void FileList::PluginPutFilesToNew()
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
 		PanelOptions DummyOptions;
-		FileList *TmpPanel=new FileList(DummyOptions);
+		FileList *TmpPanel=new FileList(&DummyOptions);
 		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
 		TmpPanel->SetModalMode(TRUE);
 		auto PrevFileCount = ListData.size();
@@ -975,7 +975,7 @@ void FileList::ProcessHostFile()
 					}
 				}
 
-				if (Options.SelectedFirst)
+				if (Options->SelectedFirst)
 					SortFileList(TRUE);
 			}
 			else
@@ -1036,7 +1036,7 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
 {
 	if (PanelMode!=PLUGIN_PANEL)
 	{
-		Global->CtrlObject->FolderHistory->AddToHistory(Options.Folder);
+		Global->CtrlObject->FolderHistory->AddToHistory(Options->Folder);
 	}
 
 	PushPlugin(hPlugin,PluginFile);
@@ -1056,8 +1056,8 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
 
 	if (Info.StartSortMode)
 	{
-		Options.SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
-		Options.SortOrder=Info.StartSortOrder ? -1:1;
+		Options->SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
+		Options->SortOrder=Info.StartSortOrder ? -1:1;
 	}
 
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -1074,7 +1074,7 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	CorrectPosition();
 	Info.CurrentItem=CurFile;
 	Info.TopPanelItem=CurTopFile;
-	if(Options.ShowShortNames)
+	if(Options->ShowShortNames)
 		Info.Flags|=PFLAGS_ALTERNATIVENAMES;
 	Info.ItemsNumber = ListData.size();
 	Info.SelectedItemsNumber=ListData.empty()? 0 : GetSelCount();
@@ -1180,7 +1180,7 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 
 void FileList::PluginEndSelection()
 {
-	if (Options.SelectedFirst)
+	if (Options->SelectedFirst)
 	{
 		SortFileList(TRUE);
 	}

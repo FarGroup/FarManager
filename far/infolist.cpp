@@ -65,14 +65,15 @@ static bool LastDizWrapMode = false;
 static bool LastDizWrapType = false;
 static bool LastDizShowScrollbar = false;
 
-InfoList::InfoList(PanelOptions& Options):
+InfoList::InfoList(PanelOptions* Options):
 	Panel(Options),
 	DizView(nullptr),
 	PrevMacroMode(MACRO_INVALID),
 	OldWrapMode(nullptr),
-	OldWrapType(nullptr)
+	OldWrapType(nullptr),
+	OriginalFolder(Options->Folder)
 {
-	Options.Type=INFO_PANEL;
+	Options->Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)
 	{
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
@@ -95,6 +96,7 @@ InfoList::InfoList(PanelOptions& Options):
 
 InfoList::~InfoList()
 {
+	Options->Folder = OriginalFolder;
 	CloseFile();
 	SetMacroMode(TRUE);
 }
@@ -149,7 +151,7 @@ void InfoList::DisplayObject()
 
 	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
-	SetColor(Options.Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	SetColor(Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 	GetTitle(strTitle);
 
 	if (!strTitle.IsEmpty())
@@ -247,24 +249,24 @@ void InfoList::DisplayObject()
 
 		if (TmpStr.IsEmpty())
 			apiGetCurrentDirectory(TmpStr);
-		Options.Folder = TmpStr;
+		Options->Folder = TmpStr;
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
-		if ((apiGetFileAttributes(Options.Folder)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+		if ((apiGetFileAttributes(Options->Folder)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strJuncName;
 
-			if (GetReparsePointInfo(Options.Folder, strJuncName))
+			if (GetReparsePointInfo(Options->Folder, strJuncName))
 			{
 				NormalizeSymlinkName(strJuncName);
 				GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
 			}
 		}
 		else
-			GetPathRoot(Options.Folder, strDriveRoot);
+			GetPathRoot(Options->Folder, strDriveRoot);
 
 		if (apiGetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -348,7 +350,7 @@ void InfoList::DisplayObject()
 		/* #2.2 - disk info: size */
 		unsigned __int64 TotalSize, UserFree;
 
-		if (apiGetDiskSize(Options.Folder,&TotalSize, nullptr, &UserFree))
+		if (apiGetDiskSize(Options->Folder,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoDiskTotal);
@@ -681,8 +683,8 @@ int InfoList::ProcessKey(int Key)
 
 			if (!strDizFileName.IsEmpty())
 			{
-				Options.Folder = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
-				FarChDir(Options.Folder);
+				Options->Folder = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
+				FarChDir(Options->Folder);
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
 
@@ -696,8 +698,8 @@ int InfoList::ProcessKey(int Key)
 			*/
 		{
 			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-			Options.Folder = AnotherPanel->GetCurDir();
-			FarChDir(Options.Folder);
+			Options->Folder = AnotherPanel->GetCurDir();
+			FarChDir(Options->Folder);
 
 			if (!strDizFileName.IsEmpty())
 			{
@@ -1047,9 +1049,9 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	return TRUE;
 }
 
-void InfoList::SetFocus(bool Force)
+void InfoList::SetFocus()
 {
-	Panel::SetFocus(Force);
+	Panel::SetFocus();
 	SetMacroMode(FALSE);
 }
 

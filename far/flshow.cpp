@@ -113,7 +113,7 @@ void FileList::ShowFileList(int Fast)
 	}
 
 	bool CurFullScreen=IsFullScreen();
-	PrepareViewSettings(Options.ViewMode,&Info);
+	PrepareViewSettings(Options->ViewMode,&Info);
 	CorrectPosition();
 
 	if (CurFullScreen!=IsFullScreen())
@@ -197,10 +197,10 @@ void FileList::ShowFileList(int Fast)
 			strTitle=MSG(IDMessage);
 
 			if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray &&
-			        Options.ViewMode<static_cast<int>(Info.PanelModesNumber) &&
-			        Info.PanelModesArray[Options.ViewMode].ColumnTitles)
+			        Options->ViewMode<static_cast<int>(Info.PanelModesNumber) &&
+			        Info.PanelModesArray[Options->ViewMode].ColumnTitles)
 			{
-				const wchar_t *NewTitle=Info.PanelModesArray[Options.ViewMode].ColumnTitles[I];
+				const wchar_t *NewTitle=Info.PanelModesArray[Options->ViewMode].ColumnTitles[I];
 
 				if (NewTitle)
 					strTitle=NewTitle;
@@ -261,7 +261,7 @@ void FileList::ShowFileList(int Fast)
 
 		for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
 		{
-			if (SortModes[I]==Options.SortMode)
+			if (SortModes[I]==Options->SortMode)
 			{
 				const wchar_t *SortStr=MSG(SortStrings[I]);
 				const wchar_t *Ch=wcschr(SortStr,L'&');
@@ -274,7 +274,7 @@ void FileList::ShowFileList(int Fast)
 						GotoXY(NextX1,Y1);
 
 					SetColor(COL_PANELCOLUMNTITLE);
-					OutCharacter[0]=Options.SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
+					OutCharacter[0]=Options->SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
 					Text(OutCharacter);
 					NextX1++;
 
@@ -330,7 +330,7 @@ void FileList::ShowFileList(int Fast)
 		if (PanelMode==PLUGIN_PANEL)
 			Global->CtrlObject->CmdLine->SetCurDir(Info.CurDir);
 		else
-			Global->CtrlObject->CmdLine->SetCurDir(Options.Folder);
+			Global->CtrlObject->CmdLine->SetCurDir(Options->Folder);
 
 		Global->CtrlObject->CmdLine->Show();
 	}
@@ -364,7 +364,7 @@ void FileList::ShowFileList(int Fast)
 	if (TitleX <= X1)
 		TitleX = X1+1;
 
-	SetColor(Options.Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(TitleX,Y1);
 	Text(strTitle);
 
@@ -380,37 +380,37 @@ void FileList::ShowFileList(int Fast)
 	{
 		if (!strInfoCurDir.IsEmpty())
 		{
-			Options.Folder = strInfoCurDir;
+			Options->Folder = strInfoCurDir;
 		}
 		else
 		{
 			if (!TestParentFolderName(ListData[CurFile]->strName))
 			{
-				Options.Folder=ListData[CurFile]->strName;
+				Options->Folder=ListData[CurFile]->strName;
 				size_t pos;
 
-				if (FindLastSlash(pos,Options.Folder))
+				if (FindLastSlash(pos,Options->Folder))
 				{
 					if (pos)
 					{
-						string Folder = Options.Folder.Get();
+						string Folder = Options->Folder.Get();
 						if (Folder.At(pos-1)!=L':')
 							Folder.SetLength(pos);
 						else
 							Folder.SetLength(pos+1);
-						Options.Folder = Folder;
+						Options->Folder = Folder;
 					}
 				}
 			}
 			else
 			{
-				Options.Folder = strOriginalCurDir;
+				Options->Folder = strOriginalCurDir;
 			}
 		}
 
 		if (GetFocus())
 		{
-			Global->CtrlObject->CmdLine->SetCurDir(Options.Folder);
+			Global->CtrlObject->CmdLine->SetCurDir(Options->Folder);
 			Global->CtrlObject->CmdLine->Show();
 		}
 	}
@@ -452,7 +452,7 @@ const FarColor FileList::GetShowColor(int Position, int ColorType)
 	{
 		int Pos = HIGHLIGHTCOLOR_NORMAL;
 
-		if (CurFile==Position && Options.Focus && !ListData.empty())
+		if (CurFile==Position && Focus && !ListData.empty())
 		{
 			Pos=ListData[Position]->Selected?HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR:HIGHLIGHTCOLOR_UNDERCURSOR;
 		}
@@ -1045,7 +1045,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								SetColor(OldColor);
 							}
 
-							const wchar_t *NamePtr = Options.ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+							const wchar_t *NamePtr = Options->ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
 
 							string strNameCopy;
 							if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
@@ -1175,7 +1175,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							const wchar_t *ExtPtr = nullptr;
 							if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 							{
-								const wchar_t *NamePtr = Options.ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+								const wchar_t *NamePtr = Options->ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
 								ExtPtr = PointToExt(NamePtr);
 							}
 							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
@@ -1219,7 +1219,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								ColumnType,
 								ColumnTypes[K],
 								ColumnWidth,
-								Options.Folder.Get()));
+								Options->Folder.Get()));
 							break;
 						}
 
