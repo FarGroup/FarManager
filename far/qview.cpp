@@ -57,7 +57,8 @@ static bool LastMode = false;
 static bool LastWrapMode = false;
 static bool LastWrapType = false;
 
-QuickView::QuickView():
+QuickView::QuickView(PanelOptions& Options):
+	Panel(Options),
 	QView(nullptr),
 	Directory(0),
 	PrevMacroMode(MACRO_INVALID),
@@ -65,8 +66,8 @@ QuickView::QuickView():
 	OldWrapType(0),
 	uncomplete_dirscan(false)
 {
+	Options.Type=QVIEW_PANEL;
 	ClearStruct(Data);
-	Type=QVIEW_PANEL;
 	if (!LastMode)
 	{
 		LastMode = true;
@@ -111,7 +112,7 @@ void QuickView::DisplayObject()
 
 	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
-	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	SetColor(Options.Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GetTitle(strTitle);
 
 	if (!strTitle.IsEmpty())
@@ -586,9 +587,9 @@ void QuickView::SetTitle()
 	}
 }
 
-void QuickView::SetFocus()
+void QuickView::SetFocus(bool Force)
 {
-	Panel::SetFocus();
+	Panel::SetFocus(Force);
 	SetTitle();
 	SetMacroMode(FALSE);
 }

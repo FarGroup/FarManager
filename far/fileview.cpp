@@ -214,7 +214,7 @@ void FileViewer::Show()
 		View.SetPosition(0,(Global->Opt->ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 	}
 
-	ScreenObject::Show();
+	ScreenObjectWithShadow::Show();
 	ShowStatus();
 }
 

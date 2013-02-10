@@ -239,7 +239,10 @@ struct PanelOptions
 	BoolOption ShowShortNames;
 	BoolOption NumericSort;
 	BoolOption CaseSensitiveSort;
+	BoolOption SelectedFirst;
 	BoolOption DirectoriesFirst;
+	StringOption Folder;
+	StringOption CurFile;
 };
 
 struct AutoCompleteOptions
@@ -561,14 +564,6 @@ public:
 	BoolOption Highlight;
 	BoolOption RightClickSelect;
 
-	StringOption strLeftFolder;
-	StringOption strRightFolder;
-
-	StringOption strLeftCurFile;
-	StringOption strRightCurFile;
-
-	BoolOption RightSelectedFirst;
-	BoolOption LeftSelectedFirst;
 	BoolOption SelectFolders;
 	BoolOption ReverseSort;
 	BoolOption SortFolderExt;

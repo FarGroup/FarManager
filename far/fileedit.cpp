@@ -300,7 +300,7 @@ const FileEditor *FileEditor::CurrentEditor = nullptr;
 FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int OpenModeExstFile):
 	BadConversion(false)
 {
-	ScreenObject::SetPosition(0,0,ScrX,ScrY);
+	ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
 	Flags.Set(InitFlags);
 	Flags.Set(FFILEEDIT_FULLSCREEN);
 	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, OpenModeExstFile);
@@ -336,7 +336,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 		Y2=ScrY;
 	}
 
-	ScreenObject::SetPosition(X1,Y1,X2,Y2);
+	ScreenObjectWithShadow::SetPosition(X1,Y1,X2,Y2);
 	Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
 	string EmptyTitle;
 	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, OpenModeExstFile);
@@ -732,11 +732,11 @@ void FileEditor::Show()
 			EditKeyBar.Redraw();
 		}
 
-		ScreenObject::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 		m_editor->SetPosition(0,(Global->Opt->EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	}
 
-	ScreenObject::Show();
+	ScreenObjectWithShadow::Show();
 }
 
 
@@ -2412,10 +2412,8 @@ BOOL FileEditor::UpdateFileList()
 {
 	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 	const wchar_t *FileName = PointToName(strFullFileName);
-	string strFilePath, strPanelPath;
-	strFilePath = strFullFileName;
+	string strFilePath(strFullFileName), strPanelPath(ActivePanel->GetCurDir());
 	strFilePath.SetLength(FileName - strFullFileName.CPtr());
-	ActivePanel->GetCurDir(strPanelPath);
 	AddEndSlash(strPanelPath);
 	AddEndSlash(strFilePath);
 

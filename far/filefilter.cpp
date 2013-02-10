@@ -156,11 +156,10 @@ bool FileFilter::FilterEdit()
 
 		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
 		{
-			string strCurDir, strFileName;
+			string strFileName;
 			FAR_FIND_DATA_EX fdata;
-			GetHostPanel()->GetCurDir(strCurDir);
 			ScanTree ScTree(FALSE,FALSE);
-			ScTree.SetFindPath(strCurDir,L"*");
+			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
 
 			while (ScTree.GetNextName(&fdata,strFileName))
 				if (!ParseAndAddMasks(Extensions, fdata.strFileName, fdata.dwFileAttributes, 0))

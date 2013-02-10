@@ -113,12 +113,10 @@ void ControlObject::Init(int DirCount)
 	Cp()->LeftPanel->Update(0);
 	Cp()->RightPanel->Update(0);
 
-	Cp()->LeftPanel->GoToFile(Global->Opt->strLeftCurFile);
-	Cp()->RightPanel->GoToFile(Global->Opt->strRightCurFile);
+	Cp()->LeftPanel->GoToFile(Global->Opt->LeftPanel.CurFile);
+	Cp()->RightPanel->GoToFile(Global->Opt->RightPanel.CurFile);
 
-	string strStartCurDir;
-	Cp()->ActivePanel->GetCurDir(strStartCurDir);
-	FarChDir(strStartCurDir);
+	FarChDir(Cp()->ActivePanel->GetCurDir());
 	Cp()->ActivePanel->SetFocus();
 
 	Macro.LoadMacros();
@@ -149,9 +147,7 @@ ControlObject::~ControlObject()
 
 		if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
 		{
-			string strCurDir;
-			Cp()->ActivePanel->GetCurDir(strCurDir);
-			FolderHistory->AddToHistory(strCurDir);
+			FolderHistory->AddToHistory(Cp()->ActivePanel->GetCurDir());
 		}
 	}
 

@@ -2282,7 +2282,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (SelPanel )
 			{
 				if (!SelPanel->VMProcess(CheckCode,&strFileName,0))
-					SelPanel->GetCurDir(strFileName);
+					strFileName = SelPanel->GetCurDir();
 				ptr = strFileName.CPtr();
 			}
 			return PassString(ptr, Data);
@@ -2303,7 +2303,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					strFileName = Info.CurDir;
 				}
 				else
-					SelPanel->GetCurDir(strFileName);
+					strFileName = SelPanel->GetCurDir();
 
 				DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
 				ptr = strFileName.CPtr();
@@ -2340,7 +2340,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (SelPanel  && SelPanel->GetMode() != PLUGIN_PANEL)
 			{
-				SelPanel->GetCurDir(strFileName);
+				strFileName = SelPanel->GetCurDir();
 				GetPathRoot(strFileName, strFileName);
 				UINT DriveType=FAR_GetDriveType(strFileName, 0);
 

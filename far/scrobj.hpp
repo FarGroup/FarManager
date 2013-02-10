@@ -91,7 +91,7 @@ protected:
 	ScreenObject *pOwner;
 	BitFlags Flags;
 	int nLockCount;
-	USHORT X1, Y1, X2, Y2;
+	SHORT X1, Y1, X2, Y2;
 };
 
 

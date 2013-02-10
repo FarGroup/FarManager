@@ -73,9 +73,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 	{
 		if (NeedSetUpADir)
 		{
-			string strCurDir;
-			SrcPanel->GetCurDir(strCurDir);
-			AnotherPanel->SetCurDir(strCurDir,TRUE);
+			AnotherPanel->SetCurDir(SrcPanel->GetCurDir(), TRUE);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 		}
 		else
@@ -112,9 +110,8 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 
 	if (AnotherPanel->GetMode() == NORMAL_PANEL)
 	{
-		string strAnotherCurDir;
 		string strFullName;
-		AnotherPanel->GetCurDir(strAnotherCurDir);
+		string strAnotherCurDir(AnotherPanel->GetCurDir());
 		AddEndSlash(strAnotherCurDir);
 		ConvertNameToFull(SelName, strFullName);
 		AddEndSlash(strFullName);
@@ -222,12 +219,12 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
 						return FALSE;
 
-					SrcPanel->GetCurDir(strPathName);
+					strPathName = SrcPanel->GetCurDir();
 
 					if (SrcPanel->GetMode()!=PLUGIN_PANEL)
 					{
 						FileList *SrcFilePanel=(FileList *)SrcPanel;
-						SrcFilePanel->GetCurDir(strPathName);
+						strPathName = SrcFilePanel->GetCurDir();
 						{
 							if (NeedRealName)
 								SrcFilePanel->CreateFullPathName(strPathName, strPathName,FILE_ATTRIBUTE_DIRECTORY, strPathName,TRUE,ShortNameAsIs);

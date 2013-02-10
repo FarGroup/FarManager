@@ -83,7 +83,7 @@ class InfoList:public Panel
 		void DynamicUpdateKeyBar();
 
 	public:
-		InfoList();
+		InfoList(PanelOptions& Options);
 	private:
 		virtual ~InfoList();
 
@@ -92,7 +92,7 @@ class InfoList:public Panel
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void Update(int Mode);
-		virtual void SetFocus();
+		virtual void SetFocus(bool Force = false);
 		virtual void KillFocus();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		virtual BOOL UpdateKeyBar();

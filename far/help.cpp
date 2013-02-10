@@ -164,7 +164,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 
 	if (!HelpList.empty())
 	{
-		ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+		ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
 		MacroMode = MACRO_HELP;
 		MoveToReference(1,1);
@@ -176,12 +176,12 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 
 		if (!(Flags&FHELP_NOSHOWERROR))
 		{
-			if (!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+			if (!ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 			{
 				Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
 			}
 
-			ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+			ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		}
 	}
 }
@@ -199,7 +199,7 @@ Help::~Help()
 
 void Help::Hide()
 {
-	ScreenObject::Hide();
+	ScreenObjectWithShadow::Hide();
 }
 
 
@@ -246,9 +246,9 @@ int Help::ReadHelp(const wchar_t *Mask)
 	{
 		ErrorHelp=TRUE;
 
-		if (!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+		if (!ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 		{
-			ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
+			ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 
 			if (!(StackData.Flags&FHELP_NOSHOWERROR))
 			{
@@ -1572,7 +1572,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 		ReadHelp(StackData.strHelpMask);
 	}
 
-	ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+	ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
 	if (HelpList.empty())
 	{
@@ -2231,8 +2231,8 @@ void Help::OnChangeFocus(int Focus)
 void Help::ResizeConsole()
 {
 	int OldIsNewTopic=IsNewTopic;
-	bool ErrCannotOpenHelp=ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
-	ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
+	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
+	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic=FALSE;
 	delete TopScreen;
 	TopScreen=nullptr;
@@ -2252,7 +2252,7 @@ void Help::ResizeConsole()
 	StackData.CurX--;
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;
-	ScreenObject::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
+	ScreenObjectWithShadow::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
 	FrameManager->ImmediateHide();
 	FrameManager->RefreshFrame();
 }

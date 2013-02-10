@@ -68,7 +68,7 @@ class QuickView:public Panel
 		void DynamicUpdateKeyBar();
 
 	public:
-		QuickView();
+		QuickView(PanelOptions& Options);
 	private:
 		virtual ~QuickView();
 
@@ -84,7 +84,7 @@ class QuickView:public Panel
 		virtual int UpdateIfChanged(int UpdateMode);
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		virtual void SetFocus();
+		virtual void SetFocus(bool Force = false);
 		virtual void KillFocus();
 		virtual BOOL UpdateKeyBar();
 		virtual int GetCurName(string &strName, string &strShortName);

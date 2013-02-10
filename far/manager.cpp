@@ -1205,9 +1205,6 @@ int Manager::ProcessKey(DWORD Key)
 
 int Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	// При каптюренной мыши отдаем управление заданному объекту
-//    if (ScreenObject::CaptureMouseObject)
-//      return ScreenObject::CaptureMouseObject->ProcessMouse(MouseEvent);
 	int ret=FALSE;
 
 //    _D(SysLog(1,"Manager::ProcessMouse()"));

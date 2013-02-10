@@ -145,7 +145,7 @@ class TreeList: public Panel
 		static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
 
 	public:
-		TreeList(bool IsPanel=true);
+		TreeList(PanelOptions& Options, bool IsPanel=true);
 	private:
 		virtual ~TreeList();
 
@@ -161,7 +161,7 @@ class TreeList: public Panel
 
 		void SetRootDir(const wchar_t *NewRootDir);
 
-		virtual int GetCurDir(string &strCurDir);
+		virtual const string& GetCurDir();
 
 		virtual int GetCurName(string &strName, string &strShortName);
 
@@ -185,7 +185,7 @@ class TreeList: public Panel
 
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		virtual void SetFocus();
+		virtual void SetFocus(bool Force = false);
 		virtual void KillFocus();
 		virtual BOOL UpdateKeyBar();
 		virtual BOOL GetItem(int Index,void *Dest);

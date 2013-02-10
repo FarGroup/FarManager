@@ -64,7 +64,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	if ((Tree=new TreeList(FALSE)))
+	PanelOptions DummyOptions;
+	if ((Tree=new TreeList(DummyOptions, false)))
 	{
 		Global->CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
 		MacroMode = MACRO_FINDFOLDER;
@@ -119,11 +120,9 @@ void FolderTree::DisplayObject()
 	//if(!TopScreen) TopScreen=new SaveScreen;
 	if (ModalMode == MODALTREE_FREE)
 	{
-		string strSelFolder;
-		Tree->GetCurDir(strSelFolder);
 		//Tree->Update(UPDATE_KEEP_SELECTION);
 		Tree->Update(0);
-		Tree->GoToFile(strSelFolder);
+		Tree->GoToFile(Tree->GetCurDir());
 	}
 
 	Tree->Redraw();
@@ -218,7 +217,7 @@ int FolderTree::ProcessKey(int Key)
 			break;
 		case KEY_NUMENTER:
 		case KEY_ENTER:
-			Tree->GetCurDir(strNewFolder);
+			strNewFolder = Tree->GetCurDir();
 
 			if (apiGetFileAttributes(strNewFolder)!=INVALID_FILE_ATTRIBUTES)
 			{

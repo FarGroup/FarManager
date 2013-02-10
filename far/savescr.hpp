@@ -38,7 +38,7 @@ class SaveScreen
 		friend class Grabber;
 	private:
 		FAR_CHAR_INFO* ScreenBuf;
-		USHORT CurPosX,CurPosY;
+		SHORT CurPosX,CurPosY;
 		bool CurVisible;
 		DWORD CurSize;
 		int X1,Y1,X2,Y2;

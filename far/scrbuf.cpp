@@ -575,7 +575,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 }
 
 
-void ScreenBuf::GetCursorPos(USHORT& X,USHORT& Y)
+void ScreenBuf::GetCursorPos(SHORT& X, SHORT& Y)
 {
 	X=CurX;
 	Y=CurY;

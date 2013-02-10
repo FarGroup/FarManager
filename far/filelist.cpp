@@ -109,7 +109,8 @@ enum SELECT_MODES
 	SELECT_INVERTMASK      = 10,
 };
 
-FileList::FileList():
+FileList::FileList(PanelOptions& Options):
+	Panel(Options),
 	Filter(nullptr),
 	DizRead(FALSE),
 	hPlugin(nullptr),
@@ -127,7 +128,6 @@ FileList::FileList():
 	LeftPos(0),
 	ShiftSelection(-1),
 	MouseSelection(0),
-	SelectedFirst(0),
 	IsEmpty(TRUE),
 	AccessTimeUpdateRequired(FALSE),
 	UpdateRequired(FALSE),
@@ -138,6 +138,7 @@ FileList::FileList():
 	CacheSelIndex(-1), CacheSelPos(0),
 	CacheSelClearIndex(-1), CacheSelClearPos(0)
 {
+	Options.Type=FILE_PANEL;
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
 		const wchar_t *data=MSG(MPanelBracketsForLongName);
@@ -155,19 +156,9 @@ FileList::FileList():
 
 		openBracket[1]=closeBracket[1]=0;
 	}
-	Type=FILE_PANEL;
-	apiGetCurrentDirectory(strCurDir);
-	strOriginalCurDir = strCurDir;
+	strOriginalCurDir = Options.Folder.Get();
 	CurTopFile=CurFile=0;
-	ShowShortNames=0;
-	SortMode=BY_NAME;
-	SortOrder=1;
-	SortGroups=0;
-	ViewMode=VIEW_3;
-	ViewSettings=ViewSettingsArray[ViewMode];
-	NumericSort=0;
-	CaseSensitiveSort=0;
-	DirectoriesFirst=1;
+	ViewSettings=ViewSettingsArray[Options.ViewMode];
 	Columns=PreparePanelView(&ViewSettings);
 	PluginCommand=-1;
 }
@@ -525,17 +516,17 @@ void FileList::SortFileList(int KeepPosition)
 	{
 		string strCurName;
 
-		if (SortMode==BY_DIZ)
+		if (Options.SortMode==BY_DIZ)
 			ReadDiz();
 
-		ListSortMode=SortMode;
-		RevertSorting = SortOrder < 0;
-		ListSortGroups=SortGroups;
-		ListSelectedFirst=SelectedFirst;
-		ListDirectoriesFirst=DirectoriesFirst;
+		ListSortMode=Options.SortMode;
+		RevertSorting = Options.SortOrder < 0;
+		ListSortGroups=Options.SortGroups;
+		ListSelectedFirst=Options.SelectedFirst;
+		ListDirectoriesFirst=Options.DirectoriesFirst;
 		ListPanelMode=PanelMode;
-		ListNumericSort=NumericSort;
-		ListCaseSensitiveSort=CaseSensitiveSort;
+		ListNumericSort=Options.NumericSort;
+		ListCaseSensitiveSort=Options.CaseSensitiveSort;
 
 		if (KeepPosition)
 		{
@@ -552,9 +543,9 @@ void FileList::SortFileList(int KeepPosition)
 	}
 }
 
-void FileList::SetFocus()
+void FileList::SetFocus(bool Force)
 {
-	Panel::SetFocus();
+	Panel::SetFocus(Force);
 
 	/* $ 07.04.2002 KM
 	  ! Рисуем заголовок консоли фара только тогда, когда
@@ -613,11 +604,11 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			}
 			else
 			{
-				if (!IsRootPath(strCurDir))
+				if (!IsRootPath(Options.Folder))
 				{
 					string strDriveRoot;
-					GetPathRoot(strCurDir, strDriveRoot);
-					return (__int64)(!StrCmpI(strCurDir, strDriveRoot));
+					GetPathRoot(Options.Folder, strDriveRoot);
+					return (__int64)(!StrCmpI(Options.Folder, strDriveRoot));
 				}
 
 				return 1;
@@ -816,7 +807,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			if (Result != -1 && mps->Action != 3)
 			{
-				if (SelectedFirst)
+				if (Options.SelectedFirst)
 					SortFileList(TRUE);
 				Redraw();
 			}
@@ -919,7 +910,7 @@ int FileList::ProcessKey(int Key)
 
 	if (!IntKeyState.ShiftPressed && ShiftSelection!=-1)
 	{
-		if (SelectedFirst)
+		if (Options.SelectedFirst)
 		{
 			SortFileList(TRUE);
 			ShowFileList(TRUE);
@@ -1021,7 +1012,7 @@ int FileList::ProcessKey(int Key)
 				});
 			}
 
-			if (SelectedFirst)
+			if (Options.SelectedFirst)
 				SortFileList(TRUE);
 
 			Redraw();
@@ -1154,7 +1145,7 @@ int FileList::ProcessKey(int Key)
 					assert(CurFile < ListData.size());
 					CurPtr=ListData[CurFile];
 
-					if (ShowShortNames && !CurPtr->strShortName.IsEmpty())
+					if (Options.ShowShortNames && !CurPtr->strShortName.IsEmpty())
 						strFileName = CurPtr->strShortName;
 					else
 						strFileName = CurPtr->strName;
@@ -1334,7 +1325,7 @@ int FileList::ProcessKey(int Key)
 
 				if (AnotherPanel->GetType()!=FILE_PANEL)
 				{
-					AnotherPanel->SetCurDir(strCurDir,FALSE);
+					AnotherPanel->SetCurDir(Options.Folder,FALSE);
 					AnotherPanel->Redraw();
 				}
 			}
@@ -1343,7 +1334,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLN:
 		case KEY_RCTRLN:
 		{
-			ShowShortNames=!ShowShortNames;
+			Options.ShowShortNames=!Options.ShowShortNames;
 			Redraw();
 			return TRUE;
 		}
@@ -1682,7 +1673,7 @@ int FileList::ProcessKey(int Key)
 												if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 													EditList.AddName(i->strName, i->strShortName);
 											});
-											EditList.SetCurDir(strCurDir);
+											EditList.SetCurDir(Options.Folder);
 											EditList.SetCurName(strFileName);
 											ShellEditor->SetNamesList(&EditList);
 										}
@@ -1762,7 +1753,7 @@ int FileList::ProcessKey(int Key)
 										if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 											ViewList.AddName(i->strName, i->strShortName);
 									});
-									ViewList.SetCurDir(strCurDir);
+									ViewList.SetCurDir(Options.Folder);
 									ViewList.SetCurName(strFileName);
 								}
 
@@ -1936,7 +1927,7 @@ int FileList::ProcessKey(int Key)
 
 					if (AnotherPanel->GetType()!=FILE_PANEL)
 					{
-						AnotherPanel->SetCurDir(strCurDir,FALSE);
+						AnotherPanel->SetCurDir(Options.Folder,FALSE);
 						AnotherPanel->Redraw();
 					}
 				}
@@ -2081,7 +2072,7 @@ int FileList::ProcessKey(int Key)
 			InternalProcessKey--;
 			Unlock();
 
-			if (SelectedFirst)
+			if (Options.SelectedFirst)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
@@ -2099,7 +2090,7 @@ int FileList::ProcessKey(int Key)
 			InternalProcessKey--;
 			Unlock();
 
-			if (SelectedFirst)
+			if (Options.SelectedFirst)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
@@ -2118,7 +2109,7 @@ int FileList::ProcessKey(int Key)
 			InternalProcessKey--;
 			Unlock();
 
-			if (SelectedFirst)
+			if (Options.SelectedFirst)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
@@ -2142,13 +2133,13 @@ int FileList::ProcessKey(int Key)
 				assert(CurFile < ListData.size());
 				Select(ListData[CurFile],ShiftSelection);
 
-				if (SelectedFirst)
+				if (Options.SelectedFirst)
 					SortFileList(TRUE);
 
 				InternalProcessKey--;
 				Unlock();
 
-				if (SelectedFirst)
+				if (Options.SelectedFirst)
 					SortFileList(TRUE);
 
 				ShowFileList(TRUE);
@@ -2182,7 +2173,7 @@ int FileList::ProcessKey(int Key)
 			else
 				Down(1);
 
-			if (SelectedFirst && !InternalProcessKey)
+			if (Options.SelectedFirst && !InternalProcessKey)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
@@ -2196,10 +2187,10 @@ int FileList::ProcessKey(int Key)
 			assert(CurFile < ListData.size());
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
-			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
+			bool avoid_up_jump = Options.SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
 			Down(1);
 
-			if (SelectedFirst)
+			if (Options.SelectedFirst)
 			{
 				SortFileList(TRUE);
 				if (avoid_up_jump)
@@ -2250,23 +2241,23 @@ int FileList::ProcessKey(int Key)
 			SelectSortMode();
 			return TRUE;
 		case KEY_SHIFTF11:
-			SortGroups=!SortGroups;
+			Options.SortGroups=!Options.SortGroups;
 
-			if (SortGroups)
+			if (Options.SortGroups)
 				ReadSortGroups();
 
 			SortFileList(TRUE);
 			Show();
 			return TRUE;
 		case KEY_SHIFTF12:
-			SelectedFirst=!SelectedFirst;
+			Options.SelectedFirst=!Options.SelectedFirst;
 			SortFileList(TRUE);
 			Show();
 			return TRUE;
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
-			if (Global->Opt->PgUpChangeDisk || PanelMode==PLUGIN_PANEL || !IsRootPath(strCurDir))
+			if (Global->Opt->PgUpChangeDisk || PanelMode==PLUGIN_PANEL || !IsRootPath(Options.Folder))
 			{
 				//"this" может быть удалён в ChangeDir
 				bool CheckFullScreen=IsFullScreen();
@@ -2396,7 +2387,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			if (!IsAbsolutePath(CurPtr->strName))
 			{
-				strFullPath = strCurDir;
+				strFullPath = Options.Folder.Get();
 				AddEndSlash(strFullPath);
 
 				/* 23.08.2001 VVM
@@ -2584,8 +2575,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 {
 	string strFindDir, strSetDir;
 
-	if (PanelMode!=PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !TestCurrentDirectory(strCurDir))
-		FarChDir(strCurDir);
+	if (PanelMode!=PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !TestCurrentDirectory(Options.Folder))
+		FarChDir(Options.Folder);
 
 	strSetDir = NewDir;
 	bool dot2Present = strSetDir == L"..";
@@ -2598,8 +2589,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 	{
 		if (dot2Present)
 		{
-			strSetDir = strCurDir;
-			PATH_TYPE Type = ParsePath(strCurDir, nullptr, &RootPath);
+			strSetDir = Options.Folder.Get();
+			PATH_TYPE Type = ParsePath(Options.Folder, nullptr, &RootPath);
 			if(Type == PATH_REMOTE || Type == PATH_REMOTEUNC)
 			{
 				NetPath = true;
@@ -2697,8 +2688,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 			string strFullNewDir;
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
-			if (StrCmpI(strFullNewDir, strCurDir))
-				Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
+			if (StrCmpI(strFullNewDir, Options.Folder))
+				Global->CtrlObject->FolderHistory->AddToHistory(Options.Folder);
 		}
 
 		if (dot2Present)
@@ -2707,7 +2698,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 			{
 				if (NetPath)
 				{
-					string tmp = strCurDir;	// strCurDir can be altered during next call
+					string tmp = Options.Folder.Get();	// Options.Folder can be altered during next call
 					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
 					{
 						return FALSE;
@@ -2716,7 +2707,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 				if(DrivePath && Global->Opt->PgUpChangeDisk == 2)
 				{
 					string RemoteName;
-					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.At(0), RemoteName))
+					if(DriveLocalToRemoteName(DRIVE_REMOTE, Options.Folder.At(0), RemoteName))
 					{
 						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
 						{
@@ -2730,12 +2721,12 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		}
 	}
 
-	strFindDir = PointToName(strCurDir);
+	strFindDir = PointToName(Options.Folder.Get());
 	/*
-		// вот и зачем это? мы уже и так здесь, в strCurDir
+		// вот и зачем это? мы уже и так здесь, в Options.Folder
 		// + дальше по тексту strSetDir уже содержит полный путь
 		if ( strSetDir.IsEmpty() || strSetDir.At(1) != L':' || !IsSlash(strSetDir.At(2)))
-			FarChDir(strCurDir);
+			FarChDir(Options.Folder);
 	*/
 	/* $ 26.04.2001 DJ
 	   проверяем, удалось ли сменить каталог, и обновляем с KEEP_SELECTION,
@@ -2746,7 +2737,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 
 	if (PanelMode!=PLUGIN_PANEL && strSetDir == L"\\")
 	{
-		strSetDir = ExtractPathRoot(strCurDir);
+		strSetDir = ExtractPathRoot(Options.Folder);
 	}
 
 	if (!FarChDir(strSetDir))
@@ -2775,8 +2766,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 	    setdisk(CurDisk);
 	  }
 	}*/
-	apiGetCurrentDirectory(strCurDir);
-
+	string TmpStr;
+	apiGetCurrentDirectory(TmpStr);
+	Options.Folder = TmpStr;
 	if (!IsUpdated)
 		return SetDirectorySuccess;
 
@@ -2794,7 +2786,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 
 	if (GetFocus())
 	{
-		Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+		Global->CtrlObject->CmdLine->SetCurDir(Options.Folder);
 		Global->CtrlObject->CmdLine->Show();
 	}
 
@@ -2802,7 +2794,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 
 	if (AnotherPanel->GetType()!=FILE_PANEL)
 	{
-		AnotherPanel->SetCurDir(strCurDir,FALSE);
+		AnotherPanel->SetCurDir(Options.Folder,FALSE);
 		AnotherPanel->Redraw();
 	}
 
@@ -2956,7 +2948,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 				Select(CurPtr,MouseSelection);
 
-				if (SelectedFirst)
+				if (Options.SelectedFirst)
 					SortFileList(TRUE);
 			}
 		}
@@ -2984,7 +2976,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		if (SelectedFirst)
+		if (Options.SelectedFirst)
 			SortFileList(TRUE);
 
 		return TRUE;
@@ -3009,7 +3001,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		if (SelectedFirst)
+		if (Options.SelectedFirst)
 			SortFileList(TRUE);
 
 		return TRUE;
@@ -3094,7 +3086,7 @@ void FileList::SetViewMode(int ViewMode)
 	int ResortRequired=FALSE;
 	string strDriveRoot;
 	DWORD FileSystemFlags = 0;
-	GetPathRoot(strCurDir,strDriveRoot);
+	GetPathRoot(Options.Folder,strDriveRoot);
 
 	if (NewPacked && apiGetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
@@ -3116,7 +3108,7 @@ void FileList::SetViewMode(int ViewMode)
 		if (Y2>0)
 			SetPosition(0,Y1,ScrX,Y2);
 
-		FileList::ViewMode=ViewMode;
+		Options.ViewMode=ViewMode;
 	}
 	else
 	{
@@ -3130,11 +3122,11 @@ void FileList::SetViewMode(int ViewMode)
 					SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
 			}
 
-			FileList::ViewMode=ViewMode;
+			Options.ViewMode=ViewMode;
 		}
 		else
 		{
-			FileList::ViewMode=ViewMode;
+			Options.ViewMode=ViewMode;
 			FrameManager->RefreshFrame();
 		}
 	}
@@ -3183,17 +3175,17 @@ void FileList::SetSortMode(int SortMode)
 	};
 	static_assert(ARRAYSIZE(InvertByDefault) == SORTMODE_LAST, "incomplete InvertByDefault array");
 	assert(SortMode < SORTMODE_LAST);
-	if (SortMode==FileList::SortMode && Global->Opt->ReverseSort)
-		SortOrder=-SortOrder;
+	if (SortMode==Options.SortMode && Global->Opt->ReverseSort)
+		Options.SortOrder=-Options.SortOrder;
 	else
-		SortOrder = InvertByDefault[SortMode]? -1 : 1;
+		Options.SortOrder = InvertByDefault[SortMode]? -1 : 1;
 
 	SetSortMode0(SortMode);
 }
 
 void FileList::SetSortMode0(int SortMode)
 {
-	FileList::SortMode=SortMode;
+	Options.SortMode=SortMode;
 
 	if (!ListData.empty())
 		SortFileList(TRUE);
@@ -3201,21 +3193,21 @@ void FileList::SetSortMode0(int SortMode)
 	FrameManager->RefreshFrame();
 }
 
-void FileList::ChangeNumericSort(int Mode)
+void FileList::ChangeNumericSort(bool Mode)
 {
 	Panel::ChangeNumericSort(Mode);
 	SortFileList(TRUE);
 	Show();
 }
 
-void FileList::ChangeCaseSensitiveSort(int Mode)
+void FileList::ChangeCaseSensitiveSort(bool Mode)
 {
 	Panel::ChangeCaseSensitiveSort(Mode);
 	SortFileList(TRUE);
 	Show();
 }
 
-void FileList::ChangeDirectoriesFirst(int Mode)
+void FileList::ChangeDirectoriesFirst(bool Mode)
 {
 	Panel::ChangeDirectoriesFirst(Mode);
 	SortFileList(TRUE);
@@ -3518,7 +3510,7 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 							ColumnType,
 							ColumnTypes[K],
 							ColumnWidth,
-							strCurDir.CPtr()));
+							Options.Folder.CPtr()));
 						break;
 					}
 
@@ -3809,7 +3801,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		RawSelection=(Info.Flags & OPIF_RAWSELECTION);
 	}
 
-	string strCurName=(ShowShortNames && !ListData[CurFile]->strShortName.IsEmpty()? ListData[CurFile]->strShortName : ListData[CurFile]->strName);
+	string strCurName=(Options.ShowShortNames && !ListData[CurFile]->strShortName.IsEmpty()? ListData[CurFile]->strShortName : ListData[CurFile]->strName);
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
@@ -3935,7 +3927,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 				if (bUseFilter)
 					Match=Filter.FileInFilter(*i);
 				else
-					Match=FileMask.Compare((ShowShortNames && !i->strShortName.IsEmpty() ? i->strShortName:i->strName));
+					Match=FileMask.Compare((this->Options.ShowShortNames && !i->strShortName.IsEmpty()) ? i->strShortName:i->strName);
 			}
 
 			if (Match)
@@ -3968,7 +3960,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		});
 	}
 
-	if (SelectedFirst)
+	if (Options.SelectedFirst)
 		SortFileList(TRUE);
 
 	ShowFileList(TRUE);
@@ -3991,7 +3983,7 @@ void FileList::UpdateViewPanel()
 		        Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
 		{
 			if (TestParentFolderName(CurPtr->strName))
-				ViewPanel->ShowFile(strCurDir,FALSE,nullptr);
+				ViewPanel->ShowFile(Options.Folder,FALSE,nullptr);
 			else
 				ViewPanel->ShowFile(CurPtr->strName,FALSE,nullptr);
 		}
@@ -4089,8 +4081,8 @@ void FileList::CompareDir()
 	{
 		string strFileSystemName1, strFileSystemName2;
 		string strRoot1, strRoot2;
-		GetPathRoot(strCurDir, strRoot1);
-		GetPathRoot(Another->strCurDir, strRoot2);
+		GetPathRoot(Options.Folder, strRoot1);
+		GetPathRoot(Another->Options.Folder, strRoot2);
 
 		if (apiGetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
 		        apiGetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
@@ -4153,7 +4145,7 @@ void FileList::CompareDir()
 		}
 	}
 
-	if (SelectedFirst)
+	if (Options.SelectedFirst)
 		SortFileList(TRUE);
 
 	Redraw();
@@ -4250,7 +4242,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			DataSize+=2;
 		}
 
-		strQuotedName = (ShowShortNames && !strSelShortName.IsEmpty()) ? strSelShortName:strSelName;
+		strQuotedName = (Options.ShowShortNames && !strSelShortName.IsEmpty()) ? strSelShortName:strSelName;
 
 		if (FillPathName)
 		{
@@ -4324,7 +4316,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				}
 				else
 				{
-					GetCurDir(strQuotedName);
+					strQuotedName = GetCurDir();
 				}
 
 				strQuotedName=PointToName(strQuotedName);
@@ -4389,7 +4381,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 	}
 	*/
 
-	if (ShowShortNames && ShortNameAsIs)
+	if (Options.ShowShortNames && ShortNameAsIs)
 		ConvertNameToShort(strFileName,strFileName);
 
 	/* $ 29.01.2001 VVM
@@ -4457,7 +4449,7 @@ void FileList::SetTitle()
 		}
 		else
 		{
-			strTitleDir += strCurDir;
+			strTitleDir += Options.Folder.Get();
 		}
 
 		strTitleDir += L"}";
@@ -4474,7 +4466,7 @@ void FileList::ClearSelection()
 		this->Select(i, 0);
 	});
 
-	if (SelectedFirst)
+	if (Options.SelectedFirst)
 		SortFileList(TRUE);
 }
 
@@ -4497,7 +4489,7 @@ void FileList::RestoreSelection()
 		this->Select(i, NewSelection);
 	});
 
-	if (SelectedFirst)
+	if (Options.SelectedFirst)
 		SortFileList(TRUE);
 
 	Redraw();
@@ -4579,18 +4571,18 @@ void FileList::SelectSortMode()
 	};
 
 	for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
-		if (SortModes[i]==SortMode)
+		if (SortModes[i]==Options.SortMode)
 		{
-			SortMenu[i].SetCheck(SortOrder==1 ? L'+':L'-');
+			SortMenu[i].SetCheck(Options.SortOrder==1 ? L'+':L'-');
 			break;
 		}
 
 	int SG=GetSortGroups();
-	SortMenu[BY_CUSTOMDATA+2].SetCheck(NumericSort);
-	SortMenu[BY_CUSTOMDATA+3].SetCheck(CaseSensitiveSort);
+	SortMenu[BY_CUSTOMDATA+2].SetCheck(Options.NumericSort);
+	SortMenu[BY_CUSTOMDATA+3].SetCheck(Options.CaseSensitiveSort);
 	SortMenu[BY_CUSTOMDATA+4].SetCheck(SG);
-	SortMenu[BY_CUSTOMDATA+5].SetCheck(SelectedFirst);
-	SortMenu[BY_CUSTOMDATA+6].SetCheck(DirectoriesFirst);
+	SortMenu[BY_CUSTOMDATA+5].SetCheck(Options.SelectedFirst);
+	SortMenu[BY_CUSTOMDATA+6].SetCheck(Options.DirectoriesFirst);
 	int SortCode=-1;
 	bool setSortMode0=false;
 
@@ -4631,7 +4623,7 @@ void FileList::SelectSortMode()
 				case L'+':
 					if (MenuPos<(int)ARRAYSIZE(SortModes))
 					{
-						SortOrder=1;
+						this->Options.SortOrder=1;
 						setSortMode0=true;
 					}
 					else
@@ -4639,19 +4631,19 @@ void FileList::SelectSortMode()
 						switch (MenuPos)
 						{
 							case BY_CUSTOMDATA+2:
-								NumericSort=0;
+								this->Options.NumericSort = false;
 								break;
 							case BY_CUSTOMDATA+3:
-								CaseSensitiveSort=0;
+								this->Options.CaseSensitiveSort = false;
 								break;
 							case BY_CUSTOMDATA+4:
-								SortGroups=0;
+								this->Options.SortGroups = false;
 								break;
 							case BY_CUSTOMDATA+5:
-								SelectedFirst=0;
+								this->Options.SelectedFirst = false;
 								break;
 							case BY_CUSTOMDATA+6:
-								DirectoriesFirst=0;
+								this->Options.DirectoriesFirst = false;
 								break;
 						}
 					}
@@ -4661,7 +4653,7 @@ void FileList::SelectSortMode()
 				case L'-':
 					if (MenuPos<(int)ARRAYSIZE(SortModes))
 					{
-						SortOrder=-1;
+						this->Options.SortOrder=-1;
 						setSortMode0=true;
 					}
 					else
@@ -4669,19 +4661,19 @@ void FileList::SelectSortMode()
 						switch (MenuPos)
 						{
 							case BY_CUSTOMDATA+2:
-								NumericSort=1;
+								this->Options.NumericSort = true;
 								break;
 							case BY_CUSTOMDATA+3:
-								NumericSort=1;
+								this->Options.NumericSort = true;
 								break;
 							case BY_CUSTOMDATA+4:
-								SortGroups=1;
+								this->Options.SortGroups = true;
 								break;
 							case BY_CUSTOMDATA+5:
-								SelectedFirst=1;
+								this->Options.SelectedFirst = true;
 								break;
 							case BY_CUSTOMDATA+6:
-								DirectoriesFirst=1;
+								this->Options.DirectoriesFirst = true;
 								break;
 						}
 					}
@@ -4709,10 +4701,10 @@ void FileList::SelectSortMode()
 		switch (SortCode)
 		{
 			case BY_CUSTOMDATA+2:
-				ChangeNumericSort(NumericSort?0:1);
+				ChangeNumericSort(Options.NumericSort?0:1);
 				break;
 			case BY_CUSTOMDATA+3:
-				ChangeCaseSensitiveSort(CaseSensitiveSort?0:1);
+				ChangeCaseSensitiveSort(Options.CaseSensitiveSort?0:1);
 				break;
 			case BY_CUSTOMDATA+4:
 				ProcessKey(KEY_SHIFTF11);
@@ -4721,7 +4713,7 @@ void FileList::SelectSortMode()
 				ProcessKey(KEY_SHIFTF12);
 				break;
 			case BY_CUSTOMDATA+6:
-				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
+				ChangeDirectoriesFirst(Options.DirectoriesFirst?0:1);
 				break;
 		}
 }
@@ -4737,7 +4729,7 @@ void FileList::DeleteDiz(const string& Name, const string& ShortName)
 void FileList::FlushDiz()
 {
 	if (PanelMode==NORMAL_PANEL)
-		Diz.Flush(strCurDir);
+		Diz.Flush(Options.Folder);
 }
 
 
@@ -5028,34 +5020,34 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 int FileList::GetPrevViewMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevViewMode:ViewMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevViewMode:Options.ViewMode.Get();
 }
 
 
 int FileList::GetPrevSortMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortMode:SortMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortMode:Options.SortMode.Get();
 }
 
 
 int FileList::GetPrevSortOrder()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortOrder:SortOrder;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortOrder:Options.SortOrder.Get();
 }
 
-int FileList::GetPrevNumericSort()
+bool FileList::GetPrevNumericSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevNumericSort:NumericSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevNumericSort:Options.NumericSort.Get();
 }
 
-int FileList::GetPrevCaseSensitiveSort()
+bool FileList::GetPrevCaseSensitiveSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevCaseSensitiveSort:CaseSensitiveSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevCaseSensitiveSort:Options.CaseSensitiveSort.Get();
 }
 
-int FileList::GetPrevDirectoriesFirst()
+bool FileList::GetPrevDirectoriesFirst()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevDirectoriesFirst:DirectoriesFirst;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevDirectoriesFirst:Options.DirectoriesFirst.Get();
 }
 
 HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
@@ -5152,7 +5144,7 @@ void FileList::ProcessCopyKeys(int Key)
 							strDestPath = strPluginDestPath;
 						else
 						{
-							AnotherPanel->GetCurDir(strDestPath);
+							strDestPath = AnotherPanel->GetCurDir();
 
 							if (!AnotherPanel->IsVisible())
 							{
@@ -5191,9 +5183,9 @@ void FileList::ProcessCopyKeys(int Key)
 	}
 }
 
-void FileList::SetSelectedFirstMode(int Mode)
+void FileList::SetSelectedFirstMode(bool Mode)
 {
-	SelectedFirst=Mode;
+	Options.SelectedFirst=Mode;
 	SortFileList(TRUE);
 }
 
@@ -5299,7 +5291,7 @@ void FileList::IfGoHome(wchar_t Drive)
 
 		if (Another->GetMode() != PLUGIN_PANEL)
 		{
-			Another->GetCurDir(strTmpCurDir);
+			strTmpCurDir = Another->GetCurDir();
 
 			if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
 				Another->SetCurDir(strFName, FALSE);
@@ -5307,7 +5299,7 @@ void FileList::IfGoHome(wchar_t Drive)
 
 		if (GetMode() != PLUGIN_PANEL)
 		{
-			GetCurDir(strTmpCurDir);
+			strTmpCurDir = GetCurDir();
 
 			if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
 				SetCurDir(strFName, FALSE); // переходим в корень диска с far.exe

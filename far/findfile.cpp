@@ -3010,8 +3010,7 @@ bool FindFiles::FindFilesProcess()
 
 					// ! Не меняем каталог, если мы уже в нем находимся.
 					// Тем самым добиваемся того, что выделение с элементов панели не сбрасывается.
-					string strDirTmp;
-					FindPanel->GetCurDir(strDirTmp);
+					string strDirTmp = FindPanel->GetCurDir();
 					Length=strDirTmp.GetLength();
 
 					if (Length>1 && IsSlash(strDirTmp.At(Length-1)) && strDirTmp.At(Length-2)!=L':')

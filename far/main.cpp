@@ -142,7 +142,8 @@ static int MainProcess(
 		if (*ename || *vname)
 		{
 			Global->Opt->OnlyEditorViewerUsed=1;
-			Panel *DummyPanel=new Panel;
+			PanelOptions DummyOptions;
+			Panel *DummyPanel=new Panel(DummyOptions);
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
@@ -204,13 +205,13 @@ static int MainProcess(
 				{
 					Global->Opt->LeftPanel.Type=FILE_PANEL;  // сменим моду панели
 					Global->Opt->LeftPanel.Visible=TRUE;     // и включим ее
-					Global->Opt->strLeftFolder = strPath;
+					Global->Opt->LeftPanel.Folder = strPath;
 				}
 				else
 				{
 					Global->Opt->RightPanel.Type=FILE_PANEL;
 					Global->Opt->RightPanel.Visible=TRUE;
-					Global->Opt->strRightFolder = strPath;
+					Global->Opt->RightPanel.Folder = strPath;
 				}
 
 				if (*ppanel)  // пассивная панель
@@ -232,13 +233,13 @@ static int MainProcess(
 					{
 						Global->Opt->RightPanel.Type=FILE_PANEL; // сменим моду панели
 						Global->Opt->RightPanel.Visible=TRUE;    // и включим ее
-						Global->Opt->strRightFolder = strPath;
+						Global->Opt->RightPanel.Folder = strPath;
 					}
 					else
 					{
 						Global->Opt->LeftPanel.Type=FILE_PANEL;
 						Global->Opt->LeftPanel.Visible=TRUE;
-						Global->Opt->strLeftFolder = strPath;
+						Global->Opt->LeftPanel.Folder = strPath;
 					}
 				}
 			}
@@ -249,14 +250,12 @@ static int MainProcess(
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (*apanel)  // актиная панель
 			{
-				string strCurDir;
 				Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 				if (*ppanel)  // пассивная панель
 				{
-					AnotherPanel->GetCurDir(strCurDir);
-					FarChDir(strCurDir);
+					FarChDir(AnotherPanel->GetCurDir());
 
 					if (IsPluginPrefixPath(ppanel))
 					{
@@ -276,8 +275,7 @@ static int MainProcess(
 					}
 				}
 
-				ActivePanel->GetCurDir(strCurDir);
-				FarChDir(strCurDir);
+				FarChDir(ActivePanel->GetCurDir());
 
 				if (IsPluginPrefixPath(apanel))
 				{

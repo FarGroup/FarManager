@@ -423,7 +423,7 @@ void Dialog::CheckDialogCoord()
 
 	// задано центрирование диалога по горизонтали?
 	// X2 при этом = ширине диалога.
-	if (X1 == static_cast<USHORT>(-1))
+	if (X1 == -1)
 	{
 		X1 = (ScrX - X2 + 1) / 2;
 		X2 += X1 - 1;
@@ -431,7 +431,7 @@ void Dialog::CheckDialogCoord()
 
 	// задано центрирование диалога по вертикали?
 	// Y2 при этом = высоте диалога.
-	if (Y1 == static_cast<USHORT>(-1))
+	if (Y1 == -1)
 	{
 		Y1 = (ScrY - Y2 + 1) / 2;
 		Y2 += Y1 - 1;
@@ -476,7 +476,7 @@ void Dialog::InitDialog()
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:
    Расчет значений координат окна диалога и вызов функции
-   ScreenObject::Show() для вывода диалога на экран.
+   ScreenObjectWithShadow::Show() для вывода диалога на экран.
 */
 void Dialog::Show()
 {
@@ -500,7 +500,7 @@ void Dialog::Show()
 		return;
 
 	DialogMode.Set(DMODE_SHOW);
-	ScreenObject::Show();
+	ScreenObjectWithShadow::Show();
 }
 
 //  Цель перехвата данной функции - управление видимостью...
@@ -513,7 +513,7 @@ void Dialog::Hide()
 		return;
 
 	DialogMode.Clear(DMODE_SHOW);
-	ScreenObject::Hide();
+	ScreenObjectWithShadow::Hide();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -3353,10 +3353,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			if (!DialogMode.Check(DMODE_SHOW))
 				return FALSE;
 
-//      if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
 			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 				ProcessKey(KEY_ESC);
-//      else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
 			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 				ProcessKey(KEY_ENTER);
 		}
@@ -3364,14 +3362,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (mouse.Event.MouseEvent.dwButtonState)
 			DialogMode.Set(DMODE_CLICKOUTSIDE);
 
-		//ScreenObject::SetCapture(this);
 		return TRUE;
 	}
 
 	if (!mouse.Event.MouseEvent.dwButtonState)
 	{
 		DialogMode.Clear(DMODE_CLICKOUTSIDE);
-//    ScreenObject::SetCapture(nullptr);
 		return FALSE;
 	}
 
@@ -6376,7 +6372,7 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 	else
 		RealHeight = Y2;
 
-	ScreenObject::SetPosition(X1, Y1, X2, Y2);
+	ScreenObjectWithShadow::SetPosition(X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
 BOOL Dialog::IsInited()

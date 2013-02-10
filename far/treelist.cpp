@@ -139,7 +139,8 @@ void TreeListCache::Sort()
 }
 
 
-TreeList::TreeList(bool IsPanel):
+TreeList::TreeList(PanelOptions& Options, bool IsPanel):
+	Panel(Options),
 	PrevMacroMode(MACRO_INVALID),
 	WorkDir(0),
 	GetSelPosition(0),
@@ -148,7 +149,7 @@ TreeList::TreeList(bool IsPanel):
 	ExitCode(1),
 	SaveWorkDir(0)
 {
-	Type=TREE_PANEL;
+	Options.Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
 	Flags.Set(FTREELIST_UPDATEREQUIRED);
 	Flags.Clear(FTREELIST_TREEISPREPARED);
@@ -171,7 +172,7 @@ TreeList::~TreeList()
 void TreeList::SetRootDir(const wchar_t *NewRootDir)
 {
 	strRoot = NewRootDir;
-	strCurDir = NewRootDir;
+	Options.Folder = NewRootDir;
 }
 
 void TreeList::DisplayObject()
@@ -239,7 +240,7 @@ void TreeList::DisplayTree(int Fast)
 	CorrectPosition();
 
 	if (!ListData.empty())
-		strCurDir = ListData[CurFile]->strName; //BUGBUG
+		Options.Folder = ListData[CurFile]->strName; //BUGBUG
 
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
@@ -250,7 +251,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (!strTitle.IsEmpty())
 		{
-			SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+			SetColor((Options.Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 			GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
 			Text(strTitle);
 		}
@@ -327,7 +328,7 @@ void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
 	{
 		GotoXY(WhereX()-1,WhereY());
 
-		if (Focus || ModalMode)
+		if (Options.Focus || ModalMode)
 		{
 			SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
 			Global->FS << L" "<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L" ";
@@ -605,10 +606,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 void TreeList::GetRoot()
 {
-	string strPanelDir;
-	Panel *RootPanel=GetRootPanel();
-	RootPanel->GetCurDir(strPanelDir);
-	strRoot = ExtractPathRoot(strPanelDir);
+	strRoot = ExtractPathRoot(GetRootPanel()->GetCurDir());
 }
 
 Panel* TreeList::GetRootPanel()
@@ -637,9 +635,8 @@ Panel* TreeList::GetRootPanel()
 
 void TreeList::SyncDir()
 {
-	string strPanelDir;
 	Panel *AnotherPanel=GetRootPanel();
-	AnotherPanel->GetCurDir(strPanelDir);
+	string strPanelDir(AnotherPanel->GetCurDir());
 
 	if (!strPanelDir.IsEmpty())
 	{
@@ -1247,19 +1244,19 @@ int TreeList::SetDirPosition(const wchar_t *NewDir)
 	return FALSE;
 }
 
-int TreeList::GetCurDir(string &strCurDir)
+const string& TreeList::GetCurDir()
 {
 	if (ListData.empty())
 	{
 		if (ModalMode==MODALTREE_FREE)
-			strCurDir = strRoot;
+			Options.Folder = strRoot;
 		else
-			strCurDir.Clear();
+			Options.Folder.Clear();
 	}
 	else
-		strCurDir = ListData[CurFile]->strName; //BUGBUG
+		Options.Folder = ListData[CurFile]->strName; //BUGBUG
 
-	return (int)strCurDir.GetLength();
+	return Options.Folder;
 }
 
 int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -1549,7 +1546,7 @@ int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 
 	if (!GetSelPosition)
 	{
-		GetCurDir(*strName);
+		*strName = GetCurDir();
 
 		if (strShortName )
 			*strShortName = *strName;
@@ -1801,11 +1798,8 @@ void TreeList::UpdateViewPanel()
 	if (!ModalMode)
 	{
 		Panel *AnotherPanel=GetRootPanel();
-		string strCurName;
-		GetCurDir(strCurName);
-
 		if (AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
-			((QuickView *)AnotherPanel)->ShowFile(strCurName,FALSE,nullptr);
+			((QuickView *)AnotherPanel)->ShowFile(GetCurDir(),FALSE,nullptr);
 	}
 }
 
@@ -1904,9 +1898,9 @@ int TreeList::MustBeCached(const wchar_t *Root)
 	return FALSE;
 }
 
-void TreeList::SetFocus()
+void TreeList::SetFocus(bool Force)
 {
-	Panel::SetFocus();
+	Panel::SetFocus(Force);
 	SetTitle();
 	SetMacroMode(FALSE);
 }

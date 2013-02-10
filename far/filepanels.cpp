@@ -56,10 +56,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 
 FilePanels::FilePanels():
-	LastLeftFilePanel(0),
-	LastRightFilePanel(0),
-	LeftPanel(CreatePanel(Global->Opt->LeftPanel.Type)),
-	RightPanel(CreatePanel(Global->Opt->RightPanel.Type)),
+	LastLeftFilePanel(nullptr),
+	LastRightFilePanel(nullptr),
+	LeftPanel(CreatePanel(Global->Opt->LeftPanel)),
+	RightPanel(CreatePanel(Global->Opt->RightPanel)),
 	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
@@ -107,24 +107,6 @@ void FilePanels::Init(int DirCount)
 {
 	SetPanelPositions(FileList::IsModeFullScreen(Global->Opt->LeftPanel.ViewMode),
 	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
-	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
-	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
-	LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
-	RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
-	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
-	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
-	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);
-	RightPanel->SetCaseSensitiveSort(Global->Opt->RightPanel.CaseSensitiveSort);
-	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.SortOrder);
-	RightPanel->SetSortOrder(Global->Opt->RightPanel.SortOrder);
-	LeftPanel->SetSortGroups(Global->Opt->LeftPanel.SortGroups);
-	RightPanel->SetSortGroups(Global->Opt->RightPanel.SortGroups);
-	LeftPanel->SetShowShortNamesMode(Global->Opt->LeftPanel.ShowShortNames);
-	RightPanel->SetShowShortNamesMode(Global->Opt->RightPanel.ShowShortNames);
-	LeftPanel->SetSelectedFirstMode(Global->Opt->LeftSelectedFirst);
-	RightPanel->SetSelectedFirstMode(Global->Opt->RightSelectedFirst);
-	LeftPanel->SetDirectoriesFirst(Global->Opt->LeftPanel.DirectoriesFirst);
-	RightPanel->SetDirectoriesFirst(Global->Opt->RightPanel.DirectoriesFirst);
 	SetCanLoseFocus(TRUE);
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
@@ -142,22 +124,22 @@ void FilePanels::Init(int DirCount)
 		PassiveIsLeftFlag=TRUE;
 	}
 
-	ActivePanel->SetFocus();
+	ActivePanel->SetFocus(true);
 	// пытаемся избавится от зависания при запуске
 	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
-	string strLeft = Global->Opt->strLeftFolder.Get(), strRight = Global->Opt->strRightFolder.Get();
+	string strLeft = Global->Opt->LeftPanel.Folder.Get(), strRight = Global->Opt->RightPanel.Folder.Get();
 	PrepareOptFolder(strLeft, IsLocalPath_FarPath);
 	PrepareOptFolder(strRight, IsLocalPath_FarPath);
-	Global->Opt->strLeftFolder = strLeft;
-	Global->Opt->strRightFolder = strRight;
+	Global->Opt->LeftPanel.Folder = strLeft;
+	Global->Opt->RightPanel.Folder = strRight;
 
 	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-			LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
+		if (apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+			LeftPanel->InitCurDir(Global->Opt->LeftPanel.Folder);
 
-		if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-			RightPanel->InitCurDir(Global->Opt->strRightFolder);
+		if (apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+			RightPanel->InitCurDir(Global->Opt->RightPanel.Folder);
 	}
 
 	if (!Global->Opt->AutoSaveSetup)
@@ -166,31 +148,31 @@ void FilePanels::Init(int DirCount)
 		{
 			if (ActivePanel==RightPanel)
 			{
-				if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-					RightPanel->InitCurDir(Global->Opt->strRightFolder);
+				if (apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+					RightPanel->InitCurDir(Global->Opt->RightPanel.Folder);
 			}
 			else
 			{
-				if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-					LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
+				if (apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+					LeftPanel->InitCurDir(Global->Opt->LeftPanel.Folder);
 			}
 
 			if (DirCount == 2)
 			{
 				if (ActivePanel==LeftPanel)
 				{
-					if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-						RightPanel->InitCurDir(Global->Opt->strRightFolder);
+					if (apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+						RightPanel->InitCurDir(Global->Opt->RightPanel.Folder);
 				}
 				else
 				{
-					if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-						LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
+					if (apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES)
+						LeftPanel->InitCurDir(Global->Opt->LeftPanel.Folder);
 				}
 			}
 		}
 
-		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->strLeftFolder:Global->Opt->strRightFolder;
+		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
 
 		if (DirCount < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{
@@ -231,7 +213,7 @@ void FilePanels::Init(int DirCount)
 	// при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
 	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
-		Global->CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->strRightFolder:Global->Opt->strLeftFolder);
+		Global->CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->RightPanel.Folder:Global->Opt->LeftPanel.Folder);
 	}
 
 	SetKeyBar(&MainKeyBar);
@@ -303,23 +285,23 @@ void FilePanels::RedrawKeyBar()
 }
 
 
-Panel* FilePanels::CreatePanel(int Type)
+Panel* FilePanels::CreatePanel(PanelOptions& Options)
 {
 	Panel *pResult = nullptr;
 
-	switch (Type)
+	switch (Options.Type)
 	{
 		case FILE_PANEL:
-			pResult = new FileList;
+			pResult = new FileList(Options);
 			break;
 		case TREE_PANEL:
-			pResult = new TreeList;
+			pResult = new TreeList(Options);
 			break;
 		case QVIEW_PANEL:
-			pResult = new QuickView;
+			pResult = new QuickView(Options);
 			break;
 		case INFO_PANEL:
-			pResult = new InfoList;
+			pResult = new InfoList(Options);
 			break;
 	}
 
@@ -563,8 +545,7 @@ int FilePanels::ProcessKey(int Key)
 					  ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
 					if (ActivePanel->GetType() == TREE_PANEL)
 					{
-						string strCurDir;
-						ActivePanel->GetCurDir(strCurDir);
+						string strCurDir(ActivePanel->GetCurDir());
 						AnotherPanel->SetCurDir(strCurDir, TRUE);
 						AnotherPanel->Update(0);
 					}
@@ -896,18 +877,19 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		return(Current);
 
 	int UseLastPanel=0;
+
 	int OldViewMode=Current->GetPrevViewMode();
 	bool OldFullScreen=Current->IsFullScreen();
 	int OldSortMode=Current->GetPrevSortMode();
 	int OldSortOrder=Current->GetPrevSortOrder();
-	int OldNumericSort=Current->GetPrevNumericSort();
-	int OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
-	int OldSortGroups=Current->GetSortGroups();
-	int OldShowShortNames=Current->GetShowShortNamesMode();
+	bool OldNumericSort=Current->GetPrevNumericSort();
+	bool OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
+	bool OldSortGroups=Current->GetSortGroups();
+	bool OldShowShortNames=Current->GetShowShortNamesMode();
 	int OldFocus=Current->GetFocus();
-	int OldSelectedFirst=Current->GetSelectedFirstMode();
-	int OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
-	int LeftPosition=(Current==LeftPanel);
+	bool OldSelectedFirst=Current->GetSelectedFirstMode();
+	bool OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
+	bool LeftPosition=(Current==LeftPanel);
 
 	Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
@@ -965,6 +947,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 			LastFilePanel->SetPosition(X1,Y1,X2,Y2);
 
 		NewPanel=LastFilePanel;
+		NewPanel->SetType(NewType);
 
 		if (!ChangePosition)
 		{
@@ -989,8 +972,11 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		UseLastPanel=TRUE;
 	}
 	else
-		NewPanel=CreatePanel(NewType);
-
+	{
+		PanelOptions& Options = LeftPosition? Global->Opt->LeftPanel : Global->Opt->RightPanel;
+		Options.Type = NewType;
+		NewPanel=CreatePanel(Options);
+	}
 	if (Current==ActivePanel)
 		ActivePanel=NewPanel;
 
@@ -1208,7 +1194,7 @@ void FilePanels::GoToFile(const wchar_t *FileName)
 
 		if (PassiveMode == NORMAL_PANEL)
 		{
-			PassivePanel->GetCurDir(PDir);
+			PDir = PassivePanel->GetCurDir();
 			AddEndSlash(PDir);
 		}
 
@@ -1216,7 +1202,7 @@ void FilePanels::GoToFile(const wchar_t *FileName)
 
 		if (ActiveMode==NORMAL_PANEL)
 		{
-			ActivePanel->GetCurDir(ADir);
+			ADir = ActivePanel->GetCurDir();
 			AddEndSlash(ADir);
 		}
 

@@ -618,7 +618,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 					else
 					{
-						SrcPanel->GetCurDir(strSelFullName);
+						strSelFullName = SrcPanel->GetCurDir();
 						AddEndSlash(strSelFullName);
 						strSelFullName+=strSelName;
 					}

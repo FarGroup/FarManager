@@ -1174,11 +1174,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 		nResult = 0;
 
-		if(!Silent)
-		{
-			Global->ScrBuf->FillBuf();
-			Global->CtrlObject->CmdLine->SaveBackground();
-		}
 	}
 	Global->ProcessShowClock -= add_show_clock;
 
@@ -1195,6 +1190,14 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
 	{
 		ChangeVideoMode(ConSize.Y, ConSize.X);
+	}
+	else
+	{
+		if(!Silent)
+		{
+			Global->ScrBuf->FillBuf();
+			Global->CtrlObject->CmdLine->SaveBackground();
+		}
 	}
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)

@@ -298,7 +298,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		if (*PSubstData->Name && PSubstData->Name[1]==L':')
 			strCurDir = PSubstData->Name;
 		else if (PSubstData->PassivePanel)
-			PSubstData->AnotherPanel->GetCurDir(strCurDir);
+			strCurDir = PSubstData->AnotherPanel->GetCurDir();
 		else
 			strCurDir = PSubstData->strCmdDir;
 
@@ -324,7 +324,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		}
 
 		if (PSubstData->PassivePanel)
-			PSubstData->AnotherPanel->GetCurDir(strCurDir);
+			strCurDir = PSubstData->AnotherPanel->GetCurDir();
 		else
 			strCurDir = PSubstData->strCmdDir;
 
@@ -774,7 +774,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				{
 					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.CPtr()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
-						string strTempFileName=strCurDir;
+						string strTempFileName=Options.Folder.Get();
 
 						if (ShortNames)
 							ConvertNameToShort(strTempFileName,strTempFileName);

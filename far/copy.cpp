@@ -1146,8 +1146,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 */
 	}
 
-	string strDestDir;
-	DestPanel->GetCurDir(strDestDir);
+	string strDestDir(DestPanel->GetCurDir());
 	if(ToSubdir)
 	{
 		AddEndSlash(strDestDir);
@@ -1155,8 +1154,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		DestPanel->GetCurName(strSubdir, strShort);
 		strDestDir+=strSubdir;
 	}
-	string strSrcDir;
-	SrcPanel->GetCurDir(strSrcDir);
+	string strSrcDir(SrcPanel->GetCurDir());
 
 	if (CurrentOnly)
 	{
@@ -1686,9 +1684,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	if (NeedUpdateAPanel && FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
 	{
-		string strTmpSrcDir;
-		SrcPanel->GetCurDir(strTmpSrcDir);
-		DestPanel->SetCurDir(strTmpSrcDir,FALSE);
+		DestPanel->SetCurDir(SrcPanel->GetCurDir(), FALSE);
 	}
 
 #else
@@ -1828,9 +1824,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 	if (Flags&FCOPY_MOVE)
 	{
-		string strTmpSrcDir;
-		SrcPanel->GetCurDir(strTmpSrcDir);
-		SameDisk=(CheckDisksProps(strTmpSrcDir,Dest,CHECKEDPROPS_ISSAMEDISK))!=0;
+		SameDisk=(CheckDisksProps(SrcPanel->GetCurDir(), Dest, CHECKEDPROPS_ISSAMEDISK))!=0;
 	}
 
 	string strDest = Dest;

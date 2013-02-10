@@ -3093,7 +3093,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(X1, std::max(0, static_cast<int>(Y1-1-MaxHeight)), std::min(static_cast<USHORT>(ScrX-2),X2), Y1-1);
+		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), std::min(ScrX-2,(int)X2), Y1-1);
 	}
 	else
 	{

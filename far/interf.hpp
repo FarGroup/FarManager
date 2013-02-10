@@ -38,8 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
 extern COORD InitSize, CurSize;
-extern USHORT ScrX,ScrY;
-extern USHORT PrevScrX,PrevScrY;
+extern SHORT ScrX,ScrY;
+extern SHORT PrevScrX,PrevScrY;
 extern DWORD InitialConsoleMode;
 
 // типы рамок
@@ -128,7 +128,7 @@ void GotoXY(int X,int Y);
 int WhereX();
 int WhereY();
 void MoveCursor(int X,int Y);
-void GetCursorPos(USHORT& X,USHORT& Y);
+void GetCursorPos(SHORT& X, SHORT& Y);
 void SetCursorType(bool Visible, DWORD Size);
 void SetInitialCursorType();
 void GetCursorType(bool& Visible, DWORD& Size);

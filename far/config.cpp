@@ -1119,7 +1119,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", AddressAndType(Global->Opt->LeftPanel.CaseSensitiveSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", AddressAndType(Global->Opt->LeftPanel.DirectoriesFirst), Default(1)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", AddressAndType(Global->Opt->LeftPanel.NumericSort), Default(0)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", AddressAndType(Global->Opt->LeftSelectedFirst), Default(0)},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", AddressAndType(Global->Opt->LeftPanel.SelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", AddressAndType(Global->Opt->LeftPanel.ShowShortNames), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", AddressAndType(Global->Opt->LeftPanel.SortGroups), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortMode", AddressAndType(Global->Opt->LeftPanel.SortMode), Default(1)},
@@ -1131,7 +1131,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", AddressAndType(Global->Opt->RightPanel.CaseSensitiveSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", AddressAndType(Global->Opt->RightPanel.DirectoriesFirst), Default(1)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", AddressAndType(Global->Opt->RightPanel.NumericSort), Default(0)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", AddressAndType(Global->Opt->RightSelectedFirst), Default(0)},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", AddressAndType(Global->Opt->RightPanel.SelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", AddressAndType(Global->Opt->RightPanel.ShowShortNames), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", AddressAndType(Global->Opt->RightPanel.SortGroups), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortMode", AddressAndType(Global->Opt->RightPanel.SortMode), Default(1)},
@@ -1301,13 +1301,13 @@ void InitLocalCFG()
 {
 	static FARConfigItem _CFG[] =
 	{
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->strLeftCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->LeftPanel.CurFile), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Focus", AddressAndType(Global->Opt->LeftPanel.Focus), Default(true)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->strLeftFolder), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->LeftPanel.Folder), Default(L"")},
 
-		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->strRightCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->RightPanel.CurFile), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Focus", AddressAndType(Global->Opt->RightPanel.Focus), Default(false)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->strRightFolder), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->RightPanel.Folder), Default(L"")},
 	};
 	FARLocalConfig.Items = _CFG;
 	FARLocalConfig.Size = ARRAYSIZE(_CFG);
@@ -1569,7 +1569,7 @@ void Options::Load()
 
 void Options::Save(bool Ask)
 {
-	InitConfig();
+ 	InitConfig();
 
 	if (Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
 		return;
@@ -1580,48 +1580,14 @@ void Options::Save(bool Ask)
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 	Panel *LeftPanelPtr=Global->CtrlObject->Cp()->LeftPanel;
 	Panel *RightPanelPtr=Global->CtrlObject->Cp()->RightPanel;
-	LeftPanel.Focus=LeftPanelPtr->GetFocus() != 0;
-	LeftPanel.Visible=LeftPanelPtr->IsVisible() != 0;
-	RightPanel.Focus=RightPanelPtr->GetFocus() != 0;
-	RightPanel.Visible=RightPanelPtr->IsVisible() != 0;
-
-	if (LeftPanelPtr->GetMode()==NORMAL_PANEL)
-	{
-		LeftPanel.Type=LeftPanelPtr->GetType();
-		LeftPanel.ViewMode=LeftPanelPtr->GetViewMode();
-		LeftPanel.SortMode=LeftPanelPtr->GetSortMode();
-		LeftPanel.SortOrder=LeftPanelPtr->GetSortOrder();
-		LeftPanel.SortGroups=LeftPanelPtr->GetSortGroups() != 0;
-		LeftPanel.ShowShortNames=LeftPanelPtr->GetShowShortNamesMode() != 0;
-		LeftPanel.NumericSort=LeftPanelPtr->GetNumericSort() != 0;
-		LeftPanel.CaseSensitiveSort=LeftPanelPtr->GetCaseSensitiveSort() != 0;
-		LeftSelectedFirst=LeftPanelPtr->GetSelectedFirstMode() != 0;
-		LeftPanel.DirectoriesFirst=LeftPanelPtr->GetDirectoriesFirst() != 0;
-	}
 
 	string strTemp1, strTemp2;
-	LeftPanelPtr->GetCurDir(strTemp1);
-	strLeftFolder = strTemp1;
 	LeftPanelPtr->GetCurBaseName(strTemp1, strTemp2);
-	strLeftCurFile = strTemp1;
-	if (RightPanelPtr->GetMode()==NORMAL_PANEL)
-	{
-		RightPanel.Type=RightPanelPtr->GetType();
-		RightPanel.ViewMode=RightPanelPtr->GetViewMode();
-		RightPanel.SortMode=RightPanelPtr->GetSortMode();
-		RightPanel.SortOrder=RightPanelPtr->GetSortOrder();
-		RightPanel.SortGroups=RightPanelPtr->GetSortGroups() != 0;
-		RightPanel.ShowShortNames=RightPanelPtr->GetShowShortNamesMode() != 0;
-		RightPanel.NumericSort=RightPanelPtr->GetNumericSort() != 0;
-		RightPanel.CaseSensitiveSort=RightPanelPtr->GetCaseSensitiveSort() != 0;
-		RightSelectedFirst=RightPanelPtr->GetSelectedFirstMode() != 0;
-		RightPanel.DirectoriesFirst=RightPanelPtr->GetDirectoriesFirst() != 0;
-	}
+	LeftPanel.CurFile = strTemp1;
 
-	RightPanelPtr->GetCurDir(strTemp1);
-	strRightFolder = strTemp1;
 	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
-	strRightCurFile = strTemp1;
+	RightPanel.CurFile = strTemp1;
+
 	Global->CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 

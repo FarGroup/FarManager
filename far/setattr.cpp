@@ -981,9 +981,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			string strComputerName;
 			if(SrcPanel)
 			{
-				string strCurDir;
-				SrcPanel->GetCurDir(strCurDir);
-				CurPath2ComputerName(strCurDir, strComputerName);
+				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName);
 			}
 			GetFileOwner(strComputerName,strSelName,AttrDlg[SA_EDIT_OWNER].strData);
 		}
@@ -1021,9 +1019,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			if(SrcPanel)
 			{
 				string strComputerName;
-				string strCurDir;
-				SrcPanel->GetCurDir(strCurDir);
-				CurPath2ComputerName(strCurDir, strComputerName);
+				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName);
 
 				bool CheckOwner=true;
 				while (SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData))

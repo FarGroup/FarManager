@@ -3887,7 +3887,7 @@ BOOL Editor::Search(int Next)
 						if (!ReplaceAll)
 						{
 							Show();
-							USHORT CurX,CurY;
+							SHORT CurX,CurY;
 							GetCursorPos(CurX,CurY);
 							int lpos = CurPtr->LeftPos;
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;

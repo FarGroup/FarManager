@@ -1887,7 +1887,7 @@ void VMenu::Show()
 	{
 		if (!CheckFlags(VMENU_LISTBOX))
 		{
-			ScreenObject::Show();
+			ScreenObjectWithShadow::Show();
 		}
 		else
 		{
@@ -1906,7 +1906,7 @@ void VMenu::Hide()
 	{
 		delete SaveScr;
 		SaveScr = nullptr;
-		ScreenObject::Hide();
+		ScreenObjectWithShadow::Hide();
 	}
 
 	SetFlags(VMENU_UPDATEREQUIRED);

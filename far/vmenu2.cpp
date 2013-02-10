@@ -163,7 +163,7 @@ int VMenu2::Call(int Msg, void *param)
 
 	bool Visible;
 	DWORD Size;
-	USHORT X, Y;
+	SHORT X, Y;
 	GetCursorType(Visible, Size);
 	GetCursorPos(X, Y);
 

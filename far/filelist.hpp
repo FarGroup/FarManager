@@ -166,9 +166,9 @@ struct PluginsListItem
 	int PrevViewMode;
 	int PrevSortMode;
 	int PrevSortOrder;
-	int PrevNumericSort;
-	int PrevCaseSensitiveSort;
-	int PrevDirectoriesFirst;
+	bool PrevNumericSort;
+	bool PrevCaseSensitiveSort;
+	bool PrevDirectoriesFirst;
 	PanelViewSettings PrevViewSettings;
 };
 
@@ -214,7 +214,6 @@ class FileList:public Panel
 		int LeftPos;
 		int ShiftSelection;
 		int MouseSelection;
-		int SelectedFirst;
 		int IsEmpty; // указывает на полностью пустую колонку
 		int AccessTimeUpdateRequired;
 
@@ -226,8 +225,8 @@ class FileList:public Panel
 		long CacheSelClearIndex,CacheSelClearPos;
 
 	private:
-		virtual void SetSelectedFirstMode(int Mode);
-		virtual int GetSelectedFirstMode() {return SelectedFirst;};
+		virtual void SetSelectedFirstMode(bool Mode);
+		virtual bool GetSelectedFirstMode() {return Options.SelectedFirst;}
 		virtual void DisplayObject();
 		void DeleteListData(std::vector<FileListItem*>& ListData);
 		void Up(int Count);
@@ -303,7 +302,7 @@ class FileList:public Panel
 		virtual void ClearAllItem();
 
 	public:
-		FileList();
+		FileList(PanelOptions& Options);
 	private:
 		virtual ~FileList();
 
@@ -312,7 +311,7 @@ class FileList:public Panel
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual void SetFocus();
+		virtual void SetFocus(bool Force = false);
 		virtual void Update(int Mode);
 		/*$ 22.06.2001 SKV
 		  Параметр для игнорирования времени последнего Update.
@@ -335,16 +334,16 @@ class FileList:public Panel
 		virtual void SetSortMode(int SortMode);
 		void SetSortMode0(int SortMode);
 		virtual void ChangeSortOrder(int NewOrder);
-		virtual void ChangeNumericSort(int Mode);
-		virtual void ChangeCaseSensitiveSort(int Mode);
-		virtual void ChangeDirectoriesFirst(int Mode);
+		virtual void ChangeNumericSort(bool Mode);
+		virtual void ChangeCaseSensitiveSort(bool Mode);
+		virtual void ChangeDirectoriesFirst(bool Mode);
 		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 		virtual int GetPrevSortMode();
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
-		virtual int GetPrevNumericSort();
-		virtual int GetPrevCaseSensitiveSort();
-		virtual int GetPrevDirectoriesFirst();
+		virtual bool GetPrevNumericSort();
+		virtual bool GetPrevCaseSensitiveSort();
+		virtual bool GetPrevDirectoriesFirst();
 
 		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
