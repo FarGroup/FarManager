@@ -68,6 +68,7 @@ mf = {
 mf.iif = function(Expr, res1, res2)
   if Expr and Expr~="" then return res1 else return res2 end
 end
+mf.GetMacroCopy = utils.GetMacroCopy
 --------------------------------------------------------------------------------
 
 Object = {

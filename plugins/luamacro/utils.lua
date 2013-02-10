@@ -554,8 +554,9 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-local function EV_Loop (macros, filename, area, windowID, param)
+local function EV_Loop (macros, area, windowID, param)
   if macros then
+    local filename = (area=="Editor" and editor or viewer).GetFileName(nil)
     for _,m in ipairs(macros) do
       local check = not (m.filemask and filename) or CheckFileName(m.filemask, filename)
       if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), m.flags) then
@@ -571,26 +572,40 @@ end
 function export.ProcessEditorEvent (EditorID, Event, Param)
   if not Events then return end
   if Event == F.EE_REDRAW then
-    EV_Loop(Events.editorevent.redraw, editor.GetFileName(nil), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.redraw,    "Editor", EditorID, Param)
   elseif Event == F.EE_CHANGE then
-    EV_Loop(Events.editorevent.change, editor.GetFileName(--[[EditorID]]), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.change,    "Editor", EditorID, Param)
   elseif Event == F.EE_CLOSE then
-    EV_Loop(Events.editorevent.close, nil, "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.close,     "Editor", EditorID, Param)
   elseif Event == F.EE_READ then
-    EV_Loop(Events.editorevent.read, editor.GetFileName(nil), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.read,      "Editor", EditorID, Param)
   elseif Event == F.EE_SAVE then
-    EV_Loop(Events.editorevent.save, editor.GetFileName(nil), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.save,      "Editor", EditorID, Param)
   elseif Event == F.EE_KILLFOCUS then
-    EV_Loop(Events.editorevent.killfocus, editor.GetFileName(nil), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.killfocus, "Editor", EditorID, Param)
   elseif Event == F.EE_GOTFOCUS then
-    EV_Loop(Events.editorevent.gotfocus, editor.GetFileName(nil), "Editor", EditorID, Param)
+    EV_Loop(Events.editorevent.gotfocus,  "Editor", EditorID, Param)
   end
 end
 
 function export.ProcessViewerEvent (ViewerID, Event, Param)
   if not Events then return end
-  if Event == F.VE_READ then
-    EV_Loop(Events.viewerevent.read, viewer.GetFileName(--[[ViewerID]]), "Viewer", ViewerID, Param)
+  if Event == F.VE_CLOSE then
+    EV_Loop(Events.viewerevent.close,     "Viewer", ViewerID, Param)
+  elseif Event == F.VE_READ then
+    EV_Loop(Events.viewerevent.read,      "Viewer", ViewerID, Param)
+  elseif Event == F.VE_KILLFOCUS then
+    EV_Loop(Events.viewerevent.killfocus, "Viewer", ViewerID, Param)
+  elseif Event == F.VE_GOTFOCUS then
+    EV_Loop(Events.viewerevent.gotfocus,  "Viewer", ViewerID, Param)
+  end
+end
+
+local function GetMacroCopy (id)
+  if LoadedMacros[id] then
+    local t={}
+    for k,v in pairs(LoadedMacros[id]) do t[k]=v end
+    return t
   end
 end
 
@@ -607,4 +622,5 @@ return {
   RunStartMacro = RunStartMacro,
   UnloadMacros = UnloadMacros,
   WriteMacros = WriteMacros,
+  GetMacroCopy = GetMacroCopy,
 }
