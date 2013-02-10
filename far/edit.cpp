@@ -79,14 +79,17 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	StrSize(0),
 	CurPos(0),
 	LeftPos(0),
+	MaxLength(-1),
 	m_next(nullptr),
 	m_prev(nullptr),
-	MaxLength(-1),
+	ColorList(nullptr),
+	ColorCount(0),
+	MaxColorCount(0),
 	MSelStart(-1),
 	SelStart(-1),
 	SelEnd(0),
-	CursorSize(-1),
-	CursorPos(0)
+	CursorPos(0),
+	EndType(EOL_NONE)
 {
 	SetOwner(pOwner);
 
@@ -94,10 +97,6 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 		*Str=0;
 
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
-	EndType=EOL_NONE;
-	ColorList=nullptr;
-	ColorCount=MaxColorCount=0;
-	ColorListNeedSort=ColorListNeedFree=false;
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Global->Opt->EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Global->Opt->EdOpt.PersistentBlocks);
 	Flags.Change(FEDITLINE_SHOWWHITESPACE,Global->Opt->EdOpt.ShowWhiteSpace!=0);
@@ -141,14 +140,14 @@ void Edit::DisplayObject()
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[3]?(int)Global->Opt->CursorSize[3]:99):
 					                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
-			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
+			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
 		}
 		else
 {
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:10):
 					                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
-			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
+			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
 		}
 	}
 
@@ -159,14 +158,14 @@ void Edit::DisplayObject()
 void Edit::SetCursorType(bool Visible, DWORD Size)
 {
 	Flags.Change(FEDITLINE_CURSORVISIBLE,Visible);
-	CursorSize=Size;
+	SetCursorSize(Size);
 	::SetCursorType(Visible,Size);
 }
 
 void Edit::GetCursorType(bool& Visible, DWORD& Size)
 {
 	Visible=Flags.Check(FEDITLINE_CURSORVISIBLE)!=FALSE;
-	Size=CursorSize;
+	Size = GetCursorSize();
 }
 
 //   Вычисление нового положения курсора в строке с учётом Mask.
@@ -2615,8 +2614,8 @@ void Edit::AddColor(ColorItem *col,bool skipsort)
 	//_ASSERTE(ColorCount<MaxColorCount);
 	#endif
 
-	if (skipsort && !ColorListNeedSort && ColorCount && ColorList[ColorCount-1].Priority>col->Priority)
-		ColorListNeedSort=true;
+	if (skipsort && !ColorListFlags.Check(ECLF_NEEDSORT) && ColorCount && ColorList[ColorCount-1].Priority>col->Priority)
+		ColorListFlags.Set(ECLF_NEEDSORT);
 
 
 	ColorList[ColorCount++]=*col;
@@ -2630,9 +2629,9 @@ void Edit::AddColor(ColorItem *col,bool skipsort)
 
 void Edit::SortColorUnlocked()
 {
-	if (ColorListNeedFree)
+	if (ColorListFlags.Check(ECLF_NEEDFREE))
 	{
-		ColorListNeedFree=false;
+		ColorListFlags.Clear(ECLF_NEEDFREE);
 		if (!ColorCount)
 		{
 			xf_free(ColorList);
@@ -2641,9 +2640,9 @@ void Edit::SortColorUnlocked()
 		}
 	}
 
-	if (ColorListNeedSort)
+	if (ColorListFlags.Check(ECLF_NEEDSORT))
 	{
-		ColorListNeedSort=false;
+		ColorListFlags.Clear(ECLF_NEEDSORT);
 		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
 		cfunctions::far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
 	}
@@ -2692,7 +2691,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		if (skipfree)
 		{
-			ColorListNeedFree=true;
+			ColorListFlags.Clear(ECLF_NEEDFREE);
 		}
 		else
 		{
@@ -3027,8 +3026,15 @@ const wchar_t* Edit::WordDiv() const
 	return static_cast<Editor*>(GetOwner())->GetWordDiv();
 }
 
+int Edit::GetCursorSize()
+{
+	return -1;
+}
+
+
 EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
 	Edit(pOwner,bAllocateData),
+	CursorSize(-1),
 	MenuUp(false)
 {
 	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);

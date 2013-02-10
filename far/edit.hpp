@@ -84,6 +84,11 @@ enum SetCPFlags
 
 class Edit:public ScreenObject
 {
+	enum EDITCOLORLISTFLAGS
+	{
+		ECLF_NEEDSORT = 0x1,
+		ECLF_NEEDFREE = 0x2,
+	};
 public:
 	Edit(ScreenObject *pOwner = nullptr, bool bAllocateData = true);
 	virtual ~Edit();
@@ -156,11 +161,6 @@ protected:
 	void RefreshStrByMask(int InitMode=FALSE);
 	void DeleteBlock();
 
-	wchar_t *Str;
-	int StrSize;
-	int CurPos;
-	int LeftPos;
-
 private:
 	virtual void DisplayObject();
 	virtual const FarColor& GetNormalColor() const;
@@ -173,6 +173,8 @@ private:
 	virtual const wchar_t* WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}
+	virtual int GetCursorSize();
+	virtual void SetCursorSize(int Size) {}
 
 	int InsertKey(int Key);
 	int RecurseProcessKey(int Key);
@@ -187,20 +189,27 @@ private:
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 	void FixLeftPos(int TabCurPos=-1);
 
+protected:
+	// KEEP ALIGNED!
+	wchar_t *Str;
+	int StrSize;
+	int CurPos;
+	int LeftPos;
+
+private:
+	// KEEP ALIGNED!
+	int MaxLength;
 	Edit *m_next;
 	Edit *m_prev;
-	int MaxLength;
 	ColorItem *ColorList;
 	int ColorCount;
 	int MaxColorCount;
-	bool ColorListNeedSort;
-	bool ColorListNeedFree;
 	int MSelStart;
 	int SelStart;
 	int SelEnd;
+	USHORT CursorPos;
+	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;
-	signed char CursorSize; // BUGBUG
-	int CursorPos;
 
 	friend class DlgEdit;
 	friend class Editor;
@@ -261,6 +270,8 @@ private:
 	virtual const wchar_t* WordDiv() const;
 	virtual int GetPrevCurPos() const { return PrevCurPos; }
 	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }
+	virtual int GetCursorSize() { return CursorSize; }
+	virtual void SetCursorSize(int Size) { CursorSize = Size; }
 	virtual void DisableCallback()
 	{
 		CallbackSaveState = m_Callback.Active;
@@ -278,6 +289,7 @@ private:
 	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
 	bool Selection;
 	int SelectionStart;
+	int CursorSize;
 	MACROMODEAREA MacroAreaAC;
 	History* pHistory;
 	FarList* pList;

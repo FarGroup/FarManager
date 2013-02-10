@@ -54,6 +54,7 @@ public:
 	//сбросить все флаги
 	void ClearAll() { m_Flags = 0; }
 private:
-	T m_Flags;};
+	T m_Flags;
+};
 
 typedef TBitFlags<DWORD> BitFlags;

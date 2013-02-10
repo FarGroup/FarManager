@@ -83,9 +83,11 @@ private:
 	virtual void DisplayObject() {};
 
 public:
+	// KEEP ALIGNED!
 	SaveScreen *SaveScr;
 
 protected:
+	// KEEP ALIGNED!
 	ScreenObject *pOwner;
 	BitFlags Flags;
 	int nLockCount;
