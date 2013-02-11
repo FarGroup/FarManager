@@ -184,7 +184,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		string strPluginParam;
 
 	public:
-		void SwapOptions(Panel* Another) {std::swap(Options, Another->Options);}
+		void SwapOptions(Panel* Another) {std::swap(Options, Another->Options); std::swap(*Options, *Another->Options);}
 
 		struct PanelViewSettings ViewSettings;
 		int ProcessingPluginCommand;

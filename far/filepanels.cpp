@@ -387,10 +387,6 @@ int FilePanels::SwapPanels()
 
 		LeftPanel->SwapOptions(RightPanel);
 
-		bool LeftVisible = Global->Opt->LeftPanel.Visible;
-		Global->Opt->LeftPanel.Visible = Global->Opt->RightPanel.Visible;
-		Global->Opt->RightPanel.Visible = LeftVisible;
-
 		Ret=TRUE;
 	}
 	SetScreenPosition();
