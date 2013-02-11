@@ -79,7 +79,6 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	StrSize(0),
 	CurPos(0),
 	LeftPos(0),
-	MaxLength(-1),
 	m_next(nullptr),
 	m_prev(nullptr),
 	ColorList(nullptr),
@@ -225,16 +224,16 @@ void Edit::FastShow()
 	if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
 		CurPos=StrSize;
 
-	if (MaxLength!=-1)
+	if (GetMaxLength()!=-1)
 	{
-		if (StrSize>MaxLength)
+		if (StrSize>GetMaxLength())
 		{
-			Str[MaxLength]=0;
-			StrSize=MaxLength;
+			Str[GetMaxLength()]=0;
+			StrSize=GetMaxLength();
 		}
 
-		if (CurPos>MaxLength-1)
-			CurPos=MaxLength>0 ? (MaxLength-1):0;
+		if (CurPos>GetMaxLength()-1)
+			CurPos=GetMaxLength()>0 ? (GetMaxLength()-1):0;
 	}
 
 	int TabCurPos=GetTabCurPos();
@@ -853,7 +852,7 @@ int Edit::ProcessKey(int Key)
 
 				RecurseProcessKey(KEY_SHIFTRIGHT);
 
-				if (MaxLength!=-1 && CurPos==MaxLength-1)
+				if (GetMaxLength()!=-1 && CurPos==GetMaxLength()-1)
 					break;
 			}
 
@@ -1374,10 +1373,10 @@ int Edit::ProcessKey(int Key)
 		{
 			wchar_t *ClipText=nullptr;
 
-			if (MaxLength==-1)
+			if (GetMaxLength()==-1)
 				ClipText=PasteFromClipboard();
 			else
-				ClipText=PasteFromClipboardEx(MaxLength);
+				ClipText=PasteFromClipboardEx(GetMaxLength());
 
 			if (!ClipText)
 				return TRUE;
@@ -1579,7 +1578,7 @@ int Edit::InsertKey(int Key)
 	}
 	else
 	{
-		if (MaxLength == -1 || StrSize < MaxLength)
+		if (GetMaxLength() == -1 || StrSize < GetMaxLength())
 		{
 			if (CurPos>=StrSize)
 			{
@@ -1718,10 +1717,10 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	if (Flags.Check(FEDITLINE_READONLY))
 		return;
 
-	// коррекция вставляемого размера, если определен MaxLength
-	if (MaxLength != -1 && Length > MaxLength)
+	// коррекция вставляемого размера, если определен GetMaxLength()
+	if (GetMaxLength() != -1 && Length > GetMaxLength())
 	{
-		Length=MaxLength; // ??
+		Length=GetMaxLength(); // ??
 	}
 
 	if (Length>0 && !Flags.Check(FEDITLINE_PARENT_SINGLELINE))
@@ -1947,16 +1946,16 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 	}
 	else
 	{
-		if (MaxLength != -1 && StrSize+Length > MaxLength)
+		if (GetMaxLength() != -1 && StrSize+Length > GetMaxLength())
 		{
-			// коррекция вставляемого размера, если определен MaxLength
-			if (StrSize < MaxLength)
+			// коррекция вставляемого размера, если определен GetMaxLength()
+			if (StrSize < GetMaxLength())
 			{
-				Length=MaxLength-StrSize;
+				Length=GetMaxLength()-StrSize;
 			}
 		}
 
-		if (MaxLength == -1 || StrSize+Length <= MaxLength)
+		if (GetMaxLength() == -1 || StrSize+Length <= GetMaxLength())
 		{
 			if (CurPos>StrSize)
 			{
@@ -2007,42 +2006,6 @@ int Edit::GetLength()
 {
 	return(StrSize);
 }
-
-// Функция обновления состояния строки ввода по содержимому Mask
-void Edit::RefreshStrByMask(int InitMode)
-{
-	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
-	{
-		int MaskLen = static_cast<int>(Mask.GetLength());
-
-		if (StrSize!=MaskLen)
-		{
-			wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof(wchar_t));
-
-			if (!NewStr)
-				return;
-
-			Str=NewStr;
-
-			for (int i=StrSize; i<MaskLen; i++)
-				Str[i]=L' ';
-
-			StrSize=MaxLength=MaskLen;
-			Str[StrSize]=0;
-		}
-
-		for (int i=0; i<MaskLen; i++)
-		{
-			if (InitMode)
-				Str[i]=L' ';
-
-			if (!CheckCharMask(Mask[i]))
-				Str[i]=Mask[i];
-		}
-	}
-}
-
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -3034,6 +2997,7 @@ int Edit::GetCursorSize()
 
 EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
 	Edit(pOwner,bAllocateData),
+	MaxLength(-1),
 	CursorSize(-1),
 	MenuUp(false)
 {
@@ -3804,6 +3768,41 @@ const void EditControl::SetInputMask(const string& InputMask)
 	if (!Mask.IsEmpty())
 	{
 		RefreshStrByMask(TRUE);
+	}
+}
+
+// Функция обновления состояния строки ввода по содержимому Mask
+void EditControl::RefreshStrByMask(int InitMode)
+{
+	auto Mask = GetInputMask();
+	if (!Mask.IsEmpty())
+	{
+		int MaskLen = static_cast<int>(Mask.GetLength());
+
+		if (StrSize!=MaskLen)
+		{
+			wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof(wchar_t));
+
+			if (!NewStr)
+				return;
+
+			Str=NewStr;
+
+			for (int i=StrSize; i<MaskLen; i++)
+				Str[i]=L' ';
+
+			StrSize=MaxLength=MaskLen;
+			Str[StrSize]=0;
+		}
+
+		for (int i=0; i<MaskLen; i++)
+		{
+			if (InitMode)
+				Str[i]=L' ';
+
+			if (!CheckCharMask(Mask[i]))
+				Str[i]=Mask[i];
+		}
 	}
 }
 

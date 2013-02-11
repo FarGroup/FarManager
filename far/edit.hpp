@@ -127,10 +127,9 @@ public:
 	void SetTabCurPos(int NewPos);
 	int GetLeftPos() {return(LeftPos);}
 	void SetLeftPos(int NewPos) {LeftPos=NewPos;}
-	void SetPasswordMode(bool Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
-	void SetMaxLength(int Length) {MaxLength=Length;};
+	void SetPasswordMode(bool Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
 	// Получение максимального значения строки для потребностей Dialod API
-	int GetMaxLength() {return MaxLength;};
+	virtual int GetMaxLength() const {return -1;}
 	void SetOvertypeMode(bool Mode) {Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
 	int RealPosToTab(int Pos);
@@ -156,9 +155,10 @@ public:
 	void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 
 protected:
-	virtual void DisableCallback(){};
-	virtual void RevertCallback(){};
-	void RefreshStrByMask(int InitMode=FALSE);
+	virtual void DisableCallback() {}
+	virtual void RevertCallback() {}
+	int CheckCharMask(wchar_t Chr);
+	virtual void RefreshStrByMask(int InitMode=FALSE) {}
 	void DeleteBlock();
 
 private:
@@ -184,7 +184,6 @@ private:
 	int ProcessCtrlQ();
 	int ProcessInsDate(const wchar_t *Str);
 	int ProcessInsPlainText(const wchar_t *Str);
-	int CheckCharMask(wchar_t Chr);
 	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 	void FixLeftPos(int TabCurPos=-1);
@@ -198,7 +197,6 @@ protected:
 
 private:
 	// KEEP ALIGNED!
-	int MaxLength;
 	Edit *m_next;
 	Edit *m_prev;
 	ColorItem *ColorList;
@@ -250,6 +248,8 @@ public:
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
 	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
 	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
+	virtual int GetMaxLength() const {return MaxLength;}
+	void SetMaxLength(int Length) {MaxLength=Length;}
 
 	enum ECFLAGS
 	{
@@ -258,6 +258,9 @@ public:
 		EC_COMPLETE_PATH       = 0x4,
 		EC_COMPLETE_HISTORY    = 0x8,
 	};
+
+protected:
+	virtual void RefreshStrByMask(int InitMode=FALSE);
 
 private:
 	virtual const FarColor& GetNormalColor() const;
@@ -286,6 +289,7 @@ private:
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
 
 	string Mask;
+	int MaxLength;
 	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
 	bool Selection;
 	int SelectionStart;
