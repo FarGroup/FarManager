@@ -71,7 +71,7 @@ InfoList::InfoList(PanelOptions* Options):
 	PrevMacroMode(MACRO_INVALID),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
-	OriginalFolder(Options->Folder.toString())
+	OriginalFolder(Options->Folder.Get())
 {
 	Options->Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)

@@ -1165,6 +1165,7 @@ int Editor::ProcessKey(int Key)
 
 				//BUGBUG_OBJWIDTH
 				//CurLine->ObjWidth=XX2-X1;
+				CurLine->SetPosition(X1,0,XX2,0);
 				ProcessKey(KEY_END);
 				Pasting--;
 				Unlock();
@@ -2875,10 +2876,11 @@ int Editor::ProcessKey(int Key)
 				intptr_t PreSelStart,PreSelEnd;
 				CurLine->GetSelection(PreSelStart,PreSelEnd);
 				// </comment>
-				//AY: Это что бы при FastShow LeftPos не становился в конец строки.
 
+				//AY: Это что бы при FastShow LeftPos не становился в конец строки.
 				//BUGBUG_OBJWIDTH
 				//CurLine->ObjWidth=XX2-X1+1;
+				CurLine->SetPosition(X1,0,XX2,0);
 
 				if (CurLine->ProcessKey(Key))
 				{
@@ -5994,6 +5996,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				//BUGBUG_OBJWIDTH
 				//CurLine->ObjWidth=XX2-X1+1; //BUGBUG: вообще-то должно быть корректное значение.
+				CurLine->SetPosition(X1,0,XX2,0);
 				CurLine->FixLeftPos();
 
 				/* $ 30.08.2001 IS
