@@ -1309,7 +1309,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						{
 							File edit_file;
 							bool detect = false, sig_found = false;
-							wchar_t ss[256];
 
 							if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 							{
@@ -1323,17 +1322,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							else if ( IsUnicodeCodePage(codepage) )
 							{
 								detect = false;
-								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorSwitchToUnicodeCPDisabled), static_cast<int>(codepage));
-								Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MEditorTryReloadFile),MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), LangString(MEditorSwitchToUnicodeCPDisabled) << codepage, MSG(MEditorTryReloadFile), MSG(MOk));
 							}
 							else if ( !Global->CodePages->IsCodePageSupported(codepage) )
 							{
 								detect = false;
-								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorCPNotSupported), static_cast<int>(codepage));
-								Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), LangString(MEditorCPNotSupported) << codepage, MSG(MOk));
 							}
 							if ( !detect )
-								codepage = static_cast<UINT>(-1);
+								codepage = m_codepage;
 						}
 						SetCodePage(codepage);
 						InitKeyBar();
