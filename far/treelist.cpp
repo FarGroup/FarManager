@@ -148,7 +148,7 @@ TreeList::TreeList(PanelOptions* Options, bool IsPanel):
 	CaseSensitiveSort(FALSE),
 	ExitCode(1),
 	SaveWorkDir(0),
-	OriginalFolder(Options->Folder)
+	OriginalFolder(Options->Folder.toString())
 {
 	Options->Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
