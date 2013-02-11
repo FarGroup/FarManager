@@ -159,10 +159,7 @@ TreeList::TreeList(PanelOptions* Options, bool IsPanel):
 
 TreeList::~TreeList()
 {
-	std::for_each(RANGE(ListData, i)
-	{
-		delete i;
-	});
+	DeleteValues(ListData);
 	ListData.clear();
 	SaveListData.clear();
 	Global->tempTreeCache->Clean();
@@ -414,10 +411,7 @@ int TreeList::ReadTree()
 	FlushCache();
 	GetRoot();
 
-	std::for_each(RANGE(ListData, i)
-	{
-		delete i;
-	});
+	DeleteValues(ListData);
 	ListData.clear();
 
 	ListData.reserve(4096);
@@ -466,10 +460,7 @@ int TreeList::ReadTree()
 
 	if (AscAbort && !Flags.Check(FTREELIST_ISPANEL))
 	{
-		std::for_each(RANGE(ListData, i)
-		{
-			delete i;
-		});
+		DeleteValues(ListData);
 		ListData.clear();
 		RestoreState();
 		return FALSE;
@@ -1428,10 +1419,7 @@ int TreeList::ReadTreeFile()
 		}
 	}
 
-	std::for_each(RANGE(ListData, i)
-	{
-		delete i;
-	});
+	DeleteValues(ListData);
 	ListData.clear();
 
 	{
@@ -2082,10 +2070,7 @@ bool TreeList::SaveState()
 
 bool TreeList::RestoreState()
 {
-	std::for_each(RANGE(ListData, i)
-	{
-		delete i;
-	});
+	DeleteValues(ListData);
 	ListData.clear();
 
 	WorkDir=0;

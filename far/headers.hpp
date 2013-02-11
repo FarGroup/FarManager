@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <queue>
 #include <list>
 #include <map>
+#include <memory>
 #include <stack>
 #include <vector>
 #include <cassert>
@@ -213,6 +214,12 @@ inline void ClearArray(T& a)
 
 #define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T)& i)
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
+
+template<typename T>
+inline void DeleteValues(T& std_container)
+{
+	std::for_each(std_container.begin(), std_container.end(), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
+}
 
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}

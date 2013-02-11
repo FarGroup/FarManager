@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
+template<> void DeleteValues<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
 {
 	for(size_t ii=0;ii<Size;++ii)
 	{
@@ -120,11 +120,7 @@ PluginSettings::~PluginSettings()
 {
 	if (PluginsCfg)
 		delete PluginsCfg;
-
-	std::for_each(RANGE(m_Enum, i)
-	{
-		delete i;
-	});
+	DeleteValues(m_Enum);
 }
 
 bool PluginSettings::IsValid(void)
@@ -323,15 +319,8 @@ FarSettings::FarSettings()
 
 FarSettings::~FarSettings()
 {
-	std::for_each(RANGE(m_Enum, i)
-	{
-		delete i;
-	});
-
-	std::for_each(RANGE(m_Keys, i)
-	{
-		delete i;
-	});
+	DeleteValues(m_Enum);
+	DeleteValues(m_Keys);
 }
 
 int FarSettings::Set(const FarSettingsItem& Item)

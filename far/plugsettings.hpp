@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "configdb.hpp"
 
-template <class Object> void DeleteItems(Object* Items,size_t Size)
+template <class Object> void DeleteValues(Object* Items,size_t Size)
 {
 	for(size_t ii=0;ii<Size;++ii)
 	{
@@ -53,7 +53,7 @@ template <class Object> class Vector
 		Vector():InternalCount(0), Count(0), Delta(8), Items(nullptr) {}
 		~Vector()
 		{
-			DeleteItems(Items,Count);
+			DeleteValues(Items,Count);
 			delete [] Items;
 			Items=nullptr;
 		}

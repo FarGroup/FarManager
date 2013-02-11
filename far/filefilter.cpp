@@ -901,20 +901,14 @@ void FileFilter::CloseFilter()
 {
 	if(FilterData)
 	{
-		std::for_each(RANGE(*FilterData, i)
-		{
-			delete i;
-		});
+		DeleteValues(*FilterData);
 		delete FilterData;
 		FilterData = nullptr;
 	}
 
 	if(TempFilterData)
 	{
-		std::for_each(RANGE(*TempFilterData, i)
-		{
-			delete i;
-		});
+		DeleteValues(*TempFilterData);
 		delete TempFilterData;
 		TempFilterData = nullptr;
 	}

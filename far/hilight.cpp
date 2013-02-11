@@ -291,10 +291,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
 	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
 	int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
-	std::for_each(RANGE(HiData, i)
-	{
-		delete i;
-	});
+	DeleteValues(HiData);
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 
@@ -330,10 +327,7 @@ HighlightFiles::~HighlightFiles()
 
 void HighlightFiles::ClearData()
 {
-	std::for_each(RANGE(HiData, i)
-	{
-		delete i;
-	});
+	DeleteValues(HiData);
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 }

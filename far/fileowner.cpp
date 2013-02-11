@@ -106,10 +106,7 @@ void SIDCacheFlush()
 {
 	if(SIDCache)
 	{
-		std::for_each(RANGE(*SIDCache, i)
-		{
-			delete i;
-		});
+		DeleteValues(*SIDCache);
 		delete SIDCache;
 		SIDCache = nullptr;
 	}

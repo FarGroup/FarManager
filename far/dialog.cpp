@@ -406,10 +406,7 @@ Dialog::~Dialog()
 	if (HelpTopic)
 		delete [] HelpTopic;
 
-	std::for_each(RANGE(Items, i)
-	{
-		delete i;
-	});
+	DeleteValues(Items);
 
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);

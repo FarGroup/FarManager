@@ -556,10 +556,7 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 {
 	if (InitedRAM)
 	{
-		std::for_each(RANGE(m_CurState->m_MacroQueue, i)
-		{
-			delete i;
-		});
+		DeleteValues(m_CurState->m_MacroQueue);
 		m_CurState->m_MacroQueue.clear();
 		m_CurState->Executing=MACROMODE_NOMACRO;
 	}

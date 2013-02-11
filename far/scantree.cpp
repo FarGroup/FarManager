@@ -49,18 +49,12 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 
 ScanTree::~ScanTree()
 {
-	std::for_each(RANGE(ScanItems, i)
-	{
-		delete i;
-	});
+	DeleteValues(ScanItems);
 }
 
 void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
-	std::for_each(RANGE(ScanItems, i)
-	{
-		delete i;
-	});
+	DeleteValues(ScanItems);
 	ScanItems.clear();
 	ScanItems.push_back(new ScanTreeData());
 	Flags.Clear(FSCANTREE_FILESFIRST);
