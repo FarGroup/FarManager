@@ -140,7 +140,7 @@ local function AddMacro (srctable)
     if type(macro.condition)~="function" then macro.condition=nil end
     if type(macro.filemask)~="string" then macro.filemask=nil end
 
-    if type(macro.priority)~="number" then macro.priority=nil
+    if type(macro.priority)~="number" then macro.priority=50
     elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
     end
 
@@ -188,7 +188,7 @@ local function AddRecordedMacro (srctable)
   LoadedMacros[macro.id] = macro
 end
 
-local AddEvent_fields = {"group","action","flags","description","priority","condition","filemask"}
+local AddEvent_fields = {"group","action","description","priority","condition","filemask"}
 local function AddEvent (srctable)
   local group = type(srctable)=="table" and type(srctable.group)=="string" and srctable.group:lower()
   if not (group and Events[group]) then return end
@@ -206,7 +206,7 @@ local function AddEvent (srctable)
   if type(macro.condition)~="function" then macro.condition=nil end
   if type(macro.filemask)~="string" then macro.filemask=nil end
 
-  if type(macro.priority)~="number" then macro.priority=nil
+  if type(macro.priority)~="number" then macro.priority=50
   elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
   end
 
@@ -550,31 +550,46 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-function export.ProcessEditorEvent (EditorID, Event, Param)
-  if Events and Events.editorevent then
-    local filename = editor.GetFileName(nil)
-    for _,m in ipairs(Events.editorevent) do
-      if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
-        if not m.condition or m.condition(EditorID, Event, Param) then
-          m.action(EditorID, Event, Param)
-          --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+local function EV_Handler (WindowID, Event, Param, macros, filename)
+  -- Get current priorities.
+  for i,m in ipairs(macros) do
+    m.cur_index, m.cur_priority = i, -1
+    if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
+      if m.condition then
+        local pr = m.condition(WindowID, Event, Param)
+        if pr then
+          if type(pr)=="number" then m.cur_priority = pr<0 and 0 or pr>100 and 100 or pr
+          else m.cur_priority = m.priority
+          end
         end
+      else
+        m.cur_priority = m.priority
       end
     end
+  end
+
+  -- Sort in place by current priorities (stable sort).
+  table.sort(macros, function(e1,e2)
+    return  e1.cur_priority > e2.cur_priority or
+            e1.cur_priority == e2.cur_priority and e1.cur_index < e2.cur_index end)
+
+  -- Execute.
+  for _,m in ipairs(macros) do
+    if m.cur_priority < 0 then break end
+    m.action(WindowID, Event, Param)
+    --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+  end
+end
+
+function export.ProcessEditorEvent (EditorID, Event, Param)
+  if Events and Events.editorevent then
+    EV_Handler(EditorID, Event, Param, Events.editorevent, editor.GetFileName(nil))
   end
 end
 
 function export.ProcessViewerEvent (ViewerID, Event, Param)
   if Events and Events.viewerevent then
-    local filename = viewer.GetFileName(nil)
-    for _,m in ipairs(Events.viewerevent) do
-      if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
-        if not m.condition or m.condition(ViewerID, Event, Param) then
-          m.action(ViewerID, Event, Param)
-          --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-        end
-      end
-    end
+    EV_Handler(ViewerID, Event, Param, Events.viewerevent, viewer.GetFileName(nil))
   end
 end
 
