@@ -188,19 +188,15 @@ local function AddRecordedMacro (srctable)
   LoadedMacros[macro.id] = macro
 end
 
-local AddEvent_fields = {"group","name","action","flags","description","priority","condition","filemask"}
+local AddEvent_fields = {"group","action","flags","description","priority","condition","filemask"}
 local function AddEvent (srctable)
   local group = type(srctable)=="table" and type(srctable.group)=="string" and srctable.group:lower()
   if not (group and Events[group]) then return end
 
-  local name = type(srctable.name)=="string" and srctable.name:lower()
-  if not name then return end
-
   if type(srctable.action)~="function" then return end
 
   local macro={}
-  Events[group][name] = Events[group][name] or {}
-  table.insert(Events[group][name], macro)
+  table.insert(Events[group], macro)
 
   for _,v in ipairs(AddEvent_fields) do macro[v]=srctable[v] end
   macro.FileName = AddMacro_filename
@@ -554,50 +550,31 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-local function EV_Loop (macros, area, windowID, param)
-  if macros then
-    local filename = (area=="Editor" and editor or viewer).GetFileName(nil)
-    for _,m in ipairs(macros) do
-      local check = not (m.filemask and filename) or CheckFileName(m.filemask, filename)
-      if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), m.flags) then
-        if not m.condition or m.condition(windowID, param) then
+function export.ProcessEditorEvent (EditorID, Event, Param)
+  if Events and Events.editorevent then
+    local filename = editor.GetFileName(nil)
+    for _,m in ipairs(Events.editorevent) do
+      if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
+        if not m.condition or m.condition(EditorID, Event, Param) then
+          m.action(EditorID, Event, Param)
           --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-          if m.action then m.action(windowID, param) end
         end
       end
     end
   end
 end
 
-function export.ProcessEditorEvent (EditorID, Event, Param)
-  if not Events then return end
-  if Event == F.EE_REDRAW then
-    EV_Loop(Events.editorevent.redraw,    "Editor", EditorID, Param)
-  elseif Event == F.EE_CHANGE then
-    EV_Loop(Events.editorevent.change,    "Editor", EditorID, Param)
-  elseif Event == F.EE_CLOSE then
-    EV_Loop(Events.editorevent.close,     "Editor", EditorID, Param)
-  elseif Event == F.EE_READ then
-    EV_Loop(Events.editorevent.read,      "Editor", EditorID, Param)
-  elseif Event == F.EE_SAVE then
-    EV_Loop(Events.editorevent.save,      "Editor", EditorID, Param)
-  elseif Event == F.EE_KILLFOCUS then
-    EV_Loop(Events.editorevent.killfocus, "Editor", EditorID, Param)
-  elseif Event == F.EE_GOTFOCUS then
-    EV_Loop(Events.editorevent.gotfocus,  "Editor", EditorID, Param)
-  end
-end
-
 function export.ProcessViewerEvent (ViewerID, Event, Param)
-  if not Events then return end
-  if Event == F.VE_CLOSE then
-    EV_Loop(Events.viewerevent.close,     "Viewer", ViewerID, Param)
-  elseif Event == F.VE_READ then
-    EV_Loop(Events.viewerevent.read,      "Viewer", ViewerID, Param)
-  elseif Event == F.VE_KILLFOCUS then
-    EV_Loop(Events.viewerevent.killfocus, "Viewer", ViewerID, Param)
-  elseif Event == F.VE_GOTFOCUS then
-    EV_Loop(Events.viewerevent.gotfocus,  "Viewer", ViewerID, Param)
+  if Events and Events.viewerevent then
+    local filename = viewer.GetFileName(nil)
+    for _,m in ipairs(Events.viewerevent) do
+      if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
+        if not m.condition or m.condition(ViewerID, Event, Param) then
+          m.action(ViewerID, Event, Param)
+          --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+        end
+      end
+    end
   end
 end
 
