@@ -78,16 +78,14 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
 	StrSize(0),
 	CurPos(0),
-	LeftPos(0),
 	m_next(nullptr),
 	m_prev(nullptr),
 	ColorList(nullptr),
 	ColorCount(0),
 	MaxColorCount(0),
-	MSelStart(-1),
 	SelStart(-1),
 	SelEnd(0),
-	CursorPos(0),
+	LeftPos(0),
 	EndType(EOL_NONE)
 {
 	SetOwner(pOwner);
@@ -150,7 +148,7 @@ void Edit::DisplayObject()
 		}
 	}
 
-	MoveCursor(X1+CursorPos-LeftPos,Y1);
+	MoveCursor(X1+GetLineCursorPos()-LeftPos,Y1);
 }
 
 
@@ -274,7 +272,7 @@ void Edit::FastShow()
 		return;
 	}
 
-	CursorPos=TabCurPos;
+	SetLineCursorPos(TabCurPos);
 	int RealLeftPos=TabPosToReal(LeftPos);
 	int OutStrLength=std::min(EditLength,StrSize-RealLeftPos);
 
@@ -528,7 +526,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_ITEMCOUNT:
 			return (__int64)StrSize;
 		case MCODE_V_CURPOS:
-			return (__int64)(CursorPos+1);
+			return (__int64)(GetLineCursorPos()+1);
 		case MCODE_F_EDITOR_SEL:
 		{
 			int Action=(int)((intptr_t)vParam);
@@ -577,20 +575,20 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					{
 						case 0:  // selection start
 						{
-							MSelStart=GetTabCurPos();
+							SetMacroSelectionStart(GetTabCurPos());
 							return 1;
 						}
 						case 1:  // selection finish
 						{
-							if (MSelStart != -1)
+							if (GetMacroSelectionStart() != -1)
 							{
-								if (MSelStart != GetTabCurPos())
-									Select(MSelStart,GetTabCurPos());
+								if (GetMacroSelectionStart() != GetTabCurPos())
+									Select(GetMacroSelectionStart(),GetTabCurPos());
 								else
 									Select(-1,0);
 
 								Show();
-								MSelStart=-1;
+								SetMacroSelectionStart(-1);
 								return 1;
 							}
 
@@ -603,7 +601,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case 4: // UnMark sel block
 				{
 					Select(-1,0);
-					MSelStart=-1;
+					SetMacroSelectionStart(-1);
 					Show();
 					return 1;
 				}
@@ -1425,11 +1423,12 @@ int Edit::ProcessKey(int Key)
 		case KEY_SHIFTTAB:
 		{
 			SetPrevCurPos(CurPos);
-			CursorPos-=(CursorPos-1) % GetTabSize()+1;
+			int Pos = GetLineCursorPos();
+			SetLineCursorPos(Pos-((Pos-1) % GetTabSize()+1));
 
-			if (CursorPos<0) CursorPos=0; //CursorPos=0,TabSize=1 case
+			if (GetLineCursorPos()<0) SetLineCursorPos(0); //CursorPos=0,TabSize=1 case
 
-			SetTabCurPos(CursorPos);
+			SetTabCurPos(GetLineCursorPos());
 			Show();
 			return TRUE;
 		}
@@ -1520,8 +1519,9 @@ int Edit::InsertKey(int Key)
 	if (Key==KEY_TAB && Flags.Check(FEDITLINE_OVERTYPE))
 	{
 		SetPrevCurPos(CurPos);
-		CursorPos+=GetTabSize() - (CursorPos % GetTabSize());
-		SetTabCurPos(CursorPos);
+		int Pos = GetLineCursorPos();
+		SetLineCursorPos(Pos + (GetTabSize() - (Pos % GetTabSize())));
+		SetTabCurPos(GetLineCursorPos());
 		return TRUE;
 	}
 
@@ -2994,14 +2994,44 @@ int Edit::GetCursorSize()
 	return -1;
 }
 
+int Edit::GetMacroSelectionStart() const
+{
+	return static_cast<Editor*>(GetOwner())->GetMacroSelectionStart();
+}
+
+void Edit::SetMacroSelectionStart(int Value)
+{
+	static_cast<Editor*>(GetOwner())->SetMacroSelectionStart(Value);
+}
+int Edit::GetLineCursorPos() const
+{
+	return static_cast<Editor*>(GetOwner())->GetLineCursorPos();
+}
+
+void Edit::SetLineCursorPos(int Value)
+{
+	return static_cast<Editor*>(GetOwner())->SetLineCursorPos(Value);
+}
+
 
 EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
 	Edit(pOwner,bAllocateData),
+	pHistory(iHistory),
+	pList(iList),
 	MaxLength(-1),
 	CursorSize(-1),
-	MenuUp(false)
+	CursorPos(0),
+	PrevCurPos(0),
+	MacroSelectionStart(-1),
+	SelectionStart(-1),
+	MacroAreaAC(MACRO_DIALOGAUTOCOMPLETION),
+	ECFlags(iFlags),
+	Selection(false),
+	MenuUp(false),
+	ACState(ECFlags.Check(EC_ENABLEAUTOCOMPLETE)),
+	CallbackSaveState(false)
 {
-	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);
+	SetObjectColor();
 
 	if (aCallback)
 	{
@@ -3013,17 +3043,6 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 		m_Callback.m_Callback=nullptr;
 		m_Callback.m_Param=nullptr;
 	}
-
-	MacroAreaAC=MACRO_DIALOGAUTOCOMPLETION;
-
-	PrevCurPos=0;
-	ECFlags=iFlags;
-	pHistory=iHistory;
-	pList=iList;
-	Selection=false;
-	SelectionStart=-1;
-	ACState=ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
-	ColorUnChanged = ColorIndexToColor(COL_DIALOGEDITUNCHANGED);
 }
 
 void EditControl::Show()
@@ -3690,7 +3709,7 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while(IsMouseButtonPressed()==FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
 			Flags.Clear(FEDITLINE_CLEARFLAG);
-			SetTabCurPos(IntKeyState.MouseX - X1 + LeftPos);
+			SetTabCurPos(IntKeyState.MouseX - X1 + GetLeftPos());
 			if(IntKeyState.MouseEventFlags&MOUSE_MOVED)
 			{
 				if(!Selection)

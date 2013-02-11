@@ -175,6 +175,10 @@ private:
 	virtual void SetPrevCurPos(int Pos) {}
 	virtual int GetCursorSize();
 	virtual void SetCursorSize(int Size) {}
+	virtual int GetMacroSelectionStart() const;
+	virtual void SetMacroSelectionStart(int Value);
+	virtual int GetLineCursorPos() const;
+	virtual void SetLineCursorPos(int Value);
 
 	int InsertKey(int Key);
 	int RecurseProcessKey(int Key);
@@ -193,8 +197,6 @@ protected:
 	wchar_t *Str;
 	int StrSize;
 	int CurPos;
-	int LeftPos;
-
 private:
 	// KEEP ALIGNED!
 	Edit *m_next;
@@ -202,10 +204,9 @@ private:
 	ColorItem *ColorList;
 	int ColorCount;
 	int MaxColorCount;
-	int MSelStart;
 	int SelStart;
 	int SelEnd;
-	USHORT CursorPos;
+	int LeftPos;
 	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;
 
@@ -243,7 +244,7 @@ public:
 	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
 	void SetMacroAreaAC(MACROMODEAREA Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
-	void SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
 	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
 	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
@@ -275,6 +276,10 @@ private:
 	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }
 	virtual int GetCursorSize() { return CursorSize; }
 	virtual void SetCursorSize(int Size) { CursorSize = Size; }
+	virtual int GetMacroSelectionStart() const {return MacroSelectionStart;}
+	virtual void SetMacroSelectionStart(int Value) {MacroSelectionStart = Value;}
+	virtual int GetLineCursorPos() const {return CursorPos;}
+	virtual void SetLineCursorPos(int Value) {CursorPos = Value;}
 	virtual void DisableCallback()
 	{
 		CallbackSaveState = m_Callback.Active;
@@ -289,22 +294,26 @@ private:
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
 
 	string Mask;
-	int MaxLength;
-	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
-	bool Selection;
-	int SelectionStart;
-	int CursorSize;
-	MACROMODEAREA MacroAreaAC;
 	History* pHistory;
 	FarList* pList;
+
 	FarColor Color;
 	FarColor SelColor;
 	FarColor ColorUnChanged;
+
+	int MaxLength;
+	int CursorSize;
+	int CursorPos;
+	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
+	int MacroSelectionStart;
+	int SelectionStart;
+	MACROMODEAREA MacroAreaAC;
 	BitFlags ECFlags;
+	Callback m_Callback;
+	bool Selection;
+	bool MenuUp;
 	bool ACState;
 	bool CallbackSaveState;
-	Callback m_Callback;
-	bool MenuUp;
 
 	friend class DlgEdit;
 };

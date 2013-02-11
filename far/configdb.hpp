@@ -291,7 +291,7 @@ private:
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
 
-        TiXmlDocument *m_TemplateDoc;
+	TiXmlDocument *m_TemplateDoc;
 	TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;

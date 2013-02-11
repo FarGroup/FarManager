@@ -241,6 +241,9 @@ class Editor:public ScreenObject
 		FarColor Color;
 		FarColor SelColor;
 
+		int MacroSelectionStart;
+		int CursorPos;
+
 	private:
 		virtual void DisplayObject();
 		void ShowEditor(void);
@@ -442,5 +445,11 @@ class Editor:public ScreenObject
 
 		const FarColor& GetNormalColor() const { return Color; }
 		const FarColor& GetSelectedColor() const { return SelColor; }
+
+		int GetMacroSelectionStart() const {return MacroSelectionStart;}
+		void SetMacroSelectionStart(int Value) {MacroSelectionStart = Value;}
+
+		int GetLineCursorPos() const {return CursorPos;}
+		void SetLineCursorPos(int Value) {CursorPos = Value;}
 
 };

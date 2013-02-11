@@ -101,7 +101,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	buffer_line(nullptr),
 	buffer_size(0),
 	Color(ColorIndexToColor(COL_EDITORTEXT)),
-	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT))
+	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT)),
+	MacroSelectionStart(-1),
+	CursorPos(0)
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
