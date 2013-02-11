@@ -218,36 +218,25 @@ local function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
     if EnumState.area ~= area or resetEnum then
-      EnumState.area, EnumState.key, EnumState.index = area, nil, 0
+      EnumState.area, EnumState.index = area, 0
     end
-
-    if EnumState.key == nil or EnumState.index ~= 0 and Areas[area][EnumState.key][EnumState.index] == nil then
-      EnumState.key, EnumState.index = next(Areas[area],EnumState.key), 0
-    end
-
-    if EnumState.key then
-      local macrotable = Areas[area][EnumState.key]
-      local macro
-      if EnumState.index == 0 then
-        macro = macrotable.recorded
-        if not macro then
-          EnumState.index = 1
-          macro = macrotable[1]
+    while true do
+      EnumState.index = EnumState.index + 1
+      local macro = LoadedMacros[EnumState.index]
+      if macro then
+        if macro.area and macro.area:lower():find(area) then
+          local code = macro.code
+          if not code then
+            code = ("@%s (Id=%d)"):format(macro.FileName, macro.id)
+            local len = code:len()
+            if len > 62 then code = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
+          end
+          LastMessage = pack(macro.id, macro.key, macro.flags, code, macro.description or "")
+          return F.MPRT_COMMONCASE, LastMessage
         end
       else
-        macro = macrotable[EnumState.index]
-      end
-
-      if macro then
-        EnumState.index = EnumState.index + 1
-        local code = macro.code
-        if not code then
-          code = ("@%s (Id=%d)"):format(macro.FileName, macro.id)
-          local len = code:len()
-          if len > 62 then code = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
-        end
-        LastMessage = pack(macro.id, macro.key, macro.flags, code, macro.description or "")
-        return F.MPRT_COMMONCASE, LastMessage
+        EnumState.index = 0
+        break
       end
     end
   end
@@ -550,6 +539,11 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
+local function EV_Compare (e1,e2)
+  return e1.cur_priority > e2.cur_priority or
+         e1.cur_priority == e2.cur_priority and e1.cur_index < e2.cur_index
+end
+
 local function EV_Handler (WindowID, Event, Param, macros, filename)
   -- Get current priorities.
   for i,m in ipairs(macros) do
@@ -569,9 +563,7 @@ local function EV_Handler (WindowID, Event, Param, macros, filename)
   end
 
   -- Sort in place by current priorities (stable sort).
-  table.sort(macros, function(e1,e2)
-    return  e1.cur_priority > e2.cur_priority or
-            e1.cur_priority == e2.cur_priority and e1.cur_index < e2.cur_index end)
+  table.sort(macros, EV_Compare)
 
   -- Execute.
   for _,m in ipairs(macros) do
