@@ -1,7 +1,7 @@
 /*
 eject.cpp
 
-Eject съемных носителей
+Eject съёмных носителей
 */
 /*
 Copyright © 1996 Eugene Roshal
