@@ -1,6 +1,6 @@
 call %~dp0base_32.bat
 
-SET Path=%Path%;C:\Program Files\Windows Installer XML v3.5\bin
+SET Path=%Path%;C:\WIX
 
 cl -nologo -EHsc -DNIGHTLY genparams.cpp
 

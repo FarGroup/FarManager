@@ -5,7 +5,7 @@ LNG=$1
 L=$2
 
 cd ${LNG}
-wine "C:/Program Files/HTML Help Workshop/hhc.exe" plugins${L}.hhp
+wine "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" plugins${L}.hhp
 cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/ && \
 cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/
 if [ "$?" != "0" ]; then exit 1
@@ -20,7 +20,7 @@ mkdir $1
 cd $1
 
 wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "../../../enc_lua/${1}.tsi" tsi "C:/src/enc/tools/lua/templates/api.tem" 
-wine "C:/Program Files/HTML Help Workshop/hhc.exe" ${1}.hhp
+wine "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" ${1}.hhp
 
 cp -f ${1}.chm ../../../../outfinalnew32/Encyclopedia/ && \
 cp -f ${1}.chm ../../../../outfinalnew64/Encyclopedia/
