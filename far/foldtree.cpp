@@ -64,7 +64,6 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	PanelOptions DummyOptions;
 	if ((Tree=new TreeList(&DummyOptions, false)))
 	{
 		Global->CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
@@ -95,8 +94,6 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		}
 
 		strResultFolder = strNewFolder;
-		Tree->Destroy();
-		Tree = nullptr;
 	}
 	else
 	{

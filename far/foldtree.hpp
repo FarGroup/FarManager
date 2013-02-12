@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "macro.hpp"
+#include "config.hpp"
 
 class TreeList;
 class EditControl;
@@ -44,6 +45,7 @@ class SaveScreen;
 class FolderTree:public Frame
 {
 	private:
+		PanelOptions DummyOptions;
 		TreeList *Tree;
 		EditControl *FindEdit;
 
