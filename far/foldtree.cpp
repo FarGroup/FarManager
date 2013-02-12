@@ -95,6 +95,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		}
 
 		strResultFolder = strNewFolder;
+		Tree->Destroy();
+		Tree = nullptr;
 	}
 	else
 	{
