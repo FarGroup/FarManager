@@ -6,7 +6,7 @@ bootstrap\lang.inc
 8
 
 #language file name, language name, language description
-FarRus.lng Russian "Russian (Русски)"
+FarRus.lng Russian "Russian (Русский)"
 FarEng.lng English "English"
 FarCze.lng Czech "Czech (Čeština)"
 FarGer.lng German "German (Deutsch)"
