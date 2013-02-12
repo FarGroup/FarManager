@@ -2161,7 +2161,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3535392254
+mtime=3569859105
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2192,7 +2192,7 @@ mtime=3535392254
 #_  BreakKeys: table (array of break key items)
 #_      a break key item is a table;
 #_      fields of a break key item:
-#_        BreakKey:     string
+#_        BreakKey:     string (see **NOTE 1**)
 #_
 #_**Returns:**
 #_  Item:     table   (**chosen** item), or
@@ -2201,24 +2201,34 @@ mtime=3535392254
 #_  Position: integer (position of the **selected** item), or
 #_            nil     (the menu was cancelled by the user)
 #_
-#_**Notes:**
-#_The first return value (*Item*) should be used by the program
-#_for performing the item-specific action. To do so, the program
-#_can put some specific field(s) into each element of *Items* and
-#_*BreakKeys* tables. For example, such fields can be "action",
-#_"filename", etc.
+#_**NOTE 1**
+#_  Example of constructing a BreakKey string:
+#_  **BreakKey="AS+DELETE"**, where:
+#_    *AS*     - stands for AltShift
+#_    *+*      - separates key modifiers from key
+#_    *DELETE* - virtual key *VK_DELETE* (prefix *VK_* is removed).
 #_
-#_The second return value (*Position*) does not necessarily
-#_correspond to the position of the menuitem that the user have
-#_chosen, it is the menuitem that was selected at the time of
-#_the menu closing. It is provided so that the program would be
-#_able to call the closed menu again in the same visible state.
+#_**NOTE 2**
+#_  The first return value (*Item*) should be used by the program
+#_  for performing the item-specific action. To do so, the program
+#_  can put some specific field(s) into each element of *Items* and
+#_  *BreakKeys* tables. For example, such fields can be "action",
+#_  "filename", etc.
+#_
+#_  The second return value (*Position*) does not necessarily
+#_  correspond to the position of the menuitem that the user have
+#_  chosen, it is the menuitem that was selected at the time of
+#_  the menu closing. It is provided so that the program would be
+#_  able to call the closed menu again in the same visible state.
 #_
 #_**Far API used:**
 #_  Menu
 #_
 #_@@@
-#_<lua> Links = { FarKey="445.html" } </lua>
+#_<lua> Links = {
+#_  FarKey="445.html",
+#_  ["virtual key"]=[[http://api.farmanager.com/ru/winapi/virtualkeycodes.html]],
+#_} </lua>
 #_
 </article>
 </node>
