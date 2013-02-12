@@ -38,10 +38,10 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 <<
 !else
 .cpp{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) { $< } 
+	@$(CC) $(CPPFLAGS) { $< }
 
 {$(COMMON)}.cpp{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) { $< } 
+	@$(CC) $(CPPFLAGS) { $< }
 !endif
 
 .asm{$(OBJDIR)}.obj:
@@ -61,4 +61,3 @@ dirs:
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
 	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
-	@if not exist "$(COMMON)\$(OBJDIR)\$(NULL)" mkdir "$(COMMON)\$(OBJDIR)"
