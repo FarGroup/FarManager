@@ -215,7 +215,7 @@ class Editor:public ScreenObject
 		/* $ 30.07.2000 KM
 		   Новая переменная для поиска "Whole words"
 		*/
-		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse, LastSearchRegexp;
+		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchRegexp,LastSearchPreserveStyle;
 
 		uintptr_t m_codepage; //BUGBUG
 

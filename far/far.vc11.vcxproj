@@ -424,6 +424,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="plugins.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
+    <ClCompile Include="preservestyle.cpp" />
     <ClCompile Include="print.cpp" />
     <ClCompile Include="privilege.cpp" />
     <ClCompile Include="processname.cpp" />
@@ -814,6 +815,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="plugins.hpp" />
     <ClInclude Include="plugsettings.hpp" />
     <ClInclude Include="poscache.hpp" />
+    <ClInclude Include="preservestyle.hpp" />
     <ClInclude Include="print.hpp" />
     <ClInclude Include="privilege.hpp" />
     <ClInclude Include="processname.hpp" />

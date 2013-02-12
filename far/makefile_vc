@@ -199,6 +199,7 @@ LINK_OBJS = \
 	"$(INTDIR)\plugins.obj" \
 	"$(INTDIR)\plugsettings.obj" \
 	"$(INTDIR)\poscache.obj" \
+	"$(INTDIR)\preservestyle.obj" \
 	"$(INTDIR)\print.obj" \
 	"$(INTDIR)\privilege.obj" \
 	"$(INTDIR)\processname.obj" \

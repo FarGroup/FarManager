@@ -1339,7 +1339,7 @@ int Help::ProcessKey(int Key)
 
 				string strTempStr;
 				//int RetCode = GetString(MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				int RetCode = GetSearchReplaceString(false, MSG(MHelpSearchTitle), MSG(MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp,nullptr,true);
+				int RetCode = GetSearchReplaceString(false, MSG(MHelpSearchTitle), MSG(MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true);
 
 				if (RetCode <= 0)
 					return TRUE;
@@ -1908,7 +1908,7 @@ void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr,(int)strReadStr.GetLength(),strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,LastSearchRegexp,&SearchLength);
+			bool Result=SearchString(strReadStr,(int)strReadStr.GetLength(),strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
 
 			if (Result)
 			{

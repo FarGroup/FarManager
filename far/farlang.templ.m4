@@ -4988,6 +4988,16 @@ upd:"Re&gular expressions"
 "Expresiones re&gulares"
 "Re&gulárne výrazy"
 
+MEditSearchPreserveStyle
+"&Сохранять стиль"
+"&Preserve style"
+upd:"&Zachovat styl"
+upd:"&Preserve Stil"
+upd:"&Megőrzése stílus"
+upd:"&Zachowaj styl"
+upd:"&Preservar estilo"
+upd:"&Zachovať štýl"
+
 MEditSearchSearch
 "Искать"
 "Search"

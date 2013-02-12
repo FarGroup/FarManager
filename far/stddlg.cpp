@@ -59,6 +59,7 @@ int GetSearchReplaceString(
 	bool* pWholeWords,
 	bool* pReverse,
 	bool* pRegexp,
+	bool* pPreserveStyle,
 	const wchar_t *HelpTopic,
 	bool HideAll)
 {
@@ -81,6 +82,7 @@ int GetSearchReplaceString(
 	bool WholeWords=pWholeWords?*pWholeWords:false;
 	bool Reverse=pReverse?*pReverse:false;
 	bool Regexp=pRegexp?*pRegexp:false;
+	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 
 	if (IsReplaceMode)
@@ -96,7 +98,7 @@ int GetSearchReplaceString(
 		05   |                                                                   |
 		06   +--------------------------------------------------------------------+
 		07   | [ ] Case sensitive                 [ ] Regular expressions         |
-		08   | [ ] Whole words                                                    |
+		08   | [ ] Whole words                    [ ] Preserve style              |
 		09   | [ ] Reverse search                                                 |
 		10   +--------------------------------------------------------------------+
 		11   |                      [ Replace ]  [ Cancel ]                       |
@@ -115,6 +117,7 @@ int GetSearchReplaceString(
 			{DI_CHECKBOX,5,8,0,8,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
 			{DI_CHECKBOX,5,9,0,9,Reverse,nullptr,nullptr,0,MSG(MEditSearchReverse)},
 			{DI_CHECKBOX,40,7,0,7,Regexp,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
+			{DI_CHECKBOX,40,8,0,8,PreserveStyle,nullptr,nullptr,0,MSG(MEditSearchPreserveStyle)},
 			{DI_TEXT,-1,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditReplaceReplace)},
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
@@ -129,6 +132,8 @@ int GetSearchReplaceString(
 			ReplaceDlg[8].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 		if (!pRegexp)
 			ReplaceDlg[9].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pPreserveStyle)
+			ReplaceDlg[10].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 		Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
 		Dlg.SetPosition(-1,-1,76,14);
@@ -138,7 +143,7 @@ int GetSearchReplaceString(
 
 		Dlg.Process();
 
-		if(Dlg.GetExitCode() == 11)
+		if(Dlg.GetExitCode() == 12)
 		{
 			Result = 1;
 			SearchStr = ReplaceDlg[2].strData;
@@ -147,6 +152,7 @@ int GetSearchReplaceString(
 			WholeWords=ReplaceDlg[7].Selected == BSTATE_CHECKED;
 			Reverse=ReplaceDlg[8].Selected == BSTATE_CHECKED;
 			Regexp=ReplaceDlg[9].Selected == BSTATE_CHECKED;
+			PreserveStyle=ReplaceDlg[10].Selected == BSTATE_CHECKED;
 		}
 	}
 	else
@@ -223,6 +229,8 @@ int GetSearchReplaceString(
 		*pReverse=Reverse;
 	if (pRegexp)
 		*pRegexp=Regexp;
+	if (pPreserveStyle)
+		*pPreserveStyle=PreserveStyle;
 
 	return Result;
 }

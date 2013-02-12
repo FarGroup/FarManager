@@ -323,6 +323,9 @@
     <ClCompile Include="poscache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="preservestyle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="print.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -845,6 +848,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="poscache.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="preservestyle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="print.hpp">

@@ -2059,7 +2059,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength)
+int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength)
 {
 #if 0
 	*SearchLength = 0;
@@ -2188,7 +2188,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 	return FALSE;
 #else
-	return SearchString(this->Str,this->StrSize,Str,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,SearchLength,WordDiv());
+	return SearchString(this->Str,this->StrSize,Str,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,PreserveStyle,SearchLength,WordDiv());
 #endif
 }
 

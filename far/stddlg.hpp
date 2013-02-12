@@ -82,6 +82,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Regexp
       Ссылка на переменную, указывающую на значение опции "Regular expressions"
 
+    Regexp
+      Ссылка на переменную, указывающую на значение опции "Preserve style"
+
     HelpTopic
       Имя темы помощи.
       Если nullptr или пустая строка - тема помощи не назначается.
@@ -104,6 +107,7 @@ int GetSearchReplaceString(
     bool* WholeWords,
     bool* Reverse,
     bool* Regexp,
+    bool* PreserveStyle,
     const wchar_t *HelpTopic=nullptr,
     bool HideAll=false
 );

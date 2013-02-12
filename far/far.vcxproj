@@ -567,6 +567,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="plugins.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
+    <ClCompile Include="preservestyle.cpp" />
     <ClCompile Include="print.cpp" />
     <ClCompile Include="privilege.cpp" />
     <ClCompile Include="processname.cpp" />

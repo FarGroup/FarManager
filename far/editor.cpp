@@ -88,6 +88,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
+	LastSearchPreserveStyle(false),
 	m_codepage(CP_DEFAULT),
 	StartLine(-1),
 	StartChar(-1),
@@ -3688,7 +3689,7 @@ BOOL Editor::Search(int Next)
 	string strMsgStr;
 	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 	int CurPos, NewNumLine;
-	bool Case,WholeWords,ReverseSearch,Regexp,Match,UserBreak;
+	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak;
 	AutoUndoBlock UndoBlock(this);
 
 	if (Next && strLastSearchStr.IsEmpty())
@@ -3699,6 +3700,7 @@ BOOL Editor::Search(int Next)
 	Case=LastSearchCase;
 	WholeWords=LastSearchWholeWords;
 	ReverseSearch=LastSearchReverse;
+	PreserveStyle=LastSearchPreserveStyle;
 	Regexp=LastSearchRegexp;
 
 	bool FindAllReferences = false;
@@ -3717,7 +3719,7 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, L"EditorSearch");
+		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch");
 		if (!DlgResult)
 		{
 			return FALSE;
@@ -3734,6 +3736,7 @@ BOOL Editor::Search(int Next)
 	LastSearchWholeWords=WholeWords;
 	LastSearchReverse=ReverseSearch;
 	LastSearchRegexp=Regexp;
+	LastSearchPreserveStyle=PreserveStyle;
 
 	if(FindAllReferences)
 	{
@@ -3815,7 +3818,7 @@ BOOL Editor::Search(int Next)
 			int SearchLength=0;
 			string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
 
-			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
+			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
 				Match=1;
 				Edit *FoundPtr = CurPtr;

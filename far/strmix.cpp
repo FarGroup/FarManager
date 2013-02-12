@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "preservestyle.hpp"
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 {
@@ -1381,12 +1382,15 @@ bool StrToGuid(const wchar_t* Value,GUID& Guid)
 	return (UuidFromString((unsigned short*)Value,&Guid)==RPC_S_OK)?true:false;
 }
 
-bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 
 	if (!WordDiv)
 		WordDiv=Global->Opt->strWordDiv;
+
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Position, Case, WholeWords, WordDiv, Reverse, *SearchLength))
+		return true;
 
 	if (Reverse)
 	{
@@ -1467,6 +1471,17 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 				if (!Str[J])
 				{
 					CurPos=I;
+
+					// ¬ случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
+					// то хот€ бы сохранить регистр первой буквы.
+					if (PreserveStyle && !ReplaceStr.IsEmpty() && IsAlpha(ReplaceStr[0]) && IsAlpha(Source[I]))
+					{
+						if (IsUpper(Source[I]))
+							ReplaceStr.GetBuffer()[0] = Upper(ReplaceStr[0]);
+						if (IsLower(Source[I]))
+							ReplaceStr.GetBuffer()[0] = Lower(ReplaceStr[0]);
+					}
+					
 					return true;
 				}
 

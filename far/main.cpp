@@ -798,20 +798,20 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 int mainEH(int Argc, wchar_t *Argv[])
 {
-	int Result = 0;
 	try
 	{
-		Result = mainImpl(Argc, Argv);
+		return mainImpl(Argc, Argv);
 	}
 	catch(std::exception& e)
 	{
 		printf("caught exception %s\n", e.what());
+		throw;
 	}
 	catch(...)
 	{
 		printf("caught unknown exception\n");
+		throw;
 	}
-	return Result;
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])

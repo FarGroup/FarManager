@@ -107,6 +107,7 @@ SRCS = \
 	plugins.cpp \
 	plugsettings.cpp \
 	poscache.cpp \
+	preservestyle.cpp \
 	print.cpp \
 	privilege.cpp \
 	processname.cpp \

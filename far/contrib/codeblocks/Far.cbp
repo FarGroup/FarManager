@@ -328,6 +328,8 @@
 		<Unit filename="plugins.hpp" />
 		<Unit filename="poscache.cpp" />
 		<Unit filename="poscache.hpp" />
+		<Unit filename="preservestyle.cpp" />
+		<Unit filename="preservestyle.hpp" />
 		<Unit filename="print.cpp" />
 		<Unit filename="print.hpp" />
 		<Unit filename="processname.cpp" />

@@ -207,6 +207,8 @@ plugsettings.cpp
 plugsettings.hpp
 poscache.cpp
 poscache.hpp
+preservestyle.cpp
+preservestyle.hpp
 print.cpp
 print.hpp
 privilege.cpp
