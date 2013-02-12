@@ -490,7 +490,18 @@ virtual bool GetDisplayMode(DWORD& Mode) const
 
 virtual COORD GetLargestWindowSize() const
 {
-	return GetLargestConsoleWindowSize(GetOutputHandle());
+	COORD Result = GetLargestConsoleWindowSize(GetOutputHandle());
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+	if(csbi.dwSize.Y > Result.Y)
+	{
+		CONSOLE_FONT_INFO FontInfo;
+		if (GetCurrentConsoleFont(GetOutputHandle(), FALSE, &FontInfo))
+		{
+			Result.X -= Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
+		}
+	}
+	return Result;
 }
 
 virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const
