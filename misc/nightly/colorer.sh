@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function bcolorer {
   BIT=$1

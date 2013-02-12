@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function bplugin2 {
 PLUGIN=$1

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function benc2 {
 LNG=$1

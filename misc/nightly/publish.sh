@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ARCNAME=final
 NIGHTLY_WEB_ROOT=/var/www/html/nightly
