@@ -2547,7 +2547,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 	{
 		MenuItemEx *CurItem = Item[I];
 
-		if (ItemCanHaveFocus(CurItem->Flags) && ((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) || (Type && IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))))
+		if (ItemCanHaveFocus(CurItem->Flags) && ((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) || (Type && CurItem->AmpPos>=0 && IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))))
 		{
 			SetSelectPos(static_cast<int>(I),1);
 			ShowMenu(true);
