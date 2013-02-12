@@ -572,6 +572,38 @@ virtual bool ScrollWindow(int Lines,int Columns) const
 	return false;
 }
 
+virtual bool ScrollWindowToBegin() const
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+
+	if(csbi.srWindow.Top > 0)
+	{
+		csbi.srWindow.Bottom-=csbi.srWindow.Top;
+		csbi.srWindow.Top=0;
+		SetWindowRect(csbi.srWindow);
+		return true;
+	}
+
+	return false;
+}
+
+virtual bool ScrollWindowToEnd() const
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+
+	if(csbi.srWindow.Bottom < csbi.dwSize.Y - 1)
+	{
+		csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
+		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
+		SetWindowRect(csbi.srWindow);
+		return true;
+	}
+
+	return false;
+}
+
 virtual bool ScrollScreenBuffer(int Lines) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -857,6 +889,8 @@ COORD console::GetLargestWindowSize() const {return Core->GetLargestWindowSize()
 bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const {return Core->SetActiveScreenBuffer(ConsoleOutput);}
 bool console::ClearExtraRegions(const FarColor& Color) const {return Core->ClearExtraRegions(Color);}
 bool console::ScrollWindow(int Lines, int Columns) const {return Core->ScrollWindow(Lines, Columns);}
+bool console::ScrollWindowToBegin() const {return Core->ScrollWindowToBegin();}
+bool console::ScrollWindowToEnd() const {return Core->ScrollWindowToEnd();}
 bool console::ScrollScreenBuffer(int Lines) const {return Core->ScrollScreenBuffer(Lines);}
 bool console::IsFullscreenSupported() const {return Core->IsFullscreenSupported();}
 bool console::ResetPosition() const {return Core->ResetPosition();}

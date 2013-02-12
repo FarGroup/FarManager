@@ -1018,7 +1018,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTHOME:
 					if(scrollable)
 					{
-						while(Global->Console->ScrollWindow(-ScrY));
+						Global->Console->ScrollWindowToBegin();
 						return TRUE;
 					}
 					break;
@@ -1040,7 +1040,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTEND:
 					if(scrollable)
 					{
-						while(Global->Console->ScrollWindow(ScrY));
+						Global->Console->ScrollWindowToEnd();
 						return TRUE;
 					}
 					break;

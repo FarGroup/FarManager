@@ -106,6 +106,10 @@ public:
 
 	bool ScrollWindow(int Lines,int Columns=0) const;
 
+	bool ScrollWindowToBegin() const;
+
+	bool ScrollWindowToEnd() const;
+
 	bool ScrollScreenBuffer(int Lines) const;
 
 	bool IsFullscreenSupported() const;
