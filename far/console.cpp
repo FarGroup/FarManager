@@ -120,7 +120,11 @@ virtual bool SetSize(COORD Size) const
 			WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
 			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
 		}
-		Result=SetWindowRect(csbi.srWindow);
+		if(SetWindowRect(csbi.srWindow))
+		{
+			csbi.dwSize.X = Size.X;
+			Result=SetConsoleScreenBufferSize(GetOutputHandle(), csbi.dwSize)!=FALSE;
+		}
 	}
 	else
 	{
