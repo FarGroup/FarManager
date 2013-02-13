@@ -5995,7 +5995,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				if (Pos->LeftPos >= 0)
 					CurLine->SetLeftPos(Pos->LeftPos);
 
-				//BUGBUG_OBJWIDTH
 				CurLine->SetRightCoord(XX2);
 				CurLine->FixLeftPos();
 
