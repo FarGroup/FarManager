@@ -28,9 +28,9 @@ m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix File_id.diz.m4 > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
 dos2unix FarRus.hlf.m4
 dos2unix FarHun.hlf.m4
-gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos > $OUTDIR/FarEng.hlf
-gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos > $OUTDIR/FarRus.hlf
-gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos > $OUTDIR/FarHun.hlf
+gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarEng.hlf
+gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarRus.hlf
+gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarHun.hlf
 
 wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAP}farlang.templ
 
