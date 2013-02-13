@@ -1213,7 +1213,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	string strInitDestDir = CopyDlg[ID_SC_TARGETEDIT].strData;
 	// Для фильтра
-	FAR_FIND_DATA_EX fd;
+	FAR_FIND_DATA fd;
 	SrcPanel->GetSelName(nullptr,FileAttr);
 
 	bool AddSlash=false;
@@ -1902,7 +1902,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		string strDestPath = strDest;
 
-		FAR_FIND_DATA_EX SrcData;
+		FAR_FIND_DATA SrcData;
 		int CopyCode=COPY_SUCCESS,KeepPathPos;
 		Flags&=~FCOPY_OVERWRITENEXT;
 
@@ -2245,7 +2245,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 COPY_CODES ShellCopy::ShellCopyOneFile(
     const string& Src,
-    const FAR_FIND_DATA_EX &SrcData,
+    const FAR_FIND_DATA &SrcData,
     string &strDest,
     int KeepPathPos,
     int Rename
@@ -2268,7 +2268,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 
-	FAR_FIND_DATA_EX DestData={};
+	FAR_FIND_DATA DestData={};
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		if (apiGetFindDataEx(strDestPath,DestData))
@@ -2984,7 +2984,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 
-int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcData,
+int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
                              string &strDestName,DWORD &DestAttr,int Append)
 {
 	OrigScrX=ScrX;
@@ -3335,7 +3335,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 				if (Split)
 				{
 					INT64 FilePtr=SrcFile.GetPointer();
-					FAR_FIND_DATA_EX SplitData=SrcData;
+					FAR_FIND_DATA SplitData=SrcData;
 					SplitData.nFileSize-=FilePtr;
 					int RetCode;
 					string strNewName;
@@ -3621,7 +3621,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
+int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
                             const string& SrcName,
                             const string& DestName, DWORD DestAttr,
                             int SameName,int Rename,int AskAppend,
@@ -3652,7 +3652,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),MSG(MCopyAppend)},
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyCancelOvr)},
 	};
-	FAR_FIND_DATA_EX DestData;
+	FAR_FIND_DATA DestData;
 	DestData.Clear();
 	int DestDataFilled=FALSE;
 	Append=FALSE;
@@ -3706,7 +3706,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				{
 					string RealName;
 					ConvertNameToReal(SrcName, RealName);
-					FAR_FIND_DATA_EX FindData;
+					FAR_FIND_DATA FindData;
 					apiGetFindDataEx(RealName,FindData);
 					SrcSize=FindData.nFileSize;
 					SrcLastWriteTime = FindData.ftLastWriteTime;
@@ -3965,7 +3965,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DE
 			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
 
 			string strFullName;
-			FAR_FIND_DATA_EX SrcData;
+			FAR_FIND_DATA SrcData;
 			while (ScTree.GetNextName(&SrcData,strFullName))
 			{
 				if (!ShellCopySecuryMsg(strFullName))
@@ -3986,7 +3986,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DE
 
 
 
-int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData)
+int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA &SrcData)
 {
 	FAR_SECURITY_DESCRIPTOR_EX sd;
 
@@ -4057,7 +4057,7 @@ bool ShellCopy::CalcTotalSize()
 	DWORD FileAttr;
 	unsigned __int64 FileSize;
 	// Для фильтра
-	FAR_FIND_DATA_EX fd;
+	FAR_FIND_DATA fd;
 	Global->PreRedraw->Push(PR_ShellCopyMsg);
 	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=CP;

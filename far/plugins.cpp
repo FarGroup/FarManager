@@ -395,7 +395,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 
 Plugin* PluginManager::LoadPlugin(
     const string& lpwszModuleName,
-    const FAR_FIND_DATA_EX &FindData,
+    const FAR_FIND_DATA &FindData,
     bool LoadToMem
 )
 {
@@ -455,7 +455,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 	}
 	else
 	{
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 
 		if (apiGetFindDataEx(lpwszModuleName, FindData))
 		{
@@ -567,7 +567,7 @@ void PluginManager::LoadPlugins()
 		UserDefinedList PluginPathList(ULF_UNIQUE);  // хранение списка каталогов
 		string strPluginsDir;
 		string strFullName;
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 
 		// сначала подготовим список
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
@@ -637,7 +637,7 @@ void PluginManager::LoadPluginsFromCache()
 	{
 		ReplaceSlashToBSlash(strModuleName);
 
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 
 		if (apiGetFindDataEx(strModuleName, FindData))
 			LoadPlugin(strModuleName, FindData, false);
@@ -1145,7 +1145,7 @@ int PluginManager::GetFile(
 	strFindPath = DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	FindFile Find(strFindPath);
 	bool Done = true;
 	while(Find.Get(fdata))

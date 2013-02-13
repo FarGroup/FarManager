@@ -1697,7 +1697,7 @@ int FileList::ProcessKey(int Key)
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								FAR_FIND_DATA_EX FindData;
+								FAR_FIND_DATA FindData;
 								::FindFile Find(strFindName);
 								while(Find.Get(FindData))
 								{
@@ -3603,7 +3603,7 @@ size_t FileList::GetRealSelCount()
 }
 
 
-int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fde)
+int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA *fde)
 {
 	if (!strName)
 	{

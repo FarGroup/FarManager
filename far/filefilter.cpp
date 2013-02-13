@@ -157,7 +157,7 @@ bool FileFilter::FilterEdit()
 		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
 		{
 			string strFileName;
-			FAR_FIND_DATA_EX fdata;
+			FAR_FIND_DATA fdata;
 			ScanTree ScTree(FALSE,FALSE);
 			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
 
@@ -604,7 +604,7 @@ void FileFilter::UpdateCurrentTime()
 
 bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType)
 {
-	FAR_FIND_DATA_EX fde;
+	FAR_FIND_DATA fde;
 	fde.dwFileAttributes=fli.FileAttr;
 	fde.ftCreationTime=fli.CreationTime;
 	fde.ftLastAccessTime=fli.AccessTime;
@@ -617,7 +617,7 @@ bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foun
 	return FileInFilter(fde, foundType, &fli.strName);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *foundType, const string* FullName)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)
 {
 	enumFileFilterFlagsType FFFT = GetFFFT();
 	bool bFound=false;
@@ -743,7 +743,7 @@ final:
 
 bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
 {
-	FAR_FIND_DATA_EX fde;
+	FAR_FIND_DATA fde;
 	PluginPanelItemToFindDataEx(&fd,&fde);
 	return FileInFilter(fde, foundType, &fde.strFileName);
 }

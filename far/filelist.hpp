@@ -255,7 +255,7 @@ class FileList:public Panel
 
 		void MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To);
 		virtual size_t GetSelCount();
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fde=nullptr);
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA *fde=nullptr);
 		virtual void UngetSelName();
 		virtual void ClearLastGetSelection();
 

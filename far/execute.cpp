@@ -1370,7 +1370,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 					ParsePath(strExpandedStr, &DirPtr);
 					if (wcspbrk(DirPtr, L"*?")) // это маска?
 					{
-						FAR_FIND_DATA_EX wfd;
+						FAR_FIND_DATA wfd;
 
 						if (apiGetFindDataEx(strFullPath, wfd))
 							FileAttr=wfd.dwFileAttributes;

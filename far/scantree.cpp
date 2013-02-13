@@ -66,7 +66,7 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 }
 
-bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
+bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;

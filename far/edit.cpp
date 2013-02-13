@@ -3138,7 +3138,7 @@ void EnumFiles(VMenu2& Menu, const wchar_t* Str)
 		Unquote(strStr);
 		if(!strStr.IsEmpty())
 		{
-			FAR_FIND_DATA_EX d;
+			FAR_FIND_DATA d;
 			string strExp;
 			apiExpandEnvironmentStrings(strStr,strExp);
 			FindFile Find(strExp+L"*");
@@ -3224,7 +3224,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 
 				string strDest;
 
-				FAR_FIND_DATA_EX data;
+				FAR_FIND_DATA data;
 				string str(Path);
 				AddEndSlash(str);
 				str.Append(strName).Append(L"*");

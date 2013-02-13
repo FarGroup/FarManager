@@ -917,7 +917,7 @@ bool InfoList::ShowDirDescription(int YPos)
 		string strFullDizName;
 		strFullDizName = strDizDir;
 		strFullDizName += strArgName;
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 
 		if (!apiGetFindDataEx(strFullDizName, FindData))
 			continue;

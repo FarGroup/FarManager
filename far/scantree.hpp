@@ -86,7 +86,7 @@ class ScanTree
 	public:
 		// 3-й параметр - флаги из старшего слова
 		void SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-		bool GetNextName(FAR_FIND_DATA_EX *fdata, string &strFullName);
+		bool GetNextName(FAR_FIND_DATA *fdata, string &strFullName);
 
 		void SkipDir();
 		int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};

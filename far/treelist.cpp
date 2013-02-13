@@ -405,7 +405,7 @@ int TreeList::ReadTree()
 	//SaveScreen SaveScr;
 	TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
 	ScanTree ScTree(FALSE);
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	string strFullName;
 	SaveState();
 	FlushCache();
@@ -1526,7 +1526,7 @@ size_t TreeList::GetSelCount()
 	return 1;
 }
 
-int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
+int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA *fd)
 {
 	if (!strName)
 	{
@@ -1656,7 +1656,7 @@ void TreeList::ReadSubTree(const string& Path)
 	//SaveScreen SaveScr;
 	TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
 	ScanTree ScTree(FALSE);
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	string strDirName;
 	string strFullName;
 	int Count=0;

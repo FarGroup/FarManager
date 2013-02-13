@@ -52,7 +52,7 @@ FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Langua
 	strFileName.Clear();
 	FILE *LangFile=nullptr;
 	string strFullName, strEngFileName;
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	string strLangName;
 	ScanTree ScTree(FALSE,FALSE);
 	ScTree.SetFindPath(Path,Mask);
@@ -185,7 +185,7 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 	LangMenu->SetFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	ScanTree ScTree(FALSE,FALSE);
 	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 

@@ -262,7 +262,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								}
 
 
-								FAR_FIND_DATA_EX FindData;
+								FAR_FIND_DATA FindData;
 								if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 								{
 									const SETATTRDLG Items[]={SA_TEXT_LASTWRITE,SA_TEXT_CREATION,SA_TEXT_LASTACCESS,SA_TEXT_CHANGE};
@@ -336,7 +336,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			// Set Original? / Set All? / Clear All?
 			else if (Param1 == SA_BUTTON_ORIGINAL)
 			{
-				FAR_FIND_DATA_EX FindData;
+				FAR_FIND_DATA FindData;
 
 				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 				{
@@ -550,7 +550,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
 {
 	bool Result=false;
-	FAR_FIND_DATA_EX ffd={};
+	FAR_FIND_DATA ffd={};
 
 	if (apiGetFindDataEx(Name, ffd))
 	{
@@ -727,7 +727,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	{
 		DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 		string strSelName;
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		if(SrcPanel)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);

@@ -537,7 +537,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 						if (IsSlash(c) || (!c && !IsSlash(*(Src-1))))
 						{
 							*Src=0;
-							FAR_FIND_DATA_EX fd;
+							FAR_FIND_DATA fd;
 							bool find=apiGetFindDataEx(lpwszPath,fd);
 							*Src=c;
 

@@ -113,7 +113,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 		{
 			string tname(lpwszDest);
 			FindFile f(tname,false);
-			FAR_FIND_DATA_EX ffdata;
+			FAR_FIND_DATA ffdata;
 			if (!f.Get(ffdata))
 				break;
 		}
@@ -129,7 +129,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 	return strDest;
 }
 
-void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA_EX *pDest)
+void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA *pDest)
 {
 	pDest->dwFileAttributes = pSrc->FileAttributes;
 	pDest->ftCreationTime = pSrc->CreationTime;
@@ -142,7 +142,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA_EX *
 	pDest->strAlternateFileName = pSrc->AlternateFileName;
 }
 
-void FindDataExToPluginPanelItem(const FAR_FIND_DATA_EX *pSrc, PluginPanelItem *pDest)
+void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDest)
 {
 	pDest->FileAttributes = pSrc->dwFileAttributes;
 	pDest->CreationTime = pSrc->ftCreationTime;

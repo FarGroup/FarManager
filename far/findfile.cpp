@@ -95,7 +95,7 @@ struct ArcListItem
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	ArcListItem* Arc;
 	DWORD Used;
 	void* Data;
@@ -204,7 +204,7 @@ public:
 		return ArcList.back();
 	}
 
-	FindListItem& AddFindListItem(const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+	FindListItem& AddFindListItem(const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		CriticalSectionLock Lock(DataCS);
 
@@ -994,7 +994,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -2040,7 +2040,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!Dlg)
 		return;
@@ -2260,7 +2260,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 
 void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData)
 {
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
 	AddMenuRecord(Dlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
@@ -2363,7 +2363,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, string& strRoot)
 
 		ScTree.SetFindPath(strCurRoot,L"*");
 		itd->SetFindMessage(strCurRoot);
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		string strFullName;
 
 		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))

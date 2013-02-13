@@ -231,7 +231,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 
 		virtual size_t GetSelCount() {return 0;}
 		virtual size_t GetRealSelCount() {return 0;}
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr) {return FALSE;}
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) {return FALSE;}
 		virtual void UngetSelName() {}
 		virtual void ClearLastGetSelection() {}
 		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}

@@ -69,7 +69,7 @@ class FileFilter
 		bool FilterEdit();
 		void UpdateCurrentTime();
 		bool FileInFilter(const FileListItem& fli, enumFileInFilterType *foundType=nullptr);
-		bool FileInFilter(const FAR_FIND_DATA_EX& fde, enumFileInFilterType *foundType=nullptr, const string* FullName=nullptr);
+		bool FileInFilter(const FAR_FIND_DATA& fde, enumFileInFilterType *foundType=nullptr, const string* FullName=nullptr);
 		bool FileInFilter(const PluginPanelItem& fd, enumFileInFilterType *foundType=nullptr);
 		bool IsEnabledOnPanel();
 

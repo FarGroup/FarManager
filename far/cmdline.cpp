@@ -1180,7 +1180,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	ParsePath(strExpandedDir, &DirPtr);
 	if (wcspbrk(DirPtr, L"?*")) // это маска?
 	{
-		FAR_FIND_DATA_EX wfd;
+		FAR_FIND_DATA wfd;
 
 		if (apiGetFindDataEx(strExpandedDir, wfd))
 		{

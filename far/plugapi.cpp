@@ -1384,7 +1384,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		SaveScreen SaveScr;
 		clock_t StartTime=clock();
 		int MsgOut=0;
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		string strFullName;
 		ScanTree ScTree(FALSE);
 		ScTree.SetFindPath(strDirName,L"*");
@@ -2480,7 +2480,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 
 		Flags=Flags&0x000000FF; // только младший байт!
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		string strFullName;
 		ScTree.SetFindPath(InitDir,L"*");
 

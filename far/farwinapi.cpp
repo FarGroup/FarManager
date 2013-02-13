@@ -53,7 +53,7 @@ struct PSEUDO_HANDLE
 	bool ReadDone;
 };
 
-HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
+HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
 	if(!Name.IsEmpty() && !IsSlash(Name.At(Name.GetLength()-1)))
@@ -128,7 +128,6 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 							FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 							FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-							FindData.dwReserved1 = 0;
 
 							if(Handle->Extended)
 							{
@@ -185,7 +184,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 	return Result;
 }
 
-bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
+bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
@@ -232,7 +231,6 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-		FindData.dwReserved1 = 0;
 
 		if(Handle->Extended)
 		{
@@ -331,7 +329,7 @@ FindFile::~FindFile()
 	}
 }
 
-bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
+bool FindFile::Get(FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	if (!empty)
@@ -876,7 +874,7 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 		string strDir=PathName;
 		AddEndSlash(strDir);
 		strDir+=L"*";
-		FAR_FIND_DATA_EX fd;
+		FAR_FIND_DATA fd;
 		if (!apiGetFindDataEx(strDir, fd))
 		{
 			DWORD LastError = GetLastError();
@@ -1032,7 +1030,7 @@ BOOL apiGetVolumeInformation(
 	return bResult;
 }
 
-bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool ScanSymLink)
+bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
 {
 	FindFile Find(FileName, ScanSymLink);
 	if(Find.Get(FindData))
@@ -1070,7 +1068,6 @@ bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool Sc
 					FindData.dwReserved0=0;
 				}
 
-				FindData.dwReserved1=0;
 				FindData.strFileName=PointToName(FileName);
 				ConvertNameToShort(FileName,FindData.strAlternateFileName);
 				return true;

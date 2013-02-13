@@ -191,6 +191,7 @@ private:
 	int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 	void FixLeftPos(int TabCurPos=-1);
+	void SetRightCoord(int Value) {SetPosition(X1, Y2, Value, Y2);}
 
 protected:
 	// KEEP ALIGNED!

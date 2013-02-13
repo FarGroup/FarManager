@@ -218,7 +218,7 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 	FarChDir(strTempDir);
 	ClearStruct(*pi);
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 
 	if (apiGetFindDataEx(Name, fdata))
 	{

@@ -99,7 +99,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	TaskBar TB(MsgWaitTime!=-1);
 	wakeful W;
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
 	SetCursorType(FALSE,0);
 	GetPathRoot(strFullDirName,strDriveRoot);

@@ -4125,7 +4125,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	{
 		parseParams(1,Params,Data);
 		TVar& Str(Params[0]);
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		apiGetFindDataEx(Str.toString(), FindData);
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;

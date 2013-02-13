@@ -124,7 +124,7 @@ int TestFolder(const wchar_t *Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	FindFile Find(strFindPath);
 
 	bool bFind = false;

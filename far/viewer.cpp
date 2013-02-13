@@ -1467,7 +1467,7 @@ int Viewer::ProcessKey(int Key)
 					return TRUE;
 				last_update_check = now_ticks;
 
-				FAR_FIND_DATA_EX NewViewFindData;
+				FAR_FIND_DATA NewViewFindData;
 				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
 					return TRUE;
 

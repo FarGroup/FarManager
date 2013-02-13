@@ -235,7 +235,7 @@ int FileFilterParams::GetMarkChar() const
 
 bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 CurrentTime)
 {
-	FAR_FIND_DATA_EX fde;
+	FAR_FIND_DATA fde;
 	fde.dwFileAttributes=fli.FileAttr;
 	fde.ftCreationTime=fli.CreationTime;
 	fde.ftLastAccessTime=fli.AccessTime;
@@ -248,7 +248,7 @@ bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 Cu
 	return FileInFilter(fde, CurrentTime, &fli.strName);
 }
 
-bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime,const string* FullName)
+bool FileFilterParams::FileInFilter(const FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName)
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
@@ -365,7 +365,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int6
 
 bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime)
 {
-	FAR_FIND_DATA_EX fde;
+	FAR_FIND_DATA fde;
 	PluginPanelItemToFindDataEx(&fd, &fde);
 	return FileInFilter(fde, CurrentTime, &fde.strFileName);
 }

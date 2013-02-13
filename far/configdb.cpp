@@ -2700,7 +2700,7 @@ bool Database::Export(const wchar_t *File)
 	{ //TODO: export for local plugin settings
 		string strPlugins = Global->Opt->ProfilePath;
 		strPlugins += L"\\PluginsData\\*.db";
-		FAR_FIND_DATA_EX fd;
+		FAR_FIND_DATA fd;
 		FindFile ff(strPlugins);
 		e = new TiXmlElement("pluginsconfig");
 		while (ff.Get(fd))

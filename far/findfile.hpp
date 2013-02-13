@@ -61,13 +61,13 @@ private:
 	intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	bool GetPluginFile(struct ArcListItem* ArcItem, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData);
+	bool GetPluginFile(struct ArcListItem* ArcItem, const FAR_FIND_DATA& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData);
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
 	int LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
 	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData);
 	void DoPreparePluginList(Dialog* Dlg, bool Internal);
 	void ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName);

@@ -107,7 +107,7 @@ class Viewer:public ScreenObject
 		File ViewFile;
 		CachedRead Reader;
 
-		FAR_FIND_DATA_EX ViewFindData;
+		FAR_FIND_DATA ViewFindData;
 
 		string strTempViewName;
 

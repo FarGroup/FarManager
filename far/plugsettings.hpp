@@ -35,48 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "configdb.hpp"
 
-template <class Object> void DeleteValues(Object* Items,size_t Size)
-{
-	for(size_t ii=0;ii<Size;++ii)
-	{
-		delete [] Items[ii].Name;
-	}
-}
-
-template <class Object> class Vector
-{
-	private:
-		size_t InternalCount, Count, Delta;
-		Object *Items;
-
-	public:
-		Vector():InternalCount(0), Count(0), Delta(8), Items(nullptr) {}
-		~Vector()
-		{
-			DeleteValues(Items,Count);
-			delete [] Items;
-			Items=nullptr;
-		}
-		size_t GetSize(void) const { return Count; }
-		Object& AddItem(const Object &anItem)
-		{
-			if (InternalCount==Count)
-			{
-				InternalCount+=Delta;
-				Object* newItems=new Object[InternalCount];
-				for(size_t ii=0;ii<Count;++ii)
-				{
-					newItems[ii]=Items[ii];
-				}
-				delete [] Items;
-				Items=newItems;
-			}
-			Items[Count++]=anItem;
-			return Items[Count-1];
-		}
-		Object* GetItems(void) { return Items; }
-};
-
 class AbstractSettings
 {
 	private:
@@ -95,10 +53,23 @@ class AbstractSettings
 		virtual int SubKey(const FarSettingsValue& Value, bool bCreate)=0;
 };
 
+class FarSettingsNameItems
+{
+public:
+	std::vector<FarSettingsName> Items;
+	~FarSettingsNameItems()
+	{
+		std::for_each(RANGE(Items, i)
+		{
+			delete[] i.Name;
+		});
+	}
+};
+
 class PluginSettings: public AbstractSettings
 {
 	private:
-		std::vector<Vector<FarSettingsName>*> m_Enum;
+		std::vector<FarSettingsNameItems*> m_Enum;
 		std::vector<unsigned __int64> m_Keys;
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
@@ -113,10 +84,25 @@ class PluginSettings: public AbstractSettings
 		int SubKey(const FarSettingsValue& Value, bool bCreate);
 };
 
+class FarSettingsHistoryItems
+{
+public:
+	std::vector<FarSettingsHistory> Items;
+	~FarSettingsHistoryItems()
+	{
+		std::for_each(RANGE(Items, i)
+		{
+			delete[] i.Name;
+			delete[] i.Param;
+			delete[] i.File;
+		});
+	}
+};
+
 class FarSettings: public AbstractSettings
 {
 	private:
-		std::vector<Vector<FarSettingsHistory>*> m_Enum;
+		std::vector<FarSettingsHistoryItems*> m_Enum;
 		std::vector<string*> m_Keys;
 		typedef bool (*HistoryFilter)(int Type);
 		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);

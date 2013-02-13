@@ -140,7 +140,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
-	FAR_FIND_DATA_EX fdata;
+	FAR_FIND_DATA fdata;
 	decltype(ListData) OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
@@ -778,7 +778,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		if (Info.HostFile && *Info.HostFile)
 		{
-			FAR_FIND_DATA_EX FindData;
+			FAR_FIND_DATA FindData;
 
 			if (apiGetFindDataEx(Info.HostFile, FindData))
 			{

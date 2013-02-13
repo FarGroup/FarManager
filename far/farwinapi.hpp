@@ -35,60 +35,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define NT_MAX_PATH 32768
 
-struct FAR_FIND_DATA_EX
+struct FAR_FIND_DATA
 {
-	DWORD    dwFileAttributes;
 	FILETIME ftCreationTime;
 	FILETIME ftLastAccessTime;
 	FILETIME ftLastWriteTime;
 	FILETIME ftChangeTime;
 	unsigned __int64 nFileSize;
-
 	unsigned __int64 nAllocationSize;
-	struct
-	{
-		DWORD dwReserved0;
-		DWORD dwReserved1;
-	};
 	unsigned __int64 FileId;
-	string   strFileName;
-	string   strAlternateFileName;
+	string strFileName;
+	string strAlternateFileName;
+	DWORD dwFileAttributes;
+	DWORD dwReserved0;
 
 	void Clear()
 	{
-		dwFileAttributes=0;
 		ClearStruct(ftCreationTime);
 		ClearStruct(ftLastAccessTime);
 		ClearStruct(ftLastWriteTime);
 		ClearStruct(ftChangeTime);
 		nFileSize=0;
 		nAllocationSize=0;
-		dwReserved0=0;
-		dwReserved1=0;
 		FileId = 0;
 		strFileName.Clear();
 		strAlternateFileName.Clear();
-	}
-
-	FAR_FIND_DATA_EX& operator=(const FAR_FIND_DATA_EX &ffdexCopy)
-	{
-		if (this != &ffdexCopy)
-		{
-			dwFileAttributes=ffdexCopy.dwFileAttributes;
-			ftCreationTime=ffdexCopy.ftCreationTime;
-			ftLastAccessTime=ffdexCopy.ftLastAccessTime;
-			ftLastWriteTime=ffdexCopy.ftLastWriteTime;
-			ftChangeTime=ffdexCopy.ftChangeTime;
-			nFileSize=ffdexCopy.nFileSize;
-			nAllocationSize=ffdexCopy.nAllocationSize;
-			dwReserved0=ffdexCopy.dwReserved0;
-			dwReserved1=ffdexCopy.dwReserved1;
-			FileId = ffdexCopy.FileId;
-			strFileName=ffdexCopy.strFileName;
-			strAlternateFileName=ffdexCopy.strAlternateFileName;
-		}
-
-		return *this;
+		dwFileAttributes=0;
+		dwReserved0=0;
 	}
 };
 
@@ -97,12 +70,12 @@ class FindFile:NonCopyable
 public:
 	FindFile(const string& Object, bool ScanSymLink = true);
 	~FindFile();
-	bool Get(FAR_FIND_DATA_EX& FindData);
+	bool Get(FAR_FIND_DATA& FindData);
 
 private:
 	HANDLE Handle;
 	bool empty;
-	FAR_FIND_DATA_EX Data;
+	FAR_FIND_DATA Data;
 };
 
 class File:NonCopyable
@@ -214,7 +187,7 @@ BOOL apiFindStreamClose(
 
 bool apiGetFindDataEx(
     const string& FileName,
-    FAR_FIND_DATA_EX& FindData,
+    FAR_FIND_DATA& FindData,
     bool ScanSymLink=true);
 
 bool apiGetFileSizeEx(

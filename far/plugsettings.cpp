@@ -44,16 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-template<> void DeleteValues<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
-{
-	for(size_t ii=0;ii<Size;++ii)
-	{
-		delete [] Items[ii].Name;
-		delete [] Items[ii].Param;
-		delete [] Items[ii].File;
-	}
-}
-
 AbstractSettings::~AbstractSettings()
 {
 	std::for_each(RANGE(m_Data, i)
@@ -215,19 +205,19 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-static void AddItem(Vector<FarSettingsName>* Array, FarSettingsName& Item, const string& String)
+static void AddItem(FarSettingsNameItems* Array, FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
-	Array->AddItem(Item);
+	Array->Items.push_back(Item);
 }
 
-static void AddItem(Vector<FarSettingsHistory>* Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
+static void AddItem(FarSettingsHistoryItems* Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
 	Item.PluginId=Guid;
 	Item.File=AddString(File);
-	Array->AddItem(Item);
+	Array->Items.push_back(Item);
 }
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
@@ -235,7 +225,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		auto array = new Vector<FarSettingsName>;
+		auto array = new FarSettingsNameItems;
 		m_Enum.push_back(array);
 		FarSettingsName item;
 		DWORD Index=0,Type;
@@ -268,8 +258,16 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 				AddItem(array,item,strName);
 			}
 		}
-		Enum.Count=array->GetSize();
-		Enum.Items=array->GetItems();
+		if (!array->Items.empty())
+		{
+			Enum.Count = array->Items.size();
+			Enum.Items = &array->Items[0];
+		}
+		else
+		{
+			Enum.Count = 0;
+			Enum.Items = nullptr;
+		}
 		result=TRUE;
 	}
 	return result;
@@ -404,7 +402,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				auto array = new Vector<FarSettingsHistory>;
+				auto array = new FarSettingsHistoryItems;
 				m_Enum.push_back(array);
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
@@ -413,8 +411,16 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				{
 					AddItem(array,item,strName,strData,plugin,strFile);
 				}
-				Enum.Count=array->GetSize();
-				Enum.Histories=array->GetItems();
+				if (!array->Items.empty())
+				{
+					Enum.Count = array->Items.size();
+					Enum.Histories = &array->Items[0];
+				}
+				else
+				{
+					Enum.Count = 0;
+					Enum.Items = nullptr;
+				}
 				return TRUE;
 			}
 			break;
@@ -467,7 +473,7 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	auto array = new Vector<FarSettingsHistory>;
+	auto array = new FarSettingsHistoryItems;
 	m_Enum.push_back(array);
 	FarSettingsHistory item={0};
 	DWORD Index=0;
@@ -488,7 +494,15 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			AddItem(array,item,strName,strData,Guid,strFile);
 		}
 	}
-	Enum.Count=array->GetSize();
-	Enum.Histories=array->GetItems();
+	if (!array->Items.empty())
+	{
+		Enum.Count = array->Items.size();
+		Enum.Histories = &array->Items[0];
+	}
+	else
+	{
+		Enum.Count = 0;
+		Enum.Items = nullptr;
+	}
 	return TRUE;
 }

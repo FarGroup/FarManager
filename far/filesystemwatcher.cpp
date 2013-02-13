@@ -57,7 +57,7 @@ void FileSystemWatcher::Set(const wchar_t* Directory, bool WatchSubtree)
 	this->Directory = Directory;
 	this->WatchSubtree = WatchSubtree;
 
-	FAR_FIND_DATA_EX data;
+	FAR_FIND_DATA data;
 	if(apiGetFindDataEx(Directory, data))
 	{
 		PreviousLastWriteTime = data.ftLastWriteTime;

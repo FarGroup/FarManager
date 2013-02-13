@@ -416,7 +416,7 @@ bool Plugin::SaveToCache()
 
 		{
 			string strCurPluginID;
-			FAR_FIND_DATA_EX fdata;
+			FAR_FIND_DATA fdata;
 			apiGetFindDataEx(m_strModuleName, fdata);
 			strCurPluginID.Format(
 				L"%I64x%x%x",
@@ -698,7 +698,7 @@ bool Plugin::Load()
 	return true;
 }
 
-bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
+bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 {
 	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
 

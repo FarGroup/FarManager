@@ -1709,7 +1709,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		// Проверка времени модификации...
 		if (!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
-			FAR_FIND_DATA_EX FInfo;
+			FAR_FIND_DATA FInfo;
 
 			if (apiGetFindDataEx(Name, FInfo) && !FileInfo.strFileName.IsEmpty())
 			{

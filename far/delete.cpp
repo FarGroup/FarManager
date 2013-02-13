@@ -295,7 +295,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 {
 	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
@@ -995,7 +995,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name)
 	if (Global->WinVer() < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
-		FAR_FIND_DATA_EX FindData;
+		FAR_FIND_DATA FindData;
 		ScanTree ScTree(TRUE,TRUE,FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
 
@@ -1021,7 +1021,7 @@ void DeleteDirTree(const string& Dir)
 		return;
 
 	string strFullName;
-	FAR_FIND_DATA_EX FindData;
+	FAR_FIND_DATA FindData;
 	ScanTree ScTree(TRUE,TRUE,FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
 
