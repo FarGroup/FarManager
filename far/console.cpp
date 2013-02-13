@@ -502,6 +502,8 @@ virtual COORD GetLargestWindowSize() const
 		CONSOLE_FONT_INFO FontInfo;
 		if (GetCurrentConsoleFont(GetOutputHandle(), FALSE, &FontInfo))
 		{
+			// in XP FontInfo.dwFontSize contains something else than size in pixels.
+			FontInfo.dwFontSize = GetConsoleFontSize(GetOutputHandle(), FontInfo.nFont);
 			Result.X -= Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
 		}
 	}

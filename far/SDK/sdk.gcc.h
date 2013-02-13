@@ -57,6 +57,10 @@ EXTERN_C WINBASEAPI DWORD WINAPI GetConsoleAliasW(LPWSTR,LPWSTR,DWORD,LPWSTR);
  #define GetConsoleAlias GetConsoleAliasW
 #endif
 
+EXTERN_C WINBASEAPI BOOL WINAPI GetCurrentConsoleFont(HANDLE hConsoleOutput, BOOL bMaximumWindow, PCONSOLE_FONT_INFO lpConsoleCurrentFont);
+
+EXTERN_C WINBASEAPI COORD WINAPI GetConsoleFontSize(HANDLE hConsoleOutput, DWORD nFont);
+
 // winuser.h
 #ifndef INPUTLANGCHANGE_FORWARD
 #define INPUTLANGCHANGE_FORWARD 0x0002
