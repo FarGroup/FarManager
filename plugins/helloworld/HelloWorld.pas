@@ -1,5 +1,5 @@
 (*
-  "Hello, World!" - демонстрационный плагин.
+  "Hello, World!" - фхьюэёЄЁрЎшюээ√щ яырушэ.
   Copyright (c) 2000-2006, [ FAR group ]
   Delphi version copyright (c) 2000, Vasily V. Moshninov
 *)
@@ -20,8 +20,8 @@ var
   FARAPI: TPluginStartupInfo;
 
 (*
- Функция GetMsg возвращает строку сообщения из языкового файла.
- А это надстройка над Info.GetMsg для сокращения кода :-)
+ ╘єэъЎш  GetMsg тючтЁр∙рхЄ ёЄЁюъє ёююс∙хэш  шч  ч√ъютюую Їрщыр.
+ └ ¤Єю эрфёЄЁющър эрф Info.GetMsg фы  ёюъЁр∙хэш  ъюфр :-)
 *)
 function GetMsg(MsgId: TMessage): PChar;
 begin
@@ -29,9 +29,9 @@ begin
 end;
 
 (*
-Функция SetStartupInfo вызывается один раз, перед всеми
-другими функциями. Она передается плагину информацию,
-необходимую для дальнейшей работы.
+╘єэъЎш  SetStartupInfo т√ч√трхЄё  юфшэ Ёрч, яхЁхф тёхьш
+фЁєушьш ЇєэъЎш ьш. ╬эр яхЁхфрхЄё  яырушэє шэЇюЁьрЎш■,
+эхюсїюфшьє■ фы  фры№эхщ°хщ ЁрсюЄ√.
 *)
 procedure SetStartupInfo(var psi: TPluginStartupInfo); stdcall;
 begin
@@ -39,8 +39,8 @@ begin
 end;
 
 (*
-Функция GetPluginInfo вызывается для получения основной
-  (general) информации о плагине
+╘єэъЎш  GetPluginInfo т√ч√трхЄё  фы  яюыєўхэш  юёэютэющ
+  (general) шэЇюЁьрЎшш ю яырушэх
 *)
 var
   PluginMenuStrings: array[0..0] of PChar;
@@ -56,7 +56,7 @@ begin
 end;
 
 (*
-  Функция OpenPlugin вызывается при создании новой копии плагина.
+  ╘єэъЎш  OpenPlugin т√ч√трхЄё  яЁш ёючфрэшш эютющ ъюяшш яырушэр.
 *)
 function OpenPlugin(OpenFrom: integer; Item: integer): THandle; stdcall;
 var
