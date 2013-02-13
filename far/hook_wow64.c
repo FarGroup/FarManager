@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #warning "Consider using newer GCC version for this hook to work"
 #else
 
-#if ((!defined(_MSC_VER) || _MSC_VER < 1300) && !defined(__GNUC__)) || defined(_WIN64)
+#if (!defined(_MSC_VER) && !defined(__GNUC__)) || defined(_WIN64)
 #error
 #endif
 /*
@@ -114,13 +114,8 @@ extern "C"
 #endif
 
 #if defined(_MSC_VER)
-#if _MSC_VER < 1400 && !defined(LINK_WITH_ULINK)
-#pragma message("VC8 or higher is strongly recommended")
-#pragma data_seg(".CRT$XLY")
-#else
 #pragma const_seg(".CRT$XLY")
 const
-#endif
 	PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
 #pragma const_seg()
 #else

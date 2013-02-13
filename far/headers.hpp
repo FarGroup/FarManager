@@ -55,6 +55,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
+# if _MSC_VER < 1600
+#  error Visual C++ 2010 (or higher) required
+# endif
 # include <sdkddkver.h>
 # if _WIN32_WINNT < 0x0601
 #  error Windows SDK v7.0 (or higher) required
@@ -195,9 +198,6 @@ inline void ClearArray(T& a)
 #  define ENUM(ENUM_NAME) enum ENUM_NAME:int
 # else
 #  define ENUM(ENUM_NAME) enum ENUM_NAME
-#  if _MSC_VER<1600
-#   define nullptr NULL
-#  endif
 # endif
 #endif
 
