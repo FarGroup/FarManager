@@ -2657,6 +2657,7 @@ code words:
      $n - drive letter of the current drive
      $p - current drive and path
      $m - ^<wrap>полное имя удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым
+     $w - ^<wrap>текущий рабочий каталог (без указания пути)
      $q - the = character
      $s - space
      $t - current time in HH:MM:SS format
