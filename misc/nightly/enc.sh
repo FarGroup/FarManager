@@ -56,7 +56,7 @@ pushd enc/build/lua || exit 1
 
 ( \
 	blua macroapi_manual && \
-	blua luafar_manual && \
+	blua luafar_manual \
 ) || exit 1
 
 popd
