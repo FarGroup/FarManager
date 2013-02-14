@@ -38,7 +38,7 @@ elif [ $ADD -eq 1 ]; then
 
   cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
-  cd $FINAL | return 1
+  cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
   cd ..
 
