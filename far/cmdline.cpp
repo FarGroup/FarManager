@@ -68,10 +68,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum
 {
 	FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
+	DEFAULT_CMDLINE_WIDTH = 50,
 };
 
 CommandLine::CommandLine():
-	PromptSize(50),
+	PromptSize(DEFAULT_CMDLINE_WIDTH),
 	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
@@ -80,7 +81,6 @@ CommandLine::CommandLine():
 	CmdStr.SetMacroAreaAC(MACRO_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
-	SetPromptSize(Global->Opt->CmdLine.PromptSize);
 }
 
 CommandLine::~CommandLine()
@@ -650,6 +650,16 @@ void CommandLine::GetPrompt(string &strDestStr)
 						{
 							strDestStr += strCurDir;
 							break;
+						}
+						case L'#': //$#nn - max promt width in %
+						{
+							int w = 0;
+							for (int i=0; i<2 && iswdigit(*(Format+1)); i++)
+							{
+								w *= 10;
+								w += *++Format - L'0';
+							}
+							SetPromptSize(w?w:DEFAULT_CMDLINE_WIDTH);
 						}
 					}
 				}

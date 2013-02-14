@@ -149,7 +149,6 @@ enum MACRO_OP_CODE
 	MCODE_F_POSTNEWMACRO,             //
 	MCODE_F_CHECKALL,                 //
 	MCODE_F_GETOPTIONS,               //
-	MCODE_F_CMDLINE_PROMTSIZE,        // N=Cmdine.PromtSize([N])
 
 	MCODE_F_LAST,                     // marker
 

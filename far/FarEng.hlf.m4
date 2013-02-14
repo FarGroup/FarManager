@@ -2663,6 +2663,7 @@ code words:
      $t - current time in HH:MM:SS format
      $$ - the $ character
      $+ - глубина стека каталогов
+     $##nn - max promt width, given in percents relative to the width of the window
 
      $@@xx - ^<wrap>"Администратор", если Far Manager запущен от имени администратора.
 Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор".
