@@ -4,9 +4,9 @@ function bcolorer {
   BIT=$1
   PLUGIN=FarColorer
 
-  cd farcolorer/
+  cd farcolorer/ || return 1
   rm -fR bin
-  cd src
+  cd src || return 1
   wine cmd /c ../../../colorer.${BIT}.bat &> ../../../logs/colorer${BIT}
   cd ..
 
@@ -15,7 +15,7 @@ function bcolorer {
   cp -f changelog history.ru.txt LICENSE README ../../outfinalnew${BIT}/Plugins/$PLUGIN/
 
   if [ ! -e bin ]; then
-    return
+    return 1
   fi
 
   if [ "$BIT" == "64" ]; then
@@ -27,24 +27,26 @@ function bcolorer {
 
   cp -Rf bin ../../outfinalnew${BIT}/Plugins/$PLUGIN/
 
-  cd ../schemes
+  cd ../schemes || return 1
   cp -Rf base ../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 }
 
 mkdir farcolorer
-cd farcolorer
+cd farcolorer || exit 1
 
 rm -fR farcolorer
 rm -fR colorer
 #rm -fR schemes - will not delete, lots of traffic and slow, will just pull updates
 
-svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/far3colorer farcolorer
-svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/shared colorer/src/shared
-svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/zlib colorer/src/zlib
-svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/schemes schemes
+( \
+	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/far3colorer farcolorer && \
+	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/shared colorer/src/shared && \
+	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/zlib colorer/src/zlib && \
+	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/schemes schemes \
+) || exit 1
 
-cd schemes
+cd schemes || exit 1
 
 chmod +x ./build.sh
 
@@ -52,11 +54,13 @@ chmod +x ./build.sh
 PATH=~/apache-ant-1.8.4/bin:$PATH
 export PATH
 ./build.sh farbase.clean
-./build.sh farbase &> ../../logs/colorerschemes
+./build.sh farbase &> ../../logs/colorerschemes || exit 1
 
 cd ..
 
-bcolorer 32
-bcolorer 64
+( \
+	bcolorer 32 && \
+	bcolorer 64 \
+) || exit 1
 
 cd ..

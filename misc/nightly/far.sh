@@ -12,7 +12,7 @@ mkdir $BINDIR
 mkdir -p $BINDIR/PluginSDK/Headers.c
 mkdir -p $BINDIR/PluginSDK/Headers.pas
 
-cd $2
+cd $2 || return 1
 
 mkdir -p $OUTDIR
 mkdir -p $OUTDIR/obj
@@ -38,18 +38,20 @@ wine cmd /c ../mysetnew.${DIRBIT}.bat
 
 cd ..
 
+( \
 cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/*.lng $BINDIR/ && \
 cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/ && \
 cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/ && \
 cp -f $2/changelog $BINDIR/ && \
 cp -f $2/changelog_eng $BINDIR/ && \
-cp -f $2/Far.exe.example.ini $BINDIR/
-if [ "$?" != "0" ]; then exit 1
-fi
+cp -f $2/Far.exe.example.ini $BINDIR/ \
+) || return 1
+
+return 0
 }
 
 function buildfar {
-cd $1
+cd $1 || return 1
 mkdir -p Include
 dos2unix colors.hpp
 dos2unix plugin.hpp
@@ -70,11 +72,15 @@ dos2unix mkdep.list
 gawk -f ./scripts/mkdep.awk mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
 cd ..
 
-buildfar2 32 $1
-buildfar2 64 $1
+(buildfar2 32 $1 && buildfar2 64 $1) || return 1
+
+return 0
 }
 
 rm -fR unicode_far
-svn export http://localhost/svn/trunk/unicode_far unicode_far
+( \
+	svn export http://localhost/svn/trunk/unicode_far unicode_far && \
+	buildfar unicode_far \
+) || exit 1
 
-buildfar unicode_far
+
