@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3054
+  Plugin API for Far Manager 3.0 build 3190
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3054
+#define FARMANAGERVERSION_BUILD 3190
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -841,6 +841,8 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_GETPANELHOSTFILE           = 32,
 	FCTL_SETCASESENSITIVESORT       = 33,
 	FCTL_GETPANELPREFIX             = 34,
+	FCTL_SETCMDLINEPROMPTSIZE       = 35,
+	FCTL_GETCMDLINEPROMPTSIZE       = 36,
 };
 
 typedef void (WINAPI *FARAPITEXT)(
