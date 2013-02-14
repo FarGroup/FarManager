@@ -78,6 +78,7 @@ CommandLine::CommandLine():
 	CmdStr.SetMacroAreaAC(MACRO_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
+	SetPromptSize(50);
 }
 
 CommandLine::~CommandLine()
@@ -106,7 +107,7 @@ void CommandLine::DisplayObject()
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
 	string strTruncDir;
 	GetPrompt(strTruncDir);
-	TruncPathStr(strTruncDir,(X2-X1)/2);
+	TruncPathStr(strTruncDir,PromptSize*ObjWidth()/100);
 	GotoXY(X1,Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(strTruncDir);
@@ -752,6 +753,16 @@ void CommandLine::ResizeConsole()
 {
 	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Global->Opt->WindowMode!=FALSE);
 //  this->DisplayObject();
+}
+
+void CommandLine::SetPromptSize(int NewSize)
+{
+	if (NewSize < 5)
+		NewSize = 5;
+	else if (NewSize > 95)
+		NewSize = 95;
+
+	PromptSize=NewSize;
 }
 
 int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)

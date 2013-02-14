@@ -77,6 +77,8 @@ public:
 	void ShowBackground();
 	void CorrectRealScreenCoord();
 	void LockUpdatePanel(bool Mode);
+	const int GetPromptSize() {return PromptSize;}
+	void SetPromptSize(int NewSize);
 
 private:
 	virtual void DisplayObject();
@@ -86,6 +88,7 @@ private:
 	bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 	bool CheckCmdLineForSet(const string& CmdLine);
 
+	int PromptSize;
 	EditControl CmdStr;
 	SaveScreen *BackgroundScreen;
 	string strCurDir;

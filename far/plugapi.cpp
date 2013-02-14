@@ -1236,6 +1236,22 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->ScrBuf->SetLockCount(Lock);
 			return TRUE;
 		}
+		case FCTL_SETCMDLINEPROMPTSIZE:
+		{
+			CmdLine->SetPromptSize(Param1);
+			CmdLine->Redraw();
+			return TRUE;
+		}
+		case FCTL_GETCMDLINEPROMPTSIZE:
+		{
+			if (Param2)
+			{
+				*(int *)Param2=CmdLine->GetPromptSize();
+				return TRUE;
+			}
+
+			return FALSE;
+		}
 		case FCTL_GETCMDLINE:
 		{
 			string strParam;
