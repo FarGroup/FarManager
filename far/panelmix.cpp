@@ -705,6 +705,12 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 				case IO_REPARSE_TAG_CSV:
 					PtrName = MSG(MListCSV);
 					break;
+				case IO_REPARSE_TAG_DEDUP:
+					PtrName = MSG(MListDEDUP);
+					break;
+				case IO_REPARSE_TAG_NFS:
+					PtrName = MSG(MListNFS);
+					break;
 				// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)

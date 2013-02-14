@@ -859,7 +859,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 			{
 				DWORD ReparseTag=0;
-				DWORD LenJunction=DlgParam.Plugin?0:GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
+				bool KnownReparsePoint = DlgParam.Plugin? false : GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
 				for (size_t i=SA_TEXT_SYMLINK; i<ARRAYSIZE(AttrDlgData); i++)
@@ -889,7 +889,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 				}
 
-				if (!LenJunction)
+				if (!KnownReparsePoint)
 					strLinkName=MSG(MSetAttrUnknownJunction);
 
 				AttrDlg[SA_TEXT_SYMLINK].Flags&=~DIF_HIDDEN;

@@ -202,6 +202,12 @@ void QuickView::DisplayObject()
 				case IO_REPARSE_TAG_CSV:
 					PtrName = MSG(MQuickViewCSV);
 					break;
+				case IO_REPARSE_TAG_DEDUP:
+					PtrName = MSG(MQuickViewDEDUP);
+					break;
+				case IO_REPARSE_TAG_NFS:
+					PtrName = MSG(MQuickViewNFS);
+					break;
 				// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)

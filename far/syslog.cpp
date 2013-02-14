@@ -2088,6 +2088,12 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 				case IO_REPARSE_TAG_CSV:
 					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_CSV         (0x80000009L)\n",12,L"",space);
 					break;
+				case IO_REPARSE_TAG_DEDUP:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DEDUP       (0x80000013L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_NFS:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_NFS         (0x80000014L)\n",12,L"",space);
+					break;
 				default:
 					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_???         (0x%08XL)\n",12,L"",space,wfd.dwReserved0);
 					break;

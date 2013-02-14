@@ -55,7 +55,7 @@ bool  CreateReparsePoint(const string& Target, const string& Object,ReparsePoint
 bool  DeleteReparsePoint(const string& Object);
 bool ModifyReparsePoint(const string& Object,const string& NewData);
 
-DWORD GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
+bool GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
 bool GetVHDName(const string& DeviceName, string &strVolumePath);

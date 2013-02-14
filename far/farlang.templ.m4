@@ -7893,6 +7893,26 @@ upd:"CSV"
 upd:"CSV"
 upd:"CSV"
 
+MListDEDUP
+upd:"DEDUP"
+"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+
+MListNFS
+upd:"NFS"
+"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+
 MListUnknownReparsePoint
 "?Ссылка?"
 "?Symlink?"
@@ -13906,6 +13926,26 @@ upd:"CSV"
 upd:"CSV"
 upd:"CSV"
 upd:"CSV"
+
+MQuickViewDEDUP
+upd:"DEDUP"
+"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+upd:"DEDUP"
+
+MQuickViewNFS
+upd:"NFS"
+"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
+upd:"NFS"
 
 MQuickViewUnknownReparsePoint
 upd:"Unknown reparse point"
