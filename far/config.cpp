@@ -956,6 +956,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyCmdline, L"EditBlock", AddressAndType(Global->Opt->CmdLine.EditBlock), Default(0)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"DelRemovesBlocks", AddressAndType(Global->Opt->CmdLine.DelRemovesBlocks), Default(1)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"PromptFormat", AddressAndType(Global->Opt->CmdLine.strPromptFormat), Default(L"$p$g")},
+		{FSSF_PRIVATE,       NKeyCmdline, L"PromptSize", AddressAndType(Global->Opt->CmdLine.PromptSize), Default(50)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"UsePromptFormat", AddressAndType(Global->Opt->CmdLine.UsePromptFormat), Default(0)},
 
 		{FSSF_PRIVATE,       NKeyCodePages,L"CPMenuMode", AddressAndType(Global->Opt->CPMenuMode), Default(0)},
@@ -1308,7 +1309,7 @@ void InitLocalCFG()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->RightPanel.Folder), Default(L"")},
 
 		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", AddressAndType(Global->Opt->LeftFocus), Default(true)},
-		
+
 	};
 	FARLocalConfig.Items = _CFG;
 	FARLocalConfig.Size = ARRAYSIZE(_CFG);

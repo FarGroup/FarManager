@@ -70,6 +70,7 @@ enum
 };
 
 CommandLine::CommandLine():
+	PromptSize(50),
 	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
@@ -78,7 +79,7 @@ CommandLine::CommandLine():
 	CmdStr.SetMacroAreaAC(MACRO_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
-	SetPromptSize(50);
+	SetPromptSize(Global->Opt->CmdLine.PromptSize);
 }
 
 CommandLine::~CommandLine()

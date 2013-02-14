@@ -417,6 +417,7 @@ struct CommandLineOptions
 	BoolOption AutoComplete;
 	BoolOption UsePromptFormat;
 	StringOption strPromptFormat;
+	IntOption PromptSize;
 };
 
 struct NowellOptions
