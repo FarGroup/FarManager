@@ -121,7 +121,7 @@ FILES32="demangle32.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.farconfig
 #FILES64="demangle64.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.farconfig"
 
 ( \
-	bplugin2 "$PLDIR" 32 1 "$FILES32" && \
+	bplugin2 "$PLDIR" 32 1 "$FILES32" \
 #	bplugin2 "$PLDIR" 64 1 "$FILES64" \
 ) || return 1
 
