@@ -3013,6 +3013,20 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 		}
+
+		case MCODE_F_CMDLINE_PROMTSIZE: // N=Cmdine.PromtSize([N])
+		{
+			parseParams(1,Params,Data);
+			TVar PromptSize(Params[0]);
+			int oldPromptSize=-1;
+			if (Global->CtrlObject->CmdLine)
+			{
+				oldPromptSize=Global->CtrlObject->CmdLine->GetPromptSize();
+				if (!PromptSize.isUnknown())
+					Global->CtrlObject->CmdLine->SetPromptSize(PromptSize.getInteger());
+			}
+			return (__int64)oldPromptSize;
+		}
 	}
 
 	return 0;

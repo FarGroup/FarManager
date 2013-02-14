@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "panelmix.hpp"
 #include "message.hpp"
+#include "network.hpp"
 
 enum
 {
@@ -576,8 +577,17 @@ void CommandLine::GetPrompt(string &strDestStr)
 							$E - Escape code (ASCII code 27)
 							$V - Windows XP version number
 							$_ - Carriage return and linefeed
-							$M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
 							*/
+						case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
+						{
+							string strTemp;
+							if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir.At(0),strTemp))
+							{
+								strDestStr += strTemp;
+								//strDestStr += L" "; // ???
+							}
+							break;
+						}
 						case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
 						{
 							size_t ppstacksize=ppstack.size();
@@ -627,6 +637,13 @@ void CommandLine::GetPrompt(string &strDestStr)
 								strDestStr += Upper(strCurDir.At(4));
 							else
 								strDestStr += L'?';
+							break;
+						}
+						case L'W': // $W - Текущий рабочий каталог (без указания пути)
+						{
+							const wchar_t *ptrCurDir=LastSlash(strCurDir);
+							if (ptrCurDir)
+								strDestStr += ptrCurDir+1;
 							break;
 						}
 						case L'P': // $P - Current drive and path
