@@ -2957,9 +2957,11 @@ $ #Editor: search/replace#
       #Reverse search#      - ^<wrap>change the direction of search (from the end of file towards the beginning)
 
       #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Поиск построчный, поэтому многострочные конструкции и переводы строк не будут найдены.
+It processes lines separately, so multi-line entries line-break characters will not be found.
 
-    При нажатии кнопки #Всё# будет показано ~меню~@FindAllMenu@ с результатами поиска всех вхождений.
+      #Preserve style#      - ^<wrap>preserve style (case and code style for program source files) (~replace~@RegExpRepl@).
+
+    By pressing the button #All# it will be shown the ~menu~@FindAllMenu@ with the whole list of matched entries.
 
 
 @FindAllMenu
