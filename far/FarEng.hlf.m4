@@ -2957,11 +2957,11 @@ $ #Editor: search/replace#
       #Reverse search#      - ^<wrap>change the direction of search (from the end of file towards the beginning)
 
       #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-It processes lines separately, so multi-line entries line-break characters will not be found.
+Each line is processed individually, so multi-line expressions and line-break characters will not be found.
 
-      #Preserve style#      - ^<wrap>preserve style (case and code style for program source files) (~replace~@RegExpRepl@).
+      #Preserve style#      - ^<wrap>preserve style (case and code style for program source files) for replaced text.
 
-    By pressing the button #All# it will be shown the ~menu~@FindAllMenu@ with the whole list of matched entries.
+    By pressing the #All# button, a ~menu~@FindAllMenu@ with a list of all matching entries will be shown.
 
 
 @FindAllMenu
