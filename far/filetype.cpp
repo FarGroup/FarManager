@@ -129,7 +129,7 @@ int GetDescriptionWidth()
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode, bool AlwaysWaitFinish)
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish)
 {
 	string strCommand, strDescription, strMask;
 	{
@@ -218,44 +218,10 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 
 		if (!strCommand.IsEmpty())
 		{
-			bool isSilent=(strCommand.At(0)==L'@');
-
-			if (isSilent)
-			{
-				strCommand.LShift(1);
-			}
-
-			ProcessOSAliases(strCommand);
-
-			if (!isSilent)
-			{
-				Global->CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed);
-
-				if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-					Global->CtrlObject->CmdHistory->AddToHistory(strCommand);
-			}
-			else
-			{
-#if 1
-				SaveScreen SaveScr;
-				Global->CtrlObject->Cp()->LeftPanel->CloseFile();
-				Global->CtrlObject->Cp()->RightPanel->CloseFile();
-				Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed, true);
-#else
-				// здесь была бага с прорисовкой (и... вывод данных
-				// на команду "@type !@!" пропадал с экрана)
-				// сделаем по аналогии с CommandLine::CmdExecute()
-				{
-					RedrawDesktop RdrwDesktop(TRUE);
-					Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
-					ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
-					// проредравив экран забьет последнюю строку вывода.
-				}
-				Global->CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-				Global->CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-				Global->CtrlObject->Cp()->Redraw();
-#endif
-			}
+			Global->CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed, false,
+				Mode == FILETYPE_VIEW || Mode == FILETYPE_ALTVIEW || Mode == FILETYPE_EDIT || Mode == FILETYPE_ALTEDIT);
+			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
+				Global->CtrlObject->CmdHistory->AddToHistory(strCommand);
 		}
 	}
 
@@ -279,7 +245,7 @@ void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool Run
 {
 	string strName(Name);
 	QuoteSpace(strName);
-	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, false, RunAs);
+	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs);
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
@@ -317,15 +283,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
 
-		if (strExecStr.At(0) != L'@')
-			Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
-		else
-		{
-			SaveScreen SaveScr;
-			Global->CtrlObject->Cp()->LeftPanel->CloseFile();
-			Global->CtrlObject->Cp()->RightPanel->CloseFile();
-			Execute(strExecStr.CPtr()+1,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
-		}
+		Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}
 
 	if (!strListName.IsEmpty())
@@ -333,6 +291,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 	if (!strAnotherListName.IsEmpty())
 		apiDeleteFile(strAnotherListName);
+
 
 	if (!strShortListName.IsEmpty())
 		apiDeleteFile(strShortListName);

@@ -396,8 +396,6 @@ int CommandLine::ProcessKey(int Key)
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 
-			ProcessOSAliases(strStr);
-
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
 				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false,
 						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
@@ -721,18 +719,7 @@ void CommandLine::ShowViewEditHistory()
 			case 2:
 			case 3:
 			{
-				if (strStr.At(0) !=L'@')
-				{
-					ExecString(strStr,Type>2);
-				}
-				else
-				{
-					SaveScreen SaveScr;
-					Global->CtrlObject->Cp()->LeftPanel->CloseFile();
-					Global->CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute(strStr.CPtr()+1,Type>2);
-				}
-
+				ExecString(strStr, Type>2, false, false, false, false, true);
 				break;
 			}
 		}
@@ -793,8 +780,51 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize=NewSize;
 }
 
-int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
+int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd)
 {
+	class preservecmdline
+	{
+	public:
+		preservecmdline(bool Preserve):
+			Preserve(Preserve)
+		{
+			if(Preserve)
+			{
+				OldCmdLineCurPos = Global->CtrlObject->CmdLine->GetCurPos();
+				OldCmdLineLeftPos = Global->CtrlObject->CmdLine->GetLeftPos();
+				Global->CtrlObject->CmdLine->GetString(strOldCmdLine);
+				Global->CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
+			}
+		}
+		~preservecmdline()
+		{
+			if(Preserve)
+			{
+				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
+				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
+				Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
+			}
+		}
+	private:
+		bool Preserve;
+		string strOldCmdLine;
+		int OldCmdLineCurPos, OldCmdLineLeftPos;
+		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
+	}
+	PreserveCmdline(RestoreCmd);
+
+	string CmdLine(InputCmdLine);
+
+	bool Silent=false;
+
+	if (CmdLine.At(0) == L'@')
+	{
+		CmdLine.LShift(1);
+		Silent=true;
+	}
+
+	ProcessOSAliases(CmdLine);
+
 	{
 		SetAutocomplete disable(&CmdStr);
 		SetString(CmdLine);
@@ -872,7 +902,6 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 		Text(L" ");
 		Global->CtrlObject->CmdLine->CorrectRealScreenCoord();
 	}
-
 	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 	{
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
@@ -883,7 +912,11 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 	}
 	if (Global->Opt->Clock)
 		ShowTime(0);
-	Global->ScrBuf->Flush();
+
+	if (!Silent)
+	{
+		Global->ScrBuf->Flush();
+	}
 	return Code;
 }
 

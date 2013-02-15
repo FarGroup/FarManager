@@ -2478,7 +2478,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
 				Global->CtrlObject->CmdHistory->AddToHistory(strFileName);
 
-			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, false, RunAs);
+			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs);
 
 			if (PluginMode)
 				DeleteFileWithFolder(strFileName);
@@ -4820,7 +4820,6 @@ bool FileList::ApplyCommand()
 {
 	static string strPrevCommand;
 	string strCommand;
-	bool isSilent=false;
 
 	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
 		return false;
@@ -4828,23 +4827,10 @@ bool FileList::ApplyCommand()
 	strPrevCommand = strCommand;
 	RemoveLeadingSpaces(strCommand);
 
-	if (strCommand.At(0) == L'@')
-	{
-		strCommand.LShift(1);
-		isSilent=true;
-	}
-
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
 
 	SaveSelection();
-
-	string CommandLine;
-	Global->CtrlObject->CmdLine->GetString(CommandLine);
-	intptr_t SelStart, SelEnd;
-	Global->CtrlObject->CmdLine->GetSelection(SelStart, SelEnd);
-	int CursorPosition = Global->CtrlObject->CmdLine->GetCurPos();
-	int LeftPosition = Global->CtrlObject->CmdLine->GetLeftPos();
 
 	++UpdateDisabled;
 	GetSelName(nullptr,FileAttr);
@@ -4864,20 +4850,9 @@ bool FileList::ApplyCommand()
 
 			if (!strConvertedCommand.IsEmpty())
 			{
-				ProcessOSAliases(strConvertedCommand);
-
-				if (!isSilent)   // TODO: Çהוסü םו isSilent!
-				{
-					Global->CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed); // Param2 == TRUE?
+					Global->CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed, false, true); // Param2 == TRUE?
 					//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
 					//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
-				}
-				else
-				{
-					Global->CtrlObject->Cp()->LeftPanel->CloseFile();
-					Global->CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute(strConvertedCommand,FALSE,FALSE, 0, 0, ListFileUsed, true);
-				}
 			}
 
 			ClearLastGetSelection();
@@ -4895,11 +4870,6 @@ bool FileList::ApplyCommand()
 		if (!strAnotherShortListName.IsEmpty())
 			apiDeleteFile(strAnotherShortListName);
 	}
-
-
-	Global->CtrlObject->CmdLine->SetString(CommandLine);
-	Global->CtrlObject->CmdLine->Select(SelStart, SelEnd);
-	Global->CtrlObject->CmdLine->SetCurPos(CursorPosition, LeftPosition);
 
 	Global->CtrlObject->CmdLine->LockUpdatePanel(false);
 	Global->CtrlObject->CmdLine->Show();

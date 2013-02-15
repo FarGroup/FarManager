@@ -1044,8 +1044,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		if (hProcess)
 		{
-			Global->ScrBuf->Flush();
-
+			if (!Silent)
+			{
+				Global->ScrBuf->Flush();
+			}
 			if (AlwaysWaitFinish || !SeparateWindow)
 			{
 				if (Global->Opt->ConsoleDetachKey.IsEmpty())

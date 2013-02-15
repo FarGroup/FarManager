@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Работа с ассоциациями файлов
-enum
+enum FILETYPE_MODE
 {
 	FILETYPE_EXEC,       // Enter
 	FILETYPE_ALTEXEC,    // Ctrl-PgDn
@@ -45,7 +45,7 @@ enum
 };
 
 void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool RunAs);
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode, bool AlwaysWaitFinish);
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 bool ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();

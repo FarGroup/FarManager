@@ -746,12 +746,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		string strCmdLineDir;
 		Global->CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
-		string strOldCmdLine;
-		Global->CtrlObject->CmdLine->GetString(strOldCmdLine);
-		int OldCmdLineCurPos = Global->CtrlObject->CmdLine->GetCurPos();
-		int OldCmdLineLeftPos = Global->CtrlObject->CmdLine->GetLeftPos();
-		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
-		Global->CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
 		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// Цикл исполнения команд меню (CommandX)
@@ -800,29 +794,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 						if (!strCommand.IsEmpty())
 						{
-							bool isSilent=false;
-
-							if (strCommand.At(0) == L'@')
-							{
-								strCommand.LShift(1);
-								isSilent=true;
-							}
-
-							ProcessOSAliases(strCommand);
-							// TODO: Ахтунг. В режиме isSilent имеем проблемы с командами, которые выводят что-то на экран
-							//       Здесь необходимо переделка, например, перед исполнением подсунуть временный экранный буфер, а потом его содержимое подсунуть в ScreenBuf...
-
-							if (!isSilent)
-							{
-								Global->CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed);
-							}
-							else
-							{
-								SaveScreen SaveScr;
-								Global->CtrlObject->Cp()->LeftPanel->CloseFile();
-								Global->CtrlObject->Cp()->RightPanel->CloseFile();
-								Execute(strCommand,TRUE, 0, 0, 0, ListFileUsed, true);
-							}
+							Global->CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed, false, true);
 						}
 					}
 				}
@@ -842,13 +814,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		});
 
 		Global->CtrlObject->CmdLine->LockUpdatePanel(FALSE);
-
-		if (!strOldCmdLine.IsEmpty())  // восстановим сохраненную командную строку
-		{
-			Global->CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
-			Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
-			Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
-		}
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		/*
