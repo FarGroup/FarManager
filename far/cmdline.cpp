@@ -565,6 +565,7 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 {
 	std::list<std::pair<string, FarColor>> Result;
+	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
 	string strDestStr;
 
@@ -729,13 +730,12 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'#': //$#nn - max promt width in %
 							{
-								int w = 0;
+								NewPromptSize = 0;
 								for (int i=0; i<2 && iswdigit(*(Format+1)); i++)
 								{
-									w *= 10;
-									w += *++Format - L'0';
+									NewPromptSize *= 10;
+									NewPromptSize += *++Format - L'0';
 								}
-								SetPromptSize(w?w:DEFAULT_CMDLINE_WIDTH);
 							}
 						}
 					}
@@ -755,6 +755,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 		// default prompt = "$p$g"
 		Result.push_back(VALUE_TYPE(Result)(strCurDir + L">", CmdStr.GetNormalColor()));
 	}
+	SetPromptSize(NewPromptSize);
 	return Result;
 }
 
@@ -853,7 +854,7 @@ void CommandLine::ResizeConsole()
 
 void CommandLine::SetPromptSize(int NewSize)
 {
-	PromptSize = std::max(5, std::min(95, NewSize));
+	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
 }
 
 int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd)
