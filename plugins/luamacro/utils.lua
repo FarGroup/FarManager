@@ -338,7 +338,7 @@ local function CheckFileName (mask, name)
   return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
 end
 
-local function GetTopMacros (area, macrolist, checkonly)
+local function GetTopMacros (area, key, macrolist, checkonly)
   local topmacros = { n=0 }
   local max_priority = -1
 
@@ -356,7 +356,7 @@ local function GetTopMacros (area, macrolist, checkonly)
       local check = not (filename and macro.filemask) or CheckFileName(macro.filemask, filename)
       if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
         if macro.condition then
-          pr = macro.condition() -- unprotected call
+          pr = macro.condition(key) -- unprotected call
           if pr then
             if type(pr)=="number" then pr = pr>100 and 100 or pr<0 and 0 or pr
             else pr = priority
@@ -400,20 +400,20 @@ end
 
 local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
 
-local function GetMacro (Mode, Key, UseCommon, CheckOnly)
+local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   if not Areas then return end -- macros were not loaded
-  if Mode >= #TrueAreaNames then return end -- трюк используется в CheckForEscSilent() в Фаре
+  if argMode >= #TrueAreaNames then return end -- трюк используется в CheckForEscSilent() в Фаре
 
-  local Area,Key = GetAreaName(Mode),Key:lower()
-  Key = GetMacro_keypat:gsub(Key,
+  local area,key = GetAreaName(argMode),argKey:lower()
+  key = GetMacro_keypat:gsub(key,
     function(a,b,c)
       return (a=="ctrl" and "lctrl" or a or "")..(b=="alt" and "lalt" or b or "")..c
     end)
-  local Names = Area=="" and AreaNames or { Area, UseCommon and "common" or nil }
+  local Names = area=="" and AreaNames or { area, argUseCommon and "common" or nil }
 
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
-    local macros = areatable[Key]
+    local macros = areatable[key]
     local macros_regex = areatable[1]
     local macrolist = {}
 
@@ -427,16 +427,16 @@ local function GetMacro (Mode, Key, UseCommon, CheckOnly)
     end
     if macros_regex then
       for _,v in ipairs(macros_regex) do
-        if v.keyregex:match(Key) == Key then
+        if v.keyregex:match(key) == key then
           macrolist[#macrolist+1] = v
         end
       end
     end
 
     if macrolist[1] then
-      local toplist = GetTopMacros(areaname, macrolist, CheckOnly)
+      local toplist = GetTopMacros(areaname, argKey, macrolist, argCheckOnly)
       if toplist then
-        local macro = (CheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
+        local macro = (argCheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
         return macro, areaname
       end
     end
