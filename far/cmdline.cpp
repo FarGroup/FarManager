@@ -853,7 +853,7 @@ void CommandLine::ResizeConsole()
 
 void CommandLine::SetPromptSize(int NewSize)
 {
-	PromptSize = std::min(5, std::max(95, NewSize));
+	PromptSize = std::max(5, std::min(95, NewSize));
 }
 
 int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd)
