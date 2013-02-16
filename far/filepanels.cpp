@@ -135,8 +135,8 @@ void FilePanels::Init(int DirCount)
 
 	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder : Global->g_strFarPath);
-		RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder : Global->g_strFarPath);
+		LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
+		RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 	}
 
 	if (!Global->Opt->AutoSaveSetup)
@@ -145,22 +145,22 @@ void FilePanels::Init(int DirCount)
 		{
 			if (ActivePanel==RightPanel)
 			{
-				RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder : Global->g_strFarPath);
+				RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 			}
 			else
 			{
-				LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder : Global->g_strFarPath);
+				LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
 			}
 
 			if (DirCount == 2)
 			{
 				if (ActivePanel==LeftPanel)
 				{
-					RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder : Global->g_strFarPath);
+					RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 				}
 				else
 				{
-					LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder : Global->g_strFarPath);
+					LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
 				}
 			}
 		}

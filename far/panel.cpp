@@ -1762,18 +1762,7 @@ const string& Panel::GetCurDir()
 
 BOOL Panel::SetCurDir(const string& CurDir,int ClosePanel,BOOL /*IsUpdated*/)
 {
-	if (StrCmpI(Options->Folder,CurDir) || !TestCurrentDirectory(CurDir))
-	{
-		Options->Folder = CurDir;
-
-		if (PanelMode!=PLUGIN_PANEL)
-		{
-			string Tmp(Options->Folder.Get());
-			PrepareDiskPath(Tmp);
-			Options->Folder = Tmp;
-		}
-	}
-
+	InitCurDir(CurDir);
 	return TRUE;
 }
 
@@ -1788,6 +1777,10 @@ void Panel::InitCurDir(const wchar_t *CurDir)
 		{
 			string Tmp(Options->Folder.Get());
 			PrepareDiskPath(Tmp);
+			if(!IsRootPath(Options->Folder))
+			{
+				DeleteEndSlash(Tmp);
+			}
 			Options->Folder = Tmp;
 		}
 	}

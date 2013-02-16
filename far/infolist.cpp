@@ -522,11 +522,10 @@ void InfoList::DisplayObject()
 
 		if (SectionState[ILSS_DIRDESCRIPTION].Show)
 		{
-			if (ShowDirDescription(CurY))
+			if (CurY < Y2 && ShowDirDescription(CurY))
 			{
 				DizView->SetPosition(X1+1,CurY,X2-1,Y2-1);
-				if (CurY < Y2)
-					CurY=Y2-1;
+				CurY=Y2-1;
 			}
 			else
 			{
