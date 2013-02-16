@@ -341,7 +341,8 @@ void FileList::ShowFileList(int Fast)
 	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode && Filter && Filter->IsEnabledOnPanel())
 		TruncSize-=2;
 
-	GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
+	if(TruncSize > 2)
+		GetTitle(strTitle,TruncSize, 2);//,(PanelMode==PLUGIN_PANEL?0:2));
 	Length=(int)strTitle.GetLength();
 	int ClockCorrection=FALSE;
 
@@ -567,7 +568,7 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 	SetColor(COL_PANELTOTALINFO);
 	/* $ 01.08.2001 VVM
 	  + Обрезаем строчку справа, а не слева */
-	TruncStrFromEnd(strTotalStr, X2-X1-1);
+	TruncStrFromEnd(strTotalStr, std::max(0, X2-X1-1));
 	Length=(int)strTotalStr.GetLength();
 	GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 	const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[BS_H2]);

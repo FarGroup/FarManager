@@ -307,7 +307,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 	{
 		int nLength = (int)wcslen(Str);
 
-		if ((MaxLength > 0) && (nLength > MaxLength) && (nLength >= 2))
+		if ((nLength > MaxLength) && (nLength >= 2))
 		{
 			wchar_t *lpStart = nullptr;
 
