@@ -83,7 +83,7 @@ public:
 private:
 	virtual void DisplayObject();
 	int ProcessOSCommands(const string& CmdLine,bool SeparateWindow, bool &PrintCommand);
-	void GetPrompt(string &strDestStr);
+	std::list<std::pair<string, FarColor>> GetPrompt();
 	bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
 	bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 	bool CheckCmdLineForSet(const string& CmdLine);

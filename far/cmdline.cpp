@@ -108,14 +108,24 @@ void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
 	string strTruncDir;
-	GetPrompt(strTruncDir);
-	TruncPathStr(strTruncDir,PromptSize*ObjWidth()/100);
+	auto PromptList = GetPrompt();
+	size_t MaxLength = PromptSize*ObjWidth()/100;
+	size_t CurLength = 0;
 	GotoXY(X1,Y1);
-	SetColor(COL_COMMANDLINEPREFIX);
-	Text(strTruncDir);
+
+	FOR_RANGE(PromptList, i)
+	{
+		SetColor(i->second);
+		string str(i->first);
+		if(CurLength + str.GetLength() > MaxLength)
+		TruncPathStr(str, static_cast<int>(MaxLength - CurLength));
+		Text(str);
+		CurLength += str.GetLength();
+	}
+
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
 
-	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
+	CmdStr.SetPosition(X1+(int)CurLength,Y1,X2,Y2);
 
 	CmdStr.Show();
 
@@ -530,151 +540,222 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	return CmdStr.ProcessMouse(MouseEvent);
 }
 
-void CommandLine::GetPrompt(string &strDestStr)
+inline COLORREF ARGB2ABGR(COLORREF Color)
 {
-	if (Global->Opt->CmdLine.UsePromptFormat)
+	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
+}
+
+inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
+{
+	if (!Color.IsEmpty())
 	{
-		string strFormatStr, strExpandedFormatStr;
-		strFormatStr = Global->Opt->CmdLine.strPromptFormat.Get();
-		apiExpandEnvironmentStrings(strFormatStr, strExpandedFormatStr);
-		const wchar_t *Format=strExpandedFormatStr;
-		wchar_t ChrFmt[][2]=
+		if (Upper(Color.At(0)) == L'T')
 		{
-			{L'A',L'&'},   // $A - & (Ampersand)
-			{L'B',L'|'},   // $B - | (pipe)
-			{L'C',L'('},   // $C - ( (Left parenthesis)
-			{L'F',L')'},   // $F - ) (Right parenthesis)
-			{L'G',L'>'},   // $G - > (greater-than sign)
-			{L'L',L'<'},   // $L - < (less-than sign)
-			{L'Q',L'='},   // $Q - = (equal sign)
-			{L'S',L' '},   // $S - (space)
-			{L'$',L'$'},   // $$ - $ (dollar sign)
-		};
-
-		while (*Format)
+			TargetFlags &= ~SetFlag;
+			Target = ARGB2ABGR(wcstoul(Color + 1, nullptr, 16));
+		}
+		else
 		{
-			if (*Format==L'$')
-			{
-				wchar_t Chr=Upper(*++Format);
-				size_t I;
-
-				for (I=0; I < ARRAYSIZE(ChrFmt); ++I)
-				{
-					if (ChrFmt[I][0] == Chr)
-					{
-						strDestStr += ChrFmt[I][1];
-						break;
-					}
-				}
-
-				if (I == ARRAYSIZE(ChrFmt))
-				{
-					switch (Chr)
-					{
-							/* эти не раелизованы
-							$E - Escape code (ASCII code 27)
-							$V - Windows XP version number
-							$_ - Carriage return and linefeed
-							*/
-						case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
-						{
-							string strTemp;
-							if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir.At(0),strTemp))
-							{
-								strDestStr += strTemp;
-								//strDestStr += L" "; // ???
-							}
-							break;
-						}
-						case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
-						{
-							size_t ppstacksize=ppstack.size();
-
-							if (ppstacksize)
-							{
-								wchar_t * p = strDestStr.GetBuffer(strDestStr.GetLength()+ppstacksize+1);
-								wmemset(p + strDestStr.GetLength(),L'+',ppstacksize);
-								strDestStr.ReleaseBuffer(strDestStr.GetLength()+ppstacksize);
-							}
-
-							break;
-						}
-						case L'H': // $H - Backspace (erases previous character)
-						{
-							if (!strDestStr.IsEmpty())
-								strDestStr.SetLength(strDestStr.GetLength()-1);
-
-							break;
-						}
-						case L'@': // $@xx - Admin
-						{
-							wchar_t lb=*++Format;
-							wchar_t rb=*++Format;
-							if ( Global->IsUserAdmin() )
-							{
-								strDestStr += lb;
-								strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
-								strDestStr += rb;
-							}
-							break;
-						}
-						case L'D': // $D - Current date
-						case L'T': // $T - Current time
-						{
-							string strDateTime;
-							MkStrFTime(strDateTime,(Chr==L'D'?L"%D":L"%T"));
-							strDestStr += strDateTime;
-							break;
-						}
-						case L'N': // $N - Current drive
-						{
-							PATH_TYPE Type = ParsePath(strCurDir);
-							if(Type == PATH_DRIVELETTER)
-								strDestStr += Upper(strCurDir.At(0));
-							else if(Type == PATH_DRIVELETTERUNC)
-								strDestStr += Upper(strCurDir.At(4));
-							else
-								strDestStr += L'?';
-							break;
-						}
-						case L'W': // $W - Текущий рабочий каталог (без указания пути)
-						{
-							const wchar_t *ptrCurDir=LastSlash(strCurDir);
-							if (ptrCurDir)
-								strDestStr += ptrCurDir+1;
-							break;
-						}
-						case L'P': // $P - Current drive and path
-						{
-							strDestStr += strCurDir;
-							break;
-						}
-						case L'#': //$#nn - max promt width in %
-						{
-							int w = 0;
-							for (int i=0; i<2 && iswdigit(*(Format+1)); i++)
-							{
-								w *= 10;
-								w += *++Format - L'0';
-							}
-							SetPromptSize(w?w:DEFAULT_CMDLINE_WIDTH);
-						}
-					}
-				}
-
-				Format++;
-			}
-			else
-			{
-				strDestStr += *(Format++);
-			}
+			TargetFlags |= SetFlag;
+			Target = wcstoul(Color, nullptr, 16);
 		}
 	}
-	else // default prompt = "$p$g"
+}
+
+std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
+{
+	std::list<std::pair<string, FarColor>> Result;
+
+	string strDestStr;
+
+	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
-		strDestStr = strCurDir;
-		strDestStr += L">";
+		string Format(Global->Opt->CmdLine.strPromptFormat.Get());
+
+		FarColor F(CmdStr.GetNormalColor());
+		string Str(Format);
+		//bool Found = 1;//false;
+		for(const wchar_t* Ptr = Format; *Ptr; ++Ptr)
+		{
+			// color in ([[T]ffffffff][:[T]bbbbbbbb]) format
+			if (*Ptr == L'(')
+			{
+				string Color = Ptr + 1;
+				size_t Pos;
+				if(Color.Pos(Pos, L')'))
+				{
+					size_t PrevPos;
+					Str.Pos(PrevPos, L'(');
+					Str.SetLength(PrevPos);
+					Result.push_back(VALUE_TYPE(Result)(Str, F));
+
+					Ptr += Pos+2;
+					Color.SetLength(Pos);
+					string BgColor;
+					if (Color.Pos(Pos, L':'))
+					{
+						BgColor = Color.SubStr(Pos+1);
+						Color.SetLength(Pos);
+					}
+
+					F = CmdStr.GetNormalColor();
+
+					AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT);
+					AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT);
+
+					Str = Ptr;
+				}
+			}
+		}
+		Result.push_back(VALUE_TYPE(Result)(Str, F));
+
+		std::for_each(RANGE(Result, i)
+		{
+			string& strDestStr = i.first;
+			string strExpandedDestStr;
+			apiExpandEnvironmentStrings(strDestStr, strExpandedDestStr);
+			strDestStr.Clear();
+			const wchar_t *Format = strExpandedDestStr;
+			static wchar_t ChrFmt[][2]=
+			{
+				{L'A',L'&'},   // $A - & (Ampersand)
+				{L'B',L'|'},   // $B - | (pipe)
+				{L'C',L'('},   // $C - ( (Left parenthesis)
+				{L'F',L')'},   // $F - ) (Right parenthesis)
+				{L'G',L'>'},   // $G - > (greater-than sign)
+				{L'L',L'<'},   // $L - < (less-than sign)
+				{L'Q',L'='},   // $Q - = (equal sign)
+				{L'S',L' '},   // $S - (space)
+				{L'$',L'$'},   // $$ - $ (dollar sign)
+			};
+
+			while (*Format)
+			{
+				if (*Format==L'$')
+				{
+					wchar_t Chr=Upper(*++Format);
+					size_t I;
+
+					for (I=0; I < ARRAYSIZE(ChrFmt); ++I)
+					{
+						if (ChrFmt[I][0] == Chr)
+						{
+							strDestStr += ChrFmt[I][1];
+							break;
+						}
+					}
+
+					if (I == ARRAYSIZE(ChrFmt))
+					{
+						switch (Chr)
+						{
+								/* эти не раелизованы
+								$E - Escape code (ASCII code 27)
+								$V - Windows XP version number
+								$_ - Carriage return and linefeed
+								*/
+							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
+							{
+								string strTemp;
+								if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir.At(0),strTemp))
+								{
+									strDestStr += strTemp;
+									//strDestStr += L" "; // ???
+								}
+								break;
+							}
+							case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
+							{
+								size_t ppstacksize=ppstack.size();
+
+								if (ppstacksize)
+								{
+									wchar_t * p = strDestStr.GetBuffer(strDestStr.GetLength()+ppstacksize+1);
+									wmemset(p + strDestStr.GetLength(),L'+',ppstacksize);
+									strDestStr.ReleaseBuffer(strDestStr.GetLength()+ppstacksize);
+								}
+
+								break;
+							}
+							case L'H': // $H - Backspace (erases previous character)
+							{
+								if (!strDestStr.IsEmpty())
+									strDestStr.SetLength(strDestStr.GetLength()-1);
+
+								break;
+							}
+							case L'@': // $@xx - Admin
+							{
+								wchar_t lb=*++Format;
+								wchar_t rb=*++Format;
+								if ( Global->IsUserAdmin() )
+								{
+									strDestStr += lb;
+									strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
+									strDestStr += rb;
+								}
+								break;
+							}
+							case L'D': // $D - Current date
+							case L'T': // $T - Current time
+							{
+								string strDateTime;
+								MkStrFTime(strDateTime,(Chr==L'D'?L"%D":L"%T"));
+								strDestStr += strDateTime;
+								break;
+							}
+							case L'N': // $N - Current drive
+							{
+								PATH_TYPE Type = ParsePath(strCurDir);
+								if(Type == PATH_DRIVELETTER)
+									strDestStr += Upper(strCurDir.At(0));
+								else if(Type == PATH_DRIVELETTERUNC)
+									strDestStr += Upper(strCurDir.At(4));
+								else
+									strDestStr += L'?';
+								break;
+							}
+							case L'W': // $W - Текущий рабочий каталог (без указания пути)
+							{
+								const wchar_t *ptrCurDir=LastSlash(strCurDir);
+								if (ptrCurDir)
+									strDestStr += ptrCurDir+1;
+								break;
+							}
+							case L'P': // $P - Current drive and path
+							{
+								strDestStr += strCurDir;
+								break;
+							}
+							case L'#': //$#nn - max promt width in %
+							{
+								int w = 0;
+								for (int i=0; i<2 && iswdigit(*(Format+1)); i++)
+								{
+									w *= 10;
+									w += *++Format - L'0';
+								}
+								SetPromptSize(w?w:DEFAULT_CMDLINE_WIDTH);
+							}
+						}
+					}
+
+					Format++;
+				}
+				else
+				{
+					strDestStr += *(Format++);
+				}
+			}
+		});
+
 	}
+	else
+	{
+		// default prompt = "$p$g"
+		Result.push_back(VALUE_TYPE(Result)(strCurDir + L">", CmdStr.GetNormalColor()));
+	}
+	return Result;
 }
 
 
@@ -772,12 +853,7 @@ void CommandLine::ResizeConsole()
 
 void CommandLine::SetPromptSize(int NewSize)
 {
-	if (NewSize < 5)
-		NewSize = 5;
-	else if (NewSize > 95)
-		NewSize = 95;
-
-	PromptSize=NewSize;
+	PromptSize = std::min(5, std::max(95, NewSize));
 }
 
 int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd)
