@@ -706,12 +706,14 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 				}
 				else
 				{
-					apiExpandEnvironmentStrings(ArgvI, DestNames[CntDestName]);
-					Unquote(DestNames[CntDestName]);
-					ConvertNameToFull(DestNames[CntDestName],DestNames[CntDestName]);
+					apiExpandEnvironmentStrings(ArgvI, ArgvI);
+					Unquote(ArgvI);
+					ConvertNameToFull(ArgvI, ArgvI);
 
-					if (apiGetFileAttributes(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
-						CntDestName++; //???
+					if (apiGetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
+					{
+						DestNames[CntDestName++] = ArgvI;
+					}
 				}
 			}
 		}
