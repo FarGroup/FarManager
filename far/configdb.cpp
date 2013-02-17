@@ -2613,7 +2613,7 @@ HierarchicalConfig* Database::CreatePanelModeConfig()
 }
 
 Database::Database(bool ImportExportMode):
-        m_TemplateDoc(nullptr),
+	m_TemplateDoc(nullptr),
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
