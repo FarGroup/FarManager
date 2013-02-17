@@ -568,14 +568,13 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
 	string strDestStr;
+	FarColor PrefixColor(ColorIndexToColor(COL_COMMANDLINEPREFIX));
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
 		string Format(Global->Opt->CmdLine.strPromptFormat.Get());
-
-		FarColor F(CmdStr.GetNormalColor());
+		FarColor F(PrefixColor);
 		string Str(Format);
-		//bool Found = 1;//false;
 		for(const wchar_t* Ptr = Format; *Ptr; ++Ptr)
 		{
 			// color in ([[T]ffffffff][:[T]bbbbbbbb]) format
@@ -585,11 +584,13 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				size_t Pos;
 				if(Color.Pos(Pos, L')'))
 				{
-					size_t PrevPos;
-					Str.Pos(PrevPos, L'(');
-					Str.SetLength(PrevPos);
-					Result.push_back(VALUE_TYPE(Result)(Str, F));
-
+					if (Ptr != Format.CPtr())
+					{
+						size_t PrevPos;
+						Str.Pos(PrevPos, L'(');
+						Str.SetLength(PrevPos);
+						Result.push_back(VALUE_TYPE(Result)(Str, F));
+					}
 					Ptr += Pos+2;
 					Color.SetLength(Pos);
 					string BgColor;
@@ -599,7 +600,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 						Color.SetLength(Pos);
 					}
 
-					F = CmdStr.GetNormalColor();
+					F = PrefixColor;
 
 					AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT);
 					AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT);
@@ -753,7 +754,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
-		Result.push_back(VALUE_TYPE(Result)(strCurDir + L">", CmdStr.GetNormalColor()));
+		Result.push_back(VALUE_TYPE(Result)(strCurDir + L">", PrefixColor));
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;

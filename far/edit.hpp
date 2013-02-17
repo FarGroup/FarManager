@@ -253,10 +253,6 @@ public:
 	virtual int GetMaxLength() const {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
 
-	virtual const FarColor& GetNormalColor() const;
-	virtual const FarColor& GetSelectedColor() const;
-	virtual const FarColor& GetUnchangedColor() const;
-
 	enum ECFLAGS
 	{
 		EC_ENABLEAUTOCOMPLETE  = 0x1,
@@ -269,6 +265,9 @@ protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE);
 
 private:
+	virtual const FarColor& GetNormalColor() const;
+	virtual const FarColor& GetSelectedColor() const;
+	virtual const FarColor& GetUnchangedColor() const;
 	virtual const int GetTabSize() const;
 	virtual const EXPAND_TABS GetTabExpandMode() const;
 	virtual const string GetInputMask() const {return Mask;}
