@@ -47,7 +47,17 @@
    warp 05.12.2006 01:39:38 +0300 - build 2149
 4. Изменениям может не присваиваться билд, например, была косметика или
    изменения не в коде.
-
+5. Пример макроса:
+Macro {
+  area="Editor"; key="Ctrl`"; flags="DisableOutput"; description="changelog"; action = function()
+Keys("CtrlHome End CtrlLeft")
+build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
+Keys("CtrlHome")
+print(mf.date("name %d.%m0.%Y %H:%M:%S %Z - build ")) print(build)
+for RCounter=4,1,-1 do Keys("Enter") end
+Keys("Up Up 1 . Space")
+  end;
+}
 
 farversion.m4
 ~~~~~~~~~~~~~
