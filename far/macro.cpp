@@ -359,7 +359,7 @@ struct TMacroKeywords2
 TMacroKeywords2 MKeywordsFlags[] =
 {
 	// ФЛАГИ
-	{L"DisableOutput",      MFLAGS_DISABLEOUTPUT},
+	{L"EnableOutput",       MFLAGS_ENABLEOUTPUT},
 	{L"RunAfterFARStart",   MFLAGS_RUNAFTERFARSTART},
 	{L"EmptyCommandLine",   MFLAGS_EMPTYCOMMANDLINE},
 	{L"NotEmptyCommandLine",MFLAGS_NOTEMPTYCOMMANDLINE},
@@ -576,7 +576,7 @@ int KeyMacro::IsExecuting()
 int KeyMacro::IsDisableOutput()
 {
 	MacroRecord* m = GetCurMacro();
-	return m && (m->Flags()&MFLAGS_DISABLEOUTPUT);
+	return m && !(m->Flags()&MFLAGS_ENABLEOUTPUT);
 }
 
 DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
@@ -650,7 +650,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (macro && macro->GetHandle() && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
+	if (macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
 		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;
@@ -903,7 +903,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
-				UINT64 Flags=MFLAGS_DISABLEOUTPUT|MFLAGS_CALLPLUGINENABLEMACRO; // ???
+				UINT64 Flags=MFLAGS_CALLPLUGINENABLEMACRO;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
 				FrameManager->ResetLastInputRecord();
 				FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
@@ -1008,7 +1008,7 @@ int KeyMacro::GetKey()
 			case MPRT_NORMALFINISH:
 			case MPRT_ERRORFINISH:
 			{
-				if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
+				if (!(macro->Flags() & MFLAGS_ENABLEOUTPUT))
 					Global->ScrBuf->Unlock();
 
 				RemoveCurMacro();
@@ -1026,7 +1026,7 @@ int KeyMacro::GetKey()
 				const wchar_t* key = mpr->Values[0].String;
 				m_LastKey = key;
 
-				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+				if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
 					Global->ScrBuf->Lock();
 
 				if (!StrCmpI(key, L"AKey"))
@@ -1059,7 +1059,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+				if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
 					Global->ScrBuf->Lock();
 
 				varTextDate = mpr->Values[0].String;
@@ -1577,7 +1577,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MacroSettingsDlg[MS_DOUBLEBOX].strData = LangString(MMacroSettingsTitle) << strKeyText;
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
-	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
+	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
 	MacroSettingsDlg[MS_CHECKBOX_START].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
 	MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
 	MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
@@ -1616,7 +1616,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	if (Dlg.GetExitCode()!=MS_BUTTON_OK)
 		return FALSE;
 
-	Flags=MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected?0:MFLAGS_DISABLEOUTPUT;
+	Flags=MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected?MFLAGS_ENABLEOUTPUT:0;
 	Flags|=MacroSettingsDlg[MS_CHECKBOX_START].Selected?MFLAGS_RUNAFTERFARSTART:0;
 
 	if (MacroSettingsDlg[MS_CHECKBOX_A_PANEL].Selected)
@@ -2626,14 +2626,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_WAITKEY:
 		{
 			MacroRecord* macro = GetTopMacro();
-			if (macro && macro->Flags()&MFLAGS_DISABLEOUTPUT)
+			if (macro && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
 				Global->ScrBuf->Lock();
 
 			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
 			--m_DisableNested; --m_WaitKey;
 
-			if (macro && macro->Flags()&MFLAGS_DISABLEOUTPUT)
+			if (macro && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
 				Global->ScrBuf->Unlock();
 
 			return result;
@@ -2969,18 +2969,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				case 1: // DisableOutput
 				{
-					Result = (MR->Flags()&MFLAGS_DISABLEOUTPUT) ? 1:0;
+					Result = (MR->Flags()&MFLAGS_ENABLEOUTPUT) ? 0:1;
 
 					if (Result && (nValue==0 || nValue==2))
 					{
 						Global->ScrBuf->Unlock();
 						Global->ScrBuf->Flush();
-						MR->m_flags&=~MFLAGS_DISABLEOUTPUT;
+						MR->m_flags|=MFLAGS_ENABLEOUTPUT;
 					}
 					else if (!Result && (nValue==1 || nValue==2))
 					{
 						Global->ScrBuf->Lock();
-						MR->m_flags|=MFLAGS_DISABLEOUTPUT;
+						MR->m_flags&=~MFLAGS_ENABLEOUTPUT;
 					}
 
 					return PassNumber(Result, Data);

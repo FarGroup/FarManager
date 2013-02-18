@@ -4043,10 +4043,10 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			if (!ksA->Count || !ksA->Sequence)
 				return FALSE;
 
-			MACROFLAGS_MFLAGS Flags=0;
+			MACROFLAGS_MFLAGS Flags=MFLAGS_ENABLEOUTPUT;
 
 			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
-			  Flags|=MFLAGS_DISABLEOUTPUT;
+			  Flags&=~MFLAGS_ENABLEOUTPUT;
 
 			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
 			  Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;

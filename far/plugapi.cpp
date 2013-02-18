@@ -2075,10 +2075,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					break;
 
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
-				MACROFLAGS_MFLAGS Flags=0;
+				MACROFLAGS_MFLAGS Flags=MFLAGS_ENABLEOUTPUT;
 
 				if (Data->Flags&KMFLAGS_DISABLEOUTPUT)
-					Flags|=MFLAGS_DISABLEOUTPUT;
+					Flags&=~MFLAGS_ENABLEOUTPUT;
 
 				if (Data->Flags&KMFLAGS_NOSENDKEYSTOPLUGINS)
 					Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;

@@ -59,7 +59,7 @@ typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
 	// public flags, read from/saved to config
 	MFLAGS_PUBLIC_MASK             =0x00000000FFFFFFFF,
-	MFLAGS_DISABLEOUTPUT           =0x0000000000000001, // подавить обновление экрана во время выполнения макроса
+	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
 	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
 	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
 	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // запускать, если командная линия пуста
