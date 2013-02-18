@@ -3,6 +3,234 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 18.02.2013 17:33:55 +0400 - build 3206
+
+1. M#2303: New Reparse Point types in Windows 8/2012
+
+drkns 17.02.2013 21:06:25 +0200 - build 3205
+
+1. Refactoring.
+
+drkns 17.02.2013 18:01:04 +0200 - build 3204
+
+1. Correction of 3197.
+
+shmuel 16.02.2013 23:01:07 +0200 - build
+
+1. Macros: condition() function is called with a single string parameter: the name of the key.
+   * This does not apply for macros called during 'RunAfterFARStart'.
+   * This does not apply for events.
+   * This is done because akey() does not work when called from condition().
+
+drkns 16.02.2013 20:14:37 +0200 - build 3203
+
+1. The length of the prompt was not restored after $#nn removed from the format string. 
+
+drkns 16.02.2013 15:19:37 +0200 - build 3202
+
+1. Once more 0002306.
+
+2. Crash in info panel.
+
+3. gcc.
+
+drkns 16.02.2013 14:57:06 +0200 - build 3201
+
+1. 0002306: panel not initialized
+
+drkns 16.02.2013 13:22:34 +0200 - build 3200
+
+1. 0002306: panel not initialized
+
+drkns 16.02.2013 12:07:09 +0200 - build 3199
+
+1. Correction of 3197.
+
+drkns 16.02.2013 03:37:17 +0200 - build 3198
+
+1. Crashes with too little console buffer size.
+
+drkns 16.02.2013 02:44:09 +0200 - build 3197
+
+1. Experimental support for prompt coloring.
+   Format:
+   ([[T]FFFFFFFF][:[T]BBBBBBBB])
+   FFFFFFFF - text color in aarrggbb format.
+   BBBBBBBB - background color in aarrggbb format.
+   T - "true color flag", if absent, the color is treated as a console color index (0-F).
+   If a text or background color is omitted, the default value is used.
+
+   Examples:
+   (A) - bright green text with default background
+   (:F) - default text on white background
+   (C:2) - bright red on green
+   () - default text on default background
+   (T00CCCC:TE34234) - turquoise on vermilion
+
+   THe given color is applied up to the end of the prompt or the next color entry.
+
+   The example of use:
+   (a)%username%(f)@(c)%computername%() $p$g
+
+drkns 15.02.2013 23:09:33 +0200 - build 3196
+
+1. 0002304: External editor launch erases the command line.
+   Launcher is altered a little once again, bugs possible. 
+
+drkns 14.02.2013 21:11:45 +0200 - build 3195
+
+1. In GetReparsePointInfo(), unknown reparse points were treated as junctions, with all the consequences. 
+
+2. Ability of detection of reparse points with DEDUP and NFS tags.
+ 
+t-rex 14.02.2013 20:37:28 +0200 - build 3194
+
+1. Removing the previous ones, now the configuration of the width resides in the prompt line - $#nn.
+
+svs 14.02.2013 17:26:41 +0400 - build 3193
+
+1. Correction of 3192.
+   Prompter improvement:
+   $W - current working directory (no path given)
+
+svs 14.02.2013 17:05:40 +0400 - build 3192
+
+1. Removing API from 3190 (overkill)
+   Instead: MCODE_F_CMDLINE_PROMTSIZE to macros
+   N=Cmdine.PromtSize([Size])
+   Size - required size in % from the console window size, min=5, max=95
+   If Size, the function simply returns the current value (in % from the console window size)
+   Returns the previous value
+
+   Need some updates in luamacro.
+
+2. Prompter improvement:
+   $M - Displaying of the full name of a network volume linked to the name of
+        the current volume, or an empty string if the current volume is not a network one.
+
+t-rex 14.02.2013 13:40:43 +0200 - build 3191
+
+1. Configuration of Cmdline.PromptSize from the previous build.
+
+svs 14.02.2013 14:58:04 +0400 - build 3190
+
+1. Mantis#0002302: Reduce the visible part of the prompt
+   The solution consists of two parts (here is the first part)
+
+   Two new commands are added to API:
+
+    FCTL_SETCMDLINEPROMPTSIZE
+      Set the displayed size of the command line prompt.
+      Param1 = required size in % of console window width, min=5, max=95
+               the size is 50% at start
+      Param2 = nullptr (ignored)
+      Returns TRUE
+    FCTL_GETCMDLINEPROMPTSIZE
+      Get the displayed size of the command line prompt (in % of console window width).
+      Param1 = 0 (ignored)
+      Param2 = pointer to int
+      Returns TRUE if Param2 is not equal to nullptr, FALSE otherwise
+
+     The second part of the solution - adding some functionality to luamacro plugin.
+
+drkns 13.02.2013 22:22:04 +0200 - build 3189
+
+1. Refactoring.
+
+2. Correction of 3174.1.
+
+drkns 13.02.2013 20:41:59 +0200
+
+1. 'Define's removed for vc9 and lower, we do not support them anyway.
+
+2. 0002280: Blurry icons in window title and taskbar.
+
+drkns 13.02.2013 12:41:34 +0200 - build 3188
+
+1. Correction of 3185 for ancient OS's.
+
+2. Correction of 3185 for flawed sdk's.
+
+lort 13.02.2013 14:16:45 +0400 - build 3187
+
+1. Correction of 3184
+
+drkns 12.02.2013 23:59:04 +0200 - build 3186
+
+1. Trying to avoid horizontal scrollbar appear after AltF9 when windowmode==true.
+
+drkns 12.02.2013 23:47:00 +0200 - build 3185
+
+1. Experimental: trying to get the scrollbar not to overlap information when windowmode==true and window is maximized.
+
+lort 13.02.2013 01:32:35 +0400 - build 3184
+
+1. 0002297: FMENU_SHOWAMPERSAND flag malfunction
+
+drkns 12.02.2013 23:15:47 +0200 - build 3183
+
+1. Adequate scrolling to the beginning/end of a buffer for windowmode==true.
+
+drkns 12.02.2013 21:48:26 +0200 - build 3182
+
+1. 0002294: "Preserve style" option available in editor replace.
+
+w17 12.02.2013 12:37:49 +0400 - build 3181
+
+1. correction of 3180
+
+w17 12.02.2013 08:58:04 +0400 - build 3180
+
+1. M#2299: Far crash when using folder search (Alt-F10)
+
+drkns 12.02.2013 01:29:37 +0200 - build 3179
+
+1. Continuing 3157.
+
+drkns 11.02.2013 22:15:28 +0200 - build 3178
+
+1. Correction of 2607. Just in case, I remind: don't place %d, %s etc. in lng files
+
+2. ShiftF8 - Automatic Detection. Editor crashed in case of automatic detection failure.
+
+drkns 11.02.2013 21:02:37 +0200 - build 3177
+
+1. Refactoring.
+
+drkns 11.02.2013 19:57:46 +0200 - build 3176
+
+1. Continuation of 3171.
+
+shmuel 11.02.2013 18:53:29 +0200 - build
+
+1. Macros: precedence of events is defined by dynamic priorities.
+   * Dynamic priority is defined as in macros, with 'condition' and 'priority' fields.
+   * action() is called for each event, excluding those for which the
+     condition() call returned false/nil/nothing, in descending dynamic priorities order.
+
+t-rex 11.02.2013 16:16:30 +0200 - build 3175
+
+1. Continuing 3157. MaxLength moved to Editcontrol.
+
+t-rex 11.02.2013 12:16:10 +0200 - build 3174
+
+1. LeftPos bugs in recent builds.
+   The whole thing has to be redone so that Edit is not ScreenObject and is drawn by Editor.
+
+2. Correction for 3173.
+
+shmuel 11.02.2013 11:27:48 +0200 - build
+
+1. Macros: new specification for events, incompatible with the previous one.
+   1.1. No flags checking, 'flags' field is not used.
+   1.2. 'name' field is cancelled.
+   1.3. condition() and action() functions get 3 parameters: Id,Event,Param
+        (see LuaFAR manual, functions ProcessEditorEvent, ProcessViewerEvent).
+
+t-rex 11.02.2013 11:24:05 +0200 - build 3173
+
+1. gcc build failure.
+
 drkns 10.02.2013 22:22:59 +0200 - build 3172
 
 1. Continuation of 3171.
