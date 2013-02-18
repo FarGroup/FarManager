@@ -700,18 +700,16 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк
 						{
-							const wchar_t *namePtr;
 							int Pos;
 							Result=0;
-
-							while((namePtr=itemsList->GetNext()) )
+							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								if ((Pos=FindFile(PointToName(i.Get()),TRUE)) != -1)
 								{
 									Select(ListData[Pos],FALSE);
 									Result++;
 								}
-							}
+							});
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
@@ -738,18 +736,16 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк через CRLF
 						{
-							const wchar_t *namePtr;
 							int Pos;
 							Result=0;
-
-							while((namePtr=itemsList->GetNext()) )
+							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								if ((Pos=FindFile(PointToName(i.Get()), TRUE)) != -1)
 								{
 									Select(ListData[Pos],TRUE);
 									Result++;
 								}
-							}
+							});
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
@@ -776,18 +772,16 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк через CRLF
 						{
-							const wchar_t *namePtr;
 							int Pos;
 							Result=0;
-
-							while((namePtr=itemsList->GetNext()) )
+							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								if ((Pos=FindFile(PointToName(i.Get()), TRUE)) != -1)
 								{
 									Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
 									Result++;
 								}
-							}
+							});
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми

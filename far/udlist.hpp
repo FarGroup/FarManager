@@ -64,14 +64,19 @@ public:
 	~UserDefinedListItem();
 	bool operator==(const UserDefinedListItem &rhs) const;
 	int operator<(const UserDefinedListItem &rhs) const;
-
+	const string& Get() const {return Str;}
+private:
 	string Str;
 	size_t index;
+
+	friend class UserDefinedList;
 };
 
 class UserDefinedList:NonCopyable
 {
 	public:
+		typedef UserDefinedListItem value_type;
+
 		// по умолчанию разделителем считается ';' и ',', а
 		// ProcessBrackets=AddAsterisk=PackAsterisks=false
 		// Unique=Sort=false
@@ -100,20 +105,13 @@ class UserDefinedList:NonCopyable
 			return Set(List, true);
 		}
 
-		// Вызывать перед началом работы со списком
-		void Reset();
-
-		// Выдает указатель на очередной элемент списка или nullptr
-		const wchar_t *GetNext();
+		std::list<UserDefinedListItem>::iterator begin() {return ItemsList.begin();}
+		std::list<UserDefinedListItem>::iterator end() {return ItemsList.end();}
+		bool empty() const {return ItemsList.empty();}
+		size_t size() const {return ItemsList.size();}
 
 		// Освободить память
 		void Free();
-
-		// true, если больше элементов в списке нет
-		bool IsEmpty();
-
-		// Вернуть количество элементов в списке
-		size_t GetSize() const { return ItemsList.size(); }
 
 	private:
 		bool CheckSeparators() const; // проверка разделителей на корректность
@@ -121,7 +119,6 @@ class UserDefinedList:NonCopyable
 		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
 
 		std::list<UserDefinedListItem> ItemsList;
-		std::list<UserDefinedListItem>::iterator CurrentItem;
 		string strSeparators;
 		BitFlags Flags;
 };

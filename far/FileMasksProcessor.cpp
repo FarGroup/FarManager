@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileMasksProcessor::FileMasksProcessor():
 	BaseFileMask(),
-	MaskPtr(nullptr),
 	re(nullptr),
 	m(nullptr),
 	n(0),
@@ -108,10 +107,10 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 		if (apiGetEnvironmentVariable(L"PATHEXT" ,strSysPathExt) && MaskList.Set(strSysPathExt))
 		{
 			string strFarPathExt;
-			for(const wchar_t *Ptr = MaskList.GetNext(); Ptr; Ptr = MaskList.GetNext())
+			std::for_each(RANGE(MaskList, i)
 			{
-				strFarPathExt.Append('*').Append(Ptr).Append(',');
-			}
+				strFarPathExt.Append('*').Append(i.Get()).Append(',');
+			});
 			strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
 			ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
 		}
@@ -154,8 +153,7 @@ bool FileMasksProcessor::IsEmpty()
 		return !n;
 	}
 
-	Masks.Reset();
-	return Masks.IsEmpty();
+	return Masks.empty();
 }
 
 /* сравнить имя файла со списком масок
@@ -176,12 +174,10 @@ bool FileMasksProcessor::Compare(const string& FileName)
 		return ret;
 	}
 
-	Masks.Reset();
-
-	while (nullptr!=(MaskPtr=Masks.GetNext()))
+	FOR_RANGE(Masks, i)
 	{
 		// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
-		if (CmpName(MaskPtr,FileName, false))
+		if (CmpName(i->Get(), FileName, false))
 			return true;
 	}
 

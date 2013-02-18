@@ -160,18 +160,19 @@ void KeyBar::DisplayObject()
 		if (strLabel.Contains(L'|'))
 		{
 			UserDefinedList LabelList(ULF_NOTRIM|ULF_NOUNQUOTE, L"|");
-			if(LabelList.Set(Label) && !LabelList.IsEmpty())
+			if(LabelList.Set(Label) && !LabelList.empty())
 			{
 				string strLabelTest, strLabel2;
-				strLabel=LabelList.GetNext();
-				const wchar_t *Label2;
-				while ((Label2=LabelList.GetNext()) != nullptr)
+				auto i = LabelList.begin();
+				strLabel = i->Get();
+				++i;
+				for (auto Label2 = i; Label2 != LabelList.end(); ++ Label2)
 				{
 					strLabelTest=strLabel;
-					strLabelTest+=Label2;
+					strLabelTest += Label2->Get();
 					if (StrLength(strLabelTest) <= LabelWidth)
-						if (StrLength(Label2) > StrLength(strLabel2))
-							strLabel2=Label2;
+						if (StrLength(Label2->Get()) > StrLength(strLabel2))
+							strLabel2 = Label2->Get();
 				}
 
 				strLabel+=strLabel2;

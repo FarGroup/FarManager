@@ -584,14 +584,11 @@ void PluginManager::LoadPlugins()
 			PluginPathList.Add(Global->Opt->LoadPlug.strCustomPluginsPath);
 		}
 
-		const wchar_t *NamePtr;
-		PluginPathList.Reset();
-
 		// теперь пройдемся по всему ранее собранному списку
-		while (nullptr!=(NamePtr=PluginPathList.GetNext()))
+		FOR_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
-			apiExpandEnvironmentStrings(NamePtr,strFullName);
+			apiExpandEnvironmentStrings(i->Get(),strFullName);
 			Unquote(strFullName); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))

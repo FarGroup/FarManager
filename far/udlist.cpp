@@ -50,13 +50,11 @@ bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 
 UserDefinedList::UserDefinedList()
 {
-	Reset();
 	SetParameters(0, nullptr);
 }
 
 UserDefinedList::UserDefinedList(DWORD Flags, const wchar_t* Separators)
 {
-	Reset();
 	SetParameters(Flags, Separators);
 }
 
@@ -91,7 +89,6 @@ bool UserDefinedList::SetParameters(DWORD Flags, const wchar_t* Separators)
 void UserDefinedList::Free()
 {
 	ItemsList.clear();
-	Reset();
 }
 
 bool UserDefinedList::Set(const string& List, bool AddToList)
@@ -187,7 +184,6 @@ bool UserDefinedList::Set(const string& List, bool AddToList)
 		{
 			i.index = n++;
 		});
-		Reset();
 	}
 	else
 		Free();
@@ -279,26 +275,5 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	}
 
 	Error=true;
-	return nullptr;
-}
-
-void UserDefinedList::Reset()
-{
-	CurrentItem=ItemsList.begin();
-}
-
-bool UserDefinedList::IsEmpty()
-{
-	return CurrentItem == ItemsList.end();
-}
-
-const wchar_t *UserDefinedList::GetNext()
-{
-	if(CurrentItem != ItemsList.end())
-	{
-		auto Result = CurrentItem->Str;
-		++CurrentItem;
-		return Result;
-	}
 	return nullptr;
 }

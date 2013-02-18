@@ -2331,7 +2331,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
 	SearchMode=SaveSearchMode;
 }
 
-void FindFiles::DoScanTree(Dialog* Dlg, string& strRoot)
+void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 {
 	ScanTree ScTree(FALSE,!(SearchMode==FINDAREA_CURRENT_ONLY||SearchMode==FINDAREA_INPATH),Global->Opt->FindOpt.FindSymLinks);
 	string strSelName;
@@ -2662,11 +2662,10 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 		List.Set(strRoot);
 	}
 
-	while(!List.IsEmpty())
+	std::for_each(RANGE(List, i)
 	{
-		strRoot = List.GetNext();
-		DoScanTree(Dlg, strRoot);
-	}
+		DoScanTree(Dlg, i.Get());
+	});
 
 	itd->SetPercent(0);
 	StopEvent.Set();

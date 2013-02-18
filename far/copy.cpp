@@ -838,11 +838,8 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 					if (DestList.Set(strOldFolder))
 					{
-						DestList.Reset();
-						const wchar_t *NamePtr=DestList.GetNext();
-
-						if (NamePtr)
-							strNewFolder = NamePtr;
+						if (!DestList.empty())
+							strNewFolder = DestList.begin()->Get();
 					}
 				}
 
@@ -1523,21 +1520,25 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 		if (DestList.Set(strCopyDlgValue)) // если список успешно "скомпилировался"
 		{
-			const wchar_t *NamePtr;
 			string strNameTmp;
 			// посчитаем количество целей.
-			CountTarget=DestList.GetSize();
-			DestList.Reset();
+			CountTarget=DestList.size();
 			TotalFiles=0;
 			TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
 
 			if (CountTarget > 1)
 				Move=0;
 
-			while (nullptr!=(NamePtr=DestList.GetNext()))
+			FOR_RANGE(DestList, i)
 			{
+				bool LastIteration = false;
+				{
+					auto j = i;
+					if (++j == DestList.end())
+						LastIteration = true;
+				}
 				CurCopiedSize=0;
-				strNameTmp = NamePtr;
+				strNameTmp = i->Get();
 
 				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
 					PrepareDiskPath(strNameTmp);
@@ -1566,7 +1567,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					AddSlash=false; //???
 
 
-				if (DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
+				if (LastIteration) // нужно учесть моменты связанные с операцией Move.
 				{
 					Flags|=FCOPY_COPYLASTTIME|(Move?FCOPY_MOVE:0); // только для последней операции
 				}
@@ -1632,7 +1633,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				}
 
 				// если "есть порох в пороховницах" - восстановим выделение
-				if (!DestList.IsEmpty())
+				if (!LastIteration)
 					SrcPanel->RestoreSelection();
 
 				// Позаботимся о дизах.
@@ -1643,7 +1644,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					DWORD Attr=apiGetFileAttributes(strDestDizName);
 					int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
 
-					if (DestList.IsEmpty()) // Скидываем только во время последней Op.
+					if (LastIteration) // Скидываем только во время последней Op.
 						if (Move && !DestReadOnly)
 							SrcPanel->FlushDiz();
 

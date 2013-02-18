@@ -1560,14 +1560,13 @@ void Options::Load()
 		if (!XLat.strLayouts.IsEmpty())
 		{
 			wchar_t *endptr;
-			const wchar_t *ValPtr;
 			UserDefinedList DestList(ULF_UNIQUE);
 			DestList.Set(XLat.strLayouts);
 			size_t I=0;
 
-			while (nullptr!=(ValPtr=DestList.GetNext()))
+			FOR_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
+				DWORD res=(DWORD)wcstoul(i->Get(), &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 

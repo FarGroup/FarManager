@@ -361,10 +361,10 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	{
 		UserDefinedList FlagList(ULF_UNIQUE, L"|");
 		FlagList.Set(strFlags);
-		while(!FlagList.IsEmpty())
+		std::for_each(RANGE(FlagList, i)
 		{
-			Flags |= GetValueOfVame(FlagList.GetNext(), From);
-		}
+			Flags |= GetValueOfVame(i.Get(), From);
+		});
 	}
 	return Flags;
 }

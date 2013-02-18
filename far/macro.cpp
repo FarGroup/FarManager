@@ -404,12 +404,11 @@ static MACROFLAGS_MFLAGS StringToFlags(const string& strFlags)
 	MACROFLAGS_MFLAGS Flags=0;
 	UserDefinedList FlagsList(ULF_UNIQUE, L"| ");
 	FlagsList.Set(strFlags);
-	const wchar_t* Flag = nullptr;
-	while((Flag = FlagsList.GetNext()))
+	FOR_RANGE(FlagsList, Flag)
 	{
 		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
 		{
-			if (!StrCmpI(Flag, MKeywordsFlags[i].Name))
+			if (!StrCmpI(Flag->Get(), MKeywordsFlags[i].Name))
 			{
 				Flags |= MKeywordsFlags[i].Value;
 				break;

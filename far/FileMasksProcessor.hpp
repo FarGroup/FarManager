@@ -52,7 +52,6 @@ class FileMasksProcessor : public BaseFileMask
 
 	private:
 		UserDefinedList Masks; // список масок файлов
-		const wchar_t *MaskPtr;   // указатель на текущую маску в списке
 		RegExp *re;
 		SMatch *m;
 		int n;

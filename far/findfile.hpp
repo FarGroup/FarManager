@@ -71,7 +71,7 @@ private:
 	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData);
 	void DoPreparePluginList(Dialog* Dlg, bool Internal);
 	void ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName);
-	void DoScanTree(Dialog* Dlg, string& strRoot);
+	void DoScanTree(Dialog* Dlg, const string& strRoot);
 	void ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
 	void DoPrepareFileList(Dialog* Dlg);
 	unsigned int ThreadRoutine(LPVOID Param);

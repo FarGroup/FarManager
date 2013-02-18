@@ -3191,26 +3191,24 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		int ModuleLength = StrLength(Module);
 		UserDefinedList ExcludeCmdsList;
 		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
-		while (!ExcludeCmdsList.IsEmpty())
+		std::for_each(RANGE(ExcludeCmdsList, i)
 		{
-			const wchar_t* Item = ExcludeCmdsList.GetNext();
-			if (!StrCmpNI(Module, Item, ModuleLength))
+			if (!StrCmpNI(Module, i.Get(), ModuleLength))
 			{
 				Result=true;
-				str = Item;
+				str = i.Get();
 				if(std::find(List.begin(), List.end(), str) == List.end())
 				{
 					List.push_back(str);
 				}
 			}
-		}
+		});
 
 		string strName=Module;
 		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 		apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
 		UserDefinedList PathExtList;
 		PathExtList.Set(strPathExt);
-		PathExtList.Reset();
 
 		string strPathEnv;
 		if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
@@ -3218,24 +3216,21 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 			UserDefinedList PathList;
 			PathList.Set(strPathEnv);
 
-			while (!PathList.IsEmpty())
+			std::for_each(RANGE(PathList, i)
 			{
-				LPCWSTR Path=PathList.GetNext();
-
 				string strDest;
 
 				FAR_FIND_DATA data;
-				string str(Path);
+				string str(i.Get());
 				AddEndSlash(str);
 				str.Append(strName).Append(L"*");
 				FindFile Find(str);
 				while(Find.Get(data))
 				{
-					PathExtList.Reset();
-					while (!PathExtList.IsEmpty())
+					std::for_each(RANGE(PathExtList, Ext)
 					{
 						LPCWSTR ModuleExt=wcsrchr(data.strFileName,L'.');
-						if(!StrCmpI(ModuleExt, PathExtList.GetNext()))
+						if(!StrCmpI(ModuleExt, Ext.Get()))
 						{
 							str = data.strFileName;
 							if(std::find(List.begin(), List.end(), str) == List.end())
@@ -3244,9 +3239,9 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 							}
 							Result=true;
 						}
-					}
+					});
 				}
-			}
+			});
 		}
 
 

@@ -255,9 +255,9 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		UserDefinedList ExcludeCmdsList(ULF_UNIQUE);
 		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
 
-		while (!ExcludeCmdsList.IsEmpty())
+		FOR_RANGE(ExcludeCmdsList, i)
 		{
-			if (!StrCmpI(Module,ExcludeCmdsList.GetNext()))
+			if (!StrCmpI(Module, i->Get()))
 			{
 				ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
 				Result=true;
@@ -274,16 +274,14 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
 			UserDefinedList PathExtList(ULF_UNIQUE);
 			PathExtList.Set(strPathExt);
-			PathExtList.Reset();
 
-			while (!PathExtList.IsEmpty()) // первый проход - в текущем каталоге
+			FOR_RANGE(PathExtList, i) // первый проход - в текущем каталоге
 			{
-				LPCWSTR Ext=PathExtList.GetNext();
 				string strTmpName=strFullName;
 
 				if (!ModuleExt)
 				{
-					strTmpName+=Ext;
+					strTmpName += i->Get();
 				}
 
 				DWORD Attr=apiGetFileAttributes(strTmpName);
@@ -310,17 +308,13 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					UserDefinedList PathList(ULF_UNIQUE);
 					PathList.Set(strPathEnv);
 
-					while (!PathList.IsEmpty() && !Result)
+					FOR_RANGE(PathList, Path)
 					{
-						LPCWSTR Path=PathList.GetNext();
-						PathExtList.Reset();
-
-						while (!PathExtList.IsEmpty())
+						FOR_RANGE(PathExtList, Ext)
 						{
 							string strDest;
-							LPCWSTR Ext=PathExtList.GetNext();
 
-							if (apiSearchPath(Path,strFullName,Ext,strDest))
+							if (apiSearchPath(Path->Get(), strFullName, Ext->Get(), strDest))
 							{
 								DWORD Attr=apiGetFileAttributes(strDest);
 
@@ -332,19 +326,18 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 								}
 							}
 						}
+						if(Result)
+							break;
 					}
 				}
 
 				if (!Result)
 				{
-					PathExtList.Reset();
-
-					while (!PathExtList.IsEmpty())
+					FOR_RANGE(PathExtList, Ext)
 					{
 						string strDest;
-						LPCWSTR Ext=PathExtList.GetNext();
 
-						if (apiSearchPath(nullptr,strFullName,Ext,strDest))
+						if (apiSearchPath(nullptr, strFullName, Ext->Get(), strDest))
 						{
 							DWORD Attr=apiGetFileAttributes(strDest);
 
@@ -415,14 +408,11 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 					if (!Result)
 					{
-						PathExtList.Reset();
-
-						while (!PathExtList.IsEmpty() && !Result)
+						FOR_RANGE(PathExtList, Ext)
 						{
-							LPCWSTR Ext=PathExtList.GetNext();
 							strFullName=RegPath;
 							strFullName+=Module;
-							strFullName+=Ext;
+							strFullName+=Ext->Get();
 
 							for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 							{
@@ -442,6 +432,8 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 									}
 								}
 							}
+							if (Result)
+								break;
 						}
 					}
 				}
@@ -586,30 +578,29 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	{
 		UserDefinedList ActionList(ULF_UNIQUE);
 		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
-		const wchar_t *ActionPtr;
 		LONG RetEnum = ERROR_SUCCESS;
 
 		if (RetPtr  && ActionList.Set(strAction))
 		{
 			HKEY hOpenKey;
-			ActionList.Reset();
-
-			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) )
+			FOR_RANGE(ActionList ,i)
 			{
 				strNewValue = strValue;
-				strNewValue += ActionPtr;
+				strNewValue += i->Get();
 				strNewValue += command_action;
 
 				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
-					strValue += ActionPtr;
-					strAction = ActionPtr;
+					strValue += i->Get();
+					strAction = i->Get();
 					RetPtr = strAction;
 					RetEnum = ERROR_NO_MORE_ITEMS;
-				} /* if */
-			} /* while */
-		} /* if */
+				}
+				if (RetEnum != ERROR_SUCCESS)
+					break;
+			}
+		}
 		else
 		{
 			strValue += strAction;
@@ -1449,9 +1440,9 @@ bool IsBatchExtType(const string& ExtPtr)
 	UserDefinedList BatchExtList(ULF_UNIQUE);
 	BatchExtList.Set(Global->Opt->Exec.strExecuteBatchType);
 
-	while (!BatchExtList.IsEmpty())
+	FOR_RANGE(BatchExtList, i)
 	{
-		if (!StrCmpI(ExtPtr,BatchExtList.GetNext()))
+		if (!StrCmpI(ExtPtr, i->Get()))
 			return true;
 	}
 
