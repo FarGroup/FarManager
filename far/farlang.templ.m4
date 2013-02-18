@@ -2243,7 +2243,7 @@ upd:"AutoComplete"
 
 MConfigCmdlineUsePromptFormat
 "Установить &формат командной строки"
-"Set command line &prompt format"
+"Set command line prompt &format"
 "Nastavit formát &příkazového řádku"
 "&Promptformat der Kommandozeile"
 "Parancssori &prompt formátuma"
@@ -12687,7 +12687,7 @@ MMenuEditor
 
 MMenuCodePages
 "Кодов&ые страницы"
-upd:"Cod&e pages"
+upd:"Code pages"
 "Kódové stránky"
 upd:"Tabellen"
 upd:"Kódlapok"
