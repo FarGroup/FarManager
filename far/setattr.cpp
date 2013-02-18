@@ -859,7 +859,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 			{
 				DWORD ReparseTag=0;
-				bool KnownReparsePoint = DlgParam.Plugin? false : GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
+				bool KnownReparsePoint = false;
+				if (!DlgParam.Plugin)
+				{
+					KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
+					if (!KnownReparsePoint && ReparseTag == IO_REPARSE_TAG_DEDUP)
+					{
+						KnownReparsePoint = true;
+						strLinkName = MSG(MListDEDUP);
+					}
+				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
 				for (size_t i=SA_TEXT_SYMLINK; i<ARRAYSIZE(AttrDlgData); i++)
@@ -896,6 +905,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[SA_TEXT_SYMLINK].strData=MSG(ID_Msg);
 				AttrDlg[SA_EDIT_SYMLINK].Flags&=~DIF_HIDDEN;
 				AttrDlg[SA_EDIT_SYMLINK].strData=strLinkName.CPtr();
+				if (ReparseTag == IO_REPARSE_TAG_DEDUP)
+					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_DISABLE;
 
 				DlgParam.FileSystemFlags=0;
 				string strRoot;
