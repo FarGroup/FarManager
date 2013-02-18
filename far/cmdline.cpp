@@ -901,12 +901,12 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		Silent=true;
 	}
 
-	ProcessOSAliases(CmdLine);
-
 	{
 		SetAutocomplete disable(&CmdStr);
 		SetString(CmdLine);
 	}
+
+	ProcessOSAliases(CmdLine);
 
 	LastCmdPartLength=-1;
 

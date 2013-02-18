@@ -812,7 +812,7 @@ int TreeList::ProcessKey(int Key)
 			{
 				if (Key == KEY_SHIFTENTER||Key == KEY_SHIFTNUMENTER)
 				{
-					Execute(strQuotedName,FALSE,TRUE,TRUE);
+					Execute(strQuotedName, false, true, true, true);
 				}
 				else
 				{

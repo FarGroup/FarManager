@@ -916,6 +916,18 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	int ConsoleOutputCP = CP_OEMCP;
 	int add_show_clock = 0;
 
+	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	ConsoleTitle OldTitle;
+
+	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
+	string strCurDir;
+	apiGetCurrentDirectory(strCurDir);
+	seInfo.lpDirectory=strCurDir;
+	seInfo.nShow = SW_SHOWNORMAL;
+
+	string strFarTitle;
+
+
 	if(!Silent)
 	{
 		int X1, X2, Y1, Y2;
@@ -938,30 +950,14 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
 		Global->ScrBuf->SetLockCount(0);
 		Global->ScrBuf->Flush();
-	}
 
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
-	if(!Silent)
-	{
 		ConsoleCP = Global->Console->GetInputCodepage();
 		ConsoleOutputCP = Global->Console->GetOutputCodepage();
 		FlushInputBuffer();
 		ChangeConsoleMode(InitialConsoleMode);
 		Global->Console->GetWindowRect(ConsoleWindowRect);
 		Global->Console->GetSize(ConsoleSize);
-	}
-	ConsoleTitle OldTitle;
 
-	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
-	string strCurDir;
-	apiGetCurrentDirectory(strCurDir);
-	seInfo.lpDirectory=strCurDir;
-	seInfo.nShow = SW_SHOWNORMAL;
-
-	string strFarTitle;
-	if(!Silent)
-	{
 		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
 			strFarTitle += strNewCmdStr;

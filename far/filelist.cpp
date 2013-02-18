@@ -2401,7 +2401,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			}
 
 			QuoteSpace(strFullPath);
-			Execute(strFullPath, false, SeparateWindow, true, (CurPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY)!=0);
+			Execute(strFullPath, false, true, true, true);
 		}
 		else
 		{

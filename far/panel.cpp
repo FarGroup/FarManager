@@ -655,7 +655,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						string DosDeviceName(L"?:\\");
 						DosDeviceName.Replace(0, item->cDrive);
-						Execute(DosDeviceName, false, false, true, true, false, true, false);
+						Execute(DosDeviceName, false, true, true, true);
 					}
 				}
 				break;
