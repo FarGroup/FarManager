@@ -529,13 +529,14 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 {
 	FormatString strResult;
 
-	const wchar_t OutStr[]=
+	wchar_t *ps, OutStr[]=
 	{
 		FileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
 		FileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
 		FileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
 		FileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
-		FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':FileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
+		FileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'P':L' ',
+		FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':L' ',
 		FileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
 		FileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
 		FileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
@@ -545,10 +546,20 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 	};
 
 	if (Width > 0)
+	{
 		strResult<<fmt::ExactWidth(Width);
 
-	strResult<<OutStr;
+		int n = static_cast<int>(ARRAYSIZE(OutStr)) - 1;
+		while (n > Width && OutStr[n-1] == L' ')
+			OutStr[--n] = L'\0';
 
+		while (n > Width && nullptr != (ps = wcsrchr(OutStr, L' ')))
+		{
+			wcscpy(ps, ps+1);
+			--n;
+		}
+	}
+	strResult<<OutStr;
 	return strResult;
 }
 
