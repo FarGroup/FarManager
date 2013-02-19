@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "panelmix.hpp"
 #include "strmix.hpp"
-#include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
 #include "configdb.hpp"
@@ -1560,13 +1559,12 @@ void Options::Load()
 		if (!XLat.strLayouts.IsEmpty())
 		{
 			wchar_t *endptr;
-			UserDefinedList DestList(ULF_UNIQUE);
-			DestList.Set(XLat.strLayouts);
+			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
 			size_t I=0;
 
 			FOR_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(i->Get(), &endptr, 16);
+				DWORD res=(DWORD)wcstoul(*i, &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 

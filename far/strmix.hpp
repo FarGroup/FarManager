@@ -124,3 +124,21 @@ string GuidToStr(const GUID& Guid);
 bool StrToGuid(const wchar_t* Value,GUID& Guid);
 
 bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
+
+enum STL_FLAGS
+{
+	// вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
+	STLF_PACKASTERISKS  =0x00000002,
+	// учитывать квадратные скобки при анализе строки инициализации
+	STLF_PROCESSBRACKETS=0x00000004,
+	// убирать дублирующиеся элементы
+	STLF_UNIQUE         =0x00000010,
+	// отсортировать (с учетом регистра)
+	STLF_SORT           =0x00000020,
+	// не удалять пробелы
+	STLF_NOTRIM         =0x00000040,
+	// не раскавычивать
+	STLF_NOUNQUOTE      =0x00000080,
+};
+
+std::list<string> StringToList(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,");

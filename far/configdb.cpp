@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "keyboard.hpp"
 #include "macro.hpp"
-#include "udlist.hpp"
 #include "console.hpp"
 #include "syslog.hpp"
 #include "sqlite.h"

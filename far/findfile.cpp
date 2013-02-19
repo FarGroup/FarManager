@@ -73,7 +73,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "panelmix.hpp"
 #include "setattr.hpp"
-#include "udlist.hpp"
 #include "keyboard.hpp"
 #include "configdb.hpp"
 
@@ -2593,18 +2592,18 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	if (strRoot.Contains(L';'))
 		InsertQuote(strRoot);
 
-	UserDefinedList List(ULF_UNIQUE, L";");
+	string InitString;
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
 		string strPathEnv;
 		apiGetEnvironmentVariable(L"PATH",strPathEnv);
-		List.Set(strPathEnv);
+		InitString = strPathEnv;
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{
 		GetPathRoot(strRoot,strRoot);
-		List.Set(strRoot);
+		InitString = strRoot;
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
@@ -2628,7 +2627,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			{
 				Volumes.push_back(strGuidVolime);
 			}
-			List.Add(Root);
+			InitString += Root + L";";
 		}
 		WCHAR VolumeName[50];
 
@@ -2649,7 +2648,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				return i.IsSubStrAt(0,VolumeName);
 			}) == Volumes.end())
 			{
-				List.Add(VolumeName);
+				InitString.Append(VolumeName).Append(L";");
 			}
 		}
 		if (hFind != INVALID_HANDLE_VALUE)
@@ -2659,12 +2658,12 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	}
 	else
 	{
-		List.Set(strRoot);
+		InitString = strRoot;
 	}
-
+	auto List(StringToList(InitString, STLF_UNIQUE, L";"));
 	std::for_each(RANGE(List, i)
 	{
-		DoScanTree(Dlg, i.Get());
+		DoScanTree(Dlg, i);
 	});
 
 	itd->SetPercent(0);

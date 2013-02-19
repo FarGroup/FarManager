@@ -470,9 +470,6 @@
     <ClCompile Include="UCD\prmem.c">
       <Filter>Source Files\UCD</Filter>
     </ClCompile>
-    <ClCompile Include="udlist.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UnicodeString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -999,9 +996,6 @@
     </ClInclude>
     <ClInclude Include="UCD\prtypes.h">
       <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="udlist.hpp">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UnicodeString.hpp">
       <Filter>Header Files</Filter>

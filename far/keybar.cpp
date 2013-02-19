@@ -159,21 +159,20 @@ void KeyBar::DisplayObject()
 
 		if (strLabel.Contains(L'|'))
 		{
-			UserDefinedList LabelList(ULF_NOTRIM|ULF_NOUNQUOTE, L"|");
-			if(LabelList.Set(Label) && !LabelList.empty())
+			auto LabelList(StringToList(Label, STLF_NOTRIM|STLF_NOUNQUOTE, L"|"));
+			if(!LabelList.empty())
 			{
 				string strLabelTest, strLabel2;
-				auto i = LabelList.begin();
-				strLabel = i->Get();
-				++i;
-				for (auto Label2 = i; Label2 != LabelList.end(); ++ Label2)
+				strLabel = LabelList.front();
+				LabelList.pop_front();
+				std::for_each(RANGE(LabelList, Label2)
 				{
 					strLabelTest=strLabel;
-					strLabelTest += Label2->Get();
-					if (StrLength(strLabelTest) <= LabelWidth)
-						if (StrLength(Label2->Get()) > StrLength(strLabel2))
-							strLabel2 = Label2->Get();
-				}
+					strLabelTest += Label2;
+					if (strLabelTest.GetLength() <= static_cast<size_t>(LabelWidth))
+						if (Label2.GetLength() > strLabel2.GetLength())
+							strLabel2 = Label2;
+				});
 
 				strLabel+=strLabel2;
 			}

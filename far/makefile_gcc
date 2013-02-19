@@ -133,7 +133,6 @@ SRCS = \
 	TPreRedrawFunc.cpp \
 	treelist.cpp \
 	tvar.cpp \
-	udlist.cpp \
 	UnicodeString.cpp \
 	usermenu.cpp \
 	viewer.cpp \

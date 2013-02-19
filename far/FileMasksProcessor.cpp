@@ -51,7 +51,7 @@ FileMasksProcessor::FileMasksProcessor():
 
 void FileMasksProcessor::Free()
 {
-	Masks.Free();
+	Masks.clear();
 
 	if (re)
 		delete re;
@@ -103,16 +103,19 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	if (expmasks.PosI(pos, PathExtName))
 	{
 		string strSysPathExt;
-		UserDefinedList MaskList(ULF_UNIQUE);
-		if (apiGetEnvironmentVariable(L"PATHEXT" ,strSysPathExt) && MaskList.Set(strSysPathExt))
+		if (apiGetEnvironmentVariable(L"PATHEXT" ,strSysPathExt))
 		{
-			string strFarPathExt;
-			std::for_each(RANGE(MaskList, i)
+			auto MaskList(StringToList(strSysPathExt, STLF_UNIQUE));
+			if (!MaskList.empty())
 			{
-				strFarPathExt.Append('*').Append(i.Get()).Append(',');
-			});
-			strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
-			ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
+				string strFarPathExt;
+				std::for_each(RANGE(MaskList, i)
+				{
+					strFarPathExt.Append('*').Append(i).Append(',');
+				});
+				strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
+				ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
+			}
 		}
 	}
 
@@ -139,11 +142,8 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 		return false;
 	}
 
-	// разделителем масок является не только запятая, но и точка с запятой!
-	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
-
-	Masks.SetParameters(flags, L",;");
-	return Masks.Set(expmasks);
+	Masks = StringToList(expmasks, STLF_PACKASTERISKS|STLF_PROCESSBRACKETS|STLF_SORT|STLF_UNIQUE);
+	return !Masks.empty();
 }
 
 bool FileMasksProcessor::IsEmpty()
@@ -177,7 +177,7 @@ bool FileMasksProcessor::Compare(const string& FileName)
 	FOR_RANGE(Masks, i)
 	{
 		// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
-		if (CmpName(i->Get(), FileName, false))
+		if (CmpName(*i, FileName, false))
 			return true;
 	}
 

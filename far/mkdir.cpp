@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "treelist.hpp"
 #include "ctrlobj.hpp"
-#include "udlist.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "dialog.hpp"
@@ -102,9 +101,9 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					InsertQuote(strDirName);
 				}
 
-				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
-
-				if (!pDirList->Set(strDirName))
+				auto pDirList=reinterpret_cast<std::list<string>*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
+				*pDirList = StringToList(strDirName, STLF_UNIQUE);
+				if (pDirList->empty())
 				{
 					Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
 					return FALSE;
@@ -147,7 +146,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
-	UserDefinedList DirList(ULF_UNIQUE);
+	std::list<string> DirList;
 	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,&DirList);
 	Dlg.SetPosition(-1,-1,76,12);
 	Dlg.SetHelp(L"MakeFolder");
@@ -161,7 +160,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		bool SkipAll = false;
 		FOR_RANGE(DirList, i)
 		{
-			strDirName = i->Get();
+			strDirName = *i;
 			strOriginalDirName = strDirName;
 
 			//Unquote(DirName);

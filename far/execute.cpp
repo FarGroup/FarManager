@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "panel.hpp"
 #include "rdrwdsk.hpp"
-#include "udlist.hpp"
 #include "imports.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
@@ -252,12 +251,11 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
-		UserDefinedList ExcludeCmdsList(ULF_UNIQUE);
-		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
+		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds, STLF_UNIQUE));
 
 		FOR_RANGE(ExcludeCmdsList, i)
 		{
-			if (!StrCmpI(Module, i->Get()))
+			if (!StrCmpI(Module, *i))
 			{
 				ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
 				Result=true;
@@ -272,8 +270,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
-			UserDefinedList PathExtList(ULF_UNIQUE);
-			PathExtList.Set(strPathExt);
+			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
 
 			FOR_RANGE(PathExtList, i) // первый проход - в текущем каталоге
 			{
@@ -281,7 +278,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 				if (!ModuleExt)
 				{
-					strTmpName += i->Get();
+					strTmpName += *i;
 				}
 
 				DWORD Attr=apiGetFileAttributes(strTmpName);
@@ -305,8 +302,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 				if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
 				{
-					UserDefinedList PathList(ULF_UNIQUE);
-					PathList.Set(strPathEnv);
+					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
 
 					FOR_RANGE(PathList, Path)
 					{
@@ -314,7 +310,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 						{
 							string strDest;
 
-							if (apiSearchPath(Path->Get(), strFullName, Ext->Get(), strDest))
+							if (apiSearchPath(*Path, strFullName, *Ext, strDest))
 							{
 								DWORD Attr=apiGetFileAttributes(strDest);
 
@@ -337,7 +333,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					{
 						string strDest;
 
-						if (apiSearchPath(nullptr, strFullName, Ext->Get(), strDest))
+						if (apiSearchPath(nullptr, strFullName, *Ext, strDest))
 						{
 							DWORD Attr=apiGetFileAttributes(strDest);
 
@@ -412,7 +408,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 						{
 							strFullName=RegPath;
 							strFullName+=Module;
-							strFullName+=Ext->Get();
+							strFullName+=*Ext;
 
 							for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 							{
@@ -576,24 +572,24 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	if (RetQuery == ERROR_SUCCESS)
 	{
-		UserDefinedList ActionList(ULF_UNIQUE);
-		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
+		RetPtr = EmptyToNull(strAction);
 		LONG RetEnum = ERROR_SUCCESS;
+		auto ActionList(StringToList(strAction, STLF_UNIQUE));
 
-		if (RetPtr  && ActionList.Set(strAction))
+		if (RetPtr && !ActionList.empty())
 		{
 			HKEY hOpenKey;
 			FOR_RANGE(ActionList ,i)
 			{
 				strNewValue = strValue;
-				strNewValue += i->Get();
+				strNewValue += *i;
 				strNewValue += command_action;
 
 				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
-					strValue += i->Get();
-					strAction = i->Get();
+					strValue += *i;
+					strAction = *i;
 					RetPtr = strAction;
 					RetEnum = ERROR_NO_MORE_ITEMS;
 				}
@@ -1437,16 +1433,12 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 */
 bool IsBatchExtType(const string& ExtPtr)
 {
-	UserDefinedList BatchExtList(ULF_UNIQUE);
-	BatchExtList.Set(Global->Opt->Exec.strExecuteBatchType);
-
-	FOR_RANGE(BatchExtList, i)
+	auto BatchExtList(StringToList(Global->Opt->Exec.strExecuteBatchType, STLF_UNIQUE));
+	return std::find_if(BatchExtList.begin(), BatchExtList.end(), [&ExtPtr](VALUE_TYPE(BatchExtList)& i)
 	{
-		if (!StrCmpI(ExtPtr, i->Get()))
-			return true;
+		return !StrCmpI(ExtPtr, i);
 	}
-
-	return false;
+	) != BatchExtList.end();
 }
 
 bool ProcessOSAliases(string &strStr)

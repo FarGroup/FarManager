@@ -32,7 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "udlist.hpp"
+#include "bitflags.hpp"
+#include "strmix.hpp"
 
 struct VersionInfo;
 class SQLiteDb;
@@ -359,11 +360,10 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	decltype(From->Value) Flags = 0;
 	if(!strFlags.IsEmpty())
 	{
-		UserDefinedList FlagList(ULF_UNIQUE, L"|");
-		FlagList.Set(strFlags);
+		auto FlagList(StringToList(strFlags, STLF_UNIQUE, L"|"));
 		std::for_each(RANGE(FlagList, i)
 		{
-			Flags |= GetValueOfVame(i.Get(), From);
+			Flags |= GetValueOfVame(i, From);
 		});
 	}
 	return Flags;

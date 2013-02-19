@@ -834,13 +834,10 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (MultiCopy)
 				{
-					UserDefinedList DestList(ULF_UNIQUE);
+					auto DestList(StringToList(strOldFolder, STLF_UNIQUE));
 
-					if (DestList.Set(strOldFolder))
-					{
-						if (!DestList.empty())
-							strNewFolder = DestList.begin()->Get();
-					}
+					if (!DestList.empty())
+						strNewFolder = DestList.front();
 				}
 
 				if (strNewFolder.IsEmpty())
@@ -918,7 +915,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	RPT(RP_EXACTCOPY)
 {
 	Filter=nullptr;
-	DestList.SetParameters(ULF_UNIQUE);
 	AltF10 = 0;
 	CopySecurity = 0;
 	FileAttr = 0;
@@ -1272,8 +1268,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 		strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
 		Unquote(strCopyDlgValue);
 		InsertQuote(strCopyDlgValue);
-
-		if (!DestList.Set(strCopyDlgValue))
+		DestList = StringToList(strCopyDlgValue, STLF_UNIQUE);
+		if (DestList.empty())
 			Ask=TRUE;
 	}
 
@@ -1359,7 +1355,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 					InsertQuote(strCopyDlgValue);
 				}
 
-				if (DestList.Set(strCopyDlgValue))
+				DestList = StringToList(strCopyDlgValue, STLF_UNIQUE);
+				if (!DestList.empty())
 				{
 					// «апомнить признак использовани€ фильтра. KM
 					UseFilter=CopyDlg[ID_SC_USEFILTER].Selected;
@@ -1517,8 +1514,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	*/
 	{
 		Flags&=~FCOPY_MOVE;
-
-		if (DestList.Set(strCopyDlgValue)) // если список успешно "скомпилировалс€"
+		DestList = StringToList(strCopyDlgValue, STLF_UNIQUE);
+		if (!DestList.empty())
 		{
 			string strNameTmp;
 			// посчитаем количество целей.
@@ -1538,7 +1535,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 						LastIteration = true;
 				}
 				CurCopiedSize=0;
-				strNameTmp = i->Get();
+				strNameTmp = *i;
 
 				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
 					PrepareDiskPath(strNameTmp);
@@ -1593,7 +1590,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 						NeedUpdateAPanel=TRUE;
 					}
 				}
-
+				delete CP;
 				CP=new CopyProgress(Move!=0,ShowTotalCopySize,ShowCopyTime);
 				// ќбнулим инфу про дизы
 				strDestDizPath.Clear();

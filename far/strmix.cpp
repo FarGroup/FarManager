@@ -1528,3 +1528,198 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 
 	return false;
 }
+
+
+std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)
+{
+	struct ListItem
+	{
+		string Str;
+		size_t index;
+	};
+
+	class UserDefinedList
+	{
+	public:
+		UserDefinedList(const string& List, DWORD InitFlags, const wchar_t* InitSeparators)
+		{
+			BitFlags Flags(InitFlags);
+			string strSeparators(InitSeparators);
+
+			if (!List.IsEmpty() &&
+				(Flags.Check(STLF_NOUNQUOTE) || !strSeparators.Contains(L'\"')) &&
+				(!Flags.Check(STLF_PROCESSBRACKETS) || !strSeparators.ContainsAny(L"[]")))
+			{
+				ListItem item;
+				item.index=ItemsList.size();
+
+				bool Error=false;
+				const wchar_t *CurList=List;
+				int Length, RealLength;
+				while (!Error && CurList && *CurList)
+				{
+					CurList=Skip(CurList, strSeparators, Flags, Length, RealLength, Error);
+					if (Length > 0)
+					{
+						if (Flags.Check(STLF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
+						{
+							item.Str = L"*";
+							ItemsList.push_back(item);
+						}
+						else
+						{
+							item.Str.Copy(CurList, Length);
+
+							if (Flags.Check(STLF_PACKASTERISKS))
+							{
+								int i=0;
+								bool lastAsterisk=false;
+
+								while (i<Length)
+								{
+									if (item.Str[i]==L'*')
+									{
+										if (!lastAsterisk)
+											lastAsterisk=true;
+										else
+										{
+											item.Str.Remove(i);
+											--i;
+										}
+									}
+									else
+										lastAsterisk=false;
+
+									++i;
+								}
+							}
+							ItemsList.push_back(item);
+						}
+
+						CurList+=RealLength;
+						++item.index;
+					}
+				}
+				if (Flags.Check(STLF_UNIQUE|STLF_SORT))
+				{
+					ItemsList.sort([](const ListItem& a, const ListItem& b)
+					{
+						return a.index < b.index;
+					});
+
+					if(Flags.Check(STLF_UNIQUE))
+					{
+						ItemsList.unique([](ListItem& a, ListItem& b)->bool
+						{
+							if (a.index > b.index)
+								a.index = b.index;
+							return !StrCmpI(a.Str, b.Str);
+						});
+					}
+				}
+			}
+		}
+
+		const wchar_t *Skip(const wchar_t *Str, const string& strSeparators, const BitFlags& Flags, int &Length, int &RealLength, bool &Error)
+		{
+			Length=RealLength=0;
+			Error=false;
+
+			if (!Flags.Check(STLF_NOTRIM))
+				while (IsSpace(*Str)) ++Str;
+
+			if (strSeparators.Contains(*Str))
+				++Str;
+
+			if (!Flags.Check(STLF_NOTRIM))
+				while (IsSpace(*Str)) ++Str;
+
+			if (!*Str) return nullptr;
+
+			const wchar_t *cur=Str;
+			bool InBrackets=false, InQoutes = (*cur==L'\"');
+
+			if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
+			{
+				while (*cur) // важно! проверка *cur должна стоять первой
+				{
+					if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
+					{
+						if (*cur==L']')
+							InBrackets=false;
+
+						if (*cur==L'[' && nullptr!=wcschr(cur+1, L']'))
+							InBrackets=true;
+					}
+
+					if (!InBrackets && strSeparators.Contains(*cur))
+						break;
+
+					++cur;
+				}
+			}
+
+			if (!InQoutes || !*cur)
+			{
+				RealLength=Length=(int)(cur-Str);
+				--cur;
+
+				if (!Flags.Check(STLF_NOTRIM))
+					while (IsSpace(*cur))
+					{
+						--Length;
+						--cur;
+					}
+
+					return Str;
+			}
+
+			// мы в кавычках - захватим все отсюда и до следующих кавычек
+			++cur;
+			const wchar_t *QuoteEnd=wcschr(cur, L'\"');
+
+			if (!QuoteEnd)
+			{
+				Error=true;
+				return nullptr;
+			}
+
+			const wchar_t *End=QuoteEnd+1;
+
+			if (!Flags.Check(STLF_NOTRIM))
+			{
+				while (IsSpace(*End)) ++End;
+			}
+
+			if (!*End || strSeparators.Contains(*End))
+			{
+				if (!Flags.Check(STLF_NOUNQUOTE))
+				{
+					Length=(int)(QuoteEnd-cur);
+					RealLength=(int)(End-cur);
+				}
+				else
+				{
+					Length=(int)(End-cur)+1;
+					RealLength=Length;
+					--cur;
+				}
+				return cur;
+			}
+
+			Error=true;
+			return nullptr;
+		}
+
+		std::list<ListItem> ItemsList;
+	};
+
+
+	UserDefinedList list(InitString, Flags, Separators);
+	std::list<string> Result;
+	std::for_each(RANGE(list.ItemsList, i)
+	{
+		Result.push_back(std::move(i.Str));
+	});
+	return Result;
+}

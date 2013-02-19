@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dizlist.hpp"
-#include "udlist.hpp"
 
 class Panel;
 class Dialog;
@@ -88,7 +87,7 @@ private:
 	int SkipEncMode;
 	int SkipDeleteMode;
 	int SelectedFolderNameLength;
-	UserDefinedList DestList;
+	std::list<string> DestList;
 	// тип создаваемого репарспоинта.
 	// при AltF6 будет то, что выбрал юзер в диалоге,
 	// в остальных случаях - RP_EXACTCOPY - как у источника

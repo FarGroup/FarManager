@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BaseFileMask.hpp"
 #include  "RegExp.hpp"
-#include  "udlist.hpp"
 
 class FileMasksProcessor : public BaseFileMask
 {
@@ -51,7 +50,7 @@ class FileMasksProcessor : public BaseFileMask
 		void Free();
 
 	private:
-		UserDefinedList Masks; // список масок файлов
+		std::list<string> Masks;
 		RegExp *re;
 		SMatch *m;
 		int n;

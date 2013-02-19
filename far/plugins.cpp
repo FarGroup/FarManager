@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "udlist.hpp"
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
@@ -564,7 +563,6 @@ void PluginManager::LoadPlugins()
 	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty()))
 	{
 		ScanTree ScTree(FALSE,TRUE,Global->Opt->LoadPlug.ScanSymlinks);
-		UserDefinedList PluginPathList(ULF_UNIQUE);  // хранение списка каталогов
 		string strPluginsDir;
 		string strFullName;
 		FAR_FIND_DATA FindData;
@@ -573,22 +571,21 @@ void PluginManager::LoadPlugins()
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
-			PluginPathList.Add(strPluginsDir);
-
 			// ...а персональные есть?
 			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
-				PluginPathList.Add(Global->Opt->LoadPlug.strPersonalPluginsPath);
+				strPluginsDir += L";" + Global->Opt->LoadPlug.strPersonalPluginsPath;
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
 		{
-			PluginPathList.Add(Global->Opt->LoadPlug.strCustomPluginsPath);
+			strPluginsDir = Global->Opt->LoadPlug.strCustomPluginsPath;
 		}
+		auto PluginPathList(StringToList(strPluginsDir, STLF_UNIQUE));
 
 		// теперь пройдемся по всему ранее собранному списку
 		FOR_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
-			apiExpandEnvironmentStrings(i->Get(),strFullName);
+			apiExpandEnvironmentStrings(*i, strFullName);
 			Unquote(strFullName); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))

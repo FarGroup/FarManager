@@ -402,13 +402,12 @@ static const string FlagsToString(MACROFLAGS_MFLAGS Flags)
 static MACROFLAGS_MFLAGS StringToFlags(const string& strFlags)
 {
 	MACROFLAGS_MFLAGS Flags=0;
-	UserDefinedList FlagsList(ULF_UNIQUE, L"| ");
-	FlagsList.Set(strFlags);
+	auto FlagsList(StringToList(strFlags, STLF_UNIQUE, L"| "));
 	FOR_RANGE(FlagsList, Flag)
 	{
 		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
 		{
-			if (!StrCmpI(Flag->Get(), MKeywordsFlags[i].Name))
+			if (!StrCmpI(*Flag, MKeywordsFlags[i].Name))
 			{
 				Flags |= MKeywordsFlags[i].Value;
 				break;

@@ -640,7 +640,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="TPreRedrawFunc.cpp" />
     <ClCompile Include="treelist.cpp" />
     <ClCompile Include="tvar.cpp" />
-    <ClCompile Include="udlist.cpp" />
     <ClCompile Include="UnicodeString.cpp" />
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc10wrapper.cpp">
@@ -1085,7 +1084,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="tree.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
-    <ClInclude Include="udlist.hpp" />
     <ClInclude Include="UnicodeString.hpp" />
     <ClInclude Include="usermenu.hpp" />
     <ClInclude Include="viewer.hpp" />

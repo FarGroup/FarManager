@@ -397,8 +397,6 @@
 		<Unit filename="ucd\nsSJISProber.cpp" />
 		<Unit filename="ucd\nsUTF8Prober.cpp" />
 		<Unit filename="ucd\nsUniversalDetector.cpp" />
-		<Unit filename="udlist.cpp" />
-		<Unit filename="udlist.hpp" />
 		<Unit filename="usermenu.cpp" />
 		<Unit filename="usermenu.hpp" />
 		<Unit filename="vbuild.m4" />

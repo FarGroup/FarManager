@@ -669,14 +669,14 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= ListData.size())
 				return Result;
 
-			UserDefinedList *itemsList=nullptr;
+			std::list<string> itemsList;
 
 			if (mps->Action != 3)
 			{
 				if (mps->Mode == 2)
 				{
-					itemsList=new UserDefinedList(ULF_UNIQUE,  L"\r\n");
-					if (!itemsList->Set(mps->Item->s()))
+					itemsList = StringToList(mps->Item->s(), STLF_UNIQUE,  L"\r\n");
+					if (itemsList.empty())
 						return Result;
 				}
 
@@ -702,9 +702,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(*itemsList, i)
+							std::for_each(RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i.Get()),TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
 									this->Select(ListData[Pos],FALSE);
 									Result++;
@@ -738,9 +738,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(*itemsList, i)
+							std::for_each(RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i.Get()), TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
 									this->Select(ListData[Pos],TRUE);
 									Result++;
@@ -774,9 +774,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(*itemsList, i)
+							std::for_each(RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i.Get()), TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
 									this->Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
 									Result++;
@@ -805,9 +805,6 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					SortFileList(TRUE);
 				Redraw();
 			}
-
-			if (itemsList)
-				delete itemsList;
 
 			return Result;
 		}

@@ -219,7 +219,6 @@ LINK_OBJS = \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
-	"$(INTDIR)\udlist.obj" \
 	"$(INTDIR)\UnicodeString.obj" \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \

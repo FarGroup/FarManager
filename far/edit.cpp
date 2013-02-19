@@ -3189,14 +3189,13 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		std::list<string> List;
 		string str;
 		int ModuleLength = StrLength(Module);
-		UserDefinedList ExcludeCmdsList;
-		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
+		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds));
 		std::for_each(RANGE(ExcludeCmdsList, i)
 		{
-			if (!StrCmpNI(Module, i.Get(), ModuleLength))
+			if (!StrCmpNI(Module, i, ModuleLength))
 			{
 				Result=true;
-				str = i.Get();
+				str = i;
 				if(std::find(List.begin(), List.end(), str) == List.end())
 				{
 					List.push_back(str);
@@ -3207,21 +3206,19 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		string strName=Module;
 		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 		apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
-		UserDefinedList PathExtList;
-		PathExtList.Set(strPathExt);
+		auto PathExtList(StringToList(strPathExt));
 
 		string strPathEnv;
 		if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
 		{
-			UserDefinedList PathList;
-			PathList.Set(strPathEnv);
+			auto PathList(StringToList(strPathEnv));
 
 			std::for_each(RANGE(PathList, i)
 			{
 				string strDest;
 
 				FAR_FIND_DATA data;
-				string str(i.Get());
+				string str(i);
 				AddEndSlash(str);
 				str.Append(strName).Append(L"*");
 				FindFile Find(str);
@@ -3230,7 +3227,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 					std::for_each(RANGE(PathExtList, Ext)
 					{
 						LPCWSTR ModuleExt=wcsrchr(data.strFileName,L'.');
-						if(!StrCmpI(ModuleExt, Ext.Get()))
+						if(!StrCmpI(ModuleExt, Ext))
 						{
 							str = data.strFileName;
 							if(std::find(List.begin(), List.end(), str) == List.end())

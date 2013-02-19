@@ -263,8 +263,6 @@ treelist.cpp
 treelist.hpp
 tvar.cpp
 tvar.hpp
-udlist.cpp
-udlist.hpp
 UnicodeString.cpp
 UnicodeString.hpp
 usermenu.cpp
