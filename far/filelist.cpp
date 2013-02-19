@@ -704,9 +704,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Result=0;
 							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(i.Get()),TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i.Get()),TRUE)) != -1)
 								{
-									Select(ListData[Pos],FALSE);
+									this->Select(ListData[Pos],FALSE);
 									Result++;
 								}
 							});
@@ -740,9 +740,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Result=0;
 							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(i.Get()), TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i.Get()), TRUE)) != -1)
 								{
-									Select(ListData[Pos],TRUE);
+									this->Select(ListData[Pos],TRUE);
 									Result++;
 								}
 							});
@@ -776,9 +776,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Result=0;
 							std::for_each(RANGE(*itemsList, i)
 							{
-								if ((Pos=FindFile(PointToName(i.Get()), TRUE)) != -1)
+								if ((Pos=this->FindFile(PointToName(i.Get()), TRUE)) != -1)
 								{
-									Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
+									this->Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
 									Result++;
 								}
 							});
