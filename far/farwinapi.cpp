@@ -705,6 +705,8 @@ HANDLE apiCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode,
 			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
 			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
+		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
 
 	if((Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_WRITE_DATA|FILE_ADD_FILE|FILE_APPEND_DATA|FILE_ADD_SUBDIRECTORY|FILE_CREATE_PIPE_INSTANCE|FILE_WRITE_EA|FILE_DELETE_CHILD|FILE_WRITE_ATTRIBUTES)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
@@ -735,7 +737,10 @@ BOOL apiCopyFileEx(
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result)
 	{
-		if (STATUS_FILE_IS_A_DIRECTORY == GetLastNtStatus())
+		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+
+		else if (STATUS_FILE_IS_A_DIRECTORY == GetLastNtStatus())
 			SetLastError(ERROR_FILE_EXISTS);
 
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
@@ -755,9 +760,14 @@ BOOL apiMoveFile(
 		strTo += PointToName(strFrom);
 	}
 	BOOL Result = MoveFile(strFrom, strTo);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+
+	if(!Result)
 	{
-		Result = Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
+		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		
+		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+			Result = Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
 	}
 	return Result;
 }
@@ -776,7 +786,10 @@ BOOL apiMoveFileEx(
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
 	if(!Result)
 	{
-		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+
+		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 		{
 			// exclude fake elevation request for: move file over existing directory with same name
 			DWORD f = apiGetFileAttributes(strFrom);

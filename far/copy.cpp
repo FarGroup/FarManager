@@ -1825,6 +1825,12 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		SameDisk=(CheckDisksProps(SrcPanel->GetCurDir(), Dest, CHECKEDPROPS_ISSAMEDISK))!=0;
 	}
 
+	if (SrcDriveType == DRIVE_UNKNOWN)
+	{
+		GetPathRoot(SrcPanel->GetCurDir(), strSrcDriveRoot);
+		SrcDriveType = FAR_GetDriveType(strSrcDriveRoot.CPtr());
+	}
+
 	string strDest = Dest;
 	bool UseWildCards = wcspbrk(Dest,L"*?")!=nullptr;
 	SrcPanel->GetSelName(nullptr,FileAttr);
@@ -2349,8 +2355,26 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				break;
 		}
 
-		if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ||
-		        (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
+		bool dir = (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+		bool rpt = (SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+		bool cpc = (Flags & FCOPY_COPYSYMLINKCONTENTS) != 0;
+		if (!dir && rpt && RPT==RP_EXACTCOPY && !cpc)
+		{
+			bool spf = (SrcData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0;
+			if (spf)
+				cpc = true; // ???
+			else
+			{
+				DWORD rpTag = 0;
+				string strRptInfo;
+				GetReparsePointInfo(Src, strRptInfo, &rpTag);
+				cpc = (rpTag != IO_REPARSE_TAG_SYMLINK) && (rpTag != IO_REPARSE_TAG_MOUNT_POINT);
+			}
+			if (cpc)
+				Flags |= FCOPY_COPYSYMLINKCONTENTS;
+		}
+
+		if (dir || (rpt && RPT==RP_EXACTCOPY && !cpc))
 		{
 			if (!Rename)
 				strCopiedName = PointToName(strDestPath);
@@ -2564,7 +2588,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			// [ ] Copy contents of symbolic links
 			// For file symbolic links only!!!
 			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
-			if (!(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(Flags&FCOPY_COPYSYMLINKCONTENTS) && RPT==RP_EXACTCOPY)
+			if (!dir && rpt && !cpc && RPT==RP_EXACTCOPY)
 			{
 				switch (MkSymLink(Src, strDestPath, RPT))
 				{
