@@ -1760,7 +1760,7 @@ void TreeList::FlushCache()
 		Global->TreeCache->Sort();
 
 		bool WriteError = false;
-		FOR_RANGE(Global->TreeCache->Names, i)
+		FOR_CONST_RANGE(Global->TreeCache->Names, i)
 		{
 			if (!Cache.Write(i->CPtr(), i->GetLength() * sizeof(wchar_t)) || !Cache.Write(L"\n", 1 * sizeof(wchar_t)))
 			{

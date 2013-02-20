@@ -165,7 +165,7 @@ void KeyBar::DisplayObject()
 				string strLabelTest, strLabel2;
 				strLabel = LabelList.front();
 				LabelList.pop_front();
-				std::for_each(RANGE(LabelList, Label2)
+				std::for_each(CONST_RANGE(LabelList, Label2)
 				{
 					strLabelTest=strLabel;
 					strLabelTest += Label2;

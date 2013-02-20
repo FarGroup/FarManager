@@ -361,7 +361,7 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	if(!strFlags.IsEmpty())
 	{
 		auto FlagList(StringToList(strFlags, STLF_UNIQUE, L"|"));
-		std::for_each(RANGE(FlagList, i)
+		std::for_each(CONST_RANGE(FlagList, i)
 		{
 			Flags |= GetValueOfVame(i, From);
 		});

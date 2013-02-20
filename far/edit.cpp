@@ -3190,7 +3190,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		string str;
 		int ModuleLength = StrLength(Module);
 		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds));
-		std::for_each(RANGE(ExcludeCmdsList, i)
+		std::for_each(CONST_RANGE(ExcludeCmdsList, i)
 		{
 			if (!StrCmpNI(Module, i, ModuleLength))
 			{
@@ -3213,7 +3213,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		{
 			auto PathList(StringToList(strPathEnv));
 
-			std::for_each(RANGE(PathList, i)
+			std::for_each(CONST_RANGE(PathList, i)
 			{
 				string strDest;
 
@@ -3224,7 +3224,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 				FindFile Find(str);
 				while(Find.Get(data))
 				{
-					std::for_each(RANGE(PathExtList, Ext)
+					std::for_each(CONST_RANGE(PathExtList, Ext)
 					{
 						LPCWSTR ModuleExt=wcsrchr(data.strFileName,L'.');
 						if(!StrCmpI(ModuleExt, Ext))
@@ -3330,7 +3330,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 			}
 		}
 
-		std::for_each(RANGE(List, i)
+		std::for_each(CONST_RANGE(List, i)
 		{
 			DestMenu->AddItem(i);
 		});

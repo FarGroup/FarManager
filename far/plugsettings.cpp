@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AbstractSettings::~AbstractSettings()
 {
-	std::for_each(RANGE(m_Data, i)
+	std::for_each(CONST_RANGE(m_Data, i)
 	{
 		delete [] i;
 	});

@@ -324,7 +324,7 @@ PluginManager::~PluginManager()
 {
 	CurPluginItem=nullptr;
 
-	std::for_each(RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(PluginsData, i)
 	{
 		i->Unload(true);
 		if (PluginsCache)
@@ -582,7 +582,7 @@ void PluginManager::LoadPlugins()
 		auto PluginPathList(StringToList(strPluginsDir, STLF_UNIQUE));
 
 		// теперь пройдемся по всему ранее собранному списку
-		FOR_RANGE(PluginPathList, i)
+		FOR_CONST_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
 			apiExpandEnvironmentStrings(*i, strFullName);
@@ -674,7 +674,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
-	FOR_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(PluginsData, i)
 	{
 		pPlugin = *i;
 
@@ -762,7 +762,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 			MenuItemEx mitem;
 
-			std::for_each(RANGE(items, i)
+			std::for_each(CONST_RANGE(items, i)
 			{
 				mitem.Clear();
 				mitem.strName = i.Handle.pPlugin->GetTitle();
@@ -823,7 +823,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		delete[] (BYTE*)Info.Buffer;
 	}
 
-	std::for_each(RANGE(items, i)
+	std::for_each(CONST_RANGE(items, i)
 	{
 		if (pResult != items.end() && i != *pResult)
 		{
@@ -855,7 +855,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 	auto pResult = items.end();
 	Plugin *pPlugin=nullptr;
 
-	FOR_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(PluginsData, i)
 	{
 		pPlugin = *i;
 
@@ -886,7 +886,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 			MenuItemEx mitem;
 
-			std::for_each(RANGE(items, i)
+			std::for_each(CONST_RANGE(items, i)
 			{
 				mitem.Clear();
 				mitem.strName = i.pPlugin->GetTitle();
@@ -915,7 +915,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 		}
 	}
 
-	FOR_RANGE(items, i)
+	FOR_CONST_RANGE(items, i)
 	{
 		if (i!=pResult)
 		{
@@ -947,13 +947,10 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	FOR_RANGE(PluginsData, i)
+	return std::find_if(PluginsData.begin(), PluginsData.end(), [&](const VALUE_TYPE(PluginsData)& i)
 	{
-		if ((*i)->HasProcessEditorInput() && (*i)->ProcessEditorInput(Rec))
-			return TRUE;
-	}
-
-	return FALSE;
+		return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);
+	}) != PluginsData.end();
 }
 
 
@@ -963,7 +960,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 
 	if (Global->CtrlObject->Plugins->CurEditor)
 	{
-		FOR_RANGE(PluginsData, i)
+		FOR_CONST_RANGE(PluginsData, i)
 		{
 			if ((*i)->HasProcessEditorEvent())
 				nResult = (*i)->ProcessEditorEvent(Event, Param, EditorID);
@@ -977,7 +974,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;
-	std::for_each(RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(PluginsData, i)
 	{
 		if (i->HasProcessViewerEvent())
 			nResult = i->ProcessViewerEvent(Event, Param, ViewerID);
@@ -987,15 +984,10 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	FOR_RANGE(PluginsData, i)
+	return std::find_if(PluginsData.begin(), PluginsData.end(), [&](const VALUE_TYPE(PluginsData)& i)
 	{
-		Plugin *pPlugin = *i;
-
-		if (pPlugin->HasProcessDialogEvent() && pPlugin->ProcessDialogEvent(Event,Param))
-			return TRUE;
-	}
-
-	return FALSE;
+		return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);
+	}) != PluginsData.end();
 }
 
 #if defined(MANTIS_0000466)
@@ -1029,7 +1021,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
 
-	FOR_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(PluginsData, i)
 	{
 		Plugin *pPlugin = *i;
 
@@ -1373,7 +1365,7 @@ void PluginManager::Configure(int StartPos)
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR_RANGE(PluginsData, i)
+				FOR_CONST_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -1547,7 +1539,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR_RANGE(PluginsData, i)
+				FOR_CONST_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -2125,7 +2117,7 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 
 void PluginManager::ReloadLanguage()
 {
-	std::for_each(RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(PluginsData, i)
 	{
 		i->CloseLang();
 	});
@@ -2136,7 +2128,7 @@ void PluginManager::ReloadLanguage()
 
 void PluginManager::DiscardCache()
 {
-	std::for_each(RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(PluginsData, i)
 	{
 		i->Load();
 	});
@@ -2149,7 +2141,7 @@ void PluginManager::LoadIfCacheAbsent()
 {
 	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
 	{
-		std::for_each(RANGE(PluginsData, i)
+		std::for_each(CONST_RANGE(PluginsData, i)
 		{
 			i->Load();
 		});
@@ -2188,7 +2180,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
-	FOR_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(PluginsData, i)
 	{
 		UINT64 PluginFlags=0;
 
@@ -2265,7 +2257,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 		MenuItemEx mitem;
 
-		std::for_each(RANGE(items, i)
+		std::for_each(CONST_RANGE(items, i)
 		{
 			mitem.Clear();
 			mitem.strName=PointToName(i.pPlugin->GetModuleName());
@@ -2616,7 +2608,7 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 {
 	NTPath FilePath(ListItem->strName);
 
-	std::for_each(RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(PluginsData, i)
 	{
 		wchar_t *CustomData = nullptr;
 
@@ -2642,7 +2634,7 @@ void PluginManager::RefreshPluginsList()
 {
 	if(!UnloadedPlugins.empty())
 	{
-		std::for_each(RANGE(UnloadedPlugins, i)
+		std::for_each(CONST_RANGE(UnloadedPlugins, i)
 		{
 			i->Unload(true);
 			RemovePlugin(i);

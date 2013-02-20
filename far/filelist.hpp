@@ -295,7 +295,7 @@ class FileList:public Panel
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
 		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, FILETIME* Times=nullptr, const string& Owner = L"");
-		int  ProcessOneHostFile(std::vector<FileListItem*>::iterator Idx);
+		int  ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx);
 		void HighlightBorder(int Level, int ListPos);
 
 	protected:

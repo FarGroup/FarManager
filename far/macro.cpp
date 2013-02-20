@@ -403,7 +403,7 @@ static MACROFLAGS_MFLAGS StringToFlags(const string& strFlags)
 {
 	MACROFLAGS_MFLAGS Flags=0;
 	auto FlagsList(StringToList(strFlags, STLF_UNIQUE, L"| "));
-	FOR_RANGE(FlagsList, Flag)
+	FOR_CONST_RANGE(FlagsList, Flag)
 	{
 		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
 		{
@@ -512,7 +512,7 @@ void KeyMacro::PopState(bool withClip)
 		if(!m_CurState->m_MacroQueue.empty())
 		{
 			MacroState* dst = m_StateStack.top();
-			std::for_each(RANGE(m_CurState->m_MacroQueue, i)
+			std::for_each(CONST_RANGE(m_CurState->m_MacroQueue, i)
 			{
 				dst->m_MacroQueue.push_back(i);
 			});

@@ -183,7 +183,7 @@ FileList::~FileList()
 
 void FileList::DeleteListData(std::vector<FileListItem*> &ListData)
 {
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		if (i->CustomColumnNumber>0 && i->CustomColumnData)
 		{
@@ -702,7 +702,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(itemsList, i)
+							std::for_each(CONST_RANGE(itemsList, i)
 							{
 								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
@@ -724,7 +724,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch(mps->Mode)
 					{
 						case 0: // выделить все?
-							std::for_each(RANGE(ListData, i)
+							std::for_each(CONST_RANGE(ListData, i)
 							{
 								this->Select(i, TRUE);
 							});
@@ -738,7 +738,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(itemsList, i)
+							std::for_each(CONST_RANGE(itemsList, i)
 							{
 								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
@@ -760,7 +760,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch(mps->Mode)
 					{
 						case 0: // инвертировать все?
-							std::for_each(RANGE(ListData, i)
+							std::for_each(CONST_RANGE(ListData, i)
 							{
 								this->Select(i, !i->Selected);
 							});
@@ -774,7 +774,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						{
 							int Pos;
 							Result=0;
-							std::for_each(RANGE(itemsList, i)
+							std::for_each(CONST_RANGE(itemsList, i)
 							{
 								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
@@ -996,7 +996,7 @@ int FileList::ProcessKey(int Key)
 		{
 			SaveSelection();
 			{
-				std::for_each(RANGE(ListData, i)
+				std::for_each(CONST_RANGE(ListData, i)
 				{
 					if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
 						this->Select(i, 1);
@@ -1659,7 +1659,7 @@ int FileList::ProcessKey(int Key)
 										{
 											NamesList EditList;
 
-											std::for_each(RANGE(ListData, i)
+											std::for_each(CONST_RANGE(ListData, i)
 											{
 												if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 													EditList.AddName(i->strName, i->strShortName);
@@ -1739,7 +1739,7 @@ int FileList::ProcessKey(int Key)
 
 								if (!PluginMode)
 								{
-									std::for_each(RANGE(ListData, i)
+									std::for_each(CONST_RANGE(ListData, i)
 									{
 										if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 											ViewList.AddName(i->strName, i->strShortName);
@@ -3907,7 +3907,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (bUseFilter || FileMask.Set(strMask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
 	{                                                // дальше в зависимости от успеха компиляции
-		std::for_each(RANGE(ListData, i)
+		std::for_each(CONST_RANGE(ListData, i)
 		{
 			int Match=FALSE;
 
@@ -4033,14 +4033,14 @@ void FileList::CompareDir()
 	const wchar_t *PtrTempName1, *PtrTempName2;
 
 	// помечаем ВСЕ, кроме каталогов на активной панели
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			this->Select(i, TRUE);
 	});
 
 	// помечаем ВСЕ, кроме каталогов на пассивной панели
-	std::for_each(RANGE(Another->ListData, i)
+	std::for_each(CONST_RANGE(Another->ListData, i)
 	{
 		if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			Another->Select(i, TRUE);
@@ -4083,13 +4083,13 @@ void FileList::CompareDir()
 
 	// теперь начнем цикл по снятию выделений
 	// каждый элемент активной панели...
-	FOR_RANGE(ListData, i)
+	FOR_CONST_RANGE(ListData, i)
 	{
 		if (((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
-		FOR_RANGE(Another->ListData, j)
+		FOR_CONST_RANGE(Another->ListData, j)
 		{
 			if (((*j)->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 				continue;
@@ -4452,7 +4452,7 @@ void FileList::SetTitle()
 
 void FileList::ClearSelection()
 {
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		this->Select(i, 0);
 	});
@@ -4464,7 +4464,7 @@ void FileList::ClearSelection()
 
 void FileList::SaveSelection()
 {
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		i->PrevSelected = i->Selected;
 	});
@@ -4473,7 +4473,7 @@ void FileList::SaveSelection()
 
 void FileList::RestoreSelection()
 {
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		int NewSelection = i->PrevSelected;
 		i->PrevSelected = i->Selected;
@@ -4891,14 +4891,11 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		{
 			DoubleDotDir = ListData[0];
 
-			FOR_RANGE(ListData, i)
+			if (std::find_if(ListData.begin(), ListData.end(), [](const VALUE_TYPE(ListData)& i)
 			{
-				if ((*i)->Selected && ((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					DoubleDotDir = nullptr;
-					break;
-				}
-			}
+				return i->Selected && i->FileAttr & FILE_ATTRIBUTE_DIRECTORY;
+			}) != ListData.end())
+				DoubleDotDir = nullptr;
 		}
 		else
 		{
@@ -4933,7 +4930,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
 
-	FOR_RANGE(ListData, i)
+	FOR_CONST_RANGE(ListData, i)
 	{
 		if ((*i)->Selected && ((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
@@ -5283,7 +5280,7 @@ BOOL FileList::GetItem(int Index,void *Dest)
 
 void FileList::ClearAllItem()
 {
-	std::for_each(RANGE(PrevDataList, i)
+	std::for_each(CONST_RANGE(PrevDataList, i)
 	{
 		DeleteListData(i->PrevListData);
 		delete i;

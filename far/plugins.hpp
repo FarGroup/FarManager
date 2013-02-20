@@ -231,6 +231,8 @@ class PluginManager
 
 		std::list<Plugin*>::iterator begin() { return PluginsData.begin(); }
 		std::list<Plugin*>::iterator end() { return PluginsData.end(); }
+		std::list<Plugin*>::const_iterator cbegin() { return PluginsData.cbegin(); }
+		std::list<Plugin*>::const_iterator cend() { return PluginsData.cend(); }
 		Plugin*& front() { return PluginsData.front(); }
 		Plugin*& back() { return PluginsData.back(); }
 		typedef Plugin* value_type;

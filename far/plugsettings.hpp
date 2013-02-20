@@ -59,7 +59,7 @@ public:
 	std::vector<FarSettingsName> Items;
 	~FarSettingsNameItems()
 	{
-		std::for_each(RANGE(Items, i)
+		std::for_each(CONST_RANGE(Items, i)
 		{
 			delete[] i.Name;
 		});
@@ -90,7 +90,7 @@ public:
 	std::vector<FarSettingsHistory> Items;
 	~FarSettingsHistoryItems()
 	{
-		std::for_each(RANGE(Items, i)
+		std::for_each(CONST_RANGE(Items, i)
 		{
 			delete[] i.Name;
 			delete[] i.Param;

@@ -492,7 +492,7 @@ void ScreenBuf::Flush()
 
 			if (Changes)
 			{
-				std::for_each(RANGE(WriteList, i)
+				std::for_each(CONST_RANGE(WriteList, i)
 				{
 					COORD BufferSize={BufX, BufY}, BufferCoord={i.Left, i.Top};
 					SMALL_RECT WriteRegion = i;

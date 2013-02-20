@@ -232,7 +232,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	string strPluginText;
 	size_t PluginMenuItemsCount = 0;
 
-	FOR_RANGE(*Global->CtrlObject->Plugins, i)
+	FOR_CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
 		if(Done)
 			break;
@@ -556,7 +556,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		int MenuLine = 0;
 
-		std::for_each(RANGE(Items, i)
+		std::for_each(CONST_RANGE(Items, i)
 		{
 			ChDiskItem.Clear();
 			I = i.Letter[1] - L'A';

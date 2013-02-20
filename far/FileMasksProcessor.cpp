@@ -109,7 +109,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			if (!MaskList.empty())
 			{
 				string strFarPathExt;
-				std::for_each(RANGE(MaskList, i)
+				std::for_each(CONST_RANGE(MaskList, i)
 				{
 					strFarPathExt.Append('*').Append(i).Append(',');
 				});
@@ -174,12 +174,8 @@ bool FileMasksProcessor::Compare(const string& FileName)
 		return ret;
 	}
 
-	FOR_RANGE(Masks, i)
+	return std::find_if(Masks.begin(), Masks.end(), [&FileName](const VALUE_TYPE(Masks)& i)
 	{
-		// SkipPath=FALSE, ע.ך. ג CFileMask גûחûגאועסÿ PointToName
-		if (CmpName(*i, FileName, false))
-			return true;
-	}
-
-	return false;
+		return CmpName(i, FileName, false) != 0;
+	}) != Masks.end();
 }

@@ -571,7 +571,7 @@ void VMenu::DeleteItems()
 {
 	CriticalSectionLock Lock(CS);
 
-	std::for_each(RANGE(Item, i)
+	std::for_each(CONST_RANGE(Item, i)
 	{
 		xf_free(i->UserData);
 		delete i;

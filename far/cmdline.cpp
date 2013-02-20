@@ -113,7 +113,7 @@ void CommandLine::DisplayObject()
 	size_t CurLength = 0;
 	GotoXY(X1,Y1);
 
-	FOR_RANGE(PromptList, i)
+	FOR_CONST_RANGE(PromptList, i)
 	{
 		SetColor(i->second);
 		string str(i->first);

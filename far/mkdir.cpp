@@ -158,7 +158,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
 		string strOriginalDirName;
 		bool SkipAll = false;
-		FOR_RANGE(DirList, i)
+		FOR_CONST_RANGE(DirList, i)
 		{
 			strDirName = *i;
 			strOriginalDirName = strDirName;

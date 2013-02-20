@@ -1442,7 +1442,7 @@ void Options::Load()
 
 	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI);
 
-	std::for_each(RANGE(ConfigList, i)
+	std::for_each(CONST_RANGE(ConfigList, i)
 	{
 		for (size_t j=0; j < i.second->Size; ++j)
 		{
@@ -1562,7 +1562,7 @@ void Options::Load()
 			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
 			size_t I=0;
 
-			FOR_RANGE(DestList, i)
+			FOR_CONST_RANGE(DestList, i)
 			{
 				DWORD res=(DWORD)wcstoul(*i, &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
@@ -1639,7 +1639,7 @@ void Options::Save(bool Ask)
 
 	Palette.Save();
 
-	std::for_each(RANGE(ConfigList, i)
+	std::for_each(CONST_RANGE(ConfigList, i)
 	{
 		i.first->BeginTransaction();
 		for (size_t j=0; j < i.second->Size; ++j)

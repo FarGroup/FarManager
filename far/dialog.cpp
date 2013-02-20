@@ -533,7 +533,7 @@ void Dialog::ProcessCenterGroup()
 {
 	CriticalSectionLock Lock(CS);
 
-	FOR_RANGE(Items, i)
+	FOR_CONST_RANGE(Items, i)
 	{
 		// ѕоследовательно объ€вленные элементы с флагом DIF_CENTERGROUP
 		// и одинаковой вертикальной позицией будут отцентрированы в диалоге.
@@ -702,7 +702,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// хот€ бы один, то ставим на первый подход€щий
 	if (FocusPos == (size_t)-1)
 	{
-		FOR_RANGE(Items, i) // по всем!!!!
+		FOR_CONST_RANGE(Items, i) // по всем!!!!
 		{
 			if (CanGetFocus((*i)->Type) &&
 			        !((*i)->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
@@ -984,7 +984,7 @@ const wchar_t *Dialog::GetDialogTitle()
 	CriticalSectionLock Lock(CS);
 	DialogItemEx *CurItem, *CurItemList=nullptr;
 
-	FOR_RANGE(Items, i)
+	FOR_CONST_RANGE(Items, i)
 	{
 		CurItem = *i;
 
@@ -1228,7 +1228,7 @@ void Dialog::DeleteDialogObjects()
 {
 	CriticalSectionLock Lock(CS);
 
-	std::for_each(RANGE(Items, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
 		switch (i->Type)
 		{
@@ -1274,7 +1274,7 @@ void Dialog::GetDialogObjectsData()
 {
 	CriticalSectionLock Lock(CS);
 
-	std::for_each(RANGE(Items, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
 		FARDIALOGITEMFLAGS IFlags = i->Flags;
 
@@ -2096,7 +2096,7 @@ void Dialog::ShowDialog(size_t ID)
 
 	//  ќ—“џЋ№!
 	// но работает ;-)
-	std::for_each(RANGE(Items, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
 		if (i->ListPtr && GetDropDownOpened() && i->ListPtr->IsVisible())
 		{
@@ -2649,7 +2649,7 @@ int Dialog::ProcessKey(int Key)
 		case KEY_CTRLENTER:
 		case KEY_RCTRLENTER:
 		{
-			FOR_RANGE(Items, i)
+			FOR_CONST_RANGE(Items, i)
 			{
 				if ((*i)->Flags & DIF_DEFAULTBUTTON)
 				{
@@ -2742,7 +2742,7 @@ int Dialog::ProcessKey(int Key)
 			{
 				ExitCode=-1;
 
-				FOR_RANGE(Items, i)
+				FOR_CONST_RANGE(Items, i)
 				{
 					if (((*i)->Flags&DIF_DEFAULTBUTTON) && !((*i)->Flags&DIF_BTNNOCLOSE))
 					{
@@ -2806,7 +2806,7 @@ int Dialog::ProcessKey(int Key)
 			else
 			{
 				size_t MinDist=1000, Pos = 0, MinPos=0;
-				std::for_each(RANGE(Items, i)
+				std::for_each(CONST_RANGE(Items, i)
 				{
 					if (Pos != FocusPos &&
 					        (IsEdit(i->Type) ||
@@ -2881,7 +2881,7 @@ int Dialog::ProcessKey(int Key)
 
 			if (!(Items[FocusPos]->Flags & DIF_EDITOR))
 			{
-				FOR_RANGE(Items, i)
+				FOR_CONST_RANGE(Items, i)
 				{
 					if ((*i)->Flags&DIF_DEFAULTBUTTON)
 					{
@@ -3747,7 +3747,7 @@ int Dialog::Do_ProcessFirstCtrl()
 	}
 	else
 	{
-		FOR_RANGE(Items, i)
+		FOR_CONST_RANGE(Items, i)
 		{
 			if (CanGetFocus((*i)->Type))
 			{
@@ -4415,7 +4415,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 
 	ScreenObject *DialogScrObject;
 
-	std::for_each(RANGE(Items, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
 		FARDIALOGITEMTYPES Type = i->Type;
 

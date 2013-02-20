@@ -171,7 +171,7 @@ public:
 
 		if (!FindList.empty())
 		{
-			std::for_each(RANGE(FindList, i)
+			std::for_each(CONST_RANGE(FindList, i)
 			{
 				if (i.FreeData)
 				{
@@ -1741,7 +1741,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							if (Global->Opt->FindOpt.CollectFiles)
 							{
 								itd->Lock();
-								std::for_each(RANGE(itd->GetFindList(), i)
+								std::for_each(CONST_RANGE(itd->GetFindList(), i)
 								{
 									bool RealNames=true;
 									if(i.Arc)
@@ -2661,7 +2661,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 		InitString = strRoot;
 	}
 	auto List(StringToList(InitString, STLF_UNIQUE, L";"));
-	std::for_each(RANGE(List, i)
+	std::for_each(CONST_RANGE(List, i)
 	{
 		DoScanTree(Dlg, i);
 	});

@@ -592,7 +592,7 @@ void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileL
 
 	std::sort(From.begin(), From.end(), SearchListLess);
 
-	std::for_each(RANGE(To, i)
+	std::for_each(CONST_RANGE(To, i)
 	{
 		auto Iterator = std::lower_bound(From.begin(), From.end(), i, SearchListLess);
 		if (Iterator != From.end())
@@ -910,7 +910,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		}
 	}
 
-	std::for_each(RANGE(ListData, i)
+	std::for_each(CONST_RANGE(ListData, i)
 	{
 		if (!i->DizText)
 		{
@@ -932,7 +932,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		SortGroupsRead=TRUE;
 
-		std::for_each(RANGE(ListData, i)
+		std::for_each(CONST_RANGE(ListData, i)
 		{
 			i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i);
 		});

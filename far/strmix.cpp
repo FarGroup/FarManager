@@ -1717,7 +1717,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 
 	UserDefinedList list(InitString, Flags, Separators);
 	std::list<string> Result;
-	std::for_each(RANGE(list.ItemsList, i)
+	std::for_each(CONST_RANGE(list.ItemsList, i)
 	{
 		Result.push_back(std::move(i.Str));
 	});

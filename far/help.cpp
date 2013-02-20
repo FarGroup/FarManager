@@ -1958,7 +1958,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			FOR_RANGE(*Global->CtrlObject->Plugins, i)
+			FOR_CONST_RANGE(*Global->CtrlObject->Plugins, i)
 			{
 				strPath = (*i)->GetModuleName();
 				CutToSlash(strPath);

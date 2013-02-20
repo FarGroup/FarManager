@@ -265,18 +265,28 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								FAR_FIND_DATA FindData;
 								if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 								{
-									const SETATTRDLG Items[]={SA_TEXT_LASTWRITE,SA_TEXT_CREATION,SA_TEXT_LASTACCESS,SA_TEXT_CHANGE};
-									bool* ParamTimes[]={&DlgParam->OLastWriteTime, &DlgParam->OCreationTime, &DlgParam->OLastAccessTime,&DlgParam->OChangeTime};
-									const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
-
-									for (size_t i=0; i<ARRAYSIZE(Items); i++)
+									struct ItemTime
 									{
-										if (!*ParamTimes[i])
+										SETATTRDLG ItemId;
+										PFILETIME TimeValue;
+										bool* ParamTime;
+									};
+									const std::array<ItemTime, 4> Items =
+									{{
+										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime, &DlgParam->OLastWriteTime},
+										{SA_TEXT_CREATION, &FindData.ftCreationTime, &DlgParam->OCreationTime},
+										{SA_TEXT_LASTACCESS, &FindData.ftLastAccessTime, &DlgParam->OLastAccessTime},
+										{SA_TEXT_CHANGE, &FindData.ftChangeTime, &DlgParam->OChangeTime},
+									}};
+
+									std::for_each(CONST_RANGE(Items, i)
+									{
+										if (!*i.ParamTime)
 										{
-											Dlg->SendMessage(DM_SETATTR,Items[i],SubfoldersState?0:FDTimes[i]);
-											*ParamTimes[i]=false;
+											Dlg->SendMessage(DM_SETATTR, i.ItemId, SubfoldersState? 0 : i.TimeValue);
+											*i.ParamTime=false;
 										}
-									}
+									});
 								}
 							}
 						}
@@ -776,13 +786,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		static struct ATTRIBUTEPAIR
+		struct ATTRIBUTEPAIR
 		{
 			SETATTRDLG Item;
 			DWORD Attribute;
-		}
-		AP[]=
-		{
+		};
+		static std::array<ATTRIBUTEPAIR, 13>
+		AP =
+		{{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},
 			{SA_CHECKBOX_HIDDEN,FILE_ATTRIBUTE_HIDDEN},
@@ -796,7 +807,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
 			{SA_CHECKBOX_REPARSEPOINT,FILE_ATTRIBUTE_REPARSE_POINT},
 			{SA_CHECKBOX_VIRTUAL,FILE_ATTRIBUTE_VIRTUAL},
-		};
+		}};
 
 		if (SelCount==1)
 		{
@@ -833,10 +844,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
-						for (size_t i=0; i<ARRAYSIZE(AP); i++)
+						std::for_each(CONST_RANGE(AP, i)
 						{
-							AttrDlg[AP[i].Item].Selected=FileAttr&AP[i].Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
-						}
+							AttrDlg[i.Item].Selected = FileAttr & i.Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
+						});
 					}
 
 					for (size_t i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
@@ -972,21 +983,32 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				for (size_t i=0; i<ARRAYSIZE(AP); i++)
+				std::for_each(CONST_RANGE(AP, i)
 				{
-					AttrDlg[AP[i].Item].Selected=FileAttr&AP[i].Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
-				}
+					AttrDlg[i.Item].Selected = FileAttr & i.Attribute? BSTATE_CHECKED : BSTATE_UNCHECKED;
+				});
 			}
 
-			const SETATTRDLG Dates[]={SA_EDIT_WDATE,SA_EDIT_CDATE,SA_EDIT_ADATE,SA_EDIT_XDATE},Times[]={SA_EDIT_WTIME,SA_EDIT_CTIME,SA_EDIT_ATIME,SA_EDIT_XTIME};
-			const PFILETIME TimeValues[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
+			struct DateTimeId
+			{
+				SETATTRDLG DateId;
+				SETATTRDLG TimeId;
+				PFILETIME TimeValue;
+			};
+			const std::array<DateTimeId, 4> Dates =
+			{{
+				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.ftLastWriteTime},
+				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.ftCreationTime},
+				{SA_EDIT_ADATE, SA_EDIT_ATIME, &FindData.ftLastAccessTime},
+				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ftChangeTime},
+			}};
 
 			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
 			{
-				for (size_t i=0; i<ARRAYSIZE(Dates); i++)
+				std::for_each(CONST_RANGE(Dates, i)
 				{
-					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,2,TRUE);
-				}
+					ConvertDate(*i.TimeValue, AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, FALSE, FALSE, 2, TRUE);
+				});
 			}
 
 			string strComputerName;
@@ -998,10 +1020,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		}
 		else
 		{
-			for (size_t i=0; i<ARRAYSIZE(AP); i++)
+			std::for_each(CONST_RANGE(AP, i)
 			{
-				AttrDlg[AP[i].Item].Selected=BSTATE_3STATE;
-			}
+				AttrDlg[i.Item].Selected = BSTATE_3STATE;
+			});
 
 			AttrDlg[SA_EDIT_WDATE].strData.Clear();
 			AttrDlg[SA_EDIT_WTIME].strData.Clear();
@@ -1049,13 +1071,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						DlgY+=2;
 					}
 
-					for (size_t i=0; i<ARRAYSIZE(AP); i++)
+					std::for_each(CONST_RANGE(AP, i)
 					{
-						if (FileAttr&AP[i].Attribute)
+						if (FileAttr & i.Attribute)
 						{
-							AttrDlg[AP[i].Item].Selected++;
+							++AttrDlg[i.Item].Selected;
 						}
-					}
+					});
+
 					if(CheckOwner)
 					{
 						string strCurOwner;
@@ -1088,13 +1111,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DlgY+=2;
 				}
-				for (size_t i=0; i<ARRAYSIZE(AP); i++)
+				std::for_each(CONST_RANGE(AP, i)
 				{
-					if (FindData.dwFileAttributes&AP[i].Attribute)
+					if (FindData.dwFileAttributes & i.Attribute)
 					{
-						AttrDlg[AP[i].Item].Selected++;
+						++AttrDlg[i.Item].Selected;
 					}
-				}
+				});
 			}
 			if(SrcPanel)
 			{
@@ -1183,14 +1206,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 				}
 
-				const size_t Times[]={SA_EDIT_WTIME,SA_EDIT_CTIME,SA_EDIT_ATIME,SA_EDIT_XTIME};
+				const std::array<SETATTRDLG, 4> Times = {SA_EDIT_WTIME, SA_EDIT_CTIME, SA_EDIT_ATIME, SA_EDIT_XTIME};
 
-				for (size_t i=0; i<ARRAYSIZE(Times); i++)
+				std::for_each(CONST_RANGE(Times, i)
 				{
-					LPWSTR TimePtr=AttrDlg[Times[i]].strData.GetBuffer();
+					LPWSTR TimePtr=AttrDlg[i].strData.GetBuffer();
 					TimePtr[8]=GetTimeSeparator();
-					AttrDlg[Times[i]].strData.ReleaseBuffer(AttrDlg[Times[i]].strData.GetLength());
-				}
+					AttrDlg[i].strData.ReleaseBuffer(AttrDlg[i].strData.GetLength());
+				});
 
 				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
 				ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():nullptr);
@@ -1200,13 +1223,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
 
-					for (size_t i=0; i<ARRAYSIZE(AP); i++)
+					std::for_each(CONST_RANGE(AP, i)
 					{
-						if (AttrDlg[AP[i].Item].Selected)
+						if (AttrDlg[i.Item].Selected)
 						{
-							NewAttr|=AP[i].Attribute;
+							NewAttr |= i.Attribute;
 						}
-					}
+					});
 
 					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
 					{
@@ -1300,18 +1323,18 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DWORD SetAttr=0,ClearAttr=0;
 
-					for (size_t i=0; i<ARRAYSIZE(AP); i++)
+					std::for_each(CONST_RANGE(AP, i)
 					{
-						switch (AttrDlg[AP[i].Item].Selected)
+						switch (AttrDlg[i.Item].Selected)
 						{
 							case BSTATE_CHECKED:
-								SetAttr|=AP[i].Attribute;
+								SetAttr |= i.Attribute;
 								break;
 							case BSTATE_UNCHECKED:
-								ClearAttr|=AP[i].Attribute;
+								ClearAttr |= i.Attribute;
 								break;
 						}
-					}
+					});
 
 					if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected==BSTATE_CHECKED)
 					{

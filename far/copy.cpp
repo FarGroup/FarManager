@@ -1526,7 +1526,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			if (CountTarget > 1)
 				Move=0;
 
-			FOR_RANGE(DestList, i)
+			FOR_CONST_RANGE(DestList, i)
 			{
 				bool LastIteration = false;
 				{

@@ -2817,7 +2817,7 @@ int Database::ShowProblems()
 	{
 		std::vector<string> msgs;
 		msgs.reserve(m_Problems.size()+2);
-		std::for_each(RANGE(m_Problems, i)
+		std::for_each(CONST_RANGE(m_Problems, i)
 		{
 			msgs.push_back(i);
 		});

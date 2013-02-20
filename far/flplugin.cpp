@@ -816,7 +816,7 @@ void FileList::PluginPutFilesToNew()
 			*/
 			FileListItem *PtrLastPos = nullptr;
 			int n = 0;
-			std::for_each(RANGE(ListData, i)
+			std::for_each(CONST_RANGE(ListData, i)
 			{
 				if ((i->FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
@@ -960,7 +960,7 @@ void FileList::ProcessHostFile()
 
 			if (SCount > 0)
 			{
-				FOR_RANGE(ListData, i)
+				FOR_CONST_RANGE(ListData, i)
 				{
 					if ((*i)->Selected)
 					{
@@ -1003,7 +1003,7 @@ void FileList::ProcessHostFile()
      0 - Плагин вернул FALSE
      1 - Плагин вернул TRUE
 */
-int FileList::ProcessOneHostFile(std::vector<FileListItem*>::iterator Idx)
+int FileList::ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;

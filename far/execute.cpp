@@ -253,7 +253,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// например, некоторые внутренние команды ком. процессора.
 		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds, STLF_UNIQUE));
 
-		FOR_RANGE(ExcludeCmdsList, i)
+		FOR_CONST_RANGE(ExcludeCmdsList, i)
 		{
 			if (!StrCmpI(Module, *i))
 			{
@@ -272,7 +272,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
 			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
 
-			FOR_RANGE(PathExtList, i) // первый проход - в текущем каталоге
+			FOR_CONST_RANGE(PathExtList, i) // первый проход - в текущем каталоге
 			{
 				string strTmpName=strFullName;
 
@@ -304,9 +304,9 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 				{
 					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
 
-					FOR_RANGE(PathList, Path)
+					FOR_CONST_RANGE(PathList, Path)
 					{
-						FOR_RANGE(PathExtList, Ext)
+						FOR_CONST_RANGE(PathExtList, Ext)
 						{
 							string strDest;
 
@@ -329,7 +329,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 				if (!Result)
 				{
-					FOR_RANGE(PathExtList, Ext)
+					FOR_CONST_RANGE(PathExtList, Ext)
 					{
 						string strDest;
 
@@ -404,7 +404,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 					if (!Result)
 					{
-						FOR_RANGE(PathExtList, Ext)
+						FOR_CONST_RANGE(PathExtList, Ext)
 						{
 							strFullName=RegPath;
 							strFullName+=Module;
@@ -579,7 +579,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		if (RetPtr && !ActionList.empty())
 		{
 			HKEY hOpenKey;
-			FOR_RANGE(ActionList ,i)
+			FOR_CONST_RANGE(ActionList ,i)
 			{
 				strNewValue = strValue;
 				strNewValue += *i;

@@ -101,7 +101,7 @@ bool FileFilter::FilterEdit()
 	FilterList.SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 
 	bool first = true;
-	std::for_each(RANGE(*FilterData, i)
+	std::for_each(CONST_RANGE(*FilterData, i)
 	{
 		ListItem.Clear();
 		MenuString(ListItem.strName, i);
@@ -125,7 +125,7 @@ bool FileFilter::FilterEdit()
 		{
 			enumFileFilterFlagsType FFFT = GetFFFT();
 
-			FOR_RANGE(*TempFilterData, i)
+			FOR_CONST_RANGE(*TempFilterData, i)
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню

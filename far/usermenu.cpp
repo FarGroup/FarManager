@@ -116,7 +116,7 @@ const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
 static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 {
-	std::for_each(RANGE(Menu, i)
+	std::for_each(CONST_RANGE(Menu, i)
 	{
 		CW.Write(i.strHotKey.CPtr(), static_cast<DWORD>(i.strHotKey.GetLength()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
@@ -132,7 +132,7 @@ static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 		}
 		else
 		{
-			std::for_each(RANGE(i.Commands, str)
+			std::for_each(CONST_RANGE(i.Commands, str)
 			{
 				CW.Write(L"    ", 4*sizeof(WCHAR));
 				CW.Write(str.CPtr(), static_cast<DWORD>(str.GetLength()*sizeof(WCHAR)));
@@ -749,7 +749,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// Цикл исполнения команд меню (CommandX)
-		std::for_each(RANGE((*CurrentMenuItem)->Commands, str)
+		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
 		{
 			string strCommand = str;
 

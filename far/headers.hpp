@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <array>
 #include <algorithm>
 #include <bitset>
 #include <queue>
@@ -213,12 +214,14 @@ inline void ClearArray(T& a)
 #define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
 
 #define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T)& i)
+#define CONST_RANGE(T, i) (T).cbegin(), (T).cend(), [&](const VALUE_TYPE(T)& i)
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
+#define FOR_CONST_RANGE(T, i) for(auto i = (T).cbegin(); i != (T).cend(); ++i)
 
 template<typename T>
 inline void DeleteValues(T& std_container)
 {
-	std::for_each(std_container.begin(), std_container.end(), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
+	std::for_each(std_container.cbegin(), std_container.cend(), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
 }
 
 template <typename T>

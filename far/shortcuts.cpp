@@ -160,7 +160,7 @@ Shortcuts::~Shortcuts()
 				continue;
 
 			int index = 0;
-			std::for_each(RANGE(Items[i], j)
+			std::for_each(CONST_RANGE(Items[i], j)
 			{
 				FormatString ValueName;
 				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
@@ -271,7 +271,7 @@ static string MakeName(const ShortcutItem& Item)
 static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List, bool raw_mode=false)
 {
 	Menu.DeleteItems();
-	FOR_RANGE(List, i)
+	FOR_CONST_RANGE(List, i)
 	{
 		MenuItemEx ListItem={};
 		ListItem.strName = MakeName(*i);
