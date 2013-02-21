@@ -1192,6 +1192,16 @@ static void PushFarColor(lua_State *L, const struct FarColor* Color)
 	PutNumToTable(L, "BackgroundColor", Color->BackgroundColor);
 }
 
+static void GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source)
+{
+	if(lua_type(L, pos) == LUA_TSTRING && lua_objlen(L, pos) >= sizeof(GUID))
+		*target = *CAST(const GUID*, lua_tostring(L, pos));
+	else if(lua_isnoneornil(L, pos))
+		*target = *source;
+	else
+		luaL_argerror(L, pos, "GUID required");
+}
+
 static int editor_AddColor(lua_State *L)
 {
 	TPluginData *pd = GetPluginData(L);
@@ -1207,8 +1217,8 @@ static int editor_AddColor(lua_State *L)
 	ec.Flags        = CheckFlags(L, 5);
 	luaL_checktype(L, 6, LUA_TTABLE);
 	GetFarColorFromTable(L, 6, &ec.Color);
-	ec.Owner        = *pd->PluginId;
 	ec.Priority     = CAST(unsigned, luaL_optnumber(L, 7, EDITOR_COLOR_NORMAL_PRIORITY));
+	GetOptGuid(L, 8, &ec.Owner, pd->PluginId);
 	lua_pushboolean(L, pd->Info->EditorControl(EditorId, ECTL_ADDCOLOR, 0, &ec) != 0);
 	return 1;
 }
@@ -1222,14 +1232,7 @@ static int editor_DelColor(lua_State *L)
 	EditorId         = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	edc.StringNumber = luaL_optinteger(L, 2, -1);
 	edc.StartPos     = luaL_optinteger(L, 3, -1);
-
-	if(lua_type(L, 4) == LUA_TSTRING && lua_objlen(L, 4) >= sizeof(GUID))
-		edc.Owner = *CAST(const GUID*, lua_tostring(L, 4));
-	else if(lua_isnoneornil(L, 4))
-		edc.Owner = *pd->PluginId;
-	else
-		luaL_argerror(L, 4, "GUID required");
-
+	GetOptGuid(L, 4, &edc.Owner, pd->PluginId);
 	lua_pushboolean(L, pd->Info->EditorControl(EditorId, ECTL_DELCOLOR, 0, &edc) != 0);
 	return 1;
 }

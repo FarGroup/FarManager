@@ -32,7 +32,6 @@ OBJ = luaplug.o $(MYOBJ)
 CFLAGS = -O2 -Wall -I$(INC_FAR) -I$(INC_LUA) $(EXPORTS) $(ARCH) $(MYCFLAGS)
 
 LDFLAGS = -Wl,--kill-at -shared -s $(ARCH) $(MYLDFLAGS) \
-  -L$(PATH_LUAFAR)\..\luasdk\$(DIRBIT) \
   -L$(FARDIR)\Release.$(DIRBIT).gcc
 
 vpath %.c $(PATH_LUAFAR)

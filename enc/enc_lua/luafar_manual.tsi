@@ -3396,9 +3396,10 @@ id=22
 lv=2
 dt=Text
 nm=editor.AddColor
-mtime=3515169452
+mtime=3570650567
 <article>
-#_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags, Color, Priority)
+#_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags,
+#_                          Color, Priority, Owner)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
@@ -3408,6 +3409,7 @@ mtime=3515169452
 #_  Flags:        flags
 #_  Color:        table FarColor
 #_  Priority:     integer (optional; default=EDITOR_COLOR_NORMAL_PRIORITY)
+#_  Owner:        string, or nil  (defaults to the calling plugin's GUID)
 #_
 #_**Returns:**
 #_  result:       boolean
