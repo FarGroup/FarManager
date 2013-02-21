@@ -162,6 +162,16 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 		}
 		break;
+
+		case DN_CLOSE:
+		{
+			if (Param1 == 10 && From == EXCEPT_KERNEL) //terminate
+			{
+				TerminateProcess(GetCurrentProcess(), -1);
+			}
+		}
+		break;
+
 	default:
 		break;
 	}
@@ -479,7 +489,8 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
-	if(!Global || (Global->Opt->ExceptRules && !UseExternalHandler))
+
+	if(global::EnableSEH && !UseExternalHandler)
 	{
 		// dummy parametrs setting
 		::From=From;

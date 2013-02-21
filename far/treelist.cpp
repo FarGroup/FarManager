@@ -139,18 +139,16 @@ void TreeListCache::Sort()
 }
 
 
-TreeList::TreeList(PanelOptions* Options, bool IsPanel):
-	Panel(Options),
+TreeList::TreeList(bool IsPanel):
 	PrevMacroMode(MACRO_INVALID),
 	WorkDir(0),
 	GetSelPosition(0),
 	NumericSort(FALSE),
 	CaseSensitiveSort(FALSE),
 	ExitCode(1),
-	SaveWorkDir(0),
-	OriginalFolder(Options->Folder.Get())
+	SaveWorkDir(0)
 {
-	Options->Type=TREE_PANEL;
+	Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
 	Flags.Set(FTREELIST_UPDATEREQUIRED);
 	Flags.Clear(FTREELIST_TREEISPREPARED);
@@ -165,13 +163,12 @@ TreeList::~TreeList()
 	Global->tempTreeCache->Clean();
 	FlushCache();
 	SetMacroMode(TRUE);
-	Options->Folder = OriginalFolder;
 }
 
 void TreeList::SetRootDir(const wchar_t *NewRootDir)
 {
 	strRoot = NewRootDir;
-	Options->Folder = NewRootDir;
+	strCurDir = NewRootDir;
 }
 
 void TreeList::DisplayObject()
@@ -239,7 +236,7 @@ void TreeList::DisplayTree(int Fast)
 	CorrectPosition();
 
 	if (!ListData.empty())
-		Options->Folder = ListData[CurFile]->strName; //BUGBUG
+		strCurDir = ListData[CurFile]->strName; //BUGBUG
 
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
@@ -1242,14 +1239,14 @@ const string& TreeList::GetCurDir()
 	if (ListData.empty())
 	{
 		if (ModalMode==MODALTREE_FREE)
-			Options->Folder = strRoot;
+			strCurDir = strRoot;
 		else
-			Options->Folder.Clear();
+			strCurDir.Clear();
 	}
 	else
-		Options->Folder = ListData[CurFile]->strName; //BUGBUG
+		strCurDir = ListData[CurFile]->strName; //BUGBUG
 
-	return Options->Folder;
+	return strCurDir;
 }
 
 int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)

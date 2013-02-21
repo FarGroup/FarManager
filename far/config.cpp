@@ -1396,17 +1396,9 @@ bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, 
 Options::Options():
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
-	ExceptRules(-1),
 	ElevationMode(0),
 	WindowMode(-1)
 {
-#ifndef _DEBUGEXC
-	if(IsDebuggerPresent())
-	{
-		ExceptRules = 0;
-	}
-#endif
-
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -1458,9 +1450,9 @@ void Options::Load()
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
 
-	if (ExceptRules == -1)
+	if (global::EnableSEH == -1)
 	{
-		ExceptRules = StoredExceptRules;
+		global::EnableSEH = StoredExceptRules;
 	}
 
 	if(WindowMode == -1)
@@ -1624,11 +1616,42 @@ void Options::Save(bool Ask)
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 	Panel *LeftPanelPtr=Global->CtrlObject->Cp()->LeftPanel;
 	Panel *RightPanelPtr=Global->CtrlObject->Cp()->RightPanel;
+	LeftPanel.Visible=LeftPanelPtr->IsVisible() != 0;
+	RightPanel.Visible=RightPanelPtr->IsVisible() != 0;
 
+	if (LeftPanelPtr->GetMode()==NORMAL_PANEL)
+	{
+		LeftPanel.Type=LeftPanelPtr->GetType();
+		LeftPanel.ViewMode=LeftPanelPtr->GetViewMode();
+		LeftPanel.SortMode=LeftPanelPtr->GetSortMode();
+		LeftPanel.SortOrder=LeftPanelPtr->GetSortOrder();
+		LeftPanel.SortGroups=LeftPanelPtr->GetSortGroups() != 0;
+		LeftPanel.ShowShortNames=LeftPanelPtr->GetShowShortNamesMode() != 0;
+		LeftPanel.NumericSort=LeftPanelPtr->GetNumericSort() != 0;
+		LeftPanel.CaseSensitiveSort=LeftPanelPtr->GetCaseSensitiveSort() != 0;
+		LeftPanel.SelectedFirst=LeftPanelPtr->GetSelectedFirstMode() != 0;
+		LeftPanel.DirectoriesFirst=LeftPanelPtr->GetDirectoriesFirst() != 0;
+	}
+
+	LeftPanel.Folder = LeftPanelPtr->GetCurDir();
 	string strTemp1, strTemp2;
 	LeftPanelPtr->GetCurBaseName(strTemp1, strTemp2);
 	LeftPanel.CurFile = strTemp1;
+	if (RightPanelPtr->GetMode()==NORMAL_PANEL)
+	{
+		RightPanel.Type=RightPanelPtr->GetType();
+		RightPanel.ViewMode=RightPanelPtr->GetViewMode();
+		RightPanel.SortMode=RightPanelPtr->GetSortMode();
+		RightPanel.SortOrder=RightPanelPtr->GetSortOrder();
+		RightPanel.SortGroups=RightPanelPtr->GetSortGroups() != 0;
+		RightPanel.ShowShortNames=RightPanelPtr->GetShowShortNamesMode() != 0;
+		RightPanel.NumericSort=RightPanelPtr->GetNumericSort() != 0;
+		RightPanel.CaseSensitiveSort=RightPanelPtr->GetCaseSensitiveSort() != 0;
+		RightPanel.SelectedFirst=RightPanelPtr->GetSelectedFirstMode() != 0;
+		RightPanel.DirectoriesFirst=RightPanelPtr->GetDirectoriesFirst() != 0;
+	}
 
+	RightPanel.Folder = RightPanelPtr->GetCurDir();
 	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
 	RightPanel.CurFile = strTemp1;
 

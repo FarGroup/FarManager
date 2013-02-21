@@ -111,7 +111,6 @@ class TreeList: public Panel
 
 		std::vector<TreeItem> SaveListData;
 		size_t SaveWorkDir;
-		string OriginalFolder;
 
 	private:
 		void SetMacroMode(int Restore = FALSE);
@@ -146,7 +145,7 @@ class TreeList: public Panel
 		static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
 
 	public:
-		TreeList(PanelOptions* Options, bool IsPanel=true);
+		TreeList(bool IsPanel=true);
 	private:
 		virtual ~TreeList();
 

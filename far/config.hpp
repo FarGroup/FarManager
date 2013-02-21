@@ -820,7 +820,6 @@ public:
 
 	int ReadOnlyConfig;
 	int UseExceptionHandler;
-	int ExceptRules;
 	int ElevationMode;
 	int WindowMode;
 

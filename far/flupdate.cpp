@@ -128,7 +128,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
 	TaskBar TB(false);
 
-	strOriginalCurDir=Options->Folder.Get();
+	strOriginalCurDir = strCurDir;
 
 	if (!IsVisible() && !IgnoreVisible)
 	{
@@ -151,13 +151,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	string strSaveDir;
 	apiGetCurrentDirectory(strSaveDir);
 	{
-		string strOldCurDir = Options->Folder.Get();
+		string strOldCurDir(strCurDir);
 
 		if (!SetCurPath())
 		{
 			FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
 
-			if (Options->Folder == strOldCurDir) //?? i??
+			if (strCurDir == strOldCurDir) //?? i??
 			{
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
@@ -173,7 +173,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	SortGroupsRead=FALSE;
 
 	if (GetFocus())
-		Global->CtrlObject->CmdLine->SetCurDir(Options->Folder);
+		Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
 
 	LastCurFile=-1;
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -188,7 +188,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FreeDiskSize = -1;
 	if (Global->Opt->ShowPanelFree)
 	{
-		apiGetDiskSize(Options->Folder, nullptr, nullptr, &FreeDiskSize);
+		apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 	}
 
 	if (!ListData.empty())
@@ -217,7 +217,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	DWORD FileSystemFlags = 0;
 	string PathRoot;
-	GetPathRoot(Options->Folder, PathRoot);
+	GetPathRoot(strCurDir, PathRoot);
 	apiGetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
 
 	ListData.clear();
@@ -242,7 +242,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (ReadOwners)
 	{
-		CurPath2ComputerName(Options->Folder, strComputerName);
+		CurPath2ComputerName(strCurDir, strComputerName);
 		// сбросим кэш SID`ов
 		SIDCacheFlush();
 	}
@@ -264,11 +264,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	Filter->UpdateCurrentTime();
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	bool bCurDirRoot = false;
-	ParsePath(Options->Folder, nullptr, &bCurDirRoot);
-	PATH_TYPE Type = ParsePath(Options->Folder, nullptr, &bCurDirRoot);
+	ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
 	bool NetRoot = bCurDirRoot && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
 
-	string strFind = Options->Folder.Get();
+	string strFind(strCurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
 	::FindFile Find(strFind, true);
@@ -331,7 +331,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 			if (ReadNumStreams||ReadStreamsSize)
 			{
-				EnumStreams(TestParentFolderName(fdata.strFileName)? Options->Folder.Get() : fdata.strFileName, NewItem->StreamsSize, NewItem->NumberOfStreams);
+				EnumStreams(TestParentFolderName(fdata.strFileName)? strCurDir : fdata.strFileName, NewItem->StreamsSize, NewItem->NumberOfStreams);
 			}
 
 			if (ReadCustomData)
@@ -392,11 +392,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		string TwoDotsOwner;
 		if (ReadOwners)
 		{
-			GetFileOwner(strComputerName,Options->Folder,TwoDotsOwner);
+			GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
 		}
 
 		FILETIME TwoDotsTimes[4]={};
-		if(apiGetFindDataEx(Options->Folder,fdata))
+		if(apiGetFindDataEx(strCurDir,fdata))
 		{
 			TwoDotsTimes[0]=fdata.ftCreationTime;
 			TwoDotsTimes[1]=fdata.ftLastAccessTime;
@@ -421,10 +421,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 		PluginPanelItem *PanelData=nullptr;
-		string strPath;
-		size_t PanelCount=0;
-		strPath = Options->Folder.Get();
+		string strPath(strCurDir);
 		AddEndSlash(strPath);
+		size_t PanelCount=0;
 
 		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
 		{
@@ -467,7 +466,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		DeleteListData(OldData);
 	}
 
-	if (Options->SortGroups)
+	if (SortGroups)
 		ReadSortGroups(false);
 
 	if (!KeepSelection && PrevSelFileCount>0)
@@ -549,17 +548,17 @@ void FileList::InitFSWatcher(bool CheckTree)
 	wchar_t RootDir[4]=L" :\\";
 	DWORD DriveType=DRIVE_REMOTE;
 	StopFSWatcher();
-	PATH_TYPE Type = ParsePath(Options->Folder);
+	PATH_TYPE Type = ParsePath(strCurDir);
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{
-		RootDir[0] = (Type == PATH_DRIVELETTER)? Options->Folder.At(0) : Options->Folder.At(4);
+		RootDir[0] = (Type == PATH_DRIVELETTER)? strCurDir.At(0) : strCurDir.At(4);
 		DriveType=FAR_GetDriveType(RootDir);
 	}
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
-		FSWatcher.Set(Options->Folder, CheckTree);
+		FSWatcher.Set(strCurDir, CheckTree);
 		StartFSWatcher();
 	}
 }
@@ -640,7 +639,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	{
 		if (Info.Flags & OPIF_REALNAMES)
 		{
-			apiGetDiskSize(Options->Folder, nullptr, nullptr, &FreeDiskSize);
+			apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 		}
 		else if (Info.Flags & OPIF_USEFREESIZE)
 			FreeDiskSize=Info.FreeSize;
@@ -845,7 +844,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 	if (PanelMode==NORMAL_PANEL)
 	{
-		Diz.Read(Options->Folder);
+		Diz.Read(strCurDir);
 	}
 	else
 	{

@@ -106,9 +106,6 @@ static void show_help()
 		L"      Export settings.\n"
 		L" /import <in.farconfig> [profilepath [localprofilepath]]\n"
 		L"      Import settings.\n"
-#ifdef _DEBUGEXC
-		L" /xd  Enable exception handling.\n"
-#endif
 		L" /ro  Read-Only config mode.\n"
 		L" /rw  Normal config mode.\n"
 		;
@@ -142,8 +139,7 @@ static int MainProcess(
 		if (*ename || *vname)
 		{
 			Global->Opt->OnlyEditorViewerUsed=1;
-			PanelOptions DummyOptions;
-			Panel *DummyPanel=new Panel(&DummyOptions);
+			Panel *DummyPanel=new Panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
@@ -432,8 +428,6 @@ void AtExit()
 static int mainImpl(int Argc, wchar_t *Argv[])
 {
 	atexit(AtExit);
-	std::set_new_handler(nullptr);
-	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	global _g;
 
@@ -586,13 +580,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 					break;
 				case L'X':
-					Global->Opt->ExceptRules = 0;
-#if defined(_DEBUGEXC)
-
-					if (Upper(Argv[I][2])==L'D' && !Argv[I][3])
-						Global->Opt->ExceptRules = 1;
-
-#endif
+					global::EnableSEH = 0;
 					break;
 
 #ifndef NO_WRAPPER
@@ -771,7 +759,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
 
-	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Global->Opt->ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(global::EnableSEH?SEM_NOGPFAULTERRORBOX:0)|(Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(Global->ErrorMode);
 
 	int InitDriveMenuHotkeys = TRUE;
@@ -802,6 +790,8 @@ int mainEH(int Argc, wchar_t *Argv[])
 {
 	try
 	{
+		std::set_new_handler(nullptr);
+
 		return mainImpl(Argc, Argv);
 	}
 	catch(std::exception& e)
@@ -816,10 +806,20 @@ int mainEH(int Argc, wchar_t *Argv[])
 	}
 }
 
+int global::EnableSEH = 
+#ifdef _DEBUGEXC
+	-1;
+#else
+	!IsDebuggerPresent();
+#endif
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
- {
+{
 	SEH_TRY
 	{
+		if (global::EnableSEH)
+			SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
+
 		return mainEH(Argc, Argv);
 	}
 	SEH_EXCEPT(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))

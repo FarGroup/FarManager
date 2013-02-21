@@ -85,6 +85,8 @@ public:
 	static size_t AllocatedMemorySize;
 	static size_t TotalAllocationCalls;
 
+	static int EnableSEH;
+
 #ifdef DIRECT_RT
 	bool DirectRT;
 #endif

@@ -67,7 +67,7 @@ struct ExecuteStruct
 { \
 	__Prolog(); \
 	++Activity; \
-	if ( Global->Opt->ExceptRules ) \
+	if (global::EnableSEH) \
 	{ \
 		SEH_TRY \
 		{ \
@@ -87,8 +87,6 @@ struct ExecuteStruct
 	--Activity; \
 	__Epilog(); \
 }();
-
-#define EXECUTE_FUNCTION_EX(function) EXECUTE_FUNCTION(es = function)
 
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 

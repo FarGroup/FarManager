@@ -160,10 +160,10 @@ struct MEMINFO
 		struct
 		{
 			ALLOCATION_TYPE AllocationType;
-			size_t Size;
-			const char* Function;
-			const char* File;
 			int Line;
+			const char* File;
+			const char* Function;
+			size_t Size;
 			MEMINFO* prev;
 			MEMINFO* next;
 		};

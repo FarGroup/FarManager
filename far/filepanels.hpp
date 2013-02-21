@@ -36,8 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
-#include "config.hpp"
-
 
 class Panel;
 class CommandLine;
@@ -70,7 +68,7 @@ class FilePanels:public Frame
 	public:
 		void Init(int DirCount);
 
-		Panel* CreatePanel(PanelOptions* Options);
+		Panel* CreatePanel(int Type);
 		void   DeletePanel(Panel *Deleted);
 		Panel* GetAnotherPanel(Panel *Current);
 		Panel* ChangePanelToFilled(Panel *Current,int NewType);

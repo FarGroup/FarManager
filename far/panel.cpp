@@ -117,14 +117,22 @@ ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 }
 
 
-Panel::Panel(PanelOptions* Options):
-	Options(Options),
+Panel::Panel():
 	Focus(false),
+	Type(0),
 	EnableUpdate(TRUE),
 	PanelMode(NORMAL_PANEL),
-	PrevViewMode(Options->ViewMode),
+	SortMode(UNSORTED),
+	SortOrder(0),
+	SortGroups(0),
+	PrevViewMode(VIEW_3),
+	ViewMode(0),
 	CurTopFile(0),
 	CurFile(0),
+	ShowShortNames(0),
+	NumericSort(0),
+	CaseSensitiveSort(0),
+	DirectoriesFirst(1),
 	ModalMode(0),
 	PluginCommand(0),
 	ViewSettings(),
@@ -146,7 +154,7 @@ Panel::~Panel()
 void Panel::SetViewMode(int ViewMode)
 {
 	PrevViewMode=ViewMode;
-	Options->ViewMode=ViewMode;
+	this->ViewMode=ViewMode;
 };
 
 
@@ -162,9 +170,9 @@ void Panel::ChangeDisk()
 {
 	int Pos=0,FirstCall=TRUE;
 
-	if (!Options->Folder.IsEmpty() && Options->Folder.At(1)==L':')
+	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 	{
-		Pos=std::max(0, Upper(Options->Folder.At(0))-L'A');
+		Pos=std::max(0, Upper(strCurDir.At(0))-L'A');
 	}
 
 	while (Pos!=-1)
@@ -866,10 +874,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			return RetCode;
 
 		if (ChDisk.GetExitCode()<0 &&
-			        !Options->Folder.IsEmpty() &&
-			        (StrCmpN(Options->Folder,L"\\\\",2) ))
+			        !strCurDir.IsEmpty() &&
+			        (StrCmpN(strCurDir,L"\\\\",2) ))
 			{
-				const wchar_t RootDir[4] = {Options->Folder.At(0),L':',L'\\',L'\0'};
+				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
 				return ChDisk.GetSelectPos();
@@ -987,7 +995,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ((PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
-		        !StrCmpI(Options->Folder,strNewCurDir) &&
+		        !StrCmpI(strCurDir,strNewCurDir) &&
 		        IsVisible())
 		{
 			// А нужно ли делать здесь Update????
@@ -1565,7 +1573,7 @@ void Panel::SetFocus()
 		Global->CtrlObject->Cp()->RedrawKeyBar();
 		Focus = true;
 		Redraw();
-		FarChDir(Options->Folder);
+		FarChDir(strCurDir);
 	}
 }
 
@@ -1756,7 +1764,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 
 const string& Panel::GetCurDir()
 {
-	return Options->Folder; // TODO: ОПАСНО!!!
+	return strCurDir; // TODO: ОПАСНО!!!
 }
 
 
@@ -1769,19 +1777,17 @@ BOOL Panel::SetCurDir(const string& CurDir,int ClosePanel,BOOL /*IsUpdated*/)
 
 void Panel::InitCurDir(const wchar_t *CurDir)
 {
-	if (StrCmpI(Options->Folder,CurDir) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
-		Options->Folder = CurDir;
+		strCurDir = CurDir;
 
 		if (PanelMode!=PLUGIN_PANEL)
 		{
-			string Tmp(Options->Folder.Get());
-			PrepareDiskPath(Tmp);
-			if(!IsRootPath(Options->Folder))
+			PrepareDiskPath(strCurDir);
+			if(!IsRootPath(strCurDir))
 			{
-				DeleteEndSlash(Tmp);
+				DeleteEndSlash(strCurDir);
 			}
-			Options->Folder = Tmp;
 		}
 	}
 }
@@ -1812,37 +1818,35 @@ int Panel::SetCurPath()
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
-		if (IsAlpha(AnotherPanel->Options->Folder.At(0)) && AnotherPanel->Options->Folder.At(1)==L':' &&
-		        Upper(AnotherPanel->Options->Folder.At(0))!=Upper(Options->Folder.At(0)))
+		if (IsAlpha(AnotherPanel->strCurDir.At(0)) && AnotherPanel->strCurDir.At(1)==L':' &&
+		        Upper(AnotherPanel->strCurDir.At(0))!=Upper(strCurDir.At(0)))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
 			// не перечитывать)
-			FarChDir(AnotherPanel->Options->Folder,FALSE);
+			FarChDir(AnotherPanel->strCurDir,FALSE);
 		}
 	}
 
-	if (!FarChDir(Options->Folder))
+	if (!FarChDir(strCurDir))
 	{
 		// здесь на выбор :-)
 #if 1
 
-		while (!FarChDir(Options->Folder))
+		while (!FarChDir(strCurDir))
 		{
 			string strRoot;
-			GetPathRoot(Options->Folder, strRoot);
+			GetPathRoot(strCurDir, strRoot);
 
 			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || apiIsDiskInDrive(strRoot))
 			{
-				int Result=TestFolder(Options->Folder);
+				int Result=TestFolder(strCurDir);
 
 				if (Result == TSTFLD_NOTFOUND)
 				{
-					string Tmp(Options->Folder.Get());
-					if (CheckShortcutFolder(&Tmp, FALSE, TRUE) && FarChDir(Options->Folder))
+					if (CheckShortcutFolder(&strCurDir, FALSE, TRUE) && FarChDir(strCurDir))
 					{
-						Options->Folder = Tmp;
-						SetCurDir(Options->Folder,TRUE);
+						SetCurDir(strCurDir,TRUE);
 						return TRUE;
 					}
 				}
@@ -1857,22 +1861,19 @@ int Panel::SetCurPath()
 			}
 			else                                               // оппа...
 			{
-				string strTemp(Options->Folder.Get());
-				{
-					string Tmp(Options->Folder.Get());
-					CutToFolderNameIfFolder(Tmp);             // подымаемся вверх, для очередной порции ChDir
-					Options->Folder = Tmp;
-				}
-				if (strTemp.GetLength()==Options->Folder.GetLength())  // здесь проблема - видимо диск недоступен
+				string strTemp(strCurDir);
+				CutToFolderNameIfFolder(strCurDir);             // подымаемся вверх, для очередной порции ChDir
+
+				if (strTemp.GetLength()==strCurDir.GetLength())  // здесь проблема - видимо диск недоступен
 				{
 					SetCurDir(Global->g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
 					break;
 				}
 				else
 				{
-					if (FarChDir(Options->Folder))
+					if (FarChDir(strCurDir))
 					{
-						SetCurDir(Options->Folder,TRUE);
+						SetCurDir(strCurDir,TRUE);
 						break;
 					}
 				}
@@ -1922,7 +1923,6 @@ void Panel::Hide()
 			        (GetType()==FILE_PANEL && IsFullScreen()))
 				AnotherPanel->Show();
 	}
-	Options->Visible = false;
 }
 
 
@@ -1966,7 +1966,6 @@ void Panel::Show()
 	}
 
 	ScreenObject::Show();
-	Options->Visible = true;
 	if (!this->Destroyed())
 		ShowScreensCount();
 }
@@ -2019,9 +2018,9 @@ void Panel::SetTitle()
 	{
 		string strTitleDir(L"{");
 
-		if (!Options->Folder.IsEmpty())
+		if (!strCurDir.IsEmpty())
 		{
-			strTitleDir += Options->Folder.Get();
+			strTitleDir += strCurDir;
 		}
 		else
 		{
@@ -2052,10 +2051,10 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 	}
 	else
 	{
-		if (Options->ShowShortNames)
-			ConvertNameToShort(Options->Folder,strTitleDir);
+		if (ShowShortNames)
+			ConvertNameToShort(strCurDir,strTitleDir);
 		else
-			strTitleDir = Options->Folder.Get();
+			strTitleDir = strCurDir;
 
 		if (truncTitle)
 			TruncPathStr(strTitleDir,SubLen-TruncSize);
@@ -2570,7 +2569,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-	        !StrCmpI(AnotherPanel->Options->Folder, Options->Folder))
+	        !StrCmpI(AnotherPanel->strCurDir, strCurDir))
 		return TRUE;
 
 	return FALSE;
@@ -2596,7 +2595,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginGuid=FarGuid;
 		ShortcutInfo.PluginFile.Clear();
 		ShortcutInfo.PluginData.Clear();
-		ShortcutInfo.ShortcutFolder = Options->Folder.Get();
+		ShortcutInfo.ShortcutFolder = strCurDir;
 	}
 	return result;
 }

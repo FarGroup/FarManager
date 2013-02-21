@@ -68,7 +68,7 @@ class QuickView:public Panel
 		void DynamicUpdateKeyBar();
 
 	public:
-		QuickView(PanelOptions* Options);
+		QuickView();
 	private:
 		virtual ~QuickView();
 

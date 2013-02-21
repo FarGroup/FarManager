@@ -65,7 +65,6 @@ class InfoList:public Panel
 		bool OldWrapType;
 		string strDizFileName;
 		InfoListSectionState SectionState[ILSS_LAST];
-		string OriginalFolder;
 
 	private:
 		virtual void DisplayObject();
@@ -84,7 +83,7 @@ class InfoList:public Panel
 		void DynamicUpdateKeyBar();
 
 	public:
-		InfoList(PanelOptions* Options);
+		InfoList();
 	private:
 		virtual ~InfoList();
 

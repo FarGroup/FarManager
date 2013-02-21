@@ -58,8 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FilePanels::FilePanels():
 	LastLeftFilePanel(nullptr),
 	LastRightFilePanel(nullptr),
-	LeftPanel(CreatePanel(&Global->Opt->LeftPanel)),
-	RightPanel(CreatePanel(&Global->Opt->RightPanel)),
+	LeftPanel(CreatePanel(Global->Opt->LeftPanel.Type)),
+	RightPanel(CreatePanel(Global->Opt->RightPanel.Type)),
 	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
@@ -107,6 +107,24 @@ void FilePanels::Init(int DirCount)
 {
 	SetPanelPositions(FileList::IsModeFullScreen(Global->Opt->LeftPanel.ViewMode),
 	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
+	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
+	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
+	LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
+	RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
+	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
+	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
+	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);
+	RightPanel->SetCaseSensitiveSort(Global->Opt->RightPanel.CaseSensitiveSort);
+	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.SortOrder);
+	RightPanel->SetSortOrder(Global->Opt->RightPanel.SortOrder);
+	LeftPanel->SetSortGroups(Global->Opt->LeftPanel.SortGroups);
+	RightPanel->SetSortGroups(Global->Opt->RightPanel.SortGroups);
+	LeftPanel->SetShowShortNamesMode(Global->Opt->LeftPanel.ShowShortNames);
+	RightPanel->SetShowShortNamesMode(Global->Opt->RightPanel.ShowShortNames);
+	LeftPanel->SetSelectedFirstMode(Global->Opt->LeftPanel.SelectedFirst);
+	RightPanel->SetSelectedFirstMode(Global->Opt->RightPanel.SelectedFirst);
+	LeftPanel->SetDirectoriesFirst(Global->Opt->LeftPanel.DirectoriesFirst);
+	RightPanel->SetDirectoriesFirst(Global->Opt->RightPanel.DirectoriesFirst);
 	SetCanLoseFocus(TRUE);
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
@@ -278,23 +296,23 @@ void FilePanels::RedrawKeyBar()
 }
 
 
-Panel* FilePanels::CreatePanel(PanelOptions* Options)
+Panel* FilePanels::CreatePanel(int Type)
 {
 	Panel *pResult = nullptr;
 
-	switch (Options->Type)
+	switch (Type)
 	{
 		case FILE_PANEL:
-			pResult = new FileList(Options);
+			pResult = new FileList;
 			break;
 		case TREE_PANEL:
-			pResult = new TreeList(Options);
+			pResult = new TreeList;
 			break;
 		case QVIEW_PANEL:
-			pResult = new QuickView(Options);
+			pResult = new QuickView;
 			break;
 		case INFO_PANEL:
-			pResult = new InfoList(Options);
+			pResult = new InfoList;
 			break;
 	}
 
@@ -377,9 +395,6 @@ int FilePanels::SwapPanels()
 		LastLeftType=LastRightType;
 		LastRightType=SwapType;
 		FileFilter::SwapFilter();
-
-		LeftPanel->SwapOptions(RightPanel);
-
 		Ret=TRUE;
 	}
 	SetScreenPosition();
@@ -943,7 +958,6 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 			LastFilePanel->SetPosition(X1,Y1,X2,Y2);
 
 		NewPanel=LastFilePanel;
-		NewPanel->SetType(NewType);
 
 		if (!ChangePosition)
 		{
@@ -969,9 +983,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	}
 	else
 	{
-		PanelOptions& Options = LeftPosition? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-		Options.Type = NewType;
-		NewPanel=CreatePanel(&Options);
+		NewPanel=CreatePanel(NewType);
 	}
 	if (Current==ActivePanel)
 		ActivePanel=NewPanel;

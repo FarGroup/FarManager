@@ -869,7 +869,7 @@ HANDLE Plugin::Analyse(const AnalyseInfo *Info)
 	ExecuteStruct es = {EXCEPT_ANALYSE};
 	if (Load() && Exports[iAnalyse] && !Global->ProcessException)
 	{
-		EXECUTE_FUNCTION_EX(FUNCTION(iAnalyse)(Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iAnalyse)(Info));
 	}
 	return es;
 }
@@ -898,7 +898,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
 		Info.Guid = &Guid;
 		Info.Data = Item;
-		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(&Info));
 	}
 	delete ChPriority;
 	return es;
@@ -913,7 +913,7 @@ int Plugin::SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t
 		Info.hPanel = hPlugin;
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
-		EXECUTE_FUNCTION_EX(FUNCTION(iSetFindList)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iSetFindList)(&Info));
 	}
 	return es;
 }
@@ -925,7 +925,7 @@ int Plugin::ProcessEditorInput(const INPUT_RECORD *D)
 	{
 		ProcessEditorInputInfo Info={sizeof(Info)};
 		Info.Rec=*D;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorInput)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorInput)(&Info));
 	}
 	return es;
 }
@@ -939,7 +939,7 @@ int Plugin::ProcessEditorEvent(int Event, PVOID Param, int EditorID)
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorID;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorEvent)(&Info));
 	}
 	return es;
 }
@@ -953,7 +953,7 @@ int Plugin::ProcessViewerEvent(int Event, void *Param, int ViewerID)
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.ViewerID = ViewerID;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessViewerEvent)(&Info));
 	}
 	return es;
 }
@@ -966,7 +966,7 @@ int Plugin::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 		ProcessDialogEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessDialogEvent)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessDialogEvent)(&Info));
 	}
 	return es;
 }
@@ -980,7 +980,7 @@ int Plugin::ProcessSynchroEvent(int Event, void *Param)
 		ProcessSynchroEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessSynchroEvent)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessSynchroEvent)(&Info));
 	}
 	return es;
 }
@@ -991,7 +991,7 @@ int Plugin::ProcessMacro(ProcessMacroInfo *Info)
 	ExecuteStruct es = {EXCEPT_PROCESSMACRO};
 	if (Load() && Exports[iProcessMacro] && !Global->ProcessException)
 	{
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessMacro)(Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessMacro)(Info));
 	}
 	return es;
 }
@@ -1002,7 +1002,7 @@ int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 	ExecuteStruct es = {EXCEPT_PROCESSCONSOLEINPUT};
 	if (Load() && Exports[iProcessConsoleInput] && !Global->ProcessException)
 	{
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessConsoleInput)(Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessConsoleInput)(Info));
 	}
 	return es;
 }
@@ -1017,7 +1017,7 @@ int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, siz
 		Info.PanelItem = *pPanelItem;
 		Info.ItemsNumber = *pItemsNumber;
 		Info.Path = Path;
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetVirtualFindData)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(&Info));
 		*pPanelItem = Info.PanelItem;
 		*pItemsNumber = Info.ItemsNumber;
 	}
@@ -1049,7 +1049,7 @@ int Plugin::GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNum
 		Info.Move = Move;
 		Info.DestPath = *DestPath;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetFiles)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(&Info));
 		*DestPath = Info.DestPath;
 	}
 	return es;
@@ -1070,7 +1070,7 @@ int Plugin::PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNum
 		Info.Move = Move;
 		Info.SrcPath = strCurrentDirectory;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iPutFiles)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(&Info));
 	}
 	return es;
 }
@@ -1086,7 +1086,7 @@ int Plugin::DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t Items
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iDeleteFiles)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iDeleteFiles)(&Info));
 	}
 	return es;
 }
@@ -1100,7 +1100,7 @@ int Plugin::MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode)
 		Info.hPanel = hPlugin;
 		Info.Name = *Name;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iMakeDirectory)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(&Info));
 		*Name = Info.Name;
 	}
 	return es;
@@ -1116,7 +1116,7 @@ int Plugin::ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t I
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessHostFile)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessHostFile)(&Info));
 	}
 	return es;
 }
@@ -1130,7 +1130,7 @@ int Plugin::ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param)
 		Info.hPanel = hPlugin;
 		Info.Event = Event;
 		Info.Param = Param;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelEvent)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelEvent)(&Info));
 	}
 	return es;
 }
@@ -1145,7 +1145,7 @@ int Plugin::Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPa
 		Info.Item1 = Item1;
 		Info.Item2 = Item2;
 		Info.Mode = static_cast<OPENPANELINFO_SORTMODES>(Mode);
-		EXECUTE_FUNCTION_EX(FUNCTION(iCompare)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iCompare)(&Info));
 	}
 	return es;
 }
@@ -1160,7 +1160,7 @@ int Plugin::GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pI
 		Info.PanelItem = *pPanelItem;
 		Info.ItemsNumber = *pItemsNumber;
 		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetFindData)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iGetFindData)(&Info));
 		*pPanelItem = Info.PanelItem;
 		*pItemsNumber = Info.ItemsNumber;
 	}
@@ -1189,7 +1189,7 @@ int Plugin::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool)
 		struct ProcessPanelInputInfo Info={sizeof(Info)};
 		Info.hPanel = hPlugin;
 		Info.Rec=*Rec;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelInput)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelInput)(&Info));
 	}
 	return es;
 }
@@ -1222,7 +1222,7 @@ int Plugin::SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, UserDat
 			Info.UserData.Data = UserData->Data;
 			Info.UserData.FreeData = UserData->FreeData;
 		}
-		EXECUTE_FUNCTION_EX(FUNCTION(iSetDirectory)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(&Info));
 	}
 	return es;
 }
@@ -1248,7 +1248,7 @@ int Plugin::Configure(const GUID& Guid)
 	{
 		ConfigureInfo Info = {sizeof(Info)};
 		Info.Guid = &Guid;
-		EXECUTE_FUNCTION_EX(FUNCTION(iConfigure)(&Info));
+		EXECUTE_FUNCTION(es = FUNCTION(iConfigure)(&Info));
 	}
 	return es;
 }
@@ -1271,7 +1271,7 @@ int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
 	ExecuteStruct es = {EXCEPT_GETCUSTOMDATA};
 	if (Load() && Exports[iGetCustomData] && !Global->ProcessException)
 	{
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetCustomData)(FilePath, CustomData));
+		EXECUTE_FUNCTION(es = FUNCTION(iGetCustomData)(FilePath, CustomData));
 	}
 	return es;
 }

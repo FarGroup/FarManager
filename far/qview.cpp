@@ -57,8 +57,7 @@ static bool LastMode = false;
 static bool LastWrapMode = false;
 static bool LastWrapType = false;
 
-QuickView::QuickView(PanelOptions* Options):
-	Panel(Options),
+QuickView::QuickView():
 	QView(nullptr),
 	Directory(0),
 	PrevMacroMode(MACRO_INVALID),
@@ -66,7 +65,7 @@ QuickView::QuickView(PanelOptions* Options):
 	OldWrapType(0),
 	uncomplete_dirscan(false)
 {
-	Options->Type=QVIEW_PANEL;
+	Type=QVIEW_PANEL;
 	ClearStruct(Data);
 	if (!LastMode)
 	{

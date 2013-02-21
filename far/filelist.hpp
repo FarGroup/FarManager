@@ -214,6 +214,7 @@ class FileList:public Panel
 		int LeftPos;
 		int ShiftSelection;
 		int MouseSelection;
+		bool SelectedFirst;
 		int IsEmpty; // указывает на полностью пустую колонку
 		int AccessTimeUpdateRequired;
 
@@ -226,7 +227,7 @@ class FileList:public Panel
 
 	private:
 		virtual void SetSelectedFirstMode(bool Mode);
-		virtual bool GetSelectedFirstMode() {return Options->SelectedFirst;}
+		virtual bool GetSelectedFirstMode() {return SelectedFirst;}
 		virtual void DisplayObject();
 		void DeleteListData(std::vector<FileListItem*>& ListData);
 		void Up(int Count);
@@ -302,7 +303,7 @@ class FileList:public Panel
 		virtual void ClearAllItem();
 
 	public:
-		FileList(PanelOptions* Options);
+		FileList();
 	private:
 		virtual ~FileList();
 

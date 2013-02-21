@@ -65,15 +65,13 @@ static bool LastDizWrapMode = false;
 static bool LastDizWrapType = false;
 static bool LastDizShowScrollbar = false;
 
-InfoList::InfoList(PanelOptions* Options):
-	Panel(Options),
+InfoList::InfoList():
 	DizView(nullptr),
 	PrevMacroMode(MACRO_INVALID),
 	OldWrapMode(nullptr),
-	OldWrapType(nullptr),
-	OriginalFolder(Options->Folder.Get())
+	OldWrapType(nullptr)
 {
-	Options->Type=INFO_PANEL;
+	Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)
 	{
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
@@ -96,7 +94,6 @@ InfoList::InfoList(PanelOptions* Options):
 
 InfoList::~InfoList()
 {
-	Options->Folder = OriginalFolder;
 	CloseFile();
 	SetMacroMode(TRUE);
 }
@@ -245,28 +242,27 @@ void InfoList::DisplayObject()
 	/* #2 - disk info */
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
-		string TmpStr(AnotherPanel->GetCurDir());
+		strCurDir = AnotherPanel->GetCurDir();
 
-		if (TmpStr.IsEmpty())
-			apiGetCurrentDirectory(TmpStr);
-		Options->Folder = TmpStr;
+		if (strCurDir.IsEmpty())
+			apiGetCurrentDirectory(strCurDir);
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
-		if ((apiGetFileAttributes(Options->Folder)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+		if ((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strJuncName;
 
-			if (GetReparsePointInfo(Options->Folder, strJuncName))
+			if (GetReparsePointInfo(strCurDir, strJuncName))
 			{
 				NormalizeSymlinkName(strJuncName);
 				GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
 			}
 		}
 		else
-			GetPathRoot(Options->Folder, strDriveRoot);
+			GetPathRoot(strCurDir, strDriveRoot);
 
 		if (apiGetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -350,7 +346,7 @@ void InfoList::DisplayObject()
 		/* #2.2 - disk info: size */
 		unsigned __int64 TotalSize, UserFree;
 
-		if (apiGetDiskSize(Options->Folder,&TotalSize, nullptr, &UserFree))
+		if (apiGetDiskSize(strCurDir,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoDiskTotal);
@@ -682,8 +678,8 @@ int InfoList::ProcessKey(int Key)
 
 			if (!strDizFileName.IsEmpty())
 			{
-				Options->Folder = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
-				FarChDir(Options->Folder);
+				strCurDir = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
+				FarChDir(strCurDir);
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
 
@@ -697,8 +693,8 @@ int InfoList::ProcessKey(int Key)
 			*/
 		{
 			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-			Options->Folder = AnotherPanel->GetCurDir();
-			FarChDir(Options->Folder);
+			strCurDir = AnotherPanel->GetCurDir();
+			FarChDir(strCurDir);
 
 			if (!strDizFileName.IsEmpty())
 			{
