@@ -377,7 +377,7 @@
           <ComponentRef Id="LICENSE" />
           <ComponentRef Id="README" />
           <ComponentRef Id="hrcsettings.xml" />
-          <ComponentRef Id="shortcuts.farconfig" />
+          <ComponentRef Id="Plugin.Colorer.lua" />
           <Feature Id="FarColorer.Ignore.base" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="catalog.xml" />
             <Feature Id="FarColorer.Ignore.base_hrc" Level="1" Display="hidden" AllowAdvertise="no">

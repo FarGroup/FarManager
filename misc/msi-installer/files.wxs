@@ -703,8 +703,8 @@
             <Component Id="hrcsettings.xml" Guid="$(var.Guid.hrcsettings.xml)" Win64="$(var.Win64)">
               <File Id="hrcsettings.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\hrcsettings.xml" />
             </Component>
-            <Component Id="shortcuts.farconfig" Guid="$(var.Guid.shortcuts.farconfig)" Win64="$(var.Win64)">
-              <File Id="shortcuts.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\shortcuts.farconfig" />
+            <Component Id="Plugin.Colorer.lua" Guid="$(var.Guid.Plugin.Colorer.lua)" Win64="$(var.Win64)">
+              <File Id="Plugin.Colorer.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\Plugin.Colorer.lua" />
             </Component>
           </Directory>
           <Directory Id="FarColorer.base" Name="base">

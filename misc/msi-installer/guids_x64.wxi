@@ -219,7 +219,7 @@
 <?define Guid.colorerr.lng = "7E43B23B-6F2B-1014-A826-B7FEC55BD05D" ?>
 <?define Guid.colorer.map = "7E43B318-6F2B-1014-BCDF-ED5FBD399001" ?>
 <?define Guid.hrcsettings.xml = "7E43B417-6F2B-1014-93F6-A53AE0A32D4A" ?>
-<?define Guid.shortcuts.farconfig = "7E43B4F0-6F2B-1014-8B1E-CEEB6BF795BD" ?>
+<?define Guid.Plugin.Colorer.lua = "2849CDA6-2F8A-46C1-97B9-1FA94FE9CCC3" ?>
 <?define Guid.catalog.xml = "7E43B5CC-6F2B-1014-BBD1-8CF71224263B" ?>
 <?define Guid.CHANGELOG_21 = "7E43B6A8-6F2B-1014-84E6-8E87159E05DA" ?>
 <?define Guid.php_prot.ent.hrc = "7E43B783-6F2B-1014-BF0F-D8BAF8350FE0" ?>
