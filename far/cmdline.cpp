@@ -407,7 +407,7 @@ int CommandLine::ProcessKey(int Key)
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
-				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false,
+				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false,
 						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
 						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
 		}
