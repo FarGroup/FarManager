@@ -649,7 +649,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT) && !Global->ScrBuf->GetLockCount())
+	if (macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
 		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;
@@ -1025,9 +1025,6 @@ int KeyMacro::GetKey()
 				const wchar_t* key = mpr->Values[0].String;
 				m_LastKey = key;
 
-				//if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
-				//	Global->ScrBuf->Lock();
-
 				if (!StrCmpI(key, L"AKey"))
 				{
 					DWORD aKey=KEY_NONE;
@@ -1058,9 +1055,6 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				//if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
-				//	Global->ScrBuf->Lock();
-
 				varTextDate = mpr->Values[0].String;
 				return KEY_OP_PLAINTEXT;
 			}
@@ -2969,18 +2963,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				case 1: // DisableOutput
 				{
 					Result = (MR->Flags()&MFLAGS_ENABLEOUTPUT) ? 0:1;
-
-					if (Result && (nValue==0 || nValue==2))
-					{
-						Global->ScrBuf->Unlock();
-						Global->ScrBuf->Flush();
-						MR->m_flags|=MFLAGS_ENABLEOUTPUT;
-					}
-					else if (!Result && (nValue==1 || nValue==2))
-					{
-						Global->ScrBuf->Lock();
-						MR->m_flags&=~MFLAGS_ENABLEOUTPUT;
-					}
+					if (nValue>=0 && nValue<=2 && nValue!=Result)
+						MR->m_flags ^= MFLAGS_ENABLEOUTPUT;
 
 					return PassNumber(Result, Data);
 				}
