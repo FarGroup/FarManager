@@ -649,7 +649,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
+	if (macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT) && !Global->ScrBuf->GetLockCount())
 		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;
@@ -1025,8 +1025,8 @@ int KeyMacro::GetKey()
 				const wchar_t* key = mpr->Values[0].String;
 				m_LastKey = key;
 
-				if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
-					Global->ScrBuf->Lock();
+				//if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+				//	Global->ScrBuf->Lock();
 
 				if (!StrCmpI(key, L"AKey"))
 				{
@@ -1058,8 +1058,8 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
-					Global->ScrBuf->Lock();
+				//if (!(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+				//	Global->ScrBuf->Lock();
 
 				varTextDate = mpr->Values[0].String;
 				return KEY_OP_PLAINTEXT;
