@@ -82,12 +82,18 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 }
 
 // This function must have __cdecl calling convention, it is not `LUAPLUG'.
-int __declspec(dllexport) luaopen_luaplug(lua_State *L)
+__declspec(dllexport) int luaopen_luaplug(lua_State *L)
 {
 	LF_InitLuaState1(L, FUNC_OPENLIBS);
 	LF_InitLuaState2(L, &PluginData);
-	LF_ProcessEnvVars(LS, ENV_PREFIX, PluginDir);
+	LF_ProcessEnvVars(L, ENV_PREFIX, PluginDir);
 	return 0;
+}
+//---------------------------------------------------------------------------
+
+__declspec(dllexport) lua_State* GetLuaState()
+{
+	return LS;
 }
 //---------------------------------------------------------------------------
 
