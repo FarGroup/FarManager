@@ -3,6 +3,63 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 22.02.2013 20:10:21 +0200 - build 3219
+
+1. Continuation of 3217: mmode(1,1) call could block the screen on subsequent invocation of an error dialog.
+
+drkns 22.02.2013 19:09:39 +0200 - build 3218
+
+1. Run with CtrlAltEnter did not work.
+
+shmuel 22.02.2013 17:38:36 +0200 - build 3217
+
+1. mmode(1,1) call could suppress screen redraw after a macro ended.
+
+drkns 21.02.2013 23:44:34 +0200 - build 3216
+
+1. Partial rollback of 3171.2, too many bugs appeared.
+
+w17 20.02.2013 17:52:10 +0400 - build 3215
+
+1. Continuation of 3206 (M#2303) -- automatic detection of links copying method.
+
+shmuel 20.02.2013 09:48:22 +0200 - build 3214
+
+1. Correction of 3209 for MSSC_POST.
+
+drkns 20.02.2013 02:06:02 +0200 - build 3213
+
+1. Refactoring. Adding some 'const'ness.
+
+drkns 19.02.2013 22:23:51 +0200 - build 3212
+
+1. Continuation of 3208. UserDefinedList is removed, there is StringToList function which creates a standard list following the same logic.
+
+w17 19.02.2013 12:13:40 +0400 - build 3211
+
+1. Correction of 3206.
+   a) SPARSE and REPARSEPOINT flags separation in attribute line
+   b) symbol for SPARSE is changed '$' -> 'P' -- inform me if this is 'bad'
+   c) removing spaces from too long attribute line
+
+w17 19.02.2013 08:36:13 +0400 - build 3210
+
+1. vc10 compilation fix.
+
+shmuel 18.02.2013 23:49:37 +0200 - build 3209
+
+1. Macros: "DisableOutput" flag is removed.
+   A new flag is added: "EnableOutput", inactive by default.
+   Plugin and macro API is not affected by this change.
+
+drkns 18.02.2013 23:29:22 +0200 - build 3208
+
+1. Refactoring.
+
+drkns 18.02.2013 22:10:06 +0200 - build 3207
+
+1. More launcher related stuff.
+
 w17 18.02.2013 17:33:55 +0400 - build 3206
 
 1. M#2303: New Reparse Point types in Windows 8/2012
