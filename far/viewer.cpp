@@ -69,12 +69,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "vmenu2.hpp"
 
+
+enum SHOW_MODES
+{
+	SHOW_RELOAD,
+	SHOW_HEX,
+	SHOW_UP,
+	SHOW_DOWN,
+	SHOW_DUMP
+};
+
+
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *name, int percent, int search_hex);
 
 static int ViewerID=0;
 
 static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
+
+#define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400
+#define MAX_VIEWLINEB (ViOpt.MaxLineSize+15) // 0x80f // 0x40f
 
 #define REPLACE_CHAR  0xFFFD // Replacement
 #define CONTINUE_CHAR 0x203A // Single Right-Pointing Angle Quotation Mark
@@ -87,12 +101,6 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
-
-	Strings = new ViewerString*[MAXSCRY+1];
-	for (int i=0; i <= MAXSCRY; i++)
-	{
-		Strings[i] = new ViewerString();
-	}
 
 	strLastSearchStr = Global->strGlobalSearchString;
 	LastSearchCase=Global->GlobalSearchCase;
@@ -154,9 +162,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 
 	Search_buffer_size = 3 * std::max(MAX_VIEWLINEB, (intptr_t)8000);
 	Search_buffer = new wchar_t[Search_buffer_size];
-
-	ClearStruct(vString);
-	vString.lpData = new wchar_t[MAX_VIEWLINEB];
+	ReadBuffer = new wchar_t[MAX_VIEWLINEB];
 }
 
 
@@ -170,7 +176,7 @@ Viewer::~Viewer()
 		SavePosition();
 	}
 
-	delete[] vString.lpData;
+	delete[] ReadBuffer;
 	delete[] Search_buffer;
 	delete[] llengths;
 	delete[] lcache_lines;
@@ -195,14 +201,6 @@ Viewer::~Viewer()
 			apiDeleteFile(strTempViewName); //BUGBUG
 		}
 	}
-
-	for (int i=MAXSCRY; i >= 0; --i)
-	{
-		if (Strings[i]->lpData)
-			delete[] Strings[i]->lpData;
-		delete Strings[i];
-	}
-	delete[] Strings;
 
 	if (!OpenFailed && bVE_READ_Sent)
 	{
@@ -480,7 +478,6 @@ void Viewer::AdjustWidth()
 
 void Viewer::ShowPage(int nMode)
 {
-	int I,Y;
 	AdjustWidth();
 
 	if (!ViewFile.Opened())
@@ -518,88 +515,92 @@ void Viewer::ShowPage(int nMode)
 			break;
 		case SHOW_RELOAD:
 			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
-
-			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
 			{
-				Strings[I]->nFilePos = vtell();
+				Strings.clear();
+				
+				for (int Y = Y1; Y<=Y2; ++Y)
+				{
+					Strings.push_back(ViewerString());
+					Strings.back().nFilePos = vtell();
 
-				if (Y==Y1+1 && !veof())
-					SecondPos=vtell();
+					if (Y==Y1+1 && !veof())
+						SecondPos=vtell();
 
-				ReadString(Strings[I], -1);
+					ReadString(&Strings.back(), -1);
+				}
 			}
 			break;
 		case SHOW_UP:
 			if (Y2 > Y1)
 			{
-				ViewerString *tmp = Strings[Y2-Y1];
-				memmove(&Strings[1], &Strings[0], sizeof(Strings[0]) * (Y2-Y1));
-				Strings[0] = tmp;
-
-				Strings[0]->nFilePos = FilePos;
-				SecondPos = Strings[1]->nFilePos;
+				SecondPos = Strings.front().nFilePos;
+				Strings.pop_back();
+				Strings.push_front(ViewerString());
+				Strings.front().nFilePos = FilePos;
 			}
 			else
 			{
-				SecondPos = Strings[0]->nFilePos;
-				Strings[0]->nFilePos = FilePos;
+				SecondPos = Strings.front().nFilePos;
+				Strings.front().nFilePos = FilePos;
 			}
-
-			ReadString(Strings[0],(int)(SecondPos-FilePos));
+			ReadString(&Strings.front(),(int)(SecondPos-FilePos));
 			break;
+
 		case SHOW_DOWN:
 			if (Y2 > Y1)
 			{
-				ViewerString *tmp = Strings[0];
-				memmove(&Strings[0], &Strings[1], sizeof(Strings[0]) * (Y2-Y1));
-				Strings[Y2-Y1] = tmp;
-
-				FilePos = Strings[0]->nFilePos;
-				SecondPos = Strings[1]->nFilePos;
-				Strings[Y2-Y1]->nFilePos = Strings[Y2-Y1-1]->nFilePos + Strings[Y2-Y1-1]->linesize;
+				Strings.pop_front();
+				Strings.push_back(ViewerString());
+				FilePos = Strings.front().nFilePos;
+				auto Second = Strings.begin();
+				++Second;
+				SecondPos = Second->nFilePos;
+				auto PreLast = Strings.end();
+				std::advance(PreLast, -2);
+				Strings.back().nFilePos = PreLast->nFilePos + PreLast->linesize;
 			}
 			else
 			{
-				Strings[0]->nFilePos += Strings[0]->linesize;
-				FilePos = Strings[0]->nFilePos;
+				Strings.front().nFilePos += Strings.front().linesize;
+				FilePos = Strings.front().nFilePos;
 				SecondPos = FilePos;
 			}
-			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
-			ReadString(Strings[Y2-Y1],-1);
+			vseek(Strings.back().nFilePos, SEEK_SET);
+			ReadString(&Strings.back(), -1);
 			break;
 	}
 
 	if (nMode != SHOW_HEX && nMode != SHOW_DUMP)
 	{
-		for (I=0,Y=Y1; Y<=Y2; Y++,I++)
+		int Y = Y1;
+		for (auto i = Strings.begin(); i != Strings.end(); ++i, ++Y)
 		{
-			int StrLen = StrLength(Strings[I]->lpData);
 			SetColor(COL_VIEWERTEXT);
 			GotoXY(X1,Y);
 
-			if (StrLen > LeftPos)
+			if (static_cast<long long>(i->Data.GetLength()) > LeftPos)
 			{
-				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
+				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i->Data.CPtr() + LeftPos;
 			}
 			else
 			{
 				Global->FS << fmt::MinWidth(Width)<<L"";
 			}
 
-			if ( SelectSize >= 0 && Strings[I]->bSelection)
+			if ( SelectSize >= 0 && i->bSelection)
 			{
 				__int64 SelX1;
 
-				if (LeftPos > Strings[I]->nSelStart)
+				if (LeftPos > i->nSelStart)
 					SelX1 = X1;
 				else
-					SelX1 = Strings[I]->nSelStart-LeftPos;
+					SelX1 = i->nSelStart-LeftPos;
 
-				if (!VM.Wrap && (Strings[I]->nSelStart < LeftPos || Strings[I]->nSelStart > LeftPos+XX2-X1))
+				if (!VM.Wrap && (i->nSelStart < LeftPos || i->nSelStart > LeftPos+XX2-X1))
 				{
 					if (AdjustSelPosition)
 					{
-						LeftPos = Strings[I]->nSelStart-1;
+						LeftPos = i->nSelStart-1;
 						AdjustSelPosition = FALSE;
 						Show();
 						return;
@@ -609,26 +610,26 @@ void Viewer::ShowPage(int nMode)
 				{
 					SetColor(COL_VIEWERSELECTEDTEXT);
 					GotoXY(static_cast<int>(X1+SelX1),Y);
-					__int64 Length = Strings[I]->nSelEnd-Strings[I]->nSelStart;
+					__int64 Length = i->nSelEnd-i->nSelStart;
 
-					if (LeftPos > Strings[I]->nSelStart)
-						Length = Strings[I]->nSelEnd-LeftPos;
+					if (LeftPos > i->nSelStart)
+						Length = i->nSelEnd-LeftPos;
 
-					if (LeftPos > Strings[I]->nSelEnd)
+					if (LeftPos > i->nSelEnd)
 						Length = 0;
 
-					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
+					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i->Data.CPtr() + SelX1 + LeftPos;
 				}
 			}
 
-			if (StrLen > LeftPos + Width && ViOpt.ShowArrows)
+			if (static_cast<long long>(i->Data.GetLength()) > LeftPos + Width && ViOpt.ShowArrows)
 			{
 				GotoXY(XX2,Y);
 				SetColor(COL_VIEWERARROWS);
 				BoxText(0xbb);
 			}
 
-			if (LeftPos>0 && *Strings[I]->lpData  && ViOpt.ShowArrows)
+			if (LeftPos>0 && !i->Data.IsEmpty()  && ViOpt.ShowArrows)
 			{
 				GotoXY(X1,Y);
 				SetColor(COL_VIEWERARROWS);
@@ -982,9 +983,9 @@ void Viewer::DrawScrollbar()
 		{
 			total = static_cast<UINT64>(FileSize);
 			start = static_cast<UINT64>(FilePos);
-			ViewerString *last_line = Strings[Y2-Y1];
-			end = last_line->nFilePos + last_line->linesize;
-			if ( end == static_cast<UINT64>(FileSize) && last_line->linesize > 0 && last_line->have_eol )
+			ViewerString& last_line = Strings.back();
+			end = last_line.nFilePos + last_line.linesize;
+			if ( end == static_cast<UINT64>(FileSize) && last_line.linesize > 0 && last_line.have_eol )
 				++total;
 		}
 		else
@@ -1071,13 +1072,10 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 	INT64 fpos=0, fpos1, sel_end, wrap_pos = -1;
 	bool skip_space = false;
 
-	if ( !pString->lpData )
-		pString->lpData = new wchar_t[MAX_VIEWLINEB];
-
 	if (VM.Hex)
 	{
 		vseek(VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage), FILE_CURRENT);
-		pString->lpData[OutPtr] = L'\0';
+		ReadBuffer[OutPtr] = L'\0';
 		LastPage = veof();
 		return;
 	}
@@ -1132,7 +1130,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 			break;
 		}
 
-		pString->lpData[OutPtr++] = ch ? ch : ZERO_CHAR;
+		ReadBuffer[OutPtr++] = ch ? ch : ZERO_CHAR;
 		if ( !VM.Wrap )
 			continue;
 
@@ -1157,7 +1155,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 			OutPtr = wrap_out;
 			vseek(wrap_pos, SEEK_SET);
-			while (OutPtr > 0 && is_space_or_nul(pString->lpData[OutPtr-1]))
+			while (OutPtr > 0 && is_space_or_nul(ReadBuffer[OutPtr-1]))
 				--OutPtr;
 
 			if ( bSelEndFound && pString->nSelEnd > OutPtr )
@@ -1210,7 +1208,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 	}
 
 	pString->have_eol = eol_len;
-	pString->lpData[(int)OutPtr]=0;
+	ReadBuffer[(int)OutPtr]=0;
 	pString->linesize = (int)(vtell() - pString->nFilePos);
 
 	if ( update_cache )
@@ -1236,6 +1234,8 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 	if (!eol_char && veof())
 		LastPage = 1;
+
+	pString->Data = ReadBuffer;
 }
 
 
@@ -1245,10 +1245,12 @@ __int64 Viewer::EndOfScreen( int line )
 
 	if (!VM.Hex)
 	{
-		pos = Strings[Y2-Y1+line]->nFilePos + Strings[Y2-Y1+line]->linesize;
-		if ( !line && !VM.Wrap && Strings[Y2-Y1]->linesize > 0 )
+		auto i = Strings.begin();
+		std::advance(i, Y2-Y1+line);
+		pos = i->nFilePos + i->linesize;
+		if ( !line && !VM.Wrap && Strings.back().linesize > 0 )
 		{
-			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
+			vseek(Strings.back().nFilePos, SEEK_SET);
 			int col = 0, rmargin = (int)LeftPos + Width;
 			wchar_t ch;
 			for (;;)
@@ -1299,7 +1301,9 @@ __int64 Viewer::BegOfScreen()
 				break;
 			if ( ch == L'\n' || ch == L'\r' )
 			{
-				pos = Strings[1]->nFilePos;
+				auto SecondLine = Strings.begin();
+				++SecondLine;
+				pos = SecondLine->nFilePos;
 				break;
 			}
 			if ( ch == L'\t' )
@@ -1740,9 +1744,9 @@ int Viewer::ProcessKey(int Key)
 				else
 				{
 					ShowPage(SHOW_UP);
-					ViewerString *end = Strings[Y2-Y1];
-					LastPage = end->nFilePos >= FileSize ||
-						(!end->have_eol && end->nFilePos + end->linesize >= FileSize);
+					ViewerString& end = Strings.back();
+					LastPage = end.nFilePos >= FileSize ||
+						(!end.have_eol && end.nFilePos + end.linesize >= FileSize);
 				}
 			}
 
@@ -1888,23 +1892,14 @@ int Viewer::ProcessKey(int Key)
 			// Перейти на конец строк
 			if (ViewFile.Opened())
 			{
-				int I, Y, Len, MaxLen = 0;
-
-				for (I=0,Y=Y1; Y<=Y2; Y++,I++)
+				size_t MaxLen = 0;
+				std::for_each(RANGE(Strings, i)
 				{
-					Len = StrLength(Strings[I]->lpData);
-
-					if (Len > MaxLen)
-						MaxLen = Len;
-				} /* for */
-
-				if (MaxLen > Width)
-					LeftPos = MaxLen - Width;
-				else
-					LeftPos = 0;
-
+					MaxLen = std::max(MaxLen, i.Data.GetLength());
+				});
+				LeftPos = (MaxLen > static_cast<size_t>(Width))? MaxLen - Width : 0;
 				Show();
-			} /* if */
+			}
 
 			return TRUE;
 		}
@@ -4156,12 +4151,12 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 		if ( !VM.Wrap )
 		{
 			vseek(vString.nFilePos = FilePos, SEEK_SET);
-			vString.lpData[0] = L'\0';
+			vString.Data.Clear();
 			ReadString(&vString, (int)(SelectPos-FilePos), false);
 
 			if ( !vString.have_eol )
 			{
-				int found_offset = (int)wcslen(vString.lpData);
+				int found_offset = static_cast<int>(vString.Data.GetLength());
 				if ( found_offset > Width-10 )
 					LeftPos = (Width <= 10 ? found_offset : found_offset + 10 - Width);
 			}
