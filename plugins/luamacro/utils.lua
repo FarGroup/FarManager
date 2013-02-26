@@ -544,13 +544,13 @@ local function EV_Compare (e1,e2)
          e1.cur_priority == e2.cur_priority and e1.cur_index < e2.cur_index
 end
 
-local function EV_Handler (WindowID, Event, Param, macros, filename)
+local function EV_Handler (macros, filename, ...)
   -- Get current priorities.
   for i,m in ipairs(macros) do
     m.cur_index, m.cur_priority = i, -1
     if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
       if m.condition then
-        local pr = m.condition(WindowID, Event, Param)
+        local pr = m.condition(...)
         if pr then
           if type(pr)=="number" then m.cur_priority = pr<0 and 0 or pr>100 and 100 or pr
           else m.cur_priority = m.priority
@@ -568,20 +568,26 @@ local function EV_Handler (WindowID, Event, Param, macros, filename)
   -- Execute.
   for _,m in ipairs(macros) do
     if m.cur_priority < 0 then break end
-    m.action(WindowID, Event, Param)
+    m.action(...)
     --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
   end
 end
 
 function export.ProcessEditorEvent (EditorID, Event, Param)
   if Events and Events.editorevent then
-    EV_Handler(EditorID, Event, Param, Events.editorevent, editor.GetFileName(nil))
+    EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
   end
 end
 
 function export.ProcessViewerEvent (ViewerID, Event, Param)
   if Events and Events.viewerevent then
-    EV_Handler(ViewerID, Event, Param, Events.viewerevent, viewer.GetFileName(nil))
+    EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
+  end
+end
+
+function export.ExitFAR ()
+  if Events and Events.exitfar then
+    EV_Handler(Events.exitfar)
   end
 end
 
