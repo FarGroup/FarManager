@@ -568,7 +568,12 @@ local function EV_Handler (macros, filename, ...)
   -- Execute.
   for _,m in ipairs(macros) do
     if m.cur_priority < 0 then break end
-    m.action(...)
+    if macros == Events.dialogevent then
+      local ret = m.action(...)
+      if ret then return ret end
+    else
+      m.action(...)
+    end
     --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
   end
 end
@@ -588,6 +593,12 @@ end
 function export.ExitFAR ()
   if Events and Events.exitfar then
     EV_Handler(Events.exitfar)
+  end
+end
+
+function export.ProcessDialogEvent (Event, Param)
+  if Events and Events.dialogevent then
+    EV_Handler(Events.dialogevent, nil, Event, Param)
   end
 end
 

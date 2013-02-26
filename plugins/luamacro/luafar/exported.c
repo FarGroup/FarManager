@@ -1245,14 +1245,12 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 		PutIntToTable(L, "Param2", (intptr_t)fde->Param2);
 		PutIntToTable(L, "Result", fde->Result);
 
-		if(pcall_msg(L, 2, 2) == 0)     //+2
+		if(pcall_msg(L, 2, 1) == 0)     //+1
 		{
-			ret = lua_isnumber(L,-2) ? lua_tointeger(L,-2) : lua_toboolean(L,-2);
-
-			if(ret != 0)
+			if((ret=lua_toboolean(L,-1)) != 0)
 				fde->Result = lua_tointeger(L,-1);
 
-			lua_pop(L,2);
+			lua_pop(L,1);
 		}
 	}
 

@@ -1,3 +1,11 @@
+shmuel 27.02.2013 00:12:33 +0200 - build 96
+
+1. LuaFAR: функция export.ProcessDialogEvent возвращает одно значение, а не два.
+
+2. Добавлено событие 'DialogEvent', т.е. в спецификации события надо указывать group="DialogEvent".
+   Параметры функций action и condition, а также возвращаемое значение функции action - согласно
+   описанию функции export.ProcessDialogEvent в мануале LuaFAR.
+
 shmuel 26.02.2013 18:07:30 +0200 - build 95
 
 1. Добавлено событие 'ExitFAR', т.е. в спецификации события надо указывать group="ExitFAR".

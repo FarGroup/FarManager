@@ -1909,9 +1909,9 @@ id=221
 lv=2
 dt=Text
 nm=export.ProcessDialogEvent
-mtime=3509018968
+mtime=3571083823
 <article>
-#_ret1, ret2 = export.ProcessDialogEvent (Event, Param)
+#_ret = export.ProcessDialogEvent (Event, Param)
 #_
 #_**Parameters:**
 #_  Event:  integer
@@ -1923,14 +1923,12 @@ mtime=3509018968
 #_            Result : integer
 #_
 #_**Returns:**
-#_  ret1:   integer, or boolean
-#_  ret2:   integer
+#_  ret:    integer, or nil
 #_
 #_**Description:**
-#_  If *ret1* is either *zero* or *false*, then the event processing
-#_  will be continued. Otherwise, it is assumed that the plugin has
-#_  processed the event; *ret2* will then be used as the return value
-#_  of the dialog event handler.
+#_  If *ret* is *nil* or *false*, then the event processing will continue.
+#_  Otherwise, it is assumed that the plugin has processed the event, and *ret*
+#_  will then be used as the return value of the dialog event handler.
 #_
 #_@@@
 #_
