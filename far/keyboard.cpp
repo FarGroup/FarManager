@@ -659,6 +659,16 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	return Key;
 }
 
+DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
+{
+	MACROMODEAREA MMode=Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
+	DWORD Key=GetInputRecord(rec,false,false,AllowSynchro);
+	Global->CtrlObject->Macro.SetMode(MMode);
+	return Key;
+}
+
+
 static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
@@ -1547,10 +1557,7 @@ int CheckForEscSilent()
 
 	if (Processed && PeekInputRecord(&rec))
 	{
-		MACROMODEAREA MMode=Global->CtrlObject->Macro.GetMode();
-		Global->CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
-		int Key=GetInputRecord(&rec,false,false,false);
-		Global->CtrlObject->Macro.SetMode(MMode);
+		int Key=GetInputRecordNoMacroArea(&rec,false);
 
 		if (Key==KEY_ESC)
 			return TRUE;

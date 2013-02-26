@@ -166,11 +166,11 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 				case KEY_RALT:
 				case KEY_RCTRL:
 				case KEY_LWIN: case KEY_RWIN:
-					GetInputRecord(&rec);
+					GetInputRecordNoMacroArea(&rec);
 					break;
 				case KEY_ESC:
 				case KEY_BREAK:
-					GetInputRecord(&rec);
+					GetInputRecordNoMacroArea(&rec);
 					return 0;
 				default:
 
@@ -179,7 +179,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 						return -1;
 					}
 
-					GetInputRecord(&rec);
+					GetInputRecordNoMacroArea(&rec);
 					break;
 			}
 		}
