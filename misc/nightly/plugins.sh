@@ -168,9 +168,9 @@ bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng Tmp
 bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng" && \
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua LuaMacro.map" && \
 
-bpluginftp \
+#bpluginftp \
 #bpluginma
-) || exit 1
+#) || exit 1
 
 ( \
 	cd ../misc && \

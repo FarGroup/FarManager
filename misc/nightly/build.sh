@@ -6,6 +6,8 @@
 
 ./colorer.sh &> logs/colorer && \
 
+./netbox.sh &> logs/netbox && \
+
 ./enc.sh &> logs/enc && \
 
 ./docs.sh &> logs/docs && \
