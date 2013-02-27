@@ -517,47 +517,17 @@
             <ComponentRef Id="changelog_10" />
           </Feature>
         </Feature>
-        <Feature Id="FarFtp" Level="1" Title="!(loc.Feature.Title.FarFtp)" AllowAdvertise="no" Description="!(loc.Feature.Description.FarFtp)">
-          <ComponentRef Id="FarFtp.dll" />
-          <ComponentRef Id="FtpCmds.txt" />
-          <ComponentRef Id="FtpEng.hlf" />
-          <ComponentRef Id="FtpEng.lng" />
-          <ComponentRef Id="Notes.txt" />
-          <ComponentRef Id="TechInfo.reg" />
-          <Feature Id="ftpDirList" Level="1" Title="!(loc.Feature.Title.ftpDirList)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpDirList)">
-            <ComponentRef Id="ftpDirList.fll" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="ftpDirList.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="ftpDirList.map" />
-            </Feature>
-<?endif?>
+        <Feature Id="NetBox" Level="1" Title="!(loc.Feature.Title.NetBox)" AllowAdvertise="no" Description="!(loc.Feature.Description.NetBox)">
+          <ComponentRef Id="NetBox.dll" />
+          <ComponentRef Id="NetBoxEng.lng" />
+          <ComponentRef Id="README.md" />
+          <ComponentRef Id="LICENSE.txt" />
+          <Feature Id="NetBox.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="README.RU.md" />
+            <ComponentRef Id="NetBoxRus.lng" />
           </Feature>
-          <Feature Id="ftpProgress" Level="1" Title="!(loc.Feature.Title.ftpProgress)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpProgress)">
-            <ComponentRef Id="ftpProgress.fll" />
-            <ComponentRef Id="Progress_FarCopy.reg" />
-            <ComponentRef Id="Progress_JM.reg" />
-            <ComponentRef Id="Progress_Wesha.reg" />
-            <ComponentRef Id="Progress_ZeMA.reg" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="ftpProgress.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="ftpProgress.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="FarFtp.Russian" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="FtpCmds_rus.txt" />
-            <ComponentRef Id="FtpRus.hlf" />
-            <ComponentRef Id="FtpRus.lng" />
-            <ComponentRef Id="Notes_rus.txt" />
-            <ComponentRef Id="TechInfo_rus.reg" />
-          </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="FarFtp.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="FarFtp.map" />
-          </Feature>
-<?endif?>
-          <Feature Id="FarFtp.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="changelog_11" />
+          <Feature Id="NetBox.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ChangeLog_11" />
           </Feature>
         </Feature>
         <Feature Id="HlfViewer" Level="1" Title="!(loc.Feature.Title.HlfViewer)" AllowAdvertise="no" Description="!(loc.Feature.Description.HlfViewer)">

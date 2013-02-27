@@ -985,76 +985,28 @@
           </Component>
 <?endif?>
         </Directory>
-        <Directory Id="FTP" Name="FTP">
-          <Component Id="changelog_11" Guid="$(var.Guid.changelog_11)" Win64="$(var.Win64)">
-            <File Id="changelog_11" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\changelog" />
+        <Directory Id="NetBox" Name="NetBox">
+          <Component Id="ChangeLog_11" Guid="$(var.Guid.ChangeLog_11)" Win64="$(var.Win64)">
+            <File Id="ChangeLog_11" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\ChangeLog" />
           </Component>
-          <Component Id="FarFtp.dll" Guid="$(var.Guid.FarFtp.dll)" Win64="$(var.Win64)">
-            <File Id="FarFtp.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.dll" />
+          <Component Id="NetBox.dll" Guid="$(var.Guid.NetBox.dll)" Win64="$(var.Win64)">
+            <File Id="NetBox.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBox.dll" />
           </Component>
-<?if $(var.Platform) = x86 ?>
-          <Component Id="FarFtp.map" Guid="$(var.Guid.FarFtp.map)" Win64="$(var.Win64)">
-            <File Id="FarFtp.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.map" />
+          <Component Id="NetBoxEng.lng" Guid="$(var.Guid.NetBoxEng.lng)" Win64="$(var.Win64)">
+            <File Id="NetBoxEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxEng.lng" />
           </Component>
-<?endif?>
-          <Component Id="FtpCmds.txt" Guid="$(var.Guid.FtpCmds.txt)" Win64="$(var.Win64)">
-            <File Id="FtpCmds.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpCmds.txt" />
+          <Component Id="NetBoxRus.lng" Guid="$(var.Guid.NetBoxRus.lng)" Win64="$(var.Win64)">
+            <File Id="NetBoxRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxRus.lng" />
           </Component>
-          <Component Id="FtpCmds_rus.txt" Guid="$(var.Guid.FtpCmds_rus.txt)" Win64="$(var.Win64)">
-            <File Id="FtpCmds_rus.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpCmds_rus.txt" />
+          <Component Id="README.md" Guid="$(var.Guid.README.md)" Win64="$(var.Win64)">
+            <File Id="README.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.md" />
           </Component>
-          <Component Id="FtpEng.hlf" Guid="$(var.Guid.FtpEng.hlf)" Win64="$(var.Win64)">
-            <File Id="FtpEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpEng.hlf" />
+          <Component Id="README.RU.md" Guid="$(var.Guid.README.RU.md)" Win64="$(var.Win64)">
+            <File Id="README.RU.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.RU.md" />
           </Component>
-          <Component Id="FtpEng.lng" Guid="$(var.Guid.FtpEng.lng)" Win64="$(var.Win64)">
-            <File Id="FtpEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpEng.lng" />
+          <Component Id="LICENSE.txt" Guid="$(var.Guid.LICENSE.txt)" Win64="$(var.Win64)">
+            <File Id="LICENSE.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\LICENSE.txt" />
           </Component>
-          <Component Id="FtpRus.hlf" Guid="$(var.Guid.FtpRus.hlf)" Win64="$(var.Win64)">
-            <File Id="FtpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpRus.hlf" />
-          </Component>
-          <Component Id="FtpRus.lng" Guid="$(var.Guid.FtpRus.lng)" Win64="$(var.Win64)">
-            <File Id="FtpRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpRus.lng" />
-          </Component>
-          <Component Id="Notes.txt" Guid="$(var.Guid.Notes.txt)" Win64="$(var.Win64)">
-            <File Id="Notes.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\Notes.txt" />
-          </Component>
-          <Component Id="Notes_rus.txt" Guid="$(var.Guid.Notes_rus.txt)" Win64="$(var.Win64)">
-            <File Id="Notes_rus.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\Notes_rus.txt" />
-          </Component>
-          <Component Id="TechInfo.reg" Guid="$(var.Guid.TechInfo.reg)" Win64="$(var.Win64)">
-            <File Id="TechInfo.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\TechInfo.reg" />
-          </Component>
-          <Component Id="TechInfo_rus.reg" Guid="$(var.Guid.TechInfo_rus.reg)" Win64="$(var.Win64)">
-            <File Id="TechInfo_rus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\TechInfo_rus.reg" />
-          </Component>
-          <Directory Id="lib" Name="lib">
-            <Component Id="ftpDirList.fll" Guid="$(var.Guid.ftpDirList.fll)" Win64="$(var.Win64)">
-              <File Id="ftpDirList.fll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpDirList.fll" />
-            </Component>
-            <Component Id="ftpProgress.fll" Guid="$(var.Guid.ftpProgress.fll)" Win64="$(var.Win64)">
-              <File Id="ftpProgress.fll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.fll" />
-            </Component>
-<?if $(var.Platform) = x86 ?>
-            <Component Id="ftpDirList.map" Guid="$(var.Guid.ftpDirList.map)" Win64="$(var.Win64)">
-              <File Id="ftpDirList.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpDirList.map" />
-            </Component>
-            <Component Id="ftpProgress.map" Guid="$(var.Guid.ftpProgress.map)" Win64="$(var.Win64)">
-              <File Id="ftpProgress.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.map" />
-            </Component>
-<?endif?>
-            <Component Id="Progress_FarCopy.reg" Guid="$(var.Guid.Progress_FarCopy.reg)" Win64="$(var.Win64)">
-              <File Id="Progress_FarCopy.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_FarCopy.reg" />
-            </Component>
-            <Component Id="Progress_JM.reg" Guid="$(var.Guid.Progress_JM.reg)" Win64="$(var.Win64)">
-              <File Id="Progress_JM.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_JM.reg" />
-            </Component>
-            <Component Id="Progress_Wesha.reg" Guid="$(var.Guid.Progress_Wesha.reg)" Win64="$(var.Win64)">
-              <File Id="Progress_Wesha.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_Wesha.reg" />
-            </Component>
-            <Component Id="Progress_ZeMA.reg" Guid="$(var.Guid.Progress_ZeMA.reg)" Win64="$(var.Win64)">
-              <File Id="Progress_ZeMA.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_ZeMA.reg" />
-            </Component>
-          </Directory>
         </Directory>
         <Directory Id="HlfViewer" Name="HlfViewer">
           <Component Id="changelog_12" Guid="$(var.Guid.changelog_12)" Win64="$(var.Win64)">
