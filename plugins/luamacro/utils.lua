@@ -254,6 +254,7 @@ local function LoadMacros (allAreas, unload)
     local DummyFunc = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
     win.CreateDir(dir.."\\scripts",true)
+    win.CreateDir(win.GetEnv("farprofile").."\\Menus",true)
     for k=1,2 do
       local root = k==1 and dir.."\\scripts" or dir.."\\internal"
       local flags = k==1 and F.FRS_RECUR or 0

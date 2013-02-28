@@ -68,6 +68,17 @@ mf = {
 mf.iif = function(Expr, res1, res2)
   if Expr and Expr~="" then return res1 else return res2 end
 end
+
+mf.usermenu = function(filename, mode)
+  if type(filename)~="string" then return 0 end
+  if type(mode)~="number" then mode=0 end
+  if mode~=0 and mode~=1 then return 0 end
+  if mode==1 and not (filename:find("^%a:") or filename:find("^\\")) then
+    filename = win.GetEnv("farprofile").."\\Menus\\"..filename
+  end
+  return MacroCallFar(0x80C67, filename)
+end
+
 mf.GetMacroCopy = utils.GetMacroCopy
 --------------------------------------------------------------------------------
 

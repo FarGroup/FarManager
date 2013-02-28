@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "vmenu2.hpp"
 #include "constitle.hpp"
+#include "usermenu.hpp"
 
 static BOOL CheckAll(MACROMODEAREA Mode, UINT64 CurFlags);
 
@@ -189,6 +190,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Получить численное выражение флагов макроса\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
+	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -2675,6 +2677,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			PassNumber(Options, Data);
 			break;
 		}
+
+		case MCODE_F_USERMENU:
+			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING)
+			{
+				UserMenu uMenu(Data->Values[0].String);
+			}
+			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
 		case MCODE_F_BM_CLEAR:            // N=BM.Clear()
