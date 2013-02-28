@@ -631,14 +631,7 @@ int QuickView::GetCurName(string &strName, string &strShortName)
 BOOL QuickView::UpdateKeyBar()
 {
 	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetAllGroup(KBL_MAIN, MQViewF1, 12);
-	KB->SetAllGroup(KBL_SHIFT, MQViewShiftF1, 12);
-	KB->SetAllGroup(KBL_ALT, MQViewAltF1, 12);
-	KB->SetAllGroup(KBL_CTRL, MQViewCtrlF1, 12);
-	KB->SetAllGroup(KBL_CTRLSHIFT, MQViewCtrlShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALT, MQViewCtrlAltF1, 12);
-	KB->SetAllGroup(KBL_ALTSHIFT, MQViewAltShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALTSHIFT, MQViewCtrlAltShiftF1, 12);
+	KB->SetLabels(MQViewF1);
 	DynamicUpdateKeyBar();
 	return TRUE;
 }
@@ -684,6 +677,5 @@ void QuickView::DynamicUpdateKeyBar()
 			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 
-	KB->ReadRegGroup(L"QView",Global->Opt->strLanguage);
-	KB->SetAllRegGroup();
+	KB->SetCustomLabels(L"QView");
 }

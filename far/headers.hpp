@@ -179,6 +179,7 @@ inline void ClearStructUnsafe(T& s)
 template<typename T>
 inline void ClearArray(T& a)
 {
+	static_assert(std::is_pod<T>::value, "ClearStruct template requires a POD type");
 	static_assert(std::is_array<T>::value, "ClearArray template requires an array");
 	memset(a, 0, sizeof(a));
 }

@@ -94,3 +94,10 @@ LNGID operator+(LNGID Id, T Shift)
 {
 	return static_cast<LNGID>(static_cast<DWORD>(Id)+static_cast<DWORD>(Shift));
 }
+
+inline LNGID operator++(LNGID& Id, int)
+{
+	LNGID Value = Id;
+	Id = Id + 1;
+	return Value;
+}

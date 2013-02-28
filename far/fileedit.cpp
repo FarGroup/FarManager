@@ -676,14 +676,7 @@ void FileEditor::Init(
 
 void FileEditor::InitKeyBar()
 {
-	EditKeyBar.SetAllGroup(KBL_MAIN,         Global->Opt->OnlyEditorViewerUsed?MSingleEditF1:MEditF1, 12);
-	EditKeyBar.SetAllGroup(KBL_SHIFT,        Global->Opt->OnlyEditorViewerUsed?MSingleEditShiftF1:MEditShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_ALT,          Global->Opt->OnlyEditorViewerUsed?MSingleEditAltF1:MEditAltF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRL,         Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlF1:MEditCtrlF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlShiftF1:MEditCtrlShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLALT,      Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlAltF1:MEditCtrlAltF1, 12);
-	EditKeyBar.SetAllGroup(KBL_ALTSHIFT,     Global->Opt->OnlyEditorViewerUsed?MSingleEditAltShiftF1:MEditAltShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlAltShiftF1:MEditCtrlAltShiftF1, 12);
+	EditKeyBar.SetLabels(Global->Opt->OnlyEditorViewerUsed?MSingleEditF1:MEditF1);
 
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_SHIFT,L"",4-1);
@@ -705,8 +698,7 @@ void FileEditor::InitKeyBar()
 	else
 		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
-	EditKeyBar.ReadRegGroup(L"Editor",Global->Opt->strLanguage);
-	EditKeyBar.SetAllRegGroup();
+	EditKeyBar.SetCustomLabels(L"Editor");
 	EditKeyBar.Show();
 	if (!Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Hide0();

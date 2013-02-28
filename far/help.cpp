@@ -2080,19 +2080,8 @@ void Help::SetScreenPosition()
 
 void Help::InitKeyBar()
 {
-	HelpKeyBar.SetAllGroup(KBL_MAIN, MHelpF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_SHIFT, MHelpShiftF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_ALT, MHelpAltF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_CTRL, MHelpCtrlF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_CTRLSHIFT, MHelpCtrlShiftF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_CTRLALT, MHelpCtrlAltF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_ALTSHIFT, MHelpAltShiftF1, 12);
-	HelpKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, MHelpCtrlAltShiftF1, 12);
-	// Уберем лишнее с глаз долой
-	HelpKeyBar.Change(KBL_SHIFT,L"",3-1);
-	HelpKeyBar.Change(KBL_SHIFT,L"",7-1);
-	HelpKeyBar.ReadRegGroup(L"Help",Global->Opt->strLanguage);
-	HelpKeyBar.SetAllRegGroup();
+	HelpKeyBar.SetLabels(MHelpF1);
+	HelpKeyBar.SetCustomLabels(L"Help");
 	SetKeyBar(&HelpKeyBar);
 }
 

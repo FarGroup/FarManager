@@ -2684,7 +2684,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else if (Data->Values[0].Type==FMVT_BOOLEAN)
 				UserMenu uMenu(Data->Values[0].Boolean != 0);
 			else if (Data->Values[0].Type==FMVT_STRING)
-				UserMenu uMenu(Data->Values[0].String);
+				UserMenu uMenu(string(Data->Values[0].String));
 
 			break;
 

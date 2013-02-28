@@ -5164,16 +5164,8 @@ void FileList::ChangeSortOrder(int NewOrder)
 BOOL FileList::UpdateKeyBar()
 {
 	KeyBar *KB=Global->CtrlObject->MainKeyBar;
-	KB->SetAllGroup(KBL_MAIN, MF1, 12);
-	KB->SetAllGroup(KBL_SHIFT, MShiftF1, 12);
-	KB->SetAllGroup(KBL_ALT, MAltF1, 12);
-	KB->SetAllGroup(KBL_CTRL, MCtrlF1, 12);
-	KB->SetAllGroup(KBL_CTRLSHIFT, MCtrlShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALT, MCtrlAltF1, 12);
-	KB->SetAllGroup(KBL_ALTSHIFT, MAltShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALTSHIFT, MCtrlAltShiftF1, 12);
-	KB->ReadRegGroup(L"Shell",Global->Opt->strLanguage);
-	KB->SetAllRegGroup();
+	KB->SetLabels(MF1);
+	KB->SetCustomLabels(L"Shell");
 
 	if (GetMode() == PLUGIN_PANEL)
 	{

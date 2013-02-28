@@ -50,26 +50,10 @@ KeyBar::KeyBar():
 	AltState(0),
 	CtrlState(0),
 	ShiftState(0),
-	DisableMask(0),
-	RegReaded(FALSE)
+	CustomLabelsReaded(false)
 {
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
-	ClearArray(KeyCounts);
-	ClearArray(KeyTitles);
-	ClearArray(KeyTitlesCustom);
 }
-
-KeyBar::~KeyBar()
-{
-	ClearKeyTitles(false);
-	ClearKeyTitles(true);
-}
-
-void KeyBar::SetOwner(ScreenObject *Owner)
-{
-	KeyBar::Owner=Owner;
-}
-
 
 void KeyBar::DisplayObject()
 {
@@ -82,7 +66,7 @@ void KeyBar::DisplayObject()
 
 	int LabelWidth=KeyWidth-2;
 
-	for (int i=0; i<KEY_COUNT; i++)
+	for (size_t i=0; i<KEY_COUNT; i++)
 	{
 		if (WhereX()+LabelWidth>=X2)
 			break;
@@ -102,26 +86,22 @@ void KeyBar::DisplayObject()
 
 				if (!IntKeyState.AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
 				{
-					if (i<KeyCounts [KBL_CTRLSHIFT])
-						Label=KeyTitles [KBL_CTRLSHIFT][i];
+					Label = Items[KBL_CTRLSHIFT][i].Title;
 				}
 				else if (!(Global->Opt->CASRule&1) || !(Global->Opt->CASRule&2))
 				{
-					if (i<KeyCounts [KBL_CTRLALTSHIFT])
-						Label=KeyTitles [KBL_CTRLALTSHIFT][i];
+					Label = Items[KBL_CTRLALTSHIFT][i].Title;
 				}
 			}
 			else if (IntKeyState.AltPressed)
 			{
-				if (i<KeyCounts [KBL_ALTSHIFT])
-					Label=KeyTitles [KBL_ALTSHIFT][i];
+				Label = Items[KBL_ALTSHIFT][i].Title;
 
 				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
-				if (i<KeyCounts [KBL_SHIFT])
-					Label=KeyTitles [KBL_SHIFT][i];
+				Label = Items[KBL_SHIFT][i].Title;
 			}
 		}
 		else if (IntKeyState.CtrlPressed)
@@ -130,27 +110,25 @@ void KeyBar::DisplayObject()
 
 			if (IntKeyState.AltPressed)
 			{
-				if (i<KeyCounts [KBL_CTRLALT])
-					Label=KeyTitles [KBL_CTRLALT][i];
+				Label = Items[KBL_CTRLALT][i].Title;
 
 				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
-				if (i<KeyCounts [KBL_CTRL])
-					Label=KeyTitles [KBL_CTRL][i];
+				Label = Items[KBL_CTRL][i].Title;
 			}
 		}
 		else if (IntKeyState.AltPressed)
 		{
 			AltState=IntKeyState.AltPressed;
 
-			if (i<KeyCounts [KBL_ALT])
-				Label=KeyTitles [KBL_ALT][i];
+			Label = Items[KBL_ALT][i].Title;
 		}
-		else if (i<KeyCounts [KBL_MAIN] && !(DisableMask & (1<<i)))
-			Label=KeyTitles [KBL_MAIN][i];
-
+		else
+		{
+			Label = Items[KBL_MAIN][i].Title;
+		}
 
 		if (!Label)
 			Label=L"";
@@ -196,21 +174,41 @@ void KeyBar::DisplayObject()
 	}
 }
 
-void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
+void KeyBar::ClearKeyTitles(bool Custom)
 {
-	if (!RegReaded || StrCmpI(strLanguage,Language) || StrCmpI(strRegGroupName,RegGroup))
+	std::for_each(RANGE(Items, i)
+	{
+		std::for_each(RANGE(i, j)
+		{
+			(Custom? j.CustomTitle : j.Title).Clear();
+		});
+	});
+}
+
+void KeyBar::SetLabels(LNGID StartIndex)
+{
+	std::for_each(RANGE(Items, Group)
+	{
+		std::for_each(RANGE(Group, i)
+		{
+			i.Title = MSG(StartIndex++);
+		});
+	});
+}
+
+void KeyBar::SetCustomLabels(const wchar_t *Area)
+{
+	if (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || StrCmpI(CustomArea, Area))
 	{
 		DWORD Index=0;
 		string strRegName;
 		string strValue;
 		string strValueName;
 
-		strLanguage=Language;
-		strRegGroupName=RegGroup;
+		strLanguage = Global->Opt->strLanguage.Get();
+		CustomArea = Area;
 		strRegName=L"KeyBarLabels.";
-		strRegName+=strLanguage;
-		strRegName+=L".";
-		strRegName+=RegGroup;
+		strRegName+=strLanguage + L"." + Area;
 
 		ClearKeyTitles(true);
 
@@ -241,75 +239,24 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 
 				if (J <= ARRAYSIZE(Area))
 				{
-					KeyTitlesCustom[Area[J][0]][Key0-KEY_F1]=xf_wcsdup(strValue.CPtr());
+					Items[Area[J][0]][Key0-KEY_F1].CustomTitle = strValue;
 				}
 			}
 		}
 
-		RegReaded=TRUE;
+		CustomLabelsReaded=TRUE;
 	}
-}
 
-void KeyBar::ClearKeyTitles(bool Custom,int Group)
-{
-	KeyBarTitleGroup *kb = Custom? KeyTitlesCustom : KeyTitles;
-
-	size_t Begin=0, End=KBL_GROUP_COUNT-1;
-	if (Group != -1)
-		Begin=End=(size_t)Group;
-
-	for (size_t I=Begin; I <= End; I++)
+	std::for_each(RANGE(Items, Group)
 	{
-		for (size_t J=0; J < (size_t)KEY_COUNT; ++J)
+		std::for_each(RANGE(Group, i)
 		{
-			if (kb[I][J])
+			if (i.CustomTitle && *i.CustomTitle)
 			{
-				xf_free((void*)kb[I][J]);
-				kb[I][J]=nullptr;
+				i.Title = i.CustomTitle;
 			}
-		}
-	}
-	if (Group != -1)
-		ClearArray(kb[Group]);
-	else
-		ClearArray(*kb);
-}
-
-void KeyBar::SetRegGroup(int Group)
-{
-	for (int I=0; I < KEY_COUNT; I++)
-		if (KeyTitlesCustom[Group][I] && *KeyTitlesCustom[Group][I])
-		{
-			if (KeyTitles[Group][I]) xf_free(KeyTitles[Group][I]);
-			KeyTitles[Group][I]=xf_wcsdup(KeyTitlesCustom[Group][I]);
-		}
-}
-
-void KeyBar::SetAllRegGroup()
-{
-	for (int I=0; I < KBL_GROUP_COUNT; ++I)
-		SetRegGroup(I);
-}
-
-
-void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
-{
-	if (!Key) return;
-
-	for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
-		if (Key[i])
-		{
-			if (KeyTitles[Group][i]) xf_free(KeyTitles[Group][i]);
-			KeyTitles[Group][i]=xf_wcsdup(Key[i]);
-		}
-
-	KeyCounts [Group]=KeyCount;
-}
-
-void KeyBar::ClearGroup(int Group)
-{
-	ClearKeyTitles(false,Group);
-	KeyCounts [Group] = 0;
+		});
+	});
 }
 
 // Изменение любого Label
@@ -317,26 +264,10 @@ void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
 	if (NewStr)
 	{
-		if (KeyTitles[Group][Pos]) xf_free(KeyTitles[Group][Pos]);
-		KeyTitles[Group][Pos]=xf_wcsdup(NewStr);
+		Items[Group][Pos].Title = NewStr;
 	}
 }
 
-
-// Групповая установка идущих подряд строк LNG для указанной группы
-void KeyBar::SetAllGroup(int Group, LNGID StartIndex, int Count)
-{
-	if (Count > KEY_COUNT)
-		Count = KEY_COUNT;
-
-	for (int i=0; i<Count; i++)
-	{
-		if (KeyTitles[Group][i]) xf_free(KeyTitles[Group][i]);
-		KeyTitles[Group][i]=xf_wcsdup(MSG(StartIndex+i));
-	}
-
-	KeyCounts [Group] = Count;
-}
 
 int KeyBar::ProcessKey(int Key)
 {
@@ -442,16 +373,6 @@ void KeyBar::RedrawIfChanged()
 		//_SVS("KeyBar::RedrawIfChanged()");
 		Redraw();
 	}
-}
-
-
-void KeyBar::SetDisableMask(int Mask)
-{
-	DisableMask=Mask;
-}
-
-void KeyBar::ResizeConsole()
-{
 }
 
 size_t KeyBar::Change(const KeyBarTitles *Kbt)

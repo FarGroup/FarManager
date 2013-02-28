@@ -1078,14 +1078,7 @@ int InfoList::GetCurName(string &strName, string &strShortName)
 BOOL InfoList::UpdateKeyBar()
 {
 	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetAllGroup(KBL_MAIN, MInfoF1, 12);
-	KB->SetAllGroup(KBL_SHIFT, MInfoShiftF1, 12);
-	KB->SetAllGroup(KBL_ALT, MInfoAltF1, 12);
-	KB->SetAllGroup(KBL_CTRL, MInfoCtrlF1, 12);
-	KB->SetAllGroup(KBL_CTRLSHIFT, MInfoCtrlShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALT, MInfoCtrlAltF1, 12);
-	KB->SetAllGroup(KBL_ALTSHIFT, MInfoAltShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALTSHIFT, MInfoCtrlAltShiftF1, 12);
+	KB->SetLabels(MInfoF1);
 	DynamicUpdateKeyBar();
 	return TRUE;
 }
@@ -1128,8 +1121,7 @@ void InfoList::DynamicUpdateKeyBar()
 		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 
-	KB->ReadRegGroup(L"Info",Global->Opt->strLanguage);
-	KB->SetAllRegGroup();
+	KB->SetCustomLabels(L"Info");
 }
 
 int InfoList::UpdateIfChanged(int UpdateMode)

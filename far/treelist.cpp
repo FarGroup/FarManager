@@ -1921,23 +1921,14 @@ void TreeList::SetMacroMode(int Restore)
 BOOL TreeList::UpdateKeyBar()
 {
 	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetAllGroup(KBL_MAIN, MKBTreeF1, 12);
-	KB->SetAllGroup(KBL_SHIFT, MKBTreeShiftF1, 12);
-	KB->SetAllGroup(KBL_ALT, MKBTreeAltF1, 12);
-	KB->SetAllGroup(KBL_CTRL, MKBTreeCtrlF1, 12);
-	KB->SetAllGroup(KBL_CTRLSHIFT, MKBTreeCtrlShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALT, MKBTreeCtrlAltF1, 12);
-	KB->SetAllGroup(KBL_ALTSHIFT, MKBTreeAltShiftF1, 12);
-	KB->SetAllGroup(KBL_CTRLALTSHIFT, MKBTreeCtrlAltShiftF1, 12);
+	KB->SetLabels(MKBTreeF1);
 	DynamicUpdateKeyBar();
 	return TRUE;
 }
 
 void TreeList::DynamicUpdateKeyBar()
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->ReadRegGroup(L"Tree",Global->Opt->strLanguage);
-	KB->SetAllRegGroup();
+	Global->CtrlObject->MainKeyBar->SetCustomLabels(L"Tree");
 }
 
 void TreeList::SetTitle()

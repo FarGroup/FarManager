@@ -218,16 +218,16 @@ UserMenu::UserMenu(bool ChoiceMenuType):
 	MenuNeedRefresh(false),
 	ItemChanged(false)
 {
-	ProcessUserMenu(ChoiceMenuType);
+	ProcessUserMenu(ChoiceMenuType, L"");
 }
 
-UserMenu::UserMenu(const wchar_t *MenuFileName):
+UserMenu::UserMenu(const string& MenuFileName):
 	MenuMode(MM_LOCAL),
 	MenuModified(false),
 	MenuNeedRefresh(false),
 	ItemChanged(false)
 {
-	ProcessUserMenu(false,MenuFileName);
+	ProcessUserMenu(false, MenuFileName);
 }
 
 UserMenu::~UserMenu()
@@ -281,7 +281,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 	}
 }
 
-void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const wchar_t *MenuFileName)
+void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
@@ -311,7 +311,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const wchar_t *MenuFileName)
 	while ((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) && (ExitCode != EC_COMMAND_SELECTED))
 	{
 		string strMenuFileFullPath;
-		if (!MenuFileName)
+		if (MenuFileName.IsEmpty())
 		{
 			strMenuFileFullPath = strMenuFilePath;
 			AddEndSlash(strMenuFileFullPath);

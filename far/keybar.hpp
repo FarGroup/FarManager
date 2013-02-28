@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "plugin.hpp"
 
 //   Группы меток
 enum
@@ -51,69 +50,39 @@ enum
 	KBL_GROUP_COUNT
 };
 
-const int KEY_COUNT = 12;
-
-typedef wchar_t *KeyBarTitle;
-typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
+const size_t KEY_COUNT = 12;
 
 class KeyBar: public ScreenObject
 {
-	private:
-		ScreenObject *Owner;
+public:
+	KeyBar();
+	virtual ~KeyBar(){};
 
-		KeyBarTitleGroup KeyTitles [KBL_GROUP_COUNT];
-		int KeyCounts [KBL_GROUP_COUNT];
+	virtual int ProcessKey(int Key);
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-		int AltState,CtrlState,ShiftState;
-		int DisableMask;
+	void SetLabels(LNGID StartIndex);
+	void SetCustomLabels(const wchar_t *Area);
+	void Change(int Group,const wchar_t *NewStr,int Pos);
+	void Change(const wchar_t *NewStr,int Pos) {Change(KBL_MAIN, NewStr, Pos);}
+	size_t Change(const KeyBarTitles* Kbt);
 
-		KeyBarTitleGroup KeyTitlesCustom [KBL_GROUP_COUNT];
-		bool RegReaded;
+	void RedrawIfChanged();
 
-		string strLanguage;
-		string strRegGroupName;
+private:
+	virtual void DisplayObject();
+	void ClearKeyTitles(bool Custom);
 
-	private:
-		virtual void DisplayObject();
-		void ClearKeyTitles(bool Custom,int Group=-1);
+	struct titles
+	{
+		string Title;
+		string CustomTitle;
+	};
 
-	public:
-		KeyBar();
-		virtual  ~KeyBar();
-
-	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-
-		void SetOwner(ScreenObject *Owner);
-
-		void ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language);
-		void SetRegGroup(int Group);
-		void SetAllRegGroup();
-
-		void SetGroup(int Group,const wchar_t * const *Key,int KeyCount);
-		// Групповая установка идущих подряд строк LNG для указанной группы
-		void SetAllGroup(int Group, LNGID StartIndex, int Count);
-
-		void ClearGroup(int Group);
-
-		void Set(const wchar_t * const *Key,int KeyCount)            { SetGroup(KBL_MAIN, Key, KeyCount); }
-		void SetShift(const wchar_t * const *Key,int KeyCount)       { SetGroup(KBL_SHIFT, Key, KeyCount); }
-		void SetAlt(const wchar_t * const *Key,int KeyCount)         { SetGroup(KBL_ALT, Key, KeyCount); }
-		void SetCtrl(const wchar_t * const *Key,int KeyCount)        { SetGroup(KBL_CTRL, Key, KeyCount); }
-		void SetCtrlShift(const wchar_t * const *Key,int KeyCount)   { SetGroup(KBL_CTRLSHIFT, Key, KeyCount); }
-		void SetAltShift(const wchar_t * const *Key,int KeyCount)    { SetGroup(KBL_ALTSHIFT, Key, KeyCount); }
-		void SetCtrlAlt(const wchar_t **Key,int KeyCount)            { SetGroup(KBL_CTRLALT, Key, KeyCount); }
-		void SetCtrlAltShift(const wchar_t **Key,int KeyCount)       { SetGroup(KBL_CTRLALTSHIFT, Key, KeyCount); }
-
-		void SetDisableMask(int Mask);
-		void Change(const wchar_t *NewStr,int Pos)                   { Change(KBL_MAIN, NewStr, Pos); }
-
-		// Изменение любого Label
-		void Change(int Group,const wchar_t *NewStr,int Pos);
-
-		size_t Change(const KeyBarTitles *);
-
-		void RedrawIfChanged();
-		virtual void ResizeConsole();
+	std::array<std::array<titles, KEY_COUNT>, KBL_GROUP_COUNT> Items;
+	string strLanguage;
+	string CustomArea;
+	ScreenObject *Owner;
+	int AltState,CtrlState,ShiftState;
+	bool CustomLabelsReaded;
 };

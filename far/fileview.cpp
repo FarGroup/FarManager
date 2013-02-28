@@ -175,14 +175,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 
 void FileViewer::InitKeyBar()
 {
-	ViewKeyBar.SetAllGroup(KBL_MAIN,         Global->Opt->OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_SHIFT,        Global->Opt->OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_ALT,          Global->Opt->OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRL,         Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlF1:MViewCtrlF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlShiftF1:MViewCtrlShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLALT,      Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlAltF1:MViewCtrlAltF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_ALTSHIFT,     Global->Opt->OnlyEditorViewerUsed?MSingleViewAltShiftF1:MViewAltShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlAltShiftF1:MViewCtrlAltShiftF1, 12);
+	ViewKeyBar.SetLabels(Global->Opt->OnlyEditorViewerUsed?MSingleViewF1:MViewF1);
 
 	if (DisableEdit)
 		ViewKeyBar.Change(KBL_MAIN,L"",6-1);
@@ -193,8 +186,7 @@ void FileViewer::InitKeyBar()
 	if (!GetCanLoseFocus())
 		ViewKeyBar.Change(KBL_ALT,L"",11-1);
 
-	ViewKeyBar.ReadRegGroup(L"Viewer",Global->Opt->strLanguage);
-	ViewKeyBar.SetAllRegGroup();
+	ViewKeyBar.SetCustomLabels(L"Viewer");
 	SetKeyBar(&ViewKeyBar);
 	View.SetPosition(X1,Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 	View.SetViewKeyBar(&ViewKeyBar);
