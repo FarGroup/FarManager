@@ -170,7 +170,7 @@ bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua
 
 #bpluginftp \
 #bpluginma
-#) || exit 1
+) || exit 1
 
 ( \
 	cd ../misc && \
