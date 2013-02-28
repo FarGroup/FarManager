@@ -221,6 +221,15 @@ UserMenu::UserMenu(bool ChoiceMenuType):
 	ProcessUserMenu(ChoiceMenuType);
 }
 
+UserMenu::UserMenu(const wchar_t *MenuFileName):
+	MenuMode(MM_LOCAL),
+	MenuModified(false),
+	MenuNeedRefresh(false),
+	ItemChanged(false)
+{
+	ProcessUserMenu(false,MenuFileName);
+}
+
 UserMenu::~UserMenu()
 {
 }
@@ -271,7 +280,8 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 		}
 	}
 }
-void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
+
+void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const wchar_t *MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
@@ -300,9 +310,17 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 
 	while ((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) && (ExitCode != EC_COMMAND_SELECTED))
 	{
-		string strMenuFileFullPath = strMenuFilePath;
-		AddEndSlash(strMenuFileFullPath);
-		strMenuFileFullPath += LocalMenuFileName;
+		string strMenuFileFullPath;
+		if (!MenuFileName)
+		{
+			strMenuFileFullPath = strMenuFilePath;
+			AddEndSlash(strMenuFileFullPath);
+			strMenuFileFullPath += LocalMenuFileName;
+		}
+		else
+		{
+			strMenuFileFullPath = MenuFileName;
+		}
 
 		Menu.clear();
 

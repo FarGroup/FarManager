@@ -51,10 +51,11 @@ class UserMenu
 {
 public:
 	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	UserMenu(const wchar_t *MenuFileName);
 	~UserMenu();
 
 private:
-	void ProcessUserMenu(bool ChoiceMenuType);
+	void ProcessUserMenu(bool ChoiceMenuType,const wchar_t *MenuFileName=nullptr);
 	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem);
 	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
