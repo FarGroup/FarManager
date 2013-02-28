@@ -1,3 +1,7 @@
+shmuel 28.02.2013 21:37:28 +0200 - build 98
+
+1. Продолжение 97: расширение функциональности mf.usermenu. Полное описание - в macroapi_manual.chm.
+
 shmuel 28.02.2013 17:22:41 +0200 - build 97
 
 1. Добавлена макрофункция mf.usermenu(filename [,mode]).

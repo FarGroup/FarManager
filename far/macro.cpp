@@ -2679,10 +2679,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		}
 
 		case MCODE_F_USERMENU:
-			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING)
-			{
+			if (Data->Count==0)
+				UserMenu uMenu(false);
+			else if (Data->Values[0].Type==FMVT_BOOLEAN)
+				UserMenu uMenu(Data->Values[0].Boolean != 0);
+			else if (Data->Values[0].Type==FMVT_STRING)
 				UserMenu uMenu(Data->Values[0].String);
-			}
+
 			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
