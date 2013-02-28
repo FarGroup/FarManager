@@ -1461,7 +1461,7 @@ upd:"Update panels only when Far is active"
 upd:"Update panels only when Far is active"
 upd:"Update panels only when Far is active"
 upd:"Update panels only when Far is active"
-upd:"Update panels only when Far is active"
+"Actualizar paneles solo cuando Far está activo"
 upd:"Update panels only when Far is active"
 
 MConfigSaveHistory
@@ -1734,7 +1734,7 @@ upd:"Right click selects files"
 upd:"Right click selects files"
 upd:"Right click selects files"
 upd:"Right click selects files"
-upd:"Right click selects files"
+"Clic derecho selecciona archivos"
 upd:"Right click selects files"
 
 MConfigSortFolderExt
@@ -2735,7 +2735,7 @@ upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
-upd:"Default code page:"
+"Página de códigos por defecto:"
 upd:"Default code page:"
 
 MViewConfigMaxLineSize
@@ -3018,7 +3018,7 @@ upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
-upd:"Default code page:"
+"Página de códigos por defecto:"
 upd:"Default code page:"
 
 MSaveSetupTitle
@@ -5290,7 +5290,7 @@ upd:"Data:"
 upd:"Data:"
 upd:"Data:"
 upd:"Data:"
-upd:"Data:"
+"Dato:"
 upd:"Data:"
 
 
@@ -16204,7 +16204,7 @@ upd:"Save changes?"
 upd:"Save changes?"
 upd:"Save changes?"
 upd:"Save changes?"
-upd:"Save changes?"
+"Guardar cambios?"
 upd:"Save changes?"
 
 MViewerTitle
@@ -22901,7 +22901,7 @@ upd:"Plugin LuaMacro is not loaded"
 upd:"Plugin LuaMacro is not loaded"
 upd:"Plugin LuaMacro is not loaded"
 upd:"Plugin LuaMacro is not loaded"
-upd:"Plugin LuaMacro is not loaded"
+"Complemento LuaMacro no está cargado"
 upd:"Plugin LuaMacro is not loaded"
 
 MMacroRecordingIsDisabled
@@ -22911,7 +22911,7 @@ upd:"Macro recording is disabled"
 upd:"Macro recording is disabled"
 upd:"Macro recording is disabled"
 upd:"Macro recording is disabled"
-upd:"Macro recording is disabled"
+"Grabación de macro está desactivada"
 upd:"Macro recording is disabled"
 
 
