@@ -69,6 +69,28 @@ local function PluginMenu    (...) return co_yield(PROPAGATE, F.MPRT_PLUGINMENU,
 local function PluginConfig  (...) return co_yield(PROPAGATE, F.MPRT_PLUGINCONFIG,  pack(...)) end
 local function PluginCommand (...) return co_yield(PROPAGATE, F.MPRT_PLUGINCOMMAND, pack(...)) end
 
+local function UserMenu(mode, filename)
+  if mode and type(mode)~="number" then return 0 end
+  mode = mode or 0
+  local sync_call = bit64.band(mode,0x100) ~= 0
+  if sync_call then mode=mode-0x100 end
+  if mode==0 or mode==1 then
+    if sync_call then return far.MacroCallFar(0x80C67, mode==1)
+    else return co_yield(PROPAGATE, F.MPRT_USERMENU, pack(mode==1))
+    end
+  elseif (mode==2 or mode==3) and type(filename)=="string" then
+    if mode==3 then
+      if not (filename:find("^%a:") or filename:find("^[\\/]")) then
+        filename = win.GetEnv("farprofile").."\\Menus\\"..filename
+      end
+    end
+    if sync_call then return far.MacroCallFar(0x80C67, filename)
+    else return co_yield(PROPAGATE, F.MPRT_USERMENU, pack(filename))
+    end
+  end
+  return 0
+end
+
 function _G.exit ()
   co_yield(PROPAGATE, "exit")
 end
@@ -128,8 +150,8 @@ local function MacroStep (handle, ...)
         status = co_status(macro.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
           macro.store[1] = ret_values
-          if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or
-             ret_type==F.MPRT_PLUGINCONFIG or ret_type==F.MPRT_PLUGINCOMMAND then
+          if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or ret_type==F.MPRT_PLUGINCONFIG or
+             ret_type==F.MPRT_PLUGINCOMMAND or ret_type==F.MPRT_USERMENU then
             return ret_type, ret_values
           else
             return ret_type, macro.store
@@ -263,6 +285,7 @@ do
     Plugin.Menu=PluginMenu
     Plugin.Config=PluginConfig
     Plugin.Command=PluginCommand
+    mf.usermenu = UserMenu
   else
     export={}; ErrMsg(msg); return
   end

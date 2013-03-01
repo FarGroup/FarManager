@@ -959,6 +959,16 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 	return false;
 }
 
+static void ShowUserMenu(size_t Count, FarMacroValue *Values)
+{
+	if (Count==0)
+		UserMenu uMenu(false);
+	else if (Values[0].Type==FMVT_BOOLEAN)
+		UserMenu uMenu(Values[0].Boolean != 0);
+	else if (Values[0].Type==FMVT_STRING)
+		UserMenu uMenu(string(Values[0].String));
+}
+
 int KeyMacro::GetKey()
 {
 	if (m_InternalInput || !FrameManager->GetCurrentFrame())
@@ -1187,6 +1197,10 @@ int KeyMacro::GetKey()
 				FrameManager->RefreshFrame();
 				break;
 			}
+
+			case MPRT_USERMENU:
+				ShowUserMenu(mpr->Count,mpr->Values);
+				break;
 		}
 	}
 
@@ -2679,13 +2693,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		}
 
 		case MCODE_F_USERMENU:
-			if (Data->Count==0)
-				UserMenu uMenu(false);
-			else if (Data->Values[0].Type==FMVT_BOOLEAN)
-				UserMenu uMenu(Data->Values[0].Boolean != 0);
-			else if (Data->Values[0].Type==FMVT_STRING)
-				UserMenu uMenu(string(Data->Values[0].String));
-
+			ShowUserMenu(Data->Count,Data->Values);
 			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
