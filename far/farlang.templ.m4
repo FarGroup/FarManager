@@ -14153,7 +14153,7 @@ MSetAttrArchive
 "&Archivovať"
 
 MSetAttrHidden
-"&Скрытый"
+"Скр&ытый"
 "&Hidden"
 "&Skrytý"
 "&Versteckt"
@@ -14173,7 +14173,7 @@ MSetAttrSystem
 "S&ystémový"
 
 MSetAttrCompressed
-"Сжаты&й"
+"С&жатый"
 "&Compressed"
 "&Komprimovaný"
 "&Komprimiert"
@@ -14193,8 +14193,8 @@ MSetAttrEncrypted
 "&Šifrovaný"
 
 MSetAttrNotIndexed
-"Н&еиндексируемый"
-"Not &Indexed"
+"Неиндексируемый"
+"Not Indexed"
 "Neinde&xovaný"
 "Nicht &indiziert"
 "Nem inde&xelt"
@@ -14203,8 +14203,8 @@ MSetAttrNotIndexed
 "Neinde&xovaný"
 
 MSetAttrSparse
-"Разре&женный"
-"S&parse"
+"Разреженный"
+"Sparse"
 "Rozptýlený"
 upd:"Reserve"
 "Ritk&ított"
@@ -14283,7 +14283,7 @@ upd:"(multiple values)"
 "(viacero hodnôt)"
 
 MSetAttrModification
-"Время последней &записи:"
+"Время последней за&писи:"
 "Last &write time:"
 "Čas posle&dního zápisu:"
 upd:"Last &write time:"
@@ -14394,8 +14394,8 @@ upd:"RRRRR%1MM%2DD gg%3mm%4ss%5ms"
 "RRRRR%1MM%2DD hh%3mm%4ss%5ms"
 
 MSetAttrSystemDialog
-"Системные свойства"
-"System properties"
+"Системные &свойства"
+"System &properties"
 "Vlastnosti systému"
 upd:"System properties"
 upd:"System properties"
