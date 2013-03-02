@@ -511,8 +511,8 @@ static bool CheckForEsc(void)
 				{
 					GetMsg(MEscTitle),
 					GetMsg(MEscBody),
-					GetMsg(MOK),
-					GetMsg(MCancel)
+					GetMsg(MYes),
+					GetMsg(MNo)
 				};
 
 				if (!Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 2))
