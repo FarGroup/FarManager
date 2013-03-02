@@ -42,15 +42,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "setcolor.hpp"
 
-class ConsoleCore {
+class basicconsole:public console {
 public:
 
-ConsoleCore():
+basicconsole():
 	// пишем/читаем порциями по 32 K, иначе проблемы.
 	MAXSIZE(0x8000)
 {}
 
-virtual ~ConsoleCore() {}
+virtual ~basicconsole() {}
 
 virtual bool Allocate() const
 {
@@ -204,7 +204,7 @@ virtual bool GetKeyboardLayoutName(string &strName) const
 	return Result;
 }
 
-virtual UINT GetInputCodepage() const
+virtual uintptr_t GetInputCodepage() const
 {
 	return GetConsoleCP();
 }
@@ -214,7 +214,7 @@ virtual bool SetInputCodepage(uintptr_t Codepage) const
 	return SetConsoleCP(Codepage)!=FALSE;
 }
 
-virtual UINT GetOutputCodepage() const
+virtual uintptr_t GetOutputCodepage() const
 {
 	return GetConsoleOutputCP();
 }
@@ -386,6 +386,11 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 virtual bool Write(LPCWSTR Buffer) const
 {
 	return Write(Buffer, StrLength(Buffer));
+}
+
+virtual bool Write(const string& Buffer) const
+{
+	return Write(Buffer, Buffer.GetLength());
 }
 
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const
@@ -646,7 +651,6 @@ virtual bool IsFullscreenSupported() const
 #endif
 }
 
-
 virtual bool ResetPosition() const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -662,7 +666,7 @@ virtual bool ResetPosition() const
 	return true;
 }
 
-virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent)
+virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const
 {
 	return GetColorDialogInternal(Color, Centered, AddTransparent);
 }
@@ -678,10 +682,10 @@ private:
 	const unsigned int MAXSIZE;
 };
 
-class ExtendedConsoleCore:public ConsoleCore
+class extendedconsole:public basicconsole
 {
 public:
-	ExtendedConsoleCore():
+	extendedconsole():
 		Module(LoadLibrary(L"extendedconsole.dll")),
 		ImportsPresent(false)
 	{
@@ -708,7 +712,7 @@ public:
 		}
 	}
 
-	virtual ~ExtendedConsoleCore()
+	virtual ~extendedconsole()
 	{
 		if(Module)
 		{
@@ -725,7 +729,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion);
+			Result = basicconsole::ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion);
 		}
 		return Result;
 	}
@@ -739,7 +743,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::WriteOutput(Buffer, BufferSize, BufferCoord, WriteRegion);
+			Result = basicconsole::WriteOutput(Buffer, BufferSize, BufferCoord, WriteRegion);
 		}
 		return Result;
 	}
@@ -753,7 +757,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::Commit();
+			Result = basicconsole::Commit();
 		}
 		return Result;
 	}
@@ -767,7 +771,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::GetTextAttributes(Attributes);
+			Result = basicconsole::GetTextAttributes(Attributes);
 		}
 		return Result;
 	}
@@ -781,7 +785,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::SetTextAttributes(Attributes);
+			Result = basicconsole::SetTextAttributes(Attributes);
 		}
 		return Result;
 	}
@@ -795,12 +799,12 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::ClearExtraRegions(Color);
+			Result = basicconsole::ClearExtraRegions(Color);
 		}
 		return Result;
 	}
 
-	virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent)
+	virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const
 	{
 		bool Result = false;
 		if(Imports.pGetColorDialog)
@@ -809,7 +813,7 @@ public:
 		}
 		else
 		{
-			Result = ConsoleCore::GetColorDialog(Color, Centered, AddTransparent);
+			Result = basicconsole::GetColorDialog(Color, Centered, AddTransparent);
 		}
 		return Result;
 	}
@@ -849,66 +853,7 @@ private:
 	bool ImportsPresent;
 };
 
-
-
-console::console()
+console* console::CreateInstance(bool extended)
 {
-	bool UseExtendedCore = true;
-	Core = UseExtendedCore? new ExtendedConsoleCore() : new ConsoleCore();
+	return extended? new extendedconsole() : new basicconsole();
 }
-console::~console()
-{
-	delete Core;
-}
-
-// interface
-bool console::Allocate() const {return Core->Allocate();}
-bool console::Free() const {return Core->Free();}
-HANDLE console::GetInputHandle() const {return Core->GetInputHandle();}
-HANDLE console::GetOutputHandle() const {return Core->GetOutputHandle();}
-HANDLE console::GetErrorHandle() const {return Core->GetErrorHandle();}
-HWND console::GetWindow() const {return Core->GetWindow();}
-bool console::GetSize(COORD& Size) const {return Core->GetSize(Size);}
-bool console::SetSize(COORD Size) const {return Core->SetSize(Size);}
-bool console::GetWindowRect(SMALL_RECT& ConsoleWindow) const {return Core->GetWindowRect(ConsoleWindow);}
-bool console::SetWindowRect(const SMALL_RECT& ConsoleWindow) const {return Core->SetWindowRect(ConsoleWindow);}
-bool console::GetWorkingRect(SMALL_RECT& WorkingRect) const {return Core->GetWorkingRect(WorkingRect);}
-bool console::GetTitle(string &strTitle) const {return Core->GetTitle(strTitle);}
-bool console::SetTitle(LPCWSTR Title) const {return Core->SetTitle(Title);}
-bool console::GetKeyboardLayoutName(string &strName) const {return Core->GetKeyboardLayoutName(strName);}
-uintptr_t console::GetInputCodepage() const {return Core->GetInputCodepage();}
-bool console::SetInputCodepage(uintptr_t Codepage) const {return Core->SetInputCodepage(Codepage);}
-uintptr_t console::GetOutputCodepage() const {return Core->GetOutputCodepage();}
-bool console::SetOutputCodepage(uintptr_t Codepage) const {return Core->SetOutputCodepage(Codepage);}
-bool console::SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const {return Core->SetControlHandler(HandlerRoutine, Add);}
-bool console::GetMode(HANDLE ConsoleHandle, DWORD& Mode) const {return Core->GetMode(ConsoleHandle, Mode);}
-bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode) const {return Core->SetMode(ConsoleHandle, Mode);}
-bool console::PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const {return Core->PeekInput(Buffer, Length, NumberOfEventsRead);}
-bool console::ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const {return Core->ReadInput(Buffer, Length, NumberOfEventsRead);}
-bool console::WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const {return Core->WriteInput(Buffer, Length, NumberOfEventsWritten);}
-bool console::ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const {return Core->ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion);}
-bool console::WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const {return Core->WriteOutput(Buffer, BufferSize, BufferCoord, WriteRegion);}
-bool console::Write(const string& Buffer) const {return Write(Buffer, Buffer.GetLength());}
-bool console::Write(LPCWSTR Buffer) const {return Write(Buffer, wcslen(Buffer));}
-bool console::Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const {return Core->Write(Buffer, NumberOfCharsToWrite);}
-bool console::Commit() const {return Core->Commit();}
-bool console::GetTextAttributes(FarColor& Attributes) const {return Core->GetTextAttributes(Attributes);}
-bool console::SetTextAttributes(const FarColor& Attributes) const {return Core->SetTextAttributes(Attributes);}
-bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const {return Core->GetCursorInfo(ConsoleCursorInfo);}
-bool console::SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const {return Core->SetCursorInfo(ConsoleCursorInfo);}
-bool console::GetCursorPosition(COORD& Position) const {return Core->GetCursorPosition(Position);}
-bool console::SetCursorPosition(COORD Position) const {return Core->SetCursorPosition(Position);}
-bool console::FlushInputBuffer() const {return Core->FlushInputBuffer();}
-bool console::GetNumberOfInputEvents(size_t& NumberOfEvents) const {return Core->GetNumberOfInputEvents(NumberOfEvents);}
-bool console::GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const {return Core->GetAlias(Source, TargetBuffer, TargetBufferLength, ExeName);}
-bool console::GetDisplayMode(DWORD& Mode) const {return Core->GetDisplayMode(Mode);}
-COORD console::GetLargestWindowSize() const {return Core->GetLargestWindowSize();}
-bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const {return Core->SetActiveScreenBuffer(ConsoleOutput);}
-bool console::ClearExtraRegions(const FarColor& Color) const {return Core->ClearExtraRegions(Color);}
-bool console::ScrollWindow(int Lines, int Columns) const {return Core->ScrollWindow(Lines, Columns);}
-bool console::ScrollWindowToBegin() const {return Core->ScrollWindowToBegin();}
-bool console::ScrollWindowToEnd() const {return Core->ScrollWindowToEnd();}
-bool console::ScrollScreenBuffer(int Lines) const {return Core->ScrollScreenBuffer(Lines);}
-bool console::IsFullscreenSupported() const {return Core->IsFullscreenSupported();}
-bool console::ResetPosition() const {return Core->ResetPosition();}
-bool console::GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const {return Core->GetColorDialog(Color, Centered, AddTransparent);}

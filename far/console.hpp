@@ -35,89 +35,89 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class console
 {
 public:
-	console();
-	~console();
+	static console* CreateInstance(bool exnended);
+	virtual ~console(){};
 
-	bool Allocate() const;
-	bool Free() const;
+	virtual bool Allocate() const = 0;
+	virtual bool Free() const = 0;
 
-	HANDLE GetInputHandle() const;
-	HANDLE GetOutputHandle() const;
-	HANDLE GetErrorHandle() const;
+	virtual HANDLE GetInputHandle() const = 0;
+	virtual HANDLE GetOutputHandle() const = 0;
+	virtual HANDLE GetErrorHandle() const = 0;
 
-	HWND GetWindow() const;
+	virtual HWND GetWindow() const = 0;
 
-	bool GetSize(COORD& Size) const;
-	bool SetSize(COORD Size) const;
+	virtual bool GetSize(COORD& Size) const = 0;
+	virtual bool SetSize(COORD Size) const = 0;
 
-	bool GetWindowRect(SMALL_RECT& ConsoleWindow) const;
-	bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const;
+	virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const = 0;
+	virtual bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const = 0;
 
-	bool GetWorkingRect(SMALL_RECT& WorkingRect) const;
+	virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const = 0;
 
-	bool GetTitle(string &strTitle) const;
-	bool SetTitle(LPCWSTR Title) const;
+	virtual bool GetTitle(string &strTitle) const = 0;
+	virtual bool SetTitle(LPCWSTR Title) const = 0;
 
-	bool GetKeyboardLayoutName(string &strName) const;
+	virtual bool GetKeyboardLayoutName(string &strName) const = 0;
 
-	uintptr_t GetInputCodepage() const;
-	bool SetInputCodepage(uintptr_t Codepage) const;
+	virtual uintptr_t GetInputCodepage() const = 0;
+	virtual bool SetInputCodepage(uintptr_t Codepage) const = 0;
 
-	uintptr_t GetOutputCodepage() const;
-	bool SetOutputCodepage(uintptr_t Codepage) const;
+	virtual uintptr_t GetOutputCodepage() const = 0;
+	virtual bool SetOutputCodepage(uintptr_t Codepage) const = 0;
 
-	bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const;
+	virtual bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const = 0;
 
-	bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
-	bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
+	virtual bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const = 0;
+	virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const = 0;
 
-	bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
-	bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
-	bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const;
-	bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const ;
-	bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
-	bool Write(LPCWSTR Buffer) const;
-	bool Write(const string& Buffer) const;
-	bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const;
-	bool Commit() const;
+	virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
+	virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
+	virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const = 0;
+	virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const = 0;
+	virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
+	virtual bool Write(LPCWSTR Buffer) const = 0;
+	virtual bool Write(const string& Buffer) const = 0;
+	virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const = 0;
+	virtual bool Commit() const = 0;
 
-	bool GetTextAttributes(FarColor& Attributes) const;
-	bool SetTextAttributes(const FarColor& Attributes) const;
+	virtual bool GetTextAttributes(FarColor& Attributes) const = 0;
+	virtual bool SetTextAttributes(const FarColor& Attributes) const = 0;
 
-	bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
-	bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
+	virtual bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const = 0;
+	virtual bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const = 0;
 
-	bool GetCursorPosition(COORD& Position) const;
-	bool SetCursorPosition(COORD Position) const;
+	virtual bool GetCursorPosition(COORD& Position) const = 0;
+	virtual bool SetCursorPosition(COORD Position) const = 0;
 
-	bool FlushInputBuffer() const;
+	virtual bool FlushInputBuffer() const = 0;
 
-	bool GetNumberOfInputEvents(size_t& NumberOfEvents) const;
+	virtual bool GetNumberOfInputEvents(size_t& NumberOfEvents) const = 0;
 
-	bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const;
+	virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const = 0;
 
-	bool GetDisplayMode(DWORD& Mode) const;
+	virtual bool GetDisplayMode(DWORD& Mode) const = 0;
 
-	COORD GetLargestWindowSize() const;
+	virtual COORD GetLargestWindowSize() const = 0;
 
-	bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const;
+	virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const = 0;
 
-	bool ClearExtraRegions(const FarColor& Color) const;
+	virtual bool ClearExtraRegions(const FarColor& Color) const = 0;
 
-	bool ScrollWindow(int Lines,int Columns=0) const;
+	virtual bool ScrollWindow(int Lines,int Columns=0) const = 0;
 
-	bool ScrollWindowToBegin() const;
+	virtual bool ScrollWindowToBegin() const = 0;
 
-	bool ScrollWindowToEnd() const;
+	virtual bool ScrollWindowToEnd() const = 0;
 
-	bool ScrollScreenBuffer(int Lines) const;
+	virtual bool ScrollScreenBuffer(int Lines) const = 0;
 
-	bool IsFullscreenSupported() const;
+	virtual bool IsFullscreenSupported() const = 0;
 
-	bool ResetPosition() const;
+	virtual bool ResetPosition() const = 0;
 
-	bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const;
+	virtual bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const = 0;
 
-private:
-	class ConsoleCore* Core;
+protected:
+	console(){};
 };

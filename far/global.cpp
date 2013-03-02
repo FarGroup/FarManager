@@ -128,7 +128,7 @@ global::global():
 	// BUGBUG end
 
 	ifn = new ImportedFunctions;
-	Console = new console;
+	Console = console::CreateInstance(true);
 	ScrBuf = new ScreenBuf;
 	TBC = new TaskBarCore;
 	ConsoleIcons = new consoleicons;
