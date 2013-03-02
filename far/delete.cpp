@@ -138,21 +138,26 @@ static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int 
 		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
 		strOutFileName, Progress1, Progress2);
 
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
-	preRedrawItem.Param.Param2=DeleteTitle;
-	preRedrawItem.Param.Param4=ToPtr(Mode);
-	LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
-	preRedrawItem.Param.Param5=i.QuadPart;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
+		preRedrawItem.Param.Param2=DeleteTitle;
+		preRedrawItem.Param.Param4=ToPtr(Mode);
+		LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
+		preRedrawItem.Param.Param5=i.QuadPart;
+	}
 }
 
 static void PR_ShellDeleteMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	LARGE_INTEGER i;
-	i.QuadPart = preRedrawItem.Param.Param5;
-	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart, reinterpret_cast<ConsoleTitle*>(const_cast<void*>(preRedrawItem.Param.Param2)));
+	if (!Global->PreRedraw->empty())
+	{
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		LARGE_INTEGER i;
+		i.QuadPart = preRedrawItem.Param.Param5;
+		ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart, reinterpret_cast<ConsoleTitle*>(const_cast<void*>(preRedrawItem.Param.Param2)));
+	}
 }
 
 static DWORD SHErrorToWinError(DWORD SHError)

@@ -62,21 +62,26 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UIN
 	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize);
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=Title;
-	preRedrawItem.Param.Param2=Name;
-	preRedrawItem.Param.Param3=Size;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		preRedrawItem.Param.Param1=Title;
+		preRedrawItem.Param.Param2=Name;
+		preRedrawItem.Param.Param3=Size;
+	}
 }
 
 static void PR_DrawGetDirInfoMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	DrawGetDirInfoMsg(
-		static_cast<const wchar_t*>(preRedrawItem.Param.Param1),
-		static_cast<const wchar_t*>(preRedrawItem.Param.Param2),
-		static_cast<const UINT64*>(preRedrawItem.Param.Param3)
-	);
+	if (!Global->PreRedraw->empty())
+	{
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		DrawGetDirInfoMsg(
+			static_cast<const wchar_t*>(preRedrawItem.Param.Param1),
+			static_cast<const wchar_t*>(preRedrawItem.Param.Param2),
+			static_cast<const UINT64*>(preRedrawItem.Param.Param3)
+		);
+	}
 }
 
 
@@ -282,16 +287,21 @@ static int PluginSearchMsgOut;
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
 	Message(Flags,0,L"",MSG(MPreparingList),Name);
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Flags=Flags;
-	preRedrawItem.Param.Param1=(void*)Name;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		preRedrawItem.Param.Flags=Flags;
+		preRedrawItem.Param.Param1=(void*)Name;
+	}
 }
 
 static void PR_FarGetPluginDirListMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
+	if (!Global->PreRedraw->empty())
+	{
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
+	}
 }
 
 static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSearchPath)

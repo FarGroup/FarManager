@@ -483,9 +483,9 @@ void Dialog::Show()
 	if (!DialogMode.Check(DMODE_INITOBJECTS))
 		return;
 
-	if (!Locked() && DialogMode.Check(DMODE_RESIZED))
+	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !Global->PreRedraw->empty())
 	{
-		PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
 
 		if (preRedrawItem.PreRedrawFunc)
 			preRedrawItem.PreRedrawFunc();

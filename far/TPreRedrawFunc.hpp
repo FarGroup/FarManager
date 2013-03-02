@@ -34,79 +34,49 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-typedef void (*PREREDRAWFUNC)();
-
-struct PreRedrawParamStruct
-{
-	DWORD Flags;
-	const void *Param1;
-	const void *Param2;
-	const void *Param3;
-	const void *Param4;
-	__int64 Param5;
-};
-
 struct PreRedrawItem
 {
+	typedef void (*PREREDRAWFUNC)();
+
+	PreRedrawItem(PREREDRAWFUNC PreRedrawFunc):
+		PreRedrawFunc(PreRedrawFunc)
+	{
+		ClearStruct(Param);
+	}
+
 	PREREDRAWFUNC PreRedrawFunc;
-	PreRedrawParamStruct Param;
+	struct
+	{
+		DWORD Flags;
+		const void *Param1;
+		const void *Param2;
+		const void *Param3;
+		const void *Param4;
+		__int64 Param5;
+	}
+	Param;
 };
 
 class TPreRedrawFunc
 {
-	private:
-		unsigned int Total;
-
-		struct OneItem
-		{
-			PreRedrawItem Item;
-			OneItem *Next;
-
-			OneItem(struct PreRedrawItem NewItem,OneItem *NextItem) : Item(NewItem), Next(NextItem) {}
-		};
-
-		struct OneItem *Top, *current;
-
-	public:
-		static struct PreRedrawItem errorStack;
-
-	public:
-		TPreRedrawFunc() : Total(0), Top(nullptr), current(nullptr) {};
-		~TPreRedrawFunc() { Free(); }
-
-	public:
-		// вернуть количество элементов на стеке
-		unsigned int Size() const { return Total; }
-
-		// взять элемент со стека
-		PreRedrawItem Pop();
-
-		// взять элемент со стека без изменения стека
-		PreRedrawItem Peek();
-
-		// положить элемент на стек
-		PreRedrawItem Push(const PreRedrawItem &Source);
-		PreRedrawItem Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Param=nullptr);
-
-		PreRedrawItem SetParam(PreRedrawParamStruct Param);
-
-		// очистить стек
-		void Free();
-
-		bool isEmpty() const {return !Total;}
-
-
-	private:
-		//TPreRedrawFunc& operator=(const TPreRedrawFunc&){return *this;}; /* чтобы не генерировалось */
-		//TPreRedrawFunc(const TPreRedrawFunc&){};            /* по умолчанию            */
-
-		//PREREDRAWFUNC Set(PREREDRAWFUNC fn);
-
+public:
+	void push(const PreRedrawItem &Source){return Items.push(Source);}
+	void pop() {return Items.pop();}
+	PreRedrawItem& top() {return Items.top();}
+	bool empty() const {return Items.empty();}
+private:
+	std::stack<PreRedrawItem> Items;
 };
 
 class TPreRedrawFuncGuard
 {
-	public:
-		TPreRedrawFuncGuard(PREREDRAWFUNC Func);
-		~TPreRedrawFuncGuard();
+public:
+	TPreRedrawFuncGuard(PreRedrawItem::PREREDRAWFUNC Func)
+	{
+		Global->PreRedraw->push(Func);
+	}
+	~TPreRedrawFuncGuard()
+	{
+		Global->PreRedraw->pop();
+	}
 };

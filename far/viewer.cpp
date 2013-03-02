@@ -2624,11 +2624,14 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 static void PR_ViewerSearchMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	const wchar_t *name = (const wchar_t*)preRedrawItem.Param.Param1;
-	int percent = (int)(intptr_t)preRedrawItem.Param.Param2;
-	int search_hex = (int)(intptr_t)preRedrawItem.Param.Param3;
-	ViewerSearchMsg(name, percent, search_hex);
+	if (!Global->PreRedraw->empty())
+	{
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		const wchar_t *name = (const wchar_t*)preRedrawItem.Param.Param1;
+		int percent = (int)(intptr_t)preRedrawItem.Param.Param2;
+		int search_hex = (int)(intptr_t)preRedrawItem.Param.Param3;
+		ViewerSearchMsg(name, percent, search_hex);
+	}
 }
 
 void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
@@ -2658,11 +2661,13 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 	}
 
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=(void*)MsgStr;
-	preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
-	preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		preRedrawItem.Param.Param1=(void*)MsgStr;
+		preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
+		preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
+	}
 }
 
 static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')

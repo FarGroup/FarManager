@@ -108,17 +108,19 @@ void FileList::UpdateIfRequired()
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
 	Message(0,0,MSG(MReadingTitleFiles),Msg);
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=(void*)Msg;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		Global->PreRedraw->top().Param.Param1=(void*)Msg;
+	}
 }
 
 static void PR_ReadFileNamesMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	ReadFileNamesMsg((wchar_t *)preRedrawItem.Param.Param1);
+	if (!Global->PreRedraw->empty())
+	{
+		ReadFileNamesMsg((wchar_t *)Global->PreRedraw->top().Param.Param1);
+	}
 }
-
 
 // ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 // при считывании дирректории

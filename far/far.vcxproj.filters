@@ -383,9 +383,6 @@
     <ClCompile Include="TaskBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TPreRedrawFunc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="treelist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

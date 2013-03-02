@@ -256,7 +256,6 @@ TaskBar.cpp
 TaskBar.hpp
 tinyxml.cpp
 tinyxml.hpp
-TPreRedrawFunc.cpp
 TPreRedrawFunc.hpp
 tree.hpp
 treelist.cpp

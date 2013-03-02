@@ -130,7 +130,6 @@ SRCS = \
 	syslog.cpp \
 	tinyxml.cpp \
 	TaskBar.cpp \
-	TPreRedrawFunc.cpp \
 	treelist.cpp \
 	tvar.cpp \
 	UnicodeString.cpp \

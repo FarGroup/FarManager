@@ -216,7 +216,6 @@ LINK_OBJS = \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\TaskBar.obj" \
-	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
 	"$(INTDIR)\UnicodeString.obj" \

@@ -3898,12 +3898,20 @@ BOOL Editor::Search(int Next)
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 							InsertQuote(strQSearchStr);
 							InsertQuote(strQReplaceStr);
-							PreRedrawItem pitem=Global->PreRedraw->Pop();
+							PreRedrawItem* pitem = nullptr;
+							if (!Global->PreRedraw->empty())
+							{
+								pitem = new PreRedrawItem(Global->PreRedraw->top());
+								Global->PreRedraw->pop();
+							}
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
 											strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
-							Global->PreRedraw->Push(pitem);
-
+							if (pitem)
+							{
+								Global->PreRedraw->push(*pitem);
+								delete pitem;
+							}
 							if (MsgCode==1)
 								ReplaceAll=TRUE;
 
@@ -7235,18 +7243,23 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 	}
 
 	Message(MSG_LEFTALIGN,0,Title,strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=(void *)Title;
-	preRedrawItem.Param.Param2=(void *)Msg;
-	preRedrawItem.Param.Param3=(void *)Name;
-	preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		preRedrawItem.Param.Param1=(void *)Title;
+		preRedrawItem.Param.Param2=(void *)Msg;
+		preRedrawItem.Param.Param3=(void *)Name;
+		preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
+	}
 }
 
 void Editor::PR_EditorShowMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(intptr_t)preRedrawItem.Param.Param4);
+	if (!Global->PreRedraw->empty())
+	{
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(intptr_t)preRedrawItem.Param.Param4);
+	}
 }
 
 

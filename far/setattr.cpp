@@ -552,9 +552,10 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName);
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=Name;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		Global->PreRedraw->top().Param.Param1=Name;
+	}
 }
 
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
@@ -615,8 +616,10 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *
 
 void PR_ShellSetFileAttributesMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	ShellSetFileAttributesMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1));
+	if (!Global->PreRedraw->empty())
+	{
+		ShellSetFileAttributesMsg(static_cast<const wchar_t*>(Global->PreRedraw->top().Param.Param1));
+	}
 }
 
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)

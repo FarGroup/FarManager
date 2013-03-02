@@ -637,7 +637,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="TPreRedrawFunc.cpp" />
     <ClCompile Include="treelist.cpp" />
     <ClCompile Include="tvar.cpp" />
     <ClCompile Include="UnicodeString.cpp" />

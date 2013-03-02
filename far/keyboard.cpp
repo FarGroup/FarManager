@@ -1075,11 +1075,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				FrameManager->ResizeAllFrame();
 				FrameManager->GetCurrentFrame()->Show();
 				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-				PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-
-				if (preRedrawItem.PreRedrawFunc)
+				if (!Global->PreRedraw->empty())
 				{
-					preRedrawItem.PreRedrawFunc();
+					const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+					if (preRedrawItem.PreRedrawFunc)
+					{
+						preRedrawItem.PreRedrawFunc();
+					}
 				}
 			}
 

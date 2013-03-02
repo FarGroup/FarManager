@@ -652,11 +652,13 @@ static void GenerateName(string &strName,const wchar_t *Path=nullptr)
 
 void PR_ShellCopyMsg()
 {
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-
-	if (preRedrawItem.Param.Param1)
+	if (!Global->PreRedraw->empty())
 	{
-		((CopyProgress*)preRedrawItem.Param.Param1)->CreateBackground();
+		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
+		if (preRedrawItem.Param.Param1)
+		{
+			((CopyProgress*)preRedrawItem.Param.Param1)->CreateBackground();
+		}
 	}
 }
 
@@ -1611,12 +1613,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
-				Global->PreRedraw->Push(PR_ShellCopyMsg);
-				PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-				preRedrawItem.Param.Param1=CP;
-				Global->PreRedraw->SetParam(preRedrawItem.Param);
+				Global->PreRedraw->push(PR_ShellCopyMsg);
+				Global->PreRedraw->top().Param.Param1=CP;
 				int I=CopyFileTree(strNameTmp);
-				Global->PreRedraw->Pop();
+				Global->PreRedraw->pop();
 
 				if (OldCopySymlinkContents)
 					Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -3969,10 +3969,10 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 			return FALSE;
 		}
 	}
-
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=Name;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	if (!Global->PreRedraw->empty())
+	{
+		Global->PreRedraw->top().Param.Param1=Name;
+	}
 	return TRUE;
 }
 
@@ -4080,10 +4080,8 @@ bool ShellCopy::CalcTotalSize()
 	unsigned __int64 FileSize;
 	// Для фильтра
 	FAR_FIND_DATA fd;
-	Global->PreRedraw->Push(PR_ShellCopyMsg);
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=CP;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
+	Global->PreRedraw->push(PR_ShellCopyMsg);
+	Global->PreRedraw->top().Param.Param1=CP;
 	TotalCopySize=CurCopiedSize=0;
 	TotalFilesToProcess = 0;
 	SrcPanel->GetSelName(nullptr,FileAttr);
@@ -4103,7 +4101,7 @@ bool ShellCopy::CalcTotalSize()
 				if (__Ret <= 0)
 				{
 					ShowTotalCopySize=false;
-					Global->PreRedraw->Pop();
+					Global->PreRedraw->pop();
 					return FALSE;
 				}
 
@@ -4137,7 +4135,7 @@ bool ShellCopy::CalcTotalSize()
 	TotalCopySize *= CountTarget;
 	TotalFilesToProcess *= CountTarget;
 	InsertCommas(TotalCopySize,CP->strTotalCopySizeText);
-	Global->PreRedraw->Pop();
+	Global->PreRedraw->pop();
 	return true;
 }
 

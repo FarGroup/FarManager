@@ -646,9 +646,11 @@ void TreeList::SyncDir()
 
 void TreeList::PR_MsgReadTree()
 {
-	int FirstCall=1;
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	TreeList::MsgReadTree(preRedrawItem.Param.Flags,FirstCall);
+	if (!Global->PreRedraw->empty())
+	{
+		int FirstCall=1;
+		TreeList::MsgReadTree(Global->PreRedraw->top().Param.Flags,FirstCall);
+	}
 }
 
 int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
@@ -666,9 +668,10 @@ int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
 	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
 	{
 		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), FormatString() << TreeCount);
-		PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-		preRedrawItem.Param.Flags = static_cast<DWORD>(TreeCount);
-		Global->PreRedraw->SetParam(preRedrawItem.Param);
+		if (!Global->PreRedraw->empty())
+		{
+			Global->PreRedraw->top().Param.Flags = static_cast<DWORD>(TreeCount);
+		}
 		TreeStartTime = clock();
 	}
 
