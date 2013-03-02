@@ -1,8 +1,7 @@
 -- api.lua
 
 local args = select(1, ...)
-local checkarg = args.checkarg
-local utils = args.utils
+local checkarg, utils, yieldcall = args.checkarg, args.utils, args.yieldcall
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
@@ -67,6 +66,28 @@ mf = {
 
 mf.iif = function(Expr, res1, res2)
   if Expr and Expr~="" then return res1 else return res2 end
+end
+
+mf.usermenu = function(mode, filename)
+  if mode and type(mode)~="number" then return 0 end
+  mode = mode or 0
+  local sync_call = band(mode,0x100) ~= 0
+  mode = band(mode,0xFF)
+  if mode==0 or mode==1 then
+    if sync_call then return MacroCallFar(0x80C67, mode==1)
+    else return yieldcall(F.MPRT_USERMENU, mode==1)
+    end
+  elseif (mode==2 or mode==3) and type(filename)=="string" then
+    if mode==3 then
+      if not (filename:find("^%a:") or filename:find("^[\\/]")) then
+        filename = win.GetEnv("farprofile").."\\Menus\\"..filename
+      end
+    end
+    if sync_call then return MacroCallFar(0x80C67, filename)
+    else return yieldcall(F.MPRT_USERMENU, filename)
+    end
+  end
+  return 0
 end
 
 mf.GetMacroCopy = utils.GetMacroCopy
@@ -299,13 +320,19 @@ BM = {
 --------------------------------------------------------------------------------
 
 Plugin = {
+  Call    = function(...) return yieldcall(F.MPRT_PLUGINCALL,    ...) end,
+  Command = function(...) return yieldcall(F.MPRT_PLUGINCOMMAND, ...) end,
+  Config  = function(...) return yieldcall(F.MPRT_PLUGINCONFIG,  ...) end,
+  Menu    = function(...) return yieldcall(F.MPRT_PLUGINMENU,    ...) end,
+
+  Exist   = function(...) return MacroCallFar(0x80C54, ...) end,
+  Load    = function(...) return MacroCallFar(0x80C51, ...) end,
+  Unload  = function(...) return MacroCallFar(0x80C53, ...) end,
+
 --Call     = function(...) return MacroCallFar(0x80C50, ...) end,
 --Command  = function(...) return MacroCallFar(0x80C52, ...) end,
 --Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
-  Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
-  Load     = function(...) return MacroCallFar(0x80C51, ...) end,
 --Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
-  Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
 --------------------------------------------------------------------------------
 
