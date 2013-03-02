@@ -157,7 +157,7 @@ static int SplitCopy(
 	return nitems;
 }
 
-static bool bStart;
+static int nAdds = -1;
 static bool bOpenFail;
 
 /****************************************************************************
@@ -182,19 +182,24 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 	MsgItems[2+n1] = (wchar_t *)GetMsg(MComparingWith);
 	int n2 = SplitCopy(MsgItems+2+n1+1,5, name2, Name2);
 
-	Info.Message(
-		&MainGuid, nullptr,
-		bStart ? FMSG_LEFTALIGN : FMSG_LEFTALIGN|FMSG_KEEPBACKGROUND,
-	   nullptr, MsgItems, 2+n1+1+n2, 0
-	);
+	FARMENUFLAGS flags = FMSG_LEFTALIGN | FMSG_KEEPBACKGROUND;
+	if (nAdds != n1 + n2)
+	{
+		if (n1 + n2 < nAdds)
+		{
+			Info.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
+			Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
+		}
+		flags = FMSG_LEFTALIGN;
+		nAdds = n1 + n2;
+	}
+	Info.Message(&MainGuid, nullptr, flags, nullptr, MsgItems, 2+n1+1+n2, 0);
 
 	while (--n2 > 0)
 		delete[] MsgItems[2+n1+1+n2];
 
 	while (--n1 > 0)
 		delete[] MsgItems[2+n1];
-
-	bStart = false;
 }
 
 
@@ -547,8 +552,10 @@ public:
 			pBuff = new wchar_t[bSize = mlen+128];
 		}
 
-		if (mlen >= MAX_PATH)
+		if (mlen >= MAX_PATH && dir[0] != L'\\')
 			lstrcpy(pBuff, L"\\\\?\\");
+		else
+			*pBuff = L'\0';
 
 		FSF.AddEndSlash(lstrcat(pBuff, dir));
 		return lstrcat(pBuff, file);
@@ -1354,7 +1361,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	ABuf = (char*)malloc(bufSize);
 	PBuf = (char*)malloc(bufSize);
 	bBrokenByEsc = false;
-	bStart = true;
+	nAdds = -1;
 	bOpenFail = false;
 	bool bDifferenceNotFound = false;
 	AFilter = INVALID_HANDLE_VALUE;
