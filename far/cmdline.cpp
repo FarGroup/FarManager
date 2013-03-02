@@ -1148,8 +1148,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (ppstack.size())
 		{
 			PushPopRecord& prec = ppstack.top();
-			ppstack.pop();
 			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
+			ppstack.pop();
 			const wchar_t* Ptr = nullptr;
 			if (ppstack.size())
 			{
