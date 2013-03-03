@@ -172,15 +172,14 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 		return;
 
 	dwTicks = dwNewTicks;
-	wchar_t name1[MAX_PATH], name2[MAX_PATH];
+	wchar_t name1[MAX_PATH], name2[MAX_PATH], sep[MAX_PATH];
 
-	wchar_t *MsgItems[2+5+1+5] = {
-		(wchar_t *)GetMsg(MCmpTitle), (wchar_t *)GetMsg(MComparing), name1
-	};
-	int n1 = SplitCopy(MsgItems+2,5, name1, Name1);
+	wchar_t *MsgItems[1+5+1+5] = {(wchar_t *)GetMsg(MCmpTitle), name1	};
+	int n1 = SplitCopy(MsgItems+1,5, name1, Name1);
 
-	MsgItems[2+n1] = (wchar_t *)GetMsg(MComparingWith);
-	int n2 = SplitCopy(MsgItems+2+n1+1,5, name2, Name2);
+   wmemset(sep, 0x2500, iTruncLen); sep[iTruncLen] = L'\0'; // -------
+	MsgItems[1+n1] = sep;
+	int n2 = SplitCopy(MsgItems+1+n1+1,5, name2, Name2);
 
 	FARMENUFLAGS flags = FMSG_LEFTALIGN | FMSG_KEEPBACKGROUND;
 	if (nAdds != n1 + n2)
@@ -193,13 +192,13 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 		flags = FMSG_LEFTALIGN;
 		nAdds = n1 + n2;
 	}
-	Info.Message(&MainGuid, nullptr, flags, nullptr, MsgItems, 2+n1+1+n2, 0);
+	Info.Message(&MainGuid, nullptr, flags, nullptr, MsgItems, 1+n1+1+n2, 0);
 
 	while (--n2 > 0)
-		delete[] MsgItems[2+n1+1+n2];
+		delete[] MsgItems[1+n1+1+n2];
 
 	while (--n1 > 0)
-		delete[] MsgItems[2+n1];
+		delete[] MsgItems[1+n1];
 }
 
 

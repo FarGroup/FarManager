@@ -29,9 +29,6 @@ enum CompareLng {
 
 	MFilePanelsRequired,
 
-	MComparing,
-	MComparingWith,
-
 	MComparingFiles,
 
 	MNoDiffTitle,
