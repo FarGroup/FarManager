@@ -1216,62 +1216,52 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		else
 			PressedLastTime=CurClock;
 
-		if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL || KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL)
+		if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL)
 		{
-			if ((KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL) &&
-			        (CtrlState&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED))
-			   )
+			/* $ 24.08.2000 SVS
+			   + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
+			*/
+			switch (KeyCode)
 			{
-				// TODO:
-				;
-			}
-			else
-			{
-				/* $ 24.08.2000 SVS
-				   + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
-				*/
-				switch (KeyCode)
-				{
-					case VK_SHIFT:
-					case VK_MENU:
-					case VK_CONTROL:
+				case VK_SHIFT:
+				case VK_MENU:
+				case VK_CONTROL:
 
-						if (!IsKeyCASPressed && IntKeyState.CtrlPressed && IntKeyState.AltPressed && IntKeyState.ShiftPressed)
-						{
-							if (!IsKeyRCASPressed && IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
-							{
-								if (Global->Opt->CASRule&2)
-								{
-									IsKeyRCASPressed=TRUE;
-									return (KEY_RCTRLALTSHIFTPRESS);
-								}
-							}
-							else if (Global->Opt->CASRule&1 && !(IntKeyState.RightCtrlPressed || IntKeyState.RightAltPressed))
-							{
-								IsKeyCASPressed=TRUE;
-								return (KEY_CTRLALTSHIFTPRESS);
-							}
-						}
-
-						break;
-					case VK_LSHIFT:
-					case VK_LMENU:
-					case VK_LCONTROL:
-
+					if (!IsKeyCASPressed && IntKeyState.CtrlPressed && IntKeyState.AltPressed && IntKeyState.ShiftPressed)
+					{
 						if (!IsKeyRCASPressed && IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
 						{
-							if ((Global->Opt->CASRule&2))
+							if (Global->Opt->CASRule&2)
 							{
 								IsKeyRCASPressed=TRUE;
 								return (KEY_RCTRLALTSHIFTPRESS);
 							}
 						}
+						else if (Global->Opt->CASRule&1 && !(IntKeyState.RightCtrlPressed || IntKeyState.RightAltPressed))
+						{
+							IsKeyCASPressed=TRUE;
+							return (KEY_CTRLALTSHIFTPRESS);
+						}
+					}
 
-						break;
-				}
+					break;
+				case VK_LSHIFT:
+				case VK_LMENU:
+				case VK_LCONTROL:
 
-				return(KEY_NONE);
+					if (!IsKeyRCASPressed && IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
+					{
+						if ((Global->Opt->CASRule&2))
+						{
+							IsKeyRCASPressed=TRUE;
+							return (KEY_RCTRLALTSHIFTPRESS);
+						}
+					}
+
+					break;
 			}
+
+			return(KEY_NONE);
 		}
 
 		Panel::EndDrag();
