@@ -39,7 +39,7 @@ local Events
 local EventGroups = {"consoleinput","dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
-local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
+local AddMacro_fields = {"area","key","action","flags","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
