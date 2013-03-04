@@ -90,15 +90,7 @@ local function AddMacro (srctable)
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
-  local IsCode = type(srctable.code)=="string"
-  if IsCode then
-    if srctable.code:sub(1,1) ~= "@" then
-      local f, msg = loadstring(srctable.code)
-      if not f then ErrMsg(msg) return end
-    end
-  elseif type(srctable.action)~="function" then
-    return
-  end
+  if type(srctable.action)~="function" then return end
 
   local macro={}
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
