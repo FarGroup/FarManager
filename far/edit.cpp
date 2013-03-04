@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "imports.hpp"
 #include "console.hpp"
+#include "manager.hpp"
 
 static int Recurse=0;
 
@@ -1453,8 +1454,13 @@ int Edit::ProcessKey(int Key)
 			}
 
 			if (InsertKey(Key))
-				Show();
-
+			{
+				int CurWindowType = FrameManager->GetCurrentFrame()->GetType();
+				if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
+				{
+					Show();
+				}
+			}
 			return TRUE;
 		}
 	}
@@ -3689,7 +3695,11 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
 		Global->WaitInMainLoop=Wait;
-		Show();
+		int CurWindowType = FrameManager->GetCurrentFrame()->GetType();
+		if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
+		{
+			Show();
+		}
 	}
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
