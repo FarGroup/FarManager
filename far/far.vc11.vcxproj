@@ -778,6 +778,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="mix.hpp" />
     <ClInclude Include="mkdir.hpp" />
     <ClInclude Include="modal.hpp" />
+    <ClInclude Include="Mutex.hpp" />
     <ClInclude Include="namelist.hpp" />
     <ClInclude Include="network.hpp" />
     <ClInclude Include="noncopyable.hpp" />

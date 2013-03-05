@@ -101,7 +101,7 @@ goto :EOF
 
 :build_gcc
   if "" == "%gmake%" set gmake=mingw32-make.exe
-  set m=%gmake% --no-print-directory -j -f makefile_gcc DIRBIT=%dirbit%
+  set m=%gmake% --no-print-directory -f makefile_gcc DIRBIT=%dirbit%
   if /i "Y" == "%dwarf%" set m=%m% DW2=-dw2
 :do_make
   if /i "Y" == "%deb_b%" set m=%m% DEBUG=1

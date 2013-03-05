@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlitedb.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
+#include "Mutex.hpp"
 
 static void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
@@ -188,7 +189,10 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 			DWORD attrs = apiGetFileAttributes(strPath);
 			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
 		}
-		return (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &pDb));
+		bool ret = (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &pDb));
+		if (ret)
+			sqlite3_busy_timeout(pDb, 1000);
+		return ret;
 	}
 
 	// copy db to memory
@@ -196,7 +200,7 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	if (SQLITE_OK != sqlite3_open16(L":memory:", &pDb))
 		return false;
 
-   bool ok = true, copied = false;
+	bool ok = true, copied = false;
 	struct sqlite3 *db_source = nullptr;
 
 	DWORD attrs = apiGetFileAttributes(strPath);
@@ -255,6 +259,7 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 {
+	AutoNamedMutex m(DbName);
 	strName = DbName;
 	init_status = 0;
 	if (!InitializeImpl(DbName, Local))
