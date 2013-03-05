@@ -1,5 +1,5 @@
 Macro {
-  area="Shell"; key="CtrlShiftPgUp"; flags="DisableOutput"; description="Jump to the previous folder on the same level"; action = function()
+  area="Shell"; key="CtrlShiftPgUp"; flags=""; description="Jump to the previous folder on the same level"; action = function()
 
   if not APanel.Root then Keys('CtrlPgUp') end
   if not APanel.Bof then
@@ -11,7 +11,7 @@ Macro {
 }
 
 Macro {
-  area="Shell"; key="CtrlShiftPgDn"; flags="DisableOutput"; description="Jump to the next folder on the same level"; action = function()
+  area="Shell"; key="CtrlShiftPgDn"; flags=""; description="Jump to the next folder on the same level"; action = function()
 
   if not APanel.Root then Keys('CtrlPgUp') end
   if not APanel.Eof then

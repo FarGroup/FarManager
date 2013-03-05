@@ -1,5 +1,5 @@
 Macro {
-  area="Shell"; key="Alt"; flags="DisableOutput"; description="Use Alt for search by name (activate)"; action = function()
+  area="Shell"; key="Alt"; flags=""; description="Use Alt for search by name (activate)"; action = function()
 
 Keys('Alt<')
 
@@ -7,7 +7,7 @@ Keys('Alt<')
 }
 
 Macro {
-  area="Shell"; key="RAlt"; flags="DisableOutput"; description="Use Right Alt for search by name (activate)"; action = function()
+  area="Shell"; key="RAlt"; flags=""; description="Use Right Alt for search by name (activate)"; action = function()
 
 Keys('Alt<')
 

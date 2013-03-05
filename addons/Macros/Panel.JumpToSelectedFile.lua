@@ -15,7 +15,7 @@ local JumpToSelectedFile = function (p,from,size,step)
 end
 
 Macro {
-  area="Shell"; key="CtrlShiftDown"; flags="DisableOutput|Selection"; description="Jump to the next selected file"; action = function()
+  area="Shell"; key="CtrlShiftDown"; flags="Selection"; description="Jump to the next selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
 JumpToSelectedFile(p,p.CurrentItem+1,p.ItemsNumber,1)
@@ -24,7 +24,7 @@ JumpToSelectedFile(p,p.CurrentItem+1,p.ItemsNumber,1)
 }
 
 Macro {
-  area="Shell"; key="CtrlShiftEnd"; flags="DisableOutput|Selection"; description="Jump to the last selected file"; action = function()
+  area="Shell"; key="CtrlShiftEnd"; flags="Selection"; description="Jump to the last selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
 JumpToSelectedFile(p,p.ItemsNumber,p.ItemsNumber,-1)
@@ -33,7 +33,7 @@ JumpToSelectedFile(p,p.ItemsNumber,p.ItemsNumber,-1)
 }
 
 Macro {
-  area="Shell"; key="CtrlShiftHome"; flags="DisableOutput|Selection"; description="Jump to the first selected file"; action = function()
+  area="Shell"; key="CtrlShiftHome"; flags="Selection"; description="Jump to the first selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
 JumpToSelectedFile(p,1,p.ItemsNumber,1)
@@ -42,7 +42,7 @@ JumpToSelectedFile(p,1,p.ItemsNumber,1)
 }
 
 Macro {
-  area="Shell"; key="CtrlShiftUp"; flags="DisableOutput|Selection"; description="Jump to the previous selected file"; action = function()
+  area="Shell"; key="CtrlShiftUp"; flags="Selection"; description="Jump to the previous selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
 JumpToSelectedFile(p,p.CurrentItem-1,p.ItemsNumber,-1)
