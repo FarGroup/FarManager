@@ -259,7 +259,17 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 {
-	AutoNamedMutex m(DbName);
+	string path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+
+	size_t plen = path.GetLength();
+	unsigned hs = 0;
+	for (size_t i=0; i < plen; ++i)
+		hs = hs*17 + path.At(i);
+
+	FormatString fs;
+	fs << hs << L"_" << DbName;
+
+	AutoNamedMutex m(fs.CPtr());
 	strName = DbName;
 	init_status = 0;
 	if (!InitializeImpl(DbName, Local))
