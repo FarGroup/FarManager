@@ -390,7 +390,7 @@ function mf.eval (str, mode)
     local area,key,usecommon = GetEvalData(str)
     if not area then return -2 end
 
-    local macro = utils.GetMacro(area,key,usecommon,true)
+    local macro = utils.GetMacro(area,key,usecommon,false)
     if not (macro and macro.id) then return -2 end
 
     if macro.action then
