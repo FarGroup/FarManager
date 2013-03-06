@@ -699,10 +699,13 @@ void FileEditor::InitKeyBar()
 		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.SetCustomLabels(L"Editor");
-	EditKeyBar.Show();
-	if (!Global->Opt->EdOpt.ShowKeyBar)
+
+	if (Global->Opt->EdOpt.ShowKeyBar)
+		EditKeyBar.Show();
+	else
 		EditKeyBar.Hide0();
-	m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+
+	//m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	SetKeyBar(&EditKeyBar);
 }
 
@@ -1324,9 +1327,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							if ( !detect )
 								codepage = m_codepage;
 						}
-						SetCodePage(codepage);
-						InitKeyBar();
-						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+						if (codepage != m_codepage)
+						{
+							SetCodePage(codepage);
+							InitKeyBar();
+							Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+						}
 					}
 				}
 				else
