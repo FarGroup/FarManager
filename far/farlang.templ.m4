@@ -1462,7 +1462,7 @@ upd:"Update panels only when Far is active"
 upd:"Update panels only when Far is active"
 upd:"Update panels only when Far is active"
 "Actualizar paneles solo cuando Far está activo"
-upd:"Update panels only when Far is active"
+"Aktualizovať panely, len ak je FAR aktívny"
 
 MConfigSaveHistory
 "Сохранять &историю команд"
@@ -1735,7 +1735,7 @@ upd:"Right click selects files"
 upd:"Right click selects files"
 upd:"Right click selects files"
 "Clic derecho selecciona archivos"
-upd:"Right click selects files"
+"Voliť súbory pravým kliknutím"
 
 MConfigSortFolderExt
 "Сортировать имена папок по рас&ширению"
@@ -2259,7 +2259,7 @@ upd:"Use &home dir"
 upd:"Use &home dir"
 upd:"Use &home dir"
 "Usar directorio &local"
-upd:"Use &home dir"
+"Použiť &domovský priečinok"
 
 MConfigCmdlinePromptFormatAdmin
 "Администратор"
@@ -2302,7 +2302,7 @@ upd:"&Modal mode"
 upd:"&Modal mode"
 upd:"&Modal mode"
 "Clase de &Modo"
-"&Modal mode"
+"&Modálny režim"
 
 MConfigAutoCompleteAutoAppend
 l:
@@ -2313,7 +2313,7 @@ upd:"&Append first matched item"
 upd:"&Append first matched item"
 upd:"&Append first matched item"
 "&Agregar primer ítem coincidente"
-"&Append first matched item"
+"&Pripojiť prvú nájdenú položku"
 
 MConfigInfoPanelTitle
 l:
@@ -2334,7 +2334,7 @@ upd:"Computer&Name format"
 upd:"Computer&Name format"
 upd:"Computer&Name format"
 "Formato nombre de &computadora"
-"Computer&Name format"
+"Formát &názvu počítača"
 
 MConfigInfoPanelCNPhysicalNetBIOS
 upd:"Physical NetBIOS"
@@ -2424,7 +2424,7 @@ upd:"&UserName format"
 upd:"&UserName format"
 upd:"&UserName format"
 "Formato nombre de &usuario"
-"&UserName format"
+"Formát &užívateľského mena"
 
 MConfigInfoPanelUNUnknown
 "По умолчанию"
@@ -2434,7 +2434,7 @@ upd:"Default"
 upd:"Default"
 upd:"Default"
 "Por defecto"
-"Default"
+"Predvolené"
 
 MConfigInfoPanelUNFullyQualifiedDN
 "Полностью определённое имя домена"
@@ -2534,7 +2534,7 @@ upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 "Mostrar parámetros uni&dad de CD\DVD\BD"
-"Zobraziť parametre jwednotky &CD"
+"Zobraziť parametre jednotky &CD"
 
 MMenuInfoShowModeTitle
 l:
@@ -2979,7 +2979,7 @@ upd:"Show white space"
 upd:"Show white space"
 upd:"Show white space"
 "Mostrar espacios en bla&nco"
-"Show white space"
+"Zobrazovať medzery"
 
 MEditConfigPickUpWord
 "Слово под к&урсором"
@@ -3009,7 +3009,7 @@ upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
-upd:"Cursor at end"
+"Kurzor na konci"
 
 MEditConfigDefaultCodePage
 "Кодовая стран&ица по умолчанию:"
@@ -10521,7 +10521,7 @@ MFindFolders
 "Keresés mapp&ákra"
 "Szukaj &folderów"
 "Buscar por &directorios"
-"Hľadač pr&iečinky"
+"Hľadať pr&iečinky"
 
 MFindSymLinks
 "Искать в символи&ческих ссылках"
@@ -10581,7 +10581,7 @@ MSearchInPATH
 "A &PATH mappáiban"
 "W folderach zmiennej &PATH"
 "En directorios de variable &PATH"
-"v adresároch z &PATH"
+"v priečinkoch z &PATH"
 
 MSearchFromRootOfDrive
 "С кор&ня диска"
@@ -13707,7 +13707,7 @@ l:
 "%1 fájl"
 "%1 plików"
 "%1 archivos"
-"%1 úborov"
+"%1 súborov"
 
 MDragMove
 "Перенос %1"
@@ -14412,7 +14412,7 @@ l:
 "Attribútumok beállítása"
 "Ustawiam atrybuty"
 "Poniendo atributos de archivo para"
-"Nastavenie atribútov súboru pro"
+"Nastavenie atribútov súboru pre"
 
 MSetAttrCannotFor
 "Ошибка установки атрибутов для"
@@ -17121,7 +17121,7 @@ upd:"Save changes?"
 upd:"Save changes?"
 upd:"Save changes?"
 "Guardar cambios?"
-upd:"Save changes?"
+"Uložiť zmeny?"
 
 MViewerTitle
 l:
@@ -18887,7 +18887,7 @@ upd:"Unload plugin"
 upd:"Unload plugin "
 upd:"Unload plugin"
 "El complemento será descargado"
-"Unload plugin"
+"Zatvoriť modul"
 
 MExcDebugger
 "Отладка"
@@ -18897,7 +18897,7 @@ upd:"Debug"
 upd:"Debug"
 upd:"Debug"
 "Depurador"
-"Debug"
+"Ladiť"
 
 MNetUserName
 l:
@@ -23818,7 +23818,7 @@ upd:"Plugin LuaMacro is not loaded"
 upd:"Plugin LuaMacro is not loaded"
 upd:"Plugin LuaMacro is not loaded"
 "Complemento LuaMacro no está cargado"
-upd:"Plugin LuaMacro is not loaded"
+"Modul LuaMacro nie je spustený"
 
 MMacroRecordingIsDisabled
 "Запись макросов запрещена"
@@ -23828,7 +23828,7 @@ upd:"Macro recording is disabled"
 upd:"Macro recording is disabled"
 upd:"Macro recording is disabled"
 "Grabación de macro está desactivada"
-upd:"Macro recording is disabled"
+"Záznam makra je zrušený"
 
 
 #Must be the last
