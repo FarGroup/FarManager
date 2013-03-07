@@ -50,9 +50,6 @@ enum TVarType
 
 typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
-class TVarSet;
-const int V_TABLE_SIZE = 23;
-typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 
 class TVar
 {
@@ -144,42 +141,3 @@ class TVar
 		__int64 getInteger() const;
 		double getDouble() const;
 };
-
-//---------------------------------------------------------------
-// Работа с таблицами имен переменных
-//---------------------------------------------------------------
-
-class TVarSet
-{
-	public:
-		TVar value;
-		wchar_t *str;
-		TVarSet *next;
-
-	public:
-		TVarSet(const wchar_t *s) : value(), str(nullptr), next(nullptr)
-		{
-			if (s)
-			{
-				str = new wchar_t[StrLength(s)+1];
-				wcscpy(str, s);
-			}
-		}
-		~TVarSet()
-		{
-			if (str)
-				delete [] str;
-		}
-};
-
-extern int isVar(TVarTable, const wchar_t*);
-extern TVarSet *varEnum(TVarTable, int);
-extern TVarSet *varLook(TVarTable worktable, const wchar_t* name, bool ins=false);
-extern void varKill(TVarTable, const wchar_t*);
-extern void initVTable(TVarTable);
-extern void deleteVTable(TVarTable);
-
-inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
-{
-	return varLook(t, s, true);
-}
