@@ -4386,7 +4386,7 @@ id=145
 lv=2
 dt=Text
 nm=panel.CheckPanelsExist
-mtime=3507873382
+mtime=3571802922
 <article>
 #_result = panel.CheckPanelsExist ([handle])
 #_
@@ -4397,7 +4397,7 @@ mtime=3507873382
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_CHECKPANELSEXIST
+#_  PanelControl, FCTL_CHECKPANELSEXIST
 #_
 #_@@@
 #_
@@ -4409,7 +4409,7 @@ lv=2
 dt=Text
 nm=panel.ClearSelection
 ctime=3480322277
-mtime=3507873394
+mtime=3571802936
 <article>
 #_result = panel.ClearSelection (handle, whatpanel, items)
 #_
@@ -4423,7 +4423,7 @@ mtime=3507873394
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
+#_  PanelControl, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
 #_  FCTL_CLEARSELECTION, FCTL_ENDSELECTION
 #_
 #_
@@ -4436,7 +4436,7 @@ id=4
 lv=2
 dt=Text
 nm=panel.ClosePanel
-mtime=3542652302
+mtime=3571802942
 <article>
 #_result = panel.ClosePanel (handle [, dir])
 #_
@@ -4449,7 +4449,7 @@ mtime=3542652302
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_CLOSEPANEL
+#_  PanelControl, FCTL_CLOSEPANEL
 #_
 #_@@@
 #_
@@ -4460,6 +4460,7 @@ id=5
 lv=2
 dt=Text
 nm=panel.GetCmdLine
+mtime=3571802946
 <article>
 #_result = panel.GetCmdLine ([handle])
 #_
@@ -4470,7 +4471,7 @@ nm=panel.GetCmdLine
 #_  result: string (or nil)
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCMDLINE
+#_  PanelControl, FCTL_GETCMDLINE
 #_
 #_
 #_@@@
@@ -4482,7 +4483,7 @@ id=6
 lv=2
 dt=Text
 nm=panel.GetCmdLinePos
-mtime=3480330205
+mtime=3571802951
 <article>
 #_pos = panel.GetCmdLinePos ([handle])
 #_
@@ -4493,7 +4494,7 @@ mtime=3480330205
 #_  pos: 1-based position (or nil)
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCMDLINEPOS
+#_  PanelControl, FCTL_GETCMDLINEPOS
 #_
 #_@@@
 #_
@@ -4505,7 +4506,7 @@ lv=2
 dt=Text
 nm=panel.GetCmdLineSelection
 ctime=3480326038
-mtime=3480330696
+mtime=3571802956
 <article>
 #_SelStart, SelEnd = panel.GetCmdLineSelection ([handle])
 #_
@@ -4517,7 +4518,7 @@ mtime=3480330696
 #_  SelEnd:   integer
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCMDLINESELECTION
+#_  PanelControl, FCTL_GETCMDLINESELECTION
 #_
 #_@@@
 #_
@@ -4528,6 +4529,7 @@ id=258
 lv=2
 dt=Text
 nm=panel.GetColumnTypes
+mtime=3571802960
 <article>
 #_ColumnTypes = panel.GetColumnTypes ([handle], whatpanel)
 #_
@@ -4539,7 +4541,7 @@ nm=panel.GetColumnTypes
 #_  ColumnTypes: string
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCOLUMNTYPES
+#_  PanelControl, FCTL_GETCOLUMNTYPES
 #_
 #_@@@
 #_
@@ -4550,6 +4552,7 @@ id=259
 lv=2
 dt=Text
 nm=panel.GetColumnWidths
+mtime=3571802965
 <article>
 #_ColumnWidths = panel.GetColumnWidths ([handle], whatpanel)
 #_
@@ -4561,7 +4564,7 @@ nm=panel.GetColumnWidths
 #_  ColumnWidths: string
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCOLUMNWIDTHS
+#_  PanelControl, FCTL_GETCOLUMNWIDTHS
 #_
 #_@@@
 #_
@@ -4572,6 +4575,7 @@ id=252
 lv=2
 dt=Text
 nm=panel.GetCurrentPanelItem
+mtime=3571802975
 <article>
 #_item = panel.GetCurrentPanelItem ([handle], whatpanel)
 #_
@@ -4583,7 +4587,7 @@ nm=panel.GetCurrentPanelItem
 #_  item:      PluginPanelItem
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETCURRENTPANELITEM
+#_  PanelControl, FCTL_GETCURRENTPANELITEM
 #_
 #_@@@
 #_<lua> Links = { PluginPanelItem="85.html" } </lua>
@@ -4595,7 +4599,7 @@ id=260
 lv=2
 dt=Text
 nm=panel.GetPanelDirectory
-mtime=3534535868
+mtime=3571802979
 <article>
 #_PanelDir = panel.GetPanelDirectory ([handle], whatpanel)
 #_
@@ -4607,7 +4611,7 @@ mtime=3534535868
 #_  PanelDir:  table FarPanelDirectory
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELDIRECTORY
+#_  PanelControl, FCTL_GETPANELDIRECTORY
 #_
 #_@@@
 #_<lua> Links = { FarPanelDirectory="459.html" } </lua>
@@ -4620,7 +4624,7 @@ lv=2
 dt=Text
 nm=panel.GetPanelFormat
 ctime=3492068593
-mtime=3492068684
+mtime=3571802983
 <article>
 #_PanelFormat = panel.GetPanelFormat ([handle], whatpanel)
 #_
@@ -4632,7 +4636,7 @@ mtime=3492068684
 #_  PanelFormat:  string
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELFORMAT
+#_  PanelControl, FCTL_GETPANELFORMAT
 #_
 #_@@@
 #_
@@ -4645,7 +4649,7 @@ lv=2
 dt=Text
 nm=panel.GetPanelHostFile
 ctime=3492068606
-mtime=3492068724
+mtime=3571802988
 <article>
 #_HostFile = panel.GetPanelHostFile ([handle], whatpanel)
 #_
@@ -4657,7 +4661,7 @@ mtime=3492068724
 #_  HostFile:  string
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELHOSTFILE
+#_  PanelControl, FCTL_GETPANELHOSTFILE
 #_
 #_@@@
 #_
@@ -4669,7 +4673,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3507818145
+mtime=3571802993
 <article>
 #_PanelInfo = panel.GetPanelInfo ([handle], whatpanel)
 #_
@@ -4693,7 +4697,7 @@ mtime=3507818145
 #_      Flags:               flags
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELINFO
+#_  PanelControl, FCTL_GETPANELINFO
 #_
 #_@@@
 #_<lua> Links = { PluginPanelItem="85.html" } </lua>
@@ -4706,6 +4710,7 @@ id=253
 lv=2
 dt=Text
 nm=panel.GetPanelItem
+mtime=3571802997
 <article>
 #_item = panel.GetPanelItem ([handle], whatpanel, itemindex)
 #_
@@ -4718,7 +4723,7 @@ nm=panel.GetPanelItem
 #_  item:      PluginPanelItem
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELITEM
+#_  PanelControl, FCTL_GETPANELITEM
 #_
 #_@@@
 #_<lua> Links = { PluginPanelItem="85.html" } </lua>
@@ -4731,7 +4736,7 @@ lv=2
 dt=Text
 nm=panel.GetPanelPrefix
 ctime=3525948213
-mtime=3525950289
+mtime=3571803002
 <article>
 #_Prefix = panel.GetPanelPrefix ([handle], whatpanel)
 #_
@@ -4743,7 +4748,7 @@ mtime=3525950289
 #_  Prefix:  string, or nil
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELPREFIX
+#_  PanelControl, FCTL_GETPANELPREFIX
 #_
 #_@@@
 #_
@@ -4755,6 +4760,7 @@ id=254
 lv=2
 dt=Text
 nm=panel.GetSelectedPanelItem
+mtime=3571803006
 <article>
 #_item = panel.GetSelectedPanelItem ([handle], whatpanel, itemindex)
 #_
@@ -4767,7 +4773,7 @@ nm=panel.GetSelectedPanelItem
 #_  item:      PluginPanelItem
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETSELECTEDPANELITEM
+#_  PanelControl, FCTL_GETSELECTEDPANELITEM
 #_
 #_@@@
 #_<lua> Links = { PluginPanelItem="85.html" } </lua>
@@ -4779,6 +4785,7 @@ id=228
 lv=2
 dt=Text
 nm=panel.GetUserScreen
+mtime=3571803010
 <article>
 #_result = panel.GetUserScreen ([handle])
 #_
@@ -4789,7 +4796,7 @@ nm=panel.GetUserScreen
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETUSERSCREEN
+#_  PanelControl, FCTL_GETUSERSCREEN
 #_
 #_@@@
 #_
@@ -4801,6 +4808,7 @@ id=9
 lv=2
 dt=Text
 nm=panel.InsertCmdLine
+mtime=3571803014
 <article>
 #_result = panel.InsertCmdLine (handle, str)
 #_
@@ -4812,7 +4820,7 @@ nm=panel.InsertCmdLine
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_INSERTCMDLINE
+#_  PanelControl, FCTL_INSERTCMDLINE
 #_
 #_
 #_@@@
@@ -4825,7 +4833,7 @@ lv=2
 dt=Text
 nm=panel.IsActivePanel
 ctime=3480215162
-mtime=3480215301
+mtime=3571803018
 <article>
 #_result = panel.IsActivePanel ([handle])
 #_
@@ -4836,7 +4844,7 @@ mtime=3480215301
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_ISACTIVEPANEL
+#_  PanelControl, FCTL_ISACTIVEPANEL
 #_
 #_
 #_@@@
@@ -4848,6 +4856,7 @@ id=10
 lv=2
 dt=Text
 nm=panel.RedrawPanel
+mtime=3571803022
 <article>
 #_result = panel.RedrawPanel (handle, whatpanel [, redrawinfo])
 #_
@@ -4862,7 +4871,7 @@ nm=panel.RedrawPanel
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_REDRAWPANEL
+#_  PanelControl, FCTL_REDRAWPANEL
 #_
 #_
 #_@@@
@@ -4875,7 +4884,7 @@ lv=2
 dt=Text
 nm=panel.SetCaseSensitiveSort
 ctime=3501391498
-mtime=3501391568
+mtime=3571803026
 <article>
 #_result = panel.SetCaseSensitiveSort (handle, whatpanel [, set])
 #_
@@ -4888,7 +4897,7 @@ mtime=3501391568
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETCASESENSITIVESORT
+#_  PanelControl, FCTL_SETCASESENSITIVESORT
 #_
 #_@@@
 #_
@@ -4899,6 +4908,7 @@ id=11
 lv=2
 dt=Text
 nm=panel.SetCmdLine
+mtime=3571803030
 <article>
 #_result = panel.SetCmdLine (handle, str)
 #_
@@ -4910,7 +4920,7 @@ nm=panel.SetCmdLine
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETCMDLINE
+#_  PanelControl, FCTL_SETCMDLINE
 #_
 #_
 #_@@@
@@ -4922,7 +4932,7 @@ id=12
 lv=2
 dt=Text
 nm=panel.SetCmdLinePos
-mtime=3480451106
+mtime=3571803034
 <article>
 #_result = panel.SetCmdLinePos (handle, pos)
 #_
@@ -4934,7 +4944,7 @@ mtime=3480451106
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETCMDLINEPOS
+#_  PanelControl, FCTL_SETCMDLINEPOS
 #_
 #_@@@
 #_
@@ -4946,7 +4956,7 @@ lv=2
 dt=Text
 nm=panel.SetCmdLineSelection
 ctime=3480326063
-mtime=3480451070
+mtime=3571803039
 <article>
 #_result = panel.SetCmdLineSelection (handle, selStart, selEnd)
 #_
@@ -4959,7 +4969,7 @@ mtime=3480451070
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETCMDLINESELECTION
+#_  PanelControl, FCTL_SETCMDLINESELECTION
 #_
 #_@@@
 #_
@@ -4970,6 +4980,7 @@ id=146
 lv=2
 dt=Text
 nm=panel.SetNumericSort
+mtime=3571803044
 <article>
 #_result = panel.SetNumericSort (handle, whatpanel [, set])
 #_
@@ -4982,7 +4993,7 @@ nm=panel.SetNumericSort
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETNUMERICSORT
+#_  PanelControl, FCTL_SETNUMERICSORT
 #_
 #_@@@
 #_
@@ -4993,7 +5004,7 @@ id=13
 lv=2
 dt=Text
 nm=panel.SetPanelDirectory
-mtime=3534539133
+mtime=3571803048
 <article>
 #_result = panel.SetPanelDirectory (handle, whatpanel, dir)
 #_
@@ -5007,7 +5018,7 @@ mtime=3534539133
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETPANELDIRECTORY
+#_  PanelControl, FCTL_SETPANELDIRECTORY
 #_
 #_@@@
 #_<lua> Links = { FarPanelDirectory="459.html" } </lua>
@@ -5019,7 +5030,7 @@ id=14
 lv=2
 dt=Text
 nm=panel.SetSelection
-mtime=3480322462
+mtime=3571803052
 <article>
 #_result = panel.SetSelection (handle, whatpanel, items, selection)
 #_
@@ -5034,7 +5045,7 @@ mtime=3480322462
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
+#_  PanelControl, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
 #_  FCTL_SETSELECTION, FCTL_ENDSELECTION
 #_
 #_@@@
@@ -5047,7 +5058,7 @@ id=147
 lv=2
 dt=Text
 nm=panel.SetSortMode
-mtime=3507818152
+mtime=3571803056
 <article>
 #_result = panel.SetSortMode (handle, whatpanel, mode)
 #_
@@ -5060,7 +5071,7 @@ mtime=3507818152
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETSORTMODE
+#_  PanelControl, FCTL_SETSORTMODE
 #_
 #_@@@
 #_
@@ -5071,6 +5082,7 @@ id=148
 lv=2
 dt=Text
 nm=panel.SetSortOrder
+mtime=3571803060
 <article>
 #_result = panel.SetSortOrder (handle, whatpanel [, order])
 #_
@@ -5084,7 +5096,7 @@ nm=panel.SetSortOrder
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETSORTORDER
+#_  PanelControl, FCTL_SETSORTORDER
 #_
 #_@@@
 #_
@@ -5095,6 +5107,7 @@ id=15
 lv=2
 dt=Text
 nm=panel.SetUserScreen
+mtime=3571803063
 <article>
 #_result = panel.SetUserScreen ([handle])
 #_
@@ -5105,7 +5118,7 @@ nm=panel.SetUserScreen
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETUSERSCREEN
+#_  PanelControl, FCTL_SETUSERSCREEN
 #_
 #_@@@
 #_
@@ -5116,6 +5129,7 @@ id=16
 lv=2
 dt=Text
 nm=panel.SetViewMode
+mtime=3571803067
 <article>
 #_result = panel.SetViewMode (handle, whatpanel, mode)
 #_
@@ -5128,7 +5142,7 @@ nm=panel.SetViewMode
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_SETVIEWMODE
+#_  PanelControl, FCTL_SETVIEWMODE
 #_
 #_
 #_@@@
@@ -5140,6 +5154,7 @@ id=17
 lv=2
 dt=Text
 nm=panel.UpdatePanel
+mtime=3571803071
 <article>
 #_result = panel.UpdatePanel (handle, whatpanel [, keepselection])
 #_
@@ -5152,7 +5167,7 @@ nm=panel.UpdatePanel
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  Control, FCTL_UPDATEPANEL
+#_  PanelControl, FCTL_UPDATEPANEL
 #_
 #_
 #_@@@
