@@ -595,6 +595,12 @@ function export.ProcessDialogEvent (Event, Param)
   end
 end
 
+function export.ProcessEditorInput (Rec)
+  if Events and Events.editorinput then
+    EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
+  end
+end
+
 local function GetMacroCopy (id)
   if LoadedMacros[id] then
     local t={}

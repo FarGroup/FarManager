@@ -12,7 +12,7 @@ DOCS = _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua
 SRCS = luafar/luaplug.c
 USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR \
           -DEXPORT_PROCESSEDITOREVENT -DEXPORT_PROCESSVIEWEREVENT \
-          -DEXPORT_PROCESSDIALOGEVENT
+          -DEXPORT_PROCESSDIALOGEVENT -DEXPORT_PROCESSEDITORINPUT
 USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUA_VER).dll
 
 NEEDENTRY  = 1

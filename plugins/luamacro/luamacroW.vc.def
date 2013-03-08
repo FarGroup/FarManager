@@ -6,6 +6,7 @@ EXPORTS
     OpenW
     ProcessDialogEventW
     ProcessEditorEventW
+    ProcessEditorInputW
     ProcessSynchroEventW
     ProcessViewerEventW
     SetStartupInfoW
