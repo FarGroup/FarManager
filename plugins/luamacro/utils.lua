@@ -561,11 +561,9 @@ local function EV_Handler (macros, filename, ...)
   -- Execute.
   for _,m in ipairs(macros) do
     if m.cur_priority < 0 then break end
-    if macros == Events.dialogevent then
-      local ret = m.action(...)
-      if ret then return ret end
-    else
-      m.action(...)
+    local ret = m.action(...)
+    if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
+      return ret
     end
     --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
   end
