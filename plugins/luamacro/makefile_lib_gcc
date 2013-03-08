@@ -2,10 +2,10 @@ include ../../unicode_far/makefile_gcc_common
 
 NAME=luafar3
 LUA_VER=5.1
-LUA_PROXY=51
+LUA_PROXY=lua51.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
-DOCS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll luasdk/$(DIRBIT)/lua$(LUA_PROXY).dll
+DOCS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll luasdk/$(DIRBIT)/$(LUA_PROXY)
 SRCS = \
 luafar/bit64.c \
 luafar/exported.c \
