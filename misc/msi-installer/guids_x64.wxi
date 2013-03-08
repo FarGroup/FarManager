@@ -353,6 +353,7 @@
 <?define Guid.luamacro.lua = "9983583F-6D6C-4D0C-87DB-16FE9CE29A56" ?>
 <?define Guid.macrotest.lua = "7C521160-324F-44E3-A0DB-4FB9C22CD3C4" ?>
 <?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>
+<?define Guid.lua51.dll = "31F36739-E199-4FA9-BD95-E08D99C54F27" ?>
 <?define Guid.luafar3.dll = "51D92B8C-EFB1-47A7-98FA-AD3BB73BBDD8" ?>
 <?define Guid.luafar3.map = "931D33C2-2675-4DC7-8A57-DF8A12B263ED" ?>
 <?define Guid.DlgBuilder.hpp = "8E572810-F31E-476C-A67E-3679CFDDF510" ?>

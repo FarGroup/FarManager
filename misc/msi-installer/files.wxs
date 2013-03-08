@@ -22,6 +22,9 @@
       <Component Id="lua5.1.dll" Guid="$(var.Guid.lua5.1.dll)" Win64="$(var.Win64)">
         <File Id="lua5.1.dll" KeyPath="yes" Source="$(var.SourceDir)\lua5.1.dll" />
       </Component>
+      <Component Id="lua51.dll" Guid="$(var.Guid.lua51.dll)" Win64="$(var.Win64)">
+        <File Id="lua51.dll" KeyPath="yes" Source="$(var.SourceDir)\lua51.dll" />
+      </Component>
 <?if $(var.Platform) = x86 ?>
       <Component Id="Far.map" Guid="$(var.Guid.Far.map)" Win64="$(var.Win64)">
         <File Id="Far.map" KeyPath="yes" Source="$(var.SourceDir)\Far.map" />
