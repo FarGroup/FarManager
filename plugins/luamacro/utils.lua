@@ -571,31 +571,31 @@ end
 
 function export.ProcessEditorEvent (EditorID, Event, Param)
   if Events and Events.editorevent then
-    EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
+    return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
   end
 end
 
 function export.ProcessViewerEvent (ViewerID, Event, Param)
   if Events and Events.viewerevent then
-    EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
+    return EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
   end
 end
 
 function export.ExitFAR ()
   if Events and Events.exitfar then
-    EV_Handler(Events.exitfar)
+    return EV_Handler(Events.exitfar)
   end
 end
 
 function export.ProcessDialogEvent (Event, Param)
   if Events and Events.dialogevent then
-    EV_Handler(Events.dialogevent, nil, Event, Param)
+    return EV_Handler(Events.dialogevent, nil, Event, Param)
   end
 end
 
 function export.ProcessEditorInput (Rec)
   if Events and Events.editorinput then
-    EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
+    return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
   end
 end
 
