@@ -235,6 +235,7 @@ local function EnumMacros (strArea, resetEnum)
 end
 
 local function LoadMacros (allAreas, unload)
+  local numerrors=0
   Areas,Events = {},{}
   EnumState = {}
   LoadedMacros = {}
@@ -254,7 +255,7 @@ local function LoadMacros (allAreas, unload)
         function (FindData, FullPath)
           local f, msg = loadfile(FullPath)
           if not f then
-            ErrMsg(msg) return
+            numerrors=numerrors+1; ErrMsg(msg); return
           end
           local env = k==1 and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
           if k==1 then setmetatable(env,gmeta) end
@@ -268,13 +269,13 @@ local function LoadMacros (allAreas, unload)
               AddRecordedMacro(env)
             end
           else
-            ErrMsg(msg)
+            numerrors=numerrors+1; ErrMsg(msg)
           end
         end, flags)
     end
   end
 
-  LastMessage = pack()
+  LastMessage = pack(numerrors==0)
   return F.MPRT_COMMONCASE, LastMessage
 end
 

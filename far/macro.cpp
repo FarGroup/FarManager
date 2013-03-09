@@ -609,7 +609,8 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_LOADMACROS,nullptr,&fmc};
 
-	return CallMacroPlugin(&info) != nullptr;
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
+	return mpr && mpr->Count && (mpr->Values[0].Boolean!=0);
 }
 
 void KeyMacro::SaveMacros()
