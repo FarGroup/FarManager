@@ -768,7 +768,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	{
 		Global->Db->PlHotkeyCfg()->SetHotkey(L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", PluginsHotkeysConfig::DRIVE_MENU, L"0"); // ProcList
 		Global->Db->PlHotkeyCfg()->SetHotkey(L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", PluginsHotkeysConfig::DRIVE_MENU, L"1"); // TmpPanel
-		Global->Db->PlHotkeyCfg()->SetHotkey(L"Plugins/FTP/FarFtp.dll"              , L"00000000-0000-0000-0000-000000000000", PluginsHotkeysConfig::DRIVE_MENU, L"2"); // FTP
+		Global->Db->PlHotkeyCfg()->SetHotkey(L"42E4AEB1-A230-44F4-B33C-F195BB654931", L"C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2", PluginsHotkeysConfig::DRIVE_MENU, L"2"); // NetBox
 		Global->Db->PlHotkeyCfg()->SetHotkey(L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", PluginsHotkeysConfig::DRIVE_MENU, L"3"); // Network
 		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
 	}
