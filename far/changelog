@@ -1,3 +1,7 @@
+w17 09.03.2013 13:17:54 +0400 - build 3236
+
+1. Export/Import дл€ localconfig.db
+
 shmuel 08.03.2013 11:51:14 +0200 - build
 
 1. ћакросы: добавлено событие 'EditorInput', т.е. в спецификации событи€ надо указывать group="EditorInput".

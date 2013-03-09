@@ -200,10 +200,14 @@ class GeneralConfigDb: public GeneralConfig, public SQLiteDb {
 	SQLiteStmt stmtDelValue;
 	SQLiteStmt stmtEnumValues;
 
+protected:
+	bool local;
+
 public:
 
 	GeneralConfigDb()
 	{
+		local = false;
 		Initialize(L"generalconfig.db");
 	}
 
@@ -394,7 +398,7 @@ public:
 
 	TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement("generalconfig");
+		TiXmlElement * root = new TiXmlElement(local ? "localconfig" : "generalconfig");
 		if (!root)
 			return nullptr;
 
@@ -440,7 +444,8 @@ public:
 	bool Import(const TiXmlHandle &root)
 	{
 		BeginTransaction();
-		for (const TiXmlElement *e = root.FirstChild("generalconfig").FirstChildElement("setting").Element(); e; e=e->NextSiblingElement("setting"))
+		for (const TiXmlElement *e = root.FirstChild(local ? "localconfig" : "generalconfig").FirstChildElement("setting").Element();
+			e != nullptr; e = e->NextSiblingElement("setting"))
 		{
 			const char *key = e->Attribute("key");
 			const char *name = e->Attribute("name");
@@ -488,6 +493,7 @@ class LocalGeneralConfigDb: public GeneralConfigDb
 public:
 	LocalGeneralConfigDb()
 	{
+		local = true;
 		Initialize(L"localconfig.db", true);
 	}
 };
@@ -2666,6 +2672,8 @@ bool Database::Export(const wchar_t *File)
 
 	root->LinkEndChild(GeneralCfg()->Export());
 
+	root->LinkEndChild(LocalGeneralCfg()->Export());
+
 	root->LinkEndChild(ColorsCfg()->Export());
 
 	root->LinkEndChild(AssocConfig()->Export());
@@ -2750,6 +2758,8 @@ bool Database::Import(const wchar_t *File)
 			const TiXmlHandle root(farconfig);
 
 			GeneralCfg()->Import(root);
+
+			LocalGeneralCfg()->Import(root);
 
 			ColorsCfg()->Import(root);
 
