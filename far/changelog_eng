@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 09.03.2013 22:50:25 +0200 - build 3238
+
+1. MCTL_LOADALL and far.MacroLoadAll return true only if there were no errors on start.
+
+drkns 09.03.2013 13:12:45 +0200 - build 3237
+
+1. Refactoring.
+
+w17 09.03.2013 13:17:54 +0400 - build 3236
+
+1. Export/Import for localconfig.db
+
+shmuel 08.03.2013 11:51:14 +0200 - build
+
+1. Macros: 'EditorInput' event is added, i.e. group="EditorInput" must be noted in event specification.
+   'action' and 'condition' functions parameters, as well as the returned value of 'action' function match the description
+   of export.ProcessEditorInput function in the LuaFAR manual.
+
+drkns 08.03.2013 01:52:56 +0200 - build 3235
+
+1. Removing some unused code.
+
+w17 07.03.2013 00:30:54 +0400 - build 3234
+
+1. Correction of 3232 - the name of a mutex depends on the full path to db.
+
+w17 06.03.2013 19:26:54 +0400 - build 3233
+
+1. M#2329: error drawing editor lines
+
+t-rex 05.03.2013 15:14:09 +0200 - build 3232
+
+1. Mantis#1813: Problems with DB when multiple FAR instances are started/closed simultaneously.
+
+drkns 04.03.2013 23:31:07 +0200 - build 3231
+
+1. 0002322: Incorrect drawing in viewer/editor
+
+zg 04.03.2013 00:01:33 +0200 - build 3230
+
+1. (num|caps|scroll)lock and their combinations with modifiers can now be assigned macros.
+
 drkns 03.03.2013 01:12:28 +0200 - build 3229
 
 1. Refactoring.
