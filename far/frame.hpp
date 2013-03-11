@@ -77,7 +77,7 @@ class Frame: public ScreenObjectWithShadow
 //    virtual int ProcessKey(int Key);
 //    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-		virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); }
+		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return(CanLoseFocus); }
 		void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
 		int  GetExitCode() { return ExitCode; }
 		virtual void SetExitCode(int Code) { ExitCode=Code; }

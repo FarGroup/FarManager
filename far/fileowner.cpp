@@ -137,7 +137,7 @@ const wchar_t* GetNameFromSIDCache(PSID Sid)
 	const wchar_t* Result = nullptr;
 	if(SIDCache)
 	{
-		auto i = std::find_if(SIDCache->begin(), SIDCache->end(), [&Sid](SIDCacheItem* i)
+		auto i = std::find_if(CONST_RANGE(*SIDCache, i)
 		{
 			return EqualSid(i->Sid, Sid);
 		});

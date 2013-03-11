@@ -174,7 +174,7 @@ bool FileMasksProcessor::Compare(const string& FileName)
 		return ret;
 	}
 
-	return std::find_if(Masks.begin(), Masks.end(), [&FileName](const VALUE_TYPE(Masks)& i)
+	return std::find_if(CONST_RANGE(Masks, i)
 	{
 		return CmpName(i, FileName, false) != 0;
 	}) != Masks.end();

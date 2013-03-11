@@ -83,7 +83,7 @@ bool NamesList::GetPrevName(string &strName, string &strShortName)
 
 void NamesList::SetCurName(const wchar_t *Name)
 {
-	auto it = std::find_if(Names.begin(), Names.end(), [&Name](VALUE_TYPE(Names)& i)
+	auto it = std::find_if(CONST_RANGE(Names, i)
 	{
 		return i.Value.strName == Name;
 	});

@@ -62,7 +62,6 @@ Manager *FrameManager;
 long CurrentWindowType=-1;
 
 Manager::Manager():
-	FrameCount(0),
 	InsertedFrame(nullptr),
 	DeletedFrame(nullptr),
 	ActivatedFrame(nullptr),
@@ -72,29 +71,18 @@ Manager::Manager():
 	DeactivatedFrame(nullptr),
 	ExecutedFrame(nullptr),
 	CurrentFrame(nullptr),
-	ModalStack(nullptr),
-	FrameList(static_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
-	ModalStackCount(0),
-	ModalStackSize(0),
-	FrameListSize(0),
 	FramePos(-1),
 	ModalEVCount(0),
 	EndLoop(FALSE),
 	ModalExitCode(-1),
 	StartManager(FALSE)
 {
+	Frames.reserve(1024);
+	ModalFrames.reserve(1024);
 }
 
 Manager::~Manager()
 {
-	if (FrameList)
-		xf_free(FrameList);
-
-	if (ModalStack)
-		xf_free(ModalStack);
-
-	/*if (SemiModalBackFrames)
-	  xf_free(SemiModalBackFrames);*/
 }
 
 
@@ -107,36 +95,32 @@ BOOL Manager::ExitAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
 
-	for (int i=this->ModalStackCount-1; i>=0; i--)
+	FOR_CONST_REVERSE_RANGE(ModalFrames, i)
 	{
-		Frame *iFrame=this->ModalStack[i];
-
-		if (!iFrame->GetCanLoseFocus(TRUE))
+		if (!(*i)->GetCanLoseFocus(TRUE))
 		{
-			int PrevFrameCount=ModalStackCount;
-			iFrame->ProcessKey(KEY_ESC);
+			auto PrevFrameCount = ModalFrames.size();
+			(*i)->ProcessKey(KEY_ESC);
 			Commit();
 
-			if (PrevFrameCount==ModalStackCount)
+			if (PrevFrameCount == ModalFrames.size())
 			{
 				return FALSE;
 			}
 		}
 	}
 
-	for (int i=FrameCount-1; i>=0; i--)
+	FOR_CONST_REVERSE_RANGE(Frames, i)
 	{
-		Frame *iFrame=FrameList[i];
-
-		if (!iFrame->GetCanLoseFocus(TRUE))
+		if (!(*i)->GetCanLoseFocus(TRUE))
 		{
-			ActivateFrame(iFrame);
+			ActivateFrame(*i);
 			Commit();
-			int PrevFrameCount=FrameCount;
-			iFrame->ProcessKey(KEY_ESC);
+			auto PrevFrameCount = Frames.size();
+			(*i)->ProcessKey(KEY_ESC);
 			Commit();
 
-			if (PrevFrameCount==FrameCount)
+			if (PrevFrameCount == Frames.size())
 			{
 				return FALSE;
 			}
@@ -149,44 +133,45 @@ BOOL Manager::ExitAll()
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
-	Frame *iFrame;
 
-	for (int i=ModalStackCount-1; i>=0; i--)
+	FOR_CONST_REVERSE_RANGE(ModalFrames, i)
 	{
-		iFrame=ModalStack[i];
-		DeleteFrame(iFrame);
+		DeleteFrame(*i);
 		DeleteCommit();
 		DeletedFrame=nullptr;
+		// BUGBUG iterator may be invalidated by DeleteCommit()
+		if (ModalFrames.empty())
+			break;
 	}
 
-	for (int i=FrameCount-1; i>=0; i--)
+	FOR_CONST_REVERSE_RANGE(Frames, i)
 	{
-		iFrame=(*this)[i];
-		DeleteFrame(iFrame);
+		DeleteFrame(*i);
 		DeleteCommit();
 		DeletedFrame=nullptr;
+		// BUGBUG iterator may be invalidated by DeleteCommit()
+		if (Frames.empty())
+			break;
 	}
 
-	xf_free(FrameList);
-	FrameList=nullptr;
-	FrameCount=FramePos=0;
+	Frames.clear();
 }
 
 BOOL Manager::IsAnyFrameModified(int Activate)
 {
-	for (int I=0; I<FrameCount; I++)
-		if (FrameList[I]->IsFileModified())
+	return std::find_if(CONST_RANGE(Frames, i)->bool
+	{
+		if (i->IsFileModified())
 		{
 			if (Activate)
 			{
-				ActivateFrame(I);
+				ActivateFrame(i);
 				Commit();
 			}
-
-			return TRUE;
+			return true;
 		}
-
-	return FALSE;
+		return false;
+	}) != Frames.end();
 }
 
 void Manager::InsertFrame(Frame *Inserted, int Index)
@@ -205,15 +190,8 @@ void Manager::DeleteFrame(Frame *Deleted)
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(Frame *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
 
-	for (int i=0; i<FrameCount; i++)
-	{
-		Frame *iFrame=FrameList[i];
-
-		if (iFrame->RemoveModal(Deleted))
-		{
-			return;
-		}
-	}
+	if (std::find_if(CONST_RANGE(Frames, i){return i->RemoveModal(Deleted);}) != Frames.end())
+		return;
 
 	if (!Deleted)
 	{
@@ -322,7 +300,7 @@ void Manager::ExecuteModal(Frame *Executed)
 		}
 	}
 
-	int ModalStartLevel=ModalStackCount;
+	auto ModalStartLevel=ModalFrames.size();
 	int OriginalStartManager=StartManager;
 	StartManager=TRUE;
 
@@ -330,7 +308,7 @@ void Manager::ExecuteModal(Frame *Executed)
 	{
 		Commit();
 
-		if (ModalStackCount<=ModalStartLevel)
+		if (ModalFrames.size()<=ModalStartLevel)
 		{
 			break;
 		}
@@ -353,16 +331,15 @@ int Manager::GetModalExitCode()
 int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
 {
 	int Counter=0;
-	typedef int (__cdecl *cmpfunc_t)(const wchar_t *s1, const wchar_t *s2);
-	cmpfunc_t cmpfunc=IgnoreCase ? StrCmpI : StrCmp;
+	auto cmpfunc = IgnoreCase? StrCmpI : StrCmp;
 	string strType, strCurName;
 
-	for (int I=0; I<FrameCount; I++)
+	std::for_each(CONST_RANGE(Frames, i)
 	{
-		FrameList[I]->GetTypeAndName(strType, strCurName);
-
-		if (!cmpfunc(Name, strCurName)) ++Counter;
-	}
+		i->GetTypeAndName(strType, strCurName);
+		if (!cmpfunc(Name, strCurName))
+			++Counter;
+	});
 
 	return Counter;
 }
@@ -395,26 +372,28 @@ Frame *Manager::FrameMenu()
 		if (!CheckCanLoseFocus)
 			ModalMenuItem.SetDisable(TRUE);
 
-		for (int I=0; I<FrameCount; I++)
+		size_t n = 0;
+		std::for_each(CONST_RANGE(Frames, i)
 		{
 			string strType, strName, strNumText;
-			FrameList[I]->GetTypeAndName(strType, strName);
+			i->GetTypeAndName(strType, strName);
 			ModalMenuItem.Clear();
 
-			if (I<10)
-				strNumText.Format(L"&%d. ",I);
-			else if (I<36)
-				strNumText.Format(L"&%c. ",I+55);  // 55='A'-10
+			if (n < 10)
+				strNumText.Format(L"&%d. ", n);
+			else if (n < 36)
+				strNumText.Format(L"&%c. ", n + 55);  // 55='A'-10
 			else
 				strNumText = L"&   ";
 
 			//TruncPathStr(strName,ScrX-24);
 			ReplaceStrings(strName,L"&",L"&&",-1);
 			/*  добавляется "*" если файл изменен */
-			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.CPtr(), strType.CPtr(),(FrameList[I]->IsFileModified()?L'*':L' '), strName.CPtr());
-			ModalMenuItem.SetSelect(I==FramePos);
+			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.CPtr(), strType.CPtr(),(i->IsFileModified()?L'*':L' '), strName.CPtr());
+			ModalMenuItem.SetSelect(static_cast<int>(n) == FramePos);
 			ModalMenu.AddItem(&ModalMenuItem);
-		}
+			++n;
+		});
 
 		AlreadyShown=TRUE;
 		ExitCode=ModalMenu.Run();
@@ -440,17 +419,12 @@ int Manager::GetFrameCountByType(int Type)
 {
 	int ret=0;
 
-	for (int I=0; I<FrameCount; I++)
+	std::for_each(CONST_RANGE(Frames, i)
 	{
-		/* $ 10.05.2001 DJ
-		   не учитываем фрейм, который собираемся удалять
-		*/
-		if (FrameList[I] == DeletedFrame || (unsigned int)FrameList [I]->GetExitCode() == XC_QUIT)
-			continue;
-
-		if (FrameList[I]->GetType()==Type)
+		// не учитываем фрейм, который собираемся удалять
+		if (i != DeletedFrame && i->GetExitCode() != XC_QUIT && i->GetType() == Type)
 			ret++;
-	}
+	});
 
 	return ret;
 }
@@ -476,19 +450,23 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 		strFullFileName = strBufFileName;
 	}
 
-	for (int I=0; I<FrameCount; I++)
+	int n = 0;
+	if (std::find_if(CONST_RANGE(Frames, i)->bool
 	{
 		string strType, strName;
 
 		// Mantis#0000469 - получать Name будем только при совпадении ModalType
-		if (FrameList[I]->GetType()==ModalType)
+		if (i->GetType()==ModalType)
 		{
-			FrameList[I]->GetTypeAndName(strType, strName);
+			i->GetTypeAndName(strType, strName);
 
 			if (!StrCmpI(strName, strFullFileName))
-				return(I);
+				return true;
 		}
-	}
+		++n;
+		return false;
+	}) != Frames.end())
+		return n;
 
 	return -1;
 }
@@ -536,7 +514,7 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 
 		if (Direction>0)
 		{
-			if (FramePos>=FrameCount)
+			if (FramePos >= static_cast<int>(Frames.size()))
 			{
 				FramePos=0;
 			}
@@ -545,7 +523,7 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 		{
 			if (FramePos<0)
 			{
-				FramePos=FrameCount-1;
+				FramePos = static_cast<int>(Frames.size()-1);
 			}
 		}
 
@@ -569,7 +547,7 @@ void Manager::SwapTwoFrame(int Direction)
 
 		if (Direction>0)
 		{
-			if (FramePos>=FrameCount)
+			if (FramePos >= static_cast<int>(Frames.size()))
 			{
 				FramePos=0;
 			}
@@ -578,13 +556,13 @@ void Manager::SwapTwoFrame(int Direction)
 		{
 			if (FramePos<0)
 			{
-				FramePos=FrameCount-1;
+				FramePos = static_cast<int>(Frames.size()-1);
 			}
 		}
 
-		Frame *TmpFrame=FrameList[OldFramePos];
-		FrameList[OldFramePos]=FrameList[FramePos];
-		FrameList[FramePos]=TmpFrame;
+		Frame *TmpFrame=Frames[OldFramePos];
+		Frames[OldFramePos]=Frames[FramePos];
+		Frames[FramePos]=TmpFrame;
 		ActivateFrame(OldFramePos);
 	}
 
@@ -653,7 +631,7 @@ void Manager::SwitchToPanels()
 
 int Manager::HaveAnyFrame()
 {
-	if (FrameCount || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
+	if (!Frames.empty() || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
 	        ModalizedFrame || DeactivatedFrame || ExecutedFrame || CurrentFrame)
 		return 1;
 
@@ -1270,44 +1248,32 @@ bool Manager::IsPanelsActive(bool and_not_qview)
 
 Frame *Manager::operator[](size_t Index)const
 {
-	if (Index>=static_cast<size_t>(FrameCount) || !FrameList)
+	if (Index>=static_cast<size_t>(Frames.size()) || Frames.empty())
 	{
 		return nullptr;
 	}
 
-	return FrameList[Index];
+	return Frames[Index];
 }
 
 int Manager::IndexOfStack(Frame *Frame)
 {
-	int Result=-1;
-
-	for (int i=0; i<ModalStackCount; i++)
+	int Result = 0;
+	return std::find_if(CONST_RANGE(ModalFrames, i)->bool
 	{
-		if (Frame==ModalStack[i])
-		{
-			Result=i;
-			break;
-		}
-	}
-
-	return Result;
+		++Result;
+		return Frame==i;
+	}) != ModalFrames.end()? Result - 1 : -1;
 }
 
 int Manager::IndexOf(Frame *Frame)
 {
-	int Result=-1;
-
-	for (int i=0; i<FrameCount; i++)
+	int Result = 0;
+	return std::find_if(CONST_RANGE(Frames, i)->bool
 	{
-		if (Frame==FrameList[i])
-		{
-			Result=i;
-			break;
-		}
-	}
-
-	return Result;
+		++Result;
+		return Frame==i;
+	}) != Frames.end()? Result - 1 : -1;
 }
 
 BOOL Manager::Commit()
@@ -1406,7 +1372,7 @@ void Manager::DeactivateCommit()
 
 	int modalIndex=IndexOfStack(DeactivatedFrame);
 
-	if (-1 != modalIndex && modalIndex== ModalStackCount-1)
+	if (-1 != modalIndex && modalIndex == static_cast<int>(ModalFrames.size() - 1))
 	{
 		/*if (IsSemiModalBackFrame(ActivatedFrame))
 		{ // Является ли "родителем" полумодального фрэйма?
@@ -1416,11 +1382,11 @@ void Manager::DeactivateCommit()
 		{*/
 		if (IndexOfStack(ActivatedFrame)==-1)
 		{
-			ModalStack[ModalStackCount-1]=ActivatedFrame;
+			ModalFrames.back() = ActivatedFrame;
 		}
 		else
 		{
-			ModalStackCount--;
+			ModalFrames.pop_back();
 		}
 
 //    }
@@ -1451,16 +1417,15 @@ void Manager::ActivateCommit()
 	  то надо его вытащит на верх стэка модалов.
 	*/
 
-	for (int I=0; I<ModalStackCount; I++)
+	std::find_if(RANGE(ModalFrames, i)->bool
 	{
-		if (ModalStack[I]==ActivatedFrame)
+		if (i == ActivatedFrame)
 		{
-			Frame *tmp=ModalStack[I];
-			ModalStack[I]=ModalStack[ModalStackCount-1];
-			ModalStack[ModalStackCount-1]=tmp;
-			break;
+			std::swap(ModalFrames.back(), i);
+			return true;
 		}
-	}
+		return false;
+	});
 
 	RefreshedFrame=CurrentFrame=ActivatedFrame;
 	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
@@ -1482,7 +1447,7 @@ void Manager::UpdateCommit()
 
 	if (-1!=FrameIndex)
 	{
-		ActivateFrame(FrameList[FrameIndex] = InsertedFrame);
+		ActivateFrame(Frames[FrameIndex] = InsertedFrame);
 		ActivatedFrame->FrameToBack=CurrentFrame;
 		DeleteCommit();
 	}
@@ -1516,33 +1481,23 @@ void Manager::DeleteCommit()
 		  Надёжнее найти и удалить именно то, что
 		  нужно, а не просто верхний.
 		*/
-		for (int i=0; i<ModalStackCount; i++)
-		{
-			if (ModalStack[i]==DeletedFrame)
-			{
-				for (int j=i+1; j<ModalStackCount; j++)
-				{
-					ModalStack[j-1]=ModalStack[j];
-				}
+		auto frame = std::find(ModalFrames.begin(), ModalFrames.end(), DeletedFrame);
+		if (frame != ModalFrames.end())
+			ModalFrames.erase(frame);
 
-				ModalStackCount--;
-				break;
-			}
-		}
-
-		if (ModalStackCount)
+		if (!ModalFrames.empty())
 		{
-			ActivateFrame(ModalStack[ModalStackCount-1]);
+			ActivateFrame(ModalFrames.back());
 		}
 	}
 
-	for (int i=0; i<FrameCount; i++)
+	std::for_each(CONST_RANGE(Frames, i)
 	{
-		if (FrameList[i]->FrameToBack==DeletedFrame)
+		if (i->FrameToBack==DeletedFrame)
 		{
-			FrameList[i]->FrameToBack=Global->CtrlObject->Cp();
+			i->FrameToBack=Global->CtrlObject->Cp();
 		}
-	}
+	});
 
 	int FrameIndex=IndexOf(DeletedFrame);
 
@@ -1550,21 +1505,16 @@ void Manager::DeleteCommit()
 	{
 		DeletedFrame->DestroyAllModal();
 
-		for (int j=FrameIndex; j<FrameCount-1; j++)
-		{
-			FrameList[j]=FrameList[j+1];
-		}
+		Frames.erase(Frames.begin() + FrameIndex);
 
-		FrameCount--;
-
-		if (FramePos >= FrameCount)
+		if (FramePos >= static_cast<int>(Frames.size()))
 		{
 			FramePos=0;
 		}
 
 		if (DeletedFrame->FrameToBack==Global->CtrlObject->Cp())
 		{
-			ActivateFrame(FrameList[FramePos]);
+			ActivateFrame(Frames[FramePos]);
 		}
 		else
 		{
@@ -1619,9 +1569,9 @@ void Manager::DeleteCommit()
 
 	// Полагаемся на то, что в ActevateFrame не будет переписан уже
 	// присвоенный  ActivatedFrame
-	if (ModalStackCount)
+	if (!ModalFrames.empty())
 	{
-		ActivateFrame(ModalStack[ModalStackCount-1]);
+		ActivateFrame(ModalFrames.back());
 	}
 	else
 	{
@@ -1636,21 +1586,13 @@ void Manager::InsertCommit()
 
 	if (InsertedFrame)
 	{
-		if (FrameListSize <= FrameCount)
-		{
-			FrameList=(Frame **)xf_realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
-			FrameListSize++;
-		}
-
 		InsertedFrame->FrameToBack=CurrentFrame;
-		FrameList[FrameCount]=InsertedFrame;
+		Frames.push_back(InsertedFrame);
 
 		if (!ActivatedFrame)
 		{
 			ActivatedFrame=InsertedFrame;
 		}
-
-		FrameCount++;
 	}
 }
 
@@ -1696,12 +1638,7 @@ void Manager::ExecuteCommit()
 		return;
 	}
 
-	if (ModalStackCount == ModalStackSize)
-	{
-		ModalStack = (Frame **) xf_realloc(ModalStack, ++ModalStackSize * sizeof(Frame *));
-	}
-
-	ModalStack [ModalStackCount++] = ExecutedFrame;
+	ModalFrames.push_back(ExecutedFrame);
 	ActivatedFrame=ExecutedFrame;
 }
 
@@ -1728,14 +1665,13 @@ void Manager::ImmediateHide()
 
 	// Фреймы перерисовываются, значит для нижних
 	// не выставляем заголовок консоли, чтобы не мелькал.
-	if (ModalStackCount>0)
+	if (!ModalFrames.empty())
 	{
 		/* $ 28.04.2002 KM
 		    Проверим, а не модальный ли редактор или вьювер на вершине
 		    модального стека? И если да, покажем User screen.
 		*/
-		if (ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_EDITOR ||
-		        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER)
+		if (ModalFrames.back()->GetType()==MODALTYPE_EDITOR || ModalFrames.back()->GetType()==MODALTYPE_VIEWER)
 		{
 			if (Global->CtrlObject->CmdLine)
 				Global->CtrlObject->CmdLine->ShowBackground();
@@ -1759,13 +1695,13 @@ void Manager::ImmediateHide()
 				(*this)[FramePos]->Lock();
 			}
 
-			if (ModalStackCount>1)
+			if (ModalFrames.size() > 1)
 			{
-				for (int i=0; i<ModalStackCount-1; i++)
+				for(auto i = ModalFrames.cbegin(); i != ModalFrames.cend() - 1; ++i)
 				{
-					if (!(ModalStack[i]->FastHide() & CASR_HELP))
+					if (!((*i)->FastHide() & CASR_HELP))
 					{
-						RefreshFrame(ModalStack[i]);
+						RefreshFrame(*i);
 						Commit();
 					}
 					else
@@ -1799,27 +1735,15 @@ void Manager::ModalizeCommit()
 
 void Manager::UnmodalizeCommit()
 {
-	Frame *iFrame;
-
-	for (int i=0; i<FrameCount; i++)
+	std::find_if(CONST_RANGE(Frames, i)
 	{
-		iFrame=FrameList[i];
+		return i->RemoveModal(UnmodalizedFrame);
+	});
 
-		if (iFrame->RemoveModal(UnmodalizedFrame))
-		{
-			break;
-		}
-	}
-
-	for (int i=0; i<ModalStackCount; i++)
+	std::find_if(CONST_RANGE(ModalFrames, i)
 	{
-		iFrame=ModalStack[i];
-
-		if (iFrame->RemoveModal(UnmodalizedFrame))
-		{
-			break;
-		}
-	}
+		return i->RemoveModal(UnmodalizedFrame);
+	});
 
 	UnmodalizedFrame=nullptr;
 }
@@ -1859,19 +1783,19 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 void Manager::ResizeAllFrame()
 {
 	Global->ScrBuf->Lock();
-	for (int i=0; i < FrameCount; i++)
+	std::for_each(CONST_RANGE(Frames, i)
 	{
-		FrameList[i]->ResizeConsole();
-	}
+		i->ResizeConsole();
+	});
 
-	for (int i=0; i < ModalStackCount; i++)
+	std::for_each(CONST_RANGE(ModalFrames, i)
 	{
-		ModalStack[i]->ResizeConsole();
+		i->ResizeConsole();
 		/* $ 13.04.2002 KM
 		  - А теперь проресайзим все NextModal...
 		*/
-		ResizeAllModal(ModalStack[i]);
-	}
+		ResizeAllModal(i);
+	});
 
 	ImmediateHide();
 	FrameManager->RefreshFrame();
@@ -1881,8 +1805,10 @@ void Manager::ResizeAllFrame()
 
 void Manager::InitKeyBar()
 {
-	for (int I=0; I < FrameCount; I++)
-		FrameList[I]->InitKeyBar();
+	std::for_each(CONST_RANGE(Frames, i)
+	{
+		i->InitKeyBar();
+	});
 }
 
 /*void Manager::AddSemiModalBackFrame(Frame* frame)

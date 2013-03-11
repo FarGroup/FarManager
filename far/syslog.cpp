@@ -650,42 +650,31 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 		const Manager *Man=m?m:FrameManager;
 //StartSysLog
 		string Type,Name;
-		fwprintf(fp,L"**** Queue modal frames ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
+		fwprintf(fp,L"**** Queue modal frames ***\nFrameList.size()=%u, FramePos=%d\n",Man->Frames.size(),Man->FramePos);
 
-		if (Man->FrameList)
+		std::for_each(CONST_RANGE(Man->Frames, i)
 		{
-			for (int i=0; i < Man->FrameCount; i++)
+			if (i)
 			{
-				if (Man->FrameList[i])
-				{
-					Man->FrameList[i]->GetTypeAndName(Type,Name);
-					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",i,Man->FrameList[i],Type.CPtr(),Name.CPtr());
-				}
-				else
-					fwprintf(fp,L"\tFrameList[%d] nullptr\n",i);
+				i->GetTypeAndName(Type,Name);
+				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.CPtr(), Name.CPtr());
 			}
-		}
-		else
-			fwprintf(fp,L"\tFrameList = nullptr\n");
+			else
+				fwprintf(fp,L"\tFrameList item nullptr\n");
+		});
 
-		fwprintf(fp,L"**** Stack modal frames ***\nModalStackSize=%d\n",Man->ModalStackSize);
+		fwprintf(fp,L"**** Stack modal frames ***\nModalStack.size()=%u\n",Man->ModalFrames.size());
 
-		if (Man->ModalStack)
+		std::for_each(CONST_RANGE(Man->ModalFrames, i)
 		{
-			for (int i=0; i < Man->ModalStackCount; i++)
+			if (i)
 			{
-				if (Man->ModalStack[i])
-				{
-					Man->ModalStack[i]->GetTypeAndName(Type,Name);
-					fwprintf(fp,L"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
-					         i,Man->ModalStack[i],Type.CPtr(),Name.CPtr());
-				}
-				else
-					fwprintf(fp,L"\tModalStack[%d] nullptr\n",i);
+				i->GetTypeAndName(Type,Name);
+				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.CPtr(), Name.CPtr());
 			}
-		}
-		else
-			fwprintf(fp,L"\tModalStack = nullptr\n");
+			else
+				fwprintf(fp,L"\tModalStack Item nullptr\n",i);
+		});
 
 		fwprintf(fp,L"**** Detail... ***\n");
 

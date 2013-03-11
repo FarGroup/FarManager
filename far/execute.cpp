@@ -1451,11 +1451,10 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 bool IsBatchExtType(const string& ExtPtr)
 {
 	auto BatchExtList(StringToList(Global->Opt->Exec.strExecuteBatchType, STLF_UNIQUE));
-	return std::find_if(BatchExtList.begin(), BatchExtList.end(), [&ExtPtr](VALUE_TYPE(BatchExtList)& i)
+	return std::find_if(CONST_RANGE(BatchExtList, i)
 	{
 		return !StrCmpI(ExtPtr, i);
-	}
-	) != BatchExtList.end();
+	}) != BatchExtList.end();
 }
 
 bool ProcessOSAliases(string &strStr)

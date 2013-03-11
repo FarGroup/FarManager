@@ -1045,7 +1045,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	else
 		strMask = FormatString() << L'*' << DotPtr;
 
-	if (std::find_if(Extensions.begin(), Extensions.end(), [&strMask](const VALUE_TYPE(Extensions)& i)
+	if (std::find_if(CONST_RANGE(Extensions, i)
 	{
 		return !StrCmpI(strMask, i.first);
 	}) != Extensions.end())

@@ -1428,7 +1428,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 	}
 
 	FarChDir(strOldCurDir);
-	return (unsigned int)GetExitCode() == XC_QUIT;
+	return GetExitCode() == XC_QUIT;
 }
 
 
@@ -2149,7 +2149,7 @@ void FileEditor::OnDestroy()
 	}
 }
 
-int FileEditor::GetCanLoseFocus(int DynamicMode)
+int FileEditor::GetCanLoseFocus(int DynamicMode) const
 {
 	if (DynamicMode)
 	{

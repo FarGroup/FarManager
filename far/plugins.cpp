@@ -476,7 +476,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 		//какие-то непонятные действия...
 		CurPluginItem=nullptr;
 
-		for(int i = FrameManager->GetModalStackCount()-1; i >= 0; --i)
+		for(int i = static_cast<int>(FrameManager->GetModalStackCount()-1); i >= 0; --i)
 		{
 			Frame *frame = FrameManager->GetModalFrame(i);
 			if((frame->GetType()==MODALTYPE_DIALOG && static_cast<Dialog*>(frame)->GetPluginOwner() == pPlugin) || frame->GetType()==MODALTYPE_HELP)
@@ -544,7 +544,7 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 
 Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 {
-	auto i = std::find_if(PluginsData.begin(), PluginsData.end(), [&lpwszModuleName](VALUE_TYPE(PluginsData)& i)
+	auto i = std::find_if(CONST_RANGE(PluginsData, i)
 	{
 		return !StrCmpI(lpwszModuleName, i->GetModuleName());
 	});
@@ -947,7 +947,7 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	return std::find_if(PluginsData.begin(), PluginsData.end(), [&](const VALUE_TYPE(PluginsData)& i)
+	return std::find_if(CONST_RANGE(PluginsData, i)
 	{
 		return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);
 	}) != PluginsData.end();
@@ -984,7 +984,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	return std::find_if(PluginsData.begin(), PluginsData.end(), [&](const VALUE_TYPE(PluginsData)& i)
+	return std::find_if(CONST_RANGE(PluginsData, i)
 	{
 		return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);
 	}) != PluginsData.end();

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	XC_QUIT                = (unsigned long) -777,
+	XC_QUIT                = -777,
 	XC_OPEN_ERROR          = 0,
 	XC_MODIFIED            = 1,
 	XC_NOT_MODIFIED        = 2,

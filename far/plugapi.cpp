@@ -472,11 +472,11 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				else
 				{
-					if (wi->Pos>=0&&wi->Pos<FrameManager->GetFrameCount())
+					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()))
 					{
 						f=(*FrameManager)[wi->Pos];
 					}
-					else if(wi->Pos>=FrameManager->GetFrameCount()&&wi->Pos<(FrameManager->GetFrameCount()+FrameManager->GetModalStackCount()))
+					else if(wi->Pos >= static_cast<intptr_t>(FrameManager->GetFrameCount()) && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()+FrameManager->GetModalStackCount()))
 					{
 						f=FrameManager->GetModalFrame(wi->Pos-FrameManager->GetFrameCount());
 						modal=true;
@@ -1709,16 +1709,15 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	else
 	{
 		typedef Frame* (Manager::*ItemFn)(size_t index)const;
-		typedef int (Manager::*CountFn)(void)const;
+		typedef size_t (Manager::*CountFn)(void)const;
 		ItemFn getitem[]={&Manager::operator[],&Manager::GetModalFrame};
 		CountFn getcount[]={&Manager::GetFrameCount,&Manager::GetModalStackCount};
 		for(size_t ii=0;ii<ARRAYSIZE(getitem);++ii)
 		{
-			Frame *frame;
-			int count=(FrameManager->*getcount[ii])();
-			for(int jj=0;jj<count;++jj)
+			size_t count=(FrameManager->*getcount[ii])();
+			for(size_t jj=0;jj<count;++jj)
 			{
-				frame=(FrameManager->*getitem[ii])(jj);
+				Frame *frame=(FrameManager->*getitem[ii])(jj);
 				if (frame->GetType() == MODALTYPE_EDITOR)
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
@@ -2166,7 +2165,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					auto it = std::find_if(RANGE(*Global->CtrlObject->Plugins, i)
+					auto it = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
 						return !StrCmpI(i->GetModuleName(), strPath);
 					});

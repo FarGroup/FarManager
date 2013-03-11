@@ -42,7 +42,6 @@ class Manager
 #endif
 	private:
 		INPUT_RECORD LastInputRecord;
-		int  FrameCount;         // Размер немодальной очереди
 		/*$ Претенденты на ... */
 		Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
 		Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
@@ -56,12 +55,8 @@ class Manager
 		Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
 		// его можно получить с помощью FrameManager->GetCurrentFrame();
 
-		Frame **ModalStack;     // Стек модальных фреймов
-		Frame **FrameList;       // Очередь модальных фреймов
-		int ModalStackCount;    // Размер стека модальных фреймов
-		int ModalStackSize;     // Буфер стека модальных фреймов
-
-		int  FrameListSize;      // размер буфера под немодальную очередь
+		std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
+		std::vector<Frame*> Frames;       // Очередь модальных фреймов
 		int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
 		// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
 
@@ -144,7 +139,7 @@ class Manager
 		BOOL ExitAll();
 		BOOL IsAnyFrameModified(int Activate);
 
-		int  GetFrameCount()const {return(FrameCount);};
+		size_t GetFrameCount()const {return Frames.size();}
 		int  GetFrameCountByType(int Type);
 
 		/*$ 26.06.2001 SKV
@@ -209,8 +204,8 @@ class Manager
 		// возвращает top-модал или сам фрейм, если у фрейма нету модалов
 		Frame* GetTopModal();
 
-		int GetModalStackCount() const {return ModalStackCount;}
-		Frame* GetModalFrame(size_t index) const {return ModalStack[index];}
+		size_t GetModalStackCount() const {return ModalFrames.size();}
+		Frame* GetModalFrame(size_t index) const {return ModalFrames[index];}
 };
 
 extern Manager *FrameManager;

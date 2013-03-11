@@ -1778,7 +1778,7 @@ DialogData* FindDialogData(HANDLE hDlg)
 	DialogData* Result = nullptr;
 	if (DialogList)
 	{
-		auto iter = std::find_if(DialogList->begin(), DialogList->end(), [&hDlg](const DialogData& i)
+		auto iter = std::find_if(RANGE(*DialogList, i)
 		{
 			return i.hDlg == hDlg;
 		});

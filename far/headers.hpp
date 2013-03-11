@@ -215,9 +215,13 @@ inline void ClearArray(T& a)
 #define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
 
 #define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T)& i)
+#define REVERSE_RANGE(T, i) (T).rbegin(), (T).rend(), [&](VALUE_TYPE(T)& i)
 #define CONST_RANGE(T, i) (T).cbegin(), (T).cend(), [&](const VALUE_TYPE(T)& i)
+#define CONST_REVERSE_RANGE(T, i) (T).crbegin(), (T).crend(), [&](const VALUE_TYPE(T)& i)
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
+#define FOR_REVERSE_RANGE(T, i) for(auto i = (T).rbegin(); i != (T).rend(); ++i)
 #define FOR_CONST_RANGE(T, i) for(auto i = (T).cbegin(); i != (T).cend(); ++i)
+#define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = (T).crbegin(); i != (T).crend(); ++i)
 
 template<typename T>
 inline void DeleteValues(T& std_container)

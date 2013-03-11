@@ -2643,7 +2643,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 
-			if (std::find_if(Volumes.begin(), Volumes.end(), [&VolumeName](VALUE_TYPE(Volumes)& i)
+			if (std::find_if(CONST_RANGE(Volumes, i)
 			{
 				return i.IsSubStrAt(0,VolumeName);
 			}) == Volumes.end())
@@ -2812,7 +2812,7 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	AnySetFindList = (std::find_if(RANGE(*Global->CtrlObject->Plugins, i)
+	AnySetFindList = (std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
 		return i->HasSetFindList();
 	}) != Global->CtrlObject->Plugins->end());
