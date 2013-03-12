@@ -781,6 +781,8 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 
 HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 {
+	_control87(_MCW_EM,_MCW_EM); // prevent crashes on divide by 0 due to plugins activating FPU exceptions
+
 	if(!CheckReloadDefaultScript(L) || !GetExportFunction(L, "Open"))
 		return NULL;
 

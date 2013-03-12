@@ -41,9 +41,6 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 	if (!IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
 		return NULL;
 
-	if(calltype == MCT_MACROINIT)
-		_control87(_MCW_EM,_MCW_EM); // prevent crashes on divide by 0 due to plugins activating FPU exceptions
-
 	lua_pushinteger(L, Info->OpenFrom);
 	lua_pushinteger(L, calltype);
 	lua_pushinteger(L, (intptr_t)om_info->Handle);
