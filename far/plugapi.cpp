@@ -1361,15 +1361,13 @@ static void PR_FarGetDirListMsg()
 	Message(0,0,L"",MSG(MPreparingList));
 }
 
-void FreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
+void FreeDirList(std::vector<PluginPanelItem>* Items)
 {
-	for (size_t I=0; I<nItemsNumber; I++)
+	std::for_each(RANGE(*Items, i)
 	{
-		PluginPanelItem *CurPanelItem=PanelItem+I;
-		FreePluginPanelItem(CurPanelItem);
-	}
-
-	xf_free(PanelItem);
+		FreePluginPanelItem(&i);
+	});
+	delete Items;
 }
 
 intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
@@ -1382,58 +1380,61 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 	{
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetDirListMsg);
 		SaveScreen SaveScr;
-		clock_t StartTime=clock();
-		int MsgOut=0;
 		FAR_FIND_DATA FindData;
 		string strFullName;
 		ScanTree ScTree(FALSE);
 		ScTree.SetFindPath(strDirName,L"*");
 		*pItemsNumber=0;
 		*pPanelItem=nullptr;
-		PluginPanelItem *ItemsList=nullptr;
-		int ItemsNumber=0;
 
+		auto Items = new std::vector<PluginPanelItem>;
+
+		DWORD StartTime=GetTickCount();
+		bool MsgOut = false;
 		while (ScTree.GetNextName(&FindData,strFullName))
 		{
-			if (!(ItemsNumber & 31))
+			DWORD CurTime=GetTickCount();
+			if (CurTime-StartTime>static_cast<DWORD>(Global->Opt->RedrawTimeout))
 			{
 				if (CheckForEsc())
 				{
-					if (ItemsList)
-						FreeDirList(ItemsList,ItemsNumber);
-
+					FreeDirList(Items);
 					return FALSE;
 				}
 
-				if (!MsgOut && clock()-StartTime > 500)
+				if (!MsgOut)
 				{
 					SetCursorType(FALSE,0);
 					PR_FarGetDirListMsg();
-					MsgOut=1;
-				}
-
-				ItemsList=(PluginPanelItem*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
-
-				if (!ItemsList)
-				{
-					return FALSE;
+					MsgOut = true;
 				}
 			}
 
-			ClearStruct(ItemsList[ItemsNumber]);
-			ItemsList[ItemsNumber].FileAttributes = FindData.dwFileAttributes;
-			ItemsList[ItemsNumber].FileSize = FindData.nFileSize;
-			ItemsList[ItemsNumber].AllocationSize = FindData.nAllocationSize;
-			ItemsList[ItemsNumber].CreationTime = FindData.ftCreationTime;
-			ItemsList[ItemsNumber].LastAccessTime = FindData.ftLastAccessTime;
-			ItemsList[ItemsNumber].LastWriteTime = FindData.ftLastWriteTime;
-			ItemsList[ItemsNumber].FileName = xf_wcsdup(strFullName.CPtr());
-			ItemsList[ItemsNumber].AlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
-			ItemsNumber++;
+			if (Items->size() == Items->capacity())
+			{
+				Items->reserve(Items->size() + 4096);
+			}
+
+			PluginPanelItem Item;
+			ClearStruct(Item);
+			Item.FileAttributes = FindData.dwFileAttributes;
+			Item.FileSize = FindData.nFileSize;
+			Item.AllocationSize = FindData.nAllocationSize;
+			Item.CreationTime = FindData.ftCreationTime;
+			Item.LastAccessTime = FindData.ftLastAccessTime;
+			Item.LastWriteTime = FindData.ftLastWriteTime;
+			Item.FileName = xf_wcsdup(strFullName.CPtr());
+			Item.AlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
+			Items->push_back(std::move(Item));
 		}
 
-		*pPanelItem=ItemsList;
-		*pItemsNumber=ItemsNumber;
+		*pItemsNumber=Items->size();
+
+		// magic trick to store vector pointer for apiFreeDirList().
+		Items->push_back(PluginPanelItem());
+		Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
+
+		*pPanelItem=Items->data();
 	}
 	return TRUE;
 }
@@ -1447,7 +1448,9 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 
 void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 {
-	return FreeDirList(PanelItem, nItemsNumber);
+	auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(PanelItem[nItemsNumber].Reserved[0]);
+	Items->pop_back(); // not needed anymore, see magic trick above
+	return FreeDirList(Items);
 }
 
 void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)

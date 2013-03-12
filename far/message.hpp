@@ -96,6 +96,6 @@ private:
    FALSE - продолжить операцию
    TRUE  - прервать операцию
 */
-int AbortMessage();
+bool AbortMessage();
 
 bool GetErrorString(string &strErrStr);

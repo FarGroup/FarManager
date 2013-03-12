@@ -1526,15 +1526,15 @@ int WriteInput(int Key,DWORD Flags)
 }
 
 
-int CheckForEscSilent()
+bool CheckForEscSilent()
 {
 	if(Global->CloseFAR)
 	{
-		return TRUE;
+		return true;
 	}
 
 	INPUT_RECORD rec;
-	BOOL Processed=TRUE;
+	bool Processed = true;
 	/* TODO: Здесь, в общем то - ХЗ, т.к.
 	         по хорошему нужно проверять Global->CtrlObject->Macro.PeekKey() на ESC или BREAK
 	         Но к чему это приведет - пока не могу дать ответ !!!
@@ -1544,7 +1544,7 @@ int CheckForEscSilent()
 	if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
 	{
 		if (Global->CtrlObject->Macro.IsDisableOutput())
-			Processed=FALSE;
+			Processed = false;
 	}
 
 	if (Processed && PeekInputRecord(&rec))
@@ -1552,12 +1552,12 @@ int CheckForEscSilent()
 		int Key=GetInputRecordNoMacroArea(&rec,false);
 
 		if (Key==KEY_ESC)
-			return TRUE;
+			return true;
 		if (Key==KEY_BREAK)
 		{
 			if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
 				Global->CtrlObject->Macro.SendDropProcess();
-			return TRUE;
+			return true;
 		}
 		else if (Key==KEY_ALTF9 || Key==KEY_RALTF9)
 			FrameManager->ProcessKey(KEY_ALTF9);
@@ -1566,23 +1566,20 @@ int CheckForEscSilent()
 	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
 		Global->ScrBuf->Flush();
 
-	return FALSE;
+	return false;
 }
 
-int ConfirmAbortOp()
+bool ConfirmAbortOp()
 {
-	return (Global->Opt->Confirm.Esc && !Global->CloseFAR)?AbortMessage():TRUE;
+	return (Global->Opt->Confirm.Esc && !Global->CloseFAR)? AbortMessage() : true;
 }
 
 /* $ 09.02.2001 IS
      Подтверждение нажатия Esc
 */
-int CheckForEsc()
+bool CheckForEsc()
 {
-	if (CheckForEscSilent())
-		return(ConfirmAbortOp());
-	else
-		return FALSE;
+	return CheckForEscSilent()? ConfirmAbortOp() : FALSE;
 }
 
 /* $ 25.07.2000 SVS

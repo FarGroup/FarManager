@@ -936,7 +936,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
 		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
 		Global->ScrBuf->SetLockCount(0);
-		Global->ScrBuf->Flush();
+		Global->ScrBuf->Flush(true);
 
 		ConsoleCP = Global->Console->GetInputCodepage();
 		ConsoleOutputCP = Global->Console->GetOutputCodepage();

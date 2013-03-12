@@ -678,11 +678,11 @@ void Message::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const
    FALSE - продолжить операцию
    TRUE  - прервать операцию
 */
-int AbortMessage()
+bool AbortMessage()
 {
 	if(Global->CloseFAR)
 	{
-		return TRUE;
+		return true;
 	}
 
 	TaskBarPause TBP;
@@ -693,9 +693,5 @@ int AbortMessage()
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;
 
-	if ((Global->Opt->Confirm.EscTwiceToInterrupt && Res) ||
-	        (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res))
-		return (TRUE);
-	else
-		return (FALSE);
+	return ((Global->Opt->Confirm.EscTwiceToInterrupt && Res) || (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res));
 }

@@ -344,36 +344,39 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 
 /* "—бросить" виртуальный буфер на консоль
 */
-void ScreenBuf::Flush()
+void ScreenBuf::Flush(bool SuppressIndicators)
 {
 	CriticalSectionLock Lock(CS);
 
 	if (!LockCount)
 	{
-		if (Global->CtrlObject && (Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting()))
+		if (!SuppressIndicators)
 		{
-			MacroChar=Buf[0];
-			MacroCharUsed=true;
-
-			if(Global->CtrlObject->Macro.IsRecording())
+			if(Global->CtrlObject && (Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting()))
 			{
-				Buf[0].Char=L'R';
-				Colors::ConsoleColorToFarColor(0xCF, Buf[0].Attributes);
+				MacroChar=Buf[0];
+				MacroCharUsed=true;
+
+				if(Global->CtrlObject->Macro.IsRecording())
+				{
+					Buf[0].Char=L'R';
+					Colors::ConsoleColorToFarColor(0xCF, Buf[0].Attributes);
+				}
+				else
+				{
+					Buf[0].Char=L'P';
+					Colors::ConsoleColorToFarColor(0x2F, Buf[0].Attributes);
+				}
 			}
-			else
+
+			if(Global->Elevation->Elevated())
 			{
-				Buf[0].Char=L'P';
-				Colors::ConsoleColorToFarColor(0x2F, Buf[0].Attributes);
+				ElevationChar=Buf[BufX*BufY-1];
+				ElevationCharUsed=true;
+
+				Buf[BufX*BufY-1].Char=L'A';
+				Colors::ConsoleColorToFarColor(0xCF, Buf[BufX*BufY-1].Attributes);
 			}
-		}
-
-		if(Global->Elevation->Elevated())
-		{
-			ElevationChar=Buf[BufX*BufY-1];
-			ElevationCharUsed=true;
-
-			Buf[BufX*BufY-1].Char=L'A';
-			Colors::ConsoleColorToFarColor(0xCF, Buf[BufX*BufY-1].Attributes);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)

@@ -83,5 +83,5 @@ class ScreenBuf
 		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
 
 		void Scroll(int);
-		void Flush();
+		void Flush(bool SuppressIndicators = false);
 };
