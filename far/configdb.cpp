@@ -202,7 +202,7 @@ protected:
 	}
 
 public:
-	virtual ~iGeneralConfigDb() = 0 {};
+	virtual ~iGeneralConfigDb() {};
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
