@@ -533,36 +533,34 @@ local function GetMacroById (id)
   return LoadedMacros[id]
 end
 
-local function EV_Compare (e1,e2)
-  return e1.cur_priority > e2.cur_priority or
-         e1.cur_priority == e2.cur_priority and e1.cur_index < e2.cur_index
-end
-
 local function EV_Handler (macros, filename, ...)
   -- Get current priorities.
+  local indexes,priorities = {},{}
   for i,m in ipairs(macros) do
-    m.cur_index, m.cur_priority = i, -1
+    indexes[i],priorities[i] = i, -1
     if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
       if m.condition then
         local pr = m.condition(...)
         if pr then
-          if type(pr)=="number" then m.cur_priority = pr<0 and 0 or pr>100 and 100 or pr
-          else m.cur_priority = m.priority
+          if type(pr)=="number" then priorities[i] = pr<0 and 0 or pr>100 and 100 or pr
+          else priorities[i] = m.priority
           end
         end
       else
-        m.cur_priority = m.priority
+        priorities[i] = m.priority
       end
     end
   end
 
-  -- Sort in place by current priorities (stable sort).
-  table.sort(macros, EV_Compare)
+  -- Sort by current priorities (stable sort).
+  table.sort(indexes, function(i,j)
+      return priorities[i]>priorities[j] or priorities[i]==priorities[j] and i<j
+    end)
 
   -- Execute.
-  for _,m in ipairs(macros) do
-    if m.cur_priority < 0 then break end
-    local ret = m.action(...)
+  for _,i in ipairs(indexes) do
+    if priorities[i] < 0 then break end
+    local ret = macros[i].action(...)
     if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
       return ret
     end
