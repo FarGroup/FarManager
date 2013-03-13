@@ -88,7 +88,7 @@ void NamesList::SetCurName(const wchar_t *Name)
 		return i.Value.strName == Name;
 	});
 
-	if (it != Names.end())
+	if (it != Names.cend())
 		CurrentName = it;
 }
 

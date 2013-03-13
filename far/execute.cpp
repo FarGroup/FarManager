@@ -1454,7 +1454,7 @@ bool IsBatchExtType(const string& ExtPtr)
 	return std::find_if(CONST_RANGE(BatchExtList, i)
 	{
 		return !StrCmpI(ExtPtr, i);
-	}) != BatchExtList.end();
+	}) != BatchExtList.cend();
 }
 
 bool ProcessOSAliases(string &strStr)

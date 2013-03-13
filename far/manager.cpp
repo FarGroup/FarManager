@@ -171,7 +171,7 @@ BOOL Manager::IsAnyFrameModified(int Activate)
 			return true;
 		}
 		return false;
-	}) != Frames.end();
+	}) != Frames.cend();
 }
 
 void Manager::InsertFrame(Frame *Inserted, int Index)
@@ -190,7 +190,10 @@ void Manager::DeleteFrame(Frame *Deleted)
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(Frame *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
 
-	if (std::find_if(CONST_RANGE(Frames, i){return i->RemoveModal(Deleted);}) != Frames.end())
+	if (std::find_if(CONST_RANGE(Frames, i)
+	{
+		return i->RemoveModal(Deleted);
+	}) != Frames.cend())
 		return;
 
 	if (!Deleted)
@@ -465,7 +468,7 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 		}
 		++n;
 		return false;
-	}) != Frames.end())
+	}) != Frames.cend())
 		return n;
 
 	return -1;
@@ -1263,7 +1266,7 @@ int Manager::IndexOfStack(Frame *Frame)
 	{
 		++Result;
 		return Frame==i;
-	}) != ModalFrames.end()? Result - 1 : -1;
+	}) != ModalFrames.cend()? Result - 1 : -1;
 }
 
 int Manager::IndexOf(Frame *Frame)
@@ -1273,7 +1276,7 @@ int Manager::IndexOf(Frame *Frame)
 	{
 		++Result;
 		return Frame==i;
-	}) != Frames.end()? Result - 1 : -1;
+	}) != Frames.cend()? Result - 1 : -1;
 }
 
 BOOL Manager::Commit()

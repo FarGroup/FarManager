@@ -87,7 +87,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
 			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
 			string MaskGroupValue;
-			if (std::find(UsedGroups.begin(), UsedGroups.end(), MaskGroupName) == UsedGroups.end())
+			if (std::find(UsedGroups.cbegin(), UsedGroups.cend(), MaskGroupName) == UsedGroups.cend())
 			{
 				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
@@ -177,5 +177,5 @@ bool FileMasksProcessor::Compare(const string& FileName)
 	return std::find_if(CONST_RANGE(Masks, i)
 	{
 		return CmpName(i, FileName, false) != 0;
-	}) != Masks.end();
+	}) != Masks.cend();
 }

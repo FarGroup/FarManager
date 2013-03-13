@@ -519,7 +519,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 
 bool PluginManager::IsPluginUnloaded(Plugin* pPlugin)
 {
-	return std::find(UnloadedPlugins.begin(), UnloadedPlugins.end(), pPlugin) != UnloadedPlugins.end();
+	return std::find(UnloadedPlugins.cbegin(), UnloadedPlugins.cend(), pPlugin) != UnloadedPlugins.cend();
 }
 
 int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
@@ -548,7 +548,7 @@ Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 	{
 		return !StrCmpI(lpwszModuleName, i->GetModuleName());
 	});
-	return i == PluginsData.end()? nullptr : *i;
+	return i == PluginsData.cend()? nullptr : *i;
 }
 
 void PluginManager::LoadPlugins()
@@ -950,7 +950,7 @@ int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 	return std::find_if(CONST_RANGE(PluginsData, i)
 	{
 		return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);
-	}) != PluginsData.end();
+	}) != PluginsData.cend();
 }
 
 
@@ -987,7 +987,7 @@ int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 	return std::find_if(CONST_RANGE(PluginsData, i)
 	{
 		return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);
-	}) != PluginsData.end();
+	}) != PluginsData.cend();
 }
 
 #if defined(MANTIS_0000466)

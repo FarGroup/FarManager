@@ -2172,7 +2172,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					{
 						return !StrCmpI(i->GetModuleName(), strPath);
 					});
-					if (it != Global->CtrlObject->Plugins->end())
+					if (it != Global->CtrlObject->Plugins->cend())
 					{
 						plugin = *it;
 					}

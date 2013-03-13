@@ -231,14 +231,6 @@ CriticalSection PluginCS;
 Event PauseEvent(true, true);
 Event StopEvent(true, false);
 
-struct CodePageInfo
-{
-	uintptr_t CodePage;
-	UINT MaxCharSize;
-	wchar_t LastSymbol;
-	bool WordFound;
-} *codePages;
-
 enum ADVANCEDDLG
 {
 	AD_DOUBLEBOX,
@@ -381,18 +373,15 @@ void FindFiles::InitInFileSearch()
 				// Добавляем стандартные таблицы символов
 				if (!hasSelected)
 				{
-					codePagesCount = 5;
-					codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
-					codePages[0].CodePage = GetOEMCP();
-					codePages[1].CodePage = GetACP();
-					codePages[2].CodePage = CP_UTF8;
-					codePages[3].CodePage = CP_UNICODE;
-					codePages[4].CodePage = CP_REVERSEBOM;
+					codePages.push_back(GetOEMCP());
+					codePages.push_back(GetACP());
+					codePages.push_back(CP_UTF8);
+					codePages.push_back(CP_UNICODE);
+					codePages.push_back(CP_REVERSEBOM);
 				}
 				else
 				{
-					codePagesCount = 0;
-					codePages = nullptr;
+					codePages.clear();
 				}
 
 				// Добавляем любимые таблицы символов
@@ -405,50 +394,39 @@ void FindFiles::InitInFileSearch()
 						// Проверяем дубли
 						if (!hasSelected)
 						{
-							bool isDouble = false;
-
-							for (int j = 0; j<StandardCPCount; j++)
-								if (codePage == codePages[j].CodePage)
-								{
-									isDouble =true;
-									break;
-								}
-
-							if (isDouble)
+							if (std::find_if(CONST_RANGE(codePages, i)
+							{
+								return i.CodePage == CodePage;
+							}) != codePages.cend())
 								continue;
 						}
 
-						codePages = (CodePageInfo *)xf_realloc((void *)codePages, ++codePagesCount*sizeof(CodePageInfo));
-						codePages[codePagesCount-1].CodePage = codePage;
+						codePages.push_back(codePage);
 					}
 				}
 			}
 			else
 			{
-				codePagesCount = 1;
-				codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
-				codePages[0].CodePage = CodePage;
+				codePages.push_back(CodePage);
 			}
 
-			for (int index = 0; index<codePagesCount; index++)
+			std::for_each(RANGE(codePages, i)
 			{
-				CodePageInfo *cp = codePages+index;
-
-				if (IsUnicodeCodePage(cp->CodePage))
-					cp->MaxCharSize = 2;
+				if (IsUnicodeCodePage(i.CodePage))
+					i.MaxCharSize = 2;
 				else
 				{
 					CPINFO cpi;
 
-					if (!GetCPInfo(cp->CodePage, &cpi))
+					if (!GetCPInfo(i.CodePage, &cpi))
 						cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
 
-					cp->MaxCharSize = cpi.MaxCharSize;
+					i.MaxCharSize = cpi.MaxCharSize;
 				}
 
-				cp->LastSymbol = 0;
-				cp->WordFound = false;
-			}
+				i.LastSymbol = 0;
+				i.WordFound = false;
+			});
 		}
 		else
 		{
@@ -519,11 +497,7 @@ void FindFiles::ReleaseInFileSearch()
 			skipCharsTable=nullptr;
 		}
 
-		if (codePages)
-		{
-			xf_free(codePages);
-			codePages=nullptr;
-		}
+		codePages.clear();
 
 		if (findStringBuffer)
 		{
@@ -1078,7 +1052,7 @@ const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t sea
 int FindFiles::LookForString(const string& Name)
 {
 #define RETURN(r) { result = (r); goto exit; }
-#define CONTINUE(r) { if ((r) || cpIndex==codePagesCount-1) RETURN(r) else continue; }
+#define CONTINUE(r) { if ((r) || cpIndex==codePages.size()-1) RETURN(r) else continue; }
 	// Длина строки поиска
 	size_t findStringCount;
 
@@ -1142,11 +1116,9 @@ int FindFiles::LookForString(const string& Name)
 				}
 		else
 		{
-			for (int cpIndex = 0; cpIndex<codePagesCount; cpIndex++)
+			size_t cpIndex = 0;
+			FOR_RANGE(codePages, cpi)
 			{
-				// Информация о кодовой странице
-				CodePageInfo *cpi = codePages+cpIndex;
-
 				// Пропускаем ошибочные кодовые страницы
 				if (!cpi->MaxCharSize)
 					CONTINUE(FALSE)
@@ -1309,10 +1281,12 @@ int FindFiles::LookForString(const string& Name)
 					CONTINUE(FALSE)
 					// Запоминаем последний символ блока
 					cpi->LastSymbol = buffer[bufferCount-1];
+
+				++cpIndex;
 			}
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((CodePage==CP_DEFAULT?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
+			offset = (int)((CodePage==CP_DEFAULT?sizeof(wchar_t):codePages.begin()->MaxCharSize)*(findStringCount-1));
 		}
 
 		// Если мы потенциально прочитали не весь файл
@@ -2646,7 +2620,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			if (std::find_if(CONST_RANGE(Volumes, i)
 			{
 				return i.IsSubStrAt(0,VolumeName);
-			}) == Volumes.end())
+			}) == Volumes.cend())
 			{
 				InitString.Append(VolumeName).Append(L";");
 			}
@@ -2815,7 +2789,7 @@ bool FindFiles::FindFilesProcess()
 	AnySetFindList = (std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
 		return i->HasSetFindList();
-	}) != Global->CtrlObject->Plugins->end());
+	}) != Global->CtrlObject->Plugins->cend());
 
 	if (!AnySetFindList)
 	{
@@ -3046,7 +3020,6 @@ FindFiles::FindFiles():
 	SearchInFirst=0;
 	readBufferA = nullptr;
 	readBuffer = nullptr;
-	codePagesCount = 0;
 	hexFindString = nullptr;
 	hexFindStringSize = 0;
 	findString = nullptr;

@@ -4901,7 +4901,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			if (std::find_if(CONST_RANGE(ListData, i)
 			{
 				return i->Selected && i->FileAttr & FILE_ATTRIBUTE_DIRECTORY;
-			}) != ListData.end())
+			}) != ListData.cend())
 				DoubleDotDir = nullptr;
 		}
 		else

@@ -94,7 +94,6 @@ private:
 	UINT64 SearchInFirst;
 	char *readBufferA;
 	wchar_t *readBuffer;
-	int codePagesCount;
 	unsigned char *hexFindString;
 	size_t hexFindStringSize;
 	wchar_t *findString;
@@ -111,4 +110,22 @@ private:
 	bool Finalized;
 	bool PluginMode;
 	class TaskBar *TB;
+
+	struct CodePageInfo
+	{
+		CodePageInfo(uintptr_t CodePage):
+			CodePage(CodePage),
+			MaxCharSize(0),
+			LastSymbol(0),
+			WordFound(false)
+		{
+		}
+
+		uintptr_t CodePage;
+		UINT MaxCharSize;
+		wchar_t LastSymbol;
+		bool WordFound;
+	};
+
+	std::list<CodePageInfo> codePages;
 };

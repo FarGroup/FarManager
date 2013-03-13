@@ -141,7 +141,7 @@ const wchar_t* GetNameFromSIDCache(PSID Sid)
 		{
 			return EqualSid(i->Sid, Sid);
 		});
-		if(i != SIDCache->end())
+		if(i != SIDCache->cend())
 			Result = (*i)->strUserName.CPtr();
 	}
 	return Result;
