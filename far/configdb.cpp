@@ -196,9 +196,9 @@ private:
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 protected:
-	iGeneralConfigDb(const wchar_t* DbName)
+	iGeneralConfigDb(const wchar_t* DbName, bool local)
 	{
-		Initialize(DbName, true);
+		Initialize(DbName, local);
 	}
 
 public:
@@ -491,8 +491,8 @@ private:
 class GeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db") {}
-	virtual	~GeneralConfigDb() {}
+	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db", false) {}
+	virtual ~GeneralConfigDb() {}
 
 private:
 	virtual const char* GetKeyName() const {return "generalconfig";}
@@ -501,8 +501,8 @@ private:
 class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db") {}
-	virtual	~LocalGeneralConfigDb() {}
+	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db", true) {}
+	virtual ~LocalGeneralConfigDb() {}
 
 private:
 	virtual const char* GetKeyName() const {return "localconfig";}
