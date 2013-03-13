@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "colormix.hpp"
 #include "mix.hpp"
+#include "plugins.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 

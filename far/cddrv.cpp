@@ -434,19 +434,15 @@ bool DriveCanBeVirtual(UINT DriveType)
 	return DriveType == DRIVE_FIXED || (Global->WinVer() >= 0x0602 && IsDriveTypeCDROM(DriveType));
 }
 
-UINT FAR_GetDriveType(const wchar_t *RootDir, DWORD Detect)
+UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 {
-	string strRootDir;
+	string strRootDir(RootDir);
 
-	if (!RootDir || !*RootDir)
+	if (strRootDir.IsEmpty())
 	{
 		string strCurDir;
 		apiGetCurrentDirectory(strCurDir);
 		GetPathRoot(strCurDir, strRootDir);
-	}
-	else
-	{
-		strRootDir = RootDir;
 	}
 
 	AddEndSlash(strRootDir);

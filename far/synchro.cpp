@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "FarGuid.hpp"
 #include "ctrlobj.hpp"
+#include "plugins.hpp"
 
 PluginSynchro::PluginSynchro()
 {

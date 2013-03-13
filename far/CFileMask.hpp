@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "BaseFileMask.hpp"
-
 enum FM_FLAGS
 {
 	FMF_SILENT        = 0x00000001,
@@ -54,5 +52,5 @@ public:
 	void ErrorMessage();
 
 private:
-	BaseFileMask *FileMask;
+	class BaseFileMask *FileMask;
 };

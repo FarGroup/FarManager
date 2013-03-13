@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "message.hpp"
 #include "network.hpp"
+#include "plugins.hpp"
 
 enum
 {

@@ -1952,7 +1952,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 		case FCT_STREAM:
 			return CopyToClipboard(Data);
 		case FCT_COLUMN:
-			return CopyFormatToClipboard(FAR_VerticalBlock_Unicode, Data);
+			return CopyFormatToClipboard(FCF_VERTICALBLOCK_UNICODE, Data);
 		default:
 			break;
 	}
@@ -1962,7 +1962,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Length)
 {
 	size_t size=0;
-	wchar_t* str=Type?PasteFormatFromClipboard(FAR_VerticalBlock_Unicode):PasteFromClipboard();
+	wchar_t* str=Type? PasteFormatFromClipboard(FCF_VERTICALBLOCK_UNICODE) : PasteFromClipboard();
 	if(str)
 	{
 		size=wcslen(str)+1;
@@ -1984,7 +1984,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	{
 		case FCT_STREAM:
 			{
-				wchar_t* str=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
+				wchar_t* str=PasteFormatFromClipboard(FCF_VERTICALBLOCK_UNICODE);
 				if(str)
 				{
 					xf_free(str);

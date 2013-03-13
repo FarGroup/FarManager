@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "datetime.hpp"
 #include "window.hpp"
+#include "language.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;

@@ -35,4 +35,4 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool IsDriveTypeCDROM(UINT DriveType);
 bool DriveCanBeVirtual(UINT DriveType);
-UINT FAR_GetDriveType(const wchar_t *RootDir, DWORD Detect=0);
+UINT FAR_GetDriveType(const string& RootDir, DWORD Detect=0);

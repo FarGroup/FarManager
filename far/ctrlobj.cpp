@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "shortcuts.hpp"
 #include "poscache.hpp"
+#include "plugins.hpp"
 
 ControlObject::ControlObject():
 	CmdLine(nullptr),

@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "cache.hpp"
+#include "language.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*

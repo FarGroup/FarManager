@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "console.hpp"
 #include "palette.hpp"
+#include "plugins.hpp"
 
 /* start Глобальные переменные */
 

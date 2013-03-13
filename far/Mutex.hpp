@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class NamedMutex:NonCopyable
 {
 public:
-	explicit NamedMutex(const wchar_t *Name) : h(nullptr)
+	explicit NamedMutex(const string& Name) : h(nullptr)
 	{
 		strName = L"Far_Manager_Mutex_";
 		strName += Name;
@@ -72,7 +72,7 @@ private:
 class AutoNamedMutex:NonCopyable
 {
 public:
-	explicit AutoNamedMutex(const wchar_t *Name): m(Name)
+	explicit AutoNamedMutex(const string& Name): m(Name)
 	{
 		m.Open();
 		m.Lock();

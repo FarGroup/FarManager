@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "event.hpp"
 #include "res.hpp"
+#include "plugins.hpp"
 
 consoleicons::consoleicons():
 	LargeIcon(nullptr),

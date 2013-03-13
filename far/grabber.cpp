@@ -195,7 +195,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 		}
 
 		if (VerticalBlock)
-			clip.CopyFormat(FAR_VerticalBlock_Unicode,CopyBuf);
+			clip.CopyFormat(FCF_VERTICALBLOCK_UNICODE, CopyBuf);
 		else
 			clip.Copy(CopyBuf);
 

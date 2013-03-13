@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "FarGuid.hpp"
 #include "scrbuf.hpp"
+#include "plugins.hpp"
 
 History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType):
 	strHistoryName(HistoryName),

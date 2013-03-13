@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "flink.hpp"
 #include "stddlg.hpp"
+#include "language.hpp"
 
 enum
 {

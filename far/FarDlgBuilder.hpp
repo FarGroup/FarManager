@@ -130,13 +130,6 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
 		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels=true);
 
-		void AddOKCancel()
-		{
-			DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, MCancel);
-		}
-
-		void AddOK()
-		{
-			DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, -1);
-		}
+		void AddOKCancel();
+		void AddOK();
 };

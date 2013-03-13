@@ -33,17 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern const wchar_t FAR_VerticalBlock[];
-extern const wchar_t FAR_VerticalBlock_Unicode[];
+enum FAR_CLIPBOARD_FORMAT
+{
+	FCF_VERTICALBLOCK_OEM,
+	FCF_VERTICALBLOCK_UNICODE,
+};
 
-wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
-int CopyFormatToClipboard(const wchar_t *Format, const wchar_t *Data);
+wchar_t* PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format);
+int CopyFormatToClipboard(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
 int CopyToClipboard(const wchar_t *Data);
 wchar_t* PasteFromClipboard();
 wchar_t* PasteFromClipboardEx(int max);
-BOOL EmptyInternalClipboard();
-
-#define COUNT_INTERNAL_CLIPBOARD 5
+bool EmptyInternalClipboard();
 
 class Clipboard
 {
@@ -51,29 +52,25 @@ public:
 	Clipboard() {}
 	~Clipboard() {}
 
-	BOOL Open();
-	BOOL Close();
-	BOOL Empty();
+	bool Open();
+	bool Close();
+	bool Empty();
 	bool Copy(const wchar_t *Data);
-	bool CopyFormat(const wchar_t *Format, const wchar_t *Data);
+	bool CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
 	bool CopyHDROP(LPVOID NamesArray, size_t NamesArraySize);
 	wchar_t *Paste();
 	wchar_t *PasteEx(int max);
-	wchar_t *PasteFormat(const wchar_t *Format);
+	wchar_t *PasteFormat(FAR_CLIPBOARD_FORMAT Format);
 	bool InternalCopy(bool FromWin);
 
 	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
 	static bool GetUseInternalClipboardState();
 
 private:
-	UINT RegisterFormat(LPCWSTR lpszFormat);
-	BOOL IsFormatAvailable(UINT Format);
-	//UINT EnumFormats(UINT uFormat);
+	UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format);
+	bool IsFormatAvailable(UINT Format);
 	HANDLE GetData(UINT uFormat);
 	HANDLE SetData(UINT uFormat, HANDLE hMem);
-
-	static HGLOBAL hInternalClipboard[COUNT_INTERNAL_CLIPBOARD];
-	static UINT    uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD];
 
 	static bool UseInternalClipboard;
 	static bool InternalClipboardOpen;

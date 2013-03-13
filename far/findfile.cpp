@@ -1051,23 +1051,18 @@ const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t sea
 
 int FindFiles::LookForString(const string& Name)
 {
-#define RETURN(r) { result = (r); goto exit; }
-#define CONTINUE(r) { if ((r) || cpIndex==codePages.size()-1) RETURN(r) else continue; }
 	// Длина строки поиска
 	size_t findStringCount;
 
 	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
 	if (!(findStringCount = strFindStr.GetLength()))
-		return (TRUE);
-
-	// Результат поиска
-	BOOL result = FALSE;
+		return true;
 
 	File file;
 	// Открываем файл
 	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
-		return FALSE;
+		return false;
 	}
 	// Количество считанных из файла байт
 	DWORD readBlockSize = 0;
@@ -1108,37 +1103,52 @@ int FindFiles::LookForString(const string& Name)
 		{
 			// Выходим, если ничего не прочитали или прочитали мало
 			if (!readBlockSize || readBlockSize<hexFindStringSize)
-				RETURN(FALSE)
+				return false;
 
-				// Ищем
-				if (FindStringBMH((unsigned char *)readBufferA, readBlockSize)!=-1)
-					RETURN(TRUE)
-				}
+			// Ищем
+			if (FindStringBMH((unsigned char *)readBufferA, readBlockSize)!=-1)
+				return true;
+		}
 		else
 		{
-			size_t cpIndex = 0;
+			bool ErrorState = false;
 			FOR_RANGE(codePages, cpi)
 			{
+				ErrorState = false;
 				// Пропускаем ошибочные кодовые страницы
 				if (!cpi->MaxCharSize)
-					CONTINUE(FALSE)
+				{
+					ErrorState = true;
+					continue;
+				}
 
-					// Если начало файла очищаем информацию о поиске по словам
-					if (WholeWords && alreadyRead==readBlockSize)
-					{
-						cpi->WordFound = false;
-						cpi->LastSymbol = 0;
-					}
+				// Если начало файла очищаем информацию о поиске по словам
+				if (WholeWords && alreadyRead==readBlockSize)
+				{
+					cpi->WordFound = false;
+					cpi->LastSymbol = 0;
+				}
 
 				// Если ничего не прочитали
 				if (!readBlockSize)
+				{
 					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
 					// то считаем, что нашли то, что нужно
-					CONTINUE(WholeWords && cpi->WordFound)
-
+					if(WholeWords && cpi->WordFound)
+						return true;
+					else
+					{
+						ErrorState = true;
+						continue;
+					}
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
+				}
+
 				if (readBlockSize < findStringCount && !(WholeWords && cpi->WordFound))
-					CONTINUE(FALSE)
+				{
+					ErrorState = true;
+					continue;
+				}
 
 				// Количество символов в выходном буфере
 				size_t bufferCount;
@@ -1154,67 +1164,72 @@ int FindFiles::LookForString(const string& Name)
 
 					// Выходим, если размер буфера меньше длины строки посика
 					if (bufferCount < findStringCount)
-						CONTINUE(FALSE)
+					{
+						ErrorState = true;
+						continue;
+					}
 
-						// Копируем буфер чтения в буфер сравнения
-						if (cpi->CodePage==CP_REVERSEBOM)
-						{
-							// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
-							bufferCount = LCMapStringW(
-							                  LOCALE_NEUTRAL,//LOCALE_INVARIANT,
-							                  LCMAP_BYTEREV,
-							                  (wchar_t *)readBufferA,
-							                  (int)bufferCount,
-							                  readBuffer,
-							                  readBufferSize
-							              );
+					// Копируем буфер чтения в буфер сравнения
+					if (cpi->CodePage==CP_REVERSEBOM)
+					{
+						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
+						bufferCount = LCMapStringW(
+							                LOCALE_NEUTRAL,//LOCALE_INVARIANT,
+							                LCMAP_BYTEREV,
+							                (wchar_t *)readBufferA,
+							                (int)bufferCount,
+							                readBuffer,
+							                readBufferSize
+							            );
 
-							if (!bufferCount)
-								CONTINUE(FALSE)
-								// Устанавливаем буфер стравнения
-								buffer = readBuffer;
-						}
-						else
+						if (!bufferCount)
 						{
-							// Если поиск в UTF-16 (little endian), то используем исходный буфер
-							buffer = (wchar_t *)readBufferA;
+							ErrorState = true;
+							continue;
 						}
+						// Устанавливаем буфер стравнения
+						buffer = readBuffer;
+					}
+					else
+					{
+						// Если поиск в UTF-16 (little endian), то используем исходный буфер
+						buffer = (wchar_t *)readBufferA;
+					}
 				}
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = MultiByteToWideChar(
-					                  cpi->CodePage,
-					                  0,
-					                  (char *)readBufferA,
-					                  readBlockSize,
-					                  readBuffer,
-					                  readBufferSize
-					              );
+					bufferCount = MultiByteToWideChar(cpi->CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
-						CONTINUE(FALSE)
+					{
+						ErrorState = true;
+						continue;
+					}
 
-						// Если прочитали меньше размера строки поиска и поиска по словам, то проверяем
-						// первый символ блока на разделитель и выходим
-						// Если у нас поиск по словам и в конце предыдущего блока было вхождение
-						if (WholeWords && cpi->WordFound)
+					// Если прочитали меньше размера строки поиска и поиска по словам, то проверяем
+					// первый символ блока на разделитель и выходим
+					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
+					if (WholeWords && cpi->WordFound)
+					{
+						// Если конец файла, то считаем, что есть разделитель в конце
+						if (findStringCount-1>=bufferCount)
+							return true;
+						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
+						// при переходе между блоками
+						cpi->LastSymbol = readBuffer[findStringCount-1];
+
+						if (IsWordDiv(cpi->LastSymbol))
+							return true;
+
+						// Если размер буфера меньше размера слова, то выходим
+						if (readBlockSize < findStringCount)
 						{
-							// Если конец файла, то считаем, что есть разделитель в конце
-							if (findStringCount-1>=bufferCount)
-								RETURN(TRUE)
-								// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
-								// при переходе между блоками
-								cpi->LastSymbol = readBuffer[findStringCount-1];
-
-							if (IsWordDiv(cpi->LastSymbol))
-								RETURN(TRUE)
-
-								// Если размер буфера меньше размера слова, то выходим
-								if (readBlockSize < findStringCount)
-									CONTINUE(FALSE)
-								}
+							ErrorState = true;
+							continue;
+						}
+					}
 
 					// Устанавливаем буфер стравнения
 					buffer = readBuffer;
@@ -1233,9 +1248,9 @@ int FindFiles::LookForString(const string& Name)
 
 					// Если посдстрока найдена и отключен поиск по словам, то считаем что всё хорошо
 					if (!WholeWords)
-						RETURN(TRUE)
-						// Устанавливаем позицию в исходном буфере
-						index += foundIndex;
+						return true;
+					// Устанавливаем позицию в исходном буфере
+					index += foundIndex;
 
 					// Если идёт поиск по словам, то делаем соответвующие проверки
 					bool firstWordDiv = false;
@@ -1268,8 +1283,8 @@ int FindFiles::LookForString(const string& Name)
 							cpi->LastSymbol = buffer[index+findStringCount];
 
 							if (IsWordDiv(cpi->LastSymbol))
-								RETURN(TRUE)
-							}
+								return true;
+						}
 						else
 							cpi->WordFound = true;
 					}
@@ -1278,12 +1293,16 @@ int FindFiles::LookForString(const string& Name)
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
 				if (SearchInFirst && SearchInFirst>=alreadyRead)
-					CONTINUE(FALSE)
-					// Запоминаем последний символ блока
-					cpi->LastSymbol = buffer[bufferCount-1];
-
-				++cpIndex;
+				{
+					ErrorState = true;
+					continue;
+				}
+				// Запоминаем последний символ блока
+				cpi->LastSymbol = buffer[bufferCount-1];
 			}
+
+			if (ErrorState)
+				return false;
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
 			offset = (int)((CodePage==CP_DEFAULT?sizeof(wchar_t):codePages.begin()->MaxCharSize)*(findStringCount-1));
@@ -1294,18 +1313,12 @@ int FindFiles::LookForString(const string& Name)
 		{
 			// Отступаем назад на длину слова поиска минус 1
 			if (!file.SetPointer(-1*offset, nullptr, FILE_CURRENT))
-				RETURN(FALSE)
-				alreadyRead -= offset;
+				return false;
+			alreadyRead -= offset;
 		}
 	}
 
-exit:
-	// Закрываем хэндл файла
-	file.Close();
-	// Возвращаем результат
-	return (result);
-#undef CONTINUE
-#undef RETURN
+	return false;
 }
 
 bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName)

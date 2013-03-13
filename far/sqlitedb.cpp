@@ -266,10 +266,7 @@ void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 	for (size_t i=0; i < plen; ++i)
 		hs = hs*17 + path.At(i);
 
-	FormatString fs;
-	fs << hs << L"_" << DbName;
-
-	AutoNamedMutex m(fs.CPtr());
+	AutoNamedMutex m(FormatString() << hs << L" " << DbName);
 	strName = DbName;
 	init_status = 0;
 	if (!InitializeImpl(DbName, Local))

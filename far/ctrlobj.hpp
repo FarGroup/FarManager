@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "macro.hpp"
-#include "plugins.hpp"
 
 class CommandLine;
 class History;
@@ -45,6 +44,7 @@ class FilePositionCache;
 class FilePanels;
 class Shortcuts;
 class WindowHandler;
+class PluginManager;
 
 class ControlObject
 {

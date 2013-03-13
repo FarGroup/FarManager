@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dizlist.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "plugins.hpp"
 
 AbstractSettings::~AbstractSettings()
 {

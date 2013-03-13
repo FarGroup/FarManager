@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "configdb.hpp"
 #include "mix.hpp"
+#include "language.hpp"
 
 struct IMAGE_HEADERS
 {

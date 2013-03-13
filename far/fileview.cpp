@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "stddlg.hpp"
 #include "macroopcode.hpp"
+#include "plugins.hpp"
 
 FileViewer::FileViewer(
 	const wchar_t *Name,int EnableSwitch,int DisableHistory,

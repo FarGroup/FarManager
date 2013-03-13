@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "palette.hpp"
 #include "vmenu2.hpp"
-
+#include "plugins.hpp"
 
 enum SHOW_MODES
 {

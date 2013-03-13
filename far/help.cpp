@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "palette.hpp"
 #include "stddlg.hpp"
+#include "plugins.hpp"
 
 // Стек возврата
 class CallBackStack

@@ -592,3 +592,13 @@ intptr_t DialogBuilder::DoShowDialog()
 	Dlg.Process();
 	return Dlg.GetExitCode();
 }
+
+void DialogBuilder::AddOKCancel()
+{
+	DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, MCancel);
+}
+
+void DialogBuilder::AddOK()
+{
+	DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, -1);
+}

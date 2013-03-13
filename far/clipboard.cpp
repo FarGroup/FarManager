@@ -37,13 +37,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "console.hpp"
 
-const wchar_t FAR_VerticalBlock[] = L"FAR_VerticalBlock";
-const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
+struct internal_clipboard
+{
+	HGLOBAL Handle;
+	UINT Format;
+};
 
-/* ------------------------------------------------------------ */
-// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-HGLOBAL Clipboard::hInternalClipboard[COUNT_INTERNAL_CLIPBOARD] = {};
-UINT    Clipboard::uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
+static std::array<internal_clipboard, 5> InternalClipboard = 
+{
+	// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
+	{
+		{nullptr, 0xFFFF},
+		{nullptr, 0xFFFF},
+		{nullptr, 0xFFFF},
+		{nullptr, 0xFFFF},
+		{nullptr, 0xFFFF},
+	}
+};
+
 
 bool Clipboard::UseInternalClipboard = false;
 bool Clipboard::InternalClipboardOpen = false;
@@ -61,124 +72,94 @@ bool Clipboard::GetUseInternalClipboardState()
 	return UseInternalClipboard;
 }
 
-UINT Clipboard::RegisterFormat(LPCWSTR lpszFormat)
+UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
 {
-	if (UseInternalClipboard)
+	switch (Format)
 	{
-		if (!StrCmp(lpszFormat,FAR_VerticalBlock))
-		{
-			return 0xFEB0;
-		}
-		else if (!StrCmp(lpszFormat,FAR_VerticalBlock_Unicode))
-		{
-			return 0xFEB1;
-		}
-
-		return 0;
+	case FCF_VERTICALBLOCK_OEM:
+		return UseInternalClipboard? 0xFEB0 : RegisterClipboardFormat(L"FAR_VerticalBlock");
+	case FCF_VERTICALBLOCK_UNICODE:
+		return UseInternalClipboard? 0xFEB1 : RegisterClipboardFormat(L"FAR_VerticalBlock_Unicode");
 	}
-
-	return RegisterClipboardFormat(lpszFormat);
+	return 0;
 }
 
-
-BOOL Clipboard::Open()
+bool Clipboard::Open()
 {
 	if (UseInternalClipboard)
 	{
 		if (!InternalClipboardOpen)
 		{
 			InternalClipboardOpen=true;
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
-	return OpenClipboard(Global->Console->GetWindow());
+	return OpenClipboard(Global->Console->GetWindow()) != FALSE;
 }
 
-BOOL Clipboard::Close()
+bool Clipboard::Close()
 {
 	if (UseInternalClipboard)
 	{
 		if (InternalClipboardOpen)
 		{
 			InternalClipboardOpen=false;
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
-	return CloseClipboard();
+	return CloseClipboard() != FALSE;
 }
 
-BOOL Clipboard::Empty()
+bool Clipboard::Empty()
 {
 	if (UseInternalClipboard)
 	{
 		if (InternalClipboardOpen)
 		{
-			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
+			std::for_each(RANGE(InternalClipboard, i)
 			{
-				if (hInternalClipboard[I])
+				if (i.Handle)
 				{
-					GlobalFree(hInternalClipboard[I]);
-					hInternalClipboard[I]=0;
-					uInternalClipboardFormat[I]=0xFFFF;
+					GlobalFree(i.Handle);
+					i.Handle = nullptr;
+					i.Format = 0xFFFF;
 				}
-			}
+			});
 
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
-	return EmptyClipboard();
+	return EmptyClipboard() != FALSE;
 }
 
 HANDLE Clipboard::GetData(UINT uFormat)
 {
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpen)
+		if (InternalClipboardOpen && uFormat != 0xFFFF)
 		{
-			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
+			auto Item = std::find_if(CONST_RANGE(InternalClipboard, i)
 			{
-				if (uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
-				{
-					return hInternalClipboard[I];
-				}
-			}
-		}
+				return i.Format == uFormat;
+			});
 
-		return (HANDLE)nullptr;
+			if (Item != InternalClipboard.cend())
+				return Item->Handle;
+		}
+		return nullptr;
 	}
 
 	return GetClipboardData(uFormat);
 }
-
-/*
-UINT Clipboard::EnumFormats(UINT uFormat)
-{
-  if(UseInternalClipboard)
-  {
-    if(InternalClipboardOpen)
-    {
-      for(size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
-      {
-        if(uInternalClipboardFormat[I] xFFFF && uInternalClipboardFormat[I] == uFormat)
-        {
-          return I+1 < ARRAYSIZE(hInternalClipboard)?uInternalClipboardFormat[I+1]:0;
-        }
-      }
-    }
-    return 0;
-  }
-  return EnumClipboardFormats(uFormat);
-}
-*/
 
 HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 {
@@ -186,18 +167,20 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 	{
 		if (InternalClipboardOpen)
 		{
-			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
+			auto Item = std::find_if(RANGE(InternalClipboard, i)
 			{
-				if (!hInternalClipboard[I])
-				{
-					hInternalClipboard[I]=hMem;
-					uInternalClipboardFormat[I]=uFormat;
-					return hMem;
-				}
+				return !i.Handle;
+			});
+
+			if (Item != InternalClipboard.cend())
+			{
+				Item->Handle = hMem;
+				Item->Format = uFormat;
+				return hMem;
 			}
 		}
 
-		return (HANDLE)nullptr;
+		return nullptr;
 	}
 
 	HANDLE hData=SetClipboardData(uFormat,hMem);
@@ -228,22 +211,17 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 	return hData;
 }
 
-BOOL Clipboard::IsFormatAvailable(UINT Format)
+bool Clipboard::IsFormatAvailable(UINT Format)
 {
 	if (UseInternalClipboard)
 	{
-		for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
+		return Format != 0xFFFF && std::find_if(CONST_RANGE(InternalClipboard, i)
 		{
-			if (uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
-			{
-				return TRUE;
-			}
-		}
-
-		return FALSE;
+			return i.Format == Format;
+		}) != InternalClipboard.cend();
 	}
 
-	return IsClipboardFormatAvailable(Format);
+	return IsClipboardFormatAvailable(Format) != FALSE;
 }
 
 // Перед вставкой производится очистка буфера
@@ -276,7 +254,7 @@ bool Clipboard::Copy(const wchar_t *Data)
 }
 
 // вставка без очистки буфера - на добавление
-bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
+bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 {
 	UINT FormatType=RegisterFormat(Format);
 
@@ -452,7 +430,7 @@ wchar_t *Clipboard::PasteEx(int max)
 	return ClipText;
 }
 
-wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
+wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
 {
 	bool isOEMVBlock=false;
 	UINT FormatType=RegisterFormat(Format);
@@ -460,9 +438,9 @@ wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
 	if (!FormatType)
 		return nullptr;
 
-	if (!StrCmp(Format,FAR_VerticalBlock_Unicode) && !IsFormatAvailable(FormatType))
+	if (Format == FCF_VERTICALBLOCK_UNICODE && !IsFormatAvailable(FormatType))
 	{
-		FormatType=RegisterFormat(FAR_VerticalBlock);
+		FormatType=RegisterFormat(FCF_VERTICALBLOCK_OEM);
 		isOEMVBlock=true;
 	}
 
@@ -540,7 +518,7 @@ int CopyToClipboard(const wchar_t *Data)
 	return ret;
 }
 
-int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
+int CopyFormatToClipboard(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data)
 {
 	Clipboard clip;
 
@@ -583,7 +561,7 @@ wchar_t *PasteFromClipboardEx(int max)
 	return ClipText;
 }
 
-wchar_t *PasteFormatFromClipboard(const wchar_t *Format)
+wchar_t *PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format)
 {
 	Clipboard clip;
 
@@ -597,16 +575,16 @@ wchar_t *PasteFormatFromClipboard(const wchar_t *Format)
 	return ClipText;
 }
 
-BOOL EmptyInternalClipboard()
+bool EmptyInternalClipboard()
 {
 	bool OldState = Clipboard::SetUseInternalClipboardState(true);
 
 	Clipboard clip;
 
 	if (!clip.Open())
-		return FALSE;
+		return false;
 
-	BOOL ret = clip.Empty();
+	bool ret = clip.Empty();
 
 	clip.Close();
 

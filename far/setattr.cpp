@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
 #include "interf.hpp"
+#include "plugins.hpp"
 
 enum SETATTRDLG
 {

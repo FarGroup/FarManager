@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "configdb.hpp"
 #include "DlgGuid.hpp"
+#include "plugins.hpp"
 
 Manager *FrameManager;
 long CurrentWindowType=-1;

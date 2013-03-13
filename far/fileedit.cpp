@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
 #include "stddlg.hpp"
+#include "plugins.hpp"
 
 enum enumOpenEditor
 {

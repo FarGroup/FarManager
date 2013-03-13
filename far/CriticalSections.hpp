@@ -37,24 +37,22 @@ class CriticalSection
 {
 
 public:
-	CriticalSection() { ::InitializeCriticalSection(&_object); }
-	~CriticalSection() { ::DeleteCriticalSection(&_object); }
+	CriticalSection() { InitializeCriticalSection(&object); }
+	~CriticalSection() { DeleteCriticalSection(&object); }
 
-	void Enter() { ::EnterCriticalSection(&_object); }
-	void Leave() { ::LeaveCriticalSection(&_object); }
+	void Enter() { EnterCriticalSection(&object); }
+	void Leave() { LeaveCriticalSection(&object); }
 
 private:
-	CRITICAL_SECTION _object;
+	CRITICAL_SECTION object;
 };
 
 class CriticalSectionLock:NonCopyable
 {
 public:
-	CriticalSectionLock(CriticalSection &object): _object(object) { _object.Enter(); }
-	~CriticalSectionLock() { Unlock(); }
+	CriticalSectionLock(CriticalSection &object): object(object) { object.Enter(); }
+	~CriticalSectionLock() { object.Leave(); }
 
 private:
-	void Unlock() { _object.Leave(); }
-
-	CriticalSection &_object;
+	CriticalSection &object;
 };
