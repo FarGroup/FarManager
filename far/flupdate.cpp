@@ -652,7 +652,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	if (!Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
 	{
-		DeleteListData(ListData);
 		PopPlugin(TRUE);
 		Update(KeepSelection);
 

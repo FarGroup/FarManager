@@ -74,6 +74,8 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
+	DeleteListData(ListData);
+
 	OpenPanelInfo Info={};
 
 	if (PluginsList.empty())

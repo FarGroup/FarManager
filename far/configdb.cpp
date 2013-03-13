@@ -193,18 +193,16 @@ private:
 };
 
 
-class GeneralConfigDb: public GeneralConfig, public SQLiteDb {
-	SQLiteStmt stmtUpdateValue;
-	SQLiteStmt stmtInsertValue;
-	SQLiteStmt stmtGetValue;
-	SQLiteStmt stmtDelValue;
-	SQLiteStmt stmtEnumValues;
+class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
+{
+protected:
+	iGeneralConfigDb(const wchar_t* DbName)
+	{
+		Initialize(DbName, true);
+	}
 
 public:
-	GeneralConfigDb()
-	{
-		Initialize(L"generalconfig.db");
-	}
+	virtual ~iGeneralConfigDb() = 0 {};
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
@@ -243,8 +241,6 @@ public:
 		stmtUpdateValue.Finalize();
 		return false;
 	}
-
-	virtual ~GeneralConfigDb() { }
 
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
 	{
@@ -483,18 +479,30 @@ public:
 	}
 
 private:
+	virtual const char* GetKeyName() const = 0;
+
+	SQLiteStmt stmtUpdateValue;
+	SQLiteStmt stmtInsertValue;
+	SQLiteStmt stmtGetValue;
+	SQLiteStmt stmtDelValue;
+	SQLiteStmt stmtEnumValues;
+};
+
+class GeneralConfigDb: public iGeneralConfigDb
+{
+public:
+	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db") {}
+	virtual	~GeneralConfigDb() {}
+
+private:
 	virtual const char* GetKeyName() const {return "generalconfig";}
 };
 
-class LocalGeneralConfigDb: public GeneralConfigDb
+class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	LocalGeneralConfigDb()
-	{
-		Initialize(L"localconfig.db", true);
-	}
-
-	virtual	~LocalGeneralConfigDb() { }
+	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db") {}
+	virtual	~LocalGeneralConfigDb() {}
 
 private:
 	virtual const char* GetKeyName() const {return "localconfig";}
