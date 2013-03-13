@@ -493,6 +493,9 @@ public:
 	{
 		Initialize(L"localconfig.db", true);
 	}
+
+	virtual	~LocalGeneralConfigDb() { }
+
 private:
 	virtual const char* GetKeyName() const {return "localconfig";}
 };
