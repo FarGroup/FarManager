@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ќбщее врем€ ожидани€ пользовател€ */
 extern long WaitUserTime;
-/* ƒл€ того, что бы врем€ при одижании пользовател€ тикало, а remaining/speed нет */
+/* ƒл€ того, что бы врем€ при ожидании пользовател€ тикало, а remaining/speed нет */
 static long OldCalcTime;
 
 #define SDDATA_SIZE   64*1024
