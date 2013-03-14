@@ -225,10 +225,10 @@ void KeyBar::SetCustomLabels(const wchar_t *Area)
 				{
 					{ KBL_MAIN,         0 },
 					{ KBL_SHIFT,        KEY_SHIFT },
-					{ KBL_CTRL,         KEY_CTRL },
 					{ KBL_ALT,          KEY_ALT },
-					{ KBL_CTRLSHIFT,    KEY_CTRL|KEY_SHIFT },
+					{ KBL_CTRL,         KEY_CTRL },
 					{ KBL_ALTSHIFT,     KEY_ALT|KEY_SHIFT },
+					{ KBL_CTRLSHIFT,    KEY_CTRL|KEY_SHIFT },
 					{ KBL_CTRLALT,      KEY_CTRL|KEY_ALT },
 					{ KBL_CTRLALTSHIFT, KEY_CTRL|KEY_ALT|KEY_SHIFT },
 				};
@@ -386,10 +386,10 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	{
 		0,KBL_MAIN,
 		KEY_SHIFT,KBL_SHIFT,
-		KEY_CTRL,KBL_CTRL,
 		KEY_ALT,KBL_ALT,
-		KEY_CTRL|KEY_SHIFT,KBL_CTRLSHIFT,
+		KEY_CTRL,KBL_CTRL,
 		KEY_ALT|KEY_SHIFT,KBL_ALTSHIFT,
+		KEY_CTRL|KEY_SHIFT,KBL_CTRLSHIFT,
 		KEY_CTRL|KEY_ALT,KBL_CTRLALT,
 		KEY_CTRL|KEY_ALT|KEY_SHIFT,KBL_CTRLALTSHIFT,
 	};
