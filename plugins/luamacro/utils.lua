@@ -39,7 +39,7 @@ local Events
 local EventGroups = {"consoleinput","dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
-local AddMacro_fields = {"area","key","action","flags","description","priority","condition","filemask"}
+local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
@@ -90,7 +90,15 @@ local function AddMacro (srctable)
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
-  if type(srctable.action)~="function" then return end
+  local IsCode = type(srctable.code)=="string"
+  if IsCode then
+    if srctable.code:sub(1,1) ~= "@" then
+      local f, msg = loadstring(srctable.code)
+      if not f then ErrMsg(msg) return end
+    end
+  elseif type(srctable.action)~="function" then
+    return
+  end
 
   local macro={}
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"

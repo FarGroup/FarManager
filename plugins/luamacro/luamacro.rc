@@ -1,9 +1,9 @@
 #include <farversion.hpp>
 
-#define PLUGIN_BUILD 109
+#define PLUGIN_BUILD 110
 #define PLUGIN_DESC "Lua Macros for Far Manager"
 #define PLUGIN_NAME "LuaMacro"
 #define PLUGIN_FILENAME "luamacro.dll"
-#define PLUGIN_COPYRIGHT "Copyright © Shmuel Zeigerman, 2007-2012, " FARGROUPCOPYRIGHT("2012-2013")
+#define PLUGIN_COPYRIGHT "Copyright © Shmuel Zeigerman, 2012, " FARGROUPCOPYRIGHT("2012-2013")
 
 fullgenericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_COPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FAR_BUILD, FARPRODUCTNAME)
