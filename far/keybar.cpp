@@ -198,7 +198,7 @@ void KeyBar::SetLabels(LNGID StartIndex)
 
 static int FnGroup(DWORD fnum, DWORD ctrl)
 {
-	if (fnum < KEY_F24 - KEY_F1)
+	if (fnum < KEY_COUNT)
 	{
 		static DWORD Area[][2] = {
 			{ KBL_MAIN,         0 },
