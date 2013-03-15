@@ -3697,19 +3697,22 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	return true;
 }
 
-
-static int WINAPI CompareItems(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam *Param)
+static struct menu_less
 {
-	if (((el1)->Flags & LIF_SEPARATOR) || ((el2)->Flags & LIF_SEPARATOR))
-		return 0;
+	bool operator()(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam& Param)
+	{
+		if (((el1)->Flags & LIF_SEPARATOR) || ((el2)->Flags & LIF_SEPARATOR))
+			return false;
 
-	string strName1((el1)->strName);
-	string strName2((el2)->strName);
-	RemoveChar(strName1,L'&',true);
-	RemoveChar(strName2,L'&',true);
-	int Res = NumStrCmpI(strName1.CPtr()+Param->Offset,strName2.CPtr()+Param->Offset);
-	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
-}
+		string strName1((el1)->strName);
+		string strName2((el2)->strName);
+		RemoveChar(strName1,L'&',true);
+		RemoveChar(strName2,L'&',true);
+		bool Less = NumStrCmpI(strName1.CPtr() + Param.Offset, strName2.CPtr() + Param.Offset) < 0;
+
+		return Param.Reverse? !Less : Less;
+	}
+} MenuLess;
 
 //S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
 //Flags:
@@ -3865,7 +3868,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	}
 
 	if (bSorting)
-		Menu.SortItems(CompareItems);
+		Menu.SortItems(MenuLess);
 
 	if (bPacking)
 		Menu.Pack();

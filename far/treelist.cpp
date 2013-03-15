@@ -1931,7 +1931,7 @@ BOOL TreeList::UpdateKeyBar()
 
 void TreeList::DynamicUpdateKeyBar()
 {
-	Global->CtrlObject->MainKeyBar->SetCustomLabels(L"Tree");
+	Global->CtrlObject->MainKeyBar->SetCustomLabels(KBA_TREE);
 }
 
 void TreeList::SetTitle()

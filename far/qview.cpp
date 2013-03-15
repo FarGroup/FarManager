@@ -678,5 +678,5 @@ void QuickView::DynamicUpdateKeyBar()
 			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 
-	KB->SetCustomLabels(L"QView");
+	KB->SetCustomLabels(KBA_QUICKVIEW);
 }

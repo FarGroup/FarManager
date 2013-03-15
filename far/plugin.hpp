@@ -1258,56 +1258,6 @@ struct FarMacroCall
 	void *CallbackData;
 };
 
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0000466)
-struct FarMacroFunction
-{
-	unsigned __int64 Flags;
-	const wchar_t *Name;
-	const wchar_t *Syntax;
-	const wchar_t *Description;
-};
-
-struct ProcessMacroFuncInfo
-{
-	size_t StructSize;
-	const wchar_t *Name;
-	const FarMacroValue *Params; // mem: Far
-	intptr_t nParams;
-	struct FarMacroValue *Results; // mem: plugin
-	intptr_t nResults;
-};
-
-enum FAR_MACROINFOTYPE
-{
-	FMIT_GETFUNCINFO   = 0,
-	FMIT_PROCESSFUNC   = 1,
-};
-
-struct ProcessMacroInfo
-{
-	size_t StructSize;
-	enum FAR_MACROINFOTYPE Type;
-	union {
-		struct ProcessMacroFuncInfo Func;
-		struct __Info {
-			intptr_t MacroFunctionNumber;
-			const struct FarMacroFunction *Func;
-		}
-#ifndef __cplusplus
-		Info
-#endif
-		;
-	}
-#ifndef __cplusplus
-	Value
-#endif
-	;
-};
-
-#endif
-#endif // END FAR_USE_INTERNALS
-
 struct FarGetValue
 {
 	size_t StructSize;
@@ -2422,11 +2372,6 @@ struct PluginInfo
 	struct PluginMenuItem PluginMenu;
 	struct PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0000466)
-	const wchar_t *MacroFunctions;
-#endif
-#endif // END FAR_USE_INTERNALS
 };
 
 struct FarGetPluginInformation
@@ -2881,11 +2826,6 @@ extern "C"
 	intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info);
 	intptr_t WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
 	intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info);
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0000466)
-	intptr_t WINAPI ProcessMacroW(struct ProcessMacroInfo *Info);
-#endif
-#endif // END FAR_USE_INTERNALS
 	intptr_t WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
 	intptr_t WINAPI ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info);
 	intptr_t WINAPI ProcessViewerEventW(const struct ProcessViewerEventInfo *Info);

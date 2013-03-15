@@ -180,6 +180,10 @@ $(OBJDIR)%.o: %.c
 	@echo compiling $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
+$(OBJDIR)hook_wow64.o: hook_wow64.c
+	@echo compiling $<
+	@$(CC) $(CFLAGS) -fomit-frame-pointer -c -o $@ $<
+
 $(OBJDIR)initguid.o: initguid.cpp
 	@echo compiling $<
 	@$(CXX) $(CCFLAGS) -c -o $@ $<

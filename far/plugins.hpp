@@ -103,10 +103,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_PROCESSVIEWEREVENT   = 0x08000000, //
 	PICFF_PROCESSDIALOGEVENT   = 0x10000000, //
 	PICFF_PROCESSSYNCHROEVENT  = 0x20000000, //
-#if defined(MANTIS_0000466)
-	PICFF_PROCESSMACRO         = 0x40000000, //
-#endif
-	PICFF_PROCESSCONSOLEINPUT  = 0x80000000, //
+	PICFF_PROCESSCONSOLEINPUT  = 0x40000000, //
 };
 
 // флаги для поля PluginManager.Flags
@@ -295,9 +292,6 @@ class PluginManager
 		int ProcessEditorEvent(int Event,void *Param,int EditorID);
 		int ProcessViewerEvent(int Event,void *Param,int ViewerID);
 		int ProcessDialogEvent(int Event,FarDialogEvent *Param);
-#if defined(MANTIS_0000466)
-		int ProcessMacro(const GUID& guid,ProcessMacroInfo *Info);
-#endif
 		int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
 		void GetCustomData(FileListItem *ListItem);
 

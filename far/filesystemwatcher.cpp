@@ -138,7 +138,7 @@ void FileSystemWatcher::Release()
 	PreviousLastWriteTime = CurrentLastWriteTime;
 }
 
-bool FileSystemWatcher::Signaled()
+bool FileSystemWatcher::Signaled() const
 {
 	return (Handle != INVALID_HANDLE_VALUE && WaitForSingleObject(Handle,0) == WAIT_OBJECT_0) || CompareFileTime(&PreviousLastWriteTime, &CurrentLastWriteTime);
 }

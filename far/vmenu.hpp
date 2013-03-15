@@ -193,12 +193,9 @@ struct MenuDataEx
 
 struct SortItemParam
 {
-	int Direction;
+	bool Reverse;
 	int Offset;
 };
-
-typedef int (WINAPI *TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
-
 
 class ConsoleTitle;
 
@@ -354,8 +351,28 @@ class VMenu: public Modal
 
 		struct MenuItemEx *GetItemPtr(int Position=-1);
 
-		void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
-		void SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction=0,int Offset=0);
+		void SortItems(bool Reverse = false, int Offset = 0);
+		
+		template<class predicate>
+		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
+		{
+			CriticalSectionLock Lock(CS);
+
+			SortItemParam Param;
+			Param.Reverse = Reverse;
+			Param.Offset = Offset;
+
+			std::sort(Item.begin(), Item.end(), [&](const MenuItemEx* a, const MenuItemEx* b)->bool
+			{
+				return Pred(a, b, Param);
+			});
+
+			// скорректируем SelectPos
+			UpdateSelectPos();
+
+			SetFlags(VMENU_UPDATEREQUIRED);
+		}
+		
 		bool Pack();
 
 		BOOL GetVMenuInfo(struct FarListInfo* Info);

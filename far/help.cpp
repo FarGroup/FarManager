@@ -2082,7 +2082,7 @@ void Help::SetScreenPosition()
 void Help::InitKeyBar()
 {
 	HelpKeyBar.SetLabels(MHelpF1);
-	HelpKeyBar.SetCustomLabels(L"Help");
+	HelpKeyBar.SetCustomLabels(KBA_HELP);
 	SetKeyBar(&HelpKeyBar);
 }
 

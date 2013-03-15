@@ -5193,7 +5193,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
 						{
-							ListBox->SortItems(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+							ListBox->SortItems(Param2 != nullptr);
 							break;
 						}
 						case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind

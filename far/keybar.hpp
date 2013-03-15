@@ -50,6 +50,20 @@ enum
 	KBL_GROUP_COUNT
 };
 
+enum KEYBARAREA
+{
+	KBA_SHELL,
+	KBA_INFO,
+	KBA_TREE,
+	KBA_QUICKVIEW,
+	KBA_FOLDERTREE,
+	KBA_EDITOR,
+	KBA_VIEWER,
+	KBA_HELP,
+
+	KBA_COUNT
+};
+
 const size_t KEY_COUNT = 12;
 
 class KeyBar: public ScreenObject
@@ -62,7 +76,7 @@ public:
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
 	void SetLabels(LNGID StartIndex);
-	void SetCustomLabels(const wchar_t *Area);
+	void SetCustomLabels(KEYBARAREA Area);
 	void Change(int Group,const wchar_t *NewStr,int Pos);
 	void Change(const wchar_t *NewStr,int Pos) {Change(KBL_MAIN, NewStr, Pos);}
 	size_t Change(const KeyBarTitles* Kbt);
@@ -81,7 +95,7 @@ private:
 
 	std::array<std::array<titles, KEY_COUNT>, KBL_GROUP_COUNT> Items;
 	string strLanguage;
-	string CustomArea;
+	KEYBARAREA CustomArea;
 	ScreenObject *Owner;
 	int AltState,CtrlState,ShiftState;
 	bool CustomLabelsReaded;

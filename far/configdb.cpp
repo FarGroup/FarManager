@@ -1381,9 +1381,6 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb {
 	SQLiteStmt stmtGetTitle;
 	SQLiteStmt stmtGetAuthor;
 	SQLiteStmt stmtGetPrefix;
-#if defined(MANTIS_0000466)
-	SQLiteStmt stmtGetMacroFuncs;
-#endif
 	SQLiteStmt stmtGetDescription;
 	SQLiteStmt stmtGetFlags;
 	SQLiteStmt stmtGetMinFarVersion;
@@ -1395,9 +1392,6 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb {
 	SQLiteStmt stmtSetTitle;
 	SQLiteStmt stmtSetAuthor;
 	SQLiteStmt stmtSetPrefix;
-#if defined(MANTIS_0000466)
-	SQLiteStmt stmtSetMacroFuncs;
-#endif
 	SQLiteStmt stmtSetDescription;
 	SQLiteStmt stmtSetFlags;
 	SQLiteStmt stmtSetMinFarVersion;
@@ -1485,9 +1479,6 @@ public:
 				"CREATE TABLE IF NOT EXISTS pluginversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 				"CREATE TABLE IF NOT EXISTS flags(cid INTEGER NOT NULL PRIMARY KEY, bitmask INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 				"CREATE TABLE IF NOT EXISTS prefixes(cid INTEGER NOT NULL PRIMARY KEY, prefix TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-#if defined(MANTIS_0000466)
-				"CREATE TABLE IF NOT EXISTS macrofuncs(cid INTEGER NOT NULL PRIMARY KEY, func TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-#endif
 				"CREATE TABLE IF NOT EXISTS exports(cid INTEGER NOT NULL, export TEXT NOT NULL, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, export));"
 				"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
 			)
@@ -1536,10 +1527,6 @@ public:
 		//get command prefix statement
 		ok = ok && InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;");
 
-#if defined(MANTIS_0000466)
-		//get macro func statement
-		ok = ok && InitStmt(stmtGetMacroFuncs, L"SELECT func FROM macrofuncs WHERE cid=?1;");
-#endif
 		//get flags statement
 		ok = ok && InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;");
 
@@ -1573,11 +1560,7 @@ public:
 		//set command prefix statement
 		ok = ok && InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);");
 
-#if defined(MANTIS_0000466)
-		//set macro function statement
-		ok = ok && InitStmt(stmtSetMacroFuncs, L"INSERT OR REPLACE INTO macrofuncs VALUES (?1,?2);");
-#endif
-	   //set flags statement
+		//set flags statement
 		ok = ok && InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);");
 
 		//set MinFarVersion statement
@@ -1596,9 +1579,6 @@ public:
 		stmtSetVersion.Finalize();
 		stmtSetMinFarVersion.Finalize();
 		stmtSetFlags.Finalize();
-#if defined(MANTIS_0000466)
-		stmtSetMacroFuncs.Finalize();
-#endif
 		stmtSetPrefix.Finalize();
 		stmtSetDescription.Finalize();
 		stmtSetAuthor.Finalize();
@@ -1610,9 +1590,6 @@ public:
 		stmtGetVersion.Finalize();
 		stmtGetMinFarVersion.Finalize();
 		stmtGetFlags.Finalize();
-#if defined(MANTIS_0000466)
-		stmtGetMacroFuncs.Finalize();
-#endif
 		stmtGetPrefix.Finalize();
 		stmtGetDescription.Finalize();
 		stmtGetAuthor.Finalize();
@@ -1744,13 +1721,6 @@ public:
 		return GetTextFromID(stmtGetPrefix, id);
 	}
 
-#if defined(MANTIS_0000466)
-	string GetMacroFunctions(unsigned __int64 id)
-	{
-		return GetTextFromID(stmtGetMacroFuncs, id);
-	}
-#endif
-
 	unsigned __int64 GetFlags(unsigned __int64 id)
 	{
 		unsigned __int64 flags = 0;
@@ -1790,12 +1760,6 @@ public:
 		return stmtSetPrefix.Bind(id).Bind(Prefix).StepAndReset();
 	}
 
-#if defined(MANTIS_0000466)
-	bool SetMacroFunctions(unsigned __int64 id, const wchar_t *MacroFunc)
-	{
-		return stmtSetMacroFuncs.Bind(id).Bind(MacroFunc).StepAndReset();
-	}
-#endif
 	bool SetFlags(unsigned __int64 id, unsigned __int64 Flags)
 	{
 		return stmtSetFlags.Bind(id).Bind(Flags).StepAndReset();

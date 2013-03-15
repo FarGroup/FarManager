@@ -152,14 +152,17 @@ class VMenu2 : public Dialog
 			return ListBox().SetSelectPos(ListPos, Direct);
 		}
 
-		void SortItems(int Direction=0, int Offset=0)
+		void SortItems(bool Reverse = false, int Offset = 0)
 		{
-			ListBox().SortItems(Direction, Offset);
+			ListBox().SortItems(Reverse, Offset);
 		}
-		void SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction=0,int Offset=0)
+		
+		template<class predicate>
+		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 		{
-			ListBox().SortItems(user_cmp_func, Direction, Offset);
+			ListBox().SortItems(Pred, Reverse, Offset);
 		}
+
 		void Pack()
 		{
 			ListBox().Pack();

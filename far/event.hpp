@@ -42,7 +42,7 @@ public:
 	bool Reset() const {return ResetEvent(hEvent)!=FALSE;}
 	bool Wait(DWORD Milliseconds=INFINITE) const {return WaitForSingleObject(hEvent, Milliseconds)==WAIT_OBJECT_0;}
 	bool Signaled() const {return Wait(0);}
-	HANDLE Handle() const {return hEvent;}
+	void Associate(OVERLAPPED& o) const {o.hEvent = hEvent;}
 
 private:
 	HANDLE hEvent;

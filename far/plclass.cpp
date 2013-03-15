@@ -80,9 +80,6 @@ typedef void     (WINAPI *iSetStartupInfoPrototype)      (const PluginStartupInf
 typedef intptr_t (WINAPI *iProcessViewerEventPrototype)  (const ProcessViewerEventInfo *Info);
 typedef intptr_t (WINAPI *iProcessDialogEventPrototype)  (const ProcessDialogEventInfo *Info);
 typedef intptr_t (WINAPI *iProcessSynchroEventPrototype) (const ProcessSynchroEventInfo *Info);
-#if defined(MANTIS_0000466)
-typedef intptr_t (WINAPI *iProcessMacroPrototype)        (const ProcessMacroInfo *Info);
-#endif
 typedef intptr_t (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
 typedef HANDLE   (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
 typedef intptr_t (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
@@ -117,9 +114,6 @@ typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo
 #define EXP_PROCESSVIEWEREVENT  "ProcessViewerEventW"
 #define EXP_PROCESSDIALOGEVENT  "ProcessDialogEventW"
 #define EXP_PROCESSSYNCHROEVENT "ProcessSynchroEventW"
-#if defined(MANTIS_0000466)
-#define EXP_PROCESSMACRO        "ProcessMacroW"
-#endif
 #define EXP_PROCESSCONSOLEINPUT "ProcessConsoleInputW"
 #define EXP_ANALYSE             "AnalyseW"
 #define EXP_GETCUSTOMDATA       "GetCustomDataW"
@@ -159,9 +153,6 @@ static const char* _ExportsNamesA[i_LAST] =
 	EXP_PROCESSVIEWEREVENT,
 	EXP_PROCESSDIALOGEVENT,
 	EXP_PROCESSSYNCHROEVENT,
-#if defined(MANTIS_0000466)
-	EXP_PROCESSMACRO,
-#endif
 	EXP_PROCESSCONSOLEINPUT,
 	EXP_ANALYSE,
 	EXP_GETCUSTOMDATA,
@@ -202,9 +193,6 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_PROCESSVIEWEREVENT),
 	W(EXP_PROCESSDIALOGEVENT),
 	W(EXP_PROCESSSYNCHROEVENT),
-#if defined(MANTIS_0000466)
-	W(EXP_PROCESSMACRO),
-#endif
 	W(EXP_PROCESSCONSOLEINPUT),
 	W(EXP_ANALYSE),
 	W(EXP_GETCUSTOMDATA),
@@ -384,9 +372,6 @@ bool Plugin::SaveToCache()
 		Exports[iProcessViewerEvent] ||
 		Exports[iProcessDialogEvent] ||
 		Exports[iProcessSynchroEvent] ||
-#if defined(MANTIS_0000466)
-		Exports[iProcessMacro] ||
-#endif
 		Exports[iProcessConsoleInput] ||
 		Exports[iAnalyse] ||
 		Exports[iGetCustomData]
@@ -443,9 +428,6 @@ bool Plugin::SaveToCache()
 		}
 
 		PlCache.SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
-#if defined(MANTIS_0000466)
-		PlCache.SetMacroFunctions(id, NullToEmpty(Info.MacroFunctions));
-#endif
 		PlCache.SetFlags(id, Info.Flags);
 
 		PlCache.SetMinFarVersion(id, &MinFarVersion);
@@ -465,9 +447,6 @@ bool Plugin::SaveToCache()
 		OPT_SETEXPORT(iProcessViewerEvent);
 		OPT_SETEXPORT(iProcessDialogEvent);
 		OPT_SETEXPORT(iProcessSynchroEvent);
-#if defined(MANTIS_0000466)
-		OPT_SETEXPORT(iProcessMacro);
-#endif
 		OPT_SETEXPORT(iProcessConsoleInput);
 		OPT_SETEXPORT(iConfigure);
 		OPT_SETEXPORT(iAnalyse);
@@ -512,9 +491,6 @@ void Plugin::InitExports()
 	OPT_GetProcAddress(iProcessViewerEvent);
 	OPT_GetProcAddress(iProcessDialogEvent);
 	OPT_GetProcAddress(iProcessSynchroEvent);
-#if defined(MANTIS_0000466)
-	OPT_GetProcAddress(iProcessMacro);
-#endif
 	OPT_GetProcAddress(iProcessConsoleInput);
 	OPT_GetProcAddress(iAnalyse);
 	OPT_GetProcAddress(iGetCustomData);
@@ -754,9 +730,6 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		OPT_GETEXPORT(iProcessViewerEvent);
 		OPT_GETEXPORT(iProcessDialogEvent);
 		OPT_GETEXPORT(iProcessSynchroEvent);
-#if defined(MANTIS_0000466)
-		OPT_GETEXPORT(iProcessMacro);
-#endif
 		OPT_GETEXPORT(iProcessConsoleInput);
 		OPT_GETEXPORT(iConfigure);
 		OPT_GETEXPORT(iAnalyse);
@@ -984,18 +957,6 @@ int Plugin::ProcessSynchroEvent(int Event, void *Param)
 	}
 	return es;
 }
-
-#if defined(MANTIS_0000466)
-int Plugin::ProcessMacro(ProcessMacroInfo *Info)
-{
-	ExecuteStruct es = {EXCEPT_PROCESSMACRO};
-	if (Load() && Exports[iProcessMacro] && !Global->ProcessException)
-	{
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessMacro)(Info));
-	}
-	return es;
-}
-#endif
 
 int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {

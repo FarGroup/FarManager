@@ -100,14 +100,14 @@ public:
 		}
 	}
 
-	size_t Size() {return size;}
+	size_t Size() const {return size;}
 
 	~AutoObject()
 	{
 		Free();
 	}
 
-	LPVOID Get()
+	LPVOID Get() const
 	{
 		return Data;
 	}
@@ -421,7 +421,7 @@ bool elevation::Initialize()
 				}
 				OVERLAPPED Overlapped;
 				Event AEvent;
-				Overlapped.hEvent = AEvent.Handle();
+				AEvent.Associate(Overlapped);
 				ConnectNamedPipe(Pipe, &Overlapped);
 				if(AEvent.Wait(15000))
 				{

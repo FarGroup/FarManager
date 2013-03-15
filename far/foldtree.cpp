@@ -375,6 +375,6 @@ void FolderTree::DrawEdit()
 void FolderTree::InitKeyBar()
 {
 	TreeKeyBar.SetLabels(MFolderTreeF1);
-	TreeKeyBar.SetCustomLabels(L"FolderTree");
+	TreeKeyBar.SetCustomLabels(KBA_FOLDERTREE);
 	SetKeyBar(&TreeKeyBar);
 }

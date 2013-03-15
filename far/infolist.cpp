@@ -1122,7 +1122,7 @@ void InfoList::DynamicUpdateKeyBar()
 		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 
-	KB->SetCustomLabels(L"Info");
+	KB->SetCustomLabels(KBA_INFO);
 }
 
 int InfoList::UpdateIfChanged(int UpdateMode)

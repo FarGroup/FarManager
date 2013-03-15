@@ -42,8 +42,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class NonCopyable
 {
 	private:
-		NonCopyable(const NonCopyable &);
-		NonCopyable & operator=(const NonCopyable &);
+		NonCopyable(const NonCopyable&);
+		NonCopyable(NonCopyable&&);
+		NonCopyable& operator=(const NonCopyable&);
+		NonCopyable& operator=(NonCopyable&&);
 
 	protected:
 		NonCopyable() {};

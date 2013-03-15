@@ -71,9 +71,6 @@ public:
 	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID);
 	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
 	virtual int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
-#if defined(MANTIS_0000466)
-	virtual int ProcessMacro(ProcessMacroInfo *Info) {return 0;}
-#endif
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
 	virtual HANDLE Analyse(const AnalyseInfo *Info) { return nullptr; }
 	virtual void CloseAnalyse(HANDLE hHandle) {}

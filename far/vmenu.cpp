@@ -3041,56 +3041,17 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags)
 
 // Сортировка элементов списка
 // Offset - начало сравнения! по умолчанию =0
-void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
+void VMenu::SortItems(bool Reverse, int Offset)
 {
-	CriticalSectionLock Lock(CS);
-
-	if (!SortForDataDWORD) // обычная сортировка
+	SortItems([](const MenuItemEx* a, const MenuItemEx* b, const SortItemParam& Param)->bool
 	{
-		std::sort(Item.begin(), Item.end(), [&](const MenuItemEx* a, const MenuItemEx* b)->bool
-		{
-			string strName1(a->strName);
-			string strName2(b->strName);
-			RemoveChar(strName1, L'&', true);
-			RemoveChar(strName2, L'&', true);
-			bool Less = StrCmpI(strName1.CPtr()+Offset, strName2.CPtr() + Offset) < 0;
-			return Direction? !Less : Less;
-		});
-	}
-	else
-	{
-		std::sort(Item.begin(), Item.end(), [&](const MenuItemEx* a, const MenuItemEx* b)->bool
-		{
-			DWORD Dw1=(DWORD)(intptr_t)(a->UserData);
-			DWORD Dw2=(DWORD)(intptr_t)(b->UserData);
-			bool Less = Dw1 < Dw2;
-			return Direction? !Less : Less;
-		});
-	}
-
-	// скорректируем SelectPos
-	UpdateSelectPos();
-
-	SetFlags(VMENU_UPDATEREQUIRED);
-}
-
-void VMenu::SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction,int Offset)
-{
-	CriticalSectionLock Lock(CS);
-
-	SortItemParam Param;
-	Param.Direction=Direction;
-	Param.Offset=Offset;
-
-	std::sort(Item.begin(), Item.end(), [&](const MenuItemEx* a, const MenuItemEx* b)->bool
-	{
-		return user_cmp_func(a, b, &Param) < 0;
-	});
-
-	// скорректируем SelectPos
-	UpdateSelectPos();
-
-	SetFlags(VMENU_UPDATEREQUIRED);
+		string strName1(a->strName);
+		string strName2(b->strName);
+		RemoveChar(strName1, L'&', true);
+		RemoveChar(strName2, L'&', true);
+		bool Less = StrCmpI(strName1.CPtr()+Param.Offset, strName2.CPtr() + Param.Offset) < 0;
+		return Param.Reverse? !Less : Less;
+	}, Reverse, Offset);
 }
 
 bool VMenu::Pack()

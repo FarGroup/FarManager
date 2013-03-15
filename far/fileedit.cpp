@@ -699,7 +699,7 @@ void FileEditor::InitKeyBar()
 	else
 		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
-	EditKeyBar.SetCustomLabels(L"Editor");
+	EditKeyBar.SetCustomLabels(KBA_EDITOR);
 
 	if (Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Show();

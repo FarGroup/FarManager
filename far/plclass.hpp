@@ -122,9 +122,6 @@ enum EXPORTS_ENUM
 	iProcessViewerEvent,
 	iProcessDialogEvent,
 	iProcessSynchroEvent,
-#if defined(MANTIS_0000466)
-	iProcessMacro,
-#endif
 	iProcessConsoleInput,
 	iAnalyse,
 	iGetCustomData,
@@ -172,9 +169,6 @@ public:
 	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID);
 	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
 	virtual int ProcessSynchroEvent(int Event, PVOID Param);
-#if defined(MANTIS_0000466)
-	virtual int ProcessMacro(ProcessMacroInfo *Info);
-#endif
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
 	virtual HANDLE Analyse(const AnalyseInfo *Info);
 	virtual void CloseAnalyse(HANDLE hHandle);
@@ -218,9 +212,6 @@ public:
 	HAS_FUNCTION(ProcessViewerEvent)
 	HAS_FUNCTION(ProcessDialogEvent)
 	HAS_FUNCTION(ProcessSynchroEvent)
-#if defined(MANTIS_0000466)
-	HAS_FUNCTION(ProcessMacro)
-#endif
 	HAS_FUNCTION(ProcessConsoleInput)
 	HAS_FUNCTION(Analyse)
 	HAS_FUNCTION(GetCustomData)

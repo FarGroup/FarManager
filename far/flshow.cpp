@@ -891,8 +891,6 @@ int FileList::PrepareColumnWidths(unsigned __int64 *ColumnTypes, int *ColumnWidt
 }
 
 
-extern void GetColor(int PaletteIndex);
-
 void FileList::HighlightBorder(int Level, int ListPos)
 {
 	if (Level == ColumnsInGlobal)

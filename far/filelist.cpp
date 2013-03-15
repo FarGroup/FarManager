@@ -539,7 +539,7 @@ void FileList::SortFileList(int KeepPosition)
 
 		if (KeepPosition)
 		{
-			assert(CurFile < ListData.size());
+			assert(CurFile < static_cast<int>(ListData.size()));
 			strCurName = ListData[CurFile]->strName;
 		}
 
@@ -1142,7 +1142,7 @@ int FileList::ProcessKey(int Key)
 				else
 				{
 					int CurrentPath=FALSE;
-					assert(CurFile < ListData.size());
+					assert(CurFile < static_cast<int>(ListData.size()));
 					CurPtr=ListData[CurFile];
 
 					if (ShowShortNames && !CurPtr->strShortName.IsEmpty())
@@ -1546,7 +1546,7 @@ int FileList::ProcessKey(int Key)
 				}
 				else
 				{
-					assert(CurFile < ListData.size());
+					assert(CurFile < static_cast<int>(ListData.size()));
 					CurPtr=ListData[CurFile];
 
 					if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -1860,7 +1860,7 @@ int FileList::ProcessKey(int Key)
 			{
 				size_t OldFileCount=ListData.size();
 				int OldCurFile=CurFile;
-				assert(CurFile < ListData.size());
+				assert(CurFile < static_cast<int>(ListData.size()));
 				int OldSelection=ListData[CurFile]->Selected;
 
 				int RealName=PanelMode!=PLUGIN_PANEL;
@@ -1885,7 +1885,7 @@ int FileList::ProcessKey(int Key)
 
 				ReturnCurrentFile=FALSE;
 
-				assert(CurFile < ListData.size());
+				assert(CurFile < static_cast<int>(ListData.size()));
 				if (Key!=KEY_SHIFTF5 && ListData.size() == OldFileCount &&
 				        CurFile==OldCurFile && OldSelection!=ListData[CurFile]->Selected)
 				{
@@ -2130,7 +2130,7 @@ int FileList::ProcessKey(int Key)
 				while (N--)
 					ProcessKey(Key==KEY_SHIFTLEFT || Key==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN);
 
-				assert(CurFile < ListData.size());
+				assert(CurFile < static_cast<int>(ListData.size()));
 				Select(ListData[CurFile],ShiftSelection);
 
 				if (SelectedFirst)
@@ -2154,7 +2154,7 @@ int FileList::ProcessKey(int Key)
 			if (ListData.empty())
 				return TRUE;
 
-			assert(CurFile < ListData.size());
+			assert(CurFile < static_cast<int>(ListData.size()));
 			CurPtr=ListData[CurFile];
 
 			if (ShiftSelection==-1)
@@ -2184,7 +2184,7 @@ int FileList::ProcessKey(int Key)
 			if (ListData.empty())
 				return TRUE;
 
-			assert(CurFile < ListData.size());
+			assert(CurFile < static_cast<int>(ListData.size()));
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
 			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
@@ -2892,7 +2892,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		MoveToMouse(MouseEvent);
-		assert(CurFile < ListData.size());
+		assert(CurFile < static_cast<int>(ListData.size()));
 		CurPtr=ListData[CurFile];
 
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
@@ -2968,7 +2968,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
-				assert(CurFile < ListData.size());
+				assert(CurFile < static_cast<int>(ListData.size()));
 				CurPtr=ListData[CurFile];
 				Select(CurPtr,MouseSelection);
 			}
@@ -2993,7 +2993,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
-				assert(CurFile < ListData.size());
+				assert(CurFile < static_cast<int>(ListData.size()));
 				CurPtr=ListData[CurFile];
 				Select(CurPtr,MouseSelection);
 			}
@@ -3591,7 +3591,7 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 
 size_t FileList::GetSelCount()
 {
-	assert(ListData.empty() || !(ReturnCurrentFile||!SelFileCount) || (CurFile < ListData.size()));
+	assert(ListData.empty() || !(ReturnCurrentFile||!SelFileCount) || (CurFile < static_cast<int>(ListData.size())));
 	return !ListData.empty()? ((ReturnCurrentFile||!SelFileCount)?(TestParentFolderName(ListData[CurFile]->strName)?0:1):SelFileCount):0;
 }
 
@@ -3725,7 +3725,7 @@ int FileList::GetCurName(string &strName, string &strShortName)
 		return FALSE;
 	}
 
-	assert(CurFile < ListData.size());
+	assert(CurFile < static_cast<int>(ListData.size()));
 	strName = ListData[CurFile]->strName;
 	strShortName = ListData[CurFile]->strShortName;
 
@@ -3750,7 +3750,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 	}
 	else if (PanelMode==NORMAL_PANEL)
 	{
-		assert(CurFile < ListData.size());
+		assert(CurFile < static_cast<int>(ListData.size()));
 		strName = ListData[CurFile]->strName;
 		strShortName = ListData[CurFile]->strShortName;
 	}
@@ -3974,7 +3974,7 @@ void FileList::UpdateViewPanel()
 	        AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
 	{
 		QuickView *ViewPanel=(QuickView *)AnotherPanel;
-		assert(CurFile < ListData.size());
+		assert(CurFile < static_cast<int>(ListData.size()));
 		FileListItem *CurPtr=ListData[CurFile];
 
 		if (PanelMode!=PLUGIN_PANEL ||
@@ -4961,7 +4961,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 	if (!SelDirCount)
 	{
-		assert(CurFile < ListData.size());
+		assert(CurFile < static_cast<int>(ListData.size()));
 		if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
 		        GetPluginDirInfo(hPlugin,ListData[CurFile]->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 		        ||
@@ -5074,7 +5074,7 @@ void FileList::ProcessCopyKeys(int Key)
 		{
 			FileList *AnotherFilePanel=(FileList *)AnotherPanel;
 
-			assert(AnotherFilePanel->ListData.empty() || AnotherFilePanel->CurFile < AnotherFilePanel->ListData.size());
+			assert(AnotherFilePanel->ListData.empty() || AnotherFilePanel->CurFile < static_cast<int>(AnotherFilePanel->ListData.size()));
 			if (!AnotherFilePanel->ListData.empty() &&
 			        (AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
 			        !TestParentFolderName(AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->strName))
@@ -5165,7 +5165,7 @@ BOOL FileList::UpdateKeyBar()
 {
 	KeyBar *KB=Global->CtrlObject->MainKeyBar;
 	KB->SetLabels(MF1);
-	KB->SetCustomLabels(L"Shell");
+	KB->SetCustomLabels(KBA_SHELL);
 
 	if (GetMode() == PLUGIN_PANEL)
 	{

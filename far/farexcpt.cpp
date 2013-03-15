@@ -102,9 +102,6 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
 		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
 		case EXCEPT_CLOSEANALYSE: return L"CloseAnalyse";
-#if defined(MANTIS_0000466)
-		case EXCEPT_PROCESSMACRO: return L"ProcessMacro";
-#endif
 		case EXCEPT_PROCESSCONSOLEINPUT: return L"ProcessConsoleInput";
 	}
 
@@ -333,9 +330,6 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
 					PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
 					PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
-#if defined(MANTIS_0000466)
-					PlugRec.FuncFlags|=Module->HasProcessMacro()?PICFF_PROCESSMACRO:0;
-#endif
 					PlugRec.FuncFlags|=Module->HasProcessConsoleInput()?PICFF_PROCESSCONSOLEINPUT:0;
 				}
 

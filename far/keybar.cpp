@@ -196,51 +196,70 @@ void KeyBar::SetLabels(LNGID StartIndex)
 	});
 }
 
-static int FnGroup(DWORD fnum, DWORD ctrl)
+static int FnGroup(DWORD ControlState)
 {
-	if (fnum < KEY_COUNT)
+	struct group_item
 	{
-		static DWORD Area[][2] = {
-			{ KBL_MAIN,         0 },
-			{ KBL_SHIFT,        KEY_SHIFT },
-			{ KBL_ALT,          KEY_ALT },
-			{ KBL_CTRL,         KEY_CTRL },
-			{ KBL_ALTSHIFT,     KEY_ALT | KEY_SHIFT },
-			{ KBL_CTRLSHIFT,    KEY_CTRL | KEY_SHIFT },
-			{ KBL_CTRLALT,      KEY_CTRL | KEY_ALT },
-			{ KBL_CTRLALTSHIFT, KEY_CTRL | KEY_ALT | KEY_SHIFT }
-		};
+		DWORD Group;
+		DWORD ControlState;
+	};
 
-		for (size_t J = 0; J < ARRAYSIZE(Area); ++J)
-			if (Area[J][1] == ctrl)
-				return static_cast<int>(Area[J][0]);
-	}
-	return -1;
+	static const std::array<group_item, KBL_GROUP_COUNT> Area =
+	{{
+		{KBL_MAIN, 0},
+		{KBL_SHIFT, KEY_SHIFT},
+		{KBL_ALT, KEY_ALT},
+		{KBL_CTRL, KEY_CTRL},
+		{KBL_ALTSHIFT, KEY_ALTSHIFT},
+		{KBL_CTRLSHIFT, KEY_CTRLSHIFT},
+		{KBL_CTRLALT, KEY_CTRLALT},
+		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
+	}};
+
+	auto Item = std::find_if(CONST_RANGE(Area, i)
+	{
+		return i.ControlState == ControlState;
+	});
+	
+	return Item == Area.cend()? -1 : Item->Group;
 }
 
-void KeyBar::SetCustomLabels(const wchar_t *Area)
+void KeyBar::SetCustomLabels(KEYBARAREA Area)
 {
-	if (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || StrCmpI(CustomArea, Area))
+	static const wchar_t* const Names[] =
 	{
-		DWORD Index=0;
-		string strRegName;
-		string strValue;
-		string strValueName;
+		L"Shell",
+		L"Info",
+		L"Tree",
+		L"QuickView",
+		L"FolderTree",
+		L"Editor",
+		L"Viewer",
+		L"Help",
+	};
 
+	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
+
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
+	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
-		strRegName=L"KeyBarLabels.";
-		strRegName+=strLanguage + L"." + Area;
+		string strRegName = string(L"KeyBarLabels.") + strLanguage + L"." + Names[Area];
 
 		ClearKeyTitles(true);
 
+		DWORD Index=0;
+		string strValue, strValueName;
 		while (Global->Db->GeneralCfg()->EnumValues(strRegName,Index++,strValueName,strValue))
 		{
 			DWORD Key = KeyNameToKey(strValueName);
-			DWORD fnum = Key & (~KEY_CTRLMASK) - KEY_F1;
-			int fgroup = FnGroup(fnum, Key & KEY_CTRLMASK);
-			if (fgroup >= 0)
-				Items[fgroup][fnum].CustomTitle = strValue;
+			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
+			if (fnum < KEY_COUNT)
+			{
+				int fgroup = FnGroup(Key & KEY_CTRLMASK);
+				if (fgroup >= 0)
+					Items[fgroup][fnum].CustomTitle = strValue;
+			}
 		}
 		CustomLabelsReaded=TRUE;
 	}
@@ -381,16 +400,19 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 		for (size_t I = 0; I < Kbt->CountLabels; ++I)
 		{
 			DWORD Pos = Kbt->Labels[I].Key.VirtualKeyCode - VK_F1;
-			DWORD Shift = 0, Flags = Kbt->Labels[I].Key.ControlKeyState;
-			if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
-			if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
-			if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
-
-			int group = FnGroup(Pos, Shift);
-			if (group >= 0)
+			if (Pos < KEY_COUNT)
 			{
-				Change(group, Kbt->Labels[I].Text, static_cast<int>(Pos));
-				++Result;
+				DWORD Shift = 0, Flags = Kbt->Labels[I].Key.ControlKeyState;
+				if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
+				if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
+				if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
+
+				int group = FnGroup(Shift);
+				if (group >= 0)
+				{
+					Change(group, Kbt->Labels[I].Text, static_cast<int>(Pos));
+					++Result;
+				}
 			}
 		}
 	}

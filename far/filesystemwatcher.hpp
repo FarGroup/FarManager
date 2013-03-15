@@ -40,7 +40,7 @@ public:
 	void Set(const wchar_t* Directory, bool WatchSubtree);
 	bool Watch(bool got_focus=false);
 	void Release();
-	bool Signaled();
+	bool Signaled() const;
 
 private:
 	string Directory;

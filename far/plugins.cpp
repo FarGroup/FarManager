@@ -990,33 +990,6 @@ int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 	}) != PluginsData.cend();
 }
 
-#if defined(MANTIS_0000466)
-int PluginManager::ProcessMacro(const GUID& guid,ProcessMacroInfo *Info)
-{
-	int nResult = 0;
-
-#if 0
-	for (int i=0; i<PluginsCount; i++)
-	{
-		Plugin *pPlugin = PluginsData[i];
-
-		if (pPlugin->HasProcessMacro())
-			if ((nResult = pPlugin->ProcessMacro(Info)) != 0)
-				break;
-	}
-#else
-	Plugin *pPlugin = FindPlugin(guid);
-
-	if (pPlugin && pPlugin->HasProcessMacro())
-	{
-		nResult = pPlugin->ProcessMacro(Info);
-	}
-#endif
-
-	return nResult;
-}
-#endif
-
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
@@ -1426,7 +1399,7 @@ void PluginManager::Configure(int StartPos)
 
 				PluginList.AssignHighlights(FALSE);
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-				PluginList.SortItems(0,HotKeysPresent?3:0);
+				PluginList.SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
@@ -1609,7 +1582,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 				PluginList.AssignHighlights(FALSE);
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-				PluginList.SortItems(0,HotKeysPresent?3:0);
+				PluginList.SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
@@ -1917,9 +1890,6 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 {
 	if(IsPluginUnloaded(pPlugin)) return 0;
 	string Prefix;
-#if defined(MANTIS_0000466)
-	string MacroFunc;
-#endif
 	PLUGIN_FLAGS Flags = 0;
 	std::vector<string> MenuNames, MenuGuids, DiskNames, DiskGuids, ConfNames, ConfGuids;
 
@@ -1928,9 +1898,6 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
 		Flags = Global->Db->PlCacheCfg()->GetFlags(id);
 		Prefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
-#if defined(MANTIS_0000466)
-		MacroFunc = Global->Db->PlCacheCfg()->GetMacroFunctions(id);
-#endif
 
 		string Name, Guid;
 
@@ -1959,9 +1926,6 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		{
 			Flags = Info.Flags;
 			Prefix = Info.CommandPrefix;
-#if defined(MANTIS_0000466)
-			MacroFunc = Info.MacroFunctions;
-#endif
 
 			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
@@ -2031,9 +1995,6 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	pInfo->PInfo->StructSize = sizeof(PluginInfo);
 	pInfo->PInfo->Flags = Flags;
 	pInfo->PInfo->CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
-#if defined(MANTIS_0000466)
-	pInfo->PInfo->MacroFunctions = StrToBuf(MacroFunc, Buffer, Rest, Size);
-#endif
 
 	ItemsToBuf(pInfo->PInfo->DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
 	ItemsToBuf(pInfo->PInfo->PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);
