@@ -196,6 +196,28 @@ void KeyBar::SetLabels(LNGID StartIndex)
 	});
 }
 
+static int FnGroup(DWORD fnum, DWORD ctrl)
+{
+	if (fnum < KEY_F24 - KEY_F1)
+	{
+		static DWORD Area[][2] = {
+			{ KBL_MAIN,         0 },
+			{ KBL_SHIFT,        KEY_SHIFT },
+			{ KBL_ALT,          KEY_ALT },
+			{ KBL_CTRL,         KEY_CTRL },
+			{ KBL_ALTSHIFT,     KEY_ALT | KEY_SHIFT },
+			{ KBL_CTRLSHIFT,    KEY_CTRL | KEY_SHIFT },
+			{ KBL_CTRLALT,      KEY_CTRL | KEY_ALT },
+			{ KBL_CTRLALTSHIFT, KEY_CTRL | KEY_ALT | KEY_SHIFT }
+		};
+
+		for (size_t J = 0; J < ARRAYSIZE(Area); ++J)
+			if (Area[J][1] == ctrl)
+				return static_cast<int>(Area[J][0]);
+	}
+	return -1;
+}
+
 void KeyBar::SetCustomLabels(const wchar_t *Area)
 {
 	if (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || StrCmpI(CustomArea, Area))
@@ -214,36 +236,12 @@ void KeyBar::SetCustomLabels(const wchar_t *Area)
 
 		while (Global->Db->GeneralCfg()->EnumValues(strRegName,Index++,strValueName,strValue))
 		{
-			DWORD Key=KeyNameToKey(strValueName);
-			DWORD Key0=Key&(~KEY_CTRLMASK);
-			DWORD Ctrl=Key&KEY_CTRLMASK;
-
-			if (Key0 >= KEY_F1 && Key0 <= KEY_F24)
-			{
-				size_t J;
-				static DWORD Area[][2]=
-				{
-					{ KBL_MAIN,         0 },
-					{ KBL_SHIFT,        KEY_SHIFT },
-					{ KBL_ALT,          KEY_ALT },
-					{ KBL_CTRL,         KEY_CTRL },
-					{ KBL_ALTSHIFT,     KEY_ALT|KEY_SHIFT },
-					{ KBL_CTRLSHIFT,    KEY_CTRL|KEY_SHIFT },
-					{ KBL_CTRLALT,      KEY_CTRL|KEY_ALT },
-					{ KBL_CTRLALTSHIFT, KEY_CTRL|KEY_ALT|KEY_SHIFT },
-				};
-
-				for (J=0; J < ARRAYSIZE(Area); ++J)
-					if (Area[J][1] == Ctrl)
-						break;
-
-				if (J <= ARRAYSIZE(Area))
-				{
-					Items[Area[J][0]][Key0-KEY_F1].CustomTitle = strValue;
-				}
-			}
+			DWORD Key = KeyNameToKey(strValueName);
+			DWORD fnum = Key & (~KEY_CTRLMASK) - KEY_F1;
+			int fgroup = FnGroup(fnum, Key & KEY_CTRLMASK);
+			if (fgroup >= 0)
+				Items[fgroup][fnum].CustomTitle = strValue;
 		}
-
 		CustomLabelsReaded=TRUE;
 	}
 
@@ -377,45 +375,24 @@ void KeyBar::RedrawIfChanged()
 
 size_t KeyBar::Change(const KeyBarTitles *Kbt)
 {
-	size_t Result=0;
-
-	if (!Kbt)
-		return Result;
-
-	static DWORD Groups[]=
+	size_t Result = 0;
+	if (Kbt)
 	{
-		0,KBL_MAIN,
-		KEY_SHIFT,KBL_SHIFT,
-		KEY_ALT,KBL_ALT,
-		KEY_CTRL,KBL_CTRL,
-		KEY_ALT|KEY_SHIFT,KBL_ALTSHIFT,
-		KEY_CTRL|KEY_SHIFT,KBL_CTRLSHIFT,
-		KEY_CTRL|KEY_ALT,KBL_CTRLALT,
-		KEY_CTRL|KEY_ALT|KEY_SHIFT,KBL_CTRLALTSHIFT,
-	};
-
-	for (size_t I = 0; I < Kbt->CountLabels; ++I)
-	{
-
-		WORD Pos=Kbt->Labels[I].Key.VirtualKeyCode;
-		DWORD Shift=0,Flags=Kbt->Labels[I].Key.ControlKeyState;
-		if(Flags&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift|=KEY_CTRL;
-		if(Flags&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift|=KEY_ALT;
-		if(Flags&SHIFT_PRESSED) Shift|=KEY_SHIFT;
-
-		if (Pos >= VK_F1 && Pos <= VK_F24)
+		for (size_t I = 0; I < Kbt->CountLabels; ++I)
 		{
-			for (unsigned J=0; J < ARRAYSIZE(Groups); J+=2)
+			DWORD Pos = Kbt->Labels[I].Key.VirtualKeyCode - VK_F1;
+			DWORD Shift = 0, Flags = Kbt->Labels[I].Key.ControlKeyState;
+			if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
+			if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
+			if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
+
+			int group = FnGroup(Pos, Shift);
+			if (group >= 0)
 			{
-				if (Groups[J] == Shift)
-				{
-					Change(Groups[J+1],Kbt->Labels[I].Text,Pos-VK_F1);
-					Result++;
-					break;
-				}
+				Change(group, Kbt->Labels[I].Text, static_cast<int>(Pos));
+				++Result;
 			}
 		}
 	}
-
 	return Result;
 }
