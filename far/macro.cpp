@@ -1107,20 +1107,24 @@ int KeyMacro::GetKey()
 
 						Global->ScrBuf->SetLockCount(lockCount);
 
-
+						bool isSynchroCall=true;
 						if (CallPluginRules)
 						{
 							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
 								PopState(true);
+							else
+								isSynchroCall=false;
 						}
 						else
+							m_InternalInput--;
+
+						if (isSynchroCall)
 						{
 							//в windows гарантируется, что не бывает указателей меньше 0x10000
 							if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
 								macro->SetData(ResultCallPlugin);
 							else
 								macro->SetBooleanValue(ResultCallPlugin != nullptr);
-							m_InternalInput--;
 						}
 					}
 				}
