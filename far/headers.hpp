@@ -207,17 +207,23 @@ inline void ClearArray(T& a)
 #define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
 #define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
 
-#define DECLTYPEOF(T, subtype) std::remove_reference<std::remove_pointer<DECLTYPE(T)>::type>::type::subtype
+#define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<typename DECLTYPE(T)>::type>::type::subtype
 #define VALUE_TYPE(T) DECLTYPEOF(T, value_type)
 #define ITERATOR(T) DECLTYPEOF(T, iterator)
 #define CONST_ITERATOR(T) DECLTYPEOF(T, const_iterator)
 #define REVERSE_ITERATOR(T) DECLTYPEOF(T, reverse_iterator)
 #define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
 
-#define RANGE(T, i) (T).begin(), (T).end(), [&](VALUE_TYPE(T)& i)
-#define REVERSE_RANGE(T, i) (T).rbegin(), (T).rend(), [&](VALUE_TYPE(T)& i)
-#define CONST_RANGE(T, i) (T).cbegin(), (T).cend(), [&](const VALUE_TYPE(T)& i)
-#define CONST_REVERSE_RANGE(T, i) (T).crbegin(), (T).crend(), [&](const VALUE_TYPE(T)& i)
+#ifdef __GNUC__
+#define T_VALUE_TYPE(T) typename VALUE_TYPE(T)
+#else
+#define T_VALUE_TYPE(T) VALUE_TYPE(T)
+#endif
+#define RANGE(T, i) (T).begin(), (T).end(), [&](T_VALUE_TYPE(T)& i)
+#define REVERSE_RANGE(T, i) (T).rbegin(), (T).rend(), [&](T_VALUE_TYPE(T)& i)
+#define CONST_RANGE(T, i) (T).cbegin(), (T).cend(), [&](const T_VALUE_TYPE(T)& i)
+#define CONST_REVERSE_RANGE(T, i) (T).crbegin(), (T).crend(), [&](const T_VALUE_TYPE(T)& i)
+
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
 #define FOR_REVERSE_RANGE(T, i) for(auto i = (T).rbegin(); i != (T).rend(); ++i)
 #define FOR_CONST_RANGE(T, i) for(auto i = (T).cbegin(); i != (T).cend(); ++i)

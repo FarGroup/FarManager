@@ -267,6 +267,7 @@ UnicodeString.cpp
 UnicodeString.hpp
 usermenu.cpp
 usermenu.hpp
+valuename.hpp
 viewer.cpp
 viewer.hpp
 vmenu.cpp

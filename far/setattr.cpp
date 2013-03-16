@@ -795,7 +795,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			SETATTRDLG Item;
 			DWORD Attribute;
 		};
-		static std::array<ATTRIBUTEPAIR, 13>
+		static const std::array<ATTRIBUTEPAIR, 13>
 		AP =
 		{{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
-#include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -52,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "strmix.hpp"
 #include "syslog.hpp"
-
 #include "macroopcode.hpp"
 #include "interf.hpp"
 #include "console.hpp"
@@ -76,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "constitle.hpp"
 #include "usermenu.hpp"
+#include "valuename.hpp"
 
 static BOOL CheckAll(MACROMODEAREA Mode, UINT64 CurFlags);
 
@@ -352,72 +351,31 @@ struct DlgParam
 	bool Changed;
 };
 
-struct TMacroKeywords2
-{
-	const wchar_t *Name;       // Наименование
-	MACROFLAGS_MFLAGS Value;   // Значение
-};
+static const std::array<value_name_pair<MACROFLAGS_MFLAGS, const wchar_t*>, 19> MKeywordsFlags =
+{{
+	{MFLAGS_ENABLEOUTPUT, L"EnableOutput"},
+	{MFLAGS_RUNAFTERFARSTART, L"RunAfterFARStart"},
+	{MFLAGS_EMPTYCOMMANDLINE, L"EmptyCommandLine"},
+	{MFLAGS_NOTEMPTYCOMMANDLINE, L"NotEmptyCommandLine"},
+	{MFLAGS_EDITSELECTION, L"EVSelection"},
+	{MFLAGS_EDITNOSELECTION, L"NoEVSelection"},
 
-TMacroKeywords2 MKeywordsFlags[] =
-{
-	// ФЛАГИ
-	{L"EnableOutput",       MFLAGS_ENABLEOUTPUT},
-	{L"RunAfterFARStart",   MFLAGS_RUNAFTERFARSTART},
-	{L"EmptyCommandLine",   MFLAGS_EMPTYCOMMANDLINE},
-	{L"NotEmptyCommandLine",MFLAGS_NOTEMPTYCOMMANDLINE},
-	{L"EVSelection",        MFLAGS_EDITSELECTION},
-	{L"NoEVSelection",      MFLAGS_EDITNOSELECTION},
+	{MFLAGS_NOFILEPANELS, L"NoFilePanels"},
+	{MFLAGS_NOPLUGINPANELS, L"NoPluginPanels"},
+	{MFLAGS_NOFOLDERS, L"NoFolders"},
+	{MFLAGS_NOFILES, L"NoFiles"},
+	{MFLAGS_SELECTION, L"Selection"},
+	{MFLAGS_NOSELECTION, L"NoSelection"},
 
-	{L"NoFilePanels",       MFLAGS_NOFILEPANELS},
-	{L"NoPluginPanels",     MFLAGS_NOPLUGINPANELS},
-	{L"NoFolders",          MFLAGS_NOFOLDERS},
-	{L"NoFiles",            MFLAGS_NOFILES},
-	{L"Selection",          MFLAGS_SELECTION},
-	{L"NoSelection",        MFLAGS_NOSELECTION},
+	{MFLAGS_PNOFILEPANELS, L"NoFilePPanels"},
+	{MFLAGS_PNOPLUGINPANELS, L"NoPluginPPanels"},
+	{MFLAGS_PNOFOLDERS, L"NoPFolders"},
+	{MFLAGS_PNOFILES, L"NoPFiles"},
+	{MFLAGS_PSELECTION, L"PSelection"},
+	{MFLAGS_PNOSELECTION, L"NoPSelection"},
 
-	{L"NoFilePPanels",      MFLAGS_PNOFILEPANELS},
-	{L"NoPluginPPanels",    MFLAGS_PNOPLUGINPANELS},
-	{L"NoPFolders",         MFLAGS_PNOFOLDERS},
-	{L"NoPFiles",           MFLAGS_PNOFILES},
-	{L"PSelection",         MFLAGS_PSELECTION},
-	{L"NoPSelection",       MFLAGS_PNOSELECTION},
-
-	{L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS},
-};
-
-static const string FlagsToString(MACROFLAGS_MFLAGS Flags)
-{
-	string Str;
-	for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
-	{
-		if (Flags & MKeywordsFlags[i].Value)
-		{
-			if (!Str.IsEmpty())
-				Str+=L" ";
-
-			Str+=MKeywordsFlags[i].Name;
-		}
-	}
-	return Str;
-}
-
-static MACROFLAGS_MFLAGS StringToFlags(const string& strFlags)
-{
-	MACROFLAGS_MFLAGS Flags=0;
-	auto FlagsList(StringToList(strFlags, STLF_UNIQUE, L"| "));
-	FOR_CONST_RANGE(FlagsList, Flag)
-	{
-		for (size_t i=0; i<ARRAYSIZE(MKeywordsFlags); i++)
-		{
-			if (!StrCmpI(*Flag, MKeywordsFlags[i].Name))
-			{
-				Flags |= MKeywordsFlags[i].Value;
-				break;
-			}
-		}
-	}
-	return Flags;
-}
+	{MFLAGS_NOSENDKEYSTOPLUGINS, L"NoSendKeysToPlugins"},
+}};
 
 static bool ToDouble(__int64 v, double *d)
 {
@@ -773,7 +731,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 			Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
-			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
+			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String, MKeywordsFlags));
 
 			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
 			Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
@@ -795,7 +753,7 @@ void KeyMacro::LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const
 	const wchar_t* Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
 {
 	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
-	string strFlags=FlagsToString(Flags);
+	string strFlags(FlagsToString(Flags, MKeywordsFlags));
 
 	values[0].Double=Mode;
 	values[1].String=TextKey;
@@ -2663,7 +2621,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				int macroId = (int)Data->Values[0].Double;
 				const wchar_t* code = Data->Values[1].String;
-				MACROFLAGS_MFLAGS flags = StringToFlags(Data->Values[2].String);
+				MACROFLAGS_MFLAGS flags = StringToFlags(Data->Values[2].String, MKeywordsFlags);
 				Result = PostNewMacro(macroId, code, flags);
 			}
 			PassBoolean(Result?1:0, Data);
@@ -2676,7 +2634,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count >= 2)
 			{
 				MACROMODEAREA Area = (MACROMODEAREA)(int)Data->Values[0].Double;
-				MACROFLAGS_MFLAGS Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
+				MACROFLAGS_MFLAGS Flags = FixFlags(Area, StringToFlags(Data->Values[1].String, MKeywordsFlags));
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
 				void* CallbackId = (Data->Count>=4  && Data->Values[3].Type==FMVT_POINTER) ?
@@ -3699,7 +3657,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 
 static struct menu_less
 {
-	bool operator()(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam& Param)
+	bool operator()(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam& Param) const
 	{
 		if (((el1)->Flags & LIF_SEPARATOR) || ((el2)->Flags & LIF_SEPARATOR))
 			return false;

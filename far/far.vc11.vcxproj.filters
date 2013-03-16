@@ -1063,6 +1063,9 @@
     <ClInclude Include="Mutex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="valuename.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">

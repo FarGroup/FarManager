@@ -577,7 +577,7 @@ void FileList::StopFSWatcher()
 
 struct search_list_less
 {
-	bool operator()(const FileListItem* a, const FileListItem* b)
+	bool operator()(const FileListItem* a, const FileListItem* b) const
 	{
 		return a->strName < b->strName;
 	}

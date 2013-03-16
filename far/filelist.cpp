@@ -284,7 +284,7 @@ inline bool less_opt(bool less)
 
 static struct list_less
 {
-	bool operator()(FileListItem* SPtr1, FileListItem* SPtr2)
+	bool operator()(FileListItem* SPtr1, FileListItem* SPtr2) const
 	{
 		int RetCode;
 		bool UseReverseNameSort = false;

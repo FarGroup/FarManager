@@ -82,50 +82,49 @@ static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
 
-static int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, bool Numeric, bool CaseSensitive)
+static struct tree_less
 {
-	auto cmpfunc = Numeric? (CaseSensitive? NumStrCmpN : NumStrCmpNI) : (CaseSensitive? StrCmpNN : StrCmpNNI);
-
-	if (*Str1 == L'\\' && *Str2 == L'\\')
+	bool operator()(const string& a, const string& b, bool Numeric, bool CaseSensitive) const
 	{
-		Str1++;
-		Str2++;
+		const wchar_t* Str1 = a, *Str2 = b;
+		auto cmpfunc = Numeric? (CaseSensitive? NumStrCmpN : NumStrCmpNI) : (CaseSensitive? StrCmpNN : StrCmpNNI);
+
+		if (*Str1 == L'\\' && *Str2 == L'\\')
+		{
+			Str1++;
+			Str2++;
+		}
+
+		const wchar_t *s1 = wcschr(Str1,L'\\');
+		const wchar_t *s2 = wcschr(Str2,L'\\');
+
+		while (s1 && s2)
+		{
+			int r = cmpfunc(Str1,static_cast<int>(s1-Str1),Str2,static_cast<int>(s2-Str2));
+
+			if (r)
+				return r < 0;
+
+			Str1 = s1 + 1;
+			Str2 = s2 + 1;
+			s1 = wcschr(Str1,L'\\');
+			s2 = wcschr(Str2,L'\\');
+		}
+
+		if (s1 || s2)
+		{
+			int r = cmpfunc(Str1,s1?static_cast<int>(s1-Str1):-1,Str2,s2?static_cast<int>(s2-Str2):-1);
+			return r? r < 0 : !s1;
+		}
+		return cmpfunc(Str1, -1, Str2, -1) < 0;
 	}
-
-	const wchar_t *s1 = wcschr(Str1,L'\\');
-	const wchar_t *s2 = wcschr(Str2,L'\\');
-
-	while (s1 && s2)
-	{
-		int r = cmpfunc(Str1,static_cast<int>(s1-Str1),Str2,static_cast<int>(s2-Str2));
-
-		if (r)
-			return r;
-
-		Str1 = s1 + 1;
-		Str2 = s2 + 1;
-		s1 = wcschr(Str1,L'\\');
-		s2 = wcschr(Str2,L'\\');
-	}
-
-	if (s1 || s2)
-	{
-		int r = cmpfunc(Str1,s1?static_cast<int>(s1-Str1):-1,Str2,s2?static_cast<int>(s2-Str2):-1);
-
-		if (r)
-			return r;
-
-		return s1 ? 1 : -1;
-	}
-
-	return cmpfunc(Str1, -1, Str2,-1);
-}
+} TreeLess;
 
 static struct list_less
 {
-	bool operator()(const TreeItem* a, const TreeItem* b)
+	bool operator()(const TreeItem* a, const TreeItem* b) const
 	{
-		return TreeCmp(a->strName, b->strName, StaticSortNumeric, StaticSortCaseSensitive) < 0;
+		return TreeLess(a->strName, b->strName, StaticSortNumeric, StaticSortCaseSensitive);
 	}
 }
 ListLess;
@@ -134,7 +133,7 @@ void TreeListCache::Sort()
 {
 	Names.sort([](const string& a, const string& b)
 	{
-		return TreeCmp(a, b, StaticSortNumeric, 0) < 0;
+		return TreeLess(a, b, StaticSortNumeric, false);
 	});
 }
 
