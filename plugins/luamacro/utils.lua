@@ -42,6 +42,9 @@ local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
+local initial_modules = {}
+for k in pairs(package.loaded) do initial_modules[k]=true end
+
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
   local PatExpandKey = regex.new("Ctrl|Alt|Shift|LCtrl|RCtrl|LAlt|RAlt|.*", "i")
   local lctrl,rctrl,lalt,ralt,rest
@@ -250,6 +253,9 @@ local function LoadMacros (allAreas, unload)
   AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do Areas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
+  for k in pairs(package.loaded) do
+    if initial_modules[k]==nil then package.loaded[k]=nil end
+  end
 
   if not unload then
     local DummyFunc = function() end
