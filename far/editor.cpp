@@ -130,7 +130,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	   пудрить мозги, пропишем его явно.
 	*/
 	wcscpy(GlobalEOL,DOS_EOL_fmt);
-	SavePos.Clear();
 	InsertString(nullptr, 0);
 }
 
@@ -3188,9 +3187,11 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 		return;
 	}
 
-	for (size_t I=0; I<ARRAYSIZE(SavePos.Line); I++)
-		if (SavePos.Line[I]!=POS_NONE && UndoLine<static_cast<int>(SavePos.Line[I]))
-			SavePos.Line[I]--;
+	std::for_each(RANGE(SavePos, i)
+	{
+		if (i.Line != POS_NONE && UndoLine < static_cast<int>(i.Line))
+			--i.Line;
+	});
 
 	if (SessionPos)
 	{
@@ -3326,11 +3327,11 @@ void Editor::InsertString()
 	CurPos=CurLine->GetCurPos();
 	CurLine->GetSelection(SelStart,SelEnd);
 
-	for (size_t I=0; I<ARRAYSIZE(SavePos.Line); I++)
-		if (SavePos.Line[I]!=POS_NONE &&
-		        (NumLine<(int)SavePos.Line[I] || (NumLine==(int)SavePos.Line[I] && !CurPos)))
-			SavePos.Line[I]++;
-
+	std::for_each(RANGE(SavePos, i)
+	{
+		if (i.Line != POS_NONE && (NumLine < i.Line || (NumLine == i.Line && !CurPos)))
+			++i.Line;
+	});
 	if (SessionPos)
 	{
 		InternalEditorSessionBookMark *sb_temp = SessionPos;
@@ -6431,12 +6432,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 int Editor::SetBookmark(int Pos)
 {
-	if (Pos < BOOKMARK_COUNT)
+	if (Pos < static_cast<int>(SavePos.size()))
 	{
-		SavePos.Line[Pos]=NumLine;
-		SavePos.LinePos[Pos]=CurLine->GetCurPos();
-		SavePos.LeftPos[Pos]=CurLine->GetLeftPos();
-		SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
+		auto& Bookmark = SavePos[Pos];
+		Bookmark.Line = NumLine;
+		Bookmark.LinePos = CurLine->GetCurPos();
+		Bookmark.LeftPos = CurLine->GetLeftPos();
+		Bookmark.ScreenLine = CalcDistance(TopScreen,CurLine,-1);
 		return TRUE;
 	}
 
@@ -6445,17 +6447,18 @@ int Editor::SetBookmark(int Pos)
 
 int Editor::GotoBookmark(int Pos)
 {
-	if (Pos < BOOKMARK_COUNT)
+	if (Pos < static_cast<int>(SavePos.size()))
 	{
-		if (SavePos.Line[Pos]!=POS_NONE)
+		auto& Bookmark = SavePos[Pos];
+		if (Bookmark.Line != POS_NONE)
 		{
-			GoToLine(SavePos.Line[Pos]);
-			CurLine->SetCurPos(SavePos.LinePos[Pos]);
-			CurLine->SetLeftPos(SavePos.LeftPos[Pos]);
+			GoToLine(Bookmark.Line);
+			CurLine->SetCurPos(Bookmark.LinePos);
+			CurLine->SetLeftPos(Bookmark.LeftPos);
 			TopScreen=CurLine;
 
-			for (int I=0; I<SavePos.ScreenLine[Pos] && TopScreen->m_prev; I++)
-				TopScreen=TopScreen->m_prev;
+			for (int i = 0; i < Bookmark.ScreenLine && TopScreen->m_prev; ++i)
+				TopScreen = TopScreen->m_prev;
 
 			if (!EdOpt.PersistentBlocks)
 				UnmarkBlock();
@@ -7391,52 +7394,52 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		TopScreen=CurLine=CurPtr;
 
-		if (NumLine == pc.Line - pc.ScreenLine)
+		if (NumLine == pc.cur.Line - pc.cur.ScreenLine)
 		{
 			Lock();
 
-			for (int I=0; I < pc.ScreenLine; I++)
+			for (int I=0; I < pc.cur.ScreenLine; I++)
 				ProcessKey(KEY_DOWN);
 
-			CurLine->SetTabCurPos(pc.LinePos);
+			CurLine->SetTabCurPos(pc.cur.LinePos);
 			Unlock();
 		}
 
-		CurLine->SetLeftPos(pc.LeftPos);
+		CurLine->SetLeftPos(pc.cur.LeftPos);
 	}
 	else if (StartLine != -1 || EdOpt.SavePos)
 	{
 		if (StartLine!=-1)
 		{
-			pc.Line = StartLine-1;
-			pc.ScreenLine = ObjHeight()/2; //ScrY
+			pc.cur.Line = StartLine-1;
+			pc.cur.ScreenLine = ObjHeight()/2; //ScrY
 
-			if (pc.ScreenLine > pc.Line)
-				pc.ScreenLine = pc.Line;
+			if (pc.cur.ScreenLine > pc.cur.Line)
+				pc.cur.ScreenLine = pc.cur.Line;
 
-			pc.LinePos = 0;
+			pc.cur.LinePos = 0;
 			if (StartChar > 0)
 			{
-				pc.LinePos = StartChar-1;
+				pc.cur.LinePos = StartChar-1;
 				translateTabs = true;
 			}
 		}
 
-		if (pc.ScreenLine > ObjHeight()) //ScrY //BUGBUG
-			pc.ScreenLine=ObjHeight();//ScrY;
+		if (pc.cur.ScreenLine > ObjHeight()) //ScrY //BUGBUG
+			pc.cur.ScreenLine=ObjHeight();//ScrY;
 
-		if (pc.Line >= pc.ScreenLine)
+		if (pc.cur.Line >= pc.cur.ScreenLine)
 		{
 			Lock();
-			GoToLine(pc.Line-pc.ScreenLine);
+			GoToLine(pc.cur.Line-pc.cur.ScreenLine);
 			TopScreen = CurLine;
 
-			for (int I=0; I < pc.ScreenLine; I++)
+			for (int I=0; I < pc.cur.ScreenLine; I++)
 				ProcessKey(KEY_DOWN);
 
-			if(translateTabs) CurLine->SetCurPos(pc.LinePos);
-			else CurLine->SetTabCurPos(pc.LinePos);
-			CurLine->SetLeftPos(pc.LeftPos);
+			if(translateTabs) CurLine->SetCurPos(pc.cur.LinePos);
+			else CurLine->SetTabCurPos(pc.cur.LinePos);
+			CurLine->SetLeftPos(pc.cur.LeftPos);
 			Unlock();
 		}
 	}
@@ -7444,10 +7447,10 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 void Editor::GetCacheParams(EditorPosCache &pc)
 {
-	pc.Line = NumLine;
-	pc.ScreenLine = CalcDistance(TopScreen, CurLine,-1);
-	pc.LinePos = CurLine->GetTabCurPos();
-	pc.LeftPos = CurLine->GetLeftPos();
+	pc.cur.Line = NumLine;
+	pc.cur.ScreenLine = CalcDistance(TopScreen, CurLine,-1);
+	pc.cur.LinePos = CurLine->GetTabCurPos();
+	pc.cur.LeftPos = CurLine->GetLeftPos();
 	pc.CodePage = m_codepage;
 	pc.bm=SavePos;
 }

@@ -210,8 +210,8 @@ private:
 	int ReadStdin;
 	int InternalKey;
 
-	struct ViewerBookmark BMSavePos;
-	struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
+	Bookmarks<viewer_bookmark> BMSavePos;
+	ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
 
 	int LastKeyUndo;
 	int Width,XX2;  // , используется при расчете ширины при скролбаре

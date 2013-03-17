@@ -2497,28 +2497,30 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			EditorBookmarks *ebm = static_cast<EditorBookmarks*>(Param2);
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
-				size_t count=BOOKMARK_COUNT,size;
-				if(Editor::InitSessionBookmarksForPlugin(ebm,count,size))
+				size_t size;
+				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->SavePos.size(), size))
 				{
-					for(size_t ii=0;ii<count;++ii)
+					int index = 0;
+					std::for_each(CONST_RANGE(m_editor->SavePos, i)
 					{
 						if (ebm->Line)
 						{
-							ebm->Line[ii] = m_editor->SavePos.Line[ii];
+							ebm->Line[index] = i.Line;
 						}
 						if (ebm->Cursor)
 						{
-							ebm->Cursor[ii] = m_editor->SavePos.LinePos[ii];
+							ebm->Cursor[index] = i.LinePos;
 						}
 						if (ebm->ScreenLine)
 						{
-							ebm->ScreenLine[ii] = m_editor->SavePos.ScreenLine[ii];
+							ebm->ScreenLine[index] = i.ScreenLine;
 						}
 						if (ebm->LeftPos)
 						{
-							ebm->LeftPos[ii] = m_editor->SavePos.LeftPos[ii];
+							ebm->LeftPos[index] = i.LeftPos;
 						}
-					}
+						++index;
+					});
 				}
 				return size;
 			}

@@ -128,7 +128,6 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	DeleteFolder=TRUE;
 	CodePageChangedByUser=FALSE;
 	ReadStdin=FALSE;
-	BMSavePos.Clear();
 	memset(UndoData,0xff,sizeof(UndoData));
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
@@ -219,8 +218,8 @@ void Viewer::SavePosition()
 	{
 		ViewerPosCache poscache;
 
-		poscache.FilePos = FilePos;
-		poscache.LeftPos = LeftPos;
+		poscache.cur.FilePos = FilePos;
+		poscache.cur.LeftPos = LeftPos;
 		poscache.Hex_Wrap = (VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
 		poscache.CodePage = CodePageChangedByUser ? VM.CodePage : 0;
 		poscache.bm = BMSavePos;
@@ -320,8 +319,8 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
 		if (Global->Opt->ViOpt.SavePos)
 		{
-			NewFilePos=poscache.FilePos;
-			NewLeftPos=poscache.LeftPos;
+			NewFilePos=poscache.cur.FilePos;
+			NewLeftPos=poscache.cur.LeftPos;
 			if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
 			{
 				if ( 1 != (VM.Hex = (poscache.Hex_Wrap & 0x03)) )
@@ -1388,10 +1387,10 @@ int Viewer::ProcessKey(int Key)
 	{
 		int Pos=Key-KEY_CTRL0;
 
-		if (BMSavePos.FilePos[Pos]!=POS_NONE)
+		if (BMSavePos[Pos].FilePos != POS_NONE)
 		{
-			FilePos=BMSavePos.FilePos[Pos];
-			LeftPos=BMSavePos.LeftPos[Pos];
+			FilePos = BMSavePos[Pos].FilePos;
+			LeftPos = BMSavePos[Pos].LeftPos;
 			Show();
 		}
 
@@ -1406,8 +1405,8 @@ int Viewer::ProcessKey(int Key)
 	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
 	{
 		int Pos=Key-KEY_RCTRL0;
-		BMSavePos.FilePos[Pos]=FilePos;
-		BMSavePos.LeftPos[Pos]=LeftPos;
+		BMSavePos[Pos].FilePos = FilePos;
+		BMSavePos[Pos].LeftPos = LeftPos;
 		return TRUE;
 	}
 
@@ -1432,17 +1431,13 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (SelectSize >= 0 && ViewFile.Opened())
 			{
-				wchar_t *SelData = (wchar_t*)xf_malloc(((size_t)SelectSize+1)*sizeof(wchar_t));
-				if ( SelData )
-				{
-					__int64 CurFilePos=vtell();
-					wmemset(SelData, 0, (size_t)SelectSize+1);
-					vseek(SelectPos,SEEK_SET);
-					vread(SelData, (int)SelectSize);
-					CopyToClipboard(SelData);
-					xf_free(SelData);
-					vseek(CurFilePos,SEEK_SET);
-				}
+				auto SelData = new wchar_t[SelectSize+1]();
+				__int64 CurFilePos=vtell();
+				vseek(SelectPos,SEEK_SET);
+				vread(SelData, (int)SelectSize);
+				CopyToClipboard(SelData);
+				delete[] SelData;
+				vseek(CurFilePos,SEEK_SET);
 			}
 			return TRUE;
 		}

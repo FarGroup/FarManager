@@ -222,7 +222,7 @@ class Editor:public ScreenObject
 		int StartLine;
 		int StartChar;
 
-		EditorBookmark SavePos;
+		Bookmarks<editor_bookmark> SavePos;
 
 		InternalEditorSessionBookMark *SessionPos;
 		BOOL NewSessionPos;

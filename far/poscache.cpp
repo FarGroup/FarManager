@@ -66,17 +66,19 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& p
 	Global->Db->HistoryCfg()->BeginTransaction();
 
 	bool ret = false;
-	unsigned __int64 id = Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.Line, poscache.LinePos, poscache.ScreenLine, poscache.LeftPos, poscache.CodePage);
+	unsigned __int64 id = Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
 
 	if (id)
 	{
 		if (Global->Opt->EdOpt.SaveShortPos)
 		{
-			for (int i=0; i<BOOKMARK_COUNT; i++)
+			int index = 0;
+			std::for_each(CONST_RANGE(poscache.bm, i)
 			{
-				if (poscache.bm.Line[i] != POS_NONE)
-					Global->Db->HistoryCfg()->SetEditorBookmark(id, i, poscache.bm.Line[i], poscache.bm.LinePos[i], poscache.bm.ScreenLine[i], poscache.bm.LeftPos[i]);
-			}
+				if (i.Line != POS_NONE)
+					Global->Db->HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
+				++index;
+			});
 		}
 		ret = true;
 	}
@@ -96,17 +98,19 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = Global->Db->HistoryCfg()->GetEditorPos(strFullName, &poscache.Line, &poscache.LinePos, &poscache.ScreenLine, &poscache.LeftPos, &poscache.CodePage);
+	unsigned __int64 id = Global->Db->HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
 
 	if (id)
 	{
 		if (!Global->Opt->EdOpt.SaveShortPos)
 			return true;
 
-		for (int i=0; i<BOOKMARK_COUNT; i++)
+		int index = 0;
+		std::for_each(RANGE(poscache.bm, i)
 		{
-			Global->Db->HistoryCfg()->GetEditorBookmark(id, i, poscache.bm.Line+i, poscache.bm.LinePos+i, poscache.bm.ScreenLine+i, poscache.bm.LeftPos+i);
-		}
+			Global->Db->HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
+			++index;
+		});
 
 		return true;
 	}
@@ -125,17 +129,19 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& p
 	Global->Db->HistoryCfg()->BeginTransaction();
 
 	bool ret = false;
-	unsigned __int64 id = Global->Db->HistoryCfg()->SetViewerPos(strFullName, poscache.FilePos, poscache.LeftPos, poscache.Hex_Wrap, poscache.CodePage);
+	unsigned __int64 id = Global->Db->HistoryCfg()->SetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.Hex_Wrap, poscache.CodePage);
 
 	if (id)
 	{
 		if (Global->Opt->ViOpt.SavePos && Global->Opt->ViOpt.SaveShortPos)
 		{
-			for (int i=0; i<BOOKMARK_COUNT; i++)
+			int index = 0;
+			std::for_each(CONST_RANGE(poscache.bm, i)
 			{
-				if (poscache.bm.FilePos[i] != POS_NONE)
-					Global->Db->HistoryCfg()->SetViewerBookmark(id, i, poscache.bm.FilePos[i], poscache.bm.LeftPos[i]);
-			}
+				if (i.FilePos != POS_NONE)
+					Global->Db->HistoryCfg()->SetViewerBookmark(id, index, i.FilePos, i.LeftPos);
+				++index;
+			});
 		}
 		ret = true;
 	}
@@ -155,17 +161,19 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, ViewerPosCache& poscach
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = Global->Db->HistoryCfg()->GetViewerPos(strFullName, &poscache.FilePos, &poscache.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
+	unsigned __int64 id = Global->Db->HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
 
 	if (id)
 	{
 		if (!Global->Opt->ViOpt.SavePos || !Global->Opt->ViOpt.SaveShortPos)
 			return true;
 
-		for (int i=0; i<BOOKMARK_COUNT; i++)
+		int index = 0;
+		std::for_each(RANGE(poscache.bm, i)
 		{
-			Global->Db->HistoryCfg()->GetViewerBookmark(id, i, poscache.bm.FilePos+i, poscache.bm.LeftPos+i);
-		}
+			Global->Db->HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
+			++index;
+		});
 
 		return true;
 	}

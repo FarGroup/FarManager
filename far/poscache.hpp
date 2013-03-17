@@ -36,49 +36,64 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const int POS_NONE = -1;
 
 // Количество закладок в редакторе/вьювере на одну позицию
-const int BOOKMARK_COUNT = 10;
+const size_t BOOKMARK_COUNT = 10;
 
-struct EditorBookmark
+template<class T>
+class Bookmarks:public std::array<T, BOOKMARK_COUNT>
 {
-	int Line[BOOKMARK_COUNT];
-	int LinePos[BOOKMARK_COUNT];
-	int ScreenLine[BOOKMARK_COUNT];
-	int LeftPos[BOOKMARK_COUNT];
+public:
+	Bookmarks()
+	{
+		Clear();
+	}
 
-	void Clear() { memset(this, POS_NONE, sizeof(*this)); }
+	void Clear()
+	{
+		this->fill(T());
+	}
 };
 
-struct EditorPosCache
+struct editor_bookmark
 {
 	int Line;
 	int LinePos;
 	int ScreenLine;
 	int LeftPos;
-	uintptr_t CodePage;
-
-	EditorBookmark bm;
-
-	void Clear() { Line=LinePos=ScreenLine=LeftPos=0; CodePage=0; bm.Clear(); }
+	editor_bookmark():
+		Line(POS_NONE),
+		LinePos(POS_NONE),
+		ScreenLine(POS_NONE),
+		LeftPos(POS_NONE)
+	{}
 };
 
-struct ViewerBookmark
+struct EditorPosCache
 {
-	__int64 FilePos[BOOKMARK_COUNT];
-	__int64 LeftPos[BOOKMARK_COUNT];
+	Bookmarks<editor_bookmark> bm;
+	editor_bookmark cur;
+	uintptr_t CodePage;
 
-	void Clear() { memset(this, POS_NONE, sizeof(*this)); }
+	void Clear() { bm.Clear(); cur.Line = cur.LinePos = cur.ScreenLine = cur.LeftPos=0; CodePage=0; }
+};
+
+struct viewer_bookmark
+{
+	__int64 FilePos;
+	__int64 LeftPos;
+	viewer_bookmark():
+		FilePos(POS_NONE),
+		LeftPos(POS_NONE)
+	{}
 };
 
 struct ViewerPosCache
 {
-	__int64 FilePos;
-	__int64 LeftPos;
-	int Hex_Wrap;
+	Bookmarks<viewer_bookmark> bm;
+	viewer_bookmark cur;
 	uintptr_t CodePage;
+	int Hex_Wrap;
 
-	ViewerBookmark bm;
-
-	void Clear() { FilePos=LeftPos=0; Hex_Wrap=0; CodePage=0; bm.Clear(); }
+	void Clear() { bm.Clear(); cur.FilePos = cur.LeftPos=0; Hex_Wrap=0; CodePage=0; }
 };
 
 class FilePositionCache
