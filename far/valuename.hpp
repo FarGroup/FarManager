@@ -5,7 +5,7 @@ valuename.hpp
 
 */
 /*
-Copyright © 2012 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

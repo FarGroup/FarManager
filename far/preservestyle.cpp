@@ -1,3 +1,34 @@
+/*
+preservestyle.cpp
+
+*/
+/*
+Copyright © 2013 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -46,9 +77,9 @@ static int GetPeserveCaseStyleMask(const string& strStr)
 	return Result;
 }
 
-static std::vector<PreserveStyleToken> InternalPreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
+static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
 {
-	std::vector<PreserveStyleToken> Result;
+	std::list<PreserveStyleToken> Result;
 
 	wchar_t Sep = 0;
 	std::vector<bool> Seps(Length, false);
@@ -110,9 +141,13 @@ static std::vector<PreserveStyleToken> InternalPreserveStyleTokenize(const strin
 
 	if (Result.size() > 1)
 	{
-		wchar_t PrependChar = Result[1].PrependChar;
-		for (size_t I = 2; I < Result.size(); I++)
-			if (PrependChar != Result[I].PrependChar)
+		auto Start = Result.cbegin();
+		++Start;
+		wchar_t PrependChar = Start->PrependChar;
+		++Start;
+		for (auto i = Start; i != Result.end(); ++i)
+		{
+			if (PrependChar != i->PrependChar)
 			{
 				Result.clear();
 				PreserveStyleToken T;
@@ -122,32 +157,40 @@ static std::vector<PreserveStyleToken> InternalPreserveStyleTokenize(const strin
 				Result.push_back(T);
 				return Result;
 			}
+		}
 	}
 
 	return Result;
 }
 
-static std::vector<PreserveStyleToken> PreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
+static std::list<PreserveStyleToken> PreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
 {
-	std::vector<PreserveStyleToken> Tokens = InternalPreserveStyleTokenize(strStr, From, Length);
+	std::list<PreserveStyleToken> Tokens = InternalPreserveStyleTokenize(strStr, From, Length);
 
 	int Mask = -1;
-	for (size_t I = 0; I < Tokens.size(); I++)
+	bool First = true;
+	std::for_each(RANGE(Tokens, i)
 	{
-		if (I == 0)
-			Tokens[I].TypeMask = GetPeserveCaseStyleMask(Tokens[I].Token);
+		if (First)
+		{
+			i.TypeMask = GetPeserveCaseStyleMask(i.Token);
+			First = false;
+		}
 		else
 		{
 			if (Mask == -1)
-				Mask = GetPeserveCaseStyleMask(Tokens[I].Token);
+				Mask = GetPeserveCaseStyleMask(i.Token);
 			else
-				Mask &= GetPeserveCaseStyleMask(Tokens[I].Token);
+				Mask &= GetPeserveCaseStyleMask(i.Token);
 		}
-	}
+	});
 
-	for (size_t I = 1; I < Tokens.size(); I++)
-		Tokens[I].TypeMask = Mask;
-
+	auto Start = Tokens.begin();
+	++Start;
+	std::for_each(Start, Tokens.end(), [&Mask](VALUE_TYPE(Tokens)& i)
+	{
+		i.TypeMask = Mask;
+	});
 	return Tokens;
 }
 
@@ -203,7 +246,7 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 		return false;
 
 
-	std::vector<PreserveStyleToken> StrTokens = PreserveStyleTokenize(Str, 0, Str.GetLength());
+	std::list<PreserveStyleToken> StrTokens = PreserveStyleTokenize(Str, 0, Str.GetLength());
 
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I)<StrSize); Reverse ? I--:I++)
 	{
@@ -213,10 +256,12 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 		bool Matched = true;
 
 		size_t Idx = I;
-		size_t J = 0;
 		size_t T = 0;
 
-		while (((J+1 < StrTokens.size()) || (J+1 == StrTokens.size() && T < StrTokens[J].Token.GetLength()))
+		auto j = StrTokens.cbegin();
+		auto LastItem = StrTokens.cend();
+		--LastItem;
+		while (((j != LastItem) || (j == LastItem && T < j->Token.GetLength()))
 			&& Source[Idx])
 		{
 			bool Sep = (static_cast<size_t>(I) < Idx && Source[I+1] && IsPreserveStyleTokenSeparator(Source[Idx])
@@ -225,11 +270,11 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 
 			if (Sep)
 			{
-				if (T == StrTokens[J].Token.GetLength())
+				if (T == j->Token.GetLength())
 				{
 					Idx++;
 					T = 0;
-					J++;
+					++j;
 					continue;
 				}
 				else
@@ -245,10 +290,10 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 
 			if (Sep && T != 0)
 			{
-				if (T == StrTokens[J].Token.GetLength())
+				if (T == j->Token.GetLength())
 				{
 					T = 0;
-					J++;
+					++j;
 					continue;
 				}
 				else
@@ -258,19 +303,19 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 				}
 			}
 
-			if (T >= StrTokens[J].Token.GetLength())
+			if (T >= j->Token.GetLength())
 			{
 				Matched = false;
 				break;
 			}
 
-			if (Case && Source[Idx] != StrTokens[J].Token[T])
+			if (Case && Source[Idx] != j->Token[T])
 			{
 				Matched = false;
 				break;
 			}
 
-			if (!Case && Upper(Source[Idx]) != Upper(StrTokens[J].Token[T]))
+			if (!Case && Upper(Source[Idx]) != Upper(j->Token[T]))
 			{
 				Matched = false;
 				break;
@@ -283,35 +328,41 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 		if (WholeWords && !(Idx >= StrSize || IsSpace(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
 			continue;
 		
-		if (Matched && T == StrTokens[J].Token.GetLength() && J+1 == StrTokens.size())
+		if (Matched && T == j->Token.GetLength() && j == LastItem)
 		{
-			std::vector<PreserveStyleToken> SourceTokens = PreserveStyleTokenize(Source, I, Idx-I);
+			std::list<PreserveStyleToken> SourceTokens = PreserveStyleTokenize(Source, I, Idx-I);
 			
 			bool Same = SourceTokens.size() == StrTokens.size();
-			for (size_t K = 0; Same && K < SourceTokens.size(); K++)
-				Same &= SourceTokens[K].Token.GetLength() == StrTokens[K].Token.GetLength();
-
+			if(Same)
+			{
+				for(auto SrcI = SourceTokens.cbegin(), StrI = StrTokens.cbegin(); Same && SrcI != SourceTokens.cend(); ++SrcI, ++StrI)
+					Same &= SrcI->Token.GetLength() == StrI->Token.GetLength();
+			}
 			if (Same)
 			{
-				std::vector<PreserveStyleToken> ReplaceStrTokens = PreserveStyleTokenize(ReplaceStr, 0, ReplaceStr.GetLength());
-				ToPreserveStyleType(ReplaceStrTokens[0].Token, ChoosePreserveStyleType(SourceTokens[0].TypeMask));
-				ReplaceStrTokens[0].PrependChar = SourceTokens[0].PrependChar;
+				std::list<PreserveStyleToken> ReplaceStrTokens = PreserveStyleTokenize(ReplaceStr, 0, ReplaceStr.GetLength());
+				ToPreserveStyleType(ReplaceStrTokens.front().Token, ChoosePreserveStyleType(SourceTokens.front().TypeMask));
+				ReplaceStrTokens.front().PrependChar = SourceTokens.front().PrependChar;
 
 				if (!SourceTokens.empty())
 				{
-					for (size_t K = 1; K < ReplaceStrTokens.size(); K++)
+					auto ReplaceI = ReplaceStrTokens.begin();
+					++ReplaceI;
+					auto SourceI = SourceTokens.cbegin();
+					++SourceI;
+					for (; ReplaceI != ReplaceStrTokens.end(); ++ReplaceI, ++SourceI)
 					{
-						ToPreserveStyleType(ReplaceStrTokens[K].Token, ChoosePreserveStyleType(SourceTokens.back().TypeMask));
-						ReplaceStrTokens[K].PrependChar = SourceTokens.back().PrependChar;
+						ToPreserveStyleType(ReplaceI->Token, ChoosePreserveStyleType(SourceI->TypeMask));
+						ReplaceI->PrependChar = SourceTokens.back().PrependChar;
 					}
 				}
 				ReplaceStr.Clear();
-				for (size_t K = 0; K < ReplaceStrTokens.size(); K++)
+				std::for_each(CONST_RANGE(ReplaceStrTokens, i)
 				{
-					if (ReplaceStrTokens[K].PrependChar != 0)
-						ReplaceStr += ReplaceStrTokens[K].PrependChar;
-					ReplaceStr += ReplaceStrTokens[K].Token;
-				}
+					if (i.PrependChar)
+						ReplaceStr += i.PrependChar;
+					ReplaceStr += i.Token;
+				});
 
 				CurPos = I;
 				SearchLength = static_cast<int>(Idx-I);
@@ -321,5 +372,5 @@ bool PreserveStyleReplaceString(const wchar_t *Source, size_t StrSize, const str
 		}
 	}
 
-	return false;		
+	return false;
 }
