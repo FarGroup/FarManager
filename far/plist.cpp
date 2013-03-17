@@ -48,111 +48,117 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
+	static bool Active = false;
+	if (Active)
+		return;
+	Active = true;
+
 	VMenu2 ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
 	ProcList.SetFlags(VMENU_WRAPMODE);
 	ProcList.SetPosition(-1,-1,0,0);
 
-	if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
-		return;
-
-	ProcList.AssignHighlights(FALSE);
-	ProcList.SetBottomTitle(MSG(MProcessListBottom));
-
-	ProcList.Run([&](int Key)->int
+	if (EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
 	{
-		int KeyProcessed = 1;
-		switch (Key)
-		{
-			case KEY_F1:
-			{
-				Help Hlp(L"TaskList");
-				break;
-			}
+		ProcList.AssignHighlights(FALSE);
+		ProcList.SetBottomTitle(MSG(MProcessListBottom));
 
-			case KEY_NUMDEL:
-			case KEY_DEL:
+		ProcList.Run([&](int Key)->int
+		{
+			int KeyProcessed = 1;
+			switch (Key)
 			{
-				// Полиция 21
-				if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
+				case KEY_F1:
 				{
-					Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
+					Help Hlp(L"TaskList");
 					break;
 				}
 
-				HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
-
-				if (ProcWnd)
+				case KEY_NUMDEL:
+				case KEY_DEL:
 				{
-					wchar_t *lpwszTitle=0;
-					int LenTitle=GetWindowTextLength(ProcWnd);
-
-					if (LenTitle)
+					// Полиция 21
+					if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
 					{
-						lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
-
-						if (lpwszTitle && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
-							lpwszTitle[LenTitle]=0;
+						Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
+						break;
 					}
 
-					DWORD ProcID;
-					GetWindowThreadProcessId(ProcWnd,&ProcID);
+					HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
-					if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-					            lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
+					if (ProcWnd)
 					{
-						if (KillProcess(ProcID))
-							Sleep(500);
-						else
-							Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
-					}
+						wchar_t *lpwszTitle=0;
+						int LenTitle=GetWindowTextLength(ProcWnd);
 
-					if (lpwszTitle) xf_free(lpwszTitle);
+						if (LenTitle)
+						{
+							lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+
+							if (lpwszTitle && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
+								lpwszTitle[LenTitle]=0;
+						}
+
+						DWORD ProcID;
+						GetWindowThreadProcessId(ProcWnd,&ProcID);
+
+						if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+									lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
+						{
+							if (KillProcess(ProcID))
+								Sleep(500);
+							else
+								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
+						}
+
+						if (lpwszTitle) xf_free(lpwszTitle);
+					}
 				}
+				case KEY_CTRLR:
+				case KEY_RCTRLR:
+				{
+					ProcList.DeleteItems();
+
+					if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+						ProcList.Close(-1);
+
+					break;
+				}
+
+				default:
+					KeyProcessed = 0;
 			}
-			case KEY_CTRLR:
-			case KEY_RCTRLR:
-			{
-				ProcList.DeleteItems();
+			return KeyProcessed;
+		});
 
-				if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
-					ProcList.Close(-1);
-
-				break;
-			}
-
-			default:
-				KeyProcessed = 0;
-		}
-		return KeyProcessed;
-	});
-
-	if (ProcList.GetExitCode()>=0)
-	{
-		HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
-
-		if (ProcWnd)
+		if (ProcList.GetExitCode()>=0)
 		{
-			//SetForegroundWindow(ProcWnd);
-			// Allow SetForegroundWindow on Win98+.
-			DWORD dwMs;
-			// Remember the current value.
-			BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
+			HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
-			if (bSPI) // Reset foreground lock timeout
-				bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+			if (ProcWnd)
+			{
+				//SetForegroundWindow(ProcWnd);
+				// Allow SetForegroundWindow on Win98+.
+				DWORD dwMs;
+				// Remember the current value.
+				BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
 
-			SetForegroundWindow(ProcWnd);
+				if (bSPI) // Reset foreground lock timeout
+					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
 
-			if (bSPI) // Restore old value
-				SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ToPtr(dwMs), 0);
+				SetForegroundWindow(ProcWnd);
 
-			WINDOWPLACEMENT wp;
-			wp.length=sizeof(wp);
+				if (bSPI) // Restore old value
+					SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ToPtr(dwMs), 0);
 
-			if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
-				ShowWindowAsync(ProcWnd,SW_RESTORE);
+				WINDOWPLACEMENT wp;
+				wp.length=sizeof(wp);
+
+				if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
+					ShowWindowAsync(ProcWnd,SW_RESTORE);
+			}
 		}
 	}
+	Active = false;
 }
 
 

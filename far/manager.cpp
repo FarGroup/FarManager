@@ -1026,16 +1026,9 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLW:
 				case KEY_RCTRLW:
-				{
-					static int reentry=0;
-					if (!reentry)
-					{
-						++reentry;
-						ShowProcessList();
-						--reentry;
-						return TRUE;
-					}
-				}
+					ShowProcessList();
+					return TRUE;
+
 				case KEY_F11:
 				{
 					int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
