@@ -3,6 +3,82 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.03.2013 22:54:00 +0200 - build 3255
+
+1. Refactoring.
+
+drkns 17.03.2013 18:35:35 +0200 - build 3254
+
+1. Continuation of 3253 - the task list could be called twice if the first call was from the main menu. 
+
+w17 17.03.2013 20:06:26 +0400 - build 3253
+
+1. ShowProcessList() could be called many times (from ru.board)
+
+drkns 17.03.2013 14:35:40 +0200 - build 3252
+
+1. Continuation of M#0002294: code refactoring, help is added.
+
+drkns 16.03.2013 22:39:28 +0200 - build 3251
+
+1. Refactoring.
+
+drkns 16.03.2013 01:18:08 +0200 - build 3250
+
+1. M#0000466 related code is removed.
+
+2. gcc debug x86 build did not work.
+
+3. Refactoring.
+
+shmuel 15.03.2013 16:22:25 +0200 - build 3249
+
+1. Restoring the behavior of Plugin.Call asynchronous call, according to the comment to build 2899.
+
+w17 15.03.2013 07:03:24 +0400 - build 3248
+
+1. Refactoring.
+
+w17 14.03.2013 15:40:18 +0400 - build 3247
+
+1. Syncing of keybars and the language file
+
+drkns 14.03.2013 00:40:53 +0200 - build 3246
+
+1. Refactoring.
+
+drkns 13.03.2013 21:37:15 +0200 - build 3245
+
+1. Correction of 3243.
+
+drkns 13.03.2013 21:26:34 +0200 - build 3244
+
+1. gcc.
+
+drkns 13.03.2013 21:15:45 +0200 - build 3243
+
+1. 0002330: UserData memory leaks in operations with AnalyseW
+
+2. 0002334: memory leaks in operations with sqlite.
+
+t-rex 13.03.2013 17:08:47 +0200 - build 3242
+
+1. Mantis#2334: memory leaks in operations with sqlite.
+
+drkns 13.03.2013 02:34:54 +0200 - build 3241
+
+1. Refactoring.
+
+drkns 12.03.2013 23:31:23 +0200 - build 3240
+
+1. Refactoring.
+
+2. 0002332: "admin" indicator is in the middle of the screen (by height)
+
+drkns 12.03.2013 01:52:54 +0200 - build 3239
+
+1. Refactoring.
+
 shmuel 09.03.2013 22:50:25 +0200 - build 3238
 
 1. MCTL_LOADALL and far.MacroLoadAll return true only if there were no errors on start.
