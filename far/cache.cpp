@@ -36,21 +36,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 
 CachedRead::CachedRead(File& file, DWORD buffer_size):
-	Buffer(nullptr),
 	file(file),
 	DefaultBufferSize(0x10000),
 	ReadSize(0),
 	BytesLeft(0),
 	LastPtr(0),
-	Alignment(512)
+	Alignment(512),
+	BufferSize(buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize),
+	Buffer(new BYTE[BufferSize])
 {
-	BufferSize = (buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize);
-	Buffer = static_cast<LPBYTE>(xf_malloc(BufferSize));
 }
 
 CachedRead::~CachedRead()
 {
-	xf_free(Buffer);
+	delete[] Buffer;
 }
 
 bool CachedRead::AdjustAlignment()
@@ -73,8 +72,8 @@ bool CachedRead::AdjustAlignment()
 
 	if (buff_size > BufferSize)
 	{
-		xf_free(Buffer);
-		Buffer = static_cast<LPBYTE>(xf_malloc(BufferSize = buff_size));
+		delete[] Buffer;
+		Buffer = new BYTE[BufferSize = buff_size];
 	}
 
 	Clear();
@@ -196,7 +195,7 @@ bool CachedRead::FillBuffer()
 CachedWrite::CachedWrite(File& file):
 	file(file),
 	BufferSize(0x10000),
-	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
+	Buffer(new BYTE[BufferSize]),
 	FreeSize(BufferSize),
 	Flushed(false)
 {
@@ -205,11 +204,7 @@ CachedWrite::CachedWrite(File& file):
 CachedWrite::~CachedWrite()
 {
 	Flush();
-
-	if (Buffer)
-	{
-		xf_free(Buffer);
-	}
+	delete[] Buffer;
 }
 
 bool CachedWrite::Write(LPCVOID Data, size_t DataSize)

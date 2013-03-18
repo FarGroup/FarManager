@@ -44,14 +44,14 @@ public:
 	void Clear();
 
 private:
-	LPBYTE Buffer;
 	File& file;
 	const DWORD DefaultBufferSize;
 	DWORD ReadSize;
 	DWORD BytesLeft;
 	INT64 LastPtr;
-	DWORD BufferSize; // = 2*k*Alignment (k >= 2)
 	int Alignment;
+	DWORD BufferSize; // = 2*k*Alignment (k >= 2)
+	LPBYTE Buffer;
 };
 
 

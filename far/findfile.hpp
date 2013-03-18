@@ -98,7 +98,7 @@ private:
 	size_t hexFindStringSize;
 	wchar_t *findString;
 	wchar_t *findStringBuffer;
-	size_t *skipCharsTable;
+	size_t* skipCharsTable;
 	int favoriteCodePages;
 	bool InFileSearchInited;
 	class CFileMask* FileMaskForFindFile;

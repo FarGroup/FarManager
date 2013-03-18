@@ -10,8 +10,10 @@ farrtl.cpp
 void* xf_malloc(size_t size, const char* Function, const char* File, int Line);
 void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line);
 void* xf_realloc_nomove(void* block, size_t size, const char* Function, const char* File, int Line);
-char* xf_strdup(const char* string, const char* Function, const char* File, int Line);
-wchar_t* xf_wcsdup(const wchar_t* string, const char* Function, const char* File, int Line);
+
+char* DuplicateString(const char* string, const char* Function, const char* File, int Line);
+wchar_t* DuplicateString(const wchar_t* string, const char* Function, const char* File, int Line);
+
 void* operator new(size_t size, const char* Function, const char* File, int Line);
 void* operator new[](size_t size, const char* Function, const char* File, int Line);
 void operator delete(void* block, const char* Function, const char* File, int Line);
@@ -20,15 +22,15 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 #define xf_malloc(size) xf_malloc(size, __FUNCTION__, __FILE__, __LINE__)
 #define xf_realloc(block, size) xf_realloc(block, size, __FUNCTION__, __FILE__, __LINE__)
 #define xf_realloc_nomove(block, size) xf_realloc_nomove(block, size, __FUNCTION__, __FILE__, __LINE__)
-#define xf_strdup(string) xf_strdup(string, __FUNCTION__, __FILE__, __LINE__)
-#define xf_wcsdup(string) xf_wcsdup(string, __FUNCTION__, __FILE__, __LINE__)
+#define DuplicateString(string) DuplicateString(string, __FUNCTION__, __FILE__, __LINE__)
+#define DuplicateString(string) DuplicateString(string, __FUNCTION__, __FILE__, __LINE__)
 #define new new(__FUNCTION__, __FILE__, __LINE__)
 #else
 void* xf_malloc(size_t size);
 void* xf_realloc_nomove(void* block, size_t size);
 void* xf_realloc(void* block, size_t size);
-char* xf_strdup(const char* string);
-wchar_t* xf_wcsdup(const wchar_t* string);
+char* DuplicateString(const char* string);
+wchar_t* DuplicateString(const wchar_t* string);
 #endif
 
 void PrintMemory();

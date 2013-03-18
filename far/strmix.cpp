@@ -943,7 +943,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 
 	if (breakcharlen == 1 && !docut)
 	{
-		newtext = xf_wcsdup(text);
+		newtext = DuplicateString(text);
 
 		if (!newtext)
 		{
@@ -1009,7 +1009,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 	{
 		int last = 0;
 		/* Multiple character line break */
-		newtext = (wchar_t*)xf_malloc((strSrc.GetLength() * (breakcharlen+1)+1)*sizeof(wchar_t));
+		newtext = new wchar_t[strSrc.GetLength() * (breakcharlen + 1 ) + 1];
 
 		if (!newtext)
 		{
@@ -1103,7 +1103,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 	}
 
 	strDestText = newtext;
-	xf_free(newtext);
+	delete[] newtext;
 	return strDestText;
 }
 

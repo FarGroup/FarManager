@@ -121,9 +121,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			}
 			else
 			{
-				PanelItem.FileName = xf_wcsdup(PointToName(PStack->strHostFile));
+				PanelItem.FileName = DuplicateString(PointToName(PStack->strHostFile));
 				Global->CtrlObject->Plugins->DeleteFiles(hPlugin,&PanelItem,1,0);
-				xf_free(PanelItem.FileName);
+				delete[] PanelItem.FileName;
 			}
 
 			FarChDir(strSaveDir);
@@ -234,8 +234,8 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 {
-	pi->FileName = xf_wcsdup(fi->strName);
-	pi->AlternateFileName = xf_wcsdup(fi->strShortName);
+	pi->FileName = DuplicateString(fi->strName);
+	pi->AlternateFileName = DuplicateString(fi->strShortName);
 	pi->FileSize=fi->FileSize;
 	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
@@ -257,7 +257,7 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 
 	pi->CRC32=fi->CRC32;
 	pi->Reserved[0]=pi->Reserved[1]=0;
-	pi->Owner=fi->strOwner.IsEmpty()?nullptr:(wchar_t*)fi->strOwner.CPtr();
+	pi->Owner = EmptyToNull(fi->strOwner);
 }
 
 void FileList::FreePluginPanelItem(PluginPanelItem *pi)
@@ -442,7 +442,7 @@ void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber
 		if (AddTwoDot && !ItemNumber && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 		{
 			FileListToPluginItem(ListData[0],ItemList+ItemNumber);
-			//ItemList->FindData.lpwszFileName = xf_wcsdup (ListData[0]->strName);
+			//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
 			//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
 			ItemNumber++;
 		}
@@ -561,9 +561,9 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
-					pi.FileName = xf_wcsdup(DestPanel->strPluginDizName);
+					pi.FileName = DuplicateString(DestPanel->strPluginDizName);
 					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
-					xf_free(pi.FileName);
+					delete[] pi.FileName;
 				}
 
 				FarChDir(strSaveDir);

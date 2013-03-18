@@ -320,7 +320,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSe
 	PluginPanelItem *DestItem=PluginDirList+DirListItemsNumber;
 	*DestItem=*CurPanelItem;
 
-	DestItem->FileName = xf_wcsdup(strFullName);
+	DestItem->FileName = DuplicateString(strFullName);
 	DestItem->AlternateFileName=nullptr;
 	DirListItemsNumber++;
 }

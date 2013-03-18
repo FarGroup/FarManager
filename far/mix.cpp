@@ -151,14 +151,14 @@ void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDe
 	pDest->ChangeTime = pSrc->ftChangeTime;
 	pDest->FileSize = pSrc->nFileSize;
 	pDest->AllocationSize = pSrc->nAllocationSize;
-	pDest->FileName = xf_wcsdup(pSrc->strFileName);
-	pDest->AlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
+	pDest->FileName = DuplicateString(pSrc->strFileName);
+	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName);
 }
 
 void FreePluginPanelItem(PluginPanelItem *pData)
 {
-	xf_free(pData->FileName);
-	xf_free(pData->AlternateFileName);
+	delete[] pData->FileName;
+	delete[] pData->AlternateFileName;
 }
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)

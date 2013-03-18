@@ -199,11 +199,9 @@ typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
-void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct=true);
-
-inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
-inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
-inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
+static inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
+static inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
+static inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
 
 static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
@@ -240,44 +238,44 @@ struct QsortexHelper
 	void* user;
 };
 
-int WINAPI qsortCmp(const void *one, const void *two,void *user)
+static int WINAPI qsortCmp(const void *one, const void *two,void *user)
 {
 	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
 }
 
-int WINAPI qsortexCmp(const void *one, const void *two,void *user)
+static int WINAPI qsortexCmp(const void *one, const void *two,void *user)
 {
 	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
 	return helper->fcmp(one,two,helper->user);
 }
 
-void WINAPI qsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+static void WINAPI qsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
 {
 	NativeFSF.qsort(base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
 }
 
-void WINAPI qsortex(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam)
+static void WINAPI qsortex(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam)
 {
 	QsortexHelper helper={fcmp,userparam};
 	NativeFSF.qsort(base,nelem,width,qsortexCmp,&helper);
 }
 
-void* WINAPI bsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
 {
 	return NativeFSF.bsearch(key,base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
 }
 
-int WINAPI LocalIslower(unsigned Ch)
+static int WINAPI LocalIslower(unsigned Ch)
 {
 	return(Ch<256 && IsUpperOrLower[Ch]==1);
 }
 
-int WINAPI LocalIsupper(unsigned Ch)
+static int WINAPI LocalIsupper(unsigned Ch)
 {
 	return(Ch<256 && IsUpperOrLower[Ch]==2);
 }
 
-int WINAPI LocalIsalpha(unsigned Ch)
+static int WINAPI LocalIsalpha(unsigned Ch)
 {
 	if (Ch>=256)
 		return FALSE;
@@ -287,7 +285,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 	return(IsCharAlphaA(CvtCh));
 }
 
-int WINAPI LocalIsalphanum(unsigned Ch)
+static int WINAPI LocalIsalphanum(unsigned Ch)
 {
 	if (Ch>=256)
 		return FALSE;
@@ -297,29 +295,29 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 	return(IsCharAlphaNumericA(CvtCh));
 }
 
-unsigned WINAPI LocalUpper(unsigned LowerChar)
+static unsigned WINAPI LocalUpper(unsigned LowerChar)
 {
 	return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
 }
 
-void WINAPI LocalUpperBuf(char *Buf,int Length)
+static void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
 	for (int I=0; I<Length; I++)
 		Buf[I]=LocalUpper(Buf[I]);
 }
 
-unsigned WINAPI LocalLower(unsigned UpperChar)
+static unsigned WINAPI LocalLower(unsigned UpperChar)
 {
 	return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
 }
 
-void WINAPI LocalLowerBuf(char *Buf,int Length)
+static void WINAPI LocalLowerBuf(char *Buf,int Length)
 {
 	for (int I=0; I<Length; I++)
 		Buf[I]=LocalLower(Buf[I]);
 }
 
-void WINAPI LocalStrupr(char *s1)
+static void WINAPI LocalStrupr(char *s1)
 {
 	while (*s1)
 	{
@@ -328,7 +326,7 @@ void WINAPI LocalStrupr(char *s1)
 	}
 }
 
-void WINAPI LocalStrlwr(char *s1)
+static void WINAPI LocalStrlwr(char *s1)
 {
 	while (*s1)
 	{
@@ -337,69 +335,7 @@ void WINAPI LocalStrlwr(char *s1)
 	}
 }
 
-const char * __cdecl LocalStrstri(const char *str1, const char *str2)
-{
-	const char *cp = str1;
-	const char *s1, *s2;
-
-	if (!*str2)
-		return str1;
-
-	while (*cp)
-	{
-		s1 = cp;
-		s2 = str2;
-
-		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
-		{
-			s1++;
-			s2++;
-		}
-
-		if (!*s2)
-			return cp;
-
-		cp++;
-	}
-
-	return nullptr;
-}
-
-const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
-{
-	size_t len1 = strlen(str1);
-	size_t len2 = strlen(str2);
-
-	if (len2 > len1)
-		return nullptr;
-
-	if (!*str2)
-		return &str1[len1];
-
-	const char *cp = &str1[len1 - len2];
-	const char *s1, *s2;
-
-	while (cp >= str1)
-	{
-		s1 = cp;
-		s2 = str2;
-
-		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
-		{
-			s1++;
-			s2++;
-		}
-
-		if (!*s2)
-			return cp;
-
-		cp--;
-	}
-
-	return nullptr;
-}
-
-int __cdecl LocalStricmp(const char *s1,const char *s2)
+static int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
 	while (1)
 	{
@@ -415,7 +351,7 @@ int __cdecl LocalStricmp(const char *s1,const char *s2)
 	return 0;
 }
 
-int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
+static int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 {
 	while (n-- > 0)
 	{
@@ -431,17 +367,17 @@ int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 	return 0;
 }
 
-int WINAPI LStricmp(const char *s1,const char *s2)
+static int WINAPI LStricmp(const char *s1,const char *s2)
 {
 	return LocalStricmp(s1,s2);
 }
 
-int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
+static int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 {
 	return LocalStrnicmp(s1,s2,n);
 }
 
-const char *FirstSlashA(const char *String)
+static const char *FirstSlashA(const char *String)
 {
 	do
 	{
@@ -453,48 +389,7 @@ const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-bool FirstSlashA(const char *String,size_t &pos)
-{
-	bool Ret=false;
-	const char *Ptr=FirstSlashA(String);
-
-	if (Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-
-	return Ret;
-}
-
-const char *LastSlashA(const char *String)
-{
-	const char *Start = String;
-
-	while (*String++)
-		;
-
-	while (--String!=Start && !IsSlashA(*String))
-		;
-
-	return IsSlashA(*String)?String:nullptr;
-}
-
-bool LastSlashA(const char *String,size_t &pos)
-{
-	bool Ret=false;
-	const char *Ptr=LastSlashA(String);
-
-	if (Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-
-	return Ret;
-}
-
-void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
+static void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
 	if (lpszAnsiString && lpwszUnicodeString && nLength)
 	{
@@ -503,14 +398,14 @@ void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, i
 	}
 }
 
-wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, uintptr_t CodePage=CP_OEMCP)
+static wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
-	wchar_t *lpResult = (wchar_t*)xf_malloc(nLength*sizeof(wchar_t));
-	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength,CodePage);
-	return lpResult;
+	auto Result = new wchar_t[nLength];
+	AnsiToUnicodeBin(lpszAnsiString, Result, nLength, CodePage);
+	return Result;
 }
 
-wchar_t *AnsiToUnicode(const char *lpszAnsiString, uintptr_t CodePage=CP_OEMCP)
+static wchar_t *AnsiToUnicode(const char *lpszAnsiString, uintptr_t CodePage=CP_OEMCP)
 {
 	if (!lpszAnsiString)
 		return nullptr;
@@ -518,7 +413,7 @@ wchar_t *AnsiToUnicode(const char *lpszAnsiString, uintptr_t CodePage=CP_OEMCP)
 	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1,CodePage);
 }
 
-char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
+static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 		! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
@@ -528,8 +423,8 @@ char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t
 	if (!lpwszUnicodeString || (nLength < 0))
 		return nullptr;
 
-	char *lpResult = (char*)xf_malloc(nLength+1);
-	memset(lpResult, 0, nLength+1);
+	auto Result = new char[nLength + 1];
+	memset(Result, 0, nLength+1);
 
 	if (nLength)
 	{
@@ -538,17 +433,17 @@ char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t
 		    0,
 		    lpwszUnicodeString,
 		    nLength,
-		    lpResult,
+		    Result,
 		    nLength,
 		    nullptr,
 		    nullptr
 		);
 	}
 
-	return lpResult;
+	return Result;
 }
 
-char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage=CP_OEMCP)
+static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage=CP_OEMCP)
 {
 	if (!lpwszUnicodeString)
 		return nullptr;
@@ -556,42 +451,38 @@ char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage=CP_OEM
 	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1,CodePage);
 }
 
-wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, size_t iCount)
+static wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, size_t iCount)
 {
-	wchar_t** lpaResult = nullptr;
+	wchar_t** Result = nullptr;
 
 	if (lpaszAnsiString)
 	{
-		lpaResult = (wchar_t**) xf_malloc((iCount+1)*sizeof(wchar_t*));
+		Result = new wchar_t*[iCount + 1];
 
-		if (lpaResult)
+		for (size_t i=0; i<iCount; i++)
 		{
-			for (size_t i=0; i<iCount; i++)
-			{
-				lpaResult[i]=(lpaszAnsiString[i])?AnsiToUnicode(lpaszAnsiString[i]):nullptr;
-			}
-
-			lpaResult[iCount] = (wchar_t*)(intptr_t) 1; //Array end mark
+			Result[i]=(lpaszAnsiString[i])?AnsiToUnicode(lpaszAnsiString[i]):nullptr;
 		}
+
+		Result[iCount] = (wchar_t*)(intptr_t) 1; //Array end mark
 	}
 
-	return lpaResult;
+	return Result;
 }
 
-void FreeArrayUnicode(wchar_t ** lpawszUnicodeString)
+static void FreeArrayUnicode(const wchar_t* const* lpawszUnicodeString)
 {
 	if (lpawszUnicodeString)
 	{
 		for (int i=0; (intptr_t)lpawszUnicodeString[i] != 1; i++) //Until end mark
 		{
-			if (lpawszUnicodeString[i]) xf_free(lpawszUnicodeString[i]);
+			delete[] lpawszUnicodeString[i];
 		}
-
-		xf_free(lpawszUnicodeString);
+		delete[] lpawszUnicodeString;
 	}
 }
 
-DWORD OldKeyToKey(DWORD dOldKey)
+static DWORD OldKeyToKey(DWORD dOldKey)
 {
 	if (dOldKey&0x100)
 	{
@@ -617,7 +508,7 @@ DWORD OldKeyToKey(DWORD dOldKey)
 	return dOldKey;
 }
 
-DWORD KeyToOldKey(DWORD dKey)
+static DWORD KeyToOldKey(DWORD dKey)
 {
 	if (dKey&EXTENDED_KEY_BASE)
 	{
@@ -643,45 +534,38 @@ DWORD KeyToOldKey(DWORD dKey)
 	return dKey;
 }
 
-
-void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, size_t iCount)
+static void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, size_t iCount)
 {
 	if (iplA && piplW && (iCount>0))
 	{
-		InfoPanelLine *iplW = (InfoPanelLine *) xf_malloc(iCount*sizeof(InfoPanelLine));
+		auto iplW = new InfoPanelLine[iCount];
 
-		if (iplW)
+		for (size_t i=0; i<iCount; i++)
 		{
-			for (size_t i=0; i<iCount; i++)
-			{
-				iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
-				iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
-				iplW[i].Flags=0;
-				if (iplA[i].Separator)
-					iplW[i].Flags|=IPLFLAGS_SEPARATOR;
-			}
+			iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
+			iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
+			iplW[i].Flags=0;
+			if (iplA[i].Separator)
+				iplW[i].Flags|=IPLFLAGS_SEPARATOR;
 		}
 
 		*piplW = iplW;
 	}
 }
 
-void FreeUnicodeInfoPanelLines(InfoPanelLine *iplW,size_t InfoLinesNumber)
+static void FreeUnicodeInfoPanelLines(const InfoPanelLine *iplW,size_t InfoLinesNumber)
 {
 	for (size_t i=0; i<InfoLinesNumber; i++)
 	{
-		if (iplW[i].Text)
-			xf_free((void*)iplW[i].Text);
-
-		if (iplW[i].Data)
-			xf_free((void*)iplW[i].Data);
+		delete[] iplW[i].Text;
+		delete[] iplW[i].Data;
 	}
 
 	if (iplW)
-		xf_free((void*)iplW);
+		delete[] iplW;
 }
 
-void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t iCount)
+static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t iCount)
 {
 	if (pnmA && ppnmW && (iCount>0))
 	{
@@ -694,7 +578,7 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t
 
 				if (pnmA[i].ColumnTypes)
 				{
-					char *lpTypes = xf_strdup(pnmA[i].ColumnTypes);
+					char *lpTypes = DuplicateString(pnmA[i].ColumnTypes);
 					const char *lpToken = strtok(lpTypes, ",");
 
 					while (lpToken && *lpToken)
@@ -703,7 +587,7 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t
 						lpToken = strtok(nullptr, ",");
 					}
 
-					xf_free(lpTypes);
+					delete[] lpTypes;
 				}
 
 				pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
@@ -723,27 +607,21 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t
 	}
 }
 
-void FreeUnicodePanelModes(PanelMode *pnmW, size_t iCount)
+static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
 {
 	if (pnmW)
 	{
 		for (size_t i=0; i<iCount; i++)
 		{
-			if (pnmW[i].ColumnTypes) xf_free((void*)pnmW[i].ColumnTypes);
-
-			if (pnmW[i].ColumnWidths) xf_free((void*)pnmW[i].ColumnWidths);
-
-			if (pnmW[i].ColumnTitles)	FreeArrayUnicode((wchar_t**)pnmW[i].ColumnTitles);
-
-			if (pnmW[i].StatusColumnTypes) xf_free((void*)pnmW[i].StatusColumnTypes);
-
-			if (pnmW[i].StatusColumnWidths) xf_free((void*)pnmW[i].StatusColumnWidths);
+			delete[] pnmW[i].ColumnTypes;
+			delete[] pnmW[i].ColumnWidths;
+			FreeArrayUnicode(pnmW[i].ColumnTitles);
+			delete[] pnmW[i].StatusColumnTypes;
+			delete[] pnmW[i].StatusColumnWidths;
 		}
-
 		delete[] pnmW;
 	}
 }
-
 
 static void ProcLabels(const char *Title,KeyBarLabel *Label, int& j, WORD Key, DWORD Shift)
 {
@@ -757,7 +635,7 @@ static void ProcLabels(const char *Title,KeyBarLabel *Label, int& j, WORD Key, D
 	}
 }
 
-void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct)
+static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct = true)
 {
 	if (kbtA && kbtW)
 	{
@@ -821,14 +699,13 @@ void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, 
 	}
 }
 
-void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
+static void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
 	if (kbtW && kbtW->CountLabels && kbtW->Labels)
 	{
 		for (size_t i=0; i < kbtW->CountLabels; i++)
 		{
-			if (kbtW->Labels[i].Text)
-				xf_free((void*)kbtW->Labels[i].Text);
+			delete[] kbtW->Labels[i].Text;
 		}
 		delete[] kbtW->Labels;
 		kbtW->Labels=nullptr;
@@ -841,9 +718,9 @@ static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 	xf_free(UserData);
 }
 
-void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
+static void ConvertAnsiPanelItemToUnicode(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
 {
-	*PanelItemW = (PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(PluginPanelItem));
+	*PanelItemW = new PluginPanelItem[ItemsNumber];
 	memset(*PanelItemW,0,ItemsNumber*sizeof(PluginPanelItem));
 
 	for (size_t i=0; i<ItemsNumber; i++)
@@ -893,7 +770,7 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 	}
 }
 
-void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA)
+static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA)
 {
 	PanelItemA.Flags = 0;
 
@@ -917,7 +794,7 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	if (PanelItem.CustomColumnNumber)
 	{
 		PanelItemA.CustomColumnNumber=static_cast<int>(PanelItem.CustomColumnNumber);
-		PanelItemA.CustomColumnData=(char **)xf_malloc(PanelItem.CustomColumnNumber*sizeof(char *));
+		PanelItemA.CustomColumnData = new char*[PanelItem.CustomColumnNumber];
 
 		for (size_t j=0; j<PanelItem.CustomColumnNumber; j++)
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
@@ -945,10 +822,9 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
 
-void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, size_t ItemsNumber)
+static void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, size_t ItemsNumber)
 {
-	PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
-	memset(PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	PanelItemA = new oldfar::PluginPanelItem[ItemsNumber]();
 
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
@@ -956,46 +832,40 @@ void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::Plu
 	}
 }
 
-void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
+static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
-		if (PanelItem[i].Description)
-			xf_free((void*)PanelItem[i].Description);
-
-		if (PanelItem[i].Owner)
-			xf_free((void*)PanelItem[i].Owner);
+		delete[] PanelItem[i].Description;
+		delete[] PanelItem[i].Owner;
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
 			for (size_t j=0; j<PanelItem[i].CustomColumnNumber; j++)
-				xf_free((void*)PanelItem[i].CustomColumnData[j]);
+				delete[] PanelItem[i].CustomColumnData[j];
 
-			xf_free((void*)PanelItem[i].CustomColumnData);
+			delete[] PanelItem[i].CustomColumnData;
 		}
 
 		FreePluginPanelItem(&PanelItem[i]);
 	}
 
-	xf_free(PanelItem);
+	delete[] PanelItem;
 }
 
-void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray=true)
+static void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray=true)
 {
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
-		if (PanelItem[i].Description)
-			xf_free(PanelItem[i].Description);
-
-		if (PanelItem[i].Owner)
-			xf_free(PanelItem[i].Owner);
+		delete[] PanelItem[i].Description;
+		delete[] PanelItem[i].Owner;
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
 			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
-				xf_free(PanelItem[i].CustomColumnData[j]);
+				delete[] PanelItem[i].CustomColumnData[j];
 
-			xf_free(PanelItem[i].CustomColumnData);
+			delete[] PanelItem[i].CustomColumnData;
 		}
 
 		if (PanelItem[i].UserData&&PanelItem[i].Flags&oldfar::PPIF_USERDATA)
@@ -1005,10 +875,10 @@ void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool
 	}
 
 	if (bFreeArray)
-		xf_free(PanelItem);
+		delete[] PanelItem;
 }
 
-char* WINAPI RemoveTrailingSpacesA(char *Str)
+static char* WINAPI RemoveTrailingSpacesA(char *Str)
 {
 	if (!Str)
 		return nullptr;
@@ -1030,7 +900,7 @@ char* WINAPI RemoveTrailingSpacesA(char *Str)
 	return Str;
 }
 
-char *WINAPI FarItoaA(int value, char *string, int radix)
+static char *WINAPI FarItoaA(int value, char *string, int radix)
 {
 	if (string)
 		return _itoa(value,string,radix);
@@ -1038,7 +908,7 @@ char *WINAPI FarItoaA(int value, char *string, int radix)
 	return nullptr;
 }
 
-char *WINAPI FarItoa64A(__int64 value, char *string, int radix)
+static char *WINAPI FarItoa64A(__int64 value, char *string, int radix)
 {
 	if (string)
 		return _i64toa(value, string, radix);
@@ -1046,7 +916,7 @@ char *WINAPI FarItoa64A(__int64 value, char *string, int radix)
 	return nullptr;
 }
 
-int WINAPI FarAtoiA(const char *s)
+static int WINAPI FarAtoiA(const char *s)
 {
 	if (s)
 		return atoi(s);
@@ -1054,12 +924,12 @@ int WINAPI FarAtoiA(const char *s)
 	return 0;
 }
 
-__int64 WINAPI FarAtoi64A(const char *s)
+static __int64 WINAPI FarAtoi64A(const char *s)
 {
 	return s?_atoi64(s):0;
 }
 
-char* WINAPI PointToNameA(char *Path)
+static char* WINAPI PointToNameA(char *Path)
 {
 	if (!Path)
 		return nullptr;
@@ -1077,7 +947,7 @@ char* WINAPI PointToNameA(char *Path)
 	return(NamePtr);
 }
 
-void WINAPI UnquoteA(char *Str)
+static void WINAPI UnquoteA(char *Str)
 {
 	if (!Str)
 		return;
@@ -1095,7 +965,7 @@ void WINAPI UnquoteA(char *Str)
 	*Dst=0;
 }
 
-char* WINAPI RemoveLeadingSpacesA(char *Str)
+static char* WINAPI RemoveLeadingSpacesA(char *Str)
 {
 	char *ChPtr;
 
@@ -1111,12 +981,12 @@ char* WINAPI RemoveLeadingSpacesA(char *Str)
 	return Str;
 }
 
-char* WINAPI RemoveExternalSpacesA(char *Str)
+static char* WINAPI RemoveExternalSpacesA(char *Str)
 {
 	return RemoveTrailingSpacesA(RemoveLeadingSpacesA(Str));
 }
 
-char* WINAPI TruncStrA(char *Str,int MaxLength)
+static char* WINAPI TruncStrA(char *Str,int MaxLength)
 {
 	if (Str)
 	{
@@ -1141,7 +1011,7 @@ char* WINAPI TruncStrA(char *Str,int MaxLength)
 	return(Str);
 }
 
-char* WINAPI TruncPathStrA(char *Str, int MaxLength)
+static char* WINAPI TruncPathStrA(char *Str, int MaxLength)
 {
 	if (Str)
 	{
@@ -1175,7 +1045,7 @@ char* WINAPI TruncPathStrA(char *Str, int MaxLength)
 	return Str;
 }
 
-char *InsertQuoteA(char *Str)
+static char *InsertQuoteA(char *Str)
 {
 	size_t l = strlen(Str);
 
@@ -1194,7 +1064,7 @@ char *InsertQuoteA(char *Str)
 	return Str;
 }
 
-char* WINAPI QuoteSpaceOnlyA(char *Str)
+static char* WINAPI QuoteSpaceOnlyA(char *Str)
 {
 	if (Str && strchr(Str,' '))
 		InsertQuoteA(Str);
@@ -1202,7 +1072,7 @@ char* WINAPI QuoteSpaceOnlyA(char *Str)
 	return(Str);
 }
 
-BOOL AddEndSlashA(char *Path,char TypeSlash)
+static BOOL AddEndSlashA(char *Path,char TypeSlash)
 {
 	BOOL Result=FALSE;
 
@@ -1265,12 +1135,12 @@ BOOL AddEndSlashA(char *Path,char TypeSlash)
 	return Result;
 }
 
-BOOL WINAPI AddEndSlashA(char *Path)
+static BOOL WINAPI AddEndSlashA(char *Path)
 {
 	return AddEndSlashA(Path,0);
 }
 
-void WINAPI GetPathRootA(const char *Path, char *Root)
+static void WINAPI GetPathRootA(const char *Path, char *Root)
 {
 	string strPath(Path);
 	wchar_t Buffer[MAX_PATH];
@@ -1278,40 +1148,38 @@ void WINAPI GetPathRootA(const char *Path, char *Root)
 	UnicodeToOEM(Buffer, Root, ARRAYSIZE(Buffer));
 }
 
-int WINAPI CopyToClipboardA(const char *Data)
+static int WINAPI CopyToClipboardA(const char *Data)
 {
-	wchar_t *p = Data?AnsiToUnicode(Data):nullptr;
+	wchar_t *p = Data? AnsiToUnicode(Data) : nullptr;
 	int ret = NativeFSF.CopyToClipboard(FCT_STREAM, p);
-
-	if (p) xf_free(p);
-
+	delete[] p;
 	return ret;
 }
 
-char* WINAPI PasteFromClipboardA()
+static char* WINAPI PasteFromClipboardA()
 {
 	size_t size = NativeFSF.PasteFromClipboard(FCT_ANY,nullptr,0);
 	if (size)
 	{
-		wchar_t* p = (wchar_t*)xf_malloc(size);
+		auto p = new wchar_t[size];
 		NativeFSF.PasteFromClipboard(FCT_STREAM,p,size);
 		char* result=UnicodeToAnsi(p);
-		xf_free(p);
+		delete[] p;
 		return result;
 	}
 	return nullptr;
 }
 
-void WINAPI DeleteBufferA(void *Buffer)
+static void WINAPI DeleteBufferA(void* Buffer)
 {
-	if (Buffer) xf_free(Buffer);
+	delete[] reinterpret_cast<char*>(Buffer);
 }
 
-int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
+static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
 	int size = (int)(strP1.GetLength()+strP2.GetLength()+oldfar::NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
-	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
+	auto p = new wchar_t[size];
 	wcscpy(p,strP2);
 	int newFlags = 0;
 
@@ -1339,17 +1207,17 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	if (newFlags&PN_GENERATENAME)
 		UnicodeToOEM(p,Param2,size);
 
-	xf_free(p);
+	delete[] p;
 	return ret;
 }
 
-int WINAPI KeyNameToKeyA(const char *Name)
+static int WINAPI KeyNameToKeyA(const char *Name)
 {
 	string strN(Name);
 	return KeyToOldKey(KeyNameToKey(strN));
 }
 
-BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
+static BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 {
 	string strKT;
 	if (KeyToText(OldKeyToKey(Key),strKT))
@@ -1360,12 +1228,12 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 	return FALSE;
 }
 
-int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
+static int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
 {
 	return KeyToOldKey(InputRecordToKey(r));
 }
 
-char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
+static char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);
 	wchar_t D[oldfar::NM] = {};
@@ -1374,7 +1242,7 @@ char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 	return Dest;
 }
 
-int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
+static int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 {
 	string strS(Src), strD(Dest);
 	LINK_TYPE Type = LINK_HARDLINK;
@@ -1396,13 +1264,13 @@ int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 	return NativeFSF.MkLink(strS, strD, Type, Flags);
 }
 
-int WINAPI GetNumberOfLinksA(const char *Name)
+static int WINAPI GetNumberOfLinksA(const char *Name)
 {
 	string n(Name);
 	return static_cast<int>(NativeFSF.GetNumberOfLinks(n));
 }
 
-int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
+static int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 {
 	string strSrc(Src),strDest;
 	ConvertNameToReal(strSrc,strDest);
@@ -1415,7 +1283,7 @@ int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 	return std::min((int)strDest.GetLength(),DestSize);
 }
 
-int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
+static int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
 {
 	int Result = 0;
 	if (Src && *Src)
@@ -1464,7 +1332,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,cons
 	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
 }
 
-void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRSUSERFUNC Func,DWORD Flags,void *Param)
+static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
 	string strInitDir(InitDir);
 	string strMask(Mask);
@@ -1482,7 +1350,7 @@ void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRS
 	NativeFSF.FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,newFlags,static_cast<void *>(&CallbackParam));
 }
 
-DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
+static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
 	string strS(src), strD;
 	apiExpandEnvironmentStrings(strS,strD);
@@ -1491,24 +1359,24 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 	return len;
 }
 
-int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
+static int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
 	string strFN(FileName), strT(Title);
 	return NativeInfo.Viewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_DEFAULT);
 }
 
-int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
+static int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
 {
 	string strFN(FileName), strT(Title);
 	return NativeInfo.Editor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_DEFAULT);
 }
 
-int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
+static int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 {
 	return ProcessNameA(pattern, const_cast<char*>(str), oldfar::PN_CMPNAME|(skippath?oldfar::PN_SKIPPATH:0));
 }
 
-void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
+static void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 {
 	FarColor Color;
 	Colors::ConsoleColorToFarColor(ConColor, Color);
@@ -1518,13 +1386,13 @@ void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 	return NativeInfo.Text(X,Y,&Color,strS);
 }
 
-BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
+static BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
 {
 	string strMN(ModuleName), strHT(HelpTopic);
 	return NativeInfo.ShowHelp(strMN,(HelpTopic?strHT.CPtr():nullptr),Flags);
 }
 
-int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
+static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
 {
 	string strT(Title), strP(Prompt), strHN(HistoryName), strST(SrcText), strD, strHT(HelpTopic);
 	wchar_t *D = strD.GetBuffer(DestLength);
@@ -1553,7 +1421,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 }
 
 #define GetPluginGuid(n) &reinterpret_cast<Plugin*>(n)->GetGUID()
-int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
+static int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
 {
 	string strHT(HelpTopic);
 	wchar_t **p;
@@ -1568,7 +1436,7 @@ int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *HelpTopic
 	else
 	{
 		c = ItemsNumber;
-		p = (wchar_t **)xf_malloc(c*sizeof(wchar_t*));
+		p = new wchar_t*[c];
 
 		for (int i=0; i<c; i++)
 			p[i] = AnsiToUnicode(Items[i]);
@@ -1611,13 +1479,13 @@ int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *HelpTopic
 	int ret = NativeInfo.Message(GetPluginGuid(PluginNumber),&FarGuid,NewFlags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
 
 	for (int i=0; i<c; i++)
-		xf_free(p[i]);
+		delete[] p[i];
 
-	xf_free(p);
+	delete[] p;
 	return ret;
 }
 
-const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle,int MsgId)
+static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle,int MsgId)
 {
 	//BUGBUG, надо проверять, что PluginHandle - плагин
 	PluginA *pPlugin = (PluginA*)PluginHandle;
@@ -1630,7 +1498,7 @@ const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle,int MsgId)
 	return "";
 }
 
-int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const oldfar::FarMenuItem *Item,int ItemsNumber)
+static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const oldfar::FarMenuItem *Item,int ItemsNumber)
 {
 	string strT(Title), strB(Bottom), strHT(HelpTopic);
 	const wchar_t *wszT  = Title?strT.CPtr():nullptr;
@@ -1652,7 +1520,7 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 
 	if (!Item) ItemsNumber=0;
 
-	FarMenuItem *mi = (FarMenuItem *)xf_malloc(ItemsNumber*sizeof(*mi));
+	auto mi = new FarMenuItem[ItemsNumber];
 
 	if (Flags&oldfar::FMENU_USEEXT)
 	{
@@ -1724,7 +1592,7 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 		while(BreakKeys[BreakKeysCount++]) ;
 		if (BreakKeysCount)
 		{
-			NewBreakKeys=(FarKey*)xf_malloc(BreakKeysCount*sizeof(FarKey));
+			NewBreakKeys = new FarKey[BreakKeysCount];
 			for(int ii=0;ii<BreakKeysCount;++ii)
 			{
 				NewBreakKeys[ii].VirtualKeyCode=BreakKeys[ii]&0xffff;
@@ -1742,11 +1610,10 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 	if (BreakCode) *BreakCode=NewBreakCode;
 
 	for (int i=0; i<ItemsNumber; i++)
-		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
+		delete[] mi[i].Text;
 
-	if (mi) xf_free(mi);
-
-	if (NewBreakKeys) xf_free(NewBreakKeys);
+	delete[] mi;
+	delete[] NewBreakKeys;
 
 	return ret;
 }
@@ -1764,7 +1631,7 @@ std::list<DialogData>* DialogList;
 
 oldfar::FarDialogItem* OneDialogItem=nullptr;
 
-DialogData* FindDialogData(HANDLE hDlg)
+static DialogData* FindDialogData(HANDLE hDlg)
 {
 	DialogData* Result = nullptr;
 	if (DialogList)
@@ -1782,18 +1649,18 @@ DialogData* FindDialogData(HANDLE hDlg)
 }
 
 // can be nullptr in case of the ansi dialog plugin
-oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
+static oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
 	auto current = FindDialogData(hDlg);
 	return current? &current->diA[ItemNumber] : nullptr;
 }
 
-FarDialogItem& CurrentDialogItem(HANDLE hDlg,int ItemNumber)
+static FarDialogItem& CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
 	return FindDialogData(hDlg)->di[ItemNumber];
 }
 
-FarList& CurrentList(HANDLE hDlg,int ItemNumber)
+static FarList& CurrentList(HANDLE hDlg,int ItemNumber)
 {
 	return FindDialogData(hDlg)->l[ItemNumber];
 }
@@ -1822,7 +1689,7 @@ public:
 	}
 };
 
-intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
+static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	FarDialogEvent& TopEvent = OriginalEvents->top();
 	intptr_t Result = NativeInfo.DefDlgProc(TopEvent.hDlg, TopEvent.Msg, TopEvent.Param1, TopEvent.Param2);
@@ -1836,13 +1703,13 @@ intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 	return Result;
 }
 
-intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	auto Data = FindDialogData(hDlg);
 	return (Data->DlgProc? Data->DlgProc : FarDefDlgProcA)(hDlg, Msg, Param1, Param2);
 }
 
-void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
+static void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 {
 	UnicodeToOEM(li->Text, liA->Text, sizeof(liA->Text)-1);
 	liA->Flags=0;
@@ -1862,12 +1729,12 @@ void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 	if (li->Flags&LIF_DELETEUSERDATA) liA->Flags|=oldfar::LIF_DELETEUSERDATA;
 }
 
-size_t GetAnsiVBufSize(oldfar::FarDialogItem &diA)
+static size_t GetAnsiVBufSize(oldfar::FarDialogItem &diA)
 {
 	return (diA.X2-diA.X1+1)*(diA.Y2-diA.Y1+1);
 }
 
-PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
+static PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
 	PCHAR_INFO VBufA=nullptr;
 	if (VBuf)
@@ -1877,7 +1744,7 @@ PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 	return VBufA;
 }
 
-void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
+static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
 {
 	if (VBuf)
 	{
@@ -1885,7 +1752,7 @@ void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
 	}
 }
 
-void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size,bool NoCvt)
+static void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size,bool NoCvt)
 {
 	if (VBuf && VBufA)
 	{
@@ -1904,15 +1771,15 @@ void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size,bool N
 	}
 }
 
-FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
+static FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 {
 	FAR_CHAR_INFO* VBuf = nullptr;
 
 	if (diA.VBuf)
 	{
 		size_t Size = GetAnsiVBufSize(diA);
-		// +sizeof(PCHAR_INFO) потому что там храним поинтер на анси vbuf.
-		VBuf = static_cast<FAR_CHAR_INFO*>(xf_malloc(Size*sizeof(FAR_CHAR_INFO)+sizeof(PCHAR_INFO)));
+		// + 1 потому что там храним поинтер на анси vbuf.
+		VBuf = new FAR_CHAR_INFO[Size + 1];
 
 		if (VBuf)
 		{
@@ -1924,11 +1791,9 @@ FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 	return VBuf;
 }
 
-void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
+static void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 {
-	wchar_t* ListItemText=(wchar_t*)xf_malloc(ARRAYSIZE(liA->Text)*sizeof(wchar_t));
-	OEMToUnicode(liA->Text, ListItemText, sizeof(liA->Text)-1);
-	li->Text=ListItemText;
+	li->Text = AnsiToUnicode(liA->Text);
 	li->Flags=0;
 
 	if (liA->Flags&oldfar::LIF_SELECTED)       li->Flags|=LIF_SELECTED;
@@ -1946,7 +1811,7 @@ void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 	if (liA->Flags&oldfar::LIF_DELETEUSERDATA) li->Flags|=LIF_DELETEUSERDATA;
 }
 
-void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
+static void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 {
 	switch (diA.Type)
 	{
@@ -2113,7 +1978,7 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 	if (diA.DefaultButton) di.Flags|=DIF_DEFAULTBUTTON;
 }
 
-void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarList &l)
+static void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarList &l)
 {
 	ClearStruct(di);
 	AnsiDialogItemToUnicodeSafe(diA,di);
@@ -2125,7 +1990,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		{
 			if (diA.ListItems && Global->IsPtr(diA.ListItems))
 			{
-				l.Items = (FarListItem *)xf_malloc(diA.ListItems->ItemsNumber*sizeof(FarListItem));
+				l.Items = new FarListItem[diA.ListItems->ItemsNumber];
 				l.ItemsNumber = diA.ListItems->ItemsNumber;
 				di.ListItems=&l;
 
@@ -2154,7 +2019,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 
 	if (diA.Type==oldfar::DI_USERCONTROL)
 	{
-		di.Data = (wchar_t*)xf_malloc(sizeof(diA.Data));
+		di.Data = new wchar_t[ARRAYSIZE(diA.Data)];
 
 		if (di.Data) memcpy((char*)di.Data,diA.Data,sizeof(diA.Data));
 
@@ -2169,7 +2034,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 	//di->MaxLen = 0;
 }
 
-void FreeUnicodeDialogItem(FarDialogItem &di)
+static void FreeUnicodeDialogItem(FarDialogItem &di)
 {
 	switch (di.Type)
 	{
@@ -2177,14 +2042,13 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 		case DI_FIXEDIT:
 
 			if ((di.Flags&DIF_HISTORY) && di.History)
-				xf_free((void *)di.History);
+				delete[] di.History;
 			else if ((di.Flags&DIF_MASKEDIT) && di.Mask)
-				xf_free((void *)di.Mask);
-
+				delete[] di.Mask;
 			break;
+
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
-
 			if (di.ListItems)
 			{
 				if (di.ListItems->Items)
@@ -2192,45 +2056,42 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 					for (size_t i=0; i<di.ListItems->ItemsNumber; i++)
 					{
 						if (di.ListItems->Items[i].Text)
-							xf_free((void *)di.ListItems->Items[i].Text);
+							delete[] di.ListItems->Items[i].Text;
 					}
 
-					xf_free(di.ListItems->Items);
+					delete[] di.ListItems->Items;
 					di.ListItems->Items=nullptr;
 				}
 			}
-
 			break;
+
 		case DI_USERCONTROL:
-
-			if (di.VBuf)
-				xf_free(di.VBuf);
-
+			delete[] di.VBuf;
 			break;
+
 		default:
 			break;
 	}
 
-	if (di.Data)
-		xf_free((void *)di.Data);
+	delete[] di.Data;
 }
 
-void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
+static void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
 	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_FIXEDIT) && (diA.Flags&oldfar::DIF_HISTORY ||diA.Flags&oldfar::DIF_MASKEDIT) && diA.History)
 	{
-		xf_free((void*)diA.History);
+		delete[] diA.History;
 		diA.History = nullptr;
 	}
 
 	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT && diA.Ptr.PtrData)
 	{
-		xf_free(diA.Ptr.PtrData);
+		delete[] diA.Ptr.PtrData;
 		diA.Ptr.PtrData = nullptr;
 	}
 }
 
-void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
+static void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 {
 	switch (di.Type)
 	{
@@ -2395,17 +2256,14 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 	diA.DefaultButton=(di.Flags&DIF_DEFAULTBUTTON)?true:false;
 }
 
-oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int ItemNumber)
+static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int ItemNumber)
 {
 	oldfar::FarDialogItem *diA=CurrentDialogItemA(hDlg,ItemNumber);
 
 	if (!diA)
 	{
-		if (OneDialogItem)
-			xf_free(OneDialogItem);
-
-		OneDialogItem=(oldfar::FarDialogItem*)xf_malloc(sizeof(oldfar::FarDialogItem));
-		ClearStruct(*OneDialogItem);
+		delete OneDialogItem;
+		OneDialogItem = new oldfar::FarDialogItem();
 		diA=OneDialogItem;
 	}
 
@@ -2439,7 +2297,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
 		diA->Ptr.PtrLength=StrLength(di.Data);
-		diA->Ptr.PtrData=(char*)xf_malloc(diA->Ptr.PtrLength+1);
+		diA->Ptr.PtrData = new char[diA->Ptr.PtrLength + 1];
 		UnicodeToOEM(di.Data,diA->Ptr.PtrData,diA->Ptr.PtrLength+1);
 	}
 	else
@@ -2448,7 +2306,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	return diA;
 }
 
-intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2)
+static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2)
 {
 	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
@@ -2552,13 +2410,12 @@ intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Pa
 			intptr_t ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, HelpTopicA);
 			if (ret && ret != reinterpret_cast<intptr_t>(Param2)) // changed
 			{
-				if (HelpTopic) xf_free(HelpTopic);
+				delete[] HelpTopic;
 
 				HelpTopic = AnsiToUnicode((const char *)ret);
 				ret = (intptr_t)HelpTopic;
 			}
-
-			xf_free(HelpTopicA);
+			delete[] HelpTopicA;
 			return ret;
 		}
 		case DN_HOTKEY:
@@ -2612,7 +2469,7 @@ intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Pa
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
+static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
 {
 	int Msg = DM_FIRST;
 	if(OldMsg>oldfar::DM_USER)
@@ -2656,13 +2513,13 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
 			if (!didA->PtrLength) //вот такой хреновый API!!!
 				didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
-			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
+			auto text = new wchar_t[didA->PtrLength + 1];
 			//BUGBUG: если didA->PtrLength=0, то вернётся с учётом '\0', в Энц написано, что без, хз как правильно.
 			FarDialogItemData did = {sizeof(FarDialogItemData), (size_t)didA->PtrLength, text};
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
 			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
-			xf_free(text);
+			delete[] text;
 			return ret;
 		}
 		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
@@ -2673,14 +2530,14 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			int Count = (int)Param1;
 			DWORD* KeysA = (DWORD*)Param2;
-			INPUT_RECORD* KeysW = (INPUT_RECORD*)xf_malloc(Count*sizeof(INPUT_RECORD));
+			auto KeysW = new INPUT_RECORD[Count];
 
 			for (int i=0; i<Count; i++)
 			{
 				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
-			xf_free(KeysW);
+			delete[] KeysW;
 			return ret;
 		}
 		case oldfar::DM_MOVEDIALOG: Msg = DM_MOVEDIALOG; break;
@@ -2722,7 +2579,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			//BUGBUG - PtrLength ни на что не влияет.
 			FarDialogItemData di = {sizeof(FarDialogItemData),(size_t)didA->PtrLength,text};
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
-			xf_free(text);
+			delete[] text;
 			return ret;
 		}
 		case oldfar::DM_SETMAXTEXTLENGTH: Msg = DM_SETMAXTEXTLENGTH; break;
@@ -2736,11 +2593,11 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			if (!Param2) return length;
 
-			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
+			auto text = new wchar_t[length + 1];
 			FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text};
 			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 			UnicodeToOEM(text, (char *)Param2, length+1);
-			xf_free(text);
+			delete[] text;
 			return length;
 		}
 		case oldfar::DM_SETTEXTPTR:
@@ -2749,7 +2606,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			wchar_t* text = AnsiToUnicode((char*)Param2);
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, text);
-			xf_free(text);
+			delete[] text;
 			return ret;
 		}
 		case oldfar::DM_SHOWITEM: Msg = DM_SHOWITEM; break;
@@ -2759,7 +2616,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			wchar_t* history = AnsiToUnicode((char*)Param2);
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, history);
-			xf_free(history);
+			delete[] history;
 			return ret;
 		}
 		case oldfar::DM_GETCHECK:
@@ -2852,7 +2709,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 				if (newlist.ItemsNumber)
 				{
-					newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+					newlist.Items = new FarListItem[newlist.ItemsNumber];
 
 					if (newlist.Items)
 					{
@@ -2867,9 +2724,8 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (newlist.Items)
 			{
 				for (size_t i=0; i<newlist.ItemsNumber; i++)
-					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
-
-				xf_free(newlist.Items);
+					delete[] newlist.Items[i].Text;
+				delete[] newlist.Items;
 			}
 
 			return ret;
@@ -2885,7 +2741,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTADDSTR, Param1, newstr);
 
-			if (newstr) xf_free(newstr);
+			delete[] newstr;
 
 			return ret;
 		}
@@ -2902,7 +2758,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?&newui:0);
 
-			if (newui.Item.Text) xf_free((void*)newui.Item.Text);
+			delete[] newui.Item.Text;
 
 			return ret;
 		}
@@ -2919,7 +2775,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?&newli:0);
 
-			if (newli.Item.Text) xf_free((void*)newli.Item.Text);
+			delete[] newli.Item.Text;
 
 			return ret;
 		}
@@ -2938,7 +2794,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?&newlf:0);
 
-			if (newlf.Pattern) xf_free((void*)newlf.Pattern);
+			delete[] newlf.Pattern;
 
 			return ret;
 		}
@@ -3003,9 +2859,8 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			FarListTitles lt = {sizeof(FarListTitles),0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
 
-			if (lt.Bottom) xf_free((wchar_t *)lt.Bottom);
-
-			if (lt.Title) xf_free((wchar_t *)lt.Title);
+			delete[] lt.Bottom;
+			delete[] lt.Title;
 
 			return ret;
 		}
@@ -3019,13 +2874,13 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				if (OldListTitle->Title)
 				{
 					ListTitle.TitleSize=OldListTitle->TitleLen+1;
-					ListTitle.Title=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.TitleSize);
+					ListTitle.Title = new wchar_t[ListTitle.TitleSize];
 				}
 
 				if (OldListTitle->Bottom)
 				{
 					ListTitle.BottomSize=OldListTitle->BottomLen+1;
-					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomSize);
+					ListTitle.Bottom = new wchar_t[ListTitle.BottomSize];
 				}
 
 				intptr_t Ret=NativeInfo.SendDlgMessage(hDlg, DM_LISTGETTITLES,Param1,&ListTitle);
@@ -3036,11 +2891,8 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 					UnicodeToOEM(ListTitle.Bottom,OldListTitle->Bottom,OldListTitle->BottomLen);
 				}
 
-				if (ListTitle.Title)
-					xf_free((wchar_t *)ListTitle.Title);
-
-				if (ListTitle.Bottom)
-					xf_free((wchar_t *)ListTitle.Bottom);
+				delete[] ListTitle.Title;
+				delete[] ListTitle.Bottom;
 
 				return Ret;
 			}
@@ -3058,7 +2910,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			else
 			{
 				FarDialogItem& di = CurrentDialogItem(hDlg,Param1);
-				xf_free((void*)di.History);
+				delete[] di.History;
 				di.History = AnsiToUnicode((const char *)Param2);
 				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di.History));
 			}
@@ -3079,7 +2931,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 				if (newlist.ItemsNumber)
 				{
-					newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+					newlist.Items = new FarListItem[newlist.ItemsNumber];
 
 					if (newlist.Items)
 					{
@@ -3094,9 +2946,8 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (newlist.Items)
 			{
 				for (size_t i=0; i<newlist.ItemsNumber; i++)
-					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
-
-				xf_free(newlist.Items);
+					delete[] newlist.Items[i].Text;
+				delete[] newlist.Items;
 			}
 
 			return ret;
@@ -3183,7 +3034,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 	return NativeInfo.SendDlgMessage(hDlg, Msg, Param1, Param2);
 }
 
-int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,void* Param)
+static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,void* Param)
 {
 	string strHT(HelpTopic);
 
@@ -3298,12 +3149,12 @@ int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const 
 	return ret;
 }
 
-int WINAPI FarDialogFnA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber)
+static int WINAPI FarDialogFnA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber)
 {
 	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
 
-void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
+static void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 {
 	PIA->PanelType = 0;
 
@@ -3370,7 +3221,7 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 
 }
 
-void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
+static void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 {
 	if (PIA->PanelItems)
 		FreePanelItemA(PIA->PanelItems,PIA->ItemsNumber);
@@ -3389,7 +3240,7 @@ struct oldPanelInfoContainer
 	oldfar::PanelInfo Info;
 };
 
-int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
+static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldPanelInfoContainer PanelInfoA, AnotherPanelInfoA;
 	static int Reenter=0;
@@ -3410,7 +3261,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_CLOSEPANEL,0,ParamW));
 
-			if (ParamW) xf_free(ParamW);
+			delete[] ParamW;
 
 			return ret;
 		}
@@ -3446,7 +3297,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 				if (PI.ItemsNumber)
 				{
-					OldPI->PanelItems = (oldfar::PluginPanelItem *)xf_malloc(PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
+					OldPI->PanelItems = new oldfar::PluginPanelItem[PI.ItemsNumber];
 
 					if (OldPI->PanelItems)
 					{
@@ -3484,7 +3335,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 				if (PI.SelectedItemsNumber)
 				{
-					OldPI->SelectedItems = (oldfar::PluginPanelItem *)xf_malloc(PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
+					OldPI->SelectedItems = new oldfar::PluginPanelItem[PI.SelectedItemsNumber];
 
 					if (OldPI->SelectedItems)
 					{
@@ -3625,7 +3476,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
 			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,FarGuid,NULL};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
-			xf_free(Dir);
+			delete[] Dir;
 			return ret;
 		}
 		case oldfar::FCTL_SETANOTHERSORTMODE:
@@ -3702,7 +3553,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_INSERTCMDLINE,0,s));
-			xf_free(s);
+			delete[] s;
 			return ret;
 		}
 		case oldfar::FCTL_SETCMDLINE:
@@ -3712,7 +3563,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINE,0,s));
-			xf_free(s);
+			delete[] s;
 			return ret;
 		}
 		case oldfar::FCTL_SETCMDLINEPOS:
@@ -3739,12 +3590,12 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 	return FALSE;
 }
 
-HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2)
+static HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2)
 {
 	return NativeInfo.SaveScreen(X1, Y1, X2, Y2);
 }
 
-int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
 		return FALSE;
@@ -3762,31 +3613,22 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 	if (ret && ItemsNumber)
 	{
-		//+sizeof(int) чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
-		*pPanelItem=(oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem)+sizeof(int));
+		// + 1 чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+		*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
+		*pItemsNumber = static_cast<int>(ItemsNumber);
+		(*pPanelItem)->Reserved[0] = *pItemsNumber;
+		++*pPanelItem;
 
-		if (*pPanelItem)
+		for (size_t i=0; i<ItemsNumber; i++)
 		{
-			*pItemsNumber = static_cast<int>(ItemsNumber);
-			**((int **)pPanelItem) = static_cast<int>(ItemsNumber);
-			(*((int **)pPanelItem))++;
-			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
-
-			for (size_t i=0; i<ItemsNumber; i++)
-			{
-				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].FileAttributes;
-				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].CreationTime;
-				(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].LastAccessTime;
-				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].LastWriteTime;
-				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].FileSize;
-				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].FileSize>>32);
-				UnicodeToOEM(pItems[i].FileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
-				UnicodeToOEM(pItems[i].AlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
-			}
-		}
-		else
-		{
-			ret = FALSE;
+			(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].FileAttributes;
+			(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].CreationTime;
+			(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].LastAccessTime;
+			(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].LastWriteTime;
+			(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].FileSize;
+			(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].FileSize>>32);
+			UnicodeToOEM(pItems[i].FileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+			UnicodeToOEM(pItems[i].AlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
 		}
 
 		NativeInfo.FreeDirList(pItems,ItemsNumber);
@@ -3795,7 +3637,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 	return ret;
 }
 
-int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
 		return FALSE;
@@ -3810,24 +3652,16 @@ int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,const char 
 
 	if (ret && ItemsNumber)
 	{
-		//+sizeof(int) чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
-		*pPanelItem=(oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem)+sizeof(int));
+		// + 1 чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+		*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
 
-		if (*pPanelItem)
-		{
-			*pItemsNumber = static_cast<int>(ItemsNumber);
-			**((int **)pPanelItem) = static_cast<int>(ItemsNumber);
-			(*((int **)pPanelItem))++;
-			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+		*pItemsNumber = static_cast<int>(ItemsNumber);
+		(*pPanelItem)->Reserved[0] = *pItemsNumber;
+		++*pPanelItem;
 
-			for (size_t i=0; i<ItemsNumber; i++)
-			{
-				ConvertPanelItemToAnsi(pPanelItemW[i],(*pPanelItem)[i]);
-			}
-		}
-		else
+		for (size_t i=0; i<ItemsNumber; i++)
 		{
-			ret = FALSE;
+			ConvertPanelItemToAnsi(pPanelItemW[i],(*pPanelItem)[i]);
 		}
 
 		NativeInfo.FreePluginDirList(hPlugin, pPanelItemW, ItemsNumber);
@@ -3836,15 +3670,16 @@ int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,const char 
 	return ret;
 }
 
-void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
+static void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
 {
 	if (!PanelItem)
 		return;
 
 	//Тут хранится ItemsNumber полученный в FarGetDirListA или FarGetPluginDirListA
-	int *base = ((int *)PanelItem) - 1;
-	FreePanelItemA((oldfar::PluginPanelItem *)PanelItem, *base, false);
-	xf_free(base);
+	--PanelItem;
+	size_t count = PanelItem->Reserved[0];
+	FreePanelItemA((oldfar::PluginPanelItem *)PanelItem, count, false);
+	delete[] PanelItem;
 }
 
 static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
@@ -3864,7 +3699,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 	return result;
 }
 
-intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
+static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	switch (Command)
 	{
@@ -4015,7 +3850,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 						case MSSC_POST:
 
 							if (mtW.SequenceText)
-								xf_free((void*)mtW.SequenceText);
+								delete[] mtW.SequenceText;
 
 							break;
 					}
@@ -4218,7 +4053,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 	return FALSE;
 }
 
-uintptr_t GetEditorCodePageA()
+static uintptr_t GetEditorCodePageA()
 {
 	EditorInfo info={sizeof(EditorInfo)};
 	NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&info);
@@ -4231,7 +4066,7 @@ uintptr_t GetEditorCodePageA()
 	return CodePage;
 }
 
-int GetEditorCodePageFavA()
+static int GetEditorCodePageFavA()
 {
 	uintptr_t CodePage=GetEditorCodePageA();
 	int result=-((int)CodePage+2);
@@ -4266,22 +4101,18 @@ int GetEditorCodePageFavA()
 	return result;
 }
 
-void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
+static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 {
 	if (szBuffer && nLength > 0)
 	{
-		wchar_t *wszTempTable = (wchar_t *) xf_malloc(nLength * sizeof(wchar_t));
-
-		if (wszTempTable)
-		{
-			MultiByteToWideChar(nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
-			WideCharToMultiByte(nCPout, 0, wszTempTable, nLength, szBuffer, nLength, nullptr, nullptr);
-			xf_free(wszTempTable);
-		}
+		auto wszTempTable = new wchar_t[nLength];
+		MultiByteToWideChar(nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
+		WideCharToMultiByte(nCPout, 0, wszTempTable, nLength, szBuffer, nLength, nullptr, nullptr);
+		delete[] wszTempTable;
 	}
 };
 
-uintptr_t ConvertCharTableToCodePage(int Command)
+static uintptr_t ConvertCharTableToCodePage(int Command)
 {
 	string strTableName;
 	uintptr_t nCP = 0;
@@ -4322,7 +4153,7 @@ uintptr_t ConvertCharTableToCodePage(int Command)
 	return nCP;
 }
 
-int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Param)
+static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Param)
 {
 	static char *gt=nullptr;
 	static char *geol=nullptr;
@@ -4386,9 +4217,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				oegs->SelStart=egs.SelStart;
 				oegs->SelEnd=egs.SelEnd;
 
-				if (gt) xf_free(gt);
-
-				if (geol) xf_free(geol);
+				delete[] gt;
+				delete[] geol;
 
 				uintptr_t CodePage=GetEditorCodePageA();
 				gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength,CodePage);
@@ -4421,9 +4251,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 			if (ret)
 			{
-				if (fn)
-					xf_free(fn);
-
+				delete[] fn;
 				ClearStruct(*oei);
 				size_t FileNameSize=NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,0);
 
@@ -4483,9 +4311,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0));
 
-			if (newsf.FileName) xf_free((void*)newsf.FileName);
-
-			if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
+			delete[] newsf.FileName;
+			delete[] newsf.FileEOL;
 
 			return ret;
 		}
@@ -4649,7 +4476,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						newsp.wszParam = (oldsp->cParam)?AnsiToUnicode(oldsp->cParam):nullptr;
 						int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
 
-						if (newsp.wszParam) xf_free(newsp.wszParam);
+						delete[] newsp.wszParam;
 
 						return ret;
 					}
@@ -4662,7 +4489,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						newsp.wszParam = nullptr;
 						newsp.Size = 0;
 						newsp.Size = NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp);
-						newsp.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
+						newsp.wszParam = new wchar_t[newsp.Size];
 
 						if (newsp.wszParam)
 						{
@@ -4672,10 +4499,10 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 							if (olddiv)
 							{
 								xstrncpy(oldsp->cParam, olddiv, 0x100);
-								xf_free(olddiv);
+								delete[] olddiv;
 							}
 
-							xf_free(newsp.wszParam);
+							delete[] newsp.wszParam;
 							return ret;
 						}
 
@@ -4704,9 +4531,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETSTRING, 0, Param?&newss:0));
 
-			if (newss.StringText) xf_free((void*)newss.StringText);
-
-			if (newss.StringEOL) xf_free((void*)newss.StringEOL);
+			delete[] newss.StringText;
+			delete[] newss.StringEOL;
 
 			return ret;
 		}
@@ -4721,7 +4547,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETTITLE, 0, newtit));
 
-			if (newtit) xf_free(newtit);
+			delete[] newtit;
 
 			return ret;
 		}
@@ -4753,13 +4579,12 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			Command = bStack ? ECTL_GETSESSIONBOOKMARKS : ECTL_GETBOOKMARKS;
 			intptr_t size = NativeInfo.EditorControl(-1,Command,0,NULL);
 			if (!size) return FALSE;
-			EditorBookmarks *newbm = (EditorBookmarks *) xf_malloc(size);
-			if (!newbm) return FALSE;
+			auto newbm = new EditorBookmarks[size];
 			newbm->StructSize = sizeof(*newbm);
 			newbm->Size = size;
 			if (!NativeInfo.EditorControl(-1,Command,0,newbm))
 			{
-				xf_free(newbm);
+				delete[] newbm;
 				return FALSE;
 			}
 			oldfar::EditorBookMarks *oldbm = (oldfar::EditorBookMarks *)Param;
@@ -4775,7 +4600,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 					oldbm->LeftPos[i] = newbm->LeftPos[i];
 			}
 			int count = (int)newbm->Count;
-			xf_free(newbm);
+			delete[] newbm;
 			if (bStack) return count;
 			else return TRUE;
 		}
@@ -4786,12 +4611,12 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		case oldfar::ECTL_TABTOREAL:
 		{
 			if(!Param)
-        return FALSE;
-      oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
+				return FALSE;
+			oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
 			EditorConvertPos newecp={sizeof(EditorConvertPos),oldecp->StringNumber,oldecp->SrcPos,oldecp->DestPos};
 			int ret=static_cast<int>(NativeInfo.EditorControl(-1, OldCommand == oldfar::ECTL_REALTOTAB ? ECTL_REALTOTAB : ECTL_TABTOREAL, 0, &newecp));
-      oldecp->DestPos=newecp.DestPos;
-      return ret;
+			oldecp->DestPos=newecp.DestPos;
+			return ret;
 		}
 		case oldfar::ECTL_SELECT:
 		{
@@ -4817,7 +4642,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 	return static_cast<int>(NativeInfo.EditorControl(-1, Command, 0, Param));
 }
 
-int WINAPI FarViewerControlA(int Command,void* Param)
+static int WINAPI FarViewerControlA(int Command,void* Param)
 {
 	static char* filename=nullptr;
 
@@ -4837,7 +4662,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			viA->ViewerID = viW.ViewerID;
 
-			if (filename) xf_free(filename);
+			delete[] filename;
 
 			size_t FileNameSize=NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,0,0);
 
@@ -4947,7 +4772,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 	return TRUE;
 }
 
-int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
+static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 {
 	if (Command != oldfar::FCT_DETECT)
 	{
@@ -4994,7 +4819,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
 		CharUpperBuff(us, sizeof(TableSet->DecodeTable));
 		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->UpperTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
-		xf_free(us);
+		delete[] us;
 		MultiByteRecode(nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof(TableSet->DecodeTable));
 		MultiByteRecode(CP_OEMCP, nCP, (char *) TableSet->EncodeTable, sizeof(TableSet->EncodeTable));
 		return Command;
@@ -5031,7 +4856,7 @@ char* WINAPI XlatA(
 	return Line;
 }
 
-int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
+static int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 {
 	string strComputer(Computer), strName(Name);
 	wchar_t wOwner[MAX_PATH];
@@ -5067,13 +4892,12 @@ PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 
 PluginA::~PluginA()
 {
-	if (RootKey) xf_free(RootKey);
-
+	delete[] RootKey;
 	FreePluginInfo();
 	FreeOpenPanelInfo();
 }
 
-oldfar::FarStandardFunctions StandardFunctions =
+static oldfar::FarStandardFunctions StandardFunctions =
 {
 	sizeof(StandardFunctions),
 	wrapper::FarAtoiA,
@@ -5127,7 +4951,7 @@ oldfar::FarStandardFunctions StandardFunctions =
 	wrapper::FarGetReparsePointInfoA,
 };
 
-oldfar::PluginStartupInfo StartupInfo =
+static oldfar::PluginStartupInfo StartupInfo =
 {
 	sizeof(StartupInfo),
 	"", // ModuleName, dynamic
@@ -5285,7 +5109,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		}
 		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(OpenFrom,Item));
 
-		if (ItemA) xf_free(ItemA);
+		delete[] ItemA;
 
 		es = TranslateResult(es);
 	}
@@ -5300,7 +5124,7 @@ HANDLE PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, s
 	{
 		char *NameA = Name? UnicodeToAnsi(Name) : nullptr;
 		EXECUTE_FUNCTION(es = FUNCTION(iOpenFilePlugin)(NameA, Data, static_cast<int>(DataSize)));
-		xf_free(NameA);
+		delete[] NameA;
 	}
 	return TranslateResult(es);
 }
@@ -5402,7 +5226,7 @@ int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, si
 
 		if (es && *pItemsNumber)
 		{
-			ConvertPanelItemA(pVFDPanelItemA, pPanelItem, *pItemsNumber);
+			ConvertAnsiPanelItemToUnicode(pVFDPanelItemA, pPanelItem, *pItemsNumber);
 		}
 	}
 
@@ -5502,12 +5326,12 @@ int PluginA::ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param)
 		PVOID ParamA = Param;
 
 		if (Param && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
-			ParamA = (PVOID)UnicodeToAnsi((const wchar_t *)Param);
+			ParamA = UnicodeToAnsi((const wchar_t *)Param);
 
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelEvent)(hPlugin, Event, ParamA));
 
 		if (ParamA && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
-			xf_free(ParamA);
+			delete[] reinterpret_cast<char*>(ParamA);
 	}
 	return es;
 }
@@ -5539,7 +5363,7 @@ int PluginA::GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *p
 		*pItemsNumber = ItemsNumber;
 		if (es && *pItemsNumber)
 		{
-			ConvertPanelItemA(pFDPanelItemA, pPanelItem, *pItemsNumber);
+			ConvertAnsiPanelItemToUnicode(pFDPanelItemA, pPanelItem, *pItemsNumber);
 		}
 	}
 	return es;
@@ -5589,7 +5413,6 @@ void PluginA::ClosePanel(HANDLE hPlugin)
 	//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
-
 int PluginA::SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, UserDataItem * /* UserData */)
 {
 	ExecuteStruct es = {EXCEPT_SETDIRECTORY};
@@ -5597,48 +5420,40 @@ int PluginA::SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, UserDa
 	{
 		char *DirA = UnicodeToAnsi(Dir);
 		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(hPlugin, DirA, OpMode));
-		xf_free(DirA);
+		delete[] DirA;
 	}
 	return es;
 }
 
 void PluginA::FreeOpenPanelInfo()
 {
-	if (OPI.CurDir)
-		xf_free((void *)OPI.CurDir);
-
-	if (OPI.HostFile)
-		xf_free((void *)OPI.HostFile);
-
-	if (OPI.Format)
-		xf_free((void *)OPI.Format);
-
-	if (OPI.PanelTitle)
-		xf_free((void *)OPI.PanelTitle);
+	delete[] OPI.CurDir;
+	delete[] OPI.HostFile;
+	delete[] OPI.Format;
+	delete[] OPI.PanelTitle;
 
 	if (OPI.InfoLines && OPI.InfoLinesNumber)
 	{
-		FreeUnicodeInfoPanelLines((InfoPanelLine*)OPI.InfoLines,OPI.InfoLinesNumber);
+		FreeUnicodeInfoPanelLines(OPI.InfoLines,OPI.InfoLinesNumber);
 	}
 
 	if (OPI.DescrFiles)
 	{
-		FreeArrayUnicode((wchar_t**)OPI.DescrFiles);
+		FreeArrayUnicode(OPI.DescrFiles);
 	}
 
 	if (OPI.PanelModesArray)
 	{
-		FreeUnicodePanelModes((PanelMode*)OPI.PanelModesArray, OPI.PanelModesNumber);
+		FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
 	}
 
 	if (OPI.KeyBar)
 	{
 		FreeUnicodeKeyBarTitles((KeyBarTitles*)OPI.KeyBar);
-		xf_free((void *)OPI.KeyBar);
+		delete OPI.KeyBar;
 	}
 
-	if (OPI.ShortcutData)
-		xf_free((void *)OPI.ShortcutData);
+	delete[] OPI.ShortcutData;
 
 	ClearStruct(OPI);
 }
@@ -5739,7 +5554,7 @@ void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *De
 
 	if (Src.KeyBar)
 	{
-		OPI.KeyBar=(KeyBarTitles*) xf_malloc(sizeof(KeyBarTitles));
+		OPI.KeyBar = new KeyBarTitles;
 		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPanelInfo));
 	}
 
@@ -5749,10 +5564,7 @@ void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *De
 	*Dest=OPI;
 }
 
-void PluginA::GetOpenPanelInfo(
-    HANDLE hPlugin,
-    OpenPanelInfo *pInfo
-)
+void PluginA::GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *pInfo)
 {
 //	m_pManager->m_pCurrentPlugin = this;
 	pInfo->StructSize = sizeof(OpenPanelInfo);
@@ -5766,7 +5578,6 @@ void PluginA::GetOpenPanelInfo(
 		ConvertOpenPanelInfo(InfoA,pInfo);
 	}
 }
-
 
 int PluginA::Configure(const GUID& Guid)
 {
@@ -5783,32 +5594,32 @@ void PluginA::FreePluginInfo()
 	if (PI.DiskMenu.Count)
 	{
 		for (size_t i=0; i<PI.DiskMenu.Count; i++)
-			xf_free((void *)PI.DiskMenu.Strings[i]);
+			delete[] PI.DiskMenu.Strings[i];
 
-		xf_free((void *)PI.DiskMenu.Guids);
-		xf_free((void *)PI.DiskMenu.Strings);
+		delete[] PI.DiskMenu.Guids;
+		delete[] PI.DiskMenu.Strings;
 	}
 
 	if (PI.PluginMenu.Count)
 	{
 		for (size_t i=0; i<PI.PluginMenu.Count; i++)
-			xf_free((void *)PI.PluginMenu.Strings[i]);
+			delete[] PI.PluginMenu.Strings[i];
 
-		xf_free((void *)PI.PluginMenu.Guids);
-		xf_free((void *)PI.PluginMenu.Strings);
+		delete[] PI.PluginMenu.Guids;
+		delete[] PI.PluginMenu.Strings;
 	}
 
 	if (PI.PluginConfig.Count)
 	{
 		for (size_t i=0; i<PI.PluginConfig.Count; i++)
-			xf_free((void *)PI.PluginConfig.Strings[i]);
+			delete[] PI.PluginConfig.Strings[i];
 
-		xf_free((void *)PI.PluginConfig.Guids);
-		xf_free((void *)PI.PluginConfig.Strings);
+		delete[] PI.PluginConfig.Guids;
+		delete[] PI.PluginConfig.Strings;
 	}
 
 	if (PI.CommandPrefix)
-		xf_free((void *)PI.CommandPrefix);
+		delete[] PI.CommandPrefix;
 
 	ClearStruct(PI);
 }
@@ -5833,9 +5644,8 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.DiskMenuStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) xf_malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
-		GUID* guid=(GUID*) xf_malloc(Src.DiskMenuStringsNumber*sizeof(GUID));
-		memset(guid,0,Src.DiskMenuStringsNumber*sizeof(GUID));
+		auto p = new wchar_t*[Src.DiskMenuStringsNumber];
+		auto guid = new GUID[Src.DiskMenuStringsNumber]();
 
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
 		{
@@ -5850,9 +5660,8 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.PluginMenuStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
-		GUID* guid=(GUID*) xf_malloc(Src.PluginMenuStringsNumber*sizeof(GUID));
-		memset(guid,0,Src.PluginMenuStringsNumber*sizeof(GUID));
+		auto p = new wchar_t*[Src.PluginMenuStringsNumber];
+		auto guid = new GUID[Src.PluginMenuStringsNumber]();
 
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
 		{
@@ -5867,9 +5676,8 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.PluginConfigStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
-		GUID* guid=(GUID*) xf_malloc(Src.PluginConfigStringsNumber*sizeof(GUID));
-		memset(guid,0,Src.PluginConfigStringsNumber*sizeof(GUID));
+		auto p = new wchar_t*[Src.PluginConfigStringsNumber];
+		auto guid = new GUID[Src.PluginConfigStringsNumber]();
 
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
 		{

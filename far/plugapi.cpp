@@ -1423,8 +1423,8 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			Item.CreationTime = FindData.ftCreationTime;
 			Item.LastAccessTime = FindData.ftLastAccessTime;
 			Item.LastWriteTime = FindData.ftLastWriteTime;
-			Item.FileName = xf_wcsdup(strFullName.CPtr());
-			Item.AlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
+			Item.FileName = DuplicateString(strFullName.CPtr());
+			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName);
 			Items->push_back(std::move(Item));
 		}
 

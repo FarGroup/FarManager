@@ -79,8 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const int CHAR_TABLE_SIZE=5;
 const DWORD LIST_INDEX_NONE = static_cast<DWORD>(-1);
 
-const size_t readBufferSizeA=32768;
-const size_t readBufferSize=(readBufferSizeA*sizeof(wchar_t));
+const size_t readBufferSize = 32768;
 
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 struct ArcListItem
@@ -310,15 +309,15 @@ void FindFiles::InitInFileSearch()
 	{
 		size_t findStringCount = strFindStr.GetLength();
 		// Инициализируем буферы чтения из файла
-		readBufferA = (char *)xf_malloc(readBufferSizeA);
-		readBuffer = (wchar_t *)xf_malloc(readBufferSize);
+		readBufferA = new char[readBufferSize];
+		readBuffer = new wchar_t[readBufferSize];
 
 		if (!SearchHex)
 		{
 			// Формируем строку поиска
 			if (!CmpCase)
 			{
-				findStringBuffer = (wchar_t *)xf_malloc(2*findStringCount*sizeof(wchar_t));
+				findStringBuffer = new wchar_t[2 * findStringCount];
 				findString=findStringBuffer;
 
 				for (size_t index = 0; index<strFindStr.GetLength(); index++)
@@ -341,7 +340,7 @@ void FindFiles::InitInFileSearch()
 				findString = strFindStr.GetBuffer();
 
 			// Инизиализируем данные для алгоритма поиска
-			skipCharsTable = (size_t *)xf_malloc((WCHAR_MAX+1)*sizeof(size_t));
+			skipCharsTable = new size_t[WCHAR_MAX + 1];
 
 			for (size_t index = 0; index < WCHAR_MAX+1; index++)
 				skipCharsTable[index] = findStringCount;
@@ -436,7 +435,7 @@ void FindFiles::InitInFileSearch()
 			if (SearchHex)
 			{
 				bool flag = false;
-				hexFindString = (unsigned char *)xf_malloc((findStringCount-findStringCount/3+1)/2);
+				hexFindString = new unsigned char[(findStringCount - findStringCount/3+1)/2];
 
 				for (size_t index = 0; index < strFindStr.GetLength(); index++)
 				{
@@ -462,7 +461,7 @@ void FindFiles::InitInFileSearch()
 			}
 
 			// Инизиализируем данные для аглоритма поиска
-			skipCharsTable = (size_t *)xf_malloc((255+1)*sizeof(size_t));
+			skipCharsTable = new size_t[255 + 1];
 
 			for (size_t index = 0; index < 255+1; index++)
 				skipCharsTable[index] = hexFindStringSize;
@@ -479,37 +478,22 @@ void FindFiles::ReleaseInFileSearch()
 {
 	if (InFileSearchInited && !strFindStr.IsEmpty())
 	{
-		if (readBufferA)
-		{
-			xf_free(readBufferA);
-			readBufferA=nullptr;
-		}
+		delete[] readBufferA;
+		readBufferA = nullptr;
 
-		if (readBuffer)
-		{
-			xf_free(readBuffer);
-			readBuffer=nullptr;
-		}
+		delete[] readBuffer;
+		readBuffer = nullptr;
 
-		if (skipCharsTable)
-		{
-			xf_free(skipCharsTable);
-			skipCharsTable=nullptr;
-		}
+		delete[] skipCharsTable;
+		skipCharsTable=nullptr;
 
 		codePages.clear();
 
-		if (findStringBuffer)
-		{
-			xf_free(findStringBuffer);
-			findStringBuffer=nullptr;
-		}
+		delete[] findStringBuffer;
+		findStringBuffer=nullptr;
 
-		if (hexFindString)
-		{
-			xf_free(hexFindString);
-			hexFindString=nullptr;
-		}
+		delete[] hexFindString;
+		hexFindString=nullptr;
 
 		InFileSearchInited=false;
 	}
@@ -1085,7 +1069,7 @@ int FindFiles::LookForString(const string& Name)
 	UINT LastPercents=0;
 
 	// Основной цикл чтения из файла
-	while (!StopEvent.Signaled() && file.Read(readBufferA, (!SearchInFirst || alreadyRead+readBufferSizeA <= SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead), readBlockSize))
+	while (!StopEvent.Signaled() && file.Read(readBufferA, (!SearchInFirst || alreadyRead + readBufferSize <= SearchInFirst)? readBufferSize : static_cast<DWORD>(SearchInFirst - alreadyRead), readBlockSize))
 	{
 		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
 
@@ -1179,7 +1163,7 @@ int FindFiles::LookForString(const string& Name)
 							                (wchar_t *)readBufferA,
 							                (int)bufferCount,
 							                readBuffer,
-							                readBufferSize
+							                readBufferSize * sizeof(wchar_t)
 							            );
 
 						if (!bufferCount)
@@ -1199,7 +1183,7 @@ int FindFiles::LookForString(const string& Name)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = MultiByteToWideChar(cpi->CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize);
+					bufferCount = MultiByteToWideChar(cpi->CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize * sizeof(wchar_t));
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
@@ -1309,7 +1293,7 @@ int FindFiles::LookForString(const string& Name)
 		}
 
 		// Если мы потенциально прочитали не весь файл
-		if (readBlockSize==readBufferSizeA)
+		if (readBlockSize==readBufferSize)
 		{
 			// Отступаем назад на длину слова поиска минус 1
 			if (!file.SetPointer(-1*offset, nullptr, FILE_CURRENT))

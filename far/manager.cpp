@@ -1527,30 +1527,6 @@ void Manager::DeleteCommit()
 		}
 	}
 
-	/* $ 14.05.2002 SKV
-	  Долго не мог понять, нужен всё же этот код или нет.
-	  Но вроде как нужен.
-	  SVS> Когда понадобится - в некоторых местах расскомментить куски кода
-	       помеченные скобками <ifDoubleInstance>
-
-	if (ifDoubI && IsSemiModalBackFrame(ActivatedFrame)){
-	  for(int i=0;i<ModalStackCount;i++)
-	  {
-	    if(ModalStack[i]==ActivatedFrame)
-	    {
-	      break;
-	    }
-	  }
-
-	  if(i==ModalStackCount)
-	  {
-	    if (ModalStackCount == ModalStackSize){
-	      ModalStack = (Frame **) xf_realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
-	    }
-	    ModalStack[ModalStackCount++]=ActivatedFrame;
-	  }
-	}
-	*/
 	DeletedFrame->OnDestroy();
 
 	if (CurrentFrame==DeletedFrame)
@@ -1815,47 +1791,6 @@ void Manager::InitKeyBar()
 		i->InitKeyBar();
 	});
 }
-
-/*void Manager::AddSemiModalBackFrame(Frame* frame)
-{
-  if(SemiModalBackFramesCount>=SemiModalBackFramesSize)
-  {
-    SemiModalBackFramesSize+=4;
-    SemiModalBackFrames=
-      (Frame**)xf_realloc(SemiModalBackFrames,sizeof(Frame*)*SemiModalBackFramesSize);
-
-  }
-  SemiModalBackFrames[SemiModalBackFramesCount]=frame;
-  SemiModalBackFramesCount++;
-}
-
-BOOL Manager::IsSemiModalBackFrame(Frame *frame)
-{
-  if(!SemiModalBackFrames)return FALSE;
-  for(int i=0;i<SemiModalBackFramesCount;i++)
-  {
-    if(SemiModalBackFrames[i]==frame)return TRUE;
-  }
-  return FALSE;
-}
-
-void Manager::RemoveSemiModalBackFrame(Frame* frame)
-{
-  if(!SemiModalBackFrames)return;
-  for(int i=0;i<SemiModalBackFramesCount;i++)
-  {
-    if(SemiModalBackFrames[i]==frame)
-    {
-      for(int j=i+1;j<SemiModalBackFramesCount;j++)
-      {
-        SemiModalBackFrames[j-1]=SemiModalBackFrames[j];
-      }
-      SemiModalBackFramesCount--;
-      return;
-    }
-  }
-}
-*/
 
 // возвращает top-модал или сам фрейм, если у фрейма нету модалов
 Frame* Manager::GetTopModal()

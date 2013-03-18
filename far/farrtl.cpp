@@ -20,8 +20,7 @@ farrtl.cpp
 #undef xf_malloc
 #undef xf_realloc
 #undef xf_realloc_nomove
-#undef xf_strdup
-#undef xf_wcsdup
+#undef DuplicateString
 #undef new
 #endif
 
@@ -133,14 +132,14 @@ void operator delete[](void* block)
 	return ReleaseDeallocator(block);
 }
 
-char* xf_strdup(const char * string)
+char* DuplicateString(const char * string)
 {
-	return string ? strcpy(static_cast<char*>(xf_malloc(strlen(string) + 1)),string) : nullptr;
+	return string? strcpy(new char[strlen(string) + 1], string) : nullptr;
 }
 
-wchar_t* xf_wcsdup(const wchar_t * string)
+wchar_t* DuplicateString(const wchar_t * string)
 {
-	return string ? wcscpy(static_cast<wchar_t*>(xf_malloc((wcslen(string) + 1) * sizeof(wchar_t))),string) : nullptr;
+	return string? wcscpy(new wchar_t[wcslen(string) + 1], string) : nullptr;
 }
 
 #else
@@ -378,14 +377,14 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 	return DebugDeallocator(block, AT_VECTOR);
 }
 
-char* xf_strdup(const char * string, const char* Function, const char* File, int Line)
+char* DuplicateString(const char * string, const char* Function, const char* File, int Line)
 {
-	return string ? strcpy(static_cast<char*>(xf_malloc(strlen(string) + 1, Function, File, Line)),string) : nullptr;
+	return string ? strcpy(new(Function, File, Line) char[strlen(string) + 1], string) : nullptr;
 }
 
-wchar_t* xf_wcsdup(const wchar_t * string, const char* Function, const char* File, int Line)
+wchar_t* DuplicateString(const wchar_t * string, const char* Function, const char* File, int Line)
 {
-	return string ? wcscpy(static_cast<wchar_t*>(xf_malloc((wcslen(string) + 1) * sizeof(wchar_t), Function, File, Line)),string) : nullptr;
+	return string ? wcscpy(new(Function, File, Line) wchar_t[wcslen(string) + 1], string) : nullptr;
 }
 
 static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
