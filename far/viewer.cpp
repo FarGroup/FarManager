@@ -2405,24 +2405,16 @@ void Viewer::ChangeViewKeyBar()
 {
 	if (ViewKeyBar)
 	{
-		/* $ 12.07.2000 SVS
-		   Wrap имеет 3 позиции
-		*/
-		/* $ 15.07.2000 SVS
-		   Wrap должен показываться следующий, а не текущий
-		*/
-		ViewKeyBar->Change(
-		    MSG(
-		        (!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2)
-				        :MViewF2Unwrap),1);
-		ViewKeyBar->Change(KBL_SHIFT,MSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
-
-		ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 3);
-
-		if (VM.CodePage != GetOEMCP())
-			ViewKeyBar->Change(MSG(MViewF8DOS),7);
-		else
-			ViewKeyBar->Change(MSG(MViewF8),7);
+		const wchar_t *f2_label = L"", *shiftf2_label = L"";
+		if (!VM.Hex)
+		{
+			f2_label = MSG((!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
+			shiftf2_label = MSG((VM.WordWrap) ? MViewF2 : MViewShiftF2);
+		}
+		ViewKeyBar->Change(f2_label, 2-1);
+		ViewKeyBar->Change(KBL_SHIFT, shiftf2_label, 2-1);
+		ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 4-1);
+		ViewKeyBar->Change(MSG(VM.CodePage == GetACP() ? MViewF8DOS : MViewF8),8-1);
 
 		ViewKeyBar->Redraw();
 	}
