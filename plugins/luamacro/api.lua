@@ -358,24 +358,19 @@ Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
 local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
-  local Mode
-  local UseCommon=true
+  local Mode=far.MacroGetArea()
+  local UseCommon=false
   str = str:match("^%s*(.-)%s*$")
 
   local strArea,strKey = str:match("^(.-)/(.+)$")
   if strArea then
-    Mode = utils.GetAreaCode(strArea)
-    if Mode < 0 then
-      Mode = far.MacroGetArea()
-      if strArea == "." then -- вариант "./Key" не подразумевает поиск в Common`е
-        UseCommon=false
-      end
-    else
-      UseCommon=false
+    if strArea ~= "." then -- вариант "./Key" не подразумевает поиск в Common`е
+      Mode=utils.GetAreaCode(strArea)
+      if Mode < 0 then return end
     end
   else
     strKey=str
-    Mode=far.MacroGetArea()
+    UseCommon=true
   end
 
   return Mode, strKey, UseCommon
