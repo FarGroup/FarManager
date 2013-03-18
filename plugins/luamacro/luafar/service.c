@@ -1802,7 +1802,7 @@ static int far_Message(lua_State *L)
 	const char *Flags;
 	const GUID *Id;
 	luaL_checkany(L,1);
-	lua_settop(L,5);
+	lua_settop(L,6);
 	Msg = NULL;
 
 	if(lua_isstring(L, 1))
