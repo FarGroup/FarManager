@@ -1177,8 +1177,8 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
 	int size = (int)(strP1.GetLength()+strP2.GetLength()+oldfar::NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
-	auto p = new wchar_t[size];
-	wcscpy(p,strP2);
+	wchar_t_ptr p(size);
+	wcscpy(p.get(), strP2);
 	int newFlags = 0;
 
 	if (Flags&oldfar::PN_SKIPPATH)
@@ -1200,12 +1200,11 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
-	int ret = static_cast<int>(NativeFSF.ProcessName(strP1,p,size,newFlags));
+	int ret = static_cast<int>(NativeFSF.ProcessName(strP1,p.get(),size,newFlags));
 
 	if (newFlags&PN_GENERATENAME)
-		UnicodeToOEM(p,Param2,size);
+		UnicodeToOEM(p.get(),Param2,size);
 
-	delete[] p;
 	return ret;
 }
 
@@ -3370,11 +3369,10 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
 				if(dirSize)
 				{
-					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+					block_ptr<FarPanelDirectory> dirInfo(dirSize);
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,static_cast<int>(dirSize),dirInfo);
+					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, static_cast<int>(dirSize), dirInfo.get());
 					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
-					delete[](char*)dirInfo;
 				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
@@ -3413,11 +3411,10 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
 				if(dirSize)
 				{
-					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+					block_ptr<FarPanelDirectory> dirInfo(dirSize);
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,static_cast<int>(dirSize),dirInfo);
-					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
-					delete[](char*)dirInfo;
+					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, static_cast<int>(dirSize), dirInfo.get());
+					UnicodeToOEM(dirInfo->Name, OldPI->CurDir, sizeof(OldPI->CurDir));
 				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
@@ -4253,11 +4250,10 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 
 				if (FileNameSize)
 				{
-					LPWSTR FileName=new wchar_t[FileNameSize];
-					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
-					fn = UnicodeToAnsi(FileName);
+					wchar_t_ptr FileName(FileNameSize);
+					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName.get());
+					fn = UnicodeToAnsi(FileName.get());
 					oei->FileName=fn;
-					delete[] FileName;
 				}
 
 				oei->EditorID=ei.EditorID;
@@ -4482,7 +4478,6 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 
 						*oldsp->cParam=0;
 						newsp.Type = ESPT_GETWORDDIV;
-						newsp.wszParam = nullptr;
 						newsp.Size = 0;
 						newsp.Size = NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 						newsp.wszParam = new wchar_t[newsp.Size];
@@ -5213,12 +5208,11 @@ int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, si
 	{
 		pVFDPanelItemA = nullptr;
 		size_t Size=StrLength(Path)+1;
-		LPSTR PathA=new char[Size];
-		UnicodeToOEM(Path,PathA,Size);
+		char_ptr PathA(Size);
+		UnicodeToOEM(Path, PathA.get(), Size);
 		int ItemsNumber = 0;
-		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, &ItemsNumber, PathA));
+		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, &ItemsNumber, PathA.get()));
 		*pItemsNumber = ItemsNumber;
-		delete[] PathA;
 
 		if (es && *pItemsNumber)
 		{

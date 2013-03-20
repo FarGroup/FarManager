@@ -42,10 +42,33 @@ wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 #define ALIGNAS(value, alignment) ((value+(alignment-1))&~(alignment-1))
 #define ALIGN(value) ALIGNAS(value, sizeof(void*))
 
+template<class T>
+class array_ptr:public std::unique_ptr<T[]>
+{
+public:
+	array_ptr(){}
+	array_ptr(size_t size, bool init = false):std::unique_ptr<T[]>(init? new T[size]() : new T[size]){}
+	void reset(size_t size, bool init = false){std::unique_ptr<T[]>::reset(init? new T[size]() : new T[size]);}
+};
+
+typedef array_ptr<wchar_t> wchar_t_ptr;
+typedef array_ptr<char> char_ptr;
+
+template<class T>
+class block_ptr:public char_ptr
+{
+public:
+	block_ptr(){}
+	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
+	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
+	T* operator->() const {return get();}
+	T& operator*() const {return *get();}
+};
+
+
 namespace cfunctions
 {
 	void qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
 	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
 	void far_qsort(void *base, size_t num, size_t width, int (*comp)(const void *, const void *));
 };
-

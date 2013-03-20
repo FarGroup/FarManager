@@ -374,11 +374,11 @@ DWORD GetRelationDrivesMask(DEVINST hDevInst)
 		{
 			if (dwSize)
 			{
-				wchar_t *lpDeviceIdList = new wchar_t[dwSize];
+				wchar_t_ptr DeviceIdList(dwSize);
 
-				if (CM_Get_Device_ID_List(szDeviceID, lpDeviceIdList, dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
+				if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 				{
-					wchar_t *p = lpDeviceIdList;
+					wchar_t *p = DeviceIdList.get();
 
 					while (*p)
 					{
@@ -388,8 +388,6 @@ DWORD GetRelationDrivesMask(DEVINST hDevInst)
 						p += wcslen(p)+1;
 					}
 				}
-
-				delete[] lpDeviceIdList;
 			}
 		}
 	}

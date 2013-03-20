@@ -74,49 +74,6 @@ ENUM(ELEVATION_COMMAND)
 	C_FUNCTION_OPENVIRTUALDISK,
 };
 
-class AutoObject:NonCopyable
-{
-public:
-	AutoObject():
-		Data(nullptr),
-		size(0)
-	{
-	}
-
-	LPVOID Allocate(size_t Size)
-	{
-		Free();
-		Data=xf_malloc(Size);
-		size = Size;
-		return Data;
-	}
-
-	void Free()
-	{
-		if(Data)
-		{
-			xf_free(Data);
-			Data=nullptr;
-		}
-	}
-
-	size_t Size() const {return size;}
-
-	~AutoObject()
-	{
-		Free();
-	}
-
-	LPVOID Get() const
-	{
-		return Data;
-	}
-
-private:
-	LPVOID Data;
-	size_t size;
-};
-
 bool RawReadPipe(HANDLE Pipe, LPVOID Data, size_t DataSize)
 {
 	DWORD n;
@@ -169,7 +126,7 @@ inline bool ReadPipe(HANDLE Pipe, string& Data)
 }
 
 template<>
-inline bool ReadPipe(HANDLE Pipe, AutoObject& Data)
+inline bool ReadPipe(HANDLE Pipe, char_ptr& Data)
 {
 	bool Result=false;
 	size_t DataSize = 0;
@@ -177,8 +134,8 @@ inline bool ReadPipe(HANDLE Pipe, AutoObject& Data)
 	{
 		if(DataSize)
 		{
-			LPVOID Ptr=Data.Allocate(DataSize);
-			if(RawReadPipe(Pipe, Ptr, DataSize))
+			Data.reset(DataSize);
+			if(RawReadPipe(Pipe, Data.get(), DataSize))
 			{
 				Result=true;
 			}
@@ -275,7 +232,7 @@ inline bool elevation::Read(T& Data) const
 }
 
 template<>
-inline bool elevation::Read(AutoObject& Data) const
+inline bool elevation::Read(char_ptr& Data) const
 {
 	return ReadPipe(Pipe, Data);
 }
@@ -663,10 +620,10 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 		LARGE_INTEGER TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred;
 		DWORD StreamNumber, CallbackReason;
 		// BUGBUG: SourceFile, DestinationFile ignored
-		AutoObject Data;
+		char_ptr Data;
 		if(Read(TotalFileSize) && Read(TotalBytesTransferred) && Read(StreamSize) && Read(StreamBytesTransferred) && Read(StreamNumber) && Read(CallbackReason) && Read(Data))
 		{
-			int Result=ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
+			int Result=ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.get());
 			if(Write(CallbackMagic))
 			{
 				Write(Result);
@@ -1062,12 +1019,12 @@ void DeleteFileHandler()
 void CopyFileExHandler()
 {
 	string From, To;
-	AutoObject UserCopyProgressRoutine, Data;
+	char_ptr UserCopyProgressRoutine, Data;
 	DWORD Flags = 0;
 	// BUGBUG: Cancel ignored
 	if(ReadPipe(Pipe, From) && ReadPipe(Pipe, To) && ReadPipe(Pipe, UserCopyProgressRoutine) && ReadPipe(Pipe, Data) && ReadPipe(Pipe, Flags))
 	{
-		int Result = CopyFileEx(From, To, UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
+		int Result = CopyFileEx(From, To, UserCopyProgressRoutine.get()? ElevationCopyProgressRoutine : nullptr, Data.get(), nullptr, Flags);
 		ERRORCODES ErrorCodes;
 		if(WritePipe(Pipe, Result))
 		{

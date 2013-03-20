@@ -87,30 +87,28 @@ void ShowProcessList()
 
 					if (ProcWnd)
 					{
-						wchar_t *lpwszTitle=0;
+						wchar_t_ptr Title;
 						int LenTitle=GetWindowTextLength(ProcWnd);
 
 						if (LenTitle)
 						{
-							lpwszTitle = new wchar_t[LenTitle + 1];
+							Title.reset(LenTitle + 1);
 
-							if (lpwszTitle && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
-								lpwszTitle[LenTitle]=0;
+							if (Title && (LenTitle=GetWindowText(ProcWnd, Title.get(), LenTitle+1)))
+								Title[LenTitle]=0;
 						}
 
 						DWORD ProcID;
 						GetWindowThreadProcessId(ProcWnd,&ProcID);
 
 						if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-									NullToEmpty(lpwszTitle),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
+									NullToEmpty(Title.get()),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
 						{
 							if (KillProcess(ProcID))
 								Sleep(500);
 							else
 								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
 						}
-
-						delete[] lpwszTitle;
 					}
 				}
 				case KEY_CTRLR:
@@ -199,20 +197,15 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 
 		if (LenTitle)
 		{
-			wchar_t *lpwszTitle = new wchar_t[LenTitle+1];
+			wchar_t_ptr Title(LenTitle + 1);
 
-			if (lpwszTitle)
+			if (Title && (LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1)))
 			{
-				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1)))
-				{
-					lpwszTitle[LenTitle]=0;
-					MenuItemEx ListItem;
-					ListItem.Clear();
-					ListItem.strName=lpwszTitle;
-					ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
-				}
-
-				delete[] lpwszTitle;
+				Title[LenTitle]=0;
+				MenuItemEx ListItem;
+				ListItem.Clear();
+				ListItem.strName = Title.get();
+				ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
 			}
 		}
 	}

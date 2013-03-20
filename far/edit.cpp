@@ -1291,14 +1291,13 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.IsEmpty())
 			{
-				wchar_t *ShortStr=new wchar_t[StrSize+1];
+				wchar_t_ptr ShortStr(StrSize+1);
 
 				if (!ShortStr)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize+1);
-				Len=StrLength(RemoveTrailingSpaces(ShortStr));
-				delete[] ShortStr;
+				xwcsncpy(ShortStr.get(),Str,StrSize+1);
+				Len=StrLength(RemoveTrailingSpaces(ShortStr.get()));
 
 				if (Len>CurPos)
 					CurPos++;

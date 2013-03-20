@@ -2406,7 +2406,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				string strSrcFullName,strDestFullName;
 				ConvertNameToFull(Src,strSrcFullName);
-				FAR_SECURITY_DESCRIPTOR_EX sd;
+				FAR_SECURITY_DESCRIPTOR sd;
 
 				// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
 				if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
@@ -2456,11 +2456,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							case 1:
 							{
 								int CopySecurity = Flags&FCOPY_COPYSECURITY;
-								FAR_SECURITY_DESCRIPTOR_EX tmpsd;
+								FAR_SECURITY_DESCRIPTOR tmpsd;
 
 								if ((CopySecurity) && !GetSecurity(Src,tmpsd))
 									CopySecurity = FALSE;
-								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.SecurityDescriptor, FALSE};
+								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.get(), FALSE};
 								if (apiCreateDirectory(strDestPath,CopySecurity?&TmpSecAttr:nullptr))
 								{
 									if (PointToName(strDestPath)==strDestPath.CPtr())
@@ -2479,11 +2479,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				} /* while */
 			} // if (Rename)
 
-			FAR_SECURITY_DESCRIPTOR_EX sd;
+			FAR_SECURITY_DESCRIPTOR sd;
 
 			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sd))
 				return COPY_CANCEL;
-			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.SecurityDescriptor, FALSE};
+			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
 			if (RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!apiCreateDirectoryEx(
@@ -2689,7 +2689,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (NWFS_Attr)
 						apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
 
-					FAR_SECURITY_DESCRIPTOR_EX sd;
+					FAR_SECURITY_DESCRIPTOR sd;
 					IsSetSecuty=FALSE;
 
 					// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
@@ -3090,7 +3090,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		}
 	}
 
-	FAR_SECURITY_DESCRIPTOR_EX sd;
+	FAR_SECURITY_DESCRIPTOR sd;
 	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sd))
 		return COPY_CANCEL;
 
@@ -3125,7 +3125,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//apiDeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.SecurityDescriptor, FALSE};
+		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
 		flags_attrs = SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
 		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), flags_attrs);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
@@ -3908,7 +3908,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 
 
 
-int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd)
+int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR& sd)
 {
 	bool RetSec = apiGetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 
@@ -3925,7 +3925,7 @@ int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& s
 
 
 
-int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd)
+int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd)
 {
 	bool RetSec = apiSetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 	if (!RetSec)
@@ -3977,7 +3977,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 }
 
 
-int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd)
+int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd)
 {
 	if (SetSecurity(FileName, sd))
 	{
@@ -4010,7 +4010,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DE
 
 int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA &SrcData)
 {
-	FAR_SECURITY_DESCRIPTOR_EX sd;
+	FAR_SECURITY_DESCRIPTOR sd;
 
 	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;

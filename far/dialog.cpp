@@ -347,7 +347,6 @@ void Dialog::Init(DialogOwner* Owner, MemberHandlerFunction HandlerFunction, Sta
 {
 	SetDynamicallyBorn(FALSE); // $OT: ѕо умолчанию все диалоги создаютс€ статически
 	CanLoseFocus = FALSE;
-	HelpTopic = nullptr;
 	//Ќомер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
 	DataDialog=InitParam;
@@ -403,9 +402,6 @@ Dialog::~Dialog()
 
 	if(!CheckDialogMode(DMODE_ISMENU))
 		Global->ScrBuf->Flush();
-
-	if (HelpTopic)
-		delete [] HelpTopic;
 
 	DeleteValues(Items);
 
@@ -2618,10 +2614,7 @@ int Dialog::ProcessKey(int Key)
 
 			// ѕеред выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (!Help::MkTopic(PluginOwner,
-			                   (const wchar_t*)DlgProc(DN_HELP,FocusPos,
-			                                           (HelpTopic?HelpTopic:nullptr)),
-			                   strStr).IsEmpty())
+			if (!Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic)), strStr).IsEmpty())
 			{
 				Help Hlp(strStr);
 			}
@@ -4529,17 +4522,11 @@ void Dialog::SetHelp(const wchar_t *Topic)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (HelpTopic)
-		delete[] HelpTopic;
-
-	HelpTopic=nullptr;
+	HelpTopic.Clear();
 
 	if (Topic && *Topic)
 	{
-		HelpTopic = new wchar_t [wcslen(Topic)+1];
-
-		if (HelpTopic)
-			wcscpy(HelpTopic, Topic);
+		HelpTopic = Topic;
 	}
 }
 
@@ -4547,7 +4534,7 @@ void Dialog::ShowHelp()
 {
 	CriticalSectionLock Lock(CS);
 
-	if (HelpTopic && *HelpTopic)
+	if (!HelpTopic.IsEmpty())
 	{
 		Help Hlp(HelpTopic);
 	}

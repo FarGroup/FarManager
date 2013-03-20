@@ -1716,24 +1716,22 @@ void TreeList::ReadCache(const string& TreeRoot)
 		}
 
 	Global->TreeCache->strTreeName = strTreeName;
-	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
+	wchar_t_ptr DirName(NT_MAX_PATH);
 
 	if (DirName)
 	{
-		while (fgetws(DirName,NT_MAX_PATH,TreeFile))
+		while (fgetws(DirName.get(),NT_MAX_PATH,TreeFile))
 		{
-			if (!IsSlash(*DirName))
+			if (!IsSlash(DirName[0]))
 				continue;
 
-			wchar_t *ChPtr=wcschr(DirName,L'\n');
+			wchar_t *ChPtr=wcschr(DirName.get(),L'\n');
 
 			if (ChPtr)
 				*ChPtr=0;
 
-			Global->TreeCache->Names.push_back(DirName);
+			Global->TreeCache->Names.push_back(DirName.get());
 		}
-
-		delete[] DirName;
 	}
 
 	fclose(TreeFile);

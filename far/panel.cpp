@@ -1282,10 +1282,11 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-	wchar_t *Ptr = new wchar_t[StrLength(Src)+StrLength(FindEdit->GetStringAddr()) + 1];
+	wchar_t_ptr Buffer(StrLength(Src)+StrLength(FindEdit->GetStringAddr()) + 1);
 
-	if (Ptr)
+	if (Buffer)
 	{
+		auto Ptr = Buffer.get();
 		wcscpy(Ptr,FindEdit->GetStringAddr());
 		wchar_t *EndPtr=Ptr+StrLength(Ptr);
 		wcscat(Ptr,Src);
@@ -1310,8 +1311,6 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 
 			*--EndPtr=0;
 		}
-
-		delete[] Ptr;
 	}
 }
 

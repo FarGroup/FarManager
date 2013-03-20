@@ -225,11 +225,10 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 		else
 		{
 			int n8 = WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, nullptr,0, nullptr,nullptr);
-			char *name8 = new char[n8];
-			WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, name8,n8, nullptr,nullptr);
+			char_ptr name8(n8);
+			WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, name8.get(), n8, nullptr,nullptr);
 			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
-			ok = (SQLITE_OK == sqlite3_open_v2(name8, &db_source, flags, nullptr));
-			delete[] name8;
+			ok = (SQLITE_OK == sqlite3_open_v2(name8.get(), &db_source, flags, nullptr));
 		}
 		if (ok)
 		{

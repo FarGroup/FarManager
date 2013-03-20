@@ -1431,12 +1431,11 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (SelectSize >= 0 && ViewFile.Opened())
 			{
-				auto SelData = new wchar_t[SelectSize+1]();
+				wchar_t_ptr SelData(SelectSize+1, true);
 				__int64 CurFilePos=vtell();
 				vseek(SelectPos,SEEK_SET);
-				vread(SelData, (int)SelectSize);
-				CopyToClipboard(SelData);
-				delete[] SelData;
+				vread(SelData.get(), (int)SelectSize);
+				CopyToClipboard(SelData.get());
 				vseek(CurFilePos,SEEK_SET);
 			}
 			return TRUE;
@@ -2489,15 +2488,17 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				{
 					RegExp re;
 					wchar_t t[128], *tmp = t;
+					wchar_t_ptr Buffer;
 					if (tlen > (int)(ARRAYSIZE(t)-1))
-						tmp = new wchar_t[tlen+1];
+					{
+						Buffer.reset(tlen+1);
+						tmp = Buffer.get();
+					}
 					FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(tlen), tmp};
 					Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);
 					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);
-					if (tmp != t)
-						delete[] tmp;
 				}
 			}
 			Dlg->SendMessage( DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));

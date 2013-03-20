@@ -171,12 +171,7 @@ public:
 		Init(Str, Str.GetLength());
 	}
 
-	~Utf8String()
-	{
-		delete[] Data;
-	}
-
-	operator const char*() const {return Data;}
+	operator const char*() const {return Data.get();}
 	size_t size() const {return Size;}
 
 
@@ -184,12 +179,12 @@ private:
 	void Init(const wchar_t* Str, size_t Length)
 	{
 		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
-		Data = new char[Size];
-		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data, static_cast<int>(Size-1), nullptr, nullptr);
+		Data.reset(Size);
+		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data.get(), static_cast<int>(Size-1), nullptr, nullptr);
 		Data[Size-1] = 0;
 	}
 
-	char* Data;
+	char_ptr Data;
 	size_t Size;
 };
 
@@ -493,7 +488,6 @@ class GeneralConfigDb: public iGeneralConfigDb
 {
 public:
 	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db", false) {}
-	virtual ~GeneralConfigDb() {}
 
 private:
 	virtual const char* GetKeyName() const {return "generalconfig";}
@@ -503,7 +497,6 @@ class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
 	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db", true) {}
-	virtual ~LocalGeneralConfigDb() {}
 
 private:
 	virtual const char* GetKeyName() const {return "localconfig";}

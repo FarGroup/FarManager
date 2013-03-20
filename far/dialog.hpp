@@ -299,7 +299,7 @@ private:
 	};
 	// переменные для перемещения диалога
 	int OldX1,OldX2,OldY1,OldY2;
-	wchar_t *HelpTopic;
+	string HelpTopic;
 	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
 	CriticalSection CS;
 	int RealWidth, RealHeight;

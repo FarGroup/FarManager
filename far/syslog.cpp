@@ -442,7 +442,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 		}
 	}
 
-	wchar_t *line=new wchar_t[X2-X1+4];
+	wchar_t_ptr line(X2-X1+4);
 
 	if (fp && line)
 	{
@@ -470,9 +470,6 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
-
-	if (line)
-		delete[] line;
 
 	if (InternalLog)
 		CloseSysLog();

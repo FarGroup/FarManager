@@ -1453,24 +1453,26 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 {
 	ULONG RetLen;
 	ULONG BufSize = NT_MAX_PATH;
-	OBJECT_NAME_INFORMATION* oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-	NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-
-	if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
-	{
-		BufSize = RetLen;
-		oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-		Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-	}
-
+	NTSTATUS Res = STATUS_SUCCESS;
 	string NtPath;
 
-	if (Res == STATUS_SUCCESS)
 	{
-		NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
-	}
+		char_ptr Buffer(BufSize);
+		OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(Buffer.get());
+		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 
-	xf_free(oni);
+		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
+		{
+			BufSize = RetLen;
+			oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+			Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+		}
+
+		if (Res == STATUS_SUCCESS)
+		{
+			NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+		}
+	}
 
 	FinalFilePath.Clear();
 
@@ -1817,16 +1819,15 @@ bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInfo
 	GetFileSecurity(NtObject, RequestedInformation, nullptr, 0, &LengthNeeded);
 	if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
-		SecurityDescriptor.Size = LengthNeeded;
-		SecurityDescriptor.SecurityDescriptor = static_cast<PSECURITY_DESCRIPTOR>(xf_malloc(SecurityDescriptor.Size));
-		Result = GetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.SecurityDescriptor, LengthNeeded, &LengthNeeded) != FALSE;
+		SecurityDescriptor.reset(LengthNeeded);
+		Result = GetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
 	}
 	return Result;
 }
 
 bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
 {
-	return SetFileSecurity(NTPath(Object), RequestedInformation, SecurityDescriptor.SecurityDescriptor) != FALSE;
+	return SetFileSecurity(NTPath(Object), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 }
 
 bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)

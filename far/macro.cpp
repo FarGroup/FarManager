@@ -4737,14 +4737,13 @@ static bool clipFunc(FarMacroCall* Data)
 				if (CopyData)
 				{
 					size_t DataSize=StrLength(CopyData);
-					wchar_t *NewPtr = new wchar_t[DataSize+StrLength(Val.s())+2];
+					wchar_t_ptr NewPtr(DataSize+StrLength(Val.s())+2);
 					if (NewPtr)
 					{
-						wcscpy(NewPtr, CopyData);
+						wcscpy(NewPtr.get(), CopyData);
 						delete[] CopyData;
-						wcscpy(NewPtr+DataSize,Val.s());
-						varClip=NewPtr;
-						delete[] NewPtr;
+						wcscpy(NewPtr.get()+DataSize,Val.s());
+						varClip=NewPtr.get();
 					}
 					else
 					{
@@ -5306,7 +5305,7 @@ static bool strpadFunc(FarMacroCall* Data)
 
 		if (FineLength > 0)
 		{
-			wchar_t *NewFill=new wchar_t[FineLength+1];
+			wchar_t_ptr NewFill(FineLength + 1);
 			if (NewFill)
 			{
 				const wchar_t *pFill=Fill.s();
@@ -5335,13 +5334,11 @@ static bool strpadFunc(FarMacroCall* Data)
 						break;
 				}
 
-				string strPad=NewFill;
+				string strPad(NewFill.get());
 				strPad.SetLength(CntL);
 				strPad+=strDest;
-				strPad.Append(NewFill, CntR);
+				strPad.Append(NewFill.get(), CntR);
 				strDest=strPad;
-
-				delete[] NewFill;
 			}
 		}
 	}

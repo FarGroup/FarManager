@@ -94,13 +94,13 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 
 	size_t len=masks.GetLength()+1;
 	bool rc=false;
-	wchar_t *MasksStr = new wchar_t[len];
+	wchar_t_ptr MasksStr(len);
 
 	if (MasksStr)
 	{
 		rc=true;
-		wcscpy(MasksStr, masks);
-		wchar_t *pExclude = (wchar_t *) FindExcludeChar(MasksStr);
+		wcscpy(MasksStr.get(), masks);
+		wchar_t *pExclude = (wchar_t *) FindExcludeChar(MasksStr.get());
 
 		if (pExclude)
 		{
@@ -108,12 +108,12 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 			++pExclude;
 
 			if (*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR))
-				rc=FALSE;
+				rc=false;
 		}
 
 		if (rc)
 		{
-			rc = Include.Set(*MasksStr? MasksStr:L"*", 0);
+			rc = Include.Set(MasksStr[0]? MasksStr.get() : L"*", 0);
 
 			if (rc)
 				rc=Exclude.Set(pExclude, 0);
@@ -122,8 +122,6 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 
 	if (!rc)
 		Free();
-
-	delete[] MasksStr;
 
 	return rc;
 }

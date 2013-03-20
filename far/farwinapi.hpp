@@ -360,18 +360,7 @@ void apiEnableLowFragmentationHeap();
 int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault = L"");
 int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
 
-struct FAR_SECURITY_DESCRIPTOR
-{
-	size_t Size;
-	intptr_t SecurityDescriptorBaseAddress;
-	PSECURITY_DESCRIPTOR SecurityDescriptor;
-};
-
-struct FAR_SECURITY_DESCRIPTOR_EX:public FAR_SECURITY_DESCRIPTOR
-{
-	FAR_SECURITY_DESCRIPTOR_EX() {Size = 0, SecurityDescriptor = nullptr;}
-	~FAR_SECURITY_DESCRIPTOR_EX() {if(SecurityDescriptor) xf_free(SecurityDescriptor);}
-};
+typedef block_ptr<SECURITY_DESCRIPTOR> FAR_SECURITY_DESCRIPTOR;
 
 bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 

@@ -55,9 +55,9 @@ private:
 	int ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
 	int AskOverwrite(const FAR_FIND_DATA &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	int GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd);
-	int SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
-	int SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
+	int GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR& sd);
+	int SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd);
+	int SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd);
 	bool CalcTotalSize();
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
