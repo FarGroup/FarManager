@@ -249,7 +249,7 @@ public:
 
 	~AltSortTableCleaner()
 	{
-		xf_free(alt_sort_table);
+		delete[] alt_sort_table;
 		alt_sort_table = nullptr;
 		alt_sort_initialized = true;
 	}
@@ -272,12 +272,12 @@ int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2
 
 		alt_sort_initialized = true;
 
-		wchar_t *table = (wchar_t *)xf_malloc(0x10000*sizeof(wchar_t));
-		wchar_t *chars = (wchar_t *)xf_malloc(0x10000*sizeof(wchar_t));
+		wchar_t *table = new wchar_t[0x10000];
+		wchar_t *chars = new wchar_t[0x10000];
 		if (!table || !chars)
 		{
-			xf_free(chars);
-			xf_free(table);
+			delete[] chars;
+			delete[] table;
 			return StrCmpNN(s1,(int)n1, s2,(int)n2);
 		}
 
@@ -320,7 +320,7 @@ int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2
 		}
 		assert(cc == u_end+1);
 
-		xf_free(chars);
+		delete[] chars;
 		alt_sort_table = table;
 	}
 

@@ -336,13 +336,7 @@ wchar_t *Clipboard::Paste()
 
 		if (ClipAddr)
 		{
-			int BufferSize;
-			BufferSize=StrLength(ClipAddr)+1;
-			ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
-
-			if (ClipText)
-				wcscpy(ClipText, ClipAddr);
-
+			ClipText = DuplicateString(ClipAddr);
 			GlobalUnlock(hClipData);
 		}
 	}
@@ -387,8 +381,7 @@ wchar_t *Clipboard::Paste()
 				}
 				if(!strClipText.IsEmpty())
 				{
-					ClipText=static_cast<LPWSTR>(xf_malloc((strClipText.GetLength()+1)*sizeof(WCHAR)));
-					wcscpy(ClipText, strClipText);
+					ClipText = DuplicateString(strClipText);
 				}
 				GlobalUnlock(hClipData);
 			}
@@ -409,18 +402,13 @@ wchar_t *Clipboard::PasteEx(int max)
 
 		if (ClipAddr)
 		{
-			int BufferSize;
-			BufferSize=StrLength(ClipAddr);
-
-			if (BufferSize>max)
-				BufferSize=max;
-
-			ClipText=(wchar_t *)xf_malloc((BufferSize+1)*sizeof(wchar_t));
+			int length = std::min(max, StrLength(ClipAddr));
+			ClipText = new wchar_t[length + 1];
 
 			if (ClipText)
 			{
-				wmemset(ClipText,0,BufferSize+1);
-				xwcsncpy(ClipText,ClipAddr,BufferSize+1);
+				xwcsncpy(ClipText,ClipAddr, length + 1);
+				ClipText[length] = 0;
 			}
 
 			GlobalUnlock(hClipData);
@@ -463,7 +451,7 @@ wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
 			else
 				BufferSize=wcslen(ClipAddr)+1;
 
-			ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
+			ClipText = new wchar_t[BufferSize];
 
 			if (ClipText)
 			{

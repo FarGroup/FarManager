@@ -92,7 +92,7 @@ void ShowProcessList()
 
 						if (LenTitle)
 						{
-							lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+							lpwszTitle = new wchar_t[LenTitle + 1];
 
 							if (lpwszTitle && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
 								lpwszTitle[LenTitle]=0;
@@ -102,7 +102,7 @@ void ShowProcessList()
 						GetWindowThreadProcessId(ProcWnd,&ProcID);
 
 						if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-									lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
+									NullToEmpty(lpwszTitle),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
 						{
 							if (KillProcess(ProcID))
 								Sleep(500);
@@ -110,7 +110,7 @@ void ShowProcessList()
 								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
 						}
 
-						if (lpwszTitle) xf_free(lpwszTitle);
+						delete[] lpwszTitle;
 					}
 				}
 				case KEY_CTRLR:
@@ -199,7 +199,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 
 		if (LenTitle)
 		{
-			wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+			wchar_t *lpwszTitle = new wchar_t[LenTitle+1];
 
 			if (lpwszTitle)
 			{
@@ -212,7 +212,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 					ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
 				}
 
-				xf_free(lpwszTitle);
+				delete[] lpwszTitle;
 			}
 		}
 	}

@@ -73,7 +73,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
 
-	wchar_t *PartBeforeName = (wchar_t*)xf_malloc((BeforeNameLength+1)*sizeof(wchar_t));
+	wchar_t *PartBeforeName = new wchar_t[BeforeNameLength + 1];
 
 	xwcsncpy(PartBeforeName, Src, BeforeNameLength+1);
 
@@ -144,7 +144,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	if (SelectedFolderNameLength)
 		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
-	xf_free(PartBeforeName);
+	delete[] PartBeforeName;
 	return TRUE;
 }
 

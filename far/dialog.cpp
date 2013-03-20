@@ -1260,8 +1260,7 @@ void Dialog::DeleteDialogObjects()
 		}
 
 		if (i->Flags&DIF_AUTOMATION)
-			if (i->AutoPtr)
-				xf_free(i->AutoPtr);
+			i->Auto.clear();
 	});
 }
 
@@ -4067,8 +4066,6 @@ int Dialog::SelectFromComboBox(
     DlgEdit *EditLine,                   // строка редактирования
     VMenu *ComboBox)    // список строк
 {
-	//if((Str=(char*)xf_malloc(MaxLen)) )
-	{
 		CriticalSectionLock Lock(CS);
 		//char *Str;
 		string strStr;
@@ -4199,8 +4196,6 @@ int Dialog::SelectFromComboBox(
 		Redraw();
 		//xf_free(Str);
 		return KEY_ENTER;
-	}
-	//return KEY_ESC;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -5676,19 +5671,18 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			intptr_t Ret=DlgProc(Msg,Param1,Param2);
 
-			if (Ret && (CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
+			if (Ret && (CurItem->Flags&DIF_AUTOMATION) && !CurItem->Auto.empty())
 			{
-				DialogItemAutomation* Auto=CurItem->AutoPtr;
 				intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
 				iParam%=3;
 
-				for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
+				std::for_each(RANGE(CurItem->Auto, i)
 				{
-					FARDIALOGITEMFLAGS NewFlags=Items[Auto->ID]->Flags;
-					Items[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[iParam][1]))|Auto->Flags[iParam][0];
+					FARDIALOGITEMFLAGS NewFlags=Items[i.ID]->Flags;
+					Items[i.ID]->Flags=(NewFlags&(~i.Flags[iParam][1]))|i.Flags[iParam][0];
 					// здесь намеренно в обработчик не посылаются эвенты об изменении
 					// состояния...
-				}
+				});
 			}
 
 			return Ret;
@@ -5738,19 +5732,16 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (Selected != State && DialogMode.Check(DMODE_SHOW))
 				{
 					// автоматизация
-					if ((CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
+					if ((CurItem->Flags&DIF_AUTOMATION) && !CurItem->Auto.empty())
 					{
-						DialogItemAutomation* Auto=CurItem->AutoPtr;
 						State%=3;
-
-						for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
+						std::for_each(RANGE(CurItem->Auto, i)
 						{
-							FARDIALOGITEMFLAGS NewFlags=Items[Auto->ID]->Flags;
-							Items[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[State][1]))|Auto->Flags[State][0];
+							FARDIALOGITEMFLAGS NewFlags = Items[i.ID]->Flags;
+							Items[i.ID]->Flags=(NewFlags&(~i.Flags[State][1]))|i.Flags[State][0];
 							// здесь намеренно в обработчик не посылаются эвенты об изменении
 							// состояния...
-						}
-
+						});
 						Param1=-1;
 					}
 

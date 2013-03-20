@@ -94,7 +94,7 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 
 	size_t len=masks.GetLength()+1;
 	bool rc=false;
-	wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof(wchar_t));
+	wchar_t *MasksStr = new wchar_t[len];
 
 	if (MasksStr)
 	{
@@ -123,8 +123,7 @@ bool FileMasksWithExclude::Set(const string& masks, DWORD Flags)
 	if (!rc)
 		Free();
 
-	if (MasksStr)
-		xf_free(MasksStr);
+	delete[] MasksStr;
 
 	return rc;
 }

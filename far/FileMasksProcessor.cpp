@@ -53,15 +53,12 @@ void FileMasksProcessor::Free()
 {
 	Masks.clear();
 
-	if (re)
-		delete re;
-
+	delete re;
 	re = nullptr;
 
-	if (m)
-		xf_free(m);
-
+	delete[] m;
 	m = nullptr;
+
 	n = 0;
 	bRE = false;
 }
@@ -128,7 +125,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 		if (re && re->Compile(expmasks, OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
-			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
+			m = new SMatch[n];
 
 			if (!m)
 			{

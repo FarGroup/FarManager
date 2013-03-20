@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "plugins.hpp"
+#include "mix.hpp"
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64* Size)
 {
@@ -279,8 +280,6 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	return 1;
 }
 
-static PluginPanelItem *PluginDirList;
-static int DirListItemsNumber;
 static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
@@ -305,7 +304,7 @@ static void PR_FarGetPluginDirListMsg()
 	}
 }
 
-static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSearchPath)
+static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, PluginPanelItem *CurPanelItem, string& strPluginSearchPath)
 {
 	string strFullName;
 	strFullName = strPluginSearchPath;
@@ -317,15 +316,13 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSe
 			lpwszFullName[I]=L'\\';
 
 	strFullName.ReleaseBuffer();
-	PluginPanelItem *DestItem=PluginDirList+DirListItemsNumber;
-	*DestItem=*CurPanelItem;
+	PluginDirList.push_back(*CurPanelItem);
 
-	DestItem->FileName = DuplicateString(strFullName);
-	DestItem->AlternateFileName=nullptr;
-	DirListItemsNumber++;
+	PluginDirList.back().FileName = DuplicateString(strFullName);
+	PluginDirList.back().AlternateFileName=nullptr;
 }
 
-static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath)
+static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -356,22 +353,14 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath)
 	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND|OpMode))
 		return;
 
-	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
-
-	if (!NewList)
-	{
-		StopSearch=TRUE;
-		return;
-	}
-
-	PluginDirList=NewList;
+	PluginDirList.reserve(PluginDirList.size() + ItemCount);
 
 	for (size_t i=0; i<ItemCount && !StopSearch; i++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
+			PushPluginDirItem(PluginDirList, CurPanelItem, strPluginSearchPath);
 	}
 
 	for (size_t i=0; i<ItemCount && !StopSearch; i++)
@@ -382,27 +371,18 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath)
 		        StrCmp(CurPanelItem->FileName,L".") &&
 		        !TestParentFolderName(CurPanelItem->FileName))
 		{
-			PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
-
-			if (!NewList)
-			{
-				StopSearch=TRUE;
-				return;
-			}
-
-			PluginDirList=NewList;
 			/* $ 30.11.2001 DJ
 					используем общую функцию для копирования FindData (не забываем
 					обработать PPIF_USERDATA)
 			*/
-			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
+			PushPluginDirItem(PluginDirList, CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
 
 			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND|OpMode,&CurPanelItem->UserData))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath);
+				ScanPluginDir(OpMode,strPluginSearchPath, PluginDirList);
 				size_t pos = (size_t)-1;
 				strPluginSearchPath.RPos(pos,L'\x1');
 				strPluginSearchPath.SetLength(pos);
@@ -467,8 +447,14 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 			PluginSearchMsgOut=FALSE;
 			hDirListPlugin=(HANDLE)&DirListPlugin;
 			StopSearch=FALSE;
-			*pItemsNumber=DirListItemsNumber=0;
-			*pPanelItem=PluginDirList=nullptr;
+
+			auto PluginDirList = new std::vector<PluginPanelItem>;
+			// first item is reserved for internal needs
+			PluginDirList->push_back(PluginPanelItem());
+			PluginDirList->front().Reserved[0] = reinterpret_cast<intptr_t>(PluginDirList);
+
+			*pItemsNumber = 0;
+			*pPanelItem = nullptr;
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = Info.CurDir;
@@ -479,9 +465,12 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath);
-				*pPanelItem=PluginDirList;
-				*pItemsNumber=DirListItemsNumber;
+				ScanPluginDir(OpMode,strPluginSearchPath, *PluginDirList);
+
+
+				*pPanelItem = PluginDirList->data() + 1;
+				*pItemsNumber = PluginDirList->size() - 1;
+
 				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
@@ -502,6 +491,27 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 		}
 	}
 	return !StopSearch;
+}
+
+void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem)
+{
+	if (!PanelItem)
+		return;
+
+	auto PluginDirList = reinterpret_cast<std::vector<PluginPanelItem>*>((PanelItem-1)->Reserved[0]);
+
+	// first item is reserved for internal needs
+	std::for_each(PluginDirList->begin() + 1, PluginDirList->end(), [&](VALUE_TYPE(PluginDirList)& i)
+	{
+		if(i.UserData.FreeData)
+		{
+			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+			i.UserData.FreeData(i.UserData.Data,&info);
+		}
+		FreePluginPanelItem(&i);
+	});
+
+	delete PluginDirList;
 }
 
 int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
@@ -534,12 +544,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 
 	if (PanelItem)
 	{
-		pluginapi::apiFreePluginDirList(ph->hPlugin, PanelItem, ItemsNumber);
-		if (PanelItem==PluginDirList) // Mantins#0002077
-		{
-			PluginDirList=nullptr;
-			DirListItemsNumber=0;
-		}
+		FreePluginDirList(ph->hPlugin, PanelItem);
 	}
 
 	return(ExitCode);

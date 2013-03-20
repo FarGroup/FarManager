@@ -1994,7 +1994,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (Length)
 				{
 					DWORD length = (codepage == CP_REVERSEBOM?static_cast<DWORD>(Length*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, SaveStr, Length, nullptr, 0, nullptr, nullptr));
-					char *SaveStrCopy=(char *)xf_malloc(length);
+					char *SaveStrCopy = new char[length];
 
 					if (SaveStrCopy)
 					{
@@ -2009,7 +2009,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							SysErrorCode=GetLastError();
 						}
 
-						xf_free(SaveStrCopy);
+						delete[] SaveStrCopy;
 					}
 					else
 						bError = true;
@@ -2020,7 +2020,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					if (EndLength)
 					{
 						DWORD endlength = (codepage == CP_REVERSEBOM?static_cast<DWORD>(EndLength*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, EndSeq, EndLength, nullptr, 0, nullptr, nullptr));
-						char *EndSeqCopy=(char *)xf_malloc(endlength);
+						char *EndSeqCopy = new char[endlength];
 
 						if (EndSeqCopy)
 						{
@@ -2035,7 +2035,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 								SysErrorCode=GetLastError();
 							}
 
-							xf_free(EndSeqCopy);
+							delete[] EndSeqCopy;
 						}
 						else
 							bError = true;

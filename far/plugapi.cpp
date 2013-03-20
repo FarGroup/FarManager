@@ -971,7 +971,8 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	{
 		ItemsNumber=0;
 
-		if (!(SingleItems=(wchar_t *)xf_malloc((StrLength((const wchar_t *)Items)+2)*sizeof(wchar_t))))
+		SingleItems = new wchar_t[StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2];
+		if (!SingleItems)
 			return -1;
 
 		wchar_t *Msg=wcscpy(SingleItems,(const wchar_t *)Items);
@@ -987,15 +988,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		ItemsNumber++; //??
 	}
 
-	const wchar_t **MsgItems=(const wchar_t **)xf_malloc(sizeof(wchar_t*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
-
-	if (!MsgItems)
-	{
-		xf_free(SingleItems);
-		return -1;
-	}
-
-	memset(MsgItems,0,sizeof(wchar_t*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
+	std::vector<const wchar_t*> MsgItems(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE);
 
 	if (Flags&FMSG_ALLINONE)
 	{
@@ -1084,12 +1077,12 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	}
 
 	// непосредственно... вывод
-	Frame *frame;
+	Frame *frame = FrameManager->GetBottomFrame();
 
-	if ((frame=FrameManager->GetBottomFrame()))
+	if (frame)
 		frame->Lock(); // отменим прорисовку фрейма
 
-	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], MsgItems+1, ItemsNumber-1, strTopic.IsEmpty()? nullptr : strTopic.CPtr(), PluginNumber, Id);
+	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic), PluginNumber, Id);
 
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.
@@ -1099,10 +1092,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 	//CheckScreenLock();
 
-	if (SingleItems)
-		xf_free(SingleItems);
-
-	xf_free(MsgItems);
+	delete[] SingleItems;
 
 	return MsgCode;
 }
@@ -1455,21 +1445,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 
 void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	if (!PanelItem)
-		return;
-
-	for (size_t I=0; I<ItemsNumber; I++)
-	{
-		PluginPanelItem *CurPanelItem=PanelItem+I;
-		if(CurPanelItem->UserData.FreeData)
-		{
-			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
-			CurPanelItem->UserData.FreeData(CurPanelItem->UserData.Data,&info);
-		}
-		FreePluginPanelItem(CurPanelItem);
-	}
-
-	xf_free(PanelItem);
+	FreePluginDirList(hPlugin, PanelItem);
 }
 
 intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
@@ -1972,7 +1948,7 @@ static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Length)
 			wmemcpy(Data,str,Length-1);
 			Data[Length-1]=0;
 		}
-		xf_free(str);
+		delete[] str;
 	}
 	return size;
 }
@@ -1987,7 +1963,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 				wchar_t* str=PasteFormatFromClipboard(FCF_VERTICALBLOCK_UNICODE);
 				if(str)
 				{
-					xf_free(str);
+					delete[] str;
 					break;
 				}
 			}

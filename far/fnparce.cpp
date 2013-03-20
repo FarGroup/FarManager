@@ -806,7 +806,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				}
 
 				LPCVOID Ptr=nullptr;
-				LPSTR Buffer=nullptr;
+				char* Buffer=nullptr;
 				DWORD NumberOfBytesToWrite=0,NumberOfBytesWritten=0;
 
 				if (CodePage==CP_UNICODE)
@@ -820,7 +820,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 					if (Size)
 					{
-						Buffer=static_cast<LPSTR>(xf_malloc(Size));
+						Buffer = new char[Size];
 
 						if (Buffer)
 						{
@@ -832,8 +832,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,NumberOfBytesWritten);
 
-				if (Buffer)
-					xf_free(Buffer);
+				delete[] Buffer;
 
 				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{

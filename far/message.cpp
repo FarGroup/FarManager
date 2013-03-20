@@ -218,7 +218,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	int Length, BtnLength;
 	DWORD I, MaxLength, StrCount;
 	BOOL ErrorSets=FALSE;
-	const wchar_t **Str;
 	wchar_t *PtrStr;
 	const wchar_t *CPtrStr;
 	string strErrStr;
@@ -287,7 +286,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 #endif
 
 	// выделим память под рабочий массив указателей на строки (+запас 16)
-	Str=(const wchar_t **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(wchar_t*));
+	std::vector<const wchar_t*> Str(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE);
 
 	StrCount=static_cast<DWORD>(ItemsNumber-Buttons);
 
@@ -563,7 +562,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 		}
 
 		delete [] MsgDlg;
-		xf_free(Str);
 		m_ExitCode = RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0);
 	}
 	else
@@ -625,24 +623,21 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 			Length=ScrX-15;
 
 		int Width=X2-X1+1;
-		wchar_t *lpwszTemp = nullptr;
+		FormatString Temp;
 		int PosX;
 		if (Flags & MSG_LEFTALIGN)
 		{
-			lpwszTemp = (wchar_t*)xf_malloc((Width-10+1)*sizeof(wchar_t));
-			_snwprintf(lpwszTemp,Width-10+1,L"%.*s",Width-10,CPtrStr);
+			Temp << fmt::LeftAlign() << fmt::MinWidth(Width-10) << CPtrStr;
 			GotoXY(X1+5,Y1+I+2);
 		}
 		else
 		{
 			PosX=X1+(Width-Length)/2;
-			lpwszTemp = (wchar_t*)xf_malloc((PosX-X1-4+Length+X2-PosX-Length-3+1)*sizeof(wchar_t));
-			_snwprintf(lpwszTemp,PosX-X1-4+Length+X2-PosX-Length-3+1,L"%*s%.*s%*s",PosX-X1-4,L"",Length,CPtrStr,X2-PosX-Length-3,L"");
+			Temp << fmt::MaxWidth(PosX-X1-4) << L"" << fmt::MinWidth(Length) << CPtrStr << fmt::MaxWidth(X2-PosX-Length-3) << L"";
 			GotoXY(X1+4,Y1+I+2);
 		}
 
-		Text(lpwszTemp);
-		xf_free(lpwszTemp);
+		Text(Temp);
 	}
 
 	/* $ 13.01.2003 IS
@@ -651,7 +646,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	     чтобы заработал прогресс-бар от плагина, который был запущен при помощи
 	     макроса запретом отрисовки (bugz#533).
 	*/
-	xf_free(Str);
 
 	if (!Buttons)
 	{

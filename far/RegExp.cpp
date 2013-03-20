@@ -383,8 +383,7 @@ struct UniSet
 
 		if (!high[h])
 		{
-			high[h]=new unsigned char[32];
-			memset(high[h],0,32);
+			high[h]=new unsigned char[32]();
 		}
 
 		high[h][(chr&0xff)>>3]|=1<<(chr&7);
@@ -395,8 +394,7 @@ struct UniSet
 
 		if (!high[h])
 		{
-			high[h]=new unsigned char[32];
-			memset(high[h],0,32);
+			high[h]=new unsigned char[32]();
 		}
 
 		high[h][(chr&0xff)>>3]&=~(1<<(chr&7));
@@ -1160,8 +1158,7 @@ int RegExp::Compile(const RECHAR* src,int options)
 	code=static_cast<REOpCode*>
 	     (CreateArray(sizeof(REOpCode), relength, REOpCode::OnCreate));
 #else
-	code=new REOpCode[relength];
-	memset(code,0,sizeof(REOpCode)*relength);
+	code=new REOpCode[relength]();
 #endif
 
 	for (int i=0; i<relength; i++)
@@ -1765,8 +1762,7 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 				int lastchar=-1;
 				int classsize=0;
 				op->op=opSymbolClass;
-				//op->symbolclass=new rechar[32];
-				//memset(op->symbolclass,0,32);
+				//op->symbolclass=new rechar[32]();
 #ifdef UNICODE
 				op->symbolclass=new UniSet();
 				tmpclass=op->symbolclass;

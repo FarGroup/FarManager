@@ -355,7 +355,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 	return (ExitCode);
 }
 
-bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
+bool IsTextUTF8(const char* Buffer,size_t Length)
 {
 	bool Ascii=true;
 	size_t Octets=0;
@@ -433,7 +433,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 	{
 		fseek(file, 0, SEEK_SET);
 		size_t sz=0x8000; // BUGBUG. TODO: configurable
-		LPVOID Buffer=xf_malloc(sz);
+		char* Buffer = new char[sz];
 		sz=fread(Buffer,1,sz,file);
 		fseek(file,0,SEEK_SET);
 
@@ -469,7 +469,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 					}
 				}
 			}
-			else if (IsTextUTF8((const LPBYTE)Buffer, sz))
+			else if (IsTextUTF8(Buffer, sz))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
@@ -477,7 +477,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 			else
 			{
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
-				ns->HandleData((const char*)Buffer,(PRUint32)sz);
+				ns->HandleData(Buffer,(PRUint32)sz);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
 
@@ -491,7 +491,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 			}
 		}
 
-		xf_free(Buffer);
+		delete[] Buffer;
 	}
 
 	if (pSignatureFound)
@@ -502,15 +502,13 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage)
 {
-	char *lpDest = (char*)xf_malloc((nDestLength+1)*3);  //UTF-8, up to 3 bytes per char support
-	memset(lpDest, 0, (nDestLength+1)*3);
-	memset(lpwszDest, 0, nDestLength*sizeof(wchar_t));
+	char *lpDest = new char[(nDestLength+1)*3]();  //UTF-8, up to 3 bytes per char support
 
 	if ((nCodePage == CP_UNICODE) || (nCodePage == CP_REVERSEBOM))
 	{
 		if (!fgetws(lpwszDest, nDestLength, file))
 		{
-			xf_free(lpDest);
+			delete[] lpDest;
 			return nullptr;
 		}
 
@@ -541,7 +539,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 			MultiByteToWideChar(CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
 		else
 		{
-			xf_free(lpDest);
+			delete[] lpDest;
 			return nullptr;
 		}
 	}
@@ -551,12 +549,12 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 			MultiByteToWideChar(nCodePage, 0, lpDest, -1, lpwszDest, nDestLength);
 		else
 		{
-			xf_free(lpDest);
+			delete[] lpDest;
 			return nullptr;
 		}
 	}
 
-	xf_free(lpDest);
+	delete[] lpDest;
 	return lpwszDest;
 }
 
@@ -947,7 +945,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 	{
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 		DWORD Size=0x8000; // BUGBUG. TODO: configurable
-		LPVOID Buffer=xf_malloc(Size);
+		char* Buffer = new char[Size];
 		DWORD ReadSize = 0;
 		bool ReadResult = file.Read(Buffer, Size, ReadSize);
 		file.SetPointer(0, nullptr, FILE_BEGIN);
@@ -982,7 +980,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 					}
 				}
 			}
-			else if (IsTextUTF8(static_cast<LPBYTE>(Buffer), ReadSize))
+			else if (IsTextUTF8(Buffer, ReadSize))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
@@ -990,7 +988,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 			else
 			{
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
-				ns->HandleData(static_cast<LPCSTR>(Buffer), ReadSize);
+				ns->HandleData(Buffer, ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
@@ -1037,7 +1035,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 			}
 		}
 
-		xf_free(Buffer);
+		delete[] Buffer;
 	}
 
 	if (pSignatureFound)

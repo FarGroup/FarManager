@@ -74,7 +74,7 @@ static int HexToInt(int h)
 
 static char *BlobToHexString(const char *Blob, int Size)
 {
-	char *Hex = (char *)xf_malloc(Size*2+Size+1);
+	auto Hex = new char[Size*2 + Size + 1];
 	for (int i=0, j=0; i<Size; i++, j+=3)
 	{
 		Hex[j] = IntToHex((Blob[i]&0xF0) >> 4);
@@ -89,7 +89,7 @@ static char *BlobToHexString(const char *Blob, int Size)
 static char *HexStringToBlob(const char *Hex, int *Size)
 {
 	*Size=0;
-	char *Blob = (char *)xf_malloc(strlen(Hex)/2+1);
+	auto Blob = new char[strlen(Hex)/2 + 1];
 	if (!Blob)
 		return nullptr;
 
@@ -421,7 +421,7 @@ public:
 					char *hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
 					e->SetAttribute("type", "hex");
 					e->SetAttribute("value", hex);
-					xf_free(hex);
+					delete[] hex;
 				}
 			}
 
@@ -466,7 +466,7 @@ public:
 				if (Blob)
 				{
 					SetValue(Key, Name, Blob, Size);
-					xf_free(Blob);
+					delete[] Blob;
 				}
 			}
 			else
@@ -730,7 +730,7 @@ public:
 			char* hex = BlobToHexString(Blob, Size);
 			e->SetAttribute("type", "hex");
 			e->SetAttribute("value", hex);
-			xf_free(hex);
+			delete[] hex;
 	}
 
 	void Export(unsigned __int64 id, TiXmlElement *key)
@@ -846,7 +846,7 @@ public:
 				if (Blob)
 				{
 					SetValue(id, Name, Blob, Size);
-					xf_free(Blob);
+					delete[] Blob;
 				}
 			}
 			else
@@ -857,7 +857,7 @@ public:
 				if (Blob)
 				{
 					SetValue(id, Name, Blob, Size);
-					xf_free(Blob);
+					delete[] Blob;
 				}
 			}
 		}
@@ -929,7 +929,7 @@ private:
 			if(background && foreground && flags)
 			{
 				Result = sizeof(FarColor);
-				FarColor* Color = static_cast<FarColor*>(xf_malloc(Result));
+				auto Color = new FarColor;
 				Color->BackgroundColor = HexStringToInt(background);
 				Color->ForegroundColor = HexStringToInt(foreground);
 				Color->Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
@@ -2605,7 +2605,6 @@ Database::Database(bool ImportExportMode):
 
 Database::~Database()
 {
-	m_Problems.clear();
 	delete m_HistoryCfgMem;
 	delete m_HistoryCfg;
 	delete m_PlHotkeyCfg;

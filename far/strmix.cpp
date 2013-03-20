@@ -1418,7 +1418,7 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 			intptr_t n = re.GetBracketsCount();
 			if (n > static_cast<int>(ARRAYSIZE(m)/2))
 			{
-				pm = (SMatch *)xf_malloc(2*n*sizeof(SMatch));
+				pm = new SMatch[n * 2];
 				if (!pm)
 					return false;
 			}
@@ -1454,7 +1454,7 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 				ReplaceStr=ReplaceBrackets(Source,ReplaceStr,pm+half,n);
 			}
 			if (pm != m)
-				xf_free(pm);
+				delete[] pm;
 
 			return found;
 		}

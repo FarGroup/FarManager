@@ -4697,7 +4697,7 @@ static bool clipFunc(FarMacroCall* Data)
 			if (ClipText)
 			{
 				PassString(ClipText, Data);
-				xf_free(ClipText);
+				delete[] ClipText;
 				return true;
 			}
 
@@ -4737,18 +4737,18 @@ static bool clipFunc(FarMacroCall* Data)
 				if (CopyData)
 				{
 					size_t DataSize=StrLength(CopyData);
-					wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+StrLength(Val.s())+2)*sizeof(wchar_t));
-
+					wchar_t *NewPtr = new wchar_t[DataSize+StrLength(Val.s())+2];
 					if (NewPtr)
 					{
-						CopyData=NewPtr;
-						wcscpy(CopyData+DataSize,Val.s());
-						varClip=CopyData;
-						xf_free(CopyData);
+						wcscpy(NewPtr, CopyData);
+						delete[] CopyData;
+						wcscpy(NewPtr+DataSize,Val.s());
+						varClip=NewPtr;
+						delete[] NewPtr;
 					}
 					else
 					{
-						xf_free(CopyData);
+						delete[] CopyData;
 					}
 				}
 
@@ -5760,29 +5760,6 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			}
 		}
 
-		/*
-		int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
-		char *KeyStr;
-		if(KeySize &&
-			(KeyStr=(char*)xf_malloc(KeySize+1))  &&
-			GetRegKey("KeyMacros","DlgKeys",KeyStr,"",KeySize)
-		)
-		{
-			UserDefinedList KeybList;
-			if(KeybList.Set(KeyStr))
-			{
-				KeybList.Start();
-				const char *OneKey;
-				*KeyText=0;
-				while(nullptr!=(OneKey=KeybList.GetNext()))
-				{
-					xstrncpy(KeyText, OneKey, sizeof(KeyText));
-					Dlg->SendMessage(DM_LISTADDSTR,2,(long)KeyText);
-				}
-			}
-			xf_free(KeyStr);
-		}
-		*/
 		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
 		// </Клавиши, которые не введешь в диалоге назначения>
 	}

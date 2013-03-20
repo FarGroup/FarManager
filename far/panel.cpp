@@ -1282,7 +1282,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-	wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddr())+32)*sizeof(wchar_t));
+	wchar_t *Ptr = new wchar_t[StrLength(Src)+StrLength(FindEdit->GetStringAddr()) + 1];
 
 	if (Ptr)
 	{
@@ -1311,7 +1311,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 			*--EndPtr=0;
 		}
 
-		xf_free(Ptr);
+		delete[] Ptr;
 	}
 }
 
@@ -1391,7 +1391,7 @@ void Panel::FastFind(int FirstKey)
 								FastFindShow(FindX,FindY);
 							}
 
-							xf_free(ClipText);
+							delete[] ClipText;
 						}
 
 						continue;

@@ -58,7 +58,6 @@ Frame::~Frame()
 {
 	_OT(SysLog(L"[%p] Frame::~Frame()", this));
 	DestroyAllModal();
-//  xf_free(ModalStack);
 }
 
 void Frame::SetKeyBar(KeyBar *FrameKeyBar)

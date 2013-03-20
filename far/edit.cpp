@@ -1415,8 +1415,7 @@ int Edit::ProcessKey(int Key)
 				InsertString(ClipText);
 			}
 
-			if (ClipText)
-				xf_free(ClipText);
+			delete[] ClipText;
 
 			Show();
 			return TRUE;

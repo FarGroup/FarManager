@@ -1421,7 +1421,7 @@ int VMenu::ProcessKey(int Key)
 					DisplayObject();
 				}
 
-				xf_free(ClipText);
+				delete[] ClipText;
 			}
 			return TRUE;
 		}

@@ -423,8 +423,7 @@ static char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, ui
 	if (!lpwszUnicodeString || (nLength < 0))
 		return nullptr;
 
-	auto Result = new char[nLength + 1];
-	memset(Result, 0, nLength+1);
+	auto Result = new char[nLength + 1]();
 
 	if (nLength)
 	{
@@ -720,8 +719,7 @@ static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 
 static void ConvertAnsiPanelItemToUnicode(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
 {
-	*PanelItemW = new PluginPanelItem[ItemsNumber];
-	memset(*PanelItemW,0,ItemsNumber*sizeof(PluginPanelItem));
+	*PanelItemW = new PluginPanelItem[ItemsNumber]();
 
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
@@ -3297,11 +3295,10 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 				if (PI.ItemsNumber)
 				{
-					OldPI->PanelItems = new oldfar::PluginPanelItem[PI.ItemsNumber];
+					OldPI->PanelItems = new oldfar::PluginPanelItem[PI.ItemsNumber]();
 
 					if (OldPI->PanelItems)
 					{
-						memset(OldPI->PanelItems,0,PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
 						PluginPanelItem* PPI=nullptr; int PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.ItemsNumber); i++)
@@ -3335,11 +3332,10 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 				if (PI.SelectedItemsNumber)
 				{
-					OldPI->SelectedItems = new oldfar::PluginPanelItem[PI.SelectedItemsNumber];
+					OldPI->SelectedItems = new oldfar::PluginPanelItem[PI.SelectedItemsNumber]();
 
 					if (OldPI->SelectedItems)
 					{
-						memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
 						PluginPanelItem* PPI=nullptr; int PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.SelectedItemsNumber); i++)

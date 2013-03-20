@@ -374,7 +374,7 @@ DWORD GetRelationDrivesMask(DEVINST hDevInst)
 		{
 			if (dwSize)
 			{
-				wchar_t *lpDeviceIdList = (wchar_t*)xf_malloc(dwSize*sizeof(wchar_t));
+				wchar_t *lpDeviceIdList = new wchar_t[dwSize];
 
 				if (CM_Get_Device_ID_List(szDeviceID, lpDeviceIdList, dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) == CR_SUCCESS)
 				{
@@ -389,7 +389,7 @@ DWORD GetRelationDrivesMask(DEVINST hDevInst)
 					}
 				}
 
-				xf_free(lpDeviceIdList);
+				delete[] lpDeviceIdList;
 			}
 		}
 	}

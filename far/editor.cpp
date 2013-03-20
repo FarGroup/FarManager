@@ -845,7 +845,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (Text)
 			{
 				strText = Text;
-				xf_free(Text);
+				delete[] Text;
 			}
 
 			*(string *)vParam=strText;
@@ -3405,7 +3405,7 @@ void Editor::InsertString()
 		            CurLine->GetCurPos(),CurLine->GetLength());
 		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
 		AddUndoData(UNDO_END);
-		wchar_t *NewCurLineStr = (wchar_t *) xf_malloc((CurPos+1)*sizeof(wchar_t));
+		wchar_t *NewCurLineStr = new wchar_t[CurPos + 1];
 
 		if (!NewCurLineStr)
 			return;
@@ -3421,7 +3421,7 @@ void Editor::InsertString()
 		}
 
 		CurLine->SetBinaryString(NewCurLineStr,StrSize);
-		xf_free(NewCurLineStr);
+		delete[] NewCurLineStr;
 		Change(ECTYPE_CHANGED,NumLine);
 	}
 	else
@@ -4297,9 +4297,10 @@ void Editor::Paste(const wchar_t *Src)
 
 				if (keep_eol)
 					PrevLine->SetEOL(keep_eol);
-				else {
+				else
+				{
 					wchar_t ClipEol[4];
-               wmemcpy(ClipEol, ClipText+I, eol_len);
+					wmemcpy(ClipEol, ClipText+I, eol_len);
 					ClipEol[eol_len] = L'\0';
 					PrevLine->SetEOL(ClipEol);
 				}
@@ -4354,7 +4355,7 @@ void Editor::Paste(const wchar_t *Src)
 	}
 
 	if (IsDeleteClipText)
-		xf_free(ClipText);
+		delete[] ClipText;
 }
 
 
@@ -4379,7 +4380,7 @@ void Editor::Copy(int Append)
 	if ((CopyData=Block2Text(CopyData)) )
 	{
 		clip.Copy(CopyData);
-		xf_free(CopyData);
+		delete[] CopyData;
 	}
 
 	clip.Close();
@@ -4412,12 +4413,12 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 	}
 	TotalChars++; // '\0'
 
-	wchar_t *CopyData=(wchar_t *)xf_malloc(TotalChars*sizeof(wchar_t));
+	wchar_t *CopyData = new wchar_t[TotalChars];
 
 	if (!CopyData)
 	{
 		if (ptrInitData)
-			xf_free(ptrInitData);
+			delete[] ptrInitData;
 
 		return nullptr;
 	}
@@ -4425,7 +4426,7 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 	if (ptrInitData)
 	{
 		wcscpy(CopyData,ptrInitData);
-		xf_free(ptrInitData);
+		delete[] ptrInitData;
 	}
 	else
 	{
@@ -5430,7 +5431,7 @@ void Editor::VCopy(int Append)
 	{
 		clip.Copy(CopyData);
 		clip.CopyFormat(FCF_VERTICALBLOCK_UNICODE, CopyData);
-		xf_free(CopyData);
+		delete[] CopyData;
 	}
 
 	clip.Close();
@@ -5446,20 +5447,18 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 	//RealPos всегда <= TabPos, поэтому берём максимальный размер буффера
 	size_t TotalChars = DataSize + (VBlockSizeX + 2)*VBlockSizeY + 1;
 
-	wchar_t *CopyData=(wchar_t *)xf_malloc(TotalChars*sizeof(wchar_t));
+	wchar_t *CopyData = new wchar_t[TotalChars];
 
 	if (!CopyData)
 	{
-		if (ptrInitData)
-			xf_free(ptrInitData);
-
+		delete[] ptrInitData;
 		return nullptr;
 	}
 
 	if (ptrInitData)
 	{
 		wcscpy(CopyData,ptrInitData);
-		xf_free(ptrInitData);
+		delete[] ptrInitData;
 	}
 	else
 	{
@@ -5596,7 +5595,7 @@ void Editor::VPaste(wchar_t *ClipText)
 		AddUndoData(UNDO_END);
 	}
 
-	xf_free(ClipText);
+	delete[] ClipText;
 }
 
 
@@ -5840,7 +5839,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				int LengthEOL=StrLength(EOL);
 
-				wchar_t *NewStr=(wchar_t*)xf_malloc((Length+LengthEOL+1)*sizeof(wchar_t));
+				wchar_t *NewStr = new wchar_t[Length + LengthEOL + 1];
 
 				if (!NewStr)
 				{
@@ -5862,7 +5861,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				CurPtr->SetCurPos(CurPos);
 				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
-				xf_free(NewStr);
+				delete[] NewStr;
 			}
 
 			return TRUE;
@@ -6515,7 +6514,7 @@ int Editor::DeleteSessionBookmark(InternalEditorSessionBookMark *sb_delete)
 		if (SessionPos==sb_delete)
 			SessionPos=(sb_delete->next)?sb_delete->next:sb_delete->prev;
 
-		xf_free(sb_delete);
+		delete sb_delete;
 		return TRUE;
 	}
 
@@ -6559,7 +6558,7 @@ int Editor::AddSessionBookmark(BOOL blNewPos)
 		SessionPos->next=0;
 	}
 
-	InternalEditorSessionBookMark *sb_new=(InternalEditorSessionBookMark*)xf_malloc(sizeof(InternalEditorSessionBookMark));
+	auto sb_new = new InternalEditorSessionBookMark;
 
 	if (sb_new)
 	{

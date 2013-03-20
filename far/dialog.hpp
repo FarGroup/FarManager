@@ -102,8 +102,7 @@ struct DialogItemEx: public FarDialogItem
 
 	int ID;
 	BitFlags IFlags;
-	DialogItemAutomation* AutoPtr;
-	size_t AutoCount;
+	std::vector<DialogItemAutomation> Auto;
 	void *ObjPtr;
 	VMenu *ListPtr;
 	class DlgUserControl *UCData;
@@ -122,8 +121,7 @@ struct DialogItemEx: public FarDialogItem
 		strData.Clear();
 		ID=0;
 		IFlags.ClearAll();
-		AutoCount=0;
-		AutoPtr=nullptr;
+		Auto.clear();
 		UserData=0;
 		ObjPtr=nullptr;
 		ListPtr=nullptr;
@@ -149,23 +147,16 @@ struct DialogItemEx: public FarDialogItem
 		FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
 	{
-		DialogItemAutomation *Auto;
-
-		if ((Auto=(DialogItemAutomation*)xf_realloc(AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) )
-		{
-			AutoPtr=Auto;
-			Auto=AutoPtr+AutoCount;
-			Auto->ID=id;
-			Auto->Flags[0][0]=UncheckedSet;
-			Auto->Flags[0][1]=UncheckedSkip;
-			Auto->Flags[1][0]=CheckedSet;
-			Auto->Flags[1][1]=CheckedSkip;
-			Auto->Flags[2][0]=Checked3Set;
-			Auto->Flags[2][1]=Checked3Skip;
-			AutoCount++;
-			return true;
-		}
-		return false;
+		DialogItemAutomation Item;
+		Item.ID=id;
+		Item.Flags[0][0]=UncheckedSet;
+		Item.Flags[0][1]=UncheckedSkip;
+		Item.Flags[1][0]=CheckedSet;
+		Item.Flags[1][1]=CheckedSkip;
+		Item.Flags[2][0]=Checked3Set;
+		Item.Flags[2][1]=Checked3Skip;
+		Auto.push_back(Item);
+		return true;
 	}
 };
 
