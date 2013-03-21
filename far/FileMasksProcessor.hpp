@@ -51,8 +51,8 @@ class FileMasksProcessor : public BaseFileMask
 
 	private:
 		std::list<string> Masks;
-		RegExp *re;
-		SMatch *m;
+		std::unique_ptr<RegExp> re;
+		array_ptr<SMatch> m;
 		int n;
 		bool bRE;
 

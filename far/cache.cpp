@@ -43,13 +43,12 @@ CachedRead::CachedRead(File& file, DWORD buffer_size):
 	LastPtr(0),
 	Alignment(512),
 	BufferSize(buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize),
-	Buffer(new BYTE[BufferSize])
+	Buffer(BufferSize)
 {
 }
 
 CachedRead::~CachedRead()
 {
-	delete[] Buffer;
 }
 
 bool CachedRead::AdjustAlignment()
@@ -72,8 +71,7 @@ bool CachedRead::AdjustAlignment()
 
 	if (buff_size > BufferSize)
 	{
-		delete[] Buffer;
-		Buffer = new BYTE[BufferSize = buff_size];
+		Buffer.reset(BufferSize = buff_size);
 	}
 
 	Clear();
@@ -167,7 +165,7 @@ bool CachedRead::FillBuffer()
 		if (file.GetSize(FileSize) && Pointer-shift+BufferSize > (INT64)FileSize)
 			read_size = (DWORD)((INT64)FileSize-Pointer+shift);
 
-		Result = file.Read(Buffer, read_size, ReadSize);
+		Result = file.Read(Buffer.get(), read_size, ReadSize);
 		if (Result)
 		{
 			if (ReadSize > (DWORD)shift)
@@ -195,7 +193,7 @@ bool CachedRead::FillBuffer()
 CachedWrite::CachedWrite(File& file):
 	file(file),
 	BufferSize(0x10000),
-	Buffer(new BYTE[BufferSize]),
+	Buffer(BufferSize),
 	FreeSize(BufferSize),
 	Flushed(false)
 {
@@ -204,7 +202,6 @@ CachedWrite::CachedWrite(File& file):
 CachedWrite::~CachedWrite()
 {
 	Flush();
-	delete[] Buffer;
 }
 
 bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
@@ -250,7 +247,7 @@ bool CachedWrite::Flush()
 		{
 			DWORD WrittenSize=0;
 
-			if (file.Write(Buffer, BufferSize-FreeSize, WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
+			if (file.Write(Buffer.get(), BufferSize-FreeSize, WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
 			{
 				Flushed=true;
 				FreeSize=BufferSize;

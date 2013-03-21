@@ -354,13 +354,13 @@ bool DizList::Flush(const string& Path,const string* DizName)
 					});
 				}
 				DWORD Size=static_cast<DWORD>((dump.GetLength() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
-				char* lpDizText = new char[Size];
-				if (lpDizText)
+				char_ptr DizText(Size);
+				if (DizText)
 				{
-					int BytesCount=WideCharToMultiByte(CodePage, 0, dump, static_cast<int>(dump.GetLength()+1), lpDizText, Size, nullptr, nullptr);
+					int BytesCount=WideCharToMultiByte(CodePage, 0, dump, static_cast<int>(dump.GetLength()+1), DizText.get(), Size, nullptr, nullptr);
 					if (BytesCount && BytesCount-1)
 					{
-						if(Cache.Write(lpDizText, BytesCount-1))
+						if(Cache.Write(DizText.get(), BytesCount-1))
 						{
 							EmptyDiz=false;
 						}
@@ -375,7 +375,6 @@ bool DizList::Flush(const string& Path,const string* DizName)
 							break;
 						}
 					}
-					delete[] lpDizText;
 				}
 			}
 		}

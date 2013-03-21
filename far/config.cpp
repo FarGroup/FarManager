@@ -1806,7 +1806,8 @@ bool AdvancedConfig()
 
 	FarList Items={sizeof(FarList)};
 	Items.ItemsNumber = FARConfig.Size;
-	Items.Items = new FarListItem[Items.ItemsNumber];
+	array_ptr<FarListItem> items(Items.ItemsNumber);
+	Items.Items = items.get();
 
 	for(size_t i = 0; i < Items.ItemsNumber; ++i)
 	{
@@ -1819,7 +1820,6 @@ bool AdvancedConfig()
 	Dlg.SetHelp(L"FarConfig");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg.Process();
-	delete[] Items.Items;
 	return true;
 }
 

@@ -51,7 +51,7 @@ private:
 	INT64 LastPtr;
 	int Alignment;
 	DWORD BufferSize; // = 2*k*Alignment (k >= 2)
-	LPBYTE Buffer;
+	array_ptr<BYTE> Buffer;
 };
 
 
@@ -66,7 +66,7 @@ public:
 private:
 	File& file;
 	const DWORD BufferSize;
-	LPBYTE Buffer;
+	array_ptr<BYTE> Buffer;
 	DWORD FreeSize;
 	bool Flushed;
 };

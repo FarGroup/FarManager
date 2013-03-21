@@ -896,14 +896,14 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	Type=(Type==DOUBLE_BOX || Type==SHORT_DOUBLE_BOX);
 
 	WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-	LPWSTR HeapBuffer=nullptr;
+	wchar_t_ptr HeapBuffer;
 	LPWSTR BufPtr=StackBuffer;
 
 	const size_t height=y2-y1;
 	if(height>StackBufferSize/sizeof(WCHAR))
 	{
-		HeapBuffer=new WCHAR[height];
-		BufPtr=HeapBuffer;
+		HeapBuffer.reset(height);
+		BufPtr=HeapBuffer.get();
 	}
 	wmemset(BufPtr, BoxSymbols[Type?BS_V2:BS_V1], height-1);
 	BufPtr[height-1]=0;
@@ -916,13 +916,9 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	{
 		if(width>height)
 		{
-			if(HeapBuffer)
-			{
-				delete[] HeapBuffer;
-			}
-			HeapBuffer=new WCHAR[width];
+			HeapBuffer.reset(width);
+			BufPtr=HeapBuffer.get();
 		}
-		BufPtr=HeapBuffer;
 	}
 	BufPtr[0]=BoxSymbols[Type?BS_LT_H2V2:BS_LT_H1V1];
 	wmemset(BufPtr+1, BoxSymbols[Type?BS_H2:BS_H1], width-3);
@@ -934,11 +930,6 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	BufPtr[width-2]=BoxSymbols[Type?BS_RB_H2V2:BS_RB_H1V1];
 	GotoXY(x1,y2);
 	Text(BufPtr);
-
-	if(HeapBuffer)
-	{
-		delete[] HeapBuffer;
-	}
 }
 
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)
@@ -957,11 +948,14 @@ bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Size)
 {
 	WCHAR StackBuffer[4000/sizeof(WCHAR)], *Buffer = StackBuffer;
+	wchar_t_ptr HeapBuffer;
 	if ( Length <= 2 || End < Start )
 		return false;
 	if ( Length >= ARRAYSIZE(StackBuffer) )
-		Buffer = new WCHAR[Length + 1];
-
+	{
+		HeapBuffer.reset(Length + 1);
+		Buffer = HeapBuffer.get();
+	}
 	Buffer[0] = Oem2Unicode[0x1E];
 	Buffer[Length--] = L'\0';
 	Buffer[Length--] = Oem2Unicode[0x1F];
@@ -1007,8 +1001,6 @@ bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Si
 
 	GotoXY(X1, Y1);
 	VText(Buffer);
-	if ( Buffer != StackBuffer )
-		delete[] Buffer;
 
 	return true;
 }
@@ -1031,12 +1023,12 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 	GotoXY(X1,Y1);
 	{
 		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-		LPWSTR HeapBuffer=nullptr;
+		wchar_t_ptr HeapBuffer;
 		LPWSTR BufPtr=StackBuffer;
 		if(static_cast<size_t>(Length+3)>=StackBufferSize/sizeof(WCHAR))
 		{
-			HeapBuffer=new WCHAR[Length+3];
-			BufPtr=HeapBuffer;
+			HeapBuffer.reset(Length + 3);
+			BufPtr=HeapBuffer.get();
 		}
 		wmemset(BufPtr+1,BoxSymbols[BS_X_B0],Length);
 		BufPtr[ThumbPos+1]=BoxSymbols[BS_X_B2];
@@ -1044,10 +1036,6 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 		BufPtr[Length+1]=Oem2Unicode[0x1F];
 		BufPtr[Length+2]=0;
 		VText(BufPtr);
-		if(HeapBuffer)
-		{
-			delete[] HeapBuffer;
-		}
 	}
 }
 
@@ -1056,22 +1044,18 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 	if (Length>1)
 	{
 		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-		LPWSTR HeapBuffer=nullptr;
+		wchar_t_ptr HeapBuffer;
 		LPWSTR BufPtr=StackBuffer;
 		if(static_cast<size_t>(Length)>=StackBufferSize/sizeof(WCHAR))
 		{
-			HeapBuffer=new WCHAR[Length+1];
-			BufPtr=HeapBuffer;
+			HeapBuffer.reset(Length + 1);
+			BufPtr=HeapBuffer.get();
 		}
 		MakeSeparator(Length,BufPtr,Type,UserSep);
 
 		// 12 - UserSep horiz
 		// 13 - UserSep vert
 		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11) || Type == 13? VText(BufPtr) : Text(BufPtr);
-		if(HeapBuffer)
-		{
-			delete[] HeapBuffer;
-		}
 	}
 }
 

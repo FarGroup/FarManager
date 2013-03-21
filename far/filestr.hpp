@@ -38,8 +38,8 @@ class OldGetFileString
 {
 	private:
 		FILE *SrcFile;
-		wchar_t* wReadBuf;
-		char* ReadBuf;
+		wchar_t_ptr wReadBuf;
+		char_ptr ReadBuf;
 		int m_nwStrLength;
 		int m_nStrLength;
 		wchar_t *wStr;
@@ -86,8 +86,8 @@ class GetFileString
 		LPWSTR* LastString;
 		int LastResult;
 
-		char* ReadBuf;
-		wchar_t* wReadBuf;
+		char_ptr ReadBuf;
+		wchar_t_ptr wReadBuf;
 
 		int m_nStrLength;
 		char *Str;

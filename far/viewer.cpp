@@ -3746,9 +3746,12 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 	else
 	{
 		char *TmpBuf = vread_buffer;
+		char_ptr Buffer;
 		if (Count > vread_buffer_size)
-			TmpBuf = new char[Count];
-
+		{
+			Buffer.reset(Count);
+			TmpBuf = Buffer.get();
+		}
 		Reader.Read(TmpBuf, Count, &ReadSize);
 		int ConvertSize = (int)ReadSize;
 
@@ -3763,9 +3766,6 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			if (tail)
 				Reader.Unread(tail);
 		}
-
-		if (TmpBuf != vread_buffer)
-			delete[] TmpBuf;
 	}
 
 	return (int)ReadSize;

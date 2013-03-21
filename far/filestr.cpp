@@ -61,8 +61,8 @@ enum EolType
 
 OldGetFileString::OldGetFileString(FILE *SrcFile):
 	SrcFile(SrcFile),
-	wReadBuf(new wchar_t[ReadBufCount]),
-	ReadBuf(new char[ReadBufCount]),
+	wReadBuf(ReadBufCount),
+	ReadBuf(ReadBufCount),
 	m_nwStrLength(DELTA),
 	m_nStrLength(DELTA),
 	wStr(static_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
@@ -78,8 +78,6 @@ OldGetFileString::~OldGetFileString()
 {
 	xf_free(wStr);
 	xf_free(Str);
-	delete[] wReadBuf;
-	delete[] ReadBuf;
 }
 
 
@@ -161,7 +159,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : nullptr;
+	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf.get() + ReadPos : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -179,7 +177,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(ReadSize = (int)fread(ReadBuf, 1, ReadBufCount, SrcFile)))
+				if (!(ReadSize = (int)fread(ReadBuf.get(), 1, ReadBufCount, SrcFile)))
 				{
 					if (!CurLength)
 						ExitCode=0;
@@ -188,7 +186,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 				}
 
 				ReadPos = 0;
-				ReadBufPtr = ReadBuf;
+				ReadBufPtr = ReadBuf.get();
 			}
 
 			if (Eol == FEOL_NONE)
@@ -258,7 +256,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : nullptr;
+	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf.get() + ReadPos / sizeof(wchar_t) : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -276,7 +274,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(ReadSize = (int)fread(wReadBuf, sizeof(wchar_t), ReadBufCount, SrcFile)))
+				if (!(ReadSize = (int)fread(wReadBuf.get(), sizeof(wchar_t), ReadBufCount, SrcFile)))
 				{
 					if (!CurLength)
 						ExitCode=0;
@@ -286,10 +284,10 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 				ReadSize *= sizeof(wchar_t);
 
 				if (bBigEndian)
-					_swab(reinterpret_cast<char*>(wReadBuf), reinterpret_cast<char*>(wReadBuf), ReadSize);
+					_swab(reinterpret_cast<char*>(wReadBuf.get()), reinterpret_cast<char*>(wReadBuf.get()), ReadSize);
 
 				ReadPos = 0;
-				ReadBufPtr = wReadBuf;
+				ReadBufPtr = wReadBuf.get();
 			}
 
 			if (Eol == FEOL_NONE)
@@ -433,8 +431,8 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 	{
 		fseek(file, 0, SEEK_SET);
 		size_t sz=0x8000; // BUGBUG. TODO: configurable
-		char* Buffer = new char[sz];
-		sz=fread(Buffer,1,sz,file);
+		char_ptr Buffer(sz);
+		sz=fread(Buffer.get(),1,sz,file);
 		fseek(file,0,SEEK_SET);
 
 		if (sz)
@@ -448,7 +446,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 			    IS_TEXT_UNICODE_ODD_LENGTH|
 			    IS_TEXT_UNICODE_NULL_BYTES;
 
-			if (IsTextUnicode(Buffer, (int)sz, &test))
+			if (IsTextUnicode(Buffer.get(), (int)sz, &test))
 			{
 				if (!(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS))
 				{
@@ -469,7 +467,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 					}
 				}
 			}
-			else if (IsTextUTF8(Buffer, sz))
+			else if (IsTextUTF8(Buffer.get(), sz))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
@@ -477,7 +475,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 			else
 			{
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
-				ns->HandleData(Buffer,(PRUint32)sz);
+				ns->HandleData(Buffer.get(),(PRUint32)sz);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
 
@@ -490,8 +488,6 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 				delete ns;
 			}
 		}
-
-		delete[] Buffer;
 	}
 
 	if (pSignatureFound)
@@ -502,13 +498,12 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage)
 {
-	char *lpDest = new char[(nDestLength+1)*3]();  //UTF-8, up to 3 bytes per char support
+	char_ptr Dest((nDestLength+1)*3, true);  //UTF-8, up to 3 bytes per char support
 
 	if ((nCodePage == CP_UNICODE) || (nCodePage == CP_REVERSEBOM))
 	{
 		if (!fgetws(lpwszDest, nDestLength, file))
 		{
-			delete[] lpDest;
 			return nullptr;
 		}
 
@@ -535,26 +530,23 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 	}
 	else if (nCodePage == CP_UTF8)
 	{
-		if (fgets(lpDest, nDestLength*3, file))
-			MultiByteToWideChar(CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
+		if (fgets(Dest.get(), nDestLength*3, file))
+			MultiByteToWideChar(CP_UTF8, 0, Dest.get(), -1, lpwszDest, nDestLength);
 		else
 		{
-			delete[] lpDest;
 			return nullptr;
 		}
 	}
 	else if (nCodePage != -1)
 	{
-		if (fgets(lpDest, nDestLength, file))
-			MultiByteToWideChar(nCodePage, 0, lpDest, -1, lpwszDest, nDestLength);
+		if (fgets(Dest.get(), nDestLength, file))
+			MultiByteToWideChar(nCodePage, 0, Dest.get(), -1, lpwszDest, nDestLength);
 		else
 		{
-			delete[] lpDest;
 			return nullptr;
 		}
 	}
 
-	delete[] lpDest;
 	return lpwszDest;
 }
 
@@ -569,8 +561,8 @@ GetFileString::GetFileString(File& SrcFile):
 	LastLength(0),
 	LastString(nullptr),
 	LastResult(0),
-	ReadBuf(new char[ReadBufCount]),
-	wReadBuf(new wchar_t[ReadBufCount]),
+	ReadBuf(ReadBufCount),
+	wReadBuf(ReadBufCount),
 	m_nStrLength(DELTA),
 	Str(static_cast<LPSTR>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
@@ -584,8 +576,6 @@ GetFileString::~GetFileString()
 {
 	xf_free(wStr);
 	xf_free(Str);
-	delete[] wReadBuf;
-	delete[] ReadBuf;
 }
 
 int GetFileString::PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
@@ -686,7 +676,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	LPSTR ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : nullptr;
+	LPSTR ReadBufPtr = ReadPos < ReadSize ? ReadBuf.get() + ReadPos : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -704,7 +694,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(ReadBuf, ReadBufCount, ReadSize) && ReadSize))
+				if (!(SrcFile.Read(ReadBuf.get(), ReadBufCount, ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -713,7 +703,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 					break;
 				}
 				ReadPos = 0;
-				ReadBufPtr = ReadBuf;
+				ReadBufPtr = ReadBuf.get();
 			}
 			if (Eol == FEOL_NONE)
 			{
@@ -795,7 +785,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	LPWSTR ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : nullptr;
+	LPWSTR ReadBufPtr = ReadPos < ReadSize ? wReadBuf.get() + ReadPos / sizeof(wchar_t) : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -813,7 +803,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(wReadBuf, ReadBufCount*sizeof(wchar_t), ReadSize) && ReadSize))
+				if (!(SrcFile.Read(wReadBuf.get(), ReadBufCount*sizeof(wchar_t), ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -824,10 +814,10 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 
 				if (bBigEndian)
 				{
-					_swab(reinterpret_cast<char*>(wReadBuf), reinterpret_cast<char*>(wReadBuf), ReadSize);
+					_swab(reinterpret_cast<char*>(wReadBuf.get()), reinterpret_cast<char*>(wReadBuf.get()), ReadSize);
 				}
 				ReadPos = 0;
-				ReadBufPtr = wReadBuf;
+				ReadBufPtr = wReadBuf.get();
 			}
 			if (Eol == FEOL_NONE)
 			{
@@ -945,9 +935,9 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 	{
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 		DWORD Size=0x8000; // BUGBUG. TODO: configurable
-		char* Buffer = new char[Size];
+		char_ptr Buffer(Size);
 		DWORD ReadSize = 0;
-		bool ReadResult = file.Read(Buffer, Size, ReadSize);
+		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 
 		if (ReadResult && ReadSize)
@@ -961,7 +951,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 				IS_TEXT_UNICODE_ODD_LENGTH|
 				IS_TEXT_UNICODE_NULL_BYTES;
 
-			if (IsTextUnicode(Buffer, ReadSize, &test))
+			if (IsTextUnicode(Buffer.get(), ReadSize, &test))
 			{
 				if (!(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS))
 				{
@@ -980,7 +970,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 					}
 				}
 			}
-			else if (IsTextUTF8(Buffer, ReadSize))
+			else if (IsTextUTF8(Buffer.get(), ReadSize))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
@@ -988,7 +978,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 			else
 			{
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
-				ns->HandleData(Buffer, ReadSize);
+				ns->HandleData(Buffer.get(), ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
@@ -1034,8 +1024,6 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 				delete ns;
 			}
 		}
-
-		delete[] Buffer;
 	}
 
 	if (pSignatureFound)

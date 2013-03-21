@@ -4659,11 +4659,10 @@ static int WINAPI FarViewerControlA(int Command,void* Param)
 
 			if (FileNameSize)
 			{
-				LPWSTR FileName=new wchar_t[FileNameSize];
-				NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName);
-				filename = UnicodeToAnsi(FileName);
+				wchar_t_ptr FileName(FileNameSize);
+				NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName.get());
+				filename = UnicodeToAnsi(FileName.get());
 				viA->FileName = filename;
-				delete[] FileName;
 			}
 			viA->FileSize = viW.FileSize;
 			viA->FilePos = viW.FilePos;

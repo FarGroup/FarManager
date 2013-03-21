@@ -1994,22 +1994,20 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (Length)
 				{
 					DWORD length = (codepage == CP_REVERSEBOM?static_cast<DWORD>(Length*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, SaveStr, Length, nullptr, 0, nullptr, nullptr));
-					char *SaveStrCopy = new char[length];
+					char_ptr SaveStrCopy(length);
 
 					if (SaveStrCopy)
 					{
 						if (codepage == CP_REVERSEBOM)
-							_swab((char*)SaveStr,SaveStrCopy,length);
+							_swab((char*)SaveStr,SaveStrCopy.get(),length);
 						else
-							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy, length, nullptr, nullptr);
+							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy.get(), length, nullptr, nullptr);
 
-						if (!Cache.Write(SaveStrCopy,length))
+						if (!Cache.Write(SaveStrCopy.get(),length))
 						{
 							bError = true;
 							SysErrorCode=GetLastError();
 						}
-
-						delete[] SaveStrCopy;
 					}
 					else
 						bError = true;
@@ -2020,22 +2018,20 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					if (EndLength)
 					{
 						DWORD endlength = (codepage == CP_REVERSEBOM?static_cast<DWORD>(EndLength*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, EndSeq, EndLength, nullptr, 0, nullptr, nullptr));
-						char *EndSeqCopy = new char[endlength];
+						char_ptr EndSeqCopy(endlength);
 
 						if (EndSeqCopy)
 						{
 							if (codepage == CP_REVERSEBOM)
-								_swab((char*)EndSeq,EndSeqCopy,endlength);
+								_swab((char*)EndSeq,EndSeqCopy.get(),endlength);
 							else
-								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, nullptr, nullptr);
+								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy.get(), endlength, nullptr, nullptr);
 
-							if (!Cache.Write(EndSeqCopy,endlength))
+							if (!Cache.Write(EndSeqCopy.get(),endlength))
 							{
 								bError = true;
 								SysErrorCode=GetLastError();
 							}
-
-							delete[] EndSeqCopy;
 						}
 						else
 							bError = true;

@@ -1613,20 +1613,18 @@ void apiEnableLowFragmentationHeap()
 	if (Global->ifn->HeapSetInformationPresent())
 	{
 		DWORD NumHeaps = 10;
-		HANDLE* Heaps = new HANDLE[NumHeaps];
-		DWORD ActualNumHeaps = GetProcessHeaps(NumHeaps, Heaps);
+		array_ptr<HANDLE> Heaps(NumHeaps);
+		DWORD ActualNumHeaps = GetProcessHeaps(NumHeaps, Heaps.get());
 		if(ActualNumHeaps > NumHeaps)
 		{
-			delete[] Heaps;
-			Heaps = new HANDLE[ActualNumHeaps];
-			GetProcessHeaps(ActualNumHeaps, Heaps);
+			Heaps.reset(ActualNumHeaps);
+			GetProcessHeaps(ActualNumHeaps, Heaps.get());
 		}
 		for (DWORD i = 0; i < ActualNumHeaps; i++)
 		{
 			ULONG HeapFragValue = 2;
 			Global->ifn->HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 		}
-		delete[] Heaps;
 	}
 }
 

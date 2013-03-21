@@ -42,8 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileMasksProcessor::FileMasksProcessor():
 	BaseFileMask(),
-	re(nullptr),
-	m(nullptr),
 	n(0),
 	bRE(false)
 {
@@ -53,11 +51,8 @@ void FileMasksProcessor::Free()
 {
 	Masks.clear();
 
-	delete re;
-	re = nullptr;
-
-	delete[] m;
-	m = nullptr;
+	re.release();
+	m.release();
 
 	n = 0;
 	bRE = false;
@@ -120,12 +115,12 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 
 	if (bRE)
 	{
-		re = new RegExp;
+		re.reset(new RegExp);
 
 		if (re && re->Compile(expmasks, OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
-			m = new SMatch[n];
+			m.reset(n);
 
 			if (!m)
 			{
@@ -162,7 +157,7 @@ bool FileMasksProcessor::Compare(const string& FileName)
 	{
 		intptr_t i = n;
 		size_t len = FileName.GetLength();
-		bool ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
+		bool ret = re->Search(FileName,FileName+len,m.get(),i) ? TRUE : FALSE;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)

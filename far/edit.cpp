@@ -876,14 +876,13 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.IsEmpty())
 			{
-				wchar_t *ShortStr=new wchar_t[StrSize+1];
+				wchar_t_ptr ShortStr(StrSize + 1);
 
 				if (!ShortStr)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize+1);
-				Len=StrLength(RemoveTrailingSpaces(ShortStr));
-				delete[] ShortStr;
+				xwcsncpy(ShortStr.get(), Str, StrSize + 1);
+				Len = StrLength(RemoveTrailingSpaces(ShortStr.get()));
 			}
 			else
 				Len=StrSize;
@@ -1146,14 +1145,13 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.IsEmpty())
 			{
-				wchar_t *ShortStr=new wchar_t[StrSize+1];
+				wchar_t_ptr ShortStr(StrSize + 1);
 
 				if (!ShortStr)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize+1);
-				CurPos=StrLength(RemoveTrailingSpaces(ShortStr));
-				delete[] ShortStr;
+				xwcsncpy(ShortStr.get(), Str, StrSize + 1);
+				CurPos=StrLength(RemoveTrailingSpaces(ShortStr.get()));
 			}
 			else
 				CurPos=StrSize;
@@ -1180,14 +1178,13 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.IsEmpty())
 			{
-				wchar_t *ShortStr=new wchar_t[StrSize+1];
+				wchar_t_ptr ShortStr(StrSize + 1);
 
 				if (!ShortStr)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize+1);
-				int Len=StrLength(RemoveTrailingSpaces(ShortStr));
-				delete[] ShortStr;
+				xwcsncpy(ShortStr.get(), Str, StrSize+1);
+				int Len=StrLength(RemoveTrailingSpaces(ShortStr.get()));
 
 				if (Len>CurPos)
 					CurPos++;
@@ -1341,15 +1338,14 @@ int Edit::ProcessKey(int Key)
 				{
 					if (!Mask.IsEmpty())
 					{
-						wchar_t *ShortStr=new wchar_t[StrSize+1];
+						wchar_t_ptr ShortStr(StrSize + 1);
 
 						if (!ShortStr)
 							return FALSE;
 
-						xwcsncpy(ShortStr,Str,StrSize+1);
-						RemoveTrailingSpaces(ShortStr);
-						CopyToClipboard(ShortStr);
-						delete[] ShortStr;
+						xwcsncpy(ShortStr.get(),Str,StrSize+1);
+						RemoveTrailingSpaces(ShortStr.get());
+						CopyToClipboard(ShortStr.get());
 					}
 					else
 					{
@@ -1973,17 +1969,16 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			}
 
 			int TmpSize=StrSize-CurPos;
-			wchar_t *TmpStr=new wchar_t[TmpSize+16];
+			wchar_t_ptr TmpStr(TmpSize + 16);
 
 			if (!TmpStr)
 				return;
 
-			wmemcpy(TmpStr,&this->Str[CurPos],TmpSize);
+			wmemcpy(TmpStr.get(), &this->Str[CurPos], TmpSize);
 			StrSize+=Length;
 
 			if (!(NewStr=(wchar_t *)xf_realloc(this->Str,(StrSize+1)*sizeof(wchar_t))))
 			{
-				delete[] TmpStr;
 				return;
 			}
 
@@ -1991,9 +1986,8 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			wmemcpy(&this->Str[CurPos],Str,Length);
 			SetPrevCurPos(CurPos);
 			CurPos+=Length;
-			wmemcpy(this->Str+CurPos,TmpStr,TmpSize);
+			wmemcpy(this->Str + CurPos, TmpStr.get(), TmpSize);
 			this->Str[StrSize]=0;
-			delete[] TmpStr;
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
 				ReplaceTabs();
@@ -2290,14 +2284,13 @@ void Edit::SetTabCurPos(int NewPos)
 	auto Mask = GetInputMask();
 	if (!Mask.IsEmpty())
 	{
-		wchar_t *ShortStr=new wchar_t[StrSize+1];
+		wchar_t_ptr ShortStr(StrSize + 1);
 
 		if (!ShortStr)
 			return;
 
-		xwcsncpy(ShortStr,Str,StrSize+1);
-		int Pos=StrLength(RemoveTrailingSpaces(ShortStr));
-		delete[] ShortStr;
+		xwcsncpy(ShortStr.get(), Str, StrSize + 1);
+		int Pos=StrLength(RemoveTrailingSpaces(ShortStr.get()));
 
 		if (NewPos>Pos)
 			NewPos=Pos;

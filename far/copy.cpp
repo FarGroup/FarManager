@@ -913,7 +913,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
-	CopyBuffer(nullptr),
 	RPT(RP_EXACTCOPY)
 {
 	Filter=nullptr;
@@ -1493,7 +1492,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
 	}
 
-	CopyBuffer=new char[CopyBufferSize];
+	CopyBuffer.reset(CopyBufferSize);
 	DestPanel->CloseFile();
 	strDestDizPath.Clear();
 	SrcPanel->SaveSelection();
@@ -1728,9 +1727,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 ShellCopy::~ShellCopy()
 {
 	_tran(SysLog(L"[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
-
-	if (CopyBuffer)
-		delete[] CopyBuffer;
 
 	// $ 26.05.2001 OT Разрешить перерисовку панелей
 	_tran(SysLog(L"call (*FrameManager)[0]->UnlockRefresh()"));
@@ -3237,7 +3233,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 			}
 
 			DWORD BytesRead,BytesWritten;
-			while (!SrcFile.Read(CopyBuffer, SrcFile.GetChunkSize(), BytesRead))
+			while (!SrcFile.Read(CopyBuffer.get(), SrcFile.GetChunkSize(), BytesRead))
 			{
 				int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 										MSG(MCopyReadError),SrcName,
@@ -3281,7 +3277,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		if (!(Flags&FCOPY_COPYTONUL))
 		{
 			DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
-			while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
+			while (!DestFile.Write(CopyBuffer.get(),BytesRead,BytesWritten,nullptr))
 			{
 				DWORD LastError=GetLastError();
 				int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
@@ -3296,7 +3292,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 					if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 					{
 						if (FreeSize<BytesRead &&
-								DestFile.Write(CopyBuffer,(DWORD)FreeSize,BytesWritten,nullptr) &&
+								DestFile.Write(CopyBuffer.get(),(DWORD)FreeSize,BytesWritten,nullptr) &&
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 						{
 							DestFile.Close();

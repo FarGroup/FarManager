@@ -75,7 +75,7 @@ private:
 	string strDestFSName;
 	DizList DestDiz;
 	string strDestDizPath;
-	char *CopyBuffer;
+	char_ptr CopyBuffer;
 	size_t CopyBufferSize;
 	string strCopiedName;
 	string strRenamedName;

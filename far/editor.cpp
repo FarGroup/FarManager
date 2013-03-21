@@ -3405,23 +3405,22 @@ void Editor::InsertString()
 		            CurLine->GetCurPos(),CurLine->GetLength());
 		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
 		AddUndoData(UNDO_END);
-		wchar_t *NewCurLineStr = new wchar_t[CurPos + 1];
+		wchar_t_ptr NewCurLineStr(CurPos + 1);
 
 		if (!NewCurLineStr)
 			return;
 
-		wmemcpy(NewCurLineStr,CurLineStr,CurPos);
+		wmemcpy(NewCurLineStr.get(),CurLineStr,CurPos);
 		NewCurLineStr[CurPos]=0;
 		int StrSize=CurPos;
 
 		if (EdOpt.AutoIndent && NewLineEmpty)
 		{
-			RemoveTrailingSpaces(NewCurLineStr);
-			StrSize=StrLength(NewCurLineStr);
+			RemoveTrailingSpaces(NewCurLineStr.get());
+			StrSize=StrLength(NewCurLineStr.get());
 		}
 
-		CurLine->SetBinaryString(NewCurLineStr,StrSize);
-		delete[] NewCurLineStr;
+		CurLine->SetBinaryString(NewCurLineStr.get(), StrSize);
 		Change(ECTYPE_CHANGED,NumLine);
 	}
 	else
@@ -4023,14 +4022,14 @@ BOOL Editor::Search(int Next)
 								NewStrLen-=SStrLen;
 								NewStrLen+=RStrLen;
 								NewStrLen+=EolLen;
-								wchar_t *NewStr=new wchar_t[NewStrLen+1];
+								wchar_t_ptr NewStr(NewStrLen + 1);
 								int CurPos=CurLine->GetCurPos();
-								wmemcpy(NewStr,Str,CurPos);
-								wmemcpy(NewStr+CurPos,strReplaceStrCurrent,RStrLen);
-								wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
-								wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
+								wmemcpy(NewStr.get() ,Str, CurPos);
+								wmemcpy(NewStr.get() + CurPos, strReplaceStrCurrent, RStrLen);
+								wmemcpy(NewStr.get() + CurPos + RStrLen, Str + CurPos + SStrLen, StrLen - CurPos - SStrLen);
+								wmemcpy(NewStr.get() + NewStrLen - EolLen, Eol, EolLen);
 								AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
-								CurLine->SetBinaryString(NewStr,NewStrLen);
+								CurLine->SetBinaryString(NewStr.get(),NewStrLen);
 								CurLine->SetCurPos(CurPos+RStrLen);
 
 								if (EdOpt.SearchSelFound && !ReplaceMode)
@@ -4045,7 +4044,6 @@ BOOL Editor::Search(int Next)
 								if (at_end)
 									at_end = RStrLen;
 
-								delete [] NewStr;
 								Change(ECTYPE_CHANGED,NumLine);
 								TextChanged(1);
 							}
@@ -5211,29 +5209,29 @@ void Editor::BlockLeft()
 			break;
 
 		intptr_t Length=CurPtr->GetLength();
-		wchar_t *TmpStr=new wchar_t[Length+EdOpt.TabSize+5];
+		wchar_t_ptr TmpStr(Length + EdOpt.TabSize + 5);
 		const wchar_t *CurStr,*EndSeq;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 		Length--;
 
 		if (*CurStr==L' ')
-			wmemcpy(TmpStr,CurStr+1,Length);
+			wmemcpy(TmpStr.get(), CurStr + 1, Length);
 		else if (*CurStr==L'\t')
 		{
-			wmemset(TmpStr, L' ', EdOpt.TabSize-1);
-			wmemcpy(TmpStr+EdOpt.TabSize-1,CurStr+1,Length);
+			wmemset(TmpStr.get(), L' ', EdOpt.TabSize - 1);
+			wmemcpy(TmpStr.get() + EdOpt.TabSize - 1, CurStr + 1, Length);
 			Length+=EdOpt.TabSize-1;
 		}
 
 		if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
 		{
 			int EndLength=StrLength(EndSeq);
-			wmemcpy(TmpStr+Length,EndSeq,EndLength);
+			wmemcpy(TmpStr.get() + Length,EndSeq,EndLength);
 			Length+=EndLength;
 			TmpStr[Length]=0;
 			AddUndoData(UNDO_EDIT,CurStr,CurPtr->GetEOL(),LineNum,0,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
-			CurPtr->SetBinaryString(TmpStr,Length);
+			CurPtr->SetBinaryString(TmpStr.get(), Length);
 			CurPtr->SetCurPos(CurPos>0 ? CurPos-1:CurPos);
 
 			if (!MoveLine)
@@ -5242,8 +5240,6 @@ void Editor::BlockLeft()
 			Change(ECTYPE_CHANGED,LineNum);
 			TextChanged(1);
 		}
-
-		delete[] TmpStr;
 		CurPtr=CurPtr->m_next;
 		LineNum++;
 		MoveLine = 0;
@@ -5292,23 +5288,23 @@ void Editor::BlockRight()
 			break;
 
 		intptr_t Length=CurPtr->GetLength();
-		wchar_t *TmpStr=new wchar_t[Length+5];
+		wchar_t_ptr TmpStr(Length + 5);
 		const wchar_t *CurStr,*EndSeq;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-		*TmpStr=L' ';
-		wmemcpy(TmpStr+1,CurStr,Length);
+		TmpStr[0]=L' ';
+		wmemcpy(TmpStr.get() + 1,CurStr,Length);
 		Length++;
 
 		if (EndSel==-1 || EndSel>StartSel)
 		{
 			int EndLength=StrLength(EndSeq);
-			wmemcpy(TmpStr+Length,EndSeq,EndLength);
+			wmemcpy(TmpStr.get() + Length,EndSeq,EndLength);
 			TmpStr[Length+EndLength]=0;
 			AddUndoData(UNDO_EDIT,CurStr,CurPtr->GetEOL(),LineNum,0,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
 
 			if (Length>1)
-				CurPtr->SetBinaryString(TmpStr,Length+EndLength);
+				CurPtr->SetBinaryString(TmpStr.get(), Length + EndLength);
 
 			CurPtr->SetCurPos(CurPos+1);
 
@@ -5318,8 +5314,6 @@ void Editor::BlockRight()
 			Change(ECTYPE_CHANGED,LineNum);
 			TextChanged(1);
 		}
-
-		delete[] TmpStr;
 		CurPtr=CurPtr->m_next;
 		LineNum++;
 		MoveLine = 0;
@@ -5376,22 +5370,22 @@ void Editor::DeleteVBlock()
 			continue;
 
 		AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),CurPtr->GetLength());
-		wchar_t *TmpStr=new wchar_t[Length+3];
+		wchar_t_ptr TmpStr(Length + 3);
 		int CurLength=TBlockX;
-		wmemcpy(TmpStr,CurStr,TBlockX);
+		wmemcpy(TmpStr.get(), CurStr, TBlockX);
 
 		if (Length>TBlockX+TBlockSizeX)
 		{
 			int CopySize=Length-(TBlockX+TBlockSizeX);
-			wmemcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
+			wmemcpy(TmpStr.get() + CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
 			CurLength+=CopySize;
 		}
 
 		int EndLength=StrLength(EndSeq);
-		wmemcpy(TmpStr+CurLength,EndSeq,EndLength);
+		wmemcpy(TmpStr.get() + CurLength,EndSeq,EndLength);
 		CurLength+=EndLength;
 		int CurPos=CurPtr->GetCurPos();
-		CurPtr->SetBinaryString(TmpStr,CurLength);
+		CurPtr->SetBinaryString(TmpStr.get(), CurLength);
 
 		if (CurPos>TBlockX)
 		{
@@ -5402,7 +5396,6 @@ void Editor::DeleteVBlock()
 		}
 
 		CurPtr->SetCurPos(CurPos);
-		delete[] TmpStr;
 		Change(ECTYPE_CHANGED,BlockStartLine+Line);
 	}
 
@@ -5632,9 +5625,9 @@ void Editor::VBlockShift(int Left)
 
 		AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),CurPtr->GetLength());
 		intptr_t StrLen=std::max(Length,TBlockX+TBlockSizeX+!Left);
-		wchar_t *TmpStr=new wchar_t[StrLen+3];
-		wmemset(TmpStr,L' ',StrLen);
-		wmemcpy(TmpStr,CurStr,Length);
+		wchar_t_ptr TmpStr(StrLen + 3);
+		wmemset(TmpStr.get(), L' ', StrLen);
+		wmemcpy(TmpStr.get(), CurStr, Length);
 
 		if (Left)
 		{
@@ -5659,10 +5652,9 @@ void Editor::VBlockShift(int Left)
 			StrLen--;
 
 		int EndLength=StrLength(EndSeq);
-		wmemcpy(TmpStr+StrLen,EndSeq,EndLength);
+		wmemcpy(TmpStr.get() + StrLen, EndSeq, EndLength);
 		StrLen+=EndLength;
-		CurPtr->SetBinaryString(TmpStr,StrLen);
-		delete[] TmpStr;
+		CurPtr->SetBinaryString(TmpStr.get(), StrLen);
 		Change(ECTYPE_CHANGED,BlockStartLine+Line);
 	}
 
@@ -5839,7 +5831,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				int LengthEOL=StrLength(EOL);
 
-				wchar_t *NewStr = new wchar_t[Length + LengthEOL + 1];
+				wchar_t_ptr NewStr(Length + LengthEOL + 1);
 
 				if (!NewStr)
 				{
@@ -5853,15 +5845,14 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				if (DestLine==-1)
 					DestLine=NumLine;
 
-				wmemcpy(NewStr,SetString->StringText,Length);
-				wmemcpy(NewStr+Length,EOL,LengthEOL);
+				wmemcpy(NewStr.get(), SetString->StringText, Length);
+				wmemcpy(NewStr.get() + Length, EOL, LengthEOL);
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),DestLine,CurPtr->GetCurPos(),CurPtr->GetLength());
 				int CurPos=CurPtr->GetCurPos();
-				CurPtr->SetBinaryString(NewStr,Length+LengthEOL);
+				CurPtr->SetBinaryString(NewStr.get(), Length + LengthEOL);
 				CurPtr->SetCurPos(CurPos);
 				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
-				delete[] NewStr;
 			}
 
 			return TRUE;
