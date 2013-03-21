@@ -267,7 +267,7 @@ class KeyMacro
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
 
-		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon=true);
+		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon);
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
