@@ -1457,15 +1457,13 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	string NtPath;
 
 	{
-		char_ptr Buffer(BufSize);
-		OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(Buffer.get());
-		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
+		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
-			Buffer.reset(BufSize = RetLen);
-			OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(Buffer.get());
-			Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+			oni.reset(BufSize = RetLen);
+			Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 		}
 
 		if (Res == STATUS_SUCCESS)
