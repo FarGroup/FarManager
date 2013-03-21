@@ -422,7 +422,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     function(a,b,c)
       return (a=="ctrl" and "lctrl" or a or "")..(b=="alt" and "lalt" or b or "")..c
     end)
-  local Names = { area, argUseCommon and "common" or nil }
+  local Names = { area, argUseCommon and area~="common" and "common" or nil }
 
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
