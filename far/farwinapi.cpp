@@ -1463,8 +1463,8 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
-			BufSize = RetLen;
-			oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+			Buffer.reset(BufSize = RetLen);
+			OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(Buffer.get());
 			Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 		}
 
