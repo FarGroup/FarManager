@@ -366,7 +366,7 @@ local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
   if strArea then
     if strArea ~= "." then -- вариант "./Key" не подразумевает поиск в Common`е
       Mode=utils.GetAreaCode(strArea)
-      if Mode < 0 then return end
+      if Mode==nil then return end
     end
   else
     strKey=str

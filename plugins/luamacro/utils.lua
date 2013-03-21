@@ -23,9 +23,13 @@ local SomeAreaNames = {
   "common" -- "common" должен идти последним
 }
 
-local function GetTrueAreaName(Mode) return TrueAreaNames[Mode+1] or "" end
-local function GetAreaName(Mode)     return AllAreaNames[Mode+1] or "" end
-local function GetAreaCode(Area)     return (AllAreaNames[Area:lower()] or 0) - 1; end
+local function GetTrueAreaName(Mode) return TrueAreaNames[Mode+1] end
+local function GetAreaName(Mode)     return AllAreaNames[Mode+1] end
+
+local function GetAreaCode(Area)
+  local code = AllAreaNames[Area:lower()]
+  return code and code-1
+end
 --------------------------------------------------------------------------------
 
 local MCODE_F_POSTNEWMACRO = 0x80C64
@@ -410,14 +414,15 @@ local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
 
 local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   if not Areas then return end -- macros were not loaded
-  if argMode >= #TrueAreaNames then return end -- трюк используется в CheckForEscSilent() в Фаре
 
-  local area,key = GetAreaName(argMode),argKey:lower()
-  key = GetMacro_keypat:gsub(key,
+  local area = GetAreaName(argMode)
+  if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
+
+  local key = GetMacro_keypat:gsub(argKey:lower(),
     function(a,b,c)
       return (a=="ctrl" and "lctrl" or a or "")..(b=="alt" and "lalt" or b or "")..c
     end)
-  local Names = area=="" and AreaNames or { area, argUseCommon and "common" or nil }
+  local Names = { area, argUseCommon and "common" or nil }
 
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
