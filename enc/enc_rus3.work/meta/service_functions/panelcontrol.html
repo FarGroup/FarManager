@@ -159,8 +159,8 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     <td class="cont" width="60%">Сделать панель активной.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    Функция возвращает FALSE, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> (или <code>PANEL_PASSIVE</code>) и не пренадлежит плагину или панель в данный момент не видима.<br>
-    Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет TRUE.
+    Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не пренадлежит плагину, или панель в данный момент не видима.<br>
+    Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет <code>TRUE</code>.
     <p>Например, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
     <pre class=code>FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
