@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "vmenu2.hpp"
 #include "codepage.hpp"
+#include "DlgGuid.hpp"
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
@@ -1819,6 +1820,7 @@ bool AdvancedConfig()
 	Dialog Dlg(AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg), AdvancedConfigDlgProc);
 	Dlg.SetHelp(L"FarConfig");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg.SetId(AdvancedConfigId);
 	Dlg.Process();
 	return true;
 }

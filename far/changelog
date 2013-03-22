@@ -1,6 +1,19 @@
+svs 22.03.2013 15:40:09 +0400 - build 3266
+
+1. Mantis#0002341: Нужны GUID-ы
+
+    AdvancedConfigId  = {A204FF09-07FA-478c-98C9-E56F61377BDE} --> Dlg.Id
+    FolderShortcutsId = {4CD742BC-295F-4afa-A158-7AA05A16BEA1} --> Menu.Id
+
+2. В хелпе описан параметр "System.Executor.~"
+
+3. Mantis#0001535: Добавление справки по Ctrl-Alt-F (фильтрация элементов меню)
+
 svs 22.03.2013 14:45:14 +0400 - build 3265
 
-1. Panel API: Команда FCTL_SETACTIVEPANEL - сделать "вот эту панель" активной.
+1. Mantis#0002340: Добавить в АПИ команду FCTL_SETACTIVEPANEL
+
+   Panel API: Команда FCTL_SETACTIVEPANEL - сделать "вот эту панель" активной.
 
      hPanel = HANDLE | PANEL_ACTIVE | PANEL_PASSIVE
         HANDLE - "эта панель" станет активной

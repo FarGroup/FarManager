@@ -289,7 +289,18 @@ $ #Keyboard reference#
 
  ~Mouse: wheel support~@MsWheel@
 
+ ~Menu control commands~@MenuCmd@
+
  ~Common controls~@MiscCmd@
+
+
+@MenuCmd
+$ #Menu control commands#
+ #Common menu and drop-down list commands#
+
+  Filter menu or list items                               #Ctrl-Alt-F#
+
+  See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
 
 
 @PanelCmd
@@ -451,6 +462,8 @@ are ignored. The following example shows how the files are sorted:
     5.txt                        11.txt
     11.txt                       5.txt
     88.txt                       88.txt
+
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 
 @FastFind
@@ -927,7 +940,10 @@ in filenames and in editor).
     #Shift-F9#    - settings of the selected plugin.
     #Alt-Shift-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
 
-    See also ~Plugins support~@Plugins@.
+    See also:
+
+    ~Plugins support~@Plugins@.
+    Common ~menu~@MenuCmd@ keyboard commands.
 
 
 @PluginsConfig
@@ -953,6 +969,7 @@ in filenames and in editor).
 
     Клавиша #F3# позволяет посмотреть техническую информацию по плагину.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @PluginsReviews
 $ #Overview of plugin capabilities#
@@ -1350,6 +1367,8 @@ respectively. These menus include the following items:
 
    #Change drive#         Change current drive.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 
 @FilesMenu
 $ #Menus: files menu#
@@ -1396,6 +1415,7 @@ $ #Menus: files menu#
    Some commands from this menu are also described in the
 ~File management and service commands~@FuncCmd@ topic.
 
+   See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @CmdMenu
 $ #Menus: commands menu#
@@ -1450,6 +1470,7 @@ $ #Menus: commands menu#
 
    #Hotplug devices list# Show ~hotplug devices list~@HotPlugList@.
 
+   See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @OptMenu
 $ #Menus: options menu#
@@ -1515,6 +1536,8 @@ $ #Menus: options menu#
    #Save setup#            Save current configuration, colors and
                          screen layout.
 
+
+   See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @ConfirmDlg
 $ #Confirmations#
@@ -1586,6 +1609,7 @@ $ #Plugin selection menu#
     Позволяет выбрать плагин-обработчик, если хост-файл (например, архив) 
 могут обработать несколько плагинов.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @MakeFolder
 $ #Make folder#
@@ -1979,6 +2003,8 @@ respective option in the ~system settings dialog~@SystemSettings@.
 
     Locked items will not be deleted when clearing the history.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 @HistoryViews
 $ #History: file view and edit#
     The file view history shows the list of files that have been recently
@@ -2022,6 +2048,8 @@ of time if a file was located on a currently unavailable remote resource.
 
   2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 @HistoryFolders
 $ #History: folders#
     The folders history shows the list of folders that have been recently
@@ -2062,6 +2090,8 @@ of time if a folder was located on a currently unavailable remote resource.
 
   2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 @TaskList
 $ #Task list#
     The task list displays active tasks. Each line of the list contains a task
@@ -2078,6 +2108,7 @@ editor.
 
     #Ctrl-R# allows to refresh the task list.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @HotPlugList
 $ #Hotplug devices list#
@@ -2090,6 +2121,8 @@ notification will be displayed when it is safe to remove the device.
 
     #Ctrl-R# allows to refresh the list of connected devices.
 
+
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @CompFolders
 $ #Compare folders#
@@ -2148,7 +2181,10 @@ item title only.
 
     To close the menu even if submenus are open use #Shift-F10#.
 
-    See also the list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu.
+    See also:
+
+    The list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu.
+    Common ~menu~@MenuCmd@ keyboard commands.
 
 @FileAssoc
 $ #File associations #
@@ -2178,6 +2214,7 @@ desired association from the menu.
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, Far tries to use Windows association to execute this file type;
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @FileAssocModify
 $ #File associations: editing#
@@ -3196,6 +3233,8 @@ codepage back. Клавиша #F4# позволяет изменять отоб�
 
     Диалог ~Изменение имени кодовой страницы~@EditCodePageNameDlg@
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 @EditCodePageNameDlg
 $ #Изменение имени кодовой страницы#
     Диалог #Изменение имени кодовой страницы# позволяет изменить отображаемое имя для
@@ -3290,7 +3329,10 @@ currently selected plugin, if the plugin has a help file.
 written for Far 1.7x and it does not support all possibilities available in
 Far 2 (these are, in particular, Unicode characters in filenames and in editor).
 
-   See also the list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
+    See also:
+
+    The list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
+    Common ~menu~@MenuCmd@ keyboard commands.
 
 @ChangeDriveMode
 $ #Change Drive Menu Options#
@@ -3342,6 +3384,12 @@ $ #Change Drive Menu Options#
     Комбинация клавиш в меню: Ctrl-9
 
 
+    See also:
+
+    The list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
+    Common ~menu~@MenuCmd@ keyboard commands.
+
+
 @DisconnectDrive
 $ #Disconnect network drive#
     You can disconnect a network drive by pressing #Del# in the
@@ -3390,6 +3438,7 @@ combinations are available:
     The highlighting groups are checked from top to bottom. If it is detected
 that a file belongs to a group, no further groups are checked.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @HighlightEdit
 $ #Files highlighting and sort groups: editing#
@@ -3696,6 +3745,8 @@ used to view, set, edit and delete folder shortcuts.
     When you are editing a shortcut (#F4#), you cannot create a shortcut to a
 plugin panel.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
+
 @FiltersMenu
 $ #Filters menu#
     Using the #Filters menu# you can define a set of file types with user
@@ -3754,6 +3805,8 @@ mode letter in the upper left corner of the panel.
      - ~Copying, moving, renaming and creating links~@CopyFiles@;
      - ~Find file~@FindFile@.
 
+
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @FolderDiz
 $ #Folder descriptions#
@@ -3924,6 +3977,7 @@ and "Show files in lowercase" options off. All these settings only change
 the method of displaying files, when processing files Far always uses the
 real case.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @SortGroups
 $ #Sort groups#
@@ -4336,6 +4390,7 @@ screens.
 upper left corner. This may be disabled by using ~Panel settings~@PanelSettings@
 dialog.
 
+    See also: common ~menu~@MenuCmd@ keyboard commands.
 
 @ApplyCmd
 $ #Apply command#
@@ -5409,6 +5464,14 @@ $ #far:config System.Executor.BatchType#
     По умолчанию значение = ".BAT;.CMD;".
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@System.Executor.~
+$ #far:config System.Executor.~~#
+    Параметр позволяет менять путь к домашней папке для команды "~CD ~~~@OSCommands@".
+
+    По умолчанию значение = "%FARHOME%".
+
+    Значение так же можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
 
 @System.CmdHistoryRule
 $ #far:config System.CmdHistoryRule#

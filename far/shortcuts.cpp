@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "configdb.hpp"
 #include "FarGuid.hpp"
+#include "DlgGuid.hpp"
 
 enum PSCR_RECTYPE
 {
@@ -542,6 +543,7 @@ void Shortcuts::Configure()
 	FolderList.SetFlags(VMENU_WRAPMODE);
 	FolderList.SetHelp(HelpFolderShortcuts);
 	FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
+	FolderList.SetId(FolderShortcutsId);
 
 	for (int I=0; I < 10; I++)
 	{
