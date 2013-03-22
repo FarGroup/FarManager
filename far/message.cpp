@@ -633,7 +633,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 		else
 		{
 			PosX=X1+(Width-Length)/2;
-			Temp << fmt::MaxWidth(PosX-X1-4) << L"" << fmt::MinWidth(Length) << CPtrStr << fmt::MaxWidth(X2-PosX-Length-3) << L"";
+			Temp << fmt::ExactWidth(PosX-X1-4) << L"" << fmt::ExactWidth(Length) << CPtrStr << fmt::ExactWidth(X2-PosX-Length-3) << L"";
 			GotoXY(X1+4,Y1+I+2);
 		}
 
