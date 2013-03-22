@@ -122,7 +122,7 @@ static struct tree_less
 
 static struct list_less
 {
-	bool operator()(const TreeItem* a, const TreeItem* b) const
+	bool operator()(const std::unique_ptr<TreeItem>& a, const std::unique_ptr<TreeItem>& b) const
 	{
 		return TreeLess(a->strName, b->strName, StaticSortNumeric, StaticSortCaseSensitive);
 	}
@@ -156,9 +156,6 @@ TreeList::TreeList(bool IsPanel):
 
 TreeList::~TreeList()
 {
-	DeleteValues(ListData);
-	ListData.clear();
-	SaveListData.clear();
 	Global->tempTreeCache->Clean();
 	FlushCache();
 	SetMacroMode(TRUE);
@@ -260,7 +257,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (J < ListData.size() && Flags.Check(FTREELIST_TREEISPREPARED))
 		{
-			CurPtr=ListData[J];
+			CurPtr=ListData[J].get();
 
 			if (!J)
 			{
@@ -373,7 +370,7 @@ void TreeList::Update(int Mode)
 	if (RetFromReadTree && !ListData.empty() && (!(Mode & UPDATE_KEEP_SELECTION) || LastTreeCount != ListData.size()))
 	{
 		SyncDir();
-		TreeItem *CurPtr=ListData[CurFile];
+		TreeItem *CurPtr=ListData[CurFile].get();
 
 		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
 		{
@@ -407,14 +404,11 @@ int TreeList::ReadTree()
 	FlushCache();
 	GetRoot();
 
-	DeleteValues(ListData);
 	ListData.clear();
 
 	ListData.reserve(4096);
 
-	auto NewItem = new TreeItem;
-	NewItem->strName = strRoot;
-	ListData.push_back(NewItem);
+	ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strRoot)));
 	SaveScreen SaveScrTree;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
 	/* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
@@ -449,14 +443,11 @@ int TreeList::ReadTree()
 			ListData.reserve(ListData.size() + 4096);
 		}
 
-		auto NewItem = new TreeItem;
-		NewItem->strName = strFullName;
-		ListData.push_back(NewItem);
+		ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strFullName)));
 	}
 
 	if (AscAbort && !Flags.Check(FTREELIST_ISPANEL))
 	{
-		DeleteValues(ListData);
 		ListData.clear();
 		RestoreState();
 		return FALSE;
@@ -1380,7 +1371,7 @@ void TreeList::ProcessEnter()
 {
 	TreeItem *CurPtr;
 	DWORD Attr;
-	CurPtr=ListData[CurFile];
+	CurPtr=ListData[CurFile].get();
 
 	if ((Attr=apiGetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
 	{
@@ -1419,7 +1410,6 @@ int TreeList::ReadTreeFile()
 		}
 	}
 
-	DeleteValues(ListData);
 	ListData.clear();
 
 	{
@@ -1453,9 +1443,7 @@ int TreeList::ReadTreeFile()
 				ListData.reserve(ListData.size() + 4096);
 			}
 
-			auto NewItem = new TreeItem;
-			NewItem->strName = strDirName;
-			ListData.push_back(NewItem);
+			ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strDirName)));
 		}
 	}
 
@@ -2127,7 +2115,6 @@ bool TreeList::SaveState()
 
 bool TreeList::RestoreState()
 {
-	DeleteValues(ListData);
 	ListData.clear();
 
 	WorkDir=0;
@@ -2137,9 +2124,7 @@ bool TreeList::RestoreState()
 		ListData.resize(SaveListData.size());
 		for (size_t i=0; i < SaveListData.size(); ++i)
 		{
-			auto NewItem = new TreeItem;
-			*NewItem = SaveListData[i];
-			ListData.push_back(NewItem);
+			ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(SaveListData[i])));
 		}
 
 		WorkDir=SaveWorkDir;

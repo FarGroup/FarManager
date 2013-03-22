@@ -4263,7 +4263,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			InfoID=0;
 
 		FarGetValue fgv={sizeof(FarGetValue),InfoID,FMVT_UNKNOWN};
-		auto DlgItem = Dlg->GetAllItem();
+		auto& DlgItem = Dlg->GetAllItem();
 		bool CallDialog=true;
 
 		if (Index == (unsigned)-1)
@@ -4286,7 +4286,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 		else if (Index < DlgItem.size() && !DlgItem.empty())
 		{
-			const DialogItemEx *Item=DlgItem[Index];
+			const DialogItemEx *Item=DlgItem[Index].get();
 			FARDIALOGITEMTYPES ItemType=Item->Type;
 			FARDIALOGITEMFLAGS ItemFlags=Item->Flags;
 

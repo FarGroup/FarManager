@@ -100,33 +100,25 @@ struct SIDCacheItem
 	}
 };
 
-std::list<SIDCacheItem*>* SIDCache;
+std::list<std::unique_ptr<SIDCacheItem>>* SIDCache;
 
 void SIDCacheFlush()
 {
-	if(SIDCache)
-	{
-		DeleteValues(*SIDCache);
-		delete SIDCache;
-		SIDCache = nullptr;
-	}
+	delete SIDCache;
+	SIDCache = nullptr;
 }
 
 const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
 {
 	LPCWSTR Result=nullptr;
-	SIDCacheItem* NewItem=new SIDCacheItem(Computer,Sid);
-	if(NewItem->strUserName.IsEmpty())
-	{
-		delete NewItem;
-	}
-	else
+	std::unique_ptr<SIDCacheItem> NewItem(new SIDCacheItem(Computer,Sid));
+	if(!NewItem->strUserName.IsEmpty())
 	{
 		if(!SIDCache)
 		{
-			SIDCache = new std::list<SIDCacheItem*>;
+			SIDCache = new PTRTYPE(SIDCache);
 		}
-		SIDCache->push_back(NewItem);
+		SIDCache->push_back(std::move(NewItem));
 		Result = SIDCache->back()->strUserName;
 	}
 	return Result;

@@ -305,29 +305,28 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 
 void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
-	Items.resize(SrcItemCount);
-
-	for (unsigned i = 0; i < SrcItemCount; i++)
-	{
-		Items[i] = new DialogItemEx(SrcItem[i]);
-	}
-
 	SavedItems = SrcItem;
+
+	Items.resize(SrcItemCount);
+	std::for_each(RANGE(Items, i)
+	{
+		i.reset(new DialogItemEx(*SrcItem++));
+	});
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
 void Dialog::Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
-	Items.resize(SrcItemCount);
-
-	for (unsigned i = 0; i < SrcItemCount; i++)
-	{
-		Items[i] = new DialogItemEx;
-		//BUGBUG add error check
-		ConvertItemEx(CVTITEM_FROMPLUGIN,const_cast<FarDialogItem *>(&SrcItem[i]), Items[i], 1);
-	}
-
 	SavedItems = nullptr;
+
+	Items.resize(SrcItemCount);
+	std::for_each(RANGE(Items, i)
+	{
+		i.reset(new DialogItemEx);
+		//BUGBUG add error check
+		ConvertItemEx(CVTITEM_FROMPLUGIN,const_cast<FarDialogItem *>(SrcItem++), i.get(), 1);
+	});
+
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
@@ -402,8 +401,6 @@ Dialog::~Dialog()
 
 	if(!CheckDialogMode(DMODE_ISMENU))
 		Global->ScrBuf->Flush();
-
-	DeleteValues(Items);
 
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);
@@ -649,7 +646,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// предварительный цикл по поводу кнопок
 	for (I=ID; I < InitItemCount; I++)
 	{
-		CurItem = Items[I];
+		CurItem = Items[I].get();
 		ItemFlags=CurItem->Flags;
 		Type=CurItem->Type;
 
@@ -722,7 +719,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 	for (I=ID; I < InitItemCount; I++)
 	{
-		CurItem = Items[I];
+		CurItem = Items[I].get();
 		Type=CurItem->Type;
 		ItemFlags=CurItem->Flags;
 
@@ -983,7 +980,7 @@ const wchar_t *Dialog::GetDialogTitle()
 
 	FOR_CONST_RANGE(Items, i)
 	{
-		CurItem = *i;
+		CurItem = i->get();
 
 		// по первому попавшемуся "тексту" установим заголовок консоли!
 		if ((CurItem->Type==DI_TEXT ||
@@ -1047,7 +1044,7 @@ BOOL Dialog::SetItemRect(size_t ID,SMALL_RECT *Rect)
 	if (ID >= Items.size())
 		return FALSE;
 
-	DialogItemEx *CurItem=Items[ID];
+	DialogItemEx *CurItem=Items[ID].get();
 	FARDIALOGITEMTYPES Type=CurItem->Type;
 	CurItem->X1=Rect->Left;
 	CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
@@ -1104,7 +1101,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 	if (I >= Items.size())
 		return FALSE;
 
-	DialogItemEx *CurItem=Items[I];
+	DialogItemEx *CurItem=Items[I].get();
 	unsigned __int64 ItemFlags=CurItem->Flags;
 	int Type=CurItem->Type;
 	int Len=0;
@@ -1298,7 +1295,7 @@ void Dialog::GetDialogObjectsData()
 							!i->strHistory.IsEmpty() &&
 					        Global->Opt->Dialogs.EditHistory)
 					{
-						AddToEditHistory(i, strData);
+						AddToEditHistory(i.get(), strData);
 					}
 
 					/* $ 01.08.2000 SVS
@@ -1613,7 +1610,7 @@ void Dialog::ShowDialog(size_t ID)
 
 	for (I=ID; I < DrawItemCount; I++)
 	{
-		CurItem = Items[I];
+		CurItem = Items[I].get();
 
 		if (CurItem->Flags&DIF_HIDDEN)
 			continue;
@@ -2852,7 +2849,7 @@ int Dialog::ProcessKey(int Key)
 		case KEY_RCTRLUP:     case KEY_RCTRLNUMPAD8:
 		case KEY_CTRLDOWN:    case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN:   case KEY_RCTRLNUMPAD2:
-			return ProcessOpenComboBox(Items[FocusPos]->Type,Items[FocusPos],FocusPos);
+			return ProcessOpenComboBox(Items[FocusPos]->Type,Items[FocusPos].get(),FocusPos);
 			// ЭТО перед default предпоследний!!!
 		case KEY_END:  case KEY_NUMPAD1:
 
@@ -3434,7 +3431,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				GetItemRect(I,Rect);
 				Rect.Left+=X1;  Rect.Top+=Y1;
 				Rect.Right+=X1; Rect.Bottom+=Y1;
-				if (ItemHasDropDownArrow(Items[I]))
+				if (ItemHasDropDownArrow(Items[I].get()))
 					Rect.Right++;
 
 				if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
@@ -3462,7 +3459,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 							ChangeFocus2(I);
 							ShowDialog();
 
-							ProcessOpenComboBox(Items[I]->Type,Items[I],I);
+							ProcessOpenComboBox(Items[I]->Type,Items[I].get(),I);
 
 							return TRUE;
 						}
@@ -3483,7 +3480,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						else
 						{
 							// Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
-							if (MsX==EditX2+1 && MsY==EditY1 && ItemHasDropDownArrow(Items[I]))
+							if (MsX==EditX2+1 && MsY==EditY1 && ItemHasDropDownArrow(Items[I].get()))
 							{
 								EditLine->SetClearFlag(0); // раз уж покусились на, то и...
 
@@ -3492,7 +3489,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 								if (!(Items[I]->Flags&DIF_HIDDEN))
 									ShowDialog(I);
 
-								ProcessOpenComboBox(Items[I]->Type,Items[I],I);
+								ProcessOpenComboBox(Items[I]->Type,Items[I].get(),I);
 
 								return TRUE;
 							}
@@ -4377,7 +4374,7 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 				// при ComboBox`е - "вываливаем" последний //????
 				else if (Items[I]->Type==DI_COMBOBOX)
 				{
-					ProcessOpenComboBox(Items[I]->Type,Items[I],I);
+					ProcessOpenComboBox(Items[I]->Type,Items[I].get(),I);
 					//ProcessKey(KEY_CTRLDOWN);
 					return TRUE;
 				}
@@ -4759,7 +4756,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 
 	if (Param1>=0)
 	{
-		CurItem=Items[Param1];
+		CurItem=Items[Param1].get();
 		Type=CurItem->Type;
 	}
 
@@ -4853,7 +4850,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					for (size_t I=0; I < Items.size(); I++)
 					{
-						Item=this->Items[I];
+						Item=this->Items[I].get();
 
 						if (Item->Flags&DIF_HIDDEN)
 							continue;
@@ -5128,7 +5125,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		return 0;
 
 //  CurItem=&Items[Param1];
-	CurItem=Items[Param1];
+	CurItem=Items[Param1].get();
 	Type=CurItem->Type;
 	const wchar_t *Ptr= CurItem->strData;
 
@@ -6361,7 +6358,7 @@ void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1,
 {
 	if(!CurItem)
 	{
-		CurItem=Items[FocusPos];
+		CurItem=Items[FocusPos].get();
 	}
 
 	((DlgEdit*)CurItem->ObjPtr)->GetPosition(X1,Y1,X2,Y2);
@@ -6387,7 +6384,7 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 	{
 		if(!CurItem)
 		{
-			CurItem=Items[FocusPos];
+			CurItem=Items[FocusPos].get();
 		}
 		int X1,Y1,X2,Y2;
 		CalcComboBoxPos(CurItem, CurItem->ListPtr->GetItemCount(), X1, Y1, X2, Y2);

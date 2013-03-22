@@ -47,16 +47,10 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Global->Opt->ScanJunction:ScanJunction!=0));
 }
 
-ScanTree::~ScanTree()
-{
-	DeleteValues(ScanItems);
-}
-
 void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
-	DeleteValues(ScanItems);
 	ScanItems.clear();
-	ScanItems.push_back(new ScanTreeData());
+	ScanItems.push_back(VALUE_TYPE(ScanItems)(new ScanTreeData()));
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
@@ -76,7 +70,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 
 	for (;;)
 	{
-		ScanTreeData* LastItem = ScanItems.back();
+		ScanTreeData* LastItem = ScanItems.back().get();
 		if (!LastItem->Find)
 		{
 			LastItem->Find = new FindFile(strFindPath);
@@ -112,7 +106,6 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 
 	if (Done)
 	{
-		delete ScanItems.back();
 		ScanItems.pop_back();
 
 		if (ScanItems.empty())
@@ -179,7 +172,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 					Data->Flags.Set(FSCANTREE_INSIDEJUNCTION);
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
 				}
-				ScanItems.push_back(Data);
+				ScanItems.push_back(VALUE_TYPE(ScanItems)(Data));
 
 				return true;
 			}
@@ -197,7 +190,6 @@ void ScanTree::SkipDir()
 	if (ScanItems.empty())
 		return;
 
-	delete ScanItems.back();
 	ScanItems.pop_back();
 
 	if (ScanItems.empty())

@@ -84,7 +84,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
+		PluginsCfg.reset(Global->Db->CreatePluginsConfig(strGuid, Local));
 		m_Keys.resize(1);
 		unsigned __int64& root = m_Keys.front();
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
@@ -105,13 +105,6 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 			}
 		}
 	}
-}
-
-PluginSettings::~PluginSettings()
-{
-	if (PluginsCfg)
-		delete PluginsCfg;
-	DeleteValues(m_Enum);
 }
 
 bool PluginSettings::IsValid(void)
@@ -226,8 +219,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		auto array = new FarSettingsNameItems;
-		m_Enum.push_back(array);
+		m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsNameItems));
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
@@ -236,7 +228,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
-			AddItem(array,item,strName);
+			AddItem(m_Enum.back().get(),item,strName);
 		}
 		Index=0;
 		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
@@ -256,13 +248,13 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
-				AddItem(array,item,strName);
+				AddItem(m_Enum.back().get(),item,strName);
 			}
 		}
-		if (!array->Items.empty())
+		if (!m_Enum.back()->Items.empty())
 		{
-			Enum.Count = array->Items.size();
-			Enum.Items = &array->Items[0];
+			Enum.Count = m_Enum.back()->Items.size();
+			Enum.Items = m_Enum.back()->Items.data();
 		}
 		else
 		{
@@ -310,16 +302,6 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 		}
 	}
 	return result;
-}
-
-FarSettings::FarSettings()
-{
-}
-
-FarSettings::~FarSettings()
-{
-	DeleteValues(m_Enum);
-	DeleteValues(m_Keys);
 }
 
 int FarSettings::Set(const FarSettingsItem& Item)
@@ -403,19 +385,18 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				auto array = new FarSettingsHistoryItems;
-				m_Enum.push_back(array);
+				m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsHistoryItems));
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
 				while(Global->CtrlObject->FolderShortcuts->Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
 				{
-					AddItem(array,item,strName,strData,plugin,strFile);
+					AddItem(m_Enum.back().get(),item,strName,strData,plugin,strFile);
 				}
-				if (!array->Items.empty())
+				if (!m_Enum.back()->Items.empty())
 				{
-					Enum.Count = array->Items.size();
-					Enum.Histories = &array->Items[0];
+					Enum.Count = m_Enum.back()->Items.size();
+					Enum.Histories = m_Enum.back()->Items.data();
 				}
 				else
 				{
@@ -447,7 +428,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
 	int result=static_cast<int>(m_Keys.size());
-	m_Keys.push_back(new string(Value.Value));
+	m_Keys.push_back(VALUE_TYPE(m_Keys)(new string(Value.Value)));
 	return result+FSSF_COUNT;
 }
 
@@ -474,8 +455,7 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	auto array = new FarSettingsHistoryItems;
-	m_Enum.push_back(array);
+	m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsHistoryItems));
 	FarSettingsHistory item={0};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
@@ -492,13 +472,13 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.IsEmpty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			AddItem(array,item,strName,strData,Guid,strFile);
+			AddItem(m_Enum.back().get(),item,strName,strData,Guid,strFile);
 		}
 	}
-	if (!array->Items.empty())
+	if (!m_Enum.back()->Items.empty())
 	{
-		Enum.Count = array->Items.size();
-		Enum.Histories = &array->Items[0];
+		Enum.Count = m_Enum.back()->Items.size();
+		Enum.Histories = m_Enum.back()->Items.data();
 	}
 	else
 	{

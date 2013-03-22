@@ -55,6 +55,13 @@ struct TreeItem
 	{
 	}
 
+	TreeItem(const string& Name):
+		strName(Name),
+		Last(MAX_PATH/2),
+		Depth(0)
+	{
+	}
+
 	TreeItem& operator=(const TreeItem &tiCopy)
 	{
 		if (this != &tiCopy)
@@ -101,7 +108,7 @@ class TreeList: public Panel
 {
 	private:
 		MACROMODEAREA PrevMacroMode;
-		std::vector<TreeItem*> ListData;
+		std::vector<std::unique_ptr<TreeItem>> ListData;
 		string strRoot;
 		size_t WorkDir;
 		long GetSelPosition;

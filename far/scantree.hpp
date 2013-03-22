@@ -72,23 +72,19 @@ struct ScanTreeData
 
 class ScanTree
 {
-	private:
-		BitFlags Flags;
-		std::list<ScanTreeData*> ScanItems;
+public:
+	ScanTree(bool RetUpDir, bool Recurse=1, int ScanJunction=-1);
 
-		string strFindPath;
-		string strFindMask;
+	// 3-й параметр - флаги из старшего слова
+	void SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
+	bool GetNextName(FAR_FIND_DATA *fdata, string &strFullName);
+	void SkipDir();
+	int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
+	int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};
 
-	public:
-		ScanTree(bool RetUpDir, bool Recurse=1, int ScanJunction=-1);
-		~ScanTree();
-
-	public:
-		// 3-й параметр - флаги из старшего слова
-		void SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-		bool GetNextName(FAR_FIND_DATA *fdata, string &strFullName);
-
-		void SkipDir();
-		int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
-		int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};
+private:
+	BitFlags Flags;
+	std::list<std::unique_ptr<ScanTreeData>> ScanItems;
+	string strFindPath;
+	string strFindMask;
 };

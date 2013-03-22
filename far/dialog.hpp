@@ -223,7 +223,7 @@ public:
 	void ClearDone();
 	intptr_t CloseDialog();
 	// For MACRO
-	const std::vector<DialogItemEx*>& GetAllItem() const { return Items; }
+	const std::vector<std::unique_ptr<DialogItemEx>>& GetAllItem() const { return Items; }
 	size_t GetDlgFocusPos() const {return FocusPos;}
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
@@ -287,7 +287,7 @@ private:
 	int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 	BitFlags DialogMode;        // Флаги текущего режима диалога
 	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
-	std::vector<DialogItemEx*> Items; // массив элементов диалога
+	std::vector<std::unique_ptr<DialogItemEx>> Items; // массив элементов диалога
 	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
 	ConsoleTitle *OldTitle;     // предыдущий заголовок
 	MACROMODEAREA PrevMacroMode;          // предыдущий режим макро

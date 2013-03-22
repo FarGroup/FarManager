@@ -69,13 +69,12 @@ public:
 class PluginSettings: public AbstractSettings
 {
 	private:
-		std::vector<FarSettingsNameItems*> m_Enum;
+		std::vector<std::unique_ptr<FarSettingsNameItems>> m_Enum;
 		std::vector<unsigned __int64> m_Keys;
-		HierarchicalConfig *PluginsCfg;
+		std::unique_ptr<HierarchicalConfig> PluginsCfg;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid, bool Local);
-		~PluginSettings();
 		bool IsValid(void);
 		int Set(const FarSettingsItem& Item);
 		int Get(FarSettingsItem& Item);
@@ -102,13 +101,11 @@ public:
 class FarSettings: public AbstractSettings
 {
 	private:
-		std::vector<FarSettingsHistoryItems*> m_Enum;
-		std::vector<string*> m_Keys;
+		std::vector<std::unique_ptr<FarSettingsHistoryItems>> m_Enum;
+		std::vector<std::unique_ptr<string>> m_Keys;
 		typedef bool (*HistoryFilter)(int Type);
 		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:
-		FarSettings();
-		~FarSettings();
 		int Set(const FarSettingsItem& Item);
 		int Get(FarSettingsItem& Item);
 		int Enum(FarSettingsEnum& Enum);
