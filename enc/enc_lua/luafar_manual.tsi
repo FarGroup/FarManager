@@ -3394,7 +3394,7 @@ id=22
 lv=2
 dt=Text
 nm=editor.AddColor
-mtime=3570650567
+mtime=3572708789
 <article>
 #_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags,
 #_                          Color, Priority, Owner)
@@ -3468,14 +3468,14 @@ lv=2
 dt=Text
 nm=editor.DelColor
 ctime=3515093666
-mtime=3542901902
+mtime=3572708824
 <article>
 #_result = editor.DelColor (EditorId, StringNumber, StartPos, Owner)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil (defaults to CURRENT_EDITOR)
-#_  StringNumber: integer, or nil (defaults to -1)
-#_  StartPos:     integer, or nil (defaults to -1)
+#_  StringNumber: integer, or nil
+#_  StartPos:     integer, or nil
 #_  Owner:        string, or nil  (defaults to the calling plugin's GUID)
 #_
 #_**Returns:**
@@ -3581,7 +3581,7 @@ id=21
 lv=2
 dt=Text
 nm=editor.Editor
-mtime=3523943381
+mtime=3572708971
 <article>
 #_result = editor.Editor (FileName, Title, X1, Y1, X2, Y2,
 #_                        Flags, StartLine, StartChar, CodePage)
@@ -3594,8 +3594,8 @@ mtime=3523943381
 #_  X2:        integer, or nil (default = -1)
 #_  Y2:        integer, or nil (default = -1)
 #_  Flags:     flags,   or nil (default = 0)
-#_  StartLine: integer, or nil (default = -1)
-#_  StartChar: integer, or nil (default = -1)
+#_  StartLine: integer, or nil (1-based; default = 0)
+#_  StartChar: integer, or nil (1-based; default = 0)
 #_  CodePage:  integer, or nil (default = CP_AUTODETECT)
 #_
 #_**Returns:**
@@ -3614,13 +3614,13 @@ id=27
 lv=2
 dt=Text
 nm=editor.ExpandTabs
-mtime=3507542701
+mtime=3572618138
 <article>
 #_result = editor.ExpandTabs (EditorId, StringNumber)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
-#_  StringNumber: integer (0-based), or nil
+#_  StringNumber: integer (1-based), or nil
 #_
 #_**Returns:**
 #_  result:       boolean
@@ -3723,7 +3723,7 @@ id=29
 lv=2
 dt=Text
 nm=editor.GetInfo
-mtime=3557381868
+mtime=3572709006
 <article>
 #_Info = editor.GetInfo (EditorId)
 #_
@@ -3738,14 +3738,14 @@ mtime=3557381868
 #_      WindowSizeX:           integer
 #_      WindowSizeY:           integer
 #_      TotalLines:            integer
-#_      CurLine:               integer, 0-based
-#_      CurPos:                integer, 0-based
-#_      CurTabPos:             integer, 0-based
-#_      TopScreenLine:         integer, 0-based
-#_      LeftPos:               integer, 0-based
+#_      CurLine:               integer, 1-based
+#_      CurPos:                integer, 1-based
+#_      CurTabPos:             integer, 1-based
+#_      TopScreenLine:         integer, 1-based
+#_      LeftPos:               integer, 1-based
 #_      Overtype:              integer
 #_      BlockType:             integer
-#_      BlockStartLine:        integer, 0-based
+#_      BlockStartLine:        integer, 1-based
 #_      Options:               integer
 #_      TabSize:               integer
 #_      BookmarkCount:         integer
@@ -3765,7 +3765,7 @@ id=30
 lv=2
 dt=Text
 nm=editor.GetSelection
-mtime=3507542774
+mtime=3572709021
 <article>
 #_**Note:**
 #_--This function does not have a prototype in Far API.
@@ -3779,9 +3779,9 @@ mtime=3507542774
 #_  Info:     table, or nil
 #_    Info fields:
 #_      BlockType: integer
-#_      StartLine: integer, 0-based
-#_      StartPos:  integer, 0-based
-#_      EndLine:   integer, 0-based
+#_      StartLine: integer, 1-based
+#_      StartPos:  integer, 1-based
+#_      EndLine:   integer, 1-based
 #_      EndPos:    integer, 0-based (can be -1)
 #_
 #_**Far API used:**
@@ -3829,7 +3829,7 @@ id=31
 lv=2
 dt=Text
 nm=editor.GetString
-mtime=3526702606
+mtime=3572709054
 <article>
 #_**Note:**
 #_--This function is an extension over its prototype in Far API.
@@ -3841,17 +3841,17 @@ mtime=3526702606
 #_
 #_**Parameters:**
 #_  EditorId:     integer (default=-1)
-#_  StringNumber: integer, 0-based (default=-1)
+#_  StringNumber: integer, 1-based (default=0)
 #_  Mode:         integer (0=normal; 1=fast; 2=fastest; default=0)
 #_
 #_**Returns:**
 #_  LineInfo: table (mode<2), or 2 strings (mode==2), or nil
 #_    fields of LineInfo:
-#_      StringNumber: integer, 0-based
+#_      StringNumber: integer, 1-based
 #_      StringText:   string
 #_      StringEOL:    string
 #_      StringLength: integer
-#_      SelStart:     integer, 0-based
+#_      SelStart:     integer, 1-based
 #_      SelEnd:       integer, 0-based
 #_
 #_**Note:**
@@ -4065,17 +4065,17 @@ id=39
 lv=2
 dt=Text
 nm=editor.RealToTab
-mtime=3569538146
+mtime=3572709078
 <article>
 #_result = editor.RealToTab (EditorId, StringNumber, SrcPos)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
-#_  StringNumber: integer (0-based), or nil
-#_  SrcPos:       integer (0-based)
+#_  StringNumber: integer (1-based), or nil
+#_  SrcPos:       integer (1-based)
 #_
 #_**Returns:**
-#_  result:       integer (0-based), or nil
+#_  result:       integer (1-based), or nil
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_REALTOTAB
@@ -4136,7 +4136,7 @@ id=42
 lv=2
 dt=Text
 nm=editor.Select
-mtime=3507818224
+mtime=3572709094
 <article>
 #_result = editor.Select (EditorId, SelectData)
 #_  or
@@ -4148,8 +4148,8 @@ mtime=3507818224
 #_  SelectData: table
 #_    fields of SelectData:
 #_      BlockType:      flags
-#_      BlockStartLine: integer, 0-based
-#_      BlockStartPos:  integer, 0-based
+#_      BlockStartLine: integer, 1-based
+#_      BlockStartPos:  integer, 1-based
 #_      BlockWidth:     integer
 #_      BlockHeight:    integer
 #_
@@ -4225,7 +4225,7 @@ id=43
 lv=2
 dt=Text
 nm=editor.SetPosition
-mtime=3507543264
+mtime=3572709106
 <article>
 #_result = editor.SetPosition (EditorId, PosData)
 #_  or
@@ -4236,11 +4236,11 @@ mtime=3507543264
 #_  EditorId: integer, or nil
 #_  PosData:  table
 #_    fields of PosData:
-#_      CurLine:       integer, 0-based
-#_      CurPos:        integer, 0-based
-#_      CurTabPos:     integer, 0-based
-#_      TopScreenLine: integer, 0-based
-#_      LeftPos:       integer, 0-based
+#_      CurLine:       integer, 1-based
+#_      CurPos:        integer, 1-based
+#_      CurTabPos:     integer, 1-based
+#_      TopScreenLine: integer, 1-based
+#_      LeftPos:       integer, 1-based
 #_      Overtype:      integer
 #_
 #_  Parameters of the 2-nd function variant correspond to fields
@@ -4261,13 +4261,13 @@ id=44
 lv=2
 dt=Text
 nm=editor.SetString
-mtime=3566574226
+mtime=3572379327
 <article>
 #_result = editor.SetString (EditorId, StringNumber, StringText, StringEOL)
 #_
 #_**Parameters:**
 #_  EditorId:     integer (default=-1)
-#_  StringNumber: integer, 0-based (default=-1)
+#_  StringNumber: integer, 1-based (default=0)
 #_  StringText:   string
 #_  StringEOL:    string, or nil
 #_
@@ -4326,17 +4326,17 @@ id=48
 lv=2
 dt=Text
 nm=editor.TabToReal
-mtime=3569538170
+mtime=3572709125
 <article>
 #_result = editor.TabToReal (EditorId, StringNumber, SrcPos)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
-#_  StringNumber: integer (0-based), or nil
-#_  SrcPos:       integer (0-based)
+#_  StringNumber: integer (1-based), or nil
+#_  SrcPos:       integer (1-based)
 #_
 #_**Returns:**
-#_  result:       integer (0-based), or nil
+#_  result:       integer (1-based), or nil
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_TABTOREAL
@@ -4873,6 +4873,30 @@ mtime=3571803022
 #_**Far API used:**
 #_  PanelControl, FCTL_REDRAWPANEL
 #_
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=484
+lv=2
+dt=Text
+nm=panel.SetActivePanel
+ctime=3573119369
+mtime=3573119438
+<article>
+#_result = panel.SetActivePanel (handle, whatpanel)
+#_
+#_**Parameters:**
+#_  handle:    panel handle, or nil
+#_  whatpanel: 1=active panel; 0=passive panel;
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Far API used:**
+#_  PanelControl, FCTL_SETACTIVEPANEL
 #_
 #_@@@
 #_
