@@ -2452,6 +2452,16 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 		}
 
+		case FCTL_SETACTIVEPANEL:
+		{
+			if (IsVisible())
+			{
+				SetFocus();
+				Result=TRUE;
+			}
+			break;
+		}
+
 	}
 
 	ProcessingPluginCommand--;

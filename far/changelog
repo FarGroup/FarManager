@@ -1,3 +1,17 @@
+svs 22.03.2013 14:45:14 +0400 - build 3265
+
+1. Panel API:  оманда FCTL_SETACTIVEPANEL - сделать "вот эту панель" активной.
+
+     hPanel = HANDLE | PANEL_ACTIVE | PANEL_PASSIVE
+        HANDLE - "эта панель" станет активной
+        PANEL_ACTIVE - пуста€ трата времени - "она" уже активна :-)
+        PANEL_PASSIVE - пассивна€ станет активной
+     Command = FCTL_SETACTIVEPANEL
+     Param1 = 0
+     Param2 = 0
+
+     Return = TRUE (всЄ ок) | FALSE (нет такой панели или она "скрыта")
+
 shmuel 21.03.2013 22:51:47 +0200 - build 3264
 
 1. –ефакторинг.

@@ -1140,6 +1140,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		case FCTL_GETPANELFORMAT:
 		case FCTL_GETPANELHOSTFILE:
 		case FCTL_GETPANELPREFIX:
+		case FCTL_SETACTIVEPANEL:
 		{
 			if (!FPanels)
 				return FALSE;
@@ -1147,6 +1148,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			if (!hPlugin || hPlugin == PANEL_ACTIVE || hPlugin == PANEL_PASSIVE)
 			{
 				Panel *pPanel = (!hPlugin || hPlugin == PANEL_ACTIVE)?FPanels->ActivePanel:FPanels->GetAnotherPanel(FPanels->ActivePanel);
+
+				if (Command == FCTL_SETACTIVEPANEL && hPlugin == PANEL_ACTIVE)
+					return TRUE;
 
 				if (pPanel)
 				{
