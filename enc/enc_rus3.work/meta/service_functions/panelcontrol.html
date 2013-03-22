@@ -155,6 +155,18 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     <code>Param2</code> указатель на структуру <a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a>,  которой можно задать новые позиции курсора и верхнего элемента панели. ≈сли <code>Param2 = NULL</code>, то позиции курсора и верхнего элемента панели при прорисовке не измен€ютс€.<br>
     ѕанель прорисуетс€ только в случае, если в данный момент панель видна.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETACTIVEPANEL">FCTL_SETACTIVEPANEL</a></td>
+    <td class="cont" width="60%">—делать панель активной.<br>
+    <code>Param1</code> не используетс€.<br>
+    <code>Param2</code> не используетс€.<br>
+    ‘ункци€ возвращает FALSE, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> (или <code>PANEL_PASSIVE</code>) и не пренадлежит плагину или панель в данный момент не видима.<br>
+    ƒл€ <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функци€ вернет TRUE.
+    <p>Ќапример, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
+    <pre class=code>FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
+Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
+Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
+    </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETNUMERICSORT">FCTL_SETNUMERICSORT</a></td>
     <td class="cont" width="60%">«адаЄт <a href="../other/dict.html#numericsort">числовой пор€док</a> сортировки дл€ панели.<br>
     <code>Param1</code> целое число, задающее числовую сортировку:<br>
