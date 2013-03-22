@@ -503,22 +503,22 @@ struct TreeOptions
 	IntOption TreeFileAttr;       // Файловые атрибуты для файлов-деревях
 
 #if defined(TREEFILE_PROJECT)
-	int LocalDisk;            // Хранить файл структуры папок для локальных дисков
-	int NetDisk;              // Хранить файл структуры папок для сетевых дисков
-	int NetPath;              // Хранить файл структуры папок для сетевых путей
-	int RemovableDisk;        // Хранить файл структуры папок для сменных дисков
-	int CDDisk;               // Хранить файл структуры папок для CD/DVD/BD/etc дисков
+	BoolOption LocalDisk;            // Хранить файл структуры папок для локальных дисков
+	BoolOption NetDisk;              // Хранить файл структуры папок для сетевых дисков
+	BoolOption NetPath;              // Хранить файл структуры папок для сетевых путей
+	BoolOption RemovableDisk;        // Хранить файл структуры папок для сменных дисков
+	BoolOption CDDisk;               // Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
-	string strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
-	string strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
-	string strNetPath;        // шаблон имени файла-деревяхи для сетевых путей
-	string strRemovableDisk;  // шаблон имени файла-деревяхи для сменных дисков
-	string strCDDisk;         // шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+	StringOption strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
+	StringOption strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
+	StringOption strNetPath;        // шаблон имени файла-деревяхи для сетевых путей
+	StringOption strRemovableDisk;  // шаблон имени файла-деревяхи для сменных дисков
+	StringOption strCDDisk;         // шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
 
-	string strExceptPath;     // для перечисленных здесь не хранить
+	StringOption strExceptPath;     // для перечисленных здесь не хранить
 
-	string strSaveLocalPath;  // сюда сохраняем локальные диски
-	string strSaveNetPath;    // сюда сохраняем сетевые диски
+	StringOption strSaveLocalPath;  // сюда сохраняем локальные диски
+	StringOption strSaveNetPath;    // сюда сохраняем сетевые диски
 #endif
 };
 

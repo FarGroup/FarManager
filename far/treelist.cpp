@@ -499,7 +499,8 @@ void TreeList::SaveTreeFile()
 	if (!TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 	{
 		if (MustBeCached(strRoot))
-		{	if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
+		{
+			if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 			{
 				return;
 			}
@@ -1957,18 +1958,21 @@ void TreeList::SetTitle()
 //                        если эти переменные среды не определены, то "%APPDATA%\Far Manager"
 string &TreeList::MkTreeFileName(const wchar_t *RootDir,string &strDest)
 {
-	strDest = RootDir;
-	AddEndSlash(strDest);
-	strDest += L"tree3.far";
+	CreateTreeFileName(RootDir,strDest);
 	return strDest;
 }
 
 // этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
 string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 {
+#if defined(TREEFILE_PROJECT)
+	// в проекте TREEFILE_PROJECT наличие каталога tree3.cache не предполагается
+	CreateTreeFileName(RootDir,strDest);
+#else
 	strDest = RootDir;
 	AddEndSlash(strDest);
 	strDest += L"tree3.cache";
+#endif
 	return strDest;
 }
 
@@ -2003,20 +2007,85 @@ string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 */
 string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {
-#if 0
-	char RootPath[NM];
-	RootPath = ExtractPathRoot(Path);
-	UINT DriveType = FAR_GetDriveType(RootPath,nullptr,FALSE);
+#if defined(TREEFILE_PROJECT)
+	string strRootDir = ExtractPathRoot(Path);
+	UINT DriveType = FAR_GetDriveType(strRootDir,nullptr);
+	PATH_TYPE PathType=ParsePath(strRootDir);
+	/*
+	PATH_UNKNOWN,
+	PATH_DRIVELETTER,
+	PATH_DRIVELETTERUNC,
+	PATH_REMOTE,
+	PATH_REMOTEUNC,
+	PATH_VOLUMEGUID,
+	PATH_PIPE,
+	*/
+
 	// получение инфы о томе
-	char VolumeName[NM],FileSystemName[NM];
+	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
 
-	if (!GetVolumeInformation(RootDir,VolumeName,sizeof(VolumeName),&VolumeNumber,
-	                          &MaxNameLength,&FileSystemFlags,
-	                          FileSystemName,sizeof(FileSystemName)))
-		Global->Opt->Tree.SavedTreePath
+	if (apiGetVolumeInformation(strRootDir,&strVolumeName,
+		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
+		                            &strFileSystemName))
+	{
+		if (DriveType == DRIVE_SUBSTITUTE) // Разворачиваем и делаем подмену
+		{
+			//DriveType=;
+		}
+
+		switch(DriveType)
+		{
+			case DRIVE_USBDRIVE:
+			case DRIVE_REMOVABLE:
+				if (Global->Opt->Tree.RemovableDisk)
+				{
+				}
+				break;
+			case DRIVE_FIXED:
+				if (Global->Opt->Tree.LocalDisk)
+				{
+				}
+				break;
+			case DRIVE_REMOTE:
+				if (Global->Opt->Tree.NetDisk) //Global->Opt->Tree.NetPath
+				{
+				}
+				break;
+			case DRIVE_CD_RW:
+			case DRIVE_CD_RWDVD:
+			case DRIVE_DVD_ROM:
+			case DRIVE_DVD_RW:
+			case DRIVE_DVD_RAM:
+			case DRIVE_BD_ROM:
+			case DRIVE_BD_RW:
+			case DRIVE_HDDVD_ROM:
+			case DRIVE_HDDVD_RW:
+			case DRIVE_CDROM:
+				if (Global->Opt->Tree.CDDisk)
+				{
+				}
+				break;
+			case DRIVE_RAMDISK:
+			case DRIVE_VIRTUAL:
+				break;
+			case DRIVE_REMOTE_NOT_CONNECTED:
+			case DRIVE_NOT_INIT:
+				break;
+
+		}
+	}
+	else
+	{
+		// куда? в "Local AppData\Far\" ?
+	}
+
+#else
+	strDest=Path;
+	AddEndSlash(strDest);
+	strDest += L"tree3.far";
 #endif
-		return strDest;
+	return strDest;
 }
 
 BOOL TreeList::GetItem(int Index,void *Dest)
