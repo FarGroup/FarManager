@@ -69,19 +69,35 @@ struct EditorUndoData
 	wchar_t_ptr Str;
 	static size_t UndoDataSize;
 
-	EditorUndoData():
+	EditorUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1):
 		Type(0),
 		StrPos(0),
 		StrNum(0),
 		Length(0)
 	{
-		ClearArray(EOL);
+		SetData(Type, Str, Eol, StrNum, StrPos, Length);
 	}
 
 	~EditorUndoData()
 	{
 		if (Length > 0)
 			UndoDataSize -= Length;
+	}
+
+	EditorUndoData(EditorUndoData&& Right)
+	{
+		*this = std::move(Right);
+	}
+
+	EditorUndoData& operator=(EditorUndoData&& Right)
+	{
+		Type = Right.Type;
+		StrPos = Right.StrPos;
+		StrNum = Right.StrNum;
+		Length = Right.Length;
+		Str.swap(Right.Str);
+		wcscpy(EOL, Right.EOL);
+		return *this;
 	}
 
 	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)

@@ -4936,10 +4936,9 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 	}
 
 	Flags.Clear(FEDITOR_NEWUNDO);
-	UndoData.resize(UndoData.size() + 1);
+	UndoData.push_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos,Length));
 	UndoPos=UndoData.end();
 	--UndoPos;
-	UndoPos->SetData(Type,Str,Eol,StrNum,StrPos,Length);
 
 	if (EdOpt.UndoSize>0)
 	{
@@ -4972,8 +4971,16 @@ void Editor::Undo(int redo)
 {
 	auto ustart = UndoPos;
 	if(redo)
-		++ustart;
-
+	{
+		if (ustart == UndoData.end())
+		{
+			ustart = UndoData.begin();
+		}
+		else
+		{
+			++ustart;
+		}
+	}
 	if (ustart == UndoData.end())
 		return;
 
@@ -5054,8 +5061,7 @@ void Editor::Undo(int redo)
 				break;
 			case UNDO_EDIT:
 			{
-				EditorUndoData tmp;
-				tmp.SetData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->StrNum,ud->StrPos,CurLine->GetLength());
+				EditorUndoData tmp(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->StrNum,ud->StrPos,CurLine->GetLength());
 
 				if (ud->Str)
 				{

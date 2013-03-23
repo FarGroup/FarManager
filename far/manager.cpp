@@ -96,12 +96,16 @@ BOOL Manager::ExitAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
 
-	FOR_CONST_REVERSE_RANGE(ModalFrames, i)
+	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
+	for(size_t i = ModalFrames.size(); i; --i)
 	{
-		if (!(*i)->GetCanLoseFocus(TRUE))
+		if (i - 1 >= ModalFrames.size())
+			continue;
+		auto CurFrame = ModalFrames[i - 1];
+		if (!CurFrame->GetCanLoseFocus(TRUE))
 		{
 			auto PrevFrameCount = ModalFrames.size();
-			(*i)->ProcessKey(KEY_ESC);
+			CurFrame->ProcessKey(KEY_ESC);
 			Commit();
 
 			if (PrevFrameCount == ModalFrames.size())
@@ -109,18 +113,20 @@ BOOL Manager::ExitAll()
 				return FALSE;
 			}
 		}
-		if (!ModalFrames.size())
-			break;
 	}
 
-	FOR_CONST_REVERSE_RANGE(Frames, i)
+	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
+	for(size_t i = Frames.size(); i; --i)
 	{
-		if (!(*i)->GetCanLoseFocus(TRUE))
+		if (i - 1 >= Frames.size())
+			continue;
+		auto CurFrame = Frames[i - 1];
+		if (!CurFrame->GetCanLoseFocus(TRUE))
 		{
-			ActivateFrame(*i);
+			ActivateFrame(CurFrame);
 			Commit();
 			auto PrevFrameCount = Frames.size();
-			(*i)->ProcessKey(KEY_ESC);
+			CurFrame->ProcessKey(KEY_ESC);
 			Commit();
 
 			if (PrevFrameCount == Frames.size())
@@ -128,8 +134,6 @@ BOOL Manager::ExitAll()
 				return FALSE;
 			}
 		}
-		if (!Frames.size())
-			break;
 	}
 
 	return TRUE;
@@ -139,24 +143,20 @@ void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
 
-	FOR_CONST_REVERSE_RANGE(ModalFrames, i)
+	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
+	while(!ModalFrames.empty())
 	{
-		DeleteFrame(*i);
+		DeleteFrame(ModalFrames.back());
 		DeleteCommit();
 		DeletedFrame=nullptr;
-		// BUGBUG iterator may be invalidated by DeleteCommit()
-		if (ModalFrames.empty())
-			break;
 	}
 
-	FOR_CONST_REVERSE_RANGE(Frames, i)
+	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
+	while(!Frames.empty())
 	{
-		DeleteFrame(*i);
+		DeleteFrame(Frames.back());
 		DeleteCommit();
 		DeletedFrame=nullptr;
-		// BUGBUG iterator may be invalidated by DeleteCommit()
-		if (Frames.empty())
-			break;
 	}
 
 	Frames.clear();
