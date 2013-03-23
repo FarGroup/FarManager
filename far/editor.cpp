@@ -5046,7 +5046,7 @@ void Editor::Undo(int redo)
 
 				if (ud->Str)
 				{
-					CurLine->SetString(ud->Str,ud->Length);
+					CurLine->SetString(ud->Str.get(),ud->Length);
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}
@@ -5059,13 +5059,13 @@ void Editor::Undo(int redo)
 
 				if (ud->Str)
 				{
-					CurLine->SetString(ud->Str,ud->Length);
+					CurLine->SetString(ud->Str.get(),ud->Length);
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				CurLine->SetCurPos(ud->StrPos);
-				ud->SetData(tmp.Type,tmp.Str,tmp.EOL,tmp.StrNum,tmp.StrPos,tmp.Length);
+				ud->SetData(tmp.Type,tmp.Str.get(),tmp.EOL,tmp.StrNum,tmp.StrPos,tmp.Length);
 				break;
 			}
 		}

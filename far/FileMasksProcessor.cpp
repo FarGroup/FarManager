@@ -51,8 +51,8 @@ void FileMasksProcessor::Free()
 {
 	Masks.clear();
 
-	re.release();
-	m.release();
+	re.reset();
+	m.reset();
 
 	n = 0;
 	bRE = false;

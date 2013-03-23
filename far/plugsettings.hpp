@@ -40,11 +40,11 @@ class AbstractSettings
 	private:
 		char* Add(const wchar_t* Data,size_t Size);
 	protected:
-		std::list<char*> m_Data;
+		std::list<char_ptr> m_Data;
 		char* Add(const string& String);
 		char* Add(size_t Size);
 	public:
-		virtual ~AbstractSettings();
+		virtual ~AbstractSettings(){};
 		virtual bool IsValid(void);
 		virtual int Set(const FarSettingsItem& Item)=0;
 		virtual int Get(FarSettingsItem& Item)=0;

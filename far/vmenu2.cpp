@@ -338,16 +338,15 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 	SetTitle(Title);
 	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
-	FarListItem *fli=new FarListItem[ItemCount];
+	array_ptr<FarListItem> fli(ItemCount);
 	for(size_t i=0; i<ItemCount; ++i)
 	{
 		fli[i].Flags=Data[i].Flags;
 		fli[i].Text=Data[i].Name;
 	}
-	FarList fl={sizeof(FarList), ItemCount, fli};
+	FarList fl={sizeof(FarList), ItemCount, fli.get()};
 
 	SendMessage(DM_LISTSET, 0, &fl);
-	delete[] fli;
 
 	for(size_t i=0; i<ItemCount; ++i)
 		GetItemPtr(static_cast<int>(i))->AccelKey=Data[i].AccelKey;

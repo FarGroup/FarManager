@@ -23,9 +23,9 @@ FILETYPE VFT_APP
 			VALUE "FileDescription", "File and archive manager"
 			VALUE "FileVersion", "`v'FULLVERSION"
 			VALUE "InternalName", "Far"
-			VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, COPYRIGHTYEARS"
+			VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © Far Group, COPYRIGHTYEARS"
 			VALUE "OriginalFilename", "Far.exe"
-			VALUE "ProductName", "FAR Manager"
+			VALUE "ProductName", "Far Manager"
 		}
 	}
 	BLOCK "VarFileInfo"

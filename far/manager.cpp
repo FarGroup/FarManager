@@ -109,6 +109,8 @@ BOOL Manager::ExitAll()
 				return FALSE;
 			}
 		}
+		if (!ModalFrames.size())
+			break;
 	}
 
 	FOR_CONST_REVERSE_RANGE(Frames, i)
@@ -126,6 +128,8 @@ BOOL Manager::ExitAll()
 				return FALSE;
 			}
 		}
+		if (!Frames.size())
+			break;
 	}
 
 	return TRUE;

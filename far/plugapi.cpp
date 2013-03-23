@@ -964,18 +964,18 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
 		return -1;
 
-	wchar_t *SingleItems=nullptr;
+	wchar_t_ptr SingleItems;
 
 	// анализ количества строк для FMSG_ALLINONE
 	if (Flags&FMSG_ALLINONE)
 	{
 		ItemsNumber=0;
 
-		SingleItems = new wchar_t[StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2];
+		SingleItems.reset(StrLength(reinterpret_cast<const wchar_t*>(Items)) + 2);
 		if (!SingleItems)
 			return -1;
 
-		wchar_t *Msg=wcscpy(SingleItems,(const wchar_t *)Items);
+		wchar_t *Msg=wcscpy(SingleItems.get(), (const wchar_t *)Items);
 
 		while ((Msg = wcschr(Msg, L'\n')) )
 		{
@@ -993,7 +993,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if (Flags&FMSG_ALLINONE)
 	{
 		int I=0;
-		wchar_t *Msg=SingleItems;
+		wchar_t *Msg=SingleItems.get();
 		// анализ количества строк и разбивка на пункты
 		wchar_t *MsgTemp;
 
@@ -1091,8 +1091,6 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		frame->Unlock(); // теперь можно :-)
 
 	//CheckScreenLock();
-
-	delete[] SingleItems;
 
 	return MsgCode;
 }

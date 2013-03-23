@@ -832,7 +832,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,NumberOfBytesWritten);
 
-				Buffer.release();
+				Buffer.reset();
 
 				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{

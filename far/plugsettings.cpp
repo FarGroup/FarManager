@@ -45,14 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "plugins.hpp"
 
-AbstractSettings::~AbstractSettings()
-{
-	std::for_each(CONST_RANGE(m_Data, i)
-	{
-		delete [] i;
-	});
-}
-
 char* AbstractSettings::Add(const string& String)
 {
 	return Add(String.CPtr(),(String.GetLength()+1)*sizeof(wchar_t));
@@ -67,9 +59,8 @@ char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
 
 char* AbstractSettings::Add(size_t Size)
 {
-	char* item = new char[Size];
-	m_Data.push_back(item);
-	return item;
+	m_Data.push_back(char_ptr(Size));
+	return m_Data.back().get();
 }
 
 bool AbstractSettings::IsValid(void)
@@ -84,7 +75,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg.reset(Global->Db->CreatePluginsConfig(strGuid, Local));
+		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
 		m_Keys.resize(1);
 		unsigned __int64& root = m_Keys.front();
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
@@ -450,7 +441,7 @@ static HistoryConfig* HistoryRef(int Type)
 			Save=Global->Opt->Dialogs.EditHistory;
 			break;
 	}
-	return Save? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
+	return Save? Global->Db->HistoryCfg().get() : Global->Db->HistoryCfgMem().get();
 }
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)

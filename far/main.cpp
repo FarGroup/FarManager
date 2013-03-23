@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "palette.hpp"
 
-global *Global = nullptr;
+std::unique_ptr<global> Global;
 
 static void show_help()
 {
@@ -429,7 +429,12 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 {
 	atexit(AtExit);
 
-	global _g;
+	class GlobalInitiator
+	{
+	public:
+		GlobalInitiator(){Global.reset(new global);}
+		~GlobalInitiator(){Global.reset();}
+	} gi;
 
 	SetErrorMode(Global->ErrorMode);
 
@@ -482,7 +487,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 			string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
 			InitTemplateProfile(strTemplatePath);
 			InitProfile(strProfilePath, strLocalProfilePath);
-			Global->Db = new Database(true);
+			Global->Db.reset(new Database(true));
 			return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
 		}
 	}
@@ -709,7 +714,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
-	Global->Db = new Database;
+	Global->Db.reset(new Database);
 
 	Global->Opt->Load();
 
@@ -773,7 +778,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
 	}
 
-	Global->CtrlObject = new ControlObject;
+	Global->CtrlObject.reset(new ControlObject);
 
 	int Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 

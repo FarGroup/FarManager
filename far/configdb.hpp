@@ -249,28 +249,26 @@ class Database
 {
 public:
 	Database(bool ImportExportMode=false);
-	~Database();
 	bool Import(const wchar_t *File);
 	bool Export(const wchar_t *File);
 	int ShowProblems();
 
 	static void ClearPluginsCache();
 
-	GeneralConfig *GeneralCfg() const { return m_GeneralCfg; }
-	GeneralConfig *LocalGeneralCfg() const { return m_LocalGeneralCfg; }
-	ColorsConfig *ColorsCfg() const { return m_ColorsCfg; }
-	AssociationsConfig *AssocConfig() const { return m_AssocConfig; }
-	PluginsCacheConfig *PlCacheCfg() const { return m_PlCacheCfg; }
-	PluginsHotkeysConfig *PlHotkeyCfg() const { return m_PlHotkeyCfg; }
-	HistoryConfig *HistoryCfg() const { return m_HistoryCfg; }
-	HistoryConfig *HistoryCfgMem() const { return m_HistoryCfgMem; }
+	const std::unique_ptr<GeneralConfig>& GeneralCfg() const { return m_GeneralCfg; }
+	const std::unique_ptr<GeneralConfig>& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
+	const std::unique_ptr<ColorsConfig>& ColorsCfg() const { return m_ColorsCfg; }
+	const std::unique_ptr<AssociationsConfig>& AssocConfig() const { return m_AssocConfig; }
+	const std::unique_ptr<PluginsCacheConfig>& PlCacheCfg() const { return m_PlCacheCfg; }
+	const std::unique_ptr<PluginsHotkeysConfig>& PlHotkeyCfg() const { return m_PlHotkeyCfg; }
+	const std::unique_ptr<HistoryConfig>& HistoryCfg() const { return m_HistoryCfg; }
+	const std::unique_ptr<HistoryConfig>& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
-
-	HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local=false);
-	HierarchicalConfig *CreateFiltersConfig();
-	HierarchicalConfig *CreateHighlightConfig();
-	HierarchicalConfig *CreateShortcutsConfig();
-	HierarchicalConfig *CreatePanelModeConfig();
+	std::unique_ptr<HierarchicalConfig> CreatePluginsConfig(const wchar_t *guid, bool Local=false);
+	std::unique_ptr<HierarchicalConfig> CreateFiltersConfig();
+	std::unique_ptr<HierarchicalConfig> CreateHighlightConfig();
+	std::unique_ptr<HierarchicalConfig> CreateShortcutsConfig();
+	std::unique_ptr<HierarchicalConfig> CreatePanelModeConfig();
 
 private:
 	enum DBCHECK
@@ -281,7 +279,7 @@ private:
 		CHECK_SHORTCUTS = 0x4,
 		CHECK_PANELMODES = 0x8,
 	};
-	template<class T> HierarchicalConfig *CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false, bool plugin=false);
+	template<class T> std::unique_ptr<HierarchicalConfig> CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false, bool plugin=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
@@ -291,14 +289,14 @@ private:
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;
 
-	GeneralConfig *m_GeneralCfg;
-	GeneralConfig *m_LocalGeneralCfg;
-	ColorsConfig *m_ColorsCfg;
-	AssociationsConfig *m_AssocConfig;
-	PluginsCacheConfig *m_PlCacheCfg;
-	PluginsHotkeysConfig *m_PlHotkeyCfg;
-	HistoryConfig *m_HistoryCfg;
-	HistoryConfig *m_HistoryCfgMem;
+	std::unique_ptr<GeneralConfig> m_GeneralCfg;
+	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;
+	std::unique_ptr<ColorsConfig> m_ColorsCfg;
+	std::unique_ptr<AssociationsConfig> m_AssocConfig;
+	std::unique_ptr<PluginsCacheConfig> m_PlCacheCfg;
+	std::unique_ptr<PluginsHotkeysConfig> m_PlHotkeyCfg;
+	std::unique_ptr<HistoryConfig> m_HistoryCfg;
+	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
 
 	BitFlags CheckedDb;
 	std::list<string> m_Problems;

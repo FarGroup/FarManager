@@ -1414,8 +1414,8 @@ void Options::InitConfig()
 	{
 		InitCFG();
 		InitLocalCFG();
-		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->GeneralCfg(), &FARConfig));
-		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->LocalGeneralCfg(), &FARLocalConfig));
+		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->GeneralCfg().get(), &FARConfig));
+		ConfigList.push_back(VALUE_TYPE(ConfigList)(Global->Db->LocalGeneralCfg().get(), &FARLocalConfig));
 	}
 }
 

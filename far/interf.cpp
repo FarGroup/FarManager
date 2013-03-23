@@ -632,13 +632,13 @@ void Text(const WCHAR *Str)
 		return;
 
 	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
-	FAR_CHAR_INFO* HeapBuffer=nullptr;
+	array_ptr<FAR_CHAR_INFO> HeapBuffer;
 	FAR_CHAR_INFO* BufPtr=StackBuffer;
 
 	if (Length >= StackBufferSize/sizeof(FAR_CHAR_INFO))
 	{
-		HeapBuffer=new FAR_CHAR_INFO[Length+1];
-		BufPtr=HeapBuffer;
+		HeapBuffer.reset(Length+1);
+		BufPtr=HeapBuffer.get();
 	}
 
 	for (size_t i=0; i < Length; i++)
@@ -648,10 +648,6 @@ void Text(const WCHAR *Str)
 	}
 
 	Global->ScrBuf->Write(CurX, CurY, BufPtr, static_cast<int>(Length));
-	if(HeapBuffer)
-	{
-		delete[] HeapBuffer;
-	}
 	CurX+=static_cast<int>(Length);
 }
 

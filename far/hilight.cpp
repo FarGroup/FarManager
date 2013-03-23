@@ -190,11 +190,10 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 HighlightFiles::HighlightFiles()
 {
 	Changed = false;
-	HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
-	SetHighlighting(false, cfg);
-	InitHighlightFiles(cfg);
+	auto cfg = Global->Db->CreateHighlightConfig();
+	SetHighlighting(false, cfg.get());
+	InitHighlightFiles(cfg.get());
 	UpdateCurrentTime();
-	delete cfg;
 }
 
 static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *HData, const wchar_t *Mask, int SortGroup, bool bSortGroup)
@@ -639,11 +638,10 @@ void HighlightFiles::HiEdit(int MenuPos)
 					            MSG(MYes),MSG(MCancel)) != 0)
 						break;
 
-					HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
-					SetHighlighting(true, cfg); //delete old settings
+					auto cfg = Global->Db->CreateHighlightConfig();
+					SetHighlighting(true, cfg.get()); //delete old settings
 					ClearData();
-					InitHighlightFiles(cfg);
-					delete cfg;
+					InitHighlightFiles(cfg.get());
 					NeedUpdate=TRUE;
 					break;
 				}
@@ -881,7 +879,7 @@ void HighlightFiles::SaveHiData()
 		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
 	};
 
-	HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
+	auto cfg = Global->Db->CreateHighlightConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, HighlightKeyName);
 	if (root)
@@ -903,9 +901,7 @@ void HighlightFiles::SaveHiData()
 			if (!key)
 				break;
 
-			SaveFilter(cfg, key, HiData[i].get(), (!j || j==3)? false : true);
+			SaveFilter(cfg.get(), key, HiData[i].get(), (!j || j==3)? false : true);
 		}
 	}
-
-	delete cfg;
 }

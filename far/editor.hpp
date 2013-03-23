@@ -66,27 +66,24 @@ struct EditorUndoData
 	int StrNum;
 	wchar_t EOL[10];
 	int Length;
-	wchar_t *Str;
+	wchar_t_ptr Str;
 	static size_t UndoDataSize;
 
 	EditorUndoData():
 		Type(0),
 		StrPos(0),
 		StrNum(0),
-		Length(0),
-		Str(nullptr)
+		Length(0)
 	{
 		ClearArray(EOL);
 	}
+
 	~EditorUndoData()
 	{
 		if (Length > 0)
 			UndoDataSize -= Length;
-		if (Str)
-		{
-			delete[] Str;
-		}
 	}
+
 	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)
 	{
 		if (Length == -1 && Str)
@@ -102,20 +99,15 @@ struct EditorUndoData
 		this->Length=Length;
 		xwcsncpy(EOL,Eol?Eol:L"",ARRAYSIZE(EOL)-1);
 
-		if (this->Str)
-		{
-			delete[] this->Str;
-		}
-
 		if (Str)
 		{
-			this->Str=new wchar_t[Length+1];
+			this->Str.reset(Length + 1);
 
 			if (this->Str)
-				wmemmove(this->Str,Str,Length);
+				wmemmove(this->Str.get(), Str, Length);
 		}
 		else
-			this->Str=nullptr;
+			this->Str.reset();
 	}
 };
 

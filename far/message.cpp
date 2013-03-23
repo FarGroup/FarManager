@@ -431,8 +431,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	if (Buttons>0)
 	{
 		size_t ItemCount=StrCount+Buttons+1;
-		DialogItemEx *PtrMsgDlg;
-		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount+1];
+		array_ptr<DialogItemEx> MsgDlg(ItemCount + 1);
 
 		for (DWORD i=0; i<ItemCount+1; i++)
 			MsgDlg[i].Clear();
@@ -454,7 +453,8 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 		int CurItem=0;
 		bool StrSeparator=false;
 		bool Separator=false;
-		for (PtrMsgDlg=MsgDlg+1,I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
+		DialogItemEx* PtrMsgDlg;
+		for (PtrMsgDlg = MsgDlg.get()+1, I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
 		{
 			if (I==StrCount+1 && !StrSeparator && !Separator)
 			{
@@ -533,7 +533,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 				MsgDlg[0].Y2++;
 				ItemCount++;
 			}
-			Dialog Dlg(this, &Message::MsgDlgProc, &strClipText, MsgDlg, ItemCount);
+			Dialog Dlg(this, &Message::MsgDlgProc, &strClipText, MsgDlg.get(), ItemCount);
 			if (X1 == -1) X1 = 0;
 			if (Y1 == -1) Y1 = 0;
 			Dlg.SetPosition(X1,Y1,X2,Y2);
@@ -561,7 +561,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 			RetCode=Dlg.GetExitCode();
 		}
 
-		delete [] MsgDlg;
 		m_ExitCode = RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0);
 	}
 	else

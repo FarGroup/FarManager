@@ -72,9 +72,9 @@ static int HexToInt(int h)
 	return 0;
 }
 
-static char *BlobToHexString(const char *Blob, int Size)
+static char_ptr BlobToHexString(const char *Blob, int Size)
 {
-	auto Hex = new char[Size*2 + Size + 1];
+	char_ptr Hex(Size*2 + Size + 1);
 	for (int i=0, j=0; i<Size; i++, j+=3)
 	{
 		Hex[j] = IntToHex((Blob[i]&0xF0) >> 4);
@@ -83,25 +83,23 @@ static char *BlobToHexString(const char *Blob, int Size)
 	}
 	Hex[Size ? Size*2+Size-1 : 0] = 0;
 	return Hex;
-
 }
 
-static char *HexStringToBlob(const char *Hex, int *Size)
+static char_ptr HexStringToBlob(const char *Hex, int *Size)
 {
 	*Size=0;
-	auto Blob = new char[strlen(Hex)/2 + 1];
-	if (!Blob)
-		return nullptr;
-
-	while (*Hex && *(Hex+1))
+	char_ptr Blob(strlen(Hex)/2 + 1);
+	if (Blob)
 	{
-		Blob[(*Size)++] = (HexToInt(*Hex)<<4) | HexToInt(*(Hex+1));
-		Hex+=2;
-		if (!*Hex)
-			break;
-		Hex++;
+		while (*Hex && *(Hex+1))
+		{
+			Blob[(*Size)++] = (HexToInt(*Hex)<<4) | HexToInt(*(Hex+1));
+			Hex+=2;
+			if (!*Hex)
+				break;
+			Hex++;
+		}
 	}
-
 	return Blob;
 }
 
@@ -413,10 +411,9 @@ public:
 					break;
 				default:
 				{
-					char *hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
+					auto hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
 					e->SetAttribute("type", "hex");
-					e->SetAttribute("value", hex);
-					delete[] hex;
+					e->SetAttribute("value", hex.get());
 				}
 			}
 
@@ -457,11 +454,10 @@ public:
 			else if (!strcmp(type,"hex"))
 			{
 				int Size = 0;
-				char *Blob = HexStringToBlob(value, &Size);
+				auto Blob = HexStringToBlob(value, &Size);
 				if (Blob)
 				{
-					SetValue(Key, Name, Blob, Size);
-					delete[] Blob;
+					SetValue(Key, Name, Blob.get(), Size);
 				}
 			}
 			else
@@ -720,10 +716,9 @@ public:
 
 	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
 	{
-			char* hex = BlobToHexString(Blob, Size);
+			auto hex = BlobToHexString(Blob, Size);
 			e->SetAttribute("type", "hex");
-			e->SetAttribute("value", hex);
-			delete[] hex;
+			e->SetAttribute("value", hex.get());
 	}
 
 	void Export(unsigned __int64 id, TiXmlElement *key)
@@ -789,7 +784,7 @@ public:
 		return root;
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char*& Blob)
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob)
 	{
 		int Size = 0;
 		Blob = HexStringToBlob(Value, &Size);
@@ -835,22 +830,20 @@ public:
 			else if (value && !strcmp(type,"hex"))
 			{
 				int Size = 0;
-				char *Blob = HexStringToBlob(value, &Size);
+				auto Blob = HexStringToBlob(value, &Size);
 				if (Blob)
 				{
-					SetValue(id, Name, Blob, Size);
-					delete[] Blob;
+					SetValue(id, Name, Blob.get(), Size);
 				}
 			}
 			else
 			{
 				// custom types, value is optional
-				char* Blob = nullptr;
+				char_ptr Blob;
 				int Size = DeserializeBlob(name, type, value, e, Blob);
 				if (Blob)
 				{
-					SetValue(id, Name, Blob, Size);
-					delete[] Blob;
+					SetValue(id, Name, Blob.get(), Size);
 				}
 			}
 		}
@@ -910,7 +903,7 @@ private:
 		}
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char*& Blob)
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob)
 	{
 		int Result = 0;
 		if(!strcmp(Type, "color"))
@@ -922,11 +915,11 @@ private:
 			if(background && foreground && flags)
 			{
 				Result = sizeof(FarColor);
-				auto Color = new FarColor;
+				Blob.reset(Result, true);
+				auto Color = reinterpret_cast<FarColor*>(Blob.get());
 				Color->BackgroundColor = HexStringToInt(background);
 				Color->ForegroundColor = HexStringToInt(foreground);
 				Color->Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
-				Blob = reinterpret_cast<char*>(Color);
 			}
 		}
 		else
@@ -2540,7 +2533,7 @@ T* Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local, bool plugin)
+std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local, bool plugin)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -2552,30 +2545,30 @@ HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar
 		TryImportDatabase(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
-	return cfg;
+	return std::unique_ptr<HierarchicalConfig>(cfg);
 }
 
-HierarchicalConfig* Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
+std::unique_ptr<HierarchicalConfig> Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local, true);
 }
 
-HierarchicalConfig* Database::CreateFiltersConfig()
+std::unique_ptr<HierarchicalConfig> Database::CreateFiltersConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
 }
 
-HierarchicalConfig* Database::CreateHighlightConfig()
+std::unique_ptr<HierarchicalConfig> Database::CreateHighlightConfig()
 {
 	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
 }
 
-HierarchicalConfig* Database::CreateShortcutsConfig()
+std::unique_ptr<HierarchicalConfig> Database::CreateShortcutsConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
 }
 
-HierarchicalConfig* Database::CreatePanelModeConfig()
+std::unique_ptr<HierarchicalConfig> Database::CreatePanelModeConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
@@ -2594,19 +2587,6 @@ Database::Database(bool ImportExportMode):
 	m_HistoryCfg(CreateDatabase<HistoryConfigDb>()),
 	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>())
 {
-}
-
-Database::~Database()
-{
-	delete m_HistoryCfgMem;
-	delete m_HistoryCfg;
-	delete m_PlHotkeyCfg;
-	delete m_PlCacheCfg;
-	delete m_AssocConfig;
-	delete m_ColorsCfg;
-	delete m_LocalGeneralCfg;
-	delete m_GeneralCfg;
-	delete m_TemplateDoc;
 }
 
 bool Database::Export(const wchar_t *File)
@@ -2642,29 +2622,21 @@ bool Database::Export(const wchar_t *File)
 
 	root->LinkEndChild(PlHotkeyCfg()->Export());
 
-	HierarchicalConfig *cfg = CreateFiltersConfig();
 	TiXmlElement *e = new TiXmlElement("filters");
-	e->LinkEndChild(cfg->Export());
+	e->LinkEndChild(CreateFiltersConfig()->Export());
 	root->LinkEndChild(e);
-	delete cfg;
 
-	cfg = CreateHighlightConfig();
 	e = new TiXmlElement("highlight");
-	e->LinkEndChild(cfg->Export());
+	e->LinkEndChild(CreateHighlightConfig()->Export());
 	root->LinkEndChild(e);
-	delete cfg;
 
-	cfg = CreatePanelModeConfig();
 	e = new TiXmlElement("panelmodes");
-	e->LinkEndChild(cfg->Export());
+	e->LinkEndChild(CreatePanelModeConfig()->Export());
 	root->LinkEndChild(e);
-	delete cfg;
 
-	cfg = CreateShortcutsConfig();
 	e = new TiXmlElement("shortcuts");
-	e->LinkEndChild(cfg->Export());
+	e->LinkEndChild(CreateShortcutsConfig()->Export());
 	root->LinkEndChild(e);
-	delete cfg;
 
 	{ //TODO: export for local plugin settings
 		string strPlugins = Global->Opt->ProfilePath;
@@ -2681,10 +2653,8 @@ bool Database::Export(const wchar_t *File)
 			{
 				TiXmlElement *plugin = new TiXmlElement("plugin");
 				plugin->SetAttribute("guid", Utf8String(fd.strFileName));
-				cfg = CreatePluginsConfig(fd.strFileName);
-				plugin->LinkEndChild(cfg->Export());
+				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
 				e->LinkEndChild(plugin);
-				delete cfg;
 			}
 		}
 		root->LinkEndChild(e);
@@ -2729,21 +2699,13 @@ bool Database::Import(const wchar_t *File)
 
 			PlHotkeyCfg()->Import(root);
 
-			HierarchicalConfig *cfg = CreateFiltersConfig();
-			cfg->Import(root.FirstChildElement("filters"));
-			delete cfg;
+			CreateFiltersConfig()->Import(root.FirstChildElement("filters"));
 
-			cfg = CreateHighlightConfig();
-			cfg->Import(root.FirstChildElement("highlight"));
-			delete cfg;
+			CreateHighlightConfig()->Import(root.FirstChildElement("highlight"));
 
-			cfg = CreatePanelModeConfig();
-			cfg->Import(root.FirstChildElement("panelmodes"));
-			delete cfg;
+			CreatePanelModeConfig()->Import(root.FirstChildElement("panelmodes"));
 
-			cfg = CreateShortcutsConfig();
-			cfg->Import(root.FirstChildElement("shortcuts"));
-			delete cfg;
+			CreateShortcutsConfig()->Import(root.FirstChildElement("shortcuts"));
 
 			//TODO: import for local plugin settings
 			for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
@@ -2757,10 +2719,7 @@ bool Database::Import(const wchar_t *File)
 				mc=2;
 				if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
 				{
-					cfg = CreatePluginsConfig(Guid);
-					const TiXmlHandle h(plugin);
-					cfg->Import(h);
-					delete cfg;
+					CreatePluginsConfig(Guid)->Import(TiXmlHandle(plugin));
 				}
 			}
 

@@ -715,5 +715,5 @@ bool History::EqualType(int Type1, int Type2)
 
 HistoryConfig* History::HistoryCfgRef(void)
 {
-	return EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
+	return EnableSave? Global->Db->HistoryCfg().get() : Global->Db->HistoryCfgMem().get();
 }

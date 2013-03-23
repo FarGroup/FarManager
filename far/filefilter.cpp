@@ -774,7 +774,7 @@ void FileFilter::InitFilter()
 	string strKeyName;
 	string strTitle, strMask, strSizeBelow, strSizeAbove;
 
-	HierarchicalConfig *cfg = Global->Db->CreateFiltersConfig();
+	auto cfg = Global->Db->CreateFiltersConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
 
@@ -786,7 +786,6 @@ void FileFilter::InitFilter()
 
 		if (!root)
 		{
-			delete cfg;
 			return;
 		}
 
@@ -881,8 +880,6 @@ void FileFilter::InitFilter()
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			TempFilterData->back()->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
 	}
-
-	delete cfg;
 }
 
 
@@ -910,7 +907,7 @@ void FileFilter::SaveFilters()
 
 	string strKeyName;
 	FileFilterParams *CurFilterData;
-	HierarchicalConfig *cfg = Global->Db->CreateFiltersConfig();
+	auto cfg = Global->Db->CreateFiltersConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
 	if (root)
@@ -920,7 +917,6 @@ void FileFilter::SaveFilters()
 
 	if (!root)
 	{
-		delete cfg;
 		return;
 	}
 
@@ -991,8 +987,6 @@ void FileFilter::SaveFilters()
 
 		cfg->SetValue(root,L"FoldersFilterFFlags", Flags, sizeof(Flags));
 	}
-
-	delete cfg;
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)

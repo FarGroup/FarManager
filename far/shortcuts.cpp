@@ -94,7 +94,7 @@ Shortcuts::Shortcuts()
 {
 	Changed = false;
 
-	HierarchicalConfig *cfg = Global->Db->CreateShortcutsConfig();
+	auto cfg = Global->Db->CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 
 	if (root)
@@ -136,8 +136,6 @@ Shortcuts::Shortcuts()
 			}
 		}
 	}
-
-	delete cfg;
 }
 
 Shortcuts::~Shortcuts()
@@ -145,7 +143,7 @@ Shortcuts::~Shortcuts()
 	if (!Changed)
 		return;
 
-	HierarchicalConfig *cfg = Global->Db->CreateShortcutsConfig();
+	auto cfg = Global->Db->CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 	if (root)
 		cfg->DeleteKeyTree(root);
@@ -196,8 +194,6 @@ Shortcuts::~Shortcuts()
 			});
 		}
 	}
-
-	delete cfg;
 }
 
 static void Fill(ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)

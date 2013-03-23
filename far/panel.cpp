@@ -393,11 +393,12 @@ class separator
 {
 public:
 	separator():m_value(L' '){}
-	wchar_t Get()
+	const string Get()
 	{
-		wchar_t value = m_value;
+		wchar_t c = m_value;
 		m_value = BoxSymbols[BS_V1];
-		return value;
+		const wchar_t value[] = {L' ', c, L' ', 0};
+		return value[1] == L' '? L" " : value;
 	}
 private:
 	wchar_t m_value;
@@ -2448,16 +2449,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				{
 					ActivePanel->SetCurPath();
 				}
-			}
-			break;
-		}
-
-		case FCTL_SETACTIVEPANEL:
-		{
-			if (IsVisible())
-			{
-				SetFocus();
-				Result=TRUE;
 			}
 			break;
 		}

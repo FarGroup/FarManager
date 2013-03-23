@@ -214,7 +214,7 @@ void FileList::SetFilePanelModes()
 
 void FileList::ReadPanelModes()
 {
-	HierarchicalConfig *PanelModeCfg = Global->Db->CreatePanelModeConfig();
+	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{
@@ -250,8 +250,6 @@ void FileList::ReadPanelModes()
 
 		ViewSettingsArray[VIEW_0+I] = NewSettings;
 	}
-
-	delete PanelModeCfg;
 }
 
 
@@ -262,7 +260,7 @@ void FileList::SavePanelModes()
 
 	ViewSettingsChanged = false;
 
-	HierarchicalConfig *PanelModeCfg = Global->Db->CreatePanelModeConfig();
+	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{
@@ -285,6 +283,4 @@ void FileList::SavePanelModes()
 		PanelModeCfg->SetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
 		PanelModeCfg->SetValue(id, L"Flags", NewSettings.Flags);
 	}
-
-	delete PanelModeCfg;
 }

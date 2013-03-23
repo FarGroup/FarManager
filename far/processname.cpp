@@ -73,9 +73,9 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
 
-	wchar_t *PartBeforeName = new wchar_t[BeforeNameLength + 1];
+	wchar_t_ptr PartBeforeName(BeforeNameLength + 1);
 
-	xwcsncpy(PartBeforeName, Src, BeforeNameLength+1);
+	xwcsncpy(PartBeforeName.get(), Src, BeforeNameLength+1);
 
 	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
 
@@ -138,13 +138,12 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	strDest.ReleaseBuffer();
 
-	if (*PartBeforeName)
-		strDest = PartBeforeName+strDest;
+	if (PartBeforeName[0])
+		strDest = PartBeforeName.get() + strDest;
 
 	if (SelectedFolderNameLength)
 		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
-	delete[] PartBeforeName;
 	return TRUE;
 }
 

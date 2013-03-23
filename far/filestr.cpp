@@ -474,7 +474,7 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 			}
 			else
 			{
-				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
+				std::unique_ptr<nsUniversalDetectorEx> ns(new nsUniversalDetectorEx());
 				ns->HandleData(Buffer.get(),(PRUint32)sz);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
@@ -484,8 +484,6 @@ bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, b
 					nCodePage = cp;
 					bDetect = true;
 				}
-
-				delete ns;
 			}
 		}
 	}
@@ -977,7 +975,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 			}
 			else
 			{
-				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
+				std::unique_ptr<nsUniversalDetectorEx> ns(new nsUniversalDetectorEx());
 				ns->HandleData(Buffer.get(), ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
@@ -1020,8 +1018,6 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 					nCodePage = cp;
 					bDetect = true;
 				}
-
-				delete ns;
 			}
 		}
 	}
