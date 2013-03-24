@@ -87,6 +87,7 @@ struct EditorUndoData
 	EditorUndoData(EditorUndoData&& Right)
 	{
 		*this = std::move(Right);
+		Right.Length = 0;
 	}
 
 	EditorUndoData& operator=(EditorUndoData&& Right)
