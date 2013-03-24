@@ -363,7 +363,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
-	if (this == Global->Lang.get() && StrCmpI(Global->Opt->strLanguage,strLangName))
+	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage,strLangName))
 		Global->Opt->strLanguage=strLangName;
 
 	long Pos = ftell(LangFile);
@@ -477,7 +477,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 #endif // NO_WRAPPER
 	fclose(LangFile);
 
-	if (this == Global->Lang.get())
+	if (this == Global->Lang)
 		Global->OldLang->Free();
 
 	LanguageLoaded=true;
@@ -528,7 +528,7 @@ void Language::Free()
 
 void Language::Close()
 {
-	if (this == Global->Lang.get())
+	if (this == Global->Lang)
 	{
 		if (Global->OldLang->MsgCount)
 			Global->OldLang->Free();
@@ -566,7 +566,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 	*/
 	if (MsgId>=MsgCount || MsgId < 0)
 	{
-		if (this == Global->Lang.get() && !LanguageLoaded && this != Global->OldLang.get() && Global->OldLang->CheckMsgId(MsgId))
+		if (this == Global->Lang && !LanguageLoaded && this != Global->OldLang && Global->OldLang->CheckMsgId(MsgId))
 			return true;
 
 		/* $ 26.03.2002 DJ
@@ -605,7 +605,7 @@ const wchar_t* Language::GetMsg(LNGID nID) const
 	!CheckMsgId(nID))
 		return L"";
 
-	if (this == Global->Lang.get() && this != Global->OldLang.get() && !LanguageLoaded && Global->OldLang->MsgCount > 0)
+	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
 		return Global->OldLang->MsgAddr[nID];
 
 	return MsgAddr[nID];
@@ -617,7 +617,7 @@ const char* Language::GetMsgA(LNGID nID) const
 	if (m_bUnicode || !CheckMsgId(nID))
 		return "";
 
-	if (this == Global->Lang.get() && this != Global->OldLang.get() && !LanguageLoaded && Global->OldLang->MsgCount > 0)
+	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
 		return Global->OldLang->MsgAddrA[nID];
 
 	return MsgAddrA[nID];

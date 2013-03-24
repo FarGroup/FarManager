@@ -59,8 +59,28 @@ size_t global::AllocatedMemorySize = 0;
 size_t global::TotalAllocationCalls = 0;
 
 global::global():
-	m_MainThreadId(GetCurrentThreadId())
+	m_MainThreadId(GetCurrentThreadId()),
+	ifn(nullptr),
+	Console(nullptr),
+	ScrBuf(nullptr),
+	TBC(nullptr),
+	ConsoleIcons(nullptr),
+	//FS(nullptr),
+	PreRedraw(nullptr),
+	Window(nullptr),
+	Opt(nullptr),
+	Lang(nullptr),
+	OldLang(nullptr),
+	Elevation(nullptr),
+	TreeCache(nullptr),
+	tempTreeCache(nullptr),
+	PluginSynchroManager(nullptr),
+	CodePages(nullptr),
+	Db(nullptr),
+	CtrlObject(nullptr)
 {
+	Global = this;
+
 	QueryPerformanceCounter(&m_FarUpTime);
 
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &m_MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
@@ -107,27 +127,66 @@ global::global():
 
 	// BUGBUG end
 
+	ifn = new ImportedFunctions;
+	Console = console::CreateInstance(true);
+	ScrBuf = new ScreenBuf;
+	TBC = new TaskBarCore;
+	ConsoleIcons = new consoleicons;
 	//FS = new FormatScreen;
-	ifn.reset(new ImportedFunctions);
-	Console.reset(console::CreateInstance(true));
-	ScrBuf.reset(new ScreenBuf);
-	TBC.reset(new TaskBarCore);
-	ConsoleIcons.reset(new consoleicons);
-	PreRedraw.reset(new TPreRedrawFunc);
-	Window.reset(new WindowHandler);
-	Opt.reset(new Options);
-	Lang.reset(new Language);
-	OldLang.reset(new Language);
-	Elevation.reset(new elevation);
-	TreeCache.reset(new TreeListCache);
-	tempTreeCache.reset(new TreeListCache);
-	PluginSynchroManager.reset(new PluginSynchro);
-	CodePages.reset(new codepages);
+	PreRedraw = new TPreRedrawFunc;
+	Window = new WindowHandler;
+	Opt = new Options;
+	Lang = new Language;
+	OldLang = new Language;
+	Elevation = new elevation;
+	TreeCache = new TreeListCache;
+	tempTreeCache = new TreeListCache;
+	PluginSynchroManager = new PluginSynchro;
+	CodePages = new codepages;
 }
 
 global::~global()
 {
+	delete CtrlObject;
+	CtrlObject = nullptr;
+	delete Db;
+	Db = nullptr;
+	delete CodePages;
+	CodePages = nullptr;
+	delete PluginSynchroManager;
+	PluginSynchroManager = nullptr;
+	delete tempTreeCache;
+	tempTreeCache = nullptr;
+	delete TreeCache;
+	TreeCache = nullptr;
+	delete Elevation;
+	Elevation = nullptr;
+	delete OldLang;
+	OldLang = nullptr;
+	delete Lang;
+	Lang = nullptr;
+	delete Opt;
+	Opt = nullptr;
+	delete Window;
+	Window = nullptr;
+	delete PreRedraw;
+	PreRedraw = nullptr;
+	//delete FS;
+	//FS = nullptr;
+	delete ConsoleIcons;
+	ConsoleIcons = nullptr;
+	delete TBC;
+	TBC = nullptr;
+	delete ScrBuf;
+	ScrBuf = nullptr;
+	delete Console;
+	Console = nullptr;
+	delete ifn;
+	ifn = nullptr;
+
 	CloseHandle(m_MainThreadHandle);
+
+	Global = nullptr;
 }
 
 bool global::IsUserAdmin() const

@@ -108,24 +108,24 @@ private:
 	HANDLE m_MainThreadHandle;
 
 public:
-	FormatScreen FS;
-	std::unique_ptr<class ImportedFunctions> ifn;
-	std::unique_ptr<class console> Console;
-	std::unique_ptr<class ScreenBuf> ScrBuf;
-	std::unique_ptr<class TaskBarCore> TBC;
-	std::unique_ptr<class consoleicons> ConsoleIcons;
-	std::unique_ptr<class TPreRedrawFunc> PreRedraw;
-	std::unique_ptr<class WindowHandler> Window;
-	std::unique_ptr<class Options> Opt;
-	std::unique_ptr<class Language> Lang;
-	std::unique_ptr<class Language> OldLang;
-	std::unique_ptr<class elevation> Elevation;
-	std::unique_ptr<class TreeListCache> TreeCache;
-	std::unique_ptr<class TreeListCache> tempTreeCache;
-	std::unique_ptr<class PluginSynchro> PluginSynchroManager;
-	std::unique_ptr<class codepages> CodePages;
-	std::unique_ptr<class Database> Db;
-	std::unique_ptr<class ControlObject> CtrlObject;
+	class ImportedFunctions* ifn;
+	class console* Console;
+	class ScreenBuf* ScrBuf;
+	class TaskBarCore* TBC;
+	class consoleicons* ConsoleIcons;
+	class FormatScreen FS;
+	class TPreRedrawFunc* PreRedraw;
+	class WindowHandler *Window;
+	class Options *Opt;
+	class Language *Lang;
+	class Language *OldLang;
+	class elevation *Elevation;
+	class TreeListCache* TreeCache;
+	class TreeListCache* tempTreeCache;
+	class PluginSynchro* PluginSynchroManager;
+	class codepages* CodePages;
+	class Database* Db;
+	class ControlObject* CtrlObject;
 };
 
 #define MSG(ID) Global->Lang->GetMsg(ID)
@@ -136,4 +136,4 @@ inline bool operator> (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant)
 inline bool operator<= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) <= VersionConstant;}
 inline bool operator>= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) >= VersionConstant;}
 
-extern std::unique_ptr<global> Global;
+extern global* Global;
