@@ -1,3 +1,7 @@
+drkns 25.03.2013 00:02:58 +0200 - build 3275
+
+1. 0002348: Exception в EditControl/ECTL_SAVEFILE при Param2.FileName = NULL
+
 drkns 24.03.2013 17:19:41 +0200 - build 3274
 
 1. Частичный откат 3269. Пока рано.

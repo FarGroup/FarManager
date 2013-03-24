@@ -2598,7 +2598,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (CheckStructSize(esf))
 			{
 
-				if (*esf->FileName) strName=esf->FileName;
+				if (esf->FileName)
+					strName=esf->FileName;
 
 				if (esf->FileEOL)
 				{

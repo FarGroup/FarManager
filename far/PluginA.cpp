@@ -4297,8 +4297,10 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 			if (Param)
 			{
 				oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
-				newsf.FileName = AnsiToUnicode(oldsf->FileName);
-				newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):nullptr;
+				if (oldsf->FileName)
+					newsf.FileName = AnsiToUnicode(oldsf->FileName);
+				if (oldsf->FileEOL)
+					newsf.FileEOL = AnsiToUnicode(oldsf->FileEOL);
 			}
 
 			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0));
