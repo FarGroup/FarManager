@@ -429,12 +429,18 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 {
 	atexit(AtExit);
 
-	class GlobalInitiator
+	class GlobalHolder
 	{
 	public:
-		GlobalInitiator(){Global.reset(new global);}
-		~GlobalInitiator(){Global.reset();}
-	} gi;
+		GlobalHolder(){Global.reset(new global);}
+		~GlobalHolder()
+		{
+			// BUGBUG
+			// currently we need to keep Global valid during its destruction, should be refactored
+			delete Global.get();
+			Global.release();
+		}
+	} gh;
 
 	SetErrorMode(Global->ErrorMode);
 

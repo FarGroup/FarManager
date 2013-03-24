@@ -236,8 +236,8 @@ in the input stream until you press Ctrl-Break.
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
 
-  #/t templateprofile
-  #Задаёт файл в котором располагаются умолчательные настройки, которые применяются,
+  #/t templateprofile#
+  Задаёт файл в котором располагаются умолчательные настройки, которые применяются,
 если какой-либо из конфигурационных файлов не существует. Параметр templateprofile
 перекрывает значение TemplateProfile из Far.exe.ini.
 
