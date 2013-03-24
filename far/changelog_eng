@@ -3,6 +3,115 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.03.2013 17:19:41 +0200 - build 3274
+
+1. Partial rollback of 3269. Too early.
+
+drkns 24.03.2013 16:21:07 +0200 - build 3273
+
+1. Another correction.
+
+2. 0002345: A small defect in help info
+
+drkns 24.03.2013 11:45:49 +0200 - build 3272
+
+1. And more.
+
+drkns 23.03.2013 19:59:25 +0200 - build 3271
+
+1. Another couple of corrections.
+
+drkns 23.03.2013 17:28:05 +0200 - build 3270
+
+1. Correction of 3269.
+
+drkns 23.03.2013 16:17:18 +0200 - build 3269
+
+1. Refactoring.
+
+drkns 23.03.2013 00:40:11 +0200 - build 3268
+
+1. Refactoring.
+
+w17 23.03.2013 00:02:37 +0400 - build 3267
+
+1. correction of 3259.
+
+svs 22.03.2013 18:21:38 +0400 - build
+
+1. Corrections (a few of) on TREEFILE_PROJECT (Mantis#0000186)
+   without a build, because of no influence on the main code.
+
+   <ACHTUNG>
+
+   1. Don't use /D TREEFILE_PROJECT - the project is under development.
+   2. Ideas and comments here - http://bugs.farmanager.com/view.php?id=186
+
+   </ACHTUNG>
+
+svs 22.03.2013 15:40:09 +0400 - build 3266
+
+1. Mantis#0002341: Need GUIDs
+
+    AdvancedConfigId  = {A204FF09-07FA-478c-98C9-E56F61377BDE} --> Dlg.Id
+    FolderShortcutsId = {4CD742BC-295F-4afa-A158-7AA05A16BEA1} --> Menu.Id
+
+2. "System.Executor.~" parameter is described in help
+
+3. Mantis#0001535: Adding help on Ctrl-Alt-F (menu items filtering)
+
+svs 22.03.2013 14:45:14 +0400 - build 3265
+
+1. Mantis#0002340: Add FCTL_SETACTIVEPANEL command to API
+
+   Panel API: FCTL_SETACTIVEPANEL command - make "this panel" active.
+
+     hPanel = HANDLE | PANEL_ACTIVE | PANEL_PASSIVE
+        HANDLE - "this panel" becomes active
+        PANEL_ACTIVE - waste of time, "it" is already active :-)
+        PANEL_PASSIVE - passive one becomes active
+     Command = FCTL_SETACTIVEPANEL
+     Param1 = 0
+     Param2 = 0
+
+     Return = TRUE (all ok) | FALSE (no such panel or it is "hidden")
+
+shmuel 21.03.2013 22:51:47 +0200 - build 3264
+
+1. Refactoring.
+
+drkns 21.03.2013 21:29:29 +0200 - build 3263
+
+1. Refactoring.
+
+drkns 21.03.2013 02:27:47 +0200 - build 3262
+
+1. One more correction of 3260.
+
+w17 21.03.2013 03:58:50 +0400 - build 3261
+
+1. correction of 3260.
+
+drkns 20.03.2013 23:09:07 +0200 - build 3260
+
+1. Refactoring.
+
+drkns 20.03.2013 02:07:58 +0200 - build 3259
+
+1. Refactoring.
+
+drkns 19.03.2013 00:02:25 +0200 - build 3258
+
+1. Refactoring.
+
+svs 18.03.2013 18:58:10 +0400 - build 3257
+
+1. SQLite 3.7.16
+
+w17 18.03.2013 17:45:12 +0400 - build 3256
+
+1. m#1905 - removing 'wrap...' sign from viewer keybars for hex and dump modes.
+
 drkns 17.03.2013 22:54:00 +0200 - build 3255
 
 1. Refactoring.
