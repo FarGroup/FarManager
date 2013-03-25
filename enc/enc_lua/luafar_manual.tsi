@@ -3394,7 +3394,7 @@ id=22
 lv=2
 dt=Text
 nm=editor.AddColor
-mtime=3572708789
+mtime=3573236978
 <article>
 #_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags,
 #_                          Color, Priority, Owner)
@@ -3402,8 +3402,8 @@ mtime=3572708789
 #_**Parameters:**
 #_  EditorId:     integer, or nil
 #_  StringNumber: integer, or nil
-#_  StartPos:     integer
-#_  EndPos:       integer
+#_  StartPos:     integer (1-based)
+#_  EndPos:       integer (1-based)
 #_  Flags:        flags
 #_  Color:        table FarColor
 #_  Priority:     integer (optional; default=EDITOR_COLOR_NORMAL_PRIORITY)

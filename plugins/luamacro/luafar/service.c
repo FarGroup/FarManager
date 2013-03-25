@@ -1271,7 +1271,7 @@ static int editor_SaveFile(lua_State *L)
 	struct EditorSaveFile esf;
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	esf.StructSize = sizeof(esf);
-	esf.FileName = opt_utf8_string(L, 2, L"");
+	esf.FileName = opt_utf8_string(L, 2, NULL);
 	esf.FileEOL = opt_utf8_string(L, 3, NULL);
 	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf));
 	return 1;
