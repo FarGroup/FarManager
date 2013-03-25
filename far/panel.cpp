@@ -284,7 +284,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
 				OneItem.Item.UserData=item;
 				OneItem.HotKey=HotKey;
-				MPItems.push_back(OneItem);
+				MPItems.emplace_back(OneItem);
 				/*
 				else BUGBUG, а вот это, похоже, лишнее
 				{
@@ -560,7 +560,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			FreeSizeWidth = std::max(FreeSizeWidth, NewItem.FreeSize.GetLength());
 			PathWidth = std::max(PathWidth, NewItem.Path.GetLength());
 
-			Items.push_back(NewItem);
+			Items.emplace_back(NewItem);
 		}
 
 		int MenuLine = 0;

@@ -521,7 +521,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 			LPWSTR AppName = nullptr;
 			if(SUCCEEDED(pfiu->GetAppName(&AppName)))
 			{
-				Msg.push_back(AppName);
+				Msg.emplace_back(AppName);
 			}
 		}
 		else
@@ -565,7 +565,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 								CloseHandle(hProcess);
 							}
 							tmp << L")";
-							Msg.push_back(tmp);
+							Msg.emplace_back(tmp);
 						}
 					}
 					delete[] rgpi;

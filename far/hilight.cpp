@@ -311,7 +311,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 			std::unique_ptr<FileFilterParams> HData(new FileFilterParams);
 			LoadFilter(cfg,key,HData.get(),strMask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
-			HiData.push_back(std::move(HData));
+			HiData.emplace_back(std::move(HData));
 			(*(Count[j]))++;
 		}
 	}
@@ -701,7 +701,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						{
 							(*Count)++;
 							NeedUpdate=TRUE;
-							HiData.insert(HiData.begin()+RealSelectPos, std::move(NewHData));
+							HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
 						}
 					}
 

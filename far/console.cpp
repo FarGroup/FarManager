@@ -119,6 +119,11 @@ virtual bool SetSize(COORD Size) const
 			WindowCoord.X=std::max(WindowCoord.X,csbi.dwSize.X);
 			WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
 			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
+
+			// windows sometimes uses existing colors to init right region of screen buffer
+			FarColor Color;
+			Global->Console->GetTextAttributes(Color);
+			Global->Console->ClearExtraRegions(Color);
 		}
 		if(SetWindowRect(csbi.srWindow))
 		{

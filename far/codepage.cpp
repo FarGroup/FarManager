@@ -275,11 +275,11 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		// Вычисляем позицию вставляемого элемента
 		if (position==-1 || position>=static_cast<int>(DialogBuilderList->size()))
 		{
-			DialogBuilderList->push_back(item);
+			DialogBuilderList->emplace_back(item);
 		}
 		else
 		{
-			DialogBuilderList->insert(DialogBuilderList->begin()+position, item);
+			DialogBuilderList->emplace(DialogBuilderList->begin()+position, item);
 		}
 	}
 	else
@@ -360,11 +360,11 @@ void codepages::AddSeparator(LPCWSTR Label, int position)
 		// Вычисляем позицию вставляемого элемента
 		if (position==-1 || position>=static_cast<int>(DialogBuilderList->size()))
 		{
-			DialogBuilderList->push_back(item);
+			DialogBuilderList->emplace_back(item);
 		}
 		else
 		{
-			DialogBuilderList->insert(DialogBuilderList->begin()+position, item);
+			DialogBuilderList->emplace(DialogBuilderList->begin()+position, item);
 		}
 	}
 	else

@@ -1417,13 +1417,13 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			Item.LastWriteTime = FindData.ftLastWriteTime;
 			Item.FileName = DuplicateString(strFullName.CPtr());
 			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName);
-			Items->push_back(std::move(Item));
+			Items->emplace_back(std::move(Item));
 		}
 
 		*pItemsNumber=Items->size();
 
 		// magic trick to store vector pointer for apiFreeDirList().
-		Items->push_back(PluginPanelItem());
+		Items->emplace_back(PluginPanelItem());
 		Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
 
 		*pPanelItem=Items->data();

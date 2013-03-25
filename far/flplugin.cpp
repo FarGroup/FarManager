@@ -67,7 +67,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->PrevCaseSensitiveSort=CaseSensitiveSort;
 	stItem->PrevViewSettings=ViewSettings;
 	stItem->PrevDirectoriesFirst=DirectoriesFirst;
-	PluginsList.push_back(stItem);
+	PluginsList.emplace_back(stItem);
 	++Global->PluginPanelsCount;
 }
 

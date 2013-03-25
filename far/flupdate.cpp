@@ -339,7 +339,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			if (ReadCustomData)
 				Global->CtrlObject->Plugins->GetCustomData(NewItem);
 
-			ListData.push_back(NewItem);
+			ListData.emplace_back(NewItem);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -408,7 +408,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
 
-		ListData.push_back(NewItem);
+		ListData.emplace_back(NewItem);
 	}
 
 	if (IsColumnDisplayed(DIZ_COLUMN))
@@ -771,7 +771,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		auto NewItem = new FileListItem;
 		NewItem->Clear();
 		AddParentPoint(NewItem, ListData.size());
-		ListData.push_back(NewItem);
+		ListData.emplace_back(NewItem);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
 			Global->CtrlObject->HiFiles->GetHiColor(ListData.end() - 1, 1, (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);

@@ -519,7 +519,7 @@ void Viewer::ShowPage(int nMode)
 				
 				for (int Y = Y1; Y<=Y2; ++Y)
 				{
-					Strings.push_back(ViewerString());
+					Strings.emplace_back(ViewerString());
 					Strings.back().nFilePos = vtell();
 
 					if (Y==Y1+1 && !veof())
@@ -534,7 +534,7 @@ void Viewer::ShowPage(int nMode)
 			{
 				SecondPos = Strings.front().nFilePos;
 				Strings.pop_back();
-				Strings.push_front(ViewerString());
+				Strings.emplace_front(ViewerString());
 				Strings.front().nFilePos = FilePos;
 			}
 			else
@@ -549,7 +549,7 @@ void Viewer::ShowPage(int nMode)
 			if (Y2 > Y1)
 			{
 				Strings.pop_front();
-				Strings.push_back(ViewerString());
+				Strings.emplace_back(ViewerString());
 				FilePos = Strings.front().nFilePos;
 				auto Second = Strings.begin();
 				++Second;

@@ -5039,7 +5039,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 			Item->PrevListData=ListData;
 			Item->PrevTopFile = CurTopFile;
 			Item->strPrevName = FileName? *FileName : L"";
-			PrevDataList.push_back(Item);
+			PrevDataList.emplace_back(Item);
 			ListData.clear();
 		}
 

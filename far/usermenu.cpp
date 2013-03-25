@@ -208,7 +208,7 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 		else if (MenuItem)
 		{
 			RemoveLeadingSpaces(MenuStr);
-			MenuItem->Commands.push_back(MenuStr);
+			MenuItem->Commands.emplace_back(MenuStr);
 		}
 	}
 }
@@ -1058,7 +1058,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 			if (Create)
 			{
-				NewItemIterator = Menu.insert(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
+				NewItemIterator = Menu.emplace(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
 				MenuItem = &NewItemIterator;
 			}
 
@@ -1092,7 +1092,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 					if (i>=CommandNumber)
 						break;
 					else
-						(*MenuItem)->Commands.push_back(EditDlg[i+EM_EDITLINE_0].strData);
+						(*MenuItem)->Commands.emplace_back(EditDlg[i+EM_EDITLINE_0].strData);
 				}
 #endif
 			}

@@ -94,7 +94,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 				T.Token = strStr.SubStr(From, Length);
 				T.PrependChar = 0;
 				T.TypeMask = 1 << UNKNOWN;
-				Result.push_back(T);
+				Result.emplace_back(T);
 				return Result;
 			}
 
@@ -111,7 +111,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 			T.PrependChar = 0;
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
-			Result.push_back(T);
+			Result.emplace_back(T);
 			L = I+1;
 			I++;
 			continue;
@@ -124,7 +124,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 			T.PrependChar = 0;
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
-			Result.push_back(T);
+			Result.emplace_back(T);
 			L = I;
 		}
 	}
@@ -136,7 +136,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 		T.PrependChar = 0;
 		if (L >= From + 1 && Seps[L-1-From])
 			T.PrependChar = strStr[L-1];
-		Result.push_back(T);
+		Result.emplace_back(T);
 	}
 
 	if (Result.size() > 1)
@@ -154,7 +154,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 				T.Token = strStr.SubStr(From, Length);
 				T.PrependChar = 0;
 				T.TypeMask = 1 << UNKNOWN;
-				Result.push_back(T);
+				Result.emplace_back(T);
 				return Result;
 			}
 		}

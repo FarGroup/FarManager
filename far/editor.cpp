@@ -4936,7 +4936,7 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 	}
 
 	Flags.Clear(FEDITOR_NEWUNDO);
-	UndoData.push_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos,Length));
+	UndoData.emplace_back(VALUE_TYPE(UndoData)(Type,Str,Eol,StrNum,StrPos,Length));
 	UndoPos=UndoData.end();
 	--UndoPos;
 

@@ -693,12 +693,7 @@ void Help::AddLine(const wchar_t *Line)
 	}
 
 	strLine += Line;
-
-	{
-		HelpRecord AddRecord(strLine);
-		HelpList.push_back(AddRecord);
-	}
-
+	HelpList.emplace_back(strLine);
 	StrCount++;
 }
 

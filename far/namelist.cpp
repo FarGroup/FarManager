@@ -48,7 +48,7 @@ NamesList::~NamesList()
 
 void NamesList::AddName(const wchar_t *Name,const wchar_t *ShortName)
 {
-	Names.push_back(OneName(Name, ShortName));
+	Names.emplace_back(OneName(Name, ShortName));
 	CurrentName = Names.end();
 	--CurrentName;
 }

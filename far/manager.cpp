@@ -1572,7 +1572,7 @@ void Manager::InsertCommit()
 	if (InsertedFrame)
 	{
 		InsertedFrame->FrameToBack=CurrentFrame;
-		Frames.push_back(InsertedFrame);
+		Frames.emplace_back(InsertedFrame);
 
 		if (!ActivatedFrame)
 		{
@@ -1623,7 +1623,7 @@ void Manager::ExecuteCommit()
 		return;
 	}
 
-	ModalFrames.push_back(ExecutedFrame);
+	ModalFrames.emplace_back(ExecutedFrame);
 	ActivatedFrame=ExecutedFrame;
 }
 

@@ -346,7 +346,7 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 		item=PluginsCache->insert(item);
 		if(*item!=pPlugin) return false;
 	}
-	PluginsData.push_back(pPlugin);
+	PluginsData.emplace_back(pPlugin);
 #ifndef NO_WRAPPER
 	if(pPlugin->IsOemPlugin())
 	{
@@ -447,7 +447,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 		{
 			if (!pPlugin->bPendingRemove)
 			{
-				UnloadedPlugins.push_back(pPlugin);
+				UnloadedPlugins.emplace_back(pPlugin);
 			}
 			return nullptr;
 		}
@@ -511,7 +511,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 			AnotherPanel->Redraw();
 		}
 
-		UnloadedPlugins.push_back(pPlugin);
+		UnloadedPlugins.emplace_back(pPlugin);
 	}
 
 	return nResult;
@@ -537,7 +537,7 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	}
 	if(!IsPluginUnloaded(pPlugin))
 	{
-		UnloadedPlugins.push_back(pPlugin);
+		UnloadedPlugins.emplace_back(pPlugin);
 	}
 	return nResult;
 }
@@ -728,7 +728,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				handle.Handle.hPlugin = hPlugin;
 				handle.Handle.pPlugin = pPlugin;
 				handle.Analyse = nullptr;
-				items.push_back(handle);
+				items.emplace_back(handle);
 			}
 		}
 		else
@@ -740,7 +740,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				handle.Handle.pPlugin = pPlugin;
 				handle.Handle.hPlugin = nullptr;
 				handle.Analyse = analyse;
-				items.push_back(handle);
+				items.emplace_back(handle);
 			}
 		}
 
@@ -869,7 +869,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 			PluginHandle handle;
 			handle.hPlugin = hPlugin;
 			handle.pPlugin = pPlugin;
-			items.push_back(handle);
+			items.emplace_back(handle);
 		}
 
 		if (!items.empty() && !Global->Opt->PluginConfirm.SetFindList)
@@ -1903,20 +1903,20 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
 		{
-			MenuNames.push_back(Name);
-			MenuGuids.push_back(Guid);
+			MenuNames.emplace_back(Name);
+			MenuGuids.emplace_back(Guid);
 		}
 
 		for(int i = 0; Global->Db->PlCacheCfg()->GetDiskMenuItem(id, i, Name, Guid); ++i)
 		{
-			DiskNames.push_back(Name);
-			DiskGuids.push_back(Guid);
+			DiskNames.emplace_back(Name);
+			DiskGuids.emplace_back(Guid);
 		}
 
 		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, i, Name, Guid); ++i)
 		{
-			ConfNames.push_back(Name);
-			ConfGuids.push_back(Guid);
+			ConfNames.emplace_back(Name);
+			ConfGuids.emplace_back(Guid);
 		}
 	}
 	else
@@ -1929,20 +1929,20 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
-					MenuNames.push_back(Info.PluginMenu.Strings[i]);
-					MenuGuids.push_back(GuidToStr(Info.PluginMenu.Guids[i]));
+					MenuNames.emplace_back(Info.PluginMenu.Strings[i]);
+					MenuGuids.emplace_back(GuidToStr(Info.PluginMenu.Guids[i]));
 			}
 
 			for (size_t i = 0; i < Info.DiskMenu.Count; i++)
 			{
-				DiskNames.push_back(Info.DiskMenu.Strings[i]);
-				DiskGuids.push_back(GuidToStr(Info.DiskMenu.Guids[i]));
+				DiskNames.emplace_back(Info.DiskMenu.Strings[i]);
+				DiskGuids.emplace_back(GuidToStr(Info.DiskMenu.Guids[i]));
 			}
 
 			for (size_t i = 0; i < Info.PluginConfig.Count; i++)
 			{
-				ConfNames.push_back(Info.PluginConfig.Strings[i]);
-				ConfGuids.push_back(GuidToStr(Info.PluginConfig.Guids[i]));
+				ConfNames.emplace_back(Info.PluginConfig.Strings[i]);
+				ConfGuids.emplace_back(GuidToStr(Info.PluginConfig.Guids[i]));
 			}
 		}
 	}
@@ -2184,7 +2184,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 					PluginData pD;
 					pD.pPlugin=*i;
 					pD.PluginFlags=PluginFlags;
-					items.push_back(pD);
+					items.emplace_back(pD);
 					break;
 				}
 			}

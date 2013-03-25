@@ -55,7 +55,7 @@ void PluginSynchro::Synchro(bool Plugin, const GUID& PluginId,void* Param)
 	item.Plugin=Plugin;
 	item.PluginId=PluginId;
 	item.Param=Param;
-	Data.push_back(item);
+	Data.emplace_back(item);
 }
 
 bool PluginSynchro::Process(void)

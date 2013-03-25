@@ -2472,7 +2472,7 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 		}
 		else
 		{
-			m_Problems.push_back(pname);
+			m_Problems.emplace_back(pname);
 		}
 	}
 }
@@ -2746,14 +2746,9 @@ int Database::ShowProblems()
 	int rc = 0;
 	if (!m_Problems.empty())
 	{
-		std::vector<string> msgs;
-		msgs.reserve(m_Problems.size()+2);
-		std::for_each(CONST_RANGE(m_Problems, i)
-		{
-			msgs.push_back(i);
-		});
-		msgs.push_back(MSG(MShowConfigFolders));
-		msgs.push_back(MSG(MIgnore));
+		std::vector<string> msgs(m_Problems.begin(), m_Problems.end());
+		msgs.emplace_back(MSG(MShowConfigFolders));
+		msgs.emplace_back(MSG(MIgnore));
 		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs) == 0 ? +1 : -1;
 	}
 	return rc;

@@ -118,7 +118,7 @@ const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
 		{
 			SIDCache = new PTRTYPE(SIDCache);
 		}
-		SIDCache->push_back(std::move(NewItem));
+		SIDCache->emplace_back(std::move(NewItem));
 		Result = SIDCache->back()->strUserName;
 	}
 	return Result;

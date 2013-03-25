@@ -464,7 +464,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 	//NewMenuItem->ShowPos = NewItem->ShowPos;
 	NewMenuItem->ShowPos = 0;
 
-	Item.insert(AddPos, NewMenuItem);
+	Item.emplace(AddPos, NewMenuItem);
 
 	if (PosAdd <= SelectPos)
 		SelectPos++;

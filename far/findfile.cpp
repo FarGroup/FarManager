@@ -198,7 +198,7 @@ public:
 		NewItem.Flags = dwFlags;
 		NewItem.strRootPath = RootPath;
 		AddEndSlash(NewItem.strRootPath);
-		ArcList.push_back(NewItem);
+		ArcList.emplace_back(NewItem);
 		return ArcList.back();
 	}
 
@@ -211,7 +211,7 @@ public:
 		NewItem.Arc = nullptr;
 		NewItem.Data = Data;
 		NewItem.FreeData = FreeData;
-		FindList.push_back(std::move(NewItem));
+		FindList.emplace_back(NewItem);
 		return FindList.back();
 	}
 }
@@ -372,11 +372,11 @@ void FindFiles::InitInFileSearch()
 				// Добавляем стандартные таблицы символов
 				if (!hasSelected)
 				{
-					codePages.push_back(GetOEMCP());
-					codePages.push_back(GetACP());
-					codePages.push_back(CP_UTF8);
-					codePages.push_back(CP_UNICODE);
-					codePages.push_back(CP_REVERSEBOM);
+					codePages.emplace_back(GetOEMCP());
+					codePages.emplace_back(GetACP());
+					codePages.emplace_back(CP_UTF8);
+					codePages.emplace_back(CP_UNICODE);
+					codePages.emplace_back(CP_REVERSEBOM);
 				}
 				else
 				{
@@ -400,13 +400,13 @@ void FindFiles::InitInFileSearch()
 								continue;
 						}
 
-						codePages.push_back(codePage);
+						codePages.emplace_back(codePage);
 					}
 				}
 			}
 			else
 			{
-				codePages.push_back(CodePage);
+				codePages.emplace_back(CodePage);
 			}
 
 			std::for_each(RANGE(codePages, i)
@@ -693,7 +693,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = Global->CodePages->FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true);
+			favoriteCodePages = Global->CodePages->FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true, false, false);
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
@@ -2596,7 +2596,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			string strGuidVolime;
 			if(apiGetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
 			{
-				Volumes.push_back(strGuidVolime);
+				Volumes.emplace_back(strGuidVolime);
 			}
 			InitString += Root + L";";
 		}

@@ -289,7 +289,7 @@ bool FileFilter::FilterEdit()
 
 				SelPos = std::min(FilterData->size(), SelPos);
 
-				auto NewFilter = FilterData->insert(FilterData->begin()+SelPos, VALUE_TYPE(FilterData)(new FileFilterParams))->get();
+				auto NewFilter = FilterData->emplace(FilterData->begin()+SelPos, new FileFilterParams)->get();
 
 				if (Key==KEY_F5)
 				{
@@ -558,7 +558,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (Check && !CurFilterData)
 			{
-					auto NewFilter = TempFilterData->insert(TempFilterData->begin() + j, VALUE_TYPE(TempFilterData)(new FileFilterParams))->get();
+					auto NewFilter = TempFilterData->emplace(TempFilterData->begin() + j, new FileFilterParams)->get();
 					NewFilter->SetMask(1,Mask);
 					//Авто фильтры они только для файлов, папки не должны к ним подходить
 					NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
@@ -805,7 +805,7 @@ void FileFilter::InitFilter()
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
 
-		FilterData->push_back(VALUE_TYPE(FilterData)(new FileFilterParams));
+		FilterData->emplace_back(new FileFilterParams);
 
 		//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 		//настройки старых версий фара.
@@ -869,7 +869,7 @@ void FileFilter::InitFilter()
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
 
-		TempFilterData->push_back(VALUE_TYPE(TempFilterData)(new FileFilterParams));
+		TempFilterData->emplace_back(new FileFilterParams);
 
 		TempFilterData->back()->SetMask(1,strMask);
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
@@ -1032,6 +1032,6 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	}) != Extensions.cend())
 		return -1;
 
-	Extensions.push_back(VALUE_TYPE(Extensions)(strMask, Check));
+	Extensions.emplace_back(VALUE_TYPE(Extensions)(strMask, Check));
 	return 1;
 }

@@ -70,7 +70,7 @@ public:
 	codepages();
 	bool IsCodePageSupported(uintptr_t CodePage);
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
-	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2);
 	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2);
 	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
 

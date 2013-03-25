@@ -408,7 +408,7 @@ int TreeList::ReadTree()
 
 	ListData.reserve(4096);
 
-	ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strRoot)));
+	ListData.emplace_back(new TreeItem(strRoot));
 	SaveScreen SaveScrTree;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
 	/* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
@@ -443,7 +443,7 @@ int TreeList::ReadTree()
 			ListData.reserve(ListData.size() + 4096);
 		}
 
-		ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strFullName)));
+		ListData.emplace_back(new TreeItem(strFullName));
 	}
 
 	if (AscAbort && !Flags.Check(FTREELIST_ISPANEL))
@@ -1443,7 +1443,7 @@ int TreeList::ReadTreeFile()
 				ListData.reserve(ListData.size() + 4096);
 			}
 
-			ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(strDirName)));
+			ListData.emplace_back(new TreeItem(strDirName));
 		}
 	}
 
@@ -1577,7 +1577,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 		if (Result > 0)
 		{
-			i = Global->TreeCache->Names.insert(i, Name);
+			i = Global->TreeCache->Names.emplace(i, Name);
 			break;
 		}
 	}
@@ -1719,7 +1719,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 			if (ChPtr)
 				*ChPtr=0;
 
-			Global->TreeCache->Names.push_back(DirName.get());
+			Global->TreeCache->Names.emplace_back(DirName.get());
 		}
 	}
 
@@ -2124,7 +2124,7 @@ bool TreeList::RestoreState()
 		ListData.resize(SaveListData.size());
 		for (size_t i=0; i < SaveListData.size(); ++i)
 		{
-			ListData.push_back(VALUE_TYPE(ListData)(new TreeItem(SaveListData[i])));
+			ListData.emplace_back(new TreeItem(SaveListData[i]));
 		}
 
 		WorkDir=SaveWorkDir;

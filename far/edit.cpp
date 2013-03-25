@@ -3195,7 +3195,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 				str = i;
 				if(std::find(List.cbegin(), List.cend(), str) == List.cend())
 				{
-					List.push_back(str);
+					List.emplace_back(str);
 				}
 			}
 		});
@@ -3229,7 +3229,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 							str = data.strFileName;
 							if(std::find(List.cbegin(), List.cend(), str) == List.cend())
 							{
-								List.push_back(str);
+								List.emplace_back(str);
 							}
 							Result=true;
 						}
@@ -3290,7 +3290,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 								{
 									if(std::find(List.cbegin(), List.cend(), strName) == List.cend())
 									{
-										List.push_back(strName);
+										List.emplace_back(strName);
 									}
 									Result=true;
 								}

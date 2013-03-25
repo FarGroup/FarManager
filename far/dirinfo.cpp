@@ -316,7 +316,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, Plugi
 			lpwszFullName[I]=L'\\';
 
 	strFullName.ReleaseBuffer();
-	PluginDirList.push_back(*CurPanelItem);
+	PluginDirList.emplace_back(*CurPanelItem);
 
 	PluginDirList.back().FileName = DuplicateString(strFullName);
 	PluginDirList.back().AlternateFileName=nullptr;
@@ -450,7 +450,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 
 			auto PluginDirList = new std::vector<PluginPanelItem>;
 			// first item is reserved for internal needs
-			PluginDirList->push_back(PluginPanelItem());
+			PluginDirList->emplace_back(PluginPanelItem());
 			PluginDirList->front().Reserved[0] = reinterpret_cast<intptr_t>(PluginDirList);
 
 			*pItemsNumber = 0;

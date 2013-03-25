@@ -1564,7 +1564,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 						if (Flags.Check(STLF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
 						{
 							item.Str = L"*";
-							ItemsList.push_back(item);
+							ItemsList.emplace_back(item);
 						}
 						else
 						{
@@ -1593,7 +1593,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 									++i;
 								}
 							}
-							ItemsList.push_back(item);
+							ItemsList.emplace_back(item);
 						}
 
 						CurList+=RealLength;
@@ -1719,7 +1719,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 	std::list<string> Result;
 	std::for_each(CONST_RANGE(list.ItemsList, i)
 	{
-		Result.push_back(std::move(i.Str));
+		Result.emplace_back(std::move(i.Str));
 	});
 	return Result;
 }

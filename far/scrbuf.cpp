@@ -423,7 +423,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 
 						if (WriteRegion.Bottom >= WriteRegion.Top)
 						{
-							WriteList.push_back(WriteRegion);
+							WriteList.emplace_back(WriteRegion);
 							Changes=true;
 						}
 					}
@@ -469,7 +469,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 								}
 
 								if (!Merge)
-									WriteList.push_back(WriteRegion);
+									WriteList.emplace_back(WriteRegion);
 
 								WriteRegion.Left=BufX-1;
 								WriteRegion.Top=BufY-1;
@@ -482,7 +482,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 
 					if (Started)
 					{
-						WriteList.push_back(WriteRegion);
+						WriteList.emplace_back(WriteRegion);
 					}
 				}
 			}
@@ -490,7 +490,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 			{
 				Changes=true;
 				SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1)};
-				WriteList.push_back(WriteRegion);
+				WriteList.emplace_back(WriteRegion);
 			}
 
 			if (Changes)

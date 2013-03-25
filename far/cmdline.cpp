@@ -590,7 +590,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 						size_t PrevPos;
 						Str.Pos(PrevPos, L'(');
 						Str.SetLength(PrevPos);
-						Result.push_back(VALUE_TYPE(Result)(Str, F));
+						Result.emplace_back(VALUE_TYPE(Result)(Str, F));
 					}
 					Ptr += Pos+2;
 					Color.SetLength(Pos);
@@ -610,7 +610,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				}
 			}
 		}
-		Result.push_back(VALUE_TYPE(Result)(Str, F));
+		Result.emplace_back(VALUE_TYPE(Result)(Str, F));
 
 		std::for_each(RANGE(Result, i)
 		{
@@ -755,7 +755,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
-		Result.push_back(VALUE_TYPE(Result)(strCurDir + L">", PrefixColor));
+		Result.emplace_back(VALUE_TYPE(Result)(strCurDir + L">", PrefixColor));
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;

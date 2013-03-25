@@ -1,3 +1,9 @@
+drkns 25.03.2013 15:55:42 +0200 - build 3276
+
+1. Оптимизация: push_<front|back> => emplace_<front|back>.
+
+2. Уточнение отрисовки для far /w.
+
 drkns 25.03.2013 00:02:58 +0200 - build 3275
 
 1. 0002348: Exception в EditControl/ECTL_SAVEFILE при Param2.FileName = NULL

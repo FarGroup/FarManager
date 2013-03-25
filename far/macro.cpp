@@ -474,7 +474,7 @@ void KeyMacro::PopState(bool withClip)
 			MacroState* dst = m_StateStack.top();
 			std::for_each(CONST_RANGE(m_CurState->m_MacroQueue, i)
 			{
-				dst->m_MacroQueue.push_back(i);
+				dst->m_MacroQueue.emplace_back(i);
 			});
 		}
 		delete m_CurState;
@@ -1267,7 +1267,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 	{
 		MacroRecord* macro=new MacroRecord(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
 
-		m_CurState->m_MacroQueue.push_back(macro);
+		m_CurState->m_MacroQueue.emplace_back(macro);
 
 		return true;
 	}

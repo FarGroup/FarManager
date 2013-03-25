@@ -132,7 +132,7 @@ Shortcuts::Shortcuts()
 				ValueName.Clear();
 				ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
 				cfg->GetValue(key, ValueName, Item.strPluginData);
-				Items[i].push_back(Item);
+				Items[i].emplace_back(Item);
 			}
 		}
 	}
@@ -340,7 +340,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								NewItem.strPluginFile = L"";
 								NewItem.strPluginData = L"";
 							}
-							auto newIter = Items[Pos].insert(Item ? *Item : Items[Pos].end(), NewItem);
+							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), NewItem);
 
 							MenuItemEx NewMenuItem = {};
 							NewMenuItem.strName = NewItem.strFolder;
@@ -451,7 +451,7 @@ void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, c
 	Item.PluginGuid = PluginGuid;
 	Item.strPluginFile = PluginFile;
 	Item.strPluginData = PluginData;
-	Items[Pos].push_back(Item);
+	Items[Pos].emplace_back(Item);
 }
 
 void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)

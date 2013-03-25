@@ -3079,7 +3079,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	{
 		DialogList = new std::list<DialogData>;
 	}
-	DialogList->push_back(NewDialogData);
+	DialogList->emplace_back(NewDialogData);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{

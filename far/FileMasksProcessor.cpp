@@ -83,7 +83,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			{
 				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
-				UsedGroups.push_back(MaskGroupName);
+				UsedGroups.emplace_back(MaskGroupName);
 			}
 		}
 		else

@@ -59,7 +59,7 @@ char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
 
 char* AbstractSettings::Add(size_t Size)
 {
-	m_Data.push_back(char_ptr(Size));
+	m_Data.emplace_back(Size);
 	return m_Data.back().get();
 }
 
@@ -193,7 +193,7 @@ static wchar_t* AddString(const string& String)
 static void AddItem(FarSettingsNameItems* Array, FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
-	Array->Items.push_back(Item);
+	Array->Items.emplace_back(Item);
 }
 
 static void AddItem(FarSettingsHistoryItems* Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
@@ -202,7 +202,7 @@ static void AddItem(FarSettingsHistoryItems* Array, FarSettingsHistory& Item, co
 	Item.Param=AddString(Param);
 	Item.PluginId=Guid;
 	Item.File=AddString(File);
-	Array->Items.push_back(Item);
+	Array->Items.emplace_back(Item);
 }
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
@@ -210,7 +210,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsNameItems));
+		m_Enum.emplace_back(new FarSettingsNameItems);
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
@@ -289,7 +289,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 		if (root)
 		{
 			result=static_cast<int>(m_Keys.size());
-			m_Keys.push_back(root);
+			m_Keys.emplace_back(root);
 		}
 	}
 	return result;
@@ -376,7 +376,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsHistoryItems));
+				m_Enum.emplace_back(new FarSettingsHistoryItems);
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
@@ -419,7 +419,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
 	int result=static_cast<int>(m_Keys.size());
-	m_Keys.push_back(VALUE_TYPE(m_Keys)(new string(Value.Value)));
+	m_Keys.emplace_back(new string(Value.Value));
 	return result+FSSF_COUNT;
 }
 
@@ -446,7 +446,7 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	m_Enum.push_back(VALUE_TYPE(m_Enum)(new FarSettingsHistoryItems));
+	m_Enum.emplace_back(new FarSettingsHistoryItems);
 	FarSettingsHistory item={0};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;

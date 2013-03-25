@@ -50,7 +50,7 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
-	ScanItems.push_back(VALUE_TYPE(ScanItems)(new ScanTreeData()));
+	ScanItems.emplace_back(new ScanTreeData());
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
@@ -172,7 +172,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 					Data->Flags.Set(FSCANTREE_INSIDEJUNCTION);
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
 				}
-				ScanItems.push_back(VALUE_TYPE(ScanItems)(Data));
+				ScanItems.emplace_back(Data);
 
 				return true;
 			}

@@ -595,7 +595,7 @@ bool FileWalker::InitWalk(size_t BlockSize)
 						for(UINT64 j = Ranges[i].FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
 							Chunk c = {j, std::min(static_cast<DWORD>(RangeEndOffset - j), ChunkSize)};
-							ChunkList.push_back(c);
+							ChunkList.emplace_back(c);
 						}
 					}
 					QueryRange.FileOffset.QuadPart = ChunkList.back().Offset+ChunkList.back().Size;
@@ -611,7 +611,7 @@ bool FileWalker::InitWalk(size_t BlockSize)
 		else
 		{
 			AllocSize = FileSize;
-			ChunkList.push_back(Chunk());
+			ChunkList.emplace_back(Chunk());
 			Result = true;
 		}
 		CurrentChunk = ChunkList.begin();
