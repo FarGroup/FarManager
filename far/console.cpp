@@ -120,10 +120,13 @@ virtual bool SetSize(COORD Size) const
 			WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
 			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
 
-			// windows sometimes uses existing colors to init right region of screen buffer
-			FarColor Color;
-			Global->Console->GetTextAttributes(Color);
-			Global->Console->ClearExtraRegions(Color);
+			if(WindowCoord.X>csbi.dwSize.X)
+			{
+				// windows sometimes uses existing colors to init right region of screen buffer
+				FarColor Color;
+				Global->Console->GetTextAttributes(Color);
+				Global->Console->ClearExtraRegions(Color, CR_RIGHT);
+			}
 		}
 		if(SetWindowRect(csbi.srWindow))
 		{
@@ -521,23 +524,30 @@ virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const
 	return SetConsoleActiveScreenBuffer(ConsoleOutput)!=FALSE;
 }
 
-virtual bool ClearExtraRegions(const FarColor& Color) const
+virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-	DWORD TopSize = csbi.dwSize.X*csbi.srWindow.Top;
 	DWORD CharsWritten;
-	COORD TopCoord = {};
-	FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
 	WORD ConColor = Colors::FarColorToConsoleColor(Color);
-	FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten );
 
-	DWORD RightSize = csbi.dwSize.X-csbi.srWindow.Right;
-	COORD RightCoord={csbi.srWindow.Right,GetDelta()};
-	for(; RightCoord.Y<csbi.dwSize.Y; RightCoord.Y++)
+	if(Mode&CR_TOP)
 	{
-		FillConsoleOutputCharacter(GetOutputHandle(), L' ', RightSize, RightCoord, &CharsWritten);
-		FillConsoleOutputAttribute(GetOutputHandle(), ConColor, RightSize, RightCoord, &CharsWritten);
+		DWORD TopSize = csbi.dwSize.X*csbi.srWindow.Top;
+		COORD TopCoord = {};
+		FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
+		FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten );
+	}
+
+	if(Mode&CR_RIGHT)
+	{
+		DWORD RightSize = csbi.dwSize.X-csbi.srWindow.Right;
+		COORD RightCoord={csbi.srWindow.Right,GetDelta()};
+		for(; RightCoord.Y<csbi.dwSize.Y; RightCoord.Y++)
+		{
+			FillConsoleOutputCharacter(GetOutputHandle(), L' ', RightSize, RightCoord, &CharsWritten);
+			FillConsoleOutputAttribute(GetOutputHandle(), ConColor, RightSize, RightCoord, &CharsWritten);
+		}
 	}
 	return true;
 }
@@ -791,16 +801,16 @@ public:
 		return Result;
 	}
 
-	virtual bool ClearExtraRegions(const FarColor& Color) const
+	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const
 	{
 		bool Result = false;
 		if(Imports.pClearExtraRegions)
 		{
-			Result = Imports.pClearExtraRegions(&Color) != FALSE;
+			Result = Imports.pClearExtraRegions(&Color, Mode) != FALSE;
 		}
 		else
 		{
-			Result = basicconsole::ClearExtraRegions(Color);
+			Result = basicconsole::ClearExtraRegions(Color, Mode);
 		}
 		return Result;
 	}
@@ -825,7 +835,7 @@ private:
 	typedef BOOL (WINAPI *COMMIT)();
 	typedef BOOL (WINAPI *GETTEXTATTRIBUTES)(FarColor* Attributes);
 	typedef BOOL (WINAPI *SETTEXTATTRIBUTES)(const FarColor* Attributes);
-	typedef BOOL (WINAPI *CLEAREXTRAREGIONS)(const FarColor* Color);
+	typedef BOOL (WINAPI *CLEAREXTRAREGIONS)(const FarColor* Color, int Mode);
 	typedef BOOL (WINAPI *GETCOLORDIALOG)(FarColor* Color, BOOL Centered, BOOL AddTransparent);
 
 	struct ModuleImports

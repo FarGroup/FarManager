@@ -829,7 +829,7 @@ void ClearScreen(const FarColor& Color)
 	Global->ScrBuf->FillRect(0,0,ScrX,ScrY,L' ',Color);
 	if(Global->Opt->WindowMode)
 	{
-		Global->Console->ClearExtraRegions(Color);
+		Global->Console->ClearExtraRegions(Color, CR_BOTH);
 	}
 	Global->ScrBuf->ResetShadow();
 	Global->ScrBuf->Flush();

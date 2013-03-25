@@ -32,6 +32,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+enum CLEAR_REGION
+{
+	CR_TOP=0x1,
+	CR_RIGHT=0x2,
+	CR_BOTH=CR_TOP|CR_RIGHT,
+};
+
 class console
 {
 public:
@@ -102,7 +109,7 @@ public:
 
 	virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const = 0;
 
-	virtual bool ClearExtraRegions(const FarColor& Color) const = 0;
+	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const = 0;
 
 	virtual bool ScrollWindow(int Lines,int Columns=0) const = 0;
 

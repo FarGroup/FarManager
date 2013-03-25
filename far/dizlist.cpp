@@ -164,7 +164,7 @@ desc_map::iterator DizList::AddRecord(const string& Name, const string& Descript
 	Modified=true;
 	std::list<string> DescStrings;
 	DescStrings.emplace_back(Description);
-	return DizData.emplace_hint(DizData.begin(), VALUE_TYPE(DizData)(Name, DescStrings));
+	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(Name, DescStrings));
 }
 
 desc_map::iterator DizList::AddRecord(const string& DizText)
@@ -428,7 +428,7 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 		return false;
 
 	DestDiz->DeleteDiz(DestName, DestShortName);
-	DestDiz->DizData.emplace(VALUE_TYPE(DizData)(DestName, i->second));
+	DestDiz->DizData.insert(VALUE_TYPE(DizData)(DestName, i->second));
 	DestDiz->Modified = true;
 
 	return true;
