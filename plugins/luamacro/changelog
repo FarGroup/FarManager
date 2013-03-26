@@ -1,3 +1,9 @@
+shmuel 26.03.2013 23:04:35 +0200 - build 118
+
+1. LuaFAR: far.RecursiveSearch, в случае, если первое возвращённое значение
+   callback() не false и не nil, возвращает все значения, возвращённые этим
+   вызовом callback.
+
 shmuel 25.03.2013 21:18:35 +0200 - build 117
 
 1. LuaFAR: коррекция editor.SaveFile в связи с изменением в Far 3 build 3275.

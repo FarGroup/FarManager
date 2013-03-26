@@ -6861,7 +6861,7 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3562834734
+mtime=3573500508
 <article>
 #_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags])
 #_
@@ -6872,14 +6872,16 @@ mtime=3562834734
 #_  Flags:    flags
 #_
 #_**Returns:**
-#_  nothing
+#_  In case the search was stopped by *UserFunc*:  all values returned by *UserFunc*.
+#_  In case no more files left:                  nothing.
+#_  In case of error in *UserFunc*:                nothing.
 #_
 #_**Description:**
-#_  On every file found, *UserFunc* is called with 2 arguments
-#_  passed to it:
+#_  On every file found, *UserFunc* is called with 2 arguments passed to it:
 #_      (1) a PluginPanelItem table, and
 #_      (2) the full pathname of the found file.
-#_  If *UserFunc* returns *true* then the search is stopped.
+#_  If the 1-st return value of *UserFunc* is neither *false* nor *nil* then the search
+#_  is stopped.
 #_
 #_**Far API used:**
 #_  FSF.FarRecursiveSearch

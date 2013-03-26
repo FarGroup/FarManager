@@ -3888,33 +3888,50 @@ static int far_TruncStr(lua_State *L)
 	return truncstring(L, 's');
 }
 
+typedef struct
+{
+	lua_State *L;
+	int err;
+} FrsData;
+
 static int WINAPI FrsUserFunc(const struct PluginPanelItem *FData, const wchar_t *FullName,
                               void *Param)
 {
-	int err, proceed;
-	lua_State *L = (lua_State*) Param;
+	FrsData *Data = (FrsData*)Param;
+	lua_State *L = Data->L;
+	int nret = lua_gettop(L);
 	lua_pushvalue(L, 3); // push the Lua function
 	PushPanelItem(L, FData);
 	push_utf8_string(L, FullName, -1);
-	err = lua_pcall(L, 2, 1, 0);
-	proceed = !(err || lua_toboolean(L, -1));
 
-	if(err)
-		LF_Error(L, check_utf8_string(L, -1, NULL));
+	Data->err = lua_pcall(L, 2, LUA_MULTRET, 0);
 
-	lua_pop(L, 1);
-	return proceed;
+	nret = lua_gettop(L) - nret;
+	if (!Data->err && (nret==0 || lua_toboolean(L,-nret)==0))
+	{
+		lua_pop(L, nret);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static int far_RecursiveSearch(lua_State *L)
 {
 	UINT64 Flags;
+	int nret;
+	FrsData Data = { L, 0 };
 	const wchar_t *InitDir = check_utf8_string(L, 1, NULL);
 	const wchar_t *Mask = check_utf8_string(L, 2, NULL);
 	luaL_checktype(L, 3, LUA_TFUNCTION);
 	Flags = CheckFlags(L, 4);
-	GetPluginData(L)->FSF->FarRecursiveSearch(InitDir, Mask, FrsUserFunc, Flags, L);
-	return 0;
+	lua_checkstack(L, 256);
+	nret = lua_gettop(L);
+
+	GetPluginData(L)->FSF->FarRecursiveSearch(InitDir, Mask, FrsUserFunc, Flags, &Data);
+
+	if(Data.err)
+		LF_Error(L, check_utf8_string(L, -1, NULL));
+	return Data.err ? 0 : lua_gettop(L) - nret;
 }
 
 static int far_ConvertPath(lua_State *L)
