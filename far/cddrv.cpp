@@ -161,26 +161,28 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 	int caps = CAPABILITIES_NONE;
 
-	if ( strstr(productID, "CD") )
-		caps |= CAPABILITIES_GENERIC_CDROM;
+	struct capability_item
+	{
+		const char* Id;
+		int Capability;
+	};
 
-	if ( strstr(productID, "CDRW") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_CDRW);
+	static std::array<capability_item, 7> Capabilities =
+	{{
+		{"CD", CAPABILITIES_GENERIC_CDROM},
+		{"CDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_CDRW},
+		{"DVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM},
+		{"DVDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW},
+		{"DVDRAM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW|CAPABILITIES_GENERIC_DVDRAM},
+		{"BDROM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
+		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
+	}};
 
-	if ( strstr(productID, "DVD") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM);
-
-	if ( strstr(productID, "DVDRW") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_DVDRW);
-
-	if ( strstr(productID, "DVDRAM") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_DVDRW | CAPABILITIES_GENERIC_DVDRAM);
-
-	if ( strstr(productID, "BDROM") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_BDROM);
-
-	if ( strstr(productID, "HDDVD") )
-		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_HDDVD);
+	std::for_each(CONST_RANGE(Capabilities, i)
+	{
+		if (strstr(productID, i.Id) )
+			caps |= i.Capability;
+	});
 
 	return (CDROM_DeviceCapabilities)caps;
 }
@@ -346,18 +348,13 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
 
 static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
 {
-	PSTORAGE_DEVICE_DESCRIPTOR      devDesc;
-	BOOL                            status;
-	char                            outBuf[1024];
-	DWORD                           returnedLength;
-	STORAGE_PROPERTY_QUERY          query;
-	query.PropertyId = StorageDeviceProperty;
-	query.QueryType = PropertyStandardQuery;
-	status = Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &outBuf, sizeof(outBuf), &returnedLength);
+	char outBuf[1024];
+	DWORD returnedLength;
+	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery};
 
-	if (status)
+	if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), outBuf, sizeof(outBuf), &returnedLength))
 	{
-		devDesc = (PSTORAGE_DEVICE_DESCRIPTOR) outBuf;
+		PSTORAGE_DEVICE_DESCRIPTOR devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(outBuf);
 
 		if (devDesc->ProductIdOffset && outBuf[devDesc->ProductIdOffset])
 		{
@@ -391,37 +388,32 @@ static CDROM_DeviceCapabilities GetDeviceCapabilities(File& Device)
 
 static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 {
-	if ( caps & CAPABILITIES_GENERIC_BDRW )
-		return DRIVE_BD_RW;
+	struct device_caps
+	{
+		int Device;
+		int Caps;
+	};
 
-	if ( caps & CAPABILITIES_GENERIC_BDROM )
-		return DRIVE_BD_ROM;
+	static std::array<device_caps, 10> DeviceCaps =
+	{{
+		{DRIVE_BD_RW, CAPABILITIES_GENERIC_BDRW},
+		{DRIVE_BD_ROM, CAPABILITIES_GENERIC_BDROM},
+		{DRIVE_HDDVD_RW, CAPABILITIES_GENERIC_HDDVDRW},
+		{DRIVE_HDDVD_ROM, CAPABILITIES_GENERIC_HDDVD},
+		{DRIVE_DVD_RAM, CAPABILITIES_GENERIC_DVDRAM},
+		{DRIVE_DVD_RW, CAPABILITIES_GENERIC_DVDRW},
+		{DRIVE_CD_RWDVD, CAPABILITIES_GENERIC_CDRW|CAPABILITIES_GENERIC_DVDROM},
+		{DRIVE_DVD_ROM, CAPABILITIES_GENERIC_DVDROM},
+		{DRIVE_CD_RW, CAPABILITIES_GENERIC_CDRW},
+		{DRIVE_CDROM, CAPABILITIES_GENERIC_CDROM},
+	}};
 
-	if ( caps & CAPABILITIES_GENERIC_HDDVDRW )
-		return DRIVE_HDDVD_RW;
-
-	if ( caps & CAPABILITIES_GENERIC_HDDVD )
-		return DRIVE_HDDVD_ROM;
-
-	if (caps & CAPABILITIES_GENERIC_DVDRAM )
-		return DRIVE_DVD_RAM;
-
-	if (caps & CAPABILITIES_GENERIC_DVDRW)
-		return DRIVE_DVD_RW;
-
-	if ((caps & CAPABILITIES_GENERIC_CDRW) && (caps & CAPABILITIES_GENERIC_DVDROM))
-		return DRIVE_CD_RWDVD;
-
-	if (caps & CAPABILITIES_GENERIC_DVDROM)
-		return DRIVE_DVD_ROM;
-
-	if (caps & CAPABILITIES_GENERIC_CDRW)
-		return DRIVE_CD_RW;
-
-	if (caps & CAPABILITIES_GENERIC_CDROM)
-		return DRIVE_CDROM;
-
-	return DRIVE_UNKNOWN;
+	auto Item = std::find_if(CONST_RANGE(DeviceCaps, i)
+	{
+		return (caps & i.Caps) == i.Caps;
+	});
+	
+	return Item == DeviceCaps.cend()? DRIVE_UNKNOWN : Item->Device;
 }
 
 bool IsDriveTypeCDROM(UINT DriveType)

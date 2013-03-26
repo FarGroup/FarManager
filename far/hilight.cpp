@@ -285,36 +285,49 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
-	string strGroupName, strMask;
-	const int GroupDelta[4]={DEFAULT_SORT_GROUP,0,DEFAULT_SORT_GROUP+1,DEFAULT_SORT_GROUP};
-	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
-	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
-	int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
+	struct group_item
+	{
+		int Delta;
+		const wchar_t* KeyName;
+		const wchar_t* GroupName;
+		int* Count;
+	};
+
+	std::array<group_item, 4> GroupItems =
+	{{
+		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtFirstGroup, &FirstCount},
+		{0, SortGroupsKeyName, fmtUpperGroup, &UpperCount},
+		{DEFAULT_SORT_GROUP+1, SortGroupsKeyName, fmtLowerGroup, &LowerCount},
+		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtLastGroup, &LastCount},
+	}};
+
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 
-	for (int j=0; j<4; j++)
+	std::for_each(CONST_RANGE(GroupItems, Item)
 	{
-		unsigned __int64 root = cfg->GetKeyID(0,KeyNames[j]);
-		if (!root)
-			continue;
-
-		for (int i=0;; i++)
+		auto root = cfg->GetKeyID(0, Item.KeyName);
+		if (root)
 		{
-			strGroupName.Format(GroupNames[j],i);
-			unsigned __int64 key = cfg->GetKeyID(root,strGroupName);
-			if (!key)
-				break;
+			for (int i=0;; ++i)
+			{
+				string strGroupName;
+				strGroupName.Format(Item.GroupName, i);
+				auto key = cfg->GetKeyID(root,strGroupName);
+				if (!key)
+					break;
 
-			if (!cfg->GetValue(key,HLS.Mask,strMask))
-				break;
+				string strMask;
+				if (!cfg->GetValue(key,HLS.Mask,strMask))
+					break;
 
-			std::unique_ptr<FileFilterParams> HData(new FileFilterParams);
-			LoadFilter(cfg,key,HData.get(),strMask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
-			HiData.emplace_back(std::move(HData));
-			(*(Count[j]))++;
+				std::unique_ptr<FileFilterParams> HData(new FileFilterParams);
+				LoadFilter(cfg, key, HData.get(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+				HiData.emplace_back(std::move(HData));
+				++*Item.Count;
+			}
 		}
-	}
+	});
 }
 
 
@@ -334,11 +347,13 @@ static const DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCU
 static void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 {
 	for (int j=0; j<2; j++)
+	{
 		for (int i=0; i<4; i++)
 		{
 			MAKE_OPAQUE(Colors->Color[j][i].ForegroundColor);
 			MAKE_TRANSPARENT(Colors->Color[j][i].BackgroundColor);
 		}
+	}
 
 	Colors->MarkChar=0x00FF0000;
 }
@@ -408,6 +423,7 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 	ApplyBlackOnBlackColors(Colors);
 
 	for (int j=0; j<2; j++)
+	{
 		for (int i=0; i<4; i++)
 		{
 			//Если какой то из текущих цветов (fore или back) прозрачный
@@ -437,6 +453,7 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 				}
 			}
 		}
+	}
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (Colors->MarkChar&0x00FF0000)

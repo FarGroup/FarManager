@@ -231,11 +231,11 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 		const DWORD BufSize=65536;
 		if(WipeFile.InitWalk(BufSize))
 		{
-			static BYTE Buf[BufSize];
+			static std::array<BYTE, BufSize> Buf;
 			static bool BufInit = false;
 			if(!BufInit)
 			{
-				memset(Buf, Global->Opt->WipeSymbol, BufSize); // используем символ заполнитель
+				Buf.fill(Global->Opt->WipeSymbol); // используем символ заполнитель
 				BufInit = true;
 			}
 
@@ -243,7 +243,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 			while(WipeFile.Step())
 			{
 				DWORD Written;
-				WipeFile.Write(Buf, WipeFile.GetChunkSize(), Written);
+				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
 				DWORD CurTime=GetTickCount();
 				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 				{

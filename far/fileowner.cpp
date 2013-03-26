@@ -45,19 +45,19 @@ static char sddata[64*1024];
 
 struct SIDCacheItem
 {
-	PSID Sid;
+	block_ptr<SID> Sid;
 	string strUserName;
 
 	SIDCacheItem(const wchar_t *Computer,PSID InitSID)
 	{
-		Sid=xf_malloc(GetLengthSid(InitSID));
+		Sid.reset(GetLengthSid(InitSID));
 		if(Sid)
 		{
-			if(CopySid(GetLengthSid(InitSID),Sid,InitSID))
+			if(CopySid(GetLengthSid(InitSID), Sid.get(), InitSID))
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer,Sid,nullptr,&AccountLength,nullptr,&DomainLength,&snu);
+				LookupAccountSid(Computer, Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -65,16 +65,18 @@ struct SIDCacheItem
 					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
 					if (AccountName && DomainName)
 					{
-						if(LookupAccountSid(Computer,Sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+						if(LookupAccountSid(Computer, Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
 						{
-							strUserName=string(DomainName).Append(L"\\").Append(AccountName);
+							strAccountName.ReleaseBuffer(AccountLength);
+							strDomainName.ReleaseBuffer(DomainLength);
+							strUserName = strDomainName + L"\\" + strAccountName;
 						}
 					}
 				}
 				else
 				{
 					LPWSTR StrSid;
-					if(ConvertSidToStringSid(Sid, &StrSid))
+					if(ConvertSidToStringSid(Sid.get(), &StrSid))
 					{
 						strUserName = StrSid;
 						LocalFree(StrSid);
@@ -85,22 +87,24 @@ struct SIDCacheItem
 
 		if(strUserName.IsEmpty())
 		{
-			xf_free(Sid);
-			Sid=nullptr;
+			Sid.reset();
 		}
 	}
 
-	~SIDCacheItem()
+	SIDCacheItem(SIDCacheItem&& Right)
 	{
-		if(Sid)
-		{
-			xf_free(Sid);
-			Sid=nullptr;
-		}
+		*this = std::move(Right);
+	}
+
+	SIDCacheItem& operator=(SIDCacheItem&& Right)
+	{
+		Sid.swap(Right.Sid);
+		strUserName = std::move(Right.strUserName);
+		return *this;
 	}
 };
 
-std::list<std::unique_ptr<SIDCacheItem>>* SIDCache;
+std::list<SIDCacheItem>* SIDCache;
 
 void SIDCacheFlush()
 {
@@ -108,35 +112,37 @@ void SIDCacheFlush()
 	SIDCache = nullptr;
 }
 
-const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
+bool AddSIDToCache(const wchar_t *Computer, PSID Sid, string& Result)
 {
-	LPCWSTR Result=nullptr;
-	std::unique_ptr<SIDCacheItem> NewItem(new SIDCacheItem(Computer,Sid));
-	if(!NewItem->strUserName.IsEmpty())
+	SIDCacheItem NewItem(Computer, Sid);
+	if(!NewItem.strUserName.IsEmpty())
 	{
 		if(!SIDCache)
 		{
 			SIDCache = new PTRTYPE(SIDCache);
 		}
 		SIDCache->emplace_back(std::move(NewItem));
-		Result = SIDCache->back()->strUserName;
+		Result = SIDCache->back().strUserName;
+		return true;
 	}
-	return Result;
+	return false;
 }
 
-const wchar_t* GetNameFromSIDCache(PSID Sid)
+bool GetNameFromSIDCache(PSID Sid,string& Name)
 {
-	const wchar_t* Result = nullptr;
 	if(SIDCache)
 	{
 		auto i = std::find_if(CONST_RANGE(*SIDCache, i)
 		{
-			return EqualSid(i->Sid, Sid);
+			return EqualSid(i.Sid.get(), Sid);
 		});
 		if(i != SIDCache->cend())
-			Result = (*i)->strUserName.CPtr();
+		{
+			Name = i->strUserName;
+			return true;
+		}
 	}
-	return Result;
+	return false;
 }
 
 
@@ -164,15 +170,10 @@ bool GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 		{
 			if (IsValidSid(pOwner))
 			{
-				const wchar_t *Owner=GetNameFromSIDCache(pOwner);
-				if (!Owner)
+				Result = GetNameFromSIDCache(pOwner, strOwner);
+				if (!Result)
 				{
-					Owner=AddSIDToCache(Computer,pOwner);
-				}
-				if (Owner)
-				{
-					strOwner=Owner;
-					Result=true;
+					Result = AddSIDToCache(Computer, pOwner, strOwner);
 				}
 			}
 		}

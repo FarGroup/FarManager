@@ -49,7 +49,7 @@ struct PSEUDO_HANDLE
 	PVOID BufferBase;
 	ULONG NextOffset;
 	ULONG BufferSize;
-   PVOID Buffer2;
+	PVOID Buffer2;
 	bool Extended;
 	bool ReadDone;
 };
