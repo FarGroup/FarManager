@@ -1861,11 +1861,22 @@ static void __parseParams(size_t Count, TVar* Params, FarMacroCall* Data)
 }
 #define parseParams(c,v,d) TVar v[c]; __parseParams(c,v,d)
 
+class LockOutput
+{
+		bool dsbl;
+	public:
+		LockOutput(bool d) : dsbl(d) { if (dsbl) Global->ScrBuf->Lock(); }
+		~LockOutput() { if (dsbl) Global->ScrBuf->Unlock(); }
+};
+
 intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
 	intptr_t ret=0;
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+
+	MacroRecord* TopMacro = GetTopMacro();
+	bool IsOutputDisabled = TopMacro && !(TopMacro->Flags()&MFLAGS_ENABLEOUTPUT);
 
 	// проверка на область
 	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST)
@@ -2547,7 +2558,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(Data);
 		case MCODE_F_EDITOR_GETSTR:   return editorgetstrFunc(Data);
 		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
-		case MCODE_F_EDITOR_POS:      return editorposFunc(Data);
+		case MCODE_F_EDITOR_POS:      { LockOutput Lock(IsOutputDisabled); return editorposFunc(Data); }
 		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
 		case MCODE_F_EDITOR_SET:      return editorsetFunc(Data);
 		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(Data);
@@ -2597,16 +2608,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
 		case MCODE_F_WAITKEY:
 		{
-			MacroRecord* macro = GetTopMacro();
-			if (macro && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
-				Global->ScrBuf->Lock();
+			LockOutput Lock(IsOutputDisabled);
 
 			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
 			--m_DisableNested; --m_WaitKey;
-
-			if (macro && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
-				Global->ScrBuf->Unlock();
 
 			return result;
 		}
