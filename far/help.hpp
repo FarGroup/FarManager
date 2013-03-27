@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "macro.hpp"
 
-class CallBackStack;
-
 #define HelpBeginLink L'<'
 #define HelpEndLink L'>'
 #define HelpFormatLink L"<%s\\>%s"
@@ -108,83 +106,76 @@ class HelpRecord
 
 class Help:public Frame
 {
-	private:
-		BOOL  ErrorHelp;            // TRUE - ошибка! Например - нет такого топика
-		SaveScreen *TopScreen;      // область сохранения под хелпом
-		KeyBar      HelpKeyBar;     // кейбар
-		CallBackStack *Stack;       // стек возврата
-		string  strFullHelpPathName;
+public:
+	Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
+	virtual ~Help();
 
-		StackHelpData StackData;
-		std::vector<HelpRecord> HelpList; // "хелп" в памяти.
+	virtual void Hide();
+	virtual int  ProcessKey(int Key);
+	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	virtual void InitKeyBar();
+	virtual void SetScreenPosition();
+	virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
+	virtual void ResizeConsole();
+	virtual int  FastHide(); // Введена для нужд CtrlAltShift
+	virtual const wchar_t *GetTypeName() {return L"[Help]";}
+	virtual int GetTypeAndName(string &strType, string &strName);
+	virtual int GetType() { return MODALTYPE_HELP; }
 
-		int   StrCount;             // количество строк в теме
-		int   FixCount;             // количество строк непрокручиваемой области
-		int   FixSize;              // Размер непрокручиваемой области
-		int   TopicFound;           // TRUE - топик найден
-		int   IsNewTopic;           // это новый топик?
+	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam);
 
-		int   MouseDown;
-		int   MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
-		int   MsX, MsY;
+	BOOL GetError() {return ErrorHelp;}
+	static string &MkTopic(class Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic);
 
-		string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
-		//   символа - для атрибутов
-		int   CurColor;             // CurColor - текущий цвет отрисовки
-		int   CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+private:
+	virtual void DisplayObject();
+	int  ReadHelp(const wchar_t *Mask=nullptr);
+	void AddLine(const wchar_t *Line);
+	void AddTitle(const wchar_t *Title);
+	void HighlightsCorrection(string &strStr);
+	void FastShow();
+	void DrawWindowFrame();
+	void OutString(const wchar_t *Str);
+	int  StringLen(const wchar_t *Str);
+	void CorrectPosition();
+	int  IsReferencePresent();
+	bool GetTopic(int realX, int realY, string& strTopic);
+	void MoveToReference(int Forward,int CurScreen);
+	void ReadDocumentsHelp(int TypeIndex);
+	void Search(FILE *HelpFile,uintptr_t nCodePage);
+	int  JumpTopic(const wchar_t *JumpTopic=nullptr);
+	const HelpRecord* GetHelpItem(int Pos);
 
-		MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
+	KeyBar      HelpKeyBar;     // кейбар
+	StackHelpData StackData;
+	std::stack<StackHelpData> Stack; // стек возврата
+	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
+	string  strFullHelpPathName;
+	string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
+	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
+	string strCtrlStartPosChar;
+	string strLastSearchStr;
+	SaveScreen *TopScreen;      // область сохранения под хелпом
 
-		string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
+	int StrCount;             // количество строк в теме
+	int FixCount;             // количество строк непрокручиваемой области
+	int FixSize;              // Размер непрокручиваемой области
 
-		DWORD LastStartPos;
-		DWORD StartPos;
+	int MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
+	int MsX, MsY;
 
-		string strCtrlStartPosChar;
+	// символа - для атрибутов
+	int CurColor;             // CurColor - текущий цвет отрисовки
+	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
 
-		string strLastSearchStr;
-		bool LastSearchCase,LastSearchWholeWords,LastSearchRegexp;
+	DWORD LastStartPos;
+	DWORD StartPos;
 
-	private:
-		virtual void DisplayObject();
-		int  ReadHelp(const wchar_t *Mask=nullptr);
-		void AddLine(const wchar_t *Line);
-		void AddTitle(const wchar_t *Title);
-		void HighlightsCorrection(string &strStr);
-		void FastShow();
-		void DrawWindowFrame();
-		void OutString(const wchar_t *Str);
-		int  StringLen(const wchar_t *Str);
-		void CorrectPosition();
-		int  IsReferencePresent();
-		bool GetTopic(int realX, int realY, string& strTopic);
-		void MoveToReference(int Forward,int CurScreen);
-		void ReadDocumentsHelp(int TypeIndex);
-		void Search(FILE *HelpFile,uintptr_t nCodePage);
-		int  JumpTopic(const wchar_t *JumpTopic=nullptr);
-		const HelpRecord* GetHelpItem(int Pos);
+	MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
 
-	public:
-		Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
-		virtual ~Help();
-
-	public:
-		virtual void Hide();
-		virtual int  ProcessKey(int Key);
-		virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual void InitKeyBar();
-		BOOL GetError() {return ErrorHelp;}
-		virtual void SetScreenPosition();
-		virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
-		virtual void ResizeConsole();
-
-		virtual int  FastHide(); // Введена для нужд CtrlAltShift
-
-		virtual const wchar_t *GetTypeName() {return L"[Help]";}
-		virtual int GetTypeAndName(string &strType, string &strName);
-		virtual int GetType() { return MODALTYPE_HELP; }
-
-		virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam);
-
-		static string &MkTopic(class Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic);
+	bool MouseDown;
+	bool IsNewTopic;
+	bool TopicFound;
+	bool ErrorHelp;
+	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };

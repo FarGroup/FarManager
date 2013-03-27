@@ -561,7 +561,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					EditFileTypes();
 					break;
 				case MENU_COMMANDS_FOLDERSHORTCUTS: // Folder shortcuts
-					Global->CtrlObject->FolderShortcuts->Configure();
+					Shortcuts().Configure();
 					break;
 				case MENU_COMMANDS_FILTER: // File panel filter
 					Global->CtrlObject->Cp()->ActivePanel->EditFilter();

@@ -2616,11 +2616,11 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add)
 	{
 		if(Add)
 		{
-			Global->CtrlObject->FolderShortcuts->Add(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Shortcuts().Add(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		else
 		{
-			Global->CtrlObject->FolderShortcuts->Set(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Shortcuts().Set(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		return true;
 	}
@@ -2670,7 +2670,7 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 	string strShortcutFolder,strPluginFile,strPluginData;
 	GUID PluginGuid;
 
-	if (Global->CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData, raw))
+	if (Shortcuts().Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData, raw))
 	{
 		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
 	}

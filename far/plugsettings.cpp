@@ -380,7 +380,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
-				while(Global->CtrlObject->FolderShortcuts->Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
+				while(Shortcuts().Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
 				{
 					AddItem(m_Enum.back().get(),item,strName,strData,plugin,strFile);
 				}

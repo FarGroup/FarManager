@@ -80,7 +80,7 @@ ShortcutItem::ShortcutItem()
 	PluginGuid=FarGuid;
 }
 
-bool ShortcutItem::operator==(const ShortcutItem& Item)
+bool ShortcutItem::operator==(const ShortcutItem& Item) const
 {
 	return
 	  strName == Item.strName &&
@@ -99,42 +99,44 @@ Shortcuts::Shortcuts()
 
 	if (root)
 	{
-		for(size_t i = 0; i < KeyCount; i++)
+		int index = 0;
+		std::for_each(RANGE(Items, i)
 		{
-			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << i);
-			if (!key)
-				continue;
-
-			for(size_t j=0; ; j++)
+			i.clear();
+			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << index++);
+			if (key)
 			{
-				FormatString ValueName;
-				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << j;
-				string strValue;
-				if (!cfg->GetValue(key, ValueName, strValue))
-					break;
-				ShortcutItem Item;
-				Item.strFolder = strValue;
+				for(size_t j=0; ; j++)
+				{
+					FormatString ValueName;
+					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << j;
+					string strValue;
+					if (!cfg->GetValue(key, ValueName, strValue))
+						break;
+					ShortcutItem Item;
+					Item.strFolder = strValue;
 
-				ValueName.Clear();
-				ValueName << RecTypeName[PSCR_RT_NAME] << j;
-				cfg->GetValue(key, ValueName, Item.strName);
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_NAME] << j;
+					cfg->GetValue(key, ValueName, Item.strName);
 
-				ValueName.Clear();
-				ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
-				string strPluginGuid;
-				cfg->GetValue(key, ValueName, strPluginGuid);
-				if(!StrToGuid(strPluginGuid,Item.PluginGuid)) Item.PluginGuid=FarGuid;
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
+					string strPluginGuid;
+					cfg->GetValue(key, ValueName, strPluginGuid);
+					if(!StrToGuid(strPluginGuid,Item.PluginGuid)) Item.PluginGuid=FarGuid;
 
-				ValueName.Clear();
-				ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
-				cfg->GetValue(key, ValueName, Item.strPluginFile);
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
+					cfg->GetValue(key, ValueName, Item.strPluginFile);
 
-				ValueName.Clear();
-				ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
-				cfg->GetValue(key, ValueName, Item.strPluginData);
-				Items[i].emplace_back(Item);
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
+					cfg->GetValue(key, ValueName, Item.strPluginData);
+					i.emplace_back(Item);
+				}
 			}
-		}
+		});
 	}
 }
 
@@ -152,47 +154,48 @@ Shortcuts::~Shortcuts()
 
 	if (root)
 	{
-		for (size_t i = 0; i < KeyCount; i++)
+		int index = 0;
+		std::for_each(CONST_RANGE(Items, i)
 		{
-			unsigned __int64 key = cfg->CreateKey(root, FormatString() << i);
-			if (!key)
-				continue;
-
-			int index = 0;
-			std::for_each(CONST_RANGE(Items[i], j)
+			unsigned __int64 key = cfg->CreateKey(root, FormatString() << index++);
+			if (key)
 			{
-				FormatString ValueName;
-				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
-				cfg->SetValue(key, ValueName, j.strFolder);
-
-				ValueName.Clear();
-				ValueName << RecTypeName[PSCR_RT_NAME] << index;
-				cfg->SetValue(key, ValueName, j.strName);
-
-				if(j.PluginGuid != FarGuid)
+				int index = 0;
+				std::for_each(CONST_RANGE(i, j)
 				{
-					ValueName.Clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
-					string strPluginGuid=GuidToStr(j.PluginGuid);
-					cfg->SetValue(key, ValueName, strPluginGuid);
-				}
+					FormatString ValueName;
+					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
+					cfg->SetValue(key, ValueName, j.strFolder);
 
-				if(!j.strPluginFile.IsEmpty())
-				{
 					ValueName.Clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
-					cfg->SetValue(key, ValueName, j.strPluginFile);
-				}
+					ValueName << RecTypeName[PSCR_RT_NAME] << index;
+					cfg->SetValue(key, ValueName, j.strName);
 
-				if(!j.strPluginData.IsEmpty())
-				{
-					ValueName.Clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
-					cfg->SetValue(key, ValueName, j.strPluginData);
-				}
-				++index;
-			});
-		}
+					if(j.PluginGuid != FarGuid)
+					{
+						ValueName.Clear();
+						ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
+						string strPluginGuid=GuidToStr(j.PluginGuid);
+						cfg->SetValue(key, ValueName, strPluginGuid);
+					}
+
+					if(!j.strPluginFile.IsEmpty())
+					{
+						ValueName.Clear();
+						ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
+						cfg->SetValue(key, ValueName, j.strPluginFile);
+					}
+
+					if(!j.strPluginData.IsEmpty())
+					{
+						ValueName.Clear();
+						ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
+						cfg->SetValue(key, ValueName, j.strPluginData);
+					}
+					++index;
+				});
+			}
+		});
 	}
 }
 
@@ -534,7 +537,6 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 
 void Shortcuts::Configure()
 {
-	Changed = true;
 	VMenu2 FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 	FolderList.SetFlags(VMENU_WRAPMODE);
 	FolderList.SetHelp(HelpFolderShortcuts);
@@ -606,12 +608,13 @@ void Shortcuts::Configure()
 				INT64 Flags = MenuItem->Flags;
 				MenuItem->Flags = 0;
 				FolderList.UpdateItemFlags(FolderList.GetSelectPos(), Flags);
+				Changed = true;
 			}
 			break;
 
 		case KEY_F4:
-			raw_mode = true;
 			{
+				raw_mode = true;
 				if(Item == Items[Pos].end())
 				{
 					Items[Pos].resize(Items[Pos].size()+1);
@@ -626,6 +629,7 @@ void Shortcuts::Configure()
 				{
 					EditItem(&FolderList, *Item, true);
 				}
+				Changed = true;
 			}
 			break;
 

@@ -70,7 +70,7 @@ class KeyBar: public ScreenObject
 {
 public:
 	KeyBar();
-	virtual ~KeyBar(){};
+	virtual ~KeyBar(){}
 
 	virtual int ProcessKey(int Key);
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -93,7 +93,7 @@ private:
 		string CustomTitle;
 	};
 
-	std::array<std::array<titles, KEY_COUNT>, KBL_GROUP_COUNT> Items;
+	std::vector<std::vector<titles>> Items;
 	string strLanguage;
 	KEYBARAREA CustomArea;
 	ScreenObject *Owner;

@@ -530,7 +530,7 @@ HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipie
 	else
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return NULL;
+		return nullptr;
 	}
 }
 

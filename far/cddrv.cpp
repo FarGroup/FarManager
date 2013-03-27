@@ -480,7 +480,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		{
 			DISK_GEOMETRY g;
 			DWORD dwOutBytes;
-			if ( DeviceIoControl(hDevice,IOCTL_DISK_GET_DRIVE_GEOMETRY,nullptr,0,&g,(DWORD)sizeof(g),&dwOutBytes,NULL) )
+			if ( DeviceIoControl(hDevice,IOCTL_DISK_GET_DRIVE_GEOMETRY,nullptr,0,&g,(DWORD)sizeof(g),&dwOutBytes,nullptr) )
 				if ( g.MediaType == FixedMedia || g.MediaType == RemovableMedia )
 					DrvType = DRIVE_USBDRIVE;
 			CloseHandle(hDevice);

@@ -519,7 +519,7 @@ void Viewer::ShowPage(int nMode)
 				
 				for (int Y = Y1; Y<=Y2; ++Y)
 				{
-					Strings.emplace_back(ViewerString());
+					Strings.emplace_back();
 					Strings.back().nFilePos = vtell();
 
 					if (Y==Y1+1 && !veof())
@@ -549,7 +549,7 @@ void Viewer::ShowPage(int nMode)
 			if (Y2 > Y1)
 			{
 				Strings.pop_front();
-				Strings.emplace_back(ViewerString());
+				Strings.emplace_back();
 				FilePos = Strings.front().nFilePos;
 				auto Second = Strings.begin();
 				++Second;
@@ -710,7 +710,7 @@ static void txt_dump(
 				first = false;
 				outstr[ib++] = w1[iw];
 			}
-			int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
+			int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, nullptr,0, nullptr,nullptr);
 			while (--clen > 0 && ib < width)
 				outstr[ib++] = CONTINUE_CHAR;
 			++iw;
@@ -2749,7 +2749,7 @@ void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool h
 			int nw = MultiByteToWideChar(VM.CodePage,0, c1,nb, ss,ARRAYSIZE(ss));
 			if ( pos >= 0 )
 			{
-				pos = MultiByteToWideChar(VM.CodePage,0, c1,pos, NULL,0);
+				pos = MultiByteToWideChar(VM.CodePage,0, c1,pos, nullptr,0);
 			}
 			for (int i=0; i < nw; ++i)
 				if (!ss[i])
@@ -2779,7 +2779,7 @@ void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool h
 					nb = 2; c1[0] = (char)HIBYTE(ch); c1[1] = (char)LOBYTE(ch);
 				break;
 				default:
-					nb = WideCharToMultiByte(VM.CodePage,0, &ch,1, c1,4, NULL,NULL);
+					nb = WideCharToMultiByte(VM.CodePage,0, &ch,1, c1,4, nullptr,nullptr);
 				break;
 			}
 

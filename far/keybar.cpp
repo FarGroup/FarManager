@@ -52,6 +52,12 @@ KeyBar::KeyBar():
 	ShiftState(0),
 	CustomLabelsReaded(false)
 {
+	Items.resize(KBL_GROUP_COUNT);
+	std::for_each(RANGE(Items, i)
+	{
+		i.resize(KEY_COUNT);
+	});
+
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
 }
 

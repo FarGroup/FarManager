@@ -41,8 +41,8 @@ struct ShortcutItem
 	string strPluginFile;
 	string strPluginData;
 	ShortcutItem();
-	bool operator==(const ShortcutItem& Item);
-	bool operator!=(const ShortcutItem& Item) { return !(*this == Item); }
+	bool operator==(const ShortcutItem& Item) const;
+	bool operator!=(const ShortcutItem& Item) const { return !(*this == Item); }
 };
 
 class VMenu2;
@@ -60,8 +60,7 @@ public:
 	void Configure();
 
 private:
-	static const size_t KeyCount = 10;
-	std::list<ShortcutItem> Items[KeyCount];
+	std::array<std::list<ShortcutItem>, 10> Items;
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
 	void EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw=false);

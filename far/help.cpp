@@ -56,58 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "plugins.hpp"
 
-// Стек возврата
-class CallBackStack
-{
-	private:
-		struct ListNode
-		{
-			UINT64 Flags;             // флаги
-
-			ListNode *Next;
-
-			string strHelpTopic;        // текущий топик
-			string strHelpPath;         // путь к хелпам
-			string strSelTopic;         // текущее выделение
-			string strHelpMask;         // маска
-
-			int   TopStr;            // номер верхней видимой строки темы
-			int   CurX,CurY;         // координаты (???)
-
-			ListNode(const StackHelpData *Data, ListNode* n=nullptr)
-			{
-				strHelpTopic=Data->strHelpTopic;
-				strHelpPath=Data->strHelpPath;
-				strSelTopic=Data->strSelTopic;
-				strHelpMask=Data->strHelpMask;
-				Flags=Data->Flags;
-				TopStr=Data->TopStr;
-				CurX=Data->CurX;
-				CurY=Data->CurY;
-				Next=n;
-			}
-			~ListNode()
-			{
-			}
-		};
-
-		ListNode *topOfStack;
-
-	public:
-		CallBackStack() {topOfStack=nullptr;};
-		~CallBackStack() {ClearStack();};
-
-	public:
-		void ClearStack();
-		BOOL isEmpty() const {return !topOfStack;}
-
-		void Push(const StackHelpData *Data);
-		int Pop(StackHelpData *Data=nullptr);
-
-		void PrintStack(const wchar_t *Title);
-};
-
-
 static const wchar_t *FoundContents=L"__FoundContents__";
 static const wchar_t *PluginContents=L"__PluginContents__";
 static const wchar_t *HelpOnHelpTopic=L":Help";
@@ -116,29 +64,38 @@ static const wchar_t *HelpContents=L"Contents";
 static int RunURL(const string& Protocol, wchar_t *URLPath);
 
 Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
-	ErrorHelp(TRUE),
-	IsNewTopic(TRUE),
-	MouseDown(FALSE),
+	TopScreen(new SaveScreen),
+	StrCount(0),
+	FixCount(0),
+	FixSize(0),
+	MouseDownX(0),
+	MouseDownY(0),
+	BeforeMouseDownX(0),
+	BeforeMouseDownY(0),
+	MsX(-1),
+	MsY(-1),
 	CurColor(COL_HELPTEXT),
-	CtrlTabSize(8),
+	CtrlTabSize(0),
+	LastStartPos(0),
+	StartPos(0),
 	PrevMacroMode(Global->CtrlObject->Macro.GetMode()),
+	MouseDown(false),
+	IsNewTopic(true),
+	TopicFound(false),
+	ErrorHelp(true),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
-	MsX = MsY = -1;
 	CanLoseFocus=FALSE;
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(FALSE);
 	Global->CtrlObject->Macro.SetMode(MACRO_HELP);
-	Stack=new CallBackStack;
 	StackData.Clear();
 	StackData.Flags=Flags;
 	StackData.strHelpMask = Mask; // сохраним маску файла
-	TopScreen=new SaveScreen;
 	StackData.strHelpTopic = Topic;
-	strLastSearchStr=L"";
 
 	if (Global->Opt->FullScreenHelp)
 		SetPosition(0,0,ScrX,ScrY);
@@ -191,10 +148,7 @@ Help::~Help()
 {
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	SetRestoreScreenMode(FALSE);
-
-	if (Stack)        delete Stack;
-
-	if (TopScreen)    delete TopScreen;
+	delete TopScreen;
 }
 
 
@@ -1300,7 +1254,7 @@ int Help::ProcessKey(int Key)
 			// не поганим SelTopic, если и так в Help on Help
 			if (StrCmpI(StackData.strHelpTopic,HelpOnHelpTopic))
 			{
-				Stack->Push(&StackData);
+				Stack.emplace(StackData);
 				IsNewTopic=TRUE;
 				JumpTopic(HelpOnHelpTopic);
 				IsNewTopic=FALSE;
@@ -1314,7 +1268,7 @@ int Help::ProcessKey(int Key)
 			//   не поганим SelTopic, если и так в теме Contents
 			if (StrCmpI(StackData.strHelpTopic,HelpContents))
 			{
-				Stack->Push(&StackData);
+				Stack.emplace(StackData);
 				IsNewTopic=TRUE;
 				JumpTopic(HelpContents);
 				ErrorHelp=FALSE;
@@ -1345,7 +1299,7 @@ int Help::ProcessKey(int Key)
 				LastSearchWholeWords=WholeWords;
 				LastSearchRegexp=Regexp;
 
-				Stack->Push(&StackData);
+				Stack.emplace(StackData);
 				IsNewTopic=TRUE;
 				JumpTopic(FoundContents);
 				ErrorHelp=FALSE;
@@ -1360,7 +1314,7 @@ int Help::ProcessKey(int Key)
 			//   не поганим SelTopic, если и так в PluginContents
 			if (StrCmpI(StackData.strHelpTopic,PluginContents))
 			{
-				Stack->Push(&StackData);
+				Stack.emplace(StackData);
 				IsNewTopic=TRUE;
 				JumpTopic(PluginContents);
 				ErrorHelp=FALSE;
@@ -1374,9 +1328,10 @@ int Help::ProcessKey(int Key)
 		case KEY_BS:
 		{
 			// Если стек возврата пуст - выходим их хелпа
-			if (!Stack->isEmpty())
+			if (!Stack.empty())
 			{
-				Stack->Pop(&StackData);
+				StackData = Stack.top();
+				Stack.pop();
 				JumpTopic(StackData.strHelpTopic);
 				ErrorHelp=FALSE;
 				return TRUE;
@@ -1389,12 +1344,13 @@ int Help::ProcessKey(int Key)
 		{
 			if (!StackData.strSelTopic.IsEmpty() && StrCmpI(StackData.strHelpTopic,StackData.strSelTopic))
 			{
-				Stack->Push(&StackData);
+				Stack.push(StackData);
 				IsNewTopic=TRUE;
 
 				if (!JumpTopic())
 				{
-					Stack->Pop(&StackData);
+					StackData = Stack.top();
+					Stack.pop();
 					ReadHelp(StackData.strHelpMask); // вернем то, что отображали.
 				}
 
@@ -1413,7 +1369,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 {
 	string strNewTopic;
 	size_t pos;
-	Stack->PrintStack(JumpTopic);
 
 	if (JumpTopic)
 		StackData.strSelTopic = JumpTopic;
@@ -2215,7 +2170,7 @@ void Help::OnChangeFocus(int Focus)
 
 void Help::ResizeConsole()
 {
-	int OldIsNewTopic=IsNewTopic;
+	bool OldIsNewTopic=IsNewTopic;
 	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
 	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic=FALSE;
@@ -2253,60 +2208,4 @@ int Help::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MHelpType);
 	strName = strFullHelpPathName;
 	return(MODALTYPE_HELP);
-}
-
-/* ------------------------------------------------------------------ */
-void CallBackStack::ClearStack()
-{
-	while (!isEmpty())
-		Pop();
-}
-
-int CallBackStack::Pop(StackHelpData *Dest)
-{
-	if (!isEmpty())
-	{
-		ListNode *oldTop = topOfStack;
-		topOfStack = topOfStack->Next;
-
-		if (Dest)
-		{
-			Dest->strHelpTopic = oldTop->strHelpTopic;
-			Dest->strHelpPath = oldTop->strHelpPath;
-			Dest->strSelTopic = oldTop->strSelTopic;
-			Dest->strHelpMask = oldTop->strHelpMask;
-			Dest->Flags=oldTop->Flags;
-			Dest->TopStr=oldTop->TopStr;
-			Dest->CurX=oldTop->CurX;
-			Dest->CurY=oldTop->CurY;
-		}
-
-		delete oldTop;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-void CallBackStack::Push(const StackHelpData *Data)
-{
-	topOfStack=new ListNode(Data,topOfStack);
-}
-
-void CallBackStack::PrintStack(const wchar_t *Title)
-{
-#if defined(SYSLOG)
-	int I=0;
-	ListNode *Ptr = topOfStack;
-	SysLog(L"Return Stack (%s)",Title);
-	SysLog(1);
-
-	while (Ptr)
-	{
-		SysLog(L"%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,Ptr->strHelpTopic.CPtr(),Ptr->strHelpPath.CPtr(),Ptr->strHelpMask.CPtr());
-		Ptr=Ptr->Next;
-	}
-
-	SysLog(-1);
-#endif
 }

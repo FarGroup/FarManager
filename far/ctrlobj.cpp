@@ -61,7 +61,6 @@ ControlObject::ControlObject():
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 
 	HiFiles = new HighlightFiles;
-	FolderShortcuts = new Shortcuts();
 	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
@@ -167,7 +166,6 @@ ControlObject::~ControlObject()
 	delete CmdHistory;
 	delete FrameManager;
 	delete Plugins;
-	delete FolderShortcuts;
 	delete HiFiles;
 }
 

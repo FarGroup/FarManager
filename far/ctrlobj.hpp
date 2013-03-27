@@ -66,7 +66,6 @@ public:
 	HighlightFiles *HiFiles;
 	KeyMacro Macro;
 	PluginManager* Plugins;
-	Shortcuts* FolderShortcuts;
 
 private:
 	FilePanels *FPanels;

@@ -3467,7 +3467,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,FarGuid,NULL};
+			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,nullptr,FarGuid,nullptr};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
 			delete[] Dir;
 			return ret;
@@ -4570,7 +4570,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 				return (int)ei.SessionBookmarkCount;
 			}
 			Command = bStack ? ECTL_GETSESSIONBOOKMARKS : ECTL_GETBOOKMARKS;
-			intptr_t size = NativeInfo.EditorControl(-1,Command,0,NULL);
+			intptr_t size = NativeInfo.EditorControl(-1,Command,0,nullptr);
 			if (!size) return FALSE;
 			auto newbm = new EditorBookmarks[size];
 			newbm->StructSize = sizeof(*newbm);

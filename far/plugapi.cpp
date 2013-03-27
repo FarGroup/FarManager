@@ -346,7 +346,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 		/* $ 24.08.2000 SVS
 		   ожидать определенную (или любую) клавишу
-		   (const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или NULL
+		   (const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или nullptr
 		   если все равно какую клавишу ждать.
 		   возвращает 0;
 		*/
@@ -1423,7 +1423,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		*pItemsNumber=Items->size();
 
 		// magic trick to store vector pointer for apiFreeDirList().
-		Items->emplace_back(PluginPanelItem());
+		Items->emplace_back();
 		Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
 
 		*pPanelItem=Items->data();

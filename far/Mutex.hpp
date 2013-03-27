@@ -45,7 +45,7 @@ public:
 
 	bool Open()
 	{
-		h = CreateMutex(NULL, FALSE, strName);
+		h = CreateMutex(nullptr, FALSE, strName);
 		return h != nullptr;
 	}
 

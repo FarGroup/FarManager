@@ -478,7 +478,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 
 	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
 	{
-		if (Global->CtrlObject->FolderShortcuts->Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
+		if (Shortcuts().Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
 			RetCode=TRUE;
 	}
 	else // Пути/имена?
