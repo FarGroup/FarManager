@@ -194,6 +194,7 @@ const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
                                    size_t *numstrings)
 {
 	const wchar_t **buf = NULL;
+	if(numstrings) *numstrings = 0;
 	lua_getfield(L, -1, field);
 
 	if(lua_istable(L, -1))
