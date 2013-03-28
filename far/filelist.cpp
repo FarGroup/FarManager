@@ -837,7 +837,7 @@ int FileList::ProcessKey(int Key)
 				if (SendKeyToPlugin(Key))
 					return TRUE;
 	}
-	else
+	else if (Key < KEY_RCTRL0 || Key > KEY_RCTRL9 || !Global->Opt->ShortcutAlwaysChdir)
 	{
 		// Те клавиши, которые работают при погашенных панелях:
 		switch (Key)

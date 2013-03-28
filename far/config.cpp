@@ -1141,6 +1141,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyPanel,L"SelectFolders", &Global->Opt->SelectFolders, Default(0)},
 		{FSSF_PRIVATE,       NKeyPanel,L"ShellRightLeftArrowsRule", &Global->Opt->ShellRightLeftArrowsRule, Default(0)},
 		{FSSF_PANEL,         NKeyPanel,L"ShowHidden", &Global->Opt->ShowHidden, Default(1)},
+		{FSSF_PANEL,         NKeyPanel,L"ShortcutAlwaysChdir", &Global->Opt->ShortcutAlwaysChdir, Default(0)},
 		{FSSF_PRIVATE,       NKeyPanel,L"SortFolderExt", &Global->Opt->SortFolderExt, Default(0)},
 		{FSSF_PRIVATE,       NKeyPanel,L"RightClickSelect", &Global->Opt->RightClickSelect, Default(0)},
 

@@ -568,7 +568,7 @@ struct ExecuteOptions
 	BoolOption ExecuteSilentExternal;
 	StringOption strExecuteBatchType;
 	StringOption strExcludeCmds;
-	BoolOption    UseHomeDir; // cd ~
+	BoolOption   UseHomeDir; // cd ~
 	StringOption strHomeDir; // cd ~
 };
 
@@ -587,6 +587,7 @@ public:
 	IntOption ScreenSaverTime;
 	BoolOption UseVk_oem_x;
 	BoolOption ShowHidden;
+	BoolOption ShortcutAlwaysChdir;
 	BoolOption Highlight;
 	BoolOption RightClickSelect;
 
