@@ -354,24 +354,28 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	struct __ECODE
 	{
 		NTSTATUS Code;     // код исключения
+		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
 		LNGID IdMsg;    // ID сообщения из LNG-файла
 		DWORD RetCode;  // Что вернем?
 	} ECode[]=
 
 	{
-		{EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-		{EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
-		{EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
-		{EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
-		{EXCEPTION_ILLEGAL_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_PRIV_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-		{EXCEPTION_DATATYPE_MISALIGNMENT, MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
+		#define CODEANDTEXT(x) x, L#x
+		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO),MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW),MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_BREAKPOINT),MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO),MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW),MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK),MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW),MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
 		// сюды добавляем.
+
+		#undef CODEANDTEXT
 	};
 	// EXCEPTION_CONTINUE_EXECUTION  ??????
 	DWORD rc;
@@ -396,50 +400,55 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	if (From == EXCEPT_KERNEL || !Module)
 	{
 		if (Global)
+		{
 			strFileName=Global->g_strFarModuleName;
+		}
+		else
+		{
+			apiGetModuleFileName(nullptr, strFileName);
+		}
 	}
 	else
+	{
 		strFileName = Module->GetModuleName();
+	}
 
 	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	if (LanguageLoaded())
+	for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
 	{
-		for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
+		if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
 		{
-			if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
+			Exception=LanguageLoaded()? MSG(ECode[I].IdMsg) : ECode[I].DefaultMsg;
+			rc=ECode[I].RetCode;
+
+			if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 			{
-				Exception=MSG(ECode[I].IdMsg);
-				rc=ECode[I].RetCode;
+				int Offset = 0;
+				// вот только не надо здесь неочевидных оптимизаций вида
+				// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
+				// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
 
-				if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
+				switch (xr->ExceptionInformation[0])
 				{
-					int Offset = 0;
-					// вот только не надо здесь неочевидных оптимизаций вида
-					// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-					// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
-
-					switch (xr->ExceptionInformation[0])
-					{
-						case 0:
-							Offset = 0;
-							break;
-						case 1:
-							Offset = 1;
-							break;
-						case 8:
-							Offset = 2;
-							break;
-					}
-
-					strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
-					strBuf = MExcRAccess+Offset;
-					strBuf << strBuf2;
-					Exception=strBuf;
+					case 0:
+						Offset = 0;
+						break;
+					case 1:
+						Offset = 1;
+						break;
+					case 8:
+						Offset = 2;
+						break;
 				}
 
-				break;
+				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
+				strBuf = MExcRAccess+Offset;
+				strBuf << strBuf2;
+				Exception=strBuf;
 			}
+
+			break;
 		}
 	}
 
