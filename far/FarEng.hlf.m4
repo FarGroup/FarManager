@@ -4333,15 +4333,16 @@ bin, the number of links of a file does not change.
 in a separate column (by default, it's the last column in the 9th panel mode)
 and sort the files by hard link number.
 
-    Hard links can only be created on the same drive as the source file.
+    Hard links can only be created on the same partition as the source file.
 
     #Junctions#
 
     This technology allowing to map any local directories to any other local
-directories. For example, if the directory D:\\SYMLINK has C:\\WINNT\\SYSTEM32
-as its target, a program accessing D:\\SYMLINK\\DRIVERS will actually access
-C:\\WINNT\\SYSTEM32\\DRIVERS. Unlike hard links, symbolic links are not required
-to have a target on the same drive.
+directories. For example, if the directory D:\\JUNCTION has C:\\WINNT\\SYSTEM32
+as its target, a program accessing D:\\JUNCTION\\DRIVERS will actually access
+C:\\WINNT\\SYSTEM32\\DRIVERS. В отличие от жёстких ссылок, связи папок не 
+обязательно должны располагаться на том же разделе, но в пределах локальной 
+дисковой подсистемы.
 
     Under Windows 2000 it is not allowed to create symbolic links directly to
 CD-ROM directories, but this restriction can be overcome by mounting a CD-ROM
@@ -4353,6 +4354,7 @@ to a directory on an NTFS partition.
 improved version of directory junctions - symbolic links can also point to files
 and non-local folders, relative paths also supported.
 
+    Для создания символических ссылок требуются административные права.
 
 @ErrCopyItSelf
 $ #Error: copy/move onto itself.#

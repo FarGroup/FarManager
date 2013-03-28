@@ -1993,10 +1993,40 @@ string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
   Global->Opt->Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
   Global->Opt->Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
 */
+
+#if defined(TREEFILE_PROJECT)
+string &ConvertTemplateTreeName(string &strDest, const string &strTemplate, const wchar_t *D, DWORD SN, const wchar_t *L, const wchar_t *SR, const wchar_t *SH)
+{
+	strDest=strTemplate;
+	FormatString strDiskNumber;
+
+	strDiskNumber <<
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(SN) << L'-' <<
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(SN);
+	/*
+    	 %D    - буква диска
+	     %SN   - серийный номер
+    	 %L    - метка диска
+	     %SR   - server name
+    	 %SH   - share name
+	*/
+	string strDiskLetter=D && *D?D[0]:L"";
+	ReplaceStrings(strDest,L"%D",strDiskLetter,-1);
+	ReplaceStrings(strDest,L"%SN",strDiskNumber,-1);
+	ReplaceStrings(strDest,L"%L",L && *L?L:L"",-1);
+	ReplaceStrings(strDest,L"%SR",SR && *SR?SR:L"",-1);
+	ReplaceStrings(strDest,L"%SH",SH && *SH?SH:L"",-1);
+
+	return strDest;
+}
+#endif
+
+
 string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {
 #if defined(TREEFILE_PROJECT)
 	string strRootDir = ExtractPathRoot(Path);
+	string strTreeFileName;
 	UINT DriveType = FAR_GetDriveType(strRootDir,nullptr);
 	PATH_TYPE PathType=ParsePath(strRootDir);
 	/*
@@ -2011,7 +2041,7 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 
 	// получение инфы о томе
 	string strVolumeName, strFileSystemName;
-	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
+	DWORD MaxNameLength=0,FileSystemFlags=0,VolumeNumber=0;
 
 	if (apiGetVolumeInformation(strRootDir,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -2028,16 +2058,22 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 			case DRIVE_REMOVABLE:
 				if (Global->Opt->Tree.RemovableDisk)
 				{
+					// Global->Opt->Tree.strSaveLocalPath
+					// Global->Opt->Tree.strRemovableDisk
 				}
 				break;
 			case DRIVE_FIXED:
 				if (Global->Opt->Tree.LocalDisk)
 				{
+					ConvertTemplateTreeName(strTreeFileName,Global->Opt->Tree.strLocalDisk,strRootDir,VolumeNumber,strVolumeName,nullptr,nullptr);
+					// Global->Opt->Tree.strSaveLocalPath
 				}
 				break;
 			case DRIVE_REMOTE:
-				if (Global->Opt->Tree.NetDisk) //Global->Opt->Tree.NetPath
+				if (Global->Opt->Tree.NetDisk)
 				{
+					// Global->Opt->Tree.NetPath
+					// Global->Opt->Tree.strSaveNetPath
 				}
 				break;
 			case DRIVE_CD_RW:
@@ -2052,10 +2088,12 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 			case DRIVE_CDROM:
 				if (Global->Opt->Tree.CDDisk)
 				{
+					// Global->Opt->Tree.strSaveLocalPath
+					// Global->Opt->Tree.strCDDisk
 				}
 				break;
-			case DRIVE_RAMDISK:
 			case DRIVE_VIRTUAL:
+			case DRIVE_RAMDISK:
 				break;
 			case DRIVE_REMOTE_NOT_CONNECTED:
 			case DRIVE_NOT_INIT:
