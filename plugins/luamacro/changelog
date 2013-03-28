@@ -1,3 +1,9 @@
+shmuel 28.03.2013 12:53:29 +0200 - build 120
+
+1. LuaFAR: продолжение ломки API.
+   far.SendDlgMessage, операции DM_GETSELECTION, DM_SETSELECTION, DM_GETEDITPOSITION, DM_SETEDITPOSITION:
+     * Начала отсчёта выделений и позиций приведены в соответствие с функциями editor.xxx.
+
 shmuel 27.03.2013 18:37:53 +0200 - build 119
 
 1. LuaFAR: из-за неинициализированной переменной были падения в LuaFAR-плагинах,

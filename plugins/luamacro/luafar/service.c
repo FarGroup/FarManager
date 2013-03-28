@@ -373,11 +373,11 @@ const wchar_t* StoreTempString(lua_State *L, int store_stack_pos, int* index)
 static void PushEditorSetPosition(lua_State *L, const struct EditorSetPosition *esp)
 {
 	lua_createtable(L, 0, 6);
-	PutIntToTable(L, "CurLine",       esp->CurLine);
-	PutIntToTable(L, "CurPos",        esp->CurPos);
-	PutIntToTable(L, "CurTabPos",     esp->CurTabPos);
-	PutIntToTable(L, "TopScreenLine", esp->TopScreenLine);
-	PutIntToTable(L, "LeftPos",       esp->LeftPos);
+	PutIntToTable(L, "CurLine",       esp->CurLine + 1);
+	PutIntToTable(L, "CurPos",        esp->CurPos + 1);
+	PutIntToTable(L, "CurTabPos",     esp->CurTabPos + 1);
+	PutIntToTable(L, "TopScreenLine", esp->TopScreenLine + 1);
+	PutIntToTable(L, "LeftPos",       esp->LeftPos + 1);
 	PutIntToTable(L, "Overtype",      esp->Overtype);
 }
 
@@ -2770,8 +2770,8 @@ static int far_SendDlgMessage(lua_State *L)
 			{
 				lua_createtable(L,0,5);
 				PutNumToTable(L, "BlockType", (double) es.BlockType);
-				PutNumToTable(L, "BlockStartLine", (double) es.BlockStartLine);
-				PutNumToTable(L, "BlockStartPos", (double) es.BlockStartPos);
+				PutNumToTable(L, "BlockStartLine", (double) es.BlockStartLine+1);
+				PutNumToTable(L, "BlockStartPos", (double) es.BlockStartPos+1);
 				PutNumToTable(L, "BlockWidth", (double) es.BlockWidth);
 				PutNumToTable(L, "BlockHeight", (double) es.BlockHeight);
 				return 1;
