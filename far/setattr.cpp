@@ -342,6 +342,11 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					}
 				}
 
+				// only remove, not set
+				if (Param1 == SA_CHECKBOX_REPARSEPOINT && reinterpret_cast<intptr_t>(Param2) == BSTATE_CHECKED)
+				{
+					return FALSE;
+				}
 				return TRUE;
 			}
 			// Set Original? / Set All? / Clear All?
@@ -649,7 +654,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrSparse)},
 		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrTemp)},
 		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrOffline)},
-		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MSetAttrReparsePoint)},
+		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrReparsePoint)},
 		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MSetAttrVirtual)},
 		{DI_TEXT,-1,13,0,13,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,DlgX-29,14,0,14,0,nullptr,nullptr,0,L""},
@@ -1315,6 +1320,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
+
+					if (!(NewAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+					{
+						if (EDeleteReparsePoint(strSelName, SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
 				}
 				/* Multi *********************************************************** */
 				else
@@ -1465,6 +1478,25 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									}
 								}
 
+								if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
+								{
+									RetCode=EDeleteReparsePoint(strSelName, SkipMode);
+
+									if (RetCode == SETATTR_RET_ERROR)
+									{
+										break;
+									}
+									else if (RetCode == SETATTR_RET_SKIP)
+									{
+										continue;
+									}
+									else if (RetCode == SETATTR_RET_SKIPALL)
+									{
+										SkipMode=SETATTR_RET_SKIP;
+										continue;
+									}
+								}
+
 								RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
 
 								if (RetCode == SETATTR_RET_ERROR)
@@ -1586,6 +1618,25 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											if (RetCode == SETATTR_RET_ERROR)
 											{
 												Cancel=true;
+												break;
+											}
+											else if (RetCode == SETATTR_RET_SKIP)
+											{
+												continue;
+											}
+											else if (RetCode == SETATTR_RET_SKIPALL)
+											{
+												SkipMode=SETATTR_RET_SKIP;
+												continue;
+											}
+										}
+
+										if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
+										{
+											RetCode=EDeleteReparsePoint(strFullName, SkipMode);
+		                
+											if (RetCode == SETATTR_RET_ERROR)
+											{
 												break;
 											}
 											else if (RetCode == SETATTR_RET_SKIP)

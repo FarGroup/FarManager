@@ -394,30 +394,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				strAskDeleteLink+=dwAttr&FILE_ATTRIBUTE_DIRECTORY?MSG(MAskDeleteLinkFolder):MSG(MAskDeleteLinkFile);
 			}
 
-			Ret=Message(0,3,MSG(MDeleteLinkTitle),
+			Ret=Message(0,2,MSG(MDeleteLinkTitle),
 			            strDeleteFilesMsg,
 			            strAskDeleteLink,
 			            strJuncName,
-						MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
-
-			if (Ret == 1)
-			{
-				ConvertNameToFull(strSelName, strJuncName);
-
-				if (Global->Opt->Confirm.Delete)
-				{
-					; //  ;-%
-				}
-
-				if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
-				{
-					DeleteReparsePoint(strJuncName);
-					ShellUpdatePanels(SrcPanel,NeedSetUpADir);
-				}
-
-				goto done;
-			}
-
+						MSG(MDeleteLinkDelete), MSG(MCancel));
 			if (Ret )
 				goto done;
 		}

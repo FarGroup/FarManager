@@ -4504,16 +4504,6 @@ l:
 "Borrar enlace"
 "Zmazať prepojenie"
 
-MDeleteLinkUnlink
-"Разорвать ссылку"
-"Break link"
-"Poškozený link"
-"Link auflösen"
-"Link megszakítása"
-"Przerwij link"
-"Romper enlace"
-"Poškodené prepojenie"
-
 MDeletingTitle
 l:
 "Удаление"

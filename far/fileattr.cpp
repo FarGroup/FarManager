@@ -348,3 +348,33 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 	}
 	return Ret;
 }
+
+int EDeleteReparsePoint(const string& Name, int SkipMode)
+{
+	int Ret=SETATTR_RET_OK;
+	while (!DeleteReparsePoint(Name))
+	{
+		int Code;
+		if (SkipMode!=-1)
+			Code=SkipMode;
+		else
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+
+		if (Code==1 || Code<0)
+		{
+			Ret=SETATTR_RET_SKIP;
+			break;
+		}
+		else if (Code==2)
+		{
+			Ret=SETATTR_RET_SKIPALL;
+			break;
+		}
+		else if (Code==3)
+		{
+			Ret=SETATTR_RET_ERROR;
+			break;
+		}
+	}
+	return Ret;
+}
