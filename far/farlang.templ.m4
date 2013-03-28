@@ -2126,7 +2126,7 @@ MConfigDialogsMouseButton
 "Dial&og schließen wenn Mausklick ausserhalb"
 "&Egérkattintás a párb.ablakon kívül: bezárja"
 "&Kliknięcie myszy poza oknem zamyka je"
-"Click de ratón fuera del diálogo, lo cierra"
+"Clic de ratón fuera del diálogo, lo cierra"
 "Kl&iknutie myšou mimo dialógového okna ho zavrie"
 
 MConfigVMenuTitle
@@ -2147,7 +2147,7 @@ MConfigVMenuLBtnClick
 upd:"Left mouse click outside a menu"
 upd:"Left mouse click outside a menu"
 upd:"Left mouse click outside a menu"
-"Click izquierdo de ratón fuera de menú"
+"Clic izquierdo de ratón fuera de menú"
 "Kliknutie ľavým tlačidlom myši mimo menu"
 
 MConfigVMenuRBtnClick
@@ -2157,7 +2157,7 @@ MConfigVMenuRBtnClick
 upd:"Right mouse click outside a menu"
 upd:"Right mouse click outside a menu"
 upd:"Right mouse click outside a menu"
-"Click derecho de ratón fuera de menú"
+"Clic derecho de ratón fuera de menú"
 "Kliknutie pravým tlačidlom myši mimo menu"
 
 MConfigVMenuMBtnClick
@@ -2167,7 +2167,7 @@ MConfigVMenuMBtnClick
 upd:"Middle mouse click outside a menu"
 upd:"Middle mouse click outside a menu"
 upd:"Middle mouse click outside a menu"
-"Click medio de ratón fuera de menú"
+"Clic medio de ratón fuera de menú"
 "Kliknutie prostredným tlačidlom myši mimo menu"
 
 MConfigVMenuClickCancel
@@ -3421,7 +3421,7 @@ MCMLTargetTO
 " na&ch:"
 " ide:"
 " d&o:"
-" &hacia:"
+" &a:"
 " d&o:"
 
 MCMLTargetIN
@@ -10680,7 +10680,7 @@ MFindFileAdvanced
 "Er&weitert"
 "Ha&ladó"
 "&Zaawansowane"
-"Avan&zada"
+"Avan&zado"
 "Pokr&očilé"
 
 MFindSearchingIn
