@@ -2599,7 +2599,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MK
 		switch (Type)
 		{
 		case LINK_HARDLINK:
-			Result=MkHardLink(Src,Dest);
+			Result=MkHardLink(Src, Dest, (Flags&MLF_SHOWERRMSG) == 0);
 			break;
 		case LINK_JUNCTION:
 		case LINK_VOLMOUNT:

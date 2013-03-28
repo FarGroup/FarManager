@@ -391,9 +391,15 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 }
 
 
-int MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName)
+int MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName, bool Silent)
 {
-	return apiCreateHardLink(NewName, ExistingName, nullptr) != FALSE;
+	BOOL Result = apiCreateHardLink(NewName, ExistingName, nullptr);
+
+	if (!Result && !Silent)
+	{
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName,MSG(MOk));
+	}
+	return Result;
 }
 
 bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)

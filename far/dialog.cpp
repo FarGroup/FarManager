@@ -4662,7 +4662,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	CriticalSectionLock Lock(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
-	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
+	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
 

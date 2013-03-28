@@ -46,7 +46,7 @@ ENUM(ReparsePointTypes)
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-int   MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
+int   MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName, bool Silent = false);
 
 int   GetNumberOfLinks(const string& Name, bool negative_if_error=false);
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);

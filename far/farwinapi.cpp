@@ -766,7 +766,7 @@ BOOL apiMoveFile(
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		
+
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 			Result = Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
 	}
@@ -1304,9 +1304,13 @@ bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURIT
 
 BOOL apiCreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes) ||
-	       //bug in win2k: \\?\ fails
-	       CreateHardLinkInternal(FileName, ExistingFileName, lpSecurityAttributes);
+	BOOL Result = CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes);
+	//bug in win2k: \\?\ fails
+	if (!Result && Global->WinVer() <= _WIN32_WINNT_WIN2K)
+	{
+		Result = CreateHardLinkInternal(FileName, ExistingFileName, lpSecurityAttributes);
+	}
+	return Result;
 }
 
 HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
