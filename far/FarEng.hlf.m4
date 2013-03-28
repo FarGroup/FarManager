@@ -4310,7 +4310,7 @@ destination and the contents of the source symbolic link will be copied to it
 
 @HardSymLink
 $ #Hard and Symbolic link#
-    On NTFS volumes you can create #hard links# for files, #junctions# for
+    On NTFS volumes you can create #hard links# for files, #directory junctions# for
 folders and #symbolic links# for files and folders using the #Alt-F6# command.
 
 
@@ -4335,18 +4335,18 @@ and sort the files by hard link number.
 
     Hard links can only be created on the same partition as the source file.
 
-    #Junctions#
+    #Directory junctions#
 
-    This technology allowing to map any local directories to any other local
-directories. For example, if the directory D:\\JUNCTION has C:\\WINNT\\SYSTEM32
-as its target, a program accessing D:\\JUNCTION\\DRIVERS will actually access
-C:\\WINNT\\SYSTEM32\\DRIVERS. В отличие от жёстких ссылок, связи папок не 
-обязательно должны располагаться на том же разделе, но в пределах локальной 
-дисковой подсистемы.
+    Directory junctions allows to access to any local folders as to any other
+local folders. For example, if the directory junction D:\\JUNCTION points to
+C:\\WINNT\\SYSTEM32, a program accessing D:\\JUNCTION\\DRIVERS will actually access
+C:\\WINNT\\SYSTEM32\\DRIVERS.
 
-    Under Windows 2000 it is not allowed to create symbolic links directly to
-CD-ROM directories, but this restriction can be overcome by mounting a CD-ROM
-to a directory on an NTFS partition.
+    Directory junctions can not point to network folders.
+
+    Under Windows 2000 it is not allowed to create directory junctions directly to
+CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
+as a folder on the NTFS partition.
 
     #Symbolic links#
 
@@ -4354,7 +4354,8 @@ to a directory on an NTFS partition.
 improved version of directory junctions - symbolic links can also point to files
 and non-local folders, relative paths also supported.
 
-    Для создания символических ссылок требуются административные права.
+    By default, only members of "Administrators" group can create symbolic links,
+this can be changed in the local security settings.
 
 @ErrCopyItSelf
 $ #Error: copy/move onto itself.#
