@@ -2352,11 +2352,13 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 				hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
 			}
 
+			// process default streams first
+			bool ProcessAlternateStreams = false;
 			while (!StopEvent.Signaled())
 			{
 				string strFullStreamName=strFullName;
 
-				if (Global->Opt->FindOpt.FindAlternateStreams)
+				if (ProcessAlternateStreams)
 				{
 					if (hFindStream != INVALID_HANDLE_VALUE)
 					{
@@ -2387,6 +2389,11 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 							FindData.nFileSize=sd.StreamSize.QuadPart;
 							FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 						}
+						else
+						{
+							// default stream is already processed
+							continue;
+						}
 					}
 					else
 					{
@@ -2410,7 +2417,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 						{
 							bContinue=true;
 
-							if (Global->Opt->FindOpt.FindAlternateStreams)
+							if (ProcessAlternateStreams)
 							{
 								continue;
 							}
@@ -2432,6 +2439,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 					AddMenuRecord(Dlg,strFullStreamName, FindData, nullptr, nullptr);
 				}
 
+				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;
 				if (!Global->Opt->FindOpt.FindAlternateStreams || hFindStream == INVALID_HANDLE_VALUE)
 				{
 					break;
