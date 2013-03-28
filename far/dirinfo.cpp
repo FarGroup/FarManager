@@ -450,7 +450,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 
 			auto PluginDirList = new std::vector<PluginPanelItem>;
 			// first item is reserved for internal needs
-			PluginDirList->emplace_back();
+			PluginDirList->emplace_back(VALUE_TYPE(PluginDirList)());
 			PluginDirList->front().Reserved[0] = reinterpret_cast<intptr_t>(PluginDirList);
 
 			*pItemsNumber = 0;

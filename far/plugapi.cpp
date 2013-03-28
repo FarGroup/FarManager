@@ -1423,7 +1423,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		*pItemsNumber=Items->size();
 
 		// magic trick to store vector pointer for apiFreeDirList().
-		Items->emplace_back();
+		Items->emplace_back(VALUE_TYPE(Items)());
 		Items->back().Reserved[0] = reinterpret_cast<intptr_t>(Items);
 
 		*pPanelItem=Items->data();
