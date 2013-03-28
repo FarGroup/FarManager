@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct PSEUDO_HANDLE
 {
-	HANDLE ObjectHandle;
+	File Object;
 	PVOID BufferBase;
 	ULONG NextOffset;
 	ULONG BufferSize;
@@ -64,116 +64,106 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 		{
 			string strDirectory(Name);
 			CutToSlash(strDirectory);
-			File* Directory = new File;
-			if(Directory)
+			if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
-				if(Directory->Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+
+				// for network paths buffer size must be <= 65k
+				Handle->BufferSize = 0x10000;
+				Handle->BufferBase = xf_malloc(Handle->BufferSize);
+				if (Handle->BufferBase)
 				{
-					Handle->ObjectHandle =static_cast<HANDLE>(Directory);
+					LPCWSTR NamePtr = PointToName(Name);
+					Handle->Extended = true;
+					Handle->Buffer2 = nullptr;
+					Handle->ReadDone = false;
 
-					// for network paths buffer size must be <= 65k
-					Handle->BufferSize = 0x10000;
-					Handle->BufferBase = xf_malloc(Handle->BufferSize);
-					if (Handle->BufferBase)
+					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
+					if (QueryResult) // try next read immediately to avoid M#2128 bug
 					{
-						LPCWSTR NamePtr = PointToName(Name);
-						Handle->Extended = true;
-						Handle->Buffer2 = nullptr;
-						Handle->ReadDone = false;
-
-						bool QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
-						if (QueryResult) // try next read immediately to avoid M#2128 bug
+						Handle->Buffer2 = xf_malloc(Handle->BufferSize);
+						if (!Handle->Buffer2)
+							QueryResult = false;
+						else
 						{
-							Handle->Buffer2 = xf_malloc(Handle->BufferSize);
-							if (!Handle->Buffer2)
-								QueryResult = false;
-							else
+							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
+							if (!QueryResult2)
 							{
-								bool QueryResult2 = Directory->NtQueryDirectoryFile(Handle->Buffer2, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
-								if (!QueryResult2)
-								{
-									xf_free(Handle->Buffer2);
-									Handle->Buffer2 = nullptr;
-									if (GetLastError() != ERROR_INVALID_LEVEL)
-										Handle->ReadDone = true;
-									else
-										QueryResult = false;
-								}
+								xf_free(Handle->Buffer2);
+								Handle->Buffer2 = nullptr;
+								if (GetLastError() != ERROR_INVALID_LEVEL)
+									Handle->ReadDone = true;
+								else
+									QueryResult = false;
 							}
 						}
+					}
 
-						if(!QueryResult)
+					if(!QueryResult)
+					{
+						Handle->Extended = false;
+
+						// re-create handle to avoid weird bugs with some network emulators
+						Handle->Object.Close();
+						if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 						{
-							Handle->Extended = false;
-
-							// re-create handle to avoid weird bugs with some network emulators
-							Directory->Close();
-							if(Directory->Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-							{
-								Handle->ObjectHandle =static_cast<HANDLE>(Directory);
-								QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
-							}
+							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
 						}
-						if(QueryResult)
+					}
+					if(QueryResult)
+					{
+						PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
+						FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
+						FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
+						FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
+						FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
+						FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
+						FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
+						FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
+						FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
+						FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
+						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
+
+						if(Handle->Extended)
 						{
-							PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
-							FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-							FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
-							FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
-							FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
-							FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
-							FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
-							FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
-							FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
-							FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
-							FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-							FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
-							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-
-							if(Handle->Extended)
-							{
-								FindData.FileId = DirectoryInfo->FileId.QuadPart;
-								FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-								FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
-							}
-							else
-							{
-								FindData.FileId = 0;
-								PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
-								FindData.strFileName.Copy(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
-								FindData.strAlternateFileName.Copy(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
-							}
-
-							// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-							if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
-							{
-								FindData.strFileName.SetLength(FindData.strFileName.GetLength()-1);
-							}
-							if(!FindData.strAlternateFileName.At(FindData.strAlternateFileName.GetLength()-1))
-							{
-								FindData.strAlternateFileName.SetLength(FindData.strAlternateFileName.GetLength()-1);
-							}
-
-							Handle->NextOffset = DirectoryInfo->NextEntryOffset;
-							Result = static_cast<HANDLE>(Handle);
+							FindData.FileId = DirectoryInfo->FileId.QuadPart;
+							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+							FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
 						}
 						else
 						{
-							xf_free(Handle->BufferBase);
+							FindData.FileId = 0;
+							PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+							FindData.strFileName.Copy(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
+							FindData.strAlternateFileName.Copy(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
 						}
+
+						// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
+						if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
+						{
+							FindData.strFileName.SetLength(FindData.strFileName.GetLength()-1);
+						}
+						if(!FindData.strAlternateFileName.At(FindData.strAlternateFileName.GetLength()-1))
+						{
+							FindData.strAlternateFileName.SetLength(FindData.strAlternateFileName.GetLength()-1);
+						}
+
+						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
+						Result = static_cast<HANDLE>(Handle);
 					}
-				}
-				else
-				{
-					// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
-					if(GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
+					else
 					{
-						SetLastError(ERROR_PATH_NOT_FOUND);
+						xf_free(Handle->BufferBase);
 					}
 				}
-				if(Result == INVALID_HANDLE_VALUE)
+			}
+			else
+			{
+				// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
+				if(GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
 				{
-					delete Directory;
+					SetLastError(ERROR_PATH_NOT_FOUND);
 				}
 			}
 			if(Result == INVALID_HANDLE_VALUE)
@@ -211,8 +201,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 			}
 			else
 			{
-				File* Directory = static_cast<File*>(Handle->ObjectHandle);
-				Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
 				set_errcode = false;
 			}
 		}
@@ -270,10 +259,8 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 bool FindCloseInternal(HANDLE Find)
 {
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
-   xf_free(Handle->Buffer2);
+	xf_free(Handle->Buffer2);
 	xf_free(Handle->BufferBase);
-	File* Directory = static_cast<File*>(Handle->ObjectHandle);
-	delete Directory;
 	delete Handle;
 	return true;
 }
@@ -529,6 +516,18 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		pNameString = &NameString;
 	}
 	NTSTATUS Result = Global->ifn->NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
+	if(Status)
+	{
+		*Status = Result;
+	}
+	return Result == STATUS_SUCCESS;
+}
+
+bool File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
+{
+	IO_STATUS_BLOCK IoStatusBlock;
+	NTSTATUS Result = Global->ifn->NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
 	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -1327,9 +1326,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 			PSEUDO_HANDLE* Handle=new PSEUDO_HANDLE;
 			if(Handle)
 			{
-				Handle->ObjectHandle = apiCreateFile(FileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-				if (Handle->ObjectHandle!=INVALID_HANDLE_VALUE)
+				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 				{
 					// for network paths buffer size must be <= 65k
 					// we double it in a first loop, so starting value is 32k
@@ -1346,9 +1343,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
 							PFILE_STREAM_INFORMATION StreamInfo = static_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
 							StreamInfo->StreamNameLength = 0;
-
-							IO_STATUS_BLOCK IoStatusBlock;
-							Result = Global->ifn->NtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
+							Handle->Object.NtQueryInformationFile(Handle->BufferBase, Handle->BufferSize, FileStreamInformation, &Result);
 						}
 					}
 					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
@@ -1367,7 +1362,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 						}
 					}
 
-					CloseHandle(Handle->ObjectHandle);
+					Handle->Object.Close();
 
 					if (Ret==INVALID_HANDLE_VALUE)
 					{

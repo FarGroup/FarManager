@@ -238,9 +238,9 @@ static bool ExcDump(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	else
 	{
 		Msg[0] = L"Exception:";
-		Msg[1] = L"Address:";
-		Msg[2] = L"Function:";
-		Msg[3] = L"Module:";
+		Msg[1] = L"Address:  ";
+		Msg[2] = L"Function: ";
+		Msg[3] = L"Module:   ";
 	}
 
 	string Dump =
@@ -360,7 +360,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	} ECode[]=
 
 	{
-		#define CODEANDTEXT(x) x, L#x
+		#define CODEANDTEXT(x) x, L###x
 		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
 		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
 		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO),MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
@@ -379,7 +379,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	};
 	// EXCEPTION_CONTINUE_EXECUTION  ??????
 	DWORD rc;
-	string strBuf1, strBuf2, strBuf3;
+	string strBuf1, strBuf2;
 	LangString strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
@@ -443,9 +443,18 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				}
 
 				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
-				strBuf = MExcRAccess+Offset;
-				strBuf << strBuf2;
-				Exception=strBuf;
+				if (LanguageLoaded())
+				{
+					strBuf = MExcRAccess+Offset;
+					strBuf << strBuf2;
+				}
+				else
+				{
+					const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
+					strBuf1 = Exception;
+					strBuf1.Append(L" (").Append(AVs[Offset]).Append(strBuf2).Append(L")");
+				}
+				Exception=strBuf1;
 			}
 
 			break;

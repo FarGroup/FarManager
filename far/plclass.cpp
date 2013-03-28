@@ -437,7 +437,7 @@ bool Plugin::SaveToCache()
 		PlCache.SetDescription(id, strDescription);
 		PlCache.SetAuthor(id, strAuthor);
 
-#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) PlCache.SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
+		#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) PlCache.SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
 
 		OPT_SETEXPORT(iOpen);
 		OPT_SETEXPORT(iOpenFilePlugin);
@@ -451,6 +451,8 @@ bool Plugin::SaveToCache()
 		OPT_SETEXPORT(iConfigure);
 		OPT_SETEXPORT(iAnalyse);
 		OPT_SETEXPORT(iGetCustomData);
+
+		#undef OPT_SETEXPORT
 
 		PlCache.EndTransaction();
 
@@ -720,7 +722,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		strDescription = PlCache.GetDescription(id);
 		strAuthor = PlCache.GetAuthor(id);
 
-#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? PlCache.GetExport(id, ExportsNamesW[i]) : nullptr
+		#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? PlCache.GetExport(id, ExportsNamesW[i]) : nullptr
 
 		OPT_GETEXPORT(iOpen);
 		OPT_GETEXPORT(iOpenFilePlugin);
@@ -734,6 +736,9 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		OPT_GETEXPORT(iConfigure);
 		OPT_GETEXPORT(iAnalyse);
 		OPT_GETEXPORT(iGetCustomData);
+
+		#undef OPT_GETEXPORT
+
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
 	}

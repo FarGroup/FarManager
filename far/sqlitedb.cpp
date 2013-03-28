@@ -167,15 +167,7 @@ SQLiteDb::~SQLiteDb()
 
 static bool can_create_file(const string& fname)
 {
-	HANDLE fh = CreateFile(fname.CPtr(),
-		GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-		nullptr, CREATE_ALWAYS, 0, nullptr
-	);
-	if (INVALID_HANDLE_VALUE == fh)
-		return false;
-	CloseHandle(fh);
-	apiDeleteFile(fname);
-	return true;
+	return File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
 bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
@@ -208,8 +200,9 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	{
 		if (db_exists < 0)
 			db_exists = +1;
-
-		if (WAL && !can_create_file(strPath+L"-$test$")) // can't open db -- copy to %TEMP%
+		UUID Id;
+		UuidCreate(&Id);
+		if (WAL && !can_create_file(strPath + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
 			apiGetTempPath(strTmp);
