@@ -1,3 +1,13 @@
+shmuel 28.03.2013 17:51:48 +0200 - build 121
+
+1. LuaFAR: продолжение ломки API.
+
+   far.AdvControl, ACTL_GETWINDOWINFO:
+     * Param1:  window number; 1-based integer (optional; default=0).
+
+   far.AdvControl, ACTL_SETCURRENTWINDOW:
+     * Param1:  window number; 1-based integer.
+
 shmuel 28.03.2013 12:53:29 +0200 - build 120
 
 1. LuaFAR: продолжение ломки API.

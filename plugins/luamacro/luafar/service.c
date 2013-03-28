@@ -3971,7 +3971,7 @@ static int far_AdvControl(lua_State *L)
 			lua_pushlightuserdata(L, CAST(void*, Info->AdvControl(PluginId, Command, 0, NULL)));
 			return 1;
 		case ACTL_SETCURRENTWINDOW:
-			Param1 = luaL_checkinteger(L, 2);
+			Param1 = luaL_checkinteger(L, 2) - 1;
 			break;
 		case ACTL_WAITKEY:
 		{
@@ -4056,7 +4056,7 @@ static int far_AdvControl(lua_State *L)
 			struct WindowInfo wi;
 			memset(&wi, 0, sizeof(wi));
 			wi.StructSize = sizeof(wi);
-			wi.Pos = luaL_optinteger(L, 2, -1);
+			wi.Pos = luaL_optinteger(L, 2, 0) - 1;
 			r = Info->AdvControl(PluginId, Command, 0, &wi);
 
 			if(!r)
@@ -4084,7 +4084,7 @@ static int far_AdvControl(lua_State *L)
 					break;
 			}
 
-			PutIntToTable(L, "Pos", wi.Pos);
+			PutIntToTable(L, "Pos", wi.Pos + 1);
 			PutIntToTable(L, "Type", wi.Type);
 			PutFlagsToTable(L, "Flags", wi.Flags);
 			PutWStrToTable(L, "TypeName", wi.TypeName, -1);
