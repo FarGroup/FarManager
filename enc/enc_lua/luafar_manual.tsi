@@ -5234,7 +5234,7 @@ id=132
 lv=2
 dt=Text
 nm=viewer.GetInfo
-mtime=3507624277
+mtime=3573763083
 <article>
 #_Info = viewer.GetInfo (ViewerID)
 #_
@@ -5252,7 +5252,7 @@ mtime=3507624277
 #_      WindowSizeY:    integer
 #_      Options:        integer
 #_      TabSize:        integer
-#_      LeftPos:        double, 0-based
+#_      LeftPos:        integer, 1-based
 #_      CurMode:        table
 #_
 #_**Far API used:**
@@ -5389,7 +5389,7 @@ id=142
 lv=2
 dt=Text
 nm=viewer.SetPosition
-mtime=3507818286
+mtime=3573762591
 <article>
 #_pos = viewer.SetPosition (ViewerID, PosData)
 #_  or
@@ -5399,8 +5399,8 @@ mtime=3507818286
 #_  ViewerID: integer, or nil
 #_  PosData:  table
 #_    fields of PosData:
-#_      StartPos:  number
-#_      LeftPos:   number
+#_      StartPos:  number, 0-based
+#_      LeftPos:   number, 1-based
 #_      Flags:     flags
 #_
 #_  Parameters of the 2-nd function variant correspond to fields

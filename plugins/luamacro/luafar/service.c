@@ -3434,7 +3434,7 @@ static int viewer_GetInfo(lua_State *L)
 	PutNumToTable(L,  "WindowSizeY", (double) vi.WindowSizeY);
 	PutNumToTable(L,  "Options", (double) vi.Options);
 	PutNumToTable(L,  "TabSize", (double) vi.TabSize);
-	PutNumToTable(L,  "LeftPos", (double) vi.LeftPos);
+	PutNumToTable(L,  "LeftPos", (double) vi.LeftPos + 1);
 	lua_createtable(L, 0, 3);
 	PutNumToTable(L, "CodePage", (double) vi.CurMode.CodePage);
 	PutFlagsToTable(L, "Flags",    vi.CurMode.Flags);
@@ -3482,13 +3482,13 @@ static int viewer_SetPosition(lua_State *L)
 	{
 		lua_settop(L, 2);
 		vsp.StartPos = (__int64)GetOptNumFromTable(L, "StartPos", 0);
-		vsp.LeftPos = (__int64)GetOptNumFromTable(L, "LeftPos", 0);
+		vsp.LeftPos = (__int64)GetOptNumFromTable(L, "LeftPos", 1) - 1;
 		vsp.Flags = CheckFlagsFromTable(L, -1, "Flags");
 	}
 	else
 	{
 		vsp.StartPos = (__int64)luaL_optnumber(L,2,0);
-		vsp.LeftPos = (__int64)luaL_optnumber(L,3,0);
+		vsp.LeftPos = (__int64)luaL_optnumber(L,3,1) - 1;
 		vsp.Flags = CheckFlags(L,4);
 	}
 

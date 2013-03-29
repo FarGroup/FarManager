@@ -1,3 +1,9 @@
+shmuel 29.03.2013 23:51:37 +0200 - build 122
+
+1. LuaFAR: продолжение ломки API.
+   viewer.GetInfo, viewer.SetPosition:
+     * LeftPos: number, 1-based.
+
 shmuel 28.03.2013 17:51:48 +0200 - build 121
 
 1. LuaFAR: продолжение ломки API.
