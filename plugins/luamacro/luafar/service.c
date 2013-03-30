@@ -4060,7 +4060,7 @@ static int far_AdvControl(lua_State *L)
 			r = Info->AdvControl(PluginId, Command, 0, &wi);
 
 			if(!r)
-				return lua_pushinteger(L,0), 1;
+				return lua_pushnil(L), 1;
 
 			wi.TypeName = (wchar_t*)
 			              lua_newuserdata(L, (wi.TypeNameSize + wi.NameSize) * sizeof(wchar_t));
@@ -4068,7 +4068,7 @@ static int far_AdvControl(lua_State *L)
 			r = Info->AdvControl(PluginId, Command, 0, &wi);
 
 			if(!r)
-				return lua_pushinteger(L,0), 1;
+				return lua_pushnil(L), 1;
 
 			lua_createtable(L,0,6);
 

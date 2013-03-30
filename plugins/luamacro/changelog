@@ -1,3 +1,7 @@
+shmuel 31.03.2013 00:36:33 +0200 - build 123
+
+1. LuaFAR: far.AdvControl(ACTL_GETWINDOWINFO) в случае неудачи возвращает nil.
+
 shmuel 29.03.2013 23:51:37 +0200 - build 122
 
 1. LuaFAR: продолжение ломки API.
