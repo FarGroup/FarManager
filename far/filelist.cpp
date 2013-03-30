@@ -4165,8 +4165,7 @@ void FileList::CopyFiles()
 
 	if (PanelMode!=PLUGIN_PANEL || RealNames)
 	{
-		LPWSTR CopyData=nullptr;
-		size_t DataSize=0;
+		string CopyData;
 		string strSelName, strSelShortName;
 		DWORD FileAttr;
 		GetSelName(nullptr,FileAttr);
@@ -4179,40 +4178,20 @@ void FileList::CopyFiles()
 			}
 			if (!CreateFullPathName(strSelName,strSelShortName,FileAttr,strSelName,FALSE))
 			{
-				if (CopyData)
-				{
-					xf_free(CopyData);
-					CopyData=nullptr;
-				}
 				break;
 			}
-			size_t Length=strSelName.GetLength()+1;
-			wchar_t *NewPtr=static_cast<wchar_t *>(xf_realloc(CopyData, (DataSize+Length+1)*sizeof(wchar_t)));
-			if (!NewPtr)
-			{
-				if (CopyData)
-				{
-					xf_free(CopyData);
-					CopyData=nullptr;
-				}
-				break;
-			}
-			CopyData=NewPtr;
-			wcscpy(CopyData+DataSize, strSelName);
-			DataSize+=Length;
-			CopyData[DataSize]=0;
+			CopyData += strSelName;
+			CopyData.Append(L'\0');
 		}
 
-		if(CopyData)
+		if(!CopyData.IsEmpty())
 		{
-			DataSize++;
 			Clipboard clip;
 			if(clip.Open())
 			{
-				clip.CopyHDROP(CopyData, DataSize*sizeof(WCHAR));
+				clip.CopyHDROP(CopyData.CPtr(), (CopyData.GetLength()+1)*sizeof(wchar_t));
 				clip.Close();
 			}
-			xf_free(CopyData);
 		}
 	}
 }
@@ -5186,12 +5165,10 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	strPath = ph->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage);
-
-	if (!HelpFile)
+	File HelpFile;
+	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 
-	fclose(HelpFile);
 	strStartTopic.Format(HelpFormatLink,strPath.CPtr(),L"Contents");
 	Help PanelHelp(strStartTopic);
 	return TRUE;

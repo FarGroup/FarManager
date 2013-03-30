@@ -79,10 +79,10 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 			GetTokenInformation(hToken,TokenPrivileges,nullptr,0,&TokenInformationLength);
 			if (TokenInformationLength)
 			{
-				PTOKEN_PRIVILEGES TokenInformation=static_cast<PTOKEN_PRIVILEGES>(xf_malloc(TokenInformationLength));
+				block_ptr<TOKEN_PRIVILEGES> TokenInformation(TokenInformationLength);
 				if(TokenInformation)
 				{
-					if(GetTokenInformation(hToken,TokenPrivileges,TokenInformation,TokenInformationLength,&TokenInformationLength))
+					if(GetTokenInformation(hToken,TokenPrivileges,TokenInformation.get(),TokenInformationLength,&TokenInformationLength))
 					{
 						for(DWORD i=0;i<TokenInformation->PrivilegeCount;i++)
 						{

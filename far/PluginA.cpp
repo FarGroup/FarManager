@@ -209,26 +209,31 @@ static unsigned char IsUpperOrLower[256];
 
 void LocalUpperInit()
 {
-	for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
+	static bool Inited = false;
+	if (!Inited)
 	{
-		char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
-		LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
-		OemToCharA(CvtStr,CvtStr);
-		CharToOemA(CvtStr,ReverseCvtStr);
-		IsUpperOrLower[I]=0;
-
-		if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==static_cast<char>(I))
+		for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
 		{
-			IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
-			CharUpperA(CvtStr);
-			CharToOemA(CvtStr,CvtStr);
-			LowerToUpper[I]=CvtStr[0];
-			CvtStr[0]=static_cast<char>(I);
+			char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
+			LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
 			OemToCharA(CvtStr,CvtStr);
-			CharLowerA(CvtStr);
-			CharToOemA(CvtStr,CvtStr);
-			UpperToLower[I]=CvtStr[0];
+			CharToOemA(CvtStr,ReverseCvtStr);
+			IsUpperOrLower[I]=0;
+
+			if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==static_cast<char>(I))
+			{
+				IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
+				CharUpperA(CvtStr);
+				CharToOemA(CvtStr,CvtStr);
+				LowerToUpper[I]=CvtStr[0];
+				CvtStr[0]=static_cast<char>(I);
+				OemToCharA(CvtStr,CvtStr);
+				CharLowerA(CvtStr);
+				CharToOemA(CvtStr,CvtStr);
+				UpperToLower[I]=CvtStr[0];
+			}
 		}
+		Inited = true;
 	}
 }
 
@@ -4876,6 +4881,8 @@ PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 	pVFDPanelItemA(nullptr),
 	OEMApiCnt(0)
 {
+	LocalUpperInit();
+
 	ExportsNamesW = _ExportsNamesW;
 	ExportsNamesA = _ExportsNamesA;
 	ClearStruct(PI);

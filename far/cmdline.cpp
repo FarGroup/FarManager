@@ -1205,9 +1205,6 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{
 			InitRecodeOutTable();
-#ifndef NO_WRAPPER
-			wrapper::LocalUpperInit();
-#endif // NO_WRAPPER
 			InitKeysArray();
 			Global->ScrBuf->ResetShadow();
 			Global->ScrBuf->Flush();

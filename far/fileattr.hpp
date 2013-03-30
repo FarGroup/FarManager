@@ -47,4 +47,4 @@ int ESetFileEncryption(const string& Name,bool State,DWORD FileAttr,int SkipMode
 int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileTime(const string& Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,FILETIME *ChangeTime,DWORD FileAttr,int SkipMode=-1);
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode=-1);
-int EDeleteReparsePoint(const string& Name, int SkipMode=-1);
+int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);

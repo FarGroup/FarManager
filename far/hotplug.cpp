@@ -335,11 +335,11 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 					SetupDiGetDeviceInterfaceDetail(Info, &sdid, nullptr, 0, &RequiredSize, nullptr);
 					if(RequiredSize)
 					{
-						PSP_DEVICE_INTERFACE_DETAIL_DATA DData = static_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA>(xf_malloc(RequiredSize));
+						block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
 						if(DData)
 						{
 							DData->cbSize = sizeof(*DData);
-							if(SetupDiGetDeviceInterfaceDetail(Info, &sdid, DData, RequiredSize, nullptr, nullptr))
+							if(SetupDiGetDeviceInterfaceDetail(Info, &sdid, DData.get(), RequiredSize, nullptr, nullptr))
 							{
 								string strMountPoint(DData->DevicePath);
 								AddEndSlash(strMountPoint);
@@ -349,7 +349,6 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 										dwMask |= DriveMaskFromVolumeName(strVolumeName);
 								}
 							}
-							xf_free(DData);
 						}
 					}
 				}

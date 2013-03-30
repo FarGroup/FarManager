@@ -443,12 +443,12 @@ void ConvertNameToUNC(string &strFileName)
 		strFileSystemName.Clear();
 
 	DWORD uniSize = 1024;
-	UNIVERSAL_NAME_INFO *uni=(UNIVERSAL_NAME_INFO*)xf_malloc(uniSize);
+	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
 	if (StrCmpI(strFileSystemName,L"NWFS"))
 	{
-		DWORD dwRet=WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
+		DWORD dwRet=WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
 
 		switch (dwRet)
 		{
@@ -456,9 +456,9 @@ void ConvertNameToUNC(string &strFileName)
 				strFileName = uni->lpUniversalName;
 				break;
 			case ERROR_MORE_DATA:
-				uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
+				uni.reset(uniSize);
 
-				if (WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+				if (WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
 
 				break;
@@ -483,7 +483,6 @@ void ConvertNameToUNC(string &strFileName)
 		}
 	}
 
-	xf_free(uni);
 	ConvertNameToReal(strFileName,strFileName);
 }
 

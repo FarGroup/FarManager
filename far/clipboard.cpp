@@ -288,7 +288,7 @@ bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 	return true;
 }
 
-bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
+bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize)
 {
 	bool Result=false;
 	if (NamesArray && NamesArraySize)

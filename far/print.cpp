@@ -127,17 +127,15 @@ void PrintFiles(Panel *SrcPanel)
 	if (DirsCount==SelCount)
 		return;
 
-	PRINTER_INFO *pi = nullptr;
 
 	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,nullptr,0,&Needed,&Returned) || Needed<=0)
 		return;
 
-	pi = (PRINTER_INFO *)xf_malloc(Needed);
+	block_ptr<PRINTER_INFO> pi(Needed);
 
-	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
+	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,(LPBYTE)pi.get(),Needed,&Needed,&Returned))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
-		xf_free(pi);
 		return;
 	}
 
@@ -167,11 +165,10 @@ void PrintFiles(Panel *SrcPanel)
 		VMenu2 PrinterList(strTitle,nullptr,0,ScrY-4);
 		PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 		PrinterList.SetPosition(-1,-1,0,0);
-		AddToPrintersMenu(&PrinterList,pi,Returned);
+		AddToPrintersMenu(&PrinterList,pi.get(),Returned);
 
 		if (PrinterList.Run()<0)
 		{
-			xf_free(pi);
 			_ALGO(SysLog(L"ESC"));
 			return;
 		}
@@ -185,7 +182,6 @@ void PrintFiles(Panel *SrcPanel)
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
 		        strPrinterName,MSG(MOk));
-		xf_free(pi);
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -276,5 +272,4 @@ void PrintFiles(Panel *SrcPanel)
 	}
 
 	SrcPanel->Redraw();
-	xf_free(pi);
 }

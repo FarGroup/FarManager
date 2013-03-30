@@ -1407,7 +1407,8 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				Items->reserve(Items->size() + 4096);
 			}
 
-			PluginPanelItem Item;
+			Items->emplace_back(VALUE_TYPE(Items)());
+			auto& Item = Items->back();
 			ClearStruct(Item);
 			Item.FileAttributes = FindData.dwFileAttributes;
 			Item.FileSize = FindData.nFileSize;
@@ -1417,7 +1418,6 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			Item.LastWriteTime = FindData.ftLastWriteTime;
 			Item.FileName = DuplicateString(strFullName.CPtr());
 			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName);
-			Items->emplace_back(std::move(Item));
 		}
 
 		*pItemsNumber=Items->size();

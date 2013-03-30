@@ -195,9 +195,9 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	FILE *HelpFile=OpenLangFile(strPath,(!*Mask?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage);
+	File HelpFile;
 
-	if (!HelpFile)
+	if (!OpenLangFile(HelpFile, strPath,(!*Mask?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
 	{
 		ErrorHelp=TRUE;
 
@@ -252,7 +252,6 @@ int Help::ReadHelp(const wchar_t *Mask)
 	if (StackData.strHelpTopic == FoundContents)
 	{
 		Search(HelpFile,nCodePage);
-		fclose(HelpFile);
 		return TRUE;
 	}
 
@@ -271,7 +270,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	int MI=0;
 	string strMacroArea;
 
-	OldGetFileString GetStr(HelpFile);
+	GetFileString GetStr(HelpFile);
 	int nStrLength;
 	size_t SizeKeyName=20;
 
@@ -611,7 +610,6 @@ m1:
 	}
 
 	AddLine(L"");
-	fclose(HelpFile);
 	FixSize=FixCount?FixCount+1:0;
 	ErrorHelp=FALSE;
 
@@ -1803,7 +1801,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
+void Help::Search(File& HelpFile,uintptr_t nCodePage)
 {
 	StrCount=0;
 	FixCount=1;
@@ -1817,7 +1815,7 @@ void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 	AddTitle(strTitleLine);
 
 	bool TopicFound=false;
-	OldGetFileString GetStr(HelpFile);
+	GetFileString GetStr(HelpFile);
 	int nStrLength;
 	wchar_t *ReadStr;
 	string strCurTopic, strEntryName, strReadStr, strLastSearchStrU=strLastSearchStr;
@@ -1914,9 +1912,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = (*i)->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage);
-
-				if (HelpFile)
+				File HelpFile;
+				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
 				{
 					string strEntryName, strHelpLine, strSecondParam;
 
@@ -1929,8 +1926,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 						AddLine(strHelpLine);
 					}
-
-					fclose(HelpFile);
 				}
 			}
 

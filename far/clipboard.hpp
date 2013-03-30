@@ -57,7 +57,7 @@ public:
 	bool Empty();
 	bool Copy(const wchar_t *Data);
 	bool CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-	bool CopyHDROP(LPVOID NamesArray, size_t NamesArraySize);
+	bool CopyHDROP(const void* NamesArray, size_t NamesArraySize);
 	wchar_t *Paste();
 	wchar_t *PasteEx(int max);
 	wchar_t *PasteFormat(FAR_CLIPBOARD_FORMAT Format);

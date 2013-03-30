@@ -1323,7 +1323,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if (!(NewAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 					{
-						if (EDeleteReparsePoint(strSelName, SkipMode)==SETATTR_RET_SKIPALL)
+						if (EDeleteReparsePoint(strSelName, FileAttr, SkipMode)==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
@@ -1480,7 +1480,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 								if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 								{
-									RetCode=EDeleteReparsePoint(strSelName, SkipMode);
+									RetCode=EDeleteReparsePoint(strSelName, FileAttr, SkipMode);
 
 									if (RetCode == SETATTR_RET_ERROR)
 									{
@@ -1633,7 +1633,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 										if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 										{
-											RetCode=EDeleteReparsePoint(strFullName, SkipMode);
+											RetCode=EDeleteReparsePoint(strFullName, FindData.dwFileAttributes, SkipMode);
 		                
 											if (RetCode == SETATTR_RET_ERROR)
 											{

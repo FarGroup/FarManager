@@ -349,8 +349,11 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 	return Ret;
 }
 
-int EDeleteReparsePoint(const string& Name, int SkipMode)
+int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 {
+	if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+		return SETATTR_RET_OK;
+
 	int Ret=SETATTR_RET_OK;
 	while (!DeleteReparsePoint(Name))
 	{

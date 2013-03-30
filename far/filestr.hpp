@@ -33,41 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// BUGBUG, delete!
-class OldGetFileString
-{
-	private:
-		FILE *SrcFile;
-		wchar_t_ptr wReadBuf;
-		char_ptr ReadBuf;
-		int m_nwStrLength;
-		int m_nStrLength;
-		wchar_t *wStr;
-		char *Str;
-		int ReadPos;
-		int ReadSize;
-		bool SomeDataLost;
-		bool bCrCr;
-
-	private:
-		int GetAnsiString(char **DestStr, int &Length);
-		int GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEndian);
-
-	public:
-		OldGetFileString(FILE *SrcFile);
-		~OldGetFileString();
-
-	public:
-		int GetString(wchar_t **DestStr, int nCodePage, int &Length);
-		bool IsConversionValid() { return !SomeDataLost; };
-};
-
-// BUGBUG, delete!
-bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
-wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
-
-//-----------------------------------------------------------------------------
-
 class GetFileString
 {
 	public:

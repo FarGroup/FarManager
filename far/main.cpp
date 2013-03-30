@@ -502,16 +502,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	int StartLine=-1,StartChar=-1;
 	int CntDestName=0; // количество параметров-имен каталогов
 
-#ifdef _MSC_VER
-	/*$ 18.04.2002 SKV
-	  Попользуем floating point что бы проинициализировался vc-ный fprtl.
-	*/
-	{
-		float x=1.1f;
-		wchar_t buf[15];
-		wsprintf(buf,L"%f",x);
-	}
-#endif
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
 	for (int I=1; I<Argc; I++)
@@ -712,11 +702,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->Db = new Database;
 
 	Global->Opt->Load();
-
-	//Настройка OEM сортировки
-#ifndef NO_WRAPPER
-	wrapper::LocalUpperInit();
-#endif // NO_WRAPPER
 
 	//Инициализация массива клавиш.
 	InitKeysArray();

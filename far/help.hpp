@@ -142,7 +142,7 @@ private:
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
-	void Search(FILE *HelpFile,uintptr_t nCodePage);
+	void Search(File& HelpFile,uintptr_t nCodePage);
 	int  JumpTopic(const wchar_t *JumpTopic=nullptr);
 	const HelpRecord* GetHelpItem(int Pos);
 
