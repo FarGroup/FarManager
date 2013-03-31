@@ -2367,7 +2367,7 @@ id=20
 lv=2
 dt=Text
 nm=far.Dialog
-mtime=3512059153
+mtime=3573932450
 <article>
 #_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)
 #_
@@ -2375,7 +2375,7 @@ mtime=3512059153
 #_  Same parameters as in far.DialogInit
 #_
 #_**Returns:**
-#_  result: integer
+#_  result: integer (1-based)
 #_
 #_**Note:**
 #_  The function updates the *Items* array to the values
@@ -2466,7 +2466,7 @@ lv=2
 dt=Text
 nm=far.DialogRun
 ctime=3490426724
-mtime=3490427035
+mtime=3573932440
 <article>
 #_result = far.DialogRun (handle)
 #_
@@ -2474,7 +2474,7 @@ mtime=3490427035
 #_  handle: userdata (obtained from a far.DialogInit call)
 #_
 #_**Returns:**
-#_  result: integer
+#_  result: integer (1-based)
 #_
 #_**Far API used:**
 #_  DialogRun
@@ -2489,13 +2489,13 @@ id=54
 lv=2
 dt=Text
 nm=far.GetDlgItem
-mtime=3492005390
+mtime=3573888158
 <article>
 #_result = far.GetDlgItem (hDlg, numitem [,item])
 #_
 #_**Parameters:**
 #_  hDlg:    userdata
-#_  numitem: integer (0-based)
+#_  numitem: integer (1-based)
 #_  item:    table, or nil
 #_
 #_**Returns:**
@@ -2552,7 +2552,7 @@ id=65
 lv=2
 dt=Text
 nm=far.Message
-mtime=3519542294
+mtime=3573932486
 <article>
 #_result = far.Message (Msg, [Title], [Buttons], [Flags], [HelpTopic], [Id])
 #_
@@ -2582,7 +2582,7 @@ mtime=3519542294
 #_  *Id:*        string (GUID); default=plugin Id
 #_
 #_**Returns:**
-#_  *result:* integer
+#_  *result:* integer (1-based)
 #_
 #_**Note:**
 #_  Before calling FAR function *Message*, the function:
@@ -2601,14 +2601,14 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3557029146
+mtime=3573932564
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
 #_**Parameters:**
 #_  hDlg:   userdata
 #_  Msg:    flags
-#_  Param1: integer
+#_  Param1: integer (1-based where it is element index, 0-based otherwise)
 #_  Param2: *(depends on Msg)*
 #_
 #_**Returns:**
@@ -2808,13 +2808,13 @@ id=72
 lv=2
 dt=Text
 nm=far.SetDlgItem
-mtime=3492005393
+mtime=3573888533
 <article>
 #_result = far.SetDlgItem (hDlg, numitem, item)
 #_
 #_**Parameters:**
 #_  hDlg:    userdata
-#_  numitem: integer (0-based)
+#_  numitem: integer (1-based)
 #_  item:    table
 #_
 #_**Returns:**
@@ -2839,7 +2839,7 @@ lv=1
 dt=Text
 nm=Dialog Events
 ctime=3477040474
-mtime=3517903754
+mtime=3573932638
 <article>
 #_<markdown>
 #_
@@ -2852,7 +2852,8 @@ mtime=3517903754
 #_
 #_### Parameters passed to event handler
 #_
-#_1. `Param1` is integer for all event types (ID of a dialog element).
+#_1. `Param1` is integer for all event types (1-based if it is ID of a dialog element,
+#_   0-based otherwise).
 #_1. For most event types, `Param2` is also integer, in accordance to Far API.
 #_1. For some events, `Param2` is non-integer, see the articles describing those events.
 #_

@@ -1795,9 +1795,10 @@ void LF_Error(lua_State *L, const wchar_t* aMsg)
 // 4-th param: flags
 // 5-th param: help topic
 // 6-th param: Id
-// Return: -1 if escape pressed, else - button number chosen (0 based).
+// Return: -1 if escape pressed, else - button number chosen (1 based).
 static int far_Message(lua_State *L)
 {
+	int ret;
 	const wchar_t *Msg, *Title, *Buttons, *HelpTopic;
 	const char *Flags;
 	const GUID *Id;
@@ -1829,7 +1830,8 @@ static int far_Message(lua_State *L)
 	HelpTopic = opt_utf8_string(L, 5, NULL);
 	Id = (lua_type(L,6)==LUA_TSTRING && lua_objlen(L,6)==sizeof(GUID)) ?
 	     (const GUID*)lua_tostring(L,6) : NULL;
-	lua_pushinteger(L, LF_Message(L, Msg, Title, Buttons, Flags, HelpTopic, Id));
+	ret = LF_Message(L, Msg, Title, Buttons, Flags, HelpTopic, Id);
+	lua_pushinteger(L, ret<0 ? ret : ret+1);
 	return 1;
 }
 
@@ -2657,7 +2659,7 @@ static int far_SendDlgMessage(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t res;
-	intptr_t Msg, Param1, res_incr=0;
+	intptr_t Msg, Param1=0, res_incr=0;
 	void* Param2 = NULL;
 	wchar_t buf[512];
 	//---------------------------------------------------------------------------
@@ -2666,8 +2668,35 @@ static int far_SendDlgMessage(lua_State *L)
 	//---------------------------------------------------------------------------
 	HANDLE hDlg = CheckDialogHandle(L, 1);
 	Msg = CAST(int, check_env_flag(L, 2));
-	Param1 = luaL_optinteger(L, 3, 0);
 	lua_settop(L, 4);
+
+	// Param1
+	switch(Msg)
+	{
+		case DM_CLOSE:
+			Param1 = luaL_optinteger(L,3,-1);
+			if (Param1>0) --Param1;
+			break;
+		case DM_ENABLEREDRAW:
+		case DM_GETDIALOGINFO:
+		case DM_GETDLGDATA:
+		case DM_GETDLGRECT:
+		case DM_GETDROPDOWNOPENED:
+		case DM_GETFOCUS:
+		case DM_KEY:
+		case DM_MOVEDIALOG:
+		case DM_REDRAW:
+		case DM_RESIZEDIALOG:
+		case DM_SETDLGDATA:
+		case DM_SETMOUSEEVENTNOTIFY:
+		case DM_SHOWDIALOG:
+		case DM_USER:
+			Param1 = luaL_optinteger(L,3,0);
+			break;
+		default: // dialog element position
+			Param1 = luaL_optinteger(L,3,1) - 1;
+			break;
+	}
 
 	switch(Msg)
 	{
@@ -3076,7 +3105,27 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
 	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
 	lua_pushinteger(L, Msg);             //+4
-	lua_pushinteger(L, Param1);          //+5
+
+	// Param1
+	switch(Msg)                          //+5
+	{
+		case DN_CLOSE:
+		case DN_CONTROLINPUT:
+			lua_pushinteger(L, Param1<0 ? Param1 : Param1+1);
+			break;
+		case DN_CTLCOLORDIALOG:
+		case DN_DRAGGED:
+		case DN_DRAWDIALOG:
+		case DN_DRAWDIALOGDONE:
+		case DN_ENTERIDLE:
+		case DN_INPUT:
+		case DN_RESIZECONSOLE:
+			lua_pushinteger(L, Param1);
+			break;
+		default: // dialog element position
+			lua_pushinteger(L, Param1+1);
+			break;
+	}
 
 	if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
 	{
@@ -3322,6 +3371,7 @@ static int far_DialogRun(lua_State *L)
 {
 	TDialogData* dd = CheckValidDialog(L, 1);
 	intptr_t result = dd->Info->DialogRun(dd->hDlg);
+	if (result >= 0) ++result;
 
 	if(dd->wasError)
 	{
@@ -3355,7 +3405,7 @@ static int far_GetDlgItem(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE hDlg = CheckDialogHandle(L,1);
-	int numitem = (int)luaL_checkinteger(L,2);
+	int numitem = (int)luaL_checkinteger(L,2) - 1;
 	PushDlgItemNum(L, hDlg, numitem, 3, Info);
 	return 1;
 }
@@ -3364,7 +3414,7 @@ static int far_SetDlgItem(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE hDlg = CheckDialogHandle(L,1);
-	int numitem = (int)luaL_checkinteger(L,2);
+	int numitem = (int)luaL_checkinteger(L,2) - 1;
 	return SetDlgItem(L, hDlg, numitem, 3, Info);
 }
 
@@ -5438,9 +5488,9 @@ const char far_Dialog[] =
 \n\
   local ret = far.DialogRun(hDlg)\n\
   for i, item in ipairs(Items) do\n\
-    local newitem = far.GetDlgItem(hDlg, i-1)\n\
+    local newitem = far.GetDlgItem(hDlg, i)\n\
     if type(item[6]) == 'table' then\n\
-      local pos = far.SendDlgMessage(hDlg, 'DM_LISTGETCURPOS', i-1, 0)\n\
+      local pos = far.SendDlgMessage(hDlg, 'DM_LISTGETCURPOS', i, 0)\n\
       item[6].SelectIndex = pos.SelectPos\n\
     else\n\
       item[6] = newitem[6]\n\
