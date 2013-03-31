@@ -12,7 +12,7 @@ shmuel 31.03.2013 23:36:30 +0200 - build 124
      * 2-nd parameter ('numitem') is 1-based.
 
    far.DialogRun, far.Dialog, far.Message:
-     * Return value: 1-based where it is element index.
+     * Return value: 1-based where it is element index, -1 otherwise.
 
 shmuel 31.03.2013 00:36:33 +0200 - build 123
 
