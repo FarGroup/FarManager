@@ -3,6 +3,90 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.03.2013 13:20:21 +0200 - build 3289
+
+1. Continuation of 3283.2.
+
+2. Refactoring.
+
+svs 29.03.2013 21:21:04 +0400 - build 3288
+
+1. SQLite 3.7.16.1
+
+w17 29.03.2013 01:33:56 +0400 - build 3287
+
+1. "Panel.ShortcutAlwaysChdir" parameter added, it controls RCtrl-0..RCtrl-9 behavior with panels hidden.
+   false - folder name (if defined) appears in the command line ('as before' and by default)
+   true  - always go to a folder bound to a pressed key
+
+drkns 28.03.2013 22:42:42 +0200 - build 3286
+
+1. Continuation of 3285.
+
+2. Refactoring.
+
+drkns 28.03.2013 20:46:57 +0200 - build 3285
+
+1. Correction of SEH exceptions processing. 
+
+drkns 28.03.2013 20:02:12 +0200 - build 3284
+
+1. Correction in search regarding [x] Process alternate data streams.
+
+drkns 28.03.2013 15:58:11 +0400 - build 3283
+
+1. "Break link" button is removed from the symlink deletion confirmation dialog.
+
+2. Links can be broken now via the attributes dialog with "Reparse point" flag uncheck.
+
+svs 28.03.2013 13:58:10 +0400 - build 3282
+
+1. Mantis#0001199: link:[/msg]
+   ...regarding message output when creating hard links
+
+drkns 28.03.2013 09:58:16 +0200 - build 3281
+
+1. vc10.
+
+svs 28.03.2013 11:16:18 +0400 - build 
+
+1. Corrections (a few of) on TREEFILE_PROJECT (Mantis#0000186)
+   without a build because they have no influence on the main code.
+
+2. Corrections in the links help topic.
+   It seems that symlinks have to be explained.
+   (the discussion is here - http://forum.farmanager.com/viewtopic.php?f=4&t=3588 )
+
+drkns 27.03.2013 22:36:11 +0200 - build 3280
+
+1. Folder shortcuts are now read on each request and written immediately after change.
+
+2. Refactoring.
+
+drkns 27.03.2013 00:12:11 +0200 - build 3279
+
+1. Refactoring.
+
+shmuel 27.03.2013 00:02:08 +0200 - build 3278
+
+1. Forum: Editor.Pos(1,1,*) caused screen redraw with missing EnableOutput flag.
+
+drkns 25.03.2013 21:54:56 +0200 - build 3277
+
+1. Another correction for drawing in far /w
+
+2. gcc.
+
+drkns 25.03.2013 15:55:42 +0200 - build 3276
+
+1. Optimization: push_<front|back> => emplace_<front|back>.
+
+2. Correction for drawing in far /w.
+
+drkns 25.03.2013 00:02:58 +0200 - build 3275
+
+1. 0002348: Exception in EditControl/ECTL_SAVEFILE if Param2.FileName = NULL
+
 drkns 24.03.2013 17:19:41 +0200 - build 3274
 
 1. Partial rollback of 3269. Too early.
