@@ -40,10 +40,10 @@ rm -fR colorer
 #rm -fR schemes - will not delete, lots of traffic and slow, will just pull updates
 
 ( \
-	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/far3colorer farcolorer && \
-	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/shared colorer/src/shared && \
-	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/zlib colorer/src/zlib && \
-	svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/schemes schemes \
+	svn co http://svn.code.sf.net/p/colorer/svn/trunk/far3colorer farcolorer && \
+	svn co http://svn.code.sf.net/p/colorer/svn/trunk/colorer/src/shared colorer/src/shared && \
+	svn co http://svn.code.sf.net/p/colorer/svn/trunk/colorer/src/zlib colorer/src/zlib && \
+	svn co http://svn.code.sf.net/p/colorer/svn/trunk/schemes schemes \
 ) || exit 1
 
 cd schemes || exit 1
