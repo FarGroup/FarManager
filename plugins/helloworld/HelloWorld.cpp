@@ -4,6 +4,7 @@
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
+#include "HelloWorld.hpp"
 
 
 #if defined(__GNUC__)
