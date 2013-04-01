@@ -1172,6 +1172,8 @@ int Manager::ProcessKey(DWORD Key)
 					{
 						DeactivateFrame(CurrentFrame,(Key==KEY_CTRLTAB||Key==KEY_RCTRLTAB)?1:-1);
 					}
+					else
+						break;
 
 					_MANAGER(SysLog(-1));
 					return TRUE;
