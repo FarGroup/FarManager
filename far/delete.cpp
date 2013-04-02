@@ -420,7 +420,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
 			else
 			{
-				if (Global->Opt->DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+				if (Global->Opt->DeleteToRecycleBin)
 					DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
 				else
 					DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
@@ -433,7 +433,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				DelMsg=MSG(MAskWipe);
 				TitleMsg=MSG(MDeleteWipeTitle);
 			}
-			else if (Global->Opt->DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+			else if (Global->Opt->DeleteToRecycleBin)
 				DelMsg=MSG(MAskDeleteRecycle);
 			else
 				DelMsg=MSG(MAskDelete);
