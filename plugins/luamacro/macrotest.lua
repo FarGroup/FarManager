@@ -201,6 +201,12 @@ assert(mf.mload("macrotest", "testkey")=="foo")
 mf.mdelete("macrotest", "*")
 assert(mf.mload("macrotest", "testkey")==nil)
 
+mf.msave("macrotest", "testkey", { a=5, {b=6}, c={d=7} })
+local t=mf.mload("macrotest", "testkey")
+assert(t.a==5 and t[1].b==6 and t.c.d==7)
+mf.mdelete("macrotest", "*")
+assert(mf.mload("macrotest", "testkey")==nil)
+
 assert(mf.mod(11,4)==3)
 
 assert(mf.replace("Foo Бар", "o", "1")=="F11 Бар")

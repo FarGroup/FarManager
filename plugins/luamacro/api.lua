@@ -429,15 +429,14 @@ local function int64Serialize (o)
   end
 end
 
-local function serialize (o)
-  local s = basicSerialize(o) or int64Serialize(o)
-  if s then return "return "..s end
-  if type(o) == "table" then
-    local t = { "return {" }
+local function tableSerialize (o, processed)
+  if type(o) == "table" and not processed[o] then
+    processed[o]=true
+    local t = { "{" }
     for k,v in pairs(o) do
       local k2 = basicSerialize(k)
       if k2 then
-        local v2 = basicSerialize(v) or int64Serialize(v)
+        local v2 = basicSerialize(v) or int64Serialize(v) or tableSerialize(v,processed)
         if v2 then
           t[#t+1] = string.format("  [%s] = %s,", k2, v2)
         end
@@ -446,6 +445,11 @@ local function serialize (o)
     t[#t+1] = "}\n"
     return table.concat(t, "\n")
   end
+end
+
+local function serialize (o)
+  local s = basicSerialize(o) or int64Serialize(o) or tableSerialize(o,{})
+  if s then return "return "..s end
 end
 
 function mf.mdelete (key, name)
