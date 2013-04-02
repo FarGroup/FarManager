@@ -2854,7 +2854,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (tmpVar.isString())
 							NewStr = tmpVar.toString();
-						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1))
+						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, tmpAction.toInteger()))
 						{
 							tmpVar=NewStr.CPtr();
 							success=true;
