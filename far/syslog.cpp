@@ -464,7 +464,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 			}
 
 			line[i]=0;
-			fwprintf(fp,L"%s\n",line);
+			fwprintf(fp,L"%s\n",line.get());
 		}
 
 		fwprintf(fp,L"\n");
@@ -670,7 +670,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.CPtr(), Name.CPtr());
 			}
 			else
-				fwprintf(fp,L"\tModalStack Item nullptr\n",i);
+				fwprintf(fp,L"\tModalStack Item nullptr\n");
 		});
 
 		fwprintf(fp,L"**** Detail... ***\n");

@@ -1,82 +1,42 @@
 #pragma once
 /*
-  Copyright © 2000 Konstantin Stupnik
-  Copyright © 2008 Far Group
-  All rights reserved.
+RegExp.hpp
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-  1. Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-  3. The name of the authors may not be used to endorse or promote products
-     derived from this software without specific prior written permission.
+Regular expressions
+Syntax and semantics are very close to perl
+*/
+/*
+Copyright © 2000 Konstantin Stupnik
+Copyright © 2008 Far Group
+All rights reserved.
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
 
-  Regular expressions support library.
-  Syntax and semantics of regexps very close to
-  syntax and semantics of perl regexps.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef REGEXP_HPP
-#define REGEXP_HPP
-
-#define RE_FAR_MODE
-
-#ifndef __cplusplus
-#error "RegExp.hpp is for C++ only"
-#endif
-
-#ifndef RE_STATIC_LOCALE
-#define RE_STATIC_LOCALE
-#endif
-
-//#if defined(NAMEDBRACKETS) || defined(RELIB)
-//#include "Hash.hpp"
-//#ifdef RELIB
-//#include "List.hpp"
-//#endif
-//#endif
-
-#if defined(UNICODE) && !defined(RE_FAR_MODE)
-#ifdef __GNUC__
-#include <wctype.h>
-#else
-#include <wchar.h>
-#endif
-#endif
-
-#ifdef UNICODE
-#ifndef __LINUX
-#define rechar wchar_t
-#define prechar wchar_t*
-#define RECHAR wchar_t
-#else
-#define rechar unsigned short
-#define prechar unsigned short*
-#define RECHAR unsigned short
-#endif
-#else
-//! Used to avoid problems when mapping string chars
-#define rechar unsigned char
-//! Used to avoid problems when mapping string chars
-#define prechar unsigned char*
-#define RECHAR char
-#endif
-#define RE_CHAR_COUNT (1<<sizeof(rechar)*8)
+enum
+{
+	RE_CHAR_COUNT = 1<<sizeof(wchar_t)*8,
+};
 
 //! Possible compile and runtime errors returned by LastError.
 enum REError
@@ -89,7 +49,7 @@ enum REError
 	errSyntax,
 	//! Unbalanced brackets
 	errBrackets,
-	//! Max recursive brackets level reached. Controled in compile time
+	//! Max recursive brackets level reached. Controlled in compile time
 	errMaxDepth,
 	//! Invalid options combination
 	errOptions,
@@ -99,7 +59,7 @@ enum REError
 	errInvalidEscape,
 	//! Invalid range value
 	errInvalidRange,
-	//! Quantifier applyed to invalid object. f.e. lookahed assertion
+	//! Quantifier applied to invalid object. f.e. lookahead assertion
 	errInvalidQuantifiersCombination,
 	//! Size of match array isn't large enough.
 	errNotEnoughMatches,
@@ -116,136 +76,89 @@ struct REOpCode;
 //! Used internally
 typedef REOpCode *PREOpCode;
 
-//! Max brackets depth can be redefined in compile time
-#ifndef MAXDEPTH
-static const int MAXDEPTH=256;
-#endif
+//! Max brackets depth
+enum
+{
+	MAXDEPTH=256,
+};
 
 /**
   \defgroup options Regular expression compile time options
 */
-/*@{*/
-//! Match in a case insensitive manner
-static const int OP_IGNORECASE   =0x0001;
-//! Single line mode, dot meta-character will match newline symbol
-static const int OP_SINGLELINE   =0x0002;
-//! MultiLine mode, ^ and $ can match line start and line end
-static const int OP_MULTILINE    =0x0004;
-//! Extended syntax, spaces symbols are ignored unless escaped
-static const int OP_XTENDEDSYNTAX=0x0008;
-//! Perl style RegExp provided. i.e. /expression/imsx
-static const int OP_PERLSTYLE    =0x0010;
-//! Optimize after compile
-static const int OP_OPTIMIZE     =0x0020;
-//! Strict escapes - only unrecognized escape will produce errInvalidEscape error
-static const int OP_STRICT       =0x0040;
-//! Replace backslash with slash, used
-//! when RegExp source embedded in c++ sources
-static const int OP_CPPMODE      =0x0080;
-/*@}*/
+enum
+{
+	//! Match in a case insensitive manner
+	OP_IGNORECASE   =0x0001,
+	//! Single line mode, dot meta-character will match newline symbol
+	OP_SINGLELINE   =0x0002,
+	//! MultiLine mode, ^ and $ can match line start and line end
+	OP_MULTILINE    =0x0004,
+	//! Extended syntax, spaces symbols are ignored unless escaped
+	OP_XTENDEDSYNTAX=0x0008,
+	//! Perl style RegExp provided. i.e. /expression/imsx
+	OP_PERLSTYLE    =0x0010,
+	//! Optimize after compile
+	OP_OPTIMIZE     =0x0020,
+	//! Strict escapes - only unrecognized escape will produce errInvalidEscape error
+	OP_STRICT       =0x0040,
+	//! Replace backslash with slash, used
+	//! when RegExp source embedded in c++ sources
+	OP_CPPMODE      =0x0080,
+};
+
 
 
 /**
  \defgroup localebits Locale Info bits
 
 */
-/*@{*/
-//! Digits
-static const int TYPE_DIGITCHAR  =0x01;
-//! space, newlines tab etc
-static const int TYPE_SPACECHAR  =0x02;
-//! alphanumeric and _
-static const int TYPE_WORDCHAR   =0x04;
-//! lo-case symbol
-static const int TYPE_LOWCASE    =0x08;
-//! up-case symbol
-static const int TYPE_UPCASE     =0x10;
-//! letter
-static const int TYPE_ALPHACHAR  =0x20;
-/*@}*/
+enum
+{
+	//! Digits
+	TYPE_DIGITCHAR  =0x01,
+	//! space, newlines tab etc
+	TYPE_SPACECHAR  =0x02,
+	//! alphanumeric and _
+	TYPE_WORDCHAR   =0x04,
+	//! lo-case symbol
+	TYPE_LOWCASE    =0x08,
+	//! up-case symbol
+	TYPE_UPCASE     =0x10,
+	//! letter
+	TYPE_ALPHACHAR  =0x20,
+};
 
 /**
   \defgroup brhactions Bracket handler actions
 
 */
-/*@{*/
-//! Matched Closing bracket
-static const int bhMatch=1;
-//! Bracket rollback
-static const int bhRollBack=2;
+enum
+{
+	//! Matched Closing bracket
+	bhMatch=1,
+	//! Bracket rollback
+	bhRollBack=2,
+};
 
 //! default preallocated stack size, and stack page size
-#ifndef STACK_PAGE_SIZE
-static const int STACK_PAGE_SIZE=16;
-#endif
+enum
+{
+	STACK_PAGE_SIZE=16,
+};
 
-#ifdef RE_STATIC_LOCALE
-#define LOCALEDEF static
-#else
-#define LOCALEDEF
-#endif
-
-#ifdef RE_FAR_MODE
-#include "plugin.hpp"
 typedef struct RegExpMatch SMatch,*PMatch;
-#else
-//! Structure that contain single bracket info
-typedef struct tag_Match
-{
-	int start,end;
-} SMatch,*PMatch;
-#endif
-
-//! Add named brackets and named backrefs
-#ifdef NAMEDBRACKETS
-using namespace smsc::core::buffers;
-//! Hash table with match info
-typedef Hash<SMatch> MatchHash;
-//! Pointer to hash MatchHash - passed to Match and Search methods
-typedef MatchHash *PMatchHash;
-#endif
-
-//! Highly experimental feature
-#ifdef RELIB
-class RegExp;
-typedef Hash<RegExp*> RELib;
-typedef RELib *PRELib;
-class MatchList;
-struct SMatchListItem
-{
-	int start,end;
-	prechar name;
-	MatchList *sublist;
-};
-class MatchList:public List<SMatchListItem>
-{
-	public:
-		MatchList *parent;
-};
-typedef MatchList *PMatchList;
-
-struct SCallStackItem
-{
-	prechar name;
-	int strpos;
-};
-typedef List<SCallStackItem> CallStack;
-#endif
 
 //! Used internally
 typedef struct StateStackItem
 {
 	int op;
 	REOpCode* pos;
-	const prechar savestr;
-	const prechar startstr;
+	const wchar_t* savestr;
+	const wchar_t* startstr;
 	int min;
 	int cnt;
 	int max;
 	int forward;
-#ifdef RE_NO_NEWARRAY
-	static void OnCreate(void *ptr);
-#endif
 }*PStateStackItem;
 
 //! Used internally
@@ -256,9 +169,7 @@ typedef struct StateStackPage
 	StateStackPage* next;
 }*PStateStackPage;
 
-#ifdef UNICODE
 struct UniSet;
-#endif
 
 /*! Regular expressions support class.
 
@@ -271,7 +182,7 @@ class RegExp
 		// code
 		PREOpCode code;
 #ifdef RE_DEBUG
-		prechar resrc;
+		wchar_t* resrc;
 #endif
 
 		StateStackItem initstack[STACK_PAGE_SIZE];
@@ -280,42 +191,13 @@ class RegExp
 // current stack page and upper stack element
 		PStateStackItem stack,st;
 		int stackcount;
-#ifdef RELIB
-		int stackusage;
-		int reclevel;
-#endif
-
 		char slashChar;
 		char backslashChar;
 
 		PStateStackPage firstpage;
 		PStateStackPage lastpage;
 
-#ifndef UNICODE
-		// locale info
-#ifdef RE_EXTERNAL_CTYPE
-		LOCALEDEF prechar lc;
-		LOCALEDEF prechar uc;
-		LOCALEDEF prechar chartypes;
-		LOCALEDEF rechar charbits[256];
-#else
-		LOCALEDEF int ilc[256/sizeof(int)];
-		LOCALEDEF int iuc[256/sizeof(int)];
-		LOCALEDEF int ichartypes[256/sizeof(int)];
-		LOCALEDEF int icharbits[256/sizeof(int)];
-
-		LOCALEDEF rechar *lc;
-		LOCALEDEF rechar *uc;
-		LOCALEDEF rechar *chartypes;
-		LOCALEDEF rechar *charbits;
-#endif
-#endif
-
-#ifdef UNICODE
 		UniSet *firstptr;
-#else
-		rechar first[256];
-#endif
 		int havefirst;
 		int havelookahead;
 
@@ -330,46 +212,27 @@ class RegExp
 
 		int bracketscount;
 		int maxbackref;
-#ifdef NAMEDBRACKETS
-		int havenamedbrackets;
-#endif
 
-		const prechar start;
-		const prechar end;
-		const prechar trimend;
+		const wchar_t* start;
+		const wchar_t* end;
+		const wchar_t* trimend;
 
-#ifdef RELIB
-		PRELib relib;
-		PMatchList matchlist;
-#endif
+		int CalcLength(const wchar_t* src,int srclength);
+		int InnerCompile(const wchar_t* src,int srclength,int options);
 
-#ifdef RE_NO_NEWARRAY
-		typedef void (*ON_CREATE_FUNC)(void *Item);
-		typedef void (*ON_DELETE_FUNC)(void *Item);
-		static void *CreateArray(const unsigned int size, const unsigned int total,
-		                         ON_CREATE_FUNC Create);
-		static void DeleteArray(void **array, ON_DELETE_FUNC Delete);
-#endif
-		int CalcLength(const prechar src,int srclength);
-		int InnerCompile(const prechar src,int srclength,int options);
+		int InnerMatch(const wchar_t* str,const wchar_t* end,PMatch match,intptr_t& matchcount);
 
-		int InnerMatch(const prechar str,const prechar end,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		               ,PMatchHash hmatch
-#endif
-		              );
-
-		void TrimTail(const prechar& end);
+		void TrimTail(const wchar_t*& end);
 
 		int SetError(int _code,int pos) {errorcode=_code; errorpos=pos; return 0;}
 
-		int GetNum(const prechar src,int& i);
+		int GetNum(const wchar_t* src,int& i);
 
-		static inline void SetBit(prechar bitset,int charindex)
+		static inline void SetBit(wchar_t* bitset,int charindex)
 		{
 			bitset[charindex>>3]|=1<<(charindex&7);
 		}
-		static inline int GetBit(prechar bitset,int charindex)
+		static inline int GetBit(wchar_t* bitset,int charindex)
 		{
 			return bitset[charindex>>3]&(1<<(charindex&7));
 		}
@@ -380,9 +243,9 @@ class RegExp
 		int PopState();
 
 
-		int StrCmp(const prechar& str,const prechar start,const prechar end);
+		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end);
 
-		void Init(const prechar,int options);
+		void Init(const wchar_t*,int options);
 		//RegExp(const RegExp& re) {};
 
 	public:
@@ -399,34 +262,8 @@ class RegExp
 		   Compilation status can be verified with LastError method.
 		   \sa LastError
 		*/
-		RegExp(const RECHAR* expr,int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		RegExp(const wchar_t* expr,int options=OP_PERLSTYLE|OP_OPTIMIZE);
 		virtual ~RegExp();
-
-#ifndef UNICODE
-		/*! Set locale specific information
-		    \param newlc - table that convert any symbol to it's lowercase state if possible, or left unchanged
-		    \param newuc - table that convert any symbol to it's uppercase state if possible, or left unchanged
-		    \param newchartypes - table with locale info bits.
-
-		    all tables have 256 elements
-		    \sa localebits
-		*/
-#ifndef RE_EXTERNAL_CTYPE
-		LOCALEDEF void InitLocale();
-#else
-		LOCALEDEF void InitLocale() {}
-#endif
-		LOCALEDEF void SetLocaleInfo(prechar newlc,prechar newuc,prechar newchartypes);
-#else // ifdef UNICODE
-		LOCALEDEF void InitLocale() {}
-#endif
-
-#ifdef RELIB
-		void SetRELib(PRELib newlib) {relib=newlib;}
-		void SetMatchList(PMatchList newlist) {matchlist=newlist;}
-		void ResetRecursion() {reclevel=0; stackusage=0;}
-		CallStack cs;
-#endif
 
 		/*! Compile regular expression
 		    Generate internall op-codes of expression.
@@ -443,7 +280,7 @@ class RegExp
 		    \sa ErrorPosition
 		    \sa options
 		*/
-		int Compile(const RECHAR* src,int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		int Compile(const wchar_t* src,int options=OP_PERLSTYLE|OP_OPTIMIZE);
 
 		/*! Try to optimize regular expression
 		    Significally speedup Search mode in some cases.
@@ -457,56 +294,31 @@ class RegExp
 		    \param match - array of SMatch structures that receive brackets positions.
 		    \param matchcount - in/out parameter that indicate number of items in
 		    match array on input, and number of brackets on output.
-		    \param hmatch - storage of named brackets if NAMEDBRACKETS feature enabled.
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		          ,PMatchHash hmatch=nullptr
-#endif
-		         );
+		int Match(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
 		    textend calculated automatically.
 		*/
-		int Match(const RECHAR* textstart,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		          ,PMatchHash hmatch=nullptr
-#endif
-		         );
+		int Match(const wchar_t* textstart,PMatch match,intptr_t& matchcount);
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		            ,PMatchHash hmatch=nullptr
-#endif
-		           );
+		int MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		           ,PMatchHash hmatch=nullptr
-#endif
-		          );
+		int Search(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
 		    textend calculated automatically.
 		*/
-		int Search(const RECHAR* textstart,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		           ,PMatchHash hmatch=nullptr
-#endif
-		          );
+		int Search(const wchar_t* textstart,PMatch match,intptr_t& matchcount);
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
-#ifdef NAMEDBRACKETS
-		             ,PMatchHash hmatch=nullptr
-#endif
-		            );
+		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
 
 		/*! Clean regexp execution stack.
 		    After match large string with complex regexp, significant
@@ -541,10 +353,3 @@ class RegExp
 		BracketHandler brhandler;
 		void* brhdata;
 };
-
-#ifdef RELIB
-int RELibMatch(RELib& relib,MatchList& ml,const RECHAR* name,const RECHAR* start);
-int RELibMatch(RELib& relib,MatchList& ml,const RECHAR* name,const RECHAR* start,const RECHAR* end);
-#endif
-
-#endif

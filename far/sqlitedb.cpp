@@ -204,11 +204,9 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 		UuidCreate(&Id);
 		if (WAL && !can_create_file(strPath + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
-			string strTmp;
+			FormatString strTmp;
 			apiGetTempPath(strTmp);
-			wchar_t sPid[20];
-			wsprintf(sPid, L"%u-", GetCurrentProcessId());
-			strTmp += sPid; strTmp += DbFile;
+			strTmp << GetCurrentProcessId() << L'-' << DbFile;
 			ok = copied = FALSE != apiCopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
 			apiSetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)

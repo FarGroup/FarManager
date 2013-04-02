@@ -41,9 +41,9 @@ Privilege::Privilege(LPCWSTR PrivilegeName):hToken(INVALID_HANDLE_VALUE),Changed
 	if (PrivilegeName && OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
 	{
 		TOKEN_PRIVILEGES NewState={1};
-		if (LookupPrivilegeValue(nullptr,PrivilegeName,&NewState.Privileges->Luid))
+		if (LookupPrivilegeValue(nullptr,PrivilegeName,&NewState.Privileges[0].Luid))
 		{
-			NewState.Privileges->Attributes=SE_PRIVILEGE_ENABLED;
+			NewState.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;
 			DWORD ReturnLength=sizeof(SavedState);
 			if (AdjustTokenPrivileges(hToken,FALSE,&NewState,sizeof(NewState),&SavedState,&ReturnLength) && GetLastError()==ERROR_SUCCESS)
 			{
@@ -70,7 +70,7 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 {
 	bool Result=false;
 	TOKEN_PRIVILEGES State={1};
-	if (LookupPrivilegeValue(nullptr,PrivilegeName,&State.Privileges->Luid))
+	if (LookupPrivilegeValue(nullptr,PrivilegeName,&State.Privileges[0].Luid))
 	{
 		HANDLE hToken=INVALID_HANDLE_VALUE;
 		if (OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&hToken))
@@ -86,7 +86,7 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 					{
 						for(DWORD i=0;i<TokenInformation->PrivilegeCount;i++)
 						{
-							if (TokenInformation->Privileges[i].Luid.LowPart==State.Privileges->Luid.LowPart && TokenInformation->Privileges[i].Luid.HighPart==State.Privileges->Luid.HighPart)
+							if (TokenInformation->Privileges[i].Luid.LowPart==State.Privileges[0].Luid.LowPart && TokenInformation->Privileges[i].Luid.HighPart==State.Privileges[0].Luid.HighPart)
 							{
 								Result = (TokenInformation->Privileges[i].Attributes&(SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT)) != 0;
 								break;

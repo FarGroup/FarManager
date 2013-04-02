@@ -405,24 +405,23 @@ void PrintMemory()
 #ifdef _DEBUG
 	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree || global::AllocatedMemoryBlocks || global::AllocatedMemorySize)
 	{
-		wprintf(L"Memory leaks detected:\n");
+		std::wcout << L"Memory leaks detected:" << std::endl;
 		if (global::CallNewDeleteVector)
-			wprintf(L"  delete[]:   %d\n", global::CallNewDeleteVector);
+			std::wcout << L"  delete[]:   " << global::CallNewDeleteVector << std::endl;
 		if (global::CallNewDeleteScalar)
-			wprintf(L"  delete:     %d\n", global::CallNewDeleteScalar);
+			std::wcout << L"  delete:     " << global::CallNewDeleteScalar << std::endl;
 		if (global::CallMallocFree)
-			wprintf(L"  free():     %d\n", global::CallMallocFree);
+			std::wcout << L"  free():     " << global::CallMallocFree << std::endl;
 		if (global::AllocatedMemoryBlocks)
-			wprintf(L"Total blocks: %u\n", global::AllocatedMemoryBlocks);
+			std::wcout << L"Total blocks: " << global::AllocatedMemoryBlocks << std::endl;
 		if (global::AllocatedMemorySize)
-			wprintf(L"Total bytes:  %u payload, %u overhead\n", global::AllocatedMemorySize - global::AllocatedMemoryBlocks * sizeof(MEMINFO), global::AllocatedMemoryBlocks * sizeof(MEMINFO));
-		wprintf(L"\n");
+			std::wcout << L"Total bytes:  " << global::AllocatedMemorySize - global::AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << global::AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
+		std::wcout << std::endl;
 
-
-		printf("Not freed blocks:\n");
+		std::wcout << "Not freed blocks:" << std::endl;
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			printf("%s:%u -> %s: %s (%u bytes)\n", i->File, i->Line, i->Function, getAllocationTypeString(i->AllocationType), i->Size - sizeof(MEMINFO));
+			std::wcout << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
 		}
 	}
 #endif

@@ -781,12 +781,12 @@ int mainEH(int Argc, wchar_t *Argv[])
 	}
 	catch(std::exception& e)
 	{
-		printf("caught exception %s\n", e.what());
+		std::wcout << L"Caught exception " << e.what() << std::endl;
 		throw;
 	}
 	catch(...)
 	{
-		printf("caught unknown exception\n");
+		std::wcout << L"Caught unknown exception" << std::endl;
 		throw;
 	}
 }

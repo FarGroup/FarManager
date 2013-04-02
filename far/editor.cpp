@@ -155,8 +155,7 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	}
 
 	UndoData.clear();
-	UndoSavePos=UndoData.end();
-	UndoPos=UndoData.end();
+	UndoSavePos = UndoPos = UndoData.end();
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
 	TopList=EndList=CurLine=nullptr;

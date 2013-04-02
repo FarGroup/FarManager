@@ -794,16 +794,6 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 	Global->ScrBuf->ApplyColor(X1, Y1, X2, Y2, Color, true);
 }
 
-void vmprintf(const WCHAR *fmt,...)
-{
-	va_list argptr;
-	va_start(argptr,fmt);
-	WCHAR OutStr[2048];
-	_vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
-	VText(OutStr);
-	va_end(argptr);
-}
-
 void SetColor(int Color)
 {
 	CurColor=ColorIndexToColor((PaletteColors)Color);

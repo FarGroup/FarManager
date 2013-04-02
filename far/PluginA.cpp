@@ -3654,7 +3654,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,cons
 		*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
 
 		*pItemsNumber = static_cast<int>(ItemsNumber);
-		(*pPanelItem)->Reserved[0] = *pItemsNumber;
+		(*pPanelItem)[0].Reserved[0] = *pItemsNumber;
 		++*pPanelItem;
 
 		for (size_t i=0; i<ItemsNumber; i++)
@@ -4302,7 +4302,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 			if (Param)
 			{
 				oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
-				if (oldsf->FileName)
+				if (*oldsf->FileName)
 					newsf.FileName = AnsiToUnicode(oldsf->FileName);
 				if (oldsf->FileEOL)
 					newsf.FileEOL = AnsiToUnicode(oldsf->FileEOL);
@@ -4577,12 +4577,11 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 			Command = bStack ? ECTL_GETSESSIONBOOKMARKS : ECTL_GETBOOKMARKS;
 			intptr_t size = NativeInfo.EditorControl(-1,Command,0,nullptr);
 			if (!size) return FALSE;
-			auto newbm = new EditorBookmarks[size];
+			block_ptr<EditorBookmarks> newbm(size);
 			newbm->StructSize = sizeof(*newbm);
 			newbm->Size = size;
-			if (!NativeInfo.EditorControl(-1,Command,0,newbm))
+			if (!NativeInfo.EditorControl(-1,Command,0,newbm.get()))
 			{
-				delete[] newbm;
 				return FALSE;
 			}
 			oldfar::EditorBookMarks *oldbm = (oldfar::EditorBookMarks *)Param;
@@ -4598,7 +4597,6 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 					oldbm->LeftPos[i] = newbm->LeftPos[i];
 			}
 			int count = (int)newbm->Count;
-			delete[] newbm;
 			if (bStack) return count;
 			else return TRUE;
 		}

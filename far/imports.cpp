@@ -36,15 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imports.hpp"
 
-template<typename T>
-inline void InitImport(HMODULE Module, T& Address, const char * ProcName)
-{
-	Address = reinterpret_cast<T>(GetProcAddress(Module, ProcName));
-}
-
 ImportedFunctions::ImportedFunctions()
 {
-	ClearStructUnsafe(*this);
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
@@ -52,7 +45,7 @@ ImportedFunctions::ImportedFunctions()
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
 
-	#define InitImport(Module, Name) InitImport(Module, pfn##Name, #Name)
+	#define InitImport(Module, Name) pfn##Name = GetProcAddress(Module, #Name)
 
 	if (hKernel)
 	{

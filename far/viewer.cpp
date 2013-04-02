@@ -2073,8 +2073,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
-		wchar_t tt[10];
-		int cp_len = wsprintf(tt, L"%u", VM.CodePage);
+		int cp_len = static_cast<int>((FormatString() << VM.CodePage).GetLength());
 		//                           ViewMode     CopdePage             Goto
 		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
 		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};

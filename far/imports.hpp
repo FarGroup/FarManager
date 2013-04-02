@@ -38,13 +38,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ImportedFunctions
 {
+	template<typename T>
+	class function_pointer
+	{
+	public:
+		function_pointer():pointer(nullptr) {}
+		function_pointer& operator=(FARPROC value) {pointer = reinterpret_cast<T>(value); return *this;}
+		operator T() const {return pointer;}
+		typedef T value_type;
+
+	private:
+		T pointer;
+	};
+
 public:
 	ImportedFunctions();
 	~ImportedFunctions();
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
 private: typedef RETTYPE (CALLTYPE *tfn##NAME)ARGS;\
-private: tfn##NAME pfn##NAME;\
+private: function_pointer<tfn##NAME> pfn##NAME;\
 public: RETTYPE NAME ARGS const;\
 public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 

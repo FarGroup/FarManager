@@ -327,7 +327,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 
 	if ((Flags & MSG_ERRORTYPE) && ErrorSets)
 	{
-		strClipText.Append(strErrStr).Append(L"\r\n");
+		strClipText += strErrStr + L"\r\n";
 
 		// подсчет количества строк во врапенном сообщениеи
 		++CountErrorLine;
@@ -406,14 +406,14 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	{
 		strClipText.Append(Items[i]).Append(L"\r\n");
 	}
-	strClipText.Append(L"\r\n");
+	strClipText += L"\r\n";
 	for (size_t i = ItemsNumber-Buttons; i < ItemsNumber; ++i)
 	{
 		if(i > ItemsNumber-Buttons)
 		{
-			strClipText.Append(L' ');
+			strClipText += L' ';
 		}
-		strClipText.Append(Items[i]);
+		strClipText += Items[i];
 	}
 
 	StrCount+=CountErrorLine;
