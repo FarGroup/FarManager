@@ -1,3 +1,20 @@
+svs 02.04.2013 12:45:12 +0400 - build 3293
+
+1. Mantis#0002355: Требуются гуиды
+
+    ScreensSwitchId        = {72EB948A-5F1D-4481-9A91-A4BFD869D127} --> Menu.Id
+    SelectSortModeId       = {B8B6E1DA-4221-47d2-AB2E-9EC67D0DC1E3} --> Menu.Id
+    HistoryCmdId           = {880968A6-6258-43e0-9BDC-F2B8678EC278} --> Menu.Id
+    HistoryFolderId        = {FC3384A8-6608-4c9b-8D6B-EE105F4C5A54} --> Menu.Id
+    HistoryEditViewId      = {E770E044-23A8-4f4d-B268-0E602B98CCF9} --> Menu.Id
+    PanelViewModesId       = {B56D5C08-0336-418b-A2A7-CF0C80F93ACC} --> Menu.Id
+    PanelViewModesEditId   = {98B75500-4A97-4299-BFAD-C3E349BF3674} --> Dlg.Id
+    CodePagesMenuId        = {78A4A4E3-C2F0-40bd-9AA7-EAAC11836631} --> Menu.Id
+    EditorReplaceId        = {8BCCDFFD-3B34-49f8-87CD-F4D885B75873} --> Dlg.Id
+    EditorSearchId         = {5D3CBA90-F32D-433c-B016-9BB4AF96FACC} --> Dlg.Id
+    HelpSearchId           = {F63B558F-9185-46ba-8701-D143B8F62658} --> Dlg.Id
+    FiltersMenuId          = {5B87B32E-494A-4982-AF55-DAFFCD251383} --> Menu.Id
+
 shmuel 02.04.2013 11:30:36 +0200 - build 3292
 
 1. M#2356: Menu.FilterStr(0) не работает.

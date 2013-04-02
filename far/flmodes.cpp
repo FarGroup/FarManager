@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "configdb.hpp"
+#include "DlgGuid.hpp"
 
 PanelViewSettings ViewSettingsArray[]=
 {
@@ -96,6 +97,7 @@ void FileList::SetFilePanelModes()
 			ModeList.SetPosition(-1,-1,0,0);
 			ModeList.SetHelp(L"PanelViewModes");
 			ModeList.SetFlags(VMENU_WRAPMODE);
+			ModeList.SetId(PanelViewModesId);
 			ModeNumber=ModeList.Run();
 		}
 
@@ -172,6 +174,7 @@ void FileList::SetFilePanelModes()
 			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
 			Dlg.SetPosition(-1,-1,76,17);
 			Dlg.SetHelp(L"PanelViewModes");
+			Dlg.SetId(PanelViewModesEditId);
 			Dlg.Process();
 			ExitCode=Dlg.GetExitCode();
 		}

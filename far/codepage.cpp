@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 #include "FarDlgBuilder.hpp"
+#include "DlgGuid.hpp"
 
 // Ключ где хранятся имена кодовых страниц
 const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
@@ -754,6 +755,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bSho
 	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
+	CodePagesMenu->SetId(CodePagesMenuId);
 	// Добавляем таблицы символов
 	FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7, bShowAutoDetect);
 	// Показываем меню

@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "datetime.hpp"
 #include "FarGuid.hpp"
+#include "DlgGuid.hpp"
 #include "scrbuf.hpp"
 #include "plugins.hpp"
 
@@ -185,6 +186,9 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
 	HistoryMenu.AssignHighlights(TRUE);
+
+	if (TypeHistory == HISTORYTYPE_CMD || TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
+		HistoryMenu.SetId(TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
 	int ret=ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();

@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "configdb.hpp"
 #include "keyboard.hpp"
+#include "DlgGuid.hpp"
 
 static std::vector<std::unique_ptr<FileFilterParams>> *FilterData, *TempFilterData;
 
@@ -99,6 +100,7 @@ bool FileFilter::FilterEdit()
 	FilterList.SetPosition(-1,-1,0,0);
 	FilterList.SetBottomTitle(MSG(MFilterBottom));
 	FilterList.SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
+	FilterList.SetId(FiltersMenuId);
 
 	bool first = true;
 	std::for_each(CONST_RANGE(*FilterData, i)

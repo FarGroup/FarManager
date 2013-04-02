@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "vmenu2.hpp"
 #include "codepage.hpp"
+#include "DlgGuid.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -3715,7 +3716,9 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch");
+		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr,
+					TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch", false,
+					ReplaceMode?&EditorReplaceId:&EditorSearchId);
 		if (!DlgResult)
 		{
 			return FALSE;

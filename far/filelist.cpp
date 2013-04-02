@@ -84,12 +84,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "elevation.hpp"
 #include "FarGuid.hpp"
+#include "DlgGuid.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
-static int ListSortMode; 
+static int ListSortMode;
 static bool RevertSorting;
 static int ListPanelMode,ListNumericSort,ListCaseSensitiveSort;
 static HANDLE hSortPlugin;
@@ -4568,6 +4569,7 @@ void FileList::SelectSortMode()
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
+		SortModeMenu.SetId(SelectSortModeId);
 		//SortModeMenu.Process();
 
 		SortCode=SortModeMenu.Run([&](int Key)->int

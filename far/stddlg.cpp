@@ -61,7 +61,8 @@ int GetSearchReplaceString(
 	bool* pRegexp,
 	bool* pPreserveStyle,
 	const wchar_t *HelpTopic,
-	bool HideAll)
+	bool HideAll,
+	const GUID* Id)
 {
 	int Result = 0;
 
@@ -141,6 +142,8 @@ int GetSearchReplaceString(
 		if (HelpTopic && *HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
+		if(Id) Dlg.SetId(*Id);
+
 		Dlg.Process();
 
 		if(Dlg.GetExitCode() == 12)
@@ -205,6 +208,8 @@ int GetSearchReplaceString(
 
 		if (HelpTopic && *HelpTopic)
 			Dlg.SetHelp(HelpTopic);
+
+		if(Id) Dlg.SetId(*Id);
 
 		Dlg.Process();
 		int ExitCode = Dlg.GetExitCode();

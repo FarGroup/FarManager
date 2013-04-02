@@ -109,7 +109,8 @@ int GetSearchReplaceString(
     bool* Regexp,
     bool* PreserveStyle,
     const wchar_t *HelpTopic=nullptr,
-    bool HideAll=false
+    bool HideAll=false,
+    const GUID* Id = nullptr
 );
 
 int GetString(

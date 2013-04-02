@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "stddlg.hpp"
 #include "plugins.hpp"
+#include "DlgGuid.hpp"
 
 static const wchar_t *FoundContents=L"__FoundContents__";
 static const wchar_t *PluginContents=L"__PluginContents__";
@@ -1287,7 +1288,7 @@ int Help::ProcessKey(int Key)
 
 				string strTempStr;
 				//int RetCode = GetString(MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				int RetCode = GetSearchReplaceString(false, MSG(MHelpSearchTitle), MSG(MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true);
+				int RetCode = GetSearchReplaceString(false, MSG(MHelpSearchTitle), MSG(MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true, &HelpSearchId);
 
 				if (RetCode <= 0)
 					return TRUE;

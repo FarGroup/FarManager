@@ -376,6 +376,7 @@ Frame *Manager::FrameMenu()
 		ModalMenu.SetHelp(L"ScrSwitch");
 		ModalMenu.SetFlags(VMENU_WRAPMODE);
 		ModalMenu.SetPosition(-1,-1,0,0);
+		ModalMenu.SetId(ScreensSwitchId);
 
 		if (!CheckCanLoseFocus)
 			ModalMenuItem.SetDisable(TRUE);
