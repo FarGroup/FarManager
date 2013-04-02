@@ -2698,6 +2698,18 @@ static int far_SendDlgMessage(lua_State *L)
 			break;
 	}
 
+	// res_incr
+	switch(Msg)
+	{
+		case DM_GETFOCUS:
+		case DM_LISTADDSTR:
+			res_incr=1;
+			break;
+		default:
+			res_incr=0;
+			break;
+	}
+
 	switch(Msg)
 	{
 		default:
@@ -2730,7 +2742,7 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_USER:
 			Param2 = (void*)(LONG_PTR)luaL_optlong(L, 4, 0);
 			break;
-		case DM_LISTADDSTR: res_incr=1;
+		case DM_LISTADDSTR:
 		case DM_ADDHISTORY:
 		case DM_SETHISTORY:
 		case DM_SETTEXTPTR:
