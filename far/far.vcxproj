@@ -448,7 +448,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="cache.cpp" />
     <ClCompile Include="cddrv.cpp" />
-    <ClCompile Include="CFileMask.cpp" />
     <ClCompile Include="chgmmode.cpp" />
     <ClCompile Include="chgprior.cpp" />
     <ClCompile Include="clipboard.cpp" />
@@ -478,6 +477,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farversion.cpp" />
     <ClCompile Include="farwinapi.cpp" />
+    <ClCompile Include="filemasks.cpp" />
     <ClCompile Include="filesystemwatcher.cpp" />
     <ClCompile Include="nsUniversalDetectorEx.cpp" />
     <ClCompile Include="plclass.cpp" />
@@ -487,8 +487,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="filefilter.cpp" />
     <ClCompile Include="filefilterparams.cpp" />
     <ClCompile Include="filelist.cpp" />
-    <ClCompile Include="FileMasksProcessor.cpp" />
-    <ClCompile Include="FileMasksWithExclude.cpp" />
     <ClCompile Include="fileowner.cpp" />
     <ClCompile Include="filepanels.cpp" />
     <ClCompile Include="filestr.cpp" />
@@ -864,11 +862,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="elevation.hpp" />
-    <ClInclude Include="BaseFileMask.hpp" />
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />
     <ClInclude Include="cddrv.hpp" />
-    <ClInclude Include="CFileMask.hpp" />
     <ClInclude Include="chgmmode.hpp" />
     <ClInclude Include="chgprior.hpp" />
     <ClInclude Include="clipboard.hpp" />
@@ -964,8 +960,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="filefilter.hpp" />
     <ClInclude Include="filefilterparams.hpp" />
     <ClInclude Include="filelist.hpp" />
-    <ClInclude Include="FileMasksProcessor.hpp" />
-    <ClInclude Include="FileMasksWithExclude.hpp" />
+    <ClInclude Include="filemasks.hpp" />
     <ClInclude Include="fileowner.hpp" />
     <ClInclude Include="filepanels.hpp" />
     <ClInclude Include="filestr.hpp" />

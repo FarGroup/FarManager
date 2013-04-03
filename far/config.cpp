@@ -537,7 +537,7 @@ void MaskGroupsSettings()
 						{
 							string CurrentMasks;
 							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
-							CFileMask Masks;
+							filemasks Masks;
 							Masks.Set(CurrentMasks, 0);
 							if(!Masks.Compare(Value))
 							{

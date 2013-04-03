@@ -12,7 +12,6 @@ SRCS = \
 	sqlite.c \
 	cache.cpp \
 	cddrv.cpp \
-	CFileMask.cpp \
 	chgmmode.cpp \
 	chgprior.cpp \
 	clipboard.cpp \
@@ -49,8 +48,7 @@ SRCS = \
 	filefilter.cpp \
 	filefilterparams.cpp \
 	filelist.cpp \
-	FileMasksProcessor.cpp \
-	FileMasksWithExclude.cpp \
+	filemasks.cpp \
 	fileowner.cpp \
 	filepanels.cpp \
 	filestr.cpp \

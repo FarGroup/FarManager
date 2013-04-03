@@ -101,7 +101,7 @@ private:
 	size_t* skipCharsTable;
 	int favoriteCodePages;
 	bool InFileSearchInited;
-	class CFileMask* FileMaskForFindFile;
+	class filemasks* FileMaskForFindFile;
 	class FileFilter *Filter;
 	struct FindListItem* FindExitItem;
 	bool FindFoldersChanged;

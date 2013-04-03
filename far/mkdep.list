@@ -1,11 +1,8 @@
-BaseFileMask.hpp
 bitflags.hpp
 cache.cpp
 cache.hpp
 cddrv.cpp
 cddrv.hpp
-CFileMask.cpp
-CFileMask.hpp
 chgmmode.cpp
 chgmmode.hpp
 chgprior.cpp
@@ -86,10 +83,8 @@ filefilterparams.cpp
 filefilterparams.hpp
 filelist.cpp
 filelist.hpp
-FileMasksProcessor.cpp
-FileMasksProcessor.hpp
-FileMasksWithExclude.cpp
-FileMasksWithExclude.hpp
+filemasks.cpp
+filemasks.hpp
 fileowner.cpp
 fileowner.hpp
 filepanels.cpp

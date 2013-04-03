@@ -5439,7 +5439,7 @@ static bool fmatchFunc(FarMacroCall* Data)
 	parseParams(2,Params,Data);
 	TVar& Mask(Params[1]);
 	TVar& S(Params[0]);
-	CFileMask FileMask;
+	filemasks FileMask;
 
 	if (FileMask.Set(Mask.toString(), FMF_SILENT))
 		PassNumber(FileMask.Compare(S.toString()), Data);

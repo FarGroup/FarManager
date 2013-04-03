@@ -53,9 +53,6 @@
     <ClCompile Include="cddrv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CFileMask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="chgmmode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -152,10 +149,7 @@
     <ClCompile Include="filelist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileMasksProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMasksWithExclude.cpp">
+    <ClCompile Include="filemasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fileowner.cpp">
@@ -541,9 +535,6 @@
     <ClInclude Include="elevation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BaseFileMask.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bitflags.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -551,9 +542,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cddrv.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CFileMask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="chgmmode.hpp">
@@ -667,10 +655,7 @@
     <ClInclude Include="filelist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileMasksProcessor.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileMasksWithExclude.hpp">
+    <ClInclude Include="filemasks.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fileowner.hpp">

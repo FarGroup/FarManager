@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "mix.hpp"
-#include "CFileMask.hpp"
 #include "scantree.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"

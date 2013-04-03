@@ -783,7 +783,7 @@ void FileFilter::InitFilter()
 	{
 		static FileFilterParams _FoldersFilter;
 		FoldersFilter = &_FoldersFilter;
-		FoldersFilter->SetMask(0,L"");
+		FoldersFilter->SetMask(0,L"*");
 		FoldersFilter->SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
 
 		if (!root)

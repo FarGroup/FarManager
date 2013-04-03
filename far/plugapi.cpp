@@ -2455,7 +2455,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 {
 	if (Func && InitDir && *InitDir && Mask && *Mask)
 	{
-		CFileMask FMask;
+		filemasks FMask;
 
 		if (!FMask.Set(Mask, FMF_SILENT)) return;
 
@@ -2521,7 +2521,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 	case PN_CMPNAMELIST:
 	case PN_CHECKMASK:
 		{
-			static CFileMask Masks;
+			static filemasks Masks;
 			static string PrevMask;
 			static bool ValidMask = false;
 			if(PrevMask != param1)

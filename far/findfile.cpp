@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
-#include "CFileMask.hpp"
+#include "filemasks.hpp"
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
 #include "syslog.hpp"
@@ -3013,7 +3013,7 @@ FindFiles::FindFiles():
 	TB(nullptr)
 {
 	// BUGBUG
-	FileMaskForFindFile = new CFileMask;
+	FileMaskForFindFile = new filemasks;
 	AnySetFindList = false;
 	CmpCase = false;
 	WholeWords = false;
@@ -3255,7 +3255,6 @@ FindFiles::FindFiles():
 
 FindFiles::~FindFiles()
 {
-	FileMaskForFindFile->Free();
 	itd->ClearAllLists();
 	Global->ScrBuf->ResetShadow();
 

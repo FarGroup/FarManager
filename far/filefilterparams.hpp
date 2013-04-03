@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
-#include "CFileMask.hpp"
+#include "filemasks.hpp"
 #include "bitflags.hpp"
 #include "hilight.hpp"
 
@@ -84,7 +84,7 @@ class FileFilterParams
 		{
 			bool Used;
 			string strMask;
-			CFileMask FilterMask; // Хранилище скомпилированной маски.
+			filemasks FilterMask; // Хранилище скомпилированной маски.
 		} FMask;
 
 		struct

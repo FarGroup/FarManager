@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "rdrwdsk.hpp"
 #include "savescr.hpp"
-#include "CFileMask.hpp"
+#include "filemasks.hpp"
 #include "message.hpp"
 #include "interf.hpp"
 #include "config.hpp"
@@ -98,7 +98,7 @@ int GetDescriptionWidth()
 	unsigned __int64 id;
 	string strMask;
 	string strDescription;
-	CFileMask FMask;
+	filemasks FMask;
 
 	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
@@ -125,7 +125,7 @@ int GetDescriptionWidth()
    Enter в ком строке - ассоциации.
 */
 /* $ 06.07.2001
-   + Используем CFileMask вместо GetCommaWord, этим самым добиваемся того, что
+   + Используем filemasks вместо GetCommaWord, этим самым добиваемся того, что
      можно использовать маски исключения
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
@@ -139,7 +139,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		TypesMenu.SetHelp(L"FileAssoc");
 		TypesMenu.SetFlags(VMENU_WRAPMODE);
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
-		CFileMask FMask; // для работы с масками файлов
+		filemasks FMask; // для работы с масками файлов
 
 		int CommandCount=0;
 		DWORD Index=0;
@@ -387,7 +387,7 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			{
 				BOOL Result=TRUE;
 				string Masks(reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
-				CFileMask FMask;
+				filemasks FMask;
 
 				if (!FMask.Set(Masks,0))
 				{

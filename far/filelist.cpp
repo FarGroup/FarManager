@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rdrwdsk.hpp"
 #include "plognmn.hpp"
 #include "scrbuf.hpp"
-#include "CFileMask.hpp"
+#include "filemasks.hpp"
 #include "cddrv.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -3764,7 +3764,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
-	CFileMask FileMask; // Класс для работы с масками
+	filemasks FileMask; // Класс для работы с масками
 	const wchar_t *HistoryName=L"Masks";
 	FarDialogItem SelectDlgData[]=
 	{

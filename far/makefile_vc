@@ -97,7 +97,6 @@ LINK_OBJS = \
 	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
-	"$(INTDIR)\CFileMask.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\clipboard.obj" \
@@ -134,8 +133,7 @@ LINK_OBJS = \
 	"$(INTDIR)\filefilter.obj" \
 	"$(INTDIR)\filefilterparams.obj" \
 	"$(INTDIR)\filelist.obj" \
-	"$(INTDIR)\FileMasksProcessor.obj" \
-	"$(INTDIR)\FileMasksWithExclude.obj" \
+	"$(INTDIR)\filemasks.obj" \
 	"$(INTDIR)\fileowner.obj" \
 	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\filestr.obj" \

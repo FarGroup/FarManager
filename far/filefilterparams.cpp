@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "colors.hpp"
-#include "CFileMask.hpp"
-#include "FileMasksWithExclude.hpp"
+#include "filemasks.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
@@ -103,12 +102,9 @@ void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
 {
 	FMask.Used = Used;
 	FMask.strMask = Mask;
-
-	// Проверка на валидность текущих настроек фильтра
-	if (!FMask.FilterMask.Set(FMask.strMask,FMF_SILENT))
+	if (Used)
 	{
-		FMask.strMask = L"*";
-		FMask.FilterMask.Set(FMask.strMask,FMF_SILENT);
+		FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);
 	}
 }
 
@@ -836,7 +832,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	// Временная маска.
-	CFileMask FileMask;
+	filemasks FileMask;
 	// История для маски файлов
 	const wchar_t FilterMasksHistoryName[] = L"FilterMasks";
 	// История для имени фильтра

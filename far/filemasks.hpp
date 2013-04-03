@@ -1,10 +1,9 @@
 #pragma once
 
 /*
-FileMasksWithExclude.hpp
+filemasks.hpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+Класс для работы с масками файлов (учитывается наличие масок исключения).
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -34,26 +33,45 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FileMasksProcessor.hpp"
+#include  "RegExp.hpp"
 
-extern const wchar_t EXCLUDEMASKSEPARATOR;
-
-class FileMasksWithExclude:public BaseFileMask
+enum FM_FLAGS
 {
-	private:
+	FMF_SILENT = 1,
+};
+
+class filemasks
+{
+public:
+	filemasks() {}
+	~filemasks() {}
+
+	bool Set(const string& Masks, DWORD Flags);
+	bool Compare(const string& Name) const;
+	bool IsEmpty() const;
+	void ErrorMessage() const;
+
+private:
+	void Free();
+	wchar_t* FindExcludeChar(wchar_t* masks) const;
+
+	class masks
+	{
+	public:
+		masks():n(0), bRE(false) {}
+		~masks() {}
+
+		bool Set(const string& Masks);
 		void Free();
-		static const wchar_t *FindExcludeChar(const wchar_t *masks);
-
-	public:
-		FileMasksWithExclude();
-		virtual ~FileMasksWithExclude() {}
-
-	public:
-		virtual bool Set(const string& Masks, DWORD Flags);
-		virtual bool Compare(const string& Name);
-		virtual bool IsEmpty();
-		static bool IsExcludeMask(const wchar_t *masks);
+		bool Compare(const string& Name) const;
+		bool IsEmpty() const;
 
 	private:
-		FileMasksProcessor Include, Exclude;
+		std::list<string> Masks;
+		std::unique_ptr<RegExp> re;
+		array_ptr<SMatch> m;
+		int n;
+		bool bRE;
+	}
+	Include, Exclude;
 };
