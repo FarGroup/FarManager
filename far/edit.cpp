@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "console.hpp"
 #include "manager.hpp"
+#include "elevation.hpp"
 
 static int Recurse=0;
 
@@ -3180,6 +3181,8 @@ void EnumFiles(VMenu2& Menu, const wchar_t* Str)
 bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 {
 	bool Result=false;
+
+	DisableElevation de;
 
 	if(*Module && !FirstSlash(Module))
 	{
