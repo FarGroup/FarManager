@@ -24,6 +24,8 @@ extern int FUNC_OPENLIBS(lua_State*);
 #endif
 
 lua_State* LS;
+CRITICAL_SECTION FindFileSection; // http://forum.farmanager.com/viewtopic.php?f=9&p=107075#p107075
+
 intptr_t WINAPI DlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	return LF_DlgProc(LS, hDlg, Msg, Param1, Param2);
@@ -62,6 +64,7 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 
 	if(DLL_PROCESS_ATTACH == dwReason && hDll)
 	{
+		InitializeCriticalSection(&FindFileSection);
 		if((LS = luaL_newstate()) != NULL)
 		{
 			GetModuleFileNameW((HINSTANCE)hDll, PluginName, sizeof(PluginName)/sizeof(PluginName[0]));
@@ -76,6 +79,7 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 			lua_close(LS);
 			LS = NULL;
 		}
+		DeleteCriticalSection(&FindFileSection);
 	}
 
 	return TRUE;
@@ -163,8 +167,18 @@ int LUAPLUG GetMinFarVersionW()
 #ifdef EXPORT_OPEN
 HANDLE LUAPLUG OpenW(const struct OpenInfo *Info)
 {
-	if(LS) return LF_Open(LS, Info);
-
+	if(LS)
+	{
+#ifdef EXPORT_PROCESSDIALOGEVENT
+		HANDLE h;
+		EnterCriticalSection(&FindFileSection);
+		h = LF_Open(LS, Info);
+		LeaveCriticalSection(&FindFileSection);
+		return h;
+#else
+		return LF_Open(LS, Info);
+#endif
+	}
 	return NULL;
 }
 #endif
@@ -360,8 +374,18 @@ intptr_t LUAPLUG ProcessViewerEventW(const struct ProcessViewerEventInfo *Info)
 #ifdef EXPORT_PROCESSDIALOGEVENT
 intptr_t LUAPLUG ProcessDialogEventW(const struct ProcessDialogEventInfo *Info)
 {
-	if(LS) return LF_ProcessDialogEvent(LS, Info);
-
+	if(LS)
+	{
+#ifdef EXPORT_OPEN
+		intptr_t r;
+		EnterCriticalSection(&FindFileSection);
+		r = LF_ProcessDialogEvent(LS, Info);
+		LeaveCriticalSection(&FindFileSection);
+		return r;
+#else
+		return LF_ProcessDialogEvent(LS, Info);
+#endif
+	}
 	return 0;
 }
 #endif
