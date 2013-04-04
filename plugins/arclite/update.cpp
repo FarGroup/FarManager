@@ -772,9 +772,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     vector<wstring> names;
     vector<PropVariant> values;
     if (options.arc_type == c_7z) {
-      if (options.level != 0) {
-        names.push_back(L"0"); values.push_back(options.method);
-      }
+      names.push_back(L"0"); values.push_back(options.method);
       if (options.method == c_method_ppmd) {
         switch (options.level) {
         case 1:
@@ -831,7 +829,9 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     }
     else if (options.arc_type == c_zip) {
       switch (options.level) {
-      case 1:
+		case 0:
+         names.push_back(L"x"); values.push_back(options.level); break;
+		case 1:
       case 3:
       case 5:
         names.push_back(L"fb"); values.push_back(32u); break;
