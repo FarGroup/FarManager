@@ -250,8 +250,8 @@ bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
 
+#include "plugin.hpp"
 #include "colors.hpp"
-#include "palette.hpp"
 
 #ifdef _DEBUG
 #define SELF_TEST(code) \

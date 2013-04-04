@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "plugin.hpp"
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"

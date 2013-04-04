@@ -43,8 +43,6 @@ enum ELEVATION_MODE
 
 ENUM(ELEVATION_COMMAND);
 
-class AutoObject;
-
 class DisableElevation:NonCopyable
 {
 public:

@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 #include "plclass.hpp"
-#include "plugin.hpp"
 #include "elevation.hpp"
 #include "FarGuid.hpp"
 #include "ctrlobj.hpp"

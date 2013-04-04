@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plugin.hpp"
-
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 int CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath=true, bool CmpNameSearchMode=false);

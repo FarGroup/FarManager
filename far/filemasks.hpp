@@ -53,17 +53,18 @@ public:
 
 private:
 	void Free();
-	wchar_t* FindExcludeChar(wchar_t* masks) const;
 
 	class masks
 	{
 	public:
 		masks():n(0), bRE(false) {}
+		masks(masks&& Right) {*this = std::move(Right);}
 		~masks() {}
 
+		masks& operator =(masks&& Right);
 		bool Set(const string& Masks);
+		bool operator ==(const string& Name) const;
 		void Free();
-		bool Compare(const string& Name) const;
 		bool IsEmpty() const;
 
 	private:
@@ -72,6 +73,6 @@ private:
 		array_ptr<SMatch> m;
 		int n;
 		bool bRE;
-	}
-	Include, Exclude;
+	};
+	std::list<masks> Include, Exclude;
 };

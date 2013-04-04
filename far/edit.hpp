@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "colors.hpp"
 #include "bitflags.hpp"
-#include "plugin.hpp"
 #include "macro.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!

@@ -40,7 +40,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "configdb.hpp"
 
-const wchar_t EXCLUDEMASKSEPARATOR=L'|';
+const wchar_t ExcludeMaskSeparator = L'|';
+const wchar_t RE_start = L'/', RE_end = L'/';
+
+static inline const wchar_t* SkipSeparators(const wchar_t* masks)
+{
+	while(*masks == L' ' || *masks == L',' || *masks == L';')
+		++masks;
+	return masks;
+}
+
+static inline const wchar_t* SkipMasks(const wchar_t* masks)
+{
+	while(*masks && *masks != RE_start && *masks != ExcludeMaskSeparator)
+		masks++;
+	return masks;
+}
+
+static inline const wchar_t* SkipRE(const wchar_t* masks)
+{
+	if (*masks == L'/')
+	{
+		masks++;
+
+		while (*masks && (*masks != RE_end || *(masks-1) == L'\\'))
+			masks++;
+
+		if (*masks == RE_end)
+			masks++;
+		// options
+		while (IsAlpha(*masks))
+			masks++;
+	}
+	return masks;
+}
 
 bool filemasks::Set(const string& masks, DWORD Flags)
 {
@@ -49,28 +82,97 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 	if (!masks.IsEmpty())
 	{
 		Free();
-		wchar_t_ptr MasksStr(masks.GetLength()+1);
 
-		wcscpy(MasksStr.get(), masks);
-		wchar_t *pExclude = FindExcludeChar(MasksStr.get());
+		string expmasks(masks);
+		std::list<string> UsedGroups;
+		size_t LBPos, RBPos;
 
-		Result = true;
-
-		if (pExclude)
+		while(expmasks.Pos(LBPos, L'<') && expmasks.Pos(RBPos, L'>', LBPos))
 		{
-			*pExclude=0;
-			++pExclude;
-
-			if (*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR))
-				Result = false;
+			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
+			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
+			string MaskGroupValue;
+			if (std::find(UsedGroups.cbegin(), UsedGroups.cend(), MaskGroupName) == UsedGroups.cend())
+			{
+				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
+				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
+				UsedGroups.emplace_back(MaskGroupName);
+			}
 		}
 
-		if (Result)
+		if (!expmasks.IsEmpty())
 		{
-			Result = Include.Set(MasksStr[0]? MasksStr.get() : L"*");
+			const wchar_t* ptr = expmasks;
 
-			if (Result && pExclude)
-				Result = Exclude.Set(pExclude);
+			string SimpleMasksInclude, SimpleMasksExclude;
+
+			auto DestContainer = &Include;
+			auto DestString = &SimpleMasksInclude;
+
+			Result = true;
+
+			while(*ptr)
+			{
+				ptr = SkipSeparators(ptr);
+				auto nextpos = SkipRE(ptr);
+				if (nextpos != ptr)
+				{
+					filemasks::masks m;
+					Result = m.Set(string(ptr, nextpos-ptr));
+					if (Result)
+					{
+						DestContainer->emplace_back(std::move(m));
+						ptr = nextpos;
+					}
+					else
+					{
+						break;
+					}
+					ptr = nextpos;
+				}
+				ptr = SkipSeparators(ptr);
+				nextpos = SkipMasks(ptr);
+				if (nextpos != ptr)
+				{
+					*DestString += string(ptr, nextpos-ptr);
+					ptr = nextpos;
+				}
+				if (*ptr == ExcludeMaskSeparator)
+				{
+					if (DestContainer != &Exclude)
+					{
+						DestContainer = &Exclude;
+						DestString = &SimpleMasksExclude;
+					}
+					else
+					{
+						break;
+					}
+					++ptr;
+				}
+			}
+
+			if (Result && !SimpleMasksInclude.IsEmpty())
+			{
+				filemasks::masks m;
+				Result = m.Set(SimpleMasksInclude);
+				if (Result)
+					Include.emplace_back(std::move(m));
+			}
+
+			if (Result && !SimpleMasksExclude.IsEmpty())
+			{
+				filemasks::masks m;
+				Result = m.Set(SimpleMasksExclude);
+				if (Result)
+					Exclude.emplace_back(std::move(m));
+			}
+
+			if (Result && Include.empty())
+			{
+				Include.emplace_back(VALUE_TYPE(Include)());
+				Result = Include.back().Set(L"*");
+			}
 		}
 
 		if (!Result)
@@ -89,20 +191,22 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 void filemasks::Free()
 {
-	Include.Free();
-	Exclude.Free();
+	Include.clear();
+	Exclude.clear();
 }
 
 // Путь к файлу в FileName НЕ игнорируется
 
 bool filemasks::Compare(const string& FileName) const
 {
-	return (Include.Compare(FileName) && !Exclude.Compare(FileName));
+	return std::find(Include.cbegin(), Include.cend(), FileName) != Include.cend() &&
+	       std::find(Exclude.cbegin(), Exclude.cend(), FileName) == Exclude.cend();
 }
 
 bool filemasks::IsEmpty() const
 {
-	return (Include.IsEmpty() && Exclude.IsEmpty());
+	return std::find_if(CONST_RANGE(Include, i){return !i.IsEmpty();}) == Include.cend() &&
+	       std::find_if(CONST_RANGE(Exclude, i){return !i.IsEmpty();}) == Exclude.cend();
 }
 
 void filemasks::ErrorMessage() const
@@ -110,29 +214,14 @@ void filemasks::ErrorMessage() const
 	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
 }
 
-wchar_t* filemasks::FindExcludeChar(wchar_t* masks) const
+filemasks::masks& filemasks::masks::operator =(filemasks::masks&& Right)
 {
-	wchar_t* pExclude = masks;
-
-	if (*pExclude == L'/')
-	{
-		pExclude++;
-
-		while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
-			pExclude++;
-
-		while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
-			pExclude++;
-
-		if (*pExclude != EXCLUDEMASKSEPARATOR)
-			pExclude = nullptr;
-	}
-	else
-	{
-		pExclude = wcschr(masks,EXCLUDEMASKSEPARATOR);
-	}
-
-	return pExclude;
+	Masks.swap(Right.Masks);
+	re.swap(Right.re);
+	m.swap(Right.m);
+	n = Right.n;
+	bRE = Right.bRE;
+	return *this;
 }
 
 bool filemasks::masks::Set(const string& masks)
@@ -140,21 +229,6 @@ bool filemasks::masks::Set(const string& masks)
 	Free();
 
 	string expmasks(masks);
-	std::list<string> UsedGroups;
-	size_t LBPos, RBPos;
-
-	while(expmasks.Pos(LBPos, L'<') && expmasks.Pos(RBPos, L'>', LBPos))
-	{
-		string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
-		string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
-		string MaskGroupValue;
-		if (std::find(UsedGroups.cbegin(), UsedGroups.cend(), MaskGroupName) == UsedGroups.cend())
-		{
-			Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
-			ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
-			UsedGroups.emplace_back(MaskGroupName);
-		}
-	}
 
 	size_t pos;
 	const wchar_t* PathExtName = L"%PATHEXT%";
@@ -219,7 +293,7 @@ void filemasks::masks::Free()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::masks::Compare(const string& FileName) const
+bool filemasks::masks::operator ==(const string& FileName) const
 {
 	if (bRE)
 	{

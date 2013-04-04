@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "xlat.hpp"
 #include "console.hpp"
-#include "plugin.hpp"
 #include "configdb.hpp"
 
 wchar_t* Xlat(wchar_t *Line,

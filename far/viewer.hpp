@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "namelist.hpp"
-#include "plugin.hpp"
 #include "poscache.hpp"
 #include "config.hpp"
 #include "cache.hpp"

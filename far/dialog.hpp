@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "frame.hpp"
-#include "plugin.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"

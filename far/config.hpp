@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panelctype.hpp"
 #include "configdb.hpp"
+#include "palette.hpp"
 
 enum
 {

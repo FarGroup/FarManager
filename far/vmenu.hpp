@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "plugin.hpp"
 #include "manager.hpp"
 #include "frame.hpp"
 #include "bitflags.hpp"
