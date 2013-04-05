@@ -1,12 +1,6 @@
 Macro {
-  area="Search"; key="CtrlIns"; flags=""; description="CtrlIns в быстром поиске"; action = function()
-Keys('Esc CtrlIns')
+  area="Search"; key="CtrlIns CtrlShiftIns CtrlALtIns CtrlNum0 CtrlShiftNum0 CtrlALtNum0";
+  description="CtrlIns в быстром поиске"; action = function()
+    Keys('Esc AKey')
   end;
 }
-
-Macro {
-  area="Search"; key="CtrlNum0"; flags=""; description="CtrlIns в быстром поиске"; action = function()
-Keys('Esc CtrlIns')
-  end;
-}
-
