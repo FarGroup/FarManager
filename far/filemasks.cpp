@@ -168,11 +168,13 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 					Exclude.emplace_back(std::move(m));
 			}
 
-			if (Result && Include.empty())
+			if (Result && Include.empty() && !Exclude.empty())
 			{
 				Include.emplace_back(VALUE_TYPE(Include)());
 				Result = Include.back().Set(L"*");
 			}
+
+			Result = !IsEmpty();
 		}
 
 		if (!Result)
