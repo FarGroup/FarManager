@@ -1595,9 +1595,7 @@ $ #Plugins manager#
 $ #Группы масок файлов#
     Произвольное количество ~масок файлов~@FileMasks@ можно объединить в группу и присвоить ей имя.
   
-    В дальнейшем имя группы, заключенное в угловые скобки (#<#имя#>#), можно использоваться везде, где используются сами маски.
-
-    Группа может являться ~регулярным выражением~@RegExp@.
+    В дальнейшем имя группы, заключенное в угловые скобки (#<#имя#>#), может использоваться везде, где используются сами маски.
 
     Группы могут содержать другие группы.
 
@@ -4065,11 +4063,7 @@ a list.
     #/(eng|rus)/i#  any files with filenames containing string “eng” or “rus”,
                   the character case is not taken into account.
 
-    In some commands (~find files~@FindFile@, ~filter~@Filter@,
-~filters menu~@FiltersMenu@, file ~selection~@SelectFiles@,
-file ~associations~@FileAssoc@ and
-~file highlighting and sort groups~@Highlight@) you may use exclude masks. An
-#exclude mask# is one or multiple file masks that must not be matched by the
+    An #exclude mask# is one or multiple file masks that must not be matched by the
 files matching the mask. The exclude mask is delimited from the main mask by
 the character '#|#'.
 
@@ -4079,11 +4073,11 @@ the character '#|#'.
  2. *.*|*.bak,*.tmp
     All files except for the files with extensions #bak# and #tmp#.
  3. *.*|
-    This mask has an error - the character | is entered, but the
-    mask itself is not specified.
+    The character | is entered, but the mask itself is not specified,
+    expression treated as *.*
  4. *.*|*.bak|*.tmp
-    Also an error - the character | may not be contained in the mask
-    more than once.
+    The character | may be used in the mask only once,
+    expression treated as *.*|*.bak
  5. |*.bak
     The same as *|*.bak
  6. *.*|/^pict\d{1,3}\.gif$/i
