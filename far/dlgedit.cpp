@@ -320,7 +320,16 @@ void DlgEdit::SetHiString(const wchar_t *Str)
 		lineEdit->SetHiString(Str);
 }
 
-void DlgEdit::SetString(const wchar_t *Str)
+void DlgEdit::Changed()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+#endif
+	{
+		lineEdit->Changed();
+	}
+}
+
+void DlgEdit::SetString(const wchar_t *Str, bool disable_autocomplete, int pos)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -330,7 +339,18 @@ void DlgEdit::SetString(const wchar_t *Str)
 	}
 	else
 #endif
+	{
+		bool acompl = false;
+		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()))
+			lineEdit->SetAutocomplete(false);
+
 		lineEdit->SetString(Str);
+		if (pos >= 0)
+			lineEdit->SetCurPos(pos);
+
+		if (acompl)
+			lineEdit->SetAutocomplete(true);
+	}
 }
 
 void DlgEdit::InsertString(const wchar_t *Str)

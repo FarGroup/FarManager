@@ -272,7 +272,7 @@ private:
 	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
 	int ProcessMoveDialog(DWORD Key);
 	int Do_ProcessTab(int Next);
-	int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
+	int Do_ProcessNextCtrl(bool, bool IsRedraw=true);
 	int Do_ProcessFirstCtrl();
 	int Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);

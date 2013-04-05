@@ -99,7 +99,8 @@ public:
 	void  SetClearFlag(bool Flag);
 	int   GetClearFlag();
 
-	void  SetString(const wchar_t *Str);
+	void  Changed();
+	void  SetString(const wchar_t *Str, bool disable_autocomplete = false, int pos = -1);
 	void  InsertString(const wchar_t *Str);
 	void  SetHiString(const wchar_t *Str);
 	void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line

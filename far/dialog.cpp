@@ -655,7 +655,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			CurItem->strData=string(L"\x2580\x2584 ")+CurItem->strData;
 		}
 
-		// для кнопок не имеющи стиля "Показывает заголовок кнопки без скобок"
+		// для кнопок не имеющих стиля "Показывает заголовок кнопки без скобок"
 		//  добавим энти самые скобки
 		if (Type==DI_BUTTON && !(ItemFlags & DIF_NOBRACKETS))
 		{
@@ -2496,9 +2496,9 @@ int Dialog::ProcessKey(int Key)
 		Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
 	}
 
-	if (!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+	if (!(((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
-#if 1	// wrap-stop mode for user lists
+		// wrap-stop mode for user lists
 		if ((Key==KEY_UP || Key==KEY_NUMPAD8 || Key==KEY_DOWN || Key==KEY_NUMPAD2) && IsRepeatedKey())
 		{
 			int n = -1, pos = -1;
@@ -2525,7 +2525,6 @@ int Dialog::ProcessKey(int Key)
 					Key = KEY_END;
 			}
 		}
-#endif
 		INPUT_RECORD rec;
 		if (KeyToInputRecord(Key,&rec) && DlgProc(DN_CONTROLINPUT,FocusPos,&rec))
 			return TRUE;
@@ -2684,32 +2683,27 @@ int Dialog::ProcessKey(int Key)
 				if (((DlgEdit *)(Items[EditorLastPos]->ObjPtr))->GetLength())
 					return TRUE;
 
-				for (I=EditorLastPos; I>FocusPos; I--)
+				DlgEdit *focus = (DlgEdit *)Items[FocusPos]->ObjPtr;
+				focus->GetString(strStr);
+				int CurPos = focus->GetCurPos();
+				string strMove;
+				if (CurPos < static_cast<int>(strStr.GetLength()))
 				{
-					int CurPos;
-
-					if (I==FocusPos+1)
-						CurPos=((DlgEdit *)(Items[I-1]->ObjPtr))->GetCurPos();
-					else
-						CurPos=0;
-
-					((DlgEdit *)(Items[I-1]->ObjPtr))->GetString(strStr);
-					int Length=(int)strStr.GetLength();
-					((DlgEdit *)(Items[I]->ObjPtr))->SetString(CurPos>=Length ? L"":strStr.CPtr()+CurPos);
-
-					if (CurPos<Length)
-						strStr.SetLength(CurPos);
-
-					((DlgEdit *)(Items[I]->ObjPtr))->SetCurPos(0);
-					((DlgEdit *)(Items[I-1]->ObjPtr))->SetString(strStr);
+					strMove = strStr.CPtr() + CurPos;
+					strStr.SetLength(CurPos);
+					focus->SetString(strStr, true, 0);
 				}
+				focus->SetString(strStr, true, 0);
 
-				if (EditorLastPos > FocusPos)
+				for (I=FocusPos+1; I <= EditorLastPos; ++I)
 				{
-					((DlgEdit *)(Items[FocusPos]->ObjPtr))->SetCurPos(0);
-					Do_ProcessNextCtrl(FALSE,FALSE);
+					DlgEdit *next = (DlgEdit *)Items[I]->ObjPtr;
+					next->GetString(strStr);
+					next->SetString(strMove, true, 0);
+					strMove = strStr;
 				}
-
+				Do_ProcessNextCtrl(false, true);
+				((DlgEdit *)Items[FocusPos]->ObjPtr)->Changed();
 				ShowDialog();
 				return TRUE;
 			}
@@ -2717,7 +2711,7 @@ int Dialog::ProcessKey(int Key)
 			{
 				Items[FocusPos]->Selected=1;
 
-				// сообщение - "Кнокна кликнута"
+				// сообщение - "Кнопка нажата"
 				if (SendMessage(DN_BTNCLICK,FocusPos,0))
 					return TRUE;
 
@@ -2941,45 +2935,29 @@ int Dialog::ProcessKey(int Key)
 					switch (Key)
 					{
 						case KEY_BS:
-						{
-							int CurPos=edt->GetCurPos();
-
-							// В начале строки????
+						{	// В начале строки????
 							if (!edt->GetCurPos())
-							{
-								// а "выше" тоже DIF_EDITOR?
-								if (FocusPos > 0 && (Items[FocusPos-1]->Flags&DIF_EDITOR))
-								{
-									// добавляем к предыдущему и...
-									DlgEdit *edt_1=(DlgEdit *)Items[FocusPos-1]->ObjPtr;
-									edt_1->GetString(strStr);
-									CurPos=static_cast<int>(strStr.GetLength());
-									string strAdd;
-									edt->GetString(strAdd);
-									strStr+=strAdd;
-									edt_1->SetString(strStr);
-
-									for (size_t I = FocusPos + 1; I < Items.size(); ++I)
+							{	// а "выше" тоже DIF_EDITOR?
+								if (FocusPos > 0 && (Items[FocusPos-1]->Flags & DIF_EDITOR))
+								{	// добавляем к предыдущему и...
+									bool last = false;
+									DlgEdit *prev = (DlgEdit *)(Items[FocusPos-1]->ObjPtr);
+									prev->GetString(strStr);
+									int pos = static_cast<int>(strStr.GetLength());
+									for (size_t I = FocusPos; !last && I < Items.size(); ++I)
 									{
-										if (Items[I]->Flags & DIF_EDITOR)
-										{
-											if (I>FocusPos)
-											{
-												((DlgEdit *)(Items[I]->ObjPtr))->GetString(strStr);
-												((DlgEdit *)(Items[I-1]->ObjPtr))->SetString(strStr);
-											}
-
-											((DlgEdit *)(Items[I]->ObjPtr))->SetString(L"");
-										}
-										else // ага, значит  FocusPos это есть последний из DIF_EDITOR
-										{
-											((DlgEdit *)(Items[I-1]->ObjPtr))->SetString(L"");
-											break;
-										}
+										DlgEdit *next = (DlgEdit *)(Items[I]->ObjPtr);
+										last = (0 == (Items[I]->Flags & DIF_EDITOR));
+										string strNext;
+										if (!last)
+											next->GetString(strNext);
+										strStr += strNext;
+										((DlgEdit *)Items[I-1]->ObjPtr)->SetString(strStr, true, 0);
+										strStr.Clear();
 									}
-
-									Do_ProcessNextCtrl(TRUE);
-									edt_1->SetCurPos(CurPos);
+									Do_ProcessNextCtrl(true);
+									prev->SetCurPos(pos);
+									prev->Changed();
 								}
 							}
 							else
@@ -2993,32 +2971,27 @@ int Dialog::ProcessKey(int Key)
 						case KEY_CTRLY:
 						case KEY_RCTRLY:
 						{
-							for (size_t I = FocusPos; I < Items.size(); ++I)
-								if (Items[I]->Flags & DIF_EDITOR)
-								{
-									if (I>FocusPos)
-									{
-										((DlgEdit *)(Items[I]->ObjPtr))->GetString(strStr);
-										((DlgEdit *)(Items[I-1]->ObjPtr))->SetString(strStr);
-									}
-
-									((DlgEdit *)(Items[I]->ObjPtr))->SetString(L"");
-								}
-								else
-									break;
-
+							bool empty = true, last = false;
+							for (size_t I = FocusPos+1; !last && I < Items.size(); ++I)
+							{
+								last = (0 == (Items[I]->Flags & DIF_EDITOR));
+								string strNext;
+								if (!last)
+									((DlgEdit *)(Items[I]->ObjPtr))->GetString(strNext);
+								DlgEdit *prev = (DlgEdit *)Items[I-1]->ObjPtr;
+								int CurPos = prev->GetCurPos();
+								prev->SetString(strNext, true, CurPos);
+								empty = empty && strNext.IsEmpty();
+							}
+							if (empty)
+								((DlgEdit *)(Items[FocusPos]->ObjPtr))->SetCurPos(0);
+							((DlgEdit *)(Items[FocusPos]->ObjPtr))->Changed();
 							ShowDialog();
 							return TRUE;
 						}
 						case KEY_NUMDEL:
 						case KEY_DEL:
 						{
-							/* $ 19.07.2000 SVS
-							   ! "...В редакторе команд меню нажмите home shift+end del
-							     блок не удаляется..."
-							     DEL у итемов, имеющих DIF_EDITOR, работал без учета
-							     выделения...
-							*/
 							if (FocusPos<Items.size()+1 && (Items[FocusPos+1]->Flags & DIF_EDITOR))
 							{
 								int CurPos=edt->GetCurPos();
@@ -3040,25 +3013,16 @@ int Dialog::ProcessKey(int Key)
 								else if (CurPos>=Length)
 								{
 									DlgEdit *edt_1=(DlgEdit *)Items[FocusPos+1]->ObjPtr;
-
-									/* $ 12.09.2000 SVS
-									   Решаем проблему, если Del нажали в позиции
-									   большей, чем длина строки
-									*/
 									if (CurPos > Length)
 									{
 										LPWSTR Str=strStr.GetBuffer(CurPos);
 										wmemset(Str+Length,L' ',CurPos-Length);
 										strStr.ReleaseBuffer(CurPos);
 									}
-
 									string strAdd;
 									edt_1->GetString(strAdd);
-									edt_1->SetString(strStr+strAdd);
-									ProcessKey(KEY_CTRLY);
-									edt->SetCurPos(CurPos);
-									ShowDialog();
-									return TRUE;
+									edt_1->SetString(strStr+strAdd, true);
+									return ProcessKey(KEY_CTRLY);
 								}
 							}
 
@@ -3751,7 +3715,7 @@ int Dialog::Do_ProcessFirstCtrl()
 	return TRUE;
 }
 
-int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
+int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 {
 	CriticalSectionLock Lock(CS);
 	size_t OldPos=FocusPos;
