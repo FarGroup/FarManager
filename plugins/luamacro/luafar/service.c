@@ -2655,6 +2655,43 @@ int DialogHandleEqual(lua_State* L)
 	return 1;
 }
 
+int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
+{
+	if (! ((Msg>DM_FIRST && Msg<=DM_GETDIALOGINFO) || Msg==DM_USER))
+		return 0;
+
+	lua_pushinteger(L, Msg);             //+1
+
+	// Param1
+	switch(Msg)
+	{
+		case DM_CLOSE:
+			lua_pushinteger(L, Param1<=0 ? Param1 : Param1+1);
+			break;
+		case DM_ENABLEREDRAW:
+		case DM_GETDIALOGINFO:
+		case DM_GETDLGDATA:
+		case DM_GETDLGRECT:
+		case DM_GETDROPDOWNOPENED:
+		case DM_GETFOCUS:
+		case DM_KEY:
+		case DM_MOVEDIALOG:
+		case DM_REDRAW:
+		case DM_RESIZEDIALOG:
+		case DM_SETDLGDATA:
+		case DM_SETMOUSEEVENTNOTIFY:
+		case DM_SHOWDIALOG:
+		case DM_USER:
+			lua_pushinteger(L, Param1);
+			break;
+		default: // dialog element position
+			lua_pushinteger(L, Param1+1);
+			break;
+	}
+
+	return 1;
+}
+
 static int far_SendDlgMessage(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
@@ -3102,24 +3139,15 @@ static int far_SendDlgMessage(lua_State *L)
 	return 1;
 }
 
-intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 {
-	intptr_t ret;
-	TPluginData *pd = GetPluginData(L);
-	PSInfo *Info = pd->Info;
-	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+	if (! (Msg>DN_FIRST && Msg<=DN_GETVALUE))
+		return 0;
 
-	if(dd->wasError)
-		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
-
-	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
-	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
-	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
-	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
-	lua_pushinteger(L, Msg);             //+4
+	lua_pushinteger(L, Msg);             //+1
 
 	// Param1
-	switch(Msg)                          //+5
+	switch(Msg)                          //+2
 	{
 		case DN_CLOSE:
 		case DN_CONTROLINPUT:
@@ -3192,9 +3220,32 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 			PutNumToTable(L, "Value", fgv->Value.Value.Double);
 	}
 	else
-		lua_pushinteger(L, (intptr_t)Param2);  //+6
+		lua_pushinteger(L, (intptr_t)Param2);  //+3
 
-	//---------------------------------------------------------------------------
+	return 1;
+}
+
+intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+{
+	intptr_t ret;
+	TPluginData *pd = GetPluginData(L);
+	PSInfo *Info = pd->Info;
+	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+
+	if(dd->wasError)
+		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+
+	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
+	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
+	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
+	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
+
+	if (! PushDNParams(L, Msg, Param1, Param2)) //+6
+	{
+		lua_pop(L, 3);
+		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+	}
+
 	ret = pcall_msg(L, 4, 1);  //+2
 
 	if(ret)

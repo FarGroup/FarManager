@@ -1909,7 +1909,7 @@ id=221
 lv=2
 dt=Text
 nm=export.ProcessDialogEvent
-mtime=3571083823
+mtime=3574325560
 <article>
 #_ret = export.ProcessDialogEvent (Event, Param)
 #_
@@ -1920,7 +1920,6 @@ mtime=3571083823
 #_            Msg    : integer
 #_            Param1 : integer
 #_            Param2 : integer
-#_            Result : integer
 #_
 #_**Returns:**
 #_  ret:    integer, or nil

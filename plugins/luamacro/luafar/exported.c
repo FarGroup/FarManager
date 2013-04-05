@@ -22,6 +22,8 @@ extern void LF_Error(lua_State *L, const wchar_t* aMsg);
 extern int pushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
 extern int far_FreeSettings(lua_State *L);
+extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
+extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 
 // "Collector" is a Lua table referenced from the Plugin Object table by name.
@@ -1235,26 +1237,41 @@ intptr_t LF_ProcessViewerEvent(lua_State* L, const struct ProcessViewerEventInfo
 intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo *Info)
 {
 	intptr_t ret = 0;
+	struct FarDialogEvent *fde = Info->Param;
 
-	if(GetExportFunction(L, "ProcessDialogEvent"))     //+1: Func
+	if (!GetExportFunction(L, "ProcessDialogEvent")) //+1: Func
+		return 0;
+
+	lua_pushinteger(L, Info->Event); //+2
+	lua_createtable(L, 0, 5);        //+3
+	NewDialogData(L, NULL, fde->hDlg, FALSE);
+	lua_setfield(L, -2, "hDlg");     //+3
+
+	if (PushDNParams(L, fde->Msg, fde->Param1, fde->Param2)) //+6
 	{
-		struct FarDialogEvent *fde = Info->Param;
-		lua_pushinteger(L, Info->Event); //+2
-		lua_createtable(L, 0, 5);        //+3
-		NewDialogData(L, NULL, fde->hDlg, FALSE);
-		lua_setfield(L, -2, "hDlg"); //+3
+		lua_setfield(L, -4, "Param2"); //+5
+		lua_setfield(L, -3, "Param1"); //+4
+		lua_setfield(L, -2, "Msg");    //+3
+	}
+	else if (PushDMParams(L, fde->Msg, fde->Param1)) //+5
+	{
+		lua_setfield(L, -3, "Param1"); //+4
+		lua_setfield(L, -2, "Msg");    //+3
+		PutIntToTable(L, "Param2", (intptr_t)fde->Param2); //FIXME: temporary solution
+	}
+	else
+	{
 		PutIntToTable(L, "Msg", fde->Msg);
 		PutIntToTable(L, "Param1", fde->Param1);
 		PutIntToTable(L, "Param2", (intptr_t)fde->Param2);
-		PutIntToTable(L, "Result", fde->Result);
+	}
 
-		if(pcall_msg(L, 2, 1) == 0)     //+1
-		{
-			if((ret=lua_toboolean(L,-1)) != 0)
-				fde->Result = lua_tointeger(L,-1);
+	if(pcall_msg(L, 2, 1) == 0)      //+1
+	{
+		if((ret=lua_toboolean(L,-1)) != 0)
+			fde->Result = lua_tointeger(L,-1);
 
-			lua_pop(L,1);
-		}
+		lua_pop(L,1);
 	}
 
 	return ret;
