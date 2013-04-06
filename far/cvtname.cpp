@@ -55,7 +55,9 @@ void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	LPWSTR pstPath=strPath.GetBuffer();
-	ParsePath(pstPath, const_cast<const wchar_t**>(&pstPath));
+	size_t DirOffset = 0;
+	ParsePath(strPath, &DirOffset);
+	pstPath+=DirOffset;
 
 	//Process "." and ".." if exists
 	for (size_t m = 0; pstPath[m];)
@@ -143,22 +145,23 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 	if (lFullPath > 0)
 	{
 		strDest.Clear();
-		LPCWSTR pstPath = stPath, pstCurrentDir = nullptr;
+		LPCWSTR pstPath = stPath.CPtr(), pstCurrentDir = nullptr;
 		bool blIgnore = false;
-		PATH_TYPE PathType = ParsePath(stPath, &pstPath);
-
+		size_t DirOffset = 0;
+		PATH_TYPE PathType = ParsePath(stPath, &DirOffset);
+		pstPath+=DirOffset;
 		switch (PathType)
 		{
 			case PATH_UNKNOWN: 
 			{
 				if(IsSlash(stPath.At(0)) && !IsSlash(stPath.At(1))) //"\" or "\abc"
 				{
-					if (stCurrentDir)
+					if (!stCurrentDir.IsEmpty())
 					{
-						const wchar_t* DirPtr;
-						if (ParsePath(stCurrentDir, &DirPtr)!=PATH_UNKNOWN)
+						size_t DirOffset = 0;
+						if (ParsePath(stCurrentDir, &DirOffset)!=PATH_UNKNOWN)
 						{
-							strDest=string(stCurrentDir,DirPtr-stCurrentDir);
+							strDest=string(stCurrentDir.CPtr(), DirOffset);
 						}
 					}
 				}
@@ -170,7 +173,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 					}
 					else //"abc" or whatever
 					{
-						pstCurrentDir=stCurrentDir;
+						pstCurrentDir=stCurrentDir.CPtr();
 					}
 				}
 			}
@@ -179,7 +182,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			{
 				if(IsSlash(stPath.At(2)))
 				{
-					pstPath=stPath;
+					pstPath=stPath.CPtr();
 				}
 				else
 				{
@@ -208,7 +211,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			break;
 			case PATH_REMOTE: //"\\abc"
 			{
-				pstPath=stPath;
+				pstPath=stPath.CPtr();
 			}
 			break;
 			case PATH_DRIVELETTERUNC: //"\\?\whatever"
@@ -217,7 +220,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			case PATH_PIPE:
 			{
 				blIgnore=true;
-				pstPath=stPath;
+				pstPath=stPath.CPtr();
 			}
 			break;
 		}
@@ -242,7 +245,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 	return false;
 }
 
-void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest, LPCWSTR CurrentDirectory)
+void ConvertNameToFull(const string& lpwszSrc, string &strDest, LPCWSTR CurrentDirectory)
 {
 	string strCurDir;
 	if(!CurrentDirectory)
@@ -270,12 +273,12 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 			DWORD BufSize = NT_MAX_PATH;
 			string PathNames;
 			DWORD RetSize;
-			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).CPtr(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 
 			if (!Res && RetSize > BufSize)
 			{
 				BufSize = RetSize;
-				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).CPtr(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 			}
 
 			if (Res)
@@ -310,7 +313,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 				{
 					if (apiGetVolumeNameForVolumeMountPoint(Drive, strVolumeGuid))
 					{
-						if (Path.IsSubStrAt(0, strVolumeGuid, cVolumeGuidLen))
+						if (Path.IsSubStrAt(0, strVolumeGuid.CPtr(), cVolumeGuidLen))
 						{
 							DeleteEndSlash(Drive);
 							Result.Replace(0, cVolumeGuidLen, Drive);
@@ -331,7 +334,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
 */
-void ConvertNameToReal(const wchar_t *Src, string &strDest)
+void ConvertNameToReal(const string& Src, string &strDest)
 {
 	DisableElevation de;
 	// Получим сначала полный путь до объекта обычным способом
@@ -381,18 +384,18 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 	}
 }
 
-void ConvertNameToShort(const wchar_t *Src, string &strDest)
+void ConvertNameToShort(const string& Src, string &strDest)
 {
 	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetShortPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = GetShortPathName(strCopy.CPtr(), Buffer, ARRAYSIZE(Buffer));
 
 	if(Size)
 	{
 		if(Size>ARRAYSIZE(Buffer))
 		{
 			wchar_t *lpwszDest = strDest.GetBuffer(Size);
-			GetShortPathName(strCopy, lpwszDest, Size);
+			GetShortPathName(strCopy.CPtr(), lpwszDest, Size);
 			strDest.ReleaseBuffer();
 		}
 		else
@@ -406,18 +409,18 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 	}
 }
 
-void ConvertNameToLong(const wchar_t *Src, string &strDest)
+void ConvertNameToLong(const string& Src, string &strDest)
 {
 	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD nSize = GetLongPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
+	DWORD nSize = GetLongPathName(strCopy.CPtr(), Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{
 		if (nSize>ARRAYSIZE(Buffer))
 		{
 			wchar_t *lpwszDest = strDest.GetBuffer(nSize);
-			GetLongPathName(strCopy, lpwszDest, nSize);
+			GetLongPathName(strCopy.CPtr(), lpwszDest, nSize);
 			strDest.ReleaseBuffer();
 		}
 		else
@@ -446,9 +449,9 @@ void ConvertNameToUNC(string &strFileName)
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (StrCmpI(strFileSystemName,L"NWFS"))
+	if (StrCmpI(strFileSystemName.CPtr(),L"NWFS"))
 	{
-		DWORD dwRet=WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
+		DWORD dwRet=WNetGetUniversalName(strFileName.CPtr(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
 
 		switch (dwRet)
 		{
@@ -458,7 +461,7 @@ void ConvertNameToUNC(string &strFileName)
 			case ERROR_MORE_DATA:
 				uni.reset(uniSize);
 
-				if (WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
+				if (WNetGetUniversalName(strFileName.CPtr(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
 
 				break;
@@ -471,7 +474,7 @@ void ConvertNameToUNC(string &strFileName)
 		// мапленный диск - получаем как для меню выбора дисков
 		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp))
 		{
-			const wchar_t *NamePtr=FirstSlash(strFileName);
+			const wchar_t *NamePtr=FirstSlash(strFileName.CPtr());
 
 			if (NamePtr )
 			{
@@ -511,11 +514,11 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				size_t FullLen=strPath.GetLength();
 				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath;
 
-				const wchar_t* DirPtr;
-				PATH_TYPE Type = ParsePath(lpwszPath, &DirPtr);
+				size_t DirOffset;
+				PATH_TYPE Type = ParsePath(strPath, &DirOffset);
 				if (Type != PATH_UNKNOWN)
 				{
-					Src = const_cast<wchar_t*>(DirPtr);
+					Src = const_cast<wchar_t*>(strPath.CPtr() + DirOffset);
 					if (IsSlash(*Src))
 						Src++;
 				}
@@ -561,7 +564,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 									FullLen+=n1;
 								}
 
-								wmemcpy(Dst,fd.strFileName,n);
+								wmemcpy(Dst,fd.strFileName.CPtr(),n);
 							}
 
 							if (c)
@@ -578,14 +581,10 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				strPath.ReleaseBuffer(FullLen);
 			}
 
-			wchar_t *lpwszPath = strPath.GetBuffer();
-
-			if (ParsePath(lpwszPath) == PATH_DRIVELETTER)
+			if (ParsePath(strPath) == PATH_DRIVELETTER)
 			{
-				lpwszPath[0]=Upper(lpwszPath[0]);
+				strPath[0] = Upper(strPath[0]);
 			}
-
-			strPath.ReleaseBuffer(strPath.GetLength());
 		}
 	}
 

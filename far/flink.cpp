@@ -56,7 +56,7 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 
 	if (apiGetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
 	{
-		if (SetVolumeMountPoint(Object,strBuf))
+		if (SetVolumeMountPoint(Object.CPtr(),strBuf.CPtr()))
 		{
 			Result=true;
 		}
@@ -65,7 +65,7 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 	return Result;
 }
 
-bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t PrintNameLength,LPCWSTR SubstituteName,size_t SubstituteNameLength)
+bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, string& PrintName, string& SubstituteName)
 {
 	bool Result=false;
 	rdb->Reserved=0;
@@ -74,30 +74,30 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t P
 	{
 		case IO_REPARSE_TAG_MOUNT_POINT:
 			rdb->MountPointReparseBuffer.SubstituteNameOffset=0;
-			rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteNameLength*sizeof(wchar_t));
+			rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteName.GetLength()*sizeof(wchar_t));
 			rdb->MountPointReparseBuffer.PrintNameOffset=rdb->MountPointReparseBuffer.SubstituteNameLength+2;
-			rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(PrintNameLength*sizeof(wchar_t));
+			rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(PrintName.GetLength()*sizeof(wchar_t));
 			rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,MountPointReparseBuffer.PathBuffer)+rdb->MountPointReparseBuffer.PrintNameOffset+rdb->MountPointReparseBuffer.PrintNameLength+1*sizeof(wchar_t)-REPARSE_DATA_BUFFER_HEADER_SIZE;
 
 			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName,SubstituteNameLength+1);
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName,PrintNameLength+1);
+				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.CPtr(),SubstituteName.GetLength()+1);
+				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.CPtr(),PrintName.GetLength()+1);
 				Result=true;
 			}
 			break;
 
 		case IO_REPARSE_TAG_SYMLINK:
 			rdb->SymbolicLinkReparseBuffer.PrintNameOffset=0;
-			rdb->SymbolicLinkReparseBuffer.PrintNameLength=static_cast<WORD>(PrintNameLength*sizeof(wchar_t));
+			rdb->SymbolicLinkReparseBuffer.PrintNameLength=static_cast<WORD>(PrintName.GetLength()*sizeof(wchar_t));
 			rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset=rdb->MountPointReparseBuffer.PrintNameLength;
-			rdb->SymbolicLinkReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteNameLength*sizeof(wchar_t));
+			rdb->SymbolicLinkReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteName.GetLength()*sizeof(wchar_t));
 			rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,SymbolicLinkReparseBuffer.PathBuffer)+rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset+rdb->SymbolicLinkReparseBuffer.SubstituteNameLength-REPARSE_DATA_BUFFER_HEADER_SIZE;
 
 			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName,SubstituteNameLength);
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName,PrintNameLength);
+				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.CPtr(),SubstituteName.GetLength());
+				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.CPtr(),PrintName.GetLength());
 				Result=true;
 			}
 			break;
@@ -223,7 +223,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 									rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
 								}
 
-								if (FillREPARSE_DATA_BUFFER(rdb.get(),strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+								if (FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
 								{
 									Result=SetREPARSE_DATA_BUFFER(Object,rdb.get());
 								}
@@ -246,7 +246,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
-				if (FillREPARSE_DATA_BUFFER(rdb.get(),strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+				if (FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
 				{
 					Result=SetREPARSE_DATA_BUFFER(Object,rdb.get());
 				}
@@ -383,13 +383,13 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 }
 
 
-int MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName, bool Silent)
+int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
 	BOOL Result = apiCreateHardLink(NewName, ExistingName, nullptr);
 
 	if (!Result && !Silent)
 	{
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName,MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName.CPtr(),MSG(MOk));
 	}
 	return Result;
 }
@@ -426,7 +426,7 @@ bool DelSubstDrive(const string& DeviceName)
 	if (GetSubstName(DRIVE_NOT_INIT,DeviceName,strTargetPath))
 	{
 		strTargetPath=(string)L"\\??\\"+strTargetPath;
-		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName,strTargetPath)==TRUE);
+		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.CPtr(),strTargetPath.CPtr())==TRUE);
 	}
 
 	return Result;
@@ -500,7 +500,7 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 }
 
 
-void GetPathRoot(const wchar_t *Path, string &strRoot)
+void GetPathRoot(const string& Path, string &strRoot)
 {
 	string RealPath;
 	ConvertNameToReal(Path, RealPath);
@@ -525,7 +525,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 					ConvertNameToFull(NewData,strPrintName);
 					strSubstituteName=L"\\??\\";
 					strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-					FillResult=FillREPARSE_DATA_BUFFER(rdb.get(),strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
+					FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
 				}
 				break;
 
@@ -544,7 +544,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 						rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
 					}
 
-					FillResult=FillREPARSE_DATA_BUFFER(rdb.get(),strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
+					FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
 				}
 				break;
 
@@ -581,7 +581,7 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!StrCmpN(strLinkName,L"\\??\\",4))
+	if (!StrCmpN(strLinkName.CPtr(),L"\\??\\",4))
 	{
 		LPWSTR LinkName=strLinkName.GetBuffer();
 		LinkName[1]=L'\\';
@@ -595,18 +595,18 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType, bool Silent)
+int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkType, bool Silent)
 {
-	if (SelName && *SelName && Dest && *Dest)
+	if (!SelName.IsEmpty() && !Dest.IsEmpty())
 	{
 		string strSrcFullName, strDestFullName, strSelOnlyName;
 		// выделим имя
 		strSelOnlyName = SelName;
 		DeleteEndSlash(strSelOnlyName);
-		const wchar_t *PtrSelName=LastSlash(strSelOnlyName);
+		const wchar_t *PtrSelName=LastSlash(strSelOnlyName.CPtr());
 
 		if (!PtrSelName)
-			PtrSelName=strSelOnlyName;
+			PtrSelName=strSelOnlyName.CPtr();
 		else
 			++PtrSelName;
 
@@ -635,7 +635,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				strDestFullName += PtrSelName;
 			else
 			{
-				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',*SelName,L'\0'};
+				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',SelName[0],L'\0'};
 				strDestFullName+=Tmp;
 			}
 		}
@@ -656,7 +656,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					        MSG(MCopyCannotCreateJunctionToFile),
-					        strDestFullName,MSG(MOk));
+					        strDestFullName.CPtr(),MSG(MOk));
 				}
 
 				return 0;
@@ -670,7 +670,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				if (LinkType==RP_VOLMOUNT)
 				{
 					string strTmpName(MSG(MCopyMountName));
-					strTmpName += *SelName;
+					strTmpName += SelName[0];
 					strDestFullName += strTmpName;
 					AddEndSlash(strDestFullName);
 				}
@@ -688,14 +688,14 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 							if (LinkType==RP_VOLMOUNT)
 							{
 								Message(MSG_WARNING,1,MSG(MError),
-								        LangString(MCopyMountVolFailed) << SelName,
-								        LangString(MCopyMountVolFailed2) << strDestFullName,
+								        (LangString(MCopyMountVolFailed) << SelName).CPtr(),
+								        (LangString(MCopyMountVolFailed2) << strDestFullName).CPtr(),
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
 							else
 								Message(MSG_WARNING,1,MSG(MError),
-								        MSG(MCopyCannotCreateLink),strDestFullName,
+								        MSG(MCopyCannotCreateLink),strDestFullName.CPtr(),
 								        MSG(MCopyFolderNotEmpty),MSG(MOk));
 						}
 
@@ -716,7 +716,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
-						        strDestFullName,MSG(MOk));
+						        strDestFullName.CPtr(),MSG(MOk));
 					}
 
 					return 0;
@@ -779,7 +779,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 					if (!Silent)
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
+						        MSG(MCopyCannotCreateLink),strDestFullName.CPtr(),MSG(MOk));
 					}
 
 					return 0;
@@ -798,7 +798,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				if (!Silent)
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-					        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
+					        MSG(MCopyCannotCreateLink),strDestFullName.CPtr(),MSG(MOk));
 				}
 
 				return 0;
@@ -816,8 +816,8 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
-						LangString(MCopyMountVolFailed) << SelName,
-						LangString(MCopyMountVolFailed2) << strDestFullName,
+						(LangString(MCopyMountVolFailed) << SelName).CPtr(),
+						(LangString(MCopyMountVolFailed2) << strDestFullName).CPtr(),
 						MSG(MOk));
 				}
 

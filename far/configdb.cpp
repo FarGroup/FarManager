@@ -143,7 +143,7 @@ static unsigned int HexStringToInt(const char *Hex)
 	return x;
 }
 
-static inline void PrintError(const wchar_t *Title, const wchar_t *Error, int Row, int Col)
+static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
 {
 	FormatString strResult;
 	strResult<<Title<<" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
@@ -166,10 +166,10 @@ public:
 
 	Utf8String(const string& Str)
 	{
-		Init(Str, Str.GetLength());
+		Init(Str.CPtr(), Str.GetLength());
 	}
 
-	operator const char*() const {return Data.get();}
+	const char* CPtr() const {return Data.get();}
 	size_t size() const {return Size;}
 
 
@@ -202,7 +202,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -236,7 +236,7 @@ public:
 		return false;
 	}
 
-	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
+	bool SetValue(const string& Key, const string& Name, const string& Value)
 	{
 		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
 		if (!b || Changes() == 0)
@@ -244,7 +244,7 @@ public:
 		return b;
 	}
 
-	bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value)
+	bool SetValue(const string& Key, const string& Name, unsigned __int64 Value)
 	{
 		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
 		if (!b || Changes() == 0)
@@ -252,7 +252,7 @@ public:
 		return b;
 	}
 
-	bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size)
+	bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size)
 	{
 		bool b = stmtUpdateValue.Bind(Value,Size).Bind(Key).Bind(Name).StepAndReset();
 		if (!b || Changes() == 0)
@@ -260,7 +260,7 @@ public:
 		return b;
 	}
 
-	bool GetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 *Value)
+	bool GetValue(const string& Key, const string& Name, unsigned __int64 *Value)
 	{
 		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
 		if (b)
@@ -269,7 +269,7 @@ public:
 		return b;
 	}
 
-	bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
+	bool GetValue(const string& Key, const string& Name, string &strValue)
 	{
 		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
 		if (b)
@@ -278,7 +278,7 @@ public:
 		return b;
 	}
 
-	int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size)
+	int GetValue(const string& Key, const string& Name, void *Value, size_t Size)
 	{
 		int realsize = 0;
 		if (stmtGetValue.Bind(Key).Bind(Name).Step())
@@ -292,7 +292,7 @@ public:
 		return realsize;
 	}
 
-	bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default)
+	bool GetValue(const string& Key, const string& Name, DWORD *Value, DWORD Default)
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
@@ -303,7 +303,7 @@ public:
 		return false;
 	}
 
-	bool GetValue(const wchar_t *Key, const wchar_t *Name, int *Value, int Default)
+	bool GetValue(const string& Key, const string& Name, int *Value, int Default)
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
@@ -315,7 +315,7 @@ public:
 		return false;
 	}
 
-	int GetValue(const wchar_t *Key, const wchar_t *Name, int Default)
+	int GetValue(const string& Key, const string& Name, int Default)
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
@@ -323,7 +323,7 @@ public:
 		return Default;
 	}
 
-	bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default)
+	bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default)
 	{
 		if (GetValue(Key,Name,strValue))
 			return true;
@@ -331,7 +331,7 @@ public:
 		return false;
 	}
 
-	int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size, const void *Default)
+	int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default)
 	{
 		int s = GetValue(Key,Name,Value,Size);
 		if (s)
@@ -344,12 +344,12 @@ public:
 		return 0;
 	}
 
-	bool DeleteValue(const wchar_t *Key, const wchar_t *Name)
+	bool DeleteValue(const string& Key, const string& Name)
 	{
 		return stmtDelValue.Bind(Key).Bind(Name).StepAndReset();
 	}
 
-	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue)
+	bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Key,false);
@@ -365,7 +365,7 @@ public:
 		return false;
 	}
 
-	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value)
+	bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD *Value)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Key,false);
@@ -513,7 +513,7 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 
 public:
 
-	explicit HierarchicalConfigDb(const wchar_t *DbName, bool Local = false)
+	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
 		Initialize(DbName, Local);
 	}
@@ -522,7 +522,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -591,17 +591,17 @@ public:
 		return b;
 	}
 
-	unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr)
+	unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description)
 	{
-		if (stmtCreateKey.Bind(Root).Bind(Name).Bind(Description).StepAndReset())
+		if (stmtCreateKey.Bind(Root).Bind(Name).Bind(Description? *Description : string()).StepAndReset())
 			return LastInsertRowID();
 		unsigned __int64 id = GetKeyID(Root,Name);
 		if (id && Description)
-			SetKeyDescription(id,Description);
+			SetKeyDescription(id,Description? *Description : string());
 		return id;
 	}
 
-	unsigned __int64 GetKeyID(unsigned __int64 Root, const wchar_t *Name)
+	unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name)
 	{
 		unsigned __int64 id = 0;
 		if (stmtFindKey.Bind(Root).Bind(Name).Step())
@@ -610,29 +610,29 @@ public:
 		return id;
 	}
 
-	bool SetKeyDescription(unsigned __int64 Root, const wchar_t *Description)
+	bool SetKeyDescription(unsigned __int64 Root, const string& Description)
 	{
 		return stmtSetKeyDescription.Bind(Description).Bind(Root).StepAndReset();
 	}
 
-	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value)
+	bool SetValue(unsigned __int64 Root, const string& Name, const string& Value)
 	{
-		if (!Name)
+		if (Name.IsEmpty())
 			return SetKeyDescription(Root,Value);
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 
-	bool SetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 Value)
+	bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value)
 	{
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 
-	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const void *Value, size_t Size)
+	bool SetValue(unsigned __int64 Root, const string& Name, const void *Value, size_t Size)
 	{
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value,Size).StepAndReset();
 	}
 
-	bool GetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 *Value)
+	bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value)
 	{
 		bool b = stmtGetValue.Bind(Root).Bind(Name).Step();
 		if (b)
@@ -641,7 +641,7 @@ public:
 		return b;
 	}
 
-	bool GetValue(unsigned __int64 Root, const wchar_t *Name, string &strValue)
+	bool GetValue(unsigned __int64 Root, const string& Name, string &strValue)
 	{
 		bool b = stmtGetValue.Bind(Root).Bind(Name).Step();
 		if (b)
@@ -650,7 +650,7 @@ public:
 		return b;
 	}
 
-	int GetValue(unsigned __int64 Root, const wchar_t *Name, void *Value, size_t Size)
+	int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size)
 	{
 		int realsize = 0;
 		if (stmtGetValue.Bind(Root).Bind(Name).Step())
@@ -670,7 +670,7 @@ public:
 		return stmtDeleteTree.Bind(KeyID).StepAndReset();
 	}
 
-	bool DeleteValue(unsigned __int64 Root, const wchar_t *Name)
+	bool DeleteValue(unsigned __int64 Root, const string& Name)
 	{
 		return stmtDelValue.Bind(Root).Bind(Name).StepAndReset();
 	}
@@ -802,7 +802,7 @@ public:
 
 			string Name(name, CP_UTF8);
 			string Description(description, CP_UTF8);
-			id = CreateKey(root, Name, description ? Description.CPtr() : nullptr);
+			id = CreateKey(root, Name, &Description);
 			if (!id)
 				return;
 		}
@@ -879,7 +879,7 @@ static const std::array<value_name_pair<FARCOLORFLAGS, const wchar_t*>, 5> Color
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
 public:
-	explicit HighlightHierarchicalConfigDb(const wchar_t *DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
+	explicit HighlightHierarchicalConfigDb(const string& DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
 
 private:
 	HighlightHierarchicalConfigDb();
@@ -895,7 +895,7 @@ private:
 			e->SetAttribute("type", "color");
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)));
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).CPtr());
 		}
 		else
 		{
@@ -948,7 +948,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -980,7 +980,7 @@ public:
 
 	virtual ~ColorsConfigDb() { }
 
-	bool SetValue(const wchar_t *Name, const FarColor& Value)
+	bool SetValue(const string& Name, const FarColor& Value)
 	{
 		bool b = stmtUpdateValue.Bind(&Value, sizeof(Value)).Bind(Name).StepAndReset();
 		if (!b || Changes() == 0)
@@ -988,7 +988,7 @@ public:
 		return b;
 	}
 
-	bool GetValue(const wchar_t *Name, FarColor& Value)
+	bool GetValue(const string& Name, FarColor& Value)
 	{
 		bool b = stmtGetValue.Bind(Name).Step();
 		if (b)
@@ -1000,7 +1000,7 @@ public:
 		return b;
 	}
 
-	bool DeleteValue(const wchar_t *Name)
+	bool DeleteValue(const string& Name)
 	{
 		return stmtDelValue.Bind(Name).StepAndReset();
 	}
@@ -1024,7 +1024,7 @@ public:
 			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)));
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).CPtr());
 			root->LinkEndChild(e);
 		}
 
@@ -1095,7 +1095,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -1224,7 +1224,7 @@ public:
 		return b;
 	}
 
-	bool SetCommand(unsigned __int64 id, int Type, const wchar_t *Command, bool Enabled)
+	bool SetCommand(unsigned __int64 id, int Type, const string& Command, bool Enabled)
 	{
 		return stmtSetCommand.Bind(id).Bind(Type).Bind(Enabled?1:0).Bind(Command).StepAndReset();
 	}
@@ -1246,14 +1246,14 @@ public:
 		return false;
 	}
 
-	unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description)
+	unsigned __int64 AddType(unsigned __int64 after_id, const string& Mask, const string& Description)
 	{
 		if (stmtReorder.Bind(after_id).StepAndReset() && stmtAddType.Bind(after_id).Bind(Mask).Bind(Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description)
+	bool UpdateType(unsigned __int64 id, const string& Mask, const string& Description)
 	{
 		return stmtUpdateType.Bind(Mask).Bind(Description).Bind(id).StepAndReset();
 	}
@@ -1400,7 +1400,7 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb {
 		return b;
 	}
 
-	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const wchar_t *Text, const wchar_t *Guid)
+	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const string& Guid)
 	{
 		return stmtSetMenuItem.Bind(id).Bind((int)type).Bind(index).Bind(Guid).Bind(Text).StepAndReset();
 	}
@@ -1431,14 +1431,14 @@ public:
 #endif
 #endif
 			L".db");
-		Initialize(namedb.CPtr(), true);
+		Initialize(namedb, true);
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (!Open(DbName, Local, true))
 			return false;
@@ -1591,14 +1591,14 @@ public:
 
 	virtual ~PluginsCacheConfigDb() {}
 
-	unsigned __int64 CreateCache(const wchar_t *CacheName)
+	unsigned __int64 CreateCache(const string& CacheName)
 	{
 		if (stmtCreateCache.Bind(CacheName).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	unsigned __int64 GetCacheID(const wchar_t *CacheName)
+	unsigned __int64 GetCacheID(const string& CacheName)
 	{
 		unsigned __int64 id = 0;
 		if (stmtFindCacheName.Bind(CacheName).Step())
@@ -1607,7 +1607,7 @@ public:
 		return id;
 	}
 
-	bool DeleteCache(const wchar_t *CacheName)
+	bool DeleteCache(const string& CacheName)
 	{
 		//All related entries are automatically deleted because of foreign key constraints
 		return stmtDelCache.Bind(CacheName).StepAndReset();
@@ -1627,7 +1627,7 @@ public:
 		return GetTextFromID(stmtGetSignature, id);
 	}
 
-	void *GetExport(unsigned __int64 id, const wchar_t *ExportName)
+	void *GetExport(unsigned __int64 id, const string& ExportName)
 	{
 		void *enabled = nullptr;
 		if (stmtGetExportState.Bind(id).Bind(ExportName).Step())
@@ -1717,27 +1717,27 @@ public:
 		return stmtSetPreloadState.Bind(id).Bind(Preload?1:0).StepAndReset();
 	}
 
-	bool SetSignature(unsigned __int64 id, const wchar_t *Signature)
+	bool SetSignature(unsigned __int64 id, const string& Signature)
 	{
 		return stmtSetSignature.Bind(id).Bind(Signature).StepAndReset();
 	}
 
-	bool SetDiskMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid)
+	bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid)
 	{
 		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid)
+	bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid)
 	{
 		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid)
+	bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid)
 	{
 		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix)
+	bool SetCommandPrefix(unsigned __int64 id, const string& Prefix)
 	{
 		return stmtSetPrefix.Bind(id).Bind(Prefix).StepAndReset();
 	}
@@ -1747,7 +1747,7 @@ public:
 		return stmtSetFlags.Bind(id).Bind(Flags).StepAndReset();
 	}
 
-	bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists)
+	bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists)
 	{
 		return stmtSetExportState.Bind(id).Bind(ExportName).Bind(Exists?1:0).StepAndReset();
 	}
@@ -1762,22 +1762,22 @@ public:
 		return stmtSetVersion.Bind(id).Bind(Version,sizeof(VersionInfo)).StepAndReset();
 	}
 
-	bool SetGuid(unsigned __int64 id, const wchar_t *Guid)
+	bool SetGuid(unsigned __int64 id, const string& Guid)
 	{
 		return stmtSetGuid.Bind(id).Bind(Guid).StepAndReset();
 	}
 
-	bool SetTitle(unsigned __int64 id, const wchar_t *Title)
+	bool SetTitle(unsigned __int64 id, const string& Title)
 	{
 		return stmtSetTitle.Bind(id).Bind(Title).StepAndReset();
 	}
 
-	bool SetAuthor(unsigned __int64 id, const wchar_t *Author)
+	bool SetAuthor(unsigned __int64 id, const string& Author)
 	{
 		return stmtSetAuthor.Bind(id).Bind(Author).StepAndReset();
 	}
 
-	bool SetDescription(unsigned __int64 id, const wchar_t *Description)
+	bool SetDescription(unsigned __int64 id, const string& Description)
 	{
 		return stmtSetDescription.Bind(id).Bind(Description).StepAndReset();
 	}
@@ -1832,7 +1832,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -1873,7 +1873,7 @@ public:
 		return count!=0;
 	}
 
-	string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
+	string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType)
 	{
 		string strHotKey;
 		if (stmtGetHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).Step())
@@ -1882,12 +1882,12 @@ public:
 		return strHotKey;
 	}
 
-	bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey)
+	bool SetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey)
 	{
 		return stmtSetHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).Bind(HotKey).StepAndReset();
 	}
 
-	bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
+	bool DelHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType)
 	{
 		return stmtDelHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).StepAndReset();
 	}
@@ -2023,7 +2023,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	bool InitializeImpl(const string& DbName, bool Local)
 	{
 		if (
 			!Open(DbName, Local, true) ||
@@ -2162,7 +2162,7 @@ public:
 
 	virtual ~HistoryConfigCustom() {}
 
-	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
+	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
 
@@ -2191,7 +2191,7 @@ public:
 		return stmtDel.Bind(id).StepAndReset();
 	}
 
-	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimumEntries)
+	bool DeleteOldUnlocked(DWORD TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries)
 	{
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= CalcDays(DaysToKeep);
@@ -2213,12 +2213,12 @@ public:
 		return false;
 	}
 
-	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
+	bool Add(DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
 	{
 		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
 	}
 
-	bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName)
+	bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName)
 	{
 		bool b = stmtGetNewestName.Bind((int)TypeHistory).Bind(HistoryName).Step();
 		if (b)
@@ -2255,7 +2255,7 @@ public:
 		return b;
 	}
 
-	DWORD Count(DWORD TypeHistory, const wchar_t *HistoryName)
+	DWORD Count(DWORD TypeHistory, const string& HistoryName)
 	{
 		DWORD c = 0;
 		if (stmtCount.Bind((int)TypeHistory).Bind(HistoryName).Step())
@@ -2282,12 +2282,12 @@ public:
 		return l;
 	}
 
-	bool DeleteAllUnlocked(DWORD TypeHistory, const wchar_t *HistoryName)
+	bool DeleteAllUnlocked(DWORD TypeHistory, const string& HistoryName)
 	{
 		return stmtDelUnlocked.Bind((int)TypeHistory).Bind(HistoryName).StepAndReset();
 	}
 
-	unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		strName.Clear();
 		unsigned __int64 nid = 0;
@@ -2302,7 +2302,7 @@ public:
 		return nid;
 	}
 
-	unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		strName.Clear();
 		unsigned __int64 nid = 0;
@@ -2329,7 +2329,7 @@ public:
 		return nid;
 	}
 
-	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		strName.Clear();
 		unsigned __int64 nid = 0;
@@ -2352,14 +2352,14 @@ public:
 		return nid;
 	}
 
-	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage)
+	unsigned __int64 SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage)
 	{
 		if (stmtSetEditorPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).Bind((int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage)
+	unsigned __int64 GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage)
 	{
 		unsigned __int64 id=0;
 		if (stmtGetEditorPos.Bind(Name).Step())
@@ -2394,14 +2394,14 @@ public:
 		return b;
 	}
 
-	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage)
+	unsigned __int64 SetViewerPos(const string& Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage)
 	{
 		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex_Wrap).Bind((int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage)
+	unsigned __int64 GetViewerPos(const string& Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage)
 	{
 		unsigned __int64 id=0;
 		if (stmtGetViewerPos.Bind(Name).Step())
@@ -2485,7 +2485,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 		{
 			m_TemplateLoadState = 0;
 			string def_config = Global->Opt->TemplateProfilePath;
-			FILE* XmlFile = _wfopen(NTPath(def_config), L"rb");
+			FILE* XmlFile = _wfopen(NTPath(def_config).CPtr(), L"rb");
 			if (XmlFile)
 			{
 				m_TemplateDoc = new TiXmlDocument;
@@ -2533,7 +2533,7 @@ T* Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local, bool plugin)
+std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -2548,9 +2548,9 @@ std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK D
 	return std::unique_ptr<HierarchicalConfig>(cfg);
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
+std::unique_ptr<HierarchicalConfig> Database::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid).CPtr(), Local, true);
 }
 
 std::unique_ptr<HierarchicalConfig> Database::CreateFiltersConfig()
@@ -2589,9 +2589,9 @@ Database::Database(bool ImportExportMode):
 {
 }
 
-bool Database::Export(const wchar_t *File)
+bool Database::Export(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File), L"w");
+	FILE* XmlFile = _wfopen(NTPath(File).CPtr(), L"w");
 	if(!XmlFile)
 		return false;
 
@@ -2649,10 +2649,10 @@ bool Database::Export(const wchar_t *File)
 			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
 			fd.strFileName.Upper();
 			mc=2;
-			if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
+			if (re.Match(fd.strFileName.CPtr(), fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 			{
 				TiXmlElement *plugin = new TiXmlElement("plugin");
-				plugin->SetAttribute("guid", Utf8String(fd.strFileName));
+				plugin->SetAttribute("guid", Utf8String(fd.strFileName).CPtr());
 				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
 				e->LinkEndChild(plugin);
 			}
@@ -2667,9 +2667,9 @@ bool Database::Export(const wchar_t *File)
 	return ret;
 }
 
-bool Database::Import(const wchar_t *File)
+bool Database::Import(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File), L"rb");
+	FILE* XmlFile = _wfopen(NTPath(File).CPtr(), L"rb");
 	if(!XmlFile)
 		return false;
 
@@ -2717,7 +2717,7 @@ bool Database::Import(const wchar_t *File)
 				Guid.Upper();
 
 				mc=2;
-				if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
+				if (re.Match(Guid.CPtr(), Guid.CPtr() + Guid.GetLength(), m, mc))
 				{
 					CreatePluginsConfig(Guid)->Import(TiXmlHandle(plugin));
 				}

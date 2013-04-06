@@ -428,7 +428,7 @@ void FileEditor::Init(
 	};
 	SmartLock __smartlock;
 	SysErrorCode=0;
-	int BlankFileName = Name == MSG(MNewFileName) || !*Name;
+	int BlankFileName = Name == MSG(MNewFileName) || Name.IsEmpty();
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
@@ -490,7 +490,7 @@ void FileEditor::Init(
 				int MsgCode=0;
 				if (OpenModeExstFile == FEOPMODE_QUERY)
 				{
-					const wchar_t* const Items[] = {strFullFileName, MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
+					const wchar_t* const Items[] = {strFullFileName.CPtr(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
 					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
 				}
 				else
@@ -579,7 +579,7 @@ void FileEditor::Init(
 	        )
 	   )
 	{
-		const wchar_t* const Items[] = {Name,MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
+		const wchar_t* const Items[] = {Name.CPtr(),MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorOpenRSHId))
 		{
 			ExitCode=XC_OPEN_ERROR;
@@ -894,7 +894,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						//объект будет в конце удалён во FrameManager
 						new FileViewer(
-							strFullFileName.CPtr(),
+							strFullFileName,
 							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
 							FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.IsEmpty() ? nullptr : strTitle.CPtr(),
@@ -974,7 +974,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 					//AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
 					//                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-					m_editor->Paste(strFullFileName); //???
+					m_editor->Paste(strFullFileName.CPtr()); //???
 					//if (!EdOpt.PersistentBlocks)
 					m_editor->UnmarkBlock();
 					m_editor->Pasting--;
@@ -1059,7 +1059,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
 						Unquote(strSaveAsName);
-						NameChanged=StrCmpI(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName));
+						NameChanged=StrCmpI(strSaveAsName.CPtr(), (Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName).CPtr());
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1318,12 +1318,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							else if ( IsUnicodeCodePage(codepage) )
 							{
 								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), LangString(MEditorSwitchToUnicodeCPDisabled) << codepage, MSG(MEditorTryReloadFile), MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorSwitchToUnicodeCPDisabled) << codepage).CPtr(), MSG(MEditorTryReloadFile), MSG(MOk));
 							}
 							else if ( !Global->CodePages->IsCodePageSupported(codepage) )
 							{
 								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), LangString(MEditorCPNotSupported) << codepage, MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).CPtr(), MSG(MOk));
 							}
 							if ( !detect )
 								codepage = m_codepage;
@@ -1481,9 +1481,9 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				FileSizeToStr(strTempStr2, MaxSize, 8);
 
 				if (Message(MSG_WARNING,2,MSG(MEditTitle),
-					Name,
-					LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1),
-					LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2),
+					Name.CPtr(),
+					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).CPtr(),
+					(LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2)).CPtr(),
 					MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
 				{
 					EditFile.Close();
@@ -1496,7 +1496,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		else
 		{
-			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name.CPtr(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
 			{
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
@@ -1743,7 +1743,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			const wchar_t* const Items[] = {Name,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+			const wchar_t* const Items[] = {Name.CPtr(),MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
 			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSavedROId);
 
 			if (AskOverwrite)
@@ -1763,7 +1763,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	{
 		// проверим путь к файлу, может его уже снесли...
 		string strCreatedPath = Name;
-		const wchar_t *Ptr=LastSlash(strCreatedPath);
+		const wchar_t *Ptr=LastSlash(strCreatedPath.CPtr());
 
 		if (Ptr)
 		{
@@ -2137,7 +2137,7 @@ void FileEditor::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
 
-	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,MSG(MNewFileName)))
+	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.CPtr(),MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
 
 	if (Global->CtrlObject->Plugins->CurEditor==this)//&this->FEdit)
@@ -2219,7 +2219,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 			{
 				DeleteEndSlash(strCurPath);
 
-				if (!StrCmpI(strFilePath,strCurPath))
+				if (!StrCmpI(strFilePath.CPtr(), strCurPath.CPtr()))
 					strFileName=PointToName(strFullFileName);
 			}
 		}
@@ -2483,7 +2483,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2&&(size_t)Param1>strFullFileName.GetLength())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName);
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.CPtr());
 			}
 
 			return static_cast<int>(strFullFileName.GetLength()+1);
@@ -2621,7 +2621,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (SetFileName(strName))
 				{
-					if (StrCmpI(strFullFileName,strOldFullFileName))
+					if (StrCmpI(strFullFileName.CPtr(),strOldFullFileName.CPtr()))
 					{
 						if (!AskOverwrite(strName))
 						{
@@ -2830,7 +2830,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 
 	if (FNAttr!=INVALID_FILE_ATTRIBUTES)
 	{
-		const wchar_t* const Items[] = {FileName,MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+		const wchar_t* const Items[] = {FileName.CPtr(),MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorAskOverwriteId))
 		{
 			result=false;

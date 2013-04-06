@@ -752,7 +752,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			}
 
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
-			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle);
+			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.CPtr());
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -775,7 +775,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((!StrCmpNI(strCommand,L"REM",3) && IsSpaceOrEos(strCommand.At(3))) || !StrCmpNI(strCommand,L"::",2)))
+			if (!((!StrCmpNI(strCommand.CPtr(),L"REM",3) && IsSpaceOrEos(strCommand.At(3))) || !StrCmpNI(strCommand.CPtr(),L"::",2)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -803,7 +803,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 					*/
 					//;
-					int PreserveLFN=SubstFileName(strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir);
+					int PreserveLFN=SubstFileName(strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.CPtr());
 					bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 					if (ExtractIfExistCommand(strCommand))
@@ -1109,7 +1109,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMen
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName,MSG(MDelete),MSG(MCancel)))
+	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.CPtr(),MSG(MDelete),MSG(MCancel)))
 		return false;
 
 	MenuModified=true;

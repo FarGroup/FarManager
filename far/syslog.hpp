@@ -285,7 +285,7 @@ struct TUserLog
 
 void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned SizeBuf,FILE *fp=nullptr);
 
-FILE *OpenLogStream(const wchar_t *file);
+FILE *OpenLogStream(const string& file);
 
 #define L_ERR      1
 #define L_WARNING  2

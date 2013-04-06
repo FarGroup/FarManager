@@ -599,7 +599,7 @@ void InitRecodeOutTable()
 
 	{
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols,ARRAYSIZE(BoxSymbols)-1);
+		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.CPtr(),ARRAYSIZE(BoxSymbols)-1);
 
 		if (Global->Opt->NoGraphics)
 		{
@@ -616,7 +616,7 @@ void InitRecodeOutTable()
 }
 
 
-void Text(int X, int Y, const FarColor& Color, const WCHAR *Str)
+void Text(int X, int Y, const FarColor& Color, const string& Str)
 {
 	CurColor=Color;
 	CurX=X;
@@ -624,9 +624,9 @@ void Text(int X, int Y, const FarColor& Color, const WCHAR *Str)
 	Text(Str);
 }
 
-void Text(const WCHAR *Str)
+void Text(const string& Str)
 {
-	size_t Length=StrLength(Str);
+	size_t Length=Str.GetLength();
 
 	if (Length<=0)
 		return;
@@ -657,27 +657,25 @@ void Text(LNGID MsgId)
 	Text(MSG(MsgId));
 }
 
-void VText(const WCHAR *Str)
+void VText(const string& Str)
 {
-	int Length=StrLength(Str);
-
-	if (Length<=0)
+	if (Str.IsEmpty())
 		return;
 
 	int StartCurX=CurX;
 	WCHAR ChrStr[2]={};
 
-	for (int I=0; I<Length; I++)
+	for (size_t i = 0; i != Str.GetLength(); ++i)
 	{
 		GotoXY(CurX,CurY);
-		ChrStr[0]=Str[I];
+		ChrStr[0]=Str[i];
 		Text(ChrStr);
 		CurY++;
 		CurX=StartCurX;
 	}
 }
 
-void HiText(const wchar_t *Str,const FarColor& HiColor,int isVertText)
+void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
 	string strTextStr;
 	FarColor SaveColor;
@@ -702,21 +700,21 @@ void HiText(const wchar_t *Str,const FarColor& HiColor,int isVertText)
 		              ^H
 		   &&&&&&  = '&&&'
 		*/
-		wchar_t *ChPtr = strTextStr.GetBuffer() + pos;
+		const wchar_t *ChPtr = strTextStr.CPtr() + pos;
 		int I=0;
-		wchar_t *ChPtr2=ChPtr;
+		const wchar_t *ChPtr2=ChPtr;
 
 		while (*ChPtr2++ == L'&')
 			++I;
 
 		if (I&1) // нечет?
 		{
-			*ChPtr=0;
+			string LeftPart(strTextStr.CPtr(), pos);
 
 			if (isVertText)
-				VText(strTextStr);
+				VText(LeftPart);
 			else
-				Text(strTextStr); //BUGBUG BAD!!!
+				Text(LeftPart); //BUGBUG BAD!!!
 
 			if (ChPtr[1])
 			{
@@ -731,7 +729,6 @@ void HiText(const wchar_t *Str,const FarColor& HiColor,int isVertText)
 
 				SetColor(SaveColor);
 				string strText = (ChPtr+1);
-				strTextStr.ReleaseBuffer();
 				ReplaceStrings(strText,L"&&",L"&",-1);
 
 				if (isVertText)
@@ -742,7 +739,6 @@ void HiText(const wchar_t *Str,const FarColor& HiColor,int isVertText)
 		}
 		else
 		{
-			strTextStr.ReleaseBuffer();
 			ReplaceStrings(strTextStr,L"&&",L"&",-1);
 
 			if (isVertText)
@@ -861,7 +857,7 @@ void BoxText(wchar_t Chr)
 }
 
 
-void BoxText(const wchar_t *Str,int IsVert)
+void BoxText(const string& Str,int IsVert)
 {
 	if (IsVert)
 		VText(Str);
@@ -1108,12 +1104,12 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 	return DestStr;
 }
 
-string& HiText2Str(string& strDest, const wchar_t *Str)
+string& HiText2Str(string& strDest, const string& Str)
 {
 	const wchar_t *ChPtr;
 	string strDestTemp = Str;
 
-	if ((ChPtr=wcschr(Str,L'&')) )
+	if ((ChPtr=wcschr(Str.CPtr(),L'&')) )
 	{
 		/*
 		   &&      = '&'
@@ -1132,7 +1128,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 
 		if (I&1) // нечет?
 		{
-			strDestTemp.SetLength(ChPtr-Str);
+			strDestTemp.SetLength(ChPtr-Str.CPtr());
 
 			if (ChPtr[1])
 			{
@@ -1154,7 +1150,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 	return strDest;
 }
 
-int HiStrlen(const wchar_t *Str)
+int HiStrlen(const string& str)
 {
 	/*
 			&&      = '&'
@@ -1169,35 +1165,33 @@ int HiStrlen(const wchar_t *Str)
 	int Length=0;
 	bool Hi=false;
 
-	if (Str)
+	const wchar_t* Str = str.CPtr();
+	while (*Str)
 	{
-		while (*Str)
+		if (*Str == L'&')
 		{
-			if (*Str == L'&')
-			{
-				int Count=0;
+			int Count=0;
 
-				while (*Str == L'&')
-				{
-					Str++;
-					Count++;
-				}
-
-				if (Count&1) //нечёт?
-				{
-					if (Hi)
-						Length++;
-					else
-						Hi=true;
-				}
-
-				Length+=Count/2;
-			}
-			else
+			while (*Str == L'&')
 			{
 				Str++;
-				Length++;
+				Count++;
 			}
+
+			if (Count&1) //нечёт?
+			{
+				if (Hi)
+					Length++;
+				else
+					Hi=true;
+			}
+
+			Length+=Count/2;
+		}
+		else
+		{
+			Str++;
+			Length++;
 		}
 	}
 
@@ -1205,7 +1199,7 @@ int HiStrlen(const wchar_t *Str)
 
 }
 
-int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
+int HiFindRealPos(const string& str, int Pos, BOOL ShowAmp)
 {
 	/*
 			&&      = '&'
@@ -1224,33 +1218,33 @@ int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
 
 	int RealPos = 0;
 
-	if (Str)
+	int VisPos = 0;
+
+	const wchar_t* Str = str.CPtr();
+
+	while (VisPos < Pos && *Str)
 	{
-		int VisPos = 0;
-		while (VisPos < Pos && *Str)
+		if (*Str == L'&')
 		{
-			if (*Str == L'&')
+			Str++;
+			RealPos++;
+
+			if (*Str == L'&' && *(Str+1) == L'&' && *(Str+2) != L'&')
 			{
 				Str++;
 				RealPos++;
-
-				if (*Str == L'&' && *(Str+1) == L'&' && *(Str+2) != L'&')
-				{
-					Str++;
-					RealPos++;
-				}
 			}
-
-			Str++;
-			VisPos++;
-			RealPos++;
 		}
+
+		Str++;
+		VisPos++;
+		RealPos++;
 	}
 
 	return RealPos;
 }
 
-int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
+int HiFindNextVisualPos(const string& Str, int Pos, int Direct)
 {
 	/*
 			&&      = '&'
@@ -1262,53 +1256,48 @@ int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
 			&&&&&&  = '&&&'
 	*/
 
-	if (Str)
+	if (Direct < 0)
 	{
-		if (Direct < 0)
+		if (!Pos || Pos == 1)
+			return 0;
+
+		if (Str[Pos-1] != L'&')
 		{
-			if (!Pos || Pos == 1)
-				return 0;
-
-			if (Str[Pos-1] != L'&')
-			{
-				if (Str[Pos-2] == L'&')
-				{
-					if (Pos-3 >= 0 && Str[Pos-3] == L'&')
-						return Pos-1;
-
-					return Pos-2;
-				}
-
-				return Pos-1;
-			}
-			else
+			if (Str[Pos-2] == L'&')
 			{
 				if (Pos-3 >= 0 && Str[Pos-3] == L'&')
-					return Pos-3;
+					return Pos-1;
 
 				return Pos-2;
 			}
+
+			return Pos-1;
 		}
 		else
 		{
-			if (!Str[Pos])
-				return Pos+1;
+			if (Pos-3 >= 0 && Str[Pos-3] == L'&')
+				return Pos-3;
 
-			if (Str[Pos] == L'&')
-			{
-				if (Str[Pos+1] == L'&' && Str[Pos+2] == L'&')
-					return Pos+3;
-
-				return Pos+2;
-			}
-			else
-			{
-				return Pos+1;
-			}
+			return Pos-2;
 		}
 	}
+	else
+	{
+		if (!Str[Pos])
+			return Pos+1;
 
-	return 0;
+		if (Str[Pos] == L'&')
+		{
+			if (Str[Pos+1] == L'&' && Str[Pos+2] == L'&')
+				return Pos+3;
+
+			return Pos+2;
+		}
+		else
+		{
+			return Pos+1;
+		}
+	}
 }
 
 bool IsConsoleFullscreen()

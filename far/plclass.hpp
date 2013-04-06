@@ -138,7 +138,7 @@ class PluginManager;
 class Plugin: public AncientPlugin
 {
 public:
-	Plugin(PluginManager *owner, const wchar_t *lpwszModuleName);
+	Plugin(PluginManager *owner, const string& ModuleName);
 	virtual ~Plugin();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
@@ -148,9 +148,9 @@ public:
 	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);
 	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode);
-	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const wchar_t *Path);
-	virtual int SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, struct UserDataItem *UserData=nullptr);
-	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode);
+	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path);
+	virtual int SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, struct UserDataItem *UserData=nullptr);
+	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t** DestPath, int OpMode);
 	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode);
 	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
 	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
@@ -178,9 +178,9 @@ public:
 #ifndef NO_WRAPPER
 	virtual bool IsOemPlugin() const { return false; }
 #endif // NO_WRAPPER
-	virtual const wchar_t *GetHotkeyName() const { return m_strGuid; }
+	virtual const string& GetHotkeyName() const { return m_strGuid; }
 
-	virtual bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path); }
+	virtual bool InitLang(const string& Path) { return PluginLang.Init(Path); }
 	void CloseLang() { PluginLang.Close(); }
 
 	#define HAS_FUNCTION(Name) bool Has##Name() const { return Exports[i##Name] != nullptr; }
@@ -223,13 +223,13 @@ public:
 	#undef HAS_FUNCTION
 
 	const string &GetModuleName() const { return m_strModuleName; }
-	const wchar_t *GetCacheName() const  { return m_strCacheName; }
-	const wchar_t* GetTitle() const { return strTitle.CPtr(); }
-	const wchar_t* GetDescription() const { return strDescription.CPtr(); }
-	const wchar_t* GetAuthor() const { return strAuthor.CPtr(); }
+	const string& GetCacheName() const  { return m_strCacheName; }
+	const string& GetTitle() const { return strTitle; }
+	const string& GetDescription() const { return strDescription; }
+	const string& GetAuthor() const { return strAuthor; }
 	const VersionInfo& GetVersion() { return PluginVersion; }
 	const VersionInfo& GetMinFarVersion() { return MinFarVersion; }
-	const wchar_t* GetVersionString() { return VersionString; }
+	const string& GetVersionString() { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
 	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
 

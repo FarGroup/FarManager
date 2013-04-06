@@ -615,7 +615,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
+						SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.CPtr());
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();

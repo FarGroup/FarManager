@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "plugins.hpp"
 
-History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType):
+History::History(enumHISTORYTYPE TypeHistory, const string& HistoryName, const BoolOption& EnableSave, bool SaveType):
 	strHistoryName(HistoryName),
 	EnableAdd(true),
 	KeepSelectedPos(false),
@@ -90,7 +90,7 @@ void History::CompactHistory()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
+void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
 {
 	if (!EnableAdd || SaveForbid)
 		return;
@@ -98,7 +98,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
-	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && (!Str || !*Str))
+	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.IsEmpty())
 		return;
 
 	bool Lock = false;
@@ -135,7 +135,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 			{
 				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
 
-				if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
+				if (!StrCmpFn(strName.CPtr(),strHName.CPtr())&&!StrCmpFn(strGuid.CPtr(),strHGuid.CPtr())&&!StrCmpFn(strFile.CPtr(),strHFile.CPtr())&&!StrCmpFn(strData.CPtr(),strHData.CPtr()))
 				{
 					Lock = Lock || HLock;
 					HistoryCfgRef()->Delete(id);
@@ -152,7 +152,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	//HistoryCfgRef()->EndTransaction();
 }
 
-bool History::ReadLastItem(const wchar_t *HistoryName, string &strStr)
+bool History::ReadLastItem(const string& HistoryName, string &strStr)
 {
 	strStr.Clear();
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
@@ -558,12 +558,12 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 				if (SelectedRecordType == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
+					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.CPtr(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
 						break;
 				}
 				else
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName,MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.CPtr(),MSG(MOk));
 				}
 
 				Done=false;
@@ -643,7 +643,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (!StrCmpNI(strStr,strName,Length) && strStr != strName)
+		if (!StrCmpNI(strStr.CPtr(),strName.CPtr(),Length) && strStr != strName)
 		{
 			if (bAppend)
 				strStr += strName.CPtr() + Length;
@@ -660,9 +660,9 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
-bool History::GetAllSimilar(VMenu2 &HistoryMenu,const wchar_t *Str)
+bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 {
-	int Length=StrLength(Str);
+	int Length=static_cast<int>(Str.GetLength());
 	DWORD index=0;
 	string strHName,strHGuid,strHFile,strHData;
 	int HType;
@@ -671,7 +671,7 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const wchar_t *Str)
 	unsigned __int64 Time;
 	while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
-		if (!StrCmpNI(Str,strHName,Length))
+		if (!StrCmpNI(Str.CPtr(),strHName.CPtr(),Length))
 		{
 			MenuItemEx NewItem={};
 			NewItem.strName = strHName;

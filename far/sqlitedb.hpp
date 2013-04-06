@@ -50,7 +50,7 @@ public:
 	SQLiteStmt& Bind(unsigned int Value) {return Bind(static_cast<int>(Value));}
 	SQLiteStmt& Bind(__int64 Value);
 	SQLiteStmt& Bind(unsigned __int64 Value) {return Bind(static_cast<__int64>(Value));}
-	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true);
+	SQLiteStmt& Bind(const string& Value, bool bStatic=true);
 	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true);
 	const wchar_t *GetColText(int Col);
 	const char *GetColTextUTF8(int Col);
@@ -72,8 +72,8 @@ class SQLiteDb {
 public:
 	SQLiteDb();
 	virtual ~SQLiteDb();
-	bool Open(const wchar_t *DbFile, bool Local, bool WAL=false);
-	void Initialize(const wchar_t* DbName, bool Local = false);
+	bool Open(const string& DbFile, bool Local, bool WAL=false);
+	void Initialize(const string& DbName, bool Local = false);
 	bool Exec(const char *Command);
 	bool BeginTransaction();
 	bool EndTransaction();
@@ -85,7 +85,7 @@ public:
 	bool Close();
 	bool SetWALJournalingMode();
 	bool EnableForeignKeysConstraints();
-	virtual bool InitializeImpl(const wchar_t* DbName, bool Local) = 0;
+	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
 	int InitStatus(string& name, bool full_name);
 	bool IsNew() { return db_exists <= 0; }
 };

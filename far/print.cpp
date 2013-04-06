@@ -181,7 +181,7 @@ void PrintFiles(Panel *SrcPanel)
 	if (!OpenPrinter((wchar_t*)strPrinterName.CPtr(),&hPrinter,nullptr))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
-		        strPrinterName,MSG(MOk));
+		        strPrinterName.CPtr(),MSG(MOk));
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -233,7 +233,7 @@ void PrintFiles(Panel *SrcPanel)
 			File SrcFile;
 			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
-				DOC_INFO_1 di1 = {const_cast<LPWSTR>(FileName.CPtr())};
+				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};
 
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
 				{
@@ -263,7 +263,7 @@ void PrintFiles(Panel *SrcPanel)
 			else
 			{
 				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-				            strSelName,MSG(MSkip),MSG(MCancel)))
+				            strSelName.CPtr(),MSG(MSkip),MSG(MCancel)))
 					break;
 			}
 		}

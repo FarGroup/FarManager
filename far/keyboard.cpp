@@ -604,7 +604,7 @@ void ReloadEnvironment()
 					if(Addr[i].Key==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(strName, L"path") || !StrCmpI(strName, L"libpath") || !StrCmpI(strName, L"os2libpath"))
+						if(!StrCmpI(strName.CPtr(), L"path") || !StrCmpI(strName.CPtr(), L"libpath") || !StrCmpI(strName.CPtr(), L"os2libpath"))
 						{
 							string strMergedPath;
 							apiGetEnvironmentVariable(strName, strMergedPath);
@@ -615,7 +615,7 @@ void ReloadEnvironment()
 							strData=strMergedPath+strData;
 						}
 					}
-					SetEnvironmentVariable(strName, strData);
+					SetEnvironmentVariable(strName.CPtr(), strData.CPtr());
 				}
 			}
 		}
@@ -1627,9 +1627,9 @@ static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
    5. "Oem" и 5 десятичных цифр (с ведущими нулями)
    6. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
 */
-int KeyNameToKey(const wchar_t *Name)
+int KeyNameToKey(const string& Name)
 {
-	if (!Name || !*Name)
+	if (Name.IsEmpty())
 		return -1;
 
 	DWORD Key=0;
@@ -1642,7 +1642,7 @@ int KeyNameToKey(const wchar_t *Name)
 	if (Name[0] == L'%' && Name[1])
 		return -1;
 
-	if (Name[1] && wcspbrk(Name,L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
+	if (Name[1] && wcspbrk(Name.CPtr(),L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
 		return -1;
 
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
@@ -1656,7 +1656,7 @@ int KeyNameToKey(const wchar_t *Name)
 	// пройдемся по всем модификаторам
 	for (Pos=I=0; I < int(ARRAYSIZE(ModifKeyName)); ++I)
 	{
-		if (wcsstr(strTmpName,ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
+		if (wcsstr(strTmpName.CPtr(),ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
 		{
 			int CntReplace=ReplaceStrings(strTmpName,ModifKeyName[I].UName,L"",-1,true);
 			Key|=ModifKeyName[I].Key;
@@ -1671,7 +1671,7 @@ int KeyNameToKey(const wchar_t *Name)
 	if (Pos < Len)
 	{
 		// сначала - FKeys1 - Вариант (1)
-		const wchar_t* Ptr=Name+Pos;
+		const wchar_t* Ptr=Name.CPtr()+Pos;
 		int PtrLen = Len-Pos;
 
 		for (I=(int)ARRAYSIZE(FKeys1)-1; I>=0; I--)

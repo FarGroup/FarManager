@@ -38,9 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 
-void GetFullName(const wchar_t * Name, string &strFullName)
+void GetFullName(const string& Name, string &strFullName)
 {
-	if (*Name==L'<')
+	if (Name[0]==L'<')
 		strFullName = Name;
 	else
 		ConvertNameToFull(Name,strFullName);
@@ -55,7 +55,7 @@ void FilePositionCache::CompactHistory()
 	Global->Db->HistoryCfg()->EndTransaction();
 }
 
-bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& poscache)
+bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& poscache)
 {
 	if (!Global->Opt->EdOpt.SavePos)
 		return false;
@@ -88,7 +88,7 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& p
 	return ret;
 }
 
-bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscache)
+bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache)
 {
 	poscache.Clear();
 
@@ -118,7 +118,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 	return false;
 }
 
-bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& poscache)
+bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& poscache)
 {
 	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 		return false;
@@ -151,7 +151,7 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& p
 	return ret;
 }
 
-bool FilePositionCache::GetPosition(const wchar_t *Name, ViewerPosCache& poscache)
+bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache)
 {
 	poscache.Clear();
 

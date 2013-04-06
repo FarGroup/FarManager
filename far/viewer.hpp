@@ -82,7 +82,7 @@ public:
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 	virtual void ShowConsoleTitle();
 
-	int OpenFile(const wchar_t *Name,int warning);
+	int OpenFile(const string& Name,int warning);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
 	void SetStatusMode(int Mode);
 	void EnableHideCursor(int HideCursor);
@@ -92,7 +92,7 @@ public:
 	void SetWrapType(bool TypeWrap);
 	void KeepInitParameters();
 	void GetFileName(string &strName);
-	void SetTempViewName(const wchar_t *Name, BOOL DeleteFolder);
+	void SetTempViewName(const string& Name, BOOL DeleteFolder);
 	void SetTitle(const wchar_t *Title);
 	string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 	void SetFilePos(__int64 Pos);

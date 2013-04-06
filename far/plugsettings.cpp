@@ -78,7 +78,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
 		m_Keys.resize(1);
 		unsigned __int64& root = m_Keys.front();
-		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
+		root=PluginsCfg->CreateKey(0, strGuid, &pPlugin->GetTitle());
 
 		if (!Global->Opt->ReadOnlyConfig)
 		{
@@ -89,7 +89,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 			Diz.Read(strDbPath);
 			string strDbName = strGuid + L".db";
 			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
-			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
+			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description.CPtr()))
 			{
 				Diz.AddDizText(strDbName, L"", Description);
 				Diz.Flush(strDbPath);

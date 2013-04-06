@@ -130,7 +130,7 @@ class TreeList: public Panel
 		void CorrectPosition();
 		bool FillLastData();
 		UINT CountSlash(const wchar_t *Str);
-		int SetDirPosition(const wchar_t *NewDir);
+		int SetDirPosition(const string& NewDir);
 		void GetRoot();
 		Panel* GetRootPanel();
 		void SyncDir();
@@ -140,9 +140,9 @@ class TreeList: public Panel
 		void DynamicUpdateKeyBar();
 		int GetNextNavPos();
 		int GetPrevNavPos();
-		static string &MkTreeFileName(const wchar_t *RootDir,string &strDest);
-		static string &MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest);
-		static string &CreateTreeFileName(const wchar_t *Path,string &strDest);
+		static string &MkTreeFileName(const string& RootDir,string &strDest);
+		static string &MkTreeCacheFolderName(const string& RootDir,string &strDest);
+		static string &CreateTreeFileName(const string& Path,string &strDest);
 
 		bool SaveState();
 		bool RestoreState();
@@ -166,7 +166,7 @@ class TreeList: public Panel
 
 		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 
-		void SetRootDir(const wchar_t *NewRootDir);
+		void SetRootDir(const string& NewRootDir);
 
 		virtual const string& GetCurDir();
 
@@ -174,17 +174,17 @@ class TreeList: public Panel
 
 		virtual void UpdateViewPanel();
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
+		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0);
 		virtual bool GetPlainString(string& Dest,int ListPos);
 
 		virtual int GoToFile(long idxItem);
-		virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
-		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE);
+		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE);
 
 		void ProcessEnter();
 
-		virtual long FindFirst(const wchar_t *Name);
-		virtual long FindNext(int StartPos, const wchar_t *Name);
+		virtual long FindFirst(const string& Name);
+		virtual long FindNext(int StartPos, const string& Name);
 
 		int GetExitCode() {return ExitCode;}
 		virtual size_t GetFileCount() {return ListData.size();}
@@ -201,14 +201,14 @@ class TreeList: public Panel
 		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr);
 
 	public:
-		static void AddTreeName(const wchar_t *Name);
-		static void DelTreeName(const wchar_t *Name);
+		static void AddTreeName(const string& Name);
+		static void DelTreeName(const string& Name);
 		static void RenTreeName(const string& SrcName, const string& DestName);
 		static void ReadSubTree(const string& Path);
 		static void ClearCache(int EnableFreeMem);
 		static void ReadCache(const string& TreeRoot);
 		static void FlushCache();
 
-		static int MustBeCached(const wchar_t *Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла
+		static int MustBeCached(const string& Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла
 		static void PR_MsgReadTree();
 };

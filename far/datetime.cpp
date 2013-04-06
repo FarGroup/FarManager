@@ -541,7 +541,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	time_now=localtime(&secs_now);
 
 	if (!Fmt||!*Fmt)
-		Fmt=Global->Opt->Macro.strDateFormat;
+		Fmt=Global->Opt->Macro.strDateFormat.CPtr();
 
 	return StrFTime(strDest,Fmt,time_now);
 }
@@ -562,7 +562,7 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 
 		if (Ptr)
 		{
-			const wchar_t *PtrDigit=strDigit;
+			const wchar_t *PtrDigit=strDigit.CPtr();
 
 			while (*PtrDigit&&!iswdigit(*PtrDigit))
 			{
@@ -581,13 +581,13 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 	}
 }
 
-void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)
+void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)
 {
 	WORD DateN[3]={},TimeN[4]={};
 	SYSTEMTIME st={};
 	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate,DateN,ARRAYSIZE(DateN),DateSeparator);
-	GetFileDateAndTime(CTime,TimeN,ARRAYSIZE(TimeN),TimeSeparator);
+	GetFileDateAndTime(CDate.CPtr(),DateN,ARRAYSIZE(DateN),DateSeparator);
+	GetFileDateAndTime(CTime.CPtr(),TimeN,ARRAYSIZE(TimeN),TimeSeparator);
 
 	if (!bRelative)
 	{

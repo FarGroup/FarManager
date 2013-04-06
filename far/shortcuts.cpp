@@ -432,7 +432,7 @@ bool Shortcuts::Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, 
 	return true;
 }
 
-void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
+void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
 	Changed = true;
 	if(Items[Pos].empty())
@@ -446,7 +446,7 @@ void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, c
 	Item->strPluginData = PluginData;
 }
 
-void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
+void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
 	Changed = true;
 	ShortcutItem Item;
@@ -488,7 +488,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 	Builder.AddEditField(&NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
 	if (Item.PluginGuid != FarGuid)
 	{
-		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle());
+		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().CPtr());
 		Builder.AddText(MFSShortcutPluginFile);
 		Builder.AddEditField(&NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
 		Builder.AddText(MFSShortcutPluginData);
@@ -515,7 +515,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 
 			if ((!raw || !strTemp.IsEmpty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
-				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.CPtr(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 			}
 		}
 

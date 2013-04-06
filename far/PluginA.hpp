@@ -40,7 +40,7 @@ class PluginA: public Plugin
 {
 public:
 
-	PluginA(PluginManager *owner, const wchar_t *lpwzModuleName);
+	PluginA(PluginManager *owner, const string& ModuleName);
 	~PluginA();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
@@ -50,9 +50,9 @@ public:
 	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);
 	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode);
-	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const wchar_t *Path);
-	virtual int SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode,struct UserDataItem *UserData=nullptr);
-	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode);
+	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path);
+	virtual int SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode,struct UserDataItem *UserData=nullptr);
+	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t** DestPath, int OpMode);
 	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode);
 	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
 	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
@@ -79,9 +79,9 @@ public:
 	virtual void ExitFAR(const ExitInfo *Info);
 
 	virtual bool IsOemPlugin() const { return true; }
-	virtual const wchar_t *GetHotkeyName() const { return GetCacheName(); }
+	virtual const string& GetHotkeyName() const { return GetCacheName(); }
 
-	virtual bool InitLang(const wchar_t *Path) { return PluginLang.InitA(Path); }
+	virtual bool InitLang(const string& Path) { return PluginLang.InitA(Path); }
 	const char *GetMsgA(LNGID nID) const { return PluginLang.GetMsgA(nID); }
 
 private:

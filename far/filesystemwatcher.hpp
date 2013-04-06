@@ -37,7 +37,7 @@ class FileSystemWatcher
 public:
 	FileSystemWatcher();
 	~FileSystemWatcher();
-	void Set(const wchar_t* Directory, bool WatchSubtree);
+	void Set(const string& Directory, bool WatchSubtree);
 	bool Watch(bool got_focus=false);
 	void Release();
 	bool Signaled() const;

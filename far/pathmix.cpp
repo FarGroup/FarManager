@@ -65,7 +65,7 @@ void NTPath::Transform()
 	}
 }
 
-PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
+PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 {
 	PATH_TYPE Result = PATH_UNKNOWN;
 
@@ -109,11 +109,11 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 		if(PathTypes[i].Compiled)
 		{
 			intptr_t n = PathTypes[i].re.GetBracketsCount();
-			if(PathTypes[i].re.Search(path, m, n))
+			if(PathTypes[i].re.Search(path.CPtr(), m, n))
 			{
-				if(DirPtr)
+				if(DirectoryOffset)
 				{
-					*DirPtr = path+m[1].end;
+					*DirectoryOffset = m[1].end;
 				}
 				if(Root)
 				{
@@ -128,41 +128,41 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 	return Result;
 }
 
-bool IsAbsolutePath(const wchar_t *Path)
+bool IsAbsolutePath(const string& Path)
 {
 	PATH_TYPE Type = ParsePath(Path);
 	return Type == PATH_DRIVELETTERUNC || Type == PATH_REMOTE || Type == PATH_REMOTEUNC || Type == PATH_VOLUMEGUID || (Type == PATH_DRIVELETTER && (IsSlash(Path[2]) || !Path[2]));
 }
 
-bool HasPathPrefix(const wchar_t *Path)
+bool HasPathPrefix(const string& Path)
 {
 	/*
 		\\?\
 		\\.\
 		\??\
 	*/
-	return Path && Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
+	return Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
 }
 
-bool PathCanHoldRegularFile(const wchar_t *Path)
+bool PathCanHoldRegularFile(const string& Path)
 {
 	return ParsePath(Path) != PATH_UNKNOWN;
 }
 
-bool IsPluginPrefixPath(const wchar_t *Path) //Max:
+bool IsPluginPrefixPath(const string& Path) //Max:
 {
 	if (Path[0] == L'\\')
 		return false;
 
-	const wchar_t* pC = wcschr(Path, L':');
+	const wchar_t* pC = wcschr(Path.CPtr(), L':');
 
 	if (!pC)
 		return false;
 
-	if ((pC - Path) == 1) // односимвольные префиксы не поддерживаются
+	if ((pC - Path.CPtr()) == 1) // односимвольные префиксы не поддерживаются
 		return false;
 
-	const wchar_t* pS = FirstSlash(Path);
+	const wchar_t* pS = FirstSlash(Path.CPtr());
 
 	if (pS && pS < pC)
 		return false;
@@ -170,7 +170,7 @@ bool IsPluginPrefixPath(const wchar_t *Path) //Max:
 	return true;
 }
 
-bool TestParentFolderName(const wchar_t *Name)
+bool TestParentFolderName(const string& Name)
 {
 	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));
 }
@@ -180,11 +180,11 @@ bool TestCurrentFolderName(const wchar_t *Name)
 	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
 }
 
-bool TestCurrentDirectory(const wchar_t *TestDir)
+bool TestCurrentDirectory(const string& TestDir)
 {
 	string strCurDir;
 
-	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir,TestDir))
+	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.CPtr(),TestDir.CPtr()))
 		return true;
 
 	return false;
@@ -193,13 +193,6 @@ bool TestCurrentDirectory(const wchar_t *TestDir)
 const wchar_t* PointToName(const wchar_t *lpwszPath)
 {
 	return PointToName(lpwszPath,nullptr);
-}
-
-const wchar_t* PointToName(const string& strPath)
-{
-	const wchar_t *lpwszPath=strPath.CPtr();
-	const wchar_t *lpwszEndPtr=lpwszPath+strPath.GetLength();
-	return PointToName(lpwszPath,lpwszEndPtr);
 }
 
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
@@ -266,13 +259,6 @@ const wchar_t* PointToExt(const wchar_t *lpwszPath)
 
 	while (*lpwszEndPtr) lpwszEndPtr++;
 
-	return PointToExt(lpwszPath,lpwszEndPtr);
-}
-
-const wchar_t* PointToExt(string& strPath)
-{
-	const wchar_t *lpwszPath=strPath.CPtr();
-	const wchar_t *lpwszEndPtr=lpwszPath+strPath.GetLength();
 	return PointToExt(lpwszPath,lpwszEndPtr);
 }
 
@@ -505,51 +491,13 @@ string &CutToFolderNameIfFolder(string &strPath)
 	return strPath;
 }
 
-const wchar_t *PointToNameUNC(const wchar_t *lpwszPath)
-{
-	if (!lpwszPath)
-		return nullptr;
-
-	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
-	{
-		lpwszPath+=2;
-
-		for (int i=0; i<2; i++)
-		{
-			while (*lpwszPath && !IsSlash(*lpwszPath))
-				lpwszPath++;
-
-			if (*lpwszPath)
-				lpwszPath++;
-		}
-	}
-
-	const wchar_t *lpwszNamePtr = lpwszPath;
-
-	while (*lpwszPath)
-	{
-		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1))
-			lpwszNamePtr = lpwszPath+1;
-
-		lpwszPath++;
-	}
-
-	return lpwszNamePtr;
-}
-
 string &ReplaceSlashToBSlash(string &strStr)
 {
-	wchar_t *lpwszStr = strStr.GetBuffer();
-
-	while (*lpwszStr)
+	for (size_t i = 0; i != strStr.GetLength(); ++i)
 	{
-		if (*lpwszStr == L'/')
-			*lpwszStr = L'\\';
-
-		lpwszStr++;
+		if (strStr[i] == L'/')
+			strStr[i] = L'\\';
 	}
-
-	strStr.ReleaseBuffer(strStr.GetLength());
 	return strStr;
 }
 
@@ -609,9 +557,8 @@ bool FindLastSlash(size_t &Pos, const string &Str)
 // find path root component (drive letter / volume name / server share) and calculate its length
 size_t GetPathRootLength(const string &Path)
 {
-	const wchar_t* PathPtr = Path;
-	const wchar_t* DirPtr;
-	return (ParsePath(PathPtr, &DirPtr) == PATH_UNKNOWN)? 0 : DirPtr-PathPtr;
+	size_t DirOffset = 0;
+	return (ParsePath(Path, &DirOffset) == PATH_UNKNOWN)? 0 : DirOffset;
 }
 
 string ExtractPathRoot(const string &Path)
@@ -689,7 +636,7 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 		// path could be an Object Manager symlink, try to resolve
 		UNICODE_STRING ObjName;
 		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
-		ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;

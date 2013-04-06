@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 
 FileViewer::FileViewer(
-	const wchar_t *Name,int EnableSwitch,int DisableHistory,
+	const string& Name,int EnableSwitch,int DisableHistory,
 	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList,int ToSaveAs,uintptr_t aCodePage,
 	const wchar_t *Title, int DeleteOnClose)
@@ -79,7 +79,7 @@ FileViewer::FileViewer(
 }
 
 
-FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
+FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
                        const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage): View(false,aCodePage)
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
@@ -119,7 +119,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 }
 
 
-void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
+void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList,int ToSaveAs)
 {
@@ -433,7 +433,7 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
+void FileViewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
 	delete_on_close = (DeleteFolder ? 1 : 2);
 	View.SetTempViewName(Name, DeleteFolder);

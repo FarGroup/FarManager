@@ -136,15 +136,15 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
-void Text(int X, int Y, const FarColor& Color, const WCHAR *Str);
-void Text(const WCHAR *Str);
+void Text(int X, int Y, const FarColor& Color, const string& Str);
+void Text(const string& Str);
 void Text(LNGID MsgId);
-void VText(const WCHAR *Str);
-void HiText(const WCHAR *Str,const FarColor& HiColor,int isVertText=0);
+void VText(const string& Str);
+void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize);
 void BoxText(wchar_t Chr);
-void BoxText(const wchar_t *Str,int IsVert=0);
+void BoxText(const string& Str,int IsVert=0);
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
@@ -161,7 +161,7 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount);
 bool ScrollBarEx (UINT X1,UINT Y1,UINT Length, UINT64 TopItem,UINT64 ItemsCount);
 bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Size);
-void DrawLine(int Length,int Type, const wchar_t* UserSep=nullptr);
+void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
 WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=nullptr);
@@ -173,10 +173,10 @@ inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
 	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
 }
 
-int HiStrlen(const wchar_t *Str);
-int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
-int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct);
-string& HiText2Str(string& strDest, const wchar_t *Str);
+int HiStrlen(const string& Str);
+int HiFindRealPos(const string& Str, int Pos, BOOL ShowAmp);
+int HiFindNextVisualPos(const string& Str, int Pos, int Direct);
+string& HiText2Str(string& strDest, const string& Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
 
 bool IsConsoleFullscreen();

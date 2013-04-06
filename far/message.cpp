@@ -176,7 +176,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
+Message::Message(DWORD Flags,size_t Buttons,const string& Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
                  const wchar_t *Str6, const wchar_t *Str7, const wchar_t *Str8, const wchar_t *Str9, const wchar_t *Str10, const wchar_t *Str11,const wchar_t *Str12):
 	m_ExitCode(0)
 {
@@ -189,13 +189,13 @@ Message::Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *
 	Init(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr);
 }
 
-Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+Message::Message(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
 	m_ExitCode(0)
 {
 	Init(Flags, Buttons, Title, Items, ItemsNumber, HelpTopic, PluginNumber, Id);
 }
 
-Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const std::vector<string>& Items, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::vector<string>& Items, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
 	m_ExitCode(0)
 {
 	// BUGBUG
@@ -203,14 +203,14 @@ Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const std::v
 	size_t n = 0;
 	std::for_each(Items.begin(), Items.end(), [&](const VALUE_TYPE(Items)& i)
 	{
-		pItems[n++] = i;
+		pItems[n++] = i.CPtr();
 	});
 	Init(Flags, Buttons, Title, pItems, Items.size(), HelpTopic, PluginNumber, Id);
 	delete[] pItems;
 }
 
 
-void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id)
+void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id)
 {
 	string strTempStr;
 	string strClipText;
@@ -309,9 +309,9 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	}
 
 	// учтем размер заголовка
-	if (Title && *Title)
+	if (!Title.IsEmpty())
 	{
-		I=(DWORD)StrLength(Title)+2;
+		I = static_cast<DWORD>(Title.GetLength()) + 2;
 
 		if (MaxLength < I)
 			MaxLength=I;
@@ -373,7 +373,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 
 	//BUGBUG: string не предназначен для хранения строк разделённых \0
 	// заполняем массив...
-	CPtrStr=strErrStr;
+	CPtrStr=strErrStr.CPtr();
 
 	for (I=0; I < CountErrorLine; I++)
 	{
@@ -443,9 +443,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 		MsgDlg[0].Y1=1;
 		MsgDlg[0].X2=X2-X1-3;
 		MsgDlg[0].Y2=Y2-Y1-1;
-
-		if (Title && *Title)
-			MsgDlg[0].strData = Title;
+		MsgDlg[0].strData = Title;
 
 		FARDIALOGITEMTYPES TypeItem=DI_TEXT;
 		unsigned __int64 FlagsItem=DIF_SHOWAMPERSAND;
@@ -578,7 +576,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 
 	SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
 
-	if (Title && *Title)
+	if (!Title.IsEmpty())
 	{
 		string strTempTitle = Title;
 

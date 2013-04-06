@@ -280,7 +280,7 @@ class VMenu: public Modal
 		virtual void Hide();
 		void ResetCursor();
 
-		void SetTitle(const wchar_t *Title);
+		void SetTitle(const string& Title);
 		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0);
 		const wchar_t *GetPtrTitle() { return strTitle.CPtr(); }
 
@@ -318,7 +318,7 @@ class VMenu: public Modal
 		int  InsertItem(const FarListInsert *NewItem);
 		int  UpdateItem(const FarListUpdate *NewItem);
 		int  FindItem(const FarListFind *FindItem);
-		int  FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
+		int  FindItem(int StartIndex,const string& Pattern,UINT64 Flags=0);
 		void RestoreFilteredItems();
 		void FilterStringUpdated();
 		void FilterUpdateHeight(bool bShrink=false);

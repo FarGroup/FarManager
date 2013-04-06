@@ -39,7 +39,8 @@ public:
 	ConsoleTitle(const wchar_t *title=nullptr);
 	~ConsoleTitle();
 
-	static void SetFarTitle(const wchar_t *Title, bool Force=false);
+	static void SetFarTitle(const string& Title, bool Force=false);
+	static void RestoreTitle();
 	static bool WasTitleModified() { return TitleModified; }
 
 private:

@@ -49,18 +49,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "elevation.hpp"
 
-BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
+BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 {
-	if (!NewDir || !*NewDir)
+	if (NewDir.IsEmpty())
 		return FALSE;
 
 	BOOL rc=FALSE;
 	string Drive(L"=A:");
 	string strCurDir;
 
-	if (*NewDir && NewDir[1]==L':' && !NewDir[2]) // если указана только
+	if (NewDir[1]==L':' && !NewDir[2]) // если указана только
 	{                                             // буква диска, то путь
-		Drive.Replace(1, Upper(*NewDir));         // возьмем из переменной
+		Drive.Replace(1, Upper(NewDir[0]));         // возьмем из переменной
 
 		if (!apiGetEnvironmentVariable(Drive, strCurDir))
 		{
@@ -97,7 +97,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 		        strCurDir.At(0) && strCurDir.At(1)==L':')
 		{
 			Drive.Replace(1, Upper(strCurDir.At(0)));
-			SetEnvironmentVariable(Drive,strCurDir);
+			SetEnvironmentVariable(Drive.CPtr(), strCurDir.CPtr());
 		}
 	}
 
@@ -113,9 +113,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     TSTFLD_NOTACCESS (-1) - нет доступа
     TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
 */
-int TestFolder(const wchar_t *Path)
+int TestFolder(const string& Path)
 {
-	if (!(Path && *Path)) // проверка на вшивость
+	if (Path.IsEmpty())
 		return TSTFLD_ERROR;
 
 	string strFindPath = Path;
@@ -208,13 +208,13 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 			SetLastError(ERROR_FILE_NOT_FOUND);
 
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget, MSG(MOk));
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.CPtr(), MSG(MOk));
 		}
 		else // попытка найти!
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);
 
-			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget, MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
+			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.CPtr(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
 				string strTestPathTemp = *pTestPath;
 
@@ -261,11 +261,10 @@ void CreatePath(const string &Path, bool Simple)
 	string strPath = Path;
 
 	wchar_t *ChPtr = strPath.GetBuffer();
+	size_t DirOffset = 0;
+	ParsePath(strPath, &DirOffset);
 
-	const wchar_t* DirPtr = strPath;
-	ParsePath(strPath, &DirPtr);
-
-	ChPtr += (DirPtr-ChPtr) + (IsSlash(*DirPtr)? 1 : 0);
+	ChPtr += DirOffset + (IsSlash(strPath[DirOffset])? 1 : 0);
 	wchar_t *DirPart = ChPtr;
 
 	BOOL bEnd = FALSE;

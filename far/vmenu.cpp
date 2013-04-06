@@ -686,7 +686,7 @@ void VMenu::FilterStringUpdated()
 		{
 			RemoveExternalSpaces(strName);
 			RemoveChar(strName,L'&',TRUE);
-			if(!StrStrI(strName, strFilter))
+			if(!StrStrI(strName.CPtr(), strFilter.CPtr()))
 			{
 				CurItem->Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -874,18 +874,18 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = !StrCmpI(strTemp,str);
+							Res = !StrCmpI(strTemp.CPtr(),str);
 							break;
 						case 1: // begin compare
-							p = StrStrI(strTemp,str);
-							Res = p==strTemp;
+							p = StrStrI(strTemp.CPtr(),str);
+							Res = p==strTemp.CPtr();
 							break;
 						case 2: // end compare
-							p = RevStrStrI(strTemp,str);
+							p = RevStrStrI(strTemp.CPtr(),str);
 							Res = p && !*(p+StrLength(str));
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp,str)!=nullptr;
+							Res = StrStrI(strTemp.CPtr(),str)!=nullptr;
 							break;
 					}
 
@@ -1084,7 +1084,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			static string strId;
 			strId = GuidToStr(MenuId);
-			return reinterpret_cast<intptr_t>(strId.CPtr());
+			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
 
 	}
@@ -1441,7 +1441,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				const wchar_t *FilterString=strFilter;
+				const wchar_t *FilterString=strFilter.CPtr();
 				int start=StrLength(FilterString);
 				bool DoXlat=TRUE;
 
@@ -2194,8 +2194,8 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					for (unsigned int J=0; Ptr[J+3]; J++)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J);
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J);
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.CPtr(),L'&',J);
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.CPtr(),L'&',J);
 
 						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName.At(J+PCorrection) : 0;
 						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName.At(J+NCorrection) : 0;
@@ -2421,7 +2421,7 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 
 	if (_item)
 	{
-		const wchar_t *Name = _item->strName;
+		const wchar_t *Name = _item->strName.CPtr();
 		const wchar_t *ChPtr = wcschr(Name,L'&');
 
 		if (ChPtr || _item->AmpPos > -1)
@@ -2621,16 +2621,13 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 	UpdateMaxLength((int)strBottomTitle.GetLength() + 2);
 }
 
-void VMenu::SetTitle(const wchar_t *Title)
+void VMenu::SetTitle(const string& Title)
 {
 	CriticalSectionLock Lock(CS);
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	if (Title)
-		strTitle = Title;
-	else
-		strTitle.Clear();
+	strTitle = Title;
 
 	UpdateMaxLength((int)strTitle.GetLength() + 2);
 
@@ -2974,7 +2971,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	{
 		ClearStruct(*FItem);
 		FItem->Flags = MItem->Flags;
-		FItem->Text = MItem->strName;
+		FItem->Text = MItem->strName.CPtr();
 		return FItem;
 	}
 
@@ -3009,28 +3006,28 @@ int VMenu::FindItem(const FarListFind *FItem)
 	return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags)
+int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 {
 	CriticalSectionLock Lock(CS);
 
 	if ((DWORD)StartIndex < (DWORD)Item.size())
 	{
-		int LenPattern=StrLength(Pattern);
+		size_t LenPattern = Pattern.GetLength();
 
 		for (size_t I=StartIndex; I < Item.size(); I++)
 		{
 			string strTmpBuf(Item[I]->strName);
-			int LenNamePtr = (int)strTmpBuf.GetLength();
+			size_t LenNamePtr = strTmpBuf.GetLength();
 			RemoveChar(strTmpBuf, L'&');
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (!StrCmpNI(strTmpBuf,Pattern,std::max(LenPattern,LenNamePtr)))
+				if (!StrCmpNI(strTmpBuf.CPtr(),Pattern.CPtr(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
 					return static_cast<int>(I);
 			}
 			else
 			{
-				if (CmpName(Pattern,strTmpBuf,true))
+				if (CmpName(Pattern.CPtr(),strTmpBuf.CPtr(),true))
 					return static_cast<int>(I);
 			}
 		}

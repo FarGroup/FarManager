@@ -672,7 +672,7 @@ NTSTATUS GetLastNtStatus()
 BOOL apiDeleteFile(const string& FileName)
 {
 	NTPath strNtName(FileName);
-	BOOL Result = DeleteFile(strNtName);
+	BOOL Result = DeleteFile(strNtName.CPtr());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fDeleteFile(strNtName);
@@ -683,7 +683,7 @@ BOOL apiDeleteFile(const string& FileName)
 BOOL apiRemoveDirectory(const string& DirName)
 {
 	NTPath strNtName(DirName);
-	BOOL Result = RemoveDirectory(strNtName);
+	BOOL Result = RemoveDirectory(strNtName.CPtr());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
@@ -696,14 +696,14 @@ HANDLE apiCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode,
 	NTPath strObject(Object);
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 
-	HANDLE Handle=CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+	HANDLE Handle=CreateFile(strObject.CPtr(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
 		DWORD Error=GetLastError();
 		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+			Handle = CreateFile(strObject.CPtr(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
@@ -734,7 +734,7 @@ BOOL apiCopyFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+	BOOL Result = CopyFileEx(strFrom.CPtr(), strTo.CPtr(), lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -759,7 +759,7 @@ BOOL apiMoveFile(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = MoveFile(strFrom, strTo);
+	BOOL Result = MoveFile(strFrom.CPtr(), strTo.CPtr());
 
 	if(!Result)
 	{
@@ -783,7 +783,7 @@ BOOL apiMoveFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
+	BOOL Result = MoveFileEx(strFrom.CPtr(), strTo.CPtr(), dwFlags);
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -807,14 +807,14 @@ BOOL apiMoveFileEx(
 DWORD apiGetEnvironmentVariable(const string& Name, string &strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetEnvironmentVariable(Name, Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = GetEnvironmentVariable(Name.CPtr(), Buffer, ARRAYSIZE(Buffer));
 
 	if (Size)
 	{
 		if(Size>ARRAYSIZE(Buffer))
 		{
 			wchar_t *lpwszBuffer = strBuffer.GetBuffer(Size);
-			Size = GetEnvironmentVariable(Name, lpwszBuffer, Size);
+			Size = GetEnvironmentVariable(Name.CPtr(), lpwszBuffer, Size);
 			strBuffer.ReleaseBuffer();
 		}
 		else
@@ -902,7 +902,7 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 	// try to synchronize far cur dir with process cur dir
 	if(Global->CtrlObject && Global->CtrlObject->Plugins->GetOemPluginsCount())
 	{
-		SetCurrentDirectory(strCurrentDirectory());
+		SetCurrentDirectory(strCurrentDirectory().CPtr());
 	}
 #endif // NO_WRAPPER
 	return TRUE;
@@ -978,14 +978,14 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 {
 	bool Result = false;
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ExpandEnvironmentStrings(Src, Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = ExpandEnvironmentStrings(Src.CPtr(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
 		if (Size > ARRAYSIZE(Buffer))
 		{
 			string SrcCopy(Src);
 			wchar_t *lpwszDest = Dest.GetBuffer(Size);
-			Dest.ReleaseBuffer(ExpandEnvironmentStrings(SrcCopy, lpwszDest, Size)-1);
+			Dest.ReleaseBuffer(ExpandEnvironmentStrings(SrcCopy.CPtr(), lpwszDest, Size)-1);
 		}
 		else
 		{
@@ -1000,12 +1000,12 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 DWORD apiWNetGetConnection(const string& LocalName, string &RemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
-	DWORD dwResult = WNetGetConnection(LocalName, nullptr, &dwRemoteNameSize);
+	DWORD dwResult = WNetGetConnection(LocalName.CPtr(), nullptr, &dwRemoteNameSize);
 
 	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
 		wchar_t *lpwszRemoteName = RemoteName.GetBuffer(dwRemoteNameSize);
-		dwResult = WNetGetConnection(LocalName, lpwszRemoteName, &dwRemoteNameSize);
+		dwResult = WNetGetConnection(LocalName.CPtr(), lpwszRemoteName, &dwRemoteNameSize);
 		RemoteName.ReleaseBuffer();
 	}
 
@@ -1024,7 +1024,7 @@ BOOL apiGetVolumeInformation(
 	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer(MAX_PATH+1):nullptr;  //MSDN!
 	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer(MAX_PATH+1):nullptr;
 	BOOL bResult = GetVolumeInformation(
-	                   RootPathName,
+	                   RootPathName.CPtr(),
 	                   lpwszVolumeName,
 	                   lpwszVolumeName?MAX_PATH:0,
 	                   lpVolumeSerialNumber,
@@ -1052,9 +1052,9 @@ bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanS
 	}
 	else
 	{
-		const wchar_t* DirPtr = FileName;
-		ParsePath(FileName, &DirPtr);
-		if (!wcspbrk(DirPtr,L"*?"))
+		size_t DirOffset = 0;
+		ParsePath(FileName, &DirOffset);
+		if (!wcspbrk(FileName.CPtr() + DirOffset,L"*?"))
 		{
 			DWORD dwAttr=apiGetFileAttributes(FileName);
 
@@ -1165,7 +1165,7 @@ bool apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __i
 	uiTotalFree=0;
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
-	if(GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
+	if(GetDiskFreeSpaceEx(strPath.CPtr(),(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
 	{
 		Result = true;
 
@@ -1186,9 +1186,9 @@ HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkN
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
 	NTPath NtFileName(FileName);
-	if (Global->ifn->FindFirstFileNameW(NtFileName, 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if (Global->ifn->FindFirstFileNameW(NtFileName.CPtr(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		hRet=Global->ifn->FindFirstFileNameW(NtFileName, 0, &StringLength, LinkName.GetBuffer(StringLength));
+		hRet=Global->ifn->FindFirstFileNameW(NtFileName.CPtr(), 0, &StringLength, LinkName.GetBuffer(StringLength));
 		LinkName.ReleaseBuffer();
 	}
 	return hRet;
@@ -1218,7 +1218,7 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 	BOOL Result = FALSE;
 	for(size_t i = 0; i < 2 && !Result; ++i)
 	{
-		Result = NtTemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+		Result = NtTemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory.CPtr(), SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory.CPtr(), NtNewDirectory.CPtr(), SecurityAttributes);
 		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
 			Result = Global->Elevation->fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
@@ -1235,7 +1235,7 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 DWORD apiGetFileAttributes(const string& FileName)
 {
 	NTPath NtName(FileName);
-	DWORD Result = GetFileAttributes(NtName);
+	DWORD Result = GetFileAttributes(NtName.CPtr());
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		Result = Global->Elevation->fGetFileAttributes(NtName);
@@ -1246,7 +1246,7 @@ DWORD apiGetFileAttributes(const string& FileName)
 BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 {
 	NTPath NtName(FileName);
-	BOOL Result = SetFileAttributes(NtName, dwFileAttributes);
+	BOOL Result = SetFileAttributes(NtName.CPtr(), dwFileAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
@@ -1258,7 +1258,7 @@ BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
 	return Global->ifn->CreateSymbolicLinkWPresent()?
-		(Global->ifn->CreateSymbolicLink(Object, Target, dwFlags) != FALSE) :
+		(Global->ifn->CreateSymbolicLink(Object.CPtr(), Target.CPtr(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
@@ -1283,7 +1283,7 @@ bool apiSetFileEncryption(const string& Name, bool Encrypt)
 {
 	bool Result=false;
 	NTPath NtName(Name);
-	Result = apiSetFileEncryptionInternal(NtName, Encrypt);
+	Result = apiSetFileEncryptionInternal(NtName.CPtr(), Encrypt);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in advapi32, NtStatus not affected
 	{
 		Result=Global->Elevation->fSetFileEncryption(NtName, Encrypt);
@@ -1293,7 +1293,7 @@ bool apiSetFileEncryption(const string& Name, bool Encrypt)
 
 bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
+	bool Result = CreateHardLink(Object.CPtr(), Target.CPtr(), SecurityAttributes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fCreateHardLink(Object, Target, SecurityAttributes);
@@ -1317,7 +1317,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 	HANDLE Ret=INVALID_HANDLE_VALUE;
 	if(Global->ifn->FindFirstStreamWPresent())
 	{
-		Ret=Global->ifn->FindFirstStreamW(NTPath(FileName),InfoLevel,lpFindStreamData,dwFlags);
+		Ret=Global->ifn->FindFirstStreamW(NTPath(FileName).CPtr(),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{
@@ -1566,12 +1566,12 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 
 bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest)
 {
-	DWORD dwSize = SearchPath(Path,FileName,Extension,0,nullptr,nullptr);
+	DWORD dwSize = SearchPath(Path,FileName.CPtr(),Extension,0,nullptr,nullptr);
 
 	if (dwSize)
 	{
 		wchar_t *lpwszFullName=strDest.GetBuffer(dwSize);
-		dwSize = SearchPath(Path,FileName,Extension,dwSize,lpwszFullName,nullptr);
+		dwSize = SearchPath(Path,FileName.CPtr(),Extension,dwSize,lpwszFullName,nullptr);
 		strDest.ReleaseBuffer(dwSize);
 		return true;
 	}
@@ -1581,11 +1581,11 @@ bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *E
 
 bool apiQueryDosDevice(const string& DeviceName, string &Path) {
 	SetLastError(NO_ERROR);
-	DWORD Res = QueryDosDeviceW(DeviceName, Path.GetBuffer(MAX_PATH), MAX_PATH);
+	DWORD Res = QueryDosDeviceW(DeviceName.CPtr(), Path.GetBuffer(MAX_PATH), MAX_PATH);
 	if (!Res && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		SetLastError(NO_ERROR);
-		Res = QueryDosDeviceW(DeviceName, Path.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+		Res = QueryDosDeviceW(DeviceName.CPtr(), Path.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
 	}
 	if (!Res || GetLastError() != NO_ERROR)
 		return false;
@@ -1599,7 +1599,7 @@ bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& 
 	WCHAR VolumeNameBuffer[50];
 	NTPath strVolumeMountPoint(VolumeMountPoint);
 	AddEndSlash(strVolumeMountPoint);
-	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
+	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.CPtr(),VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
 	{
 		VolumeName=VolumeNameBuffer;
 		Result=true;
@@ -1699,13 +1699,13 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault)
 {
 	DWORD cbSize = 0;
-	int nResult = RegQueryValueEx(hKey, ValueName, nullptr, nullptr, nullptr, &cbSize);
+	int nResult = RegQueryValueEx(hKey, ValueName.CPtr(), nullptr, nullptr, nullptr, &cbSize);
 
 	if (nResult == ERROR_SUCCESS)
 	{
 		wchar_t *lpwszData = strData.GetBuffer(cbSize/sizeof(wchar_t)+1);
 		DWORD Type=REG_SZ;
-		nResult = RegQueryValueEx(hKey, ValueName, nullptr, &Type, reinterpret_cast<LPBYTE>(lpwszData), &cbSize);
+		nResult = RegQueryValueEx(hKey, ValueName.CPtr(), nullptr, &Type, reinterpret_cast<LPBYTE>(lpwszData), &cbSize);
 		int Size=cbSize/sizeof(wchar_t);
 
 		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
@@ -1736,7 +1736,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 	HKEY hKey;
 	int RetCode=REG_NONE;
 	DWORD Type=(DWORD)-1;
-	if(RegOpenKeyEx(hRegRootKey, Key, 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
+	if(RegOpenKeyEx(hRegRootKey, Key.CPtr(), 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
 	{
 		string strValueName;
 		DWORD ValNameSize=512, ValNameSize0;
@@ -1811,23 +1811,23 @@ bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInfo
 	bool Result = false;
 	NTPath NtObject(Object);
 	DWORD LengthNeeded = 0;
-	GetFileSecurity(NtObject, RequestedInformation, nullptr, 0, &LengthNeeded);
+	GetFileSecurity(NtObject.CPtr(), RequestedInformation, nullptr, 0, &LengthNeeded);
 	if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		SecurityDescriptor.reset(LengthNeeded);
-		Result = GetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
+		Result = GetFileSecurity(NtObject.CPtr(), RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
 	}
 	return Result;
 }
 
 bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
 {
-	return SetFileSecurity(NTPath(Object), RequestedInformation, SecurityDescriptor.get()) != FALSE;
+	return SetFileSecurity(NTPath(Object).CPtr(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 }
 
 bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
-	DWORD Result = Global->ifn->OpenVirtualDisk(&VirtualStorageType, Object, VirtualDiskAccessMask, Flags, &Parameters, &Handle);
+	DWORD Result = Global->ifn->OpenVirtualDisk(&VirtualStorageType, Object.CPtr(), VirtualDiskAccessMask, Flags, &Parameters, &Handle);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }

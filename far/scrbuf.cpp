@@ -551,7 +551,7 @@ void ScreenBuf::SetLockCount(int Count)
 {
 	LockCount=Count;
 	if (!LockCount && ConsoleTitle::WasTitleModified())
-		ConsoleTitle::SetFarTitle(nullptr);
+		ConsoleTitle::RestoreTitle();
 }
 
 void ScreenBuf::ResetShadow()

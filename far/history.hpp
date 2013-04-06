@@ -62,20 +62,20 @@ class History
 		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 		HistoryConfig* HistoryCfgRef(void);
 	public:
-		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, const string& HistoryName, const BoolOption& EnableSave, bool SaveType);
 		~History();
 
-		void AddToHistory(const wchar_t *Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
+		void AddToHistory(const string& Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
 		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
 		int  Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);
 		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
-		bool GetAllSimilar(VMenu2 &HistoryMenu,const wchar_t *Str);
+		bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition() { CurrentItem = 0; }
 		bool DeleteIfUnlocked(unsigned __int64 id);
-		bool ReadLastItem(const wchar_t *HistoryName, string &strStr);
+		bool ReadLastItem(const string& HistoryName, string &strStr);
 
 		static void CompactHistory();
 };

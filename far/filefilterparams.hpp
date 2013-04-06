@@ -133,10 +133,10 @@ class FileFilterParams
 
 		FileFilterParams &operator=(const FileFilterParams &FF);
 
-		void SetTitle(const wchar_t *Title);
-		void SetMask(bool Used, const wchar_t *Mask);
+		void SetTitle(const string& Title);
+		void SetMask(bool Used, const string& Mask);
 		void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
-		void SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow);
+		void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 		void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 		void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
 		void SetColors(HighlightDataColor *Colors);
@@ -145,7 +145,7 @@ class FileFilterParams
 		void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
 		void ClearAllFlags() { ClearArray(FFlags); }
 
-		const wchar_t *GetTitle() const;
+		const string& GetTitle() const;
 		bool  GetMask(const wchar_t **Mask) const;
 		bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
 		bool  GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const;

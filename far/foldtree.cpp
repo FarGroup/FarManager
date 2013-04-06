@@ -301,7 +301,7 @@ int FolderTree::ProcessKey(int Key)
 					strLastName = strName;
 				else
 				{
-					FindEdit->SetString(strLastName);
+					FindEdit->SetString(strLastName.CPtr());
 					strName = strLastName;
 				}
 

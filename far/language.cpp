@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
+bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
 	strFileName.Clear();
 	string strFullName, strEngFileName;
@@ -60,7 +60,7 @@ bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const 
 	{
 		strFileName = strFullName;
 
-		if (!Language)
+		if (Language.IsEmpty())
 			break;
 
 		if (!LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
@@ -71,7 +71,7 @@ bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const 
 		{
 			GetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName,Language))
+			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName.CPtr(),Language.CPtr()))
 				break;
 
 			LangFile.Close();
@@ -83,7 +83,7 @@ bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const 
 				break;
 			}
 
-			if (!StrCmpI(strLangName,L"English"))
+			if (!StrCmpI(strLangName.CPtr(),L"English"))
 				strEngFileName = strFileName;
 		}
 	}
@@ -106,7 +106,7 @@ bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const 
 }
 
 
-int GetLangParam(File& LangFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	wchar_t* ReadStr;
 	int ReadLength;
@@ -122,7 +122,7 @@ int GetLangParam(File& LangFile,const wchar_t *ParamName,string *strParam1, stri
 	GetFileString GetStr(LangFile);
 	while (GetStr.GetString(&ReadStr, nCodePage, ReadLength))
 	{
-		if (!StrCmpNI(ReadStr,strFullParamName,Length))
+		if (!StrCmpNI(ReadStr,strFullParamName.CPtr(),Length))
 		{
 			wchar_t *Ptr=wcschr(ReadStr,L'=');
 
@@ -215,7 +215,7 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 				*/
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
-					LangMenuItem.SetSelect(!StrCmpI(*strDest,strLangName));
+					LangMenuItem.SetSelect(!StrCmpI(strDest->CPtr(),strLangName.CPtr()));
 					LangMenu->SetUserData(strLangName.CPtr(), (strLangName.GetLength()+1)*sizeof(wchar_t), LangMenu->AddItem(&LangMenuItem));
 				}
 			}
@@ -259,7 +259,7 @@ int GetOptionsParam(File& SrcFile,const wchar_t *KeyName,string &strValue, UINT 
 				strFullParamName.SetLength(pos);
 				RemoveExternalSpaces(strFullParamName);
 
-				if (!StrCmpI(strFullParamName,KeyName))
+				if (!StrCmpI(strFullParamName.CPtr(),KeyName))
 				{
 					SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
 					return TRUE;
@@ -342,7 +342,7 @@ void ConvertString(const wchar_t *Src,string &strDest)
 	}
 }
 
-bool Language::Init(const wchar_t *Path, int CountNeed)
+bool Language::Init(const string& Path, int CountNeed)
 {
 	if (MsgList
 #ifndef NO_WRAPPER
@@ -361,7 +361,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
-	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage,strLangName))
+	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage.CPtr(),strLangName.CPtr()))
 		Global->Opt->strLanguage=strLangName;
 
 	UINT64 FileSize;
@@ -404,12 +404,12 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		if (m_bUnicode)
 #endif // NO_WRAPPER
 		{
-			wcscpy(MsgList+MsgSize, strDestStr);
+			wcscpy(MsgList+MsgSize, strDestStr.CPtr());
 		}
 #ifndef NO_WRAPPER
 		else
 		{
-			WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
+			WideCharToMultiByte(CP_OEMCP, 0, strDestStr.CPtr(), -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
 		}
 #endif // NO_WRAPPER
 		MsgSize+=DestLength;
@@ -479,7 +479,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 }
 
 #ifndef NO_WRAPPER
-bool Language::InitA(const wchar_t *Path, int CountNeed)
+bool Language::InitA(const string& Path, int CountNeed)
 {
 	m_bUnicode = false;
 	return Init(Path, CountNeed);
@@ -578,8 +578,8 @@ bool Language::CheckMsgId(LNGID MsgId) const
 			/* IS $ */
 			if (Message(MSG_WARNING, 2,
 				L"Error",
-				strMsg1,
-				FormatString()<<L"Message "<<MsgId<<L" not found",
+				strMsg1.CPtr(),
+				(FormatString()<<L"Message "<<MsgId<<L" not found").CPtr(),
 				L"Ok", L"Quit")==1)
 				exit(0);
 		}

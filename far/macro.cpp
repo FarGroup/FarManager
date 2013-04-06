@@ -630,7 +630,7 @@ bool KeyMacro::InitMacroExecution()
 		if (macro->m_macroId == 0)
 		{
 			fmc.Count = 2;
-			values[1].String = macro->Code();
+			values[1].String = macro->Code().CPtr();
 		}
 
 		void* handle = CallMacroPlugin(&info);
@@ -709,12 +709,12 @@ struct GetMacroData
 };
 
 // эта функция может вывести меню выбора макроса
-bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon,
+bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const string& TextKey, bool UseCommon,
 	bool CheckOnly)
 {
 	FarMacroValue values[4]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
 	values[0].Double=Mode;
-	values[1].String=TextKey;
+	values[1].String=TextKey.CPtr();
 	values[2].Boolean=(UseCommon?1:0);
 	values[3].Boolean=(CheckOnly?1:0);
 
@@ -727,7 +727,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 		Data->MacroId = (int)mpr->Values[0].Double;
 		if (Data->MacroId != 0)
 		{
-			Data->Name        = TextKey;
+			Data->Name        = TextKey.CPtr();
 			Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
@@ -749,17 +749,17 @@ bool KeyMacro::MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon)
 	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon,true);
 }
 
-void KeyMacro::LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags,
-	const wchar_t* Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
+void KeyMacro::LM_ProcessMacro(MACROMODEAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags,
+	const string& Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
 {
 	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
 	string strFlags(FlagsToString(Flags, MKeywordsFlags));
 
 	values[0].Double=Mode;
-	values[1].String=TextKey;
-	values[2].String=Code;
-	values[3].String=strFlags;
-	values[4].String=Description;
+	values[1].String=TextKey.CPtr();
+	values[2].String=Code.CPtr();
+	values[3].String=strFlags.CPtr();
+	values[4].String=Description.CPtr();
 	if (Guid)
 	{
 		values[5].Binary.Data=(void*)Guid;
@@ -957,7 +957,7 @@ int KeyMacro::GetKey()
 			Global->ScrBuf->Unlock();
 
 		if (ConsoleTitle::WasTitleModified())
-			ConsoleTitle::SetFarTitle(nullptr);
+			ConsoleTitle::RestoreTitle();
 
 		Clipboard::SetUseInternalClipboardState(false);
 		return 0;
@@ -1185,10 +1185,10 @@ int KeyMacro::PeekKey()
 	return key;
 }
 
-bool KeyMacro::GetMacroKeyInfo(const wchar_t* strMode, int Pos, string &strKeyName, string &strDescription)
+bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription)
 {
 	FarMacroValue values[2]={{FMVT_STRING},{FMVT_BOOLEAN}};
-	values[0].String = strMode;
+	values[0].String = strMode.CPtr();
 	values[1].Boolean = Pos?0:1;
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_ENUMMACROS,nullptr,&fmc};
@@ -1261,7 +1261,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return (mpr && mpr->Values[0].Boolean) ? TRUE:FALSE;
 }
 
-bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
+bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
 	if (!m_InternalInput && (MacroId != 0 || ParseMacroString(PlainText, onlyCheck)))
 	{
@@ -1568,7 +1568,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=m_RecCode;
 	}
 
-	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:(const wchar_t*)m_RecDescription;
+	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.CPtr();
 
 	DlgParam Param={0, 0, MACRO_OTHER, 0, false};
 	Dialog Dlg(this, &KeyMacro::ParamMacroDlgProc, &Param, MacroSettingsDlg, ARRAYSIZE(MacroSettingsDlg));
@@ -1618,12 +1618,12 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	return TRUE;
 }
 
-bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool skipFile)
+bool KeyMacro::ParseMacroString(const string& Sequence, bool onlyCheck, bool skipFile)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
 	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].String=Sequence;
+	values[0].String=Sequence.CPtr();
 	values[1].Boolean=onlyCheck?1:0;
 	values[2].Boolean=skipFile?1:0;
 	values[3].String=MSG(MMacroPErrorTitle);
@@ -1741,13 +1741,13 @@ static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
 
-static int PassString (const wchar_t* str, FarMacroCall* Data)
+static int PassString (const string& str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
 		FarMacroValue val;
 		val.Type = FMVT_STRING;
-		val.String = str;
+		val.String = str.CPtr();
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
@@ -2750,7 +2750,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						{
 							HiText2Str(NewStr, NewStr);
 							RemoveExternalSpaces(NewStr);
-							tmpVar=NewStr.CPtr();
+							tmpVar=NewStr;
 						}
 						else
 							tmpVar=L"";
@@ -2856,7 +2856,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							NewStr = tmpVar.toString();
 						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, tmpAction.toInteger()))
 						{
-							tmpVar=NewStr.CPtr();
+							tmpVar=NewStr;
 							success=true;
 						}
 					}
@@ -3207,7 +3207,7 @@ static bool fsplitFunc(FarMacroCall* Data)
 	else
 		Ret=true;
 
-	PassString(strPath.CPtr(), Data);
+	PassString(strPath, Data);
 	return Ret;
 }
 
@@ -3338,7 +3338,7 @@ static bool keyFunc(FarMacroCall* Data)
 			strKeyText=Params[0].s();
 	}
 
-	PassString(strKeyText.CPtr(), Data);
+	PassString(strKeyText, Data);
 	return !strKeyText.IsEmpty()?true:false;
 }
 
@@ -3358,7 +3358,7 @@ static bool waitkeyFunc(FarMacroCall* Data)
 			if (!KeyToText(Key,strKeyText))
 				strKeyText.Clear();
 
-		PassString(strKeyText.CPtr(), Data);
+		PassString(strKeyText, Data);
 		return !strKeyText.IsEmpty()?true:false;
 	}
 
@@ -3652,7 +3652,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	string TempBuf = title;
 	TempBuf += L"\n";
 	TempBuf += text;
-	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
+	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)UNSAFE_CSTR(TempBuf),0,0)+1;
 	/*
 	if (Result <= -1) // Break?
 		Global->CtrlObject->Macro.SendDropProcess();
@@ -3731,7 +3731,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	if (bAutoNumbering)
 	{
 		int numlines=0;
-		for (const wchar_t* p=strItems; *p; p++)
+		for (const wchar_t* p=strItems.CPtr(); *p; p++)
 		{
 			if (*p==L'\n') numlines++;
 		}
@@ -3764,8 +3764,8 @@ static bool menushowFunc(FarMacroCall* Data)
 		strBottom=strTitle.SubStr(PosLF+1);
 		strTitle=strTitle.SubStr(0,PosLF);
 	}
-	VMenu2 Menu(strTitle.CPtr(),nullptr,0,ScrY-4);
-	Menu.SetBottomTitle(strBottom.CPtr());
+	VMenu2 Menu(strTitle,nullptr,0,ScrY-4);
+	Menu.SetBottomTitle(strBottom);
 	Menu.SetFlags(MenuFlags);
 	Menu.SetPosition(X,Y,0,0);
 	Menu.SetBoxType(BoxType);
@@ -4034,7 +4034,7 @@ static bool environFunc(FarMacroCall* Data)
 		SetEnvironmentVariable(S.toString(),Value.isUnknown() || !*Value.s()?nullptr:Value.toString());
 	}
 
-	PassString(strEnv.CPtr(), Data);
+	PassString(strEnv, Data);
 	return Ret;
 }
 
@@ -4073,7 +4073,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 			string strStr=ValItems.s();
 			ReplaceStrings(strStr,L"\r",L"\n");
 			ReplaceStrings(strStr,L"\n\n",L"\n");
-			ValItems=strStr.CPtr();
+			ValItems=strStr;
 		}
 
 		MacroPanelSelect mps;
@@ -4361,7 +4361,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				case 9: Ret=(__int64)((Item->Flags&DIF_DEFAULTBUTTON)!=0); break;
 				case 10:
 				{
-					Ret=Item->strData.CPtr();
+					Ret=Item->strData;
 
 					if (IsEdit(ItemType))
 					{
@@ -5092,7 +5092,7 @@ static bool replaceFunc(FarMacroCall* Data)
 			cnt=-1;
 
 		ReplaceStrings(strStr,Find.s(),Repl.s(),cnt,!Mode);
-		PassString(strStr.CPtr(), Data);
+		PassString(strStr, Data);
 	}
 	else
 		PassValue(&Src, Data);
@@ -5170,19 +5170,19 @@ static bool panelitemFunc(FarMacroCall* Data)
 				ConvertDate(filelistItem.CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
-				Ret=TVar(strDate.CPtr());
+				Ret=TVar(strDate);
 				break;
 			case 4:  // AccessTime
 				ConvertDate(filelistItem.AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
-				Ret=TVar(strDate.CPtr());
+				Ret=TVar(strDate);
 				break;
 			case 5:  // WriteTime
 				ConvertDate(filelistItem.WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
-				Ret=TVar(strDate.CPtr());
+				Ret=TVar(strDate);
 				break;
 			case 6:  // FileSize
 				PassInteger(filelistItem.FileSize, Data);
@@ -5230,7 +5230,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				ConvertDate(filelistItem.ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
-				Ret=TVar(strDate.CPtr());
+				Ret=TVar(strDate);
 				break;
 			case 21:  // ChangeTime (FILETIME)
 				PassInteger(FileTimeToUI64(&filelistItem.ChangeTime), Data);
@@ -5349,7 +5349,7 @@ static bool strpadFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassString(strDest.CPtr(), Data);
+	PassString(strDest, Data);
 	return true;
 }
 
@@ -5370,7 +5370,7 @@ static bool strwrapFunc(FarMacroCall* Data)
 
 	string strDest;
 	FarFormatText(Text.s(),Width,strDest,*Break.s()?Break.s():nullptr,Flags);
-	PassString(strDest.CPtr(), Data);
+	PassString(strDest, Data);
 	return true;
 }
 
@@ -5572,7 +5572,7 @@ static bool editorgetstrFunc(FarMacroCall* Data)
 		{
 			string strRes;
 			Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
-			Res=strRes.CPtr();
+			Res=strRes;
 		}
 	}
 
@@ -5735,7 +5735,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
 		{
 			KeyToText(PreDefKeyMain[i],strKeyText);
-			Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+			Dlg->SendMessage(DM_LISTADDSTR,2, UNSAFE_CSTR(strKeyText));
 		}
 
 		DWORD PreDefKey[]=
@@ -5759,7 +5759,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			for (size_t j=0; j<ARRAYSIZE(PreDefModKey); j++)
 			{
 				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
-				Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+				Dlg->SendMessage(DM_LISTADDSTR,2, UNSAFE_CSTR(strKeyText));
 			}
 		}
 
@@ -5855,9 +5855,9 @@ M1:
 				{
 					const wchar_t* NoKey=MSG(DisFlags && !SetChange?MMacroDisAnotherKey:MNo);
 					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
-					          strBuf,
+					          strBuf.CPtr(),
 					          MSG(MMacroSequence),
-					          strBufKey,
+					          strBufKey.CPtr(),
 					          MSG(SetChange?MMacroDeleteKey2:
 					              (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
 					          MSG(DisFlags && !SetChange?MMacroDisOverwrite:MYes),
@@ -5881,7 +5881,7 @@ M1:
 					if ( *Data.Description )
 						strDescription=Data.Description;
 
-					if (GetMacroSettings(key,Data.Flags,strBufKey,strDescription))
+					if (GetMacroSettings(key,Data.Flags,strBufKey.CPtr(),strDescription.CPtr()))
 					{
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;
@@ -5898,7 +5898,7 @@ M1:
 		}
 
 		KMParam->Recurse++;
-		Dlg->SendMessage(DM_SETTEXTPTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+		Dlg->SendMessage(DM_SETTEXTPTR,2, UNSAFE_CSTR(strKeyText));
 		KMParam->Recurse--;
 		//if(key == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;

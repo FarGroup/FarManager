@@ -100,8 +100,8 @@ class ChDiskPluginItem
 		~ChDiskPluginItem() {}
 
 		void Clear() { HotKey = 0; Item.Clear(); }
-		bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName,rhs.Item.strName) && Item.UserData==rhs.Item.UserData; }
-		int operator<(const ChDiskPluginItem &rhs) const {return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?unsigned(HotKey-1)<unsigned(rhs.HotKey-1):StrCmpI(Item.strName,rhs.Item.strName)<0;}
+		bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName.CPtr(), rhs.Item.strName.CPtr()) && Item.UserData==rhs.Item.UserData; }
+		int operator<(const ChDiskPluginItem &rhs) const {return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?unsigned(HotKey-1)<unsigned(rhs.HotKey-1):StrCmpI(Item.strName.CPtr(), rhs.Item.strName.CPtr())<0;}
 		ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
 };
 
@@ -833,7 +833,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						pluginapi::apiShowHelp(
-						    item->pPlugin->GetModuleName(),
+						    item->pPlugin->GetModuleName().CPtr(),
 						    nullptr,
 						    FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS
 						);
@@ -876,7 +876,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (ChDisk.GetExitCode()<0 &&
 			        !strCurDir.IsEmpty() &&
-			        (StrCmpN(strCurDir,L"\\\\",2) ))
+			        (StrCmpN(strCurDir.CPtr(),L"\\\\",2) ))
 			{
 				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
 
@@ -996,7 +996,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ((PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
-		        !StrCmpI(strCurDir,strNewCurDir) &&
+		        !StrCmpI(strCurDir.CPtr(),strNewCurDir.CPtr()) &&
 		        IsVisible())
 		{
 			// А нужно ли делать здесь Update????
@@ -1127,7 +1127,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 				                MSG(MError),
-				                LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive,
+				                (LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive).CPtr(),
 				                MSG(MHRetry), MSG(MHCancel));
 			}
 			else
@@ -1153,7 +1153,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			{
 				if (Message(MSG_WARNING,2,
 					MSG(MChangeSUBSTDisconnectDriveTitle),
-					LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter,
+					(LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter).CPtr(),
 					MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
@@ -1172,7 +1172,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				{
 					if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 						MSG(MError),
-						strMsgText,
+						strMsgText.CPtr(),
 						L"\x1",
 						MSG(MChangeDriveOpenFiles),
 						MSG(MChangeDriveAskDisconnect),
@@ -1188,7 +1188,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 						return DRIVE_DEL_FAIL;
 					}
 				}
-				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
+				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText.CPtr(),MSG(MOk));
 			}
 			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
@@ -1209,7 +1209,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				FrameManager->GetCurrentFrame()->Show();
 				// </КОСТЫЛЬ>
 
-				if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
+				if (WNetCancelConnection2(DiskLetter.CPtr(),UpdateProfile,FALSE)==NO_ERROR)
 				{
 					return DRIVE_DEL_SUCCESS;
 				}
@@ -1222,12 +1222,12 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 					{
 						if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 							MSG(MError),
-							strMsgText,
+							strMsgText.CPtr(),
 							L"\x1",
 							MSG(MChangeDriveOpenFiles),
 							MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
 						{
-							if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
+							if (WNetCancelConnection2(DiskLetter.CPtr(),UpdateProfile,TRUE)==NO_ERROR)
 							{
 								return DRIVE_DEL_SUCCESS;
 							}
@@ -1237,10 +1237,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 							return DRIVE_DEL_FAIL;
 						}
 					}
-					const wchar_t RootDir[]={*DiskLetter,L':',L'\\',L'\0'};
+					const wchar_t RootDir[]={DiskLetter[0],L':',L'\\',L'\0'};
 					if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
 					{
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText.CPtr(),MSG(MOk));
 					}
 				}
 				return DRIVE_DEL_FAIL;
@@ -1254,7 +1254,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			{
 				if (Message(MSG_WARNING, 2,
 					MSG(MChangeVHDDisconnectDriveTitle),
-					LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter,
+					(LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter).CPtr(),
 					MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
@@ -1281,16 +1281,16 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 }
 
 
-void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
+void Panel::FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName,string &strName)
 {
-	wchar_t_ptr Buffer(StrLength(Src)+StrLength(FindEdit->GetStringAddr()) + 1);
+	wchar_t_ptr Buffer(Src.GetLength()+StrLength(FindEdit->GetStringAddr()) + 1);
 
 	if (Buffer)
 	{
 		auto Ptr = Buffer.get();
 		wcscpy(Ptr,FindEdit->GetStringAddr());
 		wchar_t *EndPtr=Ptr+StrLength(Ptr);
-		wcscat(Ptr,Src);
+		wcscat(Ptr,Src.CPtr());
 		Unquote(EndPtr);
 		EndPtr=Ptr+StrLength(Ptr);
 		for (;;)
@@ -1491,7 +1491,7 @@ void Panel::FastFind(int FirstKey)
 						        && strName.At(strName.GetLength()-2) == L'*')
 						{
 							strName.SetLength(strName.GetLength()-1);
-							FindEdit.SetString(strName);
+							FindEdit.SetString(strName.CPtr());
 						}
 
 						/* $ 09.04.2001 SVS
@@ -1501,7 +1501,7 @@ void Panel::FastFind(int FirstKey)
 						if (strName.At(0) == L'"')
 						{
 							strName.LShift(1);
-							FindEdit.SetString(strName);
+							FindEdit.SetString(strName.CPtr());
 						}
 
 						if (FindPartName(strName,FALSE,1,1))
@@ -1517,7 +1517,7 @@ void Panel::FastFind(int FirstKey)
 								;
 							}
 
-							FindEdit.SetString(strLastName);
+							FindEdit.SetString(strLastName.CPtr());
 							strName = strLastName;
 						}
 
@@ -1775,9 +1775,9 @@ BOOL Panel::SetCurDir(const string& CurDir,int ClosePanel,BOOL /*IsUpdated*/)
 }
 
 
-void Panel::InitCurDir(const wchar_t *CurDir)
+void Panel::InitCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(strCurDir.CPtr(),CurDir.CPtr()) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 
@@ -2248,7 +2248,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp,Param1);
+				xwcsncpy((wchar_t*)Param2,strTemp.CPtr(),Param1);
 
 			Result=(int)strTemp.GetLength()+1;
 			break;
@@ -2286,7 +2286,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp,Param1);
+				xwcsncpy((wchar_t*)Param2,strTemp.CPtr(),Param1);
 
 			Result=(int)strTemp.GetLength()+1;
 			break;
@@ -2314,9 +2314,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
 					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
 					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-					wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
-					wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
-					wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder.CPtr(),Info.ShortcutFolder.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData.CPtr(),Info.PluginData.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile.CPtr(),Info.PluginFile.GetLength()+1);
 				}
 				Reenter--;
 			}
@@ -2334,14 +2334,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				if (Command==FCTL_GETCOLUMNTYPES)
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnTypes,Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnTypes.CPtr(),Param1);
 
 					Result=(int)strColumnTypes.GetLength()+1;
 				}
 				else
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnWidths,Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnWidths.CPtr(),Param1);
 
 					Result=(int)strColumnWidths.GetLength()+1;
 				}
@@ -2542,7 +2542,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		string KeyName(L"Network\\");
 		KeyName+=Letter;
 
-		if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+		if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName.CPtr(),0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
 		{
 			DCDlg[5].Flags|=DIF_DISABLE;
 			DCDlg[5].Selected=0;
@@ -2578,7 +2578,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-	        !StrCmpI(AnotherPanel->strCurDir, strCurDir))
+	        !StrCmpI(AnotherPanel->strCurDir.CPtr(), strCurDir.CPtr()))
 		return TRUE;
 
 	return FALSE;

@@ -65,6 +65,7 @@ class TVar
 	public:
 		TVar(__int64 = 0);
 		TVar(const wchar_t*);
+		TVar(const string&);
 		TVar(int);
 		TVar(double);
 		TVar(const TVar&);

@@ -416,12 +416,12 @@ int SubstFileName(string &strStr,            // результирующая строка
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (!wcschr(strStr,L'!'))
+	if (!wcschr(strStr.CPtr(),L'!'))
 		return FALSE;
 
 	TSubstData SubstData, *PSubstData=&SubstData;
-	PSubstData->Name=Name;                    // Длинное имя
-	PSubstData->ShortName=ShortName;          // Короткое имя
+	PSubstData->Name=Name.CPtr();                    // Длинное имя
+	PSubstData->ShortName=ShortName.CPtr();          // Короткое имя
 	PSubstData->pListName=pListName;            // Длинное имя файла-списка
 	PSubstData->pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
 	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
@@ -464,7 +464,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	if (!IgnoreInput)
 		ReplaceVariables(strTmp,PSubstData);
 
-	const wchar_t *CurStr = strTmp;
+	const wchar_t *CurStr = strTmp.CPtr();
 	string strOut;
 
 	while (*CurStr)
@@ -487,7 +487,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 {
 	const int MaxSize=20;
-	const wchar_t *Str=strStr;
+	const wchar_t *Str=strStr.CPtr();
 	const wchar_t * const StartStr=Str;
 
 	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
@@ -584,7 +584,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 			strTitle.SetLength(beg_t-2-hist_correct);    // !?$zz$xxxx(fffff)ddddd
 			//       ^  ^
 			string strTmp;
-			const wchar_t *CurStr = strTitle3;
+			const wchar_t *CurStr = strTitle3.CPtr();
 
 			while (*CurStr)
 			{
@@ -626,7 +626,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 			strTxt.SetLength(beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                        ^  ^
 			string strTmp;
-			const wchar_t *CurStr = strTxt3;
+			const wchar_t *CurStr = strTxt3.CPtr();
 
 			while (*CurStr)
 			{
@@ -816,7 +816,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				}
 				else
 				{
-					int Size=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),nullptr,0,nullptr,nullptr);
+					int Size=WideCharToMultiByte(CodePage,0,strFileName.CPtr(),static_cast<int>(strFileName.GetLength()),nullptr,0,nullptr,nullptr);
 
 					if (Size)
 					{
@@ -824,7 +824,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 						if (Buffer)
 						{
-							NumberOfBytesToWrite=WideCharToMultiByte(CodePage, 0, strFileName, static_cast<int>(strFileName.GetLength()), Buffer.get(), Size, nullptr, nullptr);
+							NumberOfBytesToWrite=WideCharToMultiByte(CodePage, 0, strFileName.CPtr(), static_cast<int>(strFileName.GetLength()), Buffer.get(), Size, nullptr, nullptr);
 							Ptr=Buffer.get();
 						}
 					}

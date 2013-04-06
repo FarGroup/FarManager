@@ -52,7 +52,7 @@ FileSystemWatcher::~FileSystemWatcher()
 {
 }
 
-void FileSystemWatcher::Set(const wchar_t* Directory, bool WatchSubtree)
+void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 {
 	this->Directory = Directory;
 	this->WatchSubtree = WatchSubtree;
@@ -69,7 +69,7 @@ bool FileSystemWatcher::Watch(bool got_focus)
 	DisableElevation de;
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
-		Handle=FindFirstChangeNotification(Directory, WatchSubtree,
+		Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
 		FILE_NOTIFY_CHANGE_FILE_NAME|
 		FILE_NOTIFY_CHANGE_DIR_NAME|
 		FILE_NOTIFY_CHANGE_ATTRIBUTES|
@@ -82,7 +82,7 @@ bool FileSystemWatcher::Watch(bool got_focus)
 	{
 		bool isFAT = false;
 		string strRoot, strFileSystem;
-		GetPathRoot(Directory.CPtr(), strRoot);
+		GetPathRoot(Directory, strRoot);
 		if (!strRoot.IsEmpty())
 		{
 			if (apiGetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))

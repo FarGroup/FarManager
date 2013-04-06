@@ -99,11 +99,11 @@ struct ViewerPosCache
 class FilePositionCache
 {
 	public:
-		static bool AddPosition(const wchar_t *Name, const EditorPosCache& poscache);
-		static bool GetPosition(const wchar_t *Name, EditorPosCache& poscache);
+		static bool AddPosition(const string& Name, const EditorPosCache& poscache);
+		static bool GetPosition(const string& Name, EditorPosCache& poscache);
 
-		static bool AddPosition(const wchar_t *Name, const ViewerPosCache& poscache);
-		static bool GetPosition(const wchar_t *Name, ViewerPosCache& poscache);
+		static bool AddPosition(const string& Name, const ViewerPosCache& poscache);
+		static bool GetPosition(const string& Name, ViewerPosCache& poscache);
 
 		static void CompactHistory();
 };

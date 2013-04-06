@@ -1147,7 +1147,7 @@ static void WINAPI GetPathRootA(const char *Path, char *Root)
 {
 	string strPath(Path);
 	wchar_t Buffer[MAX_PATH];
-	NativeFSF.GetPathRoot(strPath, Buffer, ARRAYSIZE(Buffer));
+	NativeFSF.GetPathRoot(strPath.CPtr(), Buffer, ARRAYSIZE(Buffer));
 	UnicodeToOEM(Buffer, Root, ARRAYSIZE(Buffer));
 }
 
@@ -1183,7 +1183,7 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	string strP1(Param1), strP2(Param2);
 	int size = (int)(strP1.GetLength()+strP2.GetLength()+oldfar::NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 	wchar_t_ptr p(size);
-	wcscpy(p.get(), strP2);
+	wcscpy(p.get(), strP2.CPtr());
 	int newFlags = 0;
 
 	if (Flags&oldfar::PN_SKIPPATH)
@@ -1205,7 +1205,7 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
-	int ret = static_cast<int>(NativeFSF.ProcessName(strP1,p.get(),size,newFlags));
+	int ret = static_cast<int>(NativeFSF.ProcessName(strP1.CPtr(), p.get(), size, newFlags));
 
 	if (newFlags&PN_GENERATENAME)
 		UnicodeToOEM(p.get(),Param2,size);
@@ -1224,7 +1224,7 @@ static BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 	string strKT;
 	if (KeyToText(OldKeyToKey(Key),strKT))
 	{
-		UnicodeToOEM(strKT, KeyText,Size>0?Size+1:32);
+		UnicodeToOEM(strKT.CPtr(), KeyText,Size>0?Size+1:32);
 		return TRUE;
 	}
 	return FALSE;
@@ -1239,7 +1239,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);
 	wchar_t D[oldfar::NM] = {};
-	NativeFSF.MkTemp(D,ARRAYSIZE(D),strP);
+	NativeFSF.MkTemp(D,ARRAYSIZE(D),strP.CPtr());
 	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
 }
@@ -1263,13 +1263,12 @@ static int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 
 	if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL) Flags|=MLF_DONOTUPDATEPANEL;
 
-	return NativeFSF.MkLink(strS, strD, Type, Flags);
+	return NativeFSF.MkLink(strS.CPtr(), strD.CPtr(), Type, Flags);
 }
 
 static int WINAPI GetNumberOfLinksA(const char *Name)
 {
-	string n(Name);
-	return static_cast<int>(NativeFSF.GetNumberOfLinks(n));
+	return static_cast<int>(NativeFSF.GetNumberOfLinks(string(Name).CPtr()));
 }
 
 static int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
@@ -1292,13 +1291,13 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSiz
 	{
 		string strSrc(Src);
 		wchar_t Buffer[MAX_PATH];
-		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc, Buffer, ARRAYSIZE(Buffer)));
+		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.CPtr(), Buffer, ARRAYSIZE(Buffer)));
 		if (DestSize && Dest)
 		{
 			if(Result > MAX_PATH)
 			{
 				wchar_t* Tmp = new wchar_t[DestSize];
-				NativeFSF.GetReparsePointInfo(strSrc, Tmp, DestSize);
+				NativeFSF.GetReparsePointInfo(strSrc.CPtr(), Tmp, DestSize);
 				UnicodeToOEM(Tmp, Dest, DestSize);
 				delete[] Tmp;
 			}
@@ -1349,7 +1348,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldf
 
 	if (Flags&oldfar::FRS_SCANSYMLINK) newFlags|=FRS_SCANSYMLINK;
 
-	NativeFSF.FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,newFlags,static_cast<void *>(&CallbackParam));
+	NativeFSF.FarRecursiveSearch(strInitDir.CPtr(), strMask.CPtr(), FarRecursiveSearchA_Callback, newFlags, static_cast<void *>(&CallbackParam));
 }
 
 static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
@@ -1364,13 +1363,13 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 static int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
 	string strFN(FileName), strT(Title);
-	return NativeInfo.Viewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_DEFAULT);
+	return NativeInfo.Viewer(strFN.CPtr(),strT.CPtr(),X1,Y1,X2,Y2,Flags,CP_DEFAULT);
 }
 
 static int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
 {
 	string strFN(FileName), strT(Title);
-	return NativeInfo.Editor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_DEFAULT);
+	return NativeInfo.Editor(strFN.CPtr(),strT.CPtr(),X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_DEFAULT);
 }
 
 static int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
@@ -1385,13 +1384,13 @@ static void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 	if (!Str) return NativeInfo.Text(X,Y,&Color,nullptr);
 
 	string strS(Str);
-	return NativeInfo.Text(X,Y,&Color,strS);
+	return NativeInfo.Text(X,Y,&Color,strS.CPtr());
 }
 
 static BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
 {
 	string strMN(ModuleName), strHT(HelpTopic);
-	return NativeInfo.ShowHelp(strMN,(HelpTopic?strHT.CPtr():nullptr),Flags);
+	return NativeInfo.ShowHelp(strMN.CPtr(),(HelpTopic?strHT.CPtr():nullptr),Flags);
 }
 
 static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
@@ -3605,7 +3604,7 @@ static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPane
 
 	PluginPanelItem *pItems;
 	size_t ItemsNumber;
-	int ret=NativeInfo.GetDirList(strDir, &pItems, &ItemsNumber);
+	int ret=NativeInfo.GetDirList(strDir.CPtr(), &pItems, &ItemsNumber);
 
 	size_t PathOffset = ExtractFilePath(strDir).GetLength() + 1;
 
@@ -3646,7 +3645,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,cons
 
 	PluginPanelItem *pPanelItemW;
 	size_t ItemsNumber;
-	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, strDir, &pPanelItemW, &ItemsNumber);
+	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, strDir.CPtr(), &pPanelItemW, &ItemsNumber);
 
 	if (ret && ItemsNumber)
 	{
@@ -4086,7 +4085,7 @@ static int GetEditorCodePageFavA()
 			if (!(selectType&CPST_FAVORITE))
 				continue;
 
-			if (static_cast<UINT>(_wtoi(sTableName)) == CodePage)
+			if (static_cast<UINT>(_wtoi(sTableName.CPtr())) == CodePage)
 			{
 				result=FavIndex;
 				break;
@@ -4138,7 +4137,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 
 					if (FavIndex==Command)
 					{
-						nCP=_wtoi(strTableName);
+						nCP=_wtoi(strTableName.CPtr());
 						break;
 					}
 
@@ -4235,7 +4234,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 			if (!p) return FALSE;
 
 			string strP(p);
-			return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_INSERTTEXT,0,const_cast<wchar_t*>(strP.CPtr())));
+			return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_INSERTTEXT, 0, UNSAFE_CSTR(strP)));
 		}
 		case oldfar::ECTL_GETINFO:
 		{
@@ -4855,7 +4854,7 @@ static int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Own
 {
 	string strComputer(Computer), strName(Name);
 	wchar_t wOwner[MAX_PATH];
-	int Ret=static_cast<int>(NativeFSF.GetFileOwner(strComputer,strName, wOwner, ARRAYSIZE(wOwner)));
+	int Ret=static_cast<int>(NativeFSF.GetFileOwner(strComputer.CPtr(),strName.CPtr(), wOwner, ARRAYSIZE(wOwner)));
 	if (Ret)
 	{
 		UnicodeToOEM(wOwner, Owner, oldfar::NM);
@@ -4872,7 +4871,7 @@ static void CheckScreenLock()
 	}
 }
 
-PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
+PluginA::PluginA(PluginManager *owner, const string& lpwszModuleName):
 	Plugin(owner,lpwszModuleName),
 	RootKey(nullptr),
 	pFDPanelItemA(nullptr),
@@ -5020,7 +5019,7 @@ bool PluginA::SetStartupInfo()
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые поля
 		strRootKey = Global->strRegRoot + L"\\Plugins";
-		RootKey = UnicodeToAnsi(strRootKey);
+		RootKey = UnicodeToAnsi(strRootKey.CPtr());
 		_info.RootKey = RootKey;
 		ExecuteStruct es = {EXCEPT_SETSTARTUPINFO};
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
@@ -5207,15 +5206,15 @@ int PluginA::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 	return es;
 }
 
-int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const wchar_t *Path)
+int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path)
 {
 	ExecuteStruct es = {EXCEPT_GETVIRTUALFINDDATA};
 	if (Exports[iGetVirtualFindData] && !Global->ProcessException)
 	{
 		pVFDPanelItemA = nullptr;
-		size_t Size=StrLength(Path)+1;
+		size_t Size=Path.GetLength()+1;
 		char_ptr PathA(Size);
-		UnicodeToOEM(Path, PathA.get(), Size);
+		UnicodeToOEM(Path.CPtr(), PathA.get(), Size);
 		int ItemsNumber = 0;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, &ItemsNumber, PathA.get()));
 		*pItemsNumber = ItemsNumber;
@@ -5409,12 +5408,12 @@ void PluginA::ClosePanel(HANDLE hPlugin)
 	//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
-int PluginA::SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, UserDataItem * /* UserData */)
+int PluginA::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserDataItem * /* UserData */)
 {
 	ExecuteStruct es = {EXCEPT_SETDIRECTORY};
 	if (Exports[iSetDirectory] && !Global->ProcessException)
 	{
-		char *DirA = UnicodeToAnsi(Dir);
+		char *DirA = UnicodeToAnsi(Dir.CPtr());
 		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(hPlugin, DirA, OpMode));
 		delete[] DirA;
 	}

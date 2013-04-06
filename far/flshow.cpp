@@ -569,7 +569,7 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 	TruncStrFromEnd(strTotalStr, std::max(0, X2-X1-1));
 	Length=(int)strTotalStr.GetLength();
 	GotoXY(X1+(X2-X1+1-Length)/2,Y2);
-	const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[BS_H2]);
+	const wchar_t *FirstBox=wcschr(strTotalStr.CPtr(),BoxSymbols[BS_H2]);
 	int BoxPos=FirstBox ? (int)(FirstBox-strTotalStr.CPtr()):-1;
 	int BoxLength=0;
 
@@ -997,7 +997,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						ColumnData=ListData[ListPos]->strCustomData;//L"";
+						ColumnData=ListData[ListPos]->strCustomData.CPtr();//L"";
 					}
 
 					int CurLeftPos=0;
@@ -1042,7 +1042,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								SetColor(OldColor);
 							}
 
-							const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+							const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName.CPtr():ListData[ListPos]->strName.CPtr();
 
 							string strNameCopy;
 							if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
@@ -1051,7 +1051,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								if (ExtPtr)
 								{
 									strNameCopy.Copy(NamePtr, ExtPtr-NamePtr);
-									NamePtr = strNameCopy;
+									NamePtr = strNameCopy.CPtr();
 								}
 							}
 
@@ -1172,7 +1172,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							const wchar_t *ExtPtr = nullptr;
 							if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 							{
-								const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+								const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName.CPtr():ListData[ListPos]->strName.CPtr();
 								ExtPtr = PointToExt(NamePtr);
 							}
 							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
@@ -1216,7 +1216,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								ColumnType,
 								ColumnTypes[K],
 								ColumnWidth,
-								strCurDir));
+								strCurDir.CPtr()));
 							break;
 						}
 
@@ -1284,7 +1284,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case OWNER_COLUMN:
 						{
-							const wchar_t* Owner=ListData[ListPos]->strOwner;
+							const wchar_t* Owner=ListData[ListPos]->strOwner.CPtr();
 
 							if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
 							{

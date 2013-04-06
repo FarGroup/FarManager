@@ -102,7 +102,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 		if (!expmasks.IsEmpty())
 		{
-			const wchar_t* ptr = expmasks;
+			const wchar_t* ptr = expmasks.CPtr();
 
 			string SimpleMasksInclude, SimpleMasksExclude;
 
@@ -259,7 +259,7 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re.reset(new RegExp);
 
-		if (re && re->Compile(expmasks, OP_PERLSTYLE|OP_OPTIMIZE))
+		if (re && re->Compile(expmasks.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m.reset(n);
@@ -301,7 +301,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	{
 		intptr_t i = n;
 		size_t len = FileName.GetLength();
-		bool ret = re->Search(FileName,FileName+len,m.get(),i) ? TRUE : FALSE;
+		bool ret = re->Search(FileName.CPtr(),FileName.CPtr()+len,m.get(),i) ? TRUE : FALSE;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)
@@ -311,7 +311,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	}
 	else return std::find_if(CONST_RANGE(Masks, i)
 	{
-		return CmpName(i, FileName, false) != 0;
+		return CmpName(i.CPtr(), FileName.CPtr(), false) != 0;
 	}) != Masks.cend();
 }
 

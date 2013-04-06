@@ -188,7 +188,7 @@ public:
 		ArcList.clear();
 	}
 
-	ArcListItem& AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,UINT64 dwFlags,const wchar_t *RootPath)
+	ArcListItem& AddArcListItem(const string& ArcName,HANDLE hPlugin,UINT64 dwFlags,const string& RootPath)
 	{
 		CriticalSectionLock Lock(DataCS);
 
@@ -388,7 +388,7 @@ void FindFiles::InitInFileSearch()
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						uintptr_t codePage = _wtoi(codePageName);
+						uintptr_t codePage = _wtoi(codePageName.CPtr());
 
 						// Проверяем дубли
 						if (!hasSelected)
@@ -551,9 +551,9 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct Plug
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel,struct UserDataItem *UserData)
+void FindFiles::SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool UpdatePanel,struct UserDataItem *UserData)
 {
-	if (DirName && *DirName)
+	if (!DirName.IsEmpty())
 	{
 		string strName(DirName);
 		wchar_t* DirPtr = strName.GetBuffer();
@@ -625,13 +625,13 @@ void FindFiles::AdvancedDialog()
 	{
 		{DI_DOUBLEBOX,3,1,52,12,0,nullptr,nullptr,0,MSG(MFindFileAdvancedTitle)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MFindFileSearchFirst)},
-		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize},
+		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize.CPtr()},
 		{DI_CHECKBOX,5,4,0,4,Global->Opt->FindOpt.FindAlternateStreams,nullptr,nullptr,0,MSG(MFindAlternateStreams)},
 		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,5,6, 0, 6,0,nullptr,nullptr,0,MSG(MFindAlternateModeTypes)},
-		{DI_EDIT,5,7,35, 7,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat},
+		{DI_EDIT,5,7,35, 7,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.CPtr()},
 		{DI_TEXT,5,8, 0, 8,0,nullptr,nullptr,0,MSG(MFindAlternateModeWidths)},
-		{DI_EDIT,5,9,35, 9,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth},
+		{DI_EDIT,5,9,35, 9,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.CPtr()},
 		{DI_TEXT,-1,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
@@ -729,7 +729,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					PrepareDriveNameStr(strSearchFromRoot);
 					FarListGetItem item={sizeof(FarListGetItem),FADC_ROOT};
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
-					item.Item.Text=strSearchFromRoot;
+					item.Item.Text=strSearchFromRoot.CPtr();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
 					PluginMode=Global->CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(PluginMode?FALSE:TRUE));
@@ -782,7 +782,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
 					string strDataStr;
 					Transform(strDataStr,(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,0),Param2?L'X':L'S');
-					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,const_cast<wchar_t*>(strDataStr.CPtr()));
+					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
 					intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(iParam));
@@ -791,7 +791,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!iParam));
-					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,const_cast<wchar_t*>(Param2?MSG(MFindFileHex):MSG(MFindFileText)));
+					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, const_cast<wchar_t*>(Param2?MSG(MFindFileHex):MSG(MFindFileText)));
 
 					if (strDataStr.GetLength()>0)
 					{
@@ -951,7 +951,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName,struct UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -1305,7 +1305,7 @@ int FindFiles::LookForString(const string& Name)
 	return false;
 }
 
-bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr, const string &strDisplayName)
+bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName)
 {
 	bool FileFound=FileMaskForFindFile->Compare(PointToName(FullName));
 	ArcListItem* ArcItem = itd->GetFindFileArcItem();
@@ -1397,7 +1397,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				LangString strDataStr(MFindFound);
 				strDataStr << itd->GetFileCount() << itd->GetDirCount();
-				Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1,const_cast<wchar_t*>(strDataStr.CPtr()));
+				Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
 				LangString strSearchStr(MFindSearchingIn);
 
@@ -1419,10 +1419,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				TruncStrFromCenter(strFM, Rect.Right-Rect.Left+1 - static_cast<int>(strSearchStr.GetLength()) - 1);
 				strDataStr=strSearchStr;
 				strDataStr += L" " + strFM;
-				Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, const_cast<wchar_t*>(strDataStr.CPtr()));
+				Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strDataStr));
 
 				strDataStr.Format(L"%3d%%",itd->GetPercent());
-				Dlg->SendMessage( DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS,const_cast<wchar_t*>(strDataStr.CPtr()));
+				Dlg->SendMessage( DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(strDataStr));
 
 				if (itd->GetLastFoundNumber())
 				{
@@ -1442,7 +1442,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		strMessage << itd->GetFileCount() << itd->GetDirCount();
 		Dlg->SendMessage( DM_ENABLEREDRAW, FALSE, 0);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, const_cast<wchar_t*>(strMessage.CPtr()));
+		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(MSG(MFindCancel)));
 		Dlg->SendMessage( DM_ENABLEREDRAW, TRUE, 0);
@@ -2010,7 +2010,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!Dlg)
 		return;
@@ -2033,7 +2033,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 	FormatString MenuText;
 
 	string strDateStr, strTimeStr;
-	const wchar_t *DisplayName=FindData.strFileName;
+	const wchar_t *DisplayName=FindData.strFileName.CPtr();
 
 	unsigned __int64 *ColumnType=Global->Opt->FindOpt.OutColumnTypes;
 	int *ColumnWidth=Global->Opt->FindOpt.OutColumnWidths;
@@ -2153,7 +2153,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 	}
 	AddEndSlash(strPathName);
 
-	if (StrCmpI(strPathName,strLastDirName))
+	if (StrCmpI(strPathName.CPtr(),strLastDirName.CPtr()))
 	{
 		if (ListBox->GetItemCount())
 		{
@@ -2228,7 +2228,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIN
 	itd->SetLastFoundNumber(LF);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData)
 {
 	FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
@@ -2236,7 +2236,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelIt
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
 
-void FindFiles::ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName)
+void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
@@ -2758,10 +2758,10 @@ bool FindFiles::FindFilesProcess()
 	int DlgHeight = ScrY + 1 - 2;
 	FarDialogItem FindDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle},
+		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.CPtr()},
 		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,0},
 		{DI_TEXT,-1,DlgHeight-6,0,DlgHeight-6,0,nullptr,nullptr,DIF_SEPARATOR2,L""},
-		{DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.IsEmpty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strSearchStr},
+		{DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.IsEmpty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strSearchStr.CPtr()},
 		{DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,nullptr,nullptr,(strFindStr.IsEmpty()?DIF_HIDDEN:0),L""},
 		{DI_TEXT,-1,DlgHeight-4,0,DlgHeight-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MFindNewSearch)},
@@ -2993,7 +2993,7 @@ bool FindFiles::FindFilesProcess()
 					if (Length>1 && IsSlash(strDirTmp.At(Length-1)) && strDirTmp.At(Length-2)!=L':')
 						strDirTmp.SetLength(Length-1);
 
-					if (StrCmpI(strFileName, strDirTmp))
+					if (StrCmpI(strFileName.CPtr(), strDirTmp.CPtr()))
 						FindPanel->SetCurDir(strFileName,TRUE);
 
 					if (!strSetName.IsEmpty())
@@ -3111,7 +3111,7 @@ FindFiles::FindFiles():
 			{0,MSG(MSearchAllDisks)},
 			{0,MSG(MSearchAllButNetwork)},
 			{0,MSG(MSearchInPATH)},
-			{0,strSearchFromRoot},
+			{0,strSearchFromRoot.CPtr()},
 			{0,MSG(MSearchFromCurrent)},
 			{0,MSG(MSearchInCurrent)},
 			{0,MSG(MSearchInSelected)},

@@ -47,7 +47,7 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Global->Opt->ScanJunction:ScanJunction!=0));
 }
 
-void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
 	ScanItems.emplace_back(new ScanTreeData());

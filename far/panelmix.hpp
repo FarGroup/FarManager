@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
-int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
+int  CheckUpdateAnotherPanel(Panel *SrcPanel,const string& SelName);
 
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
@@ -45,7 +45,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
 						DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
-void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
+void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
 void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,
 						string &strColumnTitles,string &strColumnWidths);

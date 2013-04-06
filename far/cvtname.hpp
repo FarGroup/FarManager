@@ -33,13 +33,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest, LPCWSTR CurrentDirectory = nullptr);
+void ConvertNameToFull(const string &Src, string &strDest, LPCWSTR CurrentDirectory = nullptr);
 
-void ConvertNameToReal(const wchar_t *Src, string &strDest);
+void ConvertNameToReal(const string &Src, string &strDest);
 
-void ConvertNameToShort(const wchar_t *Src, string &strDest);
+void ConvertNameToShort(const string &Src, string &strDest);
 
-void ConvertNameToLong(const wchar_t *Src, string &strDest);
+void ConvertNameToLong(const string &Src, string &strDest);
 
 void ConvertNameToUNC(string &strFileName);
 

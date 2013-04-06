@@ -102,18 +102,18 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 	}
 }
 
-void ConnectToNetworkDrive(const wchar_t *NewDir)
+void ConnectToNetworkDrive(const string& NewDir)
 {
 	string strRemoteName;
-	DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED,*NewDir,strRemoteName);
+	DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED,NewDir[0],strRemoteName);
 	string strUserName, strPassword;
-	GetStoredUserName(*NewDir, strUserName);
+	GetStoredUserName(NewDir[0], strUserName);
 	NETRESOURCE netResource;
 	netResource.dwType = RESOURCETYPE_DISK;
-	netResource.lpLocalName = (wchar_t *)NewDir;
+	netResource.lpLocalName = (wchar_t *)NewDir.CPtr();
 	netResource.lpRemoteName = (wchar_t *)strRemoteName.CPtr();
 	netResource.lpProvider = 0;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName), 0);
+	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.CPtr()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
@@ -125,7 +125,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2(&netResource, strPassword, EmptyToNull(strUserName), 0);
+			res = WNetAddConnection2(&netResource, strPassword.CPtr(), EmptyToNull(strUserName.CPtr()), 0);
 
 			if (!res)
 				break;
@@ -134,14 +134,14 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 			{
 				string strMsgStr;
 				GetErrorString(strMsgStr);
-				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr, MSG(MOk));
+				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.CPtr(), MSG(MOk));
 				break;
 			}
 		}
 	}
 }
 
-string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
+string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 {
 	string strNetDir;
 	strComputerName.Clear();
@@ -152,7 +152,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 	}
 	else
 	{
-		string LocalName(CurDir, 2);
+		string LocalName(CurDir.CPtr(), 2);
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 

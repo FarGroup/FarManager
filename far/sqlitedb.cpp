@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "Mutex.hpp"
 
-static void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
+static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 {
-	if(StrCmp(FileName, L":memory:"))
+	if(FileName != L":memory:")
 	{
 		strOut = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
 		AddEndSlash(strOut);
@@ -104,10 +104,10 @@ SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
 	return *this;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(const wchar_t *Value, bool bStatic)
+SQLiteStmt& SQLiteStmt::Bind(const string& Value, bool bStatic)
 {
-	if (Value)
-		sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+	if (!Value.IsEmpty())
+		sqlite3_bind_text16(pStmt,param++,Value.CPtr(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
 	else
 		sqlite3_bind_null(pStmt,param++);
 	return *this;
@@ -170,10 +170,10 @@ static bool can_create_file(const string& fname)
 	return File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
-bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
+bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
 	GetDatabasePath(DbFile, strPath, Local);
-	bool mem_db = (0 == wcscmp(DbFile, L":memory:"));
+	bool mem_db = DbFile == L":memory:";
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
@@ -247,7 +247,7 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	return ok;
 }
 
-void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
+void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
 	string path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
 
@@ -278,7 +278,7 @@ void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 
 int SQLiteDb::InitStatus(string& name, bool full_name)
 {
-	name = (full_name && !strPath.IsEmpty() && strPath != L":memory:") ? strPath.CPtr() : strName.CPtr();
+	name = (full_name && !strPath.IsEmpty() && strPath != L":memory:") ? strPath : strName;
 	return init_status;
 }
 

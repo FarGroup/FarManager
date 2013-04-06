@@ -131,6 +131,25 @@ class UnicodeStringData
 typedef class UnicodeString
 {
 	private:
+		class char_proxy
+		{
+		public:
+			operator wchar_t() const {return Parent.At(Index);}
+			char_proxy& operator=(wchar_t Value)
+			{
+				Parent.GetBuffer()[Index] = Value;
+				Parent.ReleaseBuffer(Parent.GetLength());
+				return *this;
+			}
+
+		private:
+			char_proxy(UnicodeString& Parent, size_t Index):Parent(Parent), Index(Index){}
+
+			UnicodeString& Parent;
+			size_t Index;
+			friend class UnicodeString;
+		};
+
 		UnicodeStringData *m_pData;
 
 		void SetEUS();
@@ -138,7 +157,6 @@ typedef class UnicodeString
 		friend void AtExit();
 
 	public:
-
 		UnicodeString() { SetEUS(); }
 		UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
 		UnicodeString(UnicodeString&& rvalString):m_pData(rvalString.m_pData) { rvalString.SetEUS(); }
@@ -197,7 +215,6 @@ typedef class UnicodeString
 		UnicodeString& Clear();
 
 		const wchar_t *CPtr() const { return m_pData->GetData(); }
-		operator const wchar_t *() const { return m_pData->GetData(); }
 
 		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
@@ -215,6 +232,7 @@ typedef class UnicodeString
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
+		friend const UnicodeString operator+(const UnicodeString &strSrc1, wchar_t Chr);
 
 		bool IsSubStrAt(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
 		bool IsSubStrAt(size_t Pos, const wchar_t* Str, size_t StrLen) const { return IsSubStrAt(Pos, StrLen, Str, StrLen); }
@@ -228,8 +246,9 @@ typedef class UnicodeString
 		bool operator!=(const UnicodeString& Str) const { return !IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
 		bool operator!=(const wchar_t* Str) const { return !IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
 		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
-		bool operator<(const UnicodeString& Str) const { return StrCmpI(*this, Str) < 0; }
-		bool operator<(const wchar_t* Str) const { return StrCmpI(*this, Str) < 0; }
+		bool operator<(const UnicodeString& Str) const { return StrCmpI(CPtr(), Str.CPtr()) < 0; }
+		bool operator<(const wchar_t* Str) const { return StrCmpI(CPtr(), Str) < 0; }
+		char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
 
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
@@ -244,3 +263,4 @@ typedef class UnicodeString
 		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind) != nullptr; }
 } string;
 
+inline wchar_t* UNSAFE_CSTR(const string& s) {return (wchar_t*)s.CPtr();}

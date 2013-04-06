@@ -88,7 +88,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
 				// такой каталог в кавычки
-				if (Global->Opt->MultiMakeDir && !wcspbrk(strDirName,L";,\""))
+				if (Global->Opt->MultiMakeDir && !wcspbrk(strDirName.CPtr(),L";,\""))
 				{
 					QuoteSpaceOnly(strDirName);
 				}
@@ -172,10 +172,11 @@ void ShellMakeDir(Panel *SrcPanel)
 			wchar_t* lpwszDirName = strDirName.GetBuffer();
 			bool bSuccess = false;
 
-			wchar_t *ChPtr;
-			if(ParsePath(lpwszDirName, const_cast<const wchar_t **>(&ChPtr)) == PATH_UNKNOWN)
+			wchar_t *ChPtr = lpwszDirName;
+			size_t DirOffset = 0;
+			if(ParsePath(strDirName, &DirOffset) == PATH_UNKNOWN)
 			{
-				ChPtr = lpwszDirName;
+				ChPtr = lpwszDirName + DirOffset;
 			}
 
 			for (; ; ChPtr++)

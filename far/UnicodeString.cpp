@@ -222,6 +222,11 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwsz
 	return UnicodeString(strSrc1).Append(lpwszSrc2);
 }
 
+const UnicodeString operator+(const UnicodeString &strSrc1, wchar_t Chr)
+{
+	return UnicodeString(strSrc1).Append(Chr);
+}
+
 wchar_t *UnicodeString::GetBuffer(size_t nSize)
 {
 	Inflate(nSize == (size_t)-1?m_pData->GetSize():nSize);

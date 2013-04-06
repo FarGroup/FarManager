@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    В стеке ФАРова панель не хранится - только плагиновые!
 */
 
-void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
+void FileList::PushPlugin(HANDLE hPlugin,const string& HostFile)
 {
 	PluginsListItem* stItem = new PluginsListItem;
 	stItem->hPlugin=hPlugin;
@@ -234,8 +234,8 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 {
-	pi->FileName = DuplicateString(fi->strName);
-	pi->AlternateFileName = DuplicateString(fi->strShortName);
+	pi->FileName = DuplicateString(fi->strName.CPtr());
+	pi->AlternateFileName = DuplicateString(fi->strShortName.CPtr());
 	pi->FileSize=fi->FileSize;
 	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
@@ -257,7 +257,7 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 
 	pi->CRC32=fi->CRC32;
 	pi->Reserved[0]=pi->Reserved[1]=0;
-	pi->Owner = EmptyToNull(fi->strOwner);
+	pi->Owner = EmptyToNull(fi->strOwner.CPtr());
 }
 
 void FileList::FreePluginPanelItem(PluginPanelItem *pi)
@@ -304,10 +304,10 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			gpi->Item->UserData.Data=fi->UserData;
 			gpi->Item->UserData.FreeData=fi->Callback;
 
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName);
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.CPtr());
 			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
 
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.CPtr());
 			data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
 
 			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
@@ -340,7 +340,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			}
 			else
 			{
-				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner);
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.CPtr());
 			}
 		}
 	}
@@ -402,7 +402,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
 	HANDLE Result = nullptr;
-	if(FileName && *FileName && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	if(!FileName->IsEmpty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"close AnotherPanel file"));
@@ -561,7 +561,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
-					pi.FileName = DuplicateString(DestPanel->strPluginDizName);
+					pi.FileName = DuplicateString(DestPanel->strPluginDizName.CPtr());
 					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
 					delete[] pi.FileName;
 				}
@@ -658,7 +658,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 	if (ItemList && ItemNumber>0)
 	{
-		const wchar_t *lpwszTempDir=strTempDir;
+		const wchar_t *lpwszTempDir=strTempDir.CPtr();
 		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin,ItemList,ItemNumber,FALSE,&lpwszTempDir,OPM_SILENT);
 		strTempDir=lpwszTempDir;
 
@@ -759,7 +759,7 @@ void FileList::PluginHostGetFiles()
 			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,0))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
-				const wchar_t *lpwszDestPath=strDestPath;
+				const wchar_t *lpwszDestPath=strDestPath.CPtr();
 				ExitLoop=Global->CtrlObject->Plugins->GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,&lpwszDestPath,OpMode)!=1;
 				strDestPath=lpwszDestPath;
 
@@ -1033,7 +1033,7 @@ int FileList::ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx)
 
 
 
-void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus)
+void FileList::SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus)
 {
 	if (PanelMode!=PLUGIN_PANEL)
 	{
@@ -1244,7 +1244,7 @@ void FileList::PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber)
 
 		if (!(CurPluginPtr->Flags & PPIF_SELECTED))
 		{
-			while (StrCmpI(CurPluginPtr->FileName,ListData[FileNumber]->strName))
+			while (StrCmpI(CurPluginPtr->FileName,ListData[FileNumber]->strName.CPtr()))
 				if (++FileNumber >= ListData.size())
 					return;
 

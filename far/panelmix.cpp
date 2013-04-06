@@ -100,7 +100,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 	Global->CtrlObject->Cp()->Redraw();
 }
 
-int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
+int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 {
 	if (!SrcPanel)
 		SrcPanel=Global->CtrlObject->Cp()->ActivePanel;
@@ -116,7 +116,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 		ConvertNameToFull(SelName, strFullName);
 		AddEndSlash(strFullName);
 
-		if (wcsstr(strAnotherCurDir,strFullName))
+		if (wcsstr(strAnotherCurDir.CPtr(),strFullName.CPtr()))
 		{
 			((FileList*)AnotherPanel)->StopFSWatcher();
 			return TRUE;
@@ -266,10 +266,10 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 }
 
 
-void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
+void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
 {
-	const wchar_t *TextPtr=ColumnTitles;
+	const wchar_t *TextPtr=ColumnTitles.CPtr();
 
 	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
 	{
@@ -341,7 +341,7 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 			}
 			else
 			{
-				if (!StrCmpN(strArgName,L"DM",2) || !StrCmpN(strArgName,L"DC",2) || !StrCmpN(strArgName,L"DA",2) || !StrCmpN(strArgName,L"DE",2))
+				if (!StrCmpN(strArgName.CPtr(),L"DM",2) || !StrCmpN(strArgName.CPtr(),L"DC",2) || !StrCmpN(strArgName.CPtr(),L"DA",2) || !StrCmpN(strArgName.CPtr(),L"DE",2))
 				{
 					unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 
@@ -412,7 +412,7 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 		}
 	}
 
-	TextPtr=ColumnWidths;
+	TextPtr=ColumnWidths.CPtr();
 
 	for (int I=0; I<ColumnCount; I++)
 	{
@@ -421,7 +421,7 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		ViewColumnWidths[I]=_wtoi(strArgName);
+		ViewColumnWidths[I]=_wtoi(strArgName.CPtr());
 		ViewColumnWidthsTypes[I]=COUNT_WIDTH;
 
 		if (strArgName.GetLength()>1)
@@ -732,7 +732,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = strMsg;
+						PtrName = strMsg.CPtr();
 					}
 					else
 					{
@@ -759,7 +759,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 	else
 	{
 		string strOutStr;
-		strResult<<FileSizeToStr(strOutStr,Packed?AllocationSize:Streams?StreamsSize:FileSize,Width,Flags).CPtr();
+		strResult<<FileSizeToStr(strOutStr,Packed?AllocationSize:Streams?StreamsSize:FileSize,Width,Flags);
 	}
 
 	return strResult;

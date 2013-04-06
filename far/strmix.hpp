@@ -77,24 +77,24 @@ string& QuoteLeadingSpace(string &strStr);
 
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
-int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,bool IgnoreCase=false);
+int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count=-1,bool IgnoreCase=false);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
-string& FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+string& FarFormatText(const string& SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
 string& FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, unsigned __int64 ViewFlags=COLUMN_COMMAS);
-bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
-unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
-string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
+bool CheckFileSizeStringFormat(const string& FileSizeStr);
+unsigned __int64 ConvertFileSizeString(const string& FileSizeStr);
+string &FormatNumber(const string& Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
-inline bool IsWordDiv(const wchar_t *WordDiv, wchar_t Chr) { return wcschr(WordDiv, Chr)!=nullptr; }
+inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return wcschr(WordDiv.CPtr(), Chr)!=nullptr; }
 
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const string& WordDiv);
 
 wchar_t* TruncStr(wchar_t *Str,int MaxLength);
 wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength);
@@ -109,8 +109,8 @@ string& TruncPathStr(string &strStr, int MaxLength);
 bool IsCaseMixed(const string &strStr);
 bool IsCaseLower(const string &strStr);
 
-string& CenterStr(const wchar_t *Src, string &strDest,int Length);
-string& RightStr(const wchar_t *Src, string &strDest, int Length);
+string& CenterStr(const string& Src, string &strDest,int Length);
+string& RightStr(const string& Src, string &strDest, int Length);
 
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
@@ -119,9 +119,9 @@ wchar_t GetDecimalSeparator();
 string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMatch* Match,int Count);
 
 string GuidToStr(const GUID& Guid);
-bool StrToGuid(const wchar_t* Value,GUID& Guid);
+bool StrToGuid(const string& Value,GUID& Guid);
 
-bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
+bool SearchString(const string& Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
 enum STL_FLAGS
 {

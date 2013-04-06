@@ -246,7 +246,7 @@ class FileList:public Panel
 		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false, OPENFILEPLUGINTYPE Type = OFP_NORMAL);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
-		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE,const FileListItem *CurPtr=nullptr);
+		BOOL ChangeDir(const string& NewDir,BOOL IsUpdated=TRUE,const FileListItem *CurPtr=nullptr);
 		void CountDirSize(UINT64 PluginFlags);
 		/* $ 19.03.2002 DJ
 		   IgnoreVisible - обновить, даже если панель невидима
@@ -266,7 +266,7 @@ class FileList:public Panel
 		virtual int GetCurName(string &strName, string &strShortName);
 		virtual int GetCurBaseName(string &strName, string &strShortName);
 
-		void PushPlugin(HANDLE hPlugin,const wchar_t *HostFile);
+		void PushPlugin(HANDLE hPlugin,const string& HostFile);
 		int PopPlugin(int EnableRestoreViewMode);
 		void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
 		void CopyFiles();
@@ -349,19 +349,19 @@ class FileList:public Panel
 		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();
-		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
+		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0);
 		virtual bool GetPlainString(string& Dest,int ListPos);
 		long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 
 		virtual int GoToFile(long idxItem);
-		virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
-		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE);
+		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE);
 
-		virtual int IsSelected(const wchar_t *Name);
+		virtual int IsSelected(const string& Name);
 		virtual int IsSelected(size_t idxItem);
 
-		virtual long FindFirst(const wchar_t *Name);
-		virtual long FindNext(int StartPos, const wchar_t *Name);
+		virtual long FindFirst(const string& Name);
+		virtual long FindNext(int StartPos, const string& Name);
 
 		void ProcessHostFile();
 		virtual void UpdateViewPanel();
@@ -383,7 +383,7 @@ class FileList:public Panel
 		virtual int GetColumnsCount() { return Columns;};
 		virtual void SetReturnCurrentFile(int Mode);
 		virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
-		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
+		virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false);
 
 		bool GetPluginInfo(PluginInfo *PInfo);
 		void PluginGetPanelInfo(PanelInfo &Info);
@@ -403,7 +403,7 @@ class FileList:public Panel
 		int PluginPanelHelp(HANDLE hPlugin);
 		virtual size_t GetFileCount() {return ListData.size();}
 
-		string &CreateFullPathName(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
+		bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
 
 		virtual BOOL GetItem(int Index,void *Dest);

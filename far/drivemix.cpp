@@ -106,14 +106,14 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
 	{
-		if (!wcspbrk(DestPath,L"\\:"))
+		if (!wcspbrk(DestPath.CPtr(),L"\\:"))
 			return TRUE;
 
 		if (((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\') || (strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\')) &&
-		        StrCmpI(strSrcRoot,strDestRoot))
+		        StrCmpI(strSrcRoot.CPtr(),strDestRoot.CPtr()))
 			return FALSE;
 
-		if (!*SrcPath || !*DestPath || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
+		if (SrcPath.IsEmpty() || DestPath.IsEmpty() || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
 			return TRUE;
 
 		if (Upper(strDestRoot.At(0))==Upper(strSrcRoot.At(0)))
@@ -129,7 +129,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 		if (!(SrcVolumeNumber &&
 		        SrcVolumeNumber==DestVolumeNumber &&
-		        !StrCmpI(strSrcVolumeName, strDestVolumeName) &&
+		        !StrCmpI(strSrcVolumeName.CPtr(), strDestVolumeName.CPtr()) &&
 		        SrcTotalSize==DestTotalSize))
 			return FALSE;
 	}

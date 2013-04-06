@@ -93,12 +93,12 @@ FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 	return *this;
 }
 
-void FileFilterParams::SetTitle(const wchar_t *Title)
+void FileFilterParams::SetTitle(const string& Title)
 {
 	m_strTitle = Title;
 }
 
-void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
+void FileFilterParams::SetMask(bool Used, const string& Mask)
 {
 	FMask.Used = Used;
 	FMask.strMask = Mask;
@@ -123,11 +123,11 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 	FDate.bRelative=bRelative;
 }
 
-void FileFilterParams::SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow)
+void FileFilterParams::SetSize(bool Used, const string& SizeAbove, const string& SizeBelow)
 {
 	FSize.Used=Used;
-	xwcsncpy(FSize.SizeAbove,SizeAbove,ARRAYSIZE(FSize.SizeAbove));
-	xwcsncpy(FSize.SizeBelow,SizeBelow,ARRAYSIZE(FSize.SizeBelow));
+	xwcsncpy(FSize.SizeAbove,SizeAbove.CPtr(),ARRAYSIZE(FSize.SizeAbove));
+	xwcsncpy(FSize.SizeBelow,SizeBelow.CPtr(),ARRAYSIZE(FSize.SizeBelow));
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
@@ -151,7 +151,7 @@ void FileFilterParams::SetColors(HighlightDataColor *Colors)
 	FHighlight.Colors=*Colors;
 }
 
-const wchar_t *FileFilterParams::GetTitle() const
+const string& FileFilterParams::GetTitle() const
 {
 	return m_strTitle;
 }
@@ -159,7 +159,7 @@ const wchar_t *FileFilterParams::GetTitle() const
 bool FileFilterParams::GetMask(const wchar_t **Mask) const
 {
 	if (Mask)
-		*Mask=FMask.strMask;
+		*Mask=FMask.strMask.CPtr();
 
 	return FMask.Used;
 }
@@ -413,7 +413,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (!MarkChar[1])
 			*MarkChar=0;
 
-		Name=FF->GetTitle();
+		Name=FF->GetTitle().CPtr();
 		UseMask=FF->GetMask(&Mask);
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
@@ -683,10 +683,10 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				int relative = (int)Dlg->SendMessage(DM_GETCHECK,ID_FF_DATERELATIVE,0);
 				int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
-				Dlg->SendMessage(DM_SETTEXTPTR,da,const_cast<wchar_t*>(strDate.CPtr()));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,const_cast<wchar_t*>(strTime.CPtr()));
-				Dlg->SendMessage(DM_SETTEXTPTR,db,const_cast<wchar_t*>(strDate.CPtr()));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,const_cast<wchar_t*>(strTime.CPtr()));
+				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(strTime));
+				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(strTime));
 				Dlg->SendMessage(DM_SETFOCUS,da,0);
 				COORD r;
 				r.X=r.Y=0;
@@ -1130,13 +1130,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FF->SetHardLinks(FilterDlg[ID_FF_HARDLINKS].Selected!=0,0,0); //пока устанавливаем только флаг использования признака
 			bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected!=0;
 
-			LPWSTR TimeBefore = FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.GetBuffer();
-			TimeBefore[8] = TimeSeparator;
-			FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.ReleaseBuffer(FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.GetLength());
-
-			LPWSTR TimeAfter = FilterDlg[ID_FF_TIMEAFTEREDIT].strData.GetBuffer();
-			TimeAfter[8] = TimeSeparator;
-			FilterDlg[ID_FF_TIMEAFTEREDIT].strData.ReleaseBuffer(FilterDlg[ID_FF_TIMEAFTEREDIT].strData.GetLength());
+			FilterDlg[ID_FF_TIMEBEFOREEDIT].strData[8] = TimeSeparator;
+			FilterDlg[ID_FF_TIMEAFTEREDIT].strData[8] = TimeSeparator;
 
 			StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSAFTEREDIT:ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,DateAfter,DateFormat,DateSeparator,TimeSeparator,bRelative);
 			StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSBEFOREEDIT:ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,DateBefore,DateFormat,DateSeparator,TimeSeparator,bRelative);

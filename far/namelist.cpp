@@ -46,7 +46,7 @@ NamesList::~NamesList()
 {
 }
 
-void NamesList::AddName(const wchar_t *Name,const wchar_t *ShortName)
+void NamesList::AddName(const string& Name,const string& ShortName)
 {
 	Names.emplace_back(OneName(Name, ShortName));
 	CurrentName = Names.end();
@@ -81,7 +81,7 @@ bool NamesList::GetPrevName(string &strName, string &strShortName)
 }
 
 
-void NamesList::SetCurName(const wchar_t *Name)
+void NamesList::SetCurName(const string& Name)
 {
 	auto it = std::find_if(CONST_RANGE(Names, i)
 	{
@@ -108,9 +108,9 @@ void NamesList::GetCurDir(string &strDir)
 }
 
 
-void NamesList::SetCurDir(const wchar_t *Dir)
+void NamesList::SetCurDir(const string& Dir)
 {
-	if (StrCmpI(strCurrentDir,Dir) || !TestCurrentDirectory(Dir))
+	if (StrCmpI(strCurrentDir.CPtr(),Dir.CPtr()) || !TestCurrentDirectory(Dir))
 	{
 		strCurrentDir = Dir;
 		PrepareDiskPath(strCurrentDir);

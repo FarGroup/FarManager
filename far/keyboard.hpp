@@ -74,7 +74,7 @@ int KeyToKeyLayout(int Key);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
-int KeyNameToKey(const wchar_t *Name);
+int KeyNameToKey(const string& Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
 BOOL KeyToText(int Key, string &strKeyText);
 int InputRecordToKey(const INPUT_RECORD *Rec);

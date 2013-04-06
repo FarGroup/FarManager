@@ -429,7 +429,7 @@ void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		const int NameWidth = 10;
 		TruncStr(DisplayName, NameWidth);
 		Item.strName = FormatString() << fmt::ExactWidth(NameWidth) << fmt::LeftAlign() << DisplayName << L' ' << BoxSymbols[BS_V1] << L' ' << Value;
-		Item.UserData = const_cast<wchar_t*>(Name.CPtr());
+		Item.UserData = UNSAFE_CSTR(Name);
 		Item.UserDataSize = (Name.GetLength()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(&Item);
 	}
@@ -834,7 +834,7 @@ void SetFolderInfoFiles()
 	string strFolderInfoFiles;
 
 	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-	              Global->Opt->InfoPanel.strFolderInfoFiles,strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
+	              Global->Opt->InfoPanel.strFolderInfoFiles.CPtr(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		Global->Opt->InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
@@ -875,13 +875,13 @@ struct FARConfigItem
 		{
 			Item.Flags = LIF_CHECKED|L'*';
 		}
-		Item.Text = ListItemString;
+		Item.Text = ListItemString.CPtr();
 	}
 
 	bool Edit(bool Hex)
 	{
 		DialogBuilder Builder;
-		Builder.AddText(string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):");
+		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").CPtr());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1434,7 +1434,7 @@ void Options::Load()
 	*/
 	/* *************************************************** </опеопнжеяяш> */
 
-	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI);
+	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.CPtr());
 
 	std::for_each(CONST_RANGE(ConfigList, i)
 	{
@@ -1447,7 +1447,7 @@ void Options::Load()
 	/* <оняропнжеяяш> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath, GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI));
+	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.CPtr(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.CPtr()));
 	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
@@ -1558,7 +1558,7 @@ void Options::Load()
 
 			FOR_CONST_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(*i, &endptr, 16);
+				DWORD res=(DWORD)wcstoul(i->CPtr(), &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
@@ -1711,11 +1711,11 @@ intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						string HelpTopic = string(FARConfig.Items[ListInfo.SelectPos].KeyName) + L"." + FARConfig.Items[ListInfo.SelectPos].ValName;
-						Help hlp(HelpTopic.CPtr(), nullptr, FHELP_NOSHOWERROR);
+						Help hlp(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						if (hlp.GetError())
 						{
 							HelpTopic = string(FARConfig.Items[ListInfo.SelectPos].KeyName) + L"Settings";
-							Help hlp1(HelpTopic.CPtr(), nullptr, FHELP_NOSHOWERROR);
+							Help hlp1(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
 					break;
@@ -1827,7 +1827,7 @@ bool AdvancedConfig()
 }
 
 
-bool BoolOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default)
+bool BoolOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default)
 {
 	int CfgValue = Default;
 	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
@@ -1835,12 +1835,12 @@ bool BoolOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, co
 	return Result;
 }
 
-bool BoolOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
+bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, int Default)
+bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default)
 {
 	int CfgValue = Default;
 	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
@@ -1848,12 +1848,12 @@ bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, c
 	return Result;
 }
 
-bool Bool3Option::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
+bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool IntOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
+bool IntOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, intptr_t Default)
 {
 	int CfgValue = Default;
 	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
@@ -1861,20 +1861,20 @@ bool IntOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, con
 	return Result;
 }
 
-bool IntOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
+bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool StringOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default)
+bool StringOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue.CPtr());
 	Set(CfgValue);
 	return Result;
 }
 
-bool StringOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
+bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }

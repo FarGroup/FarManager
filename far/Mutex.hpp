@@ -45,7 +45,7 @@ public:
 
 	bool Open()
 	{
-		h = CreateMutex(nullptr, FALSE, strName);
+		h = CreateMutex(nullptr, FALSE, strName.CPtr());
 		return h != nullptr;
 	}
 

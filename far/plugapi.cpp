@@ -214,7 +214,7 @@ intptr_t WINAPI apiInputBox(
 
 	string strDest;
 	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,GuidToPlugin(PluginId),Id);
-	xwcsncpy(DestText, strDest, DestSize);
+	xwcsncpy(DestText, strDest.CPtr(), DestSize);
 	return nResult;
 }
 
@@ -274,7 +274,7 @@ BOOL WINAPI apiShowHelp(
 	}
 
 	{
-		Help Hlp(strTopic,strMask,OFlags);
+		Help Hlp(strTopic,strMask.CPtr(),OFlags);
 
 		if (Hlp.GetError())
 			return FALSE;
@@ -490,7 +490,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 				if (wi->TypeNameSize && wi->TypeName)
 				{
-					xwcsncpy(wi->TypeName,strType,wi->TypeNameSize);
+					xwcsncpy(wi->TypeName,strType.CPtr(),wi->TypeNameSize);
 				}
 				else
 				{
@@ -499,7 +499,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 				if (wi->NameSize && wi->Name)
 				{
-					xwcsncpy(wi->Name,strName,wi->NameSize);
+					xwcsncpy(wi->Name,strName.CPtr(),wi->NameSize);
 				}
 				else
 				{
@@ -730,7 +730,7 @@ intptr_t WINAPI apiMenuFn(
 		{
 			string strTopic;
 
-			if (Help::MkTopic(GuidToPlugin(PluginId),HelpTopic,strTopic))
+			if (Help::MkTopic(GuidToPlugin(PluginId), HelpTopic, strTopic))
 				FarMenu.SetHelp(strTopic);
 		}
 
@@ -1082,7 +1082,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if (frame)
 		frame->Lock(); // отменим прорисовку фрейма
 
-	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic), PluginNumber, Id);
+	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], &MsgItems[1], ItemsNumber-1, EmptyToNull(strTopic.CPtr()), PluginNumber, Id);
 
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.
@@ -1235,7 +1235,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			CmdLine->GetString(strParam);
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strParam,Param1);
+				xwcsncpy((wchar_t*)Param2,strParam.CPtr(),Param1);
 
 			return (int)strParam.GetLength()+1;
 		}
@@ -1417,7 +1417,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			Item.LastAccessTime = FindData.ftLastAccessTime;
 			Item.LastWriteTime = FindData.ftLastWriteTime;
 			Item.FileName = DuplicateString(strFullName.CPtr());
-			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName);
+			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName.CPtr());
 		}
 
 		*pItemsNumber=Items->size();
@@ -1835,7 +1835,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar
 	GetFileOwner(Computer,Name,strOwner);
 
 	if (Owner && Size)
-		xwcsncpy(Owner,strOwner,Size);
+		xwcsncpy(Owner,strOwner.CPtr(),Size);
 
 	return strOwner.GetLength()+1;
 }
@@ -1884,7 +1884,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 		GetReparsePointInfo(strSrc,strDest,nullptr);
 
 		if (DestSize && Dest)
-			xwcsncpy(Dest,strDest,DestSize);
+			xwcsncpy(Dest,strDest.CPtr(),DestSize);
 
 		return strDest.GetLength()+1;
 	}
@@ -1910,7 +1910,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 		GetPathRoot(strPath,strRoot);
 
 		if (DestSize && Root)
-			xwcsncpy(Root,strRoot,DestSize);
+			xwcsncpy(Root,strRoot.CPtr(),DestSize);
 
 		return strRoot.GetLength()+1;
 	}
@@ -2101,7 +2101,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
 					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
-					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
+					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc.CPtr(),ErrSrc.GetLength()+1);
 				}
 
 				return Size;
@@ -2148,7 +2148,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
 					auto it = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						return !StrCmpI(i->GetModuleName(), strPath);
+						return !StrCmpI(i->GetModuleName().CPtr(), strPath.CPtr());
 					});
 					if (it != Global->CtrlObject->Plugins->cend())
 					{
@@ -2409,7 +2409,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
 
 	if (Buffer && Size)
 	{
-		xwcsncpy(Buffer,strCurDir,Size);
+		xwcsncpy(Buffer,strCurDir.CPtr(),Size);
 	}
 
 	return strCurDir.GetLength()+1;
@@ -2436,7 +2436,7 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 
 	if (Dest && DestSize)
 	{
-		xwcsncpy(Dest,strDestStr,DestSize);
+		xwcsncpy(Dest,strDestStr.CPtr(),DestSize);
 	}
 
 	return strDestStr.GetLength()+1;
@@ -2473,7 +2473,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 				ClearStruct(fdata);
 				FindDataExToPluginPanelItem(&FindData, &fdata);
 
-				if (!Func(&fdata,strFullName,Param))
+				if (!Func(&fdata,strFullName.CPtr(),Param))
 				{
 					FreePluginPanelItem(&fdata);
 					break;
@@ -2496,7 +2496,7 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix)
 	string strDest;
 	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
 	{
-		xwcsncpy(Dest, strDest, DestSize);
+		xwcsncpy(Dest, strDest.CPtr(), DestSize);
 	}
 	return strDest.GetLength()+1;
 }
@@ -2548,7 +2548,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		{
 			string strResult = param2;
 			int nResult = ConvertWildcards(param1, strResult, Length);
-			xwcsncpy(param2, strResult, size);
+			xwcsncpy(param2, strResult.CPtr(), size);
 			return nResult;
 		}
 	}

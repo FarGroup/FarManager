@@ -216,7 +216,7 @@ public:
 	void Process();
 	void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
 	Plugin* GetPluginOwner() const {return PluginOwner;}
-	void SetHelp(const wchar_t *Topic);
+	void SetHelp(const string& Topic);
 	void ShowHelp();
 	int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
 	void ClearDone();
@@ -244,7 +244,8 @@ private:
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
 	virtual void DisplayObject();
 	void DeleteDialogObjects();
-	int  LenStrItem(size_t ID, const wchar_t *lpwszStr = nullptr);
+	int LenStrItem(size_t ID, const string& lpwszStr);
+	int LenStrItem(size_t ID);
 	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
 	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
 	/* $ 28.07.2000 SVS
@@ -253,9 +254,9 @@ private:
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup);
-	BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
+	BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const string& HistoryName,string &strStr);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-	int AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr);
+	int AddToEditHistory(DialogItemEx* CurItem, const string& AddStr);
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
@@ -310,7 +311,7 @@ private:
 	friend class DlgEdit;
 };
 
-bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
+bool IsKeyHighlighted(const string& Str,int Key,int Translate,int AmpPos=-1);
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
 
 intptr_t PluginDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

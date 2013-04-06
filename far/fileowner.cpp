@@ -48,7 +48,7 @@ struct SIDCacheItem
 	block_ptr<SID> Sid;
 	string strUserName;
 
-	SIDCacheItem(const wchar_t *Computer,PSID InitSID)
+	SIDCacheItem(const string& Computer,PSID InitSID)
 	{
 		Sid.reset(GetLengthSid(InitSID));
 		if(Sid)
@@ -57,7 +57,7 @@ struct SIDCacheItem
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer, Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
+				LookupAccountSid(Computer.CPtr(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -65,7 +65,7 @@ struct SIDCacheItem
 					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
 					if (AccountName && DomainName)
 					{
-						if(LookupAccountSid(Computer, Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
+						if(LookupAccountSid(Computer.CPtr(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
 						{
 							strAccountName.ReleaseBuffer(AccountLength);
 							strDomainName.ReleaseBuffer(DomainLength);
@@ -112,7 +112,7 @@ void SIDCacheFlush()
 	SIDCache = nullptr;
 }
 
-bool AddSIDToCache(const wchar_t *Computer, PSID Sid, string& Result)
+bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
 {
 	SIDCacheItem NewItem(Computer, Sid);
 	if(!NewItem.strUserName.IsEmpty())
@@ -146,7 +146,7 @@ bool GetNameFromSIDCache(PSID Sid,string& Name)
 }
 
 
-bool GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
+bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 {
 	bool Result=false;
 	/*
@@ -162,7 +162,7 @@ bool GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 	NTPath strName(Name);
 	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
-	if (GetFileSecurity(strName,si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
+	if (GetFileSecurity(strName.CPtr(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{
 		PSID pOwner;
 		BOOL OwnerDefaulted;
@@ -227,10 +227,10 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 }
 
 
-bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
+bool SetOwner(const string& Object, const string& Owner)
 {
 	NTPath strNtObject(Object);
-	bool Result = SetOwnerInternal(strNtObject, Owner);
+	bool Result = SetOwnerInternal(strNtObject.CPtr(), Owner.CPtr());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetOwner(strNtObject, Owner);

@@ -223,7 +223,7 @@ class PluginManager
 
 		void LoadPlugins();
 
-		Plugin *GetPlugin(const wchar_t *lpwszModuleName);
+		Plugin *GetPlugin(const string& ModuleName);
 
 		std::list<Plugin*>::iterator begin() { return PluginsData.begin(); }
 		std::list<Plugin*>::iterator end() { return PluginsData.end(); }
@@ -250,9 +250,9 @@ class PluginManager
 		int UseFarCommand(HANDLE hPlugin,int CommandType);
 		void ReloadLanguage();
 		void DiscardCache();
-		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
+		int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
 
-		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle);
+		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle);
 		void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 		size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 
@@ -275,10 +275,10 @@ class PluginManager
 		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
 		int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int Silent);
 		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const wchar_t *Path);
+		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
 		void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-		int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode,struct UserDataItem *UserData=nullptr);
-		int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
+		int SetDirectory(HANDLE hPlugin,const string& Dir,int OpMode,struct UserDataItem *UserData=nullptr);
+		int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
 		int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
 		int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
 		int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);

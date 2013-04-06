@@ -228,7 +228,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.CPtr())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -258,7 +258,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER,const_cast<wchar_t*>(DlgParam->strOwner.CPtr()));
+										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER, UNSAFE_CSTR(DlgParam->strOwner));
 									}
 								}
 
@@ -302,7 +302,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.CPtr())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -332,7 +332,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER,const_cast<wchar_t*>(DlgParam->strOwner.CPtr()));
+										Dlg->SendMessage(DM_SETTEXTPTR,SA_EDIT_OWNER, UNSAFE_CSTR(DlgParam->strOwner));
 									}
 								}
 							}
@@ -419,7 +419,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					FarListInfo li={sizeof(FarListInfo)};
 					Dlg->SendMessage(DM_LISTINFO,SA_COMBO_HARDLINK,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,SA_COMBO_HARDLINK,const_cast<wchar_t*>((FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")").CPtr()));
+					Dlg->SendMessage(DM_SETTEXTPTR,SA_COMBO_HARDLINK, UNSAFE_CSTR(FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")"));
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -525,12 +525,12 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (Set1!=-1)
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR,Set1,const_cast<wchar_t*>(strDate.CPtr()));
+				Dlg->SendMessage(DM_SETTEXTPTR,Set1, UNSAFE_CSTR(strDate));
 			}
 
 			if (Set2!=-1)
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR,Set2,const_cast<wchar_t*>(strTime.CPtr()));
+				Dlg->SendMessage(DM_SETTEXTPTR,Set2, UNSAFE_CSTR(strTime));
 			}
 
 			return TRUE;
@@ -542,13 +542,13 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void ShellSetFileAttributesMsg(const wchar_t *Name)
+void ShellSetFileAttributesMsg(const string& Name)
 {
 	static int Width=54;
 	int WidthTemp;
 
-	if (Name && *Name)
-		WidthTemp=std::max(StrLength(Name),54);
+	if (!Name.IsEmpty())
+		WidthTemp=std::max(static_cast<int>(Name.GetLength()), 54);
 	else
 		Width=WidthTemp=54;
 
@@ -557,14 +557,14 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
-	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName);
+	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.CPtr());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=Name;
+		Global->PreRedraw->top().Param.Param1 = Name.CPtr();
 	}
 }
 
-bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
+bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
 {
 	bool Result=false;
 	FAR_FIND_DATA ffd={};
@@ -577,9 +577,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *
 		if(Utc2Local(*OriginalFileTime,ost))
 		{
 			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
+			GetFileDateAndTime(OSrcDate.CPtr(),DateN,ARRAYSIZE(DateN),GetDateSeparator());
 			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
+			GetFileDateAndTime(OSrcTime.CPtr(),TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
 			SYSTEMTIME st={};
 
 			switch (GetDateFormat())
@@ -924,7 +924,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[SA_TEXT_SYMLINK].Flags&=~DIF_HIDDEN;
 				AttrDlg[SA_TEXT_SYMLINK].strData=MSG(ID_Msg);
 				AttrDlg[SA_EDIT_SYMLINK].Flags&=~DIF_HIDDEN;
-				AttrDlg[SA_EDIT_SYMLINK].strData=strLinkName.CPtr();
+				AttrDlg[SA_EDIT_SYMLINK].strData=strLinkName;
 				if (ReparseTag == IO_REPARSE_TAG_DEDUP)
 					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_DISABLE;
 
@@ -968,12 +968,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					GetPathRoot(strSelName,strRoot);
 					DeleteEndSlash(strRoot);
 					Links[0] = strRoot + Links[0];
-					NameList.Items[0].Text = Links[0];
+					NameList.Items[0].Text = Links[0].CPtr();
 
 					for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
 					{
 						Links[i] = strRoot + Links[i];
-						NameList.Items[i].Text = Links[i];
+						NameList.Items[i].Text = Links[i].CPtr();
 					}
 
 					FindClose(hFind);
@@ -1205,13 +1205,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		case SA_BUTTON_SET:
 			{
 				//reparse point editor
-				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
+				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.CPtr(),strLinkName.CPtr()))
 				{
 					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
 					Unquote(strTarget);
 					if(!ModifyReparsePoint(strSelName, strTarget))
 					{
-						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName,MSG(MHOk));
+						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.CPtr(),MSG(MHOk));
 					}
 				}
 
@@ -1225,7 +1225,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				});
 
 				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
-				ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():nullptr);
+				ShellSetFileAttributesMsg(SelCount==1? strSelName : string());
 				int SkipMode=-1;
 
 				if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -1240,7 +1240,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					});
 
-					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
+					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr()))
 					{
 						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 						if(Result==SETATTR_RET_SKIPALL)
@@ -1392,7 +1392,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								break;
 						}
 
-						if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
+						if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr()))
 						{
 							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 							if(Result==SETATTR_RET_SKIPALL)
@@ -1533,7 +1533,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData)))
+									if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr())))
 									{
 										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 										if(Result==SETATTR_RET_SKIPALL)
@@ -1682,7 +1682,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AddEndSlash(strFullName);
 				}
-				seInfo.lpFile = strFullName;
+				seInfo.lpFile = strFullName.CPtr();
 				if (Global->WinVer() < _WIN32_WINNT_VISTA && ParsePath(seInfo.lpFile) == PATH_DRIVELETTERUNC)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
@@ -1690,7 +1690,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
 				apiGetCurrentDirectory(strCurDir);
-				seInfo.lpDirectory=strCurDir;
+				seInfo.lpDirectory=strCurDir.CPtr();
 				ShellExecuteExW(&seInfo);
 			}
 			break;

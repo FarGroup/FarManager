@@ -48,9 +48,9 @@ public:
 	Language();
 	~Language();
 
-	bool Init(const wchar_t *Path, int CountNeed=-1);
+	bool Init(const string& Path, int CountNeed=-1);
 #ifndef NO_WRAPPER
-	bool InitA(const wchar_t *Path, int CountNeed=-1);
+	bool InitA(const string& Path, int CountNeed=-1);
 #endif // NO_WRAPPER
 	void Close();
 
@@ -84,8 +84,8 @@ private:
 
 class VMenu2;
 
-bool OpenLangFile(File& LangFile, const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang=FALSE,string *pstrLangName=nullptr);
-int GetLangParam(File& LangFile, const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang=FALSE,string *pstrLangName=nullptr);
+int GetLangParam(File& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
 int GetOptionsParam(File& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool Select(int HelpLanguage,VMenu2 **MenuPtr);
 

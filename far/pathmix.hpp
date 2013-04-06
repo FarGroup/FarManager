@@ -43,7 +43,8 @@ public:
 	NTPath(LPCWSTR Src):string(Src) {Transform();}
 };
 
-inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
+//inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
+#define IsSlash(x) ((x)==L'\\' || (x)==L'/')
 
 enum PATH_TYPE
 {
@@ -56,26 +57,27 @@ enum PATH_TYPE
 	PATH_PIPE,
 };
 
-PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr = nullptr, bool* Root = nullptr);
+PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
 
-bool IsAbsolutePath(const wchar_t *Path);
+bool IsAbsolutePath(const string &Path);
 bool IsRootPath(const string &Path);
-bool HasPathPrefix(const wchar_t *Path);
+bool HasPathPrefix(const string &Path);
 bool PathStartsWith(const string &Path, const string &Start);
-bool PathCanHoldRegularFile(const wchar_t *Path);
-bool IsPluginPrefixPath(const wchar_t *Path);
+bool PathCanHoldRegularFile(const string& Path);
+bool IsPluginPrefixPath(const string &Path);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
-const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 const wchar_t* PointToName(const wchar_t *lpwszPath);
-const wchar_t* PointToName(const string &strPath);
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
 const wchar_t* PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath);
-const wchar_t* PointToExt(string& strPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
+
+inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.CPtr(), Path.CPtr() + Path.GetLength());}
+inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.CPtr(), Path.CPtr() + Path.GetLength());}
+
 
 BOOL AddEndSlash(string &strPath, wchar_t TypeSlash);
 BOOL AddEndSlash(string &strPath);
@@ -90,9 +92,9 @@ const wchar_t *LastSlash(const wchar_t *String);
 bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0);
 bool FindLastSlash(size_t &Pos, const string &Str);
 
-bool TestParentFolderName(const wchar_t *Name);
-bool TestCurrentFolderName(const wchar_t *Name);
-bool TestCurrentDirectory(const wchar_t *TestDir);
+bool TestParentFolderName(const string& Name);
+bool TestCurrentFolderName(const string& Name);
+bool TestCurrentDirectory(const string& TestDir);
 
 string ExtractPathRoot(const string &Path);
 string ExtractFileName(const string &Path);

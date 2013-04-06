@@ -115,7 +115,7 @@ public:
 	explicit Option(const int Value):iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
 	bool Changed(){return ValueChanged;}
-	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName) = 0;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) = 0;
 	virtual const string toString() = 0;
 	virtual const string ExInfo() const = 0;
 	virtual const OptionType getType() = 0;
@@ -128,7 +128,7 @@ protected:
 	const int GetInt() const {return iValue;}
 	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
 	void Set(const int NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
-	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) = 0;
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) = 0;
 	void Free() {delete sValue;}
 private:
 	void MakeUnchanged(){ValueChanged = false;}
@@ -151,8 +151,8 @@ public:
 	BoolOption& operator=(const BoolOption& Value){Set(Value); return *this;}
 	const bool Get() const {return GetInt() != 0;}
 	operator bool() const {return GetInt() != 0;}
-	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName);
 	virtual const string toString(){return Get()? L"true":L"false";}
 	virtual const string ExInfo() const {return L"";}
 	virtual const OptionType getType() {return TYPE_BOOLEAN;}
@@ -161,7 +161,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder);
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param);
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
 
 };
 
@@ -179,8 +179,8 @@ public:
 	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
 	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
 	operator int() const {return GetInt() % 3;}
-	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, int Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName);
 	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
 	virtual const string ExInfo() const {return L"";}
 	virtual const OptionType getType() {return TYPE_BOOLEAN3;}
@@ -189,7 +189,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder);
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param);
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
 };
 
 class IntOption:public Option
@@ -210,8 +210,8 @@ public:
 	IntOption operator--(int){intptr_t Current = GetInt(); Set(Current-1); return Current;}
 	IntOption operator++(int){intptr_t Current = GetInt(); Set(Current+1); return Current;}
 	operator intptr_t() const {return GetInt();}
-	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, intptr_t Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName);
 	virtual const string toString(){FormatString s; s << Get(); return s;}
 	virtual const string ExInfo() const;
 	virtual const OptionType getType() {return TYPE_INTEGER;}
@@ -220,7 +220,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder);
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param);
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
 };
 
 class StringOption:public Option
@@ -231,7 +231,7 @@ public:
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
-	operator const wchar_t *() const {return GetString();}
+	const wchar_t* CPtr() const {return GetString().CPtr();}
 	operator const string&() const {return GetString();}
 	void Clear() {Set(L"");}
 	bool IsEmpty() const {return GetString().IsEmpty();}
@@ -242,8 +242,8 @@ public:
 	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	StringOption& operator+=(wchar_t Value) {Set(Get()+Value); return *this;}
-	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName);
 	virtual const string toString(){return Get();}
 	virtual const string ExInfo() const {return L"";}
 	virtual const OptionType getType() {return TYPE_STRING;}
@@ -252,7 +252,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder);
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param);
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<const wchar_t*>(Default));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<const wchar_t*>(Default));}
 };
 
 struct PanelOptions

@@ -542,11 +542,11 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	return nResult;
 }
 
-Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
+Plugin *PluginManager::GetPlugin(const string& lpwszModuleName)
 {
 	auto i = std::find_if(CONST_RANGE(PluginsData, i)
 	{
-		return !StrCmpI(lpwszModuleName, i->GetModuleName());
+		return !StrCmpI(lpwszModuleName.CPtr(), i->GetModuleName().CPtr());
 	});
 	return i == PluginsData.cend()? nullptr : *i;
 }
@@ -609,7 +609,7 @@ void PluginManager::LoadPlugins()
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CmpName(L"*.dll",FindData.strFileName,false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (CmpName(L"*.dll",FindData.strFileName.CPtr(),false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData, false);
 				}
@@ -701,7 +701,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				if(ShowWarning)
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), *Name, MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name->CPtr(), MSG(MOk));
 				}
 				break;
 			}
@@ -1047,7 +1047,7 @@ int PluginManager::GetVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelData,
     size_t *pItemsNumber,
-    const wchar_t *Path
+    const string& Path
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1070,7 +1070,7 @@ void PluginManager::FreeVirtualFindData(
 
 int PluginManager::SetDirectory(
     HANDLE hPlugin,
-    const wchar_t *Dir,
+    const string& Dir,
     int OpMode,
     struct UserDataItem *UserData
 )
@@ -1084,7 +1084,7 @@ int PluginManager::SetDirectory(
 int PluginManager::GetFile(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    const wchar_t *DestPath,
+    const string& DestPath,
     string &strResultName,
     int OpMode
 )
@@ -1099,9 +1099,10 @@ int PluginManager::GetFile(
 		SaveScr = new SaveScreen; //???
 
 	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
-	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, &DestPath, OpMode);
+	const wchar_t* newDestPath = DestPath.CPtr();
+	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, &newDestPath, OpMode);
 	string strFindPath;
-	strFindPath = DestPath;
+	strFindPath = newDestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 	FAR_FIND_DATA fdata;
@@ -1118,7 +1119,7 @@ int PluginManager::GetFile(
 
 	if (!Done)
 	{
-		strResultName = DestPath;
+		strResultName = newDestPath;
 		AddEndSlash(strResultName);
 		strResultName += fdata.strFileName;
 
@@ -1419,10 +1420,10 @@ void PluginManager::Configure(int StartPos)
 						if (item)
 						{
 							strPluginModuleName = item->pPlugin->GetModuleName();
-							if (!pluginapi::apiShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-							        !pluginapi::apiShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+							if (!pluginapi::apiShowHelp(strPluginModuleName.CPtr(),L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+							        !pluginapi::apiShowHelp(strPluginModuleName.CPtr(),L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
 							{
-								pluginapi::apiShowHelp(strPluginModuleName,nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+								pluginapi::apiShowHelp(strPluginModuleName.CPtr(),nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 							}
 						}
 						break;
@@ -1599,7 +1600,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_SHIFTF1:
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						if (item)
-							pluginapi::apiShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+							pluginapi::apiShowHelp(item->pPlugin->GetModuleName().CPtr(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 						break;
 
 					case KEY_ALTF11:
@@ -1742,7 +1743,7 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	strPluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
 	size_t FarPathLength=Global->g_strFarPath.GetLength();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), Global->g_strFarPath, (int)FarPathLength))
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName().CPtr(), Global->g_strFarPath.CPtr(), (int)FarPathLength))
 		strPluginKey.LShift(FarPathLength);
 #endif // NO_WRAPPER
 }
@@ -1755,7 +1756,7 @@ void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
 }
 
-bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle)
+bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle)
 {
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
@@ -1764,7 +1765,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 
 	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(MPluginHotKey);
-	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle);
+	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle.CPtr());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{
@@ -1847,7 +1848,7 @@ wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 	wchar_t* Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
-		wcscpy(Res, Str);
+		wcscpy(Res, Str.CPtr());
 	}
 	return Res;
 }
@@ -2116,7 +2117,7 @@ struct PluginData
 	UINT64 PluginFlags;
 };
 
-int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
+int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 {
 	size_t PrefixLength=0;
 	string strCommand=CommandParam;
@@ -2137,7 +2138,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	}
 
 	LoadIfCacheAbsent();
-	string strPrefix(strCommand,PrefixLength);
+	string strPrefix(strCommand.CPtr(), PrefixLength);
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
@@ -2167,7 +2168,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		if (strPluginPrefix.IsEmpty())
 			continue;
 
-		const wchar_t *PrStart = strPluginPrefix;
+		const wchar_t *PrStart = strPluginPrefix.CPtr();
 		PrefixLength=strPrefix.GetLength();
 
 		for (;;)
@@ -2177,7 +2178,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (!StrCmpNI(strPrefix, PrStart, (int)Len))
+			if (!StrCmpNI(strPrefix.CPtr(), PrStart, (int)Len))
 			{
 				if ((*i)->Load() && (*i)->HasOpen())
 				{

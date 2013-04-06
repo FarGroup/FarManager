@@ -183,7 +183,7 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
-			MenuString(ListItem.strName, nullptr, false, h, true, i->first, MSG(MPanelFileType));
+			MenuString(ListItem.strName, nullptr, false, h, true, i->first.CPtr(), MSG(MPanelFileType));
 			size_t Length = i->first.GetLength() + 1;
 			ListItem.SetCheck(i->second);
 			FilterList.SetUserData(i->first.CPtr(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
@@ -352,7 +352,7 @@ bool FileFilter::FilterEdit()
 					InsertQuote(strQuotedTitle);
 
 					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-					            strQuotedTitle,MSG(MDelete),MSG(MCancel)))
+					            strQuotedTitle.CPtr(),MSG(MDelete),MSG(MCancel)))
 					{
 						FilterData->erase(FilterData->begin()+SelPos);
 						FilterList.DeleteItem(SelPos);
@@ -520,7 +520,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 				strMask2 = FMask;
 				Unquote(strMask2);
 
-				if (StrCmpI(strMask1,strMask2)<1)
+				if (StrCmpI(strMask1.CPtr(),strMask2.CPtr())<1)
 					break;
 
 				j++;
@@ -528,7 +528,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (CurFilterData)
 			{
-				if (!StrCmpI(Mask,FMask))
+				if (!StrCmpI(Mask.CPtr(),FMask))
 				{
 					if (!Check)
 					{
@@ -1012,12 +1012,12 @@ void FileFilter::SwapFilter()
 		SwapPanelFlags(TempFilterData->at(i).get());
 }
 
-int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const wchar_t *FileName, DWORD FileAttr, int Check)
+int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)
 {
-	if (!StrCmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!StrCmp(FileName.CPtr(),L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return -1;
 
-	const wchar_t *DotPtr=wcsrchr(FileName,L'.');
+	const wchar_t *DotPtr=wcsrchr(FileName.CPtr(),L'.');
 	string strMask;
 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
@@ -1030,7 +1030,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 
 	if (std::find_if(CONST_RANGE(Extensions, i)
 	{
-		return !StrCmpI(strMask, i.first);
+		return !StrCmpI(strMask.CPtr(), i.first.CPtr());
 	}) != Extensions.cend())
 		return -1;
 

@@ -71,10 +71,10 @@ class VMenu2 : public Dialog
 		}
 
 	public:
-		VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+		VMenu2(const string& Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
 
-		void SetTitle(const wchar_t *Title);
-		void SetBottomTitle(const wchar_t *Title);
+		void SetTitle(const string& Title);
+		void SetBottomTitle(const string& Title);
 
 
 		void SetBoxType(int BoxType)
@@ -99,10 +99,10 @@ class VMenu2 : public Dialog
 		int DeleteItem(int ID,int Count=1);
 		int AddItem(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
 		int AddItem(const FarList *NewItem);
-		int AddItem(const wchar_t *NewStrItem);
+		int AddItem(const string& NewStrItem);
 
 
-		int FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
+		int FindItem(int StartIndex,const string& Pattern,UINT64 Flags=0);
 		intptr_t GetItemCount();
 		int GetSelectPos();
 

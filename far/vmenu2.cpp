@@ -318,7 +318,7 @@ FarDialogItem VMenu2DialogItems[]=
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 };
 
-VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
+VMenu2::VMenu2(const string& Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
 {
 	InitDialogObjects();
 
@@ -356,20 +356,21 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 	Resize();
 }
 
-void VMenu2::SetTitle(const wchar_t *Title)
+void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetTitles(1);
-	titles.Bottom=t;
-	titles.Title=Title;
+	titles.Bottom=t.CPtr();
+	titles.Title=Title.CPtr();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
-void VMenu2::SetBottomTitle(const wchar_t *Title)
+
+void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetTitles();
-	titles.Bottom=Title;
-	titles.Title=t;
+	titles.Bottom=Title.CPtr();
+	titles.Title=t.CPtr();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -417,7 +418,7 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem->Flags, NewItem->strName};
+	FarListItem fi={NewItem->Flags, NewItem->strName.CPtr()};
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
@@ -436,16 +437,16 @@ int VMenu2::AddItem(const FarList *NewItem)
 	Resize();
 	return r;
 }
-int VMenu2::AddItem(const wchar_t *NewStrItem)
+int VMenu2::AddItem(const string& NewStrItem)
 {
-	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem);
+	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem.CPtr());
 	Resize();
 	return r;
 }
 
-int VMenu2::FindItem(int StartIndex, const wchar_t *Pattern, UINT64 Flags)
+int VMenu2::FindItem(int StartIndex, const string& Pattern, UINT64 Flags)
 {
-	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern, Flags};
+	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.CPtr(), Flags};
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 

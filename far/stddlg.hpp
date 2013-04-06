@@ -133,6 +133,6 @@ enum FlagsNameAndPassword
 	GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
 };
 
-int GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
+int GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
-int OperationFailed(const string& Object, LNGID Title, const wchar_t* Description, bool AllowSkip = true);
+int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip = true);

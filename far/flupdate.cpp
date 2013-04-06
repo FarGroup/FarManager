@@ -105,12 +105,12 @@ void FileList::UpdateIfRequired()
 	}
 }
 
-void ReadFileNamesMsg(const wchar_t *Msg)
+void ReadFileNamesMsg(const string& Msg)
 {
-	Message(0,0,MSG(MReadingTitleFiles),Msg);
+	Message(0,0,MSG(MReadingTitleFiles),Msg.CPtr());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=(void*)Msg;
+		Global->PreRedraw->top().Param.Param1=(void*)Msg.CPtr();
 	}
 }
 
@@ -484,7 +484,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!strGetSel.IsEmpty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.CPtr(), strCurName.CPtr()))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
 			GoToFile(strNextCurName);
 
@@ -827,7 +827,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	if (!strGetSel.IsEmpty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.CPtr(),strCurName.CPtr()))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
 			GoToFile(strNextCurName);
 
@@ -881,7 +881,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 				{
 					string strFileName = CurPanelData->FileName;
 
-					if (!StrCmpI(strFileName,Info.DescrFiles[I]))
+					if (!StrCmpI(strFileName.CPtr(),Info.DescrFiles[I]))
 					{
 						string strTempDir, strDizName;
 

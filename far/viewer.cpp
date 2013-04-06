@@ -81,7 +81,7 @@ enum SHOW_MODES
 
 
 static void PR_ViewerSearchMsg();
-static void ViewerSearchMsg(const wchar_t *name, int percent, int search_hex);
+static void ViewerSearchMsg(const string& name, int percent, int search_hex);
 
 static int ViewerID=0;
 
@@ -243,7 +243,7 @@ void Viewer::KeepInitParameters()
 }
 
 
-int Viewer::OpenFile(const wchar_t *Name,int warning)
+int Viewer::OpenFile(const string& Name,int warning)
 {
 	VM.CodePage=DefCodePage;
 	DefCodePage=CP_DEFAULT;
@@ -297,7 +297,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		     so don't show red message box */
 		if (warning)
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
-			        MSG(MViewerCannotOpenFile),strFileName,MSG(MOk));
+			        MSG(MViewerCannotOpenFile),strFileName.CPtr(),MSG(MOk));
 
 		OpenFailed=true;
 		return FALSE;
@@ -1046,7 +1046,7 @@ static bool is_word_div ( const wchar_t ch )
 	static const wchar_t spaces[] = { L' ', L'\t', L'\n', L'\r', BOM_CHAR, REPLACE_CHAR, L'\0' };
 	return ( !ch
 		|| nullptr != wcschr(spaces, ch)
-		|| nullptr != wcschr(Global->Opt->strWordDiv, ch)
+		|| nullptr != wcschr(Global->Opt->strWordDiv.CPtr(), ch)
 	);
 }
 
@@ -1553,7 +1553,7 @@ int Viewer::ProcessKey(int Key)
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading
 
-					if (PointToName(strName) == strName)
+					if (PointToName(strName) == strName.CPtr())
 					{
 						string strViewDir;
 						ViewNamesList.GetCurDir(strViewDir);
@@ -2538,7 +2538,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					string strTo;
 					my->viewer->SearchTextTransform(strTo, ps, !new_hex, esp.CurPos);
 
-					Dlg->SendMessage( DM_SETTEXTPTR, sd_dst, ToPtr((intptr_t)strTo.CPtr()));
+					Dlg->SendMessage( DM_SETTEXTPTR, sd_dst, UNSAFE_CSTR(strTo));
 					Dlg->SendMessage( DM_SDSETVISIBILITY, new_hex, 0);
 					if (esp.CurPos >= 0)
 					{
@@ -2621,7 +2621,7 @@ static void PR_ViewerSearchMsg()
 	}
 }
 
-void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
+void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
 	string strMsg(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor));
@@ -2647,11 +2647,11 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
-	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.CPtr(),strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=(void*)MsgStr;
+		preRedrawItem.Param.Param1=MsgStr.CPtr();
 		preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
 		preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
 	}
@@ -3376,7 +3376,7 @@ void Viewer::Search(int Next,int FirstChar)
 			sd.pRex = new RegExp;
 			string strSlash = strSearchStr;
 			InsertRegexpQuote(strSlash);
-			if ( !sd.pRex->Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
+			if ( !sd.pRex->Compile(strSlash.CPtr(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
 				return; // wrong regular expression...
 		}
 		else
@@ -3519,7 +3519,7 @@ void Viewer::Search(int Next,int FirstChar)
 			MSG_WARNING, 1,
 			MSG(MViewSearchTitle),
 			(SearchHex ? MSG(MViewSearchCannotFindHex) : MSG(MViewSearchCannotFind)),
-			strMsgStr,
+			strMsgStr.CPtr(),
 			MSG(MOk)
 		);
 	}
@@ -3564,9 +3564,9 @@ void Viewer::ShowConsoleTitle()
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 }
 
-void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
+void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
-	if (Name && *Name)
+	if (!Name.IsEmpty())
 		ConvertNameToFull(Name,strTempViewName);
 	else
 	{
@@ -3974,7 +3974,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
 				GoToDlg[RB_PRC].Selected = 1;
 			}
-			else if (!StrCmpNI(GoToDlg[1].strData,L"0x",2)
+			else if (!StrCmpNI(GoToDlg[1].strData.CPtr(),L"0x",2)
 					 || GoToDlg[1].strData.At(0)==L'$'
 					 || GoToDlg[1].strData.Contains(L'h')
 					 || GoToDlg[1].strData.Contains(L'H'))  // он умный - hex код ввел!
@@ -3982,7 +3982,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
 				GoToDlg[RB_HEX].Selected=1;
 
-				if (!StrCmpNI(GoToDlg[1].strData,L"0x",2))
+				if (!StrCmpNI(GoToDlg[1].strData.CPtr(),L"0x",2))
 					GoToDlg[1].strData.LShift(2);
 				else if (GoToDlg[1].strData.At(0)==L'$')
 					GoToDlg[1].strData.LShift(1);
@@ -3994,7 +3994,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			{
 				//int cPercent=ToPercent64(FilePos,FileSize);
 				PrevMode = RB_PRC;
-				int Percent=_wtoi(GoToDlg[1].strData);
+				int Percent=_wtoi(GoToDlg[1].strData.CPtr());
 
 				//if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
 				//  return;
@@ -4012,13 +4012,13 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (GoToDlg[RB_HEX].Selected)
 			{
 				PrevMode = RB_HEX;
-				swscanf(GoToDlg[1].strData,L"%I64x",&Offset);
+				swscanf(GoToDlg[1].strData.CPtr(),L"%I64x",&Offset);
 			}
 
 			if (GoToDlg[RB_DEC].Selected)
 			{
 				PrevMode = RB_DEC;
-				swscanf(GoToDlg[1].strData,L"%I64d",&Offset);
+				swscanf(GoToDlg[1].strData.CPtr(),L"%I64d",&Offset);
 			}
 		}// ShowDlg
 		else
@@ -4348,7 +4348,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2&&(size_t)Param1>strFullFileName.GetLength())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName);
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.CPtr());
 			}
 
 			return static_cast<int>(strFullFileName.GetLength()+1);

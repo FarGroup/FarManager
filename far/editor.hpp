@@ -287,7 +287,7 @@ class Editor:public ScreenObject
 		void VPaste(wchar_t *ClipText);
 		void VBlockShift(int Left);
 		Edit* GetStringByNumber(int DestLine);
-		static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent);
+		static void EditorShowMsg(const string& Title,const string& Msg, const string& Name,int Percent);
 
 		int SetBookmark(int Pos);
 		int GotoBookmark(int Pos);
@@ -393,7 +393,7 @@ class Editor:public ScreenObject
 		void SetSearchCursorAtEnd(bool NewMode) {EdOpt.SearchCursorAtEnd=NewMode;}
 
 		void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
-		const wchar_t *GetWordDiv() { return EdOpt.strWordDiv; }
+		const string& GetWordDiv() { return EdOpt.strWordDiv; }
 
 		void SetF7Rules(bool NewMode) { EdOpt.F7Rules = NewMode; }
 		bool GetF7Rules() { return EdOpt.F7Rules; }
@@ -415,7 +415,7 @@ class Editor:public ScreenObject
 		// который не нужно менять
 		void SetSavePosMode(int SavePos, int SaveShortPos);
 
-		void GetRowCol(const wchar_t *argv,int *row,int *col);
+		void GetRowCol(const string& argv,int *row,int *col);
 
 		int  GetLineCurPos();
 		void BeginVBlockMarking();

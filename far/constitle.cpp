@@ -112,7 +112,7 @@ ConsoleTitle::~ConsoleTitle()
 
 	if (AddonsLen <= OldLen)
 	{
-		if (!StrCmpI(strOldTitle.CPtr()+OldLen-AddonsLen, strTitleAddons))
+		if (!StrCmpI(strOldTitle.CPtr()+OldLen-AddonsLen, strTitleAddons.CPtr()))
 			strOldTitle.SetLength(OldLen-AddonsLen);
 	}
 
@@ -126,41 +126,46 @@ BaseFormat& ConsoleTitle::Flush()
 	return *this;
 }
 
-void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
+static string& FarTitle()
+{
+	static string strFarTitle;
+	return strFarTitle;
+}
+void ConsoleTitle::SetFarTitle(const string& Title, bool Force)
 {
 	CriticalSectionLock Lock(TitleCS);
-	static string strFarTitle;
 	string strOldFarTitle;
 
-	if (Title)
-	{
-		Global->Console->GetTitle(strOldFarTitle);
-		strFarTitle=Title;
-		strFarTitle.SetLength(0x100);
-		strFarTitle+=GetFarTitleAddons();
-		TitleModified=true;
+	Global->Console->GetTitle(strOldFarTitle);
+	FarTitle() = Title;
+	FarTitle().SetLength(0x100);
+	FarTitle()+=GetFarTitleAddons();
+	TitleModified=true;
 
-		if (strOldFarTitle != strFarTitle &&
-		        /*((Global->CtrlObject->Macro.IsExecuting() && !Global->CtrlObject->Macro.IsDisableOutput()) ||
-		         !Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsExecutingLastKey())*/ Global->ScrBuf->GetLockCount()==0)
+	if (strOldFarTitle != FarTitle() &&
+		    /*((Global->CtrlObject->Macro.IsExecuting() && !Global->CtrlObject->Macro.IsDisableOutput()) ||
+		        !Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsExecutingLastKey())*/ Global->ScrBuf->GetLockCount()==0)
+	{
+		DWORD CurTime=GetTickCount();
+		if(CurTime-ShowTime>(DWORD)Global->Opt->RedrawTimeout || Force)
 		{
-			DWORD CurTime=GetTickCount();
-			if(CurTime-ShowTime>(DWORD)Global->Opt->RedrawTimeout || Force)
-			{
-				ShowTime=CurTime;
-				Global->Console->SetTitle(strFarTitle);
-				TitleModified=true;
-			}
+			ShowTime=CurTime;
+			Global->Console->SetTitle(FarTitle());
+			TitleModified=true;
 		}
 	}
-	else if(Global->ScrBuf->GetLockCount()==0)
+}
+
+void ConsoleTitle::RestoreTitle()
+{
+	if(Global->ScrBuf->GetLockCount()==0)
 	{
 		/*
-			Title=nullptr для случая, когда нужно выставить пред.заголовок
-			SetFarTitle(nullptr) - это не для всех!
+			RestoreTitle() для случая, когда нужно выставить пред.заголовок
+			Не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
-		Global->Console->SetTitle(strFarTitle);
+		Global->Console->SetTitle(FarTitle());
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}

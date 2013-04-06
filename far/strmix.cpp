@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
 
-string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
+string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 {
 	static bool first = true;
 	static NUMBERFMT fmt;
@@ -71,9 +71,9 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
-	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,nullptr,0);
+	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.CPtr(),&fmt,nullptr,0);
 	wchar_t* lpwszDest=strDest.GetBuffer(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,lpwszDest,Size);
+	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.CPtr(),&fmt,lpwszDest,Size);
 	strDest.ReleaseBuffer();
 	return strDest;
 }
@@ -128,7 +128,7 @@ wchar_t * InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols) )
+	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.CPtr()) )
 		InsertQuote(Str);
 
 	return Str;
@@ -154,7 +154,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr, Global->Opt->strQuotedSymbols) )
+	if (wcspbrk(strStr.CPtr(), Global->Opt->strQuotedSymbols.CPtr()) )
 		InsertQuote(strStr);
 
 	return strStr;
@@ -368,7 +368,7 @@ wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 
 string& RemoveLeadingSpaces(string &strStr)
 {
-	const wchar_t *ChPtr = strStr;
+	const wchar_t *ChPtr = strStr.CPtr();
 
 	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
 		;
@@ -404,7 +404,7 @@ string& RemoveTrailingSpaces(string &strStr)
 	if (strStr.IsEmpty())
 		return strStr;
 
-	const wchar_t *Str = strStr;
+	const wchar_t *Str = strStr.CPtr();
 	const wchar_t *ChPtr = Str + strStr.GetLength() - 1;
 
 	for (; ChPtr >= Str && (IsSpace(*ChPtr) || IsEol(*ChPtr)); ChPtr--)
@@ -432,17 +432,11 @@ string& RemoveExternalSpaces(string &strStr)
 */
 string& RemoveUnprintableCharacters(string &strStr)
 {
-	wchar_t *p = strStr.GetBuffer();
-
-	while (*p)
+	for (size_t i = 0; i != strStr.GetLength(); ++i)
 	{
-		if (IsEol(*p))
-			*p=L' ';
-
-		p++;
+		if (IsEol(strStr[i]))
+			strStr[i] = L' ';
 	}
-
-	strStr.ReleaseBuffer(strStr.GetLength());
 	return RemoveExternalSpaces(strStr);
 }
 
@@ -474,9 +468,9 @@ string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
 	return strStr;
 }
 
-string& CenterStr(const wchar_t *Src, string &strDest, int Length)
+string& CenterStr(const string& Src, string &strDest, int Length)
 {
-	int SrcLength=StrLength(Src);
+	int SrcLength=static_cast<int>(Src.GetLength());
 	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
 	if (SrcLength >= Length)
@@ -495,9 +489,9 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 	return strDest;
 }
 
-string& RightStr(const wchar_t *Src, string &strDest, int Length)
+string& RightStr(const string& Src, string &strDest, int Length)
 {
-	int SrcLength=StrLength(Src);
+	int SrcLength = static_cast<int>(Src.GetLength());
 	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
 	if (SrcLength >= Length)
@@ -552,7 +546,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
 bool IsCaseMixed(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc;
+	const wchar_t *lpwszSrc = strSrc.CPtr();
 
 	while (*lpwszSrc && !IsAlpha(*lpwszSrc))
 		lpwszSrc++;
@@ -568,7 +562,7 @@ bool IsCaseMixed(const string &strSrc)
 
 bool IsCaseLower(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc;
+	const wchar_t *lpwszSrc = strSrc.CPtr();
 
 	while (*lpwszSrc)
 	{
@@ -814,12 +808,12 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,bool IgnoreCase)
+int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count,bool IgnoreCase)
 {
-	const int LenFindStr=StrLength(FindStr);
+	const int LenFindStr=static_cast<int>(FindStr.GetLength());
 	if ( !LenFindStr || !Count )
 		return 0;
-	const int LenReplStr=StrLength(ReplStr);
+	const int LenReplStr=static_cast<int>(ReplStr.GetLength());
 	size_t L=strStr.GetLength();
 
 	const int Delta = LenReplStr-LenFindStr;
@@ -829,7 +823,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 	int J=0;
 	while (I+LenFindStr <= L)
 	{
-		int Res=IgnoreCase? StrCmpNI(strStr.CPtr() + I, FindStr, LenFindStr) : StrCmpN(strStr.CPtr() + I, FindStr, LenFindStr);
+		int Res=IgnoreCase? StrCmpNI(strStr.CPtr() + I, FindStr.CPtr(), LenFindStr) : StrCmpN(strStr.CPtr() + I, FindStr.CPtr(), LenFindStr);
 
 		if (!Res)
 		{
@@ -844,7 +838,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 			else if (Delta < 0)
 				wmemmove(Str+I,Str+I-Delta,L-I+Delta+1);
 
-			wmemcpy(Str+I,ReplStr,LenReplStr);
+			wmemcpy(Str+I,ReplStr.CPtr(),LenReplStr);
 			I += LenReplStr;
 
 			L+=Delta;
@@ -909,7 +903,7 @@ enum FFTMODE
 	FFTM_BREAKLONGWORD = 0x00000001,
 };
 
-string& FarFormatText(const wchar_t *SrcText,     // источник
+string& FarFormatText(const string& SrcText,     // источник
                              int Width,               // заданная ширина
                              string &strDestText,          // приемник
                              const wchar_t* Break,       // брик, если = nullptr, то принимается '\n'
@@ -918,7 +912,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 	const wchar_t *breakchar;
 	breakchar = Break?Break:L"\n";
 
-	if (!SrcText || !*SrcText)
+	if (SrcText.IsEmpty())
 	{
 		strDestText.Clear();
 		return strDestText;
@@ -926,7 +920,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 
 	string strSrc = SrcText; //copy string in case of SrcText == strDestText
 
-	if (!wcspbrk(strSrc,breakchar) && strSrc.GetLength() <= static_cast<size_t>(Width))
+	if (!wcspbrk(strSrc.CPtr(),breakchar) && strSrc.GetLength() <= static_cast<size_t>(Width))
 	{
 		strDestText = strSrc;
 		return strDestText;
@@ -934,7 +928,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 
 	long i=0, l=0, pgr=0;
 	wchar_t *newtext;
-	const wchar_t *text= strSrc;
+	const wchar_t *text= strSrc.CPtr();
 	long linelength = Width;
 	int breakcharlen = StrLength(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
@@ -1116,7 +1110,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 //   WordDiv  - набор разделителей слова в кодировке OEM
   возвращает указатель на начало слова
 */
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End, const wchar_t *WordDiv0)
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End, const string& WordDiv0)
 {
 	int StartWPos, EndWPos;
 	int StrSize=StrLength(Str);
@@ -1196,15 +1190,15 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 }
 
 
-bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
+bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {
 //проверяет если формат строки такой: [0-9]+[BbKkMmGgTtPpEe]?
-	const wchar_t *p = FileSizeStr;
+	const wchar_t *p = FileSizeStr.CPtr();
 
 	while (iswdigit(*p))
 		p++;
 
-	if (p == FileSizeStr)
+	if (p == FileSizeStr.CPtr())
 		return false;
 
 	if (*p)
@@ -1219,13 +1213,13 @@ bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
 	return true;
 }
 
-unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
+unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 {
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	unsigned __int64 n = _wtoi64(FileSizeStr);
-	wchar_t c = Upper(FileSizeStr[StrLength(FileSizeStr)-1]);
+	unsigned __int64 n = _wtoi64(FileSizeStr.CPtr());
+	wchar_t c = Upper(FileSizeStr[FileSizeStr.GetLength()-1]);
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1377,17 +1371,17 @@ string GuidToStr(const GUID& Guid)
 	return result;
 }
 
-bool StrToGuid(const wchar_t* Value,GUID& Guid)
+bool StrToGuid(const string& Value,GUID& Guid)
 {
-	return (UuidFromString((unsigned short*)Value,&Guid)==RPC_S_OK)?true:false;
+	return (UuidFromString(reinterpret_cast<unsigned short*>(UNSAFE_CSTR(Value)), &Guid)==RPC_S_OK)?true:false;
 }
 
-bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const string& Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 
 	if (!WordDiv)
-		WordDiv=Global->Opt->strWordDiv;
+		WordDiv=Global->Opt->strWordDiv.CPtr();
 
 	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Position, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
@@ -1411,7 +1405,7 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 			InsertRegexpQuote(strSlash);
 			RegExp re;
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash, OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 				return false;
 
 			SMatch m[10*2], *pm = m;
@@ -1427,7 +1421,7 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 			int half = 0;
 			if (!Reverse)
 			{
-				if (re.SearchEx(Source,Source+Position,Source+StrSize,pm,n))
+				if (re.SearchEx(Source.CPtr(),Source.CPtr()+Position,Source.CPtr()+StrSize,pm,n))
 					found = true;
 			}
 			else
@@ -1435,7 +1429,7 @@ bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string&
 				int pos = 0;
 				for (;;)
 				{
-					if (!re.SearchEx(Source,Source+pos,Source+StrSize,pm+half,n))
+					if (!re.SearchEx(Source.CPtr(),Source.CPtr()+pos,Source.CPtr()+StrSize,pm+half,n))
 						break;
 					pos = static_cast<int>(pm[half].start);
 					if (pos > Position)
@@ -1554,7 +1548,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 				item.index=ItemsList.size();
 
 				bool Error=false;
-				const wchar_t *CurList=List;
+				const wchar_t *CurList=List.CPtr();
 				int Length, RealLength;
 				while (!Error && CurList && *CurList)
 				{
@@ -1613,7 +1607,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 						{
 							if (a.index > b.index)
 								a.index = b.index;
-							return !StrCmpI(a.Str, b.Str);
+							return !StrCmpI(a.Str.CPtr(), b.Str.CPtr());
 						});
 					}
 				}

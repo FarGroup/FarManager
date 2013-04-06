@@ -381,7 +381,7 @@ wchar_t *Clipboard::Paste()
 				}
 				if(!strClipText.IsEmpty())
 				{
-					ClipText = DuplicateString(strClipText);
+					ClipText = DuplicateString(strClipText.CPtr());
 				}
 				GlobalUnlock(hClipData);
 			}
@@ -492,14 +492,14 @@ bool Clipboard::InternalCopy(bool FromWin)
 }
 
 /* ------------------------------------------------------------ */
-int CopyToClipboard(const wchar_t *Data)
+int CopyToClipboard(const string& Data)
 {
 	Clipboard clip;
 
 	if (!clip.Open())
 		return FALSE;
 
-	BOOL ret = clip.Copy(Data);
+	BOOL ret = clip.Copy(Data.CPtr());
 
 	clip.Close();
 

@@ -63,7 +63,7 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UIN
 	string strSize;
 	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
-	Message(0,0,Title,MSG(MScanningFolder),Name,strSize);
+	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.CPtr());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
@@ -95,7 +95,7 @@ public:
 	long compare(Node<UINT64>* first, UINT64* second) {return *first->data-*second;}
 };
 
-int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags)
+int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags)
 {
 	string strFullDirName, strDriveRoot;
 	string strFullName, strCurDirName, strLastDirName;
@@ -113,11 +113,11 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
 	*/
-	const wchar_t *ShowDirName = DirName;
+	const wchar_t *ShowDirName = DirName.CPtr();
 
 	if (DirName[0] == L'.' && !DirName[1])
 	{
-		const wchar_t *p = LastSlash(strFullDirName);
+		const wchar_t *p = LastSlash(strFullDirName.CPtr());
 
 		if (p)
 			ShowDirName = p + 1;
@@ -127,7 +127,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-	if (GetDiskFreeSpace(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+	if (GetDiskFreeSpace(strDriveRoot.CPtr(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
 		Data.ClusterSize=SectorsPerCluster*BytesPerSector;
 
 	// Временные хранилища имён каталогов
@@ -236,7 +236,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 				strCurDirName = strFullName;
 				CutToSlash(strCurDirName); //???
 
-				if (StrCmpI(strCurDirName,strLastDirName))
+				if (StrCmpI(strCurDirName.CPtr(),strLastDirName.CPtr()))
 				{
 					Data.DirCount++;
 					strLastDirName = strCurDirName;
@@ -284,14 +284,14 @@ static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
 
-static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
+static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
-	Message(Flags,0,L"",MSG(MPreparingList),Name);
+	Message(Flags,0,L"",MSG(MPreparingList),Name.CPtr());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
 		preRedrawItem.Param.Flags=Flags;
-		preRedrawItem.Param.Param1=(void*)Name;
+		preRedrawItem.Param.Param1=(void*)Name.CPtr();
 	}
 }
 
@@ -309,16 +309,16 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, Plugi
 	string strFullName;
 	strFullName = strPluginSearchPath;
 	strFullName += CurPanelItem->FileName;
-	wchar_t *lpwszFullName = strFullName.GetBuffer();
 
-	for (int I=0; lpwszFullName[I]; I++)
-		if (lpwszFullName[I]==L'\x1')
-			lpwszFullName[I]=L'\\';
+	for (size_t i = 0; i != strFullName.GetLength(); ++i)
+	{
+		if (strFullName[i]==L'\x1')
+			strFullName[i]=L'\\';
+	}
 
-	strFullName.ReleaseBuffer();
 	PluginDirList.emplace_back(*CurPanelItem);
 
-	PluginDirList.back().FileName = DuplicateString(strFullName);
+	PluginDirList.back().FileName = DuplicateString(strFullName.CPtr());
 	PluginDirList.back().AlternateFileName=nullptr;
 }
 
@@ -329,13 +329,11 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 	int AbortOp=FALSE;
 	string strDirName;
 	strDirName = strPluginSearchPath;
-	wchar_t *lpwszDirName = strDirName.GetBuffer();
 
-	for (int i=0; lpwszDirName[i]; i++)
-		if (lpwszDirName[i]=='\x1')
-			lpwszDirName[i]=lpwszDirName[i+1]?L'\\':0;
+	for (size_t i = 0; i != strDirName.GetLength(); ++i)
+		if (strDirName[i]=='\x1')
+			strDirName[i] = strDirName[i+1]? L'\\': L'\0';
 
-	strDirName.ReleaseBuffer();
 	TruncStr(strDirName,30);
 	CenterStr(strDirName,strDirName,30);
 
@@ -404,9 +402,9 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
-int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
+int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
-	if (!StrCmp(Dir,L".") || TestParentFolderName(Dir))
+	if (!StrCmp(Dir.CPtr(),L".") || TestParentFolderName(Dir))
 		return FALSE;
 
 	static PluginHandle DirListPlugin;
@@ -475,7 +473,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
-				if (StrCmpI(strPrevDir, NewInfo.CurDir) )
+				if (StrCmpI(strPrevDir.CPtr(), NewInfo.CurDir) )
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;
@@ -514,7 +512,7 @@ void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem)
 	delete PluginDirList;
 }
 
-int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
+int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize)
 {

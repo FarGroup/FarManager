@@ -100,7 +100,7 @@ class FilePanels:public Frame
 		virtual void ResizeConsole();
 		virtual int FastHide();
 		virtual void Refresh();
-		void GoToFile(const wchar_t *FileName);
+		void GoToFile(const string& FileName);
 
 		virtual MACROMODEAREA GetMacroMode();
 };

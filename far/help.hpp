@@ -82,7 +82,7 @@ class HelpRecord
 	public:
 		string HelpStr;
 
-		HelpRecord(const wchar_t *HStr=nullptr):HelpStr(HStr){};
+		HelpRecord(const string& HStr):HelpStr(HStr){};
 
 		HelpRecord& operator=(const HelpRecord &rhs)
 		{
@@ -95,19 +95,19 @@ class HelpRecord
 
 		bool operator==(const HelpRecord &rhs) const
 		{
-			return !StrCmpI(HelpStr,rhs.HelpStr);
+			return !StrCmpI(HelpStr.CPtr(),rhs.HelpStr.CPtr());
 		}
 
 		bool operator <(const HelpRecord &rhs) const
 		{
-			return StrCmpI(HelpStr,rhs.HelpStr) < 0;
+			return StrCmpI(HelpStr.CPtr(),rhs.HelpStr.CPtr()) < 0;
 		}
 };
 
 class Help:public Frame
 {
 public:
-	Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
+	Help(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
 	virtual ~Help();
 
 	virtual void Hide();
@@ -125,25 +125,26 @@ public:
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam);
 
 	BOOL GetError() {return ErrorHelp;}
-	static string &MkTopic(class Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic);
+	static bool MkTopic(class Plugin* pPlugin,const string& HelpTopic,string &strTopic);
 
 private:
 	virtual void DisplayObject();
-	int  ReadHelp(const wchar_t *Mask=nullptr);
-	void AddLine(const wchar_t *Line);
-	void AddTitle(const wchar_t *Title);
+	int  ReadHelp(const string& Mask);
+	void AddLine(const string& Line);
+	void AddTitle(const string& Title);
 	void HighlightsCorrection(string &strStr);
 	void FastShow();
 	void DrawWindowFrame();
 	void OutString(const wchar_t *Str);
-	int  StringLen(const wchar_t *Str);
+	int  StringLen(const string& Str);
 	void CorrectPosition();
 	int  IsReferencePresent();
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(File& HelpFile,uintptr_t nCodePage);
-	int  JumpTopic(const wchar_t *JumpTopic=nullptr);
+	int JumpTopic(const string& JumpTopic);
+	int JumpTopic();
 	const HelpRecord* GetHelpItem(int Pos);
 
 	KeyBar      HelpKeyBar;     // ךויבאנ

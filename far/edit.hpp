@@ -105,7 +105,7 @@ public:
 	void GetString(wchar_t *Str, int MaxSize);
 	void GetString(string &strStr);
 	const wchar_t* GetStringAddr();
-	void SetHiString(const wchar_t *Str);
+	void SetHiString(const string& Str);
 	void SetString(const wchar_t *Str,int Length=-1);
 	void SetBinaryString(const wchar_t *Str,int Length);
 	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length);
@@ -115,7 +115,7 @@ public:
 	int GetSelString(string &strStr);
 	int GetLength();
 	void AppendString(const wchar_t *Str);
-	void InsertString(const wchar_t *Str);
+	void InsertString(const string& Str);
 	void InsertBinaryString(const wchar_t *Str,int Length);
 	int Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
@@ -169,7 +169,7 @@ private:
 	virtual const EXPAND_TABS GetTabExpandMode() const;
 	virtual const void SetInputMask(const string& InputMask) {}
 	virtual const string GetInputMask() const {return string();}
-	virtual const wchar_t* WordDiv() const;
+	virtual const string& WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}
 	virtual int GetCursorSize();
@@ -271,7 +271,7 @@ private:
 	virtual const EXPAND_TABS GetTabExpandMode() const;
 	virtual const string GetInputMask() const {return Mask;}
 	virtual const void SetInputMask(const string& InputMask);
-	virtual const wchar_t* WordDiv() const;
+	virtual const string& WordDiv() const;
 	virtual int GetPrevCurPos() const { return PrevCurPos; }
 	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }
 	virtual int GetCursorSize() { return CursorSize; }

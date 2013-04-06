@@ -64,17 +64,17 @@ class GeneralConfig: public XmlConfig, public Transactional {
 
 public:
 	virtual ~GeneralConfig() {}
-	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
-	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size) = 0;
-	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default) = 0;
-	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, int *Value, int Default) = 0;
-	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, int Default) = 0;
-	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default) = 0;
-	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size, const void *Default) = 0;
-	virtual bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
-	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue) = 0;
-	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, DWORD *Value, DWORD Default) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, int *Value, int Default) = 0;
+	virtual int GetValue(const string& Key, const string& Name, int Default) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) = 0;
+	virtual int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default) = 0;
+	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD *Value) = 0;
 
 protected:
 	GeneralConfig() {}
@@ -92,17 +92,17 @@ public:
 	};
 
 	virtual ~HierarchicalConfig() {}
-	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr) = 0;
-	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const wchar_t *Name) = 0;
-	virtual bool SetKeyDescription(unsigned __int64 Root, const wchar_t *Description) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, const void *Value, size_t Size) = 0;
-	virtual bool GetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 *Value) = 0;
-	virtual bool GetValue(unsigned __int64 Root, const wchar_t *Name, string &strValue) = 0;
-	virtual int GetValue(unsigned __int64 Root, const wchar_t *Name, void *Value, size_t Size) = 0;
+	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
+	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
+	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const string& Value) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, unsigned __int64 Value) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const string& Name, const void *Value, size_t Size) = 0;
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, unsigned __int64 *Value) = 0;
+	virtual bool GetValue(unsigned __int64 Root, const string& Name, string &strValue) = 0;
+	virtual int GetValue(unsigned __int64 Root, const string& Name, void *Value, size_t Size) = 0;
 	virtual bool DeleteKeyTree(unsigned __int64 KeyID) = 0;
-	virtual bool DeleteValue(unsigned __int64 Root, const wchar_t *Name) = 0;
+	virtual bool DeleteValue(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
 	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
 	virtual bool Flush() = 0;
@@ -116,8 +116,8 @@ class ColorsConfig: public XmlConfig, public Transactional {
 public:
 
 	virtual ~ColorsConfig() {}
-	virtual bool SetValue(const wchar_t *Name, const FarColor& Value) = 0;
-	virtual bool GetValue(const wchar_t *Name, FarColor& Value) = 0;
+	virtual bool SetValue(const string& Name, const FarColor& Value) = 0;
+	virtual bool GetValue(const string& Name, FarColor& Value) = 0;
 
 protected:
 	ColorsConfig() {}
@@ -133,10 +133,10 @@ public:
 	virtual bool GetMask(unsigned __int64 id, string &strMask) = 0;
 	virtual bool GetDescription(unsigned __int64 id, string &strDescription) = 0;
 	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
-	virtual bool SetCommand(unsigned __int64 id, int Type, const wchar_t *Command, bool Enabled) = 0;
+	virtual bool SetCommand(unsigned __int64 id, int Type, const string& Command, bool Enabled) = 0;
 	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) = 0;
-	virtual unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description) = 0;
-	virtual bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description) = 0;
+	virtual unsigned __int64 AddType(unsigned __int64 after_id, const string& Mask, const string& Description) = 0;
+	virtual bool UpdateType(unsigned __int64 id, const string& Mask, const string& Description) = 0;
 	virtual bool DelType(unsigned __int64 id) = 0;
 
 protected:
@@ -148,12 +148,12 @@ class PluginsCacheConfig: public XmlConfig, public Transactional {
 public:
 
 	virtual ~PluginsCacheConfig() {}
-	virtual unsigned __int64 CreateCache(const wchar_t *CacheName) = 0;
-	virtual unsigned __int64 GetCacheID(const wchar_t *CacheName) = 0;
-	virtual bool DeleteCache(const wchar_t *CacheName) = 0;
+	virtual unsigned __int64 CreateCache(const string& CacheName) = 0;
+	virtual unsigned __int64 GetCacheID(const string& CacheName) = 0;
+	virtual bool DeleteCache(const string& CacheName) = 0;
 	virtual bool IsPreload(unsigned __int64 id) = 0;
 	virtual string GetSignature(unsigned __int64 id) = 0;
-	virtual void *GetExport(unsigned __int64 id, const wchar_t *ExportName) = 0;
+	virtual void *GetExport(unsigned __int64 id, const string& ExportName) = 0;
 	virtual string GetGuid(unsigned __int64 id) = 0;
 	virtual string GetTitle(unsigned __int64 id) = 0;
 	virtual string GetAuthor(unsigned __int64 id) = 0;
@@ -166,19 +166,19 @@ public:
 	virtual string GetCommandPrefix(unsigned __int64 id) = 0;
 	virtual unsigned __int64 GetFlags(unsigned __int64 id) = 0;
 	virtual bool SetPreload(unsigned __int64 id, bool Preload) = 0;
-	virtual bool SetSignature(unsigned __int64 id, const wchar_t *Signature) = 0;
-	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid) = 0;
-	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid) = 0;
-	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid) = 0;
-	virtual bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix) = 0;
+	virtual bool SetSignature(unsigned __int64 id, const string& Signature) = 0;
+	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
+	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
+	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const string& Guid) = 0;
+	virtual bool SetCommandPrefix(unsigned __int64 id, const string& Prefix) = 0;
 	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) = 0;
-	virtual bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists) = 0;
+	virtual bool SetExport(unsigned __int64 id, const string& ExportName, bool Exists) = 0;
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
 	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
-	virtual bool SetGuid(unsigned __int64 id, const wchar_t *Guid) = 0;
-	virtual bool SetTitle(unsigned __int64 id, const wchar_t *Title) = 0;
-	virtual bool SetAuthor(unsigned __int64 id, const wchar_t *Author) = 0;
-	virtual bool SetDescription(unsigned __int64 id, const wchar_t *Description) = 0;
+	virtual bool SetGuid(unsigned __int64 id, const string& Guid) = 0;
+	virtual bool SetTitle(unsigned __int64 id, const string& Title) = 0;
+	virtual bool SetAuthor(unsigned __int64 id, const string& Author) = 0;
+	virtual bool SetDescription(unsigned __int64 id, const string& Description) = 0;
 	virtual bool EnumPlugins(DWORD index, string &CacheName) = 0;
 	virtual bool DiscardCache() = 0;
 	virtual bool IsCacheEmpty() = 0;
@@ -199,9 +199,9 @@ public:
 
 	virtual ~PluginsHotkeysConfig() {}
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) = 0;
-	virtual string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
-	virtual bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey) = 0;
-	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual string GetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual bool SetHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) = 0;
+	virtual bool DelHotkey(const string& PluginKey, const string& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 
 protected:
 	PluginsHotkeysConfig() {}
@@ -214,29 +214,29 @@ public:
 	virtual ~HistoryConfig() {}
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
-	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimumEntries) = 0;
+	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName) = 0;
-	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
-	virtual bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName) = 0;
+	virtual bool Add(DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData) = 0;
-	virtual DWORD Count(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
+	virtual DWORD Count(DWORD TypeHistory, const string& HistoryName) = 0;
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;
-	virtual bool DeleteAllUnlocked(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
-	virtual unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
-	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
-	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual bool DeleteAllUnlocked(DWORD TypeHistory, const string& HistoryName) = 0;
+	virtual unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName) = 0;
 
 	//view,edit file positions and bookmarks history
-	virtual unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
-	virtual unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) = 0;
+	virtual unsigned __int64 SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
+	virtual unsigned __int64 GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) = 0;
 	virtual bool SetEditorBookmark(unsigned __int64 id, int i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
 	virtual bool GetEditorBookmark(unsigned __int64 id, int i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) = 0;
-	virtual unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage) = 0;
-	virtual unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage) = 0;
+	virtual unsigned __int64 SetViewerPos(const string& Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage) = 0;
+	virtual unsigned __int64 GetViewerPos(const string& Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage) = 0;
 	virtual bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
@@ -249,8 +249,8 @@ class Database
 {
 public:
 	Database(bool ImportExportMode=false);
-	bool Import(const wchar_t *File);
-	bool Export(const wchar_t *File);
+	bool Import(const string& File);
+	bool Export(const string& File);
 	int ShowProblems();
 
 	static void ClearPluginsCache();
@@ -264,7 +264,7 @@ public:
 	const std::unique_ptr<HistoryConfig>& HistoryCfg() const { return m_HistoryCfg; }
 	const std::unique_ptr<HistoryConfig>& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
-	std::unique_ptr<HierarchicalConfig> CreatePluginsConfig(const wchar_t *guid, bool Local=false);
+	std::unique_ptr<HierarchicalConfig> CreatePluginsConfig(const string& guid, bool Local=false);
 	std::unique_ptr<HierarchicalConfig> CreateFiltersConfig();
 	std::unique_ptr<HierarchicalConfig> CreateHighlightConfig();
 	std::unique_ptr<HierarchicalConfig> CreateShortcutsConfig();
@@ -279,11 +279,12 @@ private:
 		CHECK_SHORTCUTS = 0x4,
 		CHECK_PANELMODES = 0x8,
 	};
-	template<class T> std::unique_ptr<HierarchicalConfig> CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false, bool plugin=false);
+	template<class T> std::unique_ptr<HierarchicalConfig> CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local=false, bool plugin=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
 
+	std::list<string> m_Problems;
 	TiXmlDocument *m_TemplateDoc;
 	TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
@@ -299,5 +300,4 @@ private:
 	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
 
 	BitFlags CheckedDb;
-	std::list<string> m_Problems;
 };

@@ -44,7 +44,7 @@ ENUM(ReparsePointTypes)
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-int   MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName, bool Silent = false);
+int   MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
 
 int   GetNumberOfLinks(const string& Name, bool negative_if_error=false);
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
@@ -59,7 +59,7 @@ bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
 bool GetVHDName(const string& DeviceName, string &strVolumePath);
 
 bool DelSubstDrive(const string& DeviceName);
-void GetPathRoot(const wchar_t *Path, string &strRoot);
+void GetPathRoot(const string& Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
@@ -73,4 +73,4 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType, bool Silent = false);
+int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkType, bool Silent = false);

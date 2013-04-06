@@ -55,11 +55,11 @@ struct DirInfoData
 	DWORD FileCount;
 };
 
-int GetDirInfo(const wchar_t *Title,const wchar_t *DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
+int GetDirInfo(const wchar_t *Title,const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 
-int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
+int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize);
 
-int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const wchar_t *Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);
+int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const string& Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);
 void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *pPanelItem);

@@ -110,9 +110,9 @@ int GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
-			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.CPtr()},
 			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith)},
-			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr},
+			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr.CPtr()},
 			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,7,0,7,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,8,0,8,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -178,7 +178,7 @@ int GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
-			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.CPtr()},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,6,0,6,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -375,7 +375,7 @@ int GetString(
   HelpTopic - тема помощи (может быть nullptr)
   Flags     - флаги (GNP_*)
 */
-int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
+int GetNameAndPassword(const string& Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
 	static string strLastName, strLastPassword;
 	const wchar_t *HistoryName=L"NetworkUser";
@@ -396,11 +396,11 @@ int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPas
 	*/
 	FarDialogItem PassDlgData[]=
 	{
-		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title)},
+		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.CPtr())},
 		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MNetUserName)},
-		{DI_EDIT,       5, 3,70, 3,0,HistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName:strUserName},
+		{DI_EDIT,       5, 3,70, 3,0,HistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.CPtr():strUserName.CPtr()},
 		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MNetUserPassword)},
-		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword:strPassword},
+		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.CPtr():strPassword.CPtr()},
 		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
@@ -429,14 +429,14 @@ int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPas
 	return TRUE;
 }
 
-IFileIsInUse* CreateIFileIsInUse(LPCWSTR File)
+IFileIsInUse* CreateIFileIsInUse(const string& File)
 {
 	IFileIsInUse *pfiu = nullptr;
 	IRunningObjectTable *prot;
 	if (SUCCEEDED(GetRunningObjectTable(0, &prot)))
 	{
 		IMoniker *pmkFile;
-		if (SUCCEEDED(CreateFileMoniker(File, &pmkFile)))
+		if (SUCCEEDED(CreateFileMoniker(File.CPtr(), &pmkFile)))
 		{
 			IEnumMoniker *penumMk;
 			if (SUCCEEDED(prot->EnumRunning(&penumMk)))
@@ -481,7 +481,7 @@ IFileIsInUse* CreateIFileIsInUse(LPCWSTR File)
 	return pfiu;
 }
 
-int OperationFailed(const string& Object, LNGID Title, const wchar_t* Description, bool AllowSkip)
+int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
 {
 	std::list<string> Msg;
 	IFileIsInUse *pfiu = nullptr;
@@ -535,7 +535,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
 			if (Global->ifn->RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
-				PCWSTR pszFile = FullName;
+				PCWSTR pszFile = FullName.CPtr();
 				if (Global->ifn->RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;

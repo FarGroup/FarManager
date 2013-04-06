@@ -160,7 +160,7 @@ BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 
 BaseFormat& BaseFormat::operator<<(const string& String)
 {
-	return Put(String,String.GetLength());
+	return Put(String.CPtr(), String.GetLength());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::MinWidth& Manipulator)

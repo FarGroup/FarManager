@@ -67,7 +67,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
 	protected:
-		virtual void InitDialogItem(DialogItemEx *Item, const TCHAR *Text);
+		virtual void InitDialogItem(DialogItemEx *Item, const wchar_t* Text);
 		virtual int TextWidth(const DialogItemEx &Item);
 		virtual const TCHAR *GetLangString(int MessageID);
 		virtual intptr_t DoShowDialog();
@@ -93,7 +93,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DialogItemEx *AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask = nullptr);
 
 		// ƒобавл€ет неизмен€емое поле типа DI_EDIT дл€ посмотра указанного строкового значени€.
-		DialogItemEx *AddConstEditField(const wchar_t* Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
+		DialogItemEx *AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного числового значени€.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);

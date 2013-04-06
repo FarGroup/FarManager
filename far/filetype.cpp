@@ -242,7 +242,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 }
 
 
-void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool RunAs)
+void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs)
 {
 	string strName(Name);
 	QuoteSpace(strName);
@@ -486,7 +486,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 	Global->Db->AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
-	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask,MSG(MDelete),MSG(MCancel)))
+	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.CPtr(),MSG(MDelete),MSG(MCancel)))
 	{
 		Global->Db->AssocConfig()->DelType(DeletePos);
 		return true;

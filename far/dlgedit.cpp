@@ -115,7 +115,7 @@ DlgEdit::~DlgEdit()
 }
 
 
-void DlgEdit::SetHistory(const wchar_t* Name)
+void DlgEdit::SetHistory(const string& Name)
 {
 	delete iHistory;
 	iHistory=new History(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory, false);
@@ -247,7 +247,7 @@ bool DlgEdit::GetOvertypeMode()
 		return lineEdit->GetOvertypeMode();
 }
 
-void DlgEdit::SetInputMask(const wchar_t *InputMask)
+void DlgEdit::SetInputMask(const string& InputMask)
 {
 	if (Type == DLGEDIT_SINGLELINE)
 		lineEdit->SetInputMask(InputMask);
@@ -256,7 +256,7 @@ void DlgEdit::SetInputMask(const wchar_t *InputMask)
 const wchar_t* DlgEdit::GetInputMask()
 {
 	if (Type == DLGEDIT_SINGLELINE)
-		return lineEdit->GetInputMask();
+		return lineEdit->GetInputMask().CPtr();
 
 	return L""; //???
 }
@@ -307,7 +307,7 @@ const wchar_t* DlgEdit::GetStringAddr()
 		return lineEdit->GetStringAddr();
 }
 
-void DlgEdit::SetHiString(const wchar_t *Str)
+void DlgEdit::SetHiString(const string& Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -329,7 +329,7 @@ void DlgEdit::Changed()
 	}
 }
 
-void DlgEdit::SetString(const wchar_t *Str, bool disable_autocomplete, int pos)
+void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -344,7 +344,7 @@ void DlgEdit::SetString(const wchar_t *Str, bool disable_autocomplete, int pos)
 		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()))
 			lineEdit->SetAutocomplete(false);
 
-		lineEdit->SetString(Str);
+		lineEdit->SetString(Str.CPtr());
 		if (pos >= 0)
 			lineEdit->SetCurPos(pos);
 
@@ -353,7 +353,7 @@ void DlgEdit::SetString(const wchar_t *Str, bool disable_autocomplete, int pos)
 	}
 }
 
-void DlgEdit::InsertString(const wchar_t *Str)
+void DlgEdit::InsertString(const string& Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 	if (Type == DLGEDIT_MULTILINE)

@@ -61,7 +61,7 @@ class QuickView:public Panel
 
 	private:
 		virtual void DisplayObject();
-		void PrintText(const wchar_t *Str);
+		void PrintText(const string& Str);
 
 		void SetMacroMode(int Restore = FALSE);
 
@@ -77,7 +77,7 @@ class QuickView:public Panel
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void Update(int Mode);
-		void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
+		void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);
 		virtual void CloseFile();
 		virtual void QViewDelTempName();
 

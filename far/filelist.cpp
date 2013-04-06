@@ -410,7 +410,7 @@ static struct list_less
 				break;
 
 			case BY_OWNER:
-				RetCode = StrCmpI(SPtr1->strOwner, SPtr2->strOwner);
+				RetCode = StrCmpI(SPtr1->strOwner.CPtr(), SPtr2->strOwner.CPtr());
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -451,7 +451,7 @@ static struct list_less
 				}
 				else
 				{
-					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName.CPtr(), SPtr2->strName.CPtr()) : StrCmpI(SPtr1->strName.CPtr(), SPtr2->strName.CPtr());
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
@@ -469,8 +469,8 @@ static struct list_less
 				if (SPtr2->strCustomData.IsEmpty())
 					return less_opt(true);
 
-				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData)) :
-					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData, SPtr2->strCustomData) : StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData.CPtr(), SPtr2->strCustomData.CPtr()) : NumStrCmpI(SPtr1->strCustomData.CPtr(), SPtr2->strCustomData.CPtr())) :
+					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData.CPtr(), SPtr2->strCustomData.CPtr()) : StrCmpI(SPtr1->strCustomData.CPtr(), SPtr2->strCustomData.CPtr()));
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -618,7 +618,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strDriveRoot;
 					GetPathRoot(strCurDir, strDriveRoot);
-					return (__int64)(!StrCmpI(strCurDir, strDriveRoot));
+					return (__int64)(!StrCmpI(strCurDir.CPtr(), strDriveRoot.CPtr()));
 				}
 
 				return 1;
@@ -1211,7 +1211,7 @@ int FileList::ProcessKey(int Key)
 						string strPrefix;
 
 						/* $ 19.11.2001 IS оптимизация по скорости :) */
-						if (*AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix))
+						if (!AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix).IsEmpty())
 						{
 							strPrefix += strFileName;
 							strFileName = strPrefix;
@@ -1483,7 +1483,7 @@ int FileList::ProcessKey(int Key)
 					if (Info.Flags & OPIF_REALNAMES)
 						PluginMode=FALSE;
 					else
-						strPluginData.Format(L"<%s:%s>",(const wchar_t*)strHostFile,(const wchar_t*)strInfoCurDir);
+						strPluginData.Format(L"<%s:%s>",strHostFile.CPtr(),strInfoCurDir.CPtr());
 				}
 
 				if (!PluginMode)
@@ -1758,7 +1758,7 @@ int FileList::ProcessKey(int Key)
 									ViewList.SetCurName(strFileName);
 								}
 
-								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData,&ViewList);
+								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.CPtr(),&ViewList);
 
 								if (ShellViewer)
 								{
@@ -1790,7 +1790,7 @@ int FileList::ProcessKey(int Key)
 				{
 					if (UploadFailed)
 						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
-						        MSG(MTextSavedToTemp),strFileName,MSG(MOk));
+						        MSG(MTextSavedToTemp),strFileName.CPtr(),MSG(MOk));
 					else if (Edit || DeleteViewedFile)
 						// удаляем файл только для случая окрытия его в редакторе или во
 						// внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
@@ -1907,12 +1907,12 @@ int FileList::ProcessKey(int Key)
 				if (PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
 				{
 					string strDirName;
-					const wchar_t *lpwszDirName=strDirName;
+					const wchar_t *lpwszDirName=strDirName.CPtr();
 					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(hPlugin,&lpwszDirName,0);
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName,MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName.CPtr(),MSG(MOk));
 
 					Update(UPDATE_KEEP_SELECTION);
 
@@ -2408,7 +2408,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			bool CheckFullScreen=IsFullScreen();
 
-			if (PanelMode==PLUGIN_PANEL || !wcschr(CurPtr->strName,L'?') || CurPtr->strShortName.IsEmpty())
+			if (PanelMode==PLUGIN_PANEL || !CurPtr->strName.Contains(L'?') || CurPtr->strShortName.IsEmpty())
 			{
 				ChangeDir(CurPtr->strName,TRUE,CurPtr);
 			}
@@ -2463,7 +2463,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			return;
 		}
 
-		ExtPtr = wcsrchr(strFileName,L'.');
+		ExtPtr = wcsrchr(strFileName.CPtr(), L'.');
 		int ExeType=FALSE,BatType=FALSE;
 
 		if (ExtPtr)
@@ -2572,7 +2572,7 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 	return FALSE;
 }
 
-BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem *CurPtr)
+BOOL FileList::ChangeDir(const string& NewDir,BOOL IsUpdated,const FileListItem *CurPtr)
 {
 	string strFindDir, strSetDir;
 
@@ -2609,7 +2609,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 
 		PrepareDiskPath(strSetDir);
 
-		if (!StrCmpN(strSetDir, L"\\\\?\\", 4) && strSetDir.At(5) == L':' && !strSetDir.At(6))
+		if (!StrCmpN(strSetDir.CPtr(), L"\\\\?\\", 4) && strSetDir.At(5) == L':' && !strSetDir.At(6))
 			AddEndSlash(strSetDir);
 	}
 
@@ -2631,7 +2631,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		//string strInfoFormat=Info.Format;
 		string strInfoHostFile=Info.HostFile;
 		string strInfoData=Info.ShortcutData;
-		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile,strInfoData);
+		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.CPtr(),strInfoData.CPtr());
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -2689,7 +2689,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 			string strFullNewDir;
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
-			if (StrCmpI(strFullNewDir, strCurDir))
+			if (StrCmpI(strFullNewDir.CPtr(), strCurDir.CPtr()))
 				Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
 		}
 
@@ -2746,7 +2746,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		if (FrameManager && FrameManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir), MSG(MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir.CPtr()), MSG(MOk));
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
 
@@ -3225,40 +3225,40 @@ int FileList::GoToFile(long idxItem)
 	return FALSE;
 }
 
-int FileList::GoToFile(const wchar_t *Name,BOOL OnlyPartName)
+int FileList::GoToFile(const string& Name,BOOL OnlyPartName)
 {
 	return GoToFile(FindFile(Name,OnlyPartName));
 }
 
 
-long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
+long FileList::FindFile(const string& Name,BOOL OnlyPartName)
 {
 	long II = -1;
 	for (long I=0; I < static_cast<int>(ListData.size()); I++)
 	{
 		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.CPtr();
 
-		if (!StrCmp(Name,CurPtrName))
+		if (!StrCmp(Name.CPtr(),CurPtrName))
 			return I;
 
-		if (II < 0 && !StrCmpI(Name,CurPtrName))
+		if (II < 0 && !StrCmpI(Name.CPtr(),CurPtrName))
 			II = I;
 	}
 
 	return II;
 }
 
-long FileList::FindFirst(const wchar_t *Name)
+long FileList::FindFirst(const string& Name)
 {
 	return FindNext(0,Name);
 }
 
-long FileList::FindNext(int StartPos, const wchar_t *Name)
+long FileList::FindNext(int StartPos, const string& Name)
 {
 	if (static_cast<size_t>(StartPos) < ListData.size())
 		for (long I=StartPos; I < static_cast<int>(ListData.size()); I++)
 		{
-			if (CmpName(Name,ListData[I]->strName,true))
+			if (CmpName(Name.CPtr(),ListData[I]->strName.CPtr(),true))
 				if (!TestParentFolderName(ListData[I]->strName))
 					return I;
 		}
@@ -3267,7 +3267,7 @@ long FileList::FindNext(int StartPos, const wchar_t *Name)
 }
 
 
-int FileList::IsSelected(const wchar_t *Name)
+int FileList::IsSelected(const string& Name)
 {
 	long Pos=FindFile(Name);
 	return(Pos!=-1 && (ListData[Pos]->Selected || (!SelFileCount && Pos==CurFile)));
@@ -3293,11 +3293,11 @@ bool FileList::FileInFilter(size_t idxItem)
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
+int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSets)
 {
 #if !defined(Mantis_698)
 	int DirFind = 0;
-	int Length = StrLength(Name);
+	int Length = static_cast<int>(Name.GetLength());
 	string strMask;
 	strMask = Name;
 
@@ -3318,7 +3318,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(ListData.size()); I+=Direct)
 	{
-		if (CmpName(strMask,ListData[I]->strName,true,I==CurFile))
+		if (CmpName(strMask.CPtr(),ListData[I]->strName.CPtr(),true,I==CurFile))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -3335,7 +3335,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	for (int I=(Direct > 0)?0:static_cast<int>(ListData.size()-1); (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
 	{
-		if (CmpName(strMask,ListData[I]->strName,true))
+		if (CmpName(strMask.CPtr(),ListData[I]->strName.CPtr(),true))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -3891,7 +3891,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
 	{                               // работоспособную маску
-		const wchar_t *src = strRawMask;
+		const wchar_t *src = strRawMask.CPtr();
 		strMask.Clear();
 
 		while (*src)
@@ -4002,7 +4002,7 @@ void FileList::UpdateViewPanel()
 
 			if (!Result)
 			{
-				ViewPanel->ShowFile(nullptr,FALSE,nullptr);
+				ViewPanel->ShowFile(L"",FALSE,nullptr);
 				apiRemoveDirectory(strTempDir);
 				return;
 			}
@@ -4012,7 +4012,7 @@ void FileList::UpdateViewPanel()
 		else if (!TestParentFolderName(CurPtr->strName))
 			ViewPanel->ShowFile(CurPtr->strName,FALSE,hPlugin);
 		else
-			ViewPanel->ShowFile(nullptr,FALSE,nullptr);
+			ViewPanel->ShowFile(L"",FALSE,nullptr);
 
 		if (ViewPanel->Destroyed())
 			return;
@@ -4085,7 +4085,7 @@ void FileList::CompareDir()
 
 		if (apiGetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
 		        apiGetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
-			if (StrCmpI(strFileSystemName1,strFileSystemName2))
+			if (StrCmpI(strFileSystemName1.CPtr(),strFileSystemName2.CPtr()))
 				CompareFatTime=TRUE;
 	}
 
@@ -4276,7 +4276,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					string strPrefix;
 
 					/* $ 19.11.2001 IS оптимизация по скорости :) */
-					if (*AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix))
+					if (!AddPluginPrefix(static_cast<FileList *>(Global->CtrlObject->Cp()->ActivePanel),strPrefix).IsEmpty())
 					{
 						strPrefix += strQuotedName;
 						strQuotedName = strPrefix;
@@ -4320,7 +4320,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 		CopyData=NewPtr;
 		CopyData[DataSize]=0;
-		wcscpy(CopyData+DataSize, strQuotedName);
+		wcscpy(CopyData+DataSize, strQuotedName.CPtr());
 		DataSize+=Length;
 	}
 
@@ -4328,11 +4328,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 	xf_free(CopyData);
 }
 
-string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
+bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
 {
 	string strFileName = strDest;
-	const wchar_t *ShortNameLastSlash=LastSlash(ShortName);
-	const wchar_t *NameLastSlash=LastSlash(Name);
+	const wchar_t *ShortNameLastSlash=LastSlash(ShortName.CPtr());
+	const wchar_t *NameLastSlash=LastSlash(Name.CPtr());
 
 	if (nullptr==ShortNameLastSlash && nullptr==NameLastSlash)
 	{
@@ -4407,7 +4407,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 	}
 
 	strDest = strFileName;
-	return strDest;
+	return !strDest.IsEmpty();
 }
 
 
@@ -4749,7 +4749,7 @@ void FileList::DescribeFiles()
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z ненужно брать предыдущее значение!
 		*/
-		if (!GetString(MSG(MDescribeFiles),strMsg,L"DizText",
+		if (!GetString(MSG(MDescribeFiles),strMsg.CPtr(),L"DizText",
 		               PrevText ? PrevText:L"",strDizText,
 		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
 			break;
@@ -4800,7 +4800,7 @@ bool FileList::ApplyCommand()
 	static string strPrevCommand;
 	string strCommand;
 
-	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
+	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand.CPtr(),strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;
@@ -5075,7 +5075,7 @@ void FileList::ProcessCopyKeys(int Key)
 				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
-					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath);
+					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath.CPtr());
 				}
 
 				if (ToPlugin!=-1)
@@ -5108,7 +5108,7 @@ void FileList::ProcessCopyKeys(int Key)
 							}
 						}
 
-						const wchar_t *lpwszDestPath=strDestPath;
+						const wchar_t *lpwszDestPath=strDestPath.CPtr();
 
 						PluginGetFiles(&lpwszDestPath,Move);
 						strDestPath=lpwszDestPath;

@@ -74,11 +74,11 @@ class NamesList
 		~NamesList();
 
 	public:
-		void AddName(const wchar_t *Name,const wchar_t *ShortName);
+		void AddName(const string& Name,const string& ShortName);
 		bool GetNextName(string &strName, string &strShortName);
 		bool GetPrevName(string &strName, string &strShortName);
-		void SetCurName(const wchar_t *Name);
+		void SetCurName(const string& Name);
 		void MoveData(NamesList &Dest);
 		void GetCurDir(string &strDir);
-		void SetCurDir(const wchar_t *Dir);
+		void SetCurDir(const string& Dir);
 };

@@ -213,7 +213,7 @@ void QuickView::DisplayObject()
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = Tmp;
+						PtrName = Tmp.CPtr();
 					}
 					else
 					{
@@ -415,7 +415,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
+void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 {
 	DWORD FileAttr=0;
 	CloseFile();
@@ -424,7 +424,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 	if (!IsVisible())
 		return;
 
-	if (!FileName)
+	if (FileName.IsEmpty())
 	{
 		ProcessingPluginCommand++;
 		Show();
@@ -444,7 +444,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		{
 			HKEY hKey;
 
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
+			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.CPtr(),&hKey)==ERROR_SUCCESS)
 			{
 				RegQueryStringValue(hKey,L"",strCurFileType,L"");
 				RegCloseKey(hKey);
@@ -548,7 +548,7 @@ void QuickView::QViewDelTempName()
 }
 
 
-void QuickView::PrintText(const wchar_t *Str)
+void QuickView::PrintText(const string& Str)
 {
 	if (WhereY()>Y2-3 || WhereX()>X2-2)
 		return;

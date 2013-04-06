@@ -203,7 +203,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_GETMINFARVERSION),
 };
 
-static BOOL PrepareModulePath(const wchar_t *ModuleName)
+static BOOL PrepareModulePath(const string& ModuleName)
 {
 	string strModulePath;
 	strModulePath = ModuleName;
@@ -350,14 +350,14 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 	}
 }
 
-static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const VersionInfo& required)
+static void ShowMessageAboutIllegalPluginVersion(const string& plg,const VersionInfo& required)
 {
 	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
 		MSG(MError),
 		MSG(MPlgBadVers),
-		plg,
-		LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build),
-		LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build),
+		plg.CPtr(),
+		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).CPtr(),
+		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).CPtr(),
 		MSG(MOk));
 }
 
@@ -505,25 +505,23 @@ void Plugin::InitExports()
 #undef OPT_GetProcAddress
 }
 
-Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
+Plugin::Plugin(PluginManager *owner, const string& ModuleName):
 	ExportsNamesW(_ExportsNamesW),
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
 	Activity(0),
 	bPendingRemove(false)
 {
-	m_strModuleName = lpwszModuleName;
-	m_strCacheName = lpwszModuleName;
+	m_strModuleName = ModuleName;
+	m_strCacheName = ModuleName;
 	m_hModule = nullptr;
-	wchar_t *p = m_strCacheName.GetBuffer();
-	while (*p)
-	{
-		if (*p == L'\\')
-			*p = L'/';
 
-		p++;
+	for (size_t i = 0; i != m_strCacheName.GetLength(); ++i)
+	{
+		if (m_strCacheName[i] == L'\\')
+			m_strCacheName[i] = L'/';
 	}
-	m_strCacheName.ReleaseBuffer();
+
 	ClearExports();
 	SetGuid(FarGuid);
 }
@@ -576,13 +574,13 @@ bool Plugin::LoadData()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName,nullptr,0);
-		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName,nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName.CPtr(),nullptr,0);
+		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.CPtr(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
 		GuardLastError Err;
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariable(Drive,strCurPlugDiskPath);
+			SetEnvironmentVariable(Drive,strCurPlugDiskPath.CPtr());
 	}
 
 	if (!m_hModule)
@@ -592,7 +590,7 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName, MSG(MOk)};
+			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.CPtr(), MSG(MOk)};
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrLoadPlugin");
 		}
 
@@ -973,7 +971,7 @@ int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 	return es;
 }
 
-int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const wchar_t *Path)
+int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path)
 {
 	ExecuteStruct es = {EXCEPT_GETVIRTUALFINDDATA};
 	if (Exports[iGetVirtualFindData] && !Global->ProcessException)
@@ -982,7 +980,7 @@ int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, siz
 		Info.hPanel = hPlugin;
 		Info.PanelItem = *pPanelItem;
 		Info.ItemsNumber = *pItemsNumber;
-		Info.Path = Path;
+		Info.Path = Path.CPtr();
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(&Info));
 		*pPanelItem = Info.PanelItem;
 		*pItemsNumber = Info.ItemsNumber;
@@ -1034,7 +1032,7 @@ int Plugin::PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNum
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
 		Info.Move = Move;
-		Info.SrcPath = strCurrentDirectory;
+		Info.SrcPath = strCurrentDirectory.CPtr();
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(&Info));
 	}
@@ -1174,14 +1172,14 @@ void Plugin::ClosePanel(HANDLE hPlugin)
 }
 
 
-int Plugin::SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode, UserDataItem *UserData)
+int Plugin::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserDataItem *UserData)
 {
 	ExecuteStruct es = {EXCEPT_SETDIRECTORY};
 	if (Exports[iSetDirectory] && !Global->ProcessException)
 	{
 		SetDirectoryInfo Info = {sizeof(Info)};
 		Info.hPanel = hPlugin;
-		Info.Dir = Dir;
+		Info.Dir = Dir.CPtr();
 		Info.OpMode = OpMode;
 		if (UserData)
 		{

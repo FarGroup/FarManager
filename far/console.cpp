@@ -194,9 +194,9 @@ virtual bool GetTitle(string &strTitle) const
 	return dwSize!=0;
 }
 
-virtual bool SetTitle(LPCWSTR Title) const
+virtual bool SetTitle(const string& Title) const
 {
-	return SetConsoleTitle(Title)!=FALSE;
+	return SetConsoleTitle(Title.CPtr())!=FALSE;
 }
 
 virtual bool GetKeyboardLayoutName(string &strName) const
@@ -394,7 +394,7 @@ virtual bool Write(LPCWSTR Buffer) const
 
 virtual bool Write(const string& Buffer) const
 {
-	return Write(Buffer, Buffer.GetLength());
+	return Write(Buffer.CPtr(), Buffer.GetLength());
 }
 
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const

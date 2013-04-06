@@ -93,7 +93,7 @@ typename container::value_type::pair_value_type StringToFlags(const string& strF
 		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
 		std::for_each(CONST_RANGE(FlagList, i)
 		{
-			Flags |= GetValueOfVame(i, From);
+			Flags |= GetValueOfVame(i.CPtr(), From);
 		});
 	}
 	return Flags;

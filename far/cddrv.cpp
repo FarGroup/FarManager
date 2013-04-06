@@ -439,7 +439,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 
 	AddEndSlash(strRootDir);
 
-	UINT DrvType = GetDriveType(strRootDir);
+	UINT DrvType = GetDriveType(strRootDir.CPtr());
 
 	// анализ CD-привода
 	if ((Detect&1) && DrvType == DRIVE_CDROM)

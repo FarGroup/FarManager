@@ -79,7 +79,7 @@ void DizList::Read(const string& Path, const string* DizName)
 {
 	Reset();
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
-	const wchar_t *NamePtr=Global->Opt->Diz.strListNames;
+	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.CPtr();
 
 	for (;;)
 	{
@@ -170,7 +170,7 @@ desc_map::iterator DizList::AddRecord(const string& Name, const string& Descript
 desc_map::iterator DizList::AddRecord(const string& DizText)
 {
 	size_t NameStart = 0, NameLength = 0;
-	const wchar_t* DizTextPtr = DizText;
+	const wchar_t* DizTextPtr = DizText.CPtr();
 	if (*DizTextPtr == L'\"')
 	{
 		DizTextPtr++;
@@ -201,7 +201,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 	if (DizPos != DizData.end())
 	{
-		DizText=DizPos->second.front();
+		DizText=DizPos->second.front().CPtr();
 
 		if (iswdigit(*DizText))
 		{
@@ -244,7 +244,7 @@ desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
 
 		AnsiBuf = tmp;
-		WideCharToMultiByte(OrigCodePage, 0, Name, static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
+		WideCharToMultiByte(OrigCodePage, 0, Name.CPtr(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
 		AnsiBuf[len]=0;
 		string strRecoded(AnsiBuf, OrigCodePage);
 
@@ -280,13 +280,13 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 	else if (strDizFileName.IsEmpty())
 	{
-		if (DizData.empty() || !Path)
+		if (DizData.empty() || Path.IsEmpty())
 			return false;
 
 		strDizFileName = Path;
 		AddEndSlash(strDizFileName);
 		string strArgName;
-		GetCommaWord(Global->Opt->Diz.strListNames,strArgName);
+		GetCommaWord(Global->Opt->Diz.strListNames.CPtr(),strArgName);
 		strDizFileName += strArgName;
 	}
 
@@ -357,7 +357,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				char_ptr DizText(Size);
 				if (DizText)
 				{
-					int BytesCount=WideCharToMultiByte(CodePage, 0, dump, static_cast<int>(dump.GetLength()+1), DizText.get(), Size, nullptr, nullptr);
+					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.CPtr(), static_cast<int>(dump.GetLength()+1), DizText.get(), Size, nullptr, nullptr);
 					if (BytesCount && BytesCount-1)
 					{
 						if(Cache.Write(DizText.get(), BytesCount-1))

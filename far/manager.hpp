@@ -147,11 +147,11 @@ class Manager
 		*/
 		BOOL PluginCommit();
 
-		int CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase=TRUE);
+		int CountFramesWithName(const string& Name, BOOL IgnoreCase=TRUE);
 
 		bool IsPanelsActive(bool and_not_qview=false); // используется как признак Global->WaitInMainLoop
 		void SetFramePos(int NewPos);
-		int  FindFrameByFile(int ModalType,const wchar_t *FileName,const wchar_t *Dir=nullptr);
+		int  FindFrameByFile(int ModalType,const string& FileName,const wchar_t *Dir=nullptr);
 		BOOL ShowBackground();
 
 		void EnterMainLoop();

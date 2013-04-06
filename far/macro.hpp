@@ -237,11 +237,11 @@ class KeyMacro
 		MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top()->GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 		void RestoreMacroChar(void);
-		bool PostNewMacro(int macroId,const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
+		bool PostNewMacro(int macroId,const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		void PushState(bool withClip);
 		void PopState(bool withClip);
-		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon, bool CheckOnly);
-		void LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags, const wchar_t* Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
+		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
+		void LM_ProcessMacro(MACROMODEAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -261,7 +261,7 @@ class KeyMacro
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();
-		bool GetMacroKeyInfo(const wchar_t* strMode,int Pos,string &strKeyName,string &strDescription);
+		bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription);
 		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
@@ -272,8 +272,8 @@ class KeyMacro
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
-		bool PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
-		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false,bool skipFile=true);
+		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
+		bool ParseMacroString(const string& Sequence,bool onlyCheck=false,bool skipFile=true);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }

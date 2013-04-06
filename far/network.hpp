@@ -34,9 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask);
 
-void ConnectToNetworkDrive(const wchar_t *NewDir);
+void ConnectToNetworkDrive(const string& NewDir);
 
-string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+string &CurPath2ComputerName(const string& CurDir, string &strComputerName);
 
 // Получить из имени диска RemoteName
 bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);

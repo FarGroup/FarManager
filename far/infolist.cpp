@@ -209,7 +209,7 @@ void InfoList::DisplayObject()
 		if (GetUserName(UserNameBuffer, &dwSize))
 		{
 			LPUSER_INFO_1 UserInfo = nullptr;
-			if(NetUserGetInfo(nullptr, strUserName, 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
+			if(NetUserGetInfo(nullptr, strUserName.CPtr(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
 			{
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
@@ -704,11 +704,11 @@ int InfoList::ProcessKey(int Key)
 			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.IsEmpty())
 			{
 				string strArgName;
-				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles;
+				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.CPtr();
 
 				while ((p = GetCommaWord(p,strArgName)) )
 				{
-					if (!wcspbrk(strArgName, L"*?"))
+					if (!wcspbrk(strArgName.CPtr(), L"*?"))
 					{
 						new FileEditor(strArgName,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
 						break;
@@ -849,7 +849,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void InfoList::PrintText(const wchar_t *Str)
+void InfoList::PrintText(const string& Str)
 {
 	if (WhereY()<=Y2-1)
 	{
@@ -864,7 +864,7 @@ void InfoList::PrintText(LNGID MsgID)
 }
 
 
-void InfoList::PrintInfo(const wchar_t *str)
+void InfoList::PrintInfo(const string& str)
 {
 	if (WhereY()>Y2-1)
 		return;
@@ -906,7 +906,7 @@ bool InfoList::ShowDirDescription(int YPos)
 		AddEndSlash(strDizDir);
 
 	string strArgName;
-	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles;
+	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.CPtr();
 
 	while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
 	{
@@ -995,7 +995,7 @@ void InfoList::CloseFile()
 	strDizFileName.Clear();
 }
 
-int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
+int InfoList::OpenDizFile(const string& DizFile,int YPos)
 {
 	bool bOK=true;
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));

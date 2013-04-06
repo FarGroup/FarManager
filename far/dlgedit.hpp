@@ -88,7 +88,7 @@ public:
 	int   GetLength();
 	int   GetStrSize(int Row=-1);
 
-	void  SetInputMask(const wchar_t *InputMask);
+	void  SetInputMask(const string& InputMask);
 	const wchar_t* GetInputMask();
 
 	void  SetOvertypeMode(bool Mode);
@@ -100,9 +100,9 @@ public:
 	int   GetClearFlag();
 
 	void  Changed();
-	void  SetString(const wchar_t *Str, bool disable_autocomplete = false, int pos = -1);
-	void  InsertString(const wchar_t *Str);
-	void  SetHiString(const wchar_t *Str);
+	void  SetString(const string& Str, bool disable_autocomplete = false, int pos = -1);
+	void  InsertString(const string& Str);
+	void  SetHiString(const string& Str);
 	void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
 	void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
 	const wchar_t* GetStringAddr();
@@ -146,7 +146,7 @@ public:
 	bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 
 	History* GetHistory() const {return iHistory;}
-	void SetHistory(const wchar_t* Name);
+	void SetHistory(const string& Name);
 
 private:
 	Dialog* m_Dialog;

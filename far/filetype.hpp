@@ -44,7 +44,7 @@ enum FILETYPE_MODE
 	FILETYPE_ALTEDIT     // Alt-F4
 };
 
-void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool RunAs);
+void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs);
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 bool ExtractIfExistCommand(string &strCommandText);

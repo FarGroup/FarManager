@@ -331,6 +331,14 @@ TVar::TVar(const wchar_t *v) :
 {
 }
 
+TVar::TVar(const string& v) :
+	inum(0),
+	dnum(0.0),
+	str(dubstr(v.CPtr())),
+	vType(vtString)
+{
+}
+
 TVar::TVar(const TVar& v) :
 	inum(v.inum),
 	dnum(v.dnum),

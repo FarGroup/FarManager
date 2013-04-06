@@ -336,7 +336,7 @@ int Manager::GetModalExitCode()
 /* $ 11.10.2001 IS
    Подсчитать количество фреймов с указанным именем.
 */
-int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
+int Manager::CountFramesWithName(const string& Name, BOOL IgnoreCase)
 {
 	int Counter=0;
 	auto cmpfunc = IgnoreCase? StrCmpI : StrCmp;
@@ -345,7 +345,7 @@ int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
 	std::for_each(CONST_RANGE(Frames, i)
 	{
 		i->GetTypeAndName(strType, strCurName);
-		if (!cmpfunc(Name, strCurName))
+		if (!cmpfunc(Name.CPtr(), strCurName.CPtr()))
 			++Counter;
 	});
 
@@ -446,7 +446,7 @@ void Manager::SetFramePos(int NewPos)
 }
 
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
-int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar_t *Dir)
+int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
 	string strBufFileName;
 	string strFullFileName = FileName;
@@ -469,7 +469,7 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 		{
 			i->GetTypeAndName(strType, strName);
 
-			if (!StrCmpI(strName, strFullFileName))
+			if (!StrCmpI(strName.CPtr(), strFullFileName.CPtr()))
 				return true;
 		}
 		++n;

@@ -80,7 +80,7 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
         |
         +---------- [0A-Z]
 */
-string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, const wchar_t *UserTempPath)
+bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, const wchar_t *UserTempPath)
 {
 	static UINT s_shift = 0;
 	if (!(Prefix && *Prefix))
@@ -108,7 +108,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 	{
 		if (!uniq) ++uniq;
 
-		if (GetTempFileName(strPath, Prefix, uniq, lpwszDest))
+		if (GetTempFileName(strPath.CPtr(), Prefix, uniq, lpwszDest))
 		{
 			string tname(lpwszDest);
 			FindFile f(tname,false);
@@ -125,7 +125,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 	}
 
 	strDest.ReleaseBuffer();
-	return strDest;
+	return !strDest.IsEmpty();
 }
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA *pDest)
@@ -150,8 +150,8 @@ void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDe
 	pDest->ChangeTime = pSrc->ftChangeTime;
 	pDest->FileSize = pSrc->nFileSize;
 	pDest->AllocationSize = pSrc->nAllocationSize;
-	pDest->FileName = DuplicateString(pSrc->strFileName);
-	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName);
+	pDest->FileName = DuplicateString(pSrc->strFileName.CPtr());
+	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.CPtr());
 }
 
 void FreePluginPanelItem(PluginPanelItem *pData)

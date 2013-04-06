@@ -80,7 +80,9 @@ void KeyBar::DisplayObject()
 		SetColor(COL_KEYBARNUM);
 		Global->FS << i+1;
 		SetColor(COL_KEYBARTEXT);
-		const wchar_t *Label=L"";
+
+		string Label;
+
 
 		if (IntKeyState.ShiftPressed)
 		{
@@ -136,33 +138,28 @@ void KeyBar::DisplayObject()
 			Label = Items[KBL_MAIN][i].Title;
 		}
 
-		if (!Label)
-			Label=L"";
-
-		string strLabel=Label;
-
-		if (strLabel.Contains(L'|'))
+		if (Label.Contains(L'|'))
 		{
 			auto LabelList(StringToList(Label, STLF_NOTRIM|STLF_NOUNQUOTE, L"|"));
 			if(!LabelList.empty())
 			{
 				string strLabelTest, strLabel2;
-				strLabel = LabelList.front();
+				Label = LabelList.front();
 				LabelList.pop_front();
 				std::for_each(CONST_RANGE(LabelList, Label2)
 				{
-					strLabelTest=strLabel;
+					strLabelTest=Label;
 					strLabelTest += Label2;
 					if (strLabelTest.GetLength() <= static_cast<size_t>(LabelWidth))
 						if (Label2.GetLength() > strLabel2.GetLength())
 							strLabel2 = Label2;
 				});
 
-				strLabel+=strLabel2;
+				Label+=strLabel2;
 			}
 		}
 
-		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(LabelWidth)<<strLabel;
+		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(LabelWidth)<<Label;
 
 		if (i<KEY_COUNT-1)
 		{
@@ -246,7 +243,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
 
-	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.CPtr(), Global->Opt->strLanguage.CPtr()) || Area != CustomArea))
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
@@ -274,7 +271,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			if (i.CustomTitle && *i.CustomTitle)
+			if (!i.CustomTitle.IsEmpty())
 			{
 				i.Title = i.CustomTitle;
 			}
