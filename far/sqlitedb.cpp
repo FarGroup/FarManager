@@ -106,10 +106,7 @@ SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
 
 SQLiteStmt& SQLiteStmt::Bind(const string& Value, bool bStatic)
 {
-	if (!Value.IsEmpty())
-		sqlite3_bind_text16(pStmt,param++,Value.CPtr(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
-	else
-		sqlite3_bind_null(pStmt,param++);
+	sqlite3_bind_text16(pStmt,param++,Value.CPtr(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
 	return *this;
 }
 
