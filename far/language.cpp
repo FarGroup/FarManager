@@ -60,9 +60,6 @@ bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const st
 	{
 		strFileName = strFullName;
 
-		if (Language.IsEmpty())
-			break;
-
 		if (!LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			strFileName.Clear();
@@ -98,7 +95,7 @@ bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const st
 			LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 
 			if (pstrLangName)
-				*pstrLangName=strLangName;
+				*pstrLangName=L"English";
 		}
 	}
 
