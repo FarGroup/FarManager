@@ -135,6 +135,13 @@ typedef class UnicodeString
 		{
 		public:
 			operator wchar_t() const {return Parent.At(Index);}
+			char_proxy& operator=(const char_proxy& Value)
+			{
+				Parent.GetBuffer()[Index] = Value.Parent[Value.Index];
+				Parent.ReleaseBuffer(Parent.GetLength());
+				return *this;
+			};
+
 			char_proxy& operator=(wchar_t Value)
 			{
 				Parent.GetBuffer()[Index] = Value;
@@ -247,7 +254,8 @@ typedef class UnicodeString
 		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
 		bool operator<(const UnicodeString& Str) const { return StrCmpI(CPtr(), Str.CPtr()) < 0; }
 		bool operator<(const wchar_t* Str) const { return StrCmpI(CPtr(), Str) < 0; }
-		char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
+		char_proxy operator[](size_t Index) { return char_proxy(*this, Index);}
+		const char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
 
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
