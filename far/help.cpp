@@ -2010,7 +2010,7 @@ bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
 		}
 	}
 
-	return strTopic.IsEmpty();
+	return !strTopic.IsEmpty();
 }
 
 void Help::SetScreenPosition()
