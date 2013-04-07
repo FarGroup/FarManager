@@ -3,6 +3,90 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.04.2013 20:11:40 +0200 - build 3306
+
+1. lng could be read incorrectly in some cases.
+
+drkns 07.04.2013 14:17:22 +0200 - build 3305
+
+1. Correction of 3301.
+
+drkns 07.04.2013 11:36:42 +0200 - build 3304
+
+1. Correction of 3301.
+
+drkns 07.04.2013 10:30:14 +0200 - build 3303
+
+1. Continuation of 3301.
+
+drkns 07.04.2013 01:28:41 +0200 - build 3302
+
+1. Correction of 3301.
+
+drkns 07.04.2013 00:42:28 +0200 - build 3301
+
+1. Continuation of 2303.1.
+
+w17 05.04.2013 17:22:48 +0400 - build 3300
+
+1. M#2360: Crash while editing a user menu item command
+
+drkns 05.04.2013 09:37:43 +0200 - build 3299
+
+1. Correction of 3298.
+
+drkns 04.04.2013 23:52:41 +0200 - build 3298
+
+1. Experimental: usual masks and regular expressions in masks can be mixed, for example:
+   *.ext1, *.ext2, /re1/, *.ext3, /re2/|/re3/,*.ext4
+
+drkns 03.04.2013 23:25:19 +0200 - build 3297
+
+1. Refactoring.
+
+drkns 03.04.2013 14:08:23 +0200 - build 3296
+
+1. 0002357: Constantly displaying "Access denied" if PATH variable has inaccessible directories
+
+drkns 02.04.2013 22:55:14 +0200 - build 3295
+
+1. Refactoring.
+
+2. regexp.?pp cleanup.
+
+drkns 02.04.2013 17:01:23 +0200 - build 3294
+
+1. Correction of strings in deletion dialog.
+
+svs 02.04.2013 12:45:12 +0400 - build 3293
+
+1. Mantis#0002355: GUIDs needed
+
+    ScreensSwitchId        = {72EB948A-5F1D-4481-9A91-A4BFD869D127} --> Menu.Id
+    SelectSortModeId       = {B8B6E1DA-4221-47d2-AB2E-9EC67D0DC1E3} --> Menu.Id
+    HistoryCmdId           = {880968A6-6258-43e0-9BDC-F2B8678EC278} --> Menu.Id
+    HistoryFolderId        = {FC3384A8-6608-4c9b-8D6B-EE105F4C5A54} --> Menu.Id
+    HistoryEditViewId      = {E770E044-23A8-4f4d-B268-0E602B98CCF9} --> Menu.Id
+    PanelViewModesId       = {B56D5C08-0336-418b-A2A7-CF0C80F93ACC} --> Menu.Id
+    PanelViewModesEditId   = {98B75500-4A97-4299-BFAD-C3E349BF3674} --> Dlg.Id
+    CodePagesMenuId        = {78A4A4E3-C2F0-40bd-9AA7-EAAC11836631} --> Menu.Id
+    EditorReplaceId        = {8BCCDFFD-3B34-49f8-87CD-F4D885B75873} --> Dlg.Id
+    EditorSearchId         = {5D3CBA90-F32D-433c-B016-9BB4AF96FACC} --> Dlg.Id
+    HelpSearchId           = {F63B558F-9185-46ba-8701-D143B8F62658} --> Dlg.Id
+    FiltersMenuId          = {5B87B32E-494A-4982-AF55-DAFFCD251383} --> Menu.Id
+
+shmuel 02.04.2013 11:30:36 +0200 - build 3292
+
+1. M#2356: Menu.FilterStr(0) malfunction.
+
+lort 01.04.2013 20:49:51 +0400 - build 3291
+
+1. Don't consume CtrlTab and CtrlShiftTab if there's no possibility of switching away from the current frame (M#2353)
+
+shmuel 01.04.2013 15:55:51 +0200 - build 3290
+
+1. M#2343: Menu.Select works incorrectly with disabled items.
+
 drkns 30.03.2013 13:20:21 +0200 - build 3289
 
 1. Continuation of 3283.2.
