@@ -63,9 +63,9 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	BOOL fRemoveSafely = FALSE;
 	BOOL foundError=FALSE;
 	string RootName=L"\\\\.\\ :\\";
-	RootName.Replace(4, Letter);
+	RootName[4] = Letter;
 	// OpenVolume
-	uDriveType = FAR_GetDriveType(RootName+4);
+	uDriveType = FAR_GetDriveType(RootName.CPtr()+4);
 	RootName.SetLength(6);
 	switch (uDriveType)
 	{

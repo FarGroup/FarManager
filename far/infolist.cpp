@@ -646,7 +646,7 @@ void InfoList::SelectShowMode(void)
 		}
 		Global->Opt->InfoPanel.strShowStatusInfo=L"";
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			Global->Opt->InfoPanel.strShowStatusInfo += SectionState[i].Show?L'1':L'0';
+			Global->Opt->InfoPanel.strShowStatusInfo += SectionState[i].Show?L"1":L"0";
 
 		Redraw();
 	}

@@ -730,7 +730,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 						else
 						{
-							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
+							string strName = ChDisk.GetItemPtr(SelPos)->strName.CPtr() + 3;
 							RemoveExternalSpaces(strName);
 							if(Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							RetCode=SelPos;

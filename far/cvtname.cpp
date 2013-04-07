@@ -202,7 +202,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						}
 						else
 						{
-							strDest=DriveVar+1;
+							strDest=DriveVar.CPtr()+1;
 						}
 					}
 					AddEndSlash(strDest);

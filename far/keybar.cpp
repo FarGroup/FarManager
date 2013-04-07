@@ -247,7 +247,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
-		string strRegName = string(L"KeyBarLabels.") + strLanguage + L"." + Names[Area];
+		string strRegName = L"KeyBarLabels." + strLanguage + L"." + Names[Area];
 
 		ClearKeyTitles(true);
 

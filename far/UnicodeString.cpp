@@ -212,19 +212,14 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString 
 	return UnicodeString(strSrc1).Append(strSrc2);
 }
 
-const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2)
-{
-	return UnicodeString(strSrc1).Append(lpszSrc2);
-}
-
 const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2)
 {
 	return UnicodeString(strSrc1).Append(lpwszSrc2);
 }
 
-const UnicodeString operator+(const UnicodeString &strSrc1, wchar_t Chr)
+const UnicodeString operator+(const wchar_t *strSrc1, const UnicodeString &lpwszSrc2)
 {
-	return UnicodeString(strSrc1).Append(Chr);
+	return UnicodeString(strSrc1).Append(lpwszSrc2);
 }
 
 wchar_t *UnicodeString::GetBuffer(size_t nSize)

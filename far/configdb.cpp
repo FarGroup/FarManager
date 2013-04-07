@@ -2467,7 +2467,7 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 	{
 		if (m_ImportExportMode)
 		{
-			Global->Console->Write(string(L"problem with ") + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
+			Global->Console->Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
 			Global->Console->Commit();
 		}
 		else
@@ -2550,7 +2550,7 @@ std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK D
 
 std::unique_ptr<HierarchicalConfig> Database::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid).CPtr(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).CPtr(), Local, true);
 }
 
 std::unique_ptr<HierarchicalConfig> Database::CreateFiltersConfig()

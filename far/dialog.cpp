@@ -653,7 +653,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 		if (Type==DI_BUTTON && ItemFlags&DIF_SETSHIELD)
 		{
-			CurItem->strData=string(L"\x2580\x2584 ")+CurItem->strData;
+			CurItem->strData=L"\x2580\x2584 "+CurItem->strData;
 		}
 
 		// для кнопок не имеющих стиля "Показывает заголовок кнопки без скобок"

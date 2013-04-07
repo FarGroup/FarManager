@@ -241,7 +241,6 @@ public:
 	StringOption& operator=(const string& Value) {Set(Value); return *this;}
 	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
-	StringOption& operator+=(wchar_t Value) {Set(Get()+Value); return *this;}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName);
 	virtual const string toString(){return Get();}

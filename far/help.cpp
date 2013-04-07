@@ -652,7 +652,7 @@ void Help::AddLine(const string& Line)
 
 void Help::AddTitle(const string& Title)
 {
-	AddLine(string(L"^ #") + Title + L"#");
+	AddLine(L"^ #" + Title + L"#");
 }
 
 void Help::HighlightsCorrection(string &strStr)
@@ -1952,7 +1952,7 @@ bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
 	{
 		if (HelpTopic[0]==L':')
 		{
-			strTopic = (HelpTopic+1);
+			strTopic.LShift(1);
 		}
 		else
 		{

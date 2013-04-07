@@ -230,9 +230,8 @@ typedef class UnicodeString
 		UnicodeString& operator+=(wchar_t chAdd) { return Append(chAdd); }
 
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
-		friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
-		friend const UnicodeString operator+(const UnicodeString &strSrc1, wchar_t Chr);
+		friend const UnicodeString operator+(const wchar_t *strSrc1, const UnicodeString &lpwszSrc2);
 
 		bool IsSubStrAt(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
 		bool IsSubStrAt(size_t Pos, const wchar_t* Str, size_t StrLen) const { return IsSubStrAt(Pos, StrLen, Str, StrLen); }
