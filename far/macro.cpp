@@ -4187,7 +4187,7 @@ static bool panelfexistFunc(FarMacroCall* Data)
 static bool flockFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
-	__int64 Ret = -1;
+	int Ret = -1;
 	int stateFLock=(int)Params[1].getInteger();
 	UINT vkKey=(UINT)Params[0].getInteger();
 
@@ -4210,7 +4210,8 @@ static bool flockFunc(FarMacroCall* Data)
 	if (vkKey)
 		Ret=SetFLockState(vkKey,stateFLock);
 
-	return Ret != 0;
+	PassNumber(Ret,Data);
+	return Ret != -1;
 }
 
 // N=Dlg.SetFocus([ID])
