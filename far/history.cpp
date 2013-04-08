@@ -106,7 +106,7 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 	if(Guid) strGuid=GuidToStr(*Guid);
 
 	/*
-		баг:
+		баг /old info, before async/:
 		должны быть включены истори€ папок и комманд:
 		«апускаем первую копию фара, в ней чистим историю команд (AltF8 Del Enter) в командной строке набираем последовательно:
 		cmd1 Enter
@@ -120,6 +120,8 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 		проблема св€зана с WAL. убирание транзакции лечит.
 	*/
 	//HistoryCfgRef()->BeginTransaction();
+
+	unsigned __int64 DeleteId = 0;
 
 	if (RemoveDups) // удал€ть дубликаты?
 	{
@@ -138,14 +140,14 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 				if (!StrCmpFn(strName.CPtr(),strHName.CPtr())&&!StrCmpFn(strGuid.CPtr(),strHGuid.CPtr())&&!StrCmpFn(strFile.CPtr(),strHFile.CPtr())&&!StrCmpFn(strData.CPtr(),strHData.CPtr()))
 				{
 					Lock = Lock || HLock;
-					HistoryCfgRef()->Delete(id);
+					DeleteId = id;
 					break;
 				}
 			}
 		}
 	}
 
-	HistoryCfgRef()->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
+	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
 
 	ResetPosition();
 

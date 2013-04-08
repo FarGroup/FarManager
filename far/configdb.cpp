@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "valuename.hpp"
+#include "CriticalSections.hpp"
 
 static int IntToHex(int h)
 {
@@ -2017,11 +2018,108 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		return ((unsigned __int64)Days) * 24ull * 60ull * 60ull * 10000000ull;
 	}
 
+	HANDLE hThread;
+	LONG AsyncQueueSize;
+	HANDLE hStopEvent;
+	HANDLE hAsyncDone;
+	HANDLE hAsyncWork;
+	CriticalSection csQueueAccess;
+
+	struct AsyncWorkItem
+	{
+		unsigned __int64 DeleteId;
+		DWORD TypeHistory;
+		string HistoryName;
+		string strName;
+		int Type;
+		bool Lock;
+		string strGuid;
+		string strFile;
+		string strData;
+	};
+
+	std::queue<AsyncWorkItem*> AsyncQueue;
+
+	void WaitAsync()
+	{
+		if (InterlockedExchangeAdd(&AsyncQueueSize,0) == 0)
+			return;
+		WaitForSingleObject(hAsyncDone, INFINITE);
+	}
+
+	void StartThread()
+	{
+		AsyncQueueSize = 0;
+		hStopEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		FormatString EventName;
+		const wchar_t *pEventName = nullptr;
+		if (strPath != L":memory:")
+		{
+			size_t plen = strPath.GetLength();
+			unsigned hs = 0;
+			for (size_t i=0; i < plen; ++i)
+				hs = hs*17 + strPath.At(i);
+
+			EventName << L"Far_Manager_Event_" << hs << L" " << strName;
+			pEventName = EventName.CPtr();
+		}
+		hAsyncDone = CreateEvent(nullptr, TRUE, TRUE, pEventName);
+		hAsyncWork = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		hThread = CreateThread(nullptr, 0, ThreadProc, this, 0, nullptr);
+	}
+
+	void StopThread()
+	{
+		SetEvent(hStopEvent);
+		WaitForSingleObject(hThread, INFINITE);
+		CloseHandle(hThread);
+		CloseHandle(hAsyncWork);
+		CloseHandle(hAsyncDone);
+		CloseHandle(hStopEvent);
+	}
+
+	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
+	{
+		HistoryConfigCustom *HistoryCfg = static_cast<HistoryConfigCustom *>(lpParameter);
+		HANDLE handles[] = {HistoryCfg->hAsyncWork, HistoryCfg->hStopEvent};
+		while (true)
+		{
+			DWORD wait = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+
+			if (wait != WAIT_OBJECT_0)
+				break;
+
+			while (InterlockedExchangeAdd(&HistoryCfg->AsyncQueueSize,0) > 0)
+			{
+				AsyncWorkItem *item;
+				{
+					CriticalSectionLock cslock(HistoryCfg->csQueueAccess);
+					item = HistoryCfg->AsyncQueue.front();
+					HistoryCfg->AsyncQueue.pop();
+				}
+				if (item->DeleteId)
+					HistoryCfg->Delete(item->DeleteId);
+				HistoryCfg->Add(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
+				delete item;
+				InterlockedDecrement(&HistoryCfg->AsyncQueueSize);
+			}
+
+			SetEvent(HistoryCfg->hAsyncDone);
+		}
+
+		return 0;
+	}
+
+	bool Add(DWORD TypeHistory, const string& HistoryName, const string &strName, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
+	{
+		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
+	}
+
 public:
 
-	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
-	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
-	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
+	bool BeginTransaction() { WaitAsync(); return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { WaitAsync(); return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { WaitAsync(); return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const string& DbName, bool Local)
 	{
@@ -2129,7 +2227,7 @@ public:
 
 			//delete old viewer positions statement
 			InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);")
-		) return true;
+		) { StartThread(); return true; }
 
 		stmtDeleteOldViewer.Finalize();
 		stmtDeleteOldEditor.Finalize();
@@ -2160,10 +2258,16 @@ public:
 		return false;
 	}
 
-	virtual ~HistoryConfigCustom() {}
+	virtual ~HistoryConfigCustom() { StopThread(); }
+
+	bool Delete(unsigned __int64 id)
+	{
+		return stmtDel.Bind(id).StepAndReset();
+	}
 
 	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
+		WaitAsync();
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
 
 		if (index == 0)
@@ -2186,13 +2290,34 @@ public:
 		return false;
 	}
 
-	bool Delete(unsigned __int64 id)
+	bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
 	{
-		return stmtDel.Bind(id).StepAndReset();
+		AsyncWorkItem *item = new AsyncWorkItem;
+		item->DeleteId=DeleteId;
+		item->TypeHistory=TypeHistory;
+		item->HistoryName=HistoryName;
+		item->strName=strName;
+		item->Type=Type;
+		item->Lock=Lock;
+		item->strGuid=strGuid;
+		item->strFile=strFile;
+		item->strData=strData;
+
+		{
+			CriticalSectionLock cslock(csQueueAccess);
+			AsyncQueue.push(item);
+		}
+
+		WaitForSingleObject(hAsyncDone, INFINITE);
+		ResetEvent(hAsyncDone);
+		InterlockedIncrement(&AsyncQueueSize);
+		SetEvent(hAsyncWork);
+		return true;
 	}
 
 	bool DeleteOldUnlocked(DWORD TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries)
 	{
+		WaitAsync();
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= CalcDays(DaysToKeep);
 		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimumEntries).StepAndReset();
@@ -2200,6 +2325,7 @@ public:
 
 	bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName)
 	{
+		WaitAsync();
 		if (index == 0)
 			stmtEnumLargeHistories.Reset().Bind((int)TypeHistory).Bind(MinimumEntries);
 
@@ -2213,13 +2339,9 @@ public:
 		return false;
 	}
 
-	bool Add(DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
-	{
-		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
-	}
-
 	bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName)
 	{
+		WaitAsync();
 		bool b = stmtGetNewestName.Bind((int)TypeHistory).Bind(HistoryName).Step();
 		if (b)
 		{
@@ -2231,6 +2353,7 @@ public:
 
 	bool Get(unsigned __int64 id, string &strName)
 	{
+		WaitAsync();
 		bool b = stmtGetName.Bind(id).Step();
 		if (b)
 		{
@@ -2242,6 +2365,7 @@ public:
 
 	bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData)
 	{
+		WaitAsync();
 		bool b = stmtGetNameAndType.Bind(id).Step();
 		if (b)
 		{
@@ -2257,6 +2381,7 @@ public:
 
 	DWORD Count(DWORD TypeHistory, const string& HistoryName)
 	{
+		WaitAsync();
 		DWORD c = 0;
 		if (stmtCount.Bind((int)TypeHistory).Bind(HistoryName).Step())
 		{
@@ -2268,11 +2393,13 @@ public:
 
 	bool FlipLock(unsigned __int64 id)
 	{
+		WaitAsync();
 		return stmtSetLock.Bind(IsLocked(id)?0:1).Bind(id).StepAndReset();
 	}
 
 	bool IsLocked(unsigned __int64 id)
 	{
+		WaitAsync();
 		bool l = false;
 		if (stmtGetLock.Bind(id).Step())
 		{
@@ -2284,11 +2411,13 @@ public:
 
 	bool DeleteAllUnlocked(DWORD TypeHistory, const string& HistoryName)
 	{
+		WaitAsync();
 		return stmtDelUnlocked.Bind((int)TypeHistory).Bind(HistoryName).StepAndReset();
 	}
 
 	unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
+		WaitAsync();
 		strName.Clear();
 		unsigned __int64 nid = 0;
 		if (!id)
@@ -2304,6 +2433,7 @@ public:
 
 	unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
+		WaitAsync();
 		strName.Clear();
 		unsigned __int64 nid = 0;
 		if (!id)
@@ -2331,6 +2461,7 @@ public:
 
 	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
+		WaitAsync();
 		strName.Clear();
 		unsigned __int64 nid = 0;
 		if (!id)

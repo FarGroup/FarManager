@@ -64,10 +64,12 @@ public:
 
 class SQLiteDb {
 	struct sqlite3 *pDb;
-	string strPath;
-	string strName;
 	int init_status;
 	int db_exists;
+
+protected:
+	string strPath;
+	string strName;
 
 public:
 	SQLiteDb();
