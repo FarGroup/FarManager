@@ -3633,6 +3633,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 									break;
 								}
 
+							case KEY_MSLCLICK:
+								MenuKey = KEY_ENTER;
 							case KEY_ENTER:
 							case KEY_NUMENTER:
 								{
@@ -3652,7 +3654,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 					}
 					return 0;
 				});
-
 				// mouse click
 				if(ExitCode>0)
 				{
