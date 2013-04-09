@@ -1,3 +1,7 @@
+svs 09.04.2013 12:08:51 +0400 - build 
+
+1. Косметика без билда (lower VS upper в GUID`ах)
+
 shmuel 08.04.2013 23:36:09 +0200 - build 3308
 
 1. M#2363: mf.flock в момент нажатия всегда возвращает 1.
@@ -68,16 +72,16 @@ svs 02.04.2013 12:45:12 +0400 - build 3293
 1. Mantis#0002355: Требуются гуиды
 
     ScreensSwitchId        = {72EB948A-5F1D-4481-9A91-A4BFD869D127} --> Menu.Id
-    SelectSortModeId       = {B8B6E1DA-4221-47d2-AB2E-9EC67D0DC1E3} --> Menu.Id
-    HistoryCmdId           = {880968A6-6258-43e0-9BDC-F2B8678EC278} --> Menu.Id
-    HistoryFolderId        = {FC3384A8-6608-4c9b-8D6B-EE105F4C5A54} --> Menu.Id
-    HistoryEditViewId      = {E770E044-23A8-4f4d-B268-0E602B98CCF9} --> Menu.Id
-    PanelViewModesId       = {B56D5C08-0336-418b-A2A7-CF0C80F93ACC} --> Menu.Id
+    SelectSortModeId       = {B8B6E1DA-4221-47D2-AB2E-9EC67D0DC1E3} --> Menu.Id
+    HistoryCmdId           = {880968A6-6258-43E0-9BDC-F2B8678EC278} --> Menu.Id
+    HistoryFolderId        = {FC3384A8-6608-4C9B-8D6B-EE105F4C5A54} --> Menu.Id
+    HistoryEditViewId      = {E770E044-23A8-4F4D-B268-0E602B98CCF9} --> Menu.Id
+    PanelViewModesId       = {B56D5C08-0336-418B-A2A7-CF0C80F93ACC} --> Menu.Id
     PanelViewModesEditId   = {98B75500-4A97-4299-BFAD-C3E349BF3674} --> Dlg.Id
-    CodePagesMenuId        = {78A4A4E3-C2F0-40bd-9AA7-EAAC11836631} --> Menu.Id
-    EditorReplaceId        = {8BCCDFFD-3B34-49f8-87CD-F4D885B75873} --> Dlg.Id
-    EditorSearchId         = {5D3CBA90-F32D-433c-B016-9BB4AF96FACC} --> Dlg.Id
-    HelpSearchId           = {F63B558F-9185-46ba-8701-D143B8F62658} --> Dlg.Id
+    CodePagesMenuId        = {78A4A4E3-C2F0-40BD-9AA7-EAAC11836631} --> Menu.Id
+    EditorReplaceId        = {8BCCDFFD-3B34-49F8-87CD-F4D885B75873} --> Dlg.Id
+    EditorSearchId         = {5D3CBA90-F32D-433C-B016-9BB4AF96FACC} --> Dlg.Id
+    HelpSearchId           = {F63B558F-9185-46BA-8701-D143B8F62658} --> Dlg.Id
     FiltersMenuId          = {5B87B32E-494A-4982-AF55-DAFFCD251383} --> Menu.Id
 
 shmuel 02.04.2013 11:30:36 +0200 - build 3292
@@ -226,8 +230,8 @@ svs 22.03.2013 15:40:09 +0400 - build 3266
 
 1. Mantis#0002341: Нужны GUID-ы
 
-    AdvancedConfigId  = {A204FF09-07FA-478c-98C9-E56F61377BDE} --> Dlg.Id
-    FolderShortcutsId = {4CD742BC-295F-4afa-A158-7AA05A16BEA1} --> Menu.Id
+    AdvancedConfigId  = {A204FF09-07FA-478C-98C9-E56F61377BDE} --> Dlg.Id
+    FolderShortcutsId = {4CD742BC-295F-4AFA-A158-7AA05A16BEA1} --> Menu.Id
 
 2. В хелпе описан параметр "System.Executor.~"
 
@@ -1102,15 +1106,15 @@ svs 21.01.2013 17:37:30 +0400 - build 3106
      ФАР: диалог подтверждения закрытия ФАРа.
                {72E6E6D8-0BC6-4265-B9C4-C8DB712136AF}
      Редактор: сохранение файла, при изменении его внешней программой (и при удалении).
-               {40A699F1-BBDD-4e21-A137-97FFF798B0C8}
+               {40A699F1-BBDD-4E21-A137-97FFF798B0C8}
      Редактор: сохранение файла при закрытии.
-               {F776FEC0-50F7-4e7e-BDA6-2A63F84A957B}
+               {F776FEC0-50F7-4E7E-BDA6-2A63F84A957B}
      Редактор: запрос открытия файла с атридутами RSH
-               {D8AA706F-DA7E-4bbf-AB78-6B7BDB49E006}
+               {D8AA706F-DA7E-4BBF-AB78-6B7BDB49E006}
      Редактор: сохранение файла при переключение во вьювер, если файл (или каталог, где был файл) был удален.
-               {85532BD5-1583-456d-A810-41AB345995A9}
+               {85532BD5-1583-456D-A810-41AB345995A9}
      Редактор: сохранение файла и выход из редактора, если файл (или каталог, где был файл) был удален.
-               {2D71DCCE-F0B8-4e29-A3A9-1F6D8C1128C2}
+               {2D71DCCE-F0B8-4E29-A3A9-1F6D8C1128C2}
      Редактор: Запрос на перезапись файла
                {4109C8B3-760D-4011-B1D5-14C36763B23E}
 
@@ -1198,7 +1202,7 @@ drkns 16.01.2013 22:58:06 +0200 - build 3087
 svs 16.01.2013 23:56:44 +0400 - build 3086
 
 1. Mantins#0002260: нужен GUID к диалогу переоткрытия файла
-     EditorReloadId={AFDAD388-494C-41e8-BAC6-BBE9115E1CC0}
+     EditorReloadId={AFDAD388-494C-41E8-BAC6-BBE9115E1CC0}
 
 drkns 15.01.2013 23:37:28 +0200 - build 3085
 
@@ -12233,7 +12237,7 @@ zg 08.01.2010 13:46:03 +0200 - build 1321
 
 zg 08.01.2010 13:30:56 +0200 - build 1320
 
-1. диалог перезаписи файла имеет идентификатор {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}.
+1. диалог перезаписи файла имеет идентификатор {9FBCB7E1-ACA2-475D-B40D-0F7365B632FF}.
 
 drkns 08.01.2010 01:30:08 +0200 - build 1319
 
@@ -14371,7 +14375,7 @@ drkns 06.07.2009 18:35:27 +0200 - build 1027
    Макроязык:
      состояние Dlg.Info.Id - строковое представление идентификатора текущего диалога.
 
-   "Technology preview" второй части: диалог поиска (AltF7) имеет идентификатор {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}.
+   "Technology preview" второй части: диалог поиска (AltF7) имеет идентификатор {8C9EAD29-910F-4B24-A669-EDAFBA6ED964}.
 
 zg 06.07.2009 13:20:05 +0200 - build 1026
 
