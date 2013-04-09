@@ -453,6 +453,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="stddlg.cpp" />
     <ClCompile Include="strmix.cpp" />
+    <ClCompile Include="synchro.cpp" />
     <ClCompile Include="syslog.cpp" />
     <ClCompile Include="TaskBar.cpp" />
     <ClCompile Include="tinyxml.cpp" />

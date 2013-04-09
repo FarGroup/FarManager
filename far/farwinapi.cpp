@@ -358,6 +358,7 @@ File::~File()
 
 bool File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, File* TemplateFile, bool ForceElevation)
 {
+	assert(Handle == INVALID_HANDLE_VALUE);
 	HANDLE TemplateFileHandle = TemplateFile? TemplateFile->Handle : nullptr;
 	Handle = apiCreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
 	return Handle != INVALID_HANDLE_VALUE;
@@ -1840,35 +1841,4 @@ bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& 
 		Result = Global->Elevation->fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
 	}
 	return Result;
-}
-
-class ThreadParam
-{
-public:
-	ThreadParam(ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter):
-		m_Owner(Owner),
-		m_HandlerFunction(HandlerFunction),
-		m_Parameter(Parameter)
-	{}
-	ThreadOwner* Owner() {return m_Owner;}
-	ThreadHandlerFunction HandlerFunction() {return m_HandlerFunction;}
-	void* Parameter() {return m_Parameter;}
-private:
-	ThreadOwner* m_Owner;
-	ThreadHandlerFunction m_HandlerFunction;
-	void* m_Parameter;
-};
-
-unsigned int WINAPI ThreadHandler(void* Parameter)
-{
-	ThreadParam* Param = reinterpret_cast<ThreadParam*>(Parameter);
-	DWORD Result = (Param->Owner()->*Param->HandlerFunction())(Param->Parameter());
-	delete Param;
-	return Result;
-}
-
-HANDLE apiCreateThreadImpl(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
-{
-	ThreadParam* p = new ThreadParam(Owner, HandlerFunction, Parameter);
-	return reinterpret_cast<HANDLE>(_beginthreadex(ThreadAttributes, StackSize, ThreadHandler, p, CreationFlags, ThreadId));
 }

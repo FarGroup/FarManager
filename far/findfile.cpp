@@ -2810,14 +2810,14 @@ bool FindFiles::FindFilesProcess()
 	strLastDirName.Clear();
 
 	THREADPARAM Param={PluginMode, &Dlg};
-	HANDLE Thread = apiCreateThread(nullptr, 0, this, &FindFiles::ThreadRoutine, &Param, 0, nullptr);
-	if (Thread)
+	Thread FindThread;
+	if (FindThread.Start(nullptr, 0, this, &FindFiles::ThreadRoutine, &Param, 0, nullptr))
 	{
 		TB=new TaskBar;
 		wakeful W;
 		Dlg.Process();
-		WaitForSingleObject(Thread,INFINITE);
-		CloseHandle(Thread);
+		FindThread.Wait();
+		FindThread.Close();
 
 		PauseEvent.Set();
 		StopEvent.Reset();

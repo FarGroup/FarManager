@@ -81,6 +81,8 @@ public:
 
 	virtual const wchar_t *GetNamespace() = 0;
 
+	bool Opened() { return h != nullptr; }
+
 	bool Close()
 	{
 		if (!h) return true;
@@ -108,9 +110,29 @@ public:
 
 	bool Start(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter=nullptr, LPDWORD lpThreadId=nullptr)
 	{
+		assert(!h);
+
 		h = CreateThread(nullptr, 0, lpStartAddress, lpParameter, 0, lpThreadId);
 		return h != nullptr;
 	}
+
+
+	template<class T, typename Y>
+	bool Start(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, T* OwnerClass, Y HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
+	{
+		assert(!h);
+
+		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
+		h = CreateMemberThread(ThreadAttributes, StackSize, reinterpret_cast<ThreadOwner*>(OwnerClass), reinterpret_cast<ThreadHandlerFunction>(HandlerFunction), Parameter, CreationFlags, ThreadId);
+		return h != nullptr;
+	}
+
+private:
+	struct ThreadOwner { int Handler(void* Param); };
+	class ThreadParam;
+	typedef int (ThreadOwner::*ThreadHandlerFunction)(void* Param);
+	HANDLE CreateMemberThread(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId);
+	friend unsigned int WINAPI ThreadHandler(void* Parameter);
 };
 
 class Mutex: public HandleWrapper
@@ -125,6 +147,8 @@ public:
 
 	bool Open()
 	{
+		assert(!h);
+
 		h = CreateMutex(nullptr, FALSE, strName.IsEmpty() ? nullptr : strName.CPtr());
 		return h != nullptr;
 	}
@@ -164,6 +188,8 @@ public:
 
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{
+		assert(!h);
+
 		h = CreateEvent(nullptr, ManualReset, InitialState, strName.IsEmpty() ? nullptr : strName.CPtr());
 		return h != nullptr;
 	}

@@ -106,7 +106,6 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 WindowHandler::WindowHandler():
-	m_Thread(nullptr),
 	m_Hwnd(nullptr)
 {
 	m_exitEvent.Open();
@@ -127,18 +126,18 @@ WindowHandler::~WindowHandler()
 	{
 		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
 	}
-	if(m_Thread)
+	if(m_Thread.Opened())
 	{
-		WaitForSingleObject(m_Thread, INFINITE);
-		CloseHandle(m_Thread);
+		m_Thread.Wait();
 	}
 }
 
 void WindowHandler::Check()
 {
-	if(!m_Thread || WaitForSingleObject(m_Thread, 0)!=WAIT_TIMEOUT)
+	if (!m_Thread.Opened() || m_Thread.Wait(0))
 	{
-		m_Thread = apiCreateThread(nullptr, 0, this, &WindowHandler::WindowThreadRoutine, nullptr, 0, nullptr);
+		m_Thread.Close();
+		m_Thread.Start(nullptr, 0, this, &WindowHandler::WindowThreadRoutine, nullptr, 0, nullptr);
 	}
 }
 

@@ -1,11 +1,11 @@
-#pragma once
 /*
-window.hpp
+synchro.cpp
 
-Обработка оконных сообщений
+Критические секции, мютексы, эвенты и т.п.
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,34 +31,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "headers.hpp"
+#pragma hdrstop
+
 #include "synchro.hpp"
 
-class WindowHandler
+class Thread::ThreadParam
 {
 public:
-	WindowHandler();
-	~WindowHandler();
-	void Check();
-
-	Event& DeviceArivalEvent() { return m_DeviceArivalEvent; }
-	Event& DeviceRemoveEvent() { return m_DeviceRemoveEvent; }
-	Event& MediaArivalEvent() { return m_MediaArivalEvent; }
-	Event& MediaRemoveEvent() { return m_MediaRemoveEvent; }
-	Event& EnvironmentChangeEvent() { return m_EnvironmentChangeEvent; }
-	Event& PowerChangeEvent() { return m_PowerChangeEvent; }
-
+	ThreadParam(Thread::ThreadOwner* Owner, Thread::ThreadHandlerFunction HandlerFunction, void* Parameter):
+		m_Owner(Owner),
+		m_HandlerFunction(HandlerFunction),
+		m_Parameter(Parameter)
+	{}
+	Thread::ThreadOwner* Owner() {return m_Owner;}
+	Thread::ThreadHandlerFunction HandlerFunction() {return m_HandlerFunction;}
+	void* Parameter() {return m_Parameter;}
 private:
-	unsigned int WindowThreadRoutine(void* Param);
-
-	Thread m_Thread;
-	HWND m_Hwnd;
-
-	Event m_exitEvent;
-
-	Event m_DeviceArivalEvent;
-	Event m_DeviceRemoveEvent;
-	Event m_MediaArivalEvent;
-	Event m_MediaRemoveEvent;
-	Event m_EnvironmentChangeEvent;
-	Event m_PowerChangeEvent;
+	Thread::ThreadOwner* m_Owner;
+	Thread::ThreadHandlerFunction m_HandlerFunction;
+	void* m_Parameter;
 };
+
+unsigned int WINAPI ThreadHandler(void* Parameter)
+{
+	auto pParam = reinterpret_cast<Thread::ThreadParam*>(Parameter);
+	Thread::ThreadParam Param = *pParam;
+	delete pParam;
+	DWORD Result = (Param.Owner()->*Param.HandlerFunction())(Param.Parameter());
+	return Result;
+}
+
+HANDLE Thread::CreateMemberThread(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, Thread::ThreadOwner* Owner, Thread::ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
+{
+	ThreadParam* p = new ThreadParam(Owner, HandlerFunction, Parameter);
+	return reinterpret_cast<HANDLE>(_beginthreadex(ThreadAttributes, StackSize, ThreadHandler, p, CreationFlags, ThreadId));
+}
