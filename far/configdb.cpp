@@ -510,7 +510,6 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 	SQLiteStmt stmtDelValue;
 	SQLiteStmt stmtDeleteTree;
 
-	Thread FinishThread;
 	Event AsyncDone;
 
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
@@ -540,6 +539,7 @@ public:
 	{
 		AsyncDone.Reset();
 		Global->Db->IncThreadCounter();
+		Thread FinishThread;
 		FinishThread.Start(ThreadProc, this);
 	}
 
