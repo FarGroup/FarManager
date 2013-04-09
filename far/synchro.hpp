@@ -2,10 +2,12 @@
 
 /*
 synchro.hpp
-синхронизация для плагинов.
+
+Критические секции, мютексы, эвенты и т.п.
 */
 /*
-Copyright © 2009 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,24 +33,176 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CriticalSections.hpp"
-
-class PluginSynchro
+class CriticalSection
 {
-	private:
-		struct SynchroData
-		{
-			bool Plugin;
-			GUID PluginId;
-			void* Param;
-		};
-		CriticalSection CS;
-		std::list<SynchroData> Data;
 
-	public:
-		PluginSynchro();
-		~PluginSynchro();
-		void Synchro(bool Plugin, const GUID& PluginId,void* Param);
-		bool Process(void);
+public:
+	CriticalSection() { InitializeCriticalSection(&object); }
+	~CriticalSection() { DeleteCriticalSection(&object); }
+
+	void Enter() { EnterCriticalSection(&object); }
+	void Leave() { LeaveCriticalSection(&object); }
+
+private:
+	CRITICAL_SECTION object;
 };
 
+class CriticalSectionLock:NonCopyable
+{
+public:
+	CriticalSectionLock(CriticalSection &object): object(object) { object.Enter(); }
+	~CriticalSectionLock() { object.Leave(); }
+
+private:
+	CriticalSection &object;
+};
+
+class HandleWrapper:NonCopyable
+{
+protected:
+
+	HANDLE h;
+	FormatString strName;
+
+public:
+
+	HandleWrapper() : h(nullptr) {}
+
+	void SetName(const wchar_t *HashPart, const wchar_t *TextPart)
+	{
+		if (!TextPart)
+			return;
+		unsigned hs = 0;
+		if (HashPart)
+			while (*HashPart)
+				hs = hs*17 + *HashPart;
+		strName << GetNamespace() << hs << L" " << TextPart;
+	}
+
+	virtual const wchar_t *GetNamespace() = 0;
+
+	bool Close()
+	{
+		if (!h) return true;
+		bool ret = CloseHandle(h) != FALSE;
+		h = nullptr;
+		return ret;
+	}
+
+	bool Wait(DWORD Milliseconds=INFINITE) { return WaitForSingleObject(h, Milliseconds)==WAIT_OBJECT_0; }
+
+	HANDLE GetHandle() { return h; }
+
+	virtual ~HandleWrapper() { Close(); }
+};
+
+class Thread: public HandleWrapper
+{
+public:
+
+	Thread() {}
+
+	virtual ~Thread() {}
+
+	const wchar_t *GetNamespace() { return L""; }
+
+	bool Start(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter=nullptr, LPDWORD lpThreadId=nullptr)
+	{
+		h = CreateThread(nullptr, 0, lpStartAddress, lpParameter, 0, lpThreadId);
+		return h != nullptr;
+	}
+};
+
+class Mutex: public HandleWrapper
+{
+public:
+
+	Mutex() {}
+
+	virtual ~Mutex() {}
+
+	const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
+
+	bool Open()
+	{
+		h = CreateMutex(nullptr, FALSE, strName.IsEmpty() ? nullptr : strName.CPtr());
+		return h != nullptr;
+	}
+
+	bool Lock() { return Wait(); }
+
+	bool Unlock() { return ReleaseMutex(h) != FALSE; }
+};
+
+class AutoMutex:NonCopyable
+{
+public:
+
+	AutoMutex(const wchar_t *HashPart=nullptr, const wchar_t *TextPart=nullptr)
+	{
+		m.SetName(HashPart, TextPart);
+		m.Open();
+		m.Lock();
+	}
+
+	~AutoMutex() { m.Unlock(); }
+
+private:
+
+	Mutex m;
+};
+
+class Event: public HandleWrapper
+{
+public:
+
+	Event() {}
+
+	virtual ~Event() {}
+
+	const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
+
+	bool Open(bool ManualReset=false, bool InitialState=false)
+	{
+		h = CreateEvent(nullptr, ManualReset, InitialState, strName.IsEmpty() ? nullptr : strName.CPtr());
+		return h != nullptr;
+	}
+
+	bool Set() { return SetEvent(h)!=FALSE; }
+
+	bool Reset() { return ResetEvent(h)!=FALSE; }
+
+	bool Signaled() { return Wait(0); }
+
+	void Associate(OVERLAPPED& o) { o.hEvent = h; }
+};
+
+template<class T> class SyncedQueue:NonCopyable {
+	std::queue<T> Queue;
+	CriticalSection csQueueAccess;
+
+public:
+
+	SyncedQueue() {}
+	~SyncedQueue() {}
+
+	bool Empty()
+	{
+		CriticalSectionLock cslock(csQueueAccess);
+		return Queue.empty();
+	}
+
+	void Push(T &item)
+	{
+		CriticalSectionLock cslock(csQueueAccess);
+		Queue.push(item);
+	}
+
+	T Pop()
+	{
+		CriticalSectionLock cslock(csQueueAccess);
+		T item = Queue.front();
+		Queue.pop();
+		return item;
+	}
+};

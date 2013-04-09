@@ -103,6 +103,7 @@ SRCS = \
 	plugapi.cpp \
 	PluginA.cpp \
 	plugins.cpp \
+	PluginSynchro.cpp \
 	plugsettings.cpp \
 	poscache.cpp \
 	preservestyle.cpp \
@@ -124,7 +125,6 @@ SRCS = \
 	sqlitedb.cpp \
 	stddlg.cpp \
 	strmix.cpp \
-	synchro.cpp \
 	syslog.cpp \
 	tinyxml.cpp \
 	TaskBar.cpp \
@@ -278,6 +278,6 @@ endif
 clean:
 	@echo cleaning
 	@$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch
-	@$(RM) $(EXEFULLNAME) $(MAP) 
+	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) $(BOOTSTRAPDIR)*.*  $(FARINCLUDE)*.*
 	@$(RM) $(EXEDIR)*.lng $(EXEDIR)*.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini

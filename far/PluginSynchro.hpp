@@ -1,13 +1,11 @@
 #pragma once
 
 /*
-CriticalSections.hpp
-
-Критические секции
+PluginSynchro.hpp
+синхронизация для плагинов.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,26 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class CriticalSection
+#include "synchro.hpp"
+
+class PluginSynchro
 {
+	private:
+		struct SynchroData
+		{
+			bool Plugin;
+			GUID PluginId;
+			void* Param;
+		};
+		CriticalSection CS;
+		std::list<SynchroData> Data;
 
-public:
-	CriticalSection() { InitializeCriticalSection(&object); }
-	~CriticalSection() { DeleteCriticalSection(&object); }
-
-	void Enter() { EnterCriticalSection(&object); }
-	void Leave() { LeaveCriticalSection(&object); }
-
-private:
-	CRITICAL_SECTION object;
-};
-
-class CriticalSectionLock:NonCopyable
-{
-public:
-	CriticalSectionLock(CriticalSection &object): object(object) { object.Enter(); }
-	~CriticalSectionLock() { object.Leave(); }
-
-private:
-	CriticalSection &object;
+	public:
+		PluginSynchro();
+		~PluginSynchro();
+		void Synchro(bool Plugin, const GUID& PluginId,void* Param);
+		bool Process(void);
 };

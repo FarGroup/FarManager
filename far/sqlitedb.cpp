@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlitedb.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "Mutex.hpp"
+#include "synchro.hpp"
 
 static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 {
@@ -246,14 +246,8 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
-	string path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-
-	size_t plen = path.GetLength();
-	unsigned hs = 0;
-	for (size_t i=0; i < plen; ++i)
-		hs = hs*17 + path.At(i);
-
-	AutoNamedMutex m(FormatString() << hs << L" " << DbName);
+	string &path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+	AutoMutex m(path.CPtr(), DbName.CPtr());
 	strName = DbName;
 	init_status = 0;
 	if (!InitializeImpl(DbName, Local))

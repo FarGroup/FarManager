@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "valuename.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 
 static int IntToHex(int h)
 {
@@ -2018,12 +2018,10 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		return ((unsigned __int64)Days) * 24ull * 60ull * 60ull * 10000000ull;
 	}
 
-	HANDLE hThread;
-	LONG AsyncQueueSize;
-	HANDLE hStopEvent;
-	HANDLE hAsyncDone;
-	HANDLE hAsyncWork;
-	CriticalSection csQueueAccess;
+	Thread WorkThread;
+	Event StopEvent;
+	Event AsyncDone;
+	Event AsyncWork;
 
 	struct AsyncWorkItem
 	{
@@ -2038,50 +2036,31 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		string strData;
 	};
 
-	std::queue<AsyncWorkItem*> AsyncQueue;
+	SyncedQueue<AsyncWorkItem*> WorkQueue;
 
-	void WaitAsync()
-	{
-		if (InterlockedExchangeAdd(&AsyncQueueSize,0) == 0)
-			return;
-		WaitForSingleObject(hAsyncDone, INFINITE);
-	}
+	void WaitAsync() { AsyncDone.Wait(); }
 
 	void StartThread()
 	{
-		AsyncQueueSize = 0;
-		hStopEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		StopEvent.Open();
 		FormatString EventName;
-		const wchar_t *pEventName = nullptr;
 		if (strPath != L":memory:")
-		{
-			size_t plen = strPath.GetLength();
-			unsigned hs = 0;
-			for (size_t i=0; i < plen; ++i)
-				hs = hs*17 + strPath.At(i);
-
-			EventName << L"Far_Manager_Event_" << hs << L" " << strName;
-			pEventName = EventName.CPtr();
-		}
-		hAsyncDone = CreateEvent(nullptr, TRUE, TRUE, pEventName);
-		hAsyncWork = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		hThread = CreateThread(nullptr, 0, ThreadProc, this, 0, nullptr);
+			AsyncDone.SetName(strPath.CPtr(), strName.CPtr());
+		AsyncDone.Open(true,true);
+		AsyncWork.Open();
+		WorkThread.Start(ThreadProc, this);
 	}
 
 	void StopThread()
 	{
-		SetEvent(hStopEvent);
-		WaitForSingleObject(hThread, INFINITE);
-		CloseHandle(hThread);
-		CloseHandle(hAsyncWork);
-		CloseHandle(hAsyncDone);
-		CloseHandle(hStopEvent);
+		StopEvent.Set();
+		WorkThread.Wait();
 	}
 
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
 	{
 		HistoryConfigCustom *HistoryCfg = static_cast<HistoryConfigCustom *>(lpParameter);
-		HANDLE handles[] = {HistoryCfg->hAsyncWork, HistoryCfg->hStopEvent};
+		HANDLE handles[] = {HistoryCfg->AsyncWork.GetHandle(), HistoryCfg->StopEvent.GetHandle()};
 		while (true)
 		{
 			DWORD wait = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
@@ -2089,30 +2068,29 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 			if (wait != WAIT_OBJECT_0)
 				break;
 
-			while (InterlockedExchangeAdd(&HistoryCfg->AsyncQueueSize,0) > 0)
+			while (!HistoryCfg->WorkQueue.Empty())
 			{
-				AsyncWorkItem *item;
-				{
-					CriticalSectionLock cslock(HistoryCfg->csQueueAccess);
-					item = HistoryCfg->AsyncQueue.front();
-					HistoryCfg->AsyncQueue.pop();
-				}
+				AsyncWorkItem *item = HistoryCfg->WorkQueue.Pop();
 				if (item->DeleteId)
-					HistoryCfg->Delete(item->DeleteId);
-				HistoryCfg->Add(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
+					HistoryCfg->DeleteInternal(item->DeleteId);
+				HistoryCfg->AddInternal(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
 				delete item;
-				InterlockedDecrement(&HistoryCfg->AsyncQueueSize);
 			}
 
-			SetEvent(HistoryCfg->hAsyncDone);
+			HistoryCfg->AsyncDone.Set();
 		}
 
 		return 0;
 	}
 
-	bool Add(DWORD TypeHistory, const string& HistoryName, const string &strName, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
+	bool AddInternal(DWORD TypeHistory, const string& HistoryName, const string &strName, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
 	{
 		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
+	}
+
+	bool DeleteInternal(unsigned __int64 id)
+	{
+		return stmtDel.Bind(id).StepAndReset();
 	}
 
 public:
@@ -2262,7 +2240,8 @@ public:
 
 	bool Delete(unsigned __int64 id)
 	{
-		return stmtDel.Bind(id).StepAndReset();
+		WaitAsync();
+		return DeleteInternal(id);
 	}
 
 	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
@@ -2303,15 +2282,11 @@ public:
 		item->strFile=strFile;
 		item->strData=strData;
 
-		{
-			CriticalSectionLock cslock(csQueueAccess);
-			AsyncQueue.push(item);
-		}
+		WorkQueue.Push(item);
 
-		WaitForSingleObject(hAsyncDone, INFINITE);
-		ResetEvent(hAsyncDone);
-		InterlockedIncrement(&AsyncQueueSize);
-		SetEvent(hAsyncWork);
+		AsyncDone.Wait();
+		AsyncDone.Reset();
+		AsyncWork.Set();
 		return true;
 	}
 

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 #include "frame.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 
 struct HMenuData
 {

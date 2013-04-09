@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "synchro.hpp"
+
 enum FINDAREA
 {
 	FINDAREA_ALL,
@@ -128,4 +130,8 @@ private:
 	};
 
 	std::list<CodePageInfo> codePages;
+
+	CriticalSection PluginCS;
+	Event PauseEvent;
+	Event StopEvent;
 };

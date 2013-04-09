@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 #include "macro.hpp"
 
 class History;
@@ -237,7 +237,7 @@ public:
 
 protected:
 	size_t InitDialogObjects(size_t ID=(size_t)-1);
-	
+
 private:
 	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);

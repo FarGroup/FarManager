@@ -10,7 +10,7 @@ farrtl.cpp
 #include "console.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)

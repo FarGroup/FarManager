@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "DlgGuid.hpp"
-#include "event.hpp"
+#include "synchro.hpp"
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "panelmix.hpp"
@@ -225,10 +225,6 @@ enum
 	FIND_EXIT_GOTO,
 	FIND_EXIT_PANEL
 };
-
-CriticalSection PluginCS;
-Event PauseEvent(true, true);
-Event StopEvent(true, false);
 
 enum ADVANCEDDLG
 {
@@ -3012,6 +3008,10 @@ bool FindFiles::FindFilesProcess()
 FindFiles::FindFiles():
 	TB(nullptr)
 {
+
+	PauseEvent.Open(true, true);
+	StopEvent.Open(true, false);
+
 	// BUGBUG
 	FileMaskForFindFile = new filemasks;
 	AnySetFindList = false;

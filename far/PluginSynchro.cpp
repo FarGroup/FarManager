@@ -1,12 +1,9 @@
-#pragma once
-
 /*
-Mutex.hpp
-
-Мютексы
+PluginSynchro.cpp
+синхронизация для плагинов.
 */
 /*
-Copyright © 2013 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,56 +29,71 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class NamedMutex:NonCopyable
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "PluginSynchro.hpp"
+#include "plclass.hpp"
+#include "elevation.hpp"
+#include "FarGuid.hpp"
+#include "ctrlobj.hpp"
+#include "plugins.hpp"
+
+PluginSynchro::PluginSynchro()
 {
-public:
-	explicit NamedMutex(const string& Name) : h(nullptr)
-	{
-		strName = L"Far_Manager_Mutex_";
-		strName += Name;
-	}
+}
 
-	~NamedMutex() { Close(); }
-
-	bool Open()
-	{
-		h = CreateMutex(nullptr, FALSE, strName.CPtr());
-		return h != nullptr;
-	}
-
-	bool Lock() { return WaitForSingleObject(h, INFINITE) == WAIT_OBJECT_0; }
-
-	bool Unlock() { return ReleaseMutex(h) != FALSE; }
-
-	bool Close()
-	{
-		if (!h) return true;
-		bool ret = CloseHandle(h) != FALSE;
-		h = nullptr;
-		return ret;
-	}
-
-private:
-
-	NamedMutex();
-
-	string strName;
-	HANDLE h;
-};
-
-class AutoNamedMutex:NonCopyable
+PluginSynchro::~PluginSynchro()
 {
-public:
-	explicit AutoNamedMutex(const string& Name): m(Name)
+}
+
+void PluginSynchro::Synchro(bool Plugin, const GUID& PluginId,void* Param)
+{
+	CriticalSectionLock Lock(CS);
+	SynchroData item;
+	item.Plugin=Plugin;
+	item.PluginId=PluginId;
+	item.Param=Param;
+	Data.emplace_back(item);
+}
+
+bool PluginSynchro::Process(void)
+{
+	bool res=false;
+	bool process=false; bool plugin=false; GUID PluginId=FarGuid; void* param=nullptr;
 	{
-		m.Open();
-		m.Lock();
+		CriticalSectionLock Lock(CS);
+
+		if (!Data.empty())
+		{
+			auto item = Data.begin();
+			process=true;
+			plugin=item->Plugin;
+			PluginId=item->PluginId;
+			param=item->Param;
+			Data.pop_front();
+		}
 	}
 
-	~AutoNamedMutex() { m.Unlock(); }
+	if (process)
+	{
+		if(plugin)
+		{
+			Plugin* pPlugin = Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginId) : nullptr;
 
-private:
-	AutoNamedMutex();
+			if (pPlugin)
+			{
+				pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+				res=true;
+			}
+		}
+		else
+		{
+			ElevationApproveDlgSync(param);
+			res=true;
+		}
+	}
 
-	NamedMutex m;
-};
+
+	return res;
+}

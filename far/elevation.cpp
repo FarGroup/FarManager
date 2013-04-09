@@ -45,9 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "imports.hpp"
 #include "TaskBar.hpp"
-#include "synchro.hpp"
+#include "PluginSynchro.hpp"
 #include "scrbuf.hpp"
-#include "event.hpp"
+#include "synchro.hpp"
 #include "FarGuid.hpp"
 #include "strmix.hpp"
 
@@ -378,6 +378,7 @@ bool elevation::Initialize()
 				}
 				OVERLAPPED Overlapped;
 				Event AEvent;
+				AEvent.Open();
 				AEvent.Associate(Overlapped);
 				ConnectNamedPipe(Pipe, &Overlapped);
 				if(AEvent.Wait(15000))
@@ -529,6 +530,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 			Data.pEvent=new Event();
 			if(Data.pEvent)
 			{
+				Data.pEvent->Open();
 				Global->PluginSynchroManager->Synchro(false, FarGuid, &Data);
 				Data.pEvent->Wait();
 				delete Data.pEvent;

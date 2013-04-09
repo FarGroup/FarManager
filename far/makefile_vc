@@ -27,7 +27,7 @@
 #
 #ASM_LISTING - set to enable assembly, machine code and source listing generation
 #
-#DEFUSERFLAGS - 
+#DEFUSERFLAGS -
 
 .SILENT:
 
@@ -189,6 +189,7 @@ LINK_OBJS = \
 	"$(INTDIR)\plugapi.obj" \
 	"$(INTDIR)\PluginA.obj" \
 	"$(INTDIR)\plugins.obj" \
+	"$(INTDIR)\PluginSynchro.obj" \
 	"$(INTDIR)\plugsettings.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\preservestyle.obj" \
@@ -210,7 +211,6 @@ LINK_OBJS = \
 	"$(INTDIR)\sqlitedb.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
-	"$(INTDIR)\synchro.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\TaskBar.obj" \
@@ -328,7 +328,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc10.cpp" "$(FARINCLUDE)\vc10.asm" "$(FARINCLUDE)\vc10u.cpp" 
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc10.cpp" "$(FARINCLUDE)\vc10.asm" "$(FARINCLUDE)\vc10u.cpp"
 
 .PHONY: AllDirs
 AllDirs:

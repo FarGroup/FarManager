@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
-#include "event.hpp"
+#include "synchro.hpp"
 #include "res.hpp"
 #include "plugins.hpp"
 
@@ -136,7 +136,7 @@ COORD InitialSize;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
-Event CancelIoInProgress(true);
+Event CancelIoInProgress;
 
 DWORD WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
 {
@@ -191,6 +191,8 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
+		CancelIoInProgress.Open(true);
+
 		DWORD Mode;
 		if(!Global->Console->GetMode(Global->Console->GetInputHandle(), Mode))
 		{

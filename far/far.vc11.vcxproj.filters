@@ -311,6 +311,9 @@
     <ClCompile Include="plugins.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PluginSynchro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="plugsettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -366,9 +369,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="strmix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="synchro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syslog.cpp">
@@ -571,9 +571,6 @@
     <ClInclude Include="copy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CriticalSections.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ctrlobj.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -614,9 +611,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="eject.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="execute.hpp">
@@ -821,6 +815,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plugins.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginSynchro.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plugsettings.hpp">
@@ -1043,9 +1040,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vmenu2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mutex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="valuename.hpp">

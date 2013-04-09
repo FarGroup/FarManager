@@ -109,6 +109,14 @@ WindowHandler::WindowHandler():
 	m_Thread(nullptr),
 	m_Hwnd(nullptr)
 {
+	m_exitEvent.Open();
+	m_DeviceArivalEvent.Open();
+	m_DeviceRemoveEvent.Open();
+	m_MediaArivalEvent.Open();
+	m_MediaRemoveEvent.Open();
+	m_EnvironmentChangeEvent.Open();
+	m_PowerChangeEvent.Open();
+
 	Check();
 }
 

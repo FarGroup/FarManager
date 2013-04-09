@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "frame.hpp"
 #include "bitflags.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 #include "macro.hpp"
 
 
@@ -351,7 +351,7 @@ class VMenu: public Modal
 		struct MenuItemEx *GetItemPtr(int Position=-1);
 
 		void SortItems(bool Reverse = false, int Offset = 0);
-		
+
 		template<class predicate>
 		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 		{
@@ -371,7 +371,7 @@ class VMenu: public Modal
 
 			SetFlags(VMENU_UPDATEREQUIRED);
 		}
-		
+
 		bool Pack();
 
 		BOOL GetVMenuInfo(struct FarListInfo* Info);

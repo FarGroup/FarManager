@@ -420,6 +420,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="plugapi.cpp" />
     <ClCompile Include="PluginA.cpp" />
     <ClCompile Include="plugins.cpp" />
+    <ClCompile Include="PluginSynchro.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
     <ClCompile Include="preservestyle.cpp" />
@@ -452,7 +453,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="stddlg.cpp" />
     <ClCompile Include="strmix.cpp" />
-    <ClCompile Include="synchro.cpp" />
     <ClCompile Include="syslog.cpp" />
     <ClCompile Include="TaskBar.cpp" />
     <ClCompile Include="tinyxml.cpp" />
@@ -684,7 +684,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="console.hpp" />
     <ClInclude Include="constitle.hpp" />
     <ClInclude Include="copy.hpp" />
-    <ClInclude Include="CriticalSections.hpp" />
     <ClInclude Include="ctrlobj.hpp" />
     <ClInclude Include="cvtname.hpp" />
     <ClInclude Include="datetime.hpp" />
@@ -717,7 +716,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="edit.hpp" />
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
-    <ClInclude Include="event.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
     <ClInclude Include="FarDlgBuilder.hpp" />
@@ -773,7 +771,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="mix.hpp" />
     <ClInclude Include="mkdir.hpp" />
     <ClInclude Include="modal.hpp" />
-    <ClInclude Include="Mutex.hpp" />
     <ClInclude Include="namelist.hpp" />
     <ClInclude Include="network.hpp" />
     <ClInclude Include="noncopyable.hpp" />
@@ -807,6 +804,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="PluginA.hpp" />
     <ClInclude Include="pluginold.hpp" />
     <ClInclude Include="plugins.hpp" />
+    <ClInclude Include="PluginSynchro.hpp" />
     <ClInclude Include="plugsettings.hpp" />
     <ClInclude Include="poscache.hpp" />
     <ClInclude Include="preservestyle.hpp" />

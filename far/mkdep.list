@@ -26,7 +26,6 @@ constitle.cpp
 constitle.hpp
 copy.cpp
 copy.hpp
-CriticalSections.hpp
 ctrlobj.cpp
 ctrlobj.hpp
 cvtname.cpp
@@ -58,7 +57,6 @@ eject.cpp
 eject.hpp
 elevation.cpp
 elevation.hpp
-event.hpp
 execute.cpp
 execute.hpp
 exitcode.hpp
@@ -166,7 +164,6 @@ mkdir.cpp
 mkdir.hpp
 modal.cpp
 modal.hpp
-Mutex.hpp
 namelist.cpp
 namelist.hpp
 network.cpp
@@ -199,6 +196,8 @@ PluginA.hpp
 pluginold.hpp
 plugins.cpp
 plugins.hpp
+PluginSynchro.cpp
+PluginSynchro.hpp
 plugsettings.cpp
 plugsettings.hpp
 poscache.cpp
@@ -244,7 +243,6 @@ stddlg.cpp
 stddlg.hpp
 strmix.cpp
 strmix.hpp
-synchro.cpp
 synchro.hpp
 syslog.cpp
 syslog.hpp

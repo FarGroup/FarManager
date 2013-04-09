@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 #include "dirinfo.hpp"
 #include "macro.hpp"
 

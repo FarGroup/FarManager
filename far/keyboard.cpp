@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "strmix.hpp"
-#include "synchro.hpp"
+#include "PluginSynchro.hpp"
 #include "constitle.hpp"
 #include "window.hpp"
 #include "console.hpp"

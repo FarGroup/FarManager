@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "ctrlobj.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 #include "console.hpp"
 #include "farversion.hpp"
 #include "scrbuf.hpp"

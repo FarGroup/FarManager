@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "treelist.hpp"
 #include "interf.hpp"
-#include "synchro.hpp"
+#include "PluginSynchro.hpp"
 #include "codepage.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"

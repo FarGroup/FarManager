@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bitflags.hpp"
-#include "CriticalSections.hpp"
+#include "synchro.hpp"
 
 class ScreenBuf
 {

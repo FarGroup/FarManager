@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "clipboard.hpp"
 #include "strmix.hpp"
-#include "synchro.hpp"
+#include "PluginSynchro.hpp"
 #include "copy.hpp"
 #include "panelmix.hpp"
 #include "xlat.hpp"
