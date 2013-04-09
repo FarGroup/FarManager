@@ -124,12 +124,8 @@ void FileSystemWatcher::Release()
 {
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
-		HANDLE hCloseThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(FindCloseChangeNotification), Handle, 0, nullptr);
-		if (hCloseThread)
-		{
-			CloseHandle(hCloseThread);
-		}
-		else
+		Thread CloseThread;
+		if (!CloseThread.Start(reinterpret_cast<LPTHREAD_START_ROUTINE>(FindCloseChangeNotification), Handle))
 		{
 			FindCloseChangeNotification(Handle);
 		}
