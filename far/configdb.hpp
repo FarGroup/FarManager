@@ -304,6 +304,7 @@ private:
 	TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;
+	LONG ThreadCounter;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;
 	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;
@@ -315,5 +316,4 @@ private:
 	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
 
 	BitFlags CheckedDb;
-	LONG ThreadCounter;
 };

@@ -2707,6 +2707,7 @@ Database::Database(bool ImportExportMode):
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
+	ThreadCounter(0),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
 	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
