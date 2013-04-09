@@ -125,7 +125,6 @@ SRCS = \
 	sqlitedb.cpp \
 	stddlg.cpp \
 	strmix.cpp \
-	synchro.cpp \
 	syslog.cpp \
 	tinyxml.cpp \
 	TaskBar.cpp \

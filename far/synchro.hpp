@@ -93,9 +93,12 @@ public:
 
 	bool Wait(DWORD Milliseconds=INFINITE) { return WaitForSingleObject(h, Milliseconds)==WAIT_OBJECT_0; }
 
-	HANDLE GetHandle() { return h; }
 
 	virtual ~HandleWrapper() { Close(); }
+
+private:
+	HANDLE GetHandle() { return h; }
+	friend class MultiWaiter;
 };
 
 class Thread: public HandleWrapper
@@ -108,31 +111,48 @@ public:
 
 	const wchar_t *GetNamespace() { return L""; }
 
-	bool Start(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter=nullptr, LPDWORD lpThreadId=nullptr)
+	bool Start(unsigned int (WINAPI *StartAddress)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
 		assert(!h);
 
-		h = CreateThread(nullptr, 0, lpStartAddress, lpParameter, 0, lpThreadId);
+		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, StartAddress, Parameter, 0, ThreadId));
 		return h != nullptr;
 	}
 
-
 	template<class T, typename Y>
-	bool Start(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, T* OwnerClass, Y HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
+	bool MemberStart(T* OwnerClass, Y HandlerFunction, void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
 		assert(!h);
 
 		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
-		h = CreateMemberThread(ThreadAttributes, StackSize, reinterpret_cast<ThreadOwner*>(OwnerClass), reinterpret_cast<ThreadHandlerFunction>(HandlerFunction), Parameter, CreationFlags, ThreadId);
+
+		auto Param = new ThreadWrapperParam<T, Y>();
+		Param->Object = OwnerClass;
+		Param->Function = HandlerFunction;
+		Param->Param = Parameter;
+
+		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadWrapper<T, Y>, Param, 0, ThreadId));
 		return h != nullptr;
 	}
 
 private:
-	struct ThreadOwner { int Handler(void* Param); };
-	class ThreadParam;
-	typedef int (ThreadOwner::*ThreadHandlerFunction)(void* Param);
-	HANDLE CreateMemberThread(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId);
-	friend unsigned int WINAPI ThreadHandler(void* Parameter);
+	template<class T, typename Y>
+	struct ThreadWrapperParam
+	{
+		T* Object;
+		Y Function;
+		void* Param;
+	};
+
+	template<class T, typename Y>
+	static unsigned int WINAPI ThreadWrapper(void* p)
+	{
+		auto pParam = reinterpret_cast<Thread::ThreadWrapperParam<T, Y>*>(p);
+		auto Param = *pParam;
+		delete pParam;
+
+		return (Param.Object->*(Param.Function))(Param.Param);
+	}
 };
 
 class Mutex: public HandleWrapper
@@ -231,4 +251,17 @@ public:
 		Queue.pop();
 		return item;
 	}
+};
+
+class MultiWaiter:NonCopyable
+{
+public:
+	MultiWaiter() { Objects.reserve(10); }
+	~MultiWaiter() {}
+	void Add(HandleWrapper& Object) { Objects.emplace_back(Object.GetHandle()); }
+	DWORD Wait(bool WaitAll, DWORD Milliseconds) { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), WaitAll, Milliseconds); }
+	void Clear() {Objects.clear();}
+
+private:
+	std::vector<HANDLE> Objects;
 };

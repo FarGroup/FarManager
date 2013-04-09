@@ -120,12 +120,17 @@ bool FileSystemWatcher::Watch(bool got_focus)
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
+unsigned int WINAPI FindCloseChangeNotificationAsync(void* Param)
+{
+	return FindCloseChangeNotification(Param);
+}
+
 void FileSystemWatcher::Release()
 {
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
 		Thread CloseThread;
-		if (!CloseThread.Start(reinterpret_cast<LPTHREAD_START_ROUTINE>(FindCloseChangeNotification), Handle))
+		if (!CloseThread.Start(FindCloseChangeNotificationAsync, Handle))
 		{
 			FindCloseChangeNotification(Handle);
 		}

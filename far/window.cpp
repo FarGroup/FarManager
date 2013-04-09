@@ -137,7 +137,7 @@ void WindowHandler::Check()
 	if (!m_Thread.Opened() || m_Thread.Wait(0))
 	{
 		m_Thread.Close();
-		m_Thread.Start(nullptr, 0, this, &WindowHandler::WindowThreadRoutine, nullptr, 0, nullptr);
+		m_Thread.MemberStart(this, &WindowHandler::WindowThreadRoutine);
 	}
 }
 

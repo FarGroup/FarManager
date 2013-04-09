@@ -512,10 +512,9 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 
 	Event AsyncDone;
 
-	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
+	unsigned int ThreadProc(LPVOID lpParameter)
 	{
-		HierarchicalConfigDb *Cfg = static_cast<HierarchicalConfigDb *>(lpParameter);
-		delete Cfg;
+		delete this;
 		Global->Db->DecThreadCounter();
 		return 0;
 	}
@@ -540,7 +539,7 @@ public:
 		AsyncDone.Reset();
 		Global->Db->IncThreadCounter();
 		Thread FinishThread;
-		FinishThread.Start(ThreadProc, this);
+		FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc);
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
@@ -2071,7 +2070,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 			AsyncDone.SetName(strPath.CPtr(), strName.CPtr());
 		AsyncDone.Open(true,true);
 		AsyncWork.Open();
-		WorkThread.Start(ThreadProc, this);
+		WorkThread.MemberStart(this, &HistoryConfigCustom::ThreadProc);
 	}
 
 	void StopThread()
@@ -2080,27 +2079,29 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		WorkThread.Wait();
 	}
 
-	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
+	unsigned int ThreadProc(LPVOID lpParameter)
 	{
-		HistoryConfigCustom *HistoryCfg = static_cast<HistoryConfigCustom *>(lpParameter);
-		HANDLE handles[] = {HistoryCfg->AsyncWork.GetHandle(), HistoryCfg->StopEvent.GetHandle()};
+		MultiWaiter Waiter;
+		Waiter.Add(AsyncWork);
+		Waiter.Add(StopEvent);
+
 		while (true)
 		{
-			DWORD wait = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+			DWORD wait = Waiter.Wait(false, INFINITE);
 
 			if (wait != WAIT_OBJECT_0)
 				break;
 
-			while (!HistoryCfg->WorkQueue.Empty())
+			while (!WorkQueue.Empty())
 			{
-				AsyncWorkItem *item = HistoryCfg->WorkQueue.Pop();
+				AsyncWorkItem *item = WorkQueue.Pop();
 				if (item->DeleteId)
-					HistoryCfg->DeleteInternal(item->DeleteId);
-				HistoryCfg->AddInternal(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
+					DeleteInternal(item->DeleteId);
+				AddInternal(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
 				delete item;
 			}
 
-			HistoryCfg->AsyncDone.Set();
+			AsyncDone.Set();
 		}
 
 		return 0;

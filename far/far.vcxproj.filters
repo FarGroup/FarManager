@@ -371,9 +371,6 @@
     <ClCompile Include="strmix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="synchro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="syslog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

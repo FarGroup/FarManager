@@ -211,7 +211,6 @@ LINK_OBJS = \
 	"$(INTDIR)\sqlitedb.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
-	"$(INTDIR)\synchro.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\TaskBar.obj" \
