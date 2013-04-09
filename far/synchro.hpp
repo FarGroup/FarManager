@@ -75,7 +75,7 @@ public:
 		unsigned hs = 0;
 		if (HashPart)
 			while (*HashPart)
-				hs = hs*17 + *HashPart;
+				hs = hs*17 + *HashPart++;
 		strName << GetNamespace() << hs << L" " << TextPart;
 	}
 

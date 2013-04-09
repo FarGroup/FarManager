@@ -510,13 +510,37 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 	SQLiteStmt stmtDelValue;
 	SQLiteStmt stmtDeleteTree;
 
+	Thread FinishThread;
+	Event AsyncDone;
+
+	static DWORD WINAPI ThreadProc(LPVOID lpParameter)
+	{
+		HierarchicalConfigDb *Cfg = static_cast<HierarchicalConfigDb *>(lpParameter);
+		delete Cfg;
+		Global->Db->DecThreadCounter();
+		return 0;
+	}
+
+protected:
 	HierarchicalConfigDb() {}
+
+	virtual ~HierarchicalConfigDb() { EndTransaction(); AsyncDone.Set(); }
 
 public:
 
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
+		AsyncDone.SetName(strPath.CPtr(), strName.CPtr());
+		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
+		AsyncDone.Wait();          // and wait for the signal
 		Initialize(DbName, Local);
+	}
+
+	void AsyncFinish()
+	{
+		AsyncDone.Reset();
+		Global->Db->IncThreadCounter();
+		FinishThread.Start(ThreadProc, this);
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
@@ -582,8 +606,6 @@ public:
 		stmtCreateKey.Finalize();
 		return false;
 	}
-
-	virtual ~HierarchicalConfigDb() { EndTransaction(); }
 
 	bool Flush()
 	{
@@ -884,6 +906,7 @@ public:
 
 private:
 	HighlightHierarchicalConfigDb();
+	virtual ~HighlightHierarchicalConfigDb() {}
 
 	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
 	{
@@ -2639,7 +2662,7 @@ T* Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
+HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -2651,30 +2674,30 @@ std::unique_ptr<HierarchicalConfig> Database::CreateHierarchicalConfig(DBCHECK D
 		TryImportDatabase(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
-	return std::unique_ptr<HierarchicalConfig>(cfg);
+	return HierarchicalConfigUniquePtr(cfg);
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreatePluginsConfig(const string& guid, bool Local)
+HierarchicalConfigUniquePtr Database::CreatePluginsConfig(const string& guid, bool Local)
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).CPtr(), Local, true);
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreateFiltersConfig()
+HierarchicalConfigUniquePtr Database::CreateFiltersConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreateHighlightConfig()
+HierarchicalConfigUniquePtr Database::CreateHighlightConfig()
 {
 	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreateShortcutsConfig()
+HierarchicalConfigUniquePtr Database::CreateShortcutsConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
 }
 
-std::unique_ptr<HierarchicalConfig> Database::CreatePanelModeConfig()
+HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }

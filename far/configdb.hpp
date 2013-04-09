@@ -91,7 +91,7 @@ public:
 		TYPE_UNKNOWN
 	};
 
-	virtual ~HierarchicalConfig() {}
+	virtual void AsyncFinish() = 0;
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
@@ -109,7 +109,18 @@ public:
 
 protected:
 	HierarchicalConfig() {}
+	virtual ~HierarchicalConfig() {}
 };
+
+class HierarchicalConfigDeletor
+{
+public:
+	HierarchicalConfigDeletor() {}
+	HierarchicalConfigDeletor(const HierarchicalConfigDeletor &d) {}
+	void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
+};
+
+typedef std::unique_ptr<HierarchicalConfig,HierarchicalConfigDeletor> HierarchicalConfigUniquePtr;
 
 class ColorsConfig: public XmlConfig, public Transactional {
 
@@ -249,6 +260,7 @@ class Database
 {
 public:
 	Database(bool ImportExportMode=false);
+	~Database() { while (InterlockedExchangeAdd(&ThreadCounter,0) > 0) Sleep(1); }
 	bool Import(const string& File);
 	bool Export(const string& File);
 	int ShowProblems();
@@ -264,11 +276,14 @@ public:
 	const std::unique_ptr<HistoryConfig>& HistoryCfg() const { return m_HistoryCfg; }
 	const std::unique_ptr<HistoryConfig>& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
-	std::unique_ptr<HierarchicalConfig> CreatePluginsConfig(const string& guid, bool Local=false);
-	std::unique_ptr<HierarchicalConfig> CreateFiltersConfig();
-	std::unique_ptr<HierarchicalConfig> CreateHighlightConfig();
-	std::unique_ptr<HierarchicalConfig> CreateShortcutsConfig();
-	std::unique_ptr<HierarchicalConfig> CreatePanelModeConfig();
+	HierarchicalConfigUniquePtr CreatePluginsConfig(const string& guid, bool Local=false);
+	HierarchicalConfigUniquePtr CreateFiltersConfig();
+	HierarchicalConfigUniquePtr CreateHighlightConfig();
+	HierarchicalConfigUniquePtr CreateShortcutsConfig();
+	HierarchicalConfigUniquePtr CreatePanelModeConfig();
+
+	void IncThreadCounter() { InterlockedIncrement(&ThreadCounter); }
+	void DecThreadCounter() { InterlockedDecrement(&ThreadCounter); }
 
 private:
 	enum DBCHECK
@@ -279,7 +294,7 @@ private:
 		CHECK_SHORTCUTS = 0x4,
 		CHECK_PANELMODES = 0x8,
 	};
-	template<class T> std::unique_ptr<HierarchicalConfig> CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local=false, bool plugin=false);
+	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local=false, bool plugin=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
@@ -300,4 +315,5 @@ private:
 	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
 
 	BitFlags CheckedDb;
+	LONG ThreadCounter;
 };

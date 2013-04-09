@@ -136,12 +136,12 @@ COORD InitialSize;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
-Event CancelIoInProgress;
+static Event *CancelIoInProgress;
 
 DWORD WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
 {
 	DWORD Result = Global->ifn->CancelSynchronousIo(Thread);
-	CancelIoInProgress.Reset();
+	CancelIoInProgress->Reset();
 	return Result;
 }
 
@@ -153,14 +153,11 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		return TRUE;
 
 	case CTRL_BREAK_EVENT:
-		if(!CancelIoInProgress.Signaled())
+		if(!CancelIoInProgress->Signaled())
 		{
-			CancelIoInProgress.Set();
-			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, Global->MainThreadHandle(), 0, nullptr);
-			if (Thread)
-			{
-				CloseHandle(Thread);
-			}
+			CancelIoInProgress->Set();
+			Thread CancelSynchronousIoThread;
+			CancelSynchronousIoThread.Start(CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
 		WriteInput(KEY_BREAK);
 
@@ -191,7 +188,8 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress.Open(true);
+		CancelIoInProgress = new Event();
+		CancelIoInProgress->Open(true);
 
 		DWORD Mode;
 		if(!Global->Console->GetMode(Global->Console->GetInputHandle(), Mode))
@@ -278,6 +276,7 @@ void CloseConsole()
 	KeyQueue=nullptr;
 
 	Global->ConsoleIcons->restorePreviousIcons();
+	delete CancelIoInProgress;
 }
 
 

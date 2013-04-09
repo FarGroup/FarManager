@@ -70,7 +70,7 @@ class PluginSettings: public AbstractSettings
 	private:
 		std::vector<std::unique_ptr<FarSettingsNameItems>> m_Enum;
 		std::vector<unsigned __int64> m_Keys;
-		std::unique_ptr<HierarchicalConfig> PluginsCfg;
+		HierarchicalConfigUniquePtr PluginsCfg;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid, bool Local);
