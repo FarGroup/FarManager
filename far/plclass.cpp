@@ -324,6 +324,18 @@ ArclitePrivateInfo ArcliteInfo =
 	pluginapi::apiCreateDirectory
 };
 
+NetBoxPrivateInfo NetBoxInfo =
+{
+	sizeof(NetBoxInfo),
+	pluginapi::apiCreateFile,
+	pluginapi::apiGetFileAttributes,
+	pluginapi::apiSetFileAttributes,
+	pluginapi::apiMoveFileEx,
+	pluginapi::apiDeleteFile,
+	pluginapi::apiRemoveDirectory,
+	pluginapi::apiCreateDirectory
+};
+
 MacroPrivateInfo MacroInfo =
 {
 	sizeof(MacroPrivateInfo),
@@ -342,6 +354,10 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 		if(pPlugin->GetGUID() == ArcliteGuid)
 		{
 			PSI->Private = &ArcliteInfo;
+		}
+		else if(pPlugin->GetGUID() == NetBoxGuid)
+		{
+			PSI->Private = &NetBoxInfo;
 		}
 		else if(pPlugin->GetGUID() == LuamacroGuid)
 		{

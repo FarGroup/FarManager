@@ -2299,6 +2299,18 @@ struct ArclitePrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+struct NetBoxPrivateInfo
+{
+	size_t StructSize;
+	FARAPICREATEFILE CreateFile;
+	FARAPIGETFILEATTRIBUTES GetFileAttributes;
+	FARAPISETFILEATTRIBUTES SetFileAttributes;
+	FARAPIMOVEFILEEX MoveFileEx;
+	FARAPIDELETEFILE DeleteFile;
+	FARAPIREMOVEDIRECTORY RemoveDirectory;
+	FARAPICREATEDIRECTORY CreateDirectory;
+};
+
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
 
 struct MacroPrivateInfo
