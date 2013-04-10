@@ -1410,14 +1410,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			Items->emplace_back(VALUE_TYPE(Items)());
 			auto& Item = Items->back();
 			ClearStruct(Item);
-			Item.FileAttributes = FindData.dwFileAttributes;
-			Item.FileSize = FindData.nFileSize;
-			Item.AllocationSize = FindData.nAllocationSize;
-			Item.CreationTime = FindData.ftCreationTime;
-			Item.LastAccessTime = FindData.ftLastAccessTime;
-			Item.LastWriteTime = FindData.ftLastWriteTime;
-			Item.FileName = DuplicateString(strFullName.CPtr());
-			Item.AlternateFileName = DuplicateString(FindData.strAlternateFileName.CPtr());
+			FindDataExToPluginPanelItem(&FindData, &Item);
 		}
 
 		*pItemsNumber=Items->size();
