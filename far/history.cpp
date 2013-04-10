@@ -105,22 +105,6 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 	string strName(Str),strGuid,strFile(File),strData(Data);
 	if(Guid) strGuid=GuidToStr(*Guid);
 
-	/*
-		баг /old info, before async/:
-		должны быть включены история папок и комманд:
-		Запускаем первую копию фара, в ней чистим историю команд (AltF8 Del Enter) в командной строке набираем последовательно:
-		cmd1 Enter
-		cmd2 Enter
-		Запускаем вторую копию фара, возвращаемся в первую, там:
-		с CtrlEnd Enter (выполнили команду cmd2)
-		Закрываем вторую копию, в первой:
-		c CtrlEnd CtrlEnd Enter (выполнили команду cmd1)
-		c CtrlEnd тут ожидается, что в командной строке появится cmd1, на самом деле появляется cmd2. А следующая введенная команда в историю вообще не попадет.
-
-		проблема связана с WAL. убирание транзакции лечит.
-	*/
-	//HistoryCfgRef()->BeginTransaction();
-
 	unsigned __int64 DeleteId = 0;
 
 	if (RemoveDups) // удалять дубликаты?
@@ -150,8 +134,6 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
 
 	ResetPosition();
-
-	//HistoryCfgRef()->EndTransaction();
 }
 
 bool History::ReadLastItem(const string& HistoryName, string &strStr)
