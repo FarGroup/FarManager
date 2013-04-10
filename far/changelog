@@ -1,3 +1,7 @@
+drkns 11.04.2013 12:15:01 +0200 - build 3319
+
+1. В GetPanelItem не заполнялось ChangeTime.
+
 drkns 11.04.2013 11:30:59 +0200 - build 3318
 
 1. В FarGetDirList не заполнялось ChangeTime.

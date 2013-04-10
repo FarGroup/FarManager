@@ -59,7 +59,7 @@ static inline const wchar_t* SkipMasks(const wchar_t* masks)
 
 static inline const wchar_t* SkipRE(const wchar_t* masks)
 {
-	if (*masks == L'/')
+	if (*masks == RE_start)
 	{
 		masks++;
 
@@ -253,7 +253,7 @@ bool filemasks::masks::Set(const string& masks)
 		}
 	}
 
-	bRE = expmasks.At(0) == L'/';
+	bRE = expmasks.At(0) == RE_start;
 
 	if (bRE)
 	{

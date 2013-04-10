@@ -290,6 +290,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			gpi->Item->LastWriteTime=fi->WriteTime;
 			gpi->Item->CreationTime=fi->CreationTime;
 			gpi->Item->LastAccessTime=fi->AccessTime;
+			gpi->Item->ChangeTime=fi->ChangeTime;
 			gpi->Item->NumberOfLinks=fi->NumberOfLinks;
 			gpi->Item->Flags=fi->UserFlags;
 			if (fi->Selected)
