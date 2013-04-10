@@ -18,6 +18,10 @@ local RunningMacros = {}
 local LastMessage = {}
 local utils
 
+local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
+
+local function Unquote(str) return str:match('^"?(.-)"?$') end
+
 local function pack (...)
   return { n=select("#",...), ... }
 end
@@ -85,9 +89,8 @@ function export.GetPluginInfo()
 end
 
 local function loadmacro (Text)
-  if string.sub(Text,1,1) == "@" then
-    Text = string.sub(Text,2):gsub("%%(.-)%%", win.GetEnv)
-    return loadfile(Text)
+  if Text:sub(1,1) == "@" then
+    return loadfile(ExpandEnv(Text:sub(2)))
   else
     return loadstring(Text)
   end
@@ -184,10 +187,15 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
 end
 
 local function ProcessCommandLine (CmdLine)
-  local op, text = CmdLine:match("(%S+)%s*(.*)")
+  local op, text = CmdLine:match("(%S+)%s*(.-)%s*$")
   if op then
     local op = op:lower()
-    if     op=="post"  and text~="" then far.MacroPost(text, F.KMFLAGS_DISABLEOUTPUT)
+    if op=="post" and text~="" then
+      if text:sub(1,1)=="@" then
+        text = Unquote(ExpandEnv(text:sub(2)))
+        text = "@"..far.ConvertPath(text, F.CPM_NATIVE)
+      end
+      far.MacroPost(text, F.KMFLAGS_DISABLEOUTPUT)
     elseif op=="check" and text~="" then far.MacroCheck(text)
     elseif op=="load" then far.MacroLoadAll()
     elseif op=="save" then utils.WriteMacros()

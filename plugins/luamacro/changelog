@@ -1,3 +1,7 @@
+shmuel 10.04.2013 17:23:01 +0200 - build 129
+
+1. lm:post @filename работает без указания полного пути, если filename есть в активной панели.
+
 shmuel 05.04.2013 15:31:22 +0200 - build 128
 
 1. LuaFAR: при ломке API забыли про параметры ProcessDialogEvent.
