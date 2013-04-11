@@ -70,3 +70,15 @@ bpluginma \
 ) || exit 1
 
 cd ..
+
+cd outfinalnew32/Plugins || exit 1
+cd FTP || exit 1
+7z a ../../../FarFtp.x86.7z
+cd ../MultiArc || exit 1
+7z a ../../../MultiArc.x86.7z
+cd ../../../outfinalnew64/Plugins || exit 1
+cd FTP || exit 1
+7z a ../../../FarFtp.x64.7z
+cd ../MultiArc || exit 1
+7z a ../../../MultiArc.x64.7z
+cd ../../../
