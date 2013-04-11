@@ -887,10 +887,10 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 						FSF.ConvertPath(CPM_FULL, pCmd, temp, ARRAYSIZE(temp));
 						DWORD FTAttr=GetFileAttributes(temp);
 
-						if (FTAttr != 0xFFFFFFFF && Arg2)
+						if (Arg2)
 						{
 							wchar_t Disk[16];
-							LINK_TYPE LinkType;
+							LINK_TYPE LinkType=LINK_HARDLINK;
 
 							if (pCmd[1] == L':' && ((pCmd[2] == L'\\' && pCmd[3] == 0) || pCmd[2] == 0))
 							{
@@ -903,13 +903,17 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 
 								LinkType=LINK_VOLMOUNT;
 							}
-							else if (FTAttr&FILE_ATTRIBUTE_DIRECTORY)
-								LinkType=NeedSymLink?LINK_SYMLINKDIR:LINK_JUNCTION;
-							else
-								LinkType=NeedSymLink?LINK_SYMLINKFILE:LINK_HARDLINK;
-
+							else if (FTAttr != 0xFFFFFFFF)
+							{
+								if (FTAttr&FILE_ATTRIBUTE_DIRECTORY)
+									LinkType=NeedSymLink?LINK_SYMLINKDIR:LINK_JUNCTION;
+								else
+									LinkType=NeedSymLink?LINK_SYMLINKFILE:LINK_HARDLINK;
+							}
 							FSF.MkLink(pCmd,Arg2,LinkType,LinkFlags);
 						}
+						else
+							Info.ShowHelp(Info.ModuleName,(PrefIdx==static_cast<size_t>(-1))?L"Contents":Pref[PrefIdx].HelpName,0);
 					}
 					else if (Load || Unload)
 					{
