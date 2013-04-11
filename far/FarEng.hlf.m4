@@ -2174,7 +2174,7 @@ item title only.
     User menus are stored in text files named #FarMenu.Ini#:
     - Global user menu, by default, is located in the Far Manager folder.
       If global user menu file exists it will override the user specific menu.
-    - User specifc user menu is located in the user profile.
+    - User specific user menu is located in the user profile.
     - Local user menu is located in the current folder.
 
     To close the menu even if submenus are open use #Shift-F10#.
