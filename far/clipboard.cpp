@@ -471,7 +471,7 @@ wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
 bool Clipboard::InternalCopy(bool FromWin)
 {
 	bool Ret=false;
-	bool OldUseInternalClipboard=SetUseInternalClipboardState(FromWin?false:true);
+	bool OldUseInternalClipboard=SetUseInternalClipboardState(!FromWin);
 
 	UINT uFormat;
 	HANDLE hClipData=GetData(uFormat = CF_UNICODETEXT);

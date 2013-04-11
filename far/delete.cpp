@@ -363,11 +363,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 		if (LenItems > 0)
 		{
-			if ((LenItems >= 2 && StrItems.At(LenItems-2) == L'1') ||
-			        StrItems.At(LenItems-1) >= L'5' ||
-			        StrItems.At(LenItems-1) == L'0')
+			if ((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
+			        StrItems[LenItems-1] >= L'5' ||
+			        StrItems[LenItems-1] == L'0')
 				Ends=MSG(MAskDeleteItemsS);
-			else if (StrItems.At(LenItems-1) == L'1')
+			else if (StrItems[LenItems-1] == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
 		strDeleteFilesMsg = LangString(MAskDeleteItems) << SelCount << Ends;
@@ -539,8 +539,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		{
 			int Length=(int)strSelName.GetLength();
 
-			if (!Length || (strSelName.At(0)==L'\\' && Length<2) ||
-			        (strSelName.At(1)==L':' && Length<4))
+			if (!Length || (strSelName[0]==L'\\' && Length<2) ||
+			        (strSelName[1]==L':' && Length<4))
 				continue;
 
 			DWORD CurTime=GetTickCount();
@@ -1001,9 +1001,9 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name)
 
 void DeleteDirTree(const string& Dir)
 {
-	if (!Dir.At(0) ||
-	        (IsSlash(Dir.At(0)) && !Dir.At(1)) ||
-	        (Dir.At(1)==L':' && IsSlash(Dir.At(2)) && !Dir.At(3)))
+	if (Dir.IsEmpty() ||
+	        (IsSlash(Dir[0]) && !Dir[1]) ||
+	        (Dir.GetLength() == 3 && Dir[1]==L':' && IsSlash(Dir[2])))
 		return;
 
 	string strFullName;

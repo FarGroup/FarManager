@@ -818,7 +818,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
 			const wchar_t *str = (const wchar_t *)vParam;
-			return (__int64)(GetVisualPos(CheckHighlights(*str,(int)iParam))+1);
+			return GetVisualPos(CheckHighlights(*str,(int)iParam))+1;
 		}
 		case MCODE_F_MENU_SELECT:
 		{
@@ -2197,8 +2197,8 @@ void VMenu::ShowMenu(bool IsParent)
 						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.CPtr(),L'&',J);
 						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.CPtr(),L'&',J);
 
-						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName.At(J+PCorrection) : 0;
-						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName.At(J+NCorrection) : 0;
+						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName[J+PCorrection] : 0;
+						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName[J+NCorrection] : 0;
 
 						if (!PrevItem && !NextItem)
 							break;
@@ -2284,7 +2284,7 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					int AmpPos = Item[I]->AmpPos - ShowPos;
 
-					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.GetLength()) && (strMItemPtr.At(AmpPos) != L'&'))
+					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.GetLength()) && (strMItemPtr[AmpPos] != L'&'))
 					{
 						string strEnd = strMItemPtr.CPtr() + AmpPos;
 						strMItemPtr.SetLength(AmpPos);

@@ -212,7 +212,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 			for (size_t i = 0; i < SizeText.GetLength(); ++i, ++DizPtr)
 			{
-				if (*DizPtr!=L',' && *DizPtr!=L'.' && *DizPtr != SizeText.At(i))
+				if (*DizPtr!=L',' && *DizPtr!=L'.' && *DizPtr != SizeText[i])
 				{
 					SkipSize=false;
 					break;

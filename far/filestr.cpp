@@ -96,7 +96,7 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 		}
 	}
 
-	return (Octets>0||Ascii)?false:true;
+	return !Octets && !Ascii;
 }
 
 GetFileString::GetFileString(File& SrcFile):

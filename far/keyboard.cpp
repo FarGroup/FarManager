@@ -1098,7 +1098,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
 		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
-		KeyMacro::SetMacroConst(constMsLastCtrlState,(__int64)CtrlState);
+		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
 
 		// Для NumPad!
 		if ((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
@@ -1274,9 +1274,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.PreMouseEventFlags=IntKeyState.MouseEventFlags;
 		IntKeyState.MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
-		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
-		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)IntKeyState.MouseEventFlags);
-		KeyMacro::SetMacroConst(constMsLastCtrlState,(__int64)CtrlState);
+		KeyMacro::SetMacroConst(constMsCtrlState,CtrlState);
+		KeyMacro::SetMacroConst(constMsEventFlags,IntKeyState.MouseEventFlags);
+		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
 
 		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
@@ -1285,7 +1285,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 		DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
-		KeyMacro::SetMacroConst(constMsButton,(__int64)rec->Event.MouseEvent.dwButtonState);
+		KeyMacro::SetMacroConst(constMsButton,rec->Event.MouseEvent.dwButtonState);
 
 		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 		{
@@ -1299,8 +1299,8 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.PrevMouseY=IntKeyState.MouseY;
 		IntKeyState.MouseX=rec->Event.MouseEvent.dwMousePosition.X;
 		IntKeyState.MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
-		KeyMacro::SetMacroConst(constMsX,(__int64)IntKeyState.MouseX);
-		KeyMacro::SetMacroConst(constMsY,(__int64)IntKeyState.MouseY);
+		KeyMacro::SetMacroConst(constMsX,IntKeyState.MouseX);
+		KeyMacro::SetMacroConst(constMsY,IntKeyState.MouseY);
 
 		/* $ 26.04.2001 VVM
 		   + Обработка колесика мышки. */
@@ -2080,7 +2080,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				Rec->Event.MenuEvent.dwCommandId=0;
 				break;
 			case FOCUS_EVENT:
-				Rec->Event.FocusEvent.bSetFocus = FKey == KEY_KILLFOCUS?FALSE:TRUE;
+				Rec->Event.FocusEvent.bSetFocus = FKey != KEY_KILLFOCUS;
 				break;
 		}
 	}
@@ -2235,7 +2235,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	// _SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog(L"CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X IntKeyState.ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, Char.AsciiChar,IntKeyState.ShiftPressed,ShiftPressedLast));
 
 	if (NotMacros)
-		*NotMacros=CtrlState&0x80000000?TRUE:FALSE;
+		*NotMacros = (CtrlState&0x80000000) != 0;
 
 //  CtrlState&=~0x80000000;
 
@@ -2720,7 +2720,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			if (IntKeyState.ShiftPressed && RealKey && !ShiftPressedLast && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !LastShiftEnterPressed)
 				return (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER;
 
-			LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
+			LastShiftEnterPressed = (Modif&KEY_SHIFT) != 0;
 			return Modif|((CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
 		case VK_BROWSER_BACK:
 			return Modif|KEY_BROWSER_BACK;

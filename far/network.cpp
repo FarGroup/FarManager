@@ -156,7 +156,7 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 
-	if (strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
+	if (strNetDir[0]==L'\\' && strNetDir[1] == L'\\')
 	{
 		strComputerName = strNetDir.CPtr()+2;
 		size_t pos;

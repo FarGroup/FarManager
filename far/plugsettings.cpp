@@ -338,17 +338,17 @@ static bool FilterNone(int)
 
 static bool FilterView(int Type)
 {
-	return (Type==0)?true:false;
+	return !Type;
 }
 
 static bool FilterEdit(int Type)
 {
-	return (Type==1||Type==4)?true:false;
+	return Type == 1 || Type == 4;
 }
 
 static bool FilterExt(int Type)
 {
-	return (Type==2||Type==3)?true:false;
+	return Type ==2 || Type == 3;
 }
 
 int FarSettings::Enum(FarSettingsEnum& Enum)

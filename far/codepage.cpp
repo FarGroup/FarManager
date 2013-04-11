@@ -92,7 +92,7 @@ BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 	// для списков прожолжаем енумерацию, а для процедуры же проверки поддерживаемости кодовой страницы выходим
 	CPINFOEX cpiex;
 	if (!cp.GetCodePageInfo(codePage, cpiex))
-		return cp.CallbackCallSource == CodePageCheck ? FALSE : TRUE;
+		return cp.CallbackCallSource != CodePageCheck;
 
 	// Для функции проверки поддерживаемости кодовой страницы мы прошли все проверки и можем выходить
 	if (cp.CallbackCallSource == CodePageCheck)
@@ -125,7 +125,7 @@ BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 		        cp.favoriteCodePages
 		    ),
 		    true,
-		    selectType & CPST_FIND ? true : false,
+		    (selectType & CPST_FIND) != 0,
 			IsCodePageNameCustom
 		);
 		// Увеличиваем счётчик выбранных таблиц символов

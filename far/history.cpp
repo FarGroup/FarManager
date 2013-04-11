@@ -698,7 +698,7 @@ void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
 
 bool History::EqualType(int Type1, int Type2)
 {
-	return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == 4 && Type2 == 1) || (Type1 == 1 && Type2 == 4)))?true:false;
+	return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == 4 && Type2 == 1) || (Type1 == 1 && Type2 == 4)));
 }
 
 HistoryConfig* History::HistoryCfgRef(void)

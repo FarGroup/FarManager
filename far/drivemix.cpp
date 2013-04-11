@@ -109,14 +109,14 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 		if (!wcspbrk(DestPath.CPtr(),L"\\:"))
 			return TRUE;
 
-		if (((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\') || (strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\')) &&
+		if (((strSrcRoot[0]==L'\\' && strSrcRoot[1]==L'\\') || (strDestRoot[0]==L'\\' && strDestRoot[1]==L'\\')) &&
 		        StrCmpI(strSrcRoot.CPtr(),strDestRoot.CPtr()))
 			return FALSE;
 
 		if (SrcPath.IsEmpty() || DestPath.IsEmpty() || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
 			return TRUE;
 
-		if (Upper(strDestRoot.At(0))==Upper(strSrcRoot.At(0)))
+		if (Upper(strDestRoot[0])==Upper(strSrcRoot[0]))
 			return TRUE;
 
 		unsigned __int64 SrcTotalSize, DestTotalSize;

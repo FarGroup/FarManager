@@ -81,7 +81,7 @@ InfoList::InfoList():
 	else
 	{
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			SectionState[i].Show=Global->Opt->InfoPanel.strShowStatusInfo.At(i) == '0'?false:true;
+			SectionState[i].Show = Global->Opt->InfoPanel.strShowStatusInfo[i] == L'1';
 	}
 
 	if (!LastMode)

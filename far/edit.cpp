@@ -518,17 +518,17 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return (__int64)!GetLength();
+			return !GetLength();
 		case MCODE_C_SELECTED:
-			return (__int64)(SelStart != -1 && SelStart < SelEnd);
+			return SelStart != -1 && SelStart < SelEnd;
 		case MCODE_C_EOF:
-			return (__int64)(CurPos >= StrSize);
+			return CurPos >= StrSize;
 		case MCODE_C_BOF:
-			return (__int64)!CurPos;
+			return !CurPos;
 		case MCODE_V_ITEMCOUNT:
-			return (__int64)StrSize;
+			return StrSize;
 		case MCODE_V_CURPOS:
-			return (__int64)(GetLineCursorPos()+1);
+			return GetLineCursorPos()+1;
 		case MCODE_F_EDITOR_SEL:
 		{
 			int Action=(int)((intptr_t)vParam);
@@ -2927,7 +2927,7 @@ int Edit::KeyMatchedMask(int Key, const string& Mask)
 
 int Edit::CheckCharMask(wchar_t Chr)
 {
-	return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DIGITS || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX)?TRUE:FALSE;
+	return Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DIGITS || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX;
 }
 
 void Edit::SetDialogParent(DWORD Sets)
@@ -3091,7 +3091,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		bool OddQuote = false;
 		for(size_t i=0; i<strStr.GetLength(); i++)
 		{
-			if(strStr.At(i) == L'"')
+			if(strStr[i] == L'"')
 			{
 				OddQuote = !OddQuote;
 			}
@@ -3106,15 +3106,15 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		{
 			for(Pos=strStr.GetLength()-1; Pos!=static_cast<size_t>(-1); Pos--)
 			{
-				if(strStr.At(Pos)==L'"')
+				if(strStr[Pos]==L'"')
 				{
 					Pos--;
-					while(strStr.At(Pos)!=L'"' && Pos!=static_cast<size_t>(-1))
+					while(strStr[Pos]!=L'"' && Pos!=static_cast<size_t>(-1))
 					{
 						Pos--;
 					}
 				}
-				else if(strStr.At(Pos)==L' ')
+				else if(strStr[Pos]==L' ')
 				{
 					Pos++;
 					break;
@@ -3126,7 +3126,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			Pos=0;
 		}
 		bool StartQuote=false;
-		if(strStr.At(Pos)==L'"')
+		if(strStr[Pos]==L'"')
 		{
 			Pos++;
 			StartQuote=true;
@@ -3398,7 +3398,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				int SelStart=GetLength();
 
 				// magic
-				if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName.At(SelStart-2)))
+				if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
 				{
 					Str[SelStart-2] = Str[SelStart-1];
 					StrSize--;
@@ -3504,7 +3504,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 										int SelStart=GetLength();
 
 										// magic
-										if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName.At(SelStart-2)))
+										if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName[SelStart-2]))
 										{
 											Str[SelStart-2] = Str[SelStart-1];
 											StrSize--;

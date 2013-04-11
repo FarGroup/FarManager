@@ -170,9 +170,9 @@ void Panel::ChangeDisk()
 {
 	int Pos=0,FirstCall=TRUE;
 
-	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+	if (!strCurDir.IsEmpty() && strCurDir[1]==L':')
 	{
-		Pos=std::max(0, Upper(strCurDir.At(0))-L'A');
+		Pos=std::max(0, Upper(strCurDir[0])-L'A');
 	}
 
 	while (Pos!=-1)
@@ -478,7 +478,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
 			{
 				string LocalName("?:");
-				LocalName.Replace(0, strRootDir.At(0));
+				LocalName.Replace(0, strRootDir[0]);
 
 				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
 				{
@@ -548,7 +548,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 				case DRIVE_REMOTE:
 				case DRIVE_REMOTE_NOT_CONNECTED:
-					DriveLocalToRemoteName(NewItem.DriveType,strRootDir.At(0),NewItem.Path);
+					DriveLocalToRemoteName(NewItem.DriveType,strRootDir[0],NewItem.Path);
 					break;
 				}
 			}
@@ -878,7 +878,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			        !strCurDir.IsEmpty() &&
 			        (StrCmpN(strCurDir.CPtr(),L"\\\\",2) ))
 			{
-				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
+				const wchar_t RootDir[4] = {strCurDir[0],L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
 				return ChDisk.GetSelectPos();
@@ -983,7 +983,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			Dlg.Process();
 			if(Dlg.GetExitCode()==CHDISKERROR_BUTTON_OK)
 			{
-				mitem->cDrive=ChDiskDlg[CHDISKERROR_FIXEDIT].strData.At(0);
+				mitem->cDrive=ChDiskDlg[CHDISKERROR_FIXEDIT].strData[0];
 			}
 			else
 			{
@@ -1487,8 +1487,8 @@ void Panel::FastFind(int FirstKey)
 
 						// уберем двойные '**'
 						if (strName.GetLength() > 1
-						        && strName.At(strName.GetLength()-1) == L'*'
-						        && strName.At(strName.GetLength()-2) == L'*')
+						        && strName[strName.GetLength()-1] == L'*'
+						        && strName[strName.GetLength()-2] == L'*')
 						{
 							strName.SetLength(strName.GetLength()-1);
 							FindEdit.SetString(strName.CPtr());
@@ -2038,7 +2038,7 @@ void Panel::SetTitle()
 string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
 	string strTitleDir;
-	bool truncTitle = (SubLen==-1 || TruncSize==0)?false:true;
+	bool truncTitle = SubLen!=-1 && TruncSize;
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -2383,7 +2383,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			if (GetType()==FILE_PANEL)
 			{
-				((FileList *)this)->PluginSetSelection(Param1,Param2?true:false);
+				((FileList *)this)->PluginSetSelection(Param1, Param2 != nullptr);
 				Result=TRUE;
 			}
 			break;

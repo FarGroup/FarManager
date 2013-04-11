@@ -258,7 +258,7 @@ struct UniSet
 				if (types&t)
 				{
 					if (CheckType(t,chr))
-						return negative?false:true;
+						return !negative;
 				}
 
 				t>>=1;
@@ -274,7 +274,7 @@ struct UniSet
 				if (nottypes&t)
 				{
 					if (!CheckType(t,chr))
-						return negative?false:true;
+						return !negative;
 				}
 
 				t>>=1;
@@ -283,14 +283,14 @@ struct UniSet
 
 		unsigned char h=(chr&0xff00)>>8;
 
-		if (!high[h]) return negative?true:false;
+		if (!high[h]) return negative != 0;
 
 		if (((high[h][(chr&0xff)>>3]&(1<<(chr&7)))?1:0))
 		{
-			return negative?false:true;
+			return !negative;
 		}
 
-		return negative?true:false;
+		return negative != 0;
 	}
 	void SetBit(wchar_t  chr)
 	{

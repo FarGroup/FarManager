@@ -327,7 +327,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 									{
-										Dlg->SendMessage(DM_SET3STATE,i,ToPtr((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
+										Dlg->SendMessage(DM_SET3STATE,i,ToPtr((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE) != 0));
 										Dlg->SendMessage(DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
 									}
 									if(!DlgParam->OwnerChanged)

@@ -554,22 +554,22 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return (__int64)(!CurLine->m_next && !CurLine->m_prev); //??
+			return !CurLine->m_next && !CurLine->m_prev; //??
 		case MCODE_C_EOF:
-			return (__int64)(!CurLine->m_next && CurPos>=CurLine->GetLength());
+			return !CurLine->m_next && CurPos>=CurLine->GetLength();
 		case MCODE_C_BOF:
-			return (__int64)(!CurLine->m_prev && !CurPos);
+			return !CurLine->m_prev && !CurPos;
 		case MCODE_C_SELECTED:
-			return (__int64)(BlockStart || VBlockStart?TRUE:FALSE);
+			return BlockStart || VBlockStart;
 		case MCODE_V_EDITORCURPOS:
-			return (__int64)(CurLine->GetTabCurPos()+1);
+			return CurLine->GetTabCurPos()+1;
 		case MCODE_V_EDITORREALPOS:
-			return (__int64)(CurLine->GetCurPos()+1);
+			return CurLine->GetCurPos()+1;
 		case MCODE_V_EDITORCURLINE:
-			return (__int64)(NumLine+1);
+			return NumLine+1;
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_EDITORLINES:
-			return (__int64)NumLastLine;
+			return NumLastLine;
 			// работа со стековыми закладками
 		case MCODE_F_BM_ADD:
 			return AddSessionBookmark();
@@ -608,10 +608,10 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				switch (iMode)
 				{
-					case 0: Ret=(__int64)((DWORD)ebm.Line+1);  break;
-					case 1: Ret=(__int64)((DWORD)ebm.Cursor+1); break;
-					case 2: Ret=(__int64)((DWORD)ebm.LeftPos+1); break;
-					case 3: Ret=(__int64)((DWORD)ebm.ScreenLine+1); break;
+					case 0: Ret=ebm.Line+1;  break;
+					case 1: Ret=ebm.Cursor+1; break;
+					case 2: Ret=ebm.LeftPos+1; break;
+					case 3: Ret=ebm.ScreenLine+1; break;
 				}
 			}
 
@@ -751,7 +751,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 							UnmarkMacroBlock();
 							Show();
-							return (__int64)Ret;
+							return Ret;
 						}
 					}
 
@@ -7264,7 +7264,7 @@ void Editor::PR_EditorShowMsg()
 
 Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 {
-	Edit *pEdit = new Edit(this, lpwszStr ? false : true);
+	Edit *pEdit = new Edit(this, !lpwszStr);
 
 	if (pEdit)
 	{

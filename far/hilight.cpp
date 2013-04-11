@@ -917,7 +917,7 @@ void HighlightFiles::SaveHiData()
 			if (!key)
 				break;
 
-			SaveFilter(cfg.get(), key, HiData[i].get(), (!j || j==3)? false : true);
+			SaveFilter(cfg.get(), key, HiData[i].get(), j && j!=3);
 		}
 	}
 }

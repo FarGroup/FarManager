@@ -94,9 +94,9 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	if (rc || !ChangeDir)
 	{
 		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
-		        strCurDir.At(0) && strCurDir.At(1)==L':')
+		        strCurDir[0] && strCurDir[1]==L':')
 		{
-			Drive.Replace(1, Upper(strCurDir.At(0)));
+			Drive.Replace(1, Upper(strCurDir[0]));
 			SetEnvironmentVariable(Drive.CPtr(), strCurDir.CPtr());
 		}
 	}
@@ -229,7 +229,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 						if (ChkFld == TSTFLD_EMPTY || ChkFld == TSTFLD_NOTEMPTY || ChkFld == TSTFLD_NOTACCESS)
 						{
-							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && !strTestPathTemp.At(1)))
+							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && !strTestPathTemp[1]))
 							{
 								*pTestPath = strTestPathTemp;
 

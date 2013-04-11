@@ -845,7 +845,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						{
 							m_CurState->HistoryDisable=0;
 							m_CurState->cRec=Rec->Rec;
-							m_IsRedrawEditor=Global->CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?false:true;
+							m_IsRedrawEditor = !Global->CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN);
 						}
 						return true;
 					}
@@ -1258,7 +1258,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_DELMACRO,nullptr,&fmc};
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
 
-	return (mpr && mpr->Values[0].Boolean) ? TRUE:FALSE;
+	return mpr && mpr->Values[0].Boolean;
 }
 
 bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
@@ -2905,7 +2905,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 
 			if (!tmpMode)
-				return (__int64)aKey;
+				return aKey;
 			else
 			{
 				string value;
@@ -2929,7 +2929,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (!State.isUnknown())
 					ms->HistoryDisable=(DWORD)State.getInteger();
 			}
-			return (__int64)oldHistoryDisable;
+			return oldHistoryDisable;
 		}
 
 		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
@@ -3314,7 +3314,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		f=fo;
 
 	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].getInteger())-1:-1, Data);
-	return f?true:false;
+	return f != nullptr;
 }
 
 
@@ -3339,7 +3339,7 @@ static bool keyFunc(FarMacroCall* Data)
 	}
 
 	PassString(strKeyText, Data);
-	return !strKeyText.IsEmpty()?true:false;
+	return !strKeyText.IsEmpty();
 }
 
 // V=waitkey([N,[T]])
@@ -3359,7 +3359,7 @@ static bool waitkeyFunc(FarMacroCall* Data)
 				strKeyText.Clear();
 
 		PassString(strKeyText, Data);
-		return !strKeyText.IsEmpty()?true:false;
+		return !strKeyText.IsEmpty();
 	}
 
 	if (Key == KEY_NONE)
@@ -3409,7 +3409,7 @@ static bool indexFunc(FarMacroCall* Data)
 	const wchar_t *s = Params[0].toString();
 	const wchar_t *p = Params[1].toString();
 	const wchar_t *i = !Params[2].getInteger() ? StrStrI(s,p) : StrStr(s,p);
-	bool Ret= i ? true : false;
+	bool Ret = i != nullptr;
 	PassNumber((i ? i-s : -1), Data);
 	return Ret;
 }
@@ -3421,7 +3421,7 @@ static bool rindexFunc(FarMacroCall* Data)
 	const wchar_t *s = Params[0].toString();
 	const wchar_t *p = Params[1].toString();
 	const wchar_t *i = !Params[2].getInteger() ? RevStrStrI(s,p) : RevStrStr(s,p);
-	bool Ret= i ? true : false;
+	bool Ret = i != nullptr;
 	PassNumber((i ? i-s : -1), Data);
 	return Ret;
 }
@@ -3471,7 +3471,7 @@ static bool xlatFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	wchar_t *Str = (wchar_t *)Params[0].toString();
-	bool Ret=::Xlat(Str,0,StrLength(Str),Params[1].i())?true:false;
+	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].i()) != nullptr;
 	PassString(Str, Data);
 	return Ret;
 }
@@ -3494,7 +3494,7 @@ static bool beepFunc(FarMacroCall* Data)
 		SIMPLE_BEEP = 0xffffffff
 		    ¬строенный динамик
 	*/
-	bool Ret=MessageBeep((UINT)Params[0].i())?true:false;
+	bool Ret=MessageBeep((UINT)Params[0].i()) != FALSE;
 
 	/*
 		http://msdn.microsoft.com/en-us/library/dd743680%28VS.85%29.aspx
@@ -3570,7 +3570,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 
 	PassNumber(Ret?static_cast<INT64>(reinterpret_cast<intptr_t>(RetLayout)):0, Data);
 
-	return Ret?true:false;
+	return Ret != FALSE;
 }
 
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
@@ -3715,14 +3715,14 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	TVar Result = -1;
 	int BoxType = (Flags & 0x7)?(Flags & 0x7)-1:3;
-	bool bResultAsIndex = (Flags & 0x08)?true:false;
-	bool bMultiSelect = (Flags & 0x010)?true:false;
-	bool bSorting = (Flags & 0x20)?true:false;
-	bool bPacking = (Flags & 0x40)?true:false;
-	bool bAutohighlight = (Flags & 0x80)?true:false;
-	bool bSetMenuFilter = (Flags & 0x100)?true:false;
-	bool bAutoNumbering = (Flags & 0x200)?true:false;
-	bool bExitAfterNavigate = (Flags & 0x400)?true:false;
+	bool bResultAsIndex = (Flags & 0x08) != 0;
+	bool bMultiSelect = (Flags & 0x010) != 0;
+	bool bSorting = (Flags & 0x20) != 0;
+	bool bPacking = (Flags & 0x40) != 0;
+	bool bAutohighlight = (Flags & 0x80) != 0;
+	bool bSetMenuFilter = (Flags & 0x100) != 0;
+	bool bAutoNumbering = (Flags & 0x200) != 0;
+	bool bExitAfterNavigate = (Flags & 0x400) != 0;
 	int X = -1;
 	int Y = -1;
 	unsigned __int64 MenuFlags = VMENU_WRAPMODE;
@@ -3909,7 +3909,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
 						{
-							CheckFlag=Menu.GetCheck(i)?false:true;
+							CheckFlag = !Menu.GetCheck(i);
 						}
 						else
 						{
@@ -4086,7 +4086,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 	}
 
 	PassNumber(Result, Data);
-	return Result==-1?false:true;
+	return Result != -1;
 }
 
 static bool _fattrFunc(int Type, FarMacroCall* Data)
@@ -4124,7 +4124,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 			if (wcspbrk(Str,L"*?") )
 				Pos=SelPanel->FindFirst(Str);
 			else
-				Pos=SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);
+				Pos = !SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:") != nullptr);
 
 			if (Pos >= 0)
 			{
@@ -4224,7 +4224,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 
 	if (Global->CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
-		Ret=(__int64)CurFrame->VMProcess(MCODE_V_DLGCURPOS);
+		Ret=CurFrame->VMProcess(MCODE_V_DLGCURPOS);
 		if ((int)Index >= 0)
 		{
 			if(!static_cast<Dialog*>(CurFrame)->SendMessage(DM_SETFOCUS,Index,0))
@@ -4282,10 +4282,10 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				switch (InfoID)
 				{
 					case 0: Ret=(__int64)DlgItem.size(); break;
-					case 2: Ret=(__int64)Rect.Left; break;
-					case 3: Ret=(__int64)Rect.Top; break;
-					case 4: Ret=(__int64)Rect.Right; break;
-					case 5: Ret=(__int64)Rect.Bottom; break;
+					case 2: Ret=Rect.Left; break;
+					case 3: Ret=Rect.Top; break;
+					case 4: Ret=Rect.Right; break;
+					case 5: Ret=Rect.Bottom; break;
 					case 6: Ret=(__int64)Dlg->GetDlgFocusPos()+1; break;
 					default: Ret=0; Ret.SetType(vtUnknown); break;
 				}
@@ -4327,21 +4327,21 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 			switch (InfoID)
 			{
-				case 1: Ret=(__int64)ItemType;    break;
-				case 2: Ret=(__int64)Item->X1;    break;
-				case 3: Ret=(__int64)Item->Y1;    break;
-				case 4: Ret=(__int64)Item->X2;    break;
-				case 5: Ret=(__int64)Item->Y2;    break;
-				case 6: Ret=(__int64)((Item->Flags&DIF_FOCUS)!=0); break;
+				case 1: Ret=ItemType;    break;
+				case 2: Ret=Item->X1;    break;
+				case 3: Ret=Item->Y1;    break;
+				case 4: Ret=Item->X2;    break;
+				case 5: Ret=Item->Y2;    break;
+				case 6: Ret=(Item->Flags&DIF_FOCUS)!=0; break;
 				case 7:
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
 					{
-						Ret=(__int64)Item->Selected;
+						Ret=Item->Selected;
 					}
 					else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=(__int64)(Item->ListPtr->GetSelectPos()+1);
+						Ret=Item->ListPtr->GetSelectPos()+1;
 					}
 					else
 					{
@@ -4359,7 +4359,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					break;
 				}
 				case 8: Ret=(__int64)ItemFlags; break;
-				case 9: Ret=(__int64)((Item->Flags&DIF_DEFAULTBUTTON)!=0); break;
+				case 9: Ret=(Item->Flags&DIF_DEFAULTBUTTON)!=0; break;
 				case 10:
 				{
 					Ret=Item->strData;
@@ -4378,7 +4378,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				{
 					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=(__int64)(Item->ListPtr->GetItemCount());
+						Ret=Item->ListPtr->GetItemCount();
 					}
 					break;
 				}
@@ -4728,7 +4728,7 @@ static bool clipFunc(FarMacroCall* Data)
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
-			return Ret?true:false;
+			return Ret != 0;
 		}
 		case 2: // Add "S" into Clipboard
 		{
@@ -4764,7 +4764,7 @@ static bool clipFunc(FarMacroCall* Data)
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
-			return Ret?true:false;
+			return Ret != 0;
 		}
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
@@ -4775,12 +4775,12 @@ static bool clipFunc(FarMacroCall* Data)
 
 			if (clip.Open())
 			{
-				Ret=clip.InternalCopy((cmdType-3)?true:false)?1:0;
+				Ret=clip.InternalCopy(cmdType == 4);
 				clip.Close();
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
-			return Ret?true:false;
+			return Ret != 0;
 		}
 		case 5: // ClipMode
 		{
@@ -4798,11 +4798,11 @@ static bool clipFunc(FarMacroCall* Data)
 				mode=Clipboard::SetUseInternalClipboardState(mode);
 			}
 			PassNumber((mode?2:1), Data); // 0!  ???
-			return Ret?true:false;
+			return Ret != 0;
 		}
 	}
 
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 
@@ -4927,7 +4927,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 	}
 
 	PassNumber(Ret, Data);
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 // N=panel.SetPath(panelType,pathName[,fileName])
@@ -4984,7 +4984,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 	}
 
 	PassBoolean(Ret, Data);
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 // N=Panel.SetPos(panelType,fileName)
@@ -5029,7 +5029,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	}
 
 	PassNumber(Ret, Data);
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
@@ -5098,7 +5098,7 @@ static bool replaceFunc(FarMacroCall* Data)
 	else
 		PassValue(&Src, Data);
 
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)
@@ -5698,7 +5698,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 	}
 
 	PassNumber(Ret, Data);
-	return Ret?true:false;
+	return Ret != 0;
 }
 
 // обработчик диалогового окна назначени€ клавиши

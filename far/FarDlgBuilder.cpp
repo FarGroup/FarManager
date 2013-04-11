@@ -516,7 +516,7 @@ DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, IntOption& Value, in
 	if (!Mask)
 		Item->Selected = Value;
 	else
-		Item->Selected = (Value & Mask) ? TRUE : FALSE ;
+		Item->Selected = (Value & Mask) != 0;
 	SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 	return Item;
 }

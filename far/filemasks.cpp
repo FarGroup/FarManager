@@ -253,7 +253,7 @@ bool filemasks::masks::Set(const string& masks)
 		}
 	}
 
-	bRE = expmasks.At(0) == RE_start;
+	bRE = expmasks[0] == RE_start;
 
 	if (bRE)
 	{
@@ -301,7 +301,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	{
 		intptr_t i = n;
 		size_t len = FileName.GetLength();
-		bool ret = re->Search(FileName.CPtr(),FileName.CPtr()+len,m.get(),i) ? TRUE : FALSE;
+		bool ret = re->Search(FileName.CPtr(),FileName.CPtr()+len,m.get(),i) != 0;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)

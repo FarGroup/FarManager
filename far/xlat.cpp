@@ -127,18 +127,18 @@ wchar_t* Xlat(wchar_t *Line,
 		for (size_t i=0; i <= MinLenTable; i++)
 		{
 			// символ из латиницы?
-			if (Chr == Global->Opt->XLat.Table[1].At(i))
+			if (Chr == Global->Opt->XLat.Table[1][i])
 			{
-				Chr=Global->Opt->XLat.Table[0].At(i);
+				Chr=Global->Opt->XLat.Table[0][i];
 				IsChange=1;
 				CurLang=1; // pred - english
 				LangCount[1]++;
 				break;
 			}
 			// символ из русской?
-			else if (Chr == Global->Opt->XLat.Table[0].At(i))
+			else if (Chr == Global->Opt->XLat.Table[0][i])
 			{
-				Chr=Global->Opt->XLat.Table[1].At(i);
+				Chr=Global->Opt->XLat.Table[1][i];
 				CurLang=0; // pred - russian
 				LangCount[0]++;
 				IsChange=1;
@@ -152,9 +152,9 @@ wchar_t* Xlat(wchar_t *Line,
 			{
 				for (size_t i=0; i < Global->Opt->XLat.Rules[2].GetLength(); i+=2)
 				{
-					if (Chr == Global->Opt->XLat.Rules[2].At(i))
+					if (Chr == Global->Opt->XLat.Rules[2][i])
 					{
-						Chr=Global->Opt->XLat.Rules[2].At(i+1);
+						Chr=Global->Opt->XLat.Rules[2][i+1];
 						break;
 					}
 				}
@@ -175,9 +175,9 @@ wchar_t* Xlat(wchar_t *Line,
 
 				for (size_t i=0; i < Global->Opt->XLat.Rules[CurLang].GetLength(); i+=2)
 				{
-					if (ChrOld == Global->Opt->XLat.Rules[CurLang].At(i))
+					if (ChrOld == Global->Opt->XLat.Rules[CurLang][i])
 					{
-						Chr=Global->Opt->XLat.Rules[CurLang].At(i+1);
+						Chr=Global->Opt->XLat.Rules[CurLang][i+1];
 						break;
 					}
 				}

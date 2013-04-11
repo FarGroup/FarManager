@@ -116,7 +116,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 			}
 
 			if(vm->Call(DN_INPUT, Param2))
-				return Msg==DN_CONTROLINPUT ? true : false;
+				return Msg==DN_CONTROLINPUT;
 		}
 		break;
 

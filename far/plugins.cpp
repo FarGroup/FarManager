@@ -1342,7 +1342,7 @@ void PluginManager::Configure(int StartPos)
 				FOR_CONST_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
-					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
+					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED);
 					unsigned __int64 id = 0;
 
 					PluginInfo Info = {sizeof(Info)};
@@ -1516,7 +1516,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				FOR_CONST_RANGE(PluginsData, i)
 				{
 					Plugin *pPlugin = *i;
-					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
+					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED);
 					UINT64 IFlags;
 					unsigned __int64 id = 0;
 

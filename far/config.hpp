@@ -236,7 +236,7 @@ public:
 	void Clear() {Set(L"");}
 	bool IsEmpty() const {return GetString().IsEmpty();}
 	size_t GetLength() const {return Get().GetLength();}
-	wchar_t At(size_t Pos) const {return Get().At(Pos);}
+	wchar_t operator[] (size_t index) const {return Get()[index];}
 	StringOption& operator=(const wchar_t* Value) {Set(Value); return *this;}
 	StringOption& operator=(const string& Value) {Set(Value); return *this;}
 	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}

@@ -154,7 +154,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 		{
 			case PATH_UNKNOWN: 
 			{
-				if(IsSlash(stPath.At(0)) && !IsSlash(stPath.At(1))) //"\" or "\abc"
+				if(IsSlash(stPath[0]) && !IsSlash(stPath[1])) //"\" or "\abc"
 				{
 					if (!stCurrentDir.IsEmpty())
 					{
@@ -180,13 +180,13 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			break;
 			case PATH_DRIVELETTER: //"C:" or "C:abc"
 			{
-				if(IsSlash(stPath.At(2)))
+				if(IsSlash(stPath[2]))
 				{
 					pstPath=stPath.CPtr();
 				}
 				else
 				{
-					WCHAR _DriveVar[]={L'=',stPath.At(0),L':',L'\0'};
+					WCHAR _DriveVar[]={L'=',stPath[0],L':',L'\0'};
 					string DriveVar(_DriveVar);
 					string strValue;
 
@@ -196,7 +196,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 					}
 					else
 					{
-						if (Upper(stPath.At(0))==Upper(stCurrentDir.At(0)))
+						if (Upper(stPath[0])==Upper(stCurrentDir[0]))
 						{
 							strDest=stCurrentDir;
 						}
@@ -467,12 +467,12 @@ void ConvertNameToUNC(string &strFileName)
 				break;
 		}
 	}
-	else if (strFileName.At(1) == L':')
+	else if (strFileName[1] == L':')
 	{
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
-		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp))
+		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
 		{
 			const wchar_t *NamePtr=FirstSlash(strFileName.CPtr());
 
@@ -498,10 +498,10 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 	if (!strPath.IsEmpty())
 	{
-		if (strPath.At(1)==L':' || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
+		if (strPath[1]==L':' || (strPath[0]==L'\\' && strPath[1]==L'\\'))
 		{
 			ReplaceSlashToBSlash(strPath);
-			bool DoubleSlash = strPath.At(1)==L'\\';
+			bool DoubleSlash = strPath[1]==L'\\';
 			while(ReplaceStrings(strPath,L"\\\\",L"\\"));
 			if(DoubleSlash)
 			{

@@ -449,7 +449,7 @@ class Editor:public ScreenObject
 		void SortColorLock();
 		void SortColorUnlock();
 		bool SortColorLocked();
-		bool EditorControlLocked() {return EditorControlLock?true:false;}
+		bool EditorControlLocked() {return EditorControlLock != 0;}
 
 		const FarColor& GetNormalColor() const { return Color; }
 		const FarColor& GetSelectedColor() const { return SelColor; }

@@ -72,7 +72,7 @@ FileViewer::FileViewer(
 	if (DeleteOnClose)
 	{
 		delete_on_close = DeleteOnClose == 1 ? 1 : 2;
-		SetTempViewName(Name, DeleteOnClose == 1 ? TRUE : FALSE);
+		SetTempViewName(Name, DeleteOnClose == 1);
 	}
 	SetPosition(0,0,ScrX,ScrY);
 	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs);

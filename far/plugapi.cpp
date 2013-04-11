@@ -449,7 +449,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					ActlMediaType *amt=(ActlMediaType *)Param;
 		      char DiskLetter[4]=" :\\";
 		      DiskLetter[0]=(amt)?(char)amt->Letter:0;
-		      return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)?TRUE:FALSE));
+		      return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)));
 		    }
 		*/
 		/* $ 05.06.2001 tran
@@ -1103,7 +1103,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
-		return Global->Opt->OnlyEditorViewerUsed? FALSE:TRUE;
+		return !Global->Opt->OnlyEditorViewerUsed;
 
 	if (Global->Opt->OnlyEditorViewerUsed || !Global->CtrlObject || FrameManager->ManagerIsDown())
 		return 0;
@@ -1450,7 +1450,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		return FALSE;
 
 	class ConsoleTitle ct;
-	int DisableHistory=(Flags & VF_DISABLEHISTORY)?TRUE:FALSE;
+	int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 	// $ 15.05.2002 SKV - «апретим вызов немодального редактора вьюера из модального.
 	if (FrameManager->InModalEV())
@@ -1471,7 +1471,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		   приоритет по сравнению с VF_DELETEONCLOSE
 		*/
 		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
-			Viewer->SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
+			Viewer->SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
 
 		Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
@@ -1508,7 +1508,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		   приоритет по сравнению с VF_DELETEONCLOSE
 		*/
 		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
-			Viewer.SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
+			Viewer.SetTempViewName(FileName, (Flags&VF_DELETEONCLOSE) != 0);
 
 		if (!Viewer.GetExitCode())
 		{
@@ -1529,10 +1529,10 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 	 ѕроверка флагов редактора (раньше они игнорировались) и открытие
 	 немодального редактора, если есть соответствующий флаг
 	*/
-	int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
-	int Locked=(Flags & EF_LOCKED)?TRUE:FALSE;
-	int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
-	int DisableSavePos=(Flags & EF_DISABLESAVEPOS)?TRUE:FALSE;
+	int CreateNew = (Flags & EF_CREATENEW) != 0;
+	int Locked=(Flags & EF_LOCKED) != 0;
+	int DisableHistory=(Flags & EF_DISABLEHISTORY) != 0;
+	int DisableSavePos=(Flags & EF_DISABLESAVEPOS) != 0;
 	/* $ 14.06.2002 IS
 	   ќбработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
 	   приоритет по сравнению с EF_DELETEONCLOSE
@@ -2250,7 +2250,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 		}
 		case FFCTL_OPENFILTERSMENU:
 		{
-			return Filter->FilterEdit() ? TRUE : FALSE;
+			return Filter->FilterEdit();
 		}
 		case FFCTL_STARTINGTOFILTER:
 		{
@@ -2261,7 +2261,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 		{
 			if (!Param2)
 				break;
-			return Filter->FileInFilter(*reinterpret_cast<const PluginPanelItem*>(Param2)) ? TRUE : FALSE;
+			return Filter->FileInFilter(*reinterpret_cast<const PluginPanelItem*>(Param2));
 		}
 	}
 
@@ -2580,7 +2580,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey)
 {
 	int Key=KeyNameToKey(Name);
-	return Key > 0?(KeyToInputRecord(Key,RecKey)!=0?TRUE:FALSE):FALSE;
+	return Key > 0? KeyToInputRecord(Key,RecKey) != 0 : FALSE;
 }
 
 BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags)

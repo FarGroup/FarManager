@@ -2147,7 +2147,7 @@ static void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem 
 	diA.Y1=di.Y1;
 	diA.X2=di.X2;
 	diA.Y2=di.Y2;
-	diA.Focus=(di.Flags&DIF_FOCUS)?true:false;
+	diA.Focus = (di.Flags&DIF_FOCUS) != 0;
 
 	if (diA.Flags&oldfar::DIF_SETCOLOR)
 	{
@@ -2254,7 +2254,7 @@ static void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem 
 			diA.Flags|=oldfar::DIF_DISABLE;
 	}
 
-	diA.DefaultButton=(di.Flags&DIF_DEFAULTBUTTON)?true:false;
+	diA.DefaultButton = (di.Flags&DIF_DEFAULTBUTTON) != 0;
 }
 
 static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int ItemNumber)
@@ -3487,11 +3487,11 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_SETANOTHERSORTORDER:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTORDER:
-			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTORDER,(Param&&(*(int*)Param))?TRUE:FALSE,0));
+			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTORDER,Param&&(*(int*)Param),0));
 		case oldfar::FCTL_SETANOTHERVIEWMODE:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETVIEWMODE:
-			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETVIEWMODE,(Param?*(int *)Param:0),0));
+			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETVIEWMODE,Param?*(int *)Param:0,0));
 		case oldfar::FCTL_UPDATEANOTHERPANEL:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_UPDATEPANEL:
@@ -3712,7 +3712,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			return FarVer;
 		}
 		case oldfar::ACTL_CONSOLEMODE:
-			return IsConsoleFullscreen()?TRUE:FALSE;
+			return IsConsoleFullscreen();
 
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{
@@ -3913,8 +3913,8 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 					default: break;
 				}
 
-				wiA->Modified = (wi.Flags&WIF_MODIFIED)?true:false;
-				wiA->Current = (wi.Flags&WIF_CURRENT)?true:false;
+				wiA->Modified = (wi.Flags&WIF_MODIFIED) != 0;
+				wiA->Current = (wi.Flags&WIF_CURRENT) != 0;
 
 				if (Command==oldfar::ACTL_GETWINDOWINFO)
 				{

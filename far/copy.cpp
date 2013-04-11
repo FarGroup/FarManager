@@ -542,7 +542,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			string strWorkTimeStr,strTimeLeftStr;
 			GetTimeText(WorkTime,strWorkTimeStr);
 			GetTimeText(TimeLeft,strTimeLeftStr);
-			if(strSpeed.At(0)==L' ' && strSpeed.At(strSpeed.GetLength()-1)>=L'0' && strSpeed.At(strSpeed.GetLength()-1)<=L'9')
+			if(strSpeed[0]==L' ' && strSpeed[strSpeed.GetLength()-1]>=L'0' && strSpeed[strSpeed.GetLength()-1]<=L'9')
 			{
 				strSpeed.LShift(1);
 				strSpeed+=L" ";
@@ -1081,7 +1081,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			{
 				strNewDir.SetLength(pos);
 
-				if (!pos || strNewDir.At(pos-1)==L':')
+				if (!pos || strNewDir[pos-1]==L':')
 					strNewDir += L"\\";
 
 				FarChDir(strNewDir);
@@ -1538,7 +1538,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				CurCopiedSize=0;
 				strNameTmp = *i;
 
-				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
+				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp[0]) && (strNameTmp[1] == L':'))
 					PrepareDiskPath(strNameTmp);
 
 				if (strNameTmp == L".." && IsRootPath(strSrcDir))
@@ -1767,7 +1767,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		{
 			string strNewPath = Dest;
 
-			if (!IsSlash(strNewPath.At(strNewPath.GetLength()-1)) &&
+			if (!IsSlash(strNewPath[strNewPath.GetLength()-1]) &&
 			        SrcPanel->GetSelCount()>1 &&
 			        !wcspbrk(strNewPath.CPtr(),L"*?") &&
 			        apiGetFileAttributes(strNewPath)==INVALID_FILE_ATTRIBUTES)
@@ -2310,7 +2310,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		{
 			int Length=(int)strDestPath.GetLength();
 
-			if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
+			if (!IsSlash(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
 				strDestPath += L"\\";
 
 			const wchar_t *PathPtr=Src.CPtr()+KeepPathPos;
@@ -3283,7 +3283,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 				int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
 
 				if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
-						!strDestName.IsEmpty() && strDestName.At(1)==L':')
+						!strDestName.IsEmpty() && strDestName[1]==L':')
 				{
 					string strDriveRoot;
 					GetPathRoot(strDestName,strDriveRoot);
@@ -3358,7 +3358,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 					int RetCode;
 					string strNewName;
 
-					if (!AskOverwrite(SplitData,SrcName,strDestName,INVALID_FILE_ATTRIBUTES,FALSE,((Flags&FCOPY_MOVE)?TRUE:FALSE),((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
+					if (!AskOverwrite(SplitData, SrcName, strDestName, INVALID_FILE_ATTRIBUTES, FALSE, (Flags&FCOPY_MOVE) != 0, (Flags&FCOPY_LINK) == 0, Append, strNewName, RetCode))
 					{
 						SrcFile.Close();
 						return(COPY_CANCEL);

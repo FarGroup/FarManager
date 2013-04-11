@@ -662,7 +662,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
 			int Start=((CurItem->Flags&DIF_DEFAULTBUTTON)?2:0);
-			if(CurItem->strData.At(0)!=*Brackets[Start])
+			if(CurItem->strData[0]!=*Brackets[Start])
 			{
 				CurItem->strData=Brackets[Start]+CurItem->strData+Brackets[Start+1];
 			}
@@ -1373,7 +1373,7 @@ void Dialog::GetDialogObjectsData()
 intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags)
 {
 	CriticalSectionLock Lock(CS);
-	BOOL DisabledItem=Flags&DIF_DISABLE?TRUE:FALSE;
+	BOOL DisabledItem = (Flags&DIF_DISABLE) != 0;
 
 	switch (Type)
 	{
@@ -1637,7 +1637,7 @@ void Dialog::ShowDialog(size_t ID)
 
 		short CW=CX2-CX1+1;
 		short CH=CY2-CY1+1;
-		CtlColorDlgItem(ItemColor, I,CurItem->Type,(CurItem->Flags&DIF_FOCUS)?true:false,(CurItem->Flags&DIF_DEFAULTBUTTON)?true:false,CurItem->Flags);
+		CtlColorDlgItem(ItemColor, I,CurItem->Type,(CurItem->Flags&DIF_FOCUS) != 0, (CurItem->Flags&DIF_DEFAULTBUTTON) != 0, CurItem->Flags);
 #if 0
 
 		// TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
@@ -2317,7 +2317,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					return Items[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
 			}
 			else if (OpCode == MCODE_F_MENU_CHECKHOTKEY)
-				return (__int64)(CheckHighlights(*str,(int)iParam) + 1);
+				return CheckHighlights(*str,(int)iParam) + 1;
 
 			return 0;
 		}
@@ -2487,7 +2487,7 @@ int Dialog::ProcessKey(int Key)
 
 	if (Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
 	{
-		DlgProc(DN_ACTIVATEAPP,Key == KEY_KILLFOCUS?FALSE:TRUE,0);
+		DlgProc(DN_ACTIVATEAPP,Key == KEY_GOTFOCUS,0);
 		return FALSE;
 	}
 
@@ -4737,7 +4737,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 		case DN_EDITCHANGE:
 			return TRUE;
 		case DN_BTNCLICK:
-			return ((Type==DI_BUTTON && !(CurItem->Flags&DIF_BTNNOCLOSE))?FALSE:TRUE);
+			return Type != DI_BUTTON || CurItem->Flags&DIF_BTNNOCLOSE;
 		case DN_LISTCHANGE:
 			return TRUE;
 		case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
@@ -4901,7 +4901,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			else if (Param1 == FALSE)
 				IsEnableRedraw--;
 
-			//Edit::DisableEditOut(!IsEnableRedraw?FALSE:TRUE);
+			//Edit::DisableEditOut(IsEnableRedraw);
 
 			if (!IsEnableRedraw && Prev != IsEnableRedraw)
 				if (DialogMode.Check(DMODE_INITOBJECTS))
@@ -5044,7 +5044,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_SETMOUSEEVENTNOTIFY: // Param1 = 1 on, 0 off, -1 - get
 		{
-			int State=DialogMode.Check(DMODE_MOUSEEVENT)?TRUE:FALSE;
+			bool State=DialogMode.Check(DMODE_MOUSEEVENT);
 
 			if (Param1 != -1)
 			{
@@ -5647,7 +5647,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Type == DI_CHECKBOX)
 			{
-				int OldState=CurItem->Flags&DIF_3STATE?TRUE:FALSE;
+				int OldState = (CurItem->Flags&DIF_3STATE) != 0;
 
 				if (Param2)
 					CurItem->Flags|=DIF_3STATE;
@@ -6113,7 +6113,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 			}
 
-			return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
+			return !(PrevFlags&DIF_HIDDEN);
 		}
 		/*****************************************************************/
 		case DM_SETDROPDOWNOPENED: // Param1=ID; Param2={TRUE|FALSE}
@@ -6184,7 +6184,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				Global->ScrBuf->Flush();
 			}
 
-			return (PrevFlags&DIF_DISABLE)?FALSE:TRUE;
+			return !(PrevFlags&DIF_DISABLE);
 		}
 		/*****************************************************************/
 		// получить позицию и размеры контрола

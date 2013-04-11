@@ -610,7 +610,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				OpenPanelInfo Info;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-				return (__int64)(!*NullToEmpty(Info.CurDir));
+				return !Info.CurDir || !*Info.CurDir;
 			}
 			else
 			{
@@ -618,7 +618,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strDriveRoot;
 					GetPathRoot(strCurDir, strDriveRoot);
-					return (__int64)(!StrCmpI(strCurDir.CPtr(), strDriveRoot.CPtr()));
+					return !StrCmpI(strCurDir.CPtr(), strDriveRoot.CPtr());
 				}
 
 				return 1;
@@ -701,7 +701,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch(mps->Mode)
 					{
 						case 0: // снять со всего?
-							Result=(__int64)GetRealSelCount();
+							Result=GetRealSelCount();
 							ClearSelection();
 							break;
 						case 1: // по индексу?
@@ -738,7 +738,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							{
 								this->Select(i, TRUE);
 							});
-							Result=(__int64)GetRealSelCount();
+							Result=GetRealSelCount();
 							break;
 						case 1: // по индексу?
 							Result=1;
@@ -774,11 +774,11 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							{
 								this->Select(i, !i->Selected);
 							});
-							Result=(__int64)GetRealSelCount();
+							Result=GetRealSelCount();
 							break;
 						case 1: // по индексу?
 							Result=1;
-							Select(ListData[mps->Index],ListData[mps->Index]->Selected?FALSE:TRUE);
+							Select(ListData[mps->Index],!ListData[mps->Index]->Selected);
 							break;
 						case 2: // набор строк через CRLF
 						{
@@ -788,7 +788,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							{
 								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
 								{
-									this->Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
+									this->Select(ListData[Pos],!ListData[Pos]->Selected);
 									Result++;
 								}
 							});
@@ -804,7 +804,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case 3:  // восстановить выделение
 				{
 					RestoreSelection();
-					Result=(__int64)GetRealSelCount();
+					Result=GetRealSelCount();
 					break;
 				}
 			}
@@ -1639,7 +1639,7 @@ int FileList::ProcessKey(int Key)
 								ProcessExternal(Global->Opt->strExternalEditor,strFileName,strShortFileName,PluginMode);
 							else if (PluginMode)
 							{
-								RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
+								RefreshedPanel=FrameManager->GetCurrentFrame()->GetType() != MODALTYPE_EDITOR;
 								FileEditor ShellEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
 								ShellEditor.SetDynamicallyBorn(false);
 								FrameManager->EnterModalEV();
@@ -3282,7 +3282,7 @@ int FileList::IsSelected(size_t idxItem)
 
 bool FileList::FilterIsEnabled()
 {
-	return Filter && Filter->IsEnabledOnPanel()?true:false;
+	return Filter && Filter->IsEnabledOnPanel();
 }
 
 bool FileList::FileInFilter(size_t idxItem)

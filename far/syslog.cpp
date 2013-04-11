@@ -83,7 +83,7 @@ static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
 
 static BOOL IsLogON()
 {
-	return GetKeyState(VK_SCROLL)?TRUE:FALSE;
+	return GetKeyState(VK_SCROLL) != 0;
 }
 
 static const wchar_t *MakeSpace()
@@ -368,7 +368,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 		return;
 
 	int CY=(SizeBuf+15)/16;
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 	static wchar_t timebuf[64];
 //  char msg[MAX_LOG_LINE];
 
@@ -428,7 +428,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 
 	if (InternalLog)
 	{
@@ -486,7 +486,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 
 	if (InternalLog)
 	{
@@ -556,7 +556,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 
 	if (InternalLog)
 	{
@@ -634,7 +634,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 
 	if (InternalLog)
 	{
@@ -1814,7 +1814,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 	size_t ReadCount2;
 	// берем количество оставшейся порции эвентов
 	Global->Console->GetNumberOfInputEvents(ReadCount2);
@@ -1891,7 +1891,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -1975,7 +1975,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -2107,7 +2107,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp?FALSE:TRUE;
+	int InternalLog = !fp;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)

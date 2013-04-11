@@ -43,8 +43,7 @@ public:
 	NTPath(LPCWSTR Src):string(Src) {Transform();}
 };
 
-//inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
-#define IsSlash(x) ((x)==L'\\' || (x)==L'/')
+inline bool IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 enum PATH_TYPE
 {

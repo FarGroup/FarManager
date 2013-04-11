@@ -1241,7 +1241,7 @@ public:
 		{
 			strCommand = stmtGetCommand.GetColText(0);
 			if (Enabled)
-				*Enabled = stmtGetCommand.GetColInt(1) ? true : false;
+				*Enabled = stmtGetCommand.GetColInt(1) != 0;
 		}
 		stmtGetCommand.Reset();
 		return b;
@@ -1364,7 +1364,7 @@ public:
 					continue;
 
 				string Command(command, CP_UTF8);
-				SetCommand(id, type, Command, enabled ? true : false);
+				SetCommand(id, type, Command, enabled != 0);
 			}
 
 		}
@@ -1640,7 +1640,7 @@ public:
 	{
 		bool preload = false;
 		if (stmtGetPreloadState.Bind(id).Step())
-			preload = stmtGetPreloadState.GetColInt(0) ? true : false;
+			preload = stmtGetPreloadState.GetColInt(0) != 0;
 		stmtGetPreloadState.Reset();
 		return preload;
 	}
@@ -2316,7 +2316,7 @@ public:
 			*id = stmt.GetColInt64(0);
 			strName = stmt.GetColText(1);
 			*Type = stmt.GetColInt(2);
-			*Lock = stmt.GetColInt(3) ? true : false;
+			*Lock = stmt.GetColInt(3) != 0;
 			*Time = stmt.GetColInt64(4);
 			strGuid = stmt.GetColText(5);
 			strFile = stmt.GetColText(6);
@@ -2437,7 +2437,7 @@ public:
 		bool l = false;
 		if (stmtGetLock.Bind(id).Step())
 		{
-			 l = stmtGetLock.GetColInt(0) ? true : false;
+			 l = stmtGetLock.GetColInt(0) != 0;
 		}
 		stmtGetLock.Reset();
 		return l;

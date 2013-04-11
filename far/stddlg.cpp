@@ -275,7 +275,7 @@ int GetString(
 	{
 		Substract-=2;
 		StrDlg[0].Y2+=2;
-		StrDlg[4].Selected=(*CheckBoxValue)?TRUE:FALSE;
+		StrDlg[4].Selected = *CheckBoxValue != 0;
 		StrDlg[4].strData = CheckBoxText;
 	}
 

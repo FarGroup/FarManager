@@ -421,7 +421,7 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_OP_XLAT:
 		{
 			// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-			CmdStr.Xlat(Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
+			CmdStr.Xlat((Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE) != 0);
 
 			// иначе неправильно работает ctrl-end
 			strLastCmdStr = CmdStr.GetStringAddr();
@@ -550,7 +550,7 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 {
 	if (!Color.IsEmpty())
 	{
-		if (Upper(Color.At(0)) == L'T')
+		if (Upper(Color[0]) == L'T')
 		{
 			TargetFlags &= ~SetFlag;
 			Target = ARGB2ABGR(wcstoul(Color.CPtr() + 1, nullptr, 16));
@@ -660,7 +660,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
 							{
 								string strTemp;
-								if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir.At(0),strTemp))
+								if (DriveLocalToRemoteName(DRIVE_REMOTE,strCurDir[0],strTemp))
 								{
 									strDestStr += strTemp;
 									//strDestStr += L" "; // ???
@@ -711,9 +711,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							{
 								PATH_TYPE Type = ParsePath(strCurDir);
 								if(Type == PATH_DRIVELETTER)
-									strDestStr += Upper(strCurDir.At(0));
+									strDestStr += Upper(strCurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
-									strDestStr += Upper(strCurDir.At(4));
+									strDestStr += Upper(strCurDir[4]);
 								else
 									strDestStr += L'?';
 								break;
@@ -896,7 +896,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	bool Silent=false;
 
-	if (CmdLine.At(0) == L'@')
+	if (CmdLine[0] == L'@')
 	{
 		CmdLine.LShift(1);
 		Silent=true;
@@ -937,7 +937,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	COORD Size0;
 	Global->Console->GetSize(Size0);
 
-	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+	if (!strCurDir.IsEmpty() && strCurDir[1]==L':')
 		FarChDir(strCurDir);
 
 	string strPrevDir=strCurDir;
@@ -1018,11 +1018,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.LShift(1);
 	}
 
-	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && !strCmdLine.At(2))
+	if (!SeparateWindow && strCmdLine.GetLength() == 2 && strCmdLine[1]==L':')
 	{
 		if(!FarChDir(strCmdLine))
 		{
-			wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
+			wchar_t NewDir[]={Upper(strCmdLine[0]),L':',L'\\',0};
 			{
 				FarChDir(NewDir);
 			}
@@ -1031,7 +1031,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// SET [переменная=[строка]]
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"SET",3) && (IsSpaceOrEos(strCmdLine.At(3)) || strCmdLine.At(3) == L'/'))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"SET",3) && (IsSpaceOrEos(strCmdLine[3]) || strCmdLine[3] == L'/'))
 	{
 		size_t pos;
 		strCmdLine.LShift(3);
@@ -1098,14 +1098,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// REM все остальное
-	else if ((!StrCmpNI(strCmdLine.CPtr(),L"REM",Length=3) && IsSpaceOrEos(strCmdLine.At(3))) || !StrCmpNI(strCmdLine.CPtr(),L"::",Length=2))
+	else if ((!StrCmpNI(strCmdLine.CPtr(),L"REM",Length=3) && IsSpaceOrEos(strCmdLine[3])) || !StrCmpNI(strCmdLine.CPtr(),L"::",Length=2))
 	{
 		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.CPtr()+Length))
 			return FALSE; // отдадимся COMSPEC`у
 
 		return TRUE;
 	}
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"CLS",3) && IsSpaceOrEos(strCmdLine.At(3)))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"CLS",3) && IsSpaceOrEos(strCmdLine[3]))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+3))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1116,7 +1116,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// PUSHD путь | ..
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"PUSHD",5) && IsSpaceOrEos(strCmdLine.At(5)))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"PUSHD",5) && IsSpaceOrEos(strCmdLine[5]))
 	{
 		strCmdLine.LShift(5);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1141,7 +1141,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	else if (!StrCmpNI(CmdLine.CPtr(),L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	else if (!StrCmpNI(CmdLine.CPtr(),L"POPD",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1149,7 +1149,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (ppstack.size())
 		{
 			PushPopRecord& prec = ppstack.top();
-			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
+			int Ret=IntChDir(prec.strName,true,SilentInt);
 			ppstack.pop();
 			const wchar_t* Ptr = nullptr;
 			if (ppstack.size())
@@ -1175,7 +1175,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"CHCP",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
 		strCmdLine.LShift(4);
 
@@ -1215,7 +1215,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE;
 		}
 	}
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"IF",2) && IsSpaceOrEos(strCmdLine.At(2)))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"IF",2) && IsSpaceOrEos(strCmdLine[2]))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+2))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1237,9 +1237,9 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// пропускаем обработку, если нажат Shift-Enter
 	else if (!SeparateWindow && (!StrCmpNI(strCmdLine.CPtr(),L"CD",Length=2) || !StrCmpNI(strCmdLine.CPtr(),L"CHDIR",Length=5)))
 	{
-		if (!IsSpaceOrEos(strCmdLine.At(Length)))
+		if (!IsSpaceOrEos(strCmdLine[Length]))
 		{
-			if (!IsSlash(strCmdLine.At(Length)))
+			if (!IsSlash(strCmdLine[Length]))
 				return FALSE;
 		}
 
@@ -1248,7 +1248,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (!StrCmpNI(strCmdLine.CPtr(),L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
+		if (!StrCmpNI(strCmdLine.CPtr(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
 		{
 			strCmdLine.LShift(2);
 			RemoveLeadingSpaces(strCmdLine);
@@ -1260,7 +1260,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		IntChDir(strCmdLine,Length==5,SilentInt);
 		return TRUE;
 	}
-	else if (!StrCmpNI(strCmdLine.CPtr(),L"EXIT",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	else if (!StrCmpNI(strCmdLine.CPtr(),L"EXIT",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1288,7 +1288,7 @@ bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
 
 bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
 {
-	if (CmdLine.GetLength()>1 && CmdLine.At(0)==L'/' && IsSpaceOrEos(CmdLine.At(2)))
+	if (CmdLine.GetLength()>1 && CmdLine[0]==L'/' && IsSpaceOrEos(CmdLine[2]))
 		return true;
 
 	return false;
@@ -1306,13 +1306,13 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	Unquote(strExpandedDir);
 	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((!strExpandedDir[1] && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.IsEmpty())
 		{
 			string strTemp=Global->Opt->Exec.strHomeDir.Get();
 
-			if (strExpandedDir.At(1))
+			if (strExpandedDir[1])
 			{
 				AddEndSlash(strTemp);
 				strTemp += strExpandedDir.CPtr()+2;

@@ -1325,13 +1325,13 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return (__int64)!FileSize;
+			return !FileSize;
 		case MCODE_C_SELECTED:
-			return (__int64)(SelectSize >= 0 ?TRUE:FALSE);
+			return SelectSize >= 0;
 		case MCODE_C_EOF:
-			return (__int64)(LastPage || !ViewFile.Opened());
+			return LastPage || !ViewFile.Opened();
 		case MCODE_C_BOF:
-			return (__int64)(!FilePos || !ViewFile.Opened());
+			return !FilePos || !ViewFile.Opened();
 		case MCODE_V_VIEWERSTATE:
 		{
 			DWORD MacroViewerState=0;
@@ -1343,12 +1343,12 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			MacroViewerState |= VM.Hex  > 1                  ? 0x00000040 : 0; //dump mode -- !!!update help
 			MacroViewerState |= Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
-			return (__int64)MacroViewerState;
+			return MacroViewerState;
 		}
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
-			return (__int64)GetViewFileSize();
+			return GetViewFileSize();
 		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
-			return (__int64)(GetViewFilePos()+1);
+			return GetViewFilePos()+1;
 	}
 
 	return 0;
@@ -4326,7 +4326,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 
 			if (CheckStructSize(vsmode))
 			{
-				bool isRedraw=vsmode->Flags&VSMFL_REDRAW?true:false;
+				bool isRedraw = (vsmode->Flags&VSMFL_REDRAW) != 0;
 
 				switch (vsmode->Type)
 				{

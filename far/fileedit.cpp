@@ -454,7 +454,7 @@ void FileEditor::Init(
 	KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 	TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
-	Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
+	Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
 
 	if (BlankFileName && !Flags.Check(FFILEEDIT_CANNEWFILE))
 	{
@@ -769,17 +769,17 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
 		MacroEditState|=Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
-		return (__int64)MacroEditState;
+		return MacroEditState;
 	}
 
 	if (OpCode == MCODE_V_EDITORCURPOS)
-		return (__int64)(m_editor->CurLine->GetTabCurPos()+1);
+		return m_editor->CurLine->GetTabCurPos()+1;
 
 	if (OpCode == MCODE_V_EDITORCURLINE)
-		return (__int64)(m_editor->NumLine+1);
+		return m_editor->NumLine+1;
 
 	if (OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
-		return (__int64)(m_editor->NumLastLine);
+		return m_editor->NumLastLine;
 
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
@@ -2736,9 +2736,9 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				if (ESPT_SETBOM==espar->Type)
 				{
-				    if(IsUnicodeOrUtfCodePage(m_codepage))
-				    {
-						m_bAddSignature=espar->iParam?true:false;
+					if(IsUnicodeOrUtfCodePage(m_codepage))
+					{
+						m_bAddSignature=espar->iParam != 0;
 						return TRUE;
 					}
 					return FALSE;
