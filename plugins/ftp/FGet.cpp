@@ -338,7 +338,7 @@ int FTP::GetFilesInterface(struct PluginPanelItem *PanelItem,int ItemsNumber,int
 		//Init current
 		hConnect->TrafficInfo->InitFile(CurPanelItem,CurName,DestName.c_str());
 
-		//Query ovirwrite
+		//Query overwrite
 		switch(ci.MsgCode)
 		{
 			case      ocOver:

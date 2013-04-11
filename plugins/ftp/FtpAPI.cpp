@@ -253,12 +253,37 @@ BOOL FtpRemoveDirectory(Connection *hConnect,LPCSTR dir)
 	return FALSE;
 }
 
+static bool correct_vms_name(String& name)
+{
+	bool ret = false;
+	FTPDirList dl;
+	FTPType *tp = dl.GetType(FTP_TYPE_VMS);
+	if (tp && tp->PWDParse)
+	{
+		char tmp[1024];
+		if (tp->PWDParse(nullptr, name.c_str(), tmp, sizeof(tmp)))
+		{
+			name = tmp;
+			ret = true;
+		}
+	}
+	return ret;
+}
 
 BOOL FtpRenameFile(Connection *Connect,LPCSTR lpszExisting,LPCSTR lpszNew)
 {
-	String Command;
+	String Command, name1, name2;
 	Assert(Connect && "FtpRenameFile");
 	Connect->CacheReset();
+	if (Connect->Host.ServerType == FTP_TYPE_VMS)
+	{
+		name1 = lpszExisting;
+		correct_vms_name(name1);
+		lpszExisting = name1.c_str();
+		name2 = lpszNew;
+		correct_vms_name(name2);
+		lpszNew = name2.c_str();
+	}
 	Command.printf("ren \x1%s\x1 \x1%s\x1",lpszExisting,lpszNew);
 	return Connect->ProcessCommand(Command);
 }
@@ -324,6 +349,9 @@ BOOL FtpGetFile(Connection *Connect,LPCSTR lpszRemoteFile,LPCSTR lpszNewFile,BOO
 		full_name = Connect->ToOEMDup(Connect->CurDir.c_str());
 		AddEndSlash(full_name, '/');
 		full_name.Add(lpszRemoteFile);
+		if (Connect->Host.ServerType == FTP_TYPE_VMS)
+			correct_vms_name(full_name);
+
 		lpszRemoteFile = full_name.c_str();
 	}
 
@@ -346,11 +374,17 @@ BOOL FtpGetFile(Connection *Connect,LPCSTR lpszRemoteFile,LPCSTR lpszNewFile,BOO
 
 __int64 FtpFileSize(Connection *Connect,LPCSTR fnm)
 {
-	String Command;
+	String Command, name;
 	BYTE Line[20];
 
 	if(!Connect) return -1;
 
+	if (Connect->Host.ServerType == FTP_TYPE_VMS)
+	{
+		name = fnm;
+		correct_vms_name(name);
+		fnm = name.c_str();
+	}
 	Command.printf("size \x1%s\x1",fnm);
 
 	if(!Connect->ProcessCommand(Command))
@@ -388,7 +422,13 @@ BOOL FtpPutFile(Connection *Connect,LPCSTR loc,LPCSTR rem,BOOL Reput,int AsciiMo
 	if(*rem=='\\' || (rem[0] && rem[1]==':'))
 		rem = PointToName((char *)rem);
 
-	if(Connect->Host.ServerType!=FTP_TYPE_MVS)
+	if(Connect->Host.ServerType == FTP_TYPE_VMS)
+	{
+		full_name = rem;
+		correct_vms_name(full_name);
+		rem = full_name.c_str();
+	}
+	else if(Connect->Host.ServerType!=FTP_TYPE_MVS)
 	{
 		if(*rem != '/')
 		{

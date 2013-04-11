@@ -10,7 +10,7 @@
    2-NOV-2000 13:56:25
   13-MAY-1996 22:56:37
 */
-BOOL net_parse_vms_date_time(LPSTR& line, Time_t& decoded)
+static BOOL net_parse_vms_date_time(LPSTR& line, Time_t& decoded)
 {
 	SYSTEMTIME st;
 	GetSystemTime(&st);
@@ -87,22 +87,26 @@ BOOL net_parse_vms_date_time(LPSTR& line, Time_t& decoded)
   EA1995.DIR;1             1/3           2-NOV-2000 13:55:58  [10545,1]              (RWED,RWED,RE,RE)
   EA1996.DIR;1             1/3           2-NOV-2000 13:56:25  [10545,1]              (RWED,RWED,RE,RE)
   EA_INET.TXT;1            1/6          13-MAY-1996 22:56:37  [10545,1]              (RWED,RWED,RE,RE)
+
+  RLFILTER20.ZIP;2            8   2-MAY-2002 11:30 [SYSTEM] (RWE,RWE,RE,RE)
 */
 
-BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
+static BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
 {
-	char *e,*tmp;
+	char *e, *tmp, *v;
 
-	if((e=strchr(line, ';')) == NULL)
+	if((v = strchr(line, ';')) == NULL)
 		return FALSE;
 
 //Filename
-	StrCpy(entry_info->FindData.cFileName, line, (int)(e-line+1));
-	line = SkipSpace(SkipNSpace(e));
+	StrCpy(entry_info->FindData.cFileName, line, (int)(v-line+1));
+	line = SkipSpace(e = SkipNSpace(v));
+	*e = 0;
 //Size
 	e = SkipNSpace(line);
 
-	if(!e[0]) return FALSE;
+	if(!e[0])
+		return FALSE;
 
 	*e = 0;
 	tmp = e+1;
@@ -130,6 +134,8 @@ BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
 
 		if(entry_info->size == -1)
 			return FALSE;
+
+		entry_info->size *= 512;
 	}
 
 	line = SkipSpace(tmp);
@@ -169,6 +175,10 @@ BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
 			*e = 0;
 			entry_info->FileType = NET_DIRECTORY;
 		}
+		else
+		{
+			strcat(entry_info->FindData.cFileName, v); // add version
+		}
 	}
 
 	//??
@@ -185,15 +195,14 @@ BOOL WINAPI idPRParceVMS(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 	NET_FileEntryInfo entry_info;
 
 	if(!net_parse_vms_dir_entry(entry, &entry_info))
-		return FALSE;
-
-	/** Trim off VMS directory extensions **/
-	size_t len = strlen(entry_info.FindData.cFileName);
-
-	if((len > 4) && StrCmp(&entry_info.FindData.cFileName[len-4], ".dir") == 0)
 	{
-		entry_info.FindData.cFileName[len-4] = '\0';
-		entry_info.FileType = NET_DIRECTORY;
+		size_t len = strlen(entry);
+		if (entry[len-1] == ']' && nullptr != strstr(entry, ":["))
+		{
+			p->FileType = NET_SKIP;
+			return TRUE;
+		}
+		return FALSE;
 	}
 
 	return ConvertEntry(&entry_info,p);
@@ -201,5 +210,57 @@ BOOL WINAPI idPRParceVMS(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 
 BOOL WINAPI idDirPRParceVMS(const FTPServerInfo* Server, LPCSTR Line, char *CurDir, size_t CurDirSize)
 {
-	return FALSE;
+	//!!! HACK: reverse conversion
+	// '/disk$ftp/ftp/beaves-stuff/old-gcc/readme.txt' --> 'DISK$FTP:[FTP.BEAVES-STUFF.OLD-GCC]README.TXT'
+	if (Line[0] == '/')
+	{
+		int ns = 1;
+		char *ps = nullptr;
+		for (++Line; *Line; ++Line)
+		{
+			switch (*Line) {
+			   case '/': if (++ns > 2) *(ps = CurDir++) = '.'; else { *CurDir++ = ':'; *CurDir++ = '['; } break;
+				default: *CurDir++ = NET_TO_UPPER(*Line); break;
+			}
+		}
+		if (ns < 2)
+			return FALSE;
+		if (ns > 2)
+			*ps = ']';
+		*CurDir = '\0';
+		return TRUE;
+	}
+
+	// 257 "DISK$FTP:[FTP]" is current directory	--> /disk$ftp/ftp
+	// 0123456789
+	// 257 "DISK$FTP:[FTP.BEAVES-STUFF.OLD-GCC]" is current directory --> /disk$ftp/ftp/beaves-stuff/old-gcc
+	if (Line[0] != '2')
+		return FALSE;
+	const char *pb = strchr(Line, '"');
+	if (!pb)
+		return FALSE;
+	const char *pe = strchr(pb+1, '"');
+	if (!pe)
+		return FALSE;
+
+	if (pb[1] == '/')
+		return FALSE;
+	const char *ps = strstr(pb+1, ":[");
+	if (!ps || ps > pe)
+		return FALSE;
+	ps = strchr(ps+2, ']');
+	if (!ps || ps > pe)
+		return FALSE;
+
+	*CurDir++ = '/';
+	while (++pb < pe)
+	{
+		switch (*pb) {
+			case '[': case ']': break;
+			case ':': case '.': *CurDir++ = '/'; break;
+			default: *CurDir++ = NET_TO_LOWER(*pb); break;
+		}
+	}
+	*CurDir = '\0';
+	return TRUE;
 }

@@ -95,9 +95,13 @@ extern SOCKET   WINAPI scAccept(SOCKET *peer, struct sockaddr FAR* addr, int* ad
 
 #ifdef _DEBUG
 void ShowMemInfo(void);
-void LogPanelItems(struct PluginPanelItem *PanelItem,int ItemsNumber);
 #else
 inline void ShowMemInfo(void) {}
+#endif
+
+#ifdef __FILELOG__
+void LogPanelItems(struct PluginPanelItem *PanelItem,int ItemsNumber);
+#else
 #define LogPanelItems( PanelItem,ItemsNumber )
 #endif
 
