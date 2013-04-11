@@ -637,7 +637,6 @@ bool KeyMacro::InitMacroExecution()
 		if (handle)
 		{
 			macro->SetHandle(handle);
-			m_LastKey = L"first_key";
 			return true;
 		}
 		RemoveCurMacro();
@@ -994,7 +993,6 @@ int KeyMacro::GetKey()
 			case MPRT_KEYS:
 			{
 				const wchar_t* key = mpr->Values[0].String;
-				m_LastKey = key;
 
 				if (!StrCmpI(key, L"AKey"))
 				{
@@ -1174,15 +1172,7 @@ int KeyMacro::GetKey()
 int KeyMacro::PeekKey()
 {
 	//_SHMUEL(SysLog(L"+PeekKey"));
-	int key=0;
-	if (!m_InternalInput && IsExecuting())
-	{
-		if (m_LastKey == L"first_key") //FIXME
-			return KEY_NONE;
-		if ((key=KeyNameToKey(m_LastKey)) == -1)
-			key=0;
-	}
-	return key;
+	return !m_InternalInput && IsExecuting();
 }
 
 bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription)
@@ -4124,7 +4114,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 			if (wcspbrk(Str,L"*?") )
 				Pos=SelPanel->FindFirst(Str);
 			else
-				Pos = !SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:") != nullptr);
+				Pos = SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:") != nullptr);
 
 			if (Pos >= 0)
 			{

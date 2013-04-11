@@ -214,7 +214,6 @@ class KeyMacro
 		MACROMODEAREA m_RecMode;
 		MACROMODEAREA StartMode; //FIXME
 		class LockScreen* m_LockScr;
-		string m_LastKey;
 		string m_LastErrorStr;
 		int m_LastErrorLine;
 		int m_InternalInput;
