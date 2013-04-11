@@ -1,112 +1,11 @@
 #!/bin/bash
 
-function bplugin2 {
-PLUGIN=$1
-BIT=$2
-WIDE=$3
-FILES=$4
-
-if [ $WIDE -eq 1 ]; then
-  FINAL=final.${BIT}W.vc
-else
-  FINAL=final.${BIT}.vc
+if [ ! -e plugins.common ]; then
+	exit 1
 fi
 
-ADD=0
-if [ "$PLUGIN" == "FTP" ]; then
-  ADD=1
-elif [ "$PLUGIN" == "MultiArc" ]; then
-  ADD=1
-fi
-
-mkdir -p ${FINAL}/obj
-if [ $ADD -eq 1 ]; then
-  eval "mkdir -p ${FINAL}/$6"
-fi
-
-wine cmd /c ../../plugin.${BIT}.bat &> ../../logs/${PLUGIN}${BIT}
-
-if [ "$PLUGIN" == "FExcept" ]; then
-  mkdir -p ../../outfinalnew${BIT}/FExcept/
-  cp -f changelog ../../outfinalnew${BIT}/FExcept/
-  cd $FINAL || return 1
-  cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
-  cd ..
-elif [ $ADD -eq 1 ]; then
-  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
-  mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
-
-  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
-
-  cd $FINAL || return 1
-  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
-  cd ..
-
-  cd $FINAL/$7 || return 1
-  cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/ || return 1
-  cd ../..
-else
-  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
-
-  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
-
-  cd $FINAL || return 1
-  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
-  cd ..
-fi
-}
-
-function bplugin {
-PLUGIN=$1
-PLDIR=$2
-
-pushd $PLUGIN || return 1
-
-( \
-	bplugin2 "$PLDIR" 32 1 "$3" && \
-	bplugin2 "$PLDIR" 64 1 "$3" \
-) || return 1
-
-popd
-}
-
-function bpluginftp {
-PLUGIN=ftp
-PLDIR=FTP
-
-pushd $PLUGIN || return 1
-
-FILES="FarFtp.dll FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng FarFtp.map TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt"
-ADDFILES="ftpDirList.fll ftpProgress.fll ftpDirList.map ftpProgress.map Progress_FarCopy.reg Progress_JM.reg Progress_Wesha.reg Progress_ZeMA.reg"
-ADDBUILDDIRS="{lib,obj/DirList,obj/LibObj,obj/Notify,obj/Progress}"
-ADDOUTDIR="lib"
-
-( \
-	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
-	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
-) || return 1
-
-popd
-}
-
-function bpluginma {
-PLUGIN=multiarc
-PLDIR=MultiArc
-
-pushd $PLUGIN || return 1
-
-FILES="MultiArc.dll arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.map"
-ADDFILES="Ace.fmt Arc.fmt Arj.fmt Cab.fmt Custom.fmt Ha.fmt Lzh.fmt Rar.fmt TarGz.fmt Zip.fmt custom.ini Ace.map Arc.map Arj.map Cab.map Custom.map Ha.map Lzh.map Rar.map TarGz.map Zip.map"
-ADDBUILDDIRS="Formats"
-ADDOUTDIR="Formats"
-
-( \
-	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
-	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
-) || return 1
-
-popd
-}
+#include common
+. plugins.common
 
 function bpluginfe {
 PLUGIN=fexcept
@@ -161,15 +60,11 @@ bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuR
 bplugin "farcmds" "FarCmds" "FARCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmds.map" && \
 bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng FileCase.map" && \
 bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewer.map" && \
-#bplugin "macroview" "MacroView" "MacroView.dll MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng MacroView.map" && \
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng Network.map" && \
 bplugin "proclist" "ProcList" "Proclist.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng Proclist.map" && \
 bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp" && \
 bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng" && \
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua LuaMacro.map" \
-
-#bpluginftp
-#bpluginma
 ) || exit 1
 
 ( \

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+function bplugin2 {
+PLUGIN=$1
+BIT=$2
+WIDE=$3
+FILES=$4
+
+if [ $WIDE -eq 1 ]; then
+  FINAL=final.${BIT}W.vc
+else
+  FINAL=final.${BIT}.vc
+fi
+
+ADD=0
+if [ "$PLUGIN" == "FTP" ]; then
+  ADD=1
+elif [ "$PLUGIN" == "MultiArc" ]; then
+  ADD=1
+fi
+
+mkdir -p ${FINAL}/obj
+if [ $ADD -eq 1 ]; then
+  eval "mkdir -p ${FINAL}/$6"
+fi
+
+wine cmd /c ../../plugin.${BIT}.bat &> ../../logs/${PLUGIN}${BIT}
+
+if [ "$PLUGIN" == "FExcept" ]; then
+  mkdir -p ../../outfinalnew${BIT}/FExcept/
+  cp -f changelog ../../outfinalnew${BIT}/FExcept/
+  cd $FINAL || return 1
+  cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
+  cd ..
+elif [ $ADD -eq 1 ]; then
+  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
+  mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
+
+  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
+
+  cd $FINAL || return 1
+  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
+  cd ..
+
+  cd $FINAL/$7 || return 1
+  cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/ || return 1
+  cd ../..
+else
+  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
+
+  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
+
+  cd $FINAL || return 1
+  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
+  cd ..
+fi
+}
+
+function bplugin {
+PLUGIN=$1
+PLDIR=$2
+
+pushd $PLUGIN || return 1
+
+( \
+	bplugin2 "$PLDIR" 32 1 "$3" && \
+	bplugin2 "$PLDIR" 64 1 "$3" \
+) || return 1
+
+popd
+}
