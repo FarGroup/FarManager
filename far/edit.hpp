@@ -93,9 +93,9 @@ public:
 	virtual ~Edit();
 
 	virtual void FastShow();
-	virtual int ProcessKey(int Key);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void Changed(bool DelBlock=false){};
 	void SetDelRemovesBlocks(bool Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
@@ -130,7 +130,7 @@ public:
 	// Получение максимального значения строки для потребностей Dialod API
 	virtual int GetMaxLength() const {return -1;}
 	void SetOvertypeMode(bool Mode) {Flags.Change(FEDITLINE_OVERTYPE, Mode);}
-	bool GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
+	bool GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);}
 	int RealPosToTab(int Pos);
 	int TabPosToReal(int Pos);
 	void Select(int Start,int End);
@@ -161,7 +161,7 @@ protected:
 	void DeleteBlock();
 
 private:
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	virtual const FarColor& GetNormalColor() const;
 	virtual const FarColor& GetSelectedColor() const;
 	virtual const FarColor& GetUnchangedColor() const;
@@ -235,9 +235,9 @@ class EditControl:public Edit
 
 public:
 	EditControl(ScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual void Show();
-	virtual void Changed(bool DelBlock=false);
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual void Show() override;
+	virtual void Changed(bool DelBlock=false) override;
 
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
@@ -249,7 +249,7 @@ public:
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
 	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
 	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
-	virtual int GetMaxLength() const {return MaxLength;}
+	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
 
 	enum ECFLAGS
@@ -264,28 +264,28 @@ protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE);
 
 private:
-	virtual const FarColor& GetNormalColor() const;
-	virtual const FarColor& GetSelectedColor() const;
-	virtual const FarColor& GetUnchangedColor() const;
-	virtual const int GetTabSize() const;
-	virtual const EXPAND_TABS GetTabExpandMode() const;
-	virtual const string GetInputMask() const {return Mask;}
-	virtual const void SetInputMask(const string& InputMask);
-	virtual const string& WordDiv() const;
-	virtual int GetPrevCurPos() const { return PrevCurPos; }
-	virtual void SetPrevCurPos(int Pos) { PrevCurPos = Pos; }
-	virtual int GetCursorSize() { return CursorSize; }
-	virtual void SetCursorSize(int Size) { CursorSize = Size; }
-	virtual int GetMacroSelectionStart() const {return MacroSelectionStart;}
-	virtual void SetMacroSelectionStart(int Value) {MacroSelectionStart = Value;}
-	virtual int GetLineCursorPos() const {return CursorPos;}
-	virtual void SetLineCursorPos(int Value) {CursorPos = Value;}
-	virtual void DisableCallback()
+	virtual const FarColor& GetNormalColor() const override;
+	virtual const FarColor& GetSelectedColor() const override;
+	virtual const FarColor& GetUnchangedColor() const override;
+	virtual const int GetTabSize() const override;
+	virtual const EXPAND_TABS GetTabExpandMode() const override;
+	virtual const string GetInputMask() const override {return Mask;}
+	virtual const void SetInputMask(const string& InputMask) override;
+	virtual const string& WordDiv() const override;
+	virtual int GetPrevCurPos() const override { return PrevCurPos; }
+	virtual void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
+	virtual int GetCursorSize() override { return CursorSize; }
+	virtual void SetCursorSize(int Size) override { CursorSize = Size; }
+	virtual int GetMacroSelectionStart() const override {return MacroSelectionStart;}
+	virtual void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
+	virtual int GetLineCursorPos() const override {return CursorPos;}
+	virtual void SetLineCursorPos(int Value) override {CursorPos = Value;}
+	virtual void DisableCallback() override
 	{
 		CallbackSaveState = m_Callback.Active;
 		m_Callback.Active = false;
 	}
-	virtual void RevertCallback()
+	virtual void RevertCallback() override
 	{
 		m_Callback.Active = CallbackSaveState;
 	};

@@ -60,7 +60,7 @@ class HMenu: public Modal
 		CriticalSection CS;
 
 	private:
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		void ShowMenu();
 		void ProcessSubMenu(struct MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
 		                    int X,int Y,int &Position);
@@ -73,12 +73,13 @@ class HMenu: public Modal
 		virtual ~HMenu();
 
 	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
-		virtual void Process();
-		virtual void ResizeConsole();
+		virtual void ResizeConsole() override;
 
 		void GetExitCode(int &ExitCode,int &VExitCode);
+		virtual int GetType() override {return MODALTYPE_HMENU;}
+		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_HMENU;}
 };

@@ -54,13 +54,12 @@ class Modal: public Frame
 		virtual ~Modal() {}
 
 	public:
-		virtual void GetDialogObjectsData() {};
 		int Done();
 		void ClearDone();
 		int  GetExitCode();
-		virtual void SetExitCode(int Code);
+		virtual void SetExitCode(int Code) override;
 
-		virtual void Process();
+		void Process();
 
 		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr);
 		void WriteInput(int Key);

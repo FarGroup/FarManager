@@ -67,16 +67,16 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
 	protected:
-		virtual void InitDialogItem(DialogItemEx *Item, const wchar_t* Text);
-		virtual int TextWidth(const DialogItemEx &Item);
-		virtual const TCHAR *GetLangString(int MessageID);
-		virtual intptr_t DoShowDialog();
+		virtual void InitDialogItem(DialogItemEx *Item, const wchar_t* Text) override;
+		virtual int TextWidth(const DialogItemEx &Item) override;
+		virtual const TCHAR *GetLangString(int MessageID) override;
+		virtual intptr_t DoShowDialog() override;
 
-		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask);
+		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask) override;
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(Bool3Option& Value);
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BoolOption& Value);
-		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
+		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value) override;
 		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
 	public:
@@ -96,7 +96,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DialogItemEx *AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
-		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
+		virtual DialogItemEx *AddIntEditField(int *Value, int Width) override;
 		virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
 		virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 

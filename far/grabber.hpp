@@ -53,15 +53,17 @@ class Grabber:Modal
 		int VerticalBlock;
 
 	private:
-		virtual void DisplayObject();
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual void DisplayObject() override;
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
 		void CopyGrabbedArea(int Append, int VerticalBlock);
 		void Reset();
 
 	public:
 		Grabber();
 		virtual ~Grabber();
+		virtual int GetType() override {return MODALTYPE_GRABBER;}
+		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_GRABBER;}
 };
 
 bool RunGraber();

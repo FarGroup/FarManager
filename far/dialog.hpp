@@ -186,19 +186,19 @@ public:
 	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
 	virtual ~Dialog();
 
-	virtual int ProcessKey(int Key);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-	virtual void Show();
-	virtual void Hide();
-	virtual void SetExitCode(int Code);
-	virtual int GetTypeAndName(string &strType, string &strName);
-	virtual int GetType() { return MODALTYPE_DIALOG; }
-	virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
-	virtual MACROMODEAREA GetMacroMode();
-	virtual int FastHide();
-	virtual void ResizeConsole();
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual void Show() override;
+	virtual void Hide() override;
+	virtual void SetExitCode(int Code) override;
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual int GetType() override { return MODALTYPE_DIALOG; }
+	virtual const wchar_t *GetTypeName() override {return L"[Dialog]";}
+	virtual MACROMODEAREA GetMacroMode() override;
+	virtual int FastHide() override;
+	virtual void ResizeConsole() override;
+	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
 	virtual void FastShow() {ShowDialog();}
 
 	bool InitOK() const {return bInitOK;}
@@ -242,7 +242,7 @@ private:
 	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr);
 	int LenStrItem(size_t ID);

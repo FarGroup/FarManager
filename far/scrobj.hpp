@@ -53,10 +53,10 @@ public:
 	virtual ~ScreenObject();
 
 	int ObjWidth() const {return X2 - X1 + 1;}
-	int ObjHeight() const {return Y2 - Y1 + 1;};
+	int ObjHeight() const {return Y2 - Y1 + 1;}
 
-	virtual int ProcessKey(int Key) { return 0; };
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; };
+	virtual int ProcessKey(int Key) { return 0; }
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
 
 	virtual void Hide();
 	virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
@@ -66,7 +66,7 @@ public:
 	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
 	virtual void SetScreenPosition();
 	virtual void ResizeConsole() {};
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;};
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
 
 	void Lock();
 	void Unlock();
@@ -80,7 +80,7 @@ public:
 	ScreenObject* GetOwner() const {return pOwner;}
 
 private:
-	virtual void DisplayObject() {};
+	virtual void DisplayObject() = 0;
 
 public:
 	// KEEP ALIGNED!
@@ -105,7 +105,7 @@ public:
 	{}
 	virtual ~ScreenObjectWithShadow();
 
-	virtual void Hide();
+	virtual void Hide() override;
 
 	void Shadow(bool Full=false);
 };

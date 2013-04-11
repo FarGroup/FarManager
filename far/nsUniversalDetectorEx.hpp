@@ -17,7 +17,7 @@ class nsUniversalDetectorEx : public nsUniversalDetector
 
 	protected:
 
-		virtual void Report(const char* aCharset)
+		virtual void Report(const char* aCharset) override
 		{
 			if (!strcmp(aCharset, "windows-1250"))
 				m_codepage = 1250;

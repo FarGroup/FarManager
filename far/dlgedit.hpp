@@ -65,19 +65,19 @@ public:
 	DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type);
 	virtual ~DlgEdit();
 
-	virtual int  ProcessKey(int Key);
-	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	virtual int  ProcessKey(int Key) override;
+	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
 
-	virtual void Show();
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
+	virtual void Show() override;
+	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
+	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const override;
 
-	virtual void Hide();
-	virtual void Hide0();
-	virtual void ShowConsoleTitle();
-	virtual void SetScreenPosition();
-	virtual void ResizeConsole();
-	virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+	virtual void Hide() override;
+	virtual void Hide0() override;
+	virtual void ShowConsoleTitle() override;
+	virtual void SetScreenPosition() override;
+	virtual void ResizeConsole() override;
+	virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 	void  SetDialogParent(DWORD Sets);
 	void  SetDropDownBox(bool NewDropDownBox);
@@ -159,7 +159,7 @@ private:
 	Editor *multiEdit;
 #endif
 
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	static void EditChange(void* aParam);
 	void DoEditChange();
 	friend class SetAutocomplete;

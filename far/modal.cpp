@@ -59,8 +59,6 @@ void Modal::Process()
 		ReadInput();
 		ProcessInput();
 	}
-
-	GetDialogObjectsData();
 }
 
 

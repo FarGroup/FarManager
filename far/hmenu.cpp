@@ -481,11 +481,6 @@ void HMenu::ResizeConsole()
 	SetPosition(0,0,::ScrX,0);
 }
 
-void HMenu::Process()
-{
-	Modal::Process();
-}
-
 HMenu::~HMenu()
 {
 	FrameManager->UnmodalizeFrame(this);

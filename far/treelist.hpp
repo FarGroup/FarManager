@@ -121,7 +121,7 @@ class TreeList: public Panel
 
 	private:
 		void SetMacroMode(int Restore = FALSE);
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		void DisplayTree(int Fast);
 		void DisplayTreeName(const wchar_t *Name, size_t Pos);
 		void Up(int Count);
@@ -136,7 +136,7 @@ class TreeList: public Panel
 		void SyncDir();
 		void SaveTreeFile();
 		int ReadTreeFile();
-		virtual size_t GetSelCount();
+		virtual size_t GetSelCount() override;
 		void DynamicUpdateKeyBar();
 		int GetNextNavPos();
 		int GetPrevNavPos();
@@ -157,48 +157,47 @@ class TreeList: public Panel
 		virtual ~TreeList();
 
 	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-//    virtual void KillFocus();
-		virtual void Update(int Mode);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual void Update(int Mode) override;
 		int  ReadTree();
 
-		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
+		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE) override;
 
 		void SetRootDir(const string& NewRootDir);
 
-		virtual const string& GetCurDir();
+		virtual const string& GetCurDir() override;
 
-		virtual int GetCurName(string &strName, string &strShortName);
+		virtual int GetCurName(string &strName, string &strShortName) override;
 
-		virtual void UpdateViewPanel();
-		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0);
-		virtual bool GetPlainString(string& Dest,int ListPos);
+		virtual void UpdateViewPanel() override;
+		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
+		virtual bool GetPlainString(string& Dest,int ListPos) override;
 
-		virtual int GoToFile(long idxItem);
-		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE);
-		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE);
+		virtual int GoToFile(long idxItem) override;
+		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) override;
+		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) override;
 
 		void ProcessEnter();
 
-		virtual long FindFirst(const string& Name);
-		virtual long FindNext(int StartPos, const string& Name);
+		virtual long FindFirst(const string& Name) override;
+		virtual long FindNext(int StartPos, const string& Name) override;
 
 		int GetExitCode() {return ExitCode;}
-		virtual size_t GetFileCount() {return ListData.size();}
-		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
+		virtual size_t GetFileCount() override {return ListData.size();}
+		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) override;
 
-		virtual void SetTitle();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		virtual void SetFocus();
-		virtual void KillFocus();
-		virtual BOOL UpdateKeyBar();
-		virtual BOOL GetItem(int Index,void *Dest);
-		virtual int GetCurrentPos();
+		virtual void SetTitle() override;
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+		virtual void SetFocus() override;
+		virtual void KillFocus() override;
+		virtual BOOL UpdateKeyBar() override;
+		virtual BOOL GetItem(int Index,void *Dest) override;
+		virtual int GetCurrentPos() override;
 
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr);
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) override;
 
 	public:
 		static void AddTreeName(const string& Name);

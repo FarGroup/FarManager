@@ -79,8 +79,8 @@ public:
 	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
 	bool GetNextName(FAR_FIND_DATA *fdata, string &strFullName);
 	void SkipDir();
-	int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
-	int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};
+	int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);}
+	int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);}
 
 private:
 	BitFlags Flags;

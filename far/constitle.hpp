@@ -44,7 +44,7 @@ public:
 	static bool WasTitleModified() { return TitleModified; }
 
 private:
-	virtual BaseFormat& Flush();
+	virtual BaseFormat& Flush() override;
 
 	string strOldTitle;
 	static bool TitleModified;

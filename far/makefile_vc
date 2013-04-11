@@ -270,7 +270,7 @@ LINKFLAGS=/nologo /subsystem:console$(MINVER) /release /nxcompat /largeaddressaw
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
-# config-cpecific
+# config-specific
 !ifdef DEBUG
 CPPFLAG1=$(CPPFLAG1) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
@@ -291,7 +291,7 @@ CPPFLAG1=$(CPPFLAG1) /analyze
 !endif
 
 
-# platform-cpecific
+# platform-specific
 !ifdef X86
 !ifndef DEBUG
 CPPFLAG1=$(CPPFLAG1) /Oy-
@@ -304,6 +304,11 @@ ULINKFLAGS=$(ULINKFLAGS) -Tpe+
 LINKFLAGS=$(LINKFLAGS) /machine:IA64
 !elseifdef ARM
 LINKFLAGS=$(LINKFLAGS) /machine:ARM
+!endif
+
+# compiler-specific
+!if $(VC) < 11
+DISABLED_WARNINGS = $(DISABLED_WARNINGS) /wd4481	
 !endif
 
 !ifdef ICL

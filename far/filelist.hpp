@@ -226,9 +226,9 @@ class FileList:public Panel
 		long CacheSelClearIndex,CacheSelClearPos;
 
 	private:
-		virtual void SetSelectedFirstMode(bool Mode);
-		virtual bool GetSelectedFirstMode() {return SelectedFirst;}
-		virtual void DisplayObject();
+		virtual void SetSelectedFirstMode(bool Mode) override;
+		virtual bool GetSelectedFirstMode() override {return SelectedFirst;}
+		virtual void DisplayObject() override;
 		void DeleteListData(std::vector<FileListItem*>& ListData);
 		void Up(int Count);
 		void Down(int Count);
@@ -255,16 +255,16 @@ class FileList:public Panel
 		void UpdatePlugin(int KeepSelection, int IgnoreVisible);
 
 		void MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To);
-		virtual size_t GetSelCount();
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA *fde=nullptr);
-		virtual void UngetSelName();
-		virtual void ClearLastGetSelection();
+		virtual size_t GetSelCount() override;
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA *fde=nullptr) override;
+		virtual void UngetSelName() override;
+		virtual void ClearLastGetSelection() override;
 
-		virtual unsigned __int64 GetLastSelectedSize();
-		virtual int GetLastSelectedItem(FileListItem *LastItem);
+		virtual unsigned __int64 GetLastSelectedSize() override;
+		virtual int GetLastSelectedItem(FileListItem *LastItem) override;
 
-		virtual int GetCurName(string &strName, string &strShortName);
-		virtual int GetCurBaseName(string &strName, string &strShortName);
+		virtual int GetCurName(string &strName, string &strShortName) override;
+		virtual int GetCurBaseName(string &strName, string &strShortName) override;
 
 		void PushPlugin(HANDLE hPlugin,const string& HostFile);
 		int PopPlugin(int EnableRestoreViewMode);
@@ -300,7 +300,7 @@ class FileList:public Panel
 		void HighlightBorder(int Level, int ListPos);
 
 	protected:
-		virtual void ClearAllItem();
+		virtual void ClearAllItem() override;
 
 	public:
 		FileList();
@@ -308,82 +308,82 @@ class FileList:public Panel
 		virtual ~FileList();
 
 	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual void SetFocus();
-		virtual void Update(int Mode);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual void SetFocus() override;
+		virtual void Update(int Mode) override;
 		/*$ 22.06.2001 SKV
 		  ѕараметр дл€ игнорировани€ времени последнего Update.
 		  »спользуетс€ дл€ Update после исполнени€ команды.
 		*/
-		virtual int UpdateIfChanged(int UpdateMode);
+		virtual int UpdateIfChanged(int UpdateMode) override;
 
 		/* $ 19.03.2002 DJ
 		   UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
 		   что панель невидима
 		*/
-		virtual void UpdateIfRequired();
+		virtual void UpdateIfRequired() override;
 
-		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false);
+		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) override;
 		void InitFSWatcher(bool CheckTree);
-		virtual void StartFSWatcher(bool got_focus=false);
-		virtual void StopFSWatcher();
-		virtual void SortFileList(int KeepPosition);
-		virtual void SetViewMode(int ViewMode);
-		virtual void SetSortMode(int SortMode);
+		virtual void StartFSWatcher(bool got_focus=false) override;
+		virtual void StopFSWatcher() override;
+		virtual void SortFileList(int KeepPosition) override;
+		virtual void SetViewMode(int ViewMode) override;
+		virtual void SetSortMode(int SortMode) override;
 		void SetSortMode0(int SortMode);
-		virtual void ChangeSortOrder(int NewOrder);
-		virtual void ChangeNumericSort(bool Mode);
-		virtual void ChangeCaseSensitiveSort(bool Mode);
-		virtual void ChangeDirectoriesFirst(bool Mode);
-		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
-		virtual int GetPrevSortMode();
-		virtual int GetPrevSortOrder();
-		virtual int GetPrevViewMode();
-		virtual bool GetPrevNumericSort();
-		virtual bool GetPrevCaseSensitiveSort();
-		virtual bool GetPrevDirectoriesFirst();
+		virtual void ChangeSortOrder(int NewOrder) override;
+		virtual void ChangeNumericSort(bool Mode) override;
+		virtual void ChangeCaseSensitiveSort(bool Mode) override;
+		virtual void ChangeDirectoriesFirst(bool Mode) override;
+		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE) override;
+		virtual int GetPrevSortMode() override;
+		virtual int GetPrevSortOrder() override;
+		virtual int GetPrevViewMode() override;
+		virtual bool GetPrevNumericSort() override;
+		virtual bool GetPrevCaseSensitiveSort() override;
+		virtual bool GetPrevDirectoriesFirst() override;
 
 		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
-		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
-		virtual int GetCurrentPos();
-		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0);
-		virtual bool GetPlainString(string& Dest,int ListPos);
+		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) override;
+		virtual int GetCurrentPos() override;
+		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
+		virtual bool GetPlainString(string& Dest,int ListPos) override;
 		long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 
-		virtual int GoToFile(long idxItem);
-		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE);
-		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE);
+		virtual int GoToFile(long idxItem) override;
+		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) override;
+		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) override;
 
-		virtual int IsSelected(const string& Name);
-		virtual int IsSelected(size_t idxItem);
+		virtual int IsSelected(const string& Name) override;
+		virtual int IsSelected(size_t idxItem) override;
 
-		virtual long FindFirst(const string& Name);
-		virtual long FindNext(int StartPos, const string& Name);
+		virtual long FindFirst(const string& Name) override;
+		virtual long FindNext(int StartPos, const string& Name) override;
 
 		void ProcessHostFile();
-		virtual void UpdateViewPanel();
-		virtual void CompareDir();
-		virtual void ClearSelection();
-		virtual void SaveSelection();
-		virtual void RestoreSelection();
-		virtual void EditFilter();
-		virtual bool FileInFilter(size_t idxItem);
-		virtual bool FilterIsEnabled();
-		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0);
-		virtual void DeleteDiz(const string& Name, const string& ShortName);
-		virtual void FlushDiz();
-		virtual void GetDizName(string &strDizName);
-		virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz);
-		virtual bool IsFullScreen();
-		virtual bool IsDizDisplayed();
-		virtual bool IsColumnDisplayed(int Type);
-		virtual int GetColumnsCount() { return Columns;};
-		virtual void SetReturnCurrentFile(int Mode);
-		virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
-		virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false);
+		virtual void UpdateViewPanel() override;
+		virtual void CompareDir() override;
+		virtual void ClearSelection() override;
+		virtual void SaveSelection() override;
+		virtual void RestoreSelection() override;
+		virtual void EditFilter() override;
+		virtual bool FileInFilter(size_t idxItem) override;
+		virtual bool FilterIsEnabled() override;
+		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) override;
+		virtual void DeleteDiz(const string& Name, const string& ShortName) override;
+		virtual void FlushDiz() override;
+		virtual void GetDizName(string &strDizName) override;
+		virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
+		virtual bool IsFullScreen() override;
+		virtual bool IsDizDisplayed() override;
+		virtual bool IsColumnDisplayed(int Type) override;
+		virtual int GetColumnsCount() override { return Columns;}
+		virtual void SetReturnCurrentFile(int Mode) override;
+		virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
+		virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
 
 		bool GetPluginInfo(PluginInfo *PInfo);
 		void PluginGetPanelInfo(PanelInfo &Info);
@@ -396,24 +396,24 @@ class FileList:public Panel
 		void PluginClearSelection(int SelectedItemNumber);
 		void PluginEndSelection();
 
-		virtual void SetPluginModified();
-		virtual int ProcessPluginEvent(int Event,void *Param);
-		virtual void SetTitle();
-		//virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		virtual void SetPluginModified() override;
+		virtual int ProcessPluginEvent(int Event,void *Param) override;
+		virtual void SetTitle() override;
+		//virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
 		int PluginPanelHelp(HANDLE hPlugin);
-		virtual size_t GetFileCount() {return ListData.size();}
+		virtual size_t GetFileCount() override {return ListData.size();}
 
 		bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
 
-		virtual BOOL GetItem(int Index,void *Dest);
-		virtual BOOL UpdateKeyBar();
+		virtual BOOL GetItem(int Index,void *Dest) override;
+		virtual BOOL UpdateKeyBar() override;
 
-		virtual void IfGoHome(wchar_t Drive);
+		virtual void IfGoHome(wchar_t Drive) override;
 
 		void ResetLastUpdateTime() {LastUpdateTime = 0;}
-		virtual HANDLE GetPluginHandle();
-		virtual size_t GetRealSelCount();
+		virtual HANDLE GetPluginHandle() override;
+		virtual size_t GetRealSelCount() override;
 		static void SetFilePanelModes();
 		static void SavePanelModes();
 		static void ReadPanelModes();

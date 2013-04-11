@@ -40,8 +40,7 @@ class KeyBar;
 
 enum MODALFRAME_TYPE
 {
-	MODALTYPE_VIRTUAL,
-	MODALTYPE_PANELS=1,
+	MODALTYPE_PANELS,
 	MODALTYPE_VIEWER,
 	MODALTYPE_EDITOR,
 	MODALTYPE_DIALOG,
@@ -50,6 +49,8 @@ enum MODALFRAME_TYPE
 	MODALTYPE_COMBOBOX,
 	MODALTYPE_FINDFOLDER,
 	MODALTYPE_USER,
+	MODALTYPE_GRABBER,
+	MODALTYPE_HMENU,
 };
 
 class Frame: public ScreenObjectWithShadow
@@ -74,8 +75,8 @@ class Frame: public ScreenObjectWithShadow
 		Frame();
 		virtual ~Frame();
 
-//    virtual int ProcessKey(int Key);
-//    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+//    virtual int ProcessKey(int Key) override;
+//    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
 
 		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return(CanLoseFocus); }
 		void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
@@ -85,8 +86,8 @@ class Frame: public ScreenObjectWithShadow
 		virtual BOOL IsFileModified() const { return FALSE; }
 
 		virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
-		virtual int GetTypeAndName(string &strType, string &strName) {return(MODALTYPE_VIRTUAL);}
-		virtual int GetType() { return MODALTYPE_VIRTUAL; }
+		virtual int GetTypeAndName(string &strType, string &strName) = 0;
+		virtual int GetType() = 0;
 
 		virtual void OnDestroy();  // вызывается перед уничтожением окна
 		virtual void OnCreate() {}   // вызывается перед созданием окна

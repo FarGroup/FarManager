@@ -110,25 +110,25 @@ public:
 	Help(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
 	virtual ~Help();
 
-	virtual void Hide();
-	virtual int  ProcessKey(int Key);
-	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual void InitKeyBar();
-	virtual void SetScreenPosition();
-	virtual void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
-	virtual void ResizeConsole();
-	virtual int  FastHide(); // ¬ведена дл€ нужд CtrlAltShift
-	virtual const wchar_t *GetTypeName() {return L"[Help]";}
-	virtual int GetTypeAndName(string &strType, string &strName);
-	virtual int GetType() { return MODALTYPE_HELP; }
+	virtual void Hide() override;
+	virtual int  ProcessKey(int Key) override;
+	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual void InitKeyBar() override;
+	virtual void SetScreenPosition() override;
+	virtual void OnChangeFocus(int focus) override; // вызываетс€ при смене фокуса
+	virtual void ResizeConsole() override;
+	virtual int  FastHide() override; // ¬ведена дл€ нужд CtrlAltShift
+	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual int GetType() override { return MODALTYPE_HELP; }
 
-	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam);
+	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 
 	BOOL GetError() {return ErrorHelp;}
 	static bool MkTopic(class Plugin* pPlugin,const string& HelpTopic,string &strTopic);
 
 private:
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);

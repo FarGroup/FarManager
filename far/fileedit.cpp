@@ -421,10 +421,10 @@ void FileEditor::Init(
 		private:
 			Editor *editor;
 		public:
-			SmartLock() {editor=nullptr;};
-			~SmartLock() {if (editor) editor->Unlock();};
+			SmartLock() {editor=nullptr;}
+			~SmartLock() {if (editor) editor->Unlock();}
 
-			void Set(Editor *e) {editor=e; editor->Lock();};
+			void Set(Editor *e) {editor=e; editor->Lock();}
 	};
 	SmartLock __smartlock;
 	SysErrorCode=0;

@@ -127,7 +127,7 @@ public:
 	FormatString& operator<<(const T& param) {return static_cast<FormatString&>(BaseFormat::operator<<(param));}
 
 private:
-	virtual void Commit(const string& Data);
+	virtual void Commit(const string& Data) override;
 };
 
 class FormatScreen:public BaseFormat
@@ -137,7 +137,7 @@ public:
 	FormatScreen& operator<<(const T& param) {return static_cast<FormatScreen&>(BaseFormat::operator<<(param));}
 
 private:
-	virtual void Commit(const string& Data);
+	virtual void Commit(const string& Data) override;
 };
 
 ENUM(LNGID);
@@ -151,6 +151,6 @@ public:
 	LangString& operator<<(const T& param) {return static_cast<LangString&>(BaseFormat::operator<<(param));}
 
 private:
-	virtual void Commit(const string& Data);
+	virtual void Commit(const string& Data) override;
 	size_t Iteration;
 };

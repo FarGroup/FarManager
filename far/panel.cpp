@@ -414,8 +414,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 		public:
-			Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;};
-			~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;};
+			Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;}
+			~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
 	};
 	Guard_Macro_DskShowPosType _guard_Macro_DskShowPosType(this);
 	MenuItemEx ChDiskItem;

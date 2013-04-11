@@ -50,28 +50,28 @@ public:
 	CommandLine();
 	virtual ~CommandLine();
 
-	virtual int ProcessKey(int Key);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-	virtual void ResizeConsole();
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual void ResizeConsole() override;
 
 	int GetCurDir(string &strCurDir);
 	void SetCurDir(const string& CurDir);
-	void GetString(string &strStr) { CmdStr.GetString(strStr); };
-	int GetLength() { return CmdStr.GetLength(); };
+	void GetString(string &strStr) { CmdStr.GetString(strStr); }
+	int GetLength() { return CmdStr.GetLength(); }
 	void SetString(const string& Str,bool Redraw=true);
 	void InsertString(const string& Str);
 	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false);
 	void ShowViewEditHistory();
 	void SetCurPos(int Pos, int LeftPos=0);
-	int GetCurPos() { return CmdStr.GetCurPos(); };
-	int GetLeftPos() { return CmdStr.GetLeftPos(); };
+	int GetCurPos() { return CmdStr.GetCurPos(); }
+	int GetLeftPos() { return CmdStr.GetLeftPos(); }
 	void SetPersistentBlocks(bool Mode);
 	void SetDelRemovesBlocks(bool Mode);
 	void SetAutoComplete(int Mode);
-	void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
-	void GetSelection(intptr_t &Start,intptr_t &End) { CmdStr.GetSelection(Start,End); };
-	void Select(int Start, int End) { CmdStr.Select(Start,End); };
+	void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); }
+	void GetSelection(intptr_t &Start,intptr_t &End) { CmdStr.GetSelection(Start,End); }
+	void Select(int Start, int End) { CmdStr.Select(Start,End); }
 	void SaveBackground(int X1,int Y1,int X2,int Y2);
 	void SaveBackground();
 	void ShowBackground();
@@ -81,7 +81,7 @@ public:
 	void SetPromptSize(int NewSize);
 
 private:
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	int ProcessOSCommands(const string& CmdLine,bool SeparateWindow, bool &PrintCommand);
 	std::list<std::pair<string, FarColor>> GetPrompt();
 	bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);

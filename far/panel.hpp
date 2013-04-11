@@ -341,7 +341,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 		virtual void IfGoHome(wchar_t Drive) {}
 
@@ -359,8 +359,9 @@ class Panel:public ScreenObject, public DelayedDestroy
 		bool SaveShortcutFolder(int Pos, bool Add);
 
 		static void EndDrag();
-		virtual void Hide();
-		virtual void Show();
+		virtual void Hide() override;
+		virtual void Show() override;
+		virtual void DisplayObject() override {}
 		int SetPluginCommand(int Command,int Param1,void* Param2);
 		int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
 		void ChangeDisk();

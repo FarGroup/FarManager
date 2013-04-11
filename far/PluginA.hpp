@@ -43,50 +43,50 @@ public:
 	PluginA(PluginManager *owner, const string& ModuleName);
 	~PluginA();
 
-	virtual bool GetGlobalInfo(GlobalInfo *Info);
-	virtual bool SetStartupInfo();
-	virtual bool CheckMinFarVersion();
-	virtual HANDLE Open(int OpenFrom, const GUID& Guid, intptr_t Item);
-	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
-	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);
-	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode);
-	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path);
-	virtual int SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode,struct UserDataItem *UserData=nullptr);
-	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t** DestPath, int OpMode);
-	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode);
-	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
-	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
-	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
-	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
-	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param);
-	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
-	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
-	virtual void FreeCustomData(wchar_t *CustomData) {}
-	virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
-	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData);
-	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber);
-	virtual void ClosePanel(HANDLE hPlugin);
-	virtual int ProcessEditorInput(const INPUT_RECORD *D);
-	virtual int ProcessEditorEvent(int Event, PVOID Param,int EditorID);
-	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID);
-	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
-	virtual int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
-	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
-	virtual HANDLE Analyse(const AnalyseInfo *Info) { return nullptr; }
-	virtual void CloseAnalyse(HANDLE hHandle) {}
-	virtual bool GetPluginInfo(PluginInfo *pi);
-	virtual int Configure(const GUID& Guid);
-	virtual void ExitFAR(const ExitInfo *Info);
+	virtual bool GetGlobalInfo(GlobalInfo *Info) override;
+	virtual bool SetStartupInfo() override;
+	virtual bool CheckMinFarVersion() override;
+	virtual HANDLE Open(int OpenFrom, const GUID& Guid, intptr_t Item) override;
+	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
+	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber) override;
+	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode) override;
+	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path) override;
+	virtual int SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode,struct UserDataItem *UserData=nullptr) override;
+	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t** DestPath, int OpMode) override;
+	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode) override;
+	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode) override;
+	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode) override;
+	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode) override;
+	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred) override;
+	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param) override;
+	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode) override;
+	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) override { return 0; }
+	virtual void FreeCustomData(wchar_t *CustomData) override {}
+	virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info) override;
+	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData) override;
+	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber) override;
+	virtual void ClosePanel(HANDLE hPlugin) override;
+	virtual int ProcessEditorInput(const INPUT_RECORD *D) override;
+	virtual int ProcessEditorEvent(int Event, PVOID Param,int EditorID) override;
+	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID) override;
+	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param) override;
+	virtual int ProcessSynchroEvent(int Event, PVOID Param) override { return 0; }
+	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) override {return 0;}
+	virtual HANDLE Analyse(const AnalyseInfo *Info) override { return nullptr; }
+	virtual void CloseAnalyse(HANDLE hHandle) override {}
+	virtual bool GetPluginInfo(PluginInfo *pi) override;
+	virtual int Configure(const GUID& Guid) override;
+	virtual void ExitFAR(const ExitInfo *Info) override;
 
-	virtual bool IsOemPlugin() const { return true; }
-	virtual const string& GetHotkeyName() const { return GetCacheName(); }
+	virtual bool IsOemPlugin() const override { return true; }
+	virtual const string& GetHotkeyName() const override { return GetCacheName(); }
 
-	virtual bool InitLang(const string& Path) { return PluginLang.InitA(Path); }
+	virtual bool InitLang(const string& Path) override { return PluginLang.InitA(Path); }
 	const char *GetMsgA(LNGID nID) const { return PluginLang.GetMsgA(nID); }
 
 private:
-	virtual void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }
-	virtual void __Epilog() { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
+	virtual void __Prolog() override { SetFileApisToOEM(); OEMApiCnt++; }
+	virtual void __Epilog() override { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
 
 	void FreePluginInfo();
 	void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);

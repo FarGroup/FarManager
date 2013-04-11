@@ -253,7 +253,7 @@ class Editor:public ScreenObject
 		int CursorPos;
 
 	private:
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		void ShowEditor(void);
 		void DeleteString(Edit *DelPtr,int LineNumber,int DeleteLast,int UndoLine);
 		void InsertString();
@@ -339,9 +339,9 @@ class Editor:public ScreenObject
 		int SetRawData(const wchar_t *SrcBuf,int SizeSrcBuf,int TextFormat); // преобразование из буфера в список
 		int GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat=0);   // преобразование из списка в буфер
 
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 		void KeepInitParameters();
 		void SetStartPos(int LineNum,int CharNum);
@@ -350,9 +350,9 @@ class Editor:public ScreenObject
 		void SetTitle(const wchar_t *Title);
 		long GetCurPos( bool file_pos=false, bool add_bom=false );
 		int EditorControl(int Command, intptr_t Param1, void *Param2);
-		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
+		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;}
 		static void SetReplaceMode(bool Mode);
-		FileEditor *GetHostFileEditor() {return HostFileEditor;};
+		FileEditor *GetHostFileEditor() {return HostFileEditor;}
 		void PrepareResizedConsole() {Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
 		void SetOptions(const EditorOptions& Options);
@@ -431,8 +431,8 @@ class Editor:public ScreenObject
 		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = nullptr, int AfterLineNumber=-1);
 
 		void SetDialogParent(DWORD Sets);
-		void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};
-		bool  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);};
+		void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);}
+		bool  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);}
 		void SetOvertypeMode(int Mode);
 		bool  GetOvertypeMode();
 		void SetEditBeyondEnd(int Mode);

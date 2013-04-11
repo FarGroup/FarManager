@@ -67,7 +67,7 @@ class InfoList:public Panel
 		InfoListSectionState SectionState[ILSS_LAST];
 
 	private:
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		bool ShowDirDescription(int YPos);
 		bool ShowPluginDescription(int YPos);
 
@@ -88,15 +88,15 @@ class InfoList:public Panel
 		virtual ~InfoList();
 
 	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual void Update(int Mode);
-		virtual void SetFocus();
-		virtual void KillFocus();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		virtual BOOL UpdateKeyBar();
-		virtual void CloseFile();
-		virtual int GetCurName(string &strName, string &strShortName);
-		virtual int UpdateIfChanged(int UpdateMode);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual void Update(int Mode) override;
+		virtual void SetFocus() override;
+		virtual void KillFocus() override;
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+		virtual BOOL UpdateKeyBar() override;
+		virtual void CloseFile() override;
+		virtual int GetCurName(string &strName, string &strShortName) override;
+		virtual int UpdateIfChanged(int UpdateMode) override;
 };

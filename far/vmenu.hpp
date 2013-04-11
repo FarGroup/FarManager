@@ -242,7 +242,7 @@ class VMenu: public Modal
 		GUID MenuId;
 
 	private:
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		void ShowMenu(bool IsParent=false);
 		void DrawTitles();
 		int GetItemPosition(int Position);
@@ -276,12 +276,12 @@ class VMenu: public Modal
 		virtual ~VMenu();
 
 		void FastShow() {ShowMenu();}
-		virtual void Show();
-		virtual void Hide();
+		virtual void Show() override;
+		virtual void Hide() override;
 		void ResetCursor();
 
 		void SetTitle(const string& Title);
-		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0);
+		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0) override;
 		const wchar_t *GetPtrTitle() { return strTitle.CPtr(); }
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
@@ -303,10 +303,10 @@ class VMenu: public Modal
 		void SetOneColor(int Index, PaletteColors Color);
 
 		int ProcessFilterKey(int Key);
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr) override;
 
 		void DeleteItems();
 		int  DeleteItem(int ID,int Count=1);
@@ -322,13 +322,13 @@ class VMenu: public Modal
 		void RestoreFilteredItems();
 		void FilterStringUpdated();
 		void FilterUpdateHeight(bool bShrink=false);
-		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; };
-		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; };
+		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; }
+		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; }
  		bool AddToFilter(const wchar_t *str);
  		void SetFilterString(const wchar_t *str);
 
-		intptr_t GetItemCount() { return Item.size(); };
-		int  GetShowItemCount() { return static_cast<int>(Item.size())-ItemHiddenCount; };
+		intptr_t GetItemCount() { return Item.size(); }
+		int  GetShowItemCount() { return static_cast<int>(Item.size())-ItemHiddenCount; }
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 
@@ -346,7 +346,7 @@ class VMenu: public Modal
 		bool UpdateRequired();
 		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
-		virtual void ResizeConsole();
+		virtual void ResizeConsole() override;
 
 		struct MenuItemEx *GetItemPtr(int Position=-1);
 
@@ -376,14 +376,14 @@ class VMenu: public Modal
 
 		BOOL GetVMenuInfo(struct FarListInfo* Info);
 
-		virtual const wchar_t *GetTypeName() {return L"[VMenu]";};
-		virtual int GetTypeAndName(string &strType, string &strName);
+		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
+		virtual int GetTypeAndName(string &strType, string &strName) override;
 
-		virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
+		virtual int GetType() override { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
 
 		void SetMaxHeight(int NewMaxHeight);
 
-		size_t GetVDialogItemID() const {return DialogItemID;};
+		size_t GetVDialogItemID() const {return DialogItemID;}
 		void SetVDialogItemID(size_t NewDialogItemID) {DialogItemID=NewDialogItemID;}
 
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);

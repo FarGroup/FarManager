@@ -40,8 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileViewer:public Frame
 {
 	private:
-		virtual void Show();
-		virtual void DisplayObject();
+		virtual void Show() override;
+		virtual void DisplayObject() override;
 		Viewer View;
 		int RedrawTitle;
 		KeyBar ViewKeyBar;
@@ -75,27 +75,27 @@ class FileViewer:public Frame
 	public:
 		void Init(const string& Name,int EnableSwitch,int DisableHistory,
 			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
-		virtual void InitKeyBar();
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual void ShowConsoleTitle();
+		virtual void InitKeyBar() override;
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual void ShowConsoleTitle() override;
 		/* $ 14.06.2002 IS
 		   Параметр DeleteFolder - удалить не только файл, но и каталог, его
 		   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
 		   поведение SetTempViewName такое же, как и раньше)
 		*/
 		void SetTempViewName(const string& Name,BOOL DeleteFolder=TRUE);
-		virtual void OnDestroy();
-		virtual void OnChangeFocus(int focus);
+		virtual void OnDestroy() override;
+		virtual void OnChangeFocus(int focus) override;
 
-		virtual int GetTypeAndName(string &strType, string &strName);
-		virtual const wchar_t *GetTypeName() {return L"[FileView]";}; ///
-		virtual int GetType() { return MODALTYPE_VIEWER; }
+		virtual int GetTypeAndName(string &strType, string &strName) override;
+		virtual const wchar_t *GetTypeName() override {return L"[FileView]";}
+		virtual int GetType() override { return MODALTYPE_VIEWER; }
 
 		void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
 		/* $ Введена для нужд CtrlAltShift OT */
-		virtual int FastHide();
+		virtual int FastHide() override;
 
 		/* $ 17.08.2001 KM
 		  Добавлено для поиска по AltF7. При редактировании найденного файла из
@@ -104,9 +104,9 @@ class FileViewer:public Frame
 		void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 		bool IsFullScreen() {return FullScreen;}
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
 		__int64 GetViewFileSize() const;
 		__int64 GetViewFilePos() const;
 		void ShowStatus();
-		int GetId(void) const { return View.ViewerID; };
+		int GetId(void) const { return View.ViewerID; }
 };

@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "flink.hpp"
 #include "panelmix.hpp"
+#include "valuename.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
@@ -246,47 +247,45 @@ void FileList::ShowFileList(int Fast)
 
 	if (Global->Opt->ShowSortMode)
 	{
-		static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
-		                        BY_ATIME,BY_CHTIME,BY_SIZE,BY_DIZ,BY_OWNER,
-		                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
-		                        BY_NUMSTREAMS,BY_STREAMSSIZE,
-		                        BY_FULLNAME,BY_CUSTOMDATA
-		                       };
-		static LNGID SortStrings[]={MMenuUnsorted,MMenuSortByName,
-		                          MMenuSortByExt,MMenuSortByWrite,MMenuSortByCreation,
-		                          MMenuSortByAccess,MMenuSortByChange,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
-		                          MMenuSortByAllocatedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
-		                          MMenuSortByFullName,MMenuSortByCustomData
-		                         };
+		static std::array<value_name_pair<int, LNGID>, 16> ModeNames =
+		{{
+			{UNSORTED, MMenuUnsorted},
+			{BY_NAME, MMenuSortByName},
+			{BY_EXT, MMenuSortByExt},
+			{BY_MTIME, MMenuSortByWrite},
+			{BY_CTIME, MMenuSortByCreation},
+			{BY_ATIME, MMenuSortByAccess},
+			{BY_CHTIME, MMenuSortByChange},
+			{BY_SIZE, MMenuSortBySize},
+			{BY_DIZ, MMenuSortByDiz},
+			{BY_OWNER, MMenuSortByOwner},
+			{BY_COMPRESSEDSIZE, MMenuSortByAllocatedSize},
+			{BY_NUMLINKS, MMenuSortByNumLinks},
+			{BY_NUMSTREAMS, MMenuSortByNumStreams},
+			{BY_STREAMSSIZE, MMenuSortByStreamsSize},
+			{BY_FULLNAME, MMenuSortByFullName},
+			{BY_CUSTOMDATA, MMenuSortByCustomData},
+		}};
 
-		for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
+		const wchar_t *Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
+
+		if (Ch)
 		{
-			if (SortModes[I]==SortMode)
+			if (Global->Opt->ShowColumnTitles)
+				GotoXY(NextX1,Y1+1);
+			else
+				GotoXY(NextX1,Y1);
+
+			SetColor(COL_PANELCOLUMNTITLE);
+			OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
+			Text(OutCharacter);
+			NextX1++;
+
+			if (Filter && Filter->IsEnabledOnPanel())
 			{
-				const wchar_t *SortStr=MSG(SortStrings[I]);
-				const wchar_t *Ch=wcschr(SortStr,L'&');
-
-				if (Ch)
-				{
-					if (Global->Opt->ShowColumnTitles)
-						GotoXY(NextX1,Y1+1);
-					else
-						GotoXY(NextX1,Y1);
-
-					SetColor(COL_PANELCOLUMNTITLE);
-					OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
-					Text(OutCharacter);
-					NextX1++;
-
-					if (Filter && Filter->IsEnabledOnPanel())
-					{
-						OutCharacter[0]=L'*';
-						Text(OutCharacter);
-						NextX1++;
-					}
-				}
-
-				break;
+				OutCharacter[0]=L'*';
+				Text(OutCharacter);
+				NextX1++;
 			}
 		}
 	}

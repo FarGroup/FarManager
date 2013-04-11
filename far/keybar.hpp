@@ -72,8 +72,8 @@ public:
 	KeyBar();
 	virtual ~KeyBar(){}
 
-	virtual int ProcessKey(int Key);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	void SetLabels(LNGID StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
@@ -84,7 +84,7 @@ public:
 	void RedrawIfChanged();
 
 private:
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	void ClearKeyTitles(bool Custom);
 
 	struct titles

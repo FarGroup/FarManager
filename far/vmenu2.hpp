@@ -112,8 +112,8 @@ class VMenu2 : public Dialog
 		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
 
-		virtual void GetPosition(int &X1,int &Y1,int &X2,int &Y2) const;
-		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+		virtual void GetPosition(int &X1,int &Y1,int &X2,int &Y2) const override;
+		virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
 		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 
 		/*
@@ -130,7 +130,7 @@ class VMenu2 : public Dialog
 		size_t SetUserData(LPCVOID Data, size_t Size=0, intptr_t Position=-1);
 		void Key(int key);
 
-		virtual MACROMODEAREA GetMacroMode()
+		virtual MACROMODEAREA GetMacroMode() override
 		{
 			return MacroMode;
 		}
@@ -178,8 +178,8 @@ class VMenu2 : public Dialog
 			return ListBox().GetShowItemCount();
 		}
 
-		virtual const wchar_t *GetTypeName() {return L"[VMenu]";};
-		virtual int GetTypeAndName(string &strType, string &strName);
-		virtual int GetType() { return MODALTYPE_VMENU; }
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
+		virtual int GetTypeAndName(string &strType, string &strName) override;
+		virtual int GetType() override { return MODALTYPE_VMENU; }
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
 };

@@ -94,18 +94,18 @@ class FileEditor : public Frame
 		// Добавлено для поиска по AltF7. При редактировании найденного файла из
 		// архива для клавиши F2 сделать вызов ShiftF2.
 		void SetSaveToSaveAs(bool ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
-		virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };
-		virtual int GetTypeAndName(string &strType, string &strName);
+		virtual BOOL IsFileModified() const override { return m_editor->IsFileModified(); }
+		virtual int GetTypeAndName(string &strType, string &strName) override;
 		intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 		bool SetCodePage(uintptr_t codepage);  //BUGBUG
-		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 		void GetEditorOptions(EditorOptions& EdOpt);
 		void SetEditorOptions(const EditorOptions& EdOpt);
-		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
-		virtual void Show();
+		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);}
+		virtual void Show() override;
 		void SetPluginTitle(const string* PluginTitle);
-		int GetId(void) const { return m_editor->EditorID; };
+		int GetId(void) const { return m_editor->EditorID; }
 
 		static const FileEditor *CurrentEditor;
 
@@ -131,7 +131,7 @@ class FileEditor : public Frame
 		bool BadConversion;
 		uintptr_t m_codepage; //BUGBUG
 
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
 		BOOL UpdateFileList();
 		/* Ret:
@@ -143,26 +143,26 @@ class FileEditor : public Frame
 		int ReProcessKey(int Key,int CalledFromControl=TRUE);
 		bool AskOverwrite(const string& FileName);
 		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
-		virtual void InitKeyBar();
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual void ShowConsoleTitle();
-		virtual void OnChangeFocus(int focus);
-		virtual void SetScreenPosition();
-		virtual const wchar_t *GetTypeName() {return L"[FileEdit]";};
-		virtual int GetType() { return MODALTYPE_EDITOR; }
-		virtual void OnDestroy();
-		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const;
-		virtual int FastHide(); // для нужд CtrlAltShift
+		virtual void InitKeyBar() override;
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual void ShowConsoleTitle() override;
+		virtual void OnChangeFocus(int focus) override;
+		virtual void SetScreenPosition() override;
+		virtual const wchar_t *GetTypeName() override {return L"[FileEdit]";}
+		virtual int GetType() override { return MODALTYPE_EDITOR; }
+		virtual void OnDestroy() override;
+		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const override;
+		virtual int FastHide() override; // для нужд CtrlAltShift
 		// возвращает признак того, является ли файл временным
 		// используется для принятия решения переходить в каталог по CtrlF10
 		BOOL isTemporary();
-		virtual void ResizeConsole();
+		virtual void ResizeConsole() override;
 		int LoadFile(const string& Name, int &UserBreak);
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature=false);
 		void SetTitle(const string* Title);
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
 		BOOL SetFileName(const string& NewFileName);
 		int ProcessEditorInput(INPUT_RECORD *Rec);
 		void ChangeEditKeyBar();

@@ -60,7 +60,7 @@ class QuickView:public Panel
 		bool uncomplete_dirscan;
 
 	private:
-		virtual void DisplayObject();
+		virtual void DisplayObject() override;
 		void PrintText(const string& Str);
 
 		void SetMacroMode(int Restore = FALSE);
@@ -73,19 +73,19 @@ class QuickView:public Panel
 		virtual ~QuickView();
 
 	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual void Update(int Mode);
+		virtual int ProcessKey(int Key) override;
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+		virtual void Update(int Mode) override;
 		void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);
-		virtual void CloseFile();
-		virtual void QViewDelTempName();
+		virtual void CloseFile() override;
+		virtual void QViewDelTempName() override;
 
-		virtual int UpdateIfChanged(int UpdateMode);
-		virtual void SetTitle();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		virtual void SetFocus();
-		virtual void KillFocus();
-		virtual BOOL UpdateKeyBar();
-		virtual int GetCurName(string &strName, string &strShortName);
+		virtual int UpdateIfChanged(int UpdateMode) override;
+		virtual void SetTitle() override;
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+		virtual void SetFocus() override;
+		virtual void KillFocus() override;
+		virtual BOOL UpdateKeyBar() override;
+		virtual int GetCurName(string &strName, string &strShortName) override;
 };

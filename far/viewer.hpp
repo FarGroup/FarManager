@@ -77,10 +77,10 @@ public:
 	Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
 	virtual ~Viewer();
 
-	virtual int ProcessKey(int Key);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-	virtual void ShowConsoleTitle();
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual void ShowConsoleTitle() override;
 
 	int OpenFile(const string& Name,int warning);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
@@ -96,13 +96,13 @@ public:
 	void SetTitle(const wchar_t *Title);
 	string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 	void SetFilePos(__int64 Pos);
-	__int64 GetFilePos() const { return FilePos; };
-	__int64 GetViewFilePos() const { return FilePos; };
-	__int64 GetViewFileSize() const { return FileSize; };
+	__int64 GetFilePos() const { return FilePos; }
+	__int64 GetViewFilePos() const { return FilePos; }
+	__int64 GetViewFileSize() const { return FileSize; }
 	void SetPluginData(const wchar_t *PluginData);
 	void SetNamesList(NamesList *List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
-	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
+	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
 	void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);
 	void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
 	void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
@@ -118,7 +118,7 @@ public:
 	void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text, intptr_t &pos);
 
 private:
-	virtual void DisplayObject();
+	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);
 	void CacheLine(__int64 start, int length, bool have_eol);

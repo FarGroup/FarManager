@@ -487,7 +487,7 @@ public:
 	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db", false) {}
 
 private:
-	virtual const char* GetKeyName() const {return "generalconfig";}
+	virtual const char* GetKeyName() const override {return "generalconfig";}
 };
 
 class LocalGeneralConfigDb: public iGeneralConfigDb
@@ -496,7 +496,7 @@ public:
 	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db", true) {}
 
 private:
-	virtual const char* GetKeyName() const {return "localconfig";}
+	virtual const char* GetKeyName() const override {return "localconfig";}
 };
 
 class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
@@ -907,7 +907,7 @@ private:
 	HighlightHierarchicalConfigDb();
 	virtual ~HighlightHierarchicalConfigDb() {}
 
-	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
+	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e) override
 	{
 		if(!strcmp(Name, "NormalColor") || !strcmp(Name, "SelectedColor") ||
 			!strcmp(Name, "CursorColor") || !strcmp(Name, "SelectedCursorColor") ||
@@ -926,7 +926,7 @@ private:
 		}
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob)
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob) override
 	{
 		int Result = 0;
 		if(!strcmp(Type, "color"))
