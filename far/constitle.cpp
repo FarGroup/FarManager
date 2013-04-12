@@ -94,13 +94,17 @@ DWORD ConsoleTitle::ShowTime = 0;
 
 CriticalSection TitleCS;
 
-ConsoleTitle::ConsoleTitle(const wchar_t *title)
+ConsoleTitle::ConsoleTitle()
 {
 	CriticalSectionLock Lock(TitleCS);
 	Global->Console->GetTitle(strOldTitle);
+}
 
-	if (title)
-		SetFarTitle(title, true);
+ConsoleTitle::ConsoleTitle(const string& title)
+{
+	CriticalSectionLock Lock(TitleCS);
+	Global->Console->GetTitle(strOldTitle);
+	SetFarTitle(title);
 }
 
 ConsoleTitle::~ConsoleTitle()
@@ -116,7 +120,7 @@ ConsoleTitle::~ConsoleTitle()
 			strOldTitle.SetLength(OldLen-AddonsLen);
 	}
 
-	SetFarTitle(strOldTitle, true);
+	SetFarTitle(strOldTitle);
 }
 
 BaseFormat& ConsoleTitle::Flush()
@@ -131,28 +135,20 @@ static string& FarTitle()
 	static string strFarTitle;
 	return strFarTitle;
 }
-void ConsoleTitle::SetFarTitle(const string& Title, bool Force)
-{
+void ConsoleTitle::SetFarTitle(const string& Title)
+{//MessageBox(0,0,Title.CPtr(),0);
 	CriticalSectionLock Lock(TitleCS);
 	string strOldFarTitle;
 
 	Global->Console->GetTitle(strOldFarTitle);
 	FarTitle() = Title;
-	FarTitle().SetLength(0x100);
-	FarTitle()+=GetFarTitleAddons();
+	FarTitle() += GetFarTitleAddons();
 	TitleModified=true;
 
-	if (strOldFarTitle != FarTitle() &&
-		    /*((Global->CtrlObject->Macro.IsExecuting() && !Global->CtrlObject->Macro.IsDisableOutput()) ||
-		        !Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsExecutingLastKey())*/ Global->ScrBuf->GetLockCount()==0)
+	if (strOldFarTitle != FarTitle() && !Global->ScrBuf->GetLockCount())
 	{
-		DWORD CurTime=GetTickCount();
-		if(CurTime-ShowTime>(DWORD)Global->Opt->RedrawTimeout || Force)
-		{
-			ShowTime=CurTime;
-			Global->Console->SetTitle(FarTitle());
-			TitleModified=true;
-		}
+		Global->Console->SetTitle(FarTitle());
+		TitleModified=true;
 	}
 }
 

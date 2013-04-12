@@ -132,6 +132,10 @@ public:
 		Param->Param = Parameter;
 
 		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadWrapper<T, Y>, Param, 0, ThreadId));
+		if (!h)
+		{
+			delete Param;
+		}
 		return h != nullptr;
 	}
 

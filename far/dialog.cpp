@@ -2104,17 +2104,6 @@ void Dialog::ShowDialog(size_t ID)
 		}
 	});
 
-	//   Включим индикатор перемещения...
-	if (!DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
-	{
-		/* $ 03.06.2001 KM
-		   + При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
-		     заголовок консоли, в противном случае он не всегда восстанавливался.
-		*/
-		if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-			ConsoleTitle::SetFarTitle(GetDialogTitle());
-	}
-
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 	DialogMode.Set(DMODE_SHOW); // диалог на экране!
 

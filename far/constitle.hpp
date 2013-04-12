@@ -36,10 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ConsoleTitle:NonCopyable, public FormatString
 {
 public:
-	ConsoleTitle(const wchar_t *title=nullptr);
+	ConsoleTitle();
+	ConsoleTitle(const string& title);
 	~ConsoleTitle();
 
-	static void SetFarTitle(const string& Title, bool Force=false);
+	static void SetFarTitle(const string& Title);
 	static void RestoreTitle();
 	static bool WasTitleModified() { return TitleModified; }
 
