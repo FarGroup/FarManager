@@ -925,7 +925,9 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg)
 	FarDialog->Process();
 	ExitCode=FarDialog->GetExitCode();
 
-	FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+	if (Global->IsMainThread()) // BUGBUG, findfile
+		FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+
 	return ExitCode;
 }
 
