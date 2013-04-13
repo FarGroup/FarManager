@@ -1014,9 +1014,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		Global->Console->ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
 	}
 
-	// ShellExecuteEx fails on Windows 8 if current directory is symlink/junction
+	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	wchar_t CurDir[MAX_PATH];
-	bool NeedFixCurDir = Global->WinVer() >= _WIN32_WINNT_WIN8 && apiGetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT;
+	bool NeedFixCurDir = apiGetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT;
 	if (NeedFixCurDir)
 	{
 		GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir);
@@ -1035,7 +1035,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		dwError = GetLastError();
 	}
 
-	// ShellExecuteEx fails on Windows 8 if current directory is symlink/junction
+	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	if (NeedFixCurDir)
 	{
 		SetCurrentDirectory(CurDir);
