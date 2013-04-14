@@ -3,6 +3,125 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.04.2013 18:16:54 +0200 - build 3331
+
+1. Correction of 3318.
+
+t-rex 14.04.2013 14:07:27 +0200 - build 3330
+
+1. Mantis#2350: Lags accessing Android via Samba.
+
+drkns 14.04.2013 12:26:10 +0200 - build 3329
+
+1. Once more 0002367.
+
+drkns 13.04.2013 22:57:39 +0200 - build 3328
+
+1. 0002367: Problem with starting apps from Junction/Symlink folders
+
+svs 12.04.2013 21:35:09 +0400 - build 3327
+
+1. SQLite 3.7.16.2
+
+drkns 12.04.2013 13:49:34 +0200 - build 3326
+
+1. 0002366: FAR freezes on searching a text in an archive protected with password
+
+drkns 12.04.2013 12:49:34 +0200 - build 3325
+
+1. Correction of console caption redrawing.
+
+shmuel 12.04.2013 01:15:24 +0200 - build 3324
+
+1. Refactoring.
+
+2. Correction of 3323.
+
+drkns 12.04.2013 00:45:48 +0200 - build 3323
+
+1. Refactoring.
+
+drkns 11.04.2013 23:11:05 +0200 - build 3322
+
+1. Using 'override' keyword in derived classes.
+
+2. A couple of minor things.
+
+drkns 10.04.2013 21:46:38 +0200 - build 3321
+
+1. 0002146: Privilege API for NetBox plugin
+
+t-rex 10.04.2013 13:47:20 +0200 - build 3320
+
+1. Asynchronous history of viewer/editor positions.
+
+drkns 10.04.2013 12:15:01 +0200 - build 3319
+
+1. ChangeTime was not filled in GetPanelItem.
+
+drkns 10.04.2013 11:30:59 +0200 - build 3318
+
+1. ChangeTime was not filled in FarGetDirList.
+
+drkns 10.04.2013 00:18:55 +0200 - build 3317
+
+1. Another portion of refactoring.
+
+drkns 09.04.2013 19:53:37 +0200 - build 3316
+
+1. Refactoring.
+
+t-rex 09.04.2013 19:12:39 +0200 - build 3315
+
+1. Minor refactoring.
+
+t-rex 09.04.2013 18:45:22 +0200 - build 3314
+
+1. Minor refactoring.
+
+t-rex 09.04.2013 18:01:37 +0200 - build 3313
+
+1. Forgotten initialization of ThreadCounter in 3311 sometimes caused FAR get stuck on exit.
+
+shmuel 09.04.2013 17:51:59 +0200 - build 3312
+
+1. If a cached plugin exporting ProcessDialogEventW required a newer FAR version,
+   then an attempt of diaplaying any dialog from a macro with no EnableOutput flag, an INVISIBLE dialog
+   "This plugin requires more recent version of Far" was shown.
+
+t-rex 09.04.2013 16:37:04 +0200 - build 3311
+
+1. FAR stuck at the start in 3310.
+
+2. Possible problem with CancelIoInProgress static initialization in interf.cpp.
+
+3. Mantis#2364: Asynchronous DB write.
+   HierarchicalConfig databases are saved asynchronously, namely plugin settings, highlighting, shortcuts and a couple of DB.
+
+t-rex 09.04.2013 13:58:04 +0200 - build 3310
+
+1. Refactoring of synchronization classes .
+
+2. Final refactoring of asynchronous history.
+
+drkns 09.04.2013 13:47:32 +0200 - build 3309
+
+1. A command called from completion menu did not run if the menu was closed with the mouse.
+
+svs 09.04.2013 12:08:51 +0400 - build
+
+1. Makeup without a build (lower vs. upper in GUIDs)
+
+shmuel 08.04.2013 23:36:09 +0200 - build 3308
+
+1. M#2363: mf.flock always returns 1 at the moment of key press.
+
+t-rex 08.04.2013 19:18:40 +0200 - build 3307
+
+1. Experimental: writing history asynchronously, it must help working with slow drives.
+   Holding Enter on a folder doesn't show difference, because the next access to history waits for the end of asynchronous processing at first,
+   so the profit has to appear in realistic use cases only.
+
 drkns 07.04.2013 20:11:40 +0200 - build 3306
 
 1. lng could be read incorrectly in some cases.
