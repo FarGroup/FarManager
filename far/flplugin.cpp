@@ -1200,7 +1200,7 @@ void FileList::ProcessPluginCommand()
 		{
 			case FCTL_CLOSEPANEL:
 				_ALGO(SysLog(L"Command=FCTL_CLOSEPANEL"));
-				SetCurDir(strPluginParam,TRUE);
+				SetCurDir(strPluginParam,true);
 
 				if (strPluginParam.IsEmpty())
 					Update(UPDATE_KEEP_SELECTION);

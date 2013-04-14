@@ -1326,7 +1326,7 @@ int FileList::ProcessKey(int Key)
 
 				if (AnotherPanel->GetType()!=FILE_PANEL)
 				{
-					AnotherPanel->SetCurDir(strCurDir,FALSE);
+					AnotherPanel->SetCurDir(strCurDir,false);
 					AnotherPanel->Redraw();
 				}
 			}
@@ -1928,7 +1928,7 @@ int FileList::ProcessKey(int Key)
 
 					if (AnotherPanel->GetType()!=FILE_PANEL)
 					{
-						AnotherPanel->SetCurDir(strCurDir,FALSE);
+						AnotherPanel->SetCurDir(strCurDir,false);
 						AnotherPanel->Redraw();
 					}
 				}
@@ -2408,14 +2408,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			bool CheckFullScreen=IsFullScreen();
 
-			if (PanelMode==PLUGIN_PANEL || !CurPtr->strName.Contains(L'?') || CurPtr->strShortName.IsEmpty())
-			{
-				ChangeDir(CurPtr->strName,TRUE,CurPtr);
-			}
-			else
-			{
-				ChangeDir(CurPtr->strShortName,TRUE,CurPtr);
-			}
+			ChangeDir(CurPtr->strName,false,true,CurPtr);
 
 			//"this" может быть удалён в ChangeDir
 			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
@@ -2522,7 +2515,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 }
 
 
-BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
+bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 {
 	bool CheckFullScreen=false;
 
@@ -2540,7 +2533,7 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 			for (;;)
 			{
 				if (ProcessPluginEvent(FE_CLOSE,nullptr))
-					return FALSE;
+					return false;
 
 				if (!PopPlugin(TRUE))
 					break;
@@ -2561,18 +2554,20 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 			}
 		}
 		else if (CurFile < static_cast<int>(ListData.size()))
+		{
 			CurPtr=ListData[CurFile];
+		}
 	}
 
 	if (!NewDir.IsEmpty())
 	{
-		return ChangeDir(NewDir,IsUpdated,CurPtr);
+		return ChangeDir(NewDir,true,IsUpdated,CurPtr);
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL FileList::ChangeDir(const string& NewDir,BOOL IsUpdated,const FileListItem *CurPtr)
+bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,const FileListItem *CurPtr)
 {
 	string strFindDir, strSetDir;
 
@@ -2607,7 +2602,9 @@ BOOL FileList::ChangeDir(const string& NewDir,BOOL IsUpdated,const FileListItem 
 			}
 		}
 
-		PrepareDiskPath(strSetDir);
+		if (!ResolvePath)
+			ConvertNameToFull(strSetDir,strSetDir);
+		PrepareDiskPath(strSetDir, ResolvePath);
 
 		if (!StrCmpN(strSetDir.CPtr(), L"\\\\?\\", 4) && strSetDir.At(5) == L':' && !strSetDir.At(6))
 			AddEndSlash(strSetDir);

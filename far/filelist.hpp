@@ -245,8 +245,8 @@ class FileList:public Panel
 		void Select(FileListItem *SelPtr,int Selection);
 		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false, OPENFILEPLUGINTYPE Type = OFP_NORMAL);
-		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
-		BOOL ChangeDir(const string& NewDir,BOOL IsUpdated=TRUE,const FileListItem *CurPtr=nullptr);
+		// ChangeDir возвращает false, eсли не смогла выставить заданный путь
+		bool ChangeDir(const string& NewDir,bool ResolvePath=false,bool IsUpdated=true,const FileListItem *CurPtr=nullptr);
 		void CountDirSize(UINT64 PluginFlags);
 		/* $ 19.03.2002 DJ
 		   IgnoreVisible - обновить, даже если панель невидима
@@ -338,7 +338,7 @@ class FileList:public Panel
 		virtual void ChangeNumericSort(bool Mode) override;
 		virtual void ChangeCaseSensitiveSort(bool Mode) override;
 		virtual void ChangeDirectoriesFirst(bool Mode) override;
-		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE) override;
+		virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
 		virtual int GetPrevSortMode() override;
 		virtual int GetPrevSortOrder() override;
 		virtual int GetPrevViewMode() override;

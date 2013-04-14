@@ -73,7 +73,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 	{
 		if (NeedSetUpADir)
 		{
-			AnotherPanel->SetCurDir(SrcPanel->GetCurDir(), TRUE);
+			AnotherPanel->SetCurDir(SrcPanel->GetCurDir(), true);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 		}
 		else

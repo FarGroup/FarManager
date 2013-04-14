@@ -1681,7 +1681,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	if (NeedUpdateAPanel && FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
 	{
-		DestPanel->SetCurDir(SrcPanel->GetCurDir(), FALSE);
+		DestPanel->SetCurDir(SrcPanel->GetCurDir(), false);
 	}
 
 #else
@@ -1695,7 +1695,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		SrcPanel->GetCurDir(strTmpSrcDir);
 
 		if (CheckUpdateAnotherPanel(SrcPanel,strTmpSrcDir))
-			DestPanel->SetCurDir(strTmpDestDir,FALSE);
+			DestPanel->SetCurDir(strTmpDestDir,false);
 	}
 
 #endif

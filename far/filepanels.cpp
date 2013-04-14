@@ -557,7 +557,7 @@ int FilePanels::ProcessKey(int Key)
 					if (ActivePanel->GetType() == TREE_PANEL)
 					{
 						string strCurDir(ActivePanel->GetCurDir());
-						AnotherPanel->SetCurDir(strCurDir, TRUE);
+						AnotherPanel->SetCurDir(strCurDir, true);
 						AnotherPanel->Update(0);
 					}
 					else
@@ -1230,7 +1230,7 @@ void FilePanels::GoToFile(const string& FileName)
 			ProcessKey(KEY_TAB);
 
 		if (!AExist && !PExist)
-			ActivePanel->SetCurDir(strNameDir,TRUE);
+			ActivePanel->SetCurDir(strNameDir,true);
 
 		ActivePanel->GoToFile(strNameFile);
 		// всегда обновим заголовок панели, чтобы дать обратную связь, что

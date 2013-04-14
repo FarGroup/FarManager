@@ -162,7 +162,7 @@ void Panel::ChangeDirToCurrent()
 {
 	string strNewDir;
 	apiGetCurrentDirectory(strNewDir);
-	SetCurDir(strNewDir,TRUE);
+	SetCurDir(strNewDir,true);
 }
 
 
@@ -1006,7 +1006,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			Focus=GetFocus();
 			Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
-			NewPanel->SetCurDir(strNewCurDir,TRUE);
+			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
 
 			if (Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
@@ -1071,10 +1071,10 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
 				{
 					// восстановим пути - это избавит нас от левых данных в панели.
 					if (AMode != PLUGIN_PANEL)
-						Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
+						Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 					if (CMode != PLUGIN_PANEL)
-						SetCurDir(strTmpCDir, FALSE);
+						SetCurDir(strTmpCDir, false);
 
 					// ... и выведем месаг о...
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
@@ -1118,10 +1118,10 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != PLUGIN_PANEL)
-					Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
+					Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, false);
 
 				if (CMode != PLUGIN_PANEL)
-					SetCurDir(strTmpCDir, FALSE);
+					SetCurDir(strTmpCDir, false);
 
 				// ... и выведем месаг о...
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
@@ -1768,10 +1768,10 @@ const string& Panel::GetCurDir()
 }
 
 
-BOOL Panel::SetCurDir(const string& CurDir,int ClosePanel,BOOL /*IsUpdated*/)
+bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 {
 	InitCurDir(CurDir);
-	return TRUE;
+	return true;
 }
 
 
@@ -1846,7 +1846,7 @@ int Panel::SetCurPath()
 				{
 					if (CheckShortcutFolder(&strCurDir, FALSE, TRUE) && FarChDir(strCurDir))
 					{
-						SetCurDir(strCurDir,TRUE);
+						SetCurDir(strCurDir,true);
 						return TRUE;
 					}
 				}
@@ -1856,7 +1856,7 @@ int Panel::SetCurPath()
 
 			if (FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
 			{
-				SetCurDir(Global->g_strFarPath,TRUE);                    // если запущен - выставим путь который мы точно знаем что существует
+				SetCurDir(Global->g_strFarPath,true);                    // если запущен - выставим путь который мы точно знаем что существует
 				ChangeDisk();                                    // и вызовем меню выбора дисков
 			}
 			else                                               // оппа...
@@ -1866,14 +1866,14 @@ int Panel::SetCurPath()
 
 				if (strTemp.GetLength()==strCurDir.GetLength())  // здесь проблема - видимо диск недоступен
 				{
-					SetCurDir(Global->g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
+					SetCurDir(Global->g_strFarPath,true);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
 					break;
 				}
 				else
 				{
 					if (FarChDir(strCurDir))
 					{
-						SetCurDir(strCurDir,TRUE);
+						SetCurDir(strCurDir,true);
 						break;
 					}
 				}
@@ -1893,7 +1893,7 @@ int Panel::SetCurPath()
 			else if (TestFolder(CurDir) == TSTFLD_NOTACCESS)
 			{
 				if (FarChDir(Root))
-					SetCurDir(Root,TRUE);
+					SetCurDir(Root,true);
 				else
 					IsChangeDisk=TRUE;
 			}
@@ -2640,12 +2640,12 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 		{
 			if (AnotherPanel->GetType()==FILE_PANEL)
 			{
-				AnotherPanel->SetCurDir(strShortcutFolder,TRUE);
+				AnotherPanel->SetCurDir(strShortcutFolder,true);
 				AnotherPanel->Redraw();
 			}
 			else
 			{
-				SetCurDir(strShortcutFolder,TRUE);
+				SetCurDir(strShortcutFolder,true);
 				ProcessKey(KEY_ENTER);
 			}
 		}
@@ -2653,7 +2653,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 		{
 			if (AnotherPanel->GetType()==FILE_PANEL && !strPluginModule.IsEmpty())
 			{
-				AnotherPanel->SetCurDir(strShortcutFolder,TRUE);
+				AnotherPanel->SetCurDir(strShortcutFolder,true);
 				AnotherPanel->Redraw();
 			}
 		}
@@ -2726,7 +2726,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 
 					if (CutToSlash(strRealDir))
 					{
-						SrcPanel->SetCurDir(strRealDir,TRUE);
+						SrcPanel->SetCurDir(strRealDir,true);
 						SrcPanel->GoToFile(PointToName(strPluginFile));
 
 						SrcPanel->ClearAllItem();
@@ -2789,7 +2789,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 	}
     */
 
-	SrcPanel->SetCurDir(strShortcutFolder,TRUE);
+	SrcPanel->SetCurDir(strShortcutFolder,true);
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
 		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Show();

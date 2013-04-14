@@ -502,7 +502,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 
 		if (bPanelPlugin /*&& bUpdatePanels*/)
 		{
-			Global->CtrlObject->Cp()->ActivePanel->SetCurDir(L".",TRUE);
+			Global->CtrlObject->Cp()->ActivePanel->SetCurDir(L".",true);
 			Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
 			ActivePanel->Redraw();
@@ -2230,7 +2230,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 		if (ExitCode>=0)
 		{
-			std::advance(PData, ExitCode); 
+			std::advance(PData, ExitCode);
 		}
 	}
 

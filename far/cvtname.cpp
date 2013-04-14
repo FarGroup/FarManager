@@ -152,7 +152,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 		pstPath+=DirOffset;
 		switch (PathType)
 		{
-			case PATH_UNKNOWN: 
+			case PATH_UNKNOWN:
 			{
 				if(IsSlash(stPath[0]) && !IsSlash(stPath[1])) //"\" or "\abc"
 				{
@@ -245,7 +245,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 	return false;
 }
 
-void ConvertNameToFull(const string& lpwszSrc, string &strDest, LPCWSTR CurrentDirectory)
+void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirectory)
 {
 	string strCurDir;
 	if(!CurrentDirectory)
@@ -256,7 +256,7 @@ void ConvertNameToFull(const string& lpwszSrc, string &strDest, LPCWSTR CurrentD
 	{
 		strCurDir = CurrentDirectory;
 	}
-	string strSrc = lpwszSrc;
+	string strSrc = Src;
 	MixToFullPath(strSrc,strDest,strCurDir);
 }
 

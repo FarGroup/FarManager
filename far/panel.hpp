@@ -229,7 +229,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 
 	public:
 		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
-		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
+		virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 		virtual void ChangeDirToCurrent();
 
 		virtual const string& GetCurDir();

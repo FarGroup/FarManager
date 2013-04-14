@@ -2915,7 +2915,7 @@ bool FindFiles::FindFilesProcess()
 
 						string strArcPath=strArcName;
 						CutToSlash(strArcPath);
-						FindPanel->SetCurDir(strArcPath,TRUE);
+						FindPanel->SetCurDir(strArcPath,true);
 						FindExitItem->Arc->hPlugin=((FileList *)FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
 						if (FindExitItem->Arc->hPlugin==PANEL_STOP)
 							FindExitItem->Arc->hPlugin = nullptr;
@@ -2990,7 +2990,7 @@ bool FindFiles::FindFilesProcess()
 						strDirTmp.SetLength(Length-1);
 
 					if (StrCmpI(strFileName.CPtr(), strDirTmp.CPtr()))
-						FindPanel->SetCurDir(strFileName,TRUE);
+						FindPanel->SetCurDir(strFileName,true);
 
 					if (!strSetName.IsEmpty())
 						FindPanel->GoToFile(strSetName);

@@ -163,7 +163,7 @@ class TreeList: public Panel
 		virtual void Update(int Mode) override;
 		int  ReadTree();
 
-		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE) override;
+		virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
 
 		void SetRootDir(const string& NewRootDir);
 

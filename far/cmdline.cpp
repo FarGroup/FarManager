@@ -306,7 +306,7 @@ int CommandLine::ProcessKey(int Key)
 
 			if (!strStr.IsEmpty())
 			{
-				ActivePanel->SetCurDir(strStr,TRUE);
+				ActivePanel->SetCurDir(strStr,true);
 				ActivePanel->Show();
 
 				if (ActivePanel->GetType()==TREE_PANEL)
@@ -1352,7 +1352,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBSlash(strExpandedDir);
-		SetPanel->SetCurDir(strExpandedDir,TRUE);
+		SetPanel->SetCurDir(strExpandedDir,true);
 		return true;
 	}
 
@@ -1377,7 +1377,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{
-		SetPanel->SetCurDir(strExpandedDir,ClosePanel);
+		SetPanel->SetCurDir(strExpandedDir,ClosePanel!=0);
 		return true;
 	}
 
