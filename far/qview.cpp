@@ -631,8 +631,7 @@ int QuickView::GetCurName(string &strName, string &strShortName)
 
 BOOL QuickView::UpdateKeyBar()
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetLabels(MQViewF1);
+	Global->CtrlObject->MainKeyBar->SetLabels(MQViewF1);
 	DynamicUpdateKeyBar();
 	return TRUE;
 }
