@@ -1016,13 +1016,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	wchar_t CurDir[MAX_PATH];
-	bool NeedFixCurDir = apiGetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT;
+	bool NeedFixCurDir = (apiGetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
 	if (NeedFixCurDir)
 	{
 		GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir);
-		wchar_t SysDir[MAX_PATH];
-		GetSystemDirectory(SysDir, ARRAYSIZE(SysDir));
-		SetCurrentDirectory(SysDir);
+		string RealPath;
+		ConvertNameToReal(strCurDir, RealPath);
+		SetCurrentDirectory(RealPath.CPtr());
 	}
 
 	DWORD dwError = 0;
