@@ -323,16 +323,32 @@ PluginManager::PluginManager():
 PluginManager::~PluginManager()
 {
 	CurPluginItem=nullptr;
+	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
 
 	std::for_each(CONST_RANGE(PluginsData, i)
 	{
-		i->Unload(true);
+		if (IsEqualGUID(i->GetGUID(),LuamacroGuid))
+			Luamacro=i;
+		else
+		{
+			i->Unload(true);
+			if (PluginsCache)
+			{
+				PluginsCache->remove((AncientPlugin**)&i);
+			}
+			delete i;
+		}
+	});
+
+	if (Luamacro)
+	{
+		Luamacro->Unload(true);
 		if (PluginsCache)
 		{
-			PluginsCache->remove((AncientPlugin**)&i);
+			PluginsCache->remove((AncientPlugin**)&Luamacro);
 		}
-		delete i;
-	});
+		delete Luamacro;
+	}
 
 	delete PluginsCache;
 	PluginsCache=nullptr;
