@@ -31,6 +31,9 @@
 #
 #LINK_DEP - additional dependents for link rule (e.g. prebuild library)
 #
+#USERLIBS - specify additional libs you need in the form -llib
+#           (added after the default ones).
+#
 #DEBUG - set if a debug build is needed
 #
 #ANSI - set for ansi build
@@ -143,7 +146,7 @@ ULOUT=-Tpd -Re
 !undef COMMONLIB
 !endif
 
-LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib
+LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
 
 !ifdef _BIN_PATH_
 !ifndef _ML_PATH_
