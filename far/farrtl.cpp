@@ -3,7 +3,6 @@ farrtl.cpp
 
 Переопределение различных CRT функций
 */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -16,7 +15,7 @@ farrtl.cpp
 #pragma intrinsic (memcpy)
 #endif
 
-#ifdef _DEBUG
+#ifdef MEMCHECK
 #undef xf_malloc
 #undef xf_realloc
 #undef xf_realloc_nomove
@@ -78,7 +77,7 @@ static void* ReleaseExpander(void* block, size_t size)
 #endif
 }
 
-#ifndef _DEBUG
+#ifndef MEMCHECK
 
 void* xf_malloc(size_t size)
 {
@@ -143,6 +142,15 @@ wchar_t* DuplicateString(const wchar_t * string)
 }
 
 #else
+namespace memcheck
+{
+static intptr_t CallNewDeleteVector = 0;
+static intptr_t CallNewDeleteScalar = 0;
+static intptr_t CallMallocFree = 0;
+static size_t AllocatedMemoryBlocks = 0;
+static size_t AllocatedMemorySize = 0;
+static size_t TotalAllocationCalls = 0;
+
 enum ALLOCATION_TYPE
 {
 	AT_RAW    = 0xa7000ea8,
@@ -150,7 +158,7 @@ enum ALLOCATION_TYPE
 	AT_VECTOR = 0xa77ec10e,
 };
 
-CriticalSection CS;
+static CRITICAL_SECTION CS;
 
 struct MEMINFO
 {
@@ -170,8 +178,8 @@ struct MEMINFO
 	};
 };
 
-MEMINFO FirstMemBlock = {};
-MEMINFO* LastMemBlock = &FirstMemBlock;
+static MEMINFO FirstMemBlock = {};
+static MEMINFO* LastMemBlock = &FirstMemBlock;
 
 static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*4, "MEMINFO not aligned");
 inline MEMINFO* ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
@@ -197,15 +205,17 @@ static inline void updateCallCount(ALLOCATION_TYPE type, bool increment)
 	int op = increment? 1 : -1;
 	switch(type)
 	{
-	case AT_RAW:    global::CallMallocFree += op;      break;
-	case AT_SCALAR: global::CallNewDeleteScalar += op; break;
-	case AT_VECTOR: global::CallNewDeleteVector += op; break;
+	case AT_RAW:    CallMallocFree += op;      break;
+	case AT_SCALAR: CallNewDeleteScalar += op; break;
+	case AT_VECTOR: CallNewDeleteVector += op; break;
 	}
 }
 
 static void RegisterBlock(MEMINFO *block)
 {
-	CriticalSectionLock lock(CS);
+	if (!AllocatedMemoryBlocks)
+		InitializeCriticalSection(&CS);
+	EnterCriticalSection(&CS);
 
 	block->prev = LastMemBlock;
 	block->next = nullptr;
@@ -216,14 +226,16 @@ static void RegisterBlock(MEMINFO *block)
 	CheckChain();
 
 	updateCallCount(block->AllocationType, true);
-	++global::AllocatedMemoryBlocks;
-	++global::TotalAllocationCalls;
-	global::AllocatedMemorySize+=block->Size;
+	++AllocatedMemoryBlocks;
+	++TotalAllocationCalls;
+	AllocatedMemorySize+=block->Size;
+
+	LeaveCriticalSection(&CS);
 }
 
 static void UnregisterBlock(MEMINFO *block)
 {
-	CriticalSectionLock lock(CS);
+	EnterCriticalSection(&CS);
 
 	if (block->prev)
 		block->prev->next = block->next;
@@ -235,8 +247,13 @@ static void UnregisterBlock(MEMINFO *block)
 	CheckChain();
 
 	updateCallCount(block->AllocationType, false);
-	--global::AllocatedMemoryBlocks;
-	global::AllocatedMemorySize-=block->Size;
+	--AllocatedMemoryBlocks;
+	AllocatedMemorySize-=block->Size;
+
+	LeaveCriticalSection(&CS);
+
+	if (!AllocatedMemoryBlocks)
+		DeleteCriticalSection(&CS);
 }
 
 static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
@@ -296,95 +313,12 @@ static void* DebugExpander(void* block, size_t size)
 
 	if(Info)
 	{
-		global::AllocatedMemorySize-=Info->Size;
+		AllocatedMemorySize-=Info->Size;
 		Info->Size = realSize;
-		global::AllocatedMemorySize+=Info->Size;
+		AllocatedMemorySize+=Info->Size;
 	}
 
 	return Info? ToUser(Info) : nullptr;
-}
-
-
-void* xf_malloc(size_t size, const char* Function, const char* File, int Line)
-{
-	return DebugAllocator(size, AT_RAW, Function, File, Line);
-}
-
-void xf_free(void* block)
-{
-	return DebugDeallocator(block, AT_RAW);
-}
-
-void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line)
-{
-	return DebugReallocator(block, size, Function, File, Line);
-}
-
-void* xf_realloc_nomove(void * block, size_t size, const char* Function, const char* File, int Line)
-{
-	if (!block)
-	{
-		return xf_malloc(size, Function, File, Line);
-	}
-	else if (DebugExpander(block, size))
-	{
-		return block;
-	}
-	else
-	{
-		xf_free(block);
-		return xf_malloc(size, File, Function, Line);
-	}
-}
-
-void* operator new(size_t size)
-{
-	return DebugAllocator(size, AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
-}
-
-void* operator new[](size_t size)
-{
-	return DebugAllocator(size, AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
-}
-
-void* operator new(size_t size, const char* Function, const char* File, int Line)
-{
-	return DebugAllocator(size, AT_SCALAR, Function, File, Line);
-}
-
-void* operator new[](size_t size, const char* Function, const char* File, int Line)
-{
-	return DebugAllocator(size, AT_VECTOR, Function, File, Line);
-}
-
-void operator delete(void* block)
-{
-	return DebugDeallocator(block, AT_SCALAR);
-}
-
-void operator delete[](void* block)
-{
-	return DebugDeallocator(block, AT_VECTOR);
-}
-
-void operator delete(void* block, const char* Function, const char* File, int Line)
-{
-	return DebugDeallocator(block, AT_SCALAR);
-}
-
-void operator delete[](void* block, const char* Function, const char* File, int Line)
-{
-	return DebugDeallocator(block, AT_VECTOR);
-}
-
-char* DuplicateString(const char * string, const char* Function, const char* File, int Line)
-{
-	return string ? strcpy(new(Function, File, Line) char[strlen(string) + 1], string) : nullptr;
-}
-
-wchar_t* DuplicateString(const wchar_t * string, const char* Function, const char* File, int Line)
-{
-	return string ? wcscpy(new(Function, File, Line) wchar_t[wcslen(string) + 1], string) : nullptr;
 }
 
 static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
@@ -398,24 +332,21 @@ static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
 	return "unknown";
 }
 
-#endif
-
 void PrintMemory()
 {
-#ifdef _DEBUG
-	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree || global::AllocatedMemoryBlocks || global::AllocatedMemorySize)
+	if (CallNewDeleteVector || CallNewDeleteScalar || CallMallocFree || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
 		std::wcout << L"Memory leaks detected:" << std::endl;
-		if (global::CallNewDeleteVector)
-			std::wcout << L"  delete[]:   " << global::CallNewDeleteVector << std::endl;
-		if (global::CallNewDeleteScalar)
-			std::wcout << L"  delete:     " << global::CallNewDeleteScalar << std::endl;
-		if (global::CallMallocFree)
-			std::wcout << L"  free():     " << global::CallMallocFree << std::endl;
-		if (global::AllocatedMemoryBlocks)
-			std::wcout << L"Total blocks: " << global::AllocatedMemoryBlocks << std::endl;
-		if (global::AllocatedMemorySize)
-			std::wcout << L"Total bytes:  " << global::AllocatedMemorySize - global::AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << global::AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
+		if (CallNewDeleteVector)
+			std::wcout << L"  delete[]:   " << CallNewDeleteVector << std::endl;
+		if (CallNewDeleteScalar)
+			std::wcout << L"  delete:     " << CallNewDeleteScalar << std::endl;
+		if (CallMallocFree)
+			std::wcout << L"  free():     " << CallMallocFree << std::endl;
+		if (AllocatedMemoryBlocks)
+			std::wcout << L"Total blocks: " << AllocatedMemoryBlocks << std::endl;
+		if (AllocatedMemorySize)
+			std::wcout << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
 		std::wcout << std::endl;
 
 		std::wcout << "Not freed blocks:" << std::endl;
@@ -424,6 +355,98 @@ void PrintMemory()
 			std::wcout << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
 		}
 	}
+}
+
+};
+
+void* xf_malloc(size_t size, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugAllocator(size, memcheck::AT_RAW, Function, File, Line);
+}
+
+void xf_free(void* block)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_RAW);
+}
+
+void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugReallocator(block, size, Function, File, Line);
+}
+
+void* xf_realloc_nomove(void * block, size_t size, const char* Function, const char* File, int Line)
+{
+	if (!block)
+	{
+		return xf_malloc(size, Function, File, Line);
+	}
+	else if (memcheck::DebugExpander(block, size))
+	{
+		return block;
+	}
+	else
+	{
+		xf_free(block);
+		return xf_malloc(size, File, Function, Line);
+	}
+}
+
+void* operator new(size_t size)
+{
+	return memcheck::DebugAllocator(size, memcheck::AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
+}
+
+void* operator new[](size_t size)
+{
+	return memcheck::DebugAllocator(size, memcheck::AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
+}
+
+void* operator new(size_t size, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugAllocator(size, memcheck::AT_SCALAR, Function, File, Line);
+}
+
+void* operator new[](size_t size, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugAllocator(size, memcheck::AT_VECTOR, Function, File, Line);
+}
+
+void operator delete(void* block)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_SCALAR);
+}
+
+void operator delete[](void* block)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_VECTOR);
+}
+
+void operator delete(void* block, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_SCALAR);
+}
+
+void operator delete[](void* block, const char* Function, const char* File, int Line)
+{
+	return memcheck::DebugDeallocator(block, memcheck::AT_VECTOR);
+}
+
+char* DuplicateString(const char * string, const char* Function, const char* File, int Line)
+{
+	return string ? strcpy(new(Function, File, Line) char[strlen(string) + 1], string) : nullptr;
+}
+
+wchar_t* DuplicateString(const wchar_t * string, const char* Function, const char* File, int Line)
+{
+	return string ? wcscpy(new(Function, File, Line) wchar_t[wcslen(string) + 1], string) : nullptr;
+}
+
+#endif
+
+void PrintMemory()
+{
+#ifdef MEMCHECK
+	memcheck::PrintMemory();
 #endif
 }
 

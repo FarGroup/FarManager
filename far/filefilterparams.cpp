@@ -116,10 +116,10 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 	if (DateType>=FDATE_COUNT)
 		FDate.DateType=FDATE_MODIFIED;
 
-	FDate.DateAfter.u.LowPart=DateAfter.dwLowDateTime;
-	FDate.DateAfter.u.HighPart=DateAfter.dwHighDateTime;
-	FDate.DateBefore.u.LowPart=DateBefore.dwLowDateTime;
-	FDate.DateBefore.u.HighPart=DateBefore.dwHighDateTime;
+	FDate.DateAfter.LowPart=DateAfter.dwLowDateTime;
+	FDate.DateAfter.HighPart=DateAfter.dwHighDateTime;
+	FDate.DateBefore.LowPart=DateBefore.dwLowDateTime;
+	FDate.DateBefore.HighPart=DateBefore.dwHighDateTime;
 	FDate.bRelative=bRelative;
 }
 
@@ -171,14 +171,14 @@ bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *D
 
 	if (DateAfter)
 	{
-		DateAfter->dwLowDateTime=FDate.DateAfter.u.LowPart;
-		DateAfter->dwHighDateTime=FDate.DateAfter.u.HighPart;
+		DateAfter->dwLowDateTime=FDate.DateAfter.LowPart;
+		DateAfter->dwHighDateTime=FDate.DateAfter.HighPart;
 	}
 
 	if (DateBefore)
 	{
-		DateBefore->dwLowDateTime=FDate.DateBefore.u.LowPart;
-		DateBefore->dwHighDateTime=FDate.DateBefore.u.HighPart;
+		DateBefore->dwLowDateTime=FDate.DateBefore.LowPart;
+		DateBefore->dwHighDateTime=FDate.DateBefore.HighPart;
 	}
 
 	if (bRelative)
@@ -369,23 +369,6 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 //Централизованная функция для создания строк меню различных фильтров.
 void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
-	const wchar_t AttrC[] = L"RAHSDCEI$TLOV";
-	const DWORD   AttrF[] =
-	{
-		FILE_ATTRIBUTE_READONLY,
-		FILE_ATTRIBUTE_ARCHIVE,
-		FILE_ATTRIBUTE_HIDDEN,
-		FILE_ATTRIBUTE_SYSTEM,
-		FILE_ATTRIBUTE_DIRECTORY,
-		FILE_ATTRIBUTE_COMPRESSED,
-		FILE_ATTRIBUTE_ENCRYPTED,
-		FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
-		FILE_ATTRIBUTE_SPARSE_FILE,
-		FILE_ATTRIBUTE_TEMPORARY,
-		FILE_ATTRIBUTE_REPARSE_POINT,
-		FILE_ATTRIBUTE_OFFLINE,
-		FILE_ATTRIBUTE_VIRTUAL,
-	};
 	const wchar_t Format1a[] = L"%-21.21s %c %-26.26s %-3.3s %c %s";
 	const wchar_t Format1b[] = L"%-22.22s %c %-26.26s %-3.3s %c %s";
 	const wchar_t Format1c[] = L"&%c. %-18.18s %c %-26.26s %-3.3s %c %s";
@@ -424,16 +407,33 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
 
-	wchar_t Attr[ARRAYSIZE(AttrC)*2] = {};
+	struct attr_item {DWORD Attribute; wchar_t Name;};
+	static const attr_item AttrArray[] =
+	{
+		{FILE_ATTRIBUTE_READONLY, L'R'},
+		{FILE_ATTRIBUTE_ARCHIVE, L'A'},
+		{FILE_ATTRIBUTE_HIDDEN, L'H'},
+		{FILE_ATTRIBUTE_SYSTEM, L'S'},
+		{FILE_ATTRIBUTE_DIRECTORY, L'D'},
+		{FILE_ATTRIBUTE_COMPRESSED, L'C'},
+		{FILE_ATTRIBUTE_ENCRYPTED, L'E'},
+		{FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L'I'},
+		{FILE_ATTRIBUTE_SPARSE_FILE, L'$'},
+		{FILE_ATTRIBUTE_TEMPORARY, L'T'},
+		{FILE_ATTRIBUTE_REPARSE_POINT, L'L'},
+		{FILE_ATTRIBUTE_OFFLINE, L'O'},
+		{FILE_ATTRIBUTE_VIRTUAL, L'V'},
+	};
+	wchar_t Attr[ARRAYSIZE(AttrArray) * 2] = {};
 
-	for (size_t i=0; i<ARRAYSIZE(AttrF); i++)
+	for (size_t i=0; i<ARRAYSIZE(AttrArray); i++)
 	{
 		wchar_t *Ptr=Attr+i*2;
-		*Ptr=AttrC[i];
+		*Ptr=AttrArray[i].Name;
 
-		if (IncludeAttr&AttrF[i])
+		if (IncludeAttr&AttrArray[i].Attribute)
 			*(Ptr+1)=L'+';
-		else if (ExcludeAttr&AttrF[i])
+		else if (ExcludeAttr&AttrArray[i].Attribute)
 			*(Ptr+1)=L'-';
 		else
 			*Ptr=*(Ptr+1)=L'.';

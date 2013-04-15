@@ -77,14 +77,6 @@ public:
 #if defined(SYSLOG)
 	BOOL StartSysLog;
 #endif
-
-	static intptr_t CallNewDeleteVector;
-	static intptr_t CallNewDeleteScalar;
-	static intptr_t CallMallocFree;
-	static size_t AllocatedMemoryBlocks;
-	static size_t AllocatedMemorySize;
-	static size_t TotalAllocationCalls;
-
 	static int EnableSEH;
 
 #ifdef DIRECT_RT

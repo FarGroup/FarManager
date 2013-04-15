@@ -7,6 +7,10 @@ farrtl.cpp
 */
 
 #ifdef _DEBUG
+#define MEMCHECK
+#endif
+
+#ifdef MEMCHECK
 void* xf_malloc(size_t size, const char* Function, const char* File, int Line);
 void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line);
 void* xf_realloc_nomove(void* block, size_t size, const char* Function, const char* File, int Line);
