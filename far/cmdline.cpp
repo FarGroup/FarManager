@@ -501,8 +501,9 @@ void CommandLine::SetCurDir(const string& CurDir)
 	{
 		strCurDir = CurDir;
 
-		if (Global->CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
-			PrepareDiskPath(strCurDir);
+		//Mantis#2350 - тормоз, это и так делается выше
+		//if (Global->CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
+			//PrepareDiskPath(strCurDir);
 	}
 }
 
