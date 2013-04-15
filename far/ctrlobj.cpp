@@ -164,8 +164,8 @@ ControlObject::~ControlObject()
 	delete ViewHistory;
 	delete FolderHistory;
 	delete CmdHistory;
-	delete FrameManager;
 	delete Plugins;
+	delete FrameManager;
 	delete HiFiles;
 }
 
