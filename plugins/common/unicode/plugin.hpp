@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3265
+  Plugin API for Far Manager 3.0 build 3333
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3265
+#define FARMANAGERVERSION_BUILD 3333
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -940,6 +940,7 @@ static const FARHELPFLAGS
 	FHELP_FARHELP     = 0x0000000000000001ULL,
 	FHELP_CUSTOMFILE  = 0x0000000000000002ULL,
 	FHELP_CUSTOMPATH  = 0x0000000000000004ULL,
+	FHELP_GUID        = 0x0000000000000008ULL,
 	FHELP_USECONTENTS = 0x0000000040000000ULL,
 	FHELP_NONE        = 0;
 
@@ -2136,6 +2137,18 @@ typedef BOOL (WINAPI *FARAPIREMOVEDIRECTORY)(const wchar_t *DirName);
 typedef BOOL (WINAPI *FARAPICREATEDIRECTORY)(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 
 struct ArclitePrivateInfo
+{
+	size_t StructSize;
+	FARAPICREATEFILE CreateFile;
+	FARAPIGETFILEATTRIBUTES GetFileAttributes;
+	FARAPISETFILEATTRIBUTES SetFileAttributes;
+	FARAPIMOVEFILEEX MoveFileEx;
+	FARAPIDELETEFILE DeleteFile;
+	FARAPIREMOVEDIRECTORY RemoveDirectory;
+	FARAPICREATEDIRECTORY CreateDirectory;
+};
+
+struct NetBoxPrivateInfo
 {
 	size_t StructSize;
 	FARAPICREATEFILE CreateFile;

@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3226
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3333
 */
 
 /*
@@ -437,7 +437,7 @@ class DialogBuilderBase
 			if (!Mask)
 				Item->Selected = *Value;
 			else
-				Item->Selected = (*Value & Mask) ? TRUE : FALSE ;
+				Item->Selected = (*Value & Mask) != 0;
 			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
