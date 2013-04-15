@@ -14,10 +14,14 @@ HLF files or just want to view some HLF files.
 $ #HlfViewer: command line syntax
 
    #hlf:filename [topic]#
+   #hlf:GUID [topic]#
 
    #filename# - the name of the HLF file (it must have the extension
               .HLF). If the file name contains spaces, it must
               be enclosed in quotation marks.
+
+   #GUID#     - GUID плагина в текущей сессии Far Manager, тему которого
+              необходимо показать.
 
    #topic#    - show the topic "topic". If this parameter is not
               specified, the topic "Contents" is displayed.

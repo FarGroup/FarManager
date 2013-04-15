@@ -56,6 +56,12 @@ static struct EditorSetPosition esp={sizeof(EditorSetPosition)};
 
 static INPUT_RECORD _DefKey={KEY_EVENT,{{TRUE,1,VK_F1,0x3B,{0},0}}};
 
+
+bool StrToGuid(const wchar_t *Value,GUID *Guid)
+{
+	return UuidFromString(reinterpret_cast<unsigned short*>((void*)Value), Guid) == RPC_S_OK;
+}
+
 BOOL CheckExtension(const wchar_t *ptrName)
 {
 	return (BOOL)FSF.ProcessName(L"*.hlf", (wchar_t*)ptrName, 0, PN_CMPNAME|PN_SKIPPATH);
@@ -103,6 +109,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
 	{
 		const wchar_t* cmd=((OpenCommandLineInfo*)OInfo->Data)->CommandLine;
+
 		if (lstrlen(cmd))
 		{
 			static wchar_t cmdbuf[1024], FileName[MAX_PATH], *ptrTopic, *ptrName;
@@ -126,31 +133,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			int hasTopic = (*ptrTopic == L' ');
 			*ptrTopic=0;
-
-			wchar_t *ptrCurDir=NULL;
-
-			if (FSF.PointToName(ptrName) == ptrName)
-			{
-				size_t Size=FSF.GetCurrentDirectory(0,NULL);
-
-				if (Size)
-				{
-					ptrCurDir=new WCHAR[Size+lstrlen(ptrName)+8];
-					FSF.GetCurrentDirectory(Size,ptrCurDir);
-					lstrcat(ptrCurDir,L"\\");
-					lstrcat(ptrCurDir,ptrName);
-					ptrName=(wchar_t *)ptrCurDir;
-				}
-			}
-
-			GetFullPathName(ptrName,MAX_PATH,FileName,&ptrName);
-
-			if (ptrCurDir)
-				delete[] ptrCurDir;
-
 			if (hasTopic)
 			{
 				ptrTopic++;
+				if (*ptrTopic == L'@')
+					ptrTopic++;
 
 				if (lstrlen(ptrTopic))
 					FSF.Trim(ptrTopic);
@@ -162,7 +149,53 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				ptrTopic = NULL;
 			}
 
-			ShowHelp(FileName,ptrTopic,true);
+			wchar_t *ptrCurDir=NULL;
+
+			GUID FindGuid;
+			bool guidMode=StrToGuid(ptrName,&FindGuid);
+			if (!guidMode && *ptrName == L'{')
+			{
+				ptrName++;
+				wchar_t *ptrNameEnd=ptrName+lstrlen(ptrName)-1;
+				if (*ptrNameEnd == L'}')
+					*ptrNameEnd=0;
+				guidMode=StrToGuid(ptrName,&FindGuid);
+			}
+
+			if (!guidMode)
+			{
+				wchar_t ExpFileName[MAX_PATH];
+
+				if (FSF.PointToName(ptrName) == ptrName)
+				{
+					size_t Size=FSF.GetCurrentDirectory(0,NULL);
+
+					if (Size)
+					{
+						ptrCurDir=new WCHAR[Size+lstrlen(ptrName)+8];
+						FSF.GetCurrentDirectory(Size,ptrCurDir);
+						lstrcat(ptrCurDir,L"\\");
+						lstrcat(ptrCurDir,ptrName);
+						ptrName=(wchar_t *)ptrCurDir;
+					}
+				}
+				else
+				{
+					ExpandEnvironmentStrings(ptrName,ExpFileName,ARRAYSIZE(ExpFileName));
+					ptrName=ExpFileName;
+				}
+
+				GetFullPathName(ptrName,MAX_PATH,FileName,&ptrName);
+
+				if (ptrCurDir)
+					delete[] ptrCurDir;
+
+				ShowHelp(FileName,ptrTopic,true);
+			}
+			else
+			{
+				Info.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
+			}
 		}
 		else
 		{
@@ -314,7 +347,7 @@ void ShowHelpFromTempFile()
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
-		#define SIGN_UNICODE    0xFEFF
+			#define SIGN_UNICODE    0xFEFF
 			WORD sign=SIGN_UNICODE;
 			WriteFile(Handle, &sign, 2, &Count, NULL);
 
