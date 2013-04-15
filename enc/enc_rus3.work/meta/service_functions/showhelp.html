@@ -46,6 +46,8 @@ BOOL WINAPI ShowHelp(
     <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMPATH">FHELP_CUSTOMPATH</a></td>
     <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_GUID">FHELP_GUID</a></td>
+    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на GUID плагина, "существующий в этой сессии Far Manager". Файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_USECONTENTS">FHELP_USECONTENTS</a></td>
     <td class="cont" width="60%">Если требуемая тема <code>HelpTopic</code> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NOSHOWERROR">FHELP_NOSHOWERROR</a></td>
@@ -91,7 +93,20 @@ BOOL WINAPI ShowHelp(
 . . .
 }</pre>
 
+<p>Пример вызова темы создания линков из плагина FarCmds:</p>
+<pre class=code>
+bool StrToGuid(const wchar_t *Value,GUID *Guid)
+{
+  return UuidFromString(reinterpret_cast&lt;unsigned short*&gt;((void*)Value), Guid) == RPC_S_OK;
+}
+
+GUID FindGuid;
+if (StrToGuid(L"3A2AF458-43E2-4715-AFEA-93D33D56C0C2",&amp;FindGuid))
+  Info.ShowHelp((const wchar_t*)&amp;FindGuid,L"Link",FHELP_GUID);
+</pre>
+
 </div>
+
 
 <div class=see>Смотрите также:</div>
 <div class=seecont>
