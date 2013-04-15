@@ -2731,7 +2731,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	   если не удалось
 	*/
 	int UpdateFlags = 0;
-	BOOL SetDirectorySuccess = TRUE;
+	bool SetDirectorySuccess = true;
 
 	if (PanelMode!=PLUGIN_PANEL && strSetDir == L"\\")
 	{
@@ -2747,7 +2747,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
 
-		SetDirectorySuccess=FALSE;
+		SetDirectorySuccess=false;
 	}
 
 	/* $ 28.04.2001 IS

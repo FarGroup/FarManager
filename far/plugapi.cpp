@@ -239,7 +239,19 @@ BOOL WINAPI apiShowHelp(
 	// двоеточие в начале топика надо бы игнорировать и в том случае,
 	// если стоит FHELP_FARHELP...
 	if ((Flags&FHELP_FARHELP) || *HelpTopic==L':')
+	{
 		strTopic = HelpTopic+((*HelpTopic == L':')?1:0);
+	}
+	else if (ModuleName && (Flags&FHELP_GUID))
+	{
+		Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>((void*)ModuleName));
+		if (plugin)
+		{
+			strPath=ExtractFilePath(plugin->GetModuleName());
+			Flags|=FHELP_CUSTOMPATH;
+			strTopic.Format(HelpFormatLink,strPath.CPtr(),HelpTopic);
+		}
+	}
 	else
 	{
 		if (ModuleName)
