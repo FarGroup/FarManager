@@ -1,21 +1,22 @@
 enum
 {
-    MTitle,
+	MTitle,
 
-    MConfig,
-    MShowHelpTopic,
+	MConfig,
+	MShowHelpTopic,
 
-    MProcessEditorInput,
+	MProcessEditorInput,
+	MCheckMaskFile,
 
-    MStyle,
-    MStr1,
-    MStr2,
-    MStr3,
+	MStyle,
+	MStr1,
+	MStr2,
+	MStr3,
 
-    MOk,
-    MCancel,
+	MOk,
+	MCancel,
 
-    MDefaultTopic,
+	MDefaultTopic,
 
-    MNotAnHLF,
+	MNotAnHLF,
 };
