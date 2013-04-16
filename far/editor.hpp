@@ -197,7 +197,7 @@ class Editor:public ScreenObject
 		     —юда запомним размер табул€ции и в дальнейшем будем использовать его,
 		     а не Global->Opt->TabSize
 		*/
-		EditorOptions EdOpt;
+		Options::EditorOptions EdOpt;
 
 		int Pasting;
 		wchar_t GlobalEOL[10];
@@ -355,7 +355,7 @@ class Editor:public ScreenObject
 		FileEditor *GetHostFileEditor() {return HostFileEditor;}
 		void PrepareResizedConsole() {Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
-		void SetOptions(const EditorOptions& Options);
+		void SetOptions(const Options::EditorOptions& Options);
 		void SetTabSize(int NewSize);
 		int  GetTabSize() const {return EdOpt.TabSize; }
 

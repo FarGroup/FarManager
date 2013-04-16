@@ -45,7 +45,6 @@ class SaveScreen;
 class FolderTree:public Frame
 {
 	private:
-		PanelOptions DummyOptions;
 		TreeList *Tree;
 		EditControl *FindEdit;
 

@@ -4234,7 +4234,7 @@ bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Key(Params[0]);
 
 	string strValue;
-	bool result = GetConfigValue(Key.s(),Name.s(), strValue);
+	bool result = Global->Opt->GetConfigValue(Key.s(),Name.s(), strValue);
 	result ? PassString(strValue,Data) : PassBoolean(0,Data);
 	return result;
 }
@@ -4560,7 +4560,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 				longState=0;
 		}
 
-		EditorOptions EdOpt;
+		Options::EditorOptions EdOpt;
 		Global->CtrlObject->Plugins->CurEditor->GetEditorOptions(EdOpt);
 
 		switch (Index)

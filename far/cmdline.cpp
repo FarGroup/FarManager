@@ -916,7 +916,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	{
 		SetString(L"", false);
 		Show();
-		return AdvancedConfig();
+		return Global->Opt->AdvancedConfig();
 	}
 
 	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))

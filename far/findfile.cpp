@@ -834,7 +834,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								string strCodePageName;
 								strCodePageName = FormatString() << SelectedCodePage;
 								// Получаем текущее состояние флага в реестре
-								int SelectType = 0;
+								long long SelectType = 0;
 								Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
 
 								// Отмечаем/разотмечаем таблицу символов

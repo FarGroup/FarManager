@@ -67,11 +67,11 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const void *Value, size_t Size) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, DWORD *Value, DWORD Default) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, int *Value, int Default) = 0;
-	virtual int GetValue(const string& Key, const string& Name, int Default) = 0;
+
+	virtual bool GetValue(const string& Key, const string& Name, long long *Value, long long Default) = 0;
 	virtual bool GetValue(const string& Key, const string& Name, string &strValue, const wchar_t *Default) = 0;
 	virtual int GetValue(const string& Key, const string& Name, void *Value, size_t Size, const void *Default) = 0;
+
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD *Value) = 0;

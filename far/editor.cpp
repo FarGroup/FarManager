@@ -7079,7 +7079,7 @@ void Editor::Xlat()
 */
 //ќбновим размер табул€ции
 
-void Editor::SetOptions(const EditorOptions& Options)
+void Editor::SetOptions(const Options::EditorOptions& Options)
 {
 	//? optimize
 	SetTabSize(Options.TabSize);

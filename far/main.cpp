@@ -744,10 +744,16 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.CPtr());
 
-	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(global::EnableSEH?SEM_NOGPFAULTERRORBOX:0)|(Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(global::EnableSEH?SEM_NOGPFAULTERRORBOX:0);
+	long long IgnoreDataAlignmentFaults = 0;	
+	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	if (IgnoreDataAlignmentFaults)	
+	{
+		Global->ErrorMode|=SEM_NOALIGNMENTFAULTEXCEPT;
+	}
 	SetErrorMode(Global->ErrorMode);
 
-	int InitDriveMenuHotkeys = TRUE;
+	long long InitDriveMenuHotkeys = 1;
 	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 	if(InitDriveMenuHotkeys)
 	{

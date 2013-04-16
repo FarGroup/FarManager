@@ -61,12 +61,18 @@ enum QUOTEDNAMETYPE
 	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
 };
 
-#define DMOUSEBUTTON_LEFT   0x00000001
-#define DMOUSEBUTTON_RIGHT  0x00000002
+enum
+{
+	DMOUSEBUTTON_LEFT = 0x00000001,
+	DMOUSEBUTTON_RIGHT = 0x00000002,
+};
 
-#define VMENUCLICK_IGNORE 0
-#define VMENUCLICK_CANCEL 1
-#define VMENUCLICK_APPLY  2
+enum
+{
+	VMENUCLICK_IGNORE = 0,
+	VMENUCLICK_CANCEL = 1,
+	VMENUCLICK_APPLY = 2,
+};
 
 enum DIZUPDATETYPE
 {
@@ -100,6 +106,8 @@ enum FarPoliciesFlags
 	FFPOL_SHOWHIDDENDRIVES      = 0x80000000,
 };
 
+struct default_value;
+
 class Option
 {
 public:
@@ -112,7 +120,7 @@ public:
 		TYPE_LAST = TYPE_STRING,
 	};
 	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false){}
-	explicit Option(const int Value):iValue(Value), ValueChanged(false){}
+	explicit Option(const long long Value):iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
 	bool Changed(){return ValueChanged;}
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) = 0;
@@ -125,10 +133,10 @@ public:
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 protected:
 	const string& GetString() const {return *sValue;}
-	const int GetInt() const {return iValue;}
+	const long long GetInt() const {return iValue;}
 	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
-	void Set(const int NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) = 0;
+	void Set(const long long NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) = 0;
 	void Free() {delete sValue;}
 private:
 	void MakeUnchanged(){ValueChanged = false;}
@@ -161,8 +169,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) override {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
-
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
 
 class Bool3Option:public Option
@@ -189,28 +196,28 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) override {return ReceiveValue(Storage, KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
 
 class IntOption:public Option
 {
 public:
 	IntOption():Option(0){}
-	IntOption(const intptr_t& Value):Option(Value){}
+	IntOption(long long Value):Option(Value){}
 	IntOption(const IntOption& Value):Option(Value.Get()){}
-	const intptr_t Get() const {return GetInt();}
-	IntOption& operator=(intptr_t Value){Set(Value); return *this;}
+	const long long Get() const {return GetInt();}
+	IntOption& operator=(long long Value){Set(Value); return *this;}
 	IntOption& operator=(const IntOption& Value){Set(Value); return *this;}
-	IntOption& operator|=(const intptr_t& Value){Set(GetInt()|Value); return *this;}
-	IntOption& operator&=(const intptr_t& Value){Set(GetInt()&Value); return *this;}
-	IntOption& operator%=(const intptr_t& Value){Set(GetInt()%Value); return *this;}
-	IntOption& operator^=(const intptr_t& Value){Set(GetInt()^Value); return *this;}
+	IntOption& operator|=(long long Value){Set(GetInt()|Value); return *this;}
+	IntOption& operator&=(long long Value){Set(GetInt()&Value); return *this;}
+	IntOption& operator%=(long long Value){Set(GetInt()%Value); return *this;}
+	IntOption& operator^=(long long Value){Set(GetInt()^Value); return *this;}
 	IntOption& operator--(){Set(GetInt()-1); return *this;}
 	IntOption& operator++(){Set(GetInt()+1); return *this;}
-	IntOption operator--(int){intptr_t Current = GetInt(); Set(Current-1); return Current;}
-	IntOption operator++(int){intptr_t Current = GetInt(); Set(Current+1); return Current;}
-	operator intptr_t() const {return GetInt();}
-	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, intptr_t Default);
+	IntOption operator--(int){long long Current = GetInt(); Set(Current-1); return Current;}
+	IntOption operator++(int){long long Current = GetInt(); Set(Current+1); return Current;}
+	operator long long() const {return GetInt();}
+	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, long long Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) override;
 	virtual const string toString() override {FormatString s; s << Get(); return s;}
 	virtual const string ExInfo() const override;
@@ -220,7 +227,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) override {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
 
 class StringOption:public Option
@@ -251,325 +258,7 @@ public:
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 private:
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const void* Default) override {return ReceiveValue(Storage, KeyName, ValueName, static_cast<const wchar_t*>(Default));}
-};
-
-struct PanelOptions
-{
-	IntOption Type;
-	BoolOption Visible;
-	IntOption ViewMode;
-	IntOption SortMode;
-	IntOption SortOrder;
-	BoolOption SortGroups;
-	BoolOption ShowShortNames;
-	BoolOption NumericSort;
-	BoolOption CaseSensitiveSort;
-	BoolOption SelectedFirst;
-	BoolOption DirectoriesFirst;
-	StringOption Folder;
-	StringOption CurFile;
-};
-
-struct AutoCompleteOptions
-{
-	BoolOption ShowList;
-	BoolOption ModalList;
-	BoolOption AppendCompletion;
-
-	Bool3Option UseFilesystem;
-	Bool3Option UseHistory;
-	Bool3Option UsePath;
-};
-
-
-struct PluginConfirmation
-{
-	Bool3Option OpenFilePlugin;
-	BoolOption StandardAssociation;
-	BoolOption EvenIfOnlyOnePlugin;
-	BoolOption SetFindList;
-	BoolOption Prefix;
-};
-
-struct Confirmation
-{
-	BoolOption Copy;
-	BoolOption Move;
-	BoolOption RO;
-	BoolOption Drag;
-	BoolOption Delete;
-	BoolOption DeleteFolder;
-	BoolOption Exit;
-	BoolOption Esc;
-	BoolOption EscTwiceToInterrupt;
-	BoolOption RemoveConnection;
-	BoolOption AllowReedit;
-	BoolOption HistoryClear;
-	BoolOption RemoveSUBST;
-	BoolOption RemoveHotPlug;
-	BoolOption DetachVHD;
-};
-
-struct DizOptions
-{
-	StringOption strListNames;
-	BoolOption ROUpdate;
-	IntOption UpdateMode;
-	BoolOption SetHidden;
-	IntOption StartPos;
-	BoolOption AnsiByDefault;
-	BoolOption SaveInUTF;
-};
-
-struct CodeXLAT
-{
-	HKL Layouts[10];
-	StringOption strLayouts;
-	StringOption Rules[3]; // правила:
-	// [0] "если предыдущий символ латинский"
-	// [1] "если предыдущий символ нелатинский символ"
-	// [2] "если предыдущий символ не рус/lat"
-	StringOption Table[2]; // [0] non-english буквы, [1] english буквы
-	StringOption strWordDivForXlat;
-	IntOption Flags;
-	int CurrentLayout;
-};
-
-struct EditorOptions
-{
-	IntOption TabSize;
-	IntOption ExpandTabs;
-	BoolOption PersistentBlocks;
-	BoolOption DelRemovesBlocks;
-	BoolOption AutoIndent;
-	BoolOption AutoDetectCodePage;
-	IntOption DefaultCodePage;
-	BoolOption CursorBeyondEOL;
-	BoolOption BSLikeDel;
-	IntOption CharCodeBase;
-	BoolOption SavePos;
-	BoolOption SaveShortPos;
-	BoolOption F7Rules;
-	BoolOption AllowEmptySpaceAfterEof;
-	IntOption ReadOnlyLock;
-	IntOption UndoSize;
-	BoolOption UseExternalEditor;
-	IntOption FileSizeLimitLo;
-	IntOption FileSizeLimitHi;
-	BoolOption ShowKeyBar;
-	BoolOption ShowTitleBar;
-	BoolOption ShowScrollBar;
-	BoolOption EditOpenedForWrite;
-	BoolOption SearchSelFound;
-	BoolOption SearchCursorAtEnd;
-	BoolOption SearchRegexp;
-	BoolOption SearchPickUpWord;
-	Bool3Option ShowWhiteSpace;
-
-	StringOption strWordDiv;
-
-	BoolOption KeepEOL;
-};
-
-/* $ 29.03.2001 IS
-     Тут следует хранить "локальные" настройки для программы просмотра
-*/
-struct ViewerOptions
-{
-	enum EViewerLineSize
-	{
-		eMinLineSize = 1*1000,
-		eDefLineSize = 10*1000,
-		eMaxLineSize = 100*1000
-	};
-
-	IntOption  TabSize;
-	BoolOption AutoDetectCodePage;
-	BoolOption ShowScrollbar;
-	BoolOption ShowArrows;
-	BoolOption PersistentBlocks;
-	BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
-	BoolOption ViewerWrap; // Wrap=0|WordWarp=1
-	BoolOption SavePos;
-	BoolOption SaveCodepage;
-	BoolOption SaveWrapMode;
-	BoolOption SaveShortPos;
-	BoolOption UseExternalViewer;
-	BoolOption ShowKeyBar;
-	IntOption  DefaultCodePage;
-	BoolOption ShowTitleBar;
-	BoolOption SearchRegexp;
-	IntOption  MaxLineSize; // 1000..100000, default=10000
-	BoolOption SearchEditFocus; // auto-focus on edit text/hex window
-	BoolOption Visible0x00;
-	IntOption  ZeroChar;
-};
-
-struct PoliciesOptions
-{
-	IntOption DisabledOptions;  // разрешенность меню конфигурации
-	BoolOption ShowHiddenDrives; // показывать скрытые логические диски
-};
-
-struct DialogsOptions
-{
-	BoolOption EditBlock;            // Постоянные блоки в строках ввода
-	BoolOption EditHistory;          // Добавлять в историю?
-	BoolOption AutoComplete;         // Разрешено автодополнение?
-	BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
-	IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
-	IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
-	BoolOption DelRemovesBlocks;
-	IntOption CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
-};
-
-struct VMenuOptions
-{
-	IntOption LBtnClick;
-	IntOption RBtnClick;
-	IntOption MBtnClick;
-};
-
-struct CommandLineOptions
-{
-	BoolOption EditBlock;
-	BoolOption DelRemovesBlocks;
-	BoolOption AutoComplete;
-	BoolOption UsePromptFormat;
-	StringOption strPromptFormat;
-};
-
-struct NowellOptions
-{
-	// перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
-	BoolOption MoveRO;
-};
-
-struct ScreenSizes
-{
-	// на сколько поз. изменить размеры для распахнутого экрана
-	IntOption DeltaX;
-	IntOption DeltaY;
-};
-
-struct LoadPluginsOptions
-{
-	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
-	string strPersonalPluginsPath;
-	bool MainPluginDir; // true - использовать стандартный путь к основным плагинам
-	bool PluginsCacheOnly; // set by '/co' switch, not saved
-	bool PluginsPersonal;
-
-	BoolOption SilentLoadPlugin;
-#ifndef NO_WRAPPER
-	BoolOption OEMPluginsSupport;
-#endif // NO_WRAPPER
-	BoolOption ScanSymlinks;
-};
-
-struct FindFileOptions
-{
-	IntOption FileSearchMode;
-	BoolOption FindFolders;
-	BoolOption FindSymLinks;
-	BoolOption CollectFiles;
-	BoolOption UseFilter;
-	BoolOption FindAlternateStreams;
-	StringOption strSearchInFirstSize;
-
-	StringOption strSearchOutFormat;
-	StringOption strSearchOutFormatWidth;
-	int OutColumnCount;
-	unsigned __int64 OutColumnTypes[PANEL_COLUMNCOUNT];
-	int OutColumnWidths[PANEL_COLUMNCOUNT];
-	int OutColumnWidthType[PANEL_COLUMNCOUNT];
-};
-
-struct InfoPanelOptions
-{
-	IntOption ComputerNameFormat;
-	IntOption UserNameFormat;
-	BoolOption ShowPowerStatus;
-	StringOption strShowStatusInfo;
-	StringOption strFolderInfoFiles;
-	BoolOption ShowCDInfo;
-};
-
-struct TreeOptions
-{
-	IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
-	BoolOption AutoChangeFolder;     // Автосмена папок при перемещении по дереву
-	IntOption TreeFileAttr;       // Файловые атрибуты для файлов-деревях
-
-#if defined(TREEFILE_PROJECT)
-	BoolOption LocalDisk;            // Хранить файл структуры папок для локальных дисков
-	BoolOption NetDisk;              // Хранить файл структуры папок для сетевых дисков
-	BoolOption NetPath;              // Хранить файл структуры папок для сетевых путей
-	BoolOption RemovableDisk;        // Хранить файл структуры папок для сменных дисков
-	BoolOption CDDisk;               // Хранить файл структуры папок для CD/DVD/BD/etc дисков
-
-	StringOption strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
-	StringOption strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
-	StringOption strNetPath;        // шаблон имени файла-деревяхи для сетевых путей
-	StringOption strRemovableDisk;  // шаблон имени файла-деревяхи для сменных дисков
-	StringOption strCDDisk;         // шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
-
-	StringOption strExceptPath;     // для перечисленных здесь не хранить
-
-	StringOption strSaveLocalPath;  // сюда сохраняем локальные диски
-	StringOption strSaveNetPath;    // сюда сохраняем сетевые диски
-#endif
-};
-
-struct CopyMoveOptions
-{
-	BoolOption UseSystemCopy;         // использовать системную функцию копирования
-	BoolOption CopyOpened;            // копировать открытые на запись файлы
-	BoolOption CopyShowTotal;         // показать общий индикатор копирования
-	BoolOption MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
-	IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
-	IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
-	IntOption BufferSize;
-};
-
-struct DeleteOptions
-{
-	BoolOption DelShowTotal;         // показать общий индикатор удаления
-};
-
-struct MacroOptions
-{
-	BoolOption MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
-	int DisableMacro; // параметры /m или /ma или /m....
-	// config
-	StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
-	StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
-	// internal
-	DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
-	DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
-	StringOption strMacroCONVFMT; // формат преобразования double в строку
-	StringOption strDateFormat; // Для $Date
-};
-
-struct KnownModulesIDs
-{
-	GUID Network;
-	StringOption NetworkGuidStr;
-	GUID Emenu;
-	StringOption EmenuGuidStr;
-};
-
-struct ExecuteOptions
-{
-	BoolOption RestoreCPAfterExecute;
-	BoolOption ExecuteUseAppPath;
-	BoolOption ExecuteFullTitle;
-	BoolOption ExecuteSilentExternal;
-	StringOption strExecuteBatchType;
-	StringOption strExcludeCmds;
-	BoolOption   UseHomeDir; // cd ~
-	StringOption strHomeDir; // cd ~
+	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
 
 class Options
@@ -578,6 +267,323 @@ public:
 	Options();
 	void Load();
 	void Save(bool Ask);
+	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
+	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
+	bool AdvancedConfig();
+
+	struct PanelOptions
+	{
+		IntOption Type;
+		BoolOption Visible;
+		IntOption ViewMode;
+		IntOption SortMode;
+		IntOption SortOrder;
+		BoolOption SortGroups;
+		BoolOption ShowShortNames;
+		BoolOption NumericSort;
+		BoolOption CaseSensitiveSort;
+		BoolOption SelectedFirst;
+		BoolOption DirectoriesFirst;
+		StringOption Folder;
+		StringOption CurFile;
+	};
+
+	struct AutoCompleteOptions
+	{
+		BoolOption ShowList;
+		BoolOption ModalList;
+		BoolOption AppendCompletion;
+
+		Bool3Option UseFilesystem;
+		Bool3Option UseHistory;
+		Bool3Option UsePath;
+	};
+
+	struct PluginConfirmation
+	{
+		Bool3Option OpenFilePlugin;
+		BoolOption StandardAssociation;
+		BoolOption EvenIfOnlyOnePlugin;
+		BoolOption SetFindList;
+		BoolOption Prefix;
+	};
+
+	struct Confirmation
+	{
+		BoolOption Copy;
+		BoolOption Move;
+		BoolOption RO;
+		BoolOption Drag;
+		BoolOption Delete;
+		BoolOption DeleteFolder;
+		BoolOption Exit;
+		BoolOption Esc;
+		BoolOption EscTwiceToInterrupt;
+		BoolOption RemoveConnection;
+		BoolOption AllowReedit;
+		BoolOption HistoryClear;
+		BoolOption RemoveSUBST;
+		BoolOption RemoveHotPlug;
+		BoolOption DetachVHD;
+	};
+
+	struct DizOptions
+	{
+		StringOption strListNames;
+		BoolOption ROUpdate;
+		IntOption UpdateMode;
+		BoolOption SetHidden;
+		IntOption StartPos;
+		BoolOption AnsiByDefault;
+		BoolOption SaveInUTF;
+	};
+
+	struct CodeXLAT
+	{
+		HKL Layouts[10];
+		StringOption strLayouts;
+		StringOption Rules[3]; // правила:
+		// [0] "если предыдущий символ латинский"
+		// [1] "если предыдущий символ нелатинский символ"
+		// [2] "если предыдущий символ не рус/lat"
+		StringOption Table[2]; // [0] non-english буквы, [1] english буквы
+		StringOption strWordDivForXlat;
+		IntOption Flags;
+		int CurrentLayout;
+	};
+
+	struct EditorOptions
+	{
+		IntOption TabSize;
+		IntOption ExpandTabs;
+		BoolOption PersistentBlocks;
+		BoolOption DelRemovesBlocks;
+		BoolOption AutoIndent;
+		BoolOption AutoDetectCodePage;
+		IntOption DefaultCodePage;
+		BoolOption CursorBeyondEOL;
+		BoolOption BSLikeDel;
+		IntOption CharCodeBase;
+		BoolOption SavePos;
+		BoolOption SaveShortPos;
+		BoolOption F7Rules;
+		BoolOption AllowEmptySpaceAfterEof;
+		IntOption ReadOnlyLock;
+		IntOption UndoSize;
+		BoolOption UseExternalEditor;
+		IntOption FileSizeLimitLo;
+		IntOption FileSizeLimitHi;
+		BoolOption ShowKeyBar;
+		BoolOption ShowTitleBar;
+		BoolOption ShowScrollBar;
+		BoolOption EditOpenedForWrite;
+		BoolOption SearchSelFound;
+		BoolOption SearchCursorAtEnd;
+		BoolOption SearchRegexp;
+		BoolOption SearchPickUpWord;
+		Bool3Option ShowWhiteSpace;
+
+		StringOption strWordDiv;
+
+		BoolOption KeepEOL;
+	};
+
+	struct ViewerOptions
+	{
+		enum EViewerLineSize
+		{
+			eMinLineSize = 1*1000,
+			eDefLineSize = 10*1000,
+			eMaxLineSize = 100*1000
+		};
+
+		IntOption  TabSize;
+		BoolOption AutoDetectCodePage;
+		BoolOption ShowScrollbar;
+		BoolOption ShowArrows;
+		BoolOption PersistentBlocks;
+		BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
+		BoolOption ViewerWrap; // Wrap=0|WordWarp=1
+		BoolOption SavePos;
+		BoolOption SaveCodepage;
+		BoolOption SaveWrapMode;
+		BoolOption SaveShortPos;
+		BoolOption UseExternalViewer;
+		BoolOption ShowKeyBar;
+		IntOption  DefaultCodePage;
+		BoolOption ShowTitleBar;
+		BoolOption SearchRegexp;
+		IntOption  MaxLineSize; // 1000..100000, default=10000
+		BoolOption SearchEditFocus; // auto-focus on edit text/hex window
+		BoolOption Visible0x00;
+		IntOption  ZeroChar;
+	};
+
+	struct PoliciesOptions
+	{
+		IntOption DisabledOptions;  // разрешенность меню конфигурации
+		BoolOption ShowHiddenDrives; // показывать скрытые логические диски
+	};
+
+	struct DialogsOptions
+	{
+		BoolOption EditBlock;            // Постоянные блоки в строках ввода
+		BoolOption EditHistory;          // Добавлять в историю?
+		BoolOption AutoComplete;         // Разрешено автодополнение?
+		BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
+		IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
+		IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+		BoolOption DelRemovesBlocks;
+		IntOption CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
+	};
+
+	struct VMenuOptions
+	{
+		IntOption LBtnClick;
+		IntOption RBtnClick;
+		IntOption MBtnClick;
+	};
+
+	struct CommandLineOptions
+	{
+		BoolOption EditBlock;
+		BoolOption DelRemovesBlocks;
+		BoolOption AutoComplete;
+		BoolOption UsePromptFormat;
+		StringOption strPromptFormat;
+	};
+
+	struct NowellOptions
+	{
+		// перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+		BoolOption MoveRO;
+	};
+
+	struct ScreenSizes
+	{
+		// на сколько поз. изменить размеры для распахнутого экрана
+		IntOption DeltaX;
+		IntOption DeltaY;
+	};
+
+	struct LoadPluginsOptions
+	{
+		string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
+		string strPersonalPluginsPath;
+		bool MainPluginDir; // true - использовать стандартный путь к основным плагинам
+		bool PluginsCacheOnly; // set by '/co' switch, not saved
+		bool PluginsPersonal;
+
+		BoolOption SilentLoadPlugin;
+#ifndef NO_WRAPPER
+		BoolOption OEMPluginsSupport;
+#endif // NO_WRAPPER
+		BoolOption ScanSymlinks;
+	};
+
+	struct FindFileOptions
+	{
+		IntOption FileSearchMode;
+		BoolOption FindFolders;
+		BoolOption FindSymLinks;
+		BoolOption CollectFiles;
+		BoolOption UseFilter;
+		BoolOption FindAlternateStreams;
+		StringOption strSearchInFirstSize;
+
+		StringOption strSearchOutFormat;
+		StringOption strSearchOutFormatWidth;
+		int OutColumnCount;
+		unsigned __int64 OutColumnTypes[PANEL_COLUMNCOUNT];
+		int OutColumnWidths[PANEL_COLUMNCOUNT];
+		int OutColumnWidthType[PANEL_COLUMNCOUNT];
+	};
+
+	struct InfoPanelOptions
+	{
+		IntOption ComputerNameFormat;
+		IntOption UserNameFormat;
+		BoolOption ShowPowerStatus;
+		StringOption strShowStatusInfo;
+		StringOption strFolderInfoFiles;
+		BoolOption ShowCDInfo;
+	};
+
+	struct TreeOptions
+	{
+		IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
+		BoolOption AutoChangeFolder;     // Автосмена папок при перемещении по дереву
+		IntOption TreeFileAttr;       // Файловые атрибуты для файлов-деревях
+
+#if defined(TREEFILE_PROJECT)
+		BoolOption LocalDisk;            // Хранить файл структуры папок для локальных дисков
+		BoolOption NetDisk;              // Хранить файл структуры папок для сетевых дисков
+		BoolOption NetPath;              // Хранить файл структуры папок для сетевых путей
+		BoolOption RemovableDisk;        // Хранить файл структуры папок для сменных дисков
+		BoolOption CDDisk;               // Хранить файл структуры папок для CD/DVD/BD/etc дисков
+
+		StringOption strLocalDisk;      // шаблон имени файла-деревяхи для локальных дисков
+		StringOption strNetDisk;        // шаблон имени файла-деревяхи для сетевых дисков
+		StringOption strNetPath;        // шаблон имени файла-деревяхи для сетевых путей
+		StringOption strRemovableDisk;  // шаблон имени файла-деревяхи для сменных дисков
+		StringOption strCDDisk;         // шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+
+		StringOption strExceptPath;     // для перечисленных здесь не хранить
+
+		StringOption strSaveLocalPath;  // сюда сохраняем локальные диски
+		StringOption strSaveNetPath;    // сюда сохраняем сетевые диски
+#endif
+	};
+
+	struct CopyMoveOptions
+	{
+		BoolOption UseSystemCopy;         // использовать системную функцию копирования
+		BoolOption CopyOpened;            // копировать открытые на запись файлы
+		BoolOption CopyShowTotal;         // показать общий индикатор копирования
+		BoolOption MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
+		IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
+		IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
+		IntOption BufferSize;
+	};
+
+	struct DeleteOptions
+	{
+		BoolOption DelShowTotal;         // показать общий индикатор удаления
+	};
+
+	struct MacroOptions
+	{
+		BoolOption MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
+		int DisableMacro; // параметры /m или /ma или /m....
+		// config
+		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
+		StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
+		// internal
+		DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
+		DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
+		StringOption strMacroCONVFMT; // формат преобразования double в строку
+		StringOption strDateFormat; // Для $Date
+	};
+
+	struct KnownModulesIDs
+	{
+		GUID Network;
+		StringOption NetworkGuidStr;
+		GUID Emenu;
+		StringOption EmenuGuidStr;
+	};
+
+	struct ExecuteOptions
+	{
+		BoolOption RestoreCPAfterExecute;
+		BoolOption ExecuteUseAppPath;
+		BoolOption ExecuteFullTitle;
+		BoolOption ExecuteSilentExternal;
+		StringOption strExecuteBatchType;
+		StringOption strExcludeCmds;
+		BoolOption   UseHomeDir; // cd ~
+		StringOption strHomeDir; // cd ~
+	};
 
 	palette Palette;
 	BoolOption Clock;
@@ -826,6 +832,17 @@ public:
 
 private:
 	void InitConfig();
+	void InitCFG();
+	void InitLocalCFG();
+	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
+	struct farconfig
+	{
+		size_t Size;
+		FARConfigItem *Items;
+	}
+	FARConfig, FARLocalConfig;
+
 	std::list<std::pair<GeneralConfig*, struct farconfig*>> ConfigList;
 };
 
@@ -838,15 +855,10 @@ void CmdlineSettings();
 void SetConfirmations();
 void PluginsManagerSettings();
 void SetDizConfig();
-void ViewerConfig(ViewerOptions &ViOpt,bool Local=false);
-void EditorConfig(EditorOptions &EdOpt,bool Local=false);
+void ViewerConfig(Options::ViewerOptions &ViOpt,bool Local=false);
+void EditorConfig(Options::EditorOptions &EdOpt,bool Local=false);
 void SetFolderInfoFiles();
 void InfoPanelSettings();
 void MaskGroupsSettings();
 void AutoCompleteSettings();
 void TreeSettings();
-
-bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &Value);
-bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
-
-bool AdvancedConfig();

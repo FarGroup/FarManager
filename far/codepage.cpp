@@ -105,7 +105,7 @@ BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 	bool IsCodePageNameCustom = false;
 	wchar_t *codePageName = cp.FormatCodePageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t), IsCodePageNameCustom);
 	// Получаем признак выбранности таблицы символов
-	int selectType = 0;
+	long long selectType = 0;
 	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, lpwszCodePage, &selectType, 0);
 
 	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
@@ -323,7 +323,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 
 	if (selectedCodePages && codePage!=CP_DEFAULT)
 	{
-		int selectType = 0;
+		long long selectType = 0;
 		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << codePage, &selectType, 0);
 
 		if (selectType & CPST_FIND)
@@ -488,7 +488,7 @@ void codepages::ProcessSelected(bool select)
 		FormatString strCPName;
 		strCPName<<codePage;
 		// Получаем текущее состояние флага в реестре
-		int selectType = 0;
+		long long selectType = 0;
 		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);
 
 		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице

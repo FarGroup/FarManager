@@ -1347,7 +1347,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_RALTSHIFTF9:
 			{
 				//     Работа с локальной копией EditorOptions
-				EditorOptions EdOpt;
+				Options::EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
 				EditorConfig(EdOpt,true); // $ 27.11.2001 DJ - Local в EditorConfig
 				EditKeyBar.Show(); //???? Нужно ли????
@@ -2439,12 +2439,12 @@ void FileEditor::SetDeleteOnClose(int NewMode)
 		Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
 
-void FileEditor::GetEditorOptions(EditorOptions& EdOpt)
+void FileEditor::GetEditorOptions(Options::EditorOptions& EdOpt)
 {
 	EdOpt = m_editor->EdOpt;
 }
 
-void FileEditor::SetEditorOptions(const EditorOptions& EdOpt)
+void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 {
 	m_editor->SetOptions(EdOpt);
 }

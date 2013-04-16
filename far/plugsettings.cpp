@@ -304,7 +304,7 @@ int FarSettings::Get(FarSettingsItem& Item)
 {
 	Option::OptionType Type;
 	Option* Data;
-	if(GetConfigValue(Item.Root,Item.Name,Type,Data))
+	if (Global->Opt->GetConfigValue(Item.Root,Item.Name,Type,Data))
 	{
 		Item.Type=FST_UNKNOWN;
 		switch(Type)

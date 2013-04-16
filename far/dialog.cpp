@@ -6318,10 +6318,10 @@ void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1,
 	if (X2-X1<20)
 		X2=X1+20;
 
-	if (ScrY-Y1<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
+	if (ScrY-Y1<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)ItemCount)+2 && Y1>ScrY/2)
 	{
 		Y2=Y1-1;
-		Y1=std::max((intptr_t)0,Y1-1-std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
+		Y1=std::max((long long)0,Y1-1-std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)ItemCount)-1);
 	}
 	else
 	{

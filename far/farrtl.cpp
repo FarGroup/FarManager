@@ -3,6 +3,7 @@ farrtl.cpp
 
 Переопределение различных CRT функций
 */
+
 #include "headers.hpp"
 #pragma hdrstop
 

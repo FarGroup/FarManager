@@ -162,7 +162,7 @@ private:
 
 
 private:
-	ViewerOptions ViOpt;
+	Options::ViewerOptions ViOpt;
 
 	bool Signature;
 

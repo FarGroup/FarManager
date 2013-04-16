@@ -293,23 +293,12 @@ public:
 		return realsize;
 	}
 
-	bool GetValue(const string& Key, const string& Name, DWORD *Value, DWORD Default)
-	{
-		unsigned __int64 v;
-		if (GetValue(Key,Name,&v))
-		{   *Value = (DWORD)v;
-			return true;
-		}
-		*Value = Default;
-		return false;
-	}
-
-	bool GetValue(const string& Key, const string& Name, int *Value, int Default)
+	bool GetValue(const string& Key, const string& Name, long long *Value, long long Default)
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
 		{
-			*Value = (int)v;
+			*Value = v;
 			return true;
 		}
 		*Value = Default;
