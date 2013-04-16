@@ -2760,6 +2760,9 @@ int Editor::ProcessKey(int Key)
 				if (Flags.Check(FEDITOR_LOCKMODE) && !SkipCheckUndo)
 					return TRUE;
 
+				if (Key == KEY_HOME || Key == KEY_NUMPAD7)
+					Flags.Set(FEDITOR_NEWUNDO);
+
 				if ((Key==KEY_CTRLLEFT || Key==KEY_RCTRLLEFT || Key==KEY_CTRLNUMPAD4 || Key==KEY_RCTRLNUMPAD4) && !CurLine->GetCurPos())
 				{
 					Pasting++;
