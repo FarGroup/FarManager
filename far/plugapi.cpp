@@ -244,12 +244,20 @@ BOOL WINAPI apiShowHelp(
 	}
 	else if (ModuleName && (Flags&FHELP_GUID))
 	{
-		Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>((void*)ModuleName));
-		if (plugin)
+		if (!*ModuleName || IsEqualGUID(*reinterpret_cast<GUID*>((void*)ModuleName),FarGuid))
 		{
-			strPath=ExtractFilePath(plugin->GetModuleName());
-			Flags|=FHELP_CUSTOMPATH;
-			strTopic.Format(HelpFormatLink,strPath.CPtr(),HelpTopic);
+			Flags|=FHELP_FARHELP;
+			strTopic = HelpTopic+((*HelpTopic == L':')?1:0);
+		}
+		else
+		{
+			Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>((void*)ModuleName));
+			if (plugin)
+			{
+				strPath=ExtractFilePath(plugin->GetModuleName());
+				Flags|=FHELP_CUSTOMPATH;
+				strTopic.Format(HelpFormatLink,strPath.CPtr(),HelpTopic);
+			}
 		}
 	}
 	else
