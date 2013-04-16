@@ -5198,7 +5198,7 @@ static int Settings_enum(lua_State *L)
 	intptr_t i, from = 1, to = -1;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fse.StructSize = sizeof(fse);
-	fse.Root = luaL_checkinteger(L, 2);
+	fse.Root = (size_t)check_env_flag(L, 2);
 
 	if(!lua_isnoneornil(L, 3))  from = luaL_checkinteger(L, 3);
 

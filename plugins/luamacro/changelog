@@ -1,3 +1,7 @@
+shmuel 16.04.2013 12:03:47 +0200 - build 130
+
+1. LuaFAR (SettingsControl/Enum): параметр Root можно указывать и стрингом (например, "FSSF_HISTORY_CMD").
+
 shmuel 10.04.2013 17:23:01 +0200 - build 129
 
 1. lm:post @filename работает без указания полного пути, если filename есть в активной панели.
