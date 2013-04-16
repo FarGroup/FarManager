@@ -6,7 +6,7 @@
 "HlfViewer: show current help topic"
 
 "Process editor hot&key:"
-"&Check on the mask files:"
+"&Check by file mask:"
 
 "Show the help file opened in the editor:"
 "Show &last saved file"
@@ -18,4 +18,4 @@
 
 "Contents"
 
-"The file open in the editor is not an HLF file"
+"The file opened in the editor is not an HLF file"
