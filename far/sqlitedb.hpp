@@ -39,6 +39,13 @@ protected:
 	struct sqlite3_stmt *pStmt;
 
 public:
+	enum ColumnType
+	{
+		TYPE_INTEGER,
+		TYPE_STRING,
+		TYPE_BLOB,
+		TYPE_UNKNOWN
+	};
 
 	SQLiteStmt();
 	~SQLiteStmt();
@@ -58,7 +65,7 @@ public:
 	int GetColInt(int Col);
 	unsigned __int64 GetColInt64(int Col);
 	const char *GetColBlob(int Col);
-	int GetColType(int Col);
+	ColumnType GetColType(int Col);
 	friend class SQLiteDb;
 };
 

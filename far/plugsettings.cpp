@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "plugins.hpp"
+#include "sqlitedb.hpp"
 
 char* AbstractSettings::Add(const string& String)
 {
@@ -227,13 +228,13 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			item.Type=FST_UNKNOWN;
 			switch (Type)
 			{
-				case HierarchicalConfig::TYPE_INTEGER:
+				case SQLiteStmt::TYPE_INTEGER:
 					item.Type=FST_QWORD;
 					break;
-				case HierarchicalConfig::TYPE_STRING:
+				case SQLiteStmt::TYPE_STRING:
 					item.Type=FST_STRING;
 					break;
-				case HierarchicalConfig::TYPE_BLOB:
+				case SQLiteStmt::TYPE_BLOB:
 					item.Type=FST_DATA;
 					break;
 			}

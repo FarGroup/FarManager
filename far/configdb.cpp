@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 #include "console.hpp"
 #include "syslog.hpp"
-#include "sqlite.h"
 #include "language.hpp"
 #include "message.hpp"
 #include "valuename.hpp"
@@ -391,11 +390,11 @@ public:
 
 			switch (stmtEnumAllValues.GetColType(2))
 			{
-				case SQLITE_INTEGER:
+				case SQLiteStmt::TYPE_INTEGER:
 					e->SetAttribute("type", "qword");
 					e->SetAttribute("value", Int64ToHexString(stmtEnumAllValues.GetColInt64(2)));
 					break;
-				case SQLITE_TEXT:
+				case SQLiteStmt::TYPE_STRING:
 					e->SetAttribute("type", "text");
 					e->SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
 					break;
@@ -709,14 +708,7 @@ public:
 		if (stmtEnumValues.Step())
 		{
 			strName = stmtEnumValues.GetColText(0);
-			switch (stmtEnumValues.GetColType(1))
-			{
-				case SQLITE_INTEGER: *Type = TYPE_INTEGER; break;
-				case SQLITE_TEXT: *Type = TYPE_STRING; break;
-				case SQLITE_BLOB: *Type = TYPE_BLOB; break;
-				default: *Type = TYPE_UNKNOWN;
-			}
-
+			*Type = stmtEnumValues.GetColType(1);
 			return true;
 		}
 
@@ -746,11 +738,11 @@ public:
 
 			switch (stmtEnumValues.GetColType(1))
 			{
-				case SQLITE_INTEGER:
+				case SQLiteStmt::TYPE_INTEGER:
 					e->SetAttribute("type", "qword");
 					e->SetAttribute("value", Int64ToHexString(stmtEnumValues.GetColInt64(1)));
 					break;
-				case SQLITE_TEXT:
+				case SQLiteStmt::TYPE_STRING:
 					e->SetAttribute("type", "text");
 					e->SetAttribute("value", stmtEnumValues.GetColTextUTF8(1));
 					break;

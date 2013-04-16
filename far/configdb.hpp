@@ -83,14 +83,6 @@ protected:
 class HierarchicalConfig: public XmlConfig, public Transactional {
 
 public:
-
-	enum {
-		TYPE_INTEGER,
-		TYPE_STRING,
-		TYPE_BLOB,
-		TYPE_UNKNOWN
-	};
-
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;

@@ -146,9 +146,19 @@ const char* SQLiteStmt::GetColBlob(int Col)
 	return (const char *)sqlite3_column_blob(pStmt,Col);
 }
 
-int SQLiteStmt::GetColType(int Col)
+SQLiteStmt::ColumnType SQLiteStmt::GetColType(int Col)
 {
-	return sqlite3_column_type(pStmt,Col);
+	switch (sqlite3_column_type(pStmt,Col))
+	{
+	case SQLITE_INTEGER:
+		return TYPE_INTEGER;
+	case SQLITE_TEXT:
+		return TYPE_STRING;
+	case SQLITE_BLOB:
+		return TYPE_BLOB;
+	default:
+		return TYPE_UNKNOWN;
+	}
 }
 
 
