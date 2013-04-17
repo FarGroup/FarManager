@@ -236,7 +236,7 @@ setcolor.hpp
 shortcuts.cpp
 shortcuts.hpp
 sqlite.c
-sqlite.h
+sqlite.hpp
 sqlitedb.cpp
 sqlitedb.hpp
 stddlg.cpp

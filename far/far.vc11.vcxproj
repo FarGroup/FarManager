@@ -823,7 +823,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="scrsaver.hpp" />
     <ClInclude Include="setattr.hpp" />
     <ClInclude Include="setcolor.hpp" />
-    <ClInclude Include="sqlite.h" />
+    <ClInclude Include="sqlite.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="sqlite\sqlite3.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

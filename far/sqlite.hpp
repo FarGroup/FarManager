@@ -1,5 +1,5 @@
 /*
-sqlite.h
+sqlite.hpp
 
 sqlite wrapper
 

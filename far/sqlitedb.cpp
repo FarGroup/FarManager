@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "sqlite.h"
+#include "sqlite.hpp"
 #include "sqlitedb.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
@@ -75,19 +75,19 @@ SQLiteStmt::~SQLiteStmt()
 SQLiteStmt& SQLiteStmt::Reset()
 {
 	param=1;
-	sqlite3_clear_bindings(pStmt);
-	sqlite3_reset(pStmt);
+	sqlite::sqlite3_clear_bindings(pStmt);
+	sqlite::sqlite3_reset(pStmt);
 	return *this;
 }
 
 bool SQLiteStmt::Step()
 {
-	return sqlite3_step(pStmt) == SQLITE_ROW;
+	return sqlite::sqlite3_step(pStmt) == SQLITE_ROW;
 }
 
 bool SQLiteStmt::StepAndReset()
 {
-	bool b = sqlite3_step(pStmt) == SQLITE_DONE;
+	bool b = sqlite::sqlite3_step(pStmt) == SQLITE_DONE;
 	Reset();
 	return b;
 }
@@ -118,37 +118,37 @@ SQLiteStmt& SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
 
 const wchar_t* SQLiteStmt::GetColText(int Col)
 {
-	return (const wchar_t *)sqlite3_column_text16(pStmt,Col);
+	return (const wchar_t *)sqlite::sqlite3_column_text16(pStmt,Col);
 }
 
 const char* SQLiteStmt::GetColTextUTF8(int Col)
 {
-	return (const char *)sqlite3_column_text(pStmt,Col);
+	return (const char *)sqlite::sqlite3_column_text(pStmt,Col);
 }
 
 int SQLiteStmt::GetColBytes(int Col)
 {
-	return sqlite3_column_bytes(pStmt,Col);
+	return sqlite::sqlite3_column_bytes(pStmt,Col);
 }
 
 int SQLiteStmt::GetColInt(int Col)
 {
-	return sqlite3_column_int(pStmt,Col);
+	return sqlite::sqlite3_column_int(pStmt,Col);
 }
 
 unsigned __int64 SQLiteStmt::GetColInt64(int Col)
 {
-	return sqlite3_column_int64(pStmt,Col);
+	return sqlite::sqlite3_column_int64(pStmt,Col);
 }
 
 const char* SQLiteStmt::GetColBlob(int Col)
 {
-	return (const char *)sqlite3_column_blob(pStmt,Col);
+	return (const char *)sqlite::sqlite3_column_blob(pStmt,Col);
 }
 
 SQLiteStmt::ColumnType SQLiteStmt::GetColType(int Col)
 {
-	switch (sqlite3_column_type(pStmt,Col))
+	switch (sqlite::sqlite3_column_type(pStmt,Col))
 	{
 	case SQLITE_INTEGER:
 		return TYPE_INTEGER;
@@ -188,15 +188,15 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			DWORD attrs = apiGetFileAttributes(strPath);
 			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
 		}
-		bool ret = (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &pDb));
+		bool ret = (SQLITE_OK == sqlite::sqlite3_open16(strPath.CPtr(), &pDb));
 		if (ret)
-			sqlite3_busy_timeout(pDb, 1000);
+			sqlite::sqlite3_busy_timeout(pDb, 1000);
 		return ret;
 	}
 
 	// copy db to memory
 	//
-	if (SQLITE_OK != sqlite3_open16(L":memory:", &pDb))
+	if (SQLITE_OK != sqlite::sqlite3_open16(L":memory:", &pDb))
 		return false;
 
 	bool ok = true, copied = false;
@@ -218,7 +218,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			apiSetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)
 				strPath = strTmp;
-			ok = ok && (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &db_source));
+			ok = ok && (SQLITE_OK == sqlite::sqlite3_open16(strPath.CPtr(), &db_source));
 		}
 		else
 		{
@@ -237,7 +237,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			{
 				sqlite::sqlite3_backup_step(db_backup, -1);
 				sqlite::sqlite3_backup_finish(db_backup);
-				int rc = sqlite3_errcode(pDb);
+				int rc = sqlite::sqlite3_errcode(pDb);
 				ok = (SQLITE_OK == rc);
 			}
 		}
@@ -285,7 +285,7 @@ int SQLiteDb::InitStatus(string& name, bool full_name)
 
 bool SQLiteDb::Exec(const char *Command)
 {
-	return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK;
+	return sqlite::sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK;
 }
 
 bool SQLiteDb::BeginTransaction()
@@ -310,22 +310,22 @@ bool SQLiteDb::IsOpen()
 
 bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
 {
-	return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+	return sqlite::sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
 }
 
 int SQLiteDb::Changes()
 {
-	return sqlite3_changes(pDb);
+	return sqlite::sqlite3_changes(pDb);
 }
 
 unsigned __int64 SQLiteDb::LastInsertRowID()
 {
-	return sqlite3_last_insert_rowid(pDb);
+	return sqlite::sqlite3_last_insert_rowid(pDb);
 }
 
 bool SQLiteDb::Close()
 {
-	bool Result = sqlite3_close(pDb) == SQLITE_OK;
+	bool Result = sqlite::sqlite3_close(pDb) == SQLITE_OK;
 	pDb = nullptr;
 	return Result;
 }

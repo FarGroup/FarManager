@@ -1018,7 +1018,7 @@
     <ClInclude Include="sqlite\sqlite3.h">
       <Filter>Header Files\sqlite</Filter>
     </ClInclude>
-    <ClInclude Include="sqlite.h">
+    <ClInclude Include="sqlite.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml.hpp">
