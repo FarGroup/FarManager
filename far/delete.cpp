@@ -240,7 +240,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 			}
 
 			DWORD StartTime=GetTickCount();
-			while(WipeFile.Step())
+			do
 			{
 				DWORD Written;
 				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
@@ -258,6 +258,8 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent(), DeleteTitle);
 				}
 			}
+			while(WipeFile.Step());
+
 			WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
 			WipeFile.SetEnd();
 		}
