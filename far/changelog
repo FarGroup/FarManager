@@ -1,3 +1,7 @@
+drkns 17.04.2013 23:00:51 +0200 - build 3344
+
+1. 0000501: apiCreateFile rights for the Editor.
+
 drkns 17.04.2013 22:39:03 +0200 - build 3343
 
 1. 0002373: в PluginsControl ошибочно доступна информация о незагруженных плагинах.
