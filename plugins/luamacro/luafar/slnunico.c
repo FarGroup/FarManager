@@ -117,6 +117,8 @@ THE SOFTWARE.
 #include "lauxlib.h"
 #include "lualib.h"
 
+#include "ustring.h"
+
 /*
 ** maximum number of captures that a pattern can do during
 ** pattern-matching. This limit is arbitrary.
@@ -1594,6 +1596,7 @@ static int str_format(lua_State *L)
 		{
 			char form[MAX_FORMAT];	/* to store the format (`%...') */
 			char buff[MAX_ITEM];	/* to store the formatted item */
+			wchar_t buffW[MAX_ITEM];	/* to store the formatted item */
 			int hasprecision = 0;
 			arg++;
 			strfrmt = scanformat(L, strfrmt, form, &hasprecision);
@@ -1660,24 +1663,25 @@ static int str_format(lua_State *L)
 				case 's':
 				{
 					size_t l;
-					const char *s = luaL_checklstring(L, arg, &l);
+					wchar_t *s = check_utf8_string(L, arg, &l);
 
 					if(!hasprecision && l >= 100)
 					{
 						/* no precision and string is too long to be formatted;
 							 keep original string */
-						lua_pushvalue(L, arg);
+						push_utf8_string(L, s, l);
 						luaL_addvalue(&b);
 						continue;	/* skip the `addsize' at the end */
 					}
 					else
 					{
-#ifdef LUA_USE_SNPRINTF
-						snprintf(buff, MAX_ITEM, form, s);
-#else
-						sprintf(buff, form, s);
-#endif
-						break;
+						lua_pushstring(L, form);
+						_snwprintf(buffW, MAX_ITEM, check_utf8_string(L,-1,NULL), s);
+						buffW[MAX_ITEM-1] = L'\0';
+						lua_pop(L, 1);
+						push_utf8_string(L, buffW, -1);
+						luaL_addvalue(&b);
+						continue;
 					}
 				}
 				default:  	/* also treat cases `pnLlh' */

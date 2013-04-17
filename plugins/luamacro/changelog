@@ -1,3 +1,7 @@
+shmuel 18.04.2013 00:36:55 +0200 - build 131
+
+1. LuaFAR: M#2372: string:format неправильно учитывает длину юникодной строки.
+
 shmuel 16.04.2013 12:03:47 +0200 - build 130
 
 1. LuaFAR (SettingsControl/Enum): параметр Root можно указывать и стрингом (например, "FSSF_HISTORY_CMD").
