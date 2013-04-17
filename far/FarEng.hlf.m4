@@ -299,6 +299,7 @@ $ #Menu control commands#
  #Common menu and drop-down list commands#
 
   Filter menu or list items                               #Ctrl-Alt-F#
+  Lock filter                                             #Ctrl-Alt-L#
 
   See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
 
