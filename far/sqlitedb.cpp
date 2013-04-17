@@ -62,7 +62,7 @@ SQLiteStmt::SQLiteStmt():
 bool SQLiteStmt::Finalize()
 {
 	if (pStmt)
-		return sqlite3_finalize(pStmt) == SQLITE_OK;
+		return sqlite::sqlite3_finalize(pStmt) == SQLITE_OK;
 	else
 		return true;
 }
@@ -94,25 +94,25 @@ bool SQLiteStmt::StepAndReset()
 
 SQLiteStmt& SQLiteStmt::Bind(int Value)
 {
-	sqlite3_bind_int(pStmt,param++,Value);
+	sqlite::sqlite3_bind_int(pStmt,param++,Value);
 	return *this;
 }
 
 SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
 {
-	sqlite3_bind_int64(pStmt,param++,Value);
+	sqlite::sqlite3_bind_int64(pStmt,param++,Value);
 	return *this;
 }
 
 SQLiteStmt& SQLiteStmt::Bind(const string& Value, bool bStatic)
 {
-	sqlite3_bind_text16(pStmt,param++,Value.CPtr(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(pStmt,param++,Value.CPtr(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
 	return *this;
 }
 
 SQLiteStmt& SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
 {
-	sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
@@ -200,7 +200,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		return false;
 
 	bool ok = true, copied = false;
-	struct sqlite3 *db_source = nullptr;
+	sqlite::sqlite3 *db_source = nullptr;
 
 	DWORD attrs = apiGetFileAttributes(strPath);
 	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
@@ -226,17 +226,17 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			char_ptr name8(n8);
 			WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, name8.get(), n8, nullptr,nullptr);
 			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
-			ok = (SQLITE_OK == sqlite3_open_v2(name8.get(), &db_source, flags, nullptr));
+			ok = (SQLITE_OK == sqlite::sqlite3_open_v2(name8.get(), &db_source, flags, nullptr));
 		}
 		if (ok)
 		{
-			sqlite3_busy_timeout(db_source, 1000);
-			struct sqlite3_backup *db_backup = sqlite3_backup_init(pDb, "main", db_source, "main");
+			sqlite::sqlite3_busy_timeout(db_source, 1000);
+			sqlite::sqlite3_backup *db_backup = sqlite::sqlite3_backup_init(pDb, "main", db_source, "main");
 			ok = (nullptr != db_backup);
 			if (ok)
 			{
-				sqlite3_backup_step(db_backup, -1);
-				sqlite3_backup_finish(db_backup);
+				sqlite::sqlite3_backup_step(db_backup, -1);
+				sqlite::sqlite3_backup_finish(db_backup);
 				int rc = sqlite3_errcode(pDb);
 				ok = (SQLITE_OK == rc);
 			}
@@ -244,7 +244,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	}
 
 	if (db_source)
-		sqlite3_close(db_source);
+		sqlite::sqlite3_close(db_source);
 	if (copied)
 		apiDeleteFile(strPath);
 

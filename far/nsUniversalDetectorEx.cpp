@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "nsUniversalDetectorEx.hpp"
 
+namespace ucd
+{
 #include "UCD/prmem.c"
 #include "UCD/CharDistribution.cpp"
 #include "UCD/JpCntx.cpp"
@@ -62,3 +64,4 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "UCD/nsSJISProber.cpp"
 #include "UCD/nsUniversalDetector.cpp"
 #include "UCD/nsUTF8Prober.cpp"
+}

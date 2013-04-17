@@ -222,7 +222,7 @@ wchar_t* Xlat(wchar_t *Line,
 
 		if (hWnd)
 		{
-			HKL Next=(HKL)0;
+			HKL Next = nullptr;
 
 			if (Global->Opt->XLat.Layouts[0])
 			{

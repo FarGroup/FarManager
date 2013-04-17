@@ -46,7 +46,7 @@ public:
 	filemasks() {}
 	~filemasks() {}
 
-	bool Set(const string& Masks, DWORD Flags);
+	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
 	bool IsEmpty() const;
 	void ErrorMessage() const;

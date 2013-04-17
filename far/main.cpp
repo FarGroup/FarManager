@@ -112,7 +112,7 @@ static void show_help()
 	Global->Console->Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 	Global->Console->Commit();
 }
-#include <string>
+
 static int MainProcess(
     const string& lpwszEditName,
     const string& lpwszViewName,

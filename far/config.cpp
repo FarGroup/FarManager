@@ -521,7 +521,7 @@ void MaskGroupsSettings()
 							string CurrentMasks;
 							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
 							filemasks Masks;
-							Masks.Set(CurrentMasks, 0);
+							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
 							{
 								MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags|MIF_HIDDEN);

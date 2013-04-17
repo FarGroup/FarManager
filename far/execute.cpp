@@ -1114,7 +1114,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 										HWND hWnd = Global->Console->GetWindow();
 										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
-											SendMessage(hWnd,WM_SETHOTKEY,0,(LPARAM)0);
+											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
 
 										Global->Console->SetSize(ConsoleSize);
 										Global->Console->SetWindowRect(ConsoleWindowRect);

@@ -37,17 +37,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct VersionInfo;
 class SQLiteDb;
-class TiXmlElement;
-class TiXmlHandle;
-class TiXmlDocument;
+
+namespace tinyxml
+{
+	class TiXmlElement;
+	class TiXmlHandle;
+	class TiXmlDocument;
+}
 
 class XmlConfig {
 
 public:
 
 	virtual ~XmlConfig() {}
-	virtual TiXmlElement *Export() { return nullptr; }
-	virtual bool Import(const TiXmlHandle &root) { return true; }
+	virtual tinyxml::TiXmlElement *Export() { return nullptr; }
+	virtual bool Import(const tinyxml::TiXmlHandle &root) { return true; }
 };
 
 class Transactional {
@@ -291,8 +295,8 @@ private:
 	void CheckDatabase(SQLiteDb *pDb);
 
 	std::list<string> m_Problems;
-	TiXmlDocument *m_TemplateDoc;
-	TiXmlElement *m_TemplateRoot;
+	tinyxml::TiXmlDocument *m_TemplateDoc;
+	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;
 	LONG ThreadCounter;

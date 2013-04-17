@@ -3866,7 +3866,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 						strMask = SelectDlg[1].strData;
 
-						if (FileMask.Set(strMask, 0)) // Проверим вводимые пользователем маски на ошибки
+						if (FileMask.Set(strMask)) // Проверим вводимые пользователем маски на ошибки
 						{
 							strPrevMask = strMask;
 							break;
@@ -3878,7 +3878,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 			{
 				strMask = Mask;
 
-				if (!FileMask.Set(strMask, 0)) // Проверим маски на ошибки
+				if (!FileMask.Set(strMask)) // Проверим маски на ошибки
 					return 0;
 			}
 		}

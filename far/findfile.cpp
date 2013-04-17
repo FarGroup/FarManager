@@ -710,7 +710,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Mask.IsEmpty())
 						Mask=L"*";
 
-					return FileMaskForFindFile->Set(Mask,0);
+					return FileMaskForFindFile->Set(Mask);
 				}
 				case FAD_BUTTON_DRIVE:
 				{

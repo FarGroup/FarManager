@@ -32,11 +32,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class SQLiteStmt {
+namespace sqlite
+{
+	struct sqlite3;
+	struct sqlite3_stmt;
+}
+
+class SQLiteStmt
+{
 	int param;
 
 protected:
-	struct sqlite3_stmt *pStmt;
+	sqlite::sqlite3_stmt* pStmt;
 
 public:
 	enum ColumnType
@@ -70,7 +77,7 @@ public:
 };
 
 class SQLiteDb {
-	struct sqlite3 *pDb;
+	sqlite::sqlite3 *pDb;
 	int init_status;
 	int db_exists;
 

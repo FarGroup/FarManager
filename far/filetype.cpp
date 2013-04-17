@@ -389,7 +389,7 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 				string Masks(reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
 				filemasks FMask;
 
-				if (!FMask.Set(Masks,0))
+				if (!FMask.Set(Masks))
 				{
 					Result=FALSE;
 				}

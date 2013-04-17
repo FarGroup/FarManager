@@ -151,7 +151,7 @@ static inline void PrintError(const wchar_t *Title, const string& Error, int Row
 	Global->Console->Commit();
 }
 
-static void PrintError(const wchar_t *Title, const TiXmlDocument &doc)
+static void PrintError(const wchar_t *Title, const tinyxml::TiXmlDocument &doc)
 {
 	PrintError(Title, string(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
 }
@@ -370,9 +370,9 @@ public:
 		return false;
 	}
 
-	TiXmlElement *Export()
+	tinyxml::TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement(GetKeyName());
+		auto root = new tinyxml::TiXmlElement(GetKeyName());
 		if (!root)
 			return nullptr;
 
@@ -381,7 +381,7 @@ public:
 
 		while (stmtEnumAllValues.Step())
 		{
-			TiXmlElement *e = new TiXmlElement("setting");
+			auto e = new tinyxml::TiXmlElement("setting");
 			if (!e)
 				break;
 
@@ -414,10 +414,10 @@ public:
 		return root;
 	}
 
-	bool Import(const TiXmlHandle &root)
+	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		BeginTransaction();
-		for (const TiXmlElement *e = root.FirstChild(GetKeyName()).FirstChildElement("setting").Element();
+		for (const auto* e = root.FirstChild(GetKeyName()).FirstChildElement("setting").Element();
 			e != nullptr; e = e->NextSiblingElement("setting"))
 		{
 			const char *key = e->Attribute("key");
@@ -717,19 +717,19 @@ public:
 
 	}
 
-	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
+	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement *e)
 	{
 			auto hex = BlobToHexString(Blob, Size);
 			e->SetAttribute("type", "hex");
 			e->SetAttribute("value", hex.get());
 	}
 
-	void Export(unsigned __int64 id, TiXmlElement *key)
+	void Export(unsigned __int64 id, tinyxml::TiXmlElement *key)
 	{
 		stmtEnumValues.Bind(id);
 		while (stmtEnumValues.Step())
 		{
-			TiXmlElement *e = new TiXmlElement("value");
+			auto e = new tinyxml::TiXmlElement("value");
 			if (!e)
 				break;
 
@@ -760,7 +760,7 @@ public:
 		stmtEnumSubKeys.Bind(id);
 		while (stmtEnumSubKeys.Step())
 		{
-			TiXmlElement *e = new TiXmlElement("key");
+			auto e = new tinyxml::TiXmlElement("key");
 			if (!e)
 				break;
 
@@ -776,9 +776,9 @@ public:
 		stmtEnumSubKeys.Reset();
 	}
 
-	TiXmlElement *Export()
+	tinyxml::TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement("hierarchicalconfig");
+		auto root = new tinyxml::TiXmlElement("hierarchicalconfig");
 		if (!root)
 			return nullptr;
 
@@ -787,14 +787,14 @@ public:
 		return root;
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob)
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement *e, char_ptr& Blob)
 	{
 		int Size = 0;
 		Blob = HexStringToBlob(Value, &Size);
 		return Size;
 	}
 
-	void Import(unsigned __int64 root, const TiXmlElement *key)
+	void Import(unsigned __int64 root, const tinyxml::TiXmlElement *key)
 	{
 		unsigned __int64 id;
 		{
@@ -810,7 +810,7 @@ public:
 				return;
 		}
 
-		for (const TiXmlElement *e = key->FirstChildElement("value"); e; e=e->NextSiblingElement("value"))
+		for (const auto* e = key->FirstChildElement("value"); e; e=e->NextSiblingElement("value"))
 		{
 			const char *name = e->Attribute("name");
 			const char *type = e->Attribute("type");
@@ -851,17 +851,17 @@ public:
 			}
 		}
 
-		for (const TiXmlElement *e = key->FirstChildElement("key"); e; e=e->NextSiblingElement("key"))
+		for (const auto* e = key->FirstChildElement("key"); e; e=e->NextSiblingElement("key"))
 		{
 			Import(id, e);
 		}
 
 	}
 
-	bool Import(const TiXmlHandle &root)
+	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		BeginTransaction();
-		for (const TiXmlElement *e = root.FirstChild("hierarchicalconfig").FirstChildElement("key").Element(); e; e=e->NextSiblingElement("key"))
+		for (const auto* e = root.FirstChild("hierarchicalconfig").FirstChildElement("key").Element(); e; e=e->NextSiblingElement("key"))
 		{
 			Import(0, e);
 		}
@@ -888,7 +888,7 @@ private:
 	HighlightHierarchicalConfigDb();
 	virtual ~HighlightHierarchicalConfigDb() {}
 
-	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e) override
+	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement *e) override
 	{
 		if(!strcmp(Name, "NormalColor") || !strcmp(Name, "SelectedColor") ||
 			!strcmp(Name, "CursorColor") || !strcmp(Name, "SelectedCursorColor") ||
@@ -907,7 +907,7 @@ private:
 		}
 	}
 
-	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char_ptr& Blob) override
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::TiXmlElement *e, char_ptr& Blob) override
 	{
 		int Result = 0;
 		if(!strcmp(Type, "color"))
@@ -1009,9 +1009,9 @@ public:
 		return stmtDelValue.Bind(Name).StepAndReset();
 	}
 
-	TiXmlElement *Export()
+	tinyxml::TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement("colors");
+		auto root = new tinyxml::TiXmlElement("colors");
 		if (!root)
 			return nullptr;
 
@@ -1020,7 +1020,7 @@ public:
 
 		while (stmtEnumAllValues.Step())
 		{
-			TiXmlElement *e = new TiXmlElement("object");
+			auto e = new tinyxml::TiXmlElement("object");
 			if (!e)
 				break;
 
@@ -1037,10 +1037,10 @@ public:
 		return root;
 	}
 
-	bool Import(const TiXmlHandle &root)
+	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		BeginTransaction();
-		for (const TiXmlElement *e = root.FirstChild("colors").FirstChildElement("object").Element(); e; e=e->NextSiblingElement("object"))
+		for (const auto* e = root.FirstChild("colors").FirstChildElement("object").Element(); e; e=e->NextSiblingElement("object"))
 		{
 			const char *name = e->Attribute("name");
 			const char *background = e->Attribute("background");
@@ -1267,9 +1267,9 @@ public:
 		return stmtDelType.Bind(id).StepAndReset();
 	}
 
-	TiXmlElement *Export()
+	tinyxml::TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement("associations");
+		auto root = new tinyxml::TiXmlElement("associations");
 		if (!root)
 			return nullptr;
 
@@ -1280,7 +1280,7 @@ public:
 
 		while (stmtEnumAllTypes.Step())
 		{
-			TiXmlElement *e = new TiXmlElement("filetype");
+			auto e = new tinyxml::TiXmlElement("filetype");
 			if (!e)
 				break;
 
@@ -1290,7 +1290,7 @@ public:
 			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
 			while (stmtEnumCommandsPerFiletype.Step())
 			{
-				TiXmlElement *se = new TiXmlElement("command");
+				auto se = new tinyxml::TiXmlElement("command");
 				if (!se)
 					break;
 
@@ -1309,16 +1309,16 @@ public:
 		return root;
 	}
 
-	bool Import(const TiXmlHandle &root)
+	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		const TiXmlHandle base = root.FirstChild("associations");
+		const auto base = root.FirstChild("associations");
 		if (!base.ToElement())
 			return false;
 
 		BeginTransaction();
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
-		for (const TiXmlElement *e = base.FirstChildElement("filetype").Element(); e; e=e->NextSiblingElement("filetype"))
+		for (const auto* e = base.FirstChildElement("filetype").Element(); e; e=e->NextSiblingElement("filetype"))
 		{
 			const char *mask = e->Attribute("mask");
 			const char *description = e->Attribute("description");
@@ -1333,7 +1333,7 @@ public:
 			if (!id)
 				continue;
 
-			for (const TiXmlElement *se = e->FirstChildElement("command"); se; se=se->NextSiblingElement("command"))
+			for (const auto* se = e->FirstChildElement("command"); se; se=se->NextSiblingElement("command"))
 			{
 				const char *command = se->Attribute("command");
 				int type=0;
@@ -1896,9 +1896,9 @@ public:
 		return stmtDelHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).StepAndReset();
 	}
 
-	TiXmlElement *Export()
+	tinyxml::TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement("pluginhotkeys");
+		auto root = new tinyxml::TiXmlElement("pluginhotkeys");
 		if (!root)
 			return nullptr;
 
@@ -1909,7 +1909,7 @@ public:
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
-			TiXmlElement *p = new TiXmlElement("plugin");
+			auto p = new tinyxml::TiXmlElement("plugin");
 			if (!p)
 				break;
 
@@ -1919,7 +1919,7 @@ public:
 			stmtEnumAllHotkeysPerKey.Bind(Key);
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
-				TiXmlElement *e = new TiXmlElement("hotkey");
+				auto e = new tinyxml::TiXmlElement("hotkey");
 				if (!e)
 					break;
 
@@ -1946,10 +1946,10 @@ public:
 		return root;
 	}
 
-	bool Import(const TiXmlHandle &root)
+	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		BeginTransaction();
-		for (const TiXmlElement *e = root.FirstChild("pluginhotkeys").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("plugin"))
+		for (const auto* e = root.FirstChild("pluginhotkeys").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("plugin"))
 		{
 			const char *key = e->Attribute("key");
 
@@ -1958,7 +1958,7 @@ public:
 
 			string Key(key, CP_UTF8);
 
-			for (const TiXmlElement *se = e->FirstChildElement("hotkey"); se; se=se->NextSiblingElement("hotkey"))
+			for (const auto* se = e->FirstChildElement("hotkey"); se; se=se->NextSiblingElement("hotkey"))
 			{
 				const char *stype = se->Attribute("menu");
 				const char *guid = se->Attribute("guid");
@@ -2642,7 +2642,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 			FILE* XmlFile = _wfopen(NTPath(def_config).CPtr(), L"rb");
 			if (XmlFile)
 			{
-				m_TemplateDoc = new TiXmlDocument;
+				m_TemplateDoc = new tinyxml::TiXmlDocument;
 				if (m_TemplateDoc->LoadFile(XmlFile))	{
 					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
 						m_TemplateLoadState = +1;
@@ -2653,18 +2653,18 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 
 		if (m_TemplateLoadState > 0)
 		{
-			const TiXmlHandle root(m_TemplateRoot);
+			const tinyxml::TiXmlHandle root(m_TemplateRoot);
 			if (!son)
 				p->Import(root);
 			else if (!plugin)
 				p->Import(root.FirstChildElement(son));
 			else {
-				for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+				for (auto plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
 				{
 					const char *guid = plugin->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
-						const TiXmlHandle h(plugin);
+						const tinyxml::TiXmlHandle h(plugin);
 						p->Import(h);
 						break;
 					}
@@ -2757,14 +2757,14 @@ bool Database::Export(const string& File)
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
-	TiXmlDocument doc;
-	doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+	tinyxml::TiXmlDocument doc;
+	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
 
 	FormatString strVer;
 	strVer << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build;
 	char ver[50];
 	strVer.GetCharString(ver, ARRAYSIZE(ver));
-	TiXmlElement *root = new TiXmlElement("farconfig");
+	auto root = new tinyxml::TiXmlElement("farconfig");
 	root->SetAttribute("version", ver);
 
 	root->LinkEndChild(GeneralCfg()->Export());
@@ -2777,19 +2777,19 @@ bool Database::Export(const string& File)
 
 	root->LinkEndChild(PlHotkeyCfg()->Export());
 
-	TiXmlElement *e = new TiXmlElement("filters");
+	auto e = new tinyxml::TiXmlElement("filters");
 	e->LinkEndChild(CreateFiltersConfig()->Export());
 	root->LinkEndChild(e);
 
-	e = new TiXmlElement("highlight");
+	e = new tinyxml::TiXmlElement("highlight");
 	e->LinkEndChild(CreateHighlightConfig()->Export());
 	root->LinkEndChild(e);
 
-	e = new TiXmlElement("panelmodes");
+	e = new tinyxml::TiXmlElement("panelmodes");
 	e->LinkEndChild(CreatePanelModeConfig()->Export());
 	root->LinkEndChild(e);
 
-	e = new TiXmlElement("shortcuts");
+	e = new tinyxml::TiXmlElement("shortcuts");
 	e->LinkEndChild(CreateShortcutsConfig()->Export());
 	root->LinkEndChild(e);
 
@@ -2798,7 +2798,7 @@ bool Database::Export(const string& File)
 		strPlugins += L"\\PluginsData\\*.db";
 		FAR_FIND_DATA fd;
 		FindFile ff(strPlugins);
-		e = new TiXmlElement("pluginsconfig");
+		e = new tinyxml::TiXmlElement("pluginsconfig");
 		while (ff.Get(fd))
 		{
 			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
@@ -2806,7 +2806,7 @@ bool Database::Export(const string& File)
 			mc=2;
 			if (re.Match(fd.strFileName.CPtr(), fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 			{
-				TiXmlElement *plugin = new TiXmlElement("plugin");
+				auto plugin = new tinyxml::TiXmlElement("plugin");
 				plugin->SetAttribute("guid", Utf8String(fd.strFileName).CPtr());
 				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
 				e->LinkEndChild(plugin);
@@ -2835,14 +2835,14 @@ bool Database::Import(const string& File)
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
-	TiXmlDocument doc;
+	tinyxml::TiXmlDocument doc;
 
 	if (doc.LoadFile(XmlFile))
 	{
-		TiXmlElement *farconfig = doc.FirstChildElement("farconfig");
+		auto farconfig = doc.FirstChildElement("farconfig");
 		if (farconfig)
 		{
-			const TiXmlHandle root(farconfig);
+			const tinyxml::TiXmlHandle root(farconfig);
 
 			GeneralCfg()->Import(root);
 
@@ -2863,7 +2863,7 @@ bool Database::Import(const string& File)
 			CreateShortcutsConfig()->Import(root.FirstChildElement("shortcuts"));
 
 			//TODO: import for local plugin settings
-			for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+			for (auto plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
 			{
 				const char *guid = plugin->Attribute("guid");
 				if (!guid)
@@ -2874,7 +2874,7 @@ bool Database::Import(const string& File)
 				mc=2;
 				if (re.Match(Guid.CPtr(), Guid.CPtr() + Guid.GetLength(), m, mc))
 				{
-					CreatePluginsConfig(Guid)->Import(TiXmlHandle(plugin));
+					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(plugin));
 				}
 			}
 

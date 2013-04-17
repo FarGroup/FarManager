@@ -255,8 +255,8 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	if (Global->Opt->WidthDecrement > (ScrX/2-10))
 		Global->Opt->WidthDecrement=(ScrX/2-10);
 
-	Global->Opt->LeftHeightDecrement=std::max((long long)0, std::min(Global->Opt->LeftHeightDecrement.Get(), (long long)ScrY-7));
-	Global->Opt->RightHeightDecrement=std::max((long long)0, std::min(Global->Opt->RightHeightDecrement.Get(), (long long)ScrY-7));
+	Global->Opt->LeftHeightDecrement=std::max(0ll, std::min(Global->Opt->LeftHeightDecrement.Get(), ScrY-7ll));
+	Global->Opt->RightHeightDecrement=std::max(0ll, std::min(Global->Opt->RightHeightDecrement.Get(), ScrY-7ll));
 
 	if (LeftFullScreen)
 	{

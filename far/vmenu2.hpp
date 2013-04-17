@@ -36,9 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 
-#include <functional>
-using std::function;
-
 class VMenu2 : public Dialog
 {
 	private:
@@ -55,7 +52,7 @@ class VMenu2 : public Dialog
 		bool ForceClosing;
 		MACROMODEAREA MacroMode;
 
-		function<int(int Msg, void *param)> mfn;
+		std::function<int(int Msg, void *param)> mfn;
 
 		intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
@@ -120,8 +117,8 @@ class VMenu2 : public Dialog
 			функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
 			(вне зависимости что говорит енц. о кодах возврата различных DN_*).
 		*/
-		intptr_t Run(function<int(int Key)> fn=nullptr);
-		intptr_t RunEx(function<int(int Msg, void *param)> fn);
+		intptr_t Run(std::function<int(int Key)> fn=nullptr);
+		intptr_t RunEx(std::function<int(int Msg, void *param)> fn);
 		intptr_t GetExitCode();
 		void Close(int ExitCode=-2, bool Force = false);
 

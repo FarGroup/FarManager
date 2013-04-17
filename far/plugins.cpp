@@ -408,11 +408,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-Plugin* PluginManager::LoadPlugin(
-    const string& lpwszModuleName,
-    const FAR_FIND_DATA &FindData,
-    bool LoadToMem
-)
+Plugin* PluginManager::LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA &FindData, bool LoadToMem)
 {
 	Plugin *pPlugin = nullptr;
 
@@ -425,31 +421,36 @@ Plugin* PluginManager::LoadPlugin(
 		default: return nullptr;
 	}
 
-	if (!pPlugin)
-		return nullptr;
-
-	bool bResult=false,bDataLoaded=false;
-
-	if (!LoadToMem)
-		bResult = pPlugin->LoadFromCache(FindData);
-
-	if (!bResult && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Global->Opt->LoadPlug.PluginsCacheOnly))
+	if (pPlugin)
 	{
-		bResult = bDataLoaded = pPlugin->LoadData();
-	}
 
-	if (bResult && !AddPlugin(pPlugin))
-	{
-		pPlugin->Unload(true);
-		delete pPlugin;
-		return nullptr;
-	}
+		bool Result = false, bDataLoaded = false;
 
-	if (bDataLoaded)
-	{
-		bResult = pPlugin->Load();
-	}
+		if (!LoadToMem)
+		{
+			Result = pPlugin->LoadFromCache(FindData);
+		}
 
+		if (!Result && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Global->Opt->LoadPlug.PluginsCacheOnly))
+		{
+			Result = bDataLoaded = pPlugin->LoadData();
+		}
+
+		if (bDataLoaded)
+		{
+			Result = pPlugin->Load();
+		}
+
+		Result = Result && AddPlugin(pPlugin);
+
+		if (!Result)
+		{
+			pPlugin->Unload(true);
+			delete pPlugin;
+			pPlugin = nullptr;
+		}
+
+	}
 	return pPlugin;
 }
 
