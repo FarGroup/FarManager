@@ -57,14 +57,13 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 	this->Directory = Directory;
 	this->WatchSubtree = WatchSubtree;
 
-	FAR_FIND_DATA data;
-	if(apiGetFindDataEx(Directory, data))
-	{
-		PreviousLastWriteTime = data.ftLastWriteTime;
-	}
+	File dir;
+	if (dir.Open(Directory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+		if (dir.GetTime(nullptr,nullptr,&PreviousLastWriteTime,nullptr))
+			CurrentLastWriteTime = PreviousLastWriteTime;
 }
 
-bool FileSystemWatcher::Watch(bool got_focus)
+bool FileSystemWatcher::Watch(bool got_focus, bool check_time)
 {
 	DisableElevation de;
 	if(Handle == INVALID_HANDLE_VALUE)
@@ -77,7 +76,6 @@ bool FileSystemWatcher::Watch(bool got_focus)
 		FILE_NOTIFY_CHANGE_LAST_WRITE);
 	}
 
-	bool check_time = true;
 	if (got_focus)
 	{
 		bool isFAT = false;
@@ -101,12 +99,8 @@ bool FileSystemWatcher::Watch(bool got_focus)
 		bool TimeOk = false;
 		if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
 		{
-			FILETIME write_time;
-			if (dir.GetTime(nullptr,nullptr,&write_time,nullptr))
-			{
-				CurrentLastWriteTime = write_time;
+			if (dir.GetTime(nullptr,nullptr,&CurrentLastWriteTime,nullptr))
 				TimeOk = true;
-			}
 		}
 		if(!TimeOk)
 		{

@@ -398,12 +398,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		}
 
 		FILETIME TwoDotsTimes[4]={};
-		if(apiGetFindDataEx(strCurDir,fdata))
+		File dir;
+		if (dir.Open(strCurDir,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
 		{
-			TwoDotsTimes[0]=fdata.ftCreationTime;
-			TwoDotsTimes[1]=fdata.ftLastAccessTime;
-			TwoDotsTimes[2]=fdata.ftLastWriteTime;
-			TwoDotsTimes[3]=fdata.ftChangeTime;
+			dir.GetTime(&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 		}
 
 		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
@@ -561,7 +559,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
 		FSWatcher.Set(strCurDir, CheckTree);
-		StartFSWatcher();
+		FSWatcher.Watch(false, false); //check_time=false, prevent reading file time twice (slow on network)
 	}
 }
 

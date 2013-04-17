@@ -38,7 +38,7 @@ public:
 	FileSystemWatcher();
 	~FileSystemWatcher();
 	void Set(const string& Directory, bool WatchSubtree);
-	bool Watch(bool got_focus=false);
+	bool Watch(bool got_focus=false, bool check_time=true);
 	void Release();
 	bool Signaled() const;
 
@@ -48,4 +48,3 @@ private:
 	HANDLE Handle;
 	bool WatchSubtree;
 };
-
