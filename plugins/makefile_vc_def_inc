@@ -31,8 +31,7 @@
 #
 #LINK_DEP - additional dependents for link rule (e.g. prebuild library)
 #
-#USERLIBS - specify additional libs you need in the form -llib
-#           (added after the default ones).
+#USERLIBS - specify additional libs you need (added after the default ones).
 #
 #DEBUG - set if a debug build is needed
 #
