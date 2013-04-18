@@ -2635,6 +2635,9 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 {
 	if (m_TemplateLoadState != 0)
 	{
+		std::unique_ptr<tinyxml::TiXmlDocument> TemplateDoc;
+		tinyxml::TiXmlElement* TemplateRoot = nullptr;
+
 		if (m_TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.IsEmpty())
 		{
 			m_TemplateLoadState = 0;
@@ -2642,9 +2645,10 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 			FILE* XmlFile = _wfopen(NTPath(def_config).CPtr(), L"rb");
 			if (XmlFile)
 			{
-				m_TemplateDoc = std::unique_ptr<tinyxml::TiXmlDocument>(new tinyxml::TiXmlDocument);
-				if (m_TemplateDoc->LoadFile(XmlFile))	{
-					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
+				TemplateDoc.reset(new tinyxml::TiXmlDocument);
+				if (TemplateDoc->LoadFile(XmlFile))
+				{
+					if (nullptr != (TemplateRoot = TemplateDoc->FirstChildElement("farconfig")))
 						m_TemplateLoadState = +1;
 				}
 				fclose(XmlFile);
@@ -2653,7 +2657,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 
 		if (m_TemplateLoadState > 0)
 		{
-			const tinyxml::TiXmlHandle root(m_TemplateRoot);
+			const tinyxml::TiXmlHandle root(TemplateRoot);
 			if (!son)
 				p->Import(root);
 			else if (!plugin)
@@ -2728,8 +2732,6 @@ HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 }
 
 Database::Database(bool ImportExportMode):
-	m_TemplateDoc(nullptr),
-	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
 	ThreadCounter(0),

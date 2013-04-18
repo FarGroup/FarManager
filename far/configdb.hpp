@@ -295,8 +295,6 @@ private:
 	void CheckDatabase(SQLiteDb *pDb);
 
 	std::list<string> m_Problems;
-	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
-	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;
 	LONG ThreadCounter;
