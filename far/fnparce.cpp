@@ -659,7 +659,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		DlgSize+=2;
 	}
 
-	if (!DlgSize)
+	if (DlgSize <= 1)
 	{
 		delete [] DlgData;
 		return 0;
