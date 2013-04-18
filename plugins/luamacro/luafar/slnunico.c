@@ -1596,7 +1596,6 @@ static int str_format(lua_State *L)
 		{
 			char form[MAX_FORMAT];	/* to store the format (`%...') */
 			char buff[MAX_ITEM];	/* to store the formatted item */
-			wchar_t buffW[MAX_ITEM];	/* to store the formatted item */
 			int hasprecision = 0;
 			arg++;
 			strfrmt = scanformat(L, strfrmt, form, &hasprecision);
@@ -1675,6 +1674,7 @@ static int str_format(lua_State *L)
 					}
 					else
 					{
+						wchar_t buffW[MAX_ITEM];	/* to store the formatted item */
 						lua_pushstring(L, form);
 						_snwprintf(buffW, MAX_ITEM, check_utf8_string(L,-1,NULL), s);
 						buffW[MAX_ITEM-1] = L'\0';
