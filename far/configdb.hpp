@@ -255,7 +255,7 @@ class Database
 {
 public:
 	Database(bool ImportExportMode=false);
-	~Database() { while (InterlockedExchangeAdd(&ThreadCounter,0) > 0) Sleep(1); }
+	~Database();
 	bool Import(const string& File);
 	bool Export(const string& File);
 	int ShowProblems();
@@ -295,7 +295,7 @@ private:
 	void CheckDatabase(SQLiteDb *pDb);
 
 	std::list<string> m_Problems;
-	tinyxml::TiXmlDocument *m_TemplateDoc;
+	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
 	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	bool m_ImportExportMode;

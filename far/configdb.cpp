@@ -2642,7 +2642,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 			FILE* XmlFile = _wfopen(NTPath(def_config).CPtr(), L"rb");
 			if (XmlFile)
 			{
-				m_TemplateDoc = new tinyxml::TiXmlDocument;
+				m_TemplateDoc = std::unique_ptr<tinyxml::TiXmlDocument>(new tinyxml::TiXmlDocument);
 				if (m_TemplateDoc->LoadFile(XmlFile))	{
 					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
 						m_TemplateLoadState = +1;
@@ -2742,6 +2742,12 @@ Database::Database(bool ImportExportMode):
 	m_HistoryCfg(CreateDatabase<HistoryConfigDb>()),
 	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>())
 {
+}
+
+Database::~Database()
+{
+	while (InterlockedExchangeAdd(&ThreadCounter,0) > 0)
+		Sleep(1);
 }
 
 bool Database::Export(const string& File)
