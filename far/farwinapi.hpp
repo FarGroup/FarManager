@@ -127,6 +127,7 @@ private:
 	{
 		UINT64 Offset;
 		DWORD Size;
+		Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
 	};
 	std::list<Chunk> ChunkList;
 	UINT64 FileSize;
