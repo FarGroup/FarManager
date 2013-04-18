@@ -436,20 +436,19 @@ Plugin* PluginManager::LoadPlugin(const string& lpwszModuleName, const FAR_FIND_
 			Result = bDataLoaded = pPlugin->LoadData();
 		}
 
-		if (bDataLoaded)
-		{
-			Result = pPlugin->Load();
-		}
-
-		Result = Result && AddPlugin(pPlugin);
-
-		if (!Result)
+		if (!Result || !AddPlugin(pPlugin))
 		{
 			pPlugin->Unload(true);
 			delete pPlugin;
 			pPlugin = nullptr;
 		}
 
+		if (bDataLoaded && !pPlugin->Load())
+		{
+			pPlugin->Unload(true);
+			RemovePlugin(pPlugin);
+			pPlugin = nullptr;
+		}
 	}
 	return pPlugin;
 }
