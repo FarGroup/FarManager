@@ -114,9 +114,31 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
  			{
 				MenuCode=(int)mi->Values[0].Integer;
 			}
-			else
+			else if (FMVT_DOUBLE == mi->Values[0].Type)
 			{
 				MenuCode=(int)mi->Values[0].Double;
+			}
+			else if (FMVT_STRING == mi->Values[0].Type)
+			{
+				static struct {
+					const wchar_t *Name;
+					int Value;
+				} CmdName[]={
+					{L"LOWER",         0},
+					{L"TITLE",         1},
+					{L"UPPER",         2},
+					{L"TOGGLE",        3},
+					{L"CYCLIC",        4},
+
+					{nullptr,          0},
+				};
+
+				for (int I=0; CmdName[I].Name; ++I)
+					if (!lstrcmpi(CmdName[I].Name,mi->Values[0].String))
+					{
+						MenuCode=CmdName[I].Value;
+						break;
+					}
 			}
 			if (MenuCode < 0 || MenuCode > 4)
 				return nullptr;
