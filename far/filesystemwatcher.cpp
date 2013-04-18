@@ -45,15 +45,18 @@ FileSystemWatcher::FileSystemWatcher():
 	PreviousLastWriteTime.dwHighDateTime = 0;
 	CurrentLastWriteTime.dwLowDateTime = 0;
 	CurrentLastWriteTime.dwHighDateTime = 0;
+	WatchRegistered.Open(true, true);
 }
 
 
 FileSystemWatcher::~FileSystemWatcher()
 {
+	WatchRegistered.Wait();
 }
 
 void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 {
+	WatchRegistered.Wait();
 	this->Directory = Directory;
 	this->WatchSubtree = WatchSubtree;
 
@@ -63,17 +66,28 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 			CurrentLastWriteTime = PreviousLastWriteTime;
 }
 
-bool FileSystemWatcher::Watch(bool got_focus, bool check_time)
+unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
+{
+	Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
+									FILE_NOTIFY_CHANGE_FILE_NAME|
+									FILE_NOTIFY_CHANGE_DIR_NAME|
+									FILE_NOTIFY_CHANGE_ATTRIBUTES|
+									FILE_NOTIFY_CHANGE_SIZE|
+									FILE_NOTIFY_CHANGE_LAST_WRITE);
+	WatchRegistered.Set();
+	return 0;
+}
+
+void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 {
 	DisableElevation de;
+	WatchRegistered.Wait();
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
-		Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
-		FILE_NOTIFY_CHANGE_FILE_NAME|
-		FILE_NOTIFY_CHANGE_DIR_NAME|
-		FILE_NOTIFY_CHANGE_ATTRIBUTES|
-		FILE_NOTIFY_CHANGE_SIZE|
-		FILE_NOTIFY_CHANGE_LAST_WRITE);
+		WatchRegistered.Reset();
+		Thread WatchThread;
+		if (!WatchThread.MemberStart(this, &FileSystemWatcher::WatchRegister))
+			WatchRegister(NULL);
 	}
 
 	if (got_focus)
@@ -110,8 +124,6 @@ bool FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			CurrentLastWriteTime.dwHighDateTime = 0;
 		}
 	}
-
-	return Handle != INVALID_HANDLE_VALUE;
 }
 
 unsigned int WINAPI FindCloseChangeNotificationAsync(void* Param)
@@ -121,6 +133,7 @@ unsigned int WINAPI FindCloseChangeNotificationAsync(void* Param)
 
 void FileSystemWatcher::Release()
 {
+	WatchRegistered.Wait();
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
 		Thread CloseThread;
@@ -133,7 +146,8 @@ void FileSystemWatcher::Release()
 	PreviousLastWriteTime = CurrentLastWriteTime;
 }
 
-bool FileSystemWatcher::Signaled() const
+bool FileSystemWatcher::Signaled()
 {
+	WatchRegistered.Wait();
 	return (Handle != INVALID_HANDLE_VALUE && WaitForSingleObject(Handle,0) == WAIT_OBJECT_0) || CompareFileTime(&PreviousLastWriteTime, &CurrentLastWriteTime);
 }

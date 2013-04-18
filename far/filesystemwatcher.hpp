@@ -32,19 +32,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "synchro.hpp"
+
 class FileSystemWatcher
 {
 public:
 	FileSystemWatcher();
 	~FileSystemWatcher();
 	void Set(const string& Directory, bool WatchSubtree);
-	bool Watch(bool got_focus=false, bool check_time=true);
+	void Watch(bool got_focus=false, bool check_time=true);
 	void Release();
-	bool Signaled() const;
+	bool Signaled();
 
 private:
+
+	unsigned int WatchRegister(LPVOID lpParameter);
+
 	string Directory;
 	FILETIME PreviousLastWriteTime, CurrentLastWriteTime;
 	HANDLE Handle;
 	bool WatchSubtree;
+	Event WatchRegistered;
 };
