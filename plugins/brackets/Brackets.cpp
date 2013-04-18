@@ -180,8 +180,32 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if (mi->Count)
 		{
 			int value=-1;
-			if (FMVT_INTEGER==mi->Values[0].Type) value=(int)mi->Values[0].Integer;
-			else if (FMVT_DOUBLE==mi->Values[0].Type) value=(int)mi->Values[0].Double;
+			if (FMVT_INTEGER==mi->Values[0].Type)
+				value=(int)mi->Values[0].Integer;
+			else if (FMVT_DOUBLE==mi->Values[0].Type)
+				value=(int)mi->Values[0].Double;
+			else if (FMVT_STRING==mi->Values[0].Type)
+			{
+				static struct {
+					const wchar_t *Name;
+					int Value;
+				} CmdName[]={
+					{L"SEARCHFWD",     0},
+					{L"SEARCHBACK",    1},
+					{L"SELECTFWD",     2},
+					{L"SELECTBACK",    3},
+					{L"CONFIG",        4},
+
+					{nullptr,          0},
+				};
+
+				for (int I=0; CmdName[I].Name; ++I)
+					if (!lstrcmpi(CmdName[I].Name,mi->Values[0].String))
+					{
+						value=CmdName[I].Value;
+						break;
+					}
+			}
 
 			switch (value)
 			{
