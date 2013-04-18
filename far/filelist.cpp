@@ -4816,7 +4816,7 @@ bool FileList::ApplyCommand()
 		string strListName, strAnotherListName;
 		string strShortListName, strAnotherShortListName;
 		string strConvertedCommand = strCommand;
-		int PreserveLFN=SubstFileName(strConvertedCommand,strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+		int PreserveLFN=SubstFileName(nullptr,strConvertedCommand,strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 		if (ExtractIfExistCommand(strConvertedCommand))

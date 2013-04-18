@@ -169,7 +169,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			TypesMenuItem.Clear();
 			string strCommandText = strCommand;
-			SubstFileName(strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+			SubstFileName(nullptr,strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 
 			// все "подставлено", теперь проверим условия "if exist"
 			if (!ExtractIfExistCommand(strCommandText))
@@ -178,7 +178,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			ActualCmdCount++;
 
 			if (!strDescription.IsEmpty())
-				SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
+				SubstFileName(nullptr,strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
 			else
 				strDescription = strCommandText;
 
@@ -208,7 +208,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
-	int PreserveLFN=SubstFileName(strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 	bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 	// Снова все "подставлено", теперь проверим условия "if exist"
@@ -265,7 +265,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	string strExecStr = Command;
 	string strFullExecStr = Command;
 	{
-		int PreserveLFN=SubstFileName(strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+		int PreserveLFN=SubstFileName(nullptr,strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 		// Снова все "подставлено", теперь проверим условия "if exist"
@@ -276,7 +276,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		ConvertNameToFull(Name,strFullName);
 		ConvertNameToShort(strFullName,strFullShortName);
 		//BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
-		SubstFileName(strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+		SubstFileName(nullptr,strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
 		// Снова все "подставлено", теперь проверим условия "if exist"
 		if (!ExtractIfExistCommand(strFullExecStr))

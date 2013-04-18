@@ -85,7 +85,7 @@ static int IsReplaceVariable(const wchar_t *str,int *scr = nullptr,
                              int *end_txt_break = nullptr);
 
 
-static int ReplaceVariables(string &strStr,TSubstData *PSubstData);
+static int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 
@@ -388,7 +388,8 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
   Преобразование метасимволов ассоциации файлов в реальные значения
 
 */
-int SubstFileName(string &strStr,            // результирующая строка
+int SubstFileName(const wchar_t *DlgTitle,
+                  string &strStr,            // результирующая строка
                   const string& Name,           // Длинное имя
                   const string& ShortName,      // Короткое имя
 
@@ -462,7 +463,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	string strTmp = strStr;
 
 	if (!IgnoreInput)
-		ReplaceVariables(strTmp,PSubstData);
+		ReplaceVariables(DlgTitle,strTmp,PSubstData);
 
 	const wchar_t *CurStr = strTmp.CPtr();
 	string strOut;
@@ -484,7 +485,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	return(PSubstData->PreserveLFN);
 }
 
-int ReplaceVariables(string &strStr,TSubstData *PSubstData)
+int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)
 {
 	const int MaxSize=20;
 	const wchar_t *Str=strStr.CPtr();
@@ -494,6 +495,14 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 	FormatString HistoryName[MaxSize];
 	int DlgSize=0;
 	int StrPos[128],StrEndPos[128],StrPosSize=0;
+
+	DlgData[DlgSize].Clear();
+	DlgData[DlgSize].Type=DI_DOUBLEBOX;
+	DlgData[DlgSize].X1=3;
+	DlgData[DlgSize].Y1=1;
+	DlgData[DlgSize].X2=72;
+	DlgData[DlgSize].strData = DlgTitle?DlgTitle:L"";
+	DlgSize++;
 
 	while (*Str && DlgSize<MaxSize)
 	{
@@ -528,14 +537,14 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		DlgData[DlgSize].Clear();
 		DlgData[DlgSize].Type=DI_TEXT;
 		DlgData[DlgSize].X1=5;
-		DlgData[DlgSize].Y1=DlgSize+2;
+		DlgData[DlgSize].Y1=DlgData[DlgSize].Y2=DlgSize+1;
 		DlgData[DlgSize+1].Clear();
 		DlgData[DlgSize+1].Type=DI_EDIT;
 		DlgData[DlgSize+1].X1=5;
 		DlgData[DlgSize+1].X2=70;
-		DlgData[DlgSize+1].Y1=DlgSize+3;
+		DlgData[DlgSize+1].Y1=DlgData[DlgSize+1].Y2=DlgSize+2;
 		DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
-		int HistoryNumber=DlgSize/2;
+		int HistoryNumber=(DlgSize-1)/2;
 		HistoryName[HistoryNumber] << L"UserVar" << HistoryNumber;
 		DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
 
@@ -656,13 +665,9 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		return 0;
 	}
 
-	DlgData[DlgSize].Clear();
-	DlgData[DlgSize].Type=DI_DOUBLEBOX;
-	DlgData[DlgSize].X1=3;
-	DlgData[DlgSize].Y1=1;
-	DlgData[DlgSize].X2=72;
-	DlgData[DlgSize].Y2=DlgSize+2;
-	DlgSize++;
+	// correct Dlg Title
+	DlgData[0].Y2=DlgSize+1;
+
 	int ExitCode;
 	{
 		Dialog Dlg(DlgData,DlgSize);
@@ -697,7 +702,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 
 		if (Replace!=-1)
 		{
-			strTmpStr += DlgData[Replace*2+1].strData;
+			strTmpStr += DlgData[Replace*2+2].strData;
 			Str = StartStr+end_pos;
 		}
 		else
