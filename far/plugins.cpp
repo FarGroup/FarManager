@@ -440,7 +440,7 @@ Plugin* PluginManager::LoadPlugin(const string& lpwszModuleName, const FAR_FIND_
 		{
 			pPlugin->Unload(true);
 			delete pPlugin;
-			pPlugin = nullptr;
+			return nullptr;
 		}
 
 		if (bDataLoaded && !pPlugin->Load())
