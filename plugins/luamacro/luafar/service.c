@@ -1895,22 +1895,19 @@ static int get_panel_item(lua_State *L, int command)
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle2(L);
 	intptr_t index = luaL_optinteger(L,3,1) - 1;
-
-	if(index < 0) index = 0;
-
-	fgppi.Size = Info->PanelControl(handle, command, index, &fgppi);
-
-	if(fgppi.Size)
+	if(index >= 0 || command == FCTL_GETCURRENTPANELITEM)
 	{
-		fgppi.Item = (struct PluginPanelItem*)lua_newuserdata(L, fgppi.Size);
-
-		if(Info->PanelControl(handle, command, index, &fgppi))
+		fgppi.Size = Info->PanelControl(handle, command, index, &fgppi);
+		if(fgppi.Size)
 		{
-			PushPanelItem(L, fgppi.Item);
-			return 1;
+			fgppi.Item = (struct PluginPanelItem*)lua_newuserdata(L, fgppi.Size);
+			if(Info->PanelControl(handle, command, index, &fgppi))
+			{
+				PushPanelItem(L, fgppi.Item);
+				return 1;
+			}
 		}
 	}
-
 	return lua_pushnil(L), 1;
 }
 
