@@ -87,6 +87,7 @@ protected:
 class HierarchicalConfig: public XmlConfig, public Transactional {
 
 public:
+	virtual void AsyncFinish() = 0;
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const string& Name, const string* Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const string& Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const string& Description) = 0;
@@ -102,9 +103,9 @@ public:
 	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
 	virtual bool Flush() = 0;
 
-	virtual ~HierarchicalConfig() {}
 protected:
 	HierarchicalConfig() {}
+	virtual ~HierarchicalConfig() {}
 };
 
 class HierarchicalConfigDeletor
@@ -112,7 +113,7 @@ class HierarchicalConfigDeletor
 public:
 	HierarchicalConfigDeletor() {}
 	HierarchicalConfigDeletor(const HierarchicalConfigDeletor &d) {}
-	void operator()(HierarchicalConfig *ptr) const { delete ptr; }
+	void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
 };
 
 typedef std::unique_ptr<HierarchicalConfig,HierarchicalConfigDeletor> HierarchicalConfigUniquePtr;
