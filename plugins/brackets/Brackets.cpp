@@ -68,7 +68,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Guids=&MenuGuid;
 	Info->PluginMenu.Strings=PluginMenuStrings;
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
-	Info->PluginConfig.Guids=&MenuGuid;
+	Info->PluginConfig.Guids=&ConfigMenuGuid;
 	Info->PluginConfig.Strings=PluginMenuStrings;
 	Info->PluginConfig.Count=ARRAYSIZE(PluginMenuStrings);
 }
