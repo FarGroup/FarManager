@@ -116,18 +116,20 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	if (OInfo->OpenFrom == OPEN_EDITOR || OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
+		HANDLE MacroResult=nullptr;
 		// в редакторе проверяем файл на принадлежность к системе помощи Far Manager
 		if (IsHlf())
 		{
-			ShowCurrentHelpTopic();
+			if (ShowCurrentHelpTopic())
+				MacroResult=INVALID_HANDLE_VALUE;
 		}
-		else
+		else if (OInfo->OpenFrom!=OPEN_FROMMACRO)
 		{
 			const wchar_t *Items[] = { GetMsg(MTitle), GetMsg(MNotAnHLF), GetMsg(MOk) };
 			Info.Message(&MainGuid, nullptr, 0, NULL, Items, ARRAYSIZE(Items), 1);
 		}
 
-		return nullptr;
+		return (OInfo->OpenFrom==OPEN_FROMMACRO)?MacroResult:nullptr;
 	}
 
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
@@ -189,9 +191,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				if (*ptrNameEnd == L'}')
 					*ptrNameEnd=0;
 				guidMode=StrToGuid(ptrName,&FindGuid);
-
-				Info.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
 			}
+
+			if (guidMode)
+				Info.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
 
 			// по GUID`у не найдено, пробуем имя файла
 			if (!guidMode)

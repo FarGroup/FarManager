@@ -1,5 +1,6 @@
 ﻿.Language=English,English
 .PluginContents=HlfViewer
+.Options CtrlStartPosChar=^<wrap>
 
 @Contents
 $ #HlfViewer#
@@ -8,17 +9,20 @@ HLF files or just want to view some HLF files.
 
    ~Using HlfViewer in the editor~@editor@
    ~Invoking HlfViewer from the command line~@cmd@
+   ~Использование плагина в макросах~@MacroCallPlugin@
    ~Settings~@Config@
 
 @cmd
 $ #HlfViewer: command line syntax
-
    #hlf:filename [topic]#
    #hlf:GUID [topic]#
 
-   #filename# - the name of the HLF file (it must have the extension
-              .HLF). If the file name contains spaces, it must
-              be enclosed in quotation marks.
+   #filename# - ^<wrap>the name of the HLF file.
+If the file name contains spaces, it must be enclosed in quotation marks.
+              ^<wrap>Если имя файла указано без пути, то порядок поиска следущий:
+              - Текущий каталог
+              - %FARHOME%
+              - пути плагинов "в этой сессии" Far Manager
 
    #GUID#     - GUID плагина в текущей сессии Far Manager, тему которого
               необходимо показать.
@@ -27,21 +31,30 @@ $ #HlfViewer: command line syntax
               specified, the topic "Contents" is displayed.
 
    ~Contents~@Contents@
+
 @editor
 $ #HlfViewer: work in editor#
-
    If the file being edited is a FAR help file, then invoking this command
 will show the help topic currently being edited. It is possible to specify
 a hotkey for showing the help topic in the ~settings dialog~@Config@.
 
    ~Contents~@Contents@
+
 @Config
 $ #HlfViewer: Settings#
-
    If you enable the "#Process editor hotkey#" option, then pressing
 the assigned key combination in the editor will show the current topic
 of the HLF file being edited. The hotkey works only if a HLF file is
 being edited. The default hotkey is #F1#.
+
+   ^<wrap>Опция #Check by file mask# предназначена для ограничения работы
+плагина с файлами отличными от перечисленных. По умолчанию опция отключена.
+Плагин, вызванный в редакторе, кроме маски так же проверят содерджимое файла на
+наличие ключевых компонентов hfl-формата:
+
+   - ^<wrap>в начале файла ищется строка, начинающаяся с ".Language="
+   - ^<wrap>далее производится поиск на наличие любого вхождения последовательности "@@буква-цифры", не содержащее символ "=".
+
 
    Also if this option is enabled, the HlfViewer item is not added to
 the plugins menu (F11), because it is no longer needed.
@@ -62,3 +75,15 @@ used. It can have one of the following values:
    #modified file#     will be saved
 
    ~Contents~@Contents@
+
+@MacroCallPlugin
+$ #Использование плагина в макросах#
+   ^<wrap>Находясь в редакторе плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
+   ^<wrap>Формат вызова:
+
+      #Plugin.Call("1AF0754D-5020-49cb-9474-1F82691C84C1")#
+
+   ^<wrap>Например, при выключенном в ~настройках~@Config@ перехвате F1, аналогичный функционал
+можно получить, вызвав из макроса команду:
+
+      Plugin.Call("1AF0754D-5020-49cb-9474-1F82691C84C1")
