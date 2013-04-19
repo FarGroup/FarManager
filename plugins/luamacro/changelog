@@ -1,3 +1,7 @@
+shmuel 19.04.2013 16:49:21 +0200 - build 134
+
+1. LuaFAR: M#2375: Pattern %<multibyte char> in unicode.utf8.
+
 shmuel 18.04.2013 08:54:23 +0200 - build 133
 
 1. LuaFAR: panel.GetPanelItem и panel.GetSelectedPanelItem возвращают nil для неположительных индексов элемента.

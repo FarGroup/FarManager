@@ -699,7 +699,8 @@ static const char *classend(MatchState *ms, const char *p)
 
 			if(!*++p) luaL_error(ms->L, "malformed pattern (ends with " LUA_QL("%%") ")");
 
-			break;
+			advance(&p, ms->mb);
+			return p;
 		case '[':
 
 			/* if (*p == '^') p++; -- no effect */
@@ -827,6 +828,13 @@ static const char *singlematch(const MatchState *ms,
 	switch(*p)
 	{
 		case L_ESC:
+
+			if (ep - p > 2)
+			{
+				const char *p2 = p + 1;
+				if (c == utf8_deco(&p2, ep))
+					return s;
+			}
 
 			if(match_class(c, uchar(p[1]), ms->mode))
 			{
