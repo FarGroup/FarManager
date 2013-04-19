@@ -31,13 +31,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "language.hpp"
 
-class AncientPlugin
-{
-	public:
-		virtual ~AncientPlugin() {}
-		virtual const GUID& GetGUID(void) const = 0;
-};
-
 ENUM(ExceptFunctionsType);
 
 struct ExecuteStruct
@@ -135,7 +128,7 @@ enum EXPORTS_ENUM
 
 class PluginManager;
 
-class Plugin: public AncientPlugin
+class Plugin
 {
 public:
 	Plugin(PluginManager *owner, const string& ModuleName);
