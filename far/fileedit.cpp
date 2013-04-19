@@ -365,10 +365,10 @@ FileEditor::~FileEditor()
 
 	if (bEE_READ_Sent && Global->CtrlObject)
 	{
-		FileEditor *save = Global->CtrlObject->Plugins->CurEditor;
-		Global->CtrlObject->Plugins->CurEditor=this;
+		FileEditor *save = Global->CtrlObject->Plugins->GetCurEditor();
+		Global->CtrlObject->Plugins->SetCurEditor(this);
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
-		Global->CtrlObject->Plugins->CurEditor = save;
+		Global->CtrlObject->Plugins->SetCurEditor(save);
 	}
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))
@@ -650,7 +650,7 @@ void FileEditor::Init(
 		break;
 	}
 
-	Global->CtrlObject->Plugins->CurEditor=this;//&FEdit;
+	Global->CtrlObject->Plugins->SetCurEditor(this); //&FEdit;
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
 	if (ExitCode == XC_LOADING_INTERRUPTED || ExitCode == XC_OPEN_ERROR)
@@ -743,7 +743,7 @@ void FileEditor::DisplayObject()
 		if (m_editor->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
 		{
 			m_editor->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
-			Global->CtrlObject->Plugins->CurEditor=this;
+			Global->CtrlObject->Plugins->SetCurEditor(this);
 			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
 
@@ -1825,7 +1825,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		   Если было произведено сохранение с любым результатом, то не удалять файл
 		*/
 		Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-		Global->CtrlObject->Plugins->CurEditor=this;
+		Global->CtrlObject->Plugins->SetCurEditor(this);
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
 		if (!IsUnicodeOrUtfCodePage(codepage))
@@ -2140,9 +2140,9 @@ void FileEditor::OnDestroy()
 	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.CPtr(),MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
 
-	if (Global->CtrlObject->Plugins->CurEditor==this)//&this->FEdit)
+	if (Global->CtrlObject->Plugins->GetCurEditor() == this)//&this->FEdit)
 	{
-		Global->CtrlObject->Plugins->CurEditor=nullptr;
+		Global->CtrlObject->Plugins->SetCurEditor(nullptr);
 	}
 }
 
@@ -2189,7 +2189,7 @@ void FileEditor::ResizeConsole()
 int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
 	int RetCode;
-	Global->CtrlObject->Plugins->CurEditor=this;
+	Global->CtrlObject->Plugins->SetCurEditor(this);
 	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(Rec);
 	return RetCode;
 }
@@ -2452,7 +2452,7 @@ void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(int focus)
 {
 	Frame::OnChangeFocus(focus);
-	Global->CtrlObject->Plugins->CurEditor=this;
+	Global->CtrlObject->Plugins->SetCurEditor(this);
 	int FEditEditorID=m_editor->EditorID;
 	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
 }

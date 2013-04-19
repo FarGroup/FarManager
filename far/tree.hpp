@@ -1,3 +1,4 @@
+
 #pragma once
 
 /*
@@ -33,6 +34,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#if 0
 enum AVL_SKEW
 {
 	AVL_NONE,
@@ -470,3 +472,4 @@ template <class D> D *Tree<D>::internal_query(Node<D> *node,D *data)
 	if(diff>0) return internal_query(node->right,data);
 	return node->data;
 }
+#endif

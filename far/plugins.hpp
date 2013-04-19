@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
-#include "tree.hpp"
 #include "configdb.hpp"
 
 class SaveScreen;
@@ -152,147 +151,117 @@ struct PluginHandle
 	class Plugin *pPlugin;
 };
 
-class PluginTree: public Tree<class AncientPlugin*>
-{
-	public:
-		PluginTree();
-		~PluginTree();
-		long compare(Node<class AncientPlugin*>* first,class AncientPlugin** second);
-		class AncientPlugin** query(const GUID& value);
-};
-
 class Dialog;
 
 class PluginManager
 {
-	private:
+public:
+	PluginManager();
+	~PluginManager();
 
-		std::list<Plugin*> PluginsData;
+	// API functions
+	HANDLE Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
+	HANDLE OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
+	HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
+	void ClosePanel(HANDLE hPlugin);
+	void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
+	int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
+	void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
+	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
+	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+	int SetDirectory(HANDLE hPlugin,const string& Dir,int OpMode,struct UserDataItem *UserData=nullptr);
+	int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
+	int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
+	int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
+	int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	int MakeDirectory(HANDLE hPlugin,const wchar_t **Name,int OpMode);
+	int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	int ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec,bool Pred);
+	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
+	int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
+	int ProcessEditorInput(INPUT_RECORD *Rec);
+	int ProcessEditorEvent(int Event,void *Param,int EditorID);
+	int ProcessViewerEvent(int Event,void *Param,int ViewerID);
+	int ProcessDialogEvent(int Event,FarDialogEvent *Param);
+	int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
+	void GetCustomData(FileListItem *ListItem);
+
+	int UnloadPlugin(Plugin *pPlugin, DWORD dwException);
+	HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
+	int UnloadPluginExternal(HANDLE hPlugin);
+	bool IsPluginUnloaded(Plugin* pPlugin);
+	void LoadPlugins();
+	Plugin *GetPlugin(const string& ModuleName);
+	std::list<Plugin*>::const_iterator cbegin() const { return SortedPlugins.cbegin(); }
+	std::list<Plugin*>::const_iterator cend() const { return SortedPlugins.cend(); }
+	typedef Plugin* value_type;
+	size_t GetPluginsCount() const { return SortedPlugins.size(); }
 #ifndef NO_WRAPPER
-		size_t OemPluginsCount;
+	size_t OemPluginsPresent() const { return OemPluginsCount > 0; }
 #endif // NO_WRAPPER
-		PluginTree* PluginsCache;
+	bool IsPluginsLoaded() const { return Flags.Check(PSIF_PLUGINSLOADDED); }
+	bool CheckFlags(DWORD NewFlags) const { return Flags.Check(NewFlags); }
+	void Configure(int StartPos=0);
+	void ConfigureCurrent(Plugin *pPlugin,const GUID& Guid);
+	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
+	bool GetDiskMenuItem(Plugin *pPlugin,size_t PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
+	int UseFarCommand(HANDLE hPlugin,int CommandType);
+	void ReloadLanguage();
+	void DiscardCache();
+	int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
+	bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle);
+	void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
+	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
+	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
+	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
+	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *Ret=nullptr);
+	Plugin *FindPlugin(const GUID& SysID) const;
+	static const GUID& GetGUID(HANDLE hPlugin);
+	void RefreshPluginsList();
+	void UndoRemove(Plugin* plugin);
+	FileEditor* GetCurEditor() const { return m_CurEditor; }
+	void SetCurEditor(FileEditor* Editor) { m_CurEditor = Editor; }
+	Viewer* GetCurViewer() const { return m_CurViewer; }
+	void SetCurViewer(Viewer* Viewer) { m_CurViewer = Viewer; }
 
-		std::list<Plugin*> UnloadedPlugins;
+private:
+	void LoadIfCacheAbsent();
+	void ReadUserBackgound(SaveScreen *SaveScr);
+	void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey);
+	void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType,string &strHotKey);
+	Plugin* LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA &FindData, bool LoadToMem);
+	bool AddPlugin(Plugin *pPlugin);
+	bool RemovePlugin(Plugin *pPlugin);
+	bool UpdateId(Plugin *pPlugin, const GUID& Id);
+	void LoadPluginsFromCache();
 
-	public:
+	struct uuid_hash
+	{
+		size_t operator ()(const GUID& Key) const
+		{
+			RPC_STATUS Status;
+			return UuidHash(const_cast<UUID*>(&Key), &Status);
+		}
+	};
 
-		BitFlags Flags;        // флаги манагера плагинов
+	struct uuid_equal
+	{
+		bool operator ()(const GUID& a, const GUID& b) const
+		{
+			// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
+			return (a == b) != 0;
+		}
+	};
 
-		Plugin *CurPluginItem;
-
-		FileEditor *CurEditor;
-		Viewer *CurViewer;     // 27.09.2000 SVS: Указатель на текущий Viewer
-
-	private:
-
-		void LoadIfCacheAbsent();
-		void ReadUserBackgound(SaveScreen *SaveScr);
-
-		void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey);
-		void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType,string &strHotKey);
-
-		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
-		bool TestOPENPANELINFO(Plugin *Item,OpenPanelInfo *Info);
-
-		Plugin* LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA &FindData, bool LoadToMem);
-
-		bool AddPlugin(Plugin *pPlugin);
-		bool RemovePlugin(Plugin *pPlugin);
-
-		bool UpdateId(Plugin *pPlugin, const GUID& Id);
-
-		void LoadPluginsFromCache();
-
-		void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
-		void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
-
-	public:
-
-		PluginManager();
-		~PluginManager();
-
-	public:
-
-
-		int UnloadPlugin(Plugin *pPlugin, DWORD dwException);
-
-		HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
-		int UnloadPluginExternal(HANDLE hPlugin);
-		bool IsPluginUnloaded(Plugin* pPlugin);
-
-		void LoadPlugins();
-
-		Plugin *GetPlugin(const string& ModuleName);
-
-		std::list<Plugin*>::iterator begin() { return PluginsData.begin(); }
-		std::list<Plugin*>::iterator end() { return PluginsData.end(); }
-		std::list<Plugin*>::const_iterator cbegin() { return PluginsData.cbegin(); }
-		std::list<Plugin*>::const_iterator cend() { return PluginsData.cend(); }
-		Plugin*& front() { return PluginsData.front(); }
-		Plugin*& back() { return PluginsData.back(); }
-		typedef Plugin* value_type;
-
-		size_t GetPluginsCount() { return PluginsData.size(); }
+	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
+	std::list<Plugin*> SortedPlugins;
+	std::list<Plugin*> UnloadedPlugins;
+	BitFlags Flags;
 #ifndef NO_WRAPPER
-		size_t GetOemPluginsCount() { return OemPluginsCount; }
+	size_t OemPluginsCount;
 #endif // NO_WRAPPER
+	FileEditor* m_CurEditor;
+	Viewer* m_CurViewer;
 
-		BOOL IsPluginsLoaded() { return Flags.Check(PSIF_PLUGINSLOADDED); }
-
-		BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
-
-		void Configure(int StartPos=0);
-		void ConfigureCurrent(Plugin *pPlugin,const GUID& Guid);
-		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
-		bool GetDiskMenuItem(Plugin *pPlugin,size_t PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
-
-		int UseFarCommand(HANDLE hPlugin,int CommandType);
-		void ReloadLanguage();
-		void DiscardCache();
-		int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
-
-		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle);
-		void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
-		size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
-
-		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
-		int CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *Ret=nullptr);
-		Plugin *FindPlugin(const GUID& SysID);
-		static const GUID& GetGUID(HANDLE hPlugin);
-
-		void RefreshPluginsList();
-		void UndoRemove(Plugin* plugin);
-
-//api functions
-
-	public:
-		HANDLE Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
-		HANDLE OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
-		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
-		void ClosePanel(HANDLE hPlugin);
-		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
-		int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int Silent);
-		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
-		void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-		int SetDirectory(HANDLE hPlugin,const string& Dir,int OpMode,struct UserDataItem *UserData=nullptr);
-		int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
-		int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
-		int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
-		int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-		int MakeDirectory(HANDLE hPlugin,const wchar_t **Name,int OpMode);
-		int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-		int ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec,bool Pred);
-		int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-		int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
-		int ProcessEditorInput(INPUT_RECORD *Rec);
-		int ProcessEditorEvent(int Event,void *Param,int EditorID);
-		int ProcessViewerEvent(int Event,void *Param,int ViewerID);
-		int ProcessDialogEvent(int Event,FarDialogEvent *Param);
-		int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
-		void GetCustomData(FileListItem *ListItem);
-
-		friend class Plugin;
+	friend class Plugin;
 };

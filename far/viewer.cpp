@@ -132,7 +132,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
 	this->ViewerID=::ViewerID++;
-	Global->CtrlObject->Plugins->CurViewer=this;
+	Global->CtrlObject->Plugins->SetCurViewer(this);
 	OpenFailed=false;
 	HostFileViewer=nullptr;
 	bVE_READ_Sent = false;
@@ -203,12 +203,12 @@ Viewer::~Viewer()
 
 	if (!OpenFailed && bVE_READ_Sent)
 	{
-		Global->CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
+		Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
 	}
 
-	if (this == Global->CtrlObject->Plugins->CurViewer)
-		Global->CtrlObject->Plugins->CurViewer = nullptr;
+	if (this == Global->CtrlObject->Plugins->GetCurViewer())
+		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
 
 
@@ -407,7 +407,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	ChangeViewKeyBar();
 	AdjustWidth();
-	Global->CtrlObject->Plugins->CurViewer=this; // HostFileViewer;
+	Global->CtrlObject->Plugins->SetCurViewer(this); // HostFileViewer;
 	/* $ 15.09.2001 tran
 	   пора легализироваться */
 	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
@@ -505,15 +505,15 @@ void Viewer::ShowPage(int nMode)
 	switch (nMode)
 	{
 		case SHOW_HEX:
-			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			ShowHex();
 			break;
 		case SHOW_DUMP:
-			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			ShowDump();
 			break;
 		case SHOW_RELOAD:
-			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			{
 				Strings.clear();
 				
@@ -2417,7 +2417,7 @@ void Viewer::ChangeViewKeyBar()
 		ViewKeyBar->Redraw();
 	}
 
-	Global->CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
+	Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 }
 
 

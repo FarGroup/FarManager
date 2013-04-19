@@ -290,7 +290,7 @@ void Editor::ShowEditor(void)
 	  To make sure that CurEditor is set to required value.
 	*/
 	if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-		Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+		Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
 
 	XX2=X2-(EdOpt.ShowScrollBar?1:0);
 	/* 17.04.2002 skv
@@ -2793,7 +2793,7 @@ int Editor::ProcessKey(int Key)
 
 					if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 					{
-						Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+						Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
 						SortColorLock();
@@ -3086,7 +3086,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
-				Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+				Global->CtrlObject->Plugins->SetCurEditor(HostFileEditor); // this;
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
 				SortColorLock();
 				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);

@@ -136,7 +136,7 @@ static string& FarTitle()
 	return strFarTitle;
 }
 void ConsoleTitle::SetFarTitle(const string& Title)
-{//MessageBox(0,0,Title.CPtr(),0);
+{
 	CriticalSectionLock Lock(TitleCS);
 	string strOldFarTitle;
 

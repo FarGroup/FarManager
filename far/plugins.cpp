@@ -276,93 +276,47 @@ bool PluginCompare(const Plugin* a, const Plugin *b)
 	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
 }
 
-class PluginSearch: public AncientPlugin
-{
-	private:
-		GUID m_Guid;
-		PluginSearch();
-	public:
-		PluginSearch(const GUID& Id): m_Guid(Id) {}
-		~PluginSearch() {}
-		const GUID& GetGUID(void) const { return m_Guid; }
-};
-
-PluginTree::PluginTree(): Tree<AncientPlugin*>()
-{
-}
-
-PluginTree::~PluginTree()
-{
-	clear();
-}
-
-long PluginTree::compare(Node<AncientPlugin*>* first,AncientPlugin** second)
-{
-	return memcmp(&((*(first->data))->GetGUID()),&((*second)->GetGUID()),sizeof(GUID));
-}
-
-AncientPlugin** PluginTree::query(const GUID& value)
-{
-	PluginSearch plugin(value);
-	AncientPlugin* get=&plugin;
-	return Tree<AncientPlugin*>::query(&get);
-}
-
 PluginManager::PluginManager():
 #ifndef NO_WRAPPER
 	OemPluginsCount(0),
 #endif // NO_WRAPPER
-	PluginsCache(nullptr),
-	CurPluginItem(nullptr),
-	CurEditor(nullptr),
-	CurViewer(nullptr)
+	m_CurEditor(nullptr),
+	m_CurViewer(nullptr)
 {
-	PluginsCache=new PluginTree;
 }
 
 PluginManager::~PluginManager()
 {
-	CurPluginItem=nullptr;
 	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
 
-	std::for_each(CONST_RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
-		if (IsEqualGUID(i->GetGUID(),LuamacroGuid))
+		if (i->GetGUID() == LuamacroGuid)
+		{
 			Luamacro=i;
+		}
 		else
 		{
 			i->Unload(true);
-			if (PluginsCache)
-			{
-				PluginsCache->remove((AncientPlugin**)&i);
-			}
-			delete i;
 		}
 	});
 
 	if (Luamacro)
 	{
 		Luamacro->Unload(true);
-		if (PluginsCache)
-		{
-			PluginsCache->remove((AncientPlugin**)&Luamacro);
-		}
-		delete Luamacro;
 	}
-
-	delete PluginsCache;
-	PluginsCache=nullptr;
 }
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
 {
-	if (PluginsCache)
+	auto Result = Plugins.emplace(DECLTYPE(Plugins)::value_type(pPlugin->GetGUID(), DECLTYPE(Plugins)::value_type::second_type()));
+	if (!Result.second)
 	{
-		AncientPlugin** item=new AncientPlugin*(pPlugin);
-		item=PluginsCache->insert(item);
-		if(*item!=pPlugin) return false;
+		return false;
 	}
-	PluginsData.emplace_back(pPlugin);
+	Result.first->second.reset(pPlugin);
+
+	SortedPlugins.emplace_back(pPlugin);
 #ifndef NO_WRAPPER
 	if(pPlugin->IsOemPlugin())
 	{
@@ -374,36 +328,30 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 
 bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 {
-	if (PluginsCache)
+	auto Iterator = Plugins.find(pPlugin->GetGUID());
+	// important, do not delete Plugin instance
+	Iterator->second.release();
+	Plugins.erase(Iterator);
+	pPlugin->SetGuid(Id);
+	auto Result = Plugins.emplace(DECLTYPE(Plugins)::value_type(pPlugin->GetGUID(), DECLTYPE(Plugins)::value_type::second_type()));
+	if (!Result.second)
 	{
-		PluginsCache->remove((AncientPlugin**)&pPlugin);
-		pPlugin->SetGuid(Id);
-		AncientPlugin** item=new AncientPlugin*(pPlugin);
-		item=PluginsCache->insert(item);
-		if(*item!=pPlugin) return false;
+		return false;
 	}
+	Result.first->second.reset(pPlugin);
 	return true;
 }
 
 bool PluginManager::RemovePlugin(Plugin *pPlugin)
 {
-	if (PluginsCache)
-	{
-		PluginsCache->remove((AncientPlugin**)&pPlugin);
-	}
-	auto i = std::find(PluginsData.begin(), PluginsData.end(), pPlugin);
-
-	if(i == PluginsData.end())
-		return false;
-
 #ifndef NO_WRAPPER
 	if(pPlugin->IsOemPlugin())
 	{
 		OemPluginsCount--;
 	}
 #endif // NO_WRAPPER
-	PluginsData.erase(i);
-	delete pPlugin;
+	SortedPlugins.erase(std::find(SortedPlugins.begin(), SortedPlugins.end(), pPlugin));
+	Plugins.erase(pPlugin->GetGUID());
 	return true;
 }
 
@@ -477,7 +425,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 			pPlugin = LoadPlugin(lpwszModuleName, FindData, LoadToMem);
 			if (!pPlugin)
 				return nullptr;
-			PluginsData.sort(PluginCompare);
+			SortedPlugins.sort(PluginCompare);
 		}
 	}
 	return pPlugin;
@@ -489,9 +437,6 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 
 	if (pPlugin && (dwException != EXCEPT_EXITFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
-		//какие-то непонятные действия...
-		CurPluginItem=nullptr;
-
 		for(int i = static_cast<int>(FrameManager->GetModalStackCount()-1); i >= 0; --i)
 		{
 			Frame *frame = FrameManager->GetModalFrame(i);
@@ -560,11 +505,11 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 
 Plugin *PluginManager::GetPlugin(const string& lpwszModuleName)
 {
-	auto i = std::find_if(CONST_RANGE(PluginsData, i)
+	auto i = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
 		return !StrCmpI(lpwszModuleName.CPtr(), i->GetModuleName().CPtr());
 	});
-	return i == PluginsData.cend()? nullptr : *i;
+	return i == SortedPlugins.cend()? nullptr : *i;
 }
 
 void PluginManager::LoadPlugins()
@@ -634,7 +579,7 @@ void PluginManager::LoadPlugins()
 	}
 
 	Flags.Set(PSIF_PLUGINSLOADDED);
-	PluginsData.sort(PluginCompare);
+	SortedPlugins.sort(PluginCompare);
 }
 
 /* $ 01.09.2000 tran
@@ -680,7 +625,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	}
 
 	bool ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
-	bool ShowWarning = (OpMode==0);
+	bool ShowWarning = !OpMode;
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
@@ -690,7 +635,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
-	FOR_CONST_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(SortedPlugins, i)
 	{
 		pPlugin = *i;
 
@@ -871,7 +816,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 	auto pResult = items.end();
 	Plugin *pPlugin=nullptr;
 
-	FOR_CONST_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(SortedPlugins, i)
 	{
 		pPlugin = *i;
 
@@ -963,10 +908,10 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	return std::find_if(CONST_RANGE(PluginsData, i)
+	return std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
 		return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);
-	}) != PluginsData.cend();
+	}) != SortedPlugins.cend();
 }
 
 
@@ -974,9 +919,9 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 {
 	int nResult = 0;
 
-	if (Global->CtrlObject->Plugins->CurEditor)
+	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
-		FOR_CONST_RANGE(PluginsData, i)
+		FOR_CONST_RANGE(SortedPlugins, i)
 		{
 			if ((*i)->HasProcessEditorEvent())
 				nResult = (*i)->ProcessEditorEvent(Event, Param, EditorID);
@@ -990,7 +935,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;
-	std::for_each(CONST_RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
 		if (i->HasProcessViewerEvent())
 			nResult = i->ProcessViewerEvent(Event, Param, ViewerID);
@@ -1000,17 +945,17 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	return std::find_if(CONST_RANGE(PluginsData, i)
+	return std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
 		return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);
-	}) != PluginsData.cend();
+	}) != SortedPlugins.cend();
 }
 
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
 
-	FOR_CONST_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(SortedPlugins, i)
 	{
 		Plugin *pPlugin = *i;
 
@@ -1355,7 +1300,7 @@ void PluginManager::Configure(int StartPos)
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR_CONST_RANGE(PluginsData, i)
+				FOR_CONST_RANGE(SortedPlugins, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED);
@@ -1529,7 +1474,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				string strHotKey, strName;
 				GUID guid;
 
-				FOR_CONST_RANGE(PluginsData, i)
+				FOR_CONST_RANGE(SortedPlugins, i)
 				{
 					Plugin *pPlugin = *i;
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED);
@@ -1735,9 +1680,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	// restore title for old plugins only.
 #ifndef NO_WRAPPER
-	if (item.pPlugin->IsOemPlugin() && Editor && CurEditor)
+	if (item.pPlugin->IsOemPlugin() && Editor && m_CurEditor)
 	{
-		CurEditor->SetPluginTitle(nullptr);
+		m_CurEditor->SetPluginTitle(nullptr);
 	}
 #endif // NO_WRAPPER
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
@@ -2095,7 +2040,7 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 
 void PluginManager::ReloadLanguage()
 {
-	std::for_each(CONST_RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
 		i->CloseLang();
 	});
@@ -2106,7 +2051,7 @@ void PluginManager::ReloadLanguage()
 
 void PluginManager::DiscardCache()
 {
-	std::for_each(CONST_RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
 		i->Load();
 	});
@@ -2119,7 +2064,7 @@ void PluginManager::LoadIfCacheAbsent()
 {
 	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
 	{
-		std::for_each(CONST_RANGE(PluginsData, i)
+		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			i->Load();
 		});
@@ -2158,7 +2103,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
-	FOR_CONST_RANGE(PluginsData, i)
+	FOR_CONST_RANGE(SortedPlugins, i)
 	{
 		UINT64 PluginFlags=0;
 
@@ -2550,9 +2495,9 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 
 			// restore title for old plugins only.
 			#ifndef NO_WRAPPER
-			if (Data->pPlugin->IsOemPlugin() && Editor && CurEditor)
+			if (Data->pPlugin->IsOemPlugin() && Editor && m_CurEditor)
 			{
-				CurEditor->SetPluginTitle(nullptr);
+				m_CurEditor->SetPluginTitle(nullptr);
 			}
 			#endif // NO_WRAPPER
 		}
@@ -2561,11 +2506,10 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 	return Result;
 }
 
-Plugin *PluginManager::FindPlugin(const GUID& SysID)
+Plugin *PluginManager::FindPlugin(const GUID& SysID) const
 {
-	Plugin **result=nullptr;
-	if(PluginsCache) result=(Plugin**)PluginsCache->query(SysID);
-	return result?*result:nullptr;
+	auto Iterator = Plugins.find(SysID);
+	return Iterator == Plugins.cend()? nullptr : Iterator->second.get();
 }
 
 HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item)
@@ -2586,7 +2530,7 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 {
 	NTPath FilePath(ListItem->strName);
 
-	std::for_each(CONST_RANGE(PluginsData, i)
+	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
 		wchar_t *CustomData = nullptr;
 

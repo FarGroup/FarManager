@@ -705,14 +705,6 @@ void FileList::PluginToPluginFiles(int Move)
 	}
 }
 
-class PluginsTree: public Tree<Plugin*>
-{
-	public:
-		PluginsTree(){}
-		~PluginsTree(){clear();}
-		long compare(Node<Plugin*>* first,Plugin** second) {return reinterpret_cast<char*>(*first->data)-reinterpret_cast<char*>(*second);}
-};
-
 void FileList::PluginHostGetFiles()
 {
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -740,7 +732,7 @@ void FileList::PluginHostGetFiles()
 
 	int ExitLoop=FALSE;
 	GetSelName(nullptr,FileAttr);
-	PluginsTree tree;
+	std::unordered_set<Plugin*> UsedPlugins;
 
 	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
 	{
@@ -751,13 +743,14 @@ void FileList::PluginHostGetFiles()
 		{
 			PluginHandle *ph = (PluginHandle *)hCurPlugin;
 			int OpMode=OPM_TOPLEVEL;
-			if(tree.query(&ph->pPlugin)) OpMode|=OPM_SILENT;
+			if(UsedPlugins.find(ph->pPlugin) != UsedPlugins.cend())
+				OpMode|=OPM_SILENT;
 
 			PluginPanelItem *ItemList;
 			size_t ItemNumber;
 			_ALGO(SysLog(L"call Plugins.GetFindData()"));
 
-			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,0))
+			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,OpMode))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
 				const wchar_t *lpwszDestPath=strDestPath.CPtr();
@@ -772,7 +765,7 @@ void FileList::PluginHostGetFiles()
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
 				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber,true);
-				tree.insert(new Plugin*(ph->pPlugin));
+				UsedPlugins.emplace(ph->pPlugin);
 			}
 
 			_ALGO(SysLog(L"call Plugins.ClosePanel"));

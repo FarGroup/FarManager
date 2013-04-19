@@ -1698,8 +1698,8 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 
 	if (EditorID == -1)
 	{
-		if (Global->CtrlObject->Plugins->CurEditor)
-			return Global->CtrlObject->Plugins->CurEditor->EditorControl(Command,Param1,Param2);
+		if (Global->CtrlObject->Plugins->GetCurEditor())
+			return Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1736,8 +1736,8 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 
 	if (ViewerID == -1)
 	{
-		if (Global->CtrlObject->Plugins->CurViewer)
-			return Global->CtrlObject->Plugins->CurViewer->ViewerControl(Command,Param1,Param2);
+		if (Global->CtrlObject->Plugins->GetCurViewer())
+			return Global->CtrlObject->Plugins->GetCurViewer()->ViewerControl(Command,Param1,Param2);
 
 		return 0;
 	}

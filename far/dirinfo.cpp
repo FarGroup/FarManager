@@ -86,15 +86,6 @@ static void PR_DrawGetDirInfoMsg()
 	}
 }
 
-
-class FileIdTree: public Tree<UINT64>
-{
-public:
-	FileIdTree(){}
-	~FileIdTree(){clear();}
-	long compare(Node<UINT64>* first, UINT64* second) {return *first->data-*second;}
-};
-
 int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags)
 {
 	string strFullDirName, strDriveRoot;
@@ -136,9 +127,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	Data.DirCount=Data.FileCount=0;
 	Data.FileSize=Data.AllocationSize=Data.FilesSlack=Data.MFTOverhead=0;
 	ScTree.SetFindPath(DirName,L"*");
-
-	FileIdTree FileIds;
-
+	std::unordered_set<UINT64> FileIds;
 	bool CheckHardlinks = false;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
@@ -247,19 +236,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 
 			Data.FileSize += FindData.nFileSize;
 
-			bool IsDuplicate = false;
-			if (CheckHardlinks && FindData.FileId)
-			{
-				if(FileIds.query(&FindData.FileId))
-				{
-					IsDuplicate = true;
-				}
-				else
-				{
-					FileIds.insert(new UINT64(FindData.FileId));
-				}
-			}
-			if (!IsDuplicate)
+			if (!CheckHardlinks || !FindData.FileId || FileIds.emplace(FindData.FileId).second)
 			{
 				Data.AllocationSize += FindData.nAllocationSize;
 				if(FindData.nAllocationSize > FindData.nFileSize)

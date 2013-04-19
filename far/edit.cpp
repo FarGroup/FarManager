@@ -2685,7 +2685,7 @@ void Edit::ApplyColor(const FarColor& SelColor)
 	if(Flags.Check(FEDITLINE_EDITORMODE))
 	{
 		EditorInfo ei={sizeof(EditorInfo)};
-		Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, 0, &ei);
+		Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_GETINFO, 0, &ei);
 		XPos = ei.CurTabPos - ei.LeftPos;
 	}
 
