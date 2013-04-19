@@ -309,7 +309,7 @@ PluginManager::~PluginManager()
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
 {
-	auto Result = Plugins.emplace(DECLTYPE(Plugins)::value_type(pPlugin->GetGUID(), DECLTYPE(Plugins)::value_type::second_type()));
+	auto Result = Plugins.emplace(VALUE_TYPE(Plugins)(pPlugin->GetGUID(), VALUE_TYPE(Plugins)::second_type()));
 	if (!Result.second)
 	{
 		return false;
@@ -333,7 +333,7 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 	Iterator->second.release();
 	Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
-	auto Result = Plugins.emplace(DECLTYPE(Plugins)::value_type(pPlugin->GetGUID(), DECLTYPE(Plugins)::value_type::second_type()));
+	auto Result = Plugins.emplace(VALUE_TYPE(Plugins)(pPlugin->GetGUID(), VALUE_TYPE(Plugins)::second_type()));
 	if (!Result.second)
 	{
 		return false;
