@@ -72,7 +72,7 @@ bool StrToGuid(const wchar_t *Value,GUID *Guid)
 
 BOOL CheckExtension(const wchar_t *ptrName)
 {
-	return (BOOL)*Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE;
+	return (BOOL)(*Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE);
 }
 
 void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bool IgnoreExtension)
