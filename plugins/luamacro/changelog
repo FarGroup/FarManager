@@ -1,3 +1,7 @@
+shmuel 20.04.2013 11:42:53 +0200 - build 135
+
+1. LuaFAR: editor.Editor: во время слома LuaFAR API зря сдвинули смещение у параметров StartLine и StartChar.
+
 shmuel 19.04.2013 16:49:21 +0200 - build 134
 
 1. LuaFAR: M#2375: Pattern %<multibyte char> in unicode.utf8.
