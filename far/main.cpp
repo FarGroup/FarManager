@@ -99,7 +99,6 @@ static void show_help()
 		L" /v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 		L" /w[-] Stretch to console window instead of console buffer or vise versa.\n"
-		L" /x   Disable exception handling.\n"
 		L" /clearcache [profilepath]\n"
 		L"      Clear plugins cache.\n"
 		L" /export <out.farconfig> [profilepath [localprofilepath]]\n"
@@ -307,10 +306,12 @@ static int MainProcess(
 		return 0;
 }
 
+#ifndef _MSC_VER
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	return xfilter(EXCEPT_KERNEL, ExceptionInfo, nullptr, 1);
 }
+#endif
 
 static void InitTemplateProfile(string &strTemplatePath)
 {
@@ -569,10 +570,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					}
 
 					break;
-				case L'X':
-					global::EnableSEH = 0;
-					break;
-
 #ifndef NO_WRAPPER
 				case L'U':
 
@@ -744,7 +741,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.CPtr());
 
-	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(global::EnableSEH?SEM_NOGPFAULTERRORBOX:0);
+	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;	
 	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
 	if (IgnoreDataAlignmentFaults)	
@@ -766,7 +763,19 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	Global->CtrlObject = new ControlObject;
 
-	int Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
+	int Result = -1;
+
+	try
+	{
+		Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
+	}
+
+	catch (SException& e)
+	{
+		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+			TerminateProcess(GetCurrentProcess(), 1);
+		throw;
+	}
 
 	CloseConsole();
 
@@ -777,46 +786,38 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	return Result;
 }
 
-int mainEH(int Argc, wchar_t *Argv[])
+int wmain(int Argc, wchar_t *Argv[])
 {
+	int Result = -1;
+
 	try
 	{
 		std::set_new_handler(nullptr);
-
-		return mainImpl(Argc, Argv);
+#ifdef _MSC_VER
+		_set_se_translator(SETranslator);
+#else
+		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
+#endif
+		Result = mainImpl(Argc, Argv);
 	}
-	catch(std::exception& e)
+	catch (SException& e)
+	{
+		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+			TerminateProcess(GetCurrentProcess(), 1);
+		throw;
+	}
+
+	catch (std::exception& e)
 	{
 		std::wcout << L"Caught exception " << e.what() << std::endl;
 		throw;
 	}
-	catch(...)
+	catch (...)
 	{
 		std::wcout << L"Caught unknown exception" << std::endl;
 		throw;
 	}
-}
-
-int global::EnableSEH = 
-#ifdef _DEBUGEXC
-	-1;
-#else
-	!IsDebuggerPresent();
-#endif
-
-int _cdecl wmain(int Argc, wchar_t *Argv[])
-{
-	SEH_TRY
-	{
-		if (global::EnableSEH)
-			SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
-
-		return mainEH(Argc, Argv);
-	}
-	SEH_EXCEPT(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
-	{
-		TerminateProcess(GetCurrentProcess(), 1);
-	}
+	return Result;
 }
 
 #ifdef __GNUC__

@@ -1060,7 +1060,6 @@ int Plugin::DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t Items
 	ExecuteStruct es = {EXCEPT_DELETEFILES};
 	if (Exports[iDeleteFiles] && !Global->ProcessException)
 	{
-		ExecuteStruct es;
 		DeleteFilesInfo Info = {sizeof(Info)};
 		Info.hPanel = hPlugin;
 		Info.PanelItem = PanelItem;

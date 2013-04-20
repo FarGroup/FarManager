@@ -209,10 +209,6 @@ egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
   #/w#
   Stretch to console window instead of console buffer.
 
-  #/x#    ^<wrap>Letiltja a kivételek kezelését. Ezt a lehetőséget
-a szerzők a pluginek fejlesztői részére tervezték, ezért nem ajánlott normál
-használat közben alkalmazni.
-
     A parancssorban megadható legfeljebb két olyan elérési út, ami mappára,
 fájlra vagy tömörített fájlra mutat. Az első elérési út az aktív, a második a
 passzív panelre vonatkozik:

@@ -232,10 +232,6 @@ in the input stream until you press Ctrl-Break.
   #/w[-]#
   Stretch to console window instead of console buffer or vise versa.
 
-  #/x#
-  Disable exception handling. This option has been designed for plugin developers,
-and it is not recommended to specify it during normal operation.
-
   #/t templateprofile#
   Задаёт файл в котором располагаются умолчательные настройки, которые применяются,
 если какой-либо из конфигурационных файлов не существует. Параметр templateprofile
@@ -5741,17 +5737,6 @@ $ #far:config System.SetAttrFolderRules#
      false - ^<wrap>опция "Process subfolders" включена, файловые дата и время очищены.
     
     По умолчанию значение = true.
- 
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
-
-@System.ExceptRules
-$ #far:config System.ExceptRules#
-    Параметр "System.ExceptRules" позволяет отключать обработку исключений во время работы Far Manager и предназначен в основном для разработчиков плагинов.
-Также можно отключить обработку исключений, запустив Far с ключом "/x" в командной строке.
-
-    Для отключения обработки исключений установите этот параметр в 0.
-
-    По умолчанию значение = 1 - обрабатывать исключения.
  
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 

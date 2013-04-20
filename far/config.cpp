@@ -1315,7 +1315,6 @@ void Options::InitCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"DriveDisconnectMode", &Global->Opt->ChangeDriveDisconnectMode, true},
 		{FSSF_PRIVATE,       NKeySystem,L"DriveMenuMode", &Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
 		{FSSF_PRIVATE,       NKeySystem,L"ElevationMode", &Global->Opt->StoredElevationMode, -1},
-		{FSSF_PRIVATE,       NKeySystem,L"ExceptRules", &Global->Opt->StoredExceptRules, true},
 		{FSSF_PRIVATE,       NKeySystem,L"ExcludeCmdHistory", &Global->Opt->ExcludeCmdHistory, 0},
 		{FSSF_PRIVATE,       NKeySystem,L"FileSearchMode", &Global->Opt->FindOpt.FileSearchMode, FINDAREA_FROM_CURRENT},
 		{FSSF_PRIVATE,       NKeySystem,L"FindAlternateStreams", &Global->Opt->FindOpt.FindAlternateStreams,0,},
@@ -1507,11 +1506,6 @@ void Options::Load()
 	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
-
-	if (global::EnableSEH == -1)
-	{
-		global::EnableSEH = StoredExceptRules;
-	}
 
 	if(WindowMode == -1)
 	{

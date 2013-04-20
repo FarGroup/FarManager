@@ -60,22 +60,22 @@ struct ExecuteStruct
 { \
 	__Prolog(); \
 	++Activity; \
-	if (global::EnableSEH) \
+	try \
 	{ \
-		SEH_TRY \
-		{ \
-			function; \
-		} \
-		SEH_EXCEPT(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+		function; \
+	} \
+	catch (SException &e) \
+	{ \
+		if (xfilter(es.id, e.GetInfo(), this, 0) == EXCEPTION_EXECUTE_HANDLER) \
 		{ \
 			m_owner->UnloadPlugin(this, es.id); \
 			es.nResult = es.nDefaultResult; \
 			Global->ProcessException=FALSE; \
 		} \
-	} \
-	else \
-	{ \
-		function; \
+		else \
+		{ \
+			throw; \
+		} \
 	} \
 	--Activity; \
 	__Epilog(); \

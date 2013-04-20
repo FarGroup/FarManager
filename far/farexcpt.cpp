@@ -447,14 +447,15 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				{
 					strBuf = MExcRAccess+Offset;
 					strBuf << strBuf2;
+					Exception=strBuf.CPtr();
 				}
 				else
 				{
 					const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
 					strBuf1 = Exception;
 					strBuf1.Append(L" (").Append(AVs[Offset]).Append(strBuf2).Append(L")");
+					Exception=strBuf1.CPtr();
 				}
-				Exception=strBuf1.CPtr();
 			}
 
 			break;
@@ -502,7 +503,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
 
-	if(global::EnableSEH && !UseExternalHandler)
+	if(!UseExternalHandler)
 	{
 		// dummy parametrs setting
 		::From=From;

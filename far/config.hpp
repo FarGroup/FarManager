@@ -712,8 +712,6 @@ public:
 	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
 	BoolOption SetAttrFolderRules;
 
-	BoolOption StoredExceptRules;
-
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
 	/*

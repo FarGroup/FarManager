@@ -146,15 +146,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef _MSC_VER
 # include "SDK/sdk.vc.h"
-# define SEH_TRY __try
-# define SEH_EXCEPT __except
 #endif // _MSC_VER
 
 #ifdef __GNUC__
 # include "SDK/sdk.gcc.h"
 # define _wcstoi64 wcstoll
-# define SEH_TRY
-# define SEH_EXCEPT(x) if(false)
 #endif // __GNUC__
 
 inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";} 

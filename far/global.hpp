@@ -77,8 +77,6 @@ public:
 #if defined(SYSLOG)
 	BOOL StartSysLog;
 #endif
-	static int EnableSEH;
-
 #ifdef DIRECT_RT
 	bool DirectRT;
 #endif

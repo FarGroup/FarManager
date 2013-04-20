@@ -77,7 +77,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 
 const int CHAR_TABLE_SIZE=5;
-const DWORD LIST_INDEX_NONE = static_cast<DWORD>(-1);
 
 const size_t readBufferSize = 32768;
 
@@ -2690,16 +2689,18 @@ struct THREADPARAM
 
 unsigned int FindFiles::ThreadRoutine(LPVOID Param)
 {
-	SEH_TRY
+	try
 	{
 		InitInFileSearch();
 		THREADPARAM* tParam=static_cast<THREADPARAM*>(Param);
 		tParam->PluginMode?DoPreparePluginList(tParam->Dlg, false):DoPrepareFileList(tParam->Dlg);
 		ReleaseInFileSearch();
 	}
-	SEH_EXCEPT(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
+	catch (SException& e)
 	{
-		TerminateProcess(GetCurrentProcess(), 1);
+		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+			TerminateProcess(GetCurrentProcess(), 1);
+		throw;
 	}
 	return 0;
 }

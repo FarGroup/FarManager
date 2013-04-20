@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "imports.hpp"
+#include "farexcpt.hpp"
 
 ImportedFunctions::ImportedFunctions()
 {
@@ -209,13 +210,15 @@ DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath,
 	if(pfnGetFinalPathNameByHandleW)
 	{
 		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
-		SEH_TRY
+		try
 		{
 			return pfnGetFinalPathNameByHandleW(File, FilePath, FilePathSize, Flags);
 		}
-		SEH_EXCEPT(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+		catch (SException& e)
 		{
-			return 0;
+			if (e.GetCode() == EXCEPTION_ACCESS_VIOLATION)
+				return 0;
+			throw;
 		}
 	}
 	else

@@ -250,3 +250,21 @@ DWORD WINAPI xfilter(
     Plugin *Module,// модуль, приведший к исключению.
     DWORD Flags);             // дополнительные флаги - пока только один
 //        0x1 - спрашивать про выгрузку?
+
+
+class SException : public std::exception
+{
+public: 
+	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
+	int GetCode() const { return m_Code; }
+	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
+
+private:
+	int m_Code;
+	EXCEPTION_POINTERS* m_Info;
+};
+
+inline void SETranslator(UINT Code, EXCEPTION_POINTERS* ExceptionInfo)
+{
+	throw SException(Code, ExceptionInfo);
+}
