@@ -527,7 +527,8 @@ public:
 		AsyncDone.Reset();
 		Global->Db->IncThreadCounter();
 		Thread FinishThread;
-		FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc);
+		if (!FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc))
+			ThreadProc(nullptr);
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }

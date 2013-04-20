@@ -328,7 +328,7 @@ class FileList:public Panel
 
 		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) override;
 		void InitFSWatcher(bool CheckTree);
-		virtual void StartFSWatcher(bool got_focus=false) override;
+		virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) override;
 		virtual void StopFSWatcher() override;
 		virtual void SortFileList(int KeepPosition) override;
 		virtual void SetViewMode(int ViewMode) override;

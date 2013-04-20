@@ -261,7 +261,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		*/
 		virtual void UpdateIfRequired() {}
 
-		virtual void StartFSWatcher(bool got_focus=false) {}
+		virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 		virtual void StopFSWatcher() {}
 		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
 		virtual bool GetPlainString(string& Dest,int ListPos){return false;}

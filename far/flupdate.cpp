@@ -559,13 +559,13 @@ void FileList::InitFSWatcher(bool CheckTree)
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
 		FSWatcher.Set(strCurDir, CheckTree);
-		FSWatcher.Watch(false, false); //check_time=false, prevent reading file time twice (slow on network)
+		StartFSWatcher(false, false); //check_time=false, prevent reading file time twice (slow on network)
 	}
 }
 
-void FileList::StartFSWatcher(bool got_focus)
+void FileList::StartFSWatcher(bool got_focus, bool check_time)
 {
-	FSWatcher.Watch(got_focus);
+	FSWatcher.Watch(got_focus, check_time);
 }
 
 void FileList::StopFSWatcher()
