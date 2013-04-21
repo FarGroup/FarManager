@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "plugins.hpp"
 #include "DlgGuid.hpp"
+#include "RegExp.hpp"
 
 static const wchar_t *FoundContents=L"__FoundContents__";
 static const wchar_t *PluginContents=L"__PluginContents__";
@@ -1822,9 +1823,35 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 	GetFileString GetStr(HelpFile);
 	int nStrLength;
 	wchar_t *ReadStr;
-	string strCurTopic, strEntryName, strReadStr, strLastSearchStrU=strLastSearchStr;
+	string strCurTopic, strEntryName, strReadStr;
 
-	strLastSearchStrU.Upper();
+	string strSlash(strLastSearchStr);
+	InsertRegexpQuote(strSlash);
+	SMatch m[10*2], *pm = m;
+	RegExp re;
+
+	if (LastSearchRegexp)
+	{
+		// Q: что важнее: опция диалога или опция RegExp`а?
+		if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
+			return; //BUGBUG
+
+		intptr_t n = re.GetBracketsCount();
+		if (n > static_cast<int>(ARRAYSIZE(m)/2))
+		{
+			pm = new SMatch[n * 2];
+			if (!pm)
+				return; //BUGBUG
+		}
+	}
+
+	string strSearchStrUpper = strLastSearchStr;
+	string strSearchStrLower = strLastSearchStr;
+	if (!LastSearchCase)
+	{
+		strSearchStrUpper.Upper();
+		strSearchStrLower.Lower();
+	}
 
 	for (;;)
 	{
@@ -1861,7 +1888,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr.CPtr(),(int)strReadStr.GetLength(),strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
+			bool Result=SearchString(strReadStr.CPtr(),(int)strReadStr.GetLength(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,pm,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
 
 			if (Result)
 			{
@@ -1874,6 +1901,9 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			}
 		}
 	}
+
+	if (pm != m)
+		delete[] pm;
 
 	AddLine(L"");
 	MoveToReference(1,1);

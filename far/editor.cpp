@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
+#include "RegExp.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -3783,6 +3784,34 @@ BOOL Editor::Search(int Next)
 			CurPtr = CurLine;
 		}
 
+		string strSlash(strSearchStr);
+		InsertRegexpQuote(strSlash);
+		SMatch m[10*2], *pm = m;
+		RegExp re;
+
+		if (Regexp)
+		{
+			// Q: что важнее: опция диалога или опция RegExp`а?
+			if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+				return FALSE; //BUGBUG
+
+			intptr_t n = re.GetBracketsCount();
+			if (n > static_cast<int>(ARRAYSIZE(m)/2))
+			{
+				pm = new SMatch[n * 2];
+				if (!pm)
+					return FALSE; //BUGBUG
+			}
+		}
+
+		string strSearchStrUpper = strSearchStr;
+		string strSearchStrLower = strSearchStr;
+		if (!Case)
+		{
+			strSearchStrUpper.Upper();
+			strSearchStrLower.Lower();
+		}
+
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
 		TaskBar TB;
@@ -3819,7 +3848,7 @@ BOOL Editor::Search(int Next)
 			int SearchLength=0;
 			string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
 
-			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
+			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,pm,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
 				Match=1;
 				Edit *FoundPtr = CurPtr;
@@ -4094,6 +4123,8 @@ BOOL Editor::Search(int Next)
 				}
 			}
 		}
+		if (pm != m)
+			delete[] pm;
 	}
 	Show();
 

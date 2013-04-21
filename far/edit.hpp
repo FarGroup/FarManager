@@ -81,6 +81,9 @@ enum SetCPFlags
 	SETCP_OTHERERROR = 0x10000000,
 };
 
+class RegExp;
+struct RegExpMatch;
+typedef struct RegExpMatch SMatch;
 class Edit:public ScreenObject
 {
 	enum EDITCOLORLISTFLAGS
@@ -117,7 +120,7 @@ public:
 	void AppendString(const wchar_t *Str);
 	void InsertString(const string& Str);
 	void InsertBinaryString(const wchar_t *Str,int Length);
-	int Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
+	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, SMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() {return Flags.Check(FEDITLINE_CLEARFLAG);}
 	void SetCurPos(int NewPos) {CurPos=NewPos; SetPrevCurPos(NewPos);}

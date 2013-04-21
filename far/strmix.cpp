@@ -1376,7 +1376,7 @@ bool StrToGuid(const string& Value,GUID& Guid)
 	return UuidFromString(reinterpret_cast<unsigned short*>(UNSAFE_CSTR(Value)), &Guid) == RPC_S_OK;
 }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, SMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 
@@ -1401,22 +1401,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string&
 	{
 		if (Regexp)
 		{
-			string strSlash(Str);
-			InsertRegexpQuote(strSlash);
-			RegExp re;
-			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
-				return false;
-
-			SMatch m[10*2], *pm = m;
 			intptr_t n = re.GetBracketsCount();
-			if (n > static_cast<int>(ARRAYSIZE(m)/2))
-			{
-				pm = new SMatch[n * 2];
-				if (!pm)
-					return false;
-			}
-
 			bool found = false;
 			int half = 0;
 			if (!Reverse)
@@ -1447,8 +1432,6 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string&
 				CurPos = pm[half].start;
 				ReplaceStr=ReplaceBrackets(Source,ReplaceStr,pm+half,n);
 			}
-			if (pm != m)
-				delete[] pm;
 
 			return found;
 		}
@@ -1475,7 +1458,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string&
 						if (IsLower(Source[I]))
 							ReplaceStr.GetBuffer()[0] = Lower(ReplaceStr[0]);
 					}
-					
+
 					return true;
 				}
 
@@ -1513,7 +1496,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string&
 				}
 				else
 				{
-					if (Upper(Ch)!=Upper(Str[J]))
+					if (Ch!=UpperStr[J] && Ch!=LowerStr[J])
 						break;
 				}
 			}
