@@ -3,6 +3,145 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.04.2013 19:52:22 +0200 - build 3361
+
+1. Correction of 3301.
+
+t-rex 21.04.2013 00:13:24 +0200 - build 3360
+
+1. Missed in 3342 that StartFSWatcher() is virtual.
+   It could lead to strange redrawing bugs in random cases (Mantis#2394).
+
+w17 20.04.2013 20:29:56 +0400 - build 3359
+
+1. Forum: align the real names of keybar areas with the macro API.
+
+drkns 20.04.2013 17:32:12 +0200 - build 3358
+
+1. Handling structured exceptions as C++ exceptions.
+
+2. /x key and ExceptRules parameter is removed.
+
+drkns 20.04.2013 02:39:36 +0200 - build 3357
+
+1. A couple of minor issues.
+
+drkns 20.04.2013 02:30:33 +0200 - build 3356
+
+1. Refactoring.
+
+drkns 18.04.2013 23:11:39 +0200 - build 3355
+
+1. In 3322, asynchronous DB processing was broken.
+
+t-rex 18.04.2013 16:43:02 +0200 - build 3354
+
+1. Correction of 3349, FAR crash if plugins with the same GUID are available.
+
+drkns 18.04.2013 16:37:58 +0200 - build 3353
+
+1. Rollback of 3352.
+
+drkns 18.04.2013 16:24:32 +0200 - build 3352
+
+1. Correction of 3351.
+
+t-rex 18.04.2013 16:04:54 +0200 - build 3351
+
+1. Unimportant memory leak.
+
+svs 18.04.2013 15:31:10 +0400 - build 3350
+
+1. Correction of 3346
+
+t-rex 18.04.2013 13:14:37 +0200 - build 3349
+
+1. Correction of 3343.1, it must also fix various bizarre bugs appeared after 3343.
+
+t-rex 18.04.2013 11:30:20 +0200 - build 3348
+
+1. Some more Mantis#2350.
+   Asynchronous subscription on change notifications.
+
+drkns 18.04.2013 09:39:27 +0200 - build 3347
+
+1. 0002377: Far Manager v3.0 build 3345 создает пустые файлы при копировании
+
+svs 18.04.2013 09:29:05 +0400 - build 3346
+
+1. UserMenu. If a menu item shows additional parameters dialog, then show the name of the item in the caption of the dialog.
+
+   <inside>
+     fnparce.cpp::SubstFileName()    - the first parameter is the caption of the dialog.
+     fnparce.cpp::ReplaceVariables() - dialog frame moved to position 0 (it was the last one earlier). This is to the question of possible bugs :-)
+   </inside>
+
+
+drkns 17.04.2013 23:54:41 +0200 - build 3345
+
+1. Correction of 3343.2.
+
+drkns 17.04.2013 23:00:51 +0200 - build 3344
+
+1. 0000501: apiCreateFile rights for the Editor.
+
+drkns 17.04.2013 22:39:03 +0200 - build 3343
+
+1. 0002373: in PluginsControl, access enabled incorrectly to information on unloaded plugins.
+
+2. Third-party libraries (UCD, sqlite, tinyxml) are placed in appropriate namespaces.
+
+3. Other minor refactoring.
+
+t-rex 17.04.2013 19:41:06 +0200 - build 3342
+
+1. Some more Mantis#2350.
+
+drkns 17.04.2013 13:36:23 +0200 - build 3341
+
+1. 0002371: F5 copying error
+
+drkns 17.04.2013 01:01:52 +0200 - build 3340
+
+1. A couple of minor fixes.
+
+drkns 16.04.2013 21:29:44 +0200 - build 3339
+
+1. Refactoring.
+
+w17 16.04.2013 16:56:10 +0400 - build 3338
+
+1. M#2184: Incorrect UNDO functioning in built-in editor.
+
+svs 16.04.2013 15:27:59 +0400 - build 3337
+
+1. Continuing ShowHelp editing.
+   Now if (there is FHELP_GUID flag and (ModuleName == empty_string or ModuleName == zero_filled_GUID/FarGuid))
+   then the action is similar to FHELP_FARHELP flag.
+
+drkns 16.04.2013 00:28:35 +0200 - build 3336
+
+1. Refactoring.
+
+shmuel 15.04.2013 21:20:44 +0200 - build 3335
+
+1. On exit from FAR, LuaMacro plugin is unloaded last (otherwise processing of MCTL_XXX requests in ExitFARW of other plugins could be omitted).
+
+t-rex 15.04.2013 20:57:00 +0200 - build 3334
+
+1. Once more Mantis#2350.
+
+svs 15.04.2013 16:20:00 +0400 - build 3333
+
+1. Mantis#0001413: hlf:%farhome%\filename [topic]
+
+   API: FHELP_GUID flag added for ShowHelp
+   In this case the first parameter is considered as the GUID of the plugin the theme being shown belongs to, depending on interface language (hint:FHELP_CUSTOMPATH)
+
+shmuel 15.04.2013 14:43:27 +0200 - build 3332
+
+1. Preventing crashes on exit from FAR in case of plugins calling MCTL_XXX in ExitFARW.
+
 drkns 14.04.2013 18:16:54 +0200 - build 3331
 
 1. Correction of 3318.
