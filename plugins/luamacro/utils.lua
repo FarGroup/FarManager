@@ -36,7 +36,7 @@ local MCODE_F_POSTNEWMACRO = 0x80C64
 local MCODE_F_CHECKALL     = 0x80C65
 local MCODE_F_GETOPTIONS   = 0x80C66
 
-local Areas, AreaNames
+local Areas
 local LoadedMacros
 local EnumState = {}
 local Events
@@ -48,6 +48,65 @@ local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
+
+local function CheckFileName (mask, name)
+  return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
+end
+
+local function EV_Handler (macros, filename, ...)
+  -- Get current priorities.
+  local indexes,priorities = {},{}
+  for i,m in ipairs(macros) do
+    indexes[i],priorities[i] = i, -1
+    if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
+      if m.condition then
+        local pr = m.condition(...)
+        if pr then
+          if type(pr)=="number" then priorities[i] = pr<0 and 0 or pr>100 and 100 or pr
+          else priorities[i] = m.priority
+          end
+        end
+      else
+        priorities[i] = m.priority
+      end
+    end
+  end
+
+  -- Sort by current priorities (stable sort).
+  table.sort(indexes, function(i,j)
+      return priorities[i]>priorities[j] or priorities[i]==priorities[j] and i<j
+    end)
+
+  -- Execute.
+  for _,i in ipairs(indexes) do
+    if priorities[i] < 0 then break end
+    local ret = macros[i].action(...)
+    if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
+      return ret
+    end
+    --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+  end
+end
+
+local function export_ProcessEditorEvent (EditorID, Event, Param)
+  return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
+end
+
+local function export_ProcessViewerEvent (ViewerID, Event, Param)
+  return EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
+end
+
+local function export_ExitFAR ()
+  return EV_Handler(Events.exitfar)
+end
+
+local function export_ProcessDialogEvent (Event, Param)
+  return EV_Handler(Events.dialogevent, nil, Event, Param)
+end
+
+local function export_ProcessEditorInput (Rec)
+  return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
+end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
   local PatExpandKey = regex.new("Ctrl|Alt|Shift|LCtrl|RCtrl|LAlt|RAlt|.*", "i")
@@ -254,7 +313,7 @@ local function LoadMacros (allAreas, unload)
   Areas,Events = {},{}
   EnumState = {}
   LoadedMacros = {}
-  AreaNames = allAreas and AllAreaNames or SomeAreaNames
+  local AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do Areas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
@@ -292,6 +351,12 @@ local function LoadMacros (allAreas, unload)
         end, flags)
     end
   end
+
+  export.ExitFAR = Events.exitfar[1] and export_ExitFAR
+  export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
+  export.ProcessEditorEvent = Events.editorevent[1] and export_ProcessEditorEvent
+  export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
+  export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
 
   LastMessage = pack(numerrors==0)
   return F.MPRT_COMMONCASE, LastMessage
@@ -344,10 +409,6 @@ local function WriteMacros()
       end
     end
   end
-end
-
-local function CheckFileName (mask, name)
-  return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
 end
 
 local function GetTopMacros (area, key, macrolist, checkonly)
@@ -550,71 +611,6 @@ end
 
 local function GetMacroById (id)
   return LoadedMacros[id]
-end
-
-local function EV_Handler (macros, filename, ...)
-  -- Get current priorities.
-  local indexes,priorities = {},{}
-  for i,m in ipairs(macros) do
-    indexes[i],priorities[i] = i, -1
-    if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
-      if m.condition then
-        local pr = m.condition(...)
-        if pr then
-          if type(pr)=="number" then priorities[i] = pr<0 and 0 or pr>100 and 100 or pr
-          else priorities[i] = m.priority
-          end
-        end
-      else
-        priorities[i] = m.priority
-      end
-    end
-  end
-
-  -- Sort by current priorities (stable sort).
-  table.sort(indexes, function(i,j)
-      return priorities[i]>priorities[j] or priorities[i]==priorities[j] and i<j
-    end)
-
-  -- Execute.
-  for _,i in ipairs(indexes) do
-    if priorities[i] < 0 then break end
-    local ret = macros[i].action(...)
-    if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
-      return ret
-    end
-    --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
-  end
-end
-
-function export.ProcessEditorEvent (EditorID, Event, Param)
-  if Events and Events.editorevent then
-    return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
-  end
-end
-
-function export.ProcessViewerEvent (ViewerID, Event, Param)
-  if Events and Events.viewerevent then
-    return EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
-  end
-end
-
-function export.ExitFAR ()
-  if Events and Events.exitfar then
-    return EV_Handler(Events.exitfar)
-  end
-end
-
-function export.ProcessDialogEvent (Event, Param)
-  if Events and Events.dialogevent then
-    return EV_Handler(Events.dialogevent, nil, Event, Param)
-  end
-end
-
-function export.ProcessEditorInput (Rec)
-  if Events and Events.editorinput then
-    return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
-  end
 end
 
 local function GetMacroCopy (id)
