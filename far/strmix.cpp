@@ -1376,7 +1376,7 @@ bool StrToGuid(const string& Value,GUID& Guid)
 	return UuidFromString(reinterpret_cast<unsigned short*>(UNSAFE_CSTR(Value)), &Guid) == RPC_S_OK;
 }
 
-bool SearchString(const string& Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 
@@ -1421,7 +1421,7 @@ bool SearchString(const string& Source, int StrSize, const string& Str, string& 
 			int half = 0;
 			if (!Reverse)
 			{
-				if (re.SearchEx(Source.CPtr(),Source.CPtr()+Position,Source.CPtr()+StrSize,pm,n))
+				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n))
 					found = true;
 			}
 			else
@@ -1429,7 +1429,7 @@ bool SearchString(const string& Source, int StrSize, const string& Str, string& 
 				int pos = 0;
 				for (;;)
 				{
-					if (!re.SearchEx(Source.CPtr(),Source.CPtr()+pos,Source.CPtr()+StrSize,pm+half,n))
+					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm+half, n))
 						break;
 					pos = static_cast<int>(pm[half].start);
 					if (pos > Position)
