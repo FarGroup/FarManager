@@ -27,11 +27,12 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-const wchar_t *FindTopic(bool ForwardDirect=false);
+wchar_t *GetEditorFileName(void);
+const wchar_t *FindTopic(bool ForwardDirect=false, bool RestorePos=true);
 BOOL IsHlf(void);
-void RestorePosition(void);
+void RestorePosition(struct EditorInfo *ei);
 BOOL CheckExtension(const wchar_t *ptrName);
-void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine=false, bool IgnoreExtension=false);
+void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine=false);
 const wchar_t *GetMsg(int MsgId);
 bool ShowCurrentHelpTopic();
 static void ShowHelpFromTempFile();
@@ -72,12 +73,12 @@ bool StrToGuid(const wchar_t *Value,GUID *Guid)
 
 BOOL CheckExtension(const wchar_t *ptrName)
 {
-	return (BOOL)(*Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE);
+	return (BOOL)(Opt.CheckMaskFile && *Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE);
 }
 
-void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bool IgnoreExtension)
+void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine)
 {
-	if (CmdLine || IgnoreExtension || CheckExtension(fullfilename))
+	if (fullfilename && (CmdLine || CheckExtension(fullfilename)))
 	{
 		const wchar_t *Topic=topic;
 
@@ -320,12 +321,10 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 	return Result;
 }
 
-bool ShowCurrentHelpTopic()
+wchar_t *GetEditorFileName(void)
 {
-	bool Result=true;
+	wchar_t *FileName=nullptr;
 	size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
-	LPWSTR FileName=NULL;
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	if (FileNameSize)
 	{
@@ -336,6 +335,15 @@ bool ShowCurrentHelpTopic()
 			Info.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 		}
 	}
+
+	return FileName;
+}
+
+bool ShowCurrentHelpTopic()
+{
+	bool Result=true;
+	wchar_t *FileName=GetEditorFileName();
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	switch (Opt.Style)
 	{
@@ -349,7 +357,7 @@ bool ShowCurrentHelpTopic()
 				if (!Topic)
 					Topic=FindTopic(true);
 				if (Topic && *Topic)
-					ShowHelp(FileName,Topic,false,Opt.CheckMaskFile?false:true);
+					ShowHelp(FileName,Topic,false);
 				else
 					Result=false;
 			}
@@ -361,14 +369,12 @@ bool ShowCurrentHelpTopic()
 				Info.EditorControl(-1,ECTL_SAVEFILE, 0, 0);
 
 		default:
-			ShowHelp(FileName,FindTopic(),false,true);
+			ShowHelp(FileName,FindTopic(),false);
 			break;
 	}
 
 	if (FileName)
-	{
 		delete[] FileName;
-	}
 
 	return Result;
 }
@@ -422,12 +428,13 @@ static void ShowHelpFromTempFile()
 	}
 }
 
-void RestorePosition(void)
+void RestorePosition(struct EditorInfo *ei)
 {
-	esp.CurLine=ei.CurLine;
-	esp.CurPos=ei.CurPos;
-	esp.TopScreenLine=ei.TopScreenLine;
-	esp.LeftPos=ei.LeftPos;
+	struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+	esp.CurLine=ei->CurLine;
+	esp.CurPos=ei->CurPos;
+	esp.TopScreenLine=ei->TopScreenLine;
+	esp.LeftPos=ei->LeftPos;
 	esp.CurTabPos=-1;
 	esp.Overtype=-1;
 	Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
@@ -438,33 +445,58 @@ void RestorePosition(void)
 BOOL IsHlf(void)
 {
 	BOOL ret=FALSE;
+	struct EditorInfo ei={sizeof(EditorInfo)};
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
-	memset(&esp,-1,sizeof(esp));
-	egs.StringNumber=-1;
-	intptr_t total=(ei.TotalLines<3)?ei.TotalLines:3;
+	bool CheckedHlf=true;
 
-	if (total>2) for (esp.CurLine=0; esp.CurLine<total; esp.CurLine++)
+	if (Opt.CheckMaskFile)
 	{
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
-
-		if (!FSF.LStrnicmp(L".Language=",egs.StringText,10))
+		wchar_t *FileName=GetEditorFileName();
+		if (FileName)
 		{
-			ret=TRUE;
-			break;
+			if (!CheckExtension(FileName))
+				CheckedHlf=false;
+			delete[] FileName;
 		}
 	}
 
-	RestorePosition();
+	if (CheckedHlf)
+	{
+		memset(&esp,-1,sizeof(esp));
+		egs.StringNumber=-1;
+		intptr_t total=(ei.TotalLines<3)?ei.TotalLines:3;
+
+		if (total>2)
+		{
+			for (esp.CurLine=0; esp.CurLine<total; esp.CurLine++)
+			{
+				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+
+				if (!FSF.LStrnicmp(L".Language=",egs.StringText,10))
+				{
+					// доп.проверка
+					if (FindTopic(true,false))
+						ret=TRUE;
+					break;
+				}
+			}
+
+			RestorePosition(&ei);
+		}
+	}
+
 	return ret;
 }
 
 // для "этой темы" ищем её имя (от позиции курсора вверх/вниз по файлу)
-const wchar_t *FindTopic(bool ForwardDirect)
+const wchar_t *FindTopic(bool ForwardDirect, bool RestorePos)
 {
 	const wchar_t *ret=NULL;
 	const wchar_t *tmp;
+	struct EditorInfo ei={sizeof(EditorInfo)};
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+
 	memset(&esp,-1,sizeof(esp));
 	egs.StringNumber=-1;
 
@@ -484,7 +516,9 @@ const wchar_t *FindTopic(bool ForwardDirect)
 		}
 	}
 
-	RestorePosition();
+	if (RestorePos)
+		RestorePosition(&ei);
+
 	return ret;
 }
 
@@ -644,6 +678,6 @@ void GetPluginConfig(void)
 
 	Opt.ProcessEditorInput=settings.Get(0,L"ProcessEditorInput",1);
 	Opt.Style=settings.Get(0,L"Style",0);
-	Opt.CheckMaskFile=settings.Get(0,L"CheckMaskFile",0);
+	Opt.CheckMaskFile=settings.Get(0,L"CheckMaskFile",1);
 	settings.Get(0,L"MaskFile",Opt.MaskFile,ARRAYSIZE(Opt.MaskFile),L"*.hlf");
 }
