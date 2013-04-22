@@ -593,5 +593,5 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		Info.EditorControl(-1,ECTL_SETPOSITION,0,&espo);
 	}
 
-	return nullptr;
+	return (OInfo->OpenFrom==OPEN_FROMMACRO)?INVALID_HANDLE_VALUE:nullptr;
 }
