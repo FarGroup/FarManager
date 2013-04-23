@@ -858,16 +858,16 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			{
 				if (!(LoopCount & 63))
 				{
-					static int UpdateReenter=0;
+					static bool UpdateReenter = false;
 
 					if (!UpdateReenter && CurTime-KeyPressedLastTime>300)
 					{
-						if (MODALTYPE_PANELS == FrameManager->GetCurrentFrame()->GetType())
+						if (FrameManager->IsPanelsActive())
 						{
-							UpdateReenter=TRUE;
+							UpdateReenter = true;
 							Global->CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 							Global->CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-							UpdateReenter=FALSE;
+							UpdateReenter = false;
 						}
 					}
 				}

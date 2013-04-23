@@ -136,11 +136,12 @@ void CommandLine::DisplayObject()
 }
 
 
-void CommandLine::SetCurPos(int Pos, int LeftPos)
+void CommandLine::SetCurPos(int Pos, int LeftPos, bool Redraw)
 {
 	CmdStr.SetLeftPos(LeftPos);
 	CmdStr.SetCurPos(Pos);
-	CmdStr.Redraw();
+	if (Redraw)
+		CmdStr.Redraw();
 }
 
 __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -880,8 +881,9 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		{
 			if(Preserve)
 			{
-				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
-				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
+				bool redraw = FrameManager->IsPanelsActive();
+				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, redraw);
+				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
 				Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
 			}
 		}

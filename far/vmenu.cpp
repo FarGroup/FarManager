@@ -86,6 +86,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
+	CurrentFrame = FrameManager->GetCurrentFrame();
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 	bRightBtnPressed = false;
 
@@ -132,7 +133,9 @@ VMenu::~VMenu()
 	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
 	Hide();
 	DeleteItems();
-	SetCursorType(PrevCursorVisible,PrevCursorSize);
+
+	if (FrameManager->GetCurrentFrame() == CurrentFrame)
+		SetCursorType(PrevCursorVisible,PrevCursorSize);
 
 	if (!CheckFlags(VMENU_LISTBOX))
 	{

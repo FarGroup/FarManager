@@ -197,6 +197,7 @@ struct SortItemParam
 };
 
 class ConsoleTitle;
+class Frame;
 
 class VMenu: public Modal
 {
@@ -210,6 +211,7 @@ class VMenu: public Modal
 		bool WasAutoHeight;
 		int MaxLength;
 		int BoxType;
+		Frame *CurrentFrame;
 		bool PrevCursorVisible;
 		DWORD PrevCursorSize;
 		MACROMODEAREA PrevMacroMode;

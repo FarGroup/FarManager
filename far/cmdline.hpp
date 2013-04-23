@@ -63,7 +63,7 @@ public:
 	void InsertString(const string& Str);
 	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false);
 	void ShowViewEditHistory();
-	void SetCurPos(int Pos, int LeftPos=0);
+	void SetCurPos(int Pos, int LeftPos=0, bool Redraw=true);
 	int GetCurPos() { return CmdStr.GetCurPos(); }
 	int GetLeftPos() { return CmdStr.GetLeftPos(); }
 	void SetPersistentBlocks(bool Mode);
