@@ -14,21 +14,29 @@ HLF files or just want to view some HLF files.
 
 @cmd
 $ #HlfViewer: command line syntax
-   #hlf:filename [topic]#
-   #hlf:GUID [topic]#
 
-   #filename# - ^<wrap>the name of the HLF file.
-If the file name contains spaces, it must be enclosed in quotation marks.
-              ^<wrap>Если имя файла указано без пути, то порядок поиска следущий:
+   #hlf:GUID# [#topic#]
+   #hlf:filename# [#topic#]
+   #hlf:topic#
+
+   #GUID#     - ^<wrap>GUID плагина в текущей сессии Far Manager, тему справки которого
+              необходимо показать.
+              Чтобы показать тему из собственной справки Far, можно указать GUID
+              #00000000-0000-0000-0000-000000000000#
+
+   #filename# - ^<wrap>имя hlf-файла.
+              Если имя файла содержит пробелы, то оно должно заключаться в кавычки.
+              Если имя файла указано без пути, то порядок поиска следущий:
               - Текущий каталог
               - %FARHOME%
               - пути плагинов "в этой сессии" Far Manager
 
-   #GUID#     - GUID плагина в текущей сессии Far Manager, тему которого
-              необходимо показать.
+   #topic#    - ^<wrap>показать топик с именем "topic", если этот параметр не
+              указан, то показывается "Contents"
 
-   #topic#    - show the topic "topic". If this parameter is not
-              specified, the topic "Contents" is displayed.
+              ^<wrap>Для вызова справки самого Far Manager допустимо указывать
+              только топик (без имени файла).
+
 
    ~Contents~@Contents@
 
@@ -46,18 +54,16 @@ $ #HlfViewer: Settings#
 the assigned key combination in the editor will show the current topic
 of the HLF file being edited. The hotkey works only if a HLF file is
 being edited. The default hotkey is #F1#.
+   Also if this option is enabled, the HlfViewer item is not added to
+the plugins menu (F11), because it is no longer needed.
 
-   ^<wrap>Опция #Check by file mask# предназначена для ограничения работы
-плагина с файлами отличными от перечисленных. По умолчанию опция отключена.
-Плагин, вызванный в редакторе, кроме маски так же проверяет содержимое файла на
+   Опция #Check by file mask# предназначена для ограничения работы
+плагина с файлами отличными от перечисленных. По умолчанию опция включена.
+Плагин, вызванный в редакторе, кроме маски также проверяет содержимое файла на
 наличие ключевых компонентов hlf-формата:
 
    - ^<wrap>в начале файла ищется строка, начинающаяся с ".Language="
    - ^<wrap>далее производится поиск на наличие любого вхождения последовательности "@@буква-цифры", не содержащее символ "=".
-
-
-   Also if this option is enabled, the HlfViewer item is not added to
-the plugins menu (F11), because it is no longer needed.
 
    To control whether the help file is saved before showing the help
 topic, the option "#Show the help file opened in the editor:#" can be
@@ -79,7 +85,8 @@ used. It can have one of the following values:
 @MacroCallPlugin
 $ #Использование плагина в макросах#
    ^<wrap>Находясь в редакторе плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
-   ^<wrap>Формат вызова:
+
+   Формат вызова:
 
       #Plugin.Call("1AF0754D-5020-49CB-9474-1F82691C84C1")#
 
@@ -87,3 +94,5 @@ $ #Использование плагина в макросах#
 можно получить, вызвав из макроса команду:
 
       Plugin.Call("1AF0754D-5020-49CB-9474-1F82691C84C1")
+
+   ~Contents~@Contents@

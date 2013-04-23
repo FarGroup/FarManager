@@ -32,7 +32,7 @@ const wchar_t *FindTopic(bool ForwardDirect=false, bool RestorePos=true);
 BOOL IsHlf(void);
 void RestorePosition(struct EditorInfo *ei);
 BOOL CheckExtension(const wchar_t *ptrName);
-void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine=false);
+bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine=false, bool ShowError=true);
 const wchar_t *GetMsg(int MsgId);
 bool ShowCurrentHelpTopic();
 static void ShowHelpFromTempFile();
@@ -76,7 +76,7 @@ BOOL CheckExtension(const wchar_t *ptrName)
 	return (BOOL)(Opt.CheckMaskFile && *Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE);
 }
 
-void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine)
+bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bool ShowError)
 {
 	if (fullfilename && (CmdLine || CheckExtension(fullfilename)))
 	{
@@ -85,8 +85,10 @@ void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine)
 		if (NULL == Topic)
 			Topic=GetMsg(MDefaultTopic);
 
-		Info.ShowHelp(fullfilename,Topic,FHELP_CUSTOMFILE);
+		return Info.ShowHelp(fullfilename,Topic,FHELP_CUSTOMFILE|(ShowError?0:FHELP_NOSHOWERROR))?true:false;
 	}
+
+	return false;
 }
 
 const wchar_t *GetMsg(int MsgId)
@@ -200,7 +202,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			// по GUID`у не найдено, пробуем имя файла
 			if (!guidMode)
 			{
+				wchar_t TempFileName[MAX_PATH*2];
 				wchar_t ExpFileName[MAX_PATH*2];
+				lstrcpyn(TempFileName,ptrName,ARRAYSIZE(TempFileName));
 
 				// Если имя файла без пути...
 				if (FSF.PointToName(ptrName) == ptrName)
@@ -247,7 +251,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				if (ptrCurDir)
 					delete[] ptrCurDir;
 
-				ShowHelp(FileName,ptrTopic,true);
+				if (!ShowHelp(FileName,ptrTopic,true,(!ptrTopic || !*ptrTopic?false:true)))
+				{
+					// синтаксис hlf:topic_из_ФАР_хелпа ==> TempFileName
+					Info.ShowHelp(nullptr,TempFileName,FHELP_FARHELP);
+				}
 			}
 		}
 		else
@@ -285,7 +293,6 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 {
-	LPWSTR FileName=NULL;
 	BOOL Result=FALSE;
 
 	if (Opt.ProcessEditorInput)
@@ -293,17 +300,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 		if (InputInfo->Rec.EventType==KEY_EVENT && InputInfo->Rec.Event.KeyEvent.bKeyDown && inputrecord_compare(InputInfo->Rec,Opt.RecKey))
 		{
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
-			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
-
-			if (FileNameSize)
-			{
-				FileName=new wchar_t[FileNameSize];
-
-				if (FileName)
-				{
-					Info.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
-				}
-			}
+			wchar_t *FileName=GetEditorFileName();
 
 			if (IsHlf() || (Opt.CheckMaskFile && CheckExtension(FileName)))
 			{
@@ -312,9 +309,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 			}
 
 			if (FileName)
-			{
 				delete[] FileName;
-			}
 		}
 	}
 
