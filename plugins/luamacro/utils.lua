@@ -40,7 +40,7 @@ local Areas
 local LoadedMacros
 local EnumState = {}
 local Events
-local EventGroups = {"consoleinput","dialogevent","editorevent","editorinput","exitfar","viewerevent"}
+local EventGroups = {"consoleinput","dialogevent","editorchange","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
@@ -86,6 +86,10 @@ local function EV_Handler (macros, filename, ...)
     end
     --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
   end
+end
+
+local function export_ProcessEditorChange (EditorID, Param)
+  return EV_Handler(Events.editorchange, editor.GetFileName(nil), EditorID, Param)
 end
 
 local function export_ProcessEditorEvent (EditorID, Event, Param)
@@ -354,6 +358,7 @@ local function LoadMacros (allAreas, unload)
 
   export.ExitFAR = Events.exitfar[1] and export_ExitFAR
   export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
+  export.ProcessEditorChange = Events.editorchange[1] and export_ProcessEditorChange
   export.ProcessEditorEvent = Events.editorevent[1] and export_ProcessEditorEvent
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent

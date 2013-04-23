@@ -1823,26 +1823,55 @@ nm=Editor functions
 </article>
 </node>
 <node>
+id=485
+lv=2
+dt=Text
+nm=export.ProcessEditorChange
+ctime=3575900755
+mtime=3575901115
+<article>
+#_result = export.ProcessEditorChange (EditorID, Param)
+#_
+#_**Parameters:**
+#_  EditorID: integer
+#_  Param:    table:
+#_              Type:         integer
+#_              StringNumber: integer
+#_
+#_**Returns:**
+#_  result:   integer
+#_
+#_**Note:**
+#_  This function corresponds to plugin's exported function *ProcessEditorEventW*
+#_  called with argument Event==EE_CHANGE.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=110
 lv=2
 dt=Text
 nm=export.ProcessEditorEvent
-mtime=3569577414
+mtime=3575901377
 <article>
 #_result = export.ProcessEditorEvent (EditorID, Event, Param)
 #_
 #_**Parameters:**
 #_  EditorID: integer
 #_  Event:    integer
-#_  Param:    table (for EE_CHANGE):
-#_              Type:         integer
-#_              StringNumber: integer
-#_            integer (for other events)
+#_  Param:    integer
 #_
 #_**Returns:**
 #_  result:   integer
 #_
+#_**Note:**
+#_  Argument *Event* never comes with *EE_CHANGE* value. In this case,
+#_  export.ProcessEditorChange is called.
+#_
 #_@@@
+#_<lua> Links = { ["export.ProcessEditorChange"]="485.html" } </lua>
 #_
 </article>
 </node>

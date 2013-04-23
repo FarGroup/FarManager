@@ -1181,33 +1181,36 @@ intptr_t LF_ProcessEditorInput(lua_State* L, const struct ProcessEditorInputInfo
 intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo *Info)
 {
 	intptr_t ret = 0;
+	int nparams = 0;
 
-	if(GetExportFunction(L, "ProcessEditorEvent"))     //+1: Func
+	if (Info->Event == EE_CHANGE) // separate EE_CHANGE from other events due to performance issues
 	{
-		lua_pushinteger(L, Info->EditorID); //+2;
-		lua_pushinteger(L, Info->Event);    //+3;
-
-		switch(Info->Event)
+		if(GetExportFunction(L, "ProcessEditorChange")) //+1: Func
 		{
-			case EE_CHANGE:
-			{
-				const struct EditorChange *ec = (const struct EditorChange*) Info->Param;
-				lua_createtable(L, 0, 2);
-				PutNumToTable(L, "Type", ec->Type);
-				PutNumToTable(L, "StringNumber", (double)ec->StringNumber);
-				break;
-			}
-			default:
-				lua_pushinteger(L, (intptr_t)Info->Param);
-				break;
+			const struct EditorChange *ec = (const struct EditorChange*) Info->Param;
+			lua_pushinteger(L, Info->EditorID);        //+2
+			lua_createtable(L, 0, 2);                  //+3
+			PutNumToTable(L, "Type", ec->Type);
+			PutNumToTable(L, "StringNumber", (double)ec->StringNumber);
+			nparams = 2;
 		}
-
-		if(pcall_msg(L, 3, 1) == 0)       //+1
+	}
+	else
+	{
+		if(GetExportFunction(L, "ProcessEditorEvent")) //+1: Func
 		{
-			if(lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
-
-			lua_pop(L,1);
+			lua_pushinteger(L, Info->EditorID);        //+2
+			lua_pushinteger(L, Info->Event);           //+3
+			lua_pushinteger(L, (intptr_t)Info->Param); //+4
+			nparams = 3;
 		}
+	}
+
+	if(nparams && pcall_msg(L, nparams, 1) == 0) //+1
+	{
+		if(lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+
+		lua_pop(L,1);
 	}
 
 	return ret;
