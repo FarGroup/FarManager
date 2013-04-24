@@ -96,5 +96,5 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		ARRAYSIZE(MsgItems),          /* ItemsNumber */
 		1);                           /* ButtonsNumber */
 
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }

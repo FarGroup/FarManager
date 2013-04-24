@@ -1,3 +1,7 @@
+shmuel 24.04.2013 20:43:38 +0300 - build 9
+
+1. Plugin was returning INVALID_HANDLE_VALUE (must be nullptr).
+
 svs 01.04.2013 11:00:14 +0400 - build 
 
 1. Добавлен HelloWorld.hpp
