@@ -5267,7 +5267,7 @@ static int Settings_free(lua_State *L)
 	return 0;
 }
 
-int far_FreeSettings(lua_State *L)
+static int far_FreeSettings(lua_State *L)
 {
 	lua_getfield(L, LUA_REGISTRYINDEX, SettingsHandles);
 	lua_pushnil(L);
