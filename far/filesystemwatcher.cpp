@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
-	Handle(INVALID_HANDLE_VALUE),
+	bOpen(false),
 	WatchSubtree(false)
 {
 	PreviousLastWriteTime.dwLowDateTime = 0;
@@ -46,12 +46,15 @@ FileSystemWatcher::FileSystemWatcher():
 	CurrentLastWriteTime.dwLowDateTime = 0;
 	CurrentLastWriteTime.dwHighDateTime = 0;
 	WatchRegistered.Open(true, true);
+	Changed.Open(true, false);
+	Done.Open(true, false);
+	DoneDone.Open(true, false);
 }
 
 
 FileSystemWatcher::~FileSystemWatcher()
 {
-	WatchRegistered.Wait();
+	Release();
 }
 
 void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
@@ -68,26 +71,40 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 
 unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 {
-	Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
+	HANDLE Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|
 									FILE_NOTIFY_CHANGE_SIZE|
 									FILE_NOTIFY_CHANGE_LAST_WRITE);
 	WatchRegistered.Set();
+
+	MultiWaiter waiter;
+	waiter.Add(Handle);
+	waiter.Add(Done);
+	if (waiter.Wait(false, INFINITE) == WAIT_OBJECT_0)
+	{
+		Changed.Set();
+		Done.Wait();
+	}
+
+	DoneDone.Set();
+	FindCloseChangeNotification(Handle);
+
 	return 0;
 }
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 {
 	DisableElevation de;
-	WatchRegistered.Wait();
-	if(Handle == INVALID_HANDLE_VALUE)
+	if(!bOpen)
 	{
+		bOpen = true;
+		Done.Reset();
+		DoneDone.Reset();
 		WatchRegistered.Reset();
 		Thread WatchThread;
-		if (!WatchThread.MemberStart(this, &FileSystemWatcher::WatchRegister))
-			WatchRegister(NULL);
+		WatchThread.MemberStart(this, &FileSystemWatcher::WatchRegister);
 	}
 
 	if (got_focus)
@@ -126,28 +143,19 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 	}
 }
 
-unsigned int WINAPI FindCloseChangeNotificationAsync(void* Param)
-{
-	return FindCloseChangeNotification(Param);
-}
-
 void FileSystemWatcher::Release()
 {
-	WatchRegistered.Wait();
-	if(Handle != INVALID_HANDLE_VALUE)
+	if (bOpen)
 	{
-		Thread CloseThread;
-		if (!CloseThread.Start(FindCloseChangeNotificationAsync, Handle))
-		{
-			FindCloseChangeNotification(Handle);
-		}
-		Handle = INVALID_HANDLE_VALUE;
+		Done.Set();
+		DoneDone.Wait();
+		bOpen = false;
+		Changed.Reset();
 	}
 	PreviousLastWriteTime = CurrentLastWriteTime;
 }
 
 bool FileSystemWatcher::Signaled()
 {
-	WatchRegistered.Wait();
-	return (Handle != INVALID_HANDLE_VALUE && WaitForSingleObject(Handle,0) == WAIT_OBJECT_0) || CompareFileTime(&PreviousLastWriteTime, &CurrentLastWriteTime);
+	return Changed.Signaled() || CompareFileTime(&PreviousLastWriteTime, &CurrentLastWriteTime);
 }

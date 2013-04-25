@@ -263,6 +263,7 @@ public:
 	MultiWaiter() { Objects.reserve(10); }
 	~MultiWaiter() {}
 	void Add(HandleWrapper& Object) { Objects.emplace_back(Object.GetHandle()); }
+	void Add(HANDLE handle) { Objects.emplace_back(handle); }
 	DWORD Wait(bool WaitAll, DWORD Milliseconds) { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), WaitAll, Milliseconds); }
 	void Clear() {Objects.clear();}
 

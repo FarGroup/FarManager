@@ -50,7 +50,10 @@ private:
 
 	string Directory;
 	FILETIME PreviousLastWriteTime, CurrentLastWriteTime;
-	HANDLE Handle;
+	bool bOpen;
 	bool WatchSubtree;
 	Event WatchRegistered;
+	Event Done;
+	Event DoneDone;
+	Event Changed;
 };
