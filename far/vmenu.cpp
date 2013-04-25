@@ -120,9 +120,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 		if (!IsMenuArea(PrevMacroMode))
 			Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 	}
-
-	if (!CheckFlags(VMENU_LISTBOX))
-		FrameManager->ModalizeFrame(this);
 }
 
 VMenu::~VMenu()
@@ -130,21 +127,11 @@ VMenu::~VMenu()
 	if (!CheckFlags(VMENU_LISTBOX) && Global->CtrlObject)
 		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
-	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
 	Hide();
 	DeleteItems();
 
 	if (FrameManager->GetCurrentFrame() == CurrentFrame)
 		SetCursorType(PrevCursorVisible,PrevCursorSize);
-
-	if (!CheckFlags(VMENU_LISTBOX))
-	{
-		FrameManager->UnmodalizeFrame(this);
-		if(WasVisible)
-		{
-			FrameManager->RefreshFrame();
-		}
-	}
 }
 
 void VMenu::ResetCursor()
@@ -1197,7 +1184,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF && Key!=KEY_CTRLRALTF && Key!=KEY_RCTRLALTF && Key!=KEY_RALT && Key!=KEY_OP_XLAT))
 			{
-				Modal::ExitCode = -1;
+				ExitCode = -1;
 				return FALSE;
 			}
 		}
@@ -1232,7 +1219,7 @@ int VMenu::ProcessKey(int Key)
 				if (ItemCanBeEntered(Item[SelectPos]->Flags))
 				{
 					EndLoop = TRUE;
-					Modal::ExitCode = SelectPos;
+					ExitCode = SelectPos;
 				}
 			}
 
@@ -1244,7 +1231,7 @@ int VMenu::ProcessKey(int Key)
 			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
 			{
 				EndLoop = TRUE;
-				Modal::ExitCode = -1;
+				ExitCode = -1;
 			}
 
 			break;
@@ -1523,7 +1510,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent->dwButtonState && !MouseEvent->dwEventFlags)
 			EndLoop=TRUE;
 
-		Modal::ExitCode=-1;
+		ExitCode=-1;
 		return FALSE;
 	}
 
@@ -1928,7 +1915,6 @@ void VMenu::DisplayObject()
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	ClearFlags(VMENU_UPDATEREQUIRED);
-	//Modal::ExitCode = -1; // Mantis#0002041 (build 2520)
 
 	if (CheckFlags(VMENU_REFILTERREQUIRED)!=0)
 	{
@@ -2558,7 +2544,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 
 			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX)) && ItemCanBeEntered(Item[SelectPos]->Flags))
 			{
-				Modal::ExitCode = static_cast<int>(I);
+				ExitCode = static_cast<int>(I);
 				EndLoop = TRUE;
 			}
 

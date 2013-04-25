@@ -74,8 +74,8 @@ class Manager
 		int  StartManager;
 
 	private:
-		void StartupMainloop();
 		Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
+		int HaveAnyFrame();
 
 		BOOL Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
 		// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
@@ -93,10 +93,6 @@ class Manager
 
 		int GetModalExitCode();
 
-		/*void AddSemiModalBackFrame(Frame* frame);
-		BOOL IsSemiModalBackFrame(Frame *frame);
-		void RemoveSemiModalBackFrame(Frame* frame);*/
-
 	public:
 		Manager();
 		~Manager();
@@ -104,11 +100,10 @@ class Manager
 	public:
 		// Эти функции можно безопасно вызывать практически из любого места кода
 		// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
-		void InsertFrame(Frame *NewFrame, int Index=-1);
+		void InsertFrame(Frame *NewFrame);
 		void DeleteFrame(Frame *Deleted=nullptr);
 		void DeleteFrame(int Index);
 		void DeactivateFrame(Frame *Deactivated,int Direction);
-		void SwapTwoFrame(int Direction);
 		void ActivateFrame(Frame *Activated);
 		void ActivateFrame(int Index);
 		void RefreshFrame(Frame *Refreshed=nullptr);
@@ -122,8 +117,6 @@ class Manager
 		void ExecuteModal(Frame *Executed=nullptr);
 		//! Запускает немодальный фрейм в модальном режиме
 		void ExecuteNonModal();
-		//! Проверка того, что немодальный фрейм находится еще и на вершине стека.
-		BOOL ifDoubleInstance(Frame* frame);
 
 		//!  Функции, которые работают с очередью немодально фрейма.
 		//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
@@ -137,7 +130,6 @@ class Manager
 		     Возвращает TRUE, если все закрыли и можно выходить из фара.
 		*/
 		BOOL ExitAll();
-		BOOL IsAnyFrameModified(int Activate);
 
 		size_t GetFrameCount()const {return Frames.size();}
 		int  GetFrameCountByType(int Type);
@@ -150,7 +142,6 @@ class Manager
 		int CountFramesWithName(const string& Name, BOOL IgnoreCase=TRUE);
 
 		bool IsPanelsActive(bool and_not_qview=false); // используется как признак Global->WaitInMainLoop
-		void SetFramePos(int NewPos);
 		int  FindFrameByFile(int ModalType,const string& FileName,const wchar_t *Dir=nullptr);
 		BOOL ShowBackground();
 
@@ -169,12 +160,11 @@ class Manager
 
 		Frame *GetCurrentFrame() { return CurrentFrame; }
 
-		Frame *operator[](size_t Index)const;
+		Frame* GetFrame(size_t Index) const;
 
 		int IndexOf(Frame *Frame);
 
 		int IndexOfStack(Frame *Frame);
-		int HaveAnyFrame();
 
 		void ImmediateHide();
 		/* $ 13.04.2002 KM
@@ -183,7 +173,7 @@ class Manager
 		*/
 		void ResizeAllModal(Frame *ModalFrame);
 
-		Frame *GetBottomFrame() { return (*this)[FramePos]; }
+		Frame *GetBottomFrame() { return GetFrame(FramePos); }
 
 		BOOL ManagerIsDown() {return EndLoop;}
 		BOOL ManagerStarted() {return StartManager;}

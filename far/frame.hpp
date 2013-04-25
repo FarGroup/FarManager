@@ -55,73 +55,52 @@ enum MODALFRAME_TYPE
 
 class Frame: public ScreenObjectWithShadow
 {
-		friend class Manager;
-	private:
-//    Frame **ModalStack;
-//    int  ModalStackCount, ModalStackSize;
-		Frame *FrameToBack;
-		Frame *NextModal,*PrevModal;
+public:
+	Frame();
+	virtual ~Frame();
 
-	protected:
-		int  DynamicallyBorn;
-		int  CanLoseFocus;
-		int  ExitCode;
-		int  KeyBarVisible;
-		int  TitleBarVisible;
-		KeyBar *FrameKeyBar;
-		MACROMODEAREA MacroMode;
+	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return(CanLoseFocus); }
+	virtual void SetExitCode(int Code) { ExitCode=Code; }
+	virtual BOOL IsFileModified() const { return FALSE; }
+	virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
+	virtual int GetTypeAndName(string &strType, string &strName) = 0;
+	virtual int GetType() = 0;
+	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
+	virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
+	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
+	virtual void InitKeyBar() {}
+	virtual void RedrawKeyBar() { UpdateKeyBar(); }
+	virtual MACROMODEAREA GetMacroMode() { return MacroMode; }
+	virtual int FastHide();
+	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; }
+	virtual bool ProcessEvents() {return true;}
+	virtual void ResizeConsole();
 
-	public:
-		Frame();
-		virtual ~Frame();
+	void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
+	int GetExitCode() { return ExitCode; }
+	void SetKeyBar(KeyBar *FrameKeyBar);
+	void UpdateKeyBar();
+	int IsTitleBarVisible() const {return TitleBarVisible;}
+	int IsTopFrame();
+	Frame *GetTopModal() {return NextModal;}
+	void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
+	int GetDynamicallyBorn() {return DynamicallyBorn;}
+	bool RemoveModal(Frame *aFrame);
+	bool HasSaveScreen();
+	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 
-//    virtual int ProcessKey(int Key) override;
-//    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+protected:
+	int DynamicallyBorn;
+	int CanLoseFocus;
+	int ExitCode;
+	int KeyBarVisible;
+	int TitleBarVisible;
+	KeyBar *FrameKeyBar;
+	MACROMODEAREA MacroMode;
 
-		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return(CanLoseFocus); }
-		void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
-		int  GetExitCode() { return ExitCode; }
-		virtual void SetExitCode(int Code) { ExitCode=Code; }
-
-		virtual BOOL IsFileModified() const { return FALSE; }
-
-		virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
-		virtual int GetTypeAndName(string &strType, string &strName) = 0;
-		virtual int GetType() = 0;
-
-		virtual void OnDestroy();  // вызывается перед уничтожением окна
-		virtual void OnCreate() {}   // вызывается перед созданием окна
-		virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
-		virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
-
-		virtual void InitKeyBar() {}
-		void SetKeyBar(KeyBar *FrameKeyBar);
-		void UpdateKeyBar();
-		virtual void RedrawKeyBar() { UpdateKeyBar(); }
-
-		int IsTitleBarVisible() const {return TitleBarVisible;}
-
-		/* $ 12.05.2001 DJ */
-		int IsTopFrame();
-		virtual MACROMODEAREA GetMacroMode() { return MacroMode; }
-		/* DJ $ */
-		void Push(Frame* Modalized);
-		Frame *GetTopModal() {return NextModal;}
-//    bool Pop();
-//    Frame *operator[](int Index);
-//    int operator[](Frame *ModalFarame);
-//    int ModalCount() {return ModalStackCount;}
-		void DestroyAllModal();
-		void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
-		int GetDynamicallyBorn() {return DynamicallyBorn;}
-		virtual int FastHide();
-//    int IndexOf(Frame *aFrame);
-		bool RemoveModal(Frame *aFrame);
-		virtual void ResizeConsole();
-		bool HasSaveScreen();
-//    bool ifFullConsole();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; }
-		virtual bool ProcessEvents() {return true;}
-
-		void SetFlags( DWORD flags ) { Flags.Set(flags); }
+private:
+	void Push(Frame* Modalized);
+	Frame *FrameToBack;
+	Frame *NextModal;
+	friend class Manager;
 };

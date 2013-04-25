@@ -1628,7 +1628,7 @@ struct DialogData
 	FarList *l;
 };
 
-std::list<DialogData>* DialogList;
+std::unique_ptr<std::list<DialogData>> DialogList;
 
 oldfar::FarDialogItem* OneDialogItem=nullptr;
 
@@ -3081,7 +3081,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 
 	if(!DialogList)
 	{
-		DialogList = new std::list<DialogData>;
+		DialogList.reset(new DECLTYPE(DialogList)::element_type);
 	}
 	DialogList->emplace_back(NewDialogData);
 
@@ -3139,8 +3139,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 
 	if(DialogList->empty())
 	{
-		delete DialogList;
-		DialogList = nullptr;
+		DialogList.reset();
 	}
 
 	delete[] diA;

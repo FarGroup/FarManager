@@ -1107,8 +1107,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 										*/
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
-										delete KeyQueue;
-										KeyQueue=nullptr;
+										KeyQueue.reset();
 										Global->Console->Free();
 										Global->Console->Allocate();
 

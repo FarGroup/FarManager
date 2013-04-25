@@ -229,7 +229,7 @@ public:
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	BOOL IsInited();
-	bool ProcessEvents();
+	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);

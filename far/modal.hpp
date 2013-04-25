@@ -41,12 +41,10 @@ class Modal: public Frame
 	private:
 		int     ReadKey;
 		int     WriteKey;
-		typedef ScreenObject inherited;
 
 	protected:
 		INPUT_RECORD ReadRec;
 		string strHelpTopic;
-		int  ExitCode;
 		int  EndLoop;
 
 	public:

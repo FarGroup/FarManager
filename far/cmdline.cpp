@@ -274,17 +274,16 @@ int CommandLine::ProcessKey(int Key)
 			// BUGBUG, magic numbers
 			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
 			{
-				SetAutocomplete* disable = nullptr;
+				std::unique_ptr<SetAutocomplete> disable;
 				if(SelectType<3 || SelectType == 7)
 				{
-					disable = new SetAutocomplete(&CmdStr);
+					disable.reset(new DECLTYPE(disable)::element_type(&CmdStr));
 				}
 				SetString(strStr);
 
 				if (SelectType < 3 || SelectType == 7)
 				{
 					ProcessKey(SelectType==7?static_cast<int>(KEY_CTRLALTENTER):(SelectType==1?static_cast<int>(KEY_ENTER):static_cast<int>(KEY_SHIFTENTER)));
-					delete disable;
 				}
 			}
 		}

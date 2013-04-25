@@ -484,7 +484,7 @@ void FileEditor::Init(
 		{
 			int SwitchTo=FALSE;
 
-			if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
+			if (!FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) ||
 			        Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
@@ -513,7 +513,7 @@ void FileEditor::Init(
 					case 2:         // Reload
 					{
 						FrameManager->DeleteFrame(FramePos);
-						Frame *deleted_frame = (*FrameManager)[FramePos];
+						Frame *deleted_frame = FrameManager->GetFrame(FramePos);
 						if ( deleted_frame )
 							deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
 						SetExitCode(-2);

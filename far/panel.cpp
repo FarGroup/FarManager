@@ -455,7 +455,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 
 
-		DisableElevation* DE = new DisableElevation;
+		std::unique_ptr<DisableElevation> DE(new DisableElevation);
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
 		WCHAR I;
@@ -629,7 +629,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, DiskCount, SetSelected);
 		}
 
-		delete DE;
+		DE.reset();
 
 		int X=X1+5;
 

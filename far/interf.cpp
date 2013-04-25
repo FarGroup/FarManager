@@ -136,7 +136,7 @@ COORD InitialSize;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
-static Event *CancelIoInProgress;
+static std::unique_ptr<Event> CancelIoInProgress;
 
 unsigned int WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
 {
@@ -188,7 +188,7 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress = new Event();
+		CancelIoInProgress.reset(new DECLTYPE(CancelIoInProgress)::element_type);
 		CancelIoInProgress->Open(true);
 
 		DWORD Mode;
@@ -214,7 +214,7 @@ void InitConsole(int FirstInit)
 
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
-		KeyQueue=new PTRTYPE(KeyQueue);
+		KeyQueue.reset(new DECLTYPE(KeyQueue)::element_type);
 
 	SetFarConsoleMode();
 
@@ -272,11 +272,9 @@ void CloseConsole()
 	Global->Console->SetWindowRect(InitWindowRect);
 	Global->Console->SetSize(InitialSize);
 
-	delete KeyQueue;
-	KeyQueue=nullptr;
-
+	KeyQueue.reset();
 	Global->ConsoleIcons->restorePreviousIcons();
-	delete CancelIoInProgress;
+	CancelIoInProgress.reset();
 }
 
 

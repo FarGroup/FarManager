@@ -494,7 +494,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				{
 					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()))
 					{
-						f=(*FrameManager)[wi->Pos];
+						f = FrameManager->GetFrame(wi->Pos);
 					}
 					else if(wi->Pos >= static_cast<intptr_t>(FrameManager->GetFrameCount()) && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()+FrameManager->GetModalStackCount()))
 					{
@@ -565,7 +565,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (!FrameManager->InModalEV() && (*FrameManager)[Param1])
+			if (!FrameManager->InModalEV() && FrameManager->GetFrame(Param1))
 			{
 				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
@@ -1707,7 +1707,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	{
 		typedef Frame* (Manager::*ItemFn)(size_t index)const;
 		typedef size_t (Manager::*CountFn)(void)const;
-		ItemFn getitem[]={&Manager::operator[],&Manager::GetModalFrame};
+		ItemFn getitem[]={&Manager::GetFrame,&Manager::GetModalFrame};
 		CountFn getcount[]={&Manager::GetFrameCount,&Manager::GetModalStackCount};
 		for(size_t ii=0;ii<ARRAYSIZE(getitem);++ii)
 		{
@@ -1745,7 +1745,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 	{
 		int idx=0;
 		Frame *frame;
-		while((frame=FrameManager->Manager::operator[](idx++)) != nullptr)
+		while((frame = FrameManager->GetFrame(idx++)))
 		{
 			if (frame->GetType() == MODALTYPE_VIEWER)
 			{

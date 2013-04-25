@@ -1288,7 +1288,7 @@ void PluginManager::Configure(int StartPos)
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginsConfig");
 
-		for (;;)
+		while (!Global->CloseFAR)
 		{
 			bool NeedUpdateItems = true;
 			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);

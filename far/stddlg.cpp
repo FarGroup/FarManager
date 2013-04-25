@@ -542,12 +542,11 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					DWORD RmGetListResult;
 					UINT nProcInfoNeeded;
 					UINT nProcInfo = 1;
-					RM_PROCESS_INFO* rgpi = new RM_PROCESS_INFO[nProcInfo];
-					while((RmGetListResult=Global->ifn->RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
+					array_ptr<RM_PROCESS_INFO> rgpi(nProcInfo);
+					while((RmGetListResult=Global->ifn->RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.get(), &dwReason)) == ERROR_MORE_DATA)
 					{
 						nProcInfo = nProcInfoNeeded;
-						delete[] rgpi;
-						rgpi = new RM_PROCESS_INFO[nProcInfo];
+						rgpi.reset(nProcInfo);
 					}
 					if(RmGetListResult ==ERROR_SUCCESS)
 					{
@@ -573,7 +572,6 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 							Msg.emplace_back(tmp);
 						}
 					}
-					delete[] rgpi;
 				}
 				Global->ifn->RmEndSession(dwSession);
 			}

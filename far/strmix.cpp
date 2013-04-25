@@ -1513,6 +1513,8 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 	{
 		string Str;
 		size_t index;
+
+		operator const string&() const { return Str; }
 	};
 
 	class UserDefinedList
@@ -1691,12 +1693,6 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 		std::list<ListItem> ItemsList;
 	};
 
-
 	UserDefinedList list(InitString, Flags, Separators);
-	std::list<string> Result;
-	std::for_each(CONST_RANGE(list.ItemsList, i)
-	{
-		Result.emplace_back(std::move(i.Str));
-	});
-	return Result;
+	return std::list<string>(list.ItemsList.begin(), list.ItemsList.end());
 }

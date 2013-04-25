@@ -269,9 +269,9 @@ void CopyProgress::Flush()
 		{
 			if (CheckForEscSilent())
 			{
-				(*FrameManager)[0]->Lock();
+				FrameManager->GetFrame(0)->Lock();
 				IsCancelled=ConfirmAbortOp()!=0;
-				(*FrameManager)[0]->Unlock();
+				FrameManager->GetFrame(0)->Unlock();
 			}
 		}
 
@@ -943,7 +943,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
-	(*FrameManager)[0]->Lock();
+	FrameManager->GetFrame(0)->Lock();
 	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
 	CopyBufferSize=std::max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
@@ -1730,8 +1730,8 @@ ShellCopy::~ShellCopy()
 
 	// $ 26.05.2001 OT Разрешить перерисовку панелей
 	_tran(SysLog(L"call (*FrameManager)[0]->UnlockRefresh()"));
-	(*FrameManager)[0]->Unlock();
-	(*FrameManager)[0]->Refresh();
+	FrameManager->GetFrame(0)->Unlock();
+	FrameManager->GetFrame(0)->Refresh();
 
 	if (Filter) // Уничтожим объект фильтра
 		delete Filter;

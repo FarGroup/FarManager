@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* start Глобальные переменные */
 
 // "дополнительная" очередь кодов клавиш
-std::queue<DWORD>* KeyQueue=nullptr;
+std::unique_ptr<std::queue<DWORD>> KeyQueue;
 
 FarKeyboardState IntKeyState={};
 

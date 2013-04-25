@@ -40,16 +40,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 
 Frame::Frame():
-	FrameToBack(nullptr),
-	NextModal(nullptr),
-	PrevModal(nullptr),
 	DynamicallyBorn(TRUE),
 	CanLoseFocus(FALSE),
 	ExitCode(-1),
 	KeyBarVisible(0),
 	TitleBarVisible(0),
 	FrameKeyBar(nullptr),
-	MacroMode(MACRO_OTHER)
+	MacroMode(MACRO_OTHER),
+	FrameToBack(nullptr),
+	NextModal(nullptr)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
 }
@@ -57,7 +56,6 @@ Frame::Frame():
 Frame::~Frame()
 {
 	_OT(SysLog(L"[%p] Frame::~Frame()", this));
-	DestroyAllModal();
 }
 
 void Frame::SetKeyBar(KeyBar *FrameKeyBar)
@@ -102,7 +100,6 @@ void Frame::Push(Frame* Modalized)
 	if (!NextModal)
 	{
 		NextModal=Modalized;
-		NextModal->PrevModal=this;
 	}
 	else
 	{
@@ -110,79 +107,10 @@ void Frame::Push(Frame* Modalized)
 	}
 }
 
-/*
-bool Frame::Pop(){
-  if (!NextModal) {
-    return false;
-  }
-  while (NextFrame->Pop()){
-    NextFrame->Pop();
-    return true;
-  }
-}
-
-Frame *Frame::operator[](int Index)
-{
-  Frame *Result=nullptr;
-  if (Index>=0 && Index<ModalStackSize){
-    Result=ModalStack[Index];
-  }
-  return Result;
-}
-
-int Frame::operator[](Frame *ModalFrame)
-{
-  int Result=-1;
-  for (int i=0;i<ModalStackSize;i++){
-    if (ModalStack[i]==ModalFrame){
-      Result=i;
-      break;
-    }
-  }
-  return Result;
-}
-*/
-
-void Frame::DestroyAllModal()
-{
-	// найти вершину
-	Frame *Prev=this;
-	Frame *Next=NextModal;
-
-	while (NextModal)
-	{
-		Prev->NextModal=nullptr;
-		Prev=Next;
-		Next=Next->NextModal;
-//    if (GetDynamicallyBorn())
-	}
-}
-
-/*
-int Frame::ProcessKey(int Key)
-{
-  if (ModalSize()){
-    return (ModalStack[ModalStackSize-1])->ProcessKey(Key);
-  }
-  return FALSE;
-}
-
-int Frame::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
-{
-  return FALSE;
-}
-*/
-
 int Frame::FastHide()
 {
 	return TRUE;
 }
-
-void Frame::OnDestroy()
-{
-	DestroyAllModal();
-}
-
 
 bool Frame::RemoveModal(Frame *aFrame)
 {
@@ -233,7 +161,3 @@ bool Frame::HasSaveScreen()
 
 	return false;
 }
-
-//bool Frame::ifFullConsole() {
-//  return !X1 && !Y1 && X2>=ScrX && Y2>=ScrY-1;
-//}

@@ -42,7 +42,7 @@ enum
 
 #define MOUSE_ANY_BUTTON_PRESSED (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED|FROM_LEFT_2ND_BUTTON_PRESSED|FROM_LEFT_3RD_BUTTON_PRESSED|FROM_LEFT_4TH_BUTTON_PRESSED)
 
-extern std::queue<DWORD> *KeyQueue;
+extern std::unique_ptr<std::queue<DWORD>> KeyQueue;
 
 struct FarKeyboardState {
 	int AltPressed;

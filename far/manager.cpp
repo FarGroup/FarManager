@@ -162,30 +162,10 @@ void Manager::CloseAll()
 	Frames.clear();
 }
 
-BOOL Manager::IsAnyFrameModified(int Activate)
-{
-	return std::find_if(CONST_RANGE(Frames, i)->bool
-	{
-		if (i->IsFileModified())
-		{
-			if (Activate)
-			{
-				ActivateFrame(i);
-				Commit();
-			}
-			return true;
-		}
-		return false;
-	}) != Frames.cend();
-}
-
-void Manager::InsertFrame(Frame *Inserted, int Index)
+void Manager::InsertFrame(Frame *Inserted)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertFrame(Frame *Inserted, int Index)"));
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
-
-	if (Index==-1)
-		Index=FramePos;
 
 	InsertedFrame=Inserted;
 }
@@ -215,7 +195,7 @@ void Manager::DeleteFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%i",Index));
-	DeleteFrame((*this)[Index]);
+	DeleteFrame(GetFrame(Index));
 }
 
 
@@ -438,13 +418,6 @@ int Manager::GetFrameCountByType(int Type)
 	return ret;
 }
 
-void Manager::SetFramePos(int NewPos)
-{
-	_MANAGER(CleverSysLog clv(L"Manager::SetFramePos(int NewPos)"));
-	_MANAGER(SysLog(L"NewPos=%i",NewPos));
-	FramePos=NewPos;
-}
-
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
 int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
@@ -509,7 +482,7 @@ void Manager::ActivateFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%i",Index));
-	ActivateFrame((*this)[Index]);
+	ActivateFrame(GetFrame(Index));
 }
 
 void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
@@ -547,37 +520,6 @@ void Manager::DeactivateFrame(Frame *Deactivated,int Direction)
 	DeactivatedFrame=Deactivated;
 }
 
-void Manager::SwapTwoFrame(int Direction)
-{
-	if (Direction)
-	{
-		int OldFramePos=FramePos;
-		FramePos+=Direction;
-
-		if (Direction>0)
-		{
-			if (FramePos >= static_cast<int>(Frames.size()))
-			{
-				FramePos=0;
-			}
-		}
-		else
-		{
-			if (FramePos<0)
-			{
-				FramePos = static_cast<int>(Frames.size()-1);
-			}
-		}
-
-		Frame *TmpFrame=Frames[OldFramePos];
-		Frames[OldFramePos]=Frames[FramePos];
-		Frames[FramePos]=TmpFrame;
-		ActivateFrame(OldFramePos);
-	}
-
-	DeactivatedFrame=CurrentFrame;
-}
-
 void Manager::RefreshFrame(Frame *Refreshed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshFrame(Frame *Refreshed)"));
@@ -597,26 +539,13 @@ void Manager::RefreshFrame(Frame *Refreshed)
 
 	if (IndexOf(Refreshed)==-1 && IndexOfStack(Refreshed)==-1)
 		return;
-
-	/* $ 13.04.2002 KM
-	  - Вызываем принудительный Commit() для фрейма имеющего члена
-	    NextModal, это означает что активным сейчас является
-	    VMenu, а значит Commit() сам не будет вызван после возврата
-	    из функции.
-	    Устраняет ещё один момент неперерисовки, когда один над
-	    другим находится несколько объектов VMenu. Пример:
-	    настройка цветов. Теперь AltF9 в диалоге настройки
-	    цветов корректно перерисовывает меню.
-	*/
-	if (RefreshedFrame && RefreshedFrame->NextModal)
-		Commit();
 }
 
 void Manager::RefreshFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%d",Index));
-	RefreshFrame((*this)[Index]);
+	RefreshFrame(GetFrame(Index));
 }
 
 void Manager::ExecuteFrame(Frame *Executed)
@@ -1258,7 +1187,7 @@ bool Manager::IsPanelsActive(bool and_not_qview)
 	}
 }
 
-Frame *Manager::operator[](size_t Index)const
+Frame* Manager::GetFrame(size_t Index) const
 {
 	if (Index>=static_cast<size_t>(Frames.size()) || Frames.empty())
 	{
@@ -1515,8 +1444,6 @@ void Manager::DeleteCommit()
 
 	if (-1!=FrameIndex)
 	{
-		DeletedFrame->DestroyAllModal();
-
 		Frames.erase(Frames.begin() + FrameIndex);
 
 		if (FramePos >= static_cast<int>(Frames.size()))
@@ -1669,18 +1596,18 @@ void Manager::ImmediateHide()
 			int UnlockCount=0;
 			Global->IsRedrawFramesInProcess++;
 
-			while ((*this)[FramePos]->Locked())
+			while (GetFrame(FramePos)->Locked())
 			{
-				(*this)[FramePos]->Unlock();
+				GetFrame(FramePos)->Unlock();
 				UnlockCount++;
 			}
 
-			RefreshFrame((*this)[FramePos]);
+			RefreshFrame(GetFrame(FramePos));
 			Commit();
 
 			for (int i=0; i<UnlockCount; i++)
 			{
-				(*this)[FramePos]->Lock();
+				GetFrame(FramePos)->Lock();
 			}
 
 			if (ModalFrames.size() > 1)
@@ -1734,21 +1661,6 @@ void Manager::UnmodalizeCommit()
 	});
 
 	UnmodalizedFrame=nullptr;
-}
-
-BOOL Manager::ifDoubleInstance(Frame *frame)
-{
-	// <ifDoubleInstance>
-	/*
-	  if (ModalStackCount<=0)
-	    return FALSE;
-	  if(IndexOfStack(frame)==-1)
-	    return FALSE;
-	  if(IndexOf(frame)!=-1)
-	    return TRUE;
-	*/
-	// </ifDoubleInstance>
-	return FALSE;
 }
 
 /*  Вызов ResizeConsole для всех NextModal у

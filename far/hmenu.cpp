@@ -57,9 +57,14 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 {
 	SetDynamicallyBorn(FALSE);
 	SetRestoreScreenMode(TRUE);
-	FrameManager->ModalizeFrame(this);
+	//FrameManager->ModalizeFrame(this);
 }
 
+HMenu::~HMenu()
+{
+//	FrameManager->UnmodalizeFrame(this);
+	FrameManager->RefreshFrame();
+}
 
 void HMenu::DisplayObject()
 {
@@ -223,7 +228,7 @@ int HMenu::ProcessKey(int Key)
 				if (VExitCode!=-1)
 				{
 					EndLoop=TRUE;
-					Modal::ExitCode=SelectPos;
+					ExitCode=SelectPos;
 				}
 
 				return TRUE;
@@ -260,7 +265,7 @@ int HMenu::ProcessKey(int Key)
 		case KEY_F10:
 		{
 			EndLoop=TRUE;
-			Modal::ExitCode=-1;
+			ExitCode=-1;
 			return FALSE;
 		}
 		case KEY_HOME:      case KEY_NUMPAD7:
@@ -394,8 +399,8 @@ int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 {
-	ExitCode=Modal::ExitCode;
-	VExitCode=HMenu::VExitCode;
+	ExitCode=this->ExitCode;
+	VExitCode=this->VExitCode;
 }
 
 
@@ -479,12 +484,6 @@ void HMenu::ResizeConsole()
 	Hide();
 	Frame::ResizeConsole();
 	SetPosition(0,0,::ScrX,0);
-}
-
-HMenu::~HMenu()
-{
-	FrameManager->UnmodalizeFrame(this);
-	FrameManager->RefreshFrame();
 }
 
 wchar_t HMenu::GetHighlights(const HMenuData *_item)

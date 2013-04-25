@@ -104,12 +104,11 @@ struct SIDCacheItem
 	}
 };
 
-std::list<SIDCacheItem>* SIDCache;
+std::unique_ptr<std::list<SIDCacheItem>> SIDCache;
 
 void SIDCacheFlush()
 {
-	delete SIDCache;
-	SIDCache = nullptr;
+	SIDCache.reset();
 }
 
 bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
@@ -119,7 +118,7 @@ bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
 	{
 		if(!SIDCache)
 		{
-			SIDCache = new PTRTYPE(SIDCache);
+			SIDCache.reset(new DECLTYPE(SIDCache)::element_type);
 		}
 		SIDCache->emplace_back(std::move(NewItem));
 		Result = SIDCache->back().strUserName;
