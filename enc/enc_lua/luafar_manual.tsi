@@ -6133,7 +6133,7 @@ lv=2
 dt=Text
 nm=far.FreeSettings
 ctime=3513437113
-mtime=3513437664
+mtime=3576062233
 <article>
 #_far.FreeSettings ()
 #_
@@ -6145,9 +6145,7 @@ mtime=3513437664
 #_
 #_**Description:**
 #_  Frees all settings handles that might be open by previous calls
-#_  to far.CreateSettings and not freed. This function is also called
-#_  automatically by LuaFAR at the end of every exported function just
-#_  before returning control to Far.
+#_  to far.CreateSettings and not freed.
 #_
 #_**Far API used:**
 #_  SettingsControl
