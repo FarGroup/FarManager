@@ -5594,12 +5594,19 @@ static int luaopen_far(lua_State *L)
 	lua_pushcfunction(L, DialogHandleEqual);
 	lua_setfield(L, -2, "__eq");
 	luaL_register(L, NULL, dialog_methods);
+
 	luaL_newmetatable(L, SettingsType);
 	lua_pushvalue(L,-1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, Settings_methods);
+
 	lua_newtable(L);
+	lua_newtable(L);
+	lua_pushliteral(L, "k");
+	lua_setfield(L, -2, "__mode");
+	lua_setmetatable(L, -2);
 	lua_setfield(L, LUA_REGISTRYINDEX, SettingsHandles);
+
 	(void) luaL_dostring(L, far_Dialog);
 	luaL_newmetatable(L, PluginHandleType);
 	return 0;
