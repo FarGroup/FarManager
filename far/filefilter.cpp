@@ -285,7 +285,11 @@ bool FileFilter::FilterEdit()
 			{
 				int pos=FilterList.GetSelectPos();
 				if (pos<0)
-					break;
+				{
+					if (Key==KEY_F5)
+						break;
+					pos=0;
+				}
 				size_t SelPos=pos;
 				size_t SelPos2=pos+1;
 
