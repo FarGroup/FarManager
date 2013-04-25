@@ -1919,7 +1919,7 @@ MConfigClock
 "&Hodiny v paneloch"
 
 MConfigViewerEditorClock
-"Ч&асы при редактировании и просмотре"
+"Ч&асы в редакторе и программе просмотра"
 "C&lock in viewer and editor"
 "H&odiny v prohlížeči a editoru"
 "U&hr in Betrachter und Editor anzeigen"
@@ -1950,7 +1950,7 @@ MConfigKeyBar
 
 MConfigMenuBar
 "Всегда показывать &меню"
-"Always show &menu bar"
+"Always show the &menu bar"
 "Vždy zobrazovat horní &menu"
 "&Menüleiste immer anzeigen"
 "A &menüsor mindig látszik"
@@ -1959,7 +1959,7 @@ MConfigMenuBar
 "Zobrazovať horné &menu"
 
 MConfigSaver
-"&Сохранение экрана"
+"Экранная за&ставка"
 "&Screen saver"
 "Sp&ořič obrazovky"
 "Bildschirm&schoner"
@@ -2019,7 +2019,7 @@ MConfigPgUpChangeDisk
 "Použiť Ctrl-Pg&Up na zmenu disku"
 
 MConfigClearType
-"Уч&итывать состояние ClearType"
+"Перер&исовка с поддержкой ClearType (может быть медленной)"
 "Cl&earType friendly redraw (can be slow)"
 "Použít &ClearType (pomalejší)"
 upd:"ClearType friendly redraw (can be slow)"
@@ -2029,17 +2029,17 @@ upd:"ClearType friendly redraw (can be slow)"
 "Použiť &ClearType (pomalšie)"
 
 MConfigSetConsoleIcon
-upd:"Set console icon"
+"Выставлять иконку консоли"
 "Set console icon"
-upd:"Set icon for console window"
-upd:"Set icon for console window"
-upd:"Set icon for console window"
-upd:"Set icon for console window"
+upd:"Set console icon"
+upd:"Set console icon"
+upd:"Set console icon"
+upd:"Set console icon"
 "Poner ícono para ventana de consola"
-upd:"Set icon for console window"
+upd:"Set console icon"
 
 MConfigSetAdminConsoleIcon
-upd:"Alternate for Administrator"
+upd:"Альтернативная для администратора"
 "Alternate for Administrator"
 upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
