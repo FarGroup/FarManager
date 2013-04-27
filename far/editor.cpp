@@ -6455,6 +6455,16 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			return FALSE;
 		}
+		case ECTL_SUBSCRIBECHANGEEVENT:
+		case ECTL_UNSUBSCRIBECHANGEEVENT:
+		{
+			EditorSubscribeChangeEvent *esce=(EditorSubscribeChangeEvent *)Param2;
+			if (CheckStructSize(esce))
+			{
+				//return TRUE;
+			}
+			break;
+		}
 	}
 
 	return FALSE;

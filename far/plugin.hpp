@@ -1483,8 +1483,10 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_GETFILENAME                = 33,
 	ECTL_DELCOLOR                   = 34,
 #ifdef FAR_USE_INTERNALS
-	ECTL_SERVICEREGION,
+	ECTL_SERVICEREGION              = 35,
 #endif // END FAR_USE_INTERNALS
+	ECTL_SUBSCRIBECHANGEEVENT       = 36,
+	ECTL_UNSUBSCRIBECHANGEEVENT     = 37,
 };
 
 enum EDITOR_SETPARAMETER_TYPES
@@ -1726,6 +1728,12 @@ struct EditorChange
 	size_t StructSize;
 	enum EDITOR_CHANGETYPE Type;
 	intptr_t StringNumber;
+};
+
+struct EditorSubscribeChangeEvent
+{
+	size_t StructSize;
+	GUID PluginId;
 };
 
 typedef unsigned __int64 INPUTBOXFLAGS;
