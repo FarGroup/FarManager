@@ -19,10 +19,11 @@
 #############################################################################
 
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer network proclist tmppanel ftp multiarc \
+          filecase hlfviewer network proclist tmppanel \
 !if "$(BUILD_PLATFORM)" != "IA64"
           luamacro \
 !endif
+#ftp multiarc
 
 #############################################################################
 !if exists(make_vc_defs)
