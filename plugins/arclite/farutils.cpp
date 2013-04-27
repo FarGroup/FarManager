@@ -589,7 +589,7 @@ void Dialog::set_text(unsigned ctrl_id, const wstring& text) {
 }
 
 bool Dialog::get_check(unsigned ctrl_id) const {
-  return DlgItem_GetCheck(g_far, h_dlg, ctrl_id) == BSTATE_CHECKED;
+  return g_far.SendDlgMessage(h_dlg,DM_GETCHECK,ctrl_id,0) == BSTATE_CHECKED;
 }
 
 void Dialog::set_check(unsigned ctrl_id, bool check) {
@@ -597,7 +597,7 @@ void Dialog::set_check(unsigned ctrl_id, bool check) {
 }
 
 TriState Dialog::get_check3(unsigned ctrl_id) const {
-  INT_PTR value = DlgItem_GetCheck(g_far, h_dlg, ctrl_id);
+  INT_PTR value = g_far.SendDlgMessage(h_dlg,DM_GETCHECK,ctrl_id,0);
   return value == BSTATE_3STATE ? triUndef : value == BSTATE_CHECKED ? triTrue : triFalse;
 }
 
