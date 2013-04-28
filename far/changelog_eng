@@ -3,6 +3,67 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 28.04.2013 15:57:33 +0200 - build 3372
+
+1. Mantis#2382: far /clearcache
+
+t-rex 28.04.2013 12:04:51 +0200 - build 3371
+
+1. A minor breaking change in API.
+   EE_CHANGE editor event is not sent now by default, an interested plugin must subscribe
+   to it. The subscription takes place for the current editor session.
+   Subscription:
+
+   EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), PluginGuid };
+   Info.EditorControl(EditorID, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+
+   To unsubscribe (if needed):
+   Info.EditorControl(EditorID, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+
+   P.S. Implementation is not ideal, no other ideas so far.
+
+t-rex 27.04.2013 23:30:06 +0200 - build 3370
+
+1. Preparing for moving EE_CHANGE to subscription to the event,
+   because almost noone needs it, and sending it to everyone and each time slows things down.
+
+t-rex 27.04.2013 22:33:02 +0200 - build 3369
+
+1. Removing those macros from plugin.hpp, no use for them.
+
+t-rex 27.04.2013 17:23:23 +0200 - build 3368
+
+1. Fix for several rarely used macros in plugin.hpp.
+
+drkns 25.04.2013 22:28:30 +0200 - build 3367
+
+1. Trying "window subsystem". So far, just removal of unused code.
+
+2. In some cases, closing the console froze FAR.
+
+3. A couple of minor issues.
+
+t-rex 25.04.2013 14:06:10 +0200 - build 3366
+
+1. Mantis#2395: One cannot add a filter if the filters list is empty.
+   For FFT_CUSTOM.
+
+t-rex & drkns 25.04.2013 10:12:00 +0200 - build 3365
+
+1. Refactoring of FileSystemWatcher, optimization and fix for an odd problem with plugins like PicView in QuickView mode, which appeared in 3348.
+
+w17 23.04.2013 18:48:10 +0400 - build 3364
+
+1. M#2370: artifacts in editor/viewer called from usermenu
+
+w17 23.04.2013 01:00:56 +0400 - build 3363
+
+1. 2394: FAR 3 build 3348: panels are drawn while editor is active -- next try
+
+t-rex 21.04.2013 23:51:13 +0200 - build 3362
+
+1. Editor search optimization.
+
 drkns 21.04.2013 19:52:22 +0200 - build 3361
 
 1. Correction of 3301.
