@@ -5233,8 +5233,7 @@ void PluginA::FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, si
 
 	if (Exports[iFreeVirtualFindData] && !Global->ProcessException && pVFDPanelItemA)
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_FREEVIRTUALFINDDATA;
+		ExecuteStruct es = {EXCEPT_FREEVIRTUALFINDDATA};
 		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(hPlugin, pVFDPanelItemA, static_cast<int>(ItemsNumber)));
 		pVFDPanelItemA = nullptr;
 	}
@@ -5371,8 +5370,7 @@ void PluginA::FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem,size_t Ite
 
 	if (Exports[iFreeFindData] && !Global->ProcessException && pFDPanelItemA)
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_FREEFINDDATA;
+		ExecuteStruct es = {EXCEPT_FREEFINDDATA};
 		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(hPlugin, pFDPanelItemA, static_cast<int>(ItemsNumber)));
 		pFDPanelItemA = nullptr;
 	}
@@ -5565,8 +5563,7 @@ void PluginA::GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *pInfo)
 
 	if (Exports[iGetOpenPanelInfo] && !Global->ProcessException)
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_GETOPENPANELINFO;
+		ExecuteStruct es = {EXCEPT_GETOPENPANELINFO};
 		oldfar::OpenPanelInfo InfoA={};
 		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(hPlugin, &InfoA));
 		ConvertOpenPanelInfo(InfoA,pInfo);
@@ -5696,8 +5693,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 
 	if (Exports[iGetPluginInfo] && !Global->ProcessException)
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_GETPLUGININFO;
+		ExecuteStruct es = {EXCEPT_GETPLUGININFO};
 		oldfar::PluginInfo InfoA={sizeof(InfoA)};
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(&InfoA));
 
@@ -5715,8 +5711,7 @@ void PluginA::ExitFAR(const ExitInfo *Info)
 {
 	if (Exports[iExitFAR] && !Global->ProcessException)
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_EXITFAR;
+		ExecuteStruct es = {EXCEPT_EXITFAR};
 		// ExitInfo ignored for ansi plugins
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)());
 	}

@@ -56,7 +56,6 @@ struct ExecuteStruct
 };
 
 #define EXECUTE_FUNCTION(function) \
-[&]() \
 { \
 	__Prolog(); \
 	++Activity; \
@@ -79,7 +78,7 @@ struct ExecuteStruct
 	} \
 	--Activity; \
 	__Epilog(); \
-}();
+}
 
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 
