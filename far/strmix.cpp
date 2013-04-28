@@ -299,8 +299,6 @@ string& TruncStrFromCenter(string &strStr, int MaxLength)
 
 wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 {
-	assert(MaxLength >= 0);
-
 	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
