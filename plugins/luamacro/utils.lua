@@ -88,10 +88,6 @@ local function EV_Handler (macros, filename, ...)
   end
 end
 
-local function export_ProcessEditorChange (EditorID, Param)
-  return EV_Handler(Events.editorchange, editor.GetFileName(nil), EditorID, Param)
-end
-
 local function export_ProcessEditorEvent (EditorID, Event, Param)
   return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
 end
@@ -358,7 +354,6 @@ local function LoadMacros (allAreas, unload)
 
   export.ExitFAR = Events.exitfar[1] and export_ExitFAR
   export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
-  export.ProcessEditorChange = Events.editorchange[1] and export_ProcessEditorChange
   export.ProcessEditorEvent = Events.editorevent[1] and export_ProcessEditorEvent
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent

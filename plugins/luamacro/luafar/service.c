@@ -1394,6 +1394,20 @@ static int editor_ProcessInput(lua_State *L)
 	return 1;
 }
 
+static int editor_SubscribeChangeEvent(lua_State *L)
+{
+	TPluginData *pd = GetPluginData(L);
+	struct EditorSubscribeChangeEvent data;
+	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
+	int command = lua_toboolean(L, 2) ? ECTL_SUBSCRIBECHANGEEVENT : ECTL_UNSUBSCRIBECHANGEEVENT;
+
+	data.StructSize = sizeof(data);
+	data.PluginId = *pd->PluginId;
+	lua_pushboolean(L, pd->Info->EditorControl(EditorId, command, 0, &data) != 0);
+
+	return 1;
+}
+
 // Item, Position = Menu (Properties, Items [, Breakkeys])
 // Parameters:
 //   Properties -- a table
@@ -5405,6 +5419,7 @@ const luaL_Reg editor_funcs[] =
 	{"SetString",           editor_SetString},
 	{"SetStringW",          editor_SetStringW},
 	{"SetTitle",            editor_SetTitle},
+	{"SubscribeChangeEvent",editor_SubscribeChangeEvent},
 	{"TabToReal",           editor_TabToReal},
 	{"UndoRedo",            editor_UndoRedo},
 	{NULL, NULL},

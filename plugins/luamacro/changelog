@@ -1,3 +1,10 @@
+shmuel 28.04.2013 16:32:41 +0200 - build 140
+
+1. LuaFAR: новая функция editor.SubscribeChangeEvent.
+
+2. В связи с появлением ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT (Фар 3.0.3371)
+   откатываем 137.1 и 137.2.
+
 shmuel 26.04.2013 02:38:10 +0200 - build 139
 
 1. LuaFAR: Объекты FarSettings не подбирались сборщиком мусора.

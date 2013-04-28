@@ -1823,55 +1823,26 @@ nm=Editor functions
 </article>
 </node>
 <node>
-id=485
-lv=2
-dt=Text
-nm=export.ProcessEditorChange
-ctime=3575900755
-mtime=3575901115
-<article>
-#_result = export.ProcessEditorChange (EditorID, Param)
-#_
-#_**Parameters:**
-#_  EditorID: integer
-#_  Param:    table:
-#_              Type:         integer
-#_              StringNumber: integer
-#_
-#_**Returns:**
-#_  result:   integer
-#_
-#_**Note:**
-#_  This function corresponds to plugin's exported function *ProcessEditorEventW*
-#_  called with argument Event==EE_CHANGE.
-#_
-#_@@@
-#_
-</article>
-</node>
-<node>
 id=110
 lv=2
 dt=Text
 nm=export.ProcessEditorEvent
-mtime=3575901377
+mtime=3569577414
 <article>
 #_result = export.ProcessEditorEvent (EditorID, Event, Param)
 #_
 #_**Parameters:**
 #_  EditorID: integer
 #_  Event:    integer
-#_  Param:    integer
+#_  Param:    table (for EE_CHANGE):
+#_              Type:         integer
+#_              StringNumber: integer
+#_            integer (for other events)
 #_
 #_**Returns:**
 #_  result:   integer
 #_
-#_**Note:**
-#_  Argument *Event* never comes with *EE_CHANGE* value. In this case,
-#_  export.ProcessEditorChange is called.
-#_
 #_@@@
-#_<lua> Links = { ["export.ProcessEditorChange"]="485.html" } </lua>
 #_
 </article>
 </node>
@@ -4350,6 +4321,31 @@ mtime=3507543302
 </article>
 </node>
 <node>
+id=486
+lv=2
+dt=Text
+nm=editor.SubscribeChangeEvent
+ctime=3576326324
+mtime=3576326560
+<article>
+#_result = editor.SubscribeChangeEvent (EditorId, Subscribe)
+#_
+#_**Parameters:**
+#_  EditorId:   integer, or nil
+#_  Subscribe:  boolean (true means "subscribe", false means "unsubscribe")
+#_
+#_**Returns:**
+#_  result:     boolean
+#_
+#_**Far API used:**
+#_  EditorControl, ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT.
+#_
+#_@@@
+#_
+#_
+</article>
+</node>
+<node>
 id=48
 lv=2
 dt=Text
@@ -6197,19 +6193,19 @@ lv=2
 dt=Text
 nm=obj:Delete
 ctime=3507637642
-mtime=3512975378
+mtime=3576228671
 <article>
-#_result = obj:Delete (Root, Value)
+#_result = obj:Delete (Root, Name)
 #_
 #_**Parameters:**
 #_  Root:   integer
-#_  Value:  string, or nil
+#_  Name:   string, or nil
 #_
 #_**Returns:**
 #_  result: boolean
 #_
 #_**Note:**
-#_  When *Value* is nil, *Root* is deleted.
+#_  When *Name* is nil, *Root* is deleted.
 #_
 #_**Far API used:**
 #_  SettingsControl
