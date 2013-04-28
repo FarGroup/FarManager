@@ -248,7 +248,7 @@ in the input stream until you press Ctrl-Break.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
-  #/import <in.farconfig> [profilepath]#
+  #/import <in.farconfig> [profilepath [localprofilepath]]#
   Импортировать все настройки из файла in.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.

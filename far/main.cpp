@@ -99,7 +99,7 @@ static void show_help()
 		L" /v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 		L" /w[-] Stretch to console window instead of console buffer or vise versa.\n"
-		L" /clearcache [profilepath]\n"
+		L" /clearcache [profilepath [localprofilepath]]\n"
 		L"      Clear plugins cache.\n"
 		L" /export <out.farconfig> [profilepath [localprofilepath]]\n"
 		L"      Export settings.\n"
@@ -475,19 +475,16 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	{
 		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
-	else if (Argc <= 6 && Argc >= 3)
+	else if (Argc <= 6 && Argc >= 3 && (!StrCmpI(Argv[1], L"/export") || !StrCmpI(Argv[1], L"/import")))
 	{
 		bool Export = !StrCmpI(Argv[1], L"/export");
-		if (Export || !StrCmpI(Argv[1], L"/import"))
-		{
-			string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
-			InitTemplateProfile(strTemplatePath);
-			InitProfile(strProfilePath, strLocalProfilePath);
-			Global->Db = new Database(true);
-			return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
-		}
+		string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
+		InitTemplateProfile(strTemplatePath);
+		InitProfile(strProfilePath, strLocalProfilePath);
+		Global->Db = new Database(true);
+		return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
 	}
-	else if ((Argc==2 || Argc==3 || Argc==4) && !StrCmpI(Argv[1], L"/clearcache"))
+	else if (Argc>=2 && Argc<=4 && !StrCmpI(Argv[1], L"/clearcache"))
 	{
 		string strProfilePath(Argc>2 ? Argv[2] : L"");
 		string strLocalProfilePath(Argc>3 ? Argv[3] : L"");
@@ -742,9 +739,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.CPtr());
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
-	long long IgnoreDataAlignmentFaults = 0;	
+	long long IgnoreDataAlignmentFaults = 0;
 	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
-	if (IgnoreDataAlignmentFaults)	
+	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode|=SEM_NOALIGNMENTFAULTEXCEPT;
 	}
