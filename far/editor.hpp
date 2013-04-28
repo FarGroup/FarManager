@@ -185,6 +185,8 @@ class Editor:public ScreenObject
 		Edit *LastGetLine;
 		int LastGetLineNumber;
 
+		std::list<GUID> ChangeEventSubscribers;
+
 		std::list<EditorUndoData> UndoData;
 		std::list<EditorUndoData>::iterator UndoPos;
 		std::list<EditorUndoData>::iterator UndoSavePos;

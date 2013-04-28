@@ -6461,7 +6461,38 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			EditorSubscribeChangeEvent *esce=(EditorSubscribeChangeEvent *)Param2;
 			if (CheckStructSize(esce))
 			{
-				//return TRUE;
+				if (Command == ECTL_UNSUBSCRIBECHANGEEVENT)
+				{
+					ChangeEventSubscribers.remove(esce->PluginId);
+					return TRUE;
+				}
+				class guid_compare
+				{
+					public:
+					static bool compare_eq(const GUID& a, const GUID& b)
+					{
+						// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
+						return (a == b) != 0;
+					}
+
+					static bool compare_lt(const GUID& a, const GUID& b)
+					{
+						const char *aa = (const char *)&a;
+						const char *bb = (const char *)&b;
+						for (size_t i=0; i<sizeof(GUID); i++)
+						{
+							if (aa[i] < bb[i])
+								return true;
+							if (aa[i] > bb[i])
+								return false;
+						}
+						return false;
+					}
+				};
+				ChangeEventSubscribers.push_back(esce->PluginId);
+				ChangeEventSubscribers.sort(guid_compare::compare_lt);
+				ChangeEventSubscribers.unique(guid_compare::compare_eq);
+				return TRUE;
 			}
 			break;
 		}
@@ -7712,11 +7743,13 @@ bool Editor::SortColorLocked()
 
 void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 {
+	if (!ChangeEventSubscribers.size())
+		return;
 	if (StrNum==-1)
 		StrNum=NumLine;
 	EditorChange ec={sizeof(EditorChange),Type,StrNum};
 	++EditorControlLock;
-	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
+	Global->CtrlObject->Plugins->ProcessSubscribedEditorEvent(EE_CHANGE,&ec,EditorID,ChangeEventSubscribers);
 	--EditorControlLock;
 }
 

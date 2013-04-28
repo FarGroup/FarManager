@@ -932,6 +932,24 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 }
 
 
+int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds)
+{
+	int nResult = 0;
+
+	if (Global->CtrlObject->Plugins->GetCurEditor())
+	{
+		FOR_CONST_RANGE(PluginIds, i)
+		{
+			auto Plugin = FindPlugin(*i);
+			if (Plugin && Plugin->HasProcessEditorEvent())
+				nResult = Plugin->ProcessEditorEvent(Event, Param, EditorID);
+		}
+	}
+
+	return nResult;
+}
+
+
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;

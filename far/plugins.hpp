@@ -181,6 +181,7 @@ public:
 	int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param,int EditorID);
+	int ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds);
 	int ProcessViewerEvent(int Event,void *Param,int ViewerID);
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param);
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info);

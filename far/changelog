@@ -1,3 +1,18 @@
+t-rex 28.04.2013 12:04:51 +0200 - build 3371
+
+1. Мелкое ломающее изменение в API.
+   Эвент редактора EE_CHANGE теперь не посылается по умолчанию, плагин который заинтересован получать этот эвент
+   должен на него подписаться. Подписка происходит для конкретной сессии редактора.
+   Чтоб подписаться на эвент:
+
+   EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), PluginGuid };
+   Info.EditorControl(EditorID, ECTL_ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+
+   И отписаться (если нужно):
+   Info.EditorControl(EditorID, ECTL_ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+
+   P.S. Внутреняя имплемантация вроде как не ахти, но пока других идей нету.
+
 t-rex 27.04.2013 23:30:06 +0200 - build 3370
 
 1. Подготовка к переводу EE_CHANGE на подписываемый эвент,
