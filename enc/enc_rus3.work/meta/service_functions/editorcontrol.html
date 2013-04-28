@@ -263,9 +263,19 @@ Info.EditorControl(-1,ECTL_SETTITLE,0,GetMsg(IDTitle));
     Если указанная строка отсутствует, то возвращается <code>FALSE</code>, иначе <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_UNDOREDO">ECTL_UNDOREDO</a></td>
-    <td class="cont" width="60%"> Функция, позволяющая управлять поведением операции Отмена-Возврат действия, т.н. Undo-Redo.
+    <td class="cont" width="60%">Функция, позволяющая управлять поведением операции Отмена-Возврат действия, т.н. Undo-Redo.
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/editorundoredo.html">EditorUndoRedo</a>.<br>
+    Команда возвращает <code>TRUE</code> в случае успешного выполнения операции.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SUBSCRIBECHANGEEVENT">ECTL_SUBSCRIBECHANGEEVENT</a></td>
+    <td class="cont" width="60%">Подписаться на получение <a href="../structures/processeditoreventinfo.html#EE_CHANGE">EE_CHANGE</a> событий для заданной сессии редактора.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/editorsubscribechangeevent.html">EditorSubscribeChangeEvent</a>.<br>
+    Команда возвращает <code>TRUE</code> в случае успешного выполнения операции.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_UNSUBSCRIBECHANGEEVENT">ECTL_UNSUBSCRIBECHANGEEVENT</a></td>
+    <td class="cont" width="60%">Отписаться от получения <a href="../structures/processeditoreventinfo.html#EE_CHANGE">EE_CHANGE</a> событий для заданной сессии редактора.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/editorsubscribechangeevent.html">EditorSubscribeChangeEvent</a>.<br>
     Команда возвращает <code>TRUE</code> в случае успешного выполнения операции.</td></tr>
     </table>
     </div>

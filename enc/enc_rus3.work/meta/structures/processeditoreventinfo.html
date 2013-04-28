@@ -67,7 +67,8 @@ struct ProcessEditorEventInfo
     Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EE_CHANGE">EE_CHANGE</a></td>
     <td class="cont" width="60%">В редакторе изменился текст.<br><code>Param</code> указывает на переменную, типа <a href="editorchange.html">EditorChange</a>.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.
+    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.<br>
+    Плагин должен <a href="../service_functions/editorcontrol.html#ECTL_SUBSCRIBECHANGEEVENT">подписаться</a> на это событие, чтоб получать его.
     <p class=note><img src="../../images/note.gif" alt="Замечание для EE_CHANGE" width="10" height="10"> Замечание.</p>
     <UL class=note><LI><a href="../service_functions/editorcontrol.html">EditorControl</a> вызванная из <code>EE_CHANGE</code> вернет <code>FALSE</code>.</LI></UL></td></tr>
     </table>
