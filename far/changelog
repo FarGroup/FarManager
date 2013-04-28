@@ -6,10 +6,10 @@ t-rex 28.04.2013 12:04:51 +0200 - build 3371
    Чтоб подписаться на эвент:
 
    EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), PluginGuid };
-   Info.EditorControl(EditorID, ECTL_ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+   Info.EditorControl(EditorID, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
 
    И отписаться (если нужно):
-   Info.EditorControl(EditorID, ECTL_ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+   Info.EditorControl(EditorID, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
 
    P.S. Внутреняя имплемантация вроде как не ахти, но пока других идей нету.
 
