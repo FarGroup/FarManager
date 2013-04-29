@@ -921,11 +921,11 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 
 	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
-		FOR_CONST_RANGE(SortedPlugins, i)
+		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
-			if ((*i)->HasProcessEditorEvent())
-				nResult = (*i)->ProcessEditorEvent(Event, Param, EditorID);
-		}
+			if (i->HasProcessEditorEvent())
+				nResult = i->ProcessEditorEvent(Event, Param, EditorID);
+		});
 	}
 
 	return nResult;
@@ -938,12 +938,12 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 
 	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
-		FOR_CONST_RANGE(PluginIds, i)
+		std::for_each(CONST_RANGE(PluginIds, i)
 		{
-			auto Plugin = FindPlugin(*i);
+			auto Plugin = FindPlugin(i);
 			if (Plugin && Plugin->HasProcessEditorEvent())
 				nResult = Plugin->ProcessEditorEvent(Event, Param, EditorID);
-		}
+		});
 	}
 
 	return nResult;
