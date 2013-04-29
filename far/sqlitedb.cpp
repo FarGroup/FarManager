@@ -303,11 +303,6 @@ bool SQLiteDb::RollbackTransaction()
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-bool SQLiteDb::IsOpen()
-{
-	return pDb != nullptr;
-}
-
 bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
 {
 	return sqlite::sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;

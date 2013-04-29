@@ -202,7 +202,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -535,7 +535,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -953,7 +953,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -1100,7 +1100,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -1443,7 +1443,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (!Open(DbName, Local, true))
 			return false;
@@ -1837,7 +1837,7 @@ public:
 	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
 	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local) ||
@@ -2140,7 +2140,7 @@ public:
 
 	bool RollbackTransaction() { WaitAllAsync(); return SQLiteDb::RollbackTransaction(); }
 
-	bool InitializeImpl(const string& DbName, bool Local)
+	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
 		if (
 			!Open(DbName, Local, true) ||
@@ -2614,7 +2614,7 @@ public:
 	}
 };
 
-void Database::CheckDatabase( SQLiteDb *pDb)
+void Database::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
 	int rc = pDb->InitStatus(pname, m_ImportExportMode);
@@ -2679,13 +2679,13 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 template<class T>
 T* Database::CreateDatabase(const char *son)
 {
-	T* p = new T();
-	CheckDatabase(p);
-	if (!m_ImportExportMode && p->IsNew())
+	T* cfg = new T();
+	CheckDatabase(cfg);
+	if (!m_ImportExportMode && cfg->IsNew())
 	{
-		TryImportDatabase(p, son);
+		TryImportDatabase(cfg, son);
 	}
-	return p;
+	return cfg;
 }
 
 template<class T>

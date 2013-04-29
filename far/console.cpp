@@ -830,23 +830,15 @@ public:
 	}
 
 private:
-	typedef BOOL (WINAPI *READOUTPUT)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion);
-	typedef BOOL (WINAPI *WRITEOUTPUT)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion);
-	typedef BOOL (WINAPI *COMMIT)();
-	typedef BOOL (WINAPI *GETTEXTATTRIBUTES)(FarColor* Attributes);
-	typedef BOOL (WINAPI *SETTEXTATTRIBUTES)(const FarColor* Attributes);
-	typedef BOOL (WINAPI *CLEAREXTRAREGIONS)(const FarColor* Color, int Mode);
-	typedef BOOL (WINAPI *GETCOLORDIALOG)(FarColor* Color, BOOL Centered, BOOL AddTransparent);
-
 	struct ModuleImports
 	{
-		READOUTPUT pReadOutput;
-		WRITEOUTPUT pWriteOutput;
-		COMMIT pCommit;
-		GETTEXTATTRIBUTES pGetTextAttributes;
-		SETTEXTATTRIBUTES pSetTextAttributes;
-		CLEAREXTRAREGIONS pClearExtraRegions;
-		GETCOLORDIALOG pGetColorDialog;
+		BOOL (WINAPI *pReadOutput)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion);
+		BOOL (WINAPI *pWriteOutput)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion);
+		BOOL (WINAPI *pCommit)();
+		BOOL (WINAPI *pGetTextAttributes)(FarColor* Attributes);
+		BOOL (WINAPI *pSetTextAttributes)(const FarColor* Attributes);
+		BOOL (WINAPI *pClearExtraRegions)(const FarColor* Color, int Mode);
+		BOOL (WINAPI *pGetColorDialog)(FarColor* Color, BOOL Centered, BOOL AddTransparent);
 	}
 	Imports;
 

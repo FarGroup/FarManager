@@ -56,8 +56,7 @@ public:
 	~ImportedFunctions();
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
-private: typedef RETTYPE (CALLTYPE *tfn##NAME)ARGS;\
-private: function_pointer<tfn##NAME> pfn##NAME;\
+private: function_pointer<RETTYPE (CALLTYPE*)ARGS> pfn##NAME;\
 public: RETTYPE NAME ARGS const;\
 public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 

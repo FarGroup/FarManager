@@ -76,32 +76,37 @@ public:
 	friend class SQLiteDb;
 };
 
-class SQLiteDb {
-	sqlite::sqlite3 *pDb;
-	int init_status;
-	int db_exists;
-
-protected:
-	string strPath;
-	string strName;
-
+class SQLiteDb
+{
 public:
 	SQLiteDb();
 	virtual ~SQLiteDb();
-	bool Open(const string& DbFile, bool Local, bool WAL=false);
+
+	bool IsNew() { return db_exists <= 0; }
+	int InitStatus(string& name, bool full_name);
+
+protected:
+
+	bool Open(const string& DbName, bool Local, bool WAL=false);
+	bool Close();
 	void Initialize(const string& DbName, bool Local = false);
+	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt);
 	bool Exec(const char *Command);
 	bool BeginTransaction();
 	bool EndTransaction();
 	bool RollbackTransaction();
-	bool IsOpen();
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt);
-	int Changes();
-	unsigned __int64 LastInsertRowID();
-	bool Close();
 	bool SetWALJournalingMode();
 	bool EnableForeignKeysConstraints();
+	int Changes();
+	unsigned __int64 LastInsertRowID();
+
+	string strPath;
+	string strName;
+
+private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
-	int InitStatus(string& name, bool full_name);
-	bool IsNew() { return db_exists <= 0; }
+
+	sqlite::sqlite3 *pDb;
+	int init_status;
+	int db_exists;
 };

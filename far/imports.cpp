@@ -109,7 +109,6 @@ ImportedFunctions::ImportedFunctions()
 	}
 
 	#undef InitImport
-
 }
 
 
