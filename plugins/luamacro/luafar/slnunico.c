@@ -1492,15 +1492,15 @@ static int unic_gsub(lua_State *L)
 /* }====================================================== */
 
 
-/* maximum size of each formatted item (> len(format('%99.99f', -1e308))) */
-#define MAX_ITEM	512
+/* maximum size of each formatted item (> len(format('%999.99f', -1e308))) */
+#define MAX_ITEM	1100
 /* valid flags in a format specification */
 #define FLAGS  "-+ #0"
 /*
 ** maximum size of each format specification (such as '%-099.99d')
-** (+10 accounts for %99.99x plus margin of error)
+** (+11 accounts for %999.99x plus margin of error)
 */
-#define MAX_FORMAT (sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 10)
+#define MAX_FORMAT (sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 11)
 
 
 static void addquoted(lua_State *L, luaL_Buffer *b, int arg)
@@ -1554,8 +1554,8 @@ static const char *scanformat(lua_State *L, const char *strfrmt, char *form,
 		luaL_error(L, "invalid format (repeated flags)");
 
 	if(isdigit(uchar(*p))) p++;	/* skip width */
-
-	if(isdigit(uchar(*p))) p++;	/* (2 digits at most) */
+	if(isdigit(uchar(*p))) p++;
+	if(isdigit(uchar(*p))) p++;	/* (3 digits at most) */
 
 	if(*p == '.')
 	{
