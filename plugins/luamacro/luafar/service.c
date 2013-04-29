@@ -2988,9 +2988,9 @@ static int far_SendDlgMessage(lua_State *L)
 			struct FarListTitles flt;
 			flt.StructSize = sizeof(flt);
 			flt.Title = buf;
-			flt.Bottom = buf + sizeof(buf)/2;
-			flt.TitleSize = sizeof(buf)/2;
-			flt.BottomSize = sizeof(buf)/2;
+			flt.Bottom = buf + DIM(buf)/2;
+			flt.TitleSize = DIM(buf)/2;
+			flt.BottomSize = DIM(buf)/2;
 			res = Info->SendDlgMessage(hDlg, Msg, Param1, &flt);
 
 			if(res)
