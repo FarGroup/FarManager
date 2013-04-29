@@ -88,7 +88,35 @@ local function EV_Handler (macros, filename, ...)
   end
 end
 
+local Subscriptions = {}
+local SubscribeChangeEvent = editor.SubscribeChangeEvent
+
+function editor.SubscribeChangeEvent (EditorID, Subscribe)
+  if not EditorID or EditorID==F.CURRENT_EDITOR then
+    local info = editor.GetInfo(nil)
+    if not info then return false end
+    EditorID = info.EditorID
+  end
+
+  local count = Subscriptions[EditorID]
+  if count then
+    local result = true
+    if Subscribe then
+      if count==0 then result=SubscribeChangeEvent(EditorID,true) end
+      if result then Subscriptions[EditorID]=count+1 end
+    else
+      if count==1 then result=SubscribeChangeEvent(EditorID,false) end
+      if result and count>0 then Subscriptions[EditorID]=count-1 end
+    end
+    return result
+  end
+  return false
+end
+
 local function export_ProcessEditorEvent (EditorID, Event, Param)
+  if     Event==F.EE_READ  then Subscriptions[EditorID]=0
+  elseif Event==F.EE_CLOSE then Subscriptions[EditorID]=nil
+  end
   return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
 end
 
@@ -310,7 +338,7 @@ end
 
 local function LoadMacros (allAreas, unload)
   local numerrors=0
-  Areas,Events = {},{}
+  Areas,Events,Subscriptions = {},{},{}
   EnumState = {}
   LoadedMacros = {}
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
