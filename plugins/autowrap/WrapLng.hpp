@@ -1,10 +1,10 @@
 enum
 {
-  MOk,
-  MCancel,
-  MAutoWrap,
-  MEnableWrap,
-  MRightMargin,
-  MFileMasks,
-  MExcludeFileMasks
+	MOk,
+	MCancel,
+	MAutoWrap,
+	MEnableWrap,
+	MRightMargin,
+	MFileMasks,
+	MExcludeFileMasks
 };

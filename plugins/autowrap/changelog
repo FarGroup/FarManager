@@ -1,3 +1,8 @@
+svs 29.04.2013 11:29:05 +0400 - build 
+
+1. Ќемного форматировани€ кода
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks !.!
+
 shmuel 29.10.2012 09:43:20 +0200 - build 27
 
 1. — forum.ru-board: начина€ с версий после 2798 - по окончании набора строки
