@@ -216,13 +216,13 @@ static PreserveStyleType ChoosePreserveStyleType(int Mask)
 	return Result;
 }
 
-void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const size_t StrSize, const size_t Begin, const size_t End, int& TypeMask, wchar_t& PrependChar)
+void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const size_t StrSize, const int Begin, const int End, int& TypeMask, wchar_t& PrependChar)
 {
 	// Try to expand to the right.
 	{
-		size_t Right = End;
+		int Right = End;
 
-		if (Right < StrSize && (IsAlphaNum(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
+		if (static_cast<size_t>(Right) < StrSize && (IsAlphaNum(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
 		{
 			Right++;
 			
@@ -246,19 +246,17 @@ void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const siz
 
 	// Try to expand to the left.
 	{
-		size_t Left = Begin - 1;
+		int Left = Begin - 1;
 
 		if (Left >= 1 && (IsAlphaNum(Source[Left]) || IsPreserveStyleTokenSeparator(Source[Left])))
 		{
-			--Left;
+			Left--;
 
-			for (;;)
+			while (Left >= 0)
 			{
 				if (!IsAlphaNum(Source[Left]) || (IsLower(Source[Left]) && IsUpper(Source[Left + 1])))
 					break;
-				if (!Left)
-					break;
-				--Left;
+				Left--;
 			}
 
 			Left++;
@@ -434,7 +432,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 						}
 
 						if (AfterFirstCommonTypeMask == -1)
-							FindStyleTypeMaskAndPrependCharByExpansion(Source, StrSize, I, Idx, AfterFirstCommonTypeMask, PrependChar);
+							FindStyleTypeMaskAndPrependCharByExpansion(Source, StrSize, I, static_cast<int>(Idx), AfterFirstCommonTypeMask, PrependChar);
 
 						if (AfterFirstCommonTypeMask == -1)
 						{
