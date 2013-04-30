@@ -5,6 +5,6 @@ function export.GetGlobalInfo()
     Guid          = win.Uuid("4ebbefc8-2084-4b7f-94c0-692ce136894d"),
     Title         = "LuaMacro",
     Description   = "Far macros in Lua",
-    Author        = "Eugene Roshal & Far Group",
+    Author        = "Shmuel Zeigerman & Far Group",
   }
 end
