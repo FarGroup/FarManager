@@ -197,7 +197,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		strCurName = ListData[CurFile]->strName;
 
-		if (ListData[CurFile]->Selected)
+		if (ListData[CurFile]->Selected && !ReturnCurrentFile)
 		{
 			for (size_t i=CurFile+1; i < ListData.size(); i++)
 			{
