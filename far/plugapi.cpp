@@ -1696,10 +1696,13 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	if (FrameManager->ManagerIsDown())
 		return 0;
 
+	FileEditor* currentEditor=Global->CtrlObject->Plugins->GetCurEditor();
+	if (currentEditor && currentEditor->GetId() == EditorID) EditorID = -1;
+
 	if (EditorID == -1)
 	{
-		if (Global->CtrlObject->Plugins->GetCurEditor())
-			return Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(Command,Param1,Param2);
+		if (currentEditor)
+			return currentEditor->EditorControl(Command,Param1,Param2);
 
 		return 0;
 	}

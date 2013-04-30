@@ -1,3 +1,7 @@
+zg 30.04.2013 09:19:06 +0200 - build 3377
+
+1. EditorControl(EditorID,...) работает для текущего редактора при реальном EditorID из EE_READ и EE_CLOSE.
+
 w17 30.04.2013 08:56:12 +0400 - build 3376
 
 1. M#2403: Current file after deletion
