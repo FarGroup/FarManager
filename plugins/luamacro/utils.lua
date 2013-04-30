@@ -590,9 +590,12 @@ end
 local function ProcessMacroFromFAR (mode, key, code, flags, description, guid, callback, callbackId)
   local area = GetTrueAreaName(mode)
   if guid then -- MCTL_ADDMACRO
+     -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
+    local fname = AddMacro_filename
     AddMacro_filename = nil
     AddMacro { area=area, key=key, code=code, flags=flags, description=description,
                guid=guid, callback=callback, callbackId=callbackId }
+    AddMacro_filename = fname
   else
     ProcessRecordedMacro(area, key, code, flags, description)
   end
