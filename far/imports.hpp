@@ -45,7 +45,6 @@ class ImportedFunctions
 		function_pointer():pointer(nullptr) {}
 		function_pointer& operator=(FARPROC value) {pointer = reinterpret_cast<T>(value); return *this;}
 		operator T() const {return pointer;}
-		typedef T value_type;
 
 	private:
 		T pointer;
