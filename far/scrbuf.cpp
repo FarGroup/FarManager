@@ -285,10 +285,9 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 		Y1=std::max(0,Y1);
 		Y2=std::min(static_cast<int>(ScrY),Y2);
 
-		FAR_CHAR_INFO *PtrBuf;
 		for (int I = 0; I < Y2-Y1+1; I++)
 		{
-			PtrBuf = Buf+(Y1+I)*BufX+X1;
+			FAR_CHAR_INFO* PtrBuf = Buf+(Y1+I)*BufX+X1;
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
 			{
 				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)

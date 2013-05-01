@@ -48,7 +48,7 @@ class GetFileString
 
 		bool Peek;
 		int LastLength;
-		LPWSTR* LastString;
+		LPWSTR LastString;
 		int LastResult;
 
 		char_ptr ReadBuf;

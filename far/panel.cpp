@@ -422,7 +422,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	string strRootDir;
 	DWORD Mask,DiskMask;
 	int DiskCount,Focus;
-	bool SetSelected=false;
 	Mask = FarGetLogicalDrives();
 	DWORD NetworkMask = 0;
 	AddSavedNetworkDisks(Mask, NetworkMask);
@@ -565,6 +564,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		int MenuLine = 0;
 
+		bool SetSelected=false;
 		std::for_each(CONST_RANGE(Items, i)
 		{
 			ChDiskItem.Clear();
@@ -2197,12 +2197,12 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType()==FILE_PANEL)
 			{
 				FileList *DestFilePanel=(FileList *)this;
-				static int Reenter=0;
 
 				if (Info->Flags&PFLAGS_PLUGIN)
 				{
 					Info->OwnerGuid = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->pPlugin->GetGUID();
 					Info->PluginHandle = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->hPlugin;
+					static int Reenter=0;
 					if (!Reenter)
 					{
 						Reenter++;

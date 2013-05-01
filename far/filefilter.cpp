@@ -488,12 +488,11 @@ int FileFilter::GetCheck(FileFilterParams *FFP)
 void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
 	enumFileFilterFlagsType FFFT = GetFFFT();
-	FileFilterParams *CurFilterData;
 
 	for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
 	{
 		int Check=FilterList->GetCheck(i);
-		CurFilterData=nullptr;
+		FileFilterParams* CurFilterData=nullptr;
 
 		if (i < (int)FilterData->size())
 		{

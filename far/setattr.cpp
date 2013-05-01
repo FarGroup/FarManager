@@ -1332,7 +1332,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				/* Multi *********************************************************** */
 				else
 				{
-					int RetCode=1;
 					ConsoleTitle SetAttrTitle(MSG(MSetAttrTitle));
 					if(SrcPanel)
 					{
@@ -1410,7 +1409,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
 						int SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
-						RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode);
+						int RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode);
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;

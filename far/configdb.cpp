@@ -2760,7 +2760,6 @@ bool Database::Export(const string& File)
 
 	bool ret = false;
 
-	intptr_t mc;
 	SMatch m[2];
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
@@ -2811,7 +2810,7 @@ bool Database::Export(const string& File)
 		{
 			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
 			fd.strFileName.Upper();
-			mc=2;
+			intptr_t mc = 2;
 			if (re.Match(fd.strFileName.CPtr(), fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 			{
 				auto plugin = new tinyxml::TiXmlElement("plugin");
@@ -2838,7 +2837,6 @@ bool Database::Import(const string& File)
 
 	bool ret = false;
 
-	intptr_t mc;
 	SMatch m[2];
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
@@ -2879,7 +2877,7 @@ bool Database::Import(const string& File)
 				string Guid(guid, CP_UTF8);
 				Guid.Upper();
 
-				mc=2;
+				intptr_t mc = 2;
 				if (re.Match(Guid.CPtr(), Guid.CPtr() + Guid.GetLength(), m, mc))
 				{
 					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(plugin));

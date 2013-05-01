@@ -529,7 +529,7 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 {
 	FormatString strResult;
 
-	wchar_t *ps, OutStr[]=
+	wchar_t OutStr[]=
 	{
 		FileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
 		FileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
@@ -553,6 +553,7 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 		while (n > Width && OutStr[n-1] == L' ')
 			OutStr[--n] = L'\0';
 
+		wchar_t *ps;
 		while (n > Width && nullptr != (ps = wcsrchr(OutStr, L' ')))
 		{
 			wcscpy(ps, ps+1);

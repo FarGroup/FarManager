@@ -56,10 +56,8 @@ wchar_t* Xlat(wchar_t *Line,
                      int EndPos,
                      unsigned __int64 Flags)
 {
-	wchar_t Chr,ChrOld;
 	int PreLang=2,CurLang=2; // unknown
 	size_t LangCount[2]={};
-	int IsChange=0;
 
 	if (!Line || !*Line)
 		return nullptr;
@@ -118,9 +116,10 @@ wchar_t* Xlat(wchar_t *Line,
 	// цикл по всей строке
 	for (int j=StartPos; j < EndPos; j++)
 	{
-		ChrOld=Chr=Line[j];
+		wchar_t Chr = Line[j];
+		wchar_t ChrOld = Line[j];
 		// ChrOld - пред символ
-		IsChange=0;
+		int IsChange=0;
 
 		// цикл по просмотру Chr в таблицах
 		// <=MinLenTable так как длина настоящая а начальный индекс 1

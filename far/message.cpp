@@ -52,9 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static bool FormatErrorString(bool Nt, DWORD Code, string& Str)
 {
-	bool Result=false;
 	LPWSTR lpBuffer=nullptr;
-	Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
+	bool Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
 	Str=lpBuffer;
 	LocalFree(lpBuffer);
 	RemoveUnprintableCharacters(Str);
@@ -218,8 +217,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 	int Length, BtnLength;
 	DWORD I, MaxLength, StrCount;
 	BOOL ErrorSets=FALSE;
-	wchar_t *PtrStr;
-	const wchar_t *CPtrStr;
 	string strErrStr;
 
 	IsWarningStyle = (Flags&MSG_WARNING) != 0;
@@ -354,7 +351,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 		// а теперь проврапим
 		FarFormatText(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
-		PtrStr = strErrStr.GetBuffer();
+		wchar_t *PtrStr = strErrStr.GetBuffer();
 
 		//BUGBUG: string не предназначен для хранения строк разделённых \0
 		while ((PtrStr=wcschr(PtrStr,L'\n')) )
@@ -373,7 +370,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	//BUGBUG: string не предназначен для хранения строк разделённых \0
 	// заполняем массив...
-	CPtrStr=strErrStr.CPtr();
+	const wchar_t* CPtrStr=strErrStr.CPtr();
 
 	for (I=0; I < CountErrorLine; I++)
 	{
@@ -621,7 +618,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 		int Width=X2-X1+1;
 		FormatString Temp;
-		int PosX;
 		if (Flags & MSG_LEFTALIGN)
 		{
 			Temp << fmt::LeftAlign() << fmt::MinWidth(Width-10) << CPtrStr;
@@ -629,7 +625,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 		}
 		else
 		{
-			PosX=X1+(Width-Length)/2;
+			int PosX=X1+(Width-Length)/2;
 			Temp << fmt::ExactWidth(PosX-X1-4) << L"" << fmt::ExactWidth(Length) << CPtrStr << fmt::ExactWidth(X2-PosX-Length-3) << L"";
 			GotoXY(X1+4,Y1+I+2);
 		}

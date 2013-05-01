@@ -312,15 +312,14 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{
-		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
 		if (Global->Opt->ViOpt.SavePos)
 		{
-			NewFilePos=poscache.cur.FilePos;
-			NewLeftPos=poscache.cur.LeftPos;
+			__int64 NewFilePos=poscache.cur.FilePos;
+			__int64 NewLeftPos=poscache.cur.LeftPos;
 			if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
 			{
 				if ( 1 != (VM.Hex = (poscache.Hex_Wrap & 0x03)) )
@@ -670,8 +669,8 @@ static const int mline = 512;
 static void txt_dump(
 	UINT cp, const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch )
 {
-	int tail, nw, ib, iw;
-	wchar_t w1[mline], w2[mline];
+	int ib, iw;
+	wchar_t w1[mline];
 
 	if ( cp == CP_UNICODE )
 	{
@@ -696,6 +695,8 @@ static void txt_dump(
 	}
 	else
 	{
+		int tail, nw;
+		wchar_t w2[mline];
 		ib = iw = 0;
 		nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, width, tail);
 		bool first = true;
@@ -781,7 +782,6 @@ void Viewer::ShowHex()
 	int EndFile;
 	int X,Y,TextPos;
 	int SelStart, SelEnd;
-	bool bSelStartFound = false, bSelEndFound = false;
 	__int64 HexLeftPos=((LeftPos>80-ObjWidth()) ? std::max(80-ObjWidth(),0):LeftPos);
 
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
@@ -789,8 +789,8 @@ void Viewer::ShowHex()
 
 	for (LastPage=EndFile=0,Y=Y1; Y<=Y2; Y++)
 	{
-		bSelStartFound = false;
-		bSelEndFound = false;
+		bool bSelStartFound = false;
+		bool bSelEndFound = false;
 		__int64 SelSize=0;
 		SetColor(COL_VIEWERTEXT);
 		GotoXY(X1,Y);
@@ -2199,14 +2199,14 @@ int Viewer::CacheFindUp( __int64 start )
 	if ( !lcache_ready || start <= lcache_first || start > lcache_last )
 		return -1;
 
-	int i, j, i1 = 0, i2 = lcache_count - 1;
+	int i1 = 0, i2 = lcache_count - 1;
 	for (;;)
 	{
 		if ( i1+1 >= i2 )
 			return (lcache_base + i1) % lcache_size;
 
-		i = (i1 + i2) / 2;
-		j = (lcache_base + i) % lcache_size;
+		int i = (i1 + i2) / 2;
+		int j = (lcache_base + i) % lcache_size;
 		if (llabs(lcache_lines[j]) < start)
 			i1 = i;
 		else
@@ -2233,7 +2233,7 @@ void Viewer::Up( int nlines, bool adjust )
 		return;
 	}
 
-	__int64 fpos, fpos1;
+	__int64 fpos;
 
 	int i = CacheFindUp(fpos = FilePos);
 	if ( i >= 0 )
@@ -2269,7 +2269,7 @@ void Viewer::Up( int nlines, bool adjust )
 			return;
 		}
 
-		fpos1 = fpos;
+		__int64 fpos1 = fpos;
 
 		// backward CR-LF search
 		//
@@ -2673,12 +2673,11 @@ static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')
 static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
 {
 	int nb, i, v, sub = 0, ps = 0, p0 = (pos ? *pos : -1), p1 = -1;
-	wchar_t ch;
 
 	nb = i = v = 0;
 	for (;;)
 	{
-		ch = *from++;
+		wchar_t ch = *from++;
 		++ps;
 
 		if      (ch >= L'0' && ch <= L'9') sub = L'0';
@@ -3006,7 +3005,7 @@ int Viewer::search_text_backward( search_data* sd )
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer, *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
-	INT64 to1, to, cpos = sd->CurPos;
+	INT64 to, cpos = sd->CurPos;
 
 	bool up_half = cpos > StartSearchPos;
 	to = (up_half ? StartSearchPos : 0);
@@ -3022,7 +3021,7 @@ int Viewer::search_text_backward( search_data* sd )
 		}
 		else
 		{
-			to1 = cpos - nb - 3*(slen + ww - 1);
+			__int64 to1 = cpos - nb - 3*(slen + ww - 1);
 			if (to1 < 0)
 				to1 = 0;
 			int nb1 = static_cast<int>(cpos - nb - to1);
@@ -3183,7 +3182,7 @@ int Viewer::search_regex_backward( search_data* sd )
 
 	bool up_half = cpos > StartSearchPos;
 
-	int off=0, lsize=0, nw, prev_len = -1, flen;
+	int off=0, lsize=0, nw, prev_len = -1;
 	nw = read_line(line, t_line, cpos, -1, bpos, lsize);
 	for (;;)
 	{
@@ -3196,7 +3195,7 @@ int Viewer::search_regex_backward( search_data* sd )
 			break;
 
 		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
-		flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
+		int flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
 		if ( fpos+flen > cpos )
 			break;
 
@@ -3257,14 +3256,12 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if ( !Next )
 	{
-		const wchar_t *TextHistoryName=L"SearchText";
-		const wchar_t *HexMask = L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH " ;
 		FarDialogItem SearchDlgData[]=
 		{
 			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,MSG(MViewSearchTitle)},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MViewSearchFor)},
-			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
-			{DI_FIXEDIT,5,3,70,3,0,nullptr,HexMask,DIF_MASKEDIT,L""},
+			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
+			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,MSG(MViewSearchForText)},
 			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(MViewSearchForHex)},
@@ -3929,11 +3926,10 @@ wchar_t Viewer::vgetc_prev()
 
 void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 {
-	const wchar_t *LineHistoryName=L"ViewerOffset";
 	FarDialogItem GoToDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,31,7,0,nullptr,nullptr,0,MSG(MViewerGoTo)},
-		{DI_EDIT,5,2,29,2,0,LineHistoryName,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_HISTORY|DIF_USELASTHISTORY,L""},
+		{DI_EDIT,5,2,29,2,0,L"ViewerOffset",nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_RADIOBUTTON,5,4,0,4,0,nullptr,nullptr,DIF_GROUP,MSG(MGoToPercent)},
 		{DI_RADIOBUTTON,5,5,0,5,0,nullptr,nullptr,0,MSG(MGoToHex)},

@@ -499,7 +499,6 @@ void EditFileTypes()
 {
 	Global->Db->AssocConfig()->BeginTransaction();
 
-	int NumLine=0;
 	int MenuPos=0;
 	unsigned __int64 id;
 	VMenu2 TypesMenu(MSG(MAssocTitle),nullptr,0,ScrY-4);
@@ -507,9 +506,9 @@ void EditFileTypes()
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
 
-	while (1)
+	for (;;)
 	{
-		NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+		int NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 		int ExitCode=TypesMenu.Run([&](int Key)->int
 		{
 			MenuPos=TypesMenu.GetSelectPos();

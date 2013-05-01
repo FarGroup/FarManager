@@ -77,12 +77,11 @@ unsigned long CRC32(
 
 	if (!crc_table[1])
 	{
-		unsigned long c;
 		int n, k;
 
 		for (n = 0; n < 256; n++)
 		{
-			c = (unsigned long)n;
+			unsigned long c = (unsigned long)n;
 
 			for (k = 0; k < 8; k++) c = (c >> 1) ^(c & 1 ? 0xedb88320L : 0);
 
@@ -149,7 +148,6 @@ PluginType IsModulePlugin2(
     PBYTE hModule
 )
 {
-	DWORD dwExportAddr;
 	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
 	PIMAGE_NT_HEADERS pPEHeader;
 	try
@@ -179,7 +177,7 @@ PluginType IsModulePlugin2(
 		   )
 			return NOT_PLUGIN;
 
-		dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
+		DWORD dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
 
 		if (!dwExportAddr)
 			return NOT_PLUGIN;

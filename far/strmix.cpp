@@ -1614,10 +1614,11 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 			if (!*Str) return nullptr;
 
 			const wchar_t *cur=Str;
-			bool InBrackets=false, InQoutes = (*cur==L'\"');
+			bool InQoutes = (*cur==L'\"');
 
 			if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
 			{
+				bool InBrackets=false;
 				while (*cur) // важно! проверка *cur должна стоять первой
 				{
 					if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное

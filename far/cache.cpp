@@ -207,10 +207,10 @@ CachedWrite::~CachedWrite()
 bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
-	bool SuccessFlush=true;
 
 	if (Buffer)
 	{
+		bool SuccessFlush=true;
 		if (DataSize>FreeSize)
 		{
 			SuccessFlush=Flush();

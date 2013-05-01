@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "tvar.hpp"
+#include "noncopyable.hpp"
 
 class Panel;
 struct GetMacroData;
@@ -202,7 +203,7 @@ class MacroState
 
 class Dialog;
 
-class KeyMacro
+class KeyMacro:NonCopyable
 {
 	private:
 		MACROMODEAREA m_Mode;

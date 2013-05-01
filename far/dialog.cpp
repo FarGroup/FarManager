@@ -2494,7 +2494,7 @@ int Dialog::ProcessKey(int Key)
 		// wrap-stop mode for user lists
 		if ((Key==KEY_UP || Key==KEY_NUMPAD8 || Key==KEY_DOWN || Key==KEY_NUMPAD2) && IsRepeatedKey())
 		{
-			int n = -1, pos = -1;
+			int n = -1;
 
 			FarGetValue fgv = {sizeof(FarGetValue),11, {FMVT_INTEGER}}; // Item Count
 			fgv.Value.Integer = -1;
@@ -2505,6 +2505,7 @@ int Dialog::ProcessKey(int Key)
 			{
 				fgv.Type = 7; // Current Item
 				fgv.Value.Integer = -1;
+				int pos = -1;
 				if (SendMessage(DN_GETVALUE,FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 					pos = static_cast<int>(fgv.Value.Integer);
 
@@ -3629,7 +3630,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 size_t Dialog::ProcessRadioButton(size_t CurRB)
 {
 	CriticalSectionLock Lock(CS);
-	size_t PrevRB=CurRB, I, J;
+	size_t PrevRB=CurRB, I;
 
 	for (I=CurRB;; I--)
 	{
@@ -3649,7 +3650,7 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 		  При изменении состояния каждого элемента посылаем сообщение
 		  посредством функции SendDlgMessage - в ней делается все!
 		*/
-		J=Items[I]->Selected;
+		size_t J=Items[I]->Selected;
 		Items[I]->Selected=0;
 
 		if (J)
@@ -4217,16 +4218,14 @@ int Dialog::AddToEditHistory(DialogItemEx* CurItem, const string& AddStr)
 int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
 	CriticalSectionLock Lock(CS);
-	FARDIALOGITEMTYPES Type;
-	FARDIALOGITEMFLAGS Flags;
 
 	if (StartPos < 0)
 		StartPos=0;
 
 	for (size_t I = StartPos; I < Items.size(); ++I)
 	{
-		Type=Items[I]->Type;
-		Flags=Items[I]->Flags;
+		FARDIALOGITEMTYPES Type=Items[I]->Type;
+		FARDIALOGITEMFLAGS Flags=Items[I]->Flags;
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
@@ -4254,8 +4253,6 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 {
 	CriticalSectionLock Lock(CS);
-	FARDIALOGITEMTYPES Type;
-	FARDIALOGITEMFLAGS Flags;
 
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec))
@@ -4265,8 +4262,8 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 
 	for (size_t I=0; I<Items.size(); I++)
 	{
-		Type=Items[I]->Type;
-		Flags=Items[I]->Flags;
+		FARDIALOGITEMTYPES Type=Items[I]->Type;
+		FARDIALOGITEMFLAGS Flags=Items[I]->Flags;
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) &&
 		        !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))

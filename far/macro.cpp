@@ -1093,7 +1093,6 @@ int KeyMacro::GetKey()
 			case MPRT_PLUGINCONFIG: // N=Plugin.Config(Guid[,MenuGuid])
 			case MPRT_PLUGINCOMMAND: // N=Plugin.Command(Guid[,Command])
 			{
-				int Ret=0;
 				const wchar_t *Arg = nullptr;
 				const wchar_t *Guid = nullptr;
 				GUID guid, menuGuid;
@@ -1145,7 +1144,7 @@ int KeyMacro::GetKey()
 				if (!ItemFailed && StrToGuid(Guid,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 				{
 					// „тобы вернуть результат "выполнени€" нужно проверить наличие плагина/пункта
-					Ret=Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+					int Ret=Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					if (Ret)
 					{
 						// ≈сли нашли успешно - то теперь выполнение
@@ -2708,14 +2707,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (!f)
 					f=fo;
 
-				__int64 Result=0;
-
 				if (f)
 				{
 					__int64 MenuItemPos=tmpVar.i()-1;
 					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
 					{
-						if ((Result=f->VMProcess(CheckCode,nullptr,MenuItemPos)) )
+						__int64 Result = f->VMProcess(CheckCode,nullptr,MenuItemPos);
+						if (Result)
 						{
 
 							const wchar_t _value[]={static_cast<wchar_t>(Result),0};
@@ -3514,7 +3512,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	DWORD dwLayout = (DWORD)Params[0].getInteger();
 
 	BOOL Ret=TRUE;
-	HKL  Layout=0, RetLayout=0;
+	HKL RetLayout=0;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
 	if (Global->ifn->GetConsoleKeyboardLayoutNameW(LayoutName))
@@ -3528,6 +3526,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 
 	if (hWnd && dwLayout)
 	{
+		HKL Layout = 0;
 		WPARAM wParam;
 
 		if ((long)dwLayout == -1)
@@ -3736,7 +3735,6 @@ static bool menushowFunc(FarMacroCall* Data)
 	int LineCount=0;
 	size_t CurrentPos=0;
 	size_t PosLF;
-	size_t SubstrLen;
 	ReplaceStrings(strTitle,L"\r\n",L"\n");
 	bool CRFound=strTitle.Pos(PosLF, L"\n");
 
@@ -3756,7 +3754,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	{
 		MenuItemEx NewItem;
 		NewItem.Clear();
-		SubstrLen=PosLF-CurrentPos;
+		size_t SubstrLen=PosLF-CurrentPos;
 
 		if (SubstrLen==0)
 			SubstrLen=1;

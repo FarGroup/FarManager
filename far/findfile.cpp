@@ -1379,10 +1379,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
 
 	static bool Recurse=false;
-	static DWORD ShowTime=0;
 
 	if(!Finalized && !Recurse)
 	{
+		static DWORD ShowTime=0;
 		Recurse=true;
 		DWORD Time=GetTickCount();
 		if(Time-ShowTime>(DWORD)Global->Opt->RedrawTimeout)
@@ -1618,8 +1618,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					FindListItem* FindItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr,0));
 					bool RemoveTemp=false;
-					// Плагины надо закрывать, если открыли.
-					bool ClosePanel=false;
 					string strSearchFileName;
 					string strTempDir;
 
@@ -1634,6 +1632,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 						{
+							// Плагины надо закрывать, если открыли.
+							bool ClosePanel=false;
 							real_name = false;
 
 							string strFindArcName = FindItem->Arc->strArcName;

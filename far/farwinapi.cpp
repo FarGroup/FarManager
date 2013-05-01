@@ -1264,9 +1264,8 @@ bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWOR
 
 bool apiCreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName,DWORD dwFlags)
 {
-	bool Result=false;
 	NTPath NtSymlinkFileName(SymlinkFileName);
-	Result=CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, dwFlags);
+	bool Result = CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, dwFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result=Global->Elevation->fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
@@ -1281,9 +1280,8 @@ bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt)
 
 bool apiSetFileEncryption(const string& Name, bool Encrypt)
 {
-	bool Result=false;
 	NTPath NtName(Name);
-	Result = apiSetFileEncryptionInternal(NtName.CPtr(), Encrypt);
+	bool Result = apiSetFileEncryptionInternal(NtName.CPtr(), Encrypt);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in advapi32, NtStatus not affected
 	{
 		Result=Global->Elevation->fSetFileEncryption(NtName, Encrypt);
@@ -1451,11 +1449,11 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	ULONG RetLen;
-	ULONG BufSize = NT_MAX_PATH;
 	NTSTATUS Res = STATUS_SUCCESS;
 	string NtPath;
 
 	{
+		ULONG BufSize = NT_MAX_PATH;
 		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
 		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 

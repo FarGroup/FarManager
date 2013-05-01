@@ -1467,11 +1467,9 @@ int Edit::ProcessKey(int Key)
 int Edit::ProcessCtrlQ()
 {
 	INPUT_RECORD rec;
-	DWORD Key;
-
 	for (;;)
 	{
-		Key=GetInputRecord(&rec);
+		DWORD Key=GetInputRecord(&rec);
 
 		if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
 			break;
@@ -2102,7 +2100,7 @@ void Edit::InsertTab()
 bool Edit::ReplaceTabs()
 {
 	wchar_t *TabPtr;
-	int Pos=0,S;
+	int Pos=0;
 
 	if (Flags.Check(FEDITLINE_READONLY))
 		return false;
@@ -2113,7 +2111,7 @@ bool Edit::ReplaceTabs()
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);
-		S=GetTabSize()-((int)(TabPtr-Str) % GetTabSize());
+		int S=GetTabSize()-((int)(TabPtr-Str) % GetTabSize());
 
 		if (SelStart!=-1)
 		{

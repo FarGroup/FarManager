@@ -545,14 +545,14 @@ int FileList::UpdateIfChanged(int UpdateMode)
 
 void FileList::InitFSWatcher(bool CheckTree)
 {
-	wchar_t RootDir[4]=L" :\\";
 	DWORD DriveType=DRIVE_REMOTE;
 	StopFSWatcher();
 	PATH_TYPE Type = ParsePath(strCurDir);
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{
-		RootDir[0] = (Type == PATH_DRIVELETTER)? strCurDir.At(0) : strCurDir.At(4);
+		wchar_t RootDir[4]=L" :\\";
+		RootDir[0] = strCurDir[(Type == PATH_DRIVELETTER)? 0 : 4];
 		DriveType=FAR_GetDriveType(RootDir);
 	}
 
@@ -628,7 +628,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	DizRead=FALSE;
 	std::vector<FileListItem*> OldData;
 	string strCurName, strNextCurName;
-	int OldFileCount=0;
 	StopFSWatcher();
 	LastCurFile=-1;
 	OpenPanelInfo Info;
@@ -803,9 +802,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		if (LastSelPosition >= 0 && LastSelPosition < OldFileCount)
+		if (LastSelPosition >= 0 && LastSelPosition < static_cast<long>(OldData.size()))
 			strLastSel = OldData[LastSelPosition]->strName;
-		if (GetSelPosition >= 0 && GetSelPosition < OldFileCount)
+		if (GetSelPosition >= 0 && GetSelPosition < static_cast<long>(OldData.size()))
 			strGetSel = OldData[GetSelPosition]->strName;
 
 		MoveSelection(OldData, ListData);

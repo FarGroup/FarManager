@@ -1682,7 +1682,7 @@ public:
 	~StackHandler()
 	{
 		OriginalEvents->pop();
-		if (!OriginalEvents->size())
+		if (OriginalEvents->empty())
 		{
 			delete OriginalEvents;
 			OriginalEvents = nullptr;
@@ -2312,7 +2312,6 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
 
-	static wchar_t* HelpTopic = nullptr;
 	int Msg = oldfar::DM_FIRST;
 	if(NewMsg>DM_USER)
 	{
@@ -2411,6 +2410,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			intptr_t ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, HelpTopicA);
 			if (ret && ret != reinterpret_cast<intptr_t>(Param2)) // changed
 			{
+				static wchar_t* HelpTopic = nullptr;
 				delete[] HelpTopic;
 
 				HelpTopic = AnsiToUnicode((const char *)ret);
@@ -3243,7 +3243,6 @@ struct oldPanelInfoContainer
 static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldPanelInfoContainer PanelInfoA, AnotherPanelInfoA;
-	static int Reenter=0;
 
 	if (!hPlugin || hPlugin==INVALID_HANDLE_VALUE)
 		hPlugin=PANEL_ACTIVE;
@@ -3273,6 +3272,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			bool Passive=Command==oldfar::FCTL_GETANOTHERPANELINFO;
 
+			static int Reenter=0;
 			if (Reenter)
 			{
 				//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPanelInfo).

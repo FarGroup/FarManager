@@ -1997,7 +1997,7 @@ bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
 
 			if (strTopic.At(0)==HelpBeginLink)
 			{
-				wchar_t *Ptr, *Ptr2;
+				wchar_t *Ptr;
 				wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
 
 				if (!(Ptr=wcschr(lpwszTopic,HelpEndLink)))
@@ -2015,7 +2015,7 @@ bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
 					   Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
 					   Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
 					*/
-					Ptr2=Ptr-1;
+					wchar_t* Ptr2=Ptr-1;
 
 					if (!IsSlash(*Ptr2)) // Это имя модуля?
 					{

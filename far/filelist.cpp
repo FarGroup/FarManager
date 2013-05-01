@@ -710,11 +710,11 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк
 						{
-							int Pos;
 							Result=0;
 							std::for_each(CONST_RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
+								int Pos = this->FindFile(PointToName(i), TRUE);
+								if (Pos != -1)
 								{
 									this->Select(ListData[Pos],FALSE);
 									Result++;
@@ -746,11 +746,11 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк через CRLF
 						{
-							int Pos;
 							Result=0;
 							std::for_each(CONST_RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
+								int Pos = this->FindFile(PointToName(i), TRUE);
+								if (Pos != -1)
 								{
 									this->Select(ListData[Pos],TRUE);
 									Result++;
@@ -782,11 +782,11 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // набор строк через CRLF
 						{
-							int Pos;
 							Result=0;
 							std::for_each(CONST_RANGE(itemsList, i)
 							{
-								if ((Pos=this->FindFile(PointToName(i), TRUE)) != -1)
+								int Pos = this->FindFile(PointToName(i), TRUE);
+								if (Pos != -1)
 								{
 									this->Select(ListData[Pos],!ListData[Pos]->Selected);
 									Result++;
@@ -2357,7 +2357,6 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
 	string strFileName, strShortFileName;
-	const wchar_t *ExtPtr;
 
 	if (CurFile >= static_cast<int>(ListData.size()))
 		return;
@@ -2456,7 +2455,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			return;
 		}
 
-		ExtPtr = wcsrchr(strFileName.CPtr(), L'.');
+		const wchar_t *ExtPtr = wcsrchr(strFileName.CPtr(), L'.');
 		int ExeType=FALSE,BatType=FALSE;
 
 		if (ExtPtr)
@@ -2517,7 +2516,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 {
-	bool CheckFullScreen=false;
 
 	FileListItem *CurPtr=nullptr;
 
@@ -2525,7 +2523,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 	{
 		if (ClosePanel)
 		{
-			CheckFullScreen=IsFullScreen();
+			bool CheckFullScreen=IsFullScreen();
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 			string strInfoHostFile=Info.HostFile;
@@ -2616,8 +2614,6 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	if (SelFileCount>0)
 		ClearSelection();
 
-	bool PluginClosed=false,GoToPanelFile=false;
-
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
@@ -2633,6 +2629,8 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
 		bool SetDirectorySuccess = true;
+		bool GoToPanelFile = false;
+		bool PluginClosed=false;
 
 		if (dot2Present && (strInfoCurDir.IsEmpty() || strInfoCurDir == L"\\"))
 		{
@@ -3762,11 +3760,10 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
 	filemasks FileMask; // Класс для работы с масками
-	const wchar_t *HistoryName=L"Masks";
 	FarDialogItem SelectDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,51,5,0,nullptr,nullptr,0,L""},
-		{DI_EDIT,5,2,49,2,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY,L""},
+		{DI_EDIT,5,2,49,2,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSelectFilter)},

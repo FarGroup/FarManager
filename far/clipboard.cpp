@@ -230,13 +230,12 @@ bool Clipboard::Copy(const wchar_t *Data)
 	Empty();
 	if (Data && *Data)
 	{
-		HGLOBAL hData;
-		void *GData;
 		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
-
-		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
+		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
+		if (hData)
 		{
-			if ((GData=GlobalLock(hData)))
+			void *GData = GlobalLock(hData);
+			if (GData)
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
@@ -263,14 +262,12 @@ bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 
 	if (Data && *Data)
 	{
-		HGLOBAL hData;
-		void *GData;
-
 		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
-
-		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
+		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
+		if (hData)
 		{
-			if ((GData=GlobalLock(hData)))
+			void* GData = GlobalLock(hData);
+			if (GData)
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);

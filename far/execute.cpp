@@ -197,13 +197,13 @@ strType - сюда запишется результат, если будет найден
 */
 static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 {
-	const DWORD dwNameBufSize = 64;
 	HKEY hExtIDListSubKey;
 
 	if (RegOpenKey(hExtKey, L"OpenWithProgids", &hExtIDListSubKey) == ERROR_SUCCESS)
 	{
 		DWORD nValueIndex = 0;
 		LONG nRet;
+		const DWORD dwNameBufSize = 64;
 		wchar_t wszValueName[dwNameBufSize];
 		DWORD nValueNameSize = dwNameBufSize;
 		DWORD nValueType;
@@ -854,9 +854,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			const wchar_t *ExtPtr=wcsrchr(PointToName(strNewCmdStr), L'.');
 			if (ExtPtr)
 			{
-				DWORD Error=0, dwSubSystem2=0;
 				if (!(!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com") || IsBatchExtType(ExtPtr)))
 				{
+					DWORD Error=0, dwSubSystem2=0;
 					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
 
 					if (lpVerb && Error != ERROR_NO_ASSOCIATION)

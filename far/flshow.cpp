@@ -444,7 +444,6 @@ void FileList::ShowFileList(int Fast)
 const FarColor FileList::GetShowColor(int Position, int ColorType)
 {
 	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
-	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
 	if (static_cast<size_t>(Position) < ListData.size())
 	{
@@ -459,6 +458,7 @@ const FarColor FileList::GetShowColor(int Position, int ColorType)
 
 		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
 
+		const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Global->Opt->Highlight)
 			ColorAttr=ColorIndexToColor(PalColor[Pos]);
 	}
@@ -858,13 +858,11 @@ int FileList::PrepareColumnWidths(unsigned __int64 *ColumnTypes, int *ColumnWidt
 
 	ColumnsInGlobal = 1;
 	int GlobalColumns=0;
-	bool UnEqual;
-	int Remainder;
 
 	for (int i = 0; i < ViewSettings.ColumnCount; i++)
 	{
-		UnEqual = false;
-		Remainder = ViewSettings.ColumnCount%ColumnsInGlobal;
+		bool UnEqual = false;
+		int Remainder = ViewSettings.ColumnCount%ColumnsInGlobal;
 		GlobalColumns = ViewSettings.ColumnCount/ColumnsInGlobal;
 
 		if (!Remainder)

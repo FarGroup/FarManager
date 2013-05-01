@@ -113,12 +113,11 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 {
-	const wchar_t *HistoryName=L"NewEdit";
 	FarDialogItem EditDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,MSG(MEditTitle)},
 		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,MSG(MEditOpenCreateLabel)},
-		{DI_EDIT,     5,3,70,3,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
+		{DI_EDIT,     5,3,70,3,0,L"NewEdit",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
 		{DI_TEXT,    -1,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,MSG(MEditCodePage)},
 		{DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L""},
@@ -241,12 +240,11 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 
 bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,bool &AddSignature)
 {
-	const wchar_t *HistoryName=L"NewEdit";
 	FarDialogItem EditDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,72,15,0,nullptr,nullptr,0,MSG(MEditTitle)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSaveAs)},
-		{DI_EDIT,5,3,70,3,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
+		{DI_EDIT,5,3,70,3,0,L"NewEdit",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,MSG(MEditCodePage)},
 		{DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L""},
@@ -2661,11 +2659,10 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (Param2)
 			{
 				INPUT_RECORD *rec=(INPUT_RECORD *)Param2;
-				DWORD Key;
 
 				for (;;)
 				{
-					Key=GetInputRecord(rec);
+					DWORD Key=GetInputRecord(rec);
 
 					if ((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
 					        ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // исключаем MACRO

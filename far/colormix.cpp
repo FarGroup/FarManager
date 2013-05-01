@@ -45,17 +45,23 @@ enum
 
 WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 {
-	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
-	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
-	static int BlueMask = 1, GreenMask = 2, RedMask = 4, IntensityMask = 8;
-	static BYTE IndexColors[2] = {};
 	static COLORREF LastTrueColors[2] = {};
 	static WORD Result = 0;
 	if(Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1])
 	{
+		static BYTE IndexColors[2] = {};
 		COLORREF TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
+		static const FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
 
 #define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
+
+		enum
+		{
+			BlueMask = 1,
+			GreenMask = 2,
+			RedMask = 4,
+			IntensityMask = 8,
+		};
 
 		for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
 		{
@@ -135,7 +141,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 			// oops, unreadable
 			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
 		}
-		Result = (IndexColors[0] << Shifts[0]) | (IndexColors[1] << Shifts[1]);
+		Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift);
 
 #undef INSIDE
 

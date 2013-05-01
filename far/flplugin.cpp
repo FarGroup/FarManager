@@ -424,12 +424,12 @@ void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber
 	long SaveSelPosition=GetSelPosition;
 	long OldLastSelPosition=LastSelPosition;
 	string strSelName;
-	DWORD FileAttr;
 	ItemNumber=0;
 	ItemList=new PluginPanelItem[SelFileCount+1]();
 
 	if (ItemList)
 	{
+		DWORD FileAttr;
 		GetSelName(nullptr,FileAttr);
 
 		while (GetSelName(&strSelName,FileAttr))

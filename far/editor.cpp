@@ -258,7 +258,7 @@ int Editor::GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
 		*PDest=0;
 
 		SizeDestBuf=AllLength;
-		DestBuf=&MemEditStr;
+		*DestBuf=&MemEditStr;
 		return TRUE;
 	}
 	else
@@ -623,7 +623,6 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 		case MCODE_F_EDITOR_SEL:
 		{
-			int iLine;
 			int iPos;
 			int Action=(int)((intptr_t)vParam);
 
@@ -670,6 +669,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						case 0: // begin block (FirstLine & FirstPos)
 						case 1: // end block (LastLine & LastPos)
 						{
+							int iLine;
 							if (!iParam)
 								iLine=BlockStart2NumLine(&iPos);
 							else
@@ -892,9 +892,8 @@ int Editor::ProcessKey(int Key)
 
 	_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey()"));
 	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
-	int CurPos,CurVisPos;
-	CurPos=CurLine->GetCurPos();
-	CurVisPos=GetLineCurPos();
+	int CurPos=CurLine->GetCurPos();
+	int CurVisPos=GetLineCurPos();
 	int isk = IsShiftKey(Key);
 	int ick = (Key==KEY_CTRLC || Key==KEY_RCTRLC || Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLINS || Key==KEY_RCTRLNUMPAD0);
 	int imk = ((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE);
@@ -1275,7 +1274,6 @@ int Editor::ProcessKey(int Key)
 				int SkipSpace=TRUE;
 				Pasting++;
 				Lock();
-				int CurPos;
 
 				for (;;)
 				{
@@ -1285,7 +1283,7 @@ int Editor::ProcessKey(int Key)
 					/* $ 12.11.2002 DJ
 					   обеспечим корректную работу Ctrl-Shift-Left за концом строки
 					*/
-					CurPos=CurLine->GetCurPos();
+					int CurPos=CurLine->GetCurPos();
 
 					if (CurPos>Length)
 					{
@@ -1337,14 +1335,13 @@ int Editor::ProcessKey(int Key)
 				int SkipSpace=TRUE;
 				Pasting++;
 				Lock();
-				int CurPos;
 
 				for (;;)
 				{
 					const wchar_t *Str;
 					intptr_t Length;
 					CurLine->GetBinaryString(&Str,nullptr,Length);
-					CurPos=CurLine->GetCurPos();
+					int CurPos=CurLine->GetCurPos();
 
 					if (CurPos>=Length)
 						break;
@@ -3687,8 +3684,6 @@ BOOL Editor::Search(int Next)
 	string strSearchStr, strReplaceStr;
 	static string strLastReplaceStr;
 	string strMsgStr;
-	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-	int CurPos, NewNumLine;
 	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak;
 	AutoUndoBlock UndoBlock(this);
 
@@ -3719,6 +3714,7 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
+		const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr,
 					TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch", false,
 					ReplaceMode?&EditorReplaceId:&EditorSearchId);
@@ -3769,10 +3765,11 @@ BOOL Editor::Search(int Next)
 		SetCursorType(FALSE,-1);
 		Match=0;
 		UserBreak=0;
-		CurPos=CurLine->GetCurPos();
+		int CurPos=CurLine->GetCurPos();
 		if (!ReverseSearch && (Next || (EdOpt.F7Rules && !ReplaceMode)))
 			CurPos++;
 
+		int NewNumLine;
 		if(FindAllReferences)
 		{
 			NewNumLine = 0;
@@ -7425,7 +7422,6 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter, i
 
 void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 {
-	bool translateTabs=false;
 	SavePos=pc.bm;
 	//m_codepage = pc.CodePage; //BUGBUG!!!, LoadFile do it itself
 
@@ -7480,6 +7476,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 	}
 	else if (StartLine != -1 || EdOpt.SavePos)
 	{
+		bool translateTabs=false;
 		if (StartLine!=-1)
 		{
 			pc.cur.Line = StartLine-1;
@@ -7743,7 +7740,7 @@ bool Editor::SortColorLocked()
 
 void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 {
-	if (!ChangeEventSubscribers.size())
+	if (ChangeEventSubscribers.empty())
 		return;
 	if (StrNum==-1)
 		StrNum=NumLine;

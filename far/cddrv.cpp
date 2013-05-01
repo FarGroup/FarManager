@@ -361,7 +361,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
 			char productID[1024];
 			int idx = 0;
 
-			for (DWORD i = devDesc->ProductIdOffset; outBuf[i] && i < returnedLength; i++)
+			for (DWORD i = devDesc->ProductIdOffset; i < returnedLength && outBuf[i]; i++)
 			{
 				productID[idx++] = outBuf[i];
 			}

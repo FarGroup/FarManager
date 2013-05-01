@@ -484,10 +484,10 @@ void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (
 {
 	if(width)
 	{
-		size_t low=0,high=nelem,curr;
+		size_t low=0,high=nelem;
 		while(low<high)
 		{
-			curr=(low+high)/2;
+			size_t curr=(low+high)/2;
 			void* ptr=(void*)(((char*)base)+curr*width);
 			int cmp=fcmp(key,ptr,userparam);
 			if(0==cmp)
@@ -663,11 +663,9 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
 
 static void iswap(int *a, int *b, size_t n_to_swap)   /* swap ints */
 {
-	int tmp;
-
 	do
 	{
-		tmp = *a;
+		int tmp = *a;
 		*a = *b;
 		*b = tmp;
 		a++; b++;
@@ -677,11 +675,9 @@ static void iswap(int *a, int *b, size_t n_to_swap)   /* swap ints */
 
 static void cswap(char *a, char *b, size_t n_to_swap)  /* swap chars */
 {
-	char tmp;
-
 	do
 	{
-		tmp = *a;
+		char tmp = *a;
 		*a = *b;
 		*b = tmp;
 		a++; b++;
@@ -1003,14 +999,14 @@ static void  shortsort(
     int (__cdecl *comp)(const void *, const void *)
 )
 {
-	char *p, *max;
+	char *p;
 	/* Note: in assertions below, i and j are alway inside original bound of
 	   array to sort. */
 
 	while (hi > lo)
 	{
 		/* A[i] <= A[j] for i <= j, j > hi */
-		max = lo;
+		char* max = lo;
 
 		for (p = lo+width; p <= hi; p += width)
 		{
@@ -1336,14 +1332,14 @@ static void  shortsort_m(
     void* t
 )
 {
-	char *p, *ptrmax;
+	char *p;
 	/* Note: in assertions below, i and j are alway inside original bound of
 	   array to sort. */
 
 	while (hi > lo)
 	{
 		/* A[i] <= A[j] for i <= j, j > hi */
-		ptrmax = lo;
+		char* ptrmax = lo;
 
 		for (p = lo+width; p <= hi; p += width)
 		{

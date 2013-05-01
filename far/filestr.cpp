@@ -130,12 +130,12 @@ int GetFileString::PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 	{
 		LastResult = GetString(DestStr, nCodePage, Length);
 		Peek = true;
-		LastString = DestStr;
+		LastString = *DestStr;
 		LastLength = Length;
 	}
 	else
 	{
-		DestStr = LastString;
+		*DestStr = LastString;
 		Length = LastLength;
 	}
 	return LastResult;
@@ -146,7 +146,7 @@ int GetFileString::GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 	if(Peek)
 	{
 		Peek = false;
-		DestStr = LastString;
+		*DestStr = LastString;
 		Length = LastLength;
 		return LastResult;
 	}

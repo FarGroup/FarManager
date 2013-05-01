@@ -153,16 +153,13 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 // IS: после CmpName_Body)
 static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameSearchMode)
 {
-	wchar_t stringc,patternc,rangec;
-	int match;
-
 	for (;; ++str)
 	{
 		/* $ 01.05.2001 DJ
 		   используем инлайновые версии
 		*/
-		stringc=Upper(*str);
-		patternc=Upper(*pattern++);
+		wchar_t stringc=Upper(*str);
+		wchar_t patternc=Upper(*pattern++);
 
 		switch (patternc)
 		{
@@ -214,7 +211,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 
 				return FALSE;
 			case L'[':
-
+			{
 				if (!wcschr(pattern,L']'))
 				{
 					if (patternc != stringc)
@@ -232,8 +229,8 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 					break;
 				}
 
-				match = 0;
-
+				int match = 0;
+				wchar_t rangec;
 				while ((rangec = Upper(*pattern++)))
 				{
 					if (rangec == L']')
@@ -259,7 +256,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 
 				if (!rangec)
 					return FALSE;
-
+			}
 				break;
 			default:
 

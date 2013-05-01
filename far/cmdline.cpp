@@ -1025,9 +1025,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if(!FarChDir(strCmdLine))
 		{
 			wchar_t NewDir[]={Upper(strCmdLine[0]),L':',L'\\',0};
-			{
-				FarChDir(NewDir);
-			}
+			FarChDir(NewDir);
 		}
 		SetPanel->ChangeDirToCurrent();
 		return TRUE;
@@ -1148,13 +1146,13 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		if (ppstack.size())
+		if (!ppstack.empty())
 		{
 			PushPopRecord& prec = ppstack.top();
 			int Ret=IntChDir(prec.strName,true,SilentInt);
 			ppstack.pop();
 			const wchar_t* Ptr = nullptr;
-			if (ppstack.size())
+			if (!ppstack.empty())
 			{
 				Ptr = ppstack.top().strName.CPtr();
 			}

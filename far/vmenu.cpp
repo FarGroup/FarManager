@@ -1084,11 +1084,10 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 bool VMenu::AddToFilter(const wchar_t *str)
 {
-	int Key;
-
 	if (bFilterEnabled && !bFilterLocked)
 	{
-		while ((Key=*str) )
+		int Key;
+		while ((Key=*str))
 		{
 			if( IsFilterEditKey(Key) )
 			{
@@ -1578,12 +1577,11 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsY>SbY1 && MsY<SbY2)
 		{
-			int SbHeight;
 			int Delta=0;
 
 			while (IsMouseButtonPressed())
 			{
-				SbHeight=Y2-Y1-2;
+				int SbHeight=Y2-Y1-2;
 				int MsPos=(GetShowItemCount()-1)*(IntKeyState.MouseY-Y1)/(SbHeight);
 
 				if (MsPos >= GetShowItemCount())
@@ -1809,12 +1807,12 @@ void VMenu::Show()
 
 	if (!CheckFlags(VMENU_LISTBOX))
 	{
-		bool AutoCenter = false;
 		bool AutoHeight = false;
 
 		if (!CheckFlags(VMENU_COMBOBOX))
 		{
 			bool HasSubMenus = ItemSubMenusCount > 0;
+			bool AutoCenter = false;
 
 			if (X1 == -1)
 			{

@@ -526,11 +526,11 @@ Plugin::Plugin(PluginManager *owner, const string& ModuleName):
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
 	Activity(0),
-	bPendingRemove(false)
+	bPendingRemove(false),
+	m_strModuleName(ModuleName),
+	m_strCacheName(ModuleName),
+	m_hModule(nullptr)
 {
-	m_strModuleName = ModuleName;
-	m_strCacheName = ModuleName;
-	m_hModule = nullptr;
 
 	for (size_t i = 0; i != m_strCacheName.GetLength(); ++i)
 	{

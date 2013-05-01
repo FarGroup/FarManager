@@ -33,8 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "sqlite.hpp"
 #include "sqlitedb.hpp"
+#include "sqlite.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "synchro.hpp"

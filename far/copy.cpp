@@ -3540,11 +3540,11 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			LPCWSTR ViewName=nullptr;
 			string** WFN=reinterpret_cast<string**>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
 
 			if (WFN)
 			{
+				LPCWSTR ViewName=nullptr;
 				switch (Param1)
 				{
 					case WDLG_SRCFILEBTN:

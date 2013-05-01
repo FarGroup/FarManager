@@ -677,7 +677,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	size_t ReadCount;
 	DWORD LoopCount=0,CalcKey;
 	int NotMacros=FALSE;
-	static int LastMsClickMacroKey=0;
 	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
@@ -693,6 +692,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		{
 			DWORD EventState,MsClickKey;
 
+			static int LastMsClickMacroKey=0;
 			if ((MsClickKey=KeyMsClick2ButtonState(MacroKey,EventState)) )
 			{
 				// Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.

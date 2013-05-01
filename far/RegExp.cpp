@@ -432,7 +432,6 @@ struct REOpCode
 	struct SNamedBracket
 	{
 		REOpCode* nextalt;
-		wchar_t* name;
 		REOpCode* pairindex;
 	};
 

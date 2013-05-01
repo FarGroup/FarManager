@@ -938,12 +938,10 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg)
 	if (hDlg==INVALID_HANDLE_VALUE)
 		return -1;
 
-	int ExitCode=-1;
-
 	Dialog *FarDialog = (Dialog *)hDlg;
 
 	FarDialog->Process();
-	ExitCode=FarDialog->GetExitCode();
+	int ExitCode=FarDialog->GetExitCode();
 
 	if (Global->IsMainThread()) // BUGBUG, findfile
 		FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
@@ -1319,11 +1317,10 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				return TRUE;
 
 			Panel *pPanel = FPanels->ActivePanel;
-			PluginHandle *PlHandle;
 
 			if (pPanel && (pPanel->GetMode() == PLUGIN_PANEL))
 			{
-				PlHandle = (PluginHandle *)pPanel->GetPluginHandle();
+				PluginHandle* PlHandle = (PluginHandle *)pPanel->GetPluginHandle();
 
 				if (PlHandle)
 				{
