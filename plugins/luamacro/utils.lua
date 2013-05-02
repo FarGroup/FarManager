@@ -136,8 +136,8 @@ local function export_ProcessEditorInput (Rec)
   return EV_Handler(Events.editorinput, editor.GetFileName(nil), Rec)
 end
 
-local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
-  local PatExpandKey = regex.new("Ctrl|Alt|Shift|LCtrl|RCtrl|LAlt|RAlt|.*", "i")
+local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 8.4 микросекунды.
+  local PatExpandKey = regex.new("ctrl|alt|shift|lctrl|rctrl|lalt|ralt|.*")
   local lctrl,rctrl,lalt,ralt,rest
   local t={}
 
