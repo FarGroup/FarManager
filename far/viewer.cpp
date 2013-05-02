@@ -128,7 +128,6 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	DeleteFolder=TRUE;
 	CodePageChangedByUser=FALSE;
 	ReadStdin=FALSE;
-	memset(UndoData,0xff,sizeof(UndoData));
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
 	this->ViewerID=::ViewerID++;
@@ -1368,16 +1367,13 @@ int Viewer::ProcessKey(int Key)
 			Key != KEY_SHIFTF7 && Key != KEY_SPACE && Key != KEY_ALTF7 && Key != KEY_RALTF7 )
 		SelectSize = -1;
 
-	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
+	if (!InternalKey && !LastKeyUndo && (UndoData.empty() || FilePos!=UndoData.back().UndoAddr || LeftPos!=UndoData.back().UndoLeft))
 	{
-		for (int i=ARRAYSIZE(UndoData)-1; i>0; i--)
-		{
-			UndoData[i].UndoAddr=UndoData[i-1].UndoAddr;
-			UndoData[i].UndoLeft=UndoData[i-1].UndoLeft;
-		}
+		enum { VIEWER_UNDO_COUNT = 65536 };
 
-		UndoData[0].UndoAddr=FilePos;
-		UndoData[0].UndoLeft=LeftPos;
+		if (UndoData.size() == VIEWER_UNDO_COUNT)
+			UndoData.pop_front();
+		UndoData.emplace_back(VALUE_TYPE(UndoData)(FilePos, LeftPos));
 	}
 
 	if (Key!=KEY_ALTBS && Key!=KEY_RALTBS && Key!=KEY_CTRLZ && Key!=KEY_RCTRLZ && Key!=KEY_NONE && Key!=KEY_IDLE)
@@ -1517,21 +1513,16 @@ int Viewer::ProcessKey(int Key)
 		case KEY_CTRLZ:
 		case KEY_RCTRLZ:
 		{
-			for (size_t I=1; I<ARRAYSIZE(UndoData); I++)
+			if (!UndoData.empty())
 			{
-				UndoData[I-1].UndoAddr=UndoData[I].UndoAddr;
-				UndoData[I-1].UndoLeft=UndoData[I].UndoLeft;
+				UndoData.pop_back();
+				if (!UndoData.empty())
+				{
+					FilePos=UndoData.back().UndoAddr;
+					LeftPos=UndoData.back().UndoLeft;
+					Show();
+				}
 			}
-
-			if (UndoData[0].UndoAddr!=-1)
-			{
-				FilePos=UndoData[0].UndoAddr;
-				LeftPos=UndoData[0].UndoLeft;
-				UndoData[ARRAYSIZE(UndoData)-1].UndoAddr=-1;
-				UndoData[ARRAYSIZE(UndoData)-1].UndoLeft=-1;
-				Show();
-			}
-
 			return TRUE;
 		}
 		case KEY_ADD:

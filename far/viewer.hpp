@@ -39,8 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "cache.hpp"
 
-#define VIEWER_UNDO_COUNT   64
-
 class FileViewer;
 class KeyBar;
 
@@ -57,6 +55,11 @@ struct ViewerString
 
 struct ViewerUndoData
 {
+	ViewerUndoData(__int64 UndoAddr, __int64 UndoLeft):
+		UndoAddr(UndoAddr),
+		UndoLeft(UndoLeft)
+	{
+	}
 	__int64 UndoAddr;
 	__int64 UndoLeft;
 };
@@ -210,7 +213,7 @@ private:
 	int InternalKey;
 
 	Bookmarks<viewer_bookmark> BMSavePos;
-	ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
+	std::list<ViewerUndoData> UndoData;
 
 	int LastKeyUndo;
 	int Width,XX2;  // , используется при расчете ширины при скролбаре
