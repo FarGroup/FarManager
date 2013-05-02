@@ -390,7 +390,7 @@ local function LoadMacros (allAreas, unload)
   return F.MPRT_COMMONCASE, LastMessage
 end
 
-local function UnloadMacros()
+local function InitMacroSystem()
   local allAreas = bit64.band(MacroCallFar(MCODE_F_GETOPTIONS),0x1) == 0
   LoadMacros(allAreas,true)
 end
@@ -502,8 +502,6 @@ end
 local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
 
 local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
-  if not Areas then return end -- macros were not loaded
-
   local area = GetAreaName(argMode)
   if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
 
@@ -616,7 +614,6 @@ local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
 end
 
 local function RunStartMacro()
-  if not Areas then return end -- macros not loaded
   for _,macros in pairs(Areas.shell) do
     local m = macros.recorded
     if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
@@ -652,6 +649,8 @@ local function GetMacroCopy (id)
   end
 end
 
+InitMacroSystem()
+
 return {
   DelMacro = DelMacro,
   EnumMacros = EnumMacros,
@@ -663,7 +662,7 @@ return {
   LoadMacros = LoadMacros,
   ProcessMacroFromFAR = ProcessMacroFromFAR,
   RunStartMacro = RunStartMacro,
-  UnloadMacros = UnloadMacros,
+  UnloadMacros = InitMacroSystem,
   WriteMacros = WriteMacros,
   GetMacroCopy = GetMacroCopy,
 }
