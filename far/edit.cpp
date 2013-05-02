@@ -3530,6 +3530,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 					if(Global->Opt->AutoComplete.ModalList)
 					{
 						SetString(ComplMenu.GetItemPtr(ExitCode)->strName.CPtr());
+						Show();
 					}
 					else
 					{
