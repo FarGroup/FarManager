@@ -3854,14 +3854,17 @@ BOOL Editor::Search(int Next)
 				if(FindAllReferences)
 				{
 					CurPos = iFoundPos;
+					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					MenuItemEx Item = {};
-					Item.strName = FormatString() << fmt::LeftAlign() << fmt::ExactWidth(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
+					const int service_len = 12;
+					Item.strName = FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr();
+					Item.Annotations.emplace_back(VALUE_TYPE(Item.Annotations)(CurPos + service_len + 1, NextPos - CurPos));
 					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos, (UINT)SearchLength};
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
 					FindAllList.AddItem(&Item);
-					CurPos += SearchLength? SearchLength : 1;
+					CurPos = NextPos;
 					if(NewNumLine != LastCheckedLine)
 					{
 						LastCheckedLine = NewNumLine;

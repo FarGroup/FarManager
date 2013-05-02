@@ -108,7 +108,7 @@ struct MenuItemEx
 	short AmpPos;                  // Позиция автоназначенной подсветки
 	short Len[2];                  // размеры 2-х частей
 	short Idx2;                    // начало 2-й части
-
+	std::list<std::pair<int, int>> Annotations;
 
 	UINT64 SetCheck(int Value)
 	{
@@ -142,6 +142,7 @@ struct MenuItemEx
 		Len[0] = 0;
 		Len[1] = 0;
 		Idx2 = 0;
+		Annotations.clear();
 	}
 
 	//UserData не копируется.
@@ -159,6 +160,7 @@ struct MenuItemEx
 			Len[0] = srcMenu.Len[0];
 			Len[1] = srcMenu.Len[1];
 			Idx2 = srcMenu.Idx2;
+			Annotations = srcMenu.Annotations;
 		}
 
 		return *this;

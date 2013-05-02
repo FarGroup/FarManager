@@ -411,6 +411,8 @@ int VMenu2::DeleteItem(int ID, int Count)
 
 int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 {
+	// BUGBUG
+
 	int n=GetItemCount();
 	if(PosAdd<0)
 		PosAdd=0;
@@ -427,6 +429,7 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 	SendMessage(DM_LISTSETDATA, 0, &flid);
 
 	GetItemPtr(PosAdd)->AccelKey=NewItem->AccelKey;
+	GetItemPtr(PosAdd)->Annotations=NewItem->Annotations;
 
 	Resize();
 	return n;

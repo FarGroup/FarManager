@@ -2235,10 +2235,13 @@ void VMenu::ShowMenu(bool IsParent)
 				else
 					GotoXY(X1,Y);
 
+				FarColor CurColor;
 				if ((Item[I]->Flags&LIF_SELECTED))
-					SetColor(VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected]);
+					CurColor = VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected];
 				else
-					SetColor(VMenu::Colors[Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:(Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)]);
+					CurColor = VMenu::Colors[Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:(Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)];
+
+				SetColor(CurColor);
 
 				string strMenuLine;
 				wchar_t CheckMark = L' ';
@@ -2282,15 +2285,12 @@ void VMenu::ShowMenu(bool IsParent)
 
 				strMenuLine.Append(strMItemPtr);
 
+				// табуляции меняем только при показе!!!
+				// для сохранение оригинальной строки!!!
+				for (size_t i = 0; i < strMenuLine.GetLength(); ++i)
 				{
-					// табуляции меняем только при показе!!!
-					// для сохранение оригинальной строки!!!
-					wchar_t *TabPtr, *TmpStr = strMenuLine.GetBuffer();
-
-					while ((TabPtr = wcschr(TmpStr, L'\t')))
-						*TabPtr = L' ';
-
-					strMenuLine.ReleaseBuffer(strMenuLine.GetLength());
+					if (strMenuLine[i] == L'\t')
+						strMenuLine[i] = L' ';
 				}
 
 				FarColor Col;
@@ -2308,7 +2308,31 @@ void VMenu::ShowMenu(bool IsParent)
 				}
 
 				if (CheckFlags(VMENU_SHOWAMPERSAND))
-					Text(strMenuLine);
+				{
+					if (Item[I]->Annotations.empty())
+					{
+						Text(strMenuLine);
+					}
+					else
+					{
+						int StartOffset = 1; // 1 is '<<' placeholder size
+						size_t Pos = 0;
+						FarColor InvColor = CurColor;
+						std::swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
+						std::for_each(CONST_RANGE(Item[I]->Annotations, i)
+						{
+							size_t pre_len = i.first - Item[I]->ShowPos + StartOffset - Pos + 1;
+							Text(strMenuLine.SubStr(Pos, pre_len));
+							Pos += pre_len;
+							SetColor(Col);
+							Text(strMenuLine.SubStr(Pos, i.second));
+							Pos += i.second;
+							SetColor(CurColor);
+						});
+						if (Pos < strMenuLine.GetLength())
+							Text(strMenuLine.CPtr() + Pos);
+					}
+				}
 				else
 					HiText(strMenuLine, Col);
 
