@@ -1982,7 +1982,7 @@ bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
 	{
 		if (HelpTopic[0]==L':')
 		{
-			strTopic.LShift(1);
+			strTopic = HelpTopic.SubStr(1);
 		}
 		else
 		{
