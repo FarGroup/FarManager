@@ -57,12 +57,12 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 {
 	SetDynamicallyBorn(FALSE);
 	SetRestoreScreenMode(TRUE);
-	//FrameManager->ModalizeFrame(this);
+	FrameManager->ModalizeFrame(this);
 }
 
 HMenu::~HMenu()
 {
-//	FrameManager->UnmodalizeFrame(this);
+	FrameManager->UnmodalizeFrame(this);
 	FrameManager->RefreshFrame();
 }
 
