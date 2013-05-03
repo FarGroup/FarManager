@@ -334,6 +334,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dlgedit.cpp" />
     <ClCompile Include="drivemix.cpp" />
     <ClCompile Include="edit.cpp" />
+    <ClCompile Include="editcontrol.cpp" />
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="execute.cpp" />
@@ -416,13 +417,13 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="panelmix.cpp" />
     <ClCompile Include="pathmix.cpp" />
     <ClCompile Include="plist.cpp" />
-    <ClCompile Include="plognmn.cpp" />
     <ClCompile Include="plugapi.cpp" />
     <ClCompile Include="PluginA.cpp" />
     <ClCompile Include="plugins.cpp" />
     <ClCompile Include="PluginSynchro.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
+    <ClCompile Include="preservelongname.cpp" />
     <ClCompile Include="preservestyle.cpp" />
     <ClCompile Include="print.cpp" />
     <ClCompile Include="privilege.cpp" />
@@ -714,6 +715,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="DlgGuid.hpp" />
     <ClInclude Include="drivemix.hpp" />
     <ClInclude Include="edit.hpp" />
+    <ClInclude Include="editcontrol.hpp" />
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
     <ClInclude Include="execute.hpp" />
@@ -781,7 +783,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="pathmix.hpp" />
     <ClInclude Include="plclass.hpp" />
     <ClInclude Include="plist.hpp" />
-    <ClInclude Include="plognmn.hpp" />
     <ClInclude Include="plugapi.hpp" />
     <CustomBuild Include="plugin.hpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Transforming %(Identity) to redistributable form...</Message>
@@ -807,6 +808,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="PluginSynchro.hpp" />
     <ClInclude Include="plugsettings.hpp" />
     <ClInclude Include="poscache.hpp" />
+    <ClInclude Include="preservelongname.hpp" />
     <ClInclude Include="preservestyle.hpp" />
     <ClInclude Include="print.hpp" />
     <ClInclude Include="privilege.hpp" />

@@ -34,6 +34,7 @@ SRCS = \
 	dlgedit.cpp \
 	drivemix.cpp \
 	edit.cpp \
+	editcontrol.cpp \
 	editor.cpp \
 	eject.cpp \
 	elevation.cpp \
@@ -99,13 +100,13 @@ SRCS = \
 	pathmix.cpp \
 	plist.cpp \
 	plclass.cpp \
-	plognmn.cpp \
 	plugapi.cpp \
 	PluginA.cpp \
 	plugins.cpp \
 	PluginSynchro.cpp \
 	plugsettings.cpp \
 	poscache.cpp \
+	preservelongname.cpp \
 	preservestyle.cpp \
 	print.cpp \
 	privilege.cpp \

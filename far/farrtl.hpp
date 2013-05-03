@@ -73,11 +73,3 @@ public:
 	T* operator->() const {return get();}
 	T& operator*() const {return *get();}
 };
-
-
-namespace cfunctions
-{
-	void qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
-	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
-	void far_qsort(void *base, size_t num, size_t width, int (*comp)(const void *, const void *));
-};

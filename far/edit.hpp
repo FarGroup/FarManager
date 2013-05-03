@@ -3,7 +3,7 @@
 /*
 edit.hpp
 
-Реализация одиночной строки редактирования
+Строка редактора
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -82,8 +82,7 @@ enum SetCPFlags
 };
 
 class RegExp;
-struct RegExpMatch;
-typedef struct RegExpMatch SMatch;
+
 class Edit:public ScreenObject
 {
 	enum EDITCOLORLISTFLAGS
@@ -120,7 +119,7 @@ public:
 	void AppendString(const wchar_t *Str);
 	void InsertString(const string& Str);
 	void InsertBinaryString(const wchar_t *Str,int Length);
-	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, SMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
+	int Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength);
 	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() {return Flags.Check(FEDITLINE_CLEARFLAG);}
 	void SetCurPos(int NewPos) {CurPos=NewPos; SetPrevCurPos(NewPos);}
@@ -216,107 +215,4 @@ private:
 	friend class DlgEdit;
 	friend class Editor;
 	friend class FileEditor;
-};
-
-
-
-class History;
-class VMenu2;
-
-// Надстройка над Edit.
-// Одиночная строка ввода для диалогов и комстроки (не для редактора)
-
-class EditControl:public Edit
-{
-	typedef void (*EDITCHANGEFUNC)(void* aParam);
-	struct Callback
-	{
-		bool Active;
-		EDITCHANGEFUNC m_Callback;
-		void* m_Param;
-	};
-
-public:
-	EditControl(ScreenObject *pOwner, Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void Show() override;
-	virtual void Changed(bool DelBlock=false) override;
-
-	void AutoComplete(bool Manual,bool DelBlock);
-	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
-	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
-	void SetMacroAreaAC(MACROMODEAREA Area){MacroAreaAC=Area;}
-	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
-	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
-	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
-	int GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
-	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
-	virtual int GetMaxLength() const override {return MaxLength;}
-	void SetMaxLength(int Length) {MaxLength=Length;}
-
-	enum ECFLAGS
-	{
-		EC_ENABLEAUTOCOMPLETE  = 0x1,
-		EC_COMPLETE_FILESYSTEM = 0x2,
-		EC_COMPLETE_PATH       = 0x4,
-		EC_COMPLETE_HISTORY    = 0x8,
-	};
-
-protected:
-	virtual void RefreshStrByMask(int InitMode=FALSE);
-
-private:
-	virtual const FarColor& GetNormalColor() const override;
-	virtual const FarColor& GetSelectedColor() const override;
-	virtual const FarColor& GetUnchangedColor() const override;
-	virtual const int GetTabSize() const override;
-	virtual const EXPAND_TABS GetTabExpandMode() const override;
-	virtual const string GetInputMask() const override {return Mask;}
-	virtual const void SetInputMask(const string& InputMask) override;
-	virtual const string& WordDiv() const override;
-	virtual int GetPrevCurPos() const override { return PrevCurPos; }
-	virtual void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
-	virtual int GetCursorSize() override { return CursorSize; }
-	virtual void SetCursorSize(int Size) override { CursorSize = Size; }
-	virtual int GetMacroSelectionStart() const override {return MacroSelectionStart;}
-	virtual void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
-	virtual int GetLineCursorPos() const override {return CursorPos;}
-	virtual void SetLineCursorPos(int Value) override {CursorPos = Value;}
-	virtual void DisableCallback() override
-	{
-		CallbackSaveState = m_Callback.Active;
-		m_Callback.Active = false;
-	}
-	virtual void RevertCallback() override
-	{
-		m_Callback.Active = CallbackSaveState;
-	};
-
-	void SetMenuPos(VMenu2& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
-
-	string Mask;
-	History* pHistory;
-	FarList* pList;
-
-	FarColor Color;
-	FarColor SelColor;
-	FarColor ColorUnChanged;
-
-	int MaxLength;
-	int CursorSize;
-	int CursorPos;
-	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
-	int MacroSelectionStart;
-	int SelectionStart;
-	MACROMODEAREA MacroAreaAC;
-	BitFlags ECFlags;
-	Callback m_Callback;
-	bool Selection;
-	bool MenuUp;
-	bool ACState;
-	bool CallbackSaveState;
-
-	friend class DlgEdit;
 };

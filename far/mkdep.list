@@ -51,6 +51,8 @@ drivemix.cpp
 drivemix.hpp
 edit.cpp
 edit.hpp
+editcontrol.cpp
+editcontrol.hpp
 editor.cpp
 editor.hpp
 eject.cpp
@@ -186,8 +188,8 @@ plclass.cpp
 plclass.hpp
 plist.cpp
 plist.hpp
-plognmn.cpp
-plognmn.hpp
+preservelongname.cpp
+preservelongname.hpp
 plugapi.cpp
 plugapi.hpp
 plugin.hpp

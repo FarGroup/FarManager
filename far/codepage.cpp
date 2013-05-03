@@ -592,7 +592,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowU
 	favoriteCodePages = normalCodePages = 0;
 	CodePagesMenu->DeleteItems();
 
-	UnicodeString title = MSG(MGetCodePageTitle);
+	string title = MSG(MGetCodePageTitle);
 	if (Global->Opt->CPMenuMode)
 		title += L" *";
 	CodePagesMenu->SetTitle(title);

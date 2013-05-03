@@ -1,7 +1,5 @@
-#pragma once
-
 /*
-plognmn.hpp
+preservelongname.cpp
 
 class PreserveLongName
 */
@@ -33,18 +31,49 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "headers.hpp"
+#pragma hdrstop
 
+#include "preservelongname.hpp"
+#include "pathmix.hpp"
 
-
-
-class PreserveLongName
+PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
+	Preserve(Preserve)
 {
-	private:
-		string strSaveLongName;
-		string strSaveShortName;
-		int Preserve;
+	if (Preserve)
+	{
+		FAR_FIND_DATA FindData;
 
-	public:
-		PreserveLongName(const string& ShortName,int Preserve);
-		~PreserveLongName();
-};
+		if (apiGetFindDataEx(ShortName, FindData))
+			strSaveLongName = FindData.strFileName;
+		else
+			strSaveLongName.Clear();
+
+		strSaveShortName = ShortName;
+	}
+}
+
+
+PreserveLongName::~PreserveLongName()
+{
+	if (Preserve && apiGetFileAttributes(strSaveShortName)!=INVALID_FILE_ATTRIBUTES)
+	{
+		FAR_FIND_DATA FindData;
+
+		if (!apiGetFindDataEx(strSaveShortName, FindData) || strSaveLongName != FindData.strFileName)
+		{
+			string strNewName;
+			strNewName = strSaveShortName;
+
+			if (CutToSlash(strNewName,true))
+			{
+				strNewName += "\\";
+				strNewName += strSaveLongName;
+			}
+			else
+				strNewName = strSaveLongName;
+
+			apiMoveFile(strSaveShortName, strNewName);
+		}
+	}
+}

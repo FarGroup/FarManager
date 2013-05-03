@@ -1776,12 +1776,12 @@ inline int RegExp::StrCmp(const wchar_t*& str,const wchar_t* _st,const wchar_t* 
 	return 1;
 }
 
-int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,PMatch match,intptr_t& matchcount)
+int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* match,intptr_t& matchcount)
 {
 	int i,j;
 	int minimizing;
 	PREOpCode op,tmp=nullptr;
-	PMatch m;
+	RegExpMatch* m;
 	UniSet *cl;
 	int inrangebracket=0;
 
@@ -3264,7 +3264,7 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,PMatch match,int
 	return 1;
 }
 
-int RegExp::Match(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount)
+int RegExp::Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
 {
 	start=textstart;
 	const wchar_t* tempend=textend;
@@ -3293,7 +3293,7 @@ int RegExp::Match(const wchar_t* textstart,const wchar_t* textend,PMatch match,i
 	return res;
 }
 
-int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount)
+int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
 {
 	if (havefirst && !first[(wchar_t)*textstart])return 0;
 
@@ -3332,7 +3332,7 @@ int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wcha
 	return res;
 }
 
-int RegExp::Match(const wchar_t* textstart,PMatch match,intptr_t& matchcount)
+int RegExp::Match(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount)
 {
 	const wchar_t* textend=textstart+wcslen(textstart);
 	return Match(textstart,textend,match,matchcount);
@@ -3594,13 +3594,13 @@ int RegExp::Optimize()
 	return 1;
 }
 
-int RegExp::Search(const wchar_t* textstart,PMatch match,intptr_t& matchcount)
+int RegExp::Search(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount)
 {
 	const wchar_t* textend=textstart+wcslen(textstart);
 	return Search(textstart,textend,match,matchcount);
 }
 
-int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount)
+int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
 {
 	start=textstart;
 	const wchar_t* str=start;
@@ -3676,7 +3676,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,PMatch match,
 	return res;
 }
 
-int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount)
+int RegExp::SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount)
 {
 	start=datastart;
 	const wchar_t* str=textstart;

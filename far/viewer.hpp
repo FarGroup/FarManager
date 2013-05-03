@@ -118,7 +118,7 @@ public:
 	int ProcessHexMode(int newMode, bool isRedraw=TRUE);
 	int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
-	void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text, intptr_t &pos);
+	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
 
 private:
 	virtual void DisplayObject() override;

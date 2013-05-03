@@ -3783,7 +3783,7 @@ BOOL Editor::Search(int Next)
 
 		string strSlash(strSearchStr);
 		InsertRegexpQuote(strSlash);
-		SMatch m[10*2], *pm = m;
+		RegExpMatch m[10*2], *pm = m;
 		RegExp re;
 
 		if (Regexp)
@@ -3795,7 +3795,7 @@ BOOL Editor::Search(int Next)
 			intptr_t n = re.GetBracketsCount();
 			if (n > static_cast<int>(ARRAYSIZE(m)/2))
 			{
-				pm = new SMatch[n * 2];
+				pm = new RegExpMatch[n * 2];
 				if (!pm)
 					return FALSE; //BUGBUG
 			}

@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "fileedit.hpp"
-#include "plognmn.hpp"
+#include "preservelongname.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"

@@ -146,8 +146,6 @@ enum
 	STACK_PAGE_SIZE=16,
 };
 
-typedef struct RegExpMatch SMatch,*PMatch;
-
 //! Used internally
 typedef struct StateStackItem
 {
@@ -220,7 +218,7 @@ class RegExp
 		int CalcLength(const wchar_t* src,int srclength);
 		int InnerCompile(const wchar_t* src,int srclength,int options);
 
-		int InnerMatch(const wchar_t* str,const wchar_t* end,PMatch match,intptr_t& matchcount);
+		int InnerMatch(const wchar_t* str,const wchar_t* end,RegExpMatch* match,intptr_t& matchcount);
 
 		void TrimTail(const wchar_t*& end);
 
@@ -297,28 +295,28 @@ class RegExp
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
+		int Match(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
 		    textend calculated automatically.
 		*/
-		int Match(const wchar_t* textstart,PMatch match,intptr_t& matchcount);
+		int Match(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount);
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
+		int MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
+		int Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
 		    textend calculated automatically.
 		*/
-		int Search(const wchar_t* textstart,PMatch match,intptr_t& matchcount);
+		int Search(const wchar_t* textstart,RegExpMatch* match,intptr_t& matchcount);
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,PMatch match,intptr_t& matchcount);
+		int SearchEx(const wchar_t* datastart,const wchar_t* textstart,const wchar_t* textend,RegExpMatch* match,intptr_t& matchcount);
 
 		/*! Clean regexp execution stack.
 		    After match large string with complex regexp, significant

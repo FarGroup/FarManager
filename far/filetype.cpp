@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "dialog.hpp"
 #include "vmenu2.hpp"
-#include "plognmn.hpp"
+#include "preservelongname.hpp"
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
 #include "history.hpp"

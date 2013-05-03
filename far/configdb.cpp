@@ -2760,7 +2760,7 @@ bool Database::Export(const string& File)
 
 	bool ret = false;
 
-	SMatch m[2];
+	RegExpMatch m[2];
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
@@ -2837,7 +2837,7 @@ bool Database::Import(const string& File)
 
 	bool ret = false;
 
-	SMatch m[2];
+	RegExpMatch m[2];
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 

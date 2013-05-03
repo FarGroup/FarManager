@@ -145,6 +145,12 @@ __int64 WINAPI apiAtoi64(const wchar_t *s)
 	return s?_wtoi64(s):0;
 }
 
+namespace cfunctions
+{
+	void qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
+	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
+};
+
 void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user)
 {
 	if (base && fcmp)
@@ -2710,5 +2716,215 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 	}
 	return 0;
 }
+
+namespace cfunctions
+{
+	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
+	{
+		if(width)
+		{
+			size_t low=0,high=nelem;
+			while(low<high)
+			{
+				size_t curr=(low+high)/2;
+				void* ptr=(void*)(((char*)base)+curr*width);
+				int cmp=fcmp(key,ptr,userparam);
+				if(0==cmp)
+				{
+					return ptr;
+				}
+				else if(cmp<0)
+				{
+					high=curr;
+				}
+				else
+				{
+					low=curr+1;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	/* start qsortex */
+
+	/*
+	Copyright Prototronics, 1987
+	Totem Lake P.O. 8117
+	Kirkland, Washington 98034
+
+	(206) 820-1972
+
+	Licensed to Zortech. */
+	/*
+	Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
+	(Denver, Colorado) public domain version. */
+
+	/*    qsortex()  --  Quicksort function
+	**
+	**    Usage:   qsortex(base, nbr_elements, width_bytes, compare_function);
+	**                char *base;
+	**                unsigned int nbr_elements, width_bytes;
+	**                int (*compare_function)();
+	**
+	**    Sorts an array starting at base, of length nbr_elements, each
+	**    element of size width_bytes, ordered via compare_function; which
+	**    is called as  (*compare_function)(ptr_to_element1, ptr_to_element2)
+	**    and returns < 0 if element1 < element2, 0 if element1 = element2,
+	**    > 0 if element1 > element2.  Most of the refinements are due to
+	**    R. Sedgewick.  See "Implementing Quicksort Programs", Comm. ACM,
+	**    Oct. 1978, and Corrigendum, Comm. ACM, June 1979.
+	*/
+
+	static void iswap(int *a, int *b, size_t n_to_swap);       /* swap ints */
+	static void cswap(char *a, char *b, size_t n_to_swap);     /* swap chars */
+
+	//static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
+	int _maxspan = 7;               /* subfiles of _maxspan or fewer elements */
+	/* will be sorted by a simple insertion sort */
+
+	/* Adjust _maxspan according to relative cost of a swap and a compare.  Reduce
+	_maxspan (not less than 1) if a swap is very expensive such as when you have
+	an array of large structures to be sorted, rather than an array of pointers to
+	structures.  The default value is optimized for a high cost for compares. */
+
+#define SWAP(a,b) (*swap_fp)(a,b,n_to_swap)
+#define COMPEX(a,b,u) (*comp_fp)(a,b,u)
+#define COMP(a,b) (*comp_fp)(a,b)
+
+	typedef void (__cdecl *SWAP_FP)(void *, void *, size_t);
+
+	void __cdecl qsortex(char *base, size_t nel, size_t width,
+		int (WINAPI *comp_fp)(const void *, const void *,void*), void *user)
+	{
+		char *stack[40], **sp;                 /* stack and stack pointer        */
+		char *i, *j, *limit;                   /* scan and limit pointers        */
+		size_t thresh;                         /* size of _maxspan elements in   */
+		void (__cdecl  *swap_fp)(void *, void *, size_t);               /* bytes */
+		size_t n_to_swap;
+
+		if ((width % sizeof(int)) )
+		{
+			swap_fp = (SWAP_FP)cswap;
+			n_to_swap = width;
+		}
+		else
+		{
+			swap_fp = (SWAP_FP)iswap;
+			n_to_swap = width / sizeof(int);
+		}
+
+		thresh = _maxspan * width;             /* init threshold                 */
+		sp = stack;                            /* init stack pointer             */
+		limit = base + nel * width;            /* pointer past end of array      */
+
+		for (;;)                               /* repeat until done then return  */
+		{
+			while ((size_t)(limit - base) > thresh) /* if more than _maxspan elements */
+			{
+				/*swap middle, base*/
+				SWAP(((size_t)(limit - base) >> 1) -
+					((((size_t)(limit - base) >> 1)) % width) + base, base);
+				i = base + width;                /* i scans from left to right     */
+				j = limit - width;               /* j scans from right to left     */
+
+				if (COMPEX(i, j,user) > 0)              /* Sedgewick's                    */
+					SWAP(i, j);                    /*    three-element sort          */
+
+				if (COMPEX(base, j,user) > 0)           /*        sets things up          */
+					SWAP(base, j);                 /*            so that             */
+
+				if (COMPEX(i, base,user) > 0)           /*              *i <= *base <= *j */
+					SWAP(i, base);                 /* *base is the pivot element     */
+
+				for (;;)
+				{
+					do                            /* move i right until *i >= pivot */
+					i += width;
+
+					while (COMPEX(i, base,user) < 0);
+
+					do                            /* move j left until *j <= pivot  */
+					j -= width;
+
+					while (COMPEX(j, base,user) > 0);
+
+					if (i > j)                    /* break loop if pointers crossed */
+						break;
+
+					SWAP(i, j);                   /* else swap elements, keep scanning */
+				}
+
+				SWAP(base, j);                   /* move pivot into correct place  */
+
+				if (j - base > limit - i)        /* if left subfile is larger...   */
+				{
+					sp[0] = base;                 /* stack left subfile base        */
+					sp[1] = j;                    /*    and limit                   */
+					base = i;                     /* sort the right subfile         */
+				}
+				else                             /* else right subfile is larger   */
+				{
+					sp[0] = i;                    /* stack right subfile base       */
+					sp[1] = limit;                /*    and limit                   */
+					limit = j;                    /* sort the left subfile          */
+				}
+
+				sp += 2;                        /* increment stack pointer        */
+			}
+
+			/* Insertion sort on remaining subfile. */
+			i = base + width;
+
+			while (i < limit)
+			{
+				j = i;
+
+				while (j > base && COMPEX(j - width, j,user) > 0)
+				{
+					SWAP(j - width, j);
+					j -= width;
+				}
+
+				i += width;
+			}
+
+			if (sp > stack)    /* if any entries on stack...     */
+			{
+				sp -= 2;         /* pop the base and limit         */
+				base = sp[0];
+				limit = sp[1];
+			}
+			else              /* else stack empty, all done     */
+				break;          /* Return. */
+		}
+	}
+
+	static void iswap(int *a, int *b, size_t n_to_swap)   /* swap ints */
+	{
+		do
+		{
+			int tmp = *a;
+			*a = *b;
+			*b = tmp;
+			a++; b++;
+		}
+		while (--n_to_swap);
+	}
+
+	static void cswap(char *a, char *b, size_t n_to_swap)  /* swap chars */
+	{
+		do
+		{
+			char tmp = *a;
+			*a = *b;
+			*b = tmp;
+			a++; b++;
+		}
+		while (--n_to_swap);
+	}
+
+	/* end qsortex */
+};
 
 };

@@ -1374,7 +1374,7 @@ bool StrToGuid(const string& Value,GUID& Guid)
 	return UuidFromString(reinterpret_cast<unsigned short*>(UNSAFE_CSTR(Value)), &Guid) == RPC_S_OK;
 }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, SMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv)
 {
 	*SearchLength = 0;
 

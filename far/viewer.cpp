@@ -2707,7 +2707,7 @@ static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
 	return nb;
 }
 
-void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool hex2text, intptr_t &pos )
+void Viewer::SearchTextTransform(string &to, const wchar_t *from, bool hex2text, intptr_t &pos)
 {
 	int nb;
 	char c1[128];
@@ -3124,7 +3124,7 @@ int Viewer::search_regex_forward( search_data* sd )
 		if ( off > nw )
 			break;
 
-		SMatch m[1];
+		RegExpMatch m[1];
 		intptr_t n = static_cast<int>(ARRAYSIZE(m));
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )  // doesn't match
 			break;
@@ -3180,7 +3180,7 @@ int Viewer::search_regex_backward( search_data* sd )
 		if ( lsize <= 0 || off > nw )
 			break;
 
-		SMatch m[1];
+		RegExpMatch m[1];
 		intptr_t n = ARRAYSIZE(m);
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )
 			break;

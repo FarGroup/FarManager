@@ -102,7 +102,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 		REInit = true;
 	}
 
-	SMatch m[3];
+	RegExpMatch m[3];
 
 	for(size_t i = 0; i < ARRAYSIZE(PathTypes); ++i)
 	{

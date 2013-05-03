@@ -121,10 +121,7 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMa
 string GuidToStr(const GUID& Guid);
 bool StrToGuid(const string& Value,GUID& Guid);
 
-class RegExp;
-struct RegExpMatch;
-typedef struct RegExpMatch SMatch;
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, SMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
+bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
 enum STL_FLAGS
 {

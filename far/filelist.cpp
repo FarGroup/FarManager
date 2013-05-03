@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "qview.hpp"
 #include "rdrwdsk.hpp"
-#include "plognmn.hpp"
+#include "preservelongname.hpp"
 #include "scrbuf.hpp"
 #include "filemasks.hpp"
 #include "cddrv.hpp"

@@ -116,6 +116,9 @@
     <ClCompile Include="edit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="editcontrol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -299,9 +302,6 @@
     <ClCompile Include="plist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="plognmn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="plugapi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -318,6 +318,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="poscache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="preservelongname.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="preservestyle.cpp">
@@ -607,6 +610,9 @@
     <ClInclude Include="edit.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="editcontrol.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="editor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -802,9 +808,6 @@
     <ClInclude Include="plist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="plognmn.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="plugapi.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -826,7 +829,7 @@
     <ClInclude Include="poscache.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="preservestyle.hpp">
+    <ClInclude Include="preservelongname.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="print.hpp">
@@ -988,9 +991,6 @@
     <ClInclude Include="vmenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vmenu2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wakeful.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1040,6 +1040,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="filesystemwatcher.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="preservestyle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

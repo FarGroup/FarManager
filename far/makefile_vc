@@ -119,6 +119,7 @@ LINK_OBJS = \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\drivemix.obj" \
 	"$(INTDIR)\edit.obj" \
+	"$(INTDIR)\editcontrol.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\elevation.obj" \
@@ -185,13 +186,13 @@ LINK_OBJS = \
 	"$(INTDIR)\pathmix.obj" \
 	"$(INTDIR)\plclass.obj" \
 	"$(INTDIR)\plist.obj" \
-	"$(INTDIR)\plognmn.obj" \
 	"$(INTDIR)\plugapi.obj" \
 	"$(INTDIR)\PluginA.obj" \
 	"$(INTDIR)\plugins.obj" \
 	"$(INTDIR)\PluginSynchro.obj" \
 	"$(INTDIR)\plugsettings.obj" \
 	"$(INTDIR)\poscache.obj" \
+	"$(INTDIR)\preservelongname.obj" \
 	"$(INTDIR)\preservestyle.obj" \
 	"$(INTDIR)\print.obj" \
 	"$(INTDIR)\privilege.obj" \

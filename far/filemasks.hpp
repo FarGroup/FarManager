@@ -70,7 +70,7 @@ private:
 	private:
 		std::list<string> Masks;
 		std::unique_ptr<RegExp> re;
-		array_ptr<SMatch> m;
+		array_ptr<RegExpMatch> m;
 		int n;
 		bool bRE;
 	};
