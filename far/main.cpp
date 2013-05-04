@@ -790,9 +790,8 @@ int wmain(int Argc, wchar_t *Argv[])
 	try
 	{
 		std::set_new_handler(nullptr);
-#ifdef _MSC_VER
-		_set_se_translator(SETranslator);
-#else
+		EnableSeTranslation();
+#ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
 		Result = mainImpl(Argc, Argv);

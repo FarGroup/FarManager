@@ -268,3 +268,10 @@ inline void SETranslator(UINT Code, EXCEPTION_POINTERS* ExceptionInfo)
 {
 	throw SException(Code, ExceptionInfo);
 }
+
+inline void EnableSeTranslation()
+{
+#ifdef _MSC_VER
+	_set_se_translator(SETranslator);
+#endif
+}

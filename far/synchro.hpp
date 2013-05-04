@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+void EnableSeTranslation();
+
 class CriticalSection
 {
 
@@ -103,6 +105,7 @@ private:
 
 class Thread: public HandleWrapper
 {
+	typedef unsigned int (WINAPI *ThreadFunction)(void*);
 public:
 
 	Thread() {}
@@ -111,11 +114,17 @@ public:
 
 	const wchar_t *GetNamespace() { return L""; }
 
-	bool Start(unsigned int (WINAPI *StartAddress)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	bool Start(ThreadFunction HandlerFunction, void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
 		assert(!h);
 
-		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, StartAddress, Parameter, 0, ThreadId));
+		auto Param = new ThreadWrapperParam(HandlerFunction, Parameter);
+
+		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadWrapper, Param, 0, ThreadId));
+		if (!h)
+		{
+			delete Param;
+		}
 		return h != nullptr;
 	}
 
@@ -126,12 +135,9 @@ public:
 
 		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
 
-		auto Param = new ThreadWrapperParam<T, Y>();
-		Param->Object = OwnerClass;
-		Param->Function = HandlerFunction;
-		Param->Param = Parameter;
+		auto Param = new MemberThreadWrapperParam<T, Y>(OwnerClass, HandlerFunction, Parameter);
 
-		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadWrapper<T, Y>, Param, 0, ThreadId));
+		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MemberThreadWrapper<T, Y>, Param, 0, ThreadId));
 		if (!h)
 		{
 			delete Param;
@@ -141,22 +147,46 @@ public:
 
 private:
 	template<class T, typename Y>
-	struct ThreadWrapperParam
+	struct MemberThreadWrapperParam
 	{
 		T* Object;
 		Y Function;
 		void* Param;
+
+		MemberThreadWrapperParam(T* Object, Y Function, void* Param):Object(Object), Function(Function), Param(Param) {}
 	};
 
 	template<class T, typename Y>
-	static unsigned int WINAPI ThreadWrapper(void* p)
+	static unsigned int WINAPI MemberThreadWrapper(void* p)
 	{
-		auto pParam = reinterpret_cast<Thread::ThreadWrapperParam<T, Y>*>(p);
+		EnableSeTranslation();
+
+		auto pParam = reinterpret_cast<Thread::MemberThreadWrapperParam<T, Y>*>(p);
 		auto Param = *pParam;
 		delete pParam;
 
 		return (Param.Object->*(Param.Function))(Param.Param);
 	}
+
+	struct ThreadWrapperParam
+	{
+		ThreadFunction Function;
+		void* Param;
+
+		ThreadWrapperParam(ThreadFunction Function, void* Param): Function(Function), Param(Param) {}
+	};
+
+	static unsigned int WINAPI ThreadWrapper(void* p)
+	{
+		EnableSeTranslation();
+
+		auto pParam = reinterpret_cast<Thread::ThreadWrapperParam*>(p);
+		auto Param = *pParam;
+		delete pParam;
+
+		return Param.Function(Param.Param);
+	}
+
 };
 
 class Mutex: public HandleWrapper
