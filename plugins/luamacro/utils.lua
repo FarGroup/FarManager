@@ -351,14 +351,18 @@ local function LoadMacros (allAreas, unload)
 
   -- Copy macros loaded by MCTL_ADDMACRO to save them from destruction.
   if Areas then
+    local IdUpdated = {}
     for a,areatable in pairs(Areas) do
       for k,macroarray in pairs(areatable) do
         for i,m in ipairs(macroarray) do
           if m.guid and not m.disabled then
             newAreas[a][k] = newAreas[a][k] or {}
             table.insert(newAreas[a][k], m)
-            m.id = #LoadedMacros+1
-            LoadedMacros[m.id] = m
+            if not IdUpdated[m] then
+              IdUpdated[m] = true
+              m.id = #LoadedMacros+1
+              LoadedMacros[m.id] = m
+            end
           end
         end
       end
