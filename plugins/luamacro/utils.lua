@@ -338,15 +338,33 @@ end
 
 local function LoadMacros (allAreas, unload)
   local numerrors=0
-  Areas,Events,Subscriptions = {},{},{}
+  local newAreas = {}
+  Events,Subscriptions = {},{}
   EnumState = {}
   LoadedMacros = {}
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
-  for _,name in ipairs(AreaNames) do Areas[name]={} end
+  for _,name in ipairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
     if initial_modules[k]==nil then package.loaded[k]=nil end
   end
+
+  -- Copy macros loaded by MCTL_ADDMACRO to save them from destruction.
+  if Areas then
+    for a,areatable in pairs(Areas) do
+      for k,macroarray in pairs(areatable) do
+        for i,m in ipairs(macroarray) do
+          if m.guid and not m.disabled then
+            newAreas[a][k] = newAreas[a][k] or {}
+            table.insert(newAreas[a][k], m)
+            m.id = #LoadedMacros+1
+            LoadedMacros[m.id] = m
+          end
+        end
+      end
+    end
+  end
+  Areas = newAreas
 
   if not unload then
     local DummyFunc = function() end
