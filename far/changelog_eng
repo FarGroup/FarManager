@@ -3,6 +3,68 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.05.2013 16:01:20 +0200 - build 3387
+
+1. Correction of 3358.1: translation of exceptions did not take place for threads except the main one.
+
+drkns 03.05.2013 16:44:16 +0200 - build 3386
+
+1. Refactoring.
+
+drkns 03.05.2013 01:07:27 +0200 - build 3385
+
+1. Refactoring.
+
+drkns 02.05.2013 22:08:17 +0200 - build 3384
+
+1. Forum: error in Help::MkTopic.
+
+drkns 02.05.2013 17:47:12 +0200 - build 3383
+
+1. Correction of 3367.1.
+
+drkns 02.05.2013 16:42:48 +0200 - build 3382
+
+1. Grammar in help.
+
+2. Search for all occurrences in editor now shows the whole line and highlights a target.
+
+drkns 02.05.2013 12:18:40 +0200 - build 3381
+
+1. Completion malfunction in modal mode.
+
+drkns 01.05.2013 16:06:56 +0200 - build 3380
+
+1. cppcheck warnings.
+
+drkns 30.04.2013 22:17:54 +0200 - build 3379
+
+1. Continuation of 0002294.
+
+drkns 30.04.2013 21:22:39 +0200 - build 3378
+
+1. Continuation of 0002294.
+
+zg 30.04.2013 09:19:06 +0200 - build 3377
+
+1. EditorControl(EditorID,...) works for current editor given the real EditorID from EE_READ and EE_CLOSE.
+
+w17 30.04.2013 08:56:12 +0400 - build 3376
+
+1. M#2403: Current file after deletion
+
+drkns 29.04.2013 22:43:33 +0200 - build 3375
+
+1. Refactoring.
+
+t-rex 29.04.2013 17:25:29 +0200 - build 3374
+
+1. Refactoring.
+
+drkns 29.04.2013 00:30:39 +0200 - build 3373
+
+1. Refactoring.
+
 t-rex 28.04.2013 15:57:33 +0200 - build 3372
 
 1. Mantis#2382: far /clearcache
