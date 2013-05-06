@@ -5670,7 +5670,7 @@ lv=2
 dt=Text
 nm=far.MacroAdd
 ctime=3523354795
-mtime=3545230563
+mtime=3577031225
 <article>
 #_Id = far.MacroAdd (Area, Flags, AKey, SequenceText, Description, Callback)
 #_
@@ -5683,7 +5683,7 @@ mtime=3545230563
 #_  Callback:     function, or nil
 #_
 #_**Returns:**
-#_  Id:           integer (success), or nil (failure)
+#_  Id:           light userdata (success), or nil (failure)
 #_                  used in Callback and far.MacroDelete
 #_
 #_**Far API used:**
@@ -5744,12 +5744,12 @@ lv=2
 dt=Text
 nm=far.MacroDelete
 ctime=3523354806
-mtime=3523357280
+mtime=3577031249
 <article>
 #_result = far.MacroDelete (Id)
 #_
 #_**Parameters:**
-#_  Id:      integer (value returned by far.MacroAdd)
+#_  Id:      light userdata (value returned by far.MacroAdd)
 #_
 #_**Returns:**
 #_  result:  boolean

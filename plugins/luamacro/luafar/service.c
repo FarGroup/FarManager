@@ -4418,7 +4418,7 @@ static int far_MacroAdd(lua_State* L)
 	data.Id = (void*)(intptr_t) ref;
 
 	if(pd->Info->MacroControl(pd->PluginId, MCTL_ADDMACRO, 0, &data))
-		lua_pushinteger(L, ref);
+		lua_pushlightuserdata(L, data.Id);
 	else
 	{
 		luaL_unref(L, LUA_REGISTRYINDEX, ref);
@@ -4431,13 +4431,16 @@ static int far_MacroAdd(lua_State* L)
 static int far_MacroDelete(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
-	intptr_t ref = luaL_checkinteger(L, 1);
-	intptr_t result = pd->Info->MacroControl(pd->PluginId, MCTL_DELMACRO, 0, (void*)ref);
+	void *Id;
+	int result;
 
+	luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
+	Id = lua_touserdata(L, 1);
+	result = (int)pd->Info->MacroControl(pd->PluginId, MCTL_DELMACRO, 0, Id);
 	if(result)
-		luaL_unref(L, LUA_REGISTRYINDEX, (int)ref);
+		luaL_unref(L, LUA_REGISTRYINDEX, (int)(intptr_t)Id);
 
-	lua_pushboolean(L, result != 0);
+	lua_pushboolean(L, result);
 	return 1;
 }
 
