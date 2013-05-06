@@ -2611,7 +2611,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						EOL=4;
 				}
 
-				codepage=esf->CodePage;
+				if (esf->CodePage != CP_DEFAULT)
+					codepage=esf->CodePage;
 			}
 
 			{

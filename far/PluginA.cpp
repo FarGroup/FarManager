@@ -4309,6 +4309,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 					newsf.FileName = AnsiToUnicode(oldsf->FileName);
 				if (oldsf->FileEOL)
 					newsf.FileEOL = AnsiToUnicode(oldsf->FileEOL);
+				newsf.CodePage = CP_DEFAULT;
 			}
 
 			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0));
