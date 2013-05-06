@@ -1273,6 +1273,19 @@ static int editor_SaveFile(lua_State *L)
 	esf.StructSize = sizeof(esf);
 	esf.FileName = opt_utf8_string(L, 2, NULL);
 	esf.FileEOL = opt_utf8_string(L, 3, NULL);
+
+	if (lua_isnoneornil(L, 4))
+	{
+		struct EditorInfo ei;
+		ei.StructSize = sizeof(ei);
+		if(!Info->EditorControl(EditorId, ECTL_GETINFO, 0, &ei))
+			return lua_pushboolean(L, 0), 1;
+
+		esf.CodePage = ei.CodePage;
+	}
+	else
+		esf.CodePage = luaL_checkinteger(L, 4);
+
 	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf));
 	return 1;
 }

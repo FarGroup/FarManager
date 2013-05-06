@@ -4111,14 +4111,15 @@ id=41
 lv=2
 dt=Text
 nm=editor.SaveFile
-mtime=3507543178
+mtime=3577044333
 <article>
-#_result = editor.SaveFile (EditorId, FileName, FileEOL)
+#_result = editor.SaveFile (EditorId, FileName, FileEOL, CodePage)
 #_
 #_**Parameters:**
 #_  EditorId: integer, or nil
 #_  FileName: string, or nil
 #_  FileEOL:  string, or nil
+#_  CodePage: integer, or nil
 #_
 #_**Returns:**
 #_  result:   boolean
