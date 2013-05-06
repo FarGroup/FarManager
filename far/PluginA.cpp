@@ -49,6 +49,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "keys.hpp"
 
+#define INITGUID
+#include <Guiddef.h>
+// {C4CE8CBE-02CF-4533-9EEA-DD1D98DF30AF}
+DEFINE_GUID(FarFtpGuid, 0xC4CE8CBE, 0x02CF, 0x4533, 0x9E,0xEA, 0xDD,0x1D,0x98,0xDF,0x30,0xAF);
+
 namespace wrapper
 {
 
@@ -4990,21 +4995,51 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 	pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName));
 }
 
+static bool KnownAnsiPluginInfo(const wchar_t *title, GlobalInfo *Info, bool *opif_shortcut)
+{
+	string name(title);
+	name = name.Lower();
+	size_t len = name.GetLength();
+	static const wchar_t *strip_tails[] = { L".dll", L"x86", L"x64", L"32", L"64", L"-", L"_" };
+
+	for (size_t i = 0; i < ARRAYSIZE(strip_tails); ++i)
+	{
+		size_t l1 = wcslen(strip_tails[i]);
+		if (l1 < len && wcscmp(strip_tails[i], name.CPtr()+len-l1) == 0)
+			name.SetLength(len -= l1);
+	}
+
+	bool ftp = (name == L"ftp" || name == L"farftp");
+	if (ftp)
+	{
+		if (Info)
+		{
+			Info->Title = L"FarFtp";
+			Info->Description = L"Ftp client for FAR1";
+			Info->Guid = FarFtpGuid;
+			Info->Author = L"Eugene Roshal & Far Group";
+		}
+		if (opif_shortcut)
+			*opif_shortcut = true;
+	}
+
+	return ftp;
+}
+
 bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 {
 	Info->StructSize = sizeof(GlobalInfo);
 	Info->Title = PointToName(GetModuleName());
-	Info->Description = L"Far 1.x plugin";
-	Info->Author = L"unknown";
-	if(GetGUID()==FarGuid)
+	bool known = KnownAnsiPluginInfo(Info->Title, Info, nullptr);
+	if (!known)
 	{
-		// first load
-		UuidCreate(&Info->Guid);
-	}
-	else
-	{
-		// use cached
-		Info->Guid = GetGUID();
+		Info->Description = L"Far 1.x plugin";
+		Info->Author = L"unknown";
+
+		if(GetGUID() == FarGuid) // first load
+			UuidCreate(&Info->Guid);
+		else // use cached
+			Info->Guid = GetGUID();
 	}
 	return true;
 }
@@ -5470,6 +5505,12 @@ void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *De
 	if (Src.Flags&oldfar::OPIF_EXTERNALDELETE) OPI.Flags|=OPIF_EXTERNALDELETE;
 	if (Src.Flags&oldfar::OPIF_EXTERNALMKDIR) OPI.Flags|=OPIF_EXTERNALMKDIR;
 	if (Src.Flags&oldfar::OPIF_USEATTRHIGHLIGHTING) OPI.Flags|=OPIF_USEATTRHIGHLIGHTING;
+
+	bool opif_shortcut = false;
+	string title = GetTitle();
+	KnownAnsiPluginInfo(title.CPtr(), nullptr, &opif_shortcut);
+	if (opif_shortcut)
+		OPI.Flags|=OPIF_SHORTCUT;
 
 	if (Src.CurDir)
 		OPI.CurDir = AnsiToUnicode(Src.CurDir);

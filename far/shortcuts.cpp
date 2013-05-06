@@ -254,8 +254,14 @@ static string MakeName(const ShortcutItem& Item)
 					TechInfo.Append(MSG(MFSShortcutPluginFile)).Append(L" ").Append(Item.strPluginFile + ", ");
 				if (!Item.strFolder.IsEmpty())
 					TechInfo.Append(MSG(MFSShortcutPath)).Append(L" ").Append(Item.strFolder + ", ");
-				if (!Item.strPluginData.IsEmpty())
-					TechInfo.Append(MSG(MFSShortcutPluginData)).Append(L" ").Append(Item.strPluginData + ", ");
+				if (!Item.strPluginData.IsEmpty()) {
+					string t = Item.strPluginData;
+					for (size_t i = 0; i < t.GetLength(); ++i) // cut not printable plugindata
+						if (t[i] < L' ')
+							t.SetLength(i);
+					if (!t.IsEmpty())
+						TechInfo.Append(MSG(MFSShortcutPluginData)).Append(L" ").Append(t + ", ");
+				}
 
 				if (!TechInfo.IsEmpty())
 				{
@@ -264,6 +270,8 @@ static string MakeName(const ShortcutItem& Item)
 				}
 			}
 		}
+		else
+			result.Clear();
 	}
 	return result;
 }
@@ -275,6 +283,9 @@ static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List, bool raw_mode=
 	{
 		MenuItemEx ListItem={};
 		ListItem.strName = MakeName(*i);
+		if (ListItem.strName.IsEmpty())
+			continue;
+
 		ListItem.UserData = &i;
 		ListItem.UserDataSize = sizeof(i);
 		if (!raw_mode && (*i).PluginGuid == FarGuid && (*i).strFolder.IsEmpty())
