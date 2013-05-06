@@ -1276,12 +1276,7 @@ static int editor_SaveFile(lua_State *L)
 
 	if (lua_isnoneornil(L, 4))
 	{
-		struct EditorInfo ei;
-		ei.StructSize = sizeof(ei);
-		if(!Info->EditorControl(EditorId, ECTL_GETINFO, 0, &ei))
-			return lua_pushboolean(L, 0), 1;
-
-		esf.CodePage = ei.CodePage;
+		esf.CodePage = CP_DEFAULT;
 	}
 	else
 		esf.CodePage = luaL_checkinteger(L, 4);
