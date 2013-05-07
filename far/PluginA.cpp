@@ -4879,7 +4879,7 @@ public:
 
 	bool Read()
 	{
-		bool Result = true;
+		bool Result = false;
 		DWORD dummy, dwlen = GetFileVersionInfoSize(file.CPtr(), &dummy);
 		if (dwlen)
 		{
