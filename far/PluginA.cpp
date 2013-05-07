@@ -4871,6 +4871,60 @@ static void CheckScreenLock()
 	}
 }
 
+class file_version
+{
+public:
+	file_version(const string& file):file(file){}
+	~file_version(){};
+
+	bool Read()
+	{
+		bool Result = true;
+		DWORD dummy, dwlen = GetFileVersionInfoSize(file.CPtr(), &dummy);
+		if (dwlen)
+		{
+			buffer.reset(dwlen);
+			if (GetFileVersionInfo(file.CPtr(), dummy, dwlen, buffer.get()))
+			{
+				DWORD *Translation;
+				UINT len;
+				if (VerQueryValue(buffer.get(), L"\\VarFileInfo\\Translation", (void **)&Translation, &len) && len)
+				{
+					path = FormatString() << L"\\StringFileInfo\\"
+						<< fmt::Radix(16) << fmt::MinWidth(4) << fmt::FillChar(L'0') << LOWORD(*Translation)
+						<< fmt::Radix(16) << fmt::MinWidth(4) << fmt::FillChar(L'0') << HIWORD(*Translation)
+						<< L"\\";
+					Result = true;
+				}
+			}
+		}
+		return Result;
+	}
+
+	const wchar_t* GetStringValue(const string& value)
+	{
+		wchar_t* Value;
+		UINT Length;
+		if (VerQueryValue(buffer.get(), (path + value).CPtr(), reinterpret_cast<void**>(&Value), &Length) && Length)
+			return Value;
+		return nullptr;
+	}
+
+	const VS_FIXEDFILEINFO* GetFixedInfo()
+	{
+		VS_FIXEDFILEINFO* Info;
+		UINT Length;
+		if (VerQueryValue(buffer.get(), L"\\", reinterpret_cast<void**>(&Info), &Length) && Length)
+			return Info;
+		return nullptr;
+	}
+
+private:
+	string file;
+	string path;
+	wchar_t_ptr buffer;
+};
+
 PluginA::PluginA(PluginManager *owner, const string& lpwszModuleName):
 	Plugin(owner,lpwszModuleName),
 	RootKey(nullptr),
@@ -5001,59 +5055,40 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	const string& module = GetModuleName();
 	Info->Title = PointToName(module);
 
-	DWORD dummy, dwlen = GetFileVersionInfoSize(module.CPtr(), &dummy);
-	if (dwlen)
+	FileVersion.reset(new file_version(module));
+
+	if (FileVersion->Read())
 	{
-		p_buff.reset(dwlen);
-		void* buffer = (void *)p_buff.get();
-		if (GetFileVersionInfo(module.CPtr(), dummy, dwlen, buffer))
+		const wchar_t* Value;
+		if ((Value = FileVersion->GetStringValue(L"InternalName")) || (Value = FileVersion->GetStringValue(L"OriginalName")))
 		{
-			DWORD *pdw;
-			UINT len;
-			if (VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void **)&pdw, &len) && len)
-			{
-				wchar_t var[64], *pw;
-				int nw = wsprintf(var, L"\\StringFileInfo\\%04X%04X\\", (WORD)pdw[0], (WORD)(pdw[0] >> 16));
+			Info->Title = Value;
+		}
 
-				wcscpy(var+nw, L"InternalName");
-				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
-					Info->Title = pw;
-				else {
-					wcscpy(var+nw, L"OriginalName");
-					if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
-						Info->Title = pw;
-				}
+		if ((Value = FileVersion->GetStringValue(L"CompanyName")))
+		{
+			Info->Author = Value;
+		}
 
-				wcscpy(var+nw, L"CompanyName");
-				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
-					Info->Author = pw;
+		if ((Value = FileVersion->GetStringValue(L"FileDescription")))
+		{
+			Info->Description = Value;
+		}
 
-				wcscpy(var+nw, L"FileDescription");
-				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
-					Info->Description = pw;
-
-				wcscpy(var+nw, L"FileVersion");
-				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
-				{
-					Info->Version.Major = (DWORD)wcstol(pw, &pw, 10);
-					if (L'.' == *pw)
-					{
-						Info->Version.Minor = (DWORD)wcstol(pw+1, &pw, 10);
-						if (L'.' == *pw)
-							Info->Version.Revision = (DWORD)wcstol(pw+1, &pw, 10);
-
-						while (*pw && nullptr != wcschr(L". (Bbuild", *pw)) ++pw;
-						Info->Version.Build = (DWORD)wcstol(pw, nullptr, 10);
-					}
-				}
-			}
+		auto FileInfo = FileVersion->GetFixedInfo();
+		if (FileInfo)
+		{
+			Info->Version.Major = HIWORD(FileInfo->dwFileVersionMS);
+			Info->Version.Minor = LOWORD(FileInfo->dwFileVersionMS);
+			Info->Version.Build = HIWORD(FileInfo->dwFileVersionLS);
+			Info->Version.Revision = LOWORD(FileInfo->dwFileVersionLS);
 		}
 	}
 
 	if (StrCmpI(Info->Title, L"FarFtp") == 0 || StrCmpI(Info->Title, L"MultiArc") == 0)
 		opif_shortcut = true;
 
-   int nb = std::min((int)wcslen(Info->Title), 8);
+	int nb = std::min((int)wcslen(Info->Title), 8);
 	while (nb > 0) {
 		--nb;
 		((char *)&Info->Guid)[8+nb] = (char)Info->Title[nb];

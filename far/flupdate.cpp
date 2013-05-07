@@ -453,7 +453,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	InitFSWatcher(false);
 	CorrectPosition();
 
-   string strLastSel, strGetSel;
+	string strLastSel, strGetSel;
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{

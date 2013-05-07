@@ -288,7 +288,7 @@ static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List, bool raw_mode=
 
 		ListItem.UserData = &i;
 		ListItem.UserDataSize = sizeof(i);
-		if (!raw_mode && (*i).PluginGuid == FarGuid && (*i).strFolder.IsEmpty())
+		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.IsEmpty())
 		{
 			if (ListItem.strName != L"--")
 			{

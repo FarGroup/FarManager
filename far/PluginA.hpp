@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 namespace wrapper
 {
+class file_version;
 
 #include "pluginold.hpp"
 
@@ -105,7 +106,7 @@ private:
 	UINT64 OEMApiCnt;
 
 	bool opif_shortcut;
-	wchar_t_ptr p_buff;
+	std::unique_ptr<file_version> FileVersion;
 };
 
 void LocalUpperInit();
