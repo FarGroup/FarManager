@@ -1,3 +1,7 @@
+shmuel 07.05.2013 16:42:49 +0200 - build 3394
+
+1. M#2222: MacroControl MCTL_SENDSTRING возвращает 0 при "Keys('F11') Menu.Select('FarNet', 2) Keys('Enter')"
+
 drkns 07.05.2013 15:05:37 +0200 - build 3393
 
 1. Продолжение 3388: вынесем работу с versioninfo в отдельный класс.

@@ -1253,7 +1253,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
-	if (!m_InternalInput && (MacroId != 0 || ParseMacroString(PlainText, onlyCheck)))
+	if (MacroId != 0 || ParseMacroString(PlainText, onlyCheck))
 	{
 		MacroRecord* macro=new MacroRecord(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
 
