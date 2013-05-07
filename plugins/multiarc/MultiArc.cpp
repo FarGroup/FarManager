@@ -102,44 +102,58 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
 {
   if (ArcPlugin==NULL)
     return INVALID_HANDLE_VALUE;
-  if (OpenFrom==OPEN_COMMANDLINE)
+
+  bool known_command = false;
+  int pref_len = -1;
+  if (OpenFrom == OPEN_SHORTCUT)
+	  known_command = true;
+  else if (OpenFrom == OPEN_COMMANDLINE)
   {
-    if (FSF.LStrnicmp(Opt.CommandPrefix1,(char *)Item,lstrlen(Opt.CommandPrefix1))==0 &&
-        (((char *)Item)[lstrlen(Opt.CommandPrefix1)]==':'))
+	  char *cmd = (char *)Item;
+	  pref_len = lstrlen(Opt.CommandPrefix1);
+	  known_command = (FSF.LStrnicmp(Opt.CommandPrefix1,cmd,pref_len) == 0 && cmd[pref_len] == ':');
+  }
+
+  if (known_command)
+  {
+    ++pref_len;
+    if (!((char *)Item)[pref_len])
+      return INVALID_HANDLE_VALUE;
+    char oldfilename[NM+2];
+    lstrcpyn(oldfilename,&((char *)Item)[pref_len],sizeof(oldfilename));
+    FSF.Unquote(oldfilename);
+    FSF.ExpandEnvironmentStr(oldfilename,oldfilename,NM);
+    char filename[NM];
+    char *fnp;
+    DWORD bl = GetFullPathName(oldfilename,NM,filename,&fnp);
+    if (bl>NM || bl==0)
+      return INVALID_HANDLE_VALUE;
+    HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+    if (h == INVALID_HANDLE_VALUE)
+      return INVALID_HANDLE_VALUE;
+    DWORD size = (DWORD)Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+    unsigned char *data;
+    data = (unsigned char *) malloc(size*sizeof(unsigned char));
+    if (!data)
+      return INVALID_HANDLE_VALUE;
+    DWORD datasize;
+    BOOL b = ReadFile(h,data,size,&datasize,NULL);
+    CloseHandle(h);
+    if (!(b&&datasize))
     {
-      if (((char *)Item)[lstrlen(Opt.CommandPrefix1)+1]==0)
-        return INVALID_HANDLE_VALUE;
-      char oldfilename[NM+2];
-      lstrcpyn(oldfilename,&((char *)Item)[lstrlen(Opt.CommandPrefix1)+1],sizeof(oldfilename));
-      FSF.Unquote(oldfilename);
-      FSF.ExpandEnvironmentStr(oldfilename,oldfilename,NM);
-      char filename[NM];
-      char *fnp;
-      DWORD bl = GetFullPathName(oldfilename,NM,filename,&fnp);
-      if (bl>NM || bl==0)
-        return INVALID_HANDLE_VALUE;
-      HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-      if (h == INVALID_HANDLE_VALUE)
-        return INVALID_HANDLE_VALUE;
-      DWORD size = (DWORD)Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
-      unsigned char *data;
-      data = (unsigned char *) malloc(size*sizeof(unsigned char));
-      if (!data)
-        return INVALID_HANDLE_VALUE;
-      DWORD datasize;
-      BOOL b = ReadFile(h,data,size,&datasize,NULL);
-      CloseHandle(h);
-      if (!(b&&datasize))
-      {
-        free(data);
-        return INVALID_HANDLE_VALUE;
-      }
-      h = OpenFilePlugin(filename,data,datasize);
       free(data);
-      if ((h==(HANDLE)-2) || h==INVALID_HANDLE_VALUE)
-        return INVALID_HANDLE_VALUE;
-      return h;
+      return INVALID_HANDLE_VALUE;
     }
+    h = OpenFilePlugin(filename,data,datasize);
+    free(data);
+    if ((h==(HANDLE)-2) || h==INVALID_HANDLE_VALUE)
+      return INVALID_HANDLE_VALUE;
+
+    if (OpenFrom == OPEN_SHORTCUT)
+    {
+      ((PluginClass *)h)->ReadArchive(filename);
+    }
+    return h;
   }
   return INVALID_HANDLE_VALUE;
 }

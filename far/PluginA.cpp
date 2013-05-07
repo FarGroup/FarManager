@@ -5168,7 +5168,11 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		}
 		if (Item && OpenFrom == OPEN_SHORTCUT)
 		{
-			ItemA = UnicodeToAnsi(((OpenShortcutInfo *)Item)->ShortcutData);
+			const wchar_t *shortcutdata = ((OpenShortcutInfo *)Item)->ShortcutData;
+			if (!shortcutdata)
+				shortcutdata = ((OpenShortcutInfo *)Item)->HostFile;
+
+			ItemA = UnicodeToAnsi(shortcutdata);
 			Item = (intptr_t)ItemA;
 		}
 		if (OpenFrom == OPEN_LEFTDISKMENU || OpenFrom == OPEN_RIGHTDISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)
