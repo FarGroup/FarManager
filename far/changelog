@@ -1,3 +1,7 @@
+w17 07.05.2013 14:52:09 +0400 - build 3392
+
+1. Уточнение+ 3388 (unused code removed should fix gcc compilation)
+
 w17 07.05.2013 11:05:10 +0400 - build 3391
 
 1. fix gcc build

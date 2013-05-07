@@ -49,11 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "keys.hpp"
 
-#define INITGUID
-#include <Guiddef.h>
-// {C4CE8CBE-02CF-4533-9EEA-DD1D98DF30AF}
-DEFINE_GUID(FarFtpGuid, 0xC4CE8CBE, 0x02CF, 0x4533, 0x9E,0xEA, 0xDD,0x1D,0x98,0xDF,0x30,0xAF);
-
 namespace wrapper
 {
 
