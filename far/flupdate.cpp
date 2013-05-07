@@ -398,11 +398,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		}
 
 		FILETIME TwoDotsTimes[4]={};
-		File dir;
-		if (dir.Open(strCurDir,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
-		{
-			dir.GetTime(&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
-		}
+		GetFileTimeSimple(strCurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
 		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
 

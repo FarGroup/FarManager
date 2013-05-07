@@ -1625,6 +1625,16 @@ void apiEnableLowFragmentationHeap()
 	}
 }
 
+bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+{
+	File dir;
+	if (dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
+	{
+		return dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);
+	}
+	return false;
+}
+
 bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	bool Result = false;

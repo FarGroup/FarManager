@@ -63,10 +63,8 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 	this->Directory = Directory;
 	this->WatchSubtree = WatchSubtree;
 
-	File dir;
-	if (dir.Open(Directory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-		if (dir.GetTime(nullptr,nullptr,&PreviousLastWriteTime,nullptr))
-			CurrentLastWriteTime = PreviousLastWriteTime;
+	if (GetFileTimeSimple(Directory,nullptr,nullptr,&PreviousLastWriteTime,nullptr))
+		CurrentLastWriteTime = PreviousLastWriteTime;
 }
 
 unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
@@ -126,14 +124,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 
 	if (check_time)
 	{
-		File dir;
-		bool TimeOk = false;
-		if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
-		{
-			if (dir.GetTime(nullptr,nullptr,&CurrentLastWriteTime,nullptr))
-				TimeOk = true;
-		}
-		if(!TimeOk)
+		if (!GetFileTimeSimple(Directory,nullptr,nullptr,&CurrentLastWriteTime,nullptr))
 		{
 			PreviousLastWriteTime.dwLowDateTime = 0;
 			PreviousLastWriteTime.dwHighDateTime = 0;
