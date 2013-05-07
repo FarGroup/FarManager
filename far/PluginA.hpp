@@ -103,6 +103,9 @@ private:
 	oldfar::PluginPanelItem  *pVFDPanelItemA;
 
 	UINT64 OEMApiCnt;
+
+	bool opif_shortcut;
+	wchar_t_ptr p_buff;
 };
 
 void LocalUpperInit();

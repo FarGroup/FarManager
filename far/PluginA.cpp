@@ -4881,7 +4881,8 @@ PluginA::PluginA(PluginManager *owner, const string& lpwszModuleName):
 	RootKey(nullptr),
 	pFDPanelItemA(nullptr),
 	pVFDPanelItemA(nullptr),
-	OEMApiCnt(0)
+	OEMApiCnt(0),
+	opif_shortcut(false)
 {
 	LocalUpperInit();
 
@@ -4996,52 +4997,73 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 	pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName));
 }
 
-static bool KnownAnsiPluginInfo(const wchar_t *title, GlobalInfo *Info, bool *opif_shortcut)
-{
-	string name(title);
-	name = name.Lower();
-	size_t len = name.GetLength();
-	static const wchar_t *strip_tails[] = { L".dll", L"x86", L"x64", L"32", L"64", L"-", L"_" };
-
-	for (size_t i = 0; i < ARRAYSIZE(strip_tails); ++i)
-	{
-		size_t l1 = wcslen(strip_tails[i]);
-		if (l1 < len && wcscmp(strip_tails[i], name.CPtr()+len-l1) == 0)
-			name.SetLength(len -= l1);
-	}
-
-	bool ftp = (name == L"ftp" || name == L"farftp");
-	if (ftp)
-	{
-		if (Info)
-		{
-			Info->Title = L"FarFtp";
-			Info->Description = L"Ftp client for FAR1";
-			Info->Guid = FarFtpGuid;
-			Info->Author = L"Eugene Roshal & Far Group";
-		}
-		if (opif_shortcut)
-			*opif_shortcut = true;
-	}
-
-	return ftp;
-}
-
 bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 {
 	Info->StructSize = sizeof(GlobalInfo);
-	Info->Title = PointToName(GetModuleName());
-	bool known = KnownAnsiPluginInfo(Info->Title, Info, nullptr);
-	if (!known)
-	{
-		Info->Description = L"Far 1.x plugin";
-		Info->Author = L"unknown";
+	Info->Description = L"Far 1.x plugin";
+	Info->Author = L"unknown";
 
-		if(GetGUID() == FarGuid) // first load
-			UuidCreate(&Info->Guid);
-		else // use cached
-			Info->Guid = GetGUID();
+	const string& module = GetModuleName();
+	Info->Title = PointToName(module);
+
+	DWORD dummy, dwlen = GetFileVersionInfoSize(module.CPtr(), &dummy);
+	if (dwlen)
+	{
+		p_buff.reset(dwlen);
+		void* buffer = (void *)p_buff.get();
+		if (GetFileVersionInfo(module.CPtr(), dummy, dwlen, buffer))
+		{
+			DWORD *pdw;
+			UINT len;
+			if (VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void **)&pdw, &len) && len)
+			{
+				wchar_t var[64], *pw;
+				int nw = wsprintf(var, L"\\StringFileInfo\\%04X%04X\\", (WORD)pdw[0], (WORD)(pdw[0] >> 16));
+
+				wcscpy(var+nw, L"InternalName");
+				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
+					Info->Title = pw;
+				else {
+					wcscpy(var+nw, L"OriginalName");
+					if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
+						Info->Title = pw;
+				}
+
+				wcscpy(var+nw, L"CompanyName");
+				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
+					Info->Author = pw;
+
+				wcscpy(var+nw, L"FileDescription");
+				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
+					Info->Description = pw;
+
+				wcscpy(var+nw, L"FileVersion");
+				if (VerQueryValue(buffer, var, (void **)&pw, &len) && len)
+				{
+					Info->Version.Major = (DWORD)wcstol(pw, &pw, 10);
+					if (L'.' == *pw)
+					{
+						Info->Version.Minor = (DWORD)wcstol(pw+1, &pw, 10);
+						if (L'.' == *pw)
+							Info->Version.Revision = (DWORD)wcstol(pw+1, &pw, 10);
+
+						while (*pw && nullptr != wcschr(L". (Bbuild", *pw)) ++pw;
+						Info->Version.Build = (DWORD)wcstol(pw, nullptr, 10);
+					}
+				}
+			}
+		}
 	}
+
+	if (StrCmpI(Info->Title, L"FarFtp") == 0 || StrCmpI(Info->Title, L"MultiArc") == 0)
+		opif_shortcut = true;
+
+   int nb = std::min((int)wcslen(Info->Title), 8);
+	while (nb > 0) {
+		--nb;
+		((char *)&Info->Guid)[8+nb] = (char)Info->Title[nb];
+	}
+
 	return true;
 }
 
@@ -5506,12 +5528,7 @@ void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *De
 	if (Src.Flags&oldfar::OPIF_EXTERNALDELETE) OPI.Flags|=OPIF_EXTERNALDELETE;
 	if (Src.Flags&oldfar::OPIF_EXTERNALMKDIR) OPI.Flags|=OPIF_EXTERNALMKDIR;
 	if (Src.Flags&oldfar::OPIF_USEATTRHIGHLIGHTING) OPI.Flags|=OPIF_USEATTRHIGHLIGHTING;
-
-	bool opif_shortcut = false;
-	string title = GetTitle();
-	KnownAnsiPluginInfo(title.CPtr(), nullptr, &opif_shortcut);
-	if (opif_shortcut)
-		OPI.Flags|=OPIF_SHORTCUT;
+	if (opif_shortcut) OPI.Flags|=OPIF_SHORTCUT;
 
 	if (Src.CurDir)
 		OPI.CurDir = AnsiToUnicode(Src.CurDir);
