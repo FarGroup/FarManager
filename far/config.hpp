@@ -386,6 +386,7 @@ public:
 		StringOption strWordDiv;
 
 		BoolOption KeepEOL;
+		BoolOption AddUnicodeBOM;
 	};
 
 	struct ViewerOptions

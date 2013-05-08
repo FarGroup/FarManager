@@ -5953,6 +5953,19 @@ $ #far:config Editor.KeepEditorEOL#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
+@Editor.AddUnicodeBOM
+$ #far:config Editor.AddUnicodeBOM#
+    Параметр "Editor.AddUnicodeBOM" указывает надо ли добавлять BOM (Byte Order Mark) в начало создаваемых
+редактором файлов в юникодной кодировке (1200, 1201, 65001).
+
+     false - ^<wrap>BOM не добавляется.
+
+     true  - ^<wrap>BOM добавляется.
+
+    По умолчанию значение = true
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
 @Panel.ShortcutAlwaysChdir
 $ #far:config Panel.ShortcutAlwaysChdir#
     Параметр "Panel.ShortcutAlwaysChdir" управляет поведением при нажатии клавиш перехода на папку

@@ -141,9 +141,6 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	return false;
 }
 
-
-
-
 enum enumSaveFileAs
 {
 	ID_SF_TITLE,
@@ -166,32 +163,21 @@ enum enumSaveFileAs
 
 intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
-	static uintptr_t codepage=0;
+	static uintptr_t codepage = 0;
 
 	switch (msg)
 	{
 		case DN_INITDIALOG:
 		{
-			codepage=*(UINT*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+			codepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
 			Global->CodePages->FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
-
-			if (IsUnicodeOrUtfCodePage(codepage))
-			{
-				Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
-			}
-			else
-			{
-				Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
-				Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,FALSE);
-			}
-
 			break;
 		}
 		case DN_CLOSE:
 		{
 			if (param1 == ID_SF_OK)
 			{
-				UINT *codepage = (UINT*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+				uintptr_t *codepage = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
 				*codepage = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
@@ -206,15 +192,14 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			{
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				UINT Cp=*reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
+				UINT cp = *reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
-				if (Cp!=codepage)
+				if (cp != codepage)
 				{
-					codepage=Cp;
-
-					if (IsUnicodeOrUtfCodePage(codepage))
+					if (IsUnicodeOrUtfCodePage(cp))
 					{
-						Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_CHECKED));
+						if (!IsUnicodeOrUtfCodePage(codepage))
+							Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(Global->Opt->EdOpt.AddUnicodeBOM));
 						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 					}
 					else
@@ -223,6 +208,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 					}
 
+					codepage = cp;
 					return TRUE;
 				}
 			}
@@ -240,6 +226,8 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 
 bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,bool &AddSignature)
 {
+   bool ucp = IsUnicodeOrUtfCodePage(codepage);
+
 	FarDialogItem EditDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,72,15,0,nullptr,nullptr,0,MSG(MEditTitle)},
@@ -248,7 +236,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,MSG(MEditCodePage)},
 		{DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L""},
-		{DI_CHECKBOX,5,6,0,6,AddSignature,nullptr,nullptr,DIF_DISABLE,MSG(MEditAddSignature)},
+		{DI_CHECKBOX,5,6,0,6,AddSignature,nullptr,nullptr,ucp ? 0 : DIF_DISABLE,MSG(MEditAddSignature)},
 		{DI_TEXT,-1,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,5,8,0,8,0,nullptr,nullptr,0,MSG(MEditSaveAsFormatTitle)},
 		{DI_RADIOBUTTON,5,9,0,9,0,nullptr,nullptr,DIF_GROUP,MSG(MEditSaveOriginal)},
@@ -601,7 +589,7 @@ void FileEditor::Init(
 		Flags.Set(FFILEEDIT_NEW);
 
 	if (Flags.Check(FFILEEDIT_NEW))
-	  m_bAddSignature = true;
+	  m_bAddSignature = Global->Opt->EdOpt.AddUnicodeBOM;
 
 	if (Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->Flags.Set(FEDITOR_LOCKMODE);

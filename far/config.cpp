@@ -1113,6 +1113,7 @@ void Options::InitCFG()
 		{FSSF_DIALOG,        NKeyDialog,L"EULBsClear", &Global->Opt->Dialogs.EULBsClear, false},
 		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", &Global->Opt->Dialogs.MouseButton, 0xFFFF},
 
+		{FSSF_PRIVATE,       NKeyEditor,L"AddUnicodeBOM", &Global->Opt->EdOpt.AddUnicodeBOM, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", &Global->Opt->EdOpt.AllowEmptySpaceAfterEof,false},
 		{FSSF_PRIVATE,       NKeyEditor,L"AutoDetectCodePage", &Global->Opt->EdOpt.AutoDetectCodePage, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"AutoIndent", &Global->Opt->EdOpt.AutoIndent, false},

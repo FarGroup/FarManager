@@ -1,3 +1,7 @@
+w17 08.05.2013 15:09:55 +0400 - build 3398
+
+1. M#2407: Allow to disable BOM generation for UTF codepages in new files
+
 t-rex 07.05.2013 23:35:51 +0200 - build 3397
 
 1. Коррекция 3342 + рефакторинг.
