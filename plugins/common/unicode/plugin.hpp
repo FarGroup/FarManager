@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3382
+  Plugin API for Far Manager 3.0 build 3399
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3382
+#define FARMANAGERVERSION_BUILD 3399
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2611,6 +2611,9 @@ struct ConfigureInfo
 	size_t StructSize;
 	const GUID* Guid;
 };
+
+static const GUID FarGuid =
+{0x00000000, 0x0000, 0x0000, 0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00};
 
 #ifdef __cplusplus
 extern "C"
