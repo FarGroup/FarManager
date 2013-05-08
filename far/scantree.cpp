@@ -40,11 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
+ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction, bool SkipHidden)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
 	Flags.Change(FSCANTREE_RECUR,Recurse);
 	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Global->Opt->ScanJunction:ScanJunction!=0));
+	Flags.Change(FSCANTREE_SKIPHIDDEN,SkipHidden);
 }
 
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
@@ -101,6 +102,12 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 				}
 			}
 		}
+
+		if (!Done
+			&& Flags.Check(FSCANTREE_SKIPHIDDEN)
+			&& (fdata->dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM)) != 0
+		) continue;
+
 		break;
 	}
 

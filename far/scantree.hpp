@@ -52,7 +52,9 @@ enum
 	FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
 
 	// здесь те флаги, которые могут выставляться в 3-м параметре SetFindPath()
-	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
+	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
+
+	FSCANTREE_SKIPHIDDEN       = 0x00020000, // пропуск HIDDEN, SYSTEM
 };
 
 struct ScanTreeData
@@ -73,7 +75,7 @@ struct ScanTreeData
 class ScanTree
 {
 public:
-	ScanTree(bool RetUpDir, bool Recurse=1, int ScanJunction=-1);
+	ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1, bool SkipHidden=false);
 
 	// 3-й параметр - флаги из старшего слова
 	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
