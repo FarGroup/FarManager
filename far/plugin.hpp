@@ -2784,6 +2784,12 @@ struct ConfigureInfo
 	const GUID* Guid;
 };
 
+#ifdef FAR_USE_INTERNALS
+#else // ELSE FAR_USE_INTERNALS
+static const GUID FarGuid =
+{0x00000000, 0x0000, 0x0000, 0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00};
+#endif // END FAR_USE_INTERNALS
+
 #ifdef __cplusplus
 extern "C"
 {

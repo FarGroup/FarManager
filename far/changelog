@@ -1,3 +1,7 @@
+w17 08.05.2013 17:27:18 +0400 - build 3399
+
+1. M#2316: добавить FarGuid
+
 w17 08.05.2013 15:09:55 +0400 - build 3398
 
 1. M#2407: Allow to disable BOM generation for UTF codepages in new files

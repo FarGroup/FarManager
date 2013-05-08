@@ -704,7 +704,7 @@ static void txt_dump(
 			if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
 			{
 				outstr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно для 'плохих' utf-8
-			}                                 // но усложнять из-за этого код на мой взгяд не стоит...
+			}                                // но усложнять из-за этого код на мой взгяд не стоит...
 			else
 			{
 				first = false;
@@ -1333,13 +1333,12 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return !FilePos || !ViewFile.Opened();
 		case MCODE_V_VIEWERSTATE:
 		{
-			DWORD MacroViewerState=0;
-			MacroViewerState |= ViOpt.AutoDetectCodePage     ? 0x00000001 : 0; //autodetect
-			MacroViewerState |=                                0x00000004;     //? always UNICODE
-			MacroViewerState |= VM.Wrap                      ? 0x00000008 : 0; //wrap mode
-			MacroViewerState |= VM.WordWrap                  ? 0x00000010 : 0; //word wrap
-			MacroViewerState |= VM.Hex == 1                  ? 0x00000020 : 0; //hex mode
-			MacroViewerState |= VM.Hex  > 1                  ? 0x00000040 : 0; //dump mode -- !!!update help
+			DWORD MacroViewerState = 0x00000004; // always UNICODE
+			MacroViewerState |= ViOpt.AutoDetectCodePage ? 0x00000001 : 0; //autodetect
+			MacroViewerState |= VM.Wrap                  ? 0x00000008 : 0; //wrap mode
+			MacroViewerState |= VM.WordWrap              ? 0x00000010 : 0; //word wrap
+			MacroViewerState |= VM.Hex == 1              ? 0x00000020 : 0; //hex mode
+			MacroViewerState |= VM.Hex  > 1              ? 0x00000040 : 0; //dump mode
 			MacroViewerState |= Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return MacroViewerState;
@@ -1353,14 +1352,8 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-/* $ 28.01.2001
-   - Путем проверки ViewFile на nullptr избавляемся от падения
-*/
 int Viewer::ProcessKey(int Key)
 {
-	/* $ 22.01.2001 IS
-	     Происходят какие-то манипуляции -> снимем выделение
-	*/
 	if ( !ViOpt.PersistentBlocks &&
 			Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
 			Key!=KEY_CTRLC && Key!=KEY_RCTRLC &&
@@ -1670,8 +1663,6 @@ int Viewer::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		/* $ 27.06.2001 VVM
-		  + С альтом скролим по 1 */
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
@@ -1891,7 +1882,6 @@ int Viewer::ProcessKey(int Key)
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
-
 			// Перейти на начало файла
 			if (ViewFile.Opened())
 				LeftPos=0;
@@ -1908,7 +1898,6 @@ int Viewer::ProcessKey(int Key)
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
-
 			// Перейти на конец файла
 			if (ViewFile.Opened())
 				LeftPos=0;
@@ -1918,12 +1907,6 @@ int Viewer::ProcessKey(int Key)
 
 			if (ViewFile.Opened())
 			{
-				/* $ 15.08.2002 IS
-				   Для обычного режима, если последняя строка не содержит перевод
-				   строки, крутанем вверх на один раз больше - иначе визуально
-				   обработка End (и подобных) на такой строке отличается от обработки
-				   Down.
-				*/
 				int max_counter = Y2 - Y1;
 				int ch_size = getChSize(VM.CodePage);
 
@@ -1976,24 +1959,8 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		return FALSE;
 
-	/* $ 22.01.2001 IS
-	     Происходят какие-то манипуляции -> снимем выделение
-	*/
-	//SelectSize=0;
-
-	/* $ 10.09.2000 SVS
-	   ! Постоянный скроллинг при нажатой клавише
-	     Обыкновенный захват мыши
-	*/
-	/* $ 02.10.2000 SVS
-	  > Если нажать в самом низу скролбара, вьюер отмотается на страницу
-	  > ниже нижней границы текста. Перед глазами будет пустой экран.
-	*/
 	if (ViOpt.ShowScrollbar && IntKeyState.MouseX==X2+(m_bQuickView?1:0))
 	{
-		/* $ 01.09.2000 SVS
-		   Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
-		*/
 		if (IntKeyState.MouseY == Y1)
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
@@ -2001,7 +1968,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			while (IsMouseButtonPressed())
 			{
-				//_SVS(SysLog(L"Viewer/ KEY_DOWN= %i, %i",FilePos,FileSize));
 				ProcessKey(KEY_DOWN);
 			}
 		}
@@ -2013,9 +1979,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			while (IsMouseButtonPressed())
 			{
-				/* $ 14.05.2001 DJ
-				   более точное позиционирование; корректная работа на больших файлах
-				*/
 				FilePos=(FileSize-1)/(Y2-Y1-1)*(IntKeyState.MouseY-Y1);
 				int Perc;
 
@@ -2032,16 +1995,12 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				else
 					Perc=ToPercent64(FilePos,FileSize);
 
-				//_SVS(SysLog(L"Viewer/ ToPercent()=%i, %I64d, %I64d, Mouse=[%d:%d]",Perc,FilePos,FileSize,MsX,MsY));
 				if (Perc == 100)
 					ProcessKey(KEY_CTRLEND);
 				else if (!Perc)
 					ProcessKey(KEY_CTRLHOME);
 				else
 				{
-					/* $ 27.04.2001 DJ
-					   не рвем строки посередине
-					*/
 					AdjustFilePos();
 					Show();
 				}
@@ -2051,12 +2010,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return (TRUE);
 	}
 
-	/* $ 16.12.2000 tran
-	   шелчок мышью на статус баре */
-
-	/* $ 12.10.2001 SKV
-	  угу, а только если он есть, statusline...
-	*/
 	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
 	{
 		while (IsMouseButtonPressed()) {}
@@ -3625,10 +3578,10 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 				return nw;
 			}
 			unsigned char c2 = ((const unsigned char *)s)[ic];
-			if ( 0x80 != (c2 & 0xC0)        // illegal 2-nd byte
-				|| (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
-				|| (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
-				|| (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
+			if ( 0x80 != (c2 & 0xC0)       // illegal 2-nd byte
+			 || (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
+			 || (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
+			 || (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
 			)
 			{
 				wc = -1;
