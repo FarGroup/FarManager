@@ -114,6 +114,7 @@ public:
 	class TreeListCache* tempTreeCache;
 	class PluginSynchro* PluginSynchroManager;
 	class codepages* CodePages;
+	class sets* Sets;
 	class Database* Db;
 	class ControlObject* CtrlObject;
 };

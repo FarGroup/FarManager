@@ -5703,7 +5703,6 @@ void Editor::VBlockShift(int Left)
 	AddUndoData(UNDO_END);
 }
 
-
 int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
 	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
@@ -6237,9 +6236,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
 				newcol.EndPos=col->EndPos+X1;
-				newcol.Color=col->Color;
+				newcol.SetColor(col->Color);
 				newcol.Flags=col->Flags;
-				newcol.Owner=col->Owner;
+				newcol.SetOwner(col->Owner);
 				newcol.Priority=col->Priority;
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
 
@@ -6280,9 +6279,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				col->StartPos=curcol.StartPos-X1;
 				col->EndPos=curcol.EndPos-X1;
-				col->Color=curcol.Color;
+				col->Color=curcol.GetColor();
 				col->Flags=curcol.Flags;
-				col->Owner=curcol.Owner;
+				col->Owner=curcol.GetOwner();
 				col->Priority=curcol.Priority;
 				_ECTLLOG(SysLog(L"EditorColor{"));
 				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));

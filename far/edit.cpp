@@ -49,6 +49,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "fileedit.hpp"
 
+
+const GUID& ColorItem::GetOwner() const
+{
+	return *reinterpret_cast<const GUID*>(Owner);
+}
+
+void ColorItem::SetOwner(const GUID& Value)
+{
+	Owner = &(*Global->Sets->GuidSet->emplace(Value).first);
+}
+
+const FarColor& ColorItem::GetColor() const
+{
+	return *reinterpret_cast<const FarColor*>(Color);
+}
+
+void ColorItem::SetColor(const FarColor& Value)
+{
+	Color = &(*Global->Sets->ColorSet->emplace(Value).first);
+}
+
 static int Recurse=0;
 
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
@@ -2455,7 +2476,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if ((ColorList[Src].StartPos!=ColorPos) || (Owner != ColorList[Src].Owner))
+			if ((ColorList[Src].StartPos!=ColorPos) || (Owner != ColorList[Src].GetOwner()))
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];
@@ -2468,7 +2489,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if (Owner != ColorList[Src].Owner)
+			if (Owner != ColorList[Src].GetOwner())
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];
@@ -2661,7 +2682,7 @@ void Edit::ApplyColor(const FarColor& SelColor)
 			    Y1,
 			    Start+Length-1,
 			    Y1,
-			    CurItem->Color,
+			    CurItem->GetColor(),
 			    // Не раскрашиваем выделение
 			    SelColor,
 			    true

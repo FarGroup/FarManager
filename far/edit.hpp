@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "bitflags.hpp"
 #include "macro.hpp"
+#include "mix.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
@@ -64,13 +65,38 @@ enum FLAGS_CLASS_EDITLINE
 
 struct ColorItem
 {
-	GUID Owner;
+	// Usually we have only 1-2 coloring plugins.
+	// Keeping a copy of GUID in each of thousands of color items is a giant waste of memory,
+	// so GUID's are stored in separate set and here is only a pointer.
+	const void* Owner;
+	// Usually we have only 5-10 unique colors.
+	// Keeping a copy of FarColor in each of thousands of color items is a giant waste of memory,
+	// so FarColor's are stored in separate set and here is only a pointer.
+	const void* Color;
 	unsigned Priority;
 	int SubPriority;
 	int StartPos;
 	int EndPos;
-	FarColor Color;
-	unsigned __int64 Flags;
+	// it's an uint64 in plugin API, but only 0x1 and 0x2 are used now, so save some memory here.
+	unsigned int Flags;
+
+	const GUID& GetOwner() const;
+	void SetOwner(const GUID& Value);
+
+	const FarColor& GetColor() const;
+	void SetColor(const FarColor& Value);
+};
+
+class sets
+{
+public:
+	sets():
+		ColorSet(new DECLTYPE(ColorSet)::element_type),
+		GuidSet(new DECLTYPE(GuidSet)::element_type)
+	{}
+
+	std::unique_ptr<std::unordered_set<FarColor, color_hash, color_equal>> ColorSet;
+	std::unique_ptr<std::unordered_set<GUID, uuid_hash, uuid_equal>> GuidSet;
 };
 
 enum SetCPFlags

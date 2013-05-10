@@ -1679,9 +1679,13 @@ struct EditorConvertPos
 	intptr_t DestPos;
 };
 
-
 typedef unsigned __int64 EDITORCOLORFLAGS;
 static const EDITORCOLORFLAGS
+#ifdef FAR_USE_INTERNALS
+	// Achtung! Internally stored as unsigned int to reduce memory usage.
+	// If you want to add any flags above 0x0000000080000000,
+	// don't forget to change ColorItem::Flags to 64-bit too.
+#endif // END FAR_USE_INTERNALS
 	ECF_TABMARKFIRST   = 0x0000000000000001ULL,
 	ECF_TABMARKCURRENT = 0x0000000000000002ULL;
 

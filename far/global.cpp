@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
+#include "edit.hpp"
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
@@ -136,6 +137,7 @@ global::global():
 	tempTreeCache = new TreeListCache;
 	PluginSynchroManager = new PluginSynchro;
 	CodePages = new codepages;
+	Sets = new sets;
 }
 
 global::~global()
@@ -144,6 +146,8 @@ global::~global()
 	CtrlObject = nullptr;
 	delete Db;
 	Db = nullptr;
+	delete Sets;
+	Sets = nullptr;
 	delete CodePages;
 	CodePages = nullptr;
 	delete PluginSynchroManager;

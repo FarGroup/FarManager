@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "PluginA.hpp"
 #include "configdb.hpp"
+#include "mix.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -235,24 +236,6 @@ private:
 	bool RemovePlugin(Plugin *pPlugin);
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);
 	void LoadPluginsFromCache();
-
-	struct uuid_hash
-	{
-		size_t operator ()(const GUID& Key) const
-		{
-			RPC_STATUS Status;
-			return UuidHash(const_cast<UUID*>(&Key), &Status);
-		}
-	};
-
-	struct uuid_equal
-	{
-		bool operator ()(const GUID& a, const GUID& b) const
-		{
-			// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
-			return (a == b) != 0;
-		}
-	};
 
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
 	std::list<Plugin*> SortedPlugins;

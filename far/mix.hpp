@@ -68,3 +68,41 @@ private:
 	class EditControl* edit;
 	bool OldState;
 };
+
+unsigned long CRC32(unsigned long crc, const void* buffer, size_t len);
+
+struct uuid_hash
+{
+	size_t operator ()(const GUID& Key) const
+	{
+		RPC_STATUS Status;
+		return UuidHash(const_cast<UUID*>(&Key), &Status);
+	}
+};
+
+struct uuid_equal
+{
+	bool operator ()(const GUID& a, const GUID& b) const
+	{
+		// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
+		return (a == b) != 0;
+	}
+};
+
+struct color_hash
+{
+	size_t operator ()(const FarColor& Key) const
+	{
+		return CRC32(0, &Key, sizeof(Key));
+	}
+};
+
+struct color_equal
+{
+	bool operator ()(const FarColor& a, const FarColor& b) const
+	{
+		return a.ForegroundColor == b.ForegroundColor &&
+			a.BackgroundColor == b.BackgroundColor &&
+			a.Flags == b.Flags;
+	}
+};
