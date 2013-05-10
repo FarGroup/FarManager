@@ -90,13 +90,8 @@ struct ColorItem
 class sets
 {
 public:
-	sets():
-		ColorSet(new DECLTYPE(ColorSet)::element_type),
-		GuidSet(new DECLTYPE(GuidSet)::element_type)
-	{}
-
-	std::unique_ptr<std::unordered_set<FarColor, color_hash, color_equal>> ColorSet;
-	std::unique_ptr<std::unordered_set<GUID, uuid_hash, uuid_equal>> GuidSet;
+	std::unordered_set<FarColor, color_hash, color_equal> ColorSet;
+	std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
 };
 
 enum SetCPFlags
