@@ -148,11 +148,16 @@ local function MenuLoop()
   mf.msave("LuaMacro", "MacroBrowser", {SortKey=SortKey, InvSort=InvSort})
 end
 
+local function export_ProcessSynchroEvent (event,param)
+  export.ProcessSynchroEvent = nil
+  MenuLoop()
+end
+
 -- This function is needed to make far.MacroGetArea work properly:
 -- otherwise it returns 8 (MACROAREA_MENU) when called from Plugins Menu.
 local function RunMenuLoop()
-  far.Timer(10, function(obj) if not obj.Closed then obj:Close(); MenuLoop(); end
-                end)
+  export.ProcessSynchroEvent = export_ProcessSynchroEvent
+  far.AdvControl("ACTL_SYNCHRO",0)
 end
 
 return RunMenuLoop
