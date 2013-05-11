@@ -1055,6 +1055,9 @@
           <Component Id="utils.lua" Guid="$(var.Guid.utils.lua)" Win64="$(var.Win64)">
             <File Id="utils.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\utils.lua" />
           </Component>
+          <Component Id="mbrowser.lua" Guid="$(var.Guid.mbrowser.lua)" Win64="$(var.Win64)">
+            <File Id="mbrowser.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\mbrowser.lua" />
+          </Component>
           <Component Id="luamacro.lua" Guid="$(var.Guid.luamacro.lua)" Win64="$(var.Win64)">
             <File Id="luamacro.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\luamacro.lua" />
           </Component>

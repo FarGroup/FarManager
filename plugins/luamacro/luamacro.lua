@@ -9,6 +9,7 @@ local function LOG (fmt, ...)
 end
 
 local F = far.Flags
+local bor = bit64.bor
 local co_create, co_yield, co_resume, co_status, co_wrap =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
 
@@ -16,7 +17,7 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
-local utils
+local utils, macrobrowser
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -81,8 +82,10 @@ end
 -------------------------------------------------------------------------------
 
 local PluginInfo = {
-  Flags = F.PF_PRELOAD,
+  Flags = bor(F.PF_PRELOAD,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
   CommandPrefix = "lm",
+  PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
+  PluginMenuStrings = { "Macro Browser" },
 }
 function export.GetPluginInfo()
   return PluginInfo
@@ -231,6 +234,10 @@ function export.Open (OpenFrom, ...)
     elseif args[1]=="macropost" then -- this test fails (Mantis # 2222)
       return far.MacroPost([[far.Message"macropost"]])
     end
+
+  else
+    macrobrowser()
+
   end
 end
 
@@ -249,18 +256,20 @@ local function AddCfindFunction()
 end
 
 do
-  local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."utils.lua")
-  if func then
-    utils = func { ErrMsg=ErrMsg, pack=pack }
-  else
-    export={}; ErrMsg(msg); return
+  local ModuleDir = far.PluginStartupInfo().ModuleDir
+  local func,msg = loadfile(ModuleDir.."utils.lua")
+  if func then utils = func { ErrMsg=ErrMsg, pack=pack }
+  else export={}; ErrMsg(msg); return
   end
 
-  local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
-  if func then
-    func { utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
-  else
-    export={}; ErrMsg(msg); return
+  func,msg = loadfile(ModuleDir.."api.lua")
+  if func then func { utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
+  else export={}; ErrMsg(msg); return
+  end
+
+  func,msg = loadfile(ModuleDir.."mbrowser.lua")
+  if func then macrobrowser = func()
+  else export={}; ErrMsg(msg); return
   end
 
   AddCfindFunction()
