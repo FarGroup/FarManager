@@ -3,6 +3,69 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.05.2013 14:49:03 +0200 - build 3402
+
+1. Continuation of 3401.
+
+drkns 10.05.2013 14:17:17 +0200 - build 3401
+
+1. Continuation of 3157. Memory usage of editor highlighting is reduced approximately by one thirth.
+
+w17 08.05.2013 23:57:50 +0400 - build 3400
+
+1. M#1479: The find function should let pass a not visible (hidden) files
+
+w17 08.05.2013 17:27:18 +0400 - build 3399
+
+1. M#2316: add FarGuid
+
+w17 08.05.2013 15:09:55 +0400 - build 3398
+
+1. M#2407: Allow to disable BOM generation for UTF codepages in new files
+
+t-rex 07.05.2013 23:35:51 +0200 - build 3397
+
+1. Correction of 3342 + refactoring.
+   Privilege elevation query was displayed entering c:\Users\user\Application Data, for example.
+
+w17 07.05.2013 21:02:44 +0400 - build 3396
+
+1. multiarc + folder shortcut
+
+drkns 07.05.2013 17:13:55 +0200 - build 3395
+
+1. Correction of 3393.
+
+shmuel 07.05.2013 16:42:49 +0200 - build 3394
+
+1. M#2222: MacroControl MCTL_SENDSTRING returns 0 in "Keys('F11') Menu.Select('FarNet', 2) Keys('Enter')"
+
+drkns 07.05.2013 15:05:37 +0200 - build 3393
+
+1. Continuation of 3388: move versioninfo processing to a separate class.
+
+w17 07.05.2013 14:52:09 +0400 - build 3392
+
+1. Correction of 3388 (unused code removed should fix gcc compilation)
+
+w17 07.05.2013 11:05:10 +0400 - build 3391
+
+1. fix gcc build
+
+w17 07.05.2013 10:21:05 +0400 - build 3390
+
+1. Correction of 3388
+
+t-rex 07.05.2013 00:03:07 +0200 - build 3389
+
+1. For ECTL_SAVEFILE, CodePage=CP_DEFAULT can be set to save the file in the current codepage.
+
+2. ECTL_SAVEFILE, being called from ANSI plugins, did not set the codepage, so files could be messed up.
+
+w17 06.05.2013 18:05:16 +0400 - build 3388
+
+1. M#2079: Links to FTP folders are not stored in folder links.
+
 drkns 04.05.2013 16:01:20 +0200 - build 3387
 
 1. Correction of 3358.1: translation of exceptions did not take place for threads except the main one.
