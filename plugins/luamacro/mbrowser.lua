@@ -1,9 +1,15 @@
 -- encoding: UTF-8
 
+local args = select(1, ...)
+local utils = args.utils
+
 local F = far.Flags
+local MCODE_F_POSTNEWMACRO = 0x80C64
+local MCODE_F_CHECKALL     = 0x80C65
 local ceil, max = math.ceil, math.max
 local LStricmp = far.LStricmp -- consider win.CompareString ?
 local Title = "Macros and events"
+local Message = function (str,title,...) return far.Message(str,title or Title,...) end
 
 local areaCodes = {
   other="O", shell="S", viewer="V", editor="E", dialog="D", search="S",
@@ -21,7 +27,7 @@ local areaArr = {
 -- O S V E D S D M M H I Q T F U S D C
 --   1     2 1 2 3 3             1 2
 
-local function GetItems (fcomp, sortmark)
+local function GetItems (fcomp, sortmark, onlyactive)
   local currArea = areaArr[1+far.MacroGetArea()]
   local events,macros,items={},{},{}
   local maxKeyW, maxKeyLen do
@@ -38,15 +44,17 @@ local function GetItems (fcomp, sortmark)
         local ars,s = {},""
         m.area:lower():gsub("[^ ]+", function(c) ars[c]=true end)
         if ars[currArea] or ars.common then m.active=true end
-        for i,v in ipairs(areaArr) do
-          s=s..(ars[v] and areaCodes[v] or ".")
+        if m.active or not onlyactive then
+          for i,v in ipairs(areaArr) do
+            s=s..(ars[v] and areaCodes[v] or ".")
+          end
+          m.codedArea=s
+          m.description=m.description or "id="..m.id
+          macros[#macros+1]=m
+          local keylen = m.key:len()
+          m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
+          maxKeyLen = max(maxKeyLen, m.codedKey:len())
         end
-        m.codedArea=s
-        m.description=m.description or "id="..m.id
-        macros[#macros+1]=m
-        local keylen = m.key:len()
-        m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
-        maxKeyLen = max(maxKeyLen, m.codedKey:len())
       end
     else
       events[#events+1]=m
@@ -56,7 +64,9 @@ local function GetItems (fcomp, sortmark)
   table.sort(macros, fcomp)
   table.sort(events, function(a,b) return a.group < b.group end)
 
-  items[#items+1] = { separator=true, text="Macros [ "..sortmark.." ]" }
+  items[#items+1] = {
+    separator=true,
+    text=("%s [ %s ]"):format(onlyactive and "Active macros" or "Macros", sortmark) }
 
   local fmt = ("%%s %%s │ %%-%ds │ %%s"):format(maxKeyLen)
   for i,m in ipairs(macros) do
@@ -93,7 +103,9 @@ F4       open file in editor
 AltF4    open file in modal editor
 CtrlF1   sort macros by area
 CtrlF2   sort macros by key
-CtrlF3   sort macros by description]], Title, nil, "l")
+CtrlF3   sort macros by description
+Enter    execute selected macro
+CtrlH    hide inactive macros]], Title, nil, "l")
 end
 
 local function MenuLoop()
@@ -103,29 +115,63 @@ local function MenuLoop()
     Title=Title,
     Flags={FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
   }
+  local OnlyActive=false
 
-  local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"}, }
+  local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"}, }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
   assert(CmpFuncs[SortKey][InvSort])
 
   while true do
-    local items = GetItems(CmpFuncs[SortKey][InvSort], CmpFuncs[SortKey][InvSort+2])
+    local items = GetItems(CmpFuncs[SortKey][InvSort], CmpFuncs[SortKey][InvSort+2], OnlyActive)
     local item, pos = far.Menu(props, items, bkeys)
     if not item then break end
     props.SelectIndex = pos
     local BrKey = item.BreakKey
-
-    if CmpFuncs[BrKey] then
+    ----------------------------------------------------------------------------
+    if BrKey == nil then -- execute
+      local m = item.macro
+      if m.area then
+        if m.active then
+          local check = true
+          local area = far.MacroGetArea()
+          if m.filemask then
+            local filename
+            if     area==F.MACROAREA_EDITOR then filename=editor.GetFileName()
+            elseif area==F.MACROAREA_VIEWER then filename=viewer.GetFileName()
+            end
+            check = filename and utils.CheckFileName(m.filemask, filename)
+          end
+          if check then
+            if far.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
+              if (not m.condition or m.condition()) then
+                far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+                break
+              else Message("condition() check failed")
+              end
+            else Message("flags check failed")
+            end
+          else Message("filemask check failed")
+          end
+        else Message("attempt to execute macro from wrong area")
+        end
+      else Message("attempt to execute event")
+      end
+    ----------------------------------------------------------------------------
+    elseif CmpFuncs[BrKey] then -- sort
       if BrKey == SortKey then InvSort = InvSort==1 and 2 or 1
       else SortKey, InvSort = BrKey, 1
       end
       props.SelectIndex = 1
-
+    ----------------------------------------------------------------------------
     elseif BrKey=="F1" then
       ShowHelp()
-
-    elseif BrKey=="F4" or BrKey=="A+F4" then
+    ----------------------------------------------------------------------------
+    elseif BrKey=="C+H" then -- hide inactive macros
+      OnlyActive = not OnlyActive
+      props.SelectIndex = nil
+    ----------------------------------------------------------------------------
+    elseif BrKey=="F4" or BrKey=="A+F4" then -- edit
       local m = items[pos].macro
       if m.FileName then
         local startline = m.action and debug.getinfo(m.action,"S").linedefined
@@ -140,10 +186,10 @@ local function MenuLoop()
           end
         end
       else
-        far.Message("<No file name available>")
+        Message("<No file name available>")
       end
     end
-
+    ----------------------------------------------------------------------------
   end
   mf.msave("LuaMacro", "MacroBrowser", {SortKey=SortKey, InvSort=InvSort})
 end

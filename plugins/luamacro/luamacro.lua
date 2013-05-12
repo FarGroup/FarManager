@@ -268,7 +268,7 @@ do
   end
 
   func,msg = loadfile(ModuleDir.."mbrowser.lua")
-  if func then macrobrowser = func()
+  if func then macrobrowser = func { utils=utils }
   else export={}; ErrMsg(msg); return
   end
 

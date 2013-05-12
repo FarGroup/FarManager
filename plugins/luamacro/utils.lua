@@ -687,4 +687,5 @@ return {
   UnloadMacros = InitMacroSystem,
   WriteMacros = WriteMacros,
   GetMacroCopy = GetMacroCopy,
+  CheckFileName = CheckFileName,
 }

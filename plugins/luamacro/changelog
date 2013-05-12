@@ -1,3 +1,9 @@
+shmuel 12.05.2013 17:22:33 +0200 - build 156
+
+1. Macro Browser: добавлены операции:
+   -- исполнение макроса по Enter
+   -- скрытие/показ неактивных макросов по CtrlH
+
 shmuel 11.05.2013 23:09:54 +0200 - build 155
 
 1. Macro Browser: refactoring.
