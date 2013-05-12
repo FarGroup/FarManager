@@ -265,7 +265,7 @@ local function AddRecordedMacro (srctable)
     if not f then ErrMsg(msg) return end
   end
 
-  local macro = { priority=200 }
+  local macro = { priority=200, FileName=AddMacro_filename }
   local t,n = ExpandKey(key)
   for i=1,n do
     local normkey = t[i]
@@ -417,21 +417,18 @@ local function InitMacroSystem()
   LoadMacros(allAreas,true)
 end
 
-local function WriteOneMacro (macro, keyname)
+local function WriteOneMacro (macro, keyname, delete)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
   if not win.CreateDir(dir,true) then return end
 
-  local fname = ("%s\\%s_%s"):format(dir, macro.area, keyname:gsub(".", CharNames)..".lua")
+  local fname = ("%s\\%s_%s.lua"):format(dir, macro.area, (keyname:gsub(".", CharNames)))
   local attr = win.GetFileAttr(fname)
   if attr then
     win.SetFileAttr(fname, "")
     win.DeleteFile(fname)
   end
 
-  if macro.disabled then -- operation "delete"
-    LastMessage = pack()
-    return F.MPRT_NORMALFINISH, LastMessage
-  end
+  if delete then return end
 
   -- operation "write"
   local fp, msg = io.open(fname, "w")
@@ -439,8 +436,7 @@ local function WriteOneMacro (macro, keyname)
     fp:write(("area=%q\nkey=%q\nflags=%q\ndescription=%q\ncode=%q\n"):
       format(macro.area, macro.key, macro.flags, macro.description, macro.code))
     fp:close()
-    LastMessage = pack()
-    return F.MPRT_NORMALFINISH, LastMessage
+    macro.FileName = fname
   end
 end
 
@@ -449,12 +445,10 @@ local function WriteMacros()
     for keyname,macroarray in pairs(area) do
       local macro = macroarray.recorded
       if macro and macro.needsave then
-        WriteOneMacro(macro,macro.key)
+        WriteOneMacro(macro, macro.key, macro.disabled)
+        macro.needsave = nil
         if macro.disabled then
-          LoadedMacros[macroarray.recorded.id] = false
           macroarray.recorded = nil
-        else
-          macro.needsave = nil
         end
       end
     end
