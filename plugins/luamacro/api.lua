@@ -1,7 +1,7 @@
 -- api.lua
 
-local args = select(1, ...)
-local checkarg, utils, yieldcall = args.checkarg, args.utils, args.yieldcall
+local args = ...
+local M, checkarg, utils, yieldcall = args.M, args.checkarg, args.utils, args.yieldcall
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor

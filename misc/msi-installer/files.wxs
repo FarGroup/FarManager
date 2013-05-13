@@ -1064,6 +1064,15 @@
           <Component Id="macrotest.lua" Guid="$(var.Guid.macrotest.lua)" Win64="$(var.Win64)">
             <File Id="macrotest.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\macrotest.lua" />
           </Component>
+          <Component Id="lang.lua" Guid="$(var.Guid.lang.lua)" Win64="$(var.Win64)">
+            <File Id="lang.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lang.lua" />
+          </Component>
+          <Component Id="lm_eng.lng" Guid="$(var.Guid.lm_eng.lng)" Win64="$(var.Win64)">
+            <File Id="lm_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_eng.lng" />
+          </Component>
+          <Component Id="lm_rus.lng" Guid="$(var.Guid.lm_rus.lng)" Win64="$(var.Win64)">
+            <File Id="lm_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_rus.lng" />
+          </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="LuaMacro.map" Guid="$(var.Guid.LuaMacro.map)" Win64="$(var.Win64)">
             <File Id="LuaMacro.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.map" />

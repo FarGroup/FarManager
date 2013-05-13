@@ -1,5 +1,5 @@
 local args = ...
-local ErrMsg, pack = args.ErrMsg, args.pack
+local M, ErrMsg, pack = args.M, args.ErrMsg, args.pack
 
 local F = far.Flags
 local band,bor = bit64.band,bit64.bor
@@ -511,7 +511,7 @@ local function GetFromMenu (macrolist)
     end
     menuitems[i] = { text = descr }
   end
-  local item, pos = far.Menu({Title="Execute a macro"}, menuitems)
+  local item, pos = far.Menu({Title=M.UtExecuteMacroTitle}, menuitems)
   if item then return macrolist[pos] end
 end
 

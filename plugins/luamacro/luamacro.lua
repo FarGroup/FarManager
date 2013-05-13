@@ -8,7 +8,7 @@ local function LOG (fmt, ...)
   end
 end
 
-local F = far.Flags
+local F, M = far.Flags, nil
 local bor = bit64.bor
 local co_create, co_yield, co_resume, co_status, co_wrap =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
@@ -257,18 +257,23 @@ end
 
 do
   local ModuleDir = far.PluginStartupInfo().ModuleDir
+  local func,msg = loadfile(ModuleDir.."lang.lua")
+  if func then M = func()
+  else export={}; ErrMsg(msg); return
+  end
+
   local func,msg = loadfile(ModuleDir.."utils.lua")
-  if func then utils = func { ErrMsg=ErrMsg, pack=pack }
+  if func then utils = func { M=M, ErrMsg=ErrMsg, pack=pack }
   else export={}; ErrMsg(msg); return
   end
 
   func,msg = loadfile(ModuleDir.."api.lua")
-  if func then func { utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
+  if func then func { M=M, utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
   else export={}; ErrMsg(msg); return
   end
 
   func,msg = loadfile(ModuleDir.."mbrowser.lua")
-  if func then macrobrowser = func { utils=utils }
+  if func then macrobrowser = func { M=M, utils=utils }
   else export={}; ErrMsg(msg); return
   end
 

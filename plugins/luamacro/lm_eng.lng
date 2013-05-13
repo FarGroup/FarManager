@@ -1,0 +1,21 @@
+﻿.Language=English,English
+
+"Execute a macro"
+
+// macro browser help window
+"F1       show this help window"
+"F4       open file in editor"
+"AltF4    open file in modal editor"
+"CtrlF1   sort macros by area"
+"CtrlF2   sort macros by key"
+"CtrlF3   sort macros by description"
+"Enter    execute selected macro"
+"CtrlH    hide inactive macros"
+
+// macro browser separators
+"Macros"
+"Active macros"
+"Events"
+
+// macro browser messages
+"No file name available"

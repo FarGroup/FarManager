@@ -1,14 +1,14 @@
 -- encoding: UTF-8
 
-local args = select(1, ...)
-local utils = args.utils
+local args = ...
+local M, utils = args.M, args.utils
 
 local F = far.Flags
 local MCODE_F_POSTNEWMACRO = 0x80C64
 local MCODE_F_CHECKALL     = 0x80C65
 local ceil, max = math.ceil, math.max
 local LStricmp = far.LStricmp -- consider win.CompareString ?
-local Title = "Macros and events"
+local Title = "Macro Browser"
 local Message = function (str,title,...) return far.Message(str,title or Title,...) end
 
 local areaCodes = {
@@ -66,14 +66,14 @@ local function GetItems (fcomp, sortmark, onlyactive)
 
   items[#items+1] = {
     separator=true,
-    text=("%s [ %s ]"):format(onlyactive and "Active macros" or "Macros", sortmark) }
+    text=("%s [ %s ]"):format(onlyactive and M.MBSepActiveMacros or M.MBSepMacros, sortmark) }
 
   local fmt = ("%%s %%s │ %%-%ds │ %%s"):format(maxKeyLen)
   for i,m in ipairs(macros) do
     items[#items+1] = { text=fmt:format(m.active and "√" or " ", m.codedArea, m.codedKey, m.description), macro=m }
   end
 
-  items[#items+1] = { separator=true, text="Events" }
+  items[#items+1] = { separator=true, text=M.MBSepEvents }
 
   for i,m in ipairs(events) do
     items[#items+1] = { text=("%-19s │ %s"):format(
@@ -84,8 +84,8 @@ local function GetItems (fcomp, sortmark, onlyactive)
 end
 
 local CmpFuncs = {
-  ["C+F1"] = { function (a,b) return LStricmp(a.codedArea,b.codedArea) < 0 end,     -- CompArea
-               function (a,b) return LStricmp(a.codedArea,b.codedArea) > 0 end, "1↑", "1↓" },
+  ["C+F1"] = { function (a,b) return LStricmp(a.codedArea,b.codedArea) > 0 end,     -- CompArea
+               function (a,b) return LStricmp(a.codedArea,b.codedArea) < 0 end, "1↑", "1↓" },
   ["C+F2"] = { function (a,b) return LStricmp(a.key,b.key) < 0 end,                 -- CompKey
                function (a,b) return LStricmp(a.key,b.key) > 0 end, "2↑", "2↓" },
   ["C+F3"] = { function (a,b) return LStricmp(a.description,b.description) < 0 end, -- CompDescr
@@ -97,15 +97,11 @@ local SortKey = Data and Data.SortKey or "C+F1"
 local InvSort = Data and Data.InvSort or 1
 
 local function ShowHelp()
-  far.Message([[
-F1       show this help window
-F4       open file in editor
-AltF4    open file in modal editor
-CtrlF1   sort macros by area
-CtrlF2   sort macros by key
-CtrlF3   sort macros by description
-Enter    execute selected macro
-CtrlH    hide inactive macros]], Title, nil, "l")
+  far.Message(
+    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
+      M.MBShowHelp, M.MBOpenEditor, M.MBOpenModalEditor, M.MBSortByArea, M.MBSortByKey,
+      M.MBSortByDescription, M.MBExecuteMacro, M.MBHideInactiveMacros),
+    Title, nil, "l")
 end
 
 local function MenuLoop()
@@ -186,7 +182,7 @@ local function MenuLoop()
           end
         end
       else
-        Message("<No file name available>")
+        Message(M.MBNoFileNameAvail)
       end
     end
     ----------------------------------------------------------------------------

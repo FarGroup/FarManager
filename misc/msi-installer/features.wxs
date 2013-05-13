@@ -559,6 +559,9 @@
           <ComponentRef Id="luamacro.lua" />
           <ComponentRef Id="macrotest.lua" />
           <ComponentRef Id="mbrowser.lua" />
+          <ComponentRef Id="lang.lua" />
+          <ComponentRef Id="lm_eng.lng" />
+          <ComponentRef Id="lm_rus.lng" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="LuaMacro.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="LuaMacro.map" />
