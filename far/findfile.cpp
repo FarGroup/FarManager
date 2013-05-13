@@ -1312,9 +1312,6 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 
 	while (FileFound)
 	{
-		if (!Global->Opt->ShowHidden && (FileAttr & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM)) != 0)
-			return FALSE;
-
 		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
 		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Global->Opt->FindOpt.FindFolders || SearchHex))
 			return FALSE;
@@ -2304,8 +2301,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 	ScanTree ScTree(
 		false,
 		!(SearchMode==FINDAREA_CURRENT_ONLY||SearchMode==FINDAREA_INPATH),
-		Global->Opt->FindOpt.FindSymLinks,
-		!Global->Opt->ShowHidden
+		Global->Opt->FindOpt.FindSymLinks
 	);
 	string strSelName;
 	DWORD FileAttr;
@@ -2524,7 +2520,6 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& R
 			PluginPanelItem *CurPanelItem=PanelData+I;
 
 			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			 && (Global->Opt->ShowHidden || (CurPanelItem->FileAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM)) == 0)
 			 && StrCmp(CurPanelItem->FileName, L".") && !TestParentFolderName(CurPanelItem->FileName)
 			 && (!UseFilter || Filter->FileInFilter(*CurPanelItem))
 			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel->IsSelected(CurPanelItem->FileName))
