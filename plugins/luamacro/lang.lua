@@ -10,6 +10,7 @@ local list = {
   "MBHelpLine6",
   "MBHelpLine7",
   "MBHelpLine8",
+  "MBHelpLine9",
 
   -- macro browser separators
   "MBSepMacros",
@@ -18,6 +19,7 @@ local list = {
 
   -- macro browser messages
   "MBNoFileNameAvail",
+  "MBFileNotFound",
 }
 
 local GetMsg = far.GetMsg

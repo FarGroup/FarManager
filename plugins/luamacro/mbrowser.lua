@@ -83,6 +83,29 @@ local function GetItems (fcomp, sortmark, onlyactive)
   return items
 end
 
+local function LocateFile (fname)
+  local attr = win.GetFileAttr(fname)
+  if attr and not attr:find"d" then
+    local dir, name = fname:match("^(.*\\)([^\\]*)$")
+    if panel.SetPanelDirectory(nil, 1, dir) then
+      local pinfo = panel.GetPanelInfo(nil, 1)
+      for i=1, pinfo.ItemsNumber do
+        local item = panel.GetPanelItem(nil, 1, i)
+        if item.FileName == name then
+          local rect = pinfo.PanelRect
+          local hheight = math.floor((rect.bottom - rect.top - 4) / 2)
+          local topitem = pinfo.TopPanelItem
+          panel.RedrawPanel(nil, 1, { CurrentItem = i,
+            TopPanelItem = i>=topitem and i<topitem+hheight and topitem or
+                           i>hheight and i-hheight or 0 })
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
 local CmpFuncs = {
   ["C+F1"] = { function (a,b) return LStricmp(a.codedArea,b.codedArea) > 0 end,     -- CompArea
                function (a,b) return LStricmp(a.codedArea,b.codedArea) < 0 end, "1↑", "1↓" },
@@ -99,9 +122,9 @@ local ShowOnlyActive = Data and Data.ShowOnlyActive
 
 local function ShowHelp()
   far.Message(
-    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
-      M.MBHelpLine1, M.MBHelpLine2, M.MBHelpLine3, M.MBHelpLine4,
-      M.MBHelpLine5, M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8),
+    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
+      M.MBHelpLine1, M.MBHelpLine2, M.MBHelpLine3, M.MBHelpLine4, M.MBHelpLine5,
+      M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8, M.MBHelpLine9),
     Title, nil, "l")
 end
 
@@ -113,7 +136,7 @@ local function MenuLoop()
     Flags={FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
   }
 
-  local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"}, }
+  local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"}, }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
   assert(CmpFuncs[SortKey][InvSort])
@@ -184,8 +207,20 @@ local function MenuLoop()
       else
         Message(M.MBNoFileNameAvail)
       end
-    end
     ----------------------------------------------------------------------------
+    elseif BrKey=="C+PRIOR" then -- CtrlPgUp - locate the file in active panel
+      local m = items[pos].macro
+      if m.FileName then
+        if LocateFile(m.FileName) then
+          break
+        else
+          Message(M.MBFileNotFound)
+        end
+      else
+        Message(M.MBNoFileNameAvail)
+      end
+    ----------------------------------------------------------------------------
+    end
   end
   mf.msave("LuaMacro", "MacroBrowser",
     { SortKey=SortKey, InvSort=InvSort, ShowOnlyActive=ShowOnlyActive })
