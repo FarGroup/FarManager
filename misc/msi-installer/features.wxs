@@ -561,7 +561,9 @@
           <ComponentRef Id="mbrowser.lua" />
           <ComponentRef Id="lang.lua" />
           <ComponentRef Id="lm_eng.lng" />
-          <ComponentRef Id="lm_rus.lng" />
+          <Feature Id="LuaMacro.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="lm_rus.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="LuaMacro.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="LuaMacro.map" />
