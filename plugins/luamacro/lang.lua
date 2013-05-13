@@ -2,14 +2,14 @@ local list = {
   "UtExecuteMacroTitle",
 
   -- macro browser help window
-  "MBShowHelp",
-  "MBOpenEditor",
-  "MBOpenModalEditor",
-  "MBSortByArea",
-  "MBSortByKey",
-  "MBSortByDescription",
-  "MBExecuteMacro",
-  "MBHideInactiveMacros",
+  "MBHelpLine1",
+  "MBHelpLine2",
+  "MBHelpLine3",
+  "MBHelpLine4",
+  "MBHelpLine5",
+  "MBHelpLine6",
+  "MBHelpLine7",
+  "MBHelpLine8",
 
   -- macro browser separators
   "MBSepMacros",

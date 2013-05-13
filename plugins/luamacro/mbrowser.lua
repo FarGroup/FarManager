@@ -95,12 +95,13 @@ local CmpFuncs = {
 local Data = mf.mload("LuaMacro", "MacroBrowser")
 local SortKey = Data and Data.SortKey or "C+F1"
 local InvSort = Data and Data.InvSort or 1
+local ShowOnlyActive = Data and Data.ShowOnlyActive
 
 local function ShowHelp()
   far.Message(
     ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
-      M.MBShowHelp, M.MBOpenEditor, M.MBOpenModalEditor, M.MBSortByArea, M.MBSortByKey,
-      M.MBSortByDescription, M.MBExecuteMacro, M.MBHideInactiveMacros),
+      M.MBHelpLine1, M.MBHelpLine2, M.MBHelpLine3, M.MBHelpLine4,
+      M.MBHelpLine5, M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8),
     Title, nil, "l")
 end
 
@@ -111,7 +112,6 @@ local function MenuLoop()
     Title=Title,
     Flags={FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
   }
-  local OnlyActive=false
 
   local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"}, }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
@@ -119,7 +119,7 @@ local function MenuLoop()
   assert(CmpFuncs[SortKey][InvSort])
 
   while true do
-    local items = GetItems(CmpFuncs[SortKey][InvSort], CmpFuncs[SortKey][InvSort+2], OnlyActive)
+    local items = GetItems(CmpFuncs[SortKey][InvSort], CmpFuncs[SortKey][InvSort+2], ShowOnlyActive)
     local item, pos = far.Menu(props, items, bkeys)
     if not item then break end
     props.SelectIndex = pos
@@ -164,7 +164,7 @@ local function MenuLoop()
       ShowHelp()
     ----------------------------------------------------------------------------
     elseif BrKey=="C+H" then -- hide inactive macros
-      OnlyActive = not OnlyActive
+      ShowOnlyActive = not ShowOnlyActive
       props.SelectIndex = nil
     ----------------------------------------------------------------------------
     elseif BrKey=="F4" or BrKey=="A+F4" then -- edit
@@ -187,7 +187,8 @@ local function MenuLoop()
     end
     ----------------------------------------------------------------------------
   end
-  mf.msave("LuaMacro", "MacroBrowser", {SortKey=SortKey, InvSort=InvSort})
+  mf.msave("LuaMacro", "MacroBrowser",
+    { SortKey=SortKey, InvSort=InvSort, ShowOnlyActive=ShowOnlyActive })
 end
 
 local function export_ProcessSynchroEvent (event,param)
