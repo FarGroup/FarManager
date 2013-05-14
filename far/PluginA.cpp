@@ -4905,7 +4905,7 @@ public:
 	{
 		wchar_t* Value;
 		UINT Length;
-		if (VerQueryValue(buffer.get(), (path + value).CPtr(), reinterpret_cast<void**>(&Value), &Length) && Length)
+		if (VerQueryValue(buffer.get(), (path + value).CPtr(), reinterpret_cast<void**>(&Value), &Length) && Length > 1)
 			return Value;
 		return nullptr;
 	}
@@ -5065,7 +5065,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 			Info->Title = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"CompanyName")))
+		if ((Value = FileVersion->GetStringValue(L"CompanyName")) || (Value = FileVersion->GetStringValue(L"LegalCopyright")) )
 		{
 			Info->Author = Value;
 		}
