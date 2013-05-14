@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3399
+  Plugin API for Far Manager 3.0 build 3404
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3399
+#define FARMANAGERVERSION_BUILD 3404
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1537,7 +1537,6 @@ struct EditorConvertPos
 	intptr_t DestPos;
 };
 
-
 typedef unsigned __int64 EDITORCOLORFLAGS;
 static const EDITORCOLORFLAGS
 	ECF_TABMARKFIRST   = 0x0000000000000001ULL,
@@ -2612,8 +2611,7 @@ struct ConfigureInfo
 	const GUID* Guid;
 };
 
-static const GUID FarGuid =
-{0x00000000, 0x0000, 0x0000, 0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00};
+DEFINE_GUID(FarGuid, 0x00000000, 0x0000, 0x0000, 0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00);
 
 #ifdef __cplusplus
 extern "C"
