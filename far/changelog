@@ -1,3 +1,10 @@
+t-rex 14.05.2013 23:43:54 +0200 - build 3410
+
+1. Mantis#2409: FAR crashes when moving a directory (even with no plugin).
+
+2. Ёдакое расширение дл€ анси плагинов, в VersionInfo можно задать GUID плагина в поле PluginGUID.
+   √уид должен быть строкой без {}.
+
 w17 14.05.2013 23:16:28 +0400 - build 3409
 
 1. ≈щЄ одно уточнение 3388.

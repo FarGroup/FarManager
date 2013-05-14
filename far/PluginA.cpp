@@ -5056,6 +5056,8 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	Info->Title = PointToName(module);
 
 	FileVersion.reset(new file_version(module));
+	bool GuidFound = false;
+	GUID PluginGuid = {};
 
 	if (FileVersion->Read())
 	{
@@ -5075,6 +5077,12 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 			Info->Description = Value;
 		}
 
+		if ((Value = FileVersion->GetStringValue(L"PluginGUID")))
+		{
+			if (UuidFromString((unsigned short *)Value, &PluginGuid) == RPC_S_OK)
+				GuidFound = true;
+		}
+
 		auto FileInfo = FileVersion->GetFixedInfo();
 		if (FileInfo)
 		{
@@ -5088,10 +5096,17 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	if (StrCmpI(Info->Title, L"FarFtp") == 0 || StrCmpI(Info->Title, L"MultiArc") == 0)
 		opif_shortcut = true;
 
-	int nb = std::min((int)wcslen(Info->Title), 8);
-	while (nb > 0) {
-		--nb;
-		((char *)&Info->Guid)[8+nb] = (char)Info->Title[nb];
+	if (GuidFound)
+	{
+		Info->Guid = PluginGuid;
+	}
+	else
+	{
+		int nb = std::min((int)wcslen(Info->Title), 8);
+		while (nb > 0) {
+			--nb;
+			((char *)&Info->Guid)[8+nb] = (char)Info->Title[nb];
+		}
 	}
 
 	return true;

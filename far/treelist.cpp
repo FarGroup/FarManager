@@ -1631,7 +1631,8 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 
 	std::for_each(RANGE(Global->TreeCache->Names, i)
 	{
-		if ((i.GetLength() == SrcLength || IsSlash(i[SrcLength])) && !StrCmpNI(SrcName, i.CPtr(), static_cast<int>(SrcLength)))
+		size_t iLen = i.GetLength();
+		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash(i[SrcLength]))) && !StrCmpNI(SrcName, i.CPtr(), static_cast<int>(SrcLength)))
 		{
 			i = string(DestName) + (i.CPtr() + SrcLength);
 		}
