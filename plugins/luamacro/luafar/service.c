@@ -1639,7 +1639,7 @@ int LF_Message(lua_State *L,
 	const wchar_t **items, **pItems;
 	wchar_t** allocLines;
 	int nAlloc;
-	wchar_t *lastSpace, *lastDelim, *MsgCopy, *start, *pos;
+	wchar_t *lastDelim, *MsgCopy, *start, *pos;
 	TPluginData *pd = GetPluginData(L);
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	HANDLE hnd = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -1690,7 +1690,7 @@ int LF_Message(lua_State *L,
 	// Title
 	*pItems++ = aTitle;
 	// Message lines
-	lastSpace = lastDelim = NULL;
+	lastDelim = NULL;
 	MsgCopy = _wcsdup(aMsg);
 	start = pos = MsgCopy;
 
@@ -1708,12 +1708,12 @@ int LF_Message(lua_State *L,
 			*pos = L'\0';
 			++num_lines;
 			start = ++pos;
-			lastSpace = lastDelim = NULL;
+			lastDelim = NULL;
 		}
 		else if(pos-start < max_len)            // characters inside the line
 		{
-			if(*pos == L' ' || *pos == L'\t') lastSpace = pos;
-			else if(!isalnum(*pos) && *pos != L'_') lastDelim = pos;
+			if (!isalnum(*pos) && *pos != L'_')
+				lastDelim = pos;
 
 			pos++;
 		}
@@ -1721,7 +1721,7 @@ int LF_Message(lua_State *L,
 		{
 			size_t len;
 			wchar_t **q;
-			pos = lastSpace ? lastSpace+1 : lastDelim ? lastDelim+1 : pos;
+			pos = lastDelim ? lastDelim+1 : pos;
 			len = pos - start;
 			q = &allocLines[nAlloc++]; // line allocation is needed
 			*pItems++ = *q = (wchar_t*) malloc((len+1)*sizeof(wchar_t));
@@ -1729,7 +1729,7 @@ int LF_Message(lua_State *L,
 			(*q)[len] = L'\0';
 			++num_lines;
 			start = pos;
-			lastSpace = lastDelim = NULL;
+			lastDelim = NULL;
 		}
 	}
 

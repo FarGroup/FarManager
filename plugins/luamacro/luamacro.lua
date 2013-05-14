@@ -145,8 +145,8 @@ local function MacroStep (handle, ...)
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else
-        --ErrMsg(ret1)
-        ErrMsg(debug.traceback(macro.coro, ret1))
+        local msg = debug.traceback(macro.coro, ret1):gsub("\n\t","\n   ")
+        ErrMsg(msg)
         RunningMacros[handle] = false
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage
