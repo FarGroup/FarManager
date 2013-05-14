@@ -1,8 +1,9 @@
 #include "version.hpp"
 
 #define PLUGIN_BUILD FTP_BUILD
-#define PLUGIN_DESC "FTP client for FAR Manager"
+#define PLUGIN_DESC "FTP client for Far Manager"
 #define PLUGIN_NAME "FarFtp"
 #define PLUGIN_FILENAME "FarFtp.dll"
+#define PLUGIN_GUID "FEF98DD8-4360-4F41-BECC-399317FF1838"
 
-genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
+genericpluginrcwithguid(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_GUID)

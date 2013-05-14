@@ -4,5 +4,6 @@
 #define PLUGIN_DESC "Archive support plugin for FAR Manager"
 #define PLUGIN_NAME "MultiArc"
 #define PLUGIN_FILENAME "MultiArc.dll"
+#define PLUGIN_GUID "C5508DDB-5175-4736-9A10-C8F6EED7B32F"
 
-genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
+genericpluginrcwithguid(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_GUID)
