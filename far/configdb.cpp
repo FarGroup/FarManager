@@ -628,8 +628,6 @@ public:
 
 	bool SetValue(unsigned __int64 Root, const string& Name, const string& Value)
 	{
-		if (Name.IsEmpty())
-			return SetKeyDescription(Root,Value);
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 

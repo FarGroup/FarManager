@@ -117,8 +117,6 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.Number)) result=TRUE;
 				break;
 			case FST_STRING:
-				//не даём изменить "description" корня, он выставляется в plugin title фаром
-				if (Item.Root==0 && !Item.Name) break;
 				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
@@ -280,7 +278,8 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	int result=0;
-	if(Value.Root<m_Keys.size() && !wcschr(Value.Value,'\\'))
+	//Don't allow illigal key names - empty names or with backslashes
+	if(Value.Root<m_Keys.size() && Value.Value && *Value.Value && !wcschr(Value.Value,'\\'))
 	{
 		unsigned __int64 root = 0;
 		if (bCreate)
