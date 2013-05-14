@@ -81,12 +81,15 @@ int docall(lua_State *L, int narg, int nret)
 int GetExportFunction(lua_State* L, const char* FuncName)
 {
 	lua_getglobal(L, "export");
-	lua_getfield(L, -1, FuncName);
+	if (lua_istable(L,-1))
+	{
+		lua_getfield(L, -1, FuncName);
+		if(lua_isfunction(L,-1))
+			return lua_remove(L,-2), 1;
 
-	if(lua_isfunction(L, -1))
-		return lua_remove(L,-2), 1;
-	else
 		return lua_pop(L,2), 0;
+	}
+	return lua_pop(L,1), 0;
 }
 
 int pcall_msg(lua_State* L, int narg, int nret)
