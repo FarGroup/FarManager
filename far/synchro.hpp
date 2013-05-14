@@ -81,7 +81,7 @@ public:
 		strName << GetNamespace() << hs << L" " << TextPart;
 	}
 
-	virtual const wchar_t *GetNamespace() = 0;
+	virtual const wchar_t *GetNamespace() const = 0;
 
 	bool Opened() { return h != nullptr; }
 
@@ -99,7 +99,7 @@ public:
 	virtual ~HandleWrapper() { Close(); }
 
 private:
-	HANDLE GetHandle() { return h; }
+	HANDLE GetHandle() const { return h; }
 	friend class MultiWaiter;
 };
 
@@ -112,81 +112,45 @@ public:
 
 	virtual ~Thread() {}
 
-	const wchar_t *GetNamespace() { return L""; }
+	const wchar_t *GetNamespace() const { return L""; }
 
 	bool Start(ThreadFunction HandlerFunction, void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
-		assert(!h);
-
-		auto Param = new ThreadWrapperParam(HandlerFunction, Parameter);
-
-		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadWrapper, Param, 0, ThreadId));
-		if (!h)
-		{
-			delete Param;
-		}
-		return h != nullptr;
+		return Starter(std::bind(HandlerFunction, Parameter), ThreadId);
 	}
 
-	template<class T, typename Y>
-	bool MemberStart(T* OwnerClass, Y HandlerFunction, void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	template<class T>
+	bool MemberStart(T* Object, unsigned int (T::*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
-		assert(!h);
-
-		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
-
-		auto Param = new MemberThreadWrapperParam<T, Y>(OwnerClass, HandlerFunction, Parameter);
-
-		h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MemberThreadWrapper<T, Y>, Param, 0, ThreadId));
-		if (!h)
-		{
-			delete Param;
-		}
-		return h != nullptr;
+		return Starter(std::bind(std::mem_fn(Function), Object, Parameter), ThreadId);
 	}
 
 private:
-	template<class T, typename Y>
-	struct MemberThreadWrapperParam
+	template<class T>
+	bool Starter(T&& f, unsigned int* ThreadId)
 	{
-		T* Object;
-		Y Function;
-		void* Param;
+		assert(!h);
 
-		MemberThreadWrapperParam(T* Object, Y Function, void* Param):Object(Object), Function(Function), Param(Param) {}
-	};
+		auto Param = new T(f);
+		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, ThreadId))))
+		{
+			delete Param;
+			return false;
+		}
+		return true;
+	}
 
-	template<class T, typename Y>
-	static unsigned int WINAPI MemberThreadWrapper(void* p)
+	template<class T>
+	static unsigned int WINAPI Wrapper(void* p)
 	{
 		EnableSeTranslation();
 
-		auto pParam = reinterpret_cast<Thread::MemberThreadWrapperParam<T, Y>*>(p);
+		auto pParam = reinterpret_cast<T*>(p);
 		auto Param = *pParam;
 		delete pParam;
 
-		return (Param.Object->*(Param.Function))(Param.Param);
+		return Param();
 	}
-
-	struct ThreadWrapperParam
-	{
-		ThreadFunction Function;
-		void* Param;
-
-		ThreadWrapperParam(ThreadFunction Function, void* Param): Function(Function), Param(Param) {}
-	};
-
-	static unsigned int WINAPI ThreadWrapper(void* p)
-	{
-		EnableSeTranslation();
-
-		auto pParam = reinterpret_cast<Thread::ThreadWrapperParam*>(p);
-		auto Param = *pParam;
-		delete pParam;
-
-		return Param.Function(Param.Param);
-	}
-
 };
 
 class Mutex: public HandleWrapper
@@ -197,7 +161,7 @@ public:
 
 	virtual ~Mutex() {}
 
-	const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
+	const wchar_t *GetNamespace() const { return L"Far_Manager_Mutex_"; }
 
 	bool Open()
 	{
@@ -238,7 +202,7 @@ public:
 
 	virtual ~Event() {}
 
-	const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
+	const wchar_t *GetNamespace() const { return L"Far_Manager_Event_"; }
 
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{
