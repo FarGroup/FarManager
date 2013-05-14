@@ -73,8 +73,7 @@ struct ColorItem
 	// Keeping a copy of FarColor in each of thousands of color items is a giant waste of memory,
 	// so FarColor's are stored in separate set and here is only a pointer.
 	const void* Color;
-	unsigned Priority;
-	int SubPriority;
+	unsigned int Priority;
 	int StartPos;
 	int EndPos;
 	// it's an uint64 in plugin API, but only 0x1 and 0x2 are used now, so save some memory here.
@@ -85,6 +84,11 @@ struct ColorItem
 
 	const FarColor& GetColor() const;
 	void SetColor(const FarColor& Value);
+
+	bool operator <(const ColorItem& rhs) const
+	{
+		return Priority < rhs.Priority;
+	}
 };
 
 class sets

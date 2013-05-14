@@ -250,7 +250,7 @@ BOOL WINAPI apiShowHelp(
 	}
 	else if (ModuleName && (Flags&FHELP_GUID))
 	{
-		if (!*ModuleName || *reinterpret_cast<GUID*>((void*)ModuleName) == FarGuid)
+		if (!*ModuleName || *reinterpret_cast<const GUID*>(ModuleName) == FarGuid)
 		{
 			Flags|=FHELP_FARHELP;
 			strTopic = HelpTopic+((*HelpTopic == L':')?1:0);

@@ -2380,16 +2380,6 @@ void Edit::DeleteBlock()
 	Changed(true);
 }
 
-static int _cdecl SortColors(const void *el1,const void *el2)
-{
-	ColorItem *item1=(ColorItem *)el1,*item2=(ColorItem *)el2;
-	if (item1->Priority > item2->Priority)
-		return 1;
-	if (item1->Priority < item2->Priority)
-		return -1;
-	return item1->SubPriority - item2->SubPriority;
-}
-
 void Edit::AddColor(ColorItem *col,bool skipsort)
 {
 	if (ColorCount==MaxColorCount)
@@ -2437,8 +2427,7 @@ void Edit::AddColor(ColorItem *col,bool skipsort)
 
 	if (!skipsort)
 	{
-		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
-		std::qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+		std::stable_sort(ColorList, ColorList + ColorCount);
 	}
 }
 
@@ -2458,8 +2447,7 @@ void Edit::SortColorUnlocked()
 	if (ColorListFlags.Check(ECLF_NEEDSORT))
 	{
 		ColorListFlags.Clear(ECLF_NEEDSORT);
-		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
-		std::qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+		std::stable_sort(ColorList, ColorList + ColorCount);
 	}
 }
 

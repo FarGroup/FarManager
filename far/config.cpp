@@ -855,8 +855,9 @@ struct FARConfigItem
 
 	FormatString ListItemString;
 
-	void FillListItem(FarListItem& Item)
+	FarListItem MakeListItem()
 	{
+		FarListItem Item;
 		Item.Flags = 0;
 		Item.Reserved[0] = Item.Reserved[1] = 0;
 		ListItemString.Clear();
@@ -868,6 +869,7 @@ struct FARConfigItem
 			Item.Flags = LIF_CHECKED|L'*';
 		}
 		Item.Text = ListItemString.CPtr();
+		return Item;
 	}
 
 	bool Edit(bool Hex)
@@ -922,7 +924,7 @@ bool BoolOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, con
 	return ReceiveValue(Storage, KeyName, ValueName, Default->bDefault);
 }
 
-bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
+bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
@@ -957,7 +959,7 @@ bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const string& KeyName, co
 	return ReceiveValue(Storage, KeyName, ValueName, Default->iDefault);
 }
 
-bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
+bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
@@ -995,7 +997,7 @@ bool IntOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, cons
 	return ReceiveValue(Storage, KeyName, ValueName, Default->iDefault);
 }
 
-bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
+bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
@@ -1047,7 +1049,7 @@ bool StringOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, c
 	return ReceiveValue(Storage, KeyName, ValueName, Default->sDefault);
 }
 
-bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName)
+bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
 {
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
@@ -1066,6 +1068,16 @@ Options::Options():
 
 	Macro.DisableMacro=0;
 }
+
+FARConfigItem* Options::farconfig::begin() const {return m_items;}
+
+FARConfigItem* Options::farconfig::end() const {return m_items + m_size;}
+
+const FARConfigItem* Options::farconfig::cbegin() const {return m_items;}
+
+const FARConfigItem* Options::farconfig::cend() const {return m_items + m_size;}
+
+FARConfigItem& Options::farconfig::operator[](size_t i) const {return m_items[i];}
 
 void Options::InitCFG()
 {
@@ -1413,8 +1425,7 @@ void Options::InitCFG()
 		{FSSF_PRIVATE,       NKeyXLat,L"Table2", &Global->Opt->XLat.Table[1], L""},
 		{FSSF_PRIVATE,       NKeyXLat,L"WordDivForXlat", &Global->Opt->XLat.strWordDivForXlat, WordDivForXlat0},
 	};
-	FARConfig.Items = _CFG;
-	FARConfig.Size = ARRAYSIZE(_CFG);
+	FARConfig.assign(_CFG, ARRAYSIZE(_CFG));
 }
 
 void Options::InitLocalCFG()
@@ -1430,37 +1441,36 @@ void Options::InitLocalCFG()
 		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", &Global->Opt->LeftFocus, true},
 
 	};
-	FARLocalConfig.Items = _CFG;
-	FARLocalConfig.Size = ARRAYSIZE(_CFG);
+	FARLocalConfig.assign(_CFG, ARRAYSIZE(_CFG));
 }
 
 bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 {
-	for (size_t I=0; I < FARConfig.Size; ++I)
+	return std::find_if(CONST_RANGE(FARConfig, i)->bool
 	{
-		if (!StrCmpI(FARConfig.Items[I].KeyName,Key) && !StrCmpI(FARConfig.Items[I].ValName,Name))
+		if (!StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name))
 		{
-			strValue = FARConfig.Items[I].Value->toString();
+			strValue = i.Value->toString();
 			return true;
 		}
-	}
-
-	return false;
+		return false;
+	}) != FARConfig.cend();
 }
 
 bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data)
 {
 	if(FSSF_PRIVATE!=Root)
 	{
-		for(size_t ii=0;ii<FARConfig.Size;++ii)
+		return std::find_if(CONST_RANGE(FARConfig, i)->bool
 		{
-			if(Root==FARConfig.Items[ii].ApiRoot&&!StrCmpI(FARConfig.Items[ii].ValName,Name))
+			if(Root == i.ApiRoot && !StrCmpI(i.ValName, Name))
 			{
-				Type=FARConfig.Items[ii].Value->getType();
-				Data=FARConfig.Items[ii].Value;
+				Type = i.Value->getType();
+				Data = i.Value;
 				return true;
 			}
-		}
+			return false;
+		}) != FARConfig.cend();
 	}
 	return false;
 }
@@ -1494,10 +1504,10 @@ void Options::Load()
 
 	std::for_each(CONST_RANGE(ConfigList, i)
 	{
-		for (size_t j=0; j < i.second->Size; ++j)
+		std::for_each(RANGE(*i.second, j)
 		{
-			i.second->Items[j].Value->ReceiveValue(i.first, i.second->Items[j].KeyName, i.second->Items[j].ValName, &i.second->Items[j].Default);
-		}
+			j.Value->ReceiveValue(i.first, j.KeyName, j.ValName, &j.Default);
+		});
 	});
 
 	/* <оняропнжеяяш> *************************************************** */
@@ -1649,10 +1659,10 @@ void Options::Load()
 /* *************************************************** </оняропнжеяяш> */
 
 	// we assume that any changes after this point will be made by the user
-	for(size_t i = 0; i < FARConfig.Size; ++i)
+	std::for_each(RANGE(FARConfig, i)
 	{
-		FARConfig.Items[i].Value->MakeUnchanged();
-	}
+		i.Value->MakeUnchanged();
+	});
 }
 
 void Options::Save(bool Ask)
@@ -1717,10 +1727,10 @@ void Options::Save(bool Ask)
 	std::for_each(CONST_RANGE(ConfigList, i)
 	{
 		i.first->BeginTransaction();
-		for (size_t j=0; j < i.second->Size; ++j)
+		std::for_each(CONST_RANGE(*i.second, j)
 		{
-			i.second->Items[j].Value->StoreValue(i.first, i.second->Items[j].KeyName, i.second->Items[j].ValName);
-		}
+			j.Value->StoreValue(i.first, j.KeyName, j.ValName);
+		});
 		i.first->EndTransaction();
 	});
 
@@ -1760,11 +1770,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						string HelpTopic = string(FARConfig.Items[ListInfo.SelectPos].KeyName) + L"." + FARConfig.Items[ListInfo.SelectPos].ValName;
+						string HelpTopic = string(FARConfig[ListInfo.SelectPos].KeyName) + L"." + FARConfig[ListInfo.SelectPos].ValName;
 						Help hlp(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						if (hlp.GetError())
 						{
-							HelpTopic = string(FARConfig.Items[ListInfo.SelectPos].KeyName) + L"Settings";
+							HelpTopic = string(FARConfig[ListInfo.SelectPos].KeyName) + L"Settings";
 							Help hlp1(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
@@ -1827,11 +1837,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			if (FARConfig.Items[ListInfo.SelectPos].Edit(Param1 != 0))
+			if (FARConfig[ListInfo.SelectPos].Edit(Param1 != 0))
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				FARConfig.Items[ListInfo.SelectPos].FillListItem(flu.Item);
+				flu.Item = FARConfig[ListInfo.SelectPos].MakeListItem();
 				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
 				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -1856,15 +1866,13 @@ bool Options::AdvancedConfig()
 	};
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
-	FarList Items={sizeof(FarList)};
-	Items.ItemsNumber = FARConfig.Size;
-	array_ptr<FarListItem> items(Items.ItemsNumber);
-	Items.Items = items.get();
-
-	for(size_t i = 0; i < Items.ItemsNumber; ++i)
+	std::vector<FarListItem> items(FARConfig.size());
+	std::transform(FARConfig.begin(), FARConfig.end(), items.begin(), [](VALUE_TYPE(FARConfig)& i)->FarListItem
 	{
-		FARConfig.Items[i].FillListItem(Items.Items[i]);
-	}
+		return i.MakeListItem();
+	});
+
+	FarList Items={sizeof(FarList), items.size(), items.data()};
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 

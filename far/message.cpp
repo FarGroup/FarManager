@@ -198,14 +198,9 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 	m_ExitCode(0)
 {
 	// BUGBUG
-	const wchar_t** pItems = new const wchar_t*[Items.size()];
-	size_t n = 0;
-	std::for_each(Items.begin(), Items.end(), [&](const VALUE_TYPE(Items)& i)
-	{
-		pItems[n++] = i.CPtr();
-	});
-	Init(Flags, Buttons, Title, pItems, Items.size(), HelpTopic, PluginNumber, Id);
-	delete[] pItems;
+	std::vector<const wchar_t*> pItems(Items.size());
+	std::transform(Items.cbegin(), Items.cend(), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.CPtr();});
+	Init(Flags, Buttons, Title, pItems.data(), pItems.size(), HelpTopic, PluginNumber, Id);
 }
 
 

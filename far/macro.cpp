@@ -4272,9 +4272,9 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 		else if (Index < DlgItem.size() && !DlgItem.empty())
 		{
-			const DialogItemEx *Item=DlgItem[Index].get();
-			FARDIALOGITEMTYPES ItemType=Item->Type;
-			FARDIALOGITEMFLAGS ItemFlags=Item->Flags;
+			const DialogItemEx& Item=DlgItem[Index];
+			FARDIALOGITEMTYPES ItemType=Item.Type;
+			FARDIALOGITEMFLAGS ItemFlags=Item.Flags;
 
 			if (!InfoID)
 			{
@@ -4285,7 +4285,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 				{
 					FarListGetItem ListItem={sizeof(FarListGetItem)};
-					ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
+					ListItem.ItemIndex=Item.ListPtr->GetSelectPos();
 
 					if (Dlg->SendMessage(DM_LISTGETITEM,Index,&ListItem))
 					{
@@ -4307,20 +4307,20 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			switch (InfoID)
 			{
 				case 1: Ret=ItemType;    break;
-				case 2: Ret=Item->X1;    break;
-				case 3: Ret=Item->Y1;    break;
-				case 4: Ret=Item->X2;    break;
-				case 5: Ret=Item->Y2;    break;
-				case 6: Ret=(Item->Flags&DIF_FOCUS)!=0; break;
+				case 2: Ret=Item.X1;    break;
+				case 3: Ret=Item.Y1;    break;
+				case 4: Ret=Item.X2;    break;
+				case 5: Ret=Item.Y2;    break;
+				case 6: Ret=(Item.Flags&DIF_FOCUS)!=0; break;
 				case 7:
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
 					{
-						Ret=Item->Selected;
+						Ret=Item.Selected;
 					}
 					else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=Item->ListPtr->GetSelectPos()+1;
+						Ret=Item.ListPtr->GetSelectPos()+1;
 					}
 					else
 					{
@@ -4338,16 +4338,16 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					break;
 				}
 				case 8: Ret=(__int64)ItemFlags; break;
-				case 9: Ret=(Item->Flags&DIF_DEFAULTBUTTON)!=0; break;
+				case 9: Ret=(Item.Flags&DIF_DEFAULTBUTTON)!=0; break;
 				case 10:
 				{
-					Ret=Item->strData;
+					Ret=Item.strData;
 
 					if (IsEdit(ItemType))
 					{
 						DlgEdit *EditPtr;
 
-						if ((EditPtr = (DlgEdit *)(Item->ObjPtr)) )
+						if ((EditPtr = (DlgEdit *)(Item.ObjPtr)) )
 							Ret=EditPtr->GetStringAddr();
 					}
 
@@ -4357,7 +4357,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 				{
 					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=Item->ListPtr->GetItemCount();
+						Ret=Item.ListPtr->GetItemCount();
 					}
 					break;
 				}

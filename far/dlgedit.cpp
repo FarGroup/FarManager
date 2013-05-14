@@ -66,28 +66,28 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 			DWORD iFlags=0;
 			if(pOwner)
 			{
-				auto CurItem=pOwner->Items[Index].get();
-				if(Global->Opt->Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
+				auto& CurItem=pOwner->Items[Index];
+				if(Global->Opt->Dialogs.AutoComplete && CurItem.Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem.Flags&DIF_DROPDOWNLIST) && !(CurItem.Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 				}
-				if(CurItem->Flags&DIF_HISTORY && !CurItem->strHistory.IsEmpty())
+				if(CurItem.Flags&DIF_HISTORY && !CurItem.strHistory.IsEmpty())
 				{
-					SetHistory(CurItem->strHistory);
+					SetHistory(CurItem.strHistory);
 				}
-				if(CurItem->Type == DI_COMBOBOX)
+				if(CurItem.Type == DI_COMBOBOX)
 				{
-					iList=CurItem->ListItems;
+					iList=CurItem.ListItems;
 				}
-				if(CurItem->Flags&DIF_HISTORY)
+				if(CurItem.Flags&DIF_HISTORY)
 				{
 					iFlags|=EditControl::EC_COMPLETE_HISTORY;
 				}
-				if(CurItem->Flags&DIF_EDITPATH)
+				if(CurItem.Flags&DIF_EDITPATH)
 				{
 					iFlags|=EditControl::EC_COMPLETE_FILESYSTEM;
 				}
-				if(CurItem->Flags&DIF_EDITPATHEXEC)
+				if(CurItem.Flags&DIF_EDITPATHEXEC)
 				{
 					iFlags|=EditControl::EC_COMPLETE_PATH;
 				}

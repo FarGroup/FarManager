@@ -1376,7 +1376,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	CriticalSectionLock Lock(PluginCS);
-	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
+	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	static bool Recurse=false;
 
@@ -1454,7 +1454,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 	case DN_INITDIALOG:
 		{
-			Dlg->GetAllItem()[FD_LISTBOX]->ListPtr->SetFlags(VMENU_NOMERGEBORDER);
+			Dlg->GetAllItem()[FD_LISTBOX].ListPtr->SetFlags(VMENU_NOMERGEBORDER);
 		}
 		break;
 
@@ -2010,7 +2010,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 	if (!Dlg)
 		return;
 
-	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
+	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	if(!ListBox->GetItemCount())
 	{

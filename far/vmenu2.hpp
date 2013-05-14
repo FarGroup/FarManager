@@ -64,7 +64,7 @@ class VMenu2 : public Dialog
 
 		VMenu &ListBox()
 		{
-			return *GetAllItem()[0]->ListPtr;
+			return *GetAllItem()[0].ListPtr;
 		}
 
 	public:
