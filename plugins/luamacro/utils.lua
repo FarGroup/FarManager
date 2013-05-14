@@ -336,6 +336,7 @@ local function EnumMacros (strArea, resetEnum)
   end
 end
 
+local LoadMacrosDone
 local function LoadMacros (allAreas, unload)
   local numerrors=0
   local newAreas = {}
@@ -400,6 +401,7 @@ local function LoadMacros (allAreas, unload)
           end
         end, flags)
     end
+    LoadMacrosDone = true
   end
 
   export.ExitFAR = Events.exitfar[1] and export_ExitFAR
@@ -630,6 +632,7 @@ local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
 end
 
 local function RunStartMacro()
+  if not LoadMacrosDone then return end
   for _,macros in pairs(Areas.shell) do
     local m = macros.recorded
     if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
