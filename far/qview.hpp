@@ -52,7 +52,7 @@ class QuickView:public Panel
 		CriticalSection CS;
 
 		int Directory;
-		MACROMODEAREA PrevMacroMode;
+		FARMACROAREA PrevMacroMode;
 		DirInfoData Data;
 		bool OldWrapMode;
 		bool OldWrapType;

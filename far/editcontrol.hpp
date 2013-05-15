@@ -51,7 +51,7 @@ public:
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
 	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
-	void SetMacroAreaAC(MACROMODEAREA Area){MacroAreaAC=Area;}
+	void SetMacroAreaAC(FARMACROAREA Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
 	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
@@ -100,7 +100,7 @@ private:
 	};
 
 	void SetMenuPos(VMenu2& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
+	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMACROAREA Area);
 
 	struct Callback
 	{
@@ -123,7 +123,7 @@ private:
 	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
 	int MacroSelectionStart;
 	int SelectionStart;
-	MACROMODEAREA MacroAreaAC;
+	FARMACROAREA MacroAreaAC;
 	BitFlags ECFlags;
 	Callback m_Callback;
 	bool Selection;

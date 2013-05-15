@@ -38,6 +38,7 @@ local MCODE_F_GETOPTIONS   = 0x80C66
 
 local Areas
 local LoadedMacros
+local LoadMacrosDone
 local EnumState = {}
 local Events
 local EventGroups = {"consoleinput","dialogevent","editorchange","editorevent","editorinput","exitfar","viewerevent"}
@@ -336,7 +337,6 @@ local function EnumMacros (strArea, resetEnum)
   end
 end
 
-local LoadMacrosDone
 local function LoadMacros (allAreas, unload)
   local numerrors=0
   local newAreas = {}

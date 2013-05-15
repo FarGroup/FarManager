@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgmmode.hpp"
 #include "ctrlobj.hpp"
 
-ChangeMacroMode::ChangeMacroMode(MACROMODEAREA NewMode)
+ChangeMacroMode::ChangeMacroMode(FARMACROAREA NewMode)
 {
 	if (Global->CtrlObject)
 	{
@@ -46,7 +46,7 @@ ChangeMacroMode::ChangeMacroMode(MACROMODEAREA NewMode)
 	}
 	else
 	{
-		PrevMacroMode=MACRO_SHELL;
+		PrevMacroMode=MACROAREA_SHELL;
 	}
 }
 

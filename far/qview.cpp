@@ -61,7 +61,7 @@ static bool LastWrapType = false;
 QuickView::QuickView():
 	QView(nullptr),
 	Directory(0),
-	PrevMacroMode(MACRO_INVALID),
+	PrevMacroMode(MACROAREA_INVALID),
 	OldWrapMode(0),
 	OldWrapType(0),
 	uncomplete_dirscan(false)
@@ -611,10 +611,10 @@ void QuickView::SetMacroMode(int Restore)
 	if (!Global->CtrlObject)
 		return;
 
-	if (PrevMacroMode == MACRO_INVALID)
+	if (PrevMacroMode == MACROAREA_INVALID)
 		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
-	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
+	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_QVIEWPANEL);
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName)

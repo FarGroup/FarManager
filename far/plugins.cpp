@@ -1265,8 +1265,8 @@ void PluginManager::Configure(int StartPos)
 	if (Global->Opt->Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
 		return;
 
-	MACROMODEAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+	FARMACROAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 
 	{
 		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
@@ -1355,7 +1355,7 @@ void PluginManager::Configure(int StartPos)
 
 			PluginList.Run([&](int Key)->int
 			{
-				Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+				Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
@@ -1432,8 +1432,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 
-	MACROMODEAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+	FARMACROAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 
 	bool Editor = ModalType==MODALTYPE_EDITOR;
 	bool Viewer = ModalType==MODALTYPE_VIEWER;
@@ -1536,7 +1536,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			PluginList.Run([&](int Key)->int
 			{
-				Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+				Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;

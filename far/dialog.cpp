@@ -365,7 +365,7 @@ void Dialog::Init(DialogOwner* Owner, MemberHandlerFunction HandlerFunction, Sta
 		// запомним пред. режим макро.
 		PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 		// макросить будет в диалогах :-)
-		Global->CtrlObject->Macro.SetMode(MACRO_DIALOG);
+		Global->CtrlObject->Macro.SetMode(MACROAREA_DIALOG);
 	}
 
 	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetMode()));
@@ -4501,9 +4501,9 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 }
 
 
-MACROMODEAREA Dialog::GetMacroMode()
+FARMACROAREA Dialog::GetMacroMode()
 {
-	return MACRO_DIALOG;
+	return MACROAREA_DIALOG;
 }
 
 int Dialog::FastHide()

@@ -49,7 +49,7 @@ class Grabber:Modal
 		GrabberArea PrevArea;
 		GrabberArea GArea;
 		int ResetArea;
-		MACROMODEAREA PrevMacroMode;
+		FARMACROAREA PrevMacroMode;
 		int VerticalBlock;
 
 	private:

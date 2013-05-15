@@ -4140,7 +4140,7 @@ BOOL Editor::Search(int Next)
 
 		int ExitCode=FindAllList.Run([&](int Key)->int
 		{
-			Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+			Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 			int SelectedPos=FindAllList.GetSelectPos();
 			int KeyProcessed = 1;
 

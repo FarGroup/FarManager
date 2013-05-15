@@ -79,7 +79,7 @@ CommandLine::CommandLine():
 	LastCmdPartLength(-1)
 {
 	CmdStr.SetEditBeyondEnd(FALSE);
-	CmdStr.SetMacroAreaAC(MACRO_SHELLAUTOCOMPLETION);
+	CmdStr.SetMacroAreaAC(MACROAREA_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
 }

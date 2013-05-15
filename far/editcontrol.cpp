@@ -58,7 +58,7 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 	PrevCurPos(0),
 	MacroSelectionStart(-1),
 	SelectionStart(-1),
-	MacroAreaAC(MACRO_DIALOGAUTOCOMPLETION),
+	MacroAreaAC(MACROAREA_DIALOGAUTOCOMPLETION),
 	ECFlags(iFlags),
 	Selection(false),
 	MenuUp(false),
@@ -374,7 +374,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 	return Result;
 }
 
-int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area)
+int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMACROAREA Area)
 {
 	int Result=0;
 	static int Reenter=0;
@@ -715,7 +715,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
-	MACROMODEAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
+	FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 	if(Global->Opt->AutoComplete.ShowList)
 		Global->CtrlObject->Macro.SetMode(MacroAreaAC);
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))

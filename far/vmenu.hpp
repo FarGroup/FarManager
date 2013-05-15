@@ -216,7 +216,7 @@ class VMenu: public Modal
 		Frame *CurrentFrame;
 		bool PrevCursorVisible;
 		DWORD PrevCursorSize;
-		MACROMODEAREA PrevMacroMode;
+		FARMACROAREA PrevMacroMode;
 
 		// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 		BitFlags VMFlags;

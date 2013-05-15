@@ -1095,23 +1095,27 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER                      =   0,
-	MACROAREA_SHELL                      =   1,
-	MACROAREA_VIEWER                     =   2,
-	MACROAREA_EDITOR                     =   3,
-	MACROAREA_DIALOG                     =   4,
-	MACROAREA_SEARCH                     =   5,
-	MACROAREA_DISKS                      =   6,
-	MACROAREA_MAINMENU                   =   7,
-	MACROAREA_MENU                       =   8,
-	MACROAREA_HELP                       =   9,
-	MACROAREA_INFOPANEL                  =  10,
-	MACROAREA_QVIEWPANEL                 =  11,
-	MACROAREA_TREEPANEL                  =  12,
-	MACROAREA_FINDFOLDER                 =  13,
-	MACROAREA_USERMENU                   =  14,
-	MACROAREA_SHELLAUTOCOMPLETION        =  15,
-	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
+	MACROAREA_OTHER                      =   0,   // Режим копирования текста с экрана, вертикальные меню
+	MACROAREA_SHELL                      =   1,   // Файловые панели
+	MACROAREA_VIEWER                     =   2,   // Внутренняя программа просмотра
+	MACROAREA_EDITOR                     =   3,   // Редактор
+	MACROAREA_DIALOG                     =   4,   // Диалоги
+	MACROAREA_SEARCH                     =   5,   // Быстрый поиск в панелях
+	MACROAREA_DISKS                      =   6,   // Меню выбора дисков
+	MACROAREA_MAINMENU                   =   7,   // Основное меню
+	MACROAREA_MENU                       =   8,   // Прочие меню
+	MACROAREA_HELP                       =   9,   // Система помощи
+	MACROAREA_INFOPANEL                  =  10,   // Информационная панель
+	MACROAREA_QVIEWPANEL                 =  11,   // Панель быстрого просмотра
+	MACROAREA_TREEPANEL                  =  12,   // Панель дерева папок
+	MACROAREA_FINDFOLDER                 =  13,   // Поиск папок
+	MACROAREA_USERMENU                   =  14,   // Меню пользователя
+	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Список автодополнения в панелях в ком.строке
+	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Список автодополнения в диалоге
+#ifdef FAR_USE_INTERNALS
+	MACROAREA_LAST, // Должен всегда следовать за нумерованным списком!
+	MACROAREA_INVALID                    =  -1,
+#endif // END FAR_USE_INTERNALS
 
 	MACROAREA_COMMON                     = 255,
 };

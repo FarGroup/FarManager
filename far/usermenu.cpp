@@ -366,9 +366,9 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 			}
 		}
 
-		MACROMODEAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
+		FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
-		Global->CtrlObject->Macro.SetMode(MACRO_USERMENU);
+		Global->CtrlObject->Macro.SetMode(MACROAREA_USERMENU);
 		// вызываем меню
 		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath);
 
@@ -539,7 +539,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		UserMenu.SetHelp(L"UserMenu");
 		UserMenu.SetPosition(-1,-1,0,0);
 		UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
-		UserMenu.SetMacroMode(MACRO_USERMENU);
+		UserMenu.SetMacroMode(MACROAREA_USERMENU);
 
 		int ReturnCode=1;
 

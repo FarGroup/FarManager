@@ -662,8 +662,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
-	MACROMODEAREA MMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
+	FARMACROAREA MMode=Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
 	DWORD Key=GetInputRecord(rec,false,false,AllowSynchro);
 	Global->CtrlObject->Macro.SetMode(MMode);
 	return Key;
@@ -769,7 +769,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	}
 
 	int EnableShowTime=Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject &&
-	                                 Global->CtrlObject->Macro.GetMode()==MACRO_SEARCH));
+	                                 Global->CtrlObject->Macro.GetMode()==MACROAREA_SEARCH));
 
 	if (EnableShowTime)
 		ShowTime(1);
@@ -2930,7 +2930,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		{
 			if (Global->WaitInFastFind > 0 &&
 			        Global->CtrlObject->Macro.GetCurRecord() < MACROMODE_RECORDING &&
-			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACRO_SEARCH,true))
+			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACROAREA_SEARCH,true))
 			{
 				return Modif|Char;
 			}

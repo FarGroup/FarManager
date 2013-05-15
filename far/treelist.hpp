@@ -107,7 +107,7 @@ public:
 class TreeList: public Panel
 {
 	private:
-		MACROMODEAREA PrevMacroMode;
+		FARMACROAREA PrevMacroMode;
 		std::vector<std::unique_ptr<TreeItem>> ListData;
 		string strRoot;
 		size_t WorkDir;

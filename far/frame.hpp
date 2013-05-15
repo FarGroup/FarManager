@@ -70,7 +70,7 @@ public:
 	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
 	virtual void InitKeyBar() {}
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
-	virtual MACROMODEAREA GetMacroMode() { return MacroMode; }
+	virtual FARMACROAREA GetMacroMode() { return MacroMode; }
 	virtual int FastHide();
 	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; }
 	virtual bool ProcessEvents() {return true;}
@@ -96,7 +96,7 @@ protected:
 	int KeyBarVisible;
 	int TitleBarVisible;
 	KeyBar *FrameKeyBar;
-	MACROMODEAREA MacroMode;
+	FARMACROAREA MacroMode;
 
 private:
 	void Push(Frame* Modalized);

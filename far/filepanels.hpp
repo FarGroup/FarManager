@@ -102,5 +102,5 @@ class FilePanels:public Frame
 		virtual void Refresh() override;
 		void GoToFile(const string& FileName);
 
-		virtual MACROMODEAREA GetMacroMode() override;
+		virtual FARMACROAREA GetMacroMode() override;
 };

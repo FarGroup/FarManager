@@ -383,7 +383,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
 			HOptMenu.Show();
 			{
-				ChangeMacroMode MacroMode(MACRO_MAINMENU);
+				ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
 				HOptMenu.ProcessKey(KEY_DOWN);
 			}
 		}
@@ -399,13 +399,13 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MouseEvent)
 		{
-			ChangeMacroMode MacroMode(MACRO_MAINMENU);
+			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
 			HOptMenu.Show();
 			HOptMenu.ProcessMouse(MouseEvent);
 		}
 
 		{
-			ChangeMacroMode MacroMode(MACRO_MAINMENU);
+			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
 			HOptMenu.Process();
 		}
 

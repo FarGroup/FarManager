@@ -650,8 +650,8 @@ void FileEditor::Init(
 	if (!Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Hide0();
 
-	MacroMode=MACRO_EDITOR;
-	Global->CtrlObject->Macro.SetMode(MACRO_EDITOR);
+	MacroMode=MACROAREA_EDITOR;
+	Global->CtrlObject->Macro.SetMode(MACROAREA_EDITOR);
 
 	F4KeyOnly=true;
 

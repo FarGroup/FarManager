@@ -413,7 +413,7 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 	SubMenu->SetFlags(VMENU_WRAPMODE);
 	SubMenu->SetHelp(SubMenuHelp);
 	SubMenu->SetPosition(X,Y,0,0);
-	SubMenu->SetMacroMode(MACRO_MAINMENU);
+	SubMenu->SetMacroMode(MACROAREA_MAINMENU);
 
 	bool SendMouse=false;
 	MOUSE_EVENT_RECORD MouseEvent;

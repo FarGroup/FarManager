@@ -743,7 +743,7 @@ intptr_t WINAPI apiMenuFn(
 	int ExitCode;
 	{
 		VMenu2 FarMenu(Title,nullptr,0,MaxHeight);
-		Global->CtrlObject->Macro.SetMode(MACRO_MENU);
+		Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 		if(Id)
 		{
@@ -2066,10 +2066,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_GETAREA:
 			{
-				int Area=Macro.GetMode();
-				if (Area == MACRO_COMMON)
-					Area = MACROAREA_COMMON;
-				return Area;
+				return Macro.GetMode();
 			}
 
 			case MCTL_ADDMACRO:
@@ -2088,11 +2085,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
-					MACROMODEAREA Area=static_cast<MACROMODEAREA>(Data->Area);
-					if (Data->Area == MACROAREA_COMMON)
-						Area=MACRO_COMMON;
-
-					return Macro.AddMacro(Data->SequenceText,Data->Description,Area,Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
+					return Macro.AddMacro(Data->SequenceText,Data->Description,Data->Area,Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
 				}
 				break;
 			}

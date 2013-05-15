@@ -642,7 +642,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (Y < 3)
 			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 
-		ChDisk.SetMacroMode(MACRO_DISKS);
+		ChDisk.SetMacroMode(MACROAREA_DISKS);
 		int RetCode=-1;
 		ChDisk.Run([&](int Key)->int
 		{
@@ -1345,7 +1345,7 @@ void Panel::FastFind(int FirstKey)
 	{
 		int FindX=std::min(X1+9,ScrX-22);
 		int FindY=std::min(Y2,static_cast<SHORT>(ScrY-2));
-		ChangeMacroMode MacroMode(MACRO_SEARCH);
+		ChangeMacroMode MacroMode(MACROAREA_SEARCH);
 		SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
 		FastFindShow(FindX,FindY);
 		EditControl FindEdit(this);

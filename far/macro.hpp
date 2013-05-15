@@ -95,33 +95,6 @@ enum MACRORECORDANDEXECUTETYPE
 	MACROMODE_RECORDING        =3,  // запись: без передачи плагину пимп
 	MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
 };
-// области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
-ENUM(MACROMODEAREA)
-{
-	// see also plugin.hpp # FARMACROAREA
-	MACRO_OTHER                =   0, // Режим копирования текста с экрана, вертикальные меню
-	MACRO_SHELL                =   1, // Файловые панели
-	MACRO_VIEWER               =   2, // Внутренняя программа просмотра
-	MACRO_EDITOR               =   3, // Редактор
-	MACRO_DIALOG               =   4, // Диалоги
-	MACRO_SEARCH               =   5, // Быстрый поиск в панелях
-	MACRO_DISKS                =   6, // Меню выбора дисков
-	MACRO_MAINMENU             =   7, // Основное меню
-	MACRO_MENU                 =   8, // Прочие меню
-	MACRO_HELP                 =   9, // Система помощи
-	MACRO_INFOPANEL            =  10, // Информационная панель
-	MACRO_QVIEWPANEL           =  11, // Панель быстрого просмотра
-	MACRO_TREEPANEL            =  12, // Панель дерева папок
-	MACRO_FINDFOLDER           =  13, // Поиск папок
-	MACRO_USERMENU             =  14, // Меню пользователя
-	MACRO_SHELLAUTOCOMPLETION  =  15, // Список автодополнения в панелях в ком.строке
-	MACRO_DIALOGAUTOCOMPLETION =  16, // Список автодополнения в диалоге
-
-	MACRO_COMMON,                     // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
-	MACRO_LAST,                       // Должен быть всегда последним! Используется в циклах
-
-	MACRO_INVALID = -1
-};
 
 struct MacroPanelSelect {
 	__int64 Index;
@@ -204,14 +177,14 @@ class Dialog;
 class KeyMacro:NonCopyable
 {
 	private:
-		MACROMODEAREA m_Mode;
+		FARMACROAREA m_Mode;
 		MacroState* m_CurState;
 		std::stack<MacroState*> m_StateStack;
 		MACRORECORDANDEXECUTETYPE m_Recording;
 		string m_RecCode;
 		string m_RecDescription;
-		MACROMODEAREA m_RecMode;
-		MACROMODEAREA StartMode; //FIXME
+		FARMACROAREA m_RecMode;
+		FARMACROAREA StartMode; //FIXME
 		class LockScreen* m_LockScr;
 		string m_LastErrorStr;
 		int m_LastErrorLine;
@@ -238,8 +211,8 @@ class KeyMacro:NonCopyable
 		bool PostNewMacro(int macroId,const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		void PushState(bool withClip);
 		void PopState(bool withClip);
-		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
-		void LM_ProcessMacro(MACROMODEAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
+		bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
+		void LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -250,8 +223,8 @@ class KeyMacro:NonCopyable
 		bool IsHistoryDisable(int TypeHistory);
 		DWORD SetHistoryDisableMask(DWORD Mask);
 		DWORD GetHistoryDisableMask();
-		void SetMode(MACROMODEAREA Mode) { m_Mode=Mode; }
-		MACROMODEAREA GetMode(void) { return m_Mode; }
+		void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
+		FARMACROAREA GetMode(void) { return m_Mode; }
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
 		void SaveMacros(void);
 		// получить данные о макросе (возвращает статус)
@@ -265,9 +238,9 @@ class KeyMacro:NonCopyable
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
 
-		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon);
+		bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 		void RunStartMacro();
-		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
+		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
 		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
@@ -277,4 +250,4 @@ class KeyMacro:NonCopyable
 		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }
 };
 
-inline bool IsMenuArea(int Area){return Area==MACRO_MAINMENU || Area==MACRO_MENU || Area==MACRO_DISKS || Area==MACRO_USERMENU || Area==MACRO_SHELLAUTOCOMPLETION || Area==MACRO_DIALOGAUTOCOMPLETION;}
+inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}

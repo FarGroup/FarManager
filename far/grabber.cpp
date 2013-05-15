@@ -52,7 +52,7 @@ Grabber::Grabber()
 	pFrame->Lock();
 	SaveScr=new SaveScreen;
 	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-	Global->CtrlObject->Macro.SetMode(MACRO_OTHER);
+	Global->CtrlObject->Macro.SetMode(MACROAREA_OTHER);
 	ClearStruct(GArea);
 	ClearStruct(PrevArea);
 	bool Visible=false;

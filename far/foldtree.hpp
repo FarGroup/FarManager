@@ -52,7 +52,7 @@ class FolderTree:public Frame
 		int ModalMode;
 		bool IsFullScreen;
 		int IsStandalone;
-		MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
+		FARMACROAREA PrevMacroMode;        // предыдущий режим макроса
 
 		string strNewFolder;
 		string strLastName;

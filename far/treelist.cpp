@@ -139,7 +139,7 @@ void TreeListCache::Sort()
 
 
 TreeList::TreeList(bool IsPanel):
-	PrevMacroMode(MACRO_INVALID),
+	PrevMacroMode(MACROAREA_INVALID),
 	WorkDir(0),
 	GetSelPosition(0),
 	NumericSort(FALSE),
@@ -1902,10 +1902,10 @@ void TreeList::SetMacroMode(int Restore)
 	if (!Global->CtrlObject)
 		return;
 
-	if (PrevMacroMode == MACRO_INVALID)
+	if (PrevMacroMode == MACROAREA_INVALID)
 		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
-	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);
+	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_TREEPANEL);
 }
 
 BOOL TreeList::UpdateKeyBar()

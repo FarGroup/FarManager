@@ -60,7 +60,7 @@ class InfoList:public Panel
 
 	private:
 		DizViewer *DizView;
-		MACROMODEAREA PrevMacroMode;
+		FARMACROAREA PrevMacroMode;
 		bool OldWrapMode;
 		bool OldWrapType;
 		string strDizFileName;

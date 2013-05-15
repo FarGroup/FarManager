@@ -57,7 +57,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 
 void GetColor(int PaletteIndex)
 {
-	ChangeMacroMode chgMacroMode(MACRO_MENU);
+	ChangeMacroMode chgMacroMode(MACROAREA_MENU);
 	FarColor NewColor = Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
 	if (Global->Console->GetColorDialog(NewColor))

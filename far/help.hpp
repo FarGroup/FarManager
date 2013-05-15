@@ -172,7 +172,7 @@ private:
 	DWORD LastStartPos;
 	DWORD StartPos;
 
-	MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
+	FARMACROAREA PrevMacroMode;        // предыдущий режим макроса
 
 	bool MouseDown;
 	bool IsNewTopic;

@@ -93,7 +93,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(FALSE);
-	Global->CtrlObject->Macro.SetMode(MACRO_HELP);
+	Global->CtrlObject->Macro.SetMode(MACROAREA_HELP);
 	StackData.Clear();
 	StackData.Flags=Flags;
 	StackData.strHelpMask = Mask; // сохраним маску файла
@@ -126,7 +126,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	{
 		ScreenObjectWithShadow::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
-		MacroMode = MACRO_HELP;
+		MacroMode = MACROAREA_HELP;
 		MoveToReference(1,1);
 		FrameManager->ExecuteModal(this); //OT
 	}

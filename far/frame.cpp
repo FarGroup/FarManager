@@ -46,7 +46,7 @@ Frame::Frame():
 	KeyBarVisible(0),
 	TitleBarVisible(0),
 	FrameKeyBar(nullptr),
-	MacroMode(MACRO_OTHER),
+	MacroMode(MACROAREA_OTHER),
 	FrameToBack(nullptr),
 	NextModal(nullptr)
 {

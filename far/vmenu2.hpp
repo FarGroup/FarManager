@@ -50,7 +50,7 @@ class VMenu2 : public Dialog
 		bool NeedResize;
 		bool closing;
 		bool ForceClosing;
-		MACROMODEAREA MacroMode;
+		FARMACROAREA MacroMode;
 
 		std::function<int(int Msg, void *param)> mfn;
 
@@ -127,11 +127,11 @@ class VMenu2 : public Dialog
 		size_t SetUserData(LPCVOID Data, size_t Size=0, intptr_t Position=-1);
 		void Key(int key);
 
-		virtual MACROMODEAREA GetMacroMode() override
+		virtual FARMACROAREA GetMacroMode() override
 		{
 			return MacroMode;
 		}
-		void SetMacroMode(MACROMODEAREA mode)
+		void SetMacroMode(FARMACROAREA mode)
 		{
 			MacroMode=mode;
 		}

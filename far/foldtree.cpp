@@ -67,8 +67,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 
 	if ((Tree=new TreeList(false)))
 	{
-		Global->CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
-		MacroMode = MACRO_FINDFOLDER;
+		Global->CtrlObject->Macro.SetMode(MACROAREA_FINDFOLDER);
+		MacroMode = MACROAREA_FINDFOLDER;
 		strLastName.Clear();
 		Tree->SetModalMode(ModalMode);
 		Tree->SetPosition(X1,Y1,X2,Y2);
