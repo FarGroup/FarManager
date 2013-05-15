@@ -1,3 +1,7 @@
+shmuel 15.05.2013 18:00:53 +0200 - build 3411
+
+1. Рефакторинг.
+
 t-rex 14.05.2013 23:43:54 +0200 - build 3410
 
 1. Mantis#2409: FAR crashes when moving a directory (even with no plugin).

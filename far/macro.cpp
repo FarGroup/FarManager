@@ -413,7 +413,6 @@ RunningMacro& RunningMacro::operator= (const RunningMacro& src)
 }
 
 MacroRecord::MacroRecord():
-	m_area(MACRO_COMMON),
 	m_flags(0),
 	m_key(-1),
 	m_macroId(0),
@@ -421,8 +420,7 @@ MacroRecord::MacroRecord():
 {
 }
 
-MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description):
-	m_area(Area),
+MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description):
 	m_flags(Flags),
 	m_key(Key),
 	m_code(Code),
@@ -436,7 +434,6 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 {
 	if (this != &src)
 	{
-		m_area = src.m_area;
 		m_flags = src.m_flags;
 		m_key = src.m_key;
 		m_code = src.m_code;
@@ -1255,7 +1252,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWO
 {
 	if (MacroId != 0 || ParseMacroString(PlainText, onlyCheck))
 	{
-		MacroRecord* macro=new MacroRecord(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
+		MacroRecord* macro=new MacroRecord(Flags, MacroId, AKey, PlainText, L"");
 
 		m_CurState->m_MacroQueue.emplace_back(macro);
 
@@ -2939,9 +2936,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 				case 2: // Get MacroRecord Flags
 				{
-					Result = MR->Flags();
-					Result = (Result<<8) | (MR->Area()==MACRO_COMMON ? 0xFF : MR->Area());
-					return PassNumber(Result, Data);
+					return PassNumber((MR->Flags()<<8) | MACROAREA_COMMON, Data);
 				}
 
 				case 3: // CallPlugin Rules
@@ -5814,33 +5809,29 @@ M1:
 				string strBufKey=Data.Code;
 				InsertQuote(strBufKey);
 
-				bool DisFlags = false; // = (Data.Flags&MFLAGS_DISABLEMACRO) != 0;
 				bool SetChange = m_RecCode.IsEmpty();
 				LangString strBuf;
 				if (Data.Area==MACRO_COMMON)
 				{
-					strBuf = SetChange ? (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey) : MMacroCommonReDefinedKey;
-					//"ќбща€ макроклавиша '%1'     не активна              : будет удалена         : уже определена."
+					strBuf = SetChange ? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
+					//"ќбща€ макроклавиша '%1'   будет удалена : уже определена."
 				}
 				else
 				{
-					strBuf = SetChange ? (DisFlags?MMacroDeleteAssign:MMacroDeleteKey) : MMacroReDefinedKey;
-					//"ћакроклавиша '%1'           не активна        : будет удалена   : уже определена."
+					strBuf = SetChange ? MMacroDeleteKey : MMacroReDefinedKey;
+					//"ћакроклавиша '%1'   будет удалена : уже определена."
 				}
 				strBuf << strKeyText;
 
-				// проверим "а не совпадает ли всЄ?"
 				int Result=0;
-				// if (DisFlags || m_RecCode != Data.Code)
 				{
-					const wchar_t* NoKey=MSG(DisFlags && !SetChange?MMacroDisAnotherKey:MNo);
+					const wchar_t* NoKey=MSG(MNo);
 					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
 					          strBuf.CPtr(),
 					          MSG(MMacroSequence),
 					          strBufKey.CPtr(),
-					          MSG(SetChange?MMacroDeleteKey2:
-					              (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-					          MSG(DisFlags && !SetChange?MMacroDisOverwrite:MYes),
+					          MSG(SetChange?MMacroDeleteKey2:MMacroReDefinedKey2),
+					          MSG(MYes),
 					          (SetChange?MSG(MMacroEditKey):NoKey),
 					          (!SetChange?nullptr:NoKey));
 				}

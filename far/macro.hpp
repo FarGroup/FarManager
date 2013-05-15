@@ -158,7 +158,6 @@ class MacroRecord
 {
 	friend class KeyMacro;
 	private:
-		MACROMODEAREA m_area;
 		MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
 		int m_key;                     // Ќазначенна€ клавиша
 		string m_code;                 // оригинальный "текст" макроса
@@ -167,10 +166,9 @@ class MacroRecord
 		RunningMacro m_running;        // ƒанные времени исполнени€
 	public:
 		MacroRecord();
-		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description);
+		MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description);
 		MacroRecord& operator= (const MacroRecord& src);
 	public:
-		MACROMODEAREA Area(void) {return m_area;}
 		MACROFLAGS_MFLAGS Flags(void) {return m_flags;}
 		int Key() { return m_key; }
 		const string& Code(void) {return m_code;}

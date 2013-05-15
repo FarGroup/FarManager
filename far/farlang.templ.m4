@@ -17951,16 +17951,6 @@ MMacroReDefinedKey
 "Macro '%1' ya está definido."
 "Kláves makra '%1' je už definovaný."
 
-MMacroDeleteAssign
-"Макроклавиша '%1' не активна."
-"Macro key '%1' is not active."
-"Klávesa makra '%1' není aktivní."
-"Makro '%1' nicht aktiv."
-""%1" makróbillentyű nem él"
-"Skrót '%1' jest nieaktywny."
-"Macro '%1' no está activo."
-"Kláves makra '%1' nie je aktívny."
-
 MMacroDeleteKey
 "Макроклавиша '%1' будет удалена."
 "Macro key '%1' will be removed."
@@ -17980,16 +17970,6 @@ MMacroCommonReDefinedKey
 "Skrót '%1' jest już zdefiniowany."
 "Tecla de macro '%1' ya ha sido definida."
 "Kláves pre bežné makro '%1' je už definovaný."
-
-MMacroCommonDeleteAssign
-"Общая макроклавиша '%1' не активна."
-"Common macro key '%1' is not active."
-"Klávesa pro běžné makro '%1' není aktivní."
-"Gemeinsames Makro '%1' nicht aktiv."
-""%1" közös makróbill. nem él"
-"Skrót '%1' jest nieaktywny."
-"Tecla de macro '%1' no está activada."
-"Kláves pre bežné makro '%1' nie je aktívny."
 
 MMacroCommonDeleteKey
 "Общая макроклавиша '%1' будет удалена."
@@ -18040,36 +18020,6 @@ MMacroDeleteKey2
 "Usunąć?"
 "Borrar?"
 "Odstrániť?"
-
-MMacroDisDisabledKey
-"(макроклавиша не активна)"
-"(macro key is not active)"
-"(klávesa makra není aktivní)"
-"(Makro inaktiv)"
-"(makróbill. nem él)"
-"(skrót jest nieaktywny)"
-"(macro no está activo)"
-"(kláves makra nie je aktívny)"
-
-MMacroDisOverwrite
-"Переопределить"
-"Overwrite"
-"Přepsat"
-"Überschreiben"
-"Felülírás"
-"Zastąpić"
-"Sobrescribir"
-"Prepísať"
-
-MMacroDisAnotherKey
-"Изменить клавишу"
-"Try another key"
-"Zkusit jinou klávesu"
-"Neue Kombination"
-"Adjon meg másik billentyűt"
-"Spróbuj inny klawisz"
-"Intente otra tecla"
-"Skúsiť iný kláves"
 
 MMacroEditKey
 "Изменить"
