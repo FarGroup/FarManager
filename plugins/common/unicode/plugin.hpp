@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3405
+  Plugin API for Far Manager 3.0 build 3412
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3405
+#define FARMANAGERVERSION_BUILD 3412
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -976,23 +976,23 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER                      =   0,
-	MACROAREA_SHELL                      =   1,
-	MACROAREA_VIEWER                     =   2,
-	MACROAREA_EDITOR                     =   3,
-	MACROAREA_DIALOG                     =   4,
-	MACROAREA_SEARCH                     =   5,
-	MACROAREA_DISKS                      =   6,
-	MACROAREA_MAINMENU                   =   7,
-	MACROAREA_MENU                       =   8,
-	MACROAREA_HELP                       =   9,
-	MACROAREA_INFOPANEL                  =  10,
-	MACROAREA_QVIEWPANEL                 =  11,
-	MACROAREA_TREEPANEL                  =  12,
-	MACROAREA_FINDFOLDER                 =  13,
-	MACROAREA_USERMENU                   =  14,
-	MACROAREA_SHELLAUTOCOMPLETION        =  15,
-	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
+	MACROAREA_OTHER                      =   0,   // Режим копирования текста с экрана, вертикальные меню
+	MACROAREA_SHELL                      =   1,   // Файловые панели
+	MACROAREA_VIEWER                     =   2,   // Внутренняя программа просмотра
+	MACROAREA_EDITOR                     =   3,   // Редактор
+	MACROAREA_DIALOG                     =   4,   // Диалоги
+	MACROAREA_SEARCH                     =   5,   // Быстрый поиск в панелях
+	MACROAREA_DISKS                      =   6,   // Меню выбора дисков
+	MACROAREA_MAINMENU                   =   7,   // Основное меню
+	MACROAREA_MENU                       =   8,   // Прочие меню
+	MACROAREA_HELP                       =   9,   // Система помощи
+	MACROAREA_INFOPANEL                  =  10,   // Информационная панель
+	MACROAREA_QVIEWPANEL                 =  11,   // Панель быстрого просмотра
+	MACROAREA_TREEPANEL                  =  12,   // Панель дерева папок
+	MACROAREA_FINDFOLDER                 =  13,   // Поиск папок
+	MACROAREA_USERMENU                   =  14,   // Меню пользователя
+	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Список автодополнения в панелях в ком.строке
+	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Список автодополнения в диалоге
 
 	MACROAREA_COMMON                     = 255,
 };
