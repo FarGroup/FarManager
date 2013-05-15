@@ -5102,7 +5102,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	}
 	else
 	{
-		int nb = std::min((int)wcslen(Info->Title), 8);
+		int nb = std::min(StrLength(Info->Title), 8);
 		while (nb > 0) {
 			--nb;
 			((char *)&Info->Guid)[8+nb] = (char)Info->Title[nb];
