@@ -450,11 +450,11 @@ void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 	{
 		Items[Pos].resize(1);
 	}
-	auto Item = Items[Pos].begin();
-	Item->strFolder = Folder;
-	Item->PluginGuid = PluginGuid;
-	Item->strPluginFile = PluginFile;
-	Item->strPluginData = PluginData;
+	auto ItemIterator = Items[Pos].begin();
+	ItemIterator->strFolder = Folder;
+	ItemIterator->PluginGuid = PluginGuid;
+	ItemIterator->strPluginFile = PluginFile;
+	ItemIterator->strPluginData = PluginData;
 }
 
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
@@ -566,7 +566,7 @@ void Shortcuts::Configure()
 	int ExitCode=FolderList.Run([&](int Key)->int
 	{
 		int Pos = FolderList.GetSelectPos();
-		auto Item = Items[Pos].begin();
+		auto ItemIterator = Items[Pos].begin();
 		int KeyProcessed = 1;
 
 		switch (Key)
@@ -582,37 +582,37 @@ void Shortcuts::Configure()
 				MenuItemEx* MenuItem = FolderList.GetItemPtr();
 				if (Key == KEY_INS || Key == KEY_NUMPAD0 || Key&KEY_SHIFT)
 				{
-					if(Item == Items[Pos].end() || !(Key&KEY_SHIFT))
+					if(ItemIterator == Items[Pos].end() || !(Key&KEY_SHIFT))
 					{
 						Items[Pos].resize(Items[Pos].size()+1);
-						Item = Items[Pos].end();
-						--Item;
+						ItemIterator = Items[Pos].end();
+						--ItemIterator;
 					}
 					Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-					Global->CtrlObject->CmdLine->GetCurDir(Item->strFolder);
+					Global->CtrlObject->CmdLine->GetCurDir(ItemIterator->strFolder);
 					if (ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						OpenPanelInfo Info;
 						ActivePanel->GetOpenPanelInfo(&Info);
 						string strTemp;
 						PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
-						Item->PluginGuid = ph->pPlugin->GetGUID();
-						Item->strPluginFile = Info.HostFile;
-						Item->strPluginData = Info.ShortcutData;
+						ItemIterator->PluginGuid = ph->pPlugin->GetGUID();
+						ItemIterator->strPluginFile = Info.HostFile;
+						ItemIterator->strPluginData = Info.ShortcutData;
 					}
 					else
 					{
-						Item->PluginGuid = FarGuid;
-						Item->strPluginFile = L"";
-						Item->strPluginData = L"";
+						ItemIterator->PluginGuid = FarGuid;
+						ItemIterator->strPluginFile = L"";
+						ItemIterator->strPluginData = L"";
 					}
 					MakeItemName(Pos, MenuItem);
 				}
 				else
 				{
-					if(Item != Items[Pos].end())
+					if(ItemIterator != Items[Pos].end())
 					{
-						Items[Pos].erase(Item);
+						Items[Pos].erase(ItemIterator);
 						MakeItemName(Pos, MenuItem);
 					}
 				}
@@ -626,11 +626,11 @@ void Shortcuts::Configure()
 		case KEY_F4:
 			{
 				raw_mode = true;
-				if(Item == Items[Pos].end())
+				if(ItemIterator == Items[Pos].end())
 				{
 					Items[Pos].resize(Items[Pos].size()+1);
-					Item = Items[Pos].end();
-					--Item;
+					ItemIterator = Items[Pos].end();
+					--ItemIterator;
 				}
 				if(Items[Pos].size()>1)
 				{
@@ -638,7 +638,7 @@ void Shortcuts::Configure()
 				}
 				else
 				{
-					EditItem(&FolderList, *Item, true);
+					EditItem(&FolderList, *ItemIterator, true);
 				}
 				Changed = true;
 			}

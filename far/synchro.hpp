@@ -105,7 +105,6 @@ private:
 
 class Thread: public HandleWrapper
 {
-	typedef unsigned int (WINAPI *ThreadFunction)(void*);
 public:
 
 	Thread() {}
@@ -114,9 +113,9 @@ public:
 
 	const wchar_t *GetNamespace() const { return L""; }
 
-	bool Start(ThreadFunction HandlerFunction, void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	bool Start(unsigned int (*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
-		return Starter(std::bind(HandlerFunction, Parameter), ThreadId);
+		return Starter(std::bind(Function, Parameter), ThreadId);
 	}
 
 	template<class T>

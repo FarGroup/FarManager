@@ -476,7 +476,7 @@ void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem)
 	auto PluginDirList = reinterpret_cast<std::vector<PluginPanelItem>*>((PanelItem-1)->Reserved[0]);
 
 	// first item is reserved for internal needs
-	std::for_each(PluginDirList->begin() + 1, PluginDirList->end(), [&](VALUE_TYPE(PluginDirList)& i)
+	std::for_each(PluginDirList->begin() + 1, PluginDirList->end(), LAMBDA_PREDICATE(PluginDirList, i)
 	{
 		if(i.UserData.FreeData)
 		{

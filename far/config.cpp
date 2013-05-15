@@ -1446,7 +1446,7 @@ void Options::InitLocalCFG()
 
 bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 {
-	return std::find_if(CONST_RANGE(FARConfig, i)->bool
+	return std::any_of(CONST_RANGE(FARConfig, i)->bool
 	{
 		if (!StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name))
 		{
@@ -1454,25 +1454,21 @@ bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &st
 			return true;
 		}
 		return false;
-	}) != FARConfig.cend();
+	});
 }
 
 bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data)
 {
-	if(FSSF_PRIVATE!=Root)
+	return Root != FSSF_PRIVATE? std::any_of(CONST_RANGE(FARConfig, i)->bool
 	{
-		return std::find_if(CONST_RANGE(FARConfig, i)->bool
+		if(Root == i.ApiRoot && !StrCmpI(i.ValName, Name))
 		{
-			if(Root == i.ApiRoot && !StrCmpI(i.ValName, Name))
-			{
-				Type = i.Value->getType();
-				Data = i.Value;
-				return true;
-			}
-			return false;
-		}) != FARConfig.cend();
-	}
-	return false;
+			Type = i.Value->getType();
+			Data = i.Value;
+			return true;
+		}
+		return false;
+	}) : false;
 }
 
 void Options::InitConfig()

@@ -240,7 +240,7 @@ class KeyMacro:NonCopyable
 
 		bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 		void RunStartMacro();
-		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
+		int AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
 		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }

@@ -408,12 +408,12 @@ static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 		{DRIVE_CDROM, CAPABILITIES_GENERIC_CDROM},
 	}};
 
-	auto Item = std::find_if(CONST_RANGE(DeviceCaps, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
 	{
 		return (caps & i.Caps) == i.Caps;
 	});
 	
-	return Item == DeviceCaps.cend()? DRIVE_UNKNOWN : Item->Device;
+	return ItemIterator == DeviceCaps.cend()? DRIVE_UNKNOWN : ItemIterator->Device;
 }
 
 bool IsDriveTypeCDROM(UINT DriveType)

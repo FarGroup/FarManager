@@ -1637,13 +1637,13 @@ static DialogData* FindDialogData(HANDLE hDlg)
 	DialogData* Result = nullptr;
 	if (DialogList)
 	{
-		auto iter = std::find_if(RANGE(*DialogList, i)
+		auto ItemIterator = std::find_if(RANGE(*DialogList, i)
 		{
 			return i.hDlg == hDlg;
 		});
-		if (iter != DialogList->end())
+		if (ItemIterator != DialogList->end())
 		{
-			Result = &(*iter);
+			Result = &*ItemIterator;
 		}
 	}
 	return Result;
@@ -4901,7 +4901,7 @@ public:
 		return Result;
 	}
 
-	const wchar_t* GetStringValue(const string& value)
+	const wchar_t* GetStringValue(const string& value) const
 	{
 		wchar_t* Value;
 		UINT Length;
@@ -4910,7 +4910,7 @@ public:
 		return nullptr;
 	}
 
-	const VS_FIXEDFILEINFO* GetFixedInfo()
+	const VS_FIXEDFILEINFO* GetFixedInfo() const
 	{
 		VS_FIXEDFILEINFO* Info;
 		UINT Length;

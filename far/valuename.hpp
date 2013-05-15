@@ -47,21 +47,21 @@ container: some std container (array, vector, etc) of name_value_pair
 template<class container>
 typename container::value_type::pair_name_type GetNameOfValue(typename container::value_type::pair_value_type Value, container& From)
 {
-	auto Item = std::find_if(CONST_RANGE(From, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(From, i)
 	{
 		return i.Value == Value;
 	});
-	return Item == From.cend()? typename container::value_type::pair_name_type() : Item->Name;
+	return ItemIterator == From.cend()? typename container::value_type::pair_name_type() : ItemIterator->Name;
 }
 
 template<class container>
 typename container::value_type::pair_value_type GetValueOfVame(typename container::value_type::pair_name_type Name, container& From)
 {
-	auto Item = std::find_if(CONST_RANGE(From, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(From, i)
 	{
 		return !StrCmpI(i.Name, Name);
 	});
-	return Item == From.cend()? typename container::value_type::pair_value_type() : Item->Value;
+	return ItemIterator == From.cend()? typename container::value_type::pair_value_type() : ItemIterator->Value;
 }
 
 template<class container>

@@ -83,13 +83,13 @@ bool NamesList::GetPrevName(string &strName, string &strShortName)
 
 void NamesList::SetCurName(const string& Name)
 {
-	auto it = std::find_if(CONST_RANGE(Names, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(Names, i)
 	{
 		return i.Value.strName == Name;
 	});
 
-	if (it != Names.cend())
-		CurrentName = it;
+	if (ItemIterator != Names.cend())
+		CurrentName = ItemIterator;
 }
 
 

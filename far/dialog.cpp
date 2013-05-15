@@ -687,14 +687,13 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// хотя бы один, то ставим на первый подходящий
 	if (FocusPos == (size_t)-1)
 	{
-		FOR_CONST_RANGE(Items, i) // по всем!!!!
+		auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 		{
-			if (CanGetFocus(i->Type) &&
-			        !(i->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
-			{
-				FocusPos= i - Items.begin();
-				break;
-			}
+			return CanGetFocus(i.Type) && !(i.Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN));
+		});
+		if (ItemIterator != Items.cend())
+		{
+			FocusPos= ItemIterator - Items.begin();
 		}
 	}
 
@@ -2614,25 +2613,25 @@ int Dialog::ProcessKey(int Key)
 		case KEY_CTRLENTER:
 		case KEY_RCTRLENTER:
 		{
-			FOR_RANGE(Items, i)
+			auto ItemIterator = std::find_if(RANGE(Items, i)
 			{
-				if (i->Flags & DIF_DEFAULTBUTTON)
+				return i.Flags & DIF_DEFAULTBUTTON;
+			});
+
+			if (ItemIterator != Items.end())
+			{
+				if (ItemIterator->Flags&DIF_DISABLE)
 				{
-					if (i->Flags&DIF_DISABLE)
-					{
-						// ProcessKey(KEY_DOWN); // на твой вкус :-)
-						return TRUE;
-					}
-
-					if (!IsEdit(i->Type))
-						i->Selected=1;
-
-					ExitCode = i - Items.begin();
-					/* $ 18.05.2001 DJ */
-					CloseDialog();
-					/* DJ $ */
+					// ProcessKey(KEY_DOWN); // на твой вкус :-)
 					return TRUE;
 				}
+
+				if (!IsEdit(ItemIterator->Type))
+					ItemIterator->Selected=1;
+
+				ExitCode = ItemIterator - Items.begin();
+				CloseDialog();
+				return TRUE;
 			}
 
 			if (!DialogMode.Check(DMODE_OLDSTYLE))
@@ -2841,14 +2840,15 @@ int Dialog::ProcessKey(int Key)
 
 			if (!(Items[FocusPos].Flags & DIF_EDITOR))
 			{
-				FOR_CONST_RANGE(Items, i)
+				auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 				{
-					if (i->Flags&DIF_DEFAULTBUTTON)
-					{
-						ChangeFocus2(i - Items.begin());
-						ShowDialog();
-						return TRUE;
-					}
+					return i.Flags&DIF_DEFAULTBUTTON;
+				});
+				if (ItemIterator != Items.cend())
+				{
+					ChangeFocus2(ItemIterator - Items.begin());
+					ShowDialog();
+					return TRUE;
 				}
 				return TRUE;
 			}
@@ -3677,14 +3677,14 @@ int Dialog::Do_ProcessFirstCtrl()
 	}
 	else
 	{
-		FOR_CONST_RANGE(Items, i)
+		auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 		{
-			if (CanGetFocus(i->Type))
-			{
-				ChangeFocus2(i - Items.begin());
-				ShowDialog();
-				break;
-			}
+			return CanGetFocus(i.Type);
+		});
+		if (ItemIterator != Items.cend())
+		{
+			ChangeFocus2(ItemIterator - Items.begin());
+			ShowDialog();
 		}
 	}
 

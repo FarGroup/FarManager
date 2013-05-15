@@ -1221,7 +1221,7 @@ void KeyMacro::RunStartMacro()
 	}
 }
 
-int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
+int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
 	if ( !((Area >= 0 && Area < MACROAREA_LAST) || Area == MACROAREA_COMMON) )
 		return FALSE;

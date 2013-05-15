@@ -175,10 +175,7 @@ void Manager::DeleteFrame(Frame *Deleted)
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(Frame *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
 
-	if (std::find_if(CONST_RANGE(Frames, i)
-	{
-		return i->RemoveModal(Deleted);
-	}) != Frames.cend())
+	if (std::any_of(CONST_RANGE(Frames, i) {return i->RemoveModal(Deleted);}))
 		return;
 
 	if (!Deleted)
@@ -433,7 +430,7 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 	}
 
 	int n = 0;
-	if (std::find_if(CONST_RANGE(Frames, i)->bool
+	if (std::any_of(CONST_RANGE(Frames, i)->bool
 	{
 		string strType, strName;
 
@@ -447,7 +444,7 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		}
 		++n;
 		return false;
-	}) != Frames.cend())
+	}))
 		return n;
 
 	return -1;
@@ -1200,21 +1197,21 @@ Frame* Manager::GetFrame(size_t Index) const
 int Manager::IndexOfStack(Frame *Frame)
 {
 	int Result = 0;
-	return std::find_if(CONST_RANGE(ModalFrames, i)->bool
+	return std::any_of(CONST_RANGE(ModalFrames, i)->bool
 	{
 		++Result;
 		return Frame==i;
-	}) != ModalFrames.cend()? Result - 1 : -1;
+	})? Result - 1 : -1;
 }
 
 int Manager::IndexOf(Frame *Frame)
 {
 	int Result = 0;
-	return std::find_if(CONST_RANGE(Frames, i)->bool
+	return std::any_of(CONST_RANGE(Frames, i)->bool
 	{
 		++Result;
 		return Frame==i;
-	}) != Frames.cend()? Result - 1 : -1;
+	})? Result - 1 : -1;
 }
 
 BOOL Manager::Commit()
@@ -1358,7 +1355,7 @@ void Manager::ActivateCommit()
 	  то надо его вытащит на верх стэка модалов.
 	*/
 
-	std::find_if(RANGE(ModalFrames, i)->bool
+	std::any_of(RANGE(ModalFrames, i)->bool
 	{
 		if (i == ActivatedFrame)
 		{
@@ -1650,12 +1647,12 @@ void Manager::ModalizeCommit()
 
 void Manager::UnmodalizeCommit()
 {
-	std::find_if(CONST_RANGE(Frames, i)
+	std::any_of(CONST_RANGE(Frames, i)
 	{
 		return i->RemoveModal(UnmodalizedFrame);
 	});
 
-	std::find_if(CONST_RANGE(ModalFrames, i)
+	std::any_of(CONST_RANGE(ModalFrames, i)
 	{
 		return i->RemoveModal(UnmodalizedFrame);
 	});

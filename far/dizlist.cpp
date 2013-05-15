@@ -348,7 +348,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{
 					auto start = i->second.cbegin();
 					++start;
-					std::for_each(start, i->second.cend(), [&dump](const VALUE_TYPE(i->second)& j)
+					std::for_each(start, i->second.cend(), CONST_LAMBDA_PREDICATE(i->second, j)
 					{
 						dump.Append(L"\r\n ").Append(j);
 					});

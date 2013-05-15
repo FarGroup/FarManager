@@ -114,15 +114,15 @@ void CommandLine::DisplayObject()
 	size_t CurLength = 0;
 	GotoXY(X1,Y1);
 
-	FOR_CONST_RANGE(PromptList, i)
+	std::for_each(CONST_RANGE(PromptList, i)
 	{
-		SetColor(i->second);
-		string str(i->first);
+		SetColor(i.second);
+		string str(i.first);
 		if(CurLength + str.GetLength() > MaxLength)
 		TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
 		Text(str);
 		CurLength += str.GetLength();
-	}
+	});
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
 
@@ -620,8 +620,8 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			apiExpandEnvironmentStrings(strDestStr, strExpandedDestStr);
 			strDestStr.Clear();
 			const wchar_t *Format = strExpandedDestStr.CPtr();
-			static wchar_t ChrFmt[][2]=
-			{
+			static std::array<std::array<wchar_t, 2>, 9> ChrFmt =
+			{{
 				{L'A',L'&'},   // $A - & (Ampersand)
 				{L'B',L'|'},   // $B - | (pipe)
 				{L'C',L'('},   // $C - ( (Left parenthesis)
@@ -631,25 +631,24 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				{L'Q',L'='},   // $Q - = (equal sign)
 				{L'S',L' '},   // $S - (space)
 				{L'$',L'$'},   // $$ - $ (dollar sign)
-			};
+			}};
 
 			while (*Format)
 			{
 				if (*Format==L'$')
 				{
 					wchar_t Chr=Upper(*++Format);
-					size_t I;
 
-					for (I=0; I < ARRAYSIZE(ChrFmt); ++I)
+					auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
-						if (ChrFmt[I][0] == Chr)
-						{
-							strDestStr += ChrFmt[I][1];
-							break;
-						}
-					}
+						return i[0] == Chr;
+					});
 
-					if (I == ARRAYSIZE(ChrFmt))
+					if (ItemIterator != ChrFmt.cend())
+					{
+						strDestStr += (*ItemIterator)[1];
+					}
+					else
 					{
 						switch (Chr)
 						{

@@ -147,13 +147,13 @@ HANDLE Clipboard::GetData(UINT uFormat)
 	{
 		if (InternalClipboardOpen && uFormat != 0xFFFF)
 		{
-			auto Item = std::find_if(CONST_RANGE(InternalClipboard, i)
+			auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
 			{
 				return i.Format == uFormat;
 			});
 
-			if (Item != InternalClipboard.cend())
-				return Item->Handle;
+			if (ItemIterator != InternalClipboard.cend())
+				return ItemIterator->Handle;
 		}
 		return nullptr;
 	}
@@ -167,15 +167,15 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 	{
 		if (InternalClipboardOpen)
 		{
-			auto Item = std::find_if(RANGE(InternalClipboard, i)
+			auto ItemIterator = std::find_if(RANGE(InternalClipboard, i)
 			{
 				return !i.Handle;
 			});
 
-			if (Item != InternalClipboard.cend())
+			if (ItemIterator != InternalClipboard.cend())
 			{
-				Item->Handle = hMem;
-				Item->Format = uFormat;
+				ItemIterator->Handle = hMem;
+				ItemIterator->Format = uFormat;
 				return hMem;
 			}
 		}
@@ -215,10 +215,10 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 {
 	if (UseInternalClipboard)
 	{
-		return Format != 0xFFFF && std::find_if(CONST_RANGE(InternalClipboard, i)
+		return Format != 0xFFFF && std::any_of(CONST_RANGE(InternalClipboard, i)
 		{
 			return i.Format == Format;
-		}) != InternalClipboard.cend();
+		});
 	}
 
 	return IsClipboardFormatAvailable(Format) != FALSE;

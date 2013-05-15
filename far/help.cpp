@@ -1941,9 +1941,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			FOR_CONST_RANGE(*Global->CtrlObject->Plugins, i)
+			std::for_each(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 			{
-				strPath = (*i)->GetModuleName();
+				strPath = i->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
 				File HelpFile;
@@ -1961,7 +1961,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						AddLine(strHelpLine);
 					}
 				}
-			}
+			});
 
 			break;
 		}

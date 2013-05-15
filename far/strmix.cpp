@@ -1590,7 +1590,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 						{
 							if (a.index > b.index)
 								a.index = b.index;
-							return !StrCmpI(a.Str.CPtr(), b.Str.CPtr());
+							return a.Str.EqualNoCase(b.Str);
 						});
 					}
 				}

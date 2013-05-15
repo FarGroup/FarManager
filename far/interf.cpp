@@ -138,7 +138,7 @@ COORD InitialSize;
 const size_t StackBufferSize=0x3FC0;
 static std::unique_ptr<Event> CancelIoInProgress;
 
-unsigned int WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
+unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	unsigned int Result = Global->ifn->CancelSynchronousIo(Thread);
 	CancelIoInProgress->Reset();

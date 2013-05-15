@@ -252,8 +252,8 @@ typedef class UnicodeString
 		bool operator!=(const UnicodeString& Str) const { return !IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
 		bool operator!=(const wchar_t* Str) const { return !IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
 		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
-		bool operator<(const UnicodeString& Str) const { return StrCmpI(CPtr(), Str.CPtr()) < 0; }
-		bool operator<(const wchar_t* Str) const { return StrCmpI(CPtr(), Str) < 0; }
+		bool operator<(const UnicodeString& Str) const { return StrCmp(CPtr(), Str.CPtr()) < 0; }
+		bool operator<(const wchar_t* Str) const { return StrCmp(CPtr(), Str) < 0; }
 		char_proxy operator[](size_t Index) { return char_proxy(*this, Index);}
 		const char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
 
@@ -268,6 +268,7 @@ typedef class UnicodeString
 		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch) != nullptr; }
 		bool ContainsAny(const wchar_t *Chars, size_t nStartPos=0) const { return wcspbrk(m_pData->GetData()+nStartPos,Chars) != nullptr; }
 		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind) != nullptr; }
+		bool EqualNoCase(const UnicodeString& rhs) const { return !StrCmpI(CPtr(), rhs.CPtr()); }
 } string;
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return (wchar_t*)s.CPtr();}

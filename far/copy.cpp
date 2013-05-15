@@ -593,7 +593,7 @@ int CmpFullNames(const string& Src,const string& Dest)
 	DeleteEndSlash(strSrcFullName);
 	DeleteEndSlash(strDestFullName);
 
-	return !StrCmpI(strSrcFullName.CPtr(),strDestFullName.CPtr());
+	return strSrcFullName.EqualNoCase(strDestFullName);
 }
 
 bool CheckNulOrCon(const wchar_t *Src)
@@ -624,7 +624,7 @@ int CmpFullPath(const string& Src, const string& Dest)
 	ConvertNameToReal(strSrcFullName, strSrcFullName);
 	ConvertNameToReal(strDestFullName, strDestFullName);
 
-	return !StrCmpI(strSrcFullName.CPtr(), strDestFullName.CPtr());
+	return strSrcFullName.EqualNoCase(strDestFullName);
 }
 
 static void GenerateName(string &strName,const wchar_t *Path=nullptr)

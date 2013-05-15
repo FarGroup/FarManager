@@ -388,10 +388,7 @@ void FindFiles::InitInFileSearch()
 						// Проверяем дубли
 						if (!hasSelected)
 						{
-							if (std::find_if(CONST_RANGE(codePages, i)
-							{
-								return i.CodePage == CodePage;
-							}) != codePages.cend())
+							if (std::any_of(CONST_RANGE(codePages, i) {return i.CodePage == CodePage;}))
 								continue;
 						}
 
@@ -2620,10 +2617,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 
-			if (std::find_if(CONST_RANGE(Volumes, i)
-			{
-				return i.IsSubStrAt(0,VolumeName);
-			}) == Volumes.cend())
+			if (std::none_of(CONST_RANGE(Volumes, i) {return i.IsSubStrAt(0,VolumeName);}))
 			{
 				InitString.Append(VolumeName).Append(L";");
 			}
@@ -2791,10 +2785,10 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	AnySetFindList = (std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+	AnySetFindList = std::any_of(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 	{
 		return i->HasSetFindList();
-	}) != Global->CtrlObject->Plugins->cend());
+	});
 
 	if (!AnySetFindList)
 	{

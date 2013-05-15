@@ -2161,13 +2161,13 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					auto it = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+					auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						return !StrCmpI(i->GetModuleName().CPtr(), strPath.CPtr());
+						return i->GetModuleName().EqualNoCase(strPath);
 					});
-					if (it != Global->CtrlObject->Plugins->cend())
+					if (ItemIterator != Global->CtrlObject->Plugins->cend())
 					{
-						plugin = *it;
+						plugin = *ItemIterator;
 					}
 					break;
 				}

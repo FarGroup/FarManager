@@ -66,11 +66,11 @@ bool PluginSynchro::Process(void)
 
 		if (!Data.empty())
 		{
-			auto item = Data.begin();
+			auto ItemIterator = Data.begin();
 			process=true;
-			plugin=item->Plugin;
-			PluginId=item->PluginId;
-			param=item->Param;
+			plugin=ItemIterator->Plugin;
+			PluginId=ItemIterator->PluginId;
+			param=ItemIterator->Param;
 			Data.pop_front();
 		}
 	}

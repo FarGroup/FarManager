@@ -472,11 +472,11 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 
 Plugin *PluginManager::GetPlugin(const string& lpwszModuleName)
 {
-	auto i = std::find_if(CONST_RANGE(SortedPlugins, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
-		return !StrCmpI(lpwszModuleName.CPtr(), i->GetModuleName().CPtr());
+		return i->GetModuleName().EqualNoCase(lpwszModuleName);
 	});
-	return i == SortedPlugins.cend()? nullptr : *i;
+	return ItemIterator == SortedPlugins.cend()? nullptr : *ItemIterator;
 }
 
 void PluginManager::LoadPlugins()
@@ -510,10 +510,10 @@ void PluginManager::LoadPlugins()
 		auto PluginPathList(StringToList(strPluginsDir, STLF_UNIQUE));
 
 		// теперь пройдемся по всему ранее собранному списку
-		FOR_CONST_RANGE(PluginPathList, i)
+		std::for_each(CONST_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
-			apiExpandEnvironmentStrings(*i, strFullName);
+			apiExpandEnvironmentStrings(i, strFullName);
 			Unquote(strFullName); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
@@ -528,9 +528,6 @@ void PluginManager::LoadPlugins()
 			ConvertNameToLong(strFullName,strFullName);
 			strPluginsDir = strFullName;
 
-			if (strPluginsDir.IsEmpty())  // Хмм... а нужно ли ЭТО условие после такой модернизации алгоритма загрузки?
-				continue;
-
 			// ставим на поток очередной путь из списка...
 			ScTree.SetFindPath(strPluginsDir,L"*");
 
@@ -542,7 +539,7 @@ void PluginManager::LoadPlugins()
 					LoadPlugin(strFullName, FindData, false);
 				}
 			} // end while
-		}
+		});
 	}
 
 	Flags.Set(PSIF_PLUGINSLOADDED);
@@ -875,10 +872,7 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	return std::find_if(CONST_RANGE(SortedPlugins, i)
-	{
-		return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);
-	}) != SortedPlugins.cend();
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);});
 }
 
 
@@ -930,10 +924,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	return std::find_if(CONST_RANGE(SortedPlugins, i)
-	{
-		return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);
-	}) != SortedPlugins.cend();
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);});
 }
 
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)

@@ -1031,10 +1031,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	else
 		strMask = FormatString() << L'*' << DotPtr;
 
-	if (std::find_if(CONST_RANGE(Extensions, i)
-	{
-		return !StrCmpI(strMask.CPtr(), i.first.CPtr());
-	}) != Extensions.cend())
+	if (std::any_of(CONST_RANGE(Extensions, i) {return i.first.EqualNoCase(strMask);}))
 		return -1;
 
 	Extensions.emplace_back(VALUE_TYPE(Extensions)(strMask, Check));

@@ -219,10 +219,19 @@ inline void ClearArray(T& a)
 #else
 #define T_VALUE_TYPE(T) VALUE_TYPE(T)
 #endif
-#define RANGE(T, i) (T).begin(), (T).end(), [&](T_VALUE_TYPE(T)& i)
-#define REVERSE_RANGE(T, i) (T).rbegin(), (T).rend(), [&](T_VALUE_TYPE(T)& i)
-#define CONST_RANGE(T, i) (T).cbegin(), (T).cend(), [&](const T_VALUE_TYPE(T)& i)
-#define CONST_REVERSE_RANGE(T, i) (T).crbegin(), (T).crend(), [&](const T_VALUE_TYPE(T)& i)
+
+#define LAMBDA_PREDICATE(T, i) [&](T_VALUE_TYPE(T)& i)
+#define CONST_LAMBDA_PREDICATE(T, i) [&](const T_VALUE_TYPE(T)& i)
+
+#define ALL_RANGE(T) (T).begin(), (T).end()
+#define ALL_REVERSE_RANGE(T) (T).rbegin(), (T).rend()
+#define ALL_CONST_RANGE(T) (T).cbegin(), (T).cend()
+#define ALL_CONST_REVERSE_RANGE(T) (T).crbegin(), (T).crend()
+
+#define RANGE(T, i) ALL_RANGE(T), LAMBDA_PREDICATE(T, i)
+#define REVERSE_RANGE(T, i) ALL_REVERSE_RANGE(T), LAMBDA_PREDICATE(T, i)
+#define CONST_RANGE(T, i) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
+#define CONST_REVERSE_RANGE(T, i) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
 
 #define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
 #define FOR_REVERSE_RANGE(T, i) for(auto i = (T).rbegin(); i != (T).rend(); ++i)
@@ -232,7 +241,7 @@ inline void ClearArray(T& a)
 template<typename T>
 inline void DeleteValues(T& std_container)
 {
-	std::for_each(std_container.cbegin(), std_container.cend(), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
+	std::for_each(ALL_CONST_RANGE(std_container), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
 }
 
 template <typename T>

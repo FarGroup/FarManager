@@ -618,7 +618,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strDriveRoot;
 					GetPathRoot(strCurDir, strDriveRoot);
-					return !StrCmpI(strCurDir.CPtr(), strDriveRoot.CPtr());
+					return strCurDir.EqualNoCase(strDriveRoot);
 				}
 
 				return 1;
@@ -4873,10 +4873,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		{
 			DoubleDotDir = ListData[0];
 
-			if (std::find_if(CONST_RANGE(ListData, i)
-			{
-				return i->Selected && i->FileAttr & FILE_ATTRIBUTE_DIRECTORY;
-			}) != ListData.cend())
+			if (std::any_of(CONST_RANGE(ListData, i) {return i->Selected && i->FileAttr & FILE_ATTRIBUTE_DIRECTORY;}))
 				DoubleDotDir = nullptr;
 		}
 		else

@@ -131,13 +131,13 @@ bool GetNameFromSIDCache(PSID Sid,string& Name)
 {
 	if(SIDCache)
 	{
-		auto i = std::find_if(CONST_RANGE(*SIDCache, i)
+		auto ItemIterator = std::find_if(CONST_RANGE(*SIDCache, i)
 		{
 			return EqualSid(i.Sid.get(), Sid);
 		});
-		if(i != SIDCache->cend())
+		if(ItemIterator != SIDCache->cend())
 		{
-			Name = i->strUserName;
+			Name = ItemIterator->strUserName;
 			return true;
 		}
 	}

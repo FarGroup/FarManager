@@ -207,8 +207,8 @@ bool filemasks::Compare(const string& FileName) const
 
 bool filemasks::IsEmpty() const
 {
-	return std::find_if(CONST_RANGE(Include, i){return !i.IsEmpty();}) == Include.cend() &&
-	       std::find_if(CONST_RANGE(Exclude, i){return !i.IsEmpty();}) == Exclude.cend();
+	return std::none_of(CONST_RANGE(Include, i){return !i.IsEmpty();}) &&
+	       std::none_of(CONST_RANGE(Exclude, i){return !i.IsEmpty();});
 }
 
 void filemasks::ErrorMessage() const
@@ -309,10 +309,10 @@ bool filemasks::masks::operator ==(const string& FileName) const
 
 		return ret;
 	}
-	else return std::find_if(CONST_RANGE(Masks, i)
+	else
 	{
-		return CmpName(i.CPtr(), FileName.CPtr(), false) != 0;
-	}) != Masks.cend();
+		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.CPtr(), FileName.CPtr(), false) != 0;});
+	}
 }
 
 bool filemasks::masks::IsEmpty() const

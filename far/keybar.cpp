@@ -219,12 +219,12 @@ static int FnGroup(DWORD ControlState)
 		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
 	}};
 
-	auto Item = std::find_if(CONST_RANGE(Area, i)
+	auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
 	{
 		return i.ControlState == ControlState;
 	});
 	
-	return Item == Area.cend()? -1 : Item->Group;
+	return ItemIterator == Area.cend()? -1 : ItemIterator->Group;
 }
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)

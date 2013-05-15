@@ -1746,15 +1746,11 @@ void TreeList::FlushCache()
 
 		Global->TreeCache->Sort();
 
-		bool WriteError = false;
-		FOR_CONST_RANGE(Global->TreeCache->Names, i)
+		bool WriteError = !std::all_of(CONST_RANGE(Global->TreeCache->Names, i)
 		{
-			if (!Cache.Write(i->CPtr(), i->GetLength() * sizeof(wchar_t)) || !Cache.Write(L"\n", 1 * sizeof(wchar_t)))
-			{
-				WriteError = true;
-				break;
-			}
-		}
+			return Cache.Write(i.CPtr(), i.GetLength() * sizeof(wchar_t)) && !Cache.Write(L"\n", 1 * sizeof(wchar_t));
+		});
+
 		if (!WriteError)
 			WriteError = !Cache.Flush();
 		TreeFile.SetEnd();
