@@ -1748,7 +1748,7 @@ void TreeList::FlushCache()
 
 		bool WriteError = !std::all_of(CONST_RANGE(Global->TreeCache->Names, i)
 		{
-			return Cache.Write(i.CPtr(), i.GetLength() * sizeof(wchar_t)) && !Cache.Write(L"\n", 1 * sizeof(wchar_t));
+			return Cache.Write(i.CPtr(), i.GetLength() * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
 		});
 
 		if (!WriteError)
