@@ -151,7 +151,6 @@ ControlObject::~ControlObject()
 		}
 	}
 
-	TreeList::FlushCache();
 	SIDCacheFlush();
 	Global->Lang->Close();
 	FrameManager->CloseAll();

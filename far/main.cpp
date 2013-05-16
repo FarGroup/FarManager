@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "configdb.hpp"
 #include "palette.hpp"
+#include "treelist.hpp"
 
 global *Global = nullptr;
 
@@ -295,6 +296,8 @@ static int MainProcess(
 
 			FrameManager->EnterMainLoop();
 		}
+
+		TreeList::FlushCache();
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
