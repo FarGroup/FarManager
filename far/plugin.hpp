@@ -1113,7 +1113,8 @@ enum FARMACROAREA
 	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Autocompletion list in command line
 	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Autocompletion list in dialogs
 #ifdef FAR_USE_INTERNALS
-	MACROAREA_LAST, // Must always follow the numbered list!
+	MACROAREA_COMMON_INTERNAL,
+	MACROAREA_LAST,
 	MACROAREA_INVALID                    =  -1,
 #endif // END FAR_USE_INTERNALS
 

@@ -2085,6 +2085,9 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
+					if (Data->Area == MACROAREA_COMMON)
+						Data->Area=MACROAREA_COMMON_INTERNAL;
+
 					return Macro.AddMacro(Data->SequenceText,Data->Description,Data->Area,Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
 				}
 				break;

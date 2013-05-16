@@ -1223,7 +1223,7 @@ void KeyMacro::RunStartMacro()
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
-	if ( !((Area >= 0 && Area < MACROAREA_LAST) || Area == MACROAREA_COMMON) )
+	if (Area < 0 || Area >= MACROAREA_LAST)
 		return FALSE;
 
 	string strKeyText;
@@ -5803,14 +5803,14 @@ M1:
 		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true) && Data.MacroId)
 		{
 			// общие макросы учитываем только при удалении.
-			if (m_RecCode.IsEmpty() || Data.Area!=MACROAREA_COMMON)
+			if (m_RecCode.IsEmpty() || Data.Area!=MACROAREA_COMMON_INTERNAL)
 			{
 				string strBufKey=Data.Code;
 				InsertQuote(strBufKey);
 
 				bool SetChange = m_RecCode.IsEmpty();
 				LangString strBuf;
-				if (Data.Area==MACROAREA_COMMON)
+				if (Data.Area==MACROAREA_COMMON_INTERNAL)
 				{
 					strBuf = SetChange ? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
 					//"Общая макроклавиша '%1'   будет удалена : уже определена."
