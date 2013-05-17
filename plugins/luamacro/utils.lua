@@ -7,7 +7,7 @@ local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
 --------------------------------------------------------------------------------
--- Данный список должен в точности соответствовать enum MACROMODEAREA, т.е. тот же смысл и порядок.
+-- Данный список должен в точности соответствовать enum FARMACROAREA, т.е. тот же смысл и порядок.
 local TrueAreaNames = {
  "Other", "Shell", "Viewer", "Editor", "Dialog", "Search", "Disks", "MainMenu", "Menu", "Help",
  "Info", "QView", "Tree", "FindFolder", "UserMenu", "ShellAutoCompletion", "DialogAutoCompletion",

@@ -259,22 +259,22 @@ do
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local func,msg = loadfile(ModuleDir.."lang.lua")
   if func then M = func()
-  else export={}; ErrMsg(msg); return
+  else export=nil; ErrMsg(msg); return
   end
 
-  local func,msg = loadfile(ModuleDir.."utils.lua")
+  func,msg = loadfile(ModuleDir.."utils.lua")
   if func then utils = func { M=M, ErrMsg=ErrMsg, pack=pack }
-  else export={}; ErrMsg(msg); return
+  else export=nil; ErrMsg(msg); return
   end
 
   func,msg = loadfile(ModuleDir.."api.lua")
   if func then func { M=M, utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
-  else export={}; ErrMsg(msg); return
+  else export=nil; ErrMsg(msg); return
   end
 
   func,msg = loadfile(ModuleDir.."mbrowser.lua")
   if func then macrobrowser = func { M=M, utils=utils }
-  else export={}; ErrMsg(msg); return
+  else export=nil; ErrMsg(msg); return
   end
 
   AddCfindFunction()

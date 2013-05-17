@@ -10,6 +10,10 @@
 #define TRANSFORM_REF(h)        (h > 0 ? h : h - 2)
 #define UNTRANSFORM_REF(h)      (int)((intptr_t)h > 0 ? (intptr_t)h : (intptr_t)h + 2)
 
+// Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
+// (it takes approximately 20 nanosec.)
+#define FP_PROTECT() _control87(_MCW_EM,_MCW_EM)
+
 extern int bit64_push(lua_State *L, INT64 v);
 extern int bit64_pushuserdata(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
@@ -80,6 +84,7 @@ int docall(lua_State *L, int narg, int nret)
 // else 0 returned (and the stack is unchanged)
 int GetExportFunction(lua_State* L, const char* FuncName)
 {
+	FP_PROTECT();
 	lua_getglobal(L, "export");
 	if (lua_istable(L,-1))
 	{
@@ -785,7 +790,7 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 
 HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 {
-	_control87(_MCW_EM,_MCW_EM); // prevent crashes on divide by 0 due to plugins activating FPU exceptions
+	FP_PROTECT();
 
 	if(!CheckReloadDefaultScript(L) || !GetExportFunction(L, "Open"))
 		return NULL;
@@ -1282,6 +1287,7 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 {
 	intptr_t ret = 0;
 
+	FP_PROTECT();
 	if(Info->Event == SE_COMMONSYNCHRO)
 	{
 		TSynchroData sd = *(TSynchroData*)Info->Param; // copy
@@ -1366,8 +1372,12 @@ void LF_FreeCustomData(lua_State* L, wchar_t *CustomData)
 
 int LF_GetGlobalInfo(lua_State* L, struct GlobalInfo *Info, const wchar_t *PluginDir)
 {
-	int cpos = lua_gettop(L);
+	int cpos;
 	const char *name = "<_globalinfo";
+
+	FP_PROTECT();
+	cpos = lua_gettop(L);
+
 	lua_getglobal(L, "export");
 
 	if(!lua_istable(L, -1))

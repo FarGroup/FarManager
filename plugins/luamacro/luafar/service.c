@@ -17,6 +17,10 @@
 # endif
 #endif
 
+// Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
+// (it takes approximately 20 nanosec.)
+#define FP_PROTECT() _control87(_MCW_EM,_MCW_EM)
+
 typedef struct PluginStartupInfo PSInfo;
 
 extern int bit64_push(lua_State *L, INT64 v);
@@ -5793,10 +5797,12 @@ static const luaL_Reg lualibs[] =
 
 void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 {
-	// open Lua libraries
-	const luaL_Reg *lib = lualibs;
+	const luaL_Reg *lib;
 
-	for(; lib->func; lib++)
+	FP_PROTECT();
+
+	// open Lua libraries
+	for(lib=lualibs; lib->func; lib++)
 	{
 #if LUA_VERSION_NUM == 501
 		lua_pushcfunction(L, lib->func);
@@ -5856,6 +5862,7 @@ static void* CustomAllocator(void *ud, void *ptr, size_t osize, size_t nsize)
 
 void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 {
+	FP_PROTECT();
 	aInfo->origAlloc = lua_getallocf(L, &aInfo->origUserdata);
 	lua_setallocf(L, CustomAllocator, aInfo);
 	// open "far" library
