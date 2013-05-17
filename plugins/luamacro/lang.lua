@@ -1,5 +1,6 @@
 local list = {
   "UtExecuteMacroTitle",
+  "UtExecuteMacroBottom",
 
   -- macro browser help window
   "MBHelpLine1",

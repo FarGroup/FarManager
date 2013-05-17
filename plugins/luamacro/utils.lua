@@ -513,8 +513,23 @@ local function GetFromMenu (macrolist)
     end
     menuitems[i] = { text = descr }
   end
-  local item, pos = far.Menu({Title=M.UtExecuteMacroTitle}, menuitems)
-  if item then return macrolist[pos] end
+
+  local props, bkeys = {Title=M.UtExecuteMacroTitle,Bottom=M.UtExecuteMacroBottom}, {{BreakKey="A+F4"}}
+  while true do
+    local item, pos = far.Menu(props, menuitems, bkeys)
+    if not item then
+      return
+    elseif item.BreakKey == nil then
+      return macrolist[pos]
+    elseif item.BreakKey == "A+F4" then
+      props.SelectIndex = pos
+      local m = macrolist[pos]
+      if m.FileName then
+        local startline = m.action and debug.getinfo(m.action,"S").linedefined
+        editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
+      end
+    end
+  end
 end
 
 local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")

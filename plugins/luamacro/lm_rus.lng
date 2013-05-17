@@ -1,6 +1,7 @@
 ﻿.Language=Russian,Russian (Русский)
 
 "Исполнить макрос"
+"AltF4 - открыть в редакторе"
 
 // macro browser help window
 "F1         показать эту справку"
