@@ -131,9 +131,11 @@ end
 local function MenuLoop()
 --far.MacroLoadAll()
 
+  local farRect = far.AdvControl("ACTL_GETFARRECT")
   local props = {
-    Title=Title,
-    Flags={FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
+    Title = Title,
+    Flags = {FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
+    MaxHeight = farRect.Bottom - farRect.Top - 5,
   }
 
   local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"}, }

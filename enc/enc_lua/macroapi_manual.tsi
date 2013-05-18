@@ -8,7 +8,7 @@ lv=0
 dt=Text
 nm=Справка по изменениям в Macro API
 ctime=3551829092
-mtime=3561275434
+mtime=3578058395
 <article>
 #_<markdown>
 #_
@@ -17,15 +17,14 @@ mtime=3561275434
 #_
 #_Под макросом понимается Lua-скрипт и его мета-данные, такие как:
 #_
-#_* Область начала исполнения скрипта.
-#_* Клавиша, инициирующая исполнение скрипта из данной области.
+#_* Области начала исполнения скрипта.
+#_* Клавиши, инициирующие исполнение скрипта из данных областей.
 #_* Предварительные условия для исполнения скрипта.
-#_* Флаги времени исполнения: `DisableOutput` и `NoSendKeysToPlugins`.
+#_* Флаги времени исполнения: `EnableOutput` и `NoSendKeysToPlugins`.
 #_
 #_Функциональность
 #_-----------------
 #_
-#_* Импорт и экспорт макросов.
 #_* Запись и воспроизведение макросов.
 #_* Библиотеки функций Lua.
 #_* Библиотеки функций LuaFAR (API плагинов).
@@ -42,14 +41,17 @@ lv=1
 dt=Text
 nm=Библиотеки функций макроязыка
 ctime=3553243413
-mtime=3555071981
+mtime=3578058786
 <article>
 #_<markdown>
-#_Описание API в данном документе не является самодостаточным, оно является *дополняющим и уточняющим* к описанию свойств и функций объектов Фара в разделе **Макроязык** Энциклопедии Фара.
+#_Описание API в данном документе не является самодостаточным, оно является *дополняющим и уточняющим* к описанию свойств и функций объектов Фара в разделе [Макроязык][макроязык] Энциклопедии Фара.
 #_
 #_В идеале, API должен совпадать с оригинальным API макроязыка, за исключением случаев, перечисленных в статье [Изменения API в сравнении с макроязыком][APIchanges].
 #_
 #_[APIchanges]: 38.html
+#_[макроязык]: http://api.farmanager.com/ru/macro/macrocmd/index.html
+#_
+#_@@@
 #_
 </article>
 </node>
@@ -994,7 +996,7 @@ lv=1
 dt=Text
 nm=Плагин Luamacro
 ctime=3551991405
-mtime=3566722364
+mtime=3578058255
 <article>
 #_<markdown>
 #_Данный плагин необходим для работы макросов, поэтому должен быть установлен.
@@ -1011,7 +1013,7 @@ mtime=3566722364
 #_Эти операции аналогичны операциям `macro:` плагина `FarCmds`, со следующими отличиями:
 #_
 #_1. Имя файла должно указываться сразу после символа `@`; символ `<` не поддерживается.
-#_1. `lm:unload` выгружает все макросы.
+#_1. `lm:unload` - выгружает все макросы, за исключением созданных операцией `MCTL_ADDMACRO`.
 #_
 #_@@@
 #_
@@ -1291,6 +1293,297 @@ mtime=3568784291
 #_  end;
 #_}
 #_```
+#_
+</article>
+</node>
+<node>
+id=70
+lv=1
+dt=Text
+nm=Articles
+ctime=3576179916
+mtime=3578043315
+<article>
+</article>
+</node>
+<node>
+id=71
+lv=2
+dt=Text
+nm=FAR Manager. Macros and whatnot.
+ctime=3578043305
+mtime=3578065765
+<article>
+#_<markdown>
+#_<font face="Tahoma">
+#_
+#_By **Gleb Varenov** ("Acerbic") » Tue 23 Apr, 2013 22:53<br>
+#_[Revision 1.1][article on forum]
+#_
+#_*Gather round, boys and girls, for I am about to tell you a story.*
+#_
+#_## Macro in your FAR Manager? It's more likely than you think.
+#_
+#_The "macro" term is used loosely in Far to describe a broad range of user-made modifications of the application's behavior. For the sake of simplicity, let me divide them into several use cases:
+#_
+#_1. Assigning <font color="red">hotkeys</font> / remapping key bindings.
+#_This is the simplest. You want one custom key (or combination with Ctrl, Shift, Alt modifiers) do what another key (combination) already does. It is one for one replacement.
+#_
+#_2. Your typical <font color="red">macro</font>. Press one key to emulate a sequence of many keys.
+#_Its not much different from just a hot key. You press a key - it is treated as if you pressed some fixed predefined string of keys.
+#_
+#_3. <font color="red">Script</font>.
+#_Now this is interesting. Script involves logic and decision making, not just some fixed reaction. A script has means to analyze current situation and affect Far Manager in non-trivial ways. Requires programming skills to create, but luckily the are many scripts already written and you may find one just fitting your needs.
+#_
+#_4. <font color="red">Plugin</font>.
+#_Well, this is a moot point. With the course Far development is following now the gap between a complex script and a full fledged plugin is closing rapidly. As of right now, a script has most of functional capabilities a plugin has, it has access to both macro API and plugin API, in the latest builds a macro script can be started by an event, not just by a key pressed and so forth...
+#_
+#_## History and identification of obsolete.
+#_
+#_FAR Manager has traveled a long way from its early versions and so did its macro capabilities. In Far1 and Far2 the configuration was stored in Windows registry, including macros. In Far3 configuration was moved to SQLite database files located in user's profile folder. But later it was decided that it would be better to allow users simpler access to macros and they were moved from a database to individual files (still inside user's profile folder). Also, parallel to moving macro definitions to external files, the macro language was changed to LUA.
+#_
+#_In addition to that, there is a very popular plugin called "MacroLib". It provides extended macro features on top of built-in system. It used to overlay old macro language, but then switched to LUA as well. It always stored macros in external files.
+#_
+#_So, what to look out for to spot outdated manuals / macro recipes?
+#_
+#_1. \*.reg files. Partial and full configurations were distributed as reg import files in times of Far1 and Far2. That included macros. No \*.reg files are used by Far3 plugins or Far3 itself, but some old (ANSI) Far1 plugins can still use them. Any macros contained in them won't work in Far3.
+#_
+#_2. \*.farconfig files. Those are XML text files containing configurations for Far3. They are still used for other parts of configuration (coloring schemes and such) but not for macros anymore.
+#_
+#_3. Old macro language. It contained keywords like "$IF" "$ELSE" - denoted by dollar sign.
+#_
+#_4. Old MacroLib files \*.fml - new MacroLib macro files use "fmlua" extension.
+#_
+#_It is important to note that internal help in Far (called by "F1") is massively lagging behind development - hence this article.
+#_
+#_## What now?
+#_
+#_At present, by means of storage macros fall in three groups.
+#_
+#_1. Files of the built-in macro system. \*.lua
+#_Located in <font color="blue">%FARPROFILE%/Macros/internal</font> and <font color="blue">%FARPROFILE%/Macros/scripts</font>
+#_
+#_2. MacroLib files \*.fmlua.
+#_By default are located within plugin's folder, but it can be configured to read macros from any user defined path (or several).
+#_
+#_3. Other macro processing plugins. "Lua4Editor", for example. I don't know much about these, you are on your own here, folks.
+#_
+#_Important warning! There are plugins written in LUA. These are something different from macros. They are legit plugins with all the things a "usual" plugin has (like being listed in plugins' menu "F11"). Except they are written in LUA and distributed as source files. They should not confuse you as they lie in their folders in <font color="blue">%FARHOME%/Plugins</font>
+#_
+#_## Conversion.
+#_
+#_It is best to rewrite your macros in LUA from scratch. If they are few and simple, it won't take much effort. If they are complex, conversion is likely to fail to do it automatically. But if you are still interested in doing things hard way, there are few tools to help you. They were meant as quick fixes for transition period and aren't supported anymore, probably.
+#_
+#_1. Far1, Far2 -> Far 3 [2x3 perl converter][perl converter]
+#_This tool is used to convert old configuration from registry to database. This includes macros.
+#_The result will be a bunch of XML files containing far configurations and macros in the old language.
+#_
+#_2. Translation from old language to the new one is done by [Macro2Lua Converter][m2l converter] plugin. The readme is in Russian, but here is an excerpt regarding main usage via command line
+#_><span style="background-color: #CCCCCC;">`M2L: convert <input file> <output file> [<syntax>]`</span><br>
+#_where `<syntax>` is optional input format specifier and is one of following:
+#_`xml_file`, `xml_macros`, `xml_keymacros`, `xml_macro`, `fml_file`, `fml_macro`, `chunk`, `expression`. General file format is the part before underscore, the specific section of a file is the part after underscore. "`chunk`" and "`expression`" are some kind of raw macro pieces of texts.
+#_The result should be a XML file (`<farconfig>...</farconfig>`) with macros translated to LUA inside of it or a MacroLib fmlua file if original was \*.fml and corresponding syntax was specified.
+#_
+#_3. Far3 2927-3000 -> Far3 3001+
+#_Now you need an older version of Far3 (pre3001). You import your macros to Far per usual command, then use a script provided in the following forum thread:<br>
+#_[Macros have been moved from macros.db to files][move to files]
+#_
+#_## Managing confusion.
+#_
+#_While all macros are written in LUA, file contents are not interchangeable as of right now. It means that you can't rename X.fmlua to X.lua, move it to <font color="blue">%FARPROFILE%/Macros/scripts</font> and expect it to work. Likewise you can't just move files from <font color="blue">/internal</font> to <font color="blue">/scripts</font>.
+#_
+#_Luckily, with few rules I am about to explain, you won't get lost in all of the LUA files lying around.
+#_
+#_1. Don't touch your internals!
+#_Files in <font color="blue">%FARPROFILE%/Macros/internal</font> are to be manipulated (created/edited/deleted) by FAR Manager itself. And while it is possible to edit them manually, better to leave them alone. Unless you really know what are you doing. Or just feeling adventurous.
+#_
+#_2. MacroLib files are always named \*.fmlua, so you can never confuse them with native script files, even if you configured the MacroLib so they are located in the same directory.
+#_
+#_3. User-made native script files are located in <font color="blue">%FARPROFILE%/Macros/scripts</font> and are named \*.lua. They are read at Far launch, but you can make Far to re-read the folder via command line (more on that later).
+#_
+#_So, only (2) and (3) are in user's management and they are different in names, location and internal structure.
+#_
+#_But there are similarities too.
+#_
+#_1. Both MacroLib and native macros have a concept of "Area of execution" - basically, a broad condition limiting macro effect. Typical are "Editor" - when editor is open, "Shell" - when file panels are in focus, etc...
+#_
+#_2. In addition to general area, some more conditions might be specified for activation of a macro. Like passive panel being visible, command line not being empty and similar. These conditions/flags are legacy carried over from times when macro language was primitive and things like that were hard to check in script itself. Alternatives are being developed (like custom function conditionals in native scripts) but there is no sign that old flags will be abandoned yet.
+#_
+#_3. And finally, there are two flags that control execution of the macro itself. One is to disable/enable intermediate visual output during macro execution (reduces flicker of menus and dialogs being open/closed, for example), another is to control if plugins can intercept keyboard events generated by macro. No other macro can intercept current macro while it is executing - so you don't have to worry about nasty macro interferences.
+#_
+#_## Out of the box.
+#_
+#_In the beginning of time the macro language was ugly and everyone was sad. And few of the developers raised their voices: "Look! There in the great outside lies shiny LUA. Let us take it for ourselves, let us bind it to our manager and then we won't be suffering dollar-signed keywords no more." And so they did. And night turned day, and day turned night, and the Moon died and was born again as they tinkered and meddled and compiled and debugged. Seasons passed by, but finally, the day has come and their labor was over.
+#_And they stood proud among men and shouted: "Behold this LuaMacro plugin! We can rework our ugly macros into LUA, we have the technology now. But wait! There's more: we can write plugins in LUA as well, if we desire so." And everyone rejoiced.
+#_And gathered developers of Far and saw what their brethren did, and saw that it was good. So good in fact, they put the new plugin in the core package and abandoned their old ways of macros.
+#_
+#_So, native macro capabilities are provided by LuaMacro plugin, which is distributed with Far itself as part of its core package. The plugin has no configuration dialog, but has a list of commands to manipulate it:
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: unload`</span> - Far forgets all macros. They are still on disk and can be loaded back with next command.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: load`</span> - makes Far discard all macros and then re-read them from directories anew.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: post <sequence>|@<filename>`</span> - executes a macro code immediately. Either a "raw" piece of code typed in command line, or same raw code saved in a file. File name is prefixed with "@" symbol.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: check <sequence>|@<filename>`</span> - same as above. Except the macro is not executed but checked for syntax errors.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: save`</span> - saves changes made to "internal" macro files. Useful if you have "Auto save setup" option turned off.
+#_
+#_When "load" and "unload" operations are concerned, only native macros are affected. I.e. those *.lua that are located in <font color="blue">/internal/</font> and <font color="blue">/scripts/</font>. MacroLib macros are not touched. List of all currently loaded native macros is available in Far built-in help "F1". That part of help is not translated to English yet, and its not very convenient in operation anyway. Check [this][farman macro] macro out though.
+#_
+#_Note. "lm:" commands are similar to ones provided by FarCommands plugin via "macro:" and "far:macro " prefixes. There was a difference in that FarCommands used "<" symbol to specify filename, but now it supports both "<" and "@" for this.
+#_
+#_It is time now to explain why some macros are put in <font color="blue">/internal/</font> and others in <font color="blue">/scripts/</font>. Its fairly simple - "internal" is a codename for "recorded" and all the recoded macros go there. More on recorded macros is in the "<font color="red">Hotkeys / Macro use case</font>" chapter.
+#_User-made macros are to be placed in <font color="blue">/scripts/</font>. Sadly, there's no comprehensible manual on how to write them. One is reduced to scavenging for bits and pieces of knowledge by perusing Far's changelog and dissecting macros written by others ([SimSU macro pack][SimSU] for example, topic in Russian forum: [http://forum.farmanager.com/viewtopic.php?f=15&t=7075] [SimSU topic]). Here is a script for the Editor that pastes a macro template on "Ctrl+F11" by Shmuel: [InsertMacro.lua.7z][InsertMacro]
+#_
+#_## MacroLib.
+#_
+#_This is what all the cool kids use. MacroLib is a plugin that provides somewhat extended functionality to macros. It is built on top of native macro system, so 99% of the code working for "regular" macro will work for MacroLib as well.
+#_Project's main page: [http://code.google.com/p/far-plugins/wiki/MacroLib] [macrolib main], download page: [http://code.google.com/p/far-plugins/downloads/list?q=MacroLib] [macrolib dload], documentation (Russian): [http://code.google.com/p/far-plugins/wiki/FML] [macrolib docs].
+#_MacroLib files are named *.fmlua and are located in one or several directories designated by user in configuration dialog. The dialog allows you to update macros from disk and shows you a very neat list of all macros currently loaded with ability to sort, filter, run a macro from the list.
+#_
+#_MacroLib used to have many advantages over built-in system, but nowadays Far has caught up for the most part and is ahead in some experimental things (like events). However, there are two things \*.fmlua scripts have over \*.lua ones.
+#_
+#_1. You can use modifiers to your assigned hotkeys, such as "Hold" (macro is invoked after the key was held for a certain period of time), "Double"(on double click or double key tap), "Release" (macro is called on key being released, rather than being pressed).
+#_2. You frame your macro code in double curly brackets for extra swag {{ }}.
+#_
+#_## Hotkey / Macro use case.
+#_
+#_Can't get used to saving edited file by "F2"? Too lazy to run through menus every time you want to view your current Folder Shortcuts? Then this chapter is for YOU. This chapter covers a very simple usage of Far macros - redefining hotkeys for existing actions and creating hotkeys for actions that don't have them by default.
+#_The easiest way to do said things is by using "Recorded Macro" feature. The Far Manager has an ability to record your actions (keyboard events) and assign them to a specific key, pressing which will replay your actions. This function is in there from Far1 and is explained in "F1" Help, but I will rehash it for you anyway.
+#_You start recording by pressing "Ctrl+." (Control key plus dot key) or "CtrlShift+.", a little red "R" letter appears in the top-left corner and your following key presses will be recorded. You continue to use Far as usual, doing things you want to be put in the macro, or just pressing one key you want to be remapped. Then you finish recording by pressing "Ctrl+." or "CtrlShift+." again. Then you will be asked for a key to which this macro will be assigned, you can select one from a drop-down list with a mouse or just press the desired combination, then "Enter". At this moment an optional dialog might appear to configure additional parameters of you macro.
+#_
+#_So,
+#_
+#_1. "Ctrl+." or "CtrlShift+."
+#_2. Do stuff on record.
+#_3. "Ctrl+." or "CtrlShift+."
+#_4. Select a desired key to assign to.
+#_5. (optional) Configuration dialog.
+#_
+#_If you finish recording with "CtrlShift+." on step 3 you will be shown a dialog on step 5. Otherwise you won't be. To know more about this dialog, press "F1" while in there, its covered in the Help.
+#_Starting the recording with "CtrlShift+." puts a "NoSendKeysToPlugins" flag on your macro, which means that during macro playback plugins won't be able to react to keyboard events generated by this macro - it forces plugins to ignore this macro in that regard.
+#_
+#_If you made a mistake in your macro during recording you may interrupt the recording by usual "Ctrl+." and then hit "Esc" when asked about desired key.
+#_If you select a key that is already taken by a macro, you will be asked if you want to overwrite previous macro. This means you cannot have two recorded macros on the same key in the same area of execution. You can, however, have one for each area (one in Editor, one in Viewer, etc.)
+#_If you need to delete a macro you previously recorded, you create an empty macro for the key you want to free: "Ctrl+.", "Ctrl+.", the key. Then select "yes" to confirm deletion.
+#_
+#_If you have "F9"->"Options"->"System Settings"->"Auto save setup" option turned on, then every change to your recorded macros (creation, modification, deletion) will be immediately saved to files. Otherwise you can use <span style="background-color: #CCCCCC;">`lm: save`</span> command to save your recorded macros or press "Shift+F9" to save full setup.
+#_If you want to know what macros are already recorded, you can navigate to <font color="blue">%FARPROFILE%/Macros/internal</font>. It is possible delete macros in there, just don't forget to use <span style="background-color: #CCCCCC;">`lm: load`</span> command to update, or restart Far.
+#_
+#_Example: lets bind a hotkey to "File associations" menu.
+#_
+#_0. (preparation) Make sure you are in the Shell area of Far, its where two panels with files and folders are.
+#_1. Press "Ctrl+." and make sure the red "R" letter appeared.
+#_2. Press "F9" to move input focus to Far's menu (usually is the top line of the window), then "c" for commands, then "a". Now, if done right the "File associations" menu is on screen.
+#_3. Press "Ctrl+."again, a little "Define macro" box should pop up. Press "Ctrl+Shift+a" and confirm that corresponding key code appeared in the box ("CtrlShiftA").
+#_4. Press "Enter" and enjoy a new quality of life improvement you just created for yourself. Now every time you press "Ctrl+Shift+a" combo in Far shell, the menu will instantly appear.
+#_
+#_## Script use case.
+#_"Script" is a program that runs within/by other program (as opposed to one run by CPU/OS). Scripts in Far evolved from macros to a point when macros themselves are considered primitive cases of scripting. Being programs, scripts require "Programming / Coding" skill to be created, therefore, if you intend to use Far to its fullest potential you might want to invest few skill points in it on your next level up. Alternatively, you can utilize macros written by someone else - just copy the files in appropriate folders.
+#_As mentioned before, Far uses LUA language for scripting. From within the script you have access to
+#_
+#_1. Far (plugin) API - functions of Far that are available to plugins.
+#_
+#_2. Far macro API - some specific functions that were available in old language. These overlap "Plugin API" to some extend and considered legacy API. Better use "Plugin API" where possible.
+#_
+#_3. Custom functions exported by plugins - some plugins export their functions to be called from macro. Those depend on plugin being installed and loaded, of course.
+#_
+#_4. LUA libraries - native to LUA (see language manual) plus few libraries additionally shipped with LuaFar ("bit64", "win" - gate to Win API, Selene Unicode)
+#_
+#_5. Far UI - you can control Far simply by issuing keyboard/mouse commands to it. Why bother finding a function that will open Editor for file under cursor when you can just send "F4" to Far?
+#_
+#_Your main source of information about Far APIs is in <font color="blue">%FARHOME%\Encyclopedia</font> files. Lets look at them.
+#_
+#_* "FarEncyclopedia.ru.chm" - includes (1) and (2), in Russian. Macro API is outdated (pre-LUA). There's an online version too: [http://api.farmanager.com/ru/] [encyclopedia]
+#_
+#_* "luafar_manual.chm" - originally a LuaFar plugin manual (writing plugins in LUA), but we can use it in scripts too. Covers (1) in LUA in English. Very spartan - most of the functions have no textual descriptions, only input parameters and result values (implies ability to read "FarEncyclopedia.ru.chm"). For the most part it is not a problem though, functions' names are self-descriptive.
+#_
+#_* "macroapi_manual.chm" - mapping of (2) to LUA. Again, almost no descriptions.
+#_
+#_Damn, its kinda depressing, ain't it? Luckily for you, I have a magical artifact that will allow you to understand Russian: [abracadabra][abracadabra]. Paste a link to Russian website or text fragment and hit "Enter".
+#_And Acerbic saves the day once again! You are welcome.
+#_
+#_To sum it up: you will use "luafar_manual.chm" in conjunction with [translated online encyclopedia][translated] for Far plugin API reference and "macroapi_manual.chm" in conjunction with [this link][this link] for Macro API reference.
+#_I found this script very helpful: [lua_explorer][lua explorer]. It allows you to browse Lua tables/values/functions soup available to LUA script. [Thread][thread] on the forum.
+#_
+#_## Native or MacroLib?
+#_
+#_MacroLib.
+#_
+#_## Sample script.
+#_
+#_Here's a little demonstration of what you can do in MacroLib: "RCtrl Folder shortcuts.fmlua"
+#_
+#_```
+#_;;
+#_;; Folder shortcuts menu
+#_;; RCtrl single pressing or holding will pop-up the shortcuts menu. Press RCtrl again (or Esc) to close it.
+#_;; RCtrl1-0 will go to set shortcut
+#_;;
+#_ 
+#_const FolderShortcutsId = "4CD742BC-295F-4AFA-A158-7AA05A16BEA1"
+#_ 
+#_macro
+#_area="Shell"
+#_description="Folder shortcuts popup"
+#_key="RCtrl:Hold RCtrl:Release"  ;; call on holding LCtrl or single press of the button (Need to specify Release after Hold bc of a bug)
+#_EatOnRun=0 ;; allows RCtrl:Release in Menu area after RCtrl:Hold was caught
+#_{{ 
+#_    Keys("F9 c d");
+#_}}
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts: RCtrl+digit"
+#_key="/RCtrl\d/"
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys(regex.match(akey(1),"RCtrl(\\d)?")) -- double escaping \\ because of LUA strings parsing
+#_    end;
+#_}}
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts: pass RCtrl+not_digit through"
+#_key="/RCtrl(?!\d$).+/"      ;; Takes RCtrlSOMETHING. Ignores RCtrl0 .. RCtrl9 and bare RCtrl
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys("Esc AKey");
+#_    end;
+#_}}
+#_ 
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts popup close on second RCtrl or on RCtrl:Release after RCtrl:Hold"
+#_key="RCtrl:Release"
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys("Esc");
+#_    end;
+#_}}
+#_```
+#_
+#_</font>
+#_
+#_[article on forum]: http://forum.farmanager.com/viewtopic.php?f=35&t=7927#p108538
+#_[perl converter]: http://code.google.com/p/mini-gnu/downloads/list?can=2&q=2x3
+#_[m2l converter]: http://plugring.farmanager.com/plugin.php?pid=884&l=en
+#_[move to files]: http://forum.farmanager.com/viewtopic.php?f=35&t=7564
+#_[farman macro]: http://forum.farmanager.com/viewtopic.php?f=35&t=7893
+#_[SimSU]: http://code.google.com/p/simsufar/downloads/list
+#_[SimSU topic]: http://forum.farmanager.com/viewtopic.php?f=15&t=7075
+#_[InsertMacro]: http://forum.farmanager.com/download/file.php?id=5665
+#_[macrolib main]: http://code.google.com/p/far-plugins/wiki/MacroLib
+#_[macrolib dload]: http://code.google.com/p/far-plugins/downloads/list?q=MacroLib
+#_[macrolib docs]: http://code.google.com/p/far-plugins/wiki/FML
+#_[encyclopedia]: http://api.farmanager.com/ru/
+#_[abracadabra]: http://translate.google.com/#ru/en/
+#_[translated]: http://translate.google.com/translate?sl=ru&tl=en&js=n&prev=_t&hl=en&ie=UTF-8&eotf=1&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2F
+#_[this link]: http://translate.google.com/translate?hl=en&sl=ru&tl=en&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2Fmacro%2Fmacrocmd%2Fprop_func%2Findex.html
+#_[lua explorer]: http://forum.farmanager.com/download/file.php?id=5553
+#_[thread]: http://forum.farmanager.com/viewtopic.php?f=60&t=7521
 #_
 </article>
 </node>
