@@ -3,6 +3,67 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.05.2013 20:30:12 +0200 - build 3416
+
+1. Move TreeList::FlushCache() to a more appropriate place, so it does not block exit in case of failure.
+
+drkns 16.05.2013 20:02:27 +0200 - build 3415
+
+1. A typo in TreeList::FlushCache()
+
+shmuel 16.05.2013 01:32:15 +0200 - build 3414
+
+1. Correction of 3412.
+
+drkns 15.05.2013 23:43:01 +0200 - build 3413
+
+1. Refactoring.
+
+2. VC warning.
+
+shmuel 15.05.2013 23:22:20 +0200 - build 3412
+
+1. Refactoring (enum MACROMODEAREA is removed).
+
+shmuel 15.05.2013 18:00:53 +0200 - build 3411
+
+1. Refactoring.
+
+t-rex 14.05.2013 23:43:54 +0200 - build 3410
+
+1. Mantis#2409: FAR crashes when moving a directory (even with no plugin).
+
+2. A sort of extension for ANSI plugins, the plugin's GUID can be specified in VersionInfo in PluginGUID field.
+   The GUID is a string without {}.
+
+w17 14.05.2013 23:16:28 +0400 - build 3409
+
+1. Another correction of 3388.
+
+drkns 14.05.2013 16:47:32 +0200 - build 3408
+
+1. Refactoring.
+
+t-rex 14.05.2013 10:02:15 +0200 - build 3407
+
+1. Let plugins create empty-named values in their DB and disable creation of such keys.
+
+drkns 14.05.2013 09:57:32 +0200 - build 3406
+
+1. Refactoring.
+
+shmuel 14.05.2013 09:33:00 +0200 - build 3405
+
+1. Correction of 3404.
+
+shmuel 14.05.2013 09:03:57 +0200 - build 3404
+
+1. GCC warnings.
+
+w17 13.05.2013 14:54:22 +0400 - build 3403
+
+1. Revert 3400
+
 drkns 10.05.2013 14:49:03 +0200 - build 3402
 
 1. Continuation of 3401.
