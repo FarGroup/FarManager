@@ -23,7 +23,7 @@ function bcolorer {
 
   popd
 
-  cp -f docs/history.ru.txt LICENSE README.MD ../outfinalnew${BIT}/Plugins/$PLUGIN/
+  cp -f docs/history.ru.txt LICENSE README.md ../outfinalnew${BIT}/Plugins/$PLUGIN/
   cp -f misc/* ../outfinalnew${BIT}/Plugins/$PLUGIN/bin
 
   pushd ../Colorer-schemes || return 1
