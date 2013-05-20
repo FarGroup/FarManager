@@ -1285,6 +1285,8 @@ private:
 			&elevated::OpenVirtualDiskHandler,
 		};
 
+		static_assert(ARRAYSIZE(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
+
 		(this->*Handlers[Command])();
 
 		return !Exit;
