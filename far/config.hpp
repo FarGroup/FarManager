@@ -263,13 +263,19 @@ private:
 
 class Options
 {
+	enum farconfig_mode
+	{
+		cfg_roaming,
+		cfg_local,
+	};
+
 public:
 	Options();
 	void Load();
 	void Save(bool Ask);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
-	bool AdvancedConfig();
+	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 
 	struct PanelOptions
 	{
@@ -831,7 +837,7 @@ public:
 
 private:
 	void InitConfig();
-	void InitCFG();
+	void InitRoamingCFG();
 	void InitLocalCFG();
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
@@ -852,10 +858,10 @@ private:
 	private:
 		FARConfigItem *m_items;
 		size_t m_size;
-	}
-	FARConfig, FARLocalConfig;
+	};
 
-	std::list<std::pair<GeneralConfig*, farconfig*>> ConfigList;
+	std::vector<std::pair<GeneralConfig*, farconfig>> Config;
+	farconfig_mode CurrentConfig;
 };
 
 void SystemSettings();

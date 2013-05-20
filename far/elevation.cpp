@@ -72,98 +72,103 @@ ENUM(ELEVATION_COMMAND)
 	C_FUNCTION_CREATEFILE,
 	C_FUNCTION_SETENCRYPTION,
 	C_FUNCTION_OPENVIRTUALDISK,
+
+	C_COMMANDS_COUNT
 };
 
-bool RawReadPipe(HANDLE Pipe, LPVOID Data, size_t DataSize)
+namespace pipe
 {
-	DWORD n;
-	return ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
-}
-
-bool RawWritePipe(HANDLE Pipe, LPCVOID Data, size_t DataSize)
-{
-	DWORD n;
-	return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
-}
-
-template<typename T>
-inline bool ReadPipe(HANDLE Pipe, T& Data)
-{
-	static_assert(!std::is_pointer<T>::value, "ReadPipe template requires a reference to an object");
-
-	bool Result=false;
-	size_t DataSize = 0;
-	if(RawReadPipe(Pipe, &DataSize, sizeof(DataSize)))
+	bool ReadPipe(HANDLE Pipe, void* Data, size_t DataSize)
 	{
-		assert(DataSize == sizeof(Data));
-		Result = RawReadPipe(Pipe, &Data, sizeof(Data));
+		DWORD n;
+		return ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
 	}
-	return Result;
-}
 
-template<>
-inline bool ReadPipe(HANDLE Pipe, string& Data)
-{
-	bool Result=false;
-	size_t DataSize = 0;
-	if(RawReadPipe(Pipe, &DataSize, sizeof(DataSize)))
+	bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
 	{
-		if(DataSize)
+		DWORD n;
+		return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
+	}
+
+	template<typename T>
+	inline bool Read(HANDLE Pipe, T& Data)
+	{
+		static_assert(!std::is_pointer<T>::value, "ReadPipe template requires a reference to an object");
+
+		bool Result=false;
+		size_t DataSize = 0;
+		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
 		{
-			LPVOID Ptr=Data.GetBuffer(DataSize/sizeof(wchar_t));
-			if(RawReadPipe(Pipe, Ptr, DataSize))
+			assert(DataSize == sizeof(Data));
+			Result = ReadPipe(Pipe, &Data, sizeof(Data));
+		}
+		return Result;
+	}
+
+	template<>
+	inline bool Read(HANDLE Pipe, string& Data)
+	{
+		bool Result=false;
+		size_t DataSize = 0;
+		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
+		{
+			if(DataSize)
 			{
-				Data.ReleaseBuffer(DataSize/sizeof(wchar_t)-1);
-				Result=true;
+				LPVOID Ptr=Data.GetBuffer(DataSize/sizeof(wchar_t));
+				if(ReadPipe(Pipe, Ptr, DataSize))
+				{
+					Data.ReleaseBuffer(DataSize/sizeof(wchar_t)-1);
+					Result=true;
+				}
 			}
-		}
-		else
-		{
-			Result=true;
-		}
-	}
-	return Result;
-}
-
-template<>
-inline bool ReadPipe(HANDLE Pipe, char_ptr& Data)
-{
-	bool Result=false;
-	size_t DataSize = 0;
-	if(RawReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-	{
-		if(DataSize)
-		{
-			Data.reset(DataSize);
-			if(RawReadPipe(Pipe, Data.get(), DataSize))
+			else
 			{
 				Result=true;
 			}
 		}
-		else
+		return Result;
+	}
+
+	template<>
+	inline bool Read(HANDLE Pipe, char_ptr& Data)
+	{
+		bool Result=false;
+		size_t DataSize = 0;
+		if(ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
+		{
+			if(DataSize)
+			{
+				Data.reset(DataSize);
+				if(ReadPipe(Pipe, Data.get(), DataSize))
+				{
+					Result=true;
+				}
+			}
+			else
+			{
+				Result=true;
+			}
+		}
+		return Result;
+	}
+
+	bool Write(HANDLE Pipe, const void* Data, size_t DataSize)
+	{
+		bool Result=false;
+		if(WritePipe(Pipe, &DataSize, sizeof(DataSize)) && WritePipe(Pipe, Data, DataSize))
 		{
 			Result=true;
 		}
+		return Result;
 	}
-	return Result;
-}
 
-bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
-{
-	bool Result=false;
-	if(RawWritePipe(Pipe, &DataSize, sizeof(DataSize)) && RawWritePipe(Pipe, Data, DataSize))
+	template<typename T>
+	inline bool Write(HANDLE Pipe, const T& Data)
 	{
-		Result=true;
+		static_assert(!std::is_pointer<T>::value, "WritePipe template requires a reference to an object");
+
+		return Write(Pipe, &Data, sizeof(Data));
 	}
-	return Result;
-}
-
-template<typename T>
-inline bool WritePipe(HANDLE Pipe, const T& Data)
-{
-	static_assert(!std::is_pointer<T>::value, "WritePipe template requires a reference to an object");
-
-	return WritePipe(Pipe, &Data, sizeof(Data));
 }
 
 DisableElevation::DisableElevation()
@@ -220,27 +225,27 @@ void elevation::ResetApprove()
 	}
 }
 
-bool elevation::Write(LPCVOID Data,size_t DataSize) const
+bool elevation::Write(const void* Data,size_t DataSize) const
 {
-	return WritePipe(Pipe, Data, DataSize);
+	return pipe::Write(Pipe, Data, DataSize);
 }
 
 template<typename T>
 inline bool elevation::Read(T& Data) const
 {
-	return ReadPipe(Pipe, Data);
+	return pipe::Read(Pipe, Data);
 }
 
 template<>
 inline bool elevation::Read(char_ptr& Data) const
 {
-	return ReadPipe(Pipe, Data);
+	return pipe::Read(Pipe, Data);
 }
 
 template<typename T>
 inline bool elevation::Write(const T& Data) const
 {
-	return WritePipe(Pipe, Data);
+	return pipe::Write(Pipe, Data);
 }
 
 template<>
@@ -251,7 +256,7 @@ inline bool elevation::Write(const string& Data) const
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 {
-	return WritePipe(Pipe, Command);
+	return pipe::Write(Pipe, Command);
 }
 
 struct ERRORCODES
@@ -266,7 +271,7 @@ struct ERRORCODES
 bool elevation::ReceiveLastError() const
 {
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
-	bool Result = ReadPipe(Pipe, ErrorCodes);
+	bool Result = Read(ErrorCodes);
 	SetLastError(ErrorCodes.Win32Error);
 	Global->ifn->RtlNtStatusToDosError(ErrorCodes.NtError);
 	return Result;
@@ -386,7 +391,7 @@ bool elevation::Initialize()
 					DWORD NumberOfBytesTransferred;
 					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 					{
-						if(ReadPipe(Pipe, PID))
+						if(Read(PID))
 						{
 							Result = true;
 						}
@@ -943,402 +948,394 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	return Result;
 }
 
-HANDLE Pipe;
-
-bool Process(int Command);
-
-DWORD WINAPI ElevationCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
+class elevated
 {
-	int Result=0;
-	// BUGBUG: SourceFile, DestinationFile ignored
-	if (WritePipe(Pipe, CallbackMagic) && WritePipe(Pipe, TotalFileSize) && WritePipe(Pipe, TotalBytesTransferred) && WritePipe(Pipe, StreamSize) && WritePipe(Pipe, StreamBytesTransferred) && WritePipe(Pipe, StreamNumber) && WritePipe(Pipe, CallbackReason) && WritePipe(Pipe, &Data, sizeof(Data)))
+private:
+	DWORD ParentPID;
+	HANDLE Pipe;
+	bool Exit;
+	typedef std::pair<class elevated*, void*> copy_progress_routine_param;
+
+	bool Write(const void* Data,size_t DataSize) const
 	{
-		for(;;)
+		return pipe::Write(Pipe, Data, DataSize);
+	}
+
+	template<typename T>
+	inline bool Read(T& Data) const
+	{
+		return pipe::Read(Pipe, Data);
+	}
+
+	inline bool Read(char_ptr& Data) const
+	{
+		return pipe::Read(Pipe, Data);
+	}
+
+	template<typename T>
+	inline bool Write(const T& Data) const
+	{
+		return pipe::Write(Pipe, Data);
+	}
+
+	inline bool Write(const string& Data) const
+	{
+		return Write(Data.CPtr(), (Data.GetLength()+1)*sizeof(wchar_t));
+	}
+
+	void ExitHandler()
+	{
+		Exit = true;
+	}
+
+	void CreateDirectoryExHandler()
+	{
+		string TemplateObject;
+		if(Read(TemplateObject))
 		{
-			ReadPipe(Pipe, Result);
-			if (Result == CallbackMagic)
+			string Object;
+			if(Read(Object))
 			{
-				ReadPipe(Pipe, Result);
-				break;
-			}
-			else
-			{
-				// nested call from ProgressRoutine()
-				Process(Result);
+				// BUGBUG, SecurityAttributes ignored
+				bool Result = TemplateObject.IsEmpty()? CreateDirectory(Object.CPtr(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.CPtr(), Object.CPtr(), nullptr) != FALSE;
+				ERRORCODES ErrorCodes;
+				if(Write(Result))
+				{
+					Write(ErrorCodes);
+				}
 			}
 		}
 	}
-	return Result;
-}
 
-void CreateDirectoryExHandler()
-{
-	string TemplateObject;
-	if(ReadPipe(Pipe, TemplateObject))
+	void RemoveDirectoryHandler()
 	{
 		string Object;
-		if(ReadPipe(Pipe, Object))
+		if(Read(Object))
 		{
-			// BUGBUG, SecurityAttributes ignored
-			bool Result = TemplateObject.IsEmpty()? CreateDirectory(Object.CPtr(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.CPtr(), Object.CPtr(), nullptr) != FALSE;
+			bool Result = RemoveDirectory(Object.CPtr()) != FALSE;
 			ERRORCODES ErrorCodes;
-			if(WritePipe(Pipe, Result))
+			if(Write(Result))
 			{
-				WritePipe(Pipe, ErrorCodes);
+				Write(ErrorCodes);
 			}
 		}
 	}
-}
 
-void RemoveDirectoryHandler()
-{
-	string Object;
-	if(ReadPipe(Pipe, Object))
+	void DeleteFileHandler()
 	{
-		bool Result = RemoveDirectory(Object.CPtr()) != FALSE;
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
+		string Object;
+		if(Read(Object))
 		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void DeleteFileHandler()
-{
-	string Object;
-	if(ReadPipe(Pipe, Object))
-	{
-		bool Result = DeleteFile(Object.CPtr()) != FALSE;
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void CopyFileExHandler()
-{
-	string From, To;
-	char_ptr UserCopyProgressRoutine, Data;
-	DWORD Flags = 0;
-	// BUGBUG: Cancel ignored
-	if(ReadPipe(Pipe, From) && ReadPipe(Pipe, To) && ReadPipe(Pipe, UserCopyProgressRoutine) && ReadPipe(Pipe, Data) && ReadPipe(Pipe, Flags))
-	{
-		int Result = CopyFileEx(From.CPtr(), To.CPtr(), UserCopyProgressRoutine.get()? ElevationCopyProgressRoutine : nullptr, Data.get(), nullptr, Flags);
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void MoveFileExHandler()
-{
-	string From, To;
-	DWORD Flags = 0;
-	if(ReadPipe(Pipe, From) && ReadPipe(Pipe, To) && ReadPipe(Pipe, Flags))
-	{
-		bool Result = MoveFileEx(From.CPtr(), To.CPtr(), Flags) != FALSE;
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void GetFileAttributesHandler()
-{
-	string Object;
-	if(ReadPipe(Pipe, Object))
-	{
-		DWORD Result = GetFileAttributes(Object.CPtr());
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void SetFileAttributesHandler()
-{
-	string Object;
-	DWORD Attributes = 0;
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, Attributes))
-	{
-		bool Result = SetFileAttributes(Object.CPtr(), Attributes) != FALSE;
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void CreateHardLinkHandler()
-{
-	string Object, Target;
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, Target))
-	{
-		// BUGBUG: SecurityAttributes ignored.
-		bool Result = CreateHardLink(Object.CPtr(), Target.CPtr(), nullptr) != FALSE;
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void CreateSymbolicLinkHandler()
-{
-	string Object, Target;
-	DWORD Flags = 0;
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, Target) && ReadPipe(Pipe, Flags))
-	{
-		bool Result = CreateSymbolicLinkInternal(Object, Target, Flags);
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void MoveToRecycleBinHandler()
-{
-	SHFILEOPSTRUCT Struct;
-	string From, To;
-	if(ReadPipe(Pipe, Struct) && ReadPipe(Pipe, From) && ReadPipe(Pipe, To))
-	{
-		Struct.pFrom = From.CPtr();
-		Struct.pTo = To.CPtr();
-		if(WritePipe(Pipe, SHFileOperation(&Struct)))
-		{
-			WritePipe(Pipe, Struct.fAnyOperationsAborted);
-		}
-	}
-}
-
-void SetOwnerHandler()
-{
-	string Object, Owner;
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, Owner))
-	{
-		bool Result = SetOwnerInternal(Object.CPtr(), Owner.CPtr());
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void CreateFileHandler()
-{
-	string Object;
-	DWORD DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes;
-	// BUGBUG: SecurityAttributes ignored
-	// BUGBUG: SecurityAttributes ignored
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, DesiredAccess) && ReadPipe(Pipe, ShareMode) && ReadPipe(Pipe, CreationDistribution) && ReadPipe(Pipe, FlagsAndAttributes))
-	{
-		HANDLE Result = apiCreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
-		if(Result!=INVALID_HANDLE_VALUE)
-		{
-			HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-			if(ParentProcess)
+			bool Result = DeleteFile(Object.CPtr()) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
 			{
-				if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CopyFileExHandler()
+	{
+		string From, To;
+		char_ptr UserCopyProgressRoutine, Data;
+		DWORD Flags = 0;
+		// BUGBUG: Cancel ignored
+		if(Read(From) && Read(To) && Read(UserCopyProgressRoutine) && Read(Data) && Read(Flags))
+		{
+			copy_progress_routine_param Param(this, Data.get());
+			int Result = CopyFileEx(From.CPtr(), To.CPtr(), UserCopyProgressRoutine.get()? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void MoveFileExHandler()
+	{
+		string From, To;
+		DWORD Flags = 0;
+		if(Read(From) && Read(To) && Read(Flags))
+		{
+			bool Result = MoveFileEx(From.CPtr(), To.CPtr(), Flags) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void GetFileAttributesHandler()
+	{
+		string Object;
+		if(Read(Object))
+		{
+			DWORD Result = GetFileAttributes(Object.CPtr());
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void SetFileAttributesHandler()
+	{
+		string Object;
+		DWORD Attributes = 0;
+		if(Read(Object) && Read(Attributes))
+		{
+			bool Result = SetFileAttributes(Object.CPtr(), Attributes) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateHardLinkHandler()
+	{
+		string Object, Target;
+		if(Read(Object) && Read(Target))
+		{
+			// BUGBUG: SecurityAttributes ignored.
+			bool Result = CreateHardLink(Object.CPtr(), Target.CPtr(), nullptr) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateSymbolicLinkHandler()
+	{
+		string Object, Target;
+		DWORD Flags = 0;
+		if(Read(Object) && Read(Target) && Read(Flags))
+		{
+			bool Result = CreateSymbolicLinkInternal(Object, Target, Flags);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void MoveToRecycleBinHandler()
+	{
+		SHFILEOPSTRUCT Struct;
+		string From, To;
+		if(Read(Struct) && Read(From) && Read(To))
+		{
+			Struct.pFrom = From.CPtr();
+			Struct.pTo = To.CPtr();
+			if(Write(SHFileOperation(&Struct)))
+			{
+				Write(Struct.fAnyOperationsAborted);
+			}
+		}
+	}
+
+	void SetOwnerHandler()
+	{
+		string Object, Owner;
+		if(Read(Object) && Read(Owner))
+		{
+			bool Result = SetOwnerInternal(Object.CPtr(), Owner.CPtr());
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateFileHandler()
+	{
+		string Object;
+		DWORD DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes;
+		// BUGBUG: SecurityAttributes, TemplateFile ignored
+		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
+		{
+			HANDLE Result = apiCreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
+			if(Result!=INVALID_HANDLE_VALUE)
+			{
+				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
+				if(ParentProcess)
 				{
-					CloseHandle(Result);
-					Result = INVALID_HANDLE_VALUE;
+					if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
+					{
+						CloseHandle(Result);
+						Result = INVALID_HANDLE_VALUE;
+					}
+					CloseHandle(ParentProcess);
 				}
-				CloseHandle(ParentProcess);
 			}
-		}
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, reinterpret_cast<intptr_t>(Result)))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void SetEncryptionHandler()
-{
-	string Object;
-	bool Encrypt = false;
-	if(ReadPipe(Pipe, Object) && ReadPipe(Pipe, Encrypt))
-	{
-		bool Result = apiSetFileEncryptionInternal(Object.CPtr(), Encrypt);
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result))
-		{
-			WritePipe(Pipe, ErrorCodes);
-		}
-	}
-}
-
-void OpenVirtualDiskHandler()
-{
-	VIRTUAL_STORAGE_TYPE VirtualStorageType;
-	string Object;
-	VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
-	OPEN_VIRTUAL_DISK_FLAG Flags;
-	OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
-	if(ReadPipe(Pipe, VirtualStorageType) && ReadPipe(Pipe, Object) && ReadPipe(Pipe, VirtualDiskAccessMask) && ReadPipe(Pipe, Flags) &&ReadPipe(Pipe, Parameters))
-	{
-		HANDLE Handle;
-		bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
-		if(Result)
-		{
-			HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-			if(ParentProcess)
+			ERRORCODES ErrorCodes;
+			if(Write(reinterpret_cast<intptr_t>(Result)))
 			{
-				if(!DuplicateHandle(GetCurrentProcess(), Handle, ParentProcess, &Handle, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
-				{
-					CloseHandle(Handle);
-				}
-				CloseHandle(ParentProcess);
+				Write(ErrorCodes);
 			}
 		}
-		ERRORCODES ErrorCodes;
-		if(WritePipe(Pipe, Result) && WritePipe(Pipe, ErrorCodes))
+	}
+
+	void SetEncryptionHandler()
+	{
+		string Object;
+		bool Encrypt = false;
+		if(Read(Object) && Read(Encrypt))
 		{
+			bool Result = apiSetFileEncryptionInternal(Object.CPtr(), Encrypt);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void OpenVirtualDiskHandler()
+	{
+		VIRTUAL_STORAGE_TYPE VirtualStorageType;
+		string Object;
+		VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
+		OPEN_VIRTUAL_DISK_FLAG Flags;
+		OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
+		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) &&Read(Parameters))
+		{
+			HANDLE Handle;
+			bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 			if(Result)
 			{
-				WritePipe(Pipe, reinterpret_cast<intptr_t>(Handle));
+				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
+				if(ParentProcess)
+				{
+					if(!DuplicateHandle(GetCurrentProcess(), Handle, ParentProcess, &Handle, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
+					{
+						CloseHandle(Handle);
+					}
+					CloseHandle(ParentProcess);
+				}
+			}
+			ERRORCODES ErrorCodes;
+			if(Write(Result) && Write(ErrorCodes))
+			{
+				if(Result)
+				{
+					Write(reinterpret_cast<intptr_t>(Handle));
+				}
 			}
 		}
 	}
-}
 
-bool Process(int Command)
-{
-	bool Exit=false;
-	switch(Command)
+	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
-	case C_SERVICE_EXIT:
-		Exit = true;
-		break;
-
-	case C_FUNCTION_CREATEDIRECTORYEX:
-		CreateDirectoryExHandler();
-		break;
-
-	case C_FUNCTION_REMOVEDIRECTORY:
-		RemoveDirectoryHandler();
-		break;
-
-	case C_FUNCTION_DELETEFILE:
-		DeleteFileHandler();
-		break;
-
-	case C_FUNCTION_COPYFILEEX:
-		CopyFileExHandler();
-		break;
-
-	case C_FUNCTION_MOVEFILEEX:
-		MoveFileExHandler();
-		break;
-
-	case C_FUNCTION_GETFILEATTRIBUTES:
-		GetFileAttributesHandler();
-		break;
-
-	case C_FUNCTION_SETFILEATTRIBUTES:
-		SetFileAttributesHandler();
-		break;
-
-	case C_FUNCTION_CREATEHARDLINK:
-		CreateHardLinkHandler();
-		break;
-
-	case C_FUNCTION_CREATESYMBOLICLINK:
-		CreateSymbolicLinkHandler();
-		break;
-
-	case C_FUNCTION_MOVETORECYCLEBIN:
-		MoveToRecycleBinHandler();
-		break;
-
-	case C_FUNCTION_SETOWNER:
-		SetOwnerHandler();
-		break;
-
-	case C_FUNCTION_CREATEFILE:
-		CreateFileHandler();
-		break;
-
-	case C_FUNCTION_SETENCRYPTION:
-		SetEncryptionHandler();
-		break;
-
-	case C_FUNCTION_OPENVIRTUALDISK:
-		OpenVirtualDiskHandler();
-		break;
-	}
-	return Exit;
-}
-
-int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
-{
-	int Result = ERROR_SUCCESS;
-
-	SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-
-	Privilege
-		BackupPrivilege(UsePrivileges?SE_BACKUP_NAME:nullptr),
-		RestorePrivilege(UsePrivileges?SE_RESTORE_NAME:nullptr),
-		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
-		DebugPrivilege(SE_DEBUG_NAME),
-		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
-
-	string strPipe(L"\\\\.\\pipe\\");
-	strPipe+=guid;
-	WaitNamedPipe(strPipe.CPtr(), NMPWAIT_WAIT_FOREVER);
-	Pipe = CreateFile(strPipe.CPtr(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
-	if (Pipe != INVALID_HANDLE_VALUE)
-	{
-		ULONG ServerProcessId;
-		if(!Global->ifn->GetNamedPipeServerProcessIdPresent() || (Global->ifn->GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+		int Result=0;
+		auto Param = reinterpret_cast<copy_progress_routine_param*>(Data);
+		elevated* Context = Param->first;
+		// BUGBUG: SourceFile, DestinationFile ignored
+		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(&Param->second, sizeof(Param->second)))
 		{
-			HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
-			if(ParentProcess)
+			for(;;)
 			{
-				string strCurrentProcess, strParentProcess;
-				bool TrustedServer = apiGetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess.CPtr(), strParentProcess.CPtr()));
-				CloseHandle(ParentProcess);
-				if(TrustedServer)
+				Context->Read(Result);
+				if (Result == CallbackMagic)
 				{
-					if(WritePipe(Pipe, GetCurrentProcessId()))
+					Context->Read(Result);
+					break;
+				}
+				else
+				{
+					// nested call from ProgressRoutine()
+					Context->Process(Result);
+				}
+			}
+		}
+		return Result;
+	}
+
+	bool Process(int Command)
+	{
+		assert(Command < C_COMMANDS_COUNT);
+
+		Exit = false;
+
+		static void (elevated::*Handlers[])() =
+		{
+			&elevated::ExitHandler,
+			&elevated::CreateDirectoryExHandler,
+			&elevated::RemoveDirectoryHandler,
+			&elevated::DeleteFileHandler,
+			&elevated::CopyFileExHandler,
+			&elevated::MoveFileExHandler,
+			&elevated::GetFileAttributesHandler,
+			&elevated::SetFileAttributesHandler,
+			&elevated::CreateHardLinkHandler,
+			&elevated::CreateSymbolicLinkHandler,
+			&elevated::MoveToRecycleBinHandler,
+			&elevated::SetOwnerHandler,
+			&elevated::CreateFileHandler,
+			&elevated::SetEncryptionHandler,
+			&elevated::OpenVirtualDiskHandler,
+		};
+
+		(this->*Handlers[Command])();
+
+		return !Exit;
+	}
+
+public:
+	int Run(const wchar_t* guid, DWORD PID, bool UsePrivileges)
+	{
+		int Result = ERROR_SUCCESS;
+
+		SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+
+		Privilege
+			BackupPrivilege(UsePrivileges?SE_BACKUP_NAME:nullptr),
+			RestorePrivilege(UsePrivileges?SE_RESTORE_NAME:nullptr),
+			TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
+			DebugPrivilege(SE_DEBUG_NAME),
+			CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
+
+		string strPipe(L"\\\\.\\pipe\\");
+		strPipe+=guid;
+		WaitNamedPipe(strPipe.CPtr(), NMPWAIT_WAIT_FOREVER);
+		Pipe = CreateFile(strPipe.CPtr(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+		if (Pipe != INVALID_HANDLE_VALUE)
+		{
+			ULONG ServerProcessId;
+			if(!Global->ifn->GetNamedPipeServerProcessIdPresent() || (Global->ifn->GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+			{
+				HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
+				if(ParentProcess)
+				{
+					string strCurrentProcess, strParentProcess;
+					bool TrustedServer = apiGetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess.CPtr(), strParentProcess.CPtr()));
+					CloseHandle(ParentProcess);
+					if(TrustedServer)
 					{
-						ParentPID = PID;
-						bool Exit = false;
-						int Command = 0;
-						while(!Exit)
+						if(Write(GetCurrentProcessId()))
 						{
-							if(ReadPipe(Pipe, Command))
-							{
-								Exit = Process(Command);
-							}
-							else
-							{
-								if(GetLastError() == ERROR_BROKEN_PIPE)
-								{
-									Exit=true;
-								}
-							}
+							ParentPID = PID;
+							for (int Command; Read(Command) && Process(Command););
 						}
 					}
 				}
 			}
+			CloseHandle(Pipe);
 		}
-		CloseHandle(Pipe);
+		return Result;
 	}
-	return Result;
+};
+
+int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges)
+{
+	return elevated().Run(guid, PID, UsePrivileges);
 }

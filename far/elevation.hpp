@@ -77,6 +77,16 @@ public:
 	bool fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
 
 private:
+	bool Write(const void* Data, size_t DataSize) const;
+	template<typename T>
+	inline bool Read(T& Data) const;
+	template<typename T>
+	inline bool Write(const T& Data) const;
+	bool SendCommand(ELEVATION_COMMAND Command) const;
+	bool ReceiveLastError() const;
+	bool Initialize();
+	bool ElevationApproveDlg(LNGID Why, const string& Object);
+
 	HANDLE Pipe;
 	HANDLE Process;
 	HANDLE Job;
@@ -88,19 +98,9 @@ private:
 	bool Recurse;
 	CriticalSection CS;
 	string strPipeID;
-
-	bool Write(LPCVOID Data, size_t DataSize) const;
-	template<typename T>
-	inline bool Read(T& Data) const;
-	template<typename T>
-	inline bool Write(const T& Data) const;
-	bool SendCommand(ELEVATION_COMMAND Command) const;
-	bool ReceiveLastError() const;
-	bool Initialize();
-	bool ElevationApproveDlg(LNGID Why, const string& Object);
 };
 
 void ElevationApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
-int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges);
+int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges);

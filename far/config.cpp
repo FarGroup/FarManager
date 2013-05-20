@@ -1079,7 +1079,7 @@ const FARConfigItem* Options::farconfig::cend() const {return m_items + m_size;}
 
 FARConfigItem& Options::farconfig::operator[](size_t i) const {return m_items[i];}
 
-void Options::InitCFG()
+void Options::InitRoamingCFG()
 {
 	static FARConfigItem _CFG[] =
 	{
@@ -1425,7 +1425,9 @@ void Options::InitCFG()
 		{FSSF_PRIVATE,       NKeyXLat,L"Table2", &Global->Opt->XLat.Table[1], L""},
 		{FSSF_PRIVATE,       NKeyXLat,L"WordDivForXlat", &Global->Opt->XLat.strWordDivForXlat, WordDivForXlat0},
 	};
-	FARConfig.assign(_CFG, ARRAYSIZE(_CFG));
+	Config[cfg_roaming].first = Global->Db->GeneralCfg().get();
+	Config[cfg_roaming].second.assign(_CFG, ARRAYSIZE(_CFG));
+
 }
 
 void Options::InitLocalCFG()
@@ -1441,12 +1443,14 @@ void Options::InitLocalCFG()
 		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", &Global->Opt->LeftFocus, true},
 
 	};
-	FARLocalConfig.assign(_CFG, ARRAYSIZE(_CFG));
+	Config[cfg_local].first = Global->Db->LocalGeneralCfg().get();
+	Config[cfg_local].second.assign(_CFG, ARRAYSIZE(_CFG));
 }
 
 bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 {
-	return std::any_of(CONST_RANGE(FARConfig, i)->bool
+	// TODO Use local too?
+	return std::any_of(CONST_RANGE(Config[cfg_roaming].second, i)->bool
 	{
 		if (!StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name))
 		{
@@ -1459,7 +1463,8 @@ bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &st
 
 bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data)
 {
-	return Root != FSSF_PRIVATE? std::any_of(CONST_RANGE(FARConfig, i)->bool
+	// TODO Use local too?
+	return Root != FSSF_PRIVATE? std::any_of(CONST_RANGE(Config[cfg_roaming].second, i)->bool
 	{
 		if(Root == i.ApiRoot && !StrCmpI(i.ValName, Name))
 		{
@@ -1473,12 +1478,11 @@ bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionTyp
 
 void Options::InitConfig()
 {
-	if(ConfigList.empty())
+	if(Config.empty())
 	{
-		InitCFG();
+		Config.resize(2);
+		InitRoamingCFG();
 		InitLocalCFG();
-		ConfigList.emplace_back(VALUE_TYPE(ConfigList)(Global->Db->GeneralCfg().get(), &FARConfig));
-		ConfigList.emplace_back(VALUE_TYPE(ConfigList)(Global->Db->LocalGeneralCfg().get(), &FARLocalConfig));
 	}
 }
 
@@ -1498,9 +1502,9 @@ void Options::Load()
 
 	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.CPtr());
 
-	std::for_each(CONST_RANGE(ConfigList, i)
+	std::for_each(CONST_RANGE(Config, i)
 	{
-		std::for_each(RANGE(*i.second, j)
+		std::for_each(RANGE(i.second, j)
 		{
 			j.Value->ReceiveValue(i.first, j.KeyName, j.ValName, &j.Default);
 		});
@@ -1655,9 +1659,9 @@ void Options::Load()
 /* *************************************************** </оняропнжеяяш> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(CONST_RANGE(ConfigList, i)
+	std::for_each(CONST_RANGE(Config, i)
 	{
-		std::for_each(RANGE(*i.second, j)
+		std::for_each(RANGE(i.second, j)
 		{
 			j.Value->MakeUnchanged();
 		});
@@ -1723,10 +1727,10 @@ void Options::Save(bool Ask)
 
 	Palette.Save();
 
-	std::for_each(CONST_RANGE(ConfigList, i)
+	std::for_each(CONST_RANGE(Config, i)
 	{
 		i.first->BeginTransaction();
-		std::for_each(CONST_RANGE(*i.second, j)
+		std::for_each(CONST_RANGE(i.second, j)
 		{
 			j.Value->StoreValue(i.first, j.KeyName, j.ValName);
 		});
@@ -1769,11 +1773,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						string HelpTopic = string(FARConfig[ListInfo.SelectPos].KeyName) + L"." + FARConfig[ListInfo.SelectPos].ValName;
+						string HelpTopic = string(Config[CurrentConfig].second[ListInfo.SelectPos].KeyName) + L"." + Config[CurrentConfig].second[ListInfo.SelectPos].ValName;
 						Help hlp(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						if (hlp.GetError())
 						{
-							HelpTopic = string(FARConfig[ListInfo.SelectPos].KeyName) + L"Settings";
+							HelpTopic = string(Config[CurrentConfig].second[ListInfo.SelectPos].KeyName) + L"Settings";
 							Help hlp1(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
@@ -1831,16 +1835,17 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		break;
 
 	case DN_CLOSE:
-		if (Param1 == 0 || Param1 == 1) // BUGBUG, magic
+		// 0 == "OK", 1 == "Reset"
+		if (Param1 == 0 || Param1 == 1)
 		{
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			if (FARConfig[ListInfo.SelectPos].Edit(Param1 != 0))
+			if (Config[CurrentConfig].second[ListInfo.SelectPos].Edit(Param1 != 0))
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				flu.Item = FARConfig[ListInfo.SelectPos].MakeListItem();
+				flu.Item = Config[CurrentConfig].second[ListInfo.SelectPos].MakeListItem();
 				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
 				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -1856,8 +1861,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool Options::AdvancedConfig()
+bool Options::AdvancedConfig(farconfig_mode Mode)
 {
+	CurrentConfig = Mode;
+
 	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=
 	{
@@ -1865,8 +1872,8 @@ bool Options::AdvancedConfig()
 	};
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
-	std::vector<FarListItem> items(FARConfig.size());
-	std::transform(FARConfig.begin(), FARConfig.end(), items.begin(), [](VALUE_TYPE(FARConfig)& i)->FarListItem
+	std::vector<FarListItem> items(Config[CurrentConfig].second.size());
+	std::transform(Config[CurrentConfig].second.begin(), Config[CurrentConfig].second.end(), items.begin(), [](VALUE_TYPE(Config[CurrentConfig].second)& i)->FarListItem
 	{
 		return i.MakeListItem();
 	});
