@@ -209,8 +209,7 @@
 <?define Guid.HotkeyClipboard.lua = "3C37F61C-B33A-4AC6-8E0F-03AC9844DAF2" ?>
 <?define Guid.HotkeyProperties.lua = "AE1E4AD3-E365-4E0F-B2E6-A771EF858ACC" ?>
 <?define Guid.LICENSE = "7E43A9D1-6F2B-1014-852E-85FD6D179596" ?>
-<?define Guid.README = "7E43AB0E-6F2B-1014-8729-B343AE19FBCD" ?>
-<?define Guid.changelog_20 = "7E43AC20-6F2B-1014-B46E-B30A55AD77E5" ?>
+<?define Guid.README.md_2 = "948645BC-DFF7-4074-BA51-339359E5A423" ?>
 <?define Guid.history.ru.txt = "7E43AD2B-6F2B-1014-812D-E15F8153FF1B" ?>
 <?define Guid.colorer.dll = "7E43AE35-6F2B-1014-92B5-F77CAC441A49" ?>
 <?define Guid.colorere.hlf = "7E43AF38-6F2B-1014-9682-C64E4064F3A9" ?>

@@ -375,7 +375,7 @@
           <ComponentRef Id="colorere.hlf" />
           <ComponentRef Id="colorere.lng" />
           <ComponentRef Id="LICENSE" />
-          <ComponentRef Id="README" />
+          <ComponentRef Id="README.md_2" />
           <ComponentRef Id="hrcsettings.xml" />
           <ComponentRef Id="Plugin.Colorer.lua" />
           <Feature Id="FarColorer.Ignore.base" Level="1" Display="hidden" AllowAdvertise="no">
@@ -477,7 +477,6 @@
           </Feature>
 <?endif?>
           <Feature Id="FarColorer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="changelog_20" />
             <ComponentRef Id="history.ru.txt" />
             <ComponentRef Id="CHANGELOG_21" />
           </Feature>

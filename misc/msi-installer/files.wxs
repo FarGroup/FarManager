@@ -673,11 +673,8 @@
           <Component Id="LICENSE" Guid="$(var.Guid.LICENSE)" Win64="$(var.Win64)">
             <File Id="LICENSE" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\LICENSE" />
           </Component>
-          <Component Id="README" Guid="$(var.Guid.README)" Win64="$(var.Win64)">
-            <File Id="README" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\README" />
-          </Component>
-          <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
-            <File Id="changelog_20" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\changelog" />
+          <Component Id="README.md_2" Guid="$(var.Guid.README.md_2)" Win64="$(var.Win64)">
+            <File Id="README.md_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\README.md" />
           </Component>
           <Component Id="history.ru.txt" Guid="$(var.Guid.history.ru.txt)" Win64="$(var.Win64)">
             <File Id="history.ru.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\history.ru.txt" />

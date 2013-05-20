@@ -2,51 +2,38 @@
 
 function bcolorer {
   BIT=$1
+  PLATFORM=$2
   PLUGIN=FarColorer
 
-  cd farcolorer/ || return 1
-  rm -fR bin
-  cd src || return 1
-  wine cmd /c ../../../colorer.${BIT}.bat &> ../../../logs/colorer${BIT}
-  cd ..
+  pushd build/Release/${PLATFORM} || return 1
 
-  mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}
+  rm -fR CMakeFiles
+  rm *.dll
+  rm *.lib
 
-  cp -f changelog history.ru.txt LICENSE README ../../outfinalnew${BIT}/Plugins/$PLUGIN/
+  wine cmd /c ../../../../colorer.${BIT}.bat &> ../../../../logs/colorer${BIT}
 
-  if [ ! -e bin ]; then
+  if [ ! -e colorer.dll ]; then
     return 1
   fi
 
-  if [ "$BIT" == "64" ]; then
-    cd bin
-    mv colorer_x64.dll colorer.dll
-    mv colorer_x64.map colorer.map
-    cd ..
-  fi
+  mkdir -p ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/bin
 
-  cp -Rf bin ../../outfinalnew${BIT}/Plugins/$PLUGIN/
+  cp -f colorer.dll colorer.map ../../../../outfinalnew${BIT}/Plugins/$PLUGIN/bin
 
-  cd ../schemes || return 1
-  cp -Rf base ../../outfinalnew${BIT}/Plugins/$PLUGIN/
-  cd ..
+  popd
+
+  cp -f docs/history.ru.txt LICENSE README.MD ../outfinalnew${BIT}/Plugins/$PLUGIN/
+  cp -f misc/* ../outfinalnew${BIT}/Plugins/$PLUGIN/bin
+
+  pushd ../Colorer-schemes || return 1
+  cp -Rf base ../outfinalnew${BIT}/Plugins/$PLUGIN/
+  popd
 }
 
-mkdir farcolorer
-cd farcolorer || exit 1
-
-rm -fR farcolorer
-rm -fR colorer
-#rm -fR schemes - will not delete, lots of traffic and slow, will just pull updates
-
-( \
-	svn co http://svn.code.sf.net/p/colorer/svn/trunk/far3colorer farcolorer && \
-	svn co http://svn.code.sf.net/p/colorer/svn/trunk/colorer/src/shared colorer/src/shared && \
-	svn co http://svn.code.sf.net/p/colorer/svn/trunk/colorer/src/zlib colorer/src/zlib && \
-	svn co http://svn.code.sf.net/p/colorer/svn/trunk/schemes schemes \
-) || exit 1
-
-cd schemes || exit 1
+#git clone must already exist
+cd Colorer-schemes || exit 1
+git pull || exit 1
 
 chmod +x ./build.sh
 
@@ -54,13 +41,19 @@ chmod +x ./build.sh
 PATH=~/apache-ant-1.8.4/bin:$PATH
 export PATH
 ./build.sh farbase.clean
-./build.sh farbase &> ../../logs/colorerschemes || exit 1
+./build.sh farbase &> ../logs/colorerschemes || exit 1
 
 cd ..
 
+#git clone must already exist
+#all build dirs with cmake cache files must also exist as cmake gets stuck under wine on first run without cache files
+cd FarColorer || exit 1
+git pull || exit 1
+git submodule update || exit 1
+
 ( \
-	bcolorer 32 && \
-	bcolorer 64 \
+	bcolorer 32 x86 && \
+	bcolorer 64 x64 \
 ) || exit 1
 
 cd ..
