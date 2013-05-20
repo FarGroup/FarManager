@@ -1655,9 +1655,12 @@ void Options::Load()
 /* *************************************************** </оняропнжеяяш> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(RANGE(FARConfig, i)
+	std::for_each(CONST_RANGE(ConfigList, i)
 	{
-		i.Value->MakeUnchanged();
+		std::for_each(RANGE(*i.second, j)
+		{
+			j.Value->MakeUnchanged();
+		});
 	});
 }
 
