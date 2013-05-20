@@ -250,7 +250,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3571243236
+mtime=3578208571
 <article>
 #_**Свойства:** нет.
 #_
@@ -277,18 +277,48 @@ mtime=3571243236
 #_  flock            string
 #_  fmatch           strpad
 #_  fsplit           strwrap
-#_  iif              substr
-#_  index            testfolder
-#_  int              trim
-#_  itoa             ucase
-#_  key              usermenu
-#_  Keys             waitkey
-#_  lcase            xlat
+#_  GetMacroCopy     substr
+#_  iif              testfolder
+#_  index            trim
+#_  int              ucase
+#_  itoa             usermenu
+#_  key              waitkey
+#_  Keys             xlat
+#_  lcase
 #_
 #_@@@
 #_<lua> Links = {
 #_  mload="13.html", msave="12.html", mdelete="15.html", usermenu="69.html",
+#_  GetMacroCopy="72.html",
 #_} </lua>
+#_
+</article>
+</node>
+<node>
+id=72
+lv=3
+dt=Text
+nm=GetMacroCopy
+ctime=3578176338
+mtime=3578179212
+<article>
+#_macro = mf.GetMacroCopy (index)
+#_
+#_**Параметры:**
+#_  index:  integer
+#_
+#_**Возвращает:**
+#_  macro:  table или nil
+#_
+#_**Описание:**
+#_  Функция *GetMacroCopy* возвращает копию таблицы загруженного макроса или обработчика
+#_  события по его индексу во внутреннем  массиве (начиная от 1). Если индекс превышает
+#_  размер массива, возвращается nil - таким образом можно определить конец массива.
+#_
+#_**Примечания:**
+#_  * Неактивные (выгруженные или удалённые) элементы имеют поле "disabled" == true.
+#_  * Отличить таблицу макроса от таблицы события можно по полю "area" типа string,
+#_    которое присутствует только у макросов.
 #_
 </article>
 </node>

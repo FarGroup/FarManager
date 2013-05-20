@@ -37,7 +37,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     maxKeyLen = 0
   end
   for k=1,math.huge do
-    local m = mf.GetMacroCopy(k)
+    local m = utils.GetMacroCopy(k)
     if not m then break end
     if m.area then
       if not m.disabled then
@@ -135,7 +135,7 @@ local function MenuLoop()
   local props = {
     Title = Title,
     Flags = {FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
-    MaxHeight = farRect.Bottom - farRect.Top - 5,
+    MaxHeight = farRect.Bottom - farRect.Top - 6,
   }
 
   local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"}, }

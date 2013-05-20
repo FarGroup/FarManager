@@ -681,6 +681,7 @@ local function GetMacroCopy (id)
     for k,v in pairs(LoadedMacros[id]) do t[k]=v end
     return t
   end
+  return nil
 end
 
 InitMacroSystem()

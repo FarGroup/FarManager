@@ -120,6 +120,14 @@ local function postprocess_article (part1, part2, preformat)
   return preformat and "\n<pre>"..part1.."</pre>\n" or part1
 end
 
+-- For long subjects, this function is _much_ faster than subj:match("(.-)delim(.*)")
+local function split1 (subj, delim)
+  local from,to = subj:find(delim)
+  if from then return subj:sub(1,from-1), subj:sub(to+1)
+  else return subj, nil
+  end
+end
+
 -- By default, this program assumes that each article of the input Treepad
 -- file is in plain text format.
 -- But if a user wants to keep some articles already in HTML format, he/she
@@ -133,8 +141,7 @@ local function process_article (article)
     return article, true
   elseif line == "<markdown>" then
     article = article:sub(start)
-    local part1, part2 = article:match("(.-)@@@(.*)")
-    part1 = part1 or article
+    local part1, part2 = split1(article, "@@@")
     part1 = part1:gsub("```(.-)```",
       function(c)
         return lxsh.highlighters.lua(c,
@@ -146,14 +153,14 @@ local function process_article (article)
     part1 = discount(part1)
     return postprocess_article(part1, part2, false), false
   else
-    local part1, part2 = article:match("(.-)@@@(.*)")
+    local part1, part2 = split1(article, "@@@")
     part1 = HTML_convert(part1 or article)
     part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* | \`(.*?)\` ]],
       function(c1,c2,c3)
         return c1 and "<strong>" ..c1.. "</strong>" or -- make bold
                c2 and "<em>"     ..c2.. "</em>"     or -- make italic
                c3 and "<code>"   ..c3.. "</code>"      -- make code
-      end, nil, "x")    
+      end, nil, "x")
     return postprocess_article(part1, part2, true), false
   end
 end
