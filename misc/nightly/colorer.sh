@@ -8,6 +8,7 @@ function bcolorer {
   pushd build/Release/${PLATFORM} || return 1
 
   rm -fR CMakeFiles
+  rm -fR build
   rm *.dll
   rm *.lib
 
