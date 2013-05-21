@@ -1716,7 +1716,7 @@ int LF_Message(lua_State *L,
 		}
 		else if(pos-start < max_len)            // characters inside the line
 		{
-			if (!isalnum(*pos) && *pos != L'_')
+			if (!isalnum(*pos) && *pos != L'_' && *pos != L'\'' && *pos != L'\"')
 				lastDelim = pos;
 
 			pos++;
