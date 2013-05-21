@@ -88,10 +88,10 @@ static void show_help()
 		L" /ma  Do not execute auto run macros.\n"
 		L" /p[<path>]\n"
 		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-		L" /s <path> [<localpath>]\n"
+		L" /s <profilepath> [<localprofilepath>]\n"
 		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
 		L" /t <path>\n"
-		L"      Location for Far template configuration - overrides Far.exe.ini.\n"
+		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
 #ifndef NO_WRAPPER
 		L" /u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"

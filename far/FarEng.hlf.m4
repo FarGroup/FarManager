@@ -111,8 +111,8 @@ displayed. In such case #cursor keys# can be used to scroll text.
 
     Press #Shift-F2# for ~plugins~@Plugins@ help.
 
-    Нажмите #F7#, чтобы найти подстроку в текущем файле помощи. Результаты
-поиска будут выведены в виде ссылок на темы.
+    Press #F7# to search for text in the current help file. Search results
+will be displayed as links to relevant topics.
 
     #Help# is shown by default in a reduced windows, you can maximize it by
 pressing #F5# "#Zoom#", pressing #F5# again will restore the window to the
@@ -210,7 +210,7 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
   #/ma#
   Macros with the "Run after Far start" option set will not be run when Far is started.
 
-  #/s <path> [<localpath>]#
+  #/s <profilepath> [<localprofilepath>]#
   Custom location for Far configuration files - overrides Far.exe.ini.
 
   #/u <username>#
@@ -233,35 +233,23 @@ in the input stream until you press Ctrl-Break.
   Stretch to console window instead of console buffer or vise versa.
 
   #/t templateprofile#
-  Задаёт файл в котором располагаются умолчательные настройки, которые применяются,
-если какой-либо из конфигурационных файлов не существует. Параметр templateprofile
-перекрывает значение TemplateProfile из Far.exe.ini.
+  Location of Far template configuration file - overrides Far.exe.ini.
 
   #/clearcache [profilepath [localprofilepath]]#
-  Очистить кэш плагинов и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
-Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
-Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
+  Clear plugins cache.
 
   #/export <out.farconfig> [profilepath [localprofilepath]]#
-  Экспортировать все настройки в файл out.farconfig и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
-Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+  Export settings to file out.farconfig.
 
   #/import <in.farconfig> [profilepath [localprofilepath]]#
-  Импортировать все настройки из файла in.farconfig и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
-Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
-Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
+  Import settings from file in.farconfig.
 
   #/ro#
-  Работа без сохранения изменений в базах настроек. Этот режим позволяет работать
-с настройками доступными только для чтения, в том числе на защищенных от записи носителях.
-Опция перекрывает значение ReadOnlyConfig из Far.exe.ini.
+  Let's you work without writing any changes to Far configuration.
+Overrides Far.exe.ini.
 
   #/rw#
-  Нормальный (Read-Write) режим работы с БД настроек.
-Опция перекрывает значение ReadOnlyConfig из Far.exe.ini.
+  Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
 
   It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the
@@ -432,9 +420,9 @@ active panel. The following sort modes are available:
   Sort files by description                                 #Ctrl-F10#
   Sort files by file owner                                  #Ctrl-F11#
 
-  Клавиша #+# устанавливает прямую сортировку.
-  Клавиша #-# устанавливает обратную сортировку.
-  Клавиша #*# меняет сортировку на обратную.
+  The #+# key sets the sorting order to be direct.
+  The #-# key sets the sorting order to be reversed.
+  The #*# key changes the sorting order to be reversed.
 
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
@@ -964,7 +952,7 @@ the corresponding plugin is written for Far 1.7x and it does not support all
 possibilities available in Far 2 (these are, in particular, Unicode characters
 in filenames and in editor).
 
-    Клавиша #F3# позволяет посмотреть техническую информацию по плагину.
+    Pressing #F3# will show some technical information about the plugin.
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -1487,10 +1475,7 @@ $ #Menus: options menu#
 
    #AutoComplete settings# Shows ~auto complete settings~@AutoCompleteSettings@.
    
-   #Настройки#            Вызывает диалог 
-   #информационной#       ~настроек информационной панели~@VMenuSettings@.
-   #панели#
-
+   #InfoPanel settings#    Shows ~info panel settings~@InfoPanelSettings@.
 
    #Languages#             Select main and help language.
                          Use "Save setup" to save selected languages.
@@ -4717,10 +4702,6 @@ by pressing a single hotkey.
     - additional ~settings~@KeyMacroSetting@, that influence the method and
       the area of execution of the recorded sequence.
 
-    Macro commands may contain special ~commands~@KeyMacroLang@, that will be
-interpreted in a special way upon execution, those allowing to create complex
-constructions.
-
     Macro commands are mostly used for:
 
     1. Performing repetitive task unlimited number of times by
@@ -4740,7 +4721,7 @@ external plugins and for overloading Far actions.
     ~Recording and playing-back macro commands~@KeyMacroRecPlay@
     ~Deleting a macro command~@KeyMacroDelete@
     ~Macro command settings~@KeyMacroSetting@
-    ~Commands, used inside the text of a macro command~@KeyMacroLang@
+    ~Установленные макросы~@KeyMacroList@
 
 
 @KeyMacroArea
@@ -4952,29 +4933,6 @@ checked.
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.
 
-
-@KeyMacroLang
-$ #Macro command: macro language#
-    A primitive macro language is implemented in Far Manager. It allows to
-insert logical commands into a simple keystrokes sequence, making macros (along
-with ~plugins~@Plugins@) a powerful facility assisting in the everyday use of
-Far Manager.
-
-    Several of the available commands are listed below:
-    #$Exit#         - stop macro playback
-    #$Text#         - arbitrary text insertion
-    #$XLat#         - transliteration function
-    #$If-$Else#     - condition operator
-    #$While#        - conditioned loop operator
-    #$Rep#          - loop operator
-    #%var#          - using variables
-     and others...
-
-    Addition of macro language commands to a ~macro~@KeyMacro@ can only be done
-by manually editing the registry or by using special tools/plugins.
-
-    Description of the macro language can be found in the accompanying
-documentation.
 
 @KeyMacroList
 $ #Макросы: Список установленных макросов#

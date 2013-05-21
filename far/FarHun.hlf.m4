@@ -3803,10 +3803,6 @@ billentyűszekvencia végrehajtását;
     - további ~beállítási~@KeyMacroSetting@ lehetősége, amelyekkel
 befolyásolhatjuk a végrehajtás módját és hatókörét.
 
-    A makrók olyan különleges ~utasításokat~@KeyMacroLang@ is tartalmazhatnak,
-amelyeket végrehajtásuk során a FAR speciális módon értelmez, így bonyolultabb
-konstrukciókat is összeállíthatunk.
-
     A makrók általában a következő célokra praktikusak:
 
     1. ^<wrap>Ismétlődő feladatok ellátására a gyorsbillentyű korlátlan
@@ -3826,7 +3822,6 @@ külső pluginek meghívásához, illetve a FAR műveleteinek újradefiniálása
     ~Makrók rögzítése és visszajátszása~@KeyMacroRecPlay@
     ~Makrók törlése~@KeyMacroDelete@
     ~A makrók beállításai~@KeyMacroSetting@
-    ~A makrók szövegében használható utasítások~@KeyMacroLang@
 
 
 @KeyMacroArea
@@ -4020,33 +4015,6 @@ valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval
 együtt nem vihetünk be közvetlenül gyorsbillentyűként, a párbeszédablakban
 betöltött speciális szerepük miatt. Ezeket a billentyűkombinációkat
 legördülő listából választhatjuk ki és rendelhetjük makrókhoz.
-
-
-@KeyMacroLang
-$ #Makrók: makrónyelv#
-    A FAR Managerbe alapszintű makrónyelv van beépítve, amellyel logikai
-utasításokat illeszthetünk az egyszerű billentyűszekvenciák közé, ez teszi
-a makrórögzítést a ~pluginek~@Plugins@ lehetőségei mellett a FAR Managerrel
-végzett mindennapi munka hatékony segédeszközévé.
-
-      Néhány utasítás, felsorolásszerűen:
-
-    #$Exit#         - leállítja a makró lejátszását
-    #$Text#         - tetszőleges szöveg beszúrása
-    #$XLat#         - transzliteráló funkció
-    #$If-$Else#     - feltétel operátor
-    #$While#        - feltételciklus operátor
-    #$Rep#          - ciklus operátor
-    #%var#          - változók használata
-
-      és így tovább...
-
-    Makrónyelvi utasításokat csak a Windows regisztrációs adatbázisának
-szerkesztésével (HKEY_CURRENT_USER\\Software\\Far2\\KeyMacros) vagy az
-erre a célra kifejlesztett segédprogramokkal és pluginekkel adhatunk a
-~makrókhoz~@KeyMacro@.
-
-    A makrónyelv leírása megtalálható a kísérő dokumentációban.
 
 
 @KeyMacroEditList
