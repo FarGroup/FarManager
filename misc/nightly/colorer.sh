@@ -5,12 +5,9 @@ function bcolorer {
   PLATFORM=$2
   PLUGIN=FarColorer
 
-  pushd build/Release/${PLATFORM} || return 1
+  mkdir -p build/Release/${PLATFORM} || return 1
 
-  rm -fR CMakeFiles
-  rm -fR build
-  rm *.dll
-  rm *.lib
+  pushd build/Release/${PLATFORM} || return 1
 
   wine cmd /c ../../../../colorer.${BIT}.bat &> ../../../../logs/colorer${BIT}
 
@@ -47,8 +44,8 @@ export PATH
 cd ..
 
 #git clone must already exist
-#all build dirs with cmake cache files must also exist as cmake gets stuck under wine on first run without cache files
 cd FarColorer || exit 1
+rm -fR build
 git pull || exit 1
 git submodule update || exit 1
 
