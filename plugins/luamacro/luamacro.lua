@@ -278,5 +278,6 @@ do
   end
 
   AddCfindFunction()
-  package.path = win.GetEnv("farprofile").."\\Macros\\modules\\?.lua;"..package.path
+  local modules = win.GetEnv("farprofile").."\\Macros\\modules"
+  package.path = ("%s\\?.lua;%s\\?\\init.lua;%s"):format(modules,modules,package.path)
 end
