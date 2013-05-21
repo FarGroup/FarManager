@@ -64,7 +64,6 @@ BOOTSTRAP=bootstrap/
 mkdir -p bootstrap
 dos2unix PluginW.pas
 dos2unix FarColorW.pas
-dos2unix FarKeysW.pas 
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
 
