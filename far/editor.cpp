@@ -3930,8 +3930,13 @@ BOOL Editor::Search(int Next)
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
 							ChangeBlockColor(CurX,CurY, endX,CurY, ColorIndexToColor(COL_EDITORSELECTEDTEXT));
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
-							InsertQuote(strQSearchStr);
-							InsertQuote(strQReplaceStr);
+
+							// do not use InsertQuote, AI is not suitable here
+							strQSearchStr.Insert(0, L'"');
+							strQSearchStr.Append(L'"');
+							strQReplaceStr.Insert(0, L'"');
+							strQReplaceStr.Append(L'"');
+							
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
 							{
