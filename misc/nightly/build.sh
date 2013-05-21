@@ -17,3 +17,6 @@ wine c:/VC10/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
 ./docs.sh &> logs/docs && \
 
 ./publish.sh &> logs/publish
+
+#kill mspdbsrv.exe as it is no longer needed
+kill `pidof mspdbsrv.exe`
