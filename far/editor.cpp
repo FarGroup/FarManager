@@ -3783,7 +3783,7 @@ BOOL Editor::Search(int Next)
 
 		string strSlash(strSearchStr);
 		InsertRegexpQuote(strSlash);
-		RegExpMatch m[10*2], *pm = m;
+		array_ptr<RegExpMatch> m;
 		RegExp re;
 
 		if (Regexp)
@@ -3792,13 +3792,7 @@ BOOL Editor::Search(int Next)
 			if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 				return FALSE; //BUGBUG
 
-			intptr_t n = re.GetBracketsCount();
-			if (n > static_cast<int>(ARRAYSIZE(m)/2))
-			{
-				pm = new RegExpMatch[n * 2];
-				if (!pm)
-					return FALSE; //BUGBUG
-			}
+			m.reset(re.GetBracketsCount() * 2);
 		}
 
 		string strSearchStrUpper = strSearchStr;
@@ -3845,7 +3839,7 @@ BOOL Editor::Search(int Next)
 			int SearchLength=0;
 			string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
 
-			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,pm,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
+			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.get(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
 				Match=1;
 				Edit *FoundPtr = CurPtr;
@@ -3936,7 +3930,7 @@ BOOL Editor::Search(int Next)
 							strQSearchStr.Append(L'"');
 							strQReplaceStr.Insert(0, L'"');
 							strQReplaceStr.Append(L'"');
-							
+
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
 							{
@@ -4128,8 +4122,6 @@ BOOL Editor::Search(int Next)
 				}
 			}
 		}
-		if (pm != m)
-			delete[] pm;
 	}
 	Show();
 

@@ -1827,7 +1827,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 	string strSlash(strLastSearchStr);
 	InsertRegexpQuote(strSlash);
-	RegExpMatch m[10*2], *pm = m;
+	array_ptr<RegExpMatch> m;
 	RegExp re;
 
 	if (LastSearchRegexp)
@@ -1836,13 +1836,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 		if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
 			return; //BUGBUG
 
-		intptr_t n = re.GetBracketsCount();
-		if (n > static_cast<int>(ARRAYSIZE(m)/2))
-		{
-			pm = new RegExpMatch[n * 2];
-			if (!pm)
-				return; //BUGBUG
-		}
+		m.reset(re.GetBracketsCount() * 2);
 	}
 
 	string strSearchStrUpper = strLastSearchStr;
@@ -1888,7 +1882,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr.CPtr(),(int)strReadStr.GetLength(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,pm,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
+			bool Result=SearchString(strReadStr.CPtr(),(int)strReadStr.GetLength(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,m.get(),ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
 
 			if (Result)
 			{
@@ -1901,9 +1895,6 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			}
 		}
 	}
-
-	if (pm != m)
-		delete[] pm;
 
 	AddLine(L"");
 	MoveToReference(1,1);

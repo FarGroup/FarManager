@@ -1796,11 +1796,6 @@ int RegExp::InnerMatch(const wchar_t* str,const wchar_t* strend,RegExpMatch* mat
 	StateStackItem *ps;
 	errorcode=errNone;
 
-	/*for(i=0;i<matchcount;i++)
-	{
-	  match[i].start=-1;
-	  match[i].end=-1;
-	}*/
 	if (bracketscount<matchcount)matchcount=bracketscount;
 
 	memset(match,-1,sizeof(*match)*matchcount);

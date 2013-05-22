@@ -514,7 +514,7 @@ void Viewer::ShowPage(int nMode)
 			Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 			{
 				Strings.clear();
-				
+
 				for (int Y = Y1; Y<=Y2; ++Y)
 				{
 					Strings.emplace_back(VALUE_TYPE(Strings)());
@@ -2743,16 +2743,20 @@ struct Viewer::search_data
 	bool is_utf8;
 	bool first_Rex;
 	RegExp *pRex;
+	int RexMatchCount;
+	array_ptr<RegExpMatch> RexMatch;
 
-	search_data()
+	search_data() : CurPos(-1),
+					MatchPos(-1),
+					search_bytes(nullptr),
+					search_text(nullptr),
+					search_len(0),
+					ch_size(0),
+					is_utf8(false),
+					first_Rex(true),
+					pRex(nullptr),
+					RexMatchCount(0)
 	{
-		CurPos = MatchPos = -1;
-		search_bytes = nullptr;
-		search_text  = nullptr;
-		search_len = ch_size = 0;
-		is_utf8 = false;
-		first_Rex = true;
-		pRex = nullptr;
 	}
 
 	~search_data()
@@ -3077,8 +3081,8 @@ int Viewer::search_regex_forward( search_data* sd )
 		if ( off > nw )
 			break;
 
-		RegExpMatch m[1];
-		intptr_t n = static_cast<int>(ARRAYSIZE(m));
+		intptr_t n = sd->RexMatchCount;
+		RegExpMatch *m = sd->RexMatch.get();
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )  // doesn't match
 			break;
 
@@ -3133,8 +3137,8 @@ int Viewer::search_regex_backward( search_data* sd )
 		if ( lsize <= 0 || off > nw )
 			break;
 
-		RegExpMatch m[1];
-		intptr_t n = ARRAYSIZE(m);
+		intptr_t n = sd->RexMatchCount;
+		RegExpMatch *m = sd->RexMatch.get();
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )
 			break;
 
@@ -3319,6 +3323,8 @@ void Viewer::Search(int Next,int FirstChar)
 			InsertRegexpQuote(strSlash);
 			if ( !sd.pRex->Compile(strSlash.CPtr(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
 				return; // wrong regular expression...
+			sd.RexMatchCount = sd.pRex->GetBracketsCount();
+			sd.RexMatch.reset(sd.RexMatchCount);
 		}
 		else
 		{
