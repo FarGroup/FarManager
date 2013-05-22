@@ -1192,6 +1192,31 @@ mtime=3559414983
 </article>
 </node>
 <node>
+id=73
+lv=2
+dt=Text
+nm=package.nounload
+ctime=3578403115
+mtime=3578408569
+<article>
+#_<markdown>
+#_
+#_`package.nounload` - это таблица, ключи которой являются именами модулей, не удаляемых из `package.loaded` при выгрузке или перезагрузке макросов (операции `MCTL_LOADALL`, `lm:load`, `lm:unload`).
+#_
+#_* Таблица создаётся автоматически плагином LuaMacro.
+#_* Обычно в эту таблицу заносятся имена модулей, использующих LuaJIT FFI и вызывающих `ffi.cdef`.
+#_
+#_Например, если исполнить
+#_
+#_        package.nounload.mylib = true
+#_
+#_то модуль `mylib` не будет удалён их `package.loaded` при операциях выгрузки или перезагрузки 
+#_макросов.
+#_
+#_
+</article>
+</node>
+<node>
 id=29
 lv=1
 dt=Text

@@ -47,6 +47,7 @@ local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
+package.nounload = {}
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
@@ -347,7 +348,9 @@ local function LoadMacros (allAreas, unload)
   for _,name in ipairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
-    if initial_modules[k]==nil then package.loaded[k]=nil end
+    if initial_modules[k]==nil and not package.nounload[k] then
+      package.loaded[k]=nil
+    end
   end
 
   -- Copy macros loaded by MCTL_ADDMACRO to save them from destruction.
