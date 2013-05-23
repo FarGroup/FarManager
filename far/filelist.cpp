@@ -1859,10 +1859,9 @@ int FileList::ProcessKey(int Key)
 
 			if (!ListData.empty() && SetCurPath())
 			{
-				size_t OldFileCount=ListData.size();
-				int OldCurFile=CurFile;
 				assert(CurFile < static_cast<int>(ListData.size()));
-				int OldSelection=ListData[CurFile]->Selected;
+				string name = ListData[CurFile]->strName;
+				char selected = ListData[CurFile]->Selected;
 
 				int RealName=PanelMode!=PLUGIN_PANEL;
 				ReturnCurrentFile=TRUE;
@@ -1886,12 +1885,14 @@ int FileList::ProcessKey(int Key)
 
 				ReturnCurrentFile=FALSE;
 
-				assert(CurFile < static_cast<int>(ListData.size()));
-				if (Key!=KEY_SHIFTF5 && ListData.size() == OldFileCount &&
-				        CurFile==OldCurFile && OldSelection!=ListData[CurFile]->Selected)
+				if (ListData.size() > 0)
 				{
-					Select(ListData[CurFile],OldSelection);
-					Redraw();
+					assert(CurFile < static_cast<int>(ListData.size()));
+					if (Key != KEY_SHIFTF5 && name.EqualNoCase(ListData[CurFile]->strName) && selected > ListData[CurFile]->Selected)
+					{
+						Select(ListData[CurFile], selected);
+						Redraw();
+					}
 				}
 			}
 
