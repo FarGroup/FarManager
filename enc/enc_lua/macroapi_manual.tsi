@@ -1065,7 +1065,7 @@ lv=2
 dt=Text
 nm=Макросы, начинающиеся с @
 ctime=3551901528
-mtime=3564805731
+mtime=3578456909
 <article>
 #_<markdown>
 #_Если макропоследовательность начинается с символа `@`, то последующая её часть интерпретируется как имя файла, содержащего скрипт.
@@ -1074,7 +1074,11 @@ mtime=3564805731
 #_
 #_Такие макросы легче отлаживать и модифицировать, так как не требуется их перезагрузка.
 #_
-#_**Пример:** `@%FARHOME%\macros\editor\shift.lua`
+#_**Пример 1:** `lm:post @%FARHOME%\test\test.lua`
+#_
+#_**Пример 2:** [запуск скрипта из редактора][example].
+#_
+#_[example]: 74.html
 #_
 </article>
 </node>
@@ -1331,19 +1335,48 @@ lv=2
 dt=Text
 nm=Cоздание папки с именем = текущей дате
 ctime=3553206604
-mtime=3568784291
+mtime=3578456092
 <article>
 #_<markdown>
 #_```
 #_Macro {
 #_  description="создание папки с именем = текущей дате";
-#_  area="Shell"; key="CtrlShiftF7"; flags="DisableOutput|NoPluginPanels";
+#_  area="Shell"; key="CtrlShiftF7"; flags="NoPluginPanels";
 #_  action=function()
 #_    folder = mf.date("%d.%m0.%Y")
 #_    if Panel.FExist(0,folder)==0 then
 #_      Keys"F7 CtrlY"
 #_      print(folder)
 #_      Keys"Enter"
+#_    end
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=74
+lv=2
+dt=Text
+nm=Запуск скрипта из редактора
+ctime=3578455778
+mtime=3578456003
+<article>
+#_<markdown>
+#_```
+#_-- Данный макрос сначала сохраняет содержимое редактора (если оно не было сохранено),
+#_-- затем исполняет редактируемый файл как Lua-скрипт.
+#_Macro {
+#_  description="Save and run script from editor";
+#_  area="Editor"; key="CtrlF10";
+#_  action=function()
+#_    for k=1,2 do
+#_      local info=editor.GetInfo()
+#_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
+#_        far.MacroPost("@"..info.FileName); break
+#_      end
+#_      if k==1 then editor.SaveFile(); end
 #_    end
 #_  end;
 #_}

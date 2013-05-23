@@ -392,7 +392,7 @@ local function LoadMacros (allAreas, unload)
           if k==1 then setmetatable(env,gmeta) end
           setfenv(f, env)
           AddMacro_filename = FullPath
-          local ok, msg = pcall(f)
+          local ok, msg = pcall(f, FullPath)
           if ok then
             if k==1 then
               env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
