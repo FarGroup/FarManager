@@ -481,6 +481,7 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 				StorageDependencyInfo.reset(Used);
 				if(StorageDependencyInfo)
 				{
+					StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
 					Result = Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Used, StorageDependencyInfo.get(), &Used);
 				}
 			}
