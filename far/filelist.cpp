@@ -1885,7 +1885,7 @@ int FileList::ProcessKey(int Key)
 
 				ReturnCurrentFile=FALSE;
 
-				if (ListData.size() > 0)
+				if (!ListData.empty())
 				{
 					assert(CurFile < static_cast<int>(ListData.size()));
 					if (Key != KEY_SHIFTF5 && name.EqualNoCase(ListData[CurFile]->strName) && selected > ListData[CurFile]->Selected)
