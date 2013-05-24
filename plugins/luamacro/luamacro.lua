@@ -145,8 +145,9 @@ local function MacroStep (handle, ...)
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else
-        local msg = debug.traceback(macro.coro, ret1):gsub("\n\t","\n   ")
-        ErrMsg(msg)
+        ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
+        ret1 = debug.traceback(macro.coro, ret1):gsub("\n\t","\n   ")
+        ErrMsg(ret1)
         RunningMacros[handle] = false
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage

@@ -1803,7 +1803,7 @@ void LF_Error(lua_State *L, const wchar_t* aMsg)
 	lua_pushlstring(L, (const char*)aMsg, wcslen(aMsg)*sizeof(wchar_t));
 	lua_pushlstring(L, "\0\0", 2);
 	lua_concat(L, 4);
-	LF_Message(L, (const wchar_t*)lua_tostring(L,-1), L"Error", L"OK", "w", NULL, NULL);
+	LF_Message(L, (const wchar_t*)lua_tostring(L,-1), L"Error", L"OK", "wl", NULL, NULL);
 	lua_pop(L, 1);
 }
 
