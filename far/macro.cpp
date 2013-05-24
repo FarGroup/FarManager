@@ -593,7 +593,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	MacroRecord* macro = GetCurMacro();
 
 	if (macro)
-		Global->ScrBuf->SetLockCount(0);
+		Global->ScrBuf->ResetLockCount();
 
 	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
 	{
