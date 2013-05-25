@@ -43,7 +43,6 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
-	HMODULE hNetApi = GetModuleHandle(L"netapi32.dll");
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
 
@@ -86,11 +85,6 @@ ImportedFunctions::ImportedFunctions()
 	if (hShell)
 	{
 		InitImport(hShell, SHCreateAssociationRegistration);
-	}
-
-	if (hNetApi)
-	{
-		InitImport(hNetApi, NetDfsGetInfo);
 	}
 
 	if (hVirtDisk)
@@ -593,17 +587,5 @@ DWORD ImportedFunctions::RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded
 	else
 	{
 		return ERROR_CALL_NOT_IMPLEMENTED;
-	}
-}
-
-NET_API_STATUS ImportedFunctions::NetDfsGetInfo(LPWSTR path, LPWSTR reserved1, LPWSTR reserved2, DWORD level, LPBYTE *buff) const
-{
-	if (pfnNetDfsGetInfo)
-	{
-		return pfnNetDfsGetInfo(path, reserved1, reserved2, level, buff);
-	}
-	else
-	{
-		return NERR_InvalidAPI;
 	}
 }

@@ -909,7 +909,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								path += L"\\" + strSelName;
 								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.CPtr(), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								NET_API_STATUS ns = NetDfsGetInfo((LPWSTR)path.CPtr(), nullptr, nullptr, 3, (LPBYTE *)&pData);
 								if (NERR_Success == ns)
 								{
 									KnownReparsePoint = true;

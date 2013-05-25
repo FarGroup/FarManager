@@ -101,9 +101,6 @@ public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(HPOWERNOTIFY, WINAPI, RegisterPowerSettingNotification, (HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, UnregisterPowerSettingNotification, (HPOWERNOTIFY Handle));
 
-	// netapi32
-	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, (LPWSTR path, LPWSTR reserved_serv, LPWSTR reserved_share, DWORD level, LPBYTE *buff));
-
 	// rstrtmgr
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmStartSession, (DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]));
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmEndSession, (DWORD dwSessionHandle));
