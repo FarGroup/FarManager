@@ -3828,7 +3828,7 @@ id=31
 lv=2
 dt=Text
 nm=editor.GetString
-mtime=3572709054
+mtime=3578687911
 <article>
 #_**Note:**
 #_--This function is an extension over its prototype in Far API.
@@ -3836,15 +3836,15 @@ mtime=3572709054
 #_
 #_LineInfo = editor.GetString (EditorId, StringNumber, Mode)
 #_    or
-#_StringText, StringEOL = editor.GetString (EditorId, StringNumber, 2)
+#_StringText, StringEOL = editor.GetString (EditorId, StringNumber, Mode)
 #_
 #_**Parameters:**
 #_  EditorId:     integer (default=-1)
 #_  StringNumber: integer, 1-based (default=0)
-#_  Mode:         integer (0=normal; 1=fast; 2=fastest; default=0)
+#_  Mode:         integer (0,1,2,3)
 #_
 #_**Returns:**
-#_  LineInfo: table (mode<2), or 2 strings (mode==2), or nil
+#_  LineInfo: table (Mode<2), or 2 strings (Mode>=2), or nil
 #_    fields of LineInfo:
 #_      StringNumber: integer, 1-based
 #_      StringText:   string
@@ -3853,9 +3853,15 @@ mtime=3572709054
 #_      SelStart:     integer, 1-based
 #_      SelEnd:       integer, 0-based
 #_
-#_**Note:**
-#_  Modes 1 ("fast") and 2 ("fastest") have a side effect: the
-#_  current line position in the Editor is set to *StringNumber*.
+#_**Description:**
+#_  The function's behavior depends on its *Mode* argument:
+#_  Mode:  0 = returns: table LineInfo;        changes current position: no
+#_         1 = returns: table LineInfo;        changes current position: yes
+#_         2 = returns: StringText,StringEOL;  changes current position: yes
+#_         3 = returns: StringText,StringEOL;  changes current position: no
+#_
+#_  Modes 1 and 2 have a side effect: the current line position in the Editor
+#_  is set to *StringNumber*.
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_GETINFO, ECTL_SETPOSITION, ECTL_GETSTRING

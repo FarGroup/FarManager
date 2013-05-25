@@ -589,33 +589,38 @@ static BOOL FastGetString(intptr_t EditorId, intptr_t string_num,
 	return Info->EditorControl(EditorId, ECTL_GETSTRING, 0, egs) != 0;
 }
 
-// LineInfo = EditorGetString (EditorId, line_num, [mode])
-//   line_num:  number of line in the Editor, 0-based; a number
-//   mode:      0 = normal;
-//              1 = much faster, but changes current position;
-//              2 = the fastest: as 1 but returns StringText only;
-//   LineInfo:  a table
+// EditorGetString (EditorId, line_num, [mode])
+//
+//   line_num:  number of line in the Editor, a 1-based integer.
+//
+//   mode:      0 = returns: table LineInfo;        changes current position: no
+//              1 = returns: table LineInfo;        changes current position: yes
+//              2 = returns: StringText,StringEOL;  changes current position: yes
+//              3 = returns: StringText,StringEOL;  changes current position: no
+//
+//   return:    either table LineInfo or StringText,StringEOL - depending on `mode` argument.
+//
 static int _EditorGetString(lua_State *L, int is_wide)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t line_num = luaL_optinteger(L, 2, 0) - 1;
 	intptr_t mode = luaL_optinteger(L, 3, 0);
-	BOOL res;
+	BOOL res = 0;
 	struct EditorGetString egs;
 	egs.StructSize = sizeof(egs);
 
-	if(mode == 0)
+	if(mode == 0 || mode == 3)
 	{
 		egs.StringNumber = line_num;
 		res = Info->EditorControl(EditorId, ECTL_GETSTRING, 0, &egs) != 0;
 	}
-	else
+	else if(mode == 1 || mode == 2)
 		res = FastGetString(EditorId, line_num, &egs, Info);
 
 	if(res)
 	{
-		if(mode == 2)
+		if(mode == 2 || mode == 3)
 		{
 			if(is_wide)
 			{
