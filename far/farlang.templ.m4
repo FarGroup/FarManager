@@ -14112,6 +14112,16 @@ MSetAttrVolMount
 "Volumen:"
 "Zväzok:"
 
+MSetAttrDfsTargets
+upd:"DFS Targets"
+"DFS Targets"
+upd:"DFS Targets"
+upd:"DFS Targets"
+upd:"DFS Targets"
+upd:"DFS Targets"
+upd:"DFS Targets"
+upd:"DFS Targets"
+
 MSetAttrUnknownJunction
 "(нет данных)"
 "(data not available)"

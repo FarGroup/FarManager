@@ -60,6 +60,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "interf.hpp"
 #include "plugins.hpp"
+#include "imports.hpp"
+
+#include <lmdfs.h>
 
 enum SETATTRDLG
 {
@@ -69,6 +72,7 @@ enum SETATTRDLG
 	SA_COMBO_HARDLINK,
 	SA_TEXT_SYMLINK,
 	SA_EDIT_SYMLINK,
+	SA_COMBO_SYMLINK,
 	SA_SEPARATOR1,
 	SA_TEXT_OWNER,
 	SA_EDIT_OWNER,
@@ -416,10 +420,12 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			switch (Param1)
 			{
 				case SA_COMBO_HARDLINK:
+				case SA_COMBO_SYMLINK:
 				{
+					LNGID m = (Param1 == SA_COMBO_HARDLINK ? MSetAttrHardLinks : MSetAttrDfsTargets);
 					FarListInfo li={sizeof(FarListInfo)};
-					Dlg->SendMessage(DM_LISTINFO,SA_COMBO_HARDLINK,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,SA_COMBO_HARDLINK, UNSAFE_CSTR(FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")"));
+					Dlg->SendMessage(DM_LISTINFO,Param1,&li);
+					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(FormatString()<<MSG(m)<<L" ("<<li.ItemsNumber<<L")"));
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -640,6 +646,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{DI_COMBOBOX,5,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,5,3,17,3,0,nullptr,nullptr,DIF_HIDDEN,L""},
 		{DI_EDIT,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_HIDDEN|DIF_EDITPATH,L""},
+		{DI_COMBOBOX,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,MSG(MSetAttrOwner)},
 		{DI_EDIT,18,5,DlgX-6,5,0,nullptr,nullptr,0,L""},
@@ -800,7 +807,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			SETATTRDLG Item;
 			DWORD Attribute;
 		};
-		static const std::array<ATTRIBUTEPAIR, 13>
+		static const std::array<ATTRIBUTEPAIR, 12>
 		AP =
 		{{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
@@ -812,7 +819,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{SA_CHECKBOX_NOTINDEXED,FILE_ATTRIBUTE_NOT_CONTENT_INDEXED},
 			{SA_CHECKBOX_SPARSE,FILE_ATTRIBUTE_SPARSE_FILE},
 			{SA_CHECKBOX_TEMP,FILE_ATTRIBUTE_TEMPORARY},
-			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
 			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
 			{SA_CHECKBOX_REPARSEPOINT,FILE_ATTRIBUTE_REPARSE_POINT},
 			{SA_CHECKBOX_VIRTUAL,FILE_ATTRIBUTE_VIRTUAL},
@@ -875,7 +881,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			// обработка случая, если ЭТО SymLink
+			// если это SymLink
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 			{
 				DWORD ReparseTag=0;
@@ -883,10 +889,53 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				if (!DlgParam.Plugin)
 				{
 					KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
-					if (!KnownReparsePoint && ReparseTag == IO_REPARSE_TAG_DEDUP)
+					if (!KnownReparsePoint)
 					{
-						KnownReparsePoint = true;
-						strLinkName = MSG(MListDEDUP);
+						if (ReparseTag == IO_REPARSE_TAG_DEDUP)
+						{
+							KnownReparsePoint = true;
+							strLinkName = MSG(MListDEDUP);
+						}
+						else // try DFS link
+						{
+							string path(SrcPanel->GetCurDir());
+							bool share = false;
+							if (path.GetLength() >= 5 && path[0] == L'\\' && path[1] == L'\\') // \\ServerOrDomainName\Dfsname
+							{
+								size_t pos;
+								share = path.Pos(pos, L'\\', 2) && pos > 2 && pos < path.GetLength()-1 && !path.Pos(pos,L'\\',pos+1);
+							}
+							if (share)
+							{
+								path += L"\\" + strSelName;
+								PDFS_INFO_3 pData;
+								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.CPtr(), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								if (NERR_Success == ns)
+								{
+									KnownReparsePoint = true;
+									ReparseTag = IO_REPARSE_TAG_DFS;
+
+									if ((NameList.ItemsNumber = pData->NumberOfStorages) > 0)
+										NameList.Items = new FarListItem[NameList.ItemsNumber]();
+									Links.resize(NameList.ItemsNumber);
+
+									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
+									{
+										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L"\\" + pData->Storage[i].ShareName;
+										NameList.Items[i].Text = Links[i].CPtr();
+										NameList.Items[i].Flags = (pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? LIF_CHECKED | LIF_SELECTED : LIF_NONE;
+										if (pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)	NameList.Items[i].Flags |= LIF_DISABLE;
+									}
+
+									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
+									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
+									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
+									AttrDlg[SA_COMBO_SYMLINK].strData=FormatString()<<MSG(MSetAttrDfsTargets)<<L" ("<<NameList.ItemsNumber<<L")";
+
+									NetApiBufferFree(pData);
+								}
+							}
+						}
 					}
 				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
@@ -921,12 +970,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				if (!KnownReparsePoint)
 					strLinkName=MSG(MSetAttrUnknownJunction);
 
-				AttrDlg[SA_TEXT_SYMLINK].Flags&=~DIF_HIDDEN;
-				AttrDlg[SA_TEXT_SYMLINK].strData=MSG(ID_Msg);
-				AttrDlg[SA_EDIT_SYMLINK].Flags&=~DIF_HIDDEN;
-				AttrDlg[SA_EDIT_SYMLINK].strData=strLinkName;
+				AttrDlg[SA_TEXT_SYMLINK].Flags &= ~DIF_HIDDEN;
+				AttrDlg[SA_TEXT_SYMLINK].strData = MSG(ID_Msg);
+				if (ReparseTag != IO_REPARSE_TAG_DFS)
+					AttrDlg[SA_EDIT_SYMLINK].Flags &= ~DIF_HIDDEN;
+				AttrDlg[SA_EDIT_SYMLINK].strData = strLinkName;
 				if (ReparseTag == IO_REPARSE_TAG_DEDUP)
 					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_DISABLE;
+				if (ReparseTag == IO_REPARSE_TAG_DEDUP || ReparseTag == IO_REPARSE_TAG_DFS)
+					AttrDlg[SA_CHECKBOX_REPARSEPOINT].Flags |= DIF_DISABLE;
 
 				DlgParam.FileSystemFlags=0;
 				string strRoot;
@@ -952,39 +1004,40 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 
 			// обработка случая "несколько хардлинков"
-			NameList.ItemsNumber=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:GetNumberOfLinks(strSelName);
-
-			if (NameList.ItemsNumber>1)
+			if (0 == (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 			{
-				AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
-				AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
-				NameList.Items=new FarListItem[NameList.ItemsNumber]();
-				Links.resize(NameList.ItemsNumber);
-				HANDLE hFind=apiFindFirstFileName(strSelName,0, Links[0]);
-
-				if (hFind!=INVALID_HANDLE_VALUE)
+				if ((NameList.ItemsNumber = GetNumberOfLinks(strSelName)) > 1)
 				{
-					string strRoot;
-					GetPathRoot(strSelName,strRoot);
-					DeleteEndSlash(strRoot);
-					Links[0] = strRoot + Links[0];
-					NameList.Items[0].Text = Links[0].CPtr();
+					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
+					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
+					NameList.Items=new FarListItem[NameList.ItemsNumber]();
+					Links.resize(NameList.ItemsNumber);
+					HANDLE hFind=apiFindFirstFileName(strSelName,0, Links[0]);
 
-					for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
+					if (hFind!=INVALID_HANDLE_VALUE)
 					{
-						Links[i] = strRoot + Links[i];
-						NameList.Items[i].Text = Links[i].CPtr();
+						string strRoot;
+						GetPathRoot(strSelName,strRoot);
+						DeleteEndSlash(strRoot);
+						Links[0] = strRoot + Links[0];
+						NameList.Items[0].Text = Links[0].CPtr();
+
+						for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
+						{
+							Links[i] = strRoot + Links[i];
+							NameList.Items[i].Text = Links[i].CPtr();
+						}
+
+						FindClose(hFind);
+						AttrDlg[SA_COMBO_HARDLINK].ListItems=&NameList;
+					}
+					else
+					{
+						AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 					}
 
-					FindClose(hFind);
-					AttrDlg[SA_COMBO_HARDLINK].ListItems=&NameList;
+					AttrDlg[SA_COMBO_HARDLINK].strData=FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
 				}
-				else
-				{
-					AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
-				}
-
-				AttrDlg[SA_COMBO_HARDLINK].strData=FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
 			}
 
 			AttrDlg[SA_TEXT_NAME].strData = strSelName;
