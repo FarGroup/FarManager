@@ -610,6 +610,8 @@ static int _EditorGetString(lua_State *L, int is_wide)
 	struct EditorGetString egs;
 	egs.StructSize = sizeof(egs);
 
+	if (line_num < -1) line_num = -1;
+
 	if(mode == 0 || mode == 3)
 	{
 		egs.StringNumber = line_num;
@@ -1805,9 +1807,8 @@ void LF_Error(lua_State *L, const wchar_t* aMsg)
 
 	lua_pushlstring(L, (const char*)Info->ModuleName, wcslen(Info->ModuleName)*sizeof(wchar_t));
 	lua_pushlstring(L, (const char*)L":\n", 4);
-	lua_pushlstring(L, (const char*)aMsg, wcslen(aMsg)*sizeof(wchar_t));
-	lua_pushlstring(L, "\0\0", 2);
-	lua_concat(L, 4);
+	LF_Gsub(L, aMsg, L"\n\t", L"\n   ");
+	lua_concat(L, 3);
 	LF_Message(L, (const wchar_t*)lua_tostring(L,-1), L"Error", L"OK", "wl", NULL, NULL);
 	lua_pop(L, 1);
 }
