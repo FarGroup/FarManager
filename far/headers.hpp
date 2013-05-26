@@ -121,6 +121,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # include <ntddscsi.h>
 # include <virtdisk.h>
 # include <RestartManager.h>
+# include <lmdfs.h>
 #endif // _MSC_VER
 
 #ifdef __GNUC__

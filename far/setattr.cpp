@@ -62,8 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "imports.hpp"
 
-#include <lmdfs.h>
-
 enum SETATTRDLG
 {
 	SA_DOUBLEBOX,

@@ -469,7 +469,7 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 	File Device;
 	if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
-		ULONG Size = 1024;
+		ULONG Size = 4096;
 		block_ptr<STORAGE_DEPENDENCY_INFO> StorageDependencyInfo(Size);
 		if(StorageDependencyInfo)
 		{
