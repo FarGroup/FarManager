@@ -3,6 +3,57 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.05.2013 19:53:59 +0200 - build 3428
+
+1. GCC.
+
+shmuel 26.05.2013 18:42:19 +0200 - build 3427
+
+1. M#1663: Macros do not work from user menu on large amount of items on a panel.
+
+w17 26.05.2013 00:53:26 +0400 - build 3426
+
+1. correction of 3425 -- NetDfsGetInfo does not need dynamic loading
+
+w17 26.05.2013 00:04:03 +0400 - build 3425
+
+1. M#2412: DFS links view on CtrlA
+
+shmuel 24.05.2013 15:43:21 +0200 - build 3424
+
+1. Forum: After Keys("ShiftF6 End ! Enter") macro run on a file,
+          Far caption stays "Rename/Move ..."
+
+drkns 23.05.2013 23:02:08 +0200 - build 3423
+
+1. Malfunction of virtual drives detection and removal.
+
+w17 23.05.2013 19:21:06 +0400 - build 3422
+
+1. M#2413: Selection restored incorrectly after the selected file moved on ShiftF6
+
+t-rex 22.05.2013 17:29:36 +0200 - build 3421
+
+1. RegExp search in viewer used RegExp API incorrectly, back reference (\NN) could not be used.
+
+2. Refactoring.
+
+drkns 22.05.2013 01:35:24 +0200 - build 3420
+
+1. Incorrect display of strings containing quotes in replace confirmation dialog.
+
+drkns 20.05.2013 21:50:11 +0200 - build 3419
+
+1. Refactoring.
+
+svs 20.05.2013 21:13:22 +0400 - build 3418
+
+1. SQLite 3.7.17
+
+drkns 20.05.2013 17:31:22 +0200 - build 3417
+
+1. Correction of settings loading.
+
 drkns 16.05.2013 20:30:12 +0200 - build 3416
 
 1. Move TreeList::FlushCache() to a more appropriate place, so it does not block exit in case of failure.
