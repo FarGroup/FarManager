@@ -248,6 +248,7 @@ class KeyMacro:NonCopyable
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }
+		void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}
