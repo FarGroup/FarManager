@@ -376,10 +376,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					}
 				}
 
-				if (CheckForEsc())
-				{
+				Global->CtrlObject->Macro.SuspendMacros(true);
+				bool check = CheckForEsc();
+				Global->CtrlObject->Macro.SuspendMacros(false);
+				if (check)
 					break;
-				}
 			}
 		}
 	}

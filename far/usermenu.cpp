@@ -434,11 +434,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 	}
 
 	if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
-	{
-		Global->CtrlObject->Macro.SuspendMacros(true);
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
-		Global->CtrlObject->Macro.SuspendMacros(false);
-	}
 }
 
 // заполнение меню
