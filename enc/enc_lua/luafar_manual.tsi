@@ -1946,7 +1946,7 @@ id=150
 lv=2
 dt=Text
 nm=export.OnError
-mtime=3509028535
+mtime=3578860636
 <article>
 #_export.OnError (ErrorMsg)
 #_
@@ -1961,7 +1961,7 @@ mtime=3509028535
 #_  If this function is defined by a user application, then,
 #_  instead of displaying an error message box, LuaFAR calls
 #_  this function, passing it the error message value.
-#_  The return values of far.OnError (if any) are ignored.
+#_  The return values of export.OnError (if any) are ignored.
 #_
 #_
 </article>
