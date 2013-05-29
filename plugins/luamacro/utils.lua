@@ -549,31 +549,33 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
 
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
-    local macros = areatable[key]
-    local macros_regex = areatable[1]
-    local macrolist = {}
+    if areatable then
+      local macros = areatable[key]
+      local macros_regex = areatable[1]
+      local macrolist = {}
 
-    if macros then
-      if macros.recorded and not macros.recorded.disabled then -- must come first
-        macrolist[#macrolist+1] = macros.recorded
-      end
-      for _,v in ipairs(macros) do -- must come second
-        if not v.disabled then macrolist[#macrolist+1]=v end
-      end
-    end
-    if macros_regex then
-      for _,v in ipairs(macros_regex) do
-        if v.keyregex:match(key) == key then
-          macrolist[#macrolist+1] = v
+      if macros then
+        if macros.recorded and not macros.recorded.disabled then -- must come first
+          macrolist[#macrolist+1] = macros.recorded
+        end
+        for _,v in ipairs(macros) do -- must come second
+          if not v.disabled then macrolist[#macrolist+1]=v end
         end
       end
-    end
+      if macros_regex then
+        for _,v in ipairs(macros_regex) do
+          if v.keyregex:match(key) == key then
+            macrolist[#macrolist+1] = v
+          end
+        end
+      end
 
-    if macrolist[1] then
-      local toplist = GetTopMacros(areaname, argKey, macrolist, argCheckOnly)
-      if toplist then
-        local macro = (argCheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
-        return macro, areaname
+      if macrolist[1] then
+        local toplist = GetTopMacros(areaname, argKey, macrolist, argCheckOnly)
+        if toplist then
+          local macro = (argCheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
+          return macro, areaname
+        end
       end
     end
   end
