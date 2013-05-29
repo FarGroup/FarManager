@@ -651,18 +651,23 @@ end
 
 local function RunStartMacro()
   if not LoadMacrosDone then return end
-  for _,macros in pairs(Areas.shell) do
+
+  local flagregex = regex.new("\\bRunAfterFARStart\\b", "i")
+  local mode = far.MacroGetArea()
+  local mtable = mode==F.MACROAREA_EDITOR and Areas.editor or
+                 mode==F.MACROAREA_VIEWER and Areas.viewer or Areas.shell
+  for _,macros in pairs(mtable) do
     local m = macros.recorded
-    if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
+    if m and not m.disabled and m.flags and flagregex:find(m.flags) and not m.autostartdone then
       m.autostartdone=true
-      if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
+      if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
         MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
       end
     end
     for _,m in ipairs(macros) do
-      if not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") and not m.autostartdone then
+      if not m.disabled and m.flags and flagregex:find(m.flags) and not m.autostartdone then
         m.autostartdone=true
-        if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
+        if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
           if not m.condition or m.condition() then
             MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
           end

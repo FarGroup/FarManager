@@ -1202,7 +1202,7 @@ bool KeyMacro::CheckWaitKeyFunc()
 // Функция, запускающая макросы при старте ФАРа
 void KeyMacro::RunStartMacro()
 {
-	if ((Global->Opt->Macro.DisableMacro&MDOL_ALL) || (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) || Global->Opt->OnlyEditorViewerUsed)
+	if ((Global->Opt->Macro.DisableMacro&MDOL_ALL) || (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART))
 		return;
 
 	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
