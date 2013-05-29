@@ -47,7 +47,8 @@ public:
 
 basicconsole():
 	// пишем/читаем порциями по 32 K, иначе проблемы.
-	MAXSIZE(0x8000)
+	MAXSIZE(0x8000),
+	m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
 {}
 
 virtual ~basicconsole() {}
@@ -75,6 +76,11 @@ virtual HANDLE GetOutputHandle() const override
 virtual HANDLE GetErrorHandle() const override
 {
 	return GetStdHandle(STD_ERROR_HANDLE);
+}
+
+virtual HANDLE GetOriginalInputHandle() const override
+{
+	return m_OriginalInputHandle;
 }
 
 virtual HWND GetWindow() const override
@@ -691,6 +697,7 @@ virtual short GetDelta() const
 
 private:
 	const unsigned int MAXSIZE;
+	HANDLE m_OriginalInputHandle;
 };
 
 class extendedconsole:public basicconsole

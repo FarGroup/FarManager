@@ -52,6 +52,8 @@ public:
 	virtual HANDLE GetOutputHandle() const = 0;
 	virtual HANDLE GetErrorHandle() const = 0;
 
+	virtual HANDLE GetOriginalInputHandle() const = 0;
+
 	virtual HWND GetWindow() const = 0;
 
 	virtual bool GetSize(COORD& Size) const = 0;

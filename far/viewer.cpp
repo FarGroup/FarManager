@@ -273,7 +273,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 		DWORD ReadSize = 0, WrittenSize;
 
-		while (ReadFile(Global->Console->GetInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr) && ReadSize)
+		while (ReadFile(Global->Console->GetOriginalInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr) && ReadSize)
 		{
 			ViewFile.Write(vread_buffer,ReadSize,WrittenSize);
 		}
