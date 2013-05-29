@@ -46,9 +46,23 @@ struct PanelViewSettings
 	unsigned __int64 StatusColumnType[PANEL_COLUMNCOUNT];
 	int StatusColumnWidth[PANEL_COLUMNCOUNT];
 	int StatusColumnCount;
-	DWORD Flags;
+	unsigned __int64 Flags;
 	int ColumnWidthType[PANEL_COLUMNCOUNT];
 	int StatusColumnWidthType[PANEL_COLUMNCOUNT];
+	string Name;
+
+	void Clear()
+	{
+		ClearArray(ColumnType);
+		ClearArray(ColumnWidth);
+		ColumnCount = 0;
+		ClearArray(StatusColumnType);
+		ClearArray(StatusColumnWidth);
+		StatusColumnCount = 0;
+		Flags = 0;
+		ClearArray(ColumnWidthType);
+		ClearArray(StatusColumnWidthType);
+	}
 };
 
 enum

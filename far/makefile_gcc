@@ -58,7 +58,6 @@ SRCS = \
 	fileview.cpp \
 	findfile.cpp \
 	flink.cpp \
-	flmodes.cpp \
 	flplugin.cpp \
 	flshow.cpp \
 	flupdate.cpp \

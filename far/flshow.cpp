@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "valuename.hpp"
 
-extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
 static wchar_t OutCharacter[8]={};
@@ -648,7 +647,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 			Info=*PlugInfo;
 	}
 
-	ViewSettings=ViewSettingsArray[ViewMode];
+	ViewSettings = Global->Opt->ViewSettings[ViewMode];
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -1404,7 +1403,7 @@ bool FileList::IsFullScreen()
 
 bool FileList::IsModeFullScreen(int Mode)
 {
-	return (ViewSettingsArray[Mode].Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
+	return (Global->Opt->ViewSettings[Mode].Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
 }
 
 

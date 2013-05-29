@@ -47,5 +47,5 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
 void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
-void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,
-						string &strColumnTitles,string &strColumnWidths);
+void ViewSettingsToText(const unsigned __int64 *ViewColumnTypes, const int *ViewColumnWidths, const int *ViewColumnWidthsTypes, int ColumnCount,
+						string &strColumnTitles, string &strColumnWidths);

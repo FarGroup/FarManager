@@ -86,9 +86,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
 
-extern PanelViewSettings ViewSettingsArray[];
-extern size_t SizeViewSettingsArray;
-
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
 static bool RevertSorting;
@@ -165,7 +162,7 @@ FileList::FileList():
 	SortOrder=1;
 	SortGroups=0;
 	ViewMode=VIEW_3;
-	ViewSettings=ViewSettingsArray[ViewMode];
+	ViewSettings = Global->Opt->ViewSettings[ViewMode];
 	NumericSort=0;
 	CaseSensitiveSort=0;
 	DirectoriesFirst=1;
@@ -3060,7 +3057,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void FileList::SetViewMode(int Mode)
 {
-	if ((DWORD)Mode > (DWORD)SizeViewSettingsArray)
+	if (static_cast<size_t>(Mode) >= Global->Opt->ViewSettings.size())
 		Mode=VIEW_0;
 
 	bool CurFullScreen=IsFullScreen();

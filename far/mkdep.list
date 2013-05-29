@@ -101,7 +101,6 @@ findfile.cpp
 findfile.hpp
 flink.cpp
 flink.hpp
-flmodes.cpp
 flplugin.cpp
 flshow.cpp
 flupdate.cpp

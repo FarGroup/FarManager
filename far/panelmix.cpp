@@ -269,6 +269,8 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
 {
+	// BUGBUG, add error checking
+
 	const wchar_t *TextPtr=ColumnTitles.CPtr();
 
 	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
@@ -437,8 +439,8 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 }
 
 
-void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,
-						string &strColumnTitles,string &strColumnWidths)
+void ViewSettingsToText(const unsigned __int64 *ViewColumnTypes, const int *ViewColumnWidths, const int *ViewColumnWidthsTypes, int ColumnCount,
+						string &strColumnTitles, string &strColumnWidths)
 {
 	strColumnTitles.Clear();
 	strColumnWidths.Clear();

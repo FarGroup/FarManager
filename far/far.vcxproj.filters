@@ -176,9 +176,6 @@
     <ClCompile Include="flink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="flmodes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="flplugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

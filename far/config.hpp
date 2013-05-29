@@ -276,6 +276,7 @@ public:
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
+	void SetViewSettings(size_t Index, const struct PanelViewSettings* Data);
 
 	struct PanelOptions
 	{
@@ -835,11 +836,15 @@ public:
 	int ElevationMode;
 	int WindowMode;
 
+	const std::vector<struct PanelViewSettings>& ViewSettings;
+
 private:
 	void InitConfig();
 	void InitRoamingCFG();
 	void InitLocalCFG();
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void ReadPanelModes();
+	void SavePanelModes();
 
 	class farconfig
 	{
@@ -862,6 +867,8 @@ private:
 
 	std::vector<std::pair<GeneralConfig*, farconfig>> Config;
 	farconfig_mode CurrentConfig;
+	std::vector<struct PanelViewSettings> m_ViewSettings;
+	bool m_ViewSettingsChanged;
 };
 
 void SystemSettings();
@@ -880,3 +887,4 @@ void InfoPanelSettings();
 void MaskGroupsSettings();
 void AutoCompleteSettings();
 void TreeSettings();
+void SetFilePanelModes();

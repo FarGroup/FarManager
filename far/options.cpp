@@ -654,7 +654,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					SetConfirmations();
 					break;
 				case MENU_OPTIONS_FILEPANELMODES:   // File panel modes
-					FileList::SetFilePanelModes();
+					SetFilePanelModes();
 					break;
 				case MENU_OPTIONS_FILEDESCRIPTIONS:   // File descriptions
 					SetDizConfig();

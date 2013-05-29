@@ -64,6 +64,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
 
+enum {predefined_panel_modes_count = 10};
+
 // Стандартный набор разделителей
 static const wchar_t* WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 
@@ -827,6 +829,194 @@ void SetFolderInfoFiles()
 	}
 }
 
+void SetFilePanelModes()
+{
+	auto DisplayModeToReal = [](int Mode)->int
+	{
+		if (Mode < predefined_panel_modes_count)
+		{
+			Mode = (Mode == 9)? 0 : (Mode + 1);
+		}
+		return Mode;
+	};
+
+	auto RealModeToDisplay = [](int Mode)->int
+	{
+		if (Mode < predefined_panel_modes_count)
+		{
+			Mode = (Mode == 0)? 9 : (Mode - 1);
+		}
+		return Mode;
+	};
+
+	int CurMode=0;
+
+	if (Global->CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
+	{
+		CurMode=Global->CtrlObject->Cp()->ActivePanel->GetViewMode();
+		CurMode = RealModeToDisplay(CurMode);
+	}
+
+	for(;;)
+	{
+		static const LNGID PredefinedNames[] =
+		{
+			MEditPanelModesBrief,
+			MEditPanelModesMedium,
+			MEditPanelModesFull,
+			MEditPanelModesWide,
+			MEditPanelModesDetailed,
+			MEditPanelModesDiz,
+			MEditPanelModesLongDiz,
+			MEditPanelModesOwners,
+			MEditPanelModesLinks,
+			MEditPanelModesAlternative,
+		};
+		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
+
+		std::vector<MenuDataEx> ModeListMenu(Global->Opt->ViewSettings.size());
+
+		std::transform(Global->Opt->ViewSettings.cbegin(), Global->Opt->ViewSettings.cend(), ModeListMenu.begin(), [](const VALUE_TYPE(Global->Opt->ViewSettings)& i)
+		{
+			const MenuDataEx Data = {i.Name.CPtr()};
+			return Data;
+		});
+
+		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
+		{
+			if (!*ModeListMenu[i].Name)
+				ModeListMenu[i].Name = MSG(PredefinedNames[i]);
+		}
+
+		int ModeNumber = -1;
+
+		ModeListMenu[CurMode].SetSelect(1);
+		{
+			VMenu2 ModeList(MSG(MEditPanelModes),ModeListMenu.data(), ModeListMenu.size(), ScrY-4);
+			ModeList.SetPosition(-1,-1,0,0);
+			ModeList.SetHelp(L"PanelViewModes");
+			ModeList.SetFlags(VMENU_WRAPMODE);
+			ModeList.SetId(PanelViewModesId);
+			ModeNumber=ModeList.Run([&](int Key)->int
+			{
+				if (Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER)
+				{
+					Global->CtrlObject->Cp()->ActivePanel->SetViewMode(DisplayModeToReal(ModeList.GetSelectPos()));
+					Global->CtrlObject->Cp()->ActivePanel->Redraw();
+					return 1;
+				}
+				return 0;
+			});
+		}
+
+		if (ModeNumber<0)
+			return;
+
+		CurMode=ModeNumber;
+
+		enum ModeItems
+		{
+			MD_DOUBLEBOX,
+			MD_TEXTTYPES,
+			MD_EDITTYPES,
+			MD_TEXTWIDTHS,
+			MD_EDITWIDTHS,
+			MD_TEXTSTATUSTYPES,
+			MD_EDITSTATUSTYPES,
+			MD_TEXTSTATUSWIDTHS,
+			MD_EDITSTATUSWIDTHS,
+			MD_SEPARATOR1,
+			MD_CHECKBOX_FULLSCREEN,
+			MD_CHECKBOX_ALIGNFILEEXT,
+			MD_CHECKBOX_ALIGNFOLDEREXT,
+			MD_CHECKBOX_FOLDERUPPERCASE,
+			MD_CHECKBOX_FILESLOWERCASE,
+			MD_CHECKBOX_UPPERTOLOWERCASE,
+			MD_SEPARATOR2,
+			MD_BUTTON_OK,
+			MD_BUTTON_CANCEL,
+		} ;
+		FarDialogItem ModeDlgData[]=
+		{
+			{DI_DOUBLEBOX, 3, 1,72,15,0,nullptr,nullptr,0,ModeListMenu[ModeNumber].Name},
+			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
+			{DI_EDIT,      5, 3,35, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
+			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeWidths)},
+			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
+			{DI_TEXT,     38, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusTypes)},
+			{DI_EDIT,     38, 3,70, 3,0,nullptr,nullptr,0,L""},
+			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusWidths)},
+			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
+			{DI_TEXT,     -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MEditPanelReadHelp)},
+			{DI_CHECKBOX,  5, 7, 0, 7,0,nullptr,nullptr,0,MSG(MEditPanelModeFullscreen)},
+			{DI_CHECKBOX,  5, 8, 0, 8,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignExtensions)},
+			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignFolderExtensions)},
+			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(MEditPanelModeFoldersUpperCase)},
+			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(MEditPanelModeFilesLowerCase)},
+			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
+			{DI_TEXT,     -1,13, 0,13,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+			{DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+			{DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		};
+		MakeDialogItemsEx(ModeDlgData,ModeDlg);
+		int ExitCode;
+		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
+
+		ModeNumber = DisplayModeToReal(ModeNumber);
+
+		PanelViewSettings NewSettings = Global->Opt->ViewSettings[ModeNumber];
+		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=(NewSettings.Flags&PVS_FULLSCREEN)?1:0;
+		ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected=(NewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0;
+		ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected=(NewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0;
+		ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected=(NewSettings.Flags&PVS_FOLDERUPPERCASE)?1:0;
+		ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected=(NewSettings.Flags&PVS_FILELOWERCASE)?1:0;
+		ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected=(NewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)?1:0;
+		ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
+		                   NewSettings.ColumnCount,ModeDlg[2].strData,ModeDlg[4].strData);
+		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
+		                   NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
+		{
+			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
+			Dlg.SetPosition(-1,-1,76,17);
+			Dlg.SetHelp(L"PanelViewModes");
+			Dlg.SetId(PanelViewModesEditId);
+			Dlg.Process();
+			ExitCode=Dlg.GetExitCode();
+		}
+
+		if (ExitCode!=MD_BUTTON_OK)
+			continue;
+
+		NewSettings.Clear();
+		if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
+			NewSettings.Flags|=PVS_FULLSCREEN;
+		if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)
+			NewSettings.Flags|=PVS_ALIGNEXTENSIONS;
+		if (ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected)
+			NewSettings.Flags|=PVS_FOLDERALIGNEXTENSIONS;
+		if (ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected)
+			NewSettings.Flags|=PVS_FOLDERUPPERCASE;
+		if (ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected)
+			NewSettings.Flags|=PVS_FILELOWERCASE;
+		if (ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected)
+			NewSettings.Flags|=PVS_FILEUPPERTOLOWERCASE;
+		TextToViewSettings(ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData,NewSettings.ColumnType,
+		                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
+		TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData,NewSettings.StatusColumnType,
+		                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
+		Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
+		Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
+		Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
+		Global->CtrlObject->Cp()->SetScreenPosition();
+		int LeftMode=Global->CtrlObject->Cp()->LeftPanel->GetViewMode();
+		int RightMode=Global->CtrlObject->Cp()->RightPanel->GetViewMode();
+		Global->CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
+		Global->CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
+		Global->CtrlObject->Cp()->LeftPanel->Redraw();
+		Global->CtrlObject->Cp()->RightPanel->Redraw();
+	}
+}
+
 
 struct default_value
 {
@@ -1054,12 +1244,14 @@ bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, con
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-
 Options::Options():
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
 	ElevationMode(0),
-	WindowMode(-1)
+	WindowMode(-1),
+	ViewSettings(m_ViewSettings),
+	m_ViewSettings(predefined_panel_modes_count),
+	m_ViewSettingsChanged(false)
 {
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
@@ -1067,6 +1259,23 @@ Options::Options():
 	LoadPlug.PluginsCacheOnly = false;
 
 	Macro.DisableMacro=0;
+
+	static PanelViewSettings InitialModes[]=
+	{
+		/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,WDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{40,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{PERCENT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,70},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,PERCENT_WIDTH},{COUNT_WIDTH}},
+		/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
+	};
+	static_assert(ARRAYSIZE(InitialModes) == predefined_panel_modes_count, "Not all panel modes defined");
+
+	std::copy(InitialModes, InitialModes + predefined_panel_modes_count, m_ViewSettings.begin());
 }
 
 FARConfigItem* Options::farconfig::begin() const {return m_items;}
@@ -1568,7 +1777,7 @@ void Options::Load()
 		Macro.KeyMacroRCtrlShiftDot=KEY_RCTRL|KEY_SHIFT|KEY_DOT;
 
 	EdOpt.strWordDiv = strWordDiv;
-	FileList::ReadPanelModes();
+	ReadPanelModes();
 
 	/* BUGBUG??
 	// уточняем системную политику
@@ -1739,7 +1948,7 @@ void Options::Save(bool Ask)
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 	FileFilter::SaveFilters();
-	FileList::SavePanelModes();
+	SavePanelModes();
 
 	if (Ask)
 		Global->CtrlObject->Macro.SaveMacros();
@@ -1888,4 +2097,104 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	Dlg.SetId(AdvancedConfigId);
 	Dlg.Process();
 	return true;
+}
+
+void Options::SetViewSettings(size_t Index, const struct PanelViewSettings* Data)
+{
+	assert(Index < m_ViewSettings.size());
+
+	m_ViewSettings[Index] = *Data;
+	m_ViewSettingsChanged = true;
+}
+
+
+void Options::ReadPanelModes()
+{
+	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
+
+	for (int i = 0; ; ++i)
+	{
+		unsigned __int64 id = PanelModeCfg->GetKeyID(0, FormatString() << i);
+		if (!id)
+		{
+			if (i < predefined_panel_modes_count)
+			{
+				continue;
+			}
+			else
+			{
+				break;
+			}
+		}
+		string strColumnTitles, strColumnWidths;
+		PanelModeCfg->GetValue(id, L"ColumnTitles", strColumnTitles);
+		PanelModeCfg->GetValue(id, L"ColumnWidths", strColumnWidths);
+
+		if (strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty())
+			continue;
+
+		string strStatusColumnTitles, strStatusColumnWidths;
+		PanelModeCfg->GetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
+		PanelModeCfg->GetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
+
+		unsigned __int64 Flags=0;
+		PanelModeCfg->GetValue(id, L"Flags", &Flags);
+
+		PanelViewSettings NewSettings(i < predefined_panel_modes_count? m_ViewSettings[i] : PanelViewSettings());
+
+		PanelModeCfg->GetValue(id, L"Name", NewSettings.Name);
+
+		if (!strColumnTitles.IsEmpty())
+			TextToViewSettings(strColumnTitles,strColumnWidths,NewSettings.ColumnType,
+			                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
+
+		if (!strStatusColumnTitles.IsEmpty())
+			TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
+			                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
+
+		NewSettings.Flags = Flags;
+
+		if (i < predefined_panel_modes_count)
+		{
+			m_ViewSettings[i] = NewSettings;
+		}
+		else
+		{
+			m_ViewSettings.push_back(NewSettings);
+		}
+	}
+	m_ViewSettingsChanged = false;
+}
+
+
+void Options::SavePanelModes()
+{
+	if (!m_ViewSettingsChanged)
+		return;
+
+	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
+
+	size_t Index = 0;
+	std::for_each(CONST_RANGE(ViewSettings, i)
+	{
+		string strColumnTitles, strColumnWidths;
+		string strStatusColumnTitles, strStatusColumnWidths;
+
+		ViewSettingsToText(i.ColumnType,i.ColumnWidth,i.ColumnWidthType,
+		                   i.ColumnCount,strColumnTitles,strColumnWidths);
+		ViewSettingsToText(i.StatusColumnType,i.StatusColumnWidth,i.StatusColumnWidthType,
+		                   i.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
+
+		unsigned __int64 id = PanelModeCfg->CreateKey(0, FormatString() << Index);
+		if (id)
+		{
+			PanelModeCfg->SetValue(id, L"ColumnTitles", strColumnTitles);
+			PanelModeCfg->SetValue(id, L"ColumnWidths", strColumnWidths);
+			PanelModeCfg->SetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
+			PanelModeCfg->SetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
+			PanelModeCfg->SetValue(id, L"Flags", i.Flags);
+		}
+		++Index;
+	});
+	m_ViewSettingsChanged = false;
 }
