@@ -3809,7 +3809,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 					Param1=MSSC_POST;
 					mtW.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 
-					if (kmA->PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) mtW.Flags|=KMFLAGS_DISABLEOUTPUT;
+					if (!(kmA->PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT)) mtW.Flags|=KMFLAGS_ENABLEOUTPUT;
 
 					if (kmA->PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) mtW.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 

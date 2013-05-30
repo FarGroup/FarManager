@@ -2043,8 +2043,11 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
-						PlainText->Flags ^= KMFLAGS_DISABLEOUTPUT;
-						return Macro.PostNewMacro(PlainText->SequenceText,PlainText->Flags|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
+						UINT64 Flags = MFLAGS_POSTFROMPLUGIN;
+						if (PlainText->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
+						if (PlainText->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
+
+						return Macro.PostNewMacro(PlainText->SequenceText,Flags,InputRecordToKey(&PlainText->AKey));
 					}
 
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
@@ -2075,13 +2078,13 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					break;
 
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
-				MACROFLAGS_MFLAGS Flags=MFLAGS_ENABLEOUTPUT;
+				MACROFLAGS_MFLAGS Flags = 0;
 
-				if (Data->Flags&KMFLAGS_DISABLEOUTPUT)
-					Flags&=~MFLAGS_ENABLEOUTPUT;
+				if (Data->Flags & KMFLAGS_ENABLEOUTPUT)
+					Flags |= MFLAGS_ENABLEOUTPUT;
 
-				if (Data->Flags&KMFLAGS_NOSENDKEYSTOPLUGINS)
-					Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+				if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS)
+					Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
