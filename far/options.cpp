@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "interf.hpp"
 #include "codepage.hpp"
+#include "keyboard.hpp"
 
 enum enumMenus
 {
@@ -208,8 +209,34 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 	pMenu[MENU_LEFT_LONGNAMES].SetCheck(!pPanel->GetShowShortNamesMode());
 }
 
+void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
+{
+	size_t MaxLength = 0;	
+	std::for_each(Menu, Menu + MenuSize, [&](const MenuDataEx& i) { MaxLength = std::max(MaxLength, wcslen(i.Name)); });
+	for (size_t i = 0; i < MenuSize; ++i)
+	{
+		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)
+		{
+			string Key;
+			KeyToText(Menu[i].AccelKey, Key);
+			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
+			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
+			Menu[i].Name = Strings[i].CPtr();
+		}
+	}
+}
+
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
+	auto ApplyViewModesNames = [](MenuDataEx* Menu)
+	{
+		for (size_t i = 0; i < 10; ++i)
+		{
+			if (!Global->Opt->ViewSettings[i].Name.IsEmpty())
+				Menu[i? i - 1 : 9].Name = Global->Opt->ViewSettings[i].Name.CPtr();
+		}
+	};
+
 	MenuDataEx LeftMenu[]=
 	{
 		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
@@ -233,6 +260,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuReread),0,KEY_CTRLR,
 		MSG(MMenuChangeDrive),0,KEY_ALTF1,
 	};
+	ApplyViewModesNames(LeftMenu);
+	std::vector<string> LeftMenuStrings(ARRAYSIZE(LeftMenu));
+	AddHotkeys(LeftMenuStrings, LeftMenu, ARRAYSIZE(LeftMenu));
+
 	MenuDataEx FilesMenu[]=
 	{
 		MSG(MMenuView),LIF_SELECTED,KEY_F3,
@@ -257,6 +288,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuInvertSelection),0,KEY_MULTIPLY,
 		MSG(MMenuRestoreSelection),0,KEY_CTRLM,
 	};
+	std::vector<string> FilesMenuStrings(ARRAYSIZE(FilesMenu));
+	AddHotkeys(FilesMenuStrings, FilesMenu, ARRAYSIZE(FilesMenu));
+
 	MenuDataEx CmdMenu[]=
 	{
 		MSG(MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
@@ -280,6 +314,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuProcessList),0,KEY_CTRLW,
 		MSG(MMenuHotPlugList),0,0,
 	};
+	std::vector<string> CmdMenuStrings(ARRAYSIZE(CmdMenu));
+	AddHotkeys(CmdMenuStrings, CmdMenu, ARRAYSIZE(CmdMenu));
+
 	MenuDataEx OptionsMenu[]=
 	{
 		MSG(MMenuSystemSettings),LIF_SELECTED,0,
@@ -310,6 +347,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSaveSetup),0,KEY_SHIFTF9,
 	};
+	std::vector<string> OptionsMenuStrings(ARRAYSIZE(OptionsMenu));
+	AddHotkeys(OptionsMenuStrings, OptionsMenu, ARRAYSIZE(OptionsMenu));
+
 	MenuDataEx RightMenu[]=
 	{
 		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
@@ -333,6 +373,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuReread),0,KEY_CTRLR,
 		MSG(MMenuChangeDriveRight),0,KEY_ALTF2,
 	};
+	ApplyViewModesNames(RightMenu);
+	std::vector<string> RightMenuStrings(ARRAYSIZE(RightMenu));
+	AddHotkeys(RightMenuStrings, RightMenu, ARRAYSIZE(RightMenu));
+
+
 	HMenuData MainMenu[]=
 	{
 		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, ARRAYSIZE(LeftMenu), 1},

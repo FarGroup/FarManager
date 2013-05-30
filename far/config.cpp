@@ -829,9 +829,36 @@ void SetFolderInfoFiles()
 	}
 }
 
+static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
+{
+	static PanelViewSettings InitialModes[]=
+	{
+		/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,WDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+		/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{40,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{PERCENT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,70},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,PERCENT_WIDTH},{COUNT_WIDTH}},
+		/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+		/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
+	};
+	static_assert(ARRAYSIZE(InitialModes) == predefined_panel_modes_count, "Not all panel modes defined");
+
+	if (Index < 0)
+	{
+		std::copy(InitialModes, InitialModes + predefined_panel_modes_count, Modes);
+	}
+	else
+	{
+		*Modes = InitialModes[Index];
+	}
+}
+
 void SetFilePanelModes()
 {
-	auto DisplayModeToReal = [](int Mode)->int
+	auto DisplayModeToReal = [](size_t Mode)->size_t
 	{
 		if (Mode < predefined_panel_modes_count)
 		{
@@ -840,7 +867,7 @@ void SetFilePanelModes()
 		return Mode;
 	};
 
-	auto RealModeToDisplay = [](int Mode)->int
+	auto RealModeToDisplay = [](size_t Mode)->size_t
 	{
 		if (Mode < predefined_panel_modes_count)
 		{
@@ -849,7 +876,7 @@ void SetFilePanelModes()
 		return Mode;
 	};
 
-	int CurMode=0;
+	size_t CurMode=0;
 
 	if (Global->CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
 	{
@@ -861,26 +888,25 @@ void SetFilePanelModes()
 	{
 		static const LNGID PredefinedNames[] =
 		{
-			MEditPanelModesBrief,
-			MEditPanelModesMedium,
-			MEditPanelModesFull,
-			MEditPanelModesWide,
-			MEditPanelModesDetailed,
-			MEditPanelModesDiz,
-			MEditPanelModesLongDiz,
-			MEditPanelModesOwners,
-			MEditPanelModesLinks,
-			MEditPanelModesAlternative,
+			MMenuBriefView,
+			MMenuMediumView,
+			MMenuFullView,
+			MMenuWideView,
+			MMenuDetailedView,
+			MMenuDizView,
+			MMenuLongDizView,
+			MMenuOwnersView,
+			MMenuLinksView,
+			MMenuAlternativeView,
 		};
 		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
 
 		std::vector<MenuDataEx> ModeListMenu(Global->Opt->ViewSettings.size());
 
-		std::transform(Global->Opt->ViewSettings.cbegin(), Global->Opt->ViewSettings.cend(), ModeListMenu.begin(), [](const VALUE_TYPE(Global->Opt->ViewSettings)& i) -> const MenuDataEx
+		for (size_t i = 0; i < Global->Opt->ViewSettings.size(); ++i)
 		{
-			const MenuDataEx Data = {i.Name.CPtr()};
-			return Data;
-		});
+			ModeListMenu[RealModeToDisplay(i)].Name = Global->Opt->ViewSettings[i].Name.CPtr();
+		}
 
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
@@ -901,8 +927,8 @@ void SetFilePanelModes()
 			{
 				if (Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER)
 				{
-					Global->CtrlObject->Cp()->ActivePanel->SetViewMode(DisplayModeToReal(ModeList.GetSelectPos()));
-					Global->CtrlObject->Cp()->ActivePanel->Redraw();
+					Global->CtrlObject->Cp()->ActivePanel->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
+					Global->CtrlObject->Cp()->Redraw();
 					return 1;
 				}
 				return 0;
@@ -917,6 +943,8 @@ void SetFilePanelModes()
 		enum ModeItems
 		{
 			MD_DOUBLEBOX,
+			MD_TEXTNAME,
+			MD_EDITNAME,
 			MD_TEXTTYPES,
 			MD_EDITTYPES,
 			MD_TEXTWIDTHS,
@@ -934,35 +962,39 @@ void SetFilePanelModes()
 			MD_CHECKBOX_UPPERTOLOWERCASE,
 			MD_SEPARATOR2,
 			MD_BUTTON_OK,
+			MD_BUTTON_RESET,
 			MD_BUTTON_CANCEL,
 		} ;
 		FarDialogItem ModeDlgData[]=
 		{
-			{DI_DOUBLEBOX, 3, 1,72,15,0,nullptr,nullptr,0,ModeListMenu[ModeNumber].Name},
-			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
-			{DI_EDIT,      5, 3,35, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeWidths)},
+			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,ModeListMenu[ModeNumber].Name},
+			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeName)},
+			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
+			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
 			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusTypes)},
-			{DI_EDIT,     38, 3,70, 3,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusWidths)},
+			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,MSG(MEditPanelModeWidths)},
+			{DI_EDIT,      5, 7,35, 7,0,nullptr,nullptr,0,L""},
+			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusTypes)},
 			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MEditPanelReadHelp)},
-			{DI_CHECKBOX,  5, 7, 0, 7,0,nullptr,nullptr,0,MSG(MEditPanelModeFullscreen)},
-			{DI_CHECKBOX,  5, 8, 0, 8,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignExtensions)},
-			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignFolderExtensions)},
-			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(MEditPanelModeFoldersUpperCase)},
-			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(MEditPanelModeFilesLowerCase)},
-			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
-			{DI_TEXT,     -1,13, 0,13,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-			{DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusWidths)},
+			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
+			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MEditPanelReadHelp)},
+			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(MEditPanelModeFullscreen)},
+			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignExtensions)},
+			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignFolderExtensions)},
+			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(MEditPanelModeFoldersUpperCase)},
+			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,MSG(MEditPanelModeFilesLowerCase)},
+			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
+			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < predefined_panel_modes_count? 0 : DIF_DISABLE),MSG(MReset)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
 		MakeDialogItemsEx(ModeDlgData,ModeDlg);
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
-		ModeNumber = DisplayModeToReal(ModeNumber);
+		ModeNumber = static_cast<int>(DisplayModeToReal(ModeNumber));
 
 		PanelViewSettings NewSettings = Global->Opt->ViewSettings[ModeNumber];
 		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=(NewSettings.Flags&PVS_FULLSCREEN)?1:0;
@@ -971,49 +1003,59 @@ void SetFilePanelModes()
 		ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected=(NewSettings.Flags&PVS_FOLDERUPPERCASE)?1:0;
 		ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected=(NewSettings.Flags&PVS_FILELOWERCASE)?1:0;
 		ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected=(NewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)?1:0;
+		ModeDlg[MD_EDITNAME].strData = NewSettings.Name;
 		ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
-		                   NewSettings.ColumnCount,ModeDlg[2].strData,ModeDlg[4].strData);
+		                   NewSettings.ColumnCount,ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData);
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
-		                   NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
+		                   NewSettings.StatusColumnCount,ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 		{
 			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
-			Dlg.SetPosition(-1,-1,76,17);
+			Dlg.SetPosition(-1,-1,76,19);
 			Dlg.SetHelp(L"PanelViewModes");
 			Dlg.SetId(PanelViewModesEditId);
 			Dlg.Process();
 			ExitCode=Dlg.GetExitCode();
 		}
 
-		if (ExitCode!=MD_BUTTON_OK)
-			continue;
+		if (ExitCode == MD_BUTTON_OK || ExitCode == MD_BUTTON_RESET)
+		{
+			if (ExitCode == MD_BUTTON_OK)
+			{
+				NewSettings.Clear();
+				if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
+					NewSettings.Flags|=PVS_FULLSCREEN;
+				if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)
+					NewSettings.Flags|=PVS_ALIGNEXTENSIONS;
+				if (ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected)
+					NewSettings.Flags|=PVS_FOLDERALIGNEXTENSIONS;
+				if (ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected)
+					NewSettings.Flags|=PVS_FOLDERUPPERCASE;
+				if (ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected)
+					NewSettings.Flags|=PVS_FILELOWERCASE;
+				if (ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected)
+					NewSettings.Flags|=PVS_FILEUPPERTOLOWERCASE;
+				NewSettings.Name = ModeDlg[MD_EDITNAME].strData;
+				TextToViewSettings(ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData,NewSettings.ColumnType,
+				                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
+				TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData,NewSettings.StatusColumnType,
+				                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
+			}
+			else
+			{
+				ResetViewModes(&NewSettings, ModeNumber);
+			}
 
-		NewSettings.Clear();
-		if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
-			NewSettings.Flags|=PVS_FULLSCREEN;
-		if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)
-			NewSettings.Flags|=PVS_ALIGNEXTENSIONS;
-		if (ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected)
-			NewSettings.Flags|=PVS_FOLDERALIGNEXTENSIONS;
-		if (ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected)
-			NewSettings.Flags|=PVS_FOLDERUPPERCASE;
-		if (ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected)
-			NewSettings.Flags|=PVS_FILELOWERCASE;
-		if (ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected)
-			NewSettings.Flags|=PVS_FILEUPPERTOLOWERCASE;
-		TextToViewSettings(ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData,NewSettings.ColumnType,
-		                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
-		TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData,NewSettings.StatusColumnType,
-		                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
-		Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
-		Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
-		Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
-		Global->CtrlObject->Cp()->SetScreenPosition();
-		int LeftMode=Global->CtrlObject->Cp()->LeftPanel->GetViewMode();
-		int RightMode=Global->CtrlObject->Cp()->RightPanel->GetViewMode();
-		Global->CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
-		Global->CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
-		Global->CtrlObject->Cp()->LeftPanel->Redraw();
-		Global->CtrlObject->Cp()->RightPanel->Redraw();
+			Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
+			Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
+			Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
+			Global->CtrlObject->Cp()->SetScreenPosition();
+			int LeftMode=Global->CtrlObject->Cp()->LeftPanel->GetViewMode();
+			int RightMode=Global->CtrlObject->Cp()->RightPanel->GetViewMode();
+			Global->CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
+			Global->CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
+			Global->CtrlObject->Cp()->LeftPanel->Redraw();
+			Global->CtrlObject->Cp()->RightPanel->Redraw();
+		}
 	}
 }
 
@@ -1069,7 +1111,7 @@ struct FARConfigItem
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
-			static_cast<DialogBuilderBase<DialogItemEx>*>(&Builder)->AddOKCancel(MOk, MConfigResetValue, MCancel);
+			static_cast<DialogBuilderBase<DialogItemEx>*>(&Builder)->AddOKCancel(MOk, MReset, MCancel);
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)
@@ -1244,6 +1286,7 @@ bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, con
 	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
+
 Options::Options():
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
@@ -1260,22 +1303,7 @@ Options::Options():
 
 	Macro.DisableMacro=0;
 
-	static PanelViewSettings InitialModes[]=
-	{
-		/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
-		/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
-		/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
-		/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
-		/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
-		/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,WDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
-		/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{40,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{PERCENT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
-		/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,70},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,PERCENT_WIDTH},{COUNT_WIDTH}},
-		/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
-		/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
-	};
-	static_assert(ARRAYSIZE(InitialModes) == predefined_panel_modes_count, "Not all panel modes defined");
-
-	std::copy(InitialModes, InitialModes + predefined_panel_modes_count, m_ViewSettings.begin());
+	ResetViewModes(m_ViewSettings.data());
 }
 
 FARConfigItem* Options::farconfig::begin() const {return m_items;}
@@ -2188,6 +2216,7 @@ void Options::SavePanelModes()
 		unsigned __int64 id = PanelModeCfg->CreateKey(0, FormatString() << Index);
 		if (id)
 		{
+			PanelModeCfg->SetValue(id, L"Name", i.Name);
 			PanelModeCfg->SetValue(id, L"ColumnTitles", strColumnTitles);
 			PanelModeCfg->SetValue(id, L"ColumnWidths", strColumnWidths);
 			PanelModeCfg->SetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
