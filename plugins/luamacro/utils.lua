@@ -2,7 +2,7 @@ local args = ...
 local M, ErrMsg, pack = args.M, args.ErrMsg, args.pack
 
 local F = far.Flags
-local band = bit64.band
+local band, bor = bit64.band, bit64.bor
 local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
@@ -381,7 +381,7 @@ local function LoadMacros (allAreas, unload)
     win.CreateDir(win.GetEnv("farprofile").."\\Menus",true)
     for k=1,2 do
       local root = k==1 and dir.."\\scripts" or dir.."\\internal"
-      local flags = k==1 and F.FRS_RECUR or 0
+      local flags = k==1 and bor(F.FRS_RECUR,F.FRS_SCANSYMLINK) or 0
       far.RecursiveSearch (root, "*.lua",
         function (FindData, FullPath)
           local f, msg = loadfile(FullPath)
