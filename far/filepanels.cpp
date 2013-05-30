@@ -834,7 +834,7 @@ int FilePanels::ProcessKey(int Key)
 
 int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
 {
-	if (Current && Mode >= VIEW_0 && Mode < Global->Opt->ViewSettings.size())
+	if (Current && Mode >= VIEW_0 && Mode < (int)Global->Opt->ViewSettings.size())
 	{
 		Current->SetViewMode(Mode);
 		Current=ChangePanelToFilled(Current,FILE_PANEL);

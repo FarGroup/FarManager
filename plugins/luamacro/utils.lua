@@ -2,7 +2,7 @@ local args = ...
 local M, ErrMsg, pack = args.M, args.ErrMsg, args.pack
 
 local F = far.Flags
-local band,bor = bit64.band,bit64.bor
+local band = bit64.band
 local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
@@ -418,7 +418,7 @@ local function LoadMacros (allAreas, unload)
 end
 
 local function InitMacroSystem()
-  local allAreas = bit64.band(MacroCallFar(MCODE_F_GETOPTIONS),0x1) == 0
+  local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   LoadMacros(allAreas,true)
 end
 
@@ -656,8 +656,9 @@ local function RunStartMacro()
 
   local flagregex = regex.new("\\bRunAfterFARStart\\b", "i")
   local mode = far.MacroGetArea()
-  local mtable = mode==F.MACROAREA_EDITOR and Areas.editor or
-                 mode==F.MACROAREA_VIEWER and Areas.viewer or Areas.shell
+  local opt = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3)
+  local mtable = opt==1 and Areas.editor or opt==2 and Areas.viewer or Areas.shell
+
   for _,macros in pairs(mtable) do
     local m = macros.recorded
     if m and not m.disabled and m.flags and flagregex:find(m.flags) and not m.autostartdone then

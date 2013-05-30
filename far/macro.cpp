@@ -2629,10 +2629,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_GETOPTIONS:
 		{
-			DWORD Options = 0;
-			if (Global->Opt->OnlyEditorViewerUsed)              Options |= 0x1;
-			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x2;
-			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x4;
+			DWORD Options = Global->Opt->OnlyEditorViewerUsed; // bits 0x1 and 0x2
+			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x4;
+			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x8;
 			PassNumber(Options, Data);
 			break;
 		}

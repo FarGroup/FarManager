@@ -138,7 +138,6 @@ static int MainProcess(
 
 		if (!ename.IsEmpty() || !vname.IsEmpty())
 		{
-			Global->Opt->OnlyEditorViewerUsed=1;
 			Panel *DummyPanel=new Panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateFilePanels();
@@ -148,6 +147,7 @@ static int MainProcess(
 
 			if (!ename.IsEmpty())
 			{
+				Global->Opt->OnlyEditorViewerUsed=1;
 				FileEditor *ShellEditor=new FileEditor(ename,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
 				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
@@ -159,6 +159,7 @@ static int MainProcess(
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
 			else if (!vname.IsEmpty())
 			{
+				Global->Opt->OnlyEditorViewerUsed=2;
 				FileViewer *ShellViewer=new FileViewer(vname,FALSE);
 
 				if (!ShellViewer->GetExitCode())

@@ -876,7 +876,7 @@ void SetFilePanelModes()
 
 		std::vector<MenuDataEx> ModeListMenu(Global->Opt->ViewSettings.size());
 
-		std::transform(Global->Opt->ViewSettings.cbegin(), Global->Opt->ViewSettings.cend(), ModeListMenu.begin(), [](const VALUE_TYPE(Global->Opt->ViewSettings)& i)
+		std::transform(Global->Opt->ViewSettings.cbegin(), Global->Opt->ViewSettings.cend(), ModeListMenu.begin(), [](const VALUE_TYPE(Global->Opt->ViewSettings)& i) -> const MenuDataEx
 		{
 			const MenuDataEx Data = {i.Name.CPtr()};
 			return Data;
