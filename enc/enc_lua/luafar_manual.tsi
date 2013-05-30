@@ -5677,7 +5677,7 @@ lv=2
 dt=Text
 nm=far.MacroAdd
 ctime=3523354795
-mtime=3577031225
+mtime=3579101813
 <article>
 #_Id = far.MacroAdd (Area, Flags, AKey, SequenceText, Description, Callback)
 #_
@@ -5705,7 +5705,7 @@ mtime=3577031225
 #_
 #_  local Id = far.MacroAdd(
 #_    F.MACROAREA_SHELL,
-#_    F.KMFLAGS_DISABLEOUTPUT,
+#_    0,
 #_    "CtrlShiftF12",
 #_    'msgbox("test","test")',
 #_    "cool macro",
