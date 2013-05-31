@@ -2615,7 +2615,7 @@ public:
 void Database::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
-	int rc = pDb->InitStatus(pname, m_ImportExportMode);
+	int rc = pDb->InitStatus(pname, !!m_ImportExportMode);
 	if ( rc > 0 )
 	{
 		if (m_ImportExportMode)
@@ -2679,7 +2679,7 @@ T* Database::CreateDatabase(const char *son)
 {
 	T* cfg = new T();
 	CheckDatabase(cfg);
-	if (!m_ImportExportMode && cfg->IsNew())
+	if ('i' != m_ImportExportMode && cfg->IsNew())
 	{
 		TryImportDatabase(cfg, son);
 	}
@@ -2695,7 +2695,7 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, con
 	if (first)
 		CheckDatabase(cfg);
 
-	if (!m_ImportExportMode && cfg->IsNew() && first)
+	if ('i' != m_ImportExportMode && cfg->IsNew() && first)
 		TryImportDatabase(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
@@ -2727,7 +2727,7 @@ HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
 
-Database::Database(bool ImportExportMode):
+Database::Database(char ImportExportMode):
 	m_TemplateDoc(nullptr),
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),

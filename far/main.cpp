@@ -485,7 +485,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->Db = new Database(true);
+		Global->Db = new Database(Export ? 'e' : 'i');
 		return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
 	}
 	else if (Argc>=2 && Argc<=4 && !StrCmpI(Argv[1], L"/clearcache"))

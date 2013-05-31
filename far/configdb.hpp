@@ -255,7 +255,7 @@ protected:
 class Database
 {
 public:
-	Database(bool ImportExportMode=false);
+	Database(char ImportExportMode='\0');
 	~Database();
 	bool Import(const string& File);
 	bool Export(const string& File);
@@ -299,7 +299,7 @@ private:
 	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
 	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
-	bool m_ImportExportMode;
+	char m_ImportExportMode;
 	LONG ThreadCounter;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;
