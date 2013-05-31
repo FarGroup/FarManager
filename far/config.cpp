@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
 
-enum {predefined_panel_modes_count = 10};
+static const size_t predefined_panel_modes_count = 10;
 
 // Стандартный набор разделителей
 static const wchar_t* WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
@@ -864,6 +864,10 @@ void SetFilePanelModes()
 		{
 			Mode = (Mode == 9)? 0 : (Mode + 1);
 		}
+		else
+		{
+			--Mode;
+		}
 		return Mode;
 	};
 
@@ -872,6 +876,10 @@ void SetFilePanelModes()
 		if (Mode < predefined_panel_modes_count)
 		{
 			Mode = (Mode == 0)? 9 : (Mode - 1);
+		}
+		else
+		{
+			++Mode;
 		}
 		return Mode;
 	};
@@ -901,7 +909,9 @@ void SetFilePanelModes()
 		};
 		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
 
-		std::vector<MenuDataEx> ModeListMenu(Global->Opt->ViewSettings.size());
+		auto MenuCount = Global->Opt->ViewSettings.size();
+		// +1 for separator
+		std::vector<MenuDataEx> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
 		for (size_t i = 0; i < Global->Opt->ViewSettings.size(); ++i)
 		{
@@ -914,7 +924,16 @@ void SetFilePanelModes()
 				ModeListMenu[i].Name = MSG(PredefinedNames[i]);
 		}
 
+		if (MenuCount > predefined_panel_modes_count)
+		{
+			ModeListMenu[predefined_panel_modes_count].Name = nullptr;
+			ModeListMenu[predefined_panel_modes_count].Flags = LIF_SEPARATOR;
+		}
+
 		int ModeNumber = -1;
+
+		bool AddNewMode = false;
+		bool DeleteMode = false;
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
@@ -925,11 +944,29 @@ void SetFilePanelModes()
 			ModeList.SetId(PanelViewModesId);
 			ModeNumber=ModeList.Run([&](int Key)->int
 			{
-				if (Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER)
+				switch (Key)
 				{
+				case KEY_CTRLENTER:
+				case KEY_RCTRLENTER:
 					Global->CtrlObject->Cp()->ActivePanel->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList.GetSelectPos())));
 					Global->CtrlObject->Cp()->Redraw();
 					return 1;
+
+				case KEY_INS:
+					AddNewMode = true;
+					ModeList.Close();
+					break;
+
+				case KEY_DEL:
+					if (ModeList.GetSelectPos() >= predefined_panel_modes_count)
+					{
+						DeleteMode = true;
+						ModeList.Close();
+					}
+					break;
+
+				default:
+					break;
 				}
 				return 0;
 			});
@@ -939,6 +976,18 @@ void SetFilePanelModes()
 			return;
 
 		CurMode=ModeNumber;
+
+		ModeNumber = static_cast<int>(DisplayModeToReal(ModeNumber));
+
+		if (DeleteMode)
+		{
+			Global->Opt->DeleteViewSettings(ModeNumber);
+			--CurMode;
+			if (CurMode == predefined_panel_modes_count) //separator
+				--CurMode;
+			continue;
+		}
+
 
 		enum ModeItems
 		{
@@ -967,7 +1016,7 @@ void SetFilePanelModes()
 		} ;
 		FarDialogItem ModeDlgData[]=
 		{
-			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,ModeListMenu[ModeNumber].Name},
+			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : Global->Opt->ViewSettings[ModeNumber].Name.CPtr()},
 			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeName)},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
 			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
@@ -994,9 +1043,7 @@ void SetFilePanelModes()
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
-		ModeNumber = static_cast<int>(DisplayModeToReal(ModeNumber));
-
-		PanelViewSettings NewSettings = Global->Opt->ViewSettings[ModeNumber];
+		PanelViewSettings NewSettings = AddNewMode? PanelViewSettings() : Global->Opt->ViewSettings[ModeNumber];
 		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=(NewSettings.Flags&PVS_FULLSCREEN)?1:0;
 		ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected=(NewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0;
 		ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected=(NewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0;
@@ -1045,7 +1092,14 @@ void SetFilePanelModes()
 				ResetViewModes(&NewSettings, ModeNumber);
 			}
 
-			Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
+			if (AddNewMode)
+			{
+				Global->Opt->AddViewSettings(ModeNumber, &NewSettings);
+			}
+			else
+			{
+				Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
+			}
 			Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
 			Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
 			Global->CtrlObject->Cp()->SetScreenPosition();
@@ -2135,62 +2189,88 @@ void Options::SetViewSettings(size_t Index, const struct PanelViewSettings* Data
 	m_ViewSettingsChanged = true;
 }
 
+void Options::AddViewSettings(size_t Index, const struct PanelViewSettings* Data)
+{
+	m_ViewSettings.emplace(m_ViewSettings.begin() + std::max(Index, predefined_panel_modes_count), *Data);
+	m_ViewSettingsChanged = true;
+}
+
+void Options::DeleteViewSettings(size_t Index)
+{
+	assert(Index >= predefined_panel_modes_count);
+
+	m_ViewSettings.erase(m_ViewSettings.begin() + Index);
+	m_ViewSettingsChanged = true;
+}
+
+static const wchar_t *CustomModesKeyName = L"CustomModes";
+static const wchar_t *ModesNameName = L"Name";
+static const wchar_t *ModesColumnTitlesName = L"ColumnTitles";
+static const wchar_t *ModesColumnWidthsName = L"ColumnWidths";
+static const wchar_t *ModesStatusColumnTitlesName = L"StatusColumnTitles";
+static const wchar_t *ModesStatusColumnWidthsName = L"StatusColumnWidths";
+static const wchar_t *ModesFlagsName = L"Flags";
 
 void Options::ReadPanelModes()
 {
-	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
+	auto cfg = Global->Db->CreatePanelModeConfig();
 
-	for (int i = 0; ; ++i)
+	unsigned __int64 root = 0;
+
+	size_t Index = 0;
+
+	auto ReadMode = [&](VALUE_TYPE(ViewSettings)& i) -> bool
 	{
-		unsigned __int64 id = PanelModeCfg->GetKeyID(0, FormatString() << i);
+		unsigned __int64 id = cfg->GetKeyID(root, FormatString() << Index);
+
+		Index++;
+
 		if (!id)
 		{
-			if (i < predefined_panel_modes_count)
-			{
-				continue;
-			}
-			else
-			{
-				break;
-			}
+			return false;
 		}
 		string strColumnTitles, strColumnWidths;
-		PanelModeCfg->GetValue(id, L"ColumnTitles", strColumnTitles);
-		PanelModeCfg->GetValue(id, L"ColumnWidths", strColumnWidths);
-
-		if (strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty())
-			continue;
+		cfg->GetValue(id, ModesColumnTitlesName, strColumnTitles);
+		cfg->GetValue(id, ModesColumnWidthsName, strColumnWidths);
 
 		string strStatusColumnTitles, strStatusColumnWidths;
-		PanelModeCfg->GetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
-		PanelModeCfg->GetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
+		cfg->GetValue(id, ModesStatusColumnTitlesName, strStatusColumnTitles);
+		cfg->GetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
 
 		unsigned __int64 Flags=0;
-		PanelModeCfg->GetValue(id, L"Flags", &Flags);
+		cfg->GetValue(id, ModesFlagsName, &Flags);
 
-		PanelViewSettings NewSettings(i < predefined_panel_modes_count? m_ViewSettings[i] : PanelViewSettings());
-
-		PanelModeCfg->GetValue(id, L"Name", NewSettings.Name);
+		cfg->GetValue(id, ModesNameName, i.Name);
 
 		if (!strColumnTitles.IsEmpty())
-			TextToViewSettings(strColumnTitles,strColumnWidths,NewSettings.ColumnType,
-			                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
+			TextToViewSettings(strColumnTitles,strColumnWidths,i.ColumnType,
+				i.ColumnWidth,i.ColumnWidthType,i.ColumnCount);
 
 		if (!strStatusColumnTitles.IsEmpty())
-			TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
-			                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
+			TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,i.StatusColumnType,
+				i.StatusColumnWidth,i.StatusColumnWidthType,i.StatusColumnCount);
 
-		NewSettings.Flags = Flags;
+			i.Flags = Flags;
 
-		if (i < predefined_panel_modes_count)
+		return true;
+	};
+
+	std::for_each(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
+
+	root = cfg->GetKeyID(0, CustomModesKeyName);
+
+	if (root)
+	{
+		for (;;)
 		{
-			m_ViewSettings[i] = NewSettings;
-		}
-		else
-		{
-			m_ViewSettings.push_back(NewSettings);
+			PanelViewSettings NewSettings;
+			if (ReadMode(NewSettings))
+				m_ViewSettings.push_back(NewSettings);
+			else
+				break;
 		}
 	}
+
 	m_ViewSettingsChanged = false;
 }
 
@@ -2200,10 +2280,11 @@ void Options::SavePanelModes()
 	if (!m_ViewSettingsChanged)
 		return;
 
-	auto PanelModeCfg = Global->Db->CreatePanelModeConfig();
-
+	auto cfg = Global->Db->CreatePanelModeConfig();
+	unsigned __int64 root = 0;
 	size_t Index = 0;
-	std::for_each(CONST_RANGE(ViewSettings, i)
+
+	auto SaveMode = [&](const VALUE_TYPE(ViewSettings)& i)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;
@@ -2213,17 +2294,30 @@ void Options::SavePanelModes()
 		ViewSettingsToText(i.StatusColumnType,i.StatusColumnWidth,i.StatusColumnWidthType,
 		                   i.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
 
-		unsigned __int64 id = PanelModeCfg->CreateKey(0, FormatString() << Index);
+		unsigned __int64 id = cfg->CreateKey(root, FormatString() << Index);
 		if (id)
 		{
-			PanelModeCfg->SetValue(id, L"Name", i.Name);
-			PanelModeCfg->SetValue(id, L"ColumnTitles", strColumnTitles);
-			PanelModeCfg->SetValue(id, L"ColumnWidths", strColumnWidths);
-			PanelModeCfg->SetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
-			PanelModeCfg->SetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
-			PanelModeCfg->SetValue(id, L"Flags", i.Flags);
+			cfg->SetValue(id, ModesNameName, i.Name);
+			cfg->SetValue(id, ModesColumnTitlesName, strColumnTitles);
+			cfg->SetValue(id, ModesColumnWidthsName, strColumnWidths);
+			cfg->SetValue(id, ModesStatusColumnTitlesName, strStatusColumnTitles);
+			cfg->SetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
+			cfg->SetValue(id, ModesFlagsName, i.Flags);
 		}
 		++Index;
-	});
+	};
+
+	std::for_each(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
+
+	root = cfg->GetKeyID(0, CustomModesKeyName);
+	if (root)
+	{
+		cfg->DeleteKeyTree(root);
+	}
+	root = cfg->CreateKey(0, CustomModesKeyName);
+	if (root)
+	{
+		std::for_each(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
+	}
 	m_ViewSettingsChanged = false;
 }

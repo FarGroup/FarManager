@@ -277,6 +277,8 @@ public:
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void SetViewSettings(size_t Index, const struct PanelViewSettings* Data);
+	void AddViewSettings(size_t Index, const struct PanelViewSettings* Data);
+	void DeleteViewSettings(size_t Index);
 
 	struct PanelOptions
 	{

@@ -436,6 +436,12 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 			}
 		}
 	}
+
+	if (!ColumnCount)
+	{
+		ColumnCount = 1;
+		ViewColumnTypes[0] = NAME_COLUMN;
+	}
 }
 
 
