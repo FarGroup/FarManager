@@ -79,7 +79,6 @@ enum SHOW_MODES
 	SHOW_DUMP
 };
 
-
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const string& name, int percent, int search_hex);
 
@@ -94,6 +93,15 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define CONTINUE_CHAR 0x203A // Single Right-Pointing Angle Quotation Mark
 #define BOM_CHAR      0xFEFF // Zero Length Space
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
+
+static bool IsCodePageSupported(uintptr_t cp)
+{
+	if (cp == CP_DEFAULT || IsStandardCodePage(cp))
+		return true;
+
+	int mb = Global->CodePages->GetCodePageInfo(cp);
+	return mb >= 1 && mb <= 2;
+}
 
 Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Global->Opt->ViOpt),
@@ -163,7 +171,6 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ReadBuffer = new wchar_t[MAX_VIEWLINEB];
 }
 
-
 Viewer::~Viewer()
 {
 	KeepInitParameters();
@@ -210,7 +217,6 @@ Viewer::~Viewer()
 		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
 
-
 void Viewer::SavePosition()
 {
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
@@ -228,7 +234,6 @@ void Viewer::SavePosition()
 	}
 }
 
-
 void Viewer::KeepInitParameters()
 {
 	Global->strGlobalSearchString = strLastSearchStr;
@@ -240,7 +245,6 @@ void Viewer::KeepInitParameters()
 	Global->Opt->ViOpt.ViewerWrap=VM.WordWrap != 0;
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
-
 
 int Viewer::OpenFile(const string& Name,int warning)
 {
@@ -332,7 +336,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
 		{
 			CachedCodePage=poscache.CodePage;
-			if (CachedCodePage && !Global->CodePages->IsCodePageSupported(CachedCodePage))
+			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
 				CachedCodePage = 0;
 		}
 		if (Global->Opt->ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
@@ -346,12 +350,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		FilePos=0;
 	}
 
-	/* $ 26.07.2002 IS
-	     Автоопределение Unicode не должно зависеть от опции
-	     "Автоопределение таблицы символов", т.к. Unicode не есть
-	     _таблица символов_ для перекодировки.
-	*/
-	//if(ViOpt.AutoDetectTable)
+	// Unicode auto-detect ignores ViOpt.AutoDetectTable
 	{
 		bool Detect=false;
 		uintptr_t CodePage=0;
@@ -360,18 +359,15 @@ int Viewer::OpenFile(const string& Name,int warning)
 		{
 			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Global->Opt->ViOpt.AutoDetectCodePage!=0);
 
-			// Проверяем поддерживается или нет задетектированная кодовая страница
+			// Проверяем поддерживается ли детектированная кодовая страница
 			if (Detect)
-				Detect = Global->CodePages->IsCodePageSupported(CodePage);
+				Detect = IsCodePageSupported(CodePage);
 		}
 
 		if (VM.CodePage==CP_DEFAULT)
 		{
 			if (Detect)
-			{
 				VM.CodePage=CodePage;
-				//??? CodePageChangedByUser=TRUE;
-			}
 
 			if (CachedCodePage)
 			{
@@ -380,14 +376,12 @@ int Viewer::OpenFile(const string& Name,int warning)
 			}
 
 			if (VM.CodePage==CP_DEFAULT)
-			{
 				VM.CodePage=GetDefaultCodePage();
-			}
+
+			MB.SetCP(static_cast<UINT>(VM.CodePage));
 		}
 		else
-		{
 			CodePageChangedByUser=TRUE;
-		}
 
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 	}
@@ -406,8 +400,6 @@ int Viewer::OpenFile(const string& Name,int warning)
 	ChangeViewKeyBar();
 	AdjustWidth();
 	Global->CtrlObject->Plugins->SetCurViewer(this); // HostFileViewer;
-	/* $ 15.09.2001 tran
-	   пора легализироваться */
 	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
 	bVE_READ_Sent = true;
 
@@ -458,9 +450,6 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00
 	return false;
 }
 
-/* $ 27.04.2001 DJ
-   функция вычисления ширины в зависимости от наличия скроллбара
-*/
 void Viewer::AdjustWidth()
 {
 	Width=X2-X1+1;
@@ -645,14 +634,14 @@ void Viewer::DisplayObject()
 }
 
 
-static inline int getCharSize( UINT cp )
+int Viewer::getCharSize()
 {
-	if ( CP_UTF8 == cp )
+	if (CP_UTF8 == VM.CodePage)
 		return -1;
-	else if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
+	else if (CP_UNICODE == VM.CodePage || CP_REVERSEBOM == VM.CodePage)
 		return +2;
-	else
-		return +1;
+	else 
+		return (static_cast<UINT>(VM.CodePage) == MB.current_cp ? -MB.current_mb : +1);
 }
 
 static inline int getChSize( UINT cp )
@@ -665,20 +654,20 @@ static inline int getChSize( UINT cp )
 
 static const int mline = 512;
 
-static void txt_dump(
-	UINT cp, const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch )
+int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail)
 {
 	int ib, iw;
 	wchar_t w1[mline];
+	UINT cp = static_cast<UINT>(VM.CodePage);
 
-	if ( cp == CP_UNICODE )
+	if (cp == CP_UNICODE)
 	{
 		ib = (int)(nr / 2);
 		memcpy(outstr, line, ib*2);
 		if ( nr & 1)
 			outstr[ib++] = REPLACE_CHAR;
 	}
-	else if ( cp == CP_REVERSEBOM )
+	else if (cp == CP_REVERSEBOM)
 	{
 		ib = (int)(nr / 2);
 		for ( iw=0; iw < ib; ++iw )
@@ -686,13 +675,7 @@ static void txt_dump(
 		if ( nr & 1)
 			outstr[ib++] = REPLACE_CHAR;
 	}
-	else if ( cp != CP_UTF8 )
-	{
-		ib = MultiByteToWideChar(cp,0, (const char *)line,nr, outstr,width);
-		if ( ib < 0)
-			ib = 0;
-	}
-	else
+	else if (cp == CP_UTF8)
 	{
 		int tail, nw;
 		wchar_t w2[mline];
@@ -716,6 +699,39 @@ static void txt_dump(
 			++iw;
 		}
 	}
+	else if (cp == MB.current_cp)
+	{
+		ib = 0;
+		while (ib < width && static_cast<DWORD>(ib) < nr)
+		{
+			if (tail)
+			{
+				--tail;
+				outstr[ib++] = CONTINUE_CHAR;
+				continue;
+			}
+
+			int clen = MB.GetChar(line+ib, nr-static_cast<DWORD>(ib), *(outstr+ib));
+			if (clen <= 0)
+			{
+				outstr[ib++] = REPLACE_CHAR;
+				continue;
+			}
+
+			++ib;
+			while (--clen > 0 && ib < width)
+				outstr[ib++] = CONTINUE_CHAR;
+
+			if (clen > 0) // char continues on the next line
+				tail = clen;
+		}
+	}
+	else
+	{
+		ib = MultiByteToWideChar(cp,0, (const char *)line,nr, outstr,width);
+		if ( ib < 0)
+			ib = 0;
+	}
 
 	for ( iw = 0; iw < width; ++iw ) {
 		if ( iw >= ib )
@@ -724,18 +740,20 @@ static void txt_dump(
 			outstr[iw] = zch;
 	}
 	outstr[width] = L'\0';
+
+	return tail;
 }
 
 
 void Viewer::ShowDump()
 {
 	int Y, EndFile = 0, ch_size = getChSize(VM.CodePage);
-	int utf8 = VM.CodePage == CP_UTF8 ? 1 : 0;
+	int tail = 0, xl = VM.CodePage == CP_UTF8 ? 4-1 : (VM.CodePage==MB.current_cp ? MB.current_mb-1 : 0);
 
 	assert(Width <= mline);
 	unsigned char line[mline*2];
 	wchar_t OutStr[mline+1];
-	DWORD nr, nb = (DWORD)Width*ch_size + 3*utf8, mb = (DWORD)Width*ch_size;
+	DWORD nr, nb = (DWORD)Width*ch_size + xl, mb = (DWORD)Width*ch_size;
 	__int64 bpos;
 
 	FilePos -= FilePos % ch_size;
@@ -762,7 +780,7 @@ void Viewer::ShowDump()
 		else
 			LastPage = EndFile = veof() ? 1 : 0;
 
-		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
+		tail = txt_dump(line, nr, Width, OutStr, ZERO_CHAR, tail);
 
 		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth())<<OutStr;
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
@@ -784,7 +802,7 @@ void Viewer::ShowHex()
 	__int64 HexLeftPos=((LeftPos>80-ObjWidth()) ? std::max(80-ObjWidth(),0):LeftPos);
 
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
-	int border_len = (int)wcslen(BorderLine);
+	int tail = 0, border_len = (int)wcslen(BorderLine);
 
 	for (LastPage=EndFile=0,Y=Y1; Y<=Y2; Y++)
 	{
@@ -819,7 +837,7 @@ void Viewer::ShowHex()
 
 		unsigned char line[16+3];
 		DWORD nr = 0;
-		DWORD nb = CP_UTF8 == VM.CodePage ? 16+3 : 16;
+		DWORD nb = CP_UTF8 == VM.CodePage ? 16+4-1 : (VM.CodePage==MB.current_cp ? 16+MB.current_mb-1 : 16);
 		Reader.Read(line, nb, &nr);
 		if (nr > 16)
 			Reader.Unread(nr-16);
@@ -928,7 +946,7 @@ void Viewer::ShowHex()
 				}
 				out_len += 3*16 + border_len;
 
-				txt_dump(VM.CodePage, line, nr, 16, TextStr, ZERO_CHAR);
+				tail = txt_dump(line, nr, 16, TextStr, ZERO_CHAR, tail);
 				TextPos = 16;
 			}
 		}
@@ -1615,7 +1633,8 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_F8:
 		{
-			VM.CodePage = VM.CodePage==GetACP() ? GetOEMCP() : GetACP();
+			VM.CodePage = VM.CodePage == GetACP() ? GetOEMCP() : GetACP();
+			MB.SetCP(static_cast<UINT>(VM.CodePage));
 			lcache_ready = false;
 			AdjustFilePos();
 			ChangeViewKeyBar();
@@ -1626,18 +1645,19 @@ int Viewer::ProcessKey(int Key)
 		case KEY_SHIFTF8:
 		{
 			uintptr_t nCodePage = VM.CodePage;
-			if (Global->CodePages->SelectCodePage(nCodePage, true, true, false, true))
+			if (Global->CodePages->SelectCodePage(nCodePage, true, true, true))
 			{
 				if (nCodePage == CP_DEFAULT)
 				{
 					__int64 fpos = vtell();
-					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && Global->CodePages->IsCodePageSupported(nCodePage);
+					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
 					vseek(fpos, SEEK_SET);
 					if (!detect)
 						nCodePage = GetDefaultCodePage();
 				}
 				CodePageChangedByUser=TRUE;
-				VM.CodePage=nCodePage;
+				VM.CodePage = nCodePage;
+				MB.SetCP(static_cast<UINT>(VM.CodePage));
 				lcache_ready = false;
 				AdjustFilePos();
 				ChangeViewKeyBar();
@@ -2203,7 +2223,7 @@ void Viewer::Up( int nlines, bool adjust )
 		wchar_t c2[portion_size/(int)sizeof(wchar_t)];
 	} buff;
 
-	int j, buff_size, nr, ch_size = getCharSize(VM.CodePage);
+	int j, buff_size, nr, ch_size = getCharSize();
 
 	while ( nlines > 0 )
 	{
@@ -2327,10 +2347,9 @@ void Viewer::Up( int nlines, bool adjust )
 	}
 }
 
-
 int Viewer::GetStrBytesNum( const wchar_t *Str, int Length )
 {
-	int ch_size = getCharSize(VM.CodePage);
+	int ch_size = getCharSize();
 	if (ch_size > 0)
 		return Length * ch_size;
 	else
@@ -2363,7 +2382,6 @@ void Viewer::ChangeViewKeyBar()
 
 	Global->CtrlObject->Plugins->SetCurViewer(this); //HostFileViewer;
 }
-
 
 enum SEARCHDLG
 {
@@ -3310,7 +3328,7 @@ void Viewer::Search(int Next,int FirstChar)
 	else
 	{
 		sd.is_utf8 = VM.CodePage == CP_UTF8;
-		sd.ch_size = getCharSize(VM.CodePage);
+		sd.ch_size = getCharSize();
 		sd.search_text = strSearchStr.CPtr();
 
 		if ( SearchRegexp )
@@ -3701,16 +3719,45 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		Reader.Read(TmpBuf, Count, &ReadSize);
 		int ConvertSize = (int)ReadSize;
 
-		if (VM.CodePage != CP_UTF8)
-		{
-			ReadSize = (DWORD)MultiByteToWideChar(VM.CodePage,0, TmpBuf,ConvertSize, Buf,Count);
-		}
-		else
+		if (VM.CodePage == CP_UTF8)
 		{
 			int tail;
 			ReadSize = (DWORD)utf8_to_WideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
 			if (tail)
 				Reader.Unread(tail);
+		}
+		else if (static_cast<UINT>(VM.CodePage) == MB.current_cp)
+		{
+			ReadSize = 0;
+			for (int ib = 0; ib < ConvertSize; )
+			{
+				 int clen = MB.GetChar((BYTE *)TmpBuf, ConvertSize-ib, *(Buf+ReadSize));
+				 if (clen > 0)
+				 {
+					 if (Buf2)
+						 Buf2[ReadSize] = Buf[ReadSize];
+
+					 ib += clen;
+					 ++ReadSize;
+				 }
+				 else if (clen < -10) // data buffer end
+				 {
+					 Reader.Unread(static_cast<DWORD>(ConvertSize-ib));
+					 break;
+				 }
+				 else // invalid sequence
+				 {
+					 if (Buf2)
+						 Buf2[ReadSize] = L'?';
+
+					 Buf[ReadSize++] = REPLACE_CHAR;
+					 ++ib;
+				 }
+			}
+		}
+		else
+		{
+			ReadSize = (DWORD)MultiByteToWideChar(VM.CodePage,0, TmpBuf,ConvertSize, Buf,Count);
 		}
 	}
 
@@ -3814,8 +3861,29 @@ bool Viewer::vgetc(wchar_t *pCh)
 			break;
 		}
 		default:
-			MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)vgetc_buffer+vgetc_ib,1, pCh,1);
-			++vgetc_ib;
+			if (static_cast<UINT>(VM.CodePage) == MB.current_cp)
+			{
+				int clen = MB.GetChar(vgetc_buffer+vgetc_ib, static_cast<size_t>(vgetc_cb-vgetc_ib), *pCh);
+				if (clen > 0)
+				{
+					vgetc_ib += clen;
+				}
+				else if (clen < -10) // end of data
+				{
+					*pCh = REPLACE_CHAR;
+					vgetc_ib = vgetc_cb;
+				}
+				else // bad sequence
+				{
+					*pCh = REPLACE_CHAR;
+					++vgetc_ib;
+				}
+			}
+			else
+			{
+				MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)vgetc_buffer+vgetc_ib,1, pCh,1);
+				++vgetc_ib;
+			}
 		break;
 	}
 
@@ -3828,13 +3896,18 @@ wchar_t Viewer::vgetc_prev()
 	if ( pos <= 0 )
 		return L'\0';
 
-	int ch_size = getCharSize(VM.CodePage);
+	int nb, ch_size = getCharSize();
 	if ( pos < ch_size )
 		return REPLACE_CHAR;
 
-	int nb = (ch_size >= 1 ? ch_size : (pos > 4 ? 4 : static_cast<int>(pos)));
-	DWORD nr = 0;
+   if ((nb = ch_size) < 0)	// UTF-8 or MB decoder
+	{
+		nb = (nb == -1 ? 4 : -nb); // -1 -- UTF8
+		if (static_cast<INT64>(nb) > pos)
+			nb = static_cast<int>(pos);
+	}
 
+	DWORD nr = 0;
 	char ss[4];
 	if ( vseek(-nb, SEEK_CUR) )
 		 Reader.Read(ss, static_cast<DWORD>(nb), &nr);
@@ -3862,13 +3935,25 @@ wchar_t Viewer::vgetc_prev()
 				break;
 			}
 			default:
-				MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)ss,1, &ch,1);
+				if (ch_size == +1) {
+					MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)ss,1, &ch,1);
+				}
+				else {
+					assert(MB.current_cp == static_cast<UINT>(VM.CodePage));
+	            for (int i = 0; i < nb; ++i)
+					{
+						wchar_t wc;
+						if (MB.GetChar((BYTE *)ss+i, static_cast<size_t>(nb-i), wc) == nb-i)
+						{
+							ch = wc; break;
+						}
+					}
+				}
 			break;
 		}
 	}
 	return ch;
 }
-
 
 #define RB_PRC 3
 #define RB_HEX 4
@@ -4002,8 +4087,7 @@ void Viewer::AdjustFilePos()
 
 	if (!VM.Hex)
 	{
-		int ch_size = getCharSize(VM.CodePage);
-		FilePos -= FilePos % ch_size;
+		FilePos -= FilePos % getChSize(VM.CodePage);
 
 		vseek(FilePos, SEEK_SET);
 		if (VM.CodePage != CP_UTF8)
@@ -4374,7 +4458,13 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 uintptr_t Viewer::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->ViOpt.DefaultCodePage;
-	if (cp < 0 || !Global->CodePages->IsCodePageSupported(cp))
+	if (cp == CP_ACP)
 		cp = GetACP();
+	else if (cp == CP_OEMCP)
+		cp = GetOEMCP();
+
+	if (cp < 0 || !IsCodePageSupported(cp))
+		cp = GetACP();
+
 	return cp;
 }

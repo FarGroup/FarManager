@@ -10494,14 +10494,14 @@ MFindFileWholeWords
 "&Celé slová"
 
 MFindFileAllCodePages
-"Все кодовые страницы"
-"All code pages"
-"Všechny kódové stránky"
+"Все стандартные кодовые страницы"
+"All standard code pages"
+upd:"Všechny kódové stránky"
 upd:"Alle Zeichentabellen"
-"Minden kódlappal"
-"Wszystkie zainstalowane"
-"Todas las páginas de códigos"
-"Všetky tabuľky znakov"
+upd:"Minden kódlappal"
+upd:"Wszystkie zainstalowane"
+upd:"Todas las páginas de códigos"
+upd:"Všetky tabuľky znakov"
 
 MFindArchives
 "Искать в а&рхивах"

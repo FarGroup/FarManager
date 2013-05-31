@@ -36,21 +36,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
-	// "Любимая" таблица символов
-	CPST_FAVORITE = 1,
-	// Таблица символов участвующая в поиске по всем таблицам символов
-	CPST_FIND = 2
+	CPST_FAVORITE = 1, // "Любимая" таблица символов
+	CPST_FIND     = 2  // Таблица символов участвующая в поиске по всем таблицам символов
 };
 
 extern const wchar_t *FavoriteCodePagesKey;
 
-const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
+const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 1 /* UTF-8 */;
 
-inline bool IsStandardCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
+inline bool IsStandardCodePage(uintptr_t cp) {
+	return cp==CP_UNICODE || cp==CP_UTF8 || cp==CP_REVERSEBOM || cp==GetOEMCP() || cp==GetACP();
+}
 
-inline bool IsUnicodeCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeCodePage(uintptr_t cp) { return cp==CP_UNICODE || cp==CP_REVERSEBOM; }
 
-inline bool IsUnicodeOrUtfCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) {
+	return cp==CP_UNICODE || cp==CP_UTF8 || cp==CP_REVERSEBOM || cp==CP_UTF7;
+}
 
 // Источник вызова каллбака прохода по кодовым страницам
 enum CodePagesCallbackCallSource
@@ -68,33 +70,35 @@ class codepages
 {
 public:
 	codepages();
+	void init();
+	int GetCodePageInfo(UINT cp, wchar_t *name=nullptr, size_t cb=0); // returns MaxCharSize
+
 	bool IsCodePageSupported(uintptr_t CodePage);
-	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
-	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2);
-	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2);
+	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly=false, bool bShowAutoDetect=false);
+	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
+	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
 
 private:
 	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom);
-	inline uintptr_t GetMenuItemCodePage(int Position = -1);
-	inline uintptr_t GetListItemCodePage(int Position = -1);
+	inline uintptr_t GetMenuItemCodePage(int Position=-1);
+	inline uintptr_t GetListItemCodePage(int Position=-1);
 	inline bool IsPositionStandard(UINT position);
 	inline bool IsPositionFavorite(UINT position);
 	inline bool IsPositionNormal(UINT position);
 	void FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom);
 	void AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
-	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position = -1, bool enabled = true);
-	void AddSeparator(LPCWSTR Label=nullptr,int position = -1);
+	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position=-1, bool enabled=true);
+	void AddSeparator(LPCWSTR Label=nullptr,int position=-1);
 	int GetItemsCount();
 	int GetCodePageInsertPosition(uintptr_t codePage, int start, int length);
-	bool GetCodePageInfo(uintptr_t CodePage, CPINFOEX &CodePageInfoEx);
 	void AddCodePages(DWORD codePages);
 	void ProcessSelected(bool select);
-	void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false, bool bShowM2=false);
+	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly=false, bool bShowAutoDetect=false);
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	friend BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage);
+	friend BOOL CALLBACK enum_cp(wchar_t *cpNum);
 
 	Dialog* dialog;
 	UINT control;
@@ -104,5 +108,32 @@ private:
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;
 	CodePagesCallbackCallSource CallbackCallSource;
-	bool CodePageSupported;
+	std::map<UINT, string> installed_cp;
 };
+
+//#############################################################################
+
+class MultibyteCodepageDecoder
+{
+public:
+	UINT current_cp;
+	int  current_mb;
+
+	static int MaxLen(UINT cp);
+
+	bool SetCP(UINT cp);
+
+	int GetChar(const BYTE *buff, size_t cb, wchar_t& wchar) const;
+
+	MultibyteCodepageDecoder();
+
+	~MultibyteCodepageDecoder();
+
+private:
+	BYTE *len_mask; //[256]
+	wchar_t *m1;    //[256]
+	wchar_t *m2;  //[65536]
+};
+
+//#############################################################################
+

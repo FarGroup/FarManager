@@ -93,7 +93,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	if (msg == DN_INITDIALOG)
 	{
 		uintptr_t codepage = *(uintptr_t*)param2;
-		Global->CodePages->FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
+		Global->CodePages->FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false);
 	}
 
 	if (msg == DN_CLOSE)
@@ -170,7 +170,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		case DN_INITDIALOG:
 		{
 			codepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
-			Global->CodePages->FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
+			Global->CodePages->FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, false);
 			break;
 		}
 		case DN_CLOSE:
@@ -1285,7 +1285,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!IsUnicodeCodePage(m_codepage))
 				{
 					uintptr_t codepage = m_codepage;
-					if (Global->CodePages->SelectCodePage(codepage, false, true, false, true))
+					if (Global->CodePages->SelectCodePage(codepage, false, false, true))
 					{
 						if (codepage == CP_DEFAULT)
 						{

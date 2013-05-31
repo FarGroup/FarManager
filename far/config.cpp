@@ -731,7 +731,7 @@ void ViewerConfig(Options::ViewerOptions &ViOpt,bool Local)
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.AddCheckbox(MViewAutoDetectCodePage, Global->Opt->ViOpt.AutoDetectCodePage);
 		Builder.AddText(MViewConfigDefaultCodePage);
-		Global->CodePages->FillCodePagesList(Items, false, false, false, false);
+		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
 		Builder.AddComboBox(Global->Opt->ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
@@ -799,7 +799,7 @@ void EditorConfig(Options::EditorOptions &EdOpt,bool Local)
 		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
 		Builder.AddCheckbox(MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(MEditConfigDefaultCodePage);
-		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
+		Global->CodePages->FillCodePagesList(Items, false, false, false, false);
 		Builder.AddComboBox(EdOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 

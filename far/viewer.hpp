@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "config.hpp"
 #include "cache.hpp"
+#include "codepage.hpp"
 
 class FileViewer;
 class KeyBar;
@@ -162,7 +163,8 @@ private:
 	bool isBinaryFile(uintptr_t cp);
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
-
+	int getCharSize();
+	int txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail);
 
 private:
 	Options::ViewerOptions ViOpt;
@@ -192,6 +194,8 @@ private:
 	__int64 StartSearchPos;
 
 	ViewerModeInternal VM;
+
+	MultibyteCodepageDecoder MB;
 
 	__int64 FilePos;
 	__int64 SecondPos;
