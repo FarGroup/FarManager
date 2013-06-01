@@ -903,12 +903,11 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	memset(m1, 0, 256*sizeof(m1[0]));
 	memset(m2, 0, 256*256*sizeof(m2[0]));
 
-	BOOL DefUsed, *pDefUsed = (cp == CP_UTF8 || cp == CP_UTF7) ? nullptr : &DefUsed;
+	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;
-	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
-		flags |= WC_ERR_INVALID_CHARS;
-	if (cp == CP_UTF8 || cp == 54936) flags &= ~WC_NO_BEST_FIT_CHARS;
-	if ((cp>=50220 && cp<=50222) || cp==50225 || cp==50227 || cp==50229 || (cp>=57002 && cp<=57011) || cp==CP_UTF7 || cp==CP_SYMBOL) flags = 0;
+	if (cp==CP_UTF8 || cp==CP_UTF7 || cp==54936 || cp==CP_SYMBOL
+	 || (cp>=50220 && cp<=50222) || cp==50225 || cp==50227 || cp==50229 || (cp>=57002 && cp<=57011)
+	) flags = 0;
 
 	union {
 		BYTE bf[2];
