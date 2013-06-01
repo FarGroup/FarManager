@@ -704,3 +704,8 @@ typedef struct _DFS_INFO_3
 DFS_INFO_3, *PDFS_INFO_3, *LPDFS_INFO_3;
 
 EXTERN_C NET_API_STATUS NET_API_FUNCTION NetDfsGetInfo(LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer);
+
+//winnls.h
+#ifndef WC_ERR_INVALID_CHARS
+#define WC_ERR_INVALID_CHARS      0x00000080  // error for invalid chars
+#endif
