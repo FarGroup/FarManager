@@ -1043,7 +1043,13 @@ void SetFilePanelModes()
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
-		PanelViewSettings NewSettings = AddNewMode? PanelViewSettings() : Global->Opt->ViewSettings[ModeNumber];
+		PanelViewSettings NewSettings = Global->Opt->ViewSettings[ModeNumber];
+
+		if (AddNewMode)
+		{
+			NewSettings.Clear();
+		}
+
 		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=(NewSettings.Flags&PVS_FULLSCREEN)?1:0;
 		ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected=(NewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0;
 		ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected=(NewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0;

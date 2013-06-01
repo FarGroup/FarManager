@@ -3471,7 +3471,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		// TODO: ÇÄÅÑß ÑÒÀÂÈÒÜ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (MAKEWORD(Global->WinVer().dwMinorVersion, Global->WinVer().dwMajorVersion) == _WIN32_WINNT_WS03)	// WS2003-Share SetFileTime BUG
+		if (Global->WinVer() == _WIN32_WINNT_WS03) // WS2003-Share SetFileTime BUG
 		{
 			string strRoot;
 			GetPathRoot(strDestName, strRoot);

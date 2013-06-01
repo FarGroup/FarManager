@@ -905,7 +905,8 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 
 	BOOL DefUsed, *pDefUsed = (cp == CP_UTF8 || cp == CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;
-	if (Global->WinVer().dwMajorVersion >= 6) flags |= WC_ERR_INVALID_CHARS;
+	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
+		flags |= WC_ERR_INVALID_CHARS;
 	if (cp == CP_UTF8 || cp == 54936) flags &= ~WC_NO_BEST_FIT_CHARS;
 	if ((cp>=50220 && cp<=50222) || cp==50225 || cp==50227 || cp==50229 || (cp>=57002 && cp<=57011) || cp==CP_UTF7 || cp==CP_SYMBOL) flags = 0;
 
