@@ -3,6 +3,78 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 01.06.2013 17:07:58 +0400 - build 3443
+
+1. Correction of 3439.
+
+drkns 01.06.2013 11:04:26 +0200 - build 3442
+
+1. Correction of 3440.
+
+2. A couple of minor issues.
+
+w17 01.06.2013 09:41:07 +0400 - build 3441
+
+1. gcc build fix
+
+drkns 01.06.2013 01:31:00 +0200 - build 3440
+
+1. We contiue to break panel modes:
+   - insertion and deletion work in menu (ins/del respectively)
+
+w17 31.05.2013 17:14:08 +0400 - build 3439
+
+1. M#1511: Shift_jis encoding -- view must work for all 2-byte encodings
+
+w17 31.05.2013 11:51:32 +0400 - build 3438
+
+1. M#2418: a problem with shortcuts import from Default.farconfig
+
+drkns 30.05.2013 20:59:59 +0200 - build 3437
+
+1. We contiue to break panel modes:
+   - a mode can be renamed;
+   - a mode can be reset to default settings.
+
+shmuel 30.05.2013 18:24:39 +0200 - build 3436
+
+1. Plugins API:
+   * KMFLAGS_DISABLEOUTPUT is the default value now and is ignored by FAR.
+   * A new flag is added: KMFLAGS_ENABLEOUTPUT.
+
+shmuel 30.05.2013 11:29:22 +0200 - build 3435
+
+1. LuaMacro plugin is given exact information on FAR /e or /v keys.
+
+2. Correction of 3434 (VC build failure).
+
+drkns 30.05.2013 00:47:06 +0200 - build 3434
+
+1. Unlimited number of panel modes.
+   There's no interface for adding/removing modes so far, nevertheless a real Jedi can edit panelmodes.db.
+
+2. The modes can be switched with CtrlEnter in panel mode editing menu.
+
+shmuel 29.05.2013 17:52:04 +0200 - build 3433
+
+1. Experimental: autostarting macros work on FAR start with /e and /v keys.
+
+drkns 29.05.2013 17:12:23 +0200 - build 3432
+
+1. Broken reading from standard input in viewer.
+
+shmuel 28.05.2013 22:43:14 +0200 - build 3431
+
+1. M#1662: Improper behavior of macros with mmode().
+
+w17 27.05.2013 12:24:16 +0400 - build 3430
+
+1. GCC again -- NetDfsGetInfo dynamic loading, lame mingw builds should accept it
+
+w17 27.05.2013 06:17:07 +0400 - build 3429
+
+1. GCC++.
+
 drkns 26.05.2013 19:53:59 +0200 - build 3428
 
 1. GCC.
