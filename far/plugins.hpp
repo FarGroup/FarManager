@@ -216,7 +216,7 @@ public:
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
-	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *Ret=nullptr);
+	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	Plugin *FindPlugin(const GUID& SysID) const;
 	static const GUID& GetGUID(HANDLE hPlugin);
 	void RefreshPluginsList();

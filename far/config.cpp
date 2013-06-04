@@ -958,7 +958,7 @@ void SetFilePanelModes()
 					break;
 
 				case KEY_DEL:
-					if (ModeList.GetSelectPos() >= predefined_panel_modes_count)
+					if (ModeList.GetSelectPos() >= (int)predefined_panel_modes_count)
 					{
 						DeleteMode = true;
 						ModeList.Close();
@@ -1036,7 +1036,7 @@ void SetFilePanelModes()
 			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
 			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < predefined_panel_modes_count? 0 : DIF_DISABLE),MSG(MReset)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < (int)predefined_panel_modes_count? 0 : DIF_DISABLE),MSG(MReset)},
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
 		MakeDialogItemsEx(ModeDlgData,ModeDlg);

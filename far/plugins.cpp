@@ -2274,7 +2274,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 }
 
 // поддержка макрофункций plugin.call, plugin.cmd, plugin.config и т.п
-int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *Ret/*=nullptr*/)
+int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 {
 	BOOL Result=FALSE;
 
@@ -2391,9 +2391,9 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					if (!ItemFound)
 						return FALSE;
 				}
-			}
 
-			Result=TRUE;
+				Result=TRUE;
+			}
 		}
 		else
 		{
