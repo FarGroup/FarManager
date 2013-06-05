@@ -2157,7 +2157,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3569859105
+mtime=3579626654
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2167,7 +2167,7 @@ mtime=3569859105
 #_      X:            integer
 #_      Y:            integer
 #_      MaxHeight:    integer
-#_      Flags:        flags   (default = FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT)
+#_      Flags:        flags   (default = FMENU_WRAPMODE)
 #_      Title:        string
 #_      Bottom:       string
 #_      HelpTopic:    string

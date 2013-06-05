@@ -1436,7 +1436,7 @@ static int far_Menu(lua_State *L)
 {
 	TPluginData *pd = GetPluginData(L);
 	int X = -1, Y = -1, MaxHeight = 0;
-	UINT64 Flags = FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT;
+	UINT64 Flags = FMENU_WRAPMODE;
 	const wchar_t *Title = L"Menu", *Bottom = NULL, *HelpTopic = NULL;
 	intptr_t SelectIndex = 0, ItemsNumber, ret;
 	int store = 0, i;
