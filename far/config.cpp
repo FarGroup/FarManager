@@ -63,6 +63,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
+#include "hmenu.hpp"
+#include "chgmmode.hpp"
+#include "usermenu.hpp"
+#include "filetype.hpp"
+#include "shortcuts.hpp"
+#include "plist.hpp"
+#include "hotplug.hpp"
+#include "datetime.hpp"
+#include "setcolor.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -131,78 +140,78 @@ static const WCHAR _BoxSymbols[48+1] =
 	0x0000
 };
 
-void SystemSettings()
+void Options::SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
 
-	DialogItemEx *DeleteToRecycleBin = Builder.AddCheckbox(MConfigRecycleBin, Global->Opt->DeleteToRecycleBin);
-	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, Global->Opt->DeleteToRecycleBinKillLink);
+	DialogItemEx *DeleteToRecycleBinItem = Builder.AddCheckbox(MConfigRecycleBin, DeleteToRecycleBin);
+	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, DeleteToRecycleBinKillLink);
 	DeleteLinks->Indent(4);
-	Builder.LinkFlags(DeleteToRecycleBin, DeleteLinks, DIF_DISABLE);
+	Builder.LinkFlags(DeleteToRecycleBinItem, DeleteLinks, DIF_DISABLE);
 
-	Builder.AddCheckbox(MConfigSystemCopy, Global->Opt->CMOpt.UseSystemCopy);
-	Builder.AddCheckbox(MConfigCopySharing, Global->Opt->CMOpt.CopyOpened);
-	Builder.AddCheckbox(MConfigScanJunction, Global->Opt->ScanJunction);
-	Builder.AddCheckbox(MConfigCreateUppercaseFolders, Global->Opt->CreateUppercaseFolders);
-	Builder.AddCheckbox(MConfigSmartFolderMonitor, Global->Opt->SmartFolderMonitor);
+	Builder.AddCheckbox(MConfigSystemCopy, CMOpt.UseSystemCopy);
+	Builder.AddCheckbox(MConfigCopySharing, CMOpt.CopyOpened);
+	Builder.AddCheckbox(MConfigScanJunction, ScanJunction);
+	Builder.AddCheckbox(MConfigCreateUppercaseFolders, CreateUppercaseFolders);
+	Builder.AddCheckbox(MConfigSmartFolderMonitor, SmartFolderMonitor);
 
-	Builder.AddCheckbox(MConfigSaveHistory, Global->Opt->SaveHistory);
-	Builder.AddCheckbox(MConfigSaveFoldersHistory, Global->Opt->SaveFoldersHistory);
-	Builder.AddCheckbox(MConfigSaveViewHistory, Global->Opt->SaveViewHistory);
-	Builder.AddCheckbox(MConfigRegisteredTypes, Global->Opt->UseRegisteredTypes);
-	Builder.AddCheckbox(MConfigCloseCDGate, Global->Opt->CloseCDGate);
-	Builder.AddCheckbox(MConfigUpdateEnvironment, Global->Opt->UpdateEnvironment);
+	Builder.AddCheckbox(MConfigSaveHistory, SaveHistory);
+	Builder.AddCheckbox(MConfigSaveFoldersHistory, SaveFoldersHistory);
+	Builder.AddCheckbox(MConfigSaveViewHistory, SaveViewHistory);
+	Builder.AddCheckbox(MConfigRegisteredTypes, UseRegisteredTypes);
+	Builder.AddCheckbox(MConfigCloseCDGate, CloseCDGate);
+	Builder.AddCheckbox(MConfigUpdateEnvironment, UpdateEnvironment);
 	Builder.AddText(MConfigElevation);
-	Builder.AddCheckbox(MConfigElevationModify, Global->Opt->StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
-	Builder.AddCheckbox(MConfigElevationRead, Global->Opt->StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
-	Builder.AddCheckbox(MConfigElevationUsePrivileges, Global->Opt->StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
-	Builder.AddCheckbox(MConfigAutoSave, Global->Opt->AutoSaveSetup);
+	Builder.AddCheckbox(MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
+	Builder.AddCheckbox(MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
+	Builder.AddCheckbox(MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
+	Builder.AddCheckbox(MConfigAutoSave, AutoSaveSetup);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
-		Global->Opt->ElevationMode = Global->Opt->StoredElevationMode;
+		ElevationMode = StoredElevationMode;
 	}
 }
 
-void PanelSettings()
+void Options::PanelSettings()
 {
 	DialogBuilder Builder(MConfigPanelTitle, L"PanelSettings");
-	BOOL AutoUpdate = Global->Opt->AutoUpdateLimit;
+	BOOL AutoUpdate = AutoUpdateLimit;
 
-	Builder.AddCheckbox(MConfigHidden, Global->Opt->ShowHidden);
-	Builder.AddCheckbox(MConfigHighlight, Global->Opt->Highlight);
-	Builder.AddCheckbox(MConfigSelectFolders, Global->Opt->SelectFolders);
-	Builder.AddCheckbox(MConfigRightClickSelect, Global->Opt->RightClickSelect);
-	Builder.AddCheckbox(MConfigSortFolderExt, Global->Opt->SortFolderExt);
-	Builder.AddCheckbox(MConfigReverseSort, Global->Opt->ReverseSort);
+	Builder.AddCheckbox(MConfigHidden, ShowHidden);
+	Builder.AddCheckbox(MConfigHighlight, Highlight);
+	Builder.AddCheckbox(MConfigSelectFolders, SelectFolders);
+	Builder.AddCheckbox(MConfigRightClickSelect, RightClickSelect);
+	Builder.AddCheckbox(MConfigSortFolderExt, SortFolderExt);
+	Builder.AddCheckbox(MConfigReverseSort, ReverseSort);
 
 	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(MConfigAutoUpdateLimit, &AutoUpdate);
-	DialogItemEx *AutoUpdateLimit = Builder.AddIntEditField(Global->Opt->AutoUpdateLimit, 6);
-	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimit, DIF_DISABLE, false);
-	DialogItemEx *AutoUpdateText = Builder.AddTextBefore(AutoUpdateLimit, MConfigAutoUpdateLimit2);
-	AutoUpdateLimit->Indent(4);
-	AutoUpdateText->Indent(4);
-	Builder.AddCheckbox(MConfigAutoUpdateRemoteDrive, Global->Opt->AutoUpdateRemoteDrive);
+	DialogItemEx *AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
+	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
+	DialogItemEx *AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, MConfigAutoUpdateLimit2);
+	AutoUpdateLimitItem->Indent(4);
+	AutoUpdateTextItem->Indent(4);
+	Builder.AddCheckbox(MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
 
 	Builder.AddSeparator();
-	Builder.AddCheckbox(MConfigShowColumns, Global->Opt->ShowColumnTitles);
-	Builder.AddCheckbox(MConfigShowStatus, Global->Opt->ShowPanelStatus);
-	Builder.AddCheckbox(MConfigDetailedJunction, Global->Opt->PanelDetailedJunction);
-	Builder.AddCheckbox(MConfigShowTotal, Global->Opt->ShowPanelTotals);
-	Builder.AddCheckbox(MConfigShowFree, Global->Opt->ShowPanelFree);
-	Builder.AddCheckbox(MConfigShowScrollbar, Global->Opt->ShowPanelScrollbar);
-	Builder.AddCheckbox(MConfigShowScreensNumber, Global->Opt->ShowScreensNumber);
-	Builder.AddCheckbox(MConfigShowSortMode, Global->Opt->ShowSortMode);
-	Builder.AddCheckbox(MConfigShowDotsInRoot, Global->Opt->ShowDotsInRoot);
-	Builder.AddCheckbox(MConfigHighlightColumnSeparator, Global->Opt->HighlightColumnSeparator);
-	Builder.AddCheckbox(MConfigDoubleGlobalColumnSeparator, Global->Opt->DoubleGlobalColumnSeparator);
+	Builder.AddCheckbox(MConfigShowColumns, ShowColumnTitles);
+	Builder.AddCheckbox(MConfigShowStatus, ShowPanelStatus);
+	Builder.AddCheckbox(MConfigDetailedJunction, PanelDetailedJunction);
+	Builder.AddCheckbox(MConfigShowTotal, ShowPanelTotals);
+	Builder.AddCheckbox(MConfigShowFree, ShowPanelFree);
+	Builder.AddCheckbox(MConfigShowScrollbar, ShowPanelScrollbar);
+	Builder.AddCheckbox(MConfigShowScreensNumber, ShowScreensNumber);
+	Builder.AddCheckbox(MConfigShowSortMode, ShowSortMode);
+	Builder.AddCheckbox(MConfigShowDotsInRoot, ShowDotsInRoot);
+	Builder.AddCheckbox(MConfigHighlightColumnSeparator, HighlightColumnSeparator);
+	Builder.AddCheckbox(MConfigDoubleGlobalColumnSeparator, DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
 		if (!AutoUpdate)
-			Global->Opt->AutoUpdateLimit = 0;
+			AutoUpdateLimit = 0;
 
 	//  FrameManager->RefreshFrame();
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -211,15 +220,15 @@ void PanelSettings()
 	}
 }
 
-void TreeSettings()
+void Options::TreeSettings()
 {
 	DialogBuilder Builder(MConfigTreeTitle, L"TreeSettings");
 
 	DialogItemEx *TemplateEdit;
 
-	Builder.AddCheckbox(MConfigTreeAutoChange, Global->Opt->Tree.AutoChangeFolder);
+	Builder.AddCheckbox(MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
-	TemplateEdit = Builder.AddIntEditField(Global->Opt->Tree.MinTreeCount, 3);
+	TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
@@ -227,39 +236,39 @@ void TreeSettings()
 
 	Builder.AddSeparator(MConfigTreeLabel1);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelLocalDisk, &Global->Opt->Tree.LocalDisk);
-	TemplateEdit = Builder.AddEditField(&Global->Opt->Tree.strLocalDisk, 36);
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelLocalDisk, &Tree.LocalDisk);
+	TemplateEdit = Builder.AddEditField(&Tree.strLocalDisk, 36);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetDisk, &Global->Opt->Tree.NetDisk);
-	TemplateEdit = Builder.AddEditField(&Global->Opt->Tree.strNetDisk, 36);
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetDisk, &Tree.NetDisk);
+	TemplateEdit = Builder.AddEditField(&Tree.strNetDisk, 36);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetPath, &Global->Opt->Tree.NetPath);
-	TemplateEdit = Builder.AddEditField(&Global->Opt->Tree.strNetPath, 36);
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetPath, &Tree.NetPath);
+	TemplateEdit = Builder.AddEditField(&Tree.strNetPath, 36);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelRemovableDisk, &Global->Opt->Tree.RemovableDisk);
-	TemplateEdit = Builder.AddEditField(&Global->Opt->Tree.strRemovableDisk, 36);
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelRemovableDisk, &Tree.RemovableDisk);
+	TemplateEdit = Builder.AddEditField(&Tree.strRemovableDisk, 36);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelCDDisk, &Global->Opt->Tree.CDDisk);
-	TemplateEdit = Builder.AddEditField(&Global->Opt->Tree.strCDDisk, 36);
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelCDDisk, &Tree.CDDisk);
+	TemplateEdit = Builder.AddEditField(&Tree.strCDDisk, 36);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Builder.AddText(MConfigTreeLabelSaveLocalPath);
-	Builder.AddEditField(&Global->Opt->Tree.strSaveLocalPath, 40);
+	Builder.AddEditField(&Tree.strSaveLocalPath, 40);
 
 	Builder.AddText(MConfigTreeLabelSaveNetPath);
-	Builder.AddEditField(&Global->Opt->Tree.strSaveNetPath, 40);
+	Builder.AddEditField(&Tree.strSaveNetPath, 40);
 
 	Builder.AddText(MConfigTreeLabelExceptPath);
-	Builder.AddEditField(&Global->Opt->Tree.strExceptPath, 40);
+	Builder.AddEditField(&Tree.strExceptPath, 40);
 #endif
 
 	Builder.AddOKCancel();
@@ -272,39 +281,39 @@ void TreeSettings()
 	}
 }
 
-void InterfaceSettings()
+void Options::InterfaceSettings()
 {
 	DialogBuilder Builder(MConfigInterfaceTitle, L"InterfSettings");
 
-	Builder.AddCheckbox(MConfigClock, Global->Opt->Clock);
-	Builder.AddCheckbox(MConfigViewerEditorClock, Global->Opt->ViewerEditorClock);
-	Builder.AddCheckbox(MConfigMouse, Global->Opt->Mouse);
-	Builder.AddCheckbox(MConfigKeyBar, Global->Opt->ShowKeyBar);
-	Builder.AddCheckbox(MConfigMenuBar, Global->Opt->ShowMenuBar);
-	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(MConfigSaver, Global->Opt->ScreenSaver);
+	Builder.AddCheckbox(MConfigClock, Clock);
+	Builder.AddCheckbox(MConfigViewerEditorClock, ViewerEditorClock);
+	Builder.AddCheckbox(MConfigMouse, Mouse);
+	Builder.AddCheckbox(MConfigKeyBar, ShowKeyBar);
+	Builder.AddCheckbox(MConfigMenuBar, ShowMenuBar);
+	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(MConfigSaver, ScreenSaver);
 
-	DialogItemEx *SaverEdit = Builder.AddIntEditField(Global->Opt->ScreenSaverTime, 2);
+	DialogItemEx *SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 2);
 	SaverEdit->Indent(4);
 	Builder.AddTextAfter(SaverEdit, MConfigSaverMinutes);
 	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
-	Builder.AddCheckbox(MConfigCopyTotal, Global->Opt->CMOpt.CopyShowTotal);
-	Builder.AddCheckbox(MConfigCopyTimeRule, Global->Opt->CMOpt.CopyTimeRule);
-	Builder.AddCheckbox(MConfigDeleteTotal, Global->Opt->DelOpt.DelShowTotal);
-	Builder.AddCheckbox(MConfigPgUpChangeDisk, Global->Opt->PgUpChangeDisk);
-	Builder.AddCheckbox(MConfigClearType, Global->Opt->ClearType);
-	DialogItemEx* SetIconCheck = Builder.AddCheckbox(MConfigSetConsoleIcon, Global->Opt->SetIcon);
-	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(MConfigSetAdminConsoleIcon, Global->Opt->SetAdminIcon);
+	Builder.AddCheckbox(MConfigCopyTotal, CMOpt.CopyShowTotal);
+	Builder.AddCheckbox(MConfigCopyTimeRule, CMOpt.CopyTimeRule);
+	Builder.AddCheckbox(MConfigDeleteTotal, DelOpt.DelShowTotal);
+	Builder.AddCheckbox(MConfigPgUpChangeDisk, PgUpChangeDisk);
+	Builder.AddCheckbox(MConfigClearType, ClearType);
+	DialogItemEx* SetIconCheck = Builder.AddCheckbox(MConfigSetConsoleIcon, SetIcon);
+	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(MConfigSetAdminConsoleIcon, SetAdminIcon);
 	SetAdminIconCheck->Indent(4);
 	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
 	Builder.AddText(MConfigTitleAddons);
-	Builder.AddEditField(Global->Opt->strTitleAddons, 47);
+	Builder.AddEditField(strTitleAddons, 47);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
-		if (Global->Opt->CMOpt.CopyTimeRule)
-			Global->Opt->CMOpt.CopyTimeRule = 3;
+		if (CMOpt.CopyTimeRule)
+			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -315,19 +324,19 @@ void InterfaceSettings()
 	}
 }
 
-void AutoCompleteSettings()
+void Options::AutoCompleteSettings()
 {
 	DialogBuilder Builder(MConfigAutoCompleteTitle, L"AutoCompleteSettings");
-	DialogItemEx *ListCheck=Builder.AddCheckbox(MConfigAutoCompleteShowList, Global->Opt->AutoComplete.ShowList);
-	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(MConfigAutoCompleteModalList, Global->Opt->AutoComplete.ModalList);
+	DialogItemEx *ListCheck=Builder.AddCheckbox(MConfigAutoCompleteShowList, AutoComplete.ShowList);
+	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(MConfigAutoCompleteModalList, AutoComplete.ModalList);
 	ModalModeCheck->Indent(4);
-	Builder.AddCheckbox(MConfigAutoCompleteAutoAppend, Global->Opt->AutoComplete.AppendCompletion);
+	Builder.AddCheckbox(MConfigAutoCompleteAutoAppend, AutoComplete.AppendCompletion);
 	Builder.LinkFlags(ListCheck, ModalModeCheck, DIF_DISABLE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
 
-void InfoPanelSettings()
+void Options::InfoPanelSettings()
 {
 	DialogBuilderListItem UNListItems[]=
 	{
@@ -354,12 +363,12 @@ void InfoPanelSettings()
 	};
 
 	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
-	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, Global->Opt->InfoPanel.ShowPowerStatus);
-	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, Global->Opt->InfoPanel.ShowCDInfo);
+	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
+	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(Global->Opt->InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(Global->Opt->InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -383,27 +392,28 @@ void InfoPanelSettings()
 	}
 }
 
-void ApplyDefaultMaskGroups()
+static void ApplyDefaultMaskGroups()
 {
-	struct MaskGroups
+	struct masks_group
 	{
 		const wchar_t* Group;
-		const wchar_t* Mask;
-	}
-	Sets[] =
-	{
+		const wchar_t* Masks;
+	};
+
+	static std::array<masks_group, 3> Sets =
+	{{
 		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
 		{L"temp", L"*.bak,*.tmp"},
 		{L"exec", L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"},
-	};
+	}};
 
-	for (size_t i = 0; i < ARRAYSIZE(Sets); ++i)
+	std::for_each(CONST_RANGE(Sets, i)
 	{
-		Global->Db->GeneralCfg()->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
-	}
+		Global->Db->GeneralCfg()->SetValue(L"Masks", i.Group, i.Masks);
+	});
 }
 
-void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
+static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
 	string Name, Value;
@@ -421,7 +431,7 @@ void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 	MasksMenu.SetSelectPos(SelPos, 0);
 }
 
-void MaskGroupsSettings()
+void Options::MaskGroupsSettings()
 {
 	VMenu2 MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
@@ -560,26 +570,26 @@ void MaskGroupsSettings()
 	}
 }
 
-void DialogSettings()
+void Options::DialogSettings()
 {
 	DialogBuilder Builder(MConfigDlgSetsTitle, L"DialogSettings");
 
-	Builder.AddCheckbox(MConfigDialogsEditHistory, Global->Opt->Dialogs.EditHistory);
-	Builder.AddCheckbox(MConfigDialogsEditBlock, Global->Opt->Dialogs.EditBlock);
-	Builder.AddCheckbox(MConfigDialogsDelRemovesBlocks, Global->Opt->Dialogs.DelRemovesBlocks);
-	Builder.AddCheckbox(MConfigDialogsAutoComplete, Global->Opt->Dialogs.AutoComplete);
-	Builder.AddCheckbox(MConfigDialogsEULBsClear, Global->Opt->Dialogs.EULBsClear);
-	Builder.AddCheckbox(MConfigDialogsMouseButton, Global->Opt->Dialogs.MouseButton);
+	Builder.AddCheckbox(MConfigDialogsEditHistory, Dialogs.EditHistory);
+	Builder.AddCheckbox(MConfigDialogsEditBlock, Dialogs.EditBlock);
+	Builder.AddCheckbox(MConfigDialogsDelRemovesBlocks, Dialogs.DelRemovesBlocks);
+	Builder.AddCheckbox(MConfigDialogsAutoComplete, Dialogs.AutoComplete);
+	Builder.AddCheckbox(MConfigDialogsEULBsClear, Dialogs.EULBsClear);
+	Builder.AddCheckbox(MConfigDialogsMouseButton, Dialogs.MouseButton);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
-		if (Global->Opt->Dialogs.MouseButton )
-			Global->Opt->Dialogs.MouseButton = 0xFFFF;
+		if (Dialogs.MouseButton )
+			Dialogs.MouseButton = 0xFFFF;
 	}
 }
 
-void VMenuSettings()
+void Options::VMenuSettings()
 {
 	DialogBuilderListItem CAListItems[]=
 	{
@@ -591,29 +601,29 @@ void VMenuSettings()
 	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
 
 	Builder.AddText(MConfigVMenuLBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuRBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuMBtnClick);
-	Builder.AddComboBox(Global->Opt->VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
 
-void CmdlineSettings()
+void Options::CmdlineSettings()
 {
 	DialogBuilder Builder(MConfigCmdlineTitle, L"CmdlineSettings");
 
-	Builder.AddCheckbox(MConfigCmdlineEditBlock, Global->Opt->CmdLine.EditBlock);
-	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, Global->Opt->CmdLine.DelRemovesBlocks);
-	Builder.AddCheckbox(MConfigCmdlineAutoComplete, Global->Opt->CmdLine.AutoComplete);
-	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUsePromptFormat, Global->Opt->CmdLine.UsePromptFormat);
-	DialogItemEx *PromptFormat = Builder.AddEditField(Global->Opt->CmdLine.strPromptFormat, 33);
+	Builder.AddCheckbox(MConfigCmdlineEditBlock, CmdLine.EditBlock);
+	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
+	Builder.AddCheckbox(MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
+	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
+	DialogItemEx *PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
-	UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUseHomeDir, Global->Opt->Exec.UseHomeDir);
-	PromptFormat = Builder.AddEditField(Global->Opt->Exec.strHomeDir, 33);
+	UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
+	PromptFormat = Builder.AddEditField(Exec.strHomeDir, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
@@ -621,146 +631,155 @@ void CmdlineSettings()
 
 	if (Builder.ShowDialog())
 	{
-		Global->CtrlObject->CmdLine->SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
-		Global->CtrlObject->CmdLine->SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
-		Global->CtrlObject->CmdLine->SetAutoComplete(Global->Opt->CmdLine.AutoComplete);
+		Global->CtrlObject->CmdLine->SetPersistentBlocks(CmdLine.EditBlock);
+		Global->CtrlObject->CmdLine->SetDelRemovesBlocks(CmdLine.DelRemovesBlocks);
+		Global->CtrlObject->CmdLine->SetAutoComplete(CmdLine.AutoComplete);
 	}
 }
 
-void SetConfirmations()
+void Options::SetConfirmations()
 {
 	DialogBuilder Builder(MSetConfirmTitle, L"ConfirmDlg");
 
-	Builder.AddCheckbox(MSetConfirmCopy, Global->Opt->Confirm.Copy);
-	Builder.AddCheckbox(MSetConfirmMove, Global->Opt->Confirm.Move);
-	Builder.AddCheckbox(MSetConfirmRO, Global->Opt->Confirm.RO);
-	Builder.AddCheckbox(MSetConfirmDrag, Global->Opt->Confirm.Drag);
-	Builder.AddCheckbox(MSetConfirmDelete, Global->Opt->Confirm.Delete);
-	Builder.AddCheckbox(MSetConfirmDeleteFolders, Global->Opt->Confirm.DeleteFolder);
-	Builder.AddCheckbox(MSetConfirmEsc, Global->Opt->Confirm.Esc);
-	Builder.AddCheckbox(MSetConfirmRemoveConnection, Global->Opt->Confirm.RemoveConnection);
-	Builder.AddCheckbox(MSetConfirmRemoveSUBST, Global->Opt->Confirm.RemoveSUBST);
-	Builder.AddCheckbox(MSetConfirmDetachVHD, Global->Opt->Confirm.DetachVHD);
-	Builder.AddCheckbox(MSetConfirmRemoveHotPlug, Global->Opt->Confirm.RemoveHotPlug);
-	Builder.AddCheckbox(MSetConfirmAllowReedit, Global->Opt->Confirm.AllowReedit);
-	Builder.AddCheckbox(MSetConfirmHistoryClear, Global->Opt->Confirm.HistoryClear);
-	Builder.AddCheckbox(MSetConfirmExit, Global->Opt->Confirm.Exit);
+	Builder.AddCheckbox(MSetConfirmCopy, Confirm.Copy);
+	Builder.AddCheckbox(MSetConfirmMove, Confirm.Move);
+	Builder.AddCheckbox(MSetConfirmRO, Confirm.RO);
+	Builder.AddCheckbox(MSetConfirmDrag, Confirm.Drag);
+	Builder.AddCheckbox(MSetConfirmDelete, Confirm.Delete);
+	Builder.AddCheckbox(MSetConfirmDeleteFolders, Confirm.DeleteFolder);
+	Builder.AddCheckbox(MSetConfirmEsc, Confirm.Esc);
+	Builder.AddCheckbox(MSetConfirmRemoveConnection, Confirm.RemoveConnection);
+	Builder.AddCheckbox(MSetConfirmRemoveSUBST, Confirm.RemoveSUBST);
+	Builder.AddCheckbox(MSetConfirmDetachVHD, Confirm.DetachVHD);
+	Builder.AddCheckbox(MSetConfirmRemoveHotPlug, Confirm.RemoveHotPlug);
+	Builder.AddCheckbox(MSetConfirmAllowReedit, Confirm.AllowReedit);
+	Builder.AddCheckbox(MSetConfirmHistoryClear, Confirm.HistoryClear);
+	Builder.AddCheckbox(MSetConfirmExit, Confirm.Exit);
 	Builder.AddOKCancel();
 
 	Builder.ShowDialog();
 }
 
-void PluginsManagerSettings()
+void Options::PluginsManagerSettings()
 {
 	DialogBuilder Builder(MPluginsManagerSettingsTitle, L"PluginsManagerSettings");
 #ifndef NO_WRAPPER
-	Builder.AddCheckbox(MPluginsManagerOEMPluginsSupport, Global->Opt->LoadPlug.OEMPluginsSupport);
+	Builder.AddCheckbox(MPluginsManagerOEMPluginsSupport, LoadPlug.OEMPluginsSupport);
 #endif // NO_WRAPPER
-	Builder.AddCheckbox(MPluginsManagerScanSymlinks, Global->Opt->LoadPlug.ScanSymlinks);
+	Builder.AddCheckbox(MPluginsManagerScanSymlinks, LoadPlug.ScanSymlinks);
 	Builder.AddSeparator(MPluginConfirmationTitle);
-	Builder.AddCheckbox(MPluginsManagerOFP, Global->Opt->PluginConfirm.OpenFilePlugin);
-	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, Global->Opt->PluginConfirm.StandardAssociation);
-	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin);
+	Builder.AddCheckbox(MPluginsManagerOFP, PluginConfirm.OpenFilePlugin);
+	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
+	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
 	StandardAssoc->Indent(2);
 	EvenIfOnlyOne->Indent(4);
 
-	Builder.AddCheckbox(MPluginsManagerSFL, Global->Opt->PluginConfirm.SetFindList);
-	Builder.AddCheckbox(MPluginsManagerPF, Global->Opt->PluginConfirm.Prefix);
+	Builder.AddCheckbox(MPluginsManagerSFL, PluginConfirm.SetFindList);
+	Builder.AddCheckbox(MPluginsManagerPF, PluginConfirm.Prefix);
 	Builder.AddOKCancel();
 
 	Builder.ShowDialog();
 }
 
-void SetDizConfig()
+void Options::SetDizConfig()
 {
 	DialogBuilder Builder(MCfgDizTitle, L"FileDiz");
 
 	Builder.AddText(MCfgDizListNames);
-	Builder.AddEditField(Global->Opt->Diz.strListNames, 65);
+	Builder.AddEditField(Diz.strListNames, 65);
 	Builder.AddSeparator();
 
-	Builder.AddCheckbox(MCfgDizSetHidden, Global->Opt->Diz.SetHidden);
-	Builder.AddCheckbox(MCfgDizROUpdate, Global->Opt->Diz.ROUpdate);
-	DialogItemEx *StartPos = Builder.AddIntEditField(Global->Opt->Diz.StartPos, 2);
+	Builder.AddCheckbox(MCfgDizSetHidden, Diz.SetHidden);
+	Builder.AddCheckbox(MCfgDizROUpdate, Diz.ROUpdate);
+	DialogItemEx *StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
 	Builder.AddTextAfter(StartPos, MCfgDizStartPos);
 	Builder.AddSeparator();
 
 	static int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
-	Builder.AddRadioButtons(Global->Opt->Diz.UpdateMode, 3, DizOptions);
+	Builder.AddRadioButtons(Diz.UpdateMode, 3, DizOptions);
 	Builder.AddSeparator();
 
-	Builder.AddCheckbox(MCfgDizAnsiByDefault, Global->Opt->Diz.AnsiByDefault);
-	Builder.AddCheckbox(MCfgDizSaveInUTF, Global->Opt->Diz.SaveInUTF);
+	Builder.AddCheckbox(MCfgDizAnsiByDefault, Diz.AnsiByDefault);
+	Builder.AddCheckbox(MCfgDizSaveInUTF, Diz.SaveInUTF);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
 
-void ViewerConfig(Options::ViewerOptions &ViOpt,bool Local)
+void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 {
 	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings");
 
+	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
+
 	if (!Local)
 	{
-		Builder.AddCheckbox(MViewConfigExternalF3, Global->Opt->ViOpt.UseExternalViewer);
+		Builder.AddCheckbox(MViewConfigExternalF3, ViOpt.UseExternalViewer);
 		Builder.AddText(MViewConfigExternalCommand);
-		Builder.AddEditField(Global->Opt->strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
 
 	Builder.StartColumns();
-	Builder.AddCheckbox(MViewConfigPersistentSelection, ViOpt.PersistentBlocks);
-	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, Global->Opt->ViOpt.SavePos); // can't be local
-	Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
-	Builder.AddCheckbox(MViewConfigEditAutofocus, ViOpt.SearchEditFocus);
-	DialogItemEx *TabSize = Builder.AddIntEditField(ViOpt.TabSize, 3);
+	Builder.AddCheckbox(MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
+	Builder.AddCheckbox(MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
+	DialogItemEx *TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
 	Builder.ColumnBreak();
-	Builder.AddCheckbox(MViewConfigArrows, ViOpt.ShowArrows);
-	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, Global->Opt->ViOpt.SaveShortPos); // can't be local
-	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
-	Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
-	Builder.AddCheckbox(MViewConfigVisible0x00, ViOpt.Visible0x00);
-	Builder.AddCheckbox(MViewConfigScrollbar, ViOpt.ShowScrollbar);
+	Builder.AddCheckbox(MViewConfigArrows, ViOptRef.ShowArrows);
+	Builder.AddCheckbox(MViewConfigVisible0x00, ViOptRef.Visible0x00);
+	Builder.AddCheckbox(MViewConfigScrollbar, ViOptRef.ShowScrollbar);
 	Builder.EndColumns();
 
-	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
 	if (!Local)
 	{
-		Builder.AddEmptyLine();
-		DialogItemEx *MaxLineSize = Builder.AddIntEditField(Global->Opt->ViOpt.MaxLineSize, 6);
+		Builder.AddSeparator();
+		Builder.StartColumns();
+		DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
+		Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		Builder.ColumnBreak();
+		DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, ViOpt.SaveShortPos);
+		Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+		Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
+		Builder.AddCheckbox(MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
+		Builder.EndColumns();
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
-		Builder.AddCheckbox(MViewAutoDetectCodePage, Global->Opt->ViOpt.AutoDetectCodePage);
 		Builder.AddText(MViewConfigDefaultCodePage);
 		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
-		Builder.AddComboBox(Global->Opt->ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddComboBox(ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
-		if (Global->Opt->ViOpt.SavePos)
+		if (!Local)
+		{
+			if (ViOpt.SavePos)
 			ViOpt.SaveCodepage = true; // codepage is part of saved position
-		if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
-			ViOpt.TabSize = DefaultTabSize;
-		if (!Global->Opt->ViOpt.MaxLineSize)
-			Global->Opt->ViOpt.MaxLineSize = Options::ViewerOptions::eDefLineSize;
-		else if (Global->Opt->ViOpt.MaxLineSize < Options::ViewerOptions::eMinLineSize)
-			Global->Opt->ViOpt.MaxLineSize = Options::ViewerOptions::eMinLineSize;
-		else if (Global->Opt->ViOpt.MaxLineSize > Options::ViewerOptions::eMaxLineSize)
-			Global->Opt->ViOpt.MaxLineSize = Options::ViewerOptions::eMaxLineSize;
+
+			if (!ViOpt.MaxLineSize)
+				ViOpt.MaxLineSize = Options::ViewerOptions::eDefLineSize;
+			else
+				ViOpt.MaxLineSize = std::min(std::max((__int64)ViewerOptions::eMinLineSize, ViOpt.MaxLineSize.Get()), (__int64)ViewerOptions::eMaxLineSize);
+		}
+
+		if (ViOptRef.TabSize<1 || ViOptRef.TabSize>512)
+			ViOptRef.TabSize = DefaultTabSize;
 	}
 }
 
-void EditorConfig(Options::EditorOptions &EdOpt,bool Local)
+void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 {
 	DialogBuilder Builder(MEditConfigTitle, L"EditorSettings");
 
+	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
+
 	if (!Local)
 	{
-		Builder.AddCheckbox(MEditConfigEditorF4, Global->Opt->EdOpt.UseExternalEditor);
+		Builder.AddCheckbox(MEditConfigEditorF4, EdOpt.UseExternalEditor);
 		Builder.AddText(MEditConfigEditorCommand);
-		Builder.AddEditField(Global->Opt->strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		Builder.AddEditField(strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MEditConfigInternal);
 	}
 
@@ -770,30 +789,29 @@ void EditorConfig(Options::EditorOptions &EdOpt,bool Local)
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOpt.ExpandTabs, 64, ExpandTabsItems, 3, DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(EdOptRef.ExpandTabs, 64, ExpandTabsItems, 3, DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE|DIF_DROPDOWNLIST);
 
 	Builder.StartColumns();
-	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOpt.PersistentBlocks);
-	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, EdOpt.DelRemovesBlocks);
-	Builder.AddCheckbox(MEditConfigAutoIndent, EdOpt.AutoIndent);
-	DialogItemEx *TabSize = Builder.AddIntEditField(EdOpt.TabSize, 3);
+	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
+	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
+	Builder.AddCheckbox(MEditConfigAutoIndent, EdOptRef.AutoIndent);
+	DialogItemEx *TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MEditConfigTabSize);
-	Builder.AddCheckbox(MEditShowWhiteSpace, EdOpt.ShowWhiteSpace);
-	Builder.AddCheckbox(MEditConfigScrollbar, EdOpt.ShowScrollBar);
+	Builder.AddCheckbox(MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
-	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOpt.CursorBeyondEOL);
-	DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, EdOpt.SavePos);
-	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, EdOpt.SaveShortPos);
-	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
-	Builder.AddCheckbox(MEditConfigPickUpWord, EdOpt.SearchPickUpWord);
-	Builder.AddCheckbox(MEditConfigSelFound, EdOpt.SearchSelFound);
-	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOpt.SearchCursorAtEnd);
+	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOptRef.CursorBeyondEOL);
+	Builder.AddCheckbox(MEditConfigPickUpWord, EdOptRef.SearchPickUpWord);
+	Builder.AddCheckbox(MEditConfigSelFound, EdOptRef.SearchSelFound);
+	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOptRef.SearchCursorAtEnd);
+	Builder.AddCheckbox(MEditConfigScrollbar, EdOptRef.ShowScrollBar);
 	Builder.EndColumns();
 
-	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
 	if (!Local)
 	{
-		Builder.AddEmptyLine();
+		Builder.AddSeparator();
+		DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, EdOptRef.SavePos);
+		DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
+		Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
 		Builder.AddCheckbox(MEditShareWrite, EdOpt.EditOpenedForWrite);
 		Builder.AddCheckbox(MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
 		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
@@ -807,19 +825,19 @@ void EditorConfig(Options::EditorOptions &EdOpt,bool Local)
 
 	if (Builder.ShowDialog())
 	{
-		if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
-			EdOpt.TabSize = DefaultTabSize;
+		if (EdOptRef.TabSize<1 || EdOptRef.TabSize>512)
+			EdOptRef.TabSize = DefaultTabSize;
 	}
 }
 
-void SetFolderInfoFiles()
+void Options::SetFolderInfoFiles()
 {
 	string strFolderInfoFiles;
 
 	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-	              Global->Opt->InfoPanel.strFolderInfoFiles.CPtr(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
+	              InfoPanel.strFolderInfoFiles.CPtr(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
-		Global->Opt->InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
+		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
 		if (Global->CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
 			Global->CtrlObject->Cp()->LeftPanel->Update(0);
@@ -831,8 +849,8 @@ void SetFolderInfoFiles()
 
 static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 {
-	static PanelViewSettings InitialModes[]=
-	{
+	static std::array<PanelViewSettings, predefined_panel_modes_count> InitialModes =
+	{{
 		/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
 		/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
 		/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
@@ -843,12 +861,11 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 		/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,70},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{},1,PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,{COUNT_WIDTH,COUNT_WIDTH,PERCENT_WIDTH},{COUNT_WIDTH}},
 		/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
 		/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,PVS_ALIGNEXTENSIONS,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
-	};
-	static_assert(ARRAYSIZE(InitialModes) == predefined_panel_modes_count, "Not all panel modes defined");
+	}};
 
 	if (Index < 0)
 	{
-		std::copy(InitialModes, InitialModes + predefined_panel_modes_count, Modes);
+		std::copy(InitialModes.cbegin(), InitialModes.cend(), Modes);
 	}
 	else
 	{
@@ -856,7 +873,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 	}
 }
 
-void SetFilePanelModes()
+void Options::SetFilePanelModes()
 {
 	auto DisplayModeToReal = [](size_t Mode)->size_t
 	{
@@ -909,13 +926,13 @@ void SetFilePanelModes()
 		};
 		static_assert(ARRAYSIZE(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
 
-		auto MenuCount = Global->Opt->ViewSettings.size();
+		auto MenuCount = ViewSettings.size();
 		// +1 for separator
 		std::vector<MenuDataEx> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
-		for (size_t i = 0; i < Global->Opt->ViewSettings.size(); ++i)
+		for (size_t i = 0; i < ViewSettings.size(); ++i)
 		{
-			ModeListMenu[RealModeToDisplay(i)].Name = Global->Opt->ViewSettings[i].Name.CPtr();
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.CPtr();
 		}
 
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
@@ -981,7 +998,7 @@ void SetFilePanelModes()
 
 		if (DeleteMode)
 		{
-			Global->Opt->DeleteViewSettings(ModeNumber);
+			DeleteViewSettings(ModeNumber);
 			--CurMode;
 			if (CurMode == predefined_panel_modes_count) //separator
 				--CurMode;
@@ -1016,7 +1033,7 @@ void SetFilePanelModes()
 		} ;
 		FarDialogItem ModeDlgData[]=
 		{
-			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : Global->Opt->ViewSettings[ModeNumber].Name.CPtr()},
+			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name},
 			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeName)},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
 			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
@@ -1043,7 +1060,7 @@ void SetFilePanelModes()
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
-		PanelViewSettings NewSettings = Global->Opt->ViewSettings[ModeNumber];
+		PanelViewSettings NewSettings = ViewSettings[ModeNumber];
 
 		if (AddNewMode)
 		{
@@ -1100,11 +1117,11 @@ void SetFilePanelModes()
 
 			if (AddNewMode)
 			{
-				Global->Opt->AddViewSettings(ModeNumber, &NewSettings);
+				AddViewSettings(ModeNumber, &NewSettings);
 			}
 			else
 			{
-				Global->Opt->SetViewSettings(ModeNumber, &NewSettings);
+				SetViewSettings(ModeNumber, &NewSettings);
 			}
 			Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
 			Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
@@ -1380,347 +1397,347 @@ void Options::InitRoamingCFG()
 {
 	static FARConfigItem _CFG[] =
 	{
-		{FSSF_PRIVATE,       NKeyCmdline, L"AutoComplete", &Global->Opt->CmdLine.AutoComplete, true},
-		{FSSF_PRIVATE,       NKeyCmdline, L"EditBlock", &Global->Opt->CmdLine.EditBlock, false},
-		{FSSF_PRIVATE,       NKeyCmdline, L"DelRemovesBlocks", &Global->Opt->CmdLine.DelRemovesBlocks, true},
-		{FSSF_PRIVATE,       NKeyCmdline, L"PromptFormat", &Global->Opt->CmdLine.strPromptFormat, L"$p$g"},
-		{FSSF_PRIVATE,       NKeyCmdline, L"UsePromptFormat", &Global->Opt->CmdLine.UsePromptFormat, false},
+		{FSSF_PRIVATE,       NKeyCmdline, L"AutoComplete", &CmdLine.AutoComplete, true},
+		{FSSF_PRIVATE,       NKeyCmdline, L"EditBlock", &CmdLine.EditBlock, false},
+		{FSSF_PRIVATE,       NKeyCmdline, L"DelRemovesBlocks", &CmdLine.DelRemovesBlocks, true},
+		{FSSF_PRIVATE,       NKeyCmdline, L"PromptFormat", &CmdLine.strPromptFormat, L"$p$g"},
+		{FSSF_PRIVATE,       NKeyCmdline, L"UsePromptFormat", &CmdLine.UsePromptFormat, false},
 
-		{FSSF_PRIVATE,       NKeyCodePages,L"CPMenuMode", &Global->Opt->CPMenuMode, false},
-		{FSSF_PRIVATE,       NKeyCodePages,L"NoAutoDetectCP", &Global->Opt->strNoAutoDetectCP, L""},
+		{FSSF_PRIVATE,       NKeyCodePages,L"CPMenuMode", &CPMenuMode, false},
+		{FSSF_PRIVATE,       NKeyCodePages,L"NoAutoDetectCP", &strNoAutoDetectCP, L""},
 
-		{FSSF_PRIVATE,       NKeyConfirmations,L"AllowReedit", &Global->Opt->Confirm.AllowReedit, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Copy", &Global->Opt->Confirm.Copy, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Delete", &Global->Opt->Confirm.Delete, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"DeleteFolder", &Global->Opt->Confirm.DeleteFolder, true},
-		{FSSF_PRIVATE,       NKeyConfirmations,L"DetachVHD", &Global->Opt->Confirm.DetachVHD, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Drag", &Global->Opt->Confirm.Drag, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Esc", &Global->Opt->Confirm.Esc, true},
-		{FSSF_PRIVATE,       NKeyConfirmations,L"EscTwiceToInterrupt", &Global->Opt->Confirm.EscTwiceToInterrupt, false},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Exit", &Global->Opt->Confirm.Exit, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"HistoryClear", &Global->Opt->Confirm.HistoryClear, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Move", &Global->Opt->Confirm.Move, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"RemoveConnection", &Global->Opt->Confirm.RemoveConnection, true},
-		{FSSF_PRIVATE,       NKeyConfirmations,L"RemoveHotPlug", &Global->Opt->Confirm.RemoveHotPlug, true},
-		{FSSF_PRIVATE,       NKeyConfirmations,L"RemoveSUBST", &Global->Opt->Confirm.RemoveSUBST, true},
-		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"RO", &Global->Opt->Confirm.RO, true},
+		{FSSF_PRIVATE,       NKeyConfirmations,L"AllowReedit", &Confirm.AllowReedit, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Copy", &Confirm.Copy, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Delete", &Confirm.Delete, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"DeleteFolder", &Confirm.DeleteFolder, true},
+		{FSSF_PRIVATE,       NKeyConfirmations,L"DetachVHD", &Confirm.DetachVHD, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Drag", &Confirm.Drag, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Esc", &Confirm.Esc, true},
+		{FSSF_PRIVATE,       NKeyConfirmations,L"EscTwiceToInterrupt", &Confirm.EscTwiceToInterrupt, false},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Exit", &Confirm.Exit, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"HistoryClear", &Confirm.HistoryClear, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"Move", &Confirm.Move, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"RemoveConnection", &Confirm.RemoveConnection, true},
+		{FSSF_PRIVATE,       NKeyConfirmations,L"RemoveHotPlug", &Confirm.RemoveHotPlug, true},
+		{FSSF_PRIVATE,       NKeyConfirmations,L"RemoveSUBST", &Confirm.RemoveSUBST, true},
+		{FSSF_CONFIRMATIONS, NKeyConfirmations,L"RO", &Confirm.RO, true},
 
-		{FSSF_PRIVATE,       NKeyDescriptions,L"AnsiByDefault", &Global->Opt->Diz.AnsiByDefault, false},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"ListNames", &Global->Opt->Diz.strListNames, L"Descript.ion,Files.bbs"},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"ROUpdate", &Global->Opt->Diz.ROUpdate, false},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"SaveInUTF", &Global->Opt->Diz.SaveInUTF, false},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"SetHidden", &Global->Opt->Diz.SetHidden, true},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"StartPos", &Global->Opt->Diz.StartPos, 0},
-		{FSSF_PRIVATE,       NKeyDescriptions,L"UpdateMode", &Global->Opt->Diz.UpdateMode, DIZ_UPDATE_IF_DISPLAYED},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"AnsiByDefault", &Diz.AnsiByDefault, false},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"ListNames", &Diz.strListNames, L"Descript.ion,Files.bbs"},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"ROUpdate", &Diz.ROUpdate, false},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"SaveInUTF", &Diz.SaveInUTF, false},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"SetHidden", &Diz.SetHidden, true},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"StartPos", &Diz.StartPos, 0},
+		{FSSF_PRIVATE,       NKeyDescriptions,L"UpdateMode", &Diz.UpdateMode, DIZ_UPDATE_IF_DISPLAYED},
 
-		{FSSF_PRIVATE,       NKeyDialog,L"AutoComplete", &Global->Opt->Dialogs.AutoComplete, true},
-		{FSSF_PRIVATE,       NKeyDialog,L"CBoxMaxHeight", &Global->Opt->Dialogs.CBoxMaxHeight, 8},
-		{FSSF_DIALOG,        NKeyDialog,L"EditBlock", &Global->Opt->Dialogs.EditBlock, false},
-		{FSSF_PRIVATE,       NKeyDialog,L"EditHistory", &Global->Opt->Dialogs.EditHistory, true},
-		{FSSF_PRIVATE,       NKeyDialog,L"EditLine", &Global->Opt->Dialogs.EditLine, 0},
-		{FSSF_DIALOG,        NKeyDialog,L"DelRemovesBlocks", &Global->Opt->Dialogs.DelRemovesBlocks, true},
-		{FSSF_DIALOG,        NKeyDialog,L"EULBsClear", &Global->Opt->Dialogs.EULBsClear, false},
-		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", &Global->Opt->Dialogs.MouseButton, 0xFFFF},
+		{FSSF_PRIVATE,       NKeyDialog,L"AutoComplete", &Dialogs.AutoComplete, true},
+		{FSSF_PRIVATE,       NKeyDialog,L"CBoxMaxHeight", &Dialogs.CBoxMaxHeight, 8},
+		{FSSF_DIALOG,        NKeyDialog,L"EditBlock", &Dialogs.EditBlock, false},
+		{FSSF_PRIVATE,       NKeyDialog,L"EditHistory", &Dialogs.EditHistory, true},
+		{FSSF_PRIVATE,       NKeyDialog,L"EditLine", &Dialogs.EditLine, 0},
+		{FSSF_DIALOG,        NKeyDialog,L"DelRemovesBlocks", &Dialogs.DelRemovesBlocks, true},
+		{FSSF_DIALOG,        NKeyDialog,L"EULBsClear", &Dialogs.EULBsClear, false},
+		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", &Dialogs.MouseButton, 0xFFFF},
 
-		{FSSF_PRIVATE,       NKeyEditor,L"AddUnicodeBOM", &Global->Opt->EdOpt.AddUnicodeBOM, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", &Global->Opt->EdOpt.AllowEmptySpaceAfterEof,false},
-		{FSSF_PRIVATE,       NKeyEditor,L"AutoDetectCodePage", &Global->Opt->EdOpt.AutoDetectCodePage, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"AutoIndent", &Global->Opt->EdOpt.AutoIndent, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"BSLikeDel", &Global->Opt->EdOpt.BSLikeDel, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"CharCodeBase", &Global->Opt->EdOpt.CharCodeBase, 1},
-		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", &Global->Opt->EdOpt.DefaultCodePage, GetACP()},
-		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", &Global->Opt->EdOpt.DelRemovesBlocks, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", &Global->Opt->EdOpt.EditOpenedForWrite, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", &Global->Opt->EdOpt.CursorBeyondEOL, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"EditorF7Rules", &Global->Opt->EdOpt.F7Rules, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"ExpandTabs", &Global->Opt->EdOpt.ExpandTabs, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", &Global->Opt->strExternalEditor, L""},
-		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", &Global->Opt->EdOpt.FileSizeLimitLo, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimitHi", &Global->Opt->EdOpt.FileSizeLimitHi, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"KeepEditorEOL", &Global->Opt->EdOpt.KeepEOL, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"PersistentBlocks", &Global->Opt->EdOpt.PersistentBlocks, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", &Global->Opt->EdOpt.ReadOnlyLock, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorPos", &Global->Opt->EdOpt.SavePos, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorShortPos", &Global->Opt->EdOpt.SaveShortPos, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"SearchPickUpWord", &Global->Opt->EdOpt.SearchPickUpWord, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"SearchRegexp", &Global->Opt->EdOpt.SearchRegexp, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"SearchSelFound", &Global->Opt->EdOpt.SearchSelFound, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"SearchCursorAtEnd", &Global->Opt->EdOpt.SearchCursorAtEnd, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"ShowKeyBar", &Global->Opt->EdOpt.ShowKeyBar, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"ShowScrollBar", &Global->Opt->EdOpt.ShowScrollBar, false},
-		{FSSF_PRIVATE,       NKeyEditor,L"ShowTitleBar", &Global->Opt->EdOpt.ShowTitleBar, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"ShowWhiteSpace", &Global->Opt->EdOpt.ShowWhiteSpace, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"TabSize", &Global->Opt->EdOpt.TabSize, DefaultTabSize},
-		{FSSF_PRIVATE,       NKeyEditor,L"UndoDataSize", &Global->Opt->EdOpt.UndoSize, 100*1024*1024},
-		{FSSF_PRIVATE,       NKeyEditor,L"UseExternalEditor", &Global->Opt->EdOpt.UseExternalEditor, false},
-		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", &Global->Opt->strWordDiv, WordDiv0},
+		{FSSF_PRIVATE,       NKeyEditor,L"AddUnicodeBOM", &EdOpt.AddUnicodeBOM, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", &EdOpt.AllowEmptySpaceAfterEof,false},
+		{FSSF_PRIVATE,       NKeyEditor,L"AutoDetectCodePage", &EdOpt.AutoDetectCodePage, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"AutoIndent", &EdOpt.AutoIndent, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"BSLikeDel", &EdOpt.BSLikeDel, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"CharCodeBase", &EdOpt.CharCodeBase, 1},
+		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", &EdOpt.DefaultCodePage, GetACP()},
+		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", &EdOpt.DelRemovesBlocks, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", &EdOpt.EditOpenedForWrite, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", &EdOpt.CursorBeyondEOL, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"EditorF7Rules", &EdOpt.F7Rules, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"ExpandTabs", &EdOpt.ExpandTabs, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", &strExternalEditor, L""},
+		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", &EdOpt.FileSizeLimitLo, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimitHi", &EdOpt.FileSizeLimitHi, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"KeepEditorEOL", &EdOpt.KeepEOL, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"PersistentBlocks", &EdOpt.PersistentBlocks, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", &EdOpt.ReadOnlyLock, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorPos", &EdOpt.SavePos, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorShortPos", &EdOpt.SaveShortPos, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"SearchPickUpWord", &EdOpt.SearchPickUpWord, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"SearchRegexp", &EdOpt.SearchRegexp, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"SearchSelFound", &EdOpt.SearchSelFound, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"SearchCursorAtEnd", &EdOpt.SearchCursorAtEnd, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"ShowKeyBar", &EdOpt.ShowKeyBar, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"ShowScrollBar", &EdOpt.ShowScrollBar, false},
+		{FSSF_PRIVATE,       NKeyEditor,L"ShowTitleBar", &EdOpt.ShowTitleBar, true},
+		{FSSF_PRIVATE,       NKeyEditor,L"ShowWhiteSpace", &EdOpt.ShowWhiteSpace, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"TabSize", &EdOpt.TabSize, DefaultTabSize},
+		{FSSF_PRIVATE,       NKeyEditor,L"UndoDataSize", &EdOpt.UndoSize, 100*1024*1024},
+		{FSSF_PRIVATE,       NKeyEditor,L"UseExternalEditor", &EdOpt.UseExternalEditor, false},
+		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", &strWordDiv, WordDiv0},
 
-		{FSSF_PRIVATE,       NKeyHelp,L"ActivateURL", &Global->Opt->HelpURLRules, 1},
-		{FSSF_PRIVATE,       NKeyHelp,L"HelpSearchRegexp", &Global->Opt->HelpSearchRegexp, false},
+		{FSSF_PRIVATE,       NKeyHelp,L"ActivateURL", &HelpURLRules, 1},
+		{FSSF_PRIVATE,       NKeyHelp,L"HelpSearchRegexp", &HelpSearchRegexp, false},
 
-		{FSSF_PRIVATE,       NKeyCommandHistory, L"Count", &Global->Opt->HistoryCount, 1000},
-		{FSSF_PRIVATE,       NKeyCommandHistory, L"Lifetime", &Global->Opt->HistoryLifetime, 90},
-		{FSSF_PRIVATE,       NKeyDialogHistory, L"Count", &Global->Opt->DialogsHistoryCount, 1000},
-		{FSSF_PRIVATE,       NKeyDialogHistory, L"Lifetime", &Global->Opt->DialogsHistoryLifetime, 90},
-		{FSSF_PRIVATE,       NKeyFolderHistory, L"Count", &Global->Opt->FoldersHistoryCount, 1000},
-		{FSSF_PRIVATE,       NKeyFolderHistory, L"Lifetime", &Global->Opt->FoldersHistoryLifetime, 90},
-		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Count", &Global->Opt->ViewHistoryCount, 1000},
-		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Lifetime", &Global->Opt->ViewHistoryLifetime, 90},
+		{FSSF_PRIVATE,       NKeyCommandHistory, L"Count", &HistoryCount, 1000},
+		{FSSF_PRIVATE,       NKeyCommandHistory, L"Lifetime", &HistoryLifetime, 90},
+		{FSSF_PRIVATE,       NKeyDialogHistory, L"Count", &DialogsHistoryCount, 1000},
+		{FSSF_PRIVATE,       NKeyDialogHistory, L"Lifetime", &DialogsHistoryLifetime, 90},
+		{FSSF_PRIVATE,       NKeyFolderHistory, L"Count", &FoldersHistoryCount, 1000},
+		{FSSF_PRIVATE,       NKeyFolderHistory, L"Lifetime", &FoldersHistoryLifetime, 90},
+		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Count", &ViewHistoryCount, 1000},
+		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Lifetime", &ViewHistoryLifetime, 90},
 
-		{FSSF_PRIVATE,       NKeyInterface,L"DelShowTotal", &Global->Opt->DelOpt.DelShowTotal, false},
+		{FSSF_PRIVATE,       NKeyInterface,L"DelShowTotal", &DelOpt.DelShowTotal, false},
 
-		{FSSF_PRIVATE,       NKeyInterface, L"AltF9", &Global->Opt->AltF9, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"ClearType", &Global->Opt->ClearType, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"CopyShowTotal", &Global->Opt->CMOpt.CopyShowTotal, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"CtrlPgUp", &Global->Opt->PgUpChangeDisk, 1},
-		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize1", &Global->Opt->CursorSize[0], 15},
-		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize2", &Global->Opt->CursorSize[1], 10},
-		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize3", &Global->Opt->CursorSize[2], 99},
-		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize4", &Global->Opt->CursorSize[3], 99},
-		{FSSF_PRIVATE,       NKeyInterface, L"EditorTitleFormat", &Global->Opt->strEditorTitleFormat, L"%Lng %File"},
-		{FSSF_PRIVATE,       NKeyInterface, L"FormatNumberSeparators", &Global->Opt->FormatNumberSeparators, 0},
-		{FSSF_PRIVATE,       NKeyInterface, L"Mouse", &Global->Opt->Mouse, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"SetIcon", &Global->Opt->SetIcon, false},
-		{FSSF_PRIVATE,       NKeyInterface, L"SetAdminIcon", &Global->Opt->SetAdminIcon, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"ShiftsKeyRules", &Global->Opt->ShiftsKeyRules, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"ShowDotsInRoot", &Global->Opt->ShowDotsInRoot, false},
-		{FSSF_INTERFACE,     NKeyInterface, L"ShowMenuBar", &Global->Opt->ShowMenuBar, false},
-		{FSSF_PRIVATE,       NKeyInterface, L"RedrawTimeout", &Global->Opt->RedrawTimeout, 200},
-		{FSSF_PRIVATE,       NKeyInterface, L"TitleAddons", &Global->Opt->strTitleAddons, L"%Ver.%Build %Platform %Admin"},
-		{FSSF_PRIVATE,       NKeyInterface, L"UseVk_oem_x", &Global->Opt->UseVk_oem_x, true},
-		{FSSF_PRIVATE,       NKeyInterface, L"ViewerTitleFormat", &Global->Opt->strViewerTitleFormat, L"%Lng %File"},
+		{FSSF_PRIVATE,       NKeyInterface, L"AltF9", &AltF9, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"ClearType", &ClearType, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"CopyShowTotal", &CMOpt.CopyShowTotal, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"CtrlPgUp", &PgUpChangeDisk, 1},
+		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize1", &CursorSize[0], 15},
+		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize2", &CursorSize[1], 10},
+		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize3", &CursorSize[2], 99},
+		{FSSF_PRIVATE,       NKeyInterface, L"CursorSize4", &CursorSize[3], 99},
+		{FSSF_PRIVATE,       NKeyInterface, L"EditorTitleFormat", &strEditorTitleFormat, L"%Lng %File"},
+		{FSSF_PRIVATE,       NKeyInterface, L"FormatNumberSeparators", &FormatNumberSeparators, 0},
+		{FSSF_PRIVATE,       NKeyInterface, L"Mouse", &Mouse, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"SetIcon", &SetIcon, false},
+		{FSSF_PRIVATE,       NKeyInterface, L"SetAdminIcon", &SetAdminIcon, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"ShiftsKeyRules", &ShiftsKeyRules, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"ShowDotsInRoot", &ShowDotsInRoot, false},
+		{FSSF_INTERFACE,     NKeyInterface, L"ShowMenuBar", &ShowMenuBar, false},
+		{FSSF_PRIVATE,       NKeyInterface, L"RedrawTimeout", &RedrawTimeout, 200},
+		{FSSF_PRIVATE,       NKeyInterface, L"TitleAddons", &strTitleAddons, L"%Ver.%Build %Platform %Admin"},
+		{FSSF_PRIVATE,       NKeyInterface, L"UseVk_oem_x", &UseVk_oem_x, true},
+		{FSSF_PRIVATE,       NKeyInterface, L"ViewerTitleFormat", &strViewerTitleFormat, L"%Lng %File"},
 
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"Append", &Global->Opt->AutoComplete.AppendCompletion, false},
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"ModalList", &Global->Opt->AutoComplete.ModalList, false},
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"ShowList", &Global->Opt->AutoComplete.ShowList, true},
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseFilesystem", &Global->Opt->AutoComplete.UseFilesystem, 1},
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseHistory", &Global->Opt->AutoComplete.UseHistory, 1},
-		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UsePath", &Global->Opt->AutoComplete.UsePath, 1},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"Append", &AutoComplete.AppendCompletion, false},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"ModalList", &AutoComplete.ModalList, false},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"ShowList", &AutoComplete.ShowList, true},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseFilesystem", &AutoComplete.UseFilesystem, 1},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UseHistory", &AutoComplete.UseHistory, 1},
+		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UsePath", &AutoComplete.UsePath, 1},
 
-		{FSSF_PRIVATE,       NKeyLanguage, L"Main", &Global->Opt->strLanguage, DefaultLanguage},
-		{FSSF_PRIVATE,       NKeyLanguage, L"Help", &Global->Opt->strHelpLanguage, DefaultLanguage},
+		{FSSF_PRIVATE,       NKeyLanguage, L"Main", &strLanguage, DefaultLanguage},
+		{FSSF_PRIVATE,       NKeyLanguage, L"Help", &strHelpLanguage, DefaultLanguage},
 
-		{FSSF_PRIVATE,       NKeyLayout,L"FullscreenHelp", &Global->Opt->FullScreenHelp, false},
-		{FSSF_PRIVATE,       NKeyLayout,L"LeftHeightDecrement", &Global->Opt->LeftHeightDecrement, 0},
-		{FSSF_PRIVATE,       NKeyLayout,L"RightHeightDecrement", &Global->Opt->RightHeightDecrement, 0},
-		{FSSF_PRIVATE,       NKeyLayout,L"WidthDecrement", &Global->Opt->WidthDecrement, 0},
+		{FSSF_PRIVATE,       NKeyLayout,L"FullscreenHelp", &FullScreenHelp, false},
+		{FSSF_PRIVATE,       NKeyLayout,L"LeftHeightDecrement", &LeftHeightDecrement, 0},
+		{FSSF_PRIVATE,       NKeyLayout,L"RightHeightDecrement", &RightHeightDecrement, 0},
+		{FSSF_PRIVATE,       NKeyLayout,L"WidthDecrement", &WidthDecrement, 0},
 
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"CONVFMT", &Global->Opt->Macro.strMacroCONVFMT, L"%.6g"},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"DateFormat", &Global->Opt->Macro.strDateFormat, L"%a %b %d %H:%M:%S %Z %Y"},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"MacroReuseRules", &Global->Opt->Macro.MacroReuseRules, false},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"CONVFMT", &Macro.strMacroCONVFMT, L"%.6g"},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"DateFormat", &Macro.strDateFormat, L"%a %b %d %H:%M:%S %Z %Y"},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"MacroReuseRules", &Macro.MacroReuseRules, false},
 
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlDot", &Global->Opt->Macro.strKeyMacroCtrlDot, L"Ctrl."},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlDot", &Global->Opt->Macro.strKeyMacroRCtrlDot, L"RCtrl."},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlShiftDot", &Global->Opt->Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlShiftDot", &Global->Opt->Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlDot", &Macro.strKeyMacroCtrlDot, L"Ctrl."},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlDot", &Macro.strKeyMacroRCtrlDot, L"RCtrl."},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlShiftDot", &Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlShiftDot", &Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."},
 
-		{FSSF_PRIVATE,       NKeyPanel,L"AutoUpdateLimit", &Global->Opt->AutoUpdateLimit, 0},
-		{FSSF_PRIVATE,       NKeyPanel,L"CtrlAltShiftRule", &Global->Opt->PanelCtrlAltShiftRule, 0},
-		{FSSF_PRIVATE,       NKeyPanel,L"CtrlFRule", &Global->Opt->PanelCtrlFRule, false},
-		{FSSF_PRIVATE,       NKeyPanel,L"Highlight", &Global->Opt->Highlight, true},
-		{FSSF_PRIVATE,       NKeyPanel,L"ReverseSort", &Global->Opt->ReverseSort, true},
-		{FSSF_PRIVATE,       NKeyPanel,L"RememberLogicalDrives", &Global->Opt->RememberLogicalDrives, false},
-		{FSSF_PRIVATE,       NKeyPanel,L"RightClickRule", &Global->Opt->PanelRightClickRule, 2},
-		{FSSF_PRIVATE,       NKeyPanel,L"SelectFolders", &Global->Opt->SelectFolders, false},
-		{FSSF_PRIVATE,       NKeyPanel,L"ShellRightLeftArrowsRule", &Global->Opt->ShellRightLeftArrowsRule, false},
-		{FSSF_PANEL,         NKeyPanel,L"ShowHidden", &Global->Opt->ShowHidden, true},
-		{FSSF_PANEL,         NKeyPanel,L"ShortcutAlwaysChdir", &Global->Opt->ShortcutAlwaysChdir, false},
-		{FSSF_PRIVATE,       NKeyPanel,L"SortFolderExt", &Global->Opt->SortFolderExt, false},
-		{FSSF_PRIVATE,       NKeyPanel,L"RightClickSelect", &Global->Opt->RightClickSelect, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"AutoUpdateLimit", &AutoUpdateLimit, 0},
+		{FSSF_PRIVATE,       NKeyPanel,L"CtrlAltShiftRule", &PanelCtrlAltShiftRule, 0},
+		{FSSF_PRIVATE,       NKeyPanel,L"CtrlFRule", &PanelCtrlFRule, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"Highlight", &Highlight, true},
+		{FSSF_PRIVATE,       NKeyPanel,L"ReverseSort", &ReverseSort, true},
+		{FSSF_PRIVATE,       NKeyPanel,L"RememberLogicalDrives", &RememberLogicalDrives, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"RightClickRule", &PanelRightClickRule, 2},
+		{FSSF_PRIVATE,       NKeyPanel,L"SelectFolders", &SelectFolders, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"ShellRightLeftArrowsRule", &ShellRightLeftArrowsRule, false},
+		{FSSF_PANEL,         NKeyPanel,L"ShowHidden", &ShowHidden, true},
+		{FSSF_PANEL,         NKeyPanel,L"ShortcutAlwaysChdir", &ShortcutAlwaysChdir, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"SortFolderExt", &SortFolderExt, false},
+		{FSSF_PRIVATE,       NKeyPanel,L"RightClickSelect", &RightClickSelect, false},
 
-		{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoComputerNameFormat", &Global->Opt->InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS},
-		{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoUserNameFormat", &Global->Opt->InfoPanel.UserNameFormat, NameUserPrincipal},
-		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowCDInfo", &Global->Opt->InfoPanel.ShowCDInfo, true},
-		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowPowerStatus", &Global->Opt->InfoPanel.ShowPowerStatus, false},
+		{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoComputerNameFormat", &InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS},
+		{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoUserNameFormat", &InfoPanel.UserNameFormat, NameUserPrincipal},
+		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowCDInfo", &InfoPanel.ShowCDInfo, true},
+		{FSSF_PRIVATE,       NKeyPanelInfo,L"ShowPowerStatus", &InfoPanel.ShowPowerStatus, false},
 
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"ColoredGlobalColumnSeparator", &Global->Opt->HighlightColumnSeparator, true},
-		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"ColumnTitles", &Global->Opt->ShowColumnTitles, true},
-		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"DetailedJunction", &Global->Opt->PanelDetailedJunction, false},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"DoubleGlobalColumnSeparator", &Global->Opt->DoubleGlobalColumnSeparator, false},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"FreeInfo", &Global->Opt->ShowPanelFree, false},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScreensNumber", &Global->Opt->ShowScreensNumber, true},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"Scrollbar", &Global->Opt->ShowPanelScrollbar, false},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScrollbarMenu", &Global->Opt->ShowMenuScrollbar, true},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"ShowUnknownReparsePoint", &Global->Opt->ShowUnknownReparsePoint, false},
-		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"SortMode", &Global->Opt->ShowSortMode, true},
-		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"StatusLine", &Global->Opt->ShowPanelStatus, true},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"TotalInfo", &Global->Opt->ShowPanelTotals, true},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"ColoredGlobalColumnSeparator", &HighlightColumnSeparator, true},
+		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"ColumnTitles", &ShowColumnTitles, true},
+		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"DetailedJunction", &PanelDetailedJunction, false},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"DoubleGlobalColumnSeparator", &DoubleGlobalColumnSeparator, false},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"FreeInfo", &ShowPanelFree, false},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScreensNumber", &ShowScreensNumber, true},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"Scrollbar", &ShowPanelScrollbar, false},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScrollbarMenu", &ShowMenuScrollbar, true},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"ShowUnknownReparsePoint", &ShowUnknownReparsePoint, false},
+		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"SortMode", &ShowSortMode, true},
+		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"StatusLine", &ShowPanelStatus, true},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"TotalInfo", &ShowPanelTotals, true},
 
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", &Global->Opt->LeftPanel.CaseSensitiveSort, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", &Global->Opt->LeftPanel.DirectoriesFirst, true},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", &Global->Opt->LeftPanel.NumericSort, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", &Global->Opt->LeftPanel.SelectedFirst, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", &Global->Opt->LeftPanel.ShowShortNames, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", &Global->Opt->LeftPanel.SortGroups, false},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortMode", &Global->Opt->LeftPanel.SortMode, 1},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortOrder", &Global->Opt->LeftPanel.SortOrder, 1},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Type", &Global->Opt->LeftPanel.Type, 0},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"ViewMode", &Global->Opt->LeftPanel.ViewMode, 2},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", &Global->Opt->LeftPanel.Visible, true},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", &LeftPanel.CaseSensitiveSort, false},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", &LeftPanel.DirectoriesFirst, true},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", &LeftPanel.NumericSort, false},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", &LeftPanel.SelectedFirst, false},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", &LeftPanel.ShowShortNames, false},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", &LeftPanel.SortGroups, false},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortMode", &LeftPanel.SortMode, 1},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortOrder", &LeftPanel.SortOrder, 1},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Type", &LeftPanel.Type, 0},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"ViewMode", &LeftPanel.ViewMode, 2},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", &LeftPanel.Visible, true},
 
-		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", &Global->Opt->RightPanel.CaseSensitiveSort, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", &Global->Opt->RightPanel.DirectoriesFirst, true},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", &Global->Opt->RightPanel.NumericSort, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", &Global->Opt->RightPanel.SelectedFirst, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", &Global->Opt->RightPanel.ShowShortNames, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", &Global->Opt->RightPanel.SortGroups, false},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SortMode", &Global->Opt->RightPanel.SortMode, 1},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SortOrder", &Global->Opt->RightPanel.SortOrder, 1},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Type", &Global->Opt->RightPanel.Type, 0},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", &Global->Opt->RightPanel.ViewMode, 2},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", &Global->Opt->RightPanel.Visible, true},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", &RightPanel.CaseSensitiveSort, false},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", &RightPanel.DirectoriesFirst, true},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", &RightPanel.NumericSort, false},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", &RightPanel.SelectedFirst, false},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", &RightPanel.ShowShortNames, false},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", &RightPanel.SortGroups, false},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"SortMode", &RightPanel.SortMode, 1},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"SortOrder", &RightPanel.SortOrder, 1},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Type", &RightPanel.Type, 0},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", &RightPanel.ViewMode, 2},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", &RightPanel.Visible, true},
 
-		{FSSF_PRIVATE,       NKeyPanelTree,L"AutoChangeFolder", &Global->Opt->Tree.AutoChangeFolder, false},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"MinTreeCount", &Global->Opt->Tree.MinTreeCount, 4},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"TreeFileAttr", &Global->Opt->Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"AutoChangeFolder", &Tree.AutoChangeFolder, false},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"MinTreeCount", &Tree.MinTreeCount, 4},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"TreeFileAttr", &Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN},
 	#if defined(TREEFILE_PROJECT)
-		{FSSF_PRIVATE,       NKeyPanelTree,L"CDDisk", &Global->Opt->Tree.CDDisk, 2},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"CDDiskTemplate,0", &Global->Opt->Tree.strCDDisk, constCDDiskTemplate},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"ExceptPath", &Global->Opt->Tree.strExceptPath, L""},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"LocalDisk", &Global->Opt->Tree.LocalDisk, 2},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"LocalDiskTemplate", &Global->Opt->Tree.strLocalDisk, constLocalDiskTemplate},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"NetDisk", &Global->Opt->Tree.NetDisk, 2},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"NetPath", &Global->Opt->Tree.NetPath, 2},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"NetDiskTemplate", &Global->Opt->Tree.strNetDisk, constNetDiskTemplate},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"NetPathTemplate", &Global->Opt->Tree.strNetPath, constNetPathTemplate},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"RemovableDisk", &Global->Opt->Tree.RemovableDisk, 2},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"RemovableDiskTemplate,", &Global->Opt->Tree.strRemovableDisk, constRemovableDiskTemplate},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"SaveLocalPath", &Global->Opt->Tree.strSaveLocalPath, L""},
-		{FSSF_PRIVATE,       NKeyPanelTree,L"SaveNetPath", &Global->Opt->Tree.strSaveNetPath, L""},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"CDDisk", &Tree.CDDisk, 2},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"CDDiskTemplate,0", &Tree.strCDDisk, constCDDiskTemplate},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"ExceptPath", &Tree.strExceptPath, L""},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"LocalDisk", &Tree.LocalDisk, 2},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"LocalDiskTemplate", &Tree.strLocalDisk, constLocalDiskTemplate},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"NetDisk", &Tree.NetDisk, 2},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"NetPath", &Tree.NetPath, 2},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"NetDiskTemplate", &Tree.strNetDisk, constNetDiskTemplate},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"NetPathTemplate", &Tree.strNetPath, constNetPathTemplate},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"RemovableDisk", &Tree.RemovableDisk, 2},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"RemovableDiskTemplate,", &Tree.strRemovableDisk, constRemovableDiskTemplate},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"SaveLocalPath", &Tree.strSaveLocalPath, L""},
+		{FSSF_PRIVATE,       NKeyPanelTree,L"SaveNetPath", &Tree.strSaveNetPath, L""},
 	#endif
-		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin, false},
-		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"OpenFilePlugin", &Global->Opt->PluginConfirm.OpenFilePlugin, 0},
-		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"Prefix", &Global->Opt->PluginConfirm.Prefix, false},
-		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"SetFindList", &Global->Opt->PluginConfirm.SetFindList, false},
-		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"StandardAssociation", &Global->Opt->PluginConfirm.StandardAssociation, false},
+		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &PluginConfirm.EvenIfOnlyOnePlugin, false},
+		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"OpenFilePlugin", &PluginConfirm.OpenFilePlugin, 0},
+		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"Prefix", &PluginConfirm.Prefix, false},
+		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"SetFindList", &PluginConfirm.SetFindList, false},
+		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"StandardAssociation", &PluginConfirm.StandardAssociation, false},
 
-		{FSSF_PRIVATE,       NKeyPolicies,L"DisabledOptions", &Global->Opt->Policies.DisabledOptions, 0},
-		{FSSF_PRIVATE,       NKeyPolicies,L"ShowHiddenDrives", &Global->Opt->Policies.ShowHiddenDrives, true},
+		{FSSF_PRIVATE,       NKeyPolicies,L"DisabledOptions", &Policies.DisabledOptions, 0},
+		{FSSF_PRIVATE,       NKeyPolicies,L"ShowHiddenDrives", &Policies.ShowHiddenDrives, true},
 
-		{FSSF_PRIVATE,       NKeyScreen, L"Clock", &Global->Opt->Clock, true},
-		{FSSF_PRIVATE,       NKeyScreen, L"DeltaX", &Global->Opt->ScrSize.DeltaX, 0},
-		{FSSF_PRIVATE,       NKeyScreen, L"DeltaY", &Global->Opt->ScrSize.DeltaY, 0},
-		{FSSF_SCREEN,        NKeyScreen, L"KeyBar", &Global->Opt->ShowKeyBar, true},
-		{FSSF_PRIVATE,       NKeyScreen, L"ScreenSaver", &Global->Opt->ScreenSaver, false},
-		{FSSF_PRIVATE,       NKeyScreen, L"ScreenSaverTime", &Global->Opt->ScreenSaverTime, 5},
-		{FSSF_PRIVATE,       NKeyScreen, L"ViewerEditorClock", &Global->Opt->ViewerEditorClock, true},
+		{FSSF_PRIVATE,       NKeyScreen, L"Clock", &Clock, true},
+		{FSSF_PRIVATE,       NKeyScreen, L"DeltaX", &ScrSize.DeltaX, 0},
+		{FSSF_PRIVATE,       NKeyScreen, L"DeltaY", &ScrSize.DeltaY, 0},
+		{FSSF_SCREEN,        NKeyScreen, L"KeyBar", &ShowKeyBar, true},
+		{FSSF_PRIVATE,       NKeyScreen, L"ScreenSaver", &ScreenSaver, false},
+		{FSSF_PRIVATE,       NKeyScreen, L"ScreenSaverTime", &ScreenSaverTime, 5},
+		{FSSF_PRIVATE,       NKeyScreen, L"ViewerEditorClock", &ViewerEditorClock, true},
 
-		{FSSF_PRIVATE,       NKeySystem,L"AllCtrlAltShiftRule", &Global->Opt->AllCtrlAltShiftRule, 0x0000FFFF},
-		{FSSF_PRIVATE,       NKeySystem,L"AutoSaveSetup", &Global->Opt->AutoSaveSetup, false},
-		{FSSF_PRIVATE,       NKeySystem,L"AutoUpdateRemoteDrive", &Global->Opt->AutoUpdateRemoteDrive, true},
-		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", &Global->Opt->strBoxSymbols, _BoxSymbols},
-		{FSSF_PRIVATE,       NKeySystem,L"CASRule", &Global->Opt->CASRule, -1},
-		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", &Global->Opt->CloseCDGate, true},
-		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", &Global->Opt->CmdHistoryRule, false},
-		{FSSF_PRIVATE,       NKeySystem,L"CollectFiles", &Global->Opt->FindOpt.CollectFiles, true},
-		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", &Global->Opt->ConsoleDetachKey, L"CtrlShiftTab"},
-		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", &Global->Opt->CMOpt.BufferSize, 0},
-		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", &Global->Opt->CMOpt.CopyOpened, true},
-		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  &Global->Opt->CMOpt.CopyTimeRule, 3},
-		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", &Global->Opt->CMOpt.CopySecurityOptions, 0},
-		{FSSF_PRIVATE,       NKeySystem,L"CreateUppercaseFolders", &Global->Opt->CreateUppercaseFolders, false},
-		{FSSF_SYSTEM,        NKeySystem,L"DeleteToRecycleBin", &Global->Opt->DeleteToRecycleBin, true},
-		{FSSF_PRIVATE,       NKeySystem,L"DeleteToRecycleBinKillLink", &Global->Opt->DeleteToRecycleBinKillLink, true},
-		{FSSF_PRIVATE,       NKeySystem,L"DelThreadPriority", &Global->Opt->DelThreadPriority, THREAD_PRIORITY_NORMAL},
-		{FSSF_PRIVATE,       NKeySystem,L"DriveDisconnectMode", &Global->Opt->ChangeDriveDisconnectMode, true},
-		{FSSF_PRIVATE,       NKeySystem,L"DriveMenuMode", &Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
-		{FSSF_PRIVATE,       NKeySystem,L"ElevationMode", &Global->Opt->StoredElevationMode, -1},
-		{FSSF_PRIVATE,       NKeySystem,L"ExcludeCmdHistory", &Global->Opt->ExcludeCmdHistory, 0},
-		{FSSF_PRIVATE,       NKeySystem,L"FileSearchMode", &Global->Opt->FindOpt.FileSearchMode, FINDAREA_FROM_CURRENT},
-		{FSSF_PRIVATE,       NKeySystem,L"FindAlternateStreams", &Global->Opt->FindOpt.FindAlternateStreams,0,},
-		{FSSF_PRIVATE,       NKeySystem,L"FindCodePage", &Global->Opt->FindCodePage, CP_DEFAULT},
-		{FSSF_PRIVATE,       NKeySystem,L"FindFolders", &Global->Opt->FindOpt.FindFolders, true},
-		{FSSF_PRIVATE,       NKeySystem,L"FindSymLinks", &Global->Opt->FindOpt.FindSymLinks, true},
-		{FSSF_PRIVATE,       NKeySystem,L"FlagPosixSemantics", &Global->Opt->FlagPosixSemantics, true},
-		{FSSF_PRIVATE,       NKeySystem,L"FolderInfo", &Global->Opt->InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
-		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDelta", &Global->Opt->MsWheelDelta, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaEdit", &Global->Opt->MsWheelDeltaEdit, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaHelp", &Global->Opt->MsWheelDeltaHelp, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaView", &Global->Opt->MsWheelDeltaView, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDelta", &Global->Opt->MsHWheelDelta, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDeltaEdit", &Global->Opt->MsHWheelDeltaEdit, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDeltaView", &Global->Opt->MsHWheelDeltaView, 1},
-		{FSSF_PRIVATE,       NKeySystem,L"MultiCopy", &Global->Opt->CMOpt.MultiCopy, false},
-		{FSSF_PRIVATE,       NKeySystem,L"MultiMakeDir", &Global->Opt->MultiMakeDir, false},
+		{FSSF_PRIVATE,       NKeySystem,L"AllCtrlAltShiftRule", &AllCtrlAltShiftRule, 0x0000FFFF},
+		{FSSF_PRIVATE,       NKeySystem,L"AutoSaveSetup", &AutoSaveSetup, false},
+		{FSSF_PRIVATE,       NKeySystem,L"AutoUpdateRemoteDrive", &AutoUpdateRemoteDrive, true},
+		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", &strBoxSymbols, _BoxSymbols},
+		{FSSF_PRIVATE,       NKeySystem,L"CASRule", &CASRule, -1},
+		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", &CloseCDGate, true},
+		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", &CmdHistoryRule, false},
+		{FSSF_PRIVATE,       NKeySystem,L"CollectFiles", &FindOpt.CollectFiles, true},
+		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", &ConsoleDetachKey, L"CtrlShiftTab"},
+		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", &CMOpt.BufferSize, 0},
+		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", &CMOpt.CopyOpened, true},
+		{FSSF_PRIVATE,       NKeySystem,L"CopyTimeRule",  &CMOpt.CopyTimeRule, 3},
+		{FSSF_PRIVATE,       NKeySystem,L"CopySecurityOptions", &CMOpt.CopySecurityOptions, 0},
+		{FSSF_PRIVATE,       NKeySystem,L"CreateUppercaseFolders", &CreateUppercaseFolders, false},
+		{FSSF_SYSTEM,        NKeySystem,L"DeleteToRecycleBin", &DeleteToRecycleBin, true},
+		{FSSF_PRIVATE,       NKeySystem,L"DeleteToRecycleBinKillLink", &DeleteToRecycleBinKillLink, true},
+		{FSSF_PRIVATE,       NKeySystem,L"DelThreadPriority", &DelThreadPriority, THREAD_PRIORITY_NORMAL},
+		{FSSF_PRIVATE,       NKeySystem,L"DriveDisconnectMode", &ChangeDriveDisconnectMode, true},
+		{FSSF_PRIVATE,       NKeySystem,L"DriveMenuMode", &ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
+		{FSSF_PRIVATE,       NKeySystem,L"ElevationMode", &StoredElevationMode, -1},
+		{FSSF_PRIVATE,       NKeySystem,L"ExcludeCmdHistory", &ExcludeCmdHistory, 0},
+		{FSSF_PRIVATE,       NKeySystem,L"FileSearchMode", &FindOpt.FileSearchMode, FINDAREA_FROM_CURRENT},
+		{FSSF_PRIVATE,       NKeySystem,L"FindAlternateStreams", &FindOpt.FindAlternateStreams,0,},
+		{FSSF_PRIVATE,       NKeySystem,L"FindCodePage", &FindCodePage, CP_DEFAULT},
+		{FSSF_PRIVATE,       NKeySystem,L"FindFolders", &FindOpt.FindFolders, true},
+		{FSSF_PRIVATE,       NKeySystem,L"FindSymLinks", &FindOpt.FindSymLinks, true},
+		{FSSF_PRIVATE,       NKeySystem,L"FlagPosixSemantics", &FlagPosixSemantics, true},
+		{FSSF_PRIVATE,       NKeySystem,L"FolderInfo", &InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
+		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDelta", &MsWheelDelta, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaEdit", &MsWheelDeltaEdit, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaHelp", &MsWheelDeltaHelp, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaView", &MsWheelDeltaView, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDelta", &MsHWheelDelta, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDeltaEdit", &MsHWheelDeltaEdit, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MsHWheelDeltaView", &MsHWheelDeltaView, 1},
+		{FSSF_PRIVATE,       NKeySystem,L"MultiCopy", &CMOpt.MultiCopy, false},
+		{FSSF_PRIVATE,       NKeySystem,L"MultiMakeDir", &MultiMakeDir, false},
 	#ifndef NO_WRAPPER
-		{FSSF_PRIVATE,       NKeySystem,L"OEMPluginsSupport",  &Global->Opt->LoadPlug.OEMPluginsSupport, true},
+		{FSSF_PRIVATE,       NKeySystem,L"OEMPluginsSupport",  &LoadPlug.OEMPluginsSupport, true},
 	#endif // NO_WRAPPER
-		{FSSF_SYSTEM,        NKeySystem,L"PluginMaxReadData", &Global->Opt->PluginMaxReadData, 0x20000},
-		{FSSF_PRIVATE,       NKeySystem,L"QuotedName", &Global->Opt->QuotedName, QUOTEDNAME_INSERT},
-		{FSSF_PRIVATE,       NKeySystem,L"QuotedSymbols", &Global->Opt->strQuotedSymbols, L" &()[]{}^=;!'+,`\xA0"},
-		{FSSF_PRIVATE,       NKeySystem,L"SaveHistory", &Global->Opt->SaveHistory, true},
-		{FSSF_PRIVATE,       NKeySystem,L"SaveFoldersHistory", &Global->Opt->SaveFoldersHistory, true},
-		{FSSF_PRIVATE,       NKeySystem,L"SaveViewHistory", &Global->Opt->SaveViewHistory, true},
-		{FSSF_SYSTEM,        NKeySystem,L"ScanJunction", &Global->Opt->ScanJunction, true},
-		{FSSF_PRIVATE,       NKeySystem,L"ScanSymlinks",  &Global->Opt->LoadPlug.ScanSymlinks, true},
-		{FSSF_PRIVATE,       NKeySystem,L"SearchInFirstSize", &Global->Opt->FindOpt.strSearchInFirstSize, L""},
-		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormat", &Global->Opt->FindOpt.strSearchOutFormat, L"D,S,A"},
-		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormatWidth", &Global->Opt->FindOpt.strSearchOutFormatWidth, L"14,13,0"},
-		{FSSF_PRIVATE,       NKeySystem,L"SetAttrFolderRules", &Global->Opt->SetAttrFolderRules, true},
-		{FSSF_PRIVATE,       NKeySystem,L"ShowCheckingFile", &Global->Opt->ShowCheckingFile, false},
-		{FSSF_PRIVATE,       NKeySystem,L"ShowStatusInfo", &Global->Opt->InfoPanel.strShowStatusInfo, L""},
-		{FSSF_PRIVATE,       NKeySystem,L"SilentLoadPlugin",  &Global->Opt->LoadPlug.SilentLoadPlugin, false},
-		{FSSF_PRIVATE,       NKeySystem,L"SmartFolderMonitor",  &Global->Opt->SmartFolderMonitor, false},
-		{FSSF_PRIVATE,       NKeySystem,L"SubstNameRule", &Global->Opt->SubstNameRule, 2},
-		{FSSF_PRIVATE,       NKeySystem,L"SubstPluginPrefix", &Global->Opt->SubstPluginPrefix, false},
-		{FSSF_PRIVATE,       NKeySystem,L"UpdateEnvironment", &Global->Opt->UpdateEnvironment,0,},
-		{FSSF_PRIVATE,       NKeySystem,L"UseFilterInSearch", &Global->Opt->FindOpt.UseFilter,0,},
-		{FSSF_PRIVATE,       NKeySystem,L"UseRegisteredTypes", &Global->Opt->UseRegisteredTypes, true},
-		{FSSF_PRIVATE,       NKeySystem,L"UseSystemCopy", &Global->Opt->CMOpt.UseSystemCopy, true},
-		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", &Global->Opt->StoredWindowMode, false},
-		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", &Global->Opt->WipeSymbol, 0},
+		{FSSF_SYSTEM,        NKeySystem,L"PluginMaxReadData", &PluginMaxReadData, 0x20000},
+		{FSSF_PRIVATE,       NKeySystem,L"QuotedName", &QuotedName, QUOTEDNAME_INSERT},
+		{FSSF_PRIVATE,       NKeySystem,L"QuotedSymbols", &strQuotedSymbols, L" &()[]{}^=;!'+,`\xA0"},
+		{FSSF_PRIVATE,       NKeySystem,L"SaveHistory", &SaveHistory, true},
+		{FSSF_PRIVATE,       NKeySystem,L"SaveFoldersHistory", &SaveFoldersHistory, true},
+		{FSSF_PRIVATE,       NKeySystem,L"SaveViewHistory", &SaveViewHistory, true},
+		{FSSF_SYSTEM,        NKeySystem,L"ScanJunction", &ScanJunction, true},
+		{FSSF_PRIVATE,       NKeySystem,L"ScanSymlinks",  &LoadPlug.ScanSymlinks, true},
+		{FSSF_PRIVATE,       NKeySystem,L"SearchInFirstSize", &FindOpt.strSearchInFirstSize, L""},
+		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormat", &FindOpt.strSearchOutFormat, L"D,S,A"},
+		{FSSF_PRIVATE,       NKeySystem,L"SearchOutFormatWidth", &FindOpt.strSearchOutFormatWidth, L"14,13,0"},
+		{FSSF_PRIVATE,       NKeySystem,L"SetAttrFolderRules", &SetAttrFolderRules, true},
+		{FSSF_PRIVATE,       NKeySystem,L"ShowCheckingFile", &ShowCheckingFile, false},
+		{FSSF_PRIVATE,       NKeySystem,L"ShowStatusInfo", &InfoPanel.strShowStatusInfo, L""},
+		{FSSF_PRIVATE,       NKeySystem,L"SilentLoadPlugin",  &LoadPlug.SilentLoadPlugin, false},
+		{FSSF_PRIVATE,       NKeySystem,L"SmartFolderMonitor",  &SmartFolderMonitor, false},
+		{FSSF_PRIVATE,       NKeySystem,L"SubstNameRule", &SubstNameRule, 2},
+		{FSSF_PRIVATE,       NKeySystem,L"SubstPluginPrefix", &SubstPluginPrefix, false},
+		{FSSF_PRIVATE,       NKeySystem,L"UpdateEnvironment", &UpdateEnvironment,0,},
+		{FSSF_PRIVATE,       NKeySystem,L"UseFilterInSearch", &FindOpt.UseFilter,0,},
+		{FSSF_PRIVATE,       NKeySystem,L"UseRegisteredTypes", &UseRegisteredTypes, true},
+		{FSSF_PRIVATE,       NKeySystem,L"UseSystemCopy", &CMOpt.UseSystemCopy, true},
+		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", &StoredWindowMode, false},
+		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", &WipeSymbol, 0},
 
-		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"EMenu", &Global->Opt->KnownIDs.EmenuGuidStr, L"742910F1-02ED-4542-851F-DEE37C2E13B2"},
-		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"Network", &Global->Opt->KnownIDs.NetworkGuidStr, L"773B5051-7C5F-4920-A201-68051C4176A4"},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"EMenu", &KnownIDs.EmenuGuidStr, L"742910F1-02ED-4542-851F-DEE37C2E13B2"},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"Network", &KnownIDs.NetworkGuidStr, L"773B5051-7C5F-4920-A201-68051C4176A4"},
 
-		{FSSF_PRIVATE,       NKeySystemNowell,L"MoveRO", &Global->Opt->Nowell.MoveRO, true},
+		{FSSF_PRIVATE,       NKeySystemNowell,L"MoveRO", &Nowell.MoveRO, true},
 
-		{FSSF_PRIVATE,       NKeySystemException,L"FarEventSvc", &Global->Opt->strExceptEventSvc, L""},
-		{FSSF_PRIVATE,       NKeySystemException,L"Used", &Global->Opt->ExceptUsed, false},
+		{FSSF_PRIVATE,       NKeySystemException,L"FarEventSvc", &strExceptEventSvc, L""},
+		{FSSF_PRIVATE,       NKeySystemException,L"Used", &ExceptUsed, false},
 
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"~", &Global->Opt->Exec.strHomeDir, L"%FARHOME%"},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"BatchType", &Global->Opt->Exec.strExecuteBatchType, constBatchExt},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"ExcludeCmds", &Global->Opt->Exec.strExcludeCmds, L""},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"FullTitle", &Global->Opt->Exec.ExecuteFullTitle, false},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", &Global->Opt->Exec.RestoreCPAfterExecute, true},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"SilentExternal", &Global->Opt->Exec.ExecuteSilentExternal, false},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", &Global->Opt->Exec.ExecuteUseAppPath, true},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", &Global->Opt->Exec.UseHomeDir, true},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"~", &Exec.strHomeDir, L"%FARHOME%"},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"BatchType", &Exec.strExecuteBatchType, constBatchExt},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"ExcludeCmds", &Exec.strExcludeCmds, L""},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"FullTitle", &Exec.ExecuteFullTitle, false},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", &Exec.RestoreCPAfterExecute, true},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"SilentExternal", &Exec.ExecuteSilentExternal, false},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", &Exec.ExecuteUseAppPath, true},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", &Exec.UseHomeDir, true},
 
-		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", &Global->Opt->ViOpt.AutoDetectCodePage, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", &Global->Opt->ViOpt.DefaultCodePage, GetACP()},
-		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", &Global->Opt->strExternalViewer, L""},
-		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", &Global->Opt->ViOpt.ViewerIsWrap, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", &Global->Opt->ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},
-		{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", &Global->Opt->ViOpt.PersistentBlocks, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerPos", &Global->Opt->ViOpt.SavePos, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerShortPos", &Global->Opt->ViOpt.SaveShortPos, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", &Global->Opt->ViOpt.SaveCodepage, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerWrapMode", &Global->Opt->ViOpt.SaveWrapMode, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"SearchEditFocus", &Global->Opt->ViOpt.SearchEditFocus, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"SearchRegexp", &Global->Opt->ViOpt.SearchRegexp, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"ShowArrows", &Global->Opt->ViOpt.ShowArrows, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"ShowKeyBar", &Global->Opt->ViOpt.ShowKeyBar, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"ShowTitleBar", &Global->Opt->ViOpt.ShowTitleBar, true},
-		{FSSF_PRIVATE,       NKeyViewer,L"ShowScrollbar", &Global->Opt->ViOpt.ShowScrollbar, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"TabSize", &Global->Opt->ViOpt.TabSize, DefaultTabSize},
-		{FSSF_PRIVATE,       NKeyViewer,L"UseExternalViewer", &Global->Opt->ViOpt.UseExternalViewer, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"Visible0x00", &Global->Opt->ViOpt.Visible0x00, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"Wrap", &Global->Opt->ViOpt.ViewerWrap, false},
-		{FSSF_PRIVATE,       NKeyViewer,L"ZeroChar", &Global->Opt->ViOpt.ZeroChar, 0x00B7}, // middle dot
+		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", &ViOpt.AutoDetectCodePage, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", &ViOpt.DefaultCodePage, GetACP()},
+		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", &strExternalViewer, L""},
+		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", &ViOpt.ViewerIsWrap, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"MaxLineSize", &ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},
+		{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", &ViOpt.PersistentBlocks, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerPos", &ViOpt.SavePos, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerShortPos", &ViOpt.SaveShortPos, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", &ViOpt.SaveCodepage, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerWrapMode", &ViOpt.SaveWrapMode, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"SearchEditFocus", &ViOpt.SearchEditFocus, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"SearchRegexp", &ViOpt.SearchRegexp, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"ShowArrows", &ViOpt.ShowArrows, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"ShowKeyBar", &ViOpt.ShowKeyBar, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"ShowTitleBar", &ViOpt.ShowTitleBar, true},
+		{FSSF_PRIVATE,       NKeyViewer,L"ShowScrollbar", &ViOpt.ShowScrollbar, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"TabSize", &ViOpt.TabSize, DefaultTabSize},
+		{FSSF_PRIVATE,       NKeyViewer,L"UseExternalViewer", &ViOpt.UseExternalViewer, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"Visible0x00", &ViOpt.Visible0x00, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"Wrap", &ViOpt.ViewerWrap, false},
+		{FSSF_PRIVATE,       NKeyViewer,L"ZeroChar", &ViOpt.ZeroChar, 0x00B7}, // middle dot
 
-		{FSSF_PRIVATE,       NKeyVMenu,L"LBtnClick", &Global->Opt->VMenu.LBtnClick, VMENUCLICK_CANCEL},
-		{FSSF_PRIVATE,       NKeyVMenu,L"MBtnClick", &Global->Opt->VMenu.MBtnClick, VMENUCLICK_APPLY},
-		{FSSF_PRIVATE,       NKeyVMenu,L"RBtnClick", &Global->Opt->VMenu.RBtnClick, VMENUCLICK_CANCEL},
+		{FSSF_PRIVATE,       NKeyVMenu,L"LBtnClick", &VMenu.LBtnClick, VMENUCLICK_CANCEL},
+		{FSSF_PRIVATE,       NKeyVMenu,L"MBtnClick", &VMenu.MBtnClick, VMENUCLICK_APPLY},
+		{FSSF_PRIVATE,       NKeyVMenu,L"RBtnClick", &VMenu.RBtnClick, VMENUCLICK_CANCEL},
 
-		{FSSF_PRIVATE,       NKeyXLat,L"Flags", &Global->Opt->XLat.Flags, XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE},
-		{FSSF_PRIVATE,       NKeyXLat,L"Layouts", &Global->Opt->XLat.strLayouts, L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"Rules1", &Global->Opt->XLat.Rules[0], L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"Rules2", &Global->Opt->XLat.Rules[1], L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"Rules3", &Global->Opt->XLat.Rules[2], L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"Table1", &Global->Opt->XLat.Table[0], L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"Table2", &Global->Opt->XLat.Table[1], L""},
-		{FSSF_PRIVATE,       NKeyXLat,L"WordDivForXlat", &Global->Opt->XLat.strWordDivForXlat, WordDivForXlat0},
+		{FSSF_PRIVATE,       NKeyXLat,L"Flags", &XLat.Flags, XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE},
+		{FSSF_PRIVATE,       NKeyXLat,L"Layouts", &XLat.strLayouts, L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"Rules1", &XLat.Rules[0], L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"Rules2", &XLat.Rules[1], L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"Rules3", &XLat.Rules[2], L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"Table1", &XLat.Table[0], L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"Table2", &XLat.Table[1], L""},
+		{FSSF_PRIVATE,       NKeyXLat,L"WordDivForXlat", &XLat.strWordDivForXlat, WordDivForXlat0},
 	};
 	Config[cfg_roaming].first = Global->Db->GeneralCfg().get();
 	Config[cfg_roaming].second.assign(_CFG, ARRAYSIZE(_CFG));
@@ -1731,13 +1748,13 @@ void Options::InitLocalCFG()
 {
 	static FARConfigItem _CFG[] =
 	{
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", &Global->Opt->LeftPanel.CurFile, L""},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", &Global->Opt->LeftPanel.Folder, L""},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", &LeftPanel.CurFile, L""},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", &LeftPanel.Folder, L""},
 
-		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", &Global->Opt->RightPanel.CurFile, L""},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", &Global->Opt->RightPanel.Folder, L""},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", &RightPanel.CurFile, L""},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", &RightPanel.Folder, L""},
 
-		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", &Global->Opt->LeftFocus, true},
+		{FSSF_PRIVATE,       NKeyPanel,L"LeftFocus", &LeftFocus, true},
 
 	};
 	Config[cfg_local].first = Global->Db->LocalGeneralCfg().get();
@@ -2326,4 +2343,691 @@ void Options::SavePanelModes()
 		std::for_each(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
 	}
 	m_ViewSettingsChanged = false;
+}
+
+enum enumMenus
+{
+	MENU_LEFT,
+	MENU_FILES,
+	MENU_COMMANDS,
+	MENU_OPTIONS,
+	MENU_RIGHT
+};
+
+enum enumLeftMenu
+{
+	MENU_LEFT_BRIEFVIEW,
+	MENU_LEFT_MEDIUMVIEW,
+	MENU_LEFT_FULLVIEW,
+	MENU_LEFT_WIDEVIEW,
+	MENU_LEFT_DETAILEDVIEW,
+	MENU_LEFT_DIZVIEW,
+	MENU_LEFT_LONGVIEW,
+	MENU_LEFT_OWNERSVIEW,
+	MENU_LEFT_LINKSVIEW,
+	MENU_LEFT_ALTERNATIVEVIEW,
+	MENU_LEFT_SEPARATOR1,
+	MENU_LEFT_INFOPANEL,
+	MENU_LEFT_TREEPANEL,
+	MENU_LEFT_QUICKVIEW,
+	MENU_LEFT_SEPARATOR2,
+	MENU_LEFT_SORTMODES,
+	MENU_LEFT_LONGNAMES,
+	MENU_LEFT_TOGGLEPANEL,
+	MENU_LEFT_REREAD,
+	MENU_LEFT_CHANGEDRIVE
+};
+
+//currently left == right
+
+enum enumFilesMenu
+{
+	MENU_FILES_VIEW,
+	MENU_FILES_EDIT,
+	MENU_FILES_COPY,
+	MENU_FILES_MOVE,
+	MENU_FILES_LINK,
+	MENU_FILES_CREATEFOLDER,
+	MENU_FILES_DELETE,
+	MENU_FILES_WIPE,
+	MENU_FILES_SEPARATOR1,
+	MENU_FILES_ADD,
+	MENU_FILES_EXTRACT,
+	MENU_FILES_ARCHIVECOMMANDS,
+	MENU_FILES_SEPARATOR2,
+	MENU_FILES_ATTRIBUTES,
+	MENU_FILES_APPLYCOMMAND,
+	MENU_FILES_DESCRIBE,
+	MENU_FILES_SEPARATOR3,
+	MENU_FILES_SELECTGROUP,
+	MENU_FILES_UNSELECTGROUP,
+	MENU_FILES_INVERTSELECTION,
+	MENU_FILES_RESTORESELECTION
+};
+
+enum enumCommandsMenu
+{
+	MENU_COMMANDS_FINDFILE,
+	MENU_COMMANDS_HISTORY,
+	MENU_COMMANDS_VIDEOMODE,
+	MENU_COMMANDS_FINDFOLDER,
+	MENU_COMMANDS_VIEWHISTORY,
+	MENU_COMMANDS_FOLDERHISTORY,
+	MENU_COMMANDS_SEPARATOR1,
+	MENU_COMMANDS_SWAPPANELS,
+	MENU_COMMANDS_TOGGLEPANELS,
+	MENU_COMMANDS_COMPAREFOLDERS,
+	MENU_COMMANDS_SEPARATOR2,
+	MENU_COMMANDS_EDITUSERMENU,
+	MENU_COMMANDS_FILEASSOCIATIONS,
+	MENU_COMMANDS_FOLDERSHORTCUTS,
+	MENU_COMMANDS_FILTER,
+	MENU_COMMANDS_SEPARATOR3,
+	MENU_COMMANDS_PLUGINCOMMANDS,
+	MENU_COMMANDS_WINDOWSLIST,
+	MENU_COMMANDS_PROCESSLIST,
+	MENU_COMMANDS_HOTPLUGLIST
+};
+
+enum enumOptionsMenu
+{
+	MENU_OPTIONS_SYSTEMSETTINGS,
+	MENU_OPTIONS_PANELSETTINGS,
+	MENU_OPTIONS_TREESETTINGS,
+	MENU_OPTIONS_INTERFACESETTINGS,
+	MENU_OPTIONS_LANGUAGES,
+	MENU_OPTIONS_PLUGINSCONFIG,
+	MENU_OPTIONS_PLUGINSMANAGERSETTINGS,
+	MENU_OPTIONS_DIALOGSETTINGS,
+	MENU_OPTIONS_VMENUSETTINGS,
+	MENU_OPTIONS_CMDLINESETTINGS,
+	MENU_OPTIONS_AUTOCOMPLETESETTINGS,
+	MENU_OPTIONS_INFOPANELSETTINGS,
+	MENU_OPTIONS_MASKGROUPS,
+	MENU_OPTIONS_SEPARATOR1,
+	MENU_OPTIONS_CONFIRMATIONS,
+	MENU_OPTIONS_FILEPANELMODES,
+	MENU_OPTIONS_FILEDESCRIPTIONS,
+	MENU_OPTIONS_FOLDERINFOFILES,
+	MENU_OPTIONS_SEPARATOR2,
+	MENU_OPTIONS_VIEWERSETTINGS,
+	MENU_OPTIONS_EDITORSETTINGS,
+	MENU_OPTIONS_CODEPAGESSETTINGS,
+	MENU_OPTIONS_SEPARATOR3,
+	MENU_OPTIONS_COLORS,
+	MENU_OPTIONS_FILESHIGHLIGHTING,
+	MENU_OPTIONS_SEPARATOR4,
+	MENU_OPTIONS_SAVESETUP
+};
+
+void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
+{
+	Panel *pPanel = bLeft?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+
+	switch (pPanel->GetType())
+	{
+	case FILE_PANEL:
+		{
+			int MenuLine = pPanel->GetViewMode()-VIEW_0;
+
+			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
+			{
+				if (!MenuLine)
+					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck(1);
+				else
+					pMenu[MenuLine-1].SetCheck(1);
+			}
+		}
+		break;
+	case INFO_PANEL:
+		pMenu[MENU_LEFT_INFOPANEL].SetCheck(1);
+		break;
+	case TREE_PANEL:
+		pMenu[MENU_LEFT_TREEPANEL].SetCheck(1);
+		break;
+	case QVIEW_PANEL:
+		pMenu[MENU_LEFT_QUICKVIEW].SetCheck(1);
+		break;
+	}
+
+	pMenu[MENU_LEFT_LONGNAMES].SetCheck(!pPanel->GetShowShortNamesMode());
+}
+
+void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
+{
+	size_t MaxLength = 0;	
+	std::for_each(Menu, Menu + MenuSize, [&](const MenuDataEx& i) { MaxLength = std::max(MaxLength, wcslen(i.Name)); });
+	for (size_t i = 0; i < MenuSize; ++i)
+	{
+		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)
+		{
+			string Key;
+			KeyToText(Menu[i].AccelKey, Key);
+			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
+			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
+			Menu[i].Name = Strings[i].CPtr();
+		}
+	}
+}
+
+void Options::ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
+{
+	auto ApplyViewModesNames = [this](MenuDataEx* Menu)
+	{
+		for (size_t i = 0; i < 10; ++i)
+		{
+			if (!ViewSettings[i].Name.IsEmpty())
+				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.CPtr();
+		}
+	};
+
+	MenuDataEx LeftMenu[]=
+	{
+		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		MSG(MMenuMediumView),0,KEY_CTRL2,
+		MSG(MMenuFullView),0,KEY_CTRL3,
+		MSG(MMenuWideView),0,KEY_CTRL4,
+		MSG(MMenuDetailedView),0,KEY_CTRL5,
+		MSG(MMenuDizView),0,KEY_CTRL6,
+		MSG(MMenuLongDizView),0,KEY_CTRL7,
+		MSG(MMenuOwnersView),0,KEY_CTRL8,
+		MSG(MMenuLinksView),0,KEY_CTRL9,
+		MSG(MMenuAlternativeView),0,KEY_CTRL0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuInfoPanel),0,KEY_CTRLL,
+		MSG(MMenuTreePanel),0,KEY_CTRLT,
+		MSG(MMenuQuickView),0,KEY_CTRLQ,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSortModes),0,KEY_CTRLF12,
+		MSG(MMenuLongNames),0,KEY_CTRLN,
+		MSG(MMenuTogglePanel),0,KEY_CTRLF1,
+		MSG(MMenuReread),0,KEY_CTRLR,
+		MSG(MMenuChangeDrive),0,KEY_ALTF1,
+	};
+	ApplyViewModesNames(LeftMenu);
+	std::vector<string> LeftMenuStrings(ARRAYSIZE(LeftMenu));
+	AddHotkeys(LeftMenuStrings, LeftMenu, ARRAYSIZE(LeftMenu));
+
+	MenuDataEx FilesMenu[]=
+	{
+		MSG(MMenuView),LIF_SELECTED,KEY_F3,
+		MSG(MMenuEdit),0,KEY_F4,
+		MSG(MMenuCopy),0,KEY_F5,
+		MSG(MMenuMove),0,KEY_F6,
+		MSG(MMenuLink),0,KEY_ALTF6,
+		MSG(MMenuCreateFolder),0,KEY_F7,
+		MSG(MMenuDelete),0,KEY_F8,
+		MSG(MMenuWipe),0,KEY_ALTDEL,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuAdd),0,KEY_SHIFTF1,
+		MSG(MMenuExtract),0,KEY_SHIFTF2,
+		MSG(MMenuArchiveCommands),0,KEY_SHIFTF3,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuAttributes),0,KEY_CTRLA,
+		MSG(MMenuApplyCommand),0,KEY_CTRLG,
+		MSG(MMenuDescribe),0,KEY_CTRLZ,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSelectGroup),0,KEY_ADD,
+		MSG(MMenuUnselectGroup),0,KEY_SUBTRACT,
+		MSG(MMenuInvertSelection),0,KEY_MULTIPLY,
+		MSG(MMenuRestoreSelection),0,KEY_CTRLM,
+	};
+	std::vector<string> FilesMenuStrings(ARRAYSIZE(FilesMenu));
+	AddHotkeys(FilesMenuStrings, FilesMenu, ARRAYSIZE(FilesMenu));
+
+	MenuDataEx CmdMenu[]=
+	{
+		MSG(MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
+		MSG(MMenuHistory),0,KEY_ALTF8,
+		MSG(MMenuVideoMode),0,KEY_ALTF9,
+		MSG(MMenuFindFolder),0,KEY_ALTF10,
+		MSG(MMenuViewHistory),0,KEY_ALTF11,
+		MSG(MMenuFoldersHistory),0,KEY_ALTF12,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSwapPanels),0,KEY_CTRLU,
+		MSG(MMenuTogglePanels),0,KEY_CTRLO,
+		MSG(MMenuCompareFolders),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuUserMenu),0,0,
+		MSG(MMenuFileAssociations),0,0,
+		MSG(MMenuFolderShortcuts),0,0,
+		MSG(MMenuFilter),0,KEY_CTRLI,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuPluginCommands),0,KEY_F11,
+		MSG(MMenuWindowsList),0,KEY_F12,
+		MSG(MMenuProcessList),0,KEY_CTRLW,
+		MSG(MMenuHotPlugList),0,0,
+	};
+	std::vector<string> CmdMenuStrings(ARRAYSIZE(CmdMenu));
+	AddHotkeys(CmdMenuStrings, CmdMenu, ARRAYSIZE(CmdMenu));
+
+	MenuDataEx OptionsMenu[]=
+	{
+		MSG(MMenuSystemSettings),LIF_SELECTED,0,
+		MSG(MMenuPanelSettings),0,0,
+		MSG(MMenuTreeSettings),0,0,
+		MSG(MMenuInterface),0,0,
+		MSG(MMenuLanguages),0,0,
+		MSG(MMenuPluginsConfig),0,0,
+		MSG(MMenuPluginsManagerSettings),0, 0,
+		MSG(MMenuDialogSettings),0,0,
+		MSG(MMenuVMenuSettings),0,0,
+		MSG(MMenuCmdlineSettings),0,0,
+		MSG(MMenuAutoCompleteSettings),0,0,
+		MSG(MMenuInfoPanelSettings),0,0,
+		MSG(MMenuMaskGroups),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuConfirmation),0,0,
+		MSG(MMenuFilePanelModes),0,0,
+		MSG(MMenuFileDescriptions),0,0,
+		MSG(MMenuFolderInfoFiles),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuViewer),0,0,
+		MSG(MMenuEditor),0,0,
+		MSG(MMenuCodePages),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuColors),0,0,
+		MSG(MMenuFilesHighlighting),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSaveSetup),0,KEY_SHIFTF9,
+	};
+	std::vector<string> OptionsMenuStrings(ARRAYSIZE(OptionsMenu));
+	AddHotkeys(OptionsMenuStrings, OptionsMenu, ARRAYSIZE(OptionsMenu));
+
+	MenuDataEx RightMenu[]=
+	{
+		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		MSG(MMenuMediumView),0,KEY_CTRL2,
+		MSG(MMenuFullView),0,KEY_CTRL3,
+		MSG(MMenuWideView),0,KEY_CTRL4,
+		MSG(MMenuDetailedView),0,KEY_CTRL5,
+		MSG(MMenuDizView),0,KEY_CTRL6,
+		MSG(MMenuLongDizView),0,KEY_CTRL7,
+		MSG(MMenuOwnersView),0,KEY_CTRL8,
+		MSG(MMenuLinksView),0,KEY_CTRL9,
+		MSG(MMenuAlternativeView),0,KEY_CTRL0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuInfoPanel),0,KEY_CTRLL,
+		MSG(MMenuTreePanel),0,KEY_CTRLT,
+		MSG(MMenuQuickView),0,KEY_CTRLQ,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSortModes),0,KEY_CTRLF12,
+		MSG(MMenuLongNames),0,KEY_CTRLN,
+		MSG(MMenuTogglePanelRight),0,KEY_CTRLF2,
+		MSG(MMenuReread),0,KEY_CTRLR,
+		MSG(MMenuChangeDriveRight),0,KEY_ALTF2,
+	};
+	ApplyViewModesNames(RightMenu);
+	std::vector<string> RightMenuStrings(ARRAYSIZE(RightMenu));
+	AddHotkeys(RightMenuStrings, RightMenu, ARRAYSIZE(RightMenu));
+
+
+	HMenuData MainMenu[]=
+	{
+		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, ARRAYSIZE(LeftMenu), 1},
+		{MSG(MMenuFilesTitle), L"FilesMenu", FilesMenu, ARRAYSIZE(FilesMenu), 0},
+		{MSG(MMenuCommandsTitle), L"CmdMenu", CmdMenu, ARRAYSIZE(CmdMenu), 0},
+		{MSG(MMenuOptionsTitle), L"OptMenu", OptionsMenu, ARRAYSIZE(OptionsMenu), 0},
+		{MSG(MMenuRightTitle), L"LeftRightMenu", RightMenu, ARRAYSIZE(RightMenu), 0},
+	};
+	static int LastHItem=-1,LastVItem=0;
+	int HItem,VItem;
+
+	if (Policies.DisabledOptions)
+	{
+		for (size_t I = 0; I < ARRAYSIZE(OptionsMenu); ++I)
+		{
+			if (I >= MENU_OPTIONS_CONFIRMATIONS)
+				OptionsMenu[I].SetGrayed((Policies.DisabledOptions >> (I-1)) & 1);
+			else
+				OptionsMenu[I].SetGrayed((Policies.DisabledOptions >> I) & 1);
+		}
+	}
+
+	SetLeftRightMenuChecks(LeftMenu, true);
+	SetLeftRightMenuChecks(RightMenu, false);
+	// Навигация по меню
+	{
+		HMenu HOptMenu(MainMenu,ARRAYSIZE(MainMenu));
+		HOptMenu.SetHelp(L"Menus");
+		HOptMenu.SetPosition(0,0,ScrX,0);
+
+		if (LastCommand)
+		{
+			MenuDataEx *VMenuTable[] = {LeftMenu, FilesMenu, CmdMenu, OptionsMenu, RightMenu};
+			int HItemToShow = LastHItem;
+
+			if (HItemToShow == -1)
+			{
+				if (Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->RightPanel &&
+					Global->CtrlObject->Cp()->ActivePanel->IsVisible())
+					HItemToShow = 4;
+				else
+					HItemToShow = 0;
+			}
+
+			MainMenu[0].Selected = 0;
+			MainMenu[HItemToShow].Selected = 1;
+			VMenuTable[HItemToShow][0].SetSelect(0);
+			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
+			HOptMenu.Show();
+			{
+				ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+				HOptMenu.ProcessKey(KEY_DOWN);
+			}
+		}
+		else
+		{
+			if (Global->CtrlObject->Cp()->ActivePanel==Global->CtrlObject->Cp()->RightPanel &&
+				Global->CtrlObject->Cp()->ActivePanel->IsVisible())
+			{
+				MainMenu[0].Selected = 0;
+				MainMenu[4].Selected = 1;
+			}
+		}
+
+		if (MouseEvent)
+		{
+			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+			HOptMenu.Show();
+			HOptMenu.ProcessMouse(MouseEvent);
+		}
+
+		{
+			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+			HOptMenu.Process();
+		}
+
+		HOptMenu.GetExitCode(HItem,VItem);
+	}
+
+	// "Исполнятор команд меню"
+	switch (HItem)
+	{
+	case MENU_LEFT:
+	case MENU_RIGHT:
+		{
+			Panel *pPanel = (HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+
+			if (VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW)
+			{
+				Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
+				pPanel=(HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
+				pPanel->SetViewMode((VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem);
+			}
+			else
+			{
+				switch (VItem)
+				{
+				case MENU_LEFT_INFOPANEL: // Info panel
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
+					break;
+				case MENU_LEFT_TREEPANEL: // Tree panel
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
+					break;
+				case MENU_LEFT_QUICKVIEW: // Quick view
+					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
+					break;
+				case MENU_LEFT_SORTMODES: // Sort modes
+					pPanel->ProcessKey(KEY_CTRLF12);
+					break;
+				case MENU_LEFT_LONGNAMES: // Show long names
+					pPanel->ProcessKey(KEY_CTRLN);
+					break;
+				case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
+					FrameManager->ProcessKey((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2);
+					break;
+				case MENU_LEFT_REREAD: // Re-read
+					pPanel->ProcessKey(KEY_CTRLR);
+					break;
+				case MENU_LEFT_CHANGEDRIVE: // Change drive
+					pPanel->ChangeDisk();
+					break;
+				}
+			}
+
+			break;
+		}
+	case MENU_FILES:
+		{
+			switch (VItem)
+			{
+			case MENU_FILES_VIEW:  // View
+				FrameManager->ProcessKey(KEY_F3);
+				break;
+			case MENU_FILES_EDIT:  // Edit
+				FrameManager->ProcessKey(KEY_F4);
+				break;
+			case MENU_FILES_COPY:  // Copy
+				FrameManager->ProcessKey(KEY_F5);
+				break;
+			case MENU_FILES_MOVE:  // Rename or move
+				FrameManager->ProcessKey(KEY_F6);
+				break;
+			case MENU_FILES_LINK:  // Create link
+				FrameManager->ProcessKey(KEY_ALTF6);
+				break;
+			case MENU_FILES_CREATEFOLDER:  // Make folder
+				FrameManager->ProcessKey(KEY_F7);
+				break;
+			case MENU_FILES_DELETE:  // Delete
+				FrameManager->ProcessKey(KEY_F8);
+				break;
+			case MENU_FILES_WIPE:  // Wipe
+				FrameManager->ProcessKey(KEY_ALTDEL);
+				break;
+			case MENU_FILES_ADD:  // Add to archive
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
+				break;
+			case MENU_FILES_EXTRACT:  // Extract files
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
+				break;
+			case MENU_FILES_ARCHIVECOMMANDS:  // Archive commands
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
+				break;
+			case MENU_FILES_ATTRIBUTES: // File attributes
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
+				break;
+			case MENU_FILES_APPLYCOMMAND: // Apply command
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
+				break;
+			case MENU_FILES_DESCRIBE: // Describe files
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
+				break;
+			case MENU_FILES_SELECTGROUP: // Select group
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
+				break;
+			case MENU_FILES_UNSELECTGROUP: // Unselect group
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
+				break;
+			case MENU_FILES_INVERTSELECTION: // Invert selection
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
+				break;
+			case MENU_FILES_RESTORESELECTION: // Restore selection
+				Global->CtrlObject->Cp()->ActivePanel->RestoreSelection();
+				break;
+			}
+
+			break;
+		}
+	case MENU_COMMANDS:
+		{
+			switch (VItem)
+			{
+			case MENU_COMMANDS_FINDFILE: // Find file
+				FrameManager->ProcessKey(KEY_ALTF7);
+				break;
+			case MENU_COMMANDS_HISTORY: // History
+				FrameManager->ProcessKey(KEY_ALTF8);
+				break;
+			case MENU_COMMANDS_VIDEOMODE: // Video mode
+				FrameManager->ProcessKey(KEY_ALTF9);
+				break;
+			case MENU_COMMANDS_FINDFOLDER: // Find folder
+				FrameManager->ProcessKey(KEY_ALTF10);
+				break;
+			case MENU_COMMANDS_VIEWHISTORY: // File view history
+				FrameManager->ProcessKey(KEY_ALTF11);
+				break;
+			case MENU_COMMANDS_FOLDERHISTORY: // Folders history
+				FrameManager->ProcessKey(KEY_ALTF12);
+				break;
+			case MENU_COMMANDS_SWAPPANELS: // Swap panels
+				FrameManager->ProcessKey(KEY_CTRLU);
+				break;
+			case MENU_COMMANDS_TOGGLEPANELS: // Panels On/Off
+				FrameManager->ProcessKey(KEY_CTRLO);
+				break;
+			case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
+				Global->CtrlObject->Cp()->ActivePanel->CompareDir();
+				break;
+			case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
+				{
+					UserMenu Menu(true);
+				}
+				break;
+			case MENU_COMMANDS_FILEASSOCIATIONS: // File associations
+				EditFileTypes();
+				break;
+			case MENU_COMMANDS_FOLDERSHORTCUTS: // Folder shortcuts
+				Shortcuts().Configure();
+				break;
+			case MENU_COMMANDS_FILTER: // File panel filter
+				Global->CtrlObject->Cp()->ActivePanel->EditFilter();
+				break;
+			case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
+				FrameManager->ProcessKey(KEY_F11);
+				break;
+			case MENU_COMMANDS_WINDOWSLIST: // Screens list
+				FrameManager->ProcessKey(KEY_F12);
+				break;
+			case MENU_COMMANDS_PROCESSLIST: // Task list
+				ShowProcessList();
+				break;
+			case MENU_COMMANDS_HOTPLUGLIST: // HotPlug list
+				ShowHotplugDevice();
+				break;
+			}
+
+			break;
+		}
+	case MENU_OPTIONS:
+		{
+			switch (VItem)
+			{
+			case MENU_OPTIONS_SYSTEMSETTINGS:   // System settings
+				SystemSettings();
+				break;
+			case MENU_OPTIONS_PANELSETTINGS:   // Panel settings
+				PanelSettings();
+				break;
+			case MENU_OPTIONS_TREESETTINGS: // Tree settings
+				TreeSettings();
+				break;
+			case MENU_OPTIONS_INTERFACESETTINGS:   // Interface settings
+				InterfaceSettings();
+				break;
+			case MENU_OPTIONS_LANGUAGES:   // Languages
+				{
+					VMenu2 *LangMenu, *HelpMenu;
+
+					if (Select(FALSE, &LangMenu))
+					{
+						Global->Lang->Close();
+
+						if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
+						{
+							Message(MSG_WARNING, 1, L"Error", L"Cannot load language data", L"Ok");
+							exit(0);
+						}
+
+						Select(TRUE,&HelpMenu);
+						delete HelpMenu;
+						Global->CtrlObject->Plugins->ReloadLanguage();
+						SetEnvironmentVariable(L"FARLANG",strLanguage.CPtr());
+						PrepareStrFTime();
+						PrepareUnitStr();
+						FrameManager->InitKeyBar();
+						Global->CtrlObject->Cp()->RedrawKeyBar();
+						Global->CtrlObject->Cp()->SetScreenPosition();
+					}
+
+					delete LangMenu; //???? BUGBUG
+					break;
+				}
+			case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
+				Global->CtrlObject->Plugins->Configure();
+				break;
+			case MENU_OPTIONS_PLUGINSMANAGERSETTINGS: // Plugins manager settings
+				PluginsManagerSettings();
+				break;
+			case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
+				DialogSettings();
+				break;
+			case MENU_OPTIONS_VMENUSETTINGS:    // VMenu settings
+				VMenuSettings();
+				break;
+			case MENU_OPTIONS_CMDLINESETTINGS:   // Command line settings
+				CmdlineSettings();
+				break;
+			case MENU_OPTIONS_AUTOCOMPLETESETTINGS: // AutoComplete settings
+				AutoCompleteSettings();
+				break;
+			case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings
+				InfoPanelSettings();
+				break;
+			case MENU_OPTIONS_MASKGROUPS:  // Groups of file masks
+				MaskGroupsSettings();
+				break;
+			case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
+				SetConfirmations();
+				break;
+			case MENU_OPTIONS_FILEPANELMODES:   // File panel modes
+				SetFilePanelModes();
+				break;
+			case MENU_OPTIONS_FILEDESCRIPTIONS:   // File descriptions
+				SetDizConfig();
+				break;
+			case MENU_OPTIONS_FOLDERINFOFILES:   // Folder description files
+				SetFolderInfoFiles();
+				break;
+			case MENU_OPTIONS_VIEWERSETTINGS:  // Viewer settings
+				ViewerConfig(ViOpt);
+				break;
+			case MENU_OPTIONS_EDITORSETTINGS:  // Editor settings
+				EditorConfig(EdOpt);
+				break;
+			case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
+				{
+					uintptr_t CodePage = CP_DEFAULT;
+					Global->CodePages->SelectCodePage(CodePage, true, false, true);
+				}
+				break;
+			case MENU_OPTIONS_COLORS:  // Colors
+				SetColors();
+				break;
+			case MENU_OPTIONS_FILESHIGHLIGHTING:  // Files highlighting
+				Global->CtrlObject->HiFiles->HiEdit(0);
+				break;
+			case MENU_OPTIONS_SAVESETUP:  // Save setup
+				Save(true);
+				break;
+			}
+
+			break;
+		}
+	}
+
+	int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
+	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
+	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
+
+	if (!(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR))
+		Global->CtrlObject->CmdLine->Show();
+
+	if (HItem != -1 && VItem != -1)
+	{
+		LastHItem = HItem;
+		LastVItem = VItem;
+	}
 }

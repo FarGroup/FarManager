@@ -178,7 +178,6 @@ LINK_OBJS = \
 	"$(INTDIR)\namelist.obj" \
 	"$(INTDIR)\network.obj" \
 	"$(INTDIR)\nsUniversalDetectorEx.obj" \
-	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
 	"$(INTDIR)\panelmix.obj" \

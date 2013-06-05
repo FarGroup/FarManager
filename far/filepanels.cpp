@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
-#include "options.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "interf.hpp"
@@ -810,12 +809,12 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_F9:
 		{
-			ShellOptions(0,nullptr);
+			Global->Opt->ShellOptions(0,nullptr);
 			return TRUE;
 		}
 		case KEY_SHIFTF10:
 		{
-			ShellOptions(1,nullptr);
+			Global->Opt->ShellOptions(1,nullptr);
 			return TRUE;
 		}
 		default:

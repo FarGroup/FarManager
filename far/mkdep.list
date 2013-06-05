@@ -172,8 +172,6 @@ network.hpp
 noncopyable.hpp
 nsUniversalDetectorEx.cpp
 nsUniversalDetectorEx.hpp
-options.cpp
-options.hpp
 palette.cpp
 palette.hpp
 panel.cpp

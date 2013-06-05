@@ -51,14 +51,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
-static struct
+struct star
 {
 	int X;
 	int Y;
 	int Type;
 	int Color;
 	int Speed;
-} Star[16];
+};
+
+static std::array<star, 16> Star;
 
 static const wchar_t* StarSymbol[]=
 {
@@ -71,29 +73,30 @@ static const wchar_t* StarSymbol[]=
 
 static void ShowSaver(int Step)
 {
-	for (size_t I=0; I<ARRAYSIZE(Star); I++)
-		if (Star[I].Type!=STAR_NONE && !(Step%Star[I].Speed))
+	std::for_each(RANGE(Star, i)
+	{
+		if (i.Type!=STAR_NONE && !(Step % i.Speed))
 		{
 			SetColor(F_LIGHTCYAN|B_BLACK);
-			GotoXY(Star[I].X/100,Star[I].Y/100);
+			GotoXY(i.X/100, i.Y/100);
 			Text(L" ");
-			int dx=Star[I].X/100-ScrX/2;
-			Star[I].X+=dx*10+((dx<0) ? -1:1);
-			int dy=Star[I].Y/100-ScrY/2;
-			Star[I].Y+=dy*10+((dy<0) ? -1:1);
+			int dx = i.X/100 - ScrX/2;
+			i.X += dx*10+((dx<0) ? -1:1);
+			int dy = i.Y/100-ScrY/2;
+			i.Y+=dy*10+((dy<0) ? -1:1);
 
-			if (Star[I].X<0 || Star[I].X/100>ScrX || Star[I].Y<0 || Star[I].Y/100>ScrY)
-				Star[I].Type=STAR_NONE;
+			if (i.X<0 || i.X/100>ScrX || i.Y<0 || i.Y/100>ScrY)
+				i.Type=STAR_NONE;
 			else
 			{
-				SetColor(Star[I].Color|B_BLACK);
-				GotoXY(Star[I].X/100,Star[I].Y/100);
+				SetColor(i.Color|B_BLACK);
+				GotoXY(i.X/100, i.Y/100);
 
 				if (abs(dx)>3*ScrX/8 || abs(dy)>3*ScrY/8)
 				{
-					if (Star[I].Type==STAR_PLANET)
+					if (i.Type==STAR_PLANET)
 					{
-						SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
+						SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
 						Text(StarSymbol[0]);
 					}
 					else
@@ -104,9 +107,9 @@ static void ShowSaver(int Step)
 				}
 				else if (abs(dx)>ScrX/7 || abs(dy)>ScrY/7)
 				{
-					if (Star[I].Type==STAR_PLANET)
+					if (i.Type==STAR_PLANET)
 					{
-						SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
+						SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
 						Text(StarSymbol[1]);
 					}
 					else
@@ -121,9 +124,9 @@ static void ShowSaver(int Step)
 				}
 				else
 				{
-					if (Star[I].Type==STAR_PLANET)
+					if (i.Type==STAR_PLANET)
 					{
-						SetColor(Star[I].Color|B_BLACK);
+						SetColor(i.Color|B_BLACK);
 						Text(StarSymbol[3]);
 					}
 					else
@@ -134,18 +137,18 @@ static void ShowSaver(int Step)
 				}
 			}
 		}
+	});
 
-	for (size_t I=0; I<ARRAYSIZE(Star); I++)
-		if (Star[I].Type==STAR_NONE)
-		{
-			static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};
-			Star[I].Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
-			Star[I].X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
-			Star[I].Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
-			Star[I].Color=Colors[random(ARRAYSIZE(Colors))];
-			Star[I].Speed=(Star[I].Type==STAR_PLANET) ? 1:2;
-			break;
-		}
+	auto NotStar = std::find_if(RANGE(Star, i) {return i.Type == STAR_NONE;});
+	if (NotStar != Star.end())
+	{
+		static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};
+		NotStar->Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
+		NotStar->X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
+		NotStar->Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
+		NotStar->Color=Colors[random(ARRAYSIZE(Colors))];
+		NotStar->Speed=(NotStar->Type==STAR_PLANET) ? 1:2;
+	}
 }
 
 int ScreenSaver(int EnableExit)
@@ -177,11 +180,11 @@ int ScreenSaver(int EnableExit)
 		Colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK, Color);
 		SetScreen(0,0,ScrX,ScrY,L' ', Color);
 
-		for (size_t I=0; I<ARRAYSIZE(Star); I++)
+		std::for_each(RANGE(Star, i)
 		{
-			Star[I].Type=STAR_NONE;
-			Star[I].Color=0;
-		}
+			i.Type=STAR_NONE;
+			i.Color=0;
+		});
 
 		int Step=0;
 

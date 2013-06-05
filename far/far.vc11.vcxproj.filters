@@ -281,9 +281,6 @@
     <ClCompile Include="network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="options.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="palette.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -782,9 +779,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="noncopyable.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="options.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="palette.hpp">

@@ -410,7 +410,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="modal.cpp" />
     <ClCompile Include="namelist.cpp" />
     <ClCompile Include="network.cpp" />
-    <ClCompile Include="options.cpp" />
     <ClCompile Include="palette.cpp" />
     <ClCompile Include="panel.cpp" />
     <ClCompile Include="panelmix.cpp" />
@@ -775,7 +774,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="namelist.hpp" />
     <ClInclude Include="network.hpp" />
     <ClInclude Include="noncopyable.hpp" />
-    <ClInclude Include="options.hpp" />
     <ClInclude Include="palette.hpp" />
     <ClInclude Include="panel.hpp" />
     <ClInclude Include="panelmix.hpp" />

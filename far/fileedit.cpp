@@ -1335,7 +1335,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				//     Работа с локальной копией EditorOptions
 				Options::EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
-				EditorConfig(EdOpt,true); // $ 27.11.2001 DJ - Local в EditorConfig
+				Global->Opt->LocalEditorConfig(EdOpt); // $ 27.11.2001 DJ - Local в EditorConfig
 				EditKeyBar.Show(); //???? Нужно ли????
 				SetEditorOptions(EdOpt);
 

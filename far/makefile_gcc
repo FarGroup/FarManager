@@ -92,7 +92,6 @@ SRCS = \
 	namelist.cpp \
 	network.cpp \
 	nsUniversalDetectorEx.cpp \
-	options.cpp \
 	palette.cpp \
 	panel.cpp \
 	panelmix.cpp \

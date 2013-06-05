@@ -375,7 +375,7 @@ int FileViewer::ProcessKey(int Key)
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
 			// Работа с локальной копией ViewerOptions
-			ViewerConfig(View.ViOpt, true);
+			Global->Opt->LocalViewerConfig(View.ViOpt);
 
 			if (Global->Opt->ViOpt.ShowKeyBar)
 				ViewKeyBar.Show();

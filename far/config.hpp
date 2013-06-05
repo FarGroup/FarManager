@@ -270,15 +270,18 @@ class Options
 	};
 
 public:
+	struct ViewerOptions;
+	struct EditorOptions;
+
 	Options();
+	void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 	void Load();
 	void Save(bool Ask);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
-	void SetViewSettings(size_t Index, const struct PanelViewSettings* Data);
-	void AddViewSettings(size_t Index, const struct PanelViewSettings* Data);
-	void DeleteViewSettings(size_t Index);
+	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
+	void LocalEditorConfig(Options::EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 
 	struct PanelOptions
 	{
@@ -400,7 +403,7 @@ public:
 
 	struct ViewerOptions
 	{
-		enum EViewerLineSize
+		enum
 		{
 			eMinLineSize = 1*1000,
 			eDefLineSize = 10*1000,
@@ -764,7 +767,7 @@ public:
 	IntOption SubstNameRule;
 
 	/* $ 23.05.2001 AltF9
-	  + Global->Opt->AltF9 Флаг позволяет выбрать механизм  работы комбинации Alt-F9
+	  + Флаг позволяет выбрать механизм  работы комбинации Alt-F9
 	       (Изменение размера экрана) в оконном режиме. По умолчанию - 1.
 	    0 - использовать механизм, совместимый с FAR версии 1.70 beta 3 и
 	       ниже, т.е. переключение 25/50 линий.
@@ -845,6 +848,26 @@ private:
 	void InitRoamingCFG();
 	void InitLocalCFG();
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void SystemSettings();
+	void PanelSettings();
+	void InterfaceSettings();
+	void DialogSettings();
+	void VMenuSettings();
+	void CmdlineSettings();
+	void SetConfirmations();
+	void PluginsManagerSettings();
+	void SetDizConfig();
+	void ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local = false);
+	void EditorConfig(Options::EditorOptions &EdOptRef, bool Local = false);
+	void SetFolderInfoFiles();
+	void InfoPanelSettings();
+	void MaskGroupsSettings();
+	void AutoCompleteSettings();
+	void TreeSettings();
+	void SetFilePanelModes();
+	void SetViewSettings(size_t Index, const struct PanelViewSettings* Data);
+	void AddViewSettings(size_t Index, const struct PanelViewSettings* Data);
+	void DeleteViewSettings(size_t Index);
 	void ReadPanelModes();
 	void SavePanelModes();
 
@@ -872,21 +895,3 @@ private:
 	std::vector<struct PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };
-
-void SystemSettings();
-void PanelSettings();
-void InterfaceSettings();
-void DialogSettings();
-void VMenuSettings();
-void CmdlineSettings();
-void SetConfirmations();
-void PluginsManagerSettings();
-void SetDizConfig();
-void ViewerConfig(Options::ViewerOptions &ViOpt,bool Local=false);
-void EditorConfig(Options::EditorOptions &EdOpt,bool Local=false);
-void SetFolderInfoFiles();
-void InfoPanelSettings();
-void MaskGroupsSettings();
-void AutoCompleteSettings();
-void TreeSettings();
-void SetFilePanelModes();

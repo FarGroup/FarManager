@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 #include "execute.hpp"
 #include "shortcuts.hpp"
-#include "options.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "imports.hpp"
@@ -1610,7 +1609,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				if (!MouseEvent->dwMousePosition.X)
 					Global->CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
 				else
-					ShellOptions(0,MouseEvent);
+					Global->Opt->ShellOptions(0,MouseEvent);
 
 				return TRUE;
 			}
