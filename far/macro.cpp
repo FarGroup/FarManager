@@ -774,7 +774,7 @@ void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const s
 	(void)CallMacroPlugin(&info);
 }
 
-int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
+int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
 	//_SHMUEL(SysLog(L"+KeyMacro::ProcessEvent"));
 	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
@@ -834,6 +834,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					if (key != Rec->IntKey)
 						KeyToText(key,textKey);
 
+					INPUT_RECORD RecCopy = Rec->Rec;
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
@@ -846,6 +847,10 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						}
 						return true;
 					}
+
+					// Mantis 0002307: При вызове msgbox из condition(), ключ закрытия msgbox передаётся дальше (не съедается)
+					if (FrameManager)
+						FrameManager->SetLastInputRecord(&RecCopy);
 				}
 			}
 		}
