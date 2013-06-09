@@ -9474,6 +9474,38 @@ mtime=3514823822
 </article>
 </node>
 <node>
+id=487
+lv=2
+dt=Text
+nm=unicode.utf8.utf8valid
+ctime=3579943896
+mtime=3579944916
+<article>
+#_result, len = unicode.utf8.utf8valid (str)
+#_    or
+#_result, len = str:utf8valid ()
+#_
+#_**Parameters:**
+#_  str:     string
+#_
+#_**Returns:**
+#_  result:  boolean
+#_  len:     integer
+#_
+#_**Description:**
+#_  This function tests whether the entire input string is valid UTF-8.
+#_  If it is, the function returns *true* followed by the string length in characters.
+#_  Otherwise, the function returns *false* followed by the number of valid UTF-8
+#_  characters preceded the first invalid one.
+#_
+#_**Note:**
+#_  This is added function, not present in the original **Selene Unicode** library.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=128
 lv=0
 dt=Text

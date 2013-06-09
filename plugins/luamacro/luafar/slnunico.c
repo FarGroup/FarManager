@@ -1753,6 +1753,27 @@ int ext_uni_match(void *state, const char *s, size_t n,
 }
 #endif
 
+
+static int utf8_valid(lua_State *L)
+{
+	size_t len, utf8len=0;
+	int result=1;
+	const char *s = luaL_checklstring(L, 1, &len);
+	const char *t = s + len;
+	while (s < t)
+	{
+		if (grab_one_utf8(&s) == -1)
+		{
+			result=0; break;
+		}
+		++utf8len;
+	}
+	lua_pushboolean(L, result);
+	lua_pushinteger(L, utf8len);
+	return 2;
+}
+
+
 static const luaL_Reg uniclib[] =
 {
 	{"byte", unic_byte}, /* no cluster ! */
@@ -1770,6 +1791,7 @@ static const luaL_Reg uniclib[] =
 	{"reverse", str_reverse},
 	{"sub", unic_sub}, /* cluster/byte opt. */
 	{"upper", unic_upper},
+	{"utf8valid", utf8_valid},
 	{NULL, NULL}
 };
 

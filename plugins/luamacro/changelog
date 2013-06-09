@@ -1,3 +1,7 @@
+shmuel 09.06.2013 13:09:46 +0200 - build 181
+
+1. LuaFAR: добавлена функция unicode.utf8.utf8valid. Описание - в мануале LuaFAR.
+
 shmuel 05.06.2013 20:37:32 +0200 - build 180
 
 1. LuaFAR: функция far.Menu:
