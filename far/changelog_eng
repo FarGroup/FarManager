@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.06.2013 00:33:31 +0200 - build 3445
+
+1. Refactoring.
+
+2. Deprecated items are removed from viewer/editor local settings dialogs.
+
+shmuel 04.06.2013 21:12:53 +0200 - build 3444
+
+1. Refactoring.
+
+2. GCC warnings.
+
 w17 01.06.2013 17:07:58 +0400 - build 3443
 
 1. Correction of 3439.
