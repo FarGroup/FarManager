@@ -189,7 +189,6 @@ class KeyMacro:NonCopyable
 		string m_LastErrorStr;
 		int m_LastErrorLine;
 		int m_InternalInput;
-		bool m_IsRedrawEditor;
 		int m_MacroPluginIsRunning;
 		int m_DisableNested;
 		int m_WaitKey;
