@@ -491,7 +491,6 @@ KeyMacro::KeyMacro():
 	m_LockScr(nullptr),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
-	m_IsRedrawEditor(true),
 	m_MacroPluginIsRunning(0),
 	m_DisableNested(0),
 	m_WaitKey(0)
@@ -656,7 +655,6 @@ void KeyMacro::RestoreMacroChar(void)
 		will NOT send this event while screen is locked.
 	*/
 	if (m_Mode==MACROAREA_EDITOR &&
-					m_IsRedrawEditor &&
 					Global->CtrlObject->Plugins->GetCurEditor() &&
 					Global->CtrlObject->Plugins->GetCurEditor()->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
@@ -840,10 +838,8 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					{
 						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
 						{
-							m_CurState->HistoryDisable=0;
-							m_CurState->cRec=Rec->Rec;
-							// BUGBUG, nobody set this flag
-							m_IsRedrawEditor = !Global->CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN);
+							m_CurState->HistoryDisable = 0;
+							m_CurState->cRec = RecCopy;
 						}
 						return true;
 					}
@@ -946,7 +942,6 @@ int KeyMacro::GetKey()
 		}
 
 		if (m_Mode==MACROAREA_EDITOR &&
-						m_IsRedrawEditor &&
 						Global->CtrlObject->Plugins->GetCurEditor() &&
 						Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
 						Global->ScrBuf->GetLockCount())
