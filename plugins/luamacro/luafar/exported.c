@@ -239,6 +239,7 @@ void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFr
 // input table is on stack top (-1)
 void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos)
 {
+	int dataPos = lua_gettop(L);
 	memset(pi, 0, sizeof(*pi));
 
 	pi->CreationTime      = GetFileTimeFromTable(L, "CreationTime");
@@ -252,26 +253,26 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 	pi->CRC32             = GetOptIntFromTable(L, "CRC32", 0);
 	pi->FileAttributes    = GetAttrFromTable(L);
 
-  if (CollectorPos != 0)
-  {
-    pi->FileName          = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "FileName");
-    pi->AlternateFileName = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "AlternateFileName");
-    pi->Description       = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Description");
-    pi->Owner             = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Owner");
-  }
-  else
-  {
-    lua_getfield(L, -1, "FileName");                     // +1
-    pi->FileName = opt_utf8_string(L, -1, L"");
-    lua_getfield(L, -2, "AlternateFileName");            // +2
-    pi->AlternateFileName = opt_utf8_string(L, -1, L"");
-    lua_getfield(L, -2, "Description");                  // +3
-    pi->Description = opt_utf8_string(L, -1, L"");
-    lua_getfield(L, -2, "Owner");                        // +4
-    pi->Owner = opt_utf8_string(L, -1, L"");
-  }
+	if (CollectorPos != 0)
+	{
+		pi->FileName          = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "FileName");
+		pi->AlternateFileName = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "AlternateFileName");
+		pi->Description       = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Description");
+		pi->Owner             = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Owner");
+	}
+	else
+	{
+		lua_getfield(L, dataPos, "FileName");                     // +1
+		pi->FileName = opt_utf8_string(L, -1, L"");
+		lua_getfield(L, dataPos, "AlternateFileName");            // +2
+		pi->AlternateFileName = opt_utf8_string(L, -1, L"");
+		lua_getfield(L, dataPos, "Description");                  // +3
+		pi->Description = opt_utf8_string(L, -1, L"");
+		lua_getfield(L, dataPos, "Owner");                        // +4
+		pi->Owner = opt_utf8_string(L, -1, L"");
+	}
 
-  lua_getfield(L, -1, "UserData");
+	lua_getfield(L, dataPos, "UserData");
 	if(!lua_isnil(L, -1))
 	{
 		FarPanelItemUserData* ud = (FarPanelItemUserData*)malloc(sizeof(FarPanelItemUserData));
