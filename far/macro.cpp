@@ -796,7 +796,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				if (!Global->CtrlObject->Plugins->FindPlugin(LuamacroGuid))
 				{
 					Message(MSG_WARNING,1,MSG(MError),
-					   MSG(MPluginLuamacroNotLoaded),
+					   MSG(MMacroPluginLuamacroNotLoaded),
 					   MSG(MMacroRecordingIsDisabled),
 					   MSG(MOk));
 					return false;
@@ -1227,7 +1227,7 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARM
 		return FALSE;
 
 	string strKeyText;
-	if (!(InputRecordToText(&AKey, strKeyText) && ParseMacroString(PlainText,true)))
+	if (!(InputRecordToText(&AKey, strKeyText) && ParseMacroString(PlainText,true,true)))
 		return FALSE;
 
 	LM_ProcessMacro(Area,strKeyText,PlainText,Flags,Description,&PluginId,Callback,Id);
@@ -1250,7 +1250,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
-	if (MacroId != 0 || ParseMacroString(PlainText, onlyCheck))
+	if (MacroId != 0 || ParseMacroString(PlainText, onlyCheck, true))
 	{
 		MacroRecord* macro=new MacroRecord(Flags, MacroId, AKey, PlainText, L"");
 
@@ -1447,7 +1447,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				LPCWSTR Sequence=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 				if (*Sequence)
 				{
-					if (ParseMacroString(Sequence))
+					if (ParseMacroString(Sequence,false,true))
 					{
 						m_RecCode=Sequence;
 						m_RecDescription=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);

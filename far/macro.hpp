@@ -243,7 +243,7 @@ class KeyMacro:NonCopyable
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
 		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
-		bool ParseMacroString(const string& Sequence,bool onlyCheck=false,bool skipFile=true);
+		bool ParseMacroString(const string& Sequence,bool onlyCheck,bool skipFile);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }

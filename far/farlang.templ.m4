@@ -18071,166 +18071,25 @@ upd:"Error parsing macro"
 "Error analizando macro"
 "Error parsing macro"
 
-MMacroPErrorPosition
-"Строка %1, позиция %2"
-"Line %1, Pos %2"
-"Řádek %1, Pozice %2"
-upd:"Line %1, Pos %2"
-upd:"Line %1, Pos %2"
-upd:"Line %1, Pos %2"
-"Línea %1, Pos %2"
-"Riadok %1, Pol. %2"
+MMacroPluginLuamacroNotLoaded
+"Плагин LuaMacro не загружен"
+"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+"Complemento LuaMacro no está cargado"
+"Modul LuaMacro nie je spustený"
 
-MMacroPErrUnrecognized_keyword
-l:
-"Неизвестное ключевое слово '%1'"
-"Unrecognized keyword '%1'"
-"Neznámé klíčové slovo '%1'"
-"Unbekanntes Schlüsselwort '%1'"
-"Ismeretlen kulcsszó "%1""
-"Nie rozpoznano słowa kluczowego '%1'"
-"Unrecognized keyword '%1'"
-"Neznáme kľúčové slovo '%1'"
-
-MMacroPErrUnrecognized_function
-"Неизвестная функция '%1'"
-"Unrecognized function '%1'"
-"Neznámá funkce '%1'"
-"Unbekannte Funktion '%1'"
-"Ismeretlen funkció "%1""
-"Nie rozpoznano funkcji'%1'"
-"Unrecognized function '%1'"
-"Neznáma funkcia '%1'"
-
-MMacroPErrFuncParam
-"Неверное количество параметров у функции '%1'"
-"Incorrect number of arguments for function '%1'"
-"Nesprávný počet argumentů pro funkci '%1'"
-upd:"Incorrect number of arguments for function '%1'"
-"'%1' funkció paramétereinek száma helytelen"
-upd:"Incorrect number of arguments for function '%1'"
-"Incorrect number of arguments for function '%1'"
-"Nesprávny počet argumentov pre funkciu '%1'"
-
-MMacroPErrNot_expected_ELSE
-"Неожиданное появление $Else"
-"Unexpected $Else"
-"Neočekávané $Else"
-"Unerwartetes $Else"
-"Váratlan $Else"
-"$Else w niewłaściwym miejscu"
-"Unexpected $Else"
-"Neočakávané $Else"
-
-MMacroPErrNot_expected_END
-"Неожиданное появление $End"
-"Unexpected $End"
-"Neočekávané $End"
-"Unerwartetes $End"
-"Váratlan $End"
-"$End w niewłaściwym miejscu"
-"Unexpected $End"
-"Neočakávané $End"
-
-MMacroPErrUnexpected_EOS
-"Неожиданный конец строки"
-"Unexpected end of source string"
-"Neočekávaný konec zdrojového řetězce"
-"Unerwartetes Ende der Zeichenkette"
-"Váratlanul vége a forrássztringnek"
-"Nie spodziewano się końca ciągu"
-"Unexpected end of source string"
-"Neočakávaný koniec zdrojového reťazca"
-
-MMacroPErrExpected
-"Ожидается '%1'"
-"Expected '%1'"
-"Očekávané '%1'"
-"Erwartet '%1'"
-"Várható "%1""
-"Oczekiwano '%1'"
-"Expected '%1'"
-"Očakávané '%1'"
-
-MMacroPErrBad_Hex_Control_Char
-"Неизвестный шестнадцатеричный управляющий символ"
-"Bad Hex Control Char"
-"Chybný kontrolní znak Hex"
-"Fehlerhaftes Hexzeichen"
-"Rossz hexa vezérlőkarakter"
-"Błędny szesnastkowy znak sterujący"
-"Bad Hex Control Char"
-"Chybný kontrolný znak Hex"
-
-MMacroPErrBad_Control_Char
-"Неправильный управляющий символ"
-"Bad Control Char"
-"Chybný kontrolní znak"
-"Fehlerhaftes Kontrollzeichen"
-"Rossz vezérlőkarakter"
-"Błędny znak sterujący"
-"Bad Control Char"
-"Chybný kontrolný znak"
-
-MMacroPErrVar_Expected
-"Переменная '%1' не найдена"
-"Variable Expected '%1'"
-"Očekávaná proměnná '%1'"
-"Variable erwartet '%1'"
-""%1" várható változó"
-"Oczekiwano zmiennej '%1'"
-"Variable Expected '%1'"
-"Očakávaná premenná '%1'"
-
-MMacroPErrExpr_Expected
-"Ошибка синтаксиса"
-"Expression Expected"
-"Očekávaný výraz"
-"Ausdruck erwartet"
-"Szintaktikai hiba"
-"Oczekiwano wyrażenia"
-"Expression Expected"
-"Očakávaný výraz"
-
-MMacroPErr_ZeroLengthMacro
-"Пустая макропоследовательность"
-"Zero-length macro"
-"Makro s nulovou délkou"
-upd:"Zero-length macro"
-"Nulla hosszúságú makró"
-upd:"Zero-length macro"
-"macro de longitud 0"
-"Makro s nulovou dĺžkou"
-
-MMacroPErrIntParserError
-"Внутренняя ошибка парсера"
-"Internal parser error"
-"Interní chyba parseru"
-upd:"Internal parser error"
-upd:"Internal parser error"
-upd:"Internal parser error"
-"Macro parsing error"
-"Internal parser error"
-
-MMacroPErrContinueOutsideTheLoop
-"Оператор $Continue вне цикла"
-upd:"$Continue outside the loop"
-"$Continue mimo smyčky"
-upd:"$Continue outside the loop"
-upd:"$Continue outside the loop"
-upd:"$Continue outside the loop"
-"$Continuar por fuera del bucle"
-"$Pokračovať mimo slučky"
-
-MMacroPErrBreakOutsideTheLoop
-"Оператор $Break вне цикла"
-upd:"$Break outside the loop"
-"$Break mimo smyčky"
-upd:"$Break outside the loop"
-upd:"$Break outside the loop"
-upd:"$Break outside the loop"
-"$Romper por fuera del bucle"
-"$Prerušiť mimo slučky"
+MMacroRecordingIsDisabled
+"Запись макросов запрещена"
+"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+"Grabación de macro está desactivada"
+"Záznam makra je zrušený"
 
 MCannotSaveFile
 l:
@@ -23668,26 +23527,6 @@ upd:"Show configuration folders"
 upd:"Show configuration folders"
 "Mostrar carpetas de configuración"
 "Zobraziť konfiguračné priečinky"
-
-MPluginLuamacroNotLoaded
-"Плагин LuaMacro не загружен"
-"Plugin LuaMacro is not loaded"
-upd:"Plugin LuaMacro is not loaded"
-upd:"Plugin LuaMacro is not loaded"
-upd:"Plugin LuaMacro is not loaded"
-upd:"Plugin LuaMacro is not loaded"
-"Complemento LuaMacro no está cargado"
-"Modul LuaMacro nie je spustený"
-
-MMacroRecordingIsDisabled
-"Запись макросов запрещена"
-"Macro recording is disabled"
-upd:"Macro recording is disabled"
-upd:"Macro recording is disabled"
-upd:"Macro recording is disabled"
-upd:"Macro recording is disabled"
-"Grabación de macro está desactivada"
-"Záznam makra je zrušený"
 
 
 #Must be the last
