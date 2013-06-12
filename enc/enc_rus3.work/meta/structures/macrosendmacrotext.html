@@ -49,7 +49,7 @@ struct MacroSendMacroText
   <div class=dfn>AKey</div>
     <div class=dfndescr>Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
   <div class=dfn>SequenceText</div>
-    <div class=dfndescr>Строка, содержащая макрос в текстовом виде (массив клавиш во внутреннем представлении Far Manager).</div>
+    <div class=dfndescr>Строка, содержащая макрос в текстовом виде. Если строка начинается символом <code>@</code>, то её последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
 </div>
 
 <h3>Замечания</h3>
