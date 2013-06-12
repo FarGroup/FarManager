@@ -66,13 +66,15 @@ struct EditorUndoData
 	wchar_t EOL[10];
 	int Length;
 	wchar_t_ptr Str;
+	InternalEditorSessionBookMark *BM; //treat as uni-directional linked list
 	static size_t UndoDataSize;
 
 	EditorUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1):
 		Type(0),
 		StrPos(0),
 		StrNum(0),
-		Length(0)
+		Length(0),
+		BM(0)
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos, Length);
 	}
@@ -81,9 +83,11 @@ struct EditorUndoData
 	{
 		if (Length > 0)
 			UndoDataSize -= Length;
+		DeleteAllSessionBM();
 	}
 
-	EditorUndoData(EditorUndoData&& Right)
+	EditorUndoData(EditorUndoData&& Right):
+		BM(0)
 	{
 		*this = std::move(Right);
 		Right.Length = 0;
@@ -97,6 +101,7 @@ struct EditorUndoData
 		Length = Right.Length;
 		Str.swap(Right.Str);
 		wcscpy(EOL, Right.EOL);
+		std::swap(BM, Right.BM);
 		return *this;
 	}
 
@@ -124,6 +129,42 @@ struct EditorUndoData
 		}
 		else
 			this->Str.reset();
+		DeleteAllSessionBM();
+	}
+
+	void AddSessionBM(const InternalEditorSessionBookMark *BM)
+	{
+		InternalEditorSessionBookMark *BM_new = new InternalEditorSessionBookMark(*BM);
+		if (BM_new)
+		{
+			BM_new->prev = HashBM(BM->prev);
+			BM_new->next = this->BM;
+			this->BM = BM_new;
+		}
+	}
+
+	void DeleteAllSessionBM()
+	{
+		InternalEditorSessionBookMark *BM=this->BM, *BM_next;
+		this->BM = NULL;
+		while (BM)
+		{
+			BM_next = BM->next;
+			delete BM;
+			BM = BM_next;
+		}
+	}
+
+	static InternalEditorSessionBookMark *HashBM(InternalEditorSessionBookMark *BM)
+	{
+		if (BM)
+		{
+			size_t x = reinterpret_cast<size_t>(BM);
+			x = x ^ (BM->Line<<16) ^ (BM->Cursor);
+			return reinterpret_cast<InternalEditorSessionBookMark *>(x);
+		}
+		else
+			return NULL;
 	}
 };
 
@@ -232,8 +273,9 @@ class Editor:public ScreenObject
 		int StartLine;
 		int StartChar;
 
+		//numbered bookmarks (accessible by Ctrl-0..9)
 		Bookmarks<editor_bookmark> SavePos;
-
+		//pointer to the current "session" bookmark (in the list of "session" bookmarks accessible through BM.Goto(n))
 		InternalEditorSessionBookMark *SessionPos;
 		BOOL NewSessionPos;
 
@@ -279,6 +321,7 @@ class Editor:public ScreenObject
 		void UnmarkMacroBlock();
 
 		void AddUndoData(int Type,const wchar_t *Str=nullptr,const wchar_t *Eol=nullptr,int StrNum=0,int StrPos=0,int Length=-1);
+		void AddUndoData(const InternalEditorSessionBookMark *BM);
 		void Undo(int redo);
 		void SelectAll();
 		//void SetStringsTable();
@@ -291,25 +334,50 @@ class Editor:public ScreenObject
 		Edit* GetStringByNumber(int DestLine);
 		static void EditorShowMsg(const string& Title,const string& Msg, const string& Name,int Percent);
 
+		// Set the numbered bookmark (CtrlShift-0..9)
 		int SetBookmark(int Pos);
+		// Restore the numbered bookmark (LeftCtrl-0..9)
 		int GotoBookmark(int Pos);
-
+		// Remove all session bookmarks. SessionPos will be NULL
 		int ClearSessionBookmarks();
+		// Remove a particular session bookmark. Adjusts SessionPos if deleting the current bookmark
 		int DeleteSessionBookmark(InternalEditorSessionBookMark *sb_delete);
+		// Restore the current session bookmark
 		int RestoreSessionBookmark();
+		// Add current cursor pos to session bookmarks, after the current bookmark, and adjust SessionPos to it
 		int AddSessionBookmark(BOOL blNewPos=TRUE);
+		// Insert the session bookmark on its original position in the list of session bookmarks, if it still exists, otherwise do nothing.
+		// sb_ins->prev is hashed to better differentiate among session bookmarks
+		int InsertSessionBookmarkBack(InternalEditorSessionBookMark *sb_ins);
+		// Return the first session bookmark (and do not change SessionPos).
+		// On return, piCount will be set to the count of session bookmark preceding the current one
 		InternalEditorSessionBookMark* PointerToFirstSessionBookmark(int *piCount=nullptr);
+		//Return the last session bookmark (and do not change SessionPos).
+		// piCount must be set to the count of session bookmarks preceding the current one
+		// On return piCount will be set to the total count of session bookmarks
 		InternalEditorSessionBookMark* PointerToLastSessionBookmark(int *piCount=nullptr);
+		//Return the session bookmark of index iIdx (and do not change SessionPos).
+		// for iIdx==-1 the current bookmark is returned
 		InternalEditorSessionBookMark* PointerToSessionBookmark(int iIdx);
 		int BackSessionBookmark();
+		// Restore the previous session bookmark, if there is any, the current one otherwise
 		int PrevSessionBookmark();
+		// Restore the next session bookmark, if there is any, the current one otherwise
 		int NextSessionBookmark();
+		// Restore the last session bookmark
 		int LastSessionBookmark();
+		// Restore the session bookmark at the specified index;
+		// does nothing if there is no such index
 		int GotoSessionBookmark(int iIdx);
+		// Append new session bookmark as the last session bookmark, and move SessionPos to it
 		int PushSessionBookMark();
+		// Restore the last session bookmark and remove it
 		int PopSessionBookMark();
+		// Return index of the current session bookmark, -1 if there is none
 		int CurrentSessionBookmarkIdx();
+		// Get session bookmark at specified index into Param
 		int GetSessionBookmark(int iIdx,InternalEditorBookmark *Param);
+		// Get all session bookmarks into the Param array
 		int GetSessionBookmarks(EditorBookmarks *Param);
 		size_t GetSessionBookmarksForPlugin(EditorBookmarks *Param);
 		static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,size_t& Size);

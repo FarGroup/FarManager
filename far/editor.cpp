@@ -3188,35 +3188,6 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 		return;
 	}
 
-	std::for_each(RANGE(SavePos, i)
-	{
-		if (i.Line != POS_NONE && UndoLine < static_cast<int>(i.Line))
-			--i.Line;
-	});
-
-	if (SessionPos)
-	{
-		InternalEditorSessionBookMark *sb_temp = SessionPos, *sb_new;
-
-		while (sb_temp->prev)
-			sb_temp=sb_temp->prev;
-
-		while (sb_temp)
-		{
-			sb_new = sb_temp->next;
-
-			if (UndoLine < static_cast<int>(sb_temp->Line))
-				sb_temp->Line--;
-			else
-			{
-				if (UndoLine == static_cast<int>(sb_temp->Line))
-					DeleteSessionBookmark(sb_temp);
-			}
-
-			sb_temp = sb_new;
-		}
-	}
-
 	NumLastLine--;
 
 	if(LastGetLine)
@@ -3288,6 +3259,40 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 
 	if (UndoLine!=-1)
 		AddUndoData(UNDO_DELSTR,DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,0,DelPtr->GetLength());
+
+	std::for_each(RANGE(SavePos, i)
+	{
+		//FIXME: it would be better to add the bookmarks for deleted line to UndoData
+		if (i.Line != POS_NONE && UndoLine < static_cast<int>(i.Line))
+			--i.Line;
+	});
+
+	if (SessionPos)
+	{
+		InternalEditorSessionBookMark *sb_temp = SessionPos, *sb_new;
+
+		while (sb_temp->prev)
+			sb_temp=sb_temp->prev;
+
+		while (sb_temp)
+		{
+			sb_new = sb_temp->next;
+
+			if (UndoLine < static_cast<int>(sb_temp->Line))
+				sb_temp->Line--;
+			else
+			{
+				if (UndoLine == static_cast<int>(sb_temp->Line))
+				{
+					if (UndoLine!=-1)
+						AddUndoData(sb_temp);
+					DeleteSessionBookmark(sb_temp);
+				}
+			}
+
+			sb_temp = sb_new;
+		}
+	}
 
 	delete DelPtr;
 
@@ -4998,6 +5003,16 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 	}
 }
 
+void Editor::AddUndoData(const InternalEditorSessionBookMark *BM)
+{
+	if (Flags.Check(FEDITOR_DISABLEUNDO))
+		return;
+	if (UndoPos->Type != UNDO_DELSTR)
+		return;
+
+	UndoPos->AddSessionBM(BM);
+}
+
 void Editor::Undo(int redo)
 {
 	auto ustart = UndoPos;
@@ -5081,6 +5096,16 @@ void Editor::Undo(int redo)
 				}
 
 				Pasting--;
+
+				{
+					InternalEditorSessionBookMark *BM = ud->BM;
+					while (BM)
+					{
+						InsertSessionBookmarkBack(BM);
+						BM = BM->next;
+					}
+					ud->DeleteAllSessionBM();
+				}
 
 				if (ud->Str)
 				{
@@ -6550,7 +6575,7 @@ int Editor::ClearSessionBookmarks()
 		while (SessionPos)
 		{
 			sb_next = SessionPos->next;
-			xf_free(SessionPos);
+			delete SessionPos;
 			SessionPos = sb_next;
 		}
 
@@ -6559,7 +6584,7 @@ int Editor::ClearSessionBookmarks()
 		while (SessionPos)
 		{
 			sb_prev = SessionPos->prev;
-			xf_free(SessionPos);
+			delete SessionPos;
 			SessionPos = sb_prev;
 		}
 	}
@@ -6592,7 +6617,7 @@ int Editor::DeleteSessionBookmark(InternalEditorSessionBookMark *sb_delete)
 int Editor::RestoreSessionBookmark()
 {
 	NewSessionPos=FALSE;
-
+	//only if the cursor is elsewhere
 	if (SessionPos && ((int)SessionPos->Line!=NumLine || (int)SessionPos->Cursor!=CurLine->GetCurPos()))
 	{
 		GoToLine(SessionPos->Line);
@@ -6617,6 +6642,7 @@ int Editor::AddSessionBookmark(BOOL blNewPos)
 {
 	InternalEditorSessionBookMark *sb_old=SessionPos;
 
+	//remove all subsequent bookmarks
 	if (SessionPos && SessionPos->next)
 	{
 		SessionPos=SessionPos->next;
@@ -6626,8 +6652,8 @@ int Editor::AddSessionBookmark(BOOL blNewPos)
 		SessionPos->next=0;
 	}
 
+	//append new bookmark
 	auto sb_new = new InternalEditorSessionBookMark;
-
 	if (sb_new)
 	{
 		if (SessionPos)
@@ -6645,6 +6671,65 @@ int Editor::AddSessionBookmark(BOOL blNewPos)
 	}
 
 	return FALSE;
+}
+
+int Editor::InsertSessionBookmarkBack(InternalEditorSessionBookMark *sb_ins)
+{
+	//Search for the bookmark referred in sb_ins->prev. But it needs not exist already...
+
+	//look up forward
+	InternalEditorSessionBookMark *sb_new = NULL, *sb_temp=SessionPos;
+	while (sb_temp && EditorUndoData::HashBM(sb_temp) != sb_ins->prev)
+		sb_temp=sb_temp->next;
+
+	if (sb_temp)
+	{
+		//found, insert sb_ins immediately after sb_temp
+		sb_new = new InternalEditorSessionBookMark(*sb_ins);
+		if (sb_new)
+		{
+			sb_new->prev = sb_temp;
+			sb_new->next = sb_temp->next;
+			sb_temp->next = sb_new;
+			if (sb_new->next)
+				sb_new->next->prev = sb_new;
+		}
+	}
+	else
+	{
+		//not found forward, look up backwards
+		sb_temp=SessionPos;
+		while (sb_temp && EditorUndoData::HashBM(sb_temp->prev) != sb_ins->prev)
+			sb_temp=sb_temp->prev;
+
+		if (sb_temp)
+		{
+			//found, insert sb_ins immediately before sb_temp
+			sb_new = new InternalEditorSessionBookMark(*sb_ins);
+			if (sb_new)
+			{
+				sb_new->prev = sb_temp->prev;
+				sb_new->next = sb_temp;
+				sb_temp->prev = sb_new;
+				if (sb_new->prev)
+					sb_new->prev->next = sb_new;
+			}
+		}
+		else if (!sb_ins->prev)
+		{
+			//SessionPos is NULL, but sb_ins was the first sb in the list
+			sb_new = new InternalEditorSessionBookMark(*sb_ins);
+			if (sb_new)
+			{
+				sb_new->next = NULL;
+				SessionPos = sb_new;
+			}
+		}
+		else
+			sb_new = sb_ins; //just to mark success
+	}
+
+	return sb_new?TRUE:FALSE;
 }
 
 InternalEditorSessionBookMark* Editor::PointerToFirstSessionBookmark(int *piCount)
@@ -6682,7 +6767,7 @@ InternalEditorSessionBookMark* Editor::PointerToLastSessionBookmark(int *piCount
 	return sb_temp;
 }
 
-InternalEditorSessionBookMark* Editor::PointerToSessionBookmark(int iIdx) // Returns null_ptr if failed!
+InternalEditorSessionBookMark* Editor::PointerToSessionBookmark(int iIdx)
 {
 	InternalEditorSessionBookMark *sb_temp=SessionPos;
 
