@@ -4669,6 +4669,17 @@ MDeleteCancel
 "&Cancelar"
 "&Storno"
 
+MCannotRecycleFile
+l:
+"Не удалось переместить в Корзину"
+"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+upd:"Cannot move to the Recycle Bin"
+
 MCannotGetSecurity
 l:
 "Ошибка получения прав доступа к файлу"

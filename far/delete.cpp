@@ -884,17 +884,40 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 		}
 		else if (!Global->Opt->DeleteToRecycleBin)
 		{
-			/*
-			        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,
-			               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,nullptr);
-			        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
-			          break;
-			*/
 			if (apiDeleteFile(strFullName))
 				break;
 		}
-		else if (RemoveToRecycleBin(strFullName))
-			break;
+		else
+		{
+			if (RemoveToRecycleBin(strFullName))
+				break;
+
+			DWORD dwe = GetLastError();
+
+			if (-1==SkipMode && (ERROR_BAD_PATHNAME==dwe || ERROR_FILE_NOT_FOUND==dwe)) // probably bad path to recycle bin
+			{
+				string qName(strFullName);
+				QuoteLeadingSpace(qName);
+
+				const wchar_t *Msgs[2+4] = {
+					MSG(MCannotRecycleFile), qName.CPtr(),
+					MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)
+				};
+				MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Msgs, 2+4);
+
+				switch (MsgCode) {
+				case 3: case -1: case -2:       // [Cancel]
+					return DELETE_CANCEL;
+				case 2:
+					SkipMode = 1;                // [Skip All]
+				case 1:
+					return DELETE_SKIP;          // [Skip]
+				}
+
+				if (apiDeleteFile(strFullName)) // case 0: -- {Delete}
+					break;
+			}
+		}
 
 		if (SkipMode!=-1)
 			MsgCode=SkipMode;
