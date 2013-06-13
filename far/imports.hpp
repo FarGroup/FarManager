@@ -110,8 +110,6 @@ public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmRegisterResources, (DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]));
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmGetList, (DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons));
 
-	// psapi
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetProcessImageFileNameW, (HANDLE hProcess, LPWSTR lpImageFileName, DWORD nSize));
 
 #undef DECLARE_IMPORT_FUNCTION
 

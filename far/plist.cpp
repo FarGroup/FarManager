@@ -227,11 +227,10 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 
 		if (pi->bShowImage)
 		{
-			HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_QUERY_INFORMATION, false, ProcID);
+			HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
 			if (hProc)
 			{
-				if (!(GetProcessId(hProc) == ProcID && apiGetModuleFileNameEx(hProc, nullptr, strTitle)))
-					strTitle=L"";
+				apiGetModuleFileNameEx(hProc, nullptr, strTitle);
 				CloseHandle(hProc);
 			}
 		}

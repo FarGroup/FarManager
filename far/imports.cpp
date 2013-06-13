@@ -44,7 +44,6 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
 	HMODULE hNetApi = GetModuleHandle(L"netapi32.dll");
-	HMODULE hPsApi = GetModuleHandle(L"psapi.dll");
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
 
@@ -113,11 +112,6 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hRstrtMgr, RmEndSession);
 		InitImport(hRstrtMgr, RmRegisterResources);
 		InitImport(hRstrtMgr, RmGetList);
-	}
-
-	if (hPsApi)
-	{
-		InitImport(hPsApi, GetProcessImageFileNameW);
 	}
 
 	#undef InitImport
@@ -551,19 +545,6 @@ BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, 
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		return FALSE;
-	}
-}
-
-DWORD ImportedFunctions::GetProcessImageFileNameW(HANDLE hProcess, LPWSTR lpImageFileName, DWORD nSize) const
-{
-	if(pfnGetProcessImageFileNameW)
-	{
-		return pfnGetProcessImageFileNameW(hProcess, lpImageFileName, nSize);
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		return 0;
 	}
 }
 
