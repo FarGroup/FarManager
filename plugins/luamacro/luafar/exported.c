@@ -693,13 +693,13 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 	else lua_pushboolean(L, 0);
 }
 
-static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
+void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values)
 {
 	size_t i;
-	lua_createtable(L, (int)Data->Count, 0);
-	for(i=0; i < Data->Count; i++)
+	lua_createtable(L, (int)Count, 0);
+	for(i=0; i < Count; i++)
 	{
-		PushFarMacroValue(L, Data->Values + i);
+		PushFarMacroValue(L, Values + i);
 		lua_rawseti(L, -2, (int)i+1);
 	}
 }
@@ -805,7 +805,10 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	// 3-rd argument
 
 	if(Info->OpenFrom == OPEN_FROMMACRO)
-		PushParamsTable(L, (struct OpenMacroInfo*)Info->Data);
+	{
+		struct OpenMacroInfo* data = (struct OpenMacroInfo*)Info->Data;
+		PackMacroValues(L, data->Count, data->Values);
+	}
 	else if(Info->OpenFrom == OPEN_SHORTCUT)
 	{
 		struct OpenShortcutInfo *osi = CAST(struct OpenShortcutInfo*, Info->Data);

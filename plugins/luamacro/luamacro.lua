@@ -190,6 +190,19 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
+local function ExecString (text)
+  local chunk, msg = loadmacro(text)
+  if chunk then
+    local env = setmetatable({},{__index=_G})
+    LastMessage = pack(setfenv(chunk, env)())
+    return F.MPRT_COMMONCASE, LastMessage
+  else
+    far.Message(msg, "LuaMacro", nil, "wl")
+    LastMessage = pack(msg)
+    return F.MPRT_ERRORPARSE, LastMessage
+  end
+end
+
 local function ProcessCommandLine (CmdLine)
   local op, text = CmdLine:match("(%S+)%s*(.-)%s*$")
   if op then
@@ -222,6 +235,7 @@ function export.Open (OpenFrom, ...)
     elseif calltype==F.MCT_PROCESSMACRO   then return utils.ProcessMacroFromFAR(unpack(args))
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
+    elseif calltype==F.MCT_EXECSTRING     then return ExecString(unpack(args))
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -232,7 +246,7 @@ function export.Open (OpenFrom, ...)
     local guid, args = ...
     if args[1]=="argtest" then -- argtest: return received arguments
       return unpack(args,2)
-    elseif args[1]=="macropost" then -- this test fails (Mantis # 2222)
+    elseif args[1]=="macropost" then -- test Mantis # 2222
       return far.MacroPost([[far.Message"macropost"]])
     end
 

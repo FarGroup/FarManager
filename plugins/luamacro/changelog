@@ -1,3 +1,9 @@
+shmuel 14.06.2013 00:22:19 +0200 - build 183
+
+1. Поддержка MCTL_EXECSTRING.
+
+2. LuaFAR: добавлена функция far.MacroExecute.
+
 shmuel 10.06.2013 12:27:20 +0200 - build 182
 
 1. LuaFAR: fix FileFilter:IsFileInFilter().

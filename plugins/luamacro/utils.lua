@@ -41,7 +41,7 @@ local LoadedMacros
 local LoadMacrosDone
 local EnumState = {}
 local Events
-local EventGroups = {"consoleinput","dialogevent","editorchange","editorevent","editorinput","exitfar","viewerevent"}
+local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}

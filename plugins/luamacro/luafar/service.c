@@ -42,6 +42,7 @@ extern void SetFarColors(lua_State *L);
 extern void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
 extern int far_MacroCallFar(lua_State *L);
+extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 
 #define CAST(tp,expr) (tp)(expr)
 #define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
@@ -4344,10 +4345,13 @@ static int MacroSendString(lua_State* L, int Param1)
 {
 	TPluginData *pd = GetPluginData(L);
 	struct MacroSendMacroText smt;
+	memset(&smt, 0, sizeof(smt));
 	smt.StructSize = sizeof(smt);
 	smt.SequenceText = check_utf8_string(L, 1, NULL);
 	smt.Flags = CheckFlags(L, 2);
-	OptInputRecord(L, pd, 3, &smt.AKey);
+	if (Param1 == MSSC_POST)
+		OptInputRecord(L, pd, 3, &smt.AKey);
+
 	lua_pushboolean(L, pd->Info->MacroControl(pd->PluginId, MCTL_SENDSTRING, Param1, &smt) != 0);
 	return 1;
 }
@@ -4452,6 +4456,22 @@ static int far_MacroDelete(lua_State* L)
 		luaL_unref(L, LUA_REGISTRYINDEX, (int)(intptr_t)Id);
 
 	lua_pushboolean(L, result);
+	return 1;
+}
+
+static int far_MacroExecute(lua_State* L)
+{
+	TPluginData *pd = GetPluginData(L);
+	struct MacroExecuteString Data;
+	Data.StructSize = sizeof(Data);
+	Data.SequenceText = check_utf8_string(L, 1, NULL);
+	Data.Flags = 0;
+
+	if (pd->Info->MacroControl(pd->PluginId, MCTL_EXECSTRING, 0, &Data))
+		PackMacroValues(L, Data.Count, Data.Values);
+	else
+		lua_pushnil(L);
+
 	return 1;
 }
 
@@ -5522,6 +5542,7 @@ const luaL_Reg far_funcs[] =
 	{"MacroAdd",            far_MacroAdd},
 	{"MacroDelete",         far_MacroDelete},
 	{"MacroGetLastError",   far_MacroGetLastError},
+	{"MacroExec",           far_MacroExecute},
 	{"CreateFileFilter",    far_CreateFileFilter},
 	{"LoadPlugin",          far_LoadPlugin},
 	{"UnloadPlugin",        far_UnloadPlugin},
