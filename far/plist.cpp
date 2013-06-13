@@ -42,16 +42,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "interf.hpp"
-#include "pathmix.hpp"
+#include "imports.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);
+const size_t PID_LENGTH = 6;
 
 struct ProcInfo
 {
 	VMenu2 *procList;
 	bool bShowImage;
 };
+
+static struct task_sort
+{
+	bool operator()(const MenuItemEx* a, const MenuItemEx* b, SortItemParam& p) const
+	{
+		return StrCmp(a->strName.CPtr() + PID_LENGTH + 1, b->strName.CPtr() + PID_LENGTH + 1) < 0;
+	}
+}
+TaskSort;
 
 void ShowProcessList()
 {
@@ -71,7 +81,7 @@ void ShowProcessList()
 	{
 		ProcList.AssignHighlights(FALSE);
 		ProcList.SetBottomTitle(MSG(MProcessListBottom));
-		ProcList.SortItems();
+		ProcList.SortItems(TaskSort);
 
 		ProcList.Run([&](int Key)->int
 		{
@@ -130,7 +140,7 @@ void ShowProcessList()
 					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 						ProcList.Close(-1);
 					else
-						ProcList.SortItems();
+						ProcList.SortItems(TaskSort);
 					break;
 				}
 				case KEY_F2:
@@ -143,7 +153,7 @@ void ShowProcessList()
 						ProcList.Close(-1);
 					else
 					{
-						ProcList.SortItems();
+						ProcList.SortItems(TaskSort);
 						ProcList.SetSelectPos(SelectPos);
 					}
 					break;
@@ -225,19 +235,19 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		GetWindowThreadProcessId(hwnd,&ProcID);
 		string strTitle;
 
-		if (pi->bShowImage)
+		int LenTitle=GetWindowTextLength(hwnd);
+		if (LenTitle)
 		{
-			HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
-			if (hProc)
+			if (pi->bShowImage)
 			{
-				apiGetModuleFileNameEx(hProc, nullptr, strTitle);
-				CloseHandle(hProc);
+				HANDLE hProc = OpenProcess(Global->ifn->QueryFullProcessImageNameWPresent()? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
+				if (hProc)
+				{
+					apiGetModuleFileNameEx(hProc, nullptr, strTitle);
+					CloseHandle(hProc);
+				}
 			}
-		}
-		else
-		{
-			int LenTitle=GetWindowTextLength(hwnd);
-			if (LenTitle)
+			else
 			{
 				wchar_t_ptr Title(LenTitle + 1);
 				if (Title)
@@ -250,11 +260,13 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 				}
 			}
 		}
-
-		MenuItemEx ListItem;
-		ListItem.Clear();
-		ListItem.strName = FormatString()<<fmt::MinWidth(6)<<ProcID<<BoxSymbols[BS_V1]<<strTitle;
-		ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+		if (!strTitle.IsEmpty())
+		{
+			MenuItemEx ListItem;
+			ListItem.Clear();
+			ListItem.strName = FormatString()<<fmt::MinWidth(PID_LENGTH)<<ProcID<<BoxSymbols[BS_V1]<<strTitle;
+			ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+		}
 
 	}
 
