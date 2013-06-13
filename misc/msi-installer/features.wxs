@@ -97,6 +97,7 @@
           <ComponentRef Id="Executor.CMD.farconfig" />
           <ComponentRef Id="Executor.COMMAND.farconfig" />
           <ComponentRef Id="WindowsGUI.farconfig" />
+          <ComponentRef Id="WindowsGUI.lua" />
         </Feature>
         <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
           <ComponentRef Id="Descript.ion_8" />

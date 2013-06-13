@@ -114,6 +114,7 @@
 <?define Guid.Executor.CMD.farconfig = "A1E15E20-6BE3-4129-97C4-B7C3F10E4B02" ?>
 <?define Guid.Executor.COMMAND.farconfig = "6F4C4851-4D7C-4B08-817D-FF0C96CFDD55" ?>
 <?define Guid.WindowsGUI.farconfig = "35541889-6F24-4F54-95E2-144CBD01616B" ?>
+<?define Guid.WindowsGUI.lua = "73621107-7971-4396-AB74-36D8B1A895D8" ?>
 <?define Guid.Descript.ion_8 = "72E2B673-4071-4302-84ED-A75D539EC742" ?>
 <?define Guid.FARHere.inf = "B582F2F1-A7DA-4878-957A-AD91260118D3" ?>
 <?define Guid.Descript.ion_15 = "7AB82A9C-C8D6-4C58-8C14-3C8D5DB53748" ?>

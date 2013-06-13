@@ -325,6 +325,9 @@
           <Component Id="WindowsGUI.farconfig" Guid="$(var.Guid.WindowsGUI.farconfig)" Win64="$(var.Win64)">
             <File Id="WindowsGUI.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.farconfig" />
           </Component>
+          <Component Id="WindowsGUI.lua" Guid="$(var.Guid.WindowsGUI.lua)" Win64="$(var.Win64)">
+            <File Id="WindowsGUI.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.lua" />
+          </Component>
         </Directory>
         <Directory Id="Shell" Name="Shell">
           <Component Id="Descript.ion_8" Guid="$(var.Guid.Descript.ion_8)" Win64="$(var.Win64)">
