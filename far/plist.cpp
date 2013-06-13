@@ -46,6 +46,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);
 
+struct ProcInfo
+{
+	VMenu2 *procList;
+	bool bShowImage;
+};
+
 void ShowProcessList()
 {
 	static bool Active = false;
@@ -56,11 +62,15 @@ void ShowProcessList()
 	VMenu2 ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
 	ProcList.SetFlags(VMENU_WRAPMODE);
 	ProcList.SetPosition(-1,-1,0,0);
+	static bool bShowImage = false;
 
-	if (EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+	struct ProcInfo pi={&ProcList,bShowImage};
+
+	if (EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 	{
 		ProcList.AssignHighlights(FALSE);
 		ProcList.SetBottomTitle(MSG(MProcessListBottom));
+		ProcList.SortItems();
 
 		ProcList.Run([&](int Key)->int
 		{
@@ -116,11 +126,28 @@ void ShowProcessList()
 				{
 					ProcList.DeleteItems();
 
-					if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 						ProcList.Close(-1);
-
+					else
+						ProcList.SortItems();
 					break;
 				}
+				case KEY_F2:
+				{
+					pi.bShowImage=(bShowImage=!bShowImage);
+					int SelectPos=ProcList.GetSelectPos();
+					ProcList.DeleteItems();
+
+					if (!EnumWindows(EnumWindowsProc,(LPARAM)&pi))
+						ProcList.Close(-1);
+					else
+					{
+						ProcList.SortItems();
+						ProcList.SetSelectPos(SelectPos);
+					}
+					break;
+				}
+
 
 				default:
 					KeyProcessed = 0;
@@ -188,26 +215,60 @@ BOOL KillProcess(DWORD dwPID)
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-	VMenu2 *ProcList=(VMenu2 *)lParam;
+	struct ProcInfo *pi=(struct ProcInfo *)lParam;
+	VMenu2 *ProcList=pi->procList;
 
-	if (IsWindowVisible(hwnd) ||
-	        (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
+	if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{
-		int LenTitle=GetWindowTextLength(hwnd);
 
-		if (LenTitle)
+		MenuItemEx ListItem;
+		ListItem.Clear();
+
+		DWORD ProcID;
+		GetWindowThreadProcessId(hwnd,&ProcID);
+		string strTitle;
+
+		if (pi->bShowImage)
 		{
-			wchar_t_ptr Title(LenTitle + 1);
-
-			if (Title && (LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1)))
+			DWORD Size=MAX_PATH;
+			wchar_t_ptr ExeName(MAX_PATH);
+			if (ExeName)
 			{
-				Title[LenTitle]=0;
-				MenuItemEx ListItem;
-				ListItem.Clear();
-				ListItem.strName = Title.get();
-				ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+				ExeName[0]=0;
+				HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_QUERY_INFORMATION, false, ProcID);
+				if (hProc)
+				{
+					if (GetProcessId(hProc) == ProcID)
+					{
+						if (QueryFullProcessImageNameW(hProc,0,ExeName.get(),&Size))
+							ExeName[Size]=0;
+					}
+					CloseHandle(hProc);
+
+				}
+				strTitle=ExeName.get();
 			}
 		}
+		else
+		{
+			int LenTitle=GetWindowTextLength(hwnd);
+			if (LenTitle)
+			{
+				wchar_t_ptr Title(LenTitle + 1);
+				if (Title)
+				{
+					if (LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1))
+						Title[LenTitle]=0;
+					else
+						Title[0]=0;
+					strTitle=Title.get();
+				}
+			}
+		}
+
+		ListItem.strName = FormatString()<<fmt::MinWidth(6)<<ProcID<<BoxSymbols[BS_V1]<<strTitle;
+		ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+
 	}
 
 	return TRUE;

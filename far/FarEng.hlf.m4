@@ -2074,8 +2074,8 @@ of time if a folder was located on a currently unavailable remote resource.
 
 @TaskList
 $ #Task list#
-    The task list displays active tasks. Each line of the list contains a task
-window title.
+    The task list displays active tasks. Каждая строка списка содержит PID 
+процесса и заголовок окна задачи или путь исполняемого модуля.
 
     From the task list you may switch to the task window, or kill the task with
 the #Del# key. Be careful when killing a task. It stops the task immediately,
@@ -2087,6 +2087,9 @@ necessary, for example to interrupt a program which does not respond.
 editor.
 
     #Ctrl-R# allows to refresh the task list.
+
+    #F2# переключает отображение с заголовка окна задачи на путь к 
+исполняемому модулю и обратно.
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 

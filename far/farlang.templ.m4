@@ -13752,14 +13752,14 @@ l:
 "Zoznam úloh"
 
 MProcessListBottom
-"Редактирование: Del,Ctrl-R"
-"Edit: Del,Ctrl-R"
-"Změnit: Del,Ctrl-R"
-"Tasten: Entf,StrgR"
-"Szerk.: Del,Ctrl-R"
-"Edycja: Del,Ctrl-R"
-"Editar: Del,Ctrl-R"
-"Upraviť: Del,Ctrl-R"
+"Редактирование: Del,Ctrl-R,F2"
+"Edit: Del,Ctrl-R,F2"
+"Změnit: Del,Ctrl-R,F2"
+"Tasten: Entf,StrgR,F2"
+"Szerk.: Del,Ctrl-R,F2"
+"Edycja: Del,Ctrl-R,F2"
+"Editar: Del,Ctrl-R,F2"
+"Upraviť: Del,Ctrl-R,F2"
 
 MKillProcessTitle
 "Удаление задачи"
