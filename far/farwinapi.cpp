@@ -934,11 +934,14 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 	return apiGetModuleFileNameEx(nullptr, hModule, strFileName);
 }
 
+static bool internalDevName2FileName(const string& devName, string& FinalFilePath);
+
 DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
 	wchar_t *lpwszFileName = nullptr;
+	bool dev_to_file = false;
 
 	do
 	{
@@ -955,6 +958,12 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 					dwSize = sz;
 				}
 			}
+			else if (Global->ifn->GetProcessImageFileNameWPresent() && !hModule)
+			{
+				dwSize = Global->ifn->GetProcessImageFileNameW(hProcess, lpwszFileName, dwBufferSize);
+				if (dwSize > 0)
+					dev_to_file = true;
+			}
 			else
 			{
 				dwSize = GetModuleFileNameEx(hProcess, hModule, lpwszFileName, dwBufferSize);
@@ -968,7 +977,12 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 	while ((dwSize >= dwBufferSize) || (!dwSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
 
 	if (dwSize)
-		strFileName.Copy(lpwszFileName, dwSize);
+	{
+		if (!dev_to_file)
+			strFileName.Copy(lpwszFileName, dwSize);
+		else
+			internalDevName2FileName(lpwszFileName, strFileName);
+	}
 
 	xf_free(lpwszFileName);
 	return dwSize;
@@ -1446,6 +1460,76 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 	return false;
 }
 
+static bool internalDevName2FileName(const string& devName, string& FinalFilePath)
+{
+	string NtPath(devName);
+	FinalFilePath.Clear();
+
+	// simple way to handle network paths
+	if (NtPath.IsSubStrAt(0, L"\\Device\\LanmanRedirector"))
+		FinalFilePath = NtPath.Replace(0, 24, L'\\');
+
+	if (FinalFilePath.IsEmpty())
+	{
+		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+		string DriveStrings;
+
+		if (apiGetLogicalDriveStrings(DriveStrings))
+		{
+			string DiskName(L"A:");
+			const wchar_t* Drive = DriveStrings.CPtr();
+
+			while (*Drive)
+			{
+				DiskName.Replace(0, *Drive);
+				int Len = MatchNtPathRoot(NtPath, DiskName);
+
+				if (Len)
+				{
+					if (NtPath.IsSubStrAt(0, L"\\Device\\WinDfs"))
+						FinalFilePath = NtPath.Replace(0, Len, L'\\');
+					else
+						FinalFilePath = NtPath.Replace(0, Len, DiskName);
+					break;
+				}
+
+				Drive += StrLength(Drive) + 1;
+			}
+		}
+	}
+
+	if (FinalFilePath.IsEmpty())
+	{
+		// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+		wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
+		HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
+		BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+
+		while (Res)
+		{
+			if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
+			{
+				DeleteEndSlash(VolumeName);
+				int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+
+				if (Len)
+				{
+					FinalFilePath = NtPath.Replace(0, Len, VolumeName);
+					break;
+				}
+			}
+
+			Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
+		}
+
+		if (hEnum != INVALID_HANDLE_VALUE)
+			FindVolumeClose(hEnum);
+	}
+
+	return !FinalFilePath.IsEmpty();
+}
+
+
 bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	ULONG RetLen;
@@ -1469,73 +1553,11 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		}
 	}
 
-	FinalFilePath.Clear();
-
 	if (Res == STATUS_SUCCESS)
-	{
-		// simple way to handle network paths
-		if (NtPath.IsSubStrAt(0, L"\\Device\\LanmanRedirector"))
-			FinalFilePath = NtPath.Replace(0, 24, L'\\');
+		return internalDevName2FileName(NtPath, FinalFilePath);
 
-		if (FinalFilePath.IsEmpty())
-		{
-			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			string DriveStrings;
-
-			if (apiGetLogicalDriveStrings(DriveStrings))
-			{
-				string DiskName(L"A:");
-				const wchar_t* Drive = DriveStrings.CPtr();
-
-				while (*Drive)
-				{
-					DiskName.Replace(0, *Drive);
-					int Len = MatchNtPathRoot(NtPath, DiskName);
-
-					if (Len)
-					{
-						if (NtPath.IsSubStrAt(0, L"\\Device\\WinDfs"))
-							FinalFilePath = NtPath.Replace(0, Len, L'\\');
-						else
-							FinalFilePath = NtPath.Replace(0, Len, DiskName);
-						break;
-					}
-
-					Drive += StrLength(Drive) + 1;
-				}
-			}
-		}
-
-		if (FinalFilePath.IsEmpty())
-		{
-			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-			wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
-			HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
-			BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-
-			while (Res)
-			{
-				if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
-				{
-					DeleteEndSlash(VolumeName);
-					int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
-
-					if (Len)
-					{
-						FinalFilePath = NtPath.Replace(0, Len, VolumeName);
-						break;
-					}
-				}
-
-				Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
-			}
-
-			if (hEnum != INVALID_HANDLE_VALUE)
-				FindVolumeClose(hEnum);
-		}
-	}
-
-	return !FinalFilePath.IsEmpty();
+	FinalFilePath.Clear();
+	return false;
 }
 
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
