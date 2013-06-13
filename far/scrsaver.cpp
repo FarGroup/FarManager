@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "console.hpp"
-#include "palette.hpp"
 #include "colormix.hpp"
 
 #define randomize() srand(67898)

@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exitcode.hpp"
 #include "filestr.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "stddlg.hpp"
 #include "plugins.hpp"
 #include "DlgGuid.hpp"

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "panelmix.hpp"
 #include "valuename.hpp"
+#include "colormix.hpp"
 
 extern int ColumnTypeWidth[];
 
@@ -229,6 +230,10 @@ void FileList::ShowFileList(int Fast)
 
 		if (Global->Opt->ShowColumnTitles)
 		{
+			FarColor c = ColorIndexToColor(COL_PANELBOX);
+			c.BackgroundColor = ColorIndexToColor(COL_PANELCOLUMNTITLE).BackgroundColor;
+			SetColor(c);
+
 			GotoXY(ColumnPos,Y1+1);
 			BoxText(BoxSymbols[DoubleLine?BS_V2:BS_V1]);
 		}

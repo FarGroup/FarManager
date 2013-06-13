@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "syslog.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "language.hpp"
 
 static bool LastMode = false;

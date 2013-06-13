@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
+#include "colormix.hpp"
 
 // Флаги для ReadDiz()
 enum ReadDizFlags

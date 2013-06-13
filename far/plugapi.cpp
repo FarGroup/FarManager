@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "message.hpp"
 #include "eject.hpp"
 #include "filefilter.hpp"
@@ -388,9 +388,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if (static_cast<UINT>(Param1) < Global->Opt->Palette.SizeArrayPalette)
+			if (static_cast<UINT>(Param1) < Global->Opt->Palette.size())
 			{
-				*static_cast<FarColor*>(Param2) = Global->Opt->Palette.CurrentPalette[static_cast<size_t>(Param1)];
+				*static_cast<FarColor*>(Param2) = Global->Opt->Palette[static_cast<size_t>(Param1)];
 				return TRUE;
 			}
 			return FALSE;
@@ -403,11 +403,11 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETARRAYCOLOR:
 		{
-			if (Param2 && static_cast<size_t>(Param1) >= Global->Opt->Palette.SizeArrayPalette)
+			if (Param2 && static_cast<size_t>(Param1) >= Global->Opt->Palette.size())
 			{
-				memcpy(Param2, Global->Opt->Palette.CurrentPalette, Global->Opt->Palette.SizeArrayPalette*sizeof(FarColor));
+				Global->Opt->Palette.CopyTo(reinterpret_cast<FarColor*>(Param2));
 			}
-			return Global->Opt->Palette.SizeArrayPalette;
+			return Global->Opt->Palette.size();
 		}
 		/*
 		  Param=FARColor{
@@ -423,10 +423,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			if (CheckStructSize(Pal))
 			{
 
-				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Global->Opt->Palette.SizeArrayPalette)
+				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Global->Opt->Palette.size())
 				{
-					memmove(Global->Opt->Palette.CurrentPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount*sizeof(FarColor));
-					Global->Opt->Palette.SetChanged();
+					Global->Opt->Palette.Set(Pal->StartIndex, Pal->Colors, Pal->ColorsCount);
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
 						Global->ScrBuf->Lock(); // отменяем всякую прорисовку

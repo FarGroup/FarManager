@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "treelist.hpp"
 
 global *Global = nullptr;

@@ -74,7 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "setattr.hpp"
 #include "window.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "elevation.hpp"
 #include "stddlg.hpp"

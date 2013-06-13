@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "chgmmode.hpp"
 #include "interf.hpp"
-#include "palette.hpp"
 #include "config.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
@@ -58,12 +57,11 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 void GetColor(int PaletteIndex)
 {
 	ChangeMacroMode chgMacroMode(MACROAREA_MENU);
-	FarColor NewColor = Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
+	FarColor NewColor = Global->Opt->Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
 	if (Global->Console->GetColorDialog(NewColor))
 	{
-		Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
-		Global->Opt->Palette.SetChanged();
+		Global->Opt->Palette.Set(PaletteIndex-COL_FIRSTPALETTECOLOR, &NewColor, 1);
 		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->LeftPanel->Redraw();

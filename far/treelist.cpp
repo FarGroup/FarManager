@@ -73,7 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "filestr.hpp"
 #include "wakeful.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "FarGuid.hpp"
 
 static bool StaticSortNumeric;

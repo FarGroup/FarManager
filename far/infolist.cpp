@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "vmenu2.hpp"
 #include "datetime.hpp"
 #include "window.hpp"

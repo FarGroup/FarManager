@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "palette.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "interf.hpp"
@@ -366,7 +365,7 @@ static void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 		//Для пометки возьмем цвета файла включая прозрачность.
 		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor))
 		{
-			FarColor NewColor = Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR];
+			FarColor NewColor = Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR];
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor)|COLORVALUE(NewColor.BackgroundColor);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor)|COLORVALUE(NewColor.ForegroundColor);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags&=FCF_EXTENDEDFLAGS;
@@ -429,8 +428,8 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 			//то унаследуем соответствующий цвет с панелей.
 			if(IS_TRANSPARENT(Colors->Color[j][i].BackgroundColor))
 			{
-				Colors->Color[j][i].BackgroundColor=Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
-				if(Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
+				Colors->Color[j][i].BackgroundColor=Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
+				if(Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
 				{
 					Colors->Color[j][i].Flags|=FCF_BG_4BIT;
 				}
@@ -441,8 +440,8 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 			}
 			if(IS_TRANSPARENT(Colors->Color[j][i].ForegroundColor))
 			{
-				Colors->Color[j][i].ForegroundColor=Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
-				if(Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
+				Colors->Color[j][i].ForegroundColor=Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
+				if(Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
 				{
 					Colors->Color[j][i].Flags|=FCF_FG_4BIT;
 				}

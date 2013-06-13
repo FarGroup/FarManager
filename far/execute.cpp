@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "mix.hpp"
 #include "language.hpp"
+#include "colormix.hpp"
 
 struct IMAGE_HEADERS
 {

@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "pathmix.hpp"
 #include "colors.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "lasterror.hpp"
 #include "privilege.hpp"
 #include "fileowner.hpp"

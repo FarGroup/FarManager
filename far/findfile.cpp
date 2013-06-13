@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "message.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"

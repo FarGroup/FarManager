@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
-#include "palette.hpp"
 #include "message.hpp"
 #include "strmix.hpp"
 #include "history.hpp"

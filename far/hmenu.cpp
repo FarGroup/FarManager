@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 
 HMenu::HMenu(HMenuData *Item,int ItemCount):
 	SubMenu(nullptr),

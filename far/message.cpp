@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
 #include "imports.hpp"

@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "network.hpp"
 #include "plugins.hpp"
+#include "colormix.hpp"
 
 enum
 {

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "colormix.hpp"
+#include "config.hpp"
 
 enum
 {
@@ -158,4 +159,19 @@ void Colors::ConsoleColorToFarColor(WORD Color,FarColor& NewColor)
 	MAKE_OPAQUE(NewColor.ForegroundColor);
 	MAKE_OPAQUE(NewColor.BackgroundColor);
 	NewColor.Reserved=nullptr;
+}
+
+
+const FarColor ColorIndexToColor(PaletteColors ColorIndex)
+{
+	FarColor Result = {};
+	if(ColorIndex<COL_FIRSTPALETTECOLOR)
+	{
+		Colors::ConsoleColorToFarColor(ColorIndex, Result);
+	}
+	else
+	{
+		Result = Global->Opt->Palette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Global->Opt->Palette.size()];
+	}
+	return Result;
 }

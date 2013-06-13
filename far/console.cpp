@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "imports.hpp"
 #include "config.hpp"
-#include "palette.hpp"
 #include "colors.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"

@@ -196,69 +196,62 @@ Init[]=
 	{L"WarnDialog.DefaultButton.Highlight.Selected", F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
 };
 
-FarColor CurrentPaletteData[ARRAYSIZE(Init)];
-FarColor DefaultPaletteData[ARRAYSIZE(Init)];
-FarColor BlackPaletteData[ARRAYSIZE(Init)];
 
 palette::palette():
-	SizeArrayPalette(ARRAYSIZE(Init)),
-	CurrentPalette(CurrentPaletteData),
-	DefaultPalette(DefaultPaletteData),
-	BlackPalette(BlackPaletteData),
+	DefaultPalette(ARRAYSIZE(Init)),
+	BlackPalette(ARRAYSIZE(Init)),
+	CurrentPalette(ARRAYSIZE(Init)),
 	PaletteChanged(false)
 {
-	for(size_t i = 0; i < SizeArrayPalette; ++i)
+	for(size_t i = 0; i < ARRAYSIZE(Init); ++i)
 	{
 		Colors::ConsoleColorToFarColor(Init[i].DefaultIndex, DefaultPalette[i]);
 		Colors::ConsoleColorToFarColor(Init[i].MonoIndex, BlackPalette[i]);
 	}
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
-	memcpy(CurrentPalette, DefaultPalette, SizeArrayPalette*sizeof(FarColor));
+
+	CurrentPalette = DefaultPalette;
 }
 
 void palette::ResetToDefault()
 {
-	memcpy(CurrentPalette, DefaultPalette, SizeArrayPalette*sizeof(FarColor));
+	CurrentPalette = DefaultPalette;
 	PaletteChanged = true;
 }
 
 void palette::ResetToBlack()
 {
-	memcpy(CurrentPalette, BlackPalette, SizeArrayPalette*sizeof(FarColor));
+	CurrentPalette = BlackPalette;
 	PaletteChanged = true;
 }
 
-const FarColor ColorIndexToColor(PaletteColors ColorIndex)
+void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
 {
-	FarColor Result = {};
-	if(ColorIndex<COL_FIRSTPALETTECOLOR)
-	{
-		Colors::ConsoleColorToFarColor(ColorIndex, Result);
-	}
-	else
-	{
-		Result = Global->Opt->Palette.CurrentPalette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Global->Opt->Palette.SizeArrayPalette];
-	}
-	return Result;
+	std::copy(Value, Value + Count, CurrentPalette.begin() + StartOffset);
+	PaletteChanged = true;
+}
+
+void palette::CopyTo(FarColor* Destination) const
+{
+	memcpy(Destination, CurrentPalette.data(), CurrentPalette.size() * sizeof(DECLTYPE(CurrentPalette)::value_type));
 }
 
 void palette::Load()
 {
-	for (size_t i = 0; i < SizeArrayPalette; ++i)
+	for (size_t i = 0; i < CurrentPalette.size(); ++i)
 	{
 		Global->Db->ColorsCfg()->GetValue(Init[i].Name, CurrentPalette[i]);
 	}
 	PaletteChanged = false;
 }
 
-
 void palette::Save()
 {
 	if (PaletteChanged)
 	{
 		Global->Db->ColorsCfg()->BeginTransaction();
-		for (size_t i = 0; i < SizeArrayPalette; ++i)
+		for (size_t i = 0; i < CurrentPalette.size(); ++i)
 		{
 			Global->Db->ColorsCfg()->SetValue(Init[i].Name, CurrentPalette[i]);
 		}

@@ -41,14 +41,14 @@ public:
 	void Save();
 	void ResetToDefault();
 	void ResetToBlack();
-	void SetChanged() {PaletteChanged = true;}
-	const size_t SizeArrayPalette;
-	FarColor* CurrentPalette;
-	FarColor* DefaultPalette;
-	FarColor* BlackPalette;
+	void Set(size_t StartOffset, FarColor* Value, size_t Count);
+	void CopyTo(FarColor* Destination) const;
+	const FarColor& operator[](size_t Index) const {return CurrentPalette[Index];}
+	size_t size() const {return CurrentPalette.size();}
 
 private:
+	std::vector<FarColor> DefaultPalette;
+	std::vector<FarColor> BlackPalette;
+	std::vector<FarColor> CurrentPalette;
 	bool PaletteChanged;
 };
-
-const FarColor ColorIndexToColor(PaletteColors ColorIndex);

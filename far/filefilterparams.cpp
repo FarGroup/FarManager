@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "filelist.hpp"
 #include "filefilterparams.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "message.hpp"
 #include "interf.hpp"
 #include "setcolor.hpp"

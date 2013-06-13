@@ -38,3 +38,5 @@ public:
 	static WORD FarColorToConsoleColor(const FarColor& Color);
 	static void ConsoleColorToFarColor(WORD Color,FarColor& NewColor);
 };
+
+const FarColor ColorIndexToColor(PaletteColors ColorIndex);

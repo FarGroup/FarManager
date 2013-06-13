@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "dialog.hpp"
 #include "colors.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
 #include "configdb.hpp"

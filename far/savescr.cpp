@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
-#include "palette.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
 

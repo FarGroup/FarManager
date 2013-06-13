@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "window.hpp"
 #include "console.hpp"
-#include "palette.hpp"
+#include "colormix.hpp"
 #include "plugins.hpp"
 
 /* start Глобальные переменные */

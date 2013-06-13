@@ -252,7 +252,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 				wchar_t_ptr Title(LenTitle + 1);
 				if (Title)
 				{
-					if (LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1))
+					if ((LenTitle=GetWindowText(hwnd, Title.get(), LenTitle+1)))
 						Title[LenTitle]=0;
 					else
 						Title[0]=0;
