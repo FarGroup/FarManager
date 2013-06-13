@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "interf.hpp"
+#include "pathmix.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);
@@ -220,33 +221,18 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 
 	if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{
-
-		MenuItemEx ListItem;
-		ListItem.Clear();
-
 		DWORD ProcID;
 		GetWindowThreadProcessId(hwnd,&ProcID);
 		string strTitle;
 
 		if (pi->bShowImage)
 		{
-			DWORD Size=MAX_PATH;
-			wchar_t_ptr ExeName(MAX_PATH);
-			if (ExeName)
+			HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_QUERY_INFORMATION, false, ProcID);
+			if (hProc)
 			{
-				ExeName[0]=0;
-				HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_QUERY_INFORMATION, false, ProcID);
-				if (hProc)
-				{
-					if (GetProcessId(hProc) == ProcID)
-					{
-						if (QueryFullProcessImageNameW(hProc,0,ExeName.get(),&Size))
-							ExeName[Size]=0;
-					}
-					CloseHandle(hProc);
-
-				}
-				strTitle=ExeName.get();
+				if (!(GetProcessId(hProc) == ProcID && apiGetModuleFileNameEx(hProc, nullptr, strTitle)))
+					strTitle=L"";
+				CloseHandle(hProc);
 			}
 		}
 		else
@@ -266,6 +252,8 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 			}
 		}
 
+		MenuItemEx ListItem;
+		ListItem.Clear();
 		ListItem.strName = FormatString()<<fmt::MinWidth(6)<<ProcID<<BoxSymbols[BS_V1]<<strTitle;
 		ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
 
