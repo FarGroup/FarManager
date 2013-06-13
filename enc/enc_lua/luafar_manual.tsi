@@ -5725,14 +5725,13 @@ lv=2
 dt=Text
 nm=far.MacroCheck
 ctime=3507633625
-mtime=3535655686
+mtime=3580282181
 <article>
-#_result = far.MacroCheck (SequenceText, Flags, AKey)
+#_result = far.MacroCheck (SequenceText, Flags)
 #_
 #_**Parameters:**
 #_  SequenceText: string
 #_  Flags:        flags (defaults to 0)
-#_  AKey:         table InputRecord, or string (e.g. "CtrlShiftF12"); optional
 #_
 #_**Returns:**
 #_  result: boolean
@@ -5768,6 +5767,29 @@ mtime=3577031249
 #_<lua> Links = {
 #_  ["far.MacroAdd"]="446.html",
 #_} </lua>
+#_
+</article>
+</node>
+<node>
+id=488
+lv=2
+dt=Text
+nm=far.MacroExecute
+ctime=3580326848
+mtime=3580327556
+<article>
+#_result = far.MacroExecute (SequenceText)
+#_
+#_**Parameters:**
+#_  SequenceText: string
+#_
+#_**Returns:**
+#_  result: table (array of elements returned by the script), or nil
+#_
+#_**Far API used:**
+#_  MacroControl(MCTL_EXECSTRING)
+#_
+#_@@@
 #_
 </article>
 </node>

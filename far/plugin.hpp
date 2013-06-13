@@ -1075,6 +1075,7 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
 	MCTL_GETLASTERROR      = 9,
+	MCTL_EXECSTRING        = 10,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1088,9 +1089,6 @@ static const FARKEYMACROFLAGS
 enum FARMACROSENDSTRINGCOMMAND
 {
 	MSSC_POST              =0,
-#ifdef FAR_USE_INTERNALS
-	MSSC_EXEC              =1,
-#endif // END FAR_USE_INTERNALS
 	MSSC_CHECK             =2,
 };
 
@@ -1241,6 +1239,15 @@ struct FarGetValue
 	size_t StructSize;
 	intptr_t Type;
 	struct FarMacroValue Value;
+};
+
+struct MacroExecuteString
+{
+	size_t StructSize;
+	const wchar_t *SequenceText;
+	unsigned __int64 Flags;
+	size_t Count;
+	const struct FarMacroValue *Values;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
@@ -2562,6 +2569,7 @@ enum MACROCALLTYPE
 	MCT_PROCESSMACRO       = 8,
 	MCT_DELMACRO           = 9,
 	MCT_RUNSTARTMACRO      = 10,
+	MCT_EXECSTRING         = 11,
 };
 
 struct OpenMacroPluginInfo

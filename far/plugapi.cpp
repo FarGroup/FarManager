@@ -2027,36 +2027,42 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				return TRUE;
 			}
 
-			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText
+			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 			case MCTL_SENDSTRING:
 			{
-				if (!Param2)
-					break;
+				MacroSendMacroText *Data=(MacroSendMacroText*)Param2;
 
-				MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
-
-				if (!CheckStructSize(PlainText) || !PlainText->SequenceText || !*PlainText->SequenceText)
+				if (!Data || !CheckStructSize(Data) || !Data->SequenceText)
 					break;
 
 				switch (Param1)
 				{
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
 						UINT64 Flags = MFLAGS_POSTFROMPLUGIN;
-						if (PlainText->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
-						if (PlainText->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
+						if (Data->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
+						if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-						return Macro.PostNewMacro(PlainText->SequenceText,Flags,InputRecordToKey(&PlainText->AKey));
+						return Macro.PostNewMacro(Data->SequenceText,Flags,InputRecordToKey(&Data->AKey));
 					}
 
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_CHECK:
 					{
-						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0,false);
+						return Macro.ParseMacroString(Data->SequenceText,(Data->Flags&KMFLAGS_SILENTCHECK)!=0,false);
 					}
 				}
 
+				break;
+			}
+
+			// Param1=0, Param2 - MacroExecuteString*
+			case MCTL_EXECSTRING:
+			{
+				MacroExecuteString *Data=(MacroExecuteString*)Param2;
+				if (Data && CheckStructSize(Data) && Data->SequenceText)
+				{
+					return Macro.ExecuteString(Data);
+				}
 				break;
 			}
 

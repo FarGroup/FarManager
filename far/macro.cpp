@@ -1632,6 +1632,24 @@ bool KeyMacro::ParseMacroString(const string& Sequence, bool onlyCheck, bool ski
 	return false;
 }
 
+bool KeyMacro::ExecuteString(MacroExecuteString *Data)
+{
+	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	values[0].String=Data->SequenceText;
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_EXECSTRING,nullptr,&fmc};
+
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
+	if (mpr && mpr->ReturnType != MPRT_ERRORFINISH && mpr->ReturnType != MPRT_ERRORPARSE)
+	{
+		Data->Values = mpr->Values;
+		Data->Count = mpr->Count;
+		return true;
+	}
+	Data->Count = 0;
+	return false;
+}
+
 void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
 {
 	*ErrCode = m_LastErrorStr == L"" ? MPEC_SUCCESS : MPEC_ERROR;

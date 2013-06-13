@@ -65,6 +65,12 @@ intptr_t WINAPI MacroControl(
     В случае неудачи, можно получить расширенную диагностику об ошибке с помощью команды <a href="#MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td></tr>
     </table>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_EXECSTRING">MCTL_EXECSTRING</a></td>
+    <td class="cont" width="60%">Исполнить скрипт (строку или файл).<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру  <a href="../structures/macroexecutestring.html">MacroExecuteString</a>.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
     <td class="cont" width="60%">Получить расширенную диагностику об ошибке проверки макроса (<code>MSSC_CHECK</code>).<br>
     <code>Param1</code> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <code>Param2</code>.<br>
