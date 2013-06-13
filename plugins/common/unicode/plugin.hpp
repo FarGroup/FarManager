@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3436
+  Plugin API for Far Manager 3.0 build 3456
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3436
+#define FARMANAGERVERSION_BUILD 3456
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -959,6 +959,7 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
 	MCTL_GETLASTERROR      = 9,
+	MCTL_EXECSTRING        = 10,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1117,6 +1118,15 @@ struct FarGetValue
 	size_t StructSize;
 	intptr_t Type;
 	struct FarMacroValue Value;
+};
+
+struct MacroExecuteString
+{
+	size_t StructSize;
+	const wchar_t *SequenceText;
+	unsigned __int64 Flags;
+	size_t Count;
+	const struct FarMacroValue *Values;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
@@ -2401,6 +2411,7 @@ enum MACROCALLTYPE
 	MCT_PROCESSMACRO       = 8,
 	MCT_DELMACRO           = 9,
 	MCT_RUNSTARTMACRO      = 10,
+	MCT_EXECSTRING         = 11,
 };
 
 struct OpenMacroPluginInfo
