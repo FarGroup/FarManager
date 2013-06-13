@@ -5542,7 +5542,7 @@ const luaL_Reg far_funcs[] =
 	{"MacroAdd",            far_MacroAdd},
 	{"MacroDelete",         far_MacroDelete},
 	{"MacroGetLastError",   far_MacroGetLastError},
-	{"MacroExec",           far_MacroExecute},
+	{"MacroExecute",        far_MacroExecute},
 	{"CreateFileFilter",    far_CreateFileFilter},
 	{"LoadPlugin",          far_LoadPlugin},
 	{"UnloadPlugin",        far_UnloadPlugin},
