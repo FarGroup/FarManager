@@ -1958,9 +1958,7 @@ void Dialog::ShowDialog(size_t ID)
 				if(Items[I].Flags & DIF_SETSHIELD)
 				{
 					int startx=X1+CX1+(Items[I].Flags&DIF_NOBRACKETS?0:2);
-					FarColor Color;
-					Colors::ConsoleColorToFarColor(0xE9, Color);
-					Global->ScrBuf->ApplyColor(startx,Y1+CY1,startx+1,Y1+CY1,Color);
+					Global->ScrBuf->ApplyColor(startx, Y1 + CY1, startx + 1, Y1 + CY1, Colors::ConsoleColorToFarColor(0xE9));
 				}
 				break;
 			}
@@ -4629,8 +4627,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 				   1) когда диалог перемещается в угол
 				   2) когда диалог перемещается из угла
 				   сделал вывод красных палочек по углам */
-				FarColor Color;
-				Colors::ConsoleColorToFarColor(0xCE, Color);
+				FarColor Color = Colors::ConsoleColorToFarColor(0xCE);
 				Text(X1, Y1, Color, L"\\");
 				Text(X1, Y2, Color, L"/");
 				Text(X2, Y1, Color, L"/");

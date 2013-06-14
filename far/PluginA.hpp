@@ -86,8 +86,8 @@ public:
 	const char *GetMsgA(LNGID nID) const { return PluginLang.GetMsgA(nID); }
 
 private:
-	virtual void __Prolog() override { SetFileApisToOEM(); OEMApiCnt++; }
-	virtual void __Epilog() override { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
+	virtual void Prologue() override { SetFileApisToOEM(); OEMApiCnt++; }
+	virtual void Epilogue() override { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
 
 	void FreePluginInfo();
 	void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);

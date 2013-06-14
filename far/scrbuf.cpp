@@ -358,12 +358,12 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				if(Global->CtrlObject->Macro.IsRecording())
 				{
 					Buf[0].Char=L'R';
-					Colors::ConsoleColorToFarColor(0xCF, Buf[0].Attributes);
+					Buf[0].Attributes = Colors::ConsoleColorToFarColor(0xCF);
 				}
 				else
 				{
 					Buf[0].Char=L'P';
-					Colors::ConsoleColorToFarColor(0x2F, Buf[0].Attributes);
+					Buf[0].Attributes = Colors::ConsoleColorToFarColor(0x2F);
 				}
 			}
 
@@ -373,7 +373,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				ElevationCharUsed=true;
 
 				Buf[BufX*BufY-1].Char=L'A';
-				Colors::ConsoleColorToFarColor(0xCF, Buf[BufX*BufY-1].Attributes);
+				Buf[BufX*BufY-1].Attributes = Colors::ConsoleColorToFarColor(0xCF);
 			}
 		}
 

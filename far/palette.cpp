@@ -198,32 +198,31 @@ Init[]=
 
 
 palette::palette():
-	DefaultPalette(ARRAYSIZE(Init)),
-	BlackPalette(ARRAYSIZE(Init)),
-	CurrentPalette(ARRAYSIZE(Init)),
-	PaletteChanged(false)
+	CurrentPalette(ARRAYSIZE(Init))
 {
-	for(size_t i = 0; i < ARRAYSIZE(Init); ++i)
-	{
-		Colors::ConsoleColorToFarColor(Init[i].DefaultIndex, DefaultPalette[i]);
-		Colors::ConsoleColorToFarColor(Init[i].MonoIndex, BlackPalette[i]);
-	}
-	MAKE_TRANSPARENT(DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
-	MAKE_TRANSPARENT(DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
+	ResetToDefault();	
+	PaletteChanged = false;
+}
 
-	CurrentPalette = DefaultPalette;
+void palette::Reset(bool Black)
+{
+	std::transform(std::begin(Init), std::end(Init), CurrentPalette.begin(), [&Black](const ColorsInit& i) -> FarColor
+	{
+		return Colors::ConsoleColorToFarColor(Black? i.MonoIndex : i.DefaultIndex);
+	});
+	MAKE_TRANSPARENT(CurrentPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
+	MAKE_TRANSPARENT(CurrentPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
+	PaletteChanged = true;
 }
 
 void palette::ResetToDefault()
 {
-	CurrentPalette = DefaultPalette;
-	PaletteChanged = true;
+	Reset(false);
 }
 
 void palette::ResetToBlack()
 {
-	CurrentPalette = BlackPalette;
-	PaletteChanged = true;
+	Reset(true);
 }
 
 void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
@@ -256,6 +255,6 @@ void palette::Save()
 			Global->Db->ColorsCfg()->SetValue(Init[i].Name, CurrentPalette[i]);
 		}
 		Global->Db->ColorsCfg()->EndTransaction();
+		PaletteChanged = false;
 	}
-	PaletteChanged = false;
 }

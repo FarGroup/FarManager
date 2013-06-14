@@ -331,7 +331,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 	for(int i = 0; i < BufferSize.X*BufferSize.Y; ++i)
 	{
 		Buffer[i+Offset].Char = ConsoleBuffer[i].Char.UnicodeChar;
-		Colors::ConsoleColorToFarColor(ConsoleBuffer[i].Attributes, Buffer[i+Offset].Attributes);
+		Buffer[i+Offset].Attributes = Colors::ConsoleColorToFarColor(ConsoleBuffer[i].Attributes);
 	}
 
 	if(Global->Opt->WindowMode)
@@ -431,7 +431,7 @@ virtual bool GetTextAttributes(FarColor& Attributes) const override
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 	{
-		Colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes, Attributes);
+		Attributes = Colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
 		Result=true;
 	}
 	return Result;

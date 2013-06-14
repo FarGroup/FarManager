@@ -86,121 +86,48 @@ typedef intptr_t (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePat
 typedef void     (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
 typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
 
-
-#define EXP_GETGLOBALINFO       "GetGlobalInfoW"
-#define EXP_SETSTARTUPINFO      "SetStartupInfoW"
-#define EXP_OPEN                "OpenW"
-#define EXP_CLOSEPANEL          "ClosePanelW"
-#define EXP_GETPLUGININFO       "GetPluginInfoW"
-#define EXP_GETOPENPANELINFO    "GetOpenPanelInfoW"
-#define EXP_GETFINDDATA         "GetFindDataW"
-#define EXP_FREEFINDDATA        "FreeFindDataW"
-#define EXP_GETVIRTUALFINDDATA  "GetVirtualFindDataW"
-#define EXP_FREEVIRTUALFINDDATA "FreeVirtualFindDataW"
-#define EXP_SETDIRECTORY        "SetDirectoryW"
-#define EXP_GETFILES            "GetFilesW"
-#define EXP_PUTFILES            "PutFilesW"
-#define EXP_DELETEFILES         "DeleteFilesW"
-#define EXP_MAKEDIRECTORY       "MakeDirectoryW"
-#define EXP_PROCESSHOSTFILE     "ProcessHostFileW"
-#define EXP_SETFINDLIST         "SetFindListW"
-#define EXP_CONFIGURE           "ConfigureW"
-#define EXP_EXITFAR             "ExitFARW"
-#define EXP_PROCESSPANELINPUT   "ProcessPanelInputW"
-#define EXP_PROCESSPANELEVENT   "ProcessPanelEventW"
-#define EXP_PROCESSEDITOREVENT  "ProcessEditorEventW"
-#define EXP_COMPARE             "CompareW"
-#define EXP_PROCESSEDITORINPUT  "ProcessEditorInputW"
-#define EXP_PROCESSVIEWEREVENT  "ProcessViewerEventW"
-#define EXP_PROCESSDIALOGEVENT  "ProcessDialogEventW"
-#define EXP_PROCESSSYNCHROEVENT "ProcessSynchroEventW"
-#define EXP_PROCESSCONSOLEINPUT "ProcessConsoleInputW"
-#define EXP_ANALYSE             "AnalyseW"
-#define EXP_GETCUSTOMDATA       "GetCustomDataW"
-#define EXP_FREECUSTOMDATA      "FreeCustomDataW"
-#define EXP_CLOSEANALYSE        "CloseAnalyseW"
-
-#define EXP_OPENFILEPLUGIN      ""
-#define EXP_GETMINFARVERSION    ""
-
-
-static const char* _ExportsNamesA[i_LAST] =
+static const export_name* GetExportsNames()
 {
-	EXP_GETGLOBALINFO,
-	EXP_SETSTARTUPINFO,
-	EXP_OPEN,
-	EXP_CLOSEPANEL,
-	EXP_GETPLUGININFO,
-	EXP_GETOPENPANELINFO,
-	EXP_GETFINDDATA,
-	EXP_FREEFINDDATA,
-	EXP_GETVIRTUALFINDDATA,
-	EXP_FREEVIRTUALFINDDATA,
-	EXP_SETDIRECTORY,
-	EXP_GETFILES,
-	EXP_PUTFILES,
-	EXP_DELETEFILES,
-	EXP_MAKEDIRECTORY,
-	EXP_PROCESSHOSTFILE,
-	EXP_SETFINDLIST,
-	EXP_CONFIGURE,
-	EXP_EXITFAR,
-	EXP_PROCESSPANELINPUT,
-	EXP_PROCESSPANELEVENT,
-	EXP_PROCESSEDITOREVENT,
-	EXP_COMPARE,
-	EXP_PROCESSEDITORINPUT,
-	EXP_PROCESSVIEWEREVENT,
-	EXP_PROCESSDIALOGEVENT,
-	EXP_PROCESSSYNCHROEVENT,
-	EXP_PROCESSCONSOLEINPUT,
-	EXP_ANALYSE,
-	EXP_GETCUSTOMDATA,
-	EXP_FREECUSTOMDATA,
-	EXP_CLOSEANALYSE,
+	static const export_name ExportsNames[] =
+	{
+		WA("GetGlobalInfoW"),
+		WA("SetStartupInfoW"),
+		WA("OpenW"),
+		WA("ClosePanelW"),
+		WA("GetPluginInfoW"),
+		WA("GetOpenPanelInfoW"),
+		WA("GetFindDataW"),
+		WA("FreeFindDataW"),
+		WA("GetVirtualFindDataW"),
+		WA("FreeVirtualFindDataW"),
+		WA("SetDirectoryW"),
+		WA("GetFilesW"),
+		WA("PutFilesW"),
+		WA("DeleteFilesW"),
+		WA("MakeDirectoryW"),
+		WA("ProcessHostFileW"),
+		WA("SetFindListW"),
+		WA("ConfigureW"),
+		WA("ExitFARW"),
+		WA("ProcessPanelInputW"),
+		WA("ProcessPanelEventW"),
+		WA("ProcessEditorEventW"),
+		WA("CompareW"),
+		WA("ProcessEditorInputW"),
+		WA("ProcessViewerEventW"),
+		WA("ProcessDialogEventW"),
+		WA("ProcessSynchroEventW"),
+		WA("ProcessConsoleInputW"),
+		WA("AnalyseW"),
+		WA("GetCustomDataW"),
+		WA("FreeCustomDataW"),
+		WA("CloseAnalyseW"),
 
-	EXP_OPENFILEPLUGIN,
-	EXP_GETMINFARVERSION,
-};
-
-
-static const wchar_t* _ExportsNamesW[i_LAST] =
-{
-	W(EXP_GETGLOBALINFO),
-	W(EXP_SETSTARTUPINFO),
-	W(EXP_OPEN),
-	W(EXP_CLOSEPANEL),
-	W(EXP_GETPLUGININFO),
-	W(EXP_GETOPENPANELINFO),
-	W(EXP_GETFINDDATA),
-	W(EXP_FREEFINDDATA),
-	W(EXP_GETVIRTUALFINDDATA),
-	W(EXP_FREEVIRTUALFINDDATA),
-	W(EXP_SETDIRECTORY),
-	W(EXP_GETFILES),
-	W(EXP_PUTFILES),
-	W(EXP_DELETEFILES),
-	W(EXP_MAKEDIRECTORY),
-	W(EXP_PROCESSHOSTFILE),
-	W(EXP_SETFINDLIST),
-	W(EXP_CONFIGURE),
-	W(EXP_EXITFAR),
-	W(EXP_PROCESSPANELINPUT),
-	W(EXP_PROCESSPANELEVENT),
-	W(EXP_PROCESSEDITOREVENT),
-	W(EXP_COMPARE),
-	W(EXP_PROCESSEDITORINPUT),
-	W(EXP_PROCESSVIEWEREVENT),
-	W(EXP_PROCESSDIALOGEVENT),
-	W(EXP_PROCESSSYNCHROEVENT),
-	W(EXP_PROCESSCONSOLEINPUT),
-	W(EXP_ANALYSE),
-	W(EXP_GETCUSTOMDATA),
-	W(EXP_FREECUSTOMDATA),
-	W(EXP_CLOSEANALYSE),
-
-	W(EXP_OPENFILEPLUGIN),
-	W(EXP_GETMINFARVERSION),
+		WA(""), // OpenFilePlugin not used
+		WA(""), // GetMinFarVersion not used
+	};
+	static_assert(ARRAYSIZE(ExportsNames) == i_LAST, "Not all exports names are defined");
+	return ExportsNames;	
 };
 
 static BOOL PrepareModulePath(const string& ModuleName)
@@ -379,151 +306,89 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 
 bool Plugin::SaveToCache()
 {
-	if (Exports[iGetGlobalInfo] ||
-		Exports[iGetPluginInfo] ||
-		Exports[iOpen] ||
-		Exports[iSetFindList] ||
-		Exports[iProcessEditorInput] ||
-		Exports[iProcessEditorEvent] ||
-		Exports[iProcessViewerEvent] ||
-		Exports[iProcessDialogEvent] ||
-		Exports[iProcessSynchroEvent] ||
-		Exports[iProcessConsoleInput] ||
-		Exports[iAnalyse] ||
-		Exports[iGetCustomData]
-	)
+	PluginInfo Info = {sizeof(Info)};
+	GetPluginInfo(&Info);
+
+	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
+
+	PlCache.BeginTransaction();
+
+	PlCache.DeleteCache(m_strCacheName);
+	unsigned __int64 id = PlCache.CreateCache(m_strCacheName);
+
 	{
-		PluginInfo Info = {sizeof(Info)};
-		GetPluginInfo(&Info);
+		bool bPreload = (Info.Flags & PF_PRELOAD);
+		PlCache.SetPreload(id, bPreload);
+		WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
-		PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
-
-		PlCache.BeginTransaction();
-
-		PlCache.DeleteCache(m_strCacheName);
-		unsigned __int64 id = PlCache.CreateCache(m_strCacheName);
-
+		if (bPreload)
 		{
-			bool bPreload = (Info.Flags & PF_PRELOAD);
-			PlCache.SetPreload(id, bPreload);
-			WorkFlags.Change(PIWF_PRELOADED, bPreload);
-
-			if (bPreload)
-			{
-				PlCache.EndTransaction();
-				return true;
-			}
+			PlCache.EndTransaction();
+			return true;
 		}
-
-		{
-			string strCurPluginID;
-			FAR_FIND_DATA fdata;
-			apiGetFindDataEx(m_strModuleName, fdata);
-			strCurPluginID.Format(
-				L"%I64x%x%x",
-				fdata.nFileSize,
-				fdata.ftCreationTime.dwLowDateTime,
-				fdata.ftLastWriteTime.dwLowDateTime
-				);
-			PlCache.SetSignature(id, strCurPluginID);
-		}
-
-		for (size_t i = 0; i < Info.DiskMenu.Count; i++)
-		{
-			PlCache.SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
-		}
-
-		for (size_t i = 0; i < Info.PluginMenu.Count; i++)
-		{
-			PlCache.SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
-		}
-
-		for (size_t i = 0; i < Info.PluginConfig.Count; i++)
-		{
-			PlCache.SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
-		}
-
-		PlCache.SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
-		PlCache.SetFlags(id, Info.Flags);
-
-		PlCache.SetMinFarVersion(id, &MinFarVersion);
-		PlCache.SetGuid(id, m_strGuid);
-		PlCache.SetVersion(id, &PluginVersion);
-		PlCache.SetTitle(id, strTitle);
-		PlCache.SetDescription(id, strDescription);
-		PlCache.SetAuthor(id, strAuthor);
-
-		#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) PlCache.SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
-
-		OPT_SETEXPORT(iOpen);
-		OPT_SETEXPORT(iOpenFilePlugin);
-		OPT_SETEXPORT(iSetFindList);
-		OPT_SETEXPORT(iProcessEditorInput);
-		OPT_SETEXPORT(iProcessEditorEvent);
-		OPT_SETEXPORT(iProcessViewerEvent);
-		OPT_SETEXPORT(iProcessDialogEvent);
-		OPT_SETEXPORT(iProcessSynchroEvent);
-		OPT_SETEXPORT(iProcessConsoleInput);
-		OPT_SETEXPORT(iConfigure);
-		OPT_SETEXPORT(iAnalyse);
-		OPT_SETEXPORT(iGetCustomData);
-
-		#undef OPT_SETEXPORT
-
-		PlCache.EndTransaction();
-
-		return true;
 	}
 
-	return false;
+	{
+		string strCurPluginID;
+		FAR_FIND_DATA fdata;
+		apiGetFindDataEx(m_strModuleName, fdata);
+		strCurPluginID.Format(
+			L"%I64x%x%x",
+			fdata.nFileSize,
+			fdata.ftCreationTime.dwLowDateTime,
+			fdata.ftLastWriteTime.dwLowDateTime
+			);
+		PlCache.SetSignature(id, strCurPluginID);
+	}
+
+	for (size_t i = 0; i < Info.DiskMenu.Count; i++)
+	{
+		PlCache.SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
+	}
+
+	for (size_t i = 0; i < Info.PluginMenu.Count; i++)
+	{
+		PlCache.SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
+	}
+
+	for (size_t i = 0; i < Info.PluginConfig.Count; i++)
+	{
+		PlCache.SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
+	}
+
+	PlCache.SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+	PlCache.SetFlags(id, Info.Flags);
+
+	PlCache.SetMinFarVersion(id, &MinFarVersion);
+	PlCache.SetGuid(id, m_strGuid);
+	PlCache.SetVersion(id, &PluginVersion);
+	PlCache.SetTitle(id, strTitle);
+	PlCache.SetDescription(id, strDescription);
+	PlCache.SetAuthor(id, strAuthor);
+
+	auto ExportPtr = Exports;
+	std::for_each(ExportsNames, ExportsNames + i_LAST, [&](const export_name& i)
+	{
+		if (*i.UName)
+			PlCache.SetExport(id, i.UName, *ExportPtr != nullptr);
+		++ExportPtr;
+	});
+
+	PlCache.EndTransaction();
+
+	return true;
 }
 
 void Plugin::InitExports()
 {
-#define OPT_GetProcAddress(id) Exports[id] = *ExportsNamesA[id]? reinterpret_cast<void*>(GetProcAddress(m_hModule, ExportsNamesA[id])): nullptr;
-
-	OPT_GetProcAddress(iGetGlobalInfo);
-	OPT_GetProcAddress(iSetStartupInfo);
-	OPT_GetProcAddress(iOpen);
-	OPT_GetProcAddress(iClosePanel);
-	OPT_GetProcAddress(iGetPluginInfo);
-	OPT_GetProcAddress(iGetOpenPanelInfo);
-	OPT_GetProcAddress(iGetFindData);
-	OPT_GetProcAddress(iFreeFindData);
-	OPT_GetProcAddress(iGetVirtualFindData);
-	OPT_GetProcAddress(iFreeVirtualFindData);
-	OPT_GetProcAddress(iSetDirectory);
-	OPT_GetProcAddress(iGetFiles);
-	OPT_GetProcAddress(iPutFiles);
-	OPT_GetProcAddress(iDeleteFiles);
-	OPT_GetProcAddress(iMakeDirectory);
-	OPT_GetProcAddress(iProcessHostFile);
-	OPT_GetProcAddress(iSetFindList);
-	OPT_GetProcAddress(iConfigure);
-	OPT_GetProcAddress(iExitFAR);
-	OPT_GetProcAddress(iProcessPanelInput);
-	OPT_GetProcAddress(iProcessPanelEvent);
-	OPT_GetProcAddress(iCompare);
-	OPT_GetProcAddress(iProcessEditorInput);
-	OPT_GetProcAddress(iProcessEditorEvent);
-	OPT_GetProcAddress(iProcessViewerEvent);
-	OPT_GetProcAddress(iProcessDialogEvent);
-	OPT_GetProcAddress(iProcessSynchroEvent);
-	OPT_GetProcAddress(iProcessConsoleInput);
-	OPT_GetProcAddress(iAnalyse);
-	OPT_GetProcAddress(iGetCustomData);
-	OPT_GetProcAddress(iFreeCustomData);
-	OPT_GetProcAddress(iCloseAnalyse);
-
-	OPT_GetProcAddress(iOpenFilePlugin);
-	OPT_GetProcAddress(iGetMinFarVersion);
-
-#undef OPT_GetProcAddress
+	std::transform(ExportsNames, ExportsNames + i_LAST, Exports, [&](const export_name& i)
+	{
+		return *i.AName? reinterpret_cast<void*>(GetProcAddress(m_hModule, i.AName)) : nullptr;
+	});
 }
 
 Plugin::Plugin(PluginManager *owner, const string& ModuleName):
-	ExportsNamesW(_ExportsNamesW),
-	ExportsNamesA(_ExportsNamesA),
+	ExportsNames(GetExportsNames()),
 	m_owner(owner),
 	Activity(0),
 	bPendingRemove(false),
@@ -736,22 +601,10 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		strDescription = PlCache.GetDescription(id);
 		strAuthor = PlCache.GetAuthor(id);
 
-		#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? PlCache.GetExport(id, ExportsNamesW[i]) : nullptr
-
-		OPT_GETEXPORT(iOpen);
-		OPT_GETEXPORT(iOpenFilePlugin);
-		OPT_GETEXPORT(iSetFindList);
-		OPT_GETEXPORT(iProcessEditorInput);
-		OPT_GETEXPORT(iProcessEditorEvent);
-		OPT_GETEXPORT(iProcessViewerEvent);
-		OPT_GETEXPORT(iProcessDialogEvent);
-		OPT_GETEXPORT(iProcessSynchroEvent);
-		OPT_GETEXPORT(iProcessConsoleInput);
-		OPT_GETEXPORT(iConfigure);
-		OPT_GETEXPORT(iAnalyse);
-		OPT_GETEXPORT(iGetCustomData);
-
-		#undef OPT_GETEXPORT
+		std::transform(ExportsNames, ExportsNames + i_LAST, Exports, [&](const export_name& i)
+		{
+			return  *i.UName? PlCache.GetExport(id, i.UName) : nullptr;
+		});
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
@@ -793,22 +646,26 @@ void Plugin::ClearExports()
 
 bool Plugin::IsPanelPlugin()
 {
-	return Exports[iSetFindList] ||
-	       Exports[iGetFindData] ||
-	       Exports[iGetVirtualFindData] ||
-	       Exports[iSetDirectory] ||
-	       Exports[iGetFiles] ||
-	       Exports[iPutFiles] ||
-	       Exports[iDeleteFiles] ||
-	       Exports[iMakeDirectory] ||
-	       Exports[iProcessHostFile] ||
-	       Exports[iProcessPanelInput] ||
-	       Exports[iProcessPanelEvent] ||
-	       Exports[iCompare] ||
-	       Exports[iGetOpenPanelInfo] ||
-	       Exports[iFreeFindData] ||
-	       Exports[iFreeVirtualFindData] ||
-	       Exports[iClosePanel];
+	static const int PanelExports[] =
+	{
+		iSetFindList,
+		iGetFindData,
+		iGetVirtualFindData,
+		iSetDirectory,
+		iGetFiles,
+		iPutFiles,
+		iDeleteFiles,
+		iMakeDirectory,
+		iProcessHostFile,
+		iProcessPanelInput,
+		iProcessPanelEvent,
+		iCompare,
+		iGetOpenPanelInfo,
+		iFreeFindData,
+		iFreeVirtualFindData,
+		iClosePanel,
+	};
+	return std::any_of(std::begin(PanelExports), std::end(PanelExports), [&](int i) {return Exports[i] != nullptr;});
 }
 
 bool Plugin::SetStartupInfo()

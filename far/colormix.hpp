@@ -36,7 +36,7 @@ class Colors
 {
 public:
 	static WORD FarColorToConsoleColor(const FarColor& Color);
-	static void ConsoleColorToFarColor(WORD Color,FarColor& NewColor);
+	static FarColor ConsoleColorToFarColor(WORD Color);
 };
 
 const FarColor ColorIndexToColor(PaletteColors ColorIndex);

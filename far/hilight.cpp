@@ -159,9 +159,9 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 
 			for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
 			{
-				Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
+				StdHighlightData[I].NormalColor = Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC);
 				MAKE_TRANSPARENT(StdHighlightData[I].NormalColor.BackgroundColor);
-				Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
+				StdHighlightData[I].CursorColor = Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC);
 				MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
 
 				unsigned __int64 key = cfg->CreateKey(root, FormatString() << L"Group" << I);

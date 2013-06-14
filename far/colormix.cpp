@@ -151,27 +151,21 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 	return Result;
 }
 
-void Colors::ConsoleColorToFarColor(WORD Color,FarColor& NewColor)
+FarColor Colors::ConsoleColorToFarColor(WORD Color)
 {
+	FarColor NewColor;
 	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
 	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
 	MAKE_OPAQUE(NewColor.ForegroundColor);
 	MAKE_OPAQUE(NewColor.BackgroundColor);
 	NewColor.Reserved=nullptr;
+	return NewColor;
 }
 
 
 const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 {
-	FarColor Result = {};
-	if(ColorIndex<COL_FIRSTPALETTECOLOR)
-	{
-		Colors::ConsoleColorToFarColor(ColorIndex, Result);
-	}
-	else
-	{
-		Result = Global->Opt->Palette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Global->Opt->Palette.size()];
-	}
-	return Result;
+	return ColorIndex < COL_FIRSTPALETTECOLOR? Colors::ConsoleColorToFarColor(ColorIndex) :
+		Global->Opt->Palette[(ColorIndex - COL_FIRSTPALETTECOLOR) % Global->Opt->Palette.size()];
 }

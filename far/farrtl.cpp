@@ -28,9 +28,7 @@ static bool InsufficientMemoryHandler()
 {
 	if (!Global)
 		return false;
-	static FarColor ErrColor;
-	Colors::ConsoleColorToFarColor(FOREGROUND_RED|FOREGROUND_INTENSITY, ErrColor);
-	Global->Console->SetTextAttributes(ErrColor);
+	Global->Console->SetTextAttributes(Colors::ConsoleColorToFarColor(FOREGROUND_RED|FOREGROUND_INTENSITY));
 	COORD OldPos,Pos={};
 	Global->Console->GetCursorPosition(OldPos);
 	Global->Console->SetCursorPosition(Pos);

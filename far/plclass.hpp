@@ -31,6 +31,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "language.hpp"
 
+struct export_name
+{
+	const wchar_t* UName;
+	const char* AName;
+	void* Address;
+};
+
 ENUM(ExceptFunctionsType);
 
 struct ExecuteStruct
@@ -57,7 +64,7 @@ struct ExecuteStruct
 
 #define EXECUTE_FUNCTION(function) \
 { \
-	__Prolog(); \
+	Prologue(); \
 	++Activity; \
 	try \
 	{ \
@@ -77,13 +84,13 @@ struct ExecuteStruct
 		} \
 	} \
 	--Activity; \
-	__Epilog(); \
+	Epilogue(); \
 }
 
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 
 #define _W(string) L##string
-#define W(string) _W(string)
+#define WA(string) {_W(string), string}
 
 enum EXPORTS_ENUM
 {
@@ -238,12 +245,11 @@ public:
 	bool Active() {return Activity != 0;}
 
 protected:
-	virtual void __Prolog() {};
-	virtual void __Epilog() {};
+	virtual void Prologue() {};
+	virtual void Epilogue() {};
 
 	void* Exports[i_LAST];
-	const wchar_t **ExportsNamesW;
-	const char **ExportsNamesA;
+	const export_name* ExportsNames;
 
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;

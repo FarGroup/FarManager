@@ -51,123 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace wrapper
 {
-
-#define EXP_GETGLOBALINFO       ""
-#define EXP_SETSTARTUPINFO      "SetStartupInfo"
-#define EXP_OPEN                "OpenPlugin"
-#define EXP_CLOSEPANEL          "ClosePlugin"
-#define EXP_GETPLUGININFO       "GetPluginInfo"
-#define EXP_GETOPENPANELINFO    "GetOpenPluginInfo"
-#define EXP_GETFINDDATA         "GetFindData"
-#define EXP_FREEFINDDATA        "FreeFindData"
-#define EXP_GETVIRTUALFINDDATA  "GetVirtualFindData"
-#define EXP_FREEVIRTUALFINDDATA "FreeVirtualFindData"
-#define EXP_SETDIRECTORY        "SetDirectory"
-#define EXP_GETFILES            "GetFiles"
-#define EXP_PUTFILES            "PutFiles"
-#define EXP_DELETEFILES         "DeleteFiles"
-#define EXP_MAKEDIRECTORY       "MakeDirectory"
-#define EXP_PROCESSHOSTFILE     "ProcessHostFile"
-#define EXP_SETFINDLIST         "SetFindList"
-#define EXP_CONFIGURE           "Configure"
-#define EXP_EXITFAR             "ExitFAR"
-#define EXP_PROCESSPANELINPUT   "ProcessKey"
-#define EXP_PROCESSPANELEVENT   "ProcessEvent"
-#define EXP_PROCESSEDITOREVENT  "ProcessEditorEvent"
-#define EXP_COMPARE             "Compare"
-#define EXP_PROCESSEDITORINPUT  "ProcessEditorInput"
-#define EXP_PROCESSVIEWEREVENT  "ProcessViewerEvent"
-#define EXP_PROCESSDIALOGEVENT  "ProcessDialogEvent"
-#define EXP_PROCESSSYNCHROEVENT ""
-#define EXP_PROCESSCONSOLEINPUT ""
-#define EXP_ANALYSE             ""
-#define EXP_GETCUSTOMDATA       ""
-#define EXP_FREECUSTOMDATA      ""
-#define EXP_CLOSEANALYSE        ""
-
-#define EXP_OPENFILEPLUGIN      "OpenFilePlugin"
-#define EXP_GETMINFARVERSION    "GetMinFarVersion"
-
-
-static const char* _ExportsNamesA[i_LAST] =
-{
-	EXP_GETGLOBALINFO,
-	EXP_SETSTARTUPINFO,
-	EXP_OPEN,
-	EXP_CLOSEPANEL,
-	EXP_GETPLUGININFO,
-	EXP_GETOPENPANELINFO,
-	EXP_GETFINDDATA,
-	EXP_FREEFINDDATA,
-	EXP_GETVIRTUALFINDDATA,
-	EXP_FREEVIRTUALFINDDATA,
-	EXP_SETDIRECTORY,
-	EXP_GETFILES,
-	EXP_PUTFILES,
-	EXP_DELETEFILES,
-	EXP_MAKEDIRECTORY,
-	EXP_PROCESSHOSTFILE,
-	EXP_SETFINDLIST,
-	EXP_CONFIGURE,
-	EXP_EXITFAR,
-	EXP_PROCESSPANELINPUT,
-	EXP_PROCESSPANELEVENT,
-	EXP_PROCESSEDITOREVENT,
-	EXP_COMPARE,
-	EXP_PROCESSEDITORINPUT,
-	EXP_PROCESSVIEWEREVENT,
-	EXP_PROCESSDIALOGEVENT,
-	EXP_PROCESSSYNCHROEVENT,
-	EXP_PROCESSCONSOLEINPUT,
-	EXP_ANALYSE,
-	EXP_GETCUSTOMDATA,
-	EXP_FREECUSTOMDATA,
-	EXP_CLOSEANALYSE,
-
-	EXP_OPENFILEPLUGIN,
-	EXP_GETMINFARVERSION,
-};
-
-
-static const wchar_t* _ExportsNamesW[i_LAST] =
-{
-	W(EXP_GETGLOBALINFO),
-	W(EXP_SETSTARTUPINFO),
-	W(EXP_OPEN),
-	W(EXP_CLOSEPANEL),
-	W(EXP_GETPLUGININFO),
-	W(EXP_GETOPENPANELINFO),
-	W(EXP_GETFINDDATA),
-	W(EXP_FREEFINDDATA),
-	W(EXP_GETVIRTUALFINDDATA),
-	W(EXP_FREEVIRTUALFINDDATA),
-	W(EXP_SETDIRECTORY),
-	W(EXP_GETFILES),
-	W(EXP_PUTFILES),
-	W(EXP_DELETEFILES),
-	W(EXP_MAKEDIRECTORY),
-	W(EXP_PROCESSHOSTFILE),
-	W(EXP_SETFINDLIST),
-	W(EXP_CONFIGURE),
-	W(EXP_EXITFAR),
-	W(EXP_PROCESSPANELINPUT),
-	W(EXP_PROCESSPANELEVENT),
-	W(EXP_PROCESSEDITOREVENT),
-	W(EXP_COMPARE),
-	W(EXP_PROCESSEDITORINPUT),
-	W(EXP_PROCESSVIEWEREVENT),
-	W(EXP_PROCESSDIALOGEVENT),
-	W(EXP_PROCESSSYNCHROEVENT),
-	W(EXP_PROCESSCONSOLEINPUT),
-	W(EXP_ANALYSE),
-	W(EXP_GETCUSTOMDATA),
-	W(EXP_FREECUSTOMDATA),
-	W(EXP_CLOSEANALYSE),
-
-	W(EXP_OPENFILEPLUGIN),
-	W(EXP_GETMINFARVERSION),
-};
-
 typedef void   (WINAPI *iClosePanelPrototype)          (HANDLE hPlugin);
 typedef int    (WINAPI *iComparePrototype)             (HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
 typedef int    (WINAPI *iConfigurePrototype)           (int ItemNumber);
@@ -195,6 +78,51 @@ typedef int    (WINAPI *iSetFindListPrototype)         (HANDLE hPlugin,const old
 typedef void   (WINAPI *iSetStartupInfoPrototype)      (const oldfar::PluginStartupInfo *Info);
 typedef int    (WINAPI *iProcessViewerEventPrototype)  (int Event,void *Param);
 typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
+
+static const export_name* GetExportsNames()
+{
+	static const export_name ExportsNames[] =
+	{
+		WA(""), // GetGlobalInfo not used
+		WA("SetStartupInfo"),
+		WA("OpenPlugin"),
+		WA("ClosePlugin"),
+		WA("GetPluginInfo"),
+		WA("GetOpenPluginInfo"),
+		WA("GetFindData"),
+		WA("FreeFindData"),
+		WA("GetVirtualFindData"),
+		WA("FreeVirtualFindData"),
+		WA("SetDirectory"),
+		WA("GetFiles"),
+		WA("PutFiles"),
+		WA("DeleteFiles"),
+		WA("MakeDirectory"),
+		WA("ProcessHostFile"),
+		WA("SetFindList"),
+		WA("Configure"),
+		WA("ExitFAR"),
+		WA("ProcessKey"),
+		WA("ProcessEvent"),
+		WA("ProcessEditorEvent"),
+		WA("Compare"),
+		WA("ProcessEditorInput"),
+		WA("ProcessViewerEvent"),
+		WA("ProcessDialogEvent"),
+		WA(""), // ProcessSynchroEvent not used
+		WA(""), // ProcessConsoleEvent not used
+		WA(""), // Analyze not used
+		WA(""), // GetCustomData not used
+		WA(""), // FreeCustomData not used
+		WA(""), // CloseAnalyze not used
+
+		WA("OpenFilePlugin"),
+		WA("GetMinFarVersion"),
+	};
+	static_assert(ARRAYSIZE(ExportsNames) == i_LAST, "Not all exports names are defined");
+	return ExportsNames;	
+};
+
 
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
@@ -1379,9 +1307,9 @@ static int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 
 static void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 {
-	FarColor Color;
-	Colors::ConsoleColorToFarColor(ConColor, Color);
-	if (!Str) return NativeInfo.Text(X,Y,&Color,nullptr);
+	FarColor Color = Colors::ConsoleColorToFarColor(ConColor);
+	if (!Str)
+		return NativeInfo.Text(X,Y,&Color,nullptr);
 
 	string strS(Str);
 	return NativeInfo.Text(X,Y,&Color,strS.CPtr());
@@ -1767,7 +1695,7 @@ static void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 			{
 				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar,&VBuf[i].Char,1);
 			}
-			Colors::ConsoleColorToFarColor(VBufA[i].Attributes, VBuf[i].Attributes);
+			VBuf[i].Attributes = Colors::ConsoleColorToFarColor(VBufA[i].Attributes);
 		}
 	}
 }
@@ -2326,7 +2254,8 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 		case DN_CTLCOLORDIALOG:
 			{
 				FarColor* Color = static_cast<FarColor*>(Param2);
-				Colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1, ToPtr(Colors::FarColorToConsoleColor(*Color)))),*Color);
+				*Color = Colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
+				ToPtr(Colors::FarColorToConsoleColor(*Color)))));
 			}
 			break;
 
@@ -2343,21 +2272,20 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				// first, emulate DIF_SETCOLOR
 				if(diA->Flags&oldfar::DIF_SETCOLOR)
 				{
-					BYTE Colors = diA->Flags&oldfar::DIF_COLORMASK;
-					Colors::ConsoleColorToFarColor(Colors, lc->Colors[0]);
+					lc->Colors[0] = Colors::ConsoleColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
 				}
 
 				DWORD Result = static_cast<DWORD>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGITEM, Param1, ToPtr(MAKELONG(
 					MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[0]), Colors::FarColorToConsoleColor(lc->Colors[1])),
 					MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[2]), Colors::FarColorToConsoleColor(lc->Colors[3]))))));
 				if(lc->ColorsCount > 0)
-					Colors::ConsoleColorToFarColor(LOBYTE(LOWORD(Result)),lc->Colors[0]);
+					lc->Colors[0] = Colors::ConsoleColorToFarColor(LOBYTE(LOWORD(Result)));
 				if(lc->ColorsCount > 1)
-					Colors::ConsoleColorToFarColor(HIBYTE(LOWORD(Result)),lc->Colors[1]);
+					lc->Colors[1] = Colors::ConsoleColorToFarColor(HIBYTE(LOWORD(Result)));
 				if(lc->ColorsCount > 2)
-					Colors::ConsoleColorToFarColor(LOBYTE(HIWORD(Result)),lc->Colors[2]);
+					lc->Colors[2] = Colors::ConsoleColorToFarColor(LOBYTE(HIWORD(Result)));
 				if(lc->ColorsCount > 3)
-					Colors::ConsoleColorToFarColor(HIBYTE(HIWORD(Result)),lc->Colors[3]);
+					lc->Colors[3] = Colors::ConsoleColorToFarColor(HIBYTE(HIWORD(Result)));
 			}
 			break;
 
@@ -2378,7 +2306,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 					lc->ColorsCount = lcA.ColorCount;
 					for(size_t i = 0; i < lc->ColorsCount; ++i)
 					{
-						Colors::ConsoleColorToFarColor(lcA.Colors[i], lc->Colors[i]);
+						lc->Colors[i] = Colors::ConsoleColorToFarColor(lcA.Colors[i]);
 					}
 				}
 				delete[] Colors;
@@ -4018,7 +3946,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
 			for(size_t i = 0; i < sc.ColorsCount; ++i)
 			{
-				Colors::ConsoleColorToFarColor(scA->Colors[i], sc.Colors[i]);
+				sc.Colors[i] = Colors::ConsoleColorToFarColor(scA->Colors[i]);
 			}
 
 			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
@@ -4166,7 +4094,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 				ec.StringNumber = ecA->StringNumber;
 				ec.StartPos = ecA->StartPos;
 				ec.EndPos = ecA->EndPos;
-				Colors::ConsoleColorToFarColor(ecA->Color,ec.Color);
+				ec.Color = Colors::ConsoleColorToFarColor(ecA->Color);
 				if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TABMARKFIRST;
 				ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 				ec.Owner=FarGuid;
@@ -4935,8 +4863,7 @@ PluginA::PluginA(PluginManager *owner, const string& lpwszModuleName):
 {
 	LocalUpperInit();
 
-	ExportsNamesW = _ExportsNamesW;
-	ExportsNamesA = _ExportsNamesA;
+	ExportsNames = GetExportsNames();
 	ClearStruct(PI);
 	ClearStruct(OPI);
 }

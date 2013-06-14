@@ -547,13 +547,13 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (Param1 >= 2 && Param1 <= 17) // Fore
 			{
 				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors::ConsoleColorToFarColor(ColorIndex[Param1-2],Colors->Colors[0]);
+				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 			}
 
 			if (Param1 >= 19 && Param1 <= 34) // Back
 			{
 				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors::ConsoleColorToFarColor(ColorIndex[Param1-19],Colors->Colors[0]);
+				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 			}
 
 			if (Param1 >= 37 && Param1 <= 39)
@@ -577,7 +577,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (Param1 >= 2 && Param1 <= 17) // Fore
 				{
 					UINT B = NewColor.BackgroundColor;
-					Colors::ConsoleColorToFarColor(ColorIndex[Param1-2],NewColor);
+					NewColor = Colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 					NewColor.ForegroundColor = NewColor.BackgroundColor;
 					NewColor.BackgroundColor = B;
 				}
@@ -585,7 +585,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (Param1 >= 19 && Param1 <= 34) // Back
 				{
 					UINT F = NewColor.ForegroundColor;
-					Colors::ConsoleColorToFarColor(ColorIndex[Param1-19],NewColor);
+					NewColor = Colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 					//NewColor.BackgroundColor = NewColor.ForegroundColor;
 					NewColor.ForegroundColor = F;
 				}

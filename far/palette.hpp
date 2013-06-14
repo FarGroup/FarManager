@@ -47,8 +47,7 @@ public:
 	size_t size() const {return CurrentPalette.size();}
 
 private:
-	std::vector<FarColor> DefaultPalette;
-	std::vector<FarColor> BlackPalette;
+	void Reset(bool Black);
 	std::vector<FarColor> CurrentPalette;
 	bool PaletteChanged;
 };
