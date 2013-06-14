@@ -189,61 +189,7 @@ inline void ClearArray(T& a)
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 
-#ifdef __GNUC__
-# if _GCC_VER < GCC_VER_(4,6,1)
-#  error gcc 4.6.1 (or higher) required
-# endif
-# define ENUM(ENUM_NAME) enum ENUM_NAME:int
-#endif
-
-#ifdef _MSC_VER
-# if _MSC_VER>1600
-#  define ENUM(ENUM_NAME) enum ENUM_NAME:int
-# else
-#  define ENUM(ENUM_NAME) enum ENUM_NAME
-# endif
-#endif
-
-// trick to allow usage of operator :: with decltype(T)
-#define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
-#define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
-
-#define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<typename DECLTYPE(T)>::type>::type::subtype
-#define VALUE_TYPE(T) DECLTYPEOF(T, value_type)
-#define ITERATOR(T) DECLTYPEOF(T, iterator)
-#define CONST_ITERATOR(T) DECLTYPEOF(T, const_iterator)
-#define REVERSE_ITERATOR(T) DECLTYPEOF(T, reverse_iterator)
-#define CONST_REVERSE_ITERATOR(T) DECLTYPEOF(T, const_reverse_iterator)
-
-#ifdef __GNUC__
-#define T_VALUE_TYPE(T) typename VALUE_TYPE(T)
-#else
-#define T_VALUE_TYPE(T) VALUE_TYPE(T)
-#endif
-
-#define LAMBDA_PREDICATE(T, i) [&](T_VALUE_TYPE(T)& i)
-#define CONST_LAMBDA_PREDICATE(T, i) [&](const T_VALUE_TYPE(T)& i)
-
-#define ALL_RANGE(T) (T).begin(), (T).end()
-#define ALL_REVERSE_RANGE(T) (T).rbegin(), (T).rend()
-#define ALL_CONST_RANGE(T) (T).cbegin(), (T).cend()
-#define ALL_CONST_REVERSE_RANGE(T) (T).crbegin(), (T).crend()
-
-#define RANGE(T, i) ALL_RANGE(T), LAMBDA_PREDICATE(T, i)
-#define REVERSE_RANGE(T, i) ALL_REVERSE_RANGE(T), LAMBDA_PREDICATE(T, i)
-#define CONST_RANGE(T, i) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
-#define CONST_REVERSE_RANGE(T, i) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
-
-#define FOR_RANGE(T, i) for(auto i = (T).begin(); i != (T).end(); ++i)
-#define FOR_REVERSE_RANGE(T, i) for(auto i = (T).rbegin(); i != (T).rend(); ++i)
-#define FOR_CONST_RANGE(T, i) for(auto i = (T).cbegin(); i != (T).cend(); ++i)
-#define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = (T).crbegin(); i != (T).crend(); ++i)
-
-template<typename T>
-inline void DeleteValues(T& std_container)
-{
-	std::for_each(ALL_CONST_RANGE(std_container), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
-}
+#include "library_extensions.hpp"
 
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}

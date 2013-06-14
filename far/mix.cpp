@@ -174,25 +174,31 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 
 WINDOWINFO_TYPE ModalType2WType(const int fType)
 {
-	static int WiTypes[]={
-		MODALTYPE_PANELS,     WTYPE_PANELS,
-		MODALTYPE_VIEWER,     WTYPE_VIEWER,
-		MODALTYPE_EDITOR,     WTYPE_EDITOR,
-		MODALTYPE_DIALOG,     WTYPE_DIALOG,
-		MODALTYPE_VMENU,      WTYPE_VMENU,
-		MODALTYPE_HELP,       WTYPE_HELP,
-		MODALTYPE_COMBOBOX,   WTYPE_COMBOBOX,
-		MODALTYPE_FINDFOLDER, WTYPE_FINDFOLDER,
-		MODALTYPE_USER,       WTYPE_USER,
-		MODALTYPE_GRABBER,    WTYPE_GRABBER,
-		MODALTYPE_HMENU,      WTYPE_HMENU,
+	struct map_item
+	{
+		MODALFRAME_TYPE FrameType;
+		WINDOWINFO_TYPE WindowType;
+	};
+	static map_item TypesMap[] =
+	{
+		{MODALTYPE_PANELS,     WTYPE_PANELS},
+		{MODALTYPE_VIEWER,     WTYPE_VIEWER},
+		{MODALTYPE_EDITOR,     WTYPE_EDITOR},
+		{MODALTYPE_DIALOG,     WTYPE_DIALOG},
+		{MODALTYPE_VMENU,      WTYPE_VMENU},
+		{MODALTYPE_HELP,       WTYPE_HELP},
+		{MODALTYPE_COMBOBOX,   WTYPE_COMBOBOX},
+		{MODALTYPE_FINDFOLDER, WTYPE_FINDFOLDER},
+		{MODALTYPE_USER,       WTYPE_USER},
+		{MODALTYPE_GRABBER,    WTYPE_GRABBER},
+		{MODALTYPE_HMENU,      WTYPE_HMENU},
 	};
 
-	for (size_t I=0; I < ARRAYSIZE(WiTypes); I+=2)
-		if (fType == WiTypes[I])
-			return static_cast<WINDOWINFO_TYPE>(WiTypes[I+1]);
-
-	return static_cast<WINDOWINFO_TYPE>(-1);
+	auto ItemIterator = std::find_if(CONST_RANGE(TypesMap, i)
+	{
+		return i.FrameType == fType;
+	});
+	return ItemIterator == std::cend(TypesMap)? static_cast<WINDOWINFO_TYPE>(-1) : ItemIterator->WindowType;
 }
 
 SetAutocomplete::SetAutocomplete(EditControl* edit, bool NewState):

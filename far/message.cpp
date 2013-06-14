@@ -199,7 +199,7 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 {
 	// BUGBUG
 	std::vector<const wchar_t*> pItems(Items.size());
-	std::transform(Items.cbegin(), Items.cend(), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.CPtr();});
+	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.CPtr();});
 	Init(Flags, Buttons, Title, pItems.data(), pItems.size(), HelpTopic, PluginNumber, Id);
 }
 

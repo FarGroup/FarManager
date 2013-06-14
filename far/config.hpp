@@ -885,6 +885,10 @@ private:
 
 		typedef FARConfigItem value_type;
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+		// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
+		typedef FARConfigItem* iterator;
+#endif
 	private:
 		FARConfigItem *m_items;
 		size_t m_size;

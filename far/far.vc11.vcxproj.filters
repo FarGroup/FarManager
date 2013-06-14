@@ -742,6 +742,9 @@
     <ClInclude Include="lasterror.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="library_extensions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="local.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

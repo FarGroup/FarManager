@@ -986,6 +986,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="keys.hpp" />
     <ClInclude Include="language.hpp" />
     <ClInclude Include="lasterror.hpp" />
+    <ClInclude Include="library_extensions.hpp" />
     <ClInclude Include="local.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />

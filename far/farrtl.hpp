@@ -45,31 +45,3 @@ wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
 #define ALIGNAS(value, alignment) ((value+(alignment-1))&~(alignment-1))
 #define ALIGN(value) ALIGNAS(value, sizeof(void*))
-
-template<class T>
-class array_ptr:public std::unique_ptr<T[]>
-{
-public:
-	array_ptr(){}
-	array_ptr(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right);}
-	array_ptr(size_t size, bool init = false):std::unique_ptr<T[]>(init? new T[size]() : new T[size]){}
-	array_ptr& operator=(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right); return *this;}
-	void reset(size_t size, bool init = false){std::unique_ptr<T[]>::reset(init? new T[size]() : new T[size]);}
-	void reset(){std::unique_ptr<T[]>::reset();}
-};
-
-typedef array_ptr<wchar_t> wchar_t_ptr;
-typedef array_ptr<char> char_ptr;
-
-template<class T>
-class block_ptr:public char_ptr
-{
-public:
-	block_ptr(){}
-	block_ptr(block_ptr&& Right){char_ptr::swap(Right);}
-	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
-	block_ptr& operator=(block_ptr&& Right){char_ptr::swap(Right); return *this;}
-	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
-	T* operator->() const {return get();}
-	T& operator*() const {return *get();}
-};

@@ -1816,7 +1816,7 @@ void Options::Load()
 
 	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.CPtr());
 
-	std::for_each(CONST_RANGE(Config, i)
+	std::for_each(RANGE(Config, i)
 	{
 		std::for_each(RANGE(i.second, j)
 		{
@@ -1973,7 +1973,7 @@ void Options::Load()
 /* *************************************************** </оняропнжеяяш> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(CONST_RANGE(Config, i)
+	std::for_each(RANGE(Config, i)
 	{
 		std::for_each(RANGE(i.second, j)
 		{
@@ -2187,7 +2187,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
 	std::vector<FarListItem> items(Config[CurrentConfig].second.size());
-	std::transform(Config[CurrentConfig].second.begin(), Config[CurrentConfig].second.end(), items.begin(), [](VALUE_TYPE(Config[CurrentConfig].second)& i)->FarListItem
+	std::transform(ALL_RANGE(Config[CurrentConfig].second), items.begin(), LAMBDA_PREDICATE(Config[CurrentConfig].second, i)
 	{
 		return i.MakeListItem();
 	});

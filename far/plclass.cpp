@@ -665,7 +665,10 @@ bool Plugin::IsPanelPlugin()
 		iFreeVirtualFindData,
 		iClosePanel,
 	};
-	return std::any_of(std::begin(PanelExports), std::end(PanelExports), [&](int i) {return Exports[i] != nullptr;});
+	return std::any_of(CONST_RANGE(PanelExports, i)
+	{
+		return Exports[i] != nullptr;
+	});
 }
 
 bool Plugin::SetStartupInfo()

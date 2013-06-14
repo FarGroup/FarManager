@@ -206,7 +206,7 @@ palette::palette():
 
 void palette::Reset(bool Black)
 {
-	std::transform(std::begin(Init), std::end(Init), CurrentPalette.begin(), [&Black](const ColorsInit& i) -> FarColor
+	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), [&Black](const ColorsInit& i) -> FarColor
 	{
 		return Colors::ConsoleColorToFarColor(Black? i.MonoIndex : i.DefaultIndex);
 	});
