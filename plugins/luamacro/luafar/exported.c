@@ -690,7 +690,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 		lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
 		lua_rawseti(L,-2,1);
 	}
-	else lua_pushboolean(L, 0);
+	else lua_pushnil(L);
 }
 
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values)
@@ -702,6 +702,8 @@ void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Val
 		PushFarMacroValue(L, Values + i);
 		lua_rawseti(L, -2, (int)i+1);
 	}
+	lua_pushinteger(L, Count);
+	lua_setfield(L, -2, "n");
 }
 
 static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacroValue *Values, size_t Count)
@@ -781,8 +783,7 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 		}
 		else
 		{
-			fmc->Values[i].Type = FMVT_BOOLEAN;
-			fmc->Values[i].Value.Boolean = 0;
+			fmc->Values[i].Type = FMVT_NIL;
 		}
 	}
 
@@ -845,16 +846,8 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 		lua_checkstack(L, 4096);
 		if (pcall_msg(L, 3, LUA_MULTRET) == 0)
 		{
-			HANDLE ret;
-			int narg, type;
-
-			if ((narg = lua_gettop(L) - top + 4) == 0)
-				return NULL;
-			else if (narg == 1 && ((type=lua_type(L,-1)) == LUA_TBOOLEAN || type == LUA_TNIL))
-				ret = (HANDLE)(intptr_t)(lua_toboolean(L,-1) ? 1:0);
-			else
-				ret = FillFarMacroCall(L,narg);
-
+			int narg = lua_gettop(L) - top + 4;
+			HANDLE ret = FillFarMacroCall(L,narg);
 			lua_pop(L,narg);
 			return ret;
 		}

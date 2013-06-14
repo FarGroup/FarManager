@@ -5776,7 +5776,7 @@ lv=2
 dt=Text
 nm=far.MacroExecute
 ctime=3580326848
-mtime=3580327556
+mtime=3580370117
 <article>
 #_result = far.MacroExecute (SequenceText)
 #_
@@ -5785,6 +5785,13 @@ mtime=3580327556
 #_
 #_**Returns:**
 #_  result: table (array of elements returned by the script), or nil
+#_
+#_**Note:**
+#_  The returned table contains field "n" - number of elements in the array.
+#_  Use it instead of #result, since there can be elements with nil value.
+#_
+#_  To properly unpack the table, do:
+#_      unpack(result, 1, result.n)
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_EXECSTRING)

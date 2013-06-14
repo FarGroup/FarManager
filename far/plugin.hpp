@@ -1179,6 +1179,7 @@ enum FARMACROVARTYPE
 	FMVT_BOOLEAN                = 4,
 	FMVT_BINARY                 = 5,
 	FMVT_POINTER                = 6,
+	FMVT_NIL                    = 7,
 };
 
 struct FarMacroValue

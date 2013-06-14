@@ -17,6 +17,8 @@ static void FL_PushParamsTable(lua_State* L, const struct FarMacroCall* Data)
 		PushFarMacroValue(L, Data->Values + i);
 		lua_rawseti(L, -2, (int)i+1);
 	}
+	lua_pushinteger(L, Data->Count);
+	lua_setfield(L, -2, "n");
 	if (Data->Callback)
 		Data->Callback(Data->CallbackData, Data->Values, Data->Count);
 }
@@ -125,7 +127,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 							mpr->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
 							lua_rawseti(L,-2,idx+1);
 						}
-						else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
+						else if(type == LUA_TBOOLEAN)
 						{
 							mpr->Values[idx].Type = FMVT_BOOLEAN;
 							mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
@@ -163,8 +165,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 						}
 						else
 						{
-							mpr->Values[idx].Type = FMVT_BOOLEAN;
-							mpr->Values[idx].Value.Boolean = 0;
+							mpr->Values[idx].Type = FMVT_NIL;
 							lua_pop(L,1);
 						}
 					}
@@ -231,10 +232,14 @@ int far_MacroCallFar(lua_State *L)
 			args[idx].Type = FMVT_STRING;
 			args[idx].Value.String = check_utf8_string(L, stackpos, NULL);
 		}
-		else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
+		else if(type == LUA_TBOOLEAN)
 		{
 			args[idx].Type = FMVT_BOOLEAN;
 			args[idx].Value.Boolean = lua_toboolean(L, stackpos);
+		}
+		else if(type == LUA_TNIL)
+		{
+			args[idx].Type = FMVT_NIL;
 		}
 		else if(type == LUA_TLIGHTUSERDATA)
 		{

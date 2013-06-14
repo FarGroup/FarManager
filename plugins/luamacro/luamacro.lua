@@ -225,7 +225,7 @@ function export.Open (OpenFrom, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle, args = ...
     if     calltype==F.MCT_MACROINIT      then return MacroInit (unpack(args))
-    elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, unpack(args))
+    elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, unpack(args,1,args.n))
     elseif calltype==F.MCT_MACROFINAL     then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(unpack(args))
     elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(unpack(args))
@@ -245,7 +245,7 @@ function export.Open (OpenFrom, ...)
   elseif OpenFrom == F.OPEN_FROMMACRO then
     local guid, args = ...
     if args[1]=="argtest" then -- argtest: return received arguments
-      return unpack(args,2)
+      return unpack(args,2,args.n)
     elseif args[1]=="macropost" then -- test Mantis # 2222
       return far.MacroPost([[far.Message"macropost"]])
     end
