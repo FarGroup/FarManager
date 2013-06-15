@@ -4462,13 +4462,20 @@ static int far_MacroDelete(lua_State* L)
 static int far_MacroExecute(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
+
 	struct MacroExecuteString Data;
+	struct FarMacroValue fmv;
+
+	fmv.Type = FMVT_STRING;
+	fmv.Value.String = check_utf8_string(L, 1, NULL);
+
 	Data.StructSize = sizeof(Data);
-	Data.SequenceText = check_utf8_string(L, 1, NULL);
 	Data.Flags = 0;
+	Data.InCount = 1;
+	Data.InValues = &fmv;
 
 	if (pd->Info->MacroControl(pd->PluginId, MCTL_EXECSTRING, 0, &Data))
-		PackMacroValues(L, Data.Count, Data.Values);
+		PackMacroValues(L, Data.OutCount, Data.OutValues);
 	else
 		lua_pushnil(L);
 

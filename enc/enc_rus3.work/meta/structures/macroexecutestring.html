@@ -23,10 +23,11 @@
 struct MacroExecuteString
 {
   size_t StructSize;
-  const wchar_t *SequenceText;
   unsigned __int64 Flags;
-  size_t Count;
-  const struct FarMacroValue *Values;
+  size_t InCount;
+  struct FarMacroValue *InValues;
+  size_t OutCount;
+  const struct FarMacroValue *OutValues;
 };
 </pre>
 
@@ -34,24 +35,30 @@ struct MacroExecuteString
 <div class=descr>
   <div class=dfn>StructSize</div>
     <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroExecuteString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>SequenceText</div>
-    <div class=dfndescr>Строка, содержащая скрипт в текстовом виде. Если строка начинается символом <code>@</code>, то её последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация флагов (на данный момент флагов нет, установите в ноль).</div>
-  <div class=dfn>Count</div>
+  <div class=dfn>InCount</div>
+    <div class=dfndescr>Количество входных элементов.</div>
+  <div class=dfn>InValues</div>
+    <div class=dfndescr>
+      Указатель на массив входных элементов: скрипт и аргументы скрипта.<br>
+      InValues[0] - элемент типа FMVT_STRING, содержащий скрипт в текстовом виде. Если строка начинается символом <code>@</code>, то её последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).<br>
+      Аргументы скрипта, если они есть, размещаются, начиная от индекса 1.
+    </div>
+  <div class=dfn>OutCount</div>
     <div class=dfndescr>Количество элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
-  <div class=dfn>Values</div>
+  <div class=dfn>OutValues</div>
     <div class=dfndescr>Указатель на массив элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Скрипт <code>SequenceText</code> не должен вызывать функции, перечисленные
-в статье "Ограничения в использовании некоторых функций" в macroapi_manual.chm.
-<li>Массив <code>Values</code> может использоваться плагином только до
+<li>Скрипт не должен вызывать функции, перечисленные в статье "Ограничения в
+использовании некоторых функций" в macroapi_manual.chm.
+<li>Массив <code>OutValues</code> может использоваться плагином только до
 следующего вызова функции <code>MacroControl</code>, либо до возвращения
-управления Far Manager (раннее из этих событий). Если предполагается
+управления Far Manager (более раннее из этих событий). Если предполагается
 использовать элементы массива и далее, плагин должен скопировать их в свою
 память.
 </ol>

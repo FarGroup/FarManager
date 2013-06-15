@@ -1245,10 +1245,11 @@ struct FarGetValue
 struct MacroExecuteString
 {
 	size_t StructSize;
-	const wchar_t *SequenceText;
 	unsigned __int64 Flags;
-	size_t Count;
-	const struct FarMacroValue *Values;
+	size_t InCount;
+	struct FarMacroValue *InValues;
+	size_t OutCount;
+	const struct FarMacroValue *OutValues;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;

@@ -190,16 +190,19 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
-local function ExecString (text)
-  local chunk, msg = loadmacro(text)
-  if chunk then
-    local env = setmetatable({},{__index=_G})
-    LastMessage = pack(setfenv(chunk, env)())
-    return F.MPRT_COMMONCASE, LastMessage
-  else
-    far.Message(msg, "LuaMacro", nil, "wl")
-    LastMessage = pack(msg)
-    return F.MPRT_ERRORPARSE, LastMessage
+local function ExecString (...)
+  local text = ...
+  if type(text)=="string" then
+    local chunk, msg = loadmacro(text)
+    if chunk then
+      local env = setmetatable({},{__index=_G})
+      LastMessage = pack(setfenv(chunk, env)(select(2,...)))
+      return F.MPRT_COMMONCASE, LastMessage
+    else
+      far.Message(msg, "LuaMacro", nil, "wl")
+      LastMessage = pack(msg)
+      return F.MPRT_ERRORPARSE, LastMessage
+    end
   end
 end
 
@@ -235,7 +238,7 @@ function export.Open (OpenFrom, ...)
     elseif calltype==F.MCT_PROCESSMACRO   then return utils.ProcessMacroFromFAR(unpack(args))
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
-    elseif calltype==F.MCT_EXECSTRING     then return ExecString(unpack(args))
+    elseif calltype==F.MCT_EXECSTRING     then return ExecString(unpack(args,1,args.n))
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then

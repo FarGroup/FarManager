@@ -2058,7 +2058,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			case MCTL_EXECSTRING:
 			{
 				MacroExecuteString *Data=(MacroExecuteString*)Param2;
-				if (Data && CheckStructSize(Data) && Data->SequenceText)
+				if (Data && CheckStructSize(Data))
 				{
 					return Macro.ExecuteString(Data);
 				}
