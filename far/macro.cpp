@@ -1634,7 +1634,13 @@ bool KeyMacro::ParseMacroString(const string& Sequence, bool onlyCheck, bool ski
 
 bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 {
-	FarMacroCall fmc={sizeof(FarMacroCall),Data->InCount,Data->InValues,nullptr,nullptr};
+	FarMacroValue values[3]={{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_ARRAY,{0}}};
+	values[0].String = Data->SequenceText;
+	values[1].Integer = Data->Flags;
+	values[2].Array.Count = Data->InCount;
+	values[2].Array.Values = Data->InValues;
+
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_EXECSTRING,nullptr,&fmc};
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);

@@ -24,6 +24,7 @@ struct MacroExecuteString
 {
   size_t StructSize;
   unsigned __int64 Flags;
+  const wchar_t *SequenceText;
   size_t InCount;
   struct FarMacroValue *InValues;
   size_t OutCount;
@@ -37,13 +38,13 @@ struct MacroExecuteString
     <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroExecuteString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация флагов (на данный момент флагов нет, установите в ноль).</div>
+  <div class=dfn>SequenceText</div>
+    <div class=dfndescr>Скрипт в текстовом виде. Если начинается символом <code>@</code>, то последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
   <div class=dfn>InCount</div>
-    <div class=dfndescr>Количество входных элементов.</div>
+    <div class=dfndescr>Количество аргументов для передачи скрипту. Если аргументов нет, установите в ноль.</div>
   <div class=dfn>InValues</div>
     <div class=dfndescr>
-      Указатель на массив входных элементов: скрипт и аргументы скрипта.<br>
-      InValues[0] - элемент типа FMVT_STRING, содержащий скрипт в текстовом виде. Если строка начинается символом <code>@</code>, то её последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).<br>
-      Аргументы скрипта, если они есть, размещаются, начиная от индекса 1.
+      Указатель на массив аргументов скрипта.
     </div>
   <div class=dfn>OutCount</div>
     <div class=dfndescr>Количество элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>

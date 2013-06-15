@@ -1180,6 +1180,7 @@ enum FARMACROVARTYPE
 	FMVT_BINARY                 = 5,
 	FMVT_POINTER                = 6,
 	FMVT_NIL                    = 7,
+	FMVT_ARRAY                  = 8,
 };
 
 struct FarMacroValue
@@ -1197,6 +1198,11 @@ struct FarMacroValue
 			void *Data;
 			size_t Size;
 		} Binary;
+		struct
+		{
+			struct FarMacroValue *Values;
+			size_t Count;
+		} Array;
 	}
 #ifndef __cplusplus
 	Value
@@ -1246,6 +1252,7 @@ struct MacroExecuteString
 {
 	size_t StructSize;
 	unsigned __int64 Flags;
+	const wchar_t *SequenceText;
 	size_t InCount;
 	struct FarMacroValue *InValues;
 	size_t OutCount;

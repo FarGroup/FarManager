@@ -29,6 +29,8 @@ extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Para
 extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 
+void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values); // forward declaration
+
 // "Collector" is a Lua table referenced from the Plugin Object table by name.
 // Collector contains an array of lightuserdata which are pointers to malloc'ed
 // memory regions.
@@ -689,6 +691,12 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 		lua_createtable(L,1,0);
 		lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
 		lua_rawseti(L,-2,1);
+	}
+	else if (val->Type == FMVT_ARRAY)
+	{
+		PackMacroValues(L, val->Value.Array.Count, val->Value.Array.Values); // recursion
+		lua_pushliteral(L, "array");
+		lua_setfield(L, -2, "type");
 	}
 	else lua_pushnil(L);
 }
