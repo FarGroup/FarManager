@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3458
+  Plugin API for Far Manager 3.0 build 3461
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3458
+#define FARMANAGERVERSION_BUILD 3461
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1124,10 +1124,11 @@ struct FarGetValue
 struct MacroExecuteString
 {
 	size_t StructSize;
-	const wchar_t *SequenceText;
 	unsigned __int64 Flags;
-	size_t Count;
-	const struct FarMacroValue *Values;
+	size_t InCount;
+	struct FarMacroValue *InValues;
+	size_t OutCount;
+	const struct FarMacroValue *OutValues;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
