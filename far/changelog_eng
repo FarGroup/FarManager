@@ -3,6 +3,90 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 15.06.2013 20:14:26 +0200 - build 3462
+
+1. Correction of 3461.
+
+shmuel 15.06.2013 12:28:39 +0200 - build 3461
+
+1. Plugins API: MCTL_EXECSTRING allows passing arguments to called script.
+
+drkns 15.06.2013 02:40:00 +0200 - build 3460
+
+1. Refactoring.
+
+drkns 14.06.2013 20:12:14 +0200 - build 3459
+
+1. Refactoring.
+
+shmuel 14.06.2013 16:21:37 +0200 - build 3458
+
+1. Adding FMVT_NIL "type" - extending Plugin.Call and MacroControl(MCTL_EXECSTRING) capabilities.
+   Passing from Lua to plugins meant nil -> FMVT_BOOLEAN(0) transformation before,
+   and passing nil from plugins to Lua was impossible at all.
+
+drkns 14.06.2013 01:17:12 +0200 - build 3457
+
+1. Refactoring.
+
+shmuel 14.06.2013 00:06:14 +0200 - build 3456
+
+1. Plugins API: MCTL_EXECSTRING operation is added to MacroControl function.
+
+drkns 13.06.2013 21:35:16 +0200 - build 3455
+
+1. Continuation of task list: adding windows with non-empty caption only (as it was before) and sorting it by name (like it was before),
+   because sorting by PID has no sense.
+
+drkns 13.06.2013 17:27:23 +0400 - build 3454
+
+1. The meaning of previous commit is not quite clear: GetModuleFileNameEx is available on XP and already used in apiGetModuleFileNameEx.
+
+w17 13.06.2013 18:23:56 +0400 - build 3453
+
+1. Another correction of 3451
+   GetProcessImageNameW -- available on xp
+
+svs 13.06.2013 18:09:50 +0400 - build 3452
+
+1. Correction of 3451
+   QueryFullProcessImageNameW -- unavailable on xp
+
+svs 13.06.2013 13:34:37 +0400 - build 3451
+
+1. Small changes in process list (Ctrl-W).
+   à) process PID is added.
+   á) F2 switches the view:
+      "PID + process window caption"
+      "PID + executable path"
+   â) the list is sorted by PID
+
+   The list includes duplicate items by PID - it's ok, "move" to a necessary window is performed correctly.
+
+drkns 12.06.2013 21:24:50 +0200 - build 3450
+
+1. 0002424: Undo does not restore bookmarks
+
+w17 12.06.2013 15:06:41 +0400 - build 3449
+
+1. M#2414: One cannot delete filea with long name -- deletion without recycle bin is still available
+
+shmuel 12.06.2013 13:23:17 +0200 - build 3448
+
+1. Refactoring.
+
+shmuel 10.06.2013 14:38:45 +0200 - build 3447
+
+1. Refactoring.
+
+shmuel 10.06.2013 02:03:06 +0200 - build 3446
+
+1. M#2307: On msgbox call from condition(), the msgbox closing key is passed further (not consumed).
+
+svs 06.06.2013 16:03:29 +0400 - build
+
+1. Menu filtering with RAlt is noted in help.
+
 drkns 06.06.2013 00:33:31 +0200 - build 3445
 
 1. Refactoring.
