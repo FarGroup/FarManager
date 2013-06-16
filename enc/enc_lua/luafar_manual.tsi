@@ -5776,22 +5776,37 @@ lv=2
 dt=Text
 nm=far.MacroExecute
 ctime=3580326848
-mtime=3580370117
+mtime=3580545597
 <article>
-#_result = far.MacroExecute (SequenceText)
+#_result = far.MacroExecute (SequenceText, Flags, ...)
 #_
 #_**Parameters:**
 #_  SequenceText: string
+#_  Flags:        flags (optional)
+#_  ...:          arguments for passing to script (optional)
 #_
 #_**Returns:**
 #_  result: table (array of elements returned by the script), or nil
 #_
-#_**Note:**
-#_  The returned table contains field "n" - number of elements in the array.
-#_  Use it instead of #result, since there can be elements with nil value.
+#_**Description:**
+#_  Execute a script in the context of LuaMacro plugin.
 #_
-#_  To properly unpack the table, do:
-#_      unpack(result, 1, result.n)
+#_**Notes:**
+#_  1. Arguments being passed to the script may be of the following Lua types:
+#_     string, boolean, number, nil, "int64", or "binary".
+#_
+#_  2. The returned table contains field "n" - number of elements in the array.
+#_     Use it instead of #result, since there can be elements with nil value.
+#_
+#_     To properly unpack the table, do:
+#_         unpack(result, 1, result.n)
+#_
+#_**Definitions:**
+#_  **"int64"**
+#_    Type of userdata, produced by bit64 library.
+#_  **"binary"**
+#_    By convention, it is a string enclosed in a table as its first element.
+#_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_EXECSTRING)

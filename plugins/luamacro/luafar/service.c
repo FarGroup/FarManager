@@ -4313,6 +4313,53 @@ static int far_AdvControl(lua_State *L)
 	return 1;
 }
 
+void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
+{
+	INT64 val64;
+	int type = lua_type(L, pos);
+	target->Type = FMVT_UNKNOWN;
+
+	if(type == LUA_TNUMBER)
+	{
+		target->Type = FMVT_DOUBLE;
+		target->Value.Double = lua_tonumber(L, pos);
+	}
+	else if(type == LUA_TSTRING)
+	{
+		target->Type = FMVT_STRING;
+		target->Value.String = check_utf8_string(L, pos, NULL);
+	}
+	else if(type == LUA_TTABLE)
+	{
+		lua_rawgeti(L,pos,1);
+		if (lua_type(L,-1) == LUA_TSTRING)
+		{
+			target->Type = FMVT_BINARY;
+			target->Value.Binary.Data = (void*)lua_tolstring(L, pos, &target->Value.Binary.Size);
+		}
+		lua_pop(L,1);
+	}
+	else if(type == LUA_TBOOLEAN)
+	{
+		target->Type = FMVT_BOOLEAN;
+		target->Value.Boolean = lua_toboolean(L, pos);
+	}
+	else if(type == LUA_TNIL)
+	{
+		target->Type = FMVT_NIL;
+	}
+	else if(type == LUA_TLIGHTUSERDATA)
+	{
+		target->Type = FMVT_POINTER;
+		target->Value.Pointer = lua_touserdata(L, pos);
+	}
+	else if(bit64_getvalue(L, pos, &val64))
+	{
+		target->Type = FMVT_INTEGER;
+		target->Value.Integer = val64;
+	}
+}
+
 static int far_MacroLoadAll(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
@@ -4462,12 +4509,23 @@ static int far_MacroDelete(lua_State* L)
 static int far_MacroExecute(lua_State* L)
 {
 	TPluginData *pd = GetPluginData(L);
+	int top = lua_gettop(L);
 
 	struct MacroExecuteString Data;
 	Data.StructSize = sizeof(Data);
 	Data.SequenceText = check_utf8_string(L, 1, NULL);
-	Data.Flags = 0;
+	Data.Flags = OptFlags(L,2,0);
 	Data.InCount = 0;
+
+	if (top > 2)
+	{
+		size_t i;
+		Data.InCount = top-2;
+		Data.InValues = (struct FarMacroValue*)lua_newuserdata(L, Data.InCount*sizeof(struct FarMacroValue));
+		memset(Data.InValues, 0, Data.InCount*sizeof(struct FarMacroValue));
+		for (i=0; i<Data.InCount; i++)
+			ConvertLuaValue(L, i+3, Data.InValues+i);
+	}
 
 	if (pd->Info->MacroControl(pd->PluginId, MCTL_EXECSTRING, 0, &Data))
 		PackMacroValues(L, Data.OutCount, Data.OutValues);

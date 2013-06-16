@@ -190,13 +190,12 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
-local function ExecString (...)
-  local text = ...
+local function ExecString (text, flags, params)
   if type(text)=="string" then
     local chunk, msg = loadmacro(text)
     if chunk then
       local env = setmetatable({},{__index=_G})
-      LastMessage = pack(setfenv(chunk, env)(select(2,...)))
+      LastMessage = pack(setfenv(chunk, env)(unpack(params,1,params.n)))
       return F.MPRT_COMMONCASE, LastMessage
     else
       far.Message(msg, "LuaMacro", nil, "wl")

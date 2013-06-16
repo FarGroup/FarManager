@@ -5,6 +5,7 @@
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 extern int pcall_msg(lua_State* L, int narg, int nret);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
+extern void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target);
 
 static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77};
 
@@ -204,8 +205,7 @@ int far_MacroCallFar(lua_State *L)
 	enum { MAXARG=32, MAXRET=32 };
 	struct FarMacroValue args[MAXARG];
 	struct FarMacroCall fmc;
-	int idx, ret, pushed, stackpos=0, success=1;
-	INT64 val64;
+	int idx, ret, pushed;
 	mcfc_data cbdata = { L, MAXRET };
 	TPluginData *pd = GetPluginData(L);
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
@@ -218,53 +218,15 @@ int far_MacroCallFar(lua_State *L)
 
 	for(idx=0; idx<(int)fmc.Count; idx++)
 	{
-		int type;
-		stackpos = idx + 2;
-		type = lua_type(L, stackpos);
-
-		if(type == LUA_TNUMBER)
+		ConvertLuaValue(L, idx+2, args+idx);
+		if (args[idx].Type == FMVT_UNKNOWN)
 		{
-			args[idx].Type = FMVT_DOUBLE;
-			args[idx].Value.Double = lua_tonumber(L, stackpos);
+			lua_Debug ar;
+			if (lua_getstack(L,1,&ar) && lua_getinfo(L,"n",&ar) && ar.name)
+				luaL_error(L, "invalid argument #%d to '%s'", idx+1, ar.name);
+			else
+				luaL_argerror(L, idx+1, "invalid argument");
 		}
-		else if(type == LUA_TSTRING)
-		{
-			args[idx].Type = FMVT_STRING;
-			args[idx].Value.String = check_utf8_string(L, stackpos, NULL);
-		}
-		else if(type == LUA_TBOOLEAN)
-		{
-			args[idx].Type = FMVT_BOOLEAN;
-			args[idx].Value.Boolean = lua_toboolean(L, stackpos);
-		}
-		else if(type == LUA_TNIL)
-		{
-			args[idx].Type = FMVT_NIL;
-		}
-		else if(type == LUA_TLIGHTUSERDATA)
-		{
-			args[idx].Type = FMVT_POINTER;
-			args[idx].Value.Pointer = lua_touserdata(L, stackpos);
-		}
-		else if(bit64_getvalue(L, stackpos, &val64))
-		{
-			args[idx].Type = FMVT_INTEGER;
-			args[idx].Value.Integer = val64;
-		}
-		else
-		{
-			success = 0;
-			break;
-		}
-	}
-
-	if(!success)
-	{
-		lua_Debug ar;
-		if (lua_getstack(L,1,&ar) && lua_getinfo(L,"n",&ar) && ar.name)
-			luaL_error(L, "invalid argument #%d to '%s'", stackpos-1, ar.name);
-		else
-			luaL_argerror(L, stackpos, "invalid argument");
 	}
 
 	lua_checkstack(L, MAXRET);
