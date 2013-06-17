@@ -45,7 +45,7 @@ private:
 	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);
 	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent, class ConsoleTitle* DeleteTitle);
 	DEL_RESULT ERemoveDirectory(const string& Name, DIRDELTYPE Type);
-	bool RemoveToRecycleBin(const string& Name);
+	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
 
 	int ReadOnlyDeleteMode;
 	int SkipMode;

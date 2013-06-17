@@ -536,8 +536,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		SrcPanel->GetSelName(nullptr,FileAttr);
 		DWORD StartTime=GetTickCount();
 		bool FirstTime=true;
+		bool cannot_recycle_try_delete_folder = false;
 
-		while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
 		{
 			int Length=(int)strSelName.GetLength();
 
@@ -563,20 +564,24 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				if (!DeleteAllFolders)
+				if (!DeleteAllFolders && !cannot_recycle_try_delete_folder)
 				{
 					ConvertNameToFull(strSelName, strFullName);
 
 					if (TestFolder(strFullName) == TSTFLD_NOTEMPTY)
 					{
-						int MsgCode=0;
-
-						// для symlink`а не нужно подтверждение
-						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-							MsgCode=Message(MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-							                MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName.CPtr(),
-							                MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-							                MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+						int MsgCode = 0; // для symlink не нужно подтверждение
+						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)) {
+							LNGID tit = MDeleteFolderTitle, con = MDeleteFolderConfirm, del = MDeleteFileDelete;
+							if (Wipe) {
+								tit = MWipeFolderTitle; con = MWipeFolderConfirm; del = MDeleteFileWipe;
+							}
+							else if (Global->Opt->DeleteToRecycleBin) {
+								con = MRecycleFolderConfirm; del = MDeleteRecycle;
+							}
+							MsgCode=Message(MSG_WARNING, 4, MSG(tit), MSG(con),strFullName.CPtr(),
+								MSG(del),MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel));
+						}
 
 						if (MsgCode<0 || MsgCode==3)
 						{
@@ -742,6 +747,12 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 						Type = D_RECYCLE;
 					DeleteCode=ERemoveDirectory(strSelName, Type);
 
+					if (cannot_recycle_try_delete_folder)
+					{
+						cannot_recycle_try_delete_folder = false;
+						Global->Opt->DeleteToRecycleBin = true;
+					}
+
 					if (DeleteCode==DELETE_CANCEL)
 						break;
 					else if (DeleteCode==DELETE_SUCCESS)
@@ -750,6 +761,12 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 						if (UpdateDiz)
 							SrcPanel->DeleteDiz(strSelName,strSelShortName);
+					}
+					else if (DeleteCode == DELETE_YES)
+					{
+						--ProcessedItems;
+						cannot_recycle_try_delete_folder = true;
+						Global->Opt->DeleteToRecycleBin = false;
 					}
 				}
 			}
@@ -840,6 +857,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 
 	for (;;)
 	{
+		bool recycle_bin = false;
 		if (Wipe)
 		{
 			if (SkipWipeMode!=-1)
@@ -862,24 +880,22 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 
 			switch (MsgCode)
 			{
-				case -1:
-				case -2:
-				case 4:
-					return DELETE_CANCEL;
-				case 3:
-					SkipWipeMode=2;
-				case 2:
-					return DELETE_SKIP;
-				case 1:
-					SkipWipeMode=0;
-				case 0:
-					{
-						bool Cancel = false;
-						if (WipeFile(strFullName, TotalPercent, Cancel, DeleteTitle))
-							return DELETE_SUCCESS;
-						else if(Cancel)
-							return DELETE_CANCEL;
-					}
+			case 4: case -1: case -2:
+				return DELETE_CANCEL;
+			case 3:
+				SkipWipeMode = 2; // fallthrough down
+			case 2:
+				return DELETE_SKIP;
+			case 1:
+				SkipWipeMode = 0;
+			case 0:
+				{
+					bool Cancel = false;
+					if (WipeFile(strFullName, TotalPercent, Cancel, DeleteTitle))
+						return DELETE_SUCCESS;
+					else if(Cancel)
+						return DELETE_CANCEL;
+				}
 			}
 		}
 		else if (!Global->Opt->DeleteToRecycleBin)
@@ -889,54 +905,38 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 		}
 		else
 		{
-			if (RemoveToRecycleBin(strFullName))
+			recycle_bin = true;
+			DEL_RESULT ret;
+			if (RemoveToRecycleBin(strFullName, false, ret))
 				break;
 
-			DWORD dwe = GetLastError();
+			if (SkipMode == -1 && (ret == DELETE_SKIP || ret == DELETE_CANCEL))
+				return ret;
 
-			if (-1==SkipMode && (ERROR_BAD_PATHNAME==dwe || ERROR_FILE_NOT_FOUND==dwe)) // probably bad path to recycle bin
+			if (SkipMode == -1 && ret == DELETE_YES)
 			{
-				string qName(strFullName);
-				QuoteLeadingSpace(qName);
-
-				const wchar_t *Msgs[2+4] = {
-					MSG(MCannotRecycleFile), qName.CPtr(),
-					MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)
-				};
-				MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Msgs, 2+4);
-
-				switch (MsgCode) {
-				case 3: case -1: case -2:       // [Cancel]
-					return DELETE_CANCEL;
-				case 2:
-					SkipMode = 1;                // [Skip All]
-				case 1:
-					return DELETE_SKIP;          // [Skip]
-				}
-
-				if (apiDeleteFile(strFullName)) // case 0: -- {Delete}
+				recycle_bin = false;
+				if (apiDeleteFile(strFullName))
 					break;
 			}
 		}
 
-		if (SkipMode!=-1)
-			MsgCode=SkipMode;
+		if (SkipMode != -1)
+			MsgCode = SkipMode;
 		else
 		{
-			MsgCode=OperationFailed(strFullName, MError, MSG(MCannotDeleteFile));
+			MsgCode = OperationFailed(strFullName, MError, MSG(recycle_bin ? MCannotRecycleFile:MCannotDeleteFile));
 		}
 
 		switch (MsgCode)
 		{
-			case -1:
-			case -2:
-			case 3:
-				return DELETE_CANCEL;
-			case 2:
-				SkipMode=1;
-			case 1:
-				return DELETE_SKIP;
-		}
+		case 3: case -1: case -2: // [Cancel]
+			return DELETE_CANCEL;
+		case 2:                   // [Skip All]
+			SkipMode = 2;          // fallthrough down
+		case 1:                   // [Skip]
+			return DELETE_SKIP;
+		} // case 0:              // {Retry}
 	}
 
 	return DELETE_SUCCESS;
@@ -951,6 +951,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 	bool Success = false;
 	while(!Success)
 	{
+		bool recycle_bin = false;
 		switch(Type)
 		{
 		case D_DEL:
@@ -962,7 +963,14 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 			break;
 
 		case D_RECYCLE:
-			Success = RemoveToRecycleBin(Name) != FALSE;
+			{
+				recycle_bin = true;
+				DEL_RESULT ret;
+				Success = RemoveToRecycleBin(Name, true, ret);
+
+				if (!Success && SkipFoldersMode == -1 && ret >= DELETE_YES)
+					return ret; // DELETE_YES, DELETE_SKIP, DELETE_CANCEL
+			}
 			break;
 		}
 
@@ -976,28 +984,25 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 			}
 			else
 			{
-				MsgCode=OperationFailed(Name, MError, MSG(MCannotDeleteFolder));
+				MsgCode=OperationFailed(Name, MError, MSG(recycle_bin ? MCannotRecycleFolder:MCannotDeleteFolder));
 			}
 
 			switch (MsgCode)
 			{
-				case -1:
-				case -2:
-				case 3:
-					return DELETE_CANCEL;
-				case 1:
-					return DELETE_SKIP;
-				case 2:
-					SkipFoldersMode=2;
-					return DELETE_SKIP;
-			}
+			case 3: case -1: case -2: // [Cancel]
+				return DELETE_CANCEL;
+			case 2:						  // [Skip All]
+				SkipFoldersMode = 2;	  // fallthrough down
+			case 1:						  // [Skip]
+				return DELETE_SKIP;
+			} // case 0:              // {Retry}
 		}
 	}
 
 	return DELETE_SUCCESS;
 }
 
-bool ShellDelete::RemoveToRecycleBin(const string& Name)
+bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret)
 {
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
@@ -1020,7 +1025,48 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name)
 	wchar_t *lpwszName = strFullName.GetBuffer(strFullName.GetLength()+2);
 	lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 
-	return MoveToRecycleBinInternal(lpwszName);
+   if (MoveToRecycleBinInternal(lpwszName))
+	{
+		ret = DELETE_SUCCESS;
+		return true;
+	}
+	if ((dir && SkipFoldersMode != -1) || (!dir && SkipMode != -1))
+	{
+		ret = DELETE_SKIP;
+		return false;
+	}
+
+	ret = DELETE_SUCCESS;
+	DWORD dwe = GetLastError(); // probably bad path to recycle bin
+	if (ERROR_BAD_PATHNAME == dwe || ERROR_FILE_NOT_FOUND || (dir && ERROR_PATH_NOT_FOUND==dwe))
+	{
+		string qName(strFullName);
+		QuoteLeadingSpace(qName);
+
+		const wchar_t *Msgs[2+4] = {
+			MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName.CPtr(),
+			MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)
+		};
+
+		int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Msgs, 2+4);
+		switch (MsgCode) {
+		case 3: case -1: case -2:       // [Cancel]
+			ret = DELETE_CANCEL;
+			break;
+		case 2:                         // [Skip All]
+			if (dir)
+				SkipFoldersMode = 2;
+			else
+				SkipMode = 2;             // fallthrough down   
+		case 1:                         // [Skip]
+			ret =  DELETE_SKIP;          
+			break;
+		case 0:                         // {Delete}
+			ret = DELETE_YES;
+			break;
+		}
+	}
+	return false;
 }
 
 

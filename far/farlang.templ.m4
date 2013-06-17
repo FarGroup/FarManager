@@ -4423,6 +4423,16 @@ MWipeFolderConfirm
 "El siguiente directorio será destruído:"
 "Nasledujúci priečinok bude vymazaný:"
 
+MRecycleFolderConfirm
+"Данная папка будет перемещена в корзину:"
+"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+upd:"The following folder will be moved to the Recycle Bin:"
+
 MDeleteWipe
 "Уничтожить"
 "Wipe"
@@ -4670,15 +4680,24 @@ MDeleteCancel
 "&Storno"
 
 MCannotRecycleFile
-l:
-"Не удалось переместить в Корзину"
-"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
-upd:"Cannot move to the Recycle Bin"
+"Не удалось переместить файл в Корзину"
+"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+upd:"Cannot move file to the Recycle Bin"
+
+MCannotRecycleFolder
+"Не удалось переместить папку в Корзину"
+"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
+upd:"Cannot move folder to the Recycle Bin"
 
 MCannotGetSecurity
 l:
