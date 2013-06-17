@@ -499,8 +499,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		int NumLine=0, ExitCode, FuncPos[24];
 
 		// очистка F-хоткеев
-		for (size_t I=0 ; I < ARRAYSIZE(FuncPos) ; I++)
-			FuncPos[I]=-1;
+		std::fill(ALL_RANGE(FuncPos), -1);
 
 		string strName,strShortName;
 		Global->CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);

@@ -75,8 +75,10 @@ InfoList::InfoList():
 	Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)
 	{
-		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			SectionState[i].Show=true;
+		std::for_each(RANGE(SectionState, i)
+		{
+			i.Show=true;
+		});
 	}
 	else
 	{
@@ -644,9 +646,11 @@ void InfoList::SelectShowMode(void)
 				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
 				break;
 		}
-		Global->Opt->InfoPanel.strShowStatusInfo=L"";
-		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			Global->Opt->InfoPanel.strShowStatusInfo += SectionState[i].Show?L"1":L"0";
+		Global->Opt->InfoPanel.strShowStatusInfo.Clear();
+		std::for_each(RANGE(SectionState, i)
+		{
+			Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
+		});
 
 		Redraw();
 	}

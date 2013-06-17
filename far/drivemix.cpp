@@ -62,21 +62,22 @@ DWORD FarGetLogicalDrives()
 	if (!Global->Opt->Policies.ShowHiddenDrives)
 	{
 		const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
-		bool DataReaded = false;
-		for(size_t i = 0; i < ARRAYSIZE(Roots) && !DataReaded; ++i)
+		std::any_of(CONST_RANGE(Roots, i) -> bool
 		{
+			bool Result = false;
 			HKEY hKey;
-			if (RegOpenKeyEx(Roots[i], L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", 0, KEY_QUERY_VALUE, &hKey)==ERROR_SUCCESS && hKey)
+			if (RegOpenKeyEx(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", 0, KEY_QUERY_VALUE, &hKey)==ERROR_SUCCESS && hKey)
 			{
 				DWORD Data, Size = sizeof(Data);
 				if(RegQueryValueEx(hKey, L"NoDrives", nullptr, nullptr, reinterpret_cast<BYTE *>(&Data), &Size) == ERROR_SUCCESS)
 				{
-					DataReaded = true;
 					NoDrives = Data;
+					Result = true;
 				}
 				RegCloseKey(hKey);
 			}
-		}
+			return Result;
+		});
 	}
 
 	return LogicalDrivesMask&(~NoDrives);

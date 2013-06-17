@@ -380,15 +380,13 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 				Global->Opt->LocalProfilePath += L"Far Manager";
 			}
 
-			string Paths[]={Global->Opt->ProfilePath, Global->Opt->LocalProfilePath};
-			for (size_t i = 0; i< ARRAYSIZE(Paths); ++i)
+			string* Paths[]={&Global->Opt->ProfilePath, &Global->Opt->LocalProfilePath};
+			std::for_each(RANGE(Paths, i)
 			{
-				AddEndSlash(Paths[i]);
-				Paths[i] += L"Profile";
-				CreatePath(Paths[i], true);
-			}
-			Global->Opt->ProfilePath = Paths[0];
-			Global->Opt->LocalProfilePath = Paths[1];
+				AddEndSlash(*i);
+				*i += L"Profile";
+				CreatePath(*i, true);
+			});
 		}
 		else
 		{

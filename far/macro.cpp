@@ -351,8 +351,8 @@ struct DlgParam
 	bool Changed;
 };
 
-static const std::array<value_name_pair<MACROFLAGS_MFLAGS, const wchar_t*>, 19> MKeywordsFlags =
-{{
+static const value_name_pair<MACROFLAGS_MFLAGS, const wchar_t*> MKeywordsFlags[] =
+{
 	{MFLAGS_ENABLEOUTPUT, L"EnableOutput"},
 	{MFLAGS_RUNAFTERFARSTART, L"RunAfterFARStart"},
 	{MFLAGS_EMPTYCOMMANDLINE, L"EmptyCommandLine"},
@@ -375,7 +375,7 @@ static const std::array<value_name_pair<MACROFLAGS_MFLAGS, const wchar_t*>, 19> 
 	{MFLAGS_PNOSELECTION, L"NoPSelection"},
 
 	{MFLAGS_NOSENDKEYSTOPLUGINS, L"NoSendKeysToPlugins"},
-}};
+};
 
 static bool ToDouble(__int64 v, double *d)
 {

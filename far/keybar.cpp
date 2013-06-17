@@ -207,8 +207,8 @@ static int FnGroup(DWORD ControlState)
 		DWORD ControlState;
 	};
 
-	static const std::array<group_item, KBL_GROUP_COUNT> Area =
-	{{
+	static const group_item Area[] =
+	{
 		{KBL_MAIN, 0},
 		{KBL_SHIFT, KEY_SHIFT},
 		{KBL_ALT, KEY_ALT},
@@ -217,14 +217,15 @@ static int FnGroup(DWORD ControlState)
 		{KBL_CTRLSHIFT, KEY_CTRLSHIFT},
 		{KBL_CTRLALT, KEY_CTRLALT},
 		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
-	}};
+	};
+	static_assert(ARRAYSIZE(Area) == KBL_GROUP_COUNT, "Not all areas handled");
 
 	auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
 	{
 		return i.ControlState == ControlState;
 	});
-	
-	return ItemIterator == Area.cend()? -1 : ItemIterator->Group;
+
+	return ItemIterator == std::cend(Area)? -1 : ItemIterator->Group;
 }
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)

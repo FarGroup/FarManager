@@ -251,8 +251,8 @@ void FileList::ShowFileList(int Fast)
 
 	if (Global->Opt->ShowSortMode)
 	{
-		static std::array<value_name_pair<int, LNGID>, 16> ModeNames =
-		{{
+		static const value_name_pair<int, LNGID> ModeNames[] =
+		{
 			{UNSORTED, MMenuUnsorted},
 			{BY_NAME, MMenuSortByName},
 			{BY_EXT, MMenuSortByExt},
@@ -269,7 +269,7 @@ void FileList::ShowFileList(int Fast)
 			{BY_STREAMSSIZE, MMenuSortByStreamsSize},
 			{BY_FULLNAME, MMenuSortByFullName},
 			{BY_CUSTOMDATA, MMenuSortByCustomData},
-		}};
+		};
 
 		const wchar_t *Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
 

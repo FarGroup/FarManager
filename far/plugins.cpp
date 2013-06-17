@@ -170,15 +170,17 @@ PluginType IsModulePlugin2(
 					DWORD dwCRC32 = CRC32(0, lpExportName, (unsigned int)strlen(lpExportName));
 
 					// а это вам не фиг знает что, это вам оптимизация, типа 8-)
-					for (size_t j = 0; j < ARRAYSIZE(ExportCRC32W); j++)
-						if (dwCRC32 == ExportCRC32W[j])
-							return UNICODE_PLUGIN;
+					if (std::find(ALL_RANGE(ExportCRC32W), dwCRC32) != std::cend(ExportCRC32W))
+					{
+						return UNICODE_PLUGIN;
+					}
 
 #ifndef NO_WRAPPER
-					if (!bOemExports && Global->Opt->LoadPlug.OEMPluginsSupport)
-						for (size_t j = 0; j < ARRAYSIZE(ExportCRC32); j++)
-							if (dwCRC32 == ExportCRC32[j])
-								bOemExports=true;
+					if (!bOemExports && Global->Opt->LoadPlug.OEMPluginsSupport &&
+						std::find(ALL_RANGE(ExportCRC32), dwCRC32) != std::cend(ExportCRC32))
+					{
+						bOemExports=true;
+					}
 #endif // NO_WRAPPER
 				}
 #ifndef NO_WRAPPER
@@ -1222,20 +1224,21 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 {
 	if (pPlugin->Configure(Guid))
 	{
-		int PMode[2];
-		PMode[0]=Global->CtrlObject->Cp()->LeftPanel->GetMode();
-		PMode[1]=Global->CtrlObject->Cp()->RightPanel->GetMode();
-
-		for (size_t I=0; I < ARRAYSIZE(PMode); ++I)
+		Panel* Panels[] =
 		{
-			if (PMode[I] == PLUGIN_PANEL)
+			Global->CtrlObject->Cp()->LeftPanel,
+			Global->CtrlObject->Cp()->RightPanel,
+		};
+
+		std::for_each(CONST_RANGE(Panels, i)
+		{
+			if (i->GetMode() == PLUGIN_PANEL)
 			{
-				Panel *pPanel=(I?Global->CtrlObject->Cp()->RightPanel:Global->CtrlObject->Cp()->LeftPanel);
-				pPanel->Update(UPDATE_KEEP_SELECTION);
-				pPanel->SetViewMode(pPanel->GetViewMode());
-				pPanel->Redraw();
+				i->Update(UPDATE_KEEP_SELECTION);
+				i->SetViewMode(i->GetViewMode());
+				i->Redraw();
 			}
-		}
+		});
 		pPlugin->SaveToCache();
 	}
 }

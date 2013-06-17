@@ -2443,21 +2443,24 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
 
 size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize)
 {
-	static unsigned __int64 FlagsPair[]={
-		FFFS_COMMAS,            COLUMN_COMMAS,         // Вставлять разделитель между тысячами
-		FFFS_THOUSAND,          COLUMN_THOUSAND,       // Вместо делителя 1024 использовать делитель 1000
-		FFFS_FLOATSIZE,         COLUMN_FLOATSIZE,      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
-		FFFS_ECONOMIC,          COLUMN_ECONOMIC,       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-		FFFS_MINSIZEINDEX,      COLUMN_MINSIZEINDEX,   // Минимально допустимый индекс при форматировании
-		FFFS_SHOWBYTESINDEX,    COLUMN_SHOWBYTESINDEX, // Показывать суффиксы B,K,M,G,T,P,E
+	static const simple_pair<unsigned __int64, unsigned __int64> FlagsPair[] =
+	{
+		{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
+		{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
+		{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
+		{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
+		{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // Минимально допустимый индекс при форматировании
+		{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
 	};
 
-	string strDestStr;
 	unsigned __int64 FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
-	for (size_t I=0; I < ARRAYSIZE(FlagsPair); I+=2)
-		if (Flags & FlagsPair[I])
-			FinalFlags |= FlagsPair[I+1];
+	std::for_each(CONST_RANGE(FlagsPair, i)
+	{
+		if (Flags & i.first)
+			FinalFlags |= i.second;
+	});
 
+	string strDestStr;
 	FileSizeToStr(strDestStr,Size,Width,FinalFlags);
 
 	if (Dest && DestSize)

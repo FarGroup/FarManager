@@ -42,31 +42,39 @@ struct value_name_pair
 };
 
 /*
-container: some std container (array, vector, etc) of name_value_pair
+container: some std container (array, vector, etc) or array of name_value_pair
 */
-template<class container>
-typename container::value_type::pair_name_type GetNameOfValue(typename container::value_type::pair_value_type Value, container& From)
+template<class container, class value>
+auto GetNameOfValue(const value& Value, const container& From) -> decltype(std::begin(From)->Name)
 {
+	static_assert(std::is_same<value, decltype(std::begin(From)->Value)>::value, "Wrong type of 'Value' parameter");
 	auto ItemIterator = std::find_if(CONST_RANGE(From, i)
 	{
 		return i.Value == Value;
 	});
-	return ItemIterator == From.cend()? typename container::value_type::pair_name_type() : ItemIterator->Name;
+
+	// VC10 workaround. TODO: remove EmptyName and use normal decltype after migrating to compiler with full C++11 support.
+	auto EmptyName = typename DECLTYPE(ItemIterator->Name)();
+	return ItemIterator == std::cend(From)? EmptyName : ItemIterator->Name;
 }
 
-template<class container>
-typename container::value_type::pair_value_type GetValueOfVame(typename container::value_type::pair_name_type Name, container& From)
+template<class container, class name>
+auto GetValueOfVame(const name& Name, const container& From) -> decltype(std::begin(From)->Value)
 {
+	static_assert(std::is_same<name, decltype(std::begin(From)->Name)>::value, "Wrong type of 'Name' parameter");
 	auto ItemIterator = std::find_if(CONST_RANGE(From, i)
 	{
 		return !StrCmpI(i.Name, Name);
 	});
-	return ItemIterator == From.cend()? typename container::value_type::pair_value_type() : ItemIterator->Value;
+	// VC10 workaround. TODO: remove EmptyName and use normal decltype after migrating to compiler with full C++11 support.
+	auto EmptyValue = typename DECLTYPE(ItemIterator->Value)();
+	return ItemIterator == std::cend(From)? EmptyValue : ItemIterator->Value;
 }
 
-template<class container>
-const string FlagsToString(typename container::value_type::pair_value_type Flags, const container& From, wchar_t Separator = L' ')
+template<class container, class value>
+const string FlagsToString(const value& Flags, const container& From, wchar_t Separator = L' ')
 {
+	static_assert(std::is_same<value, decltype(std::begin(From)->Value)>::value, "Wrong type of 'Flags' parameter");
 	string strFlags;
 	std::for_each(CONST_RANGE(From, i)
 	{
@@ -85,9 +93,10 @@ const string FlagsToString(typename container::value_type::pair_value_type Flags
 }
 
 template<class container>
-typename container::value_type::pair_value_type StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+auto StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ") -> decltype(std::begin(From)->Value)
 {
-	auto Flags = typename container::value_type::pair_value_type();
+	// VC10 workaround. TODO: use normal decltype after migrating to compiler with full C++11 support.
+	auto Flags = typename DECLTYPE(std::begin(From)->Value)();
 	if(!strFlags.IsEmpty())
 	{
 		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));

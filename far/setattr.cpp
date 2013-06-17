@@ -268,19 +268,19 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								FAR_FIND_DATA FindData;
 								if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 								{
-									struct ItemTime
+									const struct ItemTime
 									{
 										SETATTRDLG ItemId;
 										PFILETIME TimeValue;
 										bool* ParamTime;
-									};
-									const std::array<ItemTime, 4> Items =
-									{{
+									}
+									Items[] =
+									{
 										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime, &DlgParam->OLastWriteTime},
 										{SA_TEXT_CREATION, &FindData.ftCreationTime, &DlgParam->OCreationTime},
 										{SA_TEXT_LASTACCESS, &FindData.ftLastAccessTime, &DlgParam->OLastAccessTime},
 										{SA_TEXT_CHANGE, &FindData.ftChangeTime, &DlgParam->OChangeTime},
-									}};
+									};
 
 									std::for_each(CONST_RANGE(Items, i)
 									{
@@ -800,14 +800,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		struct ATTRIBUTEPAIR
+		static const simple_pair<SETATTRDLG, DWORD> AttributePair[] =
 		{
-			SETATTRDLG Item;
-			DWORD Attribute;
-		};
-		static const std::array<ATTRIBUTEPAIR, 12>
-		AP =
-		{{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},
 			{SA_CHECKBOX_HIDDEN,FILE_ATTRIBUTE_HIDDEN},
@@ -820,7 +814,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
 			{SA_CHECKBOX_REPARSEPOINT,FILE_ATTRIBUTE_REPARSE_POINT},
 			{SA_CHECKBOX_VIRTUAL,FILE_ATTRIBUTE_VIRTUAL},
-		}};
+		};
 
 		if (SelCount==1)
 		{
@@ -857,9 +851,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
-						std::for_each(CONST_RANGE(AP, i)
+						std::for_each(CONST_RANGE(AttributePair, i)
 						{
-							AttrDlg[i.Item].Selected = FileAttr & i.Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
+							AttrDlg[i.first].Selected = (FileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
 						});
 					}
 
@@ -1043,9 +1037,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				std::for_each(CONST_RANGE(AP, i)
+				std::for_each(CONST_RANGE(AttributePair, i)
 				{
-					AttrDlg[i.Item].Selected = FileAttr & i.Attribute? BSTATE_CHECKED : BSTATE_UNCHECKED;
+					AttrDlg[i.first].Selected = (FileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
 				});
 			}
 
@@ -1055,13 +1049,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				SETATTRDLG TimeId;
 				PFILETIME TimeValue;
 			};
-			const std::array<DateTimeId, 4> Dates =
-			{{
+			const DateTimeId Dates[] =
+			{
 				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.ftLastWriteTime},
 				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.ftCreationTime},
 				{SA_EDIT_ADATE, SA_EDIT_ATIME, &FindData.ftLastAccessTime},
 				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ftChangeTime},
-			}};
+			};
 
 			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
 			{
@@ -1080,9 +1074,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		}
 		else
 		{
-			std::for_each(CONST_RANGE(AP, i)
+			std::for_each(CONST_RANGE(AttributePair, i)
 			{
-				AttrDlg[i.Item].Selected = BSTATE_3STATE;
+				AttrDlg[i.first].Selected = BSTATE_3STATE;
 			});
 
 			AttrDlg[SA_EDIT_WDATE].strData.Clear();
@@ -1131,11 +1125,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						DlgY+=2;
 					}
 
-					std::for_each(CONST_RANGE(AP, i)
+					std::for_each(CONST_RANGE(AttributePair, i)
 					{
-						if (FileAttr & i.Attribute)
+						if (FileAttr & i.second)
 						{
-							++AttrDlg[i.Item].Selected;
+							++AttrDlg[i.first].Selected;
 						}
 					});
 
@@ -1171,11 +1165,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DlgY+=2;
 				}
-				std::for_each(CONST_RANGE(AP, i)
+				std::for_each(CONST_RANGE(AttributePair, i)
 				{
-					if (FindData.dwFileAttributes & i.Attribute)
+					if (FindData.dwFileAttributes & i.second)
 					{
-						++AttrDlg[i.Item].Selected;
+						++AttrDlg[i.first].Selected;
 					}
 				});
 			}
@@ -1266,7 +1260,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 				}
 
-				const std::array<SETATTRDLG, 4> Times = {SA_EDIT_WTIME, SA_EDIT_CTIME, SA_EDIT_ATIME, SA_EDIT_XTIME};
+				const SETATTRDLG Times[] = {SA_EDIT_WTIME, SA_EDIT_CTIME, SA_EDIT_ATIME, SA_EDIT_XTIME};
 
 				std::for_each(CONST_RANGE(Times, i)
 				{
@@ -1283,11 +1277,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
 
-					std::for_each(CONST_RANGE(AP, i)
+					std::for_each(CONST_RANGE(AttributePair, i)
 					{
-						if (AttrDlg[i.Item].Selected)
+						if (AttrDlg[i.first].Selected)
 						{
-							NewAttr |= i.Attribute;
+							NewAttr |= i.second;
 						}
 					});
 
@@ -1390,15 +1384,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DWORD SetAttr=0,ClearAttr=0;
 
-					std::for_each(CONST_RANGE(AP, i)
+					std::for_each(CONST_RANGE(AttributePair, i)
 					{
-						switch (AttrDlg[i.Item].Selected)
+						switch (AttrDlg[i.first].Selected)
 						{
 							case BSTATE_CHECKED:
-								SetAttr |= i.Attribute;
+								SetAttr |= i.second;
 								break;
 							case BSTATE_UNCHECKED:
-								ClearAttr |= i.Attribute;
+								ClearAttr |= i.second;
 								break;
 						}
 					});

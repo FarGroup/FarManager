@@ -37,22 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "console.hpp"
 
-struct internal_clipboard
+static struct internal_clipboard
 {
 	HGLOBAL Handle;
 	UINT Format;
-};
-
-static std::array<internal_clipboard, 5> InternalClipboard = 
+}
+InternalClipboard[] = 
 {
 	// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-	{
-		{nullptr, 0xFFFF},
-		{nullptr, 0xFFFF},
-		{nullptr, 0xFFFF},
-		{nullptr, 0xFFFF},
-		{nullptr, 0xFFFF},
-	}
+	{nullptr, 0xFFFF},
+	{nullptr, 0xFFFF},
+	{nullptr, 0xFFFF},
+	{nullptr, 0xFFFF},
+	{nullptr, 0xFFFF},
 };
 
 
@@ -152,7 +149,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 				return i.Format == uFormat;
 			});
 
-			if (ItemIterator != InternalClipboard.cend())
+			if (ItemIterator != std::cend(InternalClipboard))
 				return ItemIterator->Handle;
 		}
 		return nullptr;
@@ -172,7 +169,7 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 				return !i.Handle;
 			});
 
-			if (ItemIterator != InternalClipboard.cend())
+			if (ItemIterator != std::cend(InternalClipboard))
 			{
 				ItemIterator->Handle = hMem;
 				ItemIterator->Format = uFormat;

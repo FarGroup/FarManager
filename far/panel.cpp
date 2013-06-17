@@ -476,7 +476,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
 			{
 				string LocalName("?:");
-				LocalName.Replace(0, strRootDir[0]);
+				LocalName[0] = strRootDir[0];
 
 				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
 				{
@@ -487,14 +487,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					NewItem.DriveType=DRIVE_VIRTUAL;
 				}
 
-				for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
-				{
-					if (DrTMsg[J].DrvType == NewItem.DriveType)
-					{
-						NewItem.Type = MSG(DrTMsg[J].FarMsg);
-						break;
-					}
-				}
+				auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i)	{return i.DrvType == NewItem.DriveType;});
+				if (ItemIterator != std::cend(DrTMsg))
+					NewItem.Type = MSG(ItemIterator->FarMsg);
 			}
 
 			int ShowDisk = (NewItem.DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -2161,37 +2156,19 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
 			Info->SortMode=static_cast<OPENPANELINFO_SORTMODES>(SM_UNSORTED-UNSORTED+GetSortMode());
-			{
-				static struct
-				{
-					BoolOption *Opt;
-					DWORD Flags;
-				} PFLAGS[]=
-				{
-					{&Global->Opt->ShowHidden,PFLAGS_SHOWHIDDEN},
-					{&Global->Opt->Highlight,PFLAGS_HIGHLIGHT},
-				};
-				unsigned __int64 Flags=0;
 
-				for (size_t I=0; I < ARRAYSIZE(PFLAGS); ++I)
-					if (*PFLAGS[I].Opt)
-						Flags|=PFLAGS[I].Flags;
-
-				Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
-				Flags|=GetSortGroups()?PFLAGS_USESORTGROUPS:0;
-				Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
-				Flags|=GetDirectoriesFirst()?PFLAGS_DIRECTORIESFIRST:0;
-				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
-				Flags|=GetCaseSensitiveSort()?PFLAGS_CASESENSITIVESORT:0;
-				Flags|=(GetMode()==PLUGIN_PANEL)?PFLAGS_PLUGIN:0;
-				Flags|=IsVisible()?PFLAGS_VISIBLE:0;
-				Flags|=GetFocus()?PFLAGS_FOCUS:0;
-
-				if (Global->CtrlObject->Cp()->LeftPanel == this)
-					Flags|=PFLAGS_PANELLEFT;
-
-				Info->Flags=Flags;
-			}
+			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
+			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
+			Info->Flags |= GetSortOrder() < 0? PFLAGS_REVERSESORTORDER : 0;
+			Info->Flags |= GetSortGroups()? PFLAGS_USESORTGROUPS : 0;
+			Info->Flags |= GetSelectedFirstMode()? PFLAGS_SELECTEDFIRST : 0;
+			Info->Flags |= GetDirectoriesFirst()? PFLAGS_DIRECTORIESFIRST : 0;
+			Info->Flags |= GetNumericSort()? PFLAGS_NUMERICSORT : 0;
+			Info->Flags |= GetCaseSensitiveSort()? PFLAGS_CASESENSITIVESORT : 0;
+			Info->Flags |= (GetMode()==PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
+			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
+			Info->Flags |= GetFocus()? PFLAGS_FOCUS : 0;
+                        Info->Flags |= this == Global->CtrlObject->Cp()->LeftPanel? PFLAGS_PANELLEFT : 0;
 
 			if (GetType()==FILE_PANEL)
 			{

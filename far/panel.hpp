@@ -84,7 +84,7 @@ enum
 	INFO_PANEL
 };
 
-enum
+enum SORT_MODE
 {
 	UNSORTED,
 	BY_NAME,

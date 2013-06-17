@@ -141,8 +141,6 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				FarColor NormalColor;
 				FarColor CursorColor;
 			}
-
-
 			StdHighlightData[]=
 			{
 				/* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
@@ -157,22 +155,23 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				/* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
 			};
 
-			for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
+			size_t Index = 0;
+			FOR_RANGE(StdHighlightData, i)
 			{
-				StdHighlightData[I].NormalColor = Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC);
-				MAKE_TRANSPARENT(StdHighlightData[I].NormalColor.BackgroundColor);
-				StdHighlightData[I].CursorColor = Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC);
-				MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
+				i->NormalColor = Colors::ConsoleColorToFarColor(i->InitNC);
+				MAKE_TRANSPARENT(i->NormalColor.BackgroundColor);
+				i->CursorColor = Colors::ConsoleColorToFarColor(i->InitCC);
+				MAKE_TRANSPARENT(i->CursorColor.BackgroundColor);
 
-				unsigned __int64 key = cfg->CreateKey(root, FormatString() << L"Group" << I);
+				unsigned __int64 key = cfg->CreateKey(root, FormatString() << L"Group" << Index);
 				if (!key)
 					break;
-				cfg->SetValue(key,HLS.Mask,StdHighlightData[I].Mask);
-				cfg->SetValue(key,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
-				cfg->SetValue(key,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
+				cfg->SetValue(key,HLS.Mask,i->Mask);
+				cfg->SetValue(key,HLS.IgnoreMask,i->IgnoreMask);
+				cfg->SetValue(key,HLS.IncludeAttributes,i->IncludeAttr);
 
-				cfg->SetValue(key,HLS.NormalColor, &StdHighlightData[I].NormalColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.CursorColor, &StdHighlightData[I].CursorColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.NormalColor, &i->NormalColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.CursorColor, &i->CursorColor, sizeof(FarColor));
 
 				const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
 				cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));
@@ -284,21 +283,20 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
-	struct group_item
+	const struct group_item
 	{
 		int Delta;
 		const wchar_t* KeyName;
 		const wchar_t* GroupName;
 		int* Count;
-	};
-
-	std::array<group_item, 4> GroupItems =
-	{{
+	}
+	GroupItems[] =
+	{
 		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtFirstGroup, &FirstCount},
 		{0, SortGroupsKeyName, fmtUpperGroup, &UpperCount},
 		{DEFAULT_SORT_GROUP+1, SortGroupsKeyName, fmtLowerGroup, &LowerCount},
 		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtLastGroup, &LastCount},
-	}};
+	};
 
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;

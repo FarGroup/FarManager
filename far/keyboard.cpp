@@ -87,11 +87,7 @@ static int ShiftState=0;
 static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
-static struct TTable_KeyToVK
-{
-	int Key;
-	int VK;
-} Table_KeyToVK[]=
+static const simple_pair<int, int> Table_KeyToVK[] =
 {
 //   {KEY_PGUP,          VK_PRIOR},
 //   {KEY_PGDN,          VK_NEXT},
@@ -131,7 +127,6 @@ static struct TTable_KeyToVK
 	{KEY_SPACE,         VK_SPACE},
 	{KEY_NUMPAD5,       VK_CLEAR},
 };
-
 
 struct TFKey3
 {
@@ -1835,42 +1830,38 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	_KEYMACRO(CleverSysLog Clev(L"TranslateKeyToVK()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
 
- 	WORD EventType=KEY_EVENT;
+	WORD EventType=KEY_EVENT;
 
- 	DWORD FKey  =Key&KEY_END_SKEY;
- 	DWORD FShift=Key&KEY_CTRLMASK;
+	DWORD FKey  =Key&KEY_END_SKEY;
+	DWORD FShift=Key&KEY_CTRLMASK;
 
 	VirtKey=0;
 
-  	ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
-  	             (FShift&KEY_ALT?PKF_ALT:0)|
- 	             (FShift&KEY_RALT?PKF_RALT:0)|
- 	             (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
-  	             (FShift&KEY_CTRL?PKF_CONTROL:0);
+	ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
+	             (FShift&KEY_ALT?PKF_ALT:0)|
+	             (FShift&KEY_RALT?PKF_RALT:0)|
+	             (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
+	             (FShift&KEY_CTRL?PKF_CONTROL:0);
 
 	bool KeyInTable=false;
-	size_t i;
-	for (i=0; i < ARRAYSIZE(Table_KeyToVK); i++)
+	auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) {return static_cast<DWORD>(i.first) == FKey;});
+	if (ItemIterator != std::cend(Table_KeyToVK))
 	{
-		if (FKey==(DWORD)Table_KeyToVK[i].Key)
-		{
-			VirtKey=Table_KeyToVK[i].VK;
-			KeyInTable=true;
-			break;
-		}
+		VirtKey = ItemIterator->second;
+		KeyInTable = true;
 	}
 
 	if (!KeyInTable)
 	{
- 		// TODO: KEY_ALTDIGIT
- 		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
- 		{
+		// TODO: KEY_ALTDIGIT
+		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
+		{
 			VirtKey=FKey;
 			if ((FKey>=L'A' && FKey<=L'Z') && !(FShift&0xFF000000))
 				FShift |= KEY_SHIFT;
 		}
- 		//else if (FKey > KEY_VK_0xFF_BEGIN && FKey < KEY_VK_0xFF_END)
- 		//	VirtKey=FKey-KEY_FKEY_BEGIN;
+		//else if (FKey > KEY_VK_0xFF_BEGIN && FKey < KEY_VK_0xFF_END)
+		//	VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey && FKey < WCHAR_MAX)
@@ -1878,13 +1869,10 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			short Vk = VkKeyScan(static_cast<WCHAR>(FKey));
 			if (Vk == -1)
 			{
-				for (i=0; i < ARRAYSIZE(Layout); ++i)
-					if (Layout[i])
-					{
-						Vk = VkKeyScanEx(static_cast<WCHAR>(FKey),Layout[i]);
-						if (Vk != -1)
-							break;
-					}
+				std::any_of(CONST_RANGE(Layout, i)
+				{
+					return (Vk = VkKeyScanEx(static_cast<WCHAR>(FKey), i)) != -1;
+				});
 			}
 
 			if (Vk == -1)
@@ -1901,73 +1889,78 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
 				{
 					FShift|=(HIBYTE(Vk)&1?KEY_SHIFT:0)|
-							(HIBYTE(Vk)&2?KEY_CTRL:0)|
-							(HIBYTE(Vk)&4?KEY_ALT:0);
+					        (HIBYTE(Vk)&2?KEY_CTRL:0)|
+					        (HIBYTE(Vk)&4?KEY_ALT:0);
 
-			  		ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
-  	        				 (FShift&KEY_ALT?PKF_ALT:0)|
-		 					 (FShift&KEY_RALT?PKF_RALT:0)|
- 	    					 (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
-  	            			 (FShift&KEY_CTRL?PKF_CONTROL:0);
+					ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
+					        (FShift&KEY_ALT?PKF_ALT:0)|
+					        (FShift&KEY_RALT?PKF_RALT:0)|
+					        (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
+					        (FShift&KEY_CTRL?PKF_CONTROL:0);
 				}
 			}
 
 		}
 		else if (!FKey)
 		{
-			DWORD ExtKey[]={KEY_SHIFT,VK_SHIFT,KEY_CTRL,VK_CONTROL,KEY_ALT,VK_MENU,KEY_RSHIFT,VK_RSHIFT,KEY_RCTRL,VK_RCONTROL,KEY_RALT,VK_RMENU};
-			for (i=0; i < ARRAYSIZE(ExtKey); i+=2)
-				if(FShift == ExtKey[i])
-				{
-					VirtKey=ExtKey[i+1];
-					break;
-				}
+			static const simple_pair<DWORD, DWORD> ExtKeyMap[]=
+			{
+				{KEY_SHIFT, VK_SHIFT},
+				{KEY_CTRL, VK_CONTROL},
+				{KEY_ALT, VK_MENU},
+				{KEY_RSHIFT, VK_RSHIFT},
+				{KEY_RCTRL, VK_RCONTROL},
+				{KEY_RALT, VK_RMENU},
+			};
+			auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) {return i.first == FShift;});
+			if (ItemIterator != std::cend(ExtKeyMap))
+				VirtKey = ItemIterator->second;
 		}
 		else
- 		{
-  			VirtKey=FKey;
- 			switch (FKey)
- 			{
- 				case KEY_NUMDEL:
- 					VirtKey=VK_DELETE;
- 					break;
- 				case KEY_NUMENTER:
- 					VirtKey=VK_RETURN;
- 					break;
+		{
+			VirtKey=FKey;
+			switch (FKey)
+			{
+				case KEY_NUMDEL:
+					VirtKey=VK_DELETE;
+					break;
+				case KEY_NUMENTER:
+					VirtKey=VK_RETURN;
+					break;
 
- 				case KEY_NONE:
- 				case KEY_IDLE:
- 					EventType=MENU_EVENT;
- 					break;
+				case KEY_NONE:
+				case KEY_IDLE:
+					EventType=MENU_EVENT;
+					break;
 
- 				case KEY_DRAGCOPY:
- 				case KEY_DRAGMOVE:
- 					EventType=MENU_EVENT;
- 					break;
+				case KEY_DRAGCOPY:
+				case KEY_DRAGMOVE:
+					EventType=MENU_EVENT;
+					break;
 
- 				case KEY_MSWHEEL_UP:
- 				case KEY_MSWHEEL_DOWN:
- 				case KEY_MSWHEEL_LEFT:
- 				case KEY_MSWHEEL_RIGHT:
- 				case KEY_MSLCLICK:
- 				case KEY_MSRCLICK:
- 				case KEY_MSM1CLICK:
- 				case KEY_MSM2CLICK:
- 				case KEY_MSM3CLICK:
- 					EventType=MOUSE_EVENT;
- 					break;
+				case KEY_MSWHEEL_UP:
+				case KEY_MSWHEEL_DOWN:
+				case KEY_MSWHEEL_LEFT:
+				case KEY_MSWHEEL_RIGHT:
+				case KEY_MSLCLICK:
+				case KEY_MSRCLICK:
+				case KEY_MSM1CLICK:
+				case KEY_MSM2CLICK:
+				case KEY_MSM3CLICK:
+					EventType=MOUSE_EVENT;
+					break;
 				case KEY_KILLFOCUS:
 				case KEY_GOTFOCUS:
- 					EventType=FOCUS_EVENT;
- 					break;
+					EventType=FOCUS_EVENT;
+					break;
 				case KEY_CONSOLE_BUFFER_RESIZE:
- 					EventType=WINDOW_BUFFER_SIZE_EVENT;
- 					break;
+					EventType=WINDOW_BUFFER_SIZE_EVENT;
+					break;
 				default:
- 					EventType=MENU_EVENT;
- 					break;
- 			}
- 		}
+					EventType=MENU_EVENT;
+					break;
+			}
+		}
 	}
 
 	/* TODO:
@@ -2012,13 +2005,10 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0)|
 					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
-					DWORD ExtKey[]={KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,KEY_DOWN,KEY_INS,KEY_DEL,KEY_NUMENTER};
-					for (i=0; i < ARRAYSIZE(ExtKey); i++)
-						if(FKey == ExtKey[i])
-						{
-							Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
-							break;
-						}
+					static const DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
+					auto ItemIterator = std::find(ALL_CONST_RANGE(ExtKey), FKey);
+					if (ItemIterator != std::cend(ExtKey))
+						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
 				break;
 			}
@@ -2097,7 +2087,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 int IsNavKey(DWORD Key)
 {
-	static DWORD NavKeys[][2]=
+	static const simple_pair<DWORD, DWORD> NavKeysMap[] =
 	{
 		{0,KEY_CTRLC},
 		{0,KEY_RCTRLC},
@@ -2116,17 +2106,15 @@ int IsNavKey(DWORD Key)
 		//!!!!!!!!!!!
 	};
 
-	for (int I=0; I < int(ARRAYSIZE(NavKeys)); I++)
-		if ((!NavKeys[I][0] && Key==NavKeys[I][1]) ||
-		        (NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF)))
-			return TRUE;
-
-	return FALSE;
+	return std::any_of(CONST_RANGE(NavKeysMap, i)
+	{
+		return (!i.first && Key==i.second) || (i.first && (Key&0x00FFFFFF) == (i.second&0x00FFFFFF));
+	});
 }
 
 int IsShiftKey(DWORD Key)
 {
-	static DWORD ShiftKeys[]=
+	static const DWORD ShiftKeys[] =
 	{
 		KEY_SHIFTLEFT,          KEY_SHIFTNUMPAD4,
 		KEY_SHIFTRIGHT,         KEY_SHIFTNUMPAD6,
@@ -2210,11 +2198,7 @@ int IsShiftKey(DWORD Key)
 		KEY_RCTRL,
 	};
 
-	for (int I=0; I<int(ARRAYSIZE(ShiftKeys)); I++)
-		if (Key==ShiftKeys[I])
-			return TRUE;
-
-	return FALSE;
+	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);
 }
 
 DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)

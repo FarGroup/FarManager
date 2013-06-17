@@ -415,50 +415,50 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
+	auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
 	{
-		if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
+		return i.Code == static_cast<NTSTATUS>(xr->ExceptionCode);
+	});
+
+	if (ItemIterator != std::cend(ECode))
+	{
+		Exception=LanguageLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
+		rc=ItemIterator->RetCode;
+
+		if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
-			Exception=LanguageLoaded()? MSG(ECode[I].IdMsg) : ECode[I].DefaultMsg;
-			rc=ECode[I].RetCode;
+			int Offset = 0;
+			// вот только не надо здесь неочевидных оптимизаций вида
+			// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
+			// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
 
-			if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
+			switch (xr->ExceptionInformation[0])
 			{
-				int Offset = 0;
-				// вот только не надо здесь неочевидных оптимизаций вида
-				// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-				// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
-
-				switch (xr->ExceptionInformation[0])
-				{
-					case 0:
-						Offset = 0;
-						break;
-					case 1:
-						Offset = 1;
-						break;
-					case 8:
-						Offset = 2;
-						break;
-				}
-
-				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
-				if (LanguageLoaded())
-				{
-					strBuf = MExcRAccess+Offset;
-					strBuf << strBuf2;
-					Exception=strBuf.CPtr();
-				}
-				else
-				{
-					const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-					strBuf1 = Exception;
-					strBuf1.Append(L" (").Append(AVs[Offset]).Append(strBuf2).Append(L")");
-					Exception=strBuf1.CPtr();
-				}
+				case 0:
+					Offset = 0;
+					break;
+				case 1:
+					Offset = 1;
+					break;
+				case 8:
+					Offset = 2;
+					break;
 			}
 
-			break;
+			strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
+			if (LanguageLoaded())
+			{
+				strBuf = MExcRAccess+Offset;
+				strBuf << strBuf2;
+				Exception=strBuf.CPtr();
+			}
+			else
+			{
+				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
+				strBuf1 = Exception;
+				strBuf1.Append(L" (").Append(AVs[Offset]).Append(strBuf2).Append(L")");
+				Exception=strBuf1.CPtr();
+			}
 		}
 	}
 

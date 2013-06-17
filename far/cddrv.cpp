@@ -161,14 +161,8 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 	int caps = CAPABILITIES_NONE;
 
-	struct capability_item
+	static const simple_pair<const char*, int> Capabilities[] =
 	{
-		const char* Id;
-		int Capability;
-	};
-
-	static std::array<capability_item, 7> Capabilities =
-	{{
 		{"CD", CAPABILITIES_GENERIC_CDROM},
 		{"CDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_CDRW},
 		{"DVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM},
@@ -176,12 +170,12 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"DVDRAM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW|CAPABILITIES_GENERIC_DVDRAM},
 		{"BDROM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
-	}};
+	};
 
 	std::for_each(CONST_RANGE(Capabilities, i)
 	{
-		if (strstr(productID, i.Id) )
-			caps |= i.Capability;
+		if (strstr(productID, i.first))
+			caps |= i.second;
 	});
 
 	return (CDROM_DeviceCapabilities)caps;
@@ -388,14 +382,8 @@ static CDROM_DeviceCapabilities GetDeviceCapabilities(File& Device)
 
 static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 {
-	struct device_caps
+	static simple_pair<int, int> DeviceCaps[] =
 	{
-		int Device;
-		int Caps;
-	};
-
-	static std::array<device_caps, 10> DeviceCaps =
-	{{
 		{DRIVE_BD_RW, CAPABILITIES_GENERIC_BDRW},
 		{DRIVE_BD_ROM, CAPABILITIES_GENERIC_BDROM},
 		{DRIVE_HDDVD_RW, CAPABILITIES_GENERIC_HDDVDRW},
@@ -406,14 +394,14 @@ static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 		{DRIVE_DVD_ROM, CAPABILITIES_GENERIC_DVDROM},
 		{DRIVE_CD_RW, CAPABILITIES_GENERIC_CDRW},
 		{DRIVE_CDROM, CAPABILITIES_GENERIC_CDROM},
-	}};
+	};
 
 	auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
 	{
-		return (caps & i.Caps) == i.Caps;
+		return (caps & i.second) == i.second;
 	});
-	
-	return ItemIterator == DeviceCaps.cend()? DRIVE_UNKNOWN : ItemIterator->Device;
+
+	return ItemIterator == std::cend(DeviceCaps)? DRIVE_UNKNOWN : ItemIterator->first;
 }
 
 bool IsDriveTypeCDROM(UINT DriveType)

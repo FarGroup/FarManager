@@ -127,13 +127,12 @@ static const export_name* GetExportsNames()
 		WA(""), // GetMinFarVersion not used
 	};
 	static_assert(ARRAYSIZE(ExportsNames) == i_LAST, "Not all exports names are defined");
-	return ExportsNames;	
+	return ExportsNames;
 };
 
 static BOOL PrepareModulePath(const string& ModuleName)
 {
-	string strModulePath;
-	strModulePath = ModuleName;
+	string strModulePath = ModuleName;
 	CutToSlash(strModulePath); //??
 	return FarChDir(strModulePath);
 }
@@ -420,14 +419,14 @@ void Plugin::SetGuid(const GUID& Guid)
 
 void InitVersionString(const VersionInfo& PluginVersion, string& VersionString)
 {
-		const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
-		FormatString strVersion;
-		strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
-		if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
-		{
-			strVersion << Stage[PluginVersion.Stage];
-		}
-		VersionString = strVersion;
+	const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+	FormatString strVersion;
+	strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
+	if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
+	{
+		strVersion << Stage[PluginVersion.Stage];
+	}
+	VersionString = strVersion;
 }
 
 bool Plugin::LoadData()

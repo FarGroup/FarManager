@@ -196,6 +196,15 @@ bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T)
 template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
+template <typename type_1, typename type_2>
+struct simple_pair
+{
+	typedef type_1 first_type;
+	typedef type_2 second_type;
+
+	first_type first;
+	second_type second;
+};
 
 #include "noncopyable.hpp"
 #include "farrtl.hpp"

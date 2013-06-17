@@ -940,12 +940,10 @@ int Editor::ProcessKey(int Key)
 					KEY_CTRLS,     KEY_RCTRLS,
 				};
 
-				for (size_t I=0; I<ARRAYSIZE(UnmarkKeys); I++)
-					if (Key==UnmarkKeys[I])
-					{
-						UnmarkBlock();
-						break;
-					}
+				if (std::find(ALL_CONST_RANGE(UnmarkKeys), Key) != std::cend(UnmarkKeys))
+				{
+					UnmarkBlock();
+				}
 			}
 			else
 			{

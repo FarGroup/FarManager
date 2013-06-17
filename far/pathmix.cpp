@@ -94,36 +94,34 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	static bool REInit = false;
 	if(!REInit)
 	{
-		for(size_t i = 0; i < ARRAYSIZE(PathTypes); ++i)
+		std::for_each(RANGE(PathTypes, i)
 		{
-			PathTypes[i].Compiled = PathTypes[i].re.Compile(PathTypes[i].REStr, OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE) != 0;
-			assert(PathTypes[i].Compiled);
-		}
+			i.Compiled = i.re.Compile(i.REStr, OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE) != 0;
+			assert(i.Compiled);
+		});
 		REInit = true;
 	}
 
 	RegExpMatch m[3];
 
-	for(size_t i = 0; i < ARRAYSIZE(PathTypes); ++i)
+	std::any_of(RANGE(PathTypes, i) -> bool
 	{
-		if(PathTypes[i].Compiled)
+		intptr_t n = i.re.GetBracketsCount();
+		if(i.re.Search(path.CPtr(), m, n))
 		{
-			intptr_t n = PathTypes[i].re.GetBracketsCount();
-			if(PathTypes[i].re.Search(path.CPtr(), m, n))
+			if(DirectoryOffset)
 			{
-				if(DirectoryOffset)
-				{
-					*DirectoryOffset = m[1].end;
-				}
-				if(Root)
-				{
-					*Root = !path[m[1].end] || (IsSlash(path[m[1].end]) && !path[m[1].end+1]);
-				}
-				Result = PathTypes[i].Type;
-				break;
+				*DirectoryOffset = m[1].end;
 			}
+			if(Root)
+			{
+				*Root = !path[m[1].end] || (IsSlash(path[m[1].end]) && !path[m[1].end+1]);
+			}
+			Result = i.Type;
+			return true;
 		}
-	}
+		return false;
+	});
 
 	return Result;
 }

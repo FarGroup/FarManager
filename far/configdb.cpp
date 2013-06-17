@@ -2765,12 +2765,8 @@ bool Database::Export(const string& File)
 	tinyxml::TiXmlDocument doc;
 	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
 
-	FormatString strVer;
-	strVer << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build;
-	char ver[50];
-	strVer.GetCharString(ver, ARRAYSIZE(ver));
 	auto root = new tinyxml::TiXmlElement("farconfig");
-	root->SetAttribute("version", ver);
+	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).CPtr());
 
 	root->LinkEndChild(GeneralCfg()->Export());
 
@@ -2799,11 +2795,9 @@ bool Database::Export(const string& File)
 	root->LinkEndChild(e);
 
 	{ //TODO: export for local plugin settings
-		string strPlugins = Global->Opt->ProfilePath;
-		strPlugins += L"\\PluginsData\\*.db";
-		FAR_FIND_DATA fd;
-		FindFile ff(strPlugins);
 		e = new tinyxml::TiXmlElement("pluginsconfig");
+		FindFile ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
+		FAR_FIND_DATA fd;
 		while (ff.Get(fd))
 		{
 			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
@@ -2835,10 +2829,6 @@ bool Database::Import(const string& File)
 
 	bool ret = false;
 
-	RegExpMatch m[2];
-	RegExp re;
-	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
-
 	tinyxml::TiXmlDocument doc;
 
 	if (doc.LoadFile(XmlFile))
@@ -2867,6 +2857,10 @@ bool Database::Import(const string& File)
 			CreateShortcutsConfig()->Import(root.FirstChildElement("shortcuts"));
 
 			//TODO: import for local plugin settings
+			RegExpMatch m[2];
+			RegExp re;
+			re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
+
 			for (auto plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
 			{
 				const char *guid = plugin->Attribute("guid");

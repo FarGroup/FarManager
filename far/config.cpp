@@ -394,22 +394,16 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	struct masks_group
+	static const simple_pair<const wchar_t*, const wchar_t*> Sets[] =
 	{
-		const wchar_t* Group;
-		const wchar_t* Masks;
-	};
-
-	static std::array<masks_group, 3> Sets =
-	{{
 		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
 		{L"temp", L"*.bak,*.tmp"},
 		{L"exec", L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"},
-	}};
+	};
 
 	std::for_each(CONST_RANGE(Sets, i)
 	{
-		Global->Db->GeneralCfg()->SetValue(L"Masks", i.Group, i.Masks);
+		Global->Db->GeneralCfg()->SetValue(L"Masks", i.first, i.second);
 	});
 }
 

@@ -795,11 +795,11 @@ int Manager::ProcessKey(DWORD Key)
 			ModalMenu.SetFlags(VMENU_WRAPMODE);
 			ModalMenu.SetPosition(-1,-1,0,0);
 
-			for (size_t I=0; I<ARRAYSIZE(ECode); I++)
+			std::for_each(CONST_RANGE(ECode, i)
 			{
-				ModalMenuItem.strName = ECode[I].Name;
+				ModalMenuItem.strName = i.Name;
 				ModalMenu.AddItem(&ModalMenuItem);
-			}
+			});
 
 			int ExitCode=ModalMenu.Run();
 

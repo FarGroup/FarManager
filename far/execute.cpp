@@ -402,17 +402,17 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 					if (!Result)
 					{
-						FOR_CONST_RANGE(PathExtList, Ext)
+						std::any_of(CONST_RANGE(PathExtList, Ext) -> bool
 						{
 							strFullName=RegPath;
 							strFullName+=Module;
-							strFullName+=*Ext;
+							strFullName+=Ext;
 
-							for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
+							return std::any_of(CONST_RANGE(RootFindKey, i) -> bool
 							{
 								HKEY hKey;
 
-								if (RegOpenKeyEx(RootFindKey[i],strFullName.CPtr(),0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+								if (RegOpenKeyEx(i, strFullName.CPtr(), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 								{
 									int RegResult=RegQueryStringValue(hKey, L"", strFullName, L"");
 									RegCloseKey(hKey);
@@ -421,14 +421,12 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 									{
 										apiExpandEnvironmentStrings(strFullName,strFullName);
 										Unquote(strFullName);
-										Result=true;
-										break;
+										return true;
 									}
 								}
-							}
-							if (Result)
-								break;
-						}
+								return false;
+							});
+						});
 					}
 				}
 			}

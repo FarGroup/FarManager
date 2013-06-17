@@ -466,12 +466,10 @@ int CommandLine::ProcessKey(int Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				for (size_t I=0; I< ARRAYSIZE(UnmarkKeys); I++)
-					if (Key==UnmarkKeys[I])
-					{
-						CmdStr.Select(-1,0);
-						break;
-					}
+				if (std::find(ALL_CONST_RANGE(UnmarkKeys), Key) != std::cend(UnmarkKeys))
+				{
+					CmdStr.Select(-1,0);
+				}
 			}
 
 			if (Key == KEY_CTRLD || Key == KEY_RCTRLD)
@@ -621,18 +619,18 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			apiExpandEnvironmentStrings(strDestStr, strExpandedDestStr);
 			strDestStr.Clear();
 			const wchar_t *Format = strExpandedDestStr.CPtr();
-			static std::array<std::array<wchar_t, 2>, 9> ChrFmt =
-			{{
-				{L'A',L'&'},   // $A - & (Ampersand)
-				{L'B',L'|'},   // $B - | (pipe)
-				{L'C',L'('},   // $C - ( (Left parenthesis)
-				{L'F',L')'},   // $F - ) (Right parenthesis)
-				{L'G',L'>'},   // $G - > (greater-than sign)
-				{L'L',L'<'},   // $L - < (less-than sign)
-				{L'Q',L'='},   // $Q - = (equal sign)
-				{L'S',L' '},   // $S - (space)
-				{L'$',L'$'},   // $$ - $ (dollar sign)
-			}};
+			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
+			{
+				{L'A', L'&'},   // $A - & (Ampersand)
+				{L'B', L'|'},   // $B - | (pipe)
+				{L'C', L'('},   // $C - ( (Left parenthesis)
+				{L'F', L')'},   // $F - ) (Right parenthesis)
+				{L'G', L'>'},   // $G - > (greater-than sign)
+				{L'L', L'<'},   // $L - < (less-than sign)
+				{L'Q', L'='},   // $Q - = (equal sign)
+				{L'S', L' '},   // $S - (space)
+				{L'$', L'$'},   // $$ - $ (dollar sign)
+			};
 
 			while (*Format)
 			{
@@ -642,12 +640,12 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 					auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
-						return i[0] == Chr;
+						return i.first == Chr;
 					});
 
-					if (ItemIterator != ChrFmt.cend())
+					if (ItemIterator != std::cend(ChrFmt))
 					{
-						strDestStr += (*ItemIterator)[1];
+						strDestStr += ItemIterator->second;
 					}
 					else
 					{
