@@ -41,18 +41,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
-#include "frame.hpp" //???
 #include "keyboard.hpp"
-#include "keys.hpp" //FIXME
 #include "lockscrn.hpp"
 #include "manager.hpp"
 #include "message.hpp"
 #include "panel.hpp"
 #include "scrbuf.hpp"
-#include "strmix.hpp"
 #include "syslog.hpp"
 #include "macroopcode.hpp"
-#include "interf.hpp"
 #include "console.hpp"
 #include "pathmix.hpp"
 #include "panelmix.hpp"
