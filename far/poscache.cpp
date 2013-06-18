@@ -72,12 +72,10 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 	{
 		if (Global->Opt->EdOpt.SaveShortPos)
 		{
-			int index = 0;
-			std::for_each(CONST_RANGE(poscache.bm, i)
+			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 			{
 				if (i.Line != POS_NONE)
 					Global->Db->HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
-				++index;
 			});
 		}
 		ret = true;
@@ -105,11 +103,9 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 		if (!Global->Opt->EdOpt.SaveShortPos)
 			return true;
 
-		int index = 0;
-		std::for_each(RANGE(poscache.bm, i)
+		for_each_cnt(RANGE(poscache.bm, i, size_t index)
 		{
 			Global->Db->HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
-			++index;
 		});
 
 		return true;
@@ -135,12 +131,10 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	{
 		if (Global->Opt->ViOpt.SavePos && Global->Opt->ViOpt.SaveShortPos)
 		{
-			int index = 0;
-			std::for_each(CONST_RANGE(poscache.bm, i)
+			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 			{
 				if (i.FilePos != POS_NONE)
 					Global->Db->HistoryCfg()->SetViewerBookmark(id, index, i.FilePos, i.LeftPos);
-				++index;
 			});
 		}
 		ret = true;
@@ -168,11 +162,9 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 		if (!Global->Opt->ViOpt.SavePos || !Global->Opt->ViOpt.SaveShortPos)
 			return true;
 
-		int index = 0;
-		std::for_each(RANGE(poscache.bm, i)
+		for_each_cnt(RANGE(poscache.bm, i, size_t index)
 		{
 			Global->Db->HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
-			++index;
 		});
 
 		return true;

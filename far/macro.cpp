@@ -5689,19 +5689,19 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		KMParam=reinterpret_cast<DlgParam*>(Param2);
 		LastKey=0;
 		// <Клавиши, которые не введешь в диалоге назначения>
-		DWORD PreDefKeyMain[]=
+		static const DWORD PreDefKeyMain[]=
 		{
 			//KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
 			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
 		};
 
-		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
+		std::for_each(CONST_RANGE(PreDefKeyMain, i)
 		{
-			KeyToText(PreDefKeyMain[i],strKeyText);
-			Dlg->SendMessage(DM_LISTADDSTR,2, UNSAFE_CSTR(strKeyText));
-		}
+			KeyToText(i, strKeyText);
+			Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
+		});
 
-		DWORD PreDefKey[]=
+		static const DWORD PreDefKey[]=
 		{
 			KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,
 			KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
@@ -5709,22 +5709,22 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			KEY_MSLDBLCLICK,KEY_MSRDBLCLICK,KEY_MSM1DBLCLICK,KEY_MSM2DBLCLICK,KEY_MSM3DBLCLICK,
 #endif
 		};
-		DWORD PreDefModKey[]=
+		static const DWORD PreDefModKey[]=
 		{
 			//0,KEY_CTRL,KEY_RCTRL,KEY_SHIFT,KEY_ALT,KEY_RALT,KEY_CTRLSHIFT,KEY_RCTRLSHIFT,KEY_CTRLALT,KEY_RCTRLRALT,KEY_CTRLRALT,KEY_RCTRLALT,KEY_ALTSHIFT,KEY_RALTSHIFT,
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
 		};
 
-		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
+		std::for_each(CONST_RANGE(PreDefKey, i)
 		{
-			Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(L"\1"));
+			Dlg->SendMessage(DM_LISTADDSTR, 2, const_cast<wchar_t*>(L"\1"));
 
-			for (size_t j=0; j<ARRAYSIZE(PreDefModKey); j++)
+			std::for_each(CONST_RANGE(PreDefModKey, j)
 			{
-				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
-				Dlg->SendMessage(DM_LISTADDSTR,2, UNSAFE_CSTR(strKeyText));
-			}
-		}
+				KeyToText(i | j, strKeyText);
+				Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
+			});
+		});
 
 		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
 		// </Клавиши, которые не введешь в диалоге назначения>

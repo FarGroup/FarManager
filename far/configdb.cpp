@@ -2522,13 +2522,13 @@ public:
 		return id;
 	}
 
-	bool SetEditorBookmark(unsigned __int64 id, int i, int Line, int LinePos, int ScreenLine, int LeftPos)
+	bool SetEditorBookmark(unsigned __int64 id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos)
 	{
 		WaitCommitAsync();
 		return stmtSetEditorBookmark.Bind(id).Bind(i).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).StepAndReset();
 	}
 
-	bool GetEditorBookmark(unsigned __int64 id, int i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos)
+	bool GetEditorBookmark(unsigned __int64 id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos)
 	{
 		WaitCommitAsync();
 		bool b = stmtGetEditorBookmark.Bind(id).Bind(i).Step();
@@ -2567,13 +2567,13 @@ public:
 		return id;
 	}
 
-	bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos)
+	bool SetViewerBookmark(unsigned __int64 id, size_t i, __int64 FilePos, __int64 LeftPos)
 	{
 		WaitCommitAsync();
 		return stmtSetViewerBookmark.Bind(id).Bind(i).Bind(FilePos).Bind(LeftPos).StepAndReset();
 	}
 
-	bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos)
+	bool GetViewerBookmark(unsigned __int64 id, size_t i, __int64 *FilePos, __int64 *LeftPos)
 	{
 		WaitCommitAsync();
 		bool b = stmtGetViewerBookmark.Bind(id).Bind(i).Step();

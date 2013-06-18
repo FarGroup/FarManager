@@ -82,8 +82,10 @@ InfoList::InfoList():
 	}
 	else
 	{
-		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			SectionState[i].Show = Global->Opt->InfoPanel.strShowStatusInfo[i] == L'1';
+		for_each_cnt(RANGE(SectionState, i, size_t index)
+		{
+			i.Show = Global->Opt->InfoPanel.strShowStatusInfo[index] == L'1';
+		});
 	}
 
 	if (!LastMode)
@@ -576,8 +578,10 @@ void InfoList::SelectShowMode(void)
 		MSG(MMenuInfoShowModePower),0,0,
 	};
 
-	for (size_t i=0; i<ARRAYSIZE(SectionState); i++)
-		ShowModeMenuItem[i].SetCheck( SectionState[i].Show ? L'+':L'-');
+	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
+	{
+		ShowModeMenuItem[index].SetCheck(i.Show ? L'+':L'-');
+	});
 
 	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{

@@ -689,7 +689,7 @@ void Options::SetDizConfig()
 	Builder.AddTextAfter(StartPos, MCfgDizStartPos);
 	Builder.AddSeparator();
 
-	static int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
+	static const int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
 	Builder.AddRadioButtons(Diz.UpdateMode, 3, DizOptions);
 	Builder.AddSeparator();
 
@@ -778,7 +778,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	}
 
 	Builder.AddText(MEditConfigExpandTabsTitle);
-	DialogBuilderListItem ExpandTabsItems[] = {
+	static const DialogBuilderListItem ExpandTabsItems[] = {
 		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
@@ -2234,13 +2234,9 @@ void Options::ReadPanelModes()
 
 	unsigned __int64 root = 0;
 
-	size_t Index = 0;
-
-	auto ReadMode = [&](VALUE_TYPE(ViewSettings)& i) -> bool
+	auto ReadMode = [&](VALUE_TYPE(ViewSettings)& i, size_t Index) -> bool
 	{
 		unsigned __int64 id = cfg->GetKeyID(root, FormatString() << Index);
-
-		Index++;
 
 		if (!id)
 		{
@@ -2272,16 +2268,16 @@ void Options::ReadPanelModes()
 		return true;
 	};
 
-	std::for_each(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
+	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
 
 	root = cfg->GetKeyID(0, CustomModesKeyName);
 
 	if (root)
 	{
-		for (;;)
+		for (size_t i = 0; ; ++i)
 		{
 			PanelViewSettings NewSettings;
-			if (ReadMode(NewSettings))
+			if (ReadMode(NewSettings, i))
 				m_ViewSettings.push_back(NewSettings);
 			else
 				break;
@@ -2299,9 +2295,8 @@ void Options::SavePanelModes()
 
 	auto cfg = Global->Db->CreatePanelModeConfig();
 	unsigned __int64 root = 0;
-	size_t Index = 0;
 
-	auto SaveMode = [&](const VALUE_TYPE(ViewSettings)& i)
+	auto SaveMode = [&](const VALUE_TYPE(ViewSettings)& i, size_t Index)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;
@@ -2321,10 +2316,9 @@ void Options::SavePanelModes()
 			cfg->SetValue(id, ModesStatusColumnWidthsName, strStatusColumnWidths);
 			cfg->SetValue(id, ModesFlagsName, i.Flags);
 		}
-		++Index;
 	};
 
-	std::for_each(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
+	for_each_cnt(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
 
 	root = cfg->GetKeyID(0, CustomModesKeyName);
 	if (root)
@@ -2334,7 +2328,7 @@ void Options::SavePanelModes()
 	root = cfg->CreateKey(0, CustomModesKeyName);
 	if (root)
 	{
-		std::for_each(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
+		for_each_cnt(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
 	}
 	m_ViewSettingsChanged = false;
 }

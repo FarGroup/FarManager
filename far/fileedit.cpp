@@ -2482,8 +2482,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				size_t size;
 				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->SavePos.size(), size))
 				{
-					int index = 0;
-					std::for_each(CONST_RANGE(m_editor->SavePos, i)
+					for_each_cnt(CONST_RANGE(m_editor->SavePos, i, size_t index)
 					{
 						if (ebm->Line)
 						{
@@ -2501,7 +2500,6 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						{
 							ebm->LeftPos[index] = i.LeftPos;
 						}
-						++index;
 					});
 				}
 				return size;

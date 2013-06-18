@@ -99,11 +99,10 @@ Shortcuts::Shortcuts()
 
 	if (root)
 	{
-		int index = 0;
-		std::for_each(RANGE(Items, i)
+		for_each_cnt(RANGE(Items, i, size_t index)
 		{
 			i.clear();
-			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << index++);
+			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << index);
 			if (key)
 			{
 				for(size_t j=0; ; j++)
@@ -154,14 +153,12 @@ Shortcuts::~Shortcuts()
 
 	if (root)
 	{
-		int index = 0;
-		std::for_each(CONST_RANGE(Items, i)
+		for_each_cnt(CONST_RANGE(Items, i, size_t index)
 		{
-			unsigned __int64 key = cfg->CreateKey(root, FormatString() << index++);
+			unsigned __int64 key = cfg->CreateKey(root, FormatString() << index);
 			if (key)
 			{
-				int index = 0;
-				std::for_each(CONST_RANGE(i, j)
+				for_each_cnt(CONST_RANGE(i, j, size_t index)
 				{
 					FormatString ValueName;
 					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
@@ -192,7 +189,6 @@ Shortcuts::~Shortcuts()
 						ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
 						cfg->SetValue(key, ValueName, j.strPluginData);
 					}
-					++index;
 				});
 			}
 		});

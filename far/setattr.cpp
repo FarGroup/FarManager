@@ -1043,13 +1043,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				});
 			}
 
-			struct DateTimeId
+			const struct DateTimeId
 			{
 				SETATTRDLG DateId;
 				SETATTRDLG TimeId;
 				PFILETIME TimeValue;
-			};
-			const DateTimeId Dates[] =
+			}
+			Dates[] =
 			{
 				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.ftLastWriteTime},
 				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.ftCreationTime},

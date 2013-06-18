@@ -391,9 +391,7 @@ DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
-										 DialogBuilderListItem *Items, size_t ItemCount,
-										 FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width, const DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
 	SetNextY(Item);
@@ -418,7 +416,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 }
 
 DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width,
-	DialogBuilderListItem *Items, size_t ItemCount,
+	const DialogBuilderListItem *Items, size_t ItemCount,
 	FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");

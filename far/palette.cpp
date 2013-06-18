@@ -238,10 +238,10 @@ void palette::CopyTo(FarColor* Destination) const
 
 void palette::Load()
 {
-	for (size_t i = 0; i < CurrentPalette.size(); ++i)
+	for_each_cnt(RANGE(CurrentPalette, i, size_t index)
 	{
-		Global->Db->ColorsCfg()->GetValue(Init[i].Name, CurrentPalette[i]);
-	}
+		Global->Db->ColorsCfg()->GetValue(Init[index].Name, i);
+	});
 	PaletteChanged = false;
 }
 
@@ -250,10 +250,10 @@ void palette::Save()
 	if (PaletteChanged)
 	{
 		Global->Db->ColorsCfg()->BeginTransaction();
-		for (size_t i = 0; i < CurrentPalette.size(); ++i)
+		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
 		{
-			Global->Db->ColorsCfg()->SetValue(Init[i].Name, CurrentPalette[i]);
-		}
+			Global->Db->ColorsCfg()->SetValue(Init[index].Name, i);
+		});
 		Global->Db->ColorsCfg()->EndTransaction();
 		PaletteChanged = false;
 	}

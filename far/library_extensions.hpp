@@ -135,18 +135,18 @@ Type get_value_type(Type (&a)[Size]);
 #define T_VALUE_TYPE(T) VALUE_TYPE(T)
 #endif
 
-#define LAMBDA_PREDICATE(T, i) [&](T_VALUE_TYPE(T)& i)
-#define CONST_LAMBDA_PREDICATE(T, i) [&](const T_VALUE_TYPE(T)& i)
+#define LAMBDA_PREDICATE(T, i, ...) [&](T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
+#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](const T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
 
 #define ALL_RANGE(T) std::begin(T), std::end(T)
 #define ALL_REVERSE_RANGE(T) std::rbegin(T), std::rend(T)
 #define ALL_CONST_RANGE(T) std::cbegin(T), std::cend(T)
 #define ALL_CONST_REVERSE_RANGE(T) std::crbegin(T), std::crend(T)
 
-#define RANGE(T, i) ALL_RANGE(T), LAMBDA_PREDICATE(T, i)
-#define REVERSE_RANGE(T, i) ALL_REVERSE_RANGE(T), LAMBDA_PREDICATE(T, i)
-#define CONST_RANGE(T, i) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
-#define CONST_REVERSE_RANGE(T, i) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i)
+#define RANGE(T, i, ...) ALL_RANGE(T), LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
+#define REVERSE_RANGE(T, i, ...) ALL_REVERSE_RANGE(T), LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
+#define CONST_RANGE(T, i, ...) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
+#define CONST_REVERSE_RANGE(T, i, ...) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
 
 #define FOR_RANGE(T, i) for(auto i = std::begin(T); i != std::end(T); ++i)
 #define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T); i != std::rend(T); ++i)
@@ -186,4 +186,15 @@ template<typename T>
 inline void DeleteValues(T& std_container)
 {
 	std::for_each(ALL_CONST_RANGE(std_container), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
+}
+
+// for_each with embedded counter
+template<class I, class F>
+inline F for_each_cnt(I First, I Last, F Func)
+{
+	for (size_t Cnt = 0; First != Last; ++First, ++Cnt)
+	{
+		Func(*First, Cnt);
+	}
+	return Func;
 }

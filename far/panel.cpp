@@ -309,22 +309,20 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 		ChDisk.AddItem(&ChDiskItem);
 		ChDiskItem.Flags&=~LIF_SEPARATOR;
 
-		int index = 0;
-		std::for_each(RANGE(MPItems, i)
+		for_each_cnt(RANGE(MPItems, i, size_t index)
 		{
 			if (Pos > DiskCount && !SetSelected)
 			{
-				i.Item.SetSelect(DiskCount+index+1==Pos);
+				i.Item.SetSelect(DiskCount + static_cast<int>(index) + 1 == Pos);
 
 				if (!SetSelected)
-					SetSelected=DiskCount+index+1==Pos;
+					SetSelected = DiskCount + static_cast<int>(index) + 1 == Pos;
 			}
 			const wchar_t HotKeyStr[]={i.HotKey? L'&' : L' ', i.HotKey? i.HotKey : L' ', L' ', i.HotKey? L' ' : L'\0', L'\0'};
 			i.Item.strName = string(HotKeyStr) + i.Item.strName;
 			ChDisk.AddItem(&i.Item);
 
 			delete(PanelMenuItem*)i.Item.UserData;  //ללהא...
-			++index;
 		});
 	}
 	return PluginMenuItemsCount;

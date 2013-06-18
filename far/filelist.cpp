@@ -4520,7 +4520,7 @@ void FileList::SelectSortMode()
 		MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
 		MSG(MMenuSortDirectoriesFirst),0,0,
 	};
-	static int SortModes[]=
+	static const int SortModes[]=
 	{
 		BY_NAME,
 		BY_EXT,
@@ -4578,8 +4578,10 @@ void FileList::SelectSortMode()
 			if (MenuPos < (int)ARRAYSIZE(SortModes) && (Key == L'+' || Key == L'-' || Key == L'*'))
 			{
 				// clear check
-				for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
-					SortModeMenu.SetCheck(0,static_cast<int>(i));
+				for_each_cnt(CONST_RANGE(SortModes, i, size_t index)
+				{
+					SortModeMenu.SetCheck(0,static_cast<int>(index));
+				});
 			}
 
 			int KeyProcessed = 1;

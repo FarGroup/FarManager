@@ -41,9 +41,9 @@ struct value_name_pair
 	typedef name pair_name_type;
 };
 
-/*
-container: some std container (array, vector, etc) or array of name_value_pair
-*/
+
+// container: some std container (array, vector, etc) or array of name_value_pair
+
 template<class container, class value>
 auto GetNameOfValue(const value& Value, const container& From) -> decltype(std::begin(From)->Name)
 {
@@ -66,7 +66,7 @@ auto GetValueOfVame(const name& Name, const container& From) -> decltype(std::be
 	{
 		return !StrCmpI(i.Name, Name);
 	});
-	// VC10 workaround. TODO: remove EmptyName and use normal decltype after migrating to compiler with full C++11 support.
+	// VC10 workaround. TODO: remove EmptyValue and use normal decltype after migrating to compiler with full C++11 support.
 	auto EmptyValue = typename DECLTYPE(ItemIterator->Value)();
 	return ItemIterator == std::cend(From)? EmptyValue : ItemIterator->Value;
 }

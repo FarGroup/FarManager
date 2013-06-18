@@ -382,7 +382,7 @@ static CDROM_DeviceCapabilities GetDeviceCapabilities(File& Device)
 
 static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 {
-	static simple_pair<int, int> DeviceCaps[] =
+	static const simple_pair<int, int> DeviceCaps[] =
 	{
 		{DRIVE_BD_RW, CAPABILITIES_GENERIC_BDRW},
 		{DRIVE_BD_ROM, CAPABILITIES_GENERIC_BDROM},
