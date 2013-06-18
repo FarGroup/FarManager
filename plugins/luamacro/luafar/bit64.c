@@ -185,10 +185,9 @@ static int f_new(lua_State *L)
 	}
 	else if(type == LUA_TNUMBER)
 	{
-		int success = 0;
-		INT64 v = check64(L, 1, &success);
-
-		if(success)
+		double d = lua_tonumber(L, 1);
+		INT64 v = (INT64)lua_tonumber(L, 1);
+		if (d == v)
 			return bit64_pushuserdata(L, v);
 	}
 	else
