@@ -2,6 +2,7 @@ local args = ...
 local M, ErrMsg, pack = args.M, args.ErrMsg, args.pack
 
 local F = far.Flags
+local type = type
 local band, bor = bit64.band, bit64.bor
 local MacroCallFar = far.MacroCallFar
 local gmeta = { __index=_G }
@@ -44,7 +45,7 @@ local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 
 local AddMacro_filename
-local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition","filemask"}
+local AddMacro_fields = {"area","key","code","action","description","priority","condition","filemask"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 package.nounload = {}
@@ -53,6 +54,59 @@ for k in pairs(package.loaded) do initial_modules[k]=true end
 
 local function CheckFileName (mask, name)
   return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
+end
+
+local StringToFlags, FlagsToString do
+  local MacroFlagsByInt = {
+    [0x00000001] = "EnableOutput",
+    [0x00000002] = "NoSendKeysToPlugins",
+    [0x00000008] = "RunAfterFARStart",
+    [0x00000010] = "EmptyCommandLine",
+    [0x00000020] = "NotEmptyCommandLine",
+    [0x00000040] = "EVSelection",
+    [0x00000080] = "NoEVSelection",
+    [0x00000100] = "Selection",
+    [0x00000200] = "PSelection",
+    [0x00000400] = "NoSelection",
+    [0x00000800] = "NoPSelection",
+    [0x00001000] = "NoFilePanels",
+    [0x00002000] = "NoFilePPanels",
+    [0x00004000] = "NoPluginPanels",
+    [0x00008000] = "NoPluginPPanels",
+    [0x00010000] = "NoFolders",
+    [0x00020000] = "NoPFolders",
+    [0x00040000] = "NoFiles",
+    [0x00080000] = "NoPFiles",
+  }
+  local MacroFlagsByStr={}
+  for k,v in pairs(MacroFlagsByInt) do MacroFlagsByStr[v:lower()]=k end
+
+  function StringToFlags (str)
+    local flags = 0
+    if type(str) == "string" then
+      for word in str:lower():gmatch("[^ |]+") do
+        local f = MacroFlagsByStr[word]
+        if f then flags = bor(flags, f) end
+      end
+    end
+    return flags
+  end
+
+  -- assume 52 bits at most
+  function FlagsToString (flags)
+    local str, bit = "", 1
+    while flags >= bit do
+      if band(flags,bit) ~= 0 then
+        local s = MacroFlagsByInt[bit]
+        if s then
+          if str ~= "" then str = str.." " end
+          str = str..s
+        end
+      end
+      bit = bit * 2
+    end
+    return str
+  end
 end
 
 local function EV_Handler (macros, filename, ...)
@@ -231,7 +285,7 @@ local function AddMacro (srctable)
       for _,v in ipairs(AddMacro_fields2) do macro[v]=srctable[v] end
     end
 
-    if type(macro.flags)~="string" then macro.flags="" end
+    macro.flags = StringToFlags(srctable.flags)
     if type(macro.description)~="string" then macro.description=nil end
     if type(macro.condition)~="function" then macro.condition=nil end
     if type(macro.filemask)~="string" then macro.filemask=nil end
@@ -275,9 +329,9 @@ local function AddRecordedMacro (srctable)
     arTable[normkey].recorded = macro
   end
 
-  for _,v in ipairs{"area","key","code","flags","description"} do macro[v]=srctable[v] end
+  for _,v in ipairs{"area","key","code","description"} do macro[v]=srctable[v] end
 
-  if type(macro.flags)~="string" then macro.flags="" end
+  macro.flags = StringToFlags(srctable.flags)
   if type(macro.description)~="string" then macro.description=nil end
 
   macro.id = #LoadedMacros+1
@@ -297,7 +351,6 @@ local function AddEvent (srctable)
   for _,v in ipairs(AddEvent_fields) do macro[v]=srctable[v] end
   macro.FileName = AddMacro_filename
 
-  if type(macro.flags)~="string" then macro.flags="" end
   if type(macro.description)~="string" then macro.description=nil end
   if type(macro.condition)~="function" then macro.condition=nil end
   if type(macro.filemask)~="string" then macro.filemask=nil end
@@ -439,7 +492,7 @@ local function WriteOneMacro (macro, keyname, delete)
   local fp, msg = io.open(fname, "w")
   if fp then
     fp:write(("area=%q\nkey=%q\nflags=%q\ndescription=%q\ncode=%q\n"):
-      format(macro.area, macro.key, macro.flags, macro.description, macro.code))
+      format(macro.area, macro.key, FlagsToString(macro.flags), macro.description, macro.code))
     fp:close()
     macro.FileName = fname
   end
@@ -654,21 +707,20 @@ end
 local function RunStartMacro()
   if not LoadMacrosDone then return end
 
-  local flagregex = regex.new("\\bRunAfterFARStart\\b", "i")
   local mode = far.MacroGetArea()
   local opt = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3)
   local mtable = opt==1 and Areas.editor or opt==2 and Areas.viewer or Areas.shell
 
   for _,macros in pairs(mtable) do
     local m = macros.recorded
-    if m and not m.disabled and m.flags and flagregex:find(m.flags) and not m.autostartdone then
+    if m and not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
       m.autostartdone=true
       if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
         MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
       end
     end
     for _,m in ipairs(macros) do
-      if not m.disabled and m.flags and flagregex:find(m.flags) and not m.autostartdone then
+      if not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
         m.autostartdone=true
         if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
           if not m.condition or m.condition() then

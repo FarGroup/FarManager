@@ -74,7 +74,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "constitle.hpp"
 #include "usermenu.hpp"
-#include "valuename.hpp"
 
 static BOOL CheckAll(FARMACROAREA Mode, UINT64 CurFlags);
 
@@ -349,32 +348,6 @@ struct DlgParam
 	FARMACROAREA Mode;
 	int Recurse;
 	bool Changed;
-};
-
-static const value_name_pair<MACROFLAGS_MFLAGS, const wchar_t*> MKeywordsFlags[] =
-{
-	{MFLAGS_ENABLEOUTPUT, L"EnableOutput"},
-	{MFLAGS_RUNAFTERFARSTART, L"RunAfterFARStart"},
-	{MFLAGS_EMPTYCOMMANDLINE, L"EmptyCommandLine"},
-	{MFLAGS_NOTEMPTYCOMMANDLINE, L"NotEmptyCommandLine"},
-	{MFLAGS_EDITSELECTION, L"EVSelection"},
-	{MFLAGS_EDITNOSELECTION, L"NoEVSelection"},
-
-	{MFLAGS_NOFILEPANELS, L"NoFilePanels"},
-	{MFLAGS_NOPLUGINPANELS, L"NoPluginPanels"},
-	{MFLAGS_NOFOLDERS, L"NoFolders"},
-	{MFLAGS_NOFILES, L"NoFiles"},
-	{MFLAGS_SELECTION, L"Selection"},
-	{MFLAGS_NOSELECTION, L"NoSelection"},
-
-	{MFLAGS_PNOFILEPANELS, L"NoFilePPanels"},
-	{MFLAGS_PNOPLUGINPANELS, L"NoPluginPPanels"},
-	{MFLAGS_PNOFOLDERS, L"NoPFolders"},
-	{MFLAGS_PNOFILES, L"NoPFiles"},
-	{MFLAGS_PSELECTION, L"PSelection"},
-	{MFLAGS_PNOSELECTION, L"NoPSelection"},
-
-	{MFLAGS_NOSENDKEYSTOPLUGINS, L"NoSendKeysToPlugins"},
 };
 
 static bool ToDouble(__int64 v, double *d)
@@ -725,7 +698,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 			Data->Area        = (FARMACROAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
-			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String, MKeywordsFlags));
+			Data->Flags       = FixFlags(Mode, (MACROFLAGS_MFLAGS)mpr->Values[4].Double);
 
 			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
 			Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
@@ -746,13 +719,12 @@ bool KeyMacro::MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon)
 void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags,
 	const string& Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
 {
-	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
-	string strFlags(FlagsToString(Flags, MKeywordsFlags));
+	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_INTEGER},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
 
 	values[0].Double=Mode;
 	values[1].String=TextKey.CPtr();
 	values[2].String=Code.CPtr();
-	values[3].String=strFlags.CPtr();
+	values[3].Integer=Flags;
 	values[4].String=Description.CPtr();
 	if (Guid)
 	{
@@ -2625,7 +2597,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				int macroId = (int)Data->Values[0].Double;
 				const wchar_t* code = Data->Values[1].String;
-				MACROFLAGS_MFLAGS flags = StringToFlags(Data->Values[2].String, MKeywordsFlags);
+				MACROFLAGS_MFLAGS flags = (MACROFLAGS_MFLAGS)Data->Values[2].Double;
 				Result = PostNewMacro(macroId, code, flags);
 			}
 			PassBoolean(Result?1:0, Data);
@@ -2638,7 +2610,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count >= 2)
 			{
 				FARMACROAREA Area = (FARMACROAREA)(int)Data->Values[0].Double;
-				MACROFLAGS_MFLAGS Flags = FixFlags(Area, StringToFlags(Data->Values[1].String, MKeywordsFlags));
+				MACROFLAGS_MFLAGS Flags = FixFlags(Area, (MACROFLAGS_MFLAGS)Data->Values[1].Double);
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
 				void* CallbackId = (Data->Count>=4  && Data->Values[3].Type==FMVT_POINTER) ?
