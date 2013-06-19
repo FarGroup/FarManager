@@ -138,6 +138,12 @@ if not exist bootstrap mkdir bootstrap</Command>
       <LargeAddressAware>true</LargeAddressAware>
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\Far.exe &gt; nul</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>fixing subsystem version</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
@@ -180,6 +186,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\Far.exe &gt; nul</Command>
+      <Message>fixing subsystem version</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
@@ -224,6 +234,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <LargeAddressAware>true</LargeAddressAware>
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\Far.exe &gt; nul</Command>
+      <Message>fixing subsystem version</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PreBuildEvent>
@@ -267,6 +281,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\Far.exe &gt; nul</Command>
+      <Message>fixing subsystem version...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="api_test.c">
@@ -484,6 +502,10 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="UnicodeString.cpp" />
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc10wrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="vc11wrapper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -1186,6 +1208,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </CustomBuild>
     <None Include="headers.m4" />
     <MASM Include="vc10.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="vc11.asm">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

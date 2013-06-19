@@ -260,6 +260,8 @@ UnicodeString.hpp
 usermenu.cpp
 usermenu.hpp
 valuename.hpp
+vc10wrapper.cpp
+vc11wrapper.cpp
 viewer.cpp
 viewer.hpp
 vmenu.cpp

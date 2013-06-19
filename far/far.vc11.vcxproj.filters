@@ -521,6 +521,9 @@
     <ClCompile Include="vc10wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vc11wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="sqlitedb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1136,6 +1139,9 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="vc10.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="vc11.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
