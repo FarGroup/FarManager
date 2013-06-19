@@ -47,7 +47,7 @@ cd ..
 cd FarColorer || exit 1
 rm -fR build
 git pull || exit 1
-git submodule update || exit 1
+git submodule update --recursive || exit 1
 
 ( \
 	bcolorer 32 x86 && \
