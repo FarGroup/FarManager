@@ -193,10 +193,15 @@ public:
 	int UnloadPluginExternal(HANDLE hPlugin);
 	bool IsPluginUnloaded(Plugin* pPlugin);
 	void LoadPlugins();
-	Plugin *GetPlugin(const string& ModuleName);
-	std::list<Plugin*>::const_iterator cbegin() const { return SortedPlugins.cbegin(); }
-	std::list<Plugin*>::const_iterator cend() const { return SortedPlugins.cend(); }
+	// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
+	typedef std::list<Plugin*>::const_iterator const_iterator;
+	typedef const_iterator iterator;
+	iterator begin() const { return SortedPlugins.cbegin(); }
+	iterator end() const { return SortedPlugins.cend(); }
+	const_iterator cbegin() const { return begin(); }
+	const_iterator cend() const { return end(); }
 	typedef Plugin* value_type;
+	Plugin *GetPlugin(const string& ModuleName);
 	size_t GetPluginsCount() const { return SortedPlugins.size(); }
 #ifndef NO_WRAPPER
 	size_t OemPluginsPresent() const { return OemPluginsCount > 0; }

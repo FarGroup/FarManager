@@ -52,61 +52,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // possibly they will be added in C++14, until then they are manually defined here:
 namespace std
 {
-	template<class Container>
-	inline auto cbegin(const Container& c) -> decltype(c.cbegin()) {return c.cbegin();}
-	template<class Container>
-	inline auto cend(const Container& c) -> decltype(c.cend()) {return c.cend();}
-	
-	template<class Type, size_t Size>
-	inline const Type* cbegin(const Type (&a)[Size]) {return a;}
-	template<class Type, size_t Size>
-	inline const Type* cend(const Type (&a)[Size]) {return a + Size;}
-	
-	template<class Container>
-	inline auto rbegin(Container& c) -> decltype(c.rbegin()) {return c.rbegin();}
-	template<class Container>
-	inline auto rend(Container& c) -> decltype(c.rend()) {return c.rend();}
+	template<class T>
+	inline auto cbegin(const T& t) -> decltype(begin(t)) {return begin(t);}
+	template<class T>
+	inline auto cend(const T& t) -> decltype(end(t)) {return end(t);}
 
-	template<class PtrType>
-	class array_reverse_iterator
-	{
-	public:
-		array_reverse_iterator(PtrType value = nullptr) {this->value = value;}
-		PtrType operator ->() const {return value;}
-		typename std::remove_pointer<PtrType>::type& operator *() const {return *value;}
-		bool operator <(const array_reverse_iterator& rhs) const {return value > rhs.value;}
-		bool operator >(const array_reverse_iterator& rhs) const {return value < rhs.value;}
-		bool operator <=(const array_reverse_iterator& rhs) const {return value >= rhs.value;}
-		bool operator >=(const array_reverse_iterator& rhs) const {return value <= rhs.value;}
-		bool operator !=(const array_reverse_iterator& rhs) const {return value != rhs.value;}
-		bool operator ==(const array_reverse_iterator& rhs) const {return value == rhs.value;}
-		array_reverse_iterator& operator ++() {--value; return *this;}
-		array_reverse_iterator& operator --() {++value; return *this;}
-		array_reverse_iterator operator ++(int) {return value--;}
-		array_reverse_iterator operator --(int) {return value++;}
-		array_reverse_iterator& operator +=(size_t Offset) {value -= Offset; return *this;}
-		array_reverse_iterator& operator -=(size_t Offset) {value += Offset; return *this;}
-		array_reverse_iterator operator +(size_t Offset) const {return value - Offset;}
-		array_reverse_iterator operator -(size_t Offset) const {return value + Offset;}
-		ptrdiff_t operator -(const array_reverse_iterator& rhs) const {return rhs.value - value;}
-	protected:
-		PtrType value;
-	};
+	template<class T>
+	inline auto rbegin(T& t) -> reverse_iterator<decltype(end(t))> {return reverse_iterator<decltype(end(t))>(end(t));}
+	template<class T>
+	inline auto rend(T& t) -> reverse_iterator<decltype(begin(t))> {return reverse_iterator<decltype(begin(t))>(begin(t));}
 
-	template<class Type, size_t Size>
-	inline auto rbegin(Type (&a)[Size]) -> array_reverse_iterator<Type*> {return a + Size - 1;}
-	template<class Type, size_t Size>
-	inline auto rend(Type (&a)[Size]) -> array_reverse_iterator<Type*> {return a - 1;}
-
-	template<class Container>
-	inline auto crbegin(const Container& c) -> decltype(c.crbegin()) {return c.crbegin();}
-	template<class Container>
-	inline auto crend(const Container& c) -> decltype(c.crend()) {return c.crend();}
-
-	template<class Type, size_t Size>
-	inline auto crbegin(Type (&a)[Size]) -> array_reverse_iterator<const Type*> {return a + Size - 1;}
-	template<class Type, size_t Size>
-	inline auto crend(Type (&a)[Size]) -> array_reverse_iterator<const Type*> {return a - 1;}
+	template<class T>
+	inline auto crbegin(const T& t) -> decltype(rbegin(t)) {return rbegin(t);}
+	template<class T>
+	inline auto crend(const T& t) -> decltype(rend(t)) {return rend(t);}
 };
 #endif
 
