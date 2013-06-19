@@ -197,8 +197,8 @@ public:
 	std::list<Plugin*>::const_iterator end() const { return SortedPlugins.cend(); }
 	std::list<Plugin*>::const_iterator cbegin() const { return begin(); }
 	std::list<Plugin*>::const_iterator cend() const { return end(); }
-	// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
 #if defined(_MSC_VER) && _MSC_VER < 1700
+	// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
 	typedef std::list<Plugin*>::const_iterator iterator;
 #endif
 	typedef Plugin* value_type;
