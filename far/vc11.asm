@@ -1,6 +1,6 @@
-;vc10.asm
+;vc11.asm
 
-;Workaround for VC2011 and old Windows
+;Workaround for VC2012 and old Windows
 
 ;Copyright © 2013 Far Group
 ;All rights reserved.

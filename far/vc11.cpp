@@ -1,10 +1,10 @@
 /*
 vc11.cpp
 
-Workaround for VC2011 and old Windows
+Workaround for VC2012 and old Windows
 */
 /*
-Copyright © 2011 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
