@@ -513,56 +513,9 @@ local function WriteMacros()
   end
 end
 
-local function GetTopMacros (area, key, macrolist, checkonly)
-  local topmacros = { n=0 }
-  local max_priority = -1
-
-  local filename
-  if not checkonly then
-    if area=="editor" then filename=editor.GetFileName()
-    elseif area=="viewer" then filename=viewer.GetFileName()
-    end
-  end
-
-  for _,macro in ipairs(macrolist) do
-    local priority = macro.priority or (area=="common" and 40) or 50
-    local pr = checkonly and priority
-    if not checkonly then
-      local check = not (filename and macro.filemask) or CheckFileName(macro.filemask, filename)
-      if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
-        if macro.condition then
-          pr = macro.condition(key) -- unprotected call
-          if pr then
-            if type(pr)=="number" then pr = pr>100 and 100 or pr<0 and 0 or pr
-            else pr = priority
-            end
-          end
-        else
-          pr = priority
-        end
-      end
-    end
-    if pr then
-      if pr > max_priority then
-        topmacros.n = 1
-        topmacros[1] = macro
-        max_priority = pr
-        if pr > 100 then
-          break
-        end
-      elseif pr == max_priority then
-        topmacros.n = topmacros.n + 1
-        topmacros[topmacros.n] = macro
-      end
-    end
-  end
-  return topmacros.n > 0 and topmacros
-end
-
 local function GetFromMenu (macrolist)
   local menuitems = {}
-  for i=1,macrolist.n do
-    local macro = macrolist[i]
+  for i,macro in ipairs(macrolist) do
     local descr = macro.description
     if not descr or descr=="" then
       descr = ("< No description: Id=%d >"):format(macro.id)
@@ -600,38 +553,99 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end)
   local Names = { area, argUseCommon and area~="common" and "common" or nil }
 
+  -- 1 and 2
+  for _,areaname in ipairs(Names) do
+    local areatable = Areas[areaname]
+    if areatable and areatable[key] then
+      local macro = areatable[key].recorded
+      if macro and not macro.disabled
+        and (argCheckOnly or MacroCallFar(MCODE_F_CHECKALL,argMode,macro.flags,nil,nil)) then
+          return macro, areaname
+      end
+    end
+  end
+
+  -- 3
+  local Collector = {}
+
+  -- 4, 4b, 5, 5b
+  local filename = area=="editor" and editor.GetFileName() or area=="viewer" and viewer.GetFileName()
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
     if areatable then
       local macros = areatable[key]
       local macros_regex = areatable[1]
-      local macrolist = {}
-
       if macros then
-        if macros.recorded and not macros.recorded.disabled then -- must come first
-          macrolist[#macrolist+1] = macros.recorded
-        end
-        for _,v in ipairs(macros) do -- must come second
-          if not v.disabled then macrolist[#macrolist+1]=v end
+        for _,v in ipairs(macros) do
+          if not v.disabled then
+            if argCheckOnly then return v, areaname end
+            local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
+            if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
+              if not Collector[v] then
+                v.temparea = areaname
+                Collector[v] = v.priority
+              end
+            end
+          end
         end
       end
       if macros_regex then
         for _,v in ipairs(macros_regex) do
-          if v.keyregex:match(key) == key then
-            macrolist[#macrolist+1] = v
+          if not v.disabled and v.keyregex:match(key) == key then
+            if argCheckOnly then return v, areaname end
+            local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
+            if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
+              if not Collector[v] then
+                v.temparea = areaname
+                Collector[v] = v.priority
+              end
+            end
           end
-        end
-      end
-
-      if macrolist[1] then
-        local toplist = GetTopMacros(areaname, argKey, macrolist, argCheckOnly)
-        if toplist then
-          local macro = (argCheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist) or {}
-          return macro, areaname
         end
       end
     end
   end
+  if not next(Collector) then return end
+
+  -- 6
+  local max_priority = -1
+  local nummacros = 0
+  for m,p in pairs(Collector) do
+    if m.condition then
+      local pr = m.condition(argKey) -- unprotected call
+      if pr then
+        if type(pr)=="number" then
+          Collector[m] = pr>100 and 100 or pr<0 and 0 or pr
+        end
+      else
+        Collector[m] = nil
+      end
+    end
+    if Collector[m] then
+      nummacros = nummacros + 1
+      if max_priority < Collector[m] then max_priority = Collector[m] end
+    end
+  end
+  if not next(Collector) then return end
+
+  -- 7
+  if nummacros == 1 then
+    local macro = next(Collector,nil)
+    return macro, macro.temparea
+  end
+
+  -- 8
+  local macrolist = {}
+  for m,p in pairs(Collector) do
+    if p==max_priority then macrolist[#macrolist+1]=m end
+  end
+  if #macrolist == 1 then
+    return macrolist[1], macrolist[1].temparea
+  end
+
+  local macro = GetFromMenu(macrolist) or {}
+  return macro, macro.temparea
+
 end
 
 local function GetMacroWrapper (args)
