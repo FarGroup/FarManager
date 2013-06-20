@@ -1,6 +1,6 @@
 ;vc_crt_fix.asm
 
-;Workaround for Visual C++ CRT inncompability with old Windows versions
+;Workaround for Visual C++ CRT incompatibility with old Windows versions
 
 ;Copyright © 2010 Far Group
 ;All rights reserved.
