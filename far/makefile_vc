@@ -227,12 +227,10 @@ LINK_OBJS = \
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
-	"$(INTDIR)\vc10.obj" \
-	"$(INTDIR)\vc10wrapper.obj" \
-	"$(INTDIR)\vc11.obj" \
-	"$(INTDIR)\vc11wrapper.obj"
+	"$(INTDIR)\vc_crt_fix.obj" \
+	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !else
-	"$(INTDIR)\vc10wrp_u.obj"
+	"$(INTDIR)\vc_crt_fix_ulink.obj"
 !endif
 !endif
 
@@ -337,7 +335,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc10.cpp" "$(FARINCLUDE)\vc10.asm" "$(FARINCLUDE)\vc10u.cpp" "$(FARINCLUDE)\vc11.cpp" "$(FARINCLUDE)\vc11.asm" 
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc_crt_fix_impl.cpp" "$(FARINCLUDE)\vc_crt_fix.asm" "$(FARINCLUDE)\vc_crt_fix_ulink.cpp" 
 
 .PHONY: version_fix
 version_fix: "$(OUTDIR)\Far.exe"
@@ -375,6 +373,12 @@ $(PCH_FILE): headers.cpp headers.hpp
 
 $(INTDIR)\initguid.obj: initguid.cpp
 	$(CPP) $(CPPFLAGS) initguid.cpp
+
+$(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
+	$(CPP) $(CPPFLAGS) vc_crt_fix_impl.cpp
+
+$(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
+	$(CPP) $(CPPFLAGS) vc_crt_fix_ulink.cpp
 
 .c{$(INTDIR)}.obj::
 	$(CPP) @<<
@@ -443,11 +447,9 @@ $(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
-$(FARINCLUDE)\vc10.cpp \
-$(FARINCLUDE)\vc10.asm \
-$(FARINCLUDE)\vc10u.cpp \
-$(FARINCLUDE)\vc11.cpp \
-$(FARINCLUDE)\vc11.asm: $(@F)
+$(FARINCLUDE)\vc_crt_fix.asm \
+$(FARINCLUDE)\vc_crt_fix_impl.cpp \
+$(FARINCLUDE)\vc_crt_fix_ulink.cpp: $(@F)
 	copy /Y $(@F) $@ > nul
 
 .PHONY: CLEAN

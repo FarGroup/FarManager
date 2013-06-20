@@ -1,10 +1,10 @@
 /*
-vc11.cpp
+vc_crt_fix_impl.cpp
 
-Workaround for VC2012 and old Windows
+;Workaround for Visual C++ CRT inncompability with old Windows versions
 */
 /*
-Copyright © 2013 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,33 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-static BOOL WINAPI GetModuleHandleExWImpl(DWORD Flags, LPCTSTR ModuleName, HMODULE *Module)
+#include <windows.h>
+
+// EncodePointer / DecodePointer (VC2010)
+static PVOID WINAPI ReturnSamePointer(PVOID Ptr)
+{
+	return Ptr;
+}
+
+template<class T>
+static PVOID WINAPI Wrapper(PVOID Ptr)
+{
+	typedef PVOID (WINAPI *PointerFunction)(PVOID);
+	static PVOID FunctionAddress = GetProcAddress(GetModuleHandleW(L"kernel32"), T::get());
+	static PointerFunction ProcessPointer = FunctionAddress? reinterpret_cast<PointerFunction>(FunctionAddress) : ReturnSamePointer;
+	return ProcessPointer(Ptr);
+}
+
+#define STRING_OBJECT(name, string) struct name {static const char* get() {return string;}}
+extern "C"
+{
+	PVOID WINAPI EncodePointerWrapper(PVOID Ptr) {STRING_OBJECT(EncodePointerName, "EncodePointer"); return Wrapper<EncodePointerName>(Ptr);}
+	PVOID WINAPI DecodePointerWrapper(PVOID Ptr) {STRING_OBJECT(DecodePointerName, "DecodePointer"); return Wrapper<DecodePointerName>(Ptr);}
+}
+
+
+// GetModuleHandleExW (VC2012)
+static BOOL WINAPI GetModuleHandleExWImpl(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 {
 	BOOL Result = FALSE;
 	if (Flags)
@@ -39,7 +65,7 @@ static BOOL WINAPI GetModuleHandleExWImpl(DWORD Flags, LPCTSTR ModuleName, HMODU
 	}
 	else
 	{
-		if ((*Module = GetModuleHandle(ModuleName)))
+		if ((*Module = GetModuleHandleW(ModuleName)))
 		{
 			Result = TRUE;
 		}
@@ -47,10 +73,10 @@ static BOOL WINAPI GetModuleHandleExWImpl(DWORD Flags, LPCTSTR ModuleName, HMODU
 	return Result;
 }
 
-extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCTSTR ModuleName, HMODULE *Module)
+extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 {
-	typedef BOOL (WINAPI *GetModuleHandleExWFunction)(DWORD, LPCTSTR, HMODULE*);
-	static PVOID FunctionAddress = GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExW");
+	typedef BOOL (WINAPI *GetModuleHandleExWFunction)(DWORD, LPCWSTR, HMODULE*);
+	static PVOID FunctionAddress = GetProcAddress(GetModuleHandleW(L"kernel32"), "GetModuleHandleExW");
 	static GetModuleHandleExWFunction ProcessGetModuleHandleExW = FunctionAddress? reinterpret_cast<GetModuleHandleExWFunction>(FunctionAddress) : GetModuleHandleExWImpl;
 	return ProcessGetModuleHandleExW(Flags, ModuleName, Module);
 }

@@ -518,10 +518,7 @@
     <ClCompile Include="nsUniversalDetectorEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vc10wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vc11wrapper.cpp">
+    <ClCompile Include="vc_crt_fix_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlitedb.cpp">
@@ -1138,10 +1135,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="vc10.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-    <MASM Include="vc11.asm">
+    <MASM Include="vc_crt_fix.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

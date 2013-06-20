@@ -260,8 +260,7 @@ UnicodeString.hpp
 usermenu.cpp
 usermenu.hpp
 valuename.hpp
-vc10wrapper.cpp
-vc11wrapper.cpp
+vc_crt_fix_impl.cpp
 viewer.cpp
 viewer.hpp
 vmenu.cpp

@@ -1,10 +1,10 @@
 /*
-vc11wrapper.cpp
+vc_crt_fix_ulink.cpp
 
-Wrapper for vc11.cpp
+;Workaround for Visual C++ CRT inncompability with old Windows versions (ulink version)
 */
 /*
-Copyright © 2013 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,34 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include <windows.h>
+#include <delayimp.h>
 
-#include "vc11.cpp"
+//----------------------------------------------------------------------------
+static LPVOID WINAPI no_recode_pointer(LPVOID p)
+{
+    return p;
+}
+
+//----------------------------------------------------------------------------
+static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
+                                       PDelayLoadInfo pdli)
+{
+    if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
+       && pdli && pdli->cb == sizeof(*pdli)
+       && pdli->hmodCur == GetModuleHandleA("kernel32")
+       && pdli->dlp.fImportByName && pdli->dlp.szProcName
+       && (   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
+           || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer")))
+    {
+      return (FARPROC)no_recode_pointer;
+    }
+    return nullptr;
+}
+
+//----------------------------------------------------------------------------
+PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
+
+//----------------------------------------------------------------------------
+
+// TODO: Add GetModuleHandleExW
