@@ -1,9 +1,9 @@
 !ifdef NEEDDEFLIB
 !if "$(BUILD_PLATFORM)" =="X86"
 !ifndef ULINK
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix.obj $(OBJDIR)\vc_crt_fix_impl.obj
 !else
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper_u.obj
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix_ulink.obj
 !endif
 !endif
 !endif
@@ -52,6 +52,12 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
 	@$(RC) /nologo /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
+
+$(OUTDIR)\vc_crt_fix.obj: $(COMMON)\vc_crt_fix.asm
+  $(AS) $(ASFLAGS) $(COMMON)\vc_crt_fix.asm
+
+$(OUTDIR)\vc_crt_fix_impl.obj: $(COMMON)\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) $(COMMON)\vc_crt_fix_impl.cpp
 
 .PHONY: dirs
 dirs:

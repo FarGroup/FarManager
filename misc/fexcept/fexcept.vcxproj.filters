@@ -24,7 +24,7 @@
     <ClCompile Include="fexcept.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vc10wrapper.cpp">
+    <ClCompile Include="vc_crt_fix_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

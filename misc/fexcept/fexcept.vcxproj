@@ -378,7 +378,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fexcept.cpp" />
-    <ClCompile Include="vc10wrapper.cpp">
+    <ClCompile Include="vc_crt_fix_impl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">true</ExcludedFromBuild>

@@ -50,8 +50,8 @@ MSI_NAME = $(OUTDIR)\far.msi
 !endif
 
 !if "$(PLATFORM)" == "x86"
-VC10OBJ = $(OUTDIR)\vc10.obj
-VC10CPP = vc10wrapper.cpp
+VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
+VC10CPP = vc_crt_fix_impl.cpp
 !endif
 
 $(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi
@@ -80,8 +80,11 @@ $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
 .wxs{$(OUTDIR)}.wixobj::
   candle $(CANDLEFLAGS) $<
 
-$(OUTDIR)\vc10.obj: ..\..\unicode_far\vc10.asm
+$(OUTDIR)\vc_crt_fix.obj: ..\..\unicode_far\vc_crt_fix.asm
   $(AS) $(ASFLAGS) $**
+
+$(OUTDIR)\vc_crt_fix_impl.obj: ..\..\unicode_far\vc_crt_fix_impl.cpp
+  cl $(CPPFLAGS) $**
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)

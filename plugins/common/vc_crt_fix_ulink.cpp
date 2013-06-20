@@ -1,7 +1,7 @@
 /*
-vc10u.cpp
+vc_crt_fix_ulink.cpp
 
-Workaround for VC2010 and old Windows
+;Workaround for Visual C++ CRT inncompability with old Windows versions (ulink version)
 */
 /*
 Copyright © 2010 Far Group
@@ -59,3 +59,5 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
 
 //----------------------------------------------------------------------------
+
+// TODO: Add GetModuleHandleExW

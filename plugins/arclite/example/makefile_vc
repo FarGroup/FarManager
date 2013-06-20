@@ -39,7 +39,7 @@ ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\
 
 OBJS = $(OUTDIR)\module.obj
 !if "$(BITS)" == "32"
-OBJS = $(OBJS) $(OUTDIR)\vc10.obj $(OUTDIR)\vc10wrapper.obj
+OBJS = $(OBJS) $(OUTDIR)\vc_crt_fix.obj $(OUTDIR)\vc_crt_fix_impl.obj
 !endif
 
 LIBS = ole32.lib oleaut32.lib
@@ -60,11 +60,11 @@ $(OBJS): $(OUTDIR)\headers.pch
 $(OUTDIR)\headers.pch: headers.cpp headers.hpp
   $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OUTDIR)\headers.pch
 
-$(OUTDIR)\vc10.obj: ..\..\common\vc10.asm
-  $(AS) $(ASFLAGS) ..\..\common\vc10.asm
+$(OUTDIR)\vc_crt_fix.obj: ..\..\common\vc_crt_fix.asm
+  $(AS) $(ASFLAGS) ..\..\common\vc_crt_fix.asm
 
-$(OUTDIR)\vc10wrapper.obj: ..\..\common\vc10wrapper.cpp
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\..\common\vc10wrapper.cpp
+$(OUTDIR)\vc_crt_fix_impl.obj: ..\..\common\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\..\common\vc_crt_fix_impl.cpp
 
 depfile: $(OUTDIR)
   $(TOOLSDIR)\tool gendep $(INCLUDES) > $(OUTDIR)\dep.mak
@@ -81,9 +81,6 @@ $(OUTDIR)\module.def: project.ini module.def
   $(PREPROC)
 
 COPY = copy /y $** $@
-
-$(OUTDIR)\vc10.obj: ..\..\..\unicode_far\vc10.asm
-  $(AS) $(ASFLAGS) ..\..\..\unicode_far\vc10.asm
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)

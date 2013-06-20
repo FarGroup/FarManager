@@ -47,7 +47,7 @@ OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\ext
   $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
   $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj
 !if "$(BITS)" == "32"
-OBJS = $(OBJS) $(OUTDIR)\vc10.obj $(OUTDIR)\vc10wrapper.obj
+OBJS = $(OBJS) $(OUTDIR)\vc_crt_fix.obj $(OUTDIR)\vc_crt_fix_impl.obj
 !endif
 
 LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
@@ -139,11 +139,11 @@ $(OUTDIR)\7z.dll: $(_7Z)
 $(OUTDIR)\far.ini: $(FARSDK)\plugin.hpp
   $(TOOL) farver $(FARSDK)\plugin.hpp $@
 
-$(OUTDIR)\vc10.obj: ..\common\vc10.asm
-  $(AS) $(ASFLAGS) ..\common\vc10.asm
+$(OUTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
+  $(AS) $(ASFLAGS) ..\common\vc_crt_fix.asm
 
-$(OUTDIR)\vc10wrapper.obj: ..\common\vc10wrapper.cpp
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\common\vc10wrapper.cpp
+$(OUTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
+  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\common\vc_crt_fix_impl.cpp
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)
