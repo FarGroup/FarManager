@@ -322,7 +322,7 @@ CPPFLAG1 = $(CPPFLAG1) /Qvec-report0 -wd672,869,1552,1879
 
 CPPFLAGS = $(CPPFLAG1) /Fo"$(INTDIR)\\"
 
-ALL: AllDirs lng depfile version_fix
+ALL: AllDirs lng depfile
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
 
 .PHONY: lng
@@ -335,7 +335,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc_crt_fix_impl.cpp" "$(FARINCLUDE)\vc_crt_fix.asm" "$(FARINCLUDE)\vc_crt_fix_ulink.cpp" 
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" version_fix "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc_crt_fix_impl.cpp" "$(FARINCLUDE)\vc_crt_fix.asm" "$(FARINCLUDE)\vc_crt_fix_ulink.cpp" 
 
 .PHONY: version_fix
 version_fix: "$(OUTDIR)\Far.exe"
