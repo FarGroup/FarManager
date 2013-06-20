@@ -1,7 +1,7 @@
 /*
 vc_crt_fix_impl.cpp
 
-;Workaround for Visual C++ CRT inncompability with old Windows versions
+;Workaround for Visual C++ CRT incompability with old Windows versions
 */
 /*
 Copyright © 2011 Far Group
