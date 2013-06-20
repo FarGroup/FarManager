@@ -553,7 +553,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end)
   local Names = { area, argUseCommon and area~="common" and "common" or nil }
 
-  -- 1 and 2
+  -- First, check "keyboard-recorded" macros, they have the highest priority.
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
     if areatable and areatable[key] then
@@ -565,10 +565,10 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end
   end
 
-  -- 3
+  -- Create collector table: keys are macros, values are dynamic priorities.
   local Collector = {}
 
-  -- 4, 4b, 5, 5b
+  -- Filter macros by filemask and flags. Put the "successful" ones in the collector.
   local filename = area=="editor" and editor.GetFileName() or area=="viewer" and viewer.GetFileName()
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
@@ -607,7 +607,8 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   end
   if not next(Collector) then return end
 
-  -- 6
+  -- Filter macros by condition() where available; update dynamic priorities.
+  -- Calculate maximal priority and number of macros left in the container.
   local max_priority = -1
   local nummacros = 0
   for m,p in pairs(Collector) do
@@ -628,13 +629,13 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   end
   if not next(Collector) then return end
 
-  -- 7
+  -- If only 1 macro is left, do return it.
   if nummacros == 1 then
     local macro = next(Collector,nil)
     return macro, macro.temparea
   end
 
-  -- 8
+  -- Make an array with highest priority macros.
   local macrolist = {}
   for m,p in pairs(Collector) do
     if p==max_priority then macrolist[#macrolist+1]=m end
