@@ -153,7 +153,7 @@ class VMenu2 : public Dialog
 		{
 			ListBox().SortItems(Reverse, Offset);
 		}
-		
+
 		template<class predicate>
 		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 		{
@@ -179,4 +179,5 @@ class VMenu2 : public Dialog
 		virtual int GetTypeAndName(string &strType, string &strName) override;
 		virtual int GetType() override { return MODALTYPE_VMENU; }
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 };

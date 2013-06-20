@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
+#include "macroopcode.hpp"
 
 intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -655,4 +656,12 @@ int VMenu2::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	return Dialog::ProcessMouse(MouseEvent);
+}
+
+__int64 VMenu2::VMProcess(int OpCode, void *vParam, __int64 iParam)
+{
+	__int64 ret=Dialog::VMProcess(OpCode, vParam, iParam);
+	if(OpCode==MCODE_F_MENU_FILTER && iParam==4)
+		Resize();
+	return ret;
 }
