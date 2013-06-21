@@ -58,7 +58,6 @@ class VMenu2 : public Dialog
 
 
 		int Call(int Msg, void *param);
-		void Resize(bool force=false);
 		LISTITEMFLAGS GetItemFlags(int Position=-1);
 		string GetTitles(int bottom=0);
 
@@ -69,6 +68,7 @@ class VMenu2 : public Dialog
 
 	public:
 		VMenu2(const string& Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+		void Resize(bool force=false);
 
 		void SetTitle(const string& Title);
 		void SetBottomTitle(const string& Title);
@@ -179,5 +179,4 @@ class VMenu2 : public Dialog
 		virtual int GetTypeAndName(string &strType, string &strName) override;
 		virtual int GetType() override { return MODALTYPE_VMENU; }
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 };

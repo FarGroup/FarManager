@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "xlat.hpp"
 #include "language.hpp"
+#include "vmenu2.hpp"
 
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
@@ -731,7 +732,11 @@ void VMenu::FilterStringUpdated()
 
 void VMenu::FilterUpdateHeight(bool bShrink)
 {
-	if (WasAutoHeight)
+	VMenu2 *Parent = nullptr;
+	if (ParentDialog && ParentDialog->GetType() == MODALTYPE_VMENU)
+		Parent = static_cast<VMenu2*>(ParentDialog);
+
+	if (WasAutoHeight || Parent)
 	{
 		int NewY2;
 		if (MaxHeight && MaxHeight<GetShowItemCount())
@@ -742,7 +747,10 @@ void VMenu::FilterUpdateHeight(bool bShrink)
 			NewY2 = ScrY;
 		if (NewY2 > Y2 || (bShrink && NewY2 < Y2))
 		{
-			SetPosition(X1,Y1,X2,NewY2);
+		  if (Parent)
+				Parent->Resize();
+		  else
+				SetPosition(X1,Y1,X2,NewY2);
 		}
 	}
 }
