@@ -290,7 +290,7 @@ local function AddMacro (srctable)
     if type(macro.condition)~="function" then macro.condition=nil end
     if type(macro.filemask)~="string" then macro.filemask=nil end
 
-    if type(macro.priority)~="number" then macro.priority=50
+    if type(macro.priority)~="number" then macro.priority=nil
     elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
     end
 
@@ -321,7 +321,7 @@ local function AddRecordedMacro (srctable)
     if not f then ErrMsg(msg) return end
   end
 
-  local macro = { priority=200, FileName=AddMacro_filename }
+  local macro = { FileName=AddMacro_filename }
   local t,n = ExpandKey(key)
   for i=1,n do
     local normkey = t[i]
@@ -557,10 +557,9 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
     if areatable and areatable[key] then
-      local macro = areatable[key].recorded
-      if macro and not macro.disabled
-        and (argCheckOnly or MacroCallFar(MCODE_F_CHECKALL,argMode,macro.flags,nil,nil)) then
-          return macro, areaname
+      local m = areatable[key].recorded
+      if m and not m.disabled and (argCheckOnly or MacroCallFar(MCODE_F_CHECKALL,argMode,m.flags,nil,nil)) then
+        return m, areaname
       end
     end
   end
@@ -571,40 +570,37 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
 
   -- Filter macros by filemask and flags. Put the "successful" ones in the collector.
   local filename = area=="editor" and editor.GetFileName() or area=="viewer" and viewer.GetFileName()
+
+  local function ExamineMacro (m, areaname)
+    local check = not (filename and m.filemask) or CheckFileName(m.filemask, filename)
+    if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), m.flags, m.callback, m.callbackId) then
+      if not Collector[m] then
+        local n = #CInfo + 1
+        Collector[m] = n
+        CInfo[n] = m.priority or (areaname=="common" and 40) or 50
+        CInfo[n+1] = areaname
+      end
+    end
+  end
+
   for _,areaname in ipairs(Names) do
     local areatable = Areas[areaname]
     if areatable then
       local macros = areatable[key]
-      local macros_regex = areatable[1]
       if macros then
-        for _,v in ipairs(macros) do
-          if not v.disabled then
-            if argCheckOnly then return v, areaname end
-            local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
-            if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
-              if not Collector[v] then
-                local n = #CInfo + 1
-                Collector[v] = n
-                CInfo[n] = v.priority
-                CInfo[n+1] = areaname
-              end
-            end
+        for _,m in ipairs(macros) do
+          if not m.disabled then
+            if argCheckOnly then return m, areaname end
+            ExamineMacro(m, areaname)
           end
         end
       end
+      local macros_regex = areatable[1]
       if macros_regex then
-        for _,v in ipairs(macros_regex) do
-          if not v.disabled and v.keyregex:match(key) == key then
-            if argCheckOnly then return v, areaname end
-            local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
-            if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
-              if not Collector[v] then
-                local n = #CInfo + 1
-                Collector[v] = n
-                CInfo[n] = v.priority
-                CInfo[n+1] = areaname
-              end
-            end
+        for _,m in ipairs(macros_regex) do
+          if not m.disabled and m.keyregex:match(key) == key then
+            if argCheckOnly then return m, areaname end
+            ExamineMacro(m, areaname)
           end
         end
       end
@@ -686,7 +682,7 @@ local function ProcessRecordedMacro (Area, Key, code, flags, description)
 
   local macro = {
     area=Area, key=Key, code=code, flags=flags, description=description,
-    needsave=true, priority=200
+    needsave=true
   }
   local existing = Areas[area][keys[1]] and Areas[area][keys[1]].recorded
   macro.id = existing and existing.id or #LoadedMacros+1
