@@ -617,7 +617,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
       local pr = m.condition(argKey) -- unprotected call
       if pr then
         if type(pr)=="number" then
-          CInfo[Collector[m]] = pr>100 and 100 or pr<0 and 0 or pr
+          CInfo[p] = pr>100 and 100 or pr<0 and 0 or pr
         end
       else
         Collector[m] = nil
@@ -625,11 +625,10 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end
     if Collector[m] then
       nummacros = nummacros + 1
-      local pr = CInfo[Collector[m]]
-      if max_priority < pr then max_priority = pr end
+      if max_priority < CInfo[p] then max_priority = CInfo[p] end
     end
   end
-  if not next(Collector) then return end
+  if nummacros == 0 then return end
 
   -- If only 1 macro is left, do return it.
   if nummacros == 1 then
