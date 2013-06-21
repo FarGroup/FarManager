@@ -565,8 +565,9 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end
   end
 
-  -- Create collector table: keys are macros, values are dynamic priorities.
-  local Collector = {}
+  -- Create collector table: keys are macros, values are indexes into CInfo.
+  -- For each macro, CInfo stores 2 consecutive values: dynamic priority and found area.
+  local Collector, CInfo = {}, {}
 
   -- Filter macros by filemask and flags. Put the "successful" ones in the collector.
   local filename = area=="editor" and editor.GetFileName() or area=="viewer" and viewer.GetFileName()
@@ -582,8 +583,10 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
             local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
             if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
               if not Collector[v] then
-                v.temparea = areaname
-                Collector[v] = v.priority
+                local n = #CInfo + 1
+                Collector[v] = n
+                CInfo[n] = v.priority
+                CInfo[n+1] = areaname
               end
             end
           end
@@ -596,8 +599,10 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
             local check = not (filename and v.filemask) or CheckFileName(v.filemask, filename)
             if check and MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), v.flags, v.callback, v.callbackId) then
               if not Collector[v] then
-                v.temparea = areaname
-                Collector[v] = v.priority
+                local n = #CInfo + 1
+                Collector[v] = n
+                CInfo[n] = v.priority
+                CInfo[n+1] = areaname
               end
             end
           end
@@ -616,7 +621,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
       local pr = m.condition(argKey) -- unprotected call
       if pr then
         if type(pr)=="number" then
-          Collector[m] = pr>100 and 100 or pr<0 and 0 or pr
+          CInfo[Collector[m]] = pr>100 and 100 or pr<0 and 0 or pr
         end
       else
         Collector[m] = nil
@@ -624,28 +629,31 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     end
     if Collector[m] then
       nummacros = nummacros + 1
-      if max_priority < Collector[m] then max_priority = Collector[m] end
+      local pr = CInfo[Collector[m]]
+      if max_priority < pr then max_priority = pr end
     end
   end
   if not next(Collector) then return end
 
   -- If only 1 macro is left, do return it.
   if nummacros == 1 then
-    local macro = next(Collector,nil)
-    return macro, macro.temparea
+    local m = next(Collector)
+    return m, CInfo[Collector[m]+1]
   end
 
   -- Make an array with highest priority macros.
   local macrolist = {}
   for m,p in pairs(Collector) do
-    if p==max_priority then macrolist[#macrolist+1]=m end
+    if CInfo[p]==max_priority then macrolist[#macrolist+1]=m end
   end
   if #macrolist == 1 then
-    return macrolist[1], macrolist[1].temparea
+    local m = macrolist[1]
+    return m, CInfo[Collector[m]+1]
   end
 
-  local macro = GetFromMenu(macrolist) or {}
-  return macro, macro.temparea
+  local m = GetFromMenu(macrolist)
+  if m then return m, CInfo[Collector[m]+1] end
+  return {}, nil
 
 end
 
