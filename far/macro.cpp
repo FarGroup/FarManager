@@ -692,8 +692,8 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 		{
 			Data->Name        = TextKey.CPtr();
 			Data->Area        = (FARMACROAREA)(int)mpr->Values[1].Double;
-			Data->Code        = mpr->Values[2].String;
-			Data->Description = mpr->Values[3].String;
+			Data->Code        = mpr->Values[2].Type==FMVT_STRING ? mpr->Values[2].String : L"";
+			Data->Description = mpr->Values[3].Type==FMVT_STRING ? mpr->Values[3].String : L"";
 			Data->Flags       = FixFlags(Mode, (MACROFLAGS_MFLAGS)mpr->Values[4].Double);
 
 			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
@@ -2592,7 +2592,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count >= 3)
 			{
 				int macroId = (int)Data->Values[0].Double;
-				const wchar_t* code = Data->Values[1].String;
+				const wchar_t* code = Data->Values[1].Type==FMVT_STRING ? Data->Values[1].String : L"";
 				MACROFLAGS_MFLAGS flags = (MACROFLAGS_MFLAGS)Data->Values[2].Double;
 				Result = PostNewMacro(macroId, code, flags);
 			}
