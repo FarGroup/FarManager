@@ -165,8 +165,9 @@ local function MenuLoop()
           end
           if check then
             if far.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
-              if (not m.condition or m.condition()) then
-                far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+              local key1 = m.keyregex and "" or m.key:match("%S+")
+              if (not m.condition or m.condition(key1)) then
+                far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags, key1)
                 break
               else Message("condition() check failed")
               end

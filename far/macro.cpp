@@ -804,7 +804,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
-						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
+						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey))
 						{
 							m_CurState->HistoryDisable = 0;
 							m_CurState->cRec = RecCopy;
@@ -1216,9 +1216,9 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return mpr && mpr->Values[0].Boolean;
 }
 
-bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
+bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey)
 {
-	if (MacroId != 0 || ParseMacroString(PlainText, onlyCheck, true))
+	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
 	{
 		MacroRecord* macro=new MacroRecord(Flags, MacroId, AKey, PlainText, L"");
 
@@ -2589,12 +2589,19 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_POSTNEWMACRO:
 		{
 			bool Result = false;
-			if (Data->Count >= 3)
+			if (Data->Count>=3 && Data->Values[0].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_DOUBLE)
 			{
+				DWORD AKey = 0;
 				int macroId = (int)Data->Values[0].Double;
 				const wchar_t* code = Data->Values[1].Type==FMVT_STRING ? Data->Values[1].String : L"";
-				MACROFLAGS_MFLAGS flags = (MACROFLAGS_MFLAGS)Data->Values[2].Double;
-				Result = PostNewMacro(macroId, code, flags);
+				MACROFLAGS_MFLAGS flags = MFLAGS_POSTFROMPLUGIN | (UINT64)Data->Values[2].Double;
+				if (Data->Count >= 4 && Data->Values[3].Type == FMVT_STRING)
+				{
+					int key = KeyNameToKey(Data->Values[3].String);
+					if (key != -1)
+						AKey = key;
+				}
+				Result = PostNewMacro(macroId, code, flags, AKey);
 			}
 			PassBoolean(Result?1:0, Data);
 			return 0;

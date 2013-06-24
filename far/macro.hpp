@@ -207,7 +207,7 @@ class KeyMacro:NonCopyable
 		MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top()->GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 		void RestoreMacroChar(void);
-		bool PostNewMacro(int macroId,const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
+		bool PostNewMacro(int macroId,const string& PlainText,UINT64 Flags,DWORD AKey);
 		void PushState(bool withClip);
 		void PopState(bool withClip);
 		bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
@@ -242,7 +242,7 @@ class KeyMacro:NonCopyable
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
-		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
+		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,PlainText,Flags,AKey); }
 		bool ParseMacroString(const string& Sequence,bool onlyCheck,bool skipFile);
 		bool ExecuteString(MacroExecuteString *Data);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);

@@ -232,9 +232,10 @@ do
   assert(mf.size2str(123,0,-5)=="123  ")
 end
 
-local temp=os.clock()
+local temp = Far.UpTime
 mf.sleep(50)
-assert(os.clock()-temp > 0.04)
+temp = Far.UpTime - temp
+assert(temp > 40 and temp < 70)
 
 assert(mf.string(-5.7)=="-5.7")
 
