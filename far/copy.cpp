@@ -1601,7 +1601,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 				strDestFSName.Clear();
 				int OldCopySymlinkContents=Flags&FCOPY_COPYSYMLINKCONTENTS;
 				// собственно - один проход копировани€
-				// Mantis#45: Ќеобходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
+				// Mantis#45: Ќеобходимо привести копирование ссылок на папки с NTFS на FAT к более логичному виду
 				{
 					string strRootDir;
 					ConvertNameToFull(strNameTmp,strRootDir);
@@ -1743,9 +1743,6 @@ ShellCopy::~ShellCopy()
 	}
 }
 
-
-
-
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1758,122 +1755,14 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		return COPY_FAILURE; //????
 
 	SetCursorType(FALSE,0);
-	Flags&=~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);
+	Flags &= ~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);
 
-	// —оздание структуры каталогов в месте назначени€
-	if (!(Flags&FCOPY_COPYTONUL))
-	{
-		//if (Length > 1 && Dest[Length-1]=='\\' && Dest[Length-2]!=':') //??????????
-		{
-			string strNewPath = Dest;
-
-			if (!IsSlash(strNewPath[strNewPath.GetLength()-1]) &&
-			        SrcPanel->GetSelCount()>1 &&
-			        !wcspbrk(strNewPath.CPtr(),L"*?") &&
-			        apiGetFileAttributes(strNewPath)==INVALID_FILE_ATTRIBUTES)
-			{
-				switch (Message(FMSG_WARNING,3,MSG(MWarning),strNewPath.CPtr(),MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))
-				{
-					case 0:
-						AddEndSlash(strNewPath);
-						break;
-					case -2:
-					case -1:
-					case 2:
-						return COPY_CANCEL;
-				}
-			}
-
-			size_t pos;
-
-			if (FindLastSlash(pos,strNewPath))
-			{
-				strNewPath.SetLength(pos+1);
-
-				if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
-					strNewPath.Upper();
-
-				DWORD Attr=apiGetFileAttributes(strNewPath);
-
-				if (Attr==INVALID_FILE_ATTRIBUTES)
-				{
-					if (apiCreateDirectory(strNewPath,nullptr))
-						TreeList::AddTreeName(strNewPath);
-					else
-						CreatePath(strNewPath);
-				}
-				else if (!(Attr & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					Message(MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath.CPtr(),MSG(MOk));
-					return COPY_FAILURE;
-				}
-			}
-		}
-
-		DestAttr=apiGetFileAttributes(Dest);
-	}
-
-	// ¬ыставим признак "“от же диск"
-	bool SameDisk=false;
-
-	if (Flags&FCOPY_MOVE)
-	{
-		SameDisk=(CheckDisksProps(SrcPanel->GetCurDir(), Dest, CHECKEDPROPS_ISSAMEDISK))!=0;
-	}
-
-	if (SrcDriveType == DRIVE_UNKNOWN)
-	{
-		GetPathRoot(SrcPanel->GetCurDir(), strSrcDriveRoot);
-		SrcDriveType = FAR_GetDriveType(strSrcDriveRoot);
-	}
-
-	string strDest = Dest;
-	bool UseWildCards = wcspbrk(Dest.CPtr(),L"*?")!=nullptr;
-	SrcPanel->GetSelName(nullptr,FileAttr);
-	SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName);
-	SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
-	if (UseWildCards)
-	{
-		ConvertWildcards(strSelName.CPtr(), strDest, SelectedFolderNameLength);
-	}
-	if (!(Flags&FCOPY_COPYTONUL))
-	{
-		DestAttr = apiGetFileAttributes(strDest);
-
-		// получим данные о месте назначени€
-		GetPathRoot(strDest,strDestDriveRoot);
-		DestDriveType=FAR_GetDriveType(wcschr(strDest.CPtr(),L'\\') ? strDestDriveRoot : string());
-
-		if ( INVALID_FILE_ATTRIBUTES == DestAttr )
-		{
-			DWORD rattr1 = apiGetFileAttributes(strDestDriveRoot);
-			DWORD rattr2 = rattr1;
-			while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
-			{
-				int ret = OperationFailed(strDestDriveRoot, MError, L"");
-				if(ret < 0 || ret == 4)
-					return COPY_CANCEL;
-				else if(ret == 1)
-				{
-					return COPY_NEXT;
-				}
-				else if(ret == 2)
-				{
-					SkipMode = 2;
-					return COPY_NEXT;
-				}
-
-				rattr2 = apiGetFileAttributes(strDestDriveRoot);
-			}
-			if ( INVALID_FILE_ATTRIBUTES == rattr1 && INVALID_FILE_ATTRIBUTES != rattr2 )
-				DestAttr = apiGetFileAttributes(strDest);
-		}
-	}
-
-	// "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
-	// (но не дл€ случа€ переименовани€ линка по сети)
-	if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot.CPtr(),strDestDriveRoot.CPtr()))
-		Flags|=FCOPY_COPYSYMLINKCONTENTS;
+	DWORD Flags0 = Flags;
+	bool first = true;
+	bool UseWildCards = (wcspbrk(Dest.CPtr(), L"*?") != nullptr);
+	bool copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
+	bool move_rename = (0 != (Flags & FCOPY_MOVE));
+	bool SameDisk = false;
 
 	if (!TotalCopySize)
 	{
@@ -1888,32 +1777,146 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		CurCopiedSize=0;
 	}
 
-
 	// ќсновной цикл копировани€ одной порции.
-	SrcPanel->GetSelName(nullptr,FileAttr);
-	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName))
+	//
+	SrcPanel->GetSelName(nullptr, FileAttr);
+	while (SrcPanel->GetSelName(&strSelName, FileAttr, &strSelShortName))
 	{
-		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
-		if (UseWildCards)
+		string strDest(Dest);
+		Flags = Flags0;
+
+		bool src_abspath = IsAbsolutePath(strSelName);
+
+		bool dst_abspath = copy_to_null || IsAbsolutePath(strDest);
+		if (!dst_abspath && strDest.GetLength() > 2 && strDest[1] == L':')
 		{
-			strDest = Dest;
-			ConvertWildcards(strSelName.CPtr(), strDest, SelectedFolderNameLength);
+			ConvertNameToFull(strDest, strDest);
+			dst_abspath = true;
 		}
 
+		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
+		if (UseWildCards)
+			ConvertWildcards(strSelName.CPtr(), strDest, SelectedFolderNameLength);
+
+		if (!dst_abspath && !IsAbsolutePath(strDest))
+		{
+			string tpath;
+			if (!src_abspath)
+				tpath = SrcPanel->GetCurDir();
+			else {
+				size_t slash_pos;
+				FindLastSlash(slash_pos, strSelName);
+				tpath = strSelName.SubStr(0, slash_pos);
+			}
+			strDest = tpath + L"\\" + strDest;
+		}
+
+		string tpath;
+		if (!RemoveDots(strDest, tpath))
+		{
+			int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
+				MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.CPtr(),
+				MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
+			if (rc == 1)
+				SkipMode = 2;
+			if (rc == 1 || !rc)
+				return COPY_NEXT;
+			else
+				return COPY_CANCEL; // 2, -1, -2
+		}
+
+		bool check_samedisk = false, dest_changed = false;
+		if (first || strSrcDriveRoot.IsEmpty() || (src_abspath && StrCmpNI(strSelName.CPtr(),strSrcDriveRoot.CPtr(),(int)strSrcDriveRoot.GetLength())))
+		{
+			GetPathRoot(src_abspath ? strSelName : SrcPanel->GetCurDir(), strSrcDriveRoot);
+			SrcDriveType = FAR_GetDriveType(strSrcDriveRoot);
+			check_samedisk = true;
+		}
+		if (!copy_to_null && (first || strDestDriveRoot.IsEmpty() || StrCmpNI(strDest.CPtr(),strDestDriveRoot.CPtr(),(int)strDestDriveRoot.GetLength())))
+		{
+			GetPathRoot(strDest, strDestDriveRoot);
+			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
+			check_samedisk = dest_changed = true;
+		}
+		if (move_rename && !copy_to_null && check_samedisk)
+		{
+			SameDisk = CheckDisksProps(src_abspath ? strSelName : SrcPanel->GetCurDir(), strDest, CHECKEDPROPS_ISSAMEDISK) != 0;
+		}
+
+		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
+		 && SrcPanel->GetSelCount() > 1
+		 && !IsSlash(strDest[strDest.GetLength()-1])
+		 && apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES)
+		{
+			switch (Message(FMSG_WARNING,3,MSG(MWarning),strDest.CPtr(),MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))
+			{
+			case 2: case -1: case -2: return COPY_CANCEL; // [Cancel]
+			//case 1: break;                              // [File]
+			case 0: AddEndSlash(strDest);	break;          // {Directory}
+			}
+		}
+
+		if (dest_changed) // check destination drive ready
+		{
+			DestAttr = apiGetFileAttributes(strDest);
+			if (INVALID_FILE_ATTRIBUTES == DestAttr)
+			{
+				DWORD rattr1 = apiGetFileAttributes(strDestDriveRoot);
+				DWORD rattr2 = rattr1;
+				while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
+				{
+					int ret = OperationFailed(strDestDriveRoot, MError, L"");
+					if (ret < 0 || ret == 4)
+						return COPY_CANCEL;
+					else if (ret == 1)
+						return COPY_NEXT;
+					else if (ret == 2)
+					{
+						SkipMode = 2;
+						return COPY_NEXT;
+					}
+
+					rattr2 = apiGetFileAttributes(strDestDriveRoot);
+				}
+				if (INVALID_FILE_ATTRIBUTES == rattr1 && INVALID_FILE_ATTRIBUTES != rattr2)
+					DestAttr = apiGetFileAttributes(strDest);
+			}
+		}
+
+		size_t pos;
+		if (!copy_to_null && FindLastSlash(pos,strDest)) // create target directory
+		{
+			string strNewPath = strDest.SubStr(0, pos-1);
+			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
+				strNewPath.Upper();
+
+			DWORD Attr=apiGetFileAttributes(strNewPath);
+			if (Attr == INVALID_FILE_ATTRIBUTES)
+			{
+				if (apiCreateDirectory(strNewPath,nullptr))
+					TreeList::AddTreeName(strNewPath);
+				else
+					CreatePath(strNewPath);
+			}
+			else if (!(Attr & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				Message(MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath.CPtr(),MSG(MOk));
+				return COPY_FAILURE;
+			}
+		}
+
+		// копируем полный контент, независимо от опции (но не дл€ случа€ переименовани€ линка по сети)
+		if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot.CPtr(),strDestDriveRoot.CPtr()))
+			Flags |= FCOPY_COPYSYMLINKCONTENTS;
+
+		first = false;
 		string strDestPath = strDest;
 
 		FAR_FIND_DATA SrcData;
-		int CopyCode=COPY_SUCCESS,KeepPathPos;
-		Flags&=~FCOPY_OVERWRITENEXT;
+		int CopyCode = COPY_SUCCESS, KeepPathPos;
+		Flags &= ~FCOPY_OVERWRITENEXT;
 
-		if (strSrcDriveRoot.IsEmpty() || StrCmpNI(strSelName.CPtr(),strSrcDriveRoot.CPtr(),(int)strSrcDriveRoot.GetLength()))
-		{
-			GetPathRoot(strSelName,strSrcDriveRoot);
-			SrcDriveType=FAR_GetDriveType(wcschr(strSelName.CPtr(),L'\\') ? strSrcDriveRoot:string());
-		}
-
-
-		KeepPathPos=(int)(PointToName(strSelName)-strSelName.CPtr());
+		KeepPathPos = (int)(size_t)(PointToName(strSelName) - strSelName.CPtr());
 
 		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
 		{
@@ -1950,21 +1953,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			}
 		}
 
-
-		//KeepPathPos=PointToName(SelName)-SelName;
-
-		// ћувим?
-		if ((Flags&FCOPY_MOVE))
+		if (move_rename)
 		{
-			// “ыкс, а как на счет "тот же диск"?
-			if (KeepPathPos && PointToName(strDest)==strDest.CPtr())
-			{
-				strDestPath = strSelName;
-				strDestPath.SetLength(KeepPathPos);
-				strDestPath += strDest;
-				SameDisk=true;
-			}
-
 			if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
 			{
 				CopyCode=COPY_FAILURE;
@@ -2048,34 +2038,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 			SrcPanel->CopyDiz(strSelName,strSelShortName,strCopiedName,strCopiedName,&DestDiz);
 		}
-
-#if 0
-
-		// ≈сли [ ] Copy contents of symbolic links
-		if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
-		{
-			//создать симлинк
-			switch (MkSymLink(SelName, Dest))
-			{
-				case 2:
-					break;
-				case 1:
-
-					// ќтметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не сн€лось.
-					if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
-						SrcPanel->ClearLastGetSelection();
-
-					_LOGCOPYR(SysLog(L"%d continue;",__LINE__));
-					continue;
-				case 0:
-					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d",__LINE__));
-					return COPY_FAILURE;
-			}
-
-			continue;
-		}
-
-#endif
 
 		// Mantis#44 - ѕотер€ данных при копировании ссылок на папки
 		// если каталог (или нужно копировать симлинк) - придетс€ рекурсивно спускатьс€...

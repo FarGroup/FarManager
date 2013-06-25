@@ -44,3 +44,5 @@ void ConvertNameToLong(const string &Src, string &strDest);
 void ConvertNameToUNC(string &strFileName);
 
 string& PrepareDiskPath(string &strPath, bool CheckFullPath=true);
+
+bool RemoveDots(const string &Src, string &strDest);

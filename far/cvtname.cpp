@@ -51,13 +51,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IsSlashForward(str)  (str == L'/')
 #define IsQuestion(str)      (str == L'?')
 
-void MixToFullPath(string& strPath)
+bool MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	LPWSTR pstPath=strPath.GetBuffer();
 	size_t DirOffset = 0;
 	ParsePath(strPath, &DirOffset);
 	pstPath+=DirOffset;
+	bool ok = true;
 
 	//Process "." and ".." if exists
 	for (size_t m = 0; pstPath[m];)
@@ -101,6 +102,9 @@ void MixToFullPath(string& strPath)
 				{
 					if (IsSlash(pstPath[m + 2]) || !pstPath[m + 2])
 					{
+						if (!m) // ".." on the top level
+							ok = false;
+
 						int n;
 
 						//Calculate subdir name offset
@@ -136,6 +140,18 @@ void MixToFullPath(string& strPath)
 	}
 
 	strPath.ReleaseBuffer();
+	return ok;
+}
+
+bool RemoveDots(const string &Src, string &strDest)
+{
+	string strRoot, strSrc(Src);
+	GetPathRoot(strSrc, strRoot);
+	if (!strRoot.IsEmpty())
+		strSrc = strSrc.SubStr(strRoot.GetLength());
+	bool ok = MixToFullPath(strSrc);
+	strDest = strRoot + strSrc;
+	return ok;
 }
 
 bool MixToFullPath(const string& stPath, string& strDest, const string& stCurrentDir)
