@@ -422,16 +422,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.CPtr());
 }
 
-void AtExit()
-{
-	string::ReleaseEUS();
-	PrintMemory();
-}
-
 static int mainImpl(int Argc, wchar_t *Argv[])
 {
-	atexit(AtExit);
-
 	global _g;
 
 	SetErrorMode(Global->ErrorMode);
@@ -791,6 +783,7 @@ int wmain(int Argc, wchar_t *Argv[])
 
 	try
 	{
+		atexit(PrintMemory);
 		std::set_new_handler(nullptr);
 		EnableSeTranslation();
 #ifndef _MSC_VER

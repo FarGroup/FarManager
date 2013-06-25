@@ -46,11 +46,6 @@ void UnicodeString::SetEUS()
 	m_pData = eus();
 }
 
-void UnicodeString::ReleaseEUS()
-{
-	eus().reset();
-}
-
 void UnicodeString::Inflate(size_t nSize)
 {
 	if (m_pData.unique())

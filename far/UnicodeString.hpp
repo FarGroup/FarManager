@@ -145,8 +145,6 @@ typedef class UnicodeString
 		std::shared_ptr<UnicodeStringData> m_pData;
 
 		void SetEUS();
-		static void ReleaseEUS();
-		friend void AtExit();
 
 	public:
 		UnicodeString() { SetEUS(); }

@@ -149,6 +149,7 @@ static intptr_t CallMallocFree = 0;
 static size_t AllocatedMemoryBlocks = 0;
 static size_t AllocatedMemorySize = 0;
 static size_t TotalAllocationCalls = 0;
+static bool MonitoringEnabled = true;
 
 enum ALLOCATION_TYPE
 {
@@ -212,6 +213,9 @@ static inline void updateCallCount(ALLOCATION_TYPE type, bool increment)
 
 static void RegisterBlock(MEMINFO *block)
 {
+	if (!MonitoringEnabled)
+		return;
+
 	if (!AllocatedMemoryBlocks)
 		InitializeCriticalSection(&CS);
 	EnterCriticalSection(&CS);
@@ -234,6 +238,9 @@ static void RegisterBlock(MEMINFO *block)
 
 static void UnregisterBlock(MEMINFO *block)
 {
+	if (!MonitoringEnabled)
+		return;
+
 	EnterCriticalSection(&CS);
 
 	if (block->prev)
@@ -335,24 +342,38 @@ void PrintMemory()
 {
 	if (CallNewDeleteVector || CallNewDeleteScalar || CallMallocFree || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
-		std::wcout << L"Memory leaks detected:" << std::endl;
-		if (CallNewDeleteVector)
-			std::wcout << L"  delete[]:   " << CallNewDeleteVector << std::endl;
-		if (CallNewDeleteScalar)
-			std::wcout << L"  delete:     " << CallNewDeleteScalar << std::endl;
-		if (CallMallocFree)
-			std::wcout << L"  free():     " << CallMallocFree << std::endl;
-		if (AllocatedMemoryBlocks)
-			std::wcout << L"Total blocks: " << AllocatedMemoryBlocks << std::endl;
-		if (AllocatedMemorySize)
-			std::wcout << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
-		std::wcout << std::endl;
+		bool MonitoringState = MonitoringEnabled;
+		MonitoringEnabled = false;
 
-		std::wcout << "Not freed blocks:" << std::endl;
+		std::wostringstream oss;
+		oss << L"Memory leaks detected:" << std::endl;
+		if (CallNewDeleteVector)
+			oss << L"  delete[]:   " << CallNewDeleteVector << std::endl;
+		if (CallNewDeleteScalar)
+			oss << L"  delete:     " << CallNewDeleteScalar << std::endl;
+		if (CallMallocFree)
+			oss << L"  free():     " << CallMallocFree << std::endl;
+		if (AllocatedMemoryBlocks)
+			oss << L"Total blocks: " << AllocatedMemoryBlocks << std::endl;
+		if (AllocatedMemorySize)
+			oss << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * sizeof(MEMINFO) <<  L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
+		oss << std::endl;
+
+		oss << "Not freed blocks:" << std::endl;
+
+		std::wcout << oss.str();
+		OutputDebugString(oss.str().c_str());
+		oss.clear();
+
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			std::wcout << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
+			oss << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
+			std::wcout << oss.str();
+			OutputDebugString(oss.str().c_str());
+			oss.clear();
 		}
+
+		MonitoringEnabled = MonitoringState;
 	}
 }
 
