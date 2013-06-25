@@ -34,37 +34,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-UnicodeStringData *eus()
+std::shared_ptr<UnicodeStringData>& eus()
 {
 	//для оптимизации создания пустых UnicodeString
-	static UnicodeStringData* EmptyUnicodeStringData = new UnicodeStringData(1, 1);
+	static auto EmptyUnicodeStringData = std::make_shared<UnicodeStringData>(1, 1);
 	return EmptyUnicodeStringData;
 }
 
 void UnicodeString::SetEUS()
 {
 	m_pData = eus();
-	m_pData->AddRef();
 }
 
 void UnicodeString::ReleaseEUS()
 {
-	delete eus();
+	eus().reset();
 }
 
 void UnicodeString::Inflate(size_t nSize)
 {
-	if (m_pData->GetRef() == 1)
+	if (m_pData.unique())
 	{
 		m_pData->Inflate(nSize);
 	}
 	else
 	{
-		UnicodeStringData *pNewData = new UnicodeStringData(nSize);
+		auto pNewData = std::make_shared<UnicodeStringData>(nSize);
 		size_t nNewLength = std::min(m_pData->GetLength(),nSize-1);
 		wmemcpy(pNewData->GetData(),m_pData->GetData(),nNewLength);
 		pNewData->SetLength(nNewLength);
-		m_pData->DecRef();
 		m_pData = pNewData;
 	}
 }
@@ -99,7 +97,7 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	}
 	size_t NewLength = m_pData->GetLength() + DataLen - Len;
 
-	if (m_pData->GetRef() == 1 && NewLength + 1 <= m_pData->GetSize())
+	if (m_pData.unique() && NewLength + 1 <= m_pData->GetSize())
 	{
 		if (NewLength)
 		{
@@ -123,17 +121,15 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	{
 		if (!NewLength)
 		{
-			m_pData->DecRef();
 			SetEUS();
 			return *this;
 		}
 
-		UnicodeStringData *NewData = new UnicodeStringData(NewLength + 1);
+		auto NewData = std::make_shared<UnicodeStringData>(NewLength + 1);
 		wmemcpy(NewData->GetData(), m_pData->GetData(), Pos);
 		wmemcpy(NewData->GetData() + Pos, Data, DataLen);
 		wmemcpy(NewData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
 		NewData->SetLength(NewLength);
-		m_pData->DecRef();
 		m_pData = NewData;
 	}
 
@@ -158,9 +154,7 @@ UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
 {
 	if (Str.m_pData != m_pData)
 	{
-		m_pData->DecRef();
 		m_pData = Str.m_pData;
-		m_pData->AddRef();
 	}
 
 	return *this;
@@ -168,8 +162,6 @@ UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
 
 UnicodeString& UnicodeString::Copy(const char *lpszData, uintptr_t CodePage)
 {
-	m_pData->DecRef();
-
 	if (!lpszData || !*lpszData)
 	{
 		SetEUS();
@@ -177,7 +169,7 @@ UnicodeString& UnicodeString::Copy(const char *lpszData, uintptr_t CodePage)
 	else
 	{
 		size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,nullptr,0);
-		m_pData = new UnicodeStringData(nSize);
+		m_pData = std::make_shared<UnicodeStringData>(nSize);
 		MultiByteToWideChar(CodePage,0,lpszData,-1,m_pData->GetData(),(int)m_pData->GetSize());
 		m_pData->SetLength(nSize - 1);
 	}
@@ -243,9 +235,8 @@ size_t UnicodeString::SetLength(size_t nLength)
 {
 	if (nLength < m_pData->GetLength())
 	{
-		if (!nLength && m_pData->GetRef() > 1)
+		if (!nLength && !m_pData.unique())
 		{
-			m_pData->DecRef();
 			SetEUS();
 		}
 		else
@@ -260,9 +251,8 @@ size_t UnicodeString::SetLength(size_t nLength)
 
 UnicodeString& UnicodeString::Clear()
 {
-	if (m_pData->GetRef() > 1)
+	if (!m_pData.unique())
 	{
-		m_pData->DecRef();
 		SetEUS();
 	}
 	else

@@ -1307,7 +1307,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 		hPlugin = ArcItem->hPlugin;
 	}
 
-	while (FileFound)
+	if (FileFound)
 	{
 		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
 		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Global->Opt->FindOpt.FindFolders || SearchHex))
@@ -1317,54 +1317,54 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 		{
 			FileFound=false;
 
-			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-				break;
-
-			itd->SetFindMessage(strDisplayName);
-
-			string strSearchFileName;
-			bool RemoveTemp=false;
-
-			if (hPlugin)
+			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				if (!Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
-				{
-					string strTempDir;
-					FarMkTempEx(strTempDir); // А проверка на nullptr???
-					apiCreateDirectory(strTempDir,nullptr);
+				itd->SetFindMessage(strDisplayName);
 
-					bool GetFileResult=false;
+				string strSearchFileName;
+				bool RemoveTemp=false;
+
+				if (hPlugin)
+				{
+					if (!Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
 					{
-						CriticalSectionLock Lock(PluginCS);
-						GetFileResult=Global->CtrlObject->Plugins->GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
+						string strTempDir;
+						FarMkTempEx(strTempDir); // А проверка на nullptr???
+						apiCreateDirectory(strTempDir,nullptr);
+
+						bool GetFileResult=false;
+						{
+							CriticalSectionLock Lock(PluginCS);
+							GetFileResult=Global->CtrlObject->Plugins->GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
+						}
+						if (GetFileResult)
+						{
+							RemoveTemp=true;
+						}
+						else
+						{
+							apiRemoveDirectory(strTempDir);
+						}
 					}
-					if (!GetFileResult)
+					else
 					{
-						apiRemoveDirectory(strTempDir);
-						break;
+						strSearchFileName = strPluginSearchPath + FullName;
 					}
-					RemoveTemp=true;
 				}
 				else
 				{
-					strSearchFileName = strPluginSearchPath + FullName;
+					strSearchFileName = FullName;
+				}
+
+				if (!strSearchFileName.IsEmpty() && LookForString(strSearchFileName))
+					FileFound=true;
+
+				if (RemoveTemp)
+				{
+					DeleteFileWithFolder(strSearchFileName);
 				}
 			}
-			else
-			{
-				strSearchFileName = FullName;
-			}
-
-			if (LookForString(strSearchFileName))
-				FileFound=true;
-
-			if (RemoveTemp)
-			{
-				DeleteFileWithFolder(strSearchFileName);
-			}
 		}
-
-		break;
 	}
 
 	return FileFound;

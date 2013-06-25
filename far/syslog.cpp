@@ -612,7 +612,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 		fwprintf(fp,L"\tStartSortOrder   =%d\n",Info->StartSortOrder);
 		fwprintf(fp,L"\tKeyBar           =%p\n",Info->KeyBar);
 		fwprintf(fp,L"\tShortcutData     =%p\n",Info->ShortcutData);
-		fwprintf(fp,L"\tFreeSize         =%I64d (0x%I64X)\n",Info->FreeSize,Info->FreeSize);
+		fwprintf(fp,L"\tFreeSize         =%I64u (0x%I64X)\n",Info->FreeSize,Info->FreeSize);
 		fwprintf(fp,L"\tUserData.Data    =%p\n",Info->UserData.Data);
 		fwprintf(fp,L"\tUserData.FreeData=%p\n",Info->UserData.FreeData);
 

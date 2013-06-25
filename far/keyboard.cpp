@@ -1376,7 +1376,10 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					else
 					{
 						_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
-						FrameManager->SetLastInputRecord(rec);
+						if(FrameManager)
+						{
+							FrameManager->SetLastInputRecord(rec);
+						}
 						irec.IntKey=MsCalcKey;
 						irec.Rec=*rec;
 						if (Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -1588,7 +1591,7 @@ bool CheckForEsc()
    ! дополнительный параметра у KeyToText - размер данных
    Size=0 - по максимуму!
 */
-static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
+static string &GetShiftKeyName(string &strName, DWORD Key)
 {
 	if ((Key&KEY_RCTRL) == KEY_RCTRL)   strName += ModifKeyName[0].Name;
 	else if (Key&KEY_CTRL)              strName += ModifKeyName[2].Name;
@@ -1607,7 +1610,6 @@ static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
 	if (Key&KEY_M_SPEC)                 strName += ModifKeyName[5].Name;
 	else if (Key&KEY_M_OEM)             strName += ModifKeyName[6].Name;
 
-	Len=(int)strName.GetLength();
 	return strName;
 }
 
@@ -1754,8 +1756,8 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 	}
 	else
 	{
-		int I, Len;
-		GetShiftKeyName(strKeyText,Key,Len);
+		int I;
+		GetShiftKeyName(strKeyText,Key);
 
 		for (I=0; I<int(ARRAYSIZE(FKeys1)); I++)
 		{

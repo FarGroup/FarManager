@@ -58,16 +58,8 @@ enum
 struct ScanTreeData
 {
 	BitFlags Flags;
-	FindFile* Find;
+	std::unique_ptr<FindFile> Find;
 	string RealPath;
-	ScanTreeData(): Find(nullptr) { }
-	~ScanTreeData()
-	{
-		if(Find)
-		{
-			delete Find;
-		}
-	}
 };
 
 class ScanTree

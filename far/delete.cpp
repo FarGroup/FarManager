@@ -1025,7 +1025,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	wchar_t *lpwszName = strFullName.GetBuffer(strFullName.GetLength()+2);
 	lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 
-   if (MoveToRecycleBinInternal(lpwszName))
+	if (MoveToRecycleBinInternal(lpwszName))
 	{
 		ret = DELETE_SUCCESS;
 		return true;
@@ -1038,7 +1038,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 
 	ret = DELETE_SUCCESS;
 	DWORD dwe = GetLastError(); // probably bad path to recycle bin
-	if (ERROR_BAD_PATHNAME == dwe || ERROR_FILE_NOT_FOUND || (dir && ERROR_PATH_NOT_FOUND==dwe))
+	if (ERROR_BAD_PATHNAME == dwe || ERROR_FILE_NOT_FOUND == dwe || (dir && ERROR_PATH_NOT_FOUND==dwe))
 	{
 		string qName(strFullName);
 		QuoteLeadingSpace(qName);
@@ -1057,7 +1057,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 			if (dir)
 				SkipFoldersMode = 2;
 			else
-				SkipMode = 2;             // fallthrough down   
+				SkipMode = 2;             // fallthrough down
 		case 1:                         // [Skip]
 			ret =  DELETE_SKIP;          
 			break;

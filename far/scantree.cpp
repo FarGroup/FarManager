@@ -73,7 +73,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 		ScanTreeData* LastItem = ScanItems.back().get();
 		if (!LastItem->Find)
 		{
-			LastItem->Find = new FindFile(strFindPath);
+			LastItem->Find.reset(new FindFile(strFindPath));
 		}
 		Done=!LastItem->Find->Get(*fdata);
 
@@ -91,11 +91,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 
 				if (Done)
 				{
-					if(LastItem->Find)
-					{
-						delete LastItem->Find;
-						LastItem->Find = nullptr;
-					}
+					LastItem->Find.reset();
 					LastItem->Flags.Set(FSCANTREE_SECONDPASS);
 					continue;
 				}

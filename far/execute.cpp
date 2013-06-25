@@ -306,15 +306,15 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					{
 						FOR_CONST_RANGE(PathExtList, Ext)
 						{
-							string strDest;
+							string Dest;
 
-							if (apiSearchPath(Path->CPtr(), strFullName, Ext->CPtr(), strDest))
+							if (apiSearchPath(Path->CPtr(), strFullName, Ext->CPtr(), Dest))
 							{
-								DWORD Attr=apiGetFileAttributes(strDest);
+								DWORD Attr=apiGetFileAttributes(Dest);
 
 								if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 								{
-									strFullName=strDest;
+									strFullName=Dest;
 									Result=true;
 									break;
 								}
@@ -329,15 +329,15 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				{
 					FOR_CONST_RANGE(PathExtList, Ext)
 					{
-						string strDest;
+						string Dest;
 
-						if (apiSearchPath(nullptr, strFullName, Ext->CPtr(), strDest))
+						if (apiSearchPath(nullptr, strFullName, Ext->CPtr(), Dest))
 						{
-							DWORD Attr=apiGetFileAttributes(strDest);
+							DWORD Attr=apiGetFileAttributes(Dest);
 
 							if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 							{
-								strFullName=strDest;
+								strFullName=Dest;
 								Result=true;
 								break;
 							}

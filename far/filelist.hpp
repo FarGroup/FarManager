@@ -274,17 +274,15 @@ class FileList:public Panel
 		void SelectSortMode();
 		bool ApplyCommand();
 		void DescribeFiles();
-		void CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
-		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
+		std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot=TRUE);
+		void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 		HANDLE OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
 		int PrepareColumnWidths(unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
 		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
 
 		void PluginDelete();
-		void PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
-		                    int ItemNumber,int Delete,int Move,DizList *SrcDiz,
-		                    DizList *DestDiz);
+		void PutDizToPlugin(FileList *DestPanel,std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz);
 		void PluginGetFiles(const wchar_t **DestPath,int Move);
 		void PluginToPluginFiles(int Move);
 		void PluginHostGetFiles();
@@ -292,7 +290,7 @@ class FileList:public Panel
 		// возвращает то, что возвращает PutFiles
 		int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
 		void ProcessPluginCommand();
-		void PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber);
+		void PluginClearSelection(std::vector<PluginPanelItem>& ItemList);
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
 		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, FILETIME* Times=nullptr, const string& Owner = L"");

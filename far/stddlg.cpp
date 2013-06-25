@@ -636,7 +636,10 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		if(CloseBtn && Result == 0)
 		{
 			// close & retry
-			pfiu->CloseFile();
+			if (pfiu)
+			{
+				pfiu->CloseFile();
+			}
 		}
 		break;
 	}

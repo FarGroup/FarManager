@@ -47,9 +47,9 @@ struct PSEUDO_HANDLE
 {
 	File Object;
 	PVOID BufferBase;
+	PVOID Buffer2;
 	ULONG NextOffset;
 	ULONG BufferSize;
-	PVOID Buffer2;
 	bool Extended;
 	bool ReadDone;
 };

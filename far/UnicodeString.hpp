@@ -43,7 +43,6 @@ class UnicodeStringData
 		size_t m_nLength;
 		size_t m_nSize;
 		size_t m_nDelta;
-		volatile long m_nRefCount;
 		wchar_t *m_pData;
 		wchar_t StackBuffer[__US_DELTA];
 
@@ -72,7 +71,6 @@ class UnicodeStringData
 		{
 			m_nDelta = nDelta? nDelta : __US_DELTA;
 			m_nLength = 0;
-			m_nRefCount = 1;
 			m_pData = AllocData(nSize, m_nSize);
 			//Так как ни где выше в коде мы не готовы на случай что памяти не хватит
 			//то уж лучше и здесь не проверять а сразу падать
@@ -112,19 +110,6 @@ class UnicodeStringData
 		size_t GetLength() const { return m_nLength; }
 		size_t GetSize() const { return m_nSize; }
 
-		int GetRef() const { return m_nRefCount; }
-		void AddRef()
-		{
-			InterlockedIncrement(&m_nRefCount);
-		}
-		void DecRef()
-		{
-			InterlockedDecrement(&m_nRefCount);
-
-			if (!m_nRefCount)
-				delete this;
-		}
-
 		~UnicodeStringData() { FreeData(m_pData); }
 };
 
@@ -157,7 +142,7 @@ typedef class UnicodeString
 			friend class UnicodeString;
 		};
 
-		UnicodeStringData *m_pData;
+		std::shared_ptr<UnicodeStringData> m_pData;
 
 		void SetEUS();
 		static void ReleaseEUS();
@@ -170,9 +155,9 @@ typedef class UnicodeString
 		UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
 		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
 		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
-		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
+		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = std::make_shared<DECLTYPE(m_pData)::element_type>(nSize, nDelta); }
 
-		~UnicodeString() { /*if (m_pData) он не должен быть nullptr*/ m_pData->DecRef(); }
+		~UnicodeString() {}
 
 		void Inflate(size_t nSize);
 		wchar_t *GetBuffer(size_t nSize = (size_t)-1);
@@ -226,7 +211,7 @@ typedef class UnicodeString
 		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
 		UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
-		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData->DecRef(); m_pData = rvalString.m_pData; rvalString.SetEUS(); } return *this; }
+		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData.swap(rvalString.m_pData); rvalString.SetEUS(); } return *this; }
 		UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
 		UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
 		UnicodeString& operator=(wchar_t chData) { return Copy(chData); }

@@ -416,77 +416,70 @@ HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENF
 }
 
 
-void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot)
+std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 {
+	std::vector<PluginPanelItem> ItemList;
+
 	if (ListData.empty())
-		return;
+		return ItemList;
 
 	long SaveSelPosition=GetSelPosition;
 	long OldLastSelPosition=LastSelPosition;
 	string strSelName;
-	ItemNumber=0;
-	ItemList=new PluginPanelItem[SelFileCount+1]();
 
-	if (ItemList)
+	ItemList.reserve(SelFileCount+1);
+
+	DWORD FileAttr;
+	GetSelName(nullptr,FileAttr);
+
+	while (GetSelName(&strSelName,FileAttr))
 	{
-		DWORD FileAttr;
-		GetSelName(nullptr,FileAttr);
-
-		while (GetSelName(&strSelName,FileAttr))
-			if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName))
-			        && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < ListData.size())
-			{
-				FileListToPluginItem(ListData[LastSelPosition],ItemList+ItemNumber);
-				ItemNumber++;
-			}
-
-		if (AddTwoDot && !ItemNumber && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
+		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < ListData.size())
 		{
-			FileListToPluginItem(ListData[0],ItemList+ItemNumber);
-			//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
-			//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
-			ItemNumber++;
+			ItemList.emplace_back(VALUE_TYPE(ItemList)());
+			FileListToPluginItem(ListData[LastSelPosition], &ItemList.back());
 		}
+	}
+
+	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
+	{
+		FileListToPluginItem(ListData[0],&ItemList.front());
+		//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
+		//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
 	}
 
 	LastSelPosition=OldLastSelPosition;
 	GetSelPosition=SaveSelPosition;
+	return ItemList;
 }
 
 
-void FileList::DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber)
+void FileList::DeletePluginItemList(std::vector<PluginPanelItem> &ItemList)
 {
-	PluginPanelItem *PItemList=ItemList;
-
-	if (PItemList)
+	std::for_each(RANGE(ItemList, i)
 	{
-		for (int I=0; I<ItemNumber; I++,PItemList++)
-		{
-			FreePluginPanelItem(PItemList);
-		}
+		FreePluginPanelItem(&i);
+	});
 
-		delete[] ItemList;
-	}
+	ItemList.clear();
 }
 
 
 void FileList::PluginDelete()
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginDelete()"));
-	PluginPanelItem *ItemList;
-	int ItemNumber;
 	SaveSelection();
-	CreatePluginItemList(ItemList,ItemNumber);
+	auto ItemList = CreatePluginItemList();
 
-	if (ItemList && ItemNumber>0)
+	if (!ItemList.empty())
 	{
-		if (Global->CtrlObject->Plugins->DeleteFiles(hPlugin,ItemList,ItemNumber,0))
+		if (Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), 0))
 		{
 			SetPluginModified();
-			PutDizToPlugin(this,ItemList,ItemNumber,TRUE,FALSE,nullptr,&Diz);
+			PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
 		}
 
-		DeletePluginItemList(ItemList,ItemNumber);
+		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
 		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -496,9 +489,7 @@ void FileList::PluginDelete()
 }
 
 
-void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
-                              int ItemNumber,int Delete,int Move,DizList *SrcDiz,
-                              DizList *DestDiz)
+void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PutDizToPlugin()"));
 	OpenPanelInfo Info;
@@ -518,28 +509,28 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 		if (DestPanel->GetModalMode())
 			DestPanel->ReadDiz();
 
-		int DizPresent=FALSE;
+		bool DizPresent = false;
 
-		for (int I=0; I<ItemNumber; I++)
-			if (ItemList[I].Flags & PPIF_PROCESSDESCR)
+		std::for_each(RANGE(ItemList, i)
+		{
+			if (i.Flags & PPIF_PROCESSDESCR)
 			{
-				string strName = ItemList[I].FileName;
-				string strShortName = ItemList[I].AlternateFileName;
 				int Code;
 
 				if (Delete)
-					Code=DestDiz->DeleteDiz(strName,strShortName);
+					Code=DestDiz->DeleteDiz(i.FileName, i.AlternateFileName);
 				else
 				{
-					Code=SrcDiz->CopyDiz(strName,strShortName,strName,strShortName,DestDiz);
+					Code=SrcDiz->CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.AlternateFileName, DestDiz);
 
 					if (Code && Move)
-						SrcDiz->DeleteDiz(strName,strShortName);
+						SrcDiz->DeleteDiz(i.FileName, i.AlternateFileName);
 				}
 
 				if (Code)
-					DizPresent=TRUE;
+					DizPresent = true;
 			}
+		});
 
 		if (DizPresent)
 		{
@@ -578,24 +569,21 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginGetFiles()"));
-	PluginPanelItem *ItemList, *PList;
-	int ItemNumber;
 	SaveSelection();
-	CreatePluginItemList(ItemList,ItemNumber);
-
-	if (ItemList && ItemNumber>0)
+	auto ItemList = CreatePluginItemList();
+	if (!ItemList.empty())
 	{
-		int GetCode=Global->CtrlObject->Plugins->GetFiles(hPlugin,ItemList,ItemNumber,Move!=0,DestPath,0);
+		int GetCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), Move!=0, DestPath, 0);
 
 		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
 		        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 		{
 			DizList DestDiz;
 			int DizFound=FALSE;
-			PList=ItemList;
 
-			for (int I=0; I<ItemNumber; I++,PList++)
-				if (PList->Flags & PPIF_PROCESSDESCR)
+			std::for_each(RANGE(ItemList, i)
+			{
+				if (i.Flags & PPIF_PROCESSDESCR)
 				{
 					if (!DizFound)
 					{
@@ -604,12 +592,9 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 						DestDiz.Read(*DestPath);
 						DizFound=TRUE;
 					}
-
-					string strName = PList->FileName;
-					string strShortName = PList->AlternateFileName;
-					CopyDiz(strName,strShortName,strName,strName,&DestDiz);
+					CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
 				}
-
+			});
 			DestDiz.Flush(*DestPath);
 		}
 
@@ -621,13 +606,13 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 			if (Move)
 			{
 				SetPluginModified();
-				PutDizToPlugin(this,ItemList,ItemNumber,TRUE,FALSE,nullptr,&Diz);
+				PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
 			}
 		}
 		else if (!ReturnCurrentFile)
-			PluginClearSelection(ItemList,ItemNumber);
+			PluginClearSelection(ItemList);
 
-		DeletePluginItemList(ItemList,ItemNumber);
+		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
 		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -640,8 +625,6 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 void FileList::PluginToPluginFiles(int Move)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginToPluginFiles()"));
-	PluginPanelItem *ItemList;
-	int ItemNumber;
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	string strTempDir;
 
@@ -655,12 +638,12 @@ void FileList::PluginToPluginFiles(int Move)
 
 	SaveSelection();
 	apiCreateDirectory(strTempDir,nullptr);
-	CreatePluginItemList(ItemList,ItemNumber);
+	auto ItemList = CreatePluginItemList();
 
-	if (ItemList && ItemNumber>0)
+	if (!ItemList.empty())
 	{
 		const wchar_t *lpwszTempDir=strTempDir.CPtr();
-		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin,ItemList,ItemNumber,FALSE,&lpwszTempDir,OPM_SILENT);
+		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), FALSE, &lpwszTempDir, OPM_SILENT);
 		strTempDir=lpwszTempDir;
 
 		if (PutCode==1 || PutCode==2)
@@ -668,7 +651,7 @@ void FileList::PluginToPluginFiles(int Move)
 			string strSaveDir;
 			apiGetCurrentDirectory(strSaveDir);
 			FarChDir(strTempDir);
-			PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0);
+			PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), FALSE, 0);
 
 			if (PutCode==1 || PutCode==2)
 			{
@@ -676,23 +659,22 @@ void FileList::PluginToPluginFiles(int Move)
 					ClearSelection();
 
 				AnotherPanel->SetPluginModified();
-				PutDizToPlugin(AnotherFilePanel,ItemList,ItemNumber,FALSE,FALSE,&Diz,&AnotherFilePanel->Diz);
+				PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, FALSE, &Diz, &AnotherFilePanel->Diz);
 
-				if (Move)
-					if (Global->CtrlObject->Plugins->DeleteFiles(hPlugin,ItemList,ItemNumber,OPM_SILENT))
+				if (Move && Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), OPM_SILENT))
 					{
 						SetPluginModified();
-						PutDizToPlugin(this,ItemList,ItemNumber,TRUE,FALSE,nullptr,&Diz);
+						PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
 					}
 			}
 			else if (!ReturnCurrentFile)
-				PluginClearSelection(ItemList,ItemNumber);
+				PluginClearSelection(ItemList);
 
 			FarChDir(strSaveDir);
 		}
 
 		DeleteDirTree(strTempDir);
-		DeletePluginItemList(ItemList,ItemNumber);
+		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
 
@@ -858,16 +840,15 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 		return 0;
 
 	FileList *AnotherFilePanel=(FileList *)AnotherPanel;
-	PluginPanelItem *ItemList;
-	int ItemNumber,PutCode=0;
+	int PutCode=0;
 	SaveSelection();
-	CreatePluginItemList(ItemList,ItemNumber);
+	auto ItemList = CreatePluginItemList();
 
-	if (ItemList && ItemNumber>0)
+	if (!ItemList.empty())
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"call Plugins.PutFiles"));
-		PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move!=0,0);
+		PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), Move!=0, 0);
 
 		if (PutCode==1 || PutCode==2)
 		{
@@ -878,14 +859,14 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 			}
 
 			_ALGO(SysLog(L"call PutDizToPlugin"));
-			PutDizToPlugin(AnotherFilePanel,ItemList,ItemNumber,FALSE,Move,&Diz,&AnotherFilePanel->Diz);
+			PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, Move, &Diz, &AnotherFilePanel->Diz);
 			AnotherPanel->SetPluginModified();
 		}
 		else if (!ReturnCurrentFile)
-			PluginClearSelection(ItemList,ItemNumber);
+			PluginClearSelection(ItemList);
 
 		_ALGO(SysLog(L"call DeletePluginItemList"));
-		DeletePluginItemList(ItemList,ItemNumber);
+		DeletePluginItemList(ItemList);
 		Update(UPDATE_KEEP_SELECTION);
 		Redraw();
 
@@ -926,25 +907,23 @@ void FileList::ProcessHostFile()
 
 		if (PanelMode==PLUGIN_PANEL && !PluginsList.back()->strHostFile.IsEmpty())
 		{
-			PluginPanelItem *ItemList;
-			int ItemNumber;
 			_ALGO(SysLog(L"call CreatePluginItemList"));
-			CreatePluginItemList(ItemList,ItemNumber);
+			auto ItemList = CreatePluginItemList();
 			_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
-			Done=Global->CtrlObject->Plugins->ProcessHostFile(hPlugin,ItemList,ItemNumber,0);
+			Done=Global->CtrlObject->Plugins->ProcessHostFile(hPlugin, ItemList.data(), ItemList.size(), 0);
 
 			if (Done)
 				SetPluginModified();
 			else
 			{
 				if (!ReturnCurrentFile)
-					PluginClearSelection(ItemList,ItemNumber);
+					PluginClearSelection(ItemList);
 
 				Redraw();
 			}
 
 			_ALGO(SysLog(L"call DeletePluginItemList"));
-			DeletePluginItemList(ItemList,ItemNumber);
+			DeletePluginItemList(ItemList);
 
 			if (Done)
 				ClearSelection();
@@ -1227,18 +1206,18 @@ int FileList::ProcessPluginEvent(int Event,void *Param)
 }
 
 
-void FileList::PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber)
+void FileList::PluginClearSelection(std::vector<PluginPanelItem>& ItemList)
 {
 	SaveSelection();
 	size_t FileNumber=0,PluginNumber=0;
 
-	while (PluginNumber < static_cast<size_t>(ItemNumber))
+	while (PluginNumber < ItemList.size())
 	{
-		PluginPanelItem *CurPluginPtr=ItemList+PluginNumber;
+		const auto& CurPlugin = ItemList[PluginNumber];
 
-		if (!(CurPluginPtr->Flags & PPIF_SELECTED))
+		if (!(CurPlugin.Flags & PPIF_SELECTED))
 		{
-			while (StrCmpI(CurPluginPtr->FileName,ListData[FileNumber]->strName.CPtr()))
+			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber]->strName.CPtr()))
 				if (++FileNumber >= ListData.size())
 					return;
 
