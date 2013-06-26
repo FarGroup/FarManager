@@ -62,11 +62,11 @@ class HMenu: public Modal
 	private:
 		virtual void DisplayObject() override;
 		void ShowMenu();
-		void ProcessSubMenu(struct MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
+		void ProcessSubMenu(const MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
 		                    int X,int Y,int &Position);
 		wchar_t GetHighlights(const struct HMenuData *_item);
 		int CheckHighlights(WORD CheckSymbol,int StartPos=0);
-		bool TestMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent);
 
 	public:
 		HMenu(struct HMenuData *Item,int ItemCount);
@@ -74,7 +74,7 @@ class HMenu: public Modal
 
 	public:
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 		virtual void ResizeConsole() override;

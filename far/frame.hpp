@@ -85,7 +85,7 @@ public:
 	Frame *GetTopModal() {return NextModal;}
 	void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
 	int GetDynamicallyBorn() {return DynamicallyBorn;}
-	bool RemoveModal(Frame *aFrame);
+	bool RemoveModal(const Frame *aFrame);
 	bool HasSaveScreen();
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 

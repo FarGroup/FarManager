@@ -146,7 +146,7 @@ void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 	FAttr.AttrClear=AttrClear;
 }
 
-void FileFilterParams::SetColors(HighlightDataColor *Colors)
+void FileFilterParams::SetColors(const HighlightDataColor *Colors)
 {
 	FHighlight.Colors=*Colors;
 }
@@ -567,7 +567,7 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightDataColor &Colors)
+void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const HighlightDataColor &Colors)
 {
 	const wchar_t *ptr;
 	FarColor Color;

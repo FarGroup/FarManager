@@ -1304,7 +1304,7 @@ wchar_t GetDecimalSeparator()
 	return *Separator;
 }
 
-string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMatch* Match,int Count)
+string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
 {
 	string result;
 	size_t pos=0,length=ReplaceStr.GetLength();

@@ -1794,7 +1794,7 @@ wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 }
 
 
-void ItemsToBuf(PluginMenuItem& Menu, std::vector<string>& NamesArray, std::vector<string>& GuidsArray, char*& Buf, size_t& Rest, size_t& Size)
+void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArray, const std::vector<string>& GuidsArray, char*& Buf, size_t& Rest, size_t& Size)
 {
 	Menu.Count = NamesArray.size();
 	Menu.Strings = nullptr;

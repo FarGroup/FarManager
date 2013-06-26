@@ -62,4 +62,4 @@ int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCoun
                      unsigned __int64 &CompressedFileSize);
 
 int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const string& Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);
-void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *pPanelItem);
+void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *pPanelItem);

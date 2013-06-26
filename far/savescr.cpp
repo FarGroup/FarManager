@@ -294,7 +294,7 @@ int SaveScreen::ScreenBufCharCount()
 	return (X2-X1+1)*(Y2-Y1+1);
 }
 
-void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer,FAR_CHAR_INFO* FromBuffer,int Count)
+void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, int Count)
 {
 	memcpy(ToBuffer,FromBuffer,Count*sizeof(FAR_CHAR_INFO));
 }

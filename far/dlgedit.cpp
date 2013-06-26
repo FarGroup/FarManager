@@ -132,7 +132,7 @@ int DlgEdit::ProcessKey(int Key)
 		return lineEdit->ProcessKey(Key);
 }
 
-int DlgEdit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int DlgEdit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

@@ -591,7 +591,7 @@ void Manager::EnterMainLoop()
 	}
 }
 
-void Manager::SetLastInputRecord(INPUT_RECORD *Rec)
+void Manager::SetLastInputRecord(const INPUT_RECORD *Rec)
 {
 	if (&LastInputRecord != Rec)
 		LastInputRecord=*Rec;
@@ -1115,7 +1115,7 @@ int Manager::ProcessKey(DWORD Key)
 	return ret;
 }
 
-int Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int ret=FALSE;
 

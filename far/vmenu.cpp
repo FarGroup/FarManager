@@ -277,7 +277,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 }
 
 // установить курсор и верхний итем
-int VMenu::SetSelectPos(FarListPos *ListPos, int Direct)
+int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -1506,7 +1506,7 @@ int VMenu::ProcessKey(int Key)
 	return TRUE;
 }
 
-int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -2720,7 +2720,7 @@ void VMenu::SetBoxType(int BoxType)
 	VMenu::BoxType=BoxType;
 }
 
-void VMenu::SetColors(FarDialogItemColors *ColorsIn)
+void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 {
 	CriticalSectionLock Lock(CS);
 

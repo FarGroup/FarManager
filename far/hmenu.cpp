@@ -350,7 +350,7 @@ int HMenu::ProcessKey(int Key)
 }
 
 
-bool HMenu::TestMouse(MOUSE_EVENT_RECORD *MouseEvent)
+bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
@@ -358,7 +358,7 @@ bool HMenu::TestMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	return MsY!=Y1 || (MsX>=ItemX[SelectPos] && MsX<ItemX[SelectPos+1]);
 }
 
-int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX,MsY;
 
@@ -404,7 +404,7 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 }
 
 
-void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
+void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
 	Position=-1;

@@ -112,7 +112,7 @@ int Frame::FastHide()
 	return TRUE;
 }
 
-bool Frame::RemoveModal(Frame *aFrame)
+bool Frame::RemoveModal(const Frame *aFrame)
 {
 	if (!aFrame)
 	{

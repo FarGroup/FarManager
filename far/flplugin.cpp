@@ -1206,7 +1206,7 @@ int FileList::ProcessPluginEvent(int Event,void *Param)
 }
 
 
-void FileList::PluginClearSelection(std::vector<PluginPanelItem>& ItemList)
+void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList)
 {
 	SaveSelection();
 	size_t FileNumber=0,PluginNumber=0;

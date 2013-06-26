@@ -302,13 +302,13 @@ class VMenu: public Modal
 
 		void AssignHighlights(int Reverse);
 
-		void SetColors(struct FarDialogItemColors *ColorsIn=nullptr);
-		void GetColors(struct FarDialogItemColors *ColorsOut);
+		void SetColors(const FarDialogItemColors *ColorsIn=nullptr);
+		void GetColors(FarDialogItemColors *ColorsOut);
 		void SetOneColor(int Index, PaletteColors Color);
 
 		int ProcessFilterKey(int Key);
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr) override;
 
@@ -341,8 +341,8 @@ class VMenu: public Modal
 		size_t  SetUserData(LPCVOID Data,size_t Size=0,int Position=-1);
 
 		int  GetSelectPos() { return SelectPos; }
-		int  GetSelectPos(struct FarListPos *ListPos);
-		int  SetSelectPos(struct FarListPos *ListPos, int Direct=0);
+		int  GetSelectPos(FarListPos *ListPos);
+		int  SetSelectPos(const FarListPos *ListPos, int Direct=0);
 		int  SetSelectPos(int Pos, int Direct, bool stop_on_edge=false);
 		int  GetCheck(int Position=-1);
 		void SetCheck(int Check, int Position=-1);

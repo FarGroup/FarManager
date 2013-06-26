@@ -1638,7 +1638,7 @@ static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 	return (Data->DlgProc? Data->DlgProc : FarDefDlgProcA)(hDlg, Msg, Param1, Param2);
 }
 
-static void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
+static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* liA)
 {
 	UnicodeToOEM(li->Text, liA->Text, sizeof(liA->Text)-1);
 	liA->Flags=0;
@@ -1658,7 +1658,7 @@ static void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 	if (li->Flags&LIF_DELETEUSERDATA) liA->Flags|=oldfar::LIF_DELETEUSERDATA;
 }
 
-static size_t GetAnsiVBufSize(oldfar::FarDialogItem &diA)
+static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 {
 	return (diA.X2-diA.X1+1)*(diA.Y2-diA.Y1+1);
 }
@@ -1720,7 +1720,7 @@ static FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 	return VBuf;
 }
 
-static void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
+static void AnsiListItemToUnicode(const oldfar::FarListItem* liA, FarListItem* li)
 {
 	li->Text = AnsiToUnicode(liA->Text);
 	li->Flags=0;
@@ -1740,7 +1740,7 @@ static void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 	if (liA->Flags&oldfar::LIF_DELETEUSERDATA) li->Flags|=LIF_DELETEUSERDATA;
 }
 
-static void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
+static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDialogItem &di)
 {
 	switch (diA.Type)
 	{
@@ -2020,7 +2020,7 @@ static void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 	}
 }
 
-static void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
+static void UnicodeDialogItemToAnsiSafe(const FarDialogItem &di,oldfar::FarDialogItem &diA)
 {
 	switch (di.Type)
 	{
@@ -3082,7 +3082,7 @@ static int WINAPI FarDialogFnA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
 
-static void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
+static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInfo* PIA)
 {
 	PIA->PanelType = 0;
 
@@ -5484,7 +5484,7 @@ void PluginA::FreeOpenPanelInfo()
 	ClearStruct(OPI);
 }
 
-void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
+void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
 {
 	FreeOpenPanelInfo();
 	OPI.StructSize = sizeof(OPI);
@@ -5650,7 +5650,7 @@ void PluginA::FreePluginInfo()
 	ClearStruct(PI);
 }
 
-void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
+void PluginA::ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
 {
 	FreePluginInfo();
 	PI.StructSize = sizeof(PI);

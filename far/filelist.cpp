@@ -2797,7 +2797,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 }
 
 
-int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	Global->Elevation->ResetApprove();
 
@@ -3006,7 +3006,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 /* $ 12.09.2000 SVS
   + Опциональное поведение для правой клавиши мыши на пустой панели
 */
-void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
+void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int CurColumn=1,ColumnsWidth,I;
 	int PanelX=MouseEvent->dwMousePosition.X-X1-1;

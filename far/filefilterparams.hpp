@@ -139,7 +139,7 @@ class FileFilterParams
 		void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 		void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 		void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
-		void SetColors(HighlightDataColor *Colors);
+		void SetColors(const HighlightDataColor *Colors);
 		void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
 		void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
 		void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }

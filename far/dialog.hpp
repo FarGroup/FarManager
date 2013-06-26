@@ -187,7 +187,7 @@ public:
 	virtual ~Dialog();
 
 	virtual int ProcessKey(int Key) override;
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void Show() override;
 	virtual void Hide() override;
@@ -254,9 +254,9 @@ private:
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup);
-	BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const string& HistoryName,string &strStr);
+	BOOL SelectFromEditHistory(const DialogItemEx *CurItem,DlgEdit *EditLine,const string& HistoryName,string &strStr);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-	int AddToEditHistory(DialogItemEx* CurItem, const string& AddStr);
+	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr);
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
@@ -265,7 +265,7 @@ private:
 	BOOL GetItemRect(size_t I,SMALL_RECT& Rect);
 	bool ItemHasDropDownArrow(const DialogItemEx *Item) const;
 	const wchar_t *GetDialogTitle();
-	BOOL SetItemRect(size_t ID,SMALL_RECT *Rect);
+	BOOL SetItemRect(size_t ID, const SMALL_RECT *Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	int GetDropDownOpened() const { return DropDownOpened; }
 	void ProcessCenterGroup();

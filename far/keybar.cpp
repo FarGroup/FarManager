@@ -303,7 +303,7 @@ int KeyBar::ProcessKey(int Key)
 	return FALSE;
 }
 
-int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	INPUT_RECORD rec;
 	int Key;

@@ -67,7 +67,7 @@ class VMenu2 : public Dialog
 		}
 
 	public:
-		VMenu2(const string& Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+		VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
 		void Resize(bool force=false);
 
 		void SetTitle(const string& Title);
@@ -178,5 +178,5 @@ class VMenu2 : public Dialog
 		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
 		virtual int GetTypeAndName(string &strType, string &strName) override;
 		virtual int GetType() override { return MODALTYPE_VMENU; }
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 };

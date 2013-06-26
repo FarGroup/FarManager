@@ -774,7 +774,7 @@ int InfoList::ProcessKey(int Key)
 }
 
 
-int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int RetCode;
 

@@ -1033,7 +1033,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	return -1;
 }
 
-int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
+int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	if ((item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType))
 	{
@@ -1085,7 +1085,7 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
 	}
 }
 
-void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
+void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	int Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
 
@@ -1313,7 +1313,7 @@ __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 }
 
 // корректировка букв
-static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
+static DWORD _CorrectFastFindKbdLayout(const INPUT_RECORD *rec,DWORD Key)
 {
 	if ((Key&(KEY_ALT|KEY_RALT)))// && Key!=(KEY_ALT|0x3C))
 	{
@@ -1578,7 +1578,7 @@ void Panel::KillFocus()
 }
 
 
-int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
+int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 {
 	RetCode=TRUE;
 
@@ -2548,7 +2548,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	return ExitCode == 7;
 }
 
-BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
+BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
@@ -2651,7 +2651,7 @@ bool Panel::ExecShortcutFolder(int Pos, bool raw)
 	return false;
 }
 
-bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType)
+bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType)
 {
 	Panel *SrcPanel=this;
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);

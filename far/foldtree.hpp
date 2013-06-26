@@ -68,7 +68,7 @@ class FolderTree:public Frame
 
 	public:
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 		virtual void InitKeyBar() override;
 		virtual void OnChangeFocus(int focus) override; // вызывается при смене фокуса

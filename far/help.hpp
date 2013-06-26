@@ -112,7 +112,7 @@ public:
 
 	virtual void Hide() override;
 	virtual int  ProcessKey(int Key) override;
-	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
 	virtual void OnChangeFocus(int focus) override; // вызывается при смене фокуса
@@ -125,7 +125,7 @@ public:
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 
 	BOOL GetError() {return ErrorHelp;}
-	static bool MkTopic(class Plugin* pPlugin,const string& HelpTopic,string &strTopic);
+	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
 
 private:
 	virtual void DisplayObject() override;

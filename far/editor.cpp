@@ -443,7 +443,7 @@ void Editor::TextChanged(bool State)
 }
 
 
-bool Editor::CheckLine(Edit* line)
+bool Editor::CheckLine(const Edit* line)
 {
 	if (line)
 	{
@@ -2986,7 +2986,7 @@ int Editor::ProcessKey(int Key)
 }
 
 
-int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	Edit *NewPtr;
 	int NewDist,Dist;
@@ -3139,7 +3139,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Editor::CalcDistance(Edit *From, Edit *To,int MaxDist)
+int Editor::CalcDistance(const Edit *From, const Edit *To,int MaxDist)
 {
 	int Distance=0;
 

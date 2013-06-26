@@ -320,7 +320,7 @@ FarDialogItem VMenu2DialogItems[]=
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 };
 
-VMenu2::VMenu2(const string& Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
+VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
 {
 	InitDialogObjects();
 
@@ -642,7 +642,7 @@ static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 	return TRUE;
 }
 
-int VMenu2::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (MouseEvent->dwMousePosition.X < Dialog::X1 || MouseEvent->dwMousePosition.Y < Dialog::Y1 ||
 		MouseEvent->dwMousePosition.X > Dialog::X2 || MouseEvent->dwMousePosition.Y > Dialog::Y2)

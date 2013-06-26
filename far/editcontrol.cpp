@@ -737,7 +737,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
-int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if(Edit::ProcessMouse(MouseEvent))
 	{

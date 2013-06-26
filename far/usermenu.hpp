@@ -56,7 +56,7 @@ public:
 
 private:
 	void ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName);
-	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem);
+	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem);
 	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
 	void SaveMenu(const string& MenuFileName);

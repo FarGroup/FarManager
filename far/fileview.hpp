@@ -77,7 +77,7 @@ class FileViewer:public Frame
 			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
 		virtual void InitKeyBar() override;
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 		virtual void ShowConsoleTitle() override;
 		/* $ 14.06.2002 IS

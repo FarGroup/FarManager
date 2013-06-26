@@ -55,7 +55,7 @@ class Grabber:Modal
 	private:
 		virtual void DisplayObject() override;
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		void CopyGrabbedArea(int Append, int VerticalBlock);
 		void Reset();
 

@@ -866,7 +866,7 @@ Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
 	return(Current);
 }
 
-Panel* FilePanels::GetAnotherPanel(Panel *Current)
+Panel* FilePanels::GetAnotherPanel(const Panel *Current)
 {
 	if (Current==LeftPanel)
 		return(RightPanel);
@@ -1150,7 +1150,7 @@ void FilePanels::DisplayObject()
 #endif
 }
 
-int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!ActivePanel->ProcessMouse(MouseEvent))
 		if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))

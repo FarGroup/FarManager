@@ -66,7 +66,7 @@ public:
 	virtual ~DlgEdit();
 
 	virtual int  ProcessKey(int Key) override;
-	virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	virtual void Show() override;
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;

@@ -195,7 +195,7 @@ Shortcuts::~Shortcuts()
 	}
 }
 
-static void Fill(ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
+static void Fill(const ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
 {
 	if(Folder)
 	{
@@ -272,7 +272,7 @@ static string MakeName(const ShortcutItem& Item)
 	return result;
 }
 
-static void FillMenu(VMenu2& Menu, std::list<ShortcutItem>& List, bool raw_mode=false)
+static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw_mode=false)
 {
 	Menu.DeleteItems();
 	FOR_CONST_RANGE(List, i)

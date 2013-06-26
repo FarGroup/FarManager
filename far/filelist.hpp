@@ -239,7 +239,7 @@ class FileList:public Panel
 		void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
 		const FarColor GetShowColor(int Position, int ColorType);
 		void ShowSelectedSize();
-		void ShowTotalSize(OpenPanelInfo &Info);
+		void ShowTotalSize(const OpenPanelInfo &Info);
 		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr);
 
 		void Select(FileListItem *SelPtr,int Selection);
@@ -278,8 +278,8 @@ class FileList:public Panel
 		void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 		HANDLE OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
-		int PrepareColumnWidths(unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
-		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
+		int PrepareColumnWidths(const unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
+		void PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo);
 
 		void PluginDelete();
 		void PutDizToPlugin(FileList *DestPanel,std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz);
@@ -290,10 +290,10 @@ class FileList:public Panel
 		// возвращает то, что возвращает PutFiles
 		int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
 		void ProcessPluginCommand();
-		void PluginClearSelection(std::vector<PluginPanelItem>& ItemList);
+		void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, FILETIME* Times=nullptr, const string& Owner = L"");
+		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = L"");
 		int  ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx);
 		void HighlightBorder(int Level, int ListPos);
 
@@ -307,9 +307,9 @@ class FileList:public Panel
 
 	public:
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual void SetFocus() override;
 		virtual void Update(int Mode) override;
 		/*$ 22.06.2001 SKV

@@ -230,7 +230,7 @@ class RegExp
 		{
 			bitset[charindex>>3]|=1<<(charindex&7);
 		}
-		static inline int GetBit(wchar_t* bitset,int charindex)
+		static inline int GetBit(const wchar_t* bitset,int charindex)
 		{
 			return bitset[charindex>>3]&(1<<(charindex&7));
 		}

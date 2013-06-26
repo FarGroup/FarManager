@@ -558,7 +558,7 @@ int Grabber::ProcessKey(int Key)
 }
 
 
-int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
 	        (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))

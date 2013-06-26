@@ -65,7 +65,7 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 	return Result;
 }
 
-bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, string& PrintName, string& SubstituteName)
+bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, const string& SubstituteName)
 {
 	bool Result=false;
 	rdb->Reserved=0;

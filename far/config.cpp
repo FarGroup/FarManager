@@ -2498,7 +2498,7 @@ void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
 	}
 }
 
-void Options::ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
+void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	auto ApplyViewModesNames = [this](MenuDataEx* Menu)
 	{

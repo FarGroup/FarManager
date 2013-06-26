@@ -873,7 +873,7 @@ bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st)
 	return ok;
 }
 
-bool Local2Utc(SYSTEMTIME &lst, FILETIME &ft)
+bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft)
 {
 	SYSTEMTIME st;
 	bool ok = false;
@@ -884,39 +884,3 @@ bool Local2Utc(SYSTEMTIME &lst, FILETIME &ft)
 	}
 	return ok;
 }
-
-#if 0
-bool Utc2Local(FILETIME &ft, FILETIME &lft)
-{
-	SYSTEMTIME lst;
-	bool ok = Utc2Local(ft, lst);
-	if (ok)
-	{
-		ok = FALSE != SystemTimeToFileTime(&lst, &lft);
-		if (ok)
-		{
-			UINT64 t64 = FileTimeToUI64(&ft);
-			UINT64 lt64 = FileTimeToUI64(&lft);
-			UI64ToFileTime(lt64 + t64 % 10000, &lft);
-		}
-	}
-	return ok;
-}
-
-bool Local2Utc(FILETIME &lft, FILETIME &ft)
-{
-	SYSTEMTIME st;
-	bool ok = Utc2Local(lft, st);
-	if (ok)
-	{
-		ok = FALSE != SystemTimeToFileTime(&st, &ft);
-		if (ok)
-		{
-			UINT64 lt64 = FileTimeToUI64(&lft);
-			UINT64 t64 = FileTimeToUI64(&ft);
-			UI64ToFileTime(t64 + lt64 % 10000, &ft);
-		}
-	}
-	return ok;
-}
-#endif

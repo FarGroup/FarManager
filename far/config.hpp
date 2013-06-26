@@ -274,7 +274,7 @@ public:
 	struct EditorOptions;
 
 	Options();
-	void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
+	void ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load();
 	void Save(bool Ask);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);

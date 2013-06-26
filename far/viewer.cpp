@@ -1974,7 +1974,7 @@ int Viewer::ProcessKey(int Key)
 	return FALSE;
 }
 
-int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
 		return FALSE;

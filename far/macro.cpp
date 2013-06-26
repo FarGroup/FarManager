@@ -884,7 +884,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 	return false;
 }
 
-static void ShowUserMenu(size_t Count, FarMacroValue *Values)
+static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 {
 	if (Count==0)
 		UserMenu uMenu(false);
@@ -1769,7 +1769,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassValue (TVar* Var, FarMacroCall* Data)
+static int PassValue (const TVar* Var, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{

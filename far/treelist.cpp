@@ -1243,7 +1243,7 @@ const string& TreeList::GetCurDir()
 	return strCurDir;
 }
 
-int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int OldFile=CurFile;
 	int RetCode;
@@ -1361,7 +1361,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	return FALSE;
 }
 
-void TreeList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
+void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1;
 	CorrectPosition();

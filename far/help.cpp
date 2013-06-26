@@ -1553,7 +1553,7 @@ int Help::JumpTopic()
 
 
 
-int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (HelpKeyBar.ProcessMouse(MouseEvent))
 		return TRUE;
@@ -1965,7 +1965,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 }
 
 // ‘ормирование топика с учетом разных факторов
-bool Help::MkTopic(Plugin* pPlugin,const string& HelpTopic,string &strTopic)
+bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTopic)
 {
 	strTopic.Clear();
 

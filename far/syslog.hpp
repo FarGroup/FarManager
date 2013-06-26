@@ -71,9 +71,9 @@ string __ACTL_ToName(int Command);
 #define _ACTL_ToName(K) __ACTL_ToName(K).CPtr()
 string __VCTL_ToName(int Command);
 #define _VCTL_ToName(K) __VCTL_ToName(K).CPtr()
-string __INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+string __INPUT_RECORD_Dump(const INPUT_RECORD *Rec);
 #define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).CPtr()
-string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec);
+string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *Rec);
 #define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).CPtr()
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 #define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).CPtr()

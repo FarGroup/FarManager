@@ -312,7 +312,7 @@ class Editor:public ScreenObject
 
 		void TextChanged(bool State);
 
-		int  CalcDistance(Edit *From, Edit *To,int MaxDist);
+		int  CalcDistance(const Edit *From, const Edit *To,int MaxDist);
 		void Paste(const wchar_t *Src=nullptr);
 		void Copy(int Append);
 		void DeleteBlock();
@@ -384,7 +384,7 @@ class Editor:public ScreenObject
 
 		int BlockStart2NumLine(int *Pos);
 		int BlockEnd2NumLine(int *Pos);
-		bool CheckLine(Edit* line);
+		bool CheckLine(const Edit* line);
 		wchar_t *Block2Text(wchar_t *ptrInitData);
 		wchar_t *VBlock2Text(wchar_t *ptrInitData);
 		void Change(EDITOR_CHANGETYPE Type,int StrNum);
@@ -410,7 +410,7 @@ class Editor:public ScreenObject
 		int GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat=0);   // преобразование из списка в буфер
 
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 		void KeepInitParameters();

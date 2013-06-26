@@ -74,7 +74,7 @@ class QuickView:public Panel
 
 	public:
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 		virtual void Update(int Mode) override;
 		void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);

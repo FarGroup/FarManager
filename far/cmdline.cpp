@@ -532,7 +532,7 @@ void CommandLine::InsertString(const string& Str)
 }
 
 
-int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==X2+1)
 	{

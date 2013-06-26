@@ -56,7 +56,7 @@ public:
 	int ObjHeight() const {return Y2 - Y1 + 1;}
 
 	virtual int ProcessKey(int Key) { return 0; }
-	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
 
 	virtual void Hide();
 	virtual void Hide0();   // 15.07.2000 tran - dirty hack :(

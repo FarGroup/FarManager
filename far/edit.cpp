@@ -1998,7 +1998,7 @@ int Edit::GetLength()
 	return(StrSize);
 }
 
-int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
 		return FALSE;

@@ -158,7 +158,7 @@ class TreeList: public Panel
 
 	public:
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 		virtual void Update(int Mode) override;
 		int  ReadTree();
@@ -172,7 +172,7 @@ class TreeList: public Panel
 		virtual int GetCurName(string &strName, string &strShortName) override;
 
 		virtual void UpdateViewPanel() override;
-		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
 		virtual bool GetPlainString(string& Dest,int ListPos) override;
 

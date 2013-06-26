@@ -281,7 +281,7 @@ static void PR_FarGetPluginDirListMsg()
 	}
 }
 
-static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, PluginPanelItem *CurPanelItem, string& strPluginSearchPath)
+static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, PluginPanelItem *CurPanelItem, const string& strPluginSearchPath)
 {
 	string strFullName;
 	strFullName = strPluginSearchPath;
@@ -468,7 +468,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 	return !StopSearch;
 }
 
-void FreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem)
+void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 {
 	if (!PanelItem)
 		return;

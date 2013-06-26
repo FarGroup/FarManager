@@ -386,7 +386,7 @@ int QuickView::ProcessKey(int Key)
 }
 
 
-int QuickView::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int RetCode;
 

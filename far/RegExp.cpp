@@ -772,7 +772,7 @@ int RegExp::GetNum(const wchar_t* src,int& i)
 	return res;
 }
 
-static int CalcPatternLength(PREOpCode from,PREOpCode to)
+static int CalcPatternLength(PREOpCode from, const PREOpCode to)
 {
 	int len=0;
 	int altcnt=0;
@@ -1723,7 +1723,7 @@ inline StateStackItem *RegExp::GetState()
 	return &tempstack[tempcount];
 }
 
-inline StateStackItem *RegExp::FindStateByPos(PREOpCode pos,int op)
+inline StateStackItem *RegExp::FindStateByPos(const PREOpCode pos,int op)
 {
 	int tempcount=stackcount;
 	StateStackPage* temppage=lastpage;

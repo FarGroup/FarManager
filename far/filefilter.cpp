@@ -463,7 +463,7 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 	return FFFT_CUSTOM;
 }
 
-int FileFilter::GetCheck(FileFilterParams *FFP)
+int FileFilter::GetCheck(const FileFilterParams *FFP)
 {
 	DWORD Flags = FFP->GetFlags(GetFFFT());
 

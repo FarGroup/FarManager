@@ -512,7 +512,7 @@ void FileList::ShowSelectedSize()
 }
 
 
-void FileList::ShowTotalSize(OpenPanelInfo &Info)
+void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 {
 	if (!Global->Opt->ShowPanelTotals && PanelMode==PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
@@ -640,7 +640,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 }
 
 
-void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
+void FileList::PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo)
 {
 	OpenPanelInfo Info={};
 
@@ -744,7 +744,7 @@ int FileList::PreparePanelView(PanelViewSettings *PanelView)
 }
 
 
-int FileList::PrepareColumnWidths(unsigned __int64 *ColumnTypes, int *ColumnWidths, int *ColumnWidthsTypes, int &ColumnCount, bool FullScreen, bool StatusLine)
+int FileList::PrepareColumnWidths(const unsigned __int64 *ColumnTypes, int *ColumnWidths, int *ColumnWidthsTypes, int &ColumnCount, bool FullScreen, bool StatusLine)
 {
 	int TotalWidth,TotalPercentWidth,TotalPercentCount,ZeroLengthCount,EmptyColumns,I;
 	ZeroLengthCount=EmptyColumns=0;

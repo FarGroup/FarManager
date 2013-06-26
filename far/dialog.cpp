@@ -1023,7 +1023,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 
 //   »зменение координат и/или размеров итема диалога.
-BOOL Dialog::SetItemRect(size_t ID,SMALL_RECT *Rect)
+BOOL Dialog::SetItemRect(size_t ID, const SMALL_RECT *Rect)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -3116,7 +3116,7 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 /* $ 18.08.2000 SVS
    + DN_MOUSECLICK
 */
-int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	CriticalSectionLock Lock(CS);
 	int MsX,MsY;
@@ -4129,7 +4129,7 @@ int Dialog::SelectFromComboBox(
 /* Private:
    «аполн€ем выпадающий список из истории
 */
-BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
+BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
                                    const string& HistoryName,
                                    string &strIStr)
@@ -4177,7 +4177,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 /* Private:
    –абота с историей - добавление и reorder списка
 */
-int Dialog::AddToEditHistory(DialogItemEx* CurItem, const string& AddStr)
+int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr)
 {
 	CriticalSectionLock Lock(CS);
 

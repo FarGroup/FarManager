@@ -90,9 +90,9 @@ private:
 	virtual void Epilogue() override { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
 
 	void FreePluginInfo();
-	void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
+	void ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest);
 	void FreeOpenPanelInfo();
-	void ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
+	void ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
 
 	string strRootKey;
 	char *RootKey;

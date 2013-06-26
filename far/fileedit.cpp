@@ -2082,7 +2082,7 @@ end:
 	return RetCode;
 }
 
-int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
 	if (!EditKeyBar.ProcessMouse(MouseEvent))

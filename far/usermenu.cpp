@@ -438,7 +438,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	MenuItemEx FarUserMenuItem;
@@ -1107,7 +1107,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	return Result;
 }
 
-bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem)
+bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem)
 {
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);

@@ -77,5 +77,5 @@ inline unsigned __int64 GetCurrentUTCTimeInUI64()
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst);
 bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st);
-bool Utc2Local(SYSTEMTIME &st, FILETIME &lft);
-bool Local2Utc(SYSTEMTIME &lst, FILETIME &ft);
+bool Utc2Local(const SYSTEMTIME &st, FILETIME &lft);
+bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);

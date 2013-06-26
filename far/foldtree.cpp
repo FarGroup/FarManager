@@ -315,7 +315,7 @@ int FolderTree::ProcessKey(int Key)
 }
 
 
-int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (TreeKeyBar.ProcessMouse(MouseEvent))
 		return TRUE;

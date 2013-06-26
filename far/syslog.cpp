@@ -801,7 +801,7 @@ void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Bu
 	SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,nullptr);
 }
 
-void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec)
+void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec)
 {
 	if (!IsLogON())
 		return;
@@ -1685,7 +1685,7 @@ string __VK_KEY_ToName(int VkKey)
 #endif
 }
 
-string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *rec)
+string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 {
 #if defined(SYSLOG)
 	string Records;
@@ -1730,7 +1730,7 @@ string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *rec)
 }
 
 
-string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
+string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
 	string Records;

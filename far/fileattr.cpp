@@ -194,7 +194,7 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 }
 
 
-int ESetFileTime(const string& Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,FILETIME *ChangeTime,DWORD FileAttr,int SkipMode)
+int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETIME *CreationTime, const FILETIME *LastAccessTime, const FILETIME *ChangeTime, DWORD FileAttr, int SkipMode)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
 		return SETATTR_RET_OK;

@@ -51,7 +51,7 @@ class DizViewer: public Viewer
 			InRecursion--;
 			return res;
 		}
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			InRecursion++;
 			int res=Viewer::ProcessMouse(MouseEvent);

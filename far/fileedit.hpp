@@ -145,7 +145,7 @@ class FileEditor : public Frame
 		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
 		virtual void InitKeyBar() override;
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual void ShowConsoleTitle() override;
 		virtual void OnChangeFocus(int focus) override;
 		virtual void SetScreenPosition() override;

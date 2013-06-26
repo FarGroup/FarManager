@@ -211,8 +211,8 @@ class Panel:public ScreenObject, public DelayedDestroy
 
 	private:
 		int ChangeDiskMenu(int Pos,int FirstCall);
-		int DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk);
-		void RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk);
+		int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
+		void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
 		int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu);
 		void FastFindShow(int FindX,int FindY);
 		void FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName, string &strName);
@@ -329,7 +329,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void CloseFile() {}
 		virtual void UpdateViewPanel() {}
 		virtual void CompareDir() {}
-		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent) {}
+		virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) {}
 		virtual void ClearSelection() {}
 		virtual void SaveSelection() {}
 		virtual void RestoreSelection() {}
@@ -370,7 +370,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual BOOL GetItem(int,void *) {return FALSE;}
 
 		bool ExecShortcutFolder(int Pos, bool raw=false);
-		bool ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType);
+		bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType);
 		bool SaveShortcutFolder(int Pos, bool Add);
 
 		static void EndDrag();
@@ -378,7 +378,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void Show() override;
 		virtual void DisplayObject() override {}
 		int SetPluginCommand(int Command,int Param1,void* Param2);
-		int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
+		int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
 		void ChangeDisk();
 		bool GetFocus() {return Focus;}
 		int GetType() {return(Type);}
@@ -386,5 +386,5 @@ class Panel:public ScreenObject, public DelayedDestroy
 		bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
 		int SetCurPath();
 
-		BOOL NeedUpdatePanel(Panel *AnotherPanel);
+		BOOL NeedUpdatePanel(const Panel *AnotherPanel);
 };

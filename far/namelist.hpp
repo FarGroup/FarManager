@@ -53,7 +53,7 @@ class NamesList
 			}
 
 			// для перекрывающихся объектов поведение как у xstrncpy!
-			OneName& operator=(struct FileName2 &rhs)
+			OneName& operator=(const FileName2& rhs)
 			{
 				Value.strName = rhs.strName;
 				Value.strShortName = rhs.strShortName;

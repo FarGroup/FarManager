@@ -70,7 +70,7 @@ class FilePanels:public Frame
 
 		Panel* CreatePanel(int Type);
 		void   DeletePanel(Panel *Deleted);
-		Panel* GetAnotherPanel(Panel *Current);
+		Panel* GetAnotherPanel(const Panel *Current);
 		Panel* ChangePanelToFilled(Panel *Current,int NewType);
 		Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);
 		void   SetPanelPositions(bool LeftFullScreen,bool RightFullScreen);
@@ -78,7 +78,7 @@ class FilePanels:public Frame
 		void   SetupKeyBar();
 
 		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) override;
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 
 		int SetAnhoterPanelFocus();

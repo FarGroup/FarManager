@@ -149,13 +149,13 @@ class Manager
 		void ProcessMainLoop();
 		void ExitMainLoop(int Ask);
 		int ProcessKey(DWORD key);
-		int ProcessMouse(MOUSE_EVENT_RECORD *me);
+		int ProcessMouse(const MOUSE_EVENT_RECORD *me);
 
 		void PluginsMenu(); // вызываем меню по F11
 		void SwitchToPanels();
 
 		INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
-		void SetLastInputRecord(INPUT_RECORD *Rec);
+		void SetLastInputRecord(const INPUT_RECORD *Rec);
 		void ResetLastInputRecord() { LastInputRecord.EventType=0; }
 
 		Frame *GetCurrentFrame() { return CurrentFrame; }
