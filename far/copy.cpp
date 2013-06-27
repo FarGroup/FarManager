@@ -1755,9 +1755,10 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		return COPY_FAILURE; //????
 
 	SetCursorType(FALSE,0);
-	Flags &= ~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);
 
+	//Flags &= ~(FCOPY_STREAMSKIP|FCOPY_STREAMALL); // unused now...
 	DWORD Flags0 = Flags;
+
 	bool first = true;
 	bool UseWildCards = (wcspbrk(Dest.CPtr(), L"*?") != nullptr);
 	bool copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
@@ -1783,7 +1784,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	while (SrcPanel->GetSelName(&strSelName, FileAttr, &strSelShortName))
 	{
 		string strDest(Dest);
-		Flags = Flags0;
+		Flags = (Flags0 & ~FCOPY_DIZREAD) | (Flags & FCOPY_DIZREAD);
 
 		bool src_abspath = IsAbsolutePath(strSelName);
 
@@ -1812,7 +1813,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		string tpath;
-		if (!RemoveDots(strDest, tpath))
+		if (RemoveDots(strDest, tpath))
+			strDest = tpath;
+		else
 		{
 			int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
 				MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.CPtr(),

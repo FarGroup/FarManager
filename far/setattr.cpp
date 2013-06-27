@@ -1032,7 +1032,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			AttrDlg[SA_TEXT_NAME].strData = strSelName;
+			string strSelNameQ(strSelName);
+			QuoteLeadingSpace(strSelNameQ);
+			AttrDlg[SA_TEXT_NAME].strData = strSelNameQ;
 			TruncStr(AttrDlg[SA_TEXT_NAME].strData,DlgX-10);
 
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES)
