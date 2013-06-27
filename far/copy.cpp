@@ -1884,7 +1884,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		size_t pos;
-		if (!copy_to_null && FindLastSlash(pos,strDest) && strDest != strDestDriveRoot) // create target directory
+		if (!copy_to_null && FindLastSlash(pos,strDest) && pos > strDestDriveRoot.GetLength()) // create target directory
 		{
 			string strNewPath = strDest.SubStr(0, pos);
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
