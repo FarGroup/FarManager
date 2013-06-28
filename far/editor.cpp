@@ -121,7 +121,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	   16-ричном представлении.
 	*/
 	if (Global->GlobalSearchHex)
-		Transform(strLastSearchStr,Global->strGlobalSearchString.CPtr(),L'S');
+		Transform(strLastSearchStr,Global->strGlobalSearchString.c_str(),L'S');
 	else
 		strLastSearchStr = Global->strGlobalSearchString;
 
@@ -166,7 +166,7 @@ void Editor::KeepInitParameters()
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
 	if (Global->GlobalSearchHex)
-		Transform(Global->strGlobalSearchString,strLastSearchStr.CPtr(),L'X');
+		Transform(Global->strGlobalSearchString,strLastSearchStr.c_str(),L'X');
 	else
 		Global->strGlobalSearchString = strLastSearchStr;
 
@@ -823,9 +823,9 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strEOL=EditPtr->GetEOL();
 					int CurPos=EditPtr->GetCurPos();
-					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.CPtr(),DestLine,CurPos,EditPtr->GetLength());
+					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.c_str(),DestLine,CurPos,EditPtr->GetLength());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
-					EditPtr->SetEOL(strEOL.CPtr());
+					EditPtr->SetEOL(strEOL.c_str());
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
 					return 1;
@@ -2702,7 +2702,7 @@ int Editor::ProcessKey(int Key)
 				}
 
 				//AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
-				Paste(strTStr.CPtr());
+				Paste(strTStr.c_str());
 				//if (!EdOpt.PersistentBlocks && IsBlock)
 				UnmarkBlock();
 				Pasting--;
@@ -3689,7 +3689,7 @@ BOOL Editor::Search(int Next)
 	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak;
 	AutoUndoBlock UndoBlock(this);
 
-	if (Next && strLastSearchStr.IsEmpty())
+	if (Next && strLastSearchStr.empty())
 		return TRUE;
 
 	strSearchStr = strLastSearchStr;
@@ -3743,7 +3743,7 @@ BOOL Editor::Search(int Next)
 		ReverseSearch = FALSE;
 	}
 
-	if (strSearchStr.IsEmpty())
+	if (strSearchStr.empty())
 		return TRUE;
 
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
@@ -3791,7 +3791,7 @@ BOOL Editor::Search(int Next)
 		if (Regexp)
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 				return FALSE; //BUGBUG
 
 			m.reset(re.GetBracketsCount() * 2);
@@ -3928,10 +3928,10 @@ BOOL Editor::Search(int Next)
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here
-							strQSearchStr.Insert(0, L'"');
-							strQSearchStr.Append(L'"');
-							strQReplaceStr.Insert(0, L'"');
-							strQReplaceStr.Append(L'"');
+							strQSearchStr.insert(0, L'"');
+							strQSearchStr.append(L'"');
+							strQReplaceStr.insert(0, L'"');
+							strQReplaceStr.append(L'"');
 
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
@@ -3940,7 +3940,7 @@ BOOL Editor::Search(int Next)
 								Global->PreRedraw->pop();
 							}
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
-											strQSearchStr.CPtr(),MSG(MEditAskReplaceWith),strQReplaceStr.CPtr(),
+											strQSearchStr.c_str(),MSG(MEditAskReplaceWith),strQReplaceStr.c_str(),
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
 							if (pitem)
 							{
@@ -3971,7 +3971,7 @@ BOOL Editor::Search(int Next)
 							  If Replace string doesn't contain control symbols (tab and return),
 							  processed with fast method, otherwise use improved old one.
 							*/
-							if (strReplaceStrCurrent.Contains(L'\t') || strReplaceStrCurrent.Contains(L'\r'))
+							if (strReplaceStrCurrent.find(L'\t') != string::npos || strReplaceStrCurrent.find(L'\r') != string::npos)
 							{
 								int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
 								Flags.Set(FEDITOR_OVERTYPE);
@@ -4028,7 +4028,7 @@ BOOL Editor::Search(int Next)
 								}
 
 								int Cnt=0;
-								const wchar_t *Tmp=strReplaceStrCurrent.CPtr();
+								const wchar_t *Tmp=strReplaceStrCurrent.c_str();
 
 								while ((Tmp=wcschr(Tmp,L'\r')) )
 								{
@@ -4050,7 +4050,7 @@ BOOL Editor::Search(int Next)
 								const wchar_t *Str,*Eol;
 								intptr_t StrLen,NewStrLen;
 								int SStrLen=SearchLength;
-								int RStrLen=(int)strReplaceStrCurrent.GetLength();
+								int RStrLen=(int)strReplaceStrCurrent.size();
 								CurLine->GetBinaryString(&Str,&Eol,StrLen);
 								int EolLen=StrLength(Eol);
 								NewStrLen=StrLen;
@@ -4060,7 +4060,7 @@ BOOL Editor::Search(int Next)
 								wchar_t_ptr NewStr(NewStrLen + 1);
 								int CurPos=CurLine->GetCurPos();
 								wmemcpy(NewStr.get() ,Str, CurPos);
-								wmemcpy(NewStr.get() + CurPos, strReplaceStrCurrent.CPtr(), RStrLen);
+								wmemcpy(NewStr.get() + CurPos, strReplaceStrCurrent.c_str(), RStrLen);
 								wmemcpy(NewStr.get() + CurPos + RStrLen, Str + CurPos + SStrLen, StrLen - CurPos - SStrLen);
 								wmemcpy(NewStr.get() + NewStrLen - EolLen, Eol, EolLen);
 								AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
@@ -4235,7 +4235,7 @@ BOOL Editor::Search(int Next)
 
 	if (!Match && !UserBreak)
 		Message(MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
-		        strMsgStr.CPtr(),MSG(MOk));
+		        strMsgStr.c_str(),MSG(MOk));
 
 	return TRUE;
 }
@@ -4818,7 +4818,7 @@ void Editor::GoToPosition()
 	Builder.AddEditField(&strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
-	if(!strData.IsEmpty())
+	if(!strData.empty())
 	{
 		int LeftPos=CurLine->GetTabCurPos()+1;
 		int CurPos=CurLine->GetCurPos();
@@ -4851,21 +4851,21 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 	RemoveExternalSpaces(strArg);
 	// получаем индекс вхождения любого разделителя
 	// в искомой строке
-	size_t l = wcscspn(strArg.CPtr(),L",:;. ");
+	size_t l = wcscspn(strArg.c_str(),L",:;. ");
 	// если разделителя нету, то l=strlen(argv)
 
 	const wchar_t* argvx = nullptr;
-	if (l < strArg.GetLength()) // Варианты: "row,col" или ",col"?
+	if (l < strArg.size()) // Варианты: "row,col" или ",col"?
 	{
 		strArg[l]=L'\0'; // Вместо разделителя впиндюлим "конец строки" :-)
-		argvx=strArg.CPtr()+l+1;
+		argvx=strArg.c_str()+l+1;
 		x=_wtoi(argvx);
 	}
 
-	y=_wtoi(strArg.CPtr());
+	y=_wtoi(strArg.c_str());
 
 	// + переход на проценты
-	if (wcschr(strArg.CPtr(),L'%'))
+	if (wcschr(strArg.c_str(),L'%'))
 		y=NumLastLine * y / 100;
 
 	//   вычисляем относительность
@@ -6352,13 +6352,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
 
 						if (espar->wszParam && espar->Size)
-							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.CPtr(),espar->Size);
+							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(),espar->Size);
 
-						rc=(int)EdOpt.strWordDiv.Get().GetLength()+1;
+						rc=(int)EdOpt.strWordDiv.Get().size()+1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv.CPtr():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv.c_str():espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
@@ -7371,14 +7371,14 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 {
 	string strProgress;
 	string strMsg(Msg);
-	strMsg.Append(L" ").Append(Name);
+	strMsg.append(L" ").append(Name);
 	if (Percent!=-1)
 	{
 		FormatString strPercent;
 		strPercent<<Percent;
 
-		size_t PercentLength=std::max(strPercent.GetLength(),(size_t)3);
-		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
+		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
+		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
 
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
@@ -7394,13 +7394,13 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
-	Message(MSG_LEFTALIGN,0,Title,strMsg.CPtr(),strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(MSG_LEFTALIGN,0,Title,strMsg.c_str(),strProgress.empty()?nullptr:strProgress.c_str());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=(void *)Title.CPtr();
-		preRedrawItem.Param.Param2=(void *)Msg.CPtr();
-		preRedrawItem.Param.Param3=(void *)Name.CPtr();
+		preRedrawItem.Param.Param1=(void *)Title.c_str();
+		preRedrawItem.Param.Param2=(void *)Msg.c_str();
+		preRedrawItem.Param.Param3=(void *)Name.c_str();
 		preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
 	}
 }

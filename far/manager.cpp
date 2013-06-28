@@ -322,7 +322,7 @@ int Manager::CountFramesWithName(const string& Name, BOOL IgnoreCase)
 	std::for_each(CONST_RANGE(Frames, i)
 	{
 		i->GetTypeAndName(strType, strCurName);
-		if (!cmpfunc(Name.CPtr(), strCurName.CPtr()))
+		if (!cmpfunc(Name.c_str(), strCurName.c_str()))
 			++Counter;
 	});
 
@@ -375,7 +375,7 @@ Frame *Manager::FrameMenu()
 			//TruncPathStr(strName,ScrX-24);
 			ReplaceStrings(strName,L"&",L"&&",-1);
 			/*  добавляется "*" если файл изменен */
-			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.CPtr(), strType.CPtr(),(i->IsFileModified()?L'*':L' '), strName.CPtr());
+			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.c_str(), strType.c_str(),(i->IsFileModified()?L'*':L' '), strName.c_str());
 			ModalMenuItem.SetSelect(static_cast<int>(n) == FramePos);
 			ModalMenu.AddItem(&ModalMenuItem);
 			++n;
@@ -439,7 +439,7 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		{
 			i->GetTypeAndName(strType, strName);
 
-			if (!StrCmpI(strName.CPtr(), strFullFileName.CPtr()))
+			if (!StrCmpI(strName.c_str(), strFullFileName.c_str()))
 				return true;
 		}
 		++n;
@@ -1149,7 +1149,7 @@ void Manager::PluginsMenu()
 				string strType, strCurFileName;
 				Global->CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
 
-				if (!strCurFileName.IsEmpty())
+				if (!strCurFileName.empty())
 				{
 					DWORD Attr=apiGetFileAttributes(strCurFileName);
 

@@ -136,7 +136,7 @@ static int MainProcess(
 			ppanel = Global->Opt->LocalProfilePath;
 		}
 
-		if (!ename.IsEmpty() || !vname.IsEmpty())
+		if (!ename.empty() || !vname.empty())
 		{
 			Panel *DummyPanel=new Panel;
 			_tran(SysLog(L"create dummy panels"));
@@ -145,7 +145,7 @@ static int MainProcess(
 			Global->CtrlObject->Plugins->LoadPlugins();
 			Global->CtrlObject->Macro.LoadMacros(true,false);
 
-			if (!ename.IsEmpty())
+			if (!ename.empty())
 			{
 				Global->Opt->OnlyEditorViewerUsed=1;
 				FileEditor *ShellEditor=new FileEditor(ename,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
@@ -157,7 +157,7 @@ static int MainProcess(
 				}
 			}
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
-			else if (!vname.IsEmpty())
+			else if (!vname.empty())
 			{
 				Global->Opt->OnlyEditorViewerUsed=2;
 				FileViewer *ShellViewer=new FileViewer(vname,FALSE);
@@ -183,7 +183,7 @@ static int MainProcess(
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
-			if (!apanel.IsEmpty())  // актиная панель
+			if (!apanel.empty())  // актиная панель
 			{
 				++DirCount;
 				strPath = apanel;
@@ -211,7 +211,7 @@ static int MainProcess(
 					Global->Opt->RightPanel.Folder = strPath;
 				}
 
-				if (!ppanel.IsEmpty())  // пассивная панель
+				if (!ppanel.empty())  // пассивная панель
 				{
 					++DirCount;
 					strPath = ppanel;
@@ -245,12 +245,12 @@ static int MainProcess(
 			Global->CtrlObject->Init(DirCount);
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
-			if (!apanel.IsEmpty())  // актиная панель
+			if (!apanel.empty())  // актиная панель
 			{
 				Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-				if (!ppanel.IsEmpty())  // пассивная панель
+				if (!ppanel.empty())  // пассивная панель
 				{
 					FarChDir(AnotherPanel->GetCurDir());
 
@@ -264,7 +264,7 @@ static int MainProcess(
 					{
 						strPath = PointToName(ppanel);
 
-						if (!strPath.IsEmpty())
+						if (!strPath.empty())
 						{
 							if (AnotherPanel->GoToFile(strPath))
 								AnotherPanel->ProcessKey(KEY_CTRLPGDN);
@@ -282,7 +282,7 @@ static int MainProcess(
 				{
 					strPath = PointToName(apanel);
 
-					if (!strPath.IsEmpty())
+					if (!strPath.empty())
 					{
 						if (ActivePanel->GoToFile(strPath))
 							ActivePanel->ProcessKey(KEY_CTRLPGDN);
@@ -319,13 +319,13 @@ static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo
 
 static void InitTemplateProfile(string &strTemplatePath)
 {
-	if (strTemplatePath.IsEmpty())
+	if (strTemplatePath.empty())
 		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
 			L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig",
-			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.CPtr())
+			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str())
 		);
 
-	if (!strTemplatePath.IsEmpty())
+	if (!strTemplatePath.empty())
 	{
 		apiExpandEnvironmentStrings(strTemplatePath, strTemplatePath);
 		Unquote(strTemplatePath);
@@ -342,22 +342,22 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
-	if (!strProfilePath.IsEmpty())
+	if (!strProfilePath.empty())
 	{
 		apiExpandEnvironmentStrings(strProfilePath, strProfilePath);
 		Unquote(strProfilePath);
 		ConvertNameToFull(strProfilePath,strProfilePath);
 	}
-	if (!strLocalProfilePath.IsEmpty())
+	if (!strLocalProfilePath.empty())
 	{
 		apiExpandEnvironmentStrings(strLocalProfilePath, strLocalProfilePath);
 		Unquote(strLocalProfilePath);
 		ConvertNameToFull(strLocalProfilePath,strLocalProfilePath);
 	}
 
-	if (strProfilePath.IsEmpty())
+	if (strProfilePath.empty())
 	{
-		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI.CPtr());
+		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI.c_str());
 		if (UseSystemProfiles)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
@@ -391,8 +391,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		else
 		{
 			string strUserProfileDir, strUserLocalProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.CPtr()));
-			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.CPtr(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.CPtr()));
+			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
+			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.c_str(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
 			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
 			apiExpandEnvironmentStrings(strUserLocalProfileDir, strUserLocalProfileDir);
 			Unquote(strUserProfileDir);
@@ -406,7 +406,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	else
 	{
 		Global->Opt->ProfilePath = strProfilePath;
-		Global->Opt->LocalProfilePath = strLocalProfilePath.IsEmpty() ? strProfilePath : strLocalProfilePath;
+		Global->Opt->LocalProfilePath = strLocalProfilePath.empty() ? strProfilePath : strLocalProfilePath;
 	}
 
 	CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
@@ -415,11 +415,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath.CPtr());
-	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath.CPtr());
+	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath.c_str());
+	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath.c_str());
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
-		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.CPtr());
+		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.c_str());
 }
 
 static int mainImpl(int Argc, wchar_t *Argv[])
@@ -454,7 +454,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath.CPtr());
+	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath.c_str());
 	AddEndSlash(Global->g_strFarPath);
 
 #ifndef NO_WRAPPER
@@ -567,7 +567,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					if (I+1<Argc)
 					{
 						//Affects OEM plugins only!
-						Global->strRegRoot.Append(L"\\Users\\").Append(Argv[I+1]);
+						Global->strRegRoot.append(L"\\Users\\").append(Argv[I+1]);
 						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
 						I++;
 					}
@@ -614,7 +614,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					{
 						// если указан -P без <путь>, то, считаем, что основные
 						//  плагины не загружать вооообще!!!
-						Global->Opt->LoadPlug.strCustomPluginsPath.Clear();
+						Global->Opt->LoadPlug.strCustomPluginsPath.clear();
 					}
 
 					break;
@@ -700,7 +700,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	if (Global->Opt->LoadPlug.PluginsCacheOnly)
 	{
-		Global->Opt->LoadPlug.strCustomPluginsPath.Clear();
+		Global->Opt->LoadPlug.strCustomPluginsPath.clear();
 		Global->Opt->LoadPlug.MainPluginDir=false;
 		Global->Opt->LoadPlug.PluginsPersonal=false;
 	}
@@ -730,7 +730,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		return 1;
 	}
 
-	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.CPtr());
+	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.c_str());
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;

@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 char* AbstractSettings::Add(const string& String)
 {
-	return Add(String.CPtr(),(String.GetLength()+1)*sizeof(wchar_t));
+	return Add(String.c_str(),(String.size()+1)*sizeof(wchar_t));
 }
 
 char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
@@ -90,7 +90,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 			Diz.Read(strDbPath);
 			string strDbName = strGuid + L".db";
 			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
-			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description.CPtr()))
+			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description.c_str()))
 			{
 				Diz.AddDizText(strDbName, L"", Description);
 				Diz.Flush(strDbPath);
@@ -183,9 +183,9 @@ int PluginSettings::Get(FarSettingsItem& Item)
 
 static wchar_t* AddString(const string& String)
 {
-	size_t size=String.GetLength()+1;
+	size_t size=String.size()+1;
 	wchar_t* result=new wchar_t[size];
-	wmemcpy(result,String.CPtr(),size);
+	wmemcpy(result,String.c_str(),size);
 	return result;
 }
 
@@ -462,7 +462,7 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			UI64ToFileTime(Time,&item.Time);
 			item.Lock=HLock;
 			GUID Guid;
-			if(strGuid.IsEmpty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
+			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
 			AddItem(m_Enum.back().get(),item,strName,strData,Guid,strFile);
 		}
 	}

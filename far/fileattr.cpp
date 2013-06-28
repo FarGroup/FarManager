@@ -55,7 +55,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 			Code=SkipMode;
 		else
 			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrCannotFor),Name.CPtr(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			             MSG(MSetAttrCannotFor),Name.c_str(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		switch (Code)
 		{
@@ -111,7 +111,7 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 			Code=SkipMode;
 		else
 			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrCompressedCannotFor),Name.CPtr(),MSG(MHRetry),
+			             MSG(MSetAttrCompressedCannotFor),Name.c_str(),MSG(MHRetry),
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		if (Code==1 || Code<0)
@@ -164,7 +164,7 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 			Code=SkipMode;
 		else
 			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrEncryptedCannotFor),Name.CPtr(),MSG(MHRetry), //BUGBUG
+			             MSG(MSetAttrEncryptedCannotFor),Name.c_str(),MSG(MHRetry), //BUGBUG
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		if (Code==1 || Code<0)
@@ -224,7 +224,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 				string strDriveRoot;
 				GetPathRoot(Name, strDriveRoot);
 
-				if (GetDriveType(strDriveRoot.CPtr())==DRIVE_REMOTE) break;
+				if (GetDriveType(strDriveRoot.c_str())==DRIVE_REMOTE) break;
 			}
 		}
 
@@ -242,7 +242,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 			Code=SkipMode;
 		else
 			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrTimeCannotFor),Name.CPtr(),MSG(MHRetry), //BUGBUG
+			             MSG(MSetAttrTimeCannotFor),Name.c_str(),MSG(MHRetry), //BUGBUG
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		switch (Code)
@@ -292,7 +292,7 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 				Code=SkipMode;
 			else
 				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-				             MSG(MSetAttrSparseCannotFor),Name.CPtr(),MSG(MHRetry),
+				             MSG(MSetAttrSparseCannotFor),Name.c_str(),MSG(MHRetry),
 				             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 			if (Code==1 || Code<0)
@@ -328,7 +328,7 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name.CPtr(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name.c_str(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -361,7 +361,7 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrCannotFor),Name.CPtr(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrCannotFor),Name.c_str(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		if (Code==1 || Code<0)
 		{

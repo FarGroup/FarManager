@@ -51,16 +51,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 {
-	if (NewDir.IsEmpty())
+	if (NewDir.empty())
 		return FALSE;
 
 	BOOL rc=FALSE;
 	string Drive(L"=A:");
 	string strCurDir;
 
-	if (NewDir[1]==L':' && !NewDir[2]) // если указана только
-	{                                             // буква диска, то путь
-		Drive.Replace(1, Upper(NewDir[0]));         // возьмем из переменной
+	// если указана только буква диска, то путь возьмем из переменной
+	if (NewDir[1]==L':' && !NewDir[2])
+	{
+		Drive[1] = Upper(NewDir[0]);
 
 		if (!apiGetEnvironmentVariable(Drive, strCurDir))
 		{
@@ -96,8 +97,8 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
 		        strCurDir[0] && strCurDir[1]==L':')
 		{
-			Drive.Replace(1, Upper(strCurDir[0]));
-			SetEnvironmentVariable(Drive.CPtr(), strCurDir.CPtr());
+			Drive[1] = Upper(strCurDir[0]);
+			SetEnvironmentVariable(Drive.c_str(), strCurDir.c_str());
 		}
 	}
 
@@ -115,7 +116,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 */
 int TestFolder(const string& Path)
 {
-	if (Path.IsEmpty())
+	if (Path.empty())
 		return TSTFLD_ERROR;
 
 	string strFindPath = Path;
@@ -197,7 +198,7 @@ int TestFolder(const string& Path)
 */
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-	if (pTestPath && !pTestPath->IsEmpty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
+	if (pTestPath && !pTestPath->empty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		int FoundPath=0;
 		string strTarget = *pTestPath;
@@ -208,13 +209,13 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 			SetLastError(ERROR_FILE_NOT_FOUND);
 
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.CPtr(), MSG(MOk));
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.c_str(), MSG(MOk));
 		}
 		else // попытка найти!
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);
 
-			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.CPtr(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
+			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.c_str(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
 				string strTestPathTemp = *pTestPath;
 
@@ -229,11 +230,11 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 						if (ChkFld == TSTFLD_EMPTY || ChkFld == TSTFLD_NOTEMPTY || ChkFld == TSTFLD_NOTACCESS)
 						{
-							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && !strTestPathTemp[1]))
+							if (!(pTestPath->at(0) == L'\\' && pTestPath->at(1) == L'\\' && !strTestPathTemp[1]))
 							{
 								*pTestPath = strTestPathTemp;
 
-								if (pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+								if (pTestPath->size() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
 									AddEndSlash(*pTestPath);
 
 								FoundPath=1;

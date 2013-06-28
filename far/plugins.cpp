@@ -490,7 +490,7 @@ void PluginManager::LoadPlugins()
 	{
 		LoadPluginsFromCache();
 	}
-	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty()))
+	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.empty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty()))
 	{
 		ScanTree ScTree(FALSE,TRUE,Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
@@ -502,10 +502,10 @@ void PluginManager::LoadPlugins()
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
 			// ...а персональные есть?
-			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
+			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
 				strPluginsDir += L";" + Global->Opt->LoadPlug.strPersonalPluginsPath;
 		}
-		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
+		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
 			strPluginsDir = Global->Opt->LoadPlug.strCustomPluginsPath;
 		}
@@ -536,7 +536,7 @@ void PluginManager::LoadPlugins()
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CmpName(L"*.dll",FindData.strFileName.CPtr(),false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (CmpName(L"*.dll",FindData.strFileName.c_str(),false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData, false);
 				}
@@ -599,7 +599,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	Plugin *pPlugin = nullptr;
 
 	File file;
-	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
+	AnalyseInfo Info={sizeof(Info), Name? Name->c_str() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
 	FOR_CONST_RANGE(SortedPlugins, i)
 	{
@@ -628,7 +628,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				if(ShowWarning)
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name->CPtr(), MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name->c_str(), MSG(MOk));
 				}
 				break;
 			}
@@ -641,7 +641,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (Global->Opt->ShowCheckingFile)
 				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << fmt::Flush();
 
-			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
+			hPlugin = pPlugin->OpenFilePlugin(Name? Name->c_str() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
 			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
@@ -1038,7 +1038,7 @@ int PluginManager::GetFile(
 		SaveScr = new SaveScreen; //???
 
 	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
-	const wchar_t* newDestPath = DestPath.CPtr();
+	const wchar_t* newDestPath = DestPath.c_str();
 	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, &newDestPath, OpMode);
 	string strFindPath;
 	strFindPath = newDestPath;
@@ -1326,10 +1326,10 @@ void PluginManager::Configure(int StartPos)
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
-						else if (!strHotKey.IsEmpty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), strName.CPtr());
+						else if (!strHotKey.empty())
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.at(0),(strHotKey.at(0)==L'&'?L"&":L""), strName.c_str());
 						else
-							ListItem.strName.Format(L"   %s", strName.CPtr());
+							ListItem.strName.Format(L"   %s", strName.c_str());
 
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
@@ -1360,10 +1360,10 @@ void PluginManager::Configure(int StartPos)
 						if (item)
 						{
 							strPluginModuleName = item->pPlugin->GetModuleName();
-							if (!pluginapi::apiShowHelp(strPluginModuleName.CPtr(),L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-							        !pluginapi::apiShowHelp(strPluginModuleName.CPtr(),L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+							if (!pluginapi::apiShowHelp(strPluginModuleName.c_str(),L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+							        !pluginapi::apiShowHelp(strPluginModuleName.c_str(),L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
 							{
-								pluginapi::apiShowHelp(strPluginModuleName.CPtr(),nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+								pluginapi::apiShowHelp(strPluginModuleName.c_str(),nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 							}
 						}
 						break;
@@ -1380,7 +1380,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							strTitle = PluginList.GetItemPtr()->strName.c_str()+nOffset;
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
@@ -1509,10 +1509,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
-						else if (!strHotKey.IsEmpty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), strName.CPtr());
+						else if (!strHotKey.empty())
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.at(0),(strHotKey.at(0)==L'&'?L"&":L""), strName.c_str());
 						else
-							ListItem.strName.Format(L"   %s", strName.CPtr());
+							ListItem.strName.Format(L"   %s", strName.c_str());
 
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
@@ -1540,7 +1540,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_SHIFTF1:
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						if (item)
-							pluginapi::apiShowHelp(item->pPlugin->GetModuleName().CPtr(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+							pluginapi::apiShowHelp(item->pPlugin->GetModuleName().c_str(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 						break;
 
 					case KEY_ALTF11:
@@ -1561,7 +1561,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							strTitle = PluginList.GetItemPtr()->strName.c_str()+nOffset;
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
@@ -1682,8 +1682,8 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	*/
 	strPluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
-	size_t FarPathLength=Global->g_strFarPath.GetLength();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName().CPtr(), Global->g_strFarPath.CPtr(), (int)FarPathLength))
+	size_t FarPathLength=Global->g_strFarPath.size();
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().c_str(), Global->g_strFarPath.c_str(), (int)FarPathLength))
 		strPluginKey.LShift(FarPathLength);
 #endif // NO_WRAPPER
 }
@@ -1691,7 +1691,7 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, string &strHotKey)
 {
 	string strPluginKey;
-	strHotKey.Clear();
+	strHotKey.clear();
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
 	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
 }
@@ -1705,11 +1705,11 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 
 	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(MPluginHotKey);
-	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle.CPtr());
+	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle.c_str());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{
-		if (!strHotKey.IsEmpty() && strHotKey.At(0) != L' ')
+		if (!strHotKey.empty() && strHotKey.at(0) != L' ')
 			Global->Db->PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
 		else
 			Global->Db->PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
@@ -1784,11 +1784,11 @@ char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 
 wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
-	size_t Count = (Str.GetLength() + 1) * sizeof(wchar_t);
+	size_t Count = (Str.size() + 1) * sizeof(wchar_t);
 	wchar_t* Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
-		wcscpy(Res, Str.CPtr());
+		wcscpy(Res, Str.c_str());
 	}
 	return Res;
 }
@@ -1963,7 +1963,7 @@ bool PluginManager::GetDiskMenuItem(
 		if (Global->Db->PlCacheCfg()->GetDiskMenuItem(Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
 			if (StrToGuid(strGuid,Guid))
 				ItemPresent = true;
-		ItemPresent = ItemPresent && !strPluginText.IsEmpty();
+		ItemPresent = ItemPresent && !strPluginText.empty();
 	}
 	else
 	{
@@ -1984,7 +1984,7 @@ bool PluginManager::GetDiskMenuItem(
 	{
 		string strHotKey;
 		GetPluginHotKey(pPlugin,Guid,PluginsHotkeysConfig::DRIVE_MENU,strHotKey);
-		PluginHotkey = strHotKey.At(0);
+		PluginHotkey = strHotKey.at(0);
 	}
 
 	return true;
@@ -2066,7 +2066,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 	for (;;)
 	{
-		wchar_t Ch=strCommand.At(PrefixLength);
+		wchar_t Ch=strCommand.at(PrefixLength);
 
 		if (!Ch || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
 			return FALSE;
@@ -2078,7 +2078,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 	}
 
 	LoadIfCacheAbsent();
-	string strPrefix(strCommand.CPtr(), PrefixLength);
+	string strPrefix(strCommand.c_str(), PrefixLength);
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
@@ -2105,11 +2105,11 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 				continue;
 		}
 
-		if (strPluginPrefix.IsEmpty())
+		if (strPluginPrefix.empty())
 			continue;
 
-		const wchar_t *PrStart = strPluginPrefix.CPtr();
-		PrefixLength=strPrefix.GetLength();
+		const wchar_t *PrStart = strPluginPrefix.c_str();
+		PrefixLength=strPrefix.size();
 
 		for (;;)
 		{
@@ -2118,7 +2118,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (!StrCmpNI(strPrefix.CPtr(), PrStart, (int)Len))
+			if (!StrCmpNI(strPrefix.c_str(), PrStart, (int)Len))
 			{
 				if ((*i)->Load() && (*i)->HasOpen())
 				{
@@ -2175,9 +2175,9 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 	}
 
 	Global->CtrlObject->CmdLine->SetString(L"");
-	string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
+	string strPluginCommand=strCommand.c_str()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
-	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.CPtr()}; //BUGBUG
+	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.c_str()}; //BUGBUG
 	HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 
 	if (hPlugin)
@@ -2444,7 +2444,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 				{
 					ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки
-					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.CPtr()};
+					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.c_str()};
 					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 
 					Result=TRUE;
@@ -2513,9 +2513,9 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 	{
 		wchar_t *CustomData = nullptr;
 
-		if (i->HasGetCustomData() && i->GetCustomData(FilePath.CPtr(), &CustomData))
+		if (i->HasGetCustomData() && i->GetCustomData(FilePath.c_str(), &CustomData))
 		{
-			if (!ListItem->strCustomData.IsEmpty())
+			if (!ListItem->strCustomData.empty())
 				ListItem->strCustomData += L" ";
 			ListItem->strCustomData += CustomData;
 

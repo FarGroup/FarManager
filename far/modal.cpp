@@ -145,6 +145,6 @@ void Modal::SetHelp(const wchar_t *Topic)
 
 void Modal::ShowHelp()
 {
-	if (!strHelpTopic.IsEmpty())
+	if (!strHelpTopic.empty())
 		Help Hlp(strHelpTopic);
 }

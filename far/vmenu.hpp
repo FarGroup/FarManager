@@ -132,7 +132,7 @@ struct MenuItemEx
 
 	void Clear()
 	{
-		strName.Clear();
+		strName.clear();
 		Flags = 0;
 		UserData = nullptr;
 		UserDataSize = 0;
@@ -286,7 +286,7 @@ class VMenu: public Modal
 
 		void SetTitle(const string& Title);
 		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0) override;
-		const wchar_t *GetPtrTitle() { return strTitle.CPtr(); }
+		const wchar_t *GetPtrTitle() { return strTitle.c_str(); }
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
 		string &GetBottomTitle(string &strDest);

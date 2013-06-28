@@ -115,9 +115,9 @@ void QuickView::DisplayObject()
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GetTitle(strTitle);
 
-	if (!strTitle.IsEmpty())
+	if (!strTitle.empty())
 	{
-		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
+		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);
 		Text(strTitle);
 	}
 
@@ -126,14 +126,14 @@ void QuickView::DisplayObject()
 	GotoXY(X1+1,Y2-1);
 	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<PointToName(strCurFileName);
 
-	if (!strCurFileType.IsEmpty())
+	if (!strCurFileType.empty())
 	{
 		string strTypeText=L" ";
 		strTypeText+=strCurFileType;
 		strTypeText+=L" ";
 		TruncStr(strTypeText,X2-X1-1);
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(X1+(X2-X1+1-(int)strTypeText.GetLength())/2,Y2-2);
+		GotoXY(X1+(X2-X1+1-(int)strTypeText.size())/2,Y2-2);
 		Text(strTypeText);
 	}
 
@@ -213,7 +213,7 @@ void QuickView::DisplayObject()
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = Tmp.CPtr();
+						PtrName = Tmp.c_str();
 					}
 					else
 					{
@@ -228,7 +228,7 @@ void QuickView::DisplayObject()
 			}
 
 			TruncPathStr(Target,std::max(0, X2-X1-1-StrLength(PtrName)-5));
-			FString.Clear();
+			FString.clear();
 			FString<<PtrName<<L" \""<<Target<<L"\"";
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+3);
@@ -244,14 +244,14 @@ void QuickView::DisplayObject()
 			GotoXY(X1+2,Y1+6);
 			PrintText(MSG(MQuickViewFolders));
 			SetColor(iColor);
-			FString.Clear();
+			FString.clear();
 			FString<<prefix<<Data.DirCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+7);
 			PrintText(MSG(MQuickViewFiles));
 			SetColor(iColor);
-			FString.Clear();
+			FString.clear();
 			FString<<prefix<<Data.FileCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
@@ -266,7 +266,7 @@ void QuickView::DisplayObject()
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(iColor);
 			InsertCommas(Data.AllocationSize,strSize);
-			FString.Clear();
+			FString.clear();
 			FString << prefix << strSize << L" (" << ToPercent64(Data.AllocationSize,Data.FileSize) << L"%)";
 			PrintText(FString);
 
@@ -284,7 +284,7 @@ void QuickView::DisplayObject()
 				PrintText(MSG(MQuickViewSlack));
 				SetColor(iColor);
 				InsertCommas(Data.FilesSlack, strSize);
-				FString.Clear();
+				FString.clear();
 				FString << prefix << strSize << L" (" << ToPercent64(Data.FilesSlack, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
@@ -293,7 +293,7 @@ void QuickView::DisplayObject()
 				PrintText(MSG(MQuickViewMFTOverhead));
 				SetColor(iColor);
 				InsertCommas(Data.MFTOverhead, strSize);
-				FString.Clear();
+				FString.clear();
 				FString<<prefix<<strSize<<L" ("<<ToPercent64(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
 				PrintText(FString);
 
@@ -409,7 +409,7 @@ void QuickView::Update(int Mode)
 	if (!EnableUpdate)
 		return;
 
-	if (strCurFileName.IsEmpty())
+	if (strCurFileName.empty())
 		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	Redraw();
@@ -424,7 +424,7 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 	if (!IsVisible())
 		return;
 
-	if (FileName.IsEmpty())
+	if (FileName.empty())
 	{
 		ProcessingPluginCommand++;
 		Show();
@@ -440,11 +440,11 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 	{
 		string strValue;
 
-		if (GetShellType(strCurFileName.CPtr()+pos, strValue))
+		if (GetShellType(strCurFileName.c_str()+pos, strValue))
 		{
 			HKEY hKey;
 
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.CPtr(),&hKey)==ERROR_SUCCESS)
+			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.c_str(),&hKey)==ERROR_SUCCESS)
 			{
 				RegQueryStringValue(hKey,L"",strCurFileType,L"");
 				RegCloseKey(hKey);
@@ -455,7 +455,7 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 	if (hDirPlugin || ((FileAttr=apiGetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 	{
 		// Не показывать тип файла для каталогов в "Быстром просмотре"
-		strCurFileType.Clear();
+		strCurFileType.clear();
 
 		if (SameFile && !hDirPlugin)
 		{
@@ -477,7 +477,7 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 	}
 	else
 	{
-		if (!strCurFileName.IsEmpty())
+		if (!strCurFileName.empty())
 		{
 			QView=new Viewer(true);
 			QView->SetRestoreScreenMode(FALSE);
@@ -519,7 +519,7 @@ void QuickView::CloseFile()
 		QView=nullptr;
 	}
 
-	strCurFileType.Clear();
+	strCurFileType.clear();
 	QViewDelTempName();
 	Directory=0;
 }
@@ -527,7 +527,7 @@ void QuickView::CloseFile()
 
 void QuickView::QViewDelTempName()
 {
-	if (!strTempName.IsEmpty())
+	if (!strTempName.empty())
 	{
 		if (QView)
 		{
@@ -543,7 +543,7 @@ void QuickView::QViewDelTempName()
 		apiDeleteFile(strTempName);  //BUGBUG
 		CutToSlash(strTempName);
 		apiRemoveDirectory(strTempName);
-		strTempName.Clear();
+		strTempName.clear();
 	}
 }
 
@@ -559,10 +559,10 @@ void QuickView::PrintText(const string& Str)
 
 int QuickView::UpdateIfChanged(int UpdateMode)
 {
-	if (IsVisible() && !strCurFileName.IsEmpty() && Directory==2)
+	if (IsVisible() && !strCurFileName.empty() && Directory==2)
 	{
 		string strViewName = strCurFileName;
-		ShowFile(strViewName, !strTempName.IsEmpty() ,nullptr);
+		ShowFile(strViewName, !strTempName.empty() ,nullptr);
 		return TRUE;
 	}
 
@@ -575,7 +575,7 @@ void QuickView::SetTitle()
 	{
 		string strTitleDir(L"{");
 
-		if (!strCurFileName.IsEmpty())
+		if (!strCurFileName.empty())
 		{
 			strTitleDir += strCurFileName;
 			strTitleDir += L" - QuickView";
@@ -619,7 +619,7 @@ void QuickView::SetMacroMode(int Restore)
 
 int QuickView::GetCurName(string &strName, string &strShortName)
 {
-	if (!strCurFileName.IsEmpty())
+	if (!strCurFileName.empty())
 	{
 		strName = strCurFileName;
 		strShortName = strName;

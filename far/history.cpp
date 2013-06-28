@@ -98,7 +98,7 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
-	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.IsEmpty())
+	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.empty())
 		return;
 
 	bool Lock = false;
@@ -121,7 +121,7 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 			{
 				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
 
-				if (!StrCmpFn(strName.CPtr(),strHName.CPtr())&&!StrCmpFn(strGuid.CPtr(),strHGuid.CPtr())&&!StrCmpFn(strFile.CPtr(),strHFile.CPtr())&&!StrCmpFn(strData.CPtr(),strHData.CPtr()))
+				if (!StrCmpFn(strName.c_str(),strHName.c_str())&&!StrCmpFn(strGuid.c_str(),strHGuid.c_str())&&!StrCmpFn(strFile.c_str(),strHFile.c_str())&&!StrCmpFn(strData.c_str(),strHData.c_str()))
 				{
 					Lock = Lock || HLock;
 					DeleteId = id;
@@ -138,7 +138,7 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 
 bool History::ReadLastItem(const string& HistoryName, string &strStr)
 {
-	strStr.Clear();
+	strStr.clear();
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
@@ -248,7 +248,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 						{
 							strRecord += pPlugin->GetTitle();
 							strRecord += L":";
-							if(!strHFile.IsEmpty())
+							if(!strHFile.empty())
 							{
 								strRecord += strHFile;
 								strRecord += L":";
@@ -380,7 +380,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 							{
 								Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 								if(!pPlugin) kill=true;
-								else if (!strHFile.IsEmpty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
+								else if (!strHFile.empty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
 							}
 							else if (apiGetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES) kill=true;
 
@@ -536,18 +536,18 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 			//BUGUBUG: eliminate those magic numbers!
 			if (SelectedRecordType != 2 && SelectedRecordType != 3 // ignore external
-				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.IsEmpty()) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
+				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 
 				if (SelectedRecordType == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.CPtr(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
+					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.c_str(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
 						break;
 				}
 				else
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.CPtr(),MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.c_str(),MSG(MOk));
 				}
 
 				Done=false;
@@ -604,7 +604,7 @@ void History::GetNext(string &strStr)
 
 bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 {
-	int Length=(int)strStr.GetLength();
+	int Length=(int)strStr.size();
 
 	if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
 		Length=LastCmdPartLength;
@@ -627,10 +627,10 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (!StrCmpNI(strStr.CPtr(),strName.CPtr(),Length) && strStr != strName)
+		if (!StrCmpNI(strStr.c_str(),strName.c_str(),Length) && strStr != strName)
 		{
 			if (bAppend)
-				strStr += strName.CPtr() + Length;
+				strStr += strName.c_str() + Length;
 			else
 				strStr = strName;
 
@@ -646,7 +646,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 {
-	int Length=static_cast<int>(Str.GetLength());
+	int Length=static_cast<int>(Str.size());
 	DWORD index=0;
 	string strHName,strHGuid,strHFile,strHData;
 	int HType;
@@ -655,7 +655,7 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	unsigned __int64 Time;
 	while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
-		if (!StrCmpNI(Str.CPtr(),strHName.CPtr(),Length))
+		if (!StrCmpNI(Str.c_str(),strHName.c_str(),Length))
 		{
 			MenuItemEx NewItem={};
 			NewItem.strName = strHName;
@@ -666,7 +666,7 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 			HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(&NewItem));
 		}
 	}
-	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.GetLength() == static_cast<size_t>(Length))
+	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.size() == static_cast<size_t>(Length))
 	{
 		HistoryMenu.DeleteItems();
 		return false;

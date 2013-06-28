@@ -58,7 +58,7 @@ static struct task_sort
 {
 	bool operator()(const MenuItemEx* a, const MenuItemEx* b, SortItemParam& p) const
 	{
-		return StrCmp(a->strName.CPtr() + PID_LENGTH + 1, b->strName.CPtr() + PID_LENGTH + 1) < 0;
+		return StrCmp(a->strName.c_str() + PID_LENGTH + 1, b->strName.c_str() + PID_LENGTH + 1) < 0;
 	}
 }
 TaskSort;
@@ -260,7 +260,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 				}
 			}
 		}
-		if (!strTitle.IsEmpty())
+		if (!strTitle.empty())
 		{
 			MenuItemEx ListItem;
 			ListItem.Clear();

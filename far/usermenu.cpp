@@ -92,10 +92,10 @@ static int PrepareHotKey(string &strHotKey)
 {
 	int FuncNum=0;
 
-	if (strHotKey.GetLength() > 1)
+	if (strHotKey.size() > 1)
 	{
 		// если хоткей больше 1 символа, считаем это случаем "F?", причем при кривизне всегда будет "F1"
-		FuncNum=_wtoi(strHotKey.CPtr()+1);
+		FuncNum=_wtoi(strHotKey.c_str()+1);
 
 		if (FuncNum < 1 || FuncNum > 24)
 		{
@@ -106,7 +106,7 @@ static int PrepareHotKey(string &strHotKey)
 	else
 	{
 		// при наличии "&" продублируем
-		if (strHotKey.At(0) == L'&')
+		if (strHotKey.at(0) == L'&')
 			strHotKey += L"&";
 	}
 
@@ -119,9 +119,9 @@ static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 {
 	std::for_each(CONST_RANGE(Menu, i)
 	{
-		CW.Write(i.strHotKey.CPtr(), static_cast<DWORD>(i.strHotKey.GetLength()*sizeof(WCHAR)));
+		CW.Write(i.strHotKey.c_str(), static_cast<DWORD>(i.strHotKey.size()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
-		CW.Write(i.strLabel.CPtr(), static_cast<DWORD>(i.strLabel.GetLength()*sizeof(WCHAR)));
+		CW.Write(i.strLabel.c_str(), static_cast<DWORD>(i.strLabel.size()*sizeof(WCHAR)));
 		CW.Write(L"\r\n", 2*sizeof(WCHAR));
 
 		if (i.Submenu)
@@ -136,7 +136,7 @@ static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 			std::for_each(CONST_RANGE(i.Commands, str)
 			{
 				CW.Write(L"    ", 4*sizeof(WCHAR));
-				CW.Write(str.CPtr(), static_cast<DWORD>(str.GetLength()*sizeof(WCHAR)));
+				CW.Write(str.c_str(), static_cast<DWORD>(str.size()*sizeof(WCHAR)));
 				CW.Write(L"\r\n", 2*sizeof(WCHAR));
 			});
 		}
@@ -200,7 +200,7 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 				MenuItem->Menu = new std::list<UserMenuItem>;
 
 			// Support for old 1.x separator format
-			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.IsEmpty())
+			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.empty())
 			{
 				MenuItem->strHotKey += L"-";
 			}
@@ -312,7 +312,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 	while ((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) && (ExitCode != EC_COMMAND_SELECTED))
 	{
 		string strMenuFileFullPath;
-		if (MenuFileName.IsEmpty())
+		if (MenuFileName.empty())
 		{
 			strMenuFileFullPath = strMenuFilePath;
 			AddEndSlash(strMenuFileFullPath);
@@ -353,7 +353,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 						size_t pos;
 						if (FindLastSlash(pos,strMenuFilePath))
 						{
-							strMenuFilePath.SetLength(pos--);
+							strMenuFilePath.resize(pos--);
 							continue;
 						}
 					}
@@ -391,7 +391,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 						size_t pos;
 						if (FindLastSlash(pos,strMenuFilePath))
 						{
-							strMenuFilePath.SetLength(pos--);
+							strMenuFilePath.resize(pos--);
 							continue;
 						}
 					}
@@ -467,8 +467,8 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenuItem>& Menu, int M
 			apiExpandEnvironmentStrings(strLabel, strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
-			int Offset = strHotKey.At(0)==L'&'?5:4;
-			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
+			int Offset = strHotKey.at(0)==L'&'?5:4;
+			FarUserMenuItem.strName=FormatString()<<((!strHotKey.empty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 
 			if (MenuItem->Submenu)
@@ -734,8 +734,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			apiExpandEnvironmentStrings(strSubMenuLabel, strSubMenuLabel);
 
-			size_t pos;
-			if (strSubMenuLabel.Pos(pos,L'&'))
+			size_t pos = strSubMenuLabel.find(L'&');
+			if (pos != string::npos)
 				strSubMenuLabel.LShift(1,pos);
 
 			string strSubMenuTitle;
@@ -751,7 +751,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			}
 
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
-			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.CPtr());
+			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.c_str());
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -774,7 +774,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((!StrCmpNI(strCommand.CPtr(),L"REM",3) && IsSpaceOrEos(strCommand.At(3))) || !StrCmpNI(strCommand.CPtr(),L"::",2)))
+			if (!((!StrCmpNI(strCommand.c_str(),L"REM",3) && IsSpaceOrEos(strCommand.at(3))) || !StrCmpNI(strCommand.c_str(),L"::",2)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -806,15 +806,15 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					strTempStr = (*CurrentMenuItem)->strLabel;
 					ReplaceStrings(strTempStr,L"&",L"",-1);
 
-					int PreserveLFN=SubstFileName(strTempStr.CPtr(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.CPtr());
-					bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
+					int PreserveLFN=SubstFileName(strTempStr.c_str(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.c_str());
+					bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
 					if (ExtractIfExistCommand(strCommand))
 					{
 						PreserveLongName PreserveName(strShortName,PreserveLFN);
 						RemoveExternalSpaces(strCommand);
 
-						if (!strCommand.IsEmpty())
+						if (!strCommand.empty())
 						{
 							Global->CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed, false, true);
 						}
@@ -822,16 +822,16 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				}
 			} // strCommand != "REM"
 
-			if (!strListName.IsEmpty())
+			if (!strListName.empty())
 				apiDeleteFile(strListName);
 
-			if (!strAnotherListName.IsEmpty())
+			if (!strAnotherListName.empty())
 				apiDeleteFile(strAnotherListName);
 
-			if (!strShortListName.IsEmpty())
+			if (!strShortListName.empty())
 				apiDeleteFile(strShortListName);
 
-			if (!strAnotherShortListName.IsEmpty())
+			if (!strAnotherShortListName.empty())
 				apiDeleteFile(strAnotherShortListName);
 		});
 
@@ -1086,7 +1086,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 				int CommandNumber=0;
 
 				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
-					if (!EditDlg[i+EM_EDITLINE_0].strData.IsEmpty())
+					if (!EditDlg[i+EM_EDITLINE_0].strData.empty())
 						CommandNumber=i+1;
 
 				(*MenuItem)->Commands.clear();
@@ -1112,7 +1112,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.CPtr(),MSG(MDelete),MSG(MCancel)))
+	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.c_str(),MSG(MDelete),MSG(MCancel)))
 		return false;
 
 	MenuModified=true;

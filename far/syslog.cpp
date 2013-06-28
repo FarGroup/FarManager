@@ -130,7 +130,7 @@ FILE * OpenLogStream(const string& file)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build);
-	return _wfsopen(strRealLogName.CPtr(),L"a+t",SH_DENYWR);
+	return _wfsopen(strRealLogName.c_str(),L"a+t",SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -149,10 +149,10 @@ void OpenSysLog()
 	if (Attr == INVALID_FILE_ATTRIBUTES)
 	{
 		if (!apiCreateDirectory(strLogFileName,nullptr))
-			strLogFileName.SetLength(Global->g_strFarPath.GetLength());
+			strLogFileName.resize(Global->g_strFarPath.size());
 	}
 	else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
-		strLogFileName.SetLength(Global->g_strFarPath.GetLength());
+		strLogFileName.resize(Global->g_strFarPath.size());
 
 	LogStream=OpenLogStream(strLogFileName);
 	//if ( !LogStream )
@@ -536,7 +536,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         ListItems[I].PrevNumericSort,
 						 ListItems[I].PrevCaseSensitiveSort,
 				         ListItems[I].PrevDirectoriesFirst,
-				         ListItems[I].strHostFile.CPtr());
+				         ListItems[I].strHostFile.c_str());
 		}
 
 		fwprintf(fp,L"\n");
@@ -654,7 +654,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.CPtr(), Name.CPtr());
+				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.c_str(), Name.c_str());
 			}
 			else
 				fwprintf(fp,L"\tFrameList item nullptr\n");
@@ -667,7 +667,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.CPtr(), Name.CPtr());
+				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.c_str(), Name.c_str());
 			}
 			else
 				fwprintf(fp,L"\tModalStack Item nullptr\n");
@@ -676,76 +676,76 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 		fwprintf(fp,L"**** Detail... ***\n");
 
 		if (!Man->InsertedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->InsertedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tInsertedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который будет добавлен в конец немодальной очереди
-		         Man->InsertedFrame,Type.CPtr(),Name.CPtr());
+		         Man->InsertedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->DeletedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->DeletedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeletedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, предназначен для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-		         Man->DeletedFrame,Type.CPtr(),Name.CPtr());
+		         Man->DeletedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->ActivatedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->ActivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tActivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который необходимо активировать после каких ни будь изменений
-		         Man->ActivatedFrame,Type.CPtr(),Name.CPtr());
+		         Man->ActivatedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->RefreshedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->RefreshedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tRefreshedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который нужно просто освежить, т.е. перерисовать
-		         Man->RefreshedFrame,Type.CPtr(),Name.CPtr());
+		         Man->RefreshedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->ModalizedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->ModalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tModalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который становится в 'очередь' к текущему немодальному фрейму
-		         Man->ModalizedFrame,Type.CPtr(),Name.CPtr());
+		         Man->ModalizedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->UnmodalizedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, убирающийся из 'очереди' немодального фрейма
-		         Man->UnmodalizedFrame,Type.CPtr(),Name.CPtr());
+		         Man->UnmodalizedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->DeactivatedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->DeactivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который указывает на предыдущий активный фрейм
-		         Man->DeactivatedFrame,Type.CPtr(),Name.CPtr());
+		         Man->DeactivatedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->ExecutedFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->ExecutedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tExecutedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, которого вскорости нужно будет поставить на вершину модального стека
-		         Man->ExecutedFrame,Type.CPtr(),Name.CPtr());
+		         Man->ExecutedFrame,Type.c_str(),Name.c_str());
 
 		if (!Man->CurrentFrame)
-			Type.Clear(), Name.Clear();
+			Type.clear(), Name.clear();
 		else
 			Man->CurrentFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s')\n", //  - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке
-		         Man->CurrentFrame,Type.CPtr(),Name.CPtr());
+		         Man->CurrentFrame,Type.c_str(),Name.c_str());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
@@ -1264,8 +1264,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(C_PPANEL_BOF),               // начало пассивного каталога?
 		DEF_MCODE_(C_APANEL_EOF),               // конец активного  каталога?
 		DEF_MCODE_(C_PPANEL_EOF),               // конец пассивного каталога?
-		DEF_MCODE_(C_APANEL_ISEMPTY),           // активная панель:  пуста?
-		DEF_MCODE_(C_PPANEL_ISEMPTY),           // пассивная панель: пуста?
+		DEF_MCODE_(C_APANEL_empty),           // активная панель:  пуста?
+		DEF_MCODE_(C_PPANEL_empty),           // пассивная панель: пуста?
 		DEF_MCODE_(C_APANEL_SELECTED),          // активная панель:  выделенные элементы есть?
 		DEF_MCODE_(C_PPANEL_SELECTED),          // пассивная панель: выделенные элементы есть?
 		DEF_MCODE_(C_APANEL_ROOT),              // это корневой каталог активной панели?
@@ -1391,7 +1391,7 @@ string __FARKEY_ToName(int Key)
 	{
 		string tmp;
 		InsertQuote(Name);
-		tmp.Format(L"%s [%u/0x%08X]",Name.CPtr(),Key,Key);
+		tmp.Format(L"%s [%u/0x%08X]",Name.c_str(),Key,Key);
 		Name = tmp;
 		return Name;
 	}

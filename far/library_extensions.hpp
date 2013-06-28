@@ -73,14 +73,8 @@ namespace std
 #define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
 #define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
 
-template <class Container>
-typename std::remove_reference<typename std::remove_pointer<Container>::type>::type::value_type get_value_type(Container& T);
-
-template <class Type, size_t Size>
-Type get_value_type(Type (&a)[Size]);
-
-// VALUE_TYPE works with both arrays and containers
-#define VALUE_TYPE(T) DECLTYPE(get_value_type(T))
+#define VALUE_TYPE(T) std::remove_reference<typename DECLTYPE(*std::begin(T))>::type
+#define CONST_VALUE_TYPE(T) std::remove_reference<typename DECLTYPE(*std::cbegin(T))>::type
 
 #define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<typename DECLTYPE(T)>::type>::type::subtype
 #define ITERATOR(T) DECLTYPEOF(T, iterator)
@@ -90,12 +84,14 @@ Type get_value_type(Type (&a)[Size]);
 
 #ifdef __GNUC__
 #define T_VALUE_TYPE(T) typename VALUE_TYPE(T)
+#define T_CONST_VALUE_TYPE(T) typename CONST_VALUE_TYPE(T)
 #else
 #define T_VALUE_TYPE(T) VALUE_TYPE(T)
+#define T_CONST_VALUE_TYPE(T) CONST_VALUE_TYPE(T)
 #endif
 
 #define LAMBDA_PREDICATE(T, i, ...) [&](T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
-#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](const T_VALUE_TYPE(T)& i, ##__VA_ARGS__)
+#define CONST_LAMBDA_PREDICATE(T, i, ...) [&](const T_CONST_VALUE_TYPE(T)& i, ##__VA_ARGS__)
 
 #define ALL_RANGE(T) std::begin(T), std::end(T)
 #define ALL_REVERSE_RANGE(T) std::rbegin(T), std::rend(T)

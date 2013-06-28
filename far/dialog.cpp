@@ -129,7 +129,7 @@ static inline bool CanGetFocus(int Type)
 
 bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 {
-	auto Str = str.CPtr();
+	auto Str = str.c_str();
 	if (AmpPos == -1)
 	{
 		if (!(Str=wcschr(Str,L'&')))
@@ -202,7 +202,7 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 			EditPtr->GetString(ItemString);
 	}
 
-	size_t sz = ItemString.GetLength();
+	size_t sz = ItemString.size();
 
 	if (sz > Data->MaxLength && Data->MaxLength > 0)
 		sz = Data->MaxLength;
@@ -244,8 +244,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 	string str;
 	size_t sz = ItemStringAndSize(ItemEx,str);
 	size+=(sz+1)*sizeof(wchar_t);
-	size+=(ItemEx->strHistory.GetLength()+1)*sizeof(wchar_t);
-	size+=(ItemEx->strMask.GetLength()+1)*sizeof(wchar_t);
+	size+=(ItemEx->strHistory.size()+1)*sizeof(wchar_t);
+	size+=(ItemEx->strMask.size()+1)*sizeof(wchar_t);
 
 	if (Item)
 	{
@@ -255,13 +255,13 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 			wchar_t* p=(wchar_t*)(Item->Item+1);
 			Item->Item->Data = p;
-			wmemcpy(p, str.CPtr(), sz+1);
+			wmemcpy(p, str.c_str(), sz+1);
 			p+=sz+1;
 			Item->Item->History = p;
-			wmemcpy(p, ItemEx->strHistory.CPtr(), ItemEx->strHistory.GetLength()+1);
-			p+=ItemEx->strHistory.GetLength()+1;
+			wmemcpy(p, ItemEx->strHistory.c_str(), ItemEx->strHistory.size()+1);
+			p+=ItemEx->strHistory.size()+1;
 			Item->Item->Mask = p;
-			wmemcpy(p, ItemEx->strMask.CPtr(), ItemEx->strMask.GetLength()+1);
+			wmemcpy(p, ItemEx->strMask.c_str(), ItemEx->strMask.size()+1);
 		}
 	}
 	return size;
@@ -283,7 +283,7 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 			ItemEx->strMask = Item->Mask;
 			if(Item->Data)
 			{
-				ItemEx->strData.Copy(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
+				ItemEx->strData.assign(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
 			}
 		}
 		ItemEx->SelStart=-1;
@@ -536,7 +536,7 @@ void Dialog::ProcessCenterGroup()
 			{
 				Length+=LenStrItem(j - Items.begin());
 
-				if (!j->strData.IsEmpty())
+				if (!j->strData.empty())
 					switch (j->Type)
 					{
 						case DI_BUTTON:
@@ -551,7 +551,7 @@ void Dialog::ProcessCenterGroup()
 					}
 			}
 
-			if (!i->strData.IsEmpty())
+			if (!i->strData.empty())
 			{
 				switch (i->Type)
 				{
@@ -573,7 +573,7 @@ void Dialog::ProcessCenterGroup()
 				j->X1=StartX;
 				StartX+=LenStrItem(j - Items.begin());
 
-				if (!j->strData.IsEmpty())
+				if (!j->strData.empty())
 					switch (j->Type)
 					{
 						case DI_BUTTON:
@@ -850,10 +850,10 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				*/
 
 				//  Маска не должна быть пустой (строка из пробелов не учитывается)!
-				if ((ItemFlags & DIF_MASKEDIT) && !Items[I].strMask.IsEmpty())
+				if ((ItemFlags & DIF_MASKEDIT) && !Items[I].strMask.empty())
 				{
 					RemoveExternalSpaces(Items[I].strMask);
-					if(!Items[I].strMask.IsEmpty())
+					if(!Items[I].strMask.empty())
 					{
 						DialogEdit->SetInputMask(Items[I].strMask);
 					}
@@ -898,7 +898,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			   при условии, что хоть один из пунктов имеет Selected
 			*/
 
-			if (Type==DI_COMBOBOX && Items[I].strData.IsEmpty() && Items[I].ListItems)
+			if (Type==DI_COMBOBOX && Items[I].strData.empty() && Items[I].ListItems)
 			{
 				FarListItem *ListItems=Items[I].ListItems->Items;
 				size_t Length=Items[I].ListItems->ItemsNumber;
@@ -973,7 +973,7 @@ const wchar_t *Dialog::GetDialogTitle()
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			const wchar_t *Ptr = i->strData.CPtr();
+			const wchar_t *Ptr = i->strData.c_str();
 
 			for (; *Ptr; Ptr++)
 				if (IsAlpha(*Ptr) || iswdigit(*Ptr))
@@ -996,7 +996,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 	CriticalSectionLock Lock(CS);
 	string &strData = CurItem->strData;
 
-	if (strData.IsEmpty())
+	if (strData.empty())
 	{
 		DlgEdit *EditPtr;
 
@@ -1014,7 +1014,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 				// диалоговую функцию
 				FarDialogItemData IData={sizeof(FarDialogItemData)};
 				IData.PtrData=UNSAFE_CSTR(strData);
-				IData.PtrLength=strData.GetLength();
+				IData.PtrLength=strData.size();
 				SendMessage(DM_SETTEXT,MsgIndex,&IData);
 			}
 		}
@@ -1104,7 +1104,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 		case DI_MEMOEDIT:
 			break;
 		default:
-			Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)Items[I].strData.GetLength():HiStrlen(Items[I].strData));
+			Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)Items[I].strData.size():HiStrlen(Items[I].strData));
 			break;
 	}
 
@@ -1194,7 +1194,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item) const
 {
-	return ((!Item->strHistory.IsEmpty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
+	return ((!Item->strHistory.empty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
 		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0));
 }
 
@@ -1276,7 +1276,7 @@ void Dialog::GetDialogObjectsData()
 					if (ExitCode >=0 &&
 					        (IFlags & DIF_HISTORY) &&
 					        !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
-							!i.strHistory.IsEmpty() &&
+							!i.strHistory.empty() &&
 					        Global->Opt->Dialogs.EditHistory)
 					{
 						AddToEditHistory(&i, strData);
@@ -1653,7 +1653,7 @@ void Dialog::ShowDialog(size_t ID)
 					    (Items[I].Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
 				}
 
-				if (!Items[I].strData.IsEmpty() && IsDrawTitle)
+				if (!Items[I].strData.empty() && IsDrawTitle)
 				{
 					//  ! Пусть диалог сам заботится о ширине собственного заголовка.
 					strStr = Items[I].strData;
@@ -1662,7 +1662,7 @@ void Dialog::ShowDialog(size_t ID)
 
 					if (LenText < CW-2)
 					{
-						int iLen = (int)strStr.GetLength();
+						int iLen = (int)strStr.size();
 						lpwszStr = strStr.GetBuffer(iLen + 3);
 						{
 							wmemmove(lpwszStr+1, lpwszStr, iLen);
@@ -1721,7 +1721,7 @@ void Dialog::ShowDialog(size_t ID)
 						if (CW < ObjWidth())
 							tmpCW=CW+1;
 
-						strStr.SetLength(tmpCW-1);
+						strStr.resize(tmpCW-1);
 					}
 
 					if (CX1 > -1 && CX2 > CX1 && !(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
@@ -1748,7 +1748,7 @@ void Dialog::ShowDialog(size_t ID)
 						GotoXY(X1+((Items[I].Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
 						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
-					    	              Items[I].strMask.CPtr()
+					    	              Items[I].strMask.c_str()
 					        	         );
 					}
 
@@ -1822,7 +1822,7 @@ void Dialog::ShowDialog(size_t ID)
 				LenText=LenStrItem(I,strStr);
 
 				if (!(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1!=-1)
-					LenText = static_cast<int>(CenterStr(strStr,strStr,CY2-CY1+1).GetLength());
+					LenText = static_cast<int>(CenterStr(strStr,strStr,CY2-CY1+1).size());
 
 				if ((CY2 <= 0) || (CY2 < CY1))
 					CH = LenStrItem(I,strStr);
@@ -1843,7 +1843,7 @@ void Dialog::ShowDialog(size_t ID)
 					if (CH < ObjHeight())
 						tmpCH=CH+1;
 
-					strStr.SetLength(tmpCH-1);
+					strStr.resize(tmpCH-1);
 				}
 
 				// нужно ЭТО
@@ -1872,7 +1872,7 @@ void Dialog::ShowDialog(size_t ID)
 					GotoXY(X1+X,Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?Y:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
 					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?Y2-Y1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
-					                  Items[I].strMask.CPtr()
+					                  Items[I].strMask.c_str()
 					                 );
 				}
 
@@ -1899,7 +1899,7 @@ void Dialog::ShowDialog(size_t ID)
 					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*MSG(MCheckBox2State):L'x'):L' '),L']',L'\0'};
 					strStr=Check;
 
-					if (Items[I].strData.GetLength())
+					if (Items[I].strData.size())
 						strStr+=L" ";
 				}
 				else
@@ -1916,7 +1916,7 @@ void Dialog::ShowDialog(size_t ID)
 						Dot[2]=L')';
 						strStr=Dot;
 
-						if (Items[I].strData.GetLength())
+						if (Items[I].strData.size())
 							strStr+=L" ";
 					}
 				}
@@ -1925,7 +1925,7 @@ void Dialog::ShowDialog(size_t ID)
 				LenText=LenStrItem(I, strStr);
 
 				if (X1+CX1+LenText > X2)
-					strStr.SetLength(ObjWidth()-1);
+					strStr.resize(ObjWidth()-1);
 
 				if (Items[I].Flags & DIF_SHOWAMPERSAND)
 					Text(strStr);
@@ -2108,7 +2108,7 @@ int Dialog::LenStrItem(size_t ID, const string& lpwszStr)
 {
 	CriticalSectionLock Lock(CS);
 
-	return (Items[ID].Flags & DIF_SHOWAMPERSAND)? static_cast<int>(lpwszStr.GetLength()):HiStrlen(lpwszStr);
+	return (Items[ID].Flags & DIF_SHOWAMPERSAND)? static_cast<int>(lpwszStr.size()):HiStrlen(lpwszStr);
 }
 
 
@@ -2582,7 +2582,7 @@ int Dialog::ProcessKey(int Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.CPtr())), strStr))
+			if (Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.c_str())), strStr))
 			{
 				Help Hlp(strStr);
 			}
@@ -2659,10 +2659,10 @@ int Dialog::ProcessKey(int Key)
 				focus->GetString(strStr);
 				int CurPos = focus->GetCurPos();
 				string strMove;
-				if (CurPos < static_cast<int>(strStr.GetLength()))
+				if (CurPos < static_cast<int>(strStr.size()))
 				{
-					strMove = strStr.CPtr() + CurPos;
-					strStr.SetLength(CurPos);
+					strMove = strStr.c_str() + CurPos;
+					strStr.resize(CurPos);
 					focus->SetString(strStr, true, 0);
 				}
 				focus->SetString(strStr, true, 0);
@@ -2916,7 +2916,7 @@ int Dialog::ProcessKey(int Key)
 									bool last = false;
 									DlgEdit *prev = (DlgEdit *)(Items[FocusPos-1].ObjPtr);
 									prev->GetString(strStr);
-									int pos = static_cast<int>(strStr.GetLength());
+									int pos = static_cast<int>(strStr.size());
 									for (size_t I = FocusPos; !last && I < Items.size(); ++I)
 									{
 										DlgEdit *next = (DlgEdit *)(Items[I].ObjPtr);
@@ -2926,7 +2926,7 @@ int Dialog::ProcessKey(int Key)
 											next->GetString(strNext);
 										strStr += strNext;
 										((DlgEdit *)Items[I-1].ObjPtr)->SetString(strStr, true, 0);
-										strStr.Clear();
+										strStr.clear();
 									}
 									Do_ProcessNextCtrl(true);
 									prev->SetCurPos(pos);
@@ -2954,7 +2954,7 @@ int Dialog::ProcessKey(int Key)
 								DlgEdit *prev = (DlgEdit *)Items[I-1].ObjPtr;
 								int CurPos = prev->GetCurPos();
 								prev->SetString(strNext, true, CurPos);
-								empty = empty && strNext.IsEmpty();
+								empty = empty && strNext.empty();
 							}
 							if (empty)
 								((DlgEdit *)(Items[FocusPos].ObjPtr))->SetCurPos(0);
@@ -2975,8 +2975,8 @@ int Dialog::ProcessKey(int Key)
 
 								if (SelStart > -1)
 								{
-									string strEnd=strStr.CPtr()+SelEnd;
-									strStr.SetLength(SelStart);
+									string strEnd=strStr.c_str()+SelEnd;
+									strStr.resize(SelStart);
 									strStr+=strEnd;
 									edt->SetString(strStr);
 									edt->SetCurPos(SelStart);
@@ -3027,7 +3027,7 @@ int Dialog::ProcessKey(int Key)
 
 					// иначе неправильно работает ctrl-end
 					edt->strLastStr = edt->GetStringAddr();
-					edt->LastPartLength=static_cast<int>(edt->strLastStr.GetLength());
+					edt->LastPartLength=static_cast<int>(edt->strLastStr.size());
 
 					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
 					return TRUE;
@@ -3062,7 +3062,7 @@ int Dialog::ProcessKey(int Key)
 								edt->strLastStr = edt->GetStringAddr();
 
 							strStr = edt->strLastStr;
-							int CurCmdPartLength=static_cast<int>(strStr.GetLength());
+							int CurCmdPartLength=static_cast<int>(strStr.size());
 							edt->HistoryGetSimilar(strStr, edt->LastPartLength);
 
 							if (edt->LastPartLength == -1)
@@ -3073,7 +3073,7 @@ int Dialog::ProcessKey(int Key)
 							{
 								SetAutocomplete disable(edt);
 								edt->SetString(strStr);
-								edt->Select(edt->LastPartLength, static_cast<int>(strStr.GetLength()));
+								edt->Select(edt->LastPartLength, static_cast<int>(strStr.size()));
 							}
 							Show();
 							return TRUE;
@@ -3588,7 +3588,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 	if (IsEdit(Type) &&
 	        (CurItem->Flags & DIF_HISTORY) &&
 	        Global->Opt->Dialogs.EditHistory &&
-	        !CurItem->strHistory.IsEmpty() &&
+	        !CurItem->strHistory.empty() &&
 	        !(CurItem->Flags & DIF_READONLY))
 	{
 		// Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
@@ -4208,7 +4208,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
-			const wchar_t *ChPtr=wcschr(Items[I].strData.CPtr(),L'&');
+			const wchar_t *ChPtr=wcschr(Items[I].strData.c_str(),L'&');
 
 			if (ChPtr)
 			{
@@ -4459,7 +4459,7 @@ void Dialog::ShowHelp()
 {
 	CriticalSectionLock Lock(CS);
 
-	if (!HelpTopic.IsEmpty())
+	if (!HelpTopic.empty())
 	{
 		Help Hlp(HelpTopic);
 	}
@@ -4488,7 +4488,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 {
 	CriticalSectionLock Lock(CS);
 	strType = MSG(MDialogType);
-	strName.Clear();
+	strName.clear();
 	const wchar_t *lpwszTitle = GetDialogTitle();
 
 	if (lpwszTitle)
@@ -5053,7 +5053,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 	CurItem=&Items[Param1];
 	Type=CurItem->Type;
-	const wchar_t *Ptr= CurItem->strData.CPtr();
+	const wchar_t *Ptr= CurItem->strData.c_str();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
 		Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
@@ -5167,7 +5167,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								FarListItem *Item=&ListItems->Item;
 								ClearStruct(*Item);
 								Item->Flags=ListMenuItem->Flags;
-								Item->Text=ListMenuItem->strName.CPtr();
+								Item->Text=ListMenuItem->strName.c_str();
 								/*
 								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
 								   Item->UserData=ListMenuItem->UserData;
@@ -5241,17 +5241,17 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							ListBox->GetTitle(strTitle);
 							ListBox->GetBottomTitle(strBottomTitle);
 
-							if (CheckStructSize(ListTitle)&&(!strTitle.IsEmpty()||!strBottomTitle.IsEmpty()))
+							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
-									xwcsncpy((wchar_t*)ListTitle->Title,strTitle.CPtr(),ListTitle->TitleSize);
+									xwcsncpy((wchar_t*)ListTitle->Title,strTitle.c_str(),ListTitle->TitleSize);
 								else
-									ListTitle->TitleSize=strTitle.GetLength()+1;
+									ListTitle->TitleSize=strTitle.size()+1;
 
 								if (ListTitle->Bottom&&ListTitle->BottomSize)
-									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle.CPtr(),ListTitle->BottomSize);
+									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle.c_str(),ListTitle->BottomSize);
 								else
-									ListTitle->BottomSize=strBottomTitle.GetLength()+1;
+									ListTitle->BottomSize=strBottomTitle.size()+1;
 								return TRUE;
 							}
 							return FALSE;
@@ -5344,7 +5344,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				else
 				{
 					CurItem->Flags&=~DIF_HISTORY;
-					CurItem->strHistory.Clear();
+					CurItem->strHistory.clear();
 				}
 
 				if (DialogMode.Check(DMODE_SHOW))
@@ -5836,7 +5836,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
 					{
-						Len=(int)ListMenuItem->strName.GetLength()+1;
+						Len=(int)ListMenuItem->strName.size()+1;
 					}
 
 					break;
@@ -5880,7 +5880,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_FIXEDIT:
 					case DI_LISTBOX: // меняет только текущий итем
 						CurItem->strData = did->PtrData;
-						Len = CurItem->strData.GetLength();
+						Len = CurItem->strData.size();
 						break;
 					default:
 						Len=0;
@@ -5975,7 +5975,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 
 				//CurItem->strData = did->PtrData;
-				return CurItem->strData.GetLength(); //???
+				return CurItem->strData.size(); //???
 			}
 
 			return 0;

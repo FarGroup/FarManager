@@ -60,7 +60,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	SetDynamicallyBorn(FALSE);
 	SetRestoreScreenMode(TRUE);
 	if (ModalMode != MODALTREE_FREE)
-		strResultFolder.Clear();
+		strResultFolder.clear();
 	KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
 	//TopScreen=new SaveScreen;
 	SetCoords();
@@ -69,7 +69,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	{
 		Global->CtrlObject->Macro.SetMode(MACROAREA_FINDFOLDER);
 		MacroMode = MACROAREA_FINDFOLDER;
-		strLastName.Clear();
+		strLastName.clear();
 		Tree->SetModalMode(ModalMode);
 		Tree->SetPosition(X1,Y1,X2,Y2);
 
@@ -192,7 +192,7 @@ int FolderTree::FastHide()
 int FolderTree::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MFolderTreeType);
-	strName.Clear();
+	strName.clear();
 	return MODALTYPE_FINDFOLDER;
 }
 
@@ -301,7 +301,7 @@ int FolderTree::ProcessKey(int Key)
 					strLastName = strName;
 				else
 				{
-					FindEdit->SetString(strLastName.CPtr());
+					FindEdit->SetString(strLastName.c_str());
 					strName = strLastName;
 				}
 

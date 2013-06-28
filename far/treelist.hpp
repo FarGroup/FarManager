@@ -88,7 +88,7 @@ public:
 	void Clean()
 	{
 		Names.clear();
-		strTreeName.Clear();
+		strTreeName.clear();
 	}
 
 	TreeListCache& operator=(const TreeListCache& from)

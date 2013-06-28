@@ -79,7 +79,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 {
 	bool Result = false;
 
-	if (!masks.IsEmpty())
+	if (!masks.empty())
 	{
 		Free();
 
@@ -87,10 +87,10 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 		std::list<string> UsedGroups;
 		size_t LBPos, RBPos;
 
-		while(expmasks.Pos(LBPos, L'<') && expmasks.Pos(RBPos, L'>', LBPos))
+		while((LBPos = expmasks.find( L'<')) != string::npos && (RBPos = expmasks.find(L'>', LBPos)) != string::npos)
 		{
-			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
-			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
+			string MaskGroupNameWB = expmasks.substr(LBPos, RBPos-LBPos+1);
+			string MaskGroupName = expmasks.substr(LBPos+1, RBPos-LBPos-1);
 			string MaskGroupValue;
 			if (std::find(UsedGroups.cbegin(), UsedGroups.cend(), MaskGroupName) == UsedGroups.cend())
 			{
@@ -100,9 +100,9 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			}
 		}
 
-		if (!expmasks.IsEmpty())
+		if (!expmasks.empty())
 		{
-			const wchar_t* ptr = expmasks.CPtr();
+			const wchar_t* ptr = expmasks.c_str();
 
 			string SimpleMasksInclude, SimpleMasksExclude;
 
@@ -152,7 +152,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 				}
 			}
 
-			if (Result && !SimpleMasksInclude.IsEmpty())
+			if (Result && !SimpleMasksInclude.empty())
 			{
 				filemasks::masks m;
 				Result = m.Set(SimpleMasksInclude);
@@ -160,7 +160,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 					Include.emplace_back(std::move(m));
 			}
 
-			if (Result && !SimpleMasksExclude.IsEmpty())
+			if (Result && !SimpleMasksExclude.empty())
 			{
 				filemasks::masks m;
 				Result = m.Set(SimpleMasksExclude);
@@ -174,7 +174,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 				Result = Include.back().Set(L"*");
 			}
 
-			Result = !IsEmpty();
+			Result = !empty();
 		}
 
 		if (!Result)
@@ -205,10 +205,10 @@ bool filemasks::Compare(const string& FileName) const
 	       std::find(Exclude.cbegin(), Exclude.cend(), FileName) == Exclude.cend();
 }
 
-bool filemasks::IsEmpty() const
+bool filemasks::empty() const
 {
-	return std::none_of(CONST_RANGE(Include, i){return !i.IsEmpty();}) &&
-	       std::none_of(CONST_RANGE(Exclude, i){return !i.IsEmpty();});
+	return std::none_of(CONST_RANGE(Include, i){return !i.empty();}) &&
+	       std::none_of(CONST_RANGE(Exclude, i){return !i.empty();});
 }
 
 void filemasks::ErrorMessage() const
@@ -245,9 +245,9 @@ bool filemasks::masks::Set(const string& masks)
 				string strFarPathExt;
 				std::for_each(CONST_RANGE(MaskList, i)
 				{
-					strFarPathExt.Append('*').Append(i).Append(',');
+					strFarPathExt.append('*').append(i).append(',');
 				});
-				strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
+				strFarPathExt.resize(strFarPathExt.size()-1);
 				ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
 			}
 		}
@@ -259,7 +259,7 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re.reset(new RegExp);
 
-		if (re && re->Compile(expmasks.CPtr(), OP_PERLSTYLE|OP_OPTIMIZE))
+		if (re && re->Compile(expmasks.c_str(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m.reset(n);
@@ -300,8 +300,8 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	if (bRE)
 	{
 		intptr_t i = n;
-		size_t len = FileName.GetLength();
-		bool ret = re->Search(FileName.CPtr(),FileName.CPtr()+len,m.get(),i) != 0;
+		size_t len = FileName.size();
+		bool ret = re->Search(FileName.c_str(),FileName.c_str()+len,m.get(),i) != 0;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)
@@ -311,11 +311,11 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	}
 	else
 	{
-		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.CPtr(), FileName.CPtr(), false) != 0;});
+		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.c_str(), FileName.c_str(), false) != 0;});
 	}
 }
 
-bool filemasks::masks::IsEmpty() const
+bool filemasks::masks::empty() const
 {
 	return bRE? !n : Masks.empty();
 }

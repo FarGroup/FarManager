@@ -110,9 +110,9 @@ int GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
-			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.CPtr()},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.c_str()},
 			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith)},
-			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr.CPtr()},
+			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr.c_str()},
 			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,7,0,7,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,8,0,8,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -178,7 +178,7 @@ int GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,Title},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
-			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.CPtr()},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr.c_str()},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,6,0,6,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
@@ -218,7 +218,7 @@ int GetSearchReplaceString(
 		{
 			Result = ExitCode == 9? 1 : 2;
 			SearchStr = SearchDlg[2].strData;
-			ReplaceStr.Clear();
+			ReplaceStr.clear();
 			Case=SearchDlg[4].Selected == BSTATE_CHECKED;
 			WholeWords=SearchDlg[5].Selected == BSTATE_CHECKED;
 			Regexp=SearchDlg[6].Selected == BSTATE_CHECKED;
@@ -351,7 +351,7 @@ int GetString(
 
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
 	{
-		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.IsEmpty())
+		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.empty())
 			return FALSE;
 
 		strDestText = StrDlg[2].strData;
@@ -395,11 +395,11 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	*/
 	FarDialogItem PassDlgData[]=
 	{
-		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.CPtr())},
+		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.c_str())},
 		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MNetUserName)},
-		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.CPtr():strUserName.CPtr()},
+		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.c_str():strUserName.c_str()},
 		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MNetUserPassword)},
-		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.CPtr():strPassword.CPtr()},
+		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.c_str():strPassword.c_str()},
 		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
@@ -435,7 +435,7 @@ IFileIsInUse* CreateIFileIsInUse(const string& File)
 	if (SUCCEEDED(GetRunningObjectTable(0, &prot)))
 	{
 		IMoniker *pmkFile;
-		if (SUCCEEDED(CreateFileMoniker(File.CPtr(), &pmkFile)))
+		if (SUCCEEDED(CreateFileMoniker(File.c_str(), &pmkFile)))
 		{
 			IEnumMoniker *penumMk;
 			if (SUCCEEDED(prot->EnumRunning(&penumMk)))
@@ -534,7 +534,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
 			if (Global->ifn->RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
-				PCWSTR pszFile = FullName.CPtr();
+				PCWSTR pszFile = FullName.c_str();
 				if (Global->ifn->RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;

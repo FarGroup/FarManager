@@ -116,7 +116,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 		ConvertNameToFull(SelName, strFullName);
 		AddEndSlash(strFullName);
 
-		if (wcsstr(strAnotherCurDir.CPtr(),strFullName.CPtr()))
+		if (wcsstr(strAnotherCurDir.c_str(),strFullName.c_str()))
 		{
 			((FileList*)AnotherPanel)->StopFSWatcher();
 			return TRUE;
@@ -130,7 +130,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 {
 	int RetCode=FALSE;
 	int NeedRealName=FALSE;
-	strPathName.Clear();
+	strPathName.clear();
 
 	switch (Key)
 	{
@@ -271,7 +271,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 {
 	// BUGBUG, add error checking
 
-	const wchar_t *TextPtr=ColumnTitles.CPtr();
+	const wchar_t *TextPtr=ColumnTitles.c_str();
 
 	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
 	{
@@ -282,11 +282,11 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 
 		strArgName.Upper();
 
-		if (strArgName.At(0)==L'N')
+		if (strArgName.at(0)==L'N')
 		{
 			unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 			ColumnType=NAME_COLUMN;
-			const wchar_t *Ptr = strArgName.CPtr()+1;
+			const wchar_t *Ptr = strArgName.c_str()+1;
 
 			while (*Ptr)
 			{
@@ -314,11 +314,11 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		}
 		else
 		{
-			if (strArgName.At(0)==L'S' || strArgName.At(0)==L'P' || strArgName.At(0)==L'G')
+			if (strArgName.at(0)==L'S' || strArgName.at(0)==L'P' || strArgName.at(0)==L'G')
 			{
 				unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
-				ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:(strArgName.At(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
-				const wchar_t *Ptr = strArgName.CPtr()+1;
+				ColumnType=(strArgName.at(0)==L'S') ? SIZE_COLUMN:(strArgName.at(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
+				const wchar_t *Ptr = strArgName.c_str()+1;
 
 				while (*Ptr)
 				{
@@ -343,11 +343,11 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 			}
 			else
 			{
-				if (!StrCmpN(strArgName.CPtr(),L"DM",2) || !StrCmpN(strArgName.CPtr(),L"DC",2) || !StrCmpN(strArgName.CPtr(),L"DA",2) || !StrCmpN(strArgName.CPtr(),L"DE",2))
+				if (!StrCmpN(strArgName.c_str(),L"DM",2) || !StrCmpN(strArgName.c_str(),L"DC",2) || !StrCmpN(strArgName.c_str(),L"DA",2) || !StrCmpN(strArgName.c_str(),L"DE",2))
 				{
 					unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 
-					switch (strArgName.At(1))
+					switch (strArgName.at(1))
 					{
 						case L'M':
 							ColumnType=WDATE_COLUMN;
@@ -363,7 +363,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 							break;
 					}
 
-					const wchar_t *Ptr = strArgName.CPtr()+2;
+					const wchar_t *Ptr = strArgName.c_str()+2;
 
 					while (*Ptr)
 					{
@@ -382,20 +382,20 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 				}
 				else
 				{
-					if (strArgName.At(0)==L'O')
+					if (strArgName.at(0)==L'O')
 					{
 						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 						ColumnType=OWNER_COLUMN;
 
-						if (strArgName.At(1)==L'L')
+						if (strArgName.at(1)==L'L')
 							ColumnType|=COLUMN_FULLOWNER;
 					}
-					else if (strArgName.At(0)==L'X')
+					else if (strArgName.at(0)==L'X')
 					{
 						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 						ColumnType=EXTENSION_COLUMN;
 
-						if (strArgName.At(1)==L'R')
+						if (strArgName.at(1)==L'R')
 							ColumnType|=COLUMN_RIGHTALIGN;
 					}
 					else
@@ -414,7 +414,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		}
 	}
 
-	TextPtr=ColumnWidths.CPtr();
+	TextPtr=ColumnWidths.c_str();
 
 	for (int I=0; I<ColumnCount; I++)
 	{
@@ -423,12 +423,12 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		ViewColumnWidths[I]=_wtoi(strArgName.CPtr());
+		ViewColumnWidths[I]=_wtoi(strArgName.c_str());
 		ViewColumnWidthsTypes[I]=COUNT_WIDTH;
 
-		if (strArgName.GetLength()>1)
+		if (strArgName.size()>1)
 		{
-			switch (strArgName.At(strArgName.GetLength()-1))
+			switch (strArgName.at(strArgName.size()-1))
 			{
 				case L'%':
 					ViewColumnWidthsTypes[I]=PERCENT_WIDTH;
@@ -448,8 +448,8 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 void ViewSettingsToText(const unsigned __int64 *ViewColumnTypes, const int *ViewColumnWidths, const int *ViewColumnWidthsTypes, int ColumnCount,
 						string &strColumnTitles, string &strColumnWidths)
 {
-	strColumnTitles.Clear();
-	strColumnWidths.Clear();
+	strColumnTitles.clear();
+	strColumnWidths.clear();
 
 	for (int I=0; I<ColumnCount; I++)
 	{
@@ -741,7 +741,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = strMsg.CPtr();
+						PtrName = strMsg.c_str();
 					}
 					else
 					{

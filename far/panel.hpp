@@ -62,7 +62,7 @@ struct PanelViewSettings
 		Flags = 0;
 		ClearArray(ColumnWidthType);
 		ClearArray(StatusColumnWidthType);
-		Name.Clear();
+		Name.clear();
 	}
 };
 

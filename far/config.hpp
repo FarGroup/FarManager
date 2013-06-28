@@ -238,11 +238,11 @@ public:
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
-	const wchar_t* CPtr() const {return GetString().CPtr();}
+	const wchar_t* c_str() const {return GetString().c_str();}
 	operator const string&() const {return GetString();}
-	void Clear() {Set(L"");}
-	bool IsEmpty() const {return GetString().IsEmpty();}
-	size_t GetLength() const {return Get().GetLength();}
+	void clear() {Set(L"");}
+	bool empty() const {return GetString().empty();}
+	size_t size() const {return Get().size();}
 	wchar_t operator[] (size_t index) const {return Get()[index];}
 	StringOption& operator=(const wchar_t* Value) {Set(Value); return *this;}
 	StringOption& operator=(const string& Value) {Set(Value); return *this;}

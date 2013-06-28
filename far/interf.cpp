@@ -597,7 +597,7 @@ void InitRecodeOutTable()
 
 	{
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.CPtr(),ARRAYSIZE(BoxSymbols)-1);
+		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.c_str(),ARRAYSIZE(BoxSymbols)-1);
 
 		if (Global->Opt->NoGraphics)
 		{
@@ -624,7 +624,7 @@ void Text(int X, int Y, const FarColor& Color, const string& Str)
 
 void Text(const string& Str)
 {
-	size_t Length=Str.GetLength();
+	size_t Length=Str.size();
 
 	if (Length<=0)
 		return;
@@ -657,13 +657,13 @@ void Text(LNGID MsgId)
 
 void VText(const string& Str)
 {
-	if (Str.IsEmpty())
+	if (Str.empty())
 		return;
 
 	int StartCurX=CurX;
 	WCHAR ChrStr[2]={};
 
-	for (size_t i = 0; i != Str.GetLength(); ++i)
+	for (size_t i = 0; i != Str.size(); ++i)
 	{
 		GotoXY(CurX,CurY);
 		ChrStr[0]=Str[i];
@@ -677,10 +677,10 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
 	string strTextStr;
 	FarColor SaveColor;
-	size_t pos;
 	strTextStr = Str;
+	size_t pos = strTextStr.find(L'&');
 
-	if (!strTextStr.Pos(pos,L'&'))
+	if (pos == string::npos)
 	{
 		if (isVertText)
 			VText(strTextStr);
@@ -698,7 +698,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 		              ^H
 		   &&&&&&  = '&&&'
 		*/
-		const wchar_t *ChPtr = strTextStr.CPtr() + pos;
+		const wchar_t *ChPtr = strTextStr.c_str() + pos;
 		int I=0;
 		const wchar_t *ChPtr2=ChPtr;
 
@@ -707,7 +707,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 
 		if (I&1) // нечет?
 		{
-			string LeftPart(strTextStr.CPtr(), pos);
+			string LeftPart(strTextStr.c_str(), pos);
 
 			if (isVertText)
 				VText(LeftPart);
@@ -730,9 +730,9 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 				ReplaceStrings(strText,L"&&",L"&",-1);
 
 				if (isVertText)
-					VText(strText.CPtr()+1);
+					VText(strText.c_str()+1);
 				else
-					Text(strText.CPtr()+1);
+					Text(strText.c_str()+1);
 			}
 		}
 		else
@@ -1107,7 +1107,7 @@ string& HiText2Str(string& strDest, const string& Str)
 	const wchar_t *ChPtr;
 	string strDestTemp = Str;
 
-	if ((ChPtr=wcschr(Str.CPtr(),L'&')) )
+	if ((ChPtr=wcschr(Str.c_str(),L'&')) )
 	{
 		/*
 		   &&      = '&'
@@ -1126,7 +1126,7 @@ string& HiText2Str(string& strDest, const string& Str)
 
 		if (I&1) // нечет?
 		{
-			strDestTemp.SetLength(ChPtr-Str.CPtr());
+			strDestTemp.resize(ChPtr-Str.c_str());
 
 			if (ChPtr[1])
 			{
@@ -1134,7 +1134,7 @@ string& HiText2Str(string& strDest, const string& Str)
 				strDestTemp+=Chr;
 				string strText = (ChPtr+1);
 				ReplaceStrings(strText,L"&&",L"&",-1);
-				strDestTemp+=strText.CPtr()+1;
+				strDestTemp+=strText.c_str()+1;
 			}
 		}
 		else
@@ -1163,7 +1163,7 @@ int HiStrlen(const string& str)
 	int Length=0;
 	bool Hi=false;
 
-	const wchar_t* Str = str.CPtr();
+	const wchar_t* Str = str.c_str();
 	while (*Str)
 	{
 		if (*Str == L'&')
@@ -1218,7 +1218,7 @@ int HiFindRealPos(const string& str, int Pos, BOOL ShowAmp)
 
 	int VisPos = 0;
 
-	const wchar_t* Str = str.CPtr();
+	const wchar_t* Str = str.c_str();
 
 	while (VisPos < Pos && *Str)
 	{

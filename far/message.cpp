@@ -199,7 +199,7 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 {
 	// BUGBUG
 	std::vector<const wchar_t*> pItems(Items.size());
-	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.CPtr();});
+	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.c_str();});
 	Init(Flags, Buttons, Title, pItems.data(), pItems.size(), HelpTopic, PluginNumber, Id);
 }
 
@@ -230,7 +230,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 	{
 		string str_err(strErrStr);
 		DWORD insert_mask = 0;
-		size_t len = strErrStr.GetLength(), pos = 0, inserts_n = 0, inserts[10];
+		size_t len = strErrStr.size(), pos = 0, inserts_n = 0, inserts[10];
 
 		for (size_t i = 1; i <= ItemsNumber-Buttons; ++i)
 		{
@@ -242,31 +242,31 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 			}
 		}
 
-		while (str_err.Pos(pos, L"%", pos))
+		while ((pos = str_err.find(L"%", pos)) != string::npos)
 		{
 			if (pos >= len-1)
 				break;
 
-			if (str_err.At(pos+1) >= L'1' && str_err.At(pos+1) <= L'9')
+			if (str_err.at(pos+1) >= L'1' && str_err.at(pos+1) <= L'9')
 			{
 				size_t insert_i = 0, pos1 = pos+1;
-				while (pos1 < len && str_err.At(pos1) >= L'0' && str_err.At(pos1) <= L'9')
+				while (pos1 < len && str_err.at(pos1) >= L'0' && str_err.at(pos1) <= L'9')
 				{
-					insert_i = 10*insert_i + str_err.At(pos1) - L'0';
+					insert_i = 10*insert_i + str_err.at(pos1) - L'0';
 					++pos1;
 				}
 				if (insert_i >= 1 && insert_i <= inserts_n)
 				{
 					insert_mask |= MSG_INSERT_STR(inserts[insert_i-1]);
 					const wchar_t *replacement = Items[inserts[insert_i-1]-1];
-					str_err.Replace(pos,pos1-pos,replacement);
+					str_err.replace(pos,pos1-pos,replacement);
 					len += wcslen(replacement) - (pos1-pos);
 					pos += wcslen(replacement) - (pos1-pos);
 				}
 				else
 					pos = pos1;
 			}
-			else if (str_err.At(pos+1) == L'%') // "%%"
+			else if (str_err.at(pos+1) == L'%') // "%%"
 				pos += 2;
 			else
 				++pos;
@@ -301,14 +301,14 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 	}
 
 	// учтем размер заголовка
-	if (!Title.IsEmpty())
+	if (!Title.empty())
 	{
-		I = static_cast<DWORD>(Title.GetLength()) + 2;
+		I = static_cast<DWORD>(Title.size()) + 2;
 
 		if (MaxLength < I)
 			MaxLength=I;
 
-		strClipText.Append(Title).Append(L"\r\n\r\n");
+		strClipText.append(Title).append(L"\r\n\r\n");
 	}
 
 	// первая коррекция максимального размера
@@ -325,7 +325,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 		++CountErrorLine;
 		//InsertQuote(ErrStr); // оквочим
 		// вычисление "красивого" размера
-		DWORD LenErrStr=(DWORD)strErrStr.GetLength();
+		DWORD LenErrStr=(DWORD)strErrStr.size();
 
 		if (LenErrStr > MAX_WIDTH_MESSAGE)
 		{
@@ -365,7 +365,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	//BUGBUG: string не предназначен для хранения строк разделённых \0
 	// заполняем массив...
-	const wchar_t* CPtrStr=strErrStr.CPtr();
+	const wchar_t* CPtrStr=strErrStr.c_str();
 
 	for (I=0; I < CountErrorLine; I++)
 	{
@@ -396,7 +396,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	for (size_t i = 0; i < ItemsNumber-Buttons; ++i)
 	{
-		strClipText.Append(Items[i]).Append(L"\r\n");
+		strClipText.append(Items[i]).append(L"\r\n");
 	}
 	strClipText += L"\r\n";
 	for (size_t i = ItemsNumber-Buttons; i < ItemsNumber; ++i)
@@ -568,14 +568,14 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
 
-	if (!Title.IsEmpty())
+	if (!Title.empty())
 	{
 		string strTempTitle = Title;
 
-		if (strTempTitle.GetLength() > MaxLength)
-			strTempTitle.SetLength(MaxLength);
+		if (strTempTitle.size() > MaxLength)
+			strTempTitle.resize(MaxLength);
 
-		GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
+		GotoXY(X1+(X2-X1-1-(int)strTempTitle.size())/2,Y1+1);
 		Global->FS << L" "<<strTempTitle<<L" ";
 	}
 

@@ -58,7 +58,7 @@ static const string& GetFarTitleAddons()
 	static bool bFirstRun = true;
 	static string strTitleAddons;
 
-	strTitleAddons.Copy(L" - Far ",7);
+	strTitleAddons.assign(L" - Far ",7);
 	strTitleAddons += Global->Opt->strTitleAddons.Get();
 
 	if (bFirstRun)
@@ -111,13 +111,13 @@ ConsoleTitle::~ConsoleTitle()
 {
 	CriticalSectionLock Lock(TitleCS);
 	const string &strTitleAddons = GetFarTitleAddons();
-	size_t OldLen = strOldTitle.GetLength();
-	size_t AddonsLen = strTitleAddons.GetLength();
+	size_t OldLen = strOldTitle.size();
+	size_t AddonsLen = strTitleAddons.size();
 
 	if (AddonsLen <= OldLen)
 	{
-		if (!StrCmpI(strOldTitle.CPtr()+OldLen-AddonsLen, strTitleAddons.CPtr()))
-			strOldTitle.SetLength(OldLen-AddonsLen);
+		if (!StrCmpI(strOldTitle.c_str()+OldLen-AddonsLen, strTitleAddons.c_str()))
+			strOldTitle.resize(OldLen-AddonsLen);
 	}
 
 	SetFarTitle(strOldTitle);
@@ -126,7 +126,7 @@ ConsoleTitle::~ConsoleTitle()
 BaseFormat& ConsoleTitle::Flush()
 {
 	SetFarTitle(*this);
-	Clear();
+	clear();
 	return *this;
 }
 

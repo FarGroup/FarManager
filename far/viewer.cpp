@@ -192,7 +192,7 @@ Viewer::~Viewer()
 	   Удаляем файл только, если нет открытых фреймов с таким именем.
 	*/
 
-	if (!strTempViewName.IsEmpty() && !FrameManager->CountFramesWithName(strTempViewName))
+	if (!strTempViewName.empty() && !FrameManager->CountFramesWithName(strTempViewName))
 	{
 		/* $ 14.06.2002 IS
 		   Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
@@ -229,7 +229,7 @@ void Viewer::SavePosition()
 		poscache.CodePage = CodePageChangedByUser ? VM.CodePage : 0;
 		poscache.bm = BMSavePos;
 
-		string strCacheName = strPluginData.IsEmpty() ? strFullFileName : strPluginData+PointToName(strFileName);
+		string strCacheName = strPluginData.empty() ? strFullFileName : strPluginData+PointToName(strFileName);
 		FilePositionCache::AddPosition(strCacheName, poscache);
 	}
 }
@@ -300,7 +300,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		     so don't show red message box */
 		if (warning)
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
-			        MSG(MViewerCannotOpenFile),strFileName.CPtr(),MSG(MOk));
+			        MSG(MViewerCannotOpenFile),strFileName.c_str(),MSG(MOk));
 
 		OpenFailed=true;
 		return FALSE;
@@ -315,7 +315,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{
-		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
+		string strCacheName=strPluginData.empty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
@@ -468,7 +468,7 @@ void Viewer::ShowPage(int nMode)
 
 	if (!ViewFile.Opened())
 	{
-		if (!strFileName.IsEmpty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
+		if (!strFileName.empty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
 		{
 			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
 			GotoXY(X1,Y1);
@@ -564,9 +564,9 @@ void Viewer::ShowPage(int nMode)
 			SetColor(COL_VIEWERTEXT);
 			GotoXY(X1,Y);
 
-			if (static_cast<long long>(i->Data.GetLength()) > LeftPos)
+			if (static_cast<long long>(i->Data.size()) > LeftPos)
 			{
-				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i->Data.CPtr() + LeftPos;
+				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i->Data.c_str() + LeftPos;
 			}
 			else
 			{
@@ -604,18 +604,18 @@ void Viewer::ShowPage(int nMode)
 					if (LeftPos > i->nSelEnd)
 						Length = 0;
 
-					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i->Data.CPtr() + SelX1 + LeftPos;
+					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i->Data.c_str() + SelX1 + LeftPos;
 				}
 			}
 
-			if (static_cast<long long>(i->Data.GetLength()) > LeftPos + Width && ViOpt.ShowArrows)
+			if (static_cast<long long>(i->Data.size()) > LeftPos + Width && ViOpt.ShowArrows)
 			{
 				GotoXY(XX2,Y);
 				SetColor(COL_VIEWERARROWS);
 				BoxText(0xbb);
 			}
 
-			if (LeftPos>0 && !i->Data.IsEmpty()  && ViOpt.ShowArrows)
+			if (LeftPos>0 && !i->Data.empty()  && ViOpt.ShowArrows)
 			{
 				GotoXY(X1,Y);
 				SetColor(COL_VIEWERARROWS);
@@ -1018,7 +1018,7 @@ void Viewer::DrawScrollbar()
 
 string &Viewer::GetTitle(string &strName,int,int)
 {
-	if (!strTitle.IsEmpty())
+	if (!strTitle.empty())
 	{
 		strName = strTitle;
 	}
@@ -1063,7 +1063,7 @@ static bool is_word_div ( const wchar_t ch )
 	static const wchar_t spaces[] = { L' ', L'\t', L'\n', L'\r', BOM_CHAR, REPLACE_CHAR, L'\0' };
 	return ( !ch
 		|| nullptr != wcschr(spaces, ch)
-		|| nullptr != wcschr(Global->Opt->strWordDiv.CPtr(), ch)
+		|| nullptr != wcschr(Global->Opt->strWordDiv.c_str(), ch)
 	);
 }
 
@@ -1539,7 +1539,7 @@ int Viewer::ProcessKey(int Key)
 		case KEY_ADD:
 		case KEY_SUBTRACT:
 		{
-			if (strTempViewName.IsEmpty())
+			if (strTempViewName.empty())
 			{
 				string strName;
 				string strShortName;
@@ -1555,12 +1555,12 @@ int Viewer::ProcessKey(int Key)
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading
 
-					if (PointToName(strName) == strName.CPtr())
+					if (PointToName(strName) == strName.c_str())
 					{
 						string strViewDir;
 						ViewNamesList.GetCurDir(strViewDir);
 
-						if (!strViewDir.IsEmpty())
+						if (!strViewDir.empty())
 							FarChDir(strViewDir);
 					}
 
@@ -1891,7 +1891,7 @@ int Viewer::ProcessKey(int Key)
 				size_t MaxLen = 0;
 				std::for_each(RANGE(Strings, i)
 				{
-					MaxLen = std::max(MaxLen, i.Data.GetLength());
+					MaxLen = std::max(MaxLen, i.Data.size());
 				});
 				LeftPos = (MaxLen > static_cast<size_t>(Width))? MaxLen - Width : 0;
 				Show();
@@ -2037,7 +2037,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
-		int cp_len = static_cast<int>((FormatString() << VM.CodePage).GetLength());
+		int cp_len = static_cast<int>((FormatString() << VM.CodePage).size());
 		//                           ViewMode     CopdePage             Goto
 		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
 		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
@@ -2459,7 +2459,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);
-					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);
+					show = re.Compile(sre.c_str(), OP_PERLSTYLE);
 				}
 			}
 			Dlg->SendMessage( DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));
@@ -2513,7 +2513,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 						}
 					}
 
-					if (!strTo.IsEmpty())
+					if (!strTo.empty())
 					{
 						int changed = (int)Dlg->SendMessage( DM_EDITUNCHANGEDFLAG, sd_src, ToPtr(-1));
 						Dlg->SendMessage( DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
@@ -2587,14 +2587,14 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
 	string strMsg(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor));
-	strMsg.Append(L" ").Append(MsgStr);
+	strMsg.append(L" ").append(MsgStr);
 	if (Percent>=0)
 	{
 		FormatString strPercent;
 		strPercent<<Percent;
 
-		size_t PercentLength=std::max(strPercent.GetLength(),(size_t)3);
-		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
+		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
+		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
@@ -2609,11 +2609,11 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
-	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.CPtr(),strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.c_str(),strProgress.empty()?nullptr:strProgress.c_str());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=MsgStr.CPtr();
+		preRedrawItem.Param.Param1=MsgStr.c_str();
 		preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
 		preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
 	}
@@ -3201,7 +3201,7 @@ int Viewer::search_regex_backward( search_data* sd )
 */
 void Viewer::Search(int Next,int FirstChar)
 {
-	if (!ViewFile.Opened() || (Next && strLastSearchStr.IsEmpty()))
+	if (!ViewFile.Opened() || (Next && strLastSearchStr.empty()))
 		return;
 
 	string strSearchStr, strMsgStr;
@@ -3213,8 +3213,8 @@ void Viewer::Search(int Next,int FirstChar)
 	WholeWords = LastSearchWholeWords;
 	ReverseSearch = LastSearchReverse;
 	SearchRegexp = LastSearchRegexp;
-	strSearchStr.Clear();
-	if (!strLastSearchStr.IsEmpty())
+	strSearchStr.clear();
+	if (!strLastSearchStr.empty())
 		strSearchStr = strLastSearchStr;
 
 	search_data sd;
@@ -3250,8 +3250,8 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if (SearchDlg[SD_RADIO_HEX].Selected)
 		{
-			int nb = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
-			strSearchStr.Clear();
+			int nb = hex2ss(strSearchStr.c_str(), search_bytes, ARRAYSIZE(search_bytes));
+			strSearchStr.clear();
 			ss2hex(strSearchStr, search_bytes, nb, L'\0');
 			SearchDlg[SD_EDIT_HEX].strData = strSearchStr;
 		}
@@ -3292,16 +3292,16 @@ void Viewer::Search(int Next,int FirstChar)
 		if (SearchHex)
 		{
 			strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
-			int len = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
-			strSearchStr.Clear();
+			int len = hex2ss(strSearchStr.c_str(), search_bytes, ARRAYSIZE(search_bytes));
+			strSearchStr.clear();
 			ss2hex(strSearchStr, search_bytes, len, L' ');
 		}
 		else
 		{
 			strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
-			size_t pos = 0;
-			while (strSearchStr.Pos(pos, 0xffff))
-				strSearchStr.Replace(pos, 1, L'\0');
+			size_t pos;
+			while ((pos = strSearchStr.find(0xffff)) != string::npos)
+				strSearchStr.replace(pos, 1, L'\0');
 		}
 	}
 
@@ -3315,10 +3315,10 @@ void Viewer::Search(int Next,int FirstChar)
 
 	strMsgStr = strLastSearchStr = strSearchStr;
 
-	sd.search_len = (int)strSearchStr.GetLength();
+	sd.search_len = (int)strSearchStr.size();
 	if (true == (LastSearchHex = SearchHex))
 	{
-		sd.search_len = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
+		sd.search_len = hex2ss(strSearchStr.c_str(), search_bytes, ARRAYSIZE(search_bytes));
 		sd.search_bytes = search_bytes;
 		sd.ch_size = 1;
 		Case = true;
@@ -3329,7 +3329,7 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		sd.is_utf8 = VM.CodePage == CP_UTF8;
 		sd.ch_size = getCharSize();
-		sd.search_text = strSearchStr.CPtr();
+		sd.search_text = strSearchStr.c_str();
 
 		if ( SearchRegexp )
 		{
@@ -3339,7 +3339,7 @@ void Viewer::Search(int Next,int FirstChar)
 			sd.pRex = new RegExp;
 			string strSlash = strSearchStr;
 			InsertRegexpQuote(strSlash);
-			if ( !sd.pRex->Compile(strSlash.CPtr(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
+			if ( !sd.pRex->Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
 				return; // wrong regular expression...
 			sd.RexMatchCount = sd.pRex->GetBracketsCount();
 			sd.RexMatch.reset(sd.RexMatchCount);
@@ -3354,7 +3354,7 @@ void Viewer::Search(int Next,int FirstChar)
 	if (!Case && !SearchRegexp)
 	{
 		strSearchStr.Upper();
-		sd.search_text = strSearchStr.CPtr();
+		sd.search_text = strSearchStr.c_str();
 	}
 
 	int found = 0;
@@ -3484,7 +3484,7 @@ void Viewer::Search(int Next,int FirstChar)
 			MSG_WARNING, 1,
 			MSG(MViewSearchTitle),
 			(SearchHex ? MSG(MViewSearchCannotFindHex) : MSG(MViewSearchCannotFind)),
-			strMsgStr.CPtr(),
+			strMsgStr.c_str(),
 			MSG(MOk)
 		);
 	}
@@ -3531,11 +3531,11 @@ void Viewer::ShowConsoleTitle()
 
 void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
-	if (!Name.IsEmpty())
+	if (!Name.empty())
 		ConvertNameToFull(Name,strTempViewName);
 	else
 	{
-		strTempViewName.Clear();
+		strTempViewName.clear();
 		DeleteFolder=FALSE;
 	}
 
@@ -3545,7 +3545,7 @@ void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 void Viewer::SetTitle(const wchar_t *Title)
 {
 	if (!Title)
-		strTitle.Clear();
+		strTitle.clear();
 	else
 		strTitle = Title;
 }
@@ -3990,9 +3990,9 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (Dlg.GetExitCode()<=0)
 				return;
 
-			if (GoToDlg[1].strData.At(0)==L'+' || GoToDlg[1].strData.At(0)==L'-')       // юзер хочет относительности
+			if (GoToDlg[1].strData.at(0)==L'+' || GoToDlg[1].strData.at(0)==L'-')       // юзер хочет относительности
 			{
-				if (GoToDlg[1].strData.At(0)==L'+')
+				if (GoToDlg[1].strData.at(0)==L'+')
 					Relative=1;
 				else
 					Relative=-1;
@@ -4000,22 +4000,22 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[1].strData.LShift(1);
 			}
 
-			if (GoToDlg[1].strData.Contains(L'%'))     // он хочет процентов
+			if (GoToDlg[1].strData.find(L'%') != string::npos)     // он хочет процентов
 			{
 				GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
 				GoToDlg[RB_PRC].Selected = 1;
 			}
-			else if (!StrCmpNI(GoToDlg[1].strData.CPtr(),L"0x",2)
-					 || GoToDlg[1].strData.At(0)==L'$'
-					 || GoToDlg[1].strData.Contains(L'h')
-					 || GoToDlg[1].strData.Contains(L'H'))  // он умный - hex код ввел!
+			else if (!StrCmpNI(GoToDlg[1].strData.c_str(),L"0x",2)
+					 || GoToDlg[1].strData.at(0)==L'$'
+					 || GoToDlg[1].strData.find(L'h') != string::npos
+					 || GoToDlg[1].strData.find(L'H') != string::npos)  // он умный - hex код ввел!
 			{
 				GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
 				GoToDlg[RB_HEX].Selected=1;
 
-				if (!StrCmpNI(GoToDlg[1].strData.CPtr(),L"0x",2))
+				if (!StrCmpNI(GoToDlg[1].strData.c_str(),L"0x",2))
 					GoToDlg[1].strData.LShift(2);
-				else if (GoToDlg[1].strData.At(0)==L'$')
+				else if (GoToDlg[1].strData.at(0)==L'$')
 					GoToDlg[1].strData.LShift(1);
 
 				//Relative=0; // при hex значении никаких относительных значений?
@@ -4025,7 +4025,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			{
 				//int cPercent=ToPercent64(FilePos,FileSize);
 				PrevMode = RB_PRC;
-				int Percent=_wtoi(GoToDlg[1].strData.CPtr());
+				int Percent=_wtoi(GoToDlg[1].strData.c_str());
 
 				//if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
 				//  return;
@@ -4043,13 +4043,13 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (GoToDlg[RB_HEX].Selected)
 			{
 				PrevMode = RB_HEX;
-				swscanf(GoToDlg[1].strData.CPtr(),L"%I64x",&Offset);
+				swscanf(GoToDlg[1].strData.c_str(),L"%I64x",&Offset);
 			}
 
 			if (GoToDlg[RB_DEC].Selected)
 			{
 				PrevMode = RB_DEC;
-				swscanf(GoToDlg[1].strData.CPtr(),L"%I64d",&Offset);
+				swscanf(GoToDlg[1].strData.c_str(),L"%I64d",&Offset);
 			}
 		}// ShowDlg
 		else
@@ -4173,12 +4173,12 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 		if ( !VM.Wrap )
 		{
 			vseek(vString.nFilePos = FilePos, SEEK_SET);
-			vString.Data.Clear();
+			vString.Data.clear();
 			ReadString(&vString, (int)(SelectPos-FilePos), false);
 
 			if ( !vString.have_eol )
 			{
-				int found_offset = static_cast<int>(vString.Data.GetLength());
+				int found_offset = static_cast<int>(vString.Data.size());
 				if ( found_offset > Width-10 )
 					LeftPos = (Width <= 10 ? found_offset : found_offset + 10 - Width);
 			}
@@ -4376,12 +4376,12 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case VCTL_GETFILENAME:
 		{
-			if (Param2&&(size_t)Param1>strFullFileName.GetLength())
+			if (Param2&&(size_t)Param1>strFullFileName.size())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.CPtr());
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.c_str());
 			}
 
-			return static_cast<int>(strFullFileName.GetLength()+1);
+			return static_cast<int>(strFullFileName.size()+1);
 		}
 	}
 
@@ -4390,7 +4390,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 
 BOOL Viewer::isTemporary()
 {
-	return !strTempViewName.IsEmpty();
+	return !strTempViewName.empty();
 }
 
 int Viewer::ProcessHexMode(int newMode, bool isRedraw)

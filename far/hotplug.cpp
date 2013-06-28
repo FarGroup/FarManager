@@ -80,7 +80,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
 			if (GetDeviceProperty(hDevInst, SPDRP_DEVICEDESC, strDescription, true))
 			{
-				if (!strDescription.IsEmpty())
+				if (!strDescription.empty())
 				{
 					RemoveExternalSpaces(strDescription);
 					ListItem.strName = strDescription;
@@ -91,20 +91,20 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 			{
 				RemoveExternalSpaces(strFriendlyName);
 
-				if (!strDescription.IsEmpty())
+				if (!strDescription.empty())
 				{
-					if (!strFriendlyName.IsEmpty() && StrCmpI(strDescription.CPtr(),strFriendlyName.CPtr()))
+					if (!strFriendlyName.empty() && StrCmpI(strDescription.c_str(),strFriendlyName.c_str()))
 					{
 						ListItem.strName += L" \"" + strFriendlyName + L"\"";
 					}
 				}
-				else if (!strFriendlyName.IsEmpty())
+				else if (!strFriendlyName.empty())
 				{
 					ListItem.strName = strFriendlyName;
 				}
 			}
 
-			if (!ListItem.strName.IsEmpty())
+			if (!ListItem.strName.empty())
 				HotPlugList->SetUserData(&I,sizeof(I),HotPlugList->AddItem(&ListItem));
 		}
 	}
@@ -173,7 +173,7 @@ void ShowHotplugDevice()
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.CPtr(),MSG(MOk));
+						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.c_str(),MSG(MOk));
 					}
 				}
 
@@ -300,15 +300,15 @@ bool IsHotPlugDevice(DEVINST hDevInst)
 }
 
 
-DWORD DriveMaskFromVolumeName(const string& lpwszVolumeName)
+DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	string strCurrentVolumeName;
 	string MountPoint(L"\\\\?\\A:\\");
 
 	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
 	{
-		MountPoint.Replace(4, Letter);
-		if(apiGetVolumeNameForVolumeMountPoint(MountPoint,strCurrentVolumeName) && strCurrentVolumeName.IsSubStrAt(0,lpwszVolumeName))
+		MountPoint[4] = Letter;
+		if(apiGetVolumeNameForVolumeMountPoint(MountPoint,strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
 			return (1 << (Letter-L'A'));
 	}
 
@@ -570,19 +570,19 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 		if (pDisk != Disks)
 			*--pDisk=0;
 
-		if (StrCmpI(strDescription.CPtr(),strFriendlyName.CPtr()) && !strFriendlyName.IsEmpty())
+		if (StrCmpI(strDescription.c_str(),strFriendlyName.c_str()) && !strFriendlyName.empty())
 		{
 			if (*Disks)
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.CPtr(),strFriendlyName.CPtr(),(LangString(MHotPlugDisks) << Disks).CPtr(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),strFriendlyName.c_str(),(LangString(MHotPlugDisks) << Disks).c_str(),MSG(MHRemove),MSG(MHCancel));
 			else
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.CPtr(),strFriendlyName.CPtr(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),strFriendlyName.c_str(),MSG(MHRemove),MSG(MHCancel));
 		}
 		else
 		{
 			if (*Disks)
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.CPtr(),(LangString(MHotPlugDisks) << Disks).CPtr(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),(LangString(MHotPlugDisks) << Disks).c_str(),MSG(MHRemove),MSG(MHCancel));
 			else
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.CPtr(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),MSG(MHRemove),MSG(MHCancel));
 		}
 	}
 
@@ -593,7 +593,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 
 	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
 	{
-		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription.CPtr(),strFriendlyName.CPtr(),MSG(MChangeHotPlugNotify2),MSG(MOk));
+		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription.c_str(),strFriendlyName.c_str(),MSG(MChangeHotPlugNotify2),MSG(MOk));
 	}
 
 	return bResult;

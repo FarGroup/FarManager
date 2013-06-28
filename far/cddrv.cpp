@@ -171,7 +171,6 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"BDROM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
-
 	std::for_each(CONST_RANGE(Capabilities, i)
 	{
 		if (strstr(productID, i.first))
@@ -418,7 +417,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 {
 	string strRootDir(RootDir);
 
-	if (strRootDir.IsEmpty())
+	if (strRootDir.empty())
 	{
 		string strCurDir;
 		apiGetCurrentDirectory(strCurDir);
@@ -427,7 +426,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 
 	AddEndSlash(strRootDir);
 
-	UINT DrvType = GetDriveType(strRootDir.CPtr());
+	UINT DrvType = GetDriveType(strRootDir.c_str());
 
 	// анализ CD-привода
 	if ((Detect&1) && DrvType == DRIVE_CDROM)
@@ -435,10 +434,10 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		string VolumePath = strRootDir;
 		DeleteEndSlash(VolumePath);
 
-		if (VolumePath.IsSubStrAt(0, L"\\\\?\\"))
-			VolumePath.Replace(0, 4, L"\\\\.\\");
+		if (VolumePath.compare(0, 4, L"\\\\?\\") == 0)
+			VolumePath[2] = L'.';
 		else
-			VolumePath.Insert(0, L"\\\\.\\");
+			VolumePath.insert(0, L"\\\\.\\");
 
 		File Device;
 		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
@@ -461,7 +460,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		DeleteEndSlash(drive, false);
 
 		HANDLE hDevice = ::CreateFileW(
-			drive.CPtr(),
+			drive.c_str(),
 			GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0, nullptr
 		);
 		if ( INVALID_HANDLE_VALUE != hDevice )

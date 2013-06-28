@@ -115,9 +115,9 @@ struct DialogItemEx: public FarDialogItem
 		ClearStruct(*static_cast<FarDialogItem*>(this));
 
 		ListPos=0;
-		strHistory.Clear();
-		strMask.Clear();
-		strData.Clear();
+		strHistory.clear();
+		strMask.clear();
+		strData.clear();
 		ID=0;
 		IFlags.ClearAll();
 		Auto.clear();

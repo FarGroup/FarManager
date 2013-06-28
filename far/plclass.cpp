@@ -276,7 +276,7 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 
 	if (pPlugin)
 	{
-		PSI->ModuleName = pPlugin->GetModuleName().CPtr();
+		PSI->ModuleName = pPlugin->GetModuleName().c_str();
 		if(pPlugin->GetGUID() == ArcliteGuid)
 		{
 			PSI->Private = &ArcliteInfo;
@@ -297,9 +297,9 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
 		MSG(MError),
 		MSG(MPlgBadVers),
-		plg.CPtr(),
-		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).CPtr(),
-		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).CPtr(),
+		plg.c_str(),
+		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).c_str(),
+		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).c_str(),
 		MSG(MOk));
 }
 
@@ -396,7 +396,7 @@ Plugin::Plugin(PluginManager *owner, const string& ModuleName):
 	m_hModule(nullptr)
 {
 
-	for (size_t i = 0; i != m_strCacheName.GetLength(); ++i)
+	for (size_t i = 0; i != m_strCacheName.size(); ++i)
 	{
 		if (m_strCacheName[i] == L'\\')
 			m_strCacheName[i] = L'/';
@@ -449,18 +449,18 @@ bool Plugin::LoadData()
 		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
 		{
 			Drive[0] = L'=';
-			Drive[1] = m_strModuleName.At(0);
+			Drive[1] = m_strModuleName.at(0);
 			apiGetEnvironmentVariable(Drive, strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName.CPtr(),nullptr,0);
-		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.CPtr(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName.c_str(),nullptr,0);
+		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.c_str(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
 		GuardLastError Err;
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariable(Drive,strCurPlugDiskPath.CPtr());
+			SetEnvironmentVariable(Drive,strCurPlugDiskPath.c_str());
 	}
 
 	if (!m_hModule)
@@ -470,7 +470,7 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.CPtr(), MSG(MOk)};
+			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.c_str(), MSG(MOk)};
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrLoadPlugin");
 		}
 
@@ -740,7 +740,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??
-	Global->g_strDirToSet.Clear();
+	Global->g_strDirToSet.clear();
 	ExecuteStruct es = {EXCEPT_OPEN};
 	if (Load() && Exports[iOpen] && !Global->ProcessException)
 	{
@@ -855,7 +855,7 @@ int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, siz
 		Info.hPanel = hPlugin;
 		Info.PanelItem = *pPanelItem;
 		Info.ItemsNumber = *pItemsNumber;
-		Info.Path = Path.CPtr();
+		Info.Path = Path.c_str();
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(&Info));
 		*pPanelItem = Info.PanelItem;
 		*pItemsNumber = Info.ItemsNumber;
@@ -907,7 +907,7 @@ int Plugin::PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNum
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
 		Info.Move = Move;
-		Info.SrcPath = strCurrentDirectory.CPtr();
+		Info.SrcPath = strCurrentDirectory.c_str();
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(&Info));
 	}
@@ -1053,7 +1053,7 @@ int Plugin::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserData
 	{
 		SetDirectoryInfo Info = {sizeof(Info)};
 		Info.hPanel = hPlugin;
-		Info.Dir = Dir.CPtr();
+		Info.Dir = Dir.c_str();
 		Info.OpMode = OpMode;
 		if (UserData)
 		{

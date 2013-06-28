@@ -166,10 +166,10 @@ public:
 
 	Utf8String(const string& Str)
 	{
-		Init(Str.CPtr(), Str.GetLength());
+		Init(Str.data(), Str.size());
 	}
 
-	const char* CPtr() const {return Data.get();}
+	const char* c_str() const {return Data.get();}
 	size_t size() const {return Size;}
 
 
@@ -516,7 +516,7 @@ public:
 
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
-		AsyncDone.SetName(strPath.CPtr(), strName.CPtr());
+		AsyncDone.SetName(strPath.c_str(), strName.c_str());
 		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
 		AsyncDone.Wait();          // and wait for the signal
 		Initialize(DbName, Local);
@@ -898,7 +898,7 @@ private:
 			e->SetAttribute("type", "color");
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).CPtr());
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).c_str());
 		}
 		else
 		{
@@ -1027,7 +1027,7 @@ public:
 			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).CPtr());
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).c_str());
 			root->LinkEndChild(e);
 		}
 
@@ -2050,8 +2050,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		StopEvent.Open();
 		if (strPath != L":memory:")
 		{
-			AsyncDeleteAddDone.SetName(strPath.CPtr(), strName.CPtr());
-			AsyncCommitDone.SetName(strPath.CPtr(), strName.CPtr());
+			AsyncDeleteAddDone.SetName(strPath.c_str(), strName.c_str());
+			AsyncCommitDone.SetName(strPath.c_str(), strName.c_str());
 		}
 		AsyncDeleteAddDone.Open(true,true);
 		AsyncCommitDone.Open(true,true);
@@ -2432,7 +2432,7 @@ public:
 	unsigned __int64 GetNext(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		WaitAllAsync();
-		strName.Clear();
+		strName.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 			return nid;
@@ -2448,7 +2448,7 @@ public:
 	unsigned __int64 GetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		WaitAllAsync();
-		strName.Clear();
+		strName.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
@@ -2476,7 +2476,7 @@ public:
 	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const string& HistoryName, unsigned __int64 id, string &strName)
 	{
 		WaitAllAsync();
-		strName.Clear();
+		strName.clear();
 		unsigned __int64 nid = 0;
 		if (!id)
 		{
@@ -2634,11 +2634,11 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 {
 	if (m_TemplateLoadState != 0)
 	{
-		if (m_TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.IsEmpty())
+		if (m_TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.empty())
 		{
 			m_TemplateLoadState = 0;
 			string def_config = Global->Opt->TemplateProfilePath;
-			FILE* XmlFile = _wfopen(NTPath(def_config).CPtr(), L"rb");
+			FILE* XmlFile = _wfopen(NTPath(def_config).c_str(), L"rb");
 			if (XmlFile)
 			{
 				m_TemplateDoc.reset(new tinyxml::TiXmlDocument);
@@ -2704,7 +2704,7 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, con
 
 HierarchicalConfigUniquePtr Database::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).CPtr(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).c_str(), Local, true);
 }
 
 HierarchicalConfigUniquePtr Database::CreateFiltersConfig()
@@ -2752,7 +2752,7 @@ Database::~Database()
 
 bool Database::Export(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File).CPtr(), L"w");
+	FILE* XmlFile = _wfopen(NTPath(File).c_str(), L"w");
 	if(!XmlFile)
 		return false;
 
@@ -2766,7 +2766,7 @@ bool Database::Export(const string& File)
 	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
 
 	auto root = new tinyxml::TiXmlElement("farconfig");
-	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).CPtr());
+	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).c_str());
 
 	root->LinkEndChild(GeneralCfg()->Export());
 
@@ -2800,13 +2800,13 @@ bool Database::Export(const string& File)
 		FAR_FIND_DATA fd;
 		while (ff.Get(fd))
 		{
-			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
+			fd.strFileName.resize(fd.strFileName.size()-3);
 			fd.strFileName.Upper();
 			intptr_t mc = 2;
-			if (re.Match(fd.strFileName.CPtr(), fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
+			if (re.Match(fd.strFileName.data(), fd.strFileName.data() + fd.strFileName.size(), m, mc))
 			{
 				auto plugin = new tinyxml::TiXmlElement("plugin");
-				plugin->SetAttribute("guid", Utf8String(fd.strFileName).CPtr());
+				plugin->SetAttribute("guid", Utf8String(fd.strFileName).c_str());
 				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
 				e->LinkEndChild(plugin);
 			}
@@ -2823,7 +2823,7 @@ bool Database::Export(const string& File)
 
 bool Database::Import(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File).CPtr(), L"rb");
+	FILE* XmlFile = _wfopen(NTPath(File).c_str(), L"rb");
 	if(!XmlFile)
 		return false;
 
@@ -2870,7 +2870,7 @@ bool Database::Import(const string& File)
 				Guid.Upper();
 
 				intptr_t mc = 2;
-				if (re.Match(Guid.CPtr(), Guid.CPtr() + Guid.GetLength(), m, mc))
+				if (re.Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
 				{
 					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(plugin));
 				}

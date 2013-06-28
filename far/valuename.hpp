@@ -59,7 +59,7 @@ auto GetNameOfValue(const value& Value, const container& From) -> decltype(std::
 }
 
 template<class container, class name>
-auto GetValueOfVame(const name& Name, const container& From) -> decltype(std::begin(From)->Value)
+auto GetValueOfName(const name& Name, const container& From) -> decltype(std::begin(From)->Value)
 {
 	static_assert(std::is_same<name, decltype(std::begin(From)->Name)>::value, "Wrong type of 'Name' parameter");
 	auto ItemIterator = std::find_if(CONST_RANGE(From, i)
@@ -80,13 +80,13 @@ const string FlagsToString(const value& Flags, const container& From, wchar_t Se
 	{
 		if (Flags & i.Value)
 		{
-			strFlags.Append(i.Name).Append(Separator);
+			strFlags.append(i.Name).append(Separator);
 		}
 	});
 
-	if(!strFlags.IsEmpty())
+	if(!strFlags.empty())
 	{
-		strFlags.SetLength(strFlags.GetLength() - 1);
+		strFlags.resize(strFlags.size() - 1);
 	}
 
 	return strFlags;
@@ -97,12 +97,12 @@ auto StringToFlags(const string& strFlags, const container& From, const wchar_t*
 {
 	// VC10 workaround. TODO: use normal decltype after migrating to compiler with full C++11 support.
 	auto Flags = typename DECLTYPE(std::begin(From)->Value)();
-	if(!strFlags.IsEmpty())
+	if(!strFlags.empty())
 	{
 		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
 		std::for_each(CONST_RANGE(FlagList, i)
 		{
-			Flags |= GetValueOfVame(i.CPtr(), From);
+			Flags |= GetValueOfName(i.c_str(), From);
 		});
 	}
 	return Flags;

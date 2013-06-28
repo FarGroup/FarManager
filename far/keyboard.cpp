@@ -599,18 +599,18 @@ void ReloadEnvironment()
 					if(Addr[i].Key==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(strName.CPtr(), L"path") || !StrCmpI(strName.CPtr(), L"libpath") || !StrCmpI(strName.CPtr(), L"os2libpath"))
+						if(!StrCmpI(strName.c_str(), L"path") || !StrCmpI(strName.c_str(), L"libpath") || !StrCmpI(strName.c_str(), L"os2libpath"))
 						{
 							string strMergedPath;
 							apiGetEnvironmentVariable(strName, strMergedPath);
-							if(strMergedPath.At(strMergedPath.GetLength()-1)!=L';')
+							if(strMergedPath.at(strMergedPath.size()-1)!=L';')
 							{
 								strMergedPath+=L';';
 							}
 							strData=strMergedPath+strData;
 						}
 					}
-					SetEnvironmentVariable(strName.CPtr(), strData.CPtr());
+					SetEnvironmentVariable(strName.c_str(), strData.c_str());
 				}
 			}
 		}
@@ -1629,7 +1629,7 @@ static string &GetShiftKeyName(string &strName, DWORD Key)
 */
 int KeyNameToKey(const string& Name)
 {
-	if (Name.IsEmpty())
+	if (Name.empty())
 		return -1;
 
 	DWORD Key=0;
@@ -1642,7 +1642,7 @@ int KeyNameToKey(const string& Name)
 	if (Name[0] == L'%' && Name[1])
 		return -1;
 
-	if (Name[1] && wcspbrk(Name.CPtr(),L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
+	if (Name[1] && wcspbrk(Name.c_str(),L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
 		return -1;
 
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
@@ -1651,12 +1651,12 @@ int KeyNameToKey(const string& Name)
 	static string strTmpName;
 	strTmpName = Name;
 	strTmpName.Upper();
-	int Len=(int)strTmpName.GetLength();
+	int Len=(int)strTmpName.size();
 
 	// пройдемся по всем модификаторам
 	for (Pos=I=0; I < int(ARRAYSIZE(ModifKeyName)); ++I)
 	{
-		if (wcsstr(strTmpName.CPtr(),ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
+		if (wcsstr(strTmpName.c_str(),ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
 		{
 			int CntReplace=ReplaceStrings(strTmpName,ModifKeyName[I].UName,L"",-1,true);
 			Key|=ModifKeyName[I].Key;
@@ -1671,7 +1671,7 @@ int KeyNameToKey(const string& Name)
 	if (Pos < Len)
 	{
 		// сначала - FKeys1 - Вариант (1)
-		const wchar_t* Ptr=Name.CPtr()+Pos;
+		const wchar_t* Ptr=Name.c_str()+Pos;
 		int PtrLen = Len-Pos;
 
 		for (I=(int)ARRAYSIZE(FKeys1)-1; I>=0; I--)
@@ -1815,9 +1815,9 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 			}
 		}
 
-		if (strKeyText.IsEmpty())
+		if (strKeyText.empty())
 		{
-			strKeyText0.Clear();
+			strKeyText0.clear();
 			return FALSE;
 		}
 	}

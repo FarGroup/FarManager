@@ -86,7 +86,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 			Item.SetSelect(TRUE);
 		}
 
-		PrinterList->SetUserData(Item.strName.CPtr(), (Item.strName.GetLength()+1)*sizeof(wchar_t), PrinterList->AddItem(&Item));
+		PrinterList->SetUserData(Item.strName.c_str(), (Item.strName.size()+1)*sizeof(wchar_t), PrinterList->AddItem(&Item));
 	}
 
 	if (!bDefaultPrinterFound)
@@ -178,10 +178,10 @@ void PrintFiles(Panel *SrcPanel)
 
 	HANDLE hPrinter;
 
-	if (!OpenPrinter((wchar_t*)strPrinterName.CPtr(),&hPrinter,nullptr))
+	if (!OpenPrinter((wchar_t*)strPrinterName.c_str(),&hPrinter,nullptr))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
-		        strPrinterName.CPtr(),MSG(MOk));
+		        strPrinterName.c_str(),MSG(MOk));
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -253,7 +253,7 @@ void PrintFiles(Panel *SrcPanel)
 				SrcFile.Close();
 			}
 
-			if (!strTempName.IsEmpty())
+			if (!strTempName.empty())
 			{
 				DeleteFileWithFolder(strTempName);
 			}
@@ -263,7 +263,7 @@ void PrintFiles(Panel *SrcPanel)
 			else
 			{
 				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-				            strSelName.CPtr(),MSG(MSkip),MSG(MCancel)))
+				            strSelName.c_str(),MSG(MSkip),MSG(MCancel)))
 					break;
 			}
 		}

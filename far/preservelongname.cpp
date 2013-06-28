@@ -47,7 +47,7 @@ PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
 		if (apiGetFindDataEx(ShortName, FindData))
 			strSaveLongName = FindData.strFileName;
 		else
-			strSaveLongName.Clear();
+			strSaveLongName.clear();
 
 		strSaveShortName = ShortName;
 	}

@@ -67,7 +67,7 @@ FileViewer::FileViewer(
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
 	str_title = (Title && *Title ? Title : L"");
-	if (!str_title.IsEmpty())
+	if (!str_title.empty())
 		View.SetTitle(Title);
 	if (DeleteOnClose)
 	{
@@ -356,7 +356,7 @@ int FileViewer::ProcessKey(int Key)
 				FileEditor *ShellEditor = new FileEditor(
 					strViewFileName, cp, flags, -2,
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
-					str_title.IsEmpty() ? nullptr: &str_title,
+					str_title.empty() ? nullptr: &str_title,
 					-1,-1, -1, -1, delete_on_close );
 				ShellEditor->SetEnableF6(TRUE);
 				/* $ 07.05.2001 DJ сохраняем NamesList */
@@ -505,7 +505,7 @@ void FileViewer::ShowStatus()
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
-	    strName.CPtr(),
+	    strName.c_str(),
 		 L"thd"[View.VM.Hex],
 	    View.VM.CodePage,
 	    View.FileSize,

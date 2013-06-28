@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	strUserName.Clear();
+	strUserName.clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 	HKEY hKey;
 
@@ -110,10 +110,10 @@ void ConnectToNetworkDrive(const string& NewDir)
 	GetStoredUserName(NewDir[0], strUserName);
 	NETRESOURCE netResource;
 	netResource.dwType = RESOURCETYPE_DISK;
-	netResource.lpLocalName = (wchar_t *)NewDir.CPtr();
-	netResource.lpRemoteName = (wchar_t *)strRemoteName.CPtr();
+	netResource.lpLocalName = (wchar_t *)NewDir.c_str();
+	netResource.lpRemoteName = (wchar_t *)strRemoteName.c_str();
 	netResource.lpProvider = 0;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.CPtr()), 0);
+	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.c_str()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
@@ -125,7 +125,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2(&netResource, strPassword.CPtr(), EmptyToNull(strUserName.CPtr()), 0);
+			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName.c_str()), 0);
 
 			if (!res)
 				break;
@@ -134,7 +134,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 			{
 				string strMsgStr;
 				GetErrorString(strMsgStr);
-				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.CPtr(), MSG(MOk));
+				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.c_str(), MSG(MOk));
 				break;
 			}
 		}
@@ -144,7 +144,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 {
 	string strNetDir;
-	strComputerName.Clear();
+	strComputerName.clear();
 
 	if (CurDir[0]==L'\\' && CurDir[1]==L'\\')
 	{
@@ -152,19 +152,19 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 	}
 	else
 	{
-		string LocalName(CurDir.CPtr(), 2);
+		string LocalName(CurDir.c_str(), 2);
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 
 	if (strNetDir[0]==L'\\' && strNetDir[1] == L'\\')
 	{
-		strComputerName = strNetDir.CPtr()+2;
+		strComputerName = strNetDir.c_str()+2;
 		size_t pos;
 
 		if (!FindSlash(pos,strComputerName))
-			strComputerName.Clear();
+			strComputerName.clear();
 		else
-			strComputerName.SetLength(pos);
+			strComputerName.resize(pos);
 	}
 
 	return strComputerName;
@@ -177,7 +177,7 @@ bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 	string strRemoteName;
 
 	*LocalName=Letter;
-	strDest.Clear();
+	strDest.clear();
 
 	if (DriveType == DRIVE_UNKNOWN)
 	{

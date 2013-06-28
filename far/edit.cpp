@@ -177,10 +177,10 @@ int Edit::GetNextCursorPos(int Position,int Where)
 	int Result = Position;
 	auto Mask = GetInputMask();
 
-	if (!Mask.IsEmpty() && (Where==-1 || Where==1))
+	if (!Mask.empty() && (Where==-1 || Where==1))
 	{
 		int PosChanged=FALSE;
-		int MaskLen = static_cast<int>(Mask.GetLength());
+		int MaskLen = static_cast<int>(Mask.size());
 
 		for (int i=Position; i<MaskLen && i>=0; i+=Where)
 		{
@@ -262,7 +262,7 @@ void Edit::FastShow()
 	   должны постоянно присутствовать в Str
 	*/
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 		RefreshStrByMask();
 
 	wchar_t *OutStrTmp=(wchar_t *)xf_malloc((EditLength+1)*sizeof(wchar_t));
@@ -296,7 +296,7 @@ void Edit::FastShow()
 		wchar_t *e=OutStrTmp+OutStrLength;
 
 		wchar_t *TrailingSpaces = e - 1;
-		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.IsEmpty() && (e > p))
+		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && (e > p))
 		{
 			while(IsSpace(*TrailingSpaces))
 				TrailingSpaces--;
@@ -386,7 +386,7 @@ void Edit::FastShow()
 		{
 			SetColor(GetUnchangedColor());
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
 
 			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
@@ -876,7 +876,7 @@ int Edit::ProcessKey(int Key)
 			Lock();
 			int Len;
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
 				wchar_t_ptr ShortStr(StrSize + 1);
 
@@ -1040,9 +1040,9 @@ int Edit::ProcessKey(int Key)
 
 			Lock();
 			DisableCallback();
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
-				int MaskLen = static_cast<int>(Mask.GetLength());
+				int MaskLen = static_cast<int>(Mask.size());
 				int ptr=CurPos;
 
 				while (ptr<MaskLen)
@@ -1145,7 +1145,7 @@ int Edit::ProcessKey(int Key)
 		{
 			SetPrevCurPos(CurPos);
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
 				wchar_t_ptr ShortStr(StrSize + 1);
 
@@ -1178,7 +1178,7 @@ int Edit::ProcessKey(int Key)
 		{
 			SetPrevCurPos(CurPos);
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
 				wchar_t_ptr ShortStr(StrSize + 1);
 
@@ -1227,9 +1227,9 @@ int Edit::ProcessKey(int Key)
 				}
 			}
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
-				int MaskLen = static_cast<int>(Mask.GetLength());
+				int MaskLen = static_cast<int>(Mask.size());
 				int i,j;
 				for (i=CurPos,j=CurPos; i<MaskLen; i++)
 				{
@@ -1288,7 +1288,7 @@ int Edit::ProcessKey(int Key)
 			SetPrevCurPos(CurPos);
 			int Len;
 
-			if (!Mask.IsEmpty())
+			if (!Mask.empty())
 			{
 				wchar_t_ptr ShortStr(StrSize+1);
 
@@ -1338,7 +1338,7 @@ int Edit::ProcessKey(int Key)
 			{
 				if (SelStart==-1 || SelStart>=SelEnd)
 				{
-					if (!Mask.IsEmpty())
+					if (!Mask.empty())
 					{
 						wchar_t_ptr ShortStr(StrSize + 1);
 
@@ -1526,9 +1526,9 @@ int Edit::InsertKey(int Key)
 	}
 
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
-		int MaskLen = static_cast<int>(Mask.GetLength());
+		int MaskLen = static_cast<int>(Mask.size());
 
 		if (CurPos<MaskLen)
 		{
@@ -1669,7 +1669,7 @@ void  Edit::SetHiString(const string& Str)
 	string NewStr;
 	HiText2Str(NewStr, Str);
 	Select(-1,0);
-	SetBinaryString(NewStr.CPtr(), static_cast<int>(NewStr.GetLength()));
+	SetBinaryString(NewStr.c_str(), static_cast<int>(NewStr.size()));
 }
 
 void Edit::SetString(const wchar_t *Str, int Length)
@@ -1756,10 +1756,10 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	CurPos=0;
 
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
-		int maskLen = static_cast<int>(Mask.GetLength());
+		int maskLen = static_cast<int>(Mask.size());
 
 		for (int i=0,j=0; j<maskLen && j<Length;)
 		{
@@ -1848,7 +1848,7 @@ int Edit::GetSelString(string &strStr)
 	if (SelStart==-1 || (SelEnd!=-1 && SelEnd<=SelStart) ||
 	        SelStart>=StrSize)
 	{
-		strStr.Clear();
+		strStr.clear();
 		return FALSE;
 	}
 
@@ -1876,7 +1876,7 @@ void Edit::InsertString(const string& Str)
 	if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 		DeleteBlock();
 
-	InsertBinaryString(Str.CPtr(), static_cast<int>(Str.GetLength()));
+	InsertBinaryString(Str.c_str(), static_cast<int>(Str.size()));
 }
 
 void Edit::InsertBinaryString(const wchar_t *Str,int Length)
@@ -1889,10 +1889,10 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 	Flags.Clear(FEDITLINE_CLEARFLAG);
 
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
 		int Pos=CurPos;
-		int MaskLen = static_cast<int>(Mask.GetLength());
+		int MaskLen = static_cast<int>(Mask.size());
 
 		if (Pos<MaskLen)
 		{
@@ -2051,7 +2051,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 */
 int Edit::Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength)
 {
-	return SearchString(this->Str,this->StrSize,Str,UpperStr,LowerStr,re,pm,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,PreserveStyle,SearchLength,WordDiv().CPtr());
+	return SearchString(this->Str,this->StrSize,Str,UpperStr,LowerStr,re,pm,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,PreserveStyle,SearchLength,WordDiv().c_str());
 }
 
 void Edit::InsertTab()
@@ -2143,7 +2143,7 @@ int Edit::GetTabCurPos()
 void Edit::SetTabCurPos(int NewPos)
 {
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
 		wchar_t_ptr ShortStr(StrSize + 1);
 
@@ -2334,7 +2334,7 @@ void Edit::DeleteBlock()
 	SetPrevCurPos(CurPos);
 
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
 		for (int i=SelStart; i<SelEnd; i++)
 		{

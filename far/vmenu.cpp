@@ -461,7 +461,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 		SelectPos++;
 
 	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength((int)NewMenuItem->strName.GetLength());
+		UpdateMaxLength((int)NewMenuItem->strName.size());
 	else
 		UpdateMaxLength(HiStrlen(NewMenuItem->strName));
 
@@ -662,7 +662,7 @@ void VMenu::FilterStringUpdated()
 				ItemHiddenCount++;
 			}
 
-			if (strName.IsEmpty() && PrevGroup == -1)
+			if (strName.empty() && PrevGroup == -1)
 			{
 				CurItem->Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -677,7 +677,7 @@ void VMenu::FilterStringUpdated()
 		{
 			RemoveExternalSpaces(strName);
 			RemoveChar(strName,L'&',TRUE);
-			if(!StrStrI(strName.CPtr(), strFilter.CPtr()))
+			if(!StrStrI(strName.c_str(), strFilter.c_str()))
 			{
 				CurItem->Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -872,18 +872,18 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = !StrCmpI(strTemp.CPtr(),str);
+							Res = !StrCmpI(strTemp.c_str(),str);
 							break;
 						case 1: // begin compare
-							p = StrStrI(strTemp.CPtr(),str);
-							Res = p==strTemp.CPtr();
+							p = StrStrI(strTemp.c_str(),str);
+							Res = p==strTemp.c_str();
 							break;
 						case 2: // end compare
-							p = RevStrStrI(strTemp.CPtr(),str);
+							p = RevStrStrI(strTemp.c_str(),str);
 							Res = p && !*(p+StrLength(str));
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp.CPtr(),str)!=nullptr;
+							Res = StrStrI(strTemp.c_str(),str)!=nullptr;
 							break;
 					}
 
@@ -997,7 +997,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							{
 								bFilterEnabled=((intptr_t)vParam == 1);
 								bFilterLocked=false;
-								strFilter.Clear();
+								strFilter.clear();
 								if (!vParam)
 									RestoreFilteredItems();
 								DisplayObject();
@@ -1026,7 +1026,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					break;
 
 				case 2:
-					RetValue = (bFilterEnabled && !strFilter.IsEmpty()) ? 1 : 0;
+					RetValue = (bFilterEnabled && !strFilter.empty()) ? 1 : 0;
 					break;
 
 				case 3:
@@ -1066,9 +1066,9 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					bFilterLocked = false;
 					RestoreFilteredItems();
 					string oldFilter = strFilter;
-					strFilter.Clear();
+					strFilter.clear();
 					if (vParam!=nullptr)
-						AddToFilter(((string *)vParam)->CPtr());
+						AddToFilter(((string *)vParam)->c_str());
 					FilterStringUpdated();
 					bFilterLocked = prevLocked;
 					DisplayObject();
@@ -1099,8 +1099,8 @@ bool VMenu::AddToFilter(const wchar_t *str)
 		{
 			if( IsFilterEditKey(Key) )
 			{
-				if ( Key==KEY_BS && !strFilter.IsEmpty() )
-					strFilter.SetLength(strFilter.GetLength()-1);
+				if ( Key==KEY_BS && !strFilter.empty() )
+					strFilter.resize(strFilter.size()-1);
 				else
 					strFilter += Key;
 			}
@@ -1124,11 +1124,11 @@ int VMenu::ProcessFilterKey(int Key)
 
 	if (Key==KEY_BS)
 	{
-		if (!strFilter.IsEmpty())
+		if (!strFilter.empty())
 		{
-			strFilter.SetLength(strFilter.GetLength()-1);
+			strFilter.resize(strFilter.size()-1);
 
-			if (strFilter.IsEmpty())
+			if (strFilter.empty())
 			{
 				RestoreFilteredItems();
 				DisplayObject();
@@ -1170,7 +1170,7 @@ int VMenu::ProcessKey(int Key)
 
 		if ( AddToFilter(str) ) // для фильтра: всю строку целиком в фильтр, а там разберемся.
 		{
-			if (strFilter.IsEmpty())
+			if (strFilter.empty())
 				RestoreFilteredItems();
 			else
 				FilterStringUpdated();
@@ -1306,7 +1306,7 @@ int VMenu::ProcessKey(int Key)
 				for (size_t I=0; I < Item.size(); ++I)
 				{
 					if (CheckFlags(VMENU_SHOWAMPERSAND))
-						_len=static_cast<int>(Item[I]->strName.GetLength());
+						_len=static_cast<int>(Item[I]->strName.size());
 					else
 						_len=HiStrlen(Item[I]->strName);
 
@@ -1389,7 +1389,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			bFilterEnabled=!bFilterEnabled;
 			bFilterLocked=false;
-			strFilter.Clear();
+			strFilter.clear();
 
 			if (!bFilterEnabled)
 				RestoreFilteredItems();
@@ -1410,7 +1410,7 @@ int VMenu::ProcessKey(int Key)
 
 				if ( AddToFilter(ClipText) )
 				{
-					if (strFilter.IsEmpty())
+					if (strFilter.empty())
 						RestoreFilteredItems();
 					else
 						FilterStringUpdated();
@@ -1438,7 +1438,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				const wchar_t *FilterString=strFilter.CPtr();
+				const wchar_t *FilterString=strFilter.c_str();
 				int start=StrLength(FilterString);
 				bool DoXlat=TRUE;
 
@@ -1762,7 +1762,7 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 	int ItemShowPos = Item[Pos]->ShowPos;
 
 	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
-		_len = (int)Item[Pos]->strName.GetLength();
+		_len = (int)Item[Pos]->strName.size();
 	else
 		_len = HiStrlen(Item[Pos]->strName);
 
@@ -1927,7 +1927,7 @@ void VMenu::DisplayObject()
 		if (bFilterEnabled)
 		{
 			RestoreFilteredItems();
-			if (!strFilter.IsEmpty())
+			if (!strFilter.empty())
 				FilterStringUpdated();
 		}
 		ClearFlags(VMENU_REFILTERREQUIRED);
@@ -1989,7 +1989,7 @@ void VMenu::DrawTitles()
 	int MaxTitleLength = X2-X1-2;
 	int WidthTitle;
 
-	if (!strTitle.IsEmpty() || bFilterEnabled)
+	if (!strTitle.empty() || bFilterEnabled)
 	{
 		string strDisplayTitle = strTitle;
 
@@ -1998,14 +1998,14 @@ void VMenu::DrawTitles()
 			if (bFilterLocked)
 				strDisplayTitle += L" ";
 			else
-				strDisplayTitle.Clear();
+				strDisplayTitle.clear();
 
 			strDisplayTitle += bFilterLocked?L"<":L"[";
 			strDisplayTitle += strFilter;
 			strDisplayTitle += bFilterLocked?L">":L"]";
 		}
 
-		WidthTitle=(int)strDisplayTitle.GetLength();
+		WidthTitle=(int)strDisplayTitle.size();
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2016,9 +2016,9 @@ void VMenu::DrawTitles()
 		Global->FS << L" " << fmt::ExactWidth(WidthTitle) << strDisplayTitle << L" ";
 	}
 
-	if (!strBottomTitle.IsEmpty())
+	if (!strBottomTitle.empty())
 	{
-		WidthTitle=(int)strBottomTitle.GetLength();
+		WidthTitle=(int)strBottomTitle.size();
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2045,7 +2045,7 @@ void VMenu::ShowMenu(bool IsParent)
 		int ItemLen;
 
 		if (CheckFlags(VMENU_SHOWAMPERSAND))
-			ItemLen = static_cast<int>(Item[i]->strName.GetLength());
+			ItemLen = static_cast<int>(Item[i]->strName.size());
 		else
 			ItemLen = HiStrlen(Item[i]->strName);
 
@@ -2189,11 +2189,11 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					for (unsigned int J=0; Ptr[J+3]; J++)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.CPtr(),L'&',J);
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.CPtr(),L'&',J);
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.c_str(),L'&',J);
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.c_str(),L'&',J);
 
-						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName[J+PCorrection] : 0;
-						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName[J+NCorrection] : 0;
+						wchar_t PrevItem = (Item[I-1]->strName.size()>=J) ? Item[I-1]->strName[J+PCorrection] : 0;
+						wchar_t NextItem = (Item[I+1]->strName.size()>=J) ? Item[I+1]->strName[J+NCorrection] : 0;
 
 						if (!PrevItem && !NextItem)
 							break;
@@ -2215,9 +2215,9 @@ void VMenu::ShowMenu(bool IsParent)
 				SetColor(Colors[VMenuColorSeparator]);
 				BoxText(TmpStr,FALSE);
 
-				if (!Item[I]->strName.IsEmpty())
+				if (!Item[I]->strName.empty())
 				{
-					int ItemWidth = (int)Item[I]->strName.GetLength();
+					int ItemWidth = (int)Item[I]->strName.size();
 
 					if (ItemWidth > X2-X1-3)
 						ItemWidth = X2-X1-3;
@@ -2262,40 +2262,40 @@ void VMenu::ShowMenu(bool IsParent)
 						CheckMark = static_cast<wchar_t>(Item[I]->Flags & 0x0000FFFF);
 				}
 
-				strMenuLine.Append(CheckMark);
-				strMenuLine.Append(L' '); // left scroller (<<) placeholder
+				strMenuLine.append(CheckMark);
+				strMenuLine.append(L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-				string strMItemPtr(Item[I]->strName.CPtr() + ShowPos);
+				string strMItemPtr(Item[I]->strName.c_str() + ShowPos);
 				int strMItemPtrLen;
 
 				if (CheckFlags(VMENU_SHOWAMPERSAND))
-					strMItemPtrLen = static_cast<int>(strMItemPtr.GetLength());
+					strMItemPtrLen = static_cast<int>(strMItemPtr.size());
 				else
 					strMItemPtrLen = HiStrlen(strMItemPtr);
 
 				// fit menu string into available space
 				if (strMItemPtrLen > MaxLineWidth)
-					strMItemPtr.SetLength(HiFindRealPos(strMItemPtr, MaxLineWidth, CheckFlags(VMENU_SHOWAMPERSAND)));
+					strMItemPtr.resize(HiFindRealPos(strMItemPtr, MaxLineWidth, CheckFlags(VMENU_SHOWAMPERSAND)));
 
 				// set highlight
 				if (!VMFlags.Check(VMENU_SHOWAMPERSAND))
 				{
 					int AmpPos = Item[I]->AmpPos - ShowPos;
 
-					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.GetLength()) && (strMItemPtr[AmpPos] != L'&'))
+					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (strMItemPtr[AmpPos] != L'&'))
 					{
-						string strEnd = strMItemPtr.CPtr() + AmpPos;
-						strMItemPtr.SetLength(AmpPos);
+						string strEnd = strMItemPtr.c_str() + AmpPos;
+						strMItemPtr.resize(AmpPos);
 						strMItemPtr += L"&";
 						strMItemPtr += strEnd;
 					}
 				}
 
-				strMenuLine.Append(strMItemPtr);
+				strMenuLine.append(strMItemPtr);
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
-				for (size_t i = 0; i < strMenuLine.GetLength(); ++i)
+				for (size_t i = 0; i < strMenuLine.size(); ++i)
 				{
 					if (strMenuLine[i] == L'\t')
 						strMenuLine[i] = L' ';
@@ -2330,15 +2330,15 @@ void VMenu::ShowMenu(bool IsParent)
 						std::for_each(CONST_RANGE(Item[I]->Annotations, i)
 						{
 							size_t pre_len = i.first - Item[I]->ShowPos + StartOffset - Pos + 1;
-							Text(strMenuLine.SubStr(Pos, pre_len));
+							Text(strMenuLine.substr(Pos, pre_len));
 							Pos += pre_len;
 							SetColor(Col);
-							Text(strMenuLine.SubStr(Pos, i.second));
+							Text(strMenuLine.substr(Pos, i.second));
 							Pos += i.second;
 							SetColor(CurColor);
 						});
-						if (Pos < strMenuLine.GetLength())
-							Text(strMenuLine.CPtr() + Pos);
+						if (Pos < strMenuLine.size())
+							Text(strMenuLine.c_str() + Pos);
 					}
 				}
 				else
@@ -2440,7 +2440,7 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 
 	if (_item)
 	{
-		const wchar_t *Name = _item->strName.CPtr();
+		const wchar_t *Name = _item->strName.c_str();
 		const wchar_t *ChPtr = wcschr(Name,L'&');
 
 		if (ChPtr || _item->AmpPos > -1)
@@ -2494,7 +2494,7 @@ void VMenu::AssignHighlights(int Reverse)
 	{
 		wchar_t Ch = 0;
 		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
+		const wchar_t *Name = Item[I]->strName.c_str() + ShowPos;
 		Item[I]->AmpPos = -1;
 		// TODO: проверка на LIF_HIDDEN
 		const wchar_t *ChPtr = wcschr(Name, L'&');
@@ -2527,7 +2527,7 @@ void VMenu::AssignHighlights(int Reverse)
 	for (I = Reverse ? static_cast<int>(Item.size()-1) : 0; I>=0 && I<static_cast<int>(Item.size()); I+=Delta)
 	{
 		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
+		const wchar_t *Name = Item[I]->strName.c_str() + ShowPos;
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
 		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
@@ -2588,7 +2588,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 void VMenu::UpdateMaxLengthFromTitles()
 {
 	//тайтл + 2 пробела вокруг
-	UpdateMaxLength((int)std::max(strTitle.GetLength(),strBottomTitle.GetLength())+2);
+	UpdateMaxLength((int)std::max(strTitle.size(),strBottomTitle.size())+2);
 }
 
 void VMenu::UpdateMaxLength(int Length)
@@ -2635,9 +2635,9 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 	if (BottomTitle)
 		strBottomTitle = BottomTitle;
 	else
-		strBottomTitle.Clear();
+		strBottomTitle.clear();
 
-	UpdateMaxLength((int)strBottomTitle.GetLength() + 2);
+	UpdateMaxLength((int)strBottomTitle.size() + 2);
 }
 
 void VMenu::SetTitle(const string& Title)
@@ -2648,11 +2648,11 @@ void VMenu::SetTitle(const string& Title)
 
 	strTitle = Title;
 
-	UpdateMaxLength((int)strTitle.GetLength() + 2);
+	UpdateMaxLength((int)strTitle.size() + 2);
 
 	if (CheckFlags(VMENU_CHANGECONSOLETITLE))
 	{
-		if (!strTitle.IsEmpty())
+		if (!strTitle.empty())
 		{
 			if (!OldTitle)
 				OldTitle = new ConsoleTitle;
@@ -2990,7 +2990,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	{
 		ClearStruct(*FItem);
 		FItem->Flags = MItem->Flags;
-		FItem->Text = MItem->strName.CPtr();
+		FItem->Text = MItem->strName.c_str();
 		return FItem;
 	}
 
@@ -3031,22 +3031,22 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 
 	if ((DWORD)StartIndex < (DWORD)Item.size())
 	{
-		size_t LenPattern = Pattern.GetLength();
+		size_t LenPattern = Pattern.size();
 
 		for (size_t I=StartIndex; I < Item.size(); I++)
 		{
 			string strTmpBuf(Item[I]->strName);
-			size_t LenNamePtr = strTmpBuf.GetLength();
+			size_t LenNamePtr = strTmpBuf.size();
 			RemoveChar(strTmpBuf, L'&');
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (!StrCmpNI(strTmpBuf.CPtr(),Pattern.CPtr(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
+				if (!StrCmpNI(strTmpBuf.c_str(),Pattern.c_str(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
 					return static_cast<int>(I);
 			}
 			else
 			{
-				if (CmpName(Pattern.CPtr(),strTmpBuf.CPtr(),true))
+				if (CmpName(Pattern.c_str(),strTmpBuf.c_str(),true))
 					return static_cast<int>(I);
 			}
 		}
@@ -3065,7 +3065,7 @@ void VMenu::SortItems(bool Reverse, int Offset)
 		string strName2(b->strName);
 		RemoveChar(strName1, L'&', true);
 		RemoveChar(strName2, L'&', true);
-		bool Less = StrCmpI(strName1.CPtr()+Param.Offset, strName2.CPtr() + Param.Offset) < 0;
+		bool Less = StrCmpI(strName1.c_str()+Param.Offset, strName2.c_str() + Param.Offset) < 0;
 		return Param.Reverse? !Less : Less;
 	}, Reverse, Offset);
 }

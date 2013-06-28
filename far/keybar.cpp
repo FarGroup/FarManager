@@ -138,7 +138,7 @@ void KeyBar::DisplayObject()
 			Label = Items[KBL_MAIN][i].Title;
 		}
 
-		if (Label.Contains(L'|'))
+		if (Label.find(L'|') != string::npos)
 		{
 			auto LabelList(StringToList(Label, STLF_NOTRIM|STLF_NOUNQUOTE, L"|"));
 			if(!LabelList.empty())
@@ -150,8 +150,8 @@ void KeyBar::DisplayObject()
 				{
 					strLabelTest=Label;
 					strLabelTest += Label2;
-					if (strLabelTest.GetLength() <= static_cast<size_t>(LabelWidth))
-						if (Label2.GetLength() > strLabel2.GetLength())
+					if (strLabelTest.size() <= static_cast<size_t>(LabelWidth))
+						if (Label2.size() > strLabel2.size())
 							strLabel2 = Label2;
 				});
 
@@ -183,7 +183,7 @@ void KeyBar::ClearKeyTitles(bool Custom)
 	{
 		std::for_each(RANGE(i, j)
 		{
-			(Custom? j.CustomTitle : j.Title).Clear();
+			(Custom? j.CustomTitle : j.Title).clear();
 		});
 	});
 }
@@ -244,7 +244,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
 
-	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.CPtr(), Global->Opt->strLanguage.CPtr()) || Area != CustomArea))
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.c_str(), Global->Opt->strLanguage.c_str()) || Area != CustomArea))
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
@@ -272,7 +272,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			if (!i.CustomTitle.IsEmpty())
+			if (!i.CustomTitle.empty())
 			{
 				i.Title = i.CustomTitle;
 			}

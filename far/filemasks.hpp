@@ -48,7 +48,7 @@ public:
 
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
-	bool IsEmpty() const;
+	bool empty() const;
 	void ErrorMessage() const;
 
 private:
@@ -65,7 +65,7 @@ private:
 		bool Set(const string& Masks);
 		bool operator ==(const string& Name) const;
 		void Free();
-		bool IsEmpty() const;
+		bool empty() const;
 
 	private:
 		std::list<string> Masks;

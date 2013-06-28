@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void NTPath::Transform()
 {
 	string& Data = *this;
-	if (!Data.IsEmpty())
+	if (!Data.empty())
 	{
 		if(!HasPathPrefix(Data))
 		{
@@ -56,7 +56,7 @@ void NTPath::Transform()
 				Data=Prefix+Data;
 			}
 		}
-		if(Data.At(5) == L':')
+		if(Data.at(5) == L':')
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fails on Win2k if a drive letter is in upper case
@@ -107,7 +107,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	std::any_of(RANGE(PathTypes, i) -> bool
 	{
 		intptr_t n = i.re.GetBracketsCount();
-		if(i.re.Search(path.CPtr(), m, n))
+		if(i.re.Search(path.c_str(), m, n))
 		{
 			if(DirectoryOffset)
 			{
@@ -152,15 +152,15 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	if (Path[0] == L'\\')
 		return false;
 
-	const wchar_t* pC = wcschr(Path.CPtr(), L':');
+	const wchar_t* pC = wcschr(Path.c_str(), L':');
 
 	if (!pC)
 		return false;
 
-	if ((pC - Path.CPtr()) == 1) // односимвольные префиксы не поддерживаются
+	if ((pC - Path.c_str()) == 1) // односимвольные префиксы не поддерживаются
 		return false;
 
-	const wchar_t* pS = FirstSlash(Path.CPtr());
+	const wchar_t* pS = FirstSlash(Path.c_str());
 
 	if (pS && pS < pC)
 		return false;
@@ -182,7 +182,7 @@ bool TestCurrentDirectory(const string& TestDir)
 {
 	string strCurDir;
 
-	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.CPtr(),TestDir.CPtr()))
+	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.c_str(),TestDir.c_str()))
 		return true;
 
 	return false;
@@ -363,7 +363,7 @@ BOOL AddEndSlash(string &strPath)
 
 BOOL AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer(strPath.GetLength()+2);
+	wchar_t *lpwszPath = strPath.GetBuffer(strPath.size()+2);
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
 	strPath.ReleaseBuffer();
 	return Result;
@@ -390,9 +390,9 @@ BOOL DeleteEndSlash(string &strPath, bool AllEndSlash)
 {
 	BOOL Ret=FALSE;
 
-	if (!strPath.IsEmpty())
+	if (!strPath.empty())
 	{
-		size_t len=strPath.GetLength();
+		size_t len=strPath.size();
 		wchar_t *lpwszPath = strPath.GetBuffer();
 
 		while (len && IsSlash(lpwszPath[--len]))
@@ -420,9 +420,9 @@ bool CutToSlash(string &strStr, bool bInclude)
 			return false;
 
 		if (bInclude)
-			strStr.SetLength(pos);
+			strStr.resize(pos);
 		else
-			strStr.SetLength(pos+1);
+			strStr.resize(pos+1);
 
 		return true;
 	}
@@ -491,11 +491,7 @@ string &CutToFolderNameIfFolder(string &strPath)
 
 string &ReplaceSlashToBSlash(string &strStr)
 {
-	for (size_t i = 0; i != strStr.GetLength(); ++i)
-	{
-		if (strStr[i] == L'/')
-			strStr[i] = L'\\';
-	}
+	std::replace(ALL_RANGE(strStr), L'/', L'\\');
 	return strStr;
 }
 
@@ -526,7 +522,7 @@ const wchar_t *LastSlash(const wchar_t *String)
 
 bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
 {
-	for (size_t p = StartPos; p < Str.GetLength(); p++)
+	for (size_t p = StartPos; p < Str.size(); p++)
 	{
 		if (IsSlash(Str[p]))
 		{
@@ -540,7 +536,7 @@ bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
 
 bool FindLastSlash(size_t &Pos, const string &Str)
 {
-	for (size_t p = Str.GetLength(); p > 0; p--)
+	for (size_t p = Str.size(); p > 0; p--)
 	{
 		if (IsSlash(Str[p - 1]))
 		{
@@ -564,7 +560,7 @@ string ExtractPathRoot(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (PathRootLen)
-		return string(Path.CPtr(), PathRootLen).Append(L'\\');
+		return string(Path.c_str(), PathRootLen).append(L'\\');
 	else
 		return string();
 }
@@ -583,7 +579,7 @@ string ExtractFileName(const string &Path)
 	if (p <= PathRootLen && PathRootLen)
 		return string();
 
-	return string(Path.CPtr() + p, Path.GetLength() - p);
+	return string(Path.c_str() + p, Path.size() - p);
 }
 
 string ExtractFilePath(const string &Path)
@@ -596,19 +592,19 @@ string ExtractFilePath(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-		return string(Path.CPtr(), PathRootLen).Append(L'\\');
+		return string(Path.c_str(), PathRootLen).append(L'\\');
 
-	return string(Path.CPtr(), p);
+	return string(Path.c_str(), p);
 }
 
 bool IsRootPath(const string &Path)
 {
 	size_t PathRootLen = GetPathRootLength(Path);
 
-	if (Path.GetLength() == PathRootLen)
+	if (Path.size() == PathRootLen)
 		return true;
 
-	if (Path.GetLength() == PathRootLen + 1 && IsSlash(Path[Path.GetLength() - 1]))
+	if (Path.size() == PathRootLen + 1 && IsSlash(Path[Path.size() - 1]))
 		return true;
 
 	return false;
@@ -618,7 +614,7 @@ bool PathStartsWith(const string &Path, const string &Start)
 {
 	string PathPart(Start);
 	DeleteEndSlash(PathPart, true);
-	return Path.IsSubStrAt(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
+	return Path.compare(0, PathPart.size(), PathPart) == 0 && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 
 int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
@@ -629,11 +625,11 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 		TargetPath.ReleaseBuffer();
 
 		if (PathStartsWith(NtPath, TargetPath))
-			return static_cast<int>(TargetPath.GetLength());
+			return static_cast<int>(TargetPath.size());
 
 		// path could be an Object Manager symlink, try to resolve
 		UNICODE_STRING ObjName;
-		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
+		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.size() * sizeof(wchar_t));
 		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
@@ -651,13 +647,13 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 
 			if (Res == STATUS_SUCCESS)
 			{
-				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+				TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 			}
 
 			Global->ifn->NtClose(hSymLink);
 
 			if (PathStartsWith(NtPath, TargetPath))
-				return static_cast<int>(TargetPath.GetLength());
+				return static_cast<int>(TargetPath.size());
 		}
 	}
 

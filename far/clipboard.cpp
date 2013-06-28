@@ -349,9 +349,9 @@ wchar_t *Clipboard::Paste()
 				{
 					while(*Start)
 					{
-						size_t l1=strClipText.GetLength();
+						size_t l1=strClipText.size();
 						strClipText+=Start;
-						Start+=strClipText.GetLength()-l1;
+						Start+=strClipText.size()-l1;
 						Start++;
 						if(*Start)
 						{
@@ -363,9 +363,9 @@ wchar_t *Clipboard::Paste()
 				{
 					while(*StartA)
 					{
-						size_t l1=strClipText.GetLength();
+						size_t l1=strClipText.size();
 						strClipText+=StartA;
-						StartA+=strClipText.GetLength()-l1;
+						StartA+=strClipText.size()-l1;
 						StartA++;
 						if(*StartA)
 						{
@@ -373,9 +373,9 @@ wchar_t *Clipboard::Paste()
 						}
 					}
 				}
-				if(!strClipText.IsEmpty())
+				if(!strClipText.empty())
 				{
-					ClipText = DuplicateString(strClipText.CPtr());
+					ClipText = DuplicateString(strClipText.c_str());
 				}
 				GlobalUnlock(hClipData);
 			}
@@ -493,7 +493,7 @@ int CopyToClipboard(const string& Data)
 	if (!clip.Open())
 		return FALSE;
 
-	BOOL ret = clip.Copy(Data.CPtr());
+	BOOL ret = clip.Copy(Data.c_str());
 
 	clip.Close();
 

@@ -75,9 +75,9 @@ static const wchar_t* FolderShortcutsKey = L"Shortcuts";
 static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
 
-ShortcutItem::ShortcutItem()
+ShortcutItem::ShortcutItem():
+	PluginGuid(FarGuid)
 {
-	PluginGuid=FarGuid;
 }
 
 bool ShortcutItem::operator==(const ShortcutItem& Item) const
@@ -115,21 +115,21 @@ Shortcuts::Shortcuts()
 					ShortcutItem Item;
 					Item.strFolder = strValue;
 
-					ValueName.Clear();
+					ValueName.clear();
 					ValueName << RecTypeName[PSCR_RT_NAME] << j;
 					cfg->GetValue(key, ValueName, Item.strName);
 
-					ValueName.Clear();
+					ValueName.clear();
 					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
 					string strPluginGuid;
 					cfg->GetValue(key, ValueName, strPluginGuid);
 					if(!StrToGuid(strPluginGuid,Item.PluginGuid)) Item.PluginGuid=FarGuid;
 
-					ValueName.Clear();
+					ValueName.clear();
 					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
 					cfg->GetValue(key, ValueName, Item.strPluginFile);
 
-					ValueName.Clear();
+					ValueName.clear();
 					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
 					cfg->GetValue(key, ValueName, Item.strPluginData);
 					i.emplace_back(Item);
@@ -164,28 +164,28 @@ Shortcuts::~Shortcuts()
 					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
 					cfg->SetValue(key, ValueName, j.strFolder);
 
-					ValueName.Clear();
+					ValueName.clear();
 					ValueName << RecTypeName[PSCR_RT_NAME] << index;
 					cfg->SetValue(key, ValueName, j.strName);
 
 					if(j.PluginGuid != FarGuid)
 					{
-						ValueName.Clear();
+						ValueName.clear();
 						ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
 						string strPluginGuid=GuidToStr(j.PluginGuid);
 						cfg->SetValue(key, ValueName, strPluginGuid);
 					}
 
-					if(!j.strPluginFile.IsEmpty())
+					if(!j.strPluginFile.empty())
 					{
-						ValueName.Clear();
+						ValueName.clear();
 						ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
 						cfg->SetValue(key, ValueName, j.strPluginFile);
 					}
 
-					if(!j.strPluginData.IsEmpty())
+					if(!j.strPluginData.empty())
 					{
-						ValueName.Clear();
+						ValueName.clear();
 						ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
 						cfg->SetValue(key, ValueName, j.strPluginData);
 					}
@@ -223,11 +223,11 @@ static string MakeName(const ShortcutItem& Item)
 
 	if (Item.PluginGuid == FarGuid)
 	{
-		if(!Item.strName.IsEmpty())
+		if(!Item.strName.empty())
 		{
 			result = Item.strName;
 		}
-		else if(!Item.strFolder.IsEmpty())
+		else if(!Item.strFolder.empty())
 		{
 			result = Item.strFolder;
 		}
@@ -237,7 +237,7 @@ static string MakeName(const ShortcutItem& Item)
 	{
 		if ((plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)))
 		{
-			if(!Item.strName.IsEmpty())
+			if(!Item.strName.empty())
 			{
 				result = Item.strName;
 			}
@@ -246,28 +246,28 @@ static string MakeName(const ShortcutItem& Item)
 				result = plugin->GetTitle();
 				string TechInfo;
 
-				if (!Item.strPluginFile.IsEmpty())
-					TechInfo.Append(MSG(MFSShortcutPluginFile)).Append(L" ").Append(Item.strPluginFile + ", ");
-				if (!Item.strFolder.IsEmpty())
-					TechInfo.Append(MSG(MFSShortcutPath)).Append(L" ").Append(Item.strFolder + ", ");
-				if (!Item.strPluginData.IsEmpty()) {
+				if (!Item.strPluginFile.empty())
+					TechInfo.append(MSG(MFSShortcutPluginFile)).append(L" ").append(Item.strPluginFile + ", ");
+				if (!Item.strFolder.empty())
+					TechInfo.append(MSG(MFSShortcutPath)).append(L" ").append(Item.strFolder + ", ");
+				if (!Item.strPluginData.empty()) {
 					string t = Item.strPluginData;
-					for (size_t i = 0; i < t.GetLength(); ++i) // cut not printable plugindata
+					for (size_t i = 0; i < t.size(); ++i) // cut not printable plugindata
 						if (t[i] < L' ')
-							t.SetLength(i);
-					if (!t.IsEmpty())
-						TechInfo.Append(MSG(MFSShortcutPluginData)).Append(L" ").Append(t + ", ");
+							t.resize(i);
+					if (!t.empty())
+						TechInfo.append(MSG(MFSShortcutPluginData)).append(L" ").append(t + ", ");
 				}
 
-				if (!TechInfo.IsEmpty())
+				if (!TechInfo.empty())
 				{
-					TechInfo.SetLength(TechInfo.GetLength() - 2);
+					TechInfo.resize(TechInfo.size() - 2);
 					result += L" (" + TechInfo + L")";
 				}
 			}
 		}
 		else
-			result.Clear();
+			result.clear();
 	}
 	return result;
 }
@@ -279,12 +279,12 @@ static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw
 	{
 		MenuItemEx ListItem={};
 		ListItem.strName = MakeName(*i);
-		if (ListItem.strName.IsEmpty())
+		if (ListItem.strName.empty())
 			continue;
 
 		ListItem.UserData = &i;
 		ListItem.UserDataSize = sizeof(i);
-		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.IsEmpty())
+		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.empty())
 		{
 			if (ListItem.strName != L"--")
 			{
@@ -294,7 +294,7 @@ static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw
 				continue;
 			}
 
-			ListItem.strName.Clear();
+			ListItem.strName.clear();
 			ListItem.Flags = LIF_SEPARATOR;
 		}
 		Menu.AddItem(&ListItem);
@@ -495,7 +495,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 	Builder.AddEditField(&NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
 	if (Item.PluginGuid != FarGuid)
 	{
-		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().CPtr());
+		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().c_str());
 		Builder.AddText(MFSShortcutPluginFile);
 		Builder.AddEditField(&NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
 		Builder.AddText(MFSShortcutPluginData);
@@ -520,9 +520,9 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 			string strTemp(NewItem.strFolder);
 			apiExpandEnvironmentStrings(NewItem.strFolder,strTemp);
 
-			if ((!raw || !strTemp.IsEmpty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+			if ((!raw || !strTemp.empty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
-				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.CPtr(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.c_str(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 			}
 		}
 

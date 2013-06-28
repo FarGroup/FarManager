@@ -536,7 +536,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 			HiMenu->AddItem(&HiMenuItem);
 		}
 
-		HiMenuItem.strName.Clear();
+		HiMenuItem.strName.clear();
 		HiMenu->AddItem(&HiMenuItem);
 
 		if (j<3)

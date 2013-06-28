@@ -57,7 +57,7 @@ struct SIDCacheItem
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer.CPtr(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
+				LookupAccountSid(Computer.c_str(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -65,7 +65,7 @@ struct SIDCacheItem
 					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
 					if (AccountName && DomainName)
 					{
-						if(LookupAccountSid(Computer.CPtr(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
+						if(LookupAccountSid(Computer.c_str(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
 						{
 							strAccountName.ReleaseBuffer(AccountLength);
 							strDomainName.ReleaseBuffer(DomainLength);
@@ -85,7 +85,7 @@ struct SIDCacheItem
 			}
 		}
 
-		if(strUserName.IsEmpty())
+		if(strUserName.empty())
 		{
 			Sid.reset();
 		}
@@ -114,7 +114,7 @@ void SIDCacheFlush()
 bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
 {
 	SIDCacheItem NewItem(Computer, Sid);
-	if(!NewItem.strUserName.IsEmpty())
+	if(!NewItem.strUserName.empty())
 	{
 		if(!SIDCache)
 		{
@@ -155,13 +155,13 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 		return TRUE;
 	}
 	*/
-	strOwner.Clear();
+	strOwner.clear();
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	NTPath strName(Name);
 	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
-	if (GetFileSecurity(strName.CPtr(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
+	if (GetFileSecurity(strName.c_str(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{
 		PSID pOwner;
 		BOOL OwnerDefaulted;
@@ -229,7 +229,7 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 bool SetOwner(const string& Object, const string& Owner)
 {
 	NTPath strNtObject(Object);
-	bool Result = SetOwnerInternal(strNtObject.CPtr(), Owner.CPtr());
+	bool Result = SetOwnerInternal(strNtObject.c_str(), Owner.c_str());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetOwner(strNtObject, Owner);

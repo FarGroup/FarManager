@@ -110,7 +110,7 @@ void NamesList::GetCurDir(string &strDir)
 
 void NamesList::SetCurDir(const string& Dir)
 {
-	if (StrCmpI(strCurrentDir.CPtr(),Dir.CPtr()) || !TestCurrentDirectory(Dir))
+	if (StrCmpI(strCurrentDir.c_str(),Dir.c_str()) || !TestCurrentDirectory(Dir))
 	{
 		strCurrentDir = Dir;
 		PrepareDiskPath(strCurrentDir);
@@ -120,6 +120,6 @@ void NamesList::SetCurDir(const string& Dir)
 void NamesList::Init()
 {
 	Names.clear();
-	strCurrentDir.Clear();
+	strCurrentDir.clear();
 	CurrentName = Names.end();
 }

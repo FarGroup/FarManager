@@ -39,7 +39,7 @@ struct diz_less
 {
 	bool operator() (const string& a, const string& b) const
 	{
-		int r =  StrCmpI(a.CPtr(), b.CPtr());
+		int r =  StrCmpI(a.c_str(), b.c_str());
 		return r < 0;
 	}
 };

@@ -79,7 +79,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 		}
 		else
 		{
-			size_t offset = wPtrCmd-strCommandText.CPtr();
+			size_t offset = wPtrCmd-strCommandText.c_str();
 			wchar_t *CommandText = strCommandText.GetBuffer();
 			wchar_t *PtrCmd = CommandText+offset;
 			// прокинем "if exist"
@@ -148,7 +148,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 		while (Global->Db->AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
 		{
-			strCommand.Clear();
+			strCommand.clear();
 
 			if (FMask.Set(strMask,FMF_SILENT))
 			{
@@ -156,14 +156,14 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 				{
 					Global->Db->AssocConfig()->GetCommand(id,Mode,strCommand);
 
-					if (!strCommand.IsEmpty())
+					if (!strCommand.empty())
 					{
 						Global->Db->AssocConfig()->GetDescription(id,strDescription);
 						CommandCount++;
 					}
 				}
 
-				if (strCommand.IsEmpty())
+				if (strCommand.empty())
 					continue;
 			}
 
@@ -177,14 +177,14 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			ActualCmdCount++;
 
-			if (!strDescription.IsEmpty())
+			if (!strDescription.empty())
 				SubstFileName(nullptr,strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
 			else
 				strDescription = strCommandText;
 
 			TypesMenuItem.strName = strDescription;
 			TypesMenuItem.SetSelect(Index==1);
-			TypesMenu.SetUserData(strCommand.CPtr(), (strCommand.GetLength()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
+			TypesMenu.SetUserData(strCommand.c_str(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -209,7 +209,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
+	bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
 	// Снова все "подставлено", теперь проверим условия "if exist"
 	if (ExtractIfExistCommand(strCommand))
@@ -217,7 +217,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		PreserveLongName PreserveName(ShortName, PreserveLFN);
 		RemoveExternalSpaces(strCommand);
 
-		if (!strCommand.IsEmpty())
+		if (!strCommand.empty())
 		{
 			Global->CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed, false,
 				Mode == FILETYPE_VIEW || Mode == FILETYPE_ALTVIEW || Mode == FILETYPE_EDIT || Mode == FILETYPE_ALTEDIT);
@@ -226,16 +226,16 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		}
 	}
 
-	if (!strListName.IsEmpty())
+	if (!strListName.empty())
 		apiDeleteFile(strListName);
 
-	if (!strAnotherListName.IsEmpty())
+	if (!strAnotherListName.empty())
 		apiDeleteFile(strAnotherListName);
 
-	if (!strShortListName.IsEmpty())
+	if (!strShortListName.empty())
 		apiDeleteFile(strShortListName);
 
-	if (!strAnotherShortListName.IsEmpty())
+	if (!strAnotherShortListName.empty())
 		apiDeleteFile(strAnotherShortListName);
 
 	return true;
@@ -266,7 +266,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	string strFullExecStr = Command;
 	{
 		int PreserveLFN=SubstFileName(nullptr,strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
+		bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
 		// Снова все "подставлено", теперь проверим условия "if exist"
 		if (!ExtractIfExistCommand(strExecStr))
@@ -287,17 +287,17 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}
 
-	if (!strListName.IsEmpty())
+	if (!strListName.empty())
 		apiDeleteFile(strListName);
 
-	if (!strAnotherListName.IsEmpty())
+	if (!strAnotherListName.empty())
 		apiDeleteFile(strAnotherListName);
 
 
-	if (!strShortListName.IsEmpty())
+	if (!strShortListName.empty())
 		apiDeleteFile(strShortListName);
 
-	if (!strAnotherShortListName.IsEmpty())
+	if (!strAnotherShortListName.empty())
 		apiDeleteFile(strAnotherShortListName);
 }
 
@@ -321,9 +321,9 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 		{
 			Global->Db->AssocConfig()->GetDescription(id,strTitle);
 
-			size_t AddLen=strTitle.GetLength() - HiStrlen(strTitle);
+			size_t AddLen=strTitle.size() - HiStrlen(strTitle);
 
-			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.CPtr(),BoxSymbols[BS_V1]);
+			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.c_str(),BoxSymbols[BS_V1]);
 		}
 
 		strMenuText += strMask;
@@ -486,7 +486,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 	Global->Db->AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
-	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.CPtr(),MSG(MDelete),MSG(MCancel)))
+	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.c_str(),MSG(MDelete),MSG(MCancel)))
 	{
 		Global->Db->AssocConfig()->DelType(DeletePos);
 		return true;

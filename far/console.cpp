@@ -201,13 +201,13 @@ virtual bool GetTitle(string &strTitle) const override
 
 virtual bool SetTitle(const string& Title) const override
 {
-	return SetConsoleTitle(Title.CPtr())!=FALSE;
+	return SetConsoleTitle(Title.c_str())!=FALSE;
 }
 
 virtual bool GetKeyboardLayoutName(string &strName) const override
 {
 	bool Result=false;
-	strName.Clear();
+	strName.clear();
 	wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
 	if (p && Global->ifn->GetConsoleKeyboardLayoutNameW(p))
 	{
@@ -399,7 +399,7 @@ virtual bool Write(LPCWSTR Buffer) const override
 
 virtual bool Write(const string& Buffer) const override
 {
-	return Write(Buffer.CPtr(), Buffer.GetLength());
+	return Write(Buffer.data(), Buffer.size());
 }
 
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const override

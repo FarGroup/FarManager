@@ -230,7 +230,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.CPtr())!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.c_str())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -304,7 +304,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.CPtr())!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.c_str())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -551,8 +551,8 @@ void ShellSetFileAttributesMsg(const string& Name)
 	static int Width=54;
 	int WidthTemp;
 
-	if (!Name.IsEmpty())
-		WidthTemp=std::max(static_cast<int>(Name.GetLength()), 54);
+	if (!Name.empty())
+		WidthTemp=std::max(static_cast<int>(Name.size()), 54);
 	else
 		Width=WidthTemp=54;
 
@@ -561,10 +561,10 @@ void ShellSetFileAttributesMsg(const string& Name)
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
-	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.CPtr());
+	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.c_str());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1 = Name.CPtr();
+		Global->PreRedraw->top().Param.Param1 = Name.c_str();
 	}
 }
 
@@ -581,9 +581,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 		if(Utc2Local(*OriginalFileTime,ost))
 		{
 			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate.CPtr(),DateN,ARRAYSIZE(DateN),GetDateSeparator());
+			GetFileDateAndTime(OSrcDate.c_str(),DateN,ARRAYSIZE(DateN),GetDateSeparator());
 			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime.CPtr(),TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
+			GetFileDateAndTime(OSrcTime.c_str(),TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
 			SYSTEMTIME st={};
 
 			switch (GetDateFormat())
@@ -892,16 +892,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						{
 							string path(SrcPanel->GetCurDir());
 							bool share = false;
-							if (path.GetLength() >= 5 && path[0] == L'\\' && path[1] == L'\\') // \\ServerOrDomainName\Dfsname
+							if (path.size() >= 5 && path[0] == L'\\' && path[1] == L'\\') // \\ServerOrDomainName\Dfsname
 							{
-								size_t pos;
-								share = path.Pos(pos, L'\\', 2) && pos > 2 && pos < path.GetLength()-1 && !path.Pos(pos,L'\\',pos+1);
+								size_t pos = path.find(L'\\', 2);
+								share = pos != string::npos && pos > 2 && pos < path.size()-1 && (pos = path.find(L'\\', pos + 1)) == string::npos;
 							}
 							if (share)
 							{
 								path += L"\\" + strSelName;
 								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.CPtr(), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.c_str(), nullptr, nullptr, 3, (LPBYTE *)&pData);
 								if (NERR_Success == ns)
 								{
 									KnownReparsePoint = true;
@@ -914,7 +914,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
 									{
 										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L"\\" + pData->Storage[i].ShareName;
-										NameList.Items[i].Text = Links[i].CPtr();
+										NameList.Items[i].Text = Links[i].c_str();
 										NameList.Items[i].Flags = (pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? LIF_CHECKED | LIF_SELECTED : LIF_NONE;
 										if (pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)	NameList.Items[i].Flags |= LIF_DISABLE;
 									}
@@ -1012,12 +1012,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						GetPathRoot(strSelName,strRoot);
 						DeleteEndSlash(strRoot);
 						Links[0] = strRoot + Links[0];
-						NameList.Items[0].Text = Links[0].CPtr();
+						NameList.Items[0].Text = Links[0].c_str();
 
 						for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
 						{
 							Links[i] = strRoot + Links[i];
-							NameList.Items[i].Text = Links[i].CPtr();
+							NameList.Items[i].Text = Links[i].c_str();
 						}
 
 						FindClose(hFind);
@@ -1081,14 +1081,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[i.first].Selected = BSTATE_3STATE;
 			});
 
-			AttrDlg[SA_EDIT_WDATE].strData.Clear();
-			AttrDlg[SA_EDIT_WTIME].strData.Clear();
-			AttrDlg[SA_EDIT_CDATE].strData.Clear();
-			AttrDlg[SA_EDIT_CTIME].strData.Clear();
-			AttrDlg[SA_EDIT_ADATE].strData.Clear();
-			AttrDlg[SA_EDIT_ATIME].strData.Clear();
-			AttrDlg[SA_EDIT_XDATE].strData.Clear();
-			AttrDlg[SA_EDIT_XTIME].strData.Clear();
+			AttrDlg[SA_EDIT_WDATE].strData.clear();
+			AttrDlg[SA_EDIT_WTIME].strData.clear();
+			AttrDlg[SA_EDIT_CDATE].strData.clear();
+			AttrDlg[SA_EDIT_CTIME].strData.clear();
+			AttrDlg[SA_EDIT_ADATE].strData.clear();
+			AttrDlg[SA_EDIT_ATIME].strData.clear();
+			AttrDlg[SA_EDIT_XDATE].strData.clear();
+			AttrDlg[SA_EDIT_XTIME].strData.clear();
 			AttrDlg[SA_BUTTON_ORIGINAL].Flags|=DIF_DISABLE;
 			AttrDlg[SA_TEXT_NAME].strData = MSG(MSetAttrSelectedObjects);
 
@@ -1139,7 +1139,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					{
 						string strCurOwner;
 						GetFileOwner(strComputerName,strSelName,strCurOwner);
-						if(AttrDlg[SA_EDIT_OWNER].strData.IsEmpty())
+						if(AttrDlg[SA_EDIT_OWNER].strData.empty())
 						{
 							AttrDlg[SA_EDIT_OWNER].strData=strCurOwner;
 						}
@@ -1209,21 +1209,21 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		if (FolderPresent && !Global->Opt->SetAttrFolderRules)
 		{
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=BSTATE_CHECKED;
-			AttrDlg[SA_EDIT_WDATE].strData.Clear();
-			AttrDlg[SA_EDIT_WTIME].strData.Clear();
-			AttrDlg[SA_EDIT_CDATE].strData.Clear();
-			AttrDlg[SA_EDIT_CTIME].strData.Clear();
-			AttrDlg[SA_EDIT_ADATE].strData.Clear();
-			AttrDlg[SA_EDIT_ATIME].strData.Clear();
-			AttrDlg[SA_EDIT_XDATE].strData.Clear();
-			AttrDlg[SA_EDIT_XTIME].strData.Clear();
+			AttrDlg[SA_EDIT_WDATE].strData.clear();
+			AttrDlg[SA_EDIT_WTIME].strData.clear();
+			AttrDlg[SA_EDIT_CDATE].strData.clear();
+			AttrDlg[SA_EDIT_CTIME].strData.clear();
+			AttrDlg[SA_EDIT_ADATE].strData.clear();
+			AttrDlg[SA_EDIT_ATIME].strData.clear();
+			AttrDlg[SA_EDIT_XDATE].strData.clear();
+			AttrDlg[SA_EDIT_XTIME].strData.clear();
 
 			for (size_t i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 			{
 				AttrDlg[i].Selected=BSTATE_3STATE;
 				AttrDlg[i].Flags|=DIF_3STATE;
 			}
-			AttrDlg[SA_EDIT_OWNER].strData.Clear();
+			AttrDlg[SA_EDIT_OWNER].strData.clear();
 		}
 
 		DlgParam.DialogMode=((SelCount==1&&!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount==1?MODE_FOLDER:MODE_MULTIPLE));
@@ -1252,13 +1252,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		case SA_BUTTON_SET:
 			{
 				//reparse point editor
-				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.CPtr(),strLinkName.CPtr()))
+				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.c_str(),strLinkName.c_str()))
 				{
 					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
 					Unquote(strTarget);
 					if(!ModifyReparsePoint(strSelName, strTarget))
 					{
-						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.CPtr(),MSG(MHOk));
+						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.c_str(),MSG(MHOk));
 					}
 				}
 
@@ -1266,9 +1266,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				std::for_each(CONST_RANGE(Times, i)
 				{
-					LPWSTR TimePtr=AttrDlg[i].strData.GetBuffer();
-					TimePtr[8]=GetTimeSeparator();
-					AttrDlg[i].strData.ReleaseBuffer(AttrDlg[i].strData.GetLength());
+					AttrDlg[i].strData[8]=GetTimeSeparator();
 				});
 
 				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
@@ -1287,7 +1285,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					});
 
-					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr()))
+					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str()))
 					{
 						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 						if(Result==SETATTR_RET_SKIPALL)
@@ -1438,7 +1436,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								break;
 						}
 
-						if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr()))
+						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str()))
 						{
 							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 							if(Result==SETATTR_RET_SKIPALL)
@@ -1579,7 +1577,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.CPtr(),AttrDlg[SA_EDIT_OWNER].strData.CPtr())))
+									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str())))
 									{
 										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 										if(Result==SETATTR_RET_SKIPALL)
@@ -1728,7 +1726,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AddEndSlash(strFullName);
 				}
-				seInfo.lpFile = strFullName.CPtr();
+				seInfo.lpFile = strFullName.c_str();
 				if (Global->WinVer() < _WIN32_WINNT_VISTA && ParsePath(seInfo.lpFile) == PATH_DRIVELETTERUNC)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
@@ -1736,7 +1734,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
 				apiGetCurrentDirectory(strCurDir);
-				seInfo.lpDirectory=strCurDir.CPtr();
+				seInfo.lpDirectory=strCurDir.c_str();
 				ShellExecuteExW(&seInfo);
 			}
 			break;

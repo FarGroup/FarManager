@@ -73,7 +73,7 @@ InfoList::InfoList():
 	OldWrapType(nullptr)
 {
 	Type=INFO_PANEL;
-	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)
+	if (Global->Opt->InfoPanel.strShowStatusInfo.size() == 0)
 	{
 		std::for_each(RANGE(SectionState, i)
 		{
@@ -115,8 +115,8 @@ void InfoList::Update(int Mode)
 
 string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-	strTitle.Clear();
-	strTitle.Append(L" ").Append(MSG(MInfoTitle)).Append(" ");
+	strTitle.clear();
+	strTitle.append(L" ").append(MSG(MInfoTitle)).append(" ");
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
 }
@@ -127,7 +127,7 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 	DrawSeparator(CurY);
 	SetColor(COL_PANELTEXT);
 	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY);
+	GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,CurY);
 	PrintText(strTitle);
 	GotoXY(X1+1,CurY);
 	PrintText(SectionState[Id].Show?L"[-]":L"[+]");
@@ -156,9 +156,9 @@ void InfoList::DisplayObject()
 	SetColor(Focus? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 	GetTitle(strTitle);
 
-	if (!strTitle.IsEmpty())
+	if (!strTitle.empty())
 	{
-		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
+		GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);
 		Text(strTitle);
 	}
 
@@ -213,7 +213,7 @@ void InfoList::DisplayObject()
 		if (GetUserName(UserNameBuffer, &dwSize))
 		{
 			LPUSER_INFO_1 UserInfo = nullptr;
-			if(NetUserGetInfo(nullptr, strUserName.CPtr(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
+			if(NetUserGetInfo(nullptr, strUserName.c_str(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
 			{
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
@@ -249,7 +249,7 @@ void InfoList::DisplayObject()
 	{
 		strCurDir = AnotherPanel->GetCurDir();
 
-		if (strCurDir.IsEmpty())
+		if (strCurDir.empty())
 			apiGetCurrentDirectory(strCurDir);
 
 		/*
@@ -482,7 +482,7 @@ void InfoList::DisplayObject()
 
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
 				{
-					if (!strOutStr.IsEmpty())
+					if (!strOutStr.empty())
 						strOutStr += L" ";
 					strOutStr += MSG(MInfoPowerStatusBCCharging);
 				}
@@ -650,7 +650,7 @@ void InfoList::SelectShowMode(void)
 				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
 				break;
 		}
-		Global->Opt->InfoPanel.strShowStatusInfo.Clear();
+		Global->Opt->InfoPanel.strShowStatusInfo.clear();
 		std::for_each(RANGE(SectionState, i)
 		{
 			Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
@@ -685,7 +685,7 @@ int InfoList::ProcessKey(int Key)
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 
-			if (!strDizFileName.IsEmpty())
+			if (!strDizFileName.empty())
 			{
 				strCurDir = Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir();
 				FarChDir(strCurDir);
@@ -705,18 +705,18 @@ int InfoList::ProcessKey(int Key)
 			strCurDir = AnotherPanel->GetCurDir();
 			FarChDir(strCurDir);
 
-			if (!strDizFileName.IsEmpty())
+			if (!strDizFileName.empty())
 			{
 				new FileEditor(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
 			}
-			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.IsEmpty())
+			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.empty())
 			{
 				string strArgName;
-				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.CPtr();
+				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.c_str();
 
 				while ((p = GetCommaWord(p,strArgName)) )
 				{
-					if (!wcspbrk(strArgName.CPtr(), L"*?"))
+					if (!wcspbrk(strArgName.c_str(), L"*?"))
 					{
 						new FileEditor(strArgName,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
 						break;
@@ -885,7 +885,7 @@ void InfoList::PrintInfo(const string& str)
 
 	string strStr = str;
 	TruncStr(strStr,MaxLength);
-	int Length=(int)strStr.GetLength();
+	int Length=(int)strStr.size();
 	int NewX=X2-Length-1;
 
 	if (NewX>X1 && NewX>WhereX())
@@ -910,11 +910,11 @@ bool InfoList::ShowDirDescription(int YPos)
 
 	string strDizDir(AnotherPanel->GetCurDir());
 
-	if (!strDizDir.IsEmpty())
+	if (!strDizDir.empty())
 		AddEndSlash(strDizDir);
 
 	string strArgName;
-	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.CPtr();
+	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.c_str();
 
 	while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
 	{
@@ -966,11 +966,11 @@ bool InfoList::ShowPluginDescription(int YPos)
 			string strTitle;
 
 			if (InfoLine->Text && *InfoLine->Text)
-				strTitle.Append(L" ").Append(InfoLine->Text).Append(L" ");
+				strTitle.append(L" ").append(InfoLine->Text).append(L" ");
 
 			DrawSeparator(Y);
 			TruncStr(strTitle,X2-X1-3);
-			GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
+			GotoXY(X1+(X2-X1-(int)strTitle.size())/2,Y);
 			SetColor(COL_PANELTEXT);
 			PrintText(strTitle);
 		}
@@ -1000,7 +1000,7 @@ void InfoList::CloseFile()
 		DizView=nullptr;
 	}
 
-	strDizFileName.Clear();
+	strDizFileName.clear();
 }
 
 int InfoList::OpenDizFile(const string& DizFile,int YPos)
@@ -1047,7 +1047,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	DizView->Show();
 
 	string strTitle;
-	strTitle.Append(L" ").Append(PointToName(strDizFileName)).Append(L" ");
+	strTitle.append(L" ").append(PointToName(strDizFileName)).append(L" ");
 	int CurY=YPos-1;
 	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
 	return TRUE;

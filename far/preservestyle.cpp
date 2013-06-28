@@ -60,7 +60,7 @@ static int GetPeserveCaseStyleMask(const string& strStr)
 {
 	int Result = 15;
 
-	for (size_t I = 0; I < strStr.GetLength(); I++)
+	for (size_t I = 0; I < strStr.size(); I++)
 	{
 		int Upper = IsUpper(strStr[I]);
 		int Lower = IsLower(strStr[I]);
@@ -91,7 +91,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 			if (Sep != 0 && strStr[I] != Sep)
 			{
 				PreserveStyleToken T;
-				T.Token = strStr.SubStr(From, Length);
+				T.Token = strStr.substr(From, Length);
 				T.PrependChar = 0;
 				T.TypeMask = 1 << UNKNOWN;
 				Result.emplace_back(T);
@@ -107,7 +107,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 		if (Seps[I-From])
 		{
 			PreserveStyleToken T;
-			T.Token = strStr.SubStr(L, I-L);
+			T.Token = strStr.substr(L, I-L);
 			T.PrependChar = 0;
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
@@ -120,7 +120,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 		if (!Seps[I-From-1] && IsLower(strStr[I-1]) && IsUpper(strStr[I]))
 		{
 			PreserveStyleToken T;
-			T.Token = strStr.SubStr(L, I-L);
+			T.Token = strStr.substr(L, I-L);
 			T.PrependChar = 0;
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
@@ -132,7 +132,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 	if (L < From+Length)
 	{
 		PreserveStyleToken T;
-		T.Token = strStr.SubStr(L, From+Length-L);
+		T.Token = strStr.substr(L, From+Length-L);
 		T.PrependChar = 0;
 		if (L >= From + 1 && Seps[L-1-From])
 			T.PrependChar = strStr[L-1];
@@ -151,7 +151,7 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 			{
 				Result.clear();
 				PreserveStyleToken T;
-				T.Token = strStr.SubStr(From, Length);
+				T.Token = strStr.substr(From, Length);
 				T.PrependChar = 0;
 				T.TypeMask = 1 << UNKNOWN;
 				Result.emplace_back(T);
@@ -196,7 +196,7 @@ static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 
 	if (Handler)
 	{
-		for (size_t I = 0; I < strStr.GetLength(); I++)
+		for (size_t I = 0; I < strStr.size(); I++)
 		{
 			Handler(I);
 		}
@@ -287,11 +287,11 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			return false;
 	}
 
-	if (static_cast<size_t>(Position) >= StrSize || Str.IsEmpty() || ReplaceStr.IsEmpty())
+	if (static_cast<size_t>(Position) >= StrSize || Str.empty() || ReplaceStr.empty())
 		return false;
 
 
-	auto StrTokens = PreserveStyleTokenize(Str, 0, Str.GetLength());
+	auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
 
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I)<StrSize); Reverse ? I--:I++)
 	{
@@ -306,7 +306,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 		auto j = StrTokens.cbegin();
 		auto LastItem = StrTokens.cend();
 		--LastItem;
-		while (((j != LastItem) || (j == LastItem && T < j->Token.GetLength()))
+		while (((j != LastItem) || (j == LastItem && T < j->Token.size()))
 			&& Source[Idx])
 		{
 			bool Sep = (static_cast<size_t>(I) < Idx && Source[I+1] && IsPreserveStyleTokenSeparator(Source[Idx])
@@ -315,7 +315,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 
 			if (Sep)
 			{
-				if (T == j->Token.GetLength())
+				if (T == j->Token.size())
 				{
 					Idx++;
 					T = 0;
@@ -335,7 +335,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 
 			if (Sep && T != 0)
 			{
-				if (T == j->Token.GetLength())
+				if (T == j->Token.size())
 				{
 					T = 0;
 					++j;
@@ -348,7 +348,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 				}
 			}
 
-			if (T >= j->Token.GetLength())
+			if (T >= j->Token.size())
 			{
 				Matched = false;
 				break;
@@ -373,7 +373,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 		if (WholeWords && !(Idx >= StrSize || IsSpace(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
 			continue;
 		
-		if (Matched && T == j->Token.GetLength() && j == LastItem)
+		if (Matched && T == j->Token.size() && j == LastItem)
 		{
 			auto SourceTokens = PreserveStyleTokenize(Source, I, Idx-I);
 			
@@ -381,12 +381,12 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			if(Same)
 			{
 				for(auto SrcI = SourceTokens.cbegin(), StrI = StrTokens.cbegin(); Same && SrcI != SourceTokens.cend(); ++SrcI, ++StrI)
-					Same &= SrcI->Token.GetLength() == StrI->Token.GetLength();
+					Same &= SrcI->Token.size() == StrI->Token.size();
 			}
 
 			if (Same)
 			{
-				auto ReplaceStrTokens = PreserveStyleTokenize(ReplaceStr, 0, ReplaceStr.GetLength());
+				auto ReplaceStrTokens = PreserveStyleTokenize(ReplaceStr, 0, ReplaceStr.size());
 
 				if (ReplaceStrTokens.size() == SourceTokens.size())
 				{
@@ -451,7 +451,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 
 				}
 
-				ReplaceStr.Clear();
+				ReplaceStr.clear();
 				std::for_each(CONST_RANGE(ReplaceStrTokens, i)
 				{
 					if (i.PrependChar)

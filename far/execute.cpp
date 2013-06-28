@@ -177,11 +177,11 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 
 static bool IsProperProgID(const string& ProgID)
 {
-	if (!ProgID.IsEmpty())
+	if (!ProgID.empty())
 	{
 		HKEY hProgID;
 
-		if (RegOpenKey(HKEY_CLASSES_ROOT, ProgID.CPtr(), &hProgID) == ERROR_SUCCESS)
+		if (RegOpenKey(HKEY_CLASSES_ROOT, ProgID.c_str(), &hProgID) == ERROR_SUCCESS)
 		{
 			RegCloseKey(hProgID);
 			return true;
@@ -248,7 +248,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	Internal = false;
 
-	if (!Module.IsEmpty())
+	if (!Module.empty())
 	{
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
@@ -308,7 +308,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 						{
 							string Dest;
 
-							if (apiSearchPath(Path->CPtr(), strFullName, Ext->CPtr(), Dest))
+							if (apiSearchPath(Path->c_str(), strFullName, Ext->c_str(), Dest))
 							{
 								DWORD Attr=apiGetFileAttributes(Dest);
 
@@ -331,7 +331,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					{
 						string Dest;
 
-						if (apiSearchPath(nullptr, strFullName, Ext->CPtr(), Dest))
+						if (apiSearchPath(nullptr, strFullName, Ext->c_str(), Dest))
 						{
 							DWORD Attr=apiGetFileAttributes(Dest);
 
@@ -346,7 +346,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				}
 
 				// третий проход - лезем в реестр в "App Paths"
-				if (!Result && Global->Opt->Exec.ExecuteUseAppPath && !strFullName.Contains(L'\\'))
+				if (!Result && Global->Opt->Exec.ExecuteUseAppPath && strFullName.find(L'\\') == string::npos)
 				{
 					static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 					// В строке Module заменить исполняемый модуль на полный путь, который
@@ -385,7 +385,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 							}
 						}
 						HKEY hKey;
-						if (RegOpenKeyEx(RootFindKey[i],strFullName.CPtr(), 0, samDesired, &hKey)==ERROR_SUCCESS)
+						if (RegOpenKeyEx(RootFindKey[i],strFullName.c_str(), 0, samDesired, &hKey)==ERROR_SUCCESS)
 						{
 							int RegResult=RegQueryStringValue(hKey, L"", strFullName, L"");
 							RegCloseKey(hKey);
@@ -412,7 +412,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 							{
 								HKEY hKey;
 
-								if (RegOpenKeyEx(i, strFullName.CPtr(), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+								if (RegOpenKeyEx(i, strFullName.c_str(), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 								{
 									int RegResult=RegQueryStringValue(hKey, L"", strFullName, L"");
 									RegCloseKey(hKey);
@@ -508,14 +508,14 @@ static bool RunAsSupported(LPCWSTR Name)
 {
 	bool Result = false;
 	string Extension(PointToExt(Name));
-	if(!Extension.IsEmpty())
+	if(!Extension.empty())
 	{
 		string strType;
 		if(GetShellType(Extension, strType))
 		{
 			HKEY hKey;
 
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strType.Append(L"\\shell\\runas\\command").CPtr(),&hKey)==ERROR_SUCCESS)
+			if (RegOpenKey(HKEY_CLASSES_ROOT,strType.append(L"\\shell\\runas\\command").c_str(),&hKey)==ERROR_SUCCESS)
 			{
 				RegCloseKey(hKey);
 				Result = true;
@@ -540,7 +540,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	Error = ERROR_SUCCESS;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-	if (!(ExtPtr=wcsrchr(FileName.CPtr(),L'.')))
+	if (!(ExtPtr=wcsrchr(FileName.c_str(),L'.')))
 		return nullptr;
 
 	if (!GetShellType(ExtPtr, strValue))
@@ -548,7 +548,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	HKEY hKey;
 
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue.CPtr(),0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue.c_str(),0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 	{
 		int nResult=RegQueryValueEx(hKey,L"IsShortcut",nullptr,nullptr,nullptr,nullptr);
 		RegCloseKey(hKey);
@@ -559,7 +559,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	strValue += L"\\shell";
 
-	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.CPtr(),&hKey)!=ERROR_SUCCESS)
+	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.c_str(),&hKey)!=ERROR_SUCCESS)
 		return nullptr;
 
 	static string strAction;
@@ -568,7 +568,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	if (RetQuery == ERROR_SUCCESS)
 	{
-		RetPtr = EmptyToNull(strAction.CPtr());
+		RetPtr = EmptyToNull(strAction.c_str());
 		LONG RetEnum = ERROR_SUCCESS;
 		auto ActionList(StringToList(strAction, STLF_UNIQUE));
 
@@ -581,12 +581,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 				strNewValue += *i;
 				strNewValue += command_action;
 
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.CPtr(),&hOpenKey)==ERROR_SUCCESS)
+				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.c_str(),&hOpenKey)==ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
 					strValue += *i;
 					strAction = *i;
-					RetPtr = strAction.CPtr();
+					RetPtr = strAction.c_str();
 					RetEnum = ERROR_NO_MORE_ITEMS;
 				}
 				if (RetEnum != ERROR_SUCCESS)
@@ -621,11 +621,11 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		strNewValue += strAction;
 		strNewValue += command_action;
 
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.CPtr(),&hOpenKey)==ERROR_SUCCESS)
+		if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.c_str(),&hOpenKey)==ERROR_SUCCESS)
 		{
 			RegCloseKey(hOpenKey);
 			strValue += strAction;
-			RetPtr = strAction.CPtr();
+			RetPtr = strAction.c_str();
 			RetEnum = ERROR_NO_MORE_ITEMS;
 		} /* if */
 
@@ -641,11 +641,11 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 				strNewValue += strAction;
 				strNewValue += command_action;
 
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.CPtr(),&hOpenKey)==ERROR_SUCCESS)
+				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.c_str(),&hOpenKey)==ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
 					strValue += strAction;
-					RetPtr = strAction.CPtr();
+					RetPtr = strAction.c_str();
 					RetEnum = ERROR_NO_MORE_ITEMS;
 				} /* if */
 			} /* if */
@@ -659,12 +659,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		strValue += command_action;
 
 		// а теперь проверим ГУЕвость запускаемой проги
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.CPtr(),&hKey)==ERROR_SUCCESS)
+		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.c_str(),&hKey)==ERROR_SUCCESS)
 		{
 			RetQuery=RegQueryStringValue(hKey, L"", strNewValue, L"");
 			RegCloseKey(hKey);
 
-			if (RetQuery == ERROR_SUCCESS && !strNewValue.IsEmpty())
+			if (RetQuery == ERROR_SUCCESS && !strNewValue.empty())
 			{
 				apiExpandEnvironmentStrings(strNewValue,strNewValue);
 				wchar_t *Ptr = strNewValue.GetBuffer();
@@ -703,7 +703,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
-	strType.Clear();
+	strType.clear();
 
 	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
 	{
@@ -714,7 +714,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		{
 			wchar_t *p;
 
-			if (pAAR->QueryCurrentDefault(Ext.CPtr(), aType, AL_EFFECTIVE, &p) == S_OK)
+			if (pAAR->QueryCurrentDefault(Ext.c_str(), aType, AL_EFFECTIVE, &p) == S_OK)
 			{
 				bVistaType = true;
 				strType = p;
@@ -739,10 +739,10 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		if (aType == AT_FILEEXTENSION)
 		{
 			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
-			strExplorerTypeKey.Append(Ext);
+			strExplorerTypeKey.append(Ext);
 
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey.CPtr(), &hUserKey) == ERROR_SUCCESS)
+			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey.c_str(), &hUserKey) == ERROR_SUCCESS)
 			{
 				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 				{
@@ -752,7 +752,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.IsEmpty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext.CPtr(), &hCRKey) == ERROR_SUCCESS))
+		if (strType.empty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext.c_str(), &hCRKey) == ERROR_SUCCESS))
 		{
 			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 			{
@@ -760,10 +760,10 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			}
 		}
 
-		if (strType.IsEmpty() && hUserKey)
+		if (strType.empty() && hUserKey)
 			SearchExtHandlerFromList(hUserKey, strType);
 
-		if (strType.IsEmpty() && hCRKey)
+		if (strType.empty() && hCRKey)
 			SearchExtHandlerFromList(hCRKey, strType);
 
 		if (hUserKey)
@@ -773,7 +773,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			RegCloseKey(hCRKey);
 	}
 
-	return !strType.IsEmpty();
+	return !strType.empty();
 }
 
 /*
@@ -814,7 +814,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			Silent = true;
 		}
-		if (strNewCmdPar.IsEmpty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (strNewCmdPar.empty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
 			DirectRun = true;
@@ -824,7 +824,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	string strComspec;
 	apiGetEnvironmentVariable(L"COMSPEC", strComspec);
-	if (strComspec.IsEmpty() && !DirectRun)
+	if (strComspec.empty() && !DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
 		return -1;
@@ -860,12 +860,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					}
 				}
 
-				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.CPtr(),L"ECHO.",5)) // вариант "echo."
+				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.c_str(),L"ECHO.",5)) // вариант "echo."
 				{
-					strNewCmdStr.Replace(4,1,L' ');
+					strNewCmdStr.replace(4,1,L' ');
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
 
-					if (strNewCmdPar.IsEmpty())
+					if (strNewCmdPar.empty())
 						strNewCmdStr+=L'.';
 
 					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
@@ -905,7 +905,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	string strCurDir;
 	apiGetCurrentDirectory(strCurDir);
-	seInfo.lpDirectory=strCurDir.CPtr();
+	seInfo.lpDirectory=strCurDir.c_str();
 	seInfo.nShow = SW_SHOWNORMAL;
 
 	string strFarTitle;
@@ -944,9 +944,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
 			strFarTitle += strNewCmdStr;
-			if (!strNewCmdPar.IsEmpty())
+			if (!strNewCmdPar.empty())
 			{
-				strFarTitle.Append(L" ").Append(strNewCmdPar);
+				strFarTitle.append(L" ").append(strNewCmdPar);
 			}
 		}
 		else
@@ -959,10 +959,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	string ComSpecParams(L"/C ");
 	if (DirectRun)
 	{
-		seInfo.lpFile = strNewCmdStr.CPtr();
-		if(!strNewCmdPar.IsEmpty())
+		seInfo.lpFile = strNewCmdStr.c_str();
+		if(!strNewCmdPar.empty())
 		{
-			seInfo.lpParameters = strNewCmdPar.CPtr();
+			seInfo.lpParameters = strNewCmdPar.c_str();
 		}
 		//Maximus: рушилась dwSubSystem
 		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -974,23 +974,23 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	else
 	{
 		QuoteSpace(strNewCmdStr);
-		bool bDoubleQ = wcspbrk(strNewCmdStr.CPtr(), L"&<>()@^|=;, ") != nullptr;
-		if (!strNewCmdPar.IsEmpty() || bDoubleQ)
+		bool bDoubleQ = wcspbrk(strNewCmdStr.c_str(), L"&<>()@^|=;, ") != nullptr;
+		if (!strNewCmdPar.empty() || bDoubleQ)
 		{
 			ComSpecParams += L"\"";
 		}
 		ComSpecParams += strNewCmdStr;
-		if (!strNewCmdPar.IsEmpty())
+		if (!strNewCmdPar.empty())
 		{
-			ComSpecParams.Append(L" ").Append(strNewCmdPar);
+			ComSpecParams.append(L" ").append(strNewCmdPar);
 		}
-		if (!strNewCmdPar.IsEmpty() || bDoubleQ)
+		if (!strNewCmdPar.empty() || bDoubleQ)
 		{
 			ComSpecParams += L"\"";
 		}
 
-		seInfo.lpFile = strComspec.CPtr();
-		seInfo.lpParameters = ComSpecParams.CPtr();
+		seInfo.lpFile = strComspec.c_str();
+		seInfo.lpParameters = ComSpecParams.c_str();
 		seInfo.lpVerb = nullptr;
 	}
 
@@ -1017,7 +1017,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir);
 		string RealPath;
 		ConvertNameToReal(strCurDir, RealPath);
-		SetCurrentDirectory(RealPath.CPtr());
+		SetCurrentDirectory(RealPath.c_str());
 	}
 
 	DWORD dwError = 0;
@@ -1046,7 +1046,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			}
 			if (AlwaysWaitFinish || !SeparateWindow)
 			{
-				if (Global->Opt->ConsoleDetachKey.IsEmpty())
+				if (Global->Opt->ConsoleDetachKey.empty())
 				{
 					WaitForSingleObject(hProcess,INFINITE);
 				}
@@ -1225,14 +1225,14 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		if(DirectRun)
 		{
 			Items[0] = MSG(MCannotExecute);
-			Items[1] = strNewCmdStr.CPtr();
+			Items[1] = strNewCmdStr.c_str();
 			Items[2] = MSG(MOk);
 			ItemsSize = 3;
 		}
 		else
 		{
 			Items[0] = MSG(MCannotInvokeComspec);
-			Items[1] = strComspec.CPtr();
+			Items[1] = strComspec.c_str();
 			Items[2] = MSG(MCheckComspecVar);
 			Items[3] = MSG(MOk);
 			ItemsSize = 4;
@@ -1264,12 +1264,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 */
 const wchar_t *PrepareOSIfExist(const string& CmdLine)
 {
-	if (CmdLine.IsEmpty())
+	if (CmdLine.empty())
 		return nullptr;
 
 	string strCmd;
 	string strExpandedStr;
-	const wchar_t *PtrCmd=CmdLine.CPtr(), *CmdStart;
+	const wchar_t *PtrCmd=CmdLine.c_str(), *CmdStart;
 	int Not=FALSE;
 	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
 	// > 0 - эсть такая конструкция
@@ -1342,10 +1342,10 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 			{
-				strCmd.Copy(CmdStart,PtrCmd-CmdStart);
+				strCmd.assign(CmdStart,PtrCmd-CmdStart);
 				Unquote(strCmd);
 
-//_SVS(SysLog(L"Cmd='%s'", strCmd.CPtr()));
+//_SVS(SysLog(L"Cmd='%s'", strCmd.c_str()));
 				if (apiExpandEnvironmentStrings(strCmd,strExpandedStr))
 				{
 					string strFullPath;
@@ -1365,7 +1365,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 					size_t DirOffset = 0;
 					ParsePath(strExpandedStr, &DirOffset);
-					if (wcspbrk(strExpandedStr.CPtr() + DirOffset, L"*?")) // это маска?
+					if (wcspbrk(strExpandedStr.c_str() + DirOffset, L"*?")) // это маска?
 					{
 						FAR_FIND_DATA wfd;
 
@@ -1416,7 +1416,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 				{
-					strCmd.Copy(CmdStart,PtrCmd-CmdStart);
+					strCmd.assign(CmdStart,PtrCmd-CmdStart);
 
 					DWORD ERet=apiGetEnvironmentVariable(strCmd,strExpandedStr);
 
@@ -1457,7 +1457,7 @@ bool ProcessOSAliases(string &strStr)
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
 	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
-	int nSize=(int)strNewCmdStr.GetLength()+4096;
+	int nSize=(int)strNewCmdStr.size()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
 	int ret=Global->Console->GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
 

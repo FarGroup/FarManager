@@ -108,10 +108,10 @@ void FileList::UpdateIfRequired()
 
 void ReadFileNamesMsg(const string& Msg)
 {
-	Message(0,0,MSG(MReadingTitleFiles),Msg.CPtr());
+	Message(0,0,MSG(MReadingTitleFiles),Msg.c_str());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=(void*)Msg.CPtr();
+		Global->PreRedraw->top().Param.Param1=(void*)Msg.c_str();
 	}
 }
 
@@ -165,7 +165,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
 				if (!apiIsDiskInDrive(strOldCurDir))
-					IfGoHome(strOldCurDir.At(0));
+					IfGoHome(strOldCurDir.at(0));
 
 				/* При смене каталога путь не изменился */
 			}
@@ -371,7 +371,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					else
 					{
 						TruncStr(strReadMsg,TitleLength-2);
-						int MsgLength=(int)strReadMsg.GetLength();
+						int MsgLength=(int)strReadMsg.size();
 						GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
 						Global->FS << L" "<<strReadMsg<<L" ";
 					}
@@ -475,13 +475,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	SortFileList(FALSE);
 
-	if (!strLastSel.IsEmpty())
+	if (!strLastSel.empty())
 		LastSelPosition = FindFile(strLastSel, FALSE);
-	if (!strGetSel.IsEmpty())
+	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.CPtr(), strCurName.CPtr()))
-		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.c_str(), strCurName.c_str()))
+		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
 	/* $ 13.02.2002 DJ
@@ -664,7 +664,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	TotalFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
-	strPluginDizName.Clear();
+	strPluginDizName.clear();
 
 	if (!ListData.empty())
 	{
@@ -817,13 +817,13 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	SortFileList(FALSE);
 
-	if (!strLastSel.IsEmpty())
+	if (!strLastSel.empty())
 		LastSelPosition = FindFile(strLastSel, FALSE);
-	if (!strGetSel.IsEmpty())
+	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.CPtr(),strCurName.CPtr()))
-		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.c_str(),strCurName.c_str()))
+		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
 	SetTitle();
@@ -876,7 +876,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 				{
 					string strFileName = CurPanelData->FileName;
 
-					if (!StrCmpI(strFileName.CPtr(),Info.DescrFiles[I]))
+					if (!StrCmpI(strFileName.c_str(),Info.DescrFiles[I]))
 					{
 						string strTempDir, strDizName;
 

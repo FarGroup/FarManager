@@ -99,7 +99,7 @@ struct FileListItem
 		SortGroup = 0;
 		DizText = nullptr;
 		DeleteDiz = 0;
-		strOwner.Clear();
+		strOwner.clear();
 		CustomColumnData = nullptr;
 		CustomColumnNumber = 0;
 		CRC32 = 0;
@@ -111,10 +111,10 @@ struct FileListItem
 		FileSize = 0;
 		AllocationSize = 0;
 		StreamsSize = 0;
-		strName.Clear();
-		strShortName.Clear();
+		strName.clear();
+		strShortName.clear();
 		ReparseTag=0;
-		strCustomData.Clear();
+		strCustomData.clear();
 	}
 
 	FileListItem& operator=(const FileListItem &fliCopy)
@@ -215,7 +215,7 @@ class FileList:public Panel
 		int ShiftSelection;
 		int MouseSelection;
 		bool SelectedFirst;
-		int IsEmpty; // указывает на полностью пустую колонку
+		int empty; // указывает на полностью пустую колонку
 		int AccessTimeUpdateRequired;
 
 		int UpdateRequired,UpdateRequiredMode,UpdateDisabled;

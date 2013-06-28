@@ -59,10 +59,10 @@ struct StackHelpData
 		Flags=0;
 		TopStr=0;
 		CurX=CurY=0;
-		strHelpMask.Clear();
-		strHelpPath.Clear();
-		strHelpTopic.Clear();
-		strSelTopic.Clear();
+		strHelpMask.clear();
+		strHelpPath.clear();
+		strHelpTopic.clear();
+		strSelTopic.clear();
 	}
 };
 

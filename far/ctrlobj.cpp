@@ -174,7 +174,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	if (Flags&1)
 	{
 		string strOut(Global->Version());
-		strOut.Append(L"\n").Append(Global->Copyright()).Append(L"\n");
+		strOut.append(L"\n").append(Global->Copyright()).append(L"\n");
 		Global->Console->Write(strOut);
 		Global->Console->Commit();
 	}

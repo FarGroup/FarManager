@@ -71,9 +71,9 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
-	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.CPtr(),&fmt,nullptr,0);
+	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.c_str(),&fmt,nullptr,0);
 	wchar_t* lpwszDest=strDest.GetBuffer(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.CPtr(),&fmt,lpwszDest,Size);
+	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.c_str(),&fmt,lpwszDest,Size);
 	strDest.ReleaseBuffer();
 	return strDest;
 }
@@ -105,15 +105,15 @@ static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 
 static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 {
-	size_t l = strStr.GetLength();
+	size_t l = strStr.size();
 
-	if (strStr.At(0) != QuoteChar)
+	if (strStr.at(0) != QuoteChar)
 	{
-		strStr.Insert(0,QuoteChar);
+		strStr.insert(0,QuoteChar);
 		l++;
 	}
 
-	if (l==1 || strStr.At(l-1) != QuoteChar)
+	if (l==1 || strStr.at(l-1) != QuoteChar)
 	{
 		strStr += QuoteChar;
 	}
@@ -128,7 +128,7 @@ wchar_t * InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.CPtr()) )
+	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.c_str()) )
 		InsertQuote(Str);
 
 	return Str;
@@ -143,9 +143,9 @@ string& InsertQuote(string &strStr)
 string& InsertRegexpQuote(string &strStr)
 {
 	//выражение вида /regexp/i не дополняем слэшами
-	if (strStr.IsEmpty() || strStr[0] != L'/')
+	if (strStr.empty() || strStr[0] != L'/')
 	{
-		strStr.Insert(0, L'/');
+		strStr.insert(0, L'/');
 		strStr += L'/';
 	}
 
@@ -154,7 +154,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr.CPtr(), Global->Opt->strQuotedSymbols.CPtr()) )
+	if (wcspbrk(strStr.c_str(), Global->Opt->strQuotedSymbols.c_str()) )
 		InsertQuote(strStr);
 
 	return strStr;
@@ -172,7 +172,7 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 
 string& QuoteSpaceOnly(string &strStr)
 {
-	if (strStr.Contains(L' '))
+	if (strStr.find(L' ') != string::npos)
 		InsertQuote(strStr);
 
 	return(strStr);
@@ -181,7 +181,7 @@ string& QuoteSpaceOnly(string &strStr)
 
 string &QuoteLeadingSpace(string &strStr)
 {
-	size_t len = strStr.GetLength();
+	size_t len = strStr.size();
 	if (len > 0 && (L' ' == strStr[0] || L' ' == strStr[len-1]))
 		InsertQuote(strStr);
 
@@ -366,12 +366,12 @@ wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 
 string& RemoveLeadingSpaces(string &strStr)
 {
-	const wchar_t *ChPtr = strStr.CPtr();
+	const wchar_t *ChPtr = strStr.c_str();
 
 	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
 		;
 
-	strStr.Remove(0,ChPtr-strStr.CPtr());
+	strStr.Remove(0,ChPtr-strStr.c_str());
 	return strStr;
 }
 
@@ -399,16 +399,16 @@ wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 
 string& RemoveTrailingSpaces(string &strStr)
 {
-	if (strStr.IsEmpty())
+	if (strStr.empty())
 		return strStr;
 
-	const wchar_t *Str = strStr.CPtr();
-	const wchar_t *ChPtr = Str + strStr.GetLength() - 1;
+	const wchar_t *Str = strStr.c_str();
+	const wchar_t *ChPtr = Str + strStr.size() - 1;
 
 	for (; ChPtr >= Str && (IsSpace(*ChPtr) || IsEol(*ChPtr)); ChPtr--)
 		;
 
-	strStr.SetLength(ChPtr < Str ? 0 : ChPtr-Str+1);
+	strStr.resize(ChPtr < Str ? 0 : ChPtr-Str+1);
 	return strStr;
 }
 
@@ -430,7 +430,7 @@ string& RemoveExternalSpaces(string &strStr)
 */
 string& RemoveUnprintableCharacters(string &strStr)
 {
-	for (size_t i = 0; i != strStr.GetLength(); ++i)
+	for (size_t i = 0; i != strStr.size(); ++i)
 	{
 		if (IsEol(strStr[i]))
 			strStr[i] = L' ';
@@ -468,7 +468,7 @@ string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
 
 string& CenterStr(const string& Src, string &strDest, int Length)
 {
-	int SrcLength=static_cast<int>(Src.GetLength());
+	int SrcLength=static_cast<int>(Src.size());
 	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
 	if (SrcLength >= Length)
@@ -476,7 +476,7 @@ string& CenterStr(const string& Src, string &strDest, int Length)
 		/* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
 		   и мы получали обрезанные строки */
 		strDest = strTempStr;
-		strDest.SetLength(Length);
+		strDest.resize(Length);
 	}
 	else
 	{
@@ -489,7 +489,7 @@ string& CenterStr(const string& Src, string &strDest, int Length)
 
 string& RightStr(const string& Src, string &strDest, int Length)
 {
-	int SrcLength = static_cast<int>(Src.GetLength());
+	int SrcLength = static_cast<int>(Src.size());
 	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
 	if (SrcLength >= Length)
@@ -497,7 +497,7 @@ string& RightStr(const string& Src, string &strDest, int Length)
 		/* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
 		   и мы получали обрезанные строки */
 		strDest = strTempStr;
-		strDest.SetLength(Length);
+		strDest.resize(Length);
 	}
 	else
 	{
@@ -532,19 +532,19 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 			while (IsSpace(*Src))
 				Src++;
 
-			strWord.Copy(StartPtr,WordLen);
+			strWord.assign(StartPtr,WordLen);
 			return Src;
 		}
 	}
 
-	strWord.Copy(StartPtr,WordLen);
+	strWord.assign(StartPtr,WordLen);
 	return Src;
 }
 
 
 bool IsCaseMixed(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc.CPtr();
+	const wchar_t *lpwszSrc = strSrc.c_str();
 
 	while (*lpwszSrc && !IsAlpha(*lpwszSrc))
 		lpwszSrc++;
@@ -560,7 +560,7 @@ bool IsCaseMixed(const string &strSrc)
 
 bool IsCaseLower(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc.CPtr();
+	const wchar_t *lpwszSrc = strSrc.c_str();
 
 	while (*lpwszSrc)
 	{
@@ -611,11 +611,11 @@ void Unquote(string &strStr)
 
 void UnquoteExternal(string &strStr)
 {
-	size_t len = strStr.GetLength();
+	size_t len = strStr.size();
 
-	if (len > 1 && strStr.At(0) == L'\"' && strStr.At(len-1) == L'\"')
+	if (len > 1 && strStr.at(0) == L'\"' && strStr.at(len-1) == L'\"')
 	{
-		strStr.SetLength(len-1);
+		strStr.resize(len-1);
 		strStr.LShift(1);
 	}
 }
@@ -716,12 +716,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.CPtr());
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.c_str());
 
 		return strDestStr;
 	}
@@ -731,7 +731,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	else
 		strStr << Sz;
 
-	if ((!UseMinSizeIndex && strStr.GetLength()<=static_cast<size_t>(Width)) || Width<5)
+	if ((!UseMinSizeIndex && strStr.size()<=static_cast<size_t>(Width)) || Width<5)
 	{
 		if (ShowBytesIndex)
 		{
@@ -741,12 +741,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[0][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[0][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.CPtr());
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.c_str());
 	}
 	else
 	{
@@ -769,16 +769,16 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 			}
 			else
 			{
-				strStr.Clear();
+				strStr.clear();
 				strStr << Sz;
 			}
 		}
-		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
+		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
 
 		if (Economic)
-			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
 		else
-			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
 	}
 
 	return strDestStr;
@@ -808,11 +808,11 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Return - количество замен
 int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count,bool IgnoreCase)
 {
-	const int LenFindStr=static_cast<int>(FindStr.GetLength());
+	const int LenFindStr=static_cast<int>(FindStr.size());
 	if ( !LenFindStr || !Count )
 		return 0;
-	const int LenReplStr=static_cast<int>(ReplStr.GetLength());
-	size_t L=strStr.GetLength();
+	const int LenReplStr=static_cast<int>(ReplStr.size());
+	size_t L=strStr.size();
 
 	const int Delta = LenReplStr-LenFindStr;
 	const int AllocDelta = Delta > 0 ? Delta*10 : 0;
@@ -821,12 +821,12 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 	int J=0;
 	while (I+LenFindStr <= L)
 	{
-		int Res=IgnoreCase? StrCmpNI(strStr.CPtr() + I, FindStr.CPtr(), LenFindStr) : StrCmpN(strStr.CPtr() + I, FindStr.CPtr(), LenFindStr);
+		int Res=IgnoreCase? StrCmpNI(strStr.c_str() + I, FindStr.c_str(), LenFindStr) : StrCmpN(strStr.c_str() + I, FindStr.c_str(), LenFindStr);
 
 		if (!Res)
 		{
 			wchar_t *Str;
-			if (L+Delta+1 > strStr.GetSize())
+			if (L+Delta+1 > strStr.capacity())
 				Str = strStr.GetBuffer(L+AllocDelta);
 			else
 				Str = strStr.GetBuffer();
@@ -836,7 +836,7 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 			else if (Delta < 0)
 				wmemmove(Str+I,Str+I-Delta,L-I+Delta+1);
 
-			wmemcpy(Str+I,ReplStr.CPtr(),LenReplStr);
+			wmemcpy(Str+I,ReplStr.c_str(),LenReplStr);
 			I += LenReplStr;
 
 			L+=Delta;
@@ -910,15 +910,15 @@ string& FarFormatText(const string& SrcText,     // источник
 	const wchar_t *breakchar;
 	breakchar = Break?Break:L"\n";
 
-	if (SrcText.IsEmpty())
+	if (SrcText.empty())
 	{
-		strDestText.Clear();
+		strDestText.clear();
 		return strDestText;
 	}
 
 	string strSrc = SrcText; //copy string in case of SrcText == strDestText
 
-	if (!wcspbrk(strSrc.CPtr(),breakchar) && strSrc.GetLength() <= static_cast<size_t>(Width))
+	if (!wcspbrk(strSrc.c_str(),breakchar) && strSrc.size() <= static_cast<size_t>(Width))
 	{
 		strDestText = strSrc;
 		return strDestText;
@@ -926,7 +926,7 @@ string& FarFormatText(const string& SrcText,     // источник
 
 	long i=0, l=0, pgr=0;
 	wchar_t *newtext;
-	const wchar_t *text= strSrc.CPtr();
+	const wchar_t *text= strSrc.c_str();
 	long linelength = Width;
 	int breakcharlen = StrLength(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
@@ -939,7 +939,7 @@ string& FarFormatText(const string& SrcText,     // источник
 
 		if (!newtext)
 		{
-			strDestText.Clear();
+			strDestText.clear();
 			return strDestText;
 		}
 
@@ -1001,11 +1001,11 @@ string& FarFormatText(const string& SrcText,     // источник
 	{
 		int last = 0;
 		/* Multiple character line break */
-		newtext = new wchar_t[strSrc.GetLength() * (breakcharlen + 1 ) + 1];
+		newtext = new wchar_t[strSrc.size() * (breakcharlen + 1 ) + 1];
 
 		if (!newtext)
 		{
-			strDestText.Clear();
+			strDestText.clear();
 			return strDestText;
 		}
 
@@ -1191,12 +1191,12 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {
 //проверяет если формат строки такой: [0-9]+[BbKkMmGgTtPpEe]?
-	const wchar_t *p = FileSizeStr.CPtr();
+	const wchar_t *p = FileSizeStr.c_str();
 
 	while (iswdigit(*p))
 		p++;
 
-	if (p == FileSizeStr.CPtr())
+	if (p == FileSizeStr.c_str())
 		return false;
 
 	if (*p)
@@ -1216,8 +1216,8 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	unsigned __int64 n = _wtoi64(FileSizeStr.CPtr());
-	wchar_t c = Upper(FileSizeStr[FileSizeStr.GetLength()-1]);
+	unsigned __int64 n = _wtoi64(FileSizeStr.c_str());
+	wchar_t c = Upper(FileSizeStr[FileSizeStr.size()-1]);
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1278,7 +1278,7 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 				if (*ptrConvStr != L' ')
 				{
 					WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
-					size_t l=strTemp.GetLength();
+					size_t l=strTemp.size();
 					wchar_t *Temp=strTemp.GetBuffer(l+2);
 					Temp[l]=(wchar_t)wcstoul(Hex,nullptr,16)&0xFFFF;
 					strTemp.ReleaseBuffer(l+1);
@@ -1307,7 +1307,7 @@ wchar_t GetDecimalSeparator()
 string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
 {
 	string result;
-	size_t pos=0,length=ReplaceStr.GetLength();
+	size_t pos=0,length=ReplaceStr.size();
 
 	while (pos<length)
 	{
@@ -1335,7 +1335,7 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const R
 			{
 				if (index<Count&&Match[index].end>=0)
 				{
-					string bracket(SearchStr.CPtr()+Match[index].start,Match[index].end-Match[index].start);
+					string bracket(SearchStr.c_str()+Match[index].start,Match[index].end-Match[index].start);
 					result+=bracket;
 				}
 
@@ -1379,7 +1379,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	*SearchLength = 0;
 
 	if (!WordDiv)
-		WordDiv=Global->Opt->strWordDiv.CPtr();
+		WordDiv=Global->Opt->strWordDiv.c_str();
 
 	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Position, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
@@ -1395,7 +1395,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			return false;
 	}
 
-	if ((Position<StrSize || (!Position && !StrSize)) && !Str.IsEmpty())
+	if ((Position<StrSize || (!Position && !StrSize)) && !Str.empty())
 	{
 		if (Regexp)
 		{
@@ -1437,7 +1437,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 		if (Position==StrSize)
 			return false;
 
-		int Length = *SearchLength = (int)Str.GetLength();
+		int Length = *SearchLength = (int)Str.size();
 
 		for (int I=Position; (Reverse && I>=0) || (!Reverse && I<StrSize); Reverse ? I--:I++)
 		{
@@ -1449,12 +1449,12 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 					// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 					// то хотя бы сохранить регистр первой буквы.
-					if (PreserveStyle && !ReplaceStr.IsEmpty() && IsAlpha(ReplaceStr[0]) && IsAlpha(Source[I]))
+					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
 					{
 						if (IsUpper(Source[I]))
-							ReplaceStr.GetBuffer()[0] = Upper(ReplaceStr[0]);
+							ReplaceStr.front() = Upper(ReplaceStr.front());
 						if (IsLower(Source[I]))
-							ReplaceStr.GetBuffer()[0] = Lower(ReplaceStr[0]);
+							ReplaceStr.front() = Lower(ReplaceStr.front());
 					}
 
 					return true;
@@ -1522,16 +1522,17 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 		{
 			BitFlags Flags(InitFlags);
 			string strSeparators(InitSeparators);
+			static const wchar_t Brackets[] = L"[]";
 
-			if (!List.IsEmpty() &&
-				(Flags.Check(STLF_NOUNQUOTE) || !strSeparators.Contains(L'\"')) &&
-				(!Flags.Check(STLF_PROCESSBRACKETS) || !strSeparators.ContainsAny(L"[]")))
+			if (!List.empty() &&
+				(Flags.Check(STLF_NOUNQUOTE) || strSeparators.find(L'\"') == string::npos) &&
+				(!Flags.Check(STLF_PROCESSBRACKETS) || std::find_first_of(ALL_CONST_RANGE(strSeparators), ALL_CONST_RANGE(Brackets)) == strSeparators.cend()))
 			{
 				ListItem item;
 				item.index=ItemsList.size();
 
 				bool Error=false;
-				const wchar_t *CurList=List.CPtr();
+				const wchar_t *CurList=List.c_str();
 				int Length, RealLength;
 				while (!Error && CurList && *CurList)
 				{
@@ -1545,7 +1546,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 						}
 						else
 						{
-							item.Str.Copy(CurList, Length);
+							item.Str.assign(CurList, Length);
 
 							if (Flags.Check(STLF_PACKASTERISKS))
 							{
@@ -1605,7 +1606,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 			if (!Flags.Check(STLF_NOTRIM))
 				while (IsSpace(*Str)) ++Str;
 
-			if (strSeparators.Contains(*Str))
+			if (strSeparators.find(*Str) != string::npos)
 				++Str;
 
 			if (!Flags.Check(STLF_NOTRIM))
@@ -1630,7 +1631,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 							InBrackets=true;
 					}
 
-					if (!InBrackets && strSeparators.Contains(*cur))
+					if (!InBrackets && strSeparators.find(*cur) != string::npos)
 						break;
 
 					++cur;
@@ -1669,7 +1670,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 				while (IsSpace(*End)) ++End;
 			}
 
-			if (!*End || strSeparators.Contains(*End))
+			if (!*End || strSeparators.find(*End) != string::npos)
 			{
 				if (!Flags.Check(STLF_NOUNQUOTE))
 				{

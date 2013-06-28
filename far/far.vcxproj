@@ -645,7 +645,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-</ClCompile>
+    </ClCompile>
     <ClCompile Include="viewer.cpp" />
     <ClCompile Include="vmenu.cpp" />
     <ClCompile Include="vmenu2.cpp" />
@@ -1082,6 +1082,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="tvar.hpp" />
     <ClInclude Include="UnicodeString.hpp" />
     <ClInclude Include="usermenu.hpp" />
+    <ClInclude Include="valuename.hpp" />
     <ClInclude Include="viewer.hpp" />
     <ClInclude Include="vmenu.hpp" />
     <ClInclude Include="wakeful.hpp" />

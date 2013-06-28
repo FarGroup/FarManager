@@ -65,8 +65,8 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	string RootName=L"\\\\.\\ :\\";
 	RootName[4] = Letter;
 	// OpenVolume
-	uDriveType = FAR_GetDriveType(RootName.CPtr()+4);
-	RootName.SetLength(6);
+	uDriveType = FAR_GetDriveType(RootName.c_str()+4);
+	RootName.resize(6);
 	switch (uDriveType)
 	{
 		case DRIVE_REMOVABLE:
@@ -189,7 +189,7 @@ bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 	else
 	{
 		string name(L"\\\\.\\?:");
-		name.Replace(4, Letter);
+		name[4] = Letter;
 		File file;
 		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 		{

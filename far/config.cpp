@@ -419,7 +419,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		TruncStr(DisplayName, NameWidth);
 		Item.strName = FormatString() << fmt::ExactWidth(NameWidth) << fmt::LeftAlign() << DisplayName << L' ' << BoxSymbols[BS_V1] << L' ' << Value;
 		Item.UserData = UNSAFE_CSTR(Name);
-		Item.UserDataSize = (Name.GetLength()+1)*sizeof(wchar_t);
+		Item.UserDataSize = (Name.size()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(&Item);
 	}
 	MasksMenu.SetSelectPos(SelPos, 0);
@@ -829,7 +829,7 @@ void Options::SetFolderInfoFiles()
 	string strFolderInfoFiles;
 
 	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-	              InfoPanel.strFolderInfoFiles.CPtr(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
+	              InfoPanel.strFolderInfoFiles.c_str(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
@@ -926,7 +926,7 @@ void Options::SetFilePanelModes()
 
 		for (size_t i = 0; i < ViewSettings.size(); ++i)
 		{
-			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.CPtr();
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.c_str();
 		}
 
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
@@ -1163,7 +1163,7 @@ struct FARConfigItem
 		FarListItem Item;
 		Item.Flags = 0;
 		Item.Reserved[0] = Item.Reserved[1] = 0;
-		ListItemString.Clear();
+		ListItemString.clear();
 		ListItemString << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(KeyName) + "." + ValName) << BoxSymbols[BS_V1]
 		<< fmt::ExactWidth(7) << fmt::LeftAlign() << Value->typeToString() << BoxSymbols[BS_V1]
 		<< Value->toString() << Value->ExInfo();
@@ -1171,14 +1171,14 @@ struct FARConfigItem
 		{
 			Item.Flags = LIF_CHECKED|L'*';
 		}
-		Item.Text = ListItemString.CPtr();
+		Item.Text = ListItemString.c_str();
 		return Item;
 	}
 
 	bool Edit(bool Hex)
 	{
 		DialogBuilder Builder;
-		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").CPtr());
+		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").c_str());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1342,7 +1342,7 @@ bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
 bool StringOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue.CPtr());
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue.c_str());
 	Set(CfgValue);
 	return Result;
 }
@@ -1808,7 +1808,7 @@ void Options::Load()
 	*/
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.CPtr());
+	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.c_str());
 
 	std::for_each(RANGE(Config, i)
 	{
@@ -1821,7 +1821,7 @@ void Options::Load()
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.CPtr(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.CPtr()));
+	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.c_str(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
 	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
@@ -1844,11 +1844,11 @@ void Options::Load()
 		ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 
 	// Исключаем случайное стирание разделителей ;-)
-	if (strWordDiv.IsEmpty())
+	if (strWordDiv.empty())
 		strWordDiv = WordDiv0;
 
 	// Исключаем случайное стирание разделителей
-	if (XLat.strWordDivForXlat.IsEmpty())
+	if (XLat.strWordDivForXlat.empty())
 		XLat.strWordDivForXlat = WordDivForXlat0;
 
 	PanelRightClickRule%=3;
@@ -1886,11 +1886,11 @@ void Options::Load()
 	Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 	*/
 
-	if (Exec.strExecuteBatchType.IsEmpty()) // предохраняемся
+	if (Exec.strExecuteBatchType.empty()) // предохраняемся
 		Exec.strExecuteBatchType=constBatchExt;
 
 	// Инициализация XLat для русской раскладки qwerty<->йцукен
-	if (XLat.Table[0].IsEmpty())
+	if (XLat.Table[0].empty())
 	{
 		bool RussianExists=false;
 		HKL Layouts[32];
@@ -1919,7 +1919,7 @@ void Options::Load()
 		XLat.CurrentLayout=0;
 		ClearArray(XLat.Layouts);
 
-		if (!XLat.strLayouts.IsEmpty())
+		if (!XLat.strLayouts.empty())
 		{
 			wchar_t *endptr;
 			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
@@ -1927,7 +1927,7 @@ void Options::Load()
 
 			FOR_CONST_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(i->CPtr(), &endptr, 16);
+				DWORD res=(DWORD)wcstoul(i->c_str(), &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
@@ -1946,9 +1946,9 @@ void Options::Load()
 	FindOpt.OutColumnCount=0;
 
 
-	if (!FindOpt.strSearchOutFormat.IsEmpty())
+	if (!FindOpt.strSearchOutFormat.empty())
 	{
-		if (FindOpt.strSearchOutFormatWidth.IsEmpty())
+		if (FindOpt.strSearchOutFormatWidth.empty())
 			FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
 		TextToViewSettings(FindOpt.strSearchOutFormat,FindOpt.strSearchOutFormatWidth,
                                   FindOpt.OutColumnTypes,FindOpt.OutColumnWidths,FindOpt.OutColumnWidthType,
@@ -2234,7 +2234,7 @@ void Options::ReadPanelModes()
 
 	unsigned __int64 root = 0;
 
-	auto ReadMode = [&](VALUE_TYPE(ViewSettings)& i, size_t Index) -> bool
+	auto ReadMode = [&](VALUE_TYPE(m_ViewSettings)& i, size_t Index) -> bool
 	{
 		unsigned __int64 id = cfg->GetKeyID(root, FormatString() << Index);
 
@@ -2255,11 +2255,11 @@ void Options::ReadPanelModes()
 
 		cfg->GetValue(id, ModesNameName, i.Name);
 
-		if (!strColumnTitles.IsEmpty())
+		if (!strColumnTitles.empty())
 			TextToViewSettings(strColumnTitles,strColumnWidths,i.ColumnType,
 				i.ColumnWidth,i.ColumnWidthType,i.ColumnCount);
 
-		if (!strStatusColumnTitles.IsEmpty())
+		if (!strStatusColumnTitles.empty())
 			TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,i.StatusColumnType,
 				i.StatusColumnWidth,i.StatusColumnWidthType,i.StatusColumnCount);
 
@@ -2493,7 +2493,7 @@ void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
 			KeyToText(Menu[i].AccelKey, Key);
 			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
 			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
-			Menu[i].Name = Strings[i].CPtr();
+			Menu[i].Name = Strings[i].c_str();
 		}
 	}
 }
@@ -2504,8 +2504,8 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 	{
 		for (size_t i = 0; i < 10; ++i)
 		{
-			if (!ViewSettings[i].Name.IsEmpty())
-				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.CPtr();
+			if (!ViewSettings[i].Name.empty())
+				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.c_str();
 		}
 	};
 
@@ -2932,7 +2932,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						SetEnvironmentVariable(L"FARLANG",strLanguage.CPtr());
+						SetEnvironmentVariable(L"FARLANG",strLanguage.c_str());
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();

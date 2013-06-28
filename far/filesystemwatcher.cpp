@@ -69,7 +69,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 
 unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 {
-	HANDLE Handle=FindFirstChangeNotification(Directory.CPtr(), WatchSubtree,
+	HANDLE Handle=FindFirstChangeNotification(Directory.c_str(), WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|
@@ -110,10 +110,10 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 		bool isFAT = false;
 		string strRoot, strFileSystem;
 		GetPathRoot(Directory, strRoot);
-		if (!strRoot.IsEmpty())
+		if (!strRoot.empty())
 		{
 			if (apiGetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-				isFAT = (strFileSystem.SubStr(0,3) == L"FAT");
+				isFAT = (strFileSystem.substr(0,3) == L"FAT");
 		}
 		if (isFAT)             // emulate FAT folder time change
 		{                      // otherwise changes missed (FAT folder time is NOT modified)

@@ -79,7 +79,7 @@ void DizList::Read(const string& Path, const string* DizName)
 {
 	Reset();
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
-	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.CPtr();
+	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.c_str();
 
 	for (;;)
 	{
@@ -157,7 +157,7 @@ void DizList::Read(const string& Path, const string* DizName)
 	}
 
 	Modified=false;
-	strDizFileName.Clear();
+	strDizFileName.clear();
 }
 desc_map::iterator DizList::AddRecord(const string& Name, const string& Description)
 {
@@ -170,7 +170,7 @@ desc_map::iterator DizList::AddRecord(const string& Name, const string& Descript
 desc_map::iterator DizList::AddRecord(const string& DizText)
 {
 	size_t NameStart = 0, NameLength = 0;
-	const wchar_t* DizTextPtr = DizText.CPtr();
+	const wchar_t* DizTextPtr = DizText.c_str();
 	if (*DizTextPtr == L'\"')
 	{
 		DizTextPtr++;
@@ -191,7 +191,7 @@ desc_map::iterator DizList::AddRecord(const string& DizText)
 		}
 	}
 
-	return AddRecord(DizText.SubStr(NameStart, NameLength), DizText.SubStr(NameLength + (NameStart? 2: 0)));
+	return AddRecord(DizText.substr(NameStart, NameLength), DizText.substr(NameLength + (NameStart? 2: 0)));
 }
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
@@ -201,7 +201,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 	if (DizPos != DizData.end())
 	{
-		DizText=DizPos->second.front().CPtr();
+		DizText=DizPos->second.front().c_str();
 
 		if (iswdigit(*DizText))
 		{
@@ -210,7 +210,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 			const wchar_t *DizPtr=DizText;
 			bool SkipSize=true;
 
-			for (size_t i = 0; i < SizeText.GetLength(); ++i, ++DizPtr)
+			for (size_t i = 0; i < SizeText.size(); ++i, ++DizPtr)
 			{
 				if (*DizPtr!=L',' && *DizPtr!=L'.' && *DizPtr != SizeText[i])
 				{
@@ -240,11 +240,11 @@ desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
-		size_t len = Name.GetLength();
+		size_t len = Name.size();
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
 
 		AnsiBuf = tmp;
-		WideCharToMultiByte(OrigCodePage, 0, Name.CPtr(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
+		WideCharToMultiByte(OrigCodePage, 0, Name.c_str(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
 		AnsiBuf[len]=0;
 		string strRecoded(AnsiBuf, OrigCodePage);
 
@@ -278,15 +278,15 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	{
 		strDizFileName = *DizName;
 	}
-	else if (strDizFileName.IsEmpty())
+	else if (strDizFileName.empty())
 	{
-		if (DizData.empty() || Path.IsEmpty())
+		if (DizData.empty() || Path.empty())
 			return false;
 
 		strDizFileName = Path;
 		AddEndSlash(strDizFileName);
 		string strArgName;
-		GetCommaWord(Global->Opt->Diz.strListNames.CPtr(),strArgName);
+		GetCommaWord(Global->Opt->Diz.strListNames.c_str(),strArgName);
 		strDizFileName += strArgName;
 	}
 
@@ -350,14 +350,14 @@ bool DizList::Flush(const string& Path,const string* DizName)
 					++start;
 					std::for_each(start, i->second.cend(), CONST_LAMBDA_PREDICATE(i->second, j)
 					{
-						dump.Append(L"\r\n ").Append(j);
+						dump.append(L"\r\n ").append(j);
 					});
 				}
-				DWORD Size=static_cast<DWORD>((dump.GetLength() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
+				DWORD Size=static_cast<DWORD>((dump.size() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
 				char_ptr DizText(Size);
 				if (DizText)
 				{
-					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.CPtr(), static_cast<int>(dump.GetLength()+1), DizText.get(), Size, nullptr, nullptr);
+					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.c_str(), static_cast<int>(dump.size()+1), DizText.get(), Size, nullptr, nullptr);
 					if (BytesCount && BytesCount-1)
 					{
 						if(Cache.Write(DizText.get(), BytesCount-1))

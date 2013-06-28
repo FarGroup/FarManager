@@ -74,8 +74,8 @@ const wchar_t* PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
 
-inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.CPtr(), Path.CPtr() + Path.GetLength());}
-inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.CPtr(), Path.CPtr() + Path.GetLength());}
+inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.data(), Path.data() + Path.size());}
+inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.data(), Path.data() + Path.size());}
 
 
 BOOL AddEndSlash(string &strPath, wchar_t TypeSlash);

@@ -69,10 +69,10 @@ wchar_t* Xlat(wchar_t *Line,
 	if (StartPos > EndPos || StartPos >= Length)
 		return Line;
 
-	if (!Global->Opt->XLat.Table[0].GetLength() || !Global->Opt->XLat.Table[1].GetLength())
+	if (Global->Opt->XLat.Table[0].empty() || Global->Opt->XLat.Table[1].empty())
 		return Line;
 
-	size_t MinLenTable=std::min(Global->Opt->XLat.Table[0].GetLength(),Global->Opt->XLat.Table[1].GetLength());
+	size_t MinLenTable=std::min(Global->Opt->XLat.Table[0].size(),Global->Opt->XLat.Table[1].size());
 	string strLayoutName;
 	int ProcessLayoutName=FALSE;
 
@@ -109,7 +109,7 @@ wchar_t* Xlat(wchar_t *Line,
 		string XlatRules;
 		Global->Db->GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
 		Global->Opt->XLat.Rules[2] = XlatRules;
-		if (!Global->Opt->XLat.Rules[2].IsEmpty())
+		if (!Global->Opt->XLat.Rules[2].empty())
 			ProcessLayoutName=TRUE;
 	}
 
@@ -149,7 +149,7 @@ wchar_t* Xlat(wchar_t *Line,
 		{
 			if (ProcessLayoutName)
 			{
-				for (size_t i=0; i < Global->Opt->XLat.Rules[2].GetLength(); i+=2)
+				for (size_t i=0; i < Global->Opt->XLat.Rules[2].size(); i+=2)
 				{
 					if (Chr == Global->Opt->XLat.Rules[2][i])
 					{
@@ -172,7 +172,7 @@ wchar_t* Xlat(wchar_t *Line,
 				if (PreLang != CurLang)
 					CurLang=PreLang;
 
-				for (size_t i=0; i < Global->Opt->XLat.Rules[CurLang].GetLength(); i+=2)
+				for (size_t i=0; i < Global->Opt->XLat.Rules[CurLang].size(); i+=2)
 				{
 					if (ChrOld == Global->Opt->XLat.Rules[CurLang][i])
 					{

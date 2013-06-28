@@ -58,8 +58,8 @@ struct FAR_FIND_DATA
 		nFileSize=0;
 		nAllocationSize=0;
 		FileId = 0;
-		strFileName.Clear();
-		strAlternateFileName.Clear();
+		strFileName.clear();
+		strAlternateFileName.clear();
 		dwFileAttributes=0;
 		dwReserved0=0;
 	}

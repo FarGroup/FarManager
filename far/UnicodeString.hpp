@@ -119,18 +119,18 @@ typedef class UnicodeString
 		class char_proxy
 		{
 		public:
-			operator wchar_t() const {return Parent.At(Index);}
+			operator wchar_t() const {return Parent.at(Index);}
 			char_proxy& operator=(const char_proxy& Value)
 			{
 				Parent.GetBuffer()[Index] = Value.Parent[Value.Index];
-				Parent.ReleaseBuffer(Parent.GetLength());
+				Parent.ReleaseBuffer(Parent.size());
 				return *this;
 			};
 
 			char_proxy& operator=(wchar_t Value)
 			{
 				Parent.GetBuffer()[Index] = Value;
-				Parent.ReleaseBuffer(Parent.GetLength());
+				Parent.ReleaseBuffer(Parent.size());
 				return *this;
 			}
 
@@ -142,116 +142,191 @@ typedef class UnicodeString
 			friend class UnicodeString;
 		};
 
+		class us_iterator:public std::iterator<std::random_access_iterator_tag, wchar_t>
+		{
+		public:
+			//us_iterator(){}
+			us_iterator(char_proxy value):value(value) {}
+			us_iterator(const us_iterator& rhs):value(rhs.value) {}
+
+			char_proxy operator ->() const {return value;}
+			char_proxy operator *() const {return value;}
+			bool operator <(const us_iterator& rhs) const {return value.Index < rhs.value.Index;}
+			bool operator >(const us_iterator& rhs) const {return value.Index > rhs.value.Index;}
+			bool operator <=(const us_iterator& rhs) const {return value.Index <= rhs.value.Index;}
+			bool operator >=(const us_iterator& rhs) const {return value.Index >= rhs.value.Index;}
+			bool operator !=(const us_iterator& rhs) const {return value.Index != rhs.value.Index;}
+			bool operator ==(const us_iterator& rhs) const {return value.Index == rhs.value.Index;}
+			us_iterator& operator =(const us_iterator& rhs) {value.Index = rhs.value.Index; return *this;}
+			us_iterator& operator ++() {++value.Index; return *this;}
+			us_iterator& operator --() {--value.Index; return *this;}
+			us_iterator operator ++(int) {auto ret = *this; ++value.Index; return ret;}
+			us_iterator operator --(int) {auto ret = *this; --value.Index; return ret;}
+			us_iterator& operator +=(size_t Offset) {value.Index += Offset; return *this;}
+			us_iterator& operator -=(size_t Offset) {value.Index -= Offset; return *this;}
+			us_iterator operator +(size_t Offset) const {auto ret = *this; ret.value.Index += Offset; return ret;}
+			us_iterator operator -(size_t Offset) const {auto ret = *this; ret.value.Index -= Offset; return ret;}
+			ptrdiff_t operator -(const us_iterator& rhs) const {return value.Index  -rhs.value.Index;}
+
+		private:
+			char_proxy value;
+		};
+
 		std::shared_ptr<UnicodeStringData> m_pData;
 
 		void SetEUS();
+		void Inflate(size_t nSize);
+		UnicodeString& assign(const char *lpszData, uintptr_t CodePage=CP_OEMCP);
 
 	public:
 		UnicodeString() { SetEUS(); }
-		UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
+		UnicodeString(const UnicodeString &strCopy) { SetEUS(); assign(strCopy); }
 		UnicodeString(UnicodeString&& rvalString):m_pData(rvalString.m_pData) { rvalString.SetEUS(); }
-		UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
-		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
-		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
+		UnicodeString(const wchar_t *lpwszData) { SetEUS(); assign(lpwszData); }
+		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); assign(lpwszData, nLength); }
+		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); assign(lpszData, CodePage); }
 		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = std::make_shared<DECLTYPE(m_pData)::element_type>(nSize, nDelta); }
 
 		~UnicodeString() {}
 
-		void Inflate(size_t nSize);
-		wchar_t *GetBuffer(size_t nSize = (size_t)-1);
-		void ReleaseBuffer(size_t nLength = (size_t)-1);
+		static const size_t npos = -1;
 
-		size_t GetLength() const { return m_pData->GetLength(); }
-		size_t SetLength(size_t nLength);
+		typedef char_proxy value_type;
+		typedef us_iterator iterator;
+		typedef std::reverse_iterator<iterator> reverse_iterator;
+		typedef const wchar_t* const_iterator;
+		typedef const std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-		size_t GetSize() const { return m_pData->GetSize(); }
+		iterator begin() {return char_proxy(*this, 0);}
+		iterator end() {return char_proxy(*this, size());}
 
-		wchar_t At(size_t nIndex) const { return m_pData->GetData()[nIndex]; }
-		wchar_t First() const { return m_pData->GetData()[0]; }
-		wchar_t Last() const { return m_pData->GetData()[m_pData->GetLength()?m_pData->GetLength()-1:0]; }
+		const_iterator begin() const {return data();}
+		const_iterator end() const {return data() + size();}
 
-		bool IsEmpty() const { return !(m_pData->GetLength() && *m_pData->GetData()); }
+		const_iterator cbegin() const {return begin();}
+		const_iterator cend() const {return end();}
 
-		size_t GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage=CP_OEMCP) const;
+		reverse_iterator rbegin() {return reverse_iterator(end());}
+		reverse_iterator rend() {return reverse_iterator(begin());}
 
-		int CDECL Format(const wchar_t * format, ...);
+		const_reverse_iterator rbegin() const {return const_reverse_iterator(end());}
+		const_reverse_iterator rend() const {return const_reverse_iterator(begin());}
 
-		UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
-		UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str) { return Replace(Pos, Len, Str.CPtr(), Str.GetLength()); }
-		UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Str) { return Replace(Pos, Len, Str, StrLength(NullToEmpty(Str))); }
-		UnicodeString& Replace(size_t Pos, size_t Len, wchar_t Ch) { return Replace(Pos, Len, &Ch, 1); }
-		UnicodeString& Replace(size_t Pos, wchar_t Ch) { return Replace(Pos, 1, &Ch, 1); }
+		const_reverse_iterator crbegin() const {return rbegin();}
+		const_reverse_iterator crend() const {return rend();}
 
-		UnicodeString& Append(const wchar_t* Str, size_t StrLen) { return Replace(GetLength(), 0, Str, StrLen); }
-		UnicodeString& Append(const UnicodeString& Str) { return Append(Str.CPtr(), Str.GetLength()); }
-		UnicodeString& Append(const wchar_t* Str) { return Append(Str, StrLength(NullToEmpty(Str))); }
-		UnicodeString& Append(wchar_t Ch) { return Append(&Ch, 1); }
-		UnicodeString& Append(const char *lpszAdd, uintptr_t CodePage=CP_OEMCP);
+		char_proxy front() {return *begin();}
+		char_proxy back() {return *(end() - 1);}
 
-		UnicodeString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return Replace(Pos, 0, Str, StrLen); }
-		UnicodeString& Insert(size_t Pos, const UnicodeString& Str) { return Insert(Pos, Str.CPtr(), Str.GetLength()); }
-		UnicodeString& Insert(size_t Pos, const wchar_t* Str) { return Insert(Pos, Str, StrLength(NullToEmpty(Str))); }
-		UnicodeString& Insert(size_t Pos, wchar_t Ch) { return Insert(Pos, &Ch, 1); }
+		wchar_t front() const {return *begin();}
+		wchar_t back() const {return *(end() - 1);}
 
-		UnicodeString& Copy(const wchar_t *Str, size_t StrLen) { return Replace(0, GetLength(), Str, StrLen); }
-		UnicodeString& Copy(const wchar_t *Str) { return Copy(Str, StrLength(NullToEmpty(Str))); }
-		UnicodeString& Copy(wchar_t Ch) { return Copy(&Ch, 1); }
-		UnicodeString& Copy(const UnicodeString &Str);
-		UnicodeString& Copy(const char *lpszData, uintptr_t CodePage=CP_OEMCP);
+		size_t capacity() const { return m_pData->GetSize(); }
+		size_t size() const { return m_pData->GetLength(); }
+		void resize(size_t nLength);
 
-		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, nullptr, 0); }
-		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
+		wchar_t at(size_t nIndex) const { return m_pData->GetData()[nIndex]; }
 
-		UnicodeString& Clear();
+		bool empty() const { return !(m_pData->GetLength() && *m_pData->GetData()); }
 
-		const wchar_t *CPtr() const { return m_pData->GetData(); }
+		void clear();
 
-		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
+		const wchar_t *c_str() const { return m_pData->GetData(); }
 
-		UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
+		const wchar_t *data() const { return m_pData->GetData(); }
+
+		UnicodeString substr(size_t Pos, size_t Len = npos) const;
+
+		UnicodeString& operator=(const UnicodeString &strCopy) { return assign(strCopy); }
 		UnicodeString& operator=(UnicodeString&& rvalString) { if (this != &rvalString) { m_pData.swap(rvalString.m_pData); rvalString.SetEUS(); } return *this; }
-		UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
-		UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
-		UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
+		UnicodeString& operator=(const char *lpszData) { return assign(lpszData); }
+		UnicodeString& operator=(const wchar_t *lpwszData) { return assign(lpwszData); }
+		UnicodeString& operator=(wchar_t chData) { return assign(chData); }
 
-		UnicodeString& operator+=(const UnicodeString &strAdd) { return Append(strAdd); }
-		UnicodeString& operator+=(const char *lpszAdd) { return Append(lpszAdd); }
-		UnicodeString& operator+=(const wchar_t *lpwszAdd) { return Append(lpwszAdd); }
-		UnicodeString& operator+=(wchar_t chAdd) { return Append(chAdd); }
+		UnicodeString& operator+=(const UnicodeString &strAdd) { return append(strAdd); }
+		UnicodeString& operator+=(const char *lpszAdd) { return append(lpszAdd); }
+		UnicodeString& operator+=(const wchar_t *lpwszAdd) { return append(lpwszAdd); }
+		UnicodeString& operator+=(wchar_t chAdd) { return append(chAdd); }
 
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
 		friend const UnicodeString operator+(const wchar_t *strSrc1, const UnicodeString &lpwszSrc2);
 
-		bool IsSubStrAt(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
-		bool IsSubStrAt(size_t Pos, const wchar_t* Str, size_t StrLen) const { return IsSubStrAt(Pos, StrLen, Str, StrLen); }
-		bool IsSubStrAt(size_t Pos, const wchar_t* Str) const { return IsSubStrAt(Pos, StrLength(Str), Str, StrLength(Str)); }
-		bool IsSubStrAt(size_t Pos, const UnicodeString& Str) const { return IsSubStrAt(Pos, Str.GetLength(), Str.CPtr(), Str.GetLength()); }
-		bool IsSubStrAt(size_t Pos, wchar_t Ch) const { return IsSubStrAt(Pos, 1, &Ch, 1); }
+		bool operator==(const UnicodeString& str) const { return compare(str) == 0; }
+		bool operator==(const wchar_t* s) const { return compare(s) == 0; }
 
-		bool operator==(const UnicodeString& Str) const { return IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
-		bool operator==(const wchar_t* Str) const { return IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
-		bool operator==(wchar_t Ch) const { return IsSubStrAt(0, GetLength(), &Ch, 1); }
-		bool operator!=(const UnicodeString& Str) const { return !IsSubStrAt(0, GetLength(), Str.CPtr(), Str.GetLength()); }
-		bool operator!=(const wchar_t* Str) const { return !IsSubStrAt(0, GetLength(), Str, StrLength(Str)); }
-		bool operator!=(wchar_t Ch) const { return !IsSubStrAt(0, GetLength(), &Ch, 1); }
-		bool operator<(const UnicodeString& Str) const { return StrCmp(CPtr(), Str.CPtr()) < 0; }
-		bool operator<(const wchar_t* Str) const { return StrCmp(CPtr(), Str) < 0; }
+		bool operator!=(const UnicodeString& str) const { return !(*this == str); }
+		bool operator!=(const wchar_t* s) const { return !(*this == s); }
+
+		bool operator<(const UnicodeString& str) const { return compare(str) < 0; }
+		bool operator<(const wchar_t* s) const { return compare(s) < 0; }
+
 		char_proxy operator[](size_t Index) { return char_proxy(*this, Index);}
 		const char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
 
-		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
-		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
+		// TODO: iterator versions
 
-		bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
-		bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
+		UnicodeString& assign(const UnicodeString &Str);
+		// TODO
+		// UnicodeString& Copy(const UnicodeString& str, size_t subpos, size_t sublen);
+		UnicodeString& assign(const wchar_t *Str) { return assign(Str, StrLength(NullToEmpty(Str))); }
+		UnicodeString& assign(const wchar_t *Str, size_t StrLen) { return replace(0, size(), Str, StrLen); }
+		// TODO: size_t n
+		UnicodeString& assign(/*size_t n, */wchar_t Ch) { return assign(&Ch, 1); }
+
+
+		UnicodeString& replace(size_t Pos, size_t Len, const UnicodeString& Str) { return replace(Pos, Len, Str.data(), Str.size()); }
+		// TODO
+		// UnicodeString& replace(size_t pos,  size_t len, const UnicodeString& str, size_t subpos, size_t sublen);
+		UnicodeString& replace(size_t Pos, size_t Len, const wchar_t* Str) { return replace(Pos, Len, Str, StrLength(NullToEmpty(Str))); }
+		UnicodeString& replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
+		// TODO: size_t n
+		UnicodeString& replace(size_t Pos, size_t Len, /*size_t n, */wchar_t Ch) { return replace(Pos, Len, &Ch, 1); }
+
+
+		UnicodeString& append(const UnicodeString& Str) { return append(Str.data(), Str.size()); }
+		// TODO
+		// UnicodeString& append(const UnicodeString& str, size_t subpos, size_t sublen);
+		UnicodeString& append(const wchar_t* Str) { return append(Str, StrLength(NullToEmpty(Str))); }
+		UnicodeString& append(const wchar_t* Str, size_t StrLen) { return replace(size(), 0, Str, StrLen); }
+		// TODO: size_t n
+		UnicodeString& append(/*size_t n, */wchar_t Ch) { return append(&Ch, 1); }
+
+
+		UnicodeString& insert(size_t Pos, const UnicodeString& Str) { return insert(Pos, Str.data(), Str.size()); }
+		// TODO
+		// UnicodeString& insert(size_t pos, const UnicodeString& str, size_t subpos, size_t sublen);
+		UnicodeString& insert(size_t Pos, const wchar_t* Str) { return insert(Pos, Str, wcslen(Str)); }
+		UnicodeString& insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return replace(Pos, 0, Str, StrLen); }
+		// TODO: size_t n
+		UnicodeString& insert(size_t Pos, /*size_t n, */wchar_t Ch) { return insert(Pos, &Ch, 1); }
+
+		int compare(const UnicodeString& str) const { return compare(0, npos, str.data(), str.size()); }
+		int compare(size_t pos, size_t len, const UnicodeString& str) const { return compare(pos, len, str.data(), str.size()); }
+		// TODO
+		// int compare(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen) const;
+		int compare(const wchar_t* s) const { return compare(0, npos, s, wcslen(s)); }
+		int compare(size_t pos, size_t len, const wchar_t* s) const { return compare(pos, len, s, wcslen(s)); }
+		int compare(size_t pos, size_t len, const wchar_t* s, size_t n) const;
+
+		size_t find(const UnicodeString& str, size_t pos = 0) const { return find(str.data(), pos, str.size()); }
+		size_t find(const wchar_t* s, size_t pos = 0) const { return find(s, pos, StrLength(s)); }
+		size_t find(const wchar_t* s, size_t pos, size_t n) const {auto Iterator = std::search(cbegin() + pos, cend(), s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
+		size_t find(wchar_t c, size_t pos = 0) const { return find(&c, pos, 1); }
+
+
+
+		wchar_t *GetBuffer(size_t nSize = npos);
+		void ReleaseBuffer(size_t nLength = npos);
+		size_t GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage=CP_OEMCP) const;
+		int CDECL Format(const wchar_t * format, ...);
+		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return replace(Pos, Len, nullptr, 0); }
+		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
+		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=npos);
+		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=npos);
 		bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 		bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
-
-		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch) != nullptr; }
-		bool ContainsAny(const wchar_t *Chars, size_t nStartPos=0) const { return wcspbrk(m_pData->GetData()+nStartPos,Chars) != nullptr; }
-		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind) != nullptr; }
-		bool EqualNoCase(const UnicodeString& rhs) const { return !StrCmpI(CPtr(), rhs.CPtr()); }
+		bool EqualNoCase(const UnicodeString& rhs) const { return !StrCmpI(data(), rhs.data()); }
 } string;
 
-inline wchar_t* UNSAFE_CSTR(const string& s) {return (wchar_t*)s.CPtr();}
+inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}

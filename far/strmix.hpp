@@ -90,7 +90,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr);
 string &FormatNumber(const string& Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
-inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return wcschr(WordDiv.CPtr(), Chr)!=nullptr; }
+inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return WordDiv.find(Chr) != string::npos; }
 
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова

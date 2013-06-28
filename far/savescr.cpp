@@ -301,7 +301,7 @@ void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuff
 
 void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
-	FarColor Color=ColorIndexToColor(COL_COMMANDLINEUSERSCREEN);
+	const auto Color = ColorIndexToColor(COL_COMMANDLINEUSERSCREEN);
 
 	for (size_t i=0; i<BufSize; i++)
 	{

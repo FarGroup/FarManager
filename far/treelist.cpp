@@ -86,7 +86,7 @@ static struct tree_less
 {
 	bool operator()(const string& a, const string& b, bool Numeric, bool CaseSensitive) const
 	{
-		const wchar_t* Str1 = a.CPtr(), *Str2 = b.CPtr();
+		const wchar_t* Str1 = a.c_str(), *Str2 = b.c_str();
 		auto cmpfunc = Numeric? (CaseSensitive? NumStrCmpN : NumStrCmpNI) : (CaseSensitive? StrCmpNN : StrCmpNNI);
 
 		if (*Str1 == L'\\' && *Str2 == L'\\')
@@ -241,10 +241,10 @@ void TreeList::DisplayTree(int Fast)
 		DrawSeparator(Y2-2-(ModalMode));
 		GetTitle(strTitle);
 
-		if (!strTitle.IsEmpty())
+		if (!strTitle.empty())
 		{
 			SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-			GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
+			GotoXY(X1+(X2-X1+1-(int)strTitle.size())/2,Y1);
 			Text(strTitle);
 		}
 	}
@@ -274,7 +274,7 @@ void TreeList::DisplayTree(int Fast)
 
 				strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
 				BoxText(strOutStr);
-				const wchar_t *ChPtr=LastSlash(CurPtr->strName.CPtr());
+				const wchar_t *ChPtr=LastSlash(CurPtr->strName.c_str());
 
 				if (ChPtr)
 					DisplayTreeName(ChPtr+1,J);
@@ -478,7 +478,7 @@ void TreeList::SaveTreeFile()
 
 	string strName;
 
-	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
+	size_t RootLength=strRoot.empty()?0:strRoot.size()-1;
 	MkTreeFileName(strRoot, strName);
 	// получим и сразу сбросим атрибуты (если получится)
 	DWORD FileAttributes=apiGetFileAttributes(strName);
@@ -506,13 +506,13 @@ void TreeList::SaveTreeFile()
 	CachedWrite Cache(TreeFile);
 	for (auto i = ListData.begin(); i != ListData.end() && Success; ++i)
 	{
-		if (RootLength>=(*i)->strName.GetLength())
+		if (RootLength>=(*i)->strName.size())
 		{
 			Success=Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
 		}
 		else
 		{
-			Success=Cache.Write((*i)->strName.CPtr()+RootLength, static_cast<DWORD>((*i)->strName.GetLength() - RootLength) * sizeof(wchar_t));
+			Success=Cache.Write((*i)->strName.c_str()+RootLength, static_cast<DWORD>((*i)->strName.size() - RootLength) * sizeof(wchar_t));
 			if(Success)
 			{
 				Success=Cache.Write(L"\n",1 * sizeof(wchar_t));
@@ -526,7 +526,7 @@ void TreeList::SaveTreeFile()
 	if (!Success)
 	{
 		apiDeleteFile(strName);
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName.CPtr(),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName.c_str(),MSG(MOk));
 	}
 	else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
 		apiSetFileAttributes(strName,FileAttributes);
@@ -562,15 +562,15 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 //  char RemoteName[NM*3];
 //  *RemoteName=0;
-	if (Root.At(0) == L'\\')
+	if (Root.at(0) == L'\\')
 		strRemoteName = Root;
 	else
 	{
 		string LocalName(L"?:");
-		LocalName.Replace(0, Root.At(0));
+		LocalName[0] = Root[0];
 		apiWNetGetConnection(LocalName, strRemoteName);
 
-		if (!strRemoteName.IsEmpty())
+		if (!strRemoteName.empty())
 			AddEndSlash(strRemoteName);
 	}
 
@@ -619,7 +619,7 @@ void TreeList::SyncDir()
 	Panel *AnotherPanel=GetRootPanel();
 	string strPanelDir(AnotherPanel->GetCurDir());
 
-	if (!strPanelDir.IsEmpty())
+	if (!strPanelDir.empty())
 	{
 		if (AnotherPanel->GetType()==FILE_PANEL)
 		{
@@ -658,7 +658,7 @@ int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
 	{
-		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), (FormatString() << TreeCount).CPtr());
+		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), (FormatString() << TreeCount).c_str());
 		if (!Global->PreRedraw->empty())
 		{
 			Global->PreRedraw->top().Param.Flags = static_cast<DWORD>(TreeCount);
@@ -671,13 +671,13 @@ int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
 
 bool TreeList::FillLastData()
 {
-	size_t RootLength = strRoot.IsEmpty()? 0 : strRoot.GetLength()-1;
+	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
 	for (auto i = ListData.begin() + 1 ; i != ListData.end(); ++i)
 	{
 		size_t Pos;
 		int PathLength = ((*i)->strName.RPos(Pos,L'\\'))? (int)Pos+1 : 0;
 
-		size_t Depth=(*i)->Depth=CountSlash((*i)->strName.CPtr()+RootLength);
+		size_t Depth=(*i)->Depth=CountSlash((*i)->strName.c_str()+RootLength);
 
 		if (!Depth)
 			return false;
@@ -687,14 +687,14 @@ bool TreeList::FillLastData()
 
 		for (auto j = i+1; j != ListData.end(); ++j)
 		{
-			if (CountSlash((*j)->strName.CPtr()+RootLength)>Depth)
+			if (CountSlash((*j)->strName.c_str()+RootLength)>Depth)
 			{
 				SubDirPos = j;
 				continue;
 			}
 			else
 			{
-				if (!StrCmpNI((*i)->strName.CPtr(), (*j)->strName.CPtr(), PathLength))
+				if (!StrCmpNI((*i)->strName.c_str(), (*j)->strName.c_str(), PathLength))
 					Last=0;
 				break;
 			}
@@ -1215,7 +1215,7 @@ int TreeList::SetDirPosition(const string& NewDir)
 {
 	for (size_t i = 0; i < ListData.size(); ++i)
 	{
-		if (!StrCmpI(NewDir.CPtr(), ListData[i]->strName.CPtr()))
+		if (!StrCmpI(NewDir.c_str(), ListData[i]->strName.c_str()))
 		{
 			WorkDir = i;
 			CurFile = static_cast<int>(i);
@@ -1235,7 +1235,7 @@ const string& TreeList::GetCurDir()
 		if (ModalMode==MODALTREE_FREE)
 			strCurDir = strRoot;
 		else
-			strCurDir.Clear();
+			strCurDir.clear();
 	}
 	else
 		strCurDir = ListData[CurFile]->strName; //BUGBUG
@@ -1394,7 +1394,7 @@ void TreeList::ProcessEnter()
 
 int TreeList::ReadTreeFile()
 {
-	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
+	size_t RootLength=strRoot.empty()?0:strRoot.size()-1;
 	string strName;
 	//SaveState();
 	FlushCache();
@@ -1419,23 +1419,23 @@ int TreeList::ReadTreeFile()
 		int RecordLength=0;
 		while(GetStr.GetString(&Record, CP_UNICODE, RecordLength) > 0)
 		{
-			string strDirName(strRoot.CPtr(), RootLength);
-			strDirName.Append(Record, RecordLength);
-			if (!IsSlash(*Record) || !StrCmpI(strDirName.CPtr(), strLastDirName.CPtr()))
+			string strDirName(strRoot.c_str(), RootLength);
+			strDirName.append(Record, RecordLength);
+			if (!IsSlash(*Record) || !StrCmpI(strDirName.c_str(), strLastDirName.c_str()))
 			{
 				continue;
 			}
 
 			strLastDirName=strDirName;
-			size_t Pos=0;
-			if(strDirName.Pos(Pos, L'\n'))
+			size_t Pos = strDirName.find(L'\n');
+			if(Pos != string::npos)
 			{
-				strDirName.SetLength(Pos);
+				strDirName.resize(Pos);
 			}
 
-			if (RootLength>0 && strDirName.At(RootLength-1)!=L':' && IsSlash(strDirName.At(RootLength)) && !strDirName.At(RootLength+1))
+			if (RootLength>0 && strDirName.at(RootLength-1)!=L':' && IsSlash(strDirName.at(RootLength)) && !strDirName.at(RootLength+1))
 			{
-				strDirName.SetLength(RootLength);
+				strDirName.resize(RootLength);
 			}
 
 			if (ListData.size() == ListData.capacity())
@@ -1486,7 +1486,7 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int i=CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < ListData.size(); i+=Direct)
 	{
-		if (CmpName(strMask.CPtr(),ListData[i]->strName.CPtr(),true,(i==CurFile)))
+		if (CmpName(strMask.c_str(),ListData[i]->strName.c_str(),true,(i==CurFile)))
 		{
 			CurFile=i;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1497,7 +1497,7 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (size_t i=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? i < static_cast<size_t>(CurFile):i > static_cast<size_t>(CurFile); i+=Direct)
 	{
-		if (CmpName(strMask.CPtr(),ListData[i]->strName.CPtr(),true))
+		if (CmpName(strMask.c_str(),ListData[i]->strName.c_str(),true))
 		{
 			CurFile=static_cast<int>(i);
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1542,8 +1542,8 @@ int TreeList::GetCurName(string &strName, string &strShortName)
 {
 	if (ListData.empty())
 	{
-		strName.Clear();
-		strShortName.Clear();
+		strName.clear();
+		strShortName.clear();
 		return FALSE;
 	}
 
@@ -1554,14 +1554,14 @@ int TreeList::GetCurName(string &strName, string &strShortName)
 
 void TreeList::AddTreeName(const string& Name)
 {
-	if (Name.IsEmpty())
+	if (Name.empty())
 		return;
 
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
 	string strRoot = ExtractPathRoot(strFullName);
-	const wchar_t* NamePtr = strFullName.CPtr();
-	NamePtr += strRoot.GetLength() - 1;
+	const wchar_t* NamePtr = strFullName.c_str();
+	NamePtr += strRoot.size() - 1;
 
 	if (!LastSlash(NamePtr))
 		return;
@@ -1570,7 +1570,7 @@ void TreeList::AddTreeName(const string& Name)
 
 	FOR_RANGE(Global->TreeCache->Names, i)
 	{
-		int Result = StrCmpI(i->CPtr(), NamePtr);
+		int Result = StrCmpI(i->c_str(), NamePtr);
 
 		if (!Result)
 			break;
@@ -1585,23 +1585,23 @@ void TreeList::AddTreeName(const string& Name)
 
 void TreeList::DelTreeName(const string& Name)
 {
-	if (Name.IsEmpty())
+	if (Name.empty())
 		return;
 
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
 	string strRoot = ExtractPathRoot(strFullName);
-	const wchar_t* NamePtr = strFullName.CPtr();
-	NamePtr += strRoot.GetLength() - 1;
+	const wchar_t* NamePtr = strFullName.c_str();
+	NamePtr += strRoot.size() - 1;
 	ReadCache(strRoot);
 
 	size_t Length = StrLength(NamePtr);
 
 	FOR_RANGE(Global->TreeCache->Names, i)
 	{
-		if (i->GetLength() < Length) continue;
+		if (i->size() < Length) continue;
 
-		if (!StrCmpNI(NamePtr, i->CPtr(), static_cast<int>(Length)) && (!i->At(Length) || IsSlash(i->At(Length))))
+		if (!StrCmpNI(NamePtr, i->c_str(), static_cast<int>(Length)) && (!i->at(Length) || IsSlash(i->at(Length))))
 		{
 			i = Global->TreeCache->Names.erase(i);
 		}
@@ -1616,25 +1616,25 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	string strSrcRoot = ExtractPathRoot(SrcNameFull);
 	string strDestRoot = ExtractPathRoot(DestNameFull);
 
-	if (StrCmpI(strSrcRoot.CPtr(), strDestRoot.CPtr()) )
+	if (StrCmpI(strSrcRoot.c_str(), strDestRoot.c_str()) )
 	{
 		DelTreeName(strSrcName);
 		ReadSubTree(strSrcName);
 	}
 
-	const wchar_t* SrcName = strSrcName.CPtr();
-	SrcName += strSrcRoot.GetLength() - 1;
-	const wchar_t* DestName = strDestName.CPtr();
-	DestName += strDestRoot.GetLength() - 1;
+	const wchar_t* SrcName = strSrcName.c_str();
+	SrcName += strSrcRoot.size() - 1;
+	const wchar_t* DestName = strDestName.c_str();
+	DestName += strDestRoot.size() - 1;
 	ReadCache(strSrcRoot);
 	size_t SrcLength = StrLength(SrcName);
 
 	std::for_each(RANGE(Global->TreeCache->Names, i)
 	{
-		size_t iLen = i.GetLength();
-		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash(i[SrcLength]))) && !StrCmpNI(SrcName, i.CPtr(), static_cast<int>(SrcLength)))
+		size_t iLen = i.size();
+		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash(i[SrcLength]))) && !StrCmpNI(SrcName, i.c_str(), static_cast<int>(SrcLength)))
 		{
-			i = string(DestName) + (i.CPtr() + SrcLength);
+			i = string(DestName) + (i.c_str() + SrcLength);
 		}
 	});
 }
@@ -1698,8 +1698,8 @@ void TreeList::ReadCache(const string& TreeRoot)
 	if (!Global->TreeCache->Names.empty())
 		FlushCache();
 
-	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName.CPtr(),L"rb")))
-		if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || !(TreeFile=_wfopen(strTreeName.CPtr(),L"rb")))
+	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName.c_str(),L"rb")))
+		if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || !(TreeFile=_wfopen(strTreeName.c_str(),L"rb")))
 		{
 			ClearCache(1);
 			return;
@@ -1729,7 +1729,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 
 void TreeList::FlushCache()
 {
-	if (!Global->TreeCache->strTreeName.IsEmpty())
+	if (!Global->TreeCache->strTreeName.empty())
 	{
 		DWORD FileAttributes=apiGetFileAttributes(Global->TreeCache->strTreeName);
 
@@ -1748,7 +1748,7 @@ void TreeList::FlushCache()
 
 		bool WriteError = !std::all_of(CONST_RANGE(Global->TreeCache->Names, i)
 		{
-			return Cache.Write(i.CPtr(), i.GetLength() * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
+			return Cache.Write(i.c_str(), i.size() * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
 		});
 
 		if (!WriteError)
@@ -1758,7 +1758,7 @@ void TreeList::FlushCache()
 		if (WriteError)
 		{
 			apiDeleteFile(Global->TreeCache->strTreeName);
-			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Global->TreeCache->strTreeName.CPtr(), MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Global->TreeCache->strTreeName.c_str(), MSG(MOk));
 		}
 		else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
 			apiSetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
@@ -1797,12 +1797,12 @@ long TreeList::FindFile(const string& Name,BOOL OnlyPartName)
 {
 	for (size_t i=0; i < ListData.size(); ++i)
 	{
-		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[i]->strName):ListData[i]->strName.CPtr();
+		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[i]->strName):ListData[i]->strName.c_str();
 
 		if (Name == CurPtrName)
 			return static_cast<long>(i);
 
-		if (!StrCmpI(Name.CPtr(),CurPtrName))
+		if (!StrCmpI(Name.c_str(),CurPtrName))
 			return static_cast<long>(i);
 	}
 
@@ -1820,7 +1820,7 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	{
 		for (size_t i = StartPos; i < ListData.size(); ++i)
 		{
-			if (CmpName(Name.CPtr(), ListData[i]->strName.CPtr(), true))
+			if (CmpName(Name.c_str(), ListData[i]->strName.c_str(), true))
 				if (!TestParentFolderName(ListData[i]->strName))
 					return static_cast<long>(i);
 		}
@@ -1923,7 +1923,7 @@ void TreeList::SetTitle()
 	{
 		string strTitleDir(L"{");
 
-		const wchar_t *Ptr=ListData.empty()? L"" : ListData[CurFile]->strName.CPtr();
+		const wchar_t *Ptr=ListData.empty()? L"" : ListData[CurFile]->strName.c_str();
 
 		if (*Ptr)
 		{

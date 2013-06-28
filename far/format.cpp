@@ -89,16 +89,16 @@ BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 
 	if (Align == fmt::A_RIGHT)
 	{
-		while (OutStr.GetLength() < MinWidth)
+		while (OutStr.size() < MinWidth)
 		{
-			OutStr.Insert(0, FillChar);
+			OutStr.insert(0, FillChar);
 		}
 	}
 	else
 	{
-		while (OutStr.GetLength() < MinWidth)
+		while (OutStr.size() < MinWidth)
 		{
-			OutStr.Append(FillChar);
+			OutStr.append(FillChar);
 		}
 	}
 
@@ -160,7 +160,7 @@ BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 
 BaseFormat& BaseFormat::operator<<(const string& String)
 {
-	return Put(String.CPtr(), String.GetLength());
+	return Put(String.c_str(), String.size());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::MinWidth& Manipulator)
@@ -235,7 +235,7 @@ BaseFormat& BaseFormat::ToString(T Value)
 
 void FormatString::Commit(const string& Data)
 {
-	Append(Data);
+	append(Data);
 }
 
 void FormatScreen::Commit(const string& Data)
@@ -246,7 +246,7 @@ void FormatScreen::Commit(const string& Data)
 LangString::LangString(enum LNGID MessageId):
 	Iteration(0)
 {
-	Append(MSG(MessageId));
+	append(MSG(MessageId));
 }
 
 void LangString::Commit(const string& Data)

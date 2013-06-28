@@ -234,8 +234,8 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 {
-	pi->FileName = DuplicateString(fi->strName.CPtr());
-	pi->AlternateFileName = DuplicateString(fi->strShortName.CPtr());
+	pi->FileName = DuplicateString(fi->strName.c_str());
+	pi->AlternateFileName = DuplicateString(fi->strShortName.c_str());
 	pi->FileSize=fi->FileSize;
 	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
@@ -257,7 +257,7 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 
 	pi->CRC32=fi->CRC32;
 	pi->Reserved[0]=pi->Reserved[1]=0;
-	pi->Owner = EmptyToNull(fi->strOwner.CPtr());
+	pi->Owner = EmptyToNull(fi->strOwner.c_str());
 }
 
 void FileList::FreePluginPanelItem(PluginPanelItem *pi)
@@ -269,14 +269,14 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 {
 	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
 	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
-	size+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
-	size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+	size+=sizeof(wchar_t)*(fi->strName.size()+1);
+	size+=sizeof(wchar_t)*(fi->strShortName.size()+1);
 	for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 	{
 		size+=fi->CustomColumnData[ii]?sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1):0;
 	}
 	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
-	size+=fi->strOwner.IsEmpty()?0:sizeof(wchar_t)*(fi->strOwner.GetLength()+1);
+	size+=fi->strOwner.empty()?0:sizeof(wchar_t)*(fi->strOwner.size()+1);
 
 	if (gpi)
 	{
@@ -305,11 +305,11 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			gpi->Item->UserData.Data=fi->UserData;
 			gpi->Item->UserData.FreeData=fi->Callback;
 
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.CPtr());
-			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.c_str());
+			data+=sizeof(wchar_t)*(fi->strName.size()+1);
 
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.CPtr());
-			data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.c_str());
+			data+=sizeof(wchar_t)*(fi->strShortName.size()+1);
 
 			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 			{
@@ -335,13 +335,13 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			}
 
 
-			if (fi->strOwner.IsEmpty())
+			if (fi->strOwner.empty())
 			{
 				gpi->Item->Owner=nullptr;
 			}
 			else
 			{
-				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.CPtr());
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.c_str());
 			}
 		}
 	}
@@ -403,7 +403,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
 	HANDLE Result = nullptr;
-	if(!FileName->IsEmpty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	if(!FileName->empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"close AnotherPanel file"));
@@ -495,11 +495,11 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 	OpenPanelInfo Info;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(DestPanel->hPlugin,&Info);
 
-	if (DestPanel->strPluginDizName.IsEmpty() && Info.DescrFilesNumber>0)
+	if (DestPanel->strPluginDizName.empty() && Info.DescrFilesNumber>0)
 		DestPanel->strPluginDizName = Info.DescrFiles[0];
 
 	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
-	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
+	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.empty() &&
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
 	         apiGetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
 	{
@@ -553,7 +553,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
-					pi.FileName = DuplicateString(DestPanel->strPluginDizName.CPtr());
+					pi.FileName = DuplicateString(DestPanel->strPluginDizName.c_str());
 					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
 					delete[] pi.FileName;
 				}
@@ -642,7 +642,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 	if (!ItemList.empty())
 	{
-		const wchar_t *lpwszTempDir=strTempDir.CPtr();
+		const wchar_t *lpwszTempDir=strTempDir.c_str();
 		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), FALSE, &lpwszTempDir, OPM_SILENT);
 		strTempDir=lpwszTempDir;
 
@@ -702,14 +702,14 @@ void FileList::PluginHostGetFiles()
 	strDestPath = AnotherPanel->GetCurDir();
 
 	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
-	        !SelFileCount) || strDestPath.IsEmpty())
+	        !SelFileCount) || strDestPath.empty())
 	{
 		strDestPath = PointToName(strSelName);
 		// SVS: ј зачем здесь велс€ поиск точки с начала?
 		size_t pos;
 
 		if (strDestPath.RPos(pos,L'.'))
-			strDestPath.SetLength(pos);
+			strDestPath.resize(pos);
 	}
 
 	int ExitLoop=FALSE;
@@ -735,7 +735,7 @@ void FileList::PluginHostGetFiles()
 			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,OpMode))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
-				const wchar_t *lpwszDestPath=strDestPath.CPtr();
+				const wchar_t *lpwszDestPath=strDestPath.c_str();
 				ExitLoop=Global->CtrlObject->Plugins->GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,&lpwszDestPath,OpMode)!=1;
 				strDestPath=lpwszDestPath;
 
@@ -905,7 +905,7 @@ void FileList::ProcessHostFile()
 		int Done=FALSE;
 		SaveSelection();
 
-		if (PanelMode==PLUGIN_PANEL && !PluginsList.back()->strHostFile.IsEmpty())
+		if (PanelMode==PLUGIN_PANEL && !PluginsList.back()->strHostFile.empty())
 		{
 			_ALGO(SysLog(L"call CreatePluginItemList"));
 			auto ItemList = CreatePluginItemList();
@@ -1174,7 +1174,7 @@ void FileList::ProcessPluginCommand()
 				_ALGO(SysLog(L"Command=FCTL_CLOSEPANEL"));
 				SetCurDir(strPluginParam,true);
 
-				if (strPluginParam.IsEmpty())
+				if (strPluginParam.empty())
 					Update(UPDATE_KEEP_SELECTION);
 
 				Redraw();
@@ -1217,7 +1217,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 
 		if (!(CurPlugin.Flags & PPIF_SELECTED))
 		{
-			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber]->strName.CPtr()))
+			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber]->strName.c_str()))
 				if (++FileNumber >= ListData.size())
 					return;
 

@@ -49,7 +49,7 @@ const wchar_t LangFileMask[] = L"*.lng";
 
 bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
-	strFileName.Clear();
+	strFileName.clear();
 	string strFullName, strEngFileName;
 	FAR_FIND_DATA FindData;
 	string strLangName;
@@ -62,35 +62,35 @@ bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const st
 
 		if (!LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			strFileName.Clear();
+			strFileName.clear();
 		}
 		else
 		{
 			GetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName.CPtr(),Language.CPtr()))
+			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName.c_str(),Language.c_str()))
 				break;
 
 			LangFile.Close();
 
 			if (StrongLang)
 			{
-				strFileName.Clear();
-				strEngFileName.Clear();
+				strFileName.clear();
+				strEngFileName.clear();
 				break;
 			}
 
-			if (!StrCmpI(strLangName.CPtr(),L"English"))
+			if (!StrCmpI(strLangName.c_str(),L"English"))
 				strEngFileName = strFileName;
 		}
 	}
 
 	if (!LangFile.Opened())
 	{
-		if (!strEngFileName.IsEmpty())
+		if (!strEngFileName.empty())
 			strFileName = strEngFileName;
 
-		if (!strFileName.IsEmpty())
+		if (!strFileName.empty())
 		{
 			LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 
@@ -109,7 +109,7 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 	int ReadLength;
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
-	int Length=(int)strFullParamName.GetLength();
+	int Length=(int)strFullParamName.size();
 	/* $ 29.11.2001 DJ
 	   не поганим позицию в файле; дальше @Contents не читаем
 	*/
@@ -119,7 +119,7 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 	GetFileString GetStr(LangFile);
 	while (GetStr.GetString(&ReadStr, nCodePage, ReadLength))
 	{
-		if (!StrCmpNI(ReadStr,strFullParamName.CPtr(),Length))
+		if (!StrCmpNI(ReadStr,strFullParamName.c_str(),Length))
 		{
 			wchar_t *Ptr=wcschr(ReadStr,L'=');
 
@@ -128,11 +128,11 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 				*strParam1 = Ptr+1;
 
 				if (strParam2)
-					strParam2->Clear();
+					strParam2->clear();
 
-				size_t pos;
+				size_t pos = strParam1->find(L',');
 
-				if (strParam1->Pos(pos,L','))
+				if (pos != string::npos)
 				{
 					if (strParam2)
 					{
@@ -141,7 +141,7 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 						RemoveTrailingSpaces(*strParam2);
 					}
 
-					strParam1->SetLength(pos);
+					strParam1->resize(pos);
 				}
 
 				RemoveTrailingSpaces(*strParam1);
@@ -203,7 +203,7 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 			if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,nullptr,nCodePage) &&
 			                      !GetLangParam(LangFile,L"DocumentContents",&strEntryName,nullptr,nCodePage)))
 			{
-				LangMenuItem.strName.Format(L"%.40s", !strLangDescr.IsEmpty() ? strLangDescr.CPtr():strLangName.CPtr());
+				LangMenuItem.strName.Format(L"%.40s", !strLangDescr.empty() ? strLangDescr.c_str():strLangName.c_str());
 
 				/* $ 01.08.2001 SVS
 				   Не допускаем дубликатов!
@@ -212,8 +212,8 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 				*/
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
-					LangMenuItem.SetSelect(!StrCmpI(strDest->CPtr(),strLangName.CPtr()));
-					LangMenu->SetUserData(strLangName.CPtr(), (strLangName.GetLength()+1)*sizeof(wchar_t), LangMenu->AddItem(&LangMenuItem));
+					LangMenuItem.SetSelect(!StrCmpI(strDest->c_str(),strLangName.c_str()));
+					LangMenu->SetUserData(strLangName.c_str(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu->AddItem(&LangMenuItem));
 				}
 			}
 		}
@@ -253,10 +253,10 @@ int GetOptionsParam(File& SrcFile,const wchar_t *KeyName,string &strValue, UINT 
 				strValue = strFullParamName;
 				strValue.LShift(pos+1);
 				RemoveExternalSpaces(strValue);
-				strFullParamName.SetLength(pos);
+				strFullParamName.resize(pos);
 				RemoveExternalSpaces(strFullParamName);
 
-				if (!StrCmpI(strFullParamName.CPtr(),KeyName))
+				if (!StrCmpI(strFullParamName.c_str(),KeyName))
 				{
 					SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
 					return TRUE;
@@ -358,7 +358,7 @@ bool Language::Init(const string& Path, int CountNeed)
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
-	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage.CPtr(),strLangName.CPtr()))
+	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage.c_str(),strLangName.c_str()))
 		Global->Opt->strLanguage=strLangName;
 
 	UINT64 FileSize;
@@ -395,18 +395,18 @@ bool Language::Init(const string& Path, int CountNeed)
 			ReadStr[SrcLength-1]=0;
 
 		ConvertString(ReadStr+1,strDestStr);
-		size_t DestLength=strDestStr.GetLength()+1;
+		size_t DestLength=strDestStr.size()+1;
 
 #ifndef NO_WRAPPER
 		if (m_bUnicode)
 #endif // NO_WRAPPER
 		{
-			wcscpy(MsgList+MsgSize, strDestStr.CPtr());
+			wcscpy(MsgList+MsgSize, strDestStr.c_str());
 		}
 #ifndef NO_WRAPPER
 		else
 		{
-			WideCharToMultiByte(CP_OEMCP, 0, strDestStr.CPtr(), -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
+			WideCharToMultiByte(CP_OEMCP, 0, strDestStr.c_str(), -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
 		}
 #endif // NO_WRAPPER
 		MsgSize+=DestLength;
@@ -575,8 +575,8 @@ bool Language::CheckMsgId(LNGID MsgId) const
 			/* IS $ */
 			if (Message(MSG_WARNING, 2,
 				L"Error",
-				strMsg1.CPtr(),
-				(FormatString()<<L"Message "<<MsgId<<L" not found").CPtr(),
+				strMsg1.c_str(),
+				(FormatString()<<L"Message "<<MsgId<<L" not found").c_str(),
 				L"Ok", L"Quit")==1)
 				exit(0);
 		}

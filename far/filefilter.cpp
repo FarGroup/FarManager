@@ -183,10 +183,10 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
-			MenuString(ListItem.strName, nullptr, false, h, true, i->first.CPtr(), MSG(MPanelFileType));
-			size_t Length = i->first.GetLength() + 1;
+			MenuString(ListItem.strName, nullptr, false, h, true, i->first.c_str(), MSG(MPanelFileType));
+			size_t Length = i->first.size() + 1;
 			ListItem.SetCheck(i->second);
-			FilterList.SetUserData(i->first.CPtr(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
+			FilterList.SetUserData(i->first.c_str(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
 		}
 	}
 
@@ -356,7 +356,7 @@ bool FileFilter::FilterEdit()
 					InsertQuote(strQuotedTitle);
 
 					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-					            strQuotedTitle.CPtr(),MSG(MDelete),MSG(MCancel)))
+					            strQuotedTitle.c_str(),MSG(MDelete),MSG(MCancel)))
 					{
 						FilterData->erase(FilterData->begin()+SelPos);
 						FilterList.DeleteItem(SelPos);
@@ -523,7 +523,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 				strMask2 = FMask;
 				Unquote(strMask2);
 
-				if (StrCmpI(strMask1.CPtr(),strMask2.CPtr())<1)
+				if (StrCmpI(strMask1.c_str(),strMask2.c_str())<1)
 					break;
 
 				j++;
@@ -531,7 +531,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (CurFilterData)
 			{
-				if (!StrCmpI(Mask.CPtr(),FMask))
+				if (!StrCmpI(Mask.c_str(),FMask))
 				{
 					if (!Check)
 					{
@@ -816,7 +816,7 @@ void FileFilter::InitFilter()
 		//настройки старых версий фара.
 		FilterData->back()->SetTitle(strTitle);
 
-		strMask.Clear();
+		strMask.clear();
 		cfg->GetValue(key,L"Mask",strMask);
 		unsigned __int64 UseMask = 1;
 		cfg->GetValue(key,L"UseMask",&UseMask);
@@ -834,9 +834,9 @@ void FileFilter::InitFilter()
 		cfg->GetValue(key,L"RelativeDate",&RelativeDate);
 		FilterData->back()->SetDate(UseDate!=0, (DWORD)DateType, DateAfter, DateBefore, RelativeDate!=0);
 
-		strSizeAbove.Clear();
+		strSizeAbove.clear();
 		cfg->GetValue(key,L"SizeAboveS",strSizeAbove);
-		strSizeBelow.Clear();
+		strSizeBelow.clear();
 		cfg->GetValue(key,L"SizeBelowS",strSizeBelow);
 		unsigned __int64 UseSize = 0;
 		cfg->GetValue(key,L"UseSize",&UseSize);
@@ -1017,10 +1017,10 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)
 {
-	if (!StrCmp(FileName.CPtr(),L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!StrCmp(FileName.c_str(),L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return -1;
 
-	const wchar_t *DotPtr=wcsrchr(FileName.CPtr(),L'.');
+	const wchar_t *DotPtr=wcsrchr(FileName.c_str(),L'.');
 	string strMask;
 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки

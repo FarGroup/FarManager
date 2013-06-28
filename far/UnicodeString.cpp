@@ -73,7 +73,7 @@ size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, uintptr_t CodeP
 	return nCopyLength+1;
 }
 
-UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen)
+UnicodeString& UnicodeString::replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen)
 {
 	// Pos & Len must be valid
 	assert(Pos <= m_pData->GetLength());
@@ -101,7 +101,7 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 				// copy data from self
 				UnicodeString TmpStr(Data, DataLen);
 				wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
-				wmemcpy(m_pData->GetData() + Pos, TmpStr.CPtr(), TmpStr.GetLength());
+				wmemcpy(m_pData->GetData() + Pos, TmpStr.c_str(), TmpStr.size());
 			}
 			else
 			{
@@ -131,21 +131,7 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	return *this;
 }
 
-UnicodeString& UnicodeString::Append(const char *lpszAdd, uintptr_t CodePage)
-{
-	if (lpszAdd && *lpszAdd)
-	{
-		size_t nAddSize = MultiByteToWideChar(CodePage,0,lpszAdd,-1,nullptr,0);
-		size_t nNewLength = m_pData->GetLength() + nAddSize - 1;
-		Inflate(nNewLength + 1);
-		MultiByteToWideChar(CodePage,0,lpszAdd,(int)nAddSize,m_pData->GetData() + m_pData->GetLength(),(int)m_pData->GetSize());
-		m_pData->SetLength(nNewLength);
-	}
-
-	return *this;
-}
-
-UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
+UnicodeString& UnicodeString::assign(const UnicodeString &Str)
 {
 	if (Str.m_pData != m_pData)
 	{
@@ -155,7 +141,7 @@ UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
 	return *this;
 }
 
-UnicodeString& UnicodeString::Copy(const char *lpszData, uintptr_t CodePage)
+UnicodeString& UnicodeString::assign(const char *lpszData, uintptr_t CodePage)
 {
 	if (!lpszData || !*lpszData)
 	{
@@ -172,41 +158,36 @@ UnicodeString& UnicodeString::Copy(const char *lpszData, uintptr_t CodePage)
 	return *this;
 }
 
-UnicodeString UnicodeString::SubStr(size_t Pos, size_t Len) const
+UnicodeString UnicodeString::substr(size_t Pos, size_t Len) const
 {
-	if (Pos >= GetLength())
-		return UnicodeString();
-	if (Len == static_cast<size_t>(-1) || Len > GetLength() || Pos + Len > GetLength())
-		Len = GetLength() - Pos;
+	if (size() - Pos < Len)
+		Len = size() - Pos;
+
 	return UnicodeString(m_pData->GetData() + Pos, Len);
 }
 
-bool UnicodeString::IsSubStrAt(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const
+int UnicodeString::compare(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const
 {
-	if (Pos >= m_pData->GetLength())
-		Len = 0;
-	else if (Len >= m_pData->GetLength() || Pos + Len >= m_pData->GetLength())
-		Len = m_pData->GetLength() - Pos;
+	if (size() - Pos < Len)
+		Len = size() - Pos;
 
-	if (Len != DataLen)
-		return false;
-
-	return !wmemcmp(m_pData->GetData() + Pos, Data, Len);
+	int ret = wmemcmp(m_pData->GetData() + Pos, Data, Len);
+	return ret? ret : Len < DataLen ? -1 : Len == DataLen ? 0 : +1;
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2)
 {
-	return UnicodeString(strSrc1).Append(strSrc2);
+	return UnicodeString(strSrc1).append(strSrc2);
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2)
 {
-	return UnicodeString(strSrc1).Append(lpwszSrc2);
+	return UnicodeString(strSrc1).append(lpwszSrc2);
 }
 
 const UnicodeString operator+(const wchar_t *strSrc1, const UnicodeString &lpwszSrc2)
 {
-	return UnicodeString(strSrc1).Append(lpwszSrc2);
+	return UnicodeString(strSrc1).append(lpwszSrc2);
 }
 
 wchar_t *UnicodeString::GetBuffer(size_t nSize)
@@ -226,7 +207,7 @@ void UnicodeString::ReleaseBuffer(size_t nLength)
 	m_pData->SetLength(nLength);
 }
 
-size_t UnicodeString::SetLength(size_t nLength)
+void UnicodeString::resize(size_t nLength)
 {
 	if (nLength < m_pData->GetLength())
 	{
@@ -237,14 +218,12 @@ size_t UnicodeString::SetLength(size_t nLength)
 		else
 		{
 			Inflate(nLength+1);
-			return m_pData->SetLength(nLength);
+			m_pData->SetLength(nLength);
 		}
 	}
-
-	return m_pData->GetLength();
 }
 
-UnicodeString& UnicodeString::Clear()
+void UnicodeString::clear()
 {
 	if (!m_pData.unique())
 	{
@@ -254,8 +233,6 @@ UnicodeString& UnicodeString::Clear()
 	{
 		m_pData->SetLength(0);
 	}
-
-	return *this;
 }
 
 int CDECL UnicodeString::Format(const wchar_t * format, ...)
@@ -287,7 +264,7 @@ int CDECL UnicodeString::Format(const wchar_t * format, ...)
 	while (retValue == -1);
 
 	va_end(argptr);
-	Copy(buffer);
+	assign(buffer);
 	xf_free(buffer);
 	return retValue;
 }
@@ -304,32 +281,6 @@ UnicodeString&  UnicodeString::Upper(size_t nStartPos, size_t nLength)
 	Inflate(m_pData->GetSize());
 	CharUpperBuffW(m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
 	return *this;
-}
-
-bool UnicodeString::Pos(size_t &nPos, wchar_t Ch, size_t nStartPos) const
-{
-	const wchar_t *lpwszStr = wcschr(m_pData->GetData()+nStartPos,Ch);
-
-	if (lpwszStr)
-	{
-		nPos = lpwszStr - m_pData->GetData();
-		return true;
-	}
-
-	return false;
-}
-
-bool UnicodeString::Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos) const
-{
-	const wchar_t *lpwszStr = wcsstr(m_pData->GetData()+nStartPos,lpwszFind);
-
-	if (lpwszStr)
-	{
-		nPos = lpwszStr - m_pData->GetData();
-		return true;
-	}
-
-	return false;
 }
 
 bool UnicodeString::PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos) const

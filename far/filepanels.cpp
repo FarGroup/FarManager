@@ -74,7 +74,7 @@ FilePanels::FilePanels():
 
 static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 {
-	if (strSrc.IsEmpty())
+	if (strSrc.empty())
 	{
 		strSrc = Global->g_strFarPath;
 		DeleteEndSlash(strSrc);
@@ -90,7 +90,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 
 		if (IsLocalPath_FarPath)
 		{
-			strSrc.SetLength(2);
+			strSrc.resize(2);
 			strSrc += L"\\";
 		}
 	}
@@ -184,7 +184,7 @@ void FilePanels::Init(int DirCount)
 
 		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
 
-		if (DirCount < 2 && !PassiveFolder.IsEmpty() && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		if (DirCount < 2 && !PassiveFolder.empty() && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{
 			PassivePanel->InitCurDir(PassiveFolder);
 		}
@@ -1193,7 +1193,7 @@ void FilePanels::Refresh()
 
 void FilePanels::GoToFile(const string& FileName)
 {
-	if (FirstSlash(FileName.CPtr()))
+	if (FirstSlash(FileName.c_str()))
 	{
 		string ADir,PDir;
 		Panel *PassivePanel = GetAnotherPanel(ActivePanel);
@@ -1221,8 +1221,8 @@ void FilePanels::GoToFile(const string& FileName)
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir.CPtr(),strNameDir.CPtr());
-		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir.CPtr(),strNameDir.CPtr());
+		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir.c_str(),strNameDir.c_str());
+		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir.c_str(),strNameDir.c_str());
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)

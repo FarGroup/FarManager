@@ -121,12 +121,12 @@ void EditControl::SetMenuPos(VMenu2& menu)
 
 void EnumFiles(VMenu2& Menu, const string& Str)
 {
-	if(!Str.IsEmpty())
+	if(!Str.empty())
 	{
 		string strStr(Str);
 
 		bool OddQuote = false;
-		for(size_t i=0; i<strStr.GetLength(); i++)
+		for(size_t i=0; i<strStr.size(); i++)
 		{
 			if(strStr[i] == L'"')
 			{
@@ -141,7 +141,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		}
 		else
 		{
-			for(Pos=strStr.GetLength()-1; Pos!=static_cast<size_t>(-1); Pos--)
+			for(Pos=strStr.size()-1; Pos!=static_cast<size_t>(-1); Pos--)
 			{
 				if(strStr[Pos]==L'"')
 				{
@@ -168,10 +168,10 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			Pos++;
 			StartQuote=true;
 		}
-		string strStart(strStr.CPtr(),Pos);
+		string strStart(strStr.c_str(),Pos);
 		strStr.LShift(Pos);
 		Unquote(strStr);
-		if(!strStr.IsEmpty())
+		if(!strStr.empty())
 		{
 			FAR_FIND_DATA d;
 			string strExp;
@@ -181,10 +181,10 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			while(Find.Get(d))
 			{
 				const wchar_t* FileName=PointToName(strStr);
-				bool NameMatch=!StrCmpNI(FileName,d.strFileName.CPtr(),StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName.CPtr(),StrLength(FileName));
+				bool NameMatch=!StrCmpNI(FileName,d.strFileName.c_str(),StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName.c_str(),StrLength(FileName));
 				if(NameMatch || AltNameMatch)
 				{
-					strStr.SetLength(FileName-strStr.CPtr());
+					strStr.resize(FileName-strStr.c_str());
 					string strAdd (strStr + (NameMatch ? d.strFileName : d.strAlternateFileName));
 					if (!StartQuote)
 						QuoteSpace(strAdd);
@@ -221,15 +221,15 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 	DisableElevation de;
 
-	if(!Module.IsEmpty() && !FirstSlash(Module.CPtr()))
+	if(!Module.empty() && !FirstSlash(Module.c_str()))
 	{
 		std::list<string> List;
 		string str;
-		int ModuleLength = static_cast<int>(Module.GetLength());
+		int ModuleLength = static_cast<int>(Module.size());
 		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds));
 		std::for_each(CONST_RANGE(ExcludeCmdsList, i)
 		{
-			if (!StrCmpNI(Module.CPtr(), i.CPtr(), ModuleLength))
+			if (!StrCmpNI(Module.c_str(), i.c_str(), ModuleLength))
 			{
 				Result=true;
 				str = i;
@@ -257,14 +257,14 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 				FAR_FIND_DATA data;
 				string str(i);
 				AddEndSlash(str);
-				str.Append(strName).Append(L"*");
+				str.append(strName).append(L"*");
 				FindFile Find(str);
 				while(Find.Get(data))
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
 					{
-						LPCWSTR ModuleExt=wcsrchr(data.strFileName.CPtr(),L'.');
-						if(!StrCmpI(ModuleExt, Ext.CPtr()))
+						LPCWSTR ModuleExt=wcsrchr(data.strFileName.c_str(),L'.');
+						if(!StrCmpI(ModuleExt, Ext.c_str()))
 						{
 							str = data.strFileName;
 							if(std::find(List.cbegin(), List.cend(), str) == List.cend())
@@ -321,12 +321,12 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 					if(RetEnum == ERROR_SUCCESS)
 					{
 						HKEY hSubKey;
-						if (RegOpenKeyEx(hKey, strName.CPtr(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
+						if (RegOpenKeyEx(hKey, strName.c_str(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
 						{
 							DWORD cbSize = 0;
 							if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
 							{
-								if (!StrCmpNI(Module.CPtr(), strName.CPtr(), ModuleLength))
+								if (!StrCmpNI(Module.c_str(), strName.c_str(), ModuleLength))
 								{
 									if(std::find(List.cbegin(), List.cend(), strName) == List.cend())
 									{
@@ -413,7 +413,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		{
 			for(size_t i=0;i<pList->ItemsNumber;i++)
 			{
-				if (!StrCmpNI(pList->Items[i].Text, strTemp.CPtr(), static_cast<int>(strTemp.GetLength())) && pList->Items[i].Text != strTemp.CPtr())
+				if (!StrCmpNI(pList->Items[i].Text, strTemp.c_str(), static_cast<int>(strTemp.size())) && pList->Items[i].Text != strTemp.c_str())
 				{
 					ComplMenu.AddItem(pList->Items[i].Text);
 				}
@@ -427,7 +427,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		{
 			EnumModules(strTemp, &ComplMenu);
 		}
-		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.CPtr(),ComplMenu.GetItemPtr(0)->strName.CPtr())))
+		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.c_str(),ComplMenu.GetItemPtr(0)->strName.c_str())))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -443,10 +443,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 					CurPos--;
 				}
 				int Offset = 0;
-				if(!CurrentLine.IsEmpty())
+				if(!CurrentLine.empty())
 				{
 					int Count = ComplMenu.GetItemCount();
-					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName.CPtr(), CurrentLine.CPtr()) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName.c_str(), CurrentLine.c_str()) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
 						++Offset;
 					if(Offset < Count)
 						++Offset;
@@ -455,7 +455,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 					if(Offset >= Count)
 						Offset = 0;
 				}
-				AppendString(ComplMenu.GetItemPtr(Offset)->strName.CPtr()+SelStart);
+				AppendString(ComplMenu.GetItemPtr(Offset)->strName.c_str()+SelStart);
 				Select(SelStart, GetLength());
 				Flags.Clear(FEDITLINE_CMP_CHANGED);
 				CurPos = GetLength();
@@ -486,7 +486,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 						if(CurPos>=0 && PrevPos!=CurPos)
 						{
 							PrevPos=CurPos;
-							SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName.CPtr():strTemp.CPtr());
+							SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName.c_str():strTemp.c_str());
 							Show();
 						}
 					}
@@ -506,7 +506,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							{
 								ComplMenu.DeleteItems();
 								PrevPos=0;
-								if(!strTemp.IsEmpty())
+								if(!strTemp.empty())
 								{
 									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Global->Opt->AutoComplete.UseHistory))
 									{
@@ -519,7 +519,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 									{
 										for(size_t i=0;i<pList->ItemsNumber;i++)
 										{
-											if (!StrCmpNI(pList->Items[i].Text, strTemp.CPtr(), static_cast<int>(strTemp.GetLength())) && pList->Items[i].Text != strTemp.CPtr())
+											if (!StrCmpNI(pList->Items[i].Text, strTemp.c_str(), static_cast<int>(strTemp.size())) && pList->Items[i].Text != strTemp.c_str())
 											{
 												ComplMenu.AddItem(pList->Items[i].Text);
 											}
@@ -534,7 +534,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 								{
 									EnumModules(strTemp, &ComplMenu);
 								}
-								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.CPtr(),ComplMenu.GetItemPtr(0)->strName.CPtr())))
+								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.c_str(),ComplMenu.GetItemPtr(0)->strName.c_str())))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
@@ -550,7 +550,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										}
 
 										DisableCallback();
-										AppendString(ComplMenu.GetItemPtr(0)->strName.CPtr()+SelStart);
+										AppendString(ComplMenu.GetItemPtr(0)->strName.c_str()+SelStart);
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
 										this->Select(SelStart, GetLength());
@@ -696,7 +696,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu.GetItemPtr(ExitCode)->strName.CPtr());
+						SetString(ComplMenu.GetItemPtr(ExitCode)->strName.c_str());
 						Show();
 					}
 					else
@@ -819,7 +819,7 @@ const EXPAND_TABS EditControl::GetTabExpandMode() const
 const void EditControl::SetInputMask(const string& InputMask)
 {
 	Mask = InputMask;
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
 	}
@@ -829,9 +829,9 @@ const void EditControl::SetInputMask(const string& InputMask)
 void EditControl::RefreshStrByMask(int InitMode)
 {
 	auto Mask = GetInputMask();
-	if (!Mask.IsEmpty())
+	if (!Mask.empty())
 	{
-		int MaskLen = static_cast<int>(Mask.GetLength());
+		int MaskLen = static_cast<int>(Mask.size());
 
 		if (StrSize!=MaskLen)
 		{
