@@ -1799,6 +1799,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (UseWildCards)
 			ConvertWildcards(strSelName.CPtr(), strDest, SelectedFolderNameLength);
 
+		if (strDest == L"..")
+			strDest = L"..\\";
+
 		bool simple_rename = false;
 		if (move_rename && first && SrcPanel->GetSelCount() == 1 && !src_abspath)
 			simple_rename = PointToName(strDest) == strDest.CPtr();
