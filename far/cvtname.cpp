@@ -145,8 +145,8 @@ bool MixToFullPath(string& strPath)
 
 bool RemoveDots(const string &Src, string &strDest)
 {
-	string strRoot, strSrc(Src);
-	GetPathRoot(strSrc, strRoot);
+	string strSrc(Src);
+	string strRoot = ExtractPathRoot(Src);
 	if (!strRoot.IsEmpty())
 		strSrc = strSrc.SubStr(strRoot.GetLength());
 	bool ok = MixToFullPath(strSrc);

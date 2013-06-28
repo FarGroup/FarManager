@@ -1802,14 +1802,16 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (!dst_abspath && !IsAbsolutePath(strDest))
 		{
 			string tpath;
-			if (!src_abspath)
+			if (!src_abspath) {
 				tpath = SrcPanel->GetCurDir();
+				AddEndSlash(tpath);
+			}
 			else {
 				size_t slash_pos;
 				FindLastSlash(slash_pos, strSelName);
-				tpath = strSelName.SubStr(0, slash_pos);
+				tpath = strSelName.SubStr(0, slash_pos+1);
 			}
-			strDest = tpath + L"\\" + strDest;
+			strDest = tpath + strDest;
 		}
 
 		string tpath;
