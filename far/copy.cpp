@@ -1799,7 +1799,11 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (UseWildCards)
 			ConvertWildcards(strSelName.CPtr(), strDest, SelectedFolderNameLength);
 
-		if (!dst_abspath && !IsAbsolutePath(strDest))
+		bool simple_rename = false;
+		if (move_rename && first && SrcPanel->GetSelCount() == 1 && !src_abspath)
+			simple_rename = PointToName(strDest) == strDest.CPtr();
+
+		if (!simple_rename && !dst_abspath && !IsAbsolutePath(strDest))
 		{
 			string tpath;
 			if (!src_abspath) {
@@ -1814,20 +1818,23 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			strDest = tpath + strDest;
 		}
 
-		string tpath;
-		if (RemoveDots(strDest, tpath))
-			strDest = tpath;
-		else
+		if (!simple_rename)
 		{
-			int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
-				MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.CPtr(),
-				MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
-			if (rc == 1)
-				SkipMode = 2;
-			if (rc == 1 || !rc)
-				return COPY_NEXT;
+			string tpath;
+			if (RemoveDots(strDest, tpath))
+				strDest = tpath;
 			else
-				return COPY_CANCEL; // 2, -1, -2
+			{
+				int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
+					MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.CPtr(),
+					MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
+				if (rc == 1)
+					SkipMode = 2;
+				if (rc == 1 || !rc)
+					return COPY_NEXT;
+				else
+					return COPY_CANCEL; // 2, -1, -2
+			}
 		}
 
 		bool check_samedisk = false, dest_changed = false;
