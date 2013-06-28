@@ -185,8 +185,8 @@ enum MACRO_OP_CODE
 	MCODE_C_PPANEL_BOF,               // начало пассивного каталога?
 	MCODE_C_APANEL_EOF,               // конец активного  каталога?
 	MCODE_C_PPANEL_EOF,               // конец пассивного каталога?
-	MCODE_C_APANEL_empty,           // активная панель:  пуста?
-	MCODE_C_PPANEL_empty,           // пассивная панель: пуста?
+	MCODE_C_APANEL_ISEMPTY,           // активная панель:  пуста?
+	MCODE_C_PPANEL_ISEMPTY,           // пассивная панель: пуста?
 	MCODE_C_APANEL_SELECTED,          // активная панель:  выделенные элементы есть?
 	MCODE_C_PPANEL_SELECTED,          // пассивная панель: выделенные элементы есть?
 	MCODE_C_APANEL_ROOT,              // это корневой каталог активной панели?

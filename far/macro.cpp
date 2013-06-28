@@ -218,8 +218,8 @@ void print_opcodes()
 	fprintf(fp, "MCODE_C_PPANEL_BOF=0x%X // начало пассивного каталога?\n", MCODE_C_PPANEL_BOF);
 	fprintf(fp, "MCODE_C_APANEL_EOF=0x%X // конец активного  каталога?\n", MCODE_C_APANEL_EOF);
 	fprintf(fp, "MCODE_C_PPANEL_EOF=0x%X // конец пассивного каталога?\n", MCODE_C_PPANEL_EOF);
-	fprintf(fp, "MCODE_C_APANEL_empty=0x%X // активная панель:  пуста?\n", MCODE_C_APANEL_empty);
-	fprintf(fp, "MCODE_C_PPANEL_empty=0x%X // пассивная панель: пуста?\n", MCODE_C_PPANEL_empty);
+	fprintf(fp, "MCODE_C_APANEL_ISEMPTY=0x%X // активная панель:  пуста?\n", MCODE_C_APANEL_ISEMPTY);
+	fprintf(fp, "MCODE_C_PPANEL_ISEMPTY=0x%X // пассивная панель: пуста?\n", MCODE_C_PPANEL_ISEMPTY);
 	fprintf(fp, "MCODE_C_APANEL_SELECTED=0x%X // активная панель:  выделенные элементы есть?\n", MCODE_C_APANEL_SELECTED);
 	fprintf(fp, "MCODE_C_PPANEL_SELECTED=0x%X // пассивная панель: выделенные элементы есть?\n", MCODE_C_PPANEL_SELECTED);
 	fprintf(fp, "MCODE_C_APANEL_ROOT=0x%X // это корневой каталог активной панели?\n", MCODE_C_APANEL_ROOT);
@@ -2046,10 +2046,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassBoolean(SelPanel && SelPanel->IsVisible(), Data);
 		}
 
-		case MCODE_C_APANEL_empty: // APanel.Empty
-		case MCODE_C_PPANEL_empty: // PPanel.Empty
+		case MCODE_C_APANEL_ISEMPTY: // APanel.Empty
+		case MCODE_C_PPANEL_ISEMPTY: // PPanel.Empty
 		{
-			Panel *SelPanel=CheckCode==MCODE_C_APANEL_empty?ActivePanel:PassivePanel;
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
 			if (SelPanel)
 			{
 				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
