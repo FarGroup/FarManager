@@ -434,9 +434,9 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 
 	bool SameFile = strCurFileName == FileName;
 	strCurFileName = FileName;
-	size_t pos;
 
-	if (strCurFileName.RPos(pos,L'.'))
+	size_t pos = strCurFileName.rfind(L'.');
+	if (pos != string::npos)
 	{
 		string strValue;
 

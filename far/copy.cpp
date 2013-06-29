@@ -542,7 +542,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			string strWorkTimeStr,strTimeLeftStr;
 			GetTimeText(WorkTime,strWorkTimeStr);
 			GetTimeText(TimeLeft,strTimeLeftStr);
-			if(strSpeed[0]==L' ' && strSpeed[strSpeed.size()-1]>=L'0' && strSpeed[strSpeed.size()-1]<=L'9')
+			if(strSpeed.front() == L' ' && strSpeed.back() >= L'0' && strSpeed.back() <= L'9')
 			{
 				strSpeed.LShift(1);
 				strSpeed+=L" ";
@@ -1857,7 +1857,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
 		 && SrcPanel->GetSelCount() > 1
-		 && !IsSlash(strDest[strDest.size()-1])
+		 && !IsSlash(strDest.back())
 		 && apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES)
 		{
 			switch (Message(FMSG_WARNING,3,MSG(MWarning),strDest.c_str(),MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))

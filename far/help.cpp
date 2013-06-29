@@ -110,9 +110,9 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 
 		if (StackData.strHelpTopic.at(0) == HelpBeginLink)
 		{
-			size_t pos;
+			size_t pos = StackData.strHelpTopic.rfind(HelpEndLink);
 
-			if (StackData.strHelpTopic.RPos(pos,HelpEndLink))
+			if (pos != string::npos)
 				StackData.strHelpTopic.resize(pos+1);
 
 			StackData.strHelpTopic += HelpContents;
@@ -1516,7 +1516,7 @@ int Help::JumpTopic()
 
 		if (StackData.strHelpTopic.at(0) == HelpBeginLink)
 		{
-			if (StackData.strHelpTopic.RPos(pos,HelpEndLink))
+			if ((pos = StackData.strHelpTopic.rfind(HelpEndLink)) != string::npos)
 			{
 				StackData.strHelpTopic.resize(pos+1);
 				StackData.strHelpTopic += HelpContents;

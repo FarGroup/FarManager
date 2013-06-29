@@ -706,9 +706,8 @@ void FileList::PluginHostGetFiles()
 	{
 		strDestPath = PointToName(strSelName);
 		// SVS: ј зачем здесь велс€ поиск точки с начала?
-		size_t pos;
-
-		if (strDestPath.RPos(pos,L'.'))
+		size_t pos = strDestPath.rfind(L'.');
+		if (pos != string::npos)
 			strDestPath.resize(pos);
 	}
 

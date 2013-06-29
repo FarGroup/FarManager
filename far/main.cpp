@@ -362,7 +362,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
 			wchar_t Buffer[MAX_PATH];
-			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
+			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
 			AddEndSlash(Buffer);
 			Global->Opt->ProfilePath = Buffer;
 			Global->Opt->ProfilePath += L"Far Manager";
@@ -374,7 +374,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 			else
 			{
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
-				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
+				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
 				AddEndSlash(Buffer);
 				Global->Opt->LocalProfilePath = Buffer;
 				Global->Opt->LocalProfilePath += L"Far Manager";
@@ -439,8 +439,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	if(!Global->Console->IsFullscreenSupported())
 	{
-		// 0x8 - AltEnter
-		Global->ifn->SetConsoleKeyShortcuts(TRUE, 0x8, nullptr, 0);
+		const BYTE ReserveAltEnter = 0x8;
+		Global->ifn->SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	InitCurrentDirectory();

@@ -268,7 +268,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			if (FindSlash(pos,strDirName))
 				strDirName.resize(pos);
 
-			if (!SrcPanel->GoToFile(strDirName) && strDirName.at(strDirName.size()-1)==L'.')
+			if (!SrcPanel->GoToFile(strDirName) && strDirName.back() == L'.')
 			{
 				strDirName.resize(strDirName.size()-1);
 				SrcPanel->GoToFile(strDirName);

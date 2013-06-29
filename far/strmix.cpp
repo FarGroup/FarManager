@@ -1217,7 +1217,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 		return 0;
 
 	unsigned __int64 n = _wtoi64(FileSizeStr.c_str());
-	wchar_t c = Upper(FileSizeStr[FileSizeStr.size()-1]);
+	wchar_t c = Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)

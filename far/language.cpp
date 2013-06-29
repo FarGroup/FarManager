@@ -246,9 +246,8 @@ int GetOptionsParam(File& SrcFile,const wchar_t *KeyName,string &strValue, UINT 
 		if (!StrCmpNI(ReadStr,L".Options",Length))
 		{
 			strFullParamName = RemoveExternalSpaces(ReadStr+Length);
-			size_t pos;
-
-			if (strFullParamName.RPos(pos,L'='))
+			size_t pos = strFullParamName.rfind(L'=');
+			if (pos != string::npos)
 			{
 				strValue = strFullParamName;
 				strValue.LShift(pos+1);

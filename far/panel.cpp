@@ -1479,7 +1479,7 @@ void Panel::FastFind(int FirstKey)
 
 						// уберем двойные '**'
 						if (strName.size() > 1
-						        && strName[strName.size()-1] == L'*'
+						        && strName.back() == L'*'
 						        && strName[strName.size()-2] == L'*')
 						{
 							strName.resize(strName.size()-1);

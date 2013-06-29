@@ -62,17 +62,6 @@ void UnicodeString::Inflate(size_t nSize)
 	}
 }
 
-size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage) const
-{
-	if (!lpszStr)
-		return 0;
-
-	size_t nCopyLength = (nSize <= m_pData->GetLength()+1 ? nSize-1 : m_pData->GetLength());
-	WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,nullptr,nullptr);
-	lpszStr[nCopyLength] = 0;
-	return nCopyLength+1;
-}
-
 UnicodeString& UnicodeString::replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen)
 {
 	// Pos & Len must be valid
@@ -292,26 +281,6 @@ bool UnicodeString::PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPo
 		nPos = lpwszStr - m_pData->GetData();
 		return true;
 	}
-
-	return false;
-}
-
-bool UnicodeString::RPos(size_t &nPos, wchar_t Ch, size_t nStartPos) const
-{
-	const wchar_t *lpwszStrStart = m_pData->GetData()+nStartPos;
-	const wchar_t *lpwszStrEnd = m_pData->GetData()+m_pData->GetLength();
-
-	do
-	{
-		if (*lpwszStrEnd == Ch)
-		{
-			nPos = lpwszStrEnd - m_pData->GetData();
-			return true;
-		}
-
-		lpwszStrEnd--;
-	}
-	while (lpwszStrEnd >= lpwszStrStart);
 
 	return false;
 }

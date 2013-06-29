@@ -2532,11 +2532,11 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& R
 					strPluginSearchPath += L"\\";
 					ScanPluginTree(Dlg, hPlugin, Flags, RecurseLevel);
 
-					size_t pos=0;
-					if (strPluginSearchPath.RPos(pos,L'\\'))
+					size_t pos = strPluginSearchPath.rfind(L'\\');
+					if (pos != string::npos)
 						strPluginSearchPath.resize(pos);
 
-					if (strPluginSearchPath.RPos(pos,L'\\'))
+					if ((pos = strPluginSearchPath.rfind(L'\\')) != string::npos)
 						strPluginSearchPath.resize(pos+1);
 					else
 						strPluginSearchPath.clear();

@@ -57,7 +57,7 @@ struct PSEUDO_HANDLE
 HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
-	if(!Name.empty() && !IsSlash(Name.at(Name.size()-1)))
+	if(!Name.empty() && !IsSlash(Name.back()))
 	{
 		PSEUDO_HANDLE* Handle = new PSEUDO_HANDLE;
 		if(Handle)
@@ -140,11 +140,11 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 						}
 
 						// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-						if(!FindData.strFileName.at(FindData.strFileName.size()-1))
+						if(!FindData.strFileName.back())
 						{
 							FindData.strFileName.resize(FindData.strFileName.size()-1);
 						}
-						if(!FindData.strAlternateFileName.at(FindData.strAlternateFileName.size()-1))
+						if(!FindData.strAlternateFileName.back())
 						{
 							FindData.strAlternateFileName.resize(FindData.strAlternateFileName.size()-1);
 						}
@@ -237,11 +237,11 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 		}
 
 		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-		if(!FindData.strFileName.at(FindData.strFileName.size()-1))
+		if(!FindData.strFileName.back())
 		{
 			FindData.strFileName.resize(FindData.strFileName.size()-1);
 		}
-		if(!FindData.strAlternateFileName.at(FindData.strAlternateFileName.size()-1))
+		if(!FindData.strAlternateFileName.back())
 		{
 			FindData.strAlternateFileName.resize(FindData.strAlternateFileName.size()-1);
 		}
@@ -610,7 +610,7 @@ bool FileWalker::InitWalk(size_t BlockSize)
 		else
 		{
 			AllocSize = FileSize;
-			ChunkList.emplace_back(Chunk(0, std::min(static_cast<UINT64>(BlockSize), FileSize)));
+			ChunkList.emplace_back(Chunk(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), FileSize))));
 			Result = true;
 		}
 		CurrentChunk = ChunkList.begin();

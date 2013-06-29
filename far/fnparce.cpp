@@ -433,16 +433,16 @@ int SubstFileName(const wchar_t *DlgTitle,
 	else // ...спросим у ком.строки
 		Global->CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
 
-	size_t pos;
 	// Предварительно получим некоторые "константы" :-)
 	PSubstData->strNameOnly = Name;
 
-	if (PSubstData->strNameOnly.RPos(pos,L'.'))
+	size_t pos = PSubstData->strNameOnly.rfind(L'.');
+	if (pos != string::npos)
 		PSubstData->strNameOnly.resize(pos);
 
 	PSubstData->strShortNameOnly = ShortName;
 
-	if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
+	if ((pos = PSubstData->strShortNameOnly.rfind(L'.')) != string::npos)
 		PSubstData->strShortNameOnly.resize(pos);
 
 	PSubstData->ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
@@ -450,12 +450,12 @@ int SubstFileName(const wchar_t *DlgTitle,
 	PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
 	PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 
-	if (PSubstData->strAnotherNameOnly.RPos(pos,L'.'))
+	if ((pos = PSubstData->strAnotherNameOnly.rfind(L'.')) != string::npos)
 		PSubstData->strAnotherNameOnly.resize(pos);
 
 	PSubstData->strAnotherShortNameOnly = PSubstData->strAnotherShortName;
 
-	if (PSubstData->strAnotherShortNameOnly.RPos(pos,L'.'))
+	if ((pos = PSubstData->strAnotherShortNameOnly.rfind(L'.')) != string::npos)
 		PSubstData->strAnotherShortNameOnly.resize(pos);
 
 	PSubstData->PreserveLFN=FALSE;

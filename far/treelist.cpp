@@ -674,8 +674,8 @@ bool TreeList::FillLastData()
 	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
 	for (auto i = ListData.begin() + 1 ; i != ListData.end(); ++i)
 	{
-		size_t Pos;
-		int PathLength = ((*i)->strName.RPos(Pos,L'\\'))? (int)Pos+1 : 0;
+		size_t Pos = (*i)->strName.rfind(L'\\');
+		int PathLength = Pos != string::npos? (int)Pos+1 : 0;
 
 		size_t Depth=(*i)->Depth=CountSlash((*i)->strName.c_str()+RootLength);
 

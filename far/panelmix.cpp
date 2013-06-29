@@ -428,7 +428,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 
 		if (strArgName.size()>1)
 		{
-			switch (strArgName.at(strArgName.size()-1))
+			switch (strArgName.back())
 			{
 				case L'%':
 					ViewColumnWidthsTypes[I]=PERCENT_WIDTH;

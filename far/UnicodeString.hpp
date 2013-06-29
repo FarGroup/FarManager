@@ -314,18 +314,20 @@ typedef class UnicodeString
 		size_t find(const wchar_t* s, size_t pos, size_t n) const {auto Iterator = std::search(cbegin() + pos, cend(), s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 		size_t find(wchar_t c, size_t pos = 0) const { return find(&c, pos, 1); }
 
+		size_t rfind(const UnicodeString& str, size_t pos = npos) const { return rfind(str.data(), pos, str.size()); };
+		size_t rfind(const wchar_t* s, size_t pos = npos) const { return rfind(s, pos, StrLength(s)); };
+		size_t rfind(const wchar_t* s, size_t pos, size_t n) const { pos = std::min(pos, size()); auto Iterator = std::find_end(cbegin(), cbegin() + pos, s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
+		size_t rfind(wchar_t c, size_t pos = npos) const { return rfind(&c, pos, 1); }
 
 
 		wchar_t *GetBuffer(size_t nSize = npos);
 		void ReleaseBuffer(size_t nLength = npos);
-		size_t GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage=CP_OEMCP) const;
 		int CDECL Format(const wchar_t * format, ...);
 		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return replace(Pos, Len, nullptr, 0); }
 		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=npos);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=npos);
 		bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
-		bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
 		bool EqualNoCase(const UnicodeString& rhs) const { return !StrCmpI(data(), rhs.data()); }
 } string;
 

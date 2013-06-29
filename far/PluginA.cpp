@@ -1207,7 +1207,7 @@ static int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 	if (!Dest)
 		return (int)strDest.size();
 	else
-		strDest.GetCharString(Dest,DestSize);
+		UnicodeToOEM(strDest.data(), Dest, DestSize);
 
 	return std::min((int)strDest.size(),DestSize);
 }
@@ -1284,7 +1284,7 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 	string strS(src), strD;
 	apiExpandEnvironmentStrings(strS,strD);
 	DWORD len = (DWORD)std::min(strD.size(),size-1);
-	strD.GetCharString(dest,len+1);
+	UnicodeToOEM(strD.data(), dest, len+1);
 	return len;
 }
 
@@ -1344,7 +1344,7 @@ static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)
-		strD.GetCharString(DestText,DestLength+1);
+		UnicodeToOEM(strD.data(), DestText, DestLength+1);
 
 	return ret;
 }
@@ -4735,7 +4735,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		wchar_t *codePageName = Global->CodePages->FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 		FormatString sTableName;
 		sTableName<<fmt::MinWidth(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
-		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
+		UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
 		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), nullptr, nullptr);
@@ -4774,7 +4774,7 @@ char* WINAPI XlatA(
 
 	NativeFSF.XLat(strLine.GetBuffer(),StartPos,EndPos,NewFlags);
 	strLine.ReleaseBuffer();
-	strLine.GetCharString(Line,strLine.size()+1);
+	UnicodeToOEM(strLine.data(), Line, strLine.size()+1);
 	return Line;
 }
 
@@ -4970,7 +4970,7 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 	*FSF=StandardFunctions;
 	PSI->ModuleNumber=(intptr_t)pPlugin;
 	PSI->FSF=FSF;
-	pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName));
+	UnicodeToOEM(pPlugin->GetModuleName().data(), PSI->ModuleName, sizeof(PSI->ModuleName));
 }
 
 bool PluginA::GetGlobalInfo(GlobalInfo* Info)

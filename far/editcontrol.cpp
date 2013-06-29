@@ -137,7 +137,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		size_t Pos = 0;
 		if(OddQuote)
 		{
-			strStr.RPos(Pos, L'"');
+			Pos = strStr.rfind(L'"');
 		}
 		else
 		{

@@ -603,7 +603,7 @@ void ReloadEnvironment()
 						{
 							string strMergedPath;
 							apiGetEnvironmentVariable(strName, strMergedPath);
-							if(strMergedPath.at(strMergedPath.size()-1)!=L';')
+							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
 							}

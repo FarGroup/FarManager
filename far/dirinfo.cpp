@@ -358,11 +358,11 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir(OpMode,strPluginSearchPath, PluginDirList);
-				size_t pos = (size_t)-1;
-				strPluginSearchPath.RPos(pos,L'\x1');
-				strPluginSearchPath.resize(pos);
+				size_t pos = strPluginSearchPath.rfind(L'\x1');
+				if (pos != string::npos)
+					strPluginSearchPath.resize(pos);
 
-				if (strPluginSearchPath.RPos(pos,L'\x1'))
+				if ((pos = strPluginSearchPath.rfind(L'\x1'))!= string::npos)
 					strPluginSearchPath.resize(pos+1);
 				else
 					strPluginSearchPath.clear();

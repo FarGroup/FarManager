@@ -3290,11 +3290,9 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 {
 #if !defined(Mantis_698)
 	int DirFind = 0;
-	int Length = static_cast<int>(Name.size());
-	string strMask;
-	strMask = Name;
+	string strMask = Name;
 
-	if (Length > 0 && IsSlash(Name[Length-1]))
+	if (!Name.empty() && IsSlash(Name.back()))
 	{
 		DirFind = 1;
 		strMask.resize(strMask.size()-1);
@@ -3349,12 +3347,10 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	// АХТУНГ! В разработке
 	string Dest;
 	int DirFind = 0;
-	int Length = StrLength(Name);
-	string strMask;
-	strMask = Name;
+	string strMask = Name;
 	strMask.Upper();
 
-	if (Length > 0 && IsSlash(Name[Length-1]))
+	if (!Name.empty() && IsSlash(Name.back()))
 	{
 		DirFind = 1;
 		strMask.resize(strMask.size()-1);
@@ -3371,9 +3367,9 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	}
 */
 
-	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < FileCount; I+=Direct)
+	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < ListData.size(); I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Dest.Upper().Contains(strMask))
+		if (GetPlainString(Dest,I) && Dest.Upper().find(strMask) != string::npos)
 		//if (CmpName(strMask,ListData[I]->strName,true,I==CurFile))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
@@ -3389,9 +3385,9 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 		}
 	}
 
-	for (int I=(Direct > 0)?0:FileCount-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
+	for (int I=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Dest.Upper().Contains(strMask))
+		if (GetPlainString(Dest,I) && Dest.Upper().find(strMask) != string::npos)
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -3796,9 +3792,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
-		size_t pos;
+		size_t pos = strCurName.rfind(L'.');
 
-		if (strCurName.RPos(pos,L'.'))
+		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
 			strRawMask.Format(L"\"*.%s\"", strCurName.c_str()+pos+1);
@@ -3818,9 +3814,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 			// Учтем тот момент, что имя может содержать символы-разделители
 			strRawMask=L"\"";
 			strRawMask+=strCurName;
-			size_t pos;
+			size_t pos = strRawMask.rfind(L'.');
 
-			if (strRawMask.RPos(pos,L'.') && pos!=strRawMask.size()-1)
+			if (pos != string::npos && pos!=strRawMask.size()-1)
 				strRawMask.resize(pos);
 
 			strRawMask += L".*\"";
@@ -5090,10 +5086,9 @@ void FileList::ProcessCopyKeys(int Key)
 
 								if (Info.HostFile && *Info.HostFile)
 								{
-									size_t pos;
 									strDestPath = PointToName(Info.HostFile);
-
-									if (strDestPath.RPos(pos,L'.'))
+									size_t pos = strDestPath.rfind(L'.');
+									if (pos != string::npos)
 										strDestPath.resize(pos);
 								}
 							}

@@ -630,7 +630,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 
 		ConvertNameToFull(Dest,strDestFullName);
 
-		if (IsSlash(strDestFullName.at(strDestFullName.size()-1)))
+		if (IsSlash(strDestFullName.back()))
 		{
 			if (LinkType!=RP_VOLMOUNT)
 				strDestFullName += PtrSelName;
