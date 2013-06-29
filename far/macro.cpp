@@ -934,15 +934,19 @@ int KeyMacro::GetKey()
 		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(macro->GetMPInfo());
 		macro->ResetMPInfo();
 
-		if (mpr == nullptr)
-			break;
-
-		switch (mpr->ReturnType)
+		switch (mpr ? mpr->ReturnType : MPRT_ERRORFINISH)
 		{
 			default:
 			case MPRT_NORMALFINISH:
 			case MPRT_ERRORFINISH:
 			{
+				if (mpr == nullptr)
+				{
+					OpenMacroPluginInfo *info = macro->GetMPInfo();
+					info->CallType = MCT_MACROFINAL;
+					CallMacroPlugin(info);
+				}
+
 				if (!(macro->Flags() & MFLAGS_ENABLEOUTPUT))
 					Global->ScrBuf->Unlock();
 
