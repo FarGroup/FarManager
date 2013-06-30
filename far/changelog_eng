@@ -3,6 +3,69 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 30.06.2013 01:46:43 +0200 - build 3486
+
+1. Refactoring.
+
+zg 29.06.2013 22:58:03 +0200 - build 3485
+
+1. correction of 3482 for IsWordDiv: '\0' is always a words separator.
+
+drkns 29.06.2013 14:58:18 +0200 - build 3484
+
+1. Refactoring.
+
+2. Support for compilation with VC++ 2013.
+
+shmuel 28.06.2013 23:29:19 +0200 - build 3483
+
+1. Incorrect renamings for some constants in 3482.
+
+drkns 28.06.2013 16:40:17 +0200 - build 3482
+
+1. Refactoring.
+
+w17 28.06.2013 16:12:45 +0400 - build 3481
+
+1. 3475++, cursor did not follow a file when renaming it with Shift-F6
+
+w17 28.06.2013 15:13:42 +0400 - build 3480
+
+1. 3475++, M#2437: Copy/Move on a mapped drive doesn't work in nightly
+
+w17 27.06.2013 20:08:50 +0400 - build 3479
+
+1. Another correction to 3475 -- processing of file descriptions
+
+2. Quotes are added for the name of a file with leading space characters in attributes setting dialog.
+
+w17 27.06.2013 07:41:30 +0400 - build 3478
+
+1. M#2435: On copying files to a directory, a new directory is created aside.
+   This is the fix for 3475.
+
+drkns 26.06.2013 18:48:30 +0200 - build 3477
+
+1. Adding some 'const'ness.
+
+drkns 25.06.2013 21:41:36 +0200 - build 3476
+
+1. Continuation of 3474.
+
+w17 25.06.2013 19:24:28 +0400 - build 3475
+
+1. M#2420: Problem with files moved from the temporary panel by their relative paths
+
+drkns 25.06.2013 14:15:35 +0200 - build 3474
+
+1. Analyzer warnings.
+
+2. Refactoring.
+
+shmuel 24.06.2013 17:28:37 +0200 - build 3473
+
+1. Refactoring.
+
 shmuel 22.06.2013 15:16:19 +0200 - build 3472
 
 1. Corrections of 3458.
