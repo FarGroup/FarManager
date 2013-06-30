@@ -1,3 +1,8 @@
+shmuel 30.06.2013 13:12:37 +0200 - build 196
+
+1. Добавлена возможность вызывать скрипт-файлы с аргументами.
+   Это касается: MCTL_SENDSTRING, MCTL_ADDMACRO, eval, lm:post, lm:check.
+
 shmuel 24.06.2013 17:17:36 +0300 - build 195
 
 1. Macro Browser: при нажатии Enter ("исполнить выделенный макрос")

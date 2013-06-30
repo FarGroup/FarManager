@@ -40,7 +40,16 @@ struct MacroAddMacro
   <div class=dfn>Id</div>
     <div class=dfndescr>Уникальный, в рамках плагина, идентификатор макропоследовательности.</div>
   <div class=dfn>SequenceText</div>
-    <div class=dfndescr>Строка, содержащая макрос в текстовом виде (массив клавиш во внутреннем представлении Far Manager).</div>
+    <div class=dfndescr>
+      Строка, содержащая макрос в текстовом виде.<br>
+      Если строка начинается с символа <code>@</code>, то используется следующий формат:
+          <code>@<имя файла-скрипта> [:: <параметры скрипта>]</code>
+      <ul>
+      <li>В имени файла допустимо использование переменных окружения.
+      <li>Опциональные параметры скрипта представляют список Lua-выражений, разделённых запятыми.
+      <li>Пример: <code>@%MyFarScripts%\calc.lua :: 'factorial', 3+5</code>
+      </ul>
+    </div>
   <div class=dfn>Description</div>
     <div class=dfndescr>Строка, содержащая описание макроса.</div>
   <div class=dfn>Flags</div>

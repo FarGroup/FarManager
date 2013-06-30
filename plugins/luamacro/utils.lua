@@ -240,8 +240,7 @@ local function AddMacro (srctable)
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
-  local IsCode = type(srctable.code)=="string"
-  if IsCode then
+  if type(srctable.code)=="string" then
     if srctable.code:sub(1,1) ~= "@" then
       local f, msg = loadstring(srctable.code)
       if not f then ErrMsg(msg) return end

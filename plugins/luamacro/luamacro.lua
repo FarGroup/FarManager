@@ -91,23 +91,43 @@ function export.GetPluginInfo()
   return PluginInfo
 end
 
-local function loadmacro (Text)
+local function SplitMacroString (Text)
   if Text:sub(1,1) == "@" then
-    return loadfile(ExpandEnv(Text:sub(2)))
+    Text = Text:sub(2)
+    local p1,p2 = Text:find("%s*::")
+    if p1 then
+      return string.sub(Text,1,p1-1), string.sub(Text,p2+1)
+    end
+    return Text
+  end
+end
+
+local function loadmacro (Text)
+  local fname, params = SplitMacroString(Text)
+  if fname then
+    if params then
+      local f2, msg = loadstring("return "..params)
+      if not f2 then return nil, msg end
+      local f1, msg = loadfile(ExpandEnv(fname))
+      if not f1 then return nil, msg end
+      return f1, f2
+    else
+      return loadfile(ExpandEnv(fname))
+    end
   else
     return loadstring(Text)
   end
 end
 
 local function MacroInit (Id, Text)
-  local chunk, msg
+  local chunk, params
   if Id == 0 then -- Id==0 может быть только для "одноразовых" макросов, запускаемых посредством MSSC_POST.
-    chunk, msg = loadmacro(Text)
+    chunk, params = loadmacro(Text)
   else
     local mtable = utils.GetMacroById(Id)
     if mtable then
       chunk = mtable.action
-      if not chunk then chunk, msg = loadmacro(mtable.code) end
+      if not chunk then chunk, params = loadmacro(mtable.code) end
     end
   end
   if chunk then
@@ -115,11 +135,12 @@ local function MacroInit (Id, Text)
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
     end
-    local macro = { coro=co_create(chunk), store={} }
+    if params then setfenv(params, getfenv(chunk)) end
+    local macro = { coro=co_create(chunk), params=params, store={} }
     table.insert(RunningMacros, macro)
     return #RunningMacros
   else
-    ErrMsg(msg)
+    ErrMsg(params)
   end
 end
 
@@ -128,7 +149,14 @@ local function MacroStep (handle, ...)
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret1, ret_type, ret_values = co_resume(macro.coro, ...)
+      local ok, ret1, ret_type, ret_values
+      if macro.params then
+        local params = macro.params
+        macro.params = nil
+        ok, ret1, ret_type, ret_values = co_resume(macro.coro, params())
+      else
+        ok, ret1, ret_type, ret_values = co_resume(macro.coro, ...)
+      end
       if ok then
         status = co_status(macro.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
@@ -210,11 +238,13 @@ local function ProcessCommandLine (CmdLine)
   if op then
     local op = op:lower()
     if op=="post" and text~="" then
-      if text:sub(1,1)=="@" then
-        text = Unquote(ExpandEnv(text:sub(2)))
-        text = "@"..far.ConvertPath(text, F.CPM_NATIVE)
+      local fname, params = SplitMacroString(text)
+      if fname then
+        fname = Unquote(ExpandEnv(fname))
+        text = "@"..far.ConvertPath(fname, F.CPM_NATIVE)
+        if params then text = text.."::"..params; end
       end
-      far.MacroPost(text, F.KMFLAGS_DISABLEOUTPUT)
+      far.MacroPost(text)
     elseif op=="check" and text~="" then far.MacroCheck(text)
     elseif op=="load" then far.MacroLoadAll()
     elseif op=="save" then utils.WriteMacros()
