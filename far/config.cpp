@@ -1525,7 +1525,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlShiftDot", &Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."},
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlShiftDot", &Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."},
 
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"DisableShowPlayMacro", &Macro.DisableShowPlayMacro, false},
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"ShowPlayIndicator", &Macro.ShowPlayIndicator, true},
 
 		{FSSF_PRIVATE,       NKeyPanel,L"AutoUpdateLimit", &AutoUpdateLimit, 0},
 		{FSSF_PRIVATE,       NKeyPanel,L"CtrlAltShiftRule", &PanelCtrlAltShiftRule, 0},

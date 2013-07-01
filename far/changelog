@@ -1,3 +1,10 @@
+svs 01.07.2013 16:30:04 +0400 - build 3489
+
+1. Уточнение build 3488
+   Убираем "отрицание". Теперь:
+   В конфиге (far:config) ищем "Macros.ShowPlayIndicator", ставим false для отключения отображения 'P'
+   По умолчанию 'P' показывать
+
 svs 01.07.2013 15:09:19 +0400 - build 3488
 
 1. Mantis#0002410: Optionally disable blinking 'P' macro execution indicator

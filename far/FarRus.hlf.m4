@@ -4959,7 +4959,7 @@ $ #Макросы: запись и воспроизведение#
        записанной последовательности.
 
     Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\2FP\-'. 
-См. так же "~Macros.DisableShowPlayMacro~@Macros.DisableShowPlayMacro@" для отключения отображения символа.
+См. так же "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" для включения/отключения отображения символа.
 
 @KeyMacroDelete
 $ #Макросы: удаление макроса#
@@ -6058,16 +6058,16 @@ $ #far:config Panel.ShortcutAlwaysChdir#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-@Macros.DisableShowPlayMacro
-$ #far:config Macros.DisableShowPlayMacro#
-    Параметр "Macros.DisableShowPlayMacro" позволяет отключать отображение в левом верхнем углу экрана символа '\2FP\-'
+@Macros.ShowPlayIndicator
+$ #far:config Macros.ShowPlayIndicator#
+    Параметр "Macros.ShowPlayIndicator" позволяет включать или отключать отображение в левом верхнем углу экрана символа '\2FP\-'
 во время воспроизведения макропоследовательности.
 
-     false - ^<wrap>Символ отображается
+     false - ^<wrap>Символ не отображается
 
-     true  - ^<wrap>Символ не отображается
+     true  - ^<wrap>Символ отображается
 
-    По умолчанию значение = false
+    По умолчанию значение = true
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 

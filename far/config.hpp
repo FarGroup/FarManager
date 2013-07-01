@@ -576,7 +576,7 @@ public:
 		DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
 		StringOption strMacroCONVFMT; // формат преобразования double в строку
 		StringOption strDateFormat; // Для $Date
-		BoolOption DisableShowPlayMacro; // запретить вывод 'P' во время проигрывания макроса
+		BoolOption ShowPlayIndicator; // показать вывод 'P' во время проигрывания макроса
 	};
 
 	struct KnownModulesIDs
