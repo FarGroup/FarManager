@@ -43,6 +43,7 @@ extern void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Co
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
 extern int far_MacroCallFar(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
+extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 
 #define CAST(tp,expr) (tp)(expr)
 #define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
@@ -308,6 +309,54 @@ static void PushPluginHandle(lua_State *L, HANDLE Handle)
 	*p = Handle;
 	luaL_getmetatable(L, PluginHandleType);
 	lua_setmetatable(L, -2);
+}
+
+void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
+{
+	INT64 val64;
+	int type = lua_type(L, pos);
+	pos = abs_index(L, pos);
+	target->Type = FMVT_UNKNOWN;
+
+	if(type == LUA_TNUMBER)
+	{
+		target->Type = FMVT_DOUBLE;
+		target->Value.Double = lua_tonumber(L, pos);
+	}
+	else if(type == LUA_TSTRING)
+	{
+		target->Type = FMVT_STRING;
+		target->Value.String = check_utf8_string(L, pos, NULL);
+	}
+	else if(type == LUA_TTABLE)
+	{
+		lua_rawgeti(L,pos,1);
+		if (lua_type(L,-1) == LUA_TSTRING)
+		{
+			target->Type = FMVT_BINARY;
+			target->Value.Binary.Data = (void*)lua_tolstring(L, pos, &target->Value.Binary.Size);
+		}
+		lua_pop(L,1);
+	}
+	else if(type == LUA_TBOOLEAN)
+	{
+		target->Type = FMVT_BOOLEAN;
+		target->Value.Boolean = lua_toboolean(L, pos);
+	}
+	else if(type == LUA_TNIL)
+	{
+		target->Type = FMVT_NIL;
+	}
+	else if(type == LUA_TLIGHTUSERDATA)
+	{
+		target->Type = FMVT_POINTER;
+		target->Value.Pointer = lua_touserdata(L, pos);
+	}
+	else if(bit64_getvalue(L, pos, &val64))
+	{
+		target->Type = FMVT_INTEGER;
+		target->Value.Integer = val64;
+	}
 }
 
 static int far_GetFileOwner(lua_State *L)
@@ -3232,15 +3281,8 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		lua_newtable(L);
 		PutIntToTable(L, "GetType", fgv->Type);
 		PutIntToTable(L, "ValType", fgv->Value.Type);
-
-		if(fgv->Value.Type == FMVT_INTEGER)
-			PutFlagsToTable(L, "Value", fgv->Value.Value.Integer);
-		else if(fgv->Value.Type == FMVT_BOOLEAN)
-			PutBoolToTable(L, "Value", (int)fgv->Value.Value.Boolean);
-		else if(fgv->Value.Type == FMVT_STRING)
-			PutWStrToTable(L, "Value", fgv->Value.Value.String, -1);
-		else if(fgv->Value.Type == FMVT_DOUBLE)
-			PutNumToTable(L, "Value", fgv->Value.Value.Double);
+		PushFarMacroValue(L, &fgv->Value);
+		lua_setfield(L, -2, "Value");
 	}
 	else
 		lua_pushinteger(L, (intptr_t)Param2);  //+3
@@ -3321,25 +3363,21 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	{
 		if((ret = lua_istable(L,-1)) != 0)
 		{
+			struct FarMacroValue tempValue;
 			struct FarGetValue *fgv = (struct FarGetValue*) Param2;
-			fgv->Value.Type = GetOptIntFromTable(L, "ValType", FMVT_UNKNOWN);
 			lua_getfield(L, -1, "Value");
-
-			if(fgv->Value.Type == FMVT_INTEGER)
-				fgv->Value.Value.Integer = get_env_flag(L, -1, NULL);
-			else if(fgv->Value.Type == FMVT_BOOLEAN)
-				fgv->Value.Value.Boolean = lua_toboolean(L, -1);
-			else if(fgv->Value.Type == FMVT_STRING)
+			ConvertLuaValue(L, -1, &tempValue);
+			if (tempValue.Type == fgv->Value.Type)
 			{
-				if((fgv->Value.Value.String = utf8_to_utf16(L, -1, NULL)) != 0)
+				fgv->Value = tempValue;
+				if (fgv->Value.Type == FMVT_STRING)
 				{
 					lua_pushvalue(L, -1);                   // keep stack balanced
 					lua_setfield(L, -4, "getvaluestring");  // protect from garbage collector
 				}
-				else ret = 0;
 			}
-			else if(fgv->Value.Type == FMVT_DOUBLE)
-				fgv->Value.Value.Double = lua_tonumber(L, -1);
+			else if (tempValue.Type==FMVT_DOUBLE && fgv->Value.Type==FMVT_INTEGER)
+				fgv->Value.Value.Integer = (__int64)tempValue.Value.Double;
 			else
 				ret = 0;
 
@@ -4311,53 +4349,6 @@ static int far_AdvControl(lua_State *L)
 
 	lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, Param2));
 	return 1;
-}
-
-void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
-{
-	INT64 val64;
-	int type = lua_type(L, pos);
-	target->Type = FMVT_UNKNOWN;
-
-	if(type == LUA_TNUMBER)
-	{
-		target->Type = FMVT_DOUBLE;
-		target->Value.Double = lua_tonumber(L, pos);
-	}
-	else if(type == LUA_TSTRING)
-	{
-		target->Type = FMVT_STRING;
-		target->Value.String = check_utf8_string(L, pos, NULL);
-	}
-	else if(type == LUA_TTABLE)
-	{
-		lua_rawgeti(L,pos,1);
-		if (lua_type(L,-1) == LUA_TSTRING)
-		{
-			target->Type = FMVT_BINARY;
-			target->Value.Binary.Data = (void*)lua_tolstring(L, pos, &target->Value.Binary.Size);
-		}
-		lua_pop(L,1);
-	}
-	else if(type == LUA_TBOOLEAN)
-	{
-		target->Type = FMVT_BOOLEAN;
-		target->Value.Boolean = lua_toboolean(L, pos);
-	}
-	else if(type == LUA_TNIL)
-	{
-		target->Type = FMVT_NIL;
-	}
-	else if(type == LUA_TLIGHTUSERDATA)
-	{
-		target->Type = FMVT_POINTER;
-		target->Value.Pointer = lua_touserdata(L, pos);
-	}
-	else if(bit64_getvalue(L, pos, &val64))
-	{
-		target->Type = FMVT_INTEGER;
-		target->Value.Integer = val64;
-	}
 }
 
 static int far_MacroLoadAll(lua_State* L)
