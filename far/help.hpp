@@ -95,7 +95,7 @@ class HelpRecord
 
 		bool operator==(const HelpRecord &rhs) const
 		{
-			return HelpStr.EqualNoCase(rhs.HelpStr);
+			return !StrCmpI(HelpStr, rhs.HelpStr);
 		}
 
 		bool operator <(const HelpRecord &rhs) const

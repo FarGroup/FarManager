@@ -316,13 +316,16 @@ int Manager::GetModalExitCode()
 int Manager::CountFramesWithName(const string& Name, BOOL IgnoreCase)
 {
 	int Counter=0;
-	auto cmpfunc = IgnoreCase? StrCmpI : StrCmp;
+	typedef int (*CompareFunction)(const string&, const string&);
+	CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
+	CompareFunction CmpFunction = IgnoreCase? CaseInsensitive : CaseSenitive;
+
 	string strType, strCurName;
 
 	std::for_each(CONST_RANGE(Frames, i)
 	{
 		i->GetTypeAndName(strType, strCurName);
-		if (!cmpfunc(Name.c_str(), strCurName.c_str()))
+		if (!CmpFunction(Name, strCurName))
 			++Counter;
 	});
 

@@ -107,9 +107,9 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 {
 	size_t l = strStr.size();
 
-	if (strStr.at(0) != QuoteChar)
+	if (strStr.front() != QuoteChar)
 	{
-		strStr.insert(0,QuoteChar);
+		strStr.insert(0, QuoteChar);
 		l++;
 	}
 
@@ -371,7 +371,7 @@ string& RemoveLeadingSpaces(string &strStr)
 	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
 		;
 
-	strStr.Remove(0,ChPtr-strStr.c_str());
+	strStr.erase(0, ChPtr - strStr.c_str());
 	return strStr;
 }
 
@@ -611,12 +611,10 @@ void Unquote(string &strStr)
 
 void UnquoteExternal(string &strStr)
 {
-	size_t len = strStr.size();
-
-	if (len > 1 && strStr.at(0) == L'\"' && strStr.at(len-1) == L'\"')
+	if (!strStr.empty() && strStr.front() == L'\"' && strStr.back() == L'\"')
 	{
-		strStr.resize(len-1);
-		strStr.LShift(1);
+		strStr.pop_back();
+		strStr.erase(0, 1);
 	}
 }
 
@@ -1561,7 +1559,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 											lastAsterisk=true;
 										else
 										{
-											item.Str.Remove(i);
+											item.Str.erase(i, 1);
 											--i;
 										}
 									}
@@ -1591,7 +1589,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 						{
 							if (a.index > b.index)
 								a.index = b.index;
-							return a.Str.EqualNoCase(b.Str);
+							return !StrCmpI(a.Str, b.Str);
 						});
 					}
 				}

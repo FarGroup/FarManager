@@ -1100,7 +1100,7 @@ bool VMenu::AddToFilter(const wchar_t *str)
 			if( IsFilterEditKey(Key) )
 			{
 				if ( Key==KEY_BS && !strFilter.empty() )
-					strFilter.resize(strFilter.size()-1);
+					strFilter.pop_back();
 				else
 					strFilter += Key;
 			}
@@ -1126,7 +1126,7 @@ int VMenu::ProcessFilterKey(int Key)
 	{
 		if (!strFilter.empty())
 		{
-			strFilter.resize(strFilter.size()-1);
+			strFilter.pop_back();
 
 			if (strFilter.empty())
 			{

@@ -270,7 +270,7 @@ void ShellMakeDir(Panel *SrcPanel)
 
 			if (!SrcPanel->GoToFile(strDirName) && strDirName.back() == L'.')
 			{
-				strDirName.resize(strDirName.size()-1);
+				strDirName.pop_back();
 				SrcPanel->GoToFile(strDirName);
 			}
 		}

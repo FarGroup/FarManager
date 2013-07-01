@@ -169,7 +169,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			StartQuote=true;
 		}
 		string strStart(strStr.c_str(),Pos);
-		strStr.LShift(Pos);
+		strStr.erase(0, Pos);
 		Unquote(strStr);
 		if(!strStr.empty())
 		{

@@ -142,11 +142,11 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 						// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
 						if(!FindData.strFileName.back())
 						{
-							FindData.strFileName.resize(FindData.strFileName.size()-1);
+							FindData.strFileName.pop_back();
 						}
 						if(!FindData.strAlternateFileName.back())
 						{
-							FindData.strAlternateFileName.resize(FindData.strAlternateFileName.size()-1);
+							FindData.strAlternateFileName.pop_back();
 						}
 
 						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
@@ -239,11 +239,11 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
 		if(!FindData.strFileName.back())
 		{
-			FindData.strFileName.resize(FindData.strFileName.size()-1);
+			FindData.strFileName.pop_back();
 		}
 		if(!FindData.strAlternateFileName.back())
 		{
-			FindData.strAlternateFileName.resize(FindData.strAlternateFileName.size()-1);
+			FindData.strAlternateFileName.pop_back();
 		}
 
 		Handle->NextOffset = DirectoryInfo->NextEntryOffset?Handle->NextOffset+DirectoryInfo->NextEntryOffset:0;

@@ -137,7 +137,7 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 					if (strParam2)
 					{
 						*strParam2 = *strParam1;
-						strParam2->LShift(pos+1);
+						strParam2->erase(0, pos+1);
 						RemoveTrailingSpaces(*strParam2);
 					}
 
@@ -250,7 +250,7 @@ int GetOptionsParam(File& SrcFile,const wchar_t *KeyName,string &strValue, UINT 
 			if (pos != string::npos)
 			{
 				strValue = strFullParamName;
-				strValue.LShift(pos+1);
+				strValue.erase(0, pos+1);
 				RemoveExternalSpaces(strValue);
 				strFullParamName.resize(pos);
 				RemoveExternalSpaces(strFullParamName);

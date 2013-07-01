@@ -1710,16 +1710,18 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	}
 	else
 	{
-		typedef Frame* (Manager::*ItemFn)(size_t index)const;
-		typedef size_t (Manager::*CountFn)(void)const;
-		ItemFn getitem[]={&Manager::GetFrame,&Manager::GetModalFrame};
-		CountFn getcount[]={&Manager::GetFrameCount,&Manager::GetModalStackCount};
-		for(size_t ii=0;ii<ARRAYSIZE(getitem);++ii)
+		static const simple_pair<decltype(&Manager::GetFrame), decltype(&Manager::GetFrameCount)> Functions[] =
 		{
-			size_t count=(FrameManager->*getcount[ii])();
+			{&Manager::GetFrame, &Manager::GetFrameCount},
+			{&Manager::GetModalFrame, &Manager::GetModalStackCount},
+		};
+
+		for(size_t ii=0;ii<ARRAYSIZE(Functions);++ii)
+		{
+			size_t count=(FrameManager->*Functions[ii].second)();
 			for(size_t jj=0;jj<count;++jj)
 			{
-				Frame *frame=(FrameManager->*getitem[ii])(jj);
+				Frame *frame=(FrameManager->*Functions[ii].first)(jj);
 				if (frame->GetType() == MODALTYPE_EDITOR)
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
@@ -2174,7 +2176,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
 					auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						return i->GetModuleName().EqualNoCase(strPath);
+						return !StrCmpI(i->GetModuleName(), strPath);
 					});
 					if (ItemIterator != Global->CtrlObject->Plugins->cend())
 					{

@@ -88,32 +88,32 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 					{
 						int* p[] = {&R, &G, &B};
 						int IntenseCount = 0;
-						for(size_t j = 0; j < ARRAYSIZE(p); ++j)
+						std::for_each(RANGE(p, component)
 						{
-							if(INSIDE(0, *p[j], 63))
+							if(INSIDE(0, *component, 63))
 							{
-								*p[j]=0;
+								*component = 0;
 							}
-							else if(INSIDE(64, *p[j], 191))
+							else if(INSIDE(64, *component, 191))
 							{
-								*p[j]=128;
+								*component = 128;
 							}
-							else if(INSIDE(192, *p[j], 255))
+							else if(INSIDE(192, *component, 255))
 							{
-								*p[j]=255;
+								*component = 255;
 								++IntenseCount;
 							}
-						}
+						});
 						// eliminate mixed intensity
 						if(IntenseCount > 0 && IntenseCount < 3)
 						{
-							for(size_t j = 0; j < 3; ++j)
+							std::for_each(RANGE(p, component)
 							{
-								if(*p[j] == 128)
+								if(*component == 128)
 								{
-									*p[j] = IntenseCount==1? 0 : 255;
+									*component = IntenseCount==1? 0 : 255;
 								}
-							}
+							});
 						}
 						IndexColors[i] = 0;
 						if(R)

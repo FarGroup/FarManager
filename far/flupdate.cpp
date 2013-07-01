@@ -165,7 +165,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
 				if (!apiIsDiskInDrive(strOldCurDir))
-					IfGoHome(strOldCurDir.at(0));
+					IfGoHome(strOldCurDir.front());
 
 				/* При смене каталога путь не изменился */
 			}

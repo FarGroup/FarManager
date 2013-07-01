@@ -282,7 +282,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 
 		strArgName.Upper();
 
-		if (strArgName.at(0)==L'N')
+		if (strArgName.front()==L'N')
 		{
 			unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 			ColumnType=NAME_COLUMN;
@@ -314,10 +314,10 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		}
 		else
 		{
-			if (strArgName.at(0)==L'S' || strArgName.at(0)==L'P' || strArgName.at(0)==L'G')
+			if (strArgName.front()==L'S' || strArgName.front()==L'P' || strArgName.front()==L'G')
 			{
 				unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
-				ColumnType=(strArgName.at(0)==L'S') ? SIZE_COLUMN:(strArgName.at(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
+				ColumnType=(strArgName.front()==L'S') ? SIZE_COLUMN:(strArgName.front()==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
 				const wchar_t *Ptr = strArgName.c_str()+1;
 
 				while (*Ptr)
@@ -382,7 +382,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 				}
 				else
 				{
-					if (strArgName.at(0)==L'O')
+					if (strArgName.front()==L'O')
 					{
 						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 						ColumnType=OWNER_COLUMN;
@@ -390,7 +390,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						if (strArgName.at(1)==L'L')
 							ColumnType|=COLUMN_FULLOWNER;
 					}
-					else if (strArgName.at(0)==L'X')
+					else if (strArgName.front()==L'X')
 					{
 						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 						ColumnType=EXTENSION_COLUMN;

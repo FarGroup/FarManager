@@ -449,7 +449,7 @@ bool Plugin::LoadData()
 		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
 		{
 			Drive[0] = L'=';
-			Drive[1] = m_strModuleName.at(0);
+			Drive[1] = m_strModuleName.front();
 			apiGetEnvironmentVariable(Drive, strCurPlugDiskPath);
 		}
 

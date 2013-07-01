@@ -2164,7 +2164,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 				string strArcPathName=ArcItem->strArcName;
 				strArcPathName+=L":";
 
-				if (!IsSlash(strPathName.at(0)))
+				if (!IsSlash(strPathName.front()))
 					AddEndSlash(strArcPathName);
 
 				strArcPathName += strPathName == L".\\"? L"\\" : strPathName.c_str();
@@ -2942,7 +2942,7 @@ bool FindFiles::FindFilesProcess()
 						break;
 
 					if (Length>1 && IsSlash(strFileName.at(Length-1)) && strFileName.at(Length-2)!=L':')
-						strFileName.resize(Length-1);
+						strFileName.pop_back();
 
 					if ((apiGetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
@@ -2962,7 +2962,7 @@ bool FindFiles::FindFilesProcess()
 					Length=strFileName.size();
 
 					if (Length>1 && IsSlash(strFileName.at(Length-1)) && strFileName.at(Length-2)!=L':')
-						strFileName.resize(Length-1);
+						strFileName.pop_back();
 
 					if (strFileName.empty())
 						break;
@@ -2985,7 +2985,7 @@ bool FindFiles::FindFilesProcess()
 					Length=strDirTmp.size();
 
 					if (Length>1 && IsSlash(strDirTmp.at(Length-1)) && strDirTmp.at(Length-2)!=L':')
-						strDirTmp.resize(Length-1);
+						strDirTmp.pop_back();
 
 					if (StrCmpI(strFileName.c_str(), strDirTmp.c_str()))
 						FindPanel->SetCurDir(strFileName,true);

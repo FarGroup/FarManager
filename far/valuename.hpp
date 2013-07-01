@@ -86,7 +86,7 @@ const string FlagsToString(const value& Flags, const container& From, wchar_t Se
 
 	if(!strFlags.empty())
 	{
-		strFlags.resize(strFlags.size() - 1);
+		strFlags.pop_back();
 	}
 
 	return strFlags;

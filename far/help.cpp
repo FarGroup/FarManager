@@ -108,7 +108,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	{
 		StackData.strHelpTopic = Topic;
 
-		if (StackData.strHelpTopic.at(0) == HelpBeginLink)
+		if (StackData.strHelpTopic.front() == HelpBeginLink)
 		{
 			size_t pos = StackData.strHelpTopic.rfind(HelpEndLink);
 
@@ -170,7 +170,7 @@ int Help::ReadHelp(const string& Mask)
 	string strTabSpace;
 	string strPath;
 
-	if (StackData.strHelpTopic.at(0)==HelpBeginLink)
+	if (StackData.strHelpTopic.front()==HelpBeginLink)
 	{
 		strPath = StackData.strHelpTopic.c_str()+1;
 		size_t pos = strPath.find(HelpEndLink);
@@ -290,7 +290,7 @@ int Help::ReadHelp(const string& Mask)
 				strReadStr=ReadStr;
 				if (StringLen(strSplitLine)<MaxLength)
 				{
-					if (strSplitLine.at(0))
+					if (!strSplitLine.empty())
 						AddLine(strSplitLine);
 				}
 				else
@@ -321,7 +321,7 @@ int Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
-			if (strKeyName.at(0) == L'~')
+			if (strKeyName.front() == L'~')
 			{
 				MI++;
 				continue;
@@ -381,7 +381,7 @@ int Help::ReadHelp(const string& Mask)
 			HighlightsCorrection(strReadStr);
 		}
 
-		if (strReadStr.at(0)==L'@' && !BreakProcess)
+		if (strReadStr.front()==L'@' && !BreakProcess)
 		{
 			if (TopicFound)
 			{
@@ -399,7 +399,7 @@ int Help::ReadHelp(const string& Mask)
 					continue;
 				}
 
-				if (strSplitLine.at(0))
+				if (strSplitLine.front())
 				{
 					BreakProcess=TRUE;
 					strReadStr.clear();
@@ -451,7 +451,7 @@ m1:
 					continue;
 				}
 
-				if (!(strReadStr.at(0)==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
+				if (!(strReadStr.front()==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
 					NearTopicFound=0;
 
 				/* $<text> в начале строки, определение темы
@@ -464,7 +464,7 @@ m1:
 					LastStartPos = (DWORD)-1;
 				}
 
-				if (strReadStr.at(0)==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
+				if (strReadStr.front()==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
 					AddLine(strReadStr.c_str()+1);
 					FixCount++;
@@ -473,7 +473,7 @@ m1:
 				{
 					NearTopicFound=0;
 
-					if (!strReadStr.at(0) || !Formatting)
+					if (strReadStr.empty() || !Formatting)
 					{
 						if (!strSplitLine.empty())
 						{
@@ -508,7 +508,7 @@ m1:
 						}
 					}
 
-					if (!strReadStr.empty() && IsSpace(strReadStr.at(0)) && Formatting)
+					if (!strReadStr.empty() && IsSpace(strReadStr.front()) && Formatting)
 					{
 						if (StringLen(strSplitLine)<RealMaxLength)
 						{
@@ -608,7 +608,7 @@ m1:
 			}
 		}
 
-		PrevSymbol=strReadStr.at(0);
+		PrevSymbol=strReadStr.front();
 	}
 
 	AddLine(L"");
@@ -664,7 +664,7 @@ void Help::HighlightsCorrection(string &strStr)
 		if (strStr.at(I) == L'#')
 			Count++;
 
-	if ((Count & 1) && strStr.at(0) != L'$')
+	if ((Count & 1) && strStr.front() != L'$')
 		strStr.insert(0, L'#');
 }
 
@@ -934,13 +934,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 		x = X1 + 1 + std::max(0, (X2 - X1 - 1 - w)/2);
 	}
 
-	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.at(0));
+	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.front());
 }
 
 int Help::StringLen(const string& Str)
 {
 	int len = 0;
-	FastParseLine(Str.c_str(), &len, 0, -1, nullptr, strCtrlColorChar.at(0));
+	FastParseLine(Str.c_str(), &len, 0, -1, nullptr, strCtrlColorChar.front());
 	return len;
 }
 
@@ -949,7 +949,7 @@ void Help::OutString(const wchar_t *Str)
 	wchar_t OutStr[512]; //BUGBUG
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
-	wchar_t cColor = strCtrlColorChar.at(0);
+	wchar_t cColor = strCtrlColorChar.front();
 
 	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{
@@ -1383,7 +1383,7 @@ int Help::JumpTopic()
 
 	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
 	// вычислить абсолютный путь, то сделаем это
-	if (StackData.strSelTopic.at(0)==HelpBeginLink
+	if (StackData.strSelTopic.front()==HelpBeginLink
 	        && (pos = StackData.strSelTopic.find(HelpEndLink,2)) != string::npos
 	        && !IsAbsolutePath(StackData.strSelTopic.c_str()+1)
 	        && !StackData.strHelpPath.empty())
@@ -1396,7 +1396,7 @@ int Help::JumpTopic()
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath, true);
 		strFullPath += L"\\";
-		strFullPath += strNewTopic.c_str()+(IsSlash(strNewTopic.at(0))?1:0);
+		strFullPath += strNewTopic.c_str()+(IsSlash(strNewTopic.front())?1:0);
 		BOOL addSlash=DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
 		strFullPath.Format(addSlash?HelpFormatLink:Global->HelpFormatLinkModule, strNewTopic.c_str(), wcschr(StackData.strSelTopic.c_str()+2, HelpEndLink)+1);
@@ -1409,7 +1409,7 @@ int Help::JumpTopic()
 		strNewTopic = StackData.strSelTopic;
 		pos = strNewTopic.find(L':');
 
-		if (pos != string::npos && strNewTopic.at(0) != L':') // наверное подразумевается URL
+		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
 		{
 			string Protocol(strNewTopic.c_str(), pos);
 			wchar_t *lpwszTopic = StackData.strSelTopic.GetBuffer();
@@ -1428,9 +1428,9 @@ int Help::JumpTopic()
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-	if (!StackData.strHelpPath.empty() && StackData.strSelTopic.at(0) !=HelpBeginLink && StackData.strSelTopic != HelpOnHelpTopic)
+	if (!StackData.strHelpPath.empty() && StackData.strSelTopic.front() !=HelpBeginLink && StackData.strSelTopic != HelpOnHelpTopic)
 	{
-		if (StackData.strSelTopic.at(0)==L':')
+		if (StackData.strSelTopic.front()==L':')
 		{
 			strNewTopic = StackData.strSelTopic.c_str()+1;
 			StackData.Flags&=~FHELP_CUSTOMFILE;
@@ -1491,7 +1491,7 @@ int Help::JumpTopic()
 	strNewTopic.ReleaseBuffer();
 
 	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
-	if (StackData.strSelTopic.at(0) != L':' &&
+	if (StackData.strSelTopic.front() != L':' &&
 	        (StrCmpI(StackData.strSelTopic.c_str(),PluginContents) || StrCmpI(StackData.strSelTopic.c_str(),FoundContents))
 	   )
 	{
@@ -1514,7 +1514,7 @@ int Help::JumpTopic()
 	{
 		StackData.strHelpTopic = strNewTopic;
 
-		if (StackData.strHelpTopic.at(0) == HelpBeginLink)
+		if (StackData.strHelpTopic.front() == HelpBeginLink)
 		{
 			if ((pos = StackData.strHelpTopic.rfind(HelpEndLink)) != string::npos)
 			{
@@ -1987,7 +1987,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 				strTopic = HelpTopic;
 			}
 
-			if (strTopic.at(0)==HelpBeginLink)
+			if (strTopic.front()==HelpBeginLink)
 			{
 				wchar_t *Ptr;
 				wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.size()*2); //BUGBUG

@@ -590,7 +590,7 @@ void NormalizeSymlinkName(string &strLinkName)
 		PATH_TYPE Type = ParsePath(strLinkName);
 		if(Type == PATH_DRIVELETTERUNC)
 		{
-			strLinkName.LShift(4);
+			strLinkName.erase(0, 4);
 		}
 	}
 }

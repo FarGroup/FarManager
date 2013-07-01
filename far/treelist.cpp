@@ -562,12 +562,12 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 //  char RemoteName[NM*3];
 //  *RemoteName=0;
-	if (Root.at(0) == L'\\')
+	if (Root.front() == L'\\')
 		strRemoteName = Root;
 	else
 	{
 		string LocalName(L"?:");
-		LocalName[0] = Root[0];
+		LocalName.front() = Root.front();
 		apiWNetGetConnection(LocalName, strRemoteName);
 
 		if (!strRemoteName.empty())

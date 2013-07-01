@@ -3990,14 +3990,14 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (Dlg.GetExitCode()<=0)
 				return;
 
-			if (GoToDlg[1].strData.at(0)==L'+' || GoToDlg[1].strData.at(0)==L'-')       // юзер хочет относительности
+			if (GoToDlg[1].strData.front()==L'+' || GoToDlg[1].strData.front()==L'-')       // юзер хочет относительности
 			{
-				if (GoToDlg[1].strData.at(0)==L'+')
+				if (GoToDlg[1].strData.front()==L'+')
 					Relative=1;
 				else
 					Relative=-1;
 
-				GoToDlg[1].strData.LShift(1);
+				GoToDlg[1].strData.erase(0, 1);
 			}
 
 			if (GoToDlg[1].strData.find(L'%') != string::npos)     // он хочет процентов
@@ -4006,7 +4006,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[RB_PRC].Selected = 1;
 			}
 			else if (!StrCmpNI(GoToDlg[1].strData.c_str(),L"0x",2)
-					 || GoToDlg[1].strData.at(0)==L'$'
+					 || GoToDlg[1].strData.front()==L'$'
 					 || GoToDlg[1].strData.find(L'h') != string::npos
 					 || GoToDlg[1].strData.find(L'H') != string::npos)  // он умный - hex код ввел!
 			{
@@ -4014,9 +4014,9 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[RB_HEX].Selected=1;
 
 				if (!StrCmpNI(GoToDlg[1].strData.c_str(),L"0x",2))
-					GoToDlg[1].strData.LShift(2);
-				else if (GoToDlg[1].strData.at(0)==L'$')
-					GoToDlg[1].strData.LShift(1);
+					GoToDlg[1].strData.erase(0, 2);
+				else if (GoToDlg[1].strData.front()==L'$')
+					GoToDlg[1].strData.erase(0, 1);
 
 				//Relative=0; // при hex значении никаких относительных значений?
 			}

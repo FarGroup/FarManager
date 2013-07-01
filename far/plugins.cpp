@@ -472,11 +472,11 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	return nResult;
 }
 
-Plugin *PluginManager::GetPlugin(const string& lpwszModuleName)
+Plugin *PluginManager::GetPlugin(const string& ModuleName)
 {
 	auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
-		return i->GetModuleName().EqualNoCase(lpwszModuleName);
+		return !StrCmpI(i->GetModuleName(), ModuleName);
 	});
 	return ItemIterator == SortedPlugins.cend()? nullptr : *ItemIterator;
 }
@@ -1327,7 +1327,7 @@ void PluginManager::Configure(int StartPos)
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.empty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.at(0),(strHotKey.at(0)==L'&'?L"&":L""), strName.c_str());
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.front(),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
 						else
 							ListItem.strName.Format(L"   %s", strName.c_str());
 
@@ -1510,7 +1510,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.empty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.at(0),(strHotKey.at(0)==L'&'?L"&":L""), strName.c_str());
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.front(),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
 						else
 							ListItem.strName.Format(L"   %s", strName.c_str());
 
@@ -1684,7 +1684,7 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 #ifndef NO_WRAPPER
 	size_t FarPathLength=Global->g_strFarPath.size();
 	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().c_str(), Global->g_strFarPath.c_str(), (int)FarPathLength))
-		strPluginKey.LShift(FarPathLength);
+		strPluginKey.erase(0, FarPathLength);
 #endif // NO_WRAPPER
 }
 
@@ -1709,7 +1709,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{
-		if (!strHotKey.empty() && strHotKey.at(0) != L' ')
+		if (!strHotKey.empty() && strHotKey.front() != L' ')
 			Global->Db->PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
 		else
 			Global->Db->PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
@@ -1984,7 +1984,7 @@ bool PluginManager::GetDiskMenuItem(
 	{
 		string strHotKey;
 		GetPluginHotKey(pPlugin,Guid,PluginsHotkeysConfig::DRIVE_MENU,strHotKey);
-		PluginHotkey = strHotKey.at(0);
+		PluginHotkey = strHotKey.front();
 	}
 
 	return true;

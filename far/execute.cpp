@@ -255,7 +255,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// например, некоторые внутренние команды ком. процессора.
 		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds, STLF_UNIQUE));
 
-		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return i.EqualNoCase(Module); }))
+		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 		{
 			ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
 			Result=true;
@@ -1446,7 +1446,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 bool IsBatchExtType(const string& ExtPtr)
 {
 	auto BatchExtList(StringToList(Global->Opt->Exec.strExecuteBatchType, STLF_UNIQUE));
-	return std::any_of(CONST_RANGE(BatchExtList, i) {return i.EqualNoCase(ExtPtr);});
+	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
 }
 
 bool ProcessOSAliases(string &strStr)

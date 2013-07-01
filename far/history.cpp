@@ -119,9 +119,14 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 		{
 			if (EqualType(Type,HType))
 			{
-				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
+				typedef int (*CompareFunction)(const string&, const string&);
+				CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
+				CompareFunction CmpFunction = (RemoveDups==2)? CaseInsensitive : CaseSenitive;
 
-				if (!StrCmpFn(strName.c_str(),strHName.c_str())&&!StrCmpFn(strGuid.c_str(),strHGuid.c_str())&&!StrCmpFn(strFile.c_str(),strHFile.c_str())&&!StrCmpFn(strData.c_str(),strHData.c_str()))
+				if (!CmpFunction(strName, strHName) &&
+					!CmpFunction(strGuid, strHGuid) &&
+					!CmpFunction(strFile, strHFile) &&
+					!CmpFunction(strData, strHData))
 				{
 					Lock = Lock || HLock;
 					DeleteId = id;

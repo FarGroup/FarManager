@@ -544,7 +544,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			GetTimeText(TimeLeft,strTimeLeftStr);
 			if(strSpeed.front() == L' ' && strSpeed.back() >= L'0' && strSpeed.back() <= L'9')
 			{
-				strSpeed.LShift(1);
+				strSpeed.erase(0, 1);
 				strSpeed+=L" ";
 			}
 			;
@@ -593,7 +593,7 @@ int CmpFullNames(const string& Src,const string& Dest)
 	DeleteEndSlash(strSrcFullName);
 	DeleteEndSlash(strDestFullName);
 
-	return strSrcFullName.EqualNoCase(strDestFullName);
+	return !StrCmpI(strSrcFullName, strDestFullName);
 }
 
 bool CheckNulOrCon(const wchar_t *Src)
@@ -624,7 +624,7 @@ int CmpFullPath(const string& Src, const string& Dest)
 	ConvertNameToReal(strSrcFullName, strSrcFullName);
 	ConvertNameToReal(strDestFullName, strDestFullName);
 
-	return strSrcFullName.EqualNoCase(strDestFullName);
+	return !StrCmpI(strSrcFullName, strDestFullName);
 }
 
 static void GenerateName(string &strName,const wchar_t *Path=nullptr)

@@ -681,7 +681,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'H': // $H - Backspace (erases previous character)
 							{
 								if (!strDestStr.empty())
-									strDestStr.resize(strDestStr.size()-1);
+									strDestStr.pop_back();
 
 								break;
 							}
@@ -895,7 +895,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	if (CmdLine[0] == L'@')
 	{
-		CmdLine.LShift(1);
+		CmdLine.erase(0, 1);
 		Silent=true;
 	}
 
@@ -1012,7 +1012,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	if (CmdLine[0] == L'@')
 	{
 		SilentInt=true;
-		strCmdLine.LShift(1);
+		strCmdLine.erase(0, 1);
 	}
 
 	if (!SeparateWindow && strCmdLine.size() == 2 && strCmdLine[1]==L':')
@@ -1029,7 +1029,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (!StrCmpNI(strCmdLine.data(),L"SET",3) && (IsSpaceOrEos(strCmdLine[3]) || strCmdLine[3] == L'/'))
 	{
 		size_t pos;
-		strCmdLine.LShift(3);
+		strCmdLine.erase(0, 3);
 		RemoveLeadingSpaces(strCmdLine);
 
 		if (CheckCmdLineForHelp(strCmdLine.c_str()))
@@ -1114,7 +1114,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// PUSHD путь | ..
 	else if (!StrCmpNI(strCmdLine.data(),L"PUSHD",5) && IsSpaceOrEos(strCmdLine[5]))
 	{
-		strCmdLine.LShift(5);
+		strCmdLine.erase(0, 5);
 		RemoveLeadingSpaces(strCmdLine);
 
 		if (CheckCmdLineForHelp(strCmdLine.c_str()))
@@ -1173,7 +1173,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	*/
 	else if (!StrCmpNI(strCmdLine.data(),L"CHCP",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
-		strCmdLine.LShift(4);
+		strCmdLine.erase(0, 4);
 
 		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine).c_str();
 
@@ -1239,14 +1239,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 				return FALSE;
 		}
 
-		strCmdLine.LShift(Length);
+		strCmdLine.erase(0, Length);
 		RemoveLeadingSpaces(strCmdLine);
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
 		if (!StrCmpNI(strCmdLine.data(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
 		{
-			strCmdLine.LShift(2);
+			strCmdLine.erase(0, 2);
 			RemoveLeadingSpaces(strCmdLine);
 		}
 

@@ -706,7 +706,7 @@ void codepages::EditCodePageName()
 	size_t BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
 	if (BoxPosition == string::npos)
 		return;
-	CodePageName.LShift(BoxPosition+2);
+	CodePageName.erase(0, BoxPosition+2);
 	FarDialogItem EditDialogData[]=
 		{
 			{DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, MSG(MGetCodePageEditCodePageName)},

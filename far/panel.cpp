@@ -1482,7 +1482,7 @@ void Panel::FastFind(int FirstKey)
 						        && strName.back() == L'*'
 						        && strName[strName.size()-2] == L'*')
 						{
-							strName.resize(strName.size()-1);
+							strName.pop_back();
 							FindEdit.SetString(strName.c_str());
 						}
 
@@ -1490,9 +1490,9 @@ void Panel::FastFind(int FirstKey)
 						   проблемы с быстрым поиском.
 						   ѕодробнее в 00573.ChangeDirCrash.txt
 						*/
-						if (strName.at(0) == L'"')
+						if (strName.front() == L'"')
 						{
-							strName.LShift(1);
+							strName.erase(0, 1);
 							FindEdit.SetString(strName.c_str());
 						}
 

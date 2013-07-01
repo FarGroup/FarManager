@@ -223,6 +223,7 @@ typedef class UnicodeString
 
 		size_t capacity() const { return m_pData->GetSize(); }
 		size_t size() const { return m_pData->GetLength(); }
+		size_t length() const { return m_pData->GetLength(); }
 		void resize(size_t nLength);
 
 		wchar_t at(size_t nIndex) const { return m_pData->GetData()[nIndex]; }
@@ -232,7 +233,6 @@ typedef class UnicodeString
 		void clear();
 
 		const wchar_t *c_str() const { return m_pData->GetData(); }
-
 		const wchar_t *data() const { return m_pData->GetData(); }
 
 		UnicodeString substr(size_t Pos, size_t Len = npos) const;
@@ -319,16 +319,20 @@ typedef class UnicodeString
 		size_t rfind(const wchar_t* s, size_t pos, size_t n) const { pos = std::min(pos, size()); auto Iterator = std::find_end(cbegin(), cbegin() + pos, s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 		size_t rfind(wchar_t c, size_t pos = npos) const { return rfind(&c, pos, 1); }
 
+		// TODO: iterator & range versions
+		UnicodeString& erase(size_t pos = 0, size_t len = npos) { return replace(pos, len, nullptr, 0); }
+
+		void pop_back() { erase(size() - 1, 1); }
 
 		wchar_t *GetBuffer(size_t nSize = npos);
 		void ReleaseBuffer(size_t nLength = npos);
 		int CDECL Format(const wchar_t * format, ...);
-		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return replace(Pos, Len, nullptr, 0); }
-		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 		UnicodeString& Lower(size_t nStartPos=0, size_t nLength=npos);
 		UnicodeString& Upper(size_t nStartPos=0, size_t nLength=npos);
 		bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
-		bool EqualNoCase(const UnicodeString& rhs) const { return !StrCmpI(data(), rhs.data()); }
 } string;
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
+
+inline int StrCmp(const UnicodeString& a, const UnicodeString& b) { return StrCmp(a.c_str(), b.c_str()); }
+inline int StrCmpI(const UnicodeString& a, const UnicodeString& b) { return StrCmpI(a.c_str(), b.c_str()); }

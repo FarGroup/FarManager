@@ -288,10 +288,10 @@ static struct list_less
 		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 
-		if (SPtr1->strName.size() == 2 && SPtr1->strName.at(0)==L'.' && SPtr1->strName.at(1)==L'.')
+		if (SPtr1->strName == L"..")
 			return true;
 
-		if (SPtr2->strName.size() == 2 && SPtr2->strName.at(0)==L'.' && SPtr2->strName.at(1)==L'.')
+		if (SPtr2->strName == L"..")
 			return false;
 
 		if (ListSortMode==UNSORTED)
@@ -615,7 +615,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strDriveRoot;
 					GetPathRoot(strCurDir, strDriveRoot);
-					return strCurDir.EqualNoCase(strDriveRoot);
+					return !StrCmpI(strCurDir, strDriveRoot);
 				}
 
 				return 1;
@@ -1885,7 +1885,7 @@ int FileList::ProcessKey(int Key)
 				if (!ListData.empty())
 				{
 					assert(CurFile < static_cast<int>(ListData.size()));
-					if (Key != KEY_SHIFTF5 && name.EqualNoCase(ListData[CurFile]->strName) && selected > ListData[CurFile]->Selected)
+					if (Key != KEY_SHIFTF5 && !StrCmpI(name, ListData[CurFile]->strName) && selected > ListData[CurFile]->Selected)
 					{
 						Select(ListData[CurFile], selected);
 						Redraw();
@@ -2701,7 +2701,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 				if(DrivePath && Global->Opt->PgUpChangeDisk == 2)
 				{
 					string RemoteName;
-					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.at(0), RemoteName))
+					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.front(), RemoteName))
 					{
 						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.c_str())) // NetWork Plugin :-)
 						{
@@ -3295,7 +3295,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
 		DirFind = 1;
-		strMask.resize(strMask.size()-1);
+		strMask.pop_back();
 	}
 
 	strMask += L"*";
@@ -3353,7 +3353,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
 		DirFind = 1;
-		strMask.resize(strMask.size()-1);
+		strMask.pop_back();
 	}
 
 /*
