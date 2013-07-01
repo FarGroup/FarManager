@@ -350,7 +350,10 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 	{
 		if (!SuppressIndicators)
 		{
-			if(Global->CtrlObject && (Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting()))
+			if(Global->CtrlObject &&
+				(Global->CtrlObject->Macro.IsRecording() ||
+				(Global->CtrlObject->Macro.IsExecuting()) && !Global->Opt->Macro.DisableShowPlayMacro)
+			)
 			{
 				MacroChar=Buf[0];
 				MacroCharUsed=true;

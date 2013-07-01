@@ -1,3 +1,9 @@
+svs 01.07.2013 15:09:19 +0400 - build 3488
+
+1. Mantis#0002410: Optionally disable blinking 'P' macro execution indicator
+   В конфиге (far:config) ищем "Macros.DisableShowPlayMacro", ставим true
+   По умолчанию 'P' показывать
+
 w17 01.07.2013 09:49:39 +0400 - build 3487
 
 1. M#2439: Command line prompt format: environment variables don't work anymore

@@ -1525,6 +1525,8 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlShiftDot", &Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."},
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlShiftDot", &Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."},
 
+		{FSSF_PRIVATE,       NKeyKeyMacros,L"DisableShowPlayMacro", &Macro.DisableShowPlayMacro, false},
+
 		{FSSF_PRIVATE,       NKeyPanel,L"AutoUpdateLimit", &AutoUpdateLimit, 0},
 		{FSSF_PRIVATE,       NKeyPanel,L"CtrlAltShiftRule", &PanelCtrlAltShiftRule, 0},
 		{FSSF_PRIVATE,       NKeyPanel,L"CtrlFRule", &PanelCtrlFRule, false},
@@ -2483,7 +2485,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 
 void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
 {
-	size_t MaxLength = 0;	
+	size_t MaxLength = 0;
 	std::for_each(Menu, Menu + MenuSize, [&](const MenuDataEx& i) { MaxLength = std::max(MaxLength, wcslen(i.Name)); });
 	for (size_t i = 0; i < MenuSize; ++i)
 	{

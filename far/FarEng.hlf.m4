@@ -4841,6 +4841,7 @@ usually does as a reaction to this combination.
     will be used to execute the recorded sequence can be set.
 
     Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\2FP\-'.
+См. так же "~Macros.DisableShowPlayMacro~@Macros.DisableShowPlayMacro@" для отключения отображения символа.
 
 
 @KeyMacroDelete
@@ -5937,6 +5938,19 @@ $ #far:config Panel.ShortcutAlwaysChdir#
 
      true  - ^<wrap>всегда осуществляется переход на папку, связанную с нажатой клавишей (если задана),
 даже если панели невидимы.
+
+    По умолчанию значение = false
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@Macros.DisableShowPlayMacro
+$ #far:config Macros.DisableShowPlayMacro#
+    Параметр "Macros.DisableShowPlayMacro" позволяет отключать отображение в левом верхнем углу экрана символа '\2FP\-'
+во время воспроизведения макропоследовательности.
+
+     false - ^<wrap>Символ отображается
+
+     true  - ^<wrap>Символ не отображается
 
     По умолчанию значение = false
 
