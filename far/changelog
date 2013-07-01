@@ -1,3 +1,7 @@
+w17 01.07.2013 09:49:39 +0400 - build 3487
+
+1. M#2439: Command line prompt format: environment variables don't work anymore
+
 shmuel 30.06.2013 13:12:37 +0200 - build
 
 1. Добавлена возможность вызывать скрипт-файлы с аргументами.

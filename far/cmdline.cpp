@@ -631,7 +631,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				{L'$', L'$'},   // $$ - $ (dollar sign)
 			};
 
-			FOR_CONST_RANGE(Format, i)
+			FOR_CONST_RANGE(strExpandedDestStr, i)
 			{
 				if (*i==L'$')
 				{
