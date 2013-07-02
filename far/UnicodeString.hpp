@@ -218,8 +218,8 @@ typedef class UnicodeString
 		char_proxy front() {return *begin();}
 		char_proxy back() {return *(end() - 1);}
 
-		wchar_t front() const {return *begin();}
-		wchar_t back() const {return *(end() - 1);}
+		const wchar_t& front() const {return *begin();}
+		const wchar_t& back() const {return *(end() - 1);}
 
 		size_t capacity() const { return m_pData->GetSize(); }
 		size_t size() const { return m_pData->GetLength(); }
@@ -262,7 +262,7 @@ typedef class UnicodeString
 		bool operator<(const wchar_t* s) const { return compare(s) < 0; }
 
 		char_proxy operator[](size_t Index) { return char_proxy(*this, Index);}
-		const char_proxy operator[](size_t Index) const { return char_proxy(const_cast<UnicodeString&>(*this), Index);}
+		const wchar_t& operator[](size_t Index) const { return m_pData->GetData()[Index];}
 
 		// TODO: iterator versions
 

@@ -1327,7 +1327,7 @@ void PluginManager::Configure(int StartPos)
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.empty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.front(),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
+							ListItem.strName.Format(L"&%c%s  %s", static_cast<wchar_t>(strHotKey.front()),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
 						else
 							ListItem.strName.Format(L"   %s", strName.c_str());
 
@@ -1510,7 +1510,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.empty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.front(),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
+							ListItem.strName.Format(L"&%c%s  %s", static_cast<wchar_t>(strHotKey.front()),(strHotKey.front()==L'&'?L"&":L""), strName.c_str());
 						else
 							ListItem.strName.Format(L"   %s", strName.c_str());
 

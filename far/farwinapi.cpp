@@ -144,7 +144,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 						{
 							FindData.strFileName.pop_back();
 						}
-						if(!FindData.strAlternateFileName.back())
+						if(!FindData.strAlternateFileName.empty() && !FindData.strAlternateFileName.back())
 						{
 							FindData.strAlternateFileName.pop_back();
 						}
@@ -241,7 +241,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 		{
 			FindData.strFileName.pop_back();
 		}
-		if(!FindData.strAlternateFileName.back())
+		if(!FindData.strAlternateFileName.empty() && !FindData.strAlternateFileName.back())
 		{
 			FindData.strAlternateFileName.pop_back();
 		}
