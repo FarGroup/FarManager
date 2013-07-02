@@ -87,16 +87,20 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 		std::list<string> UsedGroups;
 		size_t LBPos, RBPos;
 
-		while((LBPos = expmasks.find( L'<')) != string::npos && (RBPos = expmasks.find(L'>', LBPos)) != string::npos)
+		while((LBPos = expmasks.find(L'<')) != string::npos && (RBPos = expmasks.find(L'>', LBPos)) != string::npos)
 		{
 			string MaskGroupNameWB = expmasks.substr(LBPos, RBPos-LBPos+1);
 			string MaskGroupName = expmasks.substr(LBPos+1, RBPos-LBPos-1);
 			string MaskGroupValue;
-			if (std::find(UsedGroups.cbegin(), UsedGroups.cend(), MaskGroupName) == UsedGroups.cend())
+			if (std::find(ALL_CONST_RANGE(UsedGroups), MaskGroupName) == UsedGroups.cend())
 			{
 				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
 				UsedGroups.emplace_back(MaskGroupName);
+			}
+			else
+			{
+				ReplaceStrings(expmasks, MaskGroupNameWB, L"");	
 			}
 		}
 
