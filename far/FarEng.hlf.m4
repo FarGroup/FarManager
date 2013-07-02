@@ -1236,7 +1236,7 @@ $ #Настройка информационной панели#
       ^<wrap>ADCN (Active Directory Canonical Name) - данный формат является путем в иерархической структуре к объекту (логину), например,
       engineering.widget.com/software/JohnDoe
     #Основное имя пользователя#
-      ^<wrap>UPN (User Principial Name) - известен так же как адрес электронной почты, например,
+      ^<wrap>UPN (User Principial Name) - известен также как адрес электронной почты, например,
       someone@example.com
     #Service Principal#
       www/srv.engineering.com/engineering.com
@@ -1583,6 +1583,20 @@ $ #Группы масок файлов#
 
     Например, группа #<arc># содержит маски "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar".
 Для ~раскраски~@Highlight@ всех архивов, кроме "*.rar", необходимо указать последовательность #<arc>|*.rar#.
+
+    Клавиши управление списком.
+
+    #Ctrl-R#      - ^<wrap>восстановить исходное значение для предопределенных групп ("arc", "temp" и "exec").
+
+    #Ins#         - добавить новую группу
+
+    #Del#         - удалить существующую группу
+
+    #Enter#/#F4#    - изменить параметры группы
+
+    #F7#          - найти группы, содержащие маску
+    
+    См. также: ~Меню параметров~@OptMenu@ и клавиатурные команды, общие ~для всех меню~@MenuCmd@.
 
 @ChoosePluginMenu
 $ #Plugin selection menu#
@@ -3265,7 +3279,7 @@ $ #Изменение имени кодовой страницы#
     - ^<wrap>Если ввести пустое имя кодовой страницы, то после подтверждения ввода
 отображаемое имя кодовой страницы примет значение по умолчанию, то есть имя полученное
 от системы.
-    - ^<wrap>Так же отображаемое имя кодовой страницы принимает значение по умолчанию
+    - ^<wrap>Также отображаемое имя кодовой страницы принимает значение по умолчанию
 после нажатия кнопки #Сбросить#.
 
 @DriveDlg
@@ -4250,8 +4264,9 @@ the file being copied;
 all existing files and the confirmation dialog will not be displayed again for
 the current copying session.
 
-    If the displayed information is not sufficient you can also view the files
-in the internal viewer without exiting the confirmation dialog.
+    Если для принятия решения вам недостаточно информации о размере и дате последней
+записи файлов, вы также можете сравнить их содержимое при помощи встроенной программы просмотра, 
+установив курсор на один из файлов в диалоге и нажав F3.
 
 
 @CopyRule
@@ -4846,7 +4861,7 @@ usually does as a reaction to this combination.
     will be used to execute the recorded sequence can be set.
 
     Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\2FP\-'.
-См. так же "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" для включения/отключения отображения символа.
+См. также "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" для включения/отключения отображения символа.
 
 
 @KeyMacroDelete
@@ -4983,7 +4998,7 @@ $ #Макросы: Список переменных#
 
 <!Macro:Vars!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroConstList
 $ #Макросы: Список констант#
@@ -4991,7 +5006,7 @@ $ #Макросы: Список констант#
 
 <!Macro:Consts!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroCommonList
 $ #Макросы: Общие#
@@ -4999,7 +5014,7 @@ $ #Макросы: Общие#
 
 <!Macro:Common!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroQViewList
 $ #Макросы: Панель быстрого просмотра#
@@ -5008,7 +5023,7 @@ $ #Макросы: Панель быстрого просмотра#
 <!Macro:Common!>
 <!Macro:Qview!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroMainMenuList
 $ #Макросы: Главное меню#
@@ -5017,7 +5032,7 @@ $ #Макросы: Главное меню#
 <!Macro:Common!>
 <!Macro:MainMenu!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroTreeList
 $ #Макросы: Панель папок#
@@ -5026,7 +5041,7 @@ $ #Макросы: Панель папок#
 <!Macro:Common!>
 <!Macro:Tree!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroDialogList
 $ #Макросы: Диалоги#
@@ -5035,7 +5050,7 @@ $ #Макросы: Диалоги#
 <!Macro:Common!>
 <!Macro:Dialog!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroInfoList
 $ #Макросы: Информационная панель#
@@ -5044,7 +5059,7 @@ $ #Макросы: Информационная панель#
 <!Macro:Common!>
 <!Macro:Info!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroDisksList
 $ #Макросы: Меню выбора дисков#
@@ -5053,7 +5068,7 @@ $ #Макросы: Меню выбора дисков#
 <!Macro:Common!>
 <!Macro:Disks!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroUserMenuList
 $ #Макросы: Меню пользователя#
@@ -5062,7 +5077,7 @@ $ #Макросы: Меню пользователя#
 <!Macro:Common!>
 <!Macro:UserMenu!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroShellList
 $ #Макросы: Панели#
@@ -5071,7 +5086,7 @@ $ #Макросы: Панели#
 <!Macro:Common!>
 <!Macro:Shell!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroSearchList
 $ #Макросы: Быстрый поиск в панелях#
@@ -5080,7 +5095,7 @@ $ #Макросы: Быстрый поиск в панелях#
 <!Macro:Common!>
 <!Macro:Search!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroFindFolderList
 $ #Макросы: Поиск папки#
@@ -5089,7 +5104,7 @@ $ #Макросы: Поиск папки#
 <!Macro:Common!>
 <!Macro:FindFolder!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroEditList
 $ #Макросы: Редактор#
@@ -5098,7 +5113,7 @@ $ #Макросы: Редактор#
 <!Macro:Common!>
 <!Macro:Editor!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroViewerList
 $ #Макросы: Программа просмотра#
@@ -5107,7 +5122,7 @@ $ #Макросы: Программа просмотра#
 <!Macro:Common!>
 <!Macro:Viewer!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroMenuList
 $ #Макросы: Прочие меню#
@@ -5116,7 +5131,7 @@ $ #Макросы: Прочие меню#
 <!Macro:Common!>
 <!Macro:Menu!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroHelpList
 $ #Макросы: Файл помощи#
@@ -5125,7 +5140,7 @@ $ #Макросы: Файл помощи#
 <!Macro:Common!>
 <!Macro:Help!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroOtherList
 $ #Макросы: Остальные области#
@@ -5134,7 +5149,7 @@ $ #Макросы: Остальные области#
 <!Macro:Common!>
 <!Macro:Other!>
 
-    См. так же ~"Список установленных макросов"~@KeyMacroList@
+    См. также ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroShellAutoCompletionList
 $ #Макросы: Автодополнение в панелях#
@@ -5143,7 +5158,7 @@ $ #Макросы: Автодополнение в панелях#
 <!Macro:Common!>
 <!Macro:ShellAutoCompletion!>
 
-    См. так же ~«Список установленных макросов»~@KeyMacroList@
+    См. также ~«Список установленных макросов»~@KeyMacroList@
 
 @KeyMacroDialogAutoCompletionList
 $ #Макросы: Автодополнение в диалогах#
@@ -5152,7 +5167,7 @@ $ #Макросы: Автодополнение в диалогах#
 <!Macro:Common!>
 <!Macro:DialogAutoCompletion!>
 
-    См. так же ~«Список установленных макросов»~@KeyMacroList@
+    См. также ~«Список установленных макросов»~@KeyMacroList@
 
 
 @FarConfig
@@ -5245,7 +5260,7 @@ $ #far:config System.AllCtrlAltShiftRule#
 
     По умолчанию разрешено гашение всех объектов.
 
-    См. так же ~System.CASRule~@System.CASRule@
+    См. также ~System.CASRule~@System.CASRule@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
@@ -5262,7 +5277,7 @@ $ #far:config System.CASRule#
 
     По умолчанию разрешены обе комбинации.
 
-    См. так же ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@
+    См. также ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
@@ -5464,7 +5479,7 @@ $ #far:config System.Executor.~~#
 
     По умолчанию значение = "%FARHOME%".
 
-    Значение так же можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
+    Значение также можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
 
 @System.CmdHistoryRule
 $ #far:config System.CmdHistoryRule#
@@ -5500,7 +5515,7 @@ $ #far:config System.QuotedSymbols#
 
     По умолчанию значение = " &()[]{}^=;!'+,`" и символ с кодом 0xA0.
 
-    См. так же ~System.QuotedName~@System.QuotedName@
+    См. также ~System.QuotedName~@System.QuotedName@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 

@@ -481,7 +481,7 @@ void Options::MaskGroupsSettings()
 					{
 						Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 					}
-					DialogBuilder Builder(MMenuMaskGroups, nullptr);
+					DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
 					Builder.AddText(MMaskGroupName);
 					Builder.AddEditField(&Name, 60);
 					Builder.AddText(MMaskGroupMasks);
