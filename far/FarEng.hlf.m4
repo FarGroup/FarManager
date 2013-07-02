@@ -1600,6 +1600,10 @@ simply separate the folder names with the backslash character. For example:
 
     #%USERDOMAIN%\\%USERNAME%\\Folder3#
 
+    Опция "#Link Type#" позволяет создавать одну из ~ссылок~@HardSymLink@ на папки 
+("#directory junction#" или "#symbolic link#"). В этом случае необходимо в поле "#Target#" 
+указать папку, на которую будет ссылаться вновь созданная папка.
+
     If the option "#Process multiple names#" is enabled, it is possible to
 create multiple folders in a single operation. In this case, folder names
 should be separated with the character "#;#" or "#,#". If the option is enabled
@@ -1607,7 +1611,6 @@ and the name of the folder contains a character "#;#" (or "#,#"), it must be
 enclosed in quotes. For example, if the user enters
 #C:\\Foo1;"E:\\foo,2;";D:\\foo3#, folders called "#C:\\Foo1#", "#E:\\foo,2;#"
 and "#D:\\foo3#" will be created.
-
 
 @FindFile
 $ #Find file #
@@ -2137,6 +2140,8 @@ user menu of the parent folder by pressing #BS#.
     You may add command separators to the user menu. To do this, you should add
 a new menu command and define "#--#" as "hot key". To delete a menu separator,you
 must switch to file mode with #Alt-F4# key.
+
+    Пункты меню пользователя можно перемещать кобинациями #Ctrl-Up# или #Ctrl-Down#.
 
     To execute a user menu command, select it with cursor keys and press #Enter#.
 You may also press the hot key assigned to the required menu item.
