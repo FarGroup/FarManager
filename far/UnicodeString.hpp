@@ -333,6 +333,3 @@ typedef class UnicodeString
 } string;
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
-
-inline int StrCmp(const UnicodeString& a, const UnicodeString& b) { return StrCmp(a.c_str(), b.c_str()); }
-inline int StrCmpI(const UnicodeString& a, const UnicodeString& b) { return StrCmpI(a.c_str(), b.c_str()); }

@@ -401,6 +401,14 @@ private:
 	wchar_t m_value;
 };
 
+enum
+{
+	DRIVE_DEL_FAIL,
+	DRIVE_DEL_SUCCESS,
+	DRIVE_DEL_EJECT,
+	DRIVE_DEL_NONE
+};
+
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
 	Global->Window->DeviceArivalEvent().Reset();

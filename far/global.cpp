@@ -103,7 +103,6 @@ global::global():
 	ProcessException=FALSE;
 	ProcessShowClock=FALSE;
 	HelpFileMask=L"*.hlf";
-	HelpFormatLinkModule=L"<%s>%s";
 #if defined(SYSLOG)
 	StartSysLog=0;
 #endif

@@ -63,7 +63,57 @@ static const wchar_t *PluginContents=L"__PluginContents__";
 static const wchar_t *HelpOnHelpTopic=L":Help";
 static const wchar_t *HelpContents=L"Contents";
 
-static int RunURL(const string& Protocol, wchar_t *URLPath);
+static const wchar_t HelpBeginLink = L'<';
+static const wchar_t HelpEndLink = L'>';
+
+enum HELPDOCUMENTSHELPTYPE
+{
+	HIDX_PLUGINS,                 // Индекс плагинов
+	HIDX_DOCUMS,                  // Индекс документов
+};
+
+enum
+{
+	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
+};
+
+class HelpRecord
+{
+public:
+	string HelpStr;
+
+	HelpRecord(const string& HStr):HelpStr(HStr){};
+
+	HelpRecord& operator=(const HelpRecord &rhs)
+	{
+		if (this != &rhs)
+		{
+			HelpStr = rhs.HelpStr;
+		}
+		return *this;
+	}
+
+	bool operator==(const HelpRecord &rhs) const
+	{
+		return !StrCmpI(HelpStr, rhs.HelpStr);
+	}
+
+	bool operator <(const HelpRecord &rhs) const
+	{
+		return HelpStr < rhs.HelpStr;
+	}
+};
+
+static int RunURL(const string& Protocol, const string& URLPath);
+
+#define HelpFormatLink L"<%s\\>%s"
+#define HelpFormatLinkModule L"<%s>%s"
+
+string Help::MakeLink(const string& path, const string& topic)
+{
+	return string(L"<") + path + L"\\>" + topic;
+}
+
 
 Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	TopScreen(new SaveScreen),
@@ -1388,18 +1438,14 @@ int Help::JumpTopic()
 	        && !IsAbsolutePath(StackData.strSelTopic.c_str()+1)
 	        && !StackData.strHelpPath.empty())
 	{
-		string strFullPath;
-		wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(pos);
-		xwcsncpy(lpwszHelpTopic, StackData.strSelTopic.c_str()+1,pos);
-		strNewTopic.ReleaseBuffer();
-		strFullPath = StackData.strHelpPath;
+		strNewTopic.assign(StackData.strSelTopic.c_str()+1, pos);
+		string strFullPath = StackData.strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath, true);
-		strFullPath += L"\\";
-		strFullPath += strNewTopic.c_str()+(IsSlash(strNewTopic.front())?1:0);
+		strFullPath.append(L"\\").append(strNewTopic.c_str()+(IsSlash(strNewTopic.front())?1:0));
 		BOOL addSlash=DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
-		strFullPath.Format(addSlash?HelpFormatLink:Global->HelpFormatLinkModule, strNewTopic.c_str(), wcschr(StackData.strSelTopic.c_str()+2, HelpEndLink)+1);
+		strFullPath.Format(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.c_str(), wcschr(StackData.strSelTopic.c_str()+2, HelpEndLink)+1);
 		StackData.strSelTopic = strFullPath;
 	}
 
@@ -1412,16 +1458,10 @@ int Help::JumpTopic()
 		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
 		{
 			string Protocol(strNewTopic.c_str(), pos);
-			wchar_t *lpwszTopic = StackData.strSelTopic.GetBuffer();
 
-			if (RunURL(Protocol, lpwszTopic))
+			if (RunURL(Protocol, StackData.strSelTopic))
 			{
-				StackData.strSelTopic.ReleaseBuffer();
 				return FALSE;
-			}
-			else
-			{
-				StackData.strSelTopic.ReleaseBuffer();
 			}
 		}
 	}
@@ -1438,7 +1478,7 @@ int Help::JumpTopic()
 		else if (StackData.Flags&FHELP_CUSTOMFILE)
 			strNewTopic = StackData.strSelTopic;
 		else
-			strNewTopic.Format(HelpFormatLink,StackData.strHelpPath.c_str(),StackData.strSelTopic.c_str());
+			strNewTopic = MakeLink(StackData.strHelpPath, StackData.strSelTopic);
 	}
 	else
 	{
@@ -1556,6 +1596,8 @@ int Help::JumpTopic()
 
 int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
+	static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
+
 	if (HelpKeyBar.ProcessMouse(MouseEvent))
 		return TRUE;
 
@@ -1941,14 +1983,16 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				File HelpFile;
 				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
 				{
-					string strEntryName, strHelpLine, strSecondParam;
+					string strEntryName, strSecondParam;
 
 					if (GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
 					{
+						string strHelpLine = L"   ~" + strEntryName;
 						if (!strSecondParam.empty())
-							strHelpLine.Format(L"   ~%s,%s~@" HelpFormatLink L"@", strEntryName.c_str(), strSecondParam.c_str(), strPath.c_str(),HelpContents);
-						else
-							strHelpLine.Format(L"   ~%s~@" HelpFormatLink L"@",strEntryName.c_str(), strPath.c_str(),HelpContents);
+						{
+							strHelpLine += L"," + strSecondParam;
+						}
+						strHelpLine += L"~@" + MakeLink(strPath, HelpContents) + L"@";
 
 						AddLine(strHelpLine);
 					}
@@ -1980,7 +2024,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 		{
 			if (pPlugin && HelpTopic[0] != HelpBeginLink)
 			{
-				strTopic.Format(Global->HelpFormatLinkModule, pPlugin->GetModuleName().c_str(), HelpTopic.c_str());
+				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().c_str(), HelpTopic.c_str());
 			}
 			else
 			{
@@ -2069,108 +2113,106 @@ void Help::InitKeyBar()
      Protocol="mailto"
      URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
-static int RunURL(const string& Protocol, wchar_t *URLPath)
+static int RunURL(const string& Protocol, const string& URLPath)
 {
 	int EditCode=0;
 
-	if (URLPath && *URLPath && (Global->Opt->HelpURLRules&0xFF))
+	if (!URLPath.empty() && (Global->Opt->HelpURLRules&0xFF))
 	{
 		string strType;
 
 		if (GetShellType(Protocol,strType,AT_URLPROTOCOL))
 		{
-			strType+=L"\\shell\\open\\command";
-			HKEY hKey;
-
-			if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType.c_str(),0,KEY_READ,&hKey) == ERROR_SUCCESS)
+			string strAction;
+			bool Success = false;
+			if (strType.find(L"%1") != string::npos)
 			{
-				string strAction;
-				int Disposition=RegQueryStringValue(hKey, L"", strAction, L"");
-				RegCloseKey(hKey);
+				strAction = strType;
+				Success = true;
+			}
+			else
+			{
+				strType = L"\\shell\\open\\command";
+				HKEY hKey;
+
+				if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType.c_str(),0,KEY_READ,&hKey) == ERROR_SUCCESS)
+				{
+					Success = RegQueryStringValue(hKey, L"", strAction, L"") == ERROR_SUCCESS;
+					RegCloseKey(hKey);
+				}
+			}
+
+			if (Success)
+			{
 				apiExpandEnvironmentStrings(strAction, strAction);
 
-				if (Disposition == ERROR_SUCCESS)
+				string FilteredURLPath(URLPath);
+				// удалим два идущих подряд ~~
+				ReplaceStrings(FilteredURLPath, L"~~", L"~");
+				// удалим два идущих подряд ##
+				ReplaceStrings(FilteredURLPath, L"##", L"#");
+
+				int Disposition=0;
+
+				if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
 				{
-					// удалим два идущих в подряд ~~
-					wchar_t *Ptr=URLPath;
+					Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
+						                MSG(MHelpActivatorURL),
+						                strAction.c_str(),
+						                MSG(MHelpActivatorFormat),
+						                FilteredURLPath.c_str(),
+						                L"\x01",
+						                MSG(MHelpActivatorQ),
+						                MSG(MYes),MSG(MNo));
+				}
 
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"~~")) )
+				EditCode=2; // Все Ok!
+
+				if (!Disposition)
+				{
+					/*
+					СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
+					ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+					*/
+					string strCurDir;
+					apiGetCurrentDirectory(strCurDir);
+
+					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{
-						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
-						Ptr++;
-					}
-
-					// удалим два идущих в подряд ##
-					Ptr=URLPath;
-
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"##")) )
-					{
-						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
-						++Ptr;
-					}
-
-					Disposition=0;
-
-					if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
-					{
-						Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
-						                    MSG(MHelpActivatorURL),
-						                    strAction.c_str(),
-						                    MSG(MHelpActivatorFormat),
-						                    URLPath,
-						                    L"\x01",
-						                    MSG(MHelpActivatorQ),
-						                    MSG(MYes),MSG(MNo));
-					}
-
-					EditCode=2; // Все Ok!
-
-					if (!Disposition)
-					{
-						/*
-						СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-						ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-						*/
-						string strCurDir;
-						apiGetCurrentDirectory(strCurDir);
-
-						if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-						{
 #if 0
-							SHELLEXECUTEINFO sei={sizeof(sei)};
-							sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-							sei.lpFile=RemoveExternalSpaces(Buf);
-							sei.nShow=SW_SHOWNORMAL;
-							seInfo.lpDirectory=strCurDir;
+						SHELLEXECUTEINFO sei={sizeof(sei)};
+						sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+						sei.lpFile=RemoveExternalSpaces(Buf);
+						sei.nShow=SW_SHOWNORMAL;
+						seInfo.lpDirectory=strCurDir;
 
-							if (ShellExecuteEx(&sei))
-								EditCode=1;
+						if (ShellExecuteEx(&sei))
+							EditCode=1;
 
 #else
-							strAction=URLPath;
-							EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction).c_str(), 0, strCurDir.c_str(), SW_SHOWNORMAL)?1:2;
+						strAction=FilteredURLPath;
+						EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction).c_str(), 0, strCurDir.c_str(), SW_SHOWNORMAL)?1:2;
 #endif
+					}
+					else
+					{
+						STARTUPINFO si={sizeof(si)};
+						PROCESS_INFORMATION pi={};
+
+						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, 1) == 0) //if %1 not found
+						{
+							strAction += L" ";
+							strAction += FilteredURLPath;
+						}
+
+						if (!CreateProcess(nullptr, UNSAFE_CSTR(strAction),nullptr,nullptr,TRUE,0,nullptr,strCurDir.c_str(),&si,&pi))
+						{
+							EditCode=1;
 						}
 						else
 						{
-							STARTUPINFO si={sizeof(si)};
-							PROCESS_INFORMATION pi={};
-
-							if (ReplaceStrings(strAction, L"%1", URLPath, 1) == 0) //if %1 not found
-							{
-								strAction += L" ";
-								strAction += URLPath;
-							}
-
-							if (!CreateProcess(nullptr, UNSAFE_CSTR(strAction),nullptr,nullptr,TRUE,0,nullptr,strCurDir.c_str(),&si,&pi))
-							{
-								EditCode=1;
-							}
-							else
-							{
-								CloseHandle(pi.hThread);
-								CloseHandle(pi.hProcess);
-							}
+							CloseHandle(pi.hThread);
+							CloseHandle(pi.hProcess);
 						}
 					}
 				}

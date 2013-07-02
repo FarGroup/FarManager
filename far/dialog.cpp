@@ -1958,7 +1958,7 @@ void Dialog::ShowDialog(size_t ID)
 				if(Items[I].Flags & DIF_SETSHIELD)
 				{
 					int startx=X1+CX1+(Items[I].Flags&DIF_NOBRACKETS?0:2);
-					Global->ScrBuf->ApplyColor(startx, Y1 + CY1, startx + 1, Y1 + CY1, Colors::ConsoleColorToFarColor(0xE9));
+					Global->ScrBuf->ApplyColor(startx, Y1 + CY1, startx + 1, Y1 + CY1, Colors::ConsoleColorToFarColor(B_YELLOW|F_LIGHTBLUE));
 				}
 				break;
 			}

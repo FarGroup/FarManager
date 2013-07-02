@@ -239,7 +239,7 @@ BOOL WINAPI apiShowHelp(
 
 	UINT64 OFlags=Flags;
 	Flags&=~(FHELP_NOSHOWERROR|FHELP_USECONTENTS);
-	string strPath, strTopic;
+	string strTopic;
 	string strMask;
 
 	// двоеточие в начале топика надо бы игнорировать и в том случае,
@@ -260,9 +260,8 @@ BOOL WINAPI apiShowHelp(
 			Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>((void*)ModuleName));
 			if (plugin)
 			{
-				strPath=ExtractFilePath(plugin->GetModuleName());
 				Flags|=FHELP_CUSTOMPATH;
-				strTopic.Format(HelpFormatLink,strPath.c_str(),HelpTopic);
+				strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
 			}
 		}
 	}
@@ -276,6 +275,7 @@ BOOL WINAPI apiShowHelp(
 			   А значение FHELP_SELFHELP равно чему? Правильно - 0
 			   И фигля здесь удивлятся тому, что функция не работает :-(
 			*/
+			string strPath;
 			if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
 			{
 				strPath = ModuleName;
@@ -293,7 +293,7 @@ BOOL WINAPI apiShowHelp(
 			else
 				return FALSE;
 
-			strTopic.Format(HelpFormatLink,strPath.c_str(),HelpTopic);
+			strTopic = Help::MakeLink(strPath, HelpTopic);
 		}
 		else
 			return FALSE;

@@ -73,7 +73,6 @@ public:
 	BOOL ProcessException;
 	BOOL ProcessShowClock;
 	const wchar_t *HelpFileMask;
-	const wchar_t *HelpFormatLinkModule;
 #if defined(SYSLOG)
 	BOOL StartSysLog;
 #endif

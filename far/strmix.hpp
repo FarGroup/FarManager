@@ -123,6 +123,9 @@ bool StrToGuid(const string& Value,GUID& Guid);
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
+inline int StrCmp(const UnicodeString& a, const UnicodeString& b) { return StrCmp(a.c_str(), b.c_str()); }
+inline int StrCmpI(const UnicodeString& a, const UnicodeString& b) { return StrCmpI(a.c_str(), b.c_str()); }
+
 enum STL_FLAGS
 {
 	// вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"

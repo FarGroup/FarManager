@@ -5157,7 +5157,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 
-	strStartTopic.Format(HelpFormatLink,strPath.c_str(),L"Contents");
+	strStartTopic = Help::MakeLink(strPath, L"Contents");
 	Help PanelHelp(strStartTopic);
 	return TRUE;
 }

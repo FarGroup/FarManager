@@ -143,16 +143,16 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			}
 			StdHighlightData[]=
 			{
-				/* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
-				/* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
-				/* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
-				/* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
-				/* 4 */{Masks[5], 0, 0x0000, 0x1A, 0x3A},
-				/* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
-				/* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
+				/* 0 */{Masks[0], 0, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+				/* 1 */{Masks[0], 0, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+				/* 2 */{Masks[3], 0, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+				/* 3 */{Masks[4], 0, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
+				/* 4 */{Masks[5], 0, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|B_LIGHTGREEN},
+				/* 5 */{Masks[1], 0, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
+				/* 6 */{Masks[2], 0, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
 				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
 				// без учета масок (например, список хостов в "far navigator")
-				/* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
+				/* 7 */{Masks[0], 1, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
 			};
 
 			size_t Index = 0;

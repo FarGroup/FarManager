@@ -36,73 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "macro.hpp"
-
-#define HelpBeginLink L'<'
-#define HelpEndLink L'>'
-#define HelpFormatLink L"<%s\\>%s"
-
-#define HELPMODE_CLICKOUTSIDE  0x20000000 // было нажатие мыши вне хелпа?
-
-struct StackHelpData
-{
-	UINT64 Flags;                  // флаги
-	int   TopStr;                 // номер верхней видимой строки темы
-	int   CurX,CurY;              // координаты (???)
-
-	string strHelpMask;           // значение маски
-	string strHelpPath;           // путь к хелпам
-	string strHelpTopic;         // текущий топик
-	string strSelTopic;          // выделенный топик (???)
-
-	void Clear()
-	{
-		Flags=0;
-		TopStr=0;
-		CurX=CurY=0;
-		strHelpMask.clear();
-		strHelpPath.clear();
-		strHelpTopic.clear();
-		strSelTopic.clear();
-	}
-};
-
-enum HELPDOCUMENTSHELPTYPE
-{
-	HIDX_PLUGINS,                 // Индекс плагинов
-	HIDX_DOCUMS,                  // Индекс документов
-};
-
-enum
-{
-	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
-};
-
-class HelpRecord
-{
-	public:
-		string HelpStr;
-
-		HelpRecord(const string& HStr):HelpStr(HStr){};
-
-		HelpRecord& operator=(const HelpRecord &rhs)
-		{
-			if (this != &rhs)
-			{
-				HelpStr = rhs.HelpStr;
-			}
-			return *this;
-		}
-
-		bool operator==(const HelpRecord &rhs) const
-		{
-			return !StrCmpI(HelpStr, rhs.HelpStr);
-		}
-
-		bool operator <(const HelpRecord &rhs) const
-		{
-			return HelpStr < rhs.HelpStr;
-		}
-};
+#include "strmix.hpp"
 
 class Help:public Frame
 {
@@ -126,6 +60,7 @@ public:
 
 	BOOL GetError() {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
+	static string MakeLink(const string& path, const string& topic);
 
 private:
 	virtual void DisplayObject() override;
@@ -145,10 +80,33 @@ private:
 	void Search(File& HelpFile,uintptr_t nCodePage);
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
-	const HelpRecord* GetHelpItem(int Pos);
+	const class HelpRecord* GetHelpItem(int Pos);
+
+	struct StackHelpData
+	{
+		UINT64 Flags;                  // флаги
+		int   TopStr;                 // номер верхней видимой строки темы
+		int   CurX,CurY;              // координаты (???)
+
+		string strHelpMask;           // значение маски
+		string strHelpPath;           // путь к хелпам
+		string strHelpTopic;         // текущий топик
+		string strSelTopic;          // выделенный топик (???)
+
+		void Clear()
+		{
+			Flags=0;
+			TopStr=0;
+			CurX=CurY=0;
+			strHelpMask.clear();
+			strHelpPath.clear();
+			strHelpTopic.clear();
+			strSelTopic.clear();
+		}
+	}
+	StackData;
 
 	KeyBar      HelpKeyBar;     // кейбар
-	StackHelpData StackData;
 	std::stack<StackHelpData> Stack; // стек возврата
 	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
 	string  strFullHelpPathName;
