@@ -24,6 +24,11 @@
 @System.MsHWheelDelta=System.MsWheelDelta
 @System.MsHWheelDeltaView=System.MsWheelDelta
 @System.MsHWheelDeltaEdit=System.MsWheelDelta
+@XLat.Rules1=XLat.Tables
+@XLat.Rules2=XLat.Tables
+@XLat.Rules3=XLat.Tables
+@XLat.Table1=XLat.Tables
+@XLat.Table2=XLat.Tables
 
 @Contents
 $^#File and archive manager#
@@ -620,7 +625,7 @@ to the same data.
 
     In the windowed mode, toggles between the current size and the maximum
 possible size of a console window. In the fullscreen mode, #Alt-F9# toggles the
-screen height between 25 and 50 lines. See TechInfo##38 for details.
+screen height between 25 and 50 lines. See ~Interface.AltF9~@Interface.AltF9@ for details.
 
   Configure ~plugins~@Plugins@.                                    #Alt-Shift-F9#
 
@@ -712,7 +717,7 @@ $ #Deleting and wiping files and folders#
 #Shift-Del# hotkey always deletes, skipping the Recycle Bin.
 
     2. ^<wrap>Before file deletion its data is overwritten with zeroes (you can
-specify other overwrite characters - see TechInfo##29), after which the file
+specify other overwrite characters - see ~System.WipeSymbol~@System.WipeSymbol@), after which the file
 is truncated to a zero sized file, renamed to a temporary name and then
 deleted.
 
@@ -841,7 +846,7 @@ $ #Mouse: wheel support#
              same as in menus.
 
     You can specify the number of lines to scroll at a time in the panels,
-editor and viewer (see TechInfo##33).
+editor and viewer (see ~System.MsWheelDelta~@System.MsWheelDelta@).
 
 
 @Plugins
@@ -5975,6 +5980,66 @@ $ #far:config Macros.ShowPlayIndicator#
     По умолчанию значение = true
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@XLat.Layouts
+$ #far:config XLat.Layouts#
+    Параметр "XLat.Layouts" позволяет задавать номера раскладок клавиатуры (через ';'), которые будут переключаться,
+независимо от количества установленных в системе раскладок.
+
+    Например, "04090409;04190419" (или "0409;0419").
+
+    Если указано меньше двух, то механизм "отключается" и раскладки переключаются по кругу.
+
+    Far для "Layouts" считывает первые 10 значений, остальные, если есть, игнорируются.
+
+    По умолчанию значению отсутствует.
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@XLat.Flags
+$ #far:config XLat.Flags#
+    Параметр "XLat.Flags" определяет поведение функции Xlat:
+
+    Биты:
+       0 - ^<wrap>Автоматическое переключение раскладки клавиатуры после перекодирования
+           ^<wrap>Переключение происходит по кругу: RU->EN->RU->...
+           ^<wrap>В семействе Windows NT позволяет переключить раскладку клавиатуры на следующую доступную (см. так же описание бита 2).
+       1 - ^<wrap>При переключении раскладки выдать звуковой сигнал.
+       2 - ^<wrap>Использовать предопределенные именованные правила для "двойных" клавиш.
+           ^<wrap>Так же, если задано автоматическое переключение, то переключение раскладок происходит только 
+по списку значений, перечисленных в ~XLat.Layouts~@XLat.Layouts@, независимо от количества установленных в системе раскладок.
+           ^<wrap>Пример см. в Addons\XLat\Russian\Qwerty.farconfig (name="00000409" и name="00000419")
+Такие правила возможно поменять только из ~командной строки~@CmdLine@ (параметр /import)
+      16 - ^<wrap>Конвертировать всю командную строку при отсутствии выделенного блока.
+
+    По умолчанию значение = 0x00010001 (переключить раскладку и конвертировать всю командную строку при отсутствии выделенного блока)
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@XLat.Tables
+$ #far:config XLat.Tables#
+    Параметры "XLat.Table*" и "XLat.Rules*" задают перекодировочные таблицы и особые правила конвертации строк.
+
+    Перекодировочная таблица #XLat.Table1# содержит набор символов национальной кодировки.
+    
+    Перекодировочная таблица #XLat.Table2# содержит набор латинских символов, соответствующих символам национальной кодировки на клавиатуре (см. свою клавиатуру).
+
+    Значение #XLat.Rules1# содержит пары правил для случая "если предыдущий символ русский". Первый символ - что меняем, второй - на что меняем. Допускается 
+
+    Значение #XLat.Rules2# содержит пары правил для случая "если предыдущий символ латинский". Первый символ - что меняем, второй - на что меняем.
+
+    Значение #XLat.Rules3# содержит пары правил для случая "если предыдущий символ не буква". Первый символ - что меняем, второй - на что меняем - крутим по кругу.
+
+    По умолчанию параметры не содержат значений. Если в системе установлена русская раскладка (0x0419) и значение параметра XLat.Table1 
+пусто, то Far Manager выставляет следующие умолчания:
+    Table1=№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ
+    Table2=##FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~~<>
+    Rules1=,??&./б,ю.:^Ж:ж;;$"@@Э"
+    Rules2=?,&?/.,б.ю^::Ж;ж$;@@""Э
+    Rules3=^::ЖЖ^$;;жж$@""ЭЭ@@&??,,бб&/..юю/
+
+
+    Измененить эти параметры возможно через ~far:config~@FarConfig@
 
 @Index
 $ #Index help file#

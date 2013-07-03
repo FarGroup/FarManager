@@ -74,7 +74,8 @@ wchar_t* Xlat(wchar_t *Line,
 
 	size_t MinLenTable=std::min(Global->Opt->XLat.Table[0].size(),Global->Opt->XLat.Table[1].size());
 	string strLayoutName;
-	int ProcessLayoutName=FALSE;
+	bool ProcessLayoutName=false;
+	StringOption RulesNamed;
 
 	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Global->Console->GetKeyboardLayoutName(strLayoutName))
 	{
@@ -105,12 +106,11 @@ wchar_t* Xlat(wchar_t *Line,
 		      руками переключили раскладку,
 		      снова конвертим и...
 		*/
-		// BUGBUG!!! Затирается 3-е правило.
 		string XlatRules;
 		Global->Db->GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
-		Global->Opt->XLat.Rules[2] = XlatRules;
-		if (!Global->Opt->XLat.Rules[2].empty())
-			ProcessLayoutName=TRUE;
+		RulesNamed = XlatRules;
+		if (!RulesNamed.empty())
+			ProcessLayoutName=true;
 	}
 
 	// цикл по всей строке
@@ -149,11 +149,11 @@ wchar_t* Xlat(wchar_t *Line,
 		{
 			if (ProcessLayoutName)
 			{
-				for (size_t i=0; i < Global->Opt->XLat.Rules[2].size(); i+=2)
+				for (size_t i=0; i < RulesNamed.size(); i+=2)
 				{
-					if (Chr == Global->Opt->XLat.Rules[2][i])
+					if (Chr == RulesNamed[i])
 					{
-						Chr=Global->Opt->XLat.Rules[2][i+1];
+						Chr=RulesNamed[i+1];
 						break;
 					}
 				}
