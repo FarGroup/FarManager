@@ -36,6 +36,7 @@ end
 local MCODE_F_POSTNEWMACRO = 0x80C64
 local MCODE_F_CHECKALL     = 0x80C65
 local MCODE_F_GETOPTIONS   = 0x80C66
+local MCODE_F_CREATEPATH   = 0x80C68
 
 local Areas
 local LoadedMacros
@@ -107,6 +108,11 @@ local StringToFlags, FlagsToString do
     end
     return str
   end
+end
+
+-- Contrary to win.CreateDir, this function correctly processes remote paths, etc.
+local function CreatePath (Path, Simple)
+  MacroCallFar(MCODE_F_CREATEPATH, Path, Simple)
 end
 
 local function EV_Handler (macros, filename, ...)
@@ -429,8 +435,8 @@ local function LoadMacros (allAreas, unload)
   if not unload then
     local DummyFunc = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
-    win.CreateDir(dir.."\\scripts",true)
-    win.CreateDir(win.GetEnv("farprofile").."\\Menus",true)
+    CreatePath(dir.."\\scripts",true)
+    CreatePath(win.GetEnv("farprofile").."\\Menus",true)
     for k=1,2 do
       local root = k==1 and dir.."\\scripts" or dir.."\\internal"
       local flags = k==1 and bor(F.FRS_RECUR,F.FRS_SCANSYMLINK) or 0
@@ -476,7 +482,8 @@ end
 
 local function WriteOneMacro (macro, keyname, delete)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
-  if not win.CreateDir(dir,true) then return end
+  CreatePath(dir,true)
+  if not (win.GetFileAttr(dir) or ""):find("d") then return end
 
   local fname = ("%s\\%s_%s.lua"):format(dir, macro.area, (keyname:gsub(".", CharNames)))
   local attr = win.GetFileAttr(fname)
