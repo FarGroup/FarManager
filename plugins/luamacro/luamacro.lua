@@ -21,8 +21,6 @@ local utils, macrobrowser
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
-local function Unquote(str) return str:match('^"?(.-)"?$') end
-
 local function pack (...)
   return { n=select("#",...), ... }
 end
@@ -91,15 +89,20 @@ function export.GetPluginInfo()
   return PluginInfo
 end
 
+local PatSplitMacroString = regex.new([[
+^ \s* @ \s*
+(?:
+    (  " ( [^"]+ ) "  |  [^"\s]+  )
+    (?:  \s+ (\S.*)   |  \s*      )
+  |
+    (.*)
+)$
+]], "sx")
+
 local function SplitMacroString (Text)
-  if Text:sub(1,1) == "@" then
-    Text = Text:sub(2)
-    local p1,p2 = Text:find("%s*::")
-    if p1 then
-      return string.sub(Text,1,p1-1), string.sub(Text,p2+1)
-    end
-    return Text
-  end
+  local c1,c2,c3,c4 = PatSplitMacroString:match(Text)
+  if c1 then return c2 or c1, c3; end
+  assert(not c4, "Invalid macrosequence specification")
 end
 
 local function loadmacro (Text)
@@ -240,9 +243,11 @@ local function ProcessCommandLine (CmdLine)
     if op=="post" and text~="" then
       local fname, params = SplitMacroString(text)
       if fname then
-        fname = Unquote(ExpandEnv(fname))
-        text = "@"..far.ConvertPath(fname, F.CPM_NATIVE)
-        if params then text = text.."::"..params; end
+        fname = ExpandEnv(fname)
+        fname = far.ConvertPath(fname, F.CPM_NATIVE)
+        if fname:find("%s") then fname = '"'..fname..'"' end
+        text = "@"..fname
+        if params then text = text.." "..params end
       end
       far.MacroPost(text)
     elseif op=="check" and text~="" then far.MacroCheck(text)
