@@ -505,8 +505,8 @@ void FileViewer::ShowStatus()
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
-	    strName.c_str(),
-		 L"thd"[View.VM.Hex],
+	    strName.data(),
+	    L"thd"[View.VM.Hex],
 	    View.VM.CodePage,
 	    View.FileSize,
 	    MSG(MViewerStatusCol),

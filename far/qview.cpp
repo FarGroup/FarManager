@@ -213,7 +213,7 @@ void QuickView::DisplayObject()
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = Tmp.c_str();
+						PtrName = Tmp.data();
 					}
 					else
 					{
@@ -440,11 +440,11 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 	{
 		string strValue;
 
-		if (GetShellType(strCurFileName.c_str()+pos, strValue))
+		if (GetShellType(strCurFileName.data()+pos, strValue))
 		{
 			HKEY hKey;
 
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.c_str(),&hKey)==ERROR_SUCCESS)
+			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)==ERROR_SUCCESS)
 			{
 				RegQueryStringValue(hKey,L"",strCurFileType,L"");
 				RegCloseKey(hKey);

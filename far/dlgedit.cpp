@@ -256,7 +256,7 @@ void DlgEdit::SetInputMask(const string& InputMask)
 const wchar_t* DlgEdit::GetInputMask()
 {
 	if (Type == DLGEDIT_SINGLELINE)
-		return lineEdit->GetInputMask().c_str();
+		return lineEdit->GetInputMask().data();
 
 	return L""; //???
 }
@@ -344,7 +344,7 @@ void DlgEdit::SetString(const string& Str, bool disable_autocomplete, int pos)
 		if (disable_autocomplete && (acompl = lineEdit->GetAutocomplete()))
 			lineEdit->SetAutocomplete(false);
 
-		lineEdit->SetString(Str.c_str());
+		lineEdit->SetString(Str.data());
 		if (pos >= 0)
 			lineEdit->SetCurPos(pos);
 

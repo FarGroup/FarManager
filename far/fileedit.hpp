@@ -168,7 +168,7 @@ class FileEditor : public Frame
 		void ChangeEditKeyBar();
 		DWORD EditorGetFileAttributes(const string& Name);
 		void SetPluginData(const string* PluginData);
-		const wchar_t *GetPluginData() {return strPluginData.c_str();}
+		const wchar_t *GetPluginData() {return strPluginData.data();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
 		uintptr_t GetDefaultCodePage();

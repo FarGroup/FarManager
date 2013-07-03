@@ -160,7 +160,7 @@ BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 
 BaseFormat& BaseFormat::operator<<(const string& String)
 {
-	return Put(String.c_str(), String.size());
+	return Put(String.data(), String.size());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::MinWidth& Manipulator)

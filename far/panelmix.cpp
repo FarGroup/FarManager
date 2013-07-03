@@ -116,7 +116,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 		ConvertNameToFull(SelName, strFullName);
 		AddEndSlash(strFullName);
 
-		if (wcsstr(strAnotherCurDir.c_str(),strFullName.c_str()))
+		if (wcsstr(strAnotherCurDir.data(),strFullName.data()))
 		{
 			((FileList*)AnotherPanel)->StopFSWatcher();
 			return TRUE;
@@ -271,7 +271,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 {
 	// BUGBUG, add error checking
 
-	const wchar_t *TextPtr=ColumnTitles.c_str();
+	const wchar_t *TextPtr=ColumnTitles.data();
 
 	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
 	{
@@ -286,7 +286,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		{
 			unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 			ColumnType=NAME_COLUMN;
-			const wchar_t *Ptr = strArgName.c_str()+1;
+			const wchar_t *Ptr = strArgName.data()+1;
 
 			while (*Ptr)
 			{
@@ -318,7 +318,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 			{
 				unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 				ColumnType=(strArgName.front()==L'S') ? SIZE_COLUMN:(strArgName.front()==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
-				const wchar_t *Ptr = strArgName.c_str()+1;
+				const wchar_t *Ptr = strArgName.data()+1;
 
 				while (*Ptr)
 				{
@@ -343,7 +343,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 			}
 			else
 			{
-				if (!StrCmpN(strArgName.c_str(),L"DM",2) || !StrCmpN(strArgName.c_str(),L"DC",2) || !StrCmpN(strArgName.c_str(),L"DA",2) || !StrCmpN(strArgName.c_str(),L"DE",2))
+				if (!StrCmpN(strArgName.data(),L"DM",2) || !StrCmpN(strArgName.data(),L"DC",2) || !StrCmpN(strArgName.data(),L"DA",2) || !StrCmpN(strArgName.data(),L"DE",2))
 				{
 					unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
 
@@ -363,7 +363,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 							break;
 					}
 
-					const wchar_t *Ptr = strArgName.c_str()+2;
+					const wchar_t *Ptr = strArgName.data()+2;
 
 					while (*Ptr)
 					{
@@ -414,7 +414,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		}
 	}
 
-	TextPtr=ColumnWidths.c_str();
+	TextPtr=ColumnWidths.data();
 
 	for (int I=0; I<ColumnCount; I++)
 	{
@@ -423,7 +423,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		ViewColumnWidths[I]=_wtoi(strArgName.c_str());
+		ViewColumnWidths[I]=_wtoi(strArgName.data());
 		ViewColumnWidthsTypes[I]=COUNT_WIDTH;
 
 		if (strArgName.size()>1)
@@ -741,7 +741,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
-						PtrName = strMsg.c_str();
+						PtrName = strMsg.data();
 					}
 					else
 					{

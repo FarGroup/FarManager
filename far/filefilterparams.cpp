@@ -126,8 +126,8 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 void FileFilterParams::SetSize(bool Used, const string& SizeAbove, const string& SizeBelow)
 {
 	FSize.Used=Used;
-	xwcsncpy(FSize.SizeAbove,SizeAbove.c_str(),ARRAYSIZE(FSize.SizeAbove));
-	xwcsncpy(FSize.SizeBelow,SizeBelow.c_str(),ARRAYSIZE(FSize.SizeBelow));
+	xwcsncpy(FSize.SizeAbove,SizeAbove.data(),ARRAYSIZE(FSize.SizeAbove));
+	xwcsncpy(FSize.SizeBelow,SizeBelow.data(),ARRAYSIZE(FSize.SizeBelow));
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
@@ -159,7 +159,7 @@ const string& FileFilterParams::GetTitle() const
 bool FileFilterParams::GetMask(const wchar_t **Mask) const
 {
 	if (Mask)
-		*Mask=FMask.strMask.c_str();
+		*Mask=FMask.strMask.data();
 
 	return FMask.Used;
 }
@@ -396,7 +396,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (!MarkChar[1])
 			*MarkChar=0;
 
-		Name=FF->GetTitle().c_str();
+		Name=FF->GetTitle().data();
 		UseMask=FF->GetMask(&Mask);
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
@@ -851,20 +851,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	{
 		case 0:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask = FormatString() << L"99" << DateSeparator << "99" << DateSeparator << "9999N";
+			strDateMask = FormatString() << L"99" << DateSeparator << L"99" << DateSeparator << L"9999N";
 			break;
 		case 1:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask = FormatString() << L"99" << DateSeparator << "99" << DateSeparator << "9999N";
+			strDateMask = FormatString() << L"99" << DateSeparator << L"99" << DateSeparator << L"9999N";
 			break;
 		default:
 			// Маска даты для формата YYYYY.MM.DD
-			strDateMask = FormatString() << L"N9999" << DateSeparator << "c99" << DateSeparator << "c99";
+			strDateMask = FormatString() << L"N9999" << DateSeparator << L"c99" << DateSeparator << L"c99";
 			break;
 	}
 
 	// Маска времени
-	strTimeMask = FormatString() << L"99" << TimeSeparator << "99" << TimeSeparator << "99" << DecimalSeparator << "999";
+	strTimeMask = FormatString() << L"99" << TimeSeparator << L"99" << TimeSeparator << L"99" << DecimalSeparator << L"999";
 	FarDialogItem FilterDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,20,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},
@@ -889,13 +889,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_COMBOBOX,26,7,41,7,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
 		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,MSG(MFileFilterDateRelative)},
 		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,MSG(MFileFilterDateBeforeSign)},
-		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,7,61,7,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
 		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,MSG(MFileFilterDateAfterSign)},
-		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,8,61,8,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
 		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(MFileFilterCurrent)},
 		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(MFileFilterBlank)},
 

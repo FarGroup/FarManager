@@ -238,7 +238,7 @@ public:
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
-	const wchar_t* c_str() const {return GetString().c_str();}
+	const wchar_t* data() const {return GetString().data();}
 	operator const string&() const {return GetString();}
 	void clear() {Set(L"");}
 	bool empty() const {return GetString().empty();}

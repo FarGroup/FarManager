@@ -130,7 +130,7 @@ FILE * OpenLogStream(const string& file)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build);
-	return _wfsopen(strRealLogName.c_str(),L"a+t",SH_DENYWR);
+	return _wfsopen(strRealLogName.data(),L"a+t",SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -536,7 +536,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         ListItems[I].PrevNumericSort,
 						 ListItems[I].PrevCaseSensitiveSort,
 				         ListItems[I].PrevDirectoriesFirst,
-				         ListItems[I].strHostFile.c_str());
+				         ListItems[I].strHostFile.data());
 		}
 
 		fwprintf(fp,L"\n");
@@ -654,7 +654,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.c_str(), Name.c_str());
+				fwprintf(fp,L"\tFrameList item: %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
 			}
 			else
 				fwprintf(fp,L"\tFrameList item nullptr\n");
@@ -667,7 +667,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.c_str(), Name.c_str());
+				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i, Type.data(), Name.data());
 			}
 			else
 				fwprintf(fp,L"\tModalStack Item nullptr\n");
@@ -681,7 +681,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->InsertedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tInsertedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который будет добавлен в конец немодальной очереди
-		         Man->InsertedFrame,Type.c_str(),Name.c_str());
+		         Man->InsertedFrame,Type.data(),Name.data());
 
 		if (!Man->DeletedFrame)
 			Type.clear(), Name.clear();
@@ -689,7 +689,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->DeletedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeletedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, предназначен для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-		         Man->DeletedFrame,Type.c_str(),Name.c_str());
+		         Man->DeletedFrame,Type.data(),Name.data());
 
 		if (!Man->ActivatedFrame)
 			Type.clear(), Name.clear();
@@ -697,7 +697,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ActivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tActivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который необходимо активировать после каких ни будь изменений
-		         Man->ActivatedFrame,Type.c_str(),Name.c_str());
+		         Man->ActivatedFrame,Type.data(),Name.data());
 
 		if (!Man->RefreshedFrame)
 			Type.clear(), Name.clear();
@@ -705,7 +705,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->RefreshedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tRefreshedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который нужно просто освежить, т.е. перерисовать
-		         Man->RefreshedFrame,Type.c_str(),Name.c_str());
+		         Man->RefreshedFrame,Type.data(),Name.data());
 
 		if (!Man->ModalizedFrame)
 			Type.clear(), Name.clear();
@@ -713,7 +713,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ModalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tModalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который становится в 'очередь' к текущему немодальному фрейму
-		         Man->ModalizedFrame,Type.c_str(),Name.c_str());
+		         Man->ModalizedFrame,Type.data(),Name.data());
 
 		if (!Man->UnmodalizedFrame)
 			Type.clear(), Name.clear();
@@ -721,7 +721,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, убирающийся из 'очереди' немодального фрейма
-		         Man->UnmodalizedFrame,Type.c_str(),Name.c_str());
+		         Man->UnmodalizedFrame,Type.data(),Name.data());
 
 		if (!Man->DeactivatedFrame)
 			Type.clear(), Name.clear();
@@ -729,7 +729,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->DeactivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который указывает на предыдущий активный фрейм
-		         Man->DeactivatedFrame,Type.c_str(),Name.c_str());
+		         Man->DeactivatedFrame,Type.data(),Name.data());
 
 		if (!Man->ExecutedFrame)
 			Type.clear(), Name.clear();
@@ -737,7 +737,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ExecutedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tExecutedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, которого вскорости нужно будет поставить на вершину модального стека
-		         Man->ExecutedFrame,Type.c_str(),Name.c_str());
+		         Man->ExecutedFrame,Type.data(),Name.data());
 
 		if (!Man->CurrentFrame)
 			Type.clear(), Name.clear();
@@ -745,7 +745,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->CurrentFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s')\n", //  - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке
-		         Man->CurrentFrame,Type.c_str(),Name.c_str());
+		         Man->CurrentFrame,Type.data(),Name.data());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
@@ -1392,7 +1392,7 @@ string __FARKEY_ToName(int Key)
 	{
 		string tmp;
 		InsertQuote(Name);
-		tmp.Format(L"%s [%u/0x%08X]",Name.c_str(),Key,Key);
+		tmp.Format(L"%s [%u/0x%08X]",Name.data(),Key,Key);
 		Name = tmp;
 		return Name;
 	}

@@ -230,7 +230,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.c_str())!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.data())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -304,7 +304,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									if(!DlgParam->OwnerChanged)
 									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.c_str())!=0;
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner.data())!=0;
 									}
 									DlgParam->strOwner=Owner;
 								}
@@ -561,10 +561,10 @@ void ShellSetFileAttributesMsg(const string& Name)
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
-	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.c_str());
+	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.data());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1 = Name.c_str();
+		Global->PreRedraw->top().Param.Param1 = Name.data();
 	}
 }
 
@@ -581,9 +581,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 		if(Utc2Local(*OriginalFileTime,ost))
 		{
 			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate.c_str(),DateN,ARRAYSIZE(DateN),GetDateSeparator());
+			GetFileDateAndTime(OSrcDate, DateN, ARRAYSIZE(DateN), GetDateSeparator());
 			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime.c_str(),TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
+			GetFileDateAndTime(OSrcTime, TimeN, ARRAYSIZE(TimeN), GetTimeSeparator());
 			SYSTEMTIME st={};
 
 			switch (GetDateFormat())
@@ -901,7 +901,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								path += L"\\" + strSelName;
 								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.c_str(), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.data(), nullptr, nullptr, 3, (LPBYTE *)&pData);
 								if (NERR_Success == ns)
 								{
 									KnownReparsePoint = true;
@@ -914,7 +914,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
 									{
 										Links[i] = string(L"\\\\") + pData->Storage[i].ServerName + L"\\" + pData->Storage[i].ShareName;
-										NameList.Items[i].Text = Links[i].c_str();
+										NameList.Items[i].Text = Links[i].data();
 										NameList.Items[i].Flags = (pData->Storage[i].State & DFS_STORAGE_STATE_ACTIVE) ? LIF_CHECKED | LIF_SELECTED : LIF_NONE;
 										if (pData->Storage[i].State & DFS_STORAGE_STATE_OFFLINE)	NameList.Items[i].Flags |= LIF_DISABLE;
 									}
@@ -1012,12 +1012,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						GetPathRoot(strSelName,strRoot);
 						DeleteEndSlash(strRoot);
 						Links[0] = strRoot + Links[0];
-						NameList.Items[0].Text = Links[0].c_str();
+						NameList.Items[0].Text = Links[0].data();
 
 						for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
 						{
 							Links[i] = strRoot + Links[i];
-							NameList.Items[i].Text = Links[i].c_str();
+							NameList.Items[i].Text = Links[i].data();
 						}
 
 						FindClose(hFind);
@@ -1252,13 +1252,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		case SA_BUTTON_SET:
 			{
 				//reparse point editor
-				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.c_str(),strLinkName.c_str()))
+				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.data(),strLinkName.data()))
 				{
 					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
 					Unquote(strTarget);
 					if(!ModifyReparsePoint(strSelName, strTarget))
 					{
-						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.c_str(),MSG(MHOk));
+						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.data(),MSG(MHOk));
 					}
 				}
 
@@ -1285,7 +1285,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					});
 
-					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str()))
+					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data()))
 					{
 						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 						if(Result==SETATTR_RET_SKIPALL)
@@ -1436,7 +1436,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								break;
 						}
 
-						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str()))
+						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data()))
 						{
 							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 							if(Result==SETATTR_RET_SKIPALL)
@@ -1577,7 +1577,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.c_str(),AttrDlg[SA_EDIT_OWNER].strData.c_str())))
+									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data())))
 									{
 										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 										if(Result==SETATTR_RET_SKIPALL)
@@ -1726,7 +1726,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AddEndSlash(strFullName);
 				}
-				seInfo.lpFile = strFullName.c_str();
+				seInfo.lpFile = strFullName.data();
 				if (Global->WinVer() < _WIN32_WINNT_VISTA && ParsePath(seInfo.lpFile) == PATH_DRIVELETTERUNC)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
@@ -1734,7 +1734,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
 				apiGetCurrentDirectory(strCurDir);
-				seInfo.lpDirectory=strCurDir.c_str();
+				seInfo.lpDirectory=strCurDir.data();
 				ShellExecuteExW(&seInfo);
 			}
 			break;

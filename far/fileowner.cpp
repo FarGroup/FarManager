@@ -57,7 +57,7 @@ struct SIDCacheItem
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer.c_str(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
+				LookupAccountSid(Computer.data(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -65,7 +65,7 @@ struct SIDCacheItem
 					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
 					if (AccountName && DomainName)
 					{
-						if(LookupAccountSid(Computer.c_str(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
+						if(LookupAccountSid(Computer.data(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
 						{
 							strAccountName.ReleaseBuffer(AccountLength);
 							strDomainName.ReleaseBuffer(DomainLength);
@@ -161,7 +161,7 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 	NTPath strName(Name);
 	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
-	if (GetFileSecurity(strName.c_str(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
+	if (GetFileSecurity(strName.data(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{
 		PSID pOwner;
 		BOOL OwnerDefaulted;
@@ -229,7 +229,7 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 bool SetOwner(const string& Object, const string& Owner)
 {
 	NTPath strNtObject(Object);
-	bool Result = SetOwnerInternal(strNtObject.c_str(), Owner.c_str());
+	bool Result = SetOwnerInternal(strNtObject.data(), Owner.data());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetOwner(strNtObject, Owner);

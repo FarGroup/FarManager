@@ -43,40 +43,40 @@ void ShowHeap();
 void CheckHeap(int NumLine);
 
 string __FARKEY_ToName(int Key);
-#define _FARKEY_ToName(K) __FARKEY_ToName(K).c_str()
+#define _FARKEY_ToName(K) __FARKEY_ToName(K).data()
 string __MCODE_ToName(DWORD OpCode);
-#define _MCODE_ToName(K) __MCODE_ToName(K).c_str()
+#define _MCODE_ToName(K) __MCODE_ToName(K).data()
 string __VK_KEY_ToName(int VkKey);
-#define _VK_KEY_ToName(K) __VK_KEY_ToName(K).c_str()
+#define _VK_KEY_ToName(K) __VK_KEY_ToName(K).data()
 string __ECTL_ToName(int Command);
-#define _ECTL_ToName(K) __ECTL_ToName(K).c_str()
+#define _ECTL_ToName(K) __ECTL_ToName(K).data()
 string __EE_ToName(int Command);
-#define _EE_ToName(K) __EE_ToName(K).c_str()
+#define _EE_ToName(K) __EE_ToName(K).data()
 string __EEREDRAW_ToName(int Command);
-#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).c_str()
+#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).data()
 string __ESPT_ToName(int Command);
-#define _ESPT_ToName(K) __ESPT_ToName(K).c_str()
+#define _ESPT_ToName(K) __ESPT_ToName(K).data()
 string __VE_ToName(int Command);
-#define _VE_ToName(K) __VE_ToName(K).c_str()
+#define _VE_ToName(K) __VE_ToName(K).data()
 string __FCTL_ToName(int Command);
-#define _FCTL_ToName(K) __FCTL_ToName(K).c_str()
+#define _FCTL_ToName(K) __FCTL_ToName(K).data()
 string __MCTL_ToName(int Command);
-#define _MCTL_ToName(K) __MCTL_ToName(K).c_str()
+#define _MCTL_ToName(K) __MCTL_ToName(K).data()
 string __DLGMSG_ToName(DWORD Msg);
-#define _DLGMSG_ToName(K) __DLGMSG_ToName(K).c_str()
+#define _DLGMSG_ToName(K) __DLGMSG_ToName(K).data()
 string __DLGDIF_ToName(DWORD Msg);
-#define _DLGDIF_ToName(K) __DLGDIF_ToName(K).c_str()
+#define _DLGDIF_ToName(K) __DLGDIF_ToName(K).data()
 
 string __ACTL_ToName(int Command);
-#define _ACTL_ToName(K) __ACTL_ToName(K).c_str()
+#define _ACTL_ToName(K) __ACTL_ToName(K).data()
 string __VCTL_ToName(int Command);
-#define _VCTL_ToName(K) __VCTL_ToName(K).c_str()
+#define _VCTL_ToName(K) __VCTL_ToName(K).data()
 string __INPUT_RECORD_Dump(const INPUT_RECORD *Rec);
-#define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).c_str()
+#define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).data()
 string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *Rec);
-#define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).c_str()
+#define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).data()
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
-#define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).c_str()
+#define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).data()
 
 void GetOpenPanelInfo_Dump(const wchar_t *Title,const struct OpenPanelInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);

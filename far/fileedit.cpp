@@ -476,7 +476,7 @@ void FileEditor::Init(
 				int MsgCode=0;
 				if (OpenModeExstFile == FEOPMODE_QUERY)
 				{
-					const wchar_t* const Items[] = {strFullFileName.c_str(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
+					const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
 					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
 				}
 				else
@@ -565,7 +565,7 @@ void FileEditor::Init(
 	        )
 	   )
 	{
-		const wchar_t* const Items[] = {Name.c_str(),MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
+		const wchar_t* const Items[] = {Name.data(),MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorOpenRSHId))
 		{
 			ExitCode=XC_OPEN_ERROR;
@@ -883,7 +883,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							strFullFileName,
 							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
 							FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
-							strTitle.empty() ? nullptr : strTitle.c_str(),
+							strTitle.empty() ? nullptr : strTitle.data(),
 							delete_on_close);
 					}
 
@@ -960,7 +960,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 					//AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
 					//                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-					m_editor->Paste(strFullFileName.c_str()); //???
+					m_editor->Paste(strFullFileName.data()); //???
 					//if (!EdOpt.PersistentBlocks)
 					m_editor->UnmarkBlock();
 					m_editor->Pasting--;
@@ -1045,7 +1045,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
 						Unquote(strSaveAsName);
-						NameChanged=StrCmpI(strSaveAsName.c_str(), (Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName).c_str());
+						NameChanged=StrCmpI(strSaveAsName.data(), (Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName).data());
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1304,12 +1304,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							else if ( IsUnicodeCodePage(codepage) )
 							{
 								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorSwitchToUnicodeCPDisabled) << codepage).c_str(), MSG(MEditorTryReloadFile), MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorSwitchToUnicodeCPDisabled) << codepage).data(), MSG(MEditorTryReloadFile), MSG(MOk));
 							}
 							else if ( !Global->CodePages->IsCodePageSupported(codepage) )
 							{
 								detect = false;
-								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).c_str(), MSG(MOk));
+								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).data(), MSG(MOk));
 							}
 							if ( !detect )
 								codepage = m_codepage;
@@ -1467,9 +1467,9 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				FileSizeToStr(strTempStr2, MaxSize, 8);
 
 				if (Message(MSG_WARNING,2,MSG(MEditTitle),
-					Name.c_str(),
-					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).c_str(),
-					(LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2)).c_str(),
+					Name.data(),
+					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).data(),
+					(LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2)).data(),
 					MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
 				{
 					EditFile.Close();
@@ -1482,7 +1482,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		else
 		{
-			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name.c_str(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name.data(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
 			{
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
@@ -1729,7 +1729,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			const wchar_t* const Items[] = {Name.c_str(),MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+			const wchar_t* const Items[] = {Name.data(),MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
 			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSavedROId);
 
 			if (AskOverwrite)
@@ -1749,7 +1749,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	{
 		// проверим путь к файлу, может его уже снесли...
 		string strCreatedPath = Name;
-		const wchar_t *Ptr=LastSlash(strCreatedPath.c_str());
+		const wchar_t *Ptr=LastSlash(strCreatedPath.data());
 
 		if (Ptr)
 		{
@@ -2123,7 +2123,7 @@ void FileEditor::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
 
-	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.c_str(),MSG(MNewFileName)))
+	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName.data(),MSG(MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
 
 	if (Global->CtrlObject->Plugins->GetCurEditor() == this)//&this->FEdit)
@@ -2205,7 +2205,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 			{
 				DeleteEndSlash(strCurPath);
 
-				if (!StrCmpI(strFilePath.c_str(), strCurPath.c_str()))
+				if (!StrCmpI(strFilePath.data(), strCurPath.data()))
 					strFileName=PointToName(strFullFileName);
 			}
 		}
@@ -2391,7 +2391,7 @@ BOOL FileEditor::UpdateFileList()
 	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 	const wchar_t *FileName = PointToName(strFullFileName);
 	string strFilePath(strFullFileName), strPanelPath(ActivePanel->GetCurDir());
-	strFilePath.resize(FileName - strFullFileName.c_str());
+	strFilePath.resize(FileName - strFullFileName.data());
 	AddEndSlash(strPanelPath);
 	AddEndSlash(strFilePath);
 
@@ -2469,7 +2469,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2&&(size_t)Param1>strFullFileName.size())
 			{
-				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.c_str());
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.data());
 			}
 
 			return static_cast<int>(strFullFileName.size()+1);
@@ -2606,7 +2606,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (SetFileName(strName))
 				{
-					if (StrCmpI(strFullFileName.c_str(),strOldFullFileName.c_str()))
+					if (StrCmpI(strFullFileName.data(),strOldFullFileName.data()))
 					{
 						if (!AskOverwrite(strName))
 						{
@@ -2814,7 +2814,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 
 	if (FNAttr!=INVALID_FILE_ATTRIBUTES)
 	{
-		const wchar_t* const Items[] = {FileName.c_str(),MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
+		const wchar_t* const Items[] = {FileName.data(),MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)};
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorAskOverwriteId))
 		{
 			result=false;

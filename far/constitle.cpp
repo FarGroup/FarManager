@@ -116,7 +116,7 @@ ConsoleTitle::~ConsoleTitle()
 
 	if (AddonsLen <= OldLen)
 	{
-		if (!StrCmpI(strOldTitle.c_str()+OldLen-AddonsLen, strTitleAddons.c_str()))
+		if (!StrCmpI(strOldTitle.data()+OldLen-AddonsLen, strTitleAddons.data()))
 			strOldTitle.resize(OldLen-AddonsLen);
 	}
 

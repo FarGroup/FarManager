@@ -93,7 +93,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
 				if (!strDescription.empty())
 				{
-					if (!strFriendlyName.empty() && StrCmpI(strDescription.c_str(),strFriendlyName.c_str()))
+					if (!strFriendlyName.empty() && StrCmpI(strDescription.data(),strFriendlyName.data()))
 					{
 						ListItem.strName += L" \"" + strFriendlyName + L"\"";
 					}
@@ -173,7 +173,7 @@ void ShowHotplugDevice()
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.c_str(),MSG(MOk));
+						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.data(),MSG(MOk));
 					}
 				}
 
@@ -570,19 +570,19 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 		if (pDisk != Disks)
 			*--pDisk=0;
 
-		if (StrCmpI(strDescription.c_str(),strFriendlyName.c_str()) && !strFriendlyName.empty())
+		if (StrCmpI(strDescription.data(),strFriendlyName.data()) && !strFriendlyName.empty())
 		{
 			if (*Disks)
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),strFriendlyName.c_str(),(LangString(MHotPlugDisks) << Disks).c_str(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.data(),strFriendlyName.data(),(LangString(MHotPlugDisks) << Disks).data(),MSG(MHRemove),MSG(MHCancel));
 			else
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),strFriendlyName.c_str(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.data(),strFriendlyName.data(),MSG(MHRemove),MSG(MHCancel));
 		}
 		else
 		{
 			if (*Disks)
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),(LangString(MHotPlugDisks) << Disks).c_str(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.data(),(LangString(MHotPlugDisks) << Disks).data(),MSG(MHRemove),MSG(MHCancel));
 			else
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.c_str(),MSG(MHRemove),MSG(MHCancel));
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription.data(),MSG(MHRemove),MSG(MHCancel));
 		}
 	}
 
@@ -593,7 +593,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 
 	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
 	{
-		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription.c_str(),strFriendlyName.c_str(),MSG(MChangeHotPlugNotify2),MSG(MOk));
+		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription.data(),strFriendlyName.data(),MSG(MChangeHotPlugNotify2),MSG(MOk));
 	}
 
 	return bResult;

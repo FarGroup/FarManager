@@ -246,7 +246,7 @@ static const wchar_t *toString(__int64 num)
 static const wchar_t *toString(double num)
 {
 	static wchar_t str[256];
-	_snwprintf(str, ARRAYSIZE(str)-1, Global->Opt->Macro.strMacroCONVFMT.Get().c_str(), num);
+	_snwprintf(str, ARRAYSIZE(str)-1, Global->Opt->Macro.strMacroCONVFMT.Get().data(), num);
 	return str;
 };
 
@@ -334,7 +334,7 @@ TVar::TVar(const wchar_t *v) :
 TVar::TVar(const string& v) :
 	inum(0),
 	dnum(0.0),
-	str(dubstr(v.c_str())),
+	str(dubstr(v.data())),
 	vType(vtString)
 {
 }

@@ -529,7 +529,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
 				{
-					const wchar_t *deprecated = Global->Opt->strNoAutoDetectCP.c_str();
+					const wchar_t *deprecated = Global->Opt->strNoAutoDetectCP.data();
 
 					if ( 0 == wcscmp(deprecated, L"-1") )
 					{

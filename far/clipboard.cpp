@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "clipboard.hpp"
 #include "console.hpp"
+#include "strmix.hpp"
 
 static struct internal_clipboard
 {
@@ -364,7 +365,7 @@ wchar_t *Clipboard::Paste()
 					while(*StartA)
 					{
 						size_t l1=strClipText.size();
-						strClipText+=StartA;
+						strClipText+=wide(StartA);
 						StartA+=strClipText.size()-l1;
 						StartA++;
 						if(*StartA)
@@ -375,7 +376,7 @@ wchar_t *Clipboard::Paste()
 				}
 				if(!strClipText.empty())
 				{
-					ClipText = DuplicateString(strClipText.c_str());
+					ClipText = DuplicateString(strClipText.data());
 				}
 				GlobalUnlock(hClipData);
 			}
@@ -493,7 +494,7 @@ int CopyToClipboard(const string& Data)
 	if (!clip.Open())
 		return FALSE;
 
-	BOOL ret = clip.Copy(Data.c_str());
+	BOOL ret = clip.Copy(Data.data());
 
 	clip.Close();
 

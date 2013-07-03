@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 char* AbstractSettings::Add(const string& String)
 {
-	return Add(String.c_str(),(String.size()+1)*sizeof(wchar_t));
+	return Add(String.data(),(String.size()+1)*sizeof(wchar_t));
 }
 
 char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
@@ -90,7 +90,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 			Diz.Read(strDbPath);
 			string strDbName = strGuid + L".db";
 			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
-			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description.c_str()))
+			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description.data()))
 			{
 				Diz.AddDizText(strDbName, L"", Description);
 				Diz.Flush(strDbPath);
@@ -185,7 +185,7 @@ static wchar_t* AddString(const string& String)
 {
 	size_t size=String.size()+1;
 	wchar_t* result=new wchar_t[size];
-	wmemcpy(result,String.c_str(),size);
+	wmemcpy(result,String.data(),size);
 	return result;
 }
 

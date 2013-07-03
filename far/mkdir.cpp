@@ -88,7 +88,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
 				// такой каталог в кавычки
-				if (Global->Opt->MultiMakeDir && !wcspbrk(strDirName.c_str(),L";,\""))
+				if (Global->Opt->MultiMakeDir && !wcspbrk(strDirName.data(),L";,\""))
 				{
 					QuoteSpaceOnly(strDirName);
 				}

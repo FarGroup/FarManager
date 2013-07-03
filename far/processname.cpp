@@ -55,7 +55,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
 	string strWildName = DestNamePtr;
 
-	if (!wcschr(strWildName.c_str(), L'*') && !wcschr(strWildName.c_str(), L'?'))
+	if (!wcschr(strWildName.data(), L'*') && !wcschr(strWildName.data(), L'?'))
 	{
 		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
 		return FALSE;
@@ -63,11 +63,11 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	if (SelectedFolderNameLength)
 	{
-		strPartAfterFolderName = (strSrc.c_str()+SelectedFolderNameLength);
+		strPartAfterFolderName = (strSrc.data()+SelectedFolderNameLength);
 		strSrc.resize(SelectedFolderNameLength);
 	}
 
-	const wchar_t *Src = strSrc.c_str();
+	const wchar_t *Src = strSrc.data();
 
 	const wchar_t *SrcNamePtr = PointToName(Src);
 
@@ -79,7 +79,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
 
-	const wchar_t *CurWildPtr = strWildName.c_str();
+	const wchar_t *CurWildPtr = strWildName.data();
 
 	while (*CurWildPtr)
 	{

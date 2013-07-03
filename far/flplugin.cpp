@@ -234,8 +234,8 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 {
-	pi->FileName = DuplicateString(fi->strName.c_str());
-	pi->AlternateFileName = DuplicateString(fi->strShortName.c_str());
+	pi->FileName = DuplicateString(fi->strName.data());
+	pi->AlternateFileName = DuplicateString(fi->strShortName.data());
 	pi->FileSize=fi->FileSize;
 	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
@@ -257,7 +257,7 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 
 	pi->CRC32=fi->CRC32;
 	pi->Reserved[0]=pi->Reserved[1]=0;
-	pi->Owner = EmptyToNull(fi->strOwner.c_str());
+	pi->Owner = EmptyToNull(fi->strOwner.data());
 }
 
 void FileList::FreePluginPanelItem(PluginPanelItem *pi)
@@ -305,10 +305,10 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			gpi->Item->UserData.Data=fi->UserData;
 			gpi->Item->UserData.FreeData=fi->Callback;
 
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.c_str());
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.data());
 			data+=sizeof(wchar_t)*(fi->strName.size()+1);
 
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.c_str());
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.data());
 			data+=sizeof(wchar_t)*(fi->strShortName.size()+1);
 
 			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
@@ -341,7 +341,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			}
 			else
 			{
-				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.c_str());
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.data());
 			}
 		}
 	}
@@ -553,7 +553,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
-					pi.FileName = DuplicateString(DestPanel->strPluginDizName.c_str());
+					pi.FileName = DuplicateString(DestPanel->strPluginDizName.data());
 					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
 					delete[] pi.FileName;
 				}
@@ -642,7 +642,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 	if (!ItemList.empty())
 	{
-		const wchar_t *lpwszTempDir=strTempDir.c_str();
+		const wchar_t *lpwszTempDir=strTempDir.data();
 		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), FALSE, &lpwszTempDir, OPM_SILENT);
 		strTempDir=lpwszTempDir;
 
@@ -734,7 +734,7 @@ void FileList::PluginHostGetFiles()
 			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,OpMode))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
-				const wchar_t *lpwszDestPath=strDestPath.c_str();
+				const wchar_t *lpwszDestPath=strDestPath.data();
 				ExitLoop=Global->CtrlObject->Plugins->GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,&lpwszDestPath,OpMode)!=1;
 				strDestPath=lpwszDestPath;
 
@@ -1216,7 +1216,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 
 		if (!(CurPlugin.Flags & PPIF_SELECTED))
 		{
-			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber]->strName.c_str()))
+			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber]->strName.data()))
 				if (++FileNumber >= ListData.size())
 					return;
 

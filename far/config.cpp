@@ -829,7 +829,7 @@ void Options::SetFolderInfoFiles()
 	string strFolderInfoFiles;
 
 	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-	              InfoPanel.strFolderInfoFiles.c_str(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
+	              InfoPanel.strFolderInfoFiles.data(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
@@ -926,7 +926,7 @@ void Options::SetFilePanelModes()
 
 		for (size_t i = 0; i < ViewSettings.size(); ++i)
 		{
-			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.c_str();
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.data();
 		}
 
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
@@ -1164,21 +1164,21 @@ struct FARConfigItem
 		Item.Flags = 0;
 		Item.Reserved[0] = Item.Reserved[1] = 0;
 		ListItemString.clear();
-		ListItemString << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(KeyName) + "." + ValName) << BoxSymbols[BS_V1]
+		ListItemString << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(KeyName) + L"." + ValName) << BoxSymbols[BS_V1]
 		<< fmt::ExactWidth(7) << fmt::LeftAlign() << Value->typeToString() << BoxSymbols[BS_V1]
 		<< Value->toString() << Value->ExInfo();
 		if(!Value->IsDefault(this))
 		{
 			Item.Flags = LIF_CHECKED|L'*';
 		}
-		Item.Text = ListItemString.c_str();
+		Item.Text = ListItemString.data();
 		return Item;
 	}
 
 	bool Edit(bool Hex)
 	{
 		DialogBuilder Builder;
-		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").c_str());
+		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").data());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1342,7 +1342,7 @@ bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
 bool StringOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue.c_str());
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue.data());
 	Set(CfgValue);
 	return Result;
 }
@@ -1810,7 +1810,7 @@ void Options::Load()
 	*/
 	/* *************************************************** </опеопнжеяяш> */
 
-	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.c_str());
+	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.data());
 
 	std::for_each(RANGE(Config, i)
 	{
@@ -1823,7 +1823,7 @@ void Options::Load()
 	/* <оняропнжеяяш> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.c_str(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
+	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.data(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
 	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
@@ -1929,7 +1929,7 @@ void Options::Load()
 
 			FOR_CONST_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(i->c_str(), &endptr, 16);
+				DWORD res=(DWORD)wcstoul(i->data(), &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
@@ -2495,7 +2495,7 @@ void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
 			KeyToText(Menu[i].AccelKey, Key);
 			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
 			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
-			Menu[i].Name = Strings[i].c_str();
+			Menu[i].Name = Strings[i].data();
 		}
 	}
 }
@@ -2507,7 +2507,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 		for (size_t i = 0; i < 10; ++i)
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.c_str();
+				Menu[i? i - 1 : 9].Name = ViewSettings[i].Name.data();
 		}
 	};
 
@@ -2934,7 +2934,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						SetEnvironmentVariable(L"FARLANG",strLanguage.c_str());
+						SetEnvironmentVariable(L"FARLANG",strLanguage.data());
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();

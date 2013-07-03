@@ -201,7 +201,7 @@ virtual bool GetTitle(string &strTitle) const override
 
 virtual bool SetTitle(const string& Title) const override
 {
-	return SetConsoleTitle(Title.c_str())!=FALSE;
+	return SetConsoleTitle(Title.data())!=FALSE;
 }
 
 virtual bool GetKeyboardLayoutName(string &strName) const override

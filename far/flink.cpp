@@ -56,7 +56,7 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 
 	if (apiGetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
 	{
-		if (SetVolumeMountPoint(Object.c_str(),strBuf.c_str()))
+		if (SetVolumeMountPoint(Object.data(),strBuf.data()))
 		{
 			Result=true;
 		}
@@ -81,8 +81,8 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 
 			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.c_str(),SubstituteName.size()+1);
-				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.c_str(),PrintName.size()+1);
+				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.data(),SubstituteName.size()+1);
+				wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.data(),PrintName.size()+1);
 				Result=true;
 			}
 			break;
@@ -96,8 +96,8 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, 
 
 			if (rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
 			{
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.c_str(),SubstituteName.size());
-				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.c_str(),PrintName.size());
+				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName.data(),SubstituteName.size());
+				wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName.data(),PrintName.size());
 				Result=true;
 			}
 			break;
@@ -215,7 +215,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 								if (IsAbsolutePath(Target))
 								{
 									strSubstituteName=L"\\??\\";
-									strSubstituteName+=(strPrintName.c_str()+(HasPathPrefix(strPrintName)?4:0));
+									strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
 									rdb->SymbolicLinkReparseBuffer.Flags=0;
 							}
 								else
@@ -242,7 +242,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 				string strPrintName,strSubstituteName;
 				ConvertNameToFull(Target,strPrintName);
 				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.c_str()+(HasPathPrefix(strPrintName)?4:0));
+				strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
 				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
@@ -389,7 +389,7 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 
 	if (!Result && !Silent)
 	{
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName.c_str(),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName.data(),MSG(MOk));
 	}
 	return Result;
 }
@@ -426,7 +426,7 @@ bool DelSubstDrive(const string& DeviceName)
 	if (GetSubstName(DRIVE_NOT_INIT,DeviceName,strTargetPath))
 	{
 		strTargetPath=(string)L"\\??\\"+strTargetPath;
-		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.c_str(),strTargetPath.c_str())==TRUE);
+		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.data(),strTargetPath.data())==TRUE);
 	}
 
 	return Result;
@@ -525,7 +525,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 					string strPrintName,strSubstituteName;
 					ConvertNameToFull(NewData,strPrintName);
 					strSubstituteName=L"\\??\\";
-					strSubstituteName+=(strPrintName.c_str()+(HasPathPrefix(strPrintName)?4:0));
+					strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
 					FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
 				}
 				break;
@@ -537,7 +537,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 					if (IsAbsolutePath(NewData))
 					{
 						strSubstituteName=L"\\??\\";
-						strSubstituteName+=(strPrintName.c_str()+(HasPathPrefix(strPrintName)?4:0));
+						strSubstituteName+=(strPrintName.data()+(HasPathPrefix(strPrintName)?4:0));
 						rdb->SymbolicLinkReparseBuffer.Flags=0;
 					}
 					else
@@ -582,7 +582,7 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!StrCmpN(strLinkName.c_str(),L"\\??\\",4))
+	if (!StrCmpN(strLinkName.data(),L"\\??\\",4))
 	{
 		LPWSTR LinkName=strLinkName.GetBuffer();
 		LinkName[1]=L'\\';
@@ -604,10 +604,10 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 		// выделим имя
 		strSelOnlyName = SelName;
 		DeleteEndSlash(strSelOnlyName);
-		const wchar_t *PtrSelName=LastSlash(strSelOnlyName.c_str());
+		const wchar_t *PtrSelName=LastSlash(strSelOnlyName.data());
 
 		if (!PtrSelName)
-			PtrSelName=strSelOnlyName.c_str();
+			PtrSelName=strSelOnlyName.data();
 		else
 			++PtrSelName;
 
@@ -657,7 +657,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					        MSG(MCopyCannotCreateJunctionToFile),
-					        strDestFullName.c_str(),MSG(MOk));
+					        strDestFullName.data(),MSG(MOk));
 				}
 
 				return 0;
@@ -689,14 +689,14 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 							if (LinkType==RP_VOLMOUNT)
 							{
 								Message(MSG_WARNING,1,MSG(MError),
-								        (LangString(MCopyMountVolFailed) << SelName).c_str(),
-								        (LangString(MCopyMountVolFailed2) << strDestFullName).c_str(),
+								        (LangString(MCopyMountVolFailed) << SelName).data(),
+								        (LangString(MCopyMountVolFailed2) << strDestFullName).data(),
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
 							else
 								Message(MSG_WARNING,1,MSG(MError),
-								        MSG(MCopyCannotCreateLink),strDestFullName.c_str(),
+								        MSG(MCopyCannotCreateLink),strDestFullName.data(),
 								        MSG(MCopyFolderNotEmpty),MSG(MOk));
 						}
 
@@ -717,7 +717,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
-						        strDestFullName.c_str(),MSG(MOk));
+						        strDestFullName.data(),MSG(MOk));
 					}
 
 					return 0;
@@ -780,7 +780,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 					if (!Silent)
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MCopyCannotCreateLink),strDestFullName.c_str(),MSG(MOk));
+						        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
 					}
 
 					return 0;
@@ -799,7 +799,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				if (!Silent)
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-					        MSG(MCopyCannotCreateLink),strDestFullName.c_str(),MSG(MOk));
+					        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
 				}
 
 				return 0;
@@ -817,8 +817,8 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
-						(LangString(MCopyMountVolFailed) << SelName).c_str(),
-						(LangString(MCopyMountVolFailed2) << strDestFullName).c_str(),
+						(LangString(MCopyMountVolFailed) << SelName).data(),
+						(LangString(MCopyMountVolFailed2) << strDestFullName).data(),
 						MSG(MOk));
 				}
 

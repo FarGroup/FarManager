@@ -183,10 +183,10 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
-			MenuString(ListItem.strName, nullptr, false, h, true, i->first.c_str(), MSG(MPanelFileType));
+			MenuString(ListItem.strName, nullptr, false, h, true, i->first.data(), MSG(MPanelFileType));
 			size_t Length = i->first.size() + 1;
 			ListItem.SetCheck(i->second);
-			FilterList.SetUserData(i->first.c_str(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
+			FilterList.SetUserData(i->first.data(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
 		}
 	}
 
@@ -356,7 +356,7 @@ bool FileFilter::FilterEdit()
 					InsertQuote(strQuotedTitle);
 
 					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-					            strQuotedTitle.c_str(),MSG(MDelete),MSG(MCancel)))
+					            strQuotedTitle.data(),MSG(MDelete),MSG(MCancel)))
 					{
 						FilterData->erase(FilterData->begin()+SelPos);
 						FilterList.DeleteItem(SelPos);
@@ -523,7 +523,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 				strMask2 = FMask;
 				Unquote(strMask2);
 
-				if (StrCmpI(strMask1.c_str(),strMask2.c_str())<1)
+				if (StrCmpI(strMask1.data(),strMask2.data())<1)
 					break;
 
 				j++;
@@ -531,7 +531,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList)
 
 			if (CurFilterData)
 			{
-				if (!StrCmpI(Mask.c_str(),FMask))
+				if (!StrCmpI(Mask.data(),FMask))
 				{
 					if (!Check)
 					{
@@ -803,7 +803,7 @@ void FileFilter::InitFilter()
 
 	while (1)
 	{
-		strKeyName = FormatString() << "Filter" << FilterData->size();
+		strKeyName = FormatString() << L"Filter" << FilterData->size();
 
 		unsigned __int64 key = cfg->GetKeyID(root, strKeyName);
 
@@ -1017,10 +1017,10 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)
 {
-	if (!StrCmp(FileName.c_str(),L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!StrCmp(FileName.data(),L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return -1;
 
-	const wchar_t *DotPtr=wcsrchr(FileName.c_str(),L'.');
+	const wchar_t *DotPtr=wcsrchr(FileName.data(),L'.');
 	string strMask;
 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки

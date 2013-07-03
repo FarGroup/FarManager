@@ -102,7 +102,7 @@ auto StringToFlags(const string& strFlags, const container& From, const wchar_t*
 		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
 		std::for_each(CONST_RANGE(FlagList, i)
 		{
-			Flags |= GetValueOfName(i.c_str(), From);
+			Flags |= GetValueOfName(i.data(), From);
 		});
 	}
 	return Flags;

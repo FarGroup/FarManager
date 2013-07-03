@@ -146,14 +146,14 @@ static unsigned int HexStringToInt(const char *Hex)
 static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
 {
 	FormatString strResult;
-	strResult<<Title<<" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
+	strResult<<Title<<L" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
 	Global->Console->Write(strResult);
 	Global->Console->Commit();
 }
 
 static void PrintError(const wchar_t *Title, const tinyxml::TiXmlDocument &doc)
 {
-	PrintError(Title, string(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
+	PrintError(Title, wide(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
 }
 
 class Utf8String
@@ -169,7 +169,7 @@ public:
 		Init(Str.data(), Str.size());
 	}
 
-	const char* c_str() const {return Data.get();}
+	const char* data() const {return Data.get();}
 	size_t size() const {return Size;}
 
 
@@ -428,8 +428,8 @@ public:
 			if (!key || !name || !type || !value)
 				continue;
 
-			string Key(key, CP_UTF8);
-			string Name(name, CP_UTF8);
+			string Key = wide(key, CP_UTF8);
+			string Name = wide(name, CP_UTF8);
 
 			if (!strcmp(type,"qword"))
 			{
@@ -437,7 +437,7 @@ public:
 			}
 			else if (!strcmp(type,"text"))
 			{
-				string Value(value, CP_UTF8);
+				string Value = wide(value, CP_UTF8);
 				SetValue(Key, Name, Value);
 			}
 			else if (!strcmp(type,"hex"))
@@ -516,7 +516,7 @@ public:
 
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
-		AsyncDone.SetName(strPath.c_str(), strName.c_str());
+		AsyncDone.SetName(strPath.data(), strName.data());
 		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
 		AsyncDone.Wait();          // and wait for the signal
 		Initialize(DbName, Local);
@@ -802,8 +802,8 @@ public:
 			if (!name)
 				return;
 
-			string Name(name, CP_UTF8);
-			string Description(description, CP_UTF8);
+			string Name = wide(name, CP_UTF8);
+			string Description = wide(description, CP_UTF8);
 			id = CreateKey(root, Name, &Description);
 			if (!id)
 				return;
@@ -818,7 +818,7 @@ public:
 			if (!name || !type)
 				continue;
 
-			string Name(name, CP_UTF8);
+			string Name = wide(name, CP_UTF8);
 
 			if (value && !strcmp(type,"qword"))
 			{
@@ -826,7 +826,7 @@ public:
 			}
 			else if (value && !strcmp(type,"text"))
 			{
-				string Value(value, CP_UTF8);
+				string Value = wide(value, CP_UTF8);
 				SetValue(id, Name, Value);
 			}
 			else if (value && !strcmp(type,"hex"))
@@ -898,7 +898,7 @@ private:
 			e->SetAttribute("type", "color");
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).c_str());
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
 		}
 		else
 		{
@@ -922,7 +922,7 @@ private:
 				auto Color = reinterpret_cast<FarColor*>(Blob.get());
 				Color->BackgroundColor = HexStringToInt(background);
 				Color->ForegroundColor = HexStringToInt(foreground);
-				Color->Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
+				Color->Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 			}
 		}
 		else
@@ -1027,7 +1027,7 @@ public:
 			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
-			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).c_str());
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());
 			root->LinkEndChild(e);
 		}
 
@@ -1049,14 +1049,14 @@ public:
 			if (!name)
 				continue;
 
-			string Name(name, CP_UTF8);
+			string Name = wide(name, CP_UTF8);
 
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
 				Color.BackgroundColor = HexStringToInt(background);
 				Color.ForegroundColor = HexStringToInt(foreground);
-				Color.Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
+				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
 				SetValue(Name, Color);
 			}
 			else
@@ -1325,8 +1325,8 @@ public:
 			if (!mask)
 				continue;
 
-			string Mask(mask, CP_UTF8);
-			string Description(description, CP_UTF8);
+			string Mask = wide(mask, CP_UTF8);
+			string Description = wide(description, CP_UTF8);
 
 			id = AddType(id, Mask, Description);
 			if (!id)
@@ -1343,7 +1343,7 @@ public:
 				if (!command || !stype || !senabled)
 					continue;
 
-				string Command(command, CP_UTF8);
+				string Command = wide(command, CP_UTF8);
 				SetCommand(id, type, Command, enabled != 0);
 			}
 
@@ -1955,7 +1955,7 @@ public:
 			if (!key)
 				continue;
 
-			string Key(key, CP_UTF8);
+			string Key = wide(key, CP_UTF8);
 
 			for (const auto* se = e->FirstChildElement("hotkey"); se; se=se->NextSiblingElement("hotkey"))
 			{
@@ -1966,8 +1966,8 @@ public:
 				if (!guid || !stype)
 					continue;
 
-				string Guid(guid, CP_UTF8);
-				string Hotkey(hotkey, CP_UTF8);
+				string Guid = wide(guid, CP_UTF8);
+				string Hotkey = wide(hotkey, CP_UTF8);
 				HotKeyTypeEnum type;
 				if (!strcmp(stype,"drive"))
 					type = DRIVE_MENU;
@@ -2050,8 +2050,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		StopEvent.Open();
 		if (strPath != L":memory:")
 		{
-			AsyncDeleteAddDone.SetName(strPath.c_str(), strName.c_str());
-			AsyncCommitDone.SetName(strPath.c_str(), strName.c_str());
+			AsyncDeleteAddDone.SetName(strPath.data(), strName.data());
+			AsyncCommitDone.SetName(strPath.data(), strName.data());
 		}
 		AsyncDeleteAddDone.Open(true,true);
 		AsyncCommitDone.Open(true,true);
@@ -2638,7 +2638,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 		{
 			m_TemplateLoadState = 0;
 			string def_config = Global->Opt->TemplateProfilePath;
-			FILE* XmlFile = _wfopen(NTPath(def_config).c_str(), L"rb");
+			FILE* XmlFile = _wfopen(NTPath(def_config).data(), L"rb");
 			if (XmlFile)
 			{
 				m_TemplateDoc.reset(new tinyxml::TiXmlDocument);
@@ -2704,7 +2704,7 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, con
 
 HierarchicalConfigUniquePtr Database::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).c_str(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).data(), Local, true);
 }
 
 HierarchicalConfigUniquePtr Database::CreateFiltersConfig()
@@ -2752,7 +2752,7 @@ Database::~Database()
 
 bool Database::Export(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File).c_str(), L"w");
+	FILE* XmlFile = _wfopen(NTPath(File).data(), L"w");
 	if(!XmlFile)
 		return false;
 
@@ -2766,7 +2766,7 @@ bool Database::Export(const string& File)
 	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
 
 	auto root = new tinyxml::TiXmlElement("farconfig");
-	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).c_str());
+	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).data());
 
 	root->LinkEndChild(GeneralCfg()->Export());
 
@@ -2806,7 +2806,7 @@ bool Database::Export(const string& File)
 			if (re.Match(fd.strFileName.data(), fd.strFileName.data() + fd.strFileName.size(), m, mc))
 			{
 				auto plugin = new tinyxml::TiXmlElement("plugin");
-				plugin->SetAttribute("guid", Utf8String(fd.strFileName).c_str());
+				plugin->SetAttribute("guid", Utf8String(fd.strFileName).data());
 				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
 				e->LinkEndChild(plugin);
 			}
@@ -2823,7 +2823,7 @@ bool Database::Export(const string& File)
 
 bool Database::Import(const string& File)
 {
-	FILE* XmlFile = _wfopen(NTPath(File).c_str(), L"rb");
+	FILE* XmlFile = _wfopen(NTPath(File).data(), L"rb");
 	if(!XmlFile)
 		return false;
 
@@ -2866,7 +2866,7 @@ bool Database::Import(const string& File)
 				const char *guid = plugin->Attribute("guid");
 				if (!guid)
 					continue;
-				string Guid(guid, CP_UTF8);
+				string Guid = wide(guid, CP_UTF8);
 				Guid.Upper();
 
 				intptr_t mc = 2;

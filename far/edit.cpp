@@ -1669,7 +1669,7 @@ void  Edit::SetHiString(const string& Str)
 	string NewStr;
 	HiText2Str(NewStr, Str);
 	Select(-1,0);
-	SetBinaryString(NewStr.c_str(), static_cast<int>(NewStr.size()));
+	SetBinaryString(NewStr.data(), static_cast<int>(NewStr.size()));
 }
 
 void Edit::SetString(const wchar_t *Str, int Length)
@@ -1876,7 +1876,7 @@ void Edit::InsertString(const string& Str)
 	if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 		DeleteBlock();
 
-	InsertBinaryString(Str.c_str(), static_cast<int>(Str.size()));
+	InsertBinaryString(Str.data(), static_cast<int>(Str.size()));
 }
 
 void Edit::InsertBinaryString(const wchar_t *Str,int Length)
@@ -2051,7 +2051,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 */
 int Edit::Search(const string& Str,const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength)
 {
-	return SearchString(this->Str,this->StrSize,Str,UpperStr,LowerStr,re,pm,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,PreserveStyle,SearchLength,WordDiv().c_str());
+	return SearchString(this->Str,this->StrSize,Str,UpperStr,LowerStr,re,pm,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,PreserveStyle,SearchLength,WordDiv().data());
 }
 
 void Edit::InsertTab()

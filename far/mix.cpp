@@ -108,7 +108,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 	{
 		if (!uniq) ++uniq;
 
-		if (GetTempFileName(strPath.c_str(), Prefix, uniq, lpwszDest))
+		if (GetTempFileName(strPath.data(), Prefix, uniq, lpwszDest))
 		{
 			string tname(lpwszDest);
 			FindFile f(tname,false);
@@ -150,8 +150,8 @@ void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDe
 	pDest->ChangeTime = pSrc->ftChangeTime;
 	pDest->FileSize = pSrc->nFileSize;
 	pDest->AllocationSize = pSrc->nAllocationSize;
-	pDest->FileName = DuplicateString(pSrc->strFileName.c_str());
-	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.c_str());
+	pDest->FileName = DuplicateString(pSrc->strFileName.data());
+	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.data());
 }
 
 void FreePluginPanelItem(PluginPanelItem *pData)

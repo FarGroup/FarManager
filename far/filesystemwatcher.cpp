@@ -69,7 +69,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 
 unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 {
-	HANDLE Handle=FindFirstChangeNotification(Directory.c_str(), WatchSubtree,
+	HANDLE Handle=FindFirstChangeNotification(Directory.data(), WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|

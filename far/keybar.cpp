@@ -244,7 +244,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
 
-	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.c_str(), Global->Opt->strLanguage.c_str()) || Area != CustomArea))
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.data(), Global->Opt->strLanguage.data()) || Area != CustomArea))
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;

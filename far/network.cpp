@@ -110,10 +110,10 @@ void ConnectToNetworkDrive(const string& NewDir)
 	GetStoredUserName(NewDir[0], strUserName);
 	NETRESOURCE netResource;
 	netResource.dwType = RESOURCETYPE_DISK;
-	netResource.lpLocalName = (wchar_t *)NewDir.c_str();
-	netResource.lpRemoteName = (wchar_t *)strRemoteName.c_str();
+	netResource.lpLocalName = (wchar_t *)NewDir.data();
+	netResource.lpRemoteName = (wchar_t *)strRemoteName.data();
 	netResource.lpProvider = 0;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.c_str()), 0);
+	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.data()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
@@ -125,7 +125,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName.c_str()), 0);
+			res = WNetAddConnection2(&netResource, strPassword.data(), EmptyToNull(strUserName.data()), 0);
 
 			if (!res)
 				break;
@@ -134,7 +134,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 			{
 				string strMsgStr;
 				GetErrorString(strMsgStr);
-				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.c_str(), MSG(MOk));
+				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.data(), MSG(MOk));
 				break;
 			}
 		}
@@ -152,13 +152,13 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 	}
 	else
 	{
-		string LocalName(CurDir.c_str(), 2);
+		string LocalName(CurDir.data(), 2);
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 
 	if (strNetDir[0]==L'\\' && strNetDir[1] == L'\\')
 	{
-		strComputerName = strNetDir.c_str()+2;
+		strComputerName = strNetDir.data()+2;
 		size_t pos;
 
 		if (!FindSlash(pos,strComputerName))

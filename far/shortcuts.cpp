@@ -247,16 +247,16 @@ static string MakeName(const ShortcutItem& Item)
 				string TechInfo;
 
 				if (!Item.strPluginFile.empty())
-					TechInfo.append(MSG(MFSShortcutPluginFile)).append(L" ").append(Item.strPluginFile + ", ");
+					TechInfo.append(MSG(MFSShortcutPluginFile)).append(L" ").append(Item.strPluginFile + L", ");
 				if (!Item.strFolder.empty())
-					TechInfo.append(MSG(MFSShortcutPath)).append(L" ").append(Item.strFolder + ", ");
+					TechInfo.append(MSG(MFSShortcutPath)).append(L" ").append(Item.strFolder + L", ");
 				if (!Item.strPluginData.empty()) {
 					string t = Item.strPluginData;
 					for (size_t i = 0; i < t.size(); ++i) // cut not printable plugindata
 						if (t[i] < L' ')
 							t.resize(i);
 					if (!t.empty())
-						TechInfo.append(MSG(MFSShortcutPluginData)).append(L" ").append(t + ", ");
+						TechInfo.append(MSG(MFSShortcutPluginData)).append(L" ").append(t + L", ");
 				}
 
 				if (!TechInfo.empty())
@@ -495,7 +495,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 	Builder.AddEditField(&NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
 	if (Item.PluginGuid != FarGuid)
 	{
-		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().c_str());
+		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid)->GetTitle().data());
 		Builder.AddText(MFSShortcutPluginFile);
 		Builder.AddEditField(&NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
 		Builder.AddText(MFSShortcutPluginData);
@@ -522,7 +522,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 
 			if ((!raw || !strTemp.empty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
-				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.c_str(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 			}
 		}
 

@@ -74,7 +74,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		wchar_t *endptr;
-		*IntValue = wcstoul(Item->strData.c_str(), &endptr, 10);
+		*IntValue = wcstoul(Item->strData.data(), &endptr, 10);
 	}
 
 	const wchar_t *GetMask()
@@ -101,7 +101,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		wchar_t *endptr;
-		*IntValue = wcstoul(Item->strData.c_str()+1, &endptr, 16);
+		*IntValue = wcstoul(Item->strData.data()+1, &endptr, 16);
 	}
 
 	const wchar_t *GetMask()
@@ -280,7 +280,7 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(IntOpti
 
 DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
 {
-	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value->c_str());
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value->data());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 	if (HistoryID)
@@ -296,7 +296,7 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 
 DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
 {
-	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value.c_str());
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value.data());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 	if (HistoryID)
@@ -312,7 +312,7 @@ DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, const 
 
 DialogItemEx *DialogBuilder::AddFixEditField(string *Value, int Width, const wchar_t *Mask)
 {
-	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, Value->c_str());
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, Value->data());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 	if (Mask)
@@ -327,7 +327,7 @@ DialogItemEx *DialogBuilder::AddFixEditField(string *Value, int Width, const wch
 
 DialogItemEx *DialogBuilder::AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask)
 {
-	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, Value.c_str());
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, Value.data());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 	if (Mask)
@@ -342,7 +342,7 @@ DialogItemEx *DialogBuilder::AddFixEditField(StringOption& Value, int Width, con
 
 DialogItemEx *DialogBuilder::AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags)
 {
-	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value.c_str());
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value.data());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 	Item->Flags |= Flags|DIF_READONLY;
@@ -452,7 +452,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width, const std::vecto
 	FarListItem *ListItems = new FarListItem[ItemsCount];
 	for (size_t i=0; i<ItemsCount; i++)
 	{
-		ListItems[i].Text = Items[i].Text.c_str();
+		ListItems[i].Text = Items[i].Text.data();
 		ListItems[i].Flags = (*Value == Items[i].ItemValue) ? LIF_SELECTED : 0;
 		ListItems[i].Flags |= Items[i].Flags;
 		ListItems[i].Reserved[0] = Items[i].ItemValue;
@@ -478,7 +478,7 @@ DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width, const std:
 	FarListItem *ListItems = new FarListItem[ItemsCount];
 	for(size_t i=0; i<ItemsCount; i++)
 	{
-		ListItems[i].Text = Items[i].Text.c_str();
+		ListItems[i].Text = Items[i].Text.data();
 		ListItems[i].Flags = (Value == Items[i].ItemValue) ? LIF_SELECTED : 0;
 		ListItems[i].Reserved[0] = Items[i].ItemValue;
 		ListItems[i].Flags |= Items[i].Flags;

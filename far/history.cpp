@@ -547,12 +547,12 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 				if (SelectedRecordType == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.c_str(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
+					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)))
 						break;
 				}
 				else
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.c_str(),MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.data(),MSG(MOk));
 				}
 
 				Done=false;
@@ -632,10 +632,10 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (!StrCmpNI(strStr.c_str(),strName.c_str(),Length) && strStr != strName)
+		if (!StrCmpNI(strStr.data(),strName.data(),Length) && strStr != strName)
 		{
 			if (bAppend)
-				strStr += strName.c_str() + Length;
+				strStr += strName.data() + Length;
 			else
 				strStr = strName;
 
@@ -660,7 +660,7 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	unsigned __int64 Time;
 	while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
-		if (!StrCmpNI(Str.c_str(),strHName.c_str(),Length))
+		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
 			MenuItemEx NewItem={};
 			NewItem.strName = strHName;

@@ -107,7 +107,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 	std::any_of(RANGE(PathTypes, i) -> bool
 	{
 		intptr_t n = i.re.GetBracketsCount();
-		if(i.re.Search(path.c_str(), m, n))
+		if(i.re.Search(path.data(), m, n))
 		{
 			if(DirectoryOffset)
 			{
@@ -152,15 +152,15 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	if (Path[0] == L'\\')
 		return false;
 
-	const wchar_t* pC = wcschr(Path.c_str(), L':');
+	const wchar_t* pC = wcschr(Path.data(), L':');
 
 	if (!pC)
 		return false;
 
-	if ((pC - Path.c_str()) == 1) // односимвольные префиксы не поддерживаются
+	if ((pC - Path.data()) == 1) // односимвольные префиксы не поддерживаются
 		return false;
 
-	const wchar_t* pS = FirstSlash(Path.c_str());
+	const wchar_t* pS = FirstSlash(Path.data());
 
 	if (pS && pS < pC)
 		return false;
@@ -182,7 +182,7 @@ bool TestCurrentDirectory(const string& TestDir)
 {
 	string strCurDir;
 
-	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.c_str(),TestDir.c_str()))
+	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.data(),TestDir.data()))
 		return true;
 
 	return false;
@@ -560,7 +560,7 @@ string ExtractPathRoot(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (PathRootLen)
-		return string(Path.c_str(), PathRootLen).append(L'\\');
+		return string(Path.data(), PathRootLen).append(L'\\');
 	else
 		return string();
 }
@@ -579,7 +579,7 @@ string ExtractFileName(const string &Path)
 	if (p <= PathRootLen && PathRootLen)
 		return string();
 
-	return string(Path.c_str() + p, Path.size() - p);
+	return string(Path.data() + p, Path.size() - p);
 }
 
 string ExtractFilePath(const string &Path)
@@ -592,9 +592,9 @@ string ExtractFilePath(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-		return string(Path.c_str(), PathRootLen).append(L'\\');
+		return string(Path.data(), PathRootLen).append(L'\\');
 
-	return string(Path.c_str(), p);
+	return string(Path.data(), p);
 }
 
 bool IsRootPath(const string &Path)

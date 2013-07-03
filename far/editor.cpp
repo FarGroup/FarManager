@@ -121,7 +121,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	   16-ричном представлении.
 	*/
 	if (Global->GlobalSearchHex)
-		Transform(strLastSearchStr,Global->strGlobalSearchString.c_str(),L'S');
+		Transform(strLastSearchStr,Global->strGlobalSearchString.data(),L'S');
 	else
 		strLastSearchStr = Global->strGlobalSearchString;
 
@@ -166,7 +166,7 @@ void Editor::KeepInitParameters()
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
 	if (Global->GlobalSearchHex)
-		Transform(Global->strGlobalSearchString,strLastSearchStr.c_str(),L'X');
+		Transform(Global->strGlobalSearchString,strLastSearchStr.data(),L'X');
 	else
 		Global->strGlobalSearchString = strLastSearchStr;
 
@@ -823,9 +823,9 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				{
 					string strEOL=EditPtr->GetEOL();
 					int CurPos=EditPtr->GetCurPos();
-					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.c_str(),DestLine,CurPos,EditPtr->GetLength());
+					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.data(),DestLine,CurPos,EditPtr->GetLength());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
-					EditPtr->SetEOL(strEOL.c_str());
+					EditPtr->SetEOL(strEOL.data());
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
 					return 1;
@@ -2702,7 +2702,7 @@ int Editor::ProcessKey(int Key)
 				}
 
 				//AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
-				Paste(strTStr.c_str());
+				Paste(strTStr.data());
 				//if (!EdOpt.PersistentBlocks && IsBlock)
 				UnmarkBlock();
 				Pasting--;
@@ -3791,7 +3791,7 @@ BOOL Editor::Search(int Next)
 		if (Regexp)
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 				return FALSE; //BUGBUG
 
 			m.reset(re.GetBracketsCount() * 2);
@@ -3940,7 +3940,7 @@ BOOL Editor::Search(int Next)
 								Global->PreRedraw->pop();
 							}
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
-											strQSearchStr.c_str(),MSG(MEditAskReplaceWith),strQReplaceStr.c_str(),
+											strQSearchStr.data(),MSG(MEditAskReplaceWith),strQReplaceStr.data(),
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
 							if (pitem)
 							{
@@ -4028,7 +4028,7 @@ BOOL Editor::Search(int Next)
 								}
 
 								int Cnt=0;
-								const wchar_t *Tmp=strReplaceStrCurrent.c_str();
+								const wchar_t *Tmp=strReplaceStrCurrent.data();
 
 								while ((Tmp=wcschr(Tmp,L'\r')) )
 								{
@@ -4060,7 +4060,7 @@ BOOL Editor::Search(int Next)
 								wchar_t_ptr NewStr(NewStrLen + 1);
 								int CurPos=CurLine->GetCurPos();
 								wmemcpy(NewStr.get() ,Str, CurPos);
-								wmemcpy(NewStr.get() + CurPos, strReplaceStrCurrent.c_str(), RStrLen);
+								wmemcpy(NewStr.get() + CurPos, strReplaceStrCurrent.data(), RStrLen);
 								wmemcpy(NewStr.get() + CurPos + RStrLen, Str + CurPos + SStrLen, StrLen - CurPos - SStrLen);
 								wmemcpy(NewStr.get() + NewStrLen - EolLen, Eol, EolLen);
 								AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
@@ -4235,7 +4235,7 @@ BOOL Editor::Search(int Next)
 
 	if (!Match && !UserBreak)
 		Message(MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
-		        strMsgStr.c_str(),MSG(MOk));
+		        strMsgStr.data(),MSG(MOk));
 
 	return TRUE;
 }
@@ -4851,21 +4851,21 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 	RemoveExternalSpaces(strArg);
 	// получаем индекс вхождения любого разделителя
 	// в искомой строке
-	size_t l = wcscspn(strArg.c_str(),L",:;. ");
+	size_t l = wcscspn(strArg.data(),L",:;. ");
 	// если разделителя нету, то l=strlen(argv)
 
 	const wchar_t* argvx = nullptr;
 	if (l < strArg.size()) // Варианты: "row,col" или ",col"?
 	{
 		strArg[l]=L'\0'; // Вместо разделителя впиндюлим "конец строки" :-)
-		argvx=strArg.c_str()+l+1;
+		argvx=strArg.data()+l+1;
 		x=_wtoi(argvx);
 	}
 
-	y=_wtoi(strArg.c_str());
+	y=_wtoi(strArg.data());
 
 	// + переход на проценты
-	if (wcschr(strArg.c_str(),L'%'))
+	if (wcschr(strArg.data(),L'%'))
 		y=NumLastLine * y / 100;
 
 	//   вычисляем относительность
@@ -6352,13 +6352,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
 
 						if (espar->wszParam && espar->Size)
-							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(),espar->Size);
+							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.data(),espar->Size);
 
 						rc=(int)EdOpt.strWordDiv.Get().size()+1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv.c_str():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv.data():espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
@@ -7394,13 +7394,13 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
-	Message(MSG_LEFTALIGN,0,Title,strMsg.c_str(),strProgress.empty()?nullptr:strProgress.c_str());
+	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=(void *)Title.c_str();
-		preRedrawItem.Param.Param2=(void *)Msg.c_str();
-		preRedrawItem.Param.Param3=(void *)Name.c_str();
+		preRedrawItem.Param.Param1=(void *)Title.data();
+		preRedrawItem.Param.Param2=(void *)Msg.data();
+		preRedrawItem.Param.Param3=(void *)Name.data();
 		preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
 	}
 }

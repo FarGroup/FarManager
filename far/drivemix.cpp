@@ -107,11 +107,11 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
 	{
-		if (!wcspbrk(DestPath.c_str(),L"\\:"))
+		if (!wcspbrk(DestPath.data(),L"\\:"))
 			return TRUE;
 
 		if (((strSrcRoot[0]==L'\\' && strSrcRoot[1]==L'\\') || (strDestRoot[0]==L'\\' && strDestRoot[1]==L'\\')) &&
-		        StrCmpI(strSrcRoot.c_str(),strDestRoot.c_str()))
+		        StrCmpI(strSrcRoot.data(),strDestRoot.data()))
 			return FALSE;
 
 		if (SrcPath.empty() || DestPath.empty() || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
@@ -130,7 +130,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 		if (!(SrcVolumeNumber &&
 		        SrcVolumeNumber==DestVolumeNumber &&
-		        !StrCmpI(strSrcVolumeName.c_str(), strDestVolumeName.c_str()) &&
+		        !StrCmpI(strSrcVolumeName.data(), strDestVolumeName.data()) &&
 		        SrcTotalSize==DestTotalSize))
 			return FALSE;
 	}

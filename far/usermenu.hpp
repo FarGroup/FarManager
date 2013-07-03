@@ -33,26 +33,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-struct UserMenuItem {
-	string strHotKey;
-	string strLabel;
-	std::list<string> Commands;
-	bool Submenu;
-	std::list<UserMenuItem> *Menu;
-
-	UserMenuItem() { Submenu=false; Menu=nullptr; }
-	~UserMenuItem() { if (Menu) delete Menu; }
-};
-
-ENUM(MENUMODE);
-
 class UserMenu
 {
 public:
 	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
 	UserMenu(const string& MenuFileName);
-	~UserMenu();
+
+	struct UserMenuItem
+	{
+		UserMenuItem():Submenu(false) {}
+		string strHotKey;
+		string strLabel;
+		std::list<string> Commands;
+		bool Submenu;
+		std::list<UserMenuItem> Menu;
+	};
 
 private:
 	void ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName);
@@ -62,10 +57,10 @@ private:
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
+	ENUM(MENUMODE);
 	MENUMODE MenuMode;
 	bool MenuModified;
 	bool MenuNeedRefresh;
 	bool ItemChanged;
 	std::list<UserMenuItem> Menu;
-
 };

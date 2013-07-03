@@ -98,7 +98,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		        strCurDir[0] && strCurDir[1]==L':')
 		{
 			Drive[1] = Upper(strCurDir[0]);
-			SetEnvironmentVariable(Drive.c_str(), strCurDir.c_str());
+			SetEnvironmentVariable(Drive.data(), strCurDir.data());
 		}
 	}
 
@@ -209,13 +209,13 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 			SetLastError(ERROR_FILE_NOT_FOUND);
 
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.c_str(), MSG(MOk));
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.data(), MSG(MOk));
 		}
 		else // попытка найти!
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);
 
-			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.c_str(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
+			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
 				string strTestPathTemp = *pTestPath;
 

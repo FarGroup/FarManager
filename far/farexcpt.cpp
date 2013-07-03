@@ -198,11 +198,11 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
 		{DI_TEXT,    18,2, 70,2,0,nullptr,nullptr,0,Exception},
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
-		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr.c_str()},
+		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,strFunction.c_str()},
+		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,strFunction.data()},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
-		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.c_str()},
+		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
@@ -256,7 +256,7 @@ static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 	else
 	{
 		DWORD n;
-		WriteConsole(GetStdHandle(STD_ERROR_HANDLE), Dump.c_str(), static_cast<DWORD>(Dump.size()), &n, nullptr);
+		WriteConsole(GetStdHandle(STD_ERROR_HANDLE), Dump.data(), static_cast<DWORD>(Dump.size()), &n, nullptr);
 	}
 	return false;
 }
@@ -272,7 +272,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	if (!Is_STACK_OVERFLOW &&Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
-		HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc.c_str());
+		HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc.data());
 
 		if (m)
 		{
@@ -289,7 +289,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				static FarStandardFunctions LocalStandardFunctions;
 				ClearStruct(LocalStandardFunctions);
 				CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
-				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
+				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.data();
 				static PLUGINRECORD PlugRec;
 
 				if (Module)
@@ -297,7 +297,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					ClearStruct(PlugRec);
 					PlugRec.TypeRec=RTYPE_PLUGIN;
 					PlugRec.SizeRec=sizeof(PLUGINRECORD);
-					PlugRec.ModuleName=Module->GetModuleName().c_str();
+					PlugRec.ModuleName=Module->GetModuleName().data();
 					PlugRec.WorkFlags=Module->GetWorkFlags();
 					PlugRec.CallFlags=Module->GetFuncFlags();
 					PlugRec.FuncFlags=0;
@@ -450,14 +450,14 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 			{
 				strBuf = MExcRAccess+Offset;
 				strBuf << strBuf2;
-				Exception=strBuf.c_str();
+				Exception=strBuf.data();
 			}
 			else
 			{
 				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
 				strBuf1 = Exception;
 				strBuf1.append(L" (").append(AVs[Offset]).append(strBuf2).append(L")");
-				Exception=strBuf1.c_str();
+				Exception=strBuf1.data();
 			}
 		}
 	}
@@ -466,7 +466,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	{
 		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
 		strBuf2.Format(L"%s (0x%X)", Template, xr->ExceptionCode);
-		Exception = strBuf2.c_str();
+		Exception = strBuf2.data();
 	}
 
 	int MsgCode=0;

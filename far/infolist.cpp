@@ -116,7 +116,7 @@ void InfoList::Update(int Mode)
 string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
 	strTitle.clear();
-	strTitle.append(L" ").append(MSG(MInfoTitle)).append(" ");
+	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
 }
@@ -213,7 +213,7 @@ void InfoList::DisplayObject()
 		if (GetUserName(UserNameBuffer, &dwSize))
 		{
 			LPUSER_INFO_1 UserInfo = nullptr;
-			if(NetUserGetInfo(nullptr, strUserName.c_str(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
+			if(NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
 			{
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
@@ -712,11 +712,11 @@ int InfoList::ProcessKey(int Key)
 			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.empty())
 			{
 				string strArgName;
-				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.c_str();
+				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.data();
 
 				while ((p = GetCommaWord(p,strArgName)) )
 				{
-					if (!wcspbrk(strArgName.c_str(), L"*?"))
+					if (!wcspbrk(strArgName.data(), L"*?"))
 					{
 						new FileEditor(strArgName,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
 						break;
@@ -914,7 +914,7 @@ bool InfoList::ShowDirDescription(int YPos)
 		AddEndSlash(strDizDir);
 
 	string strArgName;
-	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.c_str();
+	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.data();
 
 	while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
 	{

@@ -426,7 +426,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 
 	AddEndSlash(strRootDir);
 
-	UINT DrvType = GetDriveType(strRootDir.c_str());
+	UINT DrvType = GetDriveType(strRootDir.data());
 
 	// анализ CD-привода
 	if ((Detect&1) && DrvType == DRIVE_CDROM)
@@ -460,7 +460,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		DeleteEndSlash(drive, false);
 
 		HANDLE hDevice = ::CreateFileW(
-			drive.c_str(),
+			drive.data(),
 			GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0, nullptr
 		);
 		if ( INVALID_HANDLE_VALUE != hDevice )

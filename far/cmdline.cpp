@@ -187,7 +187,7 @@ int CommandLine::ProcessKey(int Key)
 
 		{
 			SetAutocomplete disable(&CmdStr);
-			CmdStr.SetString(strStr.c_str());
+			CmdStr.SetString(strStr.data());
 			CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.size()));
 		}
 
@@ -257,7 +257,7 @@ int CommandLine::ProcessKey(int Key)
 				PStr=L"";
 			}
 			else
-				PStr=strStr.c_str();
+				PStr=strStr.data();
 
 			SetString(PStr);
 			return TRUE;
@@ -408,7 +408,7 @@ int CommandLine::ProcessKey(int Key)
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 
-			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.c_str()))
+			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.data()))
 				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false,
 						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
 						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
@@ -496,7 +496,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir.c_str(),CurDir.c_str()) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(strCurDir.data(),CurDir.data()) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 
@@ -517,7 +517,7 @@ int CommandLine::GetCurDir(string &strCurDir)
 void CommandLine::SetString(const string& Str, bool Redraw)
 {
 	LastCmdPartLength=-1;
-	CmdStr.SetString(Str.c_str());
+	CmdStr.SetString(Str.data());
 	CmdStr.SetLeftPos(0);
 
 	if (Redraw)
@@ -553,12 +553,12 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 		if (Upper(Color[0]) == L'T')
 		{
 			TargetFlags &= ~SetFlag;
-			Target = ARGB2ABGR(wcstoul(Color.c_str() + 1, nullptr, 16));
+			Target = ARGB2ABGR(wcstoul(Color.data() + 1, nullptr, 16));
 		}
 		else
 		{
 			TargetFlags |= SetFlag;
-			Target = wcstoul(Color.c_str(), nullptr, 16);
+			Target = wcstoul(Color.data(), nullptr, 16);
 		}
 	}
 }
@@ -718,7 +718,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'W': // $W - Текущий рабочий каталог (без указания пути)
 							{
-								const wchar_t *ptrCurDir=LastSlash(strCurDir.c_str());
+								const wchar_t *ptrCurDir=LastSlash(strCurDir.data());
 								if (ptrCurDir)
 									strDestStr += ptrCurDir+1;
 								break;
@@ -908,7 +908,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	LastCmdPartLength=-1;
 
-	if(!StrCmpI(CmdLine.c_str(),L"far:config"))
+	if(!StrCmpI(CmdLine.data(),L"far:config"))
 	{
 		SetString(L"", false);
 		Show();
@@ -1032,7 +1032,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.erase(0, 3);
 		RemoveLeadingSpaces(strCmdLine);
 
-		if (CheckCmdLineForHelp(strCmdLine.c_str()))
+		if (CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимся COMSPEC`у
 
 		// "set" (display all) or "set var" (display all that begin with "var")
@@ -1050,13 +1050,13 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Text(L" ");
 			Global->ScrBuf->Flush();
 			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-			string strOut("\n");
+			string strOut(L"\n");
 			int CmdLength = static_cast<int>(strCmdLine.size());
 			LPWCH Environment = GetEnvironmentStrings();
 			for (LPCWSTR Ptr = Environment; *Ptr;)
 			{
 				int PtrLength = StrLength(Ptr);
-				if (!StrCmpNI(Ptr, strCmdLine.c_str(), CmdLength))
+				if (!StrCmpNI(Ptr, strCmdLine.data(), CmdLength))
 				{
 					strOut.append(Ptr, PtrLength).append(L"\n");
 				}
@@ -1078,32 +1078,32 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (strCmdLine.size() == pos+1) //set var=
 		{
 			strCmdLine.resize(pos);
-			SetEnvironmentVariable(strCmdLine.c_str(),nullptr);
+			SetEnvironmentVariable(strCmdLine.data(),nullptr);
 		}
 		else
 		{
 			string strExpandedStr;
 
-			if (apiExpandEnvironmentStrings(strCmdLine.c_str()+pos+1,strExpandedStr))
+			if (apiExpandEnvironmentStrings(strCmdLine.data()+pos+1,strExpandedStr))
 			{
 				strCmdLine.resize(pos);
-				SetEnvironmentVariable(strCmdLine.c_str(),strExpandedStr.c_str());
+				SetEnvironmentVariable(strCmdLine.data(),strExpandedStr.data());
 			}
 		}
 
 		return TRUE;
 	}
 	// REM все остальное
-	else if ((!StrCmpNI(strCmdLine.data(),L"REM",Length=3) && IsSpaceOrEos(strCmdLine[3])) || !StrCmpNI(strCmdLine.c_str(),L"::",Length=2))
+	else if ((!StrCmpNI(strCmdLine.data(),L"REM",Length=3) && IsSpaceOrEos(strCmdLine[3])) || !StrCmpNI(strCmdLine.data(),L"::",Length=2))
 	{
-		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.c_str()+Length))
+		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.data()+Length))
 			return FALSE; // отдадимся COMSPEC`у
 
 		return TRUE;
 	}
 	else if (!StrCmpNI(strCmdLine.data(),L"CLS",3) && IsSpaceOrEos(strCmdLine[3]))
 	{
-		if (CheckCmdLineForHelp(strCmdLine.c_str()+3))
+		if (CheckCmdLineForHelp(strCmdLine.data()+3))
 			return FALSE; // отдадимся COMSPEC`у
 
 		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
@@ -1117,7 +1117,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.erase(0, 5);
 		RemoveLeadingSpaces(strCmdLine);
 
-		if (CheckCmdLineForHelp(strCmdLine.c_str()))
+		if (CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимся COMSPEC`у
 
 		PushPopRecord prec;
@@ -1126,7 +1126,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
 			ppstack.push(prec);
-			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName.c_str());
+			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName.data());
 		}
 		else
 		{
@@ -1139,7 +1139,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
 	else if (!StrCmpNI(CmdLine.data(),L"POPD",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
-		if (CheckCmdLineForHelp(strCmdLine.c_str()+4))
+		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
 		if (!ppstack.empty())
@@ -1150,7 +1150,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			const wchar_t* Ptr = nullptr;
 			if (!ppstack.empty())
 			{
-				Ptr = ppstack.top().strName.c_str();
+				Ptr = ppstack.top().strName.data();
 			}
 			SetEnvironmentVariable(L"FARDIRSTACK", Ptr);
 			return Ret;
@@ -1159,7 +1159,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// CLRD
-	else if (!StrCmpI(CmdLine.c_str(),L"CLRD"))
+	else if (!StrCmpI(CmdLine.data(),L"CLRD"))
 	{
 		DECLTYPE(ppstack)().swap(ppstack);
 		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
@@ -1175,7 +1175,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		strCmdLine.erase(0, 4);
 
-		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine).c_str();
+		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine).data();
 
 		if (CheckCmdLineForHelp(Ptr))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1194,7 +1194,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		}
 
 		wchar_t *Ptr2;
-		UINT cp=(UINT)wcstol(strCmdLine.c_str(),&Ptr2,10); //BUGBUG
+		UINT cp=(UINT)wcstol(strCmdLine.data(),&Ptr2,10); //BUGBUG
 		BOOL r1=Global->Console->SetInputCodepage(cp);
 		BOOL r2=Global->Console->SetOutputCodepage(cp);
 
@@ -1213,7 +1213,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	else if (!StrCmpNI(strCmdLine.data(),L"IF",2) && IsSpaceOrEos(strCmdLine[2]))
 	{
-		if (CheckCmdLineForHelp(strCmdLine.c_str()+2))
+		if (CheckCmdLineForHelp(strCmdLine.data()+2))
 			return FALSE; // отдадимся COMSPEC`у
 
 		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
@@ -1250,7 +1250,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			RemoveLeadingSpaces(strCmdLine);
 		}
 
-		if (strCmdLine.empty() || CheckCmdLineForHelp(strCmdLine.c_str()))
+		if (strCmdLine.empty() || CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимся COMSPEC`у
 
 		IntChDir(strCmdLine,Length==5,SilentInt);
@@ -1258,7 +1258,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	else if (!StrCmpNI(strCmdLine.data(),L"EXIT",4) && IsSpaceOrEos(strCmdLine[4]))
 	{
-		if (CheckCmdLineForHelp(strCmdLine.c_str()+4))
+		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
 		FrameManager->ExitMainLoop(FALSE);
@@ -1311,7 +1311,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			if (strExpandedDir[1])
 			{
 				AddEndSlash(strTemp);
-				strTemp += strExpandedDir.c_str()+2;
+				strTemp += strExpandedDir.data()+2;
 			}
 
 			DeleteEndSlash(strTemp);
@@ -1322,7 +1322,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	size_t DirOffset = 0;
 	ParsePath(strExpandedDir, &DirOffset);
-	if (wcspbrk(strExpandedDir.c_str() + DirOffset, L"?*")) // это маска?
+	if (wcspbrk(strExpandedDir.data() + DirOffset, L"?*")) // это маска?
 	{
 		FAR_FIND_DATA wfd;
 
@@ -1387,7 +1387,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	else
 	{
 		if (!Selent)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir.c_str(),MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir.data(),MSG(MOk));
 
 		return false;
 	}

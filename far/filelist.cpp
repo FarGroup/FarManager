@@ -407,7 +407,7 @@ static struct list_less
 				break;
 
 			case BY_OWNER:
-				RetCode = StrCmpI(SPtr1->strOwner.c_str(), SPtr2->strOwner.c_str());
+				RetCode = StrCmpI(SPtr1->strOwner.data(), SPtr2->strOwner.data());
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -436,8 +436,8 @@ static struct list_less
 				UseReverseNameSort = true;
 				if (ListNumericSort)
 				{
-					const wchar_t *Path1 = SPtr1->strName.c_str();
-					const wchar_t *Path2 = SPtr2->strName.c_str();
+					const wchar_t *Path1 = SPtr1->strName.data();
+					const wchar_t *Path2 = SPtr2->strName.data();
 					const wchar_t *Name1 = PointToName(SPtr1->strName);
 					const wchar_t *Name2 = PointToName(SPtr2->strName);
 					RetCode = ListCaseSensitiveSort ? StrCmpNNC(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
@@ -448,7 +448,7 @@ static struct list_less
 				}
 				else
 				{
-					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName.c_str(), SPtr2->strName.c_str()) : StrCmpI(SPtr1->strName.c_str(), SPtr2->strName.c_str());
+					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName.data(), SPtr2->strName.data()) : StrCmpI(SPtr1->strName.data(), SPtr2->strName.data());
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
@@ -466,8 +466,8 @@ static struct list_less
 				if (SPtr2->strCustomData.empty())
 					return less_opt(true);
 
-				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData.c_str(), SPtr2->strCustomData.c_str()) : NumStrCmpI(SPtr1->strCustomData.c_str(), SPtr2->strCustomData.c_str())) :
-					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData.c_str(), SPtr2->strCustomData.c_str()) : StrCmpI(SPtr1->strCustomData.c_str(), SPtr2->strCustomData.c_str()));
+				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()) : NumStrCmpI(SPtr1->strCustomData.data(), SPtr2->strCustomData.data())) :
+					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()) : StrCmpI(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()));
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -477,7 +477,7 @@ static struct list_less
 
 		if (!Global->Opt->SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			Ext1=SPtr1->strName.c_str()+SPtr1->strName.size();
+			Ext1=SPtr1->strName.data()+SPtr1->strName.size();
 		}
 		else
 		{
@@ -486,7 +486,7 @@ static struct list_less
 
 		if (!Global->Opt->SortFolderExt && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			Ext2=SPtr2->strName.c_str()+SPtr2->strName.size();
+			Ext2=SPtr2->strName.data()+SPtr2->strName.size();
 		}
 		else
 		{
@@ -1480,7 +1480,7 @@ int FileList::ProcessKey(int Key)
 					if (Info.Flags & OPIF_REALNAMES)
 						PluginMode=FALSE;
 					else
-						strPluginData.Format(L"<%s:%s>",strHostFile.c_str(),strInfoCurDir.c_str());
+						strPluginData.Format(L"<%s:%s>",strHostFile.data(),strInfoCurDir.data());
 				}
 
 				if (!PluginMode)
@@ -1755,7 +1755,7 @@ int FileList::ProcessKey(int Key)
 									ViewList.SetCurName(strFileName);
 								}
 
-								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.c_str(),&ViewList);
+								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.data(),&ViewList);
 
 								if (ShellViewer)
 								{
@@ -1787,7 +1787,7 @@ int FileList::ProcessKey(int Key)
 				{
 					if (UploadFailed)
 						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
-						        MSG(MTextSavedToTemp),strFileName.c_str(),MSG(MOk));
+						        MSG(MTextSavedToTemp),strFileName.data(),MSG(MOk));
 					else if (Edit || DeleteViewedFile)
 						// удаляем файл только для случая окрытия его в редакторе или во
 						// внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
@@ -1905,12 +1905,12 @@ int FileList::ProcessKey(int Key)
 				if (PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
 				{
 					string strDirName;
-					const wchar_t *lpwszDirName=strDirName.c_str();
+					const wchar_t *lpwszDirName=strDirName.data();
 					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(hPlugin,&lpwszDirName,0);
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName.c_str(),MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName.data(),MSG(MOk));
 
 					Update(UPDATE_KEEP_SELECTION);
 
@@ -2453,7 +2453,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			return;
 		}
 
-		const wchar_t *ExtPtr = wcsrchr(strFileName.c_str(), L'.');
+		const wchar_t *ExtPtr = wcsrchr(strFileName.data(), L'.');
 		int ExeType=FALSE,BatType=FALSE;
 
 		if (ExtPtr)
@@ -2602,7 +2602,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			ConvertNameToFull(strSetDir,strSetDir);
 		PrepareDiskPath(strSetDir, ResolvePath);
 
-		if (!StrCmpN(strSetDir.c_str(), L"\\\\?\\", 4) && strSetDir.at(5) == L':' && !strSetDir.at(6))
+		if (!StrCmpN(strSetDir.data(), L"\\\\?\\", 4) && strSetDir.at(5) == L':' && !strSetDir.at(6))
 			AddEndSlash(strSetDir);
 	}
 
@@ -2622,7 +2622,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		//string strInfoFormat=Info.Format;
 		string strInfoHostFile=Info.HostFile;
 		string strInfoData=Info.ShortcutData;
-		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.c_str(),strInfoData.c_str());
+		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.data(),strInfoData.data());
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -2682,7 +2682,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			string strFullNewDir;
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
-			if (StrCmpI(strFullNewDir.c_str(), strCurDir.c_str()))
+			if (StrCmpI(strFullNewDir.data(), strCurDir.data()))
 				Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
 		}
 
@@ -2693,7 +2693,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 				if (NetPath)
 				{
 					string tmp = strCurDir;	// strCurDir can be altered during next call
-					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.c_str())) // NetWork Plugin :-)
+					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.data())) // NetWork Plugin :-)
 					{
 						return FALSE;
 					}
@@ -2703,7 +2703,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.front(), RemoteName))
 					{
-						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.c_str())) // NetWork Plugin :-)
+						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.data())) // NetWork Plugin :-)
 						{
 							return FALSE;
 						}
@@ -2739,7 +2739,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		if (FrameManager && FrameManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir.c_str()), MSG(MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir.data()), MSG(MOk));
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
 
@@ -3129,7 +3129,7 @@ void FileList::SetViewMode(int Mode)
 //    SetScreenPosition();
 		ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,ViewSettings.ColumnWidthType,
 		                   ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
-		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)strColumnTypes.c_str());
+		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)strColumnTypes.data());
 	}
 
 	if (ResortRequired)
@@ -3229,12 +3229,12 @@ long FileList::FindFile(const string& Name,BOOL OnlyPartName)
 	long II = -1;
 	for (long I=0; I < static_cast<int>(ListData.size()); I++)
 	{
-		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.c_str();
+		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.data();
 
-		if (!StrCmp(Name.c_str(),CurPtrName))
+		if (!StrCmp(Name.data(),CurPtrName))
 			return I;
 
-		if (II < 0 && !StrCmpI(Name.c_str(),CurPtrName))
+		if (II < 0 && !StrCmpI(Name.data(),CurPtrName))
 			II = I;
 	}
 
@@ -3251,7 +3251,7 @@ long FileList::FindNext(int StartPos, const string& Name)
 	if (static_cast<size_t>(StartPos) < ListData.size())
 		for (long I=StartPos; I < static_cast<int>(ListData.size()); I++)
 		{
-			if (CmpName(Name.c_str(),ListData[I]->strName.c_str(),true))
+			if (CmpName(Name.data(),ListData[I]->strName.data(),true))
 				if (!TestParentFolderName(ListData[I]->strName))
 					return I;
 		}
@@ -3309,7 +3309,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(ListData.size()); I+=Direct)
 	{
-		if (CmpName(strMask.c_str(),ListData[I]->strName.c_str(),true,I==CurFile))
+		if (CmpName(strMask.data(),ListData[I]->strName.data(),true,I==CurFile))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -3326,7 +3326,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int I=(Direct > 0)?0:static_cast<int>(ListData.size()-1); (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
 	{
-		if (CmpName(strMask.c_str(),ListData[I]->strName.c_str(),true))
+		if (CmpName(strMask.data(),ListData[I]->strName.data(),true))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -3498,7 +3498,7 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 							ColumnType,
 							ColumnTypes[K],
 							ColumnWidth,
-							strCurDir.c_str()));
+							strCurDir.data()));
 						break;
 					}
 
@@ -3797,7 +3797,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask.Format(L"\"*.%s\"", strCurName.c_str()+pos+1);
+			strRawMask.Format(L"\"*.%s\"", strCurName.data()+pos+1);
 			WrapBrackets=true;
 		}
 		else
@@ -3879,7 +3879,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
 	{                               // работоспособную маску
-		const wchar_t *src = strRawMask.c_str();
+		const wchar_t *src = strRawMask.data();
 		strMask.clear();
 
 		while (*src)
@@ -4073,7 +4073,7 @@ void FileList::CompareDir()
 
 		if (apiGetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
 		        apiGetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
-			if (StrCmpI(strFileSystemName1.c_str(),strFileSystemName2.c_str()))
+			if (StrCmpI(strFileSystemName1.data(),strFileSystemName2.data()))
 				CompareFatTime=TRUE;
 	}
 
@@ -4178,7 +4178,7 @@ void FileList::CopyFiles()
 			Clipboard clip;
 			if(clip.Open())
 			{
-				clip.CopyHDROP(CopyData.c_str(), (CopyData.size()+1)*sizeof(wchar_t));
+				clip.CopyHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t));
 				clip.Close();
 			}
 		}
@@ -4308,7 +4308,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 		CopyData=NewPtr;
 		CopyData[DataSize]=0;
-		wcscpy(CopyData+DataSize, strQuotedName.c_str());
+		wcscpy(CopyData+DataSize, strQuotedName.data());
 		DataSize+=Length;
 	}
 
@@ -4319,8 +4319,8 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
 {
 	string strFileName = strDest;
-	const wchar_t *ShortNameLastSlash=LastSlash(ShortName.c_str());
-	const wchar_t *NameLastSlash=LastSlash(Name.c_str());
+	const wchar_t *ShortNameLastSlash=LastSlash(ShortName.data());
+	const wchar_t *NameLastSlash=LastSlash(Name.data());
 
 	if (nullptr==ShortNameLastSlash && nullptr==NameLastSlash)
 	{
@@ -4381,7 +4381,7 @@ bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DW
 		{
 			size_t pos;
 
-			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.c_str()+pos))
+			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.data()+pos))
 				strFileName.Lower(pos);
 		}
 
@@ -4739,7 +4739,7 @@ void FileList::DescribeFiles()
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z ненужно брать предыдущее значение!
 		*/
-		if (!GetString(MSG(MDescribeFiles),strMsg.c_str(),L"DizText",
+		if (!GetString(MSG(MDescribeFiles),strMsg.data(),L"DizText",
 		               PrevText ? PrevText:L"",strDizText,
 		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
 			break;
@@ -4790,7 +4790,7 @@ bool FileList::ApplyCommand()
 	static string strPrevCommand;
 	string strCommand;
 
-	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand.c_str(),strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
+	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand.data(),strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC) || !SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;
@@ -5062,7 +5062,7 @@ void FileList::ProcessCopyKeys(int Key)
 				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
-					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath.c_str());
+					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath.data());
 				}
 
 				if (ToPlugin!=-1)
@@ -5094,7 +5094,7 @@ void FileList::ProcessCopyKeys(int Key)
 							}
 						}
 
-						const wchar_t *lpwszDestPath=strDestPath.c_str();
+						const wchar_t *lpwszDestPath=strDestPath.data();
 
 						PluginGetFiles(&lpwszDestPath,Move);
 						strDestPath=lpwszDestPath;

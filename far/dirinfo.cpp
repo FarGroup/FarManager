@@ -63,7 +63,7 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UIN
 	string strSize;
 	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
-	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.c_str());
+	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.data());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
@@ -104,11 +104,11 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
 	*/
-	const wchar_t *ShowDirName = DirName.c_str();
+	const wchar_t *ShowDirName = DirName.data();
 
 	if (DirName[0] == L'.' && !DirName[1])
 	{
-		const wchar_t *p = LastSlash(strFullDirName.c_str());
+		const wchar_t *p = LastSlash(strFullDirName.data());
 
 		if (p)
 			ShowDirName = p + 1;
@@ -118,7 +118,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-	if (GetDiskFreeSpace(strDriveRoot.c_str(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+	if (GetDiskFreeSpace(strDriveRoot.data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
 		Data.ClusterSize=SectorsPerCluster*BytesPerSector;
 
 	// Временные хранилища имён каталогов
@@ -225,7 +225,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 				strCurDirName = strFullName;
 				CutToSlash(strCurDirName); //???
 
-				if (StrCmpI(strCurDirName.c_str(),strLastDirName.c_str()))
+				if (StrCmpI(strCurDirName.data(),strLastDirName.data()))
 				{
 					Data.DirCount++;
 					strLastDirName = strCurDirName;
@@ -263,12 +263,12 @@ static int PluginSearchMsgOut;
 
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
-	Message(Flags,0,L"",MSG(MPreparingList),Name.c_str());
+	Message(Flags,0,L"",MSG(MPreparingList),Name.data());
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
 		preRedrawItem.Param.Flags=Flags;
-		preRedrawItem.Param.Param1=(void*)Name.c_str();
+		preRedrawItem.Param.Param1=(void*)Name.data();
 	}
 }
 
@@ -295,7 +295,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, Plugi
 
 	PluginDirList.emplace_back(*CurPanelItem);
 
-	PluginDirList.back().FileName = DuplicateString(strFullName.c_str());
+	PluginDirList.back().FileName = DuplicateString(strFullName.data());
 	PluginDirList.back().AlternateFileName=nullptr;
 }
 
@@ -381,7 +381,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 
 int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
-	if (!StrCmp(Dir.c_str(),L".") || TestParentFolderName(Dir))
+	if (!StrCmp(Dir.data(),L".") || TestParentFolderName(Dir))
 		return FALSE;
 
 	static PluginHandle DirListPlugin;
@@ -450,7 +450,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
-				if (StrCmpI(strPrevDir.c_str(), NewInfo.CurDir) )
+				if (StrCmpI(strPrevDir.data(), NewInfo.CurDir) )
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;

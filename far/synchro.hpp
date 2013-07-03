@@ -166,7 +166,7 @@ public:
 	{
 		assert(!h);
 
-		h = CreateMutex(nullptr, FALSE, strName.empty() ? nullptr : strName.c_str());
+		h = CreateMutex(nullptr, FALSE, strName.empty() ? nullptr : strName.data());
 		return h != nullptr;
 	}
 
@@ -207,7 +207,7 @@ public:
 	{
 		assert(!h);
 
-		h = CreateEvent(nullptr, ManualReset, InitialState, strName.empty() ? nullptr : strName.c_str());
+		h = CreateEvent(nullptr, ManualReset, InitialState, strName.empty() ? nullptr : strName.data());
 		return h != nullptr;
 	}
 

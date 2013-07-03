@@ -139,8 +139,8 @@ static int atime(string &strDest,const tm *tmPtr)
 {
 	// Thu Oct 07 12:37:32 1999
 	return strDest.Format(L"%s %s %02d %02d:%02d:%02d %4d",
-	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)]->c_str(),
-	                      AMonth[CurLang][tmPtr->tm_mon]->c_str(),
+	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)]->data(),
+	                      AMonth[CurLang][tmPtr->tm_mon]->data(),
 	                      tmPtr->tm_mday,
 	                      tmPtr->tm_hour,
 	                      tmPtr->tm_min,
@@ -155,7 +155,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 
 	if (chr==L'v')
 	{
-		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)]->c_str(),tmPtr->tm_year+1900);
+		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)]->data(),tmPtr->tm_year+1900);
 		strDest.Upper(3,3);
 	}
 	else
@@ -541,12 +541,12 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	time_now=localtime(&secs_now);
 
 	if (!Fmt||!*Fmt)
-		Fmt=Global->Opt->Macro.strDateFormat.c_str();
+		Fmt=Global->Opt->Macro.strDateFormat.data();
 
 	return StrFTime(strDest,Fmt,time_now);
 }
 
-void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator)
+void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, int Separator)
 {
 	for (size_t i=0; i<Count; i++)
 	{
@@ -554,7 +554,7 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 	}
 
 	string strDigit;
-	const wchar_t *Ptr=Src;
+	const wchar_t *Ptr=Src.data();
 
 	for (size_t i=0; i<Count; i++)
 	{
@@ -562,7 +562,7 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 
 		if (Ptr)
 		{
-			const wchar_t *PtrDigit=strDigit.c_str();
+			const wchar_t *PtrDigit=strDigit.data();
 
 			while (*PtrDigit&&!iswdigit(*PtrDigit))
 			{
@@ -586,8 +586,8 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	WORD DateN[3]={},TimeN[4]={};
 	SYSTEMTIME st={};
 	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate.c_str(),DateN,ARRAYSIZE(DateN),DateSeparator);
-	GetFileDateAndTime(CTime.c_str(),TimeN,ARRAYSIZE(TimeN),TimeSeparator);
+	GetFileDateAndTime(CDate, DateN, ARRAYSIZE(DateN), DateSeparator);
+	GetFileDateAndTime(CTime, TimeN, ARRAYSIZE(TimeN), TimeSeparator);
 
 	if (!bRelative)
 	{
@@ -713,7 +713,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 			string strFullTime;
 			strFullTime.Format(L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
 			                   st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
-			strTimeText.Format(L"%.*s",TimeLength, strFullTime.c_str());
+			strTimeText.Format(L"%.*s",TimeLength, strFullTime.data());
 		}
 	}
 	//if ( !strDateText.empty() )

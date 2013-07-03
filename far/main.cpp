@@ -130,7 +130,8 @@ static int MainProcess(
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
 		if (Global->Db->ShowProblems() > 0)
 		{
-			ename = vname = "";
+			ename.clear();
+			vname.clear();
 			StartLine = StartChar = -1;
 			apanel = Global->Opt->ProfilePath;
 			ppanel = Global->Opt->LocalProfilePath;
@@ -322,7 +323,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 	if (strTemplatePath.empty())
 		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
 			L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig",
-			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str())
+			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data())
 		);
 
 	if (!strTemplatePath.empty())
@@ -357,7 +358,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.empty())
 	{
-		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI.c_str());
+		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI.data());
 		if (UseSystemProfiles)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
@@ -391,8 +392,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		else
 		{
 			string strUserProfileDir, strUserLocalProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
-			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.c_str(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.c_str()));
+			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
+			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.data(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
 			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
 			apiExpandEnvironmentStrings(strUserLocalProfileDir, strUserLocalProfileDir);
 			Unquote(strUserProfileDir);
@@ -415,11 +416,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath.c_str());
-	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath.c_str());
+	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath.data());
+	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath.data());
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
-		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.c_str());
+		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.data());
 }
 
 static int mainImpl(int Argc, wchar_t *Argv[])
@@ -454,7 +455,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath.c_str());
+	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath.data());
 	AddEndSlash(Global->g_strFarPath);
 
 #ifndef NO_WRAPPER
@@ -730,7 +731,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		return 1;
 	}
 
-	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.c_str());
+	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.data());
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;

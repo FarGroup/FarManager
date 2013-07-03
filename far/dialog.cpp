@@ -129,7 +129,7 @@ static inline bool CanGetFocus(int Type)
 
 bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 {
-	auto Str = str.c_str();
+	auto Str = str.data();
 	if (AmpPos == -1)
 	{
 		if (!(Str=wcschr(Str,L'&')))
@@ -255,13 +255,13 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 			wchar_t* p=(wchar_t*)(Item->Item+1);
 			Item->Item->Data = p;
-			wmemcpy(p, str.c_str(), sz+1);
+			wmemcpy(p, str.data(), sz+1);
 			p+=sz+1;
 			Item->Item->History = p;
-			wmemcpy(p, ItemEx->strHistory.c_str(), ItemEx->strHistory.size()+1);
+			wmemcpy(p, ItemEx->strHistory.data(), ItemEx->strHistory.size()+1);
 			p+=ItemEx->strHistory.size()+1;
 			Item->Item->Mask = p;
-			wmemcpy(p, ItemEx->strMask.c_str(), ItemEx->strMask.size()+1);
+			wmemcpy(p, ItemEx->strMask.data(), ItemEx->strMask.size()+1);
 		}
 	}
 	return size;
@@ -973,7 +973,7 @@ const wchar_t *Dialog::GetDialogTitle()
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			const wchar_t *Ptr = i->strData.c_str();
+			const wchar_t *Ptr = i->strData.data();
 
 			for (; *Ptr; Ptr++)
 				if (IsAlpha(*Ptr) || iswdigit(*Ptr))
@@ -1748,7 +1748,7 @@ void Dialog::ShowDialog(size_t ID)
 						GotoXY(X1+((Items[I].Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
 						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
-					    	              Items[I].strMask.c_str()
+					    	              Items[I].strMask.data()
 					        	         );
 					}
 
@@ -1872,7 +1872,7 @@ void Dialog::ShowDialog(size_t ID)
 					GotoXY(X1+X,Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?Y:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
 					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?Y2-Y1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
-					                  Items[I].strMask.c_str()
+					                  Items[I].strMask.data()
 					                 );
 				}
 
@@ -2582,7 +2582,7 @@ int Dialog::ProcessKey(int Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.c_str())), strStr))
+			if (Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.data())), strStr))
 			{
 				Help Hlp(strStr);
 			}
@@ -2661,7 +2661,7 @@ int Dialog::ProcessKey(int Key)
 				string strMove;
 				if (CurPos < static_cast<int>(strStr.size()))
 				{
-					strMove = strStr.c_str() + CurPos;
+					strMove = strStr.data() + CurPos;
 					strStr.resize(CurPos);
 					focus->SetString(strStr, true, 0);
 				}
@@ -2975,7 +2975,7 @@ int Dialog::ProcessKey(int Key)
 
 								if (SelStart > -1)
 								{
-									string strEnd=strStr.c_str()+SelEnd;
+									string strEnd=strStr.data()+SelEnd;
 									strStr.resize(SelStart);
 									strStr+=strEnd;
 									edt->SetString(strStr);
@@ -4208,7 +4208,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
-			const wchar_t *ChPtr=wcschr(Items[I].strData.c_str(),L'&');
+			const wchar_t *ChPtr=wcschr(Items[I].strData.data(),L'&');
 
 			if (ChPtr)
 			{
@@ -5053,7 +5053,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 	CurItem=&Items[Param1];
 	Type=CurItem->Type;
-	const wchar_t *Ptr= CurItem->strData.c_str();
+	const wchar_t *Ptr= CurItem->strData.data();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
 		Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
@@ -5167,7 +5167,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								FarListItem *Item=&ListItems->Item;
 								ClearStruct(*Item);
 								Item->Flags=ListMenuItem->Flags;
-								Item->Text=ListMenuItem->strName.c_str();
+								Item->Text=ListMenuItem->strName.data();
 								/*
 								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
 								   Item->UserData=ListMenuItem->UserData;
@@ -5244,12 +5244,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
-									xwcsncpy((wchar_t*)ListTitle->Title,strTitle.c_str(),ListTitle->TitleSize);
+									xwcsncpy((wchar_t*)ListTitle->Title,strTitle.data(),ListTitle->TitleSize);
 								else
 									ListTitle->TitleSize=strTitle.size()+1;
 
 								if (ListTitle->Bottom&&ListTitle->BottomSize)
-									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle.c_str(),ListTitle->BottomSize);
+									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle.data(),ListTitle->BottomSize);
 								else
 									ListTitle->BottomSize=strBottomTitle.size()+1;
 								return TRUE;

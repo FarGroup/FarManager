@@ -677,7 +677,7 @@ void VMenu::FilterStringUpdated()
 		{
 			RemoveExternalSpaces(strName);
 			RemoveChar(strName,L'&',TRUE);
-			if(!StrStrI(strName.c_str(), strFilter.c_str()))
+			if(!StrStrI(strName.data(), strFilter.data()))
 			{
 				CurItem->Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -872,18 +872,18 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = !StrCmpI(strTemp.c_str(),str);
+							Res = !StrCmpI(strTemp.data(),str);
 							break;
 						case 1: // begin compare
-							p = StrStrI(strTemp.c_str(),str);
-							Res = p==strTemp.c_str();
+							p = StrStrI(strTemp.data(),str);
+							Res = p==strTemp.data();
 							break;
 						case 2: // end compare
-							p = RevStrStrI(strTemp.c_str(),str);
+							p = RevStrStrI(strTemp.data(),str);
 							Res = p && !*(p+StrLength(str));
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp.c_str(),str)!=nullptr;
+							Res = StrStrI(strTemp.data(),str)!=nullptr;
 							break;
 					}
 
@@ -1068,7 +1068,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					string oldFilter = strFilter;
 					strFilter.clear();
 					if (vParam!=nullptr)
-						AddToFilter(((string *)vParam)->c_str());
+						AddToFilter(((string *)vParam)->data());
 					FilterStringUpdated();
 					bFilterLocked = prevLocked;
 					DisplayObject();
@@ -1438,7 +1438,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				const wchar_t *FilterString=strFilter.c_str();
+				const wchar_t *FilterString=strFilter.data();
 				int start=StrLength(FilterString);
 				bool DoXlat=TRUE;
 
@@ -2189,8 +2189,8 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					for (unsigned int J=0; Ptr[J+3]; J++)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.c_str(),L'&',J);
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.c_str(),L'&',J);
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.data(),L'&',J);
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.data(),L'&',J);
 
 						wchar_t PrevItem = (Item[I-1]->strName.size()>=J) ? Item[I-1]->strName[J+PCorrection] : 0;
 						wchar_t NextItem = (Item[I+1]->strName.size()>=J) ? Item[I+1]->strName[J+NCorrection] : 0;
@@ -2265,7 +2265,7 @@ void VMenu::ShowMenu(bool IsParent)
 				strMenuLine.append(CheckMark);
 				strMenuLine.append(L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-				string strMItemPtr(Item[I]->strName.c_str() + ShowPos);
+				string strMItemPtr(Item[I]->strName.data() + ShowPos);
 				int strMItemPtrLen;
 
 				if (CheckFlags(VMENU_SHOWAMPERSAND))
@@ -2284,7 +2284,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (strMItemPtr[AmpPos] != L'&'))
 					{
-						string strEnd = strMItemPtr.c_str() + AmpPos;
+						string strEnd = strMItemPtr.data() + AmpPos;
 						strMItemPtr.resize(AmpPos);
 						strMItemPtr += L"&";
 						strMItemPtr += strEnd;
@@ -2338,7 +2338,7 @@ void VMenu::ShowMenu(bool IsParent)
 							SetColor(CurColor);
 						});
 						if (Pos < strMenuLine.size())
-							Text(strMenuLine.c_str() + Pos);
+							Text(strMenuLine.data() + Pos);
 					}
 				}
 				else
@@ -2440,7 +2440,7 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 
 	if (_item)
 	{
-		const wchar_t *Name = _item->strName.c_str();
+		const wchar_t *Name = _item->strName.data();
 		const wchar_t *ChPtr = wcschr(Name,L'&');
 
 		if (ChPtr || _item->AmpPos > -1)
@@ -2494,7 +2494,7 @@ void VMenu::AssignHighlights(int Reverse)
 	{
 		wchar_t Ch = 0;
 		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.c_str() + ShowPos;
+		const wchar_t *Name = Item[I]->strName.data() + ShowPos;
 		Item[I]->AmpPos = -1;
 		// TODO: проверка на LIF_HIDDEN
 		const wchar_t *ChPtr = wcschr(Name, L'&');
@@ -2527,7 +2527,7 @@ void VMenu::AssignHighlights(int Reverse)
 	for (I = Reverse ? static_cast<int>(Item.size()-1) : 0; I>=0 && I<static_cast<int>(Item.size()); I+=Delta)
 	{
 		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.c_str() + ShowPos;
+		const wchar_t *Name = Item[I]->strName.data() + ShowPos;
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
 		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
@@ -2990,7 +2990,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	{
 		ClearStruct(*FItem);
 		FItem->Flags = MItem->Flags;
-		FItem->Text = MItem->strName.c_str();
+		FItem->Text = MItem->strName.data();
 		return FItem;
 	}
 
@@ -3041,12 +3041,12 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (!StrCmpNI(strTmpBuf.c_str(),Pattern.c_str(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
+				if (!StrCmpNI(strTmpBuf.data(),Pattern.data(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
 					return static_cast<int>(I);
 			}
 			else
 			{
-				if (CmpName(Pattern.c_str(),strTmpBuf.c_str(),true))
+				if (CmpName(Pattern.data(),strTmpBuf.data(),true))
 					return static_cast<int>(I);
 			}
 		}
@@ -3065,7 +3065,7 @@ void VMenu::SortItems(bool Reverse, int Offset)
 		string strName2(b->strName);
 		RemoveChar(strName1, L'&', true);
 		RemoveChar(strName2, L'&', true);
-		bool Less = StrCmpI(strName1.c_str()+Param.Offset, strName2.c_str() + Param.Offset) < 0;
+		bool Less = StrCmpI(strName1.data()+Param.Offset, strName2.data() + Param.Offset) < 0;
 		return Param.Reverse? !Less : Less;
 	}, Reverse, Offset);
 }

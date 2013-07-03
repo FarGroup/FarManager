@@ -597,7 +597,7 @@ void InitRecodeOutTable()
 
 	{
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.c_str(),ARRAYSIZE(BoxSymbols)-1);
+		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.data(),ARRAYSIZE(BoxSymbols)-1);
 
 		if (Global->Opt->NoGraphics)
 		{
@@ -698,7 +698,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 		              ^H
 		   &&&&&&  = '&&&'
 		*/
-		const wchar_t *ChPtr = strTextStr.c_str() + pos;
+		const wchar_t *ChPtr = strTextStr.data() + pos;
 		int I=0;
 		const wchar_t *ChPtr2=ChPtr;
 
@@ -707,7 +707,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 
 		if (I&1) // нечет?
 		{
-			string LeftPart(strTextStr.c_str(), pos);
+			string LeftPart(strTextStr.data(), pos);
 
 			if (isVertText)
 				VText(LeftPart);
@@ -730,9 +730,9 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 				ReplaceStrings(strText,L"&&",L"&",-1);
 
 				if (isVertText)
-					VText(strText.c_str()+1);
+					VText(strText.data()+1);
 				else
-					Text(strText.c_str()+1);
+					Text(strText.data()+1);
 			}
 		}
 		else
@@ -1107,7 +1107,7 @@ string& HiText2Str(string& strDest, const string& Str)
 	const wchar_t *ChPtr;
 	string strDestTemp = Str;
 
-	if ((ChPtr=wcschr(Str.c_str(),L'&')) )
+	if ((ChPtr=wcschr(Str.data(),L'&')) )
 	{
 		/*
 		   &&      = '&'
@@ -1126,7 +1126,7 @@ string& HiText2Str(string& strDest, const string& Str)
 
 		if (I&1) // нечет?
 		{
-			strDestTemp.resize(ChPtr-Str.c_str());
+			strDestTemp.resize(ChPtr-Str.data());
 
 			if (ChPtr[1])
 			{
@@ -1134,7 +1134,7 @@ string& HiText2Str(string& strDest, const string& Str)
 				strDestTemp+=Chr;
 				string strText = (ChPtr+1);
 				ReplaceStrings(strText,L"&&",L"&",-1);
-				strDestTemp+=strText.c_str()+1;
+				strDestTemp+=strText.data()+1;
 			}
 		}
 		else
@@ -1163,7 +1163,7 @@ int HiStrlen(const string& str)
 	int Length=0;
 	bool Hi=false;
 
-	const wchar_t* Str = str.c_str();
+	const wchar_t* Str = str.data();
 	while (*Str)
 	{
 		if (*Str == L'&')
@@ -1218,7 +1218,7 @@ int HiFindRealPos(const string& str, int Pos, BOOL ShowAmp)
 
 	int VisPos = 0;
 
-	const wchar_t* Str = str.c_str();
+	const wchar_t* Str = str.data();
 
 	while (VisPos < Pos && *Str)
 	{

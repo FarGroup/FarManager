@@ -79,7 +79,7 @@ void DizList::Read(const string& Path, const string* DizName)
 {
 	Reset();
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
-	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.c_str();
+	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.data();
 
 	for (;;)
 	{
@@ -170,7 +170,7 @@ desc_map::iterator DizList::AddRecord(const string& Name, const string& Descript
 desc_map::iterator DizList::AddRecord(const string& DizText)
 {
 	size_t NameStart = 0, NameLength = 0;
-	const wchar_t* DizTextPtr = DizText.c_str();
+	const wchar_t* DizTextPtr = DizText.data();
 	if (*DizTextPtr == L'\"')
 	{
 		DizTextPtr++;
@@ -201,7 +201,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 
 	if (DizPos != DizData.end())
 	{
-		DizText=DizPos->second.front().c_str();
+		DizText=DizPos->second.front().data();
 
 		if (iswdigit(*DizText))
 		{
@@ -244,9 +244,9 @@ desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
 
 		AnsiBuf = tmp;
-		WideCharToMultiByte(OrigCodePage, 0, Name.c_str(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
+		WideCharToMultiByte(OrigCodePage, 0, Name.data(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
 		AnsiBuf[len]=0;
-		string strRecoded(AnsiBuf, OrigCodePage);
+		string strRecoded = wide(AnsiBuf, OrigCodePage);
 
 		if (strRecoded==Name)
 			return DizData.end();
@@ -286,7 +286,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		strDizFileName = Path;
 		AddEndSlash(strDizFileName);
 		string strArgName;
-		GetCommaWord(Global->Opt->Diz.strListNames.c_str(),strArgName);
+		GetCommaWord(Global->Opt->Diz.strListNames.data(),strArgName);
 		strDizFileName += strArgName;
 	}
 
@@ -357,7 +357,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				char_ptr DizText(Size);
 				if (DizText)
 				{
-					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.c_str(), static_cast<int>(dump.size()+1), DizText.get(), Size, nullptr, nullptr);
+					int BytesCount=WideCharToMultiByte(CodePage, 0, dump.data(), static_cast<int>(dump.size()+1), DizText.get(), Size, nullptr, nullptr);
 					if (BytesCount && BytesCount-1)
 					{
 						if(Cache.Write(DizText.get(), BytesCount-1))

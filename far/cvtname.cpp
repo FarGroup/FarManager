@@ -161,7 +161,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 	if (lFullPath > 0)
 	{
 		strDest.clear();
-		LPCWSTR pstPath = stPath.c_str(), pstCurrentDir = nullptr;
+		LPCWSTR pstPath = stPath.data(), pstCurrentDir = nullptr;
 		bool blIgnore = false;
 		size_t DirOffset = 0;
 		PATH_TYPE PathType = ParsePath(stPath, &DirOffset);
@@ -177,7 +177,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						size_t DirOffset = 0;
 						if (ParsePath(stCurrentDir, &DirOffset)!=PATH_UNKNOWN)
 						{
-							strDest=string(stCurrentDir.c_str(), DirOffset);
+							strDest=string(stCurrentDir.data(), DirOffset);
 						}
 					}
 				}
@@ -189,7 +189,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 					}
 					else //"abc" or whatever
 					{
-						pstCurrentDir=stCurrentDir.c_str();
+						pstCurrentDir=stCurrentDir.data();
 					}
 				}
 			}
@@ -198,7 +198,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			{
 				if(IsSlash(stPath[2]))
 				{
-					pstPath=stPath.c_str();
+					pstPath=stPath.data();
 				}
 				else
 				{
@@ -218,7 +218,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						}
 						else
 						{
-							strDest=DriveVar.c_str()+1;
+							strDest=DriveVar.data()+1;
 						}
 					}
 					AddEndSlash(strDest);
@@ -227,7 +227,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			break;
 			case PATH_REMOTE: //"\\abc"
 			{
-				pstPath=stPath.c_str();
+				pstPath=stPath.data();
 			}
 			break;
 			case PATH_DRIVELETTERUNC: //"\\?\whatever"
@@ -236,7 +236,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			case PATH_PIPE:
 			{
 				blIgnore=true;
-				pstPath=stPath.c_str();
+				pstPath=stPath.data();
 			}
 			break;
 		}
@@ -289,12 +289,12 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 			DWORD BufSize = NT_MAX_PATH;
 			string PathNames;
 			DWORD RetSize;
-			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).c_str(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 
 			if (!Res && RetSize > BufSize)
 			{
 				BufSize = RetSize;
-				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).c_str(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 			}
 
 			if (Res)
@@ -329,7 +329,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 				{
 					if (apiGetVolumeNameForVolumeMountPoint(Drive, strVolumeGuid))
 					{
-						if (Path.compare(0, cVolumeGuidLen, strVolumeGuid.c_str(), cVolumeGuidLen) == 0)
+						if (Path.compare(0, cVolumeGuidLen, strVolumeGuid.data(), cVolumeGuidLen) == 0)
 						{
 							DeleteEndSlash(Drive);
 							Result.replace(0, cVolumeGuidLen, Drive);
@@ -391,7 +391,7 @@ void ConvertNameToReal(const string& Src, string &strDest)
 			if (FullPath.size() > Path.size() + 1)
 			{
 				AddEndSlash(FinalFilePath);
-				FinalFilePath.append(FullPath.c_str() + Path.size() + 1, FullPath.size() - Path.size() - 1);
+				FinalFilePath.append(FullPath.data() + Path.size() + 1, FullPath.size() - Path.size() - 1);
 			}
 
 			FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
@@ -404,14 +404,14 @@ void ConvertNameToShort(const string& Src, string &strDest)
 {
 	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetShortPathName(strCopy.c_str(), Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = GetShortPathName(strCopy.data(), Buffer, ARRAYSIZE(Buffer));
 
 	if(Size)
 	{
 		if(Size>ARRAYSIZE(Buffer))
 		{
 			wchar_t *lpwszDest = strDest.GetBuffer(Size);
-			GetShortPathName(strCopy.c_str(), lpwszDest, Size);
+			GetShortPathName(strCopy.data(), lpwszDest, Size);
 			strDest.ReleaseBuffer();
 		}
 		else
@@ -429,14 +429,14 @@ void ConvertNameToLong(const string& Src, string &strDest)
 {
 	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD nSize = GetLongPathName(strCopy.c_str(), Buffer, ARRAYSIZE(Buffer));
+	DWORD nSize = GetLongPathName(strCopy.data(), Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{
 		if (nSize>ARRAYSIZE(Buffer))
 		{
 			wchar_t *lpwszDest = strDest.GetBuffer(nSize);
-			GetLongPathName(strCopy.c_str(), lpwszDest, nSize);
+			GetLongPathName(strCopy.data(), lpwszDest, nSize);
 			strDest.ReleaseBuffer();
 		}
 		else
@@ -465,9 +465,9 @@ void ConvertNameToUNC(string &strFileName)
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (StrCmpI(strFileSystemName.c_str(),L"NWFS"))
+	if (StrCmpI(strFileSystemName.data(),L"NWFS"))
 	{
-		DWORD dwRet=WNetGetUniversalName(strFileName.c_str(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
+		DWORD dwRet=WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
 
 		switch (dwRet)
 		{
@@ -477,7 +477,7 @@ void ConvertNameToUNC(string &strFileName)
 			case ERROR_MORE_DATA:
 				uni.reset(uniSize);
 
-				if (WNetGetUniversalName(strFileName.c_str(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
+				if (WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
 
 				break;
@@ -490,7 +490,7 @@ void ConvertNameToUNC(string &strFileName)
 		// мапленный диск - получаем как для меню выбора дисков
 		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
 		{
-			const wchar_t *NamePtr=FirstSlash(strFileName.c_str());
+			const wchar_t *NamePtr=FirstSlash(strFileName.data());
 
 			if (NamePtr )
 			{
@@ -521,7 +521,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 			while(ReplaceStrings(strPath,L"\\\\",L"\\"));
 			if(DoubleSlash)
 			{
-				strPath = "\\"+strPath;
+				strPath = L"\\" + strPath;
 			}
 
 			if (CheckFullPath)
@@ -534,7 +534,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				PATH_TYPE Type = ParsePath(strPath, &DirOffset);
 				if (Type != PATH_UNKNOWN)
 				{
-					Src = const_cast<wchar_t*>(strPath.c_str() + DirOffset);
+					Src = const_cast<wchar_t*>(strPath.data() + DirOffset);
 					if (IsSlash(*Src))
 						Src++;
 				}
@@ -580,7 +580,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 									FullLen+=n1;
 								}
 
-								wmemcpy(Dst,fd.strFileName.c_str(),n);
+								wmemcpy(Dst,fd.strFileName.data(),n);
 							}
 
 							if (c)

@@ -108,10 +108,10 @@ void FileList::UpdateIfRequired()
 
 void ReadFileNamesMsg(const string& Msg)
 {
-	Message(0,0,MSG(MReadingTitleFiles),Msg.c_str());
+	Message(0,0,MSG(MReadingTitleFiles),Msg.data());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=(void*)Msg.c_str();
+		Global->PreRedraw->top().Param.Param1=(void*)Msg.data();
 	}
 }
 
@@ -480,7 +480,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.c_str(), strCurName.c_str()))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.data(), strCurName.data()))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -822,7 +822,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.c_str(),strCurName.c_str()))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.data(),strCurName.data()))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -876,7 +876,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 				{
 					string strFileName = CurPanelData->FileName;
 
-					if (!StrCmpI(strFileName.c_str(),Info.DescrFiles[I]))
+					if (!StrCmpI(strFileName.data(),Info.DescrFiles[I]))
 					{
 						string strTempDir, strDizName;
 

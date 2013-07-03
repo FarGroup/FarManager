@@ -126,22 +126,22 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	const wchar_t* Progress2 = nullptr;
 	if(!strWipeProgress.empty())
 	{
-		Progress1 = strWipeProgress.c_str();
-		Progress2 = strProgress.empty()? nullptr : strProgress.c_str();
+		Progress1 = strWipeProgress.data();
+		Progress2 = strProgress.empty()? nullptr : strProgress.data();
 	}
 	else
 	{
-		Progress1 = strProgress.empty()? nullptr : strProgress.c_str();
+		Progress1 = strProgress.empty()? nullptr : strProgress.data();
 	}
 	Message(0,0,
 		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle),
 		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
-		strOutFileName.c_str(), Progress1, Progress2);
+		strOutFileName.data(), Progress1, Progress2);
 
 	if (!Global->PreRedraw->empty())
 	{
 		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=Name.c_str();
+		preRedrawItem.Param.Param1=Name.data();
 		preRedrawItem.Param.Param2=DeleteTitle;
 		preRedrawItem.Param.Param4=ToPtr(Mode);
 		LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
@@ -275,14 +275,14 @@ static int WipeDirectory(const string& Name)
 {
 	string strTempName, strPath;
 
-	if (FirstSlash(Name.c_str()))
+	if (FirstSlash(Name.data()))
 	{
 		strPath = Name;
 		DeleteEndSlash(strPath);
 		CutToSlash(strPath);
 	}
 
-	FarMkTempEx(strTempName,nullptr, FALSE, strPath.empty()?nullptr:strPath.c_str());
+	FarMkTempEx(strTempName,nullptr, FALSE, strPath.empty()?nullptr:strPath.data());
 
 	if (!apiMoveFile(Name, strTempName))
 	{
@@ -397,9 +397,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			}
 
 			Ret=Message(0,2,MSG(MDeleteLinkTitle),
-			            strDeleteFilesMsg.c_str(),
-			            strAskDeleteLink.c_str(),
-			            strJuncName.c_str(),
+			            strDeleteFilesMsg.data(),
+			            strAskDeleteLink.data(),
+			            strJuncName.data(),
 						MSG(MDeleteLinkDelete), MSG(MCancel));
 			if (Ret )
 				goto done;
@@ -441,7 +441,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				DelMsg=MSG(MAskDelete);
 		}
 
-		const wchar_t* const Items[] = {DelMsg, strDeleteFilesMsg.c_str(), MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)};
+		const wchar_t* const Items[] = {DelMsg, strDeleteFilesMsg.data(), MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)};
 		if (Message(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
@@ -453,7 +453,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	{
 		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);
-		const wchar_t* const Items[] = {MSG(Wipe? MAskWipe : MAskDelete), strDeleteFilesMsg.c_str(), MSG(MDeleteFileAll), MSG(MDeleteFileCancel)};
+		const wchar_t* const Items[] = {MSG(Wipe? MAskWipe : MAskDelete), strDeleteFilesMsg.data(), MSG(MDeleteFileAll), MSG(MDeleteFileCancel)};
 		if (Message(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
@@ -579,7 +579,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							else if (Global->Opt->DeleteToRecycleBin) {
 								con = MRecycleFolderConfirm; del = MDeleteRecycle;
 							}
-							MsgCode=Message(MSG_WARNING, 4, MSG(tit), MSG(con),strFullName.c_str(),
+							MsgCode=Message(MSG_WARNING, 4, MSG(tit), MSG(con),strFullName.data(),
 								MSG(del),MSG(MDeleteFileAll), MSG(MDeleteFileSkip), MSG(MDeleteFileCancel));
 						}
 
@@ -672,7 +672,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && TestFolder(strFullName) == TSTFLD_NOTEMPTY)
 							{
 								int MsgCode=Message(MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-								                    MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName.c_str(),
+								                    MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName.data(),
 								                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
 								                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
 
@@ -822,7 +822,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 		MsgCode=ReadOnlyDeleteMode;
 	else
 	{
-		MsgCode=Message(MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name.c_str(),
+		MsgCode=Message(MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name.data(),
 		                MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
 		                MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
 		                MSG(MDeleteFileCancel));
@@ -873,7 +873,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 				  ”ничтожение файла приведет к обнулению всех ссылающихс€ на него файлов.
 				                        ”ничтожать файл?
 				*/
-				MsgCode=Message(MSG_WARNING,5,MSG(MError),strFullName.c_str(),
+				MsgCode=Message(MSG_WARNING,5,MSG(MError),strFullName.data(),
 				                MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
 				                MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
 			}
@@ -1044,7 +1044,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		QuoteLeadingSpace(qName);
 
 		const wchar_t *Msgs[2+4] = {
-			MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName.c_str(),
+			MSG(dir ? MCannotRecycleFolder : MCannotRecycleFile), qName.data(),
 			MSG(MDeleteFileDelete), MSG(MDeleteSkip), MSG(MDeleteSkipAll), MSG(MDeleteCancel)
 		};
 

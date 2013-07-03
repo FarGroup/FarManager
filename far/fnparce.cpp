@@ -141,12 +141,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (CurStr[2] == L'~')
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherShortName.c_str():PSubstData->ShortName),L'.');
+			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherShortName.data():PSubstData->ShortName),L'.');
 			CurStr+=3;
 		}
 		else
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherName.c_str():PSubstData->Name),L'.');
+			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherName.data():PSubstData->Name),L'.');
 			CurStr+=2;
 		}
 
@@ -344,7 +344,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(PSubstData->PassivePanel?PSubstData->strAnotherName.c_str():PSubstData->Name,L"\\:"))
+			if (wcspbrk(PSubstData->PassivePanel?PSubstData->strAnotherName.data():PSubstData->Name,L"\\:"))
 				strCurDir.clear();
 		}
 
@@ -417,12 +417,12 @@ int SubstFileName(const wchar_t *DlgTitle,
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (!wcschr(strStr.c_str(),L'!'))
+	if (!wcschr(strStr.data(),L'!'))
 		return FALSE;
 
 	TSubstData SubstData, *PSubstData=&SubstData;
-	PSubstData->Name=Name.c_str();                    // Длинное имя
-	PSubstData->ShortName=ShortName.c_str();          // Короткое имя
+	PSubstData->Name=Name.data();                    // Длинное имя
+	PSubstData->ShortName=ShortName.data();          // Короткое имя
 	PSubstData->pListName=pListName;            // Длинное имя файла-списка
 	PSubstData->pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
 	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
@@ -465,7 +465,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	if (!IgnoreInput)
 		ReplaceVariables(DlgTitle,strTmp,PSubstData);
 
-	const wchar_t *CurStr = strTmp.c_str();
+	const wchar_t *CurStr = strTmp.data();
 	string strOut;
 
 	while (*CurStr)
@@ -488,7 +488,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)
 {
 	const int MaxSize=20;
-	const wchar_t *Str=strStr.c_str();
+	const wchar_t *Str=strStr.data();
 	const wchar_t * const StartStr=Str;
 
 	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
@@ -565,7 +565,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		{
 			if (strTitle[0] == L'$')        // begin of history name
 			{
-				const wchar_t *p = strTitle.c_str() + 1;
+				const wchar_t *p = strTitle.data() + 1;
 				const wchar_t *p1 = wcschr(p,L'$');
 
 				if (p1)
@@ -586,14 +586,14 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		{
 			string strTitle2;
 			string strTitle3;
-			strTitle2.append(strTitle.c_str()+(end_t-2)+1-hist_correct,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
+			strTitle2.append(strTitle.data()+(end_t-2)+1-hist_correct,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
 			//                  ^   ^
-			strTitle3.append(strTitle.c_str()+(beg_t-2)+1-hist_correct,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
+			strTitle3.append(strTitle.data()+(beg_t-2)+1-hist_correct,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
 			//            ^    ^
 			strTitle.resize(beg_t-2-hist_correct);    // !?$zz$xxxx(fffff)ddddd
 			//       ^  ^
 			string strTmp;
-			const wchar_t *CurStr = strTitle3.c_str();
+			const wchar_t *CurStr = strTitle3.data();
 
 			while (*CurStr)
 			{
@@ -628,14 +628,14 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		{
 			string strTxt2;
 			string strTxt3;
-			strTxt2.assign(strTxt.c_str()+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+			strTxt2.assign(strTxt.data()+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                                  ^   ^
-			strTxt3.assign(strTxt.c_str()+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
+			strTxt3.assign(strTxt.data()+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
 			//                              ^  ^
 			strTxt.resize(beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                        ^  ^
 			string strTmp;
-			const wchar_t *CurStr = strTxt3.c_str();
+			const wchar_t *CurStr = strTxt3.data();
 
 			while (*CurStr)
 			{
@@ -778,7 +778,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 				if (Modifers && *Modifers)
 				{
-					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.c_str()) // 'F' - использовать полный путь; //BUGBUG ?
+					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
 						string strTempFileName(strCurDir);
 
@@ -816,12 +816,12 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 				if (CodePage==CP_UNICODE)
 				{
-					Ptr=strFileName.c_str();
+					Ptr=strFileName.data();
 					NumberOfBytesToWrite=static_cast<DWORD>(strFileName.size()*sizeof(WCHAR));
 				}
 				else
 				{
-					int Size=WideCharToMultiByte(CodePage,0,strFileName.c_str(),static_cast<int>(strFileName.size()),nullptr,0,nullptr,nullptr);
+					int Size=WideCharToMultiByte(CodePage,0,strFileName.data(),static_cast<int>(strFileName.size()),nullptr,0,nullptr,nullptr);
 
 					if (Size)
 					{
@@ -829,7 +829,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 						if (Buffer)
 						{
-							NumberOfBytesToWrite=WideCharToMultiByte(CodePage, 0, strFileName.c_str(), static_cast<int>(strFileName.size()), Buffer.get(), Size, nullptr, nullptr);
+							NumberOfBytesToWrite=WideCharToMultiByte(CodePage, 0, strFileName.data(), static_cast<int>(strFileName.size()), Buffer.get(), Size, nullptr, nullptr);
 							Ptr=Buffer.get();
 						}
 					}

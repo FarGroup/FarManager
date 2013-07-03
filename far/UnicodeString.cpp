@@ -34,16 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-std::shared_ptr<UnicodeStringData>& eus()
-{
-	//для оптимизации создания пустых UnicodeString
-	static auto EmptyUnicodeStringData = std::make_shared<UnicodeStringData>(1, 1);
-	return EmptyUnicodeStringData;
-}
-
 void UnicodeString::SetEUS()
 {
-	m_pData = eus();
+	//для оптимизации создания пустых UnicodeString
+	static auto EmptyUnicodeStringData = std::make_shared<UnicodeString::UnicodeStringData>(1, 1);
+	m_pData = EmptyUnicodeStringData;
 }
 
 void UnicodeString::Inflate(size_t nSize)
@@ -90,7 +85,7 @@ UnicodeString& UnicodeString::replace(size_t Pos, size_t Len, const wchar_t* Dat
 				// copy data from self
 				UnicodeString TmpStr(Data, DataLen);
 				wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
-				wmemcpy(m_pData->GetData() + Pos, TmpStr.c_str(), TmpStr.size());
+				wmemcpy(m_pData->GetData() + Pos, TmpStr.data(), TmpStr.size());
 			}
 			else
 			{
@@ -125,23 +120,6 @@ UnicodeString& UnicodeString::assign(const UnicodeString &Str)
 	if (Str.m_pData != m_pData)
 	{
 		m_pData = Str.m_pData;
-	}
-
-	return *this;
-}
-
-UnicodeString& UnicodeString::assign(const char *lpszData, uintptr_t CodePage)
-{
-	if (!lpszData || !*lpszData)
-	{
-		SetEUS();
-	}
-	else
-	{
-		size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,nullptr,0);
-		m_pData = std::make_shared<UnicodeStringData>(nSize);
-		MultiByteToWideChar(CodePage,0,lpszData,-1,m_pData->GetData(),(int)m_pData->GetSize());
-		m_pData->SetLength(nSize - 1);
 	}
 
 	return *this;

@@ -79,7 +79,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 		}
 		else
 		{
-			size_t offset = wPtrCmd-strCommandText.c_str();
+			size_t offset = wPtrCmd-strCommandText.data();
 			wchar_t *CommandText = strCommandText.GetBuffer();
 			wchar_t *PtrCmd = CommandText+offset;
 			// прокинем "if exist"
@@ -184,7 +184,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			TypesMenuItem.strName = strDescription;
 			TypesMenuItem.SetSelect(Index==1);
-			TypesMenu.SetUserData(strCommand.c_str(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
+			TypesMenu.SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -323,7 +323,7 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 
 			size_t AddLen=strTitle.size() - HiStrlen(strTitle);
 
-			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.c_str(),BoxSymbols[BS_V1]);
+			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.data(),BoxSymbols[BS_V1]);
 		}
 
 		strMenuText += strMask;
@@ -486,7 +486,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 	Global->Db->AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
-	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.c_str(),MSG(MDelete),MSG(MCancel)))
+	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask.data(),MSG(MDelete),MSG(MCancel)))
 	{
 		Global->Db->AssocConfig()->DelType(DeletePos);
 		return true;

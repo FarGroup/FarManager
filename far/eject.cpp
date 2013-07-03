@@ -65,7 +65,7 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	string RootName=L"\\\\.\\ :\\";
 	RootName[4] = Letter;
 	// OpenVolume
-	uDriveType = FAR_GetDriveType(RootName.c_str()+4);
+	uDriveType = FAR_GetDriveType(RootName.data()+4);
 	RootName.resize(6);
 	switch (uDriveType)
 	{

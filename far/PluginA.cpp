@@ -1073,9 +1073,8 @@ static BOOL WINAPI AddEndSlashA(char *Path)
 
 static void WINAPI GetPathRootA(const char *Path, char *Root)
 {
-	string strPath(Path);
 	wchar_t Buffer[MAX_PATH];
-	NativeFSF.GetPathRoot(strPath.c_str(), Buffer, ARRAYSIZE(Buffer));
+	NativeFSF.GetPathRoot(wide(Path).data(), Buffer, ARRAYSIZE(Buffer));
 	UnicodeToOEM(Buffer, Root, ARRAYSIZE(Buffer));
 }
 
@@ -1108,10 +1107,10 @@ static void WINAPI DeleteBufferA(void* Buffer)
 
 static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
-	string strP1(Param1), strP2(Param2);
+	string strP1 = wide(Param1), strP2 = wide(Param2);
 	int size = (int)(strP1.size()+strP2.size()+oldfar::NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 	wchar_t_ptr p(size);
-	wcscpy(p.get(), strP2.c_str());
+	wcscpy(p.get(), strP2.data());
 	int newFlags = 0;
 
 	if (Flags&oldfar::PN_SKIPPATH)
@@ -1133,7 +1132,7 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
-	int ret = static_cast<int>(NativeFSF.ProcessName(strP1.c_str(), p.get(), size, newFlags));
+	int ret = static_cast<int>(NativeFSF.ProcessName(strP1.data(), p.get(), size, newFlags));
 
 	if (newFlags&PN_GENERATENAME)
 		UnicodeToOEM(p.get(),Param2,size);
@@ -1143,8 +1142,7 @@ static int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 
 static int WINAPI KeyNameToKeyA(const char *Name)
 {
-	string strN(Name);
-	return KeyToOldKey(KeyNameToKey(strN));
+	return KeyToOldKey(KeyNameToKey(wide(Name)));
 }
 
 static BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
@@ -1152,7 +1150,7 @@ static BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 	string strKT;
 	if (KeyToText(OldKeyToKey(Key),strKT))
 	{
-		UnicodeToOEM(strKT.c_str(), KeyText,Size>0?Size+1:32);
+		UnicodeToOEM(strKT.data(), KeyText,Size>0?Size+1:32);
 		return TRUE;
 	}
 	return FALSE;
@@ -1165,16 +1163,14 @@ static int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
 
 static char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
-	string strP(Prefix);
 	wchar_t D[oldfar::NM] = {};
-	NativeFSF.MkTemp(D,ARRAYSIZE(D),strP.c_str());
+	NativeFSF.MkTemp(D,ARRAYSIZE(D),wide(Prefix).data());
 	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
 }
 
 static int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 {
-	string strS(Src), strD(Dest);
 	LINK_TYPE Type = LINK_HARDLINK;
 
 	switch (OldFlags&0xf)
@@ -1191,18 +1187,18 @@ static int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 
 	if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL) Flags|=MLF_DONOTUPDATEPANEL;
 
-	return NativeFSF.MkLink(strS.c_str(), strD.c_str(), Type, Flags);
+	return NativeFSF.MkLink(wide(Src).data(), wide(Dest).data(), Type, Flags);
 }
 
 static int WINAPI GetNumberOfLinksA(const char *Name)
 {
-	return static_cast<int>(NativeFSF.GetNumberOfLinks(string(Name).c_str()));
+	return static_cast<int>(NativeFSF.GetNumberOfLinks(wide(Name).data()));
 }
 
 static int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 {
-	string strSrc(Src),strDest;
-	ConvertNameToReal(strSrc,strDest);
+	string strDest;
+	ConvertNameToReal(wide(Src), strDest);
 
 	if (!Dest)
 		return (int)strDest.size();
@@ -1217,15 +1213,15 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSiz
 	int Result = 0;
 	if (Src && *Src)
 	{
-		string strSrc(Src);
+		string strSrc = wide(Src);
 		wchar_t Buffer[MAX_PATH];
-		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.c_str(), Buffer, ARRAYSIZE(Buffer)));
+		Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, ARRAYSIZE(Buffer)));
 		if (DestSize && Dest)
 		{
 			if(Result > MAX_PATH)
 			{
 				wchar_t* Tmp = new wchar_t[DestSize];
-				NativeFSF.GetReparsePointInfo(strSrc.c_str(), Tmp, DestSize);
+				NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp, DestSize);
 				UnicodeToOEM(Tmp, Dest, DestSize);
 				delete[] Tmp;
 			}
@@ -1263,8 +1259,6 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,cons
 
 static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
-	string strInitDir(InitDir);
-	string strMask(Mask);
 	FAR_SEARCH_A_CALLBACK_PARAM CallbackParam;
 	CallbackParam.Func = Func;
 	CallbackParam.Param = Param;
@@ -1276,13 +1270,13 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldf
 
 	if (Flags&oldfar::FRS_SCANSYMLINK) newFlags|=FRS_SCANSYMLINK;
 
-	NativeFSF.FarRecursiveSearch(strInitDir.c_str(), strMask.c_str(), FarRecursiveSearchA_Callback, newFlags, static_cast<void *>(&CallbackParam));
+	NativeFSF.FarRecursiveSearch(wide(InitDir).data(), wide(Mask).data(), FarRecursiveSearchA_Callback, newFlags, static_cast<void *>(&CallbackParam));
 }
 
 static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
-	string strS(src), strD;
-	apiExpandEnvironmentStrings(strS,strD);
+	string strD;
+	apiExpandEnvironmentStrings(wide(src), strD);
 	DWORD len = (DWORD)std::min(strD.size(),size-1);
 	UnicodeToOEM(strD.data(), dest, len+1);
 	return len;
@@ -1290,14 +1284,12 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 
 static int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
-	string strFN(FileName), strT(Title);
-	return NativeInfo.Viewer(strFN.c_str(),strT.c_str(),X1,Y1,X2,Y2,Flags,CP_DEFAULT);
+	return NativeInfo.Viewer(wide(FileName).data(), wide(Title).data(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
 }
 
 static int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
 {
-	string strFN(FileName), strT(Title);
-	return NativeInfo.Editor(strFN.c_str(),strT.c_str(),X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_DEFAULT);
+	return NativeInfo.Editor(wide(FileName).data(), wide(Title).data(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
 }
 
 static int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
@@ -1311,20 +1303,16 @@ static void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 	if (!Str)
 		return NativeInfo.Text(X,Y,&Color,nullptr);
 
-	string strS(Str);
-	return NativeInfo.Text(X,Y,&Color,strS.c_str());
+	return NativeInfo.Text(X, Y, &Color, wide(Str).data());
 }
 
 static BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
 {
-	string strMN(ModuleName), strHT(HelpTopic);
-	return NativeInfo.ShowHelp(strMN.c_str(),(HelpTopic?strHT.c_str():nullptr),Flags);
+	return NativeInfo.ShowHelp(wide(ModuleName).data(), (HelpTopic? wide(HelpTopic).data() : nullptr),Flags);
 }
 
 static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
 {
-	string strT(Title), strP(Prompt), strHN(HistoryName), strST(SrcText), strD, strHT(HelpTopic);
-	wchar_t *D = strD.GetBuffer(DestLength);
 	DWORD NewFlags=0;
 
 	if (Flags&oldfar::FIB_ENABLEEMPTY)
@@ -1340,7 +1328,18 @@ static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *
 	if (Flags&oldfar::FIB_NOAMPERSAND)
 		NewFlags|=FIB_NOAMPERSAND;
 
-	int ret = NativeInfo.InputBox(&FarGuid,&FarGuid,(Title?strT.c_str():nullptr),(Prompt?strP.c_str():nullptr),(HistoryName?strHN.c_str():nullptr),(SrcText?strST.c_str():nullptr),D,DestLength,(HelpTopic?strHT.c_str():nullptr),NewFlags);
+	string strD;
+	wchar_t *D = strD.GetBuffer(DestLength);
+
+	int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
+		Title? wide(Title).data() : nullptr,
+		Prompt? wide(Prompt).data() : nullptr,
+		HistoryName? wide(HistoryName).data() : nullptr,
+		SrcText? wide(SrcText).data() : nullptr,
+		D, DestLength,
+		HelpTopic? wide(HelpTopic).data() : nullptr,
+		NewFlags);
+
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)
@@ -1352,7 +1351,6 @@ static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *
 #define GetPluginGuid(n) &reinterpret_cast<Plugin*>(n)->GetGUID()
 static int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
 {
-	string strHT(HelpTopic);
 	wchar_t **p;
 	int c=0;
 
@@ -1405,7 +1403,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *He
 		break;
 	}
 
-	int ret = NativeInfo.Message(GetPluginGuid(PluginNumber),&FarGuid,NewFlags,(HelpTopic?strHT.c_str():nullptr),p,ItemsNumber,ButtonsNumber);
+	int ret = NativeInfo.Message(GetPluginGuid(PluginNumber), &FarGuid, NewFlags, HelpTopic? wide(HelpTopic).data() : nullptr, p, ItemsNumber, ButtonsNumber);
 
 	for (int i=0; i<c; i++)
 		delete[] p[i];
@@ -1429,11 +1427,6 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle,int MsgId)
 
 static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const oldfar::FarMenuItem *Item,int ItemsNumber)
 {
-	string strT(Title), strB(Bottom), strHT(HelpTopic);
-	const wchar_t *wszT  = Title?strT.c_str():nullptr;
-	const wchar_t *wszB  = Bottom?strB.c_str():nullptr;
-	const wchar_t *wszHT = HelpTopic?strHT.c_str():nullptr;
-
 	DWORD NewFlags=0;
 
 	if (Flags&oldfar::FMENU_SHOWAMPERSAND)
@@ -1535,7 +1528,13 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 	}
 
 	intptr_t NewBreakCode;
-	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),&FarGuid,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,&NewBreakCode,mi,ItemsNumber);
+
+	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber), &FarGuid, X, Y, MaxHeight, NewFlags,
+		Title? wide(Title).data() : nullptr,
+		Bottom? wide(Bottom).data() : nullptr,
+		HelpTopic? wide(HelpTopic).data() : nullptr,
+		NewBreakKeys, &NewBreakCode, mi, ItemsNumber);
+
 	if (BreakCode) *BreakCode=NewBreakCode;
 
 	for (int i=0; i<ItemsNumber; i++)
@@ -2965,8 +2964,6 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,void* Param)
 {
-	string strHT(HelpTopic);
-
 	if (!Item || !ItemsNumber)
 		return -1;
 
@@ -2999,7 +2996,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
 
 	int ret = -1;
-	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.c_str():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
+	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
 	DialogData NewDialogData;
 	NewDialogData.DlgProc=DlgProc;
 	NewDialogData.hDlg=hDlg;
@@ -3526,12 +3523,12 @@ static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPane
 
 	*pPanelItem=nullptr;
 	*pItemsNumber=0;
-	string strDir(Dir);
+	string strDir = wide(Dir);
 	DeleteEndSlash(strDir, true);
 
 	PluginPanelItem *pItems;
 	size_t ItemsNumber;
-	int ret=NativeInfo.GetDirList(strDir.c_str(), &pItems, &ItemsNumber);
+	int ret=NativeInfo.GetDirList(strDir.data(), &pItems, &ItemsNumber);
 
 	size_t PathOffset = ExtractFilePath(strDir).size() + 1;
 
@@ -3568,11 +3565,10 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,cons
 
 	*pPanelItem=nullptr;
 	*pItemsNumber=0;
-	string strDir(Dir);
 
 	PluginPanelItem *pPanelItemW;
 	size_t ItemsNumber;
-	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, strDir.c_str(), &pPanelItemW, &ItemsNumber);
+	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, wide(Dir).data(), &pPanelItemW, &ItemsNumber);
 
 	if (ret && ItemsNumber)
 	{
@@ -4012,7 +4008,7 @@ static int GetEditorCodePageFavA()
 			if (!(selectType&CPST_FAVORITE))
 				continue;
 
-			if (static_cast<UINT>(_wtoi(sTableName.c_str())) == CodePage)
+			if (static_cast<UINT>(_wtoi(sTableName.data())) == CodePage)
 			{
 				result=FavIndex;
 				break;
@@ -4064,7 +4060,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 
 					if (FavIndex==Command)
 					{
-						nCP=_wtoi(strTableName.c_str());
+						nCP=_wtoi(strTableName.data());
 						break;
 					}
 
@@ -4156,12 +4152,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 		}
 		case oldfar::ECTL_INSERTTEXT:
 		{
-			const char *p=(const char *)Param;
-
-			if (!p) return FALSE;
-
-			string strP(p);
-			return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_INSERTTEXT, 0, UNSAFE_CSTR(strP)));
+			return Param? static_cast<int>(NativeInfo.EditorControl(-1, ECTL_INSERTTEXT, 0, UNSAFE_CSTR(wide(reinterpret_cast<const char*>(Param)).data()))) : FALSE;
 		}
 		case oldfar::ECTL_GETINFO:
 		{
@@ -4757,7 +4748,6 @@ char* WINAPI XlatA(
     const oldfar::CharTableSet *TableSet, // перекодировочная таблица (может быть nullptr)
     DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
-	string strLine(Line);
 	DWORD NewFlags = 0;
 
 	if (Flags&oldfar::XLAT_SWITCHKEYBLAYOUT)
@@ -4772,6 +4762,7 @@ char* WINAPI XlatA(
 	if (Flags&oldfar::XLAT_CONVERTALLCMDLINE)
 		NewFlags|=XLAT_CONVERTALLCMDLINE;
 
+	string strLine = wide(Line);
 	NativeFSF.XLat(strLine.GetBuffer(),StartPos,EndPos,NewFlags);
 	strLine.ReleaseBuffer();
 	UnicodeToOEM(strLine.data(), Line, strLine.size()+1);
@@ -4780,9 +4771,8 @@ char* WINAPI XlatA(
 
 static int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 {
-	string strComputer(Computer), strName(Name);
 	wchar_t wOwner[MAX_PATH];
-	int Ret=static_cast<int>(NativeFSF.GetFileOwner(strComputer.c_str(),strName.c_str(), wOwner, ARRAYSIZE(wOwner)));
+	int Ret=static_cast<int>(NativeFSF.GetFileOwner(wide(Computer).data(),wide(Name).data(), wOwner, ARRAYSIZE(wOwner)));
 	if (Ret)
 	{
 		UnicodeToOEM(wOwner, Owner, oldfar::NM);
@@ -4808,11 +4798,11 @@ public:
 	bool Read()
 	{
 		bool Result = false;
-		DWORD dummy, dwlen = GetFileVersionInfoSize(file.c_str(), &dummy);
+		DWORD dummy, dwlen = GetFileVersionInfoSize(file.data(), &dummy);
 		if (dwlen)
 		{
 			buffer.reset(dwlen);
-			if (GetFileVersionInfo(file.c_str(), dummy, dwlen, buffer.get()))
+			if (GetFileVersionInfo(file.data(), dummy, dwlen, buffer.get()))
 			{
 				DWORD *Translation;
 				UINT len;
@@ -4833,7 +4823,7 @@ public:
 	{
 		wchar_t* Value;
 		UINT Length;
-		if (VerQueryValue(buffer.get(), (path + value).c_str(), reinterpret_cast<void**>(&Value), &Length) && Length > 1)
+		if (VerQueryValue(buffer.get(), (path + value).data(), reinterpret_cast<void**>(&Value), &Length) && Length > 1)
 			return Value;
 		return nullptr;
 	}
@@ -5048,7 +5038,7 @@ bool PluginA::SetStartupInfo()
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые поля
 		strRootKey = Global->strRegRoot + L"\\Plugins";
-		RootKey = UnicodeToAnsi(strRootKey.c_str());
+		RootKey = UnicodeToAnsi(strRootKey.data());
 		_info.RootKey = RootKey;
 		ExecuteStruct es = {EXCEPT_SETSTARTUPINFO};
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
@@ -5247,7 +5237,7 @@ int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, si
 		pVFDPanelItemA = nullptr;
 		size_t Size=Path.size()+1;
 		char_ptr PathA(Size);
-		UnicodeToOEM(Path.c_str(), PathA.get(), Size);
+		UnicodeToOEM(Path.data(), PathA.get(), Size);
 		int ItemsNumber = 0;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, &ItemsNumber, PathA.get()));
 		*pItemsNumber = ItemsNumber;
@@ -5444,7 +5434,7 @@ int PluginA::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserDat
 	ExecuteStruct es = {EXCEPT_SETDIRECTORY};
 	if (Exports[iSetDirectory] && !Global->ProcessException)
 	{
-		char *DirA = UnicodeToAnsi(Dir.c_str());
+		char *DirA = UnicodeToAnsi(Dir.data());
 		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(hPlugin, DirA, OpMode));
 		delete[] DirA;
 	}

@@ -199,7 +199,7 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 {
 	// BUGBUG
 	std::vector<const wchar_t*> pItems(Items.size());
-	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.c_str();});
+	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.data();});
 	Init(Flags, Buttons, Title, pItems.data(), pItems.size(), HelpTopic, PluginNumber, Id);
 }
 
@@ -365,7 +365,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	//BUGBUG: string не предназначен для хранения строк разделённых \0
 	// заполняем массив...
-	const wchar_t* CPtrStr=strErrStr.c_str();
+	const wchar_t* CPtrStr=strErrStr.data();
 
 	for (I=0; I < CountErrorLine; I++)
 	{

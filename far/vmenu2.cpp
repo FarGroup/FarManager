@@ -362,8 +362,8 @@ void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetTitles(1);
-	titles.Bottom=t.c_str();
-	titles.Title=Title.c_str();
+	titles.Bottom=t.data();
+	titles.Title=Title.data();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -371,8 +371,8 @@ void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetTitles();
-	titles.Bottom=Title.c_str();
-	titles.Title=t.c_str();
+	titles.Bottom=Title.data();
+	titles.Title=t.data();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -422,7 +422,7 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem->Flags, NewItem->strName.c_str()};
+	FarListItem fi={NewItem->Flags, NewItem->strName.data()};
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
@@ -444,14 +444,14 @@ int VMenu2::AddItem(const FarList *NewItem)
 }
 int VMenu2::AddItem(const string& NewStrItem)
 {
-	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem.c_str());
+	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem.data());
 	Resize();
 	return r;
 }
 
 int VMenu2::FindItem(int StartIndex, const string& Pattern, UINT64 Flags)
 {
-	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.c_str(), Flags};
+	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.data(), Flags};
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 

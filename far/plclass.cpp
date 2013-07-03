@@ -276,7 +276,7 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 
 	if (pPlugin)
 	{
-		PSI->ModuleName = pPlugin->GetModuleName().c_str();
+		PSI->ModuleName = pPlugin->GetModuleName().data();
 		if(pPlugin->GetGUID() == ArcliteGuid)
 		{
 			PSI->Private = &ArcliteInfo;
@@ -297,9 +297,9 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
 		MSG(MError),
 		MSG(MPlgBadVers),
-		plg.c_str(),
-		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).c_str(),
-		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).c_str(),
+		plg.data(),
+		(LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)).data(),
+		(LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build)).data(),
 		MSG(MOk));
 }
 
@@ -454,13 +454,13 @@ bool Plugin::LoadData()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName.c_str(),nullptr,0);
-		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.c_str(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,0);
+		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
 		GuardLastError Err;
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariable(Drive,strCurPlugDiskPath.c_str());
+			SetEnvironmentVariable(Drive,strCurPlugDiskPath.data());
 	}
 
 	if (!m_hModule)
@@ -470,7 +470,7 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.c_str(), MSG(MOk)};
+			const wchar_t* const Items[] = {MSG(MPlgLoadPluginError), m_strModuleName.data(), MSG(MOk)};
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrLoadPlugin");
 		}
 
@@ -855,7 +855,7 @@ int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, siz
 		Info.hPanel = hPlugin;
 		Info.PanelItem = *pPanelItem;
 		Info.ItemsNumber = *pItemsNumber;
-		Info.Path = Path.c_str();
+		Info.Path = Path.data();
 		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(&Info));
 		*pPanelItem = Info.PanelItem;
 		*pItemsNumber = Info.ItemsNumber;
@@ -907,7 +907,7 @@ int Plugin::PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNum
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
 		Info.Move = Move;
-		Info.SrcPath = strCurrentDirectory.c_str();
+		Info.SrcPath = strCurrentDirectory.data();
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(&Info));
 	}
@@ -1053,7 +1053,7 @@ int Plugin::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserData
 	{
 		SetDirectoryInfo Info = {sizeof(Info)};
 		Info.hPanel = hPlugin;
-		Info.Dir = Dir.c_str();
+		Info.Dir = Dir.data();
 		Info.OpMode = OpMode;
 		if (UserData)
 		{

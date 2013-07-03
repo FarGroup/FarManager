@@ -596,7 +596,7 @@ bool KeyMacro::InitMacroExecution()
 		if (macro->m_macroId == 0)
 		{
 			fmc.Count = 2;
-			values[1].String = macro->Code().c_str();
+			values[1].String = macro->Code().data();
 		}
 
 		void* handle = CallMacroPlugin(&info);
@@ -678,7 +678,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 {
 	FarMacroValue values[4]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
 	values[0].Double=Mode;
-	values[1].String=TextKey.c_str();
+	values[1].String=TextKey.data();
 	values[2].Boolean=(UseCommon?1:0);
 	values[3].Boolean=(CheckOnly?1:0);
 
@@ -691,7 +691,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 		Data->MacroId = (int)mpr->Values[0].Double;
 		if (Data->MacroId != 0)
 		{
-			Data->Name        = TextKey.c_str();
+			Data->Name        = TextKey.data();
 			Data->Area        = (FARMACROAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].Type==FMVT_STRING ? mpr->Values[2].String : L"";
 			Data->Description = mpr->Values[3].Type==FMVT_STRING ? mpr->Values[3].String : L"";
@@ -719,10 +719,10 @@ void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const s
 	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_INTEGER},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
 
 	values[0].Double=Mode;
-	values[1].String=TextKey.c_str();
-	values[2].String=Code.c_str();
+	values[1].String=TextKey.data();
+	values[2].String=Code.data();
 	values[3].Integer=Flags;
-	values[4].String=Description.c_str();
+	values[4].String=Description.data();
 	if (Guid)
 	{
 		values[5].Binary.Data=(void*)Guid;
@@ -857,7 +857,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					LM_ProcessMacro(StartMode,strKey,m_RecCode,Flags,m_RecDescription);
 				}
 
-				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_RecCode.c_str()); fclose(log);}}
+				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_RecCode.data()); fclose(log);}}
 				m_Recording=MACROMODE_NOMACRO;
 				m_RecCode.clear();
 				m_RecDescription.clear();
@@ -1148,7 +1148,7 @@ int KeyMacro::PeekKey()
 bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription)
 {
 	FarMacroValue values[2]={{FMVT_STRING},{FMVT_BOOLEAN}};
-	values[0].String = strMode.c_str();
+	values[0].String = strMode.data();
 	values[1].Boolean = Pos?0:1;
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_ENUMMACROS,nullptr,&fmc};
@@ -1518,7 +1518,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=m_RecCode;
 	}
 
-	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.c_str();
+	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
 	Dialog Dlg(this, &KeyMacro::ParamMacroDlgProc, &Param, MacroSettingsDlg, ARRAYSIZE(MacroSettingsDlg));
@@ -1573,7 +1573,7 @@ bool KeyMacro::ParseMacroString(const string& Sequence, bool onlyCheck, bool ski
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
 	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].String=Sequence.c_str();
+	values[0].String=Sequence.data();
 	values[1].Boolean=onlyCheck?1:0;
 	values[2].Boolean=skipFile?1:0;
 	values[3].String=MSG(MMacroPErrorTitle);
@@ -1719,7 +1719,7 @@ static int PassString (const string& str, FarMacroCall* Data)
 	{
 		FarMacroValue val;
 		val.Type = FMVT_STRING;
-		val.String = str.c_str();
+		val.String = str.data();
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
@@ -2129,7 +2129,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
 				if (FileAttr != INVALID_FILE_ATTRIBUTES)
-					ptr = strFileName.c_str();
+					ptr = strFileName.data();
 			}
 			return PassString(ptr, Data);
 		}
@@ -2233,7 +2233,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (!SelPanel->VMProcess(CheckCode,&strFileName,0))
 					strFileName = SelPanel->GetCurDir();
-				ptr = strFileName.c_str();
+				ptr = strFileName.data();
 			}
 			return PassString(ptr, Data);
 		}
@@ -2256,7 +2256,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					strFileName = SelPanel->GetCurDir();
 
 				DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
-				ptr = strFileName.c_str();
+				ptr = strFileName.data();
 			}
 			return PassString(ptr, Data);
 		}
@@ -2269,7 +2269,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				UnquoteExternal(strFileName);
 				DeleteEndSlash(strFileName);
-				ptr = strFileName.c_str();
+				ptr = strFileName.data();
 			}
 			return PassString(ptr, Data);
 		}
@@ -2408,7 +2408,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							{
 								HiText2Str(strFileName, NewStr);
 								RemoveExternalSpaces(strFileName);
-								ptr=strFileName.c_str();
+								ptr=strFileName.data();
 							}
 							break;
 						case MCODE_V_MENUINFOID:
@@ -2461,7 +2461,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				{
 					string strType;
 					Global->CtrlObject->Plugins->GetCurEditor()->GetTypeAndName(strType, strFileName);
-					ptr=strFileName.c_str();
+					ptr=strFileName.data();
 				}
 				else if (CheckCode == MCODE_V_EDITORVALUE)
 				{
@@ -2473,7 +2473,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				else if (CheckCode == MCODE_V_EDITORSELVALUE)
 				{
 					Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(CheckCode,&strFileName);
-					ptr=strFileName.c_str();
+					ptr=strFileName.data();
 				}
 				else
 					return Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(CheckCode);
@@ -2490,7 +2490,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (GetMode() == MACROAREA_HELP)
 			{
 				CurFrame->VMProcess(CheckCode,&strFileName,0);
-				ptr=strFileName.c_str();
+				ptr=strFileName.data();
 			}
 			return PassString(ptr, Data);
 		}
@@ -3656,7 +3656,7 @@ static struct menu_less
 		string strName2((el2)->strName);
 		RemoveChar(strName1,L'&',true);
 		RemoveChar(strName2,L'&',true);
-		bool Less = NumStrCmpI(strName1.c_str() + Param.Offset, strName2.c_str() + Param.Offset) < 0;
+		bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
 
 		return Param.Reverse? !Less : Less;
 	}
@@ -3715,7 +3715,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	if (bAutoNumbering)
 	{
 		int numlines=0;
-		for (const wchar_t* p=strItems.c_str(); *p; p++)
+		for (const wchar_t* p=strItems.data(); *p; p++)
 		{
 			if (*p==L'\n') numlines++;
 		}
@@ -3770,7 +3770,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.strName!=L"\n")
 		{
-		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.c_str();
+		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.data();
 		bool bContunue=(*CurrentChar<=L'\x4');
 		while(*CurrentChar && bContunue)
 		{
@@ -3810,7 +3810,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.strName.Format(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.c_str());
+			NewItem.strName.Format(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.data());
 		}
 		Menu.AddItem(&NewItem);
 		CurrentPos=PosLF+1;
@@ -3832,7 +3832,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item->Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item->strName.Format(L"%*d - %s", nLeftShift-3, LineCount, Item->strName.c_str());
+				Item->strName.Format(L"%*d - %s", nLeftShift-3, LineCount, Item->strName.data());
 			}
 		}
 	}
@@ -3955,7 +3955,7 @@ static bool menushowFunc(FarMacroCall* Data)
 						Result+=temp;
 					}
 					else
-						Result+=(*Menu.GetItemPtr(i)).strName.c_str()+nLeftShift;
+						Result+=(*Menu.GetItemPtr(i)).strName.data()+nLeftShift;
 					Result+=L"\n";
 				}
 			}
@@ -3967,12 +3967,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result=(*Menu.GetItemPtr(SelectedPos)).strName.c_str()+nLeftShift;
+					Result=(*Menu.GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result=(*Menu.GetItemPtr(SelectedPos)).strName.c_str()+nLeftShift;
+				Result=(*Menu.GetItemPtr(SelectedPos)).strName.data()+nLeftShift;
 			else
 				Result=SelectedPos+1;
 	}
@@ -5840,9 +5840,9 @@ M1:
 				{
 					const wchar_t* NoKey=MSG(MNo);
 					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
-					          strBuf.c_str(),
+					          strBuf.data(),
 					          MSG(MMacroSequence),
-					          strBufKey.c_str(),
+					          strBufKey.data(),
 					          MSG(SetChange?MMacroDeleteKey2:MMacroReDefinedKey2),
 					          MSG(MYes),
 					          (SetChange?MSG(MMacroEditKey):NoKey),
@@ -5865,7 +5865,7 @@ M1:
 					if ( *Data.Description )
 						strDescription=Data.Description;
 
-					if (GetMacroSettings(key,Data.Flags,strBufKey.c_str(),strDescription.c_str()))
+					if (GetMacroSettings(key,Data.Flags,strBufKey.data(),strDescription.data()))
 					{
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;

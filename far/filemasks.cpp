@@ -106,7 +106,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 		if (!expmasks.empty())
 		{
-			const wchar_t* ptr = expmasks.c_str();
+			const wchar_t* ptr = expmasks.data();
 
 			string SimpleMasksInclude, SimpleMasksExclude;
 
@@ -263,7 +263,7 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re.reset(new RegExp);
 
-		if (re && re->Compile(expmasks.c_str(), OP_PERLSTYLE|OP_OPTIMIZE))
+		if (re && re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m.reset(n);
@@ -305,7 +305,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	{
 		intptr_t i = n;
 		size_t len = FileName.size();
-		bool ret = re->Search(FileName.c_str(),FileName.c_str()+len,m.get(),i) != 0;
+		bool ret = re->Search(FileName.data(),FileName.data()+len,m.get(),i) != 0;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)
@@ -315,7 +315,7 @@ bool filemasks::masks::operator ==(const string& FileName) const
 	}
 	else
 	{
-		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.c_str(), FileName.c_str(), false) != 0;});
+		return std::any_of(CONST_RANGE(Masks, i) {return CmpName(i.data(), FileName.data(), false) != 0;});
 	}
 }
 

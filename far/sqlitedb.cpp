@@ -106,7 +106,7 @@ SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
 
 SQLiteStmt& SQLiteStmt::Bind(const string& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(pStmt,param++,Value.c_str(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+	sqlite::sqlite3_bind_text16(pStmt,param++,Value.data(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
 	return *this;
 }
 
@@ -188,7 +188,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			DWORD attrs = apiGetFileAttributes(strPath);
 			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
 		}
-		bool ret = (SQLITE_OK == sqlite::sqlite3_open16(strPath.c_str(), &pDb));
+		bool ret = (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &pDb));
 		if (ret)
 			sqlite::sqlite3_busy_timeout(pDb, 1000);
 		return ret;
@@ -218,13 +218,13 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			apiSetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)
 				strPath = strTmp;
-			ok = ok && (SQLITE_OK == sqlite::sqlite3_open16(strPath.c_str(), &db_source));
+			ok = ok && (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &db_source));
 		}
 		else
 		{
-			int n8 = WideCharToMultiByte(CP_UTF8,0, strPath.c_str(),-1, nullptr,0, nullptr,nullptr);
+			int n8 = WideCharToMultiByte(CP_UTF8,0, strPath.data(),-1, nullptr,0, nullptr,nullptr);
 			char_ptr name8(n8);
-			WideCharToMultiByte(CP_UTF8,0, strPath.c_str(),-1, name8.get(), n8, nullptr,nullptr);
+			WideCharToMultiByte(CP_UTF8,0, strPath.data(),-1, name8.get(), n8, nullptr,nullptr);
 			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
 			ok = (SQLITE_OK == sqlite::sqlite3_open_v2(name8.get(), &db_source, flags, nullptr));
 		}
@@ -257,7 +257,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
 	string &path = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-	AutoMutex m(path.c_str(), DbName.c_str());
+	AutoMutex m(path.data(), DbName.data());
 	strName = DbName;
 	init_status = 0;
 	if (!InitializeImpl(DbName, Local))

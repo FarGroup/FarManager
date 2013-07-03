@@ -71,7 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // Режимы показа меню (Menu mode)
-ENUM(MENUMODE)
+ENUM(UserMenu::MENUMODE)
 {
 	MM_LOCAL,  // Локальное меню
 	MM_USER,   // Пользовательское меню
@@ -95,7 +95,7 @@ static int PrepareHotKey(string &strHotKey)
 	if (strHotKey.size() > 1)
 	{
 		// если хоткей больше 1 символа, считаем это случаем "F?", причем при кривизне всегда будет "F1"
-		FuncNum=_wtoi(strHotKey.c_str()+1);
+		FuncNum=_wtoi(strHotKey.data()+1);
 
 		if (FuncNum < 1 || FuncNum > 24)
 		{
@@ -115,20 +115,19 @@ static int PrepareHotKey(string &strHotKey)
 
 const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
-static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
+static void MenuListToFile(const std::list<UserMenu::UserMenuItem>& Menu, CachedWrite& CW)
 {
 	std::for_each(CONST_RANGE(Menu, i)
 	{
-		CW.Write(i.strHotKey.c_str(), static_cast<DWORD>(i.strHotKey.size()*sizeof(WCHAR)));
+		CW.Write(i.strHotKey.data(), static_cast<DWORD>(i.strHotKey.size()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
-		CW.Write(i.strLabel.c_str(), static_cast<DWORD>(i.strLabel.size()*sizeof(WCHAR)));
+		CW.Write(i.strLabel.data(), static_cast<DWORD>(i.strLabel.size()*sizeof(WCHAR)));
 		CW.Write(L"\r\n", 2*sizeof(WCHAR));
 
 		if (i.Submenu)
 		{
 			CW.Write(L"{\r\n", 3*sizeof(WCHAR));
-			if (i.Menu)
-				MenuListToFile(*i.Menu, CW);
+			MenuListToFile(i.Menu, CW);
 			CW.Write(L"}\r\n", 3*sizeof(WCHAR));
 		}
 		else
@@ -136,14 +135,14 @@ static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 			std::for_each(CONST_RANGE(i.Commands, str)
 			{
 				CW.Write(L"    ", 4*sizeof(WCHAR));
-				CW.Write(str.c_str(), static_cast<DWORD>(str.size()*sizeof(WCHAR)));
+				CW.Write(str.data(), static_cast<DWORD>(str.size()*sizeof(WCHAR)));
 				CW.Write(L"\r\n", 2*sizeof(WCHAR));
 			});
 		}
 	});
 }
 
-static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
 	INT64 Pos = MenuFile.GetPointer();
 	if (!Pos)
@@ -154,7 +153,7 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 
 	LPWSTR MenuStr = nullptr;
 	int MenuStrLength = 0;
-	UserMenuItem *MenuItem = nullptr;
+	UserMenu::UserMenuItem *MenuItem = nullptr;
 
 	while (GetStr.GetString(&MenuStr, MenuCP, MenuStrLength))
 	{
@@ -163,9 +162,9 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 		if (!*MenuStr)
 			continue;
 
-		if (*MenuStr==L'{' && MenuItem && MenuItem->Menu)
+		if (*MenuStr==L'{' && MenuItem)
 		{
-			MenuFileToList(*MenuItem->Menu, MenuFile, GetStr, MenuCP);
+			MenuFileToList(MenuItem->Menu, MenuFile, GetStr, MenuCP);
 			MenuItem = nullptr;
 			continue;
 		}
@@ -195,9 +194,6 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 			MenuItem->strLabel = ChPtr+1;
 			RemoveLeadingSpaces(MenuItem->strLabel);
 			MenuItem->Submenu = (GetStr.PeekString(&MenuStr, MenuCP, MenuStrLength) && *MenuStr==L'{');
-
-			if (MenuItem->Submenu)
-				MenuItem->Menu = new std::list<UserMenuItem>;
 
 			// Support for old 1.x separator format
 			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.empty())
@@ -229,10 +225,6 @@ UserMenu::UserMenu(const string& MenuFileName):
 	ItemChanged(false)
 {
 	ProcessUserMenu(false, MenuFileName);
-}
-
-UserMenu::~UserMenu()
-{
 }
 
 void UserMenu::SaveMenu(const string& MenuFileName)
@@ -438,7 +430,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	MenuItemEx FarUserMenuItem;
@@ -751,7 +743,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			}
 
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
-			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.c_str());
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.data());
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -774,7 +766,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((!StrCmpNI(strCommand.c_str(),L"REM",3) && IsSpaceOrEos(strCommand.at(3))) || !StrCmpNI(strCommand.c_str(),L"::",2)))
+			if (!((!StrCmpNI(strCommand.data(),L"REM",3) && IsSpaceOrEos(strCommand.at(3))) || !StrCmpNI(strCommand.data(),L"::",2)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -806,7 +798,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					strTempStr = (*CurrentMenuItem)->strLabel;
 					ReplaceStrings(strTempStr,L"&",L"",-1);
 
-					int PreserveLFN=SubstFileName(strTempStr.c_str(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.c_str());
+					int PreserveLFN=SubstFileName(strTempStr.data(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.data());
 					bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
 
 					if (ExtractIfExistCommand(strCommand))
@@ -1069,12 +1061,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
 			(*MenuItem)->Submenu = SubMenu;
 
-			if (SubMenu)
-			{
-				if (Create)
-					(*MenuItem)->Menu = new std::list<UserMenuItem>();
-			}
-			else
+			if (!SubMenu)
 			{
 #if defined(PROJECT_DI_MEMOEDIT)
 				/*
@@ -1112,7 +1099,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.c_str(),MSG(MDelete),MSG(MCancel)))
+	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName.data(),MSG(MDelete),MSG(MCancel)))
 		return false;
 
 	MenuModified=true;

@@ -71,9 +71,9 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
-	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.c_str(),&fmt,nullptr,0);
+	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,nullptr,0);
 	wchar_t* lpwszDest=strDest.GetBuffer(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.c_str(),&fmt,lpwszDest,Size);
+	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,lpwszDest,Size);
 	strDest.ReleaseBuffer();
 	return strDest;
 }
@@ -128,7 +128,7 @@ wchar_t * InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.c_str()) )
+	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()) )
 		InsertQuote(Str);
 
 	return Str;
@@ -154,7 +154,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr.c_str(), Global->Opt->strQuotedSymbols.c_str()) )
+	if (wcspbrk(strStr.data(), Global->Opt->strQuotedSymbols.data()) )
 		InsertQuote(strStr);
 
 	return strStr;
@@ -366,12 +366,12 @@ wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 
 string& RemoveLeadingSpaces(string &strStr)
 {
-	const wchar_t *ChPtr = strStr.c_str();
+	const wchar_t *ChPtr = strStr.data();
 
 	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
 		;
 
-	strStr.erase(0, ChPtr - strStr.c_str());
+	strStr.erase(0, ChPtr - strStr.data());
 	return strStr;
 }
 
@@ -402,7 +402,7 @@ string& RemoveTrailingSpaces(string &strStr)
 	if (strStr.empty())
 		return strStr;
 
-	const wchar_t *Str = strStr.c_str();
+	const wchar_t *Str = strStr.data();
 	const wchar_t *ChPtr = Str + strStr.size() - 1;
 
 	for (; ChPtr >= Str && (IsSpace(*ChPtr) || IsEol(*ChPtr)); ChPtr--)
@@ -544,7 +544,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
 bool IsCaseMixed(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc.c_str();
+	const wchar_t *lpwszSrc = strSrc.data();
 
 	while (*lpwszSrc && !IsAlpha(*lpwszSrc))
 		lpwszSrc++;
@@ -560,7 +560,7 @@ bool IsCaseMixed(const string &strSrc)
 
 bool IsCaseLower(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = strSrc.c_str();
+	const wchar_t *lpwszSrc = strSrc.data();
 
 	while (*lpwszSrc)
 	{
@@ -714,12 +714,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.c_str());
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.data());
 
 		return strDestStr;
 	}
@@ -739,12 +739,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.c_str());
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.data());
 	}
 	else
 	{
@@ -774,9 +774,9 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
 
 		if (Economic)
-			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 		else
-			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.c_str(),UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 	}
 
 	return strDestStr;
@@ -819,7 +819,7 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 	int J=0;
 	while (I+LenFindStr <= L)
 	{
-		int Res=IgnoreCase? StrCmpNI(strStr.c_str() + I, FindStr.c_str(), LenFindStr) : StrCmpN(strStr.c_str() + I, FindStr.c_str(), LenFindStr);
+		int Res=IgnoreCase? StrCmpNI(strStr.data() + I, FindStr.data(), LenFindStr) : StrCmpN(strStr.data() + I, FindStr.data(), LenFindStr);
 
 		if (!Res)
 		{
@@ -834,7 +834,7 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 			else if (Delta < 0)
 				wmemmove(Str+I,Str+I-Delta,L-I+Delta+1);
 
-			wmemcpy(Str+I,ReplStr.c_str(),LenReplStr);
+			wmemcpy(Str+I,ReplStr.data(),LenReplStr);
 			I += LenReplStr;
 
 			L+=Delta;
@@ -916,7 +916,7 @@ string& FarFormatText(const string& SrcText,     // источник
 
 	string strSrc = SrcText; //copy string in case of SrcText == strDestText
 
-	if (!wcspbrk(strSrc.c_str(),breakchar) && strSrc.size() <= static_cast<size_t>(Width))
+	if (!wcspbrk(strSrc.data(),breakchar) && strSrc.size() <= static_cast<size_t>(Width))
 	{
 		strDestText = strSrc;
 		return strDestText;
@@ -924,7 +924,7 @@ string& FarFormatText(const string& SrcText,     // источник
 
 	long i=0, l=0, pgr=0;
 	wchar_t *newtext;
-	const wchar_t *text= strSrc.c_str();
+	const wchar_t *text= strSrc.data();
 	long linelength = Width;
 	int breakcharlen = StrLength(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
@@ -1189,12 +1189,12 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 bool CheckFileSizeStringFormat(const string& FileSizeStr)
 {
 //проверяет если формат строки такой: [0-9]+[BbKkMmGgTtPpEe]?
-	const wchar_t *p = FileSizeStr.c_str();
+	const wchar_t *p = FileSizeStr.data();
 
 	while (iswdigit(*p))
 		p++;
 
-	if (p == FileSizeStr.c_str())
+	if (p == FileSizeStr.data())
 		return false;
 
 	if (*p)
@@ -1214,7 +1214,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	unsigned __int64 n = _wtoi64(FileSizeStr.c_str());
+	unsigned __int64 n = _wtoi64(FileSizeStr.data());
 	wchar_t c = Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
@@ -1333,7 +1333,7 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const R
 			{
 				if (index<Count&&Match[index].end>=0)
 				{
-					string bracket(SearchStr.c_str()+Match[index].start,Match[index].end-Match[index].start);
+					string bracket(SearchStr.data()+Match[index].start,Match[index].end-Match[index].start);
 					result+=bracket;
 				}
 
@@ -1377,7 +1377,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	*SearchLength = 0;
 
 	if (!WordDiv)
-		WordDiv=Global->Opt->strWordDiv.c_str();
+		WordDiv=Global->Opt->strWordDiv.data();
 
 	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Position, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
@@ -1502,6 +1502,17 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	return false;
 }
 
+string wide(const char *str, uintptr_t codepage)
+{
+	string result;
+	if (str && *str)
+	{
+		size_t size = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
+		MultiByteToWideChar(codepage, 0, str, -1, result.GetBuffer(size), static_cast<int>(size));
+		result.ReleaseBuffer(size - 1);
+	}
+	return result;
+}
 
 std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)
 {
@@ -1530,7 +1541,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 				item.index=ItemsList.size();
 
 				bool Error=false;
-				const wchar_t *CurList=List.c_str();
+				const wchar_t *CurList=List.data();
 				int Length, RealLength;
 				while (!Error && CurList && *CurList)
 				{
