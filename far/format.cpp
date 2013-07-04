@@ -87,13 +87,16 @@ BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 
 	string OutStr(Data, std::min(MaxWidth, Length));
 
-	if (Align == fmt::A_RIGHT)
+	if (OutStr.size() < MinWidth)
 	{
-		OutStr.insert(0, MinWidth, FillChar);
-	}
-	else
-	{
-		OutStr.append(MinWidth, FillChar);
+		if (Align == fmt::A_RIGHT)
+		{
+			OutStr.insert(0, MinWidth - OutStr.size(), FillChar);
+		}
+		else
+		{
+			OutStr.append(MinWidth - OutStr.size(), FillChar);
+		}
 	}
 
 	Commit(OutStr);
