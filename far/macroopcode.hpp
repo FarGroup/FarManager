@@ -150,7 +150,6 @@ enum MACRO_OP_CODE
 	MCODE_F_CHECKALL,                 //
 	MCODE_F_GETOPTIONS,               //
 	MCODE_F_USERMENU,                 //
-	MCODE_F_CREATEPATH,               //
 
 	MCODE_F_LAST,                     // marker
 

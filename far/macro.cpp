@@ -185,7 +185,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
-	fprintf(fp, "MCODE_F_CREATEPATH=0x%X // Создать каталог\n", MCODE_F_CREATEPATH);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -2640,15 +2639,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_USERMENU:
 			ShowUserMenu(Data->Count,Data->Values);
-			break;
-
-		case MCODE_F_CREATEPATH:
-			if (Data->Count >= 1 && Data->Values[0].Type == FMVT_STRING)
-			{
-				bool Simple = !(Data->Count==1 || Data->Values[1].Type==FMVT_NIL ||
-				               (Data->Values[1].Type==FMVT_BOOLEAN && Data->Values[1].Boolean==0));
-				CreatePath(Data->Values[0].String, Simple);
-			}
 			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
