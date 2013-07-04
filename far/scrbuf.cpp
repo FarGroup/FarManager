@@ -366,7 +366,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				else
 				{
 					Buf[0].Char=L'P';
-					Buf[0].Attributes = Colors::ConsoleColorToFarColor(B_LIGHTGREEN|F_WHITE);
+					Buf[0].Attributes = Colors::ConsoleColorToFarColor(B_GREEN|F_WHITE);
 				}
 			}
 
