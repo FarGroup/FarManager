@@ -565,17 +565,27 @@ static BOOL mkdir(const wchar_t* path)
 
 static int win_CreateDir(lua_State *L)
 {
+	BOOL result, opt_tolerant, opt_original;
 	const wchar_t* path = check_utf8_string(L, 1, NULL);
-	BOOL tolerant = lua_toboolean(L, 2);
+	const char* flags = "";
+
+	if (lua_type(L,2) == LUA_TSTRING)
+		flags = lua_tostring(L,2);
+	else if (lua_toboolean(L,2))
+		flags = "t";
+
+	opt_tolerant = strchr(flags,'t') != NULL;
+	opt_original = strchr(flags,'o') != NULL;
 
 	if(dir_exist(path))
 	{
-		if(tolerant) return lua_pushboolean(L,1), 1;
+		if (opt_tolerant) return lua_pushboolean(L,1), 1;
 
 		return lua_pushnil(L), lua_pushliteral(L, "directory already exists"), 2;
 	}
 
-	if(mkdir(path))
+	result = opt_original ? CreateDirectoryW(path,NULL) : mkdir(path);
+	if(result)
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);

@@ -8326,22 +8326,31 @@ lv=2
 dt=Text
 nm=win.CreateDir
 ctime=3488896876
-mtime=3488897730
+mtime=3582105082
 <article>
-#_result = win.CreateDir (path [, tolerant])
+#_result = win.CreateDir (path [, flags])
 #_
 #_**Parameters:**
 #_  path:     string
-#_  tolerant: boolean (default=false)
+#_  flags:    string (set of characters; optional)
+#_              't' - stands for 'tolerant'
+#_              'o' - stands for 'original'
+#_              default: ''
 #_
 #_**Returns:**
 #_  result:   true (or: nil, errormessage)
 #_
 #_**Description:**
-#_  This function creates a directory specified by the *path*
-#_  parameter. Nested directories can be created by a single
-#_  call. If the target directory already exists, then the
-#_  function returns true if the *tolerant* parameter is true.
+#_  This function creates a directory specified by the *path* parameter.
+#_  Nested directories can be created by a single call.
+#_
+#_  Flag 't': If the target directory already exists, then the function returns true.
+#_  Flag 'o': Don't try to create nested directories.
+#_            Pass the *path* argument to *CreateDirectoryW* as is.
+#_
+#_**Note:**
+#_  For backwards compatibility, a non-string true value passed as the 2-nd parameter
+#_  is equivalent to flags=='t'.
 #_
 #_**Windows API used:**
 #_  CreateDirectoryW
