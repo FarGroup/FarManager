@@ -71,7 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // Режимы показа меню (Menu mode)
-ENUM(UserMenu::MENUMODE)
+ENUM(MENUMODE)
 {
 	MM_LOCAL,  // Локальное меню
 	MM_USER,   // Пользовательское меню

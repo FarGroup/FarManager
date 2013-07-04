@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+ENUM(MENUMODE);
+
 class UserMenu
 {
 public:
@@ -57,7 +59,6 @@ private:
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-	ENUM(MENUMODE);
 	MENUMODE MenuMode;
 	bool MenuModified;
 	bool MenuNeedRefresh;
