@@ -203,7 +203,7 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 			if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,nullptr,nCodePage) &&
 			                      !GetLangParam(LangFile,L"DocumentContents",&strEntryName,nullptr,nCodePage)))
 			{
-				LangMenuItem.strName.Format(L"%.40s", !strLangDescr.empty() ? strLangDescr.data():strLangName.data());
+				LangMenuItem.strName = str_printf(L"%.40s", !strLangDescr.empty() ? strLangDescr.data():strLangName.data());
 
 				/* $ 01.08.2001 SVS
 				   Не допускаем дубликатов!

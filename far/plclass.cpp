@@ -331,7 +331,7 @@ bool Plugin::SaveToCache()
 		string strCurPluginID;
 		FAR_FIND_DATA fdata;
 		apiGetFindDataEx(m_strModuleName, fdata);
-		strCurPluginID.Format(
+		strCurPluginID = str_printf(
 			L"%I64x%x%x",
 			fdata.nFileSize,
 			fdata.ftCreationTime.dwLowDateTime,
@@ -569,8 +569,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		}
 
 		{
-			string strCurPluginID;
-			strCurPluginID.Format(
+			string strCurPluginID = str_printf(
 				L"%I64x%x%x",
 				FindData.nFileSize,
 				FindData.ftCreationTime.dwLowDateTime,

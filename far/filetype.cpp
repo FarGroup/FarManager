@@ -323,7 +323,7 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 
 			size_t AddLen=strTitle.size() - HiStrlen(strTitle);
 
-			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.data(),BoxSymbols[BS_V1]);
+			strMenuText = str_printf(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.data(),BoxSymbols[BS_V1]);
 		}
 
 		strMenuText += strMask;

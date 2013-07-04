@@ -464,7 +464,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (FF->GetContinueProcessing())
 			SizeDate[3]=DownArrow;
 
-		strDest.Format(Format2, MarkChar, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+		strDest = str_printf(Format2, MarkChar, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 	}
 	else
 	{
@@ -472,14 +472,14 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest.Format(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+			strDest = str_printf(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 		}
 		else
 		{
 			if (Hotkey)
-				strDest.Format(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = str_printf(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 			else
-				strDest.Format(Format1d, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = str_printf(Format1d, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 		}
 	}
 

@@ -369,16 +369,16 @@ Frame *Manager::FrameMenu()
 			ModalMenuItem.Clear();
 
 			if (n < 10)
-				strNumText.Format(L"&%d. ", n);
+				strNumText = str_printf(L"&%d. ", n);
 			else if (n < 36)
-				strNumText.Format(L"&%c. ", n + 55);  // 55='A'-10
+				strNumText = str_printf(L"&%c. ", n + 55);  // 55='A'-10
 			else
 				strNumText = L"&   ";
 
 			//TruncPathStr(strName,ScrX-24);
 			ReplaceStrings(strName,L"&",L"&&",-1);
 			/*  добавляется "*" если файл изменен */
-			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
+			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
 			ModalMenuItem.SetSelect(static_cast<int>(n) == FramePos);
 			ModalMenu.AddItem(&ModalMenuItem);
 			++n;

@@ -1480,7 +1480,7 @@ int FileList::ProcessKey(int Key)
 					if (Info.Flags & OPIF_REALNAMES)
 						PluginMode=FALSE;
 					else
-						strPluginData.Format(L"<%s:%s>",strHostFile.data(),strInfoCurDir.data());
+						strPluginData = str_printf(L"<%s:%s>",strHostFile.data(),strInfoCurDir.data());
 				}
 
 				if (!PluginMode)
@@ -3555,17 +3555,13 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 
 					case NUMLINK_COLUMN:
 					{
-						string s;
-						s.Format(L"%d",ListData[ListPos]->NumberOfLinks);
-						Dest.append(s);
+						Dest.append(str_printf(L"%d",ListData[ListPos]->NumberOfLinks));
 						break;
 					}
 
 					case NUMSTREAMS_COLUMN:
 					{
-						string s;
-						s.Format(L"%d",ListData[ListPos]->NumberOfStreams);
-						Dest.append(s);
+						Dest.append(L"%d",ListData[ListPos]->NumberOfStreams);
 						break;
 					}
 
@@ -3797,7 +3793,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask.Format(L"\"*.%s\"", strCurName.data()+pos+1);
+			strRawMask = str_printf(L"\"*.%s\"", strCurName.data()+pos+1);
 			WrapBrackets=true;
 		}
 		else

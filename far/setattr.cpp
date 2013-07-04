@@ -771,8 +771,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		wchar_t TimeSeparator=GetTimeSeparator();
 		wchar_t DecimalSeparator=GetDecimalSeparator();
 		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999N",FmtMask3=L"N9999%c99%c99";
-		string strDMask, strTMask;
-		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
+		string strDMask, strTMask = str_printf(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
 		LangString DateFormat;
 
@@ -781,17 +780,17 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			case 0:
 				DateFormat = MSetAttrTimeTitle1;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
-				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
+				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			case 1:
 				DateFormat = MSetAttrTimeTitle2;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
-				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
+				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			default:
 				DateFormat = MSetAttrTimeTitle3;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
-				strDMask.Format(FmtMask3,DateSeparator,DateSeparator);
+				strDMask = str_printf(FmtMask3,DateSeparator,DateSeparator);
 				break;
 		}
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;

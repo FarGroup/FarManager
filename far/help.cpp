@@ -384,7 +384,7 @@ int Help::ReadHelp(const string& Mask)
 			if (wcschr(strKeyName.data(),L'~')) // корректировка размера
 				SizeKeyName++;
 
-			strOutTemp.Format(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
+			strOutTemp = str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
 
 			if (!strDescription.empty())
 			{
@@ -1445,7 +1445,7 @@ int Help::JumpTopic()
 		strFullPath.append(L"\\").append(strNewTopic.data()+(IsSlash(strNewTopic.front())?1:0));
 		BOOL addSlash=DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
-		strFullPath.Format(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData.strSelTopic.data()+2, HelpEndLink)+1);
+		strFullPath = str_printf(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData.strSelTopic.data()+2, HelpEndLink)+1);
 		StackData.strSelTopic = strFullPath;
 	}
 
@@ -1929,9 +1929,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				string strHelpLine;
-				strHelpLine.Format(L"   ~%s~%s@",strEntryName.data(), strCurTopic.data());
-				AddLine(strHelpLine);
+				AddLine(str_printf(L"   ~%s~%s@",strEntryName.data(), strCurTopic.data()));
 				strCurTopic=L"";
 				strEntryName=L"";
 				TopicFound=false;
@@ -2024,7 +2022,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 		{
 			if (pPlugin && HelpTopic[0] != HelpBeginLink)
 			{
-				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().data(), HelpTopic.data());
+				strTopic = str_printf(HelpFormatLinkModule, pPlugin->GetModuleName().data(), HelpTopic.data());
 			}
 			else
 			{

@@ -1409,12 +1409,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				SMALL_RECT Rect;
 				Dlg->SendMessage( DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
 				TruncStrFromCenter(strFM, Rect.Right-Rect.Left+1 - static_cast<int>(strSearchStr.size()) - 1);
-				strDataStr=strSearchStr;
-				strDataStr += L" " + strFM;
-				Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strDataStr));
-
-				strDataStr.Format(L"%3d%%",itd->GetPercent());
-				Dlg->SendMessage( DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(strDataStr));
+				Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + L" " + strFM));
+				Dlg->SendMessage( DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(str_printf(L"%3d%%",itd->GetPercent())));
 
 				if (itd->GetLastFoundNumber())
 				{

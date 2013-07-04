@@ -486,12 +486,10 @@ __int64 FileViewer::GetViewFilePos() const
 
 void FileViewer::ShowStatus()
 {
-	string strName;
-	string strStatus;
-
 	if (!IsTitleBarVisible())
 		return;
 
+	string strName;
 	GetTitle(strName);
 	int NameLength = ScrX+1 - 40;
 
@@ -502,7 +500,7 @@ void FileViewer::ShowStatus()
 
 	TruncPathStr(strName, NameLength);
 	const wchar_t *lpwszStatusFormat = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";
-	strStatus.Format(
+	string strStatus = str_printf(
 	    lpwszStatusFormat,
 	    NameLength,
 	    strName.data(),

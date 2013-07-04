@@ -388,8 +388,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);
-			strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
-			PrintInfo(strOutStr);
+			PrintInfo(str_printf(L"%d%%",ms.dwMemoryLoad));
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Global->ifn->GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
@@ -460,7 +459,7 @@ void InfoList::DisplayObject()
 			if (PowerStatus.BatteryLifePercent > 100)
 				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
 			else
-				strOutStr.Format(L"%d%%",PowerStatus.BatteryLifePercent);
+				strOutStr = str_printf(L"%d%%",PowerStatus.BatteryLifePercent);
 			PrintInfo(strOutStr);
 
 			GotoXY(X1+2,CurY++);

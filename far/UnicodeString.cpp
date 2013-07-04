@@ -202,40 +202,6 @@ void UnicodeString::clear()
 	}
 }
 
-int CDECL UnicodeString::Format(const wchar_t * format, ...)
-{
-	wchar_t *buffer = nullptr;
-	size_t Size = MAX_PATH;
-	int retValue = -1;
-	va_list argptr;
-	va_start(argptr, format);
-
-	do
-	{
-		Size <<= 1;
-		wchar_t *tmpbuffer = (wchar_t*)xf_realloc_nomove(buffer, Size*sizeof(wchar_t));
-
-		if (!tmpbuffer)
-		{
-			va_end(argptr);
-			xf_free(buffer);
-			return retValue;
-		}
-
-		buffer = tmpbuffer;
-		//_vsnwprintf не всегда ставит '\0' вконце.
-		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
-		buffer[Size-1] = 0;
-		retValue = _vsnwprintf(buffer, Size-1, format, argptr);
-	}
-	while (retValue == -1);
-
-	va_end(argptr);
-	assign(buffer);
-	xf_free(buffer);
-	return retValue;
-}
-
 UnicodeString& UnicodeString::Lower(size_t nStartPos, size_t nLength)
 {
 	Inflate(m_pData->GetSize());

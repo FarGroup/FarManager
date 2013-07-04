@@ -128,6 +128,8 @@ inline int StrCmpI(const UnicodeString& a, const UnicodeString& b) { return StrC
 
 string wide(const char *str, uintptr_t codepage = CP_OEMCP);
 
+string str_printf(const wchar_t * format, ...);
+
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
 enum STL_FLAGS

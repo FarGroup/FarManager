@@ -308,9 +308,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 		{
 			for (int i=0;; ++i)
 			{
-				string strGroupName;
-				strGroupName.Format(Item.GroupName, i);
-				auto key = cfg->GetKeyID(root,strGroupName);
+				auto key = cfg->GetKeyID(root, str_printf(Item.GroupName, i));
 				if (!key)
 					break;
 
@@ -909,8 +907,7 @@ void HighlightFiles::SaveHiData()
 
 		for (int i=Count[j][0]; i<Count[j][1]; i++)
 		{
-			strGroupName.Format(GroupNames[j],i-Count[j][0]);
-			unsigned __int64 key = cfg->CreateKey(root,strGroupName);
+			unsigned __int64 key = cfg->CreateKey(root, str_printf(GroupNames[j],i-Count[j][0]));
 			if (!key)
 				break;
 

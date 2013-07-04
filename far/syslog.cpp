@@ -126,11 +126,9 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 FILE * OpenLogStream(const string& file)
 {
 #if defined(SYSLOG)
-	string strRealLogName;
 	SYSTEMTIME st;
 	GetLocalTime(&st);
-	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build);
-	return _wfsopen(strRealLogName.data(),L"a+t",SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t",SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -860,19 +858,15 @@ struct __XXX64_Name
 
 static string _XXX_ToName(DWORD Val,const wchar_t *Pref,__XXX_Name *arrDef,size_t cntArr)
 {
-	string Name;
-
 	for (size_t i=0; i<cntArr; i++)
 	{
 		if (arrDef[i].Val == Val)
 		{
-			Name.Format(L"\"%s_%s\" [%d/0x%04X]",Pref,arrDef[i].Name,Val,Val);
-			return Name;
+			return str_printf(L"\"%s_%s\" [%d/0x%04X]",Pref,arrDef[i].Name,Val,Val);
 		}
 	}
 
-	Name.Format(L"\"%s_????\" [%d/0x%04X]",Pref,Val,Val);
-	return Name;
+	return str_printf(L"\"%s_????\" [%d/0x%04X]",Pref,Val,Val);
 }
 #endif
 
@@ -1365,19 +1359,16 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_MENU_VALUE),               // Menu.Value
 		DEF_MCODE_(V_MENUINFOID),               // Menu.Info.Id
 	};
-	string Name;
 
 	for (size_t i=0; i<ARRAYSIZE(MCODE); i++)
 	{
 		if (MCODE[i].Val == OpCode)
 		{
-			Name.Format(L"%08X | MCODE_%-20s",OpCode,MCODE[i].Name);
-			return Name;
+			return str_printf(L"%08X | MCODE_%-20s",OpCode,MCODE[i].Name);
 		}
 	}
 
-	Name.Format(L"%08X | MCODE_%-20s",OpCode,L"???");
-	return Name;
+	return str_printf(L"%08X | MCODE_%-20s",OpCode,L"???");
 #else
 	return L"";
 #endif
@@ -1387,18 +1378,13 @@ string __FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
 	string Name;
-
 	if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
 	{
-		string tmp;
 		InsertQuote(Name);
-		tmp.Format(L"%s [%u/0x%08X]",Name.data(),Key,Key);
-		Name = tmp;
-		return Name;
+		return str_printf(L"%s [%u/0x%08X]",Name.data(),Key,Key);
 	}
 
-	Name.Format(L"\"KEY_????\" [%u/0x%08X]",Key,Key);
-	return Name;
+	return str_printf(L"\"KEY_????\" [%u/0x%08X]",Key,Key);
 #else
 	return L"";
 #endif
@@ -1453,19 +1439,16 @@ string __DLGDIF_ToName(DWORD Msg)
 		DEF_DIF_(WORDWRAP),
 		DEF_DIF_(NONE),
 	};
-	string Name;
 
 	for (size_t i=0; i<ARRAYSIZE(Message); i++)
 	{
 		if (Message[i].Val == Msg)
 		{
-			Name.Format(L"\"%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
-			return Name;
+			return str_printf(L"\"%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
 		}
 	}
 
-	Name.Format(L"\"DIF_??? [%I64d/0x%016I64X]\"",Msg,Msg);
-	return Name;
+	return str_printf(L"\"DIF_??? [%I64d/0x%016I64X]\"",Msg,Msg);
 #else
 	return L"";
 #endif
@@ -1572,19 +1555,16 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DM_(ALLKEYMODE),
 		DEF_DN_(ACTIVATEAPP),
 	};
-	string Name;
 
 	for (size_t i=0; i<ARRAYSIZE(Message); i++)
 	{
 		if (Message[i].Val == Msg)
 		{
-			Name.Format(L"\"%s\" [%d/0x%08X]",Message[i].Name,Msg,Msg);
-			return Name;
+			return str_printf(L"\"%s\" [%d/0x%08X]",Message[i].Name,Msg,Msg);
 		}
 	}
 
-	Name.Format(L"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?L"DN_FIRST":(Msg>=DM_USER?L"DM_USER":L"DM_FIRST")),Msg,Msg);
-	return Name;
+	return str_printf(L"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?L"DN_FIRST":(Msg>=DM_USER?L"DM_USER":L"DM_FIRST")),Msg,Msg);
 #else
 	return L"";
 #endif
@@ -1674,9 +1654,7 @@ string __VK_KEY_ToName(int VkKey)
 
 	if (VkKey >= L'0' && VkKey <= L'9' || VkKey >= L'A' && VkKey <= L'Z')
 	{
-		string Name;
-		Name.Format(L"\"VK_%c\" [%d/0x%04X]",VkKey,VkKey,VkKey);
-		return Name;
+		return str_printf(L"\"VK_%c\" [%d/0x%04X]",VkKey,VkKey,VkKey);
 	}
 	else
 		return _XXX_ToName(VkKey,L"VK",VK,ARRAYSIZE(VK));
@@ -1689,8 +1667,7 @@ string __VK_KEY_ToName(int VkKey)
 string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 {
 #if defined(SYSLOG)
-	string Records;
-	Records.Format(
+	string Records = str_printf(
 	    L"MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
 	    rec->dwMousePosition.X,
 	    rec->dwMousePosition.Y,
@@ -1719,9 +1696,7 @@ string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 
 	if (rec->dwEventFlags==MOUSE_WHEELED  || rec->dwEventFlags==MOUSE_HWHEELED)
 	{
-		string tmp;
-		tmp.Format(L" (Delta=%d)",HIWORD(rec->dwButtonState));
-		Records+=tmp;
+		Records += str_printf(L" (Delta=%d)",HIWORD(rec->dwButtonState));
 	}
 
 	return Records;
@@ -1742,20 +1717,20 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 	switch (rec->EventType)
 	{
 		case FOCUS_EVENT:
-			Records.Format(
+			Records = str_printf(
 			    L"FOCUS_EVENT_RECORD: %s",
 			    (rec->Event.FocusEvent.bSetFocus?L"TRUE":L"FALSE")
 			);
 			break;
 		case WINDOW_BUFFER_SIZE_EVENT:
-			Records.Format(
+			Records = str_printf(
 			    L"WINDOW_BUFFER_SIZE_RECORD: Size = [%d, %d]",
 			    rec->Event.WindowBufferSizeEvent.dwSize.X,
 			    rec->Event.WindowBufferSizeEvent.dwSize.Y
 			);
 			break;
 		case MENU_EVENT:
-			Records.Format(
+			Records = str_printf(
 			    L"MENU_EVENT_RECORD: CommandId = %d (0x%X) ",
 			    rec->Event.MenuEvent.dwCommandId,
 			    rec->Event.MenuEvent.dwCommandId
@@ -1766,7 +1741,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 		case 0:
 		{
 			WORD AsciiChar = (WORD)(BYTE)rec->Event.KeyEvent.uChar.AsciiChar;
-			Records.Format(
+			Records = str_printf(
 			    L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%C' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
 			    (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":(rec->EventType==FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"(internal, macro)_KEY_EVENT")),
 			    (rec->Event.KeyEvent.bKeyDown?L"Dn":L"Up"),
@@ -1794,7 +1769,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			Records=__MOUSE_EVENT_RECORD_Dump(&rec->Event.MouseEvent);
 			break;
 		default:
-			Records.Format(
+			Records = str_printf(
 			    L"??????_EVENT_RECORD: EventType = %d",
 			    rec->EventType
 			);
@@ -1869,12 +1844,11 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 {
 #if defined(SYSLOG)
-	string OutBuf, tmp;
+	string OutBuf;
 
 	for (int I=0; I < SizeBuf; ++I)
 	{
-		tmp.Format(L"%02X ",Buf[I]&0xFF);
-		OutBuf+=tmp;
+		OutBuf += str_printf(L"%02X ",Buf[I]&0xFF);
 	}
 
 	return OutBuf;

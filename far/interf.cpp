@@ -472,8 +472,7 @@ void ShowTime(int ShowAlways)
 	Global->ProcessShowClock++;
 
 	lasttm=tm;
-	string strClockText;
-	strClockText.Format(L"%02d:%02d",tm.wHour,tm.wMinute);
+	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 
 	Frame *CurFrame=FrameManager->GetTopModal();

@@ -1752,7 +1752,7 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 
 	if (Key&KEY_ALTDIGIT)
 	{
-		strKeyText.Format(L"Alt%05d", Key&FKey);
+		strKeyText = str_printf(L"Alt%05d", Key&FKey);
 	}
 	else
 	{

@@ -138,27 +138,27 @@ typedef class UnicodeString
 		friend class UnicodeString;
 	};
 
-	class iterator:public std::iterator<std::random_access_iterator_tag, char_proxy, ptrdiff_t, char_proxy*, char_proxy>
+	class us_iterator:public std::iterator<std::random_access_iterator_tag, char_proxy, ptrdiff_t, char_proxy*, char_proxy>
 	{
 	public:
-		iterator():value(value_type(nullptr, npos)) {}
-		iterator(const value_type& value):value(value) {}
+		us_iterator():value(value_type(nullptr, npos)) {}
+		us_iterator(const value_type& value):value(value) {}
 		reference operator *() const {return value;}
-		bool operator <(const iterator& rhs) const {return value.Index < rhs.value.Index;}
-		bool operator >(const iterator& rhs) const {return value.Index > rhs.value.Index;}
-		bool operator <=(const iterator& rhs) const {return value.Index <= rhs.value.Index;}
-		bool operator >=(const iterator& rhs) const {return value.Index >= rhs.value.Index;}
-		bool operator !=(const iterator& rhs) const {return value.Index != rhs.value.Index;}
-		bool operator ==(const iterator& rhs) const {return value.Index == rhs.value.Index;}
-		iterator& operator ++() {++value.Index; return *this;}
-		iterator& operator --() {--value.Index; return *this;}
-		iterator operator ++(int) {auto ret = *this; ++value.Index; return ret;}
-		iterator operator --(int) {auto ret = *this; --value.Index; return ret;}
-		iterator& operator +=(size_t Offset) {value.Index += Offset; return *this;}
-		iterator& operator -=(size_t Offset) {value.Index -= Offset; return *this;}
-		iterator operator +(size_t Offset) const {auto ret = *this; ret.value.Index += Offset; return ret;}
-		iterator operator -(size_t Offset) const {auto ret = *this; ret.value.Index -= Offset; return ret;}
-		difference_type operator -(const iterator& rhs) const {return value.Index - rhs.value.Index;}
+		bool operator <(const us_iterator& rhs) const {return value.Index < rhs.value.Index;}
+		bool operator >(const us_iterator& rhs) const {return value.Index > rhs.value.Index;}
+		bool operator <=(const us_iterator& rhs) const {return value.Index <= rhs.value.Index;}
+		bool operator >=(const us_iterator& rhs) const {return value.Index >= rhs.value.Index;}
+		bool operator !=(const us_iterator& rhs) const {return value.Index != rhs.value.Index;}
+		bool operator ==(const us_iterator& rhs) const {return value.Index == rhs.value.Index;}
+		us_iterator& operator ++() {++value.Index; return *this;}
+		us_iterator& operator --() {--value.Index; return *this;}
+		us_iterator operator ++(int) {auto ret = *this; ++value.Index; return ret;}
+		us_iterator operator --(int) {auto ret = *this; --value.Index; return ret;}
+		us_iterator& operator +=(size_t Offset) {value.Index += Offset; return *this;}
+		us_iterator& operator -=(size_t Offset) {value.Index -= Offset; return *this;}
+		us_iterator operator +(size_t Offset) const {auto ret = *this; ret.value.Index += Offset; return ret;}
+		us_iterator operator -(size_t Offset) const {auto ret = *this; ret.value.Index -= Offset; return ret;}
+		difference_type operator -(const us_iterator& rhs) const {return value.Index - rhs.value.Index;}
 
 	private:
 		value_type value;
@@ -175,6 +175,7 @@ public:
 
 	static const size_t npos = -1;
 
+	typedef us_iterator iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef const wchar_t* const_iterator;
 	typedef const std::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -309,7 +310,6 @@ public:
 
 	wchar_t *GetBuffer(size_t nSize = npos);
 	void ReleaseBuffer(size_t nLength = npos);
-	int CDECL Format(const wchar_t * format, ...);
 	UnicodeString& Lower(size_t nStartPos=0, size_t nLength=npos);
 	UnicodeString& Upper(size_t nStartPos=0, size_t nLength=npos);
 	bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;

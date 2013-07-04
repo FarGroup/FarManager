@@ -182,8 +182,7 @@ static bool LanguageLoaded()
 
 static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
-	string strAddr;
-	strAddr.Format(L"0x%p",Adress);
+	string strAddr = str_printf(L"0x%p",Adress);
 	string strFunction=GetFunctionName(From);
 #ifndef NO_WRAPPER
 	if(Module && !Module->IsOemPlugin())
@@ -217,8 +216,7 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 
 static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
-	string strAddr;
-	strAddr.Format(L"0x%p",Adress);
+	string strAddr = str_printf(L"0x%p",Adress);
 	string strFunction=GetFunctionName(From);
 #ifndef NO_WRAPPER
 	if(Module && !Module->IsOemPlugin())
@@ -445,7 +443,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					break;
 			}
 
-			strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
+			strBuf2 = str_printf(L"0x%p", xr->ExceptionInformation[1]+10);
 			if (LanguageLoaded())
 			{
 				strBuf = MExcRAccess+Offset;
@@ -465,7 +463,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	if (!Exception)
 	{
 		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
-		strBuf2.Format(L"%s (0x%X)", Template, xr->ExceptionCode);
+		strBuf2 = str_printf(L"%s (0x%X)", Template, xr->ExceptionCode);
 		Exception = strBuf2.data();
 	}
 

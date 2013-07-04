@@ -80,7 +80,7 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 
 string &InsertCommas(unsigned __int64 li,string &strDest)
 {
-	strDest.Format(L"%I64u", li);
+	strDest = str_printf(L"%I64u", li);
 	return FormatNumber(strDest,strDest);
 }
 
@@ -714,12 +714,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+				strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+				strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.data());
+			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
 
 		return strDestStr;
 	}
@@ -739,12 +739,12 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
+				strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
+				strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,strStr.data());
+			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
 	}
 	else
 	{
@@ -774,9 +774,9 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
 
 		if (Economic)
-			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+			strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 		else
-			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+			strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
 	}
 
 	return strDestStr;
@@ -1256,12 +1256,9 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 	{
 		case L'X': // Convert common string to hexadecimal string representation
 		{
-			string strHex;
-
 			while (*ConvStr)
 			{
-				strHex.Format(L"%02X",*ConvStr);
-				strTemp += strHex;
+				strTemp += str_printf(L"%02X",*ConvStr);
 				ConvStr++;
 			}
 
@@ -1363,8 +1360,7 @@ string GuidToStr(const GUID& Guid)
 		RpcStringFree(&str);
 	}
 */
-	result.Format(L"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",Guid.Data1,Guid.Data2,Guid.Data3,Guid.Data4[0],Guid.Data4[1],Guid.Data4[2],Guid.Data4[3],Guid.Data4[4],Guid.Data4[5],Guid.Data4[6],Guid.Data4[7]);
-	return result;
+	return str_printf(L"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",Guid.Data1,Guid.Data2,Guid.Data3,Guid.Data4[0],Guid.Data4[1],Guid.Data4[2],Guid.Data4[3],Guid.Data4[4],Guid.Data4[5],Guid.Data4[6],Guid.Data4[7]);
 }
 
 bool StrToGuid(const string& Value,GUID& Guid)
@@ -1513,6 +1509,29 @@ string wide(const char *str, uintptr_t codepage)
 	}
 	return result;
 }
+
+string str_printf(const wchar_t * format, ...)
+{
+	wchar_t_ptr buffer;
+	size_t size = 128;
+	va_list argptr;
+	va_start(argptr, format);
+	int length = -1;
+	do
+	{
+		buffer.reset(size *= 2);
+
+		//_vsnwprintf не всегда ставит '\0' вконце.
+		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+		buffer[size - 1] = 0;
+		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);
+	}
+	while (length < 0);
+
+	va_end(argptr);
+	return string(buffer.get());
+}
+
 
 std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)
 {
