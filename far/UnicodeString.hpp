@@ -253,7 +253,7 @@ public:
 	// UnicodeString& Copy(const UnicodeString& str, size_t subpos, size_t sublen);
 	UnicodeString& assign(const wchar_t* str) { return assign(str, StrLength(NullToEmpty(str))); }
 	UnicodeString& assign(const wchar_t* str, size_t len) { return replace(0, size(), str, len); }
-	UnicodeString& assign(size_t n, wchar_t c) { resize(n); std::fill(ALL_RANGE(*this), c); }
+	UnicodeString& assign(size_t n, wchar_t c) { resize(n); std::fill(ALL_RANGE(*this), c); return *this; }
 
 
 	UnicodeString& replace(size_t pos, size_t len, const UnicodeString& str) { return replace(pos, len, str.data(), str.size()); }
