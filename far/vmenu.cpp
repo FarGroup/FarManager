@@ -2262,8 +2262,8 @@ void VMenu::ShowMenu(bool IsParent)
 						CheckMark = static_cast<wchar_t>(Item[I]->Flags & 0x0000FFFF);
 				}
 
-				strMenuLine.append(CheckMark);
-				strMenuLine.append(L' '); // left scroller (<<) placeholder
+				strMenuLine.append(1, CheckMark);
+				strMenuLine.append(1, L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
 				string strMItemPtr(Item[I]->strName.data() + ShowPos);
 				int strMItemPtrLen;

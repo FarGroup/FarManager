@@ -560,7 +560,7 @@ string ExtractPathRoot(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (PathRootLen)
-		return string(Path.data(), PathRootLen).append(L'\\');
+		return string(Path.data(), PathRootLen).append(1, L'\\');
 	else
 		return string();
 }
@@ -592,7 +592,7 @@ string ExtractFilePath(const string &Path)
 	size_t PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-		return string(Path.data(), PathRootLen).append(L'\\');
+		return string(Path.data(), PathRootLen).append(1, L'\\');
 
 	return string(Path.data(), p);
 }

@@ -862,7 +862,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr.data(),L"ECHO.",5)) // вариант "echo."
 				{
-					strNewCmdStr.replace(4,1,L' ');
+					strNewCmdStr.replace(4, 1, 1, L' ');
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
 
 					if (strNewCmdPar.empty())

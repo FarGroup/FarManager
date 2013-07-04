@@ -1475,7 +1475,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	{
 		// simple way to handle network paths
 		if (NtPath.compare(0, 24, L"\\Device\\LanmanRedirector") == 0)
-			FinalFilePath = NtPath.replace(0, 24, L'\\');
+			FinalFilePath = NtPath.replace(0, 24, 1, L'\\');
 
 		if (FinalFilePath.empty())
 		{
@@ -1495,7 +1495,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 					if (Len)
 					{
 						if (NtPath.compare(0, 14, L"\\Device\\WinDfs") == 0)
-							FinalFilePath = NtPath.replace(0, Len, L'\\');
+							FinalFilePath = NtPath.replace(0, Len, 1, L'\\');
 						else
 							FinalFilePath = NtPath.replace(0, Len, DiskName);
 						break;

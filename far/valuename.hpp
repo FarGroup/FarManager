@@ -80,7 +80,7 @@ const string FlagsToString(const value& Flags, const container& From, wchar_t Se
 	{
 		if (Flags & i.Value)
 		{
-			strFlags.append(i.Name).append(Separator);
+			strFlags.append(i.Name).append(1, Separator);
 		}
 	});
 

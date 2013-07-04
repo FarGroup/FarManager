@@ -89,17 +89,11 @@ BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 
 	if (Align == fmt::A_RIGHT)
 	{
-		while (OutStr.size() < MinWidth)
-		{
-			OutStr.insert(0, FillChar);
-		}
+		OutStr.insert(0, MinWidth, FillChar);
 	}
 	else
 	{
-		while (OutStr.size() < MinWidth)
-		{
-			OutStr.append(FillChar);
-		}
+		OutStr.append(MinWidth, FillChar);
 	}
 
 	Commit(OutStr);

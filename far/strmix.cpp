@@ -109,7 +109,7 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 
 	if (strStr.front() != QuoteChar)
 	{
-		strStr.insert(0, QuoteChar);
+		strStr.insert(0, 1, QuoteChar);
 		l++;
 	}
 
@@ -145,7 +145,7 @@ string& InsertRegexpQuote(string &strStr)
 	//выражение вида /regexp/i не дополняем слэшами
 	if (strStr.empty() || strStr[0] != L'/')
 	{
-		strStr.insert(0, L'/');
+		strStr.insert(0, 1, L'/');
 		strStr += L'/';
 	}
 

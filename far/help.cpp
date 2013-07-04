@@ -715,7 +715,7 @@ void Help::HighlightsCorrection(string &strStr)
 			Count++;
 
 	if ((Count & 1) && strStr.front() != L'$')
-		strStr.insert(0, L'#');
+		strStr.insert(0, 1, L'#');
 }
 
 void Help::DisplayObject()
@@ -856,7 +856,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 		while (*Str && *Str != L'@')
 		{
 			if (Name)
-				Name->append(*Str);
+				Name->append(1, *Str);
 			++Str;
 		}
 		if (*Str)
@@ -864,7 +864,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 		if (*Str != L'@')
 			break;
 		if (Name)
-			Name->append(*Str);
+			Name->append(1, *Str);
 		++Str;
 	}
 	return Str;

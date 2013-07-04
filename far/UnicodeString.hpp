@@ -227,11 +227,11 @@ public:
 	UnicodeString& operator=(const UnicodeString& str) { return assign(str); }
 	UnicodeString& operator=(UnicodeString&& str) { if (this != &str) { m_pData.swap(str.m_pData); str.SetEUS(); } return *this; }
 	UnicodeString& operator=(const wchar_t* s) { return assign(s); }
-	UnicodeString& operator=(wchar_t c) { return assign(c); }
+	UnicodeString& operator=(wchar_t c) { return assign(1, c); }
 
 	UnicodeString& operator+=(const UnicodeString& str) { return append(str); }
 	UnicodeString& operator+=(const wchar_t* s) { return append(s); }
-	UnicodeString& operator+=(wchar_t c) { return append(c); }
+	UnicodeString& operator+=(wchar_t c) { return append(1, c); }
 
 	friend const UnicodeString operator+(const UnicodeString &lhs, const UnicodeString &rhs);
 	friend const UnicodeString operator+(const UnicodeString &lhs, const wchar_t *rhs);
@@ -253,53 +253,53 @@ public:
 	// UnicodeString& Copy(const UnicodeString& str, size_t subpos, size_t sublen);
 	UnicodeString& assign(const wchar_t* str) { return assign(str, StrLength(NullToEmpty(str))); }
 	UnicodeString& assign(const wchar_t* str, size_t len) { return replace(0, size(), str, len); }
-	// TODO: size_t n
-	UnicodeString& assign(/*size_t n, */wchar_t c) { return assign(&c, 1); }
+	UnicodeString& assign(size_t n, wchar_t c) { resize(n); std::fill(ALL_RANGE(*this), c); }
 
 
-	UnicodeString& replace(size_t Pos, size_t Len, const UnicodeString& Str) { return replace(Pos, Len, Str.data(), Str.size()); }
+	UnicodeString& replace(size_t pos, size_t len, const UnicodeString& str) { return replace(pos, len, str.data(), str.size()); }
 	// TODO
 	// UnicodeString& replace(size_t pos,  size_t len, const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& replace(size_t Pos, size_t Len, const wchar_t* Str) { return replace(Pos, Len, Str, StrLength(NullToEmpty(Str))); }
-	UnicodeString& replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
-	// TODO: size_t n
-	UnicodeString& replace(size_t Pos, size_t Len, /*size_t n, */wchar_t Ch) { return replace(Pos, Len, &Ch, 1); }
+	UnicodeString& replace(size_t pos, size_t len, const wchar_t* s) { return replace(pos, len, s, StrLength(NullToEmpty(s))); }
+	UnicodeString& replace(size_t pos, size_t len, const wchar_t* s, size_t n);
+	UnicodeString& replace(size_t pos, size_t len, size_t n, wchar_t c) {UnicodeString tmp; tmp.resize(n); std::fill(ALL_RANGE(tmp), c); return replace(pos, len, tmp);}  // TODO: optimize
 
 
-	UnicodeString& append(const UnicodeString& Str) { return append(Str.data(), Str.size()); }
+	UnicodeString& append(const UnicodeString& str) { return append(str.data(), str.size()); }
 	// TODO
 	// UnicodeString& append(const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& append(const wchar_t* Str) { return append(Str, StrLength(NullToEmpty(Str))); }
-	UnicodeString& append(const wchar_t* Str, size_t StrLen) { return replace(size(), 0, Str, StrLen); }
-	// TODO: size_t n
-	UnicodeString& append(/*size_t n, */wchar_t Ch) { return append(&Ch, 1); }
+	UnicodeString& append(const wchar_t* s) { return append(s, StrLength(NullToEmpty(s))); }
+	UnicodeString& append(const wchar_t* s, size_t n) { return replace(size(), 0, s, n); }
+	UnicodeString& append(size_t n, wchar_t c) { while (n--) append(&c, 1); return *this;} // TODO: optimize
 
 
-	UnicodeString& insert(size_t Pos, const UnicodeString& Str) { return insert(Pos, Str.data(), Str.size()); }
+	UnicodeString& insert(size_t pos, const UnicodeString& str) { return insert(pos, str.data(), str.size()); }
 	// TODO
 	// UnicodeString& insert(size_t pos, const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& insert(size_t Pos, const wchar_t* Str) { return insert(Pos, Str, wcslen(Str)); }
-	UnicodeString& insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return replace(Pos, 0, Str, StrLen); }
-	// TODO: size_t n
-	UnicodeString& insert(size_t Pos, /*size_t n, */wchar_t Ch) { return insert(Pos, &Ch, 1); }
+	UnicodeString& insert(size_t pos, const wchar_t* s) { return insert(pos, s, StrLength(NullToEmpty(s))); }
+	UnicodeString& insert(size_t pos, const wchar_t* s, size_t n) { return replace(pos, 0, s, n); }
+	UnicodeString& insert(size_t pos, size_t n, wchar_t c) { while(n--) insert(pos, &c, 1); return *this;} // TODO: optimize
+
 
 	int compare(const UnicodeString& str) const { return compare(0, npos, str.data(), str.size()); }
 	int compare(size_t pos, size_t len, const UnicodeString& str) const { return compare(pos, len, str.data(), str.size()); }
 	// TODO
 	// int compare(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen) const;
-	int compare(const wchar_t* s) const { return compare(0, npos, s, wcslen(s)); }
-	int compare(size_t pos, size_t len, const wchar_t* s) const { return compare(pos, len, s, wcslen(s)); }
+	int compare(const wchar_t* s) const { return compare(0, npos, s, StrLength(NullToEmpty(s))); }
+	int compare(size_t pos, size_t len, const wchar_t* s) const { return compare(pos, len, s, StrLength(NullToEmpty(s))); }
 	int compare(size_t pos, size_t len, const wchar_t* s, size_t n) const;
+
 
 	size_t find(const UnicodeString& str, size_t pos = 0) const { return find(str.data(), pos, str.size()); }
 	size_t find(const wchar_t* s, size_t pos = 0) const { return find(s, pos, StrLength(s)); }
 	size_t find(const wchar_t* s, size_t pos, size_t n) const {auto Iterator = std::search(cbegin() + pos, cend(), s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 	size_t find(wchar_t c, size_t pos = 0) const { return find(&c, pos, 1); }
 
+
 	size_t rfind(const UnicodeString& str, size_t pos = npos) const { return rfind(str.data(), pos, str.size()); };
 	size_t rfind(const wchar_t* s, size_t pos = npos) const { return rfind(s, pos, StrLength(s)); };
 	size_t rfind(const wchar_t* s, size_t pos, size_t n) const { pos = std::min(pos, size()); auto Iterator = std::find_end(cbegin(), cbegin() + pos, s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 	size_t rfind(wchar_t c, size_t pos = npos) const { return rfind(&c, pos, 1); }
+
 
 	// TODO: iterator & range versions
 	UnicodeString& erase(size_t pos = 0, size_t len = npos) { return replace(pos, len, nullptr, 0); }

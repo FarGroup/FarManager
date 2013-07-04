@@ -3928,10 +3928,10 @@ BOOL Editor::Search(int Next)
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here
-							strQSearchStr.insert(0, L'"');
-							strQSearchStr.append(L'"');
-							strQReplaceStr.insert(0, L'"');
-							strQReplaceStr.append(L'"');
+							strQSearchStr.insert(0, 1, L'"');
+							strQSearchStr.append(1, L'"');
+							strQReplaceStr.insert(0, 1, L'"');
+							strQReplaceStr.append(1, L'"');
 
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
