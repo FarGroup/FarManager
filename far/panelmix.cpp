@@ -280,7 +280,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		strArgName.Upper();
+		Upper(strArgName);
 
 		if (strArgName.front()==L'N')
 		{

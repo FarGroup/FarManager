@@ -348,6 +348,9 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA& fde, unsigned __int64 C
 	// Режим проверки маски файла включен?
 	if (FMask.Used)
 	{
+		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
+		// при считывании дирректории
+
 		// Файл не попадает под маску введённую в фильтре?
 		if (!FMask.FilterMask.Compare(fde.strFileName))
 			// Не пропускаем этот файл

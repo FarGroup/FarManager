@@ -357,9 +357,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpRep
 			}
 			if(NameLength)
 			{
-				wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
-				wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
-				strDestBuff.ReleaseBuffer(NameLength);
+				strDestBuff.assign(PathBuffer, NameLength);
 			}
 		}
 	}
@@ -582,11 +580,9 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!StrCmpN(strLinkName.data(),L"\\??\\",4))
+	if (!strLinkName.compare(0, 4, L"\\??\\"))
 	{
-		LPWSTR LinkName=strLinkName.GetBuffer();
-		LinkName[1]=L'\\';
-		strLinkName.ReleaseBuffer();
+		strLinkName[1] = L'\\';
 		PATH_TYPE Type = ParsePath(strLinkName);
 		if(Type == PATH_DRIVELETTERUNC)
 		{

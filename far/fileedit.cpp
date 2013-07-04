@@ -1001,25 +1001,23 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					size_t pos;
 					DWORD FNAttr;
 					// проверим путь к файлу, может его уже снесли...
+
+					// BUGBUG, похоже, не работает
+
 					if (FindLastSlash(pos,strFullFileName))
 					{
-						wchar_t *lpwszPtr = strFullFileName.GetBuffer();
-						wchar_t wChr = lpwszPtr[pos+1];
-						lpwszPtr[pos+1]=0;
+						string Path = strFullFileName.substr(pos);
 
 						// В корне?
-						if(IsRootPath(lpwszPtr))
+						if(IsRootPath(Path))
 						{
 							// а дальше? каталог существует?
-							if ((FNAttr=apiGetFileAttributes(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||
+							if ((FNAttr=apiGetFileAttributes(Path)) == INVALID_FILE_ATTRIBUTES ||
 							        !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
 							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
 							   )
 								Flags.Set(FFILEEDIT_SAVETOSAVEAS);
 						}
-
-						lpwszPtr[pos+1]=wChr;
-						//strFullFileName.ReleaseBuffer (); так как ничего не поменялось то это лишнее.
 					}
 
 					if (Key == KEY_F2 &&

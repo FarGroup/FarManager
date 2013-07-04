@@ -3801,8 +3801,8 @@ BOOL Editor::Search(int Next)
 		string strSearchStrLower = strSearchStr;
 		if (!Case)
 		{
-			strSearchStrUpper.Upper();
-			strSearchStrLower.Lower();
+			Upper(strSearchStrUpper);
+			Lower(strSearchStrLower);
 		}
 
 		DWORD StartTime=GetTickCount();

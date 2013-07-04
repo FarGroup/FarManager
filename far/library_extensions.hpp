@@ -33,9 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifdef __GNUC__
-# if _GCC_VER < GCC_VER_(4,6,1)
-#  error gcc 4.6.1 (or higher) required
-# endif
 # define ENUM(ENUM_NAME) enum ENUM_NAME:int
 #endif
 

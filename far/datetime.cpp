@@ -156,7 +156,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 	if (chr==L'v')
 	{
 		strDest = str_printf(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)]->data(),tmPtr->tm_year+1900);
-		strDest.Upper(3,3);
+		Upper(strDest, 3, 3);
 	}
 	else
 		switch (GetDateFormat())

@@ -214,7 +214,7 @@ public:
 	size_t capacity() const { return m_pData->GetSize(); }
 	size_t size() const { return m_pData->GetLength(); }
 	size_t length() const { return size(); }
-	void resize(size_t nLength);
+	void resize(size_t n, wchar_t c = wchar_t());
 
 	bool empty() const {return !size();}
 
@@ -304,15 +304,12 @@ public:
 	// TODO: iterator & range versions
 	UnicodeString& erase(size_t pos = 0, size_t len = npos) { return replace(pos, len, nullptr, 0); }
 
-	void pop_back() { erase(size() - 1, 1); }
+	void pop_back() { resize(size() - 1); }
 
 
 
 	wchar_t *GetBuffer(size_t nSize = npos);
 	void ReleaseBuffer(size_t nLength = npos);
-	UnicodeString& Lower(size_t nStartPos=0, size_t nLength=npos);
-	UnicodeString& Upper(size_t nStartPos=0, size_t nLength=npos);
-	bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 
 private:
 	void SetEUS();

@@ -785,6 +785,7 @@ int wmain(int Argc, wchar_t *Argv[])
 	try
 	{
 		atexit(PrintMemory);
+		_wsetlocale(LC_ALL, L"");
 		std::set_new_handler(nullptr);
 		EnableSeTranslation();
 #ifndef _MSC_VER

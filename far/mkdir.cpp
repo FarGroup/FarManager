@@ -166,9 +166,9 @@ void ShellMakeDir(Panel *SrcPanel)
 
 			//Unquote(DirName);
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strDirName))
-				strDirName.Upper();
+				Upper(strDirName);
 
-			DeleteEndSlash(strDirName,true);
+			DeleteEndSlash(strDirName);
 			wchar_t* lpwszDirName = strDirName.GetBuffer();
 			bool bSuccess = false;
 

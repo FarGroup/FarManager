@@ -667,15 +667,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
 							{
-								size_t ppstacksize=ppstack.size();
-
-								if (ppstacksize)
-								{
-									wchar_t * p = strDestStr.GetBuffer(strDestStr.size()+ppstacksize+1);
-									wmemset(p + strDestStr.size(),L'+',ppstacksize);
-									strDestStr.ReleaseBuffer(strDestStr.size()+ppstacksize);
-								}
-
+								strDestStr.append(ppstack.size(), L'+');
 								break;
 							}
 							case L'H': // $H - Backspace (erases previous character)

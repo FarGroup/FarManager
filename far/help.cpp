@@ -230,7 +230,7 @@ int Help::ReadHelp(const string& Mask)
 
 		StackData.strHelpTopic = strPath.data() + pos + 1;
 		strPath.resize(pos);
-		DeleteEndSlash(strPath,true);
+		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
 		StackData.strHelpPath = strPath;
 	}
@@ -1441,11 +1441,12 @@ int Help::JumpTopic()
 		strNewTopic.assign(StackData.strSelTopic.data()+1, pos);
 		string strFullPath = StackData.strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
-		DeleteEndSlash(strFullPath, true);
+		DeleteEndSlash(strFullPath);
 		strFullPath.append(L"\\").append(strNewTopic.data()+(IsSlash(strNewTopic.front())?1:0));
-		BOOL addSlash=DeleteEndSlash(strFullPath);
+		BOOL EndSlash = IsSlash(strFullPath.back());
+		DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
-		strFullPath = str_printf(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData.strSelTopic.data()+2, HelpEndLink)+1);
+		strFullPath = str_printf(EndSlash? HelpFormatLink : HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData.strSelTopic.data()+2, HelpEndLink)+1);
 		StackData.strSelTopic = strFullPath;
 	}
 
@@ -1886,8 +1887,8 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 	string strSearchStrLower = strLastSearchStr;
 	if (!LastSearchCase)
 	{
-		strSearchStrUpper.Upper();
-		strSearchStrLower.Lower();
+		Upper(strSearchStrUpper);
+		Lower(strSearchStrLower);
 	}
 
 	for (;;)

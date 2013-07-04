@@ -3524,7 +3524,7 @@ static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPane
 	*pPanelItem=nullptr;
 	*pItemsNumber=0;
 	string strDir = wide(Dir);
-	DeleteEndSlash(strDir, true);
+	DeleteEndSlash(strDir);
 
 	PluginPanelItem *pItems;
 	size_t ItemsNumber;

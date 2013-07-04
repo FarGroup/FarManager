@@ -174,7 +174,7 @@ void UnicodeString::ReleaseBuffer(size_t nLength)
 	m_pData->SetLength(nLength);
 }
 
-void UnicodeString::resize(size_t nLength)
+void UnicodeString::resize(size_t nLength, wchar_t c)
 {
 	if (nLength < m_pData->GetLength())
 	{
@@ -188,6 +188,10 @@ void UnicodeString::resize(size_t nLength)
 			m_pData->SetLength(nLength);
 		}
 	}
+	else
+	{
+		append(nLength - m_pData->GetLength(), c);
+	}
 }
 
 void UnicodeString::clear()
@@ -200,31 +204,4 @@ void UnicodeString::clear()
 	{
 		m_pData->SetLength(0);
 	}
-}
-
-UnicodeString& UnicodeString::Lower(size_t nStartPos, size_t nLength)
-{
-	Inflate(m_pData->GetSize());
-	CharLowerBuffW(m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
-	return *this;
-}
-
-UnicodeString&  UnicodeString::Upper(size_t nStartPos, size_t nLength)
-{
-	Inflate(m_pData->GetSize());
-	CharUpperBuffW(m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
-	return *this;
-}
-
-bool UnicodeString::PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos) const
-{
-	const wchar_t *lpwszStr = StrStrI(m_pData->GetData()+nStartPos,lpwszFind);
-
-	if (lpwszStr)
-	{
-		nPos = lpwszStr - m_pData->GetData();
-		return true;
-	}
-
-	return false;
 }

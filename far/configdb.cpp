@@ -2801,7 +2801,7 @@ bool Database::Export(const string& File)
 		while (ff.Get(fd))
 		{
 			fd.strFileName.resize(fd.strFileName.size()-3);
-			fd.strFileName.Upper();
+			Upper(fd.strFileName);
 			intptr_t mc = 2;
 			if (re.Match(fd.strFileName.data(), fd.strFileName.data() + fd.strFileName.size(), m, mc))
 			{
@@ -2867,7 +2867,7 @@ bool Database::Import(const string& File)
 				if (!guid)
 					continue;
 				string Guid = wide(guid, CP_UTF8);
-				Guid.Upper();
+				Upper(Guid);
 
 				intptr_t mc = 2;
 				if (re.Match(Guid.data(), Guid.data() + Guid.size(), m, mc))

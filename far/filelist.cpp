@@ -543,6 +543,9 @@ void FileList::SortFileList(int KeepPosition)
 
 		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && static_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:nullptr;
 
+		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
+		// при считывании дирректории
+
 		std::sort(ListData.begin(), ListData.end(), ListLess);
 
 		if (KeepPosition)
@@ -1177,7 +1180,7 @@ int FileList::ProcessKey(int Key)
 							string strFullName = Info.CurDir;
 
 							if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-								strFullName.Upper();
+								Upper(strFullName);
 
 							if (!strFullName.empty())
 								AddEndSlash(strFullName,0);
@@ -1187,11 +1190,11 @@ int FileList::ProcessKey(int Key)
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
 								if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									strFileName.Lower();
+									Lower(strFileName);
 
 								if ((ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
 									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
-										strFileName.Lower();
+										Lower(strFileName);
 							}
 
 							strFullName += strFileName;
@@ -1512,10 +1515,8 @@ int FileList::ProcessKey(int Key)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
-									wchar_t *lpwszFileName = strFileName.GetBuffer();
-									wchar_t wChr = lpwszFileName[pos+1];
-									lpwszFileName[pos+1]=0;
-									DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
+									string Path = strFileName.substr(0, pos);
+									DWORD CheckFAttr=apiGetFileAttributes(Path);
 
 									if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
 									{
@@ -1523,9 +1524,6 @@ int FileList::ProcessKey(int Key)
 										if (Message(MSG_WARNING, 2, MSG(MWarning), Items, ARRAYSIZE(Items), L"WarnEditorPath") != 0)
 											return FALSE;
 									}
-
-									lpwszFileName[pos+1]=wChr;
-									//strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
 								}
 							}
 						}
@@ -3348,7 +3346,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	string Dest;
 	int DirFind = 0;
 	string strMask = Name;
-	strMask.Upper();
+	Upper(strMask);
 
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
@@ -3369,7 +3367,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < ListData.size(); I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Dest.Upper().find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
 		//if (CmpName(strMask,ListData[I]->strName,true,I==CurFile))
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
@@ -3387,7 +3385,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int I=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Dest.Upper().find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
 		{
 			if (!TestParentFolderName(ListData[I]->strName))
 			{
@@ -4235,7 +4233,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				string strFullName = Info.CurDir;
 
 				if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-					strFullName.Upper();
+					Upper(strFullName);
 
 				if (!strFullName.empty())
 					AddEndSlash(strFullName);
@@ -4244,11 +4242,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				{
 					// имя должно отвечать условиям на панели
 					if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-						strQuotedName.Lower();
+						Lower(strQuotedName);
 
 					if (ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
-							strQuotedName.Lower();
+							Lower(strQuotedName);
 				}
 
 				strFullName += strQuotedName;
@@ -4360,16 +4358,12 @@ bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DW
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				strFileName.Upper();
+				Upper(strFileName);
 			}
 			else
 			{
 				size_t pos;
-
-				if (FindLastSlash(pos,strFileName))
-					strFileName.Upper(0,pos);
-				else
-					strFileName.Upper();
+				Upper(strFileName, 0, FindLastSlash(pos,strFileName)? pos : string::npos);
 			}
 		}
 
@@ -4378,7 +4372,7 @@ bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DW
 			size_t pos;
 
 			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.data()+pos))
-				strFileName.Lower(pos);
+				Lower(strFileName, pos);
 		}
 
 		if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -4386,7 +4380,7 @@ bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DW
 			size_t pos;
 
 			if (FindLastSlash(pos,strFileName))
-				strFileName.Lower(pos);
+				Lower(strFileName, pos);
 		}
 	}
 

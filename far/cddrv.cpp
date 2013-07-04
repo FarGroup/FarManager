@@ -457,7 +457,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		// media have to be inserted!
 		//
 		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\" + strRootDir;
-		DeleteEndSlash(drive, false);
+		DeleteEndSlash(drive);
 
 		HANDLE hDevice = ::CreateFileW(
 			drive.data(),

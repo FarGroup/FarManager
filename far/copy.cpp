@@ -1199,7 +1199,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					CopyDlg[ID_SC_TARGETEDIT].strData += L":";
 
 				strPluginFormat = CopyDlg[ID_SC_TARGETEDIT].strData;
-				strPluginFormat.Upper();
+				Upper(strPluginFormat);
 				break;
 			}
 		}
@@ -1900,7 +1900,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		{
 			string strNewPath = strDest.substr(0, pos);
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
-				strNewPath.Upper();
+				Upper(strNewPath);
 
 			DWORD Attr=apiGetFileAttributes(strNewPath);
 			if (Attr == INVALID_FILE_ATTRIBUTES)

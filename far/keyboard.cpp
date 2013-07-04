@@ -1650,7 +1650,7 @@ int KeyNameToKey(const string& Name)
 	int I, Pos;
 	static string strTmpName;
 	strTmpName = Name;
-	strTmpName.Upper();
+	Upper(strTmpName);
 	int Len=(int)strTmpName.size();
 
 	// пройдемся по всем модификаторам

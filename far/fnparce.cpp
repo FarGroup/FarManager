@@ -795,18 +795,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 					if (wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
 					{
-						size_t Len=strFileName.size();
-						wchar_t *FileName=strFileName.GetBuffer();
-
-						for (size_t i=0; i<Len; i++)
-						{
-							if (FileName[i]==L'\\')
-							{
-								FileName[i]=L'/';
-							}
-						}
-
-						strFileName.ReleaseBuffer();
+						std::replace(ALL_RANGE(strFileName), L'\\', L'/');
 					}
 				}
 

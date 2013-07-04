@@ -3353,7 +3353,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if (!Case && !SearchRegexp)
 	{
-		strSearchStr.Upper();
+		Upper(strSearchStr);
 		sd.search_text = strSearchStr.data();
 	}
 

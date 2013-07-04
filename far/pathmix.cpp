@@ -60,7 +60,7 @@ void NTPath::Transform()
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fails on Win2k if a drive letter is in upper case
-			Lower(4,1);
+			Lower(Data, 4, 1);
 		}
 	}
 }
@@ -369,45 +369,23 @@ BOOL AddEndSlash(string &strPath, wchar_t TypeSlash)
 	return Result;
 }
 
-bool DeleteEndSlash(wchar_t *Path, bool AllEndSlash)
+
+void DeleteEndSlash(wchar_t *Path)
 {
-	bool Ret = false;
 	size_t len = StrLength(Path);
 
 	while (len && IsSlash(Path[--len]))
 	{
-		Ret = true;
 		Path[len] = L'\0';
-
-		if (!AllEndSlash)
-			break;
 	}
-
-	return Ret;
 }
 
-BOOL DeleteEndSlash(string &strPath, bool AllEndSlash)
+void DeleteEndSlash(string &Path)
 {
-	BOOL Ret=FALSE;
-
-	if (!strPath.empty())
+	while (!Path.empty() && IsSlash(Path.back()))
 	{
-		size_t len=strPath.size();
-		wchar_t *lpwszPath = strPath.GetBuffer();
-
-		while (len && IsSlash(lpwszPath[--len]))
-		{
-			Ret=TRUE;
-			lpwszPath[len] = L'\0';
-
-			if (!AllEndSlash)
-				break;
-		}
-
-		strPath.ReleaseBuffer();
+		Path.pop_back();
 	}
-
-	return Ret;
 }
 
 bool CutToSlash(string &strStr, bool bInclude)
@@ -613,7 +591,7 @@ bool IsRootPath(const string &Path)
 bool PathStartsWith(const string &Path, const string &Start)
 {
 	string PathPart(Start);
-	DeleteEndSlash(PathPart, true);
+	DeleteEndSlash(PathPart);
 	return Path.compare(0, PathPart.size(), PathPart) == 0 && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 

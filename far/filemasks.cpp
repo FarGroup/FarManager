@@ -236,9 +236,8 @@ bool filemasks::masks::Set(const string& masks)
 
 	string expmasks(masks);
 
-	size_t pos;
 	const wchar_t* PathExtName = L"%PATHEXT%";
-	if (expmasks.PosI(pos, PathExtName))
+	if (StrStrI(expmasks.data(), PathExtName))
 	{
 		string strSysPathExt;
 		if (apiGetEnvironmentVariable(L"PATHEXT" ,strSysPathExt))

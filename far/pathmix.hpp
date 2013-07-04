@@ -82,8 +82,8 @@ BOOL AddEndSlash(string &strPath, wchar_t TypeSlash);
 BOOL AddEndSlash(string &strPath);
 BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 BOOL AddEndSlash(wchar_t *Path);
-bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash = false);
-BOOL DeleteEndSlash(string &strPath,bool AllEndSlash = false);
+void DeleteEndSlash(wchar_t* Path);
+void DeleteEndSlash(string& Path);
 string &ReplaceSlashToBSlash(string &strStr);
 
 const wchar_t *FirstSlash(const wchar_t *String);

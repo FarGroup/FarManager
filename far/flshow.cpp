@@ -1126,13 +1126,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								if (ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 									if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
-										strName.Lower();
+										Lower(strName);
 
 								if ((ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									strName.Upper();
+									Upper(strName);
 
 								if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									strName.Lower();
+									Lower(strName);
 							}
 
 							Text(strName);

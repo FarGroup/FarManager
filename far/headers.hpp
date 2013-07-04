@@ -73,6 +73,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __GNUC__
 # define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
 # define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+
+# if _GCC_VER < GCC_VER_(4,7,1)
+#  error gcc 4.7.1 (or higher) required
+# endif
+
 # include <w32api.h>
 # define _W32API_VER (100*(__W32API_MAJOR_VERSION) + (__W32API_MINOR_VERSION))
 # if _W32API_VER < 314
@@ -155,8 +160,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define _wcstoi64 wcstoll
 #endif // __GNUC__
 
-inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";} 
-inline const wchar_t* EmptyToNull(const wchar_t* Str) { return (Str && !*Str)? nullptr : Str;} 
+inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";}
+inline const wchar_t* EmptyToNull(const wchar_t* Str) { return (Str && !*Str)? nullptr : Str;}
 
 template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }

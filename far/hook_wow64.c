@@ -28,19 +28,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#if (defined(_MSC_VER) || defined(__GNUC__)) && !defined(_WIN64)
+
 #include <windows.h>
-
-#if defined(__GNUC__) && __GNUC__ < 4
-#warning "Consider using newer GCC version for this hook to work"
-#else
-
-#if (!defined(_MSC_VER) && !defined(__GNUC__)) || defined(_WIN64)
-#error
-#endif
-/*
- * If compiled with VC7 and linking with ulink, please specify
- * -DLINK_WITH_ULINK
-*/
 
 #if defined(_MSC_VER)
 #pragma optimize("gty", on)

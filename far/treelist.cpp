@@ -558,10 +558,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 	}
 
 	string strRemoteName;
-	wchar_t *lpwszRemoteName;
 
-//  char RemoteName[NM*3];
-//  *RemoteName=0;
 	if (Root.front() == L'\\')
 		strRemoteName = Root;
 	else
@@ -574,13 +571,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 			AddEndSlash(strRemoteName);
 	}
 
-	lpwszRemoteName = strRemoteName.GetBuffer();
-
-	for (int I=0; lpwszRemoteName[I] ; I++)
-		if (lpwszRemoteName[I]==L'\\')
-			lpwszRemoteName[I]=L'_';
-
-	strRemoteName.ReleaseBuffer();
+	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
 	strName = FormatString() << strFolderName << L"\\" << strVolumeName << L"." << fmt::Radix(16) << dwVolumeSerialNumber << L"." << strFileSystemName << L"." << strRemoteName;
 	return TRUE;
 }
