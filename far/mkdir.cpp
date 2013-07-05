@@ -196,6 +196,7 @@ void ShellMakeDir(Panel *SrcPanel)
 						{
 							while(!(bSuccess=(apiCreateDirectory(_strDirName, nullptr)!=FALSE)) && !SkipAll)
 							{
+								Global->CatchError();
 								int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
 								if(Ret == 1) // skip
 								{
@@ -238,6 +239,7 @@ void ShellMakeDir(Panel *SrcPanel)
 					Unquote(strTarget);
 					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
+						Global->CatchError();
 						int Ret = OperationFailed(strDirName, MError, MSG(MCopyCannotCreateLink));
 						if(Ret == 1) // skip
 						{

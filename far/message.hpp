@@ -86,7 +86,6 @@ private:
 	int FirstButtonIndex,LastButtonIndex;
 	bool IsWarningStyle;
 	bool IsErrorType;
-	DWORD LastError, NtStatus;
 };
 
 /* $ 12.03.2002 VVM

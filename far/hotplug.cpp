@@ -172,6 +172,7 @@ void ShowHotplugDevice()
 					else if (bResult != -1)
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
+						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName.data(),MSG(MOk));
 					}

@@ -49,6 +49,8 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 
 	while (!apiSetFileAttributes(Name,Attr))
 	{
+		Global->CatchError();
+
 		int Code;
 
 		if (SkipMode!=-1)
@@ -105,6 +107,8 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 
 	while (!SetFileCompression(Name,State))
 	{
+		Global->CatchError();
+
 		int Code;
 
 		if (SkipMode!=-1)
@@ -152,6 +156,8 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 
 	while (!apiSetFileEncryption(Name, State))
 	{
+		Global->CatchError();
+
 		if (Silent)
 		{
 			Ret=SETATTR_RET_ERROR;
@@ -232,6 +238,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 			apiSetFileAttributes(Name,FileAttr);
 
 		SetLastError(LastError);
+		Global->CatchError();
 
 		if (SetTime)
 			break;
@@ -286,6 +293,7 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 
 		while (!SetFileSparse(Name,State))
 		{
+			Global->CatchError();
 			int Code;
 
 			if (SkipMode!=-1)
@@ -324,6 +332,7 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 	int Ret=SETATTR_RET_OK;
 	while (!SetOwner(Name,Owner))
 	{
+		Global->CatchError();
 		int Code;
 		if (SkipMode!=-1)
 			Code=SkipMode;
@@ -357,6 +366,7 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 	int Ret=SETATTR_RET_OK;
 	while (!DeleteReparsePoint(Name))
 	{
+		Global->CatchError();
 		int Code;
 		if (SkipMode!=-1)
 			Code=SkipMode;

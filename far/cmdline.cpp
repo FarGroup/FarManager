@@ -1378,6 +1378,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 	else
 	{
+		Global->CatchError();
 		if (!Selent)
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir.data(),MSG(MOk));
 

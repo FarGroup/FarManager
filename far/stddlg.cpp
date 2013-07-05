@@ -486,13 +486,12 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 	IFileIsInUse *pfiu = nullptr;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
-	DWORD Error = GetLastError();
+	DWORD Error = Global->CaughtError();
 	if(Error == ERROR_ACCESS_DENIED ||
 		Error == ERROR_SHARING_VIOLATION ||
 		Error == ERROR_LOCK_VIOLATION ||
 		Error == ERROR_DRIVE_LOCKED)
 	{
-		GuardLastError gl;
 		string FullName;
 		ConvertNameToFull(Object, FullName);
 		pfiu = CreateIFileIsInUse(FullName);
@@ -611,7 +610,6 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 	int Result = -1;
 	for(;;)
 	{
-		GuardLastError gle;
 		Result = Message(MSG_WARNING|MSG_ERRORTYPE, ButtonCount, MSG(Title), Msgs);
 
 		if(SwitchBtn)

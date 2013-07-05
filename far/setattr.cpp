@@ -1257,7 +1257,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					Unquote(strTarget);
 					if(!ModifyReparsePoint(strSelName, strTarget))
 					{
-						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.data(),MSG(MHOk));
+						Global->CatchError();
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.data(),MSG(MHOk));
 					}
 				}
 

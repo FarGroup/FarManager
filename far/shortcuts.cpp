@@ -522,6 +522,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 
 			if ((!raw || !strTemp.empty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
+				Global->CatchError();
 				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 			}
 		}

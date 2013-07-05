@@ -402,7 +402,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 					if (!Result)
 					{
-						std::any_of(CONST_RANGE(PathExtList, Ext) -> bool
+						Result = std::any_of(CONST_RANGE(PathExtList, Ext) -> bool
 						{
 							strFullName=RegPath;
 							strFullName+=Module;
@@ -1027,7 +1027,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 	else
 	{
-		dwError = GetLastError();
+		Global->CatchError();
+		dwError = Global->CaughtError();
 	}
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction

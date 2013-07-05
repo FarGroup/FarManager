@@ -73,9 +73,9 @@ static bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
 bool GetErrorString(string &strErrStr)
 {
 #ifdef USE_NT_MESSAGES
-	return GetNtErrorString(Global->ifn->RtlGetLastNtStatus(), strErrStr);
+	return GetNtErrorString(Global->CaughtStatus(), strErrStr);
 #else
-	return GetWin32ErrorString(GetLastError(), strErrStr);
+	return GetWin32ErrorString(Global->CaughtError(), strErrStr);
 #endif
 }
 
@@ -123,11 +123,11 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						string Txt[2];
-						GetWin32ErrorString(LastError, Txt[0]);
-						GetNtErrorString(NtStatus, Txt[1]);
+						GetWin32ErrorString(Global->CaughtError(), Txt[0]);
+						GetNtErrorString(Global->CaughtStatus(), Txt[1]);
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0], 65);
-						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1], 65);
+						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtError() << L" - " << Txt[0], 65);
+						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtStatus() << L" - " << Txt[1], 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -219,8 +219,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	if(IsErrorType)
 	{
-		LastError = GetLastError();
-		NtStatus = Global->ifn->RtlGetLastNtStatus();
 		ErrorSets = GetErrorString(strErrStr);
 	}
 

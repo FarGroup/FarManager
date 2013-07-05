@@ -280,7 +280,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	while (Find.Get(fdata))
 	{
-		FindErrorCode = GetLastError();
+		Global->CatchError();
+		FindErrorCode = Global->CaughtError();
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{

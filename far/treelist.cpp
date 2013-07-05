@@ -509,6 +509,9 @@ void TreeList::SaveTreeFile()
 		if (RootLength>=(*i)->strName.size())
 		{
 			Success=Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
+			if (!Success)
+				Global->CatchError();
+
 		}
 		else
 		{
@@ -517,9 +520,16 @@ void TreeList::SaveTreeFile()
 			{
 				Success=Cache.Write(L"\n",1 * sizeof(wchar_t));
 			}
+			else
+			{
+				Global->CatchError();
+			}
 		}
 	}
-	Cache.Flush();
+	Success = Success && Cache.Flush();
+	if (!Success)
+		Global->CatchError();
+
 	TreeFile.SetEnd();
 	TreeFile.Close();
 
@@ -1744,6 +1754,8 @@ void TreeList::FlushCache()
 
 		if (!WriteError)
 			WriteError = !Cache.Flush();
+		if (WriteError)
+			Global->CatchError();
 		TreeFile.SetEnd();
 		TreeFile.Close();
 		if (WriteError)

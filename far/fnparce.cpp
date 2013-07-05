@@ -837,6 +837,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				}
 				else
 				{
+					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
 					apiDeleteFile(strListFileName);
 					break;
@@ -847,11 +848,13 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 		}
 		else
 		{
+			Global->CatchError();
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
 		}
 	}
 	else
 	{
+		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
 	}
 

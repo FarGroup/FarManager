@@ -135,9 +135,8 @@ int TestFolder(const string& Path)
 	}
 
 	if (!bFind)
-	{
-		GuardLastError gle;
-		DWORD LastError = GetLastError();
+	{       Global->CatchError();
+		DWORD LastError = Global->CaughtError();
 		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
 			return TSTFLD_EMPTY;
 
@@ -207,6 +206,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 		if (IsHostFile)
 		{
 			SetLastError(ERROR_FILE_NOT_FOUND);
+			Global->CatchError();
 
 			if (!Silent)
 				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.data(), MSG(MOk));
@@ -214,6 +214,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 		else // попытка найти!
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);
+			Global->CatchError();
 
 			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{

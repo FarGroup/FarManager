@@ -52,6 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "edit.hpp"
 
+thread DWORD global::m_LastError = ERROR_SUCCESS;
+thread NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
+
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
 	ifn(nullptr),
@@ -233,6 +236,12 @@ bool global::IsPtr(const void* Address) const
 	}
 	return reinterpret_cast<uintptr_t>(Address) >= reinterpret_cast<uintptr_t>(info.lpMinimumApplicationAddress) &&
 		reinterpret_cast<uintptr_t>(Address) <= reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress);
+}
+
+void global::CatchError()
+{
+	m_LastError = GetLastError();
+	m_LastStatus = Global->ifn->RtlGetLastNtStatus();
 }
 
 #include "bootstrap/copyright.inc"

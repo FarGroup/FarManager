@@ -387,6 +387,7 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 
 	if (!Result && !Silent)
 	{
+		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName.data(),MSG(MOk));
 	}
 	return Result;
@@ -711,6 +712,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					if (!Silent)
 					{
+						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
 						        strDestFullName.data(),MSG(MOk));
@@ -775,6 +777,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					if (!Silent)
 					{
+						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
 					}
@@ -794,6 +797,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 			{
 				if (!Silent)
 				{
+					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 					        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
 				}
@@ -811,6 +815,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 			{
 				if (!Silent)
 				{
+					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
 						(LangString(MCopyMountVolFailed) << SelName).data(),

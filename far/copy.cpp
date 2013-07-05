@@ -1877,6 +1877,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				DWORD rattr2 = rattr1;
 				while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
 				{
+					Global->CatchError();
 					int ret = OperationFailed(strDestDriveRoot, MError, L"");
 					if (ret < 0 || ret == 4)
 						return COPY_CANCEL;
@@ -2416,6 +2417,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
+						Global->CatchError();
 						int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 						                      MSG(MCopyCannotRenameFolder),Src.data(),MSG(MCopyRetry),
 						                      MSG(MCopyIgnore),MSG(MCopyCancel));
@@ -2462,6 +2464,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? L"" : Src,
 					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr))
 				{
+					Global->CatchError();
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 					                MSG(MCopyCannotCreateFolder),strDestPath.data(),MSG(MCopyRetry),
 					                MSG(MCopySkip),MSG(MCopyCancel));
@@ -2509,6 +2512,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
+						Global->CatchError();
 						int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						                MSG(MCopyCannotChangeFolderAttr),strDestPath.data(),
 						                MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
@@ -2533,6 +2537,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
+						Global->CatchError();
 						int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						                MSG(MCopyCannotChangeFolderAttr),strDestPath.data(),
 						                MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
@@ -2695,6 +2700,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							return COPY_FAILURE;
 
 						SetLastError(MoveLastError);
+						Global->CatchError();
 					}
 					else
 					{
@@ -2820,6 +2826,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				MsgCode=SkipMode;
 			else
 			{
+				Global->CatchError();
 				MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						        MSG(MsgMCannot),
 						        strMsg1.data(),
@@ -2950,6 +2957,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(FullName):!apiDeleteFile(FullName))
 	{
+		Global->CatchError();
 		int MsgCode;
 
 		if (SkipDeleteMode!=-1)
@@ -3209,6 +3217,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 			DWORD BytesRead,BytesWritten;
 			while (!SrcFile.Read(CopyBuffer.get(), SrcFile.GetChunkSize(), BytesRead))
 			{
+				Global->CatchError();
 				int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 										MSG(MCopyReadError),SrcName.data(),
 										MSG(MRetry),MSG(MCancel));
@@ -3239,6 +3248,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 				CP->SetProgressValue(0,0);
 				SetLastError(LastError);
+				Global->CatchError();
 				CurCopiedSize = 0; // —бросить текущий прогресс
 				return COPY_FAILURE;
 			}
@@ -3254,6 +3264,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 				while (!DestFile.Write(CopyBuffer.get(),BytesRead,BytesWritten,nullptr))
 				{
 					DWORD LastError=GetLastError();
+					Global->CatchError();
 					int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
 
 					if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
@@ -3270,7 +3281,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 							{
 								DestFile.Close();
-								SetLastError(LastError);
 								const wchar_t* const Items[] = {strDestName.data(), MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel)};
 								int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Items, ARRAYSIZE(Items), L"CopyFiles");
 								PR_ShellCopyMsg();
@@ -3885,7 +3895,8 @@ int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR& sd)
 
 	if (!RetSec)
 	{
-		int LastError = GetLastError();
+		Global->CatchError();
+		int LastError = Global->CaughtError();
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
 		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotGetSecurity),FileName.data(),MSG(MOk),MSG(MCancel))==1)
@@ -3901,7 +3912,8 @@ int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR&
 	bool RetSec = apiSetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 	if (!RetSec)
 	{
-		int LastError = GetLastError();
+		Global->CatchError();
+		int LastError = Global->CaughtError();
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
 		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotSetSecurity),FileName.data(),MSG(MOk),MSG(MCancel))==1)

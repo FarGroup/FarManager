@@ -628,6 +628,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				if(ShowWarning)
 				{
+					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name->data(), MSG(MOk));
 				}
 				break;

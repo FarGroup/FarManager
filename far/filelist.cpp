@@ -1905,6 +1905,7 @@ int FileList::ProcessKey(int Key)
 					string strDirName;
 					const wchar_t *lpwszDirName=strDirName.data();
 					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(hPlugin,&lpwszDirName,0);
+					Global->CatchError();
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
@@ -2734,6 +2735,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 
 	if (!FarChDir(strSetDir))
 	{
+		Global->CatchError();
 		if (FrameManager && FrameManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */

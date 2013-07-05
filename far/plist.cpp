@@ -128,7 +128,10 @@ void ShowProcessList()
 							if (KillProcess(ProcID))
 								Sleep(500);
 							else
+							{
+								Global->CatchError();
 								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
+							}
 						}
 					}
 				}

@@ -43,12 +43,15 @@ public:
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
 	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	const LARGE_INTEGER& FarUpTime() const {return m_FarUpTime;}
-
 	bool IsPtr(const void* Address) const;
 	bool IsUserAdmin() const;
 	const OSVERSIONINFO& WinVer() const;
 	const wchar_t* Version() const;
 	const wchar_t* Copyright() const;
+
+	void CatchError();
+	DWORD CaughtError() const {return m_LastError;}
+	NTSTATUS CaughtStatus() const {return m_LastStatus;}
 
 	// BUGBUG
 
@@ -95,6 +98,9 @@ private:
 	DWORD m_MainThreadId;
 	LARGE_INTEGER m_FarUpTime;
 	HANDLE m_MainThreadHandle;
+
+	static thread DWORD m_LastError;
+	static thread NTSTATUS m_LastStatus;
 
 public:
 	class ImportedFunctions* ifn;

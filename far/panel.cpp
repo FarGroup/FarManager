@@ -1078,6 +1078,7 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 
 					// ... и выведем месаг о...
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+					Global->CatchError();
 					wchar_t Drive[] = {item->cDrive, L':', L'\\', 0};
 					DoneEject = OperationFailed(Drive, MError, LangString(MChangeCouldNotEjectMedia) << item->cDrive, false);
 				}
@@ -1125,6 +1126,7 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 
 				// ... и выведем месаг о...
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+				Global->CatchError();
 				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 				                MSG(MError),
 				                (LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive).data(),
@@ -1165,9 +1167,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 			}
 			else
 			{
+				Global->CatchError();
+				DWORD LastError = Global->CaughtError();
 				LangString strMsgText(MChangeDriveCannotDelSubst);
 				strMsgText << DiskLetter;
-				DWORD LastError=GetLastError();
 				if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 				{
 					if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
@@ -1215,9 +1218,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				}
 				else
 				{
+					Global->CatchError();
 					LangString strMsgText(MChangeDriveCannotDisconnect);
 					strMsgText << DiskLetter;
-					DWORD LastError=GetLastError();
+					DWORD LastError = Global->CaughtError();
 					if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 					{
 						if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
@@ -2742,16 +2746,6 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 				}
 			}
 		}
-
-		/*
-		if(I == Global->CtrlObject->Plugins->PluginsCount)
-		{
-		  char Target[NM*2];
-		  xstrncpy(Target, PluginModule, sizeof(Target));
-		  TruncPathStr(Target, ScrX-16);
-		  Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
-		}
-		*/
 
 		return true;
 	}

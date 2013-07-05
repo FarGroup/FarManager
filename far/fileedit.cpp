@@ -607,6 +607,7 @@ void FileEditor::Init(
 			if (UserBreak!=1)
 			{
 				SetLastError(SysErrorCode);
+				Global->CatchError();
 				if(!OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false))
 					continue;
 				else
@@ -1064,7 +1065,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						if(!SetFileName(strFileNameTemp))
 						{
 						  SetLastError(ERROR_INVALID_NAME);
-										Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),strFileNameTemp,MSG(MOk));
+						  Global->CatchError();
+						  Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),strFileNameTemp,MSG(MOk));
 						  if(!NameChanged)
 						    FarChDir(strOldCurDir);
 						  continue;
@@ -1082,7 +1084,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (SaveResult==SAVEFILE_ERROR)
 					{
 						SetLastError(SysErrorCode);
-
+						Global->CatchError();
 						if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 						{
 							Done=TRUE;
@@ -1405,7 +1407,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 		}
 
 		SetLastError(SysErrorCode);
-
+		Global->CatchError();
 		if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 			break;
 

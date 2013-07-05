@@ -151,3 +151,11 @@ inline F for_each_cnt(I First, I Last, F Func)
 	}
 	return Func;
 }
+
+#ifdef _MSC_VER
+#define thread __declspec(thread)
+#endif
+
+#ifdef __GNUC__
+#define thread __thread
+#endif

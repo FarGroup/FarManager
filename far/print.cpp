@@ -135,6 +135,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,(LPBYTE)pi.get(),Needed,&Needed,&Returned))
 	{
+		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
 		return;
 	}
@@ -180,6 +181,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	if (!OpenPrinter((wchar_t*)strPrinterName.data(),&hPrinter,nullptr))
 	{
+		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
 		        strPrinterName.data(),MSG(MOk));
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
@@ -244,6 +246,7 @@ void PrintFiles(Panel *SrcPanel)
 					while (SrcFile.Read(Buffer, sizeof(Buffer), Read) && Read > 0)
 						if (!WritePrinter(hPrinter,Buffer,Read,&Written))
 						{
+							Global->CatchError();
 							Success=FALSE;
 							break;
 						}

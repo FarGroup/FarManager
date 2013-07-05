@@ -400,6 +400,9 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 	else
 	{
+		if(AnyError)
+			Global->CatchError();
+
 		apiDeleteFile(strDizFileName);
 		if(AnyError)
 		{

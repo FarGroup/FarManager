@@ -156,7 +156,7 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 			{
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
-					//if (Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError), LangString(MChangeCouldNotEjectMedia) << Letter, MSG(M Retry), MSG(MCancel)))
+					Global->CatchError();
 					if(OperationFailed(RootName, MError, LangString(MChangeCouldNotEjectMedia) << Letter, false))
 						Retry=FALSE;
 				}

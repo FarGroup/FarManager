@@ -456,7 +456,7 @@ bool Plugin::LoadData()
 		PrepareModulePath(m_strModuleName);
 		m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,0);
 		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
-		GuardLastError Err;
+		Global->CatchError();
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно

@@ -295,6 +295,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	if (!ViewFile.Opened())
 	{
+		Global->CatchError();
 		/* $ 04.07.2000 tran
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */

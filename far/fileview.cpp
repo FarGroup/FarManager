@@ -345,6 +345,7 @@ int FileViewer::ProcessKey(int Key)
 				File Edit;
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
+					Global->CatchError();
 					if(!OperationFailed(strViewFileName, MEditTitle, MSG(MEditCannotOpen), false))
 						continue;
 					else

@@ -980,6 +980,9 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
                         const wchar_t * const *Items,size_t ItemsNumber,
                         intptr_t ButtonsNumber)
 {
+	if (Flags&FMSG_ERRORTYPE)
+		Global->CatchError();
+
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
