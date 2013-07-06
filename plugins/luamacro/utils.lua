@@ -52,8 +52,6 @@ package.nounload = {}
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
-local function CreateDirectory(path) return win.CreateDir(path, "ot") end
-
 local function CheckFileName (mask, name)
   return far.ProcessName("PN_CMPNAMELIST", mask, name, "PN_SKIPPATH")
 end
@@ -431,9 +429,8 @@ local function LoadMacros (allAreas, unload)
   if not unload then
     local DummyFunc = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
-    CreateDirectory(dir)
-    CreateDirectory(dir.."\\scripts")
-    CreateDirectory(win.GetEnv("farprofile").."\\Menus")
+    win.CreateDir(dir.."\\scripts", true)
+    win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
     for k=1,2 do
       local root = k==1 and dir.."\\scripts" or dir.."\\internal"
       local flags = k==1 and bor(F.FRS_RECUR,F.FRS_SCANSYMLINK) or 0
@@ -478,10 +475,8 @@ local function InitMacroSystem()
 end
 
 local function WriteOneMacro (macro, keyname, delete)
-  local dir = win.GetEnv("farprofile").."\\Macros"
-  CreateDirectory(dir)
-  dir = dir.."\\internal"
-  if not CreateDirectory(dir) then return end
+  local dir = win.GetEnv("farprofile").."\\Macros\\internal"
+  if not win.CreateDir(dir, true) then return end
 
   local fname = ("%s\\%s_%s.lua"):format(dir, macro.area, (keyname:gsub(".", CharNames)))
   local attr = win.GetFileAttr(fname)

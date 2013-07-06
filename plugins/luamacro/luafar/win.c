@@ -527,40 +527,81 @@ static int win_DeleteFile(lua_State *L)
 	return SysErrorReturn(L);
 }
 
-static BOOL mkdir(const wchar_t* path)
+static BOOL mkdir(const wchar_t* aPath)
 {
-	BOOL result = FALSE;
-	const wchar_t* src = path;
-	wchar_t *p = _wcsdup(path), *trg = p, *q;
+  wchar_t **Ends = NULL;
+  int posexist=-1, posfail=-1, num_ends=0, i;
+	wchar_t *Path = _wcsdup(aPath), *pos;
 
-	while(*src)
+	// Replace / with \ and count "ends".
+	for(pos=Path; *pos; )
 	{
-		if(*src == L'\\' || *src == L'/')
+		if (*pos==L'\\' || *pos==L'/')
 		{
-			*trg++ = L'\\';
-
-			do src++; while(*src == L'\\' || *src == L'/');
+			num_ends++;
+			do *pos++ = L'\\'; while (*pos==L'\\' || *pos==L'/');
 		}
-		else *trg++ = *src++;
+		else pos++;
 	}
+	if (pos > Path && pos[-1] != L'\\') num_ends++;
 
-	if(trg > p && trg[-1] == '\\') trg--;
-
-	*trg = 0;
-
-	for(q=p; *q; *q++=L'\\')
+	// Acquire positions of "ends".
+	Ends = (wchar_t**) malloc(num_ends*sizeof(wchar_t*));
+	for(pos=Path,i=0; *pos; )
 	{
-		q = wcschr(q, L'\\');
+		if (*pos==L'\\')
+		{
+			do pos++; while (*pos==L'\\');
+			Ends[i++] = pos;
+		}
+		else pos++;
+	}
+	if (pos > Path && pos[-1] != L'\\') Ends[i] = pos;
 
-		if(q != NULL)  *q = 0;
-
-		if(q != p && !dir_exist(p) && !CreateDirectoryW(p, NULL)) break;
-
-		if(q == NULL) { result=TRUE; break; }
+  // Find end position of the longest existing directory in the given path.
+	for (i=num_ends-1; i>=0; i--)
+	{
+		DWORD attr;
+		wchar_t tempchar = *Ends[i];
+		*Ends[i] = 0;
+		attr = GetFileAttributesW(Path);
+		*Ends[i] = tempchar;
+		if (attr != 0xFFFFFFFFU)
+		{
+			if (attr & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				posexist = i; break;
+			}
+			free(Ends); free(Path);
+			return FALSE;
+		}
 	}
 
-	free(p);
-	return result;
+  // Create directories one by one. Store "failed end position" when failed.
+	for (i=posexist+1; i<num_ends; i++)
+	{
+		BOOL result;
+		wchar_t tempchar = *Ends[i];
+		*Ends[i] = 0;
+		result = CreateDirectoryW(Path,NULL);
+		*Ends[i] = tempchar;
+		if (!result)
+		{
+			posfail = i; break;
+		}
+	}
+
+  // In case of failure, remove the directories we already created, don't leave garbage.
+	if (posfail >= 0)
+	{
+		for (i = posfail-1; i>posexist; i--)
+		{
+			*Ends[i] = 0; RemoveDirectoryW(Path);
+		}
+	}
+
+  free(Ends); free(Path);
+	return posfail < 0;
 }
 
 static int win_CreateDir(lua_State *L)
