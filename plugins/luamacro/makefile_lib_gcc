@@ -1,7 +1,8 @@
 include ../../unicode_far/makefile_gcc_common
 
 NAME=luafar3
-LUA_VER=5.1
+LUAVER=51
+LUA_VER=$(subst 51,5.1,$(LUAVER))
 LUA_PROXY=lua51.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
@@ -17,11 +18,15 @@ luafar/luamacro.c \
 luafar/reg.c \
 luafar/service.c \
 luafar/slnunico.c \
-luafar/uliolib51.c \
-luafar/uloadlib51.c \
+luafar/uliolib$(LUAVER).c \
+luafar/uloadlib$(LUAVER).c \
 luafar/ustring.c \
 luafar/util.c \
-luafar/win.c \
+luafar/win.c
+
+ifeq ($(LUAVER),52)
+SRCS += luafar/compat52.c
+endif
 
 USERLIBS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll -lrpcrt4
 USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUA_VER).dll\"

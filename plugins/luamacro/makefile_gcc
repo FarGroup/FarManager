@@ -1,7 +1,8 @@
 include ../../unicode_far/makefile_gcc_common
 
 NAME = luamacro
-LUA_VER = 5.1
+LUAVER=51
+LUA_VER=$(subst 51,5.1,$(LUAVER))
 
 ifndef FAR_WORKDIR
 FAR_WORKDIR := $(FARDIR)$(DIRNAME).$(DIRBIT).gcc
@@ -31,7 +32,7 @@ $(DLLFULLNAME): lualib
 .PHONY: lualib clean
 
 lualib:
-	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR)
+	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) LUAVER=$(LUAVER)
 
 clean:
 	@$(RM) $(OBJS) $(DEPS) $(DLLDIR)/*

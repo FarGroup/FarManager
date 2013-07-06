@@ -5859,6 +5859,7 @@ static const luaL_Reg lualibs[] =
 	{"_G",            luaopen_base},
 	{LUA_LOADLIBNAME, luaopen_upackage},  // changed
 	{LUA_BITLIBNAME,  luaopen_bit32},
+	{LUA_COLIBNAME,   luaopen_coroutine},
 #endif
 	{LUA_TABLIBNAME,  luaopen_table},
 	{LUA_IOLIBNAME,   luaopen_uio},       // changed
