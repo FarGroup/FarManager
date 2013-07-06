@@ -687,33 +687,17 @@ const luaL_Reg win_funcs[] =
 	{"SystemTimeToFileTime",win_SystemTimeToFileTime},
 	{"wcscmp",              win_wcscmp},
 
-	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
-	{"GetACP",              ustring_GetACP},
-	{"GetCPInfo",           ustring_GetCPInfo},
-	{"GetDriveType",        ustring_GetDriveType},
-	{"GetFileAttr",         ustring_GetFileAttr},
-	{"GetLogicalDriveStrings",ustring_GetLogicalDriveStrings},
-	{"GetOEMCP",            ustring_GetOEMCP},
-	{"GlobalMemoryStatus",  ustring_GlobalMemoryStatus},
-	{"MultiByteToWideChar", ustring_MultiByteToWideChar },
-	{"OemToUtf8",           ustring_OemToUtf8},
-	{"SHGetFolderPath",     ustring_SHGetFolderPath},
-	{"SearchPath",          ustring_SearchPath},
-	{"SetFileAttr",         ustring_SetFileAttr},
-	{"Sleep",               ustring_Sleep},
-	{"Utf16ToUtf8",         ustring_Utf16ToUtf8},
-	{"Utf8ToOem",           ustring_Utf8ToOem},
-	{"Utf8ToUtf16",         ustring_Utf8ToUtf16},
-	{"Uuid",                ustring_Uuid},
-	{"WideCharToMultiByte", ustring_WideCharToMultiByte},
-	{"subW",                ustring_sub},
-	{"lenW",                ustring_len},
-
 	{NULL, NULL}
 };
 
 LUALIB_API int luaopen_win(lua_State *L)
 {
-	luaL_register(L, "win", win_funcs);
+	const char *libname = lua_istable(L,1) ? (lua_settop(L,1), NULL) : luaL_optstring(L, 1, "win");
+	luaL_register(L, libname, win_funcs);
+
+	lua_pushcfunction(L, luaopen_ustring);
+	lua_pushvalue(L, -2);
+	lua_call(L, 1, 0);
+
 	return 1;
 }

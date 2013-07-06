@@ -11,6 +11,8 @@ extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
 
+	LUALIB_API int luaopen_ustring(lua_State *L);
+
 	void pusherrorcode(lua_State *L, int error);
 	void pusherror(lua_State *L);
 	int  SysErrorReturn(lua_State *L);
@@ -44,28 +46,6 @@ extern "C" {
 	void PushAttrString(lua_State *L, int attr);
 	void PutAttrToTable(lua_State *L, int attr);
 	int  SetAttr(lua_State *L, const wchar_t* fname, unsigned attr);
-
-	int ustring_EnumSystemCodePages(lua_State *L);
-	int ustring_GetACP(lua_State* L);
-	int ustring_GetCPInfo(lua_State *L);
-	int ustring_GetDriveType(lua_State *L);
-	int ustring_GetFileAttr(lua_State *L);
-	int ustring_GetLogicalDriveStrings(lua_State *L);
-	int ustring_GetOEMCP(lua_State* L);
-	int ustring_GlobalMemoryStatus(lua_State *L);
-	int ustring_MultiByteToWideChar(lua_State *L);
-	int ustring_WideCharToMultiByte(lua_State *L);
-	int ustring_OemToUtf8(lua_State *L);
-	int ustring_SHGetFolderPath(lua_State *L);
-	int ustring_SearchPath(lua_State *L);
-	int ustring_SetFileAttr(lua_State *L);
-	int ustring_Sleep(lua_State *L);
-	int ustring_Utf16ToUtf8(lua_State *L);
-	int ustring_Utf8ToOem(lua_State *L);
-	int ustring_Utf8ToUtf16(lua_State *L);
-	int ustring_Uuid(lua_State* L);
-	int ustring_sub(lua_State *L);
-	int ustring_len(lua_State *L);
 
 #ifdef __cplusplus
 }

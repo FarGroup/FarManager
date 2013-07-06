@@ -1,5 +1,6 @@
 #include <shlobj.h>
 #include "ustring.h"
+#include "compat52.h"
 
 #define CAST(tp,expr) (tp)(expr)
 #define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
@@ -707,4 +708,38 @@ const wchar_t* opt_utf16_string(lua_State *L, int pos, const wchar_t *dflt)
 {
 	const wchar_t* s = (const wchar_t*)luaL_optstring(L, pos, (const char*)dflt);
 	return s;
+}
+
+const luaL_Reg ustring_funcs[] =
+{
+	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
+	{"GetACP",              ustring_GetACP},
+	{"GetCPInfo",           ustring_GetCPInfo},
+	{"GetDriveType",        ustring_GetDriveType},
+	{"GetFileAttr",         ustring_GetFileAttr},
+	{"GetLogicalDriveStrings",ustring_GetLogicalDriveStrings},
+	{"GetOEMCP",            ustring_GetOEMCP},
+	{"GlobalMemoryStatus",  ustring_GlobalMemoryStatus},
+	{"MultiByteToWideChar", ustring_MultiByteToWideChar },
+	{"OemToUtf8",           ustring_OemToUtf8},
+	{"SHGetFolderPath",     ustring_SHGetFolderPath},
+	{"SearchPath",          ustring_SearchPath},
+	{"SetFileAttr",         ustring_SetFileAttr},
+	{"Sleep",               ustring_Sleep},
+	{"Utf16ToUtf8",         ustring_Utf16ToUtf8},
+	{"Utf8ToOem",           ustring_Utf8ToOem},
+	{"Utf8ToUtf16",         ustring_Utf8ToUtf16},
+	{"Uuid",                ustring_Uuid},
+	{"WideCharToMultiByte", ustring_WideCharToMultiByte},
+	{"subW",                ustring_sub},
+	{"lenW",                ustring_len},
+
+	{NULL, NULL}
+};
+
+LUALIB_API int luaopen_ustring(lua_State *L)
+{
+	const char *libname = lua_istable(L,1) ? (lua_settop(L,1), NULL) : luaL_optstring(L, 1, "ustring");
+	luaL_register(L, libname, ustring_funcs);
+	return 1;
 }
