@@ -1,3 +1,7 @@
+shmuel 07.07.2013 00:59:38 +0200 - build 204
+
+1. LuaFAR: fix compatibility with Lua 5.2.
+
 shmuel 06.07.2013 20:57:39 +0300 - build 203
 
 1. LuaFAR: рефакторинг.
