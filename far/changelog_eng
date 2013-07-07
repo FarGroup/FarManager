@@ -3,6 +3,111 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.07.2013 18:34:35 +0200 - build 3503
+
+1. More reliable storing of LastError / LastNtStatus state for Message with MSG_ERRORTYPE.
+
+2. 0002444: Search via "App Paths" does not use %PathExt% now.
+
+drkns 04.07.2013 23:03:09 +0200 - build 3502
+
+1. Refactoring.
+
+2. Correction of minimal GCC version (4.7.1).
+
+w17 04.07.2013 16:45:06 +0400 - build 3501
+
+1. gcc 4.7.1 compilation fix
+
+shmuel 04.07.2013 15:27:46 +0200 - build 3500
+
+1. Rollback of 3496. This also can be reached with LuaFAR library modification.
+
+drkns 04.07.2013 13:30:33 +0200 - build 3499
+
+1. Refactoring.
+
+drkns 04.07.2013 12:55:32 +0200 - build 3498
+
+1. Refactoring.
+
+drkns 04.07.2013 01:21:03 +0200 - build 3497
+
+1. Refactoring.
+
+shmuel 03.07.2013 21:13:37 +0200 - build 3496
+
+1. Forum: "Why does FAR create directories in the root of disk С".
+   CreatePath inner FAR function is imported into LuaMacro plugin.
+
+svs 03.07.2013 12:49:18 +0400 - build 3495
+
+1. Correction of help, incl. for TI:
+    #80 XLat.Layouts
+    #10 XLat.Flags
+    "XLat.Table*" and "XLat.Rules*" parameters are described
+
+2. Removing a bug with Rule3 overwriting in xlat
+
+drkns 03.07.2013 00:38:12 +0200 - build 3494
+
+1. Outer links did not (always) work in help.
+
+2. Other issues.
+
+drkns 02.07.2013 16:34:23 +0200 - build 3493
+
+1. Avoiding the recursion in file mask groups.
+
+svs 02.07.2013 17:15:47 +0400 - build 3492
+
+1. Correction in help
+   "так же" -> "также"
+   @CopyAskOverwrite - capability of F3 on items was not described.
+   @MaskGroupsSettings - list control keys were not described.
+
+2. Для диалога правки группы масок добавлена ссылка на "@MaskGroupsSettings"
+
+svs 02.07.2013 11:40:49 +0400 - build
+
+1. Correction in help
+   @MakeFolder
+     creation of links
+   @UserMenu
+     capability of moving items with Ctrl-arrows is described
+
+drkns 02.07.2013 10:01:16 +0200 - build 3491
+
+1. Correction of 3490.
+
+2. Refactoring.
+
+drkns 02.07.2013 01:13:32 +0200 - build 3490
+
+1. Refactoring.
+
+svs 01.07.2013 16:30:04 +0400 - build 3489
+
+1. Correction of build 3488
+   Removing the "negation". Now:
+   In config (far:config), search "Macros.ShowPlayIndicator", set it to false for switching 'P' off
+   By default, 'P' is shown
+
+svs 01.07.2013 15:09:19 +0400 - build 3488
+
+1. Mantis#0002410: Optionally disable blinking 'P' macro execution indicator
+   In config (far:config), search "Macros.DisableShowPlayMacro", set it to true
+   By default, 'P' is shown
+
+w17 01.07.2013 09:49:39 +0400 - build 3487
+
+1. M#2439: Command line prompt format: environment variables don't work anymore
+
+shmuel 30.06.2013 13:12:37 +0200 - build
+
+1. Capability of calling script files with arguments is added.
+   This is related to: MCTL_SENDSTRING, MCTL_ADDMACRO, eval, lm:post, lm:check.
+
 shmuel 30.06.2013 01:46:43 +0200 - build 3486
 
 1. Refactoring.
