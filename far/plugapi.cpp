@@ -705,18 +705,6 @@ static DWORD NormalizeControlKeys(DWORD Value)
 	return result;
 }
 
-class MenuLock
-{
-	private:
-		Frame* frame;
-	public:
-		MenuLock(bool enable) {
-			frame = enable ? FrameManager->GetBottomFrame():nullptr;
-			if (frame) frame->Lock();
-		}
-		~MenuLock() { if (frame) frame->Unlock(); }
-};
-
 intptr_t WINAPI apiMenuFn(
     const GUID* PluginId,
     const GUID* Id,
@@ -817,7 +805,6 @@ intptr_t WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
-		MenuLock menuLock(Global->CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
 		FarMenu.SetTitle(Title);
 
 		ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
