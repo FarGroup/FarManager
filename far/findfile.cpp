@@ -628,8 +628,8 @@ void FindFiles::AdvancedDialog()
 		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(AdvancedDlgData,AdvancedDlg);
-	Dialog Dlg(this, &FindFiles::AdvancedDlgProc, nullptr, AdvancedDlg,ARRAYSIZE(AdvancedDlg));
+	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
+	Dialog Dlg(AdvancedDlg, this, &FindFiles::AdvancedDlgProc, nullptr);
 	Dlg.SetHelp(L"FindFileAdvanced");
 	Dlg.SetPosition(-1,-1,52+4,7+7);
 	Dlg.Process();
@@ -2760,7 +2760,7 @@ bool FindFiles::FindFilesProcess()
 		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindPanel)},
 		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindStop)},
 	};
-	MakeDialogItemsEx(FindDlgData,FindDlg);
+	auto FindDlg = MakeDialogItemsEx(FindDlgData);
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	if (PluginMode)
@@ -2791,7 +2791,7 @@ bool FindFiles::FindFilesProcess()
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(this, &FindFiles::FindDlgProc, nullptr, FindDlg,ARRAYSIZE(FindDlg));
+	Dialog Dlg(FindDlg, this, &FindFiles::FindDlgProc, nullptr);
 //  pDlg->SetDynamicallyBorn();
 	Dlg.SetHelp(L"FindFileResult");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
@@ -3095,7 +3095,7 @@ FindFiles::FindFiles():
 			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileAdvanced)},
 			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
-		MakeDialogItemsEx(FindAskDlgData,FindAskDlg);
+		auto FindAskDlg = MakeDialogItemsEx(FindAskDlgData);
 
 		if (strFindStr.empty())
 			FindAskDlg[FAD_CHECKBOX_DIRS].Selected=Global->Opt->FindOpt.FindFolders;
@@ -3151,7 +3151,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		int ExitCode;
-		Dialog Dlg(this, &FindFiles::MainDlgProc, nullptr, FindAskDlg,ARRAYSIZE(FindAskDlg));
+		Dialog Dlg(FindAskDlg, this, &FindFiles::MainDlgProc, nullptr);
 		Dlg.SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);

@@ -315,12 +315,12 @@ string VMenu2::GetTitles(int bottom)
 	return title;
 }
 
-FarDialogItem VMenu2DialogItems[]=
-{
+std::array<FarDialogItem, 1> VMenu2DialogItems =
+{{
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
-};
+}};
 
-VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
+VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr), ForceClosing(false)
 {
 	InitDialogObjects();
 

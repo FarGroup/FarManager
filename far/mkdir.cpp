@@ -145,10 +145,10 @@ void ShellMakeDir(Panel *SrcPanel)
 		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
+	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
 	std::list<string> DirList;
-	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,&DirList);
+	Dialog Dlg(MkDirDlg, MkDirDlgProc, &DirList);
 	Dlg.SetPosition(-1,-1,76,12);
 	Dlg.SetHelp(L"MakeFolder");
 	Dlg.SetId(MakeFolderId);

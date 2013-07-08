@@ -846,10 +846,9 @@ static void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	cfg->SetValue(key,HLS.DateAfter, &DateAfter, sizeof(DateAfter));
 	cfg->SetValue(key,HLS.DateBefore, &DateBefore, sizeof(DateBefore));
 	cfg->SetValue(key,HLS.DateRelative,bRelative?1:0);
-	const wchar_t *SizeAbove, *SizeBelow;
-	cfg->SetValue(key,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow)?1:0);
-	cfg->SetValue(key,HLS.SizeAbove,SizeAbove);
-	cfg->SetValue(key,HLS.SizeBelow,SizeBelow);
+	cfg->SetValue(key, HLS.UseSize, CurHiData->IsSizeUsed());
+	cfg->SetValue(key, HLS.SizeAbove, CurHiData->GetSizeAbove());
+	cfg->SetValue(key, HLS.SizeBelow, CurHiData->GetSizeBelow());
 	DWORD HardLinksAbove, HardLinksBelow;
 	cfg->SetValue(key,HLS.UseHardLinks,CurHiData->GetHardLinks(&HardLinksAbove, &HardLinksBelow)?1:0);
 	cfg->SetValue(key,HLS.HardLinksAbove,HardLinksAbove);

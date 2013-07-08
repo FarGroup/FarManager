@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "hilight.hpp"
 
-#define FILEFILTER_SIZE_SIZE 32
-
 #define DEFAULT_SORT_GROUP 10000
 
 enum enumFileFilterFlagsType
@@ -99,8 +97,8 @@ class FileFilterParams
 		{
 			unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
 			unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
-			wchar_t SizeAbove[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
-			wchar_t SizeBelow[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
+			string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
+			string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
 			bool Used;
 		} FSize;
 
@@ -148,7 +146,9 @@ class FileFilterParams
 		const string& GetTitle() const;
 		bool  GetMask(const wchar_t **Mask) const;
 		bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
-		bool  GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const;
+		bool IsSizeUsed() const {return FSize.Used;}
+		const string& GetSizeAbove() const {return FSize.SizeAbove;}
+		const string& GetSizeBelow() const {return FSize.SizeBelow;}
 		bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 		bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
 		void  GetColors(HighlightDataColor *Colors) const;

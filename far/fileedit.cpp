@@ -125,8 +125,8 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(EditDlgData,EditDlg);
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), hndOpenEditor, &codepage);
+	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+	Dialog Dlg(EditDlg, hndOpenEditor, &codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
 	Dlg.SetId(FileOpenCreateId);
@@ -247,7 +247,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 		{DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(EditDlgData,EditDlg);
+	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
 	{
 		size_t pos = EditDlg[ID_SF_FILENAME].strData.find(MSG(MNewFileName));
@@ -255,7 +255,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 			EditDlg[ID_SF_FILENAME].strData.resize(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), hndSaveFileAs, &codepage);
+	Dialog Dlg(EditDlg, hndSaveFileAs, &codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.SetId(FileSaveAsId);

@@ -976,8 +976,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MRetry)},
 				{DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 			};
-			MakeDialogItemsEx(ChDiskData,ChDiskDlg);
-			Dialog Dlg(ChDiskDlg, ARRAYSIZE(ChDiskData), ChDiskDlgProc, 0);
+			auto ChDiskDlg = MakeDialogItemsEx(ChDiskData);
+			Dialog Dlg(ChDiskDlg, ChDiskDlgProc, 0);
 			Dlg.SetPosition(-1,-1,DX,DY);
 			Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
 			Dlg.Process();
@@ -2499,7 +2499,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP, MSG(MYes)},
 		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel)},
 	};
-	MakeDialogItemsEx(DCDlgData,DCDlg);
+	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
 	LangString strMsgText;
 
@@ -2544,7 +2544,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 	if (Global->Opt->Confirm.RemoveConnection)
 	{
-		Dialog Dlg(DCDlg,ARRAYSIZE(DCDlg));
+		Dialog Dlg(DCDlg);
 		Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
 		Dlg.SetHelp(L"DisconnectDrive");
 		Dlg.SetDialogMode(DMODE_WARNINGSTYLE);

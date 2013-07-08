@@ -986,7 +986,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyDlgCancel)},
 		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 	};
-	MakeDialogItemsEx(CopyDlgData,CopyDlg);
+	auto CopyDlg = MakeDialogItemsEx(CopyDlgData);
 	CopyDlg[ID_SC_MULTITARGET].Selected=Global->Opt->CMOpt.MultiCopy;
 	{
 		const wchar_t *Str = MSG(MCopySecurity);
@@ -1318,7 +1318,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		Dialog Dlg(this, &ShellCopy::CopyDlgProc, nullptr, CopyDlg,ARRAYSIZE(CopyDlg));
+		Dialog Dlg(CopyDlg, this, &ShellCopy::CopyDlgProc, nullptr);
 		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg.SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
 		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
@@ -3728,11 +3728,11 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 
 				WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr.data();
 				WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr.data();
-				MakeDialogItemsEx(WarnCopyDlgData,WarnCopyDlg);
+				auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
 				string strFullSrcName;
 				ConvertNameToFull(SrcName,strFullSrcName);
 				string *WFN[]={&strFullSrcName,&strDestName,&strRenamedFilesPath};
-				Dialog WarnDlg(this, &ShellCopy::WarnDlgProc, &WFN, WarnCopyDlg,ARRAYSIZE(WarnCopyDlg));
+				Dialog WarnDlg(WarnCopyDlg, this, &ShellCopy::WarnDlgProc, &WFN);
 				WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 				WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 				WarnDlg.SetHelp(L"CopyAskOverwrite");
@@ -3833,11 +3833,11 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 					WarnCopyDlgData[WDLG_RENAME].Data=L"";
 					WarnCopyDlgData[WDLG_APPEND].Type=DI_TEXT;
 					WarnCopyDlgData[WDLG_APPEND].Data=L"";
-					MakeDialogItemsEx(WarnCopyDlgData,WarnCopyDlg);
+					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
 					LPCWSTR WFN[2]={strSrcName.data(),DestName.data()};
-					Dialog WarnDlg(this, &ShellCopy::WarnDlgProc, &WFN, WarnCopyDlg, ARRAYSIZE(WarnCopyDlg));
+					Dialog WarnDlg(WarnCopyDlg, this, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg.SetHelp(L"CopyFiles");

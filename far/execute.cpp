@@ -352,7 +352,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					// ¬ строке Module заменить исполн€емый модуль на полный путь, который
 					// беретс€ из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
 					// —начала смотрим в HKCU, затем - в HKLM
-					HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
+					static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
 					strFullName=RegPath;
 					strFullName+=Module;
 

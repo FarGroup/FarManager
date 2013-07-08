@@ -3240,7 +3240,7 @@ void Viewer::Search(int Next,int FirstChar)
 			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MViewSearchSearch)},
 			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MViewSearchCancel)},
 		};
-		MakeDialogItemsEx(SearchDlgData,SearchDlg);
+		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
 		SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
 		SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
@@ -3268,7 +3268,7 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		Dialog Dlg(this, &Viewer::ViewerSearchDlgProc, nullptr, SearchDlg, ARRAYSIZE(SearchDlg));
+		Dialog Dlg(SearchDlg, this, &Viewer::ViewerSearchDlgProc, nullptr);
 		Dlg.SetPosition(-1,-1,76,13);
 		Dlg.SetHelp(L"ViewerSearch");
 
@@ -3971,7 +3971,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		{DI_RADIOBUTTON,5,5,0,5,0,nullptr,nullptr,0,MSG(MGoToHex)},
 		{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(MGoToDecimal)},
 	};
-	MakeDialogItemsEx(GoToDlgData,GoToDlg);
+	auto GoToDlg = MakeDialogItemsEx(GoToDlgData);
 
 	static int PrevMode = -1;
 	if ( PrevMode < 0 )
@@ -3983,7 +3983,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		__int64 Relative=0;
 		if (ShowDlg)
 		{
-			Dialog Dlg(GoToDlg,ARRAYSIZE(GoToDlg));
+			Dialog Dlg(GoToDlg);
 			Dlg.SetHelp(L"ViewerGotoPos");
 			Dlg.SetPosition(-1,-1,35,9);
 			Dlg.Process();

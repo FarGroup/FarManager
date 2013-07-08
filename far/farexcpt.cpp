@@ -206,8 +206,8 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 	};
-	MakeDialogItemsEx(EditDlgData,EditDlg);
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg),ExcDlgProc);
+	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+	Dialog Dlg(EditDlg, ExcDlgProc);
 	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.Process();

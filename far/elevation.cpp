@@ -53,8 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const int CallbackMagic= 0xCA11BAC6;
 
-DWORD ParentPID;
-
 ENUM(ELEVATION_COMMAND)
 {
 	C_SERVICE_EXIT,
@@ -485,8 +483,8 @@ void ElevationApproveDlgSync(LPVOID Param)
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
 	};
-	MakeDialogItemsEx(ElevationApproveDlgData,ElevationApproveDlg);
-	Dialog Dlg(ElevationApproveDlg,ARRAYSIZE(ElevationApproveDlg),ElevationApproveDlgProc);
+	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
+	Dialog Dlg(ElevationApproveDlg, ElevationApproveDlgProc);
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);

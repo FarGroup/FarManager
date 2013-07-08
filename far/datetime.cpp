@@ -43,8 +43,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define range(low,item,hi) std::max(low,std::min(item,hi))
 
-//string **AMonth, **AWeekday, **Month, **Weekday;
-string  *AMonth[2][12], *AWeekday[2][7], *Month[2][12], *Weekday[2][7];
+struct loc_names
+{
+	DWORD Locale;
+	string AMonth[12];
+	string AWeekday[7];
+	string Month[12];
+	string Weekday[7];
+};
+
+std::array<loc_names, 2>& GetNames()
+{
+	static std::array<loc_names, 2> LocNames = 
+	{{
+		{LANG_ENGLISH},
+		{LANG_NEUTRAL},
+	}};
+	return LocNames;
+}
 
 int CurLang=-1,WeekFirst=0;
 
@@ -81,56 +97,48 @@ wchar_t GetTimeSeparator()
 
 void PrepareStrFTime()
 {
-	static string _AMonth[2][12],_AWeekday[2][7],_Month[2][12],_Weekday[2][7];
-
-	DWORD Loc[]={LANG_ENGLISH,LANG_NEUTRAL},ID;
-
 	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&WeekFirst),sizeof(WeekFirst)/sizeof(WCHAR));
 
-	for (int i=0; i<2; i++)
+	std::for_each(RANGE(GetNames(), i)
 	{
-		LCID CurLCID=MAKELCID(MAKELANGID(Loc[i],SUBLANG_DEFAULT),SORT_DEFAULT);
+		LCID CurLCID=MAKELCID(MAKELANGID(i.Locale, SUBLANG_DEFAULT), SORT_DEFAULT);
 
-		for (ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
+		for (DWORD ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=_Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp = i.Month[ID-LOCALE_SMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			*lpwszTemp=Upper(*lpwszTemp);
-			_Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
-			Month[i][ID-LOCALE_SMONTHNAME1] = &_Month[i][ID-LOCALE_SMONTHNAME1];
+			i.Month[ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
+			Upper(i.Month[ID-LOCALE_SMONTHNAME1]);
 		}
 
-		for (ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
+		for (DWORD ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp = i.AMonth[ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			*lpwszTemp=Upper(*lpwszTemp);
-			_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
-			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1] = &_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1];
+			i.AMonth[ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
+			Upper(i.AMonth[ID-LOCALE_SABBREVMONTHNAME1]);
 		}
 
-		for (ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
+		for (DWORD ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=_Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp = i.Weekday[ID-LOCALE_SDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			*lpwszTemp=Upper(*lpwszTemp);
-			_Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
-			Weekday[i][ID-LOCALE_SDAYNAME1] = &_Weekday[i][ID-LOCALE_SDAYNAME1];
+			i.Weekday[ID-LOCALE_SDAYNAME1].ReleaseBuffer();
+			Upper(i.Weekday[ID-LOCALE_SDAYNAME1]);
 		}
 
-		for (ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
+		for (DWORD ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp = i.AWeekday[ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			*lpwszTemp=Upper(*lpwszTemp);
-			_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
-			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1] = &_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1];
+			i.AWeekday[ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
+			Upper(i.AWeekday[ID-LOCALE_SABBREVDAYNAME1]);
 		}
-	}
+	});
 
 	CurLang=0;
 }
@@ -139,8 +147,8 @@ static int atime(string &strDest,const tm *tmPtr)
 {
 	// Thu Oct 07 12:37:32 1999
 	strDest = str_printf(L"%s %s %02d %02d:%02d:%02d %4d",
-	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)]->data(),
-	                      AMonth[CurLang][tmPtr->tm_mon]->data(),
+	                      GetNames()[CurLang].AWeekday[!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)].data(),
+	                      GetNames()[CurLang].AMonth[tmPtr->tm_mon].data(),
 	                      tmPtr->tm_mday,
 	                      tmPtr->tm_hour,
 	                      tmPtr->tm_min,
@@ -155,7 +163,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 
 	if (chr==L'v')
 	{
-		strDest = str_printf(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)]->data(),tmPtr->tm_year+1900);
+		strDest = str_printf(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),GetNames()[CurLang].AMonth[range(0, tmPtr->tm_mon,11)].data(),tmPtr->tm_year+1900);
 		Upper(strDest, 3, 3);
 	}
 	else
@@ -351,23 +359,23 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 					// abbreviated weekday name
 				case L'a':
-					strBuf=*AWeekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf = GetNames()[CurLang].AWeekday[!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
 					// Полное имя дня недели
 					// full weekday name
 				case L'A':
-					strBuf=*Weekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf = GetNames()[CurLang].Weekday[!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
 					// Краткое имя месяца (Jan,Feb,...)
 					// abbreviated month name
 				case L'h':
 				case L'b':
-					strBuf=*AMonth[CurLang][t->tm_mon];
+					strBuf = GetNames()[CurLang].AMonth[t->tm_mon];
 					break;
 					// Полное имя месяца
 					// full month name
 				case L'B':
-					strBuf=*Month[CurLang][t->tm_mon];
+					strBuf = GetNames()[CurLang].Month[t->tm_mon];
 					break;
 					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
 					//appropriate date and time representation

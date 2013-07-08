@@ -303,35 +303,23 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
-	SavedItems = SrcItem;
+	SavedItems = *SrcItem;
 
 	Items.resize(SrcItemCount);
-	Items.assign(SrcItem, SrcItem + SrcItemCount);
+	Items.assign(*SrcItem, *SrcItem + SrcItemCount);
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
-void Dialog::Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
 	SavedItems = nullptr;
 
 	Items.resize(SrcItemCount);
 	//BUGBUG add error check
-	ConvertItemEx(CVTITEM_FROMPLUGIN, const_cast<FarDialogItem *>(SrcItem), Items.data(), SrcItemCount);
+	ConvertItemEx(CVTITEM_FROMPLUGIN, const_cast<FarDialogItem *>(*SrcItem), Items.data(), SrcItemCount);
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
-}
-
-Dialog::Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc, void* InitParam):
-	bInitOK(false)
-{
-	Construct(SrcItem, SrcItemCount, nullptr, nullptr, DlgProc, InitParam);
-}
-
-Dialog::Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc, void* InitParam):
-	bInitOK(false)
-{
-	Construct(SrcItem, SrcItemCount, nullptr, nullptr, DlgProc, InitParam);
 }
 
 void Dialog::Init(DialogOwner* Owner, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)

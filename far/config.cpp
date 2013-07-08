@@ -1050,7 +1050,7 @@ void Options::SetFilePanelModes()
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < (int)predefined_panel_modes_count? 0 : DIF_DISABLE),MSG(MReset)},
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
-		MakeDialogItemsEx(ModeDlgData,ModeDlg);
+		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
@@ -1073,7 +1073,7 @@ void Options::SetFilePanelModes()
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
 		                   NewSettings.StatusColumnCount,ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 		{
-			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
+			Dialog Dlg(ModeDlg);
 			Dlg.SetPosition(-1,-1,76,19);
 			Dlg.SetHelp(L"PanelViewModes");
 			Dlg.SetId(PanelViewModesEditId);
@@ -2180,7 +2180,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	{
 		{DI_LISTBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE,nullptr},
 	};
-	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
+	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
 
 	std::vector<FarListItem> items(Config[CurrentConfig].second.size());
 	std::transform(ALL_RANGE(Config[CurrentConfig].second), items.begin(), LAMBDA_PREDICATE(Config[CurrentConfig].second, i)
@@ -2192,7 +2192,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	Dialog Dlg(this, &Options::AdvancedConfigDlgProc, nullptr, AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg));
+	Dialog Dlg(AdvancedConfigDlg, this, &Options::AdvancedConfigDlgProc, nullptr);
 	Dlg.SetHelp(L"FarConfig");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg.SetId(AdvancedConfigId);

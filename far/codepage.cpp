@@ -708,16 +708,16 @@ void codepages::EditCodePageName()
 		return;
 	CodePageName.erase(0, BoxPosition+2);
 	FarDialogItem EditDialogData[]=
-		{
-			{DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, MSG(MGetCodePageEditCodePageName)},
-			{DI_EDIT,      5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS|DIF_HISTORY, CodePageName.data()},
-			{DI_TEXT,     -1, 3,  0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
-			{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON|DIF_CENTERGROUP, MSG(MOk)},
-			{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel)},
-			{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)}
-		};
-	MakeDialogItemsEx(EditDialogData, EditDialog);
-	Dialog Dlg(this, &codepages::EditDialogProc, nullptr, EditDialog, ARRAYSIZE(EditDialog));
+	{
+		{DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, MSG(MGetCodePageEditCodePageName)},
+		{DI_EDIT,      5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS|DIF_HISTORY, CodePageName.data()},
+		{DI_TEXT,     -1, 3,  0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
+		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON|DIF_CENTERGROUP, MSG(MOk)},
+		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel)},
+		{DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)}
+	};
+	auto EditDialog = MakeDialogItemsEx(EditDialogData);
+	Dialog Dlg(EditDialog, this, &codepages::EditDialogProc, nullptr);
 	Dlg.SetPosition(-1, -1, 54, 7);
 	Dlg.SetHelp(L"EditCodePageNameDlg");
 	Dlg.Process();

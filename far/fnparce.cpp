@@ -487,14 +487,16 @@ int SubstFileName(const wchar_t *DlgTitle,
 
 int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)
 {
-	const int MaxSize=20;
+	const size_t MaxSize=20;
 	const wchar_t *Str=strStr.data();
 	const wchar_t * const StartStr=Str;
 
-	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
+	std::vector<DialogItemEx> DlgData(MaxSize + 2);
 	FormatString HistoryName[MaxSize];
-	int DlgSize=0;
 	int StrPos[128],StrEndPos[128],StrPosSize=0;
+
+	// BUGBUG
+	size_t DlgSize = 0;
 
 	DlgData[DlgSize].Clear();
 	DlgData[DlgSize].Type=DI_DOUBLEBOX;
@@ -527,7 +529,6 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 		if (ii == -1)
 		{
-			delete [] DlgData;
 			strStr.clear();
 			return 0;
 		}
@@ -544,7 +545,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		DlgData[DlgSize+1].X2=70;
 		DlgData[DlgSize+1].Y1=DlgData[DlgSize+1].Y2=DlgSize+2;
 		DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
-		int HistoryNumber=(DlgSize-1)/2;
+		size_t HistoryNumber=(DlgSize-1)/2;
 		HistoryName[HistoryNumber] << L"UserVar" << HistoryNumber;
 		DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
 
@@ -661,24 +662,24 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	if (DlgSize <= 1)
 	{
-		delete [] DlgData;
 		return 0;
 	}
 
 	// correct Dlg Title
 	DlgData[0].Y2=DlgSize+1;
+	// BUGBUG
+	DlgData.resize(DlgSize);
 
 	int ExitCode;
 	{
-		Dialog Dlg(DlgData,DlgSize);
-		Dlg.SetPosition(-1,-1,76,DlgSize+3);
+		Dialog Dlg(DlgData);
+		Dlg.SetPosition(-1,-1,76, static_cast<int>(DlgSize+3));
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 	}
 
 	if (ExitCode==-1)
 	{
-		delete [] DlgData;
 		strStr.clear();
 		return 0;
 	}
@@ -713,7 +714,6 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	strStr = strTmpStr;
 	apiExpandEnvironmentStrings(strStr,strStr);
-	delete [] DlgData;
 	return 1;
 }
 

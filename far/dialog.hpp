@@ -74,10 +74,6 @@ enum DIALOG_MODES
 
 //#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
 
-#define MakeDialogItemsEx(Data,Item) \
-	DialogItemEx Item[ARRAYSIZE(Data)]; \
-	ItemToItemEx(Data,Item,ARRAYSIZE(Data));
-
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox
 struct DialogItemAutomation
@@ -159,6 +155,31 @@ struct DialogItemEx: public FarDialogItem
 	}
 };
 
+template<size_t N>
+std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
+{
+	std::vector<DialogItemEx> Item(N);
+	ItemToItemEx(InitData, Item.data(), N);
+	return Item;
+}
+
+// proxy class to pass raw arrays to Dialog ctor
+template<class T>
+class pass_as_container_t
+{
+public:
+	pass_as_container_t(T* items, size_t size):m_items(items), m_size(size){}
+	T* data() const {return m_items;}
+	size_t size() const {return m_size;}
+private:
+	T* m_items;
+	size_t m_size;
+};
+
+template<class T>
+const pass_as_container_t<T> pass_as_container(T* items, size_t size) {return pass_as_container_t<T>(items, size);}
+
+
 class DlgEdit;
 class ConsoleTitle;
 class Plugin;
@@ -175,15 +196,22 @@ typedef intptr_t (*StaticHandlerFunction)(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 class Dialog: public Frame
 {
 public:
-	template<class T, typename Y, class D>
-	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount):
+	template<class T, class O>
+	Dialog(T& Src, O* OwnerClass, intptr_t (O::*HandlerFunction)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
 		bInitOK(false)
 	{
-		static_assert(std::is_member_function_pointer<Y>::value, "Handler is not a member function");
-		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
+		auto Ptr = Src.data();
+		Construct(&Ptr, Src.size(), reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
 	}
-	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
-	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
+
+	template<class T>
+	Dialog(T& Src, StaticHandlerFunction DlgProc = nullptr, void* InitParam = nullptr):
+		bInitOK(false)
+	{
+		auto Ptr = Src.data();
+		Construct(&Ptr, Src.size(), nullptr, nullptr, DlgProc, InitParam);
+	}
+
 	virtual ~Dialog();
 
 	virtual int ProcessKey(int Key) override;
@@ -239,8 +267,9 @@ protected:
 	size_t InitDialogObjects(size_t ID=(size_t)-1);
 
 private:
-	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
-	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
+	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
+	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
+	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
 	virtual void DisplayObject() override;
 	void DeleteDialogObjects();
@@ -319,8 +348,9 @@ intptr_t PluginDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Para
 class PluginDialog: public Dialog
 {
 public:
-	PluginDialog(const FarDialogItem *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc, void* InitParam):
-		Dialog(SrcItem, SrcItemCount, DlgProc? PluginDialogProc : nullptr, InitParam),
+	template<class T>
+	PluginDialog(const T& Src, FARWINDOWPROC DlgProc, void* InitParam):
+		Dialog(Src, DlgProc? PluginDialogProc : nullptr, InitParam),
 		m_Proc(DlgProc)
 	{}
 	FARWINDOWPROC Proc() {return m_Proc;}

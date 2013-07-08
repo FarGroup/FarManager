@@ -421,10 +421,12 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 	if (Buttons>0)
 	{
 		size_t ItemCount=StrCount+Buttons+1;
-		array_ptr<DialogItemEx> MsgDlg(ItemCount + 1);
+		std::vector<DialogItemEx> MsgDlg(ItemCount + 1);
 
-		for (DWORD i=0; i<ItemCount+1; i++)
-			MsgDlg[i].Clear();
+		std::for_each(RANGE(MsgDlg, i)
+		{
+			i.Clear();
+		});
 
 		int RetCode;
 		MessageY2=++Y2;
@@ -442,7 +444,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 		bool StrSeparator=false;
 		bool Separator=false;
 		DialogItemEx* PtrMsgDlg;
-		for (PtrMsgDlg = MsgDlg.get()+1, I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
+		for (PtrMsgDlg = MsgDlg.data() + 1, I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
 		{
 			if (I==StrCount+1 && !StrSeparator && !Separator)
 			{
@@ -521,7 +523,9 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 				MsgDlg[0].Y2++;
 				ItemCount++;
 			}
-			Dialog Dlg(this, &Message::MsgDlgProc, &strClipText, MsgDlg.get(), ItemCount);
+			// BUGBUG
+			MsgDlg.resize(ItemCount);
+			Dialog Dlg(MsgDlg, this, &Message::MsgDlgProc, &strClipText);
 			if (X1 == -1) X1 = 0;
 			if (Y1 == -1) Y1 = 0;
 			Dlg.SetPosition(X1,Y1,X2,Y2);

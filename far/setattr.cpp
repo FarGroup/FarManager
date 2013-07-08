@@ -686,7 +686,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MSetAttrSystemDialog)},
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(AttrDlgData,AttrDlg);
+	auto AttrDlg = MakeDialogItemsEx(AttrDlgData);
 	SetAttrDlgParam DlgParam={};
 	size_t SelCount=SrcPanel?SrcPanel->GetSelCount():1;
 
@@ -1231,7 +1231,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
 		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
 
-		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,&DlgParam);
+		Dialog Dlg(AttrDlg, SetAttrDlgProc, &DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
 		Dlg.SetId(FileAttrDlgId);
 

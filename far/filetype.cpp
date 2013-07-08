@@ -432,7 +432,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(EditDlgData,EditDlg);
+	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 
 	if (!NewRec)
 	{
@@ -453,7 +453,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 		}
 	}
 
-	Dialog Dlg(EditDlg,ARRAYSIZE(EditDlg),EditTypeRecordDlgProc);
+	Dialog Dlg(EditDlg, EditTypeRecordDlgProc);
 	Dlg.SetHelp(L"FileAssocModify");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.Process();

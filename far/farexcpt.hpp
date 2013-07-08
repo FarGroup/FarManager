@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plugins.hpp"
-
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
 	((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
@@ -240,7 +238,7 @@ typedef BOOL (WINAPI *FARPROCESSEVENT)(FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp=nullptr,
-               Plugin *Module=nullptr,
+               class Plugin *Module=nullptr,
                void *RawData=nullptr,DWORD RawDataSize=0,
                DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
 

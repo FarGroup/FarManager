@@ -1492,7 +1492,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
+	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
 	MacroSettingsDlg[MS_DOUBLEBOX].strData = LangString(MMacroSettingsTitle) << strKeyText;
@@ -1520,7 +1520,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
-	Dialog Dlg(this, &KeyMacro::ParamMacroDlgProc, &Param, MacroSettingsDlg, ARRAYSIZE(MacroSettingsDlg));
+	Dialog Dlg(MacroSettingsDlg, this, &KeyMacro::ParamMacroDlgProc, &Param);
 	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");
 	Frame* BottomFrame = FrameManager->GetBottomFrame();
@@ -5897,11 +5897,11 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,MSG(MDefineMacro)},
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
-	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
+	auto MacroAssignDlg = MakeDialogItemsEx(MacroAssignDlgData);
 	DlgParam Param={Flags, 0, StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	Global->IsProcessAssignMacroKey++;
-	Dialog Dlg(this, &KeyMacro::AssignMacroDlgProc, &Param, MacroAssignDlg, ARRAYSIZE(MacroAssignDlg));
+	Dialog Dlg(MacroAssignDlg, this, &KeyMacro::AssignMacroDlgProc, &Param);
 	Dlg.SetPosition(-1,-1,34,6);
 	Dlg.SetHelp(L"KeyMacro");
 	Dlg.Process();

@@ -3759,7 +3759,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSelectFilter)},
 		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(SelectDlgData,SelectDlg);
+	auto SelectDlg = MakeDialogItemsEx(SelectDlgData);
 	FileFilter Filter(this,FFT_SELECT);
 	bool bUseFilter = false;
 	static string strPrevMask=L"*.*";
@@ -3831,7 +3831,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 					SelectDlg[0].strData = MSG(MUnselectTitle);
 
 				{
-					Dialog Dlg(SelectDlg,ARRAYSIZE(SelectDlg));
+					Dialog Dlg(SelectDlg);
 					Dlg.SetHelp(L"SelectFiles");
 					Dlg.SetPosition(-1,-1,55,7);
 

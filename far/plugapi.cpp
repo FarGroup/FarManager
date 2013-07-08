@@ -881,7 +881,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		return hDlg;
 
 	{
-		Dialog *FarDialog = new PluginDialog(Item, ItemsNumber, DlgProc, Param);
+		Dialog *FarDialog = new PluginDialog(pass_as_container(Item, ItemsNumber), DlgProc, Param);
 
 		if (FarDialog->InitOK())
 		{

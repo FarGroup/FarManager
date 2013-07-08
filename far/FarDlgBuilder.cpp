@@ -583,7 +583,7 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGI
 
 intptr_t DialogBuilder::DoShowDialog()
 {
-	Dialog Dlg(DialogItems, DialogItemsCount);
+	Dialog Dlg(pass_as_container(DialogItems, DialogItemsCount));
 	Dlg.SetHelp(HelpTopic);
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
 	Dlg.Process();

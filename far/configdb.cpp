@@ -503,7 +503,6 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 	unsigned int ThreadProc(LPVOID lpParameter)
 	{
 		delete this;
-		Global->Db->DecThreadCounter();
 		return 0;
 	}
 
@@ -525,10 +524,15 @@ public:
 	void AsyncFinish()
 	{
 		AsyncDone.Reset();
-		Global->Db->IncThreadCounter();
 		Thread FinishThread;
-		if (!FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc))
+		if (FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc))
+		{
+			Global->Db->AddThread(FinishThread);
+		}
+		else
+		{
 			ThreadProc(nullptr);
+		}
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
@@ -2732,7 +2736,6 @@ Database::Database(char ImportExportMode):
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
-	ThreadCounter(0),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
 	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
@@ -2746,8 +2749,7 @@ Database::Database(char ImportExportMode):
 
 Database::~Database()
 {
-	while (InterlockedExchangeAdd(&ThreadCounter,0) > 0)
-		Sleep(1);
+	Global->Db->WaitForThreads();
 }
 
 bool Database::Export(const string& File)
@@ -2899,7 +2901,7 @@ int Database::ShowProblems()
 	int rc = 0;
 	if (!m_Problems.empty())
 	{
-		std::vector<string> msgs(m_Problems.begin(), m_Problems.end());
+		std::vector<string> msgs(m_Problems.cbegin(), m_Problems.cend());
 		msgs.emplace_back(MSG(MShowConfigFolders));
 		msgs.emplace_back(MSG(MIgnore));
 		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs) == 0 ? +1 : -1;

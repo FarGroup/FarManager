@@ -656,7 +656,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSetColorCancel)},
 
 	};
-	MakeDialogItemsEx(ColorDlgData,ColorDlg);
+	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);
 	int ExitCode;
 	FarColor CurColor=Color;
 	int ConsoleColor = Colors::FarColorToConsoleColor(Color);
@@ -726,7 +726,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		Dialog Dlg(ColorDlg,ARRAYSIZE(ColorDlg), GetColorDlgProc, &CurColor);
+		Dialog Dlg(ColorDlg, GetColorDlgProc, &CurColor);
 
 		if (bCentered)
 			Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));

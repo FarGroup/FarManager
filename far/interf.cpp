@@ -564,8 +564,7 @@ void InitRecodeOutTable()
 
 	if (Global->Opt->CleanAscii)
 	{
-		for (size_t i=0; i<0x20; i++)
-			Oem2Unicode[i]=L'.';
+		std::fill(std::begin(Oem2Unicode), std::begin(Oem2Unicode) + 32, L'.');
 
 		Oem2Unicode[0x07]=L'*';
 		Oem2Unicode[0x10]=L'>';
@@ -584,10 +583,8 @@ void InitRecodeOutTable()
 
 	if (Global->Opt->NoGraphics)
 	{
-		for (int i=0xB3; i<=0xDA; i++)
-		{
-			Oem2Unicode[i]=L'+';
-		}
+		std::fill(std::begin(Oem2Unicode) + 0xB3, std::begin(Oem2Unicode) + 0xDB, L'+');
+
 		Oem2Unicode[0xB3]=L'|';
 		Oem2Unicode[0xBA]=L'|';
 		Oem2Unicode[0xC4]=L'-';

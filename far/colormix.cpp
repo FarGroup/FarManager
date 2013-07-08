@@ -167,5 +167,5 @@ FarColor Colors::ConsoleColorToFarColor(WORD Color)
 const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 {
 	return ColorIndex < COL_FIRSTPALETTECOLOR? Colors::ConsoleColorToFarColor(ColorIndex) :
-		Global->Opt->Palette[(ColorIndex - COL_FIRSTPALETTECOLOR) % Global->Opt->Palette.size()];
+		Global->Opt->Palette[ColorIndex - COL_FIRSTPALETTECOLOR];
 }

@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "lasterror.hpp"
 #include "TaskBar.hpp"
+#include "language.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -123,7 +124,7 @@ int GetSearchReplaceString(
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditReplaceReplace)},
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
-		MakeDialogItemsEx(ReplaceDlgData,ReplaceDlg);
+		auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
 
 		if (!pCase)
 			ReplaceDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
@@ -136,7 +137,7 @@ int GetSearchReplaceString(
 		if (!pPreserveStyle)
 			ReplaceDlg[10].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
-		Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
+		Dialog Dlg(ReplaceDlg);
 		Dlg.SetPosition(-1,-1,76,14);
 
 		if (HelpTopic && *HelpTopic)
@@ -189,7 +190,7 @@ int GetSearchReplaceString(
 			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchAll)},
 			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
-		MakeDialogItemsEx(SearchDlgData,SearchDlg);
+		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
 		if (!pCase)
 			SearchDlg[4].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
@@ -203,7 +204,7 @@ int GetSearchReplaceString(
 		if (HideAll)
 			SearchDlg[10].Flags |= DIF_HIDDEN;
 
-		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
+		Dialog Dlg(SearchDlg);
 		Dlg.SetPosition(-1,-1,76,11);
 
 		if (HelpTopic && *HelpTopic)
@@ -269,7 +270,7 @@ int GetString(
 		{DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L""},
 		{DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L""},
 	};
-	MakeDialogItemsEx(StrDlgData,StrDlg);
+	auto StrDlg = MakeDialogItemsEx(StrDlgData);
 
 	if (addCheckBox)
 	{
@@ -332,7 +333,7 @@ int GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract);
+		Dialog Dlg(pass_as_container(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg.SetId(*Id);
 
@@ -404,10 +405,10 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
-	MakeDialogItemsEx(PassDlgData,PassDlg);
+	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
 	{
-		Dialog Dlg(PassDlg,ARRAYSIZE(PassDlg));
+		Dialog Dlg(PassDlg);
 		Dlg.SetPosition(-1,-1,76,10);
 
 		if (HelpTopic)

@@ -1008,7 +1008,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
-		MakeDialogItemsEx(EditDlgData,EditDlg);
+		auto EditDlg = MakeDialogItemsEx(EditDlgData);
 #ifndef PROJECT_DI_MEMOEDIT
 		enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
 #endif
@@ -1041,7 +1041,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 		}
 
-		Dialog Dlg(this, &UserMenu::EditMenuDlgProc, nullptr, EditDlg, ARRAYSIZE(EditDlg));
+		Dialog Dlg(EditDlg, this, &UserMenu::EditMenuDlgProc, nullptr);
 		Dlg.SetHelp(L"UserMenu");
 		Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg.Process();

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "strmix.hpp"
+#include "synchro.hpp"
 
 struct VersionInfo;
 class SQLiteDb;
@@ -261,6 +262,9 @@ public:
 	bool Export(const string& File);
 	int ShowProblems();
 
+	void AddThread(HandleWrapper& Thread) {ThreadWaiter.Add(Thread);}
+	void WaitForThreads() const {ThreadWaiter.Wait(true, INFINITE);}
+
 	static void ClearPluginsCache();
 
 	const std::unique_ptr<GeneralConfig>& GeneralCfg() const { return m_GeneralCfg; }
@@ -277,9 +281,6 @@ public:
 	HierarchicalConfigUniquePtr CreateHighlightConfig();
 	HierarchicalConfigUniquePtr CreateShortcutsConfig();
 	HierarchicalConfigUniquePtr CreatePanelModeConfig();
-
-	void IncThreadCounter() { InterlockedIncrement(&ThreadCounter); }
-	void DecThreadCounter() { InterlockedDecrement(&ThreadCounter); }
 
 private:
 	enum DBCHECK
@@ -300,7 +301,7 @@ private:
 	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
 	char m_ImportExportMode;
-	LONG ThreadCounter;
+	MultiWaiter ThreadWaiter;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;
 	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;

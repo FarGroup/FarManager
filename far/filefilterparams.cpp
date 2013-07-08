@@ -126,8 +126,8 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 void FileFilterParams::SetSize(bool Used, const string& SizeAbove, const string& SizeBelow)
 {
 	FSize.Used=Used;
-	xwcsncpy(FSize.SizeAbove,SizeAbove.data(),ARRAYSIZE(FSize.SizeAbove));
-	xwcsncpy(FSize.SizeBelow,SizeBelow.data(),ARRAYSIZE(FSize.SizeBelow));
+	FSize.SizeAbove = SizeAbove;
+	FSize.SizeBelow = SizeBelow;
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
@@ -185,17 +185,6 @@ bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *D
 		*bRelative=FDate.bRelative;
 
 	return FDate.Used;
-}
-
-bool FileFilterParams::GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const
-{
-	if (SizeAbove)
-		*SizeAbove=FSize.SizeAbove;
-
-	if (SizeBelow)
-		*SizeBelow=FSize.SizeBelow;
-
-	return FSize.Used;
 }
 
 bool FileFilterParams::GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const
@@ -261,13 +250,13 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA& fde, unsigned __int64 C
 	// Режим проверки размера файла включен?
 	if (FSize.Used)
 	{
-		if (*FSize.SizeAbove)
+		if (!FSize.SizeAbove.empty())
 		{
 			if (fde.nFileSize < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
 		}
 
-		if (*FSize.SizeBelow)
+		if (!FSize.SizeBelow.empty())
 		{
 			if (fde.nFileSize > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
@@ -405,7 +394,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
 
-		UseSize=FF->GetSize(nullptr,nullptr);
+		UseSize=FF->IsSizeUsed();
 		UseDate=FF->GetDate(nullptr,nullptr,nullptr,&RelativeDate);
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
@@ -950,7 +939,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterMakeTransparent)},
 	};
 	FilterDlgData[0].Data=MSG(ColorConfig?MFileHilightTitle:MFileFilterTitle);
-	MakeDialogItemsEx(FilterDlgData,FilterDlg);
+	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
 
 	if (ColorConfig)
 	{
@@ -1006,10 +995,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	if (!FilterDlg[ID_FF_MATCHMASK].Selected)
 		FilterDlg[ID_FF_MASKEDIT].Flags|=DIF_DISABLE;
 
-	const wchar_t *SizeAbove, *SizeBelow;
-	FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeAbove,&SizeBelow)?1:0;
-	FilterDlg[ID_FF_SIZEFROMEDIT].strData=SizeAbove;
-	FilterDlg[ID_FF_SIZETOEDIT].strData=SizeBelow;
+	FilterDlg[ID_FF_MATCHSIZE].Selected = FF->IsSizeUsed();
+	FilterDlg[ID_FF_SIZEFROMEDIT].strData = FF->GetSizeAbove();
+	FilterDlg[ID_FF_SIZETOEDIT].strData = FF->GetSizeBelow();
 	FilterDlg[ID_FF_HARDLINKS].Selected=FF->GetHardLinks(nullptr,nullptr)?1:0; //пока что мы проверям только флаг использования данного условия
 
 	if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
@@ -1071,7 +1059,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(FilterDlg,ARRAYSIZE(FilterDlg),FileFilterConfigDlgProc,ColorConfig?&Colors:nullptr);
+	Dialog Dlg(FilterDlg, FileFilterConfigDlgProc, ColorConfig? &Colors : nullptr);
 	Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
 	Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);

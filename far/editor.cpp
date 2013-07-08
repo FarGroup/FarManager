@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
+#include "plugins.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 

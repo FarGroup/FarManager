@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "colormix.hpp"
 #include "treelist.hpp"
+#include "plugins.hpp"
 
 global *Global = nullptr;
 
