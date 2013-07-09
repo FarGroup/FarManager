@@ -107,6 +107,21 @@ enum SELECT_MODES
 	SELECT_INVERTMASK      = 10,
 };
 
+FileListItem::~FileListItem()
+{
+	if (CustomColumnNumber && CustomColumnData)
+	{
+		for (size_t i = 0; i < CustomColumnNumber; ++i)
+			delete[] CustomColumnData[i];
+		delete[] CustomColumnData;
+	}
+
+	if (DeleteDiz)
+		delete[] DizText;
+
+}
+
+
 FileList::FileList():
 	Filter(nullptr),
 	DizRead(FALSE),
@@ -183,32 +198,18 @@ FileList::~FileList()
 	if (PanelMode==PLUGIN_PANEL)
 		while (PopPlugin(FALSE))
 			;
-
-	delete Filter;
 }
 
 
-void FileList::DeleteListData(std::vector<FileListItem*> &ListData)
+void FileList::DeleteListData(std::vector<std::unique_ptr<FileListItem>> &ListData)
 {
 	std::for_each(CONST_RANGE(ListData, i)
 	{
-		if (i->CustomColumnNumber>0 && i->CustomColumnData)
-		{
-			for (size_t J=0; J < i->CustomColumnNumber; ++J)
-				delete[] i->CustomColumnData[J];
-			delete[] i->CustomColumnData;
-		}
-
 		if (this->PanelMode == PLUGIN_PANEL && i->Callback)
 		{
 			FarPanelItemFreeInfo info = {sizeof(FarPanelItemFreeInfo), hPlugin};
 			i->Callback(i->UserData, &info);
 		}
-
-		if (i->DeleteDiz)
-			delete[] i->DizText;
-
-		delete i;
 	});
 
 	ListData.clear();
@@ -282,7 +283,7 @@ inline bool less_opt(bool less)
 
 static struct list_less
 {
-	bool operator()(FileListItem* SPtr1, FileListItem* SPtr2) const
+	bool operator()(const std::unique_ptr<FileListItem>& SPtr1, const std::unique_ptr<FileListItem>& SPtr2) const
 	{
 		int RetCode;
 		bool UseReverseNameSort = false;
@@ -321,8 +322,8 @@ static struct list_less
 			UINT64 SaveFlags1 = SPtr1->UserFlags ,SaveFlags2 = SPtr2->UserFlags;
 			SPtr1->UserFlags=SPtr2->UserFlags=0;
 			PluginPanelItem pi1,pi2;
-			FileList::FileListToPluginItem(SPtr1,&pi1);
-			FileList::FileListToPluginItem(SPtr2,&pi2);
+			FileList::FileListToPluginItem(SPtr1.get(), &pi1);
+			FileList::FileListToPluginItem(SPtr2.get(), &pi2);
 			SPtr1->UserFlags=SaveFlags1;
 			SPtr2->UserFlags=SaveFlags2;
 			RetCode=Global->CtrlObject->Plugins->Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
@@ -663,7 +664,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			if (PluginsList.empty())
 				return 0;
-			*(string *)vParam = (*PluginsList.back()).strPrevOriginalCurDir;
+			*(string *)vParam = PluginsList.back().strPrevOriginalCurDir;
 			return 1;
 		}
 
@@ -706,7 +707,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 1: // по индексу?
 							Result=1;
-							Select(ListData[mps->Index],FALSE);
+							Select(ListData[mps->Index].get(),FALSE);
 							break;
 						case 2: // набор строк
 						{
@@ -716,7 +717,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								int Pos = this->FindFile(PointToName(i), TRUE);
 								if (Pos != -1)
 								{
-									this->Select(ListData[Pos],FALSE);
+									this->Select(ListData[Pos].get(),FALSE);
 									Result++;
 								}
 							});
@@ -736,13 +737,13 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						case 0: // выделить все?
 							std::for_each(CONST_RANGE(ListData, i)
 							{
-								this->Select(i, TRUE);
+								this->Select(i.get(), TRUE);
 							});
 							Result=GetRealSelCount();
 							break;
 						case 1: // по индексу?
 							Result=1;
-							Select(ListData[mps->Index],TRUE);
+							Select(ListData[mps->Index].get(),TRUE);
 							break;
 						case 2: // набор строк через CRLF
 						{
@@ -752,7 +753,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								int Pos = this->FindFile(PointToName(i), TRUE);
 								if (Pos != -1)
 								{
-									this->Select(ListData[Pos],TRUE);
+									this->Select(ListData[Pos].get(),TRUE);
 									Result++;
 								}
 							});
@@ -772,13 +773,13 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						case 0: // инвертировать все?
 							std::for_each(CONST_RANGE(ListData, i)
 							{
-								this->Select(i, !i->Selected);
+								this->Select(i.get(), !i.get()->Selected);
 							});
 							Result=GetRealSelCount();
 							break;
 						case 1: // по индексу?
 							Result=1;
-							Select(ListData[mps->Index],!ListData[mps->Index]->Selected);
+							Select(ListData[mps->Index].get(),!ListData[mps->Index]->Selected);
 							break;
 						case 2: // набор строк через CRLF
 						{
@@ -788,7 +789,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								int Pos = this->FindFile(PointToName(i), TRUE);
 								if (Pos != -1)
 								{
-									this->Select(ListData[Pos],!ListData[Pos]->Selected);
+									this->Select(ListData[Pos].get(),!ListData[Pos].get()->Selected);
 									Result++;
 								}
 							});
@@ -1009,7 +1010,7 @@ int FileList::ProcessKey(int Key)
 				std::for_each(CONST_RANGE(ListData, i)
 				{
 					if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
-						this->Select(i, 1);
+						this->Select(i.get(), 1);
 				});
 			}
 
@@ -1144,7 +1145,7 @@ int FileList::ProcessKey(int Key)
 				{
 					int CurrentPath=FALSE;
 					assert(CurFile < static_cast<int>(ListData.size()));
-					CurPtr=ListData[CurFile];
+					CurPtr=ListData[CurFile].get();
 
 					if (ShowShortNames && !CurPtr->strShortName.empty())
 						strFileName = CurPtr->strShortName;
@@ -1543,7 +1544,7 @@ int FileList::ProcessKey(int Key)
 				else
 				{
 					assert(CurFile < static_cast<int>(ListData.size()));
-					CurPtr=ListData[CurFile];
+					CurPtr=ListData[CurFile].get();
 
 					if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 					{
@@ -1578,7 +1579,7 @@ int FileList::ProcessKey(int Key)
 						int Pos=FindFile(strFileName);
 
 						if (Pos!=-1)
-							CurPtr=ListData[Pos];
+							CurPtr=ListData[Pos].get();
 						else
 						{
 							NewFile=TRUE;
@@ -1885,7 +1886,7 @@ int FileList::ProcessKey(int Key)
 					assert(CurFile < static_cast<int>(ListData.size()));
 					if (Key != KEY_SHIFTF5 && !StrCmpI(name, ListData[CurFile]->strName) && selected > ListData[CurFile]->Selected)
 					{
-						Select(ListData[CurFile], selected);
+						Select(ListData[CurFile].get(), selected);
 						Redraw();
 					}
 				}
@@ -2129,7 +2130,7 @@ int FileList::ProcessKey(int Key)
 					ProcessKey(Key==KEY_SHIFTLEFT || Key==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN);
 
 				assert(CurFile < static_cast<int>(ListData.size()));
-				Select(ListData[CurFile],ShiftSelection);
+				Select(ListData[CurFile].get(), ShiftSelection);
 
 				if (SelectedFirst)
 					SortFileList(TRUE);
@@ -2153,7 +2154,7 @@ int FileList::ProcessKey(int Key)
 				return TRUE;
 
 			assert(CurFile < static_cast<int>(ListData.size()));
-			CurPtr=ListData[CurFile];
+			CurPtr=ListData[CurFile].get();
 
 			if (ShiftSelection==-1)
 			{
@@ -2183,7 +2184,7 @@ int FileList::ProcessKey(int Key)
 				return TRUE;
 
 			assert(CurFile < static_cast<int>(ListData.size()));
-			CurPtr=ListData[CurFile];
+			CurPtr=ListData[CurFile].get();
 			Select(CurPtr,!CurPtr->Selected);
 			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
 			Down(1);
@@ -2358,7 +2359,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	if (CurFile >= static_cast<int>(ListData.size()))
 		return;
 
-	FileListItem *CurPtr=ListData[CurFile];
+	FileListItem *CurPtr=ListData[CurFile].get();
 	strFileName = CurPtr->strName;
 
 	if (!CurPtr->strShortName.empty())
@@ -2550,7 +2551,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 		}
 		else if (CurFile < static_cast<int>(ListData.size()))
 		{
-			CurPtr=ListData[CurFile];
+			CurPtr=ListData[CurFile].get();
 		}
 	}
 
@@ -2887,7 +2888,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		MoveToMouse(MouseEvent);
 		assert(CurFile < static_cast<int>(ListData.size()));
-		CurPtr=ListData[CurFile];
+		CurPtr=ListData[CurFile].get();
 
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 		        MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -2963,7 +2964,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
 				assert(CurFile < static_cast<int>(ListData.size()));
-				CurPtr=ListData[CurFile];
+				CurPtr=ListData[CurFile].get();
 				Select(CurPtr,MouseSelection);
 			}
 		}
@@ -2988,7 +2989,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
 				assert(CurFile < static_cast<int>(ListData.size()));
-				CurPtr=ListData[CurFile];
+				CurPtr=ListData[CurFile].get();
 				Select(CurPtr,MouseSelection);
 			}
 		}
@@ -3672,7 +3673,7 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 void FileList::ClearLastGetSelection()
 {
 	if (LastSelPosition>=0 && LastSelPosition < static_cast<int>(ListData.size()))
-		Select(ListData[LastSelPosition],0);
+		Select(ListData[LastSelPosition].get(), 0);
 }
 
 
@@ -3691,15 +3692,14 @@ unsigned __int64 FileList::GetLastSelectedSize()
 }
 
 
-int FileList::GetLastSelectedItem(FileListItem *LastItem)
+const FileListItem* FileList::GetLastSelectedItem() const
 {
 	if (LastSelPosition>=0 && LastSelPosition < static_cast<int>(ListData.size()))
 	{
-		*LastItem=*ListData[LastSelPosition];
-		return TRUE;
+		return ListData[LastSelPosition].get();
 	}
 
-	return FALSE;
+	return nullptr;
 }
 
 int FileList::GetCurName(string &strName, string &strShortName)
@@ -3732,7 +3732,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 
 	if (PanelMode==PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
-		strName = PointToName(PluginsList.front()->strHostFile);
+		strName = PointToName(PluginsList.front().strHostFile);
 	}
 	else if (PanelMode==NORMAL_PANEL)
 	{
@@ -3936,7 +3936,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 				if (bUseFilter || !(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders ||
 				        !Selection || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
 				{
-					this->Select(i,Selection);
+					this->Select(i.get(), Selection);
 					workCount++;
 				}
 			}
@@ -3960,7 +3960,7 @@ void FileList::UpdateViewPanel()
 	{
 		QuickView *ViewPanel=(QuickView *)AnotherPanel;
 		assert(CurFile < static_cast<int>(ListData.size()));
-		FileListItem *CurPtr=ListData[CurFile];
+		FileListItem *CurPtr=ListData[CurFile].get();
 
 		if (PanelMode!=PLUGIN_PANEL ||
 		        Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
@@ -4028,14 +4028,14 @@ void FileList::CompareDir()
 	std::for_each(CONST_RANGE(ListData, i)
 	{
 		if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-			this->Select(i, TRUE);
+			this->Select(i.get(), TRUE);
 	});
 
 	// помечаем ВСЕ, кроме каталогов на пассивной панели
 	std::for_each(CONST_RANGE(Another->ListData, i)
 	{
 		if (!(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-			Another->Select(i, TRUE);
+			Another->Select(i.get(), TRUE);
 	});
 
 	int CompareFatTime=FALSE;
@@ -4117,10 +4117,10 @@ void FileList::CompareDir()
 					continue;
 
 				if (Cmp < 1 && (*i)->Selected)
-					Select((*i), 0);
+					Select(i->get(), 0);
 
 				if (Cmp > -1 && (*j)->Selected)
-					Another->Select((*j), 0);
+					Another->Select(j->get(), 0);
 
 				if (Another->PanelMode!=PLUGIN_PANEL)
 					break;
@@ -4421,7 +4421,7 @@ void FileList::ClearSelection()
 {
 	std::for_each(CONST_RANGE(ListData, i)
 	{
-		this->Select(i, 0);
+		this->Select(i.get(), 0);
 	});
 
 	if (SelectedFirst)
@@ -4444,7 +4444,7 @@ void FileList::RestoreSelection()
 	{
 		int NewSelection = i->PrevSelected;
 		i->PrevSelected = i->Selected;
-		this->Select(i, NewSelection);
+		this->Select(i.get(), NewSelection);
 	});
 
 	if (SelectedFirst)
@@ -4466,7 +4466,7 @@ int FileList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 }
 
 
-int FileList::GetCurrentPos()
+int FileList::GetCurrentPos() const
 {
 	return(CurFile);
 }
@@ -4475,7 +4475,7 @@ int FileList::GetCurrentPos()
 void FileList::EditFilter()
 {
 	if (!Filter)
-		Filter=new FileFilter(this,FFT_PANEL);
+		Filter.reset(new FileFilter(this,FFT_PANEL));
 
 	Filter->FilterEdit();
 }
@@ -4859,14 +4859,14 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 		if (SelFileCount)
 		{
-			DoubleDotDir = ListData[0];
+			DoubleDotDir = ListData.front().get();
 
 			if (std::any_of(CONST_RANGE(ListData, i) {return i->Selected && i->FileAttr & FILE_ATTRIBUTE_DIRECTORY;}))
 				DoubleDotDir = nullptr;
 		}
 		else
 		{
-			DoubleDotDir = ListData[0];
+			DoubleDotDir = ListData.front().get();
 		}
 
 		if (DoubleDotDir)
@@ -4906,7 +4906,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			        GetPluginDirInfo(hPlugin, (*i)->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 			        ||
 			        ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle), (*i)->strName, Data, 0, Filter, GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+			         GetDirInfo(MSG(MDirInfoViewTitle), (*i)->strName, Data, 0, Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= (*i)->FileSize;
 				SelFileSize += Data.FileSize;
@@ -4928,7 +4928,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		        ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
 		         GetDirInfo(MSG(MDirInfoViewTitle),
 		                    TestParentFolderName(ListData[CurFile]->strName) ? L".":ListData[CurFile]->strName,
-		                    Data, 0, Filter, GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+		                    Data, 0, Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
 			ListData[CurFile]->FileSize = Data.FileSize;
 			ListData[CurFile]->AllocationSize = Data.AllocationSize;
@@ -4945,34 +4945,34 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 int FileList::GetPrevViewMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevViewMode:ViewMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevViewMode:ViewMode;
 }
 
 
 int FileList::GetPrevSortMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortMode:SortMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevSortMode:SortMode;
 }
 
 
 int FileList::GetPrevSortOrder()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortOrder:SortOrder;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevSortOrder:SortOrder;
 }
 
 bool FileList::GetPrevNumericSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevNumericSort:NumericSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevNumericSort:NumericSort;
 }
 
 bool FileList::GetPrevCaseSensitiveSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevCaseSensitiveSort:CaseSensitiveSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevCaseSensitiveSort:CaseSensitiveSort;
 }
 
 bool FileList::GetPrevDirectoriesFirst()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevDirectoriesFirst:DirectoriesFirst;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevDirectoriesFirst:DirectoriesFirst;
 }
 
 HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
@@ -4995,12 +4995,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 	{
 		if (PushPrev)
 		{
-			PrevDataItem* Item=new PrevDataItem;;
-			Item->PrevListData=ListData;
-			Item->PrevTopFile = CurTopFile;
-			Item->strPrevName = FileName? *FileName : L"";
-			PrevDataList.emplace_back(Item);
-			ListData.clear();
+			PrevDataList.emplace_back(VALUE_TYPE(PrevDataList)(FileName? *FileName : L"", std::move(ListData), CurTopFile));
 		}
 
 		bool WasFullscreen = IsFullScreen();
@@ -5221,24 +5216,22 @@ void FileList::IfGoHome(wchar_t Drive)
 }
 
 
-BOOL FileList::GetItem(int Index,void *Dest)
+const FileListItem* FileList::GetItem(size_t Index) const
 {
-	if (Index == -1 || Index == -2)
+	if (static_cast<int>(Index) == -1 || static_cast<int>(Index) == -2)
 		Index=GetCurrentPos();
 
-	if (static_cast<size_t>(Index) >= ListData.size())
-		return FALSE;
+	if (Index >= ListData.size())
+		return nullptr;
 
-	*((FileListItem *)Dest)=*ListData[Index];
-	return TRUE;
+	return ListData[Index].get();
 }
 
 void FileList::ClearAllItem()
 {
-	std::for_each(CONST_RANGE(PrevDataList, i)
+	std::for_each(RANGE(PrevDataList, i)
 	{
-		DeleteListData(i->PrevListData);
-		delete i;
+		DeleteListData(i.PrevListData);
 	});
 	PrevDataList.clear();
 }

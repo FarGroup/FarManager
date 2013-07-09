@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem
+struct FileListItem:public ipanelitem
 {
 	char Selected;
 	char PrevSelected;
@@ -76,15 +76,17 @@ struct FileListItem
 	unsigned __int64 AllocationSize;
 	unsigned __int64 StreamsSize;
 
-	string strName;
 	string strShortName;
 
 	DWORD ReparseTag;
 
 	string strCustomData;
 
+	~FileListItem();
+
 	void Clear()
 	{
+		strName.clear();
 		Selected = 0;
 		PrevSelected = 0;
 		ShowFolderSize = 0;
@@ -111,7 +113,6 @@ struct FileListItem
 		FileSize = 0;
 		AllocationSize = 0;
 		StreamsSize = 0;
-		strName.clear();
 		strShortName.clear();
 		ReparseTag=0;
 		strCustomData.clear();
@@ -121,6 +122,7 @@ struct FileListItem
 	{
 		if (this != &fliCopy)
 		{
+			strName = fliCopy.strName;
 			Selected = fliCopy.Selected;
 			PrevSelected = fliCopy.PrevSelected;
 			ShowFolderSize = fliCopy.ShowFolderSize;
@@ -147,7 +149,6 @@ struct FileListItem
 			FileSize = fliCopy.FileSize;
 			AllocationSize = fliCopy.AllocationSize;
 			StreamsSize = fliCopy.StreamsSize;
-			strName = fliCopy.strName;
 			strShortName = fliCopy.strShortName;
 			ReparseTag = fliCopy.ReparseTag;
 			strCustomData = fliCopy.strCustomData;
@@ -155,6 +156,11 @@ struct FileListItem
 
 		return *this;
 	}
+
+private:
+	// no construction outside of FileList
+	FileListItem() {Clear();}
+	friend class FileList;
 };
 
 struct PluginsListItem
@@ -172,17 +178,31 @@ struct PluginsListItem
 	PanelViewSettings PrevViewSettings;
 };
 
-struct PrevDataItem
-{
-	string strPrevName;
-	std::vector<FileListItem*> PrevListData;
-	int PrevTopFile;
-};
-
 class FileList:public Panel
 {
+	struct PrevDataItem
+	{
+		PrevDataItem(const string& rhsPrevName, std::vector<std::unique_ptr<FileListItem>>&& rhsPrevListData, int rhsPrevTopFile)
+		{
+			strPrevName = rhsPrevName;
+			std::swap(PrevListData, rhsPrevListData);
+			PrevTopFile = rhsPrevTopFile;
+		}
+
+		PrevDataItem(PrevDataItem&& rhs)
+		{
+			std::swap(strPrevName, rhs.strPrevName);
+			std::swap(PrevListData, rhs.PrevListData);
+			PrevTopFile = rhs.PrevTopFile;
+		}
+
+		string strPrevName;
+		std::vector<std::unique_ptr<FileListItem>> PrevListData;
+		int PrevTopFile;
+	};
+
 	private:
-		FileFilter *Filter;
+		std::unique_ptr<FileFilter> Filter;
 		DizList Diz;
 		int DizRead;
 		/* $ 09.11.2001 IS
@@ -193,10 +213,10 @@ class FileList:public Panel
 
 		string strOriginalCurDir;
 		string strPluginDizName;
-		std::vector<FileListItem*> ListData;
+		std::vector<std::unique_ptr<FileListItem>> ListData;
 		HANDLE hPlugin;
-		std::list<PrevDataItem*>PrevDataList;
-		std::list<PluginsListItem*>PluginsList;
+		std::list<PrevDataItem> PrevDataList;
+		std::list<PluginsListItem> PluginsList;
 		FileSystemWatcher FSWatcher;
 		long UpperFolderTopFile,LastCurFile;
 		long ReturnCurrentFile;
@@ -229,7 +249,7 @@ class FileList:public Panel
 		virtual void SetSelectedFirstMode(bool Mode) override;
 		virtual bool GetSelectedFirstMode() override {return SelectedFirst;}
 		virtual void DisplayObject() override;
-		void DeleteListData(std::vector<FileListItem*>& ListData);
+		void DeleteListData(std::vector<std::unique_ptr<FileListItem>>& ListData);
 		void Up(int Count);
 		void Down(int Count);
 		void Scroll(int Count);
@@ -254,14 +274,7 @@ class FileList:public Panel
 		void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
 		void UpdatePlugin(int KeepSelection, int IgnoreVisible);
 
-		void MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To);
-		virtual size_t GetSelCount() override;
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA *fde=nullptr) override;
-		virtual void UngetSelName() override;
-		virtual void ClearLastGetSelection() override;
-
-		virtual unsigned __int64 GetLastSelectedSize() override;
-		virtual int GetLastSelectedItem(FileListItem *LastItem) override;
+		void MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, std::vector<std::unique_ptr<FileListItem>>& To);
 
 		virtual int GetCurName(string &strName, string &strShortName) override;
 		virtual int GetCurBaseName(string &strName, string &strShortName) override;
@@ -294,7 +307,7 @@ class FileList:public Panel
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
 		void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = L"");
-		int  ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx);
+		int ProcessOneHostFile(const std::vector<std::unique_ptr<FileListItem>>::const_iterator Idx);
 		void HighlightBorder(int Level, int ListPos);
 
 	protected:
@@ -346,7 +359,7 @@ class FileList:public Panel
 
 		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) override;
-		virtual int GetCurrentPos() override;
+		virtual int GetCurrentPos() const override;
 		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
 		virtual bool GetPlainString(string& Dest,int ListPos) override;
 		long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
@@ -382,6 +395,12 @@ class FileList:public Panel
 		virtual void SetReturnCurrentFile(int Mode) override;
 		virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
 		virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
+		virtual size_t GetSelCount() override;
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA *fde=nullptr) override;
+		virtual void UngetSelName() override;
+		virtual void ClearLastGetSelection() override;
+		virtual unsigned __int64 GetLastSelectedSize() override;
+		virtual const FileListItem* GetLastSelectedItem() const override;
 
 		bool GetPluginInfo(PluginInfo *PInfo);
 		void PluginGetPanelInfo(PanelInfo &Info);
@@ -404,7 +423,7 @@ class FileList:public Panel
 		bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
 
-		virtual BOOL GetItem(int Index,void *Dest) override;
+		virtual const FileListItem* GetItem(size_t Index) const override;
 		virtual BOOL UpdateKeyBar() override;
 
 		virtual void IfGoHome(wchar_t Drive) override;

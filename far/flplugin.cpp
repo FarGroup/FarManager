@@ -54,21 +54,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void FileList::PushPlugin(HANDLE hPlugin,const string& HostFile)
 {
-	PluginsListItem* stItem = new PluginsListItem;
-	stItem->hPlugin=hPlugin;
-	stItem->strHostFile = HostFile;
-	stItem->strPrevOriginalCurDir = strOriginalCurDir;
-	strOriginalCurDir = strCurDir;
-	stItem->Modified=FALSE;
-	stItem->PrevViewMode=ViewMode;
-	stItem->PrevSortMode=SortMode;
-	stItem->PrevSortOrder=SortOrder;
-	stItem->PrevNumericSort=NumericSort;
-	stItem->PrevCaseSensitiveSort=CaseSensitiveSort;
-	stItem->PrevViewSettings=ViewSettings;
-	stItem->PrevDirectoriesFirst=DirectoriesFirst;
-	PluginsList.emplace_back(stItem);
+	PluginsList.emplace_back(VALUE_TYPE(PluginsList)());
+	PluginsListItem& stItem = PluginsList.back();
 	++Global->PluginPanelsCount;
+
+	stItem.hPlugin=hPlugin;
+	stItem.strHostFile = HostFile;
+	stItem.strPrevOriginalCurDir = strOriginalCurDir;
+	strOriginalCurDir = strCurDir;
+	stItem.Modified=FALSE;
+	stItem.PrevViewMode=ViewMode;
+	stItem.PrevSortMode=SortMode;
+	stItem.PrevSortOrder=SortOrder;
+	stItem.PrevNumericSort=NumericSort;
+	stItem.PrevCaseSensitiveSort=CaseSensitiveSort;
+	stItem.PrevViewSettings=ViewSettings;
+	stItem.PrevDirectoriesFirst=DirectoriesFirst;
 }
 
 
@@ -84,44 +85,38 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		return FALSE;
 	}
 
-	// указатель на плагин, с которого уходим
-	PluginsListItem *PStack=PluginsList.back();
-
-	// закрываем текущий плагин.
-	PluginsList.pop_back();
-
-	--Global->PluginPanelsCount;
+	const PluginsListItem& CurPlugin = PluginsList.back();
 
 	Global->CtrlObject->Plugins->ClosePanel(hPlugin);
 
-	if (!PluginsList.empty())
+	if (PluginsList.size() > 1)
 	{
-		hPlugin=PluginsList.back()->hPlugin;
-		strOriginalCurDir=PStack->strPrevOriginalCurDir;
+		hPlugin=PluginsList.back().hPlugin;
+		strOriginalCurDir=CurPlugin.strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
 		{
-			SetViewMode(PStack->PrevViewMode);
-			SortMode=PStack->PrevSortMode;
-			NumericSort=PStack->PrevNumericSort;
-			CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
-			SortOrder=PStack->PrevSortOrder;
-			DirectoriesFirst=PStack->PrevDirectoriesFirst;
+			SetViewMode(CurPlugin.PrevViewMode);
+			SortMode = CurPlugin.PrevSortMode;
+			NumericSort = CurPlugin.PrevNumericSort;
+			CaseSensitiveSort = CurPlugin.PrevCaseSensitiveSort;
+			SortOrder = CurPlugin.PrevSortOrder;
+			DirectoriesFirst = CurPlugin.PrevDirectoriesFirst;
 		}
 
-		if (PStack->Modified)
+		if (CurPlugin.Modified)
 		{
 			PluginPanelItem PanelItem={};
 			string strSaveDir;
 			apiGetCurrentDirectory(strSaveDir);
 
-			if (FileNameToPluginItem(PStack->strHostFile,&PanelItem))
+			if (FileNameToPluginItem(CurPlugin.strHostFile,&PanelItem))
 			{
 				Global->CtrlObject->Plugins->PutFiles(hPlugin,&PanelItem,1,FALSE,0);
 			}
 			else
 			{
-				PanelItem.FileName = DuplicateString(PointToName(PStack->strHostFile));
+				PanelItem.FileName = DuplicateString(PointToName(CurPlugin.strHostFile));
 				Global->CtrlObject->Plugins->DeleteFiles(hPlugin,&PanelItem,1,0);
 				delete[] PanelItem.FileName;
 			}
@@ -134,7 +129,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
-			DeleteFileWithFolder(PStack->strHostFile);  // удаление файла от предыдущего плагина
+			DeleteFileWithFolder(CurPlugin.strHostFile);  // удаление файла от предыдущего плагина
 		}
 	}
 	else
@@ -144,19 +139,20 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (EnableRestoreViewMode)
 		{
-			SetViewMode(PStack->PrevViewMode);
-			SortMode=PStack->PrevSortMode;
-			NumericSort=PStack->PrevNumericSort;
-			CaseSensitiveSort=PStack->PrevCaseSensitiveSort;
-			SortOrder=PStack->PrevSortOrder;
-			DirectoriesFirst=PStack->PrevDirectoriesFirst;
+			SetViewMode(CurPlugin.PrevViewMode);
+			SortMode = CurPlugin.PrevSortMode;
+			NumericSort = CurPlugin.PrevNumericSort;
+			CaseSensitiveSort = CurPlugin.PrevCaseSensitiveSort;
+			SortOrder = CurPlugin.PrevSortOrder;
+			DirectoriesFirst = CurPlugin.PrevDirectoriesFirst;
 		}
 	}
 
-	delete PStack;
-
 	if (EnableRestoreViewMode)
 		Global->CtrlObject->Cp()->RedrawKeyBar();
+
+	PluginsList.pop_back();
+	--Global->PluginPanelsCount;
 
 	return TRUE;
 }
@@ -169,27 +165,26 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 */
 void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess)
 {
-    string strName(DefaultName);
+	string strName(DefaultName);
 	if (Closed && !PrevDataList.empty())
 	{
-		PrevDataItem* Item=PrevDataList.back();
-		PrevDataList.pop_back();
-		if (!Item->PrevListData.empty())
+		PrevDataItem& Item = PrevDataList.back();
+		if (Item.PrevListData.size() > 1)
 		{
-			MoveSelection(Item->PrevListData, ListData);
-			UpperFolderTopFile = Item->PrevTopFile;
+			MoveSelection(Item.PrevListData, ListData);
+			UpperFolderTopFile = Item.PrevTopFile;
 
 			if (UsePrev)
-				strName = Item->strPrevName;
+				strName = Item.strPrevName;
 
-			DeleteListData(Item->PrevListData);
-			delete Item;
+			DeleteListData(Item.PrevListData);
 
 			if (SelectedFirst)
 				SortFileList(FALSE);
 			else if (!ListData.empty())
 				SortFileList(TRUE);
 		}
+		PrevDataList.pop_back();
 	}
 	if (Position)
 	{
@@ -437,13 +432,13 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < ListData.size())
 		{
 			ItemList.emplace_back(VALUE_TYPE(ItemList)());
-			FileListToPluginItem(ListData[LastSelPosition], &ItemList.back());
+			FileListToPluginItem(ListData[LastSelPosition].get(), &ItemList.back());
 		}
 	}
 
 	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 	{
-		FileListToPluginItem(ListData[0],&ItemList.front());
+		FileListToPluginItem(ListData[0].get(), &ItemList.front());
 		//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
 		//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
 	}
@@ -801,13 +796,13 @@ void FileList::PluginPutFilesToNew()
 						if (FileTimeDifference(&i->CreationTime, &PtrLastPos->CreationTime) > 0)
 						{
 							LastPos = n;
-							PtrLastPos = i;
+							PtrLastPos = i.get();
 						}
 					}
 					else
 					{
 						LastPos = n;
-						PtrLastPos = i;
+						PtrLastPos = i.get();
 					}
 				}
 				++n;
@@ -904,7 +899,7 @@ void FileList::ProcessHostFile()
 		int Done=FALSE;
 		SaveSelection();
 
-		if (PanelMode==PLUGIN_PANEL && !PluginsList.back()->strHostFile.empty())
+		if (PanelMode==PLUGIN_PANEL && !PluginsList.back().strHostFile.empty())
 		{
 			_ALGO(SysLog(L"call CreatePluginItemList"));
 			auto ItemList = CreatePluginItemList();
@@ -940,7 +935,7 @@ void FileList::ProcessHostFile()
 						Done=ProcessOneHostFile(i);
 
 						if (Done == 1)
-							Select(*i, 0);
+							Select(i->get(), 0);
 						else if (Done == -1)
 							continue;
 						else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
@@ -976,7 +971,7 @@ void FileList::ProcessHostFile()
      0 - Плагин вернул FALSE
      1 - Плагин вернул TRUE
 */
-int FileList::ProcessOneHostFile(std::vector<FileListItem*>::const_iterator Idx)
+int FileList::ProcessOneHostFile(std::vector<std::unique_ptr<FileListItem>>::const_iterator Idx)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
@@ -1059,7 +1054,7 @@ size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 
 	if (static_cast<size_t>(ItemNumber) < ListData.size())
 	{
-		result=FileListToPluginItem2(ListData[ItemNumber],Item);
+		result=FileListToPluginItem2(ListData[ItemNumber].get(), Item);
 	}
 
 	return result;
@@ -1073,7 +1068,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 	{
 		if (ItemNumber==CacheSelIndex)
 		{
-			result=FileListToPluginItem2(ListData[CacheSelPos],Item);
+			result=FileListToPluginItem2(ListData[CacheSelPos].get(), Item);
 		}
 		else
 		{
@@ -1088,7 +1083,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 				if (CurSel==ItemNumber)
 				{
-					result=FileListToPluginItem2(ListData[i],Item);
+					result=FileListToPluginItem2(ListData[i].get(), Item);
 					CacheSelIndex=ItemNumber;
 					CacheSelPos=static_cast<int>(i);
 					break;
@@ -1097,7 +1092,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 			if (CurSel==-1 && !ItemNumber)
 			{
-				result=FileListToPluginItem2(ListData[CurFile],Item);
+				result=FileListToPluginItem2(ListData[CurFile].get(), Item);
 				CacheSelIndex=-1;
 			}
 		}
@@ -1119,7 +1114,7 @@ void FileList::PluginBeginSelection()
 
 void FileList::PluginSetSelection(int ItemNumber,bool Selection)
 {
-	Select(ListData[ItemNumber],Selection);
+	Select(ListData[ItemNumber].get(), Selection);
 }
 
 void FileList::PluginClearSelection(int SelectedItemNumber)
@@ -1142,7 +1137,7 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 
 			if (CurSel==SelectedItemNumber)
 			{
-				Select(ListData[i],FALSE);
+				Select(ListData[i].get(), FALSE);
 				CacheSelClearIndex=SelectedItemNumber;
 				CacheSelClearPos=static_cast<int>(i);
 				break;
@@ -1185,7 +1180,7 @@ void FileList::SetPluginModified()
 {
 	if(!PluginsList.empty())
 	{
-		PluginsList.back()->Modified=TRUE;
+		PluginsList.back().Modified = TRUE;
 	}
 }
 
@@ -1220,7 +1215,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 				if (++FileNumber >= ListData.size())
 					return;
 
-			Select(ListData[FileNumber++],0);
+			Select(ListData[FileNumber++].get(), 0);
 		}
 
 		PluginNumber++;

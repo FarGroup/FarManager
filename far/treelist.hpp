@@ -43,9 +43,8 @@ enum
 	MODALTREE_FREE    =3
 };
 
-struct TreeItem
+struct TreeItem:public ipanelitem
 {
-	string strName;
 	std::vector<int> Last;
 	int Depth;             // уровень вложенности
 
@@ -56,7 +55,7 @@ struct TreeItem
 	}
 
 	TreeItem(const string& Name):
-		strName(Name),
+		ipanelitem(Name),
 		Last(MAX_PATH/2),
 		Depth(0)
 	{
@@ -194,8 +193,8 @@ class TreeList: public Panel
 		virtual void SetFocus() override;
 		virtual void KillFocus() override;
 		virtual BOOL UpdateKeyBar() override;
-		virtual BOOL GetItem(int Index,void *Dest) override;
-		virtual int GetCurrentPos() override;
+		virtual TreeItem* GetItem(size_t Index) const override;
+		virtual int GetCurrentPos() const override;
 
 		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) override;
 

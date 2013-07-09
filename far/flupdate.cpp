@@ -210,7 +210,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData = ListData;
+		OldData = std::move(ListData);
 	}
 	else
 		DeleteListData(ListData);
@@ -258,7 +258,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	BOOL NeedHighlight=Global->Opt->Highlight && PanelMode != PLUGIN_PANEL;
 
 	if (!Filter)
-		Filter=new FileFilter(this,FFT_PANEL);
+		Filter.reset(new FileFilter(this,FFT_PANEL));
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
@@ -410,7 +410,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (NeedHighlight)
 	{
-		Global->CtrlObject->HiFiles->GetHiColor(ListData.begin(), ListData.size());
+		std::for_each(RANGE(ListData, i)
+		{
+			Global->CtrlObject->HiFiles->GetHiColor(*i.get());
+		});
 	}
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
@@ -429,19 +432,22 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			auto PluginPtr = PanelData;
 			for (auto i = ListData.begin() + OldSize; i != ListData.end(); ++i, ++PluginPtr, ++Position)
 			{
-				PluginToFileListItem(PluginPtr, *i);
+				PluginToFileListItem(PluginPtr, i->get());
 				(*i)->Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
 				(*i)->PrevSelected = (*i)->Selected=0;
 				(*i)->ShowFolderSize = 0;
-				(*i)->SortGroup=Global->CtrlObject->HiFiles->GetGroup(*i);
+				(*i)->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i->get());
 
 				if (!TestParentFolderName(PluginPtr->FileName) && !((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 					TotalFileCount++;
 			}
 
 			// цветовую боевую раскраску в самом конце, за один раз
-			Global->CtrlObject->HiFiles->GetHiColor(ListData.begin() + OldSize, PanelCount);
+			std::for_each(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount, LAMBDA_PREDICATE(ListData, i)
+			{
+				Global->CtrlObject->HiFiles->GetHiColor(*i.get());
+			});
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
 	}
@@ -571,14 +577,14 @@ void FileList::StopFSWatcher()
 
 struct search_list_less
 {
-	bool operator()(const FileListItem* a, const FileListItem* b) const
+	bool operator()(const std::unique_ptr<FileListItem>& a, const std::unique_ptr<FileListItem>& b) const
 	{
 		return a->strName < b->strName;
 	}
 }
 SearchListLess;
 
-void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileListItem*>& To)
+void FileList::MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, std::vector<std::unique_ptr<FileListItem>>& To)
 {
 	SelFileCount=0;
 	SelFileSize=0;
@@ -589,10 +595,10 @@ void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileL
 
 	std::for_each(CONST_RANGE(To, i)
 	{
-		auto Iterator = std::lower_bound(From.begin(), From.end(), i, SearchListLess);
+		auto Iterator = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
 		if (Iterator != From.end())
 		{
-			auto OldItem = *Iterator;
+			auto OldItem = Iterator->get();
 			if (OldItem->strName == i->strName)
 			{
 				if (OldItem->ShowFolderSize)
@@ -602,7 +608,7 @@ void FileList::MoveSelection(std::vector<FileListItem*>& From, std::vector<FileL
 					i->AllocationSize = OldItem->AllocationSize;
 				}
 
-				this->Select(i, OldItem->Selected);
+				this->Select(i.get(), OldItem->Selected);
 				i->PrevSelected = OldItem->PrevSelected;
 			}
 		}
@@ -622,7 +628,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	DizRead=FALSE;
-	std::vector<FileListItem*> OldData;
+	std::vector<std::unique_ptr<FileListItem>> OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
 	LastCurFile=-1;
@@ -650,7 +656,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		// WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
 		if (!PrevDataList.empty())
-			GoToFile(PrevDataList.back()->strPrevName);
+			GoToFile(PrevDataList.back().strPrevName);
 
 		return;
 	}
@@ -666,14 +672,14 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	if (!ListData.empty())
 	{
-		auto CurPtr=ListData[CurFile];
+		auto CurPtr=ListData[CurFile].get();
 		strCurName = CurPtr->strName;
 
 		if (CurPtr->Selected)
 		{
 			for (size_t i = CurFile + 1; i < ListData.size(); ++i)
 			{
-				CurPtr = ListData[i];
+				CurPtr = ListData[i].get();
 
 				if (!CurPtr->Selected)
 				{
@@ -690,7 +696,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData=ListData;
+		OldData = std::move(ListData);
 	}
 	else
 	{
@@ -700,7 +706,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	ListData.resize(PluginFileCount);
 
 	if (!Filter)
-		Filter = new FileFilter(this, FFT_PANEL);
+		Filter.reset(new FileFilter(this, FFT_PANEL));
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
@@ -711,9 +717,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	for (size_t i = 0; i < ListData.size(); i++)
 	{
-		ListData[FileListCount] = new FileListItem;
-		FileListItem *CurListData=ListData[FileListCount];
-		CurListData->Clear();
+		ListData[FileListCount].reset(new FileListItem);
+		FileListItem& CurListData = *ListData[FileListCount].get();
 
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
 		{
@@ -726,38 +731,43 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 			continue;
 
 		//ClearStruct(*CurListData);
-		PluginToFileListItem(&PanelData[i],CurListData);
-		CurListData->Position=i;
+		PluginToFileListItem(&PanelData[i], &CurListData);
+		CurListData.Position=i;
 
 		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
-			CurListData->SortGroup=Global->CtrlObject->HiFiles->GetGroup(CurListData);
+			CurListData.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&CurListData);
 		else
-			CurListData->SortGroup=DEFAULT_SORT_GROUP;
+			CurListData.SortGroup=DEFAULT_SORT_GROUP;
 
-		if (!CurListData->DizText)
+		if (!CurListData.DizText)
 		{
-			CurListData->DeleteDiz=FALSE;
-			//CurListData->DizText=nullptr;
+			CurListData.DeleteDiz=FALSE;
+			//CurListData.DizText=nullptr;
 		}
 
-		if (TestParentFolderName(CurListData->strName))
+		if (TestParentFolderName(CurListData.strName))
 		{
 			DotsPresent=TRUE;
-			CurListData->FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
+			CurListData.FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
 		}
-		else if (!(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		else if (!(CurListData.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			TotalFileCount++;
 		}
 
-		TotalFileSize += CurListData->FileSize;
+		TotalFileSize += CurListData.FileSize;
 		FileListCount++;
 	}
 
 	ListData.resize(FileListCount);
 
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-		Global->CtrlObject->HiFiles->GetHiColor(ListData.begin(), ListData.size(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+	{
+		std::for_each(RANGE(ListData, i)
+		{
+			Global->CtrlObject->HiFiles->GetHiColor(*i.get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+		});
+	}
 
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{
@@ -767,7 +777,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		ListData.emplace_back(NewItem);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			Global->CtrlObject->HiFiles->GetHiColor(ListData.end() - 1, 1, (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(*ListData.back().get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -927,7 +937,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		std::for_each(CONST_RANGE(ListData, i)
 		{
-			i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i);
+			i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i.get());
 		});
 	}
 }

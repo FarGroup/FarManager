@@ -98,7 +98,7 @@ static void PR_PrintMsg()
 	Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
 }
 
-void PrintFiles(Panel *SrcPanel)
+void PrintFiles(FileList* SrcPanel)
 {
 	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
 	string strPrinterName;
@@ -213,12 +213,11 @@ void PrintFiles(Panel *SrcPanel)
 				if (FarMkTempEx(strTempDir))
 				{
 					apiCreateDirectory(strTempDir,nullptr);
-					FileListItem ListItem;
-
-					if (SrcPanel->GetLastSelectedItem(&ListItem))
+					auto ListItem = SrcPanel->GetLastSelectedItem();
+					if (ListItem)
 					{
 						PluginPanelItem PanelItem;
-						FileList::FileListToPluginItem(&ListItem,&PanelItem);
+						FileList::FileListToPluginItem(ListItem, &PanelItem);
 
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;

@@ -2114,19 +2114,18 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	return strDest;
 }
 
-BOOL TreeList::GetItem(int Index,void *Dest)
+TreeItem* TreeList::GetItem(size_t Index) const
 {
-	if (Index == -1 || Index == -2)
+	if (static_cast<int>(Index) == -1 || static_cast<int>(Index) == -2)
 		Index=GetCurrentPos();
 
-	if (static_cast<size_t>(Index) >= ListData.size())
-		return FALSE;
+	if (Index>= ListData.size())
+		return nullptr;
 
-	*((TreeItem *)Dest) = *ListData[Index];
-	return TRUE;
+	return ListData[Index].get();
 }
 
-int TreeList::GetCurrentPos()
+int TreeList::GetCurrentPos() const
 {
 	return CurFile;
 }

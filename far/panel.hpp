@@ -66,6 +66,15 @@ struct PanelViewSettings
 	}
 };
 
+struct ipanelitem
+{
+	ipanelitem() {}
+	ipanelitem(const string& Name):strName(Name) {}
+	virtual ~ipanelitem() {};
+
+	string strName;
+};
+
 enum
 {
 	PVS_FULLSCREEN            = 0x00000001,
@@ -254,13 +263,13 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual void UngetSelName() {}
 		virtual void ClearLastGetSelection() {}
 		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}
-		virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return 0;}
+		virtual const ipanelitem* GetLastSelectedItem() const {return nullptr;}
 
 		virtual int GetCurName(string &strName, string &strShortName);
 		virtual int GetCurBaseName(string &strName, string &strShortName);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
 
-		virtual int GetCurrentPos() {return 0;}
+		virtual int GetCurrentPos() const {return 0;}
 		virtual void SetFocus();
 		virtual void KillFocus();
 		virtual void Update(int Mode) {}
@@ -366,7 +375,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual BOOL UpdateKeyBar() { return FALSE; }
 
 		virtual size_t GetFileCount() {return 0;}
-		virtual BOOL GetItem(int,void *) {return FALSE;}
+		virtual const ipanelitem* GetItem(size_t) const {return nullptr;}
 
 		bool ExecShortcutFolder(int Pos, bool raw=false);
 		bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType);
