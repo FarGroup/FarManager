@@ -3310,7 +3310,7 @@ MCopyDlgLink
 upd:"Create &link"
 upd:"Create &link"
 upd:"Create &link"
-"Crear &enlace"
+"Crear en&lace"
 "Vytvor prepo&jenie"
 
 MCopyDlgTotal
@@ -4137,7 +4137,7 @@ MCopyMoving
 "Verschiebe die Datei"
 "Fájl mozgatása"
 "Przenoszę plik"
-"Moviendo el archivo"
+"Moviendo el archivo:"
 "Presúvam súbor"
 
 MCopyCopying
@@ -4147,7 +4147,7 @@ MCopyCopying
 "Kopiere die Datei"
 "Fájl másolása"
 "Kopiuję plik"
-"Copiando el archivo"
+"Copiando el archivo:"
 "Kopírujem súbor"
 
 MCopyTo
@@ -4157,7 +4157,7 @@ MCopyTo
 "nach"
 "ide:"
 "do"
-"Hacia"
+"Hacia:"
 "do"
 
 MCopyErrorDiskFull
@@ -4430,7 +4430,7 @@ upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
-upd:"The following folder will be moved to the Recycle Bin:"
+"La siguiente carpeta será movida a la Papelera de Reciclaje:"
 upd:"The following folder will be moved to the Recycle Bin:"
 
 MDeleteWipe
@@ -4686,7 +4686,7 @@ upd:"Cannot move file to the Recycle Bin"
 upd:"Cannot move file to the Recycle Bin"
 upd:"Cannot move file to the Recycle Bin"
 upd:"Cannot move file to the Recycle Bin"
-upd:"Cannot move file to the Recycle Bin"
+"No se puede mover el archivo a la Papelera de Reciclaje"
 upd:"Cannot move file to the Recycle Bin"
 
 MCannotRecycleFolder
@@ -4696,7 +4696,7 @@ upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
-upd:"Cannot move folder to the Recycle Bin"
+"No se puede mover la carpeta a la Papelera de Reciclaje"
 upd:"Cannot move folder to the Recycle Bin"
 
 MCannotGetSecurity
@@ -8420,7 +8420,7 @@ MViewF11
 "Plugin"
 "Plugin"
 "Pluginy"
-"Complementos"
+"Comple"
 "Moduly"
 
 MViewF12
@@ -14018,7 +14018,7 @@ MQuickViewFolders
 "Ordner           "
 "Mappák száma     "
 "Katalogi            "
-"Directorios      "
+"Directorios         "
 "Priečinky         "
 
 MQuickViewFiles
@@ -14028,7 +14028,7 @@ MQuickViewFiles
 "Dateien          "
 "Fájlok száma     "
 "Pliki               "
-"Archivos         "
+"Archivos            "
 "Súbory            "
 
 MQuickViewBytes
@@ -14038,7 +14038,7 @@ MQuickViewBytes
 "Gesamtgröße      "
 "Fájlok mérete    "
 "Rozmiar plików      "
-"Tamaño archivos  "
+"Tamaño archivos     "
 "Veľkosť súborov   "
 
 MQuickViewAllocated
@@ -14048,7 +14048,7 @@ MQuickViewAllocated
 upd:"Allocated size   "
 upd:"Allocated size   "
 upd:"Allocated size   "
-"Tamaño alojado   "
+"Tamaño alojado      "
 "Alokovaná veľkosť "
 
 MQuickViewCluster
@@ -14058,7 +14058,7 @@ MQuickViewCluster
 "Clustergröße     "
 "Klaszterméret    "
 "Rozmiar klastra     "
-"Tamaño cluster   "
+"Tamaño cluster      "
 "Veľkosť klastra   "
 
 MQuickViewSlack
@@ -14068,7 +14068,7 @@ MQuickViewSlack
 "Verlust          "
 "Meddő terület    "
 "Przestrzeń stracona "
-"Desperdiciado    "
+"Desperdiciado       "
 "Mŕtve miesto      "
 
 MQuickViewMFTOverhead
@@ -14078,7 +14078,7 @@ upd:"MFT overhead        "
 upd:"MFT overhead        "
 upd:"MFT overhead        "
 upd:"MFT overhead        "
-"Gasto adicional de MFT"
+"Gasto adicional MFT "
 "MFT overhead      "
 
 MSetAttrTitle
@@ -14159,7 +14159,7 @@ upd:"DFS Targets"
 upd:"DFS Targets"
 upd:"DFS Targets"
 upd:"DFS Targets"
-upd:"DFS Targets"
+"DFS Destinos"
 upd:"DFS Targets"
 
 MSetAttrUnknownJunction
