@@ -36,56 +36,50 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "synchro.hpp"
 #include "dirinfo.hpp"
-#include "macro.hpp"
 
 class Viewer;
 
 class QuickView:public Panel
 {
-	private:
-		Viewer *QView;
+public:
+	QuickView();
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual void Update(int Mode) override;
+	virtual void CloseFile() override;
+	virtual void QViewDelTempName() override;
+	virtual int UpdateIfChanged(panel_update_mode UpdateMode) override;
+	virtual void SetTitle() override;
+	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+	virtual void SetFocus() override;
+	virtual void KillFocus() override;
+	virtual void UpdateKeyBar() override;
+	virtual int GetCurName(string &strName, string &strShortName) override;
 
-		string strCurFileName;
-		string strCurFileType;
-		string strTempName;
+	void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);
 
-		CriticalSection CS;
+private:
+	virtual ~QuickView();
+	virtual void DisplayObject() override;
 
-		int Directory;
-		FARMACROAREA PrevMacroMode;
-		DirInfoData Data;
-		bool OldWrapMode;
-		bool OldWrapType;
+	void PrintText(const string& Str);
+	void SetMacroMode(int Restore = FALSE);
+	void DynamicUpdateKeyBar();
 
-		bool uncomplete_dirscan;
+	Viewer *QView;
 
-	private:
-		virtual void DisplayObject() override;
-		void PrintText(const string& Str);
+	string strCurFileName;
+	string strCurFileType;
+	string strTempName;
 
-		void SetMacroMode(int Restore = FALSE);
+	CriticalSection CS;
 
-		void DynamicUpdateKeyBar();
+	int Directory;
+	FARMACROAREA PrevMacroMode;
+	DirInfoData Data;
+	bool OldWrapMode;
+	bool OldWrapType;
 
-	public:
-		QuickView();
-	private:
-		virtual ~QuickView();
-
-	public:
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		virtual void Update(int Mode) override;
-		void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);
-		virtual void CloseFile() override;
-		virtual void QViewDelTempName() override;
-
-		virtual int UpdateIfChanged(int UpdateMode) override;
-		virtual void SetTitle() override;
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
-		virtual void SetFocus() override;
-		virtual void KillFocus() override;
-		virtual BOOL UpdateKeyBar() override;
-		virtual int GetCurName(string &strName, string &strShortName) override;
+	bool uncomplete_dirscan;
 };

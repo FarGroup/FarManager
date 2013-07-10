@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class VMenu2;
 class FileFilterParams;
+class FileList;
 struct FileListItem;
 
 enum enumHighlightDataColor
@@ -61,7 +62,7 @@ public:
 	~HighlightFiles();
 
 	void UpdateCurrentTime();
-	void GetHiColor(FileListItem& To, bool UseAttrHighlighting = false);
+	void GetHiColor(FileListItem* To, bool UseAttrHighlighting = false);
 	int GetGroup(const FileListItem *fli);
 	void HiEdit(int MenuPos);
 	void UpdateHighlighting(bool RefreshMasks = false);

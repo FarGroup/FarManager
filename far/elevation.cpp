@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "FarGuid.hpp"
 #include "strmix.hpp"
+#include "manager.hpp"
 
 const int CallbackMagic= 0xCA11BAC6;
 

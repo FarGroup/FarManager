@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "keyboard.hpp"
 #include "DlgGuid.hpp"
+#include "language.hpp"
 
 static std::vector<std::unique_ptr<FileFilterParams>> *FilterData, *TempFilterData;
 
@@ -598,19 +599,19 @@ void FileFilter::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)
 {
 	FAR_FIND_DATA fde;
-	fde.dwFileAttributes=fli.FileAttr;
-	fde.ftCreationTime=fli.CreationTime;
-	fde.ftLastAccessTime=fli.AccessTime;
-	fde.ftLastWriteTime=fli.WriteTime;
-	fde.ftChangeTime=fli.ChangeTime;
-	fde.nFileSize=fli.FileSize;
-	fde.nAllocationSize=fli.AllocationSize;
-	fde.strFileName=fli.strName;
-	fde.strAlternateFileName=fli.strShortName;
-	return FileInFilter(fde, foundType, &fli.strName);
+	fde.dwFileAttributes=fli->FileAttr;
+	fde.ftCreationTime=fli->CreationTime;
+	fde.ftLastAccessTime=fli->AccessTime;
+	fde.ftLastWriteTime=fli->WriteTime;
+	fde.ftChangeTime=fli->ChangeTime;
+	fde.nFileSize=fli->FileSize;
+	fde.nAllocationSize=fli->AllocationSize;
+	fde.strFileName=fli->strName;
+	fde.strAlternateFileName=fli->strShortName;
+	return FileInFilter(fde, foundType, &fli->strName);
 }
 
 bool FileFilter::FileInFilter(const FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)

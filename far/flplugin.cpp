@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "panelmix.hpp"
 #include "mix.hpp"
+#include "plugins.hpp"
 
 /*
    В стеке ФАРова панель не хранится - только плагиновые!
@@ -91,7 +92,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 	if (PluginsList.size() > 1)
 	{
-		hPlugin=PluginsList.back().hPlugin;
+		auto NextTopPlugin = PluginsList.end();
+		std::advance(NextTopPlugin, -2);
+		hPlugin=NextTopPlugin->hPlugin;
 		strOriginalCurDir=CurPlugin.strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)

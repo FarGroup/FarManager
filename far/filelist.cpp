@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
+#include "plugins.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -1367,7 +1368,7 @@ int FileList::ProcessKey(int Key)
 
 			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true,
 					Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
-					Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
+					Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER, OFP_NORMAL);
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
@@ -2916,7 +2917,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			ShowFileList(TRUE);
 			FlushInputBuffer();
-			ProcessEnter(true,IntKeyState.ShiftPressed!=0);
+			ProcessEnter(true, IntKeyState.ShiftPressed!=0, true, false, OFP_NORMAL);
 			return TRUE;
 		}
 		else
@@ -3281,7 +3282,7 @@ bool FileList::FilterIsEnabled()
 
 bool FileList::FileInFilter(size_t idxItem)
 {
-	if ( ( static_cast<size_t>(idxItem) < ListData.size() ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(*ListData[idxItem]) ) ) // BUGBUG, cast
+	if ( ( static_cast<size_t>(idxItem) < ListData.size() ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(ListData[idxItem].get()) ) ) // BUGBUG, cast
 		return true;
 	return false;
 }
@@ -3908,7 +3909,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 			else
 			{
 				if (bUseFilter)
-					Match=Filter.FileInFilter(*i);
+					Match=Filter.FileInFilter(i.get());
 				else
 					Match=FileMask.Compare((this->ShowShortNames && !i->strShortName.empty()) ? i->strShortName:i->strName);
 			}
@@ -5115,7 +5116,7 @@ void FileList::ChangeSortOrder(int NewOrder)
 	Show();
 }
 
-BOOL FileList::UpdateKeyBar()
+void FileList::UpdateKeyBar()
 {
 	KeyBar *KB=Global->CtrlObject->MainKeyBar;
 	KB->SetLabels(MF1);
@@ -5130,7 +5131,6 @@ BOOL FileList::UpdateKeyBar()
 			KB->Change(Info.KeyBar);
 	}
 
-	return TRUE;
 }
 
 int FileList::PluginPanelHelp(HANDLE hPlugin)

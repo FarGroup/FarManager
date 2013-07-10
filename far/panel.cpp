@@ -78,6 +78,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "elevation.hpp"
 #include "stddlg.hpp"
+#include "lang.hpp"
+#include "plugins.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

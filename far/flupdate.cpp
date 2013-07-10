@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
+#include "plugins.hpp"
 
 // ‘лаги дл€ ReadDiz()
 enum ReadDizFlags
@@ -123,14 +124,14 @@ static void PR_ReadFileNamesMsg()
 	}
 }
 
-void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
+void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
 	TaskBar TB(false);
 
 	strOriginalCurDir = strCurDir;
 
-	if (!IsVisible() && !IgnoreVisible)
+	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
 	{
 		UpdateRequired=TRUE;
 		UpdateRequiredMode=KeepSelection;
@@ -289,7 +290,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				ListData.reserve(ListData.size() + 4096);
 
 			auto NewItem = new FileListItem;
-			NewItem->Clear();
 			NewItem->FileAttr = fdata.dwFileAttributes;
 			NewItem->CreationTime = fdata.ftCreationTime;
 			NewItem->AccessTime = fdata.ftLastAccessTime;
@@ -336,7 +336,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			}
 
 			if (ReadCustomData)
-				Global->CtrlObject->Plugins->GetCustomData(NewItem);
+				NewItem->strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem->strName);
 
 			ListData.emplace_back(NewItem);
 
@@ -412,7 +412,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		std::for_each(RANGE(ListData, i)
 		{
-			Global->CtrlObject->HiFiles->GetHiColor(*i.get());
+			Global->CtrlObject->HiFiles->GetHiColor(i.get());
 		});
 	}
 
@@ -446,7 +446,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			// цветовую боевую раскраску в самом конце, за один раз
 			std::for_each(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount, LAMBDA_PREDICATE(ListData, i)
 			{
-				Global->CtrlObject->HiFiles->GetHiColor(*i.get());
+				Global->CtrlObject->HiFiles->GetHiColor(i.get());
 			});
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
@@ -500,7 +500,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 /*$ 22.06.2001 SKV
   ƒобавлен параметр дл€ вызова после исполнени€ команды.
 */
-int FileList::UpdateIfChanged(int UpdateMode)
+int FileList::UpdateIfChanged(panel_update_mode UpdateMode)
 {
 	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
 	if (!Global->Opt->AutoUpdateLimit || ListData.size() <= static_cast<size_t>(Global->Opt->AutoUpdateLimit))
@@ -615,12 +615,12 @@ void FileList::MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, s
 	});
 }
 
-void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
+void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 {
 	_ALGO(CleverSysLog clv(L"FileList::UpdatePlugin"));
-	_ALGO(SysLog(L"(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,IgnoreVisible));
+	_ALGO(SysLog(L"(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,UpdateEvenIfPanelInvisible));
 
-	if (!IsVisible() && !IgnoreVisible)
+	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
 	{
 		UpdateRequired=TRUE;
 		UpdateRequiredMode=KeepSelection;
@@ -765,19 +765,18 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	{
 		std::for_each(RANGE(ListData, i)
 		{
-			Global->CtrlObject->HiFiles->GetHiColor(*i.get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(i.get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 		});
 	}
 
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{
 		auto NewItem = new FileListItem;
-		NewItem->Clear();
 		AddParentPoint(NewItem, ListData.size());
 		ListData.emplace_back(NewItem);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			Global->CtrlObject->HiFiles->GetHiColor(*ListData.back().get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(ListData.back().get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -942,10 +941,9 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 	}
 }
 
-// ќбнулить текущий CurPtr и занести предопределенные данные дл€ каталога ".."
+// занести предопределенные данные дл€ каталога "..". ќжидаетс€, что CurPtr пуст.
 void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times, const string& Owner)
 {
-	CurPtr->Clear();
 	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	CurPtr->strName = L"..";
 

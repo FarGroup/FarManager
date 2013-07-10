@@ -33,8 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dialog.hpp"
-#include "interf.hpp"
-#include "ctrlobj.hpp"
 
 class VMenu2 : public Dialog
 {
@@ -74,15 +72,7 @@ class VMenu2 : public Dialog
 		void SetBottomTitle(const string& Title);
 
 
-		void SetBoxType(int BoxType)
-		{
-			ShortBox=(BoxType==SHORT_SINGLE_BOX || BoxType==SHORT_DOUBLE_BOX || BoxType==NO_BOX);
-			if(BoxType==NO_BOX)
-				SetFlags(VMENU_SHOWNOBOX);
-			if(BoxType==SINGLE_BOX || BoxType==SHORT_SINGLE_BOX)
-				SetFlags(VMENU_LISTSINGLEBOX);
-			Resize();
-		}
+		void SetBoxType(int BoxType);
 
 		void SetFlags(DWORD Flags);
 

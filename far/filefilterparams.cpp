@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "console.hpp"
 #include "flink.hpp"
+#include "language.hpp"
 
 FileFilterParams::FileFilterParams()
 {
@@ -218,19 +219,19 @@ int FileFilterParams::GetMarkChar() const
 	return FHighlight.Colors.MarkChar;
 }
 
-bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 CurrentTime)
+bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime)
 {
 	FAR_FIND_DATA fde;
-	fde.dwFileAttributes=fli.FileAttr;
-	fde.ftCreationTime=fli.CreationTime;
-	fde.ftLastAccessTime=fli.AccessTime;
-	fde.ftLastWriteTime=fli.WriteTime;
-	fde.ftChangeTime=fli.ChangeTime;
-	fde.nFileSize=fli.FileSize;
-	fde.nAllocationSize=fli.AllocationSize;
-	fde.strFileName=fli.strName;
-	fde.strAlternateFileName=fli.strShortName;
-	return FileInFilter(fde, CurrentTime, &fli.strName);
+	fde.dwFileAttributes=fli->FileAttr;
+	fde.ftCreationTime=fli->CreationTime;
+	fde.ftLastAccessTime=fli->AccessTime;
+	fde.ftLastWriteTime=fli->WriteTime;
+	fde.ftChangeTime=fli->ChangeTime;
+	fde.nFileSize=fli->FileSize;
+	fde.nAllocationSize=fli->AllocationSize;
+	fde.strFileName=fli->strName;
+	fde.strAlternateFileName=fli->strShortName;
+	return FileInFilter(fde, CurrentTime, &fli->strName);
 }
 
 bool FileFilterParams::FileInFilter(const FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName)

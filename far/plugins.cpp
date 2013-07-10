@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
 #include "mix.hpp"
+#include "manager.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
@@ -2506,9 +2507,11 @@ HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_
 	return hPlugin;
 }
 
-void PluginManager::GetCustomData(FileListItem *ListItem)
+string PluginManager::GetCustomData(const string& Name) const
 {
-	NTPath FilePath(ListItem->strName);
+	const NTPath FilePath(Name);
+
+	string strCustomData;
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
@@ -2516,14 +2519,15 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 
 		if (i->HasGetCustomData() && i->GetCustomData(FilePath.data(), &CustomData))
 		{
-			if (!ListItem->strCustomData.empty())
-				ListItem->strCustomData += L" ";
-			ListItem->strCustomData += CustomData;
+			if (!strCustomData.empty())
+				strCustomData += L" ";
+			strCustomData += CustomData;
 
 			if (i->HasFreeCustomData())
 				i->FreeCustomData(CustomData);
 		}
 	});
+	return strCustomData;
 }
 
 const GUID& PluginManager::GetGUID(HANDLE hPlugin)

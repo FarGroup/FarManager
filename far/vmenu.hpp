@@ -38,12 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "manager.hpp"
-#include "frame.hpp"
 #include "bitflags.hpp"
 #include "synchro.hpp"
-#include "macro.hpp"
-
 
 // ÷ветовые атрибуты - индексы в массиве цветов
 enum

@@ -557,7 +557,7 @@ void QuickView::PrintText(const string& Str)
 }
 
 
-int QuickView::UpdateIfChanged(int UpdateMode)
+int QuickView::UpdateIfChanged(panel_update_mode UpdateMode)
 {
 	if (IsVisible() && !strCurFileName.empty() && Directory==2)
 	{
@@ -629,11 +629,10 @@ int QuickView::GetCurName(string &strName, string &strShortName)
 	return (FALSE);
 }
 
-BOOL QuickView::UpdateKeyBar()
+void QuickView::UpdateKeyBar()
 {
 	Global->CtrlObject->MainKeyBar->SetLabels(MQViewF1);
 	DynamicUpdateKeyBar();
-	return TRUE;
 }
 
 void QuickView::DynamicUpdateKeyBar()

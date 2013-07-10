@@ -163,7 +163,7 @@ class FileFilterParams
 		// попадает ли файл fd под условие установленного фильтра.
 		// Возвращает true  - попадает;
 		//            false - не попадает.
-		bool FileInFilter(const FileListItem& fli, unsigned __int64 CurrentTime);
+		bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime);
 		bool FileInFilter(const FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr); //Used in dirinfo, copy, findfile
 		bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime);
 };

@@ -66,15 +66,6 @@ struct PanelViewSettings
 	}
 };
 
-struct ipanelitem
-{
-	ipanelitem() {}
-	ipanelitem(const string& Name):strName(Name) {}
-	virtual ~ipanelitem() {};
-
-	string strName;
-};
-
 enum
 {
 	PVS_FULLSCREEN            = 0x00000001,
@@ -136,7 +127,12 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
-enum {UIC_UPDATE_NORMAL, UIC_UPDATE_FORCE, UIC_UPDATE_FORCE_NOTIFICATION};
+enum panel_update_mode
+{
+	UIC_UPDATE_NORMAL,
+	UIC_UPDATE_FORCE,
+	UIC_UPDATE_FORCE_NOTIFICATION
+};
 
 class VMenu2;
 class Edit;
@@ -168,11 +164,11 @@ public:
 		}
 	}
 
-	bool Destroyed() { return destroyed; }
+	bool Destroyed() const { return destroyed; }
 
 	int AddRef() { return ++prevent_delete_count; }
 
-   int Release() {
+	int Release() {
 		assert(prevent_delete_count > 0);
 		if (--prevent_delete_count > 0 || !destroyed)
 			return prevent_delete_count;
@@ -188,211 +184,197 @@ class DelayDestroy
 	DelayedDestroy *host;
 public:
 	DelayDestroy(DelayedDestroy *_host) { (host = _host)->AddRef(); }
-   ~DelayDestroy() { host->Release(); }
+	~DelayDestroy() { host->Release(); }
 };
 
 class Panel:public ScreenObject, public DelayedDestroy
 {
-	protected:
-		string strCurDir;
-		bool Focus;
-		int Type;
-		int EnableUpdate;
-		int PanelMode;
-		int SortMode;
-		int SortOrder;
-		bool SortGroups;
-		int PrevViewMode,ViewMode;
-		int CurTopFile;
-		int CurFile;
-		bool ShowShortNames;
-		bool NumericSort;
-		bool CaseSensitiveSort;
-		bool DirectoriesFirst;
-		int ModalMode;
-		int PluginCommand;
-		string strPluginParam;
+public:
+	Panel();
 
-	public:
-		struct PanelViewSettings ViewSettings;
-		int ProcessingPluginCommand;
+	struct panelitem
+	{
+		panelitem() {}
+		panelitem(const string& Name):strName(Name) {}
+		virtual ~panelitem() {};
 
-	private:
-		int ChangeDiskMenu(int Pos,int FirstCall);
-		int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
-		void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
-		int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu);
-		void FastFindShow(int FindX,int FindY);
-		void FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName, string &strName);
-		void DragMessage(int X,int Y,int Move);
+		string strName;
+	};
 
-		string strDragName;
+	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
+	virtual void CloseFile() {}
+	virtual void UpdateViewPanel() {}
+	virtual void CompareDir() {}
+	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) {}
+	virtual void ClearSelection() {}
+	virtual void SaveSelection() {}
+	virtual void RestoreSelection() {}
+	virtual void SortFileList(int KeepPosition) {}
+	virtual void EditFilter() {}
+	virtual bool FileInFilter(size_t idxItem) {return true;}
+	virtual bool FilterIsEnabled() {return false;}
+	virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
+	virtual void DeleteDiz(const string& Name,const string& ShortName) {}
+	virtual void GetDizName(string &strDizName) {}
+	virtual void FlushDiz() {}
+	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
+	virtual bool IsFullScreen() {return (ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;}
+	virtual bool IsDizDisplayed() {return false;}
+	virtual bool IsColumnDisplayed(int Type) {return false;}
+	virtual int GetColumnsCount() { return 1;}
+	virtual void SetReturnCurrentFile(int Mode) {}
+	virtual void QViewDelTempName() {}
+	virtual void GetOpenPanelInfo(struct OpenPanelInfo *Info) {}
+	virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
+	virtual void SetPluginModified() {}
+	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
+	virtual HANDLE GetPluginHandle() {return nullptr;}
+	virtual void SetTitle();
+	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
+	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
+	virtual void ChangeDirToCurrent();
+	virtual const string& GetCurDir();
+	virtual size_t GetSelCount() {return 0;}
+	virtual size_t GetRealSelCount() {return 0;}
+	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) {return FALSE;}
+	virtual void UngetSelName() {}
+	virtual void ClearLastGetSelection() {}
+	virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}
+	virtual const panelitem* GetLastSelectedItem() const {return nullptr;}
+	virtual int GetCurName(string &strName, string &strShortName);
+	virtual int GetCurBaseName(string &strName, string &strShortName);
+	virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
+	virtual int GetCurrentPos() const {return 0;}
+	virtual void SetFocus();
+	virtual void KillFocus();
+	virtual void Update(int Mode) = 0;
+	virtual int UpdateIfChanged(panel_update_mode UpdateMode) {return 0;}
+	virtual void UpdateIfRequired() {}
+	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
+	virtual void StopFSWatcher() {}
+	virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
+	virtual bool GetPlainString(string& Dest,int ListPos){return false;}
+	virtual int GoToFile(long idxItem) {return TRUE;}
+	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) {return TRUE;}
+	virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) {return -1;}
+	virtual int IsSelected(const string& Name) {return FALSE;}
+	virtual int IsSelected(size_t indItem) {return FALSE;}
+	virtual long FindFirst(const string& Name) {return -1;}
+	virtual long FindNext(int StartPos, const string& Name) {return -1;}
+	virtual void SetSelectedFirstMode(bool) {}
+	virtual bool GetSelectedFirstMode() {return false;}
+	virtual void SetViewMode(int ViewMode);
+	virtual int GetPrevViewMode() {return(PrevViewMode);}
+	virtual int GetPrevSortMode() {return(SortMode);}
+	virtual int GetPrevSortOrder() {return(SortOrder);}
+	virtual bool GetPrevNumericSort() {return NumericSort;}
+	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
+	virtual bool GetPrevCaseSensitiveSort() {return CaseSensitiveSort;}
+	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
+	virtual bool GetPrevDirectoriesFirst() {return DirectoriesFirst;}
+	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
+	virtual void SetSortMode(int Mode) {SortMode=Mode;}
+	virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);}
+	virtual void IfGoHome(wchar_t Drive) {}
+	virtual void UpdateKeyBar() = 0;
+	virtual size_t GetFileCount() {return 0;}
+	virtual const panelitem* GetItem(size_t) const {return nullptr;}
+	virtual void Hide() override;
+	virtual void Show() override;
+	virtual void DisplayObject() override {}
 
-	private:
-		struct ShortcutInfo
-		{
-			string ShortcutFolder;
-			string PluginFile;
-			string PluginData;
-			GUID PluginGuid;
-		};
-		bool GetShortcutInfo(ShortcutInfo& Info);
+	int GetMode() {return(PanelMode);}
+	void SetMode(int Mode) {PanelMode=Mode;}
+	int GetModalMode() {return(ModalMode);}
+	void SetModalMode(int ModalMode) {Panel::ModalMode=ModalMode;}
+	int GetViewMode() {return(ViewMode);}
+	void SetPrevViewMode(int PrevViewMode) {Panel::PrevViewMode=PrevViewMode;}
+	int GetSortMode() {return(SortMode);}
+	bool GetNumericSort() { return NumericSort; }
+	void SetNumericSort(bool Mode) { NumericSort = Mode; }
+	bool GetCaseSensitiveSort() {return CaseSensitiveSort;}
+	void SetCaseSensitiveSort(bool Mode) {CaseSensitiveSort = Mode;}
+	bool GetDirectoriesFirst() { return DirectoriesFirst; }
+	void SetDirectoriesFirst(bool Mode) { DirectoriesFirst = Mode != 0; }
+	int GetSortOrder() {return(SortOrder);}
+	void SetSortOrder(int Mode) {SortOrder=Mode;}
+	bool GetSortGroups() {return(SortGroups);}
+	void SetSortGroups(bool Mode) {SortGroups=Mode;}
+	bool GetShowShortNamesMode() {return(ShowShortNames);}
+	void SetShowShortNamesMode(bool Mode) {ShowShortNames=Mode;}
+	void InitCurDir(const string& CurDir);
+	bool ExecShortcutFolder(int Pos, bool raw=false);
+	bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType);
+	bool SaveShortcutFolder(int Pos, bool Add);
+	int SetPluginCommand(int Command,int Param1,void* Param2);
+	int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
+	void ChangeDisk();
+	bool GetFocus() {return Focus;}
+	int GetType() {return(Type);}
+	void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
+	bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
+	int SetCurPath();
+	BOOL NeedUpdatePanel(const Panel *AnotherPanel);
 
-	protected:
-		void FastFind(int FirstKey);
-		void DrawSeparator(int Y);
-		void ShowScreensCount();
-		int  IsDragging();
-		virtual void ClearAllItem(){}
+	static void EndDrag();
 
-	public:
-		Panel();
-	protected:
-		virtual ~Panel();
+	PanelViewSettings ViewSettings;
+	int ProcessingPluginCommand;
 
-	public:
-		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
-		virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
-		virtual void ChangeDirToCurrent();
+protected:
+	virtual ~Panel();
+	virtual void ClearAllItem(){}
 
-		virtual const string& GetCurDir();
+	void FastFind(int FirstKey);
+	void DrawSeparator(int Y);
+	void ShowScreensCount();
+	int  IsDragging();
 
-		virtual size_t GetSelCount() {return 0;}
-		virtual size_t GetRealSelCount() {return 0;}
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) {return FALSE;}
-		virtual void UngetSelName() {}
-		virtual void ClearLastGetSelection() {}
-		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}
-		virtual const ipanelitem* GetLastSelectedItem() const {return nullptr;}
+private:
+	struct ShortcutInfo
+	{
+		string ShortcutFolder;
+		string PluginFile;
+		string PluginData;
+		GUID PluginGuid;
+	};
+	bool GetShortcutInfo(ShortcutInfo& Info);
+	int ChangeDiskMenu(int Pos,int FirstCall);
+	int DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk);
+	void RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk);
+	int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu);
+	void FastFindShow(int FindX,int FindY);
+	void FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName, string &strName);
+	void DragMessage(int X,int Y,int Move);
 
-		virtual int GetCurName(string &strName, string &strShortName);
-		virtual int GetCurBaseName(string &strName, string &strShortName);
-		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
+protected:
+	string strCurDir;
+	bool Focus;
+	int Type;
+	int EnableUpdate;
+	int PanelMode;
+	int SortMode;
+	int SortOrder;
+	bool SortGroups;
+	int PrevViewMode,ViewMode;
+	int CurTopFile;
+	int CurFile;
+	bool ShowShortNames;
+	bool NumericSort;
+	bool CaseSensitiveSort;
+	bool DirectoriesFirst;
+	int ModalMode;
+	int PluginCommand;
+	string strPluginParam;
 
-		virtual int GetCurrentPos() const {return 0;}
-		virtual void SetFocus();
-		virtual void KillFocus();
-		virtual void Update(int Mode) {}
-		/*$ 22.06.2001 SKV
-		  Параметр для игнорирования времени последнего Update.
-		  Используется для Update после исполнения команды.
-		*/
-		virtual int UpdateIfChanged(int UpdateMode) {return 0;}
-		/* $ 19.03.2002 DJ
-		   UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
-		   что панель невидима
-		*/
-		virtual void UpdateIfRequired() {}
+private:
+	string strDragName;
+};
 
-		virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
-		virtual void StopFSWatcher() {}
-		virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
-		virtual bool GetPlainString(string& Dest,int ListPos){return false;}
-
-
-		virtual int GoToFile(long idxItem) {return TRUE;}
-		virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) {return TRUE;}
-		virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) {return -1;}
-
-		virtual int IsSelected(const string& Name) {return FALSE;}
-		virtual int IsSelected(size_t indItem) {return FALSE;}
-
-		virtual long FindFirst(const string& Name) {return -1;}
-		virtual long FindNext(int StartPos, const string& Name) {return -1;}
-
-		virtual void SetSelectedFirstMode(bool) {}
-		virtual bool GetSelectedFirstMode() {return false;}
-		int GetMode() {return(PanelMode);}
-		void SetMode(int Mode) {PanelMode=Mode;}
-		int GetModalMode() {return(ModalMode);}
-		void SetModalMode(int ModalMode) {Panel::ModalMode=ModalMode;}
-		int GetViewMode() {return(ViewMode);}
-		virtual void SetViewMode(int ViewMode);
-		virtual int GetPrevViewMode() {return(PrevViewMode);}
-		void SetPrevViewMode(int PrevViewMode) {Panel::PrevViewMode=PrevViewMode;}
-		virtual int GetPrevSortMode() {return(SortMode);}
-		virtual int GetPrevSortOrder() {return(SortOrder);}
-		int GetSortMode() {return(SortMode);}
-		virtual bool GetPrevNumericSort() {return NumericSort;}
-		bool GetNumericSort() { return NumericSort; }
-		void SetNumericSort(bool Mode) { NumericSort = Mode; }
-		virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
-		virtual bool GetPrevCaseSensitiveSort() {return CaseSensitiveSort;}
-		bool GetCaseSensitiveSort() {return CaseSensitiveSort;}
-		void SetCaseSensitiveSort(bool Mode) {CaseSensitiveSort = Mode;}
-		virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
-		virtual bool GetPrevDirectoriesFirst() {return DirectoriesFirst;}
-		bool GetDirectoriesFirst() { return DirectoriesFirst; }
-		void SetDirectoriesFirst(bool Mode) { DirectoriesFirst = Mode != 0; }
-		virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
-		virtual void SetSortMode(int Mode) {SortMode=Mode;}
-		int GetSortOrder() {return(SortOrder);}
-		void SetSortOrder(int Mode) {SortOrder=Mode;}
-		virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);}
-		bool GetSortGroups() {return(SortGroups);}
-		void SetSortGroups(bool Mode) {SortGroups=Mode;}
-		bool GetShowShortNamesMode() {return(ShowShortNames);}
-		void SetShowShortNamesMode(bool Mode) {ShowShortNames=Mode;}
-		void InitCurDir(const string& CurDir);
-		virtual void CloseFile() {}
-		virtual void UpdateViewPanel() {}
-		virtual void CompareDir() {}
-		virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) {}
-		virtual void ClearSelection() {}
-		virtual void SaveSelection() {}
-		virtual void RestoreSelection() {}
-		virtual void SortFileList(int KeepPosition) {}
-		virtual void EditFilter() {}
-		virtual bool FileInFilter(size_t idxItem) {return true;}
-		virtual bool FilterIsEnabled() {return false;}
-		virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
-		virtual void DeleteDiz(const string& Name,const string& ShortName) {}
-		virtual void GetDizName(string &strDizName) {}
-		virtual void FlushDiz() {}
-		virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
-		virtual bool IsFullScreen() {return (ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;}
-		virtual bool IsDizDisplayed() {return false;}
-		virtual bool IsColumnDisplayed(int Type) {return false;}
-		virtual int GetColumnsCount() { return 1;}
-		virtual void SetReturnCurrentFile(int Mode) {}
-		virtual void QViewDelTempName() {}
-		virtual void GetOpenPanelInfo(struct OpenPanelInfo *Info) {}
-		virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
-		virtual void SetPluginModified() {}
-		virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
-		virtual HANDLE GetPluginHandle() {return nullptr;}
-		virtual void SetTitle();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-
-		virtual void IfGoHome(wchar_t Drive) {}
-
-		/* $ 30.04.2001 DJ
-		   функция вызывается для обновления кейбара; если возвращает FALSE,
-		   используется стандартный кейбар
-		*/
-		virtual BOOL UpdateKeyBar() { return FALSE; }
-
-		virtual size_t GetFileCount() {return 0;}
-		virtual const ipanelitem* GetItem(size_t) const {return nullptr;}
-
-		bool ExecShortcutFolder(int Pos, bool raw=false);
-		bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType);
-		bool SaveShortcutFolder(int Pos, bool Add);
-
-		static void EndDrag();
-		virtual void Hide() override;
-		virtual void Show() override;
-		virtual void DisplayObject() override {}
-		int SetPluginCommand(int Command,int Param1,void* Param2);
-		int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
-		void ChangeDisk();
-		bool GetFocus() {return Focus;}
-		int GetType() {return(Type);}
-		void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
-		bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
-		int SetCurPath();
-
-		BOOL NeedUpdatePanel(const Panel *AnotherPanel);
+class dummy_panel final : public Panel
+{
+	virtual void Update(int Mode) override {};
+	virtual void UpdateKeyBar() override {}
 };

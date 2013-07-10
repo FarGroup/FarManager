@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "language.hpp"
 #include "keyboard.hpp"
+#include "manager.hpp"
 
 static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 

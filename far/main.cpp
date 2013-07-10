@@ -140,7 +140,7 @@ static int MainProcess(
 
 		if (!ename.empty() || !vname.empty())
 		{
-			Panel *DummyPanel=new Panel;
+			Panel* DummyPanel=new dummy_panel;
 			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;

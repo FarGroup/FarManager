@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
+#include "plugins.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -122,7 +123,7 @@ static struct tree_less
 
 static struct list_less
 {
-	bool operator()(const std::unique_ptr<TreeItem>& a, const std::unique_ptr<TreeItem>& b) const
+	bool operator()(const std::unique_ptr<TreeList::TreeItem>& a, const std::unique_ptr<TreeList::TreeItem>& b) const
 	{
 		return TreeLess(a->strName, b->strName, StaticSortNumeric, StaticSortCaseSensitive);
 	}
@@ -1907,12 +1908,10 @@ void TreeList::SetMacroMode(int Restore)
 	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_TREEPANEL);
 }
 
-BOOL TreeList::UpdateKeyBar()
+void TreeList::UpdateKeyBar()
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetLabels(MKBTreeF1);
+	Global->CtrlObject->MainKeyBar->SetLabels(MKBTreeF1);
 	DynamicUpdateKeyBar();
-	return TRUE;
 }
 
 void TreeList::DynamicUpdateKeyBar()
@@ -2114,7 +2113,7 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	return strDest;
 }
 
-TreeItem* TreeList::GetItem(size_t Index) const
+TreeList::TreeItem* TreeList::GetItem(size_t Index) const
 {
 	if (static_cast<int>(Index) == -1 || static_cast<int>(Index) == -2)
 		Index=GetCurrentPos();

@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "colormix.hpp"
+#include "manager.hpp"
 
 HMenu::HMenu(HMenuData *Item,int ItemCount):
 	SubMenu(nullptr),

@@ -48,6 +48,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "elevation.hpp"
 #include "colormix.hpp"
+#include "manager.hpp"
+#include "interf.hpp"
+#include "ctrlobj.hpp"
 
 EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):
 	Edit(pOwner,bAllocateData),

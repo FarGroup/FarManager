@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "configdb.hpp"
 #include "colormix.hpp"
+#include "filefilterparams.hpp"
+#include "language.hpp"
 
 struct HighlightStrings
 {
@@ -468,9 +470,9 @@ void HighlightFiles::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-void HighlightFiles::GetHiColor(FileListItem& To, bool UseAttrHighlighting)
+void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 {
-	ApplyDefaultStartingColors(&To.Colors);
+	ApplyDefaultStartingColors(&To->Colors);
 
 	FOR_CONST_RANGE(HiData, i)
 	{
@@ -481,26 +483,26 @@ void HighlightFiles::GetHiColor(FileListItem& To, bool UseAttrHighlighting)
 		{
 			HighlightDataColor TempColors;
 			(*i)->GetColors(&TempColors);
-			ApplyColors(&To.Colors,&TempColors);
+			ApplyColors(&To->Colors,&TempColors);
 
 			if (!(*i)->GetContinueProcessing())
 				break;
 		}
 	}
-	ApplyFinalColors(&To.Colors);
+	ApplyFinalColors(&To->Colors);
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)
 {
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
 	{
-		if (HiData[i]->FileInFilter(*fli, CurrentTime))
+		if (HiData[i]->FileInFilter(fli, CurrentTime))
 			return(HiData[i]->GetSortGroup());
 	}
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
 	{
-		if (HiData[i]->FileInFilter(*fli, CurrentTime))
+		if (HiData[i]->FileInFilter(fli, CurrentTime))
 			return(HiData[i]->GetSortGroup());
 	}
 

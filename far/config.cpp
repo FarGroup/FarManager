@@ -72,6 +72,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hotplug.hpp"
 #include "datetime.hpp"
 #include "setcolor.hpp"
+#include "language.hpp"
+#include "plugins.hpp"
+#include "manager.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 

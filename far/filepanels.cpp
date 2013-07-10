@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "interf.hpp"
+#include "language.hpp"
 
 FilePanels::FilePanels():
 	LastLeftFilePanel(nullptr),

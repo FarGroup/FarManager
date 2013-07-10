@@ -75,6 +75,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "configdb.hpp"
+#include "language.hpp"
+#include "manager.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;

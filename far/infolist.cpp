@@ -1083,12 +1083,10 @@ int InfoList::GetCurName(string &strName, string &strShortName)
 	return (TRUE);
 }
 
-BOOL InfoList::UpdateKeyBar()
+void InfoList::UpdateKeyBar()
 {
-	KeyBar *KB = Global->CtrlObject->MainKeyBar;
-	KB->SetLabels(MInfoF1);
+	Global->CtrlObject->MainKeyBar->SetLabels(MInfoF1);
 	DynamicUpdateKeyBar();
-	return TRUE;
 }
 
 void InfoList::DynamicUpdateKeyBar()
@@ -1132,7 +1130,7 @@ void InfoList::DynamicUpdateKeyBar()
 	KB->SetCustomLabels(KBA_INFO);
 }
 
-int InfoList::UpdateIfChanged(int UpdateMode)
+int InfoList::UpdateIfChanged(panel_update_mode UpdateMode)
 {
 	if (Global->Opt->InfoPanel.ShowPowerStatus && SectionState[ILSS_POWERSTATUS].Show)
 	{

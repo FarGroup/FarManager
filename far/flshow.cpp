@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "valuename.hpp"
 #include "colormix.hpp"
+#include "lang.hpp"
+#include "plugins.hpp"
 
 extern int ColumnTypeWidth[];
 

@@ -44,7 +44,6 @@ class FileEditor;
 class Viewer;
 class Frame;
 class Panel;
-struct FileListItem;
 
 enum
 {
@@ -112,7 +111,7 @@ enum PLUGINSETFLAGS
 	PSIF_PLUGINSLOADDED           = 0x80000000, // плагины загружены
 };
 
-enum OPENFILEPLUGINTYPE
+ENUM(OPENFILEPLUGINTYPE)
 {
 	OFP_NORMAL,
 	OFP_ALTERNATIVE,
@@ -186,7 +185,7 @@ public:
 	int ProcessViewerEvent(int Event,void *Param,int ViewerID);
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param);
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
-	void GetCustomData(FileListItem *ListItem);
+	string GetCustomData(const string& Name) const;
 
 	int UnloadPlugin(Plugin *pPlugin, DWORD dwException);
 	HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);

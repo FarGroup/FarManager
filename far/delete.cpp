@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "wakeful.hpp"
 #include "stddlg.hpp"
+#include "language.hpp"
 
 enum DEL_MODE
 {

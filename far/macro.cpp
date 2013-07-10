@@ -70,6 +70,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "constitle.hpp"
 #include "usermenu.hpp"
+#include "filemasks.hpp"
+#include "plugins.hpp"
+#include "interf.hpp"
 
 static BOOL CheckAll(FARMACROAREA Mode, UINT64 CurFlags);
 

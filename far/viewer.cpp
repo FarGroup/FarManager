@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "vmenu2.hpp"
 #include "plugins.hpp"
+#include "manager.hpp"
 
 enum SHOW_MODES
 {
