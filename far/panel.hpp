@@ -373,7 +373,7 @@ private:
 	string strDragName;
 };
 
-class dummy_panel final : public Panel
+class dummy_panel : public Panel
 {
 	virtual void Update(int Mode) override {};
 	virtual void UpdateKeyBar() override {}

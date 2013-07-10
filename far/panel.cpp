@@ -119,6 +119,7 @@ ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 
 
 Panel::Panel():
+	ProcessingPluginCommand(0),
 	Focus(false),
 	Type(0),
 	EnableUpdate(TRUE),
@@ -135,10 +136,9 @@ Panel::Panel():
 	CaseSensitiveSort(0),
 	DirectoriesFirst(1),
 	ModalMode(0),
-	PluginCommand(0),
-	ViewSettings(),
-	ProcessingPluginCommand(0)
+	PluginCommand(0)
 {
+	ViewSettings.Clear();
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
 	DragX=DragY=-1;
