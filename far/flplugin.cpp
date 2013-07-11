@@ -1106,8 +1106,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths)
 {
-	ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,ViewSettings.ColumnWidthType,
-	                   ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
+	ViewSettingsToText(ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
 }
 
 void FileList::PluginBeginSelection()

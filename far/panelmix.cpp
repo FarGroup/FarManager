@@ -267,25 +267,28 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 }
 
 
-void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
-						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
+void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, std::vector<column>& Columns)
 {
 	// BUGBUG, add error checking
 
 	const wchar_t *TextPtr=ColumnTitles.data();
 
-	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
+	Columns.clear();
+
+	for (;;)
 	{
 		string strArgName;
 
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
+		Columns.emplace_back(VALUE_TYPE(Columns)());
+
 		Upper(strArgName);
 
 		if (strArgName.front()==L'N')
 		{
-			unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+			unsigned __int64 &ColumnType = Columns.back().type;
 			ColumnType=NAME_COLUMN;
 			const wchar_t *Ptr = strArgName.data()+1;
 
@@ -317,7 +320,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 		{
 			if (strArgName.front()==L'S' || strArgName.front()==L'P' || strArgName.front()==L'G')
 			{
-				unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+				unsigned __int64 &ColumnType = Columns.back().type;
 				ColumnType=(strArgName.front()==L'S') ? SIZE_COLUMN:(strArgName.front()==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
 				const wchar_t *Ptr = strArgName.data()+1;
 
@@ -346,7 +349,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 			{
 				if (!StrCmpN(strArgName.data(),L"DM",2) || !StrCmpN(strArgName.data(),L"DC",2) || !StrCmpN(strArgName.data(),L"DA",2) || !StrCmpN(strArgName.data(),L"DE",2))
 				{
-					unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+					unsigned __int64 &ColumnType = Columns.back().type;
 
 					switch (strArgName.at(1))
 					{
@@ -385,7 +388,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 				{
 					if (strArgName.front()==L'O')
 					{
-						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+						unsigned __int64 &ColumnType = Columns.back().type;
 						ColumnType=OWNER_COLUMN;
 
 						if (strArgName.at(1)==L'L')
@@ -393,7 +396,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 					}
 					else if (strArgName.front()==L'X')
 					{
-						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+						unsigned __int64 &ColumnType = Columns.back().type;
 						ColumnType=EXTENSION_COLUMN;
 
 						if (strArgName.at(1)==L'R')
@@ -405,7 +408,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 						{
 							if (strArgName == ColumnSymbol[I])
 							{
-								ViewColumnTypes[ColumnCount]=I;
+								Columns.back().type = I;
 								break;
 							}
 						}
@@ -417,121 +420,120 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
 
 	TextPtr=ColumnWidths.data();
 
-	for (int I=0; I<ColumnCount; I++)
+	FOR_RANGE(Columns, i)
 	{
 		string strArgName;
 
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		ViewColumnWidths[I]=_wtoi(strArgName.data());
-		ViewColumnWidthsTypes[I]=COUNT_WIDTH;
+		i->width = _wtoi(strArgName.data());
+		i->width_type = COUNT_WIDTH;
 
 		if (strArgName.size()>1)
 		{
 			switch (strArgName.back())
 			{
 				case L'%':
-					ViewColumnWidthsTypes[I]=PERCENT_WIDTH;
+					i->width_type = PERCENT_WIDTH;
 					break;
 			}
 		}
 	}
 
-	if (!ColumnCount)
+	if (Columns.empty())
 	{
-		ColumnCount = 1;
-		ViewColumnTypes[0] = NAME_COLUMN;
+		Columns.emplace_back(VALUE_TYPE(Columns)());
+		Columns.front().type = NAME_COLUMN;
 	}
 }
 
 
-void ViewSettingsToText(const unsigned __int64 *ViewColumnTypes, const int *ViewColumnWidths, const int *ViewColumnWidthsTypes, int ColumnCount,
-						string &strColumnTitles, string &strColumnWidths)
+void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTitles, string &strColumnWidths)
 {
 	strColumnTitles.clear();
 	strColumnWidths.clear();
 
-	for (int I=0; I<ColumnCount; I++)
+	std::for_each(CONST_RANGE(Columns, i)
 	{
 		string strType;
-		int ColumnType=static_cast<int>(ViewColumnTypes[I] & 0xff);
+		int ColumnType=static_cast<int>(i.type & 0xff);
 		strType = ColumnSymbol[ColumnType];
 
 		if (ColumnType==NAME_COLUMN)
 		{
-			if (ViewColumnTypes[I] & COLUMN_MARK)
+			if (i.type & COLUMN_MARK)
 				strType += L"M";
 
-			if (ViewColumnTypes[I] & COLUMN_NAMEONLY)
+			if (i.type & COLUMN_NAMEONLY)
 				strType += L"O";
 
-			if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
+			if (i.type & COLUMN_RIGHTALIGN)
 			{
 				strType += L"R";
-				if (ViewColumnTypes[I] & COLUMN_RIGHTALIGNFORCE)
+				if (i.type & COLUMN_RIGHTALIGNFORCE)
 					strType += L"F";
 			}
 
-			if (ViewColumnTypes[I] & COLUMN_NOEXTENSION)
+			if (i.type & COLUMN_NOEXTENSION)
 				strType += L"N";
 		}
 
 		if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN || ColumnType==STREAMSSIZE_COLUMN)
 		{
-			if (ViewColumnTypes[I] & COLUMN_COMMAS)
+			if (i.type & COLUMN_COMMAS)
 				strType += L"C";
 
-			if (ViewColumnTypes[I] & COLUMN_ECONOMIC)
+			if (i.type & COLUMN_ECONOMIC)
 				strType += L"E";
 
-			if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
+			if (i.type & COLUMN_FLOATSIZE)
 				strType += L"F";
 
-			if (ViewColumnTypes[I] & COLUMN_THOUSAND)
+			if (i.type & COLUMN_THOUSAND)
 				strType += L"T";
 		}
 
 		if (ColumnType==WDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN  || ColumnType==CHDATE_COLUMN)
 		{
-			if (ViewColumnTypes[I] & COLUMN_BRIEF)
+			if (i.type & COLUMN_BRIEF)
 				strType += L"B";
 
-			if (ViewColumnTypes[I] & COLUMN_MONTH)
+			if (i.type & COLUMN_MONTH)
 				strType += L"M";
 		}
 
 		if (ColumnType==OWNER_COLUMN)
 		{
-			if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
+			if (i.type & COLUMN_FULLOWNER)
 				strType += L"L";
 		}
 
 		if (ColumnType==EXTENSION_COLUMN)
 		{
-			if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
+			if (i.type & COLUMN_RIGHTALIGN)
 				strType += L"R";
 		}
 
 		strColumnTitles += strType;
-		wchar_t *lpwszWidth = strType.GetBuffer(20);
-		_itow(ViewColumnWidths[I],lpwszWidth,10);
-		strType.ReleaseBuffer();
-		strColumnWidths += strType;
 
-		switch (ViewColumnWidthsTypes[I])
+		strColumnWidths += FormatString() << i.width;
+
+		switch (i.width_type)
 		{
 			case PERCENT_WIDTH:
 				strColumnWidths += L"%";
 				break;
 		}
 
-		if (I<ColumnCount-1)
-		{
-			strColumnTitles += L",";
-			strColumnWidths += L",";
-		}
-	}
+		strColumnTitles += L",";
+		strColumnWidths += L",";
+	});
+
+	if (!strColumnTitles.empty())
+		strColumnTitles.pop_back();
+	if (!strColumnWidths.empty())
+		strColumnWidths.pop_back();
 }
 
 const string FormatStr_Attribute(DWORD FileAttributes,int Width)

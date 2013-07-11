@@ -2096,30 +2096,31 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
 		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
 
-		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnType)-1; ++I)
-			fwprintf(fp,L"%I64u, ",ViewSettings.ColumnType[I]);
+		for (I=0; I < ViewSettings.PanelColumns.size()-1; ++I)
+			fwprintf(fp,L"%I64u, ",ViewSettings.PanelColumns[I].type);
 
-		fwprintf(fp,L"%I64u]\n",ViewSettings.ColumnType[I]);
+		fwprintf(fp,L"%I64u]\n",ViewSettings.PanelColumns[I].type);
 		fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
 
-		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnWidth)-1; ++I)
-			fwprintf(fp,L"%d, ",ViewSettings.ColumnWidth[I]);
+		for (I=0; I < ViewSettings.PanelColumns.size()-1; ++I)
+			fwprintf(fp,L"%d, ",ViewSettings.PanelColumns[I].width);
 
-		fwprintf(fp,L"%d]\n",ViewSettings.ColumnWidth[I]);
-		fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.ColumnCount);
+		fwprintf(fp,L"%d]\n",ViewSettings.PanelColumns[I].width);
+		fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.PanelColumns.size());
 		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
 
-		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnType)-1; ++I)
-			fwprintf(fp,L"%08I64X, ",ViewSettings.StatusColumnType[I]);
+		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
+			fwprintf(fp,L"%08I64X, ",ViewSettings.StatusColumns[I].type);
 
-		fwprintf(fp,L"%08I64X]\n",ViewSettings.StatusColumnType[I]);
+		fwprintf(fp,L"%08I64X]\n",ViewSettings.StatusColumns[I].type);
 		fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
 
-		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnWidth)-1; ++I)
-			fwprintf(fp,L"%d, ",ViewSettings.StatusColumnWidth[I]);
+		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
+			fwprintf(fp,L"%d, ",ViewSettings.StatusColumns[I].width);
 
-		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumnWidth[I]);
-		fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.StatusColumnCount);
+		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumns[I].width);
+		fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.PanelColumns.size());
+
 		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FULLSCREEN)?1:0);
 		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0);
 		fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,L"",space,(ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0);

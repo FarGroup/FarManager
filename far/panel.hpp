@@ -38,31 +38,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class DizList;
 
+struct column
+{
+	unsigned __int64 type;
+	int width;
+	int width_type;
+};
+
 struct PanelViewSettings
 {
-	unsigned __int64 ColumnType[PANEL_COLUMNCOUNT];
-	int ColumnWidth[PANEL_COLUMNCOUNT];
-	int ColumnCount;
-	unsigned __int64 StatusColumnType[PANEL_COLUMNCOUNT];
-	int StatusColumnWidth[PANEL_COLUMNCOUNT];
-	int StatusColumnCount;
-	unsigned __int64 Flags;
-	int ColumnWidthType[PANEL_COLUMNCOUNT];
-	int StatusColumnWidthType[PANEL_COLUMNCOUNT];
+	std::vector<column> PanelColumns;
+	std::vector<column> StatusColumns;
 	string Name;
+	unsigned __int64 Flags;
 
-	void Clear()
+	PanelViewSettings():Flags(0){}
+
+	void clear()
 	{
-		ClearArray(ColumnType);
-		ClearArray(ColumnWidth);
-		ColumnCount = 0;
-		ClearArray(StatusColumnType);
-		ClearArray(StatusColumnWidth);
-		StatusColumnCount = 0;
-		Flags = 0;
-		ClearArray(ColumnWidthType);
-		ClearArray(StatusColumnWidthType);
+		PanelColumns.clear();
+		StatusColumns.clear();
 		Name.clear();
+		Flags = 0;
 	}
 };
 

@@ -3010,11 +3010,11 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 */
 void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int CurColumn=1,ColumnsWidth,I;
+	int CurColumn=1,ColumnsWidth = 0;
 	int PanelX=MouseEvent->dwMousePosition.X-X1-1;
 	int Level = 0;
 
-	for (ColumnsWidth=I=0; I<ViewSettings.ColumnCount; I++)
+	FOR_RANGE(ViewSettings.PanelColumns, i)
 	{
 		if (Level == ColumnsInGlobal)
 		{
@@ -3022,7 +3022,7 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Level = 0;
 		}
 
-		ColumnsWidth+=ViewSettings.ColumnWidth[I];
+		ColumnsWidth += i->width;
 
 		if (ColumnsWidth>=PanelX)
 			break;
@@ -3129,8 +3129,7 @@ void FileList::SetViewMode(int Mode)
 	{
 		string strColumnTypes,strColumnWidths;
 //    SetScreenPosition();
-		ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,ViewSettings.ColumnWidthType,
-		                   ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
+		ViewSettingsToText(ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
 		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)strColumnTypes.data());
 	}
 

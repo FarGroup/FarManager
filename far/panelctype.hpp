@@ -66,5 +66,3 @@ enum {
 	COUNT_WIDTH=0,
 	PERCENT_WIDTH
 };
-
-#define PANEL_COLUMNCOUNT  20

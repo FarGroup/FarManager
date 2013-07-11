@@ -138,7 +138,7 @@ Panel::Panel():
 	ModalMode(0),
 	PluginCommand(0)
 {
-	ViewSettings.Clear();
+	ViewSettings.clear();
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
 	DragX=DragY=-1;

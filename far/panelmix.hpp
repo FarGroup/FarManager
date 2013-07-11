@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 class Panel;
+struct column;
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const string& SelName);
@@ -45,7 +46,5 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
 						DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
-void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths,
-						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
-void ViewSettingsToText(const unsigned __int64 *ViewColumnTypes, const int *ViewColumnWidths, const int *ViewColumnWidthsTypes, int ColumnCount,
-						string &strColumnTitles, string &strColumnWidths);
+void TextToViewSettings(const string& ColumnTitles, const string& ColumnWidths, std::vector<column>& Destination);
+void ViewSettingsToText(const std::vector<column>& Source, string& strColumnTitles, string& strColumnWidths);

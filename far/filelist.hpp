@@ -282,7 +282,7 @@ private:
 	void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	HANDLE OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
-	int PrepareColumnWidths(const unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
+	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo);
 	void PluginDelete();
 	void PutDizToPlugin(FileList *DestPanel,std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz);

@@ -107,6 +107,7 @@ enum FarPoliciesFlags
 };
 
 struct default_value;
+struct column;
 
 class Option
 {
@@ -506,10 +507,8 @@ public:
 
 		StringOption strSearchOutFormat;
 		StringOption strSearchOutFormatWidth;
-		int OutColumnCount;
-		unsigned __int64 OutColumnTypes[PANEL_COLUMNCOUNT];
-		int OutColumnWidths[PANEL_COLUMNCOUNT];
-		int OutColumnWidthType[PANEL_COLUMNCOUNT];
+
+		std::vector<column> OutColumns;
 	};
 
 	struct InfoPanelOptions

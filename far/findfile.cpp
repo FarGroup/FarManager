@@ -644,19 +644,14 @@ void FindFiles::AdvancedDialog()
 		Global->Opt->FindOpt.strSearchOutFormat = AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData;
 		Global->Opt->FindOpt.strSearchOutFormatWidth = AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData;
 
-		ClearArray(Global->Opt->FindOpt.OutColumnTypes);
-		ClearArray(Global->Opt->FindOpt.OutColumnWidths);
-		ClearArray(Global->Opt->FindOpt.OutColumnWidthType);
-		Global->Opt->FindOpt.OutColumnCount=0;
+		Global->Opt->FindOpt.OutColumns.clear();
 
 		if (!Global->Opt->FindOpt.strSearchOutFormat.empty())
 		{
 			if (Global->Opt->FindOpt.strSearchOutFormatWidth.empty())
 				Global->Opt->FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
 
-			TextToViewSettings(Global->Opt->FindOpt.strSearchOutFormat,Global->Opt->FindOpt.strSearchOutFormatWidth,
-                                  Global->Opt->FindOpt.OutColumnTypes,Global->Opt->FindOpt.OutColumnWidths,Global->Opt->FindOpt.OutColumnWidthType,
-                                  Global->Opt->FindOpt.OutColumnCount);
+			TextToViewSettings(Global->Opt->FindOpt.strSearchOutFormat, Global->Opt->FindOpt.strSearchOutFormatWidth, Global->Opt->FindOpt.OutColumns);
         }
 
 		Global->Opt->FindOpt.FindAlternateStreams=(AdvancedDlg[AD_CHECKBOX_FINDALTERNATESTREAMS].Selected==BSTATE_CHECKED);
@@ -2024,16 +2019,11 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 	string strDateStr, strTimeStr;
 	const wchar_t *DisplayName=FindData.strFileName.data();
 
-	unsigned __int64 *ColumnType=Global->Opt->FindOpt.OutColumnTypes;
-	int *ColumnWidth=Global->Opt->FindOpt.OutColumnWidths;
-	int ColumnCount=Global->Opt->FindOpt.OutColumnCount;
-	//int *ColumnWidthType=Global->Opt->FindOpt.OutColumnWidthType;
-
 	MenuText << L' ';
 
-	for (int Count=0; Count < ColumnCount; ++Count)
+	FOR_RANGE(Global->Opt->FindOpt.OutColumns, i)
 	{
-		int CurColumnType = static_cast<int>(ColumnType[Count] & 0xFF);
+		int CurColumnType = static_cast<int>(i->type & 0xFF);
 
 		switch (CurColumnType)
 		{
@@ -2080,8 +2070,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 								0,
 								FindData.dwReserved0,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
-								ColumnType[Count],
-								ColumnWidth[Count]);
+								i->type,
+								i->width);
 
 				MenuText << BoxSymbols[BS_V1];
 				break;
@@ -2114,7 +2104,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 						break;
 				}
 
-				MenuText << FormatStr_DateTime(FileTime,CurColumnType,ColumnType[Count],ColumnWidth[Count]) << BoxSymbols[BS_V1];
+				MenuText << FormatStr_DateTime(FileTime,CurColumnType,i->type,i->width) << BoxSymbols[BS_V1];
 				break;
 			}
 		}
