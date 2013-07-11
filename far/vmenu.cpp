@@ -1260,7 +1260,9 @@ int VMenu::ProcessKey(int Key)
 		case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
-			SetSelectPos(static_cast<int>(Item.size()-1),-1);
+			int p = static_cast<int>(Item.size())-1;
+			FarListPos pos={sizeof(FarListPos),p,p};
+			SetSelectPos(&pos, -1);
 			ShowMenu(true);
 			break;
 		}
@@ -1273,7 +1275,8 @@ int VMenu::ProcessKey(int Key)
 			if (p < 0)
 				p = 0;
 
-			SetSelectPos(p,1);
+			FarListPos pos={sizeof(FarListPos),p,p};
+			SetSelectPos(&pos, 1);
 			ShowMenu(true);
 			break;
 		}
@@ -1281,11 +1284,14 @@ int VMenu::ProcessKey(int Key)
 		{
 			int dy = ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
 
-			int p = VisualPosToReal(GetVisualPos(SelectPos)+dy);;
+			int pSel = VisualPosToReal(GetVisualPos(SelectPos)+dy);
+			int pTop = VisualPosToReal(GetVisualPos(SelectPos+1));
 
-			p = std::min(p, static_cast<int>(Item.size())-1);
+			pSel = std::min(pSel, static_cast<int>(Item.size())-1);
+			pTop = std::min(pTop, static_cast<int>(Item.size())-1);
 
-			SetSelectPos(p,-1);
+			FarListPos pos={sizeof(FarListPos),pSel,pTop};
+			SetSelectPos(&pos, -1);
 			ShowMenu(true);
 			break;
 		}
