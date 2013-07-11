@@ -835,22 +835,21 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 		}
 	}
 
-	int ColumnCount = static_cast<int>(Columns.size());
 	while (1)
 	{
-		int LastColumn=ColumnCount-1;
+		int LastColumn=Columns.size() - 1;
 		TotalWidth=LastColumn-EmptyColumns;
 
-		for (int i = 0; i < ColumnCount; ++i)
+		std::for_each(CONST_RANGE(Columns, i)
 		{
-			if (Columns[i].width > 0)
-				TotalWidth += Columns[i].width;
-		}
+			if (i.width > 0)
+				TotalWidth += i.width;
+		});
 
 		if (TotalWidth<=PanelTextWidth)
 			break;
 
-		if (ColumnCount<=1)
+		if (Columns.size() <= 1)
 		{
 			Columns.front().width = PanelTextWidth;
 			break;
@@ -861,7 +860,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 			break;
 		}
 		else
-			--ColumnCount;
+			Columns.pop_back();
 	}
 
 	ColumnsInGlobal = 1;

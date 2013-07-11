@@ -2092,7 +2092,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 
 	if (fp)
 	{
-		int I;
+		size_t I;
 		fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
 		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
 
