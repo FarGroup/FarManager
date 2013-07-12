@@ -231,6 +231,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = static_cast<int>(Item.size()-1);
+				TopPos = Pos;
 			}
 			else
 			{
