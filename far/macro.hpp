@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tvar.hpp"
 #include "noncopyable.hpp"
 
-class Panel;
 struct GetMacroData;
 
 // Macro Const
@@ -102,11 +101,6 @@ struct MacroPanelSelect {
 	int     Action;
 	DWORD   ActionFlags;
 	int     Mode;
-};
-
-enum INTMF_FLAGS{
-	IMFF_UNLOCKSCREEN               =0x00000001,
-	IMFF_DISABLEINTINPUT            =0x00000002,
 };
 
 class RunningMacro
@@ -192,7 +186,7 @@ class KeyMacro:NonCopyable
 		int m_MacroPluginIsRunning;
 		int m_DisableNested;
 		int m_WaitKey;
-		TVar varTextDate;
+		const wchar_t* varTextDate;
 
 	private:
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
@@ -241,13 +235,12 @@ class KeyMacro:NonCopyable
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
-		// Поместить временное строковое представление макроса
 		bool PostNewMacro(const string& PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,PlainText,Flags,AKey); }
 		bool ParseMacroString(const string& Sequence,bool onlyCheck,bool skipFile);
 		bool ExecuteString(MacroExecuteString *Data);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
-		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }
+		const wchar_t *eStackAsString() { return varTextDate; }
 		void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 };
 

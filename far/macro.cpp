@@ -665,7 +665,6 @@ struct GetMacroData
 {
 	int MacroId;
 	FARMACROAREA Area;
-	const wchar_t *Name;
 	const wchar_t *Code;
 	const wchar_t *Description;
 	MACROFLAGS_MFLAGS Flags;
@@ -693,7 +692,6 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 		Data->MacroId = (int)mpr->Values[0].Double;
 		if (Data->MacroId != 0)
 		{
-			Data->Name        = TextKey.data();
 			Data->Area        = (FARMACROAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].Type==FMVT_STRING ? mpr->Values[2].String : L"";
 			Data->Description = mpr->Values[3].Type==FMVT_STRING ? mpr->Values[3].String : L"";
@@ -3603,7 +3601,6 @@ static bool promptFunc(FarMacroCall* Data)
 // N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc(FarMacroCall* Data)
 {
-//FIXME: has flags IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT
 	parseParams(3,Params,Data);
 	DWORD Flags = (DWORD)Params[2].getInteger();
 	TVar& ValB(Params[1]);
