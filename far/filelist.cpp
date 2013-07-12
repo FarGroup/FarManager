@@ -328,8 +328,8 @@ static struct list_less
 			SPtr1->UserFlags=SaveFlags1;
 			SPtr2->UserFlags=SaveFlags2;
 			RetCode=Global->CtrlObject->Plugins->Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
-			FileList::FreePluginPanelItem(&pi1);
-			FileList::FreePluginPanelItem(&pi2);
+			FreePluginPanelItem(pi1);
+			FreePluginPanelItem(pi2);
 			if (RetCode!=-2 && RetCode)
 				return less_opt(RetCode < 0);
 		}
@@ -1593,7 +1593,7 @@ int FileList::ProcessKey(int Key)
 						PluginPanelItem PanelItem;
 						FileListToPluginItem(CurPtr,&PanelItem);
 						int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
-						FreePluginPanelItem(&PanelItem);
+						FreePluginPanelItem(PanelItem);
 
 						if (!Result)
 						{
@@ -2434,7 +2434,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
-			FreePluginPanelItem(&PanelItem);
+			FreePluginPanelItem(PanelItem);
 
 			if (!Result)
 			{
@@ -3982,7 +3982,7 @@ void FileList::UpdateViewPanel()
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
-			FreePluginPanelItem(&PanelItem);
+			FreePluginPanelItem(PanelItem);
 
 			if (!Result)
 			{

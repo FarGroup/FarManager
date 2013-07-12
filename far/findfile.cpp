@@ -2796,7 +2796,7 @@ bool FindFiles::FindFilesProcess()
 
 	THREADPARAM Param={PluginMode, &Dlg};
 	Thread FindThread;
-	if (FindThread.MemberStart(this, &FindFiles::ThreadRoutine, &Param))
+	if (FindThread.Start(this, &FindFiles::ThreadRoutine, &Param))
 	{
 		TB=new TaskBar;
 		wakeful W;
@@ -2819,9 +2819,8 @@ bool FindFiles::FindFilesProcess()
 			{
 				itd->Lock();
 				size_t ListSize = itd->GetFindList().size();
-				PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
-
-				int ItemsNumber=0;
+				std::vector<PluginPanelItem> PanelItems;
+				PanelItems.reserve(ListSize);
 
 				std::for_each(RANGE(itd->GetFindList(), i)
 				{
@@ -2846,22 +2845,22 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
 							}
-							PluginPanelItem *pi=&PanelItems[ItemsNumber++];
-							ClearStruct(*pi);
-							FindDataExToPluginPanelItem(&i.FindData, pi);
+							PanelItems.emplace_back(VALUE_TYPE(PanelItems)());
+							PluginPanelItem& pi = PanelItems.back();
+							FindDataExToPluginPanelItem(&i.FindData, &pi);
 
 							if (IsArchive)
-								pi->FileAttributes = 0;
+								pi.FileAttributes = 0;
 
-							if (pi->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+							if (pi.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 							{
-								DeleteEndSlash(pi->FileName);
+								DeleteEndSlash(pi.FileName);
 							}
 						}
 					}
 				});
 				itd->Unlock();
-				HANDLE hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems,ItemsNumber);
+				HANDLE hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size());
 
 				if (hNewPlugin)
 				{
@@ -2875,10 +2874,7 @@ bool FindFiles::FindFilesProcess()
 					NewPanel->Show();
 				}
 
-				for (int i = 0; i < ItemsNumber; i++)
-					FreePluginPanelItem(&PanelItems[i]);
-
-				delete[] PanelItems;
+				std::for_each(ALL_RANGE(PanelItems), FreePluginPanelItem);
 				break;
 			}
 			case FD_BUTTON_GOTO:

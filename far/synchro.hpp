@@ -119,7 +119,7 @@ public:
 	}
 
 	template<class T>
-	bool MemberStart(T* Object, unsigned int (T::*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	bool Start(T* Object, unsigned int (T::*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
 	{
 		return Starter(std::bind(std::mem_fn(Function), Object, Parameter), ThreadId);
 	}

@@ -59,8 +59,11 @@ enum
 //#endif
 
 ScreenBuf::ScreenBuf():
+	MacroChar(),
+	ElevationChar(),
 	Buf(nullptr),
 	Shadow(nullptr),
+	SBFlags(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE),
 	LockCount(0),
 	CurSize(0),
 	BufX(0),
@@ -71,9 +74,6 @@ ScreenBuf::ScreenBuf():
 	ElevationCharUsed(false),
 	CurVisible(false)
 {
-	ClearStruct(MacroChar);
-	ClearStruct(ElevationChar);
-	SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
 }
 
 

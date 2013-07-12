@@ -483,7 +483,7 @@ void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
 			i.UserData.FreeData(i.UserData.Data,&info);
 		}
-		FreePluginPanelItem(&i);
+		FreePluginPanelItem(i);
 	});
 
 	delete PluginDirList;

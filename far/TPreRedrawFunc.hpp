@@ -39,9 +39,9 @@ struct PreRedrawItem
 	typedef void (*PREREDRAWFUNC)();
 
 	PreRedrawItem(PREREDRAWFUNC PreRedrawFunc):
-		PreRedrawFunc(PreRedrawFunc)
+		PreRedrawFunc(PreRedrawFunc),
+		Param()
 	{
-		ClearStruct(Param);
 	}
 
 	PREREDRAWFUNC PreRedrawFunc;

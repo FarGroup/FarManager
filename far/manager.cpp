@@ -1683,10 +1683,7 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 void Manager::ResizeAllFrame()
 {
 	Global->ScrBuf->Lock();
-	std::for_each(CONST_RANGE(Frames, i)
-	{
-		i->ResizeConsole();
-	});
+	std::for_each(ALL_CONST_RANGE(Frames), std::mem_fn(&Frame::ResizeConsole));
 
 	std::for_each(CONST_RANGE(ModalFrames, i)
 	{
@@ -1705,10 +1702,7 @@ void Manager::ResizeAllFrame()
 
 void Manager::InitKeyBar()
 {
-	std::for_each(CONST_RANGE(Frames, i)
-	{
-		i->InitKeyBar();
-	});
+	std::for_each(ALL_CONST_RANGE(Frames), std::mem_fn(&Frame::InitKeyBar));
 }
 
 // возвращает top-модал или сам фрейм, если у фрейма нету модалов

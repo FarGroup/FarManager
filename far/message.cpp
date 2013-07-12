@@ -199,7 +199,7 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 {
 	// BUGBUG
 	std::vector<const wchar_t*> pItems(Items.size());
-	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), [](const VALUE_TYPE(Items)& i){return i.data();});
+	std::transform(ALL_CONST_RANGE(Items), pItems.begin(), std::mem_fn(&string::data));
 	Init(Flags, Buttons, Title, pItems.data(), pItems.size(), HelpTopic, PluginNumber, Id);
 }
 
@@ -423,10 +423,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 		size_t ItemCount=StrCount+Buttons+1;
 		std::vector<DialogItemEx> MsgDlg(ItemCount + 1);
 
-		std::for_each(RANGE(MsgDlg, i)
-		{
-			i.Clear();
-		});
+		std::for_each(ALL_RANGE(MsgDlg), std::mem_fn(&DialogItemEx::Clear));
 
 		int RetCode;
 		MessageY2=++Y2;

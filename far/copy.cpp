@@ -285,6 +285,8 @@ void CopyProgress::Flush()
 }
 
 CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
+	Rect(),
+	Bar(),
 	BarSize(52),
 	Move(Move),
 	Total(Total),
@@ -296,8 +298,6 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	Percents(0),
 	LastWriteTime(0)
 {
-	ClearStruct(Rect);
-	ClearArray(Bar);
 }
 
 void CopyProgress::SetScanName(const string& Name)

@@ -154,10 +154,10 @@ void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDe
 	pDest->AlternateFileName = DuplicateString(pSrc->strAlternateFileName.data());
 }
 
-void FreePluginPanelItem(PluginPanelItem *pData)
+void FreePluginPanelItem(PluginPanelItem& Data)
 {
-	delete[] pData->FileName;
-	delete[] pData->AlternateFileName;
+	delete[] Data.FileName;
+	delete[] Data.AlternateFileName;
 }
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)

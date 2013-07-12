@@ -258,11 +258,6 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 	pi->Owner = EmptyToNull(fi->strOwner.data());
 }
 
-void FileList::FreePluginPanelItem(PluginPanelItem *pi)
-{
-	::FreePluginPanelItem(pi);
-}
-
 size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *gpi)
 {
 	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
@@ -454,11 +449,7 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 
 void FileList::DeletePluginItemList(std::vector<PluginPanelItem> &ItemList)
 {
-	std::for_each(RANGE(ItemList, i)
-	{
-		FreePluginPanelItem(&i);
-	});
-
+	std::for_each(ALL_RANGE(ItemList), FreePluginPanelItem);
 	ItemList.clear();
 }
 

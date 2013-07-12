@@ -417,12 +417,12 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 }
 
 MacroState::MacroState() :
+	cRec(),
 	Executing(0),
 	KeyProcess(0),
 	HistoryDisable(0),
 	UseInternalClipboard(false)
 {
-	ClearStruct(cRec);
 }
 
 void KeyMacro::PushState(bool withClip)

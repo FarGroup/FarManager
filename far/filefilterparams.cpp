@@ -52,14 +52,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "language.hpp"
 
-FileFilterParams::FileFilterParams()
+FileFilterParams::FileFilterParams():
+	FDate(),
+	FSize(),
+	FHardLinks(),
+	FAttr(),
+	FHighlight(),
+	FFlags()
 {
 	SetMask(1,L"*");
-	SetSize(0,L"",L"");
-	SetHardLinks(0,0,0);
-	ClearStruct(FDate);
-	ClearStruct(FAttr);
-	ClearStruct(FHighlight.Colors);
 	for(size_t i = 0; i < 2; ++i)
 	{
 		for(size_t j = 0; j < 4; ++j)
@@ -69,8 +70,6 @@ FileFilterParams::FileFilterParams()
 	}
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
-	FHighlight.bContinueProcessing=false;
-	ClearAllFlags();
 }
 
 FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)

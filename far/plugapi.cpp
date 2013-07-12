@@ -1369,10 +1369,7 @@ static void PR_FarGetDirListMsg()
 
 void FreeDirList(std::vector<PluginPanelItem>* Items)
 {
-	std::for_each(RANGE(*Items, i)
-	{
-		FreePluginPanelItem(&i);
-	});
+	std::for_each(ALL_RANGE(*Items), FreePluginPanelItem);
 	delete Items;
 }
 
@@ -2486,21 +2483,16 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 		string strFullName;
 		ScTree.SetFindPath(InitDir,L"*");
 
-		while (ScTree.GetNextName(&FindData,strFullName))
+		bool Found = false;
+		while (!Found && ScTree.GetNextName(&FindData,strFullName))
 		{
 			if (FMask.Compare(FindData.strFileName))
 			{
-				PluginPanelItem fdata;
-				ClearStruct(fdata);
+				PluginPanelItem fdata = {};
 				FindDataExToPluginPanelItem(&FindData, &fdata);
 
-				if (!Func(&fdata,strFullName.data(),Param))
-				{
-					FreePluginPanelItem(&fdata);
-					break;
-				}
-
-				FreePluginPanelItem(&fdata);
+				Found = !Func(&fdata,strFullName.data(),Param);
+				FreePluginPanelItem(fdata);
 			}
 		}
 	}

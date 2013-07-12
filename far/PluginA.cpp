@@ -778,7 +778,7 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 			delete[] PanelItem[i].CustomColumnData;
 		}
 
-		FreePluginPanelItem(&PanelItem[i]);
+		FreePluginPanelItem(PanelItem[i]);
 	}
 
 	delete[] PanelItem;
@@ -3159,7 +3159,7 @@ static void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 
 struct oldPanelInfoContainer
 {
-	oldPanelInfoContainer() {ClearStruct(Info);}
+	oldPanelInfoContainer() : Info() {}
 	~oldPanelInfoContainer() {FreeAnsiPanelInfo(&Info);}
 
 	oldfar::PanelInfo Info;
@@ -4846,16 +4846,15 @@ private:
 PluginA::PluginA(PluginManager *owner, const string& lpwszModuleName):
 	Plugin(owner,lpwszModuleName),
 	RootKey(nullptr),
+	PI(),
+	OPI(),
 	pFDPanelItemA(nullptr),
 	pVFDPanelItemA(nullptr),
 	OEMApiCnt(0),
 	opif_shortcut(false)
 {
 	LocalUpperInit();
-
 	ExportsNames = GetExportsNames();
-	ClearStruct(PI);
-	ClearStruct(OPI);
 }
 
 PluginA::~PluginA()

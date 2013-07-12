@@ -2242,10 +2242,7 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
 
 	std::vector<FarListItem> items(Config[CurrentConfig].second.size());
-	std::transform(ALL_RANGE(Config[CurrentConfig].second), items.begin(), LAMBDA_PREDICATE(Config[CurrentConfig].second, i)
-	{
-		return i.MakeListItem();
-	});
+	std::transform(ALL_RANGE(Config[CurrentConfig].second), items.begin(), std::mem_fn(&FARConfigItem::MakeListItem));
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
 
@@ -2974,9 +2971,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 				break;
 			case MENU_OPTIONS_LANGUAGES:   // Languages
 				{
-					VMenu2 *LangMenu, *HelpMenu;
-
-					if (Select(FALSE, &LangMenu))
+					if (SelectInterfaceLanguage())
 					{
 						Global->Lang->Close();
 
@@ -2986,8 +2981,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 							exit(0);
 						}
 
-						Select(TRUE,&HelpMenu);
-						delete HelpMenu;
+						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
 						SetEnvironmentVariable(L"FARLANG",strLanguage.data());
 						PrepareStrFTime();
@@ -2997,7 +2991,6 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 						Global->CtrlObject->Cp()->SetScreenPosition();
 					}
 
-					delete LangMenu; //???? BUGBUG
 					break;
 				}
 			case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration

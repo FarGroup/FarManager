@@ -2021,22 +2021,14 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 
 void PluginManager::ReloadLanguage()
 {
-	std::for_each(CONST_RANGE(SortedPlugins, i)
-	{
-		i->CloseLang();
-	});
-
+	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::CloseLang));
 	DiscardCache();
 }
 
 
 void PluginManager::DiscardCache()
 {
-	std::for_each(CONST_RANGE(SortedPlugins, i)
-	{
-		i->Load();
-	});
-
+	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::Load));
 	Global->Db->PlCacheCfg()->DiscardCache();
 }
 
@@ -2045,10 +2037,7 @@ void PluginManager::LoadIfCacheAbsent()
 {
 	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
 	{
-		std::for_each(CONST_RANGE(SortedPlugins, i)
-		{
-			i->Load();
-		});
+		std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::Load));
 	}
 }
 

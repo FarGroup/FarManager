@@ -226,7 +226,7 @@ void PrintFiles(FileList* SrcPanel)
 						else
 							apiRemoveDirectory(strTempDir);
 
-						FileList::FreePluginPanelItem(&PanelItem);
+						FreePluginPanelItem(PanelItem);
 					}
 				}
 			}

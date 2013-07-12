@@ -837,7 +837,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 
 	while (1)
 	{
-		int LastColumn=Columns.size() - 1;
+		int LastColumn = static_cast<int>(Columns.size() - 1);
 		TotalWidth=LastColumn-EmptyColumns;
 
 		std::for_each(CONST_RANGE(Columns, i)

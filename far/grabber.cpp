@@ -46,15 +46,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 
-Grabber::Grabber()
+Grabber::Grabber():
+	PrevArea(),
+	GArea(),
+	ResetArea(true),
+	VerticalBlock(false)
 {
 	Frame *pFrame = FrameManager->GetCurrentFrame();
 	pFrame->Lock();
 	SaveScr=new SaveScreen;
 	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 	Global->CtrlObject->Macro.SetMode(MACROAREA_OTHER);
-	ClearStruct(GArea);
-	ClearStruct(PrevArea);
 	bool Visible=false;
 	DWORD Size=0;
 	GetCursorType(Visible,Size);
@@ -70,8 +72,6 @@ Grabber::Grabber()
 	GArea.X1=-1;
 	SetCursorType(TRUE,60);
 	PrevArea=GArea;
-	ResetArea=TRUE;
-	VerticalBlock=FALSE;
 	DisplayObject();
 	Process();
 	delete SaveScr;
@@ -86,7 +86,7 @@ Grabber::~Grabber()
 }
 
 
-void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
+void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 {
 	if (GArea.X1 < 0)
 		return;
@@ -276,14 +276,14 @@ int Grabber::ProcessKey(int Key)
 		if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
 			Reset();
 		else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT) && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed)
-			ResetArea=TRUE;
+			ResetArea = true;
 	}
 	else
 	{
 		if ((IntKeyState.ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && Key!=KEY_CTRLA && Key!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
 			Reset();
 		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && Key!=KEY_CTRLA && Key!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(Key&KEY_SHIFT))
-			ResetArea=TRUE;
+			ResetArea = true;
 	}
 
 	switch (Key)
@@ -574,14 +574,14 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	GArea.CurY=std::min(std::max(static_cast<SHORT>(0),IntKeyState.MouseY),static_cast<SHORT>(ScrY));
 
 	if (!MouseEvent->dwEventFlags)
-		ResetArea=TRUE;
+		ResetArea = true;
 	else if (MouseEvent->dwEventFlags==MOUSE_MOVED)
 	{
 		if (ResetArea)
 		{
 			GArea.X2=GArea.CurX;
 			GArea.Y2=GArea.CurY;
-			ResetArea=FALSE;
+			ResetArea = false;
 		}
 
 		GArea.X1=GArea.CurX;
@@ -597,7 +597,7 @@ void Grabber::Reset()
 {
 	GArea.X1=GArea.X2=GArea.CurX;
 	GArea.Y1=GArea.Y2=GArea.CurY;
-	ResetArea=FALSE;
+	ResetArea = false;
 	//DisplayObject();
 }
 

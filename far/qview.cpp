@@ -62,12 +62,12 @@ QuickView::QuickView():
 	QView(nullptr),
 	Directory(0),
 	PrevMacroMode(MACROAREA_INVALID),
+	Data(),
 	OldWrapMode(0),
 	OldWrapType(0),
 	uncomplete_dirscan(false)
 {
 	Type=QVIEW_PANEL;
-	ClearStruct(Data);
 	if (!LastMode)
 	{
 		LastMode = true;

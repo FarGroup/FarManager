@@ -89,6 +89,7 @@ private:
 		PrevSelected(0),
 		ShowFolderSize(0),
 		ShortNamePresent(0),
+		Colors(),
 		NumberOfLinks(0),
 		NumberOfStreams(0),
 		UserFlags(0),
@@ -102,16 +103,15 @@ private:
 		CustomColumnNumber(0),
 		CRC32(0),
 		FileAttr(0),
+		CreationTime(),
+		AccessTime(),
+		WriteTime(),
+		ChangeTime(),
 		FileSize(0),
 		AllocationSize(0),
 		StreamsSize(0),
 		ReparseTag(0)
 	{
-		ClearStruct(Colors);
-		ClearStruct(CreationTime);
-		ClearStruct(AccessTime);
-		ClearStruct(WriteTime);
-		ClearStruct(ChangeTime);
 	}
 	friend class FileList;
 };
@@ -233,7 +233,6 @@ public:
 	static size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
 	static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
 	static void FileListToPluginItem(const FileListItem *fi,PluginPanelItem *pi);
-	static void FreePluginPanelItem(PluginPanelItem *pi);
 	static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
 	static bool IsModeFullScreen(int Mode);
 	static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);

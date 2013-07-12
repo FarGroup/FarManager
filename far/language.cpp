@@ -157,7 +157,7 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 	return(Found);
 }
 
-bool Select(int HelpLanguage,VMenu2 **MenuPtr)
+static bool SelectLanguage(bool HelpLanguage)
 {
 	const wchar_t *Title,*Mask;
 	StringOption *strDest;
@@ -177,10 +177,9 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 
 	MenuItemEx LangMenuItem;
 	LangMenuItem.Clear();
-	VMenu2 *LangMenu=new VMenu2(Title,nullptr,0,ScrY-4);
-	*MenuPtr=LangMenu;
-	LangMenu->SetFlags(VMENU_WRAPMODE);
-	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
+	VMenu2 LangMenu(Title,nullptr,0,ScrY-4);
+	LangMenu.SetFlags(VMENU_WRAPMODE);
+	LangMenu.SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
 	FAR_FIND_DATA FindData;
 	ScanTree ScTree(FALSE,FALSE);
@@ -210,24 +209,28 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 				   Если в каталог с ФАРом положить еще один HLF с одноименным
 				   языком, то... фигня получается при выборе языка.
 				*/
-				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
+				if (LangMenu.FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(!StrCmpI(strDest->data(),strLangName.data()));
-					LangMenu->SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu->AddItem(&LangMenuItem));
+					LangMenu.SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu.AddItem(&LangMenuItem));
 				}
 			}
 		}
 	}
 
-	LangMenu->AssignHighlights(FALSE);
-	LangMenu->Run();
+	LangMenu.AssignHighlights(FALSE);
+	LangMenu.Run();
 
-	if (LangMenu->GetExitCode()<0)
+	if (LangMenu.GetExitCode()<0)
 		return false;
 
-	*strDest = static_cast<const wchar_t*>(LangMenu->GetUserData(nullptr, 0));
+	*strDest = static_cast<const wchar_t*>(LangMenu.GetUserData(nullptr, 0));
 	return true;
 }
+
+bool SelectInterfaceLanguage() {return SelectLanguage(false);}
+bool SelectHelpLanguage() {return SelectLanguage(true);}
+
 
 /* $ 01.09.2000 SVS
   + Новый метод, для получения параметров для .Options

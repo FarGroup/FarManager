@@ -525,7 +525,7 @@ public:
 	{
 		AsyncDone.Reset();
 		Thread FinishThread;
-		if (FinishThread.MemberStart(this, &HierarchicalConfigDb::ThreadProc))
+		if (FinishThread.Start(this, &HierarchicalConfigDb::ThreadProc))
 		{
 			Global->Db->AddThread(FinishThread);
 		}
@@ -2062,7 +2062,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		AllWaiter.Add(AsyncDeleteAddDone);
 		AllWaiter.Add(AsyncCommitDone);
 		AsyncWork.Open();
-		WorkThread.MemberStart(this, &HistoryConfigCustom::ThreadProc);
+		WorkThread.Start(this, &HistoryConfigCustom::ThreadProc);
 	}
 
 	void StopThread()

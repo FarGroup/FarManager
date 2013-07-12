@@ -322,22 +322,25 @@ std::array<FarDialogItem, 1> VMenu2DialogItems =
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 }};
 
-VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr), ForceClosing(false)
+VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags):
+	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
+	MaxHeight(MaxHeight),
+	cancel(0),
+	X1(-1),
+	Y1(-1),
+	X2(0),
+	Y2(0),
+	ShortBox(false),
+	DefRec(),
+	NeedResize(false),
+	closing(false),
+	ForceClosing(false),
+	MacroMode(MACROAREA_MENU)
+
 {
 	InitDialogObjects();
 
-	this->MaxHeight=MaxHeight;
-	ShortBox=false;
-	ClearStruct(DefRec);
-	X1=-1;
-	Y1=-1;
-	X2=0;
-	Y2=0;
-
-	MacroMode=MACROAREA_MENU;
-
 	SetDialogMode(DMODE_KEEPCONSOLETITLE|DMODE_ISMENU);
-
 
 	SetTitle(Title);
 	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);

@@ -703,10 +703,10 @@ class extendedconsole:public basicconsole
 {
 public:
 	extendedconsole():
+		Imports(),
 		Module(LoadLibrary(L"extendedconsole.dll")),
 		ImportsPresent(false)
 	{
-		ClearStruct(Imports);
 		if(Module)
 		{
 			#define InitImport(Name) InitImport(Imports.p##Name, #Name)
