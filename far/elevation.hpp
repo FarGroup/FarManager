@@ -58,7 +58,7 @@ public:
 	elevation();
 	~elevation();
 	void ResetApprove();
-	bool Elevated(){return Elevation;}
+	bool Elevated() const {return Elevation;}
 
 	bool fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(const string& Object);

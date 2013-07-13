@@ -38,50 +38,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ScreenBuf
 {
-	private:
-		CriticalSection CS;
-		FAR_CHAR_INFO MacroChar;
-		FAR_CHAR_INFO ElevationChar;
-		FAR_CHAR_INFO *Buf;
-		FAR_CHAR_INFO *Shadow;
-		BitFlags SBFlags;
-		int LockCount;
-		DWORD CurSize;
-		SHORT BufX,BufY;
-		SHORT CurX,CurY;
-		bool MacroCharUsed;
-		bool ElevationCharUsed;
-		bool CurVisible;
+public:
+	ScreenBuf();
 
-	public:
-		ScreenBuf();
-		~ScreenBuf();
+	void AllocBuf(int X,int Y);
+	void Lock();
+	void Unlock();
+	int  GetLockCount() const {return LockCount;}
+	void SetLockCount(int Count);
+	void ResetLockCount() {LockCount=0;}
+	void ResetShadow();
+	void MoveCursor(int X,int Y);
+	void GetCursorPos(SHORT& X, SHORT& Y) const;
+	void SetCursorType(bool Visible, DWORD Size);
+	void GetCursorType(bool& Visible, DWORD& Size) const;
 
-	public:
-		void AllocBuf(int X,int Y);
-		void Lock();
-		void Unlock();
-		int  GetLockCount() {return(LockCount);}
-		void SetLockCount(int Count);
-		void ResetLockCount() {LockCount=0;}
-		void ResetShadow();
-		void MoveCursor(int X,int Y);
-		void GetCursorPos(SHORT& X, SHORT& Y);
-		void SetCursorType(bool Visible, DWORD Size);
-		void GetCursorType(bool& Visible, DWORD& Size);
+	void FillBuf();
+	void Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxTextLength);
+	void Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength);
+	void RestoreMacroChar();
+	void RestoreElevationChar();
 
-	public:
-		void FillBuf();
-		void Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxTextLength);
-		void Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength);
-		void RestoreMacroChar();
-		void RestoreElevationChar();
+	void ApplyShadow(int X1,int Y1,int X2,int Y2);
+	void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags = false);
+	void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags = false);
+	void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
 
-		void ApplyShadow(int X1,int Y1,int X2,int Y2);
-		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags = false);
-		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags = false);
-		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
+	void Scroll(int);
+	void Flush(bool SuppressIndicators = false);
 
-		void Scroll(int);
-		void Flush(bool SuppressIndicators = false);
+private:
+	CriticalSection CS;
+	FAR_CHAR_INFO MacroChar;
+	FAR_CHAR_INFO ElevationChar;
+	std::vector<FAR_CHAR_INFO> Buf;
+	std::vector<FAR_CHAR_INFO> Shadow;
+	BitFlags SBFlags;
+	int LockCount;
+	DWORD CurSize;
+	SHORT BufX, BufY;
+	SHORT CurX, CurY;
+	bool MacroCharUsed;
+	bool ElevationCharUsed;
+	bool CurVisible;
 };

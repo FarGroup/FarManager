@@ -261,7 +261,7 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	if (LeftFullScreen)
 	{
 		LeftPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
-		LeftPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
+		LeftPanel->SetFullScreen();
 	}
 	else
 	{
@@ -271,7 +271,7 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	if (RightFullScreen)
 	{
 		RightPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
-		RightPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
+		RightPanel->SetFullScreen();
 	}
 	else
 	{

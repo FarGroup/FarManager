@@ -187,7 +187,6 @@ public:
 	virtual void FlushDiz() override;
 	virtual void GetDizName(string &strDizName) override;
 	virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
-	virtual bool IsFullScreen() override;
 	virtual bool IsDizDisplayed() override;
 	virtual bool IsColumnDisplayed(int Type) override;
 	virtual int GetColumnsCount() override { return Columns;}

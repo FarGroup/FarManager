@@ -102,7 +102,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 		DoneDone.Reset();
 		WatchRegistered.Reset();
 		Thread WatchThread;
-		WatchThread.Start(this, &FileSystemWatcher::WatchRegister);
+		WatchThread.Start(&FileSystemWatcher::WatchRegister, this);
 	}
 
 	if (got_focus)

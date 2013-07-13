@@ -137,25 +137,26 @@ struct PanelMenuItem;
 
 class DelayedDestroy
 {
-	bool           destroyed;
-	int prevent_delete_count;
-
 public:
-	DelayedDestroy() : destroyed(false), prevent_delete_count(0) {}
+	DelayedDestroy():
+		destroyed(false),
+		prevent_delete_count(0)
+	{}
 
 protected:
-	virtual ~DelayedDestroy() {
-		assert(destroyed);
-	}
+	virtual ~DelayedDestroy() { assert(destroyed); }
 
 public:
-	bool Destroy()	{
+	bool Destroy()
+	{
 		assert(!destroyed);
 		destroyed = true;
-		if (prevent_delete_count > 0) {
+		if (prevent_delete_count > 0)
+		{
 			return false;
 		}
-		else {
+		else
+		{
 			delete this;
 			return true;
 		}
@@ -165,7 +166,8 @@ public:
 
 	int AddRef() { return ++prevent_delete_count; }
 
-	int Release() {
+	int Release()
+	{
 		assert(prevent_delete_count > 0);
 		if (--prevent_delete_count > 0 || !destroyed)
 			return prevent_delete_count;
@@ -174,14 +176,20 @@ public:
 			return 0;
 		}
 	}
+
+private:
+	bool destroyed;
+	int prevent_delete_count;
+
 };
 
 class DelayDestroy
 {
-	DelayedDestroy *host;
 public:
-	DelayDestroy(DelayedDestroy *_host) { (host = _host)->AddRef(); }
-	~DelayDestroy() { host->Release(); }
+	DelayDestroy(DelayedDestroy *host):m_host(host) { m_host->AddRef(); }
+	~DelayDestroy() { m_host->Release(); }
+private:
+	DelayedDestroy *m_host;
 };
 
 class Panel:public ScreenObject, public DelayedDestroy
@@ -215,8 +223,7 @@ public:
 	virtual void GetDizName(string &strDizName) {}
 	virtual void FlushDiz() {}
 	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
-	virtual bool IsFullScreen() {return (ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;}
-	virtual bool IsDizDisplayed() {return false;}
+	virtual bool IsDizDisplayed() { return false; }
 	virtual bool IsColumnDisplayed(int Type) {return false;}
 	virtual int GetColumnsCount() { return 1;}
 	virtual void SetReturnCurrentFile(int Mode) {}
@@ -314,10 +321,10 @@ public:
 	bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
 	int SetCurPath();
 	BOOL NeedUpdatePanel(const Panel *AnotherPanel);
-
+	bool IsFullScreen() const { return (ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
+	void SetFullScreen() { ViewSettings.Flags |= PVS_FULLSCREEN; }
 	static void EndDrag();
 
-	PanelViewSettings ViewSettings;
 	int ProcessingPluginCommand;
 
 protected:
@@ -347,6 +354,7 @@ private:
 	void DragMessage(int X,int Y,int Move);
 
 protected:
+	PanelViewSettings ViewSettings;
 	string strCurDir;
 	bool Focus;
 	int Type;

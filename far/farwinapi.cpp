@@ -1606,19 +1606,18 @@ void apiEnableLowFragmentationHeap()
 {
 	if (Global->ifn->HeapSetInformationPresent())
 	{
-		DWORD NumHeaps = 10;
-		array_ptr<HANDLE> Heaps(NumHeaps);
-		DWORD ActualNumHeaps = GetProcessHeaps(NumHeaps, Heaps.get());
-		if(ActualNumHeaps > NumHeaps)
+		std::vector<HANDLE> Heaps(10);
+		DWORD ActualNumHeaps = GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+		if(ActualNumHeaps > Heaps.size())
 		{
-			Heaps.reset(ActualNumHeaps);
-			GetProcessHeaps(ActualNumHeaps, Heaps.get());
+			Heaps.resize(ActualNumHeaps);
+			GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 		}
-		for (DWORD i = 0; i < ActualNumHeaps; i++)
+		std::for_each(CONST_RANGE(Heaps, i)
 		{
 			ULONG HeapFragValue = 2;
-			Global->ifn->HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
-		}
+			Global->ifn->HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+		});
 	}
 }
 

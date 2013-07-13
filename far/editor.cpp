@@ -3776,7 +3776,7 @@ BOOL Editor::Search(int Next)
 
 		string strSlash(strSearchStr);
 		InsertRegexpQuote(strSlash);
-		array_ptr<RegExpMatch> m;
+		std::vector<RegExpMatch> m;
 		RegExp re;
 
 		if (Regexp)
@@ -3785,7 +3785,7 @@ BOOL Editor::Search(int Next)
 			if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 				return FALSE; //BUGBUG
 
-			m.reset(re.GetBracketsCount() * 2);
+			m.resize(re.GetBracketsCount() * 2);
 		}
 
 		string strSearchStrUpper = strSearchStr;
@@ -3832,7 +3832,7 @@ BOOL Editor::Search(int Next)
 			int SearchLength=0;
 			string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
 
-			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.get(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
+			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
 				Match=1;
 				Edit *FoundPtr = CurPtr;

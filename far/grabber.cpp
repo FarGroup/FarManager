@@ -228,9 +228,9 @@ void Grabber::DisplayObject()
 
 		if (GArea.X1!=-1)
 		{
-			array_ptr<FAR_CHAR_INFO> CharBuf((X2-X1+1)*(Y2-Y1+1));
+			std::vector<FAR_CHAR_INFO> CharBuf((X2-X1+1)*(Y2-Y1+1));
 			FAR_CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
-			GetText(X1,Y1,X2,Y2,CharBuf.get(),sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
+			GetText(X1,Y1,X2,Y2,CharBuf.data(), sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
 			for (int X=X1; X<=X2; X++)
 			{
@@ -242,7 +242,7 @@ void Grabber::DisplayObject()
 					CharBuf[Pos].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
 				}
 			}
-			PutText(X1,Y1,X2,Y2,CharBuf.get());
+			PutText(X1, Y1, X2, Y2, CharBuf.data());
 		}
 
 		if (GArea.X1==-2)

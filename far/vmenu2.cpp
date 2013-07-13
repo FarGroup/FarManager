@@ -345,13 +345,13 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	SetTitle(Title);
 	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
-	array_ptr<FarListItem> fli(ItemCount);
+	std::vector<FarListItem> fli(ItemCount);
 	for(size_t i=0; i<ItemCount; ++i)
 	{
 		fli[i].Flags=Data[i].Flags;
 		fli[i].Text=Data[i].Name;
 	}
-	FarList fl={sizeof(FarList), ItemCount, fli.get()};
+	FarList fl={sizeof(FarList), ItemCount, fli.data()};
 
 	SendMessage(DM_LISTSET, 0, &fl);
 

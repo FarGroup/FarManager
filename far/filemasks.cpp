@@ -225,7 +225,6 @@ filemasks::masks& filemasks::masks::operator =(filemasks::masks&& Right)
 	Masks.swap(Right.Masks);
 	re.swap(Right.re);
 	m.swap(Right.m);
-	n = Right.n;
 	bRE = Right.bRE;
 	return *this;
 }
@@ -264,15 +263,7 @@ bool filemasks::masks::Set(const string& masks)
 
 		if (re && re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{
-			n = re->GetBracketsCount();
-			m.reset(n);
-
-			if (!m)
-			{
-				n = 0;
-				return false;
-			}
-
+			m.resize(re->GetBracketsCount());
 			return true;
 		}
 
@@ -288,11 +279,8 @@ bool filemasks::masks::Set(const string& masks)
 void filemasks::masks::Free()
 {
 	Masks.clear();
-
 	re.reset();
-	m.reset();
-
-	n = 0;
+	m.clear();
 	bRE = false;
 }
 
@@ -302,9 +290,9 @@ bool filemasks::masks::operator ==(const string& FileName) const
 {
 	if (bRE)
 	{
-		intptr_t i = n;
+		intptr_t i = m.size();
 		size_t len = FileName.size();
-		bool ret = re->Search(FileName.data(),FileName.data()+len,m.get(),i) != 0;
+		bool ret = re->Search(FileName.data(), FileName.data() + len, const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)
@@ -320,5 +308,5 @@ bool filemasks::masks::operator ==(const string& FileName) const
 
 bool filemasks::masks::empty() const
 {
-	return bRE? !n : Masks.empty();
+	return bRE? m.empty() : Masks.empty();
 }

@@ -61,8 +61,6 @@ enum
 ScreenBuf::ScreenBuf():
 	MacroChar(),
 	ElevationChar(),
-	Buf(nullptr),
-	Shadow(nullptr),
 	SBFlags(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE),
 	LockCount(0),
 	CurSize(0),
@@ -76,15 +74,6 @@ ScreenBuf::ScreenBuf():
 {
 }
 
-
-ScreenBuf::~ScreenBuf()
-{
-	if (Buf)    delete[] Buf;
-
-	if (Shadow) delete[] Shadow;
-}
-
-
 void ScreenBuf::AllocBuf(int X,int Y)
 {
 	CriticalSectionLock Lock(CS);
@@ -92,13 +81,9 @@ void ScreenBuf::AllocBuf(int X,int Y)
 	if (X==BufX && Y==BufY)
 		return;
 
-	if (Buf) delete[] Buf;
-
-	if (Shadow) delete[] Shadow;
-
-	unsigned Cnt=X*Y;
-	Buf=new FAR_CHAR_INFO[Cnt]();
-	Shadow=new FAR_CHAR_INFO[Cnt]();
+	size_t Cnt=X*Y;
+	Buf.resize(Cnt);
+	Shadow.resize(Cnt);
 	BufX=X;
 	BufY=Y;
 }
@@ -110,8 +95,8 @@ void ScreenBuf::FillBuf()
 	CriticalSectionLock Lock(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={};
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
-	Global->Console->ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
-	memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
+	Global->Console->ReadOutput(Buf.data(), BufferSize, BufferCoord, ReadRegion);
+	std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
 	Global->Console->GetCursorPosition(CursorPosition);
@@ -138,7 +123,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength)
 	if (X+TextLength >= BufX)
 		TextLength=BufX-X; //??
 
-	FAR_CHAR_INFO *PtrBuf=Buf+Y*BufX+X;
+	FAR_CHAR_INFO *PtrBuf=Buf.data()+Y*BufX+X;
 
 	for (int i=0; i<TextLength; i++)
 	{
@@ -168,7 +153,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxT
 	int I, Idx;
 
 	for (Idx=I=0; I < Height; I++, Idx+=Width)
-		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,std::min(sizeof(FAR_CHAR_INFO)*Width,MaxTextLength));
+		memcpy(Text + Idx, Buf.data() + (Y1 + I)*BufX + X1, std::min(sizeof(FAR_CHAR_INFO)*Width, MaxTextLength));
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
@@ -182,7 +167,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 	int I, J;
 	for (I=0; I < Height; I++)
 	{
-		FAR_CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
+		FAR_CHAR_INFO *PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
 
 		for (J=0; J < Width; J++, ++PtrBuf)
 		{
@@ -239,7 +224,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		{
 			for (I=0; I < Height; I++)
 			{
-				PtrBuf=Buf+(Y1+I)*BufX+X1;
+				PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
 				for (J=0; J < Width; J++, ++PtrBuf)
 				{
 					FARCOLORFLAGS ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
@@ -252,7 +237,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		{
 			for (I=0; I < Height; I++)
 			{
-				PtrBuf=Buf+(Y1+I)*BufX+X1;
+				PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
 				for (J=0; J < Width; J++, ++PtrBuf)
 				{
 					PtrBuf->Attributes=Color;
@@ -286,7 +271,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 
 		for (int I = 0; I < Y2-Y1+1; I++)
 		{
-			FAR_CHAR_INFO* PtrBuf = Buf+(Y1+I)*BufX+X1;
+			FAR_CHAR_INFO* PtrBuf = Buf.data() + (Y1 + I)*BufX + X1;
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
 			{
 				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
@@ -325,7 +310,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 
 	for (I=0; I < Height; I++)
 	{
-		for (PtrBuf=Buf+(Y1+I)*BufX+X1, J=0; J < Width; J++, ++PtrBuf)
+		for (PtrBuf = Buf.data() + (Y1 + I)*BufX + X1, J = 0; J < Width; J++, ++PtrBuf)
 			*PtrBuf=CI;
 	}
 
@@ -401,7 +386,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 
 			if (SBFlags.Check(SBFLAGS_USESHADOW))
 			{
-				FAR_CHAR_INFO* PtrBuf=Buf,*PtrShadow=Shadow;
+				FAR_CHAR_INFO* PtrBuf = Buf.data(), *PtrShadow = Shadow.data();
 
 				if (Global->Opt->ClearType)
 				{
@@ -500,10 +485,10 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				{
 					COORD BufferSize={BufX, BufY}, BufferCoord={i.Left, i.Top};
 					SMALL_RECT WriteRegion = i;
-					Global->Console->WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
+					Global->Console->WriteOutput(Buf.data(), BufferSize, BufferCoord, WriteRegion);
 				});
 				Global->Console->Commit();
-				memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
+				std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
 			}
 		}
 
@@ -579,7 +564,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 }
 
 
-void ScreenBuf::GetCursorPos(SHORT& X, SHORT& Y)
+void ScreenBuf::GetCursorPos(SHORT& X, SHORT& Y) const
 {
 	X=CurX;
 	Y=CurY;
@@ -601,7 +586,7 @@ void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 	}
 }
 
-void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size)
+void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size) const
 {
 	Visible=CurVisible;
 	Size=CurSize;
@@ -632,7 +617,7 @@ void ScreenBuf::Scroll(int Num)
 	CriticalSectionLock Lock(CS);
 
 	if (Num > 0 && Num < BufY)
-		memmove(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(FAR_CHAR_INFO));
+		memmove(Buf.data(), Buf.data() + Num*BufX, (BufY - Num)*BufX*sizeof(FAR_CHAR_INFO));
 
 #ifdef DIRECT_SCREEN_OUT
 	Flush();

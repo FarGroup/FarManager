@@ -1400,13 +1400,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 	}
 }
 
-
-bool FileList::IsFullScreen()
-{
-	return (this->ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
-}
-
-
 bool FileList::IsModeFullScreen(int Mode)
 {
 	return (Global->Opt->ViewSettings[Mode].Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;

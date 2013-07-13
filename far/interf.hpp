@@ -141,7 +141,7 @@ void Text(const string& Str);
 void Text(LNGID MsgId);
 void VText(const string& Str);
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
-void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
+void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
 void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize);
 void BoxText(wchar_t Chr);
 void BoxText(const string& Str,int IsVert=0);

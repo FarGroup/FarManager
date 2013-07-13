@@ -57,7 +57,7 @@ private:
 	class masks
 	{
 	public:
-		masks():n(0), bRE(false) {}
+		masks(): bRE(false) {}
 		masks(masks&& Right) {*this = std::move(Right);}
 		~masks() {}
 
@@ -70,8 +70,7 @@ private:
 	private:
 		std::list<string> Masks;
 		std::unique_ptr<RegExp> re;
-		array_ptr<RegExpMatch> m;
-		int n;
+		std::vector<RegExpMatch> m;
 		bool bRE;
 	};
 	std::list<masks> Include, Exclude;

@@ -42,24 +42,14 @@ ENUM(ExceptFunctionsType);
 
 struct ExecuteStruct
 {
-	ExecuteStruct& operator =(intptr_t value) { nResult = value; return *this; }
-	ExecuteStruct& operator =(HANDLE value) { hResult = value; return *this; }
-	operator intptr_t() const { return nResult; } 
-	operator HANDLE() const { return hResult; } 
+	ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
+	ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
+	operator intptr_t() const { return Result; } 
+	operator HANDLE() const { return reinterpret_cast<HANDLE>(Result); }
 
 	ExceptFunctionsType id;
 
-	union
-	{
-		intptr_t nDefaultResult;
-		HANDLE hDefaultResult;
-	};
-
-	union
-	{
-		intptr_t nResult;
-		HANDLE hResult;
-	};
+	intptr_t Default, Result;
 };
 
 #define EXECUTE_FUNCTION(function) \
@@ -75,7 +65,7 @@ struct ExecuteStruct
 		if (xfilter(es.id, e.GetInfo(), this, 0) == EXCEPTION_EXECUTE_HANDLER) \
 		{ \
 			m_owner->UnloadPlugin(this, es.id); \
-			es.nResult = es.nDefaultResult; \
+			es.Result = es.Default; \
 			Global->ProcessException=FALSE; \
 		} \
 		else \
@@ -89,8 +79,7 @@ struct ExecuteStruct
 
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 
-#define _W(string) L##string
-#define WA(string) {_W(string), string}
+#define WA(string) {L##string, string}
 
 enum EXPORTS_ENUM
 {

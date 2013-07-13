@@ -303,7 +303,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 
 	// skip unused region
 	int Offset = BufferCoord.Y*BufferSize.X;
-	array_ptr<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset, true);
+	std::vector<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset);
 	BufferSize.Y-=BufferCoord.Y;
 	BufferCoord.Y=0;
 
@@ -318,14 +318,14 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 		{
 			ReadRegion=SavedReadRegion;
 			ReadRegion.Top=Start+i;
-			PCHAR_INFO BufPtr=ConsoleBuffer.get()+i*BufferSize.X;
+			PCHAR_INFO BufPtr=ConsoleBuffer.data()+i*BufferSize.X;
 			Result=ReadConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 		}
 		BufferSize.Y = SavedY;
 	}
 	else
 	{
-		Result=ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.get(), BufferSize, BufferCoord, &ReadRegion)!=FALSE;
+		Result=ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 	}
 
 	for(int i = 0; i < BufferSize.X*BufferSize.Y; ++i)
@@ -352,7 +352,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 
 	// skip unused region
 	int Offset = BufferCoord.Y*BufferSize.X;
-	array_ptr<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset);
+	std::vector<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset);
 	for(int i = Offset; i < BufferSize.X*BufferSize.Y; ++i)
 	{
 		ConsoleBuffer[i-Offset].Char.UnicodeChar = Buffer[i].Char;
@@ -373,14 +373,14 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 		{
 			WriteRegion=SavedWriteRegion;
 			WriteRegion.Top=Start+i;
-			const CHAR_INFO* BufPtr=ConsoleBuffer.get()+i*BufferSize.X;
+			const CHAR_INFO* BufPtr=ConsoleBuffer.data()+i*BufferSize.X;
 			Result=WriteConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 		}
 		BufferSize.Y = SavedY;
 	}
 	else
 	{
-		Result=WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer.get(), BufferSize, BufferCoord, &WriteRegion)!=FALSE;
+		Result=WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 	}
 
 	if(Global->Opt->WindowMode)

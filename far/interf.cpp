@@ -626,13 +626,13 @@ void Text(const string& Str)
 		return;
 
 	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
-	array_ptr<FAR_CHAR_INFO> HeapBuffer;
+	std::vector<FAR_CHAR_INFO> HeapBuffer;
 	FAR_CHAR_INFO* BufPtr=StackBuffer;
 
 	if (Length >= StackBufferSize/sizeof(FAR_CHAR_INFO))
 	{
-		HeapBuffer.reset(Length+1);
-		BufPtr=HeapBuffer.get();
+		HeapBuffer.resize(Length+1);
+		BufPtr=HeapBuffer.data();
 	}
 
 	for (size_t i=0; i < Length; i++)
@@ -834,14 +834,11 @@ void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize)
 	Global->ScrBuf->Read(X1,Y1,X2,Y2,Dest,DestSize);
 }
 
-void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
+void PutText(int X1, int Y1, int X2, int Y2, const FAR_CHAR_INFO *Src)
 {
 	int Width=X2-X1+1;
-	int Y;
-	FAR_CHAR_INFO *SrcPtr=(FAR_CHAR_INFO*)Src;
-
-	for (Y=Y1; Y<=Y2; ++Y,SrcPtr+=Width)
-		Global->ScrBuf->Write(X1,Y,SrcPtr,Width);
+	for (int Y=Y1; Y<=Y2; ++Y, Src+=Width)
+		Global->ScrBuf->Write(X1, Y, Src, Width);
 }
 
 void BoxText(wchar_t Chr)

@@ -37,7 +37,7 @@ class CachedRead
 public:
 	CachedRead(File& file, DWORD buffer_size=0);
 	~CachedRead();
-	bool AdjustAlignment(); // file have to be opened already
+	void AdjustAlignment(); // file have to be opened already
 	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);
 	bool FillBuffer();
 	bool Unread(DWORD BytesUnread);
@@ -50,8 +50,7 @@ private:
 	DWORD BytesLeft;
 	INT64 LastPtr;
 	int Alignment;
-	DWORD BufferSize; // = 2*k*Alignment (k >= 2)
-	array_ptr<BYTE> Buffer;
+	std::vector<BYTE> Buffer; // = 2*k*Alignment (k >= 2)
 };
 
 
@@ -65,8 +64,7 @@ public:
 
 private:
 	File& file;
-	const DWORD BufferSize;
-	array_ptr<BYTE> Buffer;
-	DWORD FreeSize;
+	std::vector<BYTE> Buffer;
+	size_t FreeSize;
 	bool Flushed;
 };

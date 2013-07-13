@@ -2796,7 +2796,7 @@ bool FindFiles::FindFilesProcess()
 
 	THREADPARAM Param={PluginMode, &Dlg};
 	Thread FindThread;
-	if (FindThread.Start(this, &FindFiles::ThreadRoutine, &Param))
+	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
 	{
 		TB=new TaskBar;
 		wakeful W;

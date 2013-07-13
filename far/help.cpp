@@ -1857,7 +1857,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 	string strSlash(strLastSearchStr);
 	InsertRegexpQuote(strSlash);
-	array_ptr<RegExpMatch> m;
+	std::vector<RegExpMatch> m;
 	RegExp re;
 
 	if (LastSearchRegexp)
@@ -1866,7 +1866,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 		if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
 			return; //BUGBUG
 
-		m.reset(re.GetBracketsCount() * 2);
+		m.resize(re.GetBracketsCount() * 2);
 	}
 
 	string strSearchStrUpper = strLastSearchStr;
@@ -1912,7 +1912,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr.data(),(int)strReadStr.size(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,m.get(),ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
+			bool Result=SearchString(strReadStr.data(),(int)strReadStr.size(),strLastSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,false,LastSearchRegexp,&SearchLength);
 
 			if (Result)
 			{

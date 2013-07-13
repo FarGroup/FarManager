@@ -826,7 +826,6 @@ int Plugin::ProcessSynchroEvent(int Event, void *Param)
 	ExecuteStruct es = {EXCEPT_PROCESSSYNCHROEVENT};
 	if (Load() && Exports[iProcessSynchroEvent] && !Global->ProcessException)
 	{
-		es.nDefaultResult = 0;
 		ProcessSynchroEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;

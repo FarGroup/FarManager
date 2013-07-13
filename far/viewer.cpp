@@ -2758,7 +2758,7 @@ struct Viewer::search_data
 	bool first_Rex;
 	RegExp *pRex;
 	int RexMatchCount;
-	array_ptr<RegExpMatch> RexMatch;
+	std::vector<RegExpMatch> RexMatch;
 
 	search_data() : CurPos(-1),
 					MatchPos(-1),
@@ -3096,7 +3096,7 @@ int Viewer::search_regex_forward( search_data* sd )
 			break;
 
 		intptr_t n = sd->RexMatchCount;
-		RegExpMatch *m = sd->RexMatch.get();
+		RegExpMatch *m = sd->RexMatch.data();
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )  // doesn't match
 			break;
 
@@ -3152,7 +3152,7 @@ int Viewer::search_regex_backward( search_data* sd )
 			break;
 
 		intptr_t n = sd->RexMatchCount;
-		RegExpMatch *m = sd->RexMatch.get();
+		RegExpMatch *m = sd->RexMatch.data();
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )
 			break;
 
@@ -3338,7 +3338,7 @@ void Viewer::Search(int Next,int FirstChar)
 			if ( !sd.pRex->Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
 				return; // wrong regular expression...
 			sd.RexMatchCount = sd.pRex->GetBracketsCount();
-			sd.RexMatch.reset(sd.RexMatchCount);
+			sd.RexMatch.resize(sd.RexMatchCount);
 		}
 		else
 		{

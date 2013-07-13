@@ -1138,10 +1138,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					if(Global->Console->GetSize(Size))
 					{
 						COORD BufferSize = {Size.X, static_cast<SHORT>(Global->Opt->ShowKeyBar?3:2)};
-						FAR_CHAR_INFO* Buffer = new FAR_CHAR_INFO[BufferSize.X * BufferSize.Y];
+						std::vector<FAR_CHAR_INFO> Buffer(BufferSize.X * BufferSize.Y);
 						COORD BufferCoord = {};
 						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - BufferSize.Y), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
-						if(Global->Console->ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion))
+						if(Global->Console->ReadOutput(Buffer.data(), BufferSize, BufferCoord, ReadRegion))
 						{
 							FarColor Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
 							SkipScroll = true;
@@ -1153,7 +1153,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 									break;
 								}
 							}
-							delete[] Buffer;
 						}
 					}
 					if(!SkipScroll)

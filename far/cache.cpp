@@ -42,8 +42,7 @@ CachedRead::CachedRead(File& file, DWORD buffer_size):
 	BytesLeft(0),
 	LastPtr(0),
 	Alignment(512),
-	BufferSize(buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize),
-	Buffer(BufferSize)
+	Buffer(buffer_size ? (buffer_size + Alignment - 1) & ~(Alignment - 1) : DefaultBufferSize)
 {
 }
 
@@ -51,12 +50,13 @@ CachedRead::~CachedRead()
 {
 }
 
-bool CachedRead::AdjustAlignment()
+void CachedRead::AdjustAlignment()
 {
 	if (!file.Opened())
-		return false;
+		return;
 
-	DWORD ret, buff_size = BufferSize;
+	DWORD ret;
+	size_t buff_size = Buffer.size();
 	DISK_GEOMETRY g;
 
 	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr,0, &g,(DWORD)sizeof(g), &ret,nullptr))
@@ -69,13 +69,12 @@ bool CachedRead::AdjustAlignment()
 		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr,0, nullptr,0, &ret,nullptr);
 	}
 
-	if (buff_size > BufferSize)
+	if (buff_size > Buffer.size())
 	{
-		Buffer.reset(BufferSize = buff_size);
+		Buffer.resize(buff_size);
 	}
 
 	Clear();
-	return Buffer != nullptr;
 }
 
 void CachedRead::Clear()
@@ -104,7 +103,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 	}
 	bool Result=false;
 	*BytesRead=0;
-	if(DataSize<=BufferSize && Buffer)
+	if(DataSize<=Buffer.size())
 	{
 		while (DataSize)
 		{
@@ -151,21 +150,21 @@ bool CachedRead::FillBuffer()
 	bool Result=false;
 	if (!file.Eof())
 	{
-		INT64 Pointer = file.GetPointer();
+		UINT64 Pointer = file.GetPointer();
 
 		int shift = (int)(Pointer % Alignment);
-		if (Pointer-shift > BufferSize/2)
-			shift += BufferSize/2;
+		if (Pointer-shift > Buffer.size()/2)
+			shift += static_cast<int>(Buffer.size() / 2);
 
 		if (shift)
 			file.SetPointer(-shift, nullptr, FILE_CURRENT);
 
-		DWORD read_size = BufferSize;
+		size_t read_size = Buffer.size();
 		UINT64 FileSize = 0;
-		if (file.GetSize(FileSize) && Pointer-shift+BufferSize > (INT64)FileSize)
-			read_size = (DWORD)((INT64)FileSize-Pointer+shift);
+		if (file.GetSize(FileSize) && Pointer - shift + Buffer.size() > FileSize)
+			read_size = FileSize - Pointer + shift;
 
-		Result = file.Read(Buffer.get(), read_size, ReadSize);
+		Result = file.Read(Buffer.data(), static_cast<DWORD>(read_size), ReadSize);
 		if (Result)
 		{
 			if (ReadSize > (DWORD)shift)
@@ -192,9 +191,8 @@ bool CachedRead::FillBuffer()
 
 CachedWrite::CachedWrite(File& file):
 	file(file),
-	BufferSize(0x10000),
-	Buffer(BufferSize),
-	FreeSize(BufferSize),
+	Buffer(0x10000),
+	FreeSize(Buffer.size()),
 	Flushed(false)
 {
 }
@@ -208,32 +206,29 @@ bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
 
-	if (Buffer)
+	bool SuccessFlush=true;
+	if (DataSize>FreeSize)
 	{
-		bool SuccessFlush=true;
+		SuccessFlush=Flush();
+	}
+
+	if(SuccessFlush)
+	{
 		if (DataSize>FreeSize)
 		{
-			SuccessFlush=Flush();
-		}
+			size_t WrittenSize=0;
 
-		if(SuccessFlush)
-		{
-			if (DataSize>FreeSize)
+			if (file.Write(Data, DataSize,WrittenSize) && DataSize==WrittenSize)
 			{
-				size_t WrittenSize=0;
-
-				if (file.Write(Data, DataSize,WrittenSize) && DataSize==WrittenSize)
-				{
-					Result=true;
-				}
-			}
-			else
-			{
-				memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
-				FreeSize -= static_cast<DWORD>(DataSize);
-				Flushed=false;
 				Result=true;
 			}
+		}
+		else
+		{
+			memcpy(&Buffer[Buffer.size() - FreeSize], Data, DataSize);
+			FreeSize -= static_cast<DWORD>(DataSize);
+			Flushed=false;
+			Result=true;
 		}
 	}
 	return Result;
@@ -241,17 +236,14 @@ bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
 
 bool CachedWrite::Flush()
 {
-	if (Buffer)
+	if (!Flushed)
 	{
-		if (!Flushed)
-		{
-			DWORD WrittenSize=0;
+		DWORD WrittenSize=0;
 
-			if (file.Write(Buffer.get(), BufferSize-FreeSize, WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
-			{
-				Flushed=true;
-				FreeSize=BufferSize;
-			}
+		if (file.Write(Buffer.data(), static_cast<DWORD>(Buffer.size() - FreeSize), WrittenSize, nullptr) && Buffer.size() - FreeSize == WrittenSize)
+		{
+			Flushed=true;
+			FreeSize = Buffer.size();
 		}
 	}
 

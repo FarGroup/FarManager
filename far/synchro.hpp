@@ -106,32 +106,38 @@ private:
 class Thread: public HandleWrapper
 {
 public:
-
-	Thread() {}
+	Thread() : m_ThreadId(0) {}
 
 	virtual ~Thread() {}
 
-	const wchar_t *GetNamespace() const { return L""; }
+	virtual const wchar_t *GetNamespace() const override { return L""; }
 
-	bool Start(unsigned int (*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	bool Start(std::function<void()> Function)
 	{
-		return Starter(std::bind(Function, Parameter), ThreadId);
+		return Start([Function](void*)->unsigned int { Function(); return 0; }, nullptr);
+	}
+
+	bool Start(std::function<unsigned int(void*) > Function, void* Parameter)
+	{
+		return Starter(std::bind(Function, Parameter));
 	}
 
 	template<class T>
-	bool Start(T* Object, unsigned int (T::*Function)(void*), void* Parameter = nullptr, unsigned int* ThreadId = nullptr)
+	bool Start(unsigned int (T::*Function)(void*), T* Object, void* Parameter = nullptr)
 	{
-		return Starter(std::bind(std::mem_fn(Function), Object, Parameter), ThreadId);
+		return Starter(std::bind(std::mem_fn(Function), Object, Parameter));
 	}
+
+	unsigned int GetId() const { return m_ThreadId; }
 
 private:
 	template<class T>
-	bool Starter(T&& f, unsigned int* ThreadId)
+	bool Starter(T&& f)
 	{
 		assert(!h);
 
 		auto Param = new T(f);
-		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, ThreadId))))
+		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
 		{
 			delete Param;
 			return false;
@@ -150,6 +156,8 @@ private:
 
 		return Param();
 	}
+
+	unsigned int m_ThreadId;
 };
 
 class Mutex: public HandleWrapper
@@ -160,7 +168,7 @@ public:
 
 	virtual ~Mutex() {}
 
-	const wchar_t *GetNamespace() const { return L"Far_Manager_Mutex_"; }
+	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Mutex_"; }
 
 	bool Open()
 	{
@@ -201,7 +209,7 @@ public:
 
 	virtual ~Event() {}
 
-	const wchar_t *GetNamespace() const { return L"Far_Manager_Event_"; }
+	virtual const wchar_t *GetNamespace() const override { return L"Far_Manager_Event_"; }
 
 	bool Open(bool ManualReset=false, bool InitialState=false)
 	{

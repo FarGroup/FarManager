@@ -541,11 +541,11 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					DWORD RmGetListResult;
 					UINT nProcInfoNeeded;
 					UINT nProcInfo = 1;
-					array_ptr<RM_PROCESS_INFO> rgpi(nProcInfo);
-					while((RmGetListResult=Global->ifn->RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.get(), &dwReason)) == ERROR_MORE_DATA)
+					std::vector<RM_PROCESS_INFO> rgpi(nProcInfo);
+					while((RmGetListResult=Global->ifn->RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
 					{
 						nProcInfo = nProcInfoNeeded;
-						rgpi.reset(nProcInfo);
+						rgpi.resize(nProcInfo);
 					}
 					if(RmGetListResult ==ERROR_SUCCESS)
 					{
