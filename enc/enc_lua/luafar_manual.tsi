@@ -4816,7 +4816,7 @@ id=228
 lv=2
 dt=Text
 nm=panel.GetUserScreen
-mtime=3571803010
+mtime=3582913573
 <article>
 #_result = panel.GetUserScreen ([handle])
 #_
@@ -4828,6 +4828,14 @@ mtime=3571803010
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETUSERSCREEN
+#_
+#_**Example:**
+#_  function printToFARConsole(...)
+#_    panel.GetUserScreen()
+#_    io.write(...)
+#_    io.write("\n")
+#_    panel.SetUserScreen()
+#_  end
 #_
 #_@@@
 #_
@@ -5162,7 +5170,7 @@ id=15
 lv=2
 dt=Text
 nm=panel.SetUserScreen
-mtime=3571803063
+mtime=3582913564
 <article>
 #_result = panel.SetUserScreen ([handle])
 #_
@@ -5174,6 +5182,14 @@ mtime=3571803063
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETUSERSCREEN
+#_
+#_**Example:**
+#_  function printToFARConsole(...)
+#_    panel.GetUserScreen()
+#_    io.write(...)
+#_    io.write("\n")
+#_    panel.SetUserScreen()
+#_  end
 #_
 #_@@@
 #_
