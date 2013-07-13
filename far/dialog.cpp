@@ -1513,7 +1513,6 @@ void Dialog::ShowDialog(size_t ID)
 		return;
 
 	string strStr;
-	wchar_t *lpwszStr;
 	int X,Y;
 	size_t I,DrawItemCount;
 	FarColor ItemColor[4] = {};
@@ -1650,13 +1649,8 @@ void Dialog::ShowDialog(size_t ID)
 
 					if (LenText < CW-2)
 					{
-						int iLen = (int)strStr.size();
-						lpwszStr = strStr.GetBuffer(iLen + 3);
-						{
-							wmemmove(lpwszStr+1, lpwszStr, iLen);
-							*lpwszStr = lpwszStr[++iLen] = L' ';
-						}
-						strStr.ReleaseBuffer(iLen+1);
+						strStr.insert(0, 1, L' ');
+						strStr.append(1, L' ');
 						LenText=LenStrItem(I, strStr);
 					}
 
@@ -2976,9 +2970,8 @@ int Dialog::ProcessKey(int Key)
 									DlgEdit *edt_1=(DlgEdit *)Items[FocusPos+1].ObjPtr;
 									if (CurPos > Length)
 									{
-										LPWSTR Str=strStr.GetBuffer(CurPos);
-										wmemset(Str+Length,L' ',CurPos-Length);
-										strStr.ReleaseBuffer(CurPos);
+										strStr.resize(CurPos);
+										std::fill(strStr.begin() + Length, strStr.end(), L' ');
 									}
 									string strAdd;
 									edt_1->GetString(strAdd);

@@ -7371,16 +7371,11 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
 		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
 
-		wchar_t *Progress=strProgress.GetBuffer(Length);
-
-		if (Progress)
-		{
-			size_t CurPos=std::min(Percent,100)*Length/100;
-			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strProgress.ReleaseBuffer(Length);
-			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
-		}
+		strProgress.resize(Length);
+		size_t CurPos=std::min(Percent,100)*Length/100;
+		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
+		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
+		strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
 
 		Global->TBC->SetProgressValue(Percent,100);
 	}

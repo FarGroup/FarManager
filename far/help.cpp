@@ -292,12 +292,7 @@ int Help::ReadHelp(const string& Mask)
 	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.clear();
 
-	LPWSTR TabSpace=strTabSpace.GetBuffer(CtrlTabSize+1);
-	for (int i=0; i < CtrlTabSize; i++)
-	{
-		TabSpace[i]=L' ';
-	}
-	strTabSpace.ReleaseBuffer(CtrlTabSize);
+	strTabSpace.assign(CtrlTabSize, L' ');
 
 	HelpList.clear();
 
@@ -404,9 +399,7 @@ int Help::ReadHelp(const string& Mask)
 
 		while ((PosTab = strReadStr.find(L'\t')) != string::npos)
 		{
-			wchar_t *lpwszPtr = strReadStr.GetBuffer();
-			lpwszPtr[PosTab]=L' ';
-			strReadStr.ReleaseBuffer();
+			strReadStr[PosTab] = L' ';
 
 			if (CtrlTabSize > 1) // заменим табулятор по всем праивилам
 				strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
@@ -687,12 +680,7 @@ void Help::AddLine(const string& Line)
 
 		if (StartPos0 > 0)
 		{
-			LPWSTR Space=strLine.GetBuffer(StartPos0+1);
-			for (DWORD i=0; i < StartPos0; i++)
-			{
-				Space[i]=L' ';
-			}
-			strLine.ReleaseBuffer(StartPos0);
+			strLine.assign(StartPos0, L' ');
 		}
 	}
 
@@ -1505,9 +1493,7 @@ int Help::JumpTopic()
 					{
 						StackData.Flags|=FHELP_CUSTOMFILE;
 						StackData.strHelpMask = p+1;
-						wchar_t *lpwszMask = StackData.strHelpMask.GetBuffer();
-						*wcsrchr(lpwszMask,HelpEndLink)=0;
-						StackData.strHelpMask.ReleaseBuffer();
+						StackData.strHelpMask.resize(StackData.strHelpMask.find(HelpEndLink));
 					}
 
 					wmemmove(p,p2,StrLength(p2)+1);

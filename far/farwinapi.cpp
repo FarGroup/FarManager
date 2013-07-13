@@ -1509,22 +1509,19 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		if (FinalFilePath.empty())
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-			wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
+			wchar_t VolumeName[MAX_PATH];
 			HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
 			BOOL Res = hEnum != INVALID_HANDLE_VALUE;
 
 			while (Res)
 			{
-				if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
-				{
-					DeleteEndSlash(VolumeName);
-					int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+				DeleteEndSlash(VolumeName);
+				int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
 
-					if (Len)
-					{
-						FinalFilePath = NtPath.replace(0, Len, VolumeName);
-						break;
-					}
+				if (Len)
+				{
+					FinalFilePath = NtPath.replace(0, Len, VolumeName);
+					break;
 				}
 
 				Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));

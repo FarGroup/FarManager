@@ -1273,10 +1273,7 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 				if (*ptrConvStr != L' ')
 				{
 					WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
-					size_t l=strTemp.size();
-					wchar_t *Temp=strTemp.GetBuffer(l+2);
-					Temp[l]=(wchar_t)wcstoul(Hex,nullptr,16)&0xFFFF;
-					strTemp.ReleaseBuffer(l+1);
+					strTemp += (wchar_t)wcstoul(Hex, nullptr, 16) & 0xFFFF;
 					ptrConvStr++;
 				}
 

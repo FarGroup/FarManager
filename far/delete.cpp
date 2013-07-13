@@ -90,15 +90,12 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	size_t Length=Width-5; // -5 под проценты
 	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
 	{
-		wchar_t *WipeProgress=strWipeProgress.GetBuffer(Length);
-		if (WipeProgress)
-		{
-			size_t CurPos=std::min(WipePercent,100)*Length/100;
-			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strWipeProgress.ReleaseBuffer(Length);
-			strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
-		}
+		strWipeProgress.resize(Length);
+		size_t CurPos=std::min(WipePercent,100)*Length/100;
+		std::fill(strWipeProgress.begin(), strWipeProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
+		std::fill(strWipeProgress.begin() + CurPos, strWipeProgress.end(), BoxSymbols[BS_X_B0]);
+		strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
+
 		if(Percent==-1)
 		{
 			Global->TBC->SetProgressValue(WipePercent, 100);
@@ -107,16 +104,13 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 	if (Mode!=DEL_SCAN && Percent!=-1)
 	{
-		wchar_t *Progress=strProgress.GetBuffer(Length);
-		if (Progress)
-		{
-			size_t CurPos=std::min(Percent,100)*Length/100;
-			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strProgress.ReleaseBuffer(Length);
-			strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
-			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
-		}
+		strProgress.resize(Length);
+		size_t CurPos=std::min(Percent,100)*Length/100;
+		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
+		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
+		strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
+		*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
+
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
@@ -1025,10 +1019,9 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		}
 	}
 
-	wchar_t *lpwszName = strFullName.GetBuffer(strFullName.size()+2);
-	lpwszName[strFullName.size()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
+	strFullName.append(1, L'\0'); // make strFullName end with DOUBLE zero
 
-	if (MoveToRecycleBinInternal(lpwszName))
+	if (MoveToRecycleBinInternal(strFullName.data()))
 	{
 		ret = DELETE_SUCCESS;
 		return true;
@@ -1043,7 +1036,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	DWORD dwe = GetLastError(); // probably bad path to recycle bin
 	if (ERROR_BAD_PATHNAME == dwe || ERROR_FILE_NOT_FOUND == dwe || (dir && ERROR_PATH_NOT_FOUND==dwe))
 	{
-       		Global->CatchError();
+		Global->CatchError();
 		string qName(strFullName);
 		QuoteLeadingSpace(qName);
 

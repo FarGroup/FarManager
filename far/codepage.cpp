@@ -868,22 +868,6 @@ int MultibyteCodepageDecoder::MaxLen(UINT cp)
 	
 //#############################################################################
 
-MultibyteCodepageDecoder::MultibyteCodepageDecoder()
-{
-	current_cp = 0;
-	current_mb = 0;
-	len_mask = nullptr;
-	m1 = nullptr;
-	m2 = nullptr;
-}
-
-MultibyteCodepageDecoder::~MultibyteCodepageDecoder()
-{
-	delete[] m2;
-	delete[] m1;
-	delete[] len_mask;
-}
-
 bool MultibyteCodepageDecoder::SetCP(UINT cp)
 {
 	if (cp && cp == current_cp)
@@ -893,16 +877,12 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	if (ml != 2)
 		return false;
 
-	if (!len_mask)
-		len_mask = new BYTE[256];
-	if (!m1)
-		m1 = new wchar_t[256];
-	if (!m2)
-		m2 = new wchar_t[256*256];
-
-	memset(len_mask, 0, 256*sizeof(len_mask[0]));
-	memset(m1, 0, 256*sizeof(m1[0]));
-	memset(m2, 0, 256*256*sizeof(m2[0]));
+	if (len_mask.empty())
+		len_mask.resize(256);
+	if (m1.empty())
+		m1.resize(256);
+	if (m2.empty())
+		m2.resize(256*256);
 
 	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;

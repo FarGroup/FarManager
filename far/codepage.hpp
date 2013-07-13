@@ -125,14 +125,12 @@ public:
 
 	int GetChar(const BYTE *buff, size_t cb, wchar_t& wchar) const;
 
-	MultibyteCodepageDecoder();
-
-	~MultibyteCodepageDecoder();
+	MultibyteCodepageDecoder() : current_cp(0), current_mb(0) {}
 
 private:
-	BYTE *len_mask; //[256]
-	wchar_t *m1;    //[256]
-	wchar_t *m2;  //[65536]
+	std::vector<BYTE> len_mask; //[256]
+	std::vector<wchar_t> m1;    //[256]
+	std::vector<wchar_t> m2;  //[65536]
 };
 
 //#############################################################################

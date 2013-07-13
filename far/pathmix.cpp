@@ -616,11 +616,11 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 
 		if (Res == STATUS_SUCCESS)
 		{
-			ULONG BufSize = 0x7FFF;
-			string Buffer;
+			ULONG BufSize = 32767;
+			wchar_t_ptr Buffer(BufSize);
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+			LinkTarget.Buffer = Buffer.get();
 			Res = Global->ifn->NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
 
 			if (Res == STATUS_SUCCESS)

@@ -2597,17 +2597,11 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 
 		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
 		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
-		wchar_t *Progress=strProgress.GetBuffer(Length);
-
-		if (Progress)
-		{
-			size_t CurPos=std::min(Percent,100)*Length/100;
-			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strProgress.ReleaseBuffer(Length);
-			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";;
-		}
-
+		strProgress.resize(Length);
+		size_t CurPos=std::min(Percent,100)*Length/100;
+		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
+		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
+		strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";;
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
@@ -3733,28 +3727,28 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			ReadSize = 0;
 			for (int ib = 0; ib < ConvertSize; )
 			{
-				 int clen = MB.GetChar((BYTE *)TmpBuf, ConvertSize-ib, *(Buf+ReadSize));
-				 if (clen > 0)
-				 {
-					 if (Buf2)
-						 Buf2[ReadSize] = Buf[ReadSize];
+				int clen = MB.GetChar((BYTE *)TmpBuf, ConvertSize-ib, *(Buf+ReadSize));
+				if (clen > 0)
+				{
+					if (Buf2)
+						Buf2[ReadSize] = Buf[ReadSize];
 
-					 ib += clen;
-					 ++ReadSize;
-				 }
-				 else if (clen < -10) // data buffer end
-				 {
-					 Reader.Unread(static_cast<DWORD>(ConvertSize-ib));
-					 break;
-				 }
-				 else // invalid sequence
-				 {
-					 if (Buf2)
-						 Buf2[ReadSize] = L'?';
+					ib += clen;
+					++ReadSize;
+				}
+				else if (clen < -10) // data buffer end
+				{
+					Reader.Unread(static_cast<DWORD>(ConvertSize-ib));
+					break;
+				}
+				else // invalid sequence
+				{
+					if (Buf2)
+						Buf2[ReadSize] = L'?';
 
-					 Buf[ReadSize++] = REPLACE_CHAR;
-					 ++ib;
-				 }
+					Buf[ReadSize++] = REPLACE_CHAR;
+					++ib;
+				}
 			}
 		}
 		else
@@ -3937,12 +3931,14 @@ wchar_t Viewer::vgetc_prev()
 				break;
 			}
 			default:
-				if (ch_size == +1) {
+				if (ch_size == +1)
+				{
 					MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)ss,1, &ch,1);
 				}
-				else {
+				else
+				{
 					assert(MB.current_cp == static_cast<UINT>(VM.CodePage));
-	            for (int i = 0; i < nb; ++i)
+					for (int i = 0; i < nb; ++i)
 					{
 						wchar_t wc;
 						if (MB.GetChar((BYTE *)ss+i, static_cast<size_t>(nb-i), wc) == nb-i)

@@ -281,8 +281,8 @@ void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirect
 string TryConvertVolumeGuidToDrivePath(const string& Path)
 {
 	string Result = Path;
-
-	if (ParsePath(Path) == PATH_VOLUMEGUID)
+	size_t DirectoryOffset;
+	if (ParsePath(Path, &DirectoryOffset) == PATH_VOLUMEGUID)
 	{
 		if (Global->ifn->GetVolumePathNamesForVolumeNameWPresent())
 		{
@@ -299,7 +299,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 			if (Res)
 			{
-				const wchar_t* PathName = PathNames.GetBuffer();
+				const wchar_t* PathName = PathNames.data();
 
 				while (*PathName)
 				{
@@ -307,8 +307,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 					if (IsRootPath(strPath))
 					{
-						DeleteEndSlash(strPath);
-						Result.replace(0, cVolumeGuidLen, strPath);
+						Result.replace(0, DirectoryOffset + 1, strPath);
 						break;
 					}
 
@@ -322,17 +321,16 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 			if (apiGetLogicalDriveStrings(DriveStrings))
 			{
-				wchar_t* Drive = DriveStrings.GetBuffer();
+				const wchar_t* Drive = DriveStrings.data();
 				string strVolumeGuid;
 
 				while (*Drive)
 				{
 					if (apiGetVolumeNameForVolumeMountPoint(Drive, strVolumeGuid))
 					{
-						if (Path.compare(0, cVolumeGuidLen, strVolumeGuid.data(), cVolumeGuidLen) == 0)
+						if (Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
 						{
-							DeleteEndSlash(Drive);
-							Result.replace(0, cVolumeGuidLen, Drive);
+							Result.replace(0, DirectoryOffset + 1, Drive);
 							break;
 						}
 					}

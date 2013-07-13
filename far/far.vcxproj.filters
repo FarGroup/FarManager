@@ -826,6 +826,9 @@
     <ClInclude Include="preservelongname.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="preservestyle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="print.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1036,7 +1039,7 @@
     <ClInclude Include="filesystemwatcher.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="preservestyle.hpp">
+    <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="valuename.hpp">

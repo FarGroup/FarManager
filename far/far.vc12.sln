@@ -1,6 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.20617.1 PREVIEW
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "far", "far.vcxproj", "{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}"
 EndProject
 Global
