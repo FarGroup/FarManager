@@ -835,21 +835,11 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
-			string strText;
-			wchar_t *Text;
-
-			if (VBlockStart)
-				Text = VBlock2Text(nullptr);
-			else
-				Text = Block2Text(nullptr);
-
+			wchar_t *Text = VBlockStart ? VBlock2Text(nullptr) : Block2Text(nullptr);
+			*(string *)vParam = NullToEmpty(Text);
 			if (Text)
-			{
-				strText = Text;
 				delete[] Text;
-			}
 
-			*(string *)vParam=strText;
 			return 1;
 		}
 	}

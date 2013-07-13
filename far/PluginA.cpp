@@ -120,7 +120,7 @@ static const export_name* GetExportsNames()
 		WA("GetMinFarVersion"),
 	};
 	static_assert(ARRAYSIZE(ExportsNames) == i_LAST, "Not all exports names are defined");
-	return ExportsNames;	
+	return ExportsNames;
 };
 
 
@@ -3808,7 +3808,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			}
 			strSequence += L"\")";
 
-			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence, Flags);
+			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
 
 			return ret;
 		}

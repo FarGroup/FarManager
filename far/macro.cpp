@@ -392,7 +392,7 @@ MacroRecord::MacroRecord():
 {
 }
 
-MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description):
+MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description):
 	m_flags(Flags),
 	m_key(Key),
 	m_code(Code),
@@ -1221,7 +1221,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return mpr && mpr->Values[0].Boolean;
 }
 
-bool KeyMacro::PostNewMacro(int MacroId,const string& PlainText,UINT64 Flags,DWORD AKey)
+bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)
 {
 	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
 	{
@@ -1568,12 +1568,12 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	return TRUE;
 }
 
-bool KeyMacro::ParseMacroString(const string& Sequence, bool onlyCheck, bool skipFile)
+bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool skipFile)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
 	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].String=Sequence.data();
+	values[0].String=Sequence;
 	values[1].Boolean=onlyCheck?1:0;
 	values[2].Boolean=skipFile?1:0;
 	values[3].String=MSG(MMacroPErrorTitle);
@@ -1713,16 +1713,21 @@ static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
 
-static int PassString (const string& str, FarMacroCall* Data)
+static int PassString (const wchar_t *str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
 		FarMacroValue val;
 		val.Type = FMVT_STRING;
-		val.String = str.data();
+		val.String = str;
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
+}
+
+inline int PassString (const string& str, FarMacroCall* Data)
+{
+	return PassString(str.data(), Data);
 }
 
 static int PassNumber (double dbl, FarMacroCall* Data)

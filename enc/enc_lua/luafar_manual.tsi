@@ -8326,7 +8326,7 @@ lv=2
 dt=Text
 nm=win.CreateDir
 ctime=3488896876
-mtime=3582105082
+mtime=3582538169
 <article>
 #_result = win.CreateDir (path [, flags])
 #_
@@ -8345,8 +8345,8 @@ mtime=3582105082
 #_  Nested directories can be created by a single call.
 #_
 #_  Flag 't': If the target directory already exists, then the function returns true.
-#_  Flag 'o': Don't try to create nested directories.
-#_            Pass the *path* argument to *CreateDirectoryW* as is.
+#_  Flag 'o': The function will not attempt to create nested directories.
+#_            The *path* argument is passed to *CreateDirectoryW* as is.
 #_
 #_**Note:**
 #_  For backwards compatibility, a non-string true value passed as the 2-nd parameter
