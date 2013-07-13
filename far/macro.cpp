@@ -642,25 +642,6 @@ void KeyMacro::RestoreMacroChar(void)
 	}
 }
 
-static MACROFLAGS_MFLAGS FixFlags(FARMACROAREA Area, MACROFLAGS_MFLAGS MFlags)
-{
-	if (Area == MACROAREA_EDITOR || Area == MACROAREA_DIALOG || Area == MACROAREA_VIEWER)
-	{
-		if (MFlags&MFLAGS_SELECTION)
-		{
-			MFlags&=~MFLAGS_SELECTION;
-			MFlags|=MFLAGS_EDITSELECTION;
-		}
-
-		if (MFlags&MFLAGS_NOSELECTION)
-		{
-			MFlags&=~MFLAGS_NOSELECTION;
-			MFlags|=MFLAGS_EDITNOSELECTION;
-		}
-	}
-	return MFlags;
-}
-
 struct GetMacroData
 {
 	int MacroId;
@@ -695,7 +676,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 			Data->Area        = (FARMACROAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].Type==FMVT_STRING ? mpr->Values[2].String : L"";
 			Data->Description = mpr->Values[3].Type==FMVT_STRING ? mpr->Values[3].String : L"";
-			Data->Flags       = FixFlags(Mode, (MACROFLAGS_MFLAGS)mpr->Values[4].Double);
+			Data->Flags       = (MACROFLAGS_MFLAGS)mpr->Values[4].Double;
 
 			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
 			Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
@@ -2623,7 +2604,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count >= 2)
 			{
 				FARMACROAREA Area = (FARMACROAREA)(int)Data->Values[0].Double;
-				MACROFLAGS_MFLAGS Flags = FixFlags(Area, (MACROFLAGS_MFLAGS)Data->Values[1].Double);
+				MACROFLAGS_MFLAGS Flags = (MACROFLAGS_MFLAGS)Data->Values[1].Double;
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
 				void* CallbackId = (Data->Count>=4  && Data->Values[3].Type==FMVT_POINTER) ?
