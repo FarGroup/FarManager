@@ -120,6 +120,6 @@ goto :do_make
   if /i "Y"  == "%cleanonly%"                    set b=Clean
   if /i "64" == "%dirbit%" (set p=x64)    else  (set p=Win32)
   if /i "Y"  == "%deb_b%"  (set c=Debug) else (set c=Release)
-  if /i "Devenv" == "%vcsln%" devenv far.sln /%b% "%c%^|%p%"
-  if /i "Msbuild" == "%vcsln%" msbuild far.sln /nologo /t:%b% /p:Configuration=%c%;Platform=%p%
+  if /i "Devenv" == "%vcsln%" devenv far.vcxproj /%b% "%c%^|%p%"
+  if /i "Msbuild" == "%vcsln%" msbuild far.vcxproj /nologo /t:%b% /p:Configuration=%c%;Platform=%p%
 goto :EOF
