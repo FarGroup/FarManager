@@ -1611,8 +1611,9 @@ void apiEnableLowFragmentationHeap()
 		if(ActualNumHeaps > Heaps.size())
 		{
 			Heaps.resize(ActualNumHeaps);
-			GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+			ActualNumHeaps = GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 		}
+		Heaps.resize(ActualNumHeaps);
 		std::for_each(CONST_RANGE(Heaps, i)
 		{
 			ULONG HeapFragValue = 2;
