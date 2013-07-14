@@ -3,6 +3,102 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.07.2013 19:12:10 +0200 - build 3523
+
+1. refix refix. yes, memset is kinda bad.
+
+w17 14.07.2013 20:05:25 +0400 - build 3522
+
+1. refix refactoring
+
+drkns 14.07.2013 17:33:21 +0200 - build 3521
+
+1. Support for compilation with Intel C++ 14.
+
+drkns 14.07.2013 12:17:59 +0200 - build 3520
+
+1. Correction of 3519.
+
+drkns 14.07.2013 01:00:31 +0200 - build 3519
+
+1. Refactoring.
+
+shmuel 14.07.2013 00:25:05 +0200 - build 3518
+
+1. Macros: "Selection" and "NoSelection" flags are no longer used for editor/viewer/dialog areas.
+   "EVSelection" and "NoEVSelection" should be used accordingly for these areas.
+
+drkns 13.07.2013 13:00:15 +0200 - build 3517
+
+1. Refactoring.
+
+2. Solution for VS2013 + common far.vcxproj for all versions.
+
+shmuel 13.07.2013 11:34:23 +0200 - build 3516
+
+1. Refactoring.
+
+drkns 13.07.2013 00:00:00 +0200 - build 3515
+
+1. Refactoring.
+
+shmuel 12.07.2013 21:16:04 +0200 - build 3514
+
+1. Refactoring.
+
+drkns 12.07.2013 12:49:43 +0200 - build 3513
+
+1. Removed checks for deprecated GCC versions.
+
+shmuel 12.07.2013 12:04:01 +0200 - build 3512
+
+1. Continuation of 3509:
+   correction of processing a single Up key press in an item at the beginning of the list when VMENU_WRAPMODE is active.
+
+drkns 12.07.2013 00:38:43 +0200 - build 3511
+
+1. Correction of 3510.
+
+drkns 11.07.2013 22:07:42 +0200 - build 3510
+
+1. Removed limit on number of panel columns.
+
+shmuel 11.07.2013 17:00:14 +0200 - build 3509
+
+1. In a menu with scroll bar, while navigating with End, PgDn, PgUp there was no way to make
+   non-focusing items at the beginning/end of the list visible.
+
+drkns 10.07.2013 23:48:04 +0200 - build 3508
+
+1. Correction of 3507.
+
+drkns 10.07.2013 21:55:39 +0200 - build 3507
+
+1. Refactoring.
+
+2. Уточнение 3506.
+
+drkns 10.07.2013 00:39:34 +0200 - build 3506
+
+1. Refactoring.
+
+svs 09.07.2013 16:52:15 +0400 - build
+
+1. Help correction, incl. TI:
+    #26 System.CopyTimeRule
+
+svs 09.07.2013 11:29:32 +0400 - build
+
+1. Some help on privilege elevation.
+
+drkns 08.07.2013 23:47:50 +0200 - build 3505
+
+1. Refactoring.
+
+shmuel 08.07.2013 20:15:33 +0200 - build 3504
+
+1. Refactoring.
+
 drkns 05.07.2013 18:34:35 +0200 - build 3503
 
 1. More reliable storing of LastError / LastNtStatus state for Message with MSG_ERRORTYPE.
@@ -66,7 +162,7 @@ svs 02.07.2013 17:15:47 +0400 - build 3492
    @CopyAskOverwrite - capability of F3 on items was not described.
    @MaskGroupsSettings - list control keys were not described.
 
-2. Для диалога правки группы масок добавлена ссылка на "@MaskGroupsSettings"
+2. A link to "@MaskGroupsSettings" is added for the mask groups editing dialog
 
 svs 02.07.2013 11:40:49 +0400 - build
 
