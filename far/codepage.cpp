@@ -880,15 +880,15 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	if (len_mask.empty())
 		len_mask.resize(256);
 	else
-		memset(len_mask.data(), 0, 256);
+		std::fill(ALL_RANGE(len_mask), 0);
 	if (m1.empty())
 		m1.resize(256);
 	else
-		memset(m1.data(), 0, 256*sizeof(wchar_t));
+		std::fill(ALL_RANGE(m1), 0);
 	if (m2.empty())
 		m2.resize(256*256);
 	else
-		memset(m2.data(), 0, 256*256*sizeof(wchar_t));
+		std::fill(ALL_RANGE(m2), 0);
 
 	BOOL DefUsed, *pDefUsed = (cp==CP_UTF8 || cp==CP_UTF7) ? nullptr : &DefUsed;
 	DWORD flags = WC_NO_BEST_FIT_CHARS;

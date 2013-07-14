@@ -1,3 +1,7 @@
+drkns 14.07.2013 19:12:10 +0200 - build 3523
+
+1. refix refix. memset - типа плохо, да.
+
 w17 14.07.2013 20:05:25 +0400 - build 3522
 
 1. refix refactoring
