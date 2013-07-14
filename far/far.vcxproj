@@ -122,6 +122,8 @@ if not exist bootstrap mkdir bootstrap</Command>
       <StringPooling>true</StringPooling>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Cpp0xSupport>true</Cpp0xSupport>
+      <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -170,6 +172,8 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Cpp0xSupport>true</Cpp0xSupport>
+      <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -217,6 +221,8 @@ if not exist bootstrap mkdir bootstrap</Command>
       <StringPooling>true</StringPooling>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Cpp0xSupport>true</Cpp0xSupport>
+      <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -264,6 +270,8 @@ if not exist bootstrap mkdir bootstrap</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4351;4355;4365;4371;4480;4481;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Cpp0xSupport>true</Cpp0xSupport>
+      <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

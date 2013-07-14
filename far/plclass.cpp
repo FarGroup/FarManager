@@ -422,7 +422,7 @@ void InitVersionString(const VersionInfo& PluginVersion, string& VersionString)
 	const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
 	FormatString strVersion;
 	strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
-	if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
+	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < ARRAYSIZE(Stage))
 	{
 		strVersion << Stage[PluginVersion.Stage];
 	}

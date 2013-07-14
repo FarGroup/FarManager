@@ -128,7 +128,7 @@ FILE * OpenLogStream(const string& file)
 #if defined(SYSLOG)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
-	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t",SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t",SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -2014,7 +2014,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
 		ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
 		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
-		LARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
+		ULARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
 		fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<UINT64>(Number.QuadPart));
 		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
 
