@@ -1827,17 +1827,18 @@ id=110
 lv=2
 dt=Text
 nm=export.ProcessEditorEvent
-mtime=3569577414
+mtime=3583146074
 <article>
 #_result = export.ProcessEditorEvent (EditorID, Event, Param)
 #_
 #_**Parameters:**
 #_  EditorID: integer
 #_  Event:    integer
-#_  Param:    table (for EE_CHANGE):
-#_              Type:         integer
-#_              StringNumber: integer
-#_            integer (for other events)
+#_  Param:    - table (for EE_CHANGE):
+#_                Type:         integer
+#_                StringNumber: integer
+#_            - string (for EE_SAVE)
+#_            - integer (for other events)
 #_
 #_**Returns:**
 #_  result:   integer

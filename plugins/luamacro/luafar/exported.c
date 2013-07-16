@@ -1208,6 +1208,9 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				PutNumToTable(L, "StringNumber", (double)ec->StringNumber);
 				break;
 			}
+			case EE_SAVE:
+				push_utf8_string(L, (const wchar_t*)Info->Param, -1);
+				break;
 			default:
 				lua_pushinteger(L, (intptr_t)Info->Param);
 				break;

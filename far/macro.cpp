@@ -74,8 +74,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "interf.hpp"
 
-static BOOL CheckAll(FARMACROAREA Mode, UINT64 CurFlags);
-
 #if 0
 void print_opcodes()
 {
@@ -1742,19 +1740,6 @@ static int PassBoolean (int b, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_BOOLEAN;
 		val.Boolean = b;
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
-	return 1;
-}
-
-/*static*/ int PassBinary (void *Start, size_t Length, FarMacroCall* Data)
-{
-	if (Data->Callback)
-	{
-		FarMacroValue val;
-		val.Type = FMVT_BINARY;
-		val.Binary.Data = Start;
-		val.Binary.Size = Length;
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;

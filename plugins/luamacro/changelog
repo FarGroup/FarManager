@@ -1,3 +1,7 @@
+shmuel 16.07.2013 15:03:34 +0200 - build X
+
+1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром им€ сохран€емого файла (M#2446).
+
 shmuel 07.07.2013 00:59:38 +0200 - build 204
 
 1. LuaFAR: fix compatibility with Lua 5.2.
