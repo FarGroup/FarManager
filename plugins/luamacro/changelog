@@ -1,4 +1,4 @@
-shmuel 16.07.2013 15:03:34 +0200 - build X
+shmuel 16.07.2013 15:03:34 +0200 - build 205
 
 1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром им€ сохран€емого файла (M#2446).
 
