@@ -431,31 +431,44 @@ local function LoadMacros (allAreas, unload)
     local dir = win.GetEnv("farprofile").."\\Macros"
     win.CreateDir(dir.."\\scripts", true)
     win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
-    for k=1,2 do
-      local root = k==1 and dir.."\\scripts" or dir.."\\internal"
-      local flags = k==1 and bor(F.FRS_RECUR,F.FRS_SCANSYMLINK) or 0
-      far.RecursiveSearch (root, "*.lua",
-        function (FindData, FullPath)
-          local f, msg = loadfile(FullPath)
-          if not f then
-            numerrors=numerrors+1; ErrMsg(msg); return
-          end
-          local env = k==1 and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
-          if k==1 then setmetatable(env,gmeta) end
-          setfenv(f, env)
-          AddMacro_filename = FullPath
-          local ok, msg = pcall(f, FullPath)
-          if ok then
-            if k==1 then
-              env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
-            else
-              AddRecordedMacro(env)
-            end
-          else
-            numerrors=numerrors+1; ErrMsg(msg)
-          end
-        end, flags)
+
+    local macroinit_name, macroinit_done = dir.."\\scripts\\_macroinit.lua", false
+    local isStationary = true
+
+    local function LoadOneFile (FindData, FullPath)
+      if macroinit_done and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
+        return
+      end
+      local f, msg = loadfile(FullPath)
+      if not f then
+        numerrors=numerrors+1; ErrMsg(msg); return
+      end
+      local env = isStationary and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
+      if isStationary then setmetatable(env,gmeta) end
+      setfenv(f, env)
+      AddMacro_filename = FullPath
+      local ok, msg = pcall(f, FullPath)
+      if ok then
+        if isStationary then
+          env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
+        else
+          AddRecordedMacro(env)
+        end
+      else
+        numerrors=numerrors+1; ErrMsg(msg)
+      end
     end
+
+    local info = win.GetFileInfo(macroinit_name)
+    if info then
+      LoadOneFile(info, macroinit_name)
+      macroinit_done = true
+    end
+    far.RecursiveSearch (dir.."\\scripts", "*.lua", LoadOneFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
+
+    isStationary = false
+    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadOneFile, 0)
+
     LoadMacrosDone = true
   end
 
