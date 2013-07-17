@@ -1209,8 +1209,14 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				break;
 			}
 			case EE_SAVE:
-				push_utf8_string(L, (const wchar_t*)Info->Param, -1);
+			{
+				struct EditorSaveFile *esf = (struct EditorSaveFile*)Info->Param;
+				lua_createtable(L, 0, 3);
+				PutWStrToTable(L, "FileName", esf->FileName, -1);
+				PutWStrToTable(L, "FileEOL", esf->FileEOL, -1);
+				PutIntToTable(L, "CodePage", esf->CodePage);
 				break;
+			}
 			default:
 				lua_pushinteger(L, (intptr_t)Info->Param);
 				break;

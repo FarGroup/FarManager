@@ -53,7 +53,7 @@ struct ProcessEditorEventInfo
     Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EE_SAVE">EE_SAVE</a></td>
     <td class="cont" width="60%">Отредактированный файл собираются сохранять. Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации данных перед сохранением.<br>
-    <code>Param</code> указывает на имя, под которым будет сохранён файл.
+    <code>Param</code> указывает на структуру <a href="editorsavefile.html">EditorSaveFile</a>.
     <br>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EE_REDRAW">EE_REDRAW</a></td>
     <td class="cont" width="60%">Редактор собирается перерисовать экран.<br>

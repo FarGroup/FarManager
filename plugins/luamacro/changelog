@@ -1,3 +1,7 @@
+shmuel 17.07.2013 16:40:07 +0200 - build 206
+
+1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром таблицу (M#2446).
+
 shmuel 16.07.2013 15:03:34 +0200 - build 205
 
 1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром имя сохраняемого файла (M#2446).
