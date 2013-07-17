@@ -1873,7 +1873,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE,(void*)Name.data(),m_editor->EditorID);
+		EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL, codepage};
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor->EditorID);
 		File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
