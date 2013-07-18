@@ -4166,7 +4166,7 @@ void FileList::CopyFiles()
 				break;
 			}
 			CopyData += strSelName;
-			CopyData.append(L'\0');
+			CopyData.append(1, L'\0');
 		}
 
 		if(!CopyData.empty())
