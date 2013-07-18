@@ -37,6 +37,7 @@ enum FAR_CLIPBOARD_FORMAT
 {
 	FCF_VERTICALBLOCK_OEM,
 	FCF_VERTICALBLOCK_UNICODE,
+	FCF_CFSTR_PREFERREDDROPEFFECT,
 };
 
 wchar_t* PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format);
@@ -57,7 +58,7 @@ public:
 	bool Empty();
 	bool Copy(const wchar_t *Data);
 	bool CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-	bool CopyHDROP(const void* NamesArray, size_t NamesArraySize);
+	bool CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
 	wchar_t *Paste();
 	wchar_t *PasteEx(int max);
 	wchar_t *PasteFormat(FAR_CLIPBOARD_FORMAT Format);

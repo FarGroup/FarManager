@@ -381,6 +381,8 @@ $ #Panel control commands  #
    (if the command line is empty)
   Copy the files to clipboard                                 #Ctrl-C#
    (ignore command line state)
+   ^<wrap>При копировании имён файлов с панели в буфер обмена скопированные файлы 
+могут быть вставлены в других приложениях (Проводник и т.п.).
   Copy the names of selected files to the clipboard   #Ctrl-Shift-Ins#
    (ignore command line state)
   Copy full names of selected files to the clipboard   #Alt-Shift-Ins#

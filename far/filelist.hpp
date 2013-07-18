@@ -271,7 +271,7 @@ private:
 	void PushPlugin(HANDLE hPlugin,const string& HostFile);
 	int PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
-	void CopyFiles();
+	void CopyFiles(bool bMoved=false);
 	void CopyNames(bool FillPathName, bool UNC);
 	void SelectSortMode();
 	bool ApplyCommand();

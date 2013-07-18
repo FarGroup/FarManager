@@ -43,7 +43,7 @@ static struct internal_clipboard
 	HGLOBAL Handle;
 	UINT Format;
 }
-InternalClipboard[] = 
+InternalClipboard[] =
 {
 	// CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
 	{nullptr, 0xFFFF},
@@ -74,10 +74,12 @@ UINT Clipboard::RegisterFormat(FAR_CLIPBOARD_FORMAT Format)
 {
 	switch (Format)
 	{
-	case FCF_VERTICALBLOCK_OEM:
-		return UseInternalClipboard? 0xFEB0 : RegisterClipboardFormat(L"FAR_VerticalBlock");
-	case FCF_VERTICALBLOCK_UNICODE:
-		return UseInternalClipboard? 0xFEB1 : RegisterClipboardFormat(L"FAR_VerticalBlock_Unicode");
+		case FCF_VERTICALBLOCK_OEM:
+			return UseInternalClipboard? 0xFEB0 : RegisterClipboardFormat(L"FAR_VerticalBlock");
+		case FCF_VERTICALBLOCK_UNICODE:
+			return UseInternalClipboard? 0xFEB1 : RegisterClipboardFormat(L"FAR_VerticalBlock_Unicode");
+		case FCF_CFSTR_PREFERREDDROPEFFECT:
+			return UseInternalClipboard? 0xFEB2 : RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
 	}
 	return 0;
 }
@@ -283,7 +285,7 @@ bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 	return true;
 }
 
-bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize)
+bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved)
 {
 	bool Result=false;
 	if (NamesArray && NamesArraySize)
@@ -304,12 +306,41 @@ bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize)
 				Empty();
 				if(SetData(CF_HDROP, hMemory))
 				{
-					Result = true;
+					if(bMoved)
+					{
+						HGLOBAL hMemoryMove = GlobalAlloc(GMEM_MOVEABLE, sizeof(DWORD));
+						if (hMemoryMove)
+						{
+							DWORD *pData = (DWORD*)GlobalLock(hMemoryMove);
+							if (pData)
+							{
+								*pData = DROPEFFECT_MOVE;
+								GlobalUnlock(hMemoryMove);
+
+								if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), hMemoryMove))
+								{
+									Result = true;
+								}
+								else
+								{
+									GlobalFree(hMemoryMove);
+								}
+							}
+							else
+							{
+								GlobalFree(hMemoryMove);
+							}
+						}
+					}
+					else
+						Result = true;
 				}
 				else
 				{
 					GlobalFree(hMemory);
 				}
+
+
 			}
 			else
 			{

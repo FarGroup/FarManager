@@ -1089,11 +1089,16 @@ int FileList::ProcessKey(int Key)
 			);
 			return TRUE;
 
-		case KEY_CTRLC: // hdrop
+		case KEY_CTRLC: // hdrop  copy
 		case KEY_RCTRLC:
 			CopyFiles();
 			return TRUE;
-
+		#if 0
+		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
+		case KEY_RCTRLX:
+			CopyFiles(true);
+			return TRUE;
+		#endif
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
 			  + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
@@ -4138,7 +4143,7 @@ void FileList::CompareDir()
 		Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
 }
 
-void FileList::CopyFiles()
+void FileList::CopyFiles(bool bMoved)
 {
 	bool RealNames=false;
 	if (PanelMode==PLUGIN_PANEL)
@@ -4168,13 +4173,12 @@ void FileList::CopyFiles()
 			CopyData += strSelName;
 			CopyData.append(1, L'\0');
 		}
-
 		if(!CopyData.empty())
 		{
 			Clipboard clip;
 			if(clip.Open())
 			{
-				clip.CopyHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t));
+				clip.CopyHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t),bMoved);
 				clip.Close();
 			}
 		}
