@@ -170,7 +170,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 		{
 			case PATH_UNKNOWN:
 			{
-				if(IsSlash(stPath[0]) && !IsSlash(stPath[1])) //"\" or "\abc"
+				if(IsSlash(stPath[0]) && (stPath.size() == 1 || !IsSlash(stPath[1]))) //"\" or "\abc"
 				{
 					if (!stCurrentDir.empty())
 					{

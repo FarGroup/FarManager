@@ -149,7 +149,7 @@ bool PathCanHoldRegularFile(const string& Path)
 
 bool IsPluginPrefixPath(const string& Path) //Max:
 {
-	if (Path[0] == L'\\')
+	if (Path.empty() || Path[0] == L'\\')
 		return false;
 
 	size_t pos = Path.find(L':');

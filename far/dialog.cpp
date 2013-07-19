@@ -2564,7 +2564,7 @@ int Dialog::ProcessKey(int Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, (const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.data())), strStr))
+			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.data()))), strStr))
 			{
 				Help Hlp(strStr);
 			}

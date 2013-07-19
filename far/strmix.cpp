@@ -73,8 +73,8 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 	string strSrc=Src;
 	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,nullptr,0);
 	wchar_t_ptr Dest(Size);
-	Size = GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt, Dest.get(), Size);
-	strDest.assign(Dest.get(), Size);
+	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt, Dest.get(), Size);
+	strDest.assign(Dest.get(), Size - 1);
 	return strDest;
 }
 

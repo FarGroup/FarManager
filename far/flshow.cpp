@@ -543,7 +543,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		else
 		{
 			wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
-			FormatString str;
+ 			FormatString str;
 			str << L" " << strFormSize << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" ";
 
 			if ((int)str.size() > X2-X1-1)

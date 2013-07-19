@@ -743,7 +743,7 @@ intptr_t WINAPI apiMenuFn(
 		{
 			string strTopic;
 
-			if (Help::MkTopic(GuidToPlugin(PluginId), HelpTopic, strTopic))
+			if (Help::MkTopic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic), strTopic))
 				FarMenu.SetHelp(strTopic);
 		}
 
