@@ -279,8 +279,8 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 		ItemEx->ID = static_cast<int>(i);
 		if(!Short)
 		{
-			ItemEx->strHistory = Item->History;
-			ItemEx->strMask = Item->Mask;
+			ItemEx->strHistory = NullToEmpty(Item->History);
+			ItemEx->strMask = NullToEmpty(Item->Mask);
 			if(Item->Data)
 			{
 				ItemEx->strData.assign(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
@@ -703,7 +703,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
 			{
-				Items[I].ListPtr=new VMenu(nullptr,nullptr,0,Items[I].Y2-Items[I].Y1+1,
+				Items[I].ListPtr=new VMenu(L"",nullptr,0,Items[I].Y2-Items[I].Y1+1,
 				                           VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,this);
 			}
 
@@ -1650,7 +1650,7 @@ void Dialog::ShowDialog(size_t ID)
 					if (LenText < CW-2)
 					{
 						strStr.insert(0, 1, L' ');
-						strStr.append(1, L' ');
+						strStr.push_back(L' ');
 						LenText=LenStrItem(I, strStr);
 					}
 
@@ -1751,7 +1751,7 @@ void Dialog::ShowDialog(size_t ID)
 					DWORD CountLine=0;
 					bool done=false;
 
-					wchar_t *ptrStr = strWrap.GetBuffer(), *ptrStrPrev=ptrStr;
+					wchar_t *ptrStr = GetStringBuffer(strWrap), *ptrStrPrev = ptrStr;
 					while (!done)
 					{
 						ptrStr=wcschr(ptrStr,L'\n');
@@ -1792,7 +1792,7 @@ void Dialog::ShowDialog(size_t ID)
 								break;
 						}
 					}
-					strWrap.ReleaseBuffer();
+					ReleaseStringBuffer(strWrap);
 				}
 
 				break;
@@ -4189,11 +4189,11 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
-			const wchar_t *ChPtr=wcschr(Items[I].strData.data(),L'&');
+			size_t ChPos = Items[I].strData.find(L'&');
 
-			if (ChPtr)
+			if (ChPos != string::npos)
 			{
-				WORD Ch=ChPtr[1];
+				WORD Ch = Items[I].strData[ChPos + 1];
 
 				if (Ch && Upper(CheckSymbol) == Upper(Ch))
 					return static_cast<int>(I);
@@ -5208,8 +5208,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							FarListTitles *ListTitle=(FarListTitles *)Param2;
 							if(CheckStructSize(ListTitle))
 							{
-								ListBox->SetTitle(ListTitle->Title);
-								ListBox->SetBottomTitle(ListTitle->Bottom);
+								ListBox->SetTitle(NullToEmpty(ListTitle->Title));
+								ListBox->SetBottomTitle(NullToEmpty(ListTitle->Bottom));
 								break;   //return TRUE;
 							}
 							return FALSE;

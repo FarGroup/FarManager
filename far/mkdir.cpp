@@ -169,7 +169,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				Upper(strDirName);
 
 			DeleteEndSlash(strDirName);
-			wchar_t* lpwszDirName = strDirName.GetBuffer();
+			wchar_t* lpwszDirName = GetStringBuffer(strDirName);
 			bool bSuccess = false;
 
 			wchar_t *ChPtr = lpwszDirName;
@@ -229,7 +229,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				}
 			}
 
-			strDirName.ReleaseBuffer();
+			ReleaseStringBuffer(strDirName);
 
 			if (bSuccess)
 			{

@@ -207,13 +207,16 @@ virtual bool SetTitle(const string& Title) const override
 virtual bool GetKeyboardLayoutName(string &strName) const override
 {
 	bool Result=false;
-	strName.clear();
-	wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
-	if (p && Global->ifn->GetConsoleKeyboardLayoutNameW(p))
+	wchar_t Buffer[KL_NAMELENGTH];
+	if (Global->ifn->GetConsoleKeyboardLayoutNameW(Buffer))
 	{
 		Result=true;
+		strName = Buffer;
 	}
-	strName.ReleaseBuffer();
+	else
+	{
+		strName.clear();
+	}
 	return Result;
 }
 

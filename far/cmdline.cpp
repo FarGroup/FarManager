@@ -581,7 +581,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			// color in ([[T]ffffffff][:[T]bbbbbbbb]) format
 			if (*Ptr == L'(')
 			{
-				string Color = Ptr + 1;
+				string Color = &*Ptr + 1;
 				size_t Pos = Color.find(L')');
 				if(Pos != string::npos)
 				{
@@ -606,7 +606,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT);
 					AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT);
 
-					Str = Ptr;
+					Str = &*Ptr;
 				}
 			}
 		}
@@ -1361,7 +1361,6 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	  return true;
 	}
 	*/
-	strExpandedDir.ReleaseBuffer();
 
 	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{

@@ -146,7 +146,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	Global->CtrlObject->Macro.SetMode(MACROAREA_HELP);
 	StackData.Clear();
 	StackData.Flags=Flags;
-	StackData.strHelpMask = Mask; // сохраним маску файла
+	StackData.strHelpMask = NullToEmpty(Mask); // сохраним маску файла
 	StackData.strHelpTopic = Topic;
 
 	if (Global->Opt->FullScreenHelp)
@@ -212,7 +212,6 @@ void Help::Hide()
 
 int Help::ReadHelp(const string& Mask)
 {
-	wchar_t *ReadStr;
 	string strSplitLine;
 	int Formatting=TRUE,RepeatLastLine,BreakProcess;
 	size_t PosTab;
@@ -330,6 +329,7 @@ int Help::ReadHelp(const string& Mask)
 
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
+			wchar_t *ReadStr;
 			if (GetStr.GetString(&ReadStr, nCodePage, nStrLength) <= 0)
 			{
 				strReadStr=ReadStr;
@@ -376,7 +376,7 @@ int Help::ReadHelp(const string& Mask)
 			ReplaceStrings(strKeyName,L"#",L"##",-1);
 			ReplaceStrings(strKeyName,L"@",L"@@",-1);
 
-			if (wcschr(strKeyName.data(),L'~')) // корректировка размера
+			if (strKeyName.find(L'~') != string::npos) // корректировка размера
 				SizeKeyName++;
 
 			strOutTemp = str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
@@ -407,16 +407,14 @@ int Help::ReadHelp(const string& Mask)
 
 		RemoveTrailingSpaces(strReadStr);
 
-		if (!strCtrlStartPosChar.empty() && wcsstr(strReadStr.data(), strCtrlStartPosChar.data()))
+		if (!strCtrlStartPosChar.empty())
 		{
-			string strLine;
-			ReadStr = strReadStr.GetBuffer();
-			int Length = (int)(wcsstr(ReadStr, strCtrlStartPosChar.data())-ReadStr);
-			strLine = ReadStr;
-			strLine.resize(Length);
-			LastStartPos = StringLen(strLine);
-			wcscpy(ReadStr+Length, ReadStr+Length+strCtrlStartPosChar.size());
-			strReadStr.ReleaseBuffer();
+			size_t pos = strReadStr.find(strCtrlStartPosChar);
+			if (pos != string::npos)
+			{
+				LastStartPos = StringLen(strReadStr.substr(0, pos));
+				strReadStr.erase(pos, strCtrlStartPosChar.size());
+			}
 		}
 
 		if (TopicFound)
@@ -606,26 +604,17 @@ m1:
 							continue;
 						}
 
-						if (strSplitLine.at(I)==L' ')
+						if (strSplitLine[I] == L' ')
 						{
-							wchar_t *lpwszPtr = strSplitLine.GetBuffer();
-							lpwszPtr[I]=0;
-
-							if (StringLen(lpwszPtr)<RealMaxLength)
+							string FirstPart = strSplitLine.substr(0, I);
+							if (StringLen(FirstPart.data()) < RealMaxLength)
 							{
-								AddLine(lpwszPtr);
-								wmemmove(lpwszPtr+1,lpwszPtr+I+1,StrLength(lpwszPtr+I+1)+1);
-								*lpwszPtr=L' ';
-								strSplitLine.ReleaseBuffer();
-
+								AddLine(FirstPart.data());
+								strSplitLine.erase(1, I);
+								strSplitLine[0] = L' ';
 								HighlightsCorrection(strSplitLine);
 								Splitted=TRUE;
 								break;
-							}
-							else
-							{
-								lpwszPtr[I]=L' ';
-								strSplitLine.ReleaseBuffer();
 							}
 						}
 					}
@@ -696,13 +685,7 @@ void Help::AddTitle(const string& Title)
 
 void Help::HighlightsCorrection(string &strStr)
 {
-	int I,Count;
-
-	for (I=0,Count=0; strStr.at(I) ; I++)
-		if (strStr.at(I) == L'#')
-			Count++;
-
-	if ((Count & 1) && strStr.front() != L'$')
+	if ((std::count(ALL_CONST_RANGE(strStr), L'#') & 1) && strStr.front() != L'$')
 		strStr.insert(0, 1, L'#');
 }
 
@@ -844,7 +827,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 		while (*Str && *Str != L'@')
 		{
 			if (Name)
-				Name->append(1, *Str);
+				Name->push_back(*Str);
 			++Str;
 		}
 		if (*Str)
@@ -852,7 +835,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 		if (*Str != L'@')
 			break;
 		if (Name)
-			Name->append(1, *Str);
+			Name->push_back(*Str);
 		++Str;
 	}
 	return Str;
@@ -1475,7 +1458,7 @@ int Help::JumpTopic()
 	}
 
 	// удалим ссылку на .DLL
-	wchar_t *lpwszNewTopic = strNewTopic.GetBuffer();
+	wchar_t *lpwszNewTopic = GetStringBuffer(strNewTopic);
 	wchar_t *p=wcsrchr(lpwszNewTopic,HelpEndLink);
 
 	if (p)
@@ -1515,7 +1498,7 @@ int Help::JumpTopic()
 		}
 	}
 
-	strNewTopic.ReleaseBuffer();
+	ReleaseStringBuffer(strNewTopic);
 
 	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
 	if (StackData.strSelTopic.front() != L':' &&
@@ -1852,7 +1835,6 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 	bool TopicFound=false;
 	GetFileString GetStr(HelpFile);
 	int nStrLength;
-	wchar_t *ReadStr;
 	string strCurTopic, strEntryName, strReadStr;
 
 	string strSlash(strLastSearchStr);
@@ -1879,6 +1861,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 	for (;;)
 	{
+		wchar_t *ReadStr;
 		if (GetStr.GetString(&ReadStr, nCodePage, nStrLength) <= 0)
 		{
 			break;
@@ -2019,7 +2002,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 			if (strTopic.front()==HelpBeginLink)
 			{
 				wchar_t *Ptr;
-				wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.size()*2); //BUGBUG
+				wchar_t *lpwszTopic = GetStringBuffer(strTopic, strTopic.size() * 2); //BUGBUG
 
 				if (!(Ptr=wcschr(lpwszTopic,HelpEndLink)))
 				{
@@ -2056,7 +2039,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 					}
 				}
 
-				strTopic.ReleaseBuffer();
+				ReleaseStringBuffer(strTopic);
 			}
 		}
 	}

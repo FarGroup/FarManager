@@ -344,18 +344,8 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 		// а теперь проврапим
 		FarFormatText(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
-		wchar_t *PtrStr = strErrStr.GetBuffer();
-
-		//BUGBUG: string не предназначен для хранения строк разделённых \0
-		while ((PtrStr=wcschr(PtrStr,L'\n')) )
-		{
-			*PtrStr++=0;
-
-			if (*PtrStr)
-				CountErrorLine++;
-		}
-
-		strErrStr.ReleaseBuffer();
+		CountErrorLine += std::count(ALL_CONST_RANGE(strErrStr), L'\n');
+		std::replace(ALL_RANGE(strErrStr), L'\n', L'\0');
 
 		if (CountErrorLine > ADDSPACEFORPSTRFORMESSAGE)
 			CountErrorLine=ADDSPACEFORPSTRFORMESSAGE; //??

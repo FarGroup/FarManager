@@ -170,13 +170,13 @@ void InfoList::DisplayObject()
 	{
 		string strComputerName, strUserName;
 		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
-		wchar_t *ComputerName = strComputerName.GetBuffer(dwSize);
-		if (Global->Opt->InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), ComputerName, &dwSize))
+		wchar_t_ptr ComputerName(dwSize);
+		if (Global->Opt->InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), ComputerName.get(), &dwSize))
 		{
 			dwSize = MAX_COMPUTERNAME_LENGTH+1;
-			GetComputerName(ComputerName, &dwSize);  // retrieves only the NetBIOS name of the local computer
+			GetComputerName(ComputerName.get(), &dwSize);  // retrieves only the NetBIOS name of the local computer
 		}
-		strComputerName.ReleaseBuffer();
+		strComputerName.assign(ComputerName.get());
 
 		GotoXY(X1+2,CurY++);
 		PrintText(MInfoCompName);
@@ -196,13 +196,13 @@ void InfoList::DisplayObject()
 
 
 		dwSize = UNLEN+1;
-		wchar_t *UserName = strUserName.GetBuffer(dwSize);
-		if (Global->Opt->InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), UserName, &dwSize))
+		wchar_t_ptr UserName(dwSize);
+		if (Global->Opt->InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), UserName.get(), &dwSize))
 		{
 			dwSize = UNLEN+1;
-			GetUserName(UserName, &dwSize);
+			GetUserName(UserName.get(), &dwSize);
 		}
-		strUserName.ReleaseBuffer();
+		strUserName.assign(UserName.get());
 
 		GotoXY(X1+2,CurY++);
 		PrintText(MInfoUserName);

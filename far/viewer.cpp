@@ -1055,30 +1055,17 @@ void Viewer::SetStatusMode(int Mode)
 }
 
 
-static inline bool is_space_or_nul( const wchar_t ch )
+static bool is_word_div(const wchar_t ch)
 {
-	return L'\0' == ch || IsSpace(ch);
+	static const wchar_t extra_div[] = { BOM_CHAR, REPLACE_CHAR };
+	return IsSpaceOrEos(ch) || IsEol(ch) || Global->Opt->strWordDiv.Get().find(ch) != string::npos ||
+		std::find(ALL_CONST_RANGE(extra_div), ch) != std::cend(extra_div);
 }
 
-static bool is_word_div ( const wchar_t ch )
+static inline bool wrapped_char(const wchar_t ch)
 {
-	static const wchar_t spaces[] = { L' ', L'\t', L'\n', L'\r', BOM_CHAR, REPLACE_CHAR, L'\0' };
-	return ( !ch
-		|| nullptr != wcschr(spaces, ch)
-		|| nullptr != wcschr(Global->Opt->strWordDiv.data(), ch)
-	);
-}
-
-static inline int wrapped_char( const wchar_t ch )
-{
-	static const wchar_t wrapped_chars[] = L",;>)"; // word-wrap enabled after it
-
-	if (is_space_or_nul(ch))
-		return +0;
-	else if (nullptr != wcschr(wrapped_chars, ch))
-		return +1;
-	else
-		return -1;
+	static const wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
+	return IsSpaceOrEos(ch) || std::find(ALL_CONST_RANGE(wrapped_chars), ch) != std::cend(wrapped_chars);
 }
 
 void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
@@ -1152,7 +1139,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 		if ( !VM.Wrap )
 			continue;
 
-		if ( VM.WordWrap && OutPtr <= Width && wrapped_char(ch) >= 0 )
+		if ( VM.WordWrap && OutPtr <= Width && wrapped_char(ch))
 		{
 			wrap_out = OutPtr;
 			wrap_pos = fpos1;
@@ -1165,7 +1152,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 		if ( OutPtr > Width )
 		{
-			if ( wrap_out <= 0 || is_space_or_nul(ch) )
+			if ( wrap_out <= 0 || IsSpaceOrEos(ch) )
 			{
 				wrap_out = OutPtr - 1;
 				wrap_pos = fpos;
@@ -1173,7 +1160,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 			OutPtr = wrap_out;
 			vseek(wrap_pos, SEEK_SET);
-			while (OutPtr > 0 && is_space_or_nul(ReadBuffer[OutPtr-1]))
+			while (OutPtr > 0 && IsSpaceOrEos(ReadBuffer[OutPtr-1]))
 				--OutPtr;
 
 			if ( bSelEndFound && pString->nSelEnd > OutPtr )
@@ -1196,7 +1183,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 			if (!vgetc(&ch))
 				break;
 
-			if (skip_space && !eol_char && is_space_or_nul(ch))
+			if (skip_space && !eol_char && IsSpaceOrEos(ch))
 				continue;
 
 			if ( ch == L'\n' )

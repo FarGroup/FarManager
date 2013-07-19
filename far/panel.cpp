@@ -1824,7 +1824,7 @@ int Panel::SetCurPath()
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
-		if (IsAlpha(AnotherPanel->strCurDir.at(0)) && AnotherPanel->strCurDir.at(1)==L':' &&
+		if (AnotherPanel->strCurDir.size() > 1 && AnotherPanel->strCurDir.at(1)==L':' &&
 		        Upper(AnotherPanel->strCurDir.at(0))!=Upper(strCurDir.at(0)))
 		{
 			// сначала установим переменные окружения для пассивной панели
@@ -2126,7 +2126,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_CLOSEPANEL:
 			PluginCommand=Command;
-			strPluginParam = (const wchar_t *)Param2;
+			strPluginParam = NullToEmpty((const wchar_t *)Param2);
 			Result=TRUE;
 			break;
 

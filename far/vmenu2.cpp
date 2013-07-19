@@ -296,25 +296,27 @@ LISTITEMFLAGS VMenu2::GetItemFlags(int Position)
 	return flgi.Item.Flags;
 }
 
-string VMenu2::GetTitles(int bottom)
+string VMenu2::GetMenuTitle(bool bottom)
 {
-	string title; size_t size=1;
+	wchar_t_ptr title;
 	FarListTitles titles={sizeof(FarListTitles)};
 	if(!SendMessage(DM_LISTGETTITLES, 0, &titles))
-		return title;
+		return string();
+	size_t size;
 	if(bottom)
 	{
 		size=titles.BottomSize;
-		titles.Bottom=title.GetBuffer(size);
+		title.reset(size);
+		titles.Bottom = title.get();
 	}
 	else
 	{
 		size=titles.TitleSize;
-		titles.Title=title.GetBuffer(size);
+		title.reset(size);
+		titles.Title = title.get();
 	}
 	SendMessage(DM_LISTGETTITLES, 0, &titles);
-	title.ReleaseBuffer(size-1);
-	return title;
+	return string(title.get(), size - 1);
 }
 
 std::array<FarDialogItem, 1> VMenu2DialogItems =
@@ -366,7 +368,7 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
-	string t=GetTitles(1);
+	string t=GetMenuTitle(true);
 	titles.Bottom=t.data();
 	titles.Title=Title.data();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
@@ -375,7 +377,7 @@ void VMenu2::SetTitle(const string& Title)
 void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
-	string t=GetTitles();
+	string t=GetMenuTitle();
 	titles.Bottom=Title.data();
 	titles.Title=t.data();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
@@ -627,7 +629,7 @@ void VMenu2::Key(int key)
 int VMenu2::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MVMenuType);
-	strName = GetTitles();
+	strName = GetMenuTitle();
 	return MODALTYPE_VMENU;
 }
 

@@ -322,10 +322,9 @@ static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo
 static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
-		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
-			L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig",
-			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data())
-		);
+	{
+		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig");
+	}
 
 	if (!strTemplatePath.empty())
 	{
@@ -392,9 +391,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		}
 		else
 		{
-			string strUserProfileDir, strUserLocalProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
-			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.data(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
+			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
+			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
 			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
 			apiExpandEnvironmentStrings(strUserLocalProfileDir, strUserLocalProfileDir);
 			Unquote(strUserProfileDir);
@@ -525,7 +523,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					if (iswdigit(Argv[I][2]))
 					{
 						StartLine=_wtoi(&Argv[I][2]);
-						wchar_t *ChPtr=wcschr(&Argv[I][2],L':');
+						const wchar_t *ChPtr=wcschr(&Argv[I][2],L':');
 
 						if (ChPtr)
 							StartChar=_wtoi(ChPtr+1);

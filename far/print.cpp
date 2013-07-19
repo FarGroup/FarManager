@@ -63,10 +63,11 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 
 	if (!GetDefaultPrinter(nullptr, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
 	{
-		if (!GetDefaultPrinter(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
-			strDefaultPrinter.ReleaseBuffer(0);
+		wchar_t_ptr Buffer(pcchBuffer);
+		if (!GetDefaultPrinter(Buffer.get(), &pcchBuffer))
+			strDefaultPrinter.clear();
 		else
-			strDefaultPrinter.ReleaseBuffer();
+			strDefaultPrinter.assign(Buffer.get(), Buffer.size());
 	}
 
 	// Ёлемент меню

@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "vmenu2.hpp"
 
-VMenu::VMenu(const wchar_t *Title,       // заголовок меню
+VMenu::VMenu(const string& Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
              int ItemsCount,     // количество пунктов меню
              int MaxHeight,     // максимальная высота
@@ -2187,7 +2187,7 @@ void VMenu::ShowMenu(bool IsParent)
 			if (Item[I]->Flags&LIF_SEPARATOR)
 			{
 				int SepWidth = X2-X1+1;
-				wchar_t *TmpStr = strTmpStr.GetBuffer(SepWidth+1);
+				wchar_t *TmpStr = GetStringBuffer(strTmpStr, SepWidth + 1);
 				wchar_t *Ptr = TmpStr+1;
 
 				MakeSeparator(SepWidth,TmpStr,BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
@@ -2199,8 +2199,8 @@ void VMenu::ShowMenu(bool IsParent)
 						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.data(),L'&',J);
 						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.data(),L'&',J);
 
-						wchar_t PrevItem = (Item[I-1]->strName.size()>=J) ? Item[I-1]->strName[J+PCorrection] : 0;
-						wchar_t NextItem = (Item[I+1]->strName.size()>=J) ? Item[I+1]->strName[J+NCorrection] : 0;
+						wchar_t PrevItem = (Item[I-1]->strName.size() > J + PCorrection) ? Item[I-1]->strName[J+PCorrection] : 0;
+						wchar_t NextItem = (Item[I+1]->strName.size() > J + NCorrection) ? Item[I+1]->strName[J+NCorrection] : 0;
 
 						if (!PrevItem && !NextItem)
 							break;
@@ -2233,7 +2233,7 @@ void VMenu::ShowMenu(bool IsParent)
 					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
 				}
 
-				strTmpStr.ReleaseBuffer();
+				ReleaseStringBuffer(strTmpStr);
 			}
 			else
 			{
@@ -2269,8 +2269,8 @@ void VMenu::ShowMenu(bool IsParent)
 						CheckMark = static_cast<wchar_t>(Item[I]->Flags & 0x0000FFFF);
 				}
 
-				strMenuLine.append(1, CheckMark);
-				strMenuLine.append(1, L' '); // left scroller (<<) placeholder
+				strMenuLine.push_back(CheckMark);
+				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
 				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
 				string strMItemPtr(Item[I]->strName.data() + ShowPos);
 				int strMItemPtrLen;
@@ -3010,7 +3010,7 @@ MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem, MenuItemEx *MItem)
 	{
 		MItem->Clear();
 		MItem->Flags = FItem->Flags;
-		MItem->strName = FItem->Text;
+		MItem->strName = NullToEmpty(FItem->Text);
 		return MItem;
 	}
 

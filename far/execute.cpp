@@ -451,9 +451,9 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 	bool quoted = false;
 	apiExpandEnvironmentStrings(CmdStr, strNewCmdStr);
 	RemoveExternalSpaces(strNewCmdStr);
-	wchar_t *NewCmdStr = strNewCmdStr.GetBuffer();
-	wchar_t *CmdPtr = NewCmdStr;
-	wchar_t *ParPtr = nullptr;
+	const wchar_t * const NewCmdStr = strNewCmdStr.data();
+	const wchar_t *CmdPtr = NewCmdStr;
+	const wchar_t *ParPtr = nullptr;
 	// Разделим собственно команду для исполнения и параметры.
 	// При этом заодно определим наличие символов переопределения потоков
 	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
@@ -491,14 +491,15 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 
 	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
 	{
+		size_t Pos = ParPtr - NewCmdStr;
 		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			*(ParPtr++)=0;    //    он добавляется заново в Execute.
+			++ParPtr;        //    он добавляется заново в Execute.
 
 		strNewCmdPar = ParPtr;
-		*ParPtr = 0;
+		strNewCmdStr.resize(Pos);
+
 	}
 
-	strNewCmdStr.ReleaseBuffer();
 	Unquote(strNewCmdStr);
 
 	return 2*PipeFound + 1*Escaped;
@@ -654,7 +655,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	RegCloseKey(hKey);
 
-	if (RetPtr )
+	if (RetPtr)
 	{
 		strValue += command_action;
 
@@ -667,26 +668,25 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 			if (RetQuery == ERROR_SUCCESS && !strNewValue.empty())
 			{
 				apiExpandEnvironmentStrings(strNewValue,strNewValue);
-				wchar_t *Ptr = strNewValue.GetBuffer();
 
 				// Выделяем имя модуля
-				if (*Ptr==L'\"')
+				if (strNewValue.front() == L'\"')
 				{
-					wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
+					size_t QuotePos = strNewValue.find(L'\"', 1);
 
-					if (QPtr)
+					if (QuotePos != string::npos)
 					{
-						*QPtr=0;
-						wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
+						strNewValue.resize(QuotePos);
+						strNewValue.erase(0, 1);
 					}
 				}
 				else
 				{
-					if ((Ptr=wcspbrk(Ptr,L" \t/")))
-						*Ptr=0;
+					auto pos = strNewValue.find_first_of(L" \t/");
+					if (pos != string::npos)
+						strNewValue.resize(pos);
 				}
 
-				strNewValue.ReleaseBuffer();
 				GetImageSubsystem(strNewValue,ImageSubsystem);
 			}
 			else
@@ -1457,9 +1457,8 @@ bool ProcessOSAliases(string &strStr)
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
 	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
-	int nSize=(int)strNewCmdStr.size()+4096;
-	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-	int ret=Global->Console->GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
+	wchar_t_ptr Buffer(NT_MAX_PATH);
+	int ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), lpwszExeName);
 
 	if (!ret)
 	{
@@ -1467,11 +1466,11 @@ bool ProcessOSAliases(string &strStr)
 		if (apiGetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
-			ret=Global->Console->GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
+			ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);
 		}
 	}
 
-	strNewCmdStr.ReleaseBuffer();
+	strNewCmdStr.assign(Buffer.get());
 
 	if (!ret)
 		return false;

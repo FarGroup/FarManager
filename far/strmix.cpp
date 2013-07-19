@@ -72,9 +72,9 @@ string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
 	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,nullptr,0);
-	wchar_t* lpwszDest=strDest.GetBuffer(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,lpwszDest,Size);
-	strDest.ReleaseBuffer();
+	wchar_t_ptr Dest(Size);
+	Size = GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt, Dest.get(), Size);
+	strDest.assign(Dest.get(), Size);
 	return strDest;
 }
 
@@ -190,9 +190,9 @@ string &QuoteLeadingSpace(string &strStr)
 
 string& TruncStrFromEnd(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszBuffer = strStr.GetBuffer();
+	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
 	TruncStrFromEnd(lpwszBuffer, MaxLength);
-	strStr.ReleaseBuffer();
+	ReleaseStringBuffer(strStr);
 	return strStr;
 }
 
@@ -251,9 +251,9 @@ wchar_t* TruncStr(wchar_t *Str,int MaxLength)
 
 string& TruncStr(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszBuffer = strStr.GetBuffer();
+	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
 	TruncStr(lpwszBuffer, MaxLength);
-	strStr.ReleaseBuffer();
+	ReleaseStringBuffer(strStr);
 	return strStr;
 }
 
@@ -291,9 +291,9 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 
 string& TruncStrFromCenter(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszBuffer = strStr.GetBuffer();
+	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
 	TruncStrFromCenter(lpwszBuffer, MaxLength);
-	strStr.ReleaseBuffer();
+	ReleaseStringBuffer(strStr);
 	return strStr;
 }
 
@@ -340,9 +340,9 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 
 string& TruncPathStr(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszStr = strStr.GetBuffer();
+	wchar_t *lpwszStr = GetStringBuffer(strStr);
 	TruncPathStr(lpwszStr, MaxLength);
-	strStr.ReleaseBuffer();
+	ReleaseStringBuffer(strStr);
 	return strStr;
 }
 
@@ -442,7 +442,7 @@ string& RemoveUnprintableCharacters(string &strStr)
 // Удалить символ Target из строки Str (везде!)
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
 {
-	wchar_t *Ptr = strStr.GetBuffer();
+	wchar_t *Ptr = GetStringBuffer(strStr);
 	wchar_t *Str = Ptr, Chr;
 
 	while ((Chr=*Str++) )
@@ -462,7 +462,7 @@ string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
 	}
 
 	*Ptr = L'\0';
-	strStr.ReleaseBuffer();
+	ReleaseStringBuffer(strStr);
 	return strStr;
 }
 
@@ -593,19 +593,8 @@ void Unquote(wchar_t *Str)
 
 void Unquote(string &strStr)
 {
-	wchar_t *Dst = strStr.GetBuffer();
-	const wchar_t *Str = Dst;
-	const wchar_t *StartPtr = Dst;
-
-	while (*Str)
-	{
-		if (*Str!=L'\"')
-			*Dst++=*Str;
-
-		Str++;
-	}
-
-	strStr.ReleaseBuffer(Dst-StartPtr);
+	auto new_end = std::remove(ALL_RANGE(strStr), L'"');
+	strStr.resize(new_end - strStr.begin());
 }
 
 
@@ -813,7 +802,6 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 	size_t L=strStr.size();
 
 	const int Delta = LenReplStr-LenFindStr;
-	const int AllocDelta = Delta > 0 ? Delta*10 : 0;
 
 	size_t I=0;
 	int J=0;
@@ -824,10 +812,8 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 		if (!Res)
 		{
 			wchar_t *Str;
-			if (L+Delta+1 > strStr.capacity())
-				Str = strStr.GetBuffer(L+AllocDelta);
-			else
-				Str = strStr.GetBuffer();
+			strStr.resize(std::max(strStr.size(), L + Delta + 1));
+			Str = GetStringBuffer(strStr);
 
 			if (Delta > 0)
 				wmemmove(Str+I+Delta,Str+I,L-I+1);
@@ -838,7 +824,7 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 			I += LenReplStr;
 
 			L+=Delta;
-			strStr.ReleaseBuffer(L);
+			ReleaseStringBuffer(strStr, L);
 
 			if (++J == Count && Count > 0)
 				break;
@@ -1501,8 +1487,9 @@ string wide(const char *str, uintptr_t codepage)
 	if (str && *str)
 	{
 		size_t size = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
-		MultiByteToWideChar(codepage, 0, str, -1, result.GetBuffer(size), static_cast<int>(size));
-		result.ReleaseBuffer(size - 1);
+		wchar_t_ptr Buffer(size);
+		size = MultiByteToWideChar(codepage, 0, str, -1, Buffer.get(), static_cast<int>(size));
+		result.assign(Buffer.get(), size);
 	}
 	return result;
 }
@@ -1527,6 +1514,19 @@ string str_printf(const wchar_t * format, ...)
 
 	va_end(argptr);
 	return string(buffer.get());
+}
+
+// BUGBUG, eliminate
+wchar_t *GetStringBuffer(string& str, size_t size)
+{
+	str.resize(size == string::npos? str.size() : size);
+	return const_cast<wchar_t*>(str.data());
+}
+
+// BUGBUG, eliminate
+void ReleaseStringBuffer(string& str, size_t size)
+{
+	str.resize(size == string::npos ? wcslen(str.data()) : size);
 }
 
 

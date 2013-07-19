@@ -3920,9 +3920,9 @@ BOOL Editor::Search(int Next)
 
 							// do not use InsertQuote, AI is not suitable here
 							strQSearchStr.insert(0, 1, L'"');
-							strQSearchStr.append(1, L'"');
+							strQSearchStr.push_back(L'"');
 							strQReplaceStr.insert(0, 1, L'"');
-							strQReplaceStr.append(1, L'"');
+							strQReplaceStr.push_back(L'"');
 
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
@@ -4018,19 +4018,11 @@ BOOL Editor::Search(int Next)
 									}
 								}
 
-								int Cnt=0;
-								const wchar_t *Tmp=strReplaceStrCurrent.data();
-
-								while ((Tmp=wcschr(Tmp,L'\r')) )
-								{
-									Cnt++;
-									Tmp++;
-								}
-
-								if (Cnt>0)
+								size_t Cnt = std::count(ALL_CONST_RANGE(strReplaceStrCurrent), L'\r');
+								if (Cnt)
 								{
 									CurPtr=CurLine;
-									NewNumLine+=Cnt;
+									NewNumLine+=static_cast<int>(Cnt);
 								}
 
 								Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode!=0);
@@ -4856,7 +4848,7 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 	y=_wtoi(strArg.data());
 
 	// + переход на проценты
-	if (wcschr(strArg.data(),L'%'))
+	if (strArg.find(L'%') != string::npos)
 		y=NumLastLine * y / 100;
 
 	//   вычисляем относительность

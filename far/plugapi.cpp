@@ -1088,7 +1088,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	string strTopic;
 	if (PluginNumber)
 	{
-		Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),HelpTopic,strTopic);
+		Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),NullToEmpty(HelpTopic),strTopic);
 	}
 
 	// непосредственно... вывод
@@ -1129,7 +1129,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	switch (Command)
 	{
 		case FCTL_CLOSEPANEL:
-			Global->g_strDirToSet = (wchar_t *)Param2;
+			Global->g_strDirToSet = NullToEmpty((wchar_t *)Param2);
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELITEM:
 		case FCTL_GETSELECTEDPANELITEM:
@@ -2420,7 +2420,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
 {
 	string strCurDir;
-	apiGetCurrentDirectory(strCurDir);
+	::apiGetCurrentDirectory(strCurDir);
 
 	if (Buffer && Size)
 	{

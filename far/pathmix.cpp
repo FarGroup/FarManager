@@ -115,7 +115,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 			}
 			if(Root)
 			{
-				*Root = !path[m[1].end] || (IsSlash(path[m[1].end]) && !path[m[1].end+1]);
+				*Root = path.size() == static_cast<size_t>(m[1].end) || (path.size() == static_cast<size_t>(m[1].end + 1) && IsSlash(path[m[1].end]));
 			}
 			Result = i.Type;
 			return true;
@@ -152,17 +152,17 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	if (Path[0] == L'\\')
 		return false;
 
-	const wchar_t* pC = wcschr(Path.data(), L':');
+	size_t pos = Path.find(L':');
 
-	if (!pC)
+	if (pos == string::npos)
 		return false;
 
-	if ((pC - Path.data()) == 1) // односимвольные префиксы не поддерживаются
+	if (pos == 1) // односимвольные префиксы не поддерживаются
 		return false;
 
 	const wchar_t* pS = FirstSlash(Path.data());
 
-	if (pS && pS < pC)
+	if (pS && static_cast<size_t>(pS - Path.data()) < pos)
 		return false;
 
 	return true;
@@ -170,12 +170,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 
 bool TestParentFolderName(const string& Name)
 {
-	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));
-}
-
-bool TestCurrentFolderName(const wchar_t *Name)
-{
-	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
+	return (Name.size() == 2 && Name[0] == L'.' && Name[1] == L'.') || (Name.size() == 3 && Name[0] == L'.' && Name[1] == L'.' && IsSlash(Name[2]));
 }
 
 bool TestCurrentDirectory(const string& TestDir)
@@ -363,9 +358,9 @@ BOOL AddEndSlash(string &strPath)
 
 BOOL AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer(strPath.size()+2);
+	wchar_t *lpwszPath = GetStringBuffer(strPath, strPath.size() + 2);
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
-	strPath.ReleaseBuffer();
+	ReleaseStringBuffer(strPath);
 	return Result;
 }
 
@@ -410,7 +405,7 @@ bool CutToSlash(string &strStr, bool bInclude)
 
 string &CutToNameUNC(string &strPath)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer();
+	const wchar_t *lpwszPath = strPath.data();
 
 	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
 	{
@@ -426,7 +421,7 @@ string &CutToNameUNC(string &strPath)
 		}
 	}
 
-	wchar_t *lpwszNamePtr = lpwszPath;
+	const wchar_t *lpwszNamePtr = lpwszPath;
 
 	while (*lpwszPath)
 	{
@@ -436,16 +431,15 @@ string &CutToNameUNC(string &strPath)
 		lpwszPath++;
 	}
 
-	*lpwszNamePtr = 0;
-	strPath.ReleaseBuffer();
+	strPath.resize(lpwszNamePtr - strPath.data());
 
 	return strPath;
 }
 
 string &CutToFolderNameIfFolder(string &strPath)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer();
-	wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
+	const wchar_t *lpwszPath = strPath.data();
+	const wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
 
 	while (*lpwszPath)
 	{
@@ -458,12 +452,8 @@ string &CutToFolderNameIfFolder(string &strPath)
 		++lpwszPath;
 	}
 
-	if (*lpwszNamePtr)
-		*lpwszNamePtr=0;
-	else
-		*lpwszprevNamePtr=0;
-
-	strPath.ReleaseBuffer();
+	size_t size = *lpwszNamePtr ? lpwszNamePtr - strPath.data() : lpwszprevNamePtr - strPath.data();
+	strPath.resize(size);
 	return strPath;
 }
 
@@ -600,8 +590,6 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 	string TargetPath;
 	if (apiQueryDosDevice(DeviceName, TargetPath))
 	{
-		TargetPath.ReleaseBuffer();
-
 		if (PathStartsWith(NtPath, TargetPath))
 			return static_cast<int>(TargetPath.size());
 

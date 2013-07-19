@@ -535,10 +535,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
 		{
-			int Length=(int)strSelName.size();
-
-			if (!Length || (strSelName[0]==L'\\' && Length<2) ||
-			        (strSelName[1]==L':' && Length<4))
+			if (strSelName.empty() || (strSelName == L"\\") || IsRootPath(strSelName))
 				continue;
 
 			DWORD CurTime=GetTickCount();
@@ -1019,7 +1016,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		}
 	}
 
-	strFullName.append(1, L'\0'); // make strFullName end with DOUBLE zero
+	strFullName.push_back(L'\0'); // make strFullName end with DOUBLE zero
 
 	if (MoveToRecycleBinInternal(strFullName.data()))
 	{

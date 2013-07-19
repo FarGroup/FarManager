@@ -289,7 +289,7 @@ Language::Language():
 
 void ConvertString(const wchar_t *Src,string &strDest)
 {
-	wchar_t *Dest = strDest.GetBuffer(wcslen(Src)*2);
+	strDest.reserve(wcslen(Src));
 	while (*Src)
 	{
 		switch (*Src)
@@ -298,46 +298,43 @@ void ConvertString(const wchar_t *Src,string &strDest)
 			switch (Src[1])
 			{
 			case L'\\':
-				*(Dest++)=L'\\';
+				strDest.push_back(L'\\');
 				Src+=2;
 				break;
 			case L'\"':
-				*(Dest++)=L'\"';
+				strDest.push_back(L'\"');
 				Src+=2;
 				break;
 			case L'n':
-				*(Dest++)=L'\n';
+				strDest.push_back(L'\n');
 				Src+=2;
 				break;
 			case L'r':
-				*(Dest++)=L'\r';
+				strDest.push_back(L'\r');
 				Src+=2;
 				break;
 			case L'b':
-				*(Dest++)=L'\b';
+				strDest.push_back(L'\b');
 				Src+=2;
 				break;
 			case L't':
-				*(Dest++)=L'\t';
+				strDest.push_back('\t');
 				Src+=2;
 				break;
 			default:
-				*(Dest++)=L'\\';
+				strDest.push_back(L'\\');
 				Src++;
 				break;
 			}
 			break;
 		case L'"':
-			*(Dest++)=L'"';
+			strDest.push_back(L'"');
 			Src+=(Src[1]==L'"') ? 2:1;
 			break;
 		default:
-			*(Dest++)=*(Src++);
+			strDest.push_back(*(Src++));
 			break;
 		}
-
-		*Dest=0;
-		strDest.ReleaseBuffer();
 	}
 }
 

@@ -332,7 +332,7 @@ bool FindFile::Get(FAR_FIND_DATA& FindData)
 
 	// skip ".." & "."
 	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName.at(0) == L'.' &&
-		((FindData.strFileName.at(1) == L'.' && !FindData.strFileName.at(2)) || !FindData.strFileName.at(1)) &&
+		((FindData.strFileName.size() == 2 && FindData.strFileName.at(1) == L'.') || FindData.strFileName.size() == 1) &&
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от. (UPD: или бывает, но такое же)
 		(FindData.strAlternateFileName.empty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
@@ -811,15 +811,15 @@ DWORD apiGetEnvironmentVariable(const string& Name, string &strBuffer)
 
 	if (Size)
 	{
-		if(Size>ARRAYSIZE(Buffer))
+		if (Size < ARRAYSIZE(Buffer))
 		{
-			wchar_t *lpwszBuffer = strBuffer.GetBuffer(Size);
-			Size = GetEnvironmentVariable(Name.data(), lpwszBuffer, Size);
-			strBuffer.ReleaseBuffer();
+			strBuffer.assign(Buffer, Size);
 		}
 		else
 		{
-			strBuffer.assign(Buffer, Size);
+			wchar_t_ptr vBuffer(Size);
+			Size = GetEnvironmentVariable(Name.data(), vBuffer.get(), Size);
+			strBuffer.assign(vBuffer.get(), Size);
 		}
 	}
 
@@ -840,15 +840,15 @@ void InitCurrentDirectory()
 	if(Size)
 	{
 		string strInitCurDir;
-		if(Size>ARRAYSIZE(Buffer))
+		if(Size < ARRAYSIZE(Buffer))
 		{
-			LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
-			GetCurrentDirectory(Size,InitCurDir);
-			strInitCurDir.ReleaseBuffer(Size-1);
+			strInitCurDir.assign(Buffer, Size);
 		}
 		else
 		{
-			strInitCurDir.assign(Buffer, Size);
+			wchar_t_ptr vBuffer(Size);
+			GetCurrentDirectory(Size, vBuffer.get());
+			strInitCurDir.assign(vBuffer.get(), Size);
 		}
 		//set virtual curdir:
 		apiSetCurrentDirectory(strInitCurDir);
@@ -914,15 +914,15 @@ DWORD apiGetTempPath(string &strBuffer)
 	DWORD Size = GetTempPath(ARRAYSIZE(Buffer), Buffer);
 	if(Size)
 	{
-		if(Size>ARRAYSIZE(Buffer))
+		if(Size < ARRAYSIZE(Buffer))
 		{
-			wchar_t *lpwszBuffer = strBuffer.GetBuffer(Size);
-			Size = GetTempPath(Size, lpwszBuffer);
-			strBuffer.ReleaseBuffer(Size-1);
+			strBuffer.assign(Buffer, Size);
 		}
 		else
 		{
-			strBuffer.assign(Buffer, Size);
+			wchar_t_ptr vBuffer(Size);
+			Size = GetTempPath(Size, vBuffer.get());
+			strBuffer.assign(vBuffer.get(), Size);
 		}
 	}
 	return Size;
@@ -981,19 +981,18 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 	DWORD Size = ExpandEnvironmentStrings(Src.data(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
-		if (Size > ARRAYSIZE(Buffer))
+		if (Size < ARRAYSIZE(Buffer))
 		{
-			string SrcCopy(Src);
-			wchar_t *lpwszDest = Dest.GetBuffer(Size);
-			Dest.ReleaseBuffer(ExpandEnvironmentStrings(SrcCopy.data(), lpwszDest, Size)-1);
+			Dest.assign(Buffer, Size - 1);
 		}
 		else
 		{
-			Dest.assign(Buffer, Size-1);
+			wchar_t_ptr vBuffer(Size);
+			Size = ExpandEnvironmentStrings(Src.data(), vBuffer.get(), Size);
+			Dest.assign(vBuffer.get(), Size);
 		}
 		Result = true;
 	}
-
 	return Result;
 }
 
@@ -1004,9 +1003,9 @@ DWORD apiWNetGetConnection(const string& LocalName, string &RemoteName)
 
 	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
-		wchar_t *lpwszRemoteName = RemoteName.GetBuffer(dwRemoteNameSize);
-		dwResult = WNetGetConnection(LocalName.data(), lpwszRemoteName, &dwRemoteNameSize);
-		RemoteName.ReleaseBuffer();
+		wchar_t_ptr Buffer(dwRemoteNameSize);
+		dwResult = WNetGetConnection(LocalName.data(), Buffer.get(), &dwRemoteNameSize);
+		RemoteName.assign(Buffer.get(), dwRemoteNameSize);
 	}
 
 	return dwResult;
@@ -1021,24 +1020,23 @@ BOOL apiGetVolumeInformation(
     string *pFileSystemName
 )
 {
-	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer(MAX_PATH+1):nullptr;  //MSDN!
-	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer(MAX_PATH+1):nullptr;
-	BOOL bResult = GetVolumeInformation(
-	                   RootPathName.data(),
-	                   lpwszVolumeName,
-	                   lpwszVolumeName?MAX_PATH:0,
-	                   lpVolumeSerialNumber,
-	                   lpMaximumComponentLength,
-	                   lpFileSystemFlags,
-	                   lpwszFileSystemName,
-	                   lpwszFileSystemName?MAX_PATH:0
-	               );
+	wchar_t_ptr VolumeNameBuffer, FileSystemNameBuffer;
+	if (pVolumeName)
+	{
+		VolumeNameBuffer.reset(MAX_PATH + 1);
+	}
+	if (pFileSystemName)
+	{
+		FileSystemNameBuffer.reset(MAX_PATH + 1);
+	}
+	BOOL bResult = GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
+		lpMaximumComponentLength, lpFileSystemFlags, FileSystemNameBuffer.get(), static_cast<DWORD>(FileSystemNameBuffer.size()));
 
-	if (lpwszVolumeName)
-		pVolumeName->ReleaseBuffer();
+	if (pVolumeName)
+		*pVolumeName = VolumeNameBuffer.get();
 
-	if (lpwszFileSystemName)
-		pFileSystemName->ReleaseBuffer();
+	if (pFileSystemName)
+		*pFileSystemName = FileSystemNameBuffer.get();
 
 	return bResult;
 }
@@ -1120,12 +1118,15 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 {
 	int ExitCode=ERROR_MORE_DATA;
 
-	for (DWORD Size=512; ExitCode==ERROR_MORE_DATA; Size<<=1)
+	for (DWORD Size=512; ExitCode==ERROR_MORE_DATA; Size *= 2)
 	{
-		wchar_t *Name=strName.GetBuffer(Size);
-		DWORD Size0=Size;
-		ExitCode=RegEnumKeyEx(hKey,dwIndex,Name,&Size0,nullptr,nullptr,nullptr,lpftLastWriteTime);
-		strName.ReleaseBuffer();
+		wchar_t_ptr Buffer(Size);
+		DWORD RetSize = Size;
+		ExitCode = RegEnumKeyEx(hKey, dwIndex, Buffer.get(), &RetSize, nullptr, nullptr, nullptr, lpftLastWriteTime);
+		if (ExitCode == ERROR_SUCCESS)
+		{
+			strName.assign(Buffer.get(), RetSize);
+		}
 	}
 
 	return ExitCode;
@@ -1188,8 +1189,9 @@ HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkN
 	NTPath NtFileName(FileName);
 	if (Global->ifn->FindFirstFileNameW(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		hRet=Global->ifn->FindFirstFileNameW(NtFileName.data(), 0, &StringLength, LinkName.GetBuffer(StringLength));
-		LinkName.ReleaseBuffer();
+		wchar_t_ptr Buffer(StringLength);
+		hRet=Global->ifn->FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
+		LinkName.assign(Buffer.get());
 	}
 	return hRet;
 }
@@ -1200,8 +1202,9 @@ BOOL apiFindNextFileName(HANDLE hFindStream, string& LinkName)
 	DWORD StringLength=0;
 	if (!Global->ifn->FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
 	{
-		Ret=Global->ifn->FindNextFileNameW(hFindStream, &StringLength, LinkName.GetBuffer(StringLength));
-		LinkName.ReleaseBuffer();
+		wchar_t_ptr Buffer(StringLength);
+		Ret = Global->ifn->FindNextFileNameW(hFindStream, &StringLength, Buffer.get());
+		LinkName.assign(Buffer.get());
 	}
 	return Ret;
 }
@@ -1428,22 +1431,25 @@ BOOL apiFindStreamClose(HANDLE hFindStream)
 
 bool apiGetLogicalDriveStrings(string& DriveStrings)
 {
-	DWORD BufSize = MAX_PATH;
-	DWORD Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
+	bool Result = false;
+	wchar_t Buffer[MAX_PATH];
+	DWORD Size = GetLogicalDriveStringsW(ARRAYSIZE(Buffer), Buffer);
 
-	if (Size > BufSize)
+	if (Size)
 	{
-		BufSize = Size;
-		Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
+		if (Size < ARRAYSIZE(Buffer))
+		{
+			DriveStrings.assign(Buffer, Size);
+		}
+		else
+		{
+			wchar_t_ptr vBuffer(Size);
+			Size = GetLogicalDriveStringsW(Size, vBuffer.get());
+			DriveStrings.assign(vBuffer.get(), Size);
+		}
+		Result = true;
 	}
-
-	if ((Size > 0) && (Size <= BufSize))
-	{
-		DriveStrings.ReleaseBuffer(Size);
-		return true;
-	}
-
-	return false;
+	return Result;
 }
 
 bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
@@ -1539,21 +1545,20 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	if (Global->ifn->GetFinalPathNameByHandleWPresent())
 	{
-		DWORD BufLen = NT_MAX_PATH;
-		DWORD Len = Global->ifn->GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
-
-		if (Len > BufLen)
+		wchar_t Buffer[MAX_PATH];
+		size_t Size = Global->ifn->GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
+		if (Size < ARRAYSIZE(Buffer))
 		{
-			BufLen = Len;
-			Len = Global->ifn->GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
+			FinalFilePath.assign(Buffer, Size);
+		}
+		else
+		{
+			wchar_t_ptr vBuffer(Size);
+			Size = Global->ifn->GetFinalPathNameByHandle(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
+			FinalFilePath.assign(vBuffer.get(), Size);
 		}
 
-		if (Len <= BufLen)
-			FinalFilePath.ReleaseBuffer(Len);
-		else
-			FinalFilePath.clear();
-
-		return Len  && Len <= BufLen;
+		return Size != 0;
 	}
 
 	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
@@ -1565,9 +1570,9 @@ bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *E
 
 	if (dwSize)
 	{
-		wchar_t *lpwszFullName=strDest.GetBuffer(dwSize);
-		dwSize = SearchPath(Path,FileName.data(),Extension,dwSize,lpwszFullName,nullptr);
-		strDest.ReleaseBuffer(dwSize);
+		wchar_t_ptr Buffer(dwSize);
+		dwSize = SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
+		strDest.assign(Buffer.get(), dwSize);
 		return true;
 	}
 
@@ -1576,16 +1581,23 @@ bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *E
 
 bool apiQueryDosDevice(const string& DeviceName, string &Path) {
 	SetLastError(NO_ERROR);
-	DWORD Res = QueryDosDeviceW(DeviceName.data(), Path.GetBuffer(MAX_PATH), MAX_PATH);
-	if (!Res && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	wchar_t Buffer[MAX_PATH];
+	DWORD Size = QueryDosDeviceW(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
+	if (Size)
 	{
-		SetLastError(NO_ERROR);
-		Res = QueryDosDeviceW(DeviceName.data(), Path.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+		Path.assign(Buffer, Size);
 	}
-	if (!Res || GetLastError() != NO_ERROR)
-		return false;
-	Path.ReleaseBuffer();
-	return true;
+	else if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+		wchar_t_ptr vBuffer(NT_MAX_PATH);
+		SetLastError(NO_ERROR);
+		Size = QueryDosDeviceW(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
+		if (Size)
+		{
+			Path.assign(Buffer, Size);
+		}
+	}
+	return Size && GetLastError() == NO_ERROR;
 }
 
 bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& VolumeName)
@@ -1708,23 +1720,17 @@ int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, con
 
 	if (nResult == ERROR_SUCCESS)
 	{
-		wchar_t *lpwszData = strData.GetBuffer(cbSize/sizeof(wchar_t)+1);
+		wchar_t_ptr Data(cbSize/sizeof(wchar_t)+1);
 		DWORD Type=REG_SZ;
-		nResult = RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(lpwszData), &cbSize);
+		nResult = RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(Data.get()), &cbSize);
 		int Size=cbSize/sizeof(wchar_t);
 
 		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
 		{
-			if (!lpwszData[Size-1])
+			if (!Data[Size - 1])
 				Size--;
-
-			strData.ReleaseBuffer(Size);
 		}
-		else
-		{
-			lpwszData[Size] = 0;
-			strData.ReleaseBuffer();
-		}
+		strData.assign(Data.get(), Size);
 	}
 
 	if (nResult != ERROR_SUCCESS)
@@ -1744,24 +1750,24 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 	if(RegOpenKeyEx(hRegRootKey, Key.data(), 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
 	{
 		string strValueName;
-		DWORD ValNameSize=512, ValNameSize0;
+		DWORD ValNameSize=512;
 		LONG ExitCode=ERROR_MORE_DATA;
 
 		// get size value name
 		for (; ExitCode==ERROR_MORE_DATA; ValNameSize<<=1)
 		{
-			wchar_t *Name=strValueName.GetBuffer(ValNameSize);
-			ValNameSize0=ValNameSize;
-			ExitCode=RegEnumValue(hKey,Index,Name,&ValNameSize0,nullptr,nullptr,nullptr,nullptr);
-			strValueName.ReleaseBuffer();
+			wchar_t_ptr Name(ValNameSize);
+			DWORD RetValNameSize = ValNameSize;
+			ExitCode = RegEnumValue(hKey, Index, Name.get(), &RetValNameSize, nullptr, nullptr, nullptr, nullptr);
+			strValueName.assign(Name.get(), RetValNameSize);
 		}
 
 		if (ExitCode != ERROR_NO_MORE_ITEMS)
 		{
-			DWORD Size = 0, Size0;
-			ValNameSize0=ValNameSize;
+			DWORD Size = 0;
+			DWORD RetValNameSize = ValNameSize;
 			// Get DataSize
-			/*ExitCode = */RegEnumValue(hKey,Index,(LPWSTR)strValueName.data(),&ValNameSize0, nullptr, &Type, nullptr, &Size);
+			/*ExitCode = */RegEnumValue(hKey, Index, (LPWSTR) strValueName.data(), &RetValNameSize, nullptr, &Type, nullptr, &Size);
 			// здесь ExitCode == ERROR_SUCCESS
 
 			// корректировка размера
@@ -1776,30 +1782,29 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 					Size = sizeof(__int64);
 			}
 
-			wchar_t *Data = strSData.GetBuffer(Size/sizeof(wchar_t)+1);
-			wmemset(Data,0,Size/sizeof(wchar_t)+1);
-			ValNameSize0=ValNameSize;
-			Size0=Size;
-			ExitCode=RegEnumValue(hKey,Index,(LPWSTR)strValueName.data(),&ValNameSize0,nullptr,&Type,(LPBYTE)Data,&Size0);
+			wchar_t_ptr Data(Size/sizeof(wchar_t)+1);
+			RetValNameSize=ValNameSize;
+			DWORD RetSize = Size;
+			ExitCode = RegEnumValue(hKey, Index, (LPWSTR) strValueName.data(), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
 
 			if (ExitCode == ERROR_SUCCESS)
 			{
 				if (Type == REG_DWORD)
 				{
 					if (IData)
-						*IData=*(DWORD*)Data;
+						*IData=*(DWORD*)Data.get();
 				}
 				else if (Type == REG_QWORD)
 				{
 					if (IData64)
-						*IData64=*(__int64*)Data;
+						*IData64=*(__int64*)Data.get();
 				}
 
 				RetCode=Type;
 				strDestName = strValueName;
 			}
 
-			strSData.ReleaseBuffer(Size/sizeof(wchar_t));
+			strSData.assign(Data.get(), RetSize/sizeof(wchar_t));
 		}
 
 		RegCloseKey(hKey);
@@ -1845,4 +1850,11 @@ bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& 
 		Result = Global->Elevation->fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
 	}
 	return Result;
+}
+
+string apiGetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
+{
+	wchar_t_ptr Buffer(NT_MAX_PATH);
+	DWORD size = GetPrivateProfileString(AppName.data(), KeyName.data(), Default.data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.data());
+	return string(Buffer.get(), size);
 }

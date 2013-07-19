@@ -1328,22 +1328,19 @@ static int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *
 	if (Flags&oldfar::FIB_NOAMPERSAND)
 		NewFlags|=FIB_NOAMPERSAND;
 
-	string strD;
-	wchar_t *D = strD.GetBuffer(DestLength);
+	wchar_t_ptr Buffer(DestLength);
 
 	int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
 		Title? wide(Title).data() : nullptr,
 		Prompt? wide(Prompt).data() : nullptr,
 		HistoryName? wide(HistoryName).data() : nullptr,
 		SrcText? wide(SrcText).data() : nullptr,
-		D, DestLength,
+		Buffer.get(), Buffer.size(),
 		HelpTopic? wide(HelpTopic).data() : nullptr,
 		NewFlags);
 
-	strD.ReleaseBuffer();
-
 	if (ret && DestText)
-		UnicodeToOEM(strD.data(), DestText, DestLength+1);
+		UnicodeToOEM(Buffer.get(), DestText, DestLength + 1);
 
 	return ret;
 }
@@ -4763,8 +4760,8 @@ char* WINAPI XlatA(
 		NewFlags|=XLAT_CONVERTALLCMDLINE;
 
 	string strLine = wide(Line);
-	NativeFSF.XLat(strLine.GetBuffer(),StartPos,EndPos,NewFlags);
-	strLine.ReleaseBuffer();
+	NativeFSF.XLat(GetStringBuffer(strLine),StartPos,EndPos,NewFlags);
+	ReleaseStringBuffer(strLine);
 	UnicodeToOEM(strLine.data(), Line, strLine.size()+1);
 	return Line;
 }

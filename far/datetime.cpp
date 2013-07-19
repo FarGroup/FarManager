@@ -103,41 +103,17 @@ void PrepareStrFTime()
 	{
 		LCID CurLCID=MAKELCID(MAKELANGID(i.Locale, SUBLANG_DEFAULT), SORT_DEFAULT);
 
-		for (DWORD ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
+		auto GetValue = [CurLCID](size_t Id, string& To)
 		{
-			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp = i.Month[ID-LOCALE_SMONTHNAME1].GetBuffer(size);
-			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			i.Month[ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
-			Upper(i.Month[ID-LOCALE_SMONTHNAME1]);
-		}
+			wchar_t_ptr Buffer(GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), nullptr, 0));
+			int size = GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), Buffer.get(), static_cast<DWORD>(Buffer.size()));
+			Upper(To.assign(Buffer.get(), size));
+		};
 
-		for (DWORD ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
-		{
-			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp = i.AMonth[ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
-			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			i.AMonth[ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
-			Upper(i.AMonth[ID-LOCALE_SABBREVMONTHNAME1]);
-		}
-
-		for (DWORD ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
-		{
-			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp = i.Weekday[ID-LOCALE_SDAYNAME1].GetBuffer(size);
-			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			i.Weekday[ID-LOCALE_SDAYNAME1].ReleaseBuffer();
-			Upper(i.Weekday[ID-LOCALE_SDAYNAME1]);
-		}
-
-		for (DWORD ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
-		{
-			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp = i.AWeekday[ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
-			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
-			i.AWeekday[ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
-			Upper(i.AWeekday[ID-LOCALE_SABBREVDAYNAME1]);
-		}
+		for_each_cnt(RANGE(i.Month, j, size_t index) {GetValue(LOCALE_SMONTHNAME1 + index, j);});
+		for_each_cnt(RANGE(i.AMonth, j, size_t index) {GetValue(LOCALE_SABBREVMONTHNAME1 + index, j);});
+		for_each_cnt(RANGE(i.Weekday, j, size_t index) {GetValue(LOCALE_SDAYNAME1 + index, j);});
+		for_each_cnt(RANGE(i.AWeekday, j, size_t index) {GetValue(LOCALE_SABBREVDAYNAME1 + index, j);});
 	});
 
 	CurLang=0;

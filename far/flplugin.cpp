@@ -343,9 +343,9 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 
 void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 {
-	fi->strName = pi->FileName;
-	fi->strShortName = pi->AlternateFileName;
-	fi->strOwner = pi->Owner;
+	fi->strName = NullToEmpty(pi->FileName);
+	fi->strShortName = NullToEmpty(pi->AlternateFileName);
+	fi->strOwner = NullToEmpty(pi->Owner);
 
 	if (pi->Description)
 	{

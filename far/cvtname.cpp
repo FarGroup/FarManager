@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
-	LPWSTR pstPath=strPath.GetBuffer();
+	LPWSTR pstPath = GetStringBuffer(strPath);
 	size_t DirOffset = 0;
 	ParsePath(strPath, &DirOffset);
 	pstPath+=DirOffset;
@@ -139,7 +139,7 @@ bool MixToFullPath(string& strPath)
 		m++;
 	}
 
-	strPath.ReleaseBuffer();
+	ReleaseStringBuffer(strPath);
 	return ok;
 }
 
@@ -196,7 +196,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 			break;
 			case PATH_DRIVELETTER: //"C:" or "C:abc"
 			{
-				if(IsSlash(stPath[2]))
+				if(stPath.size() > 2 && IsSlash(stPath[2]))
 				{
 					pstPath=stPath.data();
 				}
@@ -286,20 +286,19 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 	{
 		if (Global->ifn->GetVolumePathNamesForVolumeNameWPresent())
 		{
-			DWORD BufSize = NT_MAX_PATH;
-			string PathNames;
+			wchar_t_ptr Buffer(NT_MAX_PATH);
 			DWORD RetSize;
-			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 
-			if (!Res && RetSize > BufSize)
+			if (!Res && RetSize > Buffer.size())
 			{
-				BufSize = RetSize;
-				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+				Buffer.reset(RetSize);
+				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 			}
 
 			if (Res)
 			{
-				const wchar_t* PathName = PathNames.data();
+				const wchar_t* PathName = Buffer.get();
 
 				while (*PathName)
 				{
@@ -400,51 +399,49 @@ void ConvertNameToReal(const string& Src, string &strDest)
 
 void ConvertNameToShort(const string& Src, string &strDest)
 {
-	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetShortPathName(strCopy.data(), Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = GetShortPathName(Src.data(), Buffer, ARRAYSIZE(Buffer));
 
 	if(Size)
 	{
-		if(Size>ARRAYSIZE(Buffer))
+		if (Size < ARRAYSIZE(Buffer))
 		{
-			wchar_t *lpwszDest = strDest.GetBuffer(Size);
-			GetShortPathName(strCopy.data(), lpwszDest, Size);
-			strDest.ReleaseBuffer();
+			strDest.assign(Buffer, Size);
 		}
 		else
 		{
-			strDest.assign(Buffer, Size);
+			wchar_t_ptr vBuffer(Size);
+			Size = GetShortPathName(Src.data(), vBuffer.get(), Size);
+			strDest.assign(vBuffer.get(), Size);
 		}
 	}
 	else
 	{
-		strDest = strCopy;
+		strDest = Src;
 	}
 }
 
 void ConvertNameToLong(const string& Src, string &strDest)
 {
-	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	DWORD nSize = GetLongPathName(strCopy.data(), Buffer, ARRAYSIZE(Buffer));
+	DWORD nSize = GetLongPathName(Src.data(), Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{
-		if (nSize>ARRAYSIZE(Buffer))
+		if (nSize < ARRAYSIZE(Buffer))
 		{
-			wchar_t *lpwszDest = strDest.GetBuffer(nSize);
-			GetLongPathName(strCopy.data(), lpwszDest, nSize);
-			strDest.ReleaseBuffer();
+			strDest.assign(Buffer, nSize);
 		}
 		else
 		{
-			strDest = Buffer;
+			wchar_t_ptr vBuffer(nSize);
+			nSize = GetLongPathName(Src.data(), vBuffer.get(), nSize);
+			strDest.assign(vBuffer.get(), nSize);
 		}
 	}
 	else
 	{
-		strDest = strCopy;
+		strDest = Src;
 	}
 }
 
@@ -526,7 +523,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 			{
 				ConvertNameToFull(strPath,strPath);
 				size_t FullLen=strPath.size();
-				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath;
+				wchar_t *lpwszPath = GetStringBuffer(strPath), *Src=lpwszPath;
 
 				size_t DirOffset;
 				PATH_TYPE Type = ParsePath(strPath, &DirOffset);
@@ -565,8 +562,8 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 								if (n1>0)
 								{
 									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
-									strPath.ReleaseBuffer(FullLen);
-									lpwszPath=strPath.GetBuffer(FullLen+n1+1);
+									ReleaseStringBuffer(strPath, FullLen);
+									lpwszPath = GetStringBuffer(strPath, FullLen + n1 + 1);
 									Src=lpwszPath+dSrc;
 									Dst=lpwszPath+dDst;
 								}
@@ -592,7 +589,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 					}
 				}
 
-				strPath.ReleaseBuffer(FullLen);
+				ReleaseStringBuffer(strPath, FullLen);
 			}
 
 			if (ParsePath(strPath) == PATH_DRIVELETTER)

@@ -822,14 +822,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			     в списке.
 			*/
 			BOOL MultiCopy=Dlg->SendMessage(DM_GETCHECK,ID_SC_MULTITARGET,0)==BSTATE_CHECKED;
-			string strOldFolder;
-			int nLength;
-			FarDialogItemData Data={sizeof(FarDialogItemData)};
-			nLength = (int)Dlg->SendMessage(DM_GETTEXT, ID_SC_TARGETEDIT, 0);
-			Data.PtrData = strOldFolder.GetBuffer(nLength+1);
-			Data.PtrLength = nLength;
-			Dlg->SendMessage(DM_GETTEXT,ID_SC_TARGETEDIT,&Data);
-			strOldFolder.ReleaseBuffer();
+			string strOldFolder = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, 0));
 			string strNewFolder;
 
 			if (AltF10 == 2)

@@ -265,7 +265,7 @@ class VMenu: public Modal
 
 	public:
 
-		VMenu(const wchar_t *Title,
+		VMenu(const string& Title,
 		      MenuDataEx *Data,
 		      int ItemCount,
 		      int MaxHeight=0,

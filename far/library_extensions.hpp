@@ -111,12 +111,17 @@ template<class T>
 class array_ptr:public std::unique_ptr<T[]>
 {
 public:
-	array_ptr(){}
-	array_ptr(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right);}
-	array_ptr(size_t size, bool init = false):std::unique_ptr<T[]>(init? new T[size]() : new T[size]){}
-	array_ptr& operator=(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right); return *this;}
-	void reset(size_t size, bool init = false){std::unique_ptr<T[]>::reset(init? new T[size]() : new T[size]);}
-	void reset(){std::unique_ptr<T[]>::reset();}
+	array_ptr() : m_size(){}
+	array_ptr(array_ptr && Right) {std::unique_ptr<T[]>::swap(Right); m_size = Right.m_size;}
+	array_ptr(size_t size, bool init = false):std::unique_ptr<T []>(init? new T[size]() : new T[size]), m_size(size) {}
+	array_ptr& operator=(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right); m_size = Right.m_size; return *this;}
+	void reset(size_t size, bool init = false){std::unique_ptr<T[]>::reset(init? new T[size]() : new T[size]); m_size = size;}
+	void reset(){std::unique_ptr<T[]>::reset(); m_size = 0;}
+	size_t size() const {return m_size;}
+	T* operator->() const { return std::unique_ptr<T[]>::get(); }
+	T& operator*() const { return *std::unique_ptr<T[]>::get(); }
+private:
+	size_t m_size;
 };
 
 typedef array_ptr<wchar_t> wchar_t_ptr;

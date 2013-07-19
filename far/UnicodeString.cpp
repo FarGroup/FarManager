@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifndef USE_STD_STRING
+
 void UnicodeString::SetEUS()
 {
 	//для оптимизации создания пустых UnicodeString
@@ -59,6 +61,7 @@ void UnicodeString::Inflate(size_t nSize)
 
 UnicodeString& UnicodeString::replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen)
 {
+	compat_assert(Data);
 	// Pos & Len must be valid
 	assert(Pos <= m_pData->GetLength());
 	assert(Len <= m_pData->GetLength());
@@ -135,6 +138,7 @@ UnicodeString UnicodeString::substr(size_t Pos, size_t Len) const
 
 int UnicodeString::compare(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const
 {
+	compat_assert(Data);
 	if (size() - Pos < Len)
 		Len = size() - Pos;
 
@@ -147,31 +151,16 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString 
 	return UnicodeString(strSrc1).append(strSrc2);
 }
 
-const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2)
+const UnicodeString operator+(const UnicodeString& str, const wchar_t* s)
 {
-	return UnicodeString(strSrc1).append(lpwszSrc2);
+	compat_assert(s);
+	return UnicodeString(str).append(s);
 }
 
-const UnicodeString operator+(const wchar_t *strSrc1, const UnicodeString &lpwszSrc2)
+const UnicodeString operator+(const wchar_t* s, const UnicodeString& str)
 {
-	return UnicodeString(strSrc1).append(lpwszSrc2);
-}
-
-wchar_t *UnicodeString::GetBuffer(size_t nSize)
-{
-	Inflate(nSize == (size_t)-1?m_pData->GetSize():nSize);
-	return m_pData->GetData();
-}
-
-void UnicodeString::ReleaseBuffer(size_t nLength)
-{
-	if (nLength == (size_t)-1)
-		nLength = StrLength(m_pData->GetData());
-
-	if (nLength >= m_pData->GetSize())
-		nLength = m_pData->GetSize() - 1;
-
-	m_pData->SetLength(nLength);
+	compat_assert(s);
+	return UnicodeString(s).append(str);
 }
 
 void UnicodeString::resize(size_t nLength, wchar_t c)
@@ -205,3 +194,5 @@ void UnicodeString::clear()
 		m_pData->SetLength(0);
 	}
 }
+
+#endif

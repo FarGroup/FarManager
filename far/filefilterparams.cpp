@@ -793,18 +793,14 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 			if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK,ID_FF_MATCHSIZE,0))
 			{
-				string strTemp;
-				FarDialogItemData item = {sizeof(FarDialogItemData)};
-				item.PtrLength = Dlg->SendMessage(DM_GETTEXT,ID_FF_SIZEFROMEDIT,0);
-				item.PtrData = strTemp.GetBuffer(item.PtrLength+1);
-				Dlg->SendMessage(DM_GETTEXT,ID_FF_SIZEFROMEDIT,&item);
-				bool bTemp = !*item.PtrData || CheckFileSizeStringFormat(item.PtrData);
-				item.PtrLength = Dlg->SendMessage(DM_GETTEXT,ID_FF_SIZETOEDIT,0);
-				item.PtrData = strTemp.GetBuffer(item.PtrLength+1);
-				Dlg->SendMessage(DM_GETTEXT,ID_FF_SIZETOEDIT,&item);
-				bTemp = bTemp && (!*item.PtrData || CheckFileSizeStringFormat(item.PtrData));
-
-				if (!bTemp)
+				string Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, 0));
+				bool Ok = Size.empty() || CheckFileSizeStringFormat(Size.data());
+				if (Ok)
+				{
+					Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, 0));
+					Ok = Size.empty() || CheckFileSizeStringFormat(Size.data());
+				}
+				if (!Ok)
 				{
 					intptr_t ColorConfig = Dlg->SendMessage( DM_GETDLGDATA, 0, 0);
 					Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));

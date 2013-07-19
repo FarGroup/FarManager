@@ -117,9 +117,9 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel, const string& SelName)
 		ConvertNameToFull(SelName, strFullName);
 		AddEndSlash(strFullName);
 
-		if (wcsstr(strAnotherCurDir.data(),strFullName.data()))
+		if (strAnotherCurDir.find(strFullName) != string::npos)
 		{
-			((FileList*)AnotherPanel)->StopFSWatcher();
+			AnotherPanel->StopFSWatcher();
 			return TRUE;
 		}
 	}
@@ -391,7 +391,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 						unsigned __int64 &ColumnType = Columns.back().type;
 						ColumnType=OWNER_COLUMN;
 
-						if (strArgName.at(1)==L'L')
+						if (strArgName.size() > 1 && strArgName.at(1)==L'L')
 							ColumnType|=COLUMN_FULLOWNER;
 					}
 					else if (strArgName.front()==L'X')
@@ -399,7 +399,7 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 						unsigned __int64 &ColumnType = Columns.back().type;
 						ColumnType=EXTENSION_COLUMN;
 
-						if (strArgName.at(1)==L'R')
+						if (strArgName.size() > 1 && strArgName.at(1)==L'R')
 							ColumnType|=COLUMN_RIGHTALIGN;
 					}
 					else

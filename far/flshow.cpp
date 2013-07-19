@@ -573,15 +573,13 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	TruncStrFromEnd(strTotalStr, std::max(0, X2-X1-1));
 	Length=(int)strTotalStr.size();
 	GotoXY(X1+(X2-X1+1-Length)/2,Y2);
-	const wchar_t *FirstBox=wcschr(strTotalStr.data(),BoxSymbols[BS_H2]);
-	int BoxPos=FirstBox ? (int)(FirstBox-strTotalStr.data()):-1;
+	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
 	int BoxLength=0;
-
-	if (BoxPos!=-1)
+	if (BoxPos != string::npos)
 		for (int I=0; strTotalStr.at(BoxPos+I)==BoxSymbols[BS_H2]; I++)
 			BoxLength++;
 
-	if (BoxPos==-1 || !BoxLength)
+	if (BoxPos == string::npos || !BoxLength)
 		Text(strTotalStr);
 	else
 	{
@@ -595,7 +593,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 
 int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr)
 {
-	wchar_t *lpwszDest = strDest.GetBuffer(MaxLength+1);
+	wchar_t *lpwszDest = GetStringBuffer(strDest, MaxLength + 1);
 	wmemset(lpwszDest,L' ',MaxLength);
 	int SrcLength=StrLength(SrcName);
 
@@ -605,7 +603,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 			wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
 		else
 			wmemcpy(lpwszDest+MaxLength-SrcLength,SrcName,SrcLength);
-		strDest.ReleaseBuffer(MaxLength);
+		ReleaseStringBuffer(strDest, MaxLength);
 		return (SrcLength>MaxLength);
 	}
 
@@ -636,7 +634,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 		wmemcpy(lpwszDest,SrcName,std::min(SrcLength, MaxLength));
 	}
 
-	strDest.ReleaseBuffer(MaxLength);
+	ReleaseStringBuffer(strDest, MaxLength);
 	return(SrcLength>MaxLength);
 }
 

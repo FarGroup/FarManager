@@ -61,16 +61,11 @@ struct SIDCacheItem
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
-					LPWSTR AccountName=strAccountName.GetBuffer(AccountLength);
-					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
-					if (AccountName && DomainName)
+					wchar_t_ptr AccountName(AccountLength);
+					wchar_t_ptr DomainName(DomainLength);
+					if(LookupAccountSid(Computer.data(), Sid.get(), AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 					{
-						if(LookupAccountSid(Computer.data(), Sid.get(), AccountName, &AccountLength, DomainName, &DomainLength, &snu))
-						{
-							strAccountName.ReleaseBuffer(AccountLength);
-							strDomainName.ReleaseBuffer(DomainLength);
-							strUserName = strDomainName + L"\\" + strAccountName;
-						}
+						strUserName.assign(AccountName.get(), AccountLength).append(L"\\").append(DomainName.get(), DomainLength);
 					}
 				}
 				else

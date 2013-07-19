@@ -98,7 +98,7 @@ private:
 	wchar_t *readBuffer;
 	unsigned char *hexFindString;
 	size_t hexFindStringSize;
-	wchar_t *findString;
+	const wchar_t *findString;
 	wchar_t *findStringBuffer;
 	size_t* skipCharsTable;
 	int favoriteCodePages;

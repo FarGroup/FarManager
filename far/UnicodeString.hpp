@@ -33,11 +33,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef USE_STD_STRING
+
+typedef std::wstring string;
+
+#else
+
 #include "local.hpp"
 
+#ifdef _DEBUG
+#define compat_assert(x) assert(x)
+#else
+#define compat_assert(x)
+#endif
 
-
-typedef class UnicodeString
+class UnicodeString
 {
 	class UnicodeStringData
 	{
@@ -125,8 +135,8 @@ typedef class UnicodeString
 		char_proxy& operator=(const char_proxy& rhs) {return *this = rhs.operator const wchar_t&();}
 		char_proxy& operator=(wchar_t Value)
 		{
-			Parent->GetBuffer()[Index] = Value;
-			Parent->ReleaseBuffer(Parent->size());
+			Parent->Inflate(Parent->m_pData->GetSize());
+			Parent->m_pData->GetData()[Index] = Value;
 			return *this;
 		}
 
@@ -143,14 +153,16 @@ typedef class UnicodeString
 	public:
 		us_iterator():value(value_type(nullptr, npos)) {}
 		us_iterator(const value_type& value):value(value) {}
-		reference operator *() const {return value;}
-		bool operator <(const us_iterator& rhs) const {return value.Index < rhs.value.Index;}
+		us_iterator(const us_iterator& rhs):value(rhs.value){}
+		reference operator *() const { return value; }
+		bool operator <(const us_iterator& rhs) const { return value.Index < rhs.value.Index; }
 		bool operator >(const us_iterator& rhs) const {return value.Index > rhs.value.Index;}
 		bool operator <=(const us_iterator& rhs) const {return value.Index <= rhs.value.Index;}
 		bool operator >=(const us_iterator& rhs) const {return value.Index >= rhs.value.Index;}
 		bool operator !=(const us_iterator& rhs) const {return value.Index != rhs.value.Index;}
 		bool operator ==(const us_iterator& rhs) const {return value.Index == rhs.value.Index;}
-		us_iterator& operator ++() {++value.Index; return *this;}
+		us_iterator& operator =(const us_iterator& rhs) {value.Parent = rhs.value.Parent; value.Index = rhs.value.Index; return *this;}
+		us_iterator& operator ++() { ++value.Index; return *this; }
 		us_iterator& operator --() {--value.Index; return *this;}
 		us_iterator operator ++(int) {auto ret = *this; ++value.Index; return ret;}
 		us_iterator operator --(int) {auto ret = *this; --value.Index; return ret;}
@@ -167,8 +179,8 @@ typedef class UnicodeString
 public:
 	UnicodeString() { SetEUS(); }
 	UnicodeString(const UnicodeString &str) { SetEUS(); assign(str); }
-	UnicodeString(const wchar_t *s) { SetEUS(); assign(s); }
-	UnicodeString(const wchar_t *s, size_t n) { SetEUS(); assign(s, n); }
+	UnicodeString(const wchar_t *s) { compat_assert(s); SetEUS(); assign(s); }
+	UnicodeString(const wchar_t *s, size_t n) { compat_assert(s); SetEUS(); assign(s, n); }
 	UnicodeString(UnicodeString&& str):m_pData(str.m_pData) { str.SetEUS(); }
 
 	~UnicodeString() {}
@@ -205,8 +217,8 @@ public:
 	const wchar_t& front() const {return *begin();}
 	const wchar_t& back() const {return *rbegin();}
 
-	iterator::value_type at(size_t pos) {return iterator::value_type(this, pos);}
-	const wchar_t& at(size_t pos) const {return m_pData->GetData()[pos];}
+	iterator::value_type at(size_t pos) {compat_assert(pos < size()); return iterator::value_type(this, pos);}
+	const wchar_t& at(size_t pos) const {compat_assert(pos < size()); return m_pData->GetData()[pos];}
 
 	iterator::value_type operator[](size_t pos) {return at(pos);}
 	const wchar_t& operator[](size_t pos) const {return at(pos);}
@@ -215,7 +227,7 @@ public:
 	size_t size() const { return m_pData->GetLength(); }
 	size_t length() const { return size(); }
 	void resize(size_t n, wchar_t c = wchar_t());
-
+	void reserve(size_t n = 0) {Inflate(std::max(n ,size()));}
 	bool empty() const {return !size();}
 
 	void clear();
@@ -226,11 +238,12 @@ public:
 
 	UnicodeString& operator=(const UnicodeString& str) { return assign(str); }
 	UnicodeString& operator=(UnicodeString&& str) { if (this != &str) { m_pData.swap(str.m_pData); str.SetEUS(); } return *this; }
-	UnicodeString& operator=(const wchar_t* s) { return assign(s); }
+
+	UnicodeString& operator=(const wchar_t* s) { compat_assert(s); return assign(s); }
 	UnicodeString& operator=(wchar_t c) { return assign(1, c); }
 
 	UnicodeString& operator+=(const UnicodeString& str) { return append(str); }
-	UnicodeString& operator+=(const wchar_t* s) { return append(s); }
+	UnicodeString& operator+=(const wchar_t* s) { compat_assert(s); return append(s); }
 	UnicodeString& operator+=(wchar_t c) { return append(1, c); }
 
 	friend const UnicodeString operator+(const UnicodeString &lhs, const UnicodeString &rhs);
@@ -238,28 +251,29 @@ public:
 	friend const UnicodeString operator+(const wchar_t *lhs, const UnicodeString &rhs);
 
 	bool operator==(const UnicodeString& str) const { return compare(str) == 0; }
-	bool operator==(const wchar_t* s) const { return compare(s) == 0; }
+	bool operator==(const wchar_t* s) const { compat_assert(s); return compare(s) == 0; }
 
 	bool operator!=(const UnicodeString& str) const { return !(*this == str); }
-	bool operator!=(const wchar_t* s) const { return !(*this == s); }
+	bool operator!=(const wchar_t* s) const { compat_assert(s); return !(*this == s); }
 
 	bool operator<(const UnicodeString& str) const { return compare(str) < 0; }
-	bool operator<(const wchar_t* s) const { return compare(s) < 0; }
+	bool operator<(const wchar_t* s) const { compat_assert(s); return compare(s) < 0; }
 
 	// TODO: iterator versions
 
 	UnicodeString& assign(const UnicodeString& str);
 	// TODO
 	// UnicodeString& Copy(const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& assign(const wchar_t* str) { return assign(str, StrLength(NullToEmpty(str))); }
-	UnicodeString& assign(const wchar_t* str, size_t len) { return replace(0, size(), str, len); }
+
+	UnicodeString& assign(const wchar_t* s) { compat_assert(s); return assign(s, StrLength(NullToEmpty(s))); }
+	UnicodeString& assign(const wchar_t* s, size_t n) { compat_assert(s); return replace(0, size(), s, n); }
 	UnicodeString& assign(size_t n, wchar_t c) { resize(n); std::fill(ALL_RANGE(*this), c); return *this; }
 
 
 	UnicodeString& replace(size_t pos, size_t len, const UnicodeString& str) { return replace(pos, len, str.data(), str.size()); }
 	// TODO
 	// UnicodeString& replace(size_t pos,  size_t len, const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& replace(size_t pos, size_t len, const wchar_t* s) { return replace(pos, len, s, StrLength(NullToEmpty(s))); }
+	UnicodeString& replace(size_t pos, size_t len, const wchar_t* s) { compat_assert(s); return replace(pos, len, s, StrLength(NullToEmpty(s))); }
 	UnicodeString& replace(size_t pos, size_t len, const wchar_t* s, size_t n);
 	UnicodeString& replace(size_t pos, size_t len, size_t n, wchar_t c) {UnicodeString tmp; tmp.resize(n); std::fill(ALL_RANGE(tmp), c); return replace(pos, len, tmp);}  // TODO: optimize
 
@@ -267,16 +281,16 @@ public:
 	UnicodeString& append(const UnicodeString& str) { return append(str.data(), str.size()); }
 	// TODO
 	// UnicodeString& append(const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& append(const wchar_t* s) { return append(s, StrLength(NullToEmpty(s))); }
-	UnicodeString& append(const wchar_t* s, size_t n) { return replace(size(), 0, s, n); }
+	UnicodeString& append(const wchar_t* s) { compat_assert(s); return append(s, StrLength(NullToEmpty(s))); }
+	UnicodeString& append(const wchar_t* s, size_t n) { compat_assert(s); return replace(size(), 0, s, n); }
 	UnicodeString& append(size_t n, wchar_t c) { while (n--) append(&c, 1); return *this;} // TODO: optimize
 
 
 	UnicodeString& insert(size_t pos, const UnicodeString& str) { return insert(pos, str.data(), str.size()); }
 	// TODO
 	// UnicodeString& insert(size_t pos, const UnicodeString& str, size_t subpos, size_t sublen);
-	UnicodeString& insert(size_t pos, const wchar_t* s) { return insert(pos, s, StrLength(NullToEmpty(s))); }
-	UnicodeString& insert(size_t pos, const wchar_t* s, size_t n) { return replace(pos, 0, s, n); }
+	UnicodeString& insert(size_t pos, const wchar_t* s) { compat_assert(s); return insert(pos, s, StrLength(NullToEmpty(s))); }
+	UnicodeString& insert(size_t pos, const wchar_t* s, size_t n) { compat_assert(s); return replace(pos, 0, s, n); }
 	UnicodeString& insert(size_t pos, size_t n, wchar_t c) { while(n--) insert(pos, &c, 1); return *this;} // TODO: optimize
 
 
@@ -284,37 +298,43 @@ public:
 	int compare(size_t pos, size_t len, const UnicodeString& str) const { return compare(pos, len, str.data(), str.size()); }
 	// TODO
 	// int compare(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen) const;
-	int compare(const wchar_t* s) const { return compare(0, npos, s, StrLength(NullToEmpty(s))); }
-	int compare(size_t pos, size_t len, const wchar_t* s) const { return compare(pos, len, s, StrLength(NullToEmpty(s))); }
+	int compare(const wchar_t* s) const { compat_assert(s); return compare(0, npos, s, StrLength(NullToEmpty(s))); }
+	int compare(size_t pos, size_t len, const wchar_t* s) const { compat_assert(s); return compare(pos, len, s, StrLength(NullToEmpty(s))); }
 	int compare(size_t pos, size_t len, const wchar_t* s, size_t n) const;
 
 
 	size_t find(const UnicodeString& str, size_t pos = 0) const { return find(str.data(), pos, str.size()); }
-	size_t find(const wchar_t* s, size_t pos = 0) const { return find(s, pos, StrLength(s)); }
-	size_t find(const wchar_t* s, size_t pos, size_t n) const {auto Iterator = std::search(cbegin() + pos, cend(), s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
+	size_t find(const wchar_t* s, size_t pos = 0) const { compat_assert(s); return find(s, pos, StrLength(s)); }
+	size_t find(const wchar_t* s, size_t pos, size_t n) const {compat_assert(s); auto Iterator = std::search(cbegin() + pos, cend(), s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 	size_t find(wchar_t c, size_t pos = 0) const { return find(&c, pos, 1); }
 
 
 	size_t rfind(const UnicodeString& str, size_t pos = npos) const { return rfind(str.data(), pos, str.size()); };
-	size_t rfind(const wchar_t* s, size_t pos = npos) const { return rfind(s, pos, StrLength(s)); };
-	size_t rfind(const wchar_t* s, size_t pos, size_t n) const { pos = std::min(pos, size()); auto Iterator = std::find_end(cbegin(), cbegin() + pos, s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
+	size_t rfind(const wchar_t* s, size_t pos = npos) const { compat_assert(s); return rfind(s, pos, StrLength(s)); };
+	size_t rfind(const wchar_t* s, size_t pos, size_t n) const { compat_assert(s); pos = std::min(pos, size()); auto Iterator = std::find_end(cbegin(), cbegin() + pos, s, s + n); return Iterator != cend()? Iterator - cbegin() : npos;}
 	size_t rfind(wchar_t c, size_t pos = npos) const { return rfind(&c, pos, 1); }
 
 
+	size_t find_first_of(const UnicodeString& str, size_t pos = 0) const { return find_first_of(str.data(), pos); }
+	size_t find_first_of(const wchar_t* s, size_t pos = 0) const { compat_assert(s); auto ptr = wcspbrk(data() + pos, s); return ptr? ptr - data() : npos; }
+	// TODO
+	//size_t find_first_of(const wchar_t* s, size_t pos, size_t n) const;
+	//size_t find_first_of(wchar_t c, size_t pos = 0) const;
+
+
 	// TODO: iterator & range versions
-	UnicodeString& erase(size_t pos = 0, size_t len = npos) { return replace(pos, len, nullptr, 0); }
+	UnicodeString& erase(size_t pos = 0, size_t len = npos) { return replace(pos, len, L"", 0); }
 
+	void push_back(wchar_t c) { append(1, c); }
 	void pop_back() { resize(size() - 1); }
-
-
-
-	wchar_t *GetBuffer(size_t nSize = npos);
-	void ReleaseBuffer(size_t nLength = npos);
 
 private:
 	void SetEUS();
 	void Inflate(size_t nSize);
 
 	std::shared_ptr<UnicodeStringData> m_pData;
-}
-string;
+};
+
+typedef UnicodeString string;
+
+#endif

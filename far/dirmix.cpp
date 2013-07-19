@@ -59,7 +59,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	string strCurDir;
 
 	// если указана только буква диска, то путь возьмем из переменной
-	if (NewDir[1]==L':' && !NewDir[2])
+	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
 		Drive[1] = Upper(NewDir[0]);
 
@@ -95,7 +95,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	if (rc || !ChangeDir)
 	{
 		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
-		        strCurDir[0] && strCurDir[1]==L':')
+		        strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = Upper(strCurDir[0]);
 			SetEnvironmentVariable(Drive.data(), strCurDir.data());
@@ -262,7 +262,7 @@ void CreatePath(const string &Path, bool Simple)
 {
 	string strPath = Path;
 
-	wchar_t *ChPtr = strPath.GetBuffer();
+	wchar_t *ChPtr = GetStringBuffer(strPath);
 	size_t DirOffset = 0;
 	ParsePath(strPath, &DirOffset);
 
@@ -297,5 +297,5 @@ void CreatePath(const string &Path, bool Simple)
 		ChPtr++;
 	}
 
-	strPath.ReleaseBuffer();
+	ReleaseStringBuffer(strPath);
 }

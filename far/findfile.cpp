@@ -314,7 +314,6 @@ void FindFiles::InitInFileSearch()
 			if (!CmpCase)
 			{
 				findStringBuffer = new wchar_t[2 * findStringCount];
-				findString=findStringBuffer;
 
 				for (size_t index = 0; index<strFindStr.size(); index++)
 				{
@@ -322,18 +321,19 @@ void FindFiles::InitInFileSearch()
 
 					if (IsCharLower(ch))
 					{
-						findString[index]=Upper(ch);
-						findString[index+findStringCount]=ch;
+						findStringBuffer[index] = Upper(ch);
+						findStringBuffer[index + findStringCount] = ch;
 					}
 					else
 					{
-						findString[index]=ch;
-						findString[index+findStringCount]=Lower(ch);
+						findStringBuffer[index] = ch;
+						findStringBuffer[index + findStringCount] = Lower(ch);
 					}
 				}
+				findString = findStringBuffer;
 			}
 			else
-				findString = strFindStr.GetBuffer();
+				findString = strFindStr.data();
 
 			// Инизиализируем данные для алгоритма поиска
 			skipCharsTable = new size_t[WCHAR_MAX + 1];
@@ -549,12 +549,13 @@ void FindFiles::SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool Upd
 	if (!DirName.empty())
 	{
 		string strName(DirName);
-		wchar_t* DirPtr = strName.GetBuffer();
-		wchar_t* NamePtr = (wchar_t*) PointToName(DirPtr);
+		//const wchar_t* DirPtr = ;
+		const wchar_t* NamePtr = PointToName(strName.data());
 
-		if (NamePtr != DirPtr)
+		if (NamePtr != strName.data())
 		{
-			*(NamePtr-1) = 0;
+			string Dir = strName.substr(0, NamePtr - strName.data());
+
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
 			{
@@ -565,9 +566,9 @@ void FindFiles::SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool Upd
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 			}
 
-			if (*DirPtr)
+			if (!Dir.empty())
 			{
-				Global->CtrlObject->Plugins->SetDirectory(hPlugin,DirPtr,OPM_SILENT,UserData);
+				Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.data(), OPM_SILENT, UserData);
 			}
 			else
 			{

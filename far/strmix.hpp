@@ -123,8 +123,8 @@ bool StrToGuid(const string& Value,GUID& Guid);
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
-inline int StrCmp(const UnicodeString& a, const UnicodeString& b) { return StrCmp(a.data(), b.data()); }
-inline int StrCmpI(const UnicodeString& a, const UnicodeString& b) { return StrCmpI(a.data(), b.data()); }
+inline int StrCmp(const string& a, const string& b) { return StrCmp(a.data(), b.data()); }
+inline int StrCmpI(const string& a, const string& b) { return StrCmpI(a.data(), b.data()); }
 
 string wide(const char *str, uintptr_t codepage = CP_OEMCP);
 
@@ -132,6 +132,14 @@ string str_printf(const wchar_t * format, ...);
 
 inline string& Upper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towupper); return str;}
 inline string& Lower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towlower); return str;}
+
+// BUGBUG, eliminate
+wchar_t *GetStringBuffer(string& str, size_t size = string::npos);
+// BUGBUG, eliminate
+void ReleaseStringBuffer(string& str, size_t size = string::npos);
+#ifdef _DEBUG
+#pragma deprecated(GetStringBuffer, ReleaseStringBuffer)
+#endif
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

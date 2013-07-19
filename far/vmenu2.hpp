@@ -57,7 +57,7 @@ class VMenu2 : public Dialog
 
 		int Call(int Msg, void *param);
 		LISTITEMFLAGS GetItemFlags(int Position=-1);
-		string GetTitles(int bottom=0);
+		string GetMenuTitle(bool bottom = false);
 
 		VMenu &ListBox()
 		{

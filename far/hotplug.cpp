@@ -494,15 +494,12 @@ bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue, bool 
 				SetupDiGetDeviceRegistryProperty(Info, &DeviceInfoData, Property, nullptr, nullptr, 0, &RequiredSize);
 				if(RequiredSize)
 				{
-					PBYTE Buffer = reinterpret_cast<PBYTE>(strValue.GetBuffer(RequiredSize));
-					if(Buffer)
+					wchar_t_ptr Buffer(RequiredSize);
+					if(SetupDiGetDeviceRegistryProperty(Info, &DeviceInfoData, Property, nullptr, reinterpret_cast<BYTE*>(Buffer.get()), RequiredSize, nullptr))
 					{
-						if(SetupDiGetDeviceRegistryProperty(Info, &DeviceInfoData, Property, nullptr, Buffer, RequiredSize, nullptr))
-						{
-							Result = true;
-						}
+						Result = true;
 					}
-					strValue.ReleaseBuffer();
+					strValue.assign(Buffer.get());
 				}
 				else
 				{

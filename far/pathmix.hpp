@@ -38,7 +38,6 @@ class NTPath:public string
 	void Transform();
 public:
 	NTPath(const string& Src):string(Src) {Transform();}
-	NTPath(LPCWSTR Src):string(Src) {Transform();}
 };
 
 inline bool IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
@@ -90,7 +89,6 @@ bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0);
 bool FindLastSlash(size_t &Pos, const string &Str);
 
 bool TestParentFolderName(const string& Name);
-bool TestCurrentFolderName(const string& Name);
 bool TestCurrentDirectory(const string& TestDir);
 
 string ExtractPathRoot(const string &Path);

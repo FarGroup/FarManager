@@ -113,10 +113,10 @@ namespace pipe
 		{
 			if(DataSize)
 			{
-				LPVOID Ptr=Data.GetBuffer(DataSize/sizeof(wchar_t));
-				if(ReadPipe(Pipe, Ptr, DataSize))
+				wchar_t_ptr Buffer(DataSize / sizeof(wchar_t) );
+				if(ReadPipe(Pipe, Buffer.get(), DataSize))
 				{
-					Data.ReleaseBuffer(DataSize/sizeof(wchar_t)-1);
+					Data.assign(Buffer.get(), Buffer.size() - 1);
 					Result=true;
 				}
 			}

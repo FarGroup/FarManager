@@ -79,12 +79,16 @@ bool ExtractIfExistCommand(string &strCommandText)
 		}
 		else
 		{
-			size_t offset = wPtrCmd-strCommandText.data();
-			wchar_t *CommandText = strCommandText.GetBuffer();
-			wchar_t *PtrCmd = CommandText+offset;
 			// прокинем "if exist"
-			wmemmove(CommandText+(*CommandText==L'@'?1:0),PtrCmd,StrLength(PtrCmd)+1);
-			strCommandText.ReleaseBuffer();
+			if (strCommandText.front() == L'@')
+			{
+				strCommandText.resize(1);
+				strCommandText += wPtrCmd;
+			}
+			else
+			{
+				strCommandText = wPtrCmd;
+			}
 		}
 	}
 

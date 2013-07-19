@@ -659,11 +659,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			strCodePage<<CodePage;
 			if (Param1==EDITCP_OK)
 			{
-				FarDialogItemData item = {sizeof(FarDialogItemData)};
-				item.PtrLength = Dlg->SendMessage(DM_GETTEXT, EDITCP_EDIT, 0);
-				item.PtrData = strCodePageName.GetBuffer(item.PtrLength+1);
-				Dlg->SendMessage(DM_GETTEXT, EDITCP_EDIT, &item);
-				strCodePageName.ReleaseBuffer();
+				strCodePageName = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (!strCodePageName.size())

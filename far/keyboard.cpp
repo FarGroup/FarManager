@@ -1656,7 +1656,7 @@ int KeyNameToKey(const string& Name)
 	// пройдемся по всем модификаторам
 	for (Pos=I=0; I < int(ARRAYSIZE(ModifKeyName)); ++I)
 	{
-		if (wcsstr(strTmpName.data(),ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
+		if (strTmpName.find(ModifKeyName[I].UName) != string::npos && !(Key&ModifKeyName[I].Key))
 		{
 			int CntReplace=ReplaceStrings(strTmpName,ModifKeyName[I].UName,L"",-1,true);
 			Key|=ModifKeyName[I].Key;

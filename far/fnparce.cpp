@@ -417,7 +417,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (!wcschr(strStr.data(),L'!'))
+	if (strStr.find(L'!') == string::npos)
 		return FALSE;
 
 	TSubstData SubstData, *PSubstData=&SubstData;

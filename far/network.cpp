@@ -146,7 +146,7 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 	string strNetDir;
 	strComputerName.clear();
 
-	if (CurDir[0]==L'\\' && CurDir[1]==L'\\')
+	if (!CurDir.compare(0, 2, L"\\\\"))
 	{
 		strNetDir = CurDir;
 	}
@@ -156,7 +156,7 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 
-	if (strNetDir[0]==L'\\' && strNetDir[1] == L'\\')
+	if (!strNetDir.compare(0, 2, L"\\\\"))
 	{
 		strComputerName = strNetDir.data()+2;
 		size_t pos;

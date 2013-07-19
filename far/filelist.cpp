@@ -1481,8 +1481,8 @@ int FileList::ProcessKey(int Key)
 				string strPluginData;
 				string strFileName;
 				string strShortFileName;
-				string strHostFile=Info.HostFile;
-				string strInfoCurDir=Info.CurDir;
+				string strHostFile=NullToEmpty(Info.HostFile);
+				string strInfoCurDir=NullToEmpty(Info.CurDir);
 				bool PluginMode=PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
 				if (PluginMode)
@@ -2624,10 +2624,10 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		/* $ 16.01.2002 VVM
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
-		string strInfoCurDir=Info.CurDir;
+		string strInfoCurDir=NullToEmpty(Info.CurDir);
 		//string strInfoFormat=Info.Format;
-		string strInfoHostFile=Info.HostFile;
-		string strInfoData=Info.ShortcutData;
+		string strInfoHostFile=NullToEmpty(Info.HostFile);
+		string strInfoData=NullToEmpty(Info.ShortcutData);
 		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.data(),strInfoData.data());
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
@@ -4171,7 +4171,7 @@ void FileList::CopyFiles(bool bMoved)
 				break;
 			}
 			CopyData += strSelName;
-			CopyData.append(1, L'\0');
+			CopyData.push_back(L'\0');
 		}
 		if(!CopyData.empty())
 		{

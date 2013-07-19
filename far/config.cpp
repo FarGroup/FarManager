@@ -1875,7 +1875,9 @@ void Options::Load()
 	*/
 	/* *************************************************** </опеопнжеяяш> */
 
-	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI.data());
+	// BUGBUG
+	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
+	xwcsncpy(DefaultLanguage, strDefaultLanguage.data(), ARRAYSIZE(DefaultLanguage));
 
 	std::for_each(RANGE(Config, i)
 	{
@@ -1888,7 +1890,7 @@ void Options::Load()
 	/* <оняропнжеяяш> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath.data(), GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI.data()));
+	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
 	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
@@ -3068,4 +3070,9 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 		LastHItem = HItem;
 		LastVItem = VItem;
 	}
+}
+
+string GetFarIniString(const string& AppName, const string& KeyName, const string& Default)
+{
+	return apiGetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
 }

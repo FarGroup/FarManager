@@ -102,7 +102,7 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 		return;
 
 	bool Lock = false;
-	string strName(Str),strGuid,strFile(File),strData(Data);
+	string strName(Str),strGuid,strFile(NullToEmpty(File)),strData(NullToEmpty(Data));
 	if(Guid) strGuid=GuidToStr(*Guid);
 
 	unsigned __int64 DeleteId = 0;

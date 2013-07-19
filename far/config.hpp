@@ -162,8 +162,8 @@ public:
 	operator bool() const {return GetInt() != 0;}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
-	virtual const string toString() const override {return Get()? L"true":L"false";}
-	virtual const string ExInfo() const override {return L"";}
+	virtual const string toString() const override {return Get()? L"true" : L"false";}
+	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_BOOLEAN;}
 	virtual const string typeToString() const override {return L"boolean";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -190,7 +190,7 @@ public:
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
 	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
-	virtual const string ExInfo() const override {return L"";}
+	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_BOOLEAN3;}
 	virtual const string typeToString() const override {return L"3-state";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -234,14 +234,14 @@ private:
 class StringOption:public Option
 {
 public:
-	StringOption():Option(L""){}
+	StringOption():Option(string()){}
 	StringOption(const StringOption& Value):Option(Value.Get()){}
 	StringOption(const string& Value):Option(Value){}
 	~StringOption(){Free();}
 	const string& Get() const {return GetString();}
 	const wchar_t* data() const {return GetString().data();}
 	operator const string&() const {return GetString();}
-	void clear() {Set(L"");}
+	void clear() {Set(string());}
 	bool empty() const {return GetString().empty();}
 	size_t size() const {return Get().size();}
 	wchar_t operator[] (size_t index) const {return Get()[index];}
@@ -252,7 +252,7 @@ public:
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
 	virtual const string toString() const override {return Get();}
-	virtual const string ExInfo() const override {return L"";}
+	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_STRING;}
 	virtual const string typeToString() const override {return L"string";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
@@ -899,3 +899,5 @@ private:
 	std::vector<struct PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };
+
+string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);

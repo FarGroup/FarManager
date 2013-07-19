@@ -99,7 +99,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 	AddEndSlash(strPath);
 
-	wchar_t *lpwszDest = strDest.GetBuffer(StrLength(Prefix)+strPath.size()+13);
+	wchar_t_ptr Buffer(StrLength(Prefix) + strPath.size() + 13);
 
 	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
 	s_shift = (s_shift + 1) % 23;
@@ -108,10 +108,9 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 	{
 		if (!uniq) ++uniq;
 
-		if (GetTempFileName(strPath.data(), Prefix, uniq, lpwszDest))
+		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			string tname(lpwszDest);
-			FindFile f(tname,false);
+			FindFile f(Buffer.get(), false);
 			FAR_FIND_DATA ffdata;
 			if (!f.Get(ffdata))
 				break;
@@ -119,12 +118,12 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 		if ((++uniq & 0xffff) == (uniq0 & 0xffff))
 		{
-			*lpwszDest = 0;
+			*Buffer = L'\0';
 			break;
 		}
 	}
 
-	strDest.ReleaseBuffer();
+	strDest.assign(Buffer.get());
 	return !strDest.empty();
 }
 

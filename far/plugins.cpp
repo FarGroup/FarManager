@@ -1868,7 +1868,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		if (pPlugin->GetPluginInfo(&Info))
 		{
 			Flags = Info.Flags;
-			Prefix = Info.CommandPrefix;
+			Prefix = NullToEmpty(Info.CommandPrefix);
 
 			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
@@ -2055,21 +2055,11 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 	UnquoteExternal(strCommand);
 	RemoveLeadingSpaces(strCommand);
 
-	for (;;)
-	{
-		wchar_t Ch=strCommand.at(PrefixLength);
-
-		if (!Ch || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
-			return FALSE;
-
-		if (Ch==L':' && PrefixLength>0)
-			break;
-
-		PrefixLength++;
-	}
+	if (!IsPluginPrefixPath(strCommand))
+		return FALSE;
 
 	LoadIfCacheAbsent();
-	string strPrefix(strCommand.data(), PrefixLength);
+	string strPrefix = strCommand.substr(0, strCommand.find(L':'));
 	string strPluginPrefix;
 	std::list<PluginData> items;
 
@@ -2089,7 +2079,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 			if ((*i)->GetPluginInfo(&Info))
 			{
-				strPluginPrefix = Info.CommandPrefix;
+				strPluginPrefix = NullToEmpty(Info.CommandPrefix);
 				PluginFlags = Info.Flags;
 			}
 			else
