@@ -1262,7 +1262,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
 			int p = static_cast<int>(Item.size())-1;
-			FarListPos pos={sizeof(FarListPos),p,p};
+			FarListPos pos={sizeof(FarListPos),p,std::max(0,p-MaxHeight+1)};
 			SetSelectPos(&pos, -1);
 			ShowMenu(true);
 			break;
