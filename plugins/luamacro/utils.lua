@@ -391,6 +391,11 @@ local function EnumMacros (strArea, resetEnum)
 end
 
 local function LoadMacros (allAreas, unload)
+  if LoadMacrosDone then
+    LoadMacrosDone = false
+    export_ExitFAR()
+  end
+
   local numerrors=0
   local newAreas = {}
   Events,Subscriptions = {},{}
