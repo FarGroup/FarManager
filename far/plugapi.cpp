@@ -906,7 +906,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			if (Flags & FDLG_NONMODAL)
 				FarDialog->SetCanLoseFocus(TRUE);
 
-			FarDialog->SetHelp(HelpTopic);
+			FarDialog->SetHelp(NullToEmpty(HelpTopic));
 
 			FarDialog->SetId(*Id);
 			/* $ 29.08.2000 SVS
