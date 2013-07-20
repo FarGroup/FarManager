@@ -340,11 +340,11 @@ static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
 
 void PrintMemory()
 {
+	bool MonitoringState = MonitoringEnabled;
+	MonitoringEnabled = false;
+
 	if (CallNewDeleteVector || CallNewDeleteScalar || CallMallocFree || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
-		bool MonitoringState = MonitoringEnabled;
-		MonitoringEnabled = false;
-
 		std::wostringstream oss;
 		oss << L"Memory leaks detected:" << std::endl;
 		if (CallNewDeleteVector)
@@ -372,9 +372,8 @@ void PrintMemory()
 			OutputDebugString(oss.str().data());
 			oss.clear();
 		}
-
-		MonitoringEnabled = MonitoringState;
 	}
+	MonitoringEnabled = MonitoringState;
 }
 
 };

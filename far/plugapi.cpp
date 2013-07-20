@@ -781,7 +781,7 @@ intptr_t WINAPI apiMenuFn(
 				Selected++;
 			}
 
-			CurItem.strName=Item[i].Text;
+			CurItem.strName=NullToEmpty(Item[i].Text);
 			if(CurItem.Flags&LIF_SEPARATOR)
 			{
 				CurItem.AccelKey=0;
