@@ -664,7 +664,7 @@ void Help::AddLine(const string& Line)
 	if (StartPos != 0xFFFFFFFF)
 	{
 		DWORD StartPos0=StartPos;
-		if (Line[0] == L' ')
+		if (!Line.empty() && Line[0] == L' ')
 			StartPos0--;
 
 		if (StartPos0 > 0)

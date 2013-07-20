@@ -129,7 +129,7 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 bool IsAbsolutePath(const string& Path)
 {
 	PATH_TYPE Type = ParsePath(Path);
-	return Type == PATH_DRIVELETTERUNC || Type == PATH_REMOTE || Type == PATH_REMOTEUNC || Type == PATH_VOLUMEGUID || (Type == PATH_DRIVELETTER && (IsSlash(Path[2]) || !Path[2]));
+	return Type == PATH_DRIVELETTERUNC || Type == PATH_REMOTE || Type == PATH_REMOTEUNC || Type == PATH_VOLUMEGUID || (Type == PATH_DRIVELETTER && (Path.size() > 2 && IsSlash(Path[2])));
 }
 
 bool HasPathPrefix(const string& Path)
