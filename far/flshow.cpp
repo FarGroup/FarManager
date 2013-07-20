@@ -103,7 +103,6 @@ void FileList::ShowFileList(int Fast)
 
 	string strTitle;
 	string strInfoCurDir;
-	int Length;
 	OpenPanelInfo Info;
 
 	if (PanelMode==PLUGIN_PANEL)
@@ -356,7 +355,7 @@ void FileList::ShowFileList(int Fast)
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
 
-	int TitleX=X1+XShift+(TitleX2-X1-1-strTitle.size())/2;
+	size_t TitleX=X1+1+XShift+(TitleX2-X1-1-XShift-strTitle.size())/2;
 
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(static_cast<int>(TitleX),Y1);
