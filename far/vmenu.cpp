@@ -2617,7 +2617,7 @@ void VMenu::SetMaxHeight(int NewMaxHeight)
 		MaxHeight = ScrY-6;
 }
 
-string &VMenu::GetTitle(string &strDest,int,int)
+const string& VMenu::GetTitle(string &strDest)
 {
 	CriticalSectionLock Lock(CS);
 

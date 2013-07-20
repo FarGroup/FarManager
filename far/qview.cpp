@@ -84,7 +84,7 @@ QuickView::~QuickView()
 }
 
 
-string &QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
+const string& QuickView::GetTitle(string &strTitle)
 {
 	strTitle=L" ";
 	strTitle+=MSG(MQuickViewTitle);

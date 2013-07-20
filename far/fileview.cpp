@@ -470,9 +470,9 @@ int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	return View.ViewerControl(Command,Param1,Param2);
 }
 
-string &FileViewer::GetTitle(string &Title,int LenTitle,int TruncSize)
+const string& FileViewer::GetTitle(string &Title)
 {
-	return View.GetTitle(Title,LenTitle,TruncSize);
+	return View.GetTitle(Title);
 }
 
 __int64 FileViewer::GetViewFileSize() const

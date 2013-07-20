@@ -113,7 +113,7 @@ void InfoList::Update(int Mode)
 		Redraw();
 }
 
-string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
+const string& InfoList::GetTitle(string &strTitle)
 {
 	strTitle.clear();
 	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");

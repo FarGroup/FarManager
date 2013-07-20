@@ -1825,7 +1825,7 @@ int Panel::SetCurPath()
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
 		if (AnotherPanel->strCurDir.size() > 1 && AnotherPanel->strCurDir.at(1)==L':' &&
-		        Upper(AnotherPanel->strCurDir.at(0))!=Upper(strCurDir.at(0)))
+		        (strCurDir.empty() || Upper(AnotherPanel->strCurDir.at(0))!=Upper(strCurDir.at(0))))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
@@ -2041,32 +2041,24 @@ void Panel::SetTitle()
 	}
 }
 
-string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
+const string& Panel::GetTitle(string &strTitle)
 {
-	string strTitleDir;
-	bool truncTitle = SubLen!=-1 && TruncSize;
-
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		GetOpenPanelInfo(&Info);
-		strTitleDir = NullToEmpty(Info.PanelTitle);
-		RemoveExternalSpaces(strTitleDir);
-		if (truncTitle)
-			TruncStr(strTitleDir,SubLen-TruncSize);
+		strTitle = NullToEmpty(Info.PanelTitle);
+		RemoveExternalSpaces(strTitle);
 	}
 	else
 	{
 		if (ShowShortNames)
-			ConvertNameToShort(strCurDir,strTitleDir);
+			ConvertNameToShort(strCurDir,strTitle);
 		else
-			strTitleDir = strCurDir;
+			strTitle = strCurDir;
 
-		if (truncTitle)
-			TruncPathStr(strTitleDir,SubLen-TruncSize);
 	}
 
-	strTitle = L" "+strTitleDir+L" ";
 	return strTitle;
 }
 

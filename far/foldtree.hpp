@@ -58,8 +58,9 @@ class FolderTree:public Frame
 		string strLastName;
 
 	private:
-		void DrawEdit();
+		virtual const string& GetTitle(string& Title) override {return Title;}
 		virtual void DisplayObject() override;
+		void DrawEdit();
 		void SetCoords();
 
 	public:

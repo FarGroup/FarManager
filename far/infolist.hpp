@@ -94,7 +94,7 @@ class InfoList:public Panel
 		virtual void Update(int Mode) override;
 		virtual void SetFocus() override;
 		virtual void KillFocus() override;
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+		virtual const string& GetTitle(string &Title) override;
 		virtual void UpdateKeyBar() override;
 		virtual void CloseFile() override;
 		virtual int GetCurName(string &strName, string &strShortName) override;

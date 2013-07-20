@@ -139,7 +139,7 @@ bool HasPathPrefix(const string& Path)
 		\\.\
 		\??\
 	*/
-	return Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
+	return Path.size() > 4 &&  Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
 }
 
 bool PathCanHoldRegularFile(const string& Path)

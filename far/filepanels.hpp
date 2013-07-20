@@ -44,6 +44,8 @@ class FilePanels:public Frame
 {
 	private:
 		virtual void DisplayObject() override;
+		virtual const string& GetTitle(string& Title) override {return Title;}
+
 		typedef class Frame inherited;
 
 	public:

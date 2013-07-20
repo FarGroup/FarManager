@@ -72,7 +72,7 @@ public:
 	virtual void RedrawKeyBar() { UpdateKeyBar(); }
 	virtual FARMACROAREA GetMacroMode() { return MacroMode; }
 	virtual int FastHide();
-	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; }
+	virtual const string& GetTitle(string &Title) = 0;
 	virtual bool ProcessEvents() {return true;}
 	virtual void ResizeConsole();
 

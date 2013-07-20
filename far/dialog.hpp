@@ -267,11 +267,12 @@ protected:
 	size_t InitDialogObjects(size_t ID=(size_t)-1);
 
 private:
+	virtual void DisplayObject() override;
+	virtual const string& GetTitle(string& Title) override;
 	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
 	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
-	virtual void DisplayObject() override;
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr);
 	int LenStrItem(size_t ID);
@@ -293,7 +294,6 @@ private:
 	void CheckDialogCoord();
 	BOOL GetItemRect(size_t I,SMALL_RECT& Rect);
 	bool ItemHasDropDownArrow(const DialogItemEx *Item) const;
-	const wchar_t *GetDialogTitle();
 	BOOL SetItemRect(size_t ID, const SMALL_RECT *Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	int GetDropDownOpened() const { return DropDownOpened; }

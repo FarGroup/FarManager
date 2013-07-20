@@ -186,7 +186,7 @@ public:
 	virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) override;
 
 	virtual void SetTitle() override;
-	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+	virtual const string& GetTitle(string &Title) override;
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;

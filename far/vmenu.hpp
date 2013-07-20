@@ -281,8 +281,7 @@ class VMenu: public Modal
 		void ResetCursor();
 
 		void SetTitle(const string& Title);
-		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0) override;
-		const wchar_t *GetPtrTitle() { return strTitle.data(); }
+		virtual const string& GetTitle(string &strDest) override;
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
 		string &GetBottomTitle(string &strDest);

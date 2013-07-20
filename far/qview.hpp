@@ -51,7 +51,7 @@ public:
 	virtual void QViewDelTempName() override;
 	virtual int UpdateIfChanged(panel_update_mode UpdateMode) override;
 	virtual void SetTitle() override;
-	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+	virtual const string& GetTitle(string &Title) override;
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;

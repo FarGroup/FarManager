@@ -434,7 +434,10 @@ void Dialog::InitDialog()
 			}
 
 			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-				ConsoleTitle::SetFarTitle(GetDialogTitle());
+			{
+				string Title;
+				ConsoleTitle::SetFarTitle(GetTitle(Title));
+			}
 		}
 
 		// все объекты проинициализированы!
@@ -949,10 +952,12 @@ size_t Dialog::InitDialogObjects(size_t ID)
 }
 
 
-const wchar_t *Dialog::GetDialogTitle()
+const string& Dialog::GetTitle(string& Title)
 {
 	CriticalSectionLock Lock(CS);
 	const DialogItemEx *CurItemList=nullptr;
+
+	Title.clear();
 
 	FOR_CONST_RANGE(Items, i)
 	{
@@ -961,11 +966,9 @@ const wchar_t *Dialog::GetDialogTitle()
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			const wchar_t *Ptr = i->strData.data();
-
-			for (; *Ptr; Ptr++)
-				if (IsAlpha(*Ptr) || iswdigit(*Ptr))
-					return(Ptr);
+			Title = i->strData.data();
+			RemoveExternalSpaces(Title);
+			return Title;
 		}
 		else if (i->Type==DI_LISTBOX && i == Items.begin())
 			CurItemList = &*i;
@@ -973,10 +976,10 @@ const wchar_t *Dialog::GetDialogTitle()
 
 	if (CurItemList)
 	{
-		return CurItemList->ListPtr->GetPtrTitle();
+		return CurItemList->ListPtr->GetTitle(Title);
 	}
 
-	return nullptr; //""
+	return Title;
 }
 
 void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
@@ -4469,12 +4472,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 {
 	CriticalSectionLock Lock(CS);
 	strType = MSG(MDialogType);
-	strName.clear();
-	const wchar_t *lpwszTitle = GetDialogTitle();
-
-	if (lpwszTitle)
-		strName = lpwszTitle;
-
+	GetTitle(strName);
 	return MODALTYPE_DIALOG;
 }
 
@@ -5883,7 +5881,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (DialogMode.Check(DMODE_SHOW))
 						{
 							if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-								ConsoleTitle::SetFarTitle(GetDialogTitle());
+							{
+								string Title;
+								ConsoleTitle::SetFarTitle(GetTitle(Title));
+							}
 							ShowDialog(Param1);
 							Global->ScrBuf->Flush();
 						}
@@ -5974,7 +5975,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				//if (DialogMode.Check(DMODE_INITOBJECTS)) //???
 				InitDialogObjects(Param1); // переинициализируем элементы диалога
 				if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-					ConsoleTitle::SetFarTitle(GetDialogTitle());
+				{
+					string Title;
+					ConsoleTitle::SetFarTitle(GetTitle(Title));
+				}
 				return MaxLen;
 			}
 
@@ -6015,8 +6019,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			// еще разок, т.к. данные могли быть изменены
 			InitDialogObjects(Param1);
 			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
-				ConsoleTitle::SetFarTitle(GetDialogTitle());
-
+			{
+				string Title;
+				ConsoleTitle::SetFarTitle(GetTitle(Title));
+			}
 			if (DialogMode.Check(DMODE_SHOW))
 			{
 				ShowDialog(Param1);

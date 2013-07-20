@@ -340,38 +340,26 @@ void FileList::ShowFileList(int Fast)
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(ScrX-4,(int)X2):X2;
-	int TruncSize=TitleX2-X1-3;
-
-	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode && Filter && Filter->IsEnabledOnPanel())
-		TruncSize-=2;
-
-	if(TruncSize > 2)
-		GetTitle(strTitle,TruncSize, 2);//,(PanelMode==PLUGIN_PANEL?0:2));
-	Length=(int)strTitle.size();
-	int ClockCorrection=FALSE;
-
-	if ((Global->Opt->Clock && !Global->Opt->ShowMenuBar) && TitleX2==ScrX-4)
+	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(ScrX-5,(int)X2):X2;
+	int MaxSize=TitleX2-X1-1;
+	int XShift = 0;
+	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode)
 	{
-		ClockCorrection=TRUE;
-		TitleX2+=4;
+		++XShift;
+		if (Filter && Filter->IsEnabledOnPanel())
+			++XShift;
 	}
+	MaxSize -= XShift;
+	if(MaxSize > 2)
+		GetTitle(strTitle);
+	TruncPathStr(strTitle, MaxSize - 2);
+	strTitle.insert(0, 1, L' ');
+	strTitle.push_back(L' ');
 
-	int TitleX=X1+(TitleX2-X1+1-Length)/2;
-
-	if (ClockCorrection)
-	{
-		int Overlap=TitleX+Length-TitleX2+5;
-
-		if (Overlap > 0)
-			TitleX-=Overlap;
-	}
-
-	if (TitleX <= X1)
-		TitleX = X1+1;
+	int TitleX=X1+XShift+(TitleX2-X1-1-strTitle.size())/2;
 
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-	GotoXY(TitleX,Y1);
+	GotoXY(static_cast<int>(TitleX),Y1);
 	Text(strTitle);
 
 	if (ListData.empty())

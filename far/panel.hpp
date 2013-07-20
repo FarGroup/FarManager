@@ -234,7 +234,7 @@ public:
 	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
 	virtual HANDLE GetPluginHandle() {return nullptr;}
 	virtual void SetTitle();
-	virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+	virtual const string& GetTitle(string &Title);
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);

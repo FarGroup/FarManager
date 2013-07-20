@@ -2239,7 +2239,7 @@ void FileEditor::ChangeEditKeyBar()
 	EditKeyBar.Redraw();
 }
 
-string &FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
+const string& FileEditor::GetTitle(string &strLocalTitle)
 {
 	if (!strPluginTitle.empty())
 		strLocalTitle = strPluginTitle;

@@ -55,7 +55,6 @@ public:
 	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() override { return MODALTYPE_HELP; }
-
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 
 	BOOL GetError() {return ErrorHelp;}
@@ -64,6 +63,7 @@ public:
 
 private:
 	virtual void DisplayObject() override;
+	virtual const string& GetTitle(string& Title) override {return Title;}
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);

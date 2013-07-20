@@ -205,7 +205,7 @@ void TreeList::DisplayObject()
 	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
-string &TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
+const string& TreeList::GetTitle(string &strTitle)
 {
 	strTitle = L" ";
 	strTitle += ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle);

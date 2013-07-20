@@ -162,7 +162,7 @@ class FileEditor : public Frame
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature=false);
 		void SetTitle(const string* Title);
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) override;
+		virtual const string& GetTitle(string &Title) override;
 		BOOL SetFileName(const string& NewFileName);
 		int ProcessEditorInput(INPUT_RECORD *Rec);
 		void ChangeEditKeyBar();
