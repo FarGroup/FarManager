@@ -1519,7 +1519,14 @@ string str_printf(const wchar_t * format, ...)
 // BUGBUG, eliminate
 wchar_t *GetStringBuffer(string& str, size_t size)
 {
-	str.resize(size == string::npos? str.size() : size);
+	if (size == string::npos)
+		size = str.size();
+
+	if (size == str.size()) // force reallocating string data
+		str.resize(size+1);
+
+	str.resize(size);
+
 	return const_cast<wchar_t*>(str.data());
 }
 

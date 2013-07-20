@@ -166,7 +166,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			Pos=0;
 		}
 		bool StartQuote=false;
-		if(strStr[Pos]==L'"')
+		if(Pos < strStr.size() && strStr[Pos]==L'"')
 		{
 			Pos++;
 			StartQuote=true;
