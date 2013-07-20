@@ -1457,7 +1457,7 @@ bool ProcessOSAliases(string &strStr)
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
 	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
-	wchar_t_ptr Buffer(NT_MAX_PATH);
+	wchar_t_ptr Buffer(4096);
 	int ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), lpwszExeName);
 
 	if (!ret)
