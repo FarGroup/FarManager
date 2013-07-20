@@ -3020,9 +3020,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 			{
 				NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
 				UnicodeDialogItemToAnsiSafe(*gdi.Item,Item[i]);
-				const wchar_t *res = gdi.Item->Data;
-
-				if (!res) res = L"";
+				const wchar_t *res = NullToEmpty(gdi.Item->Data);
 
 				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
 					UnicodeToOEM(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength+1);

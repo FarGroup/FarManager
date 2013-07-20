@@ -1565,7 +1565,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool sk
 	{
 		if (mpr->ReturnType == MPRT_NORMALFINISH)
 		{
-			m_LastErrorStr = L"";
+			m_LastErrorStr.clear();
 			m_LastErrorLine = 0;
 			return true;
 		}
@@ -2221,7 +2221,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					OpenPanelInfo Info={};
 					Info.StructSize=sizeof(OpenPanelInfo);
 					SelPanel->GetOpenPanelInfo(&Info);
-					strFileName = Info.CurDir;
+					strFileName = NullToEmpty(Info.CurDir);
 				}
 				else
 					strFileName = SelPanel->GetCurDir();

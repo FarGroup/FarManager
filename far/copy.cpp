@@ -1187,7 +1187,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			{
 				OpenPanelInfo Info;
 				DestPanel->GetOpenPanelInfo(&Info);
-				string strFormat = Info.Format;
+				string strFormat = NullToEmpty(Info.Format);
 				CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
 
 				while (CopyDlg[ID_SC_TARGETEDIT].strData.size()<2)

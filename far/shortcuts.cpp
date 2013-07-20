@@ -341,14 +341,14 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								string strTemp;
 								PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
 								NewItem.PluginGuid = ph->pPlugin->GetGUID();
-								NewItem.strPluginFile = Info.HostFile;
-								NewItem.strPluginData = Info.ShortcutData;
+								NewItem.strPluginFile = NullToEmpty(Info.HostFile);
+								NewItem.strPluginData = NullToEmpty(Info.ShortcutData);
 							}
 							else
 							{
 								NewItem.PluginGuid = FarGuid;
-								NewItem.strPluginFile = L"";
-								NewItem.strPluginData = L"";
+								NewItem.strPluginFile.clear();
+								NewItem.strPluginData.clear();
 							}
 							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), NewItem);
 
@@ -594,14 +594,14 @@ void Shortcuts::Configure()
 						string strTemp;
 						PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
 						ItemIterator->PluginGuid = ph->pPlugin->GetGUID();
-						ItemIterator->strPluginFile = Info.HostFile;
-						ItemIterator->strPluginData = Info.ShortcutData;
+						ItemIterator->strPluginFile = NullToEmpty(Info.HostFile);
+						ItemIterator->strPluginData = NullToEmpty(Info.ShortcutData);
 					}
 					else
 					{
 						ItemIterator->PluginGuid = FarGuid;
-						ItemIterator->strPluginFile = L"";
-						ItemIterator->strPluginData = L"";
+						ItemIterator->strPluginFile.clear();
+						ItemIterator->strPluginData.clear();
 					}
 					MakeItemName(Pos, MenuItem);
 				}

@@ -2050,7 +2050,7 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 	{
 		OpenPanelInfo Info;
 		GetOpenPanelInfo(&Info);
-		strTitleDir = Info.PanelTitle;
+		strTitleDir = NullToEmpty(Info.PanelTitle);
 		RemoveExternalSpaces(strTitleDir);
 		if (truncTitle)
 			TruncStr(strTitleDir,SubLen-TruncSize);
@@ -2232,7 +2232,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				PluginInfo PInfo = {sizeof(PInfo)};
 				FileList *DestPanel = ((FileList*)this);
 				if (DestPanel->GetPluginInfo(&PInfo))
-					strTemp = PInfo.CommandPrefix;
+					strTemp = NullToEmpty(PInfo.CommandPrefix);
 			}
 
 			if (Param1&&Param2)
@@ -2262,10 +2262,10 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 					switch (Command)
 					{
 						case FCTL_GETPANELHOSTFILE:
-							strTemp=PInfo.HostFile;
+							strTemp=NullToEmpty(PInfo.HostFile);
 							break;
 						case FCTL_GETPANELFORMAT:
-							strTemp=PInfo.Format;
+							strTemp=NullToEmpty(PInfo.Format);
 							break;
 					}
 
@@ -2582,9 +2582,9 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		ShortcutInfo.PluginFile = Info.HostFile;
-		ShortcutInfo.ShortcutFolder = Info.CurDir;
-		ShortcutInfo.PluginData = Info.ShortcutData;
+		ShortcutInfo.PluginFile = NullToEmpty(Info.HostFile);
+		ShortcutInfo.ShortcutFolder = NullToEmpty(Info.CurDir);
+		ShortcutInfo.PluginData = NullToEmpty(Info.ShortcutData);
 		if(!(Info.Flags&OPIF_SHORTCUT)) result=false;
 	}
 	else

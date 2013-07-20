@@ -2253,7 +2253,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 		SearchMode=FINDAREA_FROM_CURRENT;
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hArc,&Info);
-		itd->SetFindFileArcItem(&itd->AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir));
+		itd->SetFindFileArcItem(&itd->AddArcListItem(ArcName, hArc, Info.Flags, NullToEmpty(Info.CurDir)));
 		// «апомним каталог перед поиском в архиве. » если ничего не нашли - не рисуем его снова.
 		{
 			string strSaveDirName, strSaveSearchPath;
@@ -2637,7 +2637,7 @@ void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 	{
 		CriticalSectionLock Lock(PluginCS);
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
-		strSaveDir = Info.CurDir;
+		strSaveDir = NullToEmpty(Info.CurDir);
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 		{
 			Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_FIND);
@@ -2645,7 +2645,7 @@ void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 		}
 	}
 
-	strPluginSearchPath=Info.CurDir;
+	strPluginSearchPath = NullToEmpty(Info.CurDir);
 
 	if (!strPluginSearchPath.empty())
 		AddEndSlash(strPluginSearchPath);
@@ -2761,7 +2761,7 @@ bool FindFiles::FindFilesProcess()
 		HANDLE hPlugin=ActivePanel->GetPluginHandle();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		itd->SetFindFileArcItem(&itd->AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir));
+		itd->SetFindFileArcItem(&itd->AddArcListItem(NullToEmpty(Info.HostFile), hPlugin, Info.Flags, NullToEmpty(Info.CurDir)));
 
 		if (!itd->GetFindFileArcItem())
 			return false;

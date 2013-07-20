@@ -245,7 +245,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 							strPathName += Info.HostFile;
 							strPathName += L"/";
 						}
-						strPathName += Info.CurDir;
+						strPathName += NullToEmpty(Info.CurDir);
 					}
 
 					AddEndSlash(strPathName);

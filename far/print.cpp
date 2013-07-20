@@ -177,7 +177,7 @@ void PrintFiles(FileList* SrcPanel)
 			return;
 		}
 
-		strPrinterName = static_cast<const wchar_t*>(PrinterList.GetUserData(nullptr, 0));
+		strPrinterName = NullToEmpty(static_cast<const wchar_t*>(PrinterList.GetUserData(nullptr, 0)));
 	}
 
 	HANDLE hPrinter;

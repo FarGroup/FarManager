@@ -1185,10 +1185,7 @@ void PluginManager::GetOpenPanelInfo(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ph->pPlugin->GetOpenPanelInfo(ph->hPlugin, Info);
 
-	if (!Info->CurDir)  //υμμ...
-		Info->CurDir = L"";
-
-	if ((Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
+	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
 		apiSetCurrentDirectory(Info->CurDir, false);
 }
 
@@ -1314,7 +1311,7 @@ void PluginManager::Configure(int StartPos)
 							if (J >= Info.PluginConfig.Count)
 								break;
 
-							strName = Info.PluginConfig.Strings[J];
+							strName = NullToEmpty(Info.PluginConfig.Strings[J]);
 							guid = Info.PluginConfig.Guids[J];
 						}
 
@@ -1498,7 +1495,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							if (J >= Info.PluginMenu.Count)
 								break;
 
-							strName = Info.PluginMenu.Strings[J];
+							strName = NullToEmpty(Info.PluginMenu.Strings[J]);
 							guid = Info.PluginMenu.Guids[J];
 						}
 
@@ -1735,7 +1732,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 		PluginInfo Info = {sizeof(Info)};
 		if (pPlugin->GetPluginInfo(&Info))
 		{
-			strPluginPrefix = Info.CommandPrefix;
+			strPluginPrefix = NullToEmpty(Info.CommandPrefix);
 		}
 	}
 	const int Width = 36;
@@ -1977,7 +1974,7 @@ bool PluginManager::GetDiskMenuItem(
 		}
 		else
 		{
-			strPluginText = Info.DiskMenu.Strings[PluginItem];
+			strPluginText = NullToEmpty(Info.DiskMenu.Strings[PluginItem]);
 			Guid = Info.DiskMenu.Guids[PluginItem];
 			ItemPresent = true;
 		}

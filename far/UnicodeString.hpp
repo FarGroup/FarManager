@@ -182,7 +182,6 @@ public:
 	UnicodeString(const wchar_t *s) { compat_assert(s); SetEUS(); assign(s); }
 	UnicodeString(const wchar_t *s, size_t n) { compat_assert(s); SetEUS(); assign(s, n); }
 	UnicodeString(UnicodeString&& str):m_pData(str.m_pData) { str.SetEUS(); }
-
 	~UnicodeString() {}
 
 	static const size_t npos = -1;
@@ -333,6 +332,9 @@ private:
 	void Inflate(size_t nSize);
 
 	std::shared_ptr<UnicodeStringData> m_pData;
+
+	// to forbid constructing strings from nullptr
+	UnicodeString(const void*);
 };
 
 typedef UnicodeString string;

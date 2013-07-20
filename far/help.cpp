@@ -775,10 +775,7 @@ void Help::FastShow()
 		if (StrPos<StrCount)
 		{
 			const HelpRecord *rec=GetHelpItem(StrPos);
-			const wchar_t *OutStr=rec?rec->HelpStr.data():nullptr;
-
-			if (!OutStr)
-				OutStr=L"";
+			const wchar_t *OutStr= rec? rec->HelpStr.data() : L"";
 
 			if (*OutStr==L'^')
 			{
@@ -1872,8 +1869,8 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 		if (strReadStr.at(0)==L'@' && !(strReadStr.at(1)==L'+' || strReadStr.at(1)==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
 		{
-			strEntryName=L"";
-			strCurTopic=L"";
+			strEntryName.clear();
+			strCurTopic.clear();
 			RemoveExternalSpaces(strReadStr);
 			if (StrCmpI(strReadStr.data()+1,HelpContents))
 			{
@@ -1900,8 +1897,8 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 			if (Result)
 			{
 				AddLine(str_printf(L"   ~%s~%s@",strEntryName.data(), strCurTopic.data()));
-				strCurTopic=L"";
-				strEntryName=L"";
+				strCurTopic.clear();
+				strEntryName.clear();
 				TopicFound=false;
 			}
 		}

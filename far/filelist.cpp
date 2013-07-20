@@ -1184,7 +1184,7 @@ int FileList::ProcessKey(int Key)
 							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF);
 						else
 						{
-							string strFullName = Info.CurDir;
+							string strFullName = NullToEmpty(Info.CurDir);
 
 							if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 								Upper(strFullName);
@@ -2530,7 +2530,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 			bool CheckFullScreen=IsFullScreen();
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-			string strInfoHostFile=Info.HostFile;
+			string strInfoHostFile=NullToEmpty(Info.HostFile);
 
 			for (;;)
 			{
@@ -2625,7 +2625,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		/* $ 16.01.2002 VVM
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 		string strInfoCurDir=NullToEmpty(Info.CurDir);
-		//string strInfoFormat=Info.Format;
+		//string strInfoFormat=NullToEmpty(Info.Format);
 		string strInfoHostFile=NullToEmpty(Info.HostFile);
 		string strInfoData=NullToEmpty(Info.ShortcutData);
 		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.data(),strInfoData.data());
@@ -3415,7 +3415,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 // собрать в одну строку все данные в отображаемых колонках
 bool FileList::GetPlainString(string& Dest,int ListPos)
 {
-	Dest=L"";
+	Dest.clear();
 #if defined(Mantis_698)
 	if (ListPos < FileCount)
 	{
@@ -4236,7 +4236,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			}
 			else
 			{
-				string strFullName = Info.CurDir;
+				string strFullName = NullToEmpty(Info.CurDir);
 
 				if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 					Upper(strFullName);
@@ -4278,7 +4278,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			{
 				if (PanelMode==PLUGIN_PANEL)
 				{
-					strQuotedName=Info.CurDir;
+					strQuotedName=NullToEmpty(Info.CurDir);
 				}
 				else
 				{
@@ -4405,7 +4405,7 @@ void FileList::SetTitle()
 		{
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-			string strPluginTitle = Info.PanelTitle;
+			string strPluginTitle = NullToEmpty(Info.PanelTitle);
 			RemoveExternalSpaces(strPluginTitle);
 			strTitleDir += strPluginTitle;
 		}

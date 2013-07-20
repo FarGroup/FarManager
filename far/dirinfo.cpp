@@ -432,7 +432,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			*pPanelItem = nullptr;
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
-			string strPrevDir = Info.CurDir;
+			string strPrevDir = NullToEmpty(Info.CurDir);
 
 			struct UserDataItem UserData={0};  // How to find the value of a variable?
 
@@ -450,7 +450,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
-				if (StrCmpI(strPrevDir.data(), NewInfo.CurDir) )
+				if (StrCmpI(strPrevDir.data(), NullToEmpty(NewInfo.CurDir)))
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;

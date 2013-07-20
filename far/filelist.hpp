@@ -293,7 +293,7 @@ private:
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 	void ProcessCopyKeys(int Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-	void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = L"");
+	void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 	int ProcessOneHostFile(const std::vector<std::unique_ptr<FileListItem>>::const_iterator Idx);
 	void HighlightBorder(int Level, int ListPos);
 	void InitFSWatcher(bool CheckTree);

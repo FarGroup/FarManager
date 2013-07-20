@@ -464,7 +464,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoPowerStatusBC);
-			strOutStr=L"";
+			strOutStr.clear();
 			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
 			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
 				strOutStr=MSG(MInfoPowerStatusBCUnknown);

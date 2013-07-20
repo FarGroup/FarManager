@@ -112,7 +112,7 @@ void FileList::ShowFileList(int Fast)
 			return;
 
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		strInfoCurDir=Info.CurDir;
+		strInfoCurDir = NullToEmpty(Info.CurDir);
 	}
 
 	bool CurFullScreen=IsFullScreen();
@@ -333,7 +333,7 @@ void FileList::ShowFileList(int Fast)
 	if (!Fast && GetFocus())
 	{
 		if (PanelMode==PLUGIN_PANEL)
-			Global->CtrlObject->CmdLine->SetCurDir(Info.CurDir);
+			Global->CtrlObject->CmdLine->SetCurDir(NullToEmpty(Info.CurDir));
 		else
 			Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
 

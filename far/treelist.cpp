@@ -1462,7 +1462,7 @@ int TreeList::ReadTreeFile()
 
 bool TreeList::GetPlainString(string& Dest,int ListPos)
 {
-	Dest=L"";
+	Dest.clear();
 #if defined(Mantis_698)
 	if (ListPos<TreeCount)
 	{
