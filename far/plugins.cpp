@@ -580,7 +580,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		bool operator !=(const PluginInfo& rhs) const {return !(*this == rhs);}
 	};
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	ConsoleTitle ct(Global->Opt->ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
+	ConsoleTitle ct(Global->Opt->ShowCheckingFile?MSG(MCheckingFileInPlugin):L"");
 	HANDLE hResult = nullptr;
 	std::list<PluginInfo> items;
 	string strFullName;
