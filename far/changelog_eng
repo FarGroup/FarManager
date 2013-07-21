@@ -3,6 +3,81 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.07.2013 22:22:03 +0200 - build 3539
+
+1. Correction of 3528.
+
+drkns 20.07.2013 21:45:17 +0200 - build 3538
+
+1. Continuation of 3528.
+
+drkns 20.07.2013 19:28:48 +0200 - build 3537
+
+1. Continuation of 3528.
+
+drkns 20.07.2013 19:14:34 +0200 - build 3536
+
+1. Correction of 3535.
+
+drkns 20.07.2013 19:05:41 +0200 - build 3535
+
+1. Continuation of 3528.
+
+drkns 20.07.2013 16:57:35 +0200 - build 3534
+
+1. Continuation of 3528.
+
+drkns 20.07.2013 14:15:36 +0200 - build 3533
+
+1. Continuation of 3528.
+
+w17 20.07.2013 12:51:48 +0400 - build 3532
+
+1. more 3528, CtrlPgDn on files
+
+w17 20.07.2013 11:51:56 +0400 - build 3531
+
+1. ещё 3528, ждём когда рефактонесс избавится от deprecated...
+
+drkns 20.07.2013 01:16:35 +0200 - build 3530
+
+1. Continuation of 3528.
+
+shmuel 19.07.2013 22:08:55 +0200 - build 3529
+
+1. Correction of 3509 for End key.
+
+drkns 19.07.2013 20:22:50 +0200 - build 3528
+
+1. Refactoring.
+   UnicodeString is compatible by interface with std::wstring, FAR can be built with standard strings using USE_STD_STRING define.
+   But it is still not recommended, because there are still some places with zero pointer initialization of strings and out-of-bounds string indexation.
+
+   Bugs are possible, so be careful.
+
+svs 18.07.2013 15:57:44 +0400 - build 3527
+
+1. Correction of 1609.3: Addition of Cut related code for CF_HDROP ("cut here, paste in Explorer - it has moved")
+   As the most acceptable for cut operation key Ctrl-X is already busy (history cycling in command line),
+   there is still no key chosen (the place is reserved). Any macro?
+
+drkns 18.07.2013 14:10:32 +0200 - build 3526
+
+1. Files were copied to clipboard incorrectly in CF_HDROP format.
+
+shmuel 17.07.2013 21:51:48 +0200 - build
+
+1. On macros loading %FARPROFILE%\Macros\scripts\_macroinit.lua is executed first if it exists.
+   The running order of other macro files is undefined.
+
+drkns 17.07.2013 15:19:59 +0200 - build 3525
+
+1. Continuation of M#2446: EE_SAVE gets a EditorSaveFile structure instead of a file name.
+
+shmuel 16.07.2013 14:59:58 +0200 - build 3524
+
+1. M#2446: EE_SAVE event must be passed the saved file name as a parameter.
+
 drkns 14.07.2013 19:12:10 +0200 - build 3523
 
 1. refix refix. yes, memset is kinda bad.
@@ -76,7 +151,7 @@ drkns 10.07.2013 21:55:39 +0200 - build 3507
 
 1. Refactoring.
 
-2. Уточнение 3506.
+2. Correction of 3506.
 
 drkns 10.07.2013 00:39:34 +0200 - build 3506
 
