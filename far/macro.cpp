@@ -439,10 +439,7 @@ void KeyMacro::PopState(bool withClip)
 		if(!m_CurState->m_MacroQueue.empty())
 		{
 			MacroState* dst = m_StateStack.top();
-			std::for_each(CONST_RANGE(m_CurState->m_MacroQueue, i)
-			{
-				dst->m_MacroQueue.emplace_back(i);
-			});
+			dst->m_MacroQueue.splice(dst->m_MacroQueue.end(), m_CurState->m_MacroQueue);
 		}
 		delete m_CurState;
 		m_CurState = m_StateStack.top();
@@ -480,7 +477,6 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 {
 	if (InitedRAM)
 	{
-		DeleteValues(m_CurState->m_MacroQueue);
 		m_CurState->m_MacroQueue.clear();
 		m_CurState->Executing=MACROMODE_NOMACRO;
 	}

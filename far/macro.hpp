@@ -156,14 +156,14 @@ class MacroState
 	public:
 		INPUT_RECORD cRec; // "описание реально нажатой клавиши"
 		int Executing;
-		std::list<MacroRecord*> m_MacroQueue;
+		std::list<std::unique_ptr<MacroRecord>> m_MacroQueue;
 		int KeyProcess;
 		DWORD HistoryDisable;
 		bool UseInternalClipboard;
 	public:
 		MacroState();
-		MacroRecord* GetCurMacro() { return m_MacroQueue.empty() ? nullptr : m_MacroQueue.front(); }
-		void RemoveCurMacro() { if (!m_MacroQueue.empty()) {delete m_MacroQueue.front(); m_MacroQueue.pop_front();} }
+		MacroRecord* GetCurMacro() { return m_MacroQueue.empty()? nullptr : m_MacroQueue.front().get(); }
+		void RemoveCurMacro() { m_MacroQueue.pop_front(); }
 };
 
 class Dialog;

@@ -140,12 +140,6 @@ public:
 	T& operator*() const {return *get();}
 };
 
-template<typename T>
-inline void DeleteValues(T& std_container)
-{
-	std::for_each(ALL_CONST_RANGE(std_container), std::default_delete<typename std::remove_pointer<typename T::value_type>::type>());
-}
-
 // for_each with embedded counter
 template<class I, class F>
 inline F for_each_cnt(I First, I Last, F Func)
