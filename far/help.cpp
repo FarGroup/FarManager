@@ -459,7 +459,7 @@ int Help::ReadHelp(const string& Mask)
 			{
 				size_t n1 = StackData.strHelpTopic.size();
 				size_t n2 = strReadStr.size();
-				if (1+n1+1 < n2 && !StrCmpNI(strReadStr.data()+1, StackData.strHelpTopic.data(), (int)n1) && strReadStr.at(1+n1) == L'=')
+				if (1+n1+1 < n2 && !StrCmpNI(strReadStr.data()+1, StackData.strHelpTopic.data(), (int)n1) && strReadStr[1 + n1] == L'=')
 				{
 					StackData.strHelpTopic = strReadStr.substr(1+n1+1);
 					continue;
@@ -476,7 +476,7 @@ m1:
 			{
 				if (!StrCmpNI(strReadStr.data(),L"<!Macro:",8) && Global->CtrlObject)
 				{
-					if (((PosTab = strReadStr.find(L'>')) != string::npos) && strReadStr.at(PosTab-1) != L'!')
+					if (((PosTab = strReadStr.find(L'>')) != string::npos) && strReadStr[PosTab - 1] != L'!')
 						continue;
 
 					strMacroArea=strReadStr.substr(8,PosTab-1-8); //???
@@ -587,19 +587,19 @@ m1:
 
 					for (int I=(int)strSplitLine.size()-1; I > 0; I--)
 					{
-						if (I > 0 && strSplitLine.at(I)==L'~' && strSplitLine.at(I-1)==L'~')
+						if (I > 0 && strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
 						{
 							I--;
 							continue;
 						}
 
-						if (I > 0 && strSplitLine.at(I)==L'~' && strSplitLine.at(I-1)!=L'~')
+						if (I > 0 && strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
 						{
 							do
 							{
 								I--;
 							}
-							while (I > 0 && strSplitLine.at(I)!=L'~');
+							while (I > 0 && strSplitLine[I] != L'~');
 
 							continue;
 						}
@@ -1867,7 +1867,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 		strReadStr=ReadStr;
 		RemoveTrailingSpaces(strReadStr);
 
-		if (strReadStr.at(0)==L'@' && !(strReadStr.at(1)==L'+' || strReadStr.at(1)==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
+		if (strReadStr[0]==L'@' && !(strReadStr[1]==L'+' || strReadStr[1]==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
@@ -1878,7 +1878,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 				TopicFound=true;
 			}
 		}
-		else if (TopicFound && strReadStr.at(0)==L'$' && strReadStr.at(1) && !strCurTopic.empty())
+		else if (TopicFound && strReadStr[0]==L'$' && strReadStr[1] && !strCurTopic.empty())
 		{
 			strEntryName=strReadStr.data()+1;
 			RemoveExternalSpaces(strEntryName);

@@ -219,8 +219,8 @@ public:
 	iterator::value_type at(size_t pos) {compat_assert(pos < size()); return iterator::value_type(this, pos);}
 	const wchar_t& at(size_t pos) const {compat_assert(pos < size()); return m_pData->GetData()[pos];}
 
-	iterator::value_type operator[](size_t pos) {return at(pos);}
-	const wchar_t& operator[](size_t pos) const {return at(pos);}
+	iterator::value_type operator[](size_t pos) {compat_assert(pos <= size()); return iterator::value_type(this, pos);}
+	const wchar_t& operator[](size_t pos) const {compat_assert(pos <= size()); return m_pData->GetData()[pos];}
 
 	size_t capacity() const { return m_pData->GetSize(); }
 	size_t size() const { return m_pData->GetLength(); }

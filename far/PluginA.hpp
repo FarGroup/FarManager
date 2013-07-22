@@ -44,6 +44,8 @@ public:
 	PluginA(PluginManager *owner, const string& ModuleName);
 	~PluginA();
 
+	static bool FindExport(const char* ExportName);
+
 	virtual bool GetGlobalInfo(GlobalInfo *Info) override;
 	virtual bool SetStartupInfo() override;
 	virtual bool CheckMinFarVersion() override;

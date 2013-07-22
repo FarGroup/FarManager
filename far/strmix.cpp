@@ -113,7 +113,7 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 		l++;
 	}
 
-	if (l==1 || strStr.at(l-1) != QuoteChar)
+	if (l==1 || strStr[l-1] != QuoteChar)
 	{
 		strStr += QuoteChar;
 	}

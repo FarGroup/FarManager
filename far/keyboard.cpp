@@ -134,6 +134,8 @@ struct TFKey3
 	int   Len;
 	const wchar_t *Name;
 	const wchar_t *UName;
+
+	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
 static TFKey3 FKeys1[]=
@@ -567,9 +569,9 @@ static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 	return 0;
 }
 
-void ReloadEnvironment()
+static void ReloadEnvironment()
 {
-	struct addr
+	static const struct addr
 	{
 		HKEY Key;
 		string SubKey;
@@ -582,21 +584,21 @@ void ReloadEnvironment()
 	};
 
 	string strName, strData;
-	for(size_t i=0; i<ARRAYSIZE(Addr); i++)
+	std::for_each(CONST_RANGE(Addr, i)
 	{
-		DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
-		for(size_t t=0; t<ARRAYSIZE(Types); t++) // two passes
+		static const DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
+		std::for_each(CONST_RANGE(Types, t) // two passes
 		{
 			DWORD Type;
-			for(int j=0; EnumRegValueEx(Addr[i].Key, Addr[i].SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
+			for(int j=0; EnumRegValueEx(i.Key, i.SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
 			{
-				if(Type==Types[t])
+				if(Type == t)
 				{
 					if(Type==REG_EXPAND_SZ)
 					{
 						apiExpandEnvironmentStrings(strData, strData);
 					}
-					if(Addr[i].Key==HKEY_CURRENT_USER)
+					if (i.Key==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
 						if(!StrCmpI(strName.data(), L"path") || !StrCmpI(strName.data(), L"libpath") || !StrCmpI(strName.data(), L"os2libpath"))
@@ -613,8 +615,8 @@ void ReloadEnvironment()
 					SetEnvironmentVariable(strName.data(), strData.data());
 				}
 			}
-		}
-	}
+		});
+	});
 }
 
 static bool was_repeat = false;
@@ -1639,13 +1641,13 @@ int KeyNameToKey(const string& Name)
 	{
 		// Это макроклавиша? -- ??? Это ещё актуально ???
 		if (Name[0] == L'$')
-			return -1;// KeyNameMacroToKey(Name);
+		return -1;// KeyNameMacroToKey(Name);
 
 		if (Name[0] == L'%')
-			return -1;
+		return -1;
 
-		if (wcspbrk(Name.data(),L"()")) // встречаются '(' или ')', то это явно не клавиша!
-			return -1;
+		if (Name.find_first_of(L"()") != string::npos) // встречаются '(' или ')', то это явно не клавиша!
+		return -1;
 	}
 
 	int I, Pos;
@@ -1757,19 +1759,14 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 	}
 	else
 	{
-		int I;
 		GetShiftKeyName(strKeyText,Key);
 
-		for (I=0; I<int(ARRAYSIZE(FKeys1)); I++)
+		auto ItemIterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
+		if (ItemIterator != std::cend(FKeys1))
 		{
-			if (FKey==FKeys1[I].Key)
-			{
-				strKeyText += FKeys1[I].Name;
-				break;
-			}
+			strKeyText += ItemIterator->Name;
 		}
-
-		if (I  == ARRAYSIZE(FKeys1))
+		else
 		{
 			FormatString strKeyTemp;
 			if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
@@ -1786,14 +1783,12 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 			{
 				#if defined(SYSLOG)
 				// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-				for (I=0; I<ARRAYSIZE(SpecKeyName); I++)
-					if (FKey==SpecKeyName[I].Key)
-					{
-						strKeyText += SpecKeyName[I].Name;
-						break;
-					}
-
-				if (I  == ARRAYSIZE(SpecKeyName))
+				auto ItemIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
+				if (ItemIterator != std::cend(SpecKeyName))
+				{
+					strKeyText += ItemIterator->Name;
+				}
+				else
 				#endif
 
 				{

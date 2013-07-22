@@ -2608,7 +2608,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			ConvertNameToFull(strSetDir,strSetDir);
 		PrepareDiskPath(strSetDir, ResolvePath);
 
-		if (!StrCmpN(strSetDir.data(), L"\\\\?\\", 4) && strSetDir.at(5) == L':' && !strSetDir.at(6))
+		if (!StrCmpN(strSetDir.data(), L"\\\\?\\", 4) && strSetDir[5] == L':' && !strSetDir[6])
 			AddEndSlash(strSetDir);
 	}
 
@@ -2725,7 +2725,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	/*
 		// вот и зачем это? мы уже и так здесь, в Options.Folder
 		// + дальше по тексту strSetDir уже содержит полный путь
-		if ( strSetDir.empty() || strSetDir.At(1) != L':' || !IsSlash(strSetDir.At(2)))
+		if ( strSetDir.empty() || strSetDir[1] != L':' || !IsSlash(strSetDir[2]))
 			FarChDir(Options.Folder);
 	*/
 	/* $ 26.04.2001 DJ
@@ -5204,7 +5204,7 @@ void FileList::IfGoHome(wchar_t Drive)
 		{
 			strTmpCurDir = Another->GetCurDir();
 
-			if (strTmpCurDir.at(0) == Drive && strTmpCurDir.at(1) == L':')
+			if (strTmpCurDir[0] == Drive && strTmpCurDir[1] == L':')
 				Another->SetCurDir(strFName, FALSE);
 		}
 
@@ -5212,7 +5212,7 @@ void FileList::IfGoHome(wchar_t Drive)
 		{
 			strTmpCurDir = GetCurDir();
 
-			if (strTmpCurDir.at(0) == Drive && strTmpCurDir.at(1) == L':')
+			if (strTmpCurDir[0] == Drive && strTmpCurDir[1] == L':')
 				SetCurDir(strFName, FALSE); // переходим в корень диска с far.exe
 		}
 	}

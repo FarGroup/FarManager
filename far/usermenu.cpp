@@ -766,7 +766,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((!StrCmpNI(strCommand.data(),L"REM",3) && (strCommand.size() == 3 || IsSpace(strCommand.at(3)))) || !StrCmpNI(strCommand.data(),L"::",2)))
+			if (!((!StrCmpNI(strCommand.data(),L"REM",3) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || !StrCmpNI(strCommand.data(),L"::",2)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:

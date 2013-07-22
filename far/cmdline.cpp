@@ -926,7 +926,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	COORD Size0;
 	Global->Console->GetSize(Size0);
 
-	if (!strCurDir.empty() && strCurDir[1]==L':')
+	if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		FarChDir(strCurDir);
 
 	string strPrevDir=strCurDir;
@@ -1296,13 +1296,13 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	Unquote(strExpandedDir);
 	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((!strExpandedDir[1] && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.at(1))))
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{
 			string strTemp=Global->Opt->Exec.strHomeDir.Get();
 
-			if (strExpandedDir[1])
+			if (strExpandedDir.size() > 1)
 			{
 				AddEndSlash(strTemp);
 				strTemp += strExpandedDir.data()+2;

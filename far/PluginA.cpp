@@ -123,6 +123,14 @@ static const export_name* GetExportsNames()
 	return ExportsNames;
 };
 
+bool PluginA::FindExport(const char* ExportName)
+{
+	auto ExportsBegin = GetExportsNames(), ExportsEnd = ExportsBegin + i_LAST;
+	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
+	{
+		return !strcmp(ExportName, i.AName);
+	}) != ExportsEnd;
+}
 
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))

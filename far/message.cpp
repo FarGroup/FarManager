@@ -245,12 +245,12 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 			if (pos >= len-1)
 				break;
 
-			if (str_err.at(pos+1) >= L'1' && str_err.at(pos+1) <= L'9')
+			if (str_err[pos+1] >= L'1' && str_err[pos+1] <= L'9')
 			{
 				size_t insert_i = 0, pos1 = pos+1;
-				while (pos1 < len && str_err.at(pos1) >= L'0' && str_err.at(pos1) <= L'9')
+				while (pos1 < len && str_err[pos1] >= L'0' && str_err[pos1] <= L'9')
 				{
-					insert_i = 10*insert_i + str_err.at(pos1) - L'0';
+					insert_i = 10*insert_i + str_err[pos1] - L'0';
 					++pos1;
 				}
 				if (insert_i >= 1 && insert_i <= inserts_n)
@@ -264,7 +264,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 				else
 					pos = pos1;
 			}
-			else if (str_err.at(pos+1) == L'%') // "%%"
+			else if (str_err[pos+1] == L'%') // "%%"
 				pos += 2;
 			else
 				++pos;

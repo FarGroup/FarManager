@@ -1435,7 +1435,7 @@ int TreeList::ReadTreeFile()
 				strDirName.resize(Pos);
 			}
 
-			if (RootLength>0 && strDirName.at(RootLength-1)!=L':' && IsSlash(strDirName.at(RootLength)) && !strDirName.at(RootLength+1))
+			if (RootLength>0 && strDirName[RootLength-1] != L':' && IsSlash(strDirName[RootLength]) && !strDirName[RootLength+1])
 			{
 				strDirName.resize(RootLength);
 			}
@@ -1603,7 +1603,7 @@ void TreeList::DelTreeName(const string& Name)
 	{
 		if (i->size() < Length) continue;
 
-		if (!StrCmpNI(NamePtr, i->data(), static_cast<int>(Length)) && (!i->at(Length) || IsSlash(i->at(Length))))
+		if (!StrCmpNI(NamePtr, i->data(), static_cast<int>(Length)) && (i->size() == Length || IsSlash(i->at(Length))))
 		{
 			i = Global->TreeCache->Names.erase(i);
 		}

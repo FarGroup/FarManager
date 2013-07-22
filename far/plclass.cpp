@@ -130,6 +130,15 @@ static const export_name* GetExportsNames()
 	return ExportsNames;
 };
 
+bool Plugin::FindExport(const char* ExportName)
+{
+	auto ExportsBegin = GetExportsNames(), ExportsEnd = ExportsBegin + i_LAST;
+	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
+	{
+		return !strcmp(ExportName, i.AName);
+	}) != ExportsEnd;
+}
+
 static BOOL PrepareModulePath(const string& ModuleName)
 {
 	string strModulePath = ModuleName;

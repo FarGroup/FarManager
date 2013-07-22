@@ -69,42 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
-enum
-{
-	CRC32_GETGLOBALINFOW   = 0x633EC0C4,
-};
-
-static const DWORD ExportCRC32W[] =
-{
-	CRC32_GETGLOBALINFOW,
-};
-
-#ifndef NO_WRAPPER
-enum
-{
-	CRC32_SETSTARTUPINFO   = 0xF537107A,
-	CRC32_GETPLUGININFO    = 0xDB6424B4,
-	CRC32_OPENPLUGIN       = 0x601AEDE8,
-	CRC32_OPENFILEPLUGIN   = 0xAC9FF5CD,
-	CRC32_EXITFAR          = 0x04419715,
-	CRC32_SETFINDLIST      = 0x7A74A2E5,
-	CRC32_CONFIGURE        = 0x4DC1BC1A,
-	CRC32_GETMINFARVERSION = 0x2BBAD952,
-};
-
-static const DWORD ExportCRC32[] =
-{
-	CRC32_SETSTARTUPINFO,
-	CRC32_GETPLUGININFO,
-	CRC32_OPENPLUGIN,
-	CRC32_OPENFILEPLUGIN,
-	CRC32_EXITFAR,
-	CRC32_SETFINDLIST,
-	CRC32_CONFIGURE,
-	CRC32_GETMINFARVERSION
-};
-#endif // NO_WRAPPER
-
 enum PluginType
 {
 	NOT_PLUGIN,
@@ -168,17 +132,15 @@ PluginType IsModulePlugin2(
 				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
 				{
 					const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
-					DWORD dwCRC32 = CRC32(0, lpExportName, (unsigned int)strlen(lpExportName));
 
-					// а это вам не фиг знает что, это вам оптимизация, типа 8-)
-					if (std::find(ALL_RANGE(ExportCRC32W), dwCRC32) != std::cend(ExportCRC32W))
+					if (Plugin::FindExport(lpExportName))
 					{
 						return UNICODE_PLUGIN;
 					}
 
 #ifndef NO_WRAPPER
 					if (!bOemExports && Global->Opt->LoadPlug.OEMPluginsSupport &&
-						std::find(ALL_RANGE(ExportCRC32), dwCRC32) != std::cend(ExportCRC32))
+						wrapper::PluginA::FindExport(lpExportName))
 					{
 						bOemExports=true;
 					}
@@ -241,10 +203,14 @@ PluginType IsModulePlugin(const string& lpModuleName)
 	return bResult;
 }
 
-bool PluginCompare(const Plugin* a, const Plugin *b)
+static const struct plugin_less
 {
-	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
+	bool operator ()(const Plugin* a, const Plugin *b)
+	{
+		return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
+	}
 }
+PluginLess;
 
 PluginManager::PluginManager():
 #ifndef NO_WRAPPER
@@ -395,7 +361,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 			pPlugin = LoadPlugin(lpwszModuleName, FindData, LoadToMem);
 			if (!pPlugin)
 				return nullptr;
-			SortedPlugins.sort(PluginCompare);
+			SortedPlugins.sort(PluginLess);
 		}
 	}
 	return pPlugin;
@@ -546,7 +512,7 @@ void PluginManager::LoadPlugins()
 	}
 
 	Flags.Set(PSIF_PLUGINSLOADDED);
-	SortedPlugins.sort(PluginCompare);
+	SortedPlugins.sort(PluginLess);
 }
 
 /* $ 01.09.2000 tran

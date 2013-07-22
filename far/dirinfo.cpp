@@ -106,7 +106,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	*/
 	const wchar_t *ShowDirName = DirName.data();
 
-	if (DirName[0] == L'.' && !DirName[1])
+	if (DirName.size() ==1 && DirName[0] == L'.')
 	{
 		const wchar_t *p = LastSlash(strFullDirName.data());
 

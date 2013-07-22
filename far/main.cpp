@@ -185,10 +185,11 @@ static int MainProcess(
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
-			if (!apanel.empty())  // актиная панель
+
+			auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
-				strPath = apanel;
+				strPath = active? apanel : ppanel;
 				CutToNameUNC(strPath);
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
@@ -199,47 +200,19 @@ static int MainProcess(
 					AddEndSlash(strPath);
 				}
 
-				// Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
-				if (Global->Opt->LeftFocus)
-				{
-					Global->Opt->LeftPanel.Type=FILE_PANEL;  // сменим моду панели
-					Global->Opt->LeftPanel.Visible=TRUE;     // и включим ее
-					Global->Opt->LeftPanel.Folder = strPath;
-				}
-				else
-				{
-					Global->Opt->RightPanel.Type=FILE_PANEL;
-					Global->Opt->RightPanel.Visible=TRUE;
-					Global->Opt->RightPanel.Folder = strPath;
-				}
+				auto& CurrentPanelOptions = (Global->Opt->LeftFocus && active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
+				CurrentPanelOptions.Type=FILE_PANEL;  // сменим моду панели
+				CurrentPanelOptions.Visible=TRUE;     // и включим ее
+				CurrentPanelOptions.Folder = strPath;
+			};
 
-				if (!ppanel.empty())  // пассивная панель
+			if (!apanel.empty())
+			{
+				SetupPanel(true);
+
+				if (!ppanel.empty())
 				{
-					++DirCount;
-					strPath = ppanel;
-					CutToNameUNC(strPath);
-					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
-
-					bool Root = false;
-					PATH_TYPE Type = ParsePath(strPath, nullptr, &Root);
-					if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
-					{
-						AddEndSlash(strPath);
-					}
-
-					// а здесь наоборот - обрабатываем пассивную панель
-					if (Global->Opt->LeftFocus)
-					{
-						Global->Opt->RightPanel.Type=FILE_PANEL; // сменим моду панели
-						Global->Opt->RightPanel.Visible=TRUE;    // и включим ее
-						Global->Opt->RightPanel.Folder = strPath;
-					}
-					else
-					{
-						Global->Opt->LeftPanel.Type=FILE_PANEL;
-						Global->Opt->LeftPanel.Visible=TRUE;
-						Global->Opt->LeftPanel.Folder = strPath;
-					}
+					SetupPanel(false);
 				}
 			}
 
@@ -745,10 +718,23 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 	if(InitDriveMenuHotkeys)
 	{
-		Global->Db->PlHotkeyCfg()->SetHotkey(L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", PluginsHotkeysConfig::DRIVE_MENU, L"0"); // ProcList
-		Global->Db->PlHotkeyCfg()->SetHotkey(L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", PluginsHotkeysConfig::DRIVE_MENU, L"1"); // TmpPanel
-		Global->Db->PlHotkeyCfg()->SetHotkey(L"42E4AEB1-A230-44F4-B33C-F195BB654931", L"C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2", PluginsHotkeysConfig::DRIVE_MENU, L"2"); // NetBox
-		Global->Db->PlHotkeyCfg()->SetHotkey(L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", PluginsHotkeysConfig::DRIVE_MENU, L"3"); // Network
+		static const struct 
+		{
+			const wchar_t *PluginId, *MenuId, *Hotkey;
+		}
+		DriveMenuHotkeys[] =
+		{
+			{L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", L"0"}, // ProcList
+			{L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", L"1"}, // TmpPanel
+			{L"42E4AEB1-A230-44F4-B33C-F195BB654931", L"C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2", L"2"}, // NetBox
+			{L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", L"3"}, // Network
+		};
+
+		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
+		{
+			Global->Db->PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
+		});
+
 		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
 	}
 
@@ -779,8 +765,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 int wmain(int Argc, wchar_t *Argv[])
 {
-	int Result = -1;
-
 	try
 	{
 		atexit(PrintMemory);
@@ -790,8 +774,10 @@ int wmain(int Argc, wchar_t *Argv[])
 #ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
-		Result = mainImpl(Argc, Argv);
+
+		return mainImpl(Argc, Argv);
 	}
+
 	catch (SException& e)
 	{
 		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
@@ -804,12 +790,12 @@ int wmain(int Argc, wchar_t *Argv[])
 		std::wcout << L"Caught exception " << e.what() << std::endl;
 		throw;
 	}
+
 	catch (...)
 	{
 		std::wcout << L"Caught unknown exception" << std::endl;
 		throw;
 	}
-	return Result;
 }
 
 #ifdef __GNUC__

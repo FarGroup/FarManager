@@ -432,7 +432,7 @@ void FindFiles::InitInFileSearch()
 
 				for (size_t index = 0; index < strFindStr.size(); index++)
 				{
-					wchar_t symbol = strFindStr.at(index);
+					wchar_t symbol = strFindStr[index];
 					byte offset = 0;
 
 					if (symbol >= L'a' && symbol <= L'f')
@@ -2925,7 +2925,7 @@ bool FindFiles::FindFilesProcess()
 					if (!Length)
 						break;
 
-					if (Length>1 && IsSlash(strFileName.at(Length-1)) && strFileName.at(Length-2)!=L':')
+					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')
 						strFileName.pop_back();
 
 					if ((apiGetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError() != ERROR_ACCESS_DENIED))
@@ -2945,7 +2945,7 @@ bool FindFiles::FindFilesProcess()
 					strFileName.resize(NamePtr-strFileName.data());
 					Length=strFileName.size();
 
-					if (Length>1 && IsSlash(strFileName.at(Length-1)) && strFileName.at(Length-2)!=L':')
+					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')
 						strFileName.pop_back();
 
 					if (strFileName.empty())
@@ -2968,7 +2968,7 @@ bool FindFiles::FindFilesProcess()
 					string strDirTmp = FindPanel->GetCurDir();
 					Length=strDirTmp.size();
 
-					if (Length>1 && IsSlash(strDirTmp.at(Length-1)) && strDirTmp.at(Length-2)!=L':')
+					if (Length>1 && IsSlash(strDirTmp[Length-1]) && strDirTmp[Length-2] != L':')
 						strDirTmp.pop_back();
 
 					if (StrCmpI(strFileName.data(), strDirTmp.data()))

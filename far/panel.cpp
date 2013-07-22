@@ -1824,8 +1824,8 @@ int Panel::SetCurPath()
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
-		if (AnotherPanel->strCurDir.size() > 1 && AnotherPanel->strCurDir.at(1)==L':' &&
-		        (strCurDir.empty() || Upper(AnotherPanel->strCurDir.at(0))!=Upper(strCurDir.at(0))))
+		if (AnotherPanel->strCurDir.size() > 1 && AnotherPanel->strCurDir[1]==L':' &&
+		        (strCurDir.empty() || Upper(AnotherPanel->strCurDir[0])!=Upper(strCurDir[0])))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог

@@ -129,6 +129,8 @@ public:
 	Plugin(PluginManager *owner, const string& ModuleName);
 	virtual ~Plugin();
 
+	static bool FindExport(const char* ExportName);
+
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
 	virtual bool SetStartupInfo();
 	virtual bool CheckMinFarVersion();

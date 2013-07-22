@@ -1067,7 +1067,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 void DeleteDirTree(const string& Dir)
 {
 	if (Dir.empty() ||
-	        (IsSlash(Dir[0]) && !Dir[1]) ||
+	        (Dir.size() == 1 && IsSlash(Dir[0])) ||
 	        (Dir.size() == 3 && Dir[1]==L':' && IsSlash(Dir[2])))
 		return;
 

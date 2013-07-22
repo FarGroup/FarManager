@@ -478,7 +478,7 @@ void ConvertNameToUNC(string &strFileName)
 				break;
 		}
 	}
-	else if (strFileName[1] == L':')
+	else if (strFileName.size() > 1 && strFileName[1] == L':')
 	{
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
@@ -509,7 +509,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 	if (!strPath.empty())
 	{
-		if (strPath[1]==L':' || (strPath[0]==L'\\' && strPath[1]==L'\\'))
+		if (strPath.size() > 1 && (strPath[1]==L':' || (strPath[0]==L'\\' && strPath[1]==L'\\')))
 		{
 			ReplaceSlashToBSlash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';

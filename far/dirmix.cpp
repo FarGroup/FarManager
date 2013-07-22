@@ -231,7 +231,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 						if (ChkFld == TSTFLD_EMPTY || ChkFld == TSTFLD_NOTEMPTY || ChkFld == TSTFLD_NOTACCESS)
 						{
-							if (!(pTestPath->at(0) == L'\\' && pTestPath->at(1) == L'\\' && !strTestPathTemp[1]))
+							if (!(pTestPath->size() > 1 && pTestPath->at(0) == L'\\' && pTestPath->at(1) == L'\\' && strTestPathTemp.size() == 1))
 							{
 								*pTestPath = strTestPathTemp;
 

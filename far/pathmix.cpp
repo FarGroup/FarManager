@@ -56,7 +56,7 @@ void NTPath::Transform()
 				Data=Prefix+Data;
 			}
 		}
-		if(Data.at(5) == L':')
+		if(Data.size() > 5 && Data[5] == L':')
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fails on Win2k if a drive letter is in upper case

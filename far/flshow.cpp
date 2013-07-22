@@ -67,7 +67,7 @@ static LNGID __FormatEndSelectedPhrase(size_t Count)
 		StrItems << Count;
 		size_t LenItems= StrItems.size();
 
-		if (StrItems.at(LenItems-1) == '1' && Count != 11)
+		if (StrItems[LenItems-1] == '1' && Count != 11)
 			M_Fmt=MListFilesSize1;
 		else
 			M_Fmt=MListFilesSize2;
@@ -386,7 +386,7 @@ void FileList::ShowFileList(int Fast)
 				{
 					if (pos)
 					{
-						if (strCurDir.at(pos-1)!=L':')
+						if (strCurDir[pos-1] != L':')
 							strCurDir.resize(pos);
 						else
 							strCurDir.resize(pos+1);
@@ -563,7 +563,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
 	int BoxLength=0;
 	if (BoxPos != string::npos)
-		for (int I=0; strTotalStr.at(BoxPos+I)==BoxSymbols[BS_H2]; I++)
+		for (int I=0; strTotalStr[BoxPos+I] == BoxSymbols[BS_H2]; I++)
 			BoxLength++;
 
 	if (BoxPos == string::npos || !BoxLength)

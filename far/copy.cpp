@@ -3263,7 +3263,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 					int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
 
 					if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
-						!strDestName.empty() && strDestName[1]==L':')
+						strDestName.size() > 1 && strDestName[1]==L':')
 					{
 						string strDriveRoot;
 						GetPathRoot(strDestName,strDriveRoot);
