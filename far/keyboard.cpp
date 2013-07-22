@@ -1635,18 +1635,19 @@ int KeyNameToKey(const string& Name)
 	DWORD Key=0;
     // _SVS(SysLog(L"KeyNameToKey('%s')",Name));
 
-	// Это макроклавиша?
-	if (Name[0] == L'$' && Name[1])
-		return -1;// KeyNameMacroToKey(Name);
+   if (Name.size() > 1) // если не один символ
+	{
+		// Это макроклавиша? -- ??? Это ещё актуально ???
+		if (Name[0] == L'$')
+			return -1;// KeyNameMacroToKey(Name);
 
-	if (Name[0] == L'%' && Name[1])
-		return -1;
+		if (Name[0] == L'%')
+			return -1;
 
-	if (Name[1] && wcspbrk(Name.data(),L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
-		return -1;
+		if (wcspbrk(Name.data(),L"()")) // встречаются '(' или ')', то это явно не клавиша!
+			return -1;
+	}
 
-//   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
-//     return Key;
 	int I, Pos;
 	static string strTmpName;
 	strTmpName = Name;
