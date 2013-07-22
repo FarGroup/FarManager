@@ -260,42 +260,22 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 void CreatePath(const string &Path, bool Simple)
 {
-	string strPath = Path;
-
-	wchar_t *ChPtr = GetStringBuffer(strPath);
 	size_t DirOffset = 0;
-	ParsePath(strPath, &DirOffset);
+	ParsePath(Path, &DirOffset);
 
-	ChPtr += DirOffset + (IsSlash(strPath[DirOffset])? 1 : 0);
-	wchar_t *DirPart = ChPtr;
-
-	BOOL bEnd = FALSE;
-
-	for (;;)
+	for (size_t i = DirOffset + (IsSlash(Path[DirOffset])? 1 : 0); i <= Path.size(); ++i)
 	{
-		if (!*ChPtr || IsSlash(*ChPtr))
+		if (i == Path.size() || IsSlash(Path[i]))
 		{
-			if (!*ChPtr)
-				bEnd = TRUE;
+			string Part = Path.substr(0, i);
+			if (apiGetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
+			{
+				if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(Part)) //BUGBUG
+					Upper(Part);
 
-			*ChPtr = 0;
-
-			bool Exist = apiGetFileAttributes(strPath) != INVALID_FILE_ATTRIBUTES;
-			if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(DirPart) && !Exist)  //BUGBUG
-				CharUpper(DirPart);
-
-			if(!Exist && apiCreateDirectory(strPath, nullptr) && !Simple)
-				TreeList::AddTreeName(strPath);
-
-			if (bEnd)
-				break;
-
-			*ChPtr = L'\\';
-			DirPart = ChPtr+1;
+				if(apiCreateDirectory(Part, nullptr) && !Simple)
+					TreeList::AddTreeName(Part);
+			}
 		}
-
-		ChPtr++;
 	}
-
-	ReleaseStringBuffer(strPath);
 }
