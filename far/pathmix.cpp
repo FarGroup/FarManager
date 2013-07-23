@@ -281,87 +281,69 @@ const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 	return lpwszEndPtr;
 }
 
-BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
+
+static int SlashType(const wchar_t *pw, const wchar_t *pe, wchar_t &TypeSlash)
 {
-	BOOL Result=FALSE;
-
-	if (Path)
+	int Len = 0, Slash = 0, BackSlash = 0;
+	while ((pe && pw < pe) || (!pe && *pw))
 	{
-		/* $ 06.12.2000 IS
-		  ! “еперь функци€ работает с обоими видами слешей, также происходит
-		    изменение уже существующего конечного слеша на такой, который
-		    встречаетс€ чаще.
-		*/
-		wchar_t *end;
-		int Slash=0, BackSlash=0;
-
-		if (!TypeSlash)
-		{
-			end=Path;
-
-			while (*end)
-			{
-				Slash+=(*end==L'\\');
-				BackSlash+=(*end==L'/');
-				end++;
-			}
-		}
-		else
-		{
-			end=Path+StrLength(Path);
-
-			if (TypeSlash == L'\\')
-				Slash=1;
-			else
-				BackSlash=1;
-		}
-
-		int Length=(int)(end-Path);
-		char c=(Slash<BackSlash)?L'/':L'\\';
-		Result=TRUE;
-
-		if (!Length)
-		{
-			*end=c;
-			end[1]=0;
-		}
-		else
-		{
-			end--;
-
-			if (!IsSlash(*end))
-			{
-				end[1]=c;
-				end[2]=0;
-			}
-			else
-			{
-				*end=c;
-			}
-		}
+		wchar_t c = *pw++;
+		BackSlash += (c == L'\\');
+		Slash += (c == L'/');
+		++Len;
 	}
 
-	return Result;
+	TypeSlash = (Slash > BackSlash ? L'/' : L'\\');
+	return Len;
 }
 
-
-BOOL AddEndSlash(wchar_t *Path)
+// ‘ункци€ работает с обоими видами слешей, также происходит
+//	изменение уже существующего конечного слеша на такой, который
+// указан, или встречаетс€ чаще (при равенстве '\'). 
+//
+bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {
-	return AddEndSlash(Path, 0);
+	if (!Path)
+		return false;
+
+	int len = IsSlash(TypeSlash) ? StrLength(Path) : SlashType(Path, nullptr, TypeSlash);
+
+	if (len > 0 && IsSlash(Path[len-1]))
+		--len;
+
+	Path[len++] = TypeSlash;
+	Path[len] = L'\0';
+	return true;
 }
 
-
-BOOL AddEndSlash(string &strPath)
+bool AddEndSlash(wchar_t *Path)
 {
-	return AddEndSlash(strPath, 0);
+	return AddEndSlash(Path, L'\0');
 }
 
-BOOL AddEndSlash(string &strPath, wchar_t TypeSlash)
+void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	wchar_t *lpwszPath = GetStringBuffer(strPath, strPath.size() + 2);
-	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
-	ReleaseStringBuffer(strPath);
-	return Result;
+	const wchar_t *Path = strPath.data();
+	int len = static_cast<int>(strPath.size());
+	if (!IsSlash(TypeSlash))
+		SlashType(Path, Path+len, TypeSlash);
+
+	wchar_t LastSlash = L'\0';
+	if (len > 0 && IsSlash(Path[len-1]))
+		LastSlash = Path[--len];
+
+	if (TypeSlash != LastSlash)
+	{
+		if (LastSlash)
+			strPath[len] = TypeSlash;
+		else
+			strPath.push_back(TypeSlash);
+	}
+}
+
+void AddEndSlash(string &strPath)
+{
+	AddEndSlash(strPath, L'\0');
 }
 
 

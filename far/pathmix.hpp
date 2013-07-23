@@ -75,10 +75,10 @@ inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.d
 inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.data(), Path.data() + Path.size());}
 
 
-BOOL AddEndSlash(string &strPath, wchar_t TypeSlash);
-BOOL AddEndSlash(string &strPath);
-BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
-BOOL AddEndSlash(wchar_t *Path);
+void AddEndSlash(string &strPath, wchar_t TypeSlash);
+void AddEndSlash(string &strPath);
+bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
+bool AddEndSlash(wchar_t *Path);
 void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
 string &ReplaceSlashToBSlash(string &strStr);

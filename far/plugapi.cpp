@@ -2655,7 +2655,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MK
 
 BOOL WINAPI apiAddEndSlash(wchar_t *Path)
 {
-	return AddEndSlash(Path);
+	return AddEndSlash(Path) ? TRUE : FALSE;
 }
 
 wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags)
