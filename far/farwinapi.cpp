@@ -1024,10 +1024,12 @@ BOOL apiGetVolumeInformation(
 	if (pVolumeName)
 	{
 		VolumeNameBuffer.reset(MAX_PATH + 1);
+		VolumeNameBuffer[0] = L'\0';
 	}
 	if (pFileSystemName)
 	{
 		FileSystemNameBuffer.reset(MAX_PATH + 1);
+		FileSystemNameBuffer[0] = L'\0';
 	}
 	BOOL bResult = GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
 		lpMaximumComponentLength, lpFileSystemFlags, FileSystemNameBuffer.get(), static_cast<DWORD>(FileSystemNameBuffer.size()));
