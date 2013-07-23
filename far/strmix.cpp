@@ -107,7 +107,7 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 {
 	size_t l = strStr.size();
 
-	if (strStr.front() != QuoteChar)
+	if (strStr[0] != QuoteChar)
 	{
 		strStr.insert(0, 1, QuoteChar);
 		l++;
