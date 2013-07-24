@@ -847,7 +847,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			break;
 		default:
 			// Маска даты для формата YYYYY.MM.DD
-			strDateMask = FormatString() << L"N9999" << DateSeparator << L"c99" << DateSeparator << L"c99";
+			strDateMask = FormatString() << L"N9999" << DateSeparator << L"99" << DateSeparator << L"99";
 			break;
 	}
 
