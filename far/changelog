@@ -1,3 +1,7 @@
+drkns 24.07.2013 22:04:58 +0200 - build 3553
+
+1. --GetStringBuffer
+
 drkns 24.07.2013 21:40:54 +0200 - build 3552
 
 1. GetStringBuffer -= 2;

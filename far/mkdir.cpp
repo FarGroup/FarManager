@@ -161,6 +161,8 @@ void ShellMakeDir(Panel *SrcPanel)
 		bool SkipAll = false;
 		FOR_CONST_RANGE(DirList, i)
 		{
+			// TODO: almost the same code in dirmix::CreatePath()
+
 			strDirName = *i;
 			strOriginalDirName = strDirName;
 
@@ -169,67 +171,45 @@ void ShellMakeDir(Panel *SrcPanel)
 				Upper(strDirName);
 
 			DeleteEndSlash(strDirName);
-			wchar_t* lpwszDirName = GetStringBuffer(strDirName);
 			bool bSuccess = false;
 
-			wchar_t *ChPtr = lpwszDirName;
 			size_t DirOffset = 0;
-			if(ParsePath(strDirName, &DirOffset) == PATH_UNKNOWN)
-			{
-				ChPtr = lpwszDirName + DirOffset;
-			}
+			ParsePath(strDirName, &DirOffset);
+			string Part;
+			Part.reserve(strDirName.size());
 
-			for (; ; ChPtr++)
+			for (size_t i = DirOffset + (IsSlash(strDirName[DirOffset])? 1 : 0); i <= strDirName.size(); ++i)
 			{
-				if (IsSlash(*ChPtr) || !*ChPtr)
+				if (i == strDirName.size() || IsSlash(strDirName[i]))
 				{
-					WCHAR Ch=0;
-					if(*ChPtr)
+					Part = strDirName.substr(0, i);
+					if (apiGetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || i == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
-						Ch = ChPtr[1];
-						ChPtr[1] = 0;
-					}
-					if (*lpwszDirName)
-					{
-						string _strDirName(lpwszDirName);
-						if (apiGetFileAttributes(_strDirName) == INVALID_FILE_ATTRIBUTES || !*ChPtr) // skip all intermediate dirs, but not last.
+						while(!(bSuccess=(apiCreateDirectory(Part, nullptr)!=FALSE)) && !SkipAll)
 						{
-							while(!(bSuccess=(apiCreateDirectory(_strDirName, nullptr)!=FALSE)) && !SkipAll)
+							Global->CatchError();
+							int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
+							if(Ret == 1) // skip
 							{
-								Global->CatchError();
-								int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
-								if(Ret == 1) // skip
-								{
-									break;
-								}
-								else if(Ret == 2)
-								{
-									SkipAll = true;
-									break;
-								}
-								else if (Ret < 0 || Ret == 3) // cancel
-								{
-									return;
-								}
+								break;
 							}
-							if(bSuccess)
+							else if(Ret == 2)
 							{
-								TreeList::AddTreeName(_strDirName);
+								SkipAll = true;
+								break;
+							}
+							else if (Ret < 0 || Ret == 3) // cancel
+							{
+								return;
 							}
 						}
-					}
-					if(*ChPtr)
-					{
-						ChPtr[1] = Ch;
-					}
-					else
-					{
-						break;
+						if(bSuccess)
+						{
+							TreeList::AddTreeName(Part);
+						}
 					}
 				}
 			}
-
-			ReleaseStringBuffer(strDirName);
 
 			if (bSuccess)
 			{
