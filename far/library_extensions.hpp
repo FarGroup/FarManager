@@ -108,19 +108,24 @@ namespace std
 
 
 template<class T>
-class array_ptr:public std::unique_ptr<T[]>
+class array_ptr
 {
 public:
-	array_ptr() : m_size(){}
-	array_ptr(array_ptr && Right) {std::unique_ptr<T[]>::swap(Right); m_size = Right.m_size;}
-	array_ptr(size_t size, bool init = false):std::unique_ptr<T []>(init? new T[size]() : new T[size]), m_size(size) {}
-	array_ptr& operator=(array_ptr&& Right){std::unique_ptr<T[]>::swap(Right); m_size = Right.m_size; return *this;}
-	void reset(size_t size, bool init = false){std::unique_ptr<T[]>::reset(init? new T[size]() : new T[size]); m_size = size;}
-	void reset(){std::unique_ptr<T[]>::reset(); m_size = 0;}
+	array_ptr() : m_size() {}
+	array_ptr(array_ptr&& other) { *this = std::move(other); }
+	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
+	array_ptr& operator=(array_ptr&& other) { m_array = std::move(other.m_array); m_size = other.m_size; other.m_size = 0; return *this;}
+	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
+	void reset() { m_array.reset(); m_size = 0; }
+	void swap(array_ptr& other) { m_array.swap(other.m_array); std::swap(m_size, other.m_size); }
 	size_t size() const {return m_size;}
-	T* operator->() const { return std::unique_ptr<T[]>::get(); }
-	T& operator*() const { return *std::unique_ptr<T[]>::get(); }
+	operator bool() const { return get() != nullptr; }
+	T* get() const {return m_array.get();}
+	T* operator->() const { return get(); }
+	T& operator*() const { return *get(); }
+	T& operator[](size_t n) const { return get()[n]; }
 private:
+	std::unique_ptr<T[]> m_array;
 	size_t m_size;
 };
 

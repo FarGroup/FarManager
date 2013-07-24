@@ -1,3 +1,9 @@
+drkns 24.07.2013 21:40:54 +0200 - build 3552
+
+1. GetStringBuffer -= 2;
+
+2. Рефакторинг array_ptr.
+
 w17 24.07.2013 22:18:55 +0400 - build 3551
 
 1. GetStringBuffer -= 2

@@ -580,18 +580,22 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 
 int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr)
 {
-	wchar_t *lpwszDest = GetStringBuffer(strDest, MaxLength + 1);
-	wmemset(lpwszDest,L' ',MaxLength);
+	strDest.reserve(MaxLength);
+
 	int SrcLength=StrLength(SrcName);
 
 	if ((RightAlign & COLUMN_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
 	{
 		if (SrcLength>MaxLength)
-			wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
+		{
+			strDest.assign(SrcName + SrcLength - MaxLength, MaxLength);
+		}
 		else
-			wmemcpy(lpwszDest+MaxLength-SrcLength,SrcName,SrcLength);
-		ReleaseStringBuffer(strDest, MaxLength);
-		return (SrcLength>MaxLength);
+		{
+			strDest.assign(MaxLength - SrcLength, L' ');
+			strDest.append(SrcName, SrcLength);
+		}
+		return SrcLength > MaxLength;
 	}
 
 	const wchar_t *DotPtr;
@@ -605,24 +609,24 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 	{
 		int DotLength=StrLength(DotPtr+1);
 		int NameLength=DotLength?(int)(DotPtr-SrcName):SrcLength;
-		int DotPos=MaxLength-std::max(DotLength,3);
+		int DotPos = std::max(MaxLength - std::max(DotLength,3), NameLength + 1);
 
-		if (DotPos<=NameLength)
-			DotPos=NameLength+1;
+		strDest.assign(SrcName, NameLength);
 
 		if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==L' ')
-			lpwszDest[NameLength]=L'.';
+			strDest += L'.';
 
-		wmemcpy(lpwszDest,SrcName,NameLength);
-		wmemcpy(lpwszDest+DotPos,DotPtr+1,DotLength);
+		strDest.resize(DotPos, L' ');
+		strDest.append(DotPtr + 1, DotLength);
+		strDest.resize(MaxLength, L' ');
 	}
 	else
 	{
-		wmemcpy(lpwszDest,SrcName,std::min(SrcLength, MaxLength));
+		strDest.assign(SrcName, std::min(SrcLength, MaxLength));
+		strDest.resize(MaxLength, L' ');
 	}
 
-	ReleaseStringBuffer(strDest, MaxLength);
-	return(SrcLength>MaxLength);
+	return SrcLength > MaxLength;
 }
 
 

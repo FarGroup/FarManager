@@ -4766,9 +4766,10 @@ char* WINAPI XlatA(
 		NewFlags|=XLAT_CONVERTALLCMDLINE;
 
 	string strLine = wide(Line);
-	NativeFSF.XLat(GetStringBuffer(strLine),StartPos,EndPos,NewFlags);
-	ReleaseStringBuffer(strLine);
-	UnicodeToOEM(strLine.data(), Line, strLine.size()+1);
+	// XLat expects null-terminated string
+	std::vector<wchar_t> Buffer(strLine.data(), strLine.data() + strLine.size() + 1);
+	NativeFSF.XLat(Buffer.data(), StartPos, EndPos, NewFlags);
+	UnicodeToOEM(Buffer.data(), Line, Buffer.size());
 	return Line;
 }
 
