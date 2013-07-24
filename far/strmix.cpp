@@ -302,52 +302,65 @@ string& TruncStrFromCenter(string &strStr, int maxLength)
 	return strStr;
 }
 
+static int StartOffset(const wchar_t *Str, int nLength)
+{
+	if (nLength > 2)
+	{
+		if (Str[1] == L':' && IsSlash(Str[2]))
+			return 3;
+
+		else if (Str[0] == L'\\' && Str[1] == L'\\')
+		{
+			for (int n=2, i=2; i < nLength; ++i)
+			{
+				if (Str[i] == L'\\' && --n == 0)
+					return i + 1;
+			}
+		}
+	}
+	return 0;
+}
+
 wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 {
-	MaxLength=std::max(0, MaxLength);
+	assert(MaxLength >= 0);
+	MaxLength = std::max(0, MaxLength);
 
 	if (Str)
 	{
-		int nLength = (int)wcslen(Str);
+		int nLength = StrLength(Str);
 
-		if ((nLength > MaxLength) && (nLength >= 2))
+		if (nLength > MaxLength && nLength >= 2)
 		{
-			wchar_t *lpStart = nullptr;
+			int start = StartOffset(Str, nLength);
 
-			if (*Str && (Str[1] == L':') && IsSlash(Str[2]))
-				lpStart = Str+3;
-			else
-			{
-				if ((Str[0] == L'\\') && (Str[1] == L'\\'))
-				{
-					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) )
-					{
-						wchar_t *lpStart2=lpStart;
-
-						if ((lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))))
-							lpStart++;
-					}
-				}
-			}
-
-			if (!lpStart || (lpStart-Str > MaxLength-5))
+			if (!start || start+2+DotsLen > MaxLength)
 				return TruncStr(Str, MaxLength);
 
-			wchar_t *lpInPos = lpStart+3+(nLength-MaxLength);
-			wmemmove(lpStart+3, lpInPos, (wcslen(lpInPos)+1));
-			wmemcpy(lpStart, L"...", 3);
+			wmemset(Str+start, L'.', DotsLen);
+			wcscpy(Str+start+DotsLen, Str+start+DotsLen+nLength-MaxLength);
 		}
 	}
-
 	return Str;
 }
 
-
 string& TruncPathStr(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszStr = GetStringBuffer(strStr);
-	TruncPathStr(lpwszStr, MaxLength);
-	ReleaseStringBuffer(strStr);
+	assert(MaxLength >= 0);
+	MaxLength = std::max(0, MaxLength);
+	int nLength = static_cast<int>(strStr.size());
+
+	if (nLength > MaxLength && nLength >= 2)
+	{
+		int start = StartOffset(strStr.data(), nLength);
+
+		if (!start || start+DotsLen+2 > MaxLength)
+			return TruncStr(strStr, MaxLength);
+
+		strStr.replace(start, DotsLen, DotsLen, L'.');
+		int n2 = MaxLength-start-DotsLen;
+		strStr.replace(start+DotsLen, nLength-start-DotsLen, strStr.data()+nLength-n2, n2);
+	}
 	return strStr;
 }
 
@@ -476,8 +489,6 @@ string& CenterStr(const string& Src, string &strDest, int Length)
 
 	if (SrcLength >= Length)
 	{
-		/* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
-		   и мы получали обрезанные строки */
 		strDest = strTempStr;
 		strDest.resize(Length);
 	}
@@ -497,8 +508,6 @@ string& RightStr(const string& Src, string &strDest, int Length)
 
 	if (SrcLength >= Length)
 	{
-		/* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
-		   и мы получали обрезанные строки */
 		strDest = strTempStr;
 		strDest.resize(Length);
 	}
@@ -798,47 +807,30 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Return - количество замен
 int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,int Count,bool IgnoreCase)
 {
-	const int LenFindStr=static_cast<int>(FindStr.size());
+	const int LenFindStr = static_cast<int>(FindStr.size());
 	if ( !LenFindStr || !Count )
 		return 0;
-	const int LenReplStr=static_cast<int>(ReplStr.size());
-	size_t L=strStr.size();
 
-	const int Delta = LenReplStr-LenFindStr;
+	const int LenReplStr = static_cast<int>(ReplStr.size());
+	int replaced = 0;
 
-	size_t I=0;
-	int J=0;
-	while (I+LenFindStr <= L)
+	for (size_t I=0, L=strStr.size(); I+LenFindStr <= L; ++I)
 	{
-		int Res=IgnoreCase? StrCmpNI(strStr.data() + I, FindStr.data(), LenFindStr) : StrCmpN(strStr.data() + I, FindStr.data(), LenFindStr);
+		int equal_substr = IgnoreCase
+			? StrCmpNI(strStr.data() + I, FindStr.data(), LenFindStr)
+			: StrCmpN(strStr.data() + I, FindStr.data(), LenFindStr);
 
-		if (!Res)
+		if (0 == equal_substr)
 		{
-			wchar_t *Str;
-			strStr.resize(std::max(strStr.size(), L + Delta + 1));
-			Str = GetStringBuffer(strStr);
+			strStr.replace(I, LenFindStr, ReplStr);
+			L += LenReplStr - LenFindStr - 1;
+			++replaced;
 
-			if (Delta > 0)
-				wmemmove(Str+I+Delta,Str+I,L-I+1);
-			else if (Delta < 0)
-				wmemmove(Str+I,Str+I-Delta,L-I+Delta+1);
-
-			wmemcpy(Str+I,ReplStr.data(),LenReplStr);
-			I += LenReplStr;
-
-			L+=Delta;
-			ReleaseStringBuffer(strStr, L);
-
-			if (++J == Count && Count > 0)
+			if (!--Count)
 				break;
 		}
-		else
-		{
-			I++;
-		}
 	}
-
-	return J;
+	return replaced;
 }
 
 /*

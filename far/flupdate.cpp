@@ -364,9 +364,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					}
 					else
 					{
-						TruncStr(strReadMsg,Title.size()-2);
+						TruncStr(strReadMsg,static_cast<int>(Title.size())-2);
 						int MsgLength=(int)strReadMsg.size();
-						GotoXY(X1+1+(Title.size()-MsgLength-1)/2,Y1);
+						GotoXY(X1+1+(static_cast<int>(Title.size())-MsgLength-1)/2,Y1);
 						Global->FS << L" "<<strReadMsg<<L" ";
 					}
 				}
