@@ -107,7 +107,9 @@ void PrepareStrFTime()
 		{
 			wchar_t_ptr Buffer(GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), nullptr, 0));
 			GetLocaleInfo(CurLCID, static_cast<DWORD>(Id), Buffer.get(), static_cast<DWORD>(Buffer.size()));
-			Upper(To.assign(Buffer.get(), Buffer.size() - 1));
+			To.assign(Buffer.get(), Buffer.size() - 1);
+			if (!To.empty())
+				To[0] = Upper(To[0]);
 		};
 
 		for_each_cnt(RANGE(i.Month, j, size_t index) {GetValue(LOCALE_SMONTHNAME1 + index, j);});
