@@ -677,7 +677,7 @@ void VMenu::FilterStringUpdated()
 		else
 		{
 			RemoveExternalSpaces(strName);
-			RemoveChar(strName,L'&',TRUE);
+			RemoveChar(strName,L'&',true);
 			if(!StrStrI(strName.data(), strFilter.data()))
 			{
 				CurItem->Flags |= LIF_HIDDEN;

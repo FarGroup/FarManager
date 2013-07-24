@@ -160,7 +160,6 @@ string &QuoteSpace(string &strStr)
 	return strStr;
 }
 
-
 wchar_t* QuoteSpaceOnly(wchar_t *Str)
 {
 	if (wcschr(Str,L' '))
@@ -169,7 +168,6 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 	return Str;
 }
 
-
 string& QuoteSpaceOnly(string &strStr)
 {
 	if (strStr.find(L' ') != string::npos)
@@ -177,7 +175,6 @@ string& QuoteSpaceOnly(string &strStr)
 
 	return(strStr);
 }
-
 
 string &QuoteLeadingSpace(string &strStr)
 {
@@ -188,18 +185,26 @@ string &QuoteLeadingSpace(string &strStr)
 	return strStr;
 }
 
-string& TruncStrFromEnd(string &strStr, int MaxLength)
+
+static const int DotsLen = 3;
+
+string& TruncStrFromEnd(string &strStr, int maxLength)
 {
-	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
-	TruncStrFromEnd(lpwszBuffer, MaxLength);
-	ReleaseStringBuffer(strStr);
+	assert(maxLength >= 0);
+	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
+
+	if (strStr.size() > MaxLength)
+	{
+		strStr.resize(MaxLength);
+		if (MaxLength > DotsLen)
+			strStr.replace(MaxLength-DotsLen, DotsLen, DotsLen, L'.');
+	}
 	return strStr;
 }
 
-wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength)
+wchar_t* TruncStrFromEnd(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
-
 	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
@@ -208,72 +213,60 @@ wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength)
 
 		if (Length > MaxLength)
 		{
-			if (MaxLength>3)
-				wmemcpy(Str+MaxLength-3, L"...", 3);
+			if (MaxLength > DotsLen)
+				wmemset(Str+MaxLength-DotsLen, L'.', DotsLen);
 
-			Str[MaxLength]=0;
+			Str[MaxLength] = '\0';
 		}
 	}
-
 	return Str;
 }
 
-
-wchar_t* TruncStr(wchar_t *Str,int MaxLength)
+wchar_t* TruncStr(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
-
-	MaxLength=std::max(0, MaxLength);
+	MaxLength = std::max(0, MaxLength);
 
 	if (Str)
 	{
-		int Length=StrLength(Str);
-
-		if (MaxLength<0)
-			MaxLength=0;
+		int Length = StrLength(Str);
 
 		if (Length > MaxLength)
 		{
-			if (MaxLength>3)
-			{
-				wchar_t *MovePos = Str+Length-MaxLength+3;
-				wmemmove(Str+3, MovePos, StrLength(MovePos)+1);
-				wmemcpy(Str,L"...",3);
-			}
-
-			Str[MaxLength]=0;
+			memmove(Str, Str+Length-MaxLength, MaxLength+1);
+			if (MaxLength > DotsLen)
+				wmemset(Str, L'.', DotsLen);
 		}
 	}
-
 	return Str;
 }
 
-
-string& TruncStr(string &strStr, int MaxLength)
+string& TruncStr(string &strStr, int maxLength)
 {
-	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
-	TruncStr(lpwszBuffer, MaxLength);
-	ReleaseStringBuffer(strStr);
+	assert(maxLength >= 0);
+	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
+	size_t Length = strStr.size();
+
+	if (Length > MaxLength)
+	{
+		strStr.assign(strStr.data()+Length-MaxLength, MaxLength);
+		if (MaxLength > DotsLen)
+			strStr.replace(0, DotsLen, DotsLen, L'.');
+	}
 	return strStr;
 }
 
 wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
-
 	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
 	{
 		int Length = StrLength(Str);
 
-		if (MaxLength < 0)
-			MaxLength=0;
-
 		if (Length > MaxLength)
 		{
-			const int DotsLen = 3;
-
 			if (MaxLength > DotsLen)
 			{
 				int Len1 = (MaxLength - DotsLen) / 2;
@@ -285,15 +278,27 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 			Str[MaxLength] = 0;
 		}
 	}
-
 	return Str;
 }
 
-string& TruncStrFromCenter(string &strStr, int MaxLength)
+string& TruncStrFromCenter(string &strStr, int maxLength)
 {
-	wchar_t *lpwszBuffer = GetStringBuffer(strStr);
-	TruncStrFromCenter(lpwszBuffer, MaxLength);
-	ReleaseStringBuffer(strStr);
+	assert(maxLength >= 0);
+	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
+	size_t Length = strStr.size();
+
+	if (Length > MaxLength)
+	{
+		if (MaxLength > DotsLen)
+		{
+			size_t Len1 = (MaxLength - DotsLen) / 2;
+			size_t Len2 = MaxLength - DotsLen - Len1;
+			strStr.replace(Len1, DotsLen, DotsLen, L'.');
+			strStr.replace(Len1+DotsLen, Length-Len1-DotsLen, strStr.data()+Length-Len2, Len2);
+		}
+		else
+			strStr.resize(MaxLength);
+	}
 	return strStr;
 }
 
@@ -440,31 +445,29 @@ string& RemoveUnprintableCharacters(string &strStr)
 
 
 // Удалить символ Target из строки Str (везде!)
-string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
+string &RemoveChar(string &strStr, wchar_t Target, bool Dup)
 {
-	wchar_t *Ptr = GetStringBuffer(strStr);
-	wchar_t *Str = Ptr, Chr;
-
-	while ((Chr=*Str++) )
+	size_t pos = strStr.find(Target);
+	if (pos != string::npos)
 	{
-		if (Chr == Target)
+		size_t pos1 = pos;
+		size_t len = strStr.size();
+		while (pos < len)
 		{
-			if (Dup && *Str == Target)
+			++pos;
+			if (Dup && pos < len && strStr[pos] == Target)
 			{
-				*Ptr++ = Chr;
-				++Str;
+				strStr[pos1++] = Target;
+				++pos;
 			}
-
-			continue;
+			while (pos < len && strStr[pos] != Target)
+				strStr[pos1++] = strStr[pos++];
 		}
-
-		*Ptr++ = Chr;
+		strStr.resize(pos1);
 	}
-
-	*Ptr = L'\0';
-	ReleaseStringBuffer(strStr);
 	return strStr;
 }
+
 
 string& CenterStr(const string& Src, string &strDest, int Length)
 {
