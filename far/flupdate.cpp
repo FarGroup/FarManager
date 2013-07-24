@@ -250,11 +250,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	SetLastError(ERROR_SUCCESS);
 	// сформируем заголовок вне цикла
-	wchar_t Title[2048];
-	int TitleLength=std::min((int)X2-X1-1,(int)(ARRAYSIZE(Title))-1);
-	//wmemset(Title,0x0CD,TitleLength); //BUGBUG
-	//Title[TitleLength]=0;
-	MakeSeparator(TitleLength, Title, 9, nullptr);
+	string Title = MakeSeparator(X2-X1-1, 9, nullptr);
 	BOOL IsShowTitle=FALSE;
 	BOOL NeedHighlight=Global->Opt->Highlight && PanelMode != PLUGIN_PANEL;
 
@@ -368,9 +364,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					}
 					else
 					{
-						TruncStr(strReadMsg,TitleLength-2);
+						TruncStr(strReadMsg,Title.size()-2);
 						int MsgLength=(int)strReadMsg.size();
-						GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
+						GotoXY(X1+1+(Title.size()-MsgLength-1)/2,Y1);
 						Global->FS << L" "<<strReadMsg<<L" ";
 					}
 				}

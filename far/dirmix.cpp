@@ -262,12 +262,13 @@ void CreatePath(const string &Path, bool Simple)
 {
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
-
+	string Part;
+	Part.reserve(Path.size());
 	for (size_t i = DirOffset + (IsSlash(Path[DirOffset])? 1 : 0); i <= Path.size(); ++i)
 	{
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
-			string Part = Path.substr(0, i);
+			Part = Path.substr(0, i);
 			if (apiGetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
 			{
 				if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(Part)) //BUGBUG

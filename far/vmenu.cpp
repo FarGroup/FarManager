@@ -2170,8 +2170,6 @@ void VMenu::ShowMenu(bool IsParent)
 	if (TopPos<0)
 		TopPos=0;
 
-	string strTmpStr;
-
 	for (int Y=Y1+((BoxType!=NO_BOX)?1:0), I=TopPos; Y<((BoxType!=NO_BOX)?Y2:Y2+1); Y++, I++)
 	{
 		GotoXY(X1,Y);
@@ -2187,14 +2185,12 @@ void VMenu::ShowMenu(bool IsParent)
 			if (Item[I]->Flags&LIF_SEPARATOR)
 			{
 				int SepWidth = X2-X1+1;
-				wchar_t *TmpStr = GetStringBuffer(strTmpStr, SepWidth + 1);
-				wchar_t *Ptr = TmpStr+1;
 
-				MakeSeparator(SepWidth,TmpStr,BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
+				string strTmpStr = MakeSeparator(SepWidth, BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
 				if (!CheckFlags(VMENU_NOMERGEBORDER) && I>0 && I<static_cast<int>(Item.size()-1) && SepWidth>3)
 				{
-					for (unsigned int J=0; Ptr[J+3]; J++)
+					for (size_t J = 0; J < strTmpStr.size() - 3; ++J)
 					{
 						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.data(),L'&',J);
 						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.data(),L'&',J);
@@ -2208,19 +2204,19 @@ void VMenu::ShowMenu(bool IsParent)
 						if (PrevItem==BoxSymbols[BS_V1])
 						{
 							if (NextItem==BoxSymbols[BS_V1])
-								Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_C_H1V1];
+								strTmpStr[J+(BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_C_H1V1];
 							else
-								Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_B_H1V1];
+								strTmpStr[J+(BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_B_H1V1];
 						}
 						else if (NextItem==BoxSymbols[BS_V1])
 						{
-							Ptr[J+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_T_H1V1];
+							strTmpStr[J+(BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_T_H1V1];
 						}
 					}
 				}
 
 				SetColor(Colors[VMenuColorSeparator]);
-				BoxText(TmpStr,FALSE);
+				BoxText(strTmpStr,FALSE);
 
 				if (!Item[I]->strName.empty())
 				{
@@ -2232,8 +2228,6 @@ void VMenu::ShowMenu(bool IsParent)
 					GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
 					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
 				}
-
-				ReleaseStringBuffer(strTmpStr);
 			}
 			else
 			{

@@ -1016,24 +1016,15 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 {
 	if (Length>1)
 	{
-		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-		wchar_t_ptr HeapBuffer;
-		LPWSTR BufPtr=StackBuffer;
-		if(static_cast<size_t>(Length)>=StackBufferSize/sizeof(WCHAR))
-		{
-			HeapBuffer.reset(Length + 1);
-			BufPtr=HeapBuffer.get();
-		}
-		MakeSeparator(Length,BufPtr,Type,UserSep);
-
+		string Buffer = MakeSeparator(Length, Type, UserSep);
 		// 12 - UserSep horiz
 		// 13 - UserSep vert
-		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11) || Type == 13? VText(BufPtr) : Text(BufPtr);
+		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11) || Type == 13? VText(Buffer) : Text(Buffer);
 	}
 }
 
 // "Нарисовать" сепаратор в памяти.
-WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
+string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 {
 	wchar_t BoxType[12][3]=
 	{
@@ -1056,7 +1047,8 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 	// 12 - UserSep horiz
 	// 13 - UserSep vert
 
-	if (Length>1 && DestStr)
+	string Result;
+	if (Length>1)
 	{
 		wchar_t c[3];
 		bool stdUse=true;
@@ -1086,13 +1078,13 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 			c[2]=BoxType[Type][2];
 		}
 
-		wmemset(DestStr,c[2],Length);
-		DestStr[0]=c[0];
-		DestStr[Length-1]=c[1];
-		DestStr[Length]=0;
+		Result.resize(Length);
+		std::fill(Result.begin() + 1, Result.end() - 1, c[2]);
+		Result.front() = c[0];
+		Result.back() = c[1];
 	}
 
-	return DestStr;
+	return Result;
 }
 
 string& HiText2Str(string& strDest, const string& Str)

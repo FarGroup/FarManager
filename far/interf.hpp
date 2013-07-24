@@ -164,7 +164,7 @@ bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Si
 void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
-WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=nullptr);
+string MakeSeparator(int Length, int Type=1, const wchar_t* UserSep=nullptr);
 
 void InitRecodeOutTable();
 
