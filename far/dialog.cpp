@@ -1752,50 +1752,34 @@ void Dialog::ShowDialog(size_t ID)
 					string strWrap;
 					FarFormatText(strStr,CW,strWrap,L"\n",0);
 					DWORD CountLine=0;
-					bool done=false;
 
-					wchar_t *ptrStr = GetStringBuffer(strWrap), *ptrStrPrev = ptrStr;
-					while (!done)
+					for (size_t pos = 0; pos < strWrap.size(); )
 					{
-						ptrStr=wcschr(ptrStr,L'\n');
-						if (!ptrStr)
-						{
-							ptrStr=ptrStrPrev;
-							done=true;
-						}
+						size_t end = std::min(strWrap.find(L'\n', pos), strWrap.size());
+						string strResult = strWrap.substr(pos, end-pos);
+
+						if (Items[I].Flags & DIF_CENTERTEXT)
+							CenterStr(strResult,strResult,CW);
+						else if (Items[I].Flags & DIF_RIGHTTEXT)
+							RightStr(strResult,strResult,CW);
+
+						LenText=LenStrItem(I,strResult);
+						X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
+						if (X < CX1)
+							X=CX1;
+						GotoXY(X1+X,Y1+CY1+CountLine);
+						SetColor(ItemColor[0]);
+
+						if (Items[I].Flags & DIF_SHOWAMPERSAND)
+							Text(strResult);
 						else
-						{
-							*ptrStr++=0;
-						}
+							HiText(strResult,ItemColor[1]);
 
-						if (*ptrStr)
-						{
-							string strResult=ptrStrPrev;
-							ptrStrPrev=ptrStr;
+						if (++CountLine >= (DWORD)CH)
+							break;
 
-							if (Items[I].Flags & DIF_CENTERTEXT)
-								CenterStr(strResult,strResult,CW);
-							else if (Items[I].Flags & DIF_RIGHTTEXT)
-								RightStr(strResult,strResult,CW);
-
-							LenText=LenStrItem(I,strResult);
-							X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
-							if (X < CX1)
-								X=CX1;
-							GotoXY(X1+X,Y1+CY1+CountLine);
-							SetColor(ItemColor[0]);
-
-							if (Items[I].Flags & DIF_SHOWAMPERSAND)
-								Text(strResult);
-							else
-								HiText(strResult,ItemColor[1]);
-
-
-							if (++CountLine >= (DWORD)CH)
-								break;
-						}
+						pos = end + 1;
 					}
-					ReleaseStringBuffer(strWrap);
 				}
 
 				break;

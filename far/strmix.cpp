@@ -291,10 +291,8 @@ string& TruncStrFromCenter(string &strStr, int maxLength)
 	{
 		if (MaxLength > DotsLen)
 		{
-			size_t Len1 = (MaxLength - DotsLen) / 2;
-			size_t Len2 = MaxLength - DotsLen - Len1;
-			strStr.replace(Len1, DotsLen, DotsLen, L'.');
-			strStr.replace(Len1+DotsLen, Length-Len1-DotsLen, strStr.data()+Length-Len2, Len2);
+			size_t start = (MaxLength - DotsLen) / 2;
+			strStr.replace(start, Length-MaxLength+DotsLen, DotsLen, L'.');
 		}
 		else
 			strStr.resize(MaxLength);
@@ -357,9 +355,7 @@ string& TruncPathStr(string &strStr, int MaxLength)
 		if (!start || start+DotsLen+2 > MaxLength)
 			return TruncStr(strStr, MaxLength);
 
-		strStr.replace(start, DotsLen, DotsLen, L'.');
-		int n2 = MaxLength-start-DotsLen;
-		strStr.replace(start+DotsLen, nLength-start-DotsLen, strStr.data()+nLength-n2, n2);
+		strStr.replace(start, nLength-MaxLength+DotsLen, DotsLen, L'.');
 	}
 	return strStr;
 }
@@ -880,11 +876,11 @@ enum FFTMODE
 	FFTM_BREAKLONGWORD = 0x00000001,
 };
 
-string& FarFormatText(const string& SrcText,     // источник
-                             int Width,               // заданная ширина
-                             string &strDestText,          // приемник
-                             const wchar_t* Break,       // брик, если = nullptr, то принимается '\n'
-                             DWORD Flags)             // один из FFTM_*
+string& FarFormatText(const string& SrcText,      // источник
+                            int Width,            // заданная ширина
+                            string &strDestText,  // приёмник
+                            const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
+                            DWORD Flags)          // один из FFTM_*
 {
 	const wchar_t *breakchar;
 	breakchar = Break?Break:L"\n";
