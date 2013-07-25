@@ -1981,13 +1981,13 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 
 	if (!HelpTopic.empty())
 	{
-		if (HelpTopic[0]==L':')
+		if (HelpTopic.front() == L':')
 		{
 			strTopic = HelpTopic.substr(1);
 		}
 		else
 		{
-			if (pPlugin && HelpTopic[0] != HelpBeginLink)
+			if (pPlugin && HelpTopic.front() != HelpBeginLink)
 			{
 				strTopic = str_printf(HelpFormatLinkModule, pPlugin->GetModuleName().data(), HelpTopic.data());
 			}
@@ -1998,17 +1998,16 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 
 			if (strTopic.front()==HelpBeginLink)
 			{
-				wchar_t *Ptr;
-				wchar_t *lpwszTopic = GetStringBuffer(strTopic, strTopic.size() * 2); //BUGBUG
+				size_t EndPos = strTopic.find(HelpEndLink);
 
-				if (!(Ptr=wcschr(lpwszTopic,HelpEndLink)))
+				if (EndPos == string::npos)
 				{
-					*lpwszTopic=0;
+					strTopic.clear();
 				}
 				else
 				{
-					if (!Ptr[1]) // Вона как поперло то...
-						wcscat(lpwszTopic,HelpContents); // ... значит покажем основную тему. //BUGBUG
+					if (EndPos == strTopic.size() - 1) // Вона как поперло то...
+						strTopic += HelpContents; // ... значит покажем основную тему. //BUGBUG
 
 					/* А вот теперь разгребем...
 					   Формат может быть :
@@ -2016,31 +2015,27 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 					   Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
 					   Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
 					*/
-					wchar_t* Ptr2=Ptr-1;
 
-					if (!IsSlash(*Ptr2)) // Это имя модуля?
+					size_t SlashPos = EndPos - 1;
+
+					if (!IsSlash(strTopic[SlashPos])) // Это имя модуля?
 					{
 						// значит удалим это чертово имя :-)
-						if (!(Ptr2=const_cast<wchar_t*>(LastSlash(lpwszTopic)))) // ВО! Фигня какая-то :-(
-							*lpwszTopic=0;
+						auto Ptr = LastSlash(strTopic.data());
+						if (Ptr)
+							SlashPos = Ptr - strTopic.data();
+						else // ВО! Фигня какая-то :-(
+							strTopic.clear();
 					}
 
-					if (*lpwszTopic)
+					if (!strTopic.empty())
 					{
-						/* $ 21.08.2001 KM
-						  - Неверно создавался топик с учётом нового правила,
-						    в котором путь для топика должен заканчиваться "/".
-						*/
-						wmemmove(Ptr2+1,Ptr,StrLength(Ptr)+1); //???
-						// А вот ЗДЕСЬ теперь все по правилам Help API!
+						strTopic.erase(SlashPos + 1, EndPos - SlashPos - 1);
 					}
 				}
-
-				ReleaseStringBuffer(strTopic);
 			}
 		}
 	}
-
 	return !strTopic.empty();
 }
 
