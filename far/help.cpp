@@ -1455,9 +1455,7 @@ int Help::JumpTopic()
 	}
 
 	// удалим ссылку на .DLL
-//	wchar_t *lpwszNewTopic = GetStringBuffer(strNewTopic);
 	size_t EndPos = strNewTopic.rfind(HelpEndLink);
-//	wchar_t *p=wcsrchr(lpwszNewTopic,HelpEndLink);
 
 	if (EndPos != string::npos)
 	{
