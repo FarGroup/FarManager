@@ -64,9 +64,6 @@ bool MixToFullPath(string& strPath)
 		//fragment "."
 		if (IsDot(strPath[Pos]) && (!Pos || IsSlash(strPath[Pos - 1])))
 		{
-			size_t SrcPos;
-			size_t DstPos;
-
 			switch (strPath[Pos + 1])
 			{
 					//fragment ".\"
