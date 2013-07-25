@@ -583,8 +583,6 @@ void FindFiles::SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool Upd
 			Global->CtrlObject->Cp()->ActivePanel->GoToFile(NamePtr);
 			Global->CtrlObject->Cp()->ActivePanel->Show();
 		}
-
-		//strName.ReleaseBuffer(); Не надо. Строка все ровно удаляется, лишний вызов StrLength.
 	}
 }
 

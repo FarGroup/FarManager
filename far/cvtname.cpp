@@ -506,75 +506,44 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 			if (CheckFullPath)
 			{
-				ConvertNameToFull(strPath,strPath);
-				size_t FullLen=strPath.size();
-				wchar_t *lpwszPath = GetStringBuffer(strPath), *Src=lpwszPath;
+				ConvertNameToFull(strPath, strPath);
 
-				size_t DirOffset;
+				size_t DirOffset = 0;
 				PATH_TYPE Type = ParsePath(strPath, &DirOffset);
-				if (Type != PATH_UNKNOWN)
+				if (Type == PATH_UNKNOWN && HasPathPrefix(strPath))
 				{
-					Src = const_cast<wchar_t*>(strPath.data() + DirOffset);
-					if (IsSlash(*Src))
-						Src++;
-				}
-				else
-				{
-					if(HasPathPrefix(lpwszPath)) // \\?\<ANY_UNKNOWN_FORMAT>
-					{
-						Src = lpwszPath + 4;
-					}
+					DirOffset = 4;
 				}
 
-				if (*Src)
-				{
-					wchar_t *Dst=Src;
+				size_t StartPos = DirOffset + (IsSlash(strPath[DirOffset])? 1 : 0);
 
-					for (wchar_t c=*Src; ; Src++,c=*Src)
+				if (StartPos < strPath.size())
+				{
+					string TmpStr;
+					TmpStr.reserve(strPath.size());
+					size_t LastPos = StartPos;
+					bool EndsWithSlash = IsSlash(strPath.back());
+
+					for (size_t i = StartPos; i <= strPath.size(); ++i)
 					{
-						if (IsSlash(c) || (!c && !IsSlash(*(Src-1))))
+						if (IsSlash(strPath[i]) || (i == strPath.size() && !EndsWithSlash))
 						{
-							*Src=0;
+							TmpStr = strPath.substr(0, i);
 							FAR_FIND_DATA fd;
-							bool find=apiGetFindDataEx(lpwszPath,fd);
-							*Src=c;
 
-							if (find)
+							if (apiGetFindDataEx(TmpStr, fd))
 							{
-								size_t n=fd.strFileName.size();
-								int n1=(int)(n-(Src-Dst));
-
-								if (n1>0)
-								{
-									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
-									ReleaseStringBuffer(strPath, FullLen);
-									lpwszPath = GetStringBuffer(strPath, FullLen + n1 + 1);
-									Src=lpwszPath+dSrc;
-									Dst=lpwszPath+dDst;
-								}
-
-								if (n1)
-								{
-									wmemmove(Src+n1,Src,FullLen-(Src-lpwszPath)+1);
-									Src+=n1;
-									FullLen+=n1;
-								}
-
-								wmemcpy(Dst,fd.strFileName.data(),n);
+								strPath.replace(LastPos, i - LastPos, fd.strFileName);
+								i += fd.strFileName.size() - (i - LastPos);
 							}
 
-							if (c)
+							if (i != strPath.size())
 							{
-								Dst=Src+1;
+								LastPos = i + 1;
 							}
 						}
-
-						if (!*Src)
-							break;
 					}
 				}
-
-				ReleaseStringBuffer(strPath, FullLen);
 			}
 
 			if (ParsePath(strPath) == PATH_DRIVELETTER)

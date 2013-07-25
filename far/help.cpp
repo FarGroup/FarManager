@@ -1490,8 +1490,6 @@ int Help::JumpTopic()
 		}
 	}
 
-	ReleaseStringBuffer(strNewTopic);
-
 	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
 	if (StackData.strSelTopic.front() != L':' &&
 	        (StrCmpI(StackData.strSelTopic.data(),PluginContents) || StrCmpI(StackData.strSelTopic.data(),FoundContents))
