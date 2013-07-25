@@ -1455,37 +1455,34 @@ int Help::JumpTopic()
 	}
 
 	// удалим ссылку на .DLL
-	wchar_t *lpwszNewTopic = GetStringBuffer(strNewTopic);
-	wchar_t *p=wcsrchr(lpwszNewTopic,HelpEndLink);
+//	wchar_t *lpwszNewTopic = GetStringBuffer(strNewTopic);
+	size_t EndPos = strNewTopic.rfind(HelpEndLink);
+//	wchar_t *p=wcsrchr(lpwszNewTopic,HelpEndLink);
 
-	if (p)
+	if (EndPos != string::npos)
 	{
-		if (!IsSlash(*(p-1)))
+		if (!IsSlash(strNewTopic[EndPos - 1]))
 		{
-			const wchar_t *p2=p;
+			size_t Pos2 = EndPos;
 
-			while (p >= lpwszNewTopic)
+			while (EndPos != string::npos)
 			{
-				if (IsSlash(*p))
+				if (IsSlash(strNewTopic[EndPos]))
 				{
-					//++p;
-					if (*p)
-					{
-						StackData.Flags|=FHELP_CUSTOMFILE;
-						StackData.strHelpMask = p+1;
-						StackData.strHelpMask.resize(StackData.strHelpMask.find(HelpEndLink));
-					}
+					StackData.Flags|=FHELP_CUSTOMFILE;
+					StackData.strHelpMask = strNewTopic.substr(EndPos + 1);
+					StackData.strHelpMask.resize(StackData.strHelpMask.find(HelpEndLink));
 
-					wmemmove(p,p2,StrLength(p2)+1);
-					const wchar_t *p3=wcsrchr(StackData.strHelpMask.data(),L'.');
+					strNewTopic.erase(EndPos, Pos2 - EndPos);
 
-					if (p3 && StrCmpI(p3,L".hlf"))
+					size_t Pos3 = StackData.strHelpMask.rfind(L'.');
+					if (Pos3 != string::npos && StrCmpI(StackData.strHelpMask.data() + Pos3, L".hlf"))
 						StackData.strHelpMask.clear();
 
 					break;
 				}
 
-				--p;
+				--EndPos;
 			}
 		}
 		else
