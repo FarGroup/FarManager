@@ -337,8 +337,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 			// roaming data default path: %APPDATA%\Far Manager\Profile
 			wchar_t Buffer[MAX_PATH];
 			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-			AddEndSlash(Buffer);
 			Global->Opt->ProfilePath = Buffer;
+			AddEndSlash(Global->Opt->ProfilePath);
 			Global->Opt->ProfilePath += L"Far Manager";
 
 			if (UseSystemProfiles == 2)
@@ -349,8 +349,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 			{
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
 				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-				AddEndSlash(Buffer);
 				Global->Opt->LocalProfilePath = Buffer;
+				AddEndSlash(Global->Opt->LocalProfilePath);
 				Global->Opt->LocalProfilePath += L"Far Manager";
 			}
 

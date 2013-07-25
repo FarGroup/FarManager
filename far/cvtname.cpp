@@ -54,81 +54,70 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
-	LPWSTR pstPath = GetStringBuffer(strPath);
 	size_t DirOffset = 0;
 	ParsePath(strPath, &DirOffset);
-	pstPath+=DirOffset;
 	bool ok = true;
 
 	//Process "." and ".." if exists
-	for (size_t m = 0; pstPath[m];)
+	for (size_t Pos = DirOffset; Pos < strPath.size();)
 	{
 		//fragment "."
-		if (IsDot(pstPath[m]) && (!m || IsSlash(pstPath[m - 1])))
+		if (IsDot(strPath[Pos]) && (!Pos || IsSlash(strPath[Pos - 1])))
 		{
-			LPCWSTR pstSrc;
-			LPWSTR pstDst;
+			size_t SrcPos;
+			size_t DstPos;
 
-			switch (pstPath[m + 1])
+			switch (strPath[Pos + 1])
 			{
 					//fragment ".\"
 				case L'\\':
 					//fragment "./"
 				case L'/':
 				{
-					for (pstSrc = pstPath + m + 2, pstDst = pstPath + m; *pstSrc; pstSrc++, pstDst++)
-					{
-						*pstDst = *pstSrc;
-					}
-
-					*pstDst = 0;
+					strPath.erase(Pos, 2);
 					continue;
 				}
 				break;
+
 				//fragment "." at the end
 				case 0:
 				{
-					pstPath[m] = 0;
+					strPath.resize(Pos);
 					// don't change x:\ to x:
-					if (pstPath[m-2] != L':')
+					if (strPath[Pos - 2] != L':')
 					{
-						pstPath[m-1] = 0;
+						strPath.pop_back();
 					}
 					continue;
 				}
 				break;
+
 				//fragment "..\" or "../" or ".." at the end
 				case L'.':
 				{
-					if (IsSlash(pstPath[m + 2]) || !pstPath[m + 2])
+					if (IsSlash(strPath[Pos + 2]) || Pos + 2 == strPath.size())
 					{
-						if (!m) // ".." on the top level
+						if (Pos == DirOffset) // ".." on the top level
 							ok = false;
 
-						int n;
-
 						//Calculate subdir name offset
-						for (n = static_cast<int>(m - 2); (n >= 0) && (!IsSlash(pstPath[n])); n--);
-
-						n = (n < 0) ? 0 : n + 1;
+						size_t n = Pos - 2;
+						while (n > DirOffset && !IsSlash(strPath[n]))
+							--n;
+						++n;
 
 						//fragment "..\" or "../"
-						if (pstPath[m + 2])
+						if (Pos + 2 < strPath.size())
 						{
-							for (pstSrc = pstPath + m + 3, pstDst = pstPath + n; *pstSrc; pstSrc++, pstDst++)
-							{
-								*pstDst = *pstSrc;
-							}
-
-							*pstDst = 0;
+							strPath.erase(n, Pos + 3 - n);
 						}
 						//fragment ".." at the end
 						else
 						{
-							pstPath[n] = 0;
+							strPath.resize(n);
 						}
 
-						m = n;
+						Pos = n;
 						continue;
 					}
 				}
@@ -136,10 +125,9 @@ bool MixToFullPath(string& strPath)
 			}
 		}
 
-		m++;
+		++Pos;
 	}
 
-	ReleaseStringBuffer(strPath);
 	return ok;
 }
 
