@@ -820,7 +820,7 @@ int ReplaceStrings(string &strStr,const string& FindStr,const string& ReplStr,in
 		{
 			strStr.replace(I, LenFindStr, ReplStr);
 			L += LenReplStr - LenFindStr;
-			I += LenReplStr - LenFindStr - 1;
+			I += LenReplStr - 1;
 			++replaced;
 
 			if (!--Count)
