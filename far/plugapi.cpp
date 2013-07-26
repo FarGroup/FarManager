@@ -1572,12 +1572,12 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 	int editorExitCode;
 	int ExitCode=EEC_OPEN_ERROR;
-	string strTitle(Title);
+	string strTitle(NullToEmpty(Title));
 
 	if (Flags & EF_NONMODAL)
 	{
 		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileEditor *Editor=new FileEditor(FileName,CodePage,
+		FileEditor *Editor=new FileEditor(NullToEmpty(FileName), CodePage,
 		                                  (CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|
 		                                   (DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|
 		                                   (Locked?FFILEEDIT_LOCKED:0)|

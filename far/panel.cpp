@@ -2421,7 +2421,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
 			if (CheckStructSize(dirInfo))
 			{
-				string strName(dirInfo->Name),strFile(dirInfo->File),strParam(dirInfo->Param);
+				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
 				Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
