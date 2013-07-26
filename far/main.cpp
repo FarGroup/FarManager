@@ -279,6 +279,7 @@ static int MainProcess(
 		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		Global->Console->SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetShadow();
+		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 		MoveRealCursor(0,0);
 
