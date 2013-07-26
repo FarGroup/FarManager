@@ -526,7 +526,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 					for (size_t i = StartPos; i <= strPath.size(); ++i)
 					{
-						if (IsSlash(strPath[i]) || (i == strPath.size() && !EndsWithSlash))
+						if ((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash))
 						{
 							TmpStr = strPath.substr(0, i);
 							FAR_FIND_DATA fd;

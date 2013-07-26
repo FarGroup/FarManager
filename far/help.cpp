@@ -422,7 +422,7 @@ int Help::ReadHelp(const string& Mask)
 			HighlightsCorrection(strReadStr);
 		}
 
-		if (strReadStr[0]==L'@' && !BreakProcess)
+		if (!strReadStr.empty() && strReadStr[0]==L'@' && !BreakProcess)
 		{
 			if (TopicFound)
 			{
@@ -492,7 +492,7 @@ m1:
 					continue;
 				}
 
-				if (!(strReadStr[0]==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
+				if (!((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
 					NearTopicFound=0;
 
 				/* $<text> в начале строки, определение темы
@@ -505,7 +505,7 @@ m1:
 					LastStartPos = (DWORD)-1;
 				}
 
-				if (strReadStr[0]==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
+				if ((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
 					AddLine(strReadStr.data()+1);
 					FixCount++;
@@ -640,7 +640,7 @@ m1:
 			}
 		}
 
-		PrevSymbol=strReadStr[0];
+		PrevSymbol = strReadStr.empty() ? L'\0' : strReadStr[0];
 	}
 
 	AddLine(L"");
