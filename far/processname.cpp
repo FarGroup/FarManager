@@ -47,102 +47,87 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolderNameLength)
+bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolderNameLength)
 {
-	string strPartAfterFolderName;
-	string strSrc = SrcName;
-	wchar_t *DestName = GetStringBuffer(strDest, strDest.size() + strSrc.size() + 1);  //???
-	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
-	string strWildName = DestNamePtr;
+	size_t DestNamePos = PointToName(strDest.data()) - strDest.data();
 
-	if (strWildName.find(L'*') == string::npos && strWildName.find(L'?') == string::npos)
+	if (strDest.find_first_of(L"*?", DestNamePos) == string::npos)
 	{
-		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
-		return FALSE;
+		return false;
 	}
 
-	if (SelectedFolderNameLength)
-	{
-		strPartAfterFolderName = (strSrc.data()+SelectedFolderNameLength);
-		strSrc.resize(SelectedFolderNameLength);
-	}
+	const string strWildName = strDest.substr(DestNamePos);
+	const string strPartAfterFolderName = SelectedFolderNameLength? SrcName.substr(SelectedFolderNameLength) : string();
 
+	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
 	const wchar_t *Src = strSrc.data();
-
 	const wchar_t *SrcNamePtr = PointToName(Src);
 
-	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
+	strDest.resize(strDest.size() + SrcName.size());
 
-	string PartBeforeName(Src, BeforeNameLength);
+	size_t BeforeNameLength = DestNamePos? 0 : SrcNamePtr-Src;
 
 	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
-
 	const wchar_t *CurWildPtr = strWildName.data();
 
 	while (*CurWildPtr)
 	{
 		switch (*CurWildPtr)
 		{
-			case L'?':
-				CurWildPtr++;
+		case L'?':
+			CurWildPtr++;
 
-				if (*SrcNamePtr)
-					*(DestNamePtr++)=*(SrcNamePtr++);
+			if (*SrcNamePtr)
+			{
+				strDest[DestNamePos++] = *(SrcNamePtr++);
+			}
+			break;
 
-				break;
-			case L'*':
-				CurWildPtr++;
-
-				while (*SrcNamePtr)
+		case L'*':
+			CurWildPtr++;
+			while (*SrcNamePtr)
+			{
+				if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
 				{
-					if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
-					{
-						if (SrcNamePtr==SrcNameDot)
-							break;
-					}
-					else if (*SrcNamePtr==*CurWildPtr)
-					{
+					if (SrcNamePtr==SrcNameDot)
 						break;
-					}
-
-					*(DestNamePtr++)=*(SrcNamePtr++);
 				}
+				else if (*SrcNamePtr==*CurWildPtr)
+				{
+					break;
+				}
+				strDest[DestNamePos++] = *(SrcNamePtr++);
+			}
+			break;
 
-				break;
-			case L'.':
-				CurWildPtr++;
-				*(DestNamePtr++)=L'.';
+		case L'.':
+			CurWildPtr++;
+			strDest[DestNamePos++] = L'.';
 
-				if (wcspbrk(CurWildPtr,L"*?"))
-					while (*SrcNamePtr)
-						if (*(SrcNamePtr++)==L'.')
-							break;
+			if (wcspbrk(CurWildPtr,L"*?"))
+				while (*SrcNamePtr)
+					if (*(SrcNamePtr++)==L'.')
+						break;
+			break;
 
-				break;
-			default:
-				*(DestNamePtr++)=*(CurWildPtr++);
-
-				if (*SrcNamePtr && *SrcNamePtr!=L'.')
-					SrcNamePtr++;
-
-				break;
+		default:
+			strDest[DestNamePos++] = *(CurWildPtr++);
+			if (*SrcNamePtr && *SrcNamePtr!=L'.')
+				SrcNamePtr++;
+			break;
 		}
 	}
+	strDest.resize(DestNamePos);
 
-	*DestNamePtr=0;
+	if (!strDest.empty() && strDest.back() == L'.')
+		strDest.pop_back();
 
-	if (DestNamePtr!=DestName && *(DestNamePtr-1)==L'.')
-		*(DestNamePtr-1)=0;
-
-	ReleaseStringBuffer(strDest);
-
-	if (!PartBeforeName.empty())
-		strDest.insert(0, PartBeforeName);
+	strDest.insert(0, Src, BeforeNameLength);
 
 	if (SelectedFolderNameLength)
 		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
-	return TRUE;
+	return true;
 }
 
 

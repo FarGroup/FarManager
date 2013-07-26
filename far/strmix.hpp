@@ -133,14 +133,6 @@ string str_printf(const wchar_t * format, ...);
 inline string& Upper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towupper); return str;}
 inline string& Lower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towlower); return str;}
 
-// BUGBUG, eliminate
-wchar_t *GetStringBuffer(string& str, size_t size = string::npos);
-// BUGBUG, eliminate
-void ReleaseStringBuffer(string& str, size_t size = string::npos);
-#ifdef _DEBUG
-#pragma deprecated(GetStringBuffer, ReleaseStringBuffer)
-#endif
-
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
 enum STL_FLAGS

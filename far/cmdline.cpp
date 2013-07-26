@@ -89,6 +89,8 @@ CommandLine::~CommandLine()
 {
 	if (BackgroundScreen)
 		delete BackgroundScreen;
+
+	Global->ScrBuf->Flush(true);
 }
 
 void CommandLine::SetPersistentBlocks(bool Mode)

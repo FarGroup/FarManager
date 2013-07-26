@@ -1792,7 +1792,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.size():0;
 		if (UseWildCards)
-			ConvertWildcards(strSelName.data(), strDest, SelectedFolderNameLength);
+			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
 
 		bool simple_rename = false;
 		if (move_rename && first && SrcPanel->GetSelCount() == 1 && !src_abspath)

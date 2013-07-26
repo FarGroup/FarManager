@@ -1478,10 +1478,9 @@ string wide(const char *str, uintptr_t codepage)
 	string result;
 	if (str && *str)
 	{
-		size_t size = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
-		wchar_t_ptr Buffer(size);
-		size = MultiByteToWideChar(codepage, 0, str, -1, Buffer.get(), static_cast<int>(size));
-		result.assign(Buffer.get(), size);
+		wchar_t_ptr Buffer(MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0));
+		MultiByteToWideChar(codepage, 0, str, -1, Buffer.get(), static_cast<int>(Buffer.size()));
+		result.assign(Buffer.get(), Buffer.size() - 1);
 	}
 	return result;
 }
@@ -1507,27 +1506,6 @@ string str_printf(const wchar_t * format, ...)
 	va_end(argptr);
 	return string(buffer.get());
 }
-
-// BUGBUG, eliminate
-wchar_t *GetStringBuffer(string& str, size_t size)
-{
-	if (size == string::npos)
-		size = str.size();
-
-	if (size == str.size()) // force reallocating string data
-		str.resize(size+1);
-
-	str.resize(size);
-
-	return const_cast<wchar_t*>(str.data());
-}
-
-// BUGBUG, eliminate
-void ReleaseStringBuffer(string& str, size_t size)
-{
-	str.resize(size == string::npos ? wcslen(str.data()) : size);
-}
-
 
 std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)
 {

@@ -34,5 +34,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
+bool ConvertWildcards(const string& SrcName,string &strDest, int SelectedFolderNameLength);
 int CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath=true, bool CmpNameSearchMode=false);

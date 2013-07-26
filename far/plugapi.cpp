@@ -2559,8 +2559,8 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 
 	case PN_GENERATENAME:
 		{
-			string strResult = param2;
-			int nResult = ConvertWildcards(param1, strResult, Length);
+			string strResult = NullToEmpty(param2);
+			int nResult = ConvertWildcards(NullToEmpty(param1), strResult, Length);
 			xwcsncpy(param2, strResult.data(), size);
 			return nResult;
 		}
