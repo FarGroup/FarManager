@@ -389,11 +389,14 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 	strClipText += L"\r\n";
 	for (size_t i = ItemsNumber-Buttons; i < ItemsNumber; ++i)
 	{
-		if(i > ItemsNumber-Buttons)
+		if (Items[i])
 		{
-			strClipText += L' ';
+			if(i > ItemsNumber-Buttons)
+			{
+				strClipText += L' ';
+			}
+			strClipText += Items[i];
 		}
-		strClipText += Items[i];
 	}
 
 	StrCount+=CountErrorLine;
