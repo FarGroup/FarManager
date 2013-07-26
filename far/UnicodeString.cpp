@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef USE_STD_STRING
+#ifdef USE_OWN_STRING
 
 void UnicodeString::SetEUS()
 {

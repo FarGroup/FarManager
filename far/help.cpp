@@ -440,7 +440,7 @@ int Help::ReadHelp(const string& Mask)
 					continue;
 				}
 
-				if (strSplitLine.front())
+				if (!strSplitLine.empty())
 				{
 					BreakProcess=TRUE;
 					strReadStr.clear();
@@ -952,13 +952,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 		x = X1 + 1 + std::max(0, (X2 - X1 - 1 - w)/2);
 	}
 
-	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.front());
+	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar[0]);
 }
 
 int Help::StringLen(const string& Str)
 {
 	int len = 0;
-	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar.front());
+	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar[0]);
 	return len;
 }
 
@@ -967,7 +967,7 @@ void Help::OutString(const wchar_t *Str)
 	wchar_t OutStr[512]; //BUGBUG
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
-	wchar_t cColor = strCtrlColorChar.front();
+	wchar_t cColor = strCtrlColorChar[0];
 
 	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{

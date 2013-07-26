@@ -544,7 +544,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			string strWorkTimeStr,strTimeLeftStr;
 			GetTimeText(WorkTime,strWorkTimeStr);
 			GetTimeText(TimeLeft,strTimeLeftStr);
-			if(strSpeed.front() == L' ' && strSpeed.back() >= L'0' && strSpeed.back() <= L'9')
+			if(!strSpeed.empty() && strSpeed.front() == L' ' && strSpeed.back() >= L'0' && strSpeed.back() <= L'9')
 			{
 				strSpeed.erase(0, 1);
 				strSpeed+=L" ";
