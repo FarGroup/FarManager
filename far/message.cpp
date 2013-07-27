@@ -382,7 +382,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	for (size_t i = 0; i < ItemsNumber-Buttons; ++i)
 	{
-		strClipText.append(Items[i]).append(L"\r\n");
+		strClipText.append(NullToEmpty(Items[i])).append(L"\r\n");
 	}
 	strClipText += L"\r\n";
 	for (size_t i = ItemsNumber-Buttons; i < ItemsNumber; ++i)
