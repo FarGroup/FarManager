@@ -136,8 +136,8 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA *pDe
 	pDest->ftChangeTime = pSrc->ChangeTime;
 	pDest->nFileSize = pSrc->FileSize;
 	pDest->nAllocationSize = pSrc->AllocationSize;
-	pDest->strFileName = pSrc->FileName;
-	pDest->strAlternateFileName = pSrc->AlternateFileName;
+	pDest->strFileName = NullToEmpty(pSrc->FileName);
+	pDest->strAlternateFileName = NullToEmpty(pSrc->AlternateFileName);
 }
 
 void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDest)
