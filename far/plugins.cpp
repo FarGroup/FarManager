@@ -1949,7 +1949,7 @@ bool PluginManager::GetDiskMenuItem(
 	{
 		string strHotKey;
 		GetPluginHotKey(pPlugin,Guid,PluginsHotkeysConfig::DRIVE_MENU,strHotKey);
-		PluginHotkey = strHotKey[0];
+		PluginHotkey = strHotKey.empty() ? 0 : strHotKey[0];
 	}
 
 	return true;

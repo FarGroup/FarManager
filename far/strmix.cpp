@@ -196,7 +196,7 @@ string& TruncStrFromEnd(string &strStr, int maxLength)
 	if (strStr.size() > MaxLength)
 	{
 		strStr.resize(MaxLength);
-		if (MaxLength > DotsLen)
+		if (MaxLength > (size_t)DotsLen)
 			strStr.replace(MaxLength-DotsLen, DotsLen, DotsLen, L'.');
 	}
 	return strStr;
@@ -250,7 +250,7 @@ string& TruncStr(string &strStr, int maxLength)
 	if (Length > MaxLength)
 	{
 		strStr.assign(strStr.data()+Length-MaxLength, MaxLength);
-		if (MaxLength > DotsLen)
+		if (MaxLength > (size_t)DotsLen)
 			strStr.replace(0, DotsLen, DotsLen, L'.');
 	}
 	return strStr;
@@ -289,7 +289,7 @@ string& TruncStrFromCenter(string &strStr, int maxLength)
 
 	if (Length > MaxLength)
 	{
-		if (MaxLength > DotsLen)
+		if (MaxLength > (size_t)DotsLen)
 		{
 			size_t start = (MaxLength - DotsLen) / 2;
 			strStr.replace(start, Length-MaxLength+DotsLen, DotsLen, L'.');
