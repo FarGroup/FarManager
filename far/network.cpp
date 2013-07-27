@@ -132,9 +132,7 @@ void ConnectToNetworkDrive(const string& NewDir)
 
 			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
-				string strMsgStr;
-				GetErrorString(strMsgStr);
-				Message(MSG_WARNING, 1,	MSG(MError), strMsgStr.data(), MSG(MOk));
+				Message(MSG_WARNING, 1, MSG(MError), GetErrorString().data(), MSG(MOk));
 				break;
 			}
 		}

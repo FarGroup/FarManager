@@ -658,58 +658,62 @@ static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 	xf_free(UserData);
 }
 
-static void ConvertAnsiPanelItemToUnicode(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
 {
-	*PanelItemW = new PluginPanelItem[ItemsNumber]();
+	PluginPanelItem *Result = new PluginPanelItem[ItemsNumber]();
 
-	for (size_t i=0; i<ItemsNumber; i++)
+	auto& AIter = PanelItemA;
+	auto& WIter = Result;
+
+	for (; AIter != PanelItemA + ItemsNumber; ++AIter, ++WIter)
 	{
-		(*PanelItemW)[i].Flags = 0;
-		if(PanelItemA[i].Flags&oldfar::PPIF_PROCESSDESCR)
-			(*PanelItemW)[i].Flags|=PPIF_PROCESSDESCR;
-		if(PanelItemA[i].Flags&oldfar::PPIF_SELECTED)
-			(*PanelItemW)[i].Flags|=PPIF_SELECTED;
+		WIter->Flags = 0;
+		if(AIter->Flags&oldfar::PPIF_PROCESSDESCR)
+			WIter->Flags|=PPIF_PROCESSDESCR;
+		if(AIter->Flags&oldfar::PPIF_SELECTED)
+			WIter->Flags|=PPIF_SELECTED;
 
-		(*PanelItemW)[i].NumberOfLinks = PanelItemA[i].NumberOfLinks;
+		WIter->NumberOfLinks = AIter->NumberOfLinks;
 
-		if (PanelItemA[i].Description)
-			(*PanelItemW)[i].Description = AnsiToUnicode(PanelItemA[i].Description);
+		if (AIter->Description)
+			WIter->Description = AnsiToUnicode(AIter->Description);
 
-		if (PanelItemA[i].Owner)
-			(*PanelItemW)[i].Owner = AnsiToUnicode(PanelItemA[i].Owner);
+		if (AIter->Owner)
+			WIter->Owner = AnsiToUnicode(AIter->Owner);
 
-		if (PanelItemA[i].CustomColumnNumber)
+		if (AIter->CustomColumnNumber)
 		{
-			(*PanelItemW)[i].CustomColumnNumber = PanelItemA[i].CustomColumnNumber;
-			(*PanelItemW)[i].CustomColumnData = ArrayAnsiToUnicode(PanelItemA[i].CustomColumnData,PanelItemA[i].CustomColumnNumber);
+			WIter->CustomColumnNumber = AIter->CustomColumnNumber;
+			WIter->CustomColumnData = ArrayAnsiToUnicode(AIter->CustomColumnData, AIter->CustomColumnNumber);
 		}
 
-		if(PanelItemA[i].Flags&oldfar::PPIF_USERDATA)
+		if(AIter->Flags&oldfar::PPIF_USERDATA)
 		{
-			void* UserData = (void*)PanelItemA[i].UserData;
+			void* UserData = (void*)AIter->UserData;
 			DWORD Size=*(DWORD *)UserData;
-			(*PanelItemW)[i].UserData.Data = xf_malloc(Size);
-			memcpy((*PanelItemW)[i].UserData.Data,UserData,Size);
-			(*PanelItemW)[i].UserData.FreeData = FreeUserData;
+			WIter->UserData.Data = xf_malloc(Size);
+			memcpy(WIter->UserData.Data,UserData,Size);
+			WIter->UserData.FreeData = FreeUserData;
 		}
 		else
 		{
-			(*PanelItemW)[i].UserData.Data = (void*)PanelItemA[i].UserData;
-			(*PanelItemW)[i].UserData.FreeData = nullptr;
+			WIter->UserData.Data = (void*)AIter->UserData;
+			WIter->UserData.FreeData = nullptr;
 		}
-		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
-		(*PanelItemW)[i].FileAttributes = PanelItemA[i].FindData.dwFileAttributes;
-		(*PanelItemW)[i].CreationTime = PanelItemA[i].FindData.ftCreationTime;
-		(*PanelItemW)[i].LastAccessTime = PanelItemA[i].FindData.ftLastAccessTime;
-		(*PanelItemW)[i].LastWriteTime = PanelItemA[i].FindData.ftLastWriteTime;
-		(*PanelItemW)[i].FileSize = (unsigned __int64)PanelItemA[i].FindData.nFileSizeLow + (((unsigned __int64)PanelItemA[i].FindData.nFileSizeHigh)<<32);
-		(*PanelItemW)[i].AllocationSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
-		(*PanelItemW)[i].FileName = AnsiToUnicode(PanelItemA[i].FindData.cFileName);
-		(*PanelItemW)[i].AlternateFileName = AnsiToUnicode(PanelItemA[i].FindData.cAlternateFileName);
+		WIter->CRC32 = AIter->CRC32;
+		WIter->FileAttributes = AIter->FindData.dwFileAttributes;
+		WIter->CreationTime = AIter->FindData.ftCreationTime;
+		WIter->LastAccessTime = AIter->FindData.ftLastAccessTime;
+		WIter->LastWriteTime = AIter->FindData.ftLastWriteTime;
+		WIter->FileSize = (unsigned __int64)AIter->FindData.nFileSizeLow + (((unsigned __int64)AIter->FindData.nFileSizeHigh)<<32);
+		WIter->AllocationSize = (unsigned __int64)AIter->PackSize + (((unsigned __int64)AIter->PackSizeHigh)<<32);
+		WIter->FileName = AnsiToUnicode(AIter->FindData.cFileName);
+		WIter->AlternateFileName = AnsiToUnicode(AIter->FindData.cAlternateFileName);
 	}
+	return Result;
 }
 
-static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA)
+static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA, size_t PathOffset = 0)
 {
 	PanelItemA.Flags = 0;
 
@@ -757,7 +761,7 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FileSize>>32);
 	PanelItemA.PackSize = (DWORD)PanelItem.AllocationSize;
 	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.AllocationSize>>32);
-	UnicodeToOEM(PanelItem.FileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
+	UnicodeToOEM(PanelItem.FileName + PathOffset,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
 	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
 
@@ -1088,10 +1092,12 @@ static void WINAPI GetPathRootA(const char *Path, char *Root)
 
 static int WINAPI CopyToClipboardA(const char *Data)
 {
-	wchar_t *p = Data? AnsiToUnicode(Data) : nullptr;
-	int ret = NativeFSF.CopyToClipboard(FCT_STREAM, p);
-	delete[] p;
-	return ret;
+	if (Data)
+	{
+		string str = wide(Data);
+		return NativeFSF.CopyToClipboard(FCT_STREAM, str.data());
+	}
+	return FALSE;
 }
 
 static char* WINAPI PasteFromClipboardA()
@@ -3470,32 +3476,16 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			return ret;
 		}
+
 		case oldfar::FCTL_INSERTCMDLINE:
-		{
-			if (!Param)
-				return FALSE;
+			return Param? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_INSERTCMDLINE, 0, UNSAFE_CSTR(wide(reinterpret_cast<const char*>(Param))))) : FALSE;
 
-			wchar_t* s = AnsiToUnicode((const char*)Param);
-			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_INSERTCMDLINE,0,s));
-			delete[] s;
-			return ret;
-		}
 		case oldfar::FCTL_SETCMDLINE:
-		{
-			if (!Param)
-				return FALSE;
+			return Param? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINE, 0, UNSAFE_CSTR(wide(reinterpret_cast<const char*>(Param))))) : FALSE;
 
-			wchar_t* s = AnsiToUnicode((const char*)Param);
-			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINE,0,s));
-			delete[] s;
-			return ret;
-		}
 		case oldfar::FCTL_SETCMDLINEPOS:
+			return Param? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINEPOS,*(int*)Param,0)) : FALSE;
 
-			if (!Param)
-				return FALSE;
-
-			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINEPOS,*(int*)Param,0));
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
 			if (!Param)
@@ -3545,14 +3535,7 @@ static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPane
 
 		for (size_t i=0; i<ItemsNumber; i++)
 		{
-			(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].FileAttributes;
-			(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].CreationTime;
-			(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].LastAccessTime;
-			(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].LastWriteTime;
-			(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].FileSize;
-			(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].FileSize>>32);
-			UnicodeToOEM(pItems[i].FileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
-			UnicodeToOEM(pItems[i].AlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
+			ConvertPanelItemToAnsi(pItems[i], (*pPanelItem)[i], PathOffset);
 		}
 
 		NativeInfo.FreeDirList(pItems,ItemsNumber);
@@ -5247,7 +5230,7 @@ int PluginA::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, si
 
 		if (es && *pItemsNumber)
 		{
-			ConvertAnsiPanelItemToUnicode(pVFDPanelItemA, pPanelItem, *pItemsNumber);
+			*pPanelItem = ConvertAnsiPanelItemsToUnicode(pVFDPanelItemA, *pItemsNumber);
 		}
 	}
 
@@ -5383,7 +5366,7 @@ int PluginA::GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *p
 		*pItemsNumber = ItemsNumber;
 		if (es && *pItemsNumber)
 		{
-			ConvertAnsiPanelItemToUnicode(pFDPanelItemA, pPanelItem, *pItemsNumber);
+			*pPanelItem = ConvertAnsiPanelItemsToUnicode(pFDPanelItemA, *pItemsNumber);
 		}
 	}
 	return es;

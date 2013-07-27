@@ -97,4 +97,4 @@ private:
 */
 bool AbortMessage();
 
-bool GetErrorString(string &strErrStr);
+string GetErrorString();

@@ -50,32 +50,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "language.hpp"
 
-static bool FormatErrorString(bool Nt, DWORD Code, string& Str)
+static string FormatErrorString(bool Nt, DWORD Code)
 {
 	LPWSTR lpBuffer=nullptr;
-	bool Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
-	Str=lpBuffer;
+	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr);
+	string Result(lpBuffer, size);
 	LocalFree(lpBuffer);
-	RemoveUnprintableCharacters(Str);
+	RemoveUnprintableCharacters(Result);
 	return Result;
 }
 
-static bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
+static string GetWin32ErrorString(DWORD LastWin32Error)
 {
-	return FormatErrorString(false, LastWin32Error, Str);
+	return FormatErrorString(false, LastWin32Error);
 }
 
-static bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
+static string GetNtErrorString(NTSTATUS LastNtStatus)
 {
-	return FormatErrorString(true, LastNtStatus, Str);
+	return FormatErrorString(true, LastNtStatus);
 }
 
-bool GetErrorString(string &strErrStr)
+string GetErrorString()
 {
 #ifdef USE_NT_MESSAGES
-	return GetNtErrorString(Global->CaughtStatus(), strErrStr);
+	return GetNtErrorString(Global->CaughtStatus());
 #else
-	return GetWin32ErrorString(Global->CaughtError(), strErrStr);
+	return GetWin32ErrorString(Global->CaughtError());
 #endif
 }
 
@@ -122,12 +122,9 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
-						string Txt[2];
-						GetWin32ErrorString(Global->CaughtError(), Txt[0]);
-						GetNtErrorString(Global->CaughtStatus(), Txt[1]);
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtError() << L" - " << Txt[0], 65);
-						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtStatus() << L" - " << Txt[1], 65);
+						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtError() << L" - " << GetWin32ErrorString(Global->CaughtError()), 65);
+						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtStatus() << L" - " << GetNtErrorString(Global->CaughtStatus()), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -219,7 +216,8 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 
 	if(IsErrorType)
 	{
-		ErrorSets = GetErrorString(strErrStr);
+		strErrStr = GetErrorString();
+		ErrorSets = !strErrStr.empty();
 	}
 
 #if 1 // try to replace inserts

@@ -949,6 +949,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 			}
 
+			Global->CatchError();
+
 			enum
 			{
 				CHDISKERROR_DOUBLEBOX,
@@ -961,8 +963,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				CHDISKERROR_BUTTON_CANCEL,
 			};
 			const wchar_t Drive[]={mitem->cDrive,L'\0'};
-			string strError;
-			GetErrorString(strError);
+			const string strError = GetErrorString();
 			int Len1=static_cast<int>(strError.size());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
 
