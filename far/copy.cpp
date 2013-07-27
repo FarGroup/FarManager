@@ -1815,21 +1815,21 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (!simple_rename)
 		{
-		string tpath;
-		if (RemoveDots(strDest, tpath))
-			strDest = tpath;
-		else
-		{
-			int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
-				MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.data(),
-				MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
-			if (rc == 1)
-				SkipMode = 2;
-			if (rc == 1 || !rc)
-				return COPY_NEXT;
+			string tpath;
+			if (RemoveDots(strDest, tpath))
+				strDest = tpath;
 			else
-				return COPY_CANCEL; // 2, -1, -2
-		}
+			{
+				int rc = Message(FMSG_WARNING, 3, MSG(MWarning),
+					MSG(move_rename?MCannotMoveToTwoDot:MCannotCopyToTwoDot),MSG(MCannotCopyMoveToTwoDot),strDest.data(),
+					MSG(MSkip), MSG(MCopySkipAll), MSG(MCancel));
+				if (rc == 1)
+					SkipMode = 2;
+				if (rc == 1 || !rc)
+					return COPY_NEXT;
+				else
+					return COPY_CANCEL; // 2, -1, -2
+			}
 		}
 
 		bool check_samedisk = false, dest_changed = false;
@@ -1905,6 +1905,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					TreeList::AddTreeName(strNewPath);
 				else
 					CreatePath(strNewPath);
+
+				DestAttr = apiGetFileAttributes(strDest);
 			}
 			else if (!(Attr & FILE_ATTRIBUTE_DIRECTORY))
 			{
