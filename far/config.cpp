@@ -474,7 +474,7 @@ void Options::MaskGroupsSettings()
 
 			case KEY_NUMPAD0:
 			case KEY_INS:
-				Item = nullptr;
+				Item = L"";
 			case KEY_ENTER:
 			case KEY_NUMENTER:
 			case KEY_F4:
