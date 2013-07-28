@@ -3,6 +3,182 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.07.2013 22:22:24 +0200 - build 3580
+
+1. Correction of previous build, there were problems with copying.
+
+drkns 28.07.2013 19:55:27 +0200 - build 3579
+
+1. More on correct processing of "." and ".." directories - looping is removed at tree including them.
+
+drkns 28.07.2013 16:34:30 +0200 - build 3578
+
+1. More on search for all occurrences.
+
+drkns 28.07.2013 15:56:53 +0200 - build 3577
+
+1. Correction of 3570.2.
+
+w17 28.07.2013 15:17:50 +0400 - build 3576
+
+1. Another correction of 3475
+
+drkns 28.07.2013 13:41:01 +0200 - build 3575
+
+1. 0002453: FAR freeze on directories delete
+
+drkns 28.07.2013 12:36:50 +0200 - build 3574
+
+1. In some cases, search for all occurrences in editor could crash
+
+2. While searching for all occurrences, a progress indicator was calculated incorrectly.
+
+shmuel 28.07.2013 10:09:10 +0200 - build 3573
+
+1. Crash on copying with F5 to ..\.. target directory
+
+w17 28.07.2013 00:34:28 +0400 - build 3572
+
+1. correction of 3475
+
+shmuel 27.07.2013 18:36:26 +0200 - build 3571
+
+1. More NullToEmpty (FAR crash with Hash Calculator plugin).
+
+drkns 27.07.2013 16:48:32 +0200 - build 3570
+
+1. Wrong error text was shown at attempt of changing to inexisting volume.
+
+2. A couple of issues in wrapper.
+
+drkns 27.07.2013 13:30:05 +0200 - build 3569
+
+1. 0002452: Can't add new Mask to 'Groups of file masks' (since ver3566)
+
+shmuel 27.07.2013 12:00:50 +0200 - build 3568
+
+1. More NullToEmpty (FAR crash with AdvCmp plugin).
+
+shmuel 27.07.2013 07:27:14 +0200 - build 3567
+
+1. Crash on disk menu call.
+
+2. GCC warnings.
+
+w17 27.07.2013 01:23:56 +0400 - build 3566
+
+1. -a few 'funny' crashes
+
+drkns 26.07.2013 23:18:26 +0200 - build 3565
+
+1. Placing NullToEmpty in right places.
+
+drkns 26.07.2013 22:25:11 +0200 - build 3564
+
+1. Placing NullToEmpty in right places.
+
+drkns 26.07.2013 21:44:01 +0200 - build 3563
+
+1. wstring is on by default. Various funny crashes are possible.
+
+drkns 26.07.2013 21:05:55 +0200 - build 3562
+
+1. GetStringBuffer = 0;
+
+2. In one of previous builds, plugin settings import was broken.
+
+3. "information under panels" was not kept on exit.
+
+shmuel 26.07.2013 17:46:54 +0200 - build 3561
+
+1. If FAR was started from an existing console then on closing it from a macro, a picture of closed FAR remained in the console.
+
+drkns 25.07.2013 23:52:08 +0200 - build 3560
+
+1. --GetStringBuffer
+
+drkns 25.07.2013 23:04:09 +0200 - build 3559
+
+1. --GetStringBuffer
+
+drkns 25.07.2013 22:19:25 +0200 - build 3558
+
+1. --GetStringBuffer
+
+drkns 25.07.2013 21:32:10 +0200 - build 3557
+
+1. --GetStringBuffer
+
+w17 25.07.2013 12:23:31 +0400 - build 3556
+
+1. fix fix 3551
+
+w17 25.07.2013 11:11:29 +0400 - build 3555
+
+1. fix 3551
+
+w17 25.07.2013 10:55:50 +0400 - build 3554
+
+1. GetStringBuffer -= 1
+
+drkns 24.07.2013 22:04:58 +0200 - build 3553
+
+1. --GetStringBuffer
+
+drkns 24.07.2013 21:40:54 +0200 - build 3552
+
+1. GetStringBuffer -= 2;
+
+2. Refactoring array_ptr.
+
+w17 24.07.2013 22:18:55 +0400 - build 3551
+
+1. GetStringBuffer -= 2
+
+drkns 24.07.2013 17:54:45 +0200 - build 3550
+
+1. Incorrect display of date in filter settings for locales using YYYY-MM-DD format.
+
+drkns 24.07.2013 12:33:57 +0200 - build 3549
+
+1. --GetStringBuffer
+
+w17 24.07.2013 12:43:43 +0400 - build 3548
+
+1. GetStringBuffer -= 4
+
+w17 24.07.2013 07:36:17 +0400 - build 3547
+
+1. mf.date() UPPER
+
+drkns 23.07.2013 23:38:13 +0200 - build 3546
+
+1. mf.date() was broken in one of previous builds + a couple of issues.
+
+w17 24.07.2013 00:07:21 +0400 - build 3545
+
+1. GetStringBuffer -= 1
+
+drkns 23.07.2013 12:20:54 +0200 - build 3544
+
+1. Garbage could be shown in some columns of disk menu.
+
+drkns 23.07.2013 01:05:58 +0200 - build 3543
+
+1. Refactoring.
+
+drkns 22.07.2013 22:15:54 +0200 - build 3542
+
+1. Refactoring.
+
+w17 22.07.2013 22:58:09 +0400 - build 3541
+
+1. assertion -- lm:post Keys "a"
+
+drkns 22.07.2013 20:24:28 +0200 - build 3540
+
+1. 0002449: FAR crash on exit initiated by a macro
+
 drkns 20.07.2013 22:22:03 +0200 - build 3539
 
 1. Correction of 3528.
