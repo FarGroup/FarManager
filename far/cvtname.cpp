@@ -92,7 +92,7 @@ bool MixToFullPath(string& strPath)
 				//fragment "..\" or "../" or ".." at the end
 				case L'.':
 				{
-					if (IsSlash(strPath[Pos + 2]) || Pos + 2 == strPath.size())
+					if (Pos + 2 == strPath.size() || IsSlash(strPath[Pos + 2]))
 					{
 						if (Pos == DirOffset) // ".." on the top level
 							ok = false;
