@@ -1784,7 +1784,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		bool src_abspath = IsAbsolutePath(strSelName);
 
 		bool dst_abspath = copy_to_null || IsAbsolutePath(strDest);
-		if (!dst_abspath && strDest.size() > 2 && strDest[1] == L':')
+		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || (!strDest.empty() && IsSlash(strDest[0]))))
 		{
 			ConvertNameToFull(strDest, strDest);
 			dst_abspath = true;
