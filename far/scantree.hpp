@@ -77,7 +77,9 @@ public:
 private:
 	BitFlags Flags;
 	std::list<std::unique_ptr<ScanTreeData>> ScanItems;
+	// path in full NT format, used internally to get correct results
 	string strFindPath;
+	// relative path, it's what caller expects to receive
+	string strFindPathOriginal;
 	string strFindMask;
-	bool NTPathMode;
 };

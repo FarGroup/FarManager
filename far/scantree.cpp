@@ -40,8 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction):
-	NTPathMode(false)
+ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
 	Flags.Change(FSCANTREE_RECUR,Recurse);
@@ -55,12 +54,10 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
+	strFindPathOriginal = strFindPath;
+	AddEndSlash(strFindPathOriginal);
 	ConvertNameToReal(strFindPath, strFindPath);
-	NTPathMode = HasPathPrefix(strFindPath);
-	if (!NTPathMode)
-	{
-		strFindPath = NTPath(strFindPath);
-	}
+	strFindPath = NTPath(strFindPath);
 	ScanItems.back()->RealPath = strFindPath;
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
@@ -71,25 +68,6 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;
-
-	class preserve_name_format
-	{
-	public:
-		preserve_name_format(string& Name, bool NTPathMode) : m_Name(Name), m_NTPathMode(NTPathMode) {}
-		~preserve_name_format()
-		{
-			if (!m_NTPathMode && HasPathPrefix(m_Name))
-			{
-				// Prefix was added by us, so remove it now to not confuse the caller
-				m_Name.erase(0, 4);
-			}
-		}
-
-	private:
-		string& m_Name;
-		bool m_NTPathMode;
-	}
-	PNF(strFullName, NTPathMode);
 
 	bool Done=false;
 	Flags.Clear(FSCANTREE_SECONDDIRNAME);
@@ -139,11 +117,12 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 				Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
 			CutToSlash(strFindPath,true);
+			CutToSlash(strFindPathOriginal,true);
 
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
-				strFullName = strFindPath;
-				apiGetFindDataEx(strFullName, *fdata);
+				strFullName = strFindPathOriginal;
+				apiGetFindDataEx(strFindPath, *fdata);
 			}
 
 			CutToSlash(strFindPath);
@@ -175,8 +154,11 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 			if (std::none_of(CONST_RANGE(ScanItems, i) {return i->RealPath == RealPath;}))
 			{
 				CutToSlash(strFindPath);
+				CutToSlash(strFindPathOriginal);
 				strFindPath += fdata->strFileName;
-				strFullName = strFindPath;
+				strFindPathOriginal += fdata->strFileName;
+				strFullName = strFindPathOriginal;
+				AddEndSlash(strFindPathOriginal);
 				strFindPath += L"\\";
 				strFindPath += strFindMask;
 				auto Data = new ScanTreeData();
@@ -196,7 +178,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 		}
 	}
 
-	strFullName = strFindPath;
+	strFullName = strFindPathOriginal;
 	CutToSlash(strFullName);
 	strFullName += fdata->strFileName;
 
@@ -217,6 +199,8 @@ void ScanTree::SkipDir()
 		Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
 	CutToSlash(strFindPath,true);
+	CutToSlash(strFindPathOriginal,true);
 	CutToSlash(strFindPath);
+	CutToSlash(strFindPathOriginal);
 	strFindPath += strFindMask;
 }
