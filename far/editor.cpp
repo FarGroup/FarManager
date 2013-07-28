@@ -4156,7 +4156,7 @@ BOOL Editor::Search(int Next)
 					}
 					if (EdOpt.SearchCursorAtEnd)
 					{
-						CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
+						CurLine->SetCurPos(coord->Pos+coord->SearchLen);
 					}
 					Show();
 					break;
@@ -4211,8 +4211,9 @@ BOOL Editor::Search(int Next)
 			}
 			if (EdOpt.SearchCursorAtEnd)
 			{
-				CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
+				CurLine->SetCurPos(coord->Pos+coord->SearchLen);
 			}
+			Show();
 		}
 	}
 
