@@ -662,8 +662,8 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanel
 {
 	PluginPanelItem *Result = new PluginPanelItem[ItemsNumber]();
 
-	auto& AIter = PanelItemA;
-	auto& WIter = Result;
+	auto AIter = PanelItemA;
+	auto WIter = Result;
 
 	for (; AIter != PanelItemA + ItemsNumber; ++AIter, ++WIter)
 	{
