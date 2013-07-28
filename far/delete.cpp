@@ -485,7 +485,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (Global->Opt->DelOpt.DelShowTotal)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
-			DWORD StartTime=GetTickCount();
 			bool FirstTime=true;
 
 			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
@@ -494,24 +493,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				{
 					if (FileAttr&FILE_ATTRIBUTE_DIRECTORY)
 					{
-						DWORD CurTime=GetTickCount();
-
-						if (ItemsCount > 1 && (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout || FirstTime))
-						{
-							StartTime=CurTime;
-							FirstTime=false;
-
-							if (CheckForEscSilent() && ConfirmAbortOp())
-							{
-								Cancel=true;
-								break;
-							}
-
-							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0, &DeleteTitle);
-						}
 						DirInfoData Data = {};
 
-						if (GetDirInfo(nullptr, strSelName, Data, -1, nullptr, 0) > 0)
+						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, FirstTime? 500 : 0, nullptr, GETDIRINFO_DONTREDRAWFRAME) > 0)
 						{
 							ItemsCount+=Data.FileCount+Data.DirCount+1;
 						}
@@ -519,6 +503,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 						{
 							Cancel=true;
 						}
+						FirstTime = false;
 					}
 					else
 					{
