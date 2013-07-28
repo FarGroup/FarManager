@@ -942,6 +942,7 @@ void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FIL
 {
 	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	CurPtr->strName = L"..";
+	CurPtr->strShortName = L"..";
 
 	if (Times)
 	{

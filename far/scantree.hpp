@@ -79,4 +79,5 @@ private:
 	std::list<std::unique_ptr<ScanTreeData>> ScanItems;
 	string strFindPath;
 	string strFindMask;
+	bool NTPathMode;
 };

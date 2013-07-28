@@ -290,10 +290,10 @@ static struct list_less
 		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 
-		if (SPtr1->strName == L"..")
+		if (SPtr1->strName == L".." && SPtr1->strShortName == L"..")
 			return true;
 
-		if (SPtr2->strName == L"..")
+		if (SPtr2->strName == L".." && SPtr2->strShortName == L"..")
 			return false;
 
 		if (ListSortMode==UNSORTED)

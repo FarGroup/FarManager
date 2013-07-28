@@ -40,7 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
+ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction):
+	NTPathMode(false)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
 	Flags.Change(FSCANTREE_RECUR,Recurse);
@@ -54,7 +55,13 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
-	ConvertNameToReal(strFindPath, ScanItems.back()->RealPath);
+	ConvertNameToReal(strFindPath, strFindPath);
+	NTPathMode = HasPathPrefix(strFindPath);
+	if (!NTPathMode)
+	{
+		strFindPath = NTPath(strFindPath);
+	}
+	ScanItems.back()->RealPath = strFindPath;
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -64,6 +71,25 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;
+
+	class preserve_name_format
+	{
+	public:
+		preserve_name_format(string& Name, bool NTPathMode) : m_Name(Name), m_NTPathMode(NTPathMode) {}
+		~preserve_name_format()
+		{
+			if (!m_NTPathMode && HasPathPrefix(m_Name))
+			{
+				// Prefix was added by us, so remove it now to not confuse the caller
+				m_Name.erase(0, 4);
+			}
+		}
+
+	private:
+		string& m_Name;
+		bool m_NTPathMode;
+	}
+	PNF(strFullName, NTPathMode);
 
 	bool Done=false;
 	Flags.Clear(FSCANTREE_SECONDDIRNAME);
@@ -173,6 +199,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 	strFullName = strFindPath;
 	CutToSlash(strFullName);
 	strFullName += fdata->strFileName;
+
 	return true;
 }
 
