@@ -3823,7 +3823,7 @@ BOOL Editor::Search(int Next)
 				strMsgStr=strSearchStr;
 				InsertQuote(strMsgStr);
 				SetCursorType(FALSE,-1);
-				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
+				int Total=FindAllReferences? NumLastLine : (ReverseSearch? StartLine : NumLastLine - StartLine);
 				int Current=abs(NewNumLine-StartLine);
 				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
 				Global->TBC->SetProgressValue(Current,Total);

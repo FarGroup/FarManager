@@ -2331,12 +2331,18 @@ void VMenu::ShowMenu(bool IsParent)
 						std::for_each(CONST_RANGE(Item[I]->Annotations, i)
 						{
 							size_t pre_len = i.first - Item[I]->ShowPos + StartOffset - Pos + 1;
-							Text(strMenuLine.substr(Pos, pre_len));
-							Pos += pre_len;
-							SetColor(Col);
-							Text(strMenuLine.substr(Pos, i.second));
-							Pos += i.second;
-							SetColor(CurColor);
+							if (Pos < strMenuLine.size())
+							{
+								Text(strMenuLine.substr(Pos, pre_len));
+								Pos += pre_len;
+								if (Pos < strMenuLine.size())
+								{
+									SetColor(Col);
+									Text(strMenuLine.substr(Pos, i.second));
+									Pos += i.second;
+									SetColor(CurColor);
+								}
+							}
 						});
 						if (Pos < strMenuLine.size())
 							Text(strMenuLine.data() + Pos);
