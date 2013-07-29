@@ -461,6 +461,17 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		return 0;
 	}
 
+	class environment_listener : public listener
+	{
+	public:
+		environment_listener() : listener(Global->Notifier[L"environment"]) {}
+		virtual void callback(const payload& p) override
+		{
+			ReloadEnvironment();
+		}
+	}
+	EnvironmentListener;
+
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 	string strEditName;
 	string strViewName;

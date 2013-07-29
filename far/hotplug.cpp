@@ -123,9 +123,6 @@ static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu2& HotPlugList)
 
 void ShowHotplugDevice()
 {
-	Global->Window->DeviceArivalEvent().Reset();
-	Global->Window->DeviceRemoveEvent().Reset();
-
 	DeviceInfo *pInfo=nullptr;
 	VMenu2 HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
 	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
@@ -134,10 +131,30 @@ void ShowHotplugDevice()
 	HotPlugList.AssignHighlights(TRUE);
 	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
 
+	bool NeedRefresh = false;
+
+	// TODO: copy-paste from panel.cpp
+	class device_listener : public listener
+	{
+	public:
+		device_listener(bool& state) : listener(Global->Notifier[L"devices"]), m_state(state) {}
+		virtual void callback(const payload& p) override
+		{
+			m_state = true;
+		}
+	private:
+		bool& m_state;
+	}
+	DeviceListener(NeedRefresh);
+
+
 	HotPlugList.Run([&](int Key)->int
 	{
-		if(Key==KEY_NONE && (Global->Window->DeviceArivalEvent().Signaled() || Global->Window->DeviceRemoveEvent().Signaled()))
+		if(Key==KEY_NONE && NeedRefresh)
+		{
 			Key=KEY_CTRLR;
+			NeedRefresh = false;
+		}
 
 		int KeyProcessed = 1;
 

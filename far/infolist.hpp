@@ -66,6 +66,16 @@ class InfoList:public Panel
 		string strDizFileName;
 		InfoListSectionState SectionState[ILSS_LAST];
 
+		class power_listener : public listener
+		{
+		public:
+			power_listener(InfoList* owner) : listener(Global->Notifier[L"power"]), m_owner(owner) {}
+			virtual void callback(const payload& p) override;
+		private:
+			InfoList* m_owner;
+		}
+		PowerListener;
+
 	private:
 		virtual void DisplayObject() override;
 		bool ShowDirDescription(int YPos);
@@ -98,5 +108,4 @@ class InfoList:public Panel
 		virtual void UpdateKeyBar() override;
 		virtual void CloseFile() override;
 		virtual int GetCurName(string &strName, string &strShortName) override;
-		virtual int UpdateIfChanged(panel_update_mode UpdateMode) override;
 };

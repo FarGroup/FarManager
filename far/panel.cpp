@@ -413,11 +413,6 @@ enum
 
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
-	Global->Window->DeviceArivalEvent().Reset();
-	Global->Window->DeviceRemoveEvent().Reset();
-	Global->Window->MediaArivalEvent().Reset();
-	Global->Window->MediaRemoveEvent().Reset();
-
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 		public:
@@ -646,10 +641,29 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk.SetMacroMode(MACROAREA_DISKS);
 		int RetCode=-1;
+
+		bool NeedRefresh = false;
+
+		class device_listener : public listener
+		{
+		public:
+			device_listener(bool& state) : listener(Global->Notifier[L"devices"]), m_state(state) {}
+			virtual void callback(const payload& p) override
+			{
+				m_state = true;
+			}
+		private:
+			bool& m_state;
+		}
+		DeviceListener(NeedRefresh);
+
 		ChDisk.Run([&](int Key)->int
 		{
-			if(Key==KEY_NONE && (Global->Window->DeviceArivalEvent().Signaled() || Global->Window->DeviceRemoveEvent().Signaled() || Global->Window->MediaArivalEvent().Signaled() || Global->Window->MediaRemoveEvent().Signaled()))
+			if(Key==KEY_NONE && NeedRefresh)
+			{
 				Key=KEY_CTRLR;
+				NeedRefresh = false;
+			}
 
 			int SelPos=ChDisk.GetSelectPos();
 			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);

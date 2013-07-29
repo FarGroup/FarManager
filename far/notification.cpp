@@ -1,11 +1,11 @@
 #pragma once
-/*
-window.hpp
 
-Обработка оконных сообщений
+/*
+notification.cpp
+
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2013 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,20 +31,46 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
+#include "headers.hpp"
+#pragma hdrstop
 
-class WindowHandler
+#include "notification.hpp"
+
+listener::listener(inotification& n):
+	m_notification(n)
 {
-public:
-	WindowHandler();
-	~WindowHandler();
-	void Check();
+	m_notification.subscribe(this);
+}
 
-private:
-	unsigned int WindowThreadRoutine(void* Param);
+listener::~listener()
+{
+	m_notification.unsubscribe(this);
+}
 
-	Thread m_Thread;
-	HWND m_Hwnd;
 
-	Event m_exitEvent;
-};
+void inotification::dispatch()
+{
+	while(!m_events.empty())
+	{
+		auto p = m_events.front().get();
+		std::for_each(RANGE(m_listeners, i)
+		{
+			i->callback(*p);
+		});
+		m_events.pop();
+	}
+}
+
+
+void notifier::dispatch()
+{
+	std::for_each(RANGE(m_notifications, i)
+	{
+		i.second->dispatch();
+	});
+}
+
+void notifier::add(inotification* i)
+{
+	m_notifications.insert(VALUE_TYPE(m_notifications)(i->name(), VALUE_TYPE(m_notifications)::second_type(i)));
+}

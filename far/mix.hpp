@@ -104,3 +104,5 @@ struct color_equal
 			a.Flags == b.Flags;
 	}
 };
+
+void ReloadEnvironment();

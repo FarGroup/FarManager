@@ -36,6 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "config.hpp"
 #include "imports.hpp"
+#include "notification.hpp"
+
+static const wchar_t* devices_notify = L"devices";
+static const wchar_t* power_notify = L"power";
+static const wchar_t* environment_notify = L"environment";
 
 LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -51,26 +56,22 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DEVICECHANGE:
 		{
-			bool Arrival=false;
+			//bool Arrival=false;
 			switch(wParam)
 			{
 			case DBT_DEVICEARRIVAL:
-				Arrival=true;
+				//Arrival=true;
 			case DBT_DEVICEREMOVECOMPLETE:
 				{
 
 					PDEV_BROADCAST_HDR Pbh=reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
 					if(Pbh->dbch_devicetype==DBT_DEVTYP_VOLUME)
 					{
-						PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
-						if(Pdv->dbcv_flags&DBTF_MEDIA)
-						{
-							Arrival? Global->Window->MediaArivalEvent().Set() : Global->Window->MediaRemoveEvent().Set();
-						}
-						else
-						{
-							Arrival? Global->Window->DeviceArivalEvent().Set() : Global->Window->DeviceRemoveEvent().Set();
-						}
+						// currently we don't care what actually happened, "just a notification" is OK
+
+						//PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
+						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
+						Global->Notifier[devices_notify].notify(new payload);
 					}
 				}
 				break;
@@ -82,7 +83,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	case WM_SETTINGCHANGE:
 		if(Global->Opt->UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 		{
-			Global->Window->EnvironmentChangeEvent().Set();
+			Global->Notifier[environment_notify].notify(new payload);
 			break;
 		}
 
@@ -92,7 +93,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		case PBT_APMPOWERSTATUSCHANGE: // change status
 
 		case PBT_POWERSETTINGCHANGE:   // change percent
-			Global->Window->PowerChangeEvent().Set();
+			Global->Notifier[power_notify].notify(new payload);
 			break;
 		// TODO:
 		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
@@ -108,13 +109,11 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 WindowHandler::WindowHandler():
 	m_Hwnd(nullptr)
 {
+	Global->Notifier.add(new notification(devices_notify));
+	Global->Notifier.add(new notification(power_notify));
+	Global->Notifier.add(new notification(environment_notify));
+
 	m_exitEvent.Open();
-	m_DeviceArivalEvent.Open();
-	m_DeviceRemoveEvent.Open();
-	m_MediaArivalEvent.Open();
-	m_MediaRemoveEvent.Open();
-	m_EnvironmentChangeEvent.Open();
-	m_PowerChangeEvent.Open();
 
 	Check();
 }
@@ -134,7 +133,7 @@ WindowHandler::~WindowHandler()
 
 void WindowHandler::Check()
 {
-	if (!m_Thread.Opened() || m_Thread.Wait(0))
+	if (!m_Thread.Opened() || m_Thread.Signaled())
 	{
 		m_Thread.Close();
 		m_Thread.Start(&WindowHandler::WindowThreadRoutine, this);

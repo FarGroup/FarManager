@@ -34,6 +34,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "notification.hpp"
+
 class global
 {
 public:
@@ -120,6 +122,7 @@ public:
 	class PluginSynchro* PluginSynchroManager;
 	class codepages* CodePages;
 	class sets* Sets;
+	class notifier Notifier;
 	class Database* Db;
 	class ControlObject* CtrlObject;
 };

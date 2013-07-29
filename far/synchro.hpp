@@ -95,6 +95,7 @@ public:
 
 	bool Wait(DWORD Milliseconds=INFINITE) { return WaitForSingleObject(h, Milliseconds)==WAIT_OBJECT_0; }
 
+	bool Signaled() { return Wait(0); }
 
 	virtual ~HandleWrapper() { Close(); }
 
@@ -222,8 +223,6 @@ public:
 	bool Set() { return SetEvent(h)!=FALSE; }
 
 	bool Reset() { return ResetEvent(h)!=FALSE; }
-
-	bool Signaled() { return Wait(0); }
 
 	void Associate(OVERLAPPED& o) { o.hEvent = h; }
 };

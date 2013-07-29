@@ -569,56 +569,6 @@ static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 	return 0;
 }
 
-static void ReloadEnvironment()
-{
-	static const struct addr
-	{
-		HKEY Key;
-		string SubKey;
-	}
-	Addr[]=
-	{
-		{HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"},
-		{HKEY_CURRENT_USER, L"Environment"},
-		{HKEY_CURRENT_USER, L"Volatile Environment"}
-	};
-
-	string strName, strData;
-	std::for_each(CONST_RANGE(Addr, i)
-	{
-		static const DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
-		std::for_each(CONST_RANGE(Types, t) // two passes
-		{
-			DWORD Type;
-			for(int j=0; EnumRegValueEx(i.Key, i.SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
-			{
-				if(Type == t)
-				{
-					if(Type==REG_EXPAND_SZ)
-					{
-						apiExpandEnvironmentStrings(strData, strData);
-					}
-					if (i.Key==HKEY_CURRENT_USER)
-					{
-						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(strName.data(), L"path") || !StrCmpI(strName.data(), L"libpath") || !StrCmpI(strName.data(), L"os2libpath"))
-						{
-							string strMergedPath;
-							apiGetEnvironmentVariable(strName, strMergedPath);
-							if(strMergedPath.back() != L';')
-							{
-								strMergedPath+=L';';
-							}
-							strData=strMergedPath+strData;
-						}
-					}
-					SetEnvironmentVariable(strName.data(), strData.data());
-				}
-			}
-		});
-	});
-}
-
 static bool was_repeat = false;
 static WORD last_pressed_keycode = (WORD)-1;
 
@@ -678,6 +628,8 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	if (AllowSynchro)
 		Global->PluginSynchroManager->Process();
+
+	Global->Notifier.dispatch();
 
 	if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Cp())
 	{
@@ -807,11 +759,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			FullscreenState=CurrentFullscreenState;
 
 			Global->Window->Check();
-
-			if(Global->Window->EnvironmentChangeEvent().Signaled())
-			{
-				ReloadEnvironment();
-			}
 		}
 
 		Global->Console->PeekInput(rec, 1, ReadCount);

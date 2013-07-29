@@ -73,6 +73,8 @@ global::global():
 	tempTreeCache(nullptr),
 	PluginSynchroManager(nullptr),
 	CodePages(nullptr),
+	Sets(nullptr),
+	//Notifier(nullptr),
 	Db(nullptr),
 	CtrlObject(nullptr)
 {
@@ -141,6 +143,7 @@ global::global():
 	CodePages = new codepages;
 	CodePages->init();
 	Sets = new sets;
+	//Notifier = new notifier;
 }
 
 global::~global()
@@ -149,6 +152,8 @@ global::~global()
 	CtrlObject = nullptr;
 	delete Db;
 	Db = nullptr;
+	//delete Notifier;
+	//Notifier = nullptr;
 	delete Sets;
 	Sets = nullptr;
 	delete CodePages;

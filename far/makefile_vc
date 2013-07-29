@@ -177,6 +177,7 @@ LINK_OBJS = \
 	"$(INTDIR)\modal.obj" \
 	"$(INTDIR)\namelist.obj" \
 	"$(INTDIR)\network.obj" \
+	"$(INTDIR)\notification.obj" \
 	"$(INTDIR)\nsUniversalDetectorEx.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \

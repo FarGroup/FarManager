@@ -170,6 +170,8 @@ namelist.hpp
 network.cpp
 network.hpp
 noncopyable.hpp
+notification.cpp
+notification.hpp
 nsUniversalDetectorEx.cpp
 nsUniversalDetectorEx.hpp
 palette.cpp
