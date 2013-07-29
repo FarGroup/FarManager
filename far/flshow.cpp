@@ -339,7 +339,11 @@ void FileList::ShowFileList(int Fast)
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(ScrX-5,(int)X2):X2;
+	GetTitle(strTitle);
+	int TitleX2 = X2 == ScrX? X2 - 1 : X2;
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && X1 + strTitle.size() + 2 >= static_cast<size_t>(ScrX-5))
+		TitleX2 = std::min(ScrX-5,(int)X2);
+
 	int MaxSize=TitleX2-X1-1;
 	int XShift = 0;
 	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode)
@@ -349,8 +353,6 @@ void FileList::ShowFileList(int Fast)
 			++XShift;
 	}
 	MaxSize -= XShift;
-	if(MaxSize > 2)
-		GetTitle(strTitle);
 	TruncPathStr(strTitle, MaxSize - 2);
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
