@@ -334,7 +334,7 @@ void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
 		if (lua_type(L,-1) == LUA_TSTRING)
 		{
 			target->Type = FMVT_BINARY;
-			target->Value.Binary.Data = (void*)lua_tolstring(L, pos, &target->Value.Binary.Size);
+			target->Value.Binary.Data = (void*)lua_tolstring(L, -1, &target->Value.Binary.Size);
 		}
 		lua_pop(L,1);
 	}

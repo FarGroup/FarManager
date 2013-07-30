@@ -403,4 +403,8 @@ do -- Plugin.Call: test arguments and returns
   assert(#trg==N and trg[1]==1 and trg[N]==N)
 end
 
+local t = far.MacroExecute("return ...", nil, "foo", false, 5, nil, bit64.new("0x8765876587658765"), {"bar"})
+assert(type(t)=="table" and t.n==6 and t[1]=="foo" and t[2]==false and t[3]==5 and t[4]==nil
+       and t[5]==bit64.new("0x8765876587658765") and type(t[6])=="table" and t[6][1]=="bar")
+
 far.Message("All tests OK", "LuaMacro")
