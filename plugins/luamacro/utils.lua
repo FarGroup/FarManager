@@ -669,8 +669,8 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
 
 end
 
-local function GetMacroWrapper (args)
-  local macro,area = GetMacro(unpack(args))
+local function GetMacroWrapper (...)
+  local macro,area = GetMacro(...)
   if macro then
     LastMessage = macro.id and pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
       macro.flags, macro.guid, macro.callback, macro.callbackId) or pack(0)

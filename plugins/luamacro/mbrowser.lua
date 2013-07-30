@@ -193,7 +193,7 @@ local function MenuLoop()
       ShowOnlyActive = not ShowOnlyActive
       props.SelectIndex = nil
     ----------------------------------------------------------------------------
-    elseif BrKey=="F4" or BrKey=="A+F4" then -- edit
+    elseif (BrKey=="F4" or BrKey=="A+F4") and items[pos] then -- edit
       local m = items[pos].macro
       if m.FileName then
         local startline = m.action and debug.getinfo(m.action,"S").linedefined
@@ -211,7 +211,7 @@ local function MenuLoop()
         Message(M.MBNoFileNameAvail)
       end
     ----------------------------------------------------------------------------
-    elseif BrKey=="C+PRIOR" then -- CtrlPgUp - locate the file in active panel
+    elseif BrKey=="C+PRIOR" and items[pos] then -- CtrlPgUp - locate the file in active panel
       local m = items[pos].macro
       if m.FileName then
         if LocateFile(m.FileName) then

@@ -10,19 +10,20 @@ extern void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target
 
 static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77};
 
-static void FL_PushParamsTable(lua_State* L, const struct FarMacroCall* Data)
+static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 {
-	size_t i;
-	lua_createtable(L, (int)Data->Count, 0);
-	for(i=0; i < Data->Count; i++)
+	int ret = lua_checkstack(L, Data->Count);
+	if (ret)
 	{
-		PushFarMacroValue(L, Data->Values + i);
-		lua_rawseti(L, -2, (int)i+1);
+		size_t i;
+		for(i=0; i < Data->Count; i++)
+			PushFarMacroValue(L, Data->Values + i);
 	}
-	lua_pushinteger(L, Data->Count);
-	lua_setfield(L, -2, "n");
 	if (Data->Callback)
+	{
 		Data->Callback(Data->CallbackData, Data->Values, Data->Count);
+	}
+	return ret;
 }
 
 static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
@@ -48,9 +49,13 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 	lua_pushinteger(L, Info->OpenFrom);
 	lua_pushinteger(L, calltype);
 	lua_pushinteger(L, (intptr_t)om_info->Handle);
-	FL_PushParamsTable(L, om_info->Data);
+	if (!FL_PushParams(L, om_info->Data))
+	{
+		lua_pop(L, 3);
+		return NULL;
+	}
 
-	if(pcall_msg(L, 4, 2) == 0)
+	if(pcall_msg(L, 3+om_info->Data->Count, 2) == 0)
 	{
 		if(calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL)
 		{

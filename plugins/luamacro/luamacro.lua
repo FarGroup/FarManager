@@ -258,29 +258,29 @@ local function ProcessCommandLine (CmdLine)
   end
 end
 
-function export.Open (OpenFrom, ...)
+function export.Open (OpenFrom, arg1, arg2, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
-    local calltype, handle, args = ...
-    if     calltype==F.MCT_MACROINIT      then return MacroInit (unpack(args))
-    elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, unpack(args,1,args.n))
+    local calltype, handle = arg1, arg2
+    if     calltype==F.MCT_MACROINIT      then return MacroInit (...)
+    elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, ...)
     elseif calltype==F.MCT_MACROFINAL     then return MacroFinal(handle)
-    elseif calltype==F.MCT_MACROPARSE     then return MacroParse(unpack(args))
-    elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(unpack(args))
-    elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(unpack(args))
-    elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(args)
-    elseif calltype==F.MCT_LOADMACROS     then return utils.LoadMacros(unpack(args))
-    elseif calltype==F.MCT_PROCESSMACRO   then return utils.ProcessMacroFromFAR(unpack(args))
+    elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
+    elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
+    elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
+    elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
+    elseif calltype==F.MCT_LOADMACROS     then return utils.LoadMacros(...)
+    elseif calltype==F.MCT_PROCESSMACRO   then return utils.ProcessMacroFromFAR(...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
-    elseif calltype==F.MCT_EXECSTRING     then return ExecString(unpack(args,1,args.n))
+    elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
-    local guid, cmdline = ...
+    local guid, cmdline =  arg1, arg2
     return ProcessCommandLine(cmdline)
 
   elseif OpenFrom == F.OPEN_FROMMACRO then
-    local guid, args = ...
+    local guid, args =  arg1, arg2
     if args[1]=="argtest" then -- argtest: return received arguments
       return unpack(args,2,args.n)
     elseif args[1]=="macropost" then -- test Mantis # 2222
