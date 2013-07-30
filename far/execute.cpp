@@ -1470,10 +1470,10 @@ bool ProcessOSAliases(string &strStr)
 		}
 	}
 
-	strNewCmdStr.assign(Buffer.get());
-
 	if (!ret)
 		return false;
+
+	strNewCmdStr.assign(Buffer.get());
 
 	if (!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
 		strNewCmdStr+=L" "+strNewCmdPar;

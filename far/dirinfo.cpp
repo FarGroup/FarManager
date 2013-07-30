@@ -281,22 +281,22 @@ static void PR_FarGetPluginDirListMsg()
 	}
 }
 
-static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, PluginPanelItem *CurPanelItem, const string& strPluginSearchPath)
+static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const PluginPanelItem *CurPanelItem, const string& strPluginSearchPath)
 {
 	string strFullName;
 	strFullName = strPluginSearchPath;
 	strFullName += CurPanelItem->FileName;
 
-	for (size_t i = 0; i != strFullName.size(); ++i)
-	{
-		if (strFullName[i]==L'\x1')
-			strFullName[i]=L'\\';
-	}
+	std::replace(ALL_RANGE(strFullName), L'\x1', L'\\');
 
 	PluginDirList.emplace_back(*CurPanelItem);
 
 	PluginDirList.back().FileName = DuplicateString(strFullName.data());
 	PluginDirList.back().AlternateFileName=nullptr;
+
+	// UserData is not used in PluginDirList
+	PluginDirList.back().UserData.Data=nullptr;
+	PluginDirList.back().UserData.FreeData=nullptr;
 }
 
 static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList)
@@ -307,9 +307,8 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 	string strDirName;
 	strDirName = strPluginSearchPath;
 
-	for (size_t i = 0; i != strDirName.size(); ++i)
-		if (strDirName[i]=='\x1')
-			strDirName[i] = strDirName[i+1]? L'\\': L'\0';
+	std::replace(ALL_RANGE(strDirName), L'\x1', L'\\');
+	DeleteEndSlash(strDirName);
 
 	TruncStr(strDirName,30);
 	CenterStr(strDirName,strDirName,30);
