@@ -40,43 +40,6 @@ struct export_name
 
 ENUM(ExceptFunctionsType);
 
-struct ExecuteStruct
-{
-	ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
-	ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
-	operator intptr_t() const { return Result; } 
-	operator HANDLE() const { return reinterpret_cast<HANDLE>(Result); }
-
-	ExceptFunctionsType id;
-
-	intptr_t Default, Result;
-};
-
-#define EXECUTE_FUNCTION(function) \
-{ \
-	Prologue(); \
-	++Activity; \
-	try \
-	{ \
-		function; \
-	} \
-	catch (SException &e) \
-	{ \
-		if (xfilter(es.id, e.GetInfo(), this, 0) == EXCEPTION_EXECUTE_HANDLER) \
-		{ \
-			m_owner->UnloadPlugin(this, es.id); \
-			es.Result = es.Default; \
-			Global->ProcessException=FALSE; \
-		} \
-		else \
-		{ \
-			throw; \
-		} \
-	} \
-	--Activity; \
-	Epilogue(); \
-}
-
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 
 #define WA(string) {L##string, string}
@@ -236,8 +199,21 @@ public:
 	bool Active() {return Activity != 0;}
 
 protected:
-	virtual void Prologue() {};
-	virtual void Epilogue() {};
+	struct ExecuteStruct
+	{
+		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
+		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
+		operator intptr_t() const { return Result; } 
+		operator HANDLE() const { return reinterpret_cast<HANDLE>(Result); }
+
+		ExceptFunctionsType id;
+
+		intptr_t Default, Result;
+	};
+
+	void ExecuteFunction(ExecuteStruct& es, std::function<void()> f);
+
+	#define EXECUTE_FUNCTION(f) ExecuteFunction(es, [&]{ f; });
 
 	void* Exports[i_LAST];
 	const export_name* ExportsNames;
@@ -248,6 +224,9 @@ protected:
 	bool bPendingRemove;
 
 private:
+	virtual void Prologue() {};
+	virtual void Epilogue() {};
+
 	void InitExports();
 	void ClearExports();
 	void SetGuid(const GUID& Guid);

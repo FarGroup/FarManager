@@ -312,6 +312,31 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 		MSG(MOk));
 }
 
+void Plugin::ExecuteFunction(ExecuteStruct& es, std::function<void()> f)
+{
+	Prologue();
+	++Activity;
+	try
+	{
+		f();
+	}
+	catch (SException &e)
+	{
+		if (xfilter(es.id, e.GetInfo(), this, 0) == EXCEPTION_EXECUTE_HANDLER)
+		{
+			m_owner->UnloadPlugin(this, es.id);
+			es.Result = es.Default;
+			Global->ProcessException=FALSE;
+		}
+		else
+		{
+			throw;
+		}
+	}
+	--Activity;
+	Epilogue();
+}
+
 bool Plugin::SaveToCache()
 {
 	PluginInfo Info = {sizeof(Info)};
