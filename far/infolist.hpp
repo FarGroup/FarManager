@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "dizviewer.hpp"
 #include "macro.hpp"
+#include "notification.hpp"
 
 class InfoList:public Panel
 {
@@ -66,15 +67,7 @@ class InfoList:public Panel
 		string strDizFileName;
 		InfoListSectionState SectionState[ILSS_LAST];
 
-		class power_listener : public listener
-		{
-		public:
-			power_listener(InfoList* owner) : listener(Global->Notifier[L"power"]), m_owner(owner) {}
-			virtual void callback(const payload& p) override;
-		private:
-			InfoList* m_owner;
-		}
-		PowerListener;
+		listener PowerListener;
 
 	private:
 		virtual void DisplayObject() override;

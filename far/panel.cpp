@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "lang.hpp"
 #include "plugins.hpp"
+#include "notification.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -644,18 +645,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		bool NeedRefresh = false;
 
-		class device_listener : public listener
+		listener DeviceListener(L"devices", [&NeedRefresh]()
 		{
-		public:
-			device_listener(bool& state) : listener(Global->Notifier[L"devices"]), m_state(state) {}
-			virtual void callback(const payload& p) override
-			{
-				m_state = true;
-			}
-		private:
-			bool& m_state;
-		}
-		DeviceListener(NeedRefresh);
+			NeedRefresh = true;
+		});
 
 		ChDisk.Run([&](int Key)->int
 		{

@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "plugins.hpp"
+#include "notification.hpp"
 
 /* start Глобальные переменные */
 
@@ -629,7 +630,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if (AllowSynchro)
 		Global->PluginSynchroManager->Process();
 
-	Global->Notifier.dispatch();
+	Global->Notifier->dispatch();
 
 	if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Cp())
 	{

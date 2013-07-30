@@ -31,6 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "synchro.hpp"
+
 class payload
 {
 public:
@@ -39,11 +41,11 @@ public:
 
 class inotification;
 
-class listener
+class ilistener
 {
 public:
-	listener(inotification& n);
-	virtual ~listener();
+	ilistener(inotification& n);
+	virtual ~ilistener();
 
 	virtual void callback(const payload& p) = 0;
 
@@ -51,16 +53,27 @@ private:
 	inotification& m_notification;
 };
 
+class listener : public ilistener
+{
+public:
+	listener(const string& id, std::function<void()> function);
+	listener(std::function<void(const payload&)> function, const string& id);
+	virtual void callback(const payload& p) { m_ex_function? m_ex_function(p) : m_function(); }
+
+private:
+	std::function<void()> m_function;
+	std::function<void(const payload&)> m_ex_function;
+};
 
 class inotification
 {
 public:
 	virtual ~inotification() {}
 
-	void notify(const payload* p) { m_events.push(std::unique_ptr<const payload>(p)); }
+	void notify(const payload* p);
 	void dispatch();
-	void subscribe(listener* l) { m_listeners.emplace_back(l); }
-	void unsubscribe(listener* l) { m_listeners.remove(l); }
+	void subscribe(ilistener* l) { m_listeners.emplace_back(l); }
+	void unsubscribe(ilistener* l) { m_listeners.remove(l); }
 	const string& name() const { return m_name; }
 
 protected:
@@ -68,8 +81,8 @@ protected:
 
 private:
 	string m_name;
-	std::list<listener*> m_listeners;
-	std::queue<std::unique_ptr<const payload>> m_events;
+	std::list<ilistener*> m_listeners;
+	SyncedQueue<std::unique_ptr<const payload>> m_events;
 };
 
 
@@ -82,7 +95,7 @@ public:
 class notifier
 {
 public:
-	inotification& operator[](const string& key) { return *m_notifications[key].get(); }
+	inotification& at(const string& key) { return *m_notifications.at(key).get(); }
 
 	void dispatch();
 	void add(inotification* i);

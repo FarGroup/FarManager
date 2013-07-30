@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "edit.hpp"
+#include "notification.hpp"
 
 thread DWORD global::m_LastError = ERROR_SUCCESS;
 thread NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
@@ -64,6 +65,7 @@ global::global():
 	ConsoleIcons(nullptr),
 	//FS(nullptr),
 	PreRedraw(nullptr),
+	Notifier(nullptr),
 	Window(nullptr),
 	Opt(nullptr),
 	Lang(nullptr),
@@ -74,7 +76,6 @@ global::global():
 	PluginSynchroManager(nullptr),
 	CodePages(nullptr),
 	Sets(nullptr),
-	//Notifier(nullptr),
 	Db(nullptr),
 	CtrlObject(nullptr)
 {
@@ -132,6 +133,7 @@ global::global():
 	ConsoleIcons = new consoleicons;
 	//FS = new FormatScreen;
 	PreRedraw = new TPreRedrawFunc;
+	Notifier = new notifier;
 	Window = new WindowHandler;
 	Opt = new Options;
 	Lang = new Language;
@@ -143,7 +145,6 @@ global::global():
 	CodePages = new codepages;
 	CodePages->init();
 	Sets = new sets;
-	//Notifier = new notifier;
 }
 
 global::~global()
@@ -152,8 +153,6 @@ global::~global()
 	CtrlObject = nullptr;
 	delete Db;
 	Db = nullptr;
-	//delete Notifier;
-	//Notifier = nullptr;
 	delete Sets;
 	Sets = nullptr;
 	delete CodePages;
@@ -174,6 +173,8 @@ global::~global()
 	Opt = nullptr;
 	delete Window;
 	Window = nullptr;
+	delete Notifier;
+	Notifier = nullptr;
 	delete PreRedraw;
 	PreRedraw = nullptr;
 	//delete FS;

@@ -106,7 +106,7 @@ static int PrepareHotKey(string &strHotKey)
 	else
 	{
 		// при наличии "&" продублируем
-		if (strHotKey.front() == L'&')
+		if (strHotKey == L"&")
 			strHotKey += L"&";
 	}
 
@@ -459,7 +459,7 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& M
 			apiExpandEnvironmentStrings(strLabel, strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
-			int Offset = strHotKey.front()==L'&'?5:4;
+			int Offset = !strHotKey.empty() && strHotKey.front() == L'&'? 5 : 4;
 			FarUserMenuItem.strName=FormatString()<<((!strHotKey.empty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 

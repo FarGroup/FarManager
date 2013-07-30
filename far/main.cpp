@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "treelist.hpp"
 #include "plugins.hpp"
+#include "notification.hpp"
 
 global *Global = nullptr;
 
@@ -461,18 +462,13 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		return 0;
 	}
 
-	class environment_listener : public listener
+	listener EnvironmentListener(L"environment", []()
 	{
-	public:
-		environment_listener() : listener(Global->Notifier[L"environment"]) {}
-		virtual void callback(const payload& p) override
-		{
-			ReloadEnvironment();
-		}
-	}
-	EnvironmentListener;
+		ReloadEnvironment();
+	});
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
+
 	string strEditName;
 	string strViewName;
 	string DestNames[2];

@@ -71,7 +71,7 @@ InfoList::InfoList():
 	PrevMacroMode(MACROAREA_INVALID),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
-	PowerListener(this)
+	PowerListener(L"power", [&]() { if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
 	Type=INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.size() == 0)
@@ -1129,12 +1129,4 @@ void InfoList::DynamicUpdateKeyBar()
 	}
 
 	KB->SetCustomLabels(KBA_INFO);
-}
-
-void InfoList::power_listener::callback(const payload& p)
-{
-	if (Global->Opt->InfoPanel.ShowPowerStatus && m_owner->IsVisible() && m_owner->SectionState[ILSS_POWERSTATUS].Show)
-	{
-		m_owner->Redraw();
-	}
 }

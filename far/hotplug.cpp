@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "interf.hpp"
 #include "window.hpp"
+#include "notification.hpp"
 
 struct DeviceInfo
 {
@@ -133,20 +134,10 @@ void ShowHotplugDevice()
 
 	bool NeedRefresh = false;
 
-	// TODO: copy-paste from panel.cpp
-	class device_listener : public listener
+	listener DeviceListener(L"devices", [&NeedRefresh]()
 	{
-	public:
-		device_listener(bool& state) : listener(Global->Notifier[L"devices"]), m_state(state) {}
-		virtual void callback(const payload& p) override
-		{
-			m_state = true;
-		}
-	private:
-		bool& m_state;
-	}
-	DeviceListener(NeedRefresh);
-
+		NeedRefresh = true;
+	});
 
 	HotPlugList.Run([&](int Key)->int
 	{

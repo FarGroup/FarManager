@@ -242,18 +242,24 @@ public:
 		return Queue.empty();
 	}
 
-	void Push(T &item)
+	void Push(const T& item)
 	{
 		CriticalSectionLock cslock(csQueueAccess);
 		Queue.push(item);
 	}
 
+	void Push(T&& item)
+	{
+		CriticalSectionLock cslock(csQueueAccess);
+		Queue.push(std::forward<T>(item));
+	}
+
 	T Pop()
 	{
 		CriticalSectionLock cslock(csQueueAccess);
-		T item = Queue.front();
+		T item = std::move(Queue.front());
 		Queue.pop();
-		return item;
+		return std::move(item);
 	}
 };
 

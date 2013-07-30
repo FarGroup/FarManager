@@ -34,28 +34,43 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "notification.hpp"
 
-listener::listener(inotification& n):
+ilistener::ilistener(inotification& n):
 	m_notification(n)
 {
 	m_notification.subscribe(this);
 }
 
-listener::~listener()
+ilistener::~ilistener()
 {
 	m_notification.unsubscribe(this);
 }
 
+listener::listener(const string& id, std::function<void()> function):
+	ilistener(Global->Notifier->at(id)),
+	m_function(function)
+{
+}
+
+listener::listener(std::function<void(const payload&)> function, const string& id):
+	ilistener(Global->Notifier->at(id)),
+	m_ex_function(function)
+{
+}
+
+void inotification::notify(const payload* p)
+{
+	m_events.Push(std::unique_ptr<const payload>(p));
+}
 
 void inotification::dispatch()
 {
-	while(!m_events.empty())
+	while(!m_events.Empty())
 	{
-		auto p = m_events.front().get();
+		auto p = m_events.Pop();
 		std::for_each(RANGE(m_listeners, i)
 		{
 			i->callback(*p);
 		});
-		m_events.pop();
 	}
 }
 
