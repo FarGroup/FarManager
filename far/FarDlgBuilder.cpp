@@ -216,15 +216,15 @@ static bool IsEditField(DialogItemEx *Item)
 */
 
 DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
-	HelpTopic(HelpTopic)
+	HelpTopic(NullToEmpty(HelpTopic))
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():
-HelpTopic(nullptr)
+HelpTopic(L"")
 {
-	AddBorder(nullptr);
+	AddBorder(L"");
 }
 
 DialogBuilder::~DialogBuilder()
@@ -584,7 +584,7 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGI
 intptr_t DialogBuilder::DoShowDialog()
 {
 	Dialog Dlg(pass_as_container(DialogItems, DialogItemsCount));
-	Dlg.SetHelp(NullToEmpty(HelpTopic));
+	Dlg.SetHelp(HelpTopic);
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
 	Dlg.Process();
 	return Dlg.GetExitCode();
