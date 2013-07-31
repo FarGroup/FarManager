@@ -15,6 +15,7 @@ luafar/keysandcolors.c \
 luafar/lflua.c \
 luafar/lregex.c \
 luafar/luamacro.c \
+luafar/lusercontrol.c \
 luafar/reg.c \
 luafar/service.c \
 luafar/slnunico.c \

@@ -29,6 +29,7 @@ extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 
 extern int luaopen_bit64(lua_State *L);
 extern int luaopen_regex(lua_State*);
+extern int luaopen_usercontrol(lua_State*);
 extern int luaopen_uio(lua_State *L);
 extern int luaopen_unicode(lua_State *L);
 extern int luaopen_upackage(lua_State *L);
@@ -1236,7 +1237,7 @@ static int editor_RealToTab(lua_State *L)
 	return _EditorTabConvert(L, ECTL_REALTOTAB);
 }
 
-static void GetFarColorFromTable(lua_State *L, int pos, struct FarColor* Color)
+void GetFarColorFromTable(lua_State *L, int pos, struct FarColor* Color)
 {
 	lua_pushvalue(L, pos);
 	Color->Flags  = CheckFlagsFromTable(L, -1, "Flags");
@@ -1245,7 +1246,7 @@ static void GetFarColorFromTable(lua_State *L, int pos, struct FarColor* Color)
 	lua_pop(L, 1);
 }
 
-static void PushFarColor(lua_State *L, const struct FarColor* Color)
+void PushFarColor(lua_State *L, const struct FarColor* Color)
 {
 	lua_createtable(L, 0, 3);
 	PutFlagsToTable(L, "Flags", Color->Flags);
@@ -2578,6 +2579,14 @@ static void SetFarDialogItem(lua_State *L, struct FarDialogItem* Item, int itemi
 			Item->Param.ListItems->Items[SelectIndex-1].Flags |= LIF_SELECTED;
 
 		lua_pop(L,1);                      // 0
+	}
+	else if(Item->Type==DI_USERCONTROL)
+	{
+		TFarUserControl* fuc;
+		lua_rawgeti(L, -1, 6);
+		fuc = CheckFarUserControl(L, -1);
+		Item->Param.VBuf = fuc->VBuf;
+		lua_pop(L,1);
 	}
 	else
 		Item->Param.Selected = GetIntFromArray(L, 6);
@@ -5951,6 +5960,9 @@ void LF_InitLuaState2(lua_State *L, TPluginData *aInfo)
 	lua_pushcfunction(L, luaopen_regex);
 	lua_pushliteral(L, "regex");
 	lua_call(L, 1, 0);
+	// open "usercontrol" library
+	lua_pushcfunction(L, luaopen_usercontrol);
+	lua_call(L, 0, 0);
 }
 
 // These 2 exported functions are needed for old builds of the plugins.

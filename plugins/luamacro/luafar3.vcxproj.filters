@@ -36,6 +36,9 @@
     <ClCompile Include="luafar\luamacro.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="luafar\lusercontrol.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="luafar\reg.c">
       <Filter>Source Files</Filter>
     </ClCompile>

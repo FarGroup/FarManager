@@ -1,3 +1,17 @@
+zg 31.07.2013 21:24:49 +0200 - build 211
+
+1. LuaFAR: добавлена поддержка буфера для DI_USERCONTROL. использовать примерно так:
+
+   local buffer=usercontrol.new(10,10)
+   local textel={Char="a",Attributes={Flags=bit64.bor(F.FCF_FG_4BIT,F.FCF_BG_4BIT),ForegroundColor=9,BackgroundColor=8}}
+   for ii=1,#buffer do
+     buffer[ii]=textel
+   end
+   local items={
+     {"DI_DOUBLEBOX",0,0,11,11,0,0,0,0,""},
+     {"DI_USERCONTROL",1,1,10,10,buffer,0,0,0,""}
+   }
+
 shmuel 30.07.2013 22:19:16 +0200 - build 210
 
 1. LuaFAR: в far.MacroExecute неправильно обрабатывался тип FMVT_BINARY.
