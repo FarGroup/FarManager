@@ -12,7 +12,7 @@ static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44
 
 static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 {
-	int ret = lua_checkstack(L, Data->Count);
+	int ret = lua_checkstack(L, (int)Data->Count);
 	if (ret)
 	{
 		size_t i;
@@ -55,7 +55,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 		return NULL;
 	}
 
-	if(pcall_msg(L, 3+om_info->Data->Count, 2) == 0)
+	if(pcall_msg(L, 3+(int)om_info->Data->Count, 2) == 0)
 	{
 		if(calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL)
 		{

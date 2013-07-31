@@ -52,7 +52,7 @@ static int uc_newindex(lua_State* L)
 	lua_getfield(L, 3, "Char");
 	if(lua_isnumber(L, -1))
 	{
-		fuc->VBuf[index].Char = luaL_checkinteger(L, -1);
+		fuc->VBuf[index].Char = (WCHAR)luaL_checkinteger(L, -1);
 	}
 	else
 	{

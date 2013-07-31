@@ -25,6 +25,7 @@ $(OBJDIR)\keysandcolors.obj \
 $(OBJDIR)\lflua.obj \
 $(OBJDIR)\lregex.obj \
 $(OBJDIR)\luamacro.obj \
+$(OBJDIR)\lusercontrol.obj \
 $(OBJDIR)\reg.obj \
 $(OBJDIR)\service.obj \
 $(OBJDIR)\slnudata.obj \

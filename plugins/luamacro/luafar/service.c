@@ -4524,7 +4524,7 @@ static int far_MacroExecute(lua_State* L)
 		Data.InValues = (struct FarMacroValue*)lua_newuserdata(L, Data.InCount*sizeof(struct FarMacroValue));
 		memset(Data.InValues, 0, Data.InCount*sizeof(struct FarMacroValue));
 		for (i=0; i<Data.InCount; i++)
-			ConvertLuaValue(L, i+3, Data.InValues+i);
+			ConvertLuaValue(L, (int)i+3, Data.InValues+i);
 	}
 
 	if (pd->Info->MacroControl(pd->PluginId, MCTL_EXECSTRING, 0, &Data))
