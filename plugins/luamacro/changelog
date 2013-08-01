@@ -1,3 +1,7 @@
+zg 01.08.2013 18:20:23 +0200 - build 212
+
+1. LuaFAR: usercontrol.new -> far.CreateUserControl.
+
 zg 31.07.2013 21:24:49 +0200 - build 211
 
 1. LuaFAR: добавлена поддержка буфера для DI_USERCONTROL. использовать примерно так:

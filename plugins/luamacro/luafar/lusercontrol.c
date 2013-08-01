@@ -97,7 +97,7 @@ const luaL_Reg usercontrol_methods[] =
 
 const luaL_Reg usercontrol_functions[] =
 {
-	{"new", uc_New},
+	{"CreateUserControl", uc_New},
 	{NULL, NULL}
 };
 
@@ -105,6 +105,6 @@ int luaopen_usercontrol(lua_State* L)
 {
 	luaL_newmetatable(L, TYPE_USERCONTROL);
 	luaL_register(L, NULL, usercontrol_methods);
-	luaL_register(L, "usercontrol", usercontrol_functions);
+	luaL_register(L, "far", usercontrol_functions);
 	return 1;
 }
