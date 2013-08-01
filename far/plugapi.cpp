@@ -729,7 +729,7 @@ intptr_t WINAPI apiMenuFn(
 
 	int ExitCode;
 	{
-		VMenu2 FarMenu(Title,nullptr,0,MaxHeight);
+		VMenu2 FarMenu(NullToEmpty(Title),nullptr,0,MaxHeight);
 		Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 		if(Id)
@@ -805,7 +805,7 @@ intptr_t WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
-		FarMenu.SetTitle(Title);
+		FarMenu.SetTitle(NullToEmpty(Title));
 
 		ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
 		{
