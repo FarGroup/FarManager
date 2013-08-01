@@ -65,7 +65,7 @@ struct SIDCacheItem
 					wchar_t_ptr DomainName(DomainLength);
 					if(LookupAccountSid(Computer.data(), Sid.get(), AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 					{
-						strUserName.assign(AccountName.get(), AccountLength).append(L"\\").append(DomainName.get(), DomainLength);
+						strUserName.assign(DomainName.get(), DomainLength).append(L"\\").append(AccountName.get(), AccountLength);
 					}
 				}
 				else
