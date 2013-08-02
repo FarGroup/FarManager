@@ -663,6 +663,9 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     return m, CInfo[Collector[m]+1]
   end
 
+  -- Make order of macros in the menu consistent
+  table.sort(macrolist, function(m1,m2) return Collector[m1] < Collector[m2] end)
+
   local m = GetFromMenu(macrolist)
   if m then return m, CInfo[Collector[m]+1] end
   return {}, nil
