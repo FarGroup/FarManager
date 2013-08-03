@@ -2580,12 +2580,18 @@ static void SetFarDialogItem(lua_State *L, struct FarDialogItem* Item, int itemi
 
 		lua_pop(L,1);                      // 0
 	}
-	else if(Item->Type==DI_USERCONTROL)
+	else if(Item->Type == DI_USERCONTROL)
 	{
-		TFarUserControl* fuc;
 		lua_rawgeti(L, -1, 6);
-		fuc = CheckFarUserControl(L, -1);
-		Item->Param.VBuf = fuc->VBuf;
+		if (lua_type(L,-1) == LUA_TUSERDATA)
+		{
+			TFarUserControl* fuc = CheckFarUserControl(L, -1);
+			Item->Param.VBuf = fuc->VBuf;
+		}
+		else
+		{
+			Item->Param.Selected = 0;
+		}
 		lua_pop(L,1);
 	}
 	else
