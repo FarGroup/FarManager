@@ -1,3 +1,7 @@
+zg 04.08.2013 00:11:41 +0200 - build 3591
+
+1. в DN_INPUT теперь приходит FOCUS_EVENT.
+
 zg 01.08.2013 18:40:31 +0200 - build 3590
 
 1. PluginStartupInfo.Menu падало если Title == nullptr.

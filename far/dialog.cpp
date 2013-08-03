@@ -2423,6 +2423,12 @@ int Dialog::ProcessKey(int Key)
 
 	if (Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
 	{
+		INPUT_RECORD rec;
+		if (KeyToInputRecord(Key,&rec))
+		{
+			DlgProc(DN_INPUT,0,&rec);
+		}
+
 		DlgProc(DN_ACTIVATEAPP,Key == KEY_GOTFOCUS,0);
 		return FALSE;
 	}
