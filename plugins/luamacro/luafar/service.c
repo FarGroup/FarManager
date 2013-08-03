@@ -2588,10 +2588,6 @@ static void SetFarDialogItem(lua_State *L, struct FarDialogItem* Item, int itemi
 			TFarUserControl* fuc = CheckFarUserControl(L, -1);
 			Item->Param.VBuf = fuc->VBuf;
 		}
-		else
-		{
-			Item->Param.Selected = 0;
-		}
 		lua_pop(L,1);
 	}
 	else
