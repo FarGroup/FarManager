@@ -3,6 +3,56 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.08.2013 16:11:41 +0200 - build 3592
+
+1. Resource leak on cancelling the plugin choice menu (CtrlPgDn).
+
+zg 04.08.2013 00:11:41 +0200 - build 3591
+
+1. DN_INPUT now receives FOCUS_EVENT.
+
+zg 01.08.2013 18:40:31 +0200 - build 3590
+
+1. PluginStartupInfo.Menu crash if Title == nullptr.
+
+drkns 01.08.2013 14:50:21 +0200 - build 3589
+
+1. Incorrect order of owner and domain in "file owner" column.
+
+drkns 31.07.2013 21:56:29 +0200 - build 3588
+
+1. More on string and nullptr.
+
+drkns 30.07.2013 20:58:19 +0200 - build 3587
+
+1. Refactoring.
+
+drkns 30.07.2013 19:28:34 +0200 - build 3586
+
+1. Continuation of 3582.
+
+w17 30.07.2013 18:13:20 +0400 - build 3585
+
+1. fix copy to ..
+
+drkns 30.07.2013 14:26:32 +0200 - build 3584
+
+1. Possible double memory freeing while obtaining a list from a plugin panel.
+
+2. ProcessOSAliases could use uninitialized data.
+
+drkns 30.07.2013 10:31:31 +0200 - build 3583
+
+1. Correction of 3579. 
+
+drkns 30.07.2013 00:55:42 +0200 - build 3582
+
+1. Refactoring.
+
+drkns 29.07.2013 14:50:21 +0200 - build 3581
+
+1. The caption of the right panel was centered incorrectly when the clock was enabled.
+
 drkns 28.07.2013 22:22:24 +0200 - build 3580
 
 1. Correction of previous build, there were problems with copying.
