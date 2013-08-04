@@ -397,7 +397,7 @@ do -- Plugin.Call: test arguments and returns
   local r1,r2,r3,r4,r5 = Plugin.Call(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
   assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
 
-  local N,src = 1000,{}
+  local N,src = 8000-8,{}
   for k=1,N do src[k]=k end
   local trg = { Plugin.Call(luamacroId, "argtest", unpack(src)) }
   assert(#trg==N and trg[1]==1 and trg[N]==N)

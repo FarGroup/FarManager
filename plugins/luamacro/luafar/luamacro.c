@@ -42,20 +42,24 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 {
 	const struct OpenMacroPluginInfo* om_info = (const struct OpenMacroPluginInfo*)Info->Data;
 	int calltype = om_info->CallType;
+	int argcount = om_info->Data->Count; // store Data->Count: 'Data' will be invalid after FL_PushParams()
 
 	if (!IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
-		return NULL;
-
-	lua_pushinteger(L, Info->OpenFrom);
-	lua_pushinteger(L, calltype);
-	lua_pushinteger(L, (intptr_t)om_info->Handle);
-	if (!FL_PushParams(L, om_info->Data))
 	{
-		lua_pop(L, 3);
+		lua_pop(L, 1);
 		return NULL;
 	}
 
-	if(pcall_msg(L, 3+(int)om_info->Data->Count, 2) == 0)
+	lua_pushinteger(L, Info->OpenFrom);            //+2
+	lua_pushinteger(L, calltype);                  //+3
+	lua_pushinteger(L, (intptr_t)om_info->Handle); //+4
+	if (!FL_PushParams(L, om_info->Data))
+	{
+		lua_pop(L, 4);
+		return NULL;
+	}
+
+	if(pcall_msg(L, 3+argcount, 2) == 0)
 	{
 		if(calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL)
 		{
