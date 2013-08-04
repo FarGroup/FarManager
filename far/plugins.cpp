@@ -720,12 +720,12 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	std::for_each(CONST_RANGE(items, i)
 	{
-		if (pResult != items.end() && i != *pResult)
+		if (pResult == items.end() || i != *pResult)
 		{
 			if (i.Handle.hPlugin)
 				i.Handle.pPlugin->ClosePanel(i.Handle.hPlugin);
 		}
-		if (pAnalyse != items.end() && i != *pAnalyse)
+		if (pAnalyse == items.end() || i != *pAnalyse)
 		{
 			if(i.Analyse)
 				i.Handle.pPlugin->CloseAnalyse(i.Analyse);
