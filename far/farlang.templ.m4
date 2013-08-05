@@ -14667,6 +14667,16 @@ MSetColorPanelSelected
 "Texto seleccionado"
 "Vybraný text"
 
+MSetColorPanelHighlightedText
+"Выделенный текст"
+"Highlighted text"
+"Zvýrazněný text"
+"Markierter Text"
+"Kiemelt szöveg"
+"Tekst podświetlony"
+"Texto resaltado"
+"Zvýraznený text"
+
 MSetColorPanelHighlightedInfo
 "Выделенная информация"
 "Highlighted info"
