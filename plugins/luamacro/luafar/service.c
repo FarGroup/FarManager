@@ -2101,6 +2101,11 @@ static int panel_SetSortOrder(lua_State *L)
 	return SetPanelBooleanProperty(L, FCTL_SETSORTORDER);
 }
 
+static int panel_SetDirectoriesFirst(lua_State *L)
+{
+	return SetPanelBooleanProperty(L, FCTL_SETDIRECTORIESFIRST);
+}
+
 static int panel_UpdatePanel(lua_State *L)
 {
 	return SetPanelBooleanProperty(L, FCTL_UPDATEPANEL);
@@ -5563,6 +5568,7 @@ const luaL_Reg panel_funcs[] =
 	{"SetCmdLine",          panel_SetCmdLine},
 	{"SetCmdLinePos",       panel_SetCmdLinePos},
 	{"SetCmdLineSelection", panel_SetCmdLineSelection},
+	{"SetDirectoriesFirst", panel_SetDirectoriesFirst},
 	{"SetNumericSort",      panel_SetNumericSort},
 	{"SetPanelDirectory",   panel_SetPanelDirectory},
 	{"SetSelection",        panel_SetSelection},

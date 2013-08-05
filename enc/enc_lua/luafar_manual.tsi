@@ -5043,6 +5043,32 @@ mtime=3571803039
 </article>
 </node>
 <node>
+id=489
+lv=2
+dt=Text
+nm=panel.SetDirectoriesFirst
+ctime=3584893767
+mtime=3584893925
+<article>
+#_result = panel.SetDirectoriesFirst (handle, whatpanel [, setfirst])
+#_
+#_**Parameters:**
+#_  handle:    panel handle, or nil
+#_  whatpanel: 1=active panel; 0=passive panel;
+#_  setfirst:  boolean (false=don't set directories first; true=set first;
+#_                      defaults to false)
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Far API used:**
+#_  PanelControl, FCTL_SETDIRECTORIESFIRST
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=146
 lv=2
 dt=Text
