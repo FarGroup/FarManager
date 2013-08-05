@@ -719,9 +719,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 					// нефига здесь выделываться, а надо учесть, что удаление
 					// симлинка в корзину чревато потерей оригинала.
-					DIRDELTYPE Type = Wipe? D_WIPE : D_DEL;
-					if (Global->Opt->DeleteToRecycleBin && !(DirSymLink && Global->WinVer() < _WIN32_WINNT_VISTA))
-						Type = D_RECYCLE;
+					DIRDELTYPE Type = Wipe ? D_WIPE : (Global->Opt->DeleteToRecycleBin && !(DirSymLink && Global->WinVer() < _WIN32_WINNT_VISTA) ? D_RECYCLE : D_DEL);
 					DeleteCode=ERemoveDirectory(strSelName, Type);
 
 					if (cannot_recycle_try_delete_folder)
