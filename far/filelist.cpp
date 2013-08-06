@@ -299,7 +299,7 @@ static struct list_less
 		if (ListSortMode==UNSORTED)
 		{
 			if (ListSelectedFirst && SPtr1->Selected != SPtr2->Selected)
-				return SPtr1->Selected < SPtr2->Selected;
+				return SPtr1->Selected > SPtr2->Selected;
 			return less_opt(SPtr1->Position < SPtr2->Position);
 		}
 
