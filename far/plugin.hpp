@@ -2281,6 +2281,7 @@ struct PluginStartupInfo
 	FARAPIMACROCONTROL     MacroControl;
 	FARAPISETTINGSCONTROL  SettingsControl;
 	void                  *Private;
+	void* Instance;
 };
 
 typedef HANDLE (WINAPI *FARAPICREATEFILE)(const wchar_t *Object,DWORD DesiredAccess,DWORD ShareMode,LPSECURITY_ATTRIBUTES SecurityAttributes,DWORD CreationDistribution,DWORD FlagsAndAttributes,HANDLE TemplateFile);
@@ -2379,6 +2380,7 @@ struct GlobalInfo
 	const wchar_t *Title;
 	const wchar_t *Description;
 	const wchar_t *Author;
+	void* Instance;
 };
 
 struct PluginInfo
@@ -2389,6 +2391,7 @@ struct PluginInfo
 	struct PluginMenuItem PluginMenu;
 	struct PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
+	void* Instance;
 };
 
 struct FarGetPluginInformation
@@ -2504,6 +2507,7 @@ struct OpenPanelInfo
 	const wchar_t               *ShortcutData;
 	unsigned __int64             FreeSize;
 	struct UserDataItem          UserData;
+	void* Instance;
 };
 
 struct AnalyseInfo
@@ -2513,6 +2517,7 @@ struct AnalyseInfo
 	void           *Buffer;
 	size_t          BufferSize;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct OpenAnalyseInfo
@@ -2620,6 +2625,7 @@ struct OpenInfo
 	enum OPENFROM OpenFrom;
 	const GUID* Guid;
 	intptr_t Data;
+	void* Instance;
 };
 
 struct SetDirectoryInfo
@@ -2630,6 +2636,7 @@ struct SetDirectoryInfo
 	intptr_t Reserved;
 	OPERATION_MODES OpMode;
 	struct UserDataItem UserData;
+	void* Instance;
 };
 
 struct SetFindListInfo
@@ -2638,6 +2645,7 @@ struct SetFindListInfo
 	HANDLE hPanel;
 	const struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
+	void* Instance;
 };
 
 struct PutFilesInfo
@@ -2649,6 +2657,7 @@ struct PutFilesInfo
 	BOOL Move;
 	const wchar_t *SrcPath;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct ProcessHostFileInfo
@@ -2658,6 +2667,7 @@ struct ProcessHostFileInfo
 	struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct MakeDirectoryInfo
@@ -2666,6 +2676,7 @@ struct MakeDirectoryInfo
 	HANDLE hPanel;
 	const wchar_t *Name;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct CompareInfo
@@ -2675,6 +2686,7 @@ struct CompareInfo
 	const struct PluginPanelItem *Item1;
 	const struct PluginPanelItem *Item2;
 	enum OPENPANELINFO_SORTMODES Mode;
+	void* Instance;
 };
 
 struct GetFindDataInfo
@@ -2684,6 +2696,7 @@ struct GetFindDataInfo
 	struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -2694,6 +2707,7 @@ struct GetVirtualFindDataInfo
 	struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
 	const wchar_t *Path;
+	void* Instance;
 };
 #endif // END FAR_USE_INTERNALS
 
@@ -2703,6 +2717,7 @@ struct FreeFindDataInfo
 	HANDLE hPanel;
 	struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
+	void* Instance;
 };
 
 struct GetFilesInfo
@@ -2714,6 +2729,7 @@ struct GetFilesInfo
 	BOOL Move;
 	const wchar_t *DestPath;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct DeleteFilesInfo
@@ -2723,6 +2739,7 @@ struct DeleteFilesInfo
 	struct PluginPanelItem *PanelItem;
 	size_t ItemsNumber;
 	OPERATION_MODES OpMode;
+	void* Instance;
 };
 
 struct ProcessPanelInputInfo
@@ -2730,12 +2747,14 @@ struct ProcessPanelInputInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	INPUT_RECORD Rec;
+	void* Instance;
 };
 
 struct ProcessEditorInputInfo
 {
 	size_t StructSize;
 	INPUT_RECORD Rec;
+	void* Instance;
 };
 
 typedef unsigned __int64 PROCESSCONSOLEINPUT_FLAGS;
@@ -2748,11 +2767,13 @@ struct ProcessConsoleInputInfo
 	size_t StructSize;
 	PROCESSCONSOLEINPUT_FLAGS Flags;
 	INPUT_RECORD Rec;
+	void* Instance;
 };
 
 struct ExitInfo
 {
 	size_t StructSize;
+	void* Instance;
 };
 
 struct ProcessPanelEventInfo
@@ -2761,6 +2782,7 @@ struct ProcessPanelEventInfo
 	intptr_t Event;
 	void* Param;
 	HANDLE hPanel;
+	void* Instance;
 };
 
 struct ProcessEditorEventInfo
@@ -2769,6 +2791,7 @@ struct ProcessEditorEventInfo
 	intptr_t Event;
 	void* Param;
 	intptr_t EditorID;
+	void* Instance;
 };
 
 struct ProcessDialogEventInfo
@@ -2776,6 +2799,7 @@ struct ProcessDialogEventInfo
 	size_t StructSize;
 	intptr_t Event;
 	struct FarDialogEvent* Param;
+	void* Instance;
 };
 
 struct ProcessSynchroEventInfo
@@ -2783,6 +2807,7 @@ struct ProcessSynchroEventInfo
 	size_t StructSize;
 	intptr_t Event;
 	void* Param;
+	void* Instance;
 };
 
 struct ProcessViewerEventInfo
@@ -2791,24 +2816,28 @@ struct ProcessViewerEventInfo
 	intptr_t Event;
 	void* Param;
 	intptr_t ViewerID;
+	void* Instance;
 };
 
 struct ClosePanelInfo
 {
 	size_t StructSize;
 	HANDLE hPanel;
+	void* Instance;
 };
 
 struct CloseAnalyseInfo
 {
 	size_t StructSize;
 	HANDLE Handle;
+	void* Instance;
 };
 
 struct ConfigureInfo
 {
 	size_t StructSize;
 	const GUID* Guid;
+	void* Instance;
 };
 
 #ifdef FAR_USE_INTERNALS

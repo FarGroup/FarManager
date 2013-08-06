@@ -102,6 +102,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_PROCESSDIALOGEVENT   = 0x10000000, //
 	PICFF_PROCESSSYNCHROEVENT  = 0x20000000, //
 	PICFF_PROCESSCONSOLEINPUT  = 0x40000000, //
+	PICFF_CLOSEANALYSE         = 0x80000000, //
 };
 
 // флаги для поля PluginManager.Flags
@@ -187,10 +188,11 @@ public:
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
 	string GetCustomData(const string& Name) const;
 
-	int UnloadPlugin(Plugin *pPlugin, DWORD dwException);
+	int UnloadPlugin(Plugin *pPlugin, int From);
 	HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 	int UnloadPluginExternal(HANDLE hPlugin);
 	bool IsPluginUnloaded(Plugin* pPlugin);
+	void LoadModels();
 	void LoadPlugins();
 	std::list<Plugin*>::const_iterator begin() const { return SortedPlugins.cbegin(); }
 	std::list<Plugin*>::const_iterator end() const { return SortedPlugins.cend(); }
@@ -242,6 +244,7 @@ private:
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);
 	void LoadPluginsFromCache();
 
+	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
 	std::list<Plugin*> SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;

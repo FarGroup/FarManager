@@ -63,61 +63,13 @@ int WriteEvent(DWORD DumpType, // FLOG_*
    Простенький обработчик исключений.
 */
 
-LPCWSTR GetFunctionName(int ExceptFunctionType)
-{
-	switch(ExceptFunctionType)
-	{
-		case EXCEPT_KERNEL: return L"wmain";
-		case EXCEPT_GETGLOBALINFO: return L"GetGlobalInfo";
-		case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
-		case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
-		case EXCEPT_OPEN: return L"Open";
-		case EXCEPT_OPENFILEPLUGIN: return L"OpenFilePlugin";
-		case EXCEPT_CLOSEPANEL: return L"ClosePanel";
-		case EXCEPT_GETPLUGININFO: return L"GetPluginInfo";
-		case EXCEPT_GETOPENPANELINFO: return L"GetOpenPanelInfo";
-		case EXCEPT_GETFINDDATA: return L"GetFindData";
-		case EXCEPT_FREEFINDDATA: return L"FreeFindData";
-		case EXCEPT_FREEVIRTUALFINDDATA: return L"FreeVitrualFindData";
-		case EXCEPT_SETDIRECTORY: return L"SetDirectory";
-		case EXCEPT_GETFILES: return L"GetFiles";
-		case EXCEPT_PUTFILES: return L"PutFiles";
-		case EXCEPT_DELETEFILES: return L"DeleteFiles";
-		case EXCEPT_MAKEDIRECTORY: return L"MakeDirectory";
-		case EXCEPT_PROCESSHOSTFILE: return L"ProcessHostFile";
-		case EXCEPT_SETFINDLIST: return L"SetFindList";
-		case EXCEPT_CONFIGURE: return L"Configure";
-		case EXCEPT_EXITFAR: return L"ExitFAR";
-		case EXCEPT_PROCESSPANELINPUT: return L"ProcessPanelInput";
-		case EXCEPT_PROCESSPANELEVENT: return L"ProcessPanelEvent";
-		case EXCEPT_PROCESSEDITOREVENT: return L"ProcessEditorEvent";
-		case EXCEPT_COMPARE: return L"Compare";
-		case EXCEPT_PROCESSEDITORINPUT: return L"ProcessEditorInput";
-		case EXCEPT_MINFARVERSION: return L"GetMinFarVersion";
-		case EXCEPT_PROCESSVIEWEREVENT: return L"ProcessViewerEvent";
-		case EXCEPT_PROCESSVIEWERINPUT: return L"ProcessViewerInput";
-		case EXCEPT_PROCESSDIALOGEVENT: return L"ProcessDialogEvent";
-		case EXCEPT_PROCESSSYNCHROEVENT: return L"ProcessSynchroEvent";
-		case EXCEPT_ANALYSE: return L"Analyse";
-		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
-		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
-		case EXCEPT_CLOSEANALYSE: return L"CloseAnalyse";
-		case EXCEPT_PROCESSCONSOLEINPUT: return L"ProcessConsoleInput";
-	}
-
-	return L"";
-};
-
-
 static bool Is_STACK_OVERFLOW=false;
 bool UseExternalHandler=false;
 
 // Some parametes for _xfilter function
-static int From=0;
+static const wchar_t* From=0;
 static EXCEPTION_POINTERS *xp=nullptr;    // данные ситуации
 static Plugin *Module=nullptr;     // модуль, приведший к исключению.
-static DWORD Flags=0;                  // дополнительные флаги - пока только один
-//        0x1 - спрашивать про выгрузку?
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -162,7 +114,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CLOSE:
 		{
-			if (Param1 == 10 && From == EXCEPT_KERNEL) //terminate
+			if (Param1 == 10 && !Module) //terminate
 			{
 				TerminateProcess(GetCurrentProcess(), -1);
 			}
@@ -183,13 +135,6 @@ static bool LanguageLoaded()
 static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
 	string strAddr = str_printf(L"0x%p",Adress);
-	string strFunction=GetFunctionName(From);
-#ifndef NO_WRAPPER
-	if(Module && !Module->IsOemPlugin())
-#endif // NO_WRAPPER
-	{
-		strFunction+=L"W";
-	}
 
 	FarDialogItem EditDlgData[]=
 	{
@@ -199,11 +144,11 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
 		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,strFunction.data()},
+		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,From},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
 		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG(Module? MExcUnload : MExcTerminate)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
@@ -217,13 +162,6 @@ static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
 	string strAddr = str_printf(L"0x%p",Adress);
-	string strFunction=GetFunctionName(From);
-#ifndef NO_WRAPPER
-	if(Module && !Module->IsOemPlugin())
-#endif // NO_WRAPPER
-	{
-		strFunction+=L"W";
-	}
 
 	string Msg[4];
 	if (LanguageLoaded())
@@ -244,7 +182,7 @@ static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 	string Dump =
 		Msg[0] + L" " + Exception + L"\n" +
 		Msg[1] + L" " + strAddr + L"\n" +
-		Msg[2] + L" " + strFunction + L"\n" +
+		Msg[2] + L" " + From + L"\n" +
 		Msg[3] + L" " + ModuleName + L"\n";
 
 	if (Global && Global->Console)
@@ -265,8 +203,6 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 		Global->ProcessException=TRUE;
 	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
 	BOOL Res=FALSE;
-//   if(From == EXCEPT_KERNEL)
-//     CriticalInternalError=TRUE;
 
 	if (!Is_STACK_OVERFLOW &&Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
@@ -329,6 +265,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
 					PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
 					PlugRec.FuncFlags|=Module->HasProcessConsoleInput()?PICFF_PROCESSCONSOLEINPUT:0;
+					PlugRec.FuncFlags|=Module->HasCloseAnalyse()?PICFF_CLOSEANALYSE:0;
 				}
 
 				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);
@@ -340,7 +277,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	if (Res)
 	{
-		if (From == EXCEPT_KERNEL)
+		if (!Module)
 		{
 			if (Global)
 				Global->CriticalInternalError=TRUE;
@@ -395,7 +332,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	  Неизвестное исключение не стоит игнорировать.
 	*/
 
-	if (From == EXCEPT_KERNEL || !Module)
+	if (!Module)
 	{
 		if (Global)
 		{
@@ -478,7 +415,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 		MsgCode = ExcDump(strFileName,Exception,xr->ExceptionAddress);
 	}
 
-	if (ShowMessages && (Is_STACK_OVERFLOW || From == EXCEPT_KERNEL))
+	if (ShowMessages && (Is_STACK_OVERFLOW || !Module))
 	{
 		Global->CriticalInternalError=TRUE;
 	}
@@ -497,7 +434,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	return rc;
 }
 
-DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
+DWORD WINAPI xfilter(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp)
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
 
@@ -507,7 +444,6 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 		::From=From;
 		::xp=xp;
 		::Module=Module;
-		::Flags=Flags;
 
 		if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW)) // restore stack & call_xfilter ;
 		{
@@ -539,7 +475,6 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 			//_stack.args[0] = (intptr_t)From;
 			//_stack.args[1] = (intptr_t)xp;
 			//_stack.args[2] = (intptr_t)Module;
-			//_stack.args[3] = Flags;
 			xp->ContextRecord->Esp = (DWORD)(intptr_t)(&_stack.ret_addr);
 			xp->ContextRecord->Eip = (DWORD)(intptr_t)(&_xfilter);
 #endif
@@ -547,7 +482,6 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 			//xp->ContextRecord->Rcx = (intptr_t)From;
 			//xp->ContextRecord->Rdx = (intptr_t)xp;
 			//xp->ContextRecord->R8  = (intptr_t)Module;
-			//xp->ContextRecord->R9  = Flags;
 			xp->ContextRecord->Rsp = (intptr_t)(&_stack.ret_addr);
 			xp->ContextRecord->Rip = (intptr_t)(&_xfilter);
 #endif

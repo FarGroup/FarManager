@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "plugsettings.hpp"
 #include "savescr.hpp"
+#include "processname.hpp"
 
 typedef void     (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef intptr_t (WINAPI *iComparePrototype)             (const CompareInfo *Info);
@@ -82,11 +83,38 @@ typedef intptr_t (WINAPI *iProcessDialogEventPrototype)  (const ProcessDialogEve
 typedef intptr_t (WINAPI *iProcessSynchroEventPrototype) (const ProcessSynchroEventInfo *Info);
 typedef intptr_t (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
 typedef HANDLE   (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
+typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
 typedef intptr_t (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
 typedef void     (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
-typedef void     (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
 
-static const export_name* GetExportsNames()
+Plugin* GenericPluginModel::CreatePlugin(const string& filename)
+{
+	return IsPlugin(filename)? new Plugin(this, filename) : nullptr;
+}
+
+void GenericPluginModel::SaveExportsToCache(PluginsCacheConfig* cache, unsigned long long id, void* const * exports)
+{
+	auto ExportPtr = exports;
+
+	std::for_each(m_ExportsNames, m_ExportsNames + ExportsCount, [&](const export_name& i)
+	{
+		if (*i.UName)
+			cache->SetExport(id, i.UName, *ExportPtr != nullptr);
+		++ExportPtr;
+	});
+}
+
+void GenericPluginModel::LoadExportsFromCache(PluginsCacheConfig* cache, unsigned long long id, void** exports)
+{
+	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+	{
+		return *i.UName? cache->GetExport(id, i.UName) : nullptr;
+	});
+}
+
+
+GenericPluginModel::GenericPluginModel(PluginManager* owner):
+	m_owner(owner)
 {
 	static const export_name ExportsNames[] =
 	{
@@ -119,24 +147,131 @@ static const export_name* GetExportsNames()
 		WA("ProcessSynchroEventW"),
 		WA("ProcessConsoleInputW"),
 		WA("AnalyseW"),
+		WA("CloseAnalyseW"),
 		WA("GetCustomDataW"),
 		WA("FreeCustomDataW"),
-		WA("CloseAnalyseW"),
 
 		WA(""), // OpenFilePlugin not used
 		WA(""), // GetMinFarVersion not used
 	};
-	static_assert(ARRAYSIZE(ExportsNames) == i_LAST, "Not all exports names are defined");
-	return ExportsNames;
-};
+	static_assert(ARRAYSIZE(ExportsNames) == ExportsCount, "Not all exports names are defined");
 
-bool Plugin::FindExport(const char* ExportName)
+	m_ExportsNames = ExportsNames;
+
+}
+
+bool NativePluginModel::IsPlugin(const string& filename)
 {
-	auto ExportsBegin = GetExportsNames(), ExportsEnd = ExportsBegin + i_LAST;
+	if (!CmpName(L"*.dll", filename.data(), false))
+		return false;
+
+	bool Result = false;
+	HANDLE hModuleFile = apiCreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+
+	if (hModuleFile != INVALID_HANDLE_VALUE)
+	{
+		HANDLE hModuleMapping = CreateFileMapping(hModuleFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
+		if (hModuleMapping)
+		{
+			const void* pData = MapViewOfFile(hModuleMapping, FILE_MAP_READ, 0, 0, 0);
+			if (pData)
+			{
+				Result = IsPlugin2(pData);
+				UnmapViewOfFile(pData);
+			}
+			CloseHandle(hModuleMapping);
+		}
+		CloseHandle(hModuleFile);
+	}
+	return Result;
+}
+
+GenericPluginModel::plugin_module NativePluginModel::Create(const string& filename)
+{
+	plugin_module module = LoadLibraryEx(filename.data(), nullptr, 0);
+	if(module)
+		module = LoadLibraryEx(filename.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+	Global->CatchError();
+	return module;
+}
+
+bool NativePluginModel::Destroy(GenericPluginModel::plugin_instance instance)
+{
+	return FreeLibrary(static_cast<HMODULE>(instance)) != FALSE;
+}
+
+void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance, void** exports)
+{
+	std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+	{
+		return *i.AName? reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(instance), i.AName)) : nullptr;
+	});
+}
+
+bool NativePluginModel::FindExport(const char* ExportName)
+{
+	auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
 	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
 	{
 		return !strcmp(ExportName, i.AName);
 	}) != ExportsEnd;
+}
+
+bool NativePluginModel::IsPlugin2(const void* Module)
+{
+	try
+	{
+		const IMAGE_DOS_HEADER* pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
+		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
+			return false;
+
+		const IMAGE_NT_HEADERS* pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
+
+		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
+			return false;
+
+		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
+			return false;
+
+		static WORD FarMachineType = 0;
+		if (!FarMachineType)
+		{
+			HMODULE FarModule = GetModuleHandle(nullptr);
+			FarMachineType = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
+		}
+
+		if (pPEHeader->FileHeader.Machine != FarMachineType)
+			return false;
+
+		DWORD dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
+
+		if (!dwExportAddr)
+			return false;
+
+		PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pPEHeader);
+
+		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
+		{
+			if ((pSection[i].VirtualAddress == dwExportAddr) ||
+				((pSection[i].VirtualAddress <= dwExportAddr) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)))
+			{
+				int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
+				const IMAGE_EXPORT_DIRECTORY* pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(reinterpret_cast<const char*>(Module) + dwExportAddr - nDiff);
+				const DWORD* pNames = reinterpret_cast<const DWORD*>(reinterpret_cast<const char*>(Module) + pExportDir->AddressOfNames-nDiff);
+				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
+				{
+					if (FindExport(reinterpret_cast<const char *>(Module) + pNames[n]-nDiff))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	catch (SException&)
+	{
+	}
+	return false;
 }
 
 static BOOL PrepareModulePath(const string& ModuleName)
@@ -322,9 +457,9 @@ void Plugin::ExecuteFunction(ExecuteStruct& es, std::function<void()> f)
 	}
 	catch (SException &e)
 	{
-		if (xfilter(es.id, e.GetInfo(), this, 0) == EXCEPTION_EXECUTE_HANDLER)
+		if (xfilter(this, m_model->GetExportName(es.id), e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
 		{
-			m_owner->UnloadPlugin(this, es.id);
+			m_model->GetOwner()->UnloadPlugin(this, es.id);
 			es.Result = es.Default;
 			Global->ProcessException=FALSE;
 		}
@@ -399,13 +534,7 @@ bool Plugin::SaveToCache()
 	PlCache.SetDescription(id, strDescription);
 	PlCache.SetAuthor(id, strAuthor);
 
-	auto ExportPtr = Exports;
-	std::for_each(ExportsNames, ExportsNames + i_LAST, [&](const export_name& i)
-	{
-		if (*i.UName)
-			PlCache.SetExport(id, i.UName, *ExportPtr != nullptr);
-		++ExportPtr;
-	});
+	m_model->SaveExportsToCache(&PlCache, id, Exports);
 
 	PlCache.EndTransaction();
 
@@ -414,28 +543,18 @@ bool Plugin::SaveToCache()
 
 void Plugin::InitExports()
 {
-	std::transform(ExportsNames, ExportsNames + i_LAST, Exports, [&](const export_name& i)
-	{
-		return *i.AName? reinterpret_cast<void*>(GetProcAddress(m_hModule, i.AName)) : nullptr;
-	});
+	m_model->InitExports(m_Instance, Exports);
 }
 
-Plugin::Plugin(PluginManager *owner, const string& ModuleName):
-	ExportsNames(GetExportsNames()),
-	m_owner(owner),
+Plugin::Plugin(GenericPluginModel* model, const string& ModuleName):
+	m_model(model),
 	Activity(0),
 	bPendingRemove(false),
 	m_strModuleName(ModuleName),
 	m_strCacheName(ModuleName),
-	m_hModule(nullptr)
+	m_Instance(nullptr)
 {
-
-	for (size_t i = 0; i != m_strCacheName.size(); ++i)
-	{
-		if (m_strCacheName[i] == L'\\')
-			m_strCacheName[i] = L'/';
-	}
-
+	std::replace(ALL_RANGE(m_strCacheName), L'\\', L'/');
 	ClearExports();
 	SetGuid(FarGuid);
 }
@@ -471,10 +590,10 @@ bool Plugin::LoadData()
 	if (WorkFlags.Check(PIWF_DATALOADED))
 		return true;
 
-	if (m_hModule)
+	if (m_Instance)
 		return true;
 
-	if (!m_hModule)
+	if (!m_Instance)
 	{
 		string strCurPath, strCurPlugDiskPath;
 		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
@@ -488,16 +607,14 @@ bool Plugin::LoadData()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,0);
-		if(!m_hModule) m_hModule = LoadLibraryEx(m_strModuleName.data(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
-		Global->CatchError();
+		m_Instance = m_model->Create(m_strModuleName);
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
 			SetEnvironmentVariable(Drive,strCurPlugDiskPath.data());
 	}
 
-	if (!m_hModule)
+	if (!m_Instance)
 	{
 		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
@@ -516,7 +633,7 @@ bool Plugin::LoadData()
 	if(bPendingRemove)
 	{
 		bPendingRemove = false;
-		m_owner->UndoRemove(this);
+		m_model->GetOwner()->UndoRemove(this);
 	}
 	InitExports();
 
@@ -538,7 +655,7 @@ bool Plugin::LoadData()
 		bool ok=true;
 		if(m_Guid != FarGuid && m_Guid != Info.Guid)
 		{
-			ok = m_owner->UpdateId(this, Info.Guid);
+			ok = m_model->GetOwner()->UpdateId(this, Info.Guid);
 		}
 		else
 		{
@@ -571,7 +688,17 @@ bool Plugin::Load()
 
 	FuncFlags.Set(PICFF_LOADED);
 
-	if (!CheckMinFarVersion() || !SetStartupInfo())
+	bool Inited = false;
+
+	if (CheckMinFarVersion())
+	{
+		PluginStartupInfo info;
+		FarStandardFunctions fsf;
+		CreatePluginStartupInfo(this, &info, &fsf);
+		Inited = SetStartupInfo(&info);
+	}
+
+	if (!Inited)
 	{
 		if (!bPendingRemove)
 		{
@@ -633,10 +760,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
 		strDescription = PlCache.GetDescription(id);
 		strAuthor = PlCache.GetAuthor(id);
 
-		std::transform(ExportsNames, ExportsNames + i_LAST, Exports, [&](const export_name& i)
-		{
-			return  *i.UName? PlCache.GetExport(id, i.UName) : nullptr;
-		});
+		m_model->LoadExportsFromCache(&PlCache, id, Exports);
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
@@ -652,17 +776,17 @@ int Plugin::Unload(bool bExitFAR)
 	{
 		if (bExitFAR)
 		{
-			const ExitInfo Info={sizeof(Info)};
+			ExitInfo Info={sizeof(Info)};
 			ExitFAR(&Info);
 		}
 
 		if (!WorkFlags.Check(PIWF_CACHED))
 		{
-			nResult = FreeLibrary(m_hModule);
+			nResult = m_model->Destroy(m_Instance);
 			ClearExports();
 		}
 
-		m_hModule = nullptr;
+		m_Instance = nullptr;
 		FuncFlags.Clear(PICFF_LOADED);
 		WorkFlags.Clear(PIWF_DATALOADED);
 		bPendingRemove = true;
@@ -703,15 +827,13 @@ bool Plugin::IsPanelPlugin()
 	});
 }
 
-bool Plugin::SetStartupInfo()
+bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 {
-	if (Exports[iSetStartupInfo] && !Global->ProcessException)
+	ExecuteStruct es = {iSetStartupInfo};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		PluginStartupInfo _info;
-		FarStandardFunctions _fsf;
-		CreatePluginStartupInfo(this, &_info, &_fsf);
-		ExecuteStruct es = {EXCEPT_SETSTARTUPINFO};
-		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(Info));
 
 		if (bPendingRemove)
 		{
@@ -723,9 +845,10 @@ bool Plugin::SetStartupInfo()
 
 bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 {
-	if (Exports[iGetGlobalInfo])
+	ExecuteStruct es = {iGetGlobalInfo};
+	if (Exports[es.id])
 	{
-		ExecuteStruct es = {EXCEPT_GETGLOBALINFO};
+		gi->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi));
 		return !bPendingRemove;
 	}
@@ -748,388 +871,303 @@ HANDLE Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, si
 	return nullptr;
 }
 
-HANDLE Plugin::Analyse(const AnalyseInfo *Info)
+HANDLE Plugin::Analyse(AnalyseInfo *Info)
 {
-	ExecuteStruct es = {EXCEPT_ANALYSE};
-	if (Load() && Exports[iAnalyse] && !Global->ProcessException)
+	ExecuteStruct es = {iAnalyse};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
+		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iAnalyse)(Info));
 	}
 	return es;
 }
 
-void Plugin::CloseAnalyse(HANDLE hHandle)
+void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 {
-	if (Exports[iCloseAnalyse] && !Global->ProcessException)
+	ExecuteStruct es = {iCloseAnalyse};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_CLOSEANALYSE};
-		CloseAnalyseInfo Info = {sizeof(Info)};
-		Info.Handle = hHandle;
-		EXECUTE_FUNCTION(FUNCTION(iCloseAnalyse)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iCloseAnalyse)(Info));
 	}
 }
 
-HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
+HANDLE Plugin::Open(OpenInfo* Info)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??
 	Global->g_strDirToSet.clear();
-	ExecuteStruct es = {EXCEPT_OPEN};
-	if (Load() && Exports[iOpen] && !Global->ProcessException)
+	ExecuteStruct es = {iOpen};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		//CurPluginItem=this; //BUGBUG
-		OpenInfo Info = {sizeof(Info)};
-		Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
-		Info.Guid = &Guid;
-		Info.Data = Item;
-		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(Info));
 	}
 	delete ChPriority;
 	return es;
 }
 
-int Plugin::SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber)
+int Plugin::SetFindList(SetFindListInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_SETFINDLIST};
-	if (Exports[iSetFindList] && !Global->ProcessException)
+	ExecuteStruct es = {iSetFindList};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		SetFindListInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		EXECUTE_FUNCTION(es = FUNCTION(iSetFindList)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iSetFindList)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessEditorInput(const INPUT_RECORD *D)
+int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSEDITORINPUT};
-	if (Load() && Exports[iProcessEditorInput] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessEditorInput};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessEditorInputInfo Info={sizeof(Info)};
-		Info.Rec=*D;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorInput)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorInput)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessEditorEvent(int Event, PVOID Param, int EditorID)
+int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSEDITOREVENT};
-	if (Load() && Exports[iProcessEditorEvent] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessEditorEvent};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessEditorEventInfo Info = {sizeof(Info)};
-		Info.Event = Event;
-		Info.Param = Param;
-		Info.EditorID = EditorID;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorEvent)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessEditorEvent)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessViewerEvent(int Event, void *Param, int ViewerID)
+int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSVIEWEREVENT};
-	if (Load() && Exports[iProcessViewerEvent] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessViewerEvent};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessViewerEventInfo Info = {sizeof(Info)};
-		Info.Event = Event;
-		Info.Param = Param;
-		Info.ViewerID = ViewerID;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessViewerEvent)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessViewerEvent)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessDialogEvent(int Event, FarDialogEvent *Param)
+int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSDIALOGEVENT};
-	if (Load() && Exports[iProcessDialogEvent] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessDialogEvent};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessDialogEventInfo Info = {sizeof(Info)};
-		Info.Event = Event;
-		Info.Param = Param;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessDialogEvent)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessDialogEvent)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessSynchroEvent(int Event, void *Param)
+int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSSYNCHROEVENT};
-	if (Load() && Exports[iProcessSynchroEvent] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessSynchroEvent};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessSynchroEventInfo Info = {sizeof(Info)};
-		Info.Event = Event;
-		Info.Param = Param;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessSynchroEvent)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessSynchroEvent)(Info));
 	}
 	return es;
 }
 
 int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSCONSOLEINPUT};
-	if (Load() && Exports[iProcessConsoleInput] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessConsoleInput};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
+		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iProcessConsoleInput)(Info));
 	}
 	return es;
 }
 
-int Plugin::GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path)
+int Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_GETVIRTUALFINDDATA};
-	if (Exports[iGetVirtualFindData] && !Global->ProcessException)
+	ExecuteStruct es = {iGetVirtualFindData};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		GetVirtualFindDataInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = *pPanelItem;
-		Info.ItemsNumber = *pItemsNumber;
-		Info.Path = Path.data();
-		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(&Info));
-		*pPanelItem = Info.PanelItem;
-		*pItemsNumber = Info.ItemsNumber;
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iGetVirtualFindData)(Info));
 	}
 	return es;
 }
 
-void Plugin::FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
+void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 {
-	if (Exports[iFreeVirtualFindData] && !Global->ProcessException)
+	ExecuteStruct es = {iFreeVirtualFindData};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_FREEVIRTUALFINDDATA};
-		FreeFindDataInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(Info));
 	}
 }
 
-int Plugin::GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
+int Plugin::GetFiles(GetFilesInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_GETFILES, -1};
-	if (Exports[iGetFiles] && !Global->ProcessException)
+	ExecuteStruct es = {iGetFiles, -1};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		GetFilesInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		Info.Move = Move;
-		Info.DestPath = *DestPath;
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(&Info));
-		*DestPath = Info.DestPath;
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iGetFiles)(Info));
 	}
 	return es;
 }
 
-int Plugin::PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
+int Plugin::PutFiles(PutFilesInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PUTFILES, -1};
+	ExecuteStruct es = {iPutFiles, -1};
 
-	if (Exports[iPutFiles] && !Global->ProcessException)
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		static string strCurrentDirectory;
-		apiGetCurrentDirectory(strCurrentDirectory);
-		PutFilesInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		Info.Move = Move;
-		Info.SrcPath = strCurrentDirectory.data();
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iPutFiles)(Info));
 	}
 	return es;
 }
 
-int Plugin::DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+int Plugin::DeleteFiles(DeleteFilesInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_DELETEFILES};
-	if (Exports[iDeleteFiles] && !Global->ProcessException)
+	ExecuteStruct es = {iDeleteFiles};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		DeleteFilesInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iDeleteFiles)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iDeleteFiles)(Info));
 	}
 	return es;
 }
 
-int Plugin::MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode)
+int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_MAKEDIRECTORY, -1};
-	if (Exports[iMakeDirectory] && !Global->ProcessException)
+	ExecuteStruct es = {iMakeDirectory, -1};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		MakeDirectoryInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.Name = *Name;
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(&Info));
-		*Name = Info.Name;
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iMakeDirectory)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSHOSTFILE};
-	if (Exports[iProcessHostFile] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessHostFile};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessHostFileInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessHostFile)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessHostFile)(Info));
 	}
 	return es;
 }
 
-int Plugin::ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param)
+int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSPANELEVENT};
-	if (Exports[iProcessPanelEvent] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessPanelEvent};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ProcessPanelEventInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.Event = Event;
-		Info.Param = Param;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelEvent)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelEvent)(Info));
 	}
 	return es;
 }
 
-int Plugin::Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, DWORD Mode)
+int Plugin::Compare(CompareInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_COMPARE, -2};
-	if (Exports[iCompare] && !Global->ProcessException)
+	ExecuteStruct es = {iCompare, -2};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		CompareInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.Item1 = Item1;
-		Info.Item2 = Item2;
-		Info.Mode = static_cast<OPENPANELINFO_SORTMODES>(Mode);
-		EXECUTE_FUNCTION(es = FUNCTION(iCompare)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iCompare)(Info));
 	}
 	return es;
 }
 
-int Plugin::GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode)
+int Plugin::GetFindData(GetFindDataInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_GETFINDDATA};
-	if (Exports[iGetFindData] && !Global->ProcessException)
+	ExecuteStruct es = {iGetFindData};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		GetFindDataInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = *pPanelItem;
-		Info.ItemsNumber = *pItemsNumber;
-		Info.OpMode = OpMode;
-		EXECUTE_FUNCTION(es = FUNCTION(iGetFindData)(&Info));
-		*pPanelItem = Info.PanelItem;
-		*pItemsNumber = Info.ItemsNumber;
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iGetFindData)(Info));
 	}
 	return es;
 }
 
-void Plugin::FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData)
+void Plugin::FreeFindData(FreeFindDataInfo* Info)
 {
-	if (Exports[iFreeFindData] && !Global->ProcessException)
+	ExecuteStruct es = {iFreeFindData};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_FREEFINDDATA};
-		FreeFindDataInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
-		if (FreeUserData) FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
-		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(Info));
 	}
 }
 
-int Plugin::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool)
+int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_PROCESSPANELINPUT};
-	if (Exports[iProcessPanelInput] && !Global->ProcessException)
+	ExecuteStruct es = {iProcessPanelInput};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		struct ProcessPanelInputInfo Info={sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.Rec=*Rec;
-		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelInput)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iProcessPanelInput)(Info));
 	}
 	return es;
 }
 
 
-void Plugin::ClosePanel(HANDLE hPlugin)
+void Plugin::ClosePanel(ClosePanelInfo* Info)
 {
-	if (Exports[iClosePanel] && !Global->ProcessException)
+	ExecuteStruct es = {iClosePanel};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_CLOSEPANEL};
-		ClosePanelInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		EXECUTE_FUNCTION(FUNCTION(iClosePanel)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iClosePanel)(Info));
 	}
-//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
 
-int Plugin::SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode, UserDataItem *UserData)
+int Plugin::SetDirectory(SetDirectoryInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_SETDIRECTORY};
-	if (Exports[iSetDirectory] && !Global->ProcessException)
+	ExecuteStruct es = {iSetDirectory};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		SetDirectoryInfo Info = {sizeof(Info)};
-		Info.hPanel = hPlugin;
-		Info.Dir = Dir.data();
-		Info.OpMode = OpMode;
-		if (UserData)
-		{
-			Info.UserData.Data = UserData->Data;
-			Info.UserData.FreeData = UserData->FreeData;
-		}
-		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iSetDirectory)(Info));
 	}
 	return es;
 }
 
-void Plugin::GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *pInfo)
+void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 {
-	//	m_pManager->m_pCurrentPlugin = this;
-	pInfo->StructSize = sizeof(OpenPanelInfo);
-
-	if (Exports[iGetOpenPanelInfo] && !Global->ProcessException)
+	ExecuteStruct es = {iGetOpenPanelInfo};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_GETOPENPANELINFO};
-		pInfo->hPanel = hPlugin;
-		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(pInfo));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(Info));
 	}
 }
 
 
-int Plugin::Configure(const GUID& Guid)
+int Plugin::Configure(ConfigureInfo* Info)
 {
-	ExecuteStruct es = {EXCEPT_CONFIGURE};
-	if (Load() && Exports[iConfigure] && !Global->ProcessException)
+	ExecuteStruct es = {iConfigure};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ConfigureInfo Info = {sizeof(Info)};
-		Info.Guid = &Guid;
-		EXECUTE_FUNCTION(es = FUNCTION(iConfigure)(&Info));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(es = FUNCTION(iConfigure)(Info));
 	}
 	return es;
 }
 
 
-bool Plugin::GetPluginInfo(PluginInfo *pi)
+bool Plugin::GetPluginInfo(PluginInfo* Info)
 {
-	if (Exports[iGetPluginInfo] && !Global->ProcessException)
+	ExecuteStruct es = {iGetPluginInfo};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_GETPLUGININFO};
-		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(pi));
+		Info->Instance = m_Instance;
+		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(Info));
 		if (!bPendingRemove)
 			return true;
 	}
@@ -1138,9 +1176,10 @@ bool Plugin::GetPluginInfo(PluginInfo *pi)
 
 int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
 {
-	ExecuteStruct es = {EXCEPT_GETCUSTOMDATA};
-	if (Load() && Exports[iGetCustomData] && !Global->ProcessException)
+	ExecuteStruct es = {iGetCustomData};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
+		//Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iGetCustomData)(FilePath, CustomData));
 	}
 	return es;
@@ -1148,18 +1187,112 @@ int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
 
 void Plugin::FreeCustomData(wchar_t *CustomData)
 {
-	if (Load() && Exports[iFreeCustomData] && !Global->ProcessException)
+	ExecuteStruct es = {iFreeCustomData};
+	if (Load() && Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_FREECUSTOMDATA};
+		//Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iFreeCustomData)(CustomData));
 	}
 }
 
-void Plugin::ExitFAR(const ExitInfo *Info)
+void Plugin::ExitFAR(ExitInfo *Info)
 {
-	if (Exports[iExitFAR] && !Global->ProcessException)
+	ExecuteStruct es = {iExitFAR};
+	if (Exports[es.id] && !Global->ProcessException)
 	{
-		ExecuteStruct es = {EXCEPT_EXITFAR};
+		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(Info));
+	}
+}
+
+
+CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filename):
+	GenericPluginModel(owner),
+	m_Success(false)
+{
+	try
+	{
+		m_Module = LoadLibraryEx(filename.data(), nullptr, 0);
+
+#define InitImport(Name) InitImport(Imports.##Name, #Name)
+
+		if (InitImport(IsPlugin) &&
+			InitImport(CreateInstance) &&
+			InitImport(GetFunctionAddress) &&
+			InitImport(DestroyInstance))
+
+		{
+			m_Success = true;
+			Imports.CreateInstance(nullptr);
+		}
+#undef InitImport
+	}
+	catch(...)
+	{
+	}
+};
+
+CustomPluginModel::~CustomPluginModel()
+{
+	try
+	{
+		if (m_Success)
+		{
+			Imports.DestroyInstance(nullptr);
+		}
+		FreeLibrary(m_Module);
+	}
+	catch(...)
+	{
+	}
+}
+
+bool CustomPluginModel::IsPlugin(const string& filename)
+{
+	try
+	{
+		return Imports.IsPlugin(filename.data()) != FALSE;
+	}
+	catch(...)
+	{
+		return false;
+	}
+}
+
+GenericPluginModel::plugin_module CustomPluginModel::Create(const string& filename)
+{
+	try
+	{
+		return Imports.CreateInstance(filename.data());
+	}
+	catch(...)
+	{
+		return false;
+	}
+}
+
+void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance, void** exports)
+{
+	try
+	{
+		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
+		{
+			return *i.UName? Imports.GetFunctionAddress(static_cast<HANDLE>(instance), i.UName) : nullptr;
+		});
+	}
+	catch(...)
+	{
+	}
+}
+
+bool CustomPluginModel::Destroy(GenericPluginModel::plugin_module module)
+{
+	try
+	{
+		return Imports.DestroyInstance(static_cast<HANDLE>(module)) != FALSE;
+	}
+	catch(...)
+	{
+		return false;
 	}
 }

@@ -33,53 +33,67 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 namespace wrapper
 {
-class file_version;
 
 #include "pluginold.hpp"
 
+class OEMPluginModel : public NativePluginModel
+{
+public:
+	OEMPluginModel(PluginManager* owner);
+
+	virtual Plugin* CreatePlugin(const string& filename) override;
+
+private:
+	virtual bool FindExport(const char* ExportName) override;
+};
+
+class file_version;
+
+// TODO: PluginA class shouldn't be derived from Plugin.
+// All exports should be provided by OEMPluginModel.
 class PluginA: public Plugin
 {
 public:
-
-	PluginA(PluginManager *owner, const string& ModuleName);
+	PluginA(GenericPluginModel* model, const string& ModuleName);
 	~PluginA();
 
-	static bool FindExport(const char* ExportName);
-
 	virtual bool GetGlobalInfo(GlobalInfo *Info) override;
-	virtual bool SetStartupInfo() override;
-	virtual bool CheckMinFarVersion() override;
-	virtual HANDLE Open(int OpenFrom, const GUID& Guid, intptr_t Item) override;
-	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
-	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber) override;
-	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode) override;
-	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, const string& Path) override;
-	virtual int SetDirectory(HANDLE hPlugin, const string& Dir, int OpMode,struct UserDataItem *UserData=nullptr) override;
-	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t** DestPath, int OpMode) override;
-	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode) override;
-	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode) override;
-	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode) override;
-	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode) override;
-	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred) override;
-	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param) override;
-	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode) override;
+	virtual bool SetStartupInfo(PluginStartupInfo* Info) override;
+	virtual HANDLE Open(OpenInfo* OpenInfo) override;
+	virtual void ClosePanel(ClosePanelInfo* Info) override;
+	virtual bool GetPluginInfo(PluginInfo *pi) override;
+	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
+	virtual int GetFindData(GetFindDataInfo* Info) override;
+	virtual void FreeFindData(FreeFindDataInfo* Info) override;
+	virtual int GetVirtualFindData(GetVirtualFindDataInfo* Info) override;
+	virtual void FreeVirtualFindData(FreeFindDataInfo* Info) override;
+	virtual int SetDirectory(SetDirectoryInfo* Info) override;
+	virtual int GetFiles(GetFilesInfo* Info) override;
+	virtual int PutFiles(PutFilesInfo* Info) override;
+	virtual int DeleteFiles(DeleteFilesInfo* Info) override;
+	virtual int MakeDirectory(MakeDirectoryInfo* Info) override;
+	virtual int ProcessHostFile(ProcessHostFileInfo* Info) override;
+	virtual int SetFindList(SetFindListInfo* Info) override;
+	virtual int Configure(ConfigureInfo* Info) override;
+	virtual void ExitFAR(ExitInfo *Info) override;
+	virtual int ProcessPanelInput(ProcessPanelInputInfo* Info) override;
+	virtual int ProcessPanelEvent(ProcessPanelEventInfo* Info) override;
+	virtual int ProcessEditorEvent(ProcessEditorEventInfo* Info) override;
+	virtual int Compare(CompareInfo* Info) override;
+	virtual int ProcessEditorInput(ProcessEditorInputInfo* Info) override;
+	virtual int ProcessViewerEvent(ProcessViewerEventInfo* Info) override;
+	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info) override;
+	virtual int ProcessSynchroEvent(ProcessSynchroEventInfo* Info) override { return 0; }
+	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) override { return 0; }
+	virtual HANDLE Analyse(AnalyseInfo *Info) override { return nullptr; }
+	virtual void CloseAnalyse(CloseAnalyseInfo* Info) override {}
+
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) override { return 0; }
 	virtual void FreeCustomData(wchar_t *CustomData) override {}
-	virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info) override;
-	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData) override;
-	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber) override;
-	virtual void ClosePanel(HANDLE hPlugin) override;
-	virtual int ProcessEditorInput(const INPUT_RECORD *D) override;
-	virtual int ProcessEditorEvent(int Event, PVOID Param,int EditorID) override;
-	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID) override;
-	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param) override;
-	virtual int ProcessSynchroEvent(int Event, PVOID Param) override { return 0; }
-	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) override {return 0;}
-	virtual HANDLE Analyse(const AnalyseInfo *Info) override { return nullptr; }
-	virtual void CloseAnalyse(HANDLE hHandle) override {}
-	virtual bool GetPluginInfo(PluginInfo *pi) override;
-	virtual int Configure(const GUID& Guid) override;
-	virtual void ExitFAR(const ExitInfo *Info) override;
+
+	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
+	virtual bool CheckMinFarVersion() override;
+
 
 	virtual bool IsOemPlugin() const override { return true; }
 	virtual const string& GetHotkeyName() const override { return GetCacheName(); }
@@ -97,7 +111,7 @@ private:
 	void ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
 
 	string strRootKey;
-	char *RootKey;
+	std::unique_ptr<char[]> RootKey;
 
 	PluginInfo PI;
 	OpenPanelInfo OPI;
@@ -110,8 +124,6 @@ private:
 	bool opif_shortcut;
 	std::unique_ptr<file_version> FileVersion;
 };
-
-void LocalUpperInit();
 
 };
 #endif // NO_WRAPPER

@@ -290,7 +290,7 @@ static int MainProcess(
 #ifndef _MSC_VER
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
-	return xfilter(EXCEPT_KERNEL, ExceptionInfo, nullptr, 1);
+	return xfilter(L"FarUnhandledExceptionFilter", ExceptionInfo);
 }
 #endif
 
@@ -757,7 +757,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	catch (SException& e)
 	{
-		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+		if (xfilter(L"mainImpl", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
 			TerminateProcess(GetCurrentProcess(), 1);
 		throw;
 	}
@@ -788,7 +788,7 @@ int wmain(int Argc, wchar_t *Argv[])
 
 	catch (SException& e)
 	{
-		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+		if (xfilter(L"wmain", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
 			TerminateProcess(GetCurrentProcess(), 1);
 		throw;
 	}

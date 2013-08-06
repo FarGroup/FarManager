@@ -2681,7 +2681,7 @@ unsigned int FindFiles::ThreadRoutine(LPVOID Param)
 	}
 	catch (SException& e)
 	{
-		if (xfilter(EXCEPT_KERNEL, e.GetInfo(), nullptr, 1) == EXCEPTION_EXECUTE_HANDLER)
+		if (xfilter(L"FindFiles::ThreadRoutine", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
 			TerminateProcess(GetCurrentProcess(), 1);
 		throw;
 	}

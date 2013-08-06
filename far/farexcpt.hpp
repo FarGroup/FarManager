@@ -191,49 +191,6 @@ struct FARExceptionState
 	RECHEADER   *Head;
 };
 
-/* $ 17.10.2000 SVS
-   »— Ћё„≈Ќ»я!
-*/
-ENUM(ExceptFunctionsType)
-{
-	EXCEPT_KERNEL=-1,
-	EXCEPT_GETGLOBALINFO,
-	EXCEPT_SETSTARTUPINFO,
-	EXCEPT_GETVIRTUALFINDDATA,
-	EXCEPT_OPEN,
-	EXCEPT_OPENFILEPLUGIN,
-	EXCEPT_CLOSEPANEL,
-	EXCEPT_GETPLUGININFO,
-	EXCEPT_GETOPENPANELINFO,
-	EXCEPT_GETFINDDATA,
-	EXCEPT_FREEFINDDATA,
-	EXCEPT_FREEVIRTUALFINDDATA,
-	EXCEPT_SETDIRECTORY,
-	EXCEPT_GETFILES,
-	EXCEPT_PUTFILES,
-	EXCEPT_DELETEFILES,
-	EXCEPT_MAKEDIRECTORY,
-	EXCEPT_PROCESSHOSTFILE,
-	EXCEPT_SETFINDLIST,
-	EXCEPT_CONFIGURE,
-	EXCEPT_EXITFAR,
-	EXCEPT_PROCESSPANELINPUT,
-	EXCEPT_PROCESSPANELEVENT,
-	EXCEPT_PROCESSEDITOREVENT,
-	EXCEPT_COMPARE,
-	EXCEPT_PROCESSEDITORINPUT,
-	EXCEPT_MINFARVERSION,
-	EXCEPT_PROCESSVIEWEREVENT,
-	EXCEPT_PROCESSVIEWERINPUT,
-	EXCEPT_PROCESSDIALOGEVENT,
-	EXCEPT_PROCESSSYNCHROEVENT,
-	EXCEPT_ANALYSE,
-	EXCEPT_GETCUSTOMDATA,
-	EXCEPT_FREECUSTOMDATA,
-	EXCEPT_CLOSEANALYSE,
-	EXCEPT_PROCESSCONSOLEINPUT,
-};
-
 typedef BOOL (WINAPI *FARPROCESSEVENT)(FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
@@ -242,13 +199,12 @@ int WriteEvent(DWORD DumpType, // FLOG_*
                void *RawData=nullptr,DWORD RawDataSize=0,
                DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
 
-DWORD WINAPI xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    Plugin *Module,// модуль, приведший к исключению.
-    DWORD Flags);             // дополнительные флаги - пока только один
-//        0x1 - спрашивать про выгрузку?
 
+// for plugins
+DWORD WINAPI xfilter(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS *xp);
+
+// for Far
+inline DWORD WINAPI xfilter(const wchar_t* function, EXCEPTION_POINTERS *xp) { return xfilter(nullptr, function, xp); }
 
 class SException : public std::exception
 {

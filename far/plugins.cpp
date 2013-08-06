@@ -69,140 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
-enum PluginType
-{
-	NOT_PLUGIN,
-	UNICODE_PLUGIN,
-#ifndef NO_WRAPPER
-	OEM_PLUGIN,
-#endif // NO_WRAPPER
-};
-
-PluginType IsModulePlugin2(
-    PBYTE hModule
-)
-{
-	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
-	PIMAGE_NT_HEADERS pPEHeader;
-	try
-	{
-
-		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
-			return NOT_PLUGIN;
-
-		pPEHeader = (PIMAGE_NT_HEADERS)&hModule[pDOSHeader->e_lfanew];
-
-		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
-			return NOT_PLUGIN;
-
-		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
-			return NOT_PLUGIN;
-
-		if (pPEHeader->FileHeader.Machine!=
-#ifdef _WIN64
-#ifdef _M_IA64
-		        IMAGE_FILE_MACHINE_IA64
-#else
-		        IMAGE_FILE_MACHINE_AMD64
-#endif
-#else
-		        IMAGE_FILE_MACHINE_I386
-#endif
-		   )
-			return NOT_PLUGIN;
-
-		DWORD dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
-
-		if (!dwExportAddr)
-			return NOT_PLUGIN;
-
-		PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pPEHeader);
-
-		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
-		{
-			if ((pSection[i].VirtualAddress == dwExportAddr) ||
-			        ((pSection[i].VirtualAddress <= dwExportAddr) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)))
-			{
-				int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
-				PIMAGE_EXPORT_DIRECTORY pExportDir = (PIMAGE_EXPORT_DIRECTORY)&hModule[dwExportAddr-nDiff];
-				DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
-#ifndef NO_WRAPPER
-				bool bOemExports=false;
-#endif // NO_WRAPPER
-				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
-				{
-					const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
-
-					if (Plugin::FindExport(lpExportName))
-					{
-						return UNICODE_PLUGIN;
-					}
-
-#ifndef NO_WRAPPER
-					if (!bOemExports && Global->Opt->LoadPlug.OEMPluginsSupport &&
-						wrapper::PluginA::FindExport(lpExportName))
-					{
-						bOemExports=true;
-					}
-#endif // NO_WRAPPER
-				}
-#ifndef NO_WRAPPER
-				if (bOemExports)
-					return OEM_PLUGIN;
-#endif // NO_WRAPPER
-			}
-		}
-
-		return NOT_PLUGIN;
-	}
-	catch (SException&)
-	{
-		return NOT_PLUGIN;
-	}
-}
-
-PluginType IsModulePlugin(const string& lpModuleName)
-{
-	PluginType bResult = NOT_PLUGIN;
-	HANDLE hModuleFile = apiCreateFile(
-	                         lpModuleName,
-	                         GENERIC_READ,
-	                         FILE_SHARE_READ,
-	                         nullptr,
-	                         OPEN_EXISTING,
-	                         0
-	                     );
-
-	if (hModuleFile != INVALID_HANDLE_VALUE)
-	{
-		HANDLE hModuleMapping = CreateFileMapping(
-		                            hModuleFile,
-		                            nullptr,
-		                            PAGE_READONLY,
-		                            0,
-		                            0,
-		                            nullptr
-		                        );
-
-		if (hModuleMapping)
-		{
-			PBYTE pData = (PBYTE)MapViewOfFile(hModuleMapping, FILE_MAP_READ, 0, 0, 0);
-
-			if (pData)
-			{
-				bResult = IsModulePlugin2(pData);
-				UnmapViewOfFile(pData);
-			}
-
-			CloseHandle(hModuleMapping);
-		}
-
-		CloseHandle(hModuleFile);
-	}
-
-	return bResult;
-}
-
 static const struct plugin_less
 {
 	bool operator ()(const Plugin* a, const Plugin *b)
@@ -292,18 +158,11 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-Plugin* PluginManager::LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA &FindData, bool LoadToMem)
+Plugin* PluginManager::LoadPlugin(const string& FileName, const FAR_FIND_DATA &FindData, bool LoadToMem)
 {
 	Plugin *pPlugin = nullptr;
 
-	switch (IsModulePlugin(lpwszModuleName))
-	{
-		case UNICODE_PLUGIN: pPlugin = new Plugin(this, lpwszModuleName); break;
-#ifndef NO_WRAPPER
-		case OEM_PLUGIN: pPlugin = new wrapper::PluginA(this, lpwszModuleName); break;
-#endif // NO_WRAPPER
-		default: return nullptr;
-	}
+	std::any_of(CONST_RANGE(PluginModels, i) { return pPlugin = i->CreatePlugin(FileName); });
 
 	if (pPlugin)
 	{
@@ -367,11 +226,11 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 	return pPlugin;
 }
 
-int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
+int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 {
 	int nResult = FALSE;
 
-	if (pPlugin && (dwException != EXCEPT_EXITFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
+	if (pPlugin && (From != iExitFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
 		for(int i = static_cast<int>(FrameManager->GetModalStackCount()-1); i >= 0; --i)
 		{
@@ -390,10 +249,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 
 		bool bPanelPlugin = pPlugin->IsPanelPlugin();
 
-		if (dwException != (DWORD)-1)
-			nResult = pPlugin->Unload(true);
-		else
-			nResult = pPlugin->Unload(false);
+		nResult = pPlugin->Unload(true);
 
 		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
@@ -448,10 +304,38 @@ Plugin *PluginManager::GetPlugin(const string& ModuleName)
 	return ItemIterator == SortedPlugins.cend()? nullptr : *ItemIterator;
 }
 
+void PluginManager::LoadModels()
+{
+	PluginModels.emplace_back(new NativePluginModel(this));
+#ifndef NO_WRAPPER
+	if (Global->Opt->LoadPlug.OEMPluginsSupport)
+		PluginModels.emplace_back(new wrapper::OEMPluginModel(this));
+#endif // NO_WRAPPER
+
+	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
+	FAR_FIND_DATA FindData;
+	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
+
+	string filename;
+	while (ScTree.GetNextName(&FindData, filename))
+	{
+		if (CmpName(L"*.dll", filename.data(), false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			auto CustomModel = std::unique_ptr<CustomPluginModel>(new CustomPluginModel(this, filename));
+			if (CustomModel->Success())
+			{
+				PluginModels.emplace_back(std::move(CustomModel));
+			}
+		}
+	}
+}
+
 void PluginManager::LoadPlugins()
 {
 	TaskBar TB(false);
 	Flags.Clear(PSIF_PLUGINSLOADDED);
+
+	LoadModels();
 
 	if (Global->Opt->LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
 	{
@@ -503,7 +387,7 @@ void PluginManager::LoadPlugins()
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CmpName(L"*.dll",FindData.strFileName.data(),false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData, false);
 				}
@@ -695,7 +579,13 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			pAnalyse = pResult;
 			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
-			HANDLE h = pResult->Handle.pPlugin->Open(OPEN_ANALYSE, FarGuid, (intptr_t)&oainfo);
+
+			OpenInfo Info = {sizeof(Info)};
+			Info.OpenFrom = OPEN_ANALYSE;
+			Info.Guid = &FarGuid;
+			Info.Data = (intptr_t)&oainfo;
+
+			HANDLE h = pResult->Handle.pPlugin->Open(&Info);
 
 			if (h == PANEL_STOP)
 			{
@@ -723,12 +613,20 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (pResult == items.end() || i != *pResult)
 		{
 			if (i.Handle.hPlugin)
-				i.Handle.pPlugin->ClosePanel(i.Handle.hPlugin);
+			{
+				ClosePanelInfo Info = {sizeof(Info)};
+				Info.hPanel = i.Handle.hPlugin;
+				i.Handle.pPlugin->ClosePanel(&Info);
+			}
 		}
 		if (pAnalyse == items.end() || i != *pAnalyse)
 		{
 			if(i.Analyse)
-				i.Handle.pPlugin->CloseAnalyse(i.Analyse);
+			{
+				CloseAnalyseInfo Info = {sizeof(Info)};
+				Info.Handle = i.Analyse;
+				i.Handle.pPlugin->CloseAnalyse(&Info);
+			}
 		}
 	});
 
@@ -757,7 +655,12 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 		if (!pPlugin->HasSetFindList())
 			continue;
 
-		HANDLE hPlugin = pPlugin->Open(OPEN_FINDLIST, FarGuid, 0);
+		OpenInfo Info = {sizeof(Info)};
+		Info.OpenFrom = OPEN_FINDLIST;
+		Info.Guid = &FarGuid;
+		Info.Data = 0;
+
+		HANDLE hPlugin = pPlugin->Open(&Info);
 
 		if (hPlugin)
 		{
@@ -804,7 +707,12 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 
 	if (pResult != items.end())
 	{
-		if (!pResult->pPlugin->SetFindList(pResult->hPlugin, PanelItem, ItemsNumber))
+		SetFindListInfo Info = {sizeof(Info)};
+		Info.hPanel = pResult->hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+
+		if (!pResult->pPlugin->SetFindList(&Info))
 		{
 			pResult = items.end();
 		}
@@ -815,7 +723,11 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 		if (i!=pResult)
 		{
 			if (i->hPlugin)
-				i->pPlugin->ClosePanel(i->hPlugin);
+			{
+				ClosePanelInfo Info = {sizeof(Info)};
+				Info.hPanel = i->hPlugin;
+				i->pPlugin->ClosePanel(&Info);
+			}
 		}
 	}
 
@@ -835,14 +747,19 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	ph->pPlugin->ClosePanel(ph->hPlugin);
+	ClosePanelInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	ph->pPlugin->ClosePanel(&Info);
 	delete ph;
 }
 
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessEditorInput() && i->ProcessEditorInput(Rec);});
+	ProcessEditorInputInfo Info={sizeof(Info)};
+	Info.Rec=*Rec;
+
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessEditorInput() && i->ProcessEditorInput(&Info);});
 }
 
 
@@ -852,10 +769,15 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 
 	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
+		ProcessEditorEventInfo Info = {sizeof(Info)};
+		Info.Event = Event;
+		Info.Param = Param;
+		Info.EditorID = EditorID;
+
 		std::for_each(CONST_RANGE(SortedPlugins, i)
 		{
 			if (i->HasProcessEditorEvent())
-				nResult = i->ProcessEditorEvent(Event, Param, EditorID);
+				nResult = i->ProcessEditorEvent(&Info);
 		});
 	}
 
@@ -869,11 +791,16 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 
 	if (Global->CtrlObject->Plugins->GetCurEditor())
 	{
+		ProcessEditorEventInfo Info = {sizeof(Info)};
+		Info.Event = Event;
+		Info.Param = Param;
+		Info.EditorID = EditorID;
+
 		std::for_each(CONST_RANGE(PluginIds, i)
 		{
 			auto Plugin = FindPlugin(i);
 			if (Plugin && Plugin->HasProcessEditorEvent())
-				nResult = Plugin->ProcessEditorEvent(Event, Param, EditorID);
+				nResult = Plugin->ProcessEditorEvent(&Info);
 		});
 	}
 
@@ -884,17 +811,27 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;
+
+	ProcessViewerEventInfo Info = {sizeof(Info)};
+	Info.Event = Event;
+	Info.Param = Param;
+	Info.ViewerID = ViewerID;
+
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
 		if (i->HasProcessViewerEvent())
-			nResult = i->ProcessViewerEvent(Event, Param, ViewerID);
+			nResult = i->ProcessViewerEvent(&Info);
 	});
 	return nResult;
 }
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessDialogEvent() && i->ProcessDialogEvent(Event,Param);});
+	ProcessDialogEventInfo Info = {sizeof(Info)};
+	Info.Event = Event;
+	Info.Param = Param;
+
+	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessDialogEvent() && i->ProcessDialogEvent(&Info);});
 }
 
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
@@ -933,8 +870,13 @@ int PluginManager::GetFindData(
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle *)hPlugin;
-	*pItemsNumber = 0;
-	return ph->pPlugin->GetFindData(ph->hPlugin, pPanelData, pItemsNumber, OpMode);
+	GetFindDataInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.OpMode = OpMode;
+	int Result = ph->pPlugin->GetFindData(&Info);
+	*pPanelData = Info.PanelItem;
+	*pItemsNumber = Info.ItemsNumber;
+	return Result;
 }
 
 
@@ -946,7 +888,15 @@ void PluginManager::FreeFindData(
 )
 {
 	PluginHandle *ph = (PluginHandle *)hPlugin;
-	ph->pPlugin->FreeFindData(ph->hPlugin, PanelItem, ItemsNumber, FreeUserData);
+
+	if (FreeUserData)
+		FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
+
+	FreeFindDataInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	ph->pPlugin->FreeFindData(&Info);
 }
 
 
@@ -960,7 +910,14 @@ int PluginManager::GetVirtualFindData(
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	*pItemsNumber=0;
-	return ph->pPlugin->GetVirtualFindData(ph->hPlugin, pPanelData, pItemsNumber, Path);
+
+	GetVirtualFindDataInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Path = Path.data();
+	int Result = ph->pPlugin->GetVirtualFindData(&Info);
+	*pPanelData = Info.PanelItem;
+	*pItemsNumber = Info.ItemsNumber;
+	return Result;
 }
 
 
@@ -971,7 +928,11 @@ void PluginManager::FreeVirtualFindData(
 )
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->FreeVirtualFindData(ph->hPlugin, PanelItem, ItemsNumber);
+	FreeFindDataInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	return ph->pPlugin->FreeVirtualFindData(&Info);
 }
 
 
@@ -984,7 +945,16 @@ int PluginManager::SetDirectory(
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->SetDirectory(ph->hPlugin, Dir, OpMode, UserData);
+	SetDirectoryInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Dir = Dir.data();
+	Info.OpMode = OpMode;
+	if (UserData)
+	{
+		Info.UserData.Data = UserData->Data;
+		Info.UserData.FreeData = UserData->FreeData;
+	}
+	return ph->pPlugin->SetDirectory(&Info);
 }
 
 
@@ -1006,10 +976,19 @@ int PluginManager::GetFile(
 		SaveScr = new SaveScreen; //???
 
 	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
-	const wchar_t* newDestPath = DestPath.data();
-	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, &newDestPath, OpMode);
+
+	GetFilesInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = 1;
+	Info.Move = 0;
+	Info.DestPath = DestPath.data();
+	Info.OpMode = OpMode;
+
+	int GetCode = ph->pPlugin->GetFiles(&Info);
+
 	string strFindPath;
-	strFindPath = newDestPath;
+	strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 	FAR_FIND_DATA fdata;
@@ -1026,7 +1005,7 @@ int PluginManager::GetFile(
 
 	if (!Done)
 	{
-		strResultName = newDestPath;
+		strResultName = Info.DestPath;
 		AddEndSlash(strResultName);
 		strResultName += fdata.strFileName;
 
@@ -1056,7 +1035,14 @@ int PluginManager::DeleteFiles(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
-	int Code = ph->pPlugin->DeleteFiles(ph->hPlugin, PanelItem, ItemsNumber, OpMode);
+
+	DeleteFilesInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	Info.OpMode = OpMode;
+
+	int Code = ph->pPlugin->DeleteFiles(&Info);
 
 	if (Code)
 		ReadUserBackgound(&SaveScr); //???
@@ -1075,7 +1061,15 @@ int PluginManager::MakeDirectory(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
-	int Code = ph->pPlugin->MakeDirectory(ph->hPlugin, Name, OpMode);
+
+	MakeDirectoryInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Name = *Name;
+	Info.OpMode = OpMode;
+
+	int Code = ph->pPlugin->MakeDirectory(&Info);
+
+	*Name = Info.Name;
 
 	if (Code != -1)   //???BUGBUG
 		ReadUserBackgound(&SaveScr);
@@ -1095,7 +1089,14 @@ int PluginManager::ProcessHostFile(
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
-	int Code = ph->pPlugin->ProcessHostFile(ph->hPlugin, PanelItem, ItemsNumber, OpMode);
+
+	ProcessHostFileInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	Info.OpMode = OpMode;
+
+	int Code = ph->pPlugin->ProcessHostFile(&Info);
 
 	if (Code)   //BUGBUG
 		ReadUserBackgound(&SaveScr);
@@ -1115,7 +1116,18 @@ int PluginManager::GetFiles(
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph=(PluginHandle*)hPlugin;
-	return ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, ItemsNumber, Move, DestPath, OpMode);
+
+	GetFilesInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	Info.Move = Move;
+	Info.DestPath = *DestPath;
+	Info.OpMode = OpMode;
+
+	int Result = ph->pPlugin->GetFiles(&Info);
+	*DestPath = Info.DestPath;
+	return Result;
 }
 
 
@@ -1131,7 +1143,18 @@ int PluginManager::PutFiles(
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
-	int Code = ph->pPlugin->PutFiles(ph->hPlugin, PanelItem, ItemsNumber, Move, OpMode);
+
+	static string strCurrentDirectory;
+	apiGetCurrentDirectory(strCurrentDirectory);
+	PutFilesInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
+	Info.Move = Move;
+	Info.SrcPath = strCurrentDirectory.data();
+	Info.OpMode = OpMode;
+
+	int Code = ph->pPlugin->PutFiles(&Info);
 
 	if (Code)   //BUGBUG
 		ReadUserBackgound(&SaveScr);
@@ -1149,7 +1172,10 @@ void PluginManager::GetOpenPanelInfo(
 
 	ClearStruct(*Info);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	ph->pPlugin->GetOpenPanelInfo(ph->hPlugin, Info);
+	
+	Info->StructSize = sizeof(OpenPanelInfo);
+	Info->hPanel = ph->hPlugin;
+	ph->pPlugin->GetOpenPanelInfo(Info);
 
 	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
 		apiSetCurrentDirectory(Info->CurDir, false);
@@ -1159,7 +1185,16 @@ void PluginManager::GetOpenPanelInfo(
 int PluginManager::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->ProcessKey(ph->hPlugin, Rec, Pred);
+
+	ProcessPanelInputInfo Info={sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Rec=*Rec;
+	
+#ifndef NO_WRAPPER
+	if (Pred && ph->pPlugin->IsOemPlugin())
+		Info.Rec.EventType |= 0x4000;
+#endif
+	return ph->pPlugin->ProcessPanelInput(&Info);
 }
 
 
@@ -1170,7 +1205,13 @@ int PluginManager::ProcessEvent(
 )
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->ProcessPanelEvent(ph->hPlugin, Event, Param);
+
+	ProcessPanelEventInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Event = Event;
+	Info.Param = Param;
+
+	return ph->pPlugin->ProcessPanelEvent(&Info);
 }
 
 
@@ -1182,12 +1223,22 @@ int PluginManager::Compare(
 )
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->Compare(ph->hPlugin, Item1, Item2, Mode);
+
+	CompareInfo Info = {sizeof(Info)};
+	Info.hPanel = ph->hPlugin;
+	Info.Item1 = Item1;
+	Info.Item2 = Item2;
+	Info.Mode = static_cast<OPENPANELINFO_SORTMODES>(Mode);
+
+	return ph->pPlugin->Compare(&Info);
 }
 
 void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 {
-	if (pPlugin->Configure(Guid))
+	ConfigureInfo Info = {sizeof(Info)};
+	Info.Guid = &Guid;
+
+	if (pPlugin->Configure(&Info))
 	{
 		Panel* Panels[] =
 		{
@@ -1879,7 +1930,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 	pInfo->Flags = 0;
 
-	if (pPlugin->m_hModule)
+	if (pPlugin->m_Instance)
 	{
 		pInfo->Flags |= FPF_LOADED;
 	}
@@ -2437,7 +2488,12 @@ Plugin *PluginManager::FindPlugin(const GUID& SysID) const
 
 HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item)
 {
-	HANDLE hPlugin = pPlugin->Open(OpenFrom, Guid, Item);
+	OpenInfo Info = {sizeof(Info)};
+	Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
+	Info.Guid = &Guid;
+	Info.Data = Item;
+
+	HANDLE hPlugin = pPlugin->Open(&Info);
 	if (hPlugin)
 	{
 		PluginHandle *handle = new PluginHandle;

@@ -83,7 +83,11 @@ bool PluginSynchro::Process(void)
 
 			if (pPlugin)
 			{
-				pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+				ProcessSynchroEventInfo Info = {sizeof(Info)};
+				Info.Event = SE_COMMONSYNCHRO;
+				Info.Param = param;
+
+				pPlugin->ProcessSynchroEvent(&Info);
 				res=true;
 			}
 		}
