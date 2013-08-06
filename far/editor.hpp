@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
+#include "TPreRedrawFunc.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -493,7 +494,18 @@ class Editor:public ScreenObject
 		void AdjustVBlock(int PrevX);
 
 		void Xlat();
+
 		static void PR_EditorShowMsg();
+
+		struct EditorPreRedrawItem : public PreRedrawItem
+		{
+			EditorPreRedrawItem() : PreRedrawItem(PR_EditorShowMsg){}
+
+			string Title;
+			string Msg;
+			string Name;
+			int Percent;
+		};
 
 		void FreeAllocatedData(bool FreeUndo=true);
 

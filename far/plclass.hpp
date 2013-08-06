@@ -322,10 +322,10 @@ private:
 
 	struct
 	{
-		BOOL (WINAPI *IsPlugin)(const wchar_t* filename);
-		HANDLE (WINAPI *CreateInstance)(const wchar_t* filename);
-		FARPROC (WINAPI *GetFunctionAddress)(HANDLE Instance, const wchar_t* functionname);
-		BOOL (WINAPI *DestroyInstance)(HANDLE Instance);
+		BOOL (WINAPI *pIsPlugin)(const wchar_t* filename);
+		HANDLE (WINAPI *pCreateInstance)(const wchar_t* filename);
+		FARPROC (WINAPI *pGetFunctionAddress)(HANDLE Instance, const wchar_t* functionname);
+		BOOL (WINAPI *pDestroyInstance)(HANDLE Instance);
 	}
 	Imports;
 	HMODULE m_Module;

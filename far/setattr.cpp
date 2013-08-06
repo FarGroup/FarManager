@@ -546,6 +546,15 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
+static void PR_ShellSetFileAttributesMsg();
+
+struct AttrPreRedrawItem : public PreRedrawItem
+{
+	AttrPreRedrawItem() : PreRedrawItem(PR_ShellSetFileAttributesMsg){}
+
+	string Name;
+};
+
 void ShellSetFileAttributesMsg(const string& Name)
 {
 	static int Width=54;
@@ -564,7 +573,8 @@ void ShellSetFileAttributesMsg(const string& Name)
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.data());
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1 = Name.data();
+		auto item = dynamic_cast<AttrPreRedrawItem*>(Global->PreRedraw->top());
+		item->Name = Name;
 	}
 }
 
@@ -628,7 +638,8 @@ void PR_ShellSetFileAttributesMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		ShellSetFileAttributesMsg(static_cast<const wchar_t*>(Global->PreRedraw->top().Param.Param1));
+		auto item = dynamic_cast<const AttrPreRedrawItem*>(Global->PreRedraw->top());
+		ShellSetFileAttributesMsg(item->Name);
 	}
 }
 
@@ -1269,7 +1280,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[i].strData[8]=GetTimeSeparator();
 				});
 
-				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
+				TPreRedrawFuncGuard preRedrawFuncGuard(new AttrPreRedrawItem);
 				ShellSetFileAttributesMsg(SelCount==1? strSelName : string());
 				int SkipMode=-1;
 

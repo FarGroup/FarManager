@@ -393,11 +393,18 @@ void TreeList::Update(int Mode)
 	}
 }
 
+struct TreePreRedrawItem : public PreRedrawItem
+{
+	TreePreRedrawItem() : PreRedrawItem(TreeList::PR_MsgReadTree){}
+
+	size_t TreeCount;
+};
+
 int TreeList::ReadTree()
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
 	ScanTree ScTree(FALSE);
 	FAR_FIND_DATA fdata;
 	string strFullName;
@@ -642,7 +649,8 @@ void TreeList::PR_MsgReadTree()
 	if (!Global->PreRedraw->empty())
 	{
 		int FirstCall=1;
-		TreeList::MsgReadTree(Global->PreRedraw->top().Param.Flags,FirstCall);
+		auto item = dynamic_cast<const TreePreRedrawItem*>(Global->PreRedraw->top());
+		TreeList::MsgReadTree(item->TreeCount, FirstCall);
 	}
 }
 
@@ -660,10 +668,11 @@ int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
 	{
-		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), (FormatString() << TreeCount).data());
+		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
 		if (!Global->PreRedraw->empty())
 		{
-			Global->PreRedraw->top().Param.Flags = static_cast<DWORD>(TreeCount);
+			auto item = dynamic_cast<TreePreRedrawItem*>(Global->PreRedraw->top());
+			item->TreeCount = TreeCount;
 		}
 		TreeStartTime = clock();
 	}
@@ -1645,7 +1654,7 @@ void TreeList::ReadSubTree(const string& Path)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
 	ScanTree ScTree(FALSE);
 	FAR_FIND_DATA fdata;
 	string strDirName;

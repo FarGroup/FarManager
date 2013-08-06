@@ -462,10 +462,8 @@ void Dialog::Show()
 
 	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-
-		if (preRedrawItem.PreRedrawFunc)
-			preRedrawItem.PreRedrawFunc();
+		auto item = Global->PreRedraw->top();
+		item->m_PreRedrawFunc();
 	}
 
 	DialogMode.Clear(DMODE_RESIZED);

@@ -96,11 +96,6 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 		PrinterList->SetSelectPos(0, 1);
 }
 
-static void PR_PrintMsg()
-{
-	Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
-}
-
 void PrintFiles(FileList* SrcPanel)
 {
 	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
@@ -194,7 +189,10 @@ void PrintFiles(FileList* SrcPanel)
 	{
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SaveScreen SaveScr;
-		TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
+
+		auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
+
+		TPreRedrawFuncGuard preRedrawFuncGuard(new PreRedrawItem(PR_PrintMsg));
 		SetCursorType(FALSE,0);
 		PR_PrintMsg();
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();

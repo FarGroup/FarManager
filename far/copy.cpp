@@ -652,15 +652,21 @@ static void GenerateName(string &strName,const wchar_t *Path=nullptr)
 	}
 }
 
-void PR_ShellCopyMsg()
+static void PR_ShellCopyMsg();
+
+struct CopyPreRedrawItem : public PreRedrawItem
+{
+	CopyPreRedrawItem() : PreRedrawItem(PR_ShellCopyMsg){}
+
+	CopyProgress* CP;
+};
+
+static void PR_ShellCopyMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		if (preRedrawItem.Param.Param1)
-		{
-			((CopyProgress*)preRedrawItem.Param.Param1)->CreateBackground();
-		}
+		auto item = dynamic_cast<CopyPreRedrawItem*>(Global->PreRedraw->top());
+		item->CP->CreateBackground();
 	}
 }
 
@@ -1607,10 +1613,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
-				Global->PreRedraw->push(PR_ShellCopyMsg);
-				Global->PreRedraw->top().Param.Param1=CP;
-				int I=CopyFileTree(strNameTmp);
-				Global->PreRedraw->pop();
+
+
+				int I;
+				{
+					auto item = new CopyPreRedrawItem;
+					item->CP = CP;
+					TPreRedrawFuncGuard Guard(item);
+					I=CopyFileTree(strNameTmp);
+				}
 
 				if (OldCopySymlinkContents)
 					Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -3949,10 +3960,15 @@ BOOL ShellCopySecuryMsg(const string& Name)
 			return FALSE;
 		}
 	}
+
+	//BUGBUG, not used
+	/*
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=Name.data();
+		auto item = dynamic_cast<CopyPreRedrawItem*>(Global->PreRedraw->top());
+		item->name = Name;
 	}
+	*/
 	return TRUE;
 }
 
@@ -4060,8 +4076,11 @@ bool ShellCopy::CalcTotalSize()
 	unsigned __int64 FileSize;
 	// Для фильтра
 	FAR_FIND_DATA fd;
-	Global->PreRedraw->push(PR_ShellCopyMsg);
-	Global->PreRedraw->top().Param.Param1=CP;
+	
+	auto item = new CopyPreRedrawItem;
+	item->CP = CP;
+	TPreRedrawFuncGuard Guard(item);
+
 	TotalCopySize=CurCopiedSize=0;
 	TotalFilesToProcess = 0;
 	SrcPanel->GetSelName(nullptr,FileAttr);

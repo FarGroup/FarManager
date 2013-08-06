@@ -361,8 +361,8 @@ bool elevation::Initialize()
 				}
 			}
 
-			FormatString strParam;
-			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
+			string Param = L"/elevation " + strPipeID + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
+
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -370,7 +370,7 @@ bool elevation::Initialize()
 				nullptr,
 				L"runas",
 				Global->g_strFarModuleName.data(),
-				strParam.data(),
+				Param.data(),
 				Global->g_strFarPath.data(),
 			};
 			if(ShellExecuteEx(&info))

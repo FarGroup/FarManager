@@ -2026,7 +2026,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
-		int cp_len = static_cast<int>((FormatString() << VM.CodePage).size());
+		int cp_len = static_cast<int>(std::to_wstring(VM.CodePage).size());
 		//                           ViewMode     CopdePage             Goto
 		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
 		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
@@ -2560,15 +2560,23 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
+static void PR_ViewerSearchMsg();
+
+struct ViewerPreRedrawItem : public PreRedrawItem
+{
+	ViewerPreRedrawItem() : PreRedrawItem(PR_ViewerSearchMsg) {}
+
+	string name;
+	int percent;
+	int hex;
+};
+
 static void PR_ViewerSearchMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		const wchar_t *name = (const wchar_t*)preRedrawItem.Param.Param1;
-		int percent = (int)(intptr_t)preRedrawItem.Param.Param2;
-		int search_hex = (int)(intptr_t)preRedrawItem.Param.Param3;
-		ViewerSearchMsg(name, percent, search_hex);
+		auto item = dynamic_cast<const ViewerPreRedrawItem*>(Global->PreRedraw->top());
+		ViewerSearchMsg(item->name, item->percent, item->hex);
 	}
 }
 
@@ -2579,26 +2587,25 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	strMsg.append(L" ").append(MsgStr);
 	if (Percent>=0)
 	{
-		FormatString strPercent;
-		strPercent<<Percent;
-
-		size_t PercentLength=std::max(strPercent.size(),(size_t)3);
-		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-PercentLength-2;
+		std::wstringstream sPercent;
+		sPercent << std::setw(3) << Percent;
+		static const size_t maxPercentLength = 3;
+		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.size())),40)-maxPercentLength-2;
 		strProgress.resize(Length);
 		size_t CurPos=std::min(Percent,100)*Length/100;
 		std::fill(strProgress.begin(), strProgress.begin() + CurPos, BoxSymbols[BS_X_DB]);
 		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
-		strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";;
+		strProgress += L" " + sPercent.str() + L"%";;
 		Global->TBC->SetProgressValue(Percent,100);
 	}
 
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!Global->PreRedraw->empty())
 	{
-		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=MsgStr.data();
-		preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
-		preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
+		auto item = dynamic_cast<ViewerPreRedrawItem*>(Global->PreRedraw->top());
+		item->name = MsgStr;
+		item->percent = Percent;
+		item->hex = SearchHex;
 	}
 }
 
@@ -3394,7 +3401,7 @@ void Viewer::Search(int Next,int FirstChar)
 	if ( !found )
 	{
 		TaskBar TB;
-		TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
+		TPreRedrawFuncGuard preRedrawFuncGuard(new ViewerPreRedrawItem);
 		SetCursorType(FALSE,0);
 
 		DWORD start_time = GetTickCount();

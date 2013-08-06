@@ -460,8 +460,8 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& M
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			int Offset = !strHotKey.empty() && strHotKey.front() == L'&'? 5 : 4;
-			FarUserMenuItem.strName=FormatString()<<((!strHotKey.empty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
-			FarUserMenuItem.strName+=strLabel;
+			strHotKey.resize(Offset, L' ');
+			FarUserMenuItem.strName = ((!strHotKey.empty() && !FuncNum)?L"&":L"") + strHotKey + strLabel;
 
 			if (MenuItem->Submenu)
 			{

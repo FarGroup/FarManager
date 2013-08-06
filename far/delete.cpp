@@ -83,6 +83,19 @@ ENUM(DEL_RESULT)
 	DELETE_CANCEL
 };
 
+static void PR_ShellDeleteMsg();
+
+struct DelPreRedrawItem : public PreRedrawItem
+{
+	DelPreRedrawItem() : PreRedrawItem(PR_ShellDeleteMsg) {}
+
+	string name;
+	ConsoleTitle* Title;
+	DEL_MODE Mode;
+	int Percent;
+	int WipePercent;
+};
+
 static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int WipePercent, ConsoleTitle* DeleteTitle)
 {
 	FormatString strProgress, strWipeProgress;
@@ -135,12 +148,12 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 	if (!Global->PreRedraw->empty())
 	{
-		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=Name.data();
-		preRedrawItem.Param.Param2=DeleteTitle;
-		preRedrawItem.Param.Param4=ToPtr(Mode);
-		LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
-		preRedrawItem.Param.Param5=i.QuadPart;
+		auto item = dynamic_cast<DelPreRedrawItem*>(Global->PreRedraw->top());
+		item->name = Name;
+		item->Title = DeleteTitle;
+		item->Mode = Mode;
+		item->Percent = Percent;
+		item->WipePercent = WipePercent;
 	}
 }
 
@@ -148,10 +161,8 @@ static void PR_ShellDeleteMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		LARGE_INTEGER i;
-		i.QuadPart = preRedrawItem.Param.Param5;
-		ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart, reinterpret_cast<ConsoleTitle*>(const_cast<void*>(preRedrawItem.Param.Param2)));
+		auto item = dynamic_cast<const DelPreRedrawItem*>(Global->PreRedraw->top());
+		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent, item->Title);
 	}
 }
 
@@ -287,7 +298,6 @@ static int WipeDirectory(const string& Name)
 	return apiRemoveDirectory(strTempName);
 }
 
-
 ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	ReadOnlyDeleteMode(-1),
 	SkipMode(-1),
@@ -296,7 +306,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	ProcessedItems(0)
 {
 	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
-	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new DelPreRedrawItem);
 	FAR_FIND_DATA FindData;
 	string strDeleteFilesMsg;
 	string strSelName;

@@ -70,15 +70,21 @@ void DizList::Reset()
 	OrigCodePage=CP_DEFAULT;
 }
 
-void DizList::PR_ReadingMsg()
+static void PR_ReadingMsg()
 {
 	Message(0,0,L"",MSG(MReadingDiz));
-}
+};
 
 void DizList::Read(const string& Path, const string* DizName)
 {
 	Reset();
-	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
+
+	struct DizPreRedrawItem : public PreRedrawItem
+	{
+		DizPreRedrawItem() : PreRedrawItem(PR_ReadingMsg) {}
+	};
+
+	TPreRedrawFuncGuard preRedrawFuncGuard(new DizPreRedrawItem);
 	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.data();
 
 	for (;;)

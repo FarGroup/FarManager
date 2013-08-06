@@ -64,7 +64,7 @@ class HandleWrapper:NonCopyable
 protected:
 
 	HANDLE h;
-	FormatString strName;
+	string strName;
 
 public:
 
@@ -78,7 +78,7 @@ public:
 		if (HashPart)
 			while (*HashPart)
 				hs = hs*17 + *HashPart++;
-		strName << GetNamespace() << hs << L" " << TextPart;
+		strName = GetNamespace() + std::to_wstring(hs) + L" " + TextPart;
 	}
 
 	virtual const wchar_t *GetNamespace() const = 0;

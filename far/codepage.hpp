@@ -86,7 +86,7 @@ private:
 	inline bool IsPositionStandard(UINT position);
 	inline bool IsPositionFavorite(UINT position);
 	inline bool IsPositionNormal(UINT position);
-	void FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom);
+	void FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, string& CodePageNameString, bool IsCodePageNameCustom);
 	void AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
 	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position=-1, bool enabled=true);
 	void AddSeparator(LPCWSTR Label=nullptr,int position=-1);

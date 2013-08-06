@@ -117,7 +117,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
@@ -168,7 +167,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
@@ -216,7 +214,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
@@ -265,7 +262,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>

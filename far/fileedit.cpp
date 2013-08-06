@@ -1423,7 +1423,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new Editor::EditorPreRedrawItem);
 	TaskBar TB;
 	wakeful W;
 	int LastLineCR = 0;
@@ -1898,7 +1898,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		    }
 		*/
 		SetCursorType(FALSE,0);
-		TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
+		TPreRedrawFuncGuard preRedrawFuncGuard(new Editor::EditorPreRedrawItem);
 
 		if (!bSaveAs)
 			AddSignature=m_bAddSignature;

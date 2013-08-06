@@ -419,8 +419,9 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		MenuItemEx Item = {};
 		string DisplayName(Name);
 		const int NameWidth = 10;
-		TruncStr(DisplayName, NameWidth);
-		Item.strName = FormatString() << fmt::ExactWidth(NameWidth) << fmt::LeftAlign() << DisplayName << L' ' << BoxSymbols[BS_V1] << L' ' << Value;
+		TruncStrFromEnd(DisplayName, NameWidth);
+		DisplayName.resize(NameWidth, L' ');
+		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + Value;
 		Item.UserData = UNSAFE_CSTR(Name);
 		Item.UserDataSize = (Name.size()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(&Item);
@@ -1221,17 +1222,20 @@ struct FARConfigItem
 	Option* Value;   // адрес переменной, куда помещаем данные
 	default_value Default;
 
-	FormatString ListItemString;
+	string ListItemString;
 
 	FarListItem MakeListItem()
 	{
 		FarListItem Item;
 		Item.Flags = 0;
 		Item.Reserved[0] = Item.Reserved[1] = 0;
-		ListItemString.clear();
-		ListItemString << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(KeyName) + L"." + ValName) << BoxSymbols[BS_V1]
-		<< fmt::ExactWidth(7) << fmt::LeftAlign() << Value->typeToString() << BoxSymbols[BS_V1]
-		<< Value->toString() << Value->ExInfo();
+
+		string Type = Value->typeToString();
+		Type.resize(std::max(Type.size(), size_t(7)), L' ');
+
+		ListItemString = string(KeyName) + L"." + ValName;
+		ListItemString.resize(std::max(ListItemString.size(), size_t(42)), L' ');
+		ListItemString += BoxSymbols[BS_V1] + Type + BoxSymbols[BS_V1] + Value->toString() + Value->ExInfo();
 		if(!Value->IsDefault(this))
 		{
 			Item.Flags = LIF_CHECKED|L'*';
@@ -1372,19 +1376,19 @@ bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const 
 
 const string IntOption::ExInfo() const
 {
-	FormatString Result;
+	std::wstringstream ws;
 	int v = Get();
 	wchar_t w1 = static_cast<wchar_t>(v);
 	wchar_t w2 = static_cast<wchar_t>(v >> 16);
-	Result << L" = 0x" << fmt::MaxWidth(8) << fmt::Radix(16) << v;
+	ws << L" = 0x" << std::hex << v;
 	if (w1 > 0x001f && w1 < 0x8000)
 	{
-		Result << L" = '" << w1;
+		ws << L" = '" << w1;
 		if (w2 > 0x001f && w2 < 0x8000)
-			Result << w2;
-		Result << L"'";
+			ws << w2;
+		ws << L"'";
 	}
-	return Result;
+	return ws.str();
 }
 
 
@@ -2296,7 +2300,7 @@ void Options::ReadPanelModes()
 
 	auto ReadMode = [&](VALUE_TYPE(m_ViewSettings)& i, size_t Index) -> bool
 	{
-		unsigned __int64 id = cfg->GetKeyID(root, FormatString() << Index);
+		unsigned __int64 id = cfg->GetKeyID(root, std::to_wstring(Index));
 
 		if (!id)
 		{
@@ -2362,7 +2366,7 @@ void Options::SavePanelModes()
 		ViewSettingsToText(i.PanelColumns, strColumnTitles, strColumnWidths);
 		ViewSettingsToText(i.StatusColumns, strStatusColumnTitles, strStatusColumnWidths);
 
-		unsigned __int64 id = cfg->CreateKey(root, FormatString() << Index);
+		unsigned __int64 id = cfg->CreateKey(root, std::to_wstring(Index));
 		if (id)
 		{
 			cfg->SetValue(id, ModesNameName, i.Name);

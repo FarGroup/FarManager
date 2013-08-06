@@ -3,7 +3,8 @@
 /*
 library_extensions.hpp
 
-Some useful STL-based templates && macros
+Some workarounds & emulations for C++11/14 features, missed in currently used compilers.
+Some useful STL-based templates && macros.
 */
 /*
 Copyright © 2013 Far Group
@@ -32,16 +33,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __GNUC__
-# define ENUM(ENUM_NAME) enum ENUM_NAME:int
-#endif
-
-#ifdef _MSC_VER
-# if _MSC_VER>1600
-#  define ENUM(ENUM_NAME) enum ENUM_NAME:int
-# else
-#  define ENUM(ENUM_NAME) enum ENUM_NAME
-# endif
+// already included in VC2012
+#if defined _MSC_VER && _MSC_VER < 1700
+// In VC++ 2010, there are three overloads of std::to_wstring taking long long, unsigned long long, and long double.
+// Clearly, int is none of these, and no one conversion is better than another, so the conversion cannot be done implicitly/unambiguously.
+// In terms of real C++11 support, this is a failing on the part of VC++ 2010's standard library implementation –
+// the C++11 standard itself actually calls for nine overloads of std::to_wstring (§21.5)
+namespace std
+{
+	inline wstring to_wstring(int val) {return to_wstring(static_cast<long long>(val));}
+	inline wstring to_wstring(unsigned val) {return to_wstring(static_cast<unsigned long long>(val));}
+	inline wstring to_wstring(long val) {return to_wstring(static_cast<long long>(val));}
+	inline wstring to_wstring(unsigned long val) {return to_wstring(static_cast<unsigned long long>(val));}
+	inline wstring to_wstring(float val) {return to_wstring(static_cast<long double>(val));}
+	inline wstring to_wstring(double val) {return to_wstring(static_cast<long double>(val));}
+};
 #endif
 
 // already included in VC2013
@@ -65,6 +71,29 @@ namespace std
 	template<class T>
 	inline auto crend(const T& t) -> decltype(rend(t)) {return rend(t);}
 };
+#endif
+
+#ifdef _MSC_VER
+#define thread __declspec(thread)
+#endif
+
+#ifdef __GNUC__
+#define thread __thread
+#endif
+
+
+
+
+#ifdef __GNUC__
+# define ENUM(ENUM_NAME) enum ENUM_NAME:int
+#endif
+
+#ifdef _MSC_VER
+# if _MSC_VER>1600
+#  define ENUM(ENUM_NAME) enum ENUM_NAME:int
+# else
+#  define ENUM(ENUM_NAME) enum ENUM_NAME
+# endif
 #endif
 
 // trick to allow usage of operator :: with decltype(T)
@@ -156,10 +185,24 @@ inline F for_each_cnt(I First, I Last, F Func)
 	return Func;
 }
 
-#ifdef _MSC_VER
-#define thread __declspec(thread)
-#endif
+template<int id>
+struct write_t
+{
+	write_t(const std::wstring& str, size_t n) : m_part(str.substr(0, n)), m_size(n) {}
+	std::wstring m_part;
+	size_t m_size;
+};
 
-#ifdef __GNUC__
-#define thread __thread
-#endif
+typedef write_t<0> write_max;
+typedef write_t<1> write_exact;
+
+inline std::wostream& operator <<(std::wostream& stream, const write_max& p)
+{
+	return stream << p.m_part;
+}
+
+inline std::wostream& operator <<(std::wostream& stream, const write_exact& p)
+{
+	stream.width(p.m_size);
+	return stream << p.m_part;
+}

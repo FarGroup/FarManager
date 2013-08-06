@@ -107,12 +107,23 @@ void FileList::UpdateIfRequired()
 	}
 }
 
+static void PR_ReadFileNamesMsg();
+
+struct FileListPreRedrawItem : PreRedrawItem
+{
+	FileListPreRedrawItem() : PreRedrawItem(PR_ReadFileNamesMsg){}
+
+	string Msg;
+};
+
 void ReadFileNamesMsg(const string& Msg)
 {
 	Message(0,0,MSG(MReadingTitleFiles),Msg.data());
+
 	if (!Global->PreRedraw->empty())
 	{
-		Global->PreRedraw->top().Param.Param1=(void*)Msg.data();
+		auto item = dynamic_cast<FileListPreRedrawItem*>(Global->PreRedraw->top());
+		item->Msg = Msg;
 	}
 }
 
@@ -120,13 +131,14 @@ static void PR_ReadFileNamesMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		ReadFileNamesMsg((wchar_t *)Global->PreRedraw->top().Param.Param1);
+		auto item = dynamic_cast<const FileListPreRedrawItem*>(Global->PreRedraw->top());
+		ReadFileNamesMsg(item->Msg);
 	}
 }
 
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
-	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new FileListPreRedrawItem);
 	TaskBar TB(false);
 
 	strOriginalCurDir = strCurDir;

@@ -551,8 +551,8 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					{
 						for (size_t i = 0; i < nProcInfo; i++)
 						{
-							FormatString tmp;
-							tmp << rgpi[i].strAppName << L" (PID: " << rgpi[i].Process.dwProcessId;
+							string tmp = rgpi[i].strAppName;
+							tmp += L" (PID: " + std::to_wstring(rgpi[i].Process.dwProcessId);
 							HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
 							if (hProcess)
 							{
@@ -562,12 +562,12 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 									string Name;
 									if (apiGetModuleFileNameEx(hProcess, nullptr, Name))
 									{
-										tmp << L", " << Name;
+										tmp += L", " + Name;
 									}
 								}
 								CloseHandle(hProcess);
 							}
-							tmp << L")";
+							tmp += L")";
 							Msg.emplace_back(tmp);
 						}
 					}

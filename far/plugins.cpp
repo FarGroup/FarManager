@@ -166,7 +166,6 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const FAR_FIND_DATA &F
 
 	if (pPlugin)
 	{
-
 		bool Result = false, bDataLoaded = false;
 
 		if (!LoadToMem)

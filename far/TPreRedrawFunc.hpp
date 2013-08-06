@@ -36,44 +36,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct PreRedrawItem
 {
-	typedef void (*PREREDRAWFUNC)();
+	typedef std::function<void()> handler_type;
 
-	PreRedrawItem(PREREDRAWFUNC PreRedrawFunc):
-		PreRedrawFunc(PreRedrawFunc),
-		Param()
-	{
-	}
+	PreRedrawItem(handler_type PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
+	virtual ~PreRedrawItem(){}
 
-	PREREDRAWFUNC PreRedrawFunc;
-	struct
-	{
-		DWORD Flags;
-		const void *Param1;
-		const void *Param2;
-		const void *Param3;
-		const void *Param4;
-		__int64 Param5;
-	}
-	Param;
+	handler_type m_PreRedrawFunc;
 };
 
 class TPreRedrawFunc
 {
 public:
-	void push(const PreRedrawItem &Source){return Items.push(Source);}
-	void pop() {return Items.pop();}
-	PreRedrawItem& top() {return Items.top();}
+	void push(PreRedrawItem* Source){return Items.emplace(Source);}
+	void pop() { Items.pop(); }
+	PreRedrawItem* top() {return Items.top().get();}
+	PreRedrawItem* take() { auto Top = Items.top().release(); Items.pop(); return Top; }
 	bool empty() const {return Items.empty();}
+
 private:
-	std::stack<PreRedrawItem> Items;
+	std::stack<std::unique_ptr<PreRedrawItem>> Items;
 };
 
 class TPreRedrawFuncGuard
 {
 public:
-	TPreRedrawFuncGuard(PreRedrawItem::PREREDRAWFUNC Func)
+	TPreRedrawFuncGuard(PreRedrawItem* Item)
 	{
-		Global->PreRedraw->push(Func);
+		Global->PreRedraw->push(Item);
 	}
 	~TPreRedrawFuncGuard()
 	{

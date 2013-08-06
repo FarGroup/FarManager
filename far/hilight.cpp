@@ -165,7 +165,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				i->CursorColor = Colors::ConsoleColorToFarColor(i->InitCC);
 				MAKE_TRANSPARENT(i->CursorColor.BackgroundColor);
 
-				unsigned __int64 key = cfg->CreateKey(root, FormatString() << L"Group" << Index++);
+				unsigned __int64 key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
 				if (!key)
 					break;
 				cfg->SetValue(key,HLS.Mask,i->Mask);

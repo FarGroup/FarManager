@@ -1026,11 +1026,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
 				if (!Global->PreRedraw->empty())
 				{
-					const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-					if (preRedrawItem.PreRedrawFunc)
-					{
-						preRedrawItem.PreRedrawFunc();
-					}
+					Global->PreRedraw->top()->m_PreRedrawFunc();
 				}
 			}
 

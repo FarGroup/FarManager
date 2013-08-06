@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <bitset>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <list>
 #include <queue>

@@ -173,13 +173,15 @@ inline bool codepages::IsPositionNormal(UINT position)
 }
 
 // Формируем строку для визуального представления таблицы символов
-void codepages::FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom)
+void codepages::FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, string& CodePageNameString, bool IsCodePageNameCustom)
 {
 	if (static_cast<intptr_t>(CodePage) >= 0)  // CodePage != CP_DEFAULT, CP_REDETECT
 	{
-		CodePageNameString<<fmt::MinWidth(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill||CallbackCallSource==CodePagesFill2?L' ':L'*');
+		CodePageNameString = std::to_wstring(CodePage);
+		CodePageNameString.resize(std::max(CodePageNameString.size(), size_t(5)), L' ');
+		CodePageNameString += BoxSymbols[BS_V1] + (!IsCodePageNameCustom || CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2? L' ' : L'*');
 	}
-	CodePageNameString<<CodePageName;
+	CodePageNameString += CodePageName;
 }
 
 // Добавляем таблицу символов
@@ -198,7 +200,7 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		// Вставляем элемент
 		FarListInsert item = {sizeof(FarListInsert),position};
 
-		FormatString name;
+		string name;
 		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
 		item.Item.Text = name.data();
 
@@ -225,9 +227,7 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		// Вставляем элемент
 		DialogBuilderListItem2 item;
 
-		FormatString name;
-		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
-		item.Text = name;
+		FormatCodePageString(codePage, codePageName, item.Text, IsCodePageNameCustom);
 		item.Flags = LIF_NONE;
 
 		if (selectedCodePages && checked)
@@ -261,10 +261,7 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		if (!enabled)
 			item.Flags |= MIF_GRAYED;
 
-		FormatString name;
-		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
-		item.strName = name;
-
+		FormatCodePageString(codePage, codePageName, item.strName, IsCodePageNameCustom);
 		item.UserData = &codePage;
 		item.UserDataSize = sizeof(codePage);
 
@@ -655,8 +652,8 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 		{
 			string strCodePageName;
 			uintptr_t CodePage = GetMenuItemCodePage();
-			FormatString strCodePage;
-			strCodePage<<CodePage;
+			string strCodePage = std::to_wstring(CodePage);
+
 			if (Param1==EDITCP_OK)
 			{
 				strCodePageName = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
@@ -674,7 +671,6 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				bool IsCodePageNameCustom = false;
 				wchar_t *CodePageName = FormatCodePageName(CodePage, cpix.CodePageName, ARRAYSIZE(cpix.CodePageName), IsCodePageNameCustom);
 				// Формируем строку представления
-				strCodePage.clear();
 				FormatCodePageString(CodePage, CodePageName, strCodePage, IsCodePageNameCustom);
 				// Обновляем имя кодовой страницы
 				int Position = CodePagesMenu->GetSelectPos();

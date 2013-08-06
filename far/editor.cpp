@@ -3752,7 +3752,7 @@ BOOL Editor::Search(int Next)
 
 	{
 		//SaveScreen SaveScr;
-		TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
+		TPreRedrawFuncGuard preRedrawFuncGuard(new EditorPreRedrawItem);
 		strMsgStr=strSearchStr;
 		InsertQuote(strMsgStr);
 		SetCursorType(FALSE,-1);
@@ -3927,16 +3927,14 @@ BOOL Editor::Search(int Next)
 							PreRedrawItem* pitem = nullptr;
 							if (!Global->PreRedraw->empty())
 							{
-								pitem = new PreRedrawItem(Global->PreRedraw->top());
-								Global->PreRedraw->pop();
+								pitem = Global->PreRedraw->take();
 							}
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
 											strQSearchStr.data(),MSG(MEditAskReplaceWith),strQReplaceStr.data(),
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
 							if (pitem)
 							{
-								Global->PreRedraw->push(*pitem);
-								delete pitem;
+								Global->PreRedraw->push(pitem);
 							}
 							if (MsgCode==1)
 								ReplaceAll=TRUE;
@@ -7376,11 +7374,11 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!Global->PreRedraw->empty())
 	{
-		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=(void *)Title.data();
-		preRedrawItem.Param.Param2=(void *)Msg.data();
-		preRedrawItem.Param.Param3=(void *)Name.data();
-		preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
+		auto item = dynamic_cast<EditorPreRedrawItem*>(Global->PreRedraw->top());
+		item->Title = Title;
+		item->Msg = Msg;
+		item->Name = Name;
+		item->Percent = Percent;
 	}
 }
 
@@ -7388,8 +7386,8 @@ void Editor::PR_EditorShowMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(intptr_t)preRedrawItem.Param.Param4);
+		auto item = dynamic_cast<const EditorPreRedrawItem*>(Global->PreRedraw->top());
+		Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
 	}
 }
 

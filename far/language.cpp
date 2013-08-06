@@ -575,7 +575,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 			if (Message(MSG_WARNING, 2,
 				L"Error",
 				strMsg1.data(),
-				(FormatString()<<L"Message "<<MsgId<<L" not found").data(),
+				(L"Message " + std::to_wstring(MsgId) + L" not found").data(),
 				L"Ok", L"Quit")==1)
 				exit(0);
 		}

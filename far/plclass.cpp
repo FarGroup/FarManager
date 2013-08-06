@@ -1214,7 +1214,7 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 	{
 		m_Module = LoadLibraryEx(filename.data(), nullptr, 0);
 
-#define InitImport(Name) InitImport(Imports.##Name, #Name)
+#define InitImport(Name) InitImport(Imports.p##Name, #Name)
 
 		if (InitImport(IsPlugin) &&
 			InitImport(CreateInstance) &&
@@ -1223,7 +1223,7 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 
 		{
 			m_Success = true;
-			Imports.CreateInstance(nullptr);
+			Imports.pCreateInstance(nullptr);
 		}
 #undef InitImport
 	}
@@ -1238,7 +1238,7 @@ CustomPluginModel::~CustomPluginModel()
 	{
 		if (m_Success)
 		{
-			Imports.DestroyInstance(nullptr);
+			Imports.pDestroyInstance(nullptr);
 		}
 		FreeLibrary(m_Module);
 	}
@@ -1251,7 +1251,7 @@ bool CustomPluginModel::IsPlugin(const string& filename)
 {
 	try
 	{
-		return Imports.IsPlugin(filename.data()) != FALSE;
+		return Imports.pIsPlugin(filename.data()) != FALSE;
 	}
 	catch(...)
 	{
@@ -1263,11 +1263,11 @@ GenericPluginModel::plugin_module CustomPluginModel::Create(const string& filena
 {
 	try
 	{
-		return Imports.CreateInstance(filename.data());
+		return Imports.pCreateInstance(filename.data());
 	}
 	catch(...)
 	{
-		return false;
+		return nullptr;
 	}
 }
 
@@ -1277,7 +1277,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 	{
 		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
 		{
-			return *i.UName? Imports.GetFunctionAddress(static_cast<HANDLE>(instance), i.UName) : nullptr;
+			return *i.UName? Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName) : nullptr;
 		});
 	}
 	catch(...)
@@ -1289,7 +1289,7 @@ bool CustomPluginModel::Destroy(GenericPluginModel::plugin_module module)
 {
 	try
 	{
-		return Imports.DestroyInstance(static_cast<HANDLE>(module)) != FALSE;
+		return Imports.pDestroyInstance(static_cast<HANDLE>(module)) != FALSE;
 	}
 	catch(...)
 	{

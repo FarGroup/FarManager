@@ -4718,8 +4718,9 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			return -1;
 
 		wchar_t *codePageName = Global->CodePages->FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
-		FormatString sTableName;
-		sTableName<<fmt::MinWidth(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
+		string sTableName = std::to_wstring(nCP);
+		sTableName.resize(std::max(sTableName.size(), size_t(5)));
+		sTableName += BoxSymbols[BS_V1] + L' ' + codePageName;
 		UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
@@ -4803,10 +4804,10 @@ public:
 				UINT len;
 				if (VerQueryValue(buffer.get(), L"\\VarFileInfo\\Translation", (void **)&Translation, &len) && len)
 				{
-					path = FormatString() << L"\\StringFileInfo\\"
-						<< fmt::Radix(16) << fmt::MinWidth(4) << fmt::FillChar(L'0') << LOWORD(*Translation)
-						<< fmt::Radix(16) << fmt::MinWidth(4) << fmt::FillChar(L'0') << HIWORD(*Translation)
-						<< L"\\";
+					std::wstringstream tmp;
+					tmp << std::hex << std::setw(4) << std::setfill(L'0') << LOWORD(*Translation)
+					    << std::hex << std::setw(4) << std::setfill(L'0') << HIWORD(*Translation);
+					path = L"\\StringFileInfo\\" + tmp.str() + L"\\";
 					Result = true;
 				}
 			}

@@ -58,18 +58,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "mix.hpp"
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64* Size)
+static void PR_DrawGetDirInfoMsg();
+
+struct DirInfoPreRedrawItem : public PreRedrawItem
+{
+	DirInfoPreRedrawItem() : PreRedrawItem(PR_DrawGetDirInfoMsg){}
+
+	string Title;
+	string Name;
+	UINT64 Size;
+};
+
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 Size)
 {
 	string strSize;
-	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
+	FileSizeToStr(strSize, Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.data());
 	if (!Global->PreRedraw->empty())
 	{
-		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Param1=Title;
-		preRedrawItem.Param.Param2=Name;
-		preRedrawItem.Param.Param3=Size;
+		auto item = dynamic_cast<DirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		item->Title = Title;
+		item->Name = Name;
+		item->Size = Size;
 	}
 }
 
@@ -77,12 +88,8 @@ static void PR_DrawGetDirInfoMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		DrawGetDirInfoMsg(
-			static_cast<const wchar_t*>(preRedrawItem.Param.Param1),
-			static_cast<const wchar_t*>(preRedrawItem.Param.Param2),
-			static_cast<const UINT64*>(preRedrawItem.Param.Param3)
-		);
+		auto item = dynamic_cast<const DirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
 	}
 }
 
@@ -93,7 +100,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	ConvertNameToFull(DirName, strFullDirName);
 	SaveScreen SaveScr;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
-	TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
+	TPreRedrawFuncGuard preRedrawFuncGuard(new DirInfoPreRedrawItem);
 	TaskBar TB(MsgWaitTime!=-1);
 	wakeful W;
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
@@ -188,7 +195,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 			MsgWaitTime=500;
 			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // покажем заголовок консоли
 			SetCursorType(FALSE,0);
-			DrawGetDirInfoMsg(Title,ShowDirName,&Data.FileSize);
+			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -261,14 +268,24 @@ static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
 
+static void PR_FarGetPluginDirListMsg();
+
+struct PluginDirInfoPreRedrawItem : public PreRedrawItem
+{
+	PluginDirInfoPreRedrawItem() : PreRedrawItem(PR_FarGetPluginDirListMsg){}
+
+	string Name;
+	DWORD Flags;
+};
+
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
 	Message(Flags,0,L"",MSG(MPreparingList),Name.data());
 	if (!Global->PreRedraw->empty())
 	{
-		PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		preRedrawItem.Param.Flags=Flags;
-		preRedrawItem.Param.Param1=(void*)Name.data();
+		auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		item->Name = Name;
+		item->Flags = Flags;
 	}
 }
 
@@ -276,8 +293,8 @@ static void PR_FarGetPluginDirListMsg()
 {
 	if (!Global->PreRedraw->empty())
 	{
-		const PreRedrawItem& preRedrawItem(Global->PreRedraw->top());
-		FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
+		auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		FarGetPluginDirListMsg(item->Name, item->Flags);
 	}
 }
 
@@ -410,7 +427,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 	{
 		SaveScreen SaveScr;
-		TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetPluginDirListMsg);
+		TPreRedrawFuncGuard preRedrawFuncGuard(new PluginDirInfoPreRedrawItem);
 		{
 			string strDirName;
 			strDirName = Dir;

@@ -1361,12 +1361,6 @@ void WINAPI apiRestoreScreen(HANDLE hScreen)
 		delete(SaveScreen *)hScreen;
 }
 
-
-static void PR_FarGetDirListMsg()
-{
-	Message(0,0,L"",MSG(MPreparingList));
-}
-
 void FreeDirList(std::vector<PluginPanelItem>* Items)
 {
 	std::for_each(ALL_RANGE(*Items), FreePluginPanelItem);
@@ -1381,7 +1375,9 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 	string strDirName;
 	ConvertNameToFull(Dir, strDirName);
 	{
-		TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetDirListMsg);
+		auto PR_FarGetDirListMsg = [](){ Message(0,0,L"",MSG(MPreparingList)); };
+
+		TPreRedrawFuncGuard preRedrawFuncGuard(new PreRedrawItem(PR_FarGetDirListMsg));
 		SaveScreen SaveScr;
 		FAR_FIND_DATA FindData;
 		string strFullName;

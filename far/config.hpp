@@ -220,7 +220,7 @@ public:
 	operator long long() const {return GetInt();}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, long long Default);
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
-	virtual const string toString() const override {FormatString s; s << Get(); return s;}
+	virtual const string toString() const override {return std::to_wstring(Get());}
 	virtual const string ExInfo() const override;
 	virtual const OptionType getType() const override {return TYPE_INTEGER;}
 	virtual const string typeToString() const override {return L"integer";}
