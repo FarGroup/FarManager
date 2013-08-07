@@ -839,20 +839,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	{
 		case 0:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask = FormatString() << L"99" << DateSeparator << L"99" << DateSeparator << L"9999N";
+			strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
 			break;
 		case 1:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask = FormatString() << L"99" << DateSeparator << L"99" << DateSeparator << L"9999N";
+			strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
 			break;
 		default:
 			// Маска даты для формата YYYYY.MM.DD
-			strDateMask = FormatString() << L"N9999" << DateSeparator << L"99" << DateSeparator << L"99";
+			strDateMask = string(L"N9999") + DateSeparator + L"99" + DateSeparator + L"99";
 			break;
 	}
 
 	// Маска времени
-	strTimeMask = FormatString() << L"99" << TimeSeparator << L"99" << TimeSeparator << L"99" << DecimalSeparator << L"999";
+	strTimeMask = string(L"99") + TimeSeparator + L"99" + TimeSeparator + L"99" + DecimalSeparator + L"999";
 	FarDialogItem FilterDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,20,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},

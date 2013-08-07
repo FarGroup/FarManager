@@ -102,7 +102,7 @@ Shortcuts::Shortcuts()
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
 			i.clear();
-			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << index);
+			unsigned __int64 key = cfg->GetKeyID(root, std::to_wstring(index));
 			if (key)
 			{
 				for(size_t j=0; ; j++)
@@ -155,7 +155,7 @@ Shortcuts::~Shortcuts()
 	{
 		for_each_cnt(CONST_RANGE(Items, i, size_t index)
 		{
-			unsigned __int64 key = cfg->CreateKey(root, FormatString() << index);
+			unsigned __int64 key = cfg->CreateKey(root, std::to_wstring(index));
 			if (key)
 			{
 				for_each_cnt(CONST_RANGE(i, j, size_t index)
@@ -473,7 +473,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 		ItemName = MakeName(Items[Pos].front());
 	}
 
-	MenuItem->strName = FormatString() << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << ItemName;
+	MenuItem->strName = string(MSG(MRightCtrl)) + L"+&" + std::to_wstring(Pos) + L" \x2502 " + ItemName;
 	if(Items[Pos].size() > 1)
 	{
 		MenuItem->Flags|=MIF_SUBMENU;

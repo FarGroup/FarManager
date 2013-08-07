@@ -145,8 +145,8 @@ static unsigned int HexStringToInt(const char *Hex)
 
 static inline void PrintError(const wchar_t *Title, const string& Error, int Row, int Col)
 {
-	FormatString strResult;
-	strResult<<Title<<L" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
+	string strResult(Title);
+	strResult += L" (" + std::to_wstring(Row) + L"," + std::to_wstring(Col) + L"): " + Error + L'\n';
 	Global->Console->Write(strResult);
 	Global->Console->Commit();
 }
@@ -2768,7 +2768,7 @@ bool Database::Export(const string& File)
 	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
 
 	auto root = new tinyxml::TiXmlElement("farconfig");
-	root->SetAttribute("version", Utf8String(FormatString() << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build).data());
+	root->SetAttribute("version", Utf8String(std::to_wstring(FAR_VERSION.Major) + L"." + std::to_wstring(FAR_VERSION.Minor) + L"." + std::to_wstring(FAR_VERSION.Build)).data());
 
 	root->LinkEndChild(GeneralCfg()->Export());
 

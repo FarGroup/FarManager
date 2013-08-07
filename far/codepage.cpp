@@ -290,7 +290,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 	if (selectedCodePages && codePage!=CP_DEFAULT)
 	{
 		long long selectType = 0;
-		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << codePage, &selectType, 0);
+		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(codePage), &selectType, 0);
 
 		if (selectType & CPST_FIND)
 			checked = true;

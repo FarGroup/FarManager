@@ -777,7 +777,6 @@ void FileFilter::InitFilter()
 	if(!TempFilterData)
 		TempFilterData = new PTRTYPE(TempFilterData);
 
-	string strKeyName;
 	string strTitle, strMask, strSizeBelow, strSizeAbove;
 
 	auto cfg = Global->Db->CreateFiltersConfig();
@@ -804,9 +803,7 @@ void FileFilter::InitFilter()
 
 	while (1)
 	{
-		strKeyName = FormatString() << L"Filter" << FilterData->size();
-
-		unsigned __int64 key = cfg->GetKeyID(root, strKeyName);
+		unsigned __int64 key = cfg->GetKeyID(root, L"Filter" + std::to_wstring(FilterData->size()));
 
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
@@ -868,9 +865,7 @@ void FileFilter::InitFilter()
 
 	while (1)
 	{
-		strKeyName = FormatString() << L"PanelMask" << TempFilterData->size();
-
-		unsigned __int64 key = cfg->GetKeyID(root, strKeyName);
+		unsigned __int64 key = cfg->GetKeyID(root, L"PanelMask" + std::to_wstring(TempFilterData->size()));
 
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
@@ -911,7 +906,6 @@ void FileFilter::SaveFilters()
 
 	Changed = false;
 
-	string strKeyName;
 	FileFilterParams *CurFilterData;
 	auto cfg = Global->Db->CreateFiltersConfig();
 
@@ -928,8 +922,7 @@ void FileFilter::SaveFilters()
 
 	for (size_t i=0; i<FilterData->size(); i++)
 	{
-		strKeyName = FormatString() << L"Filter" << i;
-		unsigned __int64 key = cfg->CreateKey(root, strKeyName);
+		unsigned __int64 key = cfg->CreateKey(root, L"Filter" + std::to_wstring(i));
 		if (!key)
 			break;
 		CurFilterData = FilterData->at(i).get();
@@ -967,8 +960,7 @@ void FileFilter::SaveFilters()
 
 	for (size_t i=0; i<TempFilterData->size(); i++)
 	{
-		strKeyName = FormatString() << L"PanelMask" << i;
-		unsigned __int64 key = cfg->CreateKey(root, strKeyName);
+		unsigned __int64 key = cfg->CreateKey(root, L"PanelMask" + std::to_wstring(i));
 		if (!key)
 			break;
 		CurFilterData = TempFilterData->at(i).get();
@@ -1027,9 +1019,9 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	if (!DotPtr)
 		strMask = L"*.";
 	else if (wcspbrk(DotPtr,L",;"))
-		strMask = FormatString() << L"\"*" << DotPtr << '"';
+		strMask.assign(L"\"*", 2).append(DotPtr).append(1, '"');
 	else
-		strMask = FormatString() << L'*' << DotPtr;
+		strMask.assign(1, L'*').append(DotPtr);
 
 	if (std::any_of(CONST_RANGE(Extensions, i) {return !StrCmpI(i.first, strMask);}))
 		return -1;

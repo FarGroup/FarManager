@@ -823,7 +823,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							{
 								// Преобразуем номер таблицы сиволов к строке
 								string strCodePageName;
-								strCodePageName = FormatString() << SelectedCodePage;
+								strCodePageName = std::to_wstring(SelectedCodePage);
 								// Получаем текущее состояние флага в реестре
 								long long SelectType = 0;
 								Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);

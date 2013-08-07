@@ -83,7 +83,6 @@ class GenericPluginModel
 {
 public:
 	typedef void* plugin_instance;
-	typedef void* plugin_module;
 
 	GenericPluginModel(PluginManager* owner);
 	virtual ~GenericPluginModel() {};
@@ -91,8 +90,8 @@ public:
 	virtual Plugin* CreatePlugin(const string& filename);
 
 	virtual bool IsPlugin(const string& filename) = 0;
-	virtual plugin_module Create(const string& filename) = 0;
-	virtual bool Destroy(plugin_module module) = 0;
+	virtual plugin_instance Create(const string& filename) = 0;
+	virtual bool Destroy(plugin_instance module) = 0;
 	virtual void InitExports(plugin_instance instance, void** exports) = 0;
 
 	void SaveExportsToCache(class PluginsCacheConfig* cache, unsigned long long id, void* const * exports);
@@ -119,8 +118,8 @@ public:
 	NativePluginModel(PluginManager* owner) : GenericPluginModel(owner) {}
 
 	virtual bool IsPlugin(const string& filename) override;
-	virtual plugin_module Create(const string& filename) override;
-	virtual bool Destroy(plugin_module module) override;
+	virtual plugin_instance Create(const string& filename) override;
+	virtual bool Destroy(plugin_instance module) override;
 	virtual void InitExports(plugin_instance instance, void** exports) override;
 
 private:
@@ -309,8 +308,8 @@ public:
 	bool Success() const { return m_Success; }
 
 	virtual bool IsPlugin(const string& filename) override;
-	virtual plugin_module Create(const string& filename) override;
-	virtual bool Destroy(plugin_module module) override;
+	virtual plugin_instance Create(const string& filename) override;
+	virtual bool Destroy(plugin_instance module) override;
 	virtual void InitExports(plugin_instance instance, void** exports) override;
 
 private:

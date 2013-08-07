@@ -144,7 +144,7 @@ private:
 	union
 	{
 		string* sValue;
-		int iValue;
+		long long iValue;
 	};
 	bool ValueChanged;
 	friend class Options;

@@ -73,8 +73,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		wchar_t *endptr;
-		*IntValue = wcstoul(Item->strData.data(), &endptr, 10);
+		*IntValue = std::stoull(Item->strData.data());
 	}
 
 	const wchar_t *GetMask()
@@ -100,8 +99,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		wchar_t *endptr;
-		*IntValue = wcstoul(Item->strData.data()+1, &endptr, 16);
+		*IntValue = std::stoull(Item->strData.data()+1, nullptr, 16);
 	}
 
 	const wchar_t *GetMask()
@@ -352,7 +350,7 @@ DialogItemEx *DialogBuilder::AddConstEditField(const string& Value, int Width, F
 DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = FormatString() << *Value;
+	Item->strData = std::to_wstring(*Value);
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
@@ -366,7 +364,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = FormatString() << Value.Get();
+	Item->strData = std::to_wstring(Value.Get());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
@@ -380,7 +378,9 @@ DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = FormatString() << L'x' << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << Value.Get();
+	std::wstringstream ss;
+	ss << L'x' << std::hex << std::setw(8) << std::setfill(L'0') << Value.Get();
+	Item->strData = ss.str();
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 

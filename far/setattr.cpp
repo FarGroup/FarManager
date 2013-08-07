@@ -423,7 +423,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					LNGID m = (Param1 == SA_COMBO_HARDLINK ? MSetAttrHardLinks : MSetAttrDfsTargets);
 					FarListInfo li={sizeof(FarListInfo)};
 					Dlg->SendMessage(DM_LISTINFO,Param1,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(FormatString()<<MSG(m)<<L" ("<<li.ItemsNumber<<L")"));
+					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(MSG(m)) + L" (" + std::to_wstring(li.ItemsNumber) + L")"));
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -932,7 +932,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData=FormatString()<<MSG(MSetAttrDfsTargets)<<L" ("<<NameList.ItemsNumber<<L")";
+									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
 
 									NetApiBufferFree(pData);
 								}
@@ -1038,7 +1038,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 					}
 
-					AttrDlg[SA_COMBO_HARDLINK].strData=FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
+					AttrDlg[SA_COMBO_HARDLINK].strData = string(MSG(MSetAttrHardLinks)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
 				}
 			}
 

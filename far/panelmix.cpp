@@ -517,7 +517,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 
 		strColumnTitles += strType;
 
-		strColumnWidths += FormatString() << i.width;
+		strColumnWidths += std::to_wstring(i.width);
 
 		switch (i.width_type)
 		{

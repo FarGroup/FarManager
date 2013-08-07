@@ -2274,7 +2274,7 @@ void FileEditor::ShowStatus()
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr = FormatString() << m_editor->NumLastLine << L'/' << m_editor->NumLastLine;
+	strLineStr = std::to_wstring(m_editor->NumLastLine) + L'/' + std::to_wstring(m_editor->NumLastLine);
 	int SizeLineStr = (int)strLineStr.size();
 
 	if (SizeLineStr > 12)
@@ -2282,7 +2282,7 @@ void FileEditor::ShowStatus()
 	else
 		SizeLineStr = 12;
 
-	strLineStr = FormatString() << m_editor->NumLine+1 << L'/' << m_editor->NumLastLine;
+	strLineStr = std::to_wstring(m_editor->NumLine + 1) + L'/' + std::to_wstring(m_editor->NumLastLine);
 	string strAttr(AttrStr);
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<

@@ -186,9 +186,9 @@ bool NativePluginModel::IsPlugin(const string& filename)
 	return Result;
 }
 
-GenericPluginModel::plugin_module NativePluginModel::Create(const string& filename)
+GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
-	plugin_module module = LoadLibraryEx(filename.data(), nullptr, 0);
+	plugin_instance module = LoadLibraryEx(filename.data(), nullptr, 0);
 	if(module)
 		module = LoadLibraryEx(filename.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 	Global->CatchError();
@@ -1259,7 +1259,7 @@ bool CustomPluginModel::IsPlugin(const string& filename)
 	}
 }
 
-GenericPluginModel::plugin_module CustomPluginModel::Create(const string& filename)
+GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& filename)
 {
 	try
 	{
@@ -1285,7 +1285,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 	}
 }
 
-bool CustomPluginModel::Destroy(GenericPluginModel::plugin_module module)
+bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
 {
 	try
 	{

@@ -1377,13 +1377,13 @@ bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const 
 const string IntOption::ExInfo() const
 {
 	std::wstringstream ws;
-	int v = Get();
+	auto v = Get();
 	wchar_t w1 = static_cast<wchar_t>(v);
-	wchar_t w2 = static_cast<wchar_t>(v >> 16);
 	ws << L" = 0x" << std::hex << v;
 	if (w1 > 0x001f && w1 < 0x8000)
 	{
 		ws << L" = '" << w1;
+		wchar_t w2 = static_cast<wchar_t>(v >> 16); //???
 		if (w2 > 0x001f && w2 < 0x8000)
 			ws << w2;
 		ws << L"'";

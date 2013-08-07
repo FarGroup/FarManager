@@ -53,21 +53,15 @@ static const string& GetFarTitleAddons()
 		%Platform - x86
 		%Admin    - MFarTitleAddonsAdmin
 		%PID      - current PID
-    */
-	static FormatString strVer, strBuild, strPID;
-	static bool bFirstRun = true;
+	*/
 	static string strTitleAddons;
 
 	strTitleAddons.assign(L" - Far ",7);
 	strTitleAddons += Global->Opt->strTitleAddons.Get();
 
-	if (bFirstRun)
-	{
-		bFirstRun = false;
-		strVer<<FAR_VERSION.Major<<L"."<<FAR_VERSION.Minor;
-		strBuild<<FAR_VERSION.Build;
-		strPID<<GetCurrentProcessId();
-	}
+	static const string strVer = std::to_wstring(FAR_VERSION.Major) + L"." + std::to_wstring(FAR_VERSION.Minor);
+	static const string strBuild = std::to_wstring(FAR_VERSION.Build);
+	static const string strPID = std::to_wstring(GetCurrentProcessId());
 
 	ReplaceStrings(strTitleAddons,L"%PID",strPID,-1,true);
 	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
