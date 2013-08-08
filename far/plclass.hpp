@@ -248,7 +248,7 @@ protected:
 	{
 		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
 		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
-		operator intptr_t() const { return Result; } 
+		operator intptr_t() const { return Result; }
 		operator HANDLE() const { return reinterpret_cast<HANDLE>(Result); }
 
 		EXPORTS_ENUM id;

@@ -4134,7 +4134,6 @@ bool ShellCopy::CalcTotalSize()
 	TotalCopySize *= CountTarget;
 	TotalFilesToProcess *= CountTarget;
 	InsertCommas(TotalCopySize,CP->strTotalCopySizeText);
-	Global->PreRedraw->pop();
 	return true;
 }
 
