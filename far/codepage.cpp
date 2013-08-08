@@ -179,7 +179,8 @@ void codepages::FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePage
 	{
 		CodePageNameString = std::to_wstring(CodePage);
 		CodePageNameString.resize(std::max(CodePageNameString.size(), size_t(5)), L' ');
-		CodePageNameString += BoxSymbols[BS_V1] + (!IsCodePageNameCustom || CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2? L' ' : L'*');
+		CodePageNameString += BoxSymbols[BS_V1];
+		CodePageNameString += (!IsCodePageNameCustom || CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2? L' ' : L'*');
 	}
 	CodePageNameString += CodePageName;
 }

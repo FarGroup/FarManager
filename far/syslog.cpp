@@ -1775,7 +1775,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			break;
 	}
 
-	Records.append(L" (").append(IsConsoleFullscreen()? L"Fullscreen" : L"Widowed").append(L")");
+	Records.append(L" (").append(IsConsoleFullscreen()? L"Fullscreen" : L"Windowed").append(L")");
 	return Records;
 #else
 	return L"";
