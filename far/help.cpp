@@ -2085,7 +2085,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 			}
 			else
 			{
-				strType = L"\\shell\\open\\command";
+				strType += L"\\shell\\open\\command";
 				HKEY hKey;
 
 				if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType.data(),0,KEY_READ,&hKey) == ERROR_SUCCESS)
