@@ -2584,6 +2584,7 @@ enum MACROCALLTYPE
 	MCT_DELMACRO           = 9,
 	MCT_RUNSTARTMACRO      = 10,
 	MCT_EXECSTRING         = 11,
+	MCT_PANELSORT          = 12,
 };
 
 struct OpenMacroPluginInfo

@@ -280,6 +280,7 @@ public:
 	virtual bool GetPrevDirectoriesFirst() {return DirectoriesFirst;}
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
 	virtual void SetSortMode(int Mode) {SortMode=Mode;}
+	virtual void SetCustomSortMode(int SortMode, bool InvertByDefault, const wchar_t* Indicators) {}
 	virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;

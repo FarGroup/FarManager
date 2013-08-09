@@ -252,29 +252,33 @@ void FileList::ShowFileList(int Fast)
 
 	if (Global->Opt->ShowSortMode)
 	{
-		static const value_name_pair<int, LNGID> ModeNames[] =
+		const wchar_t *Ch = nullptr;
+		if (SortMode < SORTMODE_LAST)
 		{
-			{UNSORTED, MMenuUnsorted},
-			{BY_NAME, MMenuSortByName},
-			{BY_EXT, MMenuSortByExt},
-			{BY_MTIME, MMenuSortByWrite},
-			{BY_CTIME, MMenuSortByCreation},
-			{BY_ATIME, MMenuSortByAccess},
-			{BY_CHTIME, MMenuSortByChange},
-			{BY_SIZE, MMenuSortBySize},
-			{BY_DIZ, MMenuSortByDiz},
-			{BY_OWNER, MMenuSortByOwner},
-			{BY_COMPRESSEDSIZE, MMenuSortByAllocatedSize},
-			{BY_NUMLINKS, MMenuSortByNumLinks},
-			{BY_NUMSTREAMS, MMenuSortByNumStreams},
-			{BY_STREAMSSIZE, MMenuSortByStreamsSize},
-			{BY_FULLNAME, MMenuSortByFullName},
-			{BY_CUSTOMDATA, MMenuSortByCustomData},
-		};
+			static const value_name_pair<int, LNGID> ModeNames[] =
+			{
+				{UNSORTED, MMenuUnsorted},
+				{BY_NAME, MMenuSortByName},
+				{BY_EXT, MMenuSortByExt},
+				{BY_MTIME, MMenuSortByWrite},
+				{BY_CTIME, MMenuSortByCreation},
+				{BY_ATIME, MMenuSortByAccess},
+				{BY_CHTIME, MMenuSortByChange},
+				{BY_SIZE, MMenuSortBySize},
+				{BY_DIZ, MMenuSortByDiz},
+				{BY_OWNER, MMenuSortByOwner},
+				{BY_COMPRESSEDSIZE, MMenuSortByAllocatedSize},
+				{BY_NUMLINKS, MMenuSortByNumLinks},
+				{BY_NUMSTREAMS, MMenuSortByNumStreams},
+				{BY_STREAMSSIZE, MMenuSortByStreamsSize},
+				{BY_FULLNAME, MMenuSortByFullName},
+				{BY_CUSTOMDATA, MMenuSortByCustomData},
+			};
 
-		const wchar_t *Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
+			Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
+		}
 
-		if (Ch)
+		if (Ch || SortMode > SORTMODE_LAST)
 		{
 			if (Global->Opt->ShowColumnTitles)
 				GotoXY(NextX1,Y1+1);
@@ -282,7 +286,11 @@ void FileList::ShowFileList(int Fast)
 				GotoXY(NextX1,Y1);
 
 			SetColor(COL_PANELCOLUMNTITLE);
-			OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
+			if (Ch)
+				OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
+			else
+				OutCharacter[0]=SortOrder==1 ? CustomSortIndicator[0]:CustomSortIndicator[1];
+
 			Text(OutCharacter);
 			NextX1++;
 

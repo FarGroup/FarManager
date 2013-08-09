@@ -17,7 +17,7 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
-local utils, macrobrowser
+local utils, macrobrowser, sorter
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -273,6 +273,8 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
+    elseif calltype==F.MCT_PANELSORT      then
+      if sorter and sorter.SortPanelItems(...) then return F.MPRT_NORMALFINISH, {} end
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -327,6 +329,13 @@ do
   func,msg = loadfile(ModuleDir.."mbrowser.lua")
   if func then macrobrowser = func { M=M, utils=utils }
   else export=nil; ErrMsg(msg); return
+  end
+
+  if false and bit and jit then
+    func,msg = loadfile(ModuleDir.."panelsort.lua")
+    if func then sorter = func(); Panel.SetCustomSortMode = sorter.SetCustomSortMode
+    else export=nil; ErrMsg(msg); return
+    end
   end
 
   AddCfindFunction()

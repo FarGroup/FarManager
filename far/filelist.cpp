@@ -108,6 +108,51 @@ enum SELECT_MODES
 	SELECT_INVERTMASK      = 10,
 };
 
+struct CustomSort
+{
+	const FileListItem **Data;
+	size_t               DataSize;
+	void               (*FileListToPluginItem)(const FileListItem*, PluginPanelItem*);
+	int                  ListSortGroups;
+	int                  ListSelectedFirst;
+	int                  ListDirectoriesFirst;
+	int                  ListSortMode;
+	int                  RevertSorting;
+	int                  ListPanelMode;
+	int                  ListNumericSort;
+	int                  ListCaseSensitiveSort;
+	HANDLE               hSortPlugin;
+};
+
+static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItem *pi)
+{
+	pi->FileName = const_cast<wchar_t*>(fi->strName.data());               //! CHANGED
+	pi->AlternateFileName = const_cast<wchar_t*>(fi->strShortName.data()); //! CHANGED
+	pi->FileSize=fi->FileSize;
+	pi->AllocationSize=fi->AllocationSize;
+	pi->FileAttributes=fi->FileAttr;
+	pi->LastWriteTime=fi->WriteTime;
+	pi->CreationTime=fi->CreationTime;
+	pi->LastAccessTime=fi->AccessTime;
+	pi->NumberOfLinks=fi->NumberOfLinks;
+	pi->Flags=fi->UserFlags;
+
+	if (fi->Selected)
+		pi->Flags|=PPIF_SELECTED;
+
+	pi->CustomColumnData=fi->CustomColumnData;
+	pi->CustomColumnNumber=fi->CustomColumnNumber;
+	pi->Description=fi->DizText; //BUGBUG???
+
+	pi->UserData.Data=fi->UserData;
+	pi->UserData.FreeData=fi->Callback;
+
+	pi->CRC32=fi->CRC32;
+	pi->Reserved[0]=fi->Position;  //! CHANGED
+	pi->Reserved[1]=fi->SortGroup; //! CHANGED
+	pi->Owner = EmptyToNull(fi->strOwner.data());
+}
+
 FileListItem::~FileListItem()
 {
 	if (CustomColumnNumber && CustomColumnData)
@@ -548,7 +593,37 @@ void FileList::SortFileList(int KeepPosition)
 		// İÒÎ ÅÑÒÜ ÓÇÊÎÅ ÌÅÑÒÎ ÄËß ÑÊÎĞÎÑÒÍÛÕ ÕÀĞÀÊÒÅĞÈÑÒÈÊ Far Manager
 		// ïğè ñ÷èòûâàíèè äèğğåêòîğèè
 
-		std::sort(ListData.begin(), ListData.end(), ListLess);
+		if (SortMode < SORTMODE_LAST)
+		{
+			std::sort(ListData.begin(), ListData.end(), ListLess);
+		}
+		else
+		{
+			CustomSort cs;
+			cs.Data = (const FileListItem**)ListData.data();
+			cs.DataSize = ListData.size();
+			cs.FileListToPluginItem = FileListToPluginItem_Custom;
+			cs.ListSortGroups = ListSortGroups;
+			cs.ListSelectedFirst = ListSelectedFirst;
+			cs.ListDirectoriesFirst = ListDirectoriesFirst;
+			cs.ListSortMode = SortMode;
+			cs.RevertSorting = RevertSorting?1:0;
+			cs.ListPanelMode = ListPanelMode;
+			cs.ListNumericSort = ListNumericSort;
+			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
+			cs.hSortPlugin = hSortPlugin;
+
+			FarMacroValue values[]={{FMVT_POINTER}};
+			values[0].Pointer = &cs;
+			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+			OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_PANELSORT,nullptr,&fmc};
+			void *ptr;
+			if (!Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) || !ptr)
+			{
+				SetSortMode(BY_NAME); // recursive call
+				return;
+			}
+		}
 
 		if (KeepPosition)
 			GoToFile(strCurName);
@@ -3189,6 +3264,21 @@ void FileList::SetSortMode0(int Mode)
 		SortFileList(TRUE);
 
 	FrameManager->RefreshFrame();
+}
+
+void FileList::SetCustomSortMode(int SortMode, bool InvertByDefault, const wchar_t* Indicators)
+{
+	if (SortMode > SORTMODE_LAST)
+	{
+		if (this->SortMode==SortMode && Global->Opt->ReverseSort)
+			SortOrder=-SortOrder;
+		else
+			SortOrder = InvertByDefault ? -1 : 1;
+
+		CustomSortIndicator[0] = Indicators[0] ? Indicators[0] : L' ';
+		CustomSortIndicator[1] = Indicators[0] && Indicators[1] ? Indicators[1] : L' ';
+		SetSortMode0(SortMode);
+	}
 }
 
 void FileList::ChangeNumericSort(bool Mode)

@@ -1230,6 +1230,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_CHECKALL),                 //
 		DEF_MCODE_(F_GETOPTIONS),               //
 		DEF_MCODE_(F_USERMENU),                 //
+		DEF_MCODE_(F_SETCUSTOMSORTMODE),        //
 		DEF_MCODE_(C_AREA_OTHER),               // –ежим копировани€ текста с экрана, вертикальные меню
 		DEF_MCODE_(C_AREA_SHELL),               // ‘айловые панели
 		DEF_MCODE_(C_AREA_VIEWER),              // ¬нутренн€€ программа просмотра

@@ -10,7 +10,7 @@ endif
 LUALIB = $(FAR_WORKDIR)/luafar3.dll
 
 DOCS = _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
-       mbrowser.lua lang.lua lm_eng.lng lm_rus.lng
+       mbrowser.lua lang.lua panelsort.lua lm_eng.lng lm_rus.lng
 SRCS = luafar/luaplug.c
 USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR \
           -DEXPORT_PROCESSEDITOREVENT -DEXPORT_PROCESSVIEWEREVENT \

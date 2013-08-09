@@ -1067,6 +1067,9 @@
           <Component Id="lang.lua" Guid="$(var.Guid.lang.lua)" Win64="$(var.Win64)">
             <File Id="lang.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lang.lua" />
           </Component>
+          <Component Id="panelsort.lua" Guid="$(var.Guid.panelsort.lua)" Win64="$(var.Win64)">
+            <File Id="panelsort.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\panelsort.lua" />
+          </Component>
           <Component Id="lm_eng.lng" Guid="$(var.Guid.lm_eng.lng)" Win64="$(var.Win64)">
             <File Id="lm_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_eng.lng" />
           </Component>
