@@ -2620,7 +2620,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 			}
 
-			int RetCode=0;
+			int RetCode=COPY_CANCEL;
 			string strNewName;
 
 			if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
@@ -2860,7 +2860,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			}
 
 			TotalCopiedSize=SaveTotalSize;
-			int RetCode;
+			int RetCode = COPY_CANCEL;
 			string strNewName;
 
 			if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
@@ -3350,7 +3350,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 						INT64 FilePtr=SrcFile.GetPointer();
 						FAR_FIND_DATA SplitData=SrcData;
 						SplitData.nFileSize-=FilePtr;
-						int RetCode;
+						int RetCode = COPY_CANCEL;
 						string strNewName;
 
 						if (!AskOverwrite(SplitData, SrcName, strDestName, INVALID_FILE_ATTRIBUTES, FALSE, (Flags&FCOPY_MOVE) != 0, (Flags&FCOPY_LINK) == 0, Append, strNewName, RetCode))

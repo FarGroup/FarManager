@@ -365,7 +365,10 @@ void FileList::ShowFileList(int Fast)
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
 
-	size_t TitleX=X1+1+XShift+(TitleX2-X1-1-XShift-strTitle.size())/2;
+	size_t TitleX=X1+1+XShift+(TitleX2-X1-XShift-strTitle.size())/2;
+
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + strTitle.size() > static_cast<size_t>(ScrX-5))
+		TitleX = ScrX - 5 - strTitle.size();
 
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(static_cast<int>(TitleX),Y1);

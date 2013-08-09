@@ -189,7 +189,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 GenericPluginModel::plugin_instance NativePluginModel::Create(const string& filename)
 {
 	plugin_instance module = LoadLibraryEx(filename.data(), nullptr, 0);
-	if(module)
+	if(!module)
 		module = LoadLibraryEx(filename.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 	Global->CatchError();
 	return module;
