@@ -261,7 +261,7 @@ void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirect
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
-string TryConvertVolumeGuidToDrivePath(const string& Path)
+static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t *path=nullptr, size_t path_len=0)
 {
 	string Result = Path;
 	size_t DirectoryOffset;
@@ -287,6 +287,9 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 				{
 					string strPath(PathName);
 
+					if (path && strPath.size() <= path_len && 0 == StrCmpNI(path, PathName, strPath.size()))
+						return strPath;
+
 					if (IsRootPath(strPath))
 					{
 						Result.replace(0, DirectoryOffset + 1, strPath);
@@ -296,7 +299,14 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 					PathName += strPath.size() + 1;
 				}
 			}
+
+			if (path)
+				Result.clear();
 		}
+
+		else if (path)
+			Result.clear();
+
 		else
 		{
 			string DriveStrings;
@@ -323,7 +333,42 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 		}
 	}
 
+	else if (path)
+		Result.clear();
+
 	return Result;
+}
+
+size_t GetMountPointLen(const string& abs_path, const string& drive_root)
+{
+	size_t n = drive_root.size();
+	if (abs_path.size() >= n && 0 == StrCmpNI(abs_path.data(), drive_root.data(), n))
+		return n;
+
+	size_t dir_offset = 0;
+	if (ParsePath(abs_path, &dir_offset) == PATH_VOLUMEGUID)
+		return dir_offset;
+
+	string vol_guid(drive_root);
+	switch (ParsePath(drive_root))
+	{
+	case PATH_VOLUMEGUID:
+		break;
+	case PATH_DRIVELETTER:
+		if (apiGetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
+			break;
+		// else fall down to default:
+	default:          //
+		assert(false); // really it is incorrect
+	return n;         //
+	}
+
+	string mount_point = TryConvertVolumeGuidToDrivePath(vol_guid, abs_path.data(), abs_path.size());
+	assert(!mount_point.empty());
+	if (!mount_point.empty())
+		n = mount_point.size();
+
+	return n;
 }
 
 /*

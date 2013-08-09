@@ -1753,7 +1753,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
+	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
+	size_t DestMountLen = 0;
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
 
@@ -1854,6 +1855,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		{
 			GetPathRoot(strDest, strDestDriveRoot);
 			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
+			DestMountLen = GetMountPointLen(strDest, strDestDriveRoot);
 			check_samedisk = dest_changed = true;
 		}
 		if (move_rename && !copy_to_null && check_samedisk)
@@ -1903,7 +1905,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		size_t pos;
-		if (!copy_to_null && FindLastSlash(pos,strDest) && pos > strDestDriveRoot.size()) // create target directory
+		if (!copy_to_null && FindLastSlash(pos,strDest) && pos > DestMountLen) // create target directory
 		{
 			string strNewPath = strDest.substr(0, pos);
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
