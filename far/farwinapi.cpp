@@ -981,7 +981,7 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 	DWORD Size = ExpandEnvironmentStrings(Src.data(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
-		if (Size < ARRAYSIZE(Buffer))
+		if (Size <= ARRAYSIZE(Buffer))
 		{
 			Dest.assign(Buffer, Size - 1);
 		}
@@ -989,7 +989,7 @@ bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
 		{
 			wchar_t_ptr vBuffer(Size);
 			Size = ExpandEnvironmentStrings(Src.data(), vBuffer.get(), Size);
-			Dest.assign(vBuffer.get(), Size);
+			Dest.assign(vBuffer.get(), Size - 1);
 		}
 		Result = true;
 	}
@@ -1587,7 +1587,7 @@ bool apiQueryDosDevice(const string& DeviceName, string &Path) {
 	DWORD Size = QueryDosDeviceW(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
-		Path.assign(Buffer, Size);
+		Path.assign(Buffer);	// don't copy trailing '\0'
 	}
 	else if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
@@ -1596,9 +1596,10 @@ bool apiQueryDosDevice(const string& DeviceName, string &Path) {
 		Size = QueryDosDeviceW(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
 		if (Size)
 		{
-			Path.assign(Buffer, Size);
+			Path.assign(vBuffer.get());
 		}
 	}
+	
 	return Size && GetLastError() == NO_ERROR;
 }
 

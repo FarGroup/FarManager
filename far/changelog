@@ -1,3 +1,7 @@
+w17 09.08.2013 11:15:48 +0400 - build 3603
+
+1. Продолжение 3602. GetPathRoot некорректно работал для mountpoint-ов на XP
+
 w17 09.08.2013 04:54:02 +0400 - build 3602
 
 1. M#2461: auto-create directory on the file system mounted via NTFS folder
