@@ -1216,14 +1216,26 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 
 #define InitImport(Name) InitImport(Imports.p##Name, #Name)
 
-		if (InitImport(IsPlugin) &&
+		if (InitImport(Initialize) &&
+			InitImport(IsPlugin) &&
 			InitImport(CreateInstance) &&
 			InitImport(GetFunctionAddress) &&
-			InitImport(DestroyInstance))
+			InitImport(DestroyInstance) &&
+			InitImport(Free))
 
 		{
-			m_Success = true;
-			Imports.pCreateInstance(nullptr);
+			GlobalInfo Info={sizeof(Info)};
+
+			if(Imports.pInitialize(&Info) &&
+				Info.StructSize &&
+				Info.Title && *Info.Title &&
+				Info.Description && *Info.Description &&
+				Info.Author && *Info.Author)
+			{
+				m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+
+				// TODO: store info, show message if version is bad
+			}
 		}
 #undef InitImport
 	}
@@ -1238,7 +1250,8 @@ CustomPluginModel::~CustomPluginModel()
 	{
 		if (m_Success)
 		{
-			Imports.pDestroyInstance(nullptr);
+			ExitInfo Info = {sizeof(Info)};
+			Imports.pFree(&Info);
 		}
 		FreeLibrary(m_Module);
 	}

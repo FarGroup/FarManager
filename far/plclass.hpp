@@ -321,10 +321,12 @@ private:
 
 	struct
 	{
+		BOOL (WINAPI *pInitialize)(GlobalInfo* info);
 		BOOL (WINAPI *pIsPlugin)(const wchar_t* filename);
 		HANDLE (WINAPI *pCreateInstance)(const wchar_t* filename);
 		FARPROC (WINAPI *pGetFunctionAddress)(HANDLE Instance, const wchar_t* functionname);
 		BOOL (WINAPI *pDestroyInstance)(HANDLE Instance);
+		void (WINAPI *pFree)(const ExitInfo* info);
 	}
 	Imports;
 	HMODULE m_Module;
