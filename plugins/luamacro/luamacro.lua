@@ -311,31 +311,32 @@ end
 
 do
   local ModuleDir = far.PluginStartupInfo().ModuleDir
-  local func,msg = loadfile(ModuleDir.."lang.lua")
-  if func then M = func()
-  else export=nil; ErrMsg(msg); return
-  end
-
-  func,msg = loadfile(ModuleDir.."utils.lua")
-  if func then utils = func { M=M, ErrMsg=ErrMsg, pack=pack }
-  else export=nil; ErrMsg(msg); return
-  end
-
-  func,msg = loadfile(ModuleDir.."api.lua")
-  if func then func { M=M, utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
-  else export=nil; ErrMsg(msg); return
-  end
-
-  func,msg = loadfile(ModuleDir.."mbrowser.lua")
-  if func then macrobrowser = func { M=M, utils=utils }
-  else export=nil; ErrMsg(msg); return
-  end
-
-  if false and bit and jit then
-    func,msg = loadfile(ModuleDir.."panelsort.lua")
-    if func then sorter = func(); Panel.SetCustomSortMode = sorter.SetCustomSortMode
-    else export=nil; ErrMsg(msg); return
+  local function RunPluginFile (fname, param)
+    local func,msg = loadfile(ModuleDir..fname)
+    if func then return func(param) or true
+    else export=nil; ErrMsg(msg)
     end
+  end
+
+  M = RunPluginFile("lang.lua");
+  if not M then return end
+
+  utils = RunPluginFile("utils.lua", { M=M, ErrMsg=ErrMsg, pack=pack })
+  if not utils then return end
+
+  if not RunPluginFile("api.lua", { M=M, utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall} )
+    then return end
+
+  macrobrowser = RunPluginFile("mbrowser.lua", { M=M, utils=utils })
+  if not macrobrowser then return end
+
+  if bit and jit then
+    if not RunPluginFile("winapi.lua") then return end
+    if not RunPluginFile("farapi.lua") then return end
+
+    sorter = RunPluginFile("panelsort.lua")
+    if not sorter then return end
+    Panel.SetCustomSortMode = sorter.SetCustomSortMode
   end
 
   AddCfindFunction()

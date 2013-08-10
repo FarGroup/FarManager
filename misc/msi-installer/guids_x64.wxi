@@ -355,6 +355,8 @@
 <?define Guid.macrotest.lua = "7C521160-324F-44E3-A0DB-4FB9C22CD3C4" ?>
 <?define Guid.lang.lua = "EB7DB099-E04B-43E0-894A-EED0EDB0F86F" ?>
 <?define Guid.panelsort.lua = "C52EC097-8C12-4D21-A26E-C79E2B581ABE" ?>
+<?define Guid.winapi.lua = "ED86FDD7-09B4-4421-BF60-CBAF29466378" ?>
+<?define Guid.farapi.lua = "21B96B6F-9361-48B1-BEA5-E1C193D59003" ?>
 <?define Guid.lm_eng.lng = "B50183C5-630F-4BBD-BB62-227D13B01AEF" ?>
 <?define Guid.lm_rus.lng = "B6E42F80-D6AD-4FC3-A3E8-E022F6EDE2AF" ?>
 <?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>

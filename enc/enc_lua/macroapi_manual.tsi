@@ -548,7 +548,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3553254750
+mtime=3585324991
 <article>
 #_**Panel** - таблица со следующими пол€ми:
 #_
@@ -562,9 +562,66 @@ mtime=3553254750
 #_  FExist
 #_  Item
 #_  Select
+#_  SetCustomSortMode
 #_  SetPath
 #_  SetPos
 #_  SetPosIdx
+#_
+#_@@@
+#_<lua> Links = {
+#_  SetCustomSortMode="80.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=80
+lv=3
+dt=Text
+nm=SetCustomSortMode
+ctime=3585324926
+mtime=3585327622
+<article>
+#_SetCustomSortMode (whatpanel, nMode, fCompare, bInvertByDefault, sIndicator)
+#_
+#_**ѕараметры:**
+#_  whatpanel:         number   (0=активна€ панель, 1=пассивна€ панель)
+#_  nMode:             number   (режим сортировки, целое число >=100 и <=0x7FFFFFFF)
+#_  fCompare:          function (получает 2 аргумента типа PluginPanelItem;
+#_                               если функци€ считает, что 1-й элемент должен оказатьс€
+#_                               после пр€мой сортировки выше 2-го, возвращает true,
+#_                               иначе - false).
+#_  bInvertByDefault:  boolean  (включать ли по умолчанию инверсную сортировку)
+#_  sIndicator:        string   (индикаци€ режима сортировки на панели, два символа:
+#_                               первый - дл€ пр€мой, второй - дл€ обратной сортировки)
+#_
+#_**¬озвращает:**
+#_  Ќичего
+#_
+#_**ѕримечание:**
+#_   астомна€ сортировка использует библиотеку FFI от LuaJIT 2. ѕрограммирование
+#_  с использованием LuaJIT FFI требует предварительного освоени€ документации.
+#_
+#_**ѕример:**
+#_  -- сортировка по длине имени файла
+#_  local ffi = require "ffi"
+#_  local C = ffi.C
+#_  Macro {
+#_    description="Sort files by their name length";
+#_    area="Shell"; key="CtrlShiftF1";
+#_    action=function()
+#_      Panel.SetCustomSortMode (0, 100,
+#_        function(pi1,pi2)
+#_          return C.wcslen(pi1.FileName) < C.wcslen(pi2.FileName)
+#_        end,
+#_        false, "юё")
+#_    end;
+#_  }
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["документации"]="http://luajit.org/ext_ffi.html",
+#_} </lua>
 #_
 </article>
 </node>
@@ -883,7 +940,7 @@ mtime=3560706521
 id=65
 lv=3
 dt=Text
-nm=Plugin.Call
+nm=Call
 ctime=3560706460
 mtime=3580658521
 <article>

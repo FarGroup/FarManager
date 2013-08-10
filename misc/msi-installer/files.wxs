@@ -1070,6 +1070,12 @@
           <Component Id="panelsort.lua" Guid="$(var.Guid.panelsort.lua)" Win64="$(var.Win64)">
             <File Id="panelsort.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\panelsort.lua" />
           </Component>
+          <Component Id="winapi.lua" Guid="$(var.Guid.winapi.lua)" Win64="$(var.Win64)">
+            <File Id="winapi.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\winapi.lua" />
+          </Component>
+          <Component Id="farapi.lua" Guid="$(var.Guid.farapi.lua)" Win64="$(var.Win64)">
+            <File Id="farapi.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\farapi.lua" />
+          </Component>
           <Component Id="lm_eng.lng" Guid="$(var.Guid.lm_eng.lng)" Win64="$(var.Win64)">
             <File Id="lm_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_eng.lng" />
           </Component>

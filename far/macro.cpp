@@ -2616,7 +2616,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				Data->Values[2].Type==FMVT_BOOLEAN && Data->Values[3].Type==FMVT_STRING)
 			{
 				Panel *panel = Global->CtrlObject->Cp()->ActivePanel;
-				if (panel && Data->Values[0].Double == 0)
+				if (panel && Data->Values[0].Double == 1)
 					panel = Global->CtrlObject->Cp()->GetAnotherPanel(panel);
 
 				if (panel)

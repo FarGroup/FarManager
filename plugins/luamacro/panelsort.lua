@@ -1,22 +1,67 @@
 local ffi = require "ffi"
-require "far2.ffi.farapi"
-local C = ffi.C
-local sorts = require "sorts"
 
-local F=far.Flags
+-- shellsort [ http://lua-users.org/wiki/LuaSorting ]
+-- Written by Rici Lake. The author disclaims all copyright and offers no warranty.
+-- For convenience, shellsort returns its first argument.
+
+local incs = { 1391376,
+               463792, 198768, 86961, 33936,
+               13776, 4592, 1968, 861, 336,
+               112, 48, 21, 7, 3, 1 }
+
+local function shellsort(t, n, before)
+  for _, h in ipairs(incs) do
+    for i = h + 1, n do
+      local v = t[i-1]
+      for j = i - h, 1, -h do
+        local testval = t[j-1]
+        if not before(v, testval) then break end
+        t[i-1] = testval; i = j
+      end
+      t[i-1] = v
+    end
+  end
+  return t
+end
+
+-- qsort [ extracted from Lua 5.1 distribution (file /test/sort.lua) ]
+local function qsort(x,l,u,f)
+  if l<u then
+    local m=math.random(u-(l-1))+l-1	-- choose a random pivot in range l..u
+    x[l],x[m]=x[m],x[l]			-- swap pivot to first position
+    local t=x[l]				-- pivot value
+    m=l
+    local i=l+1
+    while i<=u do
+      -- invariant: x[l+1..m] < t <= x[m+1..i-1]
+      if f(x[i],t) then
+        m=m+1
+        x[m],x[i]=x[i],x[m]		-- swap x[i] and x[m]
+      end
+      i=i+1
+    end
+    x[l],x[m]=x[m],x[l]			-- swap pivot to a valid place
+    -- x[l+1..m-1] < x[m] <= x[m+1..u]
+    qsort(x,l,m-1,f)
+    qsort(x,m+1,u,f)
+  end
+end
+
+local C = ffi.C
+local F = far.Flags
 local SM_UNSORTED,SM_NAME,SM_EXT,SM_FULLNAME = F.SM_UNSORTED,F.SM_NAME,F.SM_EXT,F.SM_FULLNAME
-local PPIF_SELECTED=F.PPIF_SELECTED
-local PPIF_PROCESSDESCR=F.PPIF_PROCESSDESCR
-local FILE_ATTRIBUTE_DIRECTORY=0x00000010
-local MCODE_F_SETCUSTOMSORTMODE=0x80C68
-local band=bit.band -- 32 bits, be careful
-local tonumber=tonumber
+local PPIF_SELECTED = F.PPIF_SELECTED
+local PPIF_PROCESSDESCR = F.PPIF_PROCESSDESCR
+local FILE_ATTRIBUTE_DIRECTORY = 0x00000010
+local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
+local band = bit.band -- 32 bits, be careful
+local tonumber = tonumber
 
 local CustomSortModes = {} -- key=integer, value=function
 
 -- called from user script
 local function SetCustomSortMode (whatpanel, nMode, fCompare, bInvertByDefault, sIndicator)
-  assert(whatpanel==0 or whatpanel==1)
+  whatpanel = whatpanel==1 and 1 or 0
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
   assert(type(fCompare)=="function")
   assert(type(sIndicator)=="string")
@@ -41,11 +86,6 @@ ffi.cdef[[
     int                         ListCaseSensitiveSort;
     HANDLE                      hSortPlugin;
   } CustomSort;
-
-  size_t wcslen(const wchar_t*);
-  int wcscmp(const wchar_t*,const wchar_t*);
-  int _wcsicmp(const wchar_t*,const wchar_t*);
-  int MessageBoxW(void*,const wchar_t*,const wchar_t*,int);
 ]]
 
 local function Utf16Buf (str)
@@ -113,14 +153,12 @@ local function SortPanelItems (params)
     ----------------------------------------------------------------------------
     if params.RevertSorting ~= 0 then pi1,pi2 = pi2,pi1 end
 
-    --return C.wcslen(pi1.FileName) < C.wcslen(pi2.FileName)
-    --return C._wcsicmp(pi1.FileName, pi2.FileName) < 0
     return fCompare(pi1,pi2)
   end
 
-  sorts.shellsort(params.Data, Before, params.DataSize)
-  --sorts.qsort(params.Data, 0, params.DataSize-1, Before)
-  --sorts.selectionsort(params.Data, params.DataSize, Before)
+  shellsort(params.Data, tonumber(params.DataSize), Before)
+  -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
+
   return true
 end
 
