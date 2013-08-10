@@ -580,9 +580,9 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585324926
-mtime=3585327622
+mtime=3585328210
 <article>
-#_SetCustomSortMode (whatpanel, nMode, fCompare, bInvertByDefault, sIndicator)
+#_Panel.SetCustomSortMode (whatpanel, nMode, fCompare, bInvertByDefault, sIndicator)
 #_
 #_**ѕараметры:**
 #_  whatpanel:         number   (0=активна€ панель, 1=пассивна€ панель)
