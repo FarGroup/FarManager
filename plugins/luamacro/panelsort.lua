@@ -27,20 +27,20 @@ end
 -- qsort [ extracted from Lua 5.1 distribution (file /test/sort.lua) ]
 local function qsort(x,l,u,f)
   if l<u then
-    local m=math.random(u-(l-1))+l-1	-- choose a random pivot in range l..u
-    x[l],x[m]=x[m],x[l]			-- swap pivot to first position
-    local t=x[l]				-- pivot value
+    local m=math.random(u-(l-1))+l-1 -- choose a random pivot in range l..u
+    x[l],x[m]=x[m],x[l] -- swap pivot to first position
+    local t=x[l]        -- pivot value
     m=l
     local i=l+1
     while i<=u do
       -- invariant: x[l+1..m] < t <= x[m+1..i-1]
       if f(x[i],t) then
         m=m+1
-        x[m],x[i]=x[i],x[m]		-- swap x[i] and x[m]
+        x[m],x[i]=x[i],x[m]  -- swap x[i] and x[m]
       end
       i=i+1
     end
-    x[l],x[m]=x[m],x[l]			-- swap pivot to a valid place
+    x[l],x[m]=x[m],x[l]      -- swap pivot to a valid place
     -- x[l+1..m-1] < x[m] <= x[m+1..u]
     qsort(x,l,m-1,f)
     qsort(x,m+1,u,f)
@@ -124,20 +124,20 @@ local function SortPanelItems (params)
       return false
     end
     ----------------------------------------------------------------------------
-		if params.ListSortMode == SM_UNSORTED then
-			if params.ListSelectedFirst ~= 0 then
+    if params.ListSortMode == SM_UNSORTED then
+      if params.ListSelectedFirst ~= 0 then
         local s1,s2 = band(tonumber(pi1.Flags),PPIF_SELECTED), band(tonumber(pi2.Flags),PPIF_SELECTED)
         if s1 ~= s2 then return s1 > s2 end --> TODO: fix in Far
       end
       if params.RevertSorting ~= 0 then pi1,pi2 = pi2,pi1 end
-			return pi1.Reserved[0] < pi2.Reserved[0] -- Reserved[0] contains 'Position'
-		end
+      return pi1.Reserved[0] < pi2.Reserved[0] -- Reserved[0] contains 'Position'
+    end
     ----------------------------------------------------------------------------
-		if params.ListDirectoriesFirst then
-			local a1,a2 = band(tonumber(pi1.FileAttributes), FILE_ATTRIBUTE_DIRECTORY),
+    if params.ListDirectoriesFirst then
+      local a1,a2 = band(tonumber(pi1.FileAttributes), FILE_ATTRIBUTE_DIRECTORY),
                     band(tonumber(pi2.FileAttributes), FILE_ATTRIBUTE_DIRECTORY)
       if a1 ~= a2 then return a1 > a2 end
-		end
+    end
     ----------------------------------------------------------------------------
     if params.ListSelectedFirst ~= 0 then
       local s1,s2 = band(tonumber(pi1.Flags),PPIF_SELECTED), band(tonumber(pi2.Flags),PPIF_SELECTED)
