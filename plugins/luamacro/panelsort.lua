@@ -99,6 +99,7 @@ local DOTS = Utf16Buf("..")
 
 -- called from Far
 local function SortPanelItems (params)
+  jit.flush()
   params = ffi.cast("CustomSort*", params)
   local fCompare = CustomSortModes[tonumber(params.ListSortMode)]
   if not fCompare then return end
@@ -151,9 +152,13 @@ local function SortPanelItems (params)
       if pi1.Reserved[1] ~= pi2.Reserved[1] then return pi1.Reserved[1] < pi2.Reserved[1] end
     end
     ----------------------------------------------------------------------------
-    if params.RevertSorting ~= 0 then pi1,pi2 = pi2,pi1 end
-
-    return fCompare(pi1,pi2)
+    local r = fCompare(pi1,pi2)
+    if r ~= 0 then
+      if params.RevertSorting ~= 0 then r = -r end
+      return r < 0
+    else
+      return C._wcsicmp(pi1.FileName,pi2.FileName) < 0
+    end
   end
 
   shellsort(params.Data, tonumber(params.DataSize), Before)

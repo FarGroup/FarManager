@@ -580,7 +580,7 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585324926
-mtime=3585328210
+mtime=3585345979
 <article>
 #_Panel.SetCustomSortMode (whatpanel, nMode, fCompare, bInvertByDefault, sIndicator)
 #_
@@ -588,9 +588,10 @@ mtime=3585328210
 #_  whatpanel:         number   (0=активная панель, 1=пассивная панель)
 #_  nMode:             number   (режим сортировки, целое число >=100 и <=0x7FFFFFFF)
 #_  fCompare:          function (получает 2 аргумента типа PluginPanelItem;
-#_                               если функция считает, что 1-й элемент должен оказаться
-#_                               после прямой сортировки выше 2-го, возвращает true,
-#_                               иначе - false).
+#_                       если функция считает, что 1-й элемент должен оказаться после
+#_                       прямой сортировки выше 2-го, возвращает отрицательное число,
+#_                       если ниже - положительное, а если элементы по критерию
+#_                       сортировки равны - возвращает ноль).
 #_  bInvertByDefault:  boolean  (включать ли по умолчанию инверсную сортировку)
 #_  sIndicator:        string   (индикация режима сортировки на панели, два символа:
 #_                               первый - для прямой, второй - для обратной сортировки)
@@ -612,7 +613,7 @@ mtime=3585328210
 #_    action=function()
 #_      Panel.SetCustomSortMode (0, 100,
 #_        function(pi1,pi2)
-#_          return C.wcslen(pi1.FileName) < C.wcslen(pi2.FileName)
+#_          return C.wcslen(pi1.FileName) - C.wcslen(pi2.FileName)
 #_        end,
 #_        false, "юЮ")
 #_    end;
