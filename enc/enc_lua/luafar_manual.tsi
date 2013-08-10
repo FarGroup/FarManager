@@ -2366,6 +2366,17 @@ mtime=3511507793
 </article>
 </node>
 <node>
+id=490
+lv=2
+dt=Text
+nm=far.CreateUserControl
+ctime=3585338276
+mtime=3585338455
+<article>
+#_**NOT DOCUMENTED**
+</article>
+</node>
+<node>
 id=20
 lv=2
 dt=Text
