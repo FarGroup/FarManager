@@ -3,6 +3,80 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 10.08.2013 19:41:07 +0200 - build 3607
+
+1. Continuation of 3604: custom sorting in panels is now working.
+   See the description of Panel.SetCustomSortMode function in macroapi_manual.chm.
+
+drkns 10.08.2013 18:58:13 +0200 - build 3606
+
+1. Continuation of 3596. BOOL Initialize(GlobalInfo*) (called when loading) and 
+   void Free(ExitInfo*) functions  (called when unloading) are added for adapters.
+   Both must be present, fill GlobalInfo properly in Initialize.
+
+drkns 09.08.2013 22:32:07 +0200 - build 3605
+
+1. Plugins loading correction.
+
+2. Correction of panel caption drawing.
+
+3. Uninitialized variables in copier.
+
+shmuel 09.08.2013 20:01:49 +0200 - build 3604
+
+1. Custom sorting in panels. Still non-operating.
+
+w17 09.08.2013 11:15:48 +0400 - build 3603
+
+1. Continuation of 3602. GetPathRoot worked incorrectly for mountpoints in XP
+
+w17 09.08.2013 04:54:02 +0400 - build 3602
+
+1. M#2461: auto-create directory on the file system mounted via NTFS folder
+
+drkns 08.08.2013 21:19:33 +0200 - build 3601
+
+1. Correction of 3597.
+
+w17 08.08.2013 17:46:03 +0400 - build 3600
+
+1. Codepage names and typo (from Denis)
+
+drkns 08.08.2013 14:46:51 +0200 - build 3599
+
+1. URL open from help could malfunction in some cases.
+
+drkns 07.08.2013 23:21:18 +0200 - build 3598
+
+1. far:config poor handling of 64 bit numbers.
+
+2. Continuing to remove FormatString.
+
+drkns 07.08.2013 01:40:10 +0200 - build 3597
+
+1. TPreRedrawFunc is partially redone. Storing pointers to anything is ok, but data
+   addressed by those pointers can have vanished to the moment of call.
+
+2. Removing FormatString.
+
+drkns 06.08.2013 19:28:53 +0200 - build 3596
+
+1. Implementing plugin adapters.
+   See http://forum.farmanager.com/viewtopic.php?t=8114 for details, the description of interface is also there.
+
+shmuel 06.08.2013 11:44:50 +0200 - build 3595
+
+1. In "Unsorted" panel sorting mode, when "Show selected first" option was on, selected files
+   were shown last instead of first.
+
+w17 05.08.2013 14:27:36 +0400 - build 3594
+
+1. Missing menu item for Panel.Text.Highlight config parameter in color settings menu (from ccaid)
+
+w17 05.08.2013 09:33:40 +0400 - build 3593
+
+1. Directories were deleted to recycle bin with Alt-Del
+
 drkns 04.08.2013 16:11:41 +0200 - build 3592
 
 1. Resource leak on cancelling the plugin choice menu (CtrlPgDn).
