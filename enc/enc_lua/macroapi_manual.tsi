@@ -548,7 +548,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3585324991
+mtime=3585499576
 <article>
 #_**Panel** - таблица со следующими полями:
 #_
@@ -560,6 +560,7 @@ mtime=3585324991
 #_
 #_  FAttr
 #_  FExist
+#_  InstallCustomSortMode
 #_  Item
 #_  Select
 #_  SetCustomSortMode
@@ -569,7 +570,8 @@ mtime=3585324991
 #_
 #_@@@
 #_<lua> Links = {
-#_  SetCustomSortMode="80.html",
+#_  InstallCustomSortMode="80.html",
+#_  SetCustomSortMode="81.html",
 #_} </lua>
 #_
 </article>
@@ -578,14 +580,13 @@ mtime=3585324991
 id=80
 lv=3
 dt=Text
-nm=SetCustomSortMode
+nm=InstallCustomSortMode
 ctime=3585324926
-mtime=3585478396
+mtime=3585501302
 <article>
-#_Panel.SetCustomSortMode (whatpanel, Mode, Settings)
+#_Panel.InstallCustomSortMode (Mode, Settings)
 #_
 #_**Параметры:**
-#_  whatpanel:    0=активная панель, 1=пассивная панель
 #_  Mode:         режим сортировки, целое число >=100 и <=0x7FFFFFFF
 #_  Settings:     таблица, содержит следующие поля:
 #_                  *Compare* (обязательное поле):
@@ -605,8 +606,16 @@ mtime=3585478396
 #_                     сортируются по имени. Если это нежелательно, установите данное поле
 #_                     в true.
 #_
+#_                Если значение *Settings* равно nil или false, это означает деинсталляцию
+#_                (удаление) данного режима сортировки.
+#_
 #_**Возвращает:**
 #_  Ничего
+#_
+#_**Описание:**
+#_  Функция устанавливает (или удаляет) кастомный режим сортировки для панелей.
+#_  Если режим установлен, сортировка может быть произведена посредством вызова
+#_  функции Panel.SetCustomSortMode.
 #_
 #_**Функция Compare**
 #_  result = Compare (Pi1, Pi2, FarOptions)
@@ -629,27 +638,61 @@ mtime=3585478396
 #_  с использованием LuaJIT FFI требует предварительного освоения документации.
 #_
 #_**Пример:**
-#_  -- Сортировка по длине имени файла.
+#_  *-- Установить сортировку по длине имени файла.*
 #_  local ffi = require "ffi"
 #_  local C = ffi.C
+#_  Panel.InstallCustomSortMode (100,
+#_    { 
+#_      Compare = function(p1, p2, opt)
+#_        return C.wcslen(p1.FileName) - C.wcslen(p2.FileName)
+#_      end;
+#_      Indicator = "юЮ";
+#_    })
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["документации"]="http://luajit.org/ext_ffi.html",
+#_  PluginPanelItem="http://api.farmanager.com/ru/structures/pluginpanelitem.html",
+#_  ["Panel.SetCustomSortMode"]="81.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=81
+lv=3
+dt=Text
+nm=SetCustomSortMode
+ctime=3585499487
+mtime=3585501278
+<article>
+#_Panel.SetCustomSortMode (Mode, whatpanel)
+#_
+#_**Параметры:**
+#_  Mode:         режим сортировки, целое число >=100 и <=0x7FFFFFFF
+#_  whatpanel:    0=активная панель, 1=пассивная панель
+#_
+#_**Возвращает:**
+#_  Ничего
+#_
+#_**Описание:**
+#_  Если заданный режим сортировки установлен (см. Panel.InstallCustomSortMode),
+#_  то будет произведена соответствующая ему сортировка элементов в заданной панели.
+#_  Иначе не будет произведено никаких действий.
+#_
+#_**Пример:**
+#_  *-- Произвести кастомную сортировку в активной панели.*
 #_  Macro {
 #_    description="Sort files by their name length";
 #_    area="Shell"; key="CtrlShiftF1";
-#_    action=function()
-#_      Panel.SetCustomSortMode (0, 100,
-#_        { 
-#_          Compare = function(p1, p2, opt)
-#_            return C.wcslen(p1.FileName) - C.wcslen(p2.FileName)
-#_          end;
-#_          Indicator = "юЮ";
-#_        })
-#_    end;
+#_    action=function() Panel.SetCustomSortMode(100,0) end;
 #_  }
 #_
 #_@@@
 #_<lua> Links = {
 #_  ["документации"]="http://luajit.org/ext_ffi.html",
 #_  PluginPanelItem="http://api.farmanager.com/ru/structures/pluginpanelitem.html",
+#_  ["Panel.InstallCustomSortMode"]="80.html",
 #_} </lua>
 #_
 </article>

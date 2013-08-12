@@ -55,18 +55,29 @@ local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
 local band = bit.band -- 32 bits, be careful
 local tonumber = tonumber
 
-local CustomSortModes = {} -- key=integer, value=function
+local CustomSortModes = {} -- key=integer, value=table
 
 -- called from user script
-local function SetCustomSortMode (whatpanel, nMode, Settings)
-  whatpanel = whatpanel==1 and 1 or 0
+local function InstallCustomSortMode (nMode, Settings)
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
-  assert(type(Settings)=="table")
-  assert(type(Settings.Compare)=="function")
-  local InvertByDefault = not not Settings.InvertByDefault
-  local Indicator = type(Settings.Indicator)=="string" and Settings.Indicator or ""
-  CustomSortModes[nMode] = Settings
-  return far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, InvertByDefault, Indicator)
+  if Settings then
+    assert(type(Settings)=="table")
+    assert(type(Settings.Compare)=="function")
+    CustomSortModes[nMode] = Settings
+  else
+    CustomSortModes[nMode] = nil
+  end
+end
+
+-- called from user script
+local function SetCustomSortMode (nMode, whatpanel)
+  local Settings = CustomSortModes[nMode]
+  if Settings then
+    whatpanel = whatpanel==1 and 1 or 0
+    local InvertByDefault = not not Settings.InvertByDefault
+    local Indicator = type(Settings.Indicator)=="string" and Settings.Indicator or ""
+    far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, InvertByDefault, Indicator)
+  end
 end
 
 ffi.cdef[[
@@ -193,5 +204,6 @@ end
 
 return {
   SortPanelItems=SortPanelItems,
+  InstallCustomSortMode=InstallCustomSortMode,
   SetCustomSortMode=SetCustomSortMode,
 }
