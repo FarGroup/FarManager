@@ -100,11 +100,12 @@ local DOTS = Utf16Buf("..")
 -- called from Far
 local function SortPanelItems (params)
 --local timeStart = Far.UpTime
---jit.flush()
+  jit.flush()
   params = ffi.cast("CustomSort*", params)
   local tSettings = CustomSortModes[tonumber(params.SortMode)]
   if not tSettings then return end
   local Compare = tSettings.Compare
+  local SortEqualsByName = not tSettings.NoSortEqualsByName
 
   local pi1 = ffi.new("struct PluginPanelItem")
   local pi2 = ffi.new("struct PluginPanelItem")
@@ -158,8 +159,6 @@ local function SortPanelItems (params)
       return false
     end
     ----------------------------------------------------------------------------
-    -- return pi1.Reserved[0] < pi2.Reserved[0] -- Reserved[0] contains 'Position'
-    ----------------------------------------------------------------------------
     if DirectoriesFirst then
       local a1,a2 = band(tonumber(pi1.FileAttributes), FILE_ATTRIBUTE_DIRECTORY),
                     band(tonumber(pi2.FileAttributes), FILE_ATTRIBUTE_DIRECTORY)
@@ -181,7 +180,7 @@ local function SortPanelItems (params)
       if RevertSorting then r = -r end
       return r < 0
     else
-      return C._wcsicmp(pi1.FileName,pi2.FileName) < 0
+      return SortEqualsByName and C._wcsicmp(pi1.FileName,pi2.FileName) < 0
     end
   end
 

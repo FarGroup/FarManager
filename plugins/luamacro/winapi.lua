@@ -58,30 +58,25 @@ typedef struct tagRECT {
   LONG bottom;
 } RECT;
 
-typedef struct _SECURITY_ATTRIBUTES {
-  DWORD nLength;
-  VOID* lpSecurityDescriptor;
-  BOOL bInheritHandle;
-} SECURITY_ATTRIBUTES;
-
-enum { MAX_PATH=260 };
-
-typedef struct _WIN32_FIND_DATAW {
-  DWORD dwFileAttributes;
-  FILETIME ftCreationTime;
-  FILETIME ftLastAccessTime;
-  FILETIME ftLastWriteTime;
-  DWORD nFileSizeHigh;
-  DWORD nFileSizeLow;
-  DWORD dwReserved0;
-  DWORD dwReserved1;
-  WCHAR cFileName[MAX_PATH];
-  WCHAR cAlternateFileName[14];
-} WIN32_FIND_DATAW;
-
-HANDLE FindFirstFileW (const wchar_t*, WIN32_FIND_DATAW*);
-BOOL FindNextFileW (HANDLE, WIN32_FIND_DATAW*);
-BOOL FindClose (HANDLE);
+enum {
+  FILE_ATTRIBUTE_READONLY            = 0x00000001,
+  FILE_ATTRIBUTE_HIDDEN              = 0x00000002,
+  FILE_ATTRIBUTE_SYSTEM              = 0x00000004,
+  FILE_ATTRIBUTE_DIRECTORY           = 0x00000010,
+  FILE_ATTRIBUTE_ARCHIVE             = 0x00000020,
+  FILE_ATTRIBUTE_DEVICE              = 0x00000040,
+  FILE_ATTRIBUTE_NORMAL              = 0x00000080,
+  FILE_ATTRIBUTE_TEMPORARY           = 0x00000100,
+  FILE_ATTRIBUTE_SPARSE_FILE         = 0x00000200,
+  FILE_ATTRIBUTE_REPARSE_POINT       = 0x00000400,
+  FILE_ATTRIBUTE_COMPRESSED          = 0x00000800,
+  FILE_ATTRIBUTE_OFFLINE             = 0x00001000,
+  FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000,
+  FILE_ATTRIBUTE_ENCRYPTED           = 0x00004000,
+  FILE_ATTRIBUTE_VIRTUAL             = 0x00010000,
+  FILE_ATTRIBUTE_VALID_FLAGS         = 0x00017fb7,
+  FILE_ATTRIBUTE_VALID_SET_FLAGS     = 0x000031a7,
+};
 
 size_t wcslen(const wchar_t*);
 int wcscmp(const wchar_t*, const wchar_t*);
