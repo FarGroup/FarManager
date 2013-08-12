@@ -1008,9 +1008,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		strCmdLine.erase(0, 1);
 	}
 
-	auto IsCommand = [&strCmdLine](const string& cmd)
+	auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
 	{
-		return !StrCmpNI(strCmdLine.data(), cmd.data(), static_cast<int>(cmd.size())) && (strCmdLine.size() == cmd.size() || strCmdLine[cmd.size()] == L'/' || IsSpace(strCmdLine[cmd.size()]));
+		size_t n = cmd.size();
+		return (!StrCmpNI(strCmdLine.data(), cmd.data(), static_cast<int>(n))
+		 && (n==strCmdLine.size() || nullptr != wcschr(L"/ \t",strCmdLine[n]) || (bslash && strCmdLine[n]==L'\\')));
 	};
 
 	if (!SeparateWindow && strCmdLine.size() == 2 && strCmdLine[1]==L':')
@@ -1024,7 +1026,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// SET [переменная=[строка]]
-	else if (IsCommand(L"SET"))
+	else if (IsCommand(L"SET",false))
 	{
 		size_t pos;
 		strCmdLine.erase(0, 3);
@@ -1092,7 +1094,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// REM все остальное
-	else if (IsCommand(L"REM"))
+	else if (IsCommand(L"REM",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+3))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1101,7 +1103,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	{
 		return TRUE;
 	}
-	else if (IsCommand(L"CLS"))
+	else if (IsCommand(L"CLS",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+3))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1112,7 +1114,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// PUSHD путь | ..
-	else if (IsCommand(L"PUSHD"))
+	else if (IsCommand(L"PUSHD",false))
 	{
 		strCmdLine.erase(0, 5);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1137,7 +1139,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	else if (IsCommand(L"POPD"))
+	else if (IsCommand(L"POPD",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1159,7 +1161,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// CLRD
-	else if (IsCommand(L"CLRD"))
+	else if (IsCommand(L"CLRD",false))
 	{
 		DECLTYPE(ppstack)().swap(ppstack);
 		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
@@ -1171,7 +1173,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	else if (IsCommand(L"CHCP"))
+	else if (IsCommand(L"CHCP",false))
 	{
 		strCmdLine.erase(0, 4);
 
@@ -1211,7 +1213,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE;
 		}
 	}
-	else if (IsCommand(L"IF"))
+	else if (IsCommand(L"IF",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+2))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1231,9 +1233,9 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return FALSE;
 	}
 	// пропускаем обработку, если нажат Shift-Enter
-	else if (!SeparateWindow && (IsCommand(L"CD") || IsCommand(L"CHDIR")))
+	else if (!SeparateWindow && (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true)))
 	{
-		int Length = IsCommand(L"CD")? 2 : 5;
+		int Length = IsCommand(L"CD",true)? 2 : 5;
 
 		strCmdLine.erase(0, Length);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1252,7 +1254,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		IntChDir(strCmdLine,Length==5,SilentInt);
 		return TRUE;
 	}
-	else if (IsCommand(L"EXIT"))
+	else if (IsCommand(L"EXIT",false))
 	{
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // отдадимся COMSPEC`у

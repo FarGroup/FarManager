@@ -42,7 +42,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 {
 	const struct OpenMacroPluginInfo* om_info = (const struct OpenMacroPluginInfo*)Info->Data;
 	int calltype = om_info->CallType;
-	int argcount = om_info->Data->Count; // store Data->Count: 'Data' will be invalid after FL_PushParams()
+	int argcount = (int)om_info->Data->Count; // store Data->Count: 'Data' will be invalid after FL_PushParams()
 
 	if (!IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
 	{
