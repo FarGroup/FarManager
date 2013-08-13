@@ -25,7 +25,8 @@ function bcolorer {
   cp -f misc/* ../outfinalnew${BIT}/Plugins/$PLUGIN/bin
 
   pushd ../Colorer-schemes || return 1
-  cp -Rf base ../outfinalnew${BIT}/Plugins/$PLUGIN/
+  mkdir -p ../outfinalnew${BIT}/Plugins/$PLUGIN/base
+  cp -Rf build/basefar/* ../outfinalnew${BIT}/Plugins/$PLUGIN/base
   popd
 }
 
@@ -36,8 +37,8 @@ git pull || exit 1
 #neweset ubuntu ant 1.8.2 has a bug and can't find the resolver, 1.8.4 works fine
 PATH=~/apache-ant-1.8.4/bin:$PATH
 export PATH
-./build.sh farbase.clean
-./build.sh farbase &> ../logs/colorerschemes || exit 1
+./build.sh base.far.clean
+./build.sh base.far &> ../logs/colorerschemes || exit 1
 
 cd ..
 
