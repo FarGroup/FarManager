@@ -33,8 +33,6 @@ function bcolorer {
 cd Colorer-schemes || exit 1
 git pull || exit 1
 
-chmod +x ./build.sh
-
 #neweset ubuntu ant 1.8.2 has a bug and can't find the resolver, 1.8.4 works fine
 PATH=~/apache-ant-1.8.4/bin:$PATH
 export PATH
