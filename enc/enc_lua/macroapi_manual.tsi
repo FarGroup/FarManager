@@ -548,7 +548,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3585578061
+mtime=3585600014
 <article>
 #_**Panel** - таблица со следующими полями:
 #_
@@ -566,12 +566,12 @@ mtime=3585578061
 #_  SetPos
 #_  SetPosIdx
 #_  CustomSortMenu
-#_  InstallCustomSortMode
+#_  LoadCustomSortMode
 #_  SetCustomSortMode
 #_
 #_@@@
 #_<lua> Links = {
-#_  InstallCustomSortMode="80.html",
+#_  LoadCustomSortMode="80.html",
 #_  SetCustomSortMode="81.html",
 #_  CustomSortMenu="82.html",
 #_} </lua>
@@ -584,7 +584,7 @@ lv=3
 dt=Text
 nm=CustomSortMenu
 ctime=3585577926
-mtime=3585578486
+mtime=3585600222
 <article>
 #_Panel.CustomSortMenu ()
 #_
@@ -595,7 +595,7 @@ mtime=3585578486
 #_  Ничего
 #_
 #_**Описание:**
-#_  Функция выводит меню со списком имеющихся пользовательских сортировок.
+#_  Функция выводит меню со списком загруженных пользовательских сортировок.
 #_  Нажатие Enter устанавливает выбранный режим сортировки на активной панели,
 #_  нажатие CtrlEnter - на пассивной.
 #_
@@ -605,11 +605,11 @@ mtime=3585578486
 id=80
 lv=3
 dt=Text
-nm=InstallCustomSortMode
+nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3585578805
+mtime=3585600481
 <article>
-#_Panel.InstallCustomSortMode (Mode, Settings)
+#_Panel.LoadCustomSortMode (Mode, Settings)
 #_
 #_**Параметры:**
 #_  Mode:         режим сортировки, целое число >=100 и <=0x7FFFFFFF
@@ -634,16 +634,16 @@ mtime=3585578805
 #_                     Текстовое описание режима сортировки. Если данное поле задано,
 #_                     оно используется в меню (см. Panel.CustomSortMenu).
 #_
-#_                Если значение *Settings* равно nil или false, это означает деинсталляцию
+#_                Если значение *Settings* равно nil или false, это означает выгрузку
 #_                (удаление) данного режима сортировки.
 #_
 #_**Возвращает:**
 #_  Ничего
 #_
 #_**Описание:**
-#_  Функция устанавливает (или удаляет) пользовательский режим сортировки для панелей.
-#_  Если режим установлен, сортировка может быть произведена посредством вызова
-#_  функции Panel.SetCustomSortMode.
+#_  Функция загружает (или выгружает) пользовательский режим сортировки для панелей.
+#_  Если режим загружен, он может быть установлен в панели посредством вызова функции
+#_  Panel.SetCustomSortMode.
 #_
 #_**Функция Compare**
 #_  result = Compare (Pi1, Pi2, FarOptions)
@@ -666,10 +666,10 @@ mtime=3585578805
 #_  с использованием LuaJIT FFI требует предварительного освоения документации.
 #_
 #_**Пример:**
-#_  *-- Установить сортировку по длине имени файла.*
+#_  *-- Загрузить сортировку по длине имени файла.*
 #_  local ffi = require "ffi"
 #_  local C = ffi.C
-#_  Panel.InstallCustomSortMode (100,
+#_  Panel.LoadCustomSortMode (100,
 #_    { 
 #_      Compare = function(p1, p2, opt)
 #_        return C.wcslen(p1.FileName) - C.wcslen(p2.FileName)
@@ -693,7 +693,7 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3585578410
+mtime=3585600342
 <article>
 #_Panel.SetCustomSortMode (Mode, whatpanel)
 #_
@@ -705,12 +705,12 @@ mtime=3585578410
 #_  Ничего
 #_
 #_**Описание:**
-#_  Если заданный режим сортировки установлен (см. Panel.InstallCustomSortMode),
-#_  то будет произведена соответствующая ему сортировка элементов в заданной панели.
+#_  Если заданный режим сортировки загружен (см. Panel.LoadCustomSortMode),
+#_  то будет произведена установка этого режима сортировки в заданной панели.
 #_  Иначе не будет произведено никаких действий.
 #_
 #_**Пример:**
-#_  *-- Произвести заданную пользовательскую сортировку в активной панели.*
+#_  *-- Установить заданную пользовательскую сортировку в активной панели.*
 #_  Macro {
 #_    description="Sort files by their name length";
 #_    area="Shell"; key="CtrlShiftF1";
@@ -721,7 +721,7 @@ mtime=3585578410
 #_<lua> Links = {
 #_  ["документации"]="http://luajit.org/ext_ffi.html",
 #_  PluginPanelItem="http://api.farmanager.com/ru/structures/pluginpanelitem.html",
-#_  ["Panel.InstallCustomSortMode"]="80.html",
+#_  ["Panel.LoadCustomSortMode"]="80.html",
 #_} </lua>
 #_
 </article>

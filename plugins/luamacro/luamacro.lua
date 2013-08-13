@@ -336,7 +336,7 @@ do
 
     panelsort = RunPluginFile("panelsort.lua", {M=M})
     if not panelsort then return end
-    Panel.InstallCustomSortMode = panelsort.InstallCustomSortMode
+    Panel.LoadCustomSortMode = panelsort.LoadCustomSortMode
     Panel.SetCustomSortMode = panelsort.SetCustomSortMode
     Panel.CustomSortMenu = panelsort.CustomSortMenu
   end

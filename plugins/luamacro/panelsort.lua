@@ -58,7 +58,7 @@ local function qsort(x,l,u,f)
   end
 end
 
-local function InstallCustomSortMode (nMode, Settings)
+local function LoadCustomSortMode (nMode, Settings)
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
   if Settings then
     assert(type(Settings)=="table")
@@ -200,14 +200,20 @@ local function SortPanelItems (params)
       if pi1.Reserved[1] ~= pi2.Reserved[1] then return pi1.Reserved[1] < pi2.Reserved[1] end
     end
     ----------------------------------------------------------------------------
+    -- if SortDirByName then
+    --   if 0 ~= band(tonumber(pi1.FileAttributes), tonumber(pi2.FileAttributes), FILE_ATTRIBUTE_DIRECTORY) then
+    --     local r = C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
+    --     if r==1 or r==3 then return r==1 end
+    --   end
+    -- end
+    ----------------------------------------------------------------------------
     local r = Compare(pi1, pi2, outParams)
     if r ~= 0 then
       if RevertSorting then r = -r end
       return r < 0
     else
       if SortEqualsByName then
-        r = C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
-        if r ~= 0 then return r < 2 end
+        return 1 == C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
       end
     end
     return false
@@ -222,7 +228,7 @@ end
 
 return {
   SortPanelItems=SortPanelItems,
-  InstallCustomSortMode=InstallCustomSortMode,
+  LoadCustomSortMode=LoadCustomSortMode,
   SetCustomSortMode=SetCustomSortMode,
   CustomSortMenu=CustomSortMenu,
 }
