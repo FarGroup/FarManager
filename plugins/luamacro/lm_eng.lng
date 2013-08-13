@@ -22,3 +22,7 @@
 // macro browser messages
 "No file name available"
 "File not found"
+
+// custom panel sort
+"Sort mode "
+"Custom panel sort"

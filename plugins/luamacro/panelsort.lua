@@ -1,4 +1,15 @@
+local args = ...
+local M = args.M
 local ffi = require "ffi"
+local C = ffi.C
+local F = far.Flags
+local PPIF_SELECTED = F.PPIF_SELECTED
+local FILE_ATTRIBUTE_DIRECTORY = 0x00000010
+local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
+local band = bit.band -- 32 bits, be careful
+local tonumber = tonumber
+
+local CustomSortModes = {} -- key=integer, value=table
 
 -- shellsort [ http://lua-users.org/wiki/LuaSorting ]
 -- Written by Rici Lake. The author disclaims all copyright and offers no warranty.
@@ -47,17 +58,6 @@ local function qsort(x,l,u,f)
   end
 end
 
-local C = ffi.C
-local F = far.Flags
-local PPIF_SELECTED = F.PPIF_SELECTED
-local FILE_ATTRIBUTE_DIRECTORY = 0x00000010
-local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
-local band = bit.band -- 32 bits, be careful
-local tonumber = tonumber
-
-local CustomSortModes = {} -- key=integer, value=table
-
--- called from user script
 local function InstallCustomSortMode (nMode, Settings)
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
   if Settings then
@@ -69,7 +69,6 @@ local function InstallCustomSortMode (nMode, Settings)
   end
 end
 
--- called from user script
 local function SetCustomSortMode (nMode, whatpanel)
   local Settings = CustomSortModes[nMode]
   if Settings then
@@ -77,6 +76,20 @@ local function SetCustomSortMode (nMode, whatpanel)
     local InvertByDefault = not not Settings.InvertByDefault
     local Indicator = type(Settings.Indicator)=="string" and Settings.Indicator or ""
     far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, InvertByDefault, Indicator)
+  end
+end
+
+local function CustomSortMenu()
+  local items, bkeys = {}, {{BreakKey="C+RETURN"}}
+  for k,v in pairs(CustomSortModes) do
+    items[#items+1] = { text=v.Description and tostring(v.Description) or M.PSDefaultMenuItemText..k; Mode=k; }
+  end
+  table.sort(items, function(a,b) return a.Mode < b.Mode end)
+  local r, pos = far.Menu({Title=M.PSMenuTitle}, items, bkeys)
+  if r then
+    if r.BreakKey then SetCustomSortMode(items[pos].Mode, 1)
+    else SetCustomSortMode(r.Mode, 0)
+    end
   end
 end
 
@@ -115,6 +128,7 @@ local function SortPanelItems (params)
   params = ffi.cast("CustomSort*", params)
   local tSettings = CustomSortModes[tonumber(params.SortMode)]
   if not tSettings then return end
+
   local Compare = tSettings.Compare
   local SortEqualsByName = not tSettings.NoSortEqualsByName
 
@@ -191,14 +205,18 @@ local function SortPanelItems (params)
       if RevertSorting then r = -r end
       return r < 0
     else
-      return SortEqualsByName and C._wcsicmp(pi1.FileName,pi2.FileName) < 0
+      if SortEqualsByName then
+        r = C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
+        if r ~= 0 then return r < 2 end
+      end
     end
+    return false
   end
 
   shellsort(params.Data, tonumber(params.DataSize), Before)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
 
---far.Message(Far.UpTime - timeStart)
+--far.Message(Far.UpTime - timeStart) end
   return true
 end
 
@@ -206,4 +224,5 @@ return {
   SortPanelItems=SortPanelItems,
   InstallCustomSortMode=InstallCustomSortMode,
   SetCustomSortMode=SetCustomSortMode,
+  CustomSortMenu=CustomSortMenu,
 }

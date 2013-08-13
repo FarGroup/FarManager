@@ -3,9 +3,6 @@
 
 local ffi = require "ffi"
 
-if pcall(ffi.sizeof, "FFI_WINAPI_DEFINED") then return end
-ffi.cdef "typedef int FFI_WINAPI_DEFINED"
-
 if jit.arch == "x64" then
 ffi.cdef[[
 typedef __int64 INT_PTR;
@@ -40,10 +37,10 @@ typedef void *HANDLE;
 
 typedef struct _GUID
 {
-    unsigned long Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    unsigned char Data4[8];
+  unsigned long Data1;
+  unsigned short Data2;
+  unsigned short Data3;
+  unsigned char Data4[8];
 } GUID;
 
 typedef struct _FILETIME {
@@ -78,10 +75,27 @@ enum {
   FILE_ATTRIBUTE_VALID_SET_FLAGS     = 0x000031a7,
 };
 
+//------------------------------------------------------------------------------
+enum {
+  LOCALE_USER_DEFAULT   = 0x400,
+  LOCALE_SYSTEM_DEFAULT = 0x800,
+};
+
+enum {
+  NORM_IGNORECASE     = 0x00001,
+  NORM_IGNORENONSPACE = 0x00002,
+  NORM_IGNORESYMBOLS  = 0x00004,
+  SORT_STRINGSORT     = 0x01000,
+  NORM_IGNOREKANATYPE = 0x10000,
+  NORM_IGNOREWIDTH    = 0x20000,
+};
+
+int CompareStringW (/*LCID*/ DWORD Locale, DWORD dwCmpFlags, const wchar_t* lpString1, int cchCount1,
+                    const wchar_t* lpString2, int cchCount2);
+//------------------------------------------------------------------------------
+
 size_t wcslen(const wchar_t*);
 int wcscmp(const wchar_t*, const wchar_t*);
 int _wcsicmp(const wchar_t*, const wchar_t*);
 int StrCmpLogicalW(const wchar_t*, const wchar_t*);
-
-int MessageBoxW(void*, const wchar_t*, const wchar_t*, int);
 ]]

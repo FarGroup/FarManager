@@ -17,7 +17,7 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
-local utils, macrobrowser, sorter
+local utils, macrobrowser, panelsort
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -274,7 +274,7 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
     elseif calltype==F.MCT_PANELSORT      then
-      if sorter and sorter.SortPanelItems(...) then return F.MPRT_NORMALFINISH, {} end
+      if panelsort and panelsort.SortPanelItems(...) then return F.MPRT_NORMALFINISH, {} end
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -334,10 +334,11 @@ do
     if not RunPluginFile("winapi.lua") then return end
     if not RunPluginFile("farapi.lua") then return end
 
-    sorter = RunPluginFile("panelsort.lua")
-    if not sorter then return end
-    Panel.InstallCustomSortMode = sorter.InstallCustomSortMode
-    Panel.SetCustomSortMode = sorter.SetCustomSortMode
+    panelsort = RunPluginFile("panelsort.lua", {M=M})
+    if not panelsort then return end
+    Panel.InstallCustomSortMode = panelsort.InstallCustomSortMode
+    Panel.SetCustomSortMode = panelsort.SetCustomSortMode
+    Panel.CustomSortMenu = panelsort.CustomSortMenu
   end
 
   AddCfindFunction()

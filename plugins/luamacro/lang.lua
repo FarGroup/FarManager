@@ -21,6 +21,10 @@ local list = {
   -- macro browser messages
   "MBNoFileNameAvail",
   "MBFileNotFound",
+
+  -- custom panel sort
+  "PSDefaultMenuItemText",
+  "PSMenuTitle",
 }
 
 local GetMsg = far.GetMsg
