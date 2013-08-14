@@ -110,7 +110,6 @@ ffi.cdef[[
     int                         DirectoriesFirst;
     int                         SortMode;
     int                         RevertSorting;
-    int                         ListPanelMode; // currently not used
     int                         NumericSort;
     int                         CaseSensitiveSort;
     HANDLE                      hSortPlugin;
@@ -211,7 +210,7 @@ local function SortPanelItems (params)
     end
     ----------------------------------------------------------------------------
     if SortGroups then
-       -- Reserved[1] contains 'SortGroup'
+       -- Reserved[1] contains 'SortGroup - DEFAULT_SORT_GROUP'
       if pi1.Reserved[1] ~= pi2.Reserved[1] then return pi1.Reserved[1] < pi2.Reserved[1] end
     end
     ----------------------------------------------------------------------------

@@ -118,7 +118,6 @@ struct CustomSort
 	int                  ListDirectoriesFirst;
 	int                  ListSortMode;
 	int                  RevertSorting;
-	int                  ListPanelMode;
 	int                  ListNumericSort;
 	int                  ListCaseSensitiveSort;
 	HANDLE               hSortPlugin;
@@ -148,8 +147,8 @@ static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItem 
 	pi->UserData.FreeData=fi->Callback;
 
 	pi->CRC32=fi->CRC32;
-	pi->Reserved[0]=fi->Position;  //! CHANGED
-	pi->Reserved[1]=fi->SortGroup; //! CHANGED
+	pi->Reserved[0]=fi->Position;                       //! CHANGED
+	pi->Reserved[1]=fi->SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
 	pi->Owner = EmptyToNull(fi->strOwner.data());
 }
 
@@ -608,7 +607,6 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;
 			cs.ListSortMode = SortMode;
 			cs.RevertSorting = RevertSorting?1:0;
-			cs.ListPanelMode = ListPanelMode;
 			cs.ListNumericSort = ListNumericSort;
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
