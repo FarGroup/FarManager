@@ -1,3 +1,7 @@
+shmuel 14.08.2013 15:56:53 +0200 - build 226
+
+1. Временно убираем C.wcscmp из panelsort.lua (LuaJIT, скомпилированный с msvcr100.dll, её не находит).
+
 shmuel 14.08.2013 00:12:38 +0200 - build 225
 
 1. Переименование: Panel.InstallCustomSortMode -> Panel.LoadCustomSortMode.

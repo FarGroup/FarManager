@@ -80,15 +80,20 @@ local function SetCustomSortMode (nMode, whatpanel)
 end
 
 local function CustomSortMenu()
-  local items, bkeys = {}, {{BreakKey="C+RETURN"}}
+  local items, bkeys = {}, {{BreakKey="C+RETURN"},{BreakKey="CS+RETURN"}}
   for k,v in pairs(CustomSortModes) do
     items[#items+1] = { text=v.Description and tostring(v.Description) or M.PSDefaultMenuItemText..k; Mode=k; }
   end
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
   local r, pos = far.Menu({Title=M.PSMenuTitle}, items, bkeys)
   if r then
-    if r.BreakKey then SetCustomSortMode(items[pos].Mode, 1)
-    else SetCustomSortMode(r.Mode, 0)
+    if r.BreakKey == "C+RETURN" then
+      SetCustomSortMode(items[pos].Mode,1)
+    elseif r.BreakKey == "CS+RETURN" then
+      SetCustomSortMode(items[pos].Mode,0)
+      SetCustomSortMode(items[pos].Mode,1)
+    else
+      SetCustomSortMode(r.Mode,0)
     end
   end
 end
@@ -112,14 +117,24 @@ ffi.cdef[[
   } CustomSort;
 ]]
 
-local function Utf16Buf (str)
-  str = win.Utf8ToUtf16(str)
-  local buf = ffi.new("wchar_t[?]", #str/2+1)
-  ffi.copy(buf, str, #str)
-  return buf
-end
+-- local function Utf16Buf (str)
+--   str = win.Utf8ToUtf16(str)
+--   local buf = ffi.new("wchar_t[?]", #str/2+1)
+--   ffi.copy(buf, str, #str)
+--   return buf
+-- end
 
-local DOTS = Utf16Buf("..")
+-- local function wcscmp(p1,p2)
+--   local pos = 0
+--   while p1[pos] == p2[pos] do
+--     if p1[pos] == 0 then return 0 end
+--     pos = pos + 1
+--   end
+--   return p1[pos] - p2[pos]
+-- end
+
+local function IsTwoDots(p) return p[0]==46 and p[1]==46 and p[2]==0 end
+local function Empty(p) return p[0]==0 end
 
 -- called from Far
 local function SortPanelItems (params)
@@ -171,16 +186,16 @@ local function SortPanelItems (params)
     params.FileListToPluginItem(e2, pi2)
     ----------------------------------------------------------------------------
     -- TODO: fix in Far
-    if C.wcscmp(pi1.FileName,DOTS)==0 then
-      if C.wcscmp(pi2.FileName,DOTS)~=0 then return true end
+    if IsTwoDots(pi1.FileName) then
+      if not IsTwoDots(pi2.FileName) then return true end
 
-      if pi1.AlternateFileName[0]==0 or C.wcscmp(pi1.AlternateFileName,DOTS)==0 then
-        if not (pi2.AlternateFileName[0]==0 or C.wcscmp(pi2.AlternateFileName,DOTS)==0) then return true end
+      if Empty(pi1.AlternateFileName) or IsTwoDots(pi1.AlternateFileName) then
+        if not (Empty(pi2.AlternateFileName) or IsTwoDots(pi2.AlternateFileName)) then return true end
       else
-        if pi2.AlternateFileName[0]==0 or C.wcscmp(pi2.AlternateFileName,DOTS)==0 then return false end
+        if Empty(pi2.AlternateFileName) or IsTwoDots(pi2.AlternateFileName) then return false end
       end
 
-    elseif C.wcscmp(pi2.FileName,DOTS)==0 then
+    elseif IsTwoDots(pi2.FileName) then
       return false
     end
     ----------------------------------------------------------------------------
