@@ -60,7 +60,6 @@ struct SIDCacheItem
 				LookupAccountSid(Computer.data(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 				if (AccountLength && DomainLength)
 				{
-					string strAccountName,strDomainName;
 					wchar_t_ptr AccountName(AccountLength);
 					wchar_t_ptr DomainName(DomainLength);
 					if(LookupAccountSid(Computer.data(), Sid.get(), AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))

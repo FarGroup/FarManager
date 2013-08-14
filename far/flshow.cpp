@@ -922,7 +922,6 @@ void FileList::HighlightBorder(int Level, int ListPos)
 
 void FileList::ShowList(int ShowStatus,int StartColumn)
 {
-	string strDateStr, strTimeStr;
 	int StatusShown=FALSE;
 	int MaxLeftPos=0,MinLeftPos=FALSE;
 	size_t ColumnCount=ShowStatus ? ViewSettings.StatusColumns.size() : ViewSettings.PanelColumns.size();

@@ -1326,8 +1326,8 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const R
 
 string GuidToStr(const GUID& Guid)
 {
-	string result;
 /*
+	string result;
 	unsigned short* str;
 	if(UuidToString((UUID*)&Guid,&str)==RPC_S_OK)
 	{

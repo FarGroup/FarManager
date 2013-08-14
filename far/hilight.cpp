@@ -874,7 +874,6 @@ void HighlightFiles::SaveHiData()
 
 	Changed = false;
 
-	string strRegKey, strGroupName;
 	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
 	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
 	const int Count[4][2] =

@@ -543,7 +543,7 @@ void VMenu2::GetPosition(int &X1,int &Y1,int &X2,int &Y2) const
 	Y2=this->Y2;
 }
 
-intptr_t VMenu2::RunEx(std::function<int(int Msg, void *param)> fn)
+intptr_t VMenu2::RunEx(const std::function<int(int Msg, void *param)>& fn)
 {
 	cancel=false;
 	closing=false;
@@ -561,7 +561,7 @@ intptr_t VMenu2::RunEx(std::function<int(int Msg, void *param)> fn)
 	return GetExitCode();
 }
 
-intptr_t VMenu2::Run(std::function<int(int Key)> fn)
+intptr_t VMenu2::Run(const std::function<int(int Key)>& fn)
 {
 	if(!fn)
 		return RunEx(nullptr);

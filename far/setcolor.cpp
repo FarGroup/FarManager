@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "manager.hpp"
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
+static void SetItemColors(const MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 
 void GetColor(int PaletteIndex)
 {
@@ -406,7 +406,7 @@ void SetColors()
 }
 
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
+static void SetItemColors(const MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
 {
 	VMenu2 ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
 

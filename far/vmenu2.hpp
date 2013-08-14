@@ -107,8 +107,8 @@ class VMenu2 : public Dialog
 			функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
 			(вне зависимости что говорит енц. о кодах возврата различных DN_*).
 		*/
-		intptr_t Run(std::function<int(int Key)> fn=nullptr);
-		intptr_t RunEx(std::function<int(int Msg, void *param)> fn);
+		intptr_t Run(const std::function<int(int Key)>& fn=nullptr);
+		intptr_t RunEx(const std::function<int(int Msg, void *param)>& fn);
 		intptr_t GetExitCode();
 		void Close(int ExitCode=-2, bool Force = false);
 
@@ -129,12 +129,12 @@ class VMenu2 : public Dialog
 
 
 
-		int GetSelectPos(struct FarListPos *ListPos)
+		int GetSelectPos(FarListPos *ListPos)
 		{
 			return ListBox().GetSelectPos(ListPos);
 		}
 
-		int SetSelectPos(struct FarListPos *ListPos, int Direct=0)
+		int SetSelectPos(const FarListPos *ListPos, int Direct=0)
 		{
 			return ListBox().SetSelectPos(ListPos, Direct);
 		}

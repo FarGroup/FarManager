@@ -3538,7 +3538,7 @@ static int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPane
 		// + 1 чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
 		*pPanelItem = new oldfar::PluginPanelItem[ItemsNumber + 1]();
 		*pItemsNumber = static_cast<int>(ItemsNumber);
-		(*pPanelItem)->Reserved[0] = *pItemsNumber;
+		(*pPanelItem)[0].Reserved[0] = *pItemsNumber;
 		++*pPanelItem;
 
 		for (size_t i=0; i<ItemsNumber; i++)

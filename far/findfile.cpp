@@ -2015,7 +2015,6 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 
 	FormatString MenuText;
 
-	string strDateStr, strTimeStr;
 	const wchar_t *DisplayName=FindData.strFileName.data();
 
 	MenuText << L' ';

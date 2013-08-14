@@ -256,7 +256,7 @@ protected:
 		intptr_t Default, Result;
 	};
 
-	void ExecuteFunction(ExecuteStruct& es, std::function<void()> f);
+	void ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f);
 
 	void* Exports[ExportsCount];
 

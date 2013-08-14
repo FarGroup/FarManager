@@ -946,8 +946,8 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 class elevated
 {
 private:
-	DWORD ParentPID;
 	HANDLE Pipe;
+	DWORD ParentPID;
 	bool Exit;
 	typedef std::pair<class elevated*, void*> copy_progress_routine_param;
 

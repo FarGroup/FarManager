@@ -447,7 +447,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg,const Version
 		MSG(MOk));
 }
 
-void Plugin::ExecuteFunction(ExecuteStruct& es, std::function<void()> f)
+void Plugin::ExecuteFunction(ExecuteStruct& es, const std::function<void()>& f)
 {
 	Prologue();
 	++Activity;

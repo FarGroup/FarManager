@@ -203,7 +203,6 @@ Message::Message(DWORD Flags, size_t Buttons, const string& Title, const std::ve
 
 void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id)
 {
-	string strTempStr;
 	string strClipText;
 	int X1,Y1,X2,Y2;
 	int Length, BtnLength;

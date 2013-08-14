@@ -111,8 +111,6 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 	}
 
-	string strName;
-
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:

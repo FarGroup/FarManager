@@ -262,7 +262,7 @@ public:
 	bool Export(const string& File);
 	int ShowProblems();
 
-	void AddThread(HandleWrapper& Thread) {ThreadWaiter.Add(Thread);}
+	void AddThread(const HandleWrapper& Thread) {ThreadWaiter.Add(Thread);}
 	void WaitForThreads() const {ThreadWaiter.Wait(true, INFINITE);}
 
 	static void ClearPluginsCache();
