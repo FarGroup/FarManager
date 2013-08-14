@@ -358,17 +358,12 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 		if (apiGetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
 			break;
 		// else fall down to default:
-	default:          //
-		assert(false); // really it is incorrect
-	return n;         //
+	default:
+		return 0;
 	}
 
 	string mount_point = TryConvertVolumeGuidToDrivePath(vol_guid, abs_path.data(), abs_path.size());
-	assert(!mount_point.empty());
-	if (!mount_point.empty())
-		n = mount_point.size();
-
-	return n;
+	return mount_point.size();
 }
 
 /*

@@ -1905,9 +1905,10 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		size_t pos;
-		if (!copy_to_null && FindLastSlash(pos,strDest) && pos > DestMountLen) // create target directory
+		if (!copy_to_null && FindLastSlash(pos,strDest) && (!DestMountLen || pos > DestMountLen))
 		{
 			string strNewPath = strDest.substr(0, pos);
+
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
 				Upper(strNewPath);
 
