@@ -1,3 +1,11 @@
+svs 14.08.2013 18:52:13 +0400 - build 3611
+
+1. Mantis#0002442: Добавить поддержку TakeCommand
+   (from Smitis)
+   Тестим.
+
+2. Экспериментально: В запускаторе значение strComSpecParams (которое "/C ") перенесено в конфиг System.Executor.ComSpecParams
+
 drkns 14.08.2013 09:40:14 +0200 - build 3610
 
 1. Warnings.

@@ -594,8 +594,10 @@ public:
 		BoolOption ExecuteSilentExternal;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
+		StringOption strComSpecParams;
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
+		StringOption strNotQuotedShell;
 	};
 
 	palette Palette;

@@ -253,7 +253,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
-		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds, STLF_UNIQUE));
+		string strExcludeCmds;
+		apiExpandEnvironmentStrings(Global->Opt->Exec.strExcludeCmds, strExcludeCmds);
+		auto ExcludeCmdsList(StringToList(strExcludeCmds, STLF_UNIQUE));
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 		{
@@ -956,7 +958,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		ConsoleTitle::SetFarTitle(strFarTitle);
 	}
 
-	string ComSpecParams(L"/C ");
+	string ComSpecParams(Global->Opt->Exec.strComSpecParams);
 	if (DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr.data();
@@ -973,9 +975,16 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 	else
 	{
+		string strNotQuotedShell;
+		apiExpandEnvironmentStrings(Global->Opt->Exec.strNotQuotedShell,strNotQuotedShell);
+		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
+		LPCWSTR lpCmdProcName = wcsrchr(strComspec.c_str(),L'\\');
+		if (lpCmdProcName != nullptr)
+			lpCmdProcName++;
+		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,lpCmdProcName); }));
 		QuoteSpace(strNewCmdStr);
 		bool bDoubleQ = wcspbrk(strNewCmdStr.data(), L"&<>()@^|=;, ") != nullptr;
-		if (!strNewCmdPar.empty() || bDoubleQ)
+		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
 		{
 			ComSpecParams += L"\"";
 		}
@@ -984,7 +993,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			ComSpecParams.append(L" ").append(strNewCmdPar);
 		}
-		if (!strNewCmdPar.empty() || bDoubleQ)
+		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
 		{
 			ComSpecParams += L"\"";
 		}
@@ -1445,7 +1454,11 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 */
 bool IsBatchExtType(const string& ExtPtr)
 {
-	auto BatchExtList(StringToList(Global->Opt->Exec.strExecuteBatchType, STLF_UNIQUE));
+	string strExecuteBatchType;
+	apiExpandEnvironmentStrings(Global->Opt->Exec.strExecuteBatchType, strExecuteBatchType);
+	if (strExecuteBatchType.empty())
+		strExecuteBatchType = L".BAT;.CMD";
+	auto BatchExtList(StringToList(strExecuteBatchType, STLF_UNIQUE));
 	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
 }
 

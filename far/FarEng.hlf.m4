@@ -5445,6 +5445,19 @@ $ #far:config System.Executor.ExcludeCmds#
 
     По умолчанию список "ExcludeCmds" пуст.
 
+    В параметре можно использовать переменные среды.
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@System.Executor.NotQuotedShell
+$ #far:config System.Executor.NotQuotedShell#
+    При передаче строки командному процессору, она заключается в кавычки. Это необходимо для правильной работы CMD.EXE.
+    Параметр позволяет задать список командных процессоров, для которых строка в кавычки заключаться не будет. Имя командного процессора берётся из переменной среды %comspec%.
+
+    По умолчанию значение = "TCC.EXE;TCCLE.EXE".
+
+    В параметре можно использовать переменные среды.
+
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
 @System.Executor.FullTitle
@@ -5470,6 +5483,28 @@ $ #far:config Interface.FormatNumberSeparators#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
+@System.Executor.ComSpecParams
+$ #far:config System.Executor.ComSpecParams#
+    Параметр позволяет задавать ключи для командного процессора при запуске внешних программ.
+
+    Перед запуском внешней программы Far Manager формирует строку запуска подобно следующему шаблону:
+
+    COMSPEC ComSpecParams Program ProgramParams
+
+    Здесь 
+
+      COMSPEC       - значение переменной среды %COMSPEC%
+      ComSpecParams - этот параметр (для cmd.exe это '/C ') 
+      Program       - запускаемая программа
+      ProgramParams - параметры запускаемой программы
+
+    По умолчанию значение  = "/C "
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+    См. также ~System.Executor.NotQuotedShell~@System.Executor.NotQuotedShell@, 
+~System.Executor.ExcludeCmds~@System.Executor.ExcludeCmds@
+
 @System.Executor.BatchType
 $ #far:config System.Executor.BatchType#
     Параметр позволяет задавать список расширений файлов, по которым Far Manager будет различать какие
@@ -5489,6 +5524,9 @@ $ #far:config System.Executor.BatchType#
 установлен TCCLE/4NT), то штатный командный процессор (command.com или cmd.exe) не будет исполнять такие пакетные файлы.
 
     По умолчанию значение = ".BAT;.CMD;".
+
+    В параметре можно использовать переменные среды.
+    Если после раскрытия переменных среды список окажется пуст, будет использован список ".BAT;.CMD;".
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
