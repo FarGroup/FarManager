@@ -959,6 +959,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	string ComSpecParams(Global->Opt->Exec.strComSpecParams);
+	ComSpecParams += L" ";
 	if (DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr.data();

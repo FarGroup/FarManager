@@ -1769,7 +1769,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", &Exec.ExecuteUseAppPath, true},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", &Exec.UseHomeDir, true},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"NotQuotedShell", &Exec.strNotQuotedShell, L"TCC.EXE;TCCLE.EXE"},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComSpecParams", &Exec.strComSpecParams, L"/C "},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComSpecParams", &Exec.strComSpecParams, L"/C"},
 
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", &ViOpt.AutoDetectCodePage, true},
 		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", &ViOpt.DefaultCodePage, GetACP()},
