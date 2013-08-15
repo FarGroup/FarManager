@@ -5612,7 +5612,7 @@ $ #far:config System.Executor.ComSpecParams#
       Program       - запускаемая программа
       ProgramParams - параметры запускаемой программы
 
-    По умолчанию значение  = "/C "
+    По умолчанию значение  = "/C"
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
