@@ -1,3 +1,8 @@
+svs 15.08.2013 12:09:54 +0400 - build 3614
+
+1. Продолжение Mantis#0002442
+   (from Smitis)
+
 svs 15.08.2013 10:42:32 +0400 - build 3613
 
 1. Корректировка System.Executor.ComSpecParams - пробелы сами добавим.

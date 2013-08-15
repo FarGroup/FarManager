@@ -979,10 +979,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		string strNotQuotedShell;
 		apiExpandEnvironmentStrings(Global->Opt->Exec.strNotQuotedShell,strNotQuotedShell);
 		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
-		LPCWSTR lpCmdProcName = wcsrchr(strComspec.c_str(),L'\\');
-		if (lpCmdProcName != nullptr)
-			lpCmdProcName++;
-		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,lpCmdProcName); }));
+		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
 		QuoteSpace(strNewCmdStr);
 		bool bDoubleQ = wcspbrk(strNewCmdStr.data(), L"&<>()@^|=;, ") != nullptr;
 		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
