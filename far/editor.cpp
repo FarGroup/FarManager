@@ -4418,7 +4418,9 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 			break;
 		if (EndSel == -1)
 		{
-			TotalChars += Ptr->GetLength() - StartSel;
+			// BUGBUG, don't use Ptr->GetLength() here: Ptr->Str may contain \0
+			//TotalChars += Ptr->GetLength() - StartSel;
+			TotalChars += StrLength(Ptr->Str + StartSel);
 			Eol = Ptr->GetEOL();
 			TotalChars += wcslen(Eol); // CRLF/CRCRLF/...
 
@@ -4457,7 +4459,8 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		int Length;
 		if (EndSel == -1)
 			// BUGBUG, don't use Ptr->GetLength() here: Ptr->Str may contain \0
-			Length = /*Ptr->GetLength()*/StrLength(Ptr->Str) - StartSel;
+			//Length = Ptr->GetLength() - StartSel;
+			Length = StrLength(Ptr->Str + StartSel);
 		else
 			Length = EndSel - StartSel;
 
