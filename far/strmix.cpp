@@ -1274,7 +1274,7 @@ wchar_t GetDecimalSeparator()
 	return *Separator;
 }
 
-string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
+string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const RegExpMatch* Match,int Count)
 {
 	string result;
 	size_t pos=0,length=ReplaceStr.size();
@@ -1305,7 +1305,7 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr, const R
 			{
 				if (index<Count&&Match[index].end>=0)
 				{
-					string bracket(SearchStr.data()+Match[index].start,Match[index].end-Match[index].start);
+					string bracket(SearchStr+Match[index].start,Match[index].end-Match[index].start);
 					result+=bracket;
 				}
 
