@@ -774,11 +774,10 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			break;
 		}
 		case MCODE_F_EDITOR_DELLINE:  // N=Editor.DelLine([Line])
-		case MCODE_F_EDITOR_GETSTR:   // S=Editor.GetStr([Line])
 		case MCODE_F_EDITOR_INSSTR:   // N=Editor.InsStr([S[,Line]])
 		case MCODE_F_EDITOR_SETSTR:   // N=Editor.SetStr([S[,Line]])
 		{
-			if (Flags.Check(FEDITOR_LOCKMODE) && (OpCode!=MCODE_F_EDITOR_GETSTR))
+			if (Flags.Check(FEDITOR_LOCKMODE))
 			{
 				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return 0;
@@ -804,11 +803,6 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case MCODE_F_EDITOR_DELLINE:  // N=Editor.DelLine([Line])
 				{
 					DeleteString(EditPtr,DestLine,TRUE,DestLine);
-					return 1;
-				}
-				case MCODE_F_EDITOR_GETSTR:  // S=Editor.GetStr([Line])
-				{
-					EditPtr->GetString(*(string *)vParam);
 					return 1;
 				}
 				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])

@@ -1634,7 +1634,6 @@ static bool dateFunc(FarMacroCall*);
 static bool dlggetvalueFunc(FarMacroCall*);
 static bool dlgsetfocusFunc(FarMacroCall*);
 static bool editordellineFunc(FarMacroCall*);
-static bool editorgetstrFunc(FarMacroCall*);
 static bool editorinsstrFunc(FarMacroCall*);
 static bool editorposFunc(FarMacroCall*);
 static bool editorselFunc(FarMacroCall*);
@@ -2416,11 +2415,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_EDITORCURPOS:  // Editor.CurPos
 		case MCODE_V_EDITORREALPOS: // Editor.RealPos
 		case MCODE_V_EDITORFILENAME: // Editor.FileName
-		case MCODE_V_EDITORVALUE:   // Editor.Value
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
 			const wchar_t* ptr = nullptr;
-			if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
+			if (CheckCode == MCODE_V_EDITORSELVALUE)
 				ptr=L"";
 
 			if (GetMode()==MACROAREA_EDITOR && Global->CtrlObject->Plugins->GetCurEditor() && Global->CtrlObject->Plugins->GetCurEditor()->IsVisible())
@@ -2430,13 +2428,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					string strType;
 					Global->CtrlObject->Plugins->GetCurEditor()->GetTypeAndName(strType, strFileName);
 					ptr=strFileName.data();
-				}
-				else if (CheckCode == MCODE_V_EDITORVALUE)
-				{
-					EditorGetString egs={sizeof(EditorGetString)};
-					egs.StringNumber=-1;
-					Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_GETSTRING,0,&egs);
-					ptr=egs.StringText;
 				}
 				else if (CheckCode == MCODE_V_EDITORSELVALUE)
 				{
@@ -2495,7 +2486,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_DLG_GETVALUE:    return dlggetvalueFunc(Data);
 		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(Data);
 		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(Data);
-		case MCODE_F_EDITOR_GETSTR:   return editorgetstrFunc(Data);
 		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
 		case MCODE_F_EDITOR_POS:      { LockOutput Lock(IsOutputDisabled); return editorposFunc(Data); }
 		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
@@ -5521,28 +5511,6 @@ static bool editordellineFunc(FarMacroCall* Data)
 
 	PassValue(&Ret, Data);
 	return Ret.i()!=0;
-}
-
-// S=Editor.GetStr([Line])
-static bool editorgetstrFunc(FarMacroCall* Data)
-{
-	parseParams(1,Params,Data);
-	__int64 Ret=0;
-	TVar Res(L"");
-	TVar& Line(Params[0]);
-
-	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_EDITOR && Global->CtrlObject->Plugins->GetCurEditor() && Global->CtrlObject->Plugins->GetCurEditor()->IsVisible())
-	{
-		if (Line.isNumber())
-		{
-			string strRes;
-			Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
-			Res=strRes;
-		}
-	}
-
-	PassValue(&Res, Data);
-	return Ret!=0;
 }
 
 // N=Editor.InsStr([S[,Line]])

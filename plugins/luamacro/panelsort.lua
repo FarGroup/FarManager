@@ -210,7 +210,7 @@ local function SortPanelItems (params)
     end
     ----------------------------------------------------------------------------
     if SortGroups then
-       -- Reserved[1] contains 'SortGroup - DEFAULT_SORT_GROUP'
+      -- Reserved[1] contains 'SortGroup - DEFAULT_SORT_GROUP'
       if pi1.Reserved[1] ~= pi2.Reserved[1] then return pi1.Reserved[1] < pi2.Reserved[1] end
     end
     ----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ local function SortPanelItems (params)
   shellsort(params.Data, tonumber(params.DataSize), Before)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
 
---far.Message(Far.UpTime - timeStart) end
+--far.Message(Far.UpTime - timeStart)
   return true
 end
 

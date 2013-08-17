@@ -247,7 +247,10 @@ SetProperties(Dlg, {
 
 Editor = {
   DelLine  = function(...) return MacroCallFar(0x80C60, ...) end,
-  GetStr   = function(...) return MacroCallFar(0x80C61, ...) end,
+  GetStr   = function(n)
+               if type(n)=="number" and n<1 then n=nil end
+               return editor.GetString(nil,n,3) or ""
+             end,
   InsStr   = function(...) return MacroCallFar(0x80C62, ...) end,
   Pos      = function(...) return MacroCallFar(0x80C0C, ...) end,
   Sel      = function(...) return MacroCallFar(0x80C09, ...) end,
@@ -265,7 +268,7 @@ SetProperties(Editor, {
   RealPos  = function() return MacroCallFar(0x8082F) end,
   SelValue = function() return MacroCallFar(0x80832) end,
   State    = function() return MacroCallFar(0x80830) end,
-  Value    = function() return MacroCallFar(0x80831) end,
+  Value    = function() return editor.GetString(nil,nil,3) or "" end,
 })
 --------------------------------------------------------------------------------
 
