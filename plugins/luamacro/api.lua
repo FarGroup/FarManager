@@ -247,10 +247,7 @@ SetProperties(Dlg, {
 
 Editor = {
   DelLine  = function(...) return MacroCallFar(0x80C60, ...) end,
-  GetStr   = function(n)
-               if type(n)=="number" and n<1 then n=nil end
-               return editor.GetString(nil,n,3) or ""
-             end,
+  GetStr   = function(n)   return editor.GetString(nil,n,3) or "" end,
   InsStr   = function(...) return MacroCallFar(0x80C62, ...) end,
   Pos      = function(...) return MacroCallFar(0x80C0C, ...) end,
   Sel      = function(...) return MacroCallFar(0x80C09, ...) end,
