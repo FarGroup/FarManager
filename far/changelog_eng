@@ -3,6 +3,57 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.08.2013 13:22:27 +0200 - build 3618
+
+1. Screen buffer could use more memory than it was necessary.
+
+shmuel 17.08.2013 11:56:31 +0200 - build 3617
+
+1. M#2468: incorrect working of Editor.Value and Editor.GetStr() if the string contains \x00.
+
+drkns 17.08.2013 01:36:21 +0200 - build 3616
+
+1. Уточнение 1947.1 - copying strings from the position after zero character to the clipboard caused crash.
+
+t-rex 16.08.2013 23:42:58 +0200 - build 3615
+
+1. Mantis#2465: \x00 character breaks regexp search/replace.
+
+svs 15.08.2013 12:09:54 +0400 - build 3614
+
+1. Continuation of Mantis#0002442
+   (from Smitis)
+
+svs 15.08.2013 10:42:32 +0400 - build 3613
+
+1. Correction of System.Executor.ComSpecParams - adding space symbols.
+
+shmuel 15.08.2013 00:28:27 +0200 - build 3612
+
+1. Refactoring.
+
+svs 14.08.2013 18:52:13 +0400 - build 3611
+
+1. Mantis#0002442: Add support for TakeCommand
+   (from Smitis)
+   Testing.
+
+2. Experimental: strComSpecParams value in launcher (see "/C ") moved to System.Executor.ComSpecParams settings
+
+drkns 14.08.2013 09:40:14 +0200 - build 3610
+
+1. Warnings.
+
+w17 14.08.2013 04:32:30 +0400 - build 3609
+
+1. Continuation of 3602
+
+w17 12.08.2013 18:51:45 +0400 - build 3608
+
+1. M#2462: Cannot change to root of a volume with cd\
+
+2. -warnings
+
 shmuel 10.08.2013 19:41:07 +0200 - build 3607
 
 1. Continuation of 3604: custom sorting in panels is now working.
