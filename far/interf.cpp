@@ -225,7 +225,7 @@ void InitConsole(int FirstInit)
 	{
 		SMALL_RECT WindowRect;
 		Global->Console->GetWindowRect(WindowRect);
-		GetVideoMode(InitSize);
+		Global->Console->GetSize(InitSize);
 
 		if(Global->Opt->WindowMode)
 		{
@@ -239,7 +239,7 @@ void InitConsole(int FirstInit)
 				newSize.X = WindowRect.Right - WindowRect.Left + 1;
 				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
 				Global->Console->SetSize(newSize);
-				GetVideoMode(InitSize);
+				Global->Console->GetSize(InitSize);
 			}
 		}
 		if (IsZoomed(Global->Console->GetWindow()))
