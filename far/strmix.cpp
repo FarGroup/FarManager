@@ -1287,7 +1287,8 @@ string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const 
 		{
 			++pos;
 
-			if (pos>length) break;
+			if (pos>=length)
+				break;
 
 			wchar_t symbol=Upper(ReplaceStr[pos]);
 			int index=-1;
