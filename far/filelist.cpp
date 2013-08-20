@@ -616,7 +616,13 @@ void FileList::SortFileList(int KeepPosition)
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_PANELSORT,nullptr,&fmc};
 			void *ptr;
-			if (!Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) || !ptr)
+			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
+			{
+				MacroPluginReturn* mpr = (MacroPluginReturn*)ptr;
+				CustomSortIndicator[0] = mpr->Values[0].String[0];
+				CustomSortIndicator[1] = mpr->Values[0].String[1];
+			}
+			else
 			{
 				SetSortMode(BY_NAME); // recursive call
 				return;
@@ -3264,17 +3270,17 @@ void FileList::SetSortMode0(int Mode)
 	FrameManager->RefreshFrame();
 }
 
-void FileList::SetCustomSortMode(int SortMode, bool InvertByDefault, const wchar_t* Indicators)
+void FileList::SetCustomSortMode(int SortMode, int InvertByDefault)
 {
 	if (SortMode > SORTMODE_LAST)
 	{
-		if (this->SortMode==SortMode && Global->Opt->ReverseSort)
-			SortOrder=-SortOrder;
-		else
-			SortOrder = InvertByDefault ? -1 : 1;
-
-		CustomSortIndicator[0] = Indicators[0] ? Indicators[0] : L' ';
-		CustomSortIndicator[1] = Indicators[0] && Indicators[1] ? Indicators[1] : L' ';
+		if (InvertByDefault != 2)
+		{
+			if (this->SortMode==SortMode && Global->Opt->ReverseSort)
+				SortOrder=-SortOrder;
+			else
+				SortOrder = InvertByDefault ? -1 : 1;
+		}
 		SetSortMode0(SortMode);
 	}
 }

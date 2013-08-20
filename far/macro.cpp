@@ -186,7 +186,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
-	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Вывести меню пользователя\n", MCODE_F_SETCUSTOMSORTMODE);
+	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Установить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -2601,9 +2601,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			break;
 
 		case MCODE_F_SETCUSTOMSORTMODE:
-			if (Data->Count>=4 &&
-				Data->Values[0].Type==FMVT_DOUBLE  && Data->Values[1].Type==FMVT_DOUBLE &&
-				Data->Values[2].Type==FMVT_BOOLEAN && Data->Values[3].Type==FMVT_STRING)
+			if (Data->Count>=3 && Data->Values[0].Type==FMVT_DOUBLE  &&
+				Data->Values[1].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_BOOLEAN)
 			{
 				Panel *panel = Global->CtrlObject->Cp()->ActivePanel;
 				if (panel && Data->Values[0].Double == 1)
@@ -2612,9 +2611,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (panel)
 				{
 					int SortMode = (int)Data->Values[1].Double;
-					bool InvertByDefault = Data->Values[2].Boolean != 0;
-					const wchar_t* Indicators = Data->Values[3].String;
-					panel->SetCustomSortMode(SortMode, InvertByDefault, Indicators);
+					int InvertByDefault = Data->Values[2].Boolean ? 1 : 0;
+					panel->SetCustomSortMode(SortMode, InvertByDefault);
 				}
 			}
 			break;

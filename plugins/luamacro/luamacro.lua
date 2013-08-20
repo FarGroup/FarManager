@@ -274,7 +274,10 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
     elseif calltype==F.MCT_PANELSORT      then
-      if panelsort and panelsort.SortPanelItems(...) then return F.MPRT_NORMALFINISH, {} end
+      if panelsort then
+        LastMessage = pack(panelsort.SortPanelItems(...))
+        if LastMessage[1] then return F.MPRT_COMMONCASE, LastMessage end
+      end
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then

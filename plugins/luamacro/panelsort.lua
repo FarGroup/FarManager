@@ -63,6 +63,13 @@ local function LoadCustomSortMode (nMode, Settings)
   if Settings then
     assert(type(Settings)=="table")
     assert(type(Settings.Compare)=="function")
+    Settings.InvertByDefault = not not Settings.InvertByDefault
+    if type(Settings.Indicator) == "string" then
+      local len = Settings.Indicator:len()
+      if len<2 then Settings.Indicator = Settings.Indicator..(" "):rep(2-len) end
+    else
+      Settings.Indicator = "  "
+    end
     CustomSortModes[nMode] = Settings
   else
     CustomSortModes[nMode] = nil
@@ -73,9 +80,7 @@ local function SetCustomSortMode (nMode, whatpanel)
   local Settings = CustomSortModes[nMode]
   if Settings then
     whatpanel = whatpanel==1 and 1 or 0
-    local InvertByDefault = not not Settings.InvertByDefault
-    local Indicator = type(Settings.Indicator)=="string" and Settings.Indicator or ""
-    far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, InvertByDefault, Indicator)
+    far.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
   end
 end
 
@@ -237,7 +242,7 @@ local function SortPanelItems (params)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
 
 --far.Message(Far.UpTime - timeStart)
-  return true
+  return tSettings.Indicator
 end
 
 return {

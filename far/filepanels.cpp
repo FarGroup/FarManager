@@ -109,8 +109,13 @@ void FilePanels::Init(int DirCount)
 	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
 	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
 	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
-	LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
-	RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
+
+	if (Global->Opt->LeftPanel.SortMode < SORTMODE_LAST)
+		LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
+
+	if (Global->Opt->RightPanel.SortMode < SORTMODE_LAST)
+		RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
+
 	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
 	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
 	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);

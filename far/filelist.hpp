@@ -152,7 +152,7 @@ public:
 	virtual void SortFileList(int KeepPosition) override;
 	virtual void SetViewMode(int ViewMode) override;
 	virtual void SetSortMode(int SortMode) override;
-	virtual void SetCustomSortMode(int SortMode, bool InvertByDefault, const wchar_t* Indicators) override;
+	virtual void SetCustomSortMode(int SortMode, int InvertByDefault) override;
 	virtual void ChangeSortOrder(int NewOrder) override;
 	virtual void ChangeNumericSort(bool Mode) override;
 	virtual void ChangeCaseSensitiveSort(bool Mode) override;
