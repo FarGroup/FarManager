@@ -548,7 +548,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3585600014
+mtime=3586234479
 <article>
 #_**Panel** - таблица со следующими полями:
 #_
@@ -568,6 +568,10 @@ mtime=3585600014
 #_  CustomSortMenu
 #_  LoadCustomSortMode
 #_  SetCustomSortMode
+#_
+#_**Примечание:**
+#_  Функции CustomSortMenu, LoadCustomSortMode и SetCustomSortMode присутствуют только
+#_  если в качестве движка Lua используется LuaJIT 2.
 #_
 #_@@@
 #_<lua> Links = {

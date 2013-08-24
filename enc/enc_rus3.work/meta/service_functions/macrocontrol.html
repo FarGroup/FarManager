@@ -39,13 +39,17 @@ intptr_t WINAPI MacroControl(
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
-    <td class="cont" width="60%">Считать из базы в память Far Manager все макросы, с затиранием предыдущих значений.<br>
+    <td class="cont" width="60%">Загрузить все макросы из файлов в память Far Manager.<br>
+      Предыдущие значения макросов при этом выгружаются, за исключением макросов,
+      добавленных с помощью команды <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
-    <td class="cont" width="60%">Принудительное сохранение макросов из памяти Far Manager в базу.<br>
+    <td class="cont" width="60%">Сохранить клавиатурные макросы из памяти Far Manager в файлы.<br>
+      Если пользователь записал с клавиатуры новые макросы, изменил либо удалил
+      существующие, то данные изменения станут постоянными.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
@@ -74,7 +78,7 @@ intptr_t WINAPI MacroControl(
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
     <td class="cont" width="60%">Получить расширенную диагностику об ошибке проверки макроса (<code>MSSC_CHECK</code>).<br>
     <code>Param1</code> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <code>Param2</code>.<br>
-    <code>Param2</code> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделят самостоятельно.<br>
+    <code>Param2</code> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделяет самостоятельно.<br>
     Функция возвращает размер требуемого буфера, при <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
@@ -149,9 +153,9 @@ intptr_t WINAPI MacroControl(
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_DELMACRO">MCTL_DELMACRO</a></td>
-    <td class="cont" width="60%">Удалить из памяти Far Manager определенный макрос.<br>
+    <td class="cont" width="60%">Удалить из памяти Far Manager макрос, добавленный ранее командой <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
     <code>Param1</code> игнорируется. <br>
-    <code>Param2</code> указывает на идентификатор удаляемого макроса, поле <a href="../structures/macroaddmacro.html">MacroAddMacro.Id</a>.<br>
+    <code>Param2</code> указывает на идентификатор удаляемого макроса, поле <code>Id</code> структуры <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
    </table>
