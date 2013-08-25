@@ -243,7 +243,7 @@ local function SortPanelItems (params)
     return false
   end
 
-  if tSettings.InitSort then tSettings.InitSort() end
+  if tSettings.InitSort then tSettings.InitSort(outParams) end
 
   shellsort(params.Data, tonumber(params.DataSize), Before)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
