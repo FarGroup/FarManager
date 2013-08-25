@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 20.08.2013 20:54:52 +0200 - build 3620
+
+1. Custom panel sortings are restored after FAR restart if setup was saved,
+   provided that appropriate Panel.LoadCustomSortMode() calls are done in the process of macros loading.
+   Restoring is done after macros loading is complete, before autostarting macros run.
+
+t-rex 19.08.2013 14:09:16 +0200 - build 3619
+
+1. $ at the end of the replace string in regexp search inserted \x00 instead of being ignored.
+
 drkns 18.08.2013 13:22:27 +0200 - build 3618
 
 1. Screen buffer could use more memory than it was necessary.
