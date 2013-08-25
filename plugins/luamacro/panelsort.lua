@@ -6,7 +6,7 @@ local F = far.Flags
 local PPIF_SELECTED = F.PPIF_SELECTED
 local FILE_ATTRIBUTE_DIRECTORY = 0x00000010
 local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
-local band = bit.band -- 32 bits, be careful
+local band, bor = bit.band, bit.bor -- 32 bits, be careful
 local tonumber = tonumber
 
 local CustomSortModes = {} -- key=integer, value=table
@@ -58,19 +58,31 @@ local function qsort(x,l,u,f)
   end
 end
 
+local BooleanProperties = {
+  "InvertByDefault","DirectoriesFirst","SelectedFirst","RevertSorting","SortGroups","NoSortEqualsByName"
+}
+
 local function LoadCustomSortMode (nMode, Settings)
   assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
   if Settings then
     assert(type(Settings)=="table")
     assert(type(Settings.Compare)=="function")
-    Settings.InvertByDefault = not not Settings.InvertByDefault
-    if type(Settings.Indicator) == "string" then
-      local len = Settings.Indicator:len()
-      if len<2 then Settings.Indicator = Settings.Indicator..(" "):rep(2-len) end
+
+    local t = { Compare=Settings.Compare }
+    if type(Settings.InitSort)=="function" then t.InitSort=Settings.InitSort end
+    if type(Settings.EndSort)=="function" then t.EndSort=Settings.EndSort end
+
+    for _,v in ipairs(BooleanProperties) do t[v] = not not Settings[v] end
+
+    if type(Settings.Description)=="string" then t.Description = Settings.Description end
+    if type(Settings.Indicator)=="string" then
+      t.Indicator = Settings.Indicator
+      local len = t.Indicator:len()
+      if len<2 then t.Indicator = t.Indicator..(" "):rep(2-len) end
     else
-      Settings.Indicator = "  "
+      t.Indicator = "  "
     end
-    CustomSortModes[nMode] = Settings
+    CustomSortModes[nMode] = t
   else
     CustomSortModes[nMode] = nil
   end
@@ -142,7 +154,6 @@ local function Empty(p) return p[0]==0 end
 
 -- called from Far
 local function SortPanelItems (params)
---local timeStart = Far.UpTime
   jit.flush()
   params = ffi.cast("CustomSort*", params)
   local tSettings = CustomSortModes[tonumber(params.SortMode)]
@@ -219,29 +230,26 @@ local function SortPanelItems (params)
       if pi1.Reserved[1] ~= pi2.Reserved[1] then return pi1.Reserved[1] < pi2.Reserved[1] end
     end
     ----------------------------------------------------------------------------
-    -- if SortDirByName then
-    --   if 0 ~= band(tonumber(pi1.FileAttributes), tonumber(pi2.FileAttributes), FILE_ATTRIBUTE_DIRECTORY) then
-    --     local r = C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
-    --     if r==1 or r==3 then return r==1 end
-    --   end
-    -- end
-    ----------------------------------------------------------------------------
     local r = Compare(pi1, pi2, outParams)
     if r ~= 0 then
       if RevertSorting then r = -r end
       return r < 0
     else
       if SortEqualsByName then
-        return 1 == C.CompareStringW(C.LOCALE_USER_DEFAULT,C.NORM_IGNORECASE,pi1.FileName,-1,pi2.FileName,-1)
+        return 1 == C.CompareStringW(C.LOCALE_USER_DEFAULT, bor(C.NORM_IGNORECASE,C.SORT_STRINGSORT),
+                                     pi1.FileName, -1, pi2.FileName, -1)
       end
     end
     return false
   end
 
+  if tSettings.InitSort then tSettings.InitSort() end
+
   shellsort(params.Data, tonumber(params.DataSize), Before)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
 
---far.Message(Far.UpTime - timeStart)
+  if tSettings.EndSort then tSettings.EndSort() end
+
   return tSettings.Indicator
 end
 
