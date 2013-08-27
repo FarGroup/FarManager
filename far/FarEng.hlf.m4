@@ -2162,7 +2162,7 @@ user menu of the parent folder by pressing #BS#.
 a new menu command and define "#--#" as "hot key". To delete a menu separator,you
 must switch to file mode with #Alt-F4# key.
 
-    Пункты меню пользователя можно перемещать кобинациями #Ctrl-Up# или #Ctrl-Down#.
+    User menu items can be moved with #Ctrl-Up# or #Ctrl-Down# key combinations.
 
     To execute a user menu command, select it with cursor keys and press #Enter#.
 You may also press the hot key assigned to the required menu item.
