@@ -214,13 +214,13 @@ static bool IsEditField(DialogItemEx *Item)
 */
 
 DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
-	HelpTopic(NullToEmpty(HelpTopic))
+	HelpTopic(NullToEmpty(HelpTopic)), Mode(0)
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():
-HelpTopic(L"")
+	HelpTopic(L""),  Mode(0)
 {
 	AddBorder(L"");
 }
@@ -586,13 +586,25 @@ intptr_t DialogBuilder::DoShowDialog()
 	Dialog Dlg(pass_as_container(DialogItems, DialogItemsCount));
 	Dlg.SetHelp(HelpTopic);
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
+	if (Mode)
+		Dlg.SetDialogMode(Mode);
 	Dlg.Process();
 	return Dlg.GetExitCode();
+}
+
+void DialogBuilder::SetDialogMode(DWORD Flags)
+{
+	Mode = Flags;
 }
 
 void DialogBuilder::AddOKCancel()
 {
 	DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, MCancel);
+}
+
+void DialogBuilder::AddOKCancel(int OKMessageId, int CancelMessageId)
+{
+	DialogBuilderBase<DialogItemEx>::AddOKCancel(OKMessageId, CancelMessageId);
 }
 
 void DialogBuilder::AddOK()

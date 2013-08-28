@@ -367,28 +367,6 @@ static void ConfigureChangeDriveMode()
 	}
 }
 
-
-intptr_t ChDiskDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
-{
-	switch (Msg)
-	{
-		case DN_CTLCOLORDLGITEM:
-		{
-			if (Param1 == 1) // BUGBUG, magic number
-			{
-				FarColor Color = ColorIndexToColor(COL_WARNDIALOGTEXT);
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Color;
-				Colors->Colors[2] = Color;
-			}
-		}
-		break;
-	default:
-		break;
-	}
-	return Dlg->DefProc(Msg,Param1,Param2);
-}
-
 class separator
 {
 public:
@@ -956,56 +934,36 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 			}
 
+			DialogBuilder Builder(MError, nullptr);
+
 			Global->CatchError();
-
-			const wchar_t Drive[]={mitem->cDrive,L'\0'};
 			string strError = GetErrorString();
-			int Len1 = static_cast<int>(strError.size());
-			int Len2 = StrLength(MSG(MChangeDriveCannotReadDisk));
-
-			const int DX = std::min(std::max(Len1,Len2+3)+5+5, ScrX-1);
-			FarFormatText(strError, DX-5-5, strError, L"\n", 0);
+			FarFormatText(strError, std::min(std::max(static_cast<int>(strError.size()), StrLength(MSG(MChangeDriveCannotReadDisk))+3), ScrX-1-10), strError, L"\n", 0);
 			const int ErrLineCount = 1 + std::count(ALL_CONST_RANGE(strError), L'\n');
 			std::replace(ALL_RANGE(strError), L'\n', L'\0');
-			const int DY = 2 + ErrLineCount + 1 + 1 + 1 + 1 + 2;
-
-			std::vector<DialogItemEx> ChDiskDlg;
-
-			auto ADD_DLGx = [&ChDiskDlg](enum FARDIALOGITEMTYPES k, intptr_t l, intptr_t t, intptr_t r, intptr_t b, FARDIALOGITEMFLAGS f, const wchar_t *m)
-			{
-				DialogItemEx x;
-				FarDialogItem d={k,l,t,r,b,0,nullptr,nullptr,f,m};
-				ItemToItemEx(&d,&x,1);
-				ChDiskDlg.push_back(x);
-			};
-
-			ADD_DLGx(DI_DOUBLEBOX,3,1,DX-4,DY-2,0,MSG(MError));
-
 			const wchar_t *ps = strError.data();
 			for (int i = 0; i < ErrLineCount; ++i, ps += StrLength(ps) + 1)
 			{
-				ADD_DLGx(DI_TEXT,5,2+i,DX-6,2+i,DIF_CENTERTEXT,ps);
+				/* DialogItemEx *ErrorText = */ Builder.AddText(ps);
+				//ErrorText->Flags = DIF_CENTERTEXT; BUGBUG: Фар почему то падает от этого
 			}
-			ADD_DLGx(DI_TEXT,5,DY-5,DX-9,DY-5,0,MSG(MChangeDriveCannotReadDisk));
-			ADD_DLGx(DI_FIXEDIT,5+Len2+1,DY-5,5+Len2+1,DY-5,DIF_FOCUS,Drive);
-			ADD_DLGx(DI_TEXT,5+Len2+2,DY-5,5+Len2+2,DY-5,0,L":");
 
-			ADD_DLGx(DI_TEXT,-1,DY-4,0,DY-4,DIF_SEPARATOR,L"");
+			const wchar_t Drive[] = {mitem->cDrive,L'\0'};
+			string DriveLetter = Drive;
+			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(&DriveLetter, 1);
+			Builder.AddTextBefore(DriveLetterEdit, MChangeDriveCannotReadDisk);
+			//Builder.AddTextAfter(DriveLetterEdit, L":"); BUGBUG: currently adds a space before the ":", doesn't look good here
 
-			ADD_DLGx(DI_BUTTON,0,DY-3,0,DY-3,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MRetry));
-			ADD_DLGx(DI_BUTTON,0,DY-3,0,DY-3,DIF_CENTERGROUP,MSG(MCancel));
+			Builder.AddOKCancel(MRetry, MCancel);
+			Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 
-			Dialog Dlg(ChDiskDlg, ChDiskDlgProc, 0);
-			Dlg.SetPosition(-1,-1,DX,DY);
-			Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
-			Dlg.Process();
-			if(Dlg.GetExitCode() == static_cast<int>(ChDiskDlg.size()-2)) // {Retry}
+			if (Builder.ShowDialog())
 			{
-				mitem->cDrive=ChDiskDlg[ChDiskDlg.size()-5].strData[0]; // Drive letter
+				mitem->cDrive = DriveLetter[0];
 			}
 			else
 			{
-				return -1; // [Cancel]
+				return -1;
 			}
 		}
 

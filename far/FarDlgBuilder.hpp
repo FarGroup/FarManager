@@ -63,6 +63,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 {
 	private:
 		const wchar_t *HelpTopic;
+		DWORD Mode;
 
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
@@ -131,5 +132,8 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels=true);
 
 		void AddOKCancel();
+		void AddOKCancel(int OKMessageId, int CancelMessageId);
 		void AddOK();
+
+		void SetDialogMode(DWORD Flags);
 };
