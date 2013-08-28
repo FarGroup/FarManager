@@ -970,8 +970,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			const int DY = 2 + ErrLineCount + 1 + 1 + 1 + 1 + 2;
 
 			std::vector<DialogItemEx> ChDiskDlg;
-			#define ADD_DLGx(k,l,t,r,b,f,m) \
-			{DialogItemEx x; FarDialogItem d={k,l,t,r,b,0,nullptr,nullptr,f,m}; ItemToItemEx(&d,&x,1); ChDiskDlg.push_back(x);}
+
+			auto ADD_DLGx = [&ChDiskDlg](enum FARDIALOGITEMTYPES k, intptr_t l, intptr_t t, intptr_t r, intptr_t b, FARDIALOGITEMFLAGS f, const wchar_t *m)
+			{
+				DialogItemEx x;
+				FarDialogItem d={k,l,t,r,b,0,nullptr,nullptr,f,m};
+				ItemToItemEx(&d,&x,1);
+				ChDiskDlg.push_back(x);
+			};
 
 			ADD_DLGx(DI_DOUBLEBOX,3,1,DX-4,DY-2,0,MSG(MError));
 
@@ -988,7 +994,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			ADD_DLGx(DI_BUTTON,0,DY-3,0,DY-3,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MRetry));
 			ADD_DLGx(DI_BUTTON,0,DY-3,0,DY-3,DIF_CENTERGROUP,MSG(MCancel));
-			#undef ADD_DLGx
 
 			Dialog Dlg(ChDiskDlg, ChDiskDlgProc, 0);
 			Dlg.SetPosition(-1,-1,DX,DY);
