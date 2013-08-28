@@ -963,7 +963,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			int Len1 = static_cast<int>(strError.size());
 			int Len2 = StrLength(MSG(MChangeDriveCannotReadDisk));
 
-			const int DX = std::min(Len1+11, ScrX-1);
+			const int DX = std::min(std::max(Len1,Len2+3)+5+5, ScrX-1);
 			FarFormatText(strError, DX-5-5, strError, L"\n", 0);
 			const int ErrLineCount = 1 + std::count(ALL_CONST_RANGE(strError), L'\n');
 			std::replace(ALL_RANGE(strError), L'\n', L'\0');
@@ -978,7 +978,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			const wchar_t *ps = strError.data();
 			for (int i = 0; i < ErrLineCount; ++i, ps += StrLength(ps) + 1)
 			{
-				ADD_DLGx(DI_TEXT,5,2+i,DX-9,2+i,DIF_CENTERTEXT,ps);
+				ADD_DLGx(DI_TEXT,5,2+i,DX-6,2+i,DIF_CENTERTEXT,ps);
 			}
 			ADD_DLGx(DI_TEXT,5,DY-5,DX-9,DY-5,0,MSG(MChangeDriveCannotReadDisk));
 			ADD_DLGx(DI_FIXEDIT,5+Len2+1,DY-5,5+Len2+1,DY-5,DIF_FOCUS,Drive);
