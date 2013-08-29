@@ -4804,7 +4804,7 @@ public:
 				UINT len;
 				if (VerQueryValue(buffer.get(), L"\\VarFileInfo\\Translation", (void **)&Translation, &len) && len)
 				{
-					std::wstringstream tmp;
+					std::wostringstream tmp;
 					tmp << std::hex << std::setw(4) << std::setfill(L'0') << LOWORD(*Translation)
 					    << std::hex << std::setw(4) << std::setfill(L'0') << HIWORD(*Translation);
 					path = L"\\StringFileInfo\\" + tmp.str() + L"\\";
@@ -5112,6 +5112,7 @@ HANDLE PluginA::Open(OpenInfo* Info)
 		case OPEN_LEFTDISKMENU:
 		case OPEN_RIGHTDISKMENU:
 		case OPEN_PLUGINSMENU:
+		case OPEN_FINDLIST:
 		case OPEN_EDITOR:
 		case OPEN_VIEWER:
 			switch (Info->OpenFrom)
@@ -5122,6 +5123,9 @@ HANDLE PluginA::Open(OpenInfo* Info)
 				break;
 			case OPEN_PLUGINSMENU:
 				OpenFromA = oldfar::OPEN_PLUGINSMENU;
+				break;
+			case OPEN_FINDLIST:
+				OpenFromA = oldfar::OPEN_FINDLIST;
 				break;
 			case OPEN_EDITOR:
 				OpenFromA = oldfar::OPEN_EDITOR;
