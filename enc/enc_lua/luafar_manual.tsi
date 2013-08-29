@@ -1610,7 +1610,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3560877080
+mtime=3586981183
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1627,17 +1627,19 @@ mtime=3560877080
 #_  Item:
 #_    if OpenFrom == OPEN_FROMMACRO:
 #_      table (array of arguments):
-#_        each argument can be either of: string, boolean, number, "int64", or "binary".
+#_      - each argument can be either of:
+#_        string, nil, boolean, number, "int64", or "binary"
+#_      - field *n* of the table holds the length of the array
 #_    if OpenFrom == OPEN_COMMANDLINE:
 #_      string
 #_    if OpenFrom == OPEN_SHORTCUT:
 #_      table:
-#_        HostFile: string
-#_        ShortcutData: string
-#_        Flags: flags
+#_        *HostFile*:     string
+#_        *ShortcutData*: string
+#_        *Flags*:        flags
 #_    if OpenFrom == OPEN_DIALOG:
 #_      table:
-#_        hDlg : userdata
+#_        *hDlg*: userdata
 #_    if OpenFrom == OPEN_ANALYSE:
 #_      table AnalyseInfo
 #_    if OpenFrom == something else:
@@ -1647,15 +1649,15 @@ mtime=3560877080
 #_  if OpenFrom == OPEN_FROMMACRO:
 #_    0 or more Lua values.
 #_    Currently, values of the following types are supported:
-#_      string, boolean, number, "int64", or "binary".
+#_      string, nil, boolean, number, "int64", or "binary".
 #_  if OpenFrom == something else:
 #_    ret: any Lua value; it is processed by LuaFAR as follows:
-#_      - Nil and false: NULL is returned to Far.
-#_      - Number -1: PANEL_STOP is returned to Far.
-#_      - Otherwise: *ret* is considered a panel object, stored in the Lua
-#_        registry, its registry reference is returned to Far.
-#_        The object is passed to other exported functions when they are
-#_        called by Far.
+#_    - Nil and false: NULL is returned to Far.
+#_    - Number -1: PANEL_STOP is returned to Far.
+#_    - Otherwise: *ret* is considered a panel object, stored in the Lua
+#_      registry, its registry reference is returned to Far.
+#_      The object is passed to other exported functions when they are
+#_      called by Far.
 #_
 #_**Note:**
 #_  Return value of -1 can be used with *OpenFrom* == OPEN_ANALYSE,
