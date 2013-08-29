@@ -136,4 +136,6 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void AddOK();
 
 		void SetDialogMode(DWORD Flags);
+
+		int AddTextWrap(const wchar_t *text, bool center=false, int width=0);
 };

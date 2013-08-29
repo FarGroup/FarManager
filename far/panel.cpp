@@ -933,26 +933,18 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					break;
 				}
 			}
+			Global->CatchError();
 
 			DialogBuilder Builder(MError, nullptr);
 
-			Global->CatchError();
-			string strError = GetErrorString();
-			FarFormatText(strError, std::min(std::max(static_cast<int>(strError.size()), StrLength(MSG(MChangeDriveCannotReadDisk))+3), ScrX-1-10), strError, L"\n", 0);
-			const int ErrLineCount = 1 + std::count(ALL_CONST_RANGE(strError), L'\n');
-			std::replace(ALL_RANGE(strError), L'\n', L'\0');
-			const wchar_t *ps = strError.data();
-			for (int i = 0; i < ErrLineCount; ++i, ps += StrLength(ps) + 1)
-			{
-				/* DialogItemEx *ErrorText = */ Builder.AddText(ps);
-				//ErrorText->Flags = DIF_CENTERTEXT; BUGBUG: Фар почему то падает от этого
-			}
+			Builder.AddTextWrap(GetErrorString().data(), true);
+			Builder.AddText(L"");
 
 			const wchar_t Drive[] = {mitem->cDrive,L'\0'};
 			string DriveLetter = Drive;
 			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(&DriveLetter, 1);
 			Builder.AddTextBefore(DriveLetterEdit, MChangeDriveCannotReadDisk);
-			//Builder.AddTextAfter(DriveLetterEdit, L":"); BUGBUG: currently adds a space before the ":", doesn't look good here
+			Builder.AddTextAfter(DriveLetterEdit, L":", 0);
 
 			Builder.AddOKCancel(MRetry, MCancel);
 			Builder.SetDialogMode(DMODE_WARNINGSTYLE);

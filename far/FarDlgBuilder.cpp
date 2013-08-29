@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
+#include "interf.hpp"
 
 const int DEFAULT_INDENT = 5;
 
@@ -611,3 +612,19 @@ void DialogBuilder::AddOK()
 {
 	DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, -1);
 }
+
+int DialogBuilder::AddTextWrap(const wchar_t *text, bool center, int width)
+{
+	string str(text);
+	FarFormatText(str, width <= 0 ? ScrX-1-10 : width, str, L"\n", 0);
+	int LineCount = 1 + std::count(ALL_CONST_RANGE(str), L'\n');
+	std::replace(ALL_RANGE(str), L'\n', L'\0');
+	const wchar_t *ps = str.data();
+	for (int i = 0; i < LineCount; ++i, ps += StrLength(ps) + 1)
+	{
+		DialogItemEx *Text = AddText(ps);
+		Text->Flags = (center ? DIF_CENTERTEXT : 0);
+	}
+	return LineCount;
+}
+
