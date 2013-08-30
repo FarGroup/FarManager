@@ -419,7 +419,7 @@ void Dialog::InitDialog()
 		SetDialogMode(DMODE_NOPLUGINS);
 	}
 
-	if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
+	if (!DialogMode.Check(DMODE_OBJECTS_INITED))      // самодостаточный вариант, когда
 	{                      //  элементы инициализируются при первом вызове.
 		CheckDialogCoord();
 		size_t InitFocus=InitDialogObjects();
@@ -441,7 +441,7 @@ void Dialog::InitDialog()
 		}
 
 		// все объекты проинициализированы!
-		DialogMode.Set(DMODE_INITOBJECTS);
+		DialogMode.Set(DMODE_OBJECTS_INITED);
 
 		DlgProc(DN_GOTFOCUS,InitFocus,0);
 	}
@@ -457,7 +457,7 @@ void Dialog::Show()
 	CriticalSectionLock Lock(CS);
 	_tran(SysLog(L"[%p] Dialog::Show()",this));
 
-	if (!DialogMode.Check(DMODE_INITOBJECTS))
+	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
 	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !Global->PreRedraw->empty())
@@ -481,7 +481,7 @@ void Dialog::Hide()
 	CriticalSectionLock Lock(CS);
 	_tran(SysLog(L"[%p] Dialog::Hide()",this));
 
-	if (!DialogMode.Check(DMODE_INITOBJECTS))
+	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
 	DialogMode.Clear(DMODE_SHOW);
@@ -604,12 +604,14 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	size_t InitItemCount;
 	unsigned __int64 ItemFlags;
 	_DIALOG(CleverSysLog CL(L"Init Dialog"));
+	bool AllElements = false;
 
 	if (ID+1 > Items.size())
 		return (size_t)-1;
 
 	if (ID == (size_t)-1) // инициализируем все?
 	{
+		AllElements = true;
 		ID=0;
 		InitItemCount=Items.size();
 	}
@@ -702,7 +704,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 		if (Type==DI_LISTBOX)
 		{
-			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
+			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
 				Items[I].ListPtr=new VMenu(L"",nullptr,0,Items[I].Y2-Items[I].Y1+1,
 				                           VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,this);
@@ -732,14 +734,14 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 
 				// поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
-				if (!(ItemFlags&DIF_LISTNOBOX) && !DialogMode.Check(DMODE_CREATEOBJECTS))
+				if (!(ItemFlags&DIF_LISTNOBOX) && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 				{
 					ListPtr->SetTitle(Items[I].strData);
 				}
 
 				// удалим все итемы
 				//ListBox->DeleteItems(); //???? А НАДО ЛИ ????
-				if (Items[I].ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
+				if (Items[I].ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 				{
 					ListPtr->AddItem(Items[I].ListItems);
 				}
@@ -756,7 +758,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				if ((ItemFlags&DIF_EDITOR) && Type != DI_EDIT && Type != DI_FIXEDIT && Type != DI_PSWEDIT)
 					ItemFlags&=~DIF_EDITOR;
 
-			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
+			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
 				Items[I].ObjPtr=new DlgEdit(this,I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
 
@@ -791,7 +793,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
 						ListPtr->AssignHighlights(FALSE);
 
-					if (Items[I].ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
+					if (Items[I].ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 						ListPtr->AddItem(Items[I].ListItems);
 
 					ListPtr->SetFlags(VMENU_COMBOBOX);
@@ -862,7 +864,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				{
 					DialogEdit->SetEditBeyondEnd(FALSE);
 
-					if (!DialogMode.Check(DMODE_INITOBJECTS))
+					if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 						DialogEdit->SetClearFlag(1);
 				}
 
@@ -925,7 +927,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		}
 		else if (Type == DI_USERCONTROL)
 		{
-			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
+			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 				Items[I].UCData=new DlgUserControl;
 		}
 		else if (Type == DI_TEXT)
@@ -945,7 +947,8 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// если будет редактор, то обязательно будет выделен.
 	SelectOnEntry(FocusPos,TRUE);
 	// все объекты созданы!
-	DialogMode.Set(DMODE_CREATEOBJECTS);
+	if (AllElements)
+		DialogMode.Set(DMODE_OBJECTS_CREATED);
 	return FocusPos;
 }
 
@@ -1523,7 +1526,7 @@ void Dialog::ShowDialog(size_t ID)
 	        (ID+1 > Items.size()) ||             // а номер в рамках дозволенного?
 	        DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
 	        !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
-	        !DialogMode.Check(DMODE_INITOBJECTS))
+	        !DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
 	DialogMode.Set(DMODE_DRAWING);  // диалог рисуется!!!
@@ -3839,7 +3842,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 	if (!(Items[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
 	{
 		int FocusPosNeed=-1;
-		if (DialogMode.Check(DMODE_INITOBJECTS))
+		if (DialogMode.Check(DMODE_OBJECTS_INITED))
 		{
 			FocusPosNeed=(int)DlgProc(DN_KILLFOCUS,FocusPos,0);
 
@@ -3905,7 +3908,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		PrevFocusPos=FocusPos;
 		FocusPos=SetFocusPos;
 
-		if (DialogMode.Check(DMODE_INITOBJECTS))
+		if (DialogMode.Check(DMODE_OBJECTS_INITED))
 			DlgProc(DN_GOTFOCUS,FocusPos,0);
 	}
 }
@@ -4301,7 +4304,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 	CriticalSectionLock Lock(CS);
 	int x1,x2,y1,y2;
 
-	if (!DialogMode.Check(DMODE_CREATEOBJECTS))
+	if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 		return;
 
 	ScreenObject *DialogScrObject;
@@ -4817,7 +4820,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_REDRAW:
 		{
-			if (DialogMode.Check(DMODE_INITOBJECTS))
+			if (DialogMode.Check(DMODE_OBJECTS_INITED))
 				Show();
 
 			return 0;
@@ -4835,7 +4838,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			//Edit::DisableEditOut(IsEnableRedraw);
 
 			if (!IsEnableRedraw && Prev != IsEnableRedraw)
-				if (DialogMode.Check(DMODE_INITOBJECTS))
+				if (DialogMode.Check(DMODE_OBJECTS_INITED))
 				{
 					ShowDialog();
 //          Show();
@@ -5901,7 +5904,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							}
 							EditLine->SetReadOnly(ReadOnly);
 
-							if (DialogMode.Check(DMODE_INITOBJECTS)) // не меняем клеар-флаг, пока не проиницализировались
+							if (DialogMode.Check(DMODE_OBJECTS_INITED)) // не меняем клеар-флаг, пока не проиницализировались
 								EditLine->SetClearFlag(0);
 
 							EditLine->Select(-1,0); // снимаем выделение
@@ -6252,7 +6255,7 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 BOOL Dialog::IsInited()
 {
 	CriticalSectionLock Lock(CS);
-	return DialogMode.Check(DMODE_INITOBJECTS);
+	return DialogMode.Check(DMODE_OBJECTS_INITED);
 }
 
 void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2)

@@ -47,8 +47,8 @@ class History;
 // Флаги текущего режима диалога
 enum DIALOG_MODES
 {
-	DMODE_INITOBJECTS           =0x00000001, // элементы инициализарованы?
-	DMODE_CREATEOBJECTS         =0x00000002, // объекты (Edit,...) созданы?
+	DMODE_OBJECTS_INITED           =0x00000001, // элементы инициализарованы?
+	DMODE_OBJECTS_CREATED         =0x00000002, // объекты (Edit,...) созданы?
 	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?
 	DMODE_DRAGGED               =0x00000008, // диалог двигается?
 	DMODE_ISCANMOVE             =0x00000010, // можно ли двигать диалог?
