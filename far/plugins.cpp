@@ -282,14 +282,16 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	if(pPlugin->Active())
 	{
 		nResult = TRUE;
+		if(!IsPluginUnloaded(pPlugin))
+		{
+			UnloadedPlugins.emplace_back(pPlugin);
+		}
 	}
 	else
 	{
+		UnloadedPlugins.remove(pPlugin);
 		nResult = pPlugin->Unload(true);
-	}
-	if(!IsPluginUnloaded(pPlugin))
-	{
-		UnloadedPlugins.emplace_back(pPlugin);
+		RemovePlugin(pPlugin);
 	}
 	return nResult;
 }
@@ -1171,7 +1173,7 @@ void PluginManager::GetOpenPanelInfo(
 
 	ClearStruct(*Info);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	
+
 	Info->StructSize = sizeof(OpenPanelInfo);
 	Info->hPanel = ph->hPlugin;
 	ph->pPlugin->GetOpenPanelInfo(Info);
@@ -1188,7 +1190,7 @@ int PluginManager::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	ProcessPanelInputInfo Info={sizeof(Info)};
 	Info.hPanel = ph->hPlugin;
 	Info.Rec=*Rec;
-	
+
 #ifndef NO_WRAPPER
 	if (Pred && ph->pPlugin->IsOemPlugin())
 		Info.Rec.EventType |= 0x4000;
@@ -2537,12 +2539,16 @@ void PluginManager::RefreshPluginsList()
 {
 	if(!UnloadedPlugins.empty())
 	{
-		std::for_each(CONST_RANGE(UnloadedPlugins, i)
+		UnloadedPlugins.remove_if([&](const T_CONST_VALUE_TYPE(UnloadedPlugins)& i) -> bool
 		{
-			i->Unload(true);
-			RemovePlugin(i);
+			if (!i->Active())
+			{
+				i->Unload(true);
+				RemovePlugin(i);
+				return true;
+			}
+			return false;
 		});
-		UnloadedPlugins.clear();
 	}
 }
 
