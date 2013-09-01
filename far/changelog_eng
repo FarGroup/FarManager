@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 31.08.2013 04:12:54 +0200 - build 3628
+
+1. forum: Crash on PCTL_GETPLUGININFORMATION call.
+
+drkns 30.08.2013 22:53:31 +0200 - build 3627
+
+1. Sending messages to a dialog before DialogRun call could cause a crash.
+
+w17 29.08.2013 16:08:18 +0400 - build 3626
+
+1. Correction of 3261, DialogBuilder update
+
+drkns 29.08.2013 10:01:04 +0200 - build 3625
+
+1. Incorrect handling of OPEN_FINDLIST call for ansi plugins.
+
+t-rex 28.08.2013 20:06:09 +0200 - build 3624
+
+1. Correction of 3621, using DialogBuilder.
+
+t-rex 28.08.2013 16:35:28 +0200 - build 3623
+
+1. Correction of 3621
+
+2. sqlite 3.8.0
+
+w17 28.08.2013 17:24:35 +0400 - build 3622
+
+1. Correction of 3621
+
+w17 28.08.2013 14:59:22 +0400 - build 3621
+
+1. Error text wrapping in ChDiskDlg error dialog
+
 shmuel 20.08.2013 20:54:52 +0200 - build 3620
 
 1. Custom panel sortings are restored after FAR restart if setup was saved,
@@ -23,7 +57,7 @@ shmuel 17.08.2013 11:56:31 +0200 - build 3617
 
 drkns 17.08.2013 01:36:21 +0200 - build 3616
 
-1. Уточнение 1947.1 - copying strings from the position after zero character to the clipboard caused crash.
+1. Correction of 1947.1 - copying strings from the position after zero character to the clipboard caused crash.
 
 t-rex 16.08.2013 23:42:58 +0200 - build 3615
 
