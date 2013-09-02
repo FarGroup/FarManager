@@ -42,7 +42,8 @@ enum FAR_CLIPBOARD_FORMAT
 
 wchar_t* PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format);
 int CopyFormatToClipboard(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-int CopyToClipboard(const string& Data);
+int CopyToClipboard(const wchar_t* Data);
+inline int CopyToClipboard(const string& Data) { return CopyToClipboard(Data.data()); }
 wchar_t* PasteFromClipboard();
 wchar_t* PasteFromClipboardEx(int max);
 bool EmptyInternalClipboard();

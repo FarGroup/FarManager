@@ -518,14 +518,14 @@ bool Clipboard::InternalCopy(bool FromWin)
 }
 
 /* ------------------------------------------------------------ */
-int CopyToClipboard(const string& Data)
+int CopyToClipboard(const wchar_t* Data)
 {
 	Clipboard clip;
 
 	if (!clip.Open())
 		return FALSE;
 
-	BOOL ret = clip.Copy(Data.data());
+	BOOL ret = clip.Copy(Data);
 
 	clip.Close();
 

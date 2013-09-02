@@ -1,3 +1,7 @@
+shmuel 02.09.2013 11:19:10 +0200 - build 3630
+
+1. FSF.CopyToClipboard() очищает буфер обмена при передаче Data==NULL.
+
 shmuel 02.09.2013 07:25:59 +0200 - build 3629
 
 1. Функция FSF.CopyToClipboard не копировала пустую строку.
