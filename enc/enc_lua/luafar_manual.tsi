@@ -6514,16 +6514,19 @@ id=3
 lv=2
 dt=Text
 nm=far.CopyToClipboard
-mtime=3557341346
+mtime=3587279159
 <article>
 #_result = far.CopyToClipboard (str [,type])
 #_
 #_**Parameters:**
-#_  str:  string
-#_  type: integer (defaults to FCT_STREAM)
+#_  str:    string, or nil
+#_  type:   integer (defaults to FCT_STREAM)
 #_
 #_**Returns:**
 #_  result: boolean
+#_
+#_**Note:**
+#_  To clear the clipboard, pass *str* as nil
 #_
 #_**Far API used:**
 #_  FSF.CopyToClipboard

@@ -3804,10 +3804,16 @@ static int far_Text(lua_State *L)
 
 static int far_CopyToClipboard(lua_State *L)
 {
-	const wchar_t *str = check_utf8_string(L,1,NULL);
-	enum FARCLIPBOARD_TYPE type = (enum FARCLIPBOARD_TYPE) OptFlags(L,2,FCT_STREAM);
-	int r = GetPluginData(L)->FSF->CopyToClipboard(type,str);
-	return lua_pushboolean(L, r), 1;
+	int ret;
+	if (lua_isnoneornil(L,1))
+		ret = GetPluginData(L)->FSF->CopyToClipboard(FCT_STREAM,NULL);
+	else
+	{
+		const wchar_t *str = check_utf8_string(L,1,NULL);
+		enum FARCLIPBOARD_TYPE type = (enum FARCLIPBOARD_TYPE) OptFlags(L,2,FCT_STREAM);
+		ret = GetPluginData(L)->FSF->CopyToClipboard(type,str);
+	}
+	return lua_pushboolean(L, ret), 1;
 }
 
 static int far_PasteFromClipboard(lua_State *L)
