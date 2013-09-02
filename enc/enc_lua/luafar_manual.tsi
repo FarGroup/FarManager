@@ -6514,13 +6514,13 @@ id=3
 lv=2
 dt=Text
 nm=far.CopyToClipboard
-mtime=3587279159
+mtime=3587293480
 <article>
 #_result = far.CopyToClipboard (str [,type])
 #_
 #_**Parameters:**
 #_  str:    string, or nil
-#_  type:   integer (defaults to FCT_STREAM)
+#_  type:   flag (defaults to FCT_STREAM)
 #_
 #_**Returns:**
 #_  result: boolean
@@ -6948,12 +6948,12 @@ id=67
 lv=2
 dt=Text
 nm=far.PasteFromClipboard
-mtime=3557342235
+mtime=3587293469
 <article>
 #_result = far.PasteFromClipboard ([type])
 #_
 #_**Parameters:**
-#_  type:   integer (defaults to FCT_ANY)
+#_  type:   flag (defaults to FCT_ANY)
 #_
 #_**Returns:**
 #_  result: string, or nil
