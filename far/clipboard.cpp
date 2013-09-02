@@ -228,7 +228,7 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 bool Clipboard::Copy(const wchar_t *Data)
 {
 	Empty();
-	if (Data && *Data)
+	if (Data)
 	{
 		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
 		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);

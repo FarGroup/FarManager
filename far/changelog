@@ -1,3 +1,7 @@
+shmuel 02.09.2013 07:25:59 +0200 - build 3629
+
+1. Функция FSF.CopyToClipboard не копировала пустую строку.
+
 zg 31.08.2013 04:12:54 +0200 - build 3628
 
 1. с форума: Падение при вызове PCTL_GETPLUGININFORMATION.
