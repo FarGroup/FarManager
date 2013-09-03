@@ -264,7 +264,7 @@ active panel, the second path - to the passive one:
 resides and place the cursor on the file, if it exists;
   - ^<wrap>when prefixes specified (simultaneous use with common paths allowed)
 passive command executes first (passive panel activates temporary). Single letter prefixes will be ignored.
-  Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"Far Manager\\",\\"Successfully started\\")"
+  Example: far arc:c:\\Far20.7z "macro:post msgbox(\\"Far Manager\\",\\"Successfully started\\")"
 
 
 @KeyRef
