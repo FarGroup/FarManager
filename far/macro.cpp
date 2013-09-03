@@ -573,7 +573,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (result && macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT))
+	if (result && macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Info->CallType==MCT_MACROSTEP)
 		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;

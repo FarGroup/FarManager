@@ -2015,13 +2015,9 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			case MCTL_SENDSTRING:
 			{
 				MacroSendMacroText *Data=(MacroSendMacroText*)Param2;
-
-				if (!Data || !CheckStructSize(Data) || !Data->SequenceText)
-					break;
-
-				switch (Param1)
+				if (CheckStructSize(Data) && Data->SequenceText)
 				{
-					case MSSC_POST:
+					if (Param1==MSSC_POST)
 					{
 						UINT64 Flags = MFLAGS_POSTFROMPLUGIN;
 						if (Data->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
@@ -2029,13 +2025,11 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 						return Macro.PostNewMacro(Data->SequenceText,Flags,InputRecordToKey(&Data->AKey));
 					}
-
-					case MSSC_CHECK:
+					else if (Param1==MSSC_CHECK)
 					{
 						return Macro.ParseMacroString(Data->SequenceText,(Data->Flags&KMFLAGS_SILENTCHECK)!=0,false);
 					}
 				}
-
 				break;
 			}
 
@@ -2043,11 +2037,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			case MCTL_EXECSTRING:
 			{
 				MacroExecuteString *Data=(MacroExecuteString*)Param2;
-				if (Data && CheckStructSize(Data))
-				{
-					return Macro.ExecuteString(Data);
-				}
-				break;
+				return CheckStructSize(Data) && Macro.ExecuteString(Data) ? 1:0;
 			}
 
 			// Param1=0, Param2 - 0
