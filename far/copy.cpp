@@ -229,7 +229,7 @@ class CopyProgress
 	public:
 		CopyProgress(bool Move,bool Total,bool Time);
 		void CreateBackground();
-		bool Cancelled() {return IsCancelled;}
+		bool Cancelled() const {return IsCancelled;}
 		void SetScanName(const string& Name);
 		void SetNames(const string& Src,const string& Dst);
 		void SetProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(false,CompletedSize,TotalSize);}
@@ -564,7 +564,6 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 }
 // CopyProgress end
 
-CopyProgress *CP;
 
 
 /* $ 25.05.2002 IS
@@ -656,7 +655,7 @@ static void PR_ShellCopyMsg();
 
 struct CopyPreRedrawItem : public PreRedrawItem
 {
-	CopyPreRedrawItem() : PreRedrawItem(PR_ShellCopyMsg){}
+	CopyPreRedrawItem() : PreRedrawItem(PR_ShellCopyMsg), CP() {}
 
 	CopyProgress* CP;
 };
@@ -1592,8 +1591,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 						NeedUpdateAPanel=TRUE;
 					}
 				}
-				delete CP;
-				CP=new CopyProgress(Move!=0,ShowTotalCopySize,ShowCopyTime);
+				if (!CP)
+					CP.reset(new CopyProgress(Move!=0,ShowTotalCopySize,ShowCopyTime));
+
 				// Обнулим инфу про дизы
 				strDestDizPath.clear();
 				Flags&=~FCOPY_DIZREAD;
@@ -1618,7 +1618,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				int I;
 				{
 					auto item = new CopyPreRedrawItem;
-					item->CP = CP;
+					item->CP = CP.get();
 					TPreRedrawFuncGuard Guard(item);
 					I=CopyFileTree(strNameTmp);
 				}
@@ -1741,12 +1741,6 @@ ShellCopy::~ShellCopy()
 
 	if (Filter) // Уничтожим объект фильтра
 		delete Filter;
-
-	if (CP)
-	{
-		delete CP;
-		CP=nullptr;
-	}
 }
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
@@ -3933,7 +3927,7 @@ int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR&
 	return TRUE;
 }
 
-BOOL ShellCopySecuryMsg(const string& Name)
+BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
 {
 	static DWORD PrepareSecuryStartTime=0;
 
@@ -3989,7 +3983,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DE
 			FAR_FIND_DATA SrcData;
 			while (ScTree.GetNextName(&SrcData,strFullName))
 			{
-				if (!ShellCopySecuryMsg(strFullName))
+				if (!ShellCopySecuryMsg(CP.get(), strFullName))
 					break;
 
 				if (!SetSecurity(strFullName, sd))
@@ -4017,7 +4011,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	CP->SetNames(SrcName,DestName);
 	CP->SetProgressValue(0,0);
 	TotalCopiedSizeEx=TotalCopiedSize;
-	if (!apiCopyFileEx(SrcName,DestName,CopyProgressRoutine,nullptr,nullptr,Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
+	if (!apiCopyFileEx(SrcName, DestName, CopyProgressRoutine, CP.get(), nullptr, Flags&FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
@@ -4040,6 +4034,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 	bool Abort = false;
+	CopyProgress* CP = static_cast<CopyProgress*>(lpData);
 	if (CP->Cancelled())
 	{
 		// // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
@@ -4081,7 +4076,7 @@ bool ShellCopy::CalcTotalSize()
 	FAR_FIND_DATA fd;
 	
 	auto item = new CopyPreRedrawItem;
-	item->CP = CP;
+	item->CP = CP.get();
 	TPreRedrawFuncGuard Guard(item);
 
 	TotalCopySize=CurCopiedSize=0;

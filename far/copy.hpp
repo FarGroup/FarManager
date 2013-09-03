@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Panel;
 class Dialog;
+class CopyProgress;
 
 ENUM(COPY_CODES);
 ENUM(ReparsePointTypes);
@@ -65,7 +66,7 @@ private:
 	intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-
+	std::unique_ptr<CopyProgress> CP;
 	DWORD Flags;
 	Panel *SrcPanel,*DestPanel;
 	int SrcPanelMode,DestPanelMode;
