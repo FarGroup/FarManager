@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3626
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3635
 */
 
 /*
@@ -271,7 +271,7 @@ class DialogBuilderBase
 		void UpdateBorderSize()
 		{
 			T *Title = &DialogItems[0];
-			int MaxWidth = MaxTextWidth();
+			intptr_t MaxWidth = MaxTextWidth();
 			Title->X2 = Title->X1 + MaxWidth + 3;
 			Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
 
