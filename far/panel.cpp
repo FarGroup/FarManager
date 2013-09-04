@@ -370,7 +370,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	_guard_Macro_DskShowPosType(this);
 
-	std::bitset<32> Mask = FarGetLogicalDrives();
+	std::bitset<32> Mask(static_cast<int>(FarGetLogicalDrives()));
 	const std::bitset<32> NetworkMask = AddSavedNetworkDisks(Mask);
 	const size_t DiskCount = Mask.count();
 
@@ -588,7 +588,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PLUGINS)
 		{
-			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, DiskCount, SetSelected);
+			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, static_cast<int>(DiskCount), SetSelected);
 		}
 
 		DE.reset();
@@ -600,7 +600,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk.SetPosition(X,-1,0,0);
 
-		int Y = (ScrY+1-(DiskCount+static_cast<int>(PluginMenuItemsCount)+5))/2;
+		int Y = (ScrY+1-static_cast<int>((DiskCount+PluginMenuItemsCount)+5))/2;
 		if (Y < 3)
 			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 

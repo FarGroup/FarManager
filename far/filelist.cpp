@@ -4637,7 +4637,7 @@ void FileList::SelectSortMode()
 			mpr = (MacroPluginReturn*)ptr;
 			if (mpr->Count)
 			{
-				extra = 1 + mpr->Count/3; // add 1 item for separator
+				extra = 1 + static_cast<int>(mpr->Count/3); // add 1 item for separator
 				SortMenu2 = new MenuDataEx[ARRAYSIZE(SortMenu) + extra];
 				memcpy(SortMenu2, SortMenu, sizeof(MenuDataEx)*(ARRAYSIZE(SortModes)+1));
 				for (size_t i=0; i<mpr->Count; i+=3)

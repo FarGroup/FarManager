@@ -3734,19 +3734,10 @@ BOOL Editor::Search(int Next)
 
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
-/*
-	struct FindCoord
-	{
-		UINT Line;
-		UINT Pos;
-		UINT SearchLen;
-	};
-*/
+
 	VMenu2 FindAllList(L"", nullptr, 0);
 	UINT AllRefLines = 0;
-
 	{
-		//SaveScreen SaveScr;
 		TPreRedrawFuncGuard preRedrawFuncGuard(new EditorPreRedrawItem);
 		strMsgStr=strSearchStr;
 		InsertQuote(strMsgStr);
@@ -3795,7 +3786,6 @@ BOOL Editor::Search(int Next)
 		int StartLine=NumLine;
 		TaskBar TB;
 		wakeful W;
-
 		int LastCheckedLine = -1;
 
 		while (CurPtr)
@@ -3824,8 +3814,8 @@ BOOL Editor::Search(int Next)
 				Global->TBC->SetProgressValue(Current,Total);
 			}
 
-			int SearchLength=0;
-			string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
+			int SearchLength = 0;
+			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
 
 			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
@@ -3871,13 +3861,9 @@ BOOL Editor::Search(int Next)
 					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
 
 					int Skip=FALSE;
-					/* $ 24.01.2003 KM
-					   ! По окончании поиска отступим от верха экрана на треть отображаемой высоты.
-					*/
-					/* $ 15.04.2003 VVM
-					   Отступим на четверть и проверим на перекрытие диалогом замены */
+					
+					// Отступим на четверть и проверим на перекрытие диалогом замены
 					int FromTop=(ScrY-2)/4;
-
 					if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
 						FromTop=0;
 
@@ -3951,18 +3937,17 @@ BOOL Editor::Search(int Next)
 						{
 							Pasting++;
 
-							/*$ 15.08.2000 skv
-							  If Replace string doesn't contain control symbols (tab and return),
-							  processed with fast method, otherwise use improved old one.
-							*/
-							if (strReplaceStrCurrent.find(L'\t') != string::npos || strReplaceStrCurrent.find(L'\r') != string::npos)
+							// If Replace string doesn't contain control symbols (tab and return),
+							// processed with fast method, otherwise use improved old one.
+							//
+							if (strReplaceStrCurrent.find_first_of(L"\t\r") != string::npos)
 							{
 								int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
 								Flags.Set(FEDITOR_OVERTYPE);
 								CurLine->SetOvertypeMode(TRUE);
 
 								int I=0;
-								for (; SearchLength && strReplaceStrCurrent[I]; I++,SearchLength--)
+								for (; SearchLength && I<static_cast<int>(strReplaceStrCurrent.size()); ++I, --SearchLength)
 								{
 									int Ch=strReplaceStrCurrent[I];
 
@@ -3995,7 +3980,7 @@ BOOL Editor::Search(int Next)
 									Flags.Clear(FEDITOR_OVERTYPE);
 									CurLine->SetOvertypeMode(FALSE);
 
-									for (; strReplaceStrCurrent[I]; I++)
+									for (; I<static_cast<int>(strReplaceStrCurrent.size()); I++)
 									{
 										int Ch=strReplaceStrCurrent[I];
 
@@ -4059,11 +4044,6 @@ BOOL Editor::Search(int Next)
 								TextChanged(1);
 							}
 
-							/* skv$*/
-							//AY: В этом нет никакой надобности и оно приводит к не правильному
-							//позиционированию при Replace
-							//if (ReverseSearch)
-							//CurLine->SetCurPos(CurPos);
 							Pasting--;
 						}
 					}
