@@ -203,15 +203,18 @@ bool global::IsUserAdmin() const
 	if(!Checked)
 	{
 		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-		PSID AdministratorsGroup;
-		if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdministratorsGroup))
+		try
 		{
+			sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 			BOOL IsMember = FALSE;
-			if(CheckTokenMembership(nullptr, AdministratorsGroup, &IsMember) && IsMember)
+			if(CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
 			{
 				Result = true;
 			}
-			FreeSid(AdministratorsGroup);
+		}
+		catch(const FarRecoverableException&)
+		{
+			// TODO: Log
 		}
 		Checked = true;
 	}

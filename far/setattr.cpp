@@ -581,7 +581,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
 {
 	bool Result=false;
-	FAR_FIND_DATA ffd={};
+	FAR_FIND_DATA ffd;
 
 	if (apiGetFindDataEx(Name, ffd))
 	{

@@ -49,6 +49,11 @@ struct FAR_FIND_DATA
 	DWORD dwFileAttributes;
 	DWORD dwReserved0;
 
+	FAR_FIND_DATA()
+	{
+		Clear();
+	}
+
 	void Clear()
 	{
 		ClearStruct(ftCreationTime);
@@ -136,6 +141,28 @@ private:
 	std::list<Chunk>::iterator CurrentChunk;
 	DWORD ChunkSize;
 	bool Sparse;
+};
+
+class sid_object:NonCopyable
+{
+public:
+	sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
+	{
+		if (!AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &m_value))
+		{
+			throw FarRecoverableException("unable to allocate and initialize SID");
+		}
+	}
+
+	~sid_object()
+	{
+		FreeSid(m_value);
+	}
+
+	PSID get() const { return m_value; }
+
+private:
+	PSID m_value;
 };
 
 NTSTATUS GetLastNtStatus();

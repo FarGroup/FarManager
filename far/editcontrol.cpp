@@ -255,8 +255,6 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 			std::for_each(CONST_RANGE(PathList, i)
 			{
-				string strDest;
-
 				FAR_FIND_DATA data;
 				string str(i);
 				AddEndSlash(str);

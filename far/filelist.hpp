@@ -301,18 +301,25 @@ private:
 
 	struct PrevDataItem
 	{
-		PrevDataItem(const string& rhsPrevName, std::vector<std::unique_ptr<FileListItem>>&& rhsPrevListData, int rhsPrevTopFile)
+		PrevDataItem(const string& rhsPrevName, std::vector<std::unique_ptr<FileListItem>>&& rhsPrevListData, int rhsPrevTopFile):
+			strPrevName(rhsPrevName),
+			PrevTopFile(rhsPrevTopFile)
 		{
-			strPrevName = rhsPrevName;
 			std::swap(PrevListData, rhsPrevListData);
-			PrevTopFile = rhsPrevTopFile;
 		}
 
-		PrevDataItem(PrevDataItem&& rhs)
+		PrevDataItem(PrevDataItem&& rhs):
+			PrevTopFile()
+		{
+			*this = std::move(rhs);
+		}
+
+		PrevDataItem& operator=(PrevDataItem&& rhs)
 		{
 			std::swap(strPrevName, rhs.strPrevName);
 			std::swap(PrevListData, rhs.PrevListData);
-			PrevTopFile = rhs.PrevTopFile;
+			std::swap(PrevTopFile, rhs.PrevTopFile);
+			return *this;
 		}
 
 		string strPrevName;

@@ -43,9 +43,7 @@ class NonCopyable
 {
 	private:
 		NonCopyable(const NonCopyable&);
-		NonCopyable(NonCopyable&&);
 		NonCopyable& operator=(const NonCopyable&);
-		NonCopyable& operator=(NonCopyable&&);
 
 	protected:
 		NonCopyable() {};

@@ -111,7 +111,6 @@ void CommandLine::SetAutoComplete(int Mode)
 void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
-	string strTruncDir;
 	auto PromptList = GetPrompt();
 	size_t MaxLength = PromptSize*ObjWidth()/100;
 	size_t CurLength = 0;
@@ -570,7 +569,6 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	std::list<std::pair<string, FarColor>> Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
-	string strDestStr;
 	FarColor PrefixColor(ColorIndexToColor(COL_COMMANDLINEPREFIX));
 
 	if (Global->Opt->CmdLine.UsePromptFormat)

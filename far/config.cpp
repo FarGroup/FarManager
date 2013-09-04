@@ -1376,19 +1376,19 @@ bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const 
 
 const string IntOption::ExInfo() const
 {
-	std::wstringstream ws;
+	std::wostringstream oss;
 	auto v = Get();
 	wchar_t w1 = static_cast<wchar_t>(v);
-	ws << L" = 0x" << std::hex << v;
+	oss << L" = 0x" << std::hex << v;
 	if (w1 > 0x001f && w1 < 0x8000)
 	{
-		ws << L" = '" << w1;
+		oss << L" = '" << w1;
 		wchar_t w2 = static_cast<wchar_t>(v >> 16); //???
 		if (w2 > 0x001f && w2 < 0x8000)
-			ws << w2;
-		ws << L"'";
+			oss << w2;
+		oss << L"'";
 	}
-	return ws.str();
+	return oss.str();
 }
 
 
@@ -1433,6 +1433,7 @@ Options::Options():
 	ElevationMode(0),
 	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
+	CurrentConfig(cfg_roaming),
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
@@ -1446,15 +1447,11 @@ Options::Options():
 	ResetViewModes(m_ViewSettings.data());
 }
 
-FARConfigItem* Options::farconfig::begin() const {return m_items;}
-
-FARConfigItem* Options::farconfig::end() const {return m_items + m_size;}
-
-const FARConfigItem* Options::farconfig::cbegin() const {return m_items;}
-
-const FARConfigItem* Options::farconfig::cend() const {return m_items + m_size;}
-
-FARConfigItem& Options::farconfig::operator[](size_t i) const {return m_items[i];}
+Options::farconfig::iterator Options::farconfig::begin() const {return m_items;}
+Options::farconfig::iterator Options::farconfig::end() const {return m_items + m_size;}
+Options::farconfig::const_iterator Options::farconfig::cbegin() const {return m_items;}
+Options::farconfig::const_iterator Options::farconfig::cend() const {return m_items + m_size;}
+Options::farconfig::value_type& Options::farconfig::operator[](size_t i) const {return m_items[i];}
 
 void Options::InitRoamingCFG()
 {
@@ -1991,9 +1988,6 @@ void Options::Load()
 	}
 
 	{
-		XLat.CurrentLayout=0;
-		ClearArray(XLat.Layouts);
-
 		if (!XLat.strLayouts.empty())
 		{
 			wchar_t *endptr;

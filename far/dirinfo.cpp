@@ -272,7 +272,10 @@ static void PR_FarGetPluginDirListMsg();
 
 struct PluginDirInfoPreRedrawItem : public PreRedrawItem
 {
-	PluginDirInfoPreRedrawItem() : PreRedrawItem(PR_FarGetPluginDirListMsg){}
+	PluginDirInfoPreRedrawItem():
+		PreRedrawItem(PR_FarGetPluginDirListMsg),
+		Flags()
+	{}
 
 	string Name;
 	DWORD Flags;

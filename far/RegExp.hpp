@@ -174,7 +174,7 @@ struct UniSet;
 Expressions must be Compile'ed first,
 and than Match string or Search for matching fragment.
 */
-class RegExp
+class RegExp:NonCopyable
 {
 	private:
 		// code

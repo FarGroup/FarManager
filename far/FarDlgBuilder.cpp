@@ -379,9 +379,9 @@ DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	std::wstringstream ss;
-	ss << L'x' << std::hex << std::setw(8) << std::setfill(L'0') << Value.Get();
-	Item->strData = ss.str();
+	std::wostringstream oss;
+	oss << L'x' << std::hex << std::setw(8) << std::setfill(L'0') << Value.Get();
+	Item->strData = oss.str();
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 

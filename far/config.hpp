@@ -14,7 +14,7 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+   notice, this list of conditions and the following disimer.
 2. Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
@@ -353,6 +353,8 @@ public:
 
 	struct CodeXLAT
 	{
+		CodeXLAT(): Layouts(), CurrentLayout() {}
+
 		HKL Layouts[10];
 		StringOption strLayouts;
 		StringOption Rules[3]; // правила:
@@ -873,26 +875,26 @@ private:
 	void ReadPanelModes();
 	void SavePanelModes();
 
-	class farconfig
+	class farconfig:NonCopyable
 	{
 	public:
-		FARConfigItem* begin() const;
-		FARConfigItem* end() const;
-		const FARConfigItem* cbegin() const;
-		const FARConfigItem* cend() const;
-		size_t size() const {return m_size;}
-		FARConfigItem& operator[](size_t i) const;
-
-		void assign(FARConfigItem* Items, size_t Size) {m_items = Items; m_size = Size;}
-
+		typedef FARConfigItem* iterator;
+		typedef const FARConfigItem* const_iterator;
 		typedef FARConfigItem value_type;
 
-#if defined(_MSC_VER) && _MSC_VER < 1700
-		// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
-		typedef FARConfigItem* iterator;
-#endif
+		farconfig():m_items(nullptr), m_size(0) {}
+		farconfig(farconfig&& rhs):m_items(nullptr), m_size(0) { *this = std::move(rhs); }
+		farconfig& operator=(farconfig&& rhs) { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); return *this; }
+		void assign(FARConfigItem* Items, size_t Size) { m_items = Items; m_size = Size; }
+		iterator begin() const;
+		iterator end() const;
+		const_iterator cbegin() const;
+		const_iterator cend() const;
+		size_t size() const {return m_size;}
+		value_type& operator[](size_t i) const;
+
 	private:
-		FARConfigItem *m_items;
+		value_type* m_items;
 		size_t m_size;
 	};
 

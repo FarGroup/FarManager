@@ -94,29 +94,37 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 
 class ChDiskPluginItem
 {
-	public:
-		MenuItemEx Item;
-		WCHAR HotKey;
-
-		ChDiskPluginItem() { Clear(); }
-		~ChDiskPluginItem() {}
-
-		void Clear() { HotKey = 0; Item.Clear(); }
-		bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName.data(), rhs.Item.strName.data()) && Item.UserData==rhs.Item.UserData; }
-		int operator<(const ChDiskPluginItem &rhs) const {return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?unsigned(HotKey-1)<unsigned(rhs.HotKey-1):StrCmpI(Item.strName.data(), rhs.Item.strName.data())<0;}
-		ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
-};
-
-ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
-{
-	if (this != &rhs)
+public:
+	ChDiskPluginItem(): HotKey() { Item.Clear(); }
+	bool operator ==(const ChDiskPluginItem& rhs) const
 	{
-		Item=rhs.Item;
-		HotKey=rhs.HotKey;
+		return HotKey==rhs.HotKey && !StrCmpI(Item.strName.data(), rhs.Item.strName.data()) && Item.UserData==rhs.Item.UserData;
 	}
 
-	return *this;
-}
+	bool operator <(const ChDiskPluginItem& rhs) const
+	{
+		return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?
+			HotKey-1 < rhs.HotKey-1 :
+			StrCmpI(Item.strName.data(), rhs.Item.strName.data()) < 0;
+	}
+
+	ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs)
+	{
+		if (this != &rhs)
+		{
+			Item=rhs.Item;
+			HotKey=rhs.HotKey;
+		}
+		return *this;
+	}
+
+	MenuItemEx& getItem() { return Item; }
+	WCHAR& getHotKey() { return HotKey; }
+
+private:
+	MenuItemEx Item;
+	WCHAR HotKey;
+};
 
 
 Panel::Panel():
@@ -184,7 +192,6 @@ void Panel::ChangeDisk()
 	}
 }
 
-
 struct PanelMenuItem
 {
 	bool bIsPlugin;
@@ -203,34 +210,6 @@ struct PanelMenuItem
 			int nDriveType;
 		};
 	};
-};
-
-struct TypeMessage
-{
-	int DrvType;
-	LNGID FarMsg;
-};
-
-const TypeMessage DrTMsg[]=
-{
-	{DRIVE_REMOVABLE,MChangeDriveRemovable},
-	{DRIVE_FIXED,MChangeDriveFixed},
-	{DRIVE_REMOTE,MChangeDriveNetwork},
-	{DRIVE_REMOTE_NOT_CONNECTED,MChangeDriveDisconnectedNetwork},
-	{DRIVE_CDROM,MChangeDriveCDROM},
-	{DRIVE_CD_RW,MChangeDriveCD_RW},
-	{DRIVE_CD_RWDVD,MChangeDriveCD_RWDVD},
-	{DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
-	{DRIVE_DVD_RW,MChangeDriveDVD_RW},
-	{DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
-	{DRIVE_BD_ROM,MChangeDriveBD_ROM},
-	{DRIVE_BD_RW,MChangeDriveBD_RW},
-	{DRIVE_HDDVD_ROM,MChangeDriveHDDVD_ROM},
-	{DRIVE_HDDVD_RW,MChangeDriveHDDVD_RW},
-	{DRIVE_RAMDISK,MChangeDriveRAM},
-	{DRIVE_SUBSTITUTE,MChangeDriveSUBST},
-	{DRIVE_VIRTUAL,MChangeDriveVirtual},
-	{DRIVE_USBDRIVE,MChangeDriveRemovable},
 };
 
 static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
@@ -273,29 +252,22 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 			if (!strMenuText.empty())
 			{
 				ChDiskPluginItem OneItem;
-				OneItem.Clear();
+#ifndef NO_WRAPPER
+				if (pPlugin->IsOemPlugin())
+					OneItem.getItem().Flags=LIF_CHECKED|L'A';
+#endif // NO_WRAPPER
+				OneItem.getItem().strName = strMenuText;
+				OneItem.getHotKey()=HotKey;
+
 				PanelMenuItem *item = new PanelMenuItem;
 				item->bIsPlugin = true;
 				item->pPlugin = pPlugin;
 				item->Guid = guid;
-#ifndef NO_WRAPPER
-				if (pPlugin->IsOemPlugin())
-					OneItem.Item.Flags=LIF_CHECKED|L'A';
-#endif // NO_WRAPPER
-				OneItem.Item.strName = strMenuText;
-				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
-				OneItem.Item.UserData=item;
-				OneItem.HotKey=HotKey;
+				OneItem.getItem().UserData=item;
+
 				MPItems.emplace_back(OneItem);
-				/*
-				else BUGBUG, а вот это, похоже, лишнее
-				{
-					Done=TRUE;
-					break;
-				}
-				*/
 			}
-		} // END: for (PluginItem=0;;++PluginItem)
+		}
 	}
 
 	MPItems.sort();
@@ -305,27 +277,25 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	if (PluginMenuItemsCount)
 	{
 		MenuItemEx ChDiskItem;
-
 		ChDiskItem.Clear();
 		ChDiskItem.Flags|=LIF_SEPARATOR;
-		ChDiskItem.UserDataSize=0;
 		ChDisk.AddItem(&ChDiskItem);
-		ChDiskItem.Flags&=~LIF_SEPARATOR;
 
 		for_each_cnt(RANGE(MPItems, i, size_t index)
 		{
 			if (Pos > DiskCount && !SetSelected)
 			{
-				i.Item.SetSelect(DiskCount + static_cast<int>(index) + 1 == Pos);
+				i.getItem().SetSelect(DiskCount + static_cast<int>(index) + 1 == Pos);
 
 				if (!SetSelected)
 					SetSelected = DiskCount + static_cast<int>(index) + 1 == Pos;
 			}
-			const wchar_t HotKeyStr[]={i.HotKey? L'&' : L' ', i.HotKey? i.HotKey : L' ', L' ', i.HotKey? L' ' : L'\0', L'\0'};
-			i.Item.strName = string(HotKeyStr) + i.Item.strName;
-			ChDisk.AddItem(&i.Item);
+			wchar_t HotKey = i.getHotKey();
+			const wchar_t HotKeyStr[]={HotKey? L'&' : L' ', HotKey? HotKey : L' ', L' ', HotKey? L' ' : L'\0', L'\0'};
+			i.getItem().strName = string(HotKeyStr) + i.getItem().strName;
+			ChDisk.AddItem(&i.getItem());
 
-			delete(PanelMenuItem*)i.Item.UserData;  //ммда...
+			delete(PanelMenuItem*)i.getItem().UserData;  //ммда...
 		});
 	}
 	return PluginMenuItemsCount;
@@ -394,24 +364,19 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
-		public:
-			Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;}
-			~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
-	};
-	Guard_Macro_DskShowPosType _guard_Macro_DskShowPosType(this);
-	MenuItemEx ChDiskItem;
-	string strRootDir;
-	DWORD Mask,DiskMask;
-	int DiskCount,Focus;
-	Mask = FarGetLogicalDrives();
-	DWORD NetworkMask = 0;
-	AddSavedNetworkDisks(Mask, NetworkMask);
+	public:
+		Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;}
+		~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
+	}
+	_guard_Macro_DskShowPosType(this);
 
-	for (DiskMask=Mask,DiskCount=0; DiskMask; DiskMask>>=1)
-		DiskCount+=DiskMask & 1;
+	std::bitset<32> Mask = FarGetLogicalDrives();
+	const std::bitset<32> NetworkMask = AddSavedNetworkDisks(Mask);
+	const size_t DiskCount = Mask.count();
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
+		MenuItemEx ChDiskItem;
 		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
 		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
 
@@ -438,21 +403,20 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		std::unique_ptr<DisableElevation> DE(new DisableElevation);
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
-		WCHAR I;
-		for (DiskMask=Mask,I=0; DiskMask; DiskMask>>=1,I++)
+		for (size_t i = 0; i < Mask.size(); ++i)
 		{
-			if (!(DiskMask & 1))   //нету диска
+			if (!Mask[i])   //нету диска
 				continue;
 
 			DiskMenuItem NewItem;
 
-			wchar_t Drv[]={L'&',static_cast<wchar_t>(L'A'+I),L':',L'\\',L'\0'};
-			strRootDir=Drv+1;
+			wchar_t Drv[]={L'&',static_cast<wchar_t>(L'A'+i),L':',L'\\',L'\0'};
+			string strRootDir=Drv+1;
 			Drv[3] = 0;
 			NewItem.Letter = Drv;
 			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
-			if ((1<<I)&NetworkMask)
+			if (NetworkMask[i])
 				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
@@ -469,9 +433,31 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					NewItem.DriveType=DRIVE_VIRTUAL;
 				}
 
-				auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i)	{return i.DrvType == NewItem.DriveType;});
+				static const simple_pair<int, LNGID> DrTMsg[]=
+				{
+					{DRIVE_REMOVABLE,MChangeDriveRemovable},
+					{DRIVE_FIXED,MChangeDriveFixed},
+					{DRIVE_REMOTE,MChangeDriveNetwork},
+					{DRIVE_REMOTE_NOT_CONNECTED,MChangeDriveDisconnectedNetwork},
+					{DRIVE_CDROM,MChangeDriveCDROM},
+					{DRIVE_CD_RW,MChangeDriveCD_RW},
+					{DRIVE_CD_RWDVD,MChangeDriveCD_RWDVD},
+					{DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
+					{DRIVE_DVD_RW,MChangeDriveDVD_RW},
+					{DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
+					{DRIVE_BD_ROM,MChangeDriveBD_ROM},
+					{DRIVE_BD_RW,MChangeDriveBD_RW},
+					{DRIVE_HDDVD_ROM,MChangeDriveHDDVD_ROM},
+					{DRIVE_HDDVD_RW,MChangeDriveHDDVD_RW},
+					{DRIVE_RAMDISK,MChangeDriveRAM},
+					{DRIVE_SUBSTITUTE,MChangeDriveSUBST},
+					{DRIVE_VIRTUAL,MChangeDriveVirtual},
+					{DRIVE_USBDRIVE,MChangeDriveRemovable},
+				};
+
+				auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i) {return i.first == NewItem.DriveType;});
 				if (ItemIterator != std::cend(DrTMsg))
-					NewItem.Type = MSG(ItemIterator->FarMsg);
+					NewItem.Type = MSG(ItemIterator->second);
 			}
 
 			int ShowDisk = (NewItem.DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -544,17 +530,17 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		std::for_each(CONST_RANGE(Items, i)
 		{
 			ChDiskItem.Clear();
-			I = i.Letter[1] - L'A';
+			int DiskNumber = i.Letter[1] - L'A';
 			if (FirstCall)
 			{
-				ChDiskItem.SetSelect(I==Pos);
+				ChDiskItem.SetSelect(DiskNumber==Pos);
 
 				if (!SetSelected)
-					SetSelected=(I==Pos);
+					SetSelected=(DiskNumber==Pos);
 			}
 			else
 			{
-				if (Pos < DiskCount)
+				if (Pos < static_cast<int>(DiskCount))
 				{
 					ChDiskItem.SetSelect(MenuLine==Pos);
 
@@ -592,7 +578,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			ChDiskItem.strName = ItemName;
 			PanelMenuItem item;
 			item.bIsPlugin = false;
-			item.cDrive = L'A'+I;
+			item.cDrive = L'A' + DiskNumber;
 			item.nDriveType = i.DriveType;
 			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(&ChDiskItem));
 			MenuLine++;
@@ -915,7 +901,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
 
-			if (NetworkMask & (1<<(mitem->cDrive-L'A')))
+			if (NetworkMask[mitem->cDrive-L'A'])
 			{
 				ConnectToNetworkDrive(NewDir);
 			}

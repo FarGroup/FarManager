@@ -116,7 +116,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Param1 == 10 && !Module) //terminate
 			{
-				TerminateProcess(GetCurrentProcess(), -1);
+				std::terminate();
 			}
 		}
 		break;
@@ -185,15 +185,8 @@ static bool ExcDump(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)
 		Msg[2] + L" " + From + L"\n" +
 		Msg[3] + L" " + ModuleName + L"\n";
 
-	if (Global && Global->Console)
-	{
-		Global->Console->Write(Dump);
-	}
-	else
-	{
-		DWORD n;
-		WriteConsole(GetStdHandle(STD_ERROR_HANDLE), Dump.data(), static_cast<DWORD>(Dump.size()), &n, nullptr);
-	}
+	std::wcerr << Dump << std::endl;
+
 	return false;
 }
 
@@ -455,7 +448,7 @@ DWORD WINAPI xfilter(Plugin *Module, const wchar_t* From, EXCEPTION_POINTERS *xp
 
 			if (!(hThread = CreateThread(nullptr, 0, _xfilter, nullptr, 0, nullptr)))
 			{
-				TerminateProcess(GetCurrentProcess(), 1);
+				std::terminate();
 			}
 
 			WaitForSingleObject(hThread, INFINITE);

@@ -3236,6 +3236,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 								ShowDialog(I); // FocusPos
 						}
 						else
+							//BUGBUG, never used
 							Pos=NewListPos;
 					}
 				}
@@ -3969,13 +3970,13 @@ int Dialog::SelectFromComboBox(
     VMenu *ComboBox)    // список строк
 {
 		CriticalSectionLock Lock(CS);
-		//char *Str;
 		string strStr;
 		int I,Dest, OriginalPos;
 		size_t CurFocusPos=FocusPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
+		//BUGBUG, never used
 		if (EditX2-EditX1<20)
 			EditX2=EditX1+20;
 
@@ -4307,7 +4308,6 @@ void Dialog::AdjustEditPos(int dx, int dy)
 	if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 		return;
 
-	ScreenObject *DialogScrObject;
 
 	std::for_each(CONST_RANGE(Items, i)
 	{
@@ -4316,6 +4316,8 @@ void Dialog::AdjustEditPos(int dx, int dy)
 		if ((i.ObjPtr  && IsEdit(Type)) ||
 		        (i.ListPtr && Type == DI_LISTBOX))
 		{
+			ScreenObject *DialogScrObject;
+
 			if (Type == DI_LISTBOX)
 				DialogScrObject = i.ListPtr;
 			else

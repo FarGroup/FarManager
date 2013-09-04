@@ -818,7 +818,6 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
-	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	// Временная маска.
 	filemasks FileMask;
 	// История для маски файлов
@@ -853,6 +852,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	// Маска времени
 	strTimeMask = string(L"99") + TimeSeparator + L"99" + TimeSeparator + L"99" + DecimalSeparator + L"999";
+	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	FarDialogItem FilterDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,20,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},

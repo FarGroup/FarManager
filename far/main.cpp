@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
+#include "message.hpp"
 
 global *Global = nullptr;
 
@@ -691,24 +692,20 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
 	{
 		ControlObject::ShowCopyright(1);
-		LPCWSTR LngMsg;
+		const char* LngMsg;
 		switch(Global->Lang->GetLastError())
 		{
 		case LERROR_BAD_FILE:
-			LngMsg = L"\nError: language data is incorrect or damaged.\n\nPress any key to exit...";
+			LngMsg = "Language data is incorrect or damaged";
 			break;
 		case LERROR_FILE_NOT_FOUND:
-			LngMsg = L"\nError: cannot find language data.\n\nPress any key to exit...";
+			LngMsg = "Cannot find language data";
 			break;
 		default:
-			LngMsg = L"\nError: cannot load language data.\n\nPress any key to exit...";
+			LngMsg = "Cannot load language data";
 			break;
 		}
-		Global->Console->Write(LngMsg);
-		Global->Console->Commit();
-		Global->Console->FlushInputBuffer();
-		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
-		return 1;
+		throw FarException(LngMsg);
 	}
 
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.data());
@@ -748,18 +745,21 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	Global->CtrlObject = new ControlObject;
 
-	int Result = -1;
+	int Result = 1;
 
 	try
 	{
 		Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	}
-
-	catch (SException& e)
+	catch (const SException& e)
 	{
 		if (xfilter(L"mainImpl", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
-			TerminateProcess(GetCurrentProcess(), 1);
-		throw;
+			std::terminate();
+	}
+	catch (const std::exception& e)
+	{
+		if (Message(MSG_WARNING, 2, MSG(MExcTrappedException), wide(e.what()).data(), MSG(MExcTerminate), MSG(MExcDebugger)) == 0)
+			std::terminate();
 	}
 
 	CloseConsole();
@@ -785,25 +785,20 @@ int wmain(int Argc, wchar_t *Argv[])
 
 		return mainImpl(Argc, Argv);
 	}
-
-	catch (SException& e)
+	catch (const SException& e)
 	{
 		if (xfilter(L"wmain", e.GetInfo()) == EXCEPTION_EXECUTE_HANDLER)
-			TerminateProcess(GetCurrentProcess(), 1);
-		throw;
+			std::terminate();
 	}
-
-	catch (std::exception& e)
+	catch (const std::exception& e)
 	{
-		std::wcout << L"Caught exception " << e.what() << std::endl;
-		throw;
+		std::wcerr << L"\nException: " << e.what() << std::endl;
 	}
-
 	catch (...)
 	{
-		std::wcout << L"Caught unknown exception" << std::endl;
-		throw;
+		std::wcerr << L"\nUnknown exception" << std::endl;
 	}
+	return 1;
 }
 
 #ifdef __GNUC__

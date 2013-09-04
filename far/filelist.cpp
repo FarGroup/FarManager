@@ -4120,7 +4120,6 @@ void FileList::CompareDir()
 	// полностью снимаем выделение с обоих панелей
 	ClearSelection();
 	Another->ClearSelection();
-	string strTempName1, strTempName2;
 	const wchar_t *PtrTempName1, *PtrTempName2;
 
 	// помечаем ВСЕ, кроме каталогов на активной панели
@@ -5252,6 +5251,7 @@ void FileList::ProcessCopyKeys(int Key)
 						const wchar_t *lpwszDestPath=strDestPath.data();
 
 						PluginGetFiles(&lpwszDestPath,Move);
+						// BUGBUG, never used
 						strDestPath=lpwszDestPath;
 					}
 				}

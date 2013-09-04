@@ -2248,7 +2248,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 
-	FAR_FIND_DATA DestData={};
+	FAR_FIND_DATA DestData;
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		if (apiGetFindDataEx(strDestPath,DestData))
@@ -3661,7 +3661,6 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyCancelOvr)},
 	};
 	FAR_FIND_DATA DestData;
-	DestData.Clear();
 	int DestDataFilled=FALSE;
 	Append=FALSE;
 

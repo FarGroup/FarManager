@@ -46,7 +46,7 @@ class Shortcuts;
 class WindowHandler;
 class PluginManager;
 
-class ControlObject
+class ControlObject:NonCopyable
 {
 public:
 	ControlObject();

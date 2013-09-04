@@ -499,7 +499,7 @@ class Editor:public ScreenObject
 
 		struct EditorPreRedrawItem : public PreRedrawItem
 		{
-			EditorPreRedrawItem() : PreRedrawItem(PR_EditorShowMsg){}
+			EditorPreRedrawItem() : PreRedrawItem(PR_EditorShowMsg), Percent(0) {}
 
 			string Title;
 			string Msg;

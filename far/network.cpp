@@ -56,8 +56,9 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	}
 }
 
-void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
+std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 {
+	std::bitset<32> Result;
 	HANDLE hEnum;
 
 	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))
@@ -80,12 +81,11 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 
 					if (letter >= L'a' && letter <= L'z' && !wcscmp(netResource->lpLocalName+1, L":"))
 					{
-						int CurrBit = 1 << (letter - L'a');
-
-						if (!(Mask&CurrBit))
+						size_t index = letter - L'a';
+						if (!Mask[index])
 						{
-							Mask |= CurrBit;
-							NetworkMask |=  CurrBit;
+							Mask[index] = 1;
+							Result[index] = 1;
 						}
 					}
 				}
@@ -100,6 +100,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 
 		WNetCloseEnum(hEnum);
 	}
+	return Result;
 }
 
 void ConnectToNetworkDrive(const string& NewDir)

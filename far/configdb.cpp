@@ -893,10 +893,15 @@ private:
 
 	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, tinyxml::TiXmlElement *e) override
 	{
-		if(!strcmp(Name, "NormalColor") || !strcmp(Name, "SelectedColor") ||
-			!strcmp(Name, "CursorColor") || !strcmp(Name, "SelectedCursorColor") ||
-			!strcmp(Name, "MarkCharNormalColor") || !strcmp(Name, "MarkCharSelectedColor") ||
-			!strcmp(Name, "MarkCharCursorColor") || !strcmp(Name, "MarkCharSelectedCursorColor"))
+		static const char* ColorKeys[] =
+		{
+			"NormalColor", "SelectedColor",
+			"CursorColor", "SelectedCursorColor",
+			"MarkCharNormalColor", "MarkCharSelectedColor",
+			"MarkCharCursorColor", "MarkCharSelectedCursorColor",
+		};
+
+		if (std::any_of(CONST_RANGE(ColorKeys, i) { return !strcmp(Name, i); }))
 		{
 			const FarColor* Color = reinterpret_cast<const FarColor*>(Blob);
 			e->SetAttribute("type", "color");

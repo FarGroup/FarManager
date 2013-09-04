@@ -81,6 +81,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastChangeStrPos(0),
 	NumLastLine(0),
 	NumLine(0),
+	EdOpt(Global->Opt->EdOpt),
 	Pasting(0),
 	BlockStart(nullptr),
 	BlockStartLine(0),
@@ -110,7 +111,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
-	EdOpt = Global->Opt->EdOpt;
 
 	SetOwner(pOwner);
 	if (DialogUsed)
@@ -2658,6 +2658,7 @@ int Editor::ProcessKey(int Key)
 					BlockStart=CurLine;
 					BlockStartLine=NumLine;
 					//SelFirst=TRUE;
+					//BUGBUG, never used
 					SelStart=SStart;
 					SelEnd=SEnd;
 				}
@@ -4109,7 +4110,7 @@ BOOL Editor::Search(int Next)
 		FindAllList.SetTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
 		FindAllList.SetBottomTitle(LangString(MEditFindAllMenuFooter));
 		FindAllList.SetHelp(L"FindAllMenu");
-		FindCoord* coord;
+
 		bool MenuZoomed=true;
 
 		int ExitCode=FindAllList.Run([&](int Key)->int
@@ -4130,27 +4131,29 @@ BOOL Editor::Search(int Next)
 					break;
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
-					coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
-					GoToLine(coord->Line);
-					CurLine->SetCurPos(coord->Pos);
-					if (EdOpt.SearchSelFound)
 					{
-						Pasting++;
-						Lock();
-						// if (!EdOpt.PersistentBlocks)
-						UnmarkBlock();
-						Flags.Set(FEDITOR_MARKINGBLOCK);
-						CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
-						BlockStart = CurLine;
-						BlockStartLine = coord->Line;
-						Unlock();
-						Pasting--;
+						FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
+						GoToLine(coord->Line);
+						CurLine->SetCurPos(coord->Pos);
+						if (EdOpt.SearchSelFound)
+						{
+							Pasting++;
+							Lock();
+							// if (!EdOpt.PersistentBlocks)
+							UnmarkBlock();
+							Flags.Set(FEDITOR_MARKINGBLOCK);
+							CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
+							BlockStart = CurLine;
+							BlockStartLine = coord->Line;
+							Unlock();
+							Pasting--;
+						}
+						if (EdOpt.SearchCursorAtEnd)
+						{
+							CurLine->SetCurPos(coord->Pos+coord->SearchLen);
+						}
+						Show();
 					}
-					if (EdOpt.SearchCursorAtEnd)
-					{
-						CurLine->SetCurPos(coord->Pos+coord->SearchLen);
-					}
-					Show();
 					break;
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
@@ -4185,7 +4188,7 @@ BOOL Editor::Search(int Next)
 
 		if(ExitCode >= 0)
 		{
-			coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
+			FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
 			GoToLine(coord->Line);
 			CurLine->SetCurPos(coord->Pos);
 			if (EdOpt.SearchSelFound)

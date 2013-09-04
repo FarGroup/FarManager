@@ -206,3 +206,15 @@ inline std::wostream& operator <<(std::wostream& stream, const write_exact& p)
 	stream.width(p.m_size);
 	return stream << p.m_part;
 }
+
+class FarException : public std::runtime_error
+{
+public:
+	FarException(const char* Message) : std::runtime_error(Message) {}
+};
+
+class FarRecoverableException : public FarException
+{
+public:
+	FarRecoverableException(const char* Message) : FarException(Message) {}
+};

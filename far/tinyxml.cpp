@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "tinyxml.hpp"
+
 namespace tinyxml
 {
 #include "tinyxml/tinystr.cpp"

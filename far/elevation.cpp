@@ -286,37 +286,34 @@ bool elevation::Initialize()
 		{
 			strPipeID = GuidToStr(Id);
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-			PSID AdminSID;
-			if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))
+
+			sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+			PSECURITY_DESCRIPTOR pSD = static_cast<PSECURITY_DESCRIPTOR>(LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
+			if(pSD)
 			{
-				PSECURITY_DESCRIPTOR pSD = static_cast<PSECURITY_DESCRIPTOR>(LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
-				if(pSD)
+				if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
 				{
-					if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
+					PACL pACL = nullptr;
+					EXPLICIT_ACCESS ea={};
+					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
+					ea.grfAccessMode = SET_ACCESS;
+					ea.grfInheritance= NO_INHERITANCE;
+					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
+					if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
 					{
-						PACL pACL = nullptr;
-						EXPLICIT_ACCESS ea={};
-						ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
-						ea.grfAccessMode = SET_ACCESS;
-						ea.grfInheritance= NO_INHERITANCE;
-						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-						ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID);
-						if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
+						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
 						{
-							if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
-							{
-								SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
-								string strPipe(L"\\\\.\\pipe\\");
-								strPipe+=strPipeID;
-								Pipe=CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
-							}
-							LocalFree(pACL);
+							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
+							string strPipe(L"\\\\.\\pipe\\");
+							strPipe+=strPipeID;
+							Pipe=CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
 						}
+						LocalFree(pACL);
 					}
-					LocalFree(pSD);
 				}
-				FreeSid(AdminSID);
+				LocalFree(pSD);
 			}
 		}
 	}
@@ -943,351 +940,15 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	return Result;
 }
 
-class elevated
+class elevated:NonCopyable
 {
-private:
-	HANDLE Pipe;
-	DWORD ParentPID;
-	bool Exit;
-	typedef std::pair<class elevated*, void*> copy_progress_routine_param;
-
-	bool Write(const void* Data,size_t DataSize) const
-	{
-		return pipe::Write(Pipe, Data, DataSize);
-	}
-
-	template<typename T>
-	inline bool Read(T& Data) const
-	{
-		return pipe::Read(Pipe, Data);
-	}
-
-	inline bool Read(char_ptr& Data) const
-	{
-		return pipe::Read(Pipe, Data);
-	}
-
-	template<typename T>
-	inline bool Write(const T& Data) const
-	{
-		return pipe::Write(Pipe, Data);
-	}
-
-	inline bool Write(const string& Data) const
-	{
-		return Write(Data.data(), (Data.size()+1)*sizeof(wchar_t));
-	}
-
-	void ExitHandler()
-	{
-		Exit = true;
-	}
-
-	void CreateDirectoryExHandler()
-	{
-		string TemplateObject;
-		if(Read(TemplateObject))
-		{
-			string Object;
-			if(Read(Object))
-			{
-				// BUGBUG, SecurityAttributes ignored
-				bool Result = TemplateObject.empty()? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
-				ERRORCODES ErrorCodes;
-				if(Write(Result))
-				{
-					Write(ErrorCodes);
-				}
-			}
-		}
-	}
-
-	void RemoveDirectoryHandler()
-	{
-		string Object;
-		if(Read(Object))
-		{
-			bool Result = RemoveDirectory(Object.data()) != FALSE;
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void DeleteFileHandler()
-	{
-		string Object;
-		if(Read(Object))
-		{
-			bool Result = DeleteFile(Object.data()) != FALSE;
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void CopyFileExHandler()
-	{
-		string From, To;
-		char_ptr UserCopyProgressRoutine, Data;
-		DWORD Flags = 0;
-		// BUGBUG: Cancel ignored
-		if(Read(From) && Read(To) && Read(UserCopyProgressRoutine) && Read(Data) && Read(Flags))
-		{
-			copy_progress_routine_param Param(this, Data.get());
-			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine.get()? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void MoveFileExHandler()
-	{
-		string From, To;
-		DWORD Flags = 0;
-		if(Read(From) && Read(To) && Read(Flags))
-		{
-			bool Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void GetFileAttributesHandler()
-	{
-		string Object;
-		if(Read(Object))
-		{
-			DWORD Result = GetFileAttributes(Object.data());
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void SetFileAttributesHandler()
-	{
-		string Object;
-		DWORD Attributes = 0;
-		if(Read(Object) && Read(Attributes))
-		{
-			bool Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void CreateHardLinkHandler()
-	{
-		string Object, Target;
-		if(Read(Object) && Read(Target))
-		{
-			// BUGBUG: SecurityAttributes ignored.
-			bool Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void CreateSymbolicLinkHandler()
-	{
-		string Object, Target;
-		DWORD Flags = 0;
-		if(Read(Object) && Read(Target) && Read(Flags))
-		{
-			bool Result = CreateSymbolicLinkInternal(Object, Target, Flags);
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void MoveToRecycleBinHandler()
-	{
-		SHFILEOPSTRUCT Struct;
-		string From, To;
-		if(Read(Struct) && Read(From) && Read(To))
-		{
-			Struct.pFrom = From.data();
-			Struct.pTo = To.data();
-			if(Write(SHFileOperation(&Struct)))
-			{
-				Write(Struct.fAnyOperationsAborted);
-			}
-		}
-	}
-
-	void SetOwnerHandler()
-	{
-		string Object, Owner;
-		if(Read(Object) && Read(Owner))
-		{
-			bool Result = SetOwnerInternal(Object.data(), Owner.data());
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void CreateFileHandler()
-	{
-		string Object;
-		DWORD DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes;
-		// BUGBUG: SecurityAttributes, TemplateFile ignored
-		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
-		{
-			HANDLE Result = apiCreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
-			if(Result!=INVALID_HANDLE_VALUE)
-			{
-				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-				if(ParentProcess)
-				{
-					if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
-					{
-						CloseHandle(Result);
-						Result = INVALID_HANDLE_VALUE;
-					}
-					CloseHandle(ParentProcess);
-				}
-			}
-			ERRORCODES ErrorCodes;
-			if(Write(reinterpret_cast<intptr_t>(Result)))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void SetEncryptionHandler()
-	{
-		string Object;
-		bool Encrypt = false;
-		if(Read(Object) && Read(Encrypt))
-		{
-			bool Result = apiSetFileEncryptionInternal(Object.data(), Encrypt);
-			ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes);
-			}
-		}
-	}
-
-	void OpenVirtualDiskHandler()
-	{
-		VIRTUAL_STORAGE_TYPE VirtualStorageType;
-		string Object;
-		VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
-		OPEN_VIRTUAL_DISK_FLAG Flags;
-		OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
-		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) &&Read(Parameters))
-		{
-			HANDLE Handle;
-			bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
-			if(Result)
-			{
-				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-				if(ParentProcess)
-				{
-					if(!DuplicateHandle(GetCurrentProcess(), Handle, ParentProcess, &Handle, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
-					{
-						CloseHandle(Handle);
-					}
-					CloseHandle(ParentProcess);
-				}
-			}
-			ERRORCODES ErrorCodes;
-			if(Write(Result) && Write(ErrorCodes))
-			{
-				if(Result)
-				{
-					Write(reinterpret_cast<intptr_t>(Handle));
-				}
-			}
-		}
-	}
-
-	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
-	{
-		int Result=0;
-		auto Param = reinterpret_cast<copy_progress_routine_param*>(Data);
-		elevated* Context = Param->first;
-		// BUGBUG: SourceFile, DestinationFile ignored
-		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(&Param->second, sizeof(Param->second)))
-		{
-			for(;;)
-			{
-				Context->Read(Result);
-				if (Result == CallbackMagic)
-				{
-					Context->Read(Result);
-					break;
-				}
-				else
-				{
-					// nested call from ProgressRoutine()
-					Context->Process(Result);
-				}
-			}
-		}
-		return Result;
-	}
-
-	bool Process(int Command)
-	{
-		assert(Command < C_COMMANDS_COUNT);
-
-		Exit = false;
-
-		static void (elevated::*Handlers[])() =
-		{
-			&elevated::ExitHandler,
-			&elevated::CreateDirectoryExHandler,
-			&elevated::RemoveDirectoryHandler,
-			&elevated::DeleteFileHandler,
-			&elevated::CopyFileExHandler,
-			&elevated::MoveFileExHandler,
-			&elevated::GetFileAttributesHandler,
-			&elevated::SetFileAttributesHandler,
-			&elevated::CreateHardLinkHandler,
-			&elevated::CreateSymbolicLinkHandler,
-			&elevated::MoveToRecycleBinHandler,
-			&elevated::SetOwnerHandler,
-			&elevated::CreateFileHandler,
-			&elevated::SetEncryptionHandler,
-			&elevated::OpenVirtualDiskHandler,
-		};
-
-		static_assert(ARRAYSIZE(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
-
-		(this->*Handlers[Command])();
-
-		return !Exit;
-	}
-
 public:
+	elevated():
+		Pipe(INVALID_HANDLE_VALUE),
+		ParentPID(0),
+		Exit(false)
+	{}
+
 	int Run(const wchar_t* guid, DWORD PID, bool UsePrivileges)
 	{
 		int Result = ERROR_SUCCESS;
@@ -1329,6 +990,348 @@ public:
 			CloseHandle(Pipe);
 		}
 		return Result;
+	}
+
+private:
+	HANDLE Pipe;
+	DWORD ParentPID;
+	mutable bool Exit;
+	typedef std::pair<const class elevated*, void*> copy_progress_routine_param;
+
+	bool Write(const void* Data,size_t DataSize) const
+	{
+		return pipe::Write(Pipe, Data, DataSize);
+	}
+
+	template<typename T>
+	inline bool Read(T& Data) const
+	{
+		return pipe::Read(Pipe, Data);
+	}
+
+	inline bool Read(char_ptr& Data) const
+	{
+		return pipe::Read(Pipe, Data);
+	}
+
+	template<typename T>
+	inline bool Write(const T& Data) const
+	{
+		return pipe::Write(Pipe, Data);
+	}
+
+	inline bool Write(const string& Data) const
+	{
+		return Write(Data.data(), (Data.size()+1)*sizeof(wchar_t));
+	}
+
+	void ExitHandler() const
+	{
+		Exit = true;
+	}
+
+	void CreateDirectoryExHandler() const
+	{
+		string TemplateObject;
+		if(Read(TemplateObject))
+		{
+			string Object;
+			if(Read(Object))
+			{
+				// BUGBUG, SecurityAttributes ignored
+				bool Result = TemplateObject.empty()? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
+				ERRORCODES ErrorCodes;
+				if(Write(Result))
+				{
+					Write(ErrorCodes);
+				}
+			}
+		}
+	}
+
+	void RemoveDirectoryHandler() const
+	{
+		string Object;
+		if(Read(Object))
+		{
+			bool Result = RemoveDirectory(Object.data()) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void DeleteFileHandler() const
+	{
+		string Object;
+		if(Read(Object))
+		{
+			bool Result = DeleteFile(Object.data()) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CopyFileExHandler() const
+	{
+		string From, To;
+		char_ptr UserCopyProgressRoutine, Data;
+		DWORD Flags = 0;
+		// BUGBUG: Cancel ignored
+		if(Read(From) && Read(To) && Read(UserCopyProgressRoutine) && Read(Data) && Read(Flags))
+		{
+			copy_progress_routine_param Param(this, Data.get());
+			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine.get()? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void MoveFileExHandler() const
+	{
+		string From, To;
+		DWORD Flags = 0;
+		if(Read(From) && Read(To) && Read(Flags))
+		{
+			bool Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void GetFileAttributesHandler() const
+	{
+		string Object;
+		if(Read(Object))
+		{
+			DWORD Result = GetFileAttributes(Object.data());
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void SetFileAttributesHandler() const
+	{
+		string Object;
+		DWORD Attributes = 0;
+		if(Read(Object) && Read(Attributes))
+		{
+			bool Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateHardLinkHandler() const
+	{
+		string Object, Target;
+		if(Read(Object) && Read(Target))
+		{
+			// BUGBUG: SecurityAttributes ignored.
+			bool Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateSymbolicLinkHandler() const
+	{
+		string Object, Target;
+		DWORD Flags = 0;
+		if(Read(Object) && Read(Target) && Read(Flags))
+		{
+			bool Result = CreateSymbolicLinkInternal(Object, Target, Flags);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void MoveToRecycleBinHandler() const
+	{
+		SHFILEOPSTRUCT Struct;
+		string From, To;
+		if(Read(Struct) && Read(From) && Read(To))
+		{
+			Struct.pFrom = From.data();
+			Struct.pTo = To.data();
+			if(Write(SHFileOperation(&Struct)))
+			{
+				Write(Struct.fAnyOperationsAborted);
+			}
+		}
+	}
+
+	void SetOwnerHandler() const
+	{
+		string Object, Owner;
+		if(Read(Object) && Read(Owner))
+		{
+			bool Result = SetOwnerInternal(Object.data(), Owner.data());
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void CreateFileHandler() const
+	{
+		string Object;
+		DWORD DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes;
+		// BUGBUG: SecurityAttributes, TemplateFile ignored
+		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
+		{
+			HANDLE Result = apiCreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
+			if(Result!=INVALID_HANDLE_VALUE)
+			{
+				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
+				if(ParentProcess)
+				{
+					if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
+					{
+						CloseHandle(Result);
+						Result = INVALID_HANDLE_VALUE;
+					}
+					CloseHandle(ParentProcess);
+				}
+			}
+			ERRORCODES ErrorCodes;
+			if(Write(reinterpret_cast<intptr_t>(Result)))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void SetEncryptionHandler() const
+	{
+		string Object;
+		bool Encrypt = false;
+		if(Read(Object) && Read(Encrypt))
+		{
+			bool Result = apiSetFileEncryptionInternal(Object.data(), Encrypt);
+			ERRORCODES ErrorCodes;
+			if(Write(Result))
+			{
+				Write(ErrorCodes);
+			}
+		}
+	}
+
+	void OpenVirtualDiskHandler() const
+	{
+		VIRTUAL_STORAGE_TYPE VirtualStorageType;
+		string Object;
+		VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask;
+		OPEN_VIRTUAL_DISK_FLAG Flags;
+		OPEN_VIRTUAL_DISK_PARAMETERS Parameters;
+		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) &&Read(Parameters))
+		{
+			HANDLE Handle;
+			bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
+			if(Result)
+			{
+				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
+				if(ParentProcess)
+				{
+					if(!DuplicateHandle(GetCurrentProcess(), Handle, ParentProcess, &Handle, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
+					{
+						CloseHandle(Handle);
+					}
+					CloseHandle(ParentProcess);
+				}
+			}
+			ERRORCODES ErrorCodes;
+			if(Write(Result) && Write(ErrorCodes))
+			{
+				if(Result)
+				{
+					Write(reinterpret_cast<intptr_t>(Handle));
+				}
+			}
+		}
+	}
+
+	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
+	{
+		int Result=0;
+		auto Param = reinterpret_cast<copy_progress_routine_param*>(Data);
+		const elevated* Context = Param->first;
+		// BUGBUG: SourceFile, DestinationFile ignored
+		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(&Param->second, sizeof(Param->second)))
+		{
+			for(;;)
+			{
+				Context->Read(Result);
+				if (Result == CallbackMagic)
+				{
+					Context->Read(Result);
+					break;
+				}
+				else
+				{
+					// nested call from ProgressRoutine()
+					Context->Process(Result);
+				}
+			}
+		}
+		return Result;
+	}
+
+	bool Process(int Command) const
+	{
+		assert(Command < C_COMMANDS_COUNT);
+
+		Exit = false;
+
+		static void (elevated::*Handlers[])() const =
+		{
+			&elevated::ExitHandler,
+			&elevated::CreateDirectoryExHandler,
+			&elevated::RemoveDirectoryHandler,
+			&elevated::DeleteFileHandler,
+			&elevated::CopyFileExHandler,
+			&elevated::MoveFileExHandler,
+			&elevated::GetFileAttributesHandler,
+			&elevated::SetFileAttributesHandler,
+			&elevated::CreateHardLinkHandler,
+			&elevated::CreateSymbolicLinkHandler,
+			&elevated::MoveToRecycleBinHandler,
+			&elevated::SetOwnerHandler,
+			&elevated::CreateFileHandler,
+			&elevated::SetEncryptionHandler,
+			&elevated::OpenVirtualDiskHandler,
+		};
+
+		static_assert(ARRAYSIZE(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
+
+		(this->*Handlers[Command])();
+
+		return !Exit;
 	}
 };
 

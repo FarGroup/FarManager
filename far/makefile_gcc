@@ -175,19 +175,19 @@ $(EXEFULLNAME): $(BOOTSTRAPDIR)Far.exe.manifest $(BOOTSTRAPDIR)far.rc $(BOOTSTRA
 	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 
 $(OBJDIR)%.o: %.c
-	@echo compiling $<
+	@echo $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)hook_wow64.o: hook_wow64.c
-	@echo compiling $<
+	@echo $<
 	@$(CC) $(CFLAGS) -fomit-frame-pointer -c -o $@ $<
 
 $(OBJDIR)initguid.o: initguid.cpp
-	@echo compiling $<
+	@echo $<
 	@$(CXX) $(CCFLAGS) -c -o $@ $<
 
 $(OBJDIR)%.o: %.cpp
-	@echo compiling $<
+	@echo $<
 	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp

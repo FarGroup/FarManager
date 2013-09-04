@@ -87,7 +87,13 @@ static void PR_ShellDeleteMsg();
 
 struct DelPreRedrawItem : public PreRedrawItem
 {
-	DelPreRedrawItem() : PreRedrawItem(PR_ShellDeleteMsg) {}
+	DelPreRedrawItem():
+		PreRedrawItem(PR_ShellDeleteMsg),
+		Title(),
+		Mode(),
+		Percent(),
+		WipePercent()
+	{}
 
 	string name;
 	ConsoleTitle* Title;

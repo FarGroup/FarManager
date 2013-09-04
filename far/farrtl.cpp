@@ -361,16 +361,16 @@ void PrintMemory()
 
 		oss << "Not freed blocks:" << std::endl;
 
-		std::wcout << oss.str();
+		std::wcerr << oss.str();
 		OutputDebugString(oss.str().data());
-		oss.clear();
+		oss.str(string());
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
 			oss << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
-			std::wcout << oss.str();
+			std::wcerr << oss.str();
 			OutputDebugString(oss.str().data());
-			oss.clear();
+			oss.str(string());
 		}
 	}
 	MonitoringEnabled = MonitoringState;

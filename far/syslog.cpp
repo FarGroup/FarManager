@@ -104,7 +104,7 @@ static wchar_t *PrintTime(wchar_t *timebuf,size_t size)
 	GetLocalTime(&st);
 //  sprintf(timebuf,"%02d.%02d.%04d %2d:%02d:%02d.%03d",
 //      st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
-	_snwprintf(timebuf,size,L"%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	_snwprintf(timebuf,size,L"%02u:%02u:%02u.%03u",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	return timebuf;
 }
 
@@ -2107,7 +2107,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 			fwprintf(fp,L"%d, ",ViewSettings.PanelColumns[I].width);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.PanelColumns[I].width);
-		fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.PanelColumns.size());
+		fwprintf(fp,L"%*s %s  ColumnCount          = %u\n",12,L"",space,ViewSettings.PanelColumns.size());
 		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
 
 		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
@@ -2120,7 +2120,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 			fwprintf(fp,L"%d, ",ViewSettings.StatusColumns[I].width);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumns[I].width);
-		fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.PanelColumns.size());
+		fwprintf(fp,L"%*s %s  StatusColumnCount    = %u\n",12,L"",space,ViewSettings.PanelColumns.size());
 
 		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FULLSCREEN)?1:0);
 		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0);
