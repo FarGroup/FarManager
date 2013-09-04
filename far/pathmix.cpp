@@ -159,7 +159,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 
 	if (pos == 1) // односимвольный префикс
 	{
-		if ((Path[0] >= L'a' && Path[0] <= L'z') || (Path[0] >= L'a' && Path[0] <= L'z'))
+		if ((Path[0] >= L'a' && Path[0] <= L'z') || (Path[0] >= L'A' && Path[0] <= L'Z'))
 			return false;
 
 		string dev;
