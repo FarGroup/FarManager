@@ -154,11 +154,18 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 
 	size_t pos = Path.find(L':');
 
-	if (pos == string::npos)
+	if (pos == string::npos || !pos)
 		return false;
 
-	if (pos == 1) // односимвольные префиксы не поддерживаются
-		return false;
+	if (pos == 1) // односимвольный префикс
+	{
+		if ((Path[0] >= L'a' && Path[0] <= L'z') || (Path[0] >= L'a' && Path[0] <= L'z'))
+			return false;
+
+		string dev;
+		if (apiQueryDosDevice(Path.substr(0,2), dev))
+			return false;
+	}
 
 	const wchar_t* pS = FirstSlash(Path.data());
 
