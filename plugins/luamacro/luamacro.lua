@@ -278,6 +278,11 @@ function export.Open (OpenFrom, arg1, arg2, ...)
         LastMessage = pack(panelsort.SortPanelItems(...))
         if LastMessage[1] then return F.MPRT_COMMONCASE, LastMessage end
       end
+    elseif calltype==F.MCT_GETCUSTOMSORTMODES then
+      if panelsort then
+        LastMessage = panelsort.GetSortModes()
+        return F.MPRT_COMMONCASE, LastMessage
+      end
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then

@@ -4626,24 +4626,68 @@ void FileList::SelectSortMode()
 		BY_CUSTOMDATA
 	};
 
+	MenuDataEx *SortMenu2 = SortMenu;
+	MacroPluginReturn* mpr = nullptr;
+	int extra = 0; // number of additional menu items due to custom sort modes
+	{
+		FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
+		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_GETCUSTOMSORTMODES,nullptr,&fmc};
+		void *ptr;
+		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
+		{
+			mpr = (MacroPluginReturn*)ptr;
+			if (mpr->Count)
+			{
+				extra = 1 + mpr->Count/3; // add 1 item for separator
+				SortMenu2 = new MenuDataEx[ARRAYSIZE(SortMenu) + extra];
+				memcpy(SortMenu2, SortMenu, sizeof(MenuDataEx)*(ARRAYSIZE(SortModes)+1));
+				for (size_t i=0; i<mpr->Count; i+=3)
+				{
+					MenuDataEx *d = SortMenu2 + ARRAYSIZE(SortModes) + 1 + i/3;
+					d->Name = mpr->Values[i+2].String;
+					d->Flags = d->AccelKey = 0;
+				}
+				memcpy(SortMenu2 + ARRAYSIZE(SortModes) + extra,
+					SortMenu + ARRAYSIZE(SortModes),
+					sizeof(MenuDataEx)*(ARRAYSIZE(SortMenu)-ARRAYSIZE(SortModes)));
+			}
+			else
+				mpr = nullptr;
+		}
+	}
+
+	bool found = false;
 	for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
 		if (SortModes[i]==SortMode)
 		{
-			SortMenu[i].SetCheck(SortOrder==1 ? L'+':L'-');
+			SortMenu2[i].SetCheck(SortOrder==1 ? L'+':L'-');
+			found = true;
 			break;
 		}
 
-	int SG=GetSortGroups();
-	SortMenu[BY_CUSTOMDATA+2].SetCheck(NumericSort);
-	SortMenu[BY_CUSTOMDATA+3].SetCheck(CaseSensitiveSort);
-	SortMenu[BY_CUSTOMDATA+4].SetCheck(SG);
-	SortMenu[BY_CUSTOMDATA+5].SetCheck(SelectedFirst);
-	SortMenu[BY_CUSTOMDATA+6].SetCheck(DirectoriesFirst);
+	if (mpr && !found)
+	{
+		for (size_t i=0; i<mpr->Count; i+=3)
+		{
+			if (mpr->Values[i].Double == SortMode)
+			{
+				SortMenu2[ARRAYSIZE(SortModes) + 1 + i/3].SetCheck(SortOrder==1 ? L'+':L'-');
+				break;
+			}
+		}
+	}
+
+	MenuDataEx* d = SortMenu2 + ARRAYSIZE(SortModes) + 1 + extra;
+	(d++)->SetCheck(NumericSort);
+	(d++)->SetCheck(CaseSensitiveSort);
+	(d++)->SetCheck(GetSortGroups());
+	(d++)->SetCheck(SelectedFirst);
+	(d++)->SetCheck(DirectoriesFirst);
 	int SortCode=-1;
 	bool setSortMode0=false;
 
 	{
-		VMenu2 SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
+		VMenu2 SortModeMenu(MSG(MMenuSortTitle),SortMenu2,ARRAYSIZE(SortMenu)+extra,0);
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
@@ -4661,13 +4705,22 @@ void FileList::SelectSortMode()
 			else if (Key == KEY_MULTIPLY)
 				Key=L'*';
 
-			if (MenuPos < (int)ARRAYSIZE(SortModes) && (Key == L'+' || Key == L'-' || Key == L'*'))
+			if (Key == L'+' || Key == L'-' || Key == L'*')
 			{
-				// clear check
-				for_each_cnt(CONST_RANGE(SortModes, i, size_t index)
+				if (MenuPos < (int)ARRAYSIZE(SortModes))
 				{
-					SortModeMenu.SetCheck(0,static_cast<int>(index));
-				});
+					// clear check
+					for_each_cnt(CONST_RANGE(SortModes, i, size_t index)
+					{
+						SortModeMenu.SetCheck(0,static_cast<int>(index));
+					});
+				}
+				else
+				{
+					// clear check
+					for (size_t i=ARRAYSIZE(SortModes)+1; i<ARRAYSIZE(SortModes)+1+extra; i++)
+						SortModeMenu.SetCheck(0,(int)i);
+				}
 			}
 
 			int KeyProcessed = 1;
@@ -4680,14 +4733,15 @@ void FileList::SelectSortMode()
 					break;
 
 				case L'+':
-					if (MenuPos<(int)ARRAYSIZE(SortModes))
+					if (MenuPos<(int)ARRAYSIZE(SortModes) ||
+						(MenuPos>=(int)ARRAYSIZE(SortModes)+1 && MenuPos<(int)ARRAYSIZE(SortModes)+1+extra))
 					{
 						this->SortOrder=1;
 						setSortMode0=true;
 					}
 					else
 					{
-						switch (MenuPos)
+						switch (MenuPos-extra)
 						{
 							case BY_CUSTOMDATA+2:
 								this->NumericSort = false;
@@ -4710,14 +4764,15 @@ void FileList::SelectSortMode()
 					break;
 
 				case L'-':
-					if (MenuPos<(int)ARRAYSIZE(SortModes))
+					if (MenuPos<(int)ARRAYSIZE(SortModes) ||
+						(MenuPos>=(int)ARRAYSIZE(SortModes)+1 && MenuPos<(int)ARRAYSIZE(SortModes)+1+extra))
 					{
 						this->SortOrder=-1;
 						setSortMode0=true;
 					}
 					else
 					{
-						switch (MenuPos)
+						switch (MenuPos-extra)
 						{
 							case BY_CUSTOMDATA+2:
 								this->NumericSort = true;
@@ -4746,7 +4801,12 @@ void FileList::SelectSortMode()
 		});
 
 		if (SortCode<0)
+		{
+			if (SortMenu2 != SortMenu)
+				delete[] SortMenu2;
+
 			return;
+		}
 	}
 
 	if (SortCode<(int)ARRAYSIZE(SortModes))
@@ -4756,8 +4816,15 @@ void FileList::SelectSortMode()
 		else
 			SetSortMode(SortModes[SortCode]);
 	}
+	else if (SortCode>=(int)ARRAYSIZE(SortModes)+1 && SortCode<(int)ARRAYSIZE(SortModes)+1+extra)
+	{
+		int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
+		int mode = (int)mpr->Values[index].Double;
+		int invert = mpr->Values[index+1].Boolean;
+		SetCustomSortMode(mode, setSortMode0 ? 2 : invert);
+	}
 	else
-		switch (SortCode)
+		switch (SortCode-extra)
 		{
 			case BY_CUSTOMDATA+2:
 				ChangeNumericSort(NumericSort?0:1);
@@ -4775,6 +4842,9 @@ void FileList::SelectSortMode()
 				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}
+
+	if (SortMenu2 != SortMenu)
+		delete[] SortMenu2;
 }
 
 

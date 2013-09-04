@@ -115,6 +115,21 @@ local function CustomSortMenu()
   end
 end
 
+local function GetSortModes()
+  local t = {}
+  for mode in pairs(CustomSortModes) do
+    t[#t+1]=mode; t[#t+1]=mode; t[#t+1]=mode;
+  end
+  table.sort(t)
+  for k=1,#t,3 do
+    local mode = t[k]
+    t[k+1] = CustomSortModes[mode].InvertByDefault
+    t[k+2] = CustomSortModes[mode].Description or "Sort mode "..mode
+  end
+  t.n = #t
+  return t
+end
+
 ffi.cdef[[
   struct FileListItem;
   typedef struct
@@ -258,4 +273,5 @@ return {
   LoadCustomSortMode=LoadCustomSortMode,
   SetCustomSortMode=SetCustomSortMode,
   CustomSortMenu=CustomSortMenu,
+  GetSortModes=GetSortModes,
 }
