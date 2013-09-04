@@ -17,6 +17,7 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
+local LastSortModes
 local utils, macrobrowser, panelsort
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
@@ -280,8 +281,8 @@ function export.Open (OpenFrom, arg1, arg2, ...)
       end
     elseif calltype==F.MCT_GETCUSTOMSORTMODES then
       if panelsort then
-        LastMessage = panelsort.GetSortModes()
-        return F.MPRT_COMMONCASE, LastMessage
+        LastSortModes = panelsort.GetSortModes()
+        return F.MPRT_COMMONCASE, LastSortModes
       end
     end
 
