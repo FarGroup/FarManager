@@ -264,6 +264,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				item->pPlugin = pPlugin;
 				item->Guid = guid;
 				OneItem.getItem().UserData=item;
+				OneItem.getItem().UserDataSize=sizeof(*item);
 
 				MPItems.emplace_back(OneItem);
 			}
@@ -958,7 +959,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 		else
 		{
-			Focus=GetFocus();
+			int Focus=GetFocus();
 			Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir,true);
 			NewPanel->Show();
@@ -981,7 +982,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (hPlugin)
 		{
-			Focus=GetFocus();
+			int Focus=GetFocus();
 			Panel *NewPanel = Global->CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
 			NewPanel->SetPluginMode(hPlugin,L"",Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
