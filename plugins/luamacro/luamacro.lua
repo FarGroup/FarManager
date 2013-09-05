@@ -17,7 +17,7 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
-local LastSortModes
+local LastSortModes -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local utils, macrobrowser, panelsort
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
@@ -319,6 +319,8 @@ local function AddCfindFunction()
 end
 
 do
+  local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
+
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)
     local func,msg = loadfile(ModuleDir..fname)
@@ -329,22 +331,24 @@ do
 
   M = RunPluginFile("lang.lua");
   if not M then return end
+  Shared.M = M
 
-  utils = RunPluginFile("utils.lua", { M=M, ErrMsg=ErrMsg, pack=pack })
+  utils = RunPluginFile("utils.lua", Shared)
   if not utils then return end
+  Shared.utils = utils
 
-  if not RunPluginFile("api.lua", { M=M, utils=utils, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall} )
-    then return end
+  if not RunPluginFile("api.lua", Shared) then return end
 
-  macrobrowser = RunPluginFile("mbrowser.lua", { M=M, utils=utils })
+  macrobrowser = RunPluginFile("mbrowser.lua", Shared)
   if not macrobrowser then return end
 
   if bit and jit then
     if not RunPluginFile("winapi.lua") then return end
     if not RunPluginFile("farapi.lua") then return end
 
-    panelsort = RunPluginFile("panelsort.lua", {M=M})
+    panelsort = RunPluginFile("panelsort.lua", Shared)
     if not panelsort then return end
+    Shared.panelsort = panelsort
     Panel.LoadCustomSortMode = panelsort.LoadCustomSortMode
     Panel.SetCustomSortMode = panelsort.SetCustomSortMode
     Panel.CustomSortMenu = panelsort.CustomSortMenu

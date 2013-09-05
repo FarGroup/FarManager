@@ -1,5 +1,5 @@
-local args = ...
-local M, ErrMsg, pack = args.M, args.ErrMsg, args.pack
+local Shared = ...
+local M, ErrMsg, pack = Shared.M, Shared.ErrMsg, Shared.pack
 
 local F = far.Flags
 local type = type
@@ -401,6 +401,8 @@ local function LoadMacros (allAreas, unload)
   Events,Subscriptions = {},{}
   EnumState = {}
   LoadedMacros = {}
+  if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
+
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in ipairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end

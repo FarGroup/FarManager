@@ -274,4 +274,5 @@ return {
   SetCustomSortMode=SetCustomSortMode,
   CustomSortMenu=CustomSortMenu,
   GetSortModes=GetSortModes,
+  DeleteSortModes=function() CustomSortModes={} end,
 }
