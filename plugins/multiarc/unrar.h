@@ -1,6 +1,9 @@
 #ifndef _UNRAR_DLL_
 #define _UNRAR_DLL_
 
+#pragma pack(1)
+
+#define ERAR_SUCCESS             0
 #define ERAR_END_ARCHIVE        10
 #define ERAR_NO_MEMORY          11
 #define ERAR_BAD_DATA           12
@@ -26,7 +29,12 @@
 #define RAR_VOL_ASK           0
 #define RAR_VOL_NOTIFY        1
 
-#define RAR_DLL_VERSION       4
+#define RAR_DLL_VERSION       6
+
+#define RAR_HASH_NONE         0
+#define RAR_HASH_CRC32        1
+#define RAR_HASH_BLAKE2       2
+
 
 #ifdef _UNIX
 #define CALLBACK
@@ -36,6 +44,13 @@
 #define LPARAM long
 #define UINT unsigned int
 #endif
+
+#define RHDF_SPLITBEFORE 0x01
+#define RHDF_SPLITAFTER  0x02
+#define RHDF_ENCRYPTED   0x04
+#define RHDF_SOLID       0x10
+#define RHDF_DIRECTORY   0x20
+
 
 struct RARHeaderData
 {
@@ -78,7 +93,10 @@ struct RARHeaderDataEx
   unsigned int CmtBufSize;
   unsigned int CmtSize;
   unsigned int CmtState;
-  unsigned int Reserved[1024];
+  unsigned int DictSize;
+  unsigned int HashType;
+  char         Hash[32];
+  unsigned int Reserved[1014];
 };
 
 
@@ -93,25 +111,28 @@ struct RAROpenArchiveData
   unsigned int CmtState;
 };
 
+typedef int (CALLBACK *UNRARCALLBACK)(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2);
+
 struct RAROpenArchiveDataEx
 {
   char         *ArcName;
   wchar_t      *ArcNameW;
-  unsigned int OpenMode;
-  unsigned int OpenResult;
+  unsigned int  OpenMode;
+  unsigned int  OpenResult;
   char         *CmtBuf;
-  unsigned int CmtBufSize;
-  unsigned int CmtSize;
-  unsigned int CmtState;
-  unsigned int Flags;
-  unsigned int Reserved[32];
+  unsigned int  CmtBufSize;
+  unsigned int  CmtSize;
+  unsigned int  CmtState;
+  unsigned int  Flags;
+  UNRARCALLBACK Callback;
+  LPARAM        UserData;
+  unsigned int  Reserved[28];
 };
 
 enum UNRARCALLBACK_MESSAGES {
-  UCM_CHANGEVOLUME,UCM_PROCESSDATA,UCM_NEEDPASSWORD
+  UCM_CHANGEVOLUME,UCM_PROCESSDATA,UCM_NEEDPASSWORD,UCM_CHANGEVOLUMEW,
+  UCM_NEEDPASSWORDW
 };
-
-typedef int (CALLBACK *UNRARCALLBACK)(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2);
 
 typedef int (PASCAL *CHANGEVOLPROC)(char *ArcName,int Mode);
 typedef int (PASCAL *PROCESSDATAPROC)(unsigned char *Addr,int Size);
@@ -136,5 +157,7 @@ int    PASCAL RARGetDllVersion();
 #ifdef __cplusplus
 }
 #endif
+
+#pragma pack()
 
 #endif
