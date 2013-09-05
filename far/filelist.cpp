@@ -615,10 +615,9 @@ void FileList::SortFileList(int KeepPosition)
 			values[0].Pointer = &cs;
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_PANELSORT,nullptr,&fmc};
-			void *ptr;
-			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
+			MacroPluginReturn* mpr = nullptr;
+			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,(void**)&mpr) && mpr)
 			{
-				MacroPluginReturn* mpr = (MacroPluginReturn*)ptr;
 				CustomSortIndicator[0] = mpr->Values[0].String[0];
 				CustomSortIndicator[1] = mpr->Values[0].String[1];
 			}
@@ -4629,12 +4628,9 @@ void FileList::SelectSortMode()
 	MacroPluginReturn* mpr = nullptr;
 	int extra = 0; // number of additional menu items due to custom sort modes
 	{
-		FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_GETCUSTOMSORTMODES,nullptr,&fmc};
-		void *ptr;
-		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
+		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_GETCUSTOMSORTMODES,nullptr,nullptr};
+		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,(void**)&mpr) && mpr)
 		{
-			mpr = (MacroPluginReturn*)ptr;
 			if (mpr->Count)
 			{
 				extra = 1 + static_cast<int>(mpr->Count/3); // add 1 item for separator
@@ -4677,11 +4673,11 @@ void FileList::SelectSortMode()
 	}
 
 	MenuDataEx* d = SortMenu2 + ARRAYSIZE(SortModes) + 1 + extra;
-	(d++)->SetCheck(NumericSort);
-	(d++)->SetCheck(CaseSensitiveSort);
-	(d++)->SetCheck(GetSortGroups());
-	(d++)->SetCheck(SelectedFirst);
-	(d++)->SetCheck(DirectoriesFirst);
+	d[0].SetCheck(NumericSort);
+	d[1].SetCheck(CaseSensitiveSort);
+	d[2].SetCheck(GetSortGroups());
+	d[3].SetCheck(SelectedFirst);
+	d[4].SetCheck(DirectoriesFirst);
 	int SortCode=-1;
 	bool setSortMode0=false;
 
@@ -4706,9 +4702,9 @@ void FileList::SelectSortMode()
 
 			if (Key == L'+' || Key == L'-' || Key == L'*')
 			{
+				// clear check
 				if (MenuPos < (int)ARRAYSIZE(SortModes))
 				{
-					// clear check
 					for_each_cnt(CONST_RANGE(SortModes, i, size_t index)
 					{
 						SortModeMenu.SetCheck(0,static_cast<int>(index));
@@ -4716,7 +4712,6 @@ void FileList::SelectSortMode()
 				}
 				else
 				{
-					// clear check
 					for (size_t i=ARRAYSIZE(SortModes)+1; i<ARRAYSIZE(SortModes)+1+extra; i++)
 						SortModeMenu.SetCheck(0,(int)i);
 				}
@@ -4732,41 +4727,11 @@ void FileList::SelectSortMode()
 					break;
 
 				case L'+':
-					if (MenuPos<(int)ARRAYSIZE(SortModes) ||
-						(MenuPos>=(int)ARRAYSIZE(SortModes)+1 && MenuPos<(int)ARRAYSIZE(SortModes)+1+extra))
-					{
-						this->SortOrder=1;
-						setSortMode0=true;
-					}
-					else
-					{
-						switch (MenuPos-extra)
-						{
-							case BY_CUSTOMDATA+2:
-								this->NumericSort = false;
-								break;
-							case BY_CUSTOMDATA+3:
-								this->CaseSensitiveSort = false;
-								break;
-							case BY_CUSTOMDATA+4:
-								this->SortGroups = false;
-								break;
-							case BY_CUSTOMDATA+5:
-								this->SelectedFirst = false;
-								break;
-							case BY_CUSTOMDATA+6:
-								this->DirectoriesFirst = false;
-								break;
-						}
-					}
-					SortModeMenu.Close(MenuPos);
-					break;
-
 				case L'-':
 					if (MenuPos<(int)ARRAYSIZE(SortModes) ||
 						(MenuPos>=(int)ARRAYSIZE(SortModes)+1 && MenuPos<(int)ARRAYSIZE(SortModes)+1+extra))
 					{
-						this->SortOrder=-1;
+						this->SortOrder = Key==L'+' ? 1:-1;
 						setSortMode0=true;
 					}
 					else
@@ -4774,19 +4739,19 @@ void FileList::SelectSortMode()
 						switch (MenuPos-extra)
 						{
 							case BY_CUSTOMDATA+2:
-								this->NumericSort = true;
+								this->NumericSort = Key==L'-';
 								break;
 							case BY_CUSTOMDATA+3:
-								this->NumericSort = true;
+								this->CaseSensitiveSort = Key==L'-';
 								break;
 							case BY_CUSTOMDATA+4:
-								this->SortGroups = true;
+								this->SortGroups = Key==L'-';
 								break;
 							case BY_CUSTOMDATA+5:
-								this->SelectedFirst = true;
+								this->SelectedFirst = Key==L'-';
 								break;
 							case BY_CUSTOMDATA+6:
-								this->DirectoriesFirst = true;
+								this->DirectoriesFirst = Key==L'-';
 								break;
 						}
 					}

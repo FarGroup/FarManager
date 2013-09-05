@@ -536,8 +536,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 
 void KeyMacro::SaveMacros()
 {
-	FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACROS,nullptr,&fmc};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACROS,nullptr,nullptr};
 	CallMacroPlugin(&info);
 }
 
@@ -1162,8 +1161,7 @@ void KeyMacro::RunStartMacro()
 	if (!IsRunStartMacro && !IsInside)
 	{
 		IsInside = true;
-		FarMacroCall fmc = {sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-		OpenMacroPluginInfo info = {sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};
+		OpenMacroPluginInfo info = {sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,nullptr};
 		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
 		IsRunStartMacro = mpr && mpr->Count >= 1 && mpr->Values[0].Boolean;
 		IsInside = false;
