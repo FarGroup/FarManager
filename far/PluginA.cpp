@@ -4720,7 +4720,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		wchar_t *codePageName = Global->CodePages->FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 		string sTableName = std::to_wstring(nCP);
 		sTableName.resize(std::max(sTableName.size(), size_t(5)), L' ');
-		sTableName += BoxSymbols[BS_V1] + L' ' + codePageName;
+		sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(codePageName);
 		UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
