@@ -461,7 +461,8 @@ KeyMacro::KeyMacro():
 	m_InternalInput(0),
 	m_MacroPluginIsRunning(0),
 	m_DisableNested(0),
-	m_WaitKey(0)
+	m_WaitKey(0),
+	varTextDate()
 {
 	//print_opcodes();
 	m_CurState = new MacroState();

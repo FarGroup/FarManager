@@ -253,7 +253,7 @@ void FileList::ShowFileList(int Fast)
 	if (Global->Opt->ShowSortMode)
 	{
 		const wchar_t *Ch = nullptr;
-		if (SortMode < SORTMODE_LAST)
+		if (SortMode <= SORTMODE_LAST)
 		{
 			static const value_name_pair<int, LNGID> ModeNames[] =
 			{
@@ -274,6 +274,7 @@ void FileList::ShowFileList(int Fast)
 				{BY_FULLNAME, MMenuSortByFullName},
 				{BY_CUSTOMDATA, MMenuSortByCustomData},
 			};
+			static_assert(ARRAYSIZE(ModeNames) == SORTMODE_LAST + 1, "Incomplete ModeNames array");
 
 			Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
 		}
@@ -464,9 +465,11 @@ const FarColor FileList::GetShowColor(int Position, int ColorType)
 
 		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
 
-		const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Global->Opt->Highlight)
+		{
+			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
 			ColorAttr=ColorIndexToColor(PalColor[Pos]);
+		}
 	}
 
 	return ColorAttr;
@@ -870,15 +873,15 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 
 	FOR_RANGE(ViewSettings.PanelColumns, i)
 	{
-		bool UnEqual = false;
 		int Remainder = ViewSettings.PanelColumns.size() % ColumnsInGlobal;
 		GlobalColumns = static_cast<int>(ViewSettings.PanelColumns.size() / ColumnsInGlobal);
 
 		if (!Remainder)
 		{
-			for (int k = 0; k < GlobalColumns-1; k++)
+			bool UnEqual = false;
+			for (int k = 0; k < GlobalColumns-1 && !UnEqual; k++)
 			{
-				for (int j = 0; j < ColumnsInGlobal; j++)
+				for (int j = 0; j < ColumnsInGlobal && !UnEqual; j++)
 				{
 					if ((ViewSettings.PanelColumns[k*ColumnsInGlobal+j].type & 0xFF) !=
 					        (ViewSettings.PanelColumns[(k+1)*ColumnsInGlobal+j].type & 0xFF))

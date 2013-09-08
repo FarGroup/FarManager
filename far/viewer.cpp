@@ -1074,7 +1074,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 	int OutPtr = 0, nTab = 0, wrap_out = -1;
 	wchar_t ch, eol_char = L'\0';
-	INT64 fpos=0, fpos1, sel_end, wrap_pos = -1;
+	INT64 wrap_pos = -1;
 	bool skip_space = false;
 
 	if (VM.Hex)
@@ -1087,12 +1087,12 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 	bool bSelStartFound = false, bSelEndFound = false;
 	pString->bSelection = false;
-	sel_end = SelectPos + SelectSize;
+	INT64 sel_end = SelectPos + SelectSize;
 
-	fpos1 = vtell();
+	INT64 fpos1 = vtell();
 	for (;;)
 	{
-		fpos = fpos1;
+		INT64 fpos = fpos1;
 
 		if (OutPtr >= MAX_VIEWLINE)
 			break;
@@ -1173,7 +1173,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 		}
 	}
 
-   int eol_len = (eol_char ? 1 : 0);
+	int eol_len = (eol_char ? 1 : 0);
 	if (skip_space || eol_char != L'\n') // skip spaces and/or eol-s if required
 	{
 		for (;;)
@@ -2564,7 +2564,11 @@ static void PR_ViewerSearchMsg();
 
 struct ViewerPreRedrawItem : public PreRedrawItem
 {
-	ViewerPreRedrawItem() : PreRedrawItem(PR_ViewerSearchMsg) {}
+	ViewerPreRedrawItem():
+		PreRedrawItem(PR_ViewerSearchMsg),
+		percent(),
+		hex()
+	{}
 
 	string name;
 	int percent;

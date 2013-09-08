@@ -508,6 +508,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
 			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
 		};
+		static_assert(ARRAYSIZE(__SORT) == SORTMODE_LAST + 1, "Incomplete __SORT array");
 
 		if (!ListItems || !ItemNumber)
 			fwprintf(fp,L"\tPluginsStackItem <EMPTY>");

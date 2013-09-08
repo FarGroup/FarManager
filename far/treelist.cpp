@@ -395,7 +395,10 @@ void TreeList::Update(int Mode)
 
 struct TreePreRedrawItem : public PreRedrawItem
 {
-	TreePreRedrawItem() : PreRedrawItem(TreeList::PR_MsgReadTree){}
+	TreePreRedrawItem():
+		PreRedrawItem(TreeList::PR_MsgReadTree),
+		TreeCount()
+	{}
 
 	size_t TreeCount;
 };

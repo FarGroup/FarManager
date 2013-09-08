@@ -110,10 +110,10 @@ void FilePanels::Init(int DirCount)
 	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
 	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
 
-	if (Global->Opt->LeftPanel.SortMode < SORTMODE_LAST)
+	if (Global->Opt->LeftPanel.SortMode <= SORTMODE_LAST)
 		LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
 
-	if (Global->Opt->RightPanel.SortMode < SORTMODE_LAST)
+	if (Global->Opt->RightPanel.SortMode <= SORTMODE_LAST)
 		RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
 
 	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);

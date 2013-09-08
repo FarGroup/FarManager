@@ -62,7 +62,10 @@ static void PR_DrawGetDirInfoMsg();
 
 struct DirInfoPreRedrawItem : public PreRedrawItem
 {
-	DirInfoPreRedrawItem() : PreRedrawItem(PR_DrawGetDirInfoMsg){}
+	DirInfoPreRedrawItem():
+		PreRedrawItem(PR_DrawGetDirInfoMsg),
+		Size()
+	{}
 
 	string Title;
 	string Name;

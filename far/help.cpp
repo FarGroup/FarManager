@@ -1556,8 +1556,6 @@ int Help::JumpTopic()
 
 int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
-
 	if (HelpKeyBar.ProcessMouse(MouseEvent))
 		return TRUE;
 
@@ -1575,6 +1573,8 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
+		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
+
 		if (Flags.Check(HELPMODE_CLICKOUTSIDE))
 		{
 			// Вываливаем если предыдущий эвент не был двойным кликом

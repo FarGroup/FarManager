@@ -655,7 +655,10 @@ static void PR_ShellCopyMsg();
 
 struct CopyPreRedrawItem : public PreRedrawItem
 {
-	CopyPreRedrawItem() : PreRedrawItem(PR_ShellCopyMsg), CP() {}
+	CopyPreRedrawItem():
+		PreRedrawItem(PR_ShellCopyMsg),
+		CP()
+	{}
 
 	CopyProgress* CP;
 };

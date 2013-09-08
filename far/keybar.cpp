@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 
 KeyBar::KeyBar():
+	CustomArea(),
 	Owner(nullptr),
 	AltState(0),
 	CtrlState(0),

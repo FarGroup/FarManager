@@ -149,7 +149,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				/* 1 */{Masks[0], 0, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
 				/* 2 */{Masks[3], 0, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
 				/* 3 */{Masks[4], 0, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
-				/* 4 */{Masks[5], 0, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|B_LIGHTGREEN},
+				/* 4 */{Masks[5], 0, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
 				/* 5 */{Masks[1], 0, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
 				/* 6 */{Masks[2], 0, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
 				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
