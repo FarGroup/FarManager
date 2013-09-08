@@ -4692,7 +4692,7 @@ void FileList::SelectSortMode()
 	SortMenu[OptsIndex + 4].SetCheck(DirectoriesFirst);
 
 	int SortCode=-1;
-	bool InvertSortMode = false;
+	bool InvertSortMode = true;
 
 	{
 		VMenu2 SortModeMenu(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
