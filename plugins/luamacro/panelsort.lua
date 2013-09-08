@@ -59,7 +59,10 @@ local function qsort(x,l,u,f)
 end
 
 local BooleanProperties = {
-  "InvertByDefault","DirectoriesFirst","SelectedFirst","RevertSorting","SortGroups","NoSortEqualsByName"
+  "InvertByDefault", "NoSortEqualsByName"
+}
+local TernaryProperties = {
+  "DirectoriesFirst", "SelectedFirst", "RevertSorting", "SortGroups"
 }
 
 local function LoadCustomSortMode (nMode, Settings)
@@ -73,6 +76,7 @@ local function LoadCustomSortMode (nMode, Settings)
     if type(Settings.EndSort)=="function" then t.EndSort=Settings.EndSort end
 
     for _,v in ipairs(BooleanProperties) do t[v] = not not Settings[v] end
+    for _,v in ipairs(TernaryProperties) do t[v] = Settings[v]==0 and 0 or Settings[v]==1 and 1 or 2 end
 
     if type(Settings.Description)=="string" then t.Description = Settings.Description end
     if type(Settings.Indicator)=="string" then

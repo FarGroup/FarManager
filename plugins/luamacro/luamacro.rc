@@ -1,6 +1,6 @@
 #include <farversion.hpp>
 
-#define PLUGIN_BUILD 237
+#define PLUGIN_BUILD 238
 #define PLUGIN_DESC "Lua Macros for Far Manager"
 #define PLUGIN_NAME "LuaMacro"
 #define PLUGIN_FILENAME "luamacro.dll"
