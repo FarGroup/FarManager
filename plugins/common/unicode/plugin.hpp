@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3635
+  Plugin API for Far Manager 3.0 build 3647
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3635
+#define FARMANAGERVERSION_BUILD 3647
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -679,6 +679,31 @@ struct FarGetPluginPanelItem
 	size_t StructSize;
 	size_t Size;
 	struct PluginPanelItem* Item;
+};
+
+struct PluginPanelItemEx
+{
+	FILETIME CreationTime;
+	FILETIME LastAccessTime;
+	FILETIME LastWriteTime;
+	FILETIME ChangeTime;
+	unsigned __int64 FileSize;
+	unsigned __int64 AllocationSize;
+	const wchar_t *FileName;
+	const wchar_t *AlternateFileName;
+	const wchar_t *Description;
+	const wchar_t *Owner;
+	const wchar_t * const *CustomColumnData;
+	size_t CustomColumnNumber;
+	PLUGINPANELITEMFLAGS Flags;
+	struct UserDataItem UserData;
+	uintptr_t FileAttributes;
+	uintptr_t NumberOfLinks;
+	uintptr_t CRC32;
+	intptr_t Position;
+	intptr_t SortGroup;
+	uintptr_t NumberOfStreams;
+	unsigned __int64 StreamsSize;
 };
 
 typedef unsigned __int64 PANELINFOFLAGS;
