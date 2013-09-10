@@ -3858,7 +3858,7 @@ BOOL Editor::Search(int Next)
 					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
 
 					int Skip=FALSE;
-					
+
 					// Отступим на четверть и проверим на перекрытие диалогом замены
 					int FromTop=(ScrY-2)/4;
 					if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
@@ -7576,7 +7576,7 @@ DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only)
 
 	if ( edit->Str )
 	{
-		if ( 3*edit->StrSize + 1 > decoded.size() )
+		if ( 3*edit->StrSize + 1 > (int)decoded.size() )
 		{
 			decoded.resize(256 + 4*edit->StrSize);
 			// TODO: out_of_memory handling

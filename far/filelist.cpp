@@ -133,6 +133,7 @@ static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItem 
 	pi->LastWriteTime=fi->WriteTime;
 	pi->CreationTime=fi->CreationTime;
 	pi->LastAccessTime=fi->AccessTime;
+	pi->ChangeTime=fi->ChangeTime;
 	pi->NumberOfLinks=fi->NumberOfLinks;
 	pi->Flags=fi->UserFlags;
 
@@ -4681,11 +4682,11 @@ void FileList::SelectSortMode()
 	};
 	const MenuDataEx InitSortMenuOptions[]=
 	{
-		{MSG(MMenuSortUseNumeric), NumericSort? MIF_CHECKED : 0, 0},
-		{MSG(MMenuSortUseCaseSensitive), CaseSensitiveSort? MIF_CHECKED : 0, 0},
-		{MSG(MMenuSortUseGroups), GetSortGroups()? MIF_CHECKED : 0, KEY_SHIFTF11},
-		{MSG(MMenuSortSelectedFirst), SelectedFirst? MIF_CHECKED : 0, KEY_SHIFTF12},
-		{MSG(MMenuSortDirectoriesFirst), DirectoriesFirst? MIF_CHECKED : 0, 0},
+		{MSG(MMenuSortUseNumeric), NumericSort? (DWORD)MIF_CHECKED : 0, 0},
+		{MSG(MMenuSortUseCaseSensitive), CaseSensitiveSort? (DWORD)MIF_CHECKED : 0, 0},
+		{MSG(MMenuSortUseGroups), GetSortGroups()? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF11},
+		{MSG(MMenuSortSelectedFirst), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12},
+		{MSG(MMenuSortDirectoriesFirst), DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0},
 	};
 	static_assert(ARRAYSIZE(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
 
