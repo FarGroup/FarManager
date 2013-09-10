@@ -611,7 +611,7 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3586632404
+mtime=3588016093
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
@@ -659,9 +659,7 @@ mtime=3586632404
 #_  result = Compare (Pi1, Pi2, FarOptions)
 #_
 #_  **ѕараметры:**
-#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа PluginPanelItem.
-#_                 Reserved[0] содержит величину *Position* дл€ элемента панели.
-#_                 Reserved[1] содержит величину *SortGroup* дл€ элемента панели.
+#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа PluginPanelItemEx.
 #_    FarOptions - таблица, содержаща€ текущие опции сортировки панели в Far Manager
 #_                 (все значени€ - булевые): *DirectoriesFirst, SelectedFirst,*
 #_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
@@ -693,7 +691,7 @@ mtime=3586632404
 #_@@@
 #_<lua> Links = {
 #_  ["документации"]="http://luajit.org/ext_ffi.html",
-#_  PluginPanelItem="http://api.farmanager.com/ru/structures/pluginpanelitem.html",
+#_  PluginPanelItemEx="http://api.farmanager.com/ru/structures/pluginpanelitemex.html",
 #_  ["Panel.SetCustomSortMode"]="81.html",
 #_  ["Panel.CustomSortMenu"]="82.html",
 #_} </lua>

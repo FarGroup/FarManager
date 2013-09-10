@@ -722,6 +722,31 @@ struct FarGetPluginPanelItem
 	struct PluginPanelItem* Item;
 };
 
+struct PluginPanelItemEx
+{
+	FILETIME CreationTime;
+	FILETIME LastAccessTime;
+	FILETIME LastWriteTime;
+	FILETIME ChangeTime;
+	unsigned __int64 FileSize;
+	unsigned __int64 AllocationSize;
+	const wchar_t *FileName;
+	const wchar_t *AlternateFileName;
+	const wchar_t *Description;
+	const wchar_t *Owner;
+	const wchar_t * const *CustomColumnData;
+	size_t CustomColumnNumber;
+	PLUGINPANELITEMFLAGS Flags;
+	struct UserDataItem UserData;
+	uintptr_t FileAttributes;
+	uintptr_t NumberOfLinks;
+	uintptr_t CRC32;
+	intptr_t Position;
+	intptr_t SortGroup;
+	uintptr_t NumberOfStreams;
+	unsigned __int64 StreamsSize;
+};
+
 typedef unsigned __int64 PANELINFOFLAGS;
 static const PANELINFOFLAGS
 	PFLAGS_SHOWHIDDEN         = 0x0000000000000001ULL,

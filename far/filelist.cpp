@@ -112,7 +112,7 @@ struct CustomSort
 {
 	const FileListItem **Data;
 	size_t               DataSize;
-	void               (*FileListToPluginItem)(const FileListItem*, PluginPanelItem*);
+	void               (*FileListToPluginItem)(const FileListItem*, PluginPanelItemEx*);
 	int                  ListSortGroups;
 	int                  ListSelectedFirst;
 	int                  ListDirectoriesFirst;
@@ -123,10 +123,10 @@ struct CustomSort
 	HANDLE               hSortPlugin;
 };
 
-static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItem *pi)
+static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItemEx *pi)
 {
-	pi->FileName = const_cast<wchar_t*>(fi->strName.data());               //! CHANGED
-	pi->AlternateFileName = const_cast<wchar_t*>(fi->strShortName.data()); //! CHANGED
+	pi->FileName = fi->strName.data();               //! CHANGED
+	pi->AlternateFileName = fi->strShortName.data(); //! CHANGED
 	pi->FileSize=fi->FileSize;
 	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
@@ -148,9 +148,11 @@ static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItem 
 	pi->UserData.FreeData=fi->Callback;
 
 	pi->CRC32=fi->CRC32;
-	pi->Reserved[0]=fi->Position;                       //! CHANGED
-	pi->Reserved[1]=fi->SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
+	pi->Position=fi->Position;                        //! CHANGED
+	pi->SortGroup=fi->SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
 	pi->Owner = EmptyToNull(fi->strOwner.data());
+	pi->NumberOfStreams=fi->NumberOfStreams;
+	pi->StreamsSize=fi->StreamsSize;
 }
 
 FileListItem::~FileListItem()

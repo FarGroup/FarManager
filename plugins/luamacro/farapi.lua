@@ -19,7 +19,7 @@ struct UserDataItem
   FARPANELITEMFREECALLBACK FreeData;
 };
 
-struct PluginPanelItem
+struct PluginPanelItemEx
 {
   FILETIME CreationTime;
   FILETIME LastAccessTime;
@@ -38,6 +38,9 @@ struct PluginPanelItem
   uintptr_t FileAttributes;
   uintptr_t NumberOfLinks;
   uintptr_t CRC32;
-  intptr_t Reserved[2];
+  intptr_t Position;
+  intptr_t SortGroup;
+  uintptr_t NumberOfStreams;
+  unsigned __int64 StreamsSize;
 };
 ]]
