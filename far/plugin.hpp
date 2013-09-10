@@ -722,7 +722,7 @@ struct FarGetPluginPanelItem
 	struct PluginPanelItem* Item;
 };
 
-struct PluginPanelItemEx
+struct SortingPanelItem
 {
 	FILETIME CreationTime;
 	FILETIME LastAccessTime;

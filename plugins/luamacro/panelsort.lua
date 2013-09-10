@@ -140,7 +140,7 @@ ffi.cdef[[
   {
     const struct FileListItem **Data;
     size_t                      DataSize;
-    void                      (*FileListToPluginItem)(const struct FileListItem*, struct PluginPanelItemEx*);
+    void                      (*FileListToPluginItem)(const struct FileListItem*, struct SortingPanelItem*);
     int                         SortGroups;
     int                         SelectedFirst;
     int                         DirectoriesFirst;
@@ -181,8 +181,8 @@ local function SortPanelItems (params)
   local Compare = tSettings.Compare
   local SortEqualsByName = not tSettings.NoSortEqualsByName
 
-  local pi1 = ffi.new("struct PluginPanelItemEx")
-  local pi2 = ffi.new("struct PluginPanelItemEx")
+  local pi1 = ffi.new("struct SortingPanelItem")
+  local pi2 = ffi.new("struct SortingPanelItem")
 
   local SortGroups, SelectedFirst, DirectoriesFirst, RevertSorting
 

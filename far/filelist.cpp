@@ -112,7 +112,7 @@ struct CustomSort
 {
 	const FileListItem **Data;
 	size_t               DataSize;
-	void               (*FileListToPluginItem)(const FileListItem*, PluginPanelItemEx*);
+	void               (*FileListToPluginItem)(const FileListItem*, SortingPanelItem*);
 	int                  ListSortGroups;
 	int                  ListSelectedFirst;
 	int                  ListDirectoriesFirst;
@@ -123,7 +123,7 @@ struct CustomSort
 	HANDLE               hSortPlugin;
 };
 
-static void FileListToPluginItem_Custom(const FileListItem *fi, PluginPanelItemEx *pi)
+static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem *pi)
 {
 	pi->FileName = fi->strName.data();               //! CHANGED
 	pi->AlternateFileName = fi->strShortName.data(); //! CHANGED
@@ -604,7 +604,7 @@ void FileList::SortFileList(int KeepPosition)
 			CustomSort cs;
 			cs.Data = (const FileListItem**)ListData.data();
 			cs.DataSize = ListData.size();
-			cs.FileListToPluginItem = FileListToPluginItem_Custom;
+			cs.FileListToPluginItem = FileListToSortingPanelItem;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;

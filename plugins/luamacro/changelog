@@ -1,3 +1,7 @@
+shmuel 10.09.2013 23:58:49 +0200 - build 240
+
+1. Переименование PluginPanelItemEx -> SortingPanelItem.
+
 shmuel 10.09.2013 22:19:08 +0200 - build 239
 
 1. Кастомные сортировки в панелях используют структуру PluginPanelItemEx вместо PluginPanelItem.
