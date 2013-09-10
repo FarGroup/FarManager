@@ -3270,7 +3270,7 @@ void FileList::SetSortMode(int Mode, bool KeepOrder)
 	ApplySortMode(Mode);
 }
 
-void FileList::SetCustomSortMode(int Mode, bool InvertByDefault, bool KeepOrder)
+void FileList::SetCustomSortMode(int Mode, bool KeepOrder, bool InvertByDefault)
 {
 	if (Mode >= SORTMODE_COUNT)
 	{
@@ -4744,7 +4744,7 @@ void FileList::SelectSortMode()
 	// predefined sort modes
 	if (SortCode<(int)ARRAYSIZE(SortModes))
 	{
-		bool KeepOrder = false; 
+		bool KeepOrder = false;
 
 		if (!InvertPressed)
 		{
@@ -4761,7 +4761,7 @@ void FileList::SelectSortMode()
 		const int mode = (int)mpr->Values[index].Double;
 		const bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
 
-		bool KeepOrder = false; 
+		bool KeepOrder = false;
 
 		if (!InvertPressed)
 		{
