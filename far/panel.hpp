@@ -99,7 +99,8 @@ enum SORT_MODE
 	BY_FULLNAME,
 	BY_CHTIME,
 	BY_CUSTOMDATA,
-	SORTMODE_LAST = BY_CUSTOMDATA
+
+	SORTMODE_COUNT
 };
 
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
@@ -272,16 +273,16 @@ public:
 	virtual void SetViewMode(int ViewMode);
 	virtual int GetPrevViewMode() {return(PrevViewMode);}
 	virtual int GetPrevSortMode() {return(SortMode);}
-	virtual int GetPrevSortOrder() {return(SortOrder);}
+	virtual bool GetPrevSortOrder() {return ReverseSortOrder;}
 	virtual bool GetPrevNumericSort() {return NumericSort;}
 	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
 	virtual bool GetPrevCaseSensitiveSort() {return CaseSensitiveSort;}
 	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
 	virtual bool GetPrevDirectoriesFirst() {return DirectoriesFirst;}
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
-	virtual void SetSortMode(int Mode) {SortMode=Mode;}
-	virtual void SetCustomSortMode(int SortMode, int InvertByDefault) {}
-	virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);}
+	virtual void SetSortMode(int Mode, bool KeepOrder = false) {SortMode=Mode;}
+	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) {}
+	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
 	virtual size_t GetFileCount() {return 0;}
@@ -303,8 +304,8 @@ public:
 	void SetCaseSensitiveSort(bool Mode) {CaseSensitiveSort = Mode;}
 	bool GetDirectoriesFirst() { return DirectoriesFirst; }
 	void SetDirectoriesFirst(bool Mode) { DirectoriesFirst = Mode != 0; }
-	int GetSortOrder() {return(SortOrder);}
-	void SetSortOrder(int Mode) {SortOrder=Mode;}
+	bool GetSortOrder() {return ReverseSortOrder;}
+	void SetSortOrder(bool Reverse) {ReverseSortOrder = Reverse;}
 	bool GetSortGroups() {return(SortGroups);}
 	void SetSortGroups(bool Mode) {SortGroups=Mode;}
 	bool GetShowShortNamesMode() {return(ShowShortNames);}
@@ -362,7 +363,7 @@ protected:
 	int EnableUpdate;
 	int PanelMode;
 	int SortMode;
-	int SortOrder;
+	bool ReverseSortOrder;
 	bool SortGroups;
 	int PrevViewMode,ViewMode;
 	int CurTopFile;

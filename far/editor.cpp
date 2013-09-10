@@ -102,8 +102,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	SortColorLockCount(0),
 	SortColorUpdate(false),
 	EditorControlLock(0),
-	buffer_line(nullptr),
-	buffer_size(0),
 	Color(ColorIndexToColor(COL_EDITORTEXT)),
 	SelColor(ColorIndexToColor(COL_EDITORSELECTEDTEXT)),
 	MacroSelectionStart(-1),
@@ -139,7 +137,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 Editor::~Editor()
 {
 	//_SVS(SysLog(L"[%p] Editor::~Editor()",this));
-	delete[] buffer_line;
 	FreeAllocatedData();
 	KeepInitParameters();
 	_KEYMACRO(SysLog(-1));
@@ -7561,7 +7558,7 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 	pc.bm=SavePos;
 }
 
-DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, char * &decoded, int &bsize)
+DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only)
 {
 	DWORD Ret = SETCP_NOERROR;
 	if (codepage == m_codepage)
@@ -7579,18 +7576,13 @@ DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, c
 
 	if ( edit->Str )
 	{
-		if ( 3*edit->StrSize + 1 > bsize )
+		if ( 3*edit->StrSize + 1 > decoded.size() )
 		{
-			delete[] decoded;
-			decoded = new char[bsize = 256 + 4*edit->StrSize];
-			if ( !decoded )
-			{
-				bsize = 0;
-				return Ret | SETCP_OTHERERROR;
-			}
+			decoded.resize(256 + 4*edit->StrSize);
+			// TODO: out_of_memory handling
 		}
 
-		int length = WideCharToMultiByte(m_codepage, 0, edit->Str, edit->StrSize, decoded, bsize, nullptr, lpUsedDefaultChar);
+		int length = WideCharToMultiByte(m_codepage, 0, edit->Str, edit->StrSize, decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
 		if (UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7598,12 +7590,12 @@ DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, c
 				return Ret;
 		}
 
-		int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
+		int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded.data(), length, nullptr, 0);
 		if (!length2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
 		{
 			Ret |= SETCP_MB2WCERROR;
 			if ( !check_only )
-				length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
+				length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, nullptr, 0);
 		}
 		if ( check_only )
 			return Ret;
@@ -7617,7 +7609,7 @@ DWORD Editor::EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, c
 			edit->Str = encoded;
 		}
 
-		length2 = MultiByteToWideChar(codepage, 0, decoded, length, edit->Str, length2);
+		length2 = MultiByteToWideChar(codepage, 0, decoded.data(), length, edit->Str, length2);
 		edit->Str[edit->StrSize = length2] = L'\0';
 	}
 
@@ -7639,7 +7631,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 	while (current)
 	{
-		DWORD Result = EditSetCodePage(current, codepage, true, buffer_line, buffer_size);
+		DWORD Result = EditSetCodePage(current, codepage, true);
 		if ( Result )
 		{
 			Y = line;
@@ -7676,7 +7668,7 @@ bool Editor::SetCodePage(uintptr_t codepage)
 
 	while (current)
 	{
-		Result |= EditSetCodePage(current, codepage, false, buffer_line, buffer_size);
+		Result |= EditSetCodePage(current, codepage, false);
 		current = current->m_next;
 	}
 

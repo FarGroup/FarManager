@@ -253,7 +253,7 @@ void FileList::ShowFileList(int Fast)
 	if (Global->Opt->ShowSortMode)
 	{
 		const wchar_t *Ch = nullptr;
-		if (SortMode <= SORTMODE_LAST)
+		if (SortMode < SORTMODE_COUNT)
 		{
 			static const value_name_pair<int, LNGID> ModeNames[] =
 			{
@@ -274,12 +274,12 @@ void FileList::ShowFileList(int Fast)
 				{BY_FULLNAME, MMenuSortByFullName},
 				{BY_CUSTOMDATA, MMenuSortByCustomData},
 			};
-			static_assert(ARRAYSIZE(ModeNames) == SORTMODE_LAST + 1, "Incomplete ModeNames array");
+			static_assert(ARRAYSIZE(ModeNames) == SORTMODE_COUNT, "Incomplete ModeNames array");
 
 			Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
 		}
 
-		if (Ch || SortMode > SORTMODE_LAST)
+		if (Ch || SortMode >= SORTMODE_COUNT)
 		{
 			if (Global->Opt->ShowColumnTitles)
 				GotoXY(NextX1,Y1+1);
@@ -288,9 +288,9 @@ void FileList::ShowFileList(int Fast)
 
 			SetColor(COL_PANELCOLUMNTITLE);
 			if (Ch)
-				OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
+				OutCharacter[0] = ReverseSortOrder? Upper(Ch[1]) : Lower(Ch[1]);
 			else
-				OutCharacter[0]=SortOrder==1 ? CustomSortIndicator[0]:CustomSortIndicator[1];
+				OutCharacter[0] = ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
 
 			Text(OutCharacter);
 			NextX1++;

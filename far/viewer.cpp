@@ -2754,26 +2754,27 @@ struct Viewer::search_data
 	int  ch_size;
 	bool is_utf8;
 	bool first_Rex;
-	RegExp *pRex;
 	int RexMatchCount;
 	std::vector<RegExpMatch> RexMatch;
+	std::unique_ptr<RegExp> pRex;
 
-	search_data() : CurPos(-1),
-					MatchPos(-1),
-					search_bytes(nullptr),
-					search_text(nullptr),
-					search_len(0),
-					ch_size(0),
-					is_utf8(false),
-					first_Rex(true),
-					pRex(nullptr),
-					RexMatchCount(0)
+	search_data():
+		CurPos(-1),
+		MatchPos(-1),
+		search_bytes(nullptr),
+		search_text(nullptr),
+		search_len(0),
+		ch_size(0),
+		is_utf8(false),
+		first_Rex(true),
+		RexMatchCount(0)
 	{
 	}
 
-	~search_data()
+	int InitRegEx(const string& str, int flags)
 	{
-		 delete pRex;
+		pRex.reset(new RegExp);
+		return pRex->Compile(str.data(), flags);
 	}
 };
 
@@ -3330,10 +3331,9 @@ void Viewer::Search(int Next,int FirstChar)
 			WholeWords = false;
 			searcher = (ReverseSearch ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 			InsertRegexpQuote(strMsgStr);
-			sd.pRex = new RegExp;
 			string strSlash = strSearchStr;
 			InsertRegexpQuote(strSlash);
-			if ( !sd.pRex->Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)) )
+			if (!sd.InitRegEx(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)))
 				return; // wrong regular expression...
 			sd.RexMatchCount = sd.pRex->GetBracketsCount();
 			sd.RexMatch.resize(sd.RexMatchCount);

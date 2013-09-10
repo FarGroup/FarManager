@@ -229,7 +229,7 @@ void Grabber::DisplayObject()
 		if (GArea.X1!=-1)
 		{
 			std::vector<FAR_CHAR_INFO> CharBuf((X2-X1+1)*(Y2-Y1+1));
-			FAR_CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
+			FAR_CHAR_INFO *PrevBuf=SaveScr->ScreenBuf.get();
 			GetText(X1,Y1,X2,Y2,CharBuf.data(), sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
 			for (int X=X1; X<=X2; X++)

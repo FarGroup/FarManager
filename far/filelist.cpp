@@ -219,7 +219,7 @@ FileList::FileList():
 	CurTopFile=CurFile=0;
 	ShowShortNames=0;
 	SortMode=BY_NAME;
-	SortOrder=1;
+	ReverseSortOrder = false;
 	SortGroups=0;
 	ViewMode=VIEW_3;
 	ViewSettings = Global->Opt->ViewSettings[ViewMode];
@@ -573,7 +573,7 @@ void FileList::SortFileList(int KeepPosition)
 			ReadDiz();
 
 		ListSortMode=SortMode;
-		RevertSorting = SortOrder < 0;
+		RevertSorting = ReverseSortOrder;
 		ListSortGroups=SortGroups;
 		ListSelectedFirst=SelectedFirst;
 		ListDirectoriesFirst=DirectoriesFirst;
@@ -592,9 +592,9 @@ void FileList::SortFileList(int KeepPosition)
 		// ÝÒÎ ÅÑÒÜ ÓÇÊÎÅ ÌÅÑÒÎ ÄËß ÑÊÎÐÎÑÒÍÛÕ ÕÀÐÀÊÒÅÐÈÑÒÈÊ Far Manager
 		// ïðè ñ÷èòûâàíèè äèððåêòîðèè
 
-		if (SortMode <= SORTMODE_LAST)
+		if (SortMode < SORTMODE_COUNT)
 		{
-			std::sort(ListData.begin(), ListData.end(), ListLess);
+			std::sort(ALL_RANGE(ListData), ListLess);
 		}
 		else
 		{
@@ -3227,41 +3227,9 @@ void FileList::SetViewMode(int Mode)
 	}
 }
 
-
-void FileList::SetSortMode(int SortMode)
+void FileList::ApplySortMode(int Mode)
 {
-	static bool InvertByDefault[] =
-	{
-		false, // UNSORTED,
-		false, // BY_NAME,
-		false, // BY_EXT,
-		true,  // BY_MTIME,
-		true,  // BY_CTIME,
-		true,  // BY_ATIME,
-		true,  // BY_SIZE,
-		false, // BY_DIZ,
-		false, // BY_OWNER,
-		true,  // BY_COMPRESSEDSIZE,
-		true,  // BY_NUMLINKS,
-		true,  // BY_NUMSTREAMS,
-		true,  // BY_STREAMSSIZE,
-		false, // BY_FULLNAME,
-		true,  // BY_CHTIME,
-		false  // BY_CUSTOMDATA,
-	};
-	static_assert(ARRAYSIZE(InvertByDefault) == SORTMODE_LAST + 1, "incomplete InvertByDefault array");
-	assert(SortMode <= SORTMODE_LAST);
-	if (this->SortMode==SortMode && Global->Opt->ReverseSort)
-		SortOrder=-SortOrder;
-	else
-		SortOrder = InvertByDefault[SortMode]? -1 : 1;
-
-	SetSortMode0(SortMode);
-}
-
-void FileList::SetSortMode0(int Mode)
-{
-	SortMode=Mode;
+	SortMode = Mode;
 
 	if (!ListData.empty())
 		SortFileList(TRUE);
@@ -3269,18 +3237,49 @@ void FileList::SetSortMode0(int Mode)
 	FrameManager->RefreshFrame();
 }
 
-void FileList::SetCustomSortMode(int SortMode, int InvertByDefault)
+void FileList::SetSortMode(int Mode, bool KeepOrder)
 {
-	if (SortMode > SORTMODE_LAST)
+	if (!KeepOrder)
 	{
-		if (InvertByDefault != 2)
+		static bool InvertByDefault[] =
 		{
-			if (this->SortMode==SortMode && Global->Opt->ReverseSort)
-				SortOrder=-SortOrder;
-			else
-				SortOrder = InvertByDefault ? -1 : 1;
+			false, // UNSORTED,
+			false, // BY_NAME,
+			false, // BY_EXT,
+			true,  // BY_MTIME,
+			true,  // BY_CTIME,
+			true,  // BY_ATIME,
+			true,  // BY_SIZE,
+			false, // BY_DIZ,
+			false, // BY_OWNER,
+			true,  // BY_COMPRESSEDSIZE,
+			true,  // BY_NUMLINKS,
+			true,  // BY_NUMSTREAMS,
+			true,  // BY_STREAMSSIZE,
+			false, // BY_FULLNAME,
+			true,  // BY_CHTIME,
+			false  // BY_CUSTOMDATA,
+		};
+		static_assert(ARRAYSIZE(InvertByDefault) == SORTMODE_COUNT, "incomplete InvertByDefault array");
+
+		assert(Mode < SORTMODE_COUNT);
+
+		ReverseSortOrder = (SortMode==Mode && Global->Opt->ReverseSort)? !ReverseSortOrder : InvertByDefault[Mode];
+	}
+
+	ApplySortMode(Mode);
+}
+
+void FileList::SetCustomSortMode(int Mode, bool InvertByDefault, bool KeepOrder)
+{
+	if (Mode >= SORTMODE_COUNT)
+	{
+		if (!KeepOrder)
+		{
+			ReverseSortOrder = (SortMode == Mode && Global->Opt->ReverseSort)? !ReverseSortOrder : InvertByDefault;
 		}
-		SetSortMode0(SortMode);
+
+		ApplySortMode(Mode);
 	}
 }
 
@@ -4579,7 +4578,6 @@ void FileList::EditFilter()
 
 void FileList::SelectSortMode()
 {
-
 	const MenuDataEx InitSortMenuModes[]=
 	{
 		{MSG(MMenuSortByName),LIF_SELECTED,KEY_CTRLF3},
@@ -4599,9 +4597,9 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortByFullName),0,0},
 		{MSG(MMenuSortByCustomData),0,0},
 	};
-	static_assert(ARRAYSIZE(InitSortMenuModes) == SORTMODE_LAST + 1, "Incomplete InitSortMenuModes array");
+	static_assert(ARRAYSIZE(InitSortMenuModes) == SORTMODE_COUNT, "Incomplete InitSortMenuModes array");
 
-	std::vector<MenuDataEx> SortMenu(std::cbegin(InitSortMenuModes), std::cend(InitSortMenuModes));
+	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
 	static const MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
 
@@ -4648,11 +4646,11 @@ void FileList::SelectSortMode()
 		BY_FULLNAME,
 		BY_CUSTOMDATA
 	};
-	static_assert(ARRAYSIZE(SortModes) == SORTMODE_LAST + 1, "Incomplete SortModes array");
+	static_assert(ARRAYSIZE(SortModes) == SORTMODE_COUNT, "Incomplete SortModes array");
 
 	{
 		const auto ItemIterator = std::find(ALL_CONST_RANGE(SortModes), SortMode);
-		const wchar_t Check = SortOrder==1 ? L'+':L'-';
+		const wchar_t Check = ReverseSortOrder? L'-' : L'+';
 
 		if (ItemIterator != std::cend(SortModes))
 		{
@@ -4671,28 +4669,33 @@ void FileList::SelectSortMode()
 		}
 	}
 
+	enum SortOptions
+	{
+		SortOptUseNumeric,
+		SortOptUseCaseSensitive,
+		SortOptUseGroups,
+		SortOptSelectedFirst,
+		SortOptDirectoriesFirst,
+
+		SortOptCount
+	};
 	const MenuDataEx InitSortMenuOptions[]=
 	{
-		{MSG(MMenuSortUseNumeric),0,0},
-		{MSG(MMenuSortUseCaseSensitive),0,0},
-		{MSG(MMenuSortUseGroups),0,KEY_SHIFTF11},
-		{MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12},
-		{MSG(MMenuSortDirectoriesFirst),0,0},
+		{MSG(MMenuSortUseNumeric), NumericSort? MIF_CHECKED : 0, 0},
+		{MSG(MMenuSortUseCaseSensitive), CaseSensitiveSort? MIF_CHECKED : 0, 0},
+		{MSG(MMenuSortUseGroups), GetSortGroups()? MIF_CHECKED : 0, KEY_SHIFTF11},
+		{MSG(MMenuSortSelectedFirst), SelectedFirst? MIF_CHECKED : 0, KEY_SHIFTF12},
+		{MSG(MMenuSortDirectoriesFirst), DirectoriesFirst? MIF_CHECKED : 0, 0},
 	};
+	static_assert(ARRAYSIZE(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
 
 	SortMenu.reserve(SortMenu.size() + 1 + ARRAYSIZE(InitSortMenuOptions)); // + 1 for separator
 	SortMenu.push_back(MenuSeparator);
-	SortMenu.insert(SortMenu.end(), std::cbegin(InitSortMenuOptions), std::cend(InitSortMenuOptions));
+	SortMenu.insert(SortMenu.end(), ALL_CONST_RANGE(InitSortMenuOptions));
 
-	const size_t OptsIndex = SortMenu.size() - ARRAYSIZE(InitSortMenuOptions);
-	SortMenu[OptsIndex + 0].SetCheck(NumericSort);
-	SortMenu[OptsIndex + 1].SetCheck(CaseSensitiveSort);
-	SortMenu[OptsIndex + 2].SetCheck(GetSortGroups());
-	SortMenu[OptsIndex + 3].SetCheck(SelectedFirst);
-	SortMenu[OptsIndex + 4].SetCheck(DirectoriesFirst);
-
-	int SortCode=-1;
-	bool InvertSortMode = true;
+	int SortCode = -1;
+	bool InvertPressed = true;
+	bool PlusPressed = false;
 
 	{
 		VMenu2 SortModeMenu(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
@@ -4700,122 +4703,103 @@ void FileList::SelectSortMode()
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
 		SortModeMenu.SetId(SelectSortModeId);
-		//SortModeMenu.Process();
 
 		SortCode=SortModeMenu.Run([&](int Key)->int
 		{
-			int MenuPos=SortModeMenu.GetSelectPos();
-
-			if (Key == KEY_SUBTRACT)
-				Key=L'-';
-			else if (Key == KEY_ADD)
-				Key=L'+';
-			else if (Key == KEY_MULTIPLY)
-				Key=L'*';
-
-			if (Key == L'+' || Key == L'-' || Key == L'*')
-			{
-				// clear check
-				if (MenuPos < (int)ARRAYSIZE(SortModes))
-				{
-					for_each_cnt(CONST_RANGE(SortModes, i, size_t index)
-					{
-						SortModeMenu.SetCheck(0,static_cast<int>(index));
-					});
-				}
-				else
-				{
-					for (size_t i=ARRAYSIZE(SortModes)+1; i<ARRAYSIZE(SortModes)+1+extra; i++)
-						SortModeMenu.SetCheck(0,(int)i);
-				}
-			}
-
-			int KeyProcessed = 1;
+			bool KeyProcessed = false;
 
 			switch (Key)
 			{
 				case L'*':
-					InvertSortMode = true;
-					SortModeMenu.Close(MenuPos);
+				case KEY_MULTIPLY:
+					KeyProcessed = true;
 					break;
 
 				case L'+':
+				case KEY_ADD:
 				case L'-':
-					if (MenuPos<(int)ARRAYSIZE(SortModes) ||
-						(MenuPos>=(int)ARRAYSIZE(SortModes)+1 && MenuPos<(int)(ARRAYSIZE(SortModes)+1+extra)))
-					{
-						this->SortOrder = Key==L'+' ? 1:-1;
-						InvertSortMode = false;
-					}
-					else
-					{
-						switch (MenuPos-extra)
-						{
-							case SORTMODE_LAST+2:
-								this->NumericSort = Key==L'-';
-								break;
-							case SORTMODE_LAST+3:
-								this->CaseSensitiveSort = Key==L'-';
-								break;
-							case SORTMODE_LAST+4:
-								this->SortGroups = Key==L'-';
-								break;
-							case SORTMODE_LAST+5:
-								this->SelectedFirst = Key==L'-';
-								break;
-							case SORTMODE_LAST+6:
-								this->DirectoriesFirst = Key==L'-';
-								break;
-						}
-					}
-					SortModeMenu.Close(MenuPos);
+				case KEY_SUBTRACT:
+					InvertPressed = false;
+					PlusPressed = Key == L'+' || Key == KEY_ADD;
+					KeyProcessed = true;
 					break;
 
 				default:
-					KeyProcessed = 0;
+					break;
+			}
+
+			if (KeyProcessed)
+			{
+				SortModeMenu.Close(SortModeMenu.GetSelectPos());
 			}
 			return KeyProcessed;
 		});
-
-		if (SortCode<0)
-		{
-			return;
-		}
 	}
 
+	if (SortCode<0)
+	{
+		return;
+	}
+
+	// predefined sort modes
 	if (SortCode<(int)ARRAYSIZE(SortModes))
 	{
-		if (InvertSortMode)
-			SetSortMode(SortModes[SortCode]);
-		else
-			SetSortMode0(SortModes[SortCode]);
+		bool KeepOrder = false; 
+
+		if (!InvertPressed)
+		{
+			ReverseSortOrder = !PlusPressed;
+			KeepOrder = true;
+		}
+
+		SetSortMode(SortModes[SortCode], KeepOrder);
 	}
-	else if (SortCode>=(int)ARRAYSIZE(SortModes)+1 && SortCode<(int)(ARRAYSIZE(SortModes)+1+extra))
+	// custom sort modes
+	else if (SortCode>=(int)ARRAYSIZE(SortModes) + 1 && SortCode<(int)(ARRAYSIZE(SortModes) + 1 + extra - 1))
 	{
-		int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
-		int mode = (int)mpr->Values[index].Double;
-		int invert = mpr->Values[index+1].Boolean;
-		SetCustomSortMode(mode, InvertSortMode? invert : 2);
+		const int index = 3*(SortCode-ARRAYSIZE(SortModes)-1);
+		const int mode = (int)mpr->Values[index].Double;
+		const bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
+
+		bool KeepOrder = false; 
+
+		if (!InvertPressed)
+		{
+			ReverseSortOrder = !PlusPressed;
+			KeepOrder = true;
+		}
+
+		SetCustomSortMode(mode, KeepOrder, InvertByDefault);
 	}
+	// sort options
 	else
 	{
+		auto Switch = [&](int CurrentState)
+		{
+			return PlusPressed? true : InvertPressed? !CurrentState : false;
+		};
+
 		switch (SortCode - ARRAYSIZE(SortModes) - extra - 1) // -1 for separator
 		{
-			case 0:
-				ChangeNumericSort(NumericSort?0:1);
-				break;
-			case 1:
-				ChangeCaseSensitiveSort(CaseSensitiveSort?0:1);
-				break;
-			case 2:
-				ProcessKey(KEY_SHIFTF11);
-				break;
-			case 3:
-				ProcessKey(KEY_SHIFTF12);
-				break;
-			case 4:
-				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
-				break;
+		case SortOptUseNumeric:
+			ChangeNumericSort(Switch(NumericSort));
+			break;
+
+		case SortOptUseCaseSensitive:
+			ChangeCaseSensitiveSort(Switch(CaseSensitiveSort));
+			break;
+
+		case SortOptUseGroups:
+			ProcessKey(KEY_SHIFTF11);
+			break;
+
+		case SortOptSelectedFirst:
+			ProcessKey(KEY_SHIFTF12);
+			break;
+
+		case SortOptDirectoriesFirst:
+			ChangeDirectoriesFirst(Switch(DirectoriesFirst));
+			break;
 		}
 	}
 }
@@ -5096,9 +5080,9 @@ int FileList::GetPrevSortMode()
 }
 
 
-int FileList::GetPrevSortOrder()
+bool FileList::GetPrevSortOrder()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevSortOrder:SortOrder;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevSortOrder : ReverseSortOrder;
 }
 
 bool FileList::GetPrevNumericSort()
@@ -5250,9 +5234,9 @@ void FileList::SetSelectedFirstMode(bool Mode)
 	SortFileList(TRUE);
 }
 
-void FileList::ChangeSortOrder(int NewOrder)
+void FileList::ChangeSortOrder(bool Reverse)
 {
-	Panel::ChangeSortOrder(NewOrder);
+	Panel::ChangeSortOrder(Reverse);
 	SortFileList(TRUE);
 	Show();
 }

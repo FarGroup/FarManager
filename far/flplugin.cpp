@@ -66,7 +66,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const string& HostFile)
 	stItem.Modified=FALSE;
 	stItem.PrevViewMode=ViewMode;
 	stItem.PrevSortMode=SortMode;
-	stItem.PrevSortOrder=SortOrder;
+	stItem.PrevSortOrder=ReverseSortOrder;
 	stItem.PrevNumericSort=NumericSort;
 	stItem.PrevCaseSensitiveSort=CaseSensitiveSort;
 	stItem.PrevViewSettings=ViewSettings;
@@ -103,7 +103,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			SortMode = CurPlugin.PrevSortMode;
 			NumericSort = CurPlugin.PrevNumericSort;
 			CaseSensitiveSort = CurPlugin.PrevCaseSensitiveSort;
-			SortOrder = CurPlugin.PrevSortOrder;
+			ReverseSortOrder = CurPlugin.PrevSortOrder;
 			DirectoriesFirst = CurPlugin.PrevDirectoriesFirst;
 		}
 
@@ -146,7 +146,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			SortMode = CurPlugin.PrevSortMode;
 			NumericSort = CurPlugin.PrevNumericSort;
 			CaseSensitiveSort = CurPlugin.PrevCaseSensitiveSort;
-			SortOrder = CurPlugin.PrevSortOrder;
+			ReverseSortOrder = CurPlugin.PrevSortOrder;
 			DirectoriesFirst = CurPlugin.PrevDirectoriesFirst;
 		}
 	}
@@ -1019,7 +1019,7 @@ void FileList::SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOn
 	if (Info.StartSortMode)
 	{
 		SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
-		SortOrder=Info.StartSortOrder ? -1:1;
+		ReverseSortOrder = Info.StartSortOrder != 0;
 	}
 
 	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);

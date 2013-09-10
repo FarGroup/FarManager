@@ -225,10 +225,10 @@ void TreeList::DisplayTree(int Fast)
 	};
 	TreeItem *CurPtr;
 	string strTitle;
-	LockScreen *LckScreen=nullptr;
+	std::unique_ptr<LockScreen> LckScreen;
 
 	if (Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
-		LckScreen=new LockScreen;
+		LckScreen.reset(new LockScreen);
 
 	CorrectPosition();
 
@@ -307,9 +307,6 @@ void TreeList::DisplayTree(int Fast)
 
 	UpdateViewPanel();
 	SetTitle(); // не забудим прорисовать заголовок
-
-	if (LckScreen)
-		delete LckScreen;
 }
 
 void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)

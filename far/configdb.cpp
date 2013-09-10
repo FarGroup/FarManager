@@ -2896,9 +2896,7 @@ bool Database::Import(const string& File)
 
 void Database::ClearPluginsCache()
 {
-	PluginsCacheConfigDb *p = new PluginsCacheConfigDb();
-	p->DiscardCache();
-	delete p;
+	PluginsCacheConfigDb().DiscardCache();
 }
 
 int Database::ShowProblems()

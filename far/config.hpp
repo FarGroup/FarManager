@@ -290,7 +290,7 @@ public:
 		BoolOption Visible;
 		IntOption ViewMode;
 		IntOption SortMode;
-		IntOption SortOrder;
+		BoolOption ReverseSortOrder;
 		BoolOption SortGroups;
 		BoolOption ShowShortNames;
 		BoolOption NumericSort;

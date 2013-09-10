@@ -2610,8 +2610,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (panel)
 				{
 					int SortMode = (int)Data->Values[1].Double;
-					int InvertByDefault = Data->Values[2].Boolean ? 1 : 0;
-					panel->SetCustomSortMode(SortMode, InvertByDefault);
+					bool InvertByDefault = Data->Values[2].Boolean != 0;
+					panel->SetCustomSortMode(SortMode, false, InvertByDefault);
 				}
 			}
 			break;

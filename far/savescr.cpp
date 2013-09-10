@@ -67,17 +67,12 @@ SaveScreen::~SaveScreen()
 
 	_OT(SysLog(L"[%p] SaveScreen::~SaveScreen()", this));
 	RestoreArea();
-	delete[] ScreenBuf;
 }
 
 
 void SaveScreen::Discard()
 {
-	if (!ScreenBuf)
-		return;
-
-	delete[] ScreenBuf;
-	ScreenBuf=nullptr;
+	ScreenBuf.reset();
 }
 
 
@@ -86,7 +81,7 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 	if (!ScreenBuf)
 		return;
 
-	PutText(X1,Y1,X2,Y2,ScreenBuf);
+	PutText(X1, Y1, X2, Y2, ScreenBuf.get());
 
 	if (RestoreCursor)
 	{
@@ -102,12 +97,9 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 	SaveScreen::Y1=Y1;
 	SaveScreen::X2=X2;
 	SaveScreen::Y2=Y2;
-	ScreenBuf=new FAR_CHAR_INFO[ScreenBufCharCount()];
+	ScreenBuf.reset(new FAR_CHAR_INFO[ScreenBufCharCount()]);
 
-	if (!ScreenBuf)
-		return;
-
-	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(FAR_CHAR_INFO));
+	GetText(X1, Y1, X2, Y2, ScreenBuf.get(), ScreenBufCharCount() * sizeof(FAR_CHAR_INFO));
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -117,7 +109,7 @@ void SaveScreen::SaveArea()
 	if (!ScreenBuf)
 		return;
 
-	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(FAR_CHAR_INFO));
+	GetText(X1, Y1, X2, Y2, ScreenBuf.get(), ScreenBufCharCount() * sizeof(FAR_CHAR_INFO));
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -135,7 +127,7 @@ void SaveScreen::CorrectRealScreenCoord()
 
 void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
-	FAR_CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
+	FAR_CHAR_INFO *Buf=ScreenBuf.get(), *NewBuf=NewArea->ScreenBuf.get();
 
 	if (!Buf || !NewBuf)
 		return;
@@ -162,8 +154,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 	int NX1,NX2,NY1,NY2;
 	NX1=NX2=NY1=NY2=0;
-	FAR_CHAR_INFO* NewBuf = new FAR_CHAR_INFO[NewX*NewY];
-	CleanupBuffer(NewBuf,NewX*NewY);
+	std::unique_ptr<FAR_CHAR_INFO[]> NewBuf(new FAR_CHAR_INFO[NewX*NewY]);
+	CleanupBuffer(NewBuf.get(), NewX*NewY);
 	int NewWidth=std::min(OWi,NewX);
 	int NewHeight=std::min(OHe,NewY);
 	int iYReal;
@@ -218,7 +210,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			}
 		}
 
-		CharCopy(&NewBuf[ToIndex],&ScreenBuf[FromIndex],NewWidth);
+		CharCopy(&NewBuf.get()[ToIndex], &ScreenBuf.get()[FromIndex], NewWidth);
 	}
 
 	// achtung, experimental
@@ -236,7 +228,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				Global->Console->ReadOutput(Tmp, Size, Coord, ReadRegion);
 				for(int i=0; i<Size.Y;i++)
 				{
-					CharCopy(&NewBuf[i*Size.X],&Tmp[i*Size.X], Size.X);
+					CharCopy(&NewBuf.get()[i*Size.X], &Tmp[i*Size.X], Size.X);
 				}
 			}
 			else
@@ -244,7 +236,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				SMALL_RECT WriteRegion={0, static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(NewX-1), -1};
 				for(int i=0; i<Size.Y;i++)
 				{
-					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi], Size.X);
+					CharCopy(&Tmp[i*Size.X],&ScreenBuf.get()[i*OWi], Size.X);
 				}
 				Global->Console->WriteOutput(Tmp, Size, Coord, WriteRegion);
 				Global->Console->Commit();
@@ -256,14 +248,14 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		{
 			COORD Size={static_cast<SHORT>(abs(NewX-OWi)), static_cast<SHORT>(std::max(NewY,OHe))};
 			COORD Coord={};
-			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
+			std::unique_ptr<FAR_CHAR_INFO[]> Tmp(new FAR_CHAR_INFO[Size.X*Size.Y]);
 			if(NewX>OWi)
 			{
 				SMALL_RECT ReadRegion={static_cast<SHORT>(OWi), 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-1)};
-				Global->Console->ReadOutput(Tmp, Size, Coord, ReadRegion);
+				Global->Console->ReadOutput(Tmp.get(), Size, Coord, ReadRegion);
 				for(int i=0; i<NewY;i++)
 				{
-					CharCopy(&NewBuf[i*NewX+OWi],&Tmp[i*Size.X], Size.X);
+					CharCopy(&NewBuf.get()[i*NewX+OWi], &Tmp.get()[i*Size.X], Size.X);
 				}
 			}
 			else
@@ -272,19 +264,17 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				for(int i=0; i<Size.Y;i++)
 				{
 					if (i < OHe)
-						CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi+NewX], Size.X);
+						CharCopy(&Tmp.get()[i*Size.X], &ScreenBuf.get()[i*OWi+NewX], Size.X);
 					else
-						CleanupBuffer(&Tmp[i*Size.X], Size.X);
+						CleanupBuffer(&Tmp.get()[i*Size.X], Size.X);
 				}
-				Global->Console->WriteOutput(Tmp, Size, Coord, WriteRegion);
+				Global->Console->WriteOutput(Tmp.get(), Size, Coord, WriteRegion);
 				Global->Console->Commit();
 			}
-			delete[] Tmp;
 		}
 	}
 
-	delete [] ScreenBuf;
-	ScreenBuf=NewBuf;
+	ScreenBuf.swap(NewBuf);
 	X1=NX1; Y1=NY1; X2=NX2; Y2=NY2;
 }
 
@@ -312,5 +302,5 @@ void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
-	SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,nullptr);
+	SaveScreenDumpBuffer(Title, ScreenBuf.get(), X1, Y1, X2, Y2, nullptr);
 }

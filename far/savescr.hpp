@@ -37,7 +37,7 @@ class SaveScreen
 {
 		friend class Grabber;
 	private:
-		FAR_CHAR_INFO* ScreenBuf;
+		std::unique_ptr<FAR_CHAR_INFO[]> ScreenBuf;
 		SHORT CurPosX,CurPosY;
 		bool CurVisible;
 		DWORD CurSize;
@@ -46,7 +46,6 @@ class SaveScreen
 		void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize);
 		int ScreenBufCharCount();
 		void CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, int Count);
-		FAR_CHAR_INFO* GetBufferAddress() {return ScreenBuf;}
 
 	public:
 		SaveScreen();

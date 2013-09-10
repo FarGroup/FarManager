@@ -134,7 +134,7 @@ Panel::Panel():
 	EnableUpdate(TRUE),
 	PanelMode(NORMAL_PANEL),
 	SortMode(UNSORTED),
-	SortOrder(0),
+	ReverseSortOrder(false),
 	SortGroups(0),
 	PrevViewMode(VIEW_3),
 	ViewMode(0),
@@ -2057,7 +2057,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_SETSORTORDER:
 		{
-			ChangeSortOrder(Param1?-1:1);
+			ChangeSortOrder(Param1 != 0);
 			Result=TRUE;
 			break;
 		}
@@ -2116,7 +2116,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
 			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
-			Info->Flags |= GetSortOrder() < 0? PFLAGS_REVERSESORTORDER : 0;
+			Info->Flags |= GetSortOrder()? PFLAGS_REVERSESORTORDER : 0;
 			Info->Flags |= GetSortGroups()? PFLAGS_USESORTGROUPS : 0;
 			Info->Flags |= GetSelectedFirstMode()? PFLAGS_SELECTEDFIRST : 0;
 			Info->Flags |= GetDirectoriesFirst()? PFLAGS_DIRECTORIESFIRST : 0;

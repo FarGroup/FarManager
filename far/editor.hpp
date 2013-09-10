@@ -288,8 +288,7 @@ class Editor:public ScreenObject
 		bool SortColorUpdate;
 		int EditorControlLock;
 
-		char *buffer_line;
-		int   buffer_size;
+		std::vector<char> decoded;
 
 		FarColor Color;
 		FarColor SelColor;
@@ -402,7 +401,7 @@ class Editor:public ScreenObject
 		void SetCacheParams(EditorPosCache &pc, bool count_bom=false);
 		void GetCacheParams(EditorPosCache &pc);
 
-		DWORD EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only, char * &decoded, int &bsize);
+		DWORD EditSetCodePage(Edit *edit, uintptr_t codepage, bool check_only);
 		bool TryCodePage(uintptr_t codepage, int &X, int &Y);
 		bool SetCodePage(uintptr_t codepage);  //BUGBUG
 		uintptr_t GetCodePage();  //BUGBUG

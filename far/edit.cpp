@@ -1367,12 +1367,12 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
-			wchar_t *ClipText=nullptr;
+			std::unique_ptr<wchar_t[]> ClipText;
 
 			if (GetMaxLength()==-1)
-				ClipText=PasteFromClipboard();
+				ClipText.reset(PasteFromClipboard());
 			else
-				ClipText=PasteFromClipboardEx(GetMaxLength());
+				ClipText.reset(PasteFromClipboardEx(GetMaxLength()));
 
 			if (!ClipText)
 				return TRUE;
@@ -1405,14 +1405,12 @@ int Edit::ProcessKey(int Key)
 			{
 				LeftPos=0;
 				Flags.Clear(FEDITLINE_CLEARFLAG);
-				SetString(ClipText);
+				SetString(ClipText.get());
 			}
 			else
 			{
-				InsertString(ClipText);
+				InsertString(ClipText.get());
 			}
-
-			delete[] ClipText;
 
 			Show();
 			return TRUE;

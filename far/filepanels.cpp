@@ -110,18 +110,18 @@ void FilePanels::Init(int DirCount)
 	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
 	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
 
-	if (Global->Opt->LeftPanel.SortMode <= SORTMODE_LAST)
+	if (Global->Opt->LeftPanel.SortMode < SORTMODE_COUNT)
 		LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
 
-	if (Global->Opt->RightPanel.SortMode <= SORTMODE_LAST)
+	if (Global->Opt->RightPanel.SortMode < SORTMODE_COUNT)
 		RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
 
 	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
 	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
 	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);
 	RightPanel->SetCaseSensitiveSort(Global->Opt->RightPanel.CaseSensitiveSort);
-	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.SortOrder);
-	RightPanel->SetSortOrder(Global->Opt->RightPanel.SortOrder);
+	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.ReverseSortOrder);
+	RightPanel->SetSortOrder(Global->Opt->RightPanel.ReverseSortOrder);
 	LeftPanel->SetSortGroups(Global->Opt->LeftPanel.SortGroups);
 	RightPanel->SetSortGroups(Global->Opt->RightPanel.SortGroups);
 	LeftPanel->SetShowShortNamesMode(Global->Opt->LeftPanel.ShowShortNames);
@@ -897,7 +897,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	int OldViewMode=Current->GetPrevViewMode();
 	bool OldFullScreen=Current->IsFullScreen();
 	int OldSortMode=Current->GetPrevSortMode();
-	int OldSortOrder=Current->GetPrevSortOrder();
+	bool OldSortOrder=Current->GetPrevSortOrder();
 	bool OldNumericSort=Current->GetPrevNumericSort();
 	bool OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
 	bool OldSortGroups=Current->GetSortGroups();

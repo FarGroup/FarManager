@@ -124,7 +124,7 @@ struct PluginsListItem
 	int Modified;
 	int PrevViewMode;
 	int PrevSortMode;
-	int PrevSortOrder;
+	bool PrevSortOrder;
 	bool PrevNumericSort;
 	bool PrevCaseSensitiveSort;
 	bool PrevDirectoriesFirst;
@@ -151,15 +151,15 @@ public:
 	virtual void StopFSWatcher() override;
 	virtual void SortFileList(int KeepPosition) override;
 	virtual void SetViewMode(int ViewMode) override;
-	virtual void SetSortMode(int SortMode) override;
-	virtual void SetCustomSortMode(int SortMode, int InvertByDefault) override;
-	virtual void ChangeSortOrder(int NewOrder) override;
+	virtual void SetSortMode(int SortMode, bool KeepOrder = false) override;
+	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) override;
+	virtual void ChangeSortOrder(bool Reverse) override;
 	virtual void ChangeNumericSort(bool Mode) override;
 	virtual void ChangeCaseSensitiveSort(bool Mode) override;
 	virtual void ChangeDirectoriesFirst(bool Mode) override;
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
 	virtual int GetPrevSortMode() override;
-	virtual int GetPrevSortOrder() override;
+	virtual bool GetPrevSortOrder() override;
 	virtual int GetPrevViewMode() override;
 	virtual bool GetPrevNumericSort() override;
 	virtual bool GetPrevCaseSensitiveSort() override;
@@ -210,7 +210,6 @@ public:
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
 
-	void SetSortMode0(int SortMode);
 	HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 	long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 	void ProcessHostFile();
@@ -248,6 +247,7 @@ private:
 	virtual int GetCurName(string &strName, string &strShortName) override;
 	virtual int GetCurBaseName(string &strName, string &strShortName) override;
 
+	void ApplySortMode(int Mode);
 	void DeleteListData(std::vector<std::unique_ptr<FileListItem>>& ListData);
 	void Up(int Count);
 	void Down(int Count);

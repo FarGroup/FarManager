@@ -1632,7 +1632,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", &LeftPanel.ShowShortNames, false},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", &LeftPanel.SortGroups, false},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortMode", &LeftPanel.SortMode, 1},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortOrder", &LeftPanel.SortOrder, 1},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"ReverseSortOrder", &LeftPanel.ReverseSortOrder, false},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Type", &LeftPanel.Type, 0},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ViewMode", &LeftPanel.ViewMode, 2},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", &LeftPanel.Visible, true},
@@ -1644,7 +1644,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", &RightPanel.ShowShortNames, false},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", &RightPanel.SortGroups, false},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortMode", &RightPanel.SortMode, 1},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"SortOrder", &RightPanel.SortOrder, 1},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"ReverseSortOrder", &RightPanel.ReverseSortOrder, false},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Type", &RightPanel.Type, 0},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ViewMode", &RightPanel.ViewMode, 2},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Visible", &RightPanel.Visible, true},
@@ -2060,7 +2060,7 @@ void Options::Save(bool Ask)
 		LeftPanel.Type=LeftPanelPtr->GetType();
 		LeftPanel.ViewMode=LeftPanelPtr->GetViewMode();
 		LeftPanel.SortMode=LeftPanelPtr->GetSortMode();
-		LeftPanel.SortOrder=LeftPanelPtr->GetSortOrder();
+		LeftPanel.ReverseSortOrder=LeftPanelPtr->GetSortOrder();
 		LeftPanel.SortGroups=LeftPanelPtr->GetSortGroups() != 0;
 		LeftPanel.ShowShortNames=LeftPanelPtr->GetShowShortNamesMode() != 0;
 		LeftPanel.NumericSort=LeftPanelPtr->GetNumericSort() != 0;
@@ -2078,7 +2078,7 @@ void Options::Save(bool Ask)
 		RightPanel.Type=RightPanelPtr->GetType();
 		RightPanel.ViewMode=RightPanelPtr->GetViewMode();
 		RightPanel.SortMode=RightPanelPtr->GetSortMode();
-		RightPanel.SortOrder=RightPanelPtr->GetSortOrder();
+		RightPanel.ReverseSortOrder=RightPanelPtr->GetSortOrder();
 		RightPanel.SortGroups=RightPanelPtr->GetSortGroups() != 0;
 		RightPanel.ShowShortNames=RightPanelPtr->GetShowShortNamesMode() != 0;
 		RightPanel.NumericSort=RightPanelPtr->GetNumericSort() != 0;
