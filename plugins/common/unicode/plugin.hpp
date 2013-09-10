@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3647
+  Plugin API for Far Manager 3.0 build 3648
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3647
+#define FARMANAGERVERSION_BUILD 3648
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -681,7 +681,7 @@ struct FarGetPluginPanelItem
 	struct PluginPanelItem* Item;
 };
 
-struct PluginPanelItemEx
+struct SortingPanelItem
 {
 	FILETIME CreationTime;
 	FILETIME LastAccessTime;
