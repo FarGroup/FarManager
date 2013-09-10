@@ -3243,7 +3243,7 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 	std::for_each(RANGE(SavePos, i)
 	{
 		//FIXME: it would be better to add the bookmarks for deleted line to UndoData
-		if (i.Line != POS_NONE && UndoLine < static_cast<int>(i.Line))
+		if (i.Line != POS_NONE && UndoLine < i.Line)
 			--i.Line;
 	});
 
@@ -4201,7 +4201,7 @@ void Editor::Paste(const wchar_t *Src)
 	if (Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	wchar_t *ClipText=(wchar_t *)Src;
+	wchar_t *ClipText=const_cast<wchar_t*>(Src);
 	BOOL IsDeleteClipText=FALSE;
 
 	if (!ClipText)

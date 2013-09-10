@@ -45,9 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 
-#define randomize() srand(67898)
-#define random(x) ((int)(((x)*rand())/(RAND_MAX+1)))
-
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
 struct star
@@ -141,6 +138,11 @@ static void ShowSaver(int Step)
 	auto NotStar = std::find_if(RANGE(Star, i) {return i.Type == STAR_NONE;});
 	if (NotStar != Star.end())
 	{
+		auto random = [](int x)
+		{
+			return x * rand() / (RAND_MAX + 1);
+		};
+		
 		static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};
 		NotStar->Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
 		NotStar->X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
@@ -174,7 +176,7 @@ int ScreenSaver(int EnableExit)
 	{
 		SaveScreen SaveScr;
 		SetCursorType(0,10);
-		randomize();
+		srand(67898);
 		FarColor Color = Colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK);
 		SetScreen(0,0,ScrX,ScrY,L' ', Color);
 

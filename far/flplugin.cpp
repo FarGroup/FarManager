@@ -240,6 +240,7 @@ void FileList::FileListToPluginItem(const FileListItem *fi, PluginPanelItem *pi)
 	pi->LastWriteTime=fi->WriteTime;
 	pi->CreationTime=fi->CreationTime;
 	pi->LastAccessTime=fi->AccessTime;
+	pi->ChangeTime=fi->ChangeTime;
 	pi->NumberOfLinks=fi->NumberOfLinks;
 	pi->Flags=fi->UserFlags;
 
@@ -308,11 +309,11 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			{
 				if (!fi->CustomColumnData[ii])
 				{
-					((const wchar_t**)(gpi->Item->CustomColumnData))[ii]=nullptr;
+					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = nullptr;
 				}
 				else
 				{
-					((const wchar_t**)(gpi->Item->CustomColumnData))[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
+					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = wcscpy(reinterpret_cast<wchar_t*>(data), fi->CustomColumnData[ii]);
 					data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
 				}
 			}

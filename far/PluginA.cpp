@@ -140,12 +140,19 @@ bool OEMPluginModel::FindExport(const char* ExportName)
 }
 
 
-#define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
-#define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
+inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
+{
+	return WideCharToMultiByte(CP_OEMCP, 0, src, -1, dst , (int)lendst, nullptr, nullptr);
+}
 
-static inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
+inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
+{
+	return MultiByteToWideChar(CP_OEMCP, 0, src, -1, dst, (int)lendst);
+}
+
+static inline int IsSpaceA(int x) { return x==' '  || x=='\t'; }
 static inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
-static inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
+static inline int IsSlashA(int x) { return x=='\\' || x=='/'; }
 
 static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
@@ -399,7 +406,7 @@ static char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage
 	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1,CodePage);
 }
 
-static wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, size_t iCount)
+static wchar_t **ArrayAnsiToUnicode(const char* const * const lpaszAnsiString, size_t iCount)
 {
 	wchar_t** Result = nullptr;
 
@@ -804,7 +811,7 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	delete[] PanelItem;
 }
 
-static void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray=true)
+static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray=true)
 {
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
@@ -1465,7 +1472,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 
 	if (Flags&oldfar::FMENU_USEEXT)
 	{
-		oldfar::FarMenuItemEx *p = (oldfar::FarMenuItemEx *)Item;
+		const oldfar::FarMenuItemEx *p = (const oldfar::FarMenuItemEx *)Item;
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
@@ -1966,10 +1973,9 @@ static void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &d
 
 	if (diA.Type==oldfar::DI_USERCONTROL)
 	{
-		di.Data = new wchar_t[ARRAYSIZE(diA.Data)];
-
-		if (di.Data) memcpy((char*)di.Data,diA.Data,sizeof(diA.Data));
-
+		wchar_t* Buffer = new wchar_t[ARRAYSIZE(diA.Data)];
+		memcpy(Buffer, diA.Data, sizeof(diA.Data));
+		di.Data = Buffer;
 		di.MaxLength = 0;
 	}
 	else if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
@@ -2239,7 +2245,8 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE h
 
 	if (diA->Type==oldfar::DI_USERCONTROL)
 	{
-		if (di.Data) memcpy(diA->Data,(char*)di.Data,sizeof(diA->Data));
+		if (di.Data)
+			memcpy(diA->Data, di.Data, sizeof(diA->Data));
 	}
 	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
@@ -2475,7 +2482,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 		{
 			if (!Param1 || !Param2) return FALSE;
 
-			int Count = (int)Param1;
+			int Count = Param1;
 			DWORD* KeysA = (DWORD*)Param2;
 			auto KeysW = new INPUT_RECORD[Count];
 
@@ -3015,7 +3022,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
 
 	int ret = -1;
-	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
+	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
 	DialogData NewDialogData;
 	NewDialogData.DlgProc=DlgProc;
 	NewDialogData.hDlg=hDlg;
@@ -3592,7 +3599,7 @@ static void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
 	//Тут хранится ItemsNumber полученный в FarGetDirListA или FarGetPluginDirListA
 	--PanelItem;
 	size_t count = PanelItem->Reserved[0];
-	FreePanelItemA((oldfar::PluginPanelItem *)PanelItem, count, false);
+	FreePanelItemA(PanelItem, count, false);
 	delete[] PanelItem;
 }
 
@@ -4990,7 +4997,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 
 		if ((Value = FileVersion->GetStringValue(L"PluginGUID")))
 		{
-			if (UuidFromString((unsigned short *)Value, &PluginGuid) == RPC_S_OK)
+			if (UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &PluginGuid) == RPC_S_OK)
 				GuidFound = true;
 		}
 
@@ -5495,7 +5502,7 @@ void PluginA::FreeOpenPanelInfo()
 
 	if (OPI.KeyBar)
 	{
-		FreeUnicodeKeyBarTitles((KeyBarTitles*)OPI.KeyBar);
+		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;
 	}
 
@@ -5540,19 +5547,19 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 
 	if (Src.InfoLines && Src.InfoLinesNumber)
 	{
-		ConvertInfoPanelLinesA(Src.InfoLines, (InfoPanelLine**)&OPI.InfoLines, Src.InfoLinesNumber);
+		ConvertInfoPanelLinesA(Src.InfoLines, const_cast<InfoPanelLine**>(&OPI.InfoLines), Src.InfoLinesNumber);
 		OPI.InfoLinesNumber = Src.InfoLinesNumber;
 	}
 
 	if (Src.DescrFiles && Src.DescrFilesNumber)
 	{
-		OPI.DescrFiles = ArrayAnsiToUnicode((char**)Src.DescrFiles, Src.DescrFilesNumber);
+		OPI.DescrFiles = ArrayAnsiToUnicode(Src.DescrFiles, Src.DescrFilesNumber);
 		OPI.DescrFilesNumber = Src.DescrFilesNumber;
 	}
 
 	if (Src.PanelModesArray && Src.PanelModesNumber)
 	{
-		ConvertPanelModesA(Src.PanelModesArray, (PanelMode**)&OPI.PanelModesArray, Src.PanelModesNumber);
+		ConvertPanelModesA(Src.PanelModesArray, const_cast<PanelMode**>(&OPI.PanelModesArray), Src.PanelModesNumber);
 		OPI.PanelModesNumber	= Src.PanelModesNumber;
 		OPI.StartPanelMode		= Src.StartPanelMode;
 
@@ -5602,7 +5609,7 @@ void PluginA::ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelIn
 	if (Src.KeyBar)
 	{
 		OPI.KeyBar = new KeyBarTitles;
-		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPanelInfo));
+		ConvertKeyBarTitlesA(Src.KeyBar, const_cast<KeyBarTitles*>(OPI.KeyBar), Src.StructSize>=(int)sizeof(oldfar::OpenPanelInfo));
 	}
 
 	if (Src.ShortcutData)

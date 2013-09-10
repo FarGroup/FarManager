@@ -36,6 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma optimize("gty", on)
 #endif
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#endif // __GNUC__
+
 //-----------------------------------------------------------------------------
 static
 #if defined(__GNUC__)

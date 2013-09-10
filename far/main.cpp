@@ -802,7 +802,7 @@ int wmain(int Argc, wchar_t *Argv[])
 }
 
 #ifdef __GNUC__
-int _cdecl main()
+int main()
 {
 	int nArgs;
 	LPWSTR* wstrCmdLineArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);

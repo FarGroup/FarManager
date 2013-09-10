@@ -2558,7 +2558,7 @@ int Dialog::ProcessKey(int Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,FocusPos, (void*)EmptyToNull(HelpTopic.data()))), strStr))
+			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.data())))), strStr))
 			{
 				Help Hlp(strStr);
 			}
@@ -5028,7 +5028,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	const wchar_t *Ptr= CurItem->strData.data();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
-		Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
+		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetStringAddr();
 
 	switch (Msg)
 	{
@@ -5216,12 +5216,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
-									xwcsncpy((wchar_t*)ListTitle->Title,strTitle.data(),ListTitle->TitleSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Title), strTitle.data(), ListTitle->TitleSize);
 								else
 									ListTitle->TitleSize=strTitle.size()+1;
 
 								if (ListTitle->Bottom&&ListTitle->BottomSize)
-									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle.data(),ListTitle->BottomSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Bottom), strBottomTitle.data(), ListTitle->BottomSize);
 								else
 									ListTitle->BottomSize=strBottomTitle.size()+1;
 								return TRUE;
@@ -5714,7 +5714,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (!CurItem->ObjPtr)
 							break;
 
-						Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
+						Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetStringAddr();
 					case DI_TEXT:
 					case DI_VTEXT:
 					case DI_SINGLEBOX:

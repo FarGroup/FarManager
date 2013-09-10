@@ -34,6 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#endif // __GNUC__
+
 #include "tinyxml.hpp"
 
 namespace tinyxml

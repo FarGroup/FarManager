@@ -426,7 +426,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 	}
 	else
 	{
-		DirListPlugin.pPlugin=(Plugin*)PluginNumber;
+		DirListPlugin.pPlugin = PluginNumber;
 		DirListPlugin.hPlugin=hPlugin;
 	}
 

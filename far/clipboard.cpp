@@ -239,7 +239,7 @@ bool Clipboard::Copy(const wchar_t *Data)
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
-				if (!SetData(CF_UNICODETEXT,(HANDLE)hData))
+				if (!SetData(CF_UNICODETEXT, hData))
 					GlobalFree(hData);
 			}
 			else

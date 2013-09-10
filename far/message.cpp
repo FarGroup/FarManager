@@ -521,7 +521,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 			if (HelpTopic)
 				Dlg.SetHelp(HelpTopic);
 
-			Dlg.SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber)); // Запомним номер плагина
+			Dlg.SetPluginOwner(PluginNumber); // Запомним номер плагина
 
 			if (IsWarningStyle)
 			{

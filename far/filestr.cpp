@@ -529,9 +529,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
 				{
-					const wchar_t *deprecated = Global->Opt->strNoAutoDetectCP.data();
-
-					if ( 0 == wcscmp(deprecated, L"-1") )
+					if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
 					{
 						if ( Global->Opt->CPMenuMode )
 						{
@@ -546,17 +544,11 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 					}
 					else
 					{
-						while (*deprecated)
-						{
-							while (*deprecated && (*deprecated < L'0' || *deprecated > L'9'))
-								++deprecated;
+						const auto BannedCpList = StringToList(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
 
-							int dp = (int)wcstol(deprecated, (wchar_t **)&deprecated, 0);
-							if (cp == dp)
-							{
-								cp = -1;
-								break;
-							}
+						if (std::find(ALL_CONST_RANGE(BannedCpList), std::to_wstring(cp)) != BannedCpList.cend())
+						{
+							cp = -1;
 						}
 					}
 				}

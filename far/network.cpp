@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "cddrv.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
@@ -111,8 +112,8 @@ void ConnectToNetworkDrive(const string& NewDir)
 	GetStoredUserName(NewDir[0], strUserName);
 	NETRESOURCE netResource;
 	netResource.dwType = RESOURCETYPE_DISK;
-	netResource.lpLocalName = (wchar_t *)NewDir.data();
-	netResource.lpRemoteName = (wchar_t *)strRemoteName.data();
+	netResource.lpLocalName = UNSAFE_CSTR(NewDir);
+	netResource.lpRemoteName = UNSAFE_CSTR(strRemoteName);
 	netResource.lpProvider = 0;
 	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.data()), 0);
 

@@ -1676,7 +1676,7 @@ void Edit::SetString(const wchar_t *Str, int Length)
 		return;
 
 	Select(-1,0);
-	SetBinaryString(Str,Length==-1?(int)StrLength(Str):Length);
+	SetBinaryString(Str,Length==-1? StrLength(Str) : Length);
 }
 
 void Edit::SetEOL(const wchar_t *EOL)
@@ -2093,7 +2093,7 @@ bool Edit::ReplaceTabs()
 
 	bool changed=false;
 
-	while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos)))
+	while ((TabPtr = wmemchr(Str+Pos, L'\t', StrSize-Pos)))
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);

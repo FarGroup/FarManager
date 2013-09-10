@@ -459,7 +459,7 @@ void FindFiles::InitInFileSearch()
 			for (size_t index = 0; index < 255+1; index++)
 				skipCharsTable[index] = hexFindStringSize;
 
-			for (size_t index = 0; index < (size_t)hexFindStringSize-1; index++)
+			for (size_t index = 0; index < hexFindStringSize-1; index++)
 				skipCharsTable[hexFindString[index]] = hexFindStringSize-1-index;
 		}
 

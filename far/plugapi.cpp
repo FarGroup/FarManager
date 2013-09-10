@@ -257,7 +257,7 @@ BOOL WINAPI apiShowHelp(
 		}
 		else
 		{
-			Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>((void*)ModuleName));
+			Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName));
 			if (plugin)
 			{
 				Flags|=FHELP_CUSTOMPATH;
@@ -1088,7 +1088,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	string strTopic;
 	if (PluginNumber)
 	{
-		Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),NullToEmpty(HelpTopic),strTopic);
+		Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
 	}
 
 	// непосредственно... вывод
@@ -2102,7 +2102,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
 					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
-					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc.data(),ErrSrc.size()+1);
+					wmemcpy(const_cast<wchar_t*>(Result->ErrSrc), ErrSrc.data(), ErrSrc.size()+1);
 				}
 
 				return Size;
@@ -2704,11 +2704,11 @@ namespace cfunctions
 			while(low<high)
 			{
 				size_t curr=(low+high)/2;
-				void* ptr=(void*)(((char*)base)+curr*width);
+				const void* ptr = (((const char*)base)+curr*width);
 				int cmp=fcmp(key,ptr,userparam);
 				if(0==cmp)
 				{
-					return ptr;
+					return const_cast<void*>(ptr);
 				}
 				else if(cmp<0)
 				{

@@ -497,8 +497,8 @@ static int _cmp_Ne(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a != *(__int64*)b?1:0; break;
-		case vtDouble:  r = fabs(*(double*)a - *(double*)b) > DBL_EPSILON? 1 : 0; break;
+		case vtInteger: r = *(const __int64*)a != *(const __int64*)b?1:0; break;
+		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) > DBL_EPSILON? 1 : 0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) ; break;
 	}
 
@@ -512,8 +512,8 @@ static int _cmp_Eq(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a == *(__int64*)b?1:0; break;
-		case vtDouble:  r = fabs(*(double*)a - *(double*)b) < DBL_EPSILON? 1 : 0; break;
+		case vtInteger: r = *(const __int64*)a == *(const __int64*)b?1:0; break;
+		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) < DBL_EPSILON? 1 : 0; break;
 		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
@@ -526,8 +526,8 @@ static int _cmp_Lt(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a < *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a < *(double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a < *(const __int64*)b?1:0; break;
+		case vtDouble:  r = *(const double*)a < *(const double*)b?1:0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) < 0; break;
 	}
 
@@ -541,8 +541,8 @@ static int _cmp_Le(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a <= *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a <= *(double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a <= *(const __int64*)b?1:0; break;
+		case vtDouble:  r = *(const double*)a <= *(const double*)b?1:0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) <= 0; break;
 	}
 
@@ -556,8 +556,8 @@ static int _cmp_Gt(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a > *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a > *(double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a > *(const __int64*)b?1:0; break;
+		case vtDouble:  r = *(const double*)a > *(const double*)b?1:0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) > 0; break;
 	}
 
@@ -571,8 +571,8 @@ static int _cmp_Ge(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(__int64*)a >= *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a >= *(double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a >= *(const __int64*)b?1:0; break;
+		case vtDouble:  r = *(const double*)a >= *(const double*)b?1:0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) >= 0; break;
 	}
 

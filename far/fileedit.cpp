@@ -1978,6 +1978,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 			else
 			{
+				auto SwapBytes = [](const wchar_t* src, char* dst, size_t count)
+				{
+					return _swab(reinterpret_cast<char*>(const_cast<wchar_t*>(src)), dst, static_cast<int>(count));
+				};
+
 				if (Length)
 				{
 					DWORD length = (codepage == CP_REVERSEBOM?static_cast<DWORD>(Length*sizeof(wchar_t)):WideCharToMultiByte(codepage, 0, SaveStr, Length, nullptr, 0, nullptr, nullptr));
@@ -1986,7 +1991,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					if (SaveStrCopy)
 					{
 						if (codepage == CP_REVERSEBOM)
-							_swab((char*)SaveStr,SaveStrCopy.get(),length);
+							SwapBytes(SaveStr, SaveStrCopy.get(), length);
 						else
 							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy.get(), length, nullptr, nullptr);
 
@@ -2010,7 +2015,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						if (EndSeqCopy)
 						{
 							if (codepage == CP_REVERSEBOM)
-								_swab((char*)EndSeq,EndSeqCopy.get(),endlength);
+								SwapBytes(EndSeq, EndSeqCopy.get(), endlength);
 							else
 								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy.get(), endlength, nullptr, nullptr);
 

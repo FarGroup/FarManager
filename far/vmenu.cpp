@@ -1460,7 +1460,7 @@ int VMenu::ProcessKey(int Key)
 						start--;
 
 					start++;
-					::Xlat((wchar_t *) FilterString,start,StrLength(FilterString),Global->Opt->XLat.Flags);
+					::Xlat(const_cast<wchar_t*>(FilterString), start, StrLength(FilterString), Global->Opt->XLat.Flags);
 					SetFilterString(FilterString);
 					FilterStringUpdated();
 					DisplayObject();

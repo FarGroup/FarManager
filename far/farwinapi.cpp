@@ -1770,7 +1770,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 			DWORD Size = 0;
 			DWORD RetValNameSize = ValNameSize;
 			// Get DataSize
-			/*ExitCode = */RegEnumValue(hKey, Index, (LPWSTR) strValueName.data(), &RetValNameSize, nullptr, &Type, nullptr, &Size);
+			/*ExitCode = */RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, nullptr, &Size);
 			// здесь ExitCode == ERROR_SUCCESS
 
 			// корректировка размера
@@ -1788,7 +1788,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 			wchar_t_ptr Data(Size/sizeof(wchar_t)+1);
 			RetValNameSize=ValNameSize;
 			DWORD RetSize = Size;
-			ExitCode = RegEnumValue(hKey, Index, (LPWSTR) strValueName.data(), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
+			ExitCode = RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
 
 			if (ExitCode == ERROR_SUCCESS)
 			{

@@ -1996,7 +1996,7 @@ void Options::Load()
 
 			FOR_CONST_RANGE(DestList, i)
 			{
-				DWORD res=(DWORD)wcstoul(i->data(), &endptr, 16);
+				DWORD res = wcstoul(i->data(), &endptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 

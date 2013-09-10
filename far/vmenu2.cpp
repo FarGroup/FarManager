@@ -445,13 +445,13 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 }
 int VMenu2::AddItem(const FarList *NewItem)
 {
-	int r=SendMessage(DM_LISTADD, 0, (void*)NewItem);
+	int r=SendMessage(DM_LISTADD, 0, const_cast<FarList*>(NewItem));
 	Resize();
 	return r;
 }
 int VMenu2::AddItem(const string& NewStrItem)
 {
-	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem.data());
+	int r=SendMessage(DM_LISTADDSTR, 0, UNSAFE_CSTR(NewStrItem));
 	Resize();
 	return r;
 }
@@ -612,7 +612,7 @@ size_t VMenu2::SetUserData(LPCVOID Data, size_t Size, intptr_t Position)
 	if(Position<0)
 		Position=GetSelectPos();
 
-	FarListItemData flid={sizeof(FarListItemData), Position, Size, (void*)Data};
+	FarListItemData flid={sizeof(FarListItemData), Position, Size, const_cast<void*>(Data)};
 	return SendMessage(DM_LISTSETDATA, 0, &flid);
 }
 

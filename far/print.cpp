@@ -177,7 +177,7 @@ void PrintFiles(FileList* SrcPanel)
 
 	HANDLE hPrinter;
 
-	if (!OpenPrinter((wchar_t*)strPrinterName.data(),&hPrinter,nullptr))
+	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &hPrinter,nullptr))
 	{
 		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),

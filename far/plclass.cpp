@@ -1290,7 +1290,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 	{
 		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
 		{
-			return *i.UName? Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName) : nullptr;
+			return *i.UName? reinterpret_cast<void*>(Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});
 	}
 	catch(...)
@@ -1302,7 +1302,7 @@ bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
 {
 	try
 	{
-		return Imports.pDestroyInstance(static_cast<HANDLE>(module)) != FALSE;
+		return Imports.pDestroyInstance(module) != FALSE;
 	}
 	catch(...)
 	{

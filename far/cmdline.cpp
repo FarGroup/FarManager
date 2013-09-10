@@ -409,7 +409,7 @@ int CommandLine::ProcessKey(int Key)
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 
-			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.data()))
+			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr.data())))
 				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false,
 						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
 						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);

@@ -109,7 +109,7 @@ struct EditorUndoData
 	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)
 	{
 		if (Length == -1 && Str)
-			Length=(int)StrLength(Str);
+			Length = StrLength(Str);
 
 		this->Type=Type;
 		this->StrPos=StrPos;

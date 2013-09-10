@@ -3294,7 +3294,7 @@ int RegExp::MatchEx(const wchar_t* datastart,const wchar_t* textstart,const wcha
 
 	const wchar_t* tempend=textend;
 
-	if (datastart==start && (wchar_t*)textend==end)
+	if (datastart==start && textend==end)
 	{
 		tempend=trimend;
 	}
@@ -3599,7 +3599,7 @@ int RegExp::Search(const wchar_t* textstart,const wchar_t* textend,RegExpMatch* 
 {
 	start=textstart;
 	const wchar_t* str=start;
-	const wchar_t* tempend=(wchar_t*)textend;
+	const wchar_t* tempend=textend;
 	TrimTail(tempend);
 
 	if (tempend<start)return 0;

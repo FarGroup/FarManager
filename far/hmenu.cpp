@@ -321,7 +321,7 @@ int HMenu::ProcessKey(int Key)
 				{
 					Item[SelectPos].Selected=0;
 					Item[i].Selected=1;
-					SelectPos=static_cast<int>(i);
+					SelectPos = i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
 					return TRUE;
@@ -334,7 +334,7 @@ int HMenu::ProcessKey(int Key)
 				{
 					Item[SelectPos].Selected=0;
 					Item[i].Selected=1;
-					SelectPos=static_cast<int>(i);
+					SelectPos = i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
 					return TRUE;

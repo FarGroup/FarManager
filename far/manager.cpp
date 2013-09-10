@@ -1189,7 +1189,7 @@ bool Manager::IsPanelsActive(bool and_not_qview)
 
 Frame* Manager::GetFrame(size_t Index) const
 {
-	if (Index>=static_cast<size_t>(Frames.size()) || Frames.empty())
+	if (Index >= Frames.size() || Frames.empty())
 	{
 		return nullptr;
 	}

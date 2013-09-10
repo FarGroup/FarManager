@@ -2778,7 +2778,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 				if (NetPath)
 				{
 					string tmp = strCurDir;	// strCurDir can be altered during next call
-					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.data())) // NetWork Plugin :-)
+					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL, UNSAFE_CSTR(tmp))) // NetWork Plugin :-)
 					{
 						return FALSE;
 					}
@@ -2788,7 +2788,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.front(), RemoteName))
 					{
-						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.data())) // NetWork Plugin :-)
+						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network, OPEN_FILEPANEL, UNSAFE_CSTR(RemoteName))) // NetWork Plugin :-)
 						{
 							return FALSE;
 						}
@@ -3214,7 +3214,7 @@ void FileList::SetViewMode(int Mode)
 		string strColumnTypes,strColumnWidths;
 //    SetScreenPosition();
 		ViewSettingsToText(ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
-		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)strColumnTypes.data());
+		ProcessPluginEvent(FE_CHANGEVIEWMODE, UNSAFE_CSTR(strColumnTypes));
 	}
 
 	if (ResortRequired)
@@ -3367,7 +3367,7 @@ int FileList::IsSelected(const string& Name)
 
 int FileList::IsSelected(size_t idxItem)
 {
-	if (static_cast<size_t>(idxItem) < ListData.size()) // BUGBUG
+	if (idxItem < ListData.size()) // BUGBUG
 		return(ListData[idxItem]->Selected); //  || (Sel!FileCount && idxItem==CurFile) ???
 	return FALSE;
 }
@@ -3379,7 +3379,7 @@ bool FileList::FilterIsEnabled()
 
 bool FileList::FileInFilter(size_t idxItem)
 {
-	if ( ( static_cast<size_t>(idxItem) < ListData.size() ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(ListData[idxItem].get()) ) ) // BUGBUG, cast
+	if ( ( idxItem < ListData.size() ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(ListData[idxItem].get()) ) ) // BUGBUG, cast
 		return true;
 	return false;
 }

@@ -1007,7 +1007,7 @@ void Help::OutString(const wchar_t *Str)
 
 			/* $ 24.09.2001 VVM
 			  ! ќбрежем длинные строки при показе. “акое будет только при длинных ссылках... */
-			if (static_cast<int>(StrLength(OutStr) + WhereX()) > X2)
+			if (StrLength(OutStr) + WhereX() > X2)
 				OutStr[X2 - WhereX()] = 0;
 
 			if (Locked())

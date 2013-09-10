@@ -701,7 +701,7 @@ void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const s
 	values[4].String=Description.data();
 	if (Guid)
 	{
-		values[5].Binary.Data=(void*)Guid;
+		values[5].Binary.Data=const_cast<GUID*>(Guid);
 		values[5].Binary.Size=sizeof(GUID);
 	}
 	else
@@ -769,7 +769,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
-						key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
+						key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
 					if (key<0xFFFF)
 						key=Upper(static_cast<wchar_t>(key));
@@ -1185,7 +1185,7 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARM
 int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 {
 	FarMacroValue values[2]={{FMVT_BINARY},{FMVT_POINTER}};
-	values[0].Binary.Data=(void*)&PluginId;
+	values[0].Binary.Data=const_cast<GUID*>(&PluginId);
 	values[0].Binary.Size=sizeof(GUID);
 	values[1].Pointer=Id;
 
@@ -2757,7 +2757,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					f=fo;
 
 				if (f)
-					Result=f->VMProcess(CheckCode,(void*)Params[0].toString(),tmpMode);
+					Result=f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString()), tmpMode);
 			}
 
 			PassNumber(Result,Data);
@@ -2943,7 +2943,7 @@ static bool trimFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	int  mode = (int) Params[1].getInteger();
-	wchar_t *p = (wchar_t *)Params[0].toString();
+	wchar_t *p = const_cast<wchar_t*>(Params[0].toString());
 	bool Ret=true;
 
 	switch (mode)
@@ -2977,7 +2977,7 @@ static bool substrFunc(FarMacroCall* Data)
 	bool Ret=false;
 
 	int  start     = (int)Params[1].getInteger();
-	wchar_t *p = (wchar_t *)Params[0].toString();
+	wchar_t *p = const_cast<wchar_t*>(Params[0].toString());
 	int length_str = StrLength(p);
 	int length=Params[2].isUnknown()?length_str:(int)Params[2].getInteger();
 
@@ -3418,7 +3418,7 @@ static bool dateFunc(FarMacroCall* Data)
 static bool xlatFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
-	wchar_t *Str = (wchar_t *)Params[0].toString();
+	wchar_t *Str = const_cast<wchar_t*>(Params[0].toString());
 	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].i()) != nullptr;
 	PassString(Str, Data);
 	return Ret;
@@ -3517,7 +3517,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 		Ret=PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout);
 	}
 
-	PassNumber(Ret?static_cast<INT64>(reinterpret_cast<intptr_t>(RetLayout)):0, Data);
+	PassNumber(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0, Data);
 
 	return Ret != FALSE;
 }
@@ -3734,7 +3734,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.strName!=L"\n")
 		{
-		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.data();
+		const wchar_t *CurrentChar = NewItem.strName.data();
 		bool bContunue=(*CurrentChar<=L'\x4');
 		while(*CurrentChar && bContunue)
 		{
@@ -5007,7 +5007,7 @@ static bool replaceFunc(FarMacroCall* Data)
 	// TODO: Здесь нужно проверить в соответствии с УНИХОДОМ!
 	string strStr;
 	//int lenS=(int)StrLength(Src.s());
-	int lenF=(int)StrLength(Find.s());
+	int lenF = StrLength(Find.s());
 	//int lenR=(int)StrLength(Repl.s());
 	int cnt=0;
 
@@ -5214,7 +5214,7 @@ static bool ucaseFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
-	StrUpper((wchar_t *)Val.toString());
+	StrUpper(const_cast<wchar_t*>(Val.toString()));
 	PassValue(&Val, Data);
 	return true;
 }
@@ -5223,7 +5223,7 @@ static bool lcaseFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
-	StrLower((wchar_t *)Val.toString());
+	StrLower(const_cast<wchar_t*>(Val.toString()));
 	PassValue(&Val, Data);
 	return true;
 }
@@ -5463,7 +5463,7 @@ static bool editorundoFunc(FarMacroCall* Data)
 	{
 		EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
-		Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_UNDOREDO,0,&eur);
+		Ret = Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_UNDOREDO,0,&eur);
 	}
 
 	PassValue(&Ret, Data);
@@ -5484,7 +5484,7 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 			Title=L"";
 			Title.toString();
 		}
-		Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_SETTITLE,0,(void*)Title.s());
+		Ret = Global->CtrlObject->Plugins->GetCurEditor()->EditorControl(ECTL_SETTITLE, 0, const_cast<wchar_t*>(Title.s()));
 	}
 
 	PassValue(&Ret, Data);
@@ -5502,7 +5502,7 @@ static bool editordellineFunc(FarMacroCall* Data)
 	{
 		if (Line.isNumber())
 		{
-			Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
 		}
 	}
 
@@ -5528,7 +5528,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, const_cast<wchar_t*>(S.s()), Line.getInteger()-1);
 		}
 	}
 
@@ -5554,7 +5554,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret=(__int64)Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+			Ret = Global->CtrlObject->Plugins->GetCurEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, const_cast<wchar_t*>(S.s()), Line.getInteger()-1);
 		}
 	}
 
@@ -5583,7 +5583,7 @@ static bool pluginloadFunc(FarMacroCall* Data)
 	TVar& ForceLoad(Params[1]);
 	TVar& DllPath(Params[0]);
 	if (DllPath.s())
-		Ret=(__int64)pluginapi::apiPluginsControl(nullptr, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, (void*)DllPath.s());
+		Ret = pluginapi::apiPluginsControl(nullptr, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.s()));
 	PassValue(&Ret, Data);
 	return Ret.i()!=0;
 }
@@ -5743,7 +5743,7 @@ M1:
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 
 		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
-			key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
+			key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
 		if (key<0xFFFF)
 		{
@@ -5752,7 +5752,7 @@ M1:
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KMParam->Key=(DWORD)key;
-		KeyToText((int)key,strKeyText);
+		KeyToText(key, strKeyText);
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
@@ -5829,7 +5829,7 @@ M1:
 		//if(key == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;
 		//else
-		LastKey=(int)key;
+		LastKey = key;
 		return TRUE;
 	}
 	return Dlg->DefProc(Msg,Param1,Param2);

@@ -340,7 +340,7 @@ int GetString(
 		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
-		Dlg.SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber));
+		Dlg.SetPluginOwner(PluginNumber);
 
 		Dlg.Process();
 

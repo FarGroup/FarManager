@@ -682,7 +682,7 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 		int tail, nw;
 		wchar_t w2[mline];
 		ib = iw = 0;
-		nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, width, tail);
+		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1, w2, width, tail);
 		bool first = true;
 		while (ib < width && iw < nw)
 		{
@@ -1213,7 +1213,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 	}
 
 	pString->have_eol = eol_len;
-	ReadBuffer[(int)OutPtr]=0;
+	ReadBuffer[OutPtr]=0;
 	pString->linesize = (int)(vtell() - pString->nFilePos);
 
 	if ( update_cache )
@@ -2820,7 +2820,7 @@ int Viewer::search_hex_forward( search_data* sd )
 	{
 		if ( slen <= 1 || 0 == memcmp(ps+1, search_str+1, slen-1) )
 		{
-			sd->MatchPos = cpos + static_cast<INT64>(ps - buff);
+			sd->MatchPos = cpos + (ps - buff);
 			return +1; // found
 		}
 		++ps;
@@ -2878,7 +2878,7 @@ int Viewer::search_hex_backward( search_data* sd )
 		{
 			if ( slen <= 1 || 0 == memcmp(ps-slen+1, search_str, slen-1) )
 			{
-				sd->MatchPos = static_cast<INT64>(cpos-n1+(ps-slen+1-buff));
+				sd->MatchPos = cpos-n1+(ps-slen+1-buff);
 				return +1;
 			}
 		}
@@ -3720,7 +3720,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			if (tail)
 				Reader.Unread(tail);
 		}
-		else if (static_cast<UINT>(VM.CodePage) == MB.current_cp)
+		else if (VM.CodePage == MB.current_cp)
 		{
 			ReadSize = 0;
 			for (int ib = 0; ib < ConvertSize; )
@@ -3855,7 +3855,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			break;
 		}
 		default:
-			if (static_cast<UINT>(VM.CodePage) == MB.current_cp)
+			if (VM.CodePage == MB.current_cp)
 			{
 				int clen = MB.GetChar(vgetc_buffer+vgetc_ib, static_cast<size_t>(vgetc_cb-vgetc_ib), *pCh);
 				if (clen > 0)
@@ -4301,7 +4301,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
+				if ((intptr_t)Param2 != -1) // не только перерисовать?
 				{
 					if(CheckStructSize(Kbt))
 						ViewKeyBar->Change(Kbt->Titles);

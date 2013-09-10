@@ -58,8 +58,8 @@ LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
 CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
-CFLAGS += -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
-CCFLAGS = $(CFLAGS) -std=gnu++11 -fpermissive
+CFLAGS += -Wall -Wcast-qual -Wno-unknown-pragmas
+CCFLAGS = $(CFLAGS) -std=c++11
 
 LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
 LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxcompat

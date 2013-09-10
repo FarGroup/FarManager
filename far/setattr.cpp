@@ -911,7 +911,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								path += L"\\" + strSelName;
 								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo((LPWSTR)path.data(), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData);
 								if (NERR_Success == ns)
 								{
 									KnownReparsePoint = true;

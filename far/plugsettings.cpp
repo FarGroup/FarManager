@@ -401,7 +401,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 			if(Enum.Root>=FSSF_COUNT)
 			{
 				size_t root=Enum.Root-FSSF_COUNT;
-				if((size_t)root<m_Keys.size())
+				if(root < m_Keys.size())
 				{
 					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys[root],Enum,FilterNone);
 				}
