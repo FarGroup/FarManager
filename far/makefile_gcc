@@ -178,6 +178,10 @@ $(OBJDIR)%.o: %.c
 	@echo $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
+$(OBJDIR)sqlite.o: sqlite.c
+	@echo $<
+	@$(CC) $(CFLAGS) -Wno-array-bounds -c -o $@ $<
+
 $(OBJDIR)hook_wow64.o: hook_wow64.c
 	@echo $<
 	@$(CC) $(CFLAGS) -fomit-frame-pointer -c -o $@ $<
