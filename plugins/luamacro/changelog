@@ -1,3 +1,7 @@
+shmuel 11.09.2013 08:18:35 +0200 - build 241
+
+1. Не все вхождения PluginPanelItemEx были переименованы в 240.
+
 shmuel 10.09.2013 23:58:49 +0200 - build 240
 
 1. Переименование PluginPanelItemEx -> SortingPanelItem.

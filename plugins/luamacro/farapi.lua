@@ -19,7 +19,7 @@ struct UserDataItem
   FARPANELITEMFREECALLBACK FreeData;
 };
 
-struct PluginPanelItemEx
+struct SortingPanelItem
 {
   FILETIME CreationTime;
   FILETIME LastAccessTime;
