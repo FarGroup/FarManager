@@ -2773,7 +2773,7 @@ struct Viewer::search_data
 
 	int InitRegEx(const string& str, int flags)
 	{
-		pRex.reset(new RegExp);
+		pRex = std::make_unique<RegExp>();
 		return pRex->Compile(str.data(), flags);
 	}
 };

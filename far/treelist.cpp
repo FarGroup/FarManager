@@ -228,7 +228,7 @@ void TreeList::DisplayTree(int Fast)
 	std::unique_ptr<LockScreen> LckScreen;
 
 	if (Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
-		LckScreen.reset(new LockScreen);
+		LckScreen = std::make_unique<LockScreen>();
 
 	CorrectPosition();
 

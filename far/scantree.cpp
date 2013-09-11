@@ -77,7 +77,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 		ScanTreeData* LastItem = ScanItems.back().get();
 		if (!LastItem->Find)
 		{
-			LastItem->Find.reset(new FindFile(strFindPath));
+			LastItem->Find = std::make_unique<FindFile>(strFindPath);
 		}
 		Done=!LastItem->Find->Get(*fdata);
 

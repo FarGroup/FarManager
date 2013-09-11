@@ -112,7 +112,7 @@ bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
 	{
 		if(!SIDCache)
 		{
-			SIDCache.reset(new DECLTYPE(SIDCache)::element_type);
+			SIDCache = std::make_unique<DECLTYPE(SIDCache)::element_type>();
 		}
 		SIDCache->emplace_back(std::move(NewItem));
 		Result = SIDCache->back().strUserName;

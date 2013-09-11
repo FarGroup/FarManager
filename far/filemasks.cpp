@@ -259,7 +259,7 @@ bool filemasks::masks::Set(const string& masks)
 
 	if (bRE)
 	{
-		re.reset(new RegExp);
+		re = std::make_unique<RegExp>();
 
 		if (re && re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{

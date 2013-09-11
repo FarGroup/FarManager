@@ -247,32 +247,27 @@ void SysLog(const wchar_t *fmt,...)
 	if (!IsLogON())
 		return;
 
-	LPWSTR msg=new WCHAR[MAX_LOG_LINE];
-	if(msg)
+	va_list argptr;
+	va_start(argptr, fmt);
+	string msg = str_printf(fmt, argptr);
+	va_end(argptr);
+	OpenSysLog();
+
+	if (LogStream)
 	{
-		va_list argptr;
-		va_start(argptr, fmt);
-		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
-		va_end(argptr);
-		OpenSysLog();
+		wchar_t timebuf[64];
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg.data());
+		fflush(LogStream);
+	}
 
-		if (LogStream)
-		{
-			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg);
-			fflush(LogStream);
-		}
+	CloseSysLog();
 
-		CloseSysLog();
-
-		if (IsDebuggerPresent())
-		{
-			OutputDebugString(msg);
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(msg.data());
 #ifdef _MSC_VER
-			OutputDebugString(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
-		}
-		delete[] msg;
 	}
 #endif
 }
@@ -322,36 +317,31 @@ void SysLog(int l,const wchar_t *fmt,...)
 	if (!IsLogON())
 		return;
 
-	LPWSTR msg=new WCHAR[MAX_LOG_LINE];
-	if(msg)
+	va_list argptr;
+	va_start(argptr, fmt);
+	string msg = str_printf(fmt, argptr);
+	va_end(argptr);
+	OpenSysLog();
+
+	if (LogStream)
 	{
-		va_list argptr;
-		va_start(argptr, fmt);
-		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
-		va_end(argptr);
-		OpenSysLog();
+		if (l < 0) SysLog(l);
 
-		if (LogStream)
-		{
-			if (l < 0) SysLog(l);
+		wchar_t timebuf[64];
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg.data());
+		fflush(LogStream);
 
-			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg);
-			fflush(LogStream);
+		if (l > 0) SysLog(l);
+	}
 
-			if (l > 0) SysLog(l);
-		}
+	CloseSysLog();
 
-		CloseSysLog();
-
-		if (IsDebuggerPresent())
-		{
-			OutputDebugString(msg);
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(msg.data());
 #ifdef _MSC_VER
-			OutputDebugString(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
-		}
-		delete[] msg;
 	}
 
 #endif
@@ -762,33 +752,28 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 	if (!IsLogON())
 		return;
 
-	LPWSTR msg=new WCHAR[MAX_LOG_LINE];
-	if(msg)
+	va_list argptr;
+	va_start(argptr, fmt);
+	string msg = str_printf(fmt, argptr);
+	va_end(argptr);
+	SysLog(l);
+	OpenSysLog();
+
+	if (LogStream)
 	{
-		va_list argptr;
-		va_start(argptr, fmt);
-		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
-		va_end(argptr);
-		SysLog(l);
-		OpenSysLog();
+		wchar_t timebuf[64];
+		fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),PointToName(ModuleName),msg.data());
+		fflush(LogStream);
+	}
 
-		if (LogStream)
-		{
-			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),PointToName(ModuleName),msg);
-			fflush(LogStream);
-		}
+	CloseSysLog();
 
-		CloseSysLog();
-
-		if (IsDebuggerPresent())
-		{
-			OutputDebugString(msg);
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(msg.data());
 #ifdef _MSC_VER
-			OutputDebugString(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
-		}
-		delete[] msg;
 	}
 }
 

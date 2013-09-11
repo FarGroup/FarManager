@@ -3032,7 +3032,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 
 	if(!DialogList)
 	{
-		DialogList.reset(new DECLTYPE(DialogList)::element_type);
+		DialogList = std::make_unique<DECLTYPE(DialogList)::element_type>();
 	}
 	DialogList->emplace_back(NewDialogData);
 
@@ -4973,7 +4973,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	const string& module = GetModuleName();
 	Info->Title = PointToName(module);
 
-	FileVersion.reset(new file_version(module));
+	FileVersion = std::make_unique<file_version>(module);
 	bool GuidFound = false;
 	GUID PluginGuid = {};
 

@@ -1595,7 +1595,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					}
 				}
 				if (!CP)
-					CP.reset(new CopyProgress(Move!=0,ShowTotalCopySize,ShowCopyTime));
+					CP = std::make_unique<CopyProgress>(Move!=0,ShowTotalCopySize,ShowCopyTime);
 
 				// Обнулим инфу про дизы
 				strDestDizPath.clear();

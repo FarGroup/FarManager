@@ -279,7 +279,7 @@ int CommandLine::ProcessKey(int Key)
 				std::unique_ptr<SetAutocomplete> disable;
 				if(SelectType<3 || SelectType == 7)
 				{
-					disable.reset(new DECLTYPE(disable)::element_type(&CmdStr));
+					disable = std::make_unique<SetAutocomplete>(&CmdStr);
 				}
 				SetString(strStr);
 

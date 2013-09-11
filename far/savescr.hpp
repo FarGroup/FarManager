@@ -37,7 +37,7 @@ class SaveScreen
 {
 		friend class Grabber;
 	private:
-		std::unique_ptr<FAR_CHAR_INFO[]> ScreenBuf;
+		std::vector<FAR_CHAR_INFO> ScreenBuf;
 		SHORT CurPosX,CurPosY;
 		bool CurVisible;
 		DWORD CurSize;

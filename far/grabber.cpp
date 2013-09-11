@@ -229,7 +229,6 @@ void Grabber::DisplayObject()
 		if (GArea.X1!=-1)
 		{
 			std::vector<FAR_CHAR_INFO> CharBuf((X2-X1+1)*(Y2-Y1+1));
-			FAR_CHAR_INFO *PrevBuf=SaveScr->ScreenBuf.get();
 			GetText(X1,Y1,X2,Y2,CharBuf.data(), sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
 			for (int X=X1; X<=X2; X++)
@@ -237,7 +236,7 @@ void Grabber::DisplayObject()
 				for (int Y=Y1; Y<=Y2; Y++)
 				{
 					size_t Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
-					const FarColor& CurColor = PrevBuf[X+Y*(ScrX+1)].Attributes;
+					const FarColor& CurColor = SaveScr->ScreenBuf[X+Y*(ScrX+1)].Attributes;
 					CharBuf[Pos].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
 					CharBuf[Pos].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
 				}

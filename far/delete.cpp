@@ -334,8 +334,20 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	           (SrcPanel->IsDizDisplayed() &&
 	            Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
+	SCOPE_EXIT
+	{
+		Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
+		// Разрешить перерисовку фрейма
+		FrameFromLaunched->Unlock();
+
+		if (NeedUpdate)
+		{
+			ShellUpdatePanels(SrcPanel,NeedSetUpADir);
+		}
+	};
+
 	if (!(SelCount=SrcPanel->GetSelCount()))
-		goto done;
+		return;
 
 	// Удаление в корзину только для  FIXED-дисков
 	{
@@ -359,7 +371,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (TestParentFolderName(strSelName) || strSelName.empty())
 		{
 			NeedUpdate=FALSE;
-			goto done;
+			return;
 		}
 
 		strDeleteFilesMsg = strSelName;
@@ -412,8 +424,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			            strAskDeleteLink.data(),
 			            strJuncName.data(),
 						MSG(MDeleteLinkDelete), MSG(MCancel));
-			if (Ret )
-				goto done;
+			if (Ret)
+				return;
 		}
 	}
 
@@ -456,7 +468,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (Message(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
-			goto done;
+			return;
 		}
 	}
 
@@ -468,7 +480,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (Message(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
-			goto done;
+			return;
 		}
 	}
 
@@ -479,7 +491,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	DizPresent=(!strDizName.empty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
 
 	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
-		goto done;
+		return;
 
 	if (SrcPanel->GetType()==TREE_PANEL)
 		FarChDir(L"\\");
@@ -787,16 +799,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	if (UpdateDiz)
 		if (DizPresent==(!strDizName.empty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
 			SrcPanel->FlushDiz();
-
-done:
-	Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
-	// Разрешить перерисовку фрейма
-	FrameFromLaunched->Unlock();
-
-	if (NeedUpdate)
-	{
-		ShellUpdatePanels(SrcPanel,NeedSetUpADir);
-	}
 }
 
 DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wipe)

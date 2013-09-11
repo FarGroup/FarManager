@@ -523,7 +523,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 			}
 			else
 			{
-				std::unique_ptr<nsUniversalDetectorEx> ns(new nsUniversalDetectorEx());
+				auto ns = std::make_unique<nsUniversalDetectorEx>();
 				ns->HandleData(Buffer.get(), ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();

@@ -73,6 +73,62 @@ namespace std
 };
 #endif
 
+// already included in VC2013
+#if !defined _MSC_VER || (defined _MSC_VER && _MSC_VER < 1800)
+namespace std
+{
+	template<typename T>
+	inline typename enable_if<is_array<T>::value && extent<T>::value == 0, unique_ptr<T> >::type make_unique(size_t Size)
+	{
+		typedef typename remove_extent<T>::type Elem;
+		return (unique_ptr<T>(new Elem[Size]()));
+	}
+
+	template<typename T>
+	inline typename enable_if<!is_array<T>::value, unique_ptr<T>>::type make_unique()
+	{
+		return unique_ptr<T>(new T());
+	}
+
+	#define TYPE(name) name##_type
+	#define TYPENAME(name) typename TYPE(name)
+	#define ARG(name) TYPE(name) name
+	#define FARG(name) std::forward<TYPE(name)>(name)
+
+	#define MAKE_UNIQUE_BODY(TYPENAME_LIST, ARG_LIST, FARG_LIST) \
+	template<typename T, TYPENAME_LIST> \
+	inline typename enable_if<!is_array<T>::value, unique_ptr<T>>::type make_unique(ARG_LIST) \
+	{ \
+		return unique_ptr<T>(new T(FARG_LIST)); \
+	}
+
+	#define MAKE_UNIQUE(LISTN, ...) MAKE_UNIQUE_BODY(LISTN(TYPENAME, __VA_ARGS__), LISTN(ARG, __VA_ARGS__), LISTN(FARG, __VA_ARGS__))
+
+	#define LIST1(MODE, n1) MODE(n1)
+	#define LIST2(MODE, n1, n2) LIST1(MODE, n1), MODE(n2)
+	#define LIST3(MODE, n1, n2, n3) LIST2(MODE, n1, n2), MODE(n3)
+	#define LIST4(MODE, n1, n2, n3, n4) LIST3(MODE, n1, n2, n3), MODE(n4)
+	#define LIST5(MODE, n1, n2, n3, n4, n5) LIST4(MODE, n1, n2, n3, n4), MODE(n5)
+
+	MAKE_UNIQUE(LIST1, a1)
+	MAKE_UNIQUE(LIST2, a1, a2)
+	MAKE_UNIQUE(LIST3, a1, a2, a3)
+	MAKE_UNIQUE(LIST4, a1, a2, a3, a4)
+	MAKE_UNIQUE(LIST5, a1, a2, a3, a4, a5)
+
+	#undef LIST5
+	#undef LIST4
+	#undef LIST3
+	#undef LIST2
+	#undef LIST1
+	#undef MAKE_UNIQUE
+	#undef MAKE_UNIQUE_BODY
+	#undef FARG
+	#undef ARG
+	#undef TYPE
+};
+#endif
+
 #ifdef _MSC_VER
 #define thread __declspec(thread)
 #endif
@@ -218,3 +274,19 @@ class FarRecoverableException : public FarException
 public:
 	FarRecoverableException(const char* Message) : FarException(Message) {}
 };
+
+class ScopeExit
+{
+public:
+	ScopeExit(const std::function<void()>& f) : m_f(f) {}
+	~ScopeExit() { m_f(); }
+
+private:
+	std::function<void()> m_f;
+};
+
+#define _SCOPE_EXIT_NAME(name, suffix) name ## suffix
+#define SCOPE_EXIT_NAME(name, suffix) _SCOPE_EXIT_NAME(name, suffix)
+#define SCOPE_EXIT \
+	std::function<void()> SCOPE_EXIT_NAME(scope_exit_func_, __LINE__); \
+	ScopeExit SCOPE_EXIT_NAME(scope_exit_, __LINE__) = SCOPE_EXIT_NAME(scope_exit_func_, __LINE__) = [&]() /* lambda body here */

@@ -267,7 +267,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	BOOL NeedHighlight=Global->Opt->Highlight && PanelMode != PLUGIN_PANEL;
 
 	if (!Filter)
-		Filter.reset(new FileFilter(this,FFT_PANEL));
+		Filter = std::make_unique<FileFilter>(this,FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
@@ -714,7 +714,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	ListData.resize(PluginFileCount);
 
 	if (!Filter)
-		Filter.reset(new FileFilter(this, FFT_PANEL));
+		Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
@@ -725,7 +725,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	for (size_t i = 0; i < ListData.size(); i++)
 	{
-		ListData[FileListCount].reset(new FileListItem);
+		ListData[FileListCount].reset(new FileListItem());
 		FileListItem& CurListData = *ListData[FileListCount].get();
 
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))

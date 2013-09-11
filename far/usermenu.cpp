@@ -643,7 +643,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					File MenuFile;
 					FrameManager->GetFrame(0)->Unlock();
 					{
-						std::unique_ptr<ConsoleTitle> OldTitle(new ConsoleTitle);
+						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);
 						FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 						OldTitle.reset();

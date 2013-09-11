@@ -528,7 +528,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		EAData Data(Object, Why, AskApprove, Approve, DontAskAgain);
 		if(!Global->IsMainThread())
 		{
-			Data.pEvent.reset(new Event());
+			Data.pEvent = std::make_unique<Event>();
 			Data.pEvent->Open();
 			Global->PluginSynchroManager->Synchro(false, FarGuid, &Data);
 			Data.pEvent->Wait();

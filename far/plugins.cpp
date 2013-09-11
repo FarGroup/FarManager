@@ -322,7 +322,7 @@ void PluginManager::LoadModels()
 	{
 		if (CmpName(L"*.dll", filename.data(), false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			auto CustomModel = std::unique_ptr<CustomPluginModel>(new CustomPluginModel(this, filename));
+			auto CustomModel = std::make_unique<CustomPluginModel>(this, filename);
 			if (CustomModel->Success())
 			{
 				PluginModels.emplace_back(std::move(CustomModel));

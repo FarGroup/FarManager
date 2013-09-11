@@ -699,7 +699,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					if (Count)
 					{
-						std::unique_ptr<FileFilterParams> NewHData(new FileFilterParams);
+						auto NewHData = std::make_unique<FileFilterParams>();
 
 						if (Key == KEY_F5)
 							*NewHData = *HiData[RealSelectPos];

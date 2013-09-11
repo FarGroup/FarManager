@@ -2650,7 +2650,7 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 			FILE* XmlFile = _wfopen(NTPath(def_config).data(), L"rb");
 			if (XmlFile)
 			{
-				m_TemplateDoc.reset(new tinyxml::TiXmlDocument);
+				m_TemplateDoc = std::make_unique<tinyxml::TiXmlDocument>();
 				if (m_TemplateDoc->LoadFile(XmlFile))
 				{
 					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))

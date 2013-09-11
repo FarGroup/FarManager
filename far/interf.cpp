@@ -187,7 +187,7 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress.reset(new DECLTYPE(CancelIoInProgress)::element_type);
+		CancelIoInProgress = std::make_unique<DECLTYPE(CancelIoInProgress)::element_type>();
 		CancelIoInProgress->Open(true);
 
 		DWORD Mode;
@@ -213,7 +213,7 @@ void InitConsole(int FirstInit)
 
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
-		KeyQueue.reset(new DECLTYPE(KeyQueue)::element_type);
+		KeyQueue = std::make_unique<DECLTYPE(KeyQueue)::element_type>();
 
 	SetFarConsoleMode();
 
