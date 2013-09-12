@@ -723,7 +723,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 	if(InitDriveMenuHotkeys)
 	{
-		static const struct 
+		static const struct
 		{
 			const wchar_t *PluginId, *MenuId, *Hotkey;
 		}

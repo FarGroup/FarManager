@@ -619,10 +619,10 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 		LARGE_INTEGER TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred;
 		DWORD StreamNumber, CallbackReason;
 		// BUGBUG: SourceFile, DestinationFile ignored
-		char_ptr Data;
+		intptr_t Data;
 		if(Read(TotalFileSize) && Read(TotalBytesTransferred) && Read(StreamSize) && Read(StreamBytesTransferred) && Read(StreamNumber) && Read(CallbackReason) && Read(Data))
 		{
-			int Result=ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.get());
+			int Result=ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, reinterpret_cast<void*>(Data));
 			if(Write(CallbackMagic))
 			{
 				Write(Result);
@@ -643,7 +643,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
-		else if(Initialize() && SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(&Data, sizeof(Data)) && Write(Flags))
+		else if(Initialize() && SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(reinterpret_cast<intptr_t>(Data)) && Write(Flags))
 		{
 			int OpResult = 0;
 			if(Read(OpResult))
@@ -1080,13 +1080,13 @@ private:
 	void CopyFileExHandler() const
 	{
 		string From, To;
-		char_ptr UserCopyProgressRoutine, Data;
+		intptr_t UserCopyProgressRoutine, Data;
 		DWORD Flags = 0;
 		// BUGBUG: Cancel ignored
 		if(Read(From) && Read(To) && Read(UserCopyProgressRoutine) && Read(Data) && Read(Flags))
 		{
-			copy_progress_routine_param Param(this, Data.get());
-			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine.get()? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
+			copy_progress_routine_param Param(this, reinterpret_cast<void*>(Data));
+			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
@@ -1282,7 +1282,7 @@ private:
 		auto Param = reinterpret_cast<copy_progress_routine_param*>(Data);
 		const elevated* Context = Param->first;
 		// BUGBUG: SourceFile, DestinationFile ignored
-		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(&Param->second, sizeof(Param->second)))
+		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(reinterpret_cast<intptr_t>(Param->second)))
 		{
 			for(;;)
 			{
