@@ -17,7 +17,8 @@ local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
 local LastMessage = {}
-local LastSortModes -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
+local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
+local TableExecString -- must be separate from LastMessage, otherwise Far crashes
 local utils, macrobrowser, panelsort
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
@@ -227,12 +228,12 @@ local function ExecString (text, flags, params)
     local chunk, msg = loadmacro(text)
     if chunk then
       local env = setmetatable({},{__index=_G})
-      LastMessage = pack(setfenv(chunk, env)(unpack(params,1,params.n)))
-      return F.MPRT_COMMONCASE, LastMessage
+      TableExecString = pack(setfenv(chunk, env)(unpack(params,1,params.n)))
+      return F.MPRT_COMMONCASE, TableExecString
     else
       far.Message(msg, "LuaMacro", nil, "wl")
-      LastMessage = pack(msg)
-      return F.MPRT_ERRORPARSE, LastMessage
+      TableExecString = pack(msg)
+      return F.MPRT_ERRORPARSE, TableExecString
     end
   end
 end
@@ -276,13 +277,13 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
     elseif calltype==F.MCT_PANELSORT      then
       if panelsort then
-        LastMessage = pack(panelsort.SortPanelItems(...))
-        if LastMessage[1] then return F.MPRT_COMMONCASE, LastMessage end
+        TablePanelSort = pack(panelsort.SortPanelItems(...))
+        if TablePanelSort[1] then return F.MPRT_COMMONCASE, TablePanelSort end
       end
     elseif calltype==F.MCT_GETCUSTOMSORTMODES then
       if panelsort then
-        LastSortModes = panelsort.GetSortModes()
-        return F.MPRT_COMMONCASE, LastSortModes
+        TablePanelSort = panelsort.GetSortModes()
+        return F.MPRT_COMMONCASE, TablePanelSort
       end
     end
 
