@@ -104,6 +104,8 @@ static INT_PTR MainModuleNumber=-1;
 static FARAPIMESSAGE FarMessage=NULL;
 static FARSTDSPRINTF FarSprintf=NULL;
 
+static char ModuleName[NM+50];
+
 void UtfToWide(const char *Src,wchar_t *Dest,int DestSize);
 void DecodeFileName(const char *Name,BYTE *EncName,int EncSize,wchar_t *NameW,int MaxDecSize);
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
@@ -117,6 +119,7 @@ void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
    MainModuleNumber=Info->ModuleNumber;
    FarMessage=Info->Message;
    FarSprintf=Info->FSF->sprintf;
+   lstrcpy(ModuleName,Info->ModuleName);
 }
 
 int CALLBACK CallbackProc(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2)
@@ -165,7 +168,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     // check marker block
     // The marker block is actually considered as a fixed byte sequence: 0x52 0x61 0x72 0x21 0x1a 0x07 0x00
     if (D[0]==0x52 && D[1]==0x61 && D[2]==0x72 && D[3]==0x21 &&
-        D[4]==0x1a && D[5]==0x07 && 
+        D[4]==0x1a && D[5]==0x07 &&
         (D[6]==0 && D[9]==0x73 || // RAR 1.5 signature followed by main archive header (Header type: 0x73)
          D[6]==1 && D[7]==0))     // RAR 5.0 signature.
     {
@@ -186,10 +189,10 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   // We attempt to load unrar.dll first from "Plugins\MultiArc\Formats"
   // and then from root FAR folder. We use absolute paths for security reason.
   char DllName[NM+50];
-  GetModuleFileName(NULL,DllName,sizeof(DllName)/sizeof(DllName[0]));
+  lstrcpy(DllName,ModuleName);
   char *NamePtr=strrchr(DllName,'\\');
   NamePtr=(NamePtr==NULL) ? DllName:NamePtr+1;
-  lstrcpy(NamePtr,"Plugins\\MultiArc\\Formats\\");
+  lstrcpy(NamePtr,"Formats\\");
   lstrcat(NamePtr,UnRARName);
 
   HINSTANCE hModule=LoadLibraryEx(DllName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
@@ -311,7 +314,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   {
 // Plugin "Save settings" does not work well if we return different format names.
 //    lstrcpy(FormatName,RarFormat==14 ? "RAR1.4":(RarFormat==15 ? "RAR4":"RAR5"));
-    lstrcpy(FormatName,"RAR"); 
+    lstrcpy(FormatName,"RAR");
     lstrcpy(DefaultExt,"rar");
     return(TRUE);
   }

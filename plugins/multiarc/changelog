@@ -1,3 +1,7 @@
+svs 13.09.2013 21:59:55 +0400 - build 196
+
+1. rar.fmt. Отвяжим поиск unrar.dll в "Plugins\MultiArc\Formats", Multiarc не обязан быть в Plugins.
+
 drkns 05.09.2013 20:27:00 +0200 - build 195
 
 1. rar.fmt v5.0.
