@@ -256,7 +256,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 	// ¬ этом случаем считаем \r\r двум€ MAC окончани€ми строк.
 	if (bCrCr)
 	{
-		To.emplace_back(eol::cr);
+		To.emplace_back(T(eol::cr));
 		bCrCr = false;
 	}
 	else
