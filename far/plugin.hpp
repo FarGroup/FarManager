@@ -1235,28 +1235,6 @@ struct FarMacroValue
 	;
 };
 
-enum MACROPLUGINRETURNTYPE
-{
-	MPRT_NORMALFINISH  = 0,
-	MPRT_ERRORFINISH   = 1,
-	MPRT_ERRORPARSE    = 2,
-	MPRT_KEYS          = 3,
-	MPRT_PRINT         = 4,
-	MPRT_PLUGINCALL    = 5,
-	MPRT_PLUGINMENU    = 6,
-	MPRT_PLUGINCONFIG  = 7,
-	MPRT_PLUGINCOMMAND = 8,
-	MPRT_USERMENU      = 9,
-	MPRT_COMMONCASE    = 100
-};
-
-struct MacroPluginReturn
-{
-	size_t Count;
-	struct FarMacroValue *Values;
-	enum MACROPLUGINRETURNTYPE ReturnType;
-};
-
 struct FarMacroCall
 {
 	size_t StructSize;
@@ -2613,12 +2591,34 @@ enum MACROCALLTYPE
 	MCT_GETCUSTOMSORTMODES = 13,
 };
 
+enum MACROPLUGINRETURNTYPE
+{
+	MPRT_NORMALFINISH  = 0,
+	MPRT_ERRORFINISH   = 1,
+	MPRT_ERRORPARSE    = 2,
+	MPRT_KEYS          = 3,
+	MPRT_PRINT         = 4,
+	MPRT_PLUGINCALL    = 5,
+	MPRT_PLUGINMENU    = 6,
+	MPRT_PLUGINCONFIG  = 7,
+	MPRT_PLUGINCOMMAND = 8,
+	MPRT_USERMENU      = 9,
+	MPRT_COMMONCASE    = 10,
+};
+
+struct MacroPluginReturn
+{
+	intptr_t ReturnType;
+	size_t Count;
+	struct FarMacroValue *Values;
+};
+
 struct OpenMacroPluginInfo
 {
-	size_t StructSize;
 	enum MACROCALLTYPE CallType;
-	HANDLE Handle;
+	intptr_t Handle;
 	struct FarMacroCall *Data;
+	struct MacroPluginReturn Ret;
 };
 
 #ifdef FAR_USE_INTERNALS

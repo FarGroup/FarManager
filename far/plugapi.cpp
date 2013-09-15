@@ -1996,19 +1996,13 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				if (Macro.IsRecording())
-					return FALSE;
-				return Macro.LoadMacros(!Macro.IsExecuting(), !Global->Opt->OnlyEditorViewerUsed);
+				return !Macro.IsRecording() && Macro.LoadMacros(!Macro.IsExecuting(), !Global->Opt->OnlyEditorViewerUsed);
 			}
 
 			// Param1=0, Param2 - 0
 			case MCTL_SAVEALL: // из памяти ФАРа в реестра
 			{
-				if (Macro.IsRecording()) // || Macro.IsExecuting())
-					return FALSE;
-
-				Macro.SaveMacros();
-				return TRUE;
+				return !Macro.IsRecording() && Macro.SaveMacros();
 			}
 
 			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*

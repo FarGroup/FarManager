@@ -175,7 +175,7 @@ local function MacroStep (handle, ...)
         else
           RunningMacros[handle] = false
           LastMessage[1] = ""
-          return F.MPRT_NORMALFINISH, LastMessage
+          return F.MPRT_NORMALFINISH
         end
       else
         ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
@@ -220,7 +220,7 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
     end
   end
   LastMessage[1] = ""
-  return F.MPRT_NORMALFINISH, LastMessage
+  return F.MPRT_NORMALFINISH
 end
 
 local function ExecString (text, flags, params)
@@ -232,7 +232,7 @@ local function ExecString (text, flags, params)
       return F.MPRT_COMMONCASE, TableExecString
     else
       far.Message(msg, "LuaMacro", nil, "wl")
-      TableExecString = pack(msg)
+      TableExecString = { msg }
       return F.MPRT_ERRORPARSE, TableExecString
     end
   end
@@ -277,7 +277,7 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
     elseif calltype==F.MCT_PANELSORT      then
       if panelsort then
-        TablePanelSort = pack(panelsort.SortPanelItems(...))
+        TablePanelSort = { panelsort.SortPanelItems(...) }
         if TablePanelSort[1] then return F.MPRT_COMMONCASE, TablePanelSort end
       end
     elseif calltype==F.MCT_GETCUSTOMSORTMODES then

@@ -12,10 +12,8 @@ static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44
 
 static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 {
-	int ret;
-	if (Data == NULL) return 1;
-
-	if ((ret = lua_checkstack(L, (int)Data->Count)) != 0)
+	int ret = lua_checkstack(L, (int)Data->Count);
+	if (ret)
 	{
 		size_t i;
 		for(i=0; i < Data->Count; i++)
@@ -28,21 +26,20 @@ static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 	return ret;
 }
 
-static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
+static void InitMPR (lua_State* L, struct MacroPluginReturn *mpr, size_t nargs, intptr_t ReturnType)
 {
-	size_t size = sizeof(struct MacroPluginReturn) + nargs*sizeof(struct FarMacroValue);
-	struct MacroPluginReturn* mpr = (struct MacroPluginReturn*)lua_newuserdata(L, size);
-	lua_setfield(L, -2, "MacroPluginReturn");
-	memset(mpr, 0, size);
-	mpr->Values = (struct FarMacroValue*)(mpr+1);
+	if (nargs)
+	{
+		mpr->Values = (struct FarMacroValue*)lua_newuserdata(L, nargs*sizeof(struct FarMacroValue));
+		lua_setfield(L, -2, "MacroPluginReturn");
+	}
 	mpr->Count = nargs;
 	mpr->ReturnType = ReturnType;
-	return mpr;
 }
 
 HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 {
-	const struct OpenMacroPluginInfo* om_info = (const struct OpenMacroPluginInfo*)Info->Data;
+	struct OpenMacroPluginInfo* om_info = (struct OpenMacroPluginInfo*)Info->Data;
 	int calltype = om_info->CallType;
 	size_t argc = om_info->Data ? om_info->Data->Count : 0; // store Data->Count: 'Data' will be invalid after FL_PushParams()
 
@@ -54,8 +51,8 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 	lua_pushinteger(L, Info->OpenFrom);            //+2
 	lua_pushinteger(L, calltype);                  //+3
-	lua_pushinteger(L, (intptr_t)om_info->Handle); //+4
-	if (!FL_PushParams(L, om_info->Data))
+	lua_pushinteger(L, om_info->Handle);           //+4
+	if (om_info->Data && !FL_PushParams(L, om_info->Data))
 	{
 		lua_pop(L, 4);
 		return NULL;
@@ -63,28 +60,31 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 	if(pcall_msg(L, 3+(int)argc, 2) == 0)
 	{
-		int t1=lua_type(L,-2), t2=lua_type(L,-1);
-		if (t1 != LUA_TNUMBER || (t2 != LUA_TNIL && t2 != LUA_TTABLE))
+		intptr_t ReturnType;
+		if (!lua_toboolean(L,-2))
 		{
 			lua_pop(L,2);
 			return NULL;
 		}
-		if(t2 == LUA_TNIL)
+		ReturnType = lua_type(L,-2)==LUA_TNUMBER ? lua_tointeger(L,-2) : 1;
+
+		if(lua_type(L,-1) != LUA_TTABLE)
 		{
-			intptr_t ret = lua_tointeger(L,-2);
+			InitMPR(L, &om_info->Ret, 0, ReturnType);
 			lua_pop(L,2);
-			return (HANDLE)ret;
+			return (HANDLE)1;
 		}
 		else
 		{
-			struct MacroPluginReturn* mpr;
-			int ReturnType = (int)lua_tointeger(L,-2);
+			struct MacroPluginReturn* Ret = &om_info->Ret;
 			int nargs, idx;
 
 			lua_getfield(L,-1,"n");
 			nargs = lua_type(L,-1)==LUA_TNUMBER ? (int)lua_tointeger(L,-1) : (int)lua_objlen(L,-2);
 			lua_pop(L,1);
-			mpr = CreateMPR(L,nargs,ReturnType);
+			if (nargs < 0) nargs = 0;
+
+			InitMPR(L, Ret, (size_t)nargs, ReturnType);
 
 			for(idx=0; idx<nargs; idx++)
 			{
@@ -95,61 +95,61 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 				if(type == LUA_TNUMBER)
 				{
-					mpr->Values[idx].Type = FMVT_DOUBLE;
-					mpr->Values[idx].Value.Double = lua_tonumber(L, -1);
+					Ret->Values[idx].Type = FMVT_DOUBLE;
+					Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
 					lua_pop(L,1);
 				}
 				else if(type == LUA_TSTRING)
 				{
-					mpr->Values[idx].Type = FMVT_STRING;
-					mpr->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
+					Ret->Values[idx].Type = FMVT_STRING;
+					Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
 					lua_rawseti(L,-2,idx+1);
 				}
 				else if(type == LUA_TBOOLEAN)
 				{
-					mpr->Values[idx].Type = FMVT_BOOLEAN;
-					mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
+					Ret->Values[idx].Type = FMVT_BOOLEAN;
+					Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
 					lua_pop(L,1);
 				}
 				else if(type == LUA_TLIGHTUSERDATA)
 				{
-					mpr->Values[idx].Type = FMVT_POINTER;
-					mpr->Values[idx].Value.Pointer = lua_touserdata(L, -1);
+					Ret->Values[idx].Type = FMVT_POINTER;
+					Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
 					lua_rawseti(L,-2,idx+1);
 				}
 				else if(type == LUA_TTABLE)
 				{
-					mpr->Values[idx].Type = FMVT_BINARY;
+					Ret->Values[idx].Type = FMVT_BINARY;
 					lua_rawgeti(L,-1,1);
 					if (lua_type(L,-1) == LUA_TSTRING)
 					{
-						mpr->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
-						mpr->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
+						Ret->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
+						Ret->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
 						lua_rawseti(L,-3,idx+1);
 					}
 					else
 					{
-						mpr->Values[idx].Value.Binary.Data = (char*)"";
-						mpr->Values[idx].Value.Binary.Size = 0;
+						Ret->Values[idx].Value.Binary.Data = (char*)"";
+						Ret->Values[idx].Value.Binary.Size = 0;
 						lua_pop(L,1);
 					}
 					lua_pop(L,1);
 				}
 				else if(bit64_getvalue(L, -1, &val64))
 				{
-					mpr->Values[idx].Type = FMVT_INTEGER;
-					mpr->Values[idx].Value.Integer = val64;
+					Ret->Values[idx].Type = FMVT_INTEGER;
+					Ret->Values[idx].Value.Integer = val64;
 					lua_pop(L,1);
 				}
 				else
 				{
-					mpr->Values[idx].Type = FMVT_NIL;
+					Ret->Values[idx].Type = FMVT_NIL;
 					lua_pop(L,1);
 				}
 			}
 
 			lua_pop(L,2);
-			return (HANDLE)mpr;
+			return (HANDLE)1;
 		}
 
 		lua_pop(L,2);

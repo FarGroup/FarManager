@@ -113,8 +113,8 @@ class RunningMacro
 		RunningMacro();
 		RunningMacro& operator= (const RunningMacro& src);
 	public:
-		void* GetHandle() { return mp_info.Handle; }
-		void SetHandle(void* handle) { mp_info.Handle=handle; }
+		intptr_t GetHandle() { return mp_info.Handle; }
+		void SetHandle(intptr_t handle) { mp_info.Handle=handle; }
 		void SetData(FarMacroCall* data) { mp_info.Data=data; }
 		OpenMacroPluginInfo* GetMPInfo() { return &mp_info; }
 		void ResetMPInfo() { mp_data.Count=0; mp_info.Data=&mp_data; }
@@ -141,8 +141,8 @@ class MacroRecord
 		const string& Code(void) {return m_code;}
 		const string& Description(void) {return m_description;}
 	public:
-		void* GetHandle() { return m_running.GetHandle(); }
-		void SetHandle(void* handle) { m_running.SetHandle(handle); }
+		intptr_t GetHandle() { return m_running.GetHandle(); }
+		void SetHandle(intptr_t handle) { m_running.SetHandle(handle); }
 		void SetData(FarMacroCall* data) { m_running.SetData(data); }
 		OpenMacroPluginInfo* GetMPInfo() { return m_running.GetMPInfo(); }
 		void ResetMPInfo() { m_running.ResetMPInfo(); }
@@ -189,7 +189,7 @@ class KeyMacro:NonCopyable
 		const wchar_t* varTextDate;
 
 	private:
-		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
+		bool CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 		intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
@@ -219,7 +219,7 @@ class KeyMacro:NonCopyable
 		void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 		FARMACROAREA GetMode(void) { return m_Mode; }
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
-		void SaveMacros(void);
+		bool SaveMacros(void);
 		// получить данные о макросе (возвращает статус)
 		int GetCurRecord(void);
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);

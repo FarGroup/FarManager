@@ -617,12 +617,12 @@ void FileList::SortFileList(int KeepPosition)
 			FarMacroValue values[]={{FMVT_POINTER}};
 			values[0].Pointer = &cs;
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-			OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_PANELSORT,nullptr,&fmc};
-			MacroPluginReturn* mpr = nullptr;
-			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,(void**)&mpr) && mpr)
+			OpenMacroPluginInfo info={MCT_PANELSORT,0,&fmc};
+			void *ptr;
+			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
 			{
-				CustomSortIndicator[0] = mpr->Values[0].String[0];
-				CustomSortIndicator[1] = mpr->Values[0].String[1];
+				CustomSortIndicator[0] = info.Ret.Values[0].String[0];
+				CustomSortIndicator[1] = info.Ret.Values[0].String[1];
 			}
 			else
 			{
@@ -4606,12 +4606,14 @@ void FileList::SelectSortMode()
 
 	static const MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
 
+	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,0,nullptr };
 	MacroPluginReturn* mpr = nullptr;
 	size_t extra = 0; // number of additional menu items due to custom sort modes
 	{
-		OpenMacroPluginInfo info = { sizeof(OpenMacroPluginInfo), MCT_GETCUSTOMSORTMODES };
-		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid, OPEN_LUAMACRO, &info, (void**)&mpr) && mpr)
+		void *ptr;
+		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid, OPEN_LUAMACRO, &ompInfo, &ptr) && ptr)
 		{
+			mpr = &ompInfo.Ret;
 			if (mpr->Count >= 3)
 			{
 				extra = 1 + mpr->Count/3; // add 1 item for separator

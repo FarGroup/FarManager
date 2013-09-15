@@ -485,8 +485,7 @@ local function LoadMacros (allAreas, unload)
   export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
   export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
 
-  LastMessage = pack(numerrors==0)
-  return F.MPRT_COMMONCASE, LastMessage
+  return numerrors==0
 end
 
 local function InitMacroSystem()
@@ -530,6 +529,7 @@ local function WriteMacros()
       end
     end
   end
+  return true
 end
 
 local function GetFromMenu (macrolist)
@@ -736,8 +736,7 @@ local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
       for _,m in ipairs(macroarray) do
         if m.guid and m.guid[1]==guid[1] and m.callbackId==callbackId and not m.disabled then
           m.disabled = true
-          LastMessage = pack(true)
-          return F.MPRT_COMMONCASE, LastMessage
+          return true
         end
       end
     end
@@ -770,8 +769,7 @@ local function RunStartMacro()
       end
     end
   end
-  LastMessage = pack(true)
-  return F.MPRT_COMMONCASE, LastMessage
+  return true
 end
 
 local function GetMacroById (id)
