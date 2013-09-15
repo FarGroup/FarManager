@@ -193,7 +193,7 @@ public:
 	virtual TreeItem* GetItem(size_t Index) const override;
 	virtual int GetCurrentPos() const override;
 
-	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA *fd=nullptr) override;
+	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,api::FAR_FIND_DATA *fd=nullptr) override;
 
 	static void AddTreeName(const string& Name);
 	static void DelTreeName(const string& Name);

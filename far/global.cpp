@@ -205,7 +205,7 @@ bool global::IsUserAdmin() const
 		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 		try
 		{
-			sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+			api::sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 			BOOL IsMember = FALSE;
 			if(CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
 			{

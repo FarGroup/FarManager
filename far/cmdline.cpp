@@ -616,7 +616,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 		{
 			string& strDestStr = i.first;
 			string strExpandedDestStr;
-			apiExpandEnvironmentStrings(strDestStr, strExpandedDestStr);
+			strExpandedDestStr = api::ExpandEnvironmentStrings(strDestStr);
 			strDestStr.clear();
 			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
 			{
@@ -1076,17 +1076,13 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (strCmdLine.size() == pos+1) //set var=
 		{
 			strCmdLine.resize(pos);
-			SetEnvironmentVariable(strCmdLine.data(),nullptr);
+			api::DeleteEnvironmentVariable(strCmdLine);
 		}
 		else
 		{
-			string strExpandedStr;
-
-			if (apiExpandEnvironmentStrings(strCmdLine.data()+pos+1,strExpandedStr))
-			{
-				strCmdLine.resize(pos);
-				SetEnvironmentVariable(strCmdLine.data(),strExpandedStr.data());
-			}
+			string strExpandedStr = api::ExpandEnvironmentStrings(strCmdLine.data()+pos+1);
+			strCmdLine.resize(pos);
+			api::SetEnvironmentVariable(strCmdLine, strExpandedStr);
 		}
 
 		return TRUE;
@@ -1120,13 +1116,12 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()))
 			return FALSE; // отдадимся COMSPEC`у
 
-		PushPopRecord prec;
-		prec.strName = strCurDir;
+		string PushDir = strCurDir;
 
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
-			ppstack.push(prec);
-			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName.data());
+			ppstack.push(PushDir);
+			api::SetEnvironmentVariable(L"FARDIRSTACK", PushDir);
 		}
 		else
 		{
@@ -1144,15 +1139,16 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (!ppstack.empty())
 		{
-			PushPopRecord& prec = ppstack.top();
-			int Ret=IntChDir(prec.strName,true,SilentInt);
+			int Ret=IntChDir(ppstack.top(),true,SilentInt);
 			ppstack.pop();
-			const wchar_t* Ptr = nullptr;
 			if (!ppstack.empty())
 			{
-				Ptr = ppstack.top().strName.data();
+				api::SetEnvironmentVariable(L"FARDIRSTACK", ppstack.top());
 			}
-			SetEnvironmentVariable(L"FARDIRSTACK", Ptr);
+			else
+			{
+				api::DeleteEnvironmentVariable(L"FARDIRSTACK");
+			}
 			return Ret;
 		}
 
@@ -1161,8 +1157,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	// CLRD
 	else if (IsCommand(L"CLRD",false))
 	{
-		DECLTYPE(ppstack)().swap(ppstack);
-		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
+		clear_and_shrink(ppstack);
+		api::DeleteEnvironmentVariable(L"FARDIRSTACK");
 		return TRUE;
 	}
 	/*
@@ -1294,11 +1290,10 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType()!=FILE_PANEL && Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-	string strExpandedDir(CmdLine);
+	string strExpandedDir = api::ExpandEnvironmentStrings(CmdLine);
 	Unquote(strExpandedDir);
-	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && api::GetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{
@@ -1311,8 +1306,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			}
 
 			DeleteEndSlash(strTemp);
-			strExpandedDir=strTemp;
-			apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+			strExpandedDir = api::ExpandEnvironmentStrings(strTemp);
 		}
 	}
 
@@ -1320,9 +1314,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	ParsePath(strExpandedDir, &DirOffset);
 	if (wcspbrk(strExpandedDir.data() + DirOffset, L"?*")) // это маска?
 	{
-		FAR_FIND_DATA wfd;
+		api::FAR_FIND_DATA wfd;
 
-		if (apiGetFindDataEx(strExpandedDir, wfd))
+		if (api::GetFindDataEx(strExpandedDir, wfd))
 		{
 			size_t pos;
 
@@ -1339,7 +1333,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		Сначала проверяем есть ли такая "обычная" директория.
 		если уж нет, то тогда начинаем думать, что это директория плагинная
 	*/
-	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
+	DWORD DirAtt=api::GetFileAttributes(strExpandedDir);
 
 	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
 	{

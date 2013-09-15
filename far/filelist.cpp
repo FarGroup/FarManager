@@ -217,7 +217,7 @@ FileList::FileList():
 		openBracket[1]=closeBracket[1]=0;
 	}
 	Type=FILE_PANEL;
-	apiGetCurrentDirectory(strCurDir);
+	api::GetCurrentDirectory(strCurDir);
 	strOriginalCurDir = strCurDir;
 	CurTopFile=CurFile=0;
 	ShowShortNames=0;
@@ -1604,7 +1604,7 @@ int FileList::ProcessKey(int Key)
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
 									string Path = strFileName.substr(0, pos);
-									DWORD CheckFAttr=apiGetFileAttributes(Path);
+									DWORD CheckFAttr=api::GetFileAttributes(Path);
 
 									if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
 									{
@@ -1658,7 +1658,7 @@ int FileList::ProcessKey(int Key)
 					if (!FarMkTempEx(strTempDir))
 						return TRUE;
 
-					apiCreateDirectory(strTempDir,nullptr);
+					api::CreateDirectory(strTempDir,nullptr);
 					strTempName=strTempDir+L"\\"+PointToName(strFileName);
 
 					if (Key==KEY_SHIFTF4)
@@ -1683,7 +1683,7 @@ int FileList::ProcessKey(int Key)
 
 						if (!Result)
 						{
-							apiRemoveDirectory(strTempDir);
+							api::RemoveDirectory(strTempDir);
 							return TRUE;
 						}
 					}
@@ -1772,17 +1772,17 @@ int FileList::ProcessKey(int Key)
 						{
 							PluginPanelItem PanelItem;
 							string strSaveDir;
-							apiGetCurrentDirectory(strSaveDir);
+							api::GetCurrentDirectory(strSaveDir);
 
-							if (apiGetFileAttributes(strTempName)==INVALID_FILE_ATTRIBUTES)
+							if (api::GetFileAttributes(strTempName)==INVALID_FILE_ATTRIBUTES)
 							{
 								string strFindName;
 								string strPath;
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								FAR_FIND_DATA FindData;
-								::FindFile Find(strFindName);
+								api::FAR_FIND_DATA FindData;
+								api::FindFile Find(strFindName);
 								while(Find.Get(FindData))
 								{
 									if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -2516,7 +2516,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!FarMkTempEx(strTempDir))
 				return;
 
-			apiCreateDirectory(strTempDir,nullptr);
+			api::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
@@ -2524,7 +2524,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			if (!Result)
 			{
-				apiRemoveDirectory(strTempDir);
+				api::RemoveDirectory(strTempDir);
 				return;
 			}
 
@@ -2848,7 +2848,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	    setdisk(CurDisk);
 	  }
 	}*/
-	apiGetCurrentDirectory(strCurDir);
+	api::GetCurrentDirectory(strCurDir);
 	if (!IsUpdated)
 		return SetDirectorySuccess;
 
@@ -3168,7 +3168,7 @@ void FileList::SetViewMode(int Mode)
 	DWORD FileSystemFlags = 0;
 	GetPathRoot(strCurDir,strDriveRoot);
 
-	if (NewPacked && apiGetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
+	if (NewPacked && api::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
 			NewPacked=FALSE;
 
@@ -3688,7 +3688,7 @@ size_t FileList::GetRealSelCount()
 }
 
 
-int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA *fde)
+int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,api::FAR_FIND_DATA *fde)
 {
 	if (!strName)
 	{
@@ -4078,7 +4078,7 @@ void FileList::UpdateViewPanel()
 			if (!FarMkTempEx(strTempDir))
 				return;
 
-			apiCreateDirectory(strTempDir,nullptr);
+			api::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
 			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
@@ -4087,7 +4087,7 @@ void FileList::UpdateViewPanel()
 			if (!Result)
 			{
 				ViewPanel->ShowFile(L"",FALSE,nullptr);
-				apiRemoveDirectory(strTempDir);
+				api::RemoveDirectory(strTempDir);
 				return;
 			}
 
@@ -4166,8 +4166,8 @@ void FileList::CompareDir()
 		GetPathRoot(strCurDir, strRoot1);
 		GetPathRoot(Another->strCurDir, strRoot2);
 
-		if (apiGetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
-		        apiGetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
+		if (api::GetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
+		        api::GetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
 			if (StrCmpI(strFileSystemName1.data(),strFileSystemName2.data()))
 				CompareFatTime=TRUE;
 	}
@@ -4950,16 +4950,16 @@ bool FileList::ApplyCommand()
 		}
 
 		if (!strListName.empty())
-			apiDeleteFile(strListName);
+			api::DeleteFile(strListName);
 
 		if (!strAnotherListName.empty())
-			apiDeleteFile(strAnotherListName);
+			api::DeleteFile(strAnotherListName);
 
 		if (!strShortListName.empty())
-			apiDeleteFile(strShortListName);
+			api::DeleteFile(strShortListName);
 
 		if (!strAnotherShortListName.empty())
-			apiDeleteFile(strAnotherShortListName);
+			api::DeleteFile(strAnotherShortListName);
 	}
 
 	Global->CtrlObject->CmdLine->LockUpdatePanel(false);
@@ -5270,7 +5270,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	strPath = ph->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	File HelpFile;
+	api::File HelpFile;
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
 		return FALSE;
 

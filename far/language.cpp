@@ -47,11 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
+bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {
 	strFileName.clear();
 	string strFullName, strEngFileName;
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	string strLangName;
 	ScanTree ScTree(FALSE,FALSE);
 	ScTree.SetFindPath(Path,Mask);
@@ -103,10 +103,9 @@ bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const st
 }
 
 
-int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	wchar_t* ReadStr;
-	int ReadLength;
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
 	int Length=(int)strFullParamName.size();
@@ -116,8 +115,9 @@ int GetLangParam(File& LangFile,const string& ParamName,string *strParam1, strin
 	BOOL Found = FALSE;
 	auto OldPos = LangFile.GetPointer();
 
-	GetFileString GetStr(LangFile);
-	while (GetStr.GetString(&ReadStr, nCodePage, ReadLength))
+	size_t ReadLength;
+	GetFileString GetStr(LangFile, nCodePage);
+	while (GetStr.GetString(&ReadStr, ReadLength))
 	{
 		if (!StrCmpNI(ReadStr,strFullParamName.data(),Length))
 		{
@@ -181,13 +181,13 @@ static bool SelectLanguage(bool HelpLanguage)
 	LangMenu.SetFlags(VMENU_WRAPMODE);
 	LangMenu.SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	ScanTree ScTree(FALSE,FALSE);
 	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
-		File LangFile;
+		api::File LangFile;
 		if (!LangFile.Open(strFullName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 			continue;
 
@@ -236,15 +236,15 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
   + Ќовый метод, дл€ получени€ параметров дл€ .Options
    .Options <KeyName>=<Value>
 */
-int GetOptionsParam(File& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
+int GetOptionsParam(api::File& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	wchar_t* ReadStr;
-	int ReadSize;
 	string strFullParamName;
 	int Length=StrLength(L".Options");
 	auto CurFilePos = SrcFile.GetPointer();
-	GetFileString GetStr(SrcFile);
-	while (GetStr.GetString(&ReadStr, nCodePage, ReadSize))
+	GetFileString GetStr(SrcFile, nCodePage);
+	size_t ReadSize;
+	while (GetStr.GetString(&ReadStr, ReadSize))
 	{
 		if (!StrCmpNI(ReadStr,L".Options",Length))
 		{
@@ -350,7 +350,7 @@ bool Language::Init(const string& Path, int CountNeed)
 	LastError = LERROR_SUCCESS;
 	uintptr_t nCodePage = CP_OEMCP;
 	string strLangName=Global->Opt->strLanguage.Get();
-	File LangFile;
+	api::File LangFile;
 
 	if (!OpenLangFile(LangFile,Path,LangFileMask,Global->Opt->strLanguage,strMessageFile, nCodePage, false, &strLangName))
 	{
@@ -375,12 +375,12 @@ bool Language::Init(const string& Path, int CountNeed)
 	}
 
 	wchar_t* ReadStr;
-	int ReadSize;
 
 	size_t MsgSize = 0;
 
-	GetFileString GetStr(LangFile);
-	while (GetStr.GetString(&ReadStr, nCodePage, ReadSize))
+	GetFileString GetStr(LangFile, nCodePage);
+	size_t ReadSize;
+	while (GetStr.GetString(&ReadStr, ReadSize))
 	{
 		string strDestStr;
 		RemoveExternalSpaces(ReadStr);

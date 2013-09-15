@@ -238,7 +238,7 @@ public:
 	bool Load();
 	int Unload(bool bExitFAR = false);
 	bool LoadData();
-	bool LoadFromCache(const FAR_FIND_DATA &FindData);
+	bool LoadFromCache(const api::FAR_FIND_DATA &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() {return Activity != 0;}

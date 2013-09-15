@@ -36,35 +36,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class GetFileString
 {
 	public:
-		GetFileString(File& SrcFile);
-		~GetFileString();
-		int PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length);
-		int GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length);
+		GetFileString(api::File& SrcFile, uintptr_t CodePage);
+		bool PeekString(LPWSTR* DestStr, size_t& Length);
+		bool GetString(LPWSTR* DestStr, size_t& Length);
+		bool GetString(string& str);
 		bool IsConversionValid() { return !SomeDataLost; }
 
 	private:
-		File& SrcFile;
+		api::File& SrcFile;
+		uintptr_t m_CodePage;
 		DWORD ReadPos, ReadSize;
 
 		bool Peek;
-		int LastLength;
+		size_t LastLength;
 		LPWSTR LastString;
-		int LastResult;
+		bool LastResult;
 
-		char_ptr ReadBuf;
-		wchar_t_ptr wReadBuf;
+		std::vector<char> m_ReadBuf;
+		std::vector<wchar_t> m_wReadBuf;
 
-		int m_nStrLength;
-		char *Str;
-
-		int m_nwStrLength;
-		wchar_t *wStr;
+		std::vector<wchar_t> m_wStr;
 
 		bool SomeDataLost;
 		bool bCrCr;
 
-		int GetAnsiString(LPSTR* DestStr, int& Length);
-		int GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndian);
+		template<class T>
+		bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
 };
 
-bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);
+bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);

@@ -203,8 +203,8 @@ Viewer::~Viewer()
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
-			apiSetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
-			apiDeleteFile(strTempViewName); //BUGBUG
+			api::SetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
+			api::DeleteFile(strTempViewName); //BUGBUG
 		}
 	}
 
@@ -285,7 +285,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
 		//after reading from the pipe, redirect stdin to the real console stdin
-		//CONIN$ must be opened with the exact flags and name as below so apiCreateFile() is not good
+		//CONIN$ must be opened with the exact flags and name as below so api::CreateFile() is not good
 		SetStdHandle(STD_INPUT_HANDLE,CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0,nullptr));
 		ReadStdin=TRUE;
 	}
@@ -312,7 +312,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	CodePageChangedByUser=FALSE;
 
 	ConvertNameToFull(strFileName,strFullFileName);
-	apiGetFindDataEx(strFileName, ViewFindData);
+	api::GetFindDataEx(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
@@ -1461,8 +1461,8 @@ int Viewer::ProcessKey(int Key)
 					return TRUE;
 				last_update_check = now_ticks;
 
-				FAR_FIND_DATA NewViewFindData;
-				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
+				api::FAR_FIND_DATA NewViewFindData;
+				if (!api::GetFindDataEx(strFullFileName, NewViewFindData))
 					return TRUE;
 
 				// Smart file change check -- thanks Dzirt2005

@@ -1154,7 +1154,7 @@ void Manager::PluginsMenu()
 
 				if (!strCurFileName.empty())
 				{
-					DWORD Attr=apiGetFileAttributes(strCurFileName);
+					DWORD Attr=api::GetFileAttributes(strCurFileName);
 
 					// интересуют только обычные файлы
 					if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))

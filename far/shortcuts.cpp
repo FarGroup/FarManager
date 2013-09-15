@@ -199,8 +199,7 @@ static void Fill(const ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, 
 {
 	if(Folder)
 	{
-		*Folder = RetItem.strFolder;
-		apiExpandEnvironmentStrings(*Folder, *Folder);
+		*Folder = api::ExpandEnvironmentStrings(RetItem.strFolder);
 	}
 	if(PluginGuid)
 	{
@@ -231,7 +230,7 @@ static string MakeName(const ShortcutItem& Item)
 		{
 			result = Item.strFolder;
 		}
-		apiExpandEnvironmentStrings(result, result);
+		result = api::ExpandEnvironmentStrings(result);
 	}
 	else
 	{
@@ -517,10 +516,9 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 				DeleteEndSlash(NewItem.strFolder);
 			}
 
-			string strTemp(NewItem.strFolder);
-			apiExpandEnvironmentStrings(NewItem.strFolder,strTemp);
+			string strTemp = api::ExpandEnvironmentStrings(NewItem.strFolder);
 
-			if ((!raw || !strTemp.empty()) && apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+			if ((!raw || !strTemp.empty()) && api::GetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{
 				Global->CatchError();
 				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder.data(), MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));

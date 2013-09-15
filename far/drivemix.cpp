@@ -99,10 +99,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	GetPathRoot(strDestRoot,strDestRoot);
 	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
 
-	if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
+	if (!api::GetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
 		return FALSE;
 
-	if (!apiGetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
+	if (!api::GetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
 		return FALSE;
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
@@ -122,10 +122,10 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 		unsigned __int64 SrcTotalSize, DestTotalSize;
 
-		if (!apiGetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
+		if (!api::GetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
 			return FALSE;
 
-		if (!apiGetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
+		if (!api::GetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
 			return FALSE;
 
 		if (!(SrcVolumeNumber &&

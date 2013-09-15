@@ -171,7 +171,7 @@ void Panel::SetViewMode(int ViewMode)
 void Panel::ChangeDirToCurrent()
 {
 	string strNewDir;
-	apiGetCurrentDirectory(strNewDir);
+	api::GetCurrentDirectory(strNewDir);
 	SetCurDir(strNewDir,true);
 }
 
@@ -467,7 +467,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
 			{
-				if (ShowDisk && !apiGetVolumeInformation(
+				if (ShowDisk && !api::GetVolumeInformation(
 				            strRootDir,
 				            &NewItem.Label,
 				            nullptr,
@@ -485,7 +485,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				unsigned __int64 TotalSize = 0, UserFree = 0;
 
-				if (ShowDisk && apiGetDiskSize(strRootDir,&TotalSize, nullptr, &UserFree))
+				if (ShowDisk && api::GetDiskSize(strRootDir,&TotalSize, nullptr, &UserFree))
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
@@ -875,7 +875,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		string RootDir(L"?:");
 		RootDir[0] = mitem->cDrive;
 
-		if (!apiIsDiskInDrive(RootDir))
+		if (!api::IsDiskInDrive(RootDir))
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE))
 			{
@@ -947,7 +947,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 
 		string strNewCurDir;
-		apiGetCurrentDirectory(strNewCurDir);
+		api::GetCurrentDirectory(strNewCurDir);
 
 		if ((PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
@@ -1225,7 +1225,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				VIRTUAL_STORAGE_TYPE vst = {VIRTUAL_STORAGE_TYPE_DEVICE_VHD, VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT};
 				OPEN_VIRTUAL_DISK_PARAMETERS ovdp = {OPEN_VIRTUAL_DISK_VERSION_1, 0};
 				HANDLE Handle;
-				if(apiOpenVirtualDisk(vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, ovdp, Handle))
+				if(api::OpenVirtualDisk(vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, ovdp, Handle))
 				{
 					int Result = Global->ifn->DetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS? DRIVE_DEL_SUCCESS : DRIVE_DEL_FAIL;
 					CloseHandle(Handle);
@@ -1797,7 +1797,7 @@ int Panel::SetCurPath()
 			string strRoot;
 			GetPathRoot(strCurDir, strRoot);
 
-			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || apiIsDiskInDrive(strRoot))
+			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || api::IsDiskInDrive(strRoot))
 			{
 				int Result=TestFolder(strCurDir);
 

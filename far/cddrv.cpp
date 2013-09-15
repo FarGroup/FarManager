@@ -198,7 +198,7 @@ static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 	ClearArray(pSptwb->Spt.Cdb);
 }
 
-static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
+static CDROM_DeviceCapabilities getCapsUsingMagic(api::File& Device)
 {
 	int caps = CAPABILITIES_NONE;
 
@@ -339,7 +339,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
 	return (CDROM_DeviceCapabilities)caps;
 }
 
-static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
+static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::File& Device)
 {
 	char outBuf[1024];
 	DWORD returnedLength;
@@ -367,7 +367,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
 	return CAPABILITIES_NONE;
 }
 
-static CDROM_DeviceCapabilities GetDeviceCapabilities(File& Device)
+static CDROM_DeviceCapabilities GetDeviceCapabilities(api::File& Device)
 {
 	CDROM_DeviceCapabilities caps = CAPABILITIES_NONE;
 
@@ -420,7 +420,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 	if (strRootDir.empty())
 	{
 		string strCurDir;
-		apiGetCurrentDirectory(strCurDir);
+		api::GetCurrentDirectory(strCurDir);
 		GetPathRoot(strCurDir, strRootDir);
 	}
 
@@ -439,7 +439,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		else
 			VolumePath.insert(0, L"\\\\.\\");
 
-		File Device;
+		api::File Device;
 		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			CDROM_DeviceCapabilities caps = GetDeviceCapabilities(Device);

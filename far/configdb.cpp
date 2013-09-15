@@ -2803,8 +2803,8 @@ bool Database::Export(const string& File)
 
 	{ //TODO: export for local plugin settings
 		e = new tinyxml::TiXmlElement("pluginsconfig");
-		FindFile ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
-		FAR_FIND_DATA fd;
+		api::FindFile ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
+		api::FAR_FIND_DATA fd;
 		while (ff.Get(fd))
 		{
 			fd.strFileName.resize(fd.strFileName.size()-3);

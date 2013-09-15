@@ -1304,8 +1304,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldf
 
 static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
-	string strD;
-	apiExpandEnvironmentStrings(wide(src), strD);
+	string strD = api::ExpandEnvironmentStrings(wide(src));
 	DWORD len = (DWORD)std::min(strD.size(),size-1);
 	UnicodeToOEM(strD.data(), dest, len+1);
 	return len;

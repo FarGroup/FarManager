@@ -70,7 +70,7 @@ SaveScreen::~SaveScreen()
 void SaveScreen::Discard()
 {
 	// don't call vector.resize() here, it's never shrink
-	DECLTYPE(ScreenBuf)().swap(ScreenBuf);
+	clear_and_shrink(ScreenBuf);
 }
 
 
@@ -99,7 +99,7 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 	// don't call vector.resize() here:
 	// - it's never shrink
 	// - we don't care about old content
-	DECLTYPE(ScreenBuf)(ScreenBufCharCount()).swap(ScreenBuf);
+	resize_nomove(ScreenBuf, ScreenBufCharCount());
 
 	GetText(X1, Y1, X2, Y2, ScreenBuf.data(), ScreenBuf.size() * sizeof(FAR_CHAR_INFO));
 	GetCursorPos(CurPosX,CurPosY);

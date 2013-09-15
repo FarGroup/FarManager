@@ -82,7 +82,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		apiExpandEnvironmentStrings(strSrc, strSrc);
+		strSrc = api::ExpandEnvironmentStrings(strSrc);
 	}
 
 	if (strSrc == L"/")
@@ -158,8 +158,8 @@ void FilePanels::Init(int DirCount)
 
 	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
-		RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
+		LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
+		RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 	}
 
 	if (!Global->Opt->AutoSaveSetup)
@@ -168,29 +168,29 @@ void FilePanels::Init(int DirCount)
 		{
 			if (ActivePanel==RightPanel)
 			{
-				RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
+				RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 			}
 			else
 			{
-				LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
+				LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
 			}
 
 			if (DirCount == 2)
 			{
 				if (ActivePanel==LeftPanel)
 				{
-					RightPanel->InitCurDir(apiGetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
+					RightPanel->InitCurDir(api::GetFileAttributes(Global->Opt->RightPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->RightPanel.Folder.Get() : Global->g_strFarPath);
 				}
 				else
 				{
-					LeftPanel->InitCurDir(apiGetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
+					LeftPanel->InitCurDir(api::GetFileAttributes(Global->Opt->LeftPanel.Folder)!=INVALID_FILE_ATTRIBUTES? Global->Opt->LeftPanel.Folder.Get() : Global->g_strFarPath);
 				}
 			}
 		}
 
 		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->LeftPanel.Folder:Global->Opt->RightPanel.Folder;
 
-		if (DirCount < 2 && !PassiveFolder.empty() && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		if (DirCount < 2 && !PassiveFolder.empty() && (api::GetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{
 			PassivePanel->InitCurDir(PassiveFolder);
 		}

@@ -109,12 +109,10 @@ void DizList::Read(const string& Path, const string* DizName)
 			strDizFileName += strArgName;
 		}
 
-		File DizFile;
+		api::File DizFile;
 		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			GetFileString GetStr(DizFile);
 			wchar_t *DizText;
-			int DizLength;
 			clock_t StartTime=clock();
 			uintptr_t CodePage=CP_DEFAULT;
 			bool bSigFound=false;
@@ -122,8 +120,11 @@ void DizList::Read(const string& Path, const string* DizName)
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
 				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
 
+			GetFileString GetStr(DizFile, CodePage);
+
 			auto LastAdded = DizData.end(); 
-			while (GetStr.GetString(&DizText, CodePage, DizLength) > 0)
+			size_t DizLength;
+			while (GetStr.GetString(&DizText, DizLength))
 			{
 				if (!(DizData.size() & 127) && clock()-StartTime>1000)
 				{
@@ -296,7 +297,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		strDizFileName += strArgName;
 	}
 
-	DWORD FileAttr=apiGetFileAttributes(strDizFileName);
+	DWORD FileAttr=api::GetFileAttributes(strDizFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
@@ -304,7 +305,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if(Global->Opt->Diz.ROUpdate)
 			{
-				if(apiSetFileAttributes(strDizFileName,FileAttr))
+				if(api::SetFileAttributes(strDizFileName,FileAttr))
 				{
 					FileAttr^=FILE_ATTRIBUTE_READONLY;
 				}
@@ -313,7 +314,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
 		{
-			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
+			api::SetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
 		}
 		else
 		{
@@ -322,7 +323,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	File DizFile;
+	api::File DizFile;
 
 	bool AnyError=false;
 
@@ -402,14 +403,14 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Global->Opt->Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
 		}
-		apiSetFileAttributes(strDizFileName,FileAttr);
+		api::SetFileAttributes(strDizFileName,FileAttr);
 	}
 	else
 	{
 		if(AnyError)
 			Global->CatchError();
 
-		apiDeleteFile(strDizFileName);
+		api::DeleteFile(strDizFileName);
 		if(AnyError)
 		{
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));

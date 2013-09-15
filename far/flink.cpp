@@ -54,7 +54,7 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 	bool Result=false;
 	string strBuf;
 
-	if (apiGetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
+	if (api::GetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
 	{
 		if (SetVolumeMountPoint(Object.data(),strBuf.data()))
 		{
@@ -115,14 +115,14 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
 		Privilege CreateSymlinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
-		File fObject;
+		api::File fObject;
 
 		bool ForceElevation=false;
 
-		DWORD Attributes = apiGetFileAttributes(Object);
+		DWORD Attributes = api::GetFileAttributes(Object);
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
-			apiSetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
+			api::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 		}
 		for(size_t i=0;i<2;i++)
 		{
@@ -145,7 +145,7 @@ bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 		}
 		if(Attributes&FILE_ATTRIBUTE_READONLY)
 		{
-			apiSetFileAttributes(Object, Attributes);
+			api::SetFileAttributes(Object, Attributes);
 		}
 
 	}
@@ -169,23 +169,23 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_SYMLINKFILE:
 			case RP_SYMLINKDIR:
 				{
-					DWORD ObjectAttributes = apiGetFileAttributes(Object);
+					DWORD ObjectAttributes = api::GetFileAttributes(Object);
 					bool ObjectExist = ObjectAttributes!=INVALID_FILE_ATTRIBUTES;
 					if(Type == RP_SYMLINK)
 					{
-						DWORD Attr = apiGetFileAttributes(Target);
+						DWORD Attr = api::GetFileAttributes(Target);
 						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
 					}
 					if (Global->ifn->CreateSymbolicLinkWPresent() && !ObjectExist)
 					{
-						Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+						Result=api::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
 					else
 					{
 						bool ObjectCreated=false;
 						if (Type==RP_SYMLINKDIR)
 						{
-							ObjectCreated= (ObjectExist && (ObjectAttributes&FILE_ATTRIBUTE_DIRECTORY)) || apiCreateDirectory(Object,nullptr)!=FALSE;
+							ObjectCreated= (ObjectExist && (ObjectAttributes&FILE_ATTRIBUTE_DIRECTORY)) || api::CreateDirectory(Object,nullptr)!=FALSE;
 						}
 						else
 						{
@@ -195,7 +195,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 							}
 							else
 							{
-								File file;
+								api::File file;
 								if(file.Open(Object,0,0,nullptr,CREATE_NEW))
 								{
 									ObjectCreated=true;
@@ -265,11 +265,11 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 bool GetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
-	const DWORD FileAttr = apiGetFileAttributes(Object);
+	const DWORD FileAttr = api::GetFileAttributes(Object);
 
 	if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		File fObject;
+		api::File fObject;
 		if(fObject.Open(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytesReturned;
@@ -292,7 +292,7 @@ bool DeleteReparsePoint(const string& Object)
 	{
 		if (GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 		{
-			File fObject;
+			api::File fObject;
 			if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 			{
 				DWORD dwBytes;
@@ -367,7 +367,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpRep
 int GetNumberOfLinks(const string& Name, bool negative_if_error)
 {
 	int NumberOfLinks = (negative_if_error ? -1 : +1);
-	File file;
+	api::File file;
 	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
@@ -383,7 +383,7 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
-	BOOL Result = apiCreateHardLink(NewName, ExistingName, nullptr);
+	BOOL Result = api::CreateHardLink(NewName, ExistingName, nullptr);
 
 	if (!Result && !Silent)
 	{
@@ -397,20 +397,20 @@ bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 {
 	bool Result=false;
 	WIN32_FIND_STREAM_DATA fsd;
-	HANDLE hFind=apiFindFirstStream(FileName,FindStreamInfoStandard,&fsd);
+	HANDLE hFind=api::FindFirstStream(FileName,FindStreamInfoStandard,&fsd);
 
 	if (hFind!=INVALID_HANDLE_VALUE)
 	{
 		StreamsCount=1;
 		StreamsSize=fsd.StreamSize.QuadPart;
 
-		while (apiFindNextStream(hFind,&fsd))
+		while (api::FindNextStream(hFind,&fsd))
 		{
 			StreamsCount++;
 			StreamsSize+=fsd.StreamSize.QuadPart;
 		}
 
-		apiFindStreamClose(hFind);
+		api::FindStreamClose(hFind);
 		Result=true;
 	}
 
@@ -448,7 +448,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 		if (Type == PATH_DRIVELETTER)
 		{
 			string Name;
-			if (apiQueryDosDevice(DeviceName, Name))
+			if (api::QueryDosDevice(DeviceName, Name))
 			{
 				if (Name.compare(0, 4, L"\\??\\") == 0)
 				{
@@ -465,7 +465,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 bool GetVHDName(const string& DeviceName, string &strVolumePath)
 {
 	bool Result=false;
-	File Device;
+	api::File Device;
 	if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
 		ULONG Size = 4096;
@@ -644,7 +644,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 			AddEndSlash(strDestFullName);
 		}
 
-		DWORD JSAttr=apiGetFileAttributes(strDestFullName);
+		DWORD JSAttr=api::GetFileAttributes(strDestFullName);
 
 		if (JSAttr != INVALID_FILE_ATTRIBUTES) // —уществует такой?
 		{
@@ -675,7 +675,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				else
 					strDestFullName += PtrSelName;
 
-				JSAttr=apiGetFileAttributes(strDestFullName);
+				JSAttr=api::GetFileAttributes(strDestFullName);
 
 				if (JSAttr != INVALID_FILE_ATTRIBUTES) // » такой тоже есть???
 				{
@@ -702,13 +702,13 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				}
 				else // создаем.
 				{
-					if (apiCreateDirectory(strDestFullName,nullptr))
+					if (api::CreateDirectory(strDestFullName,nullptr))
 						TreeList::AddTreeName(strDestFullName);
 					else
 						CreatePath(strDestFullName);
 				}
 
-				if (apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
+				if (api::GetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
 				{
 					if (!Silent)
 					{
@@ -731,7 +731,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 
 				if (CutToSlash(strPath))
 				{
-					if (apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
+					if (api::GetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 						CreatePath(strPath);
 				}
 			}
@@ -742,7 +742,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				if (LinkType==RP_EXACTCOPY)
 				{
 					// в этом случае создаетс€ или каталог, или пустой файл
-					DWORD dwSrcAttr=apiGetFileAttributes(strSrcFullName);
+					DWORD dwSrcAttr=api::GetFileAttributes(strSrcFullName);
 
 					if (dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
 						CreateDir=false;
@@ -750,7 +750,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 
 				if (CreateDir)
 				{
-					if (apiCreateDirectory(strDestFullName,nullptr))
+					if (api::CreateDirectory(strDestFullName,nullptr))
 						TreeList::AddTreeName(strDestFullName);
 					else
 						CreatePath(strDestFullName);
@@ -762,18 +762,18 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 					if (CutToSlash(strPath))
 					{
 						// создаЄм
-						if (apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
+						if (api::GetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 							CreatePath(strPath);
 
-						File file;
-						if(file.Open(strDestFullName, 0, 0, 0, CREATE_NEW, apiGetFileAttributes(strSrcFullName)))
+						api::File file;
+						if(file.Open(strDestFullName, 0, 0, 0, CREATE_NEW, api::GetFileAttributes(strSrcFullName)))
 						{
 							file.Close();
 						}
 					}
 				}
 
-				if (apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				if (api::GetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
 				{
 					if (!Silent)
 					{

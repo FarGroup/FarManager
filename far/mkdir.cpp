@@ -183,9 +183,9 @@ void ShellMakeDir(Panel *SrcPanel)
 				if (i == strDirName.size() || IsSlash(strDirName[i]))
 				{
 					Part = strDirName.substr(0, i);
-					if (apiGetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || i == strDirName.size()) // skip all intermediate dirs, but not last.
+					if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES || i == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
-						while(!(bSuccess=(apiCreateDirectory(Part, nullptr)!=FALSE)) && !SkipAll)
+						while(!(bSuccess=(api::CreateDirectory(Part, nullptr)!=FALSE)) && !SkipAll)
 						{
 							Global->CatchError();
 							int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
@@ -236,8 +236,6 @@ void ShellMakeDir(Panel *SrcPanel)
 						}
 					}
 				}
-
-				TreeList::AddTreeName(strDirName);
 			}
 		}
 

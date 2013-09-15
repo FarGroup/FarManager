@@ -142,11 +142,11 @@ void OpenSysLog()
 		fclose(LogStream);
 
 	string strLogFileName=Global->g_strFarPath+L"$Log";
-	DWORD Attr=apiGetFileAttributes(strLogFileName);
+	DWORD Attr=api::GetFileAttributes(strLogFileName);
 
 	if (Attr == INVALID_FILE_ATTRIBUTES)
 	{
-		if (!apiCreateDirectory(strLogFileName,nullptr))
+		if (!api::CreateDirectory(strLogFileName,nullptr))
 			strLogFileName.resize(Global->g_strFarPath.size());
 	}
 	else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
@@ -1800,20 +1800,13 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	{
 		if (ReadCount2 > 1)
 		{
-			auto TmpRec = new INPUT_RECORD[ReadCount2];
+			std::vector<INPUT_RECORD> TmpRec(ReadCount2);
+			size_t ReadCount3;
+			Global->Console->PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
 
-			if (TmpRec)
+			for (DWORD I=0; I < ReadCount3; ++I)
 			{
-				size_t ReadCount3;
-				Global->Console->PeekInput(TmpRec, ReadCount2, ReadCount3);
-
-				for (DWORD I=0; I < ReadCount2; ++I)
-				{
-					fwprintf(fp,L"             %s%04u: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
-				}
-
-				// освободим память
-				delete[] TmpRec;
+				fwprintf(fp,L"             %s%04u: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(&TmpRec[I]));
 			}
 		}
 

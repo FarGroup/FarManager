@@ -147,7 +147,7 @@ void QuickView::DisplayObject()
 		GotoXY(X1+2,Y1+2);
 		PrintText(FString);
 
-		DWORD currAttr=apiGetFileAttributes(strCurFileName); // обламываетс€, если нет доступа
+		DWORD currAttr=api::GetFileAttributes(strCurFileName); // обламываетс€, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string Tmp, Target;
@@ -446,13 +446,13 @@ void QuickView::ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin)
 
 			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)==ERROR_SUCCESS)
 			{
-				RegQueryStringValue(hKey,L"",strCurFileType,L"");
+				api::RegQueryStringValue(hKey,L"",strCurFileType,L"");
 				RegCloseKey(hKey);
 			}
 		}
 	}
 
-	if (hDirPlugin || ((FileAttr=apiGetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (hDirPlugin || ((FileAttr=api::GetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 	{
 		// Ќе показывать тип файла дл€ каталогов в "Ѕыстром просмотре"
 		strCurFileType.clear();
@@ -539,10 +539,10 @@ void QuickView::QViewDelTempName()
 			QView=nullptr;
 		}
 
-		apiSetFileAttributes(strTempName, FILE_ATTRIBUTE_ARCHIVE);
-		apiDeleteFile(strTempName);  //BUGBUG
+		api::SetFileAttributes(strTempName, FILE_ATTRIBUTE_ARCHIVE);
+		api::DeleteFile(strTempName);  //BUGBUG
 		CutToSlash(strTempName);
-		apiRemoveDirectory(strTempName);
+		api::RemoveDirectory(strTempName);
 		strTempName.clear();
 	}
 }

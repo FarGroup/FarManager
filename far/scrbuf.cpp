@@ -86,8 +86,8 @@ void ScreenBuf::AllocBuf(int X,int Y)
 	// don't call vector.resize() here:
 	// - it's never shrink
 	// - we don't care about old content
-	DECLTYPE(Buf)(Cnt).swap(Buf);
-	DECLTYPE(Shadow)(Cnt).swap(Shadow);
+	resize_nomove(Buf, Cnt);
+	resize_nomove(Shadow, Cnt);
 
 	BufX=X;
 	BufY=Y;

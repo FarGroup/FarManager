@@ -287,7 +287,7 @@ bool elevation::Initialize()
 			strPipeID = GuidToStr(Id);
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 
-			sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+			api::sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 			PSECURITY_DESCRIPTOR pSD = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
 			if(pSD)
 			{
@@ -769,7 +769,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = CreateSymbolicLinkInternal(Object, Target, Flags);
+			Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
 		{
@@ -876,7 +876,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = apiSetFileEncryptionInternal(Object.data(), Encrypt);
+			Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
 		{
@@ -899,7 +899,7 @@ bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const
 		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
+			Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters))
 		{
@@ -927,7 +927,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	{
 		if(UseNtStatus && Global->ifn->RtlGetLastNtStatusPresent())
 		{
-			NTSTATUS LastNtStatus = GetLastNtStatus();
+			NTSTATUS LastNtStatus = api::GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
 		}
 		else
@@ -975,7 +975,7 @@ public:
 				if(ParentProcess)
 				{
 					string strCurrentProcess, strParentProcess;
-					bool TrustedServer = apiGetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess.data(), strParentProcess.data()));
+					bool TrustedServer = api::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && api::GetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess.data(), strParentProcess.data()));
 					CloseHandle(ParentProcess);
 					if(TrustedServer)
 					{
@@ -1160,7 +1160,7 @@ private:
 		DWORD Flags = 0;
 		if(Read(Object) && Read(Target) && Read(Flags))
 		{
-			bool Result = CreateSymbolicLinkInternal(Object, Target, Flags);
+			bool Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
@@ -1205,7 +1205,7 @@ private:
 		// BUGBUG: SecurityAttributes, TemplateFile ignored
 		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
 		{
-			HANDLE Result = apiCreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
+			HANDLE Result = api::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
 			if(Result!=INVALID_HANDLE_VALUE)
 			{
 				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
@@ -1233,7 +1233,7 @@ private:
 		bool Encrypt = false;
 		if(Read(Object) && Read(Encrypt))
 		{
-			bool Result = apiSetFileEncryptionInternal(Object.data(), Encrypt);
+			bool Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{
@@ -1252,7 +1252,7 @@ private:
 		if(Read(VirtualStorageType) && Read(Object) && Read(VirtualDiskAccessMask) && Read(Flags) &&Read(Parameters))
 		{
 			HANDLE Handle;
-			bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
+			bool Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 			if(Result)
 			{
 				HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);

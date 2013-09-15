@@ -656,7 +656,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		DlgData[DlgSize+1].strData = strTxt;
-		apiExpandEnvironmentStrings(DlgData[DlgSize].strData,DlgData[DlgSize].strData);
+		DlgData[DlgSize].strData = api::ExpandEnvironmentStrings(DlgData[DlgSize].strData);
 		DlgSize+=2;
 	}
 
@@ -712,8 +712,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 	}
 
-	strStr = strTmpStr;
-	apiExpandEnvironmentStrings(strStr,strStr);
+	strStr = api::ExpandEnvironmentStrings(strTmpStr);
 	return 1;
 }
 
@@ -723,7 +722,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 	if (FarMkTempEx(strListFileName))
 	{
-		File ListFile;
+		api::File ListFile;
 		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
 			uintptr_t CodePage=CP_OEMCP;
@@ -839,7 +838,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				{
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
-					apiDeleteFile(strListFileName);
+					api::DeleteFile(strListFileName);
 					break;
 				}
 			}

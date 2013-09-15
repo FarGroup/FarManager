@@ -265,8 +265,8 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								}
 
 
-								FAR_FIND_DATA FindData;
-								if (apiGetFindDataEx(DlgParam->strSelName, FindData))
+								api::FAR_FIND_DATA FindData;
+								if (api::GetFindDataEx(DlgParam->strSelName, FindData))
 								{
 									const struct ItemTime
 									{
@@ -354,9 +354,9 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			// Set Original? / Set All? / Clear All?
 			else if (Param1 == SA_BUTTON_ORIGINAL)
 			{
-				FAR_FIND_DATA FindData;
+				api::FAR_FIND_DATA FindData;
 
-				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
+				if (api::GetFindDataEx(DlgParam->strSelName, FindData))
 				{
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_LASTWRITE,&FindData.ftLastWriteTime);
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CREATION,&FindData.ftCreationTime);
@@ -581,9 +581,9 @@ void ShellSetFileAttributesMsg(const string& Name)
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
 {
 	bool Result=false;
-	FAR_FIND_DATA ffd;
+	api::FAR_FIND_DATA ffd;
 
-	if (apiGetFindDataEx(Name, ffd))
+	if (api::GetFindDataEx(Name, ffd))
 	{
 		LPFILETIME Times[]={&ffd.ftLastWriteTime, &ffd.ftCreationTime, &ffd.ftLastAccessTime, &ffd.ftChangeTime};
 		LPFILETIME OriginalFileTime=Times[Type];
@@ -737,10 +737,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	if (!DlgParam.Plugin)
 	{
 		string strRootPathName;
-		apiGetCurrentDirectory(strRootPathName);
+		api::GetCurrentDirectory(strRootPathName);
 		GetPathRoot(strRootPathName,strRootPathName);
 
-		if (apiGetVolumeInformation(strRootPathName,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
+		if (api::GetVolumeInformation(strRootPathName,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
 		{
 			if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 			{
@@ -762,7 +762,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	{
 		DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 		string strSelName;
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 		if(SrcPanel)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
@@ -771,7 +771,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		else
 		{
 			strSelName=*Object;
-			apiGetFindDataEx(strSelName, FindData);
+			api::GetFindDataEx(strSelName, FindData);
 			FileAttr=FindData.dwFileAttributes;
 		}
 
@@ -832,7 +832,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				if (!DlgParam.Plugin)
 				{
-					DWORD AddFileAttr=apiGetFileAttributes(strSelName);
+					DWORD AddFileAttr=api::GetFileAttributes(strSelName);
 					if (AddFileAttr != INVALID_FILE_ATTRIBUTES)
 						FileAttr|=AddFileAttr;
 				}
@@ -851,7 +851,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				if (Global->Opt->SetAttrFolderRules)
 				{
-					if (DlgParam.Plugin || apiGetFindDataEx(strSelName, FindData))
+					if (DlgParam.Plugin || api::GetFindDataEx(strSelName, FindData))
 					{
 						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2,TRUE);
 						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2,TRUE);
@@ -986,7 +986,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				string strRoot;
 				GetPathRoot(strSelName,strRoot);
 
-				if (apiGetVolumeInformation(strRoot,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
+				if (api::GetVolumeInformation(strRoot,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{
@@ -1014,7 +1014,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
 					NameList.Items=new FarListItem[NameList.ItemsNumber]();
 					Links.resize(NameList.ItemsNumber);
-					HANDLE hFind=apiFindFirstFileName(strSelName,0, Links[0]);
+					HANDLE hFind=api::FindFirstFileName(strSelName,0, Links[0]);
 
 					if (hFind!=INVALID_HANDLE_VALUE)
 					{
@@ -1024,7 +1024,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						Links[0] = strRoot + Links[0];
 						NameList.Items[0].Text = Links[0].data();
 
-						for (size_t i = 1; i < Links.size() && apiFindNextFileName(hFind, Links[i]); ++i)
+						for (size_t i = 1; i < Links.size() && api::FindNextFileName(hFind, Links[i]); ++i)
 						{
 							Links[i] = strRoot + Links[i];
 							NameList.Items[i].Text = Links[i].data();
@@ -1069,7 +1069,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ftChangeTime},
 			};
 
-			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
+			if (DlgParam.Plugin || (!DlgParam.Plugin&&api::GetFindDataEx(strSelName, FindData)))
 			{
 				std::for_each(CONST_RANGE(Dates, i)
 				{
@@ -1744,7 +1744,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
-				apiGetCurrentDirectory(strCurDir);
+				api::GetCurrentDirectory(strCurDir);
 				seInfo.lpDirectory=strCurDir.data();
 				ShellExecuteExW(&seInfo);
 			}

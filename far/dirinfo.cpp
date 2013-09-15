@@ -107,7 +107,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	TaskBar TB(MsgWaitTime!=-1);
 	wakeful W;
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
 	SetCursorType(FALSE,0);
 	GetPathRoot(strFullDirName,strDriveRoot);
@@ -143,7 +143,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	string FileSystemName;
 	string Root;
 	GetPathRoot(DirName, Root);
-	if(apiGetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
+	if(api::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
 		if(Global->WinVer() < _WIN32_WINNT_WIN7)
 		{

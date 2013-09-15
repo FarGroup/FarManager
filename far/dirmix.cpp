@@ -63,7 +63,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	{
 		Drive[1] = Upper(NewDir[0]);
 
-		if (!apiGetEnvironmentVariable(Drive, strCurDir))
+		if (!api::GetEnvironmentVariable(Drive, strCurDir))
 		{
 			strCurDir = NewDir;
 			AddEndSlash(strCurDir);
@@ -73,7 +73,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		//*CurDir=toupper(*CurDir); бред!
 		if (ChangeDir)
 		{
-			rc=apiSetCurrentDirectory(strCurDir);
+			rc=api::SetCurrentDirectory(strCurDir);
 		}
 	}
 	else
@@ -83,22 +83,22 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 			strCurDir = NewDir;
 
 			if (strCurDir == L"\\")
-				apiGetCurrentDirectory(strCurDir); // здесь берем корень
+				api::GetCurrentDirectory(strCurDir); // здесь берем корень
 
 			ReplaceSlashToBSlash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
-			rc=apiSetCurrentDirectory(strCurDir);
+			rc=api::SetCurrentDirectory(strCurDir);
 		}
 	}
 
 	if (rc || !ChangeDir)
 	{
-		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
+		if ((!ChangeDir || api::GetCurrentDirectory(strCurDir)) &&
 		        strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = Upper(strCurDir[0]);
-			SetEnvironmentVariable(Drive.data(), strCurDir.data());
+			api::SetEnvironmentVariable(Drive, strCurDir);
 		}
 	}
 
@@ -125,8 +125,8 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	FAR_FIND_DATA fdata;
-	FindFile Find(strFindPath);
+	api::FAR_FIND_DATA fdata;
+	api::FindFile Find(strFindPath);
 
 	bool bFind = false;
 	if(Find.Get(fdata))
@@ -150,7 +150,7 @@ int TestFolder(const string& Path)
 		if (strFindPath == Path)
 		{
 			// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-			if (apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+			if (api::GetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
 			{
 				if (LastError == ERROR_ACCESS_DENIED)
 					return TSTFLD_NOTACCESS;
@@ -170,7 +170,7 @@ int TestFolder(const string& Path)
 		{
 			DisableElevation de;
 
-			DWORD Attr=apiGetFileAttributes(strFindPath);
+			DWORD Attr=api::GetFileAttributes(strFindPath);
 
 			if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 				return TSTFLD_ERROR;
@@ -197,7 +197,7 @@ int TestFolder(const string& Path)
 */
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-	if (pTestPath && !pTestPath->empty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
+	if (pTestPath && !pTestPath->empty() && api::GetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		int FoundPath=0;
 		string strTarget = *pTestPath;
@@ -225,7 +225,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 					if (!CutToSlash(strTestPathTemp,true))
 						break;
 
-					if (apiGetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
+					if (api::GetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
 					{
 						int ChkFld=TestFolder(strTestPathTemp);
 
@@ -269,12 +269,12 @@ void CreatePath(const string &Path, bool Simple)
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
 			Part = Path.substr(0, i);
-			if (apiGetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
+			if (api::GetFileAttributes(Part) == INVALID_FILE_ATTRIBUTES)
 			{
 				if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(Part)) //BUGBUG
 					Upper(Part);
 
-				if(apiCreateDirectory(Part, nullptr) && !Simple)
+				if(api::CreateDirectory(Part, nullptr) && !Simple)
 					TreeList::AddTreeName(Part);
 			}
 		}

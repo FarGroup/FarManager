@@ -246,7 +246,7 @@ int Help::ReadHelp(const string& Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	File HelpFile;
+	api::File HelpFile;
 
 	if (!OpenLangFile(HelpFile, strPath,(Mask.empty()?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
 	{
@@ -316,8 +316,7 @@ int Help::ReadHelp(const string& Mask)
 	int MI=0;
 	string strMacroArea;
 
-	GetFileString GetStr(HelpFile);
-	int nStrLength;
+	GetFileString GetStr(HelpFile, nCodePage);
 	size_t SizeKeyName=20;
 
 	for (;;)
@@ -330,7 +329,8 @@ int Help::ReadHelp(const string& Mask)
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
 			wchar_t *ReadStr;
-			if (GetStr.GetString(&ReadStr, nCodePage, nStrLength) <= 0)
+			size_t nStrLength;
+			if (!GetStr.GetString(&ReadStr, nStrLength))
 			{
 				strReadStr=ReadStr;
 				if (StringLen(strSplitLine)<MaxLength)
@@ -1809,7 +1809,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(File& HelpFile,uintptr_t nCodePage)
+void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 {
 	StrCount=0;
 	FixCount=1;
@@ -1823,8 +1823,7 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 	AddTitle(strTitleLine);
 
 	bool TopicFound=false;
-	GetFileString GetStr(HelpFile);
-	int nStrLength;
+	GetFileString GetStr(HelpFile, nCodePage);
 	string strCurTopic, strEntryName, strReadStr;
 
 	string strSlash(strLastSearchStr);
@@ -1851,13 +1850,11 @@ void Help::Search(File& HelpFile,uintptr_t nCodePage)
 
 	for (;;)
 	{
-		wchar_t *ReadStr;
-		if (GetStr.GetString(&ReadStr, nCodePage, nStrLength) <= 0)
+		if (!GetStr.GetString(strReadStr))
 		{
 			break;
 		}
 
-		strReadStr=ReadStr;
 		RemoveTrailingSpaces(strReadStr);
 
 		if (strReadStr[0]==L'@' && !(strReadStr[1]==L'+' || strReadStr[1]==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
@@ -1938,7 +1935,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = i->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				File HelpFile;
+				api::File HelpFile;
 				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
 				{
 					string strEntryName, strSecondParam;
@@ -2090,14 +2087,14 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 				if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType.data(),0,KEY_READ,&hKey) == ERROR_SUCCESS)
 				{
-					Success = RegQueryStringValue(hKey, L"", strAction, L"") == ERROR_SUCCESS;
+					Success = api::RegQueryStringValue(hKey, L"", strAction, L"") == ERROR_SUCCESS;
 					RegCloseKey(hKey);
 				}
 			}
 
 			if (Success)
 			{
-				apiExpandEnvironmentStrings(strAction, strAction);
+				strAction = api::ExpandEnvironmentStrings(strAction);
 
 				string FilteredURLPath(URLPath);
 				// óäàëèì äâà èäóùèõ ïîäðÿä ~~
@@ -2128,7 +2125,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					ÒÎÃÎ ÈËÈ ÈÍÎÃÎ ÀÊÒÈÂÀÒÎÐÀ - ÈÕ ÌÎÆÅÒ ÁÛÒÜ ÍÅÑÊÎËÜÊÎ!!!!!
 					*/
 					string strCurDir;
-					apiGetCurrentDirectory(strCurDir);
+					api::GetCurrentDirectory(strCurDir);
 
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{

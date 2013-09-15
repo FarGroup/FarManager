@@ -374,8 +374,8 @@ FileEditor::~FileEditor()
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
-				apiSetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
-				apiDeleteFile(strFullFileName); //BUGBUG
+				api::SetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
+				api::DeleteFile(strFullFileName); //BUGBUG
 			}
 		}
 	}
@@ -451,7 +451,7 @@ void FileEditor::Init(
 	SetPluginData(PluginData);
 	m_editor->SetHostFileEditor(this);
 	SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
-	apiGetCurrentDirectory(strStartDir);
+	api::GetCurrentDirectory(strStartDir);
 
 	if (!SetFileName(Name))
 	{
@@ -540,7 +540,7 @@ void FileEditor::Init(
 	/* $ 15.12.2000 SVS
 	  - Shift-F4, новый файл. Выдает сообщение :-(
 	*/
-	DWORD FAttr=apiGetFileAttributes(Name);
+	DWORD FAttr=api::GetFileAttributes(Name);
 
 	/* $ 05.06.2001 IS
 	   + посылаем подальше всех, кто пытается отредактировать каталог
@@ -844,7 +844,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				// возможно здесь она и не нужна!
 				// хотя, раз уж были изменени, то
 				if (m_editor->IsFileChanged() && // в текущем сеансе были изменения?
-				        apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
+				        api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
 				{
 					const wchar_t* const Items[] = {MSG(MEditSavedChangedNonFile),MSG(MEditSavedChangedNonFile2),MSG(MHYes),MSG(MHNo)};
 					switch (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSaveF6DeletedId))
@@ -862,7 +862,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					}
 				}
 
-				if (!FirstSave || m_editor->IsFileChanged() || apiGetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
+				if (!FirstSave || m_editor->IsFileChanged() || api::GetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
 				{
 					__int64 FilePos=m_editor->GetCurPos(true, m_bAddSignature); // TODO: GetCurPos should return __int64
 
@@ -996,7 +996,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				BOOL Done=FALSE;
 				string strOldCurDir;
-				apiGetCurrentDirectory(strOldCurDir);
+				api::GetCurrentDirectory(strOldCurDir);
 				while (!Done) // бьемся до упора
 				{
 					size_t pos;
@@ -1013,7 +1013,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						if(IsRootPath(Path))
 						{
 							// а дальше? каталог существует?
-							if ((FNAttr=apiGetFileAttributes(Path)) == INVALID_FILE_ATTRIBUTES ||
+							if ((FNAttr=api::GetFileAttributes(Path)) == INVALID_FILE_ATTRIBUTES ||
 							        !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
 							        //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
 							   )
@@ -1022,7 +1022,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					}
 
 					if (Key == KEY_F2 &&
-					        (FNAttr=apiGetFileAttributes(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
+					        (FNAttr=api::GetFileAttributes(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
 					        !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
 					   )
 					{
@@ -1042,7 +1042,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return FALSE;
 
-						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
+						strSaveAsName = api::ExpandEnvironmentStrings(strSaveAsName);
 						Unquote(strSaveAsName);
 						NameChanged=StrCmpI(strSaveAsName.data(), (Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName).data());
 
@@ -1153,7 +1153,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				string strFullFileNameTemp = strFullFileName;
 
-				if (apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а сам файл то еще на месте?
+				if (api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а сам файл то еще на месте?
 				{
 					if (!CheckShortcutFolder(&strFullFileNameTemp,FALSE))
 						return FALSE;
@@ -1214,7 +1214,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (Key != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					bool FilePlaced=apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
+					bool FilePlaced=api::GetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
 
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
 					        FilePlaced) // а сам файл то еще на месте?
@@ -1289,7 +1289,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					{
 						if (codepage == CP_DEFAULT)
 						{
-							File edit_file;
+							api::File edit_file;
 							bool detect = false, sig_found = false;
 
 							if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
@@ -1363,7 +1363,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
 	string strOldCurDir;
-	apiGetCurrentDirectory(strOldCurDir);
+	api::GetCurrentDirectory(strOldCurDir);
 
 	for (;;)
 	{
@@ -1384,7 +1384,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 			  + Обновить панели, если писали в текущий каталог */
 			if (NeedQuestion)
 			{
-				if (apiGetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
+				if (api::GetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
 				{
 					UpdateFileList();
 				}
@@ -1429,7 +1429,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	int LastLineCR = 0;
 	EditorPosCache pc;
 	UserBreak = 0;
-	File EditFile;
+	api::File EditFile;
 	if(!EditFile.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		SysErrorCode=GetLastError();
@@ -1496,7 +1496,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	m_editor->FreeAllocatedData(false);
 	bool bCached = LoadFromCache(pc);
 
-	DWORD FileAttributes=apiGetFileAttributes(Name);
+	DWORD FileAttributes=api::GetFileAttributes(Name);
 	if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
 	{
 		m_editor->Flags.Swap(FEDITOR_LOCKMODE);
@@ -1506,10 +1506,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	if (bCached && pc.CodePage && !Global->CodePages->IsCodePageSupported(pc.CodePage))
 		pc.CodePage = 0;
 
-	GetFileString GetStr(EditFile);
 	*m_editor->GlobalEOL=0; //BUGBUG???
-	wchar_t *Str;
-	int StrLength,GetCode;
 	uintptr_t dwCP=0;
 	bool Detect=false;
 
@@ -1561,14 +1558,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	EditFile.GetSize(FileSize);
 	DWORD StartTime=GetTickCount();
 
-	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength)))
-	{
-		if (GetCode == -1)
-		{
-			EditFile.Close();
-			return FALSE;
-		}
+	GetFileString GetStr(EditFile, m_codepage);
 
+	wchar_t *Str;
+	size_t StrLength;
+	while (GetStr.GetString(&Str, StrLength))
+	{
 		LastLineCR=0;
 		DWORD CurTime=GetTickCount();
 
@@ -1605,7 +1600,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		const wchar_t *CurEOL;
 
-		int Offset = StrLength > 3 ? StrLength - 3 : 0;
+		size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
 
 		if ((CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
 			(CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)))
@@ -1615,7 +1610,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			LastLineCR=1;
 		}
 
-		if (!m_editor->InsertString(Str, StrLength))
+		if (!m_editor->InsertString(Str, static_cast<int>(StrLength)))
 		{
 			EditFile.Close();
 			return FALSE;
@@ -1635,7 +1630,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	//if ( bCached )
 	m_editor->SetCacheParams(pc, m_bAddSignature);
 	SysErrorCode=GetLastError();
-	apiGetFindDataEx(Name, FileInfo);
+	api::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return TRUE;
 }
@@ -1689,14 +1684,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	int NewFile=TRUE;
 	FileAttributesModified=false;
 
-	if ((FileAttributes=apiGetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
+	if ((FileAttributes=api::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
 	{
 		// Проверка времени модификации...
 		if (!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
-			FAR_FIND_DATA FInfo;
+			api::FAR_FIND_DATA FInfo;
 
-			if (apiGetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
+			if (api::GetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
 			{
 				__int64 RetCompare=FileTimeDifference(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime);
 
@@ -1735,13 +1730,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
-			apiSetFileAttributes(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
+			api::SetFileAttributes(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
 			FileAttributesModified=true;
 		}
 
 		if (FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
 		{
-			apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+			api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 			FileAttributesModified=true;
 		}
 	}
@@ -1756,12 +1751,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			CutToSlash(strCreatedPath);
 			DWORD FAttr=0;
 
-			if (apiGetFileAttributes(strCreatedPath) == INVALID_FILE_ATTRIBUTES)
+			if (api::GetFileAttributes(strCreatedPath) == INVALID_FILE_ATTRIBUTES)
 			{
 				// и попробуем создать.
 				// Раз уж
 				CreatePath(strCreatedPath);
-				FAttr=apiGetFileAttributes(strCreatedPath);
+				FAttr=api::GetFileAttributes(strCreatedPath);
 			}
 
 			if (FAttr == INVALID_FILE_ATTRIBUTES)
@@ -1802,7 +1797,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			break;
 	}
 
-	if (apiGetFileAttributes(Name) == INVALID_FILE_ATTRIBUTES)
+	if (api::GetFileAttributes(Name) == INVALID_FILE_ATTRIBUTES)
 		Flags.Set(FFILEEDIT_NEW);
 
 	{
@@ -1875,7 +1870,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL, codepage};
 		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor->EditorID);
-		File EditFile;
+		api::File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile.Open(Name, Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
@@ -1927,7 +1922,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
 			{
 				EditFile.Close();
-				apiDeleteFile(Name);
+				api::DeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 			}
@@ -2034,7 +2029,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (bError)
 			{
 				EditFile.Close();
-				apiDeleteFile(Name);
+				api::DeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 			}
@@ -2049,7 +2044,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			SysErrorCode=GetLastError();
 			EditFile.Close();
-			apiDeleteFile(Name);
+			api::DeleteFile(Name);
 			RetCode=SAVEFILE_ERROR;
 		}
 	}
@@ -2058,10 +2053,10 @@ end:
 
 	if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
 	{
-		apiSetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
+		api::SetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	apiGetFindDataEx(Name, FileInfo);
+	api::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->Flags.Check(FEDITOR_MODIFIED) || NewFile)
@@ -2207,7 +2202,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 		{
 			string strCurPath;
 
-			if (apiGetCurrentDirectory(strCurPath))
+			if (api::GetCurrentDirectory(strCurPath))
 			{
 				DeleteEndSlash(strCurPath);
 
@@ -2374,7 +2369,7 @@ void FileEditor::ShowStatus()
 */
 DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
-	FileAttributes=apiGetFileAttributes(Name);
+	FileAttributes=api::GetFileAttributes(Name);
 	int ind=0;
 
 	if (FileAttributes!=INVALID_FILE_ATTRIBUTES)
@@ -2816,7 +2811,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 bool FileEditor::AskOverwrite(const string& FileName)
 {
 	bool result=true;
-	DWORD FNAttr=apiGetFileAttributes(FileName);
+	DWORD FNAttr=api::GetFileAttributes(FileName);
 
 	if (FNAttr!=INVALID_FILE_ATTRIBUTES)
 	{

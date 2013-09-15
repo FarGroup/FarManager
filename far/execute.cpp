@@ -77,7 +77,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 {
 	bool Result=false;
 	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
-	File ModuleFile;
+	api::File ModuleFile;
 	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		IMAGE_DOS_HEADER DOSHeader;
@@ -253,8 +253,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
-		string strExcludeCmds;
-		apiExpandEnvironmentStrings(Global->Opt->Exec.strExcludeCmds, strExcludeCmds);
+		string strExcludeCmds = api::ExpandEnvironmentStrings(Global->Opt->Exec.strExcludeCmds);
 		auto ExcludeCmdsList(StringToList(strExcludeCmds, STLF_UNIQUE));
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
@@ -269,7 +268,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
+			api::GetEnvironmentVariable(L"PATHEXT",strPathExt);
 			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
 
 			FOR_CONST_RANGE(PathExtList, i) // первый проход - в текущем каталоге
@@ -281,7 +280,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					strTmpName += *i;
 				}
 
-				DWORD Attr=apiGetFileAttributes(strTmpName);
+				DWORD Attr=api::GetFileAttributes(strTmpName);
 
 				if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 				{
@@ -300,7 +299,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			{
 				string strPathEnv;
 
-				if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
+				if (api::GetEnvironmentVariable(L"PATH", strPathEnv))
 				{
 					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
 
@@ -310,9 +309,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 						{
 							string Dest;
 
-							if (apiSearchPath(Path->data(), strFullName, Ext->data(), Dest))
+							if (api::SearchPath(Path->data(), strFullName, Ext->data(), Dest))
 							{
-								DWORD Attr=apiGetFileAttributes(Dest);
+								DWORD Attr=api::GetFileAttributes(Dest);
 
 								if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 								{
@@ -333,9 +332,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					{
 						string Dest;
 
-						if (apiSearchPath(nullptr, strFullName, Ext->data(), Dest))
+						if (api::SearchPath(nullptr, strFullName, Ext->data(), Dest))
 						{
-							DWORD Attr=apiGetFileAttributes(Dest);
+							DWORD Attr=api::GetFileAttributes(Dest);
 
 							if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 							{
@@ -389,12 +388,12 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 						HKEY hKey;
 						if (RegOpenKeyEx(RootFindKey[i],strFullName.data(), 0, samDesired, &hKey)==ERROR_SUCCESS)
 						{
-							int RegResult=RegQueryStringValue(hKey, L"", strFullName, L"");
+							int RegResult=api::RegQueryStringValue(hKey, L"", strFullName, L"");
 							RegCloseKey(hKey);
 
 							if (RegResult==ERROR_SUCCESS)
 							{
-								apiExpandEnvironmentStrings(strFullName,strFullName);
+								strFullName = api::ExpandEnvironmentStrings(strFullName);
 								Unquote(strFullName);
 								Result=true;
 								break;
@@ -416,12 +415,12 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 								if (RegOpenKeyEx(i, strFullName.data(), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 								{
-									int RegResult=RegQueryStringValue(hKey, L"", strFullName, L"");
+									int RegResult=api::RegQueryStringValue(hKey, L"", strFullName, L"");
 									RegCloseKey(hKey);
 
 									if (RegResult==ERROR_SUCCESS)
 									{
-										apiExpandEnvironmentStrings(strFullName,strFullName);
+										strFullName = api::ExpandEnvironmentStrings(strFullName);
 										Unquote(strFullName);
 										return true;
 									}
@@ -451,7 +450,7 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 {
 	int PipeFound = 0, Escaped = 0;
 	bool quoted = false;
-	apiExpandEnvironmentStrings(CmdStr, strNewCmdStr);
+	strNewCmdStr = api::ExpandEnvironmentStrings(CmdStr);
 	RemoveExternalSpaces(strNewCmdStr);
 	const wchar_t * const NewCmdStr = strNewCmdStr.data();
 	const wchar_t *CmdPtr = NewCmdStr;
@@ -566,7 +565,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		return nullptr;
 
 	static string strAction;
-	int RetQuery = RegQueryStringValue(hKey, L"", strAction, L"");
+	int RetQuery = api::RegQueryStringValue(hKey, L"", strAction, L"");
 	strValue += L"\\";
 
 	if (RetQuery == ERROR_SUCCESS)
@@ -635,7 +634,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		// ... а теперь все остальное, если "open" нету
 		while (RetEnum == ERROR_SUCCESS)
 		{
-			RetEnum=apiRegEnumKeyEx(hKey, dwIndex++,strAction);
+			RetEnum=api::RegEnumKeyEx(hKey, dwIndex++,strAction);
 
 			if (RetEnum == ERROR_SUCCESS)
 			{
@@ -664,12 +663,12 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		// а теперь проверим ГУЕвость запускаемой проги
 		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)==ERROR_SUCCESS)
 		{
-			RetQuery=RegQueryStringValue(hKey, L"", strNewValue, L"");
+			RetQuery=api::RegQueryStringValue(hKey, L"", strNewValue, L"");
 			RegCloseKey(hKey);
 
 			if (RetQuery == ERROR_SUCCESS && !strNewValue.empty())
 			{
-				apiExpandEnvironmentStrings(strNewValue,strNewValue);
+				strNewValue = api::ExpandEnvironmentStrings(strNewValue);
 
 				// Выделяем имя модуля
 				if (strNewValue.front() == L'\"')
@@ -746,7 +745,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
 			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey.data(), &hUserKey) == ERROR_SUCCESS)
 			{
-				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
+				if ((api::RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 				{
 					strType = strFoundValue;
 				}
@@ -756,7 +755,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
 		if (strType.empty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext.data(), &hCRKey) == ERROR_SUCCESS))
 		{
-			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
+			if ((api::RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 			{
 				strType = strFoundValue;
 			}
@@ -798,7 +797,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	int PipeOrEscaped = PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
 
-	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
+	DWORD dwAttr = api::GetFileAttributes(strNewCmdStr);
 
 	if(RunAs)
 	{
@@ -825,7 +824,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	string strComspec;
-	apiGetEnvironmentVariable(L"COMSPEC", strComspec);
+	api::GetEnvironmentVariable(L"COMSPEC", strComspec);
 	if (strComspec.empty() && !DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
@@ -906,7 +905,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	string strCurDir;
-	apiGetCurrentDirectory(strCurDir);
+	api::GetCurrentDirectory(strCurDir);
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
@@ -976,8 +975,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 	else
 	{
-		string strNotQuotedShell;
-		apiExpandEnvironmentStrings(Global->Opt->Exec.strNotQuotedShell,strNotQuotedShell);
+		string strNotQuotedShell = api::ExpandEnvironmentStrings(Global->Opt->Exec.strNotQuotedShell);
 		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
 		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
 		QuoteSpace(strNewCmdStr);
@@ -1018,7 +1016,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	wchar_t CurDir[MAX_PATH];
-	bool NeedFixCurDir = (apiGetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+	bool NeedFixCurDir = (api::GetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
 	if (NeedFixCurDir)
 	{
 		GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir);
@@ -1353,50 +1351,48 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				Unquote(strCmd);
 
 //_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
-				if (apiExpandEnvironmentStrings(strCmd,strExpandedStr))
+				strExpandedStr = api::ExpandEnvironmentStrings(strCmd);
+				string strFullPath;
+
+				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
 				{
-					string strFullPath;
-
-					if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
-					{
-						if (Global->CtrlObject)
-							Global->CtrlObject->CmdLine->GetCurDir(strFullPath);
-						else
-							apiGetCurrentDirectory(strFullPath);
-
-						AddEndSlash(strFullPath);
-					}
-
-					strFullPath += strExpandedStr;
-					DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-
-					size_t DirOffset = 0;
-					ParsePath(strExpandedStr, &DirOffset);
-					if (wcspbrk(strExpandedStr.data() + DirOffset, L"*?")) // это маска?
-					{
-						FAR_FIND_DATA wfd;
-
-						if (apiGetFindDataEx(strFullPath, wfd))
-							FileAttr=wfd.dwFileAttributes;
-					}
+					if (Global->CtrlObject)
+						Global->CtrlObject->CmdLine->GetCurDir(strFullPath);
 					else
-					{
-						ConvertNameToFull(strFullPath, strFullPath);
-						FileAttr=apiGetFileAttributes(strFullPath);
-					}
+						api::GetCurrentDirectory(strFullPath);
+
+					AddEndSlash(strFullPath);
+				}
+
+				strFullPath += strExpandedStr;
+				DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+
+				size_t DirOffset = 0;
+				ParsePath(strExpandedStr, &DirOffset);
+				if (wcspbrk(strExpandedStr.data() + DirOffset, L"*?")) // это маска?
+				{
+					api::FAR_FIND_DATA wfd;
+
+					if (api::GetFindDataEx(strFullPath, wfd))
+						FileAttr=wfd.dwFileAttributes;
+				}
+				else
+				{
+					ConvertNameToFull(strFullPath, strFullPath);
+					FileAttr=api::GetFileAttributes(strFullPath);
+				}
 
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
-					if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
-					{
-						while (*PtrCmd && IsSpace(*PtrCmd))
-							++PtrCmd;
+				if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
+				{
+					while (*PtrCmd && IsSpace(*PtrCmd))
+						++PtrCmd;
 
-						Exist++;
-					}
-					else
-					{
-						return L"";
-					}
+					Exist++;
+				}
+				else
+				{
+					return L"";
 				}
 			}
 		}
@@ -1425,7 +1421,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				{
 					strCmd.assign(CmdStart,PtrCmd-CmdStart);
 
-					DWORD ERet=apiGetEnvironmentVariable(strCmd,strExpandedStr);
+					DWORD ERet=api::GetEnvironmentVariable(strCmd,strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
@@ -1452,8 +1448,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 */
 bool IsBatchExtType(const string& ExtPtr)
 {
-	string strExecuteBatchType;
-	apiExpandEnvironmentStrings(Global->Opt->Exec.strExecuteBatchType, strExecuteBatchType);
+	string strExecuteBatchType = api::ExpandEnvironmentStrings(Global->Opt->Exec.strExecuteBatchType);
 	if (strExecuteBatchType.empty())
 		strExecuteBatchType = L".BAT;.CMD";
 	auto BatchExtList(StringToList(strExecuteBatchType, STLF_UNIQUE));
@@ -1474,7 +1469,7 @@ bool ProcessOSAliases(string &strStr)
 	if (!ret)
 	{
 		string strComspec;
-		if (apiGetEnvironmentVariable(L"COMSPEC",strComspec))
+		if (api::GetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
 			ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);

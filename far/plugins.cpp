@@ -158,7 +158,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-Plugin* PluginManager::LoadPlugin(const string& FileName, const FAR_FIND_DATA &FindData, bool LoadToMem)
+Plugin* PluginManager::LoadPlugin(const string& FileName, const api::FAR_FIND_DATA &FindData, bool LoadToMem)
 {
 	Plugin *pPlugin = nullptr;
 
@@ -212,9 +212,9 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 	}
 	else
 	{
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 
-		if (apiGetFindDataEx(lpwszModuleName, FindData))
+		if (api::GetFindDataEx(lpwszModuleName, FindData))
 		{
 			pPlugin = LoadPlugin(lpwszModuleName, FindData, LoadToMem);
 			if (!pPlugin)
@@ -314,7 +314,7 @@ void PluginManager::LoadModels()
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
 
 	string filename;
@@ -347,7 +347,7 @@ void PluginManager::LoadPlugins()
 		ScanTree ScTree(FALSE,TRUE,Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
 		string strFullName;
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 
 		// сначала подготовим список
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
@@ -367,7 +367,7 @@ void PluginManager::LoadPlugins()
 		std::for_each(CONST_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
-			apiExpandEnvironmentStrings(i, strFullName);
+			strFullName = api::ExpandEnvironmentStrings(i);
 			Unquote(strFullName); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
@@ -410,9 +410,9 @@ void PluginManager::LoadPluginsFromCache()
 	{
 		ReplaceSlashToBSlash(strModuleName);
 
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 
-		if (apiGetFindDataEx(strModuleName, FindData))
+		if (api::GetFindDataEx(strModuleName, FindData))
 			LoadPlugin(strModuleName, FindData, false);
 	}
 }
@@ -450,7 +450,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	Plugin *pPlugin = nullptr;
 
-	File file;
+	api::File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
 	FOR_CONST_RANGE(SortedPlugins, i)
@@ -992,8 +992,8 @@ int PluginManager::GetFile(
 	strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	FAR_FIND_DATA fdata;
-	FindFile Find(strFindPath);
+	api::FAR_FIND_DATA fdata;
+	api::FindFile Find(strFindPath);
 	bool Done = true;
 	while(Find.Get(fdata))
 	{
@@ -1012,8 +1012,8 @@ int PluginManager::GetFile(
 
 		if (GetCode!=1)
 		{
-			apiSetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
-			apiDeleteFile(strResultName); //BUGBUG
+			api::SetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
+			api::DeleteFile(strResultName); //BUGBUG
 		}
 		else
 			Found=TRUE;
@@ -1146,7 +1146,7 @@ int PluginManager::PutFiles(
 	Global->KeepUserScreen=FALSE;
 
 	static string strCurrentDirectory;
-	apiGetCurrentDirectory(strCurrentDirectory);
+	api::GetCurrentDirectory(strCurrentDirectory);
 	PutFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = ph->hPlugin;
 	Info.PanelItem = PanelItem;
@@ -1179,7 +1179,7 @@ void PluginManager::GetOpenPanelInfo(
 	ph->pPlugin->GetOpenPanelInfo(Info);
 
 	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
-		apiSetCurrentDirectory(Info->CurDir, false);
+		api::SetCurrentDirectory(Info->CurDir, false);
 }
 
 

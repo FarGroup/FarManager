@@ -51,8 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 
 #define PRINTER_INFO_LEVEL 4
-#define GENERATE_PRINTER_INFO(prefix, value, suffix) prefix##value##suffix
-#define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level, W)
+#define GENERATE_PRINTER_INFO(prefix, value) prefix##value##W
+#define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level)
 #define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int PrinterNumber)
@@ -213,7 +213,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				if (FarMkTempEx(strTempDir))
 				{
-					apiCreateDirectory(strTempDir,nullptr);
+					api::CreateDirectory(strTempDir,nullptr);
 					auto ListItem = SrcPanel->GetLastSelectedItem();
 					if (ListItem)
 					{
@@ -223,7 +223,7 @@ void PrintFiles(FileList* SrcPanel)
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;
 						else
-							apiRemoveDirectory(strTempDir);
+							api::RemoveDirectory(strTempDir);
 
 						FreePluginPanelItem(PanelItem);
 					}
@@ -232,7 +232,7 @@ void PrintFiles(FileList* SrcPanel)
 			else
 				FileName = strSelName;
 
-			File SrcFile;
+			api::File SrcFile;
 			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};

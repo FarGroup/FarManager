@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct PSEUDO_HANDLE
 {
-	File Object;
+	api::File Object;
 	PVOID BufferBase;
 	PVOID Buffer2;
 	ULONG NextOffset;
@@ -54,7 +54,7 @@ struct PSEUDO_HANDLE
 	bool ReadDone;
 };
 
-HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
+static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& FindData)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
 	if(!Name.empty() && !IsSlash(Name.back()))
@@ -175,7 +175,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 	return Result;
 }
 
-bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
+static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
@@ -256,7 +256,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA& FindData)
 	return Result;
 }
 
-bool FindCloseInternal(HANDLE Find)
+static bool FindCloseInternal(HANDLE Find)
 {
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
 	xf_free(Handle->Buffer2);
@@ -266,7 +266,7 @@ bool FindCloseInternal(HANDLE Find)
 }
 
 //-------------------------------------------------------------------------
-FindFile::FindFile(const string& Object, bool ScanSymLink):
+api::FindFile::FindFile(const string& Object, bool ScanSymLink):
 	Handle(INVALID_HANDLE_VALUE),
 	empty(false)
 {
@@ -309,7 +309,7 @@ FindFile::FindFile(const string& Object, bool ScanSymLink):
 	empty = Handle == INVALID_HANDLE_VALUE;
 }
 
-FindFile::~FindFile()
+api::FindFile::~FindFile()
 {
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
@@ -317,7 +317,7 @@ FindFile::~FindFile()
 	}
 }
 
-bool FindFile::Get(FAR_FIND_DATA& FindData)
+bool api::FindFile::Get(FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	if (!empty)
@@ -344,27 +344,27 @@ bool FindFile::Get(FAR_FIND_DATA& FindData)
 
 
 //-------------------------------------------------------------------------
-File::File():
+api::File::File():
 	Handle(INVALID_HANDLE_VALUE),
 	Pointer(0),
 	NeedSyncPointer(false)
 {
 }
 
-File::~File()
+api::File::~File()
 {
 	Close();
 }
 
-bool File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, File* TemplateFile, bool ForceElevation)
+bool api::File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, File* TemplateFile, bool ForceElevation)
 {
 	assert(Handle == INVALID_HANDLE_VALUE);
 	HANDLE TemplateFileHandle = TemplateFile? TemplateFile->Handle : nullptr;
-	Handle = apiCreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
+	Handle = api::CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
-inline void File::SyncPointer()
+inline void api::File::SyncPointer()
 {
 	if(NeedSyncPointer)
 	{
@@ -374,7 +374,7 @@ inline void File::SyncPointer()
 }
 
 
-bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped)
+bool api::File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
 	SyncPointer();
 	bool Result = ReadFile(Handle, Buffer, NumberOfBytesToRead, &NumberOfBytesRead, Overlapped) != FALSE;
@@ -385,7 +385,7 @@ bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRe
 	return Result;
 }
 
-bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+bool api::File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
 {
 	SyncPointer();
 	bool Result = WriteFile(Handle, Buffer, NumberOfBytesToWrite, &NumberOfBytesWritten, Overlapped) != FALSE;
@@ -396,7 +396,7 @@ bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfByte
 	return Result;
 }
 
-bool File::Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead)
+bool api::File::Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead)
 {
 	bool Result = false;
 	NumberOfBytesRead = 0;
@@ -413,7 +413,7 @@ bool File::Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead)
 	return Result;
 }
 
-bool File::Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten)
+bool api::File::Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten)
 {
 	bool Result = false;
 	NumberOfBytesWritten = 0;
@@ -431,7 +431,7 @@ bool File::Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten)
 }
 
 
-bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+bool api::File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
 	INT64 OldPointer = Pointer;
 	switch (MoveMethod)
@@ -461,50 +461,50 @@ bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMet
 	return true;
 }
 
-bool File::SetEnd()
+bool api::File::SetEnd()
 {
 	SyncPointer();
 	return SetEndOfFile(Handle) != FALSE;
 }
 
-bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool api::File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	return GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+bool api::File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	return SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool File::GetSize(UINT64& Size)
+bool api::File::GetSize(UINT64& Size)
 {
-	return apiGetFileSizeEx(Handle, Size);
+	return api::GetFileSizeEx(Handle, Size);
 }
 
-bool File::FlushBuffers()
+bool api::File::FlushBuffers()
 {
 	return FlushFileBuffers(Handle) != FALSE;
 }
 
-bool File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
+bool api::File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
 {
 	return GetFileInformationByHandle(Handle, &info) != FALSE;
 }
 
-bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+bool api::File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
-	return DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	return ::DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
-bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+bool api::File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
 	DWORD Result = Global->ifn->GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
 
-bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
+bool api::File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	PUNICODE_STRING pNameString = nullptr;
@@ -525,7 +525,7 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	return Result == STATUS_SUCCESS;
 }
 
-bool File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
+bool api::File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Result = Global->ifn->NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -537,12 +537,12 @@ bool File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFO
 	return Result == STATUS_SUCCESS;
 }
 
-bool File::Close()
+bool api::File::Close()
 {
 	bool Result=true;
 	if(Handle!=INVALID_HANDLE_VALUE)
 	{
-		Result = CloseHandle(Handle) != FALSE;
+		Result = ::CloseHandle(Handle) != FALSE;
 		Handle = INVALID_HANDLE_VALUE;
 	}
 	Pointer = 0;
@@ -550,7 +550,7 @@ bool File::Close()
 	return Result;
 }
 
-bool File::Eof()
+bool api::File::Eof()
 {
 	INT64 Ptr = GetPointer();
 	UINT64 Size=0;
@@ -558,7 +558,7 @@ bool File::Eof()
 	return static_cast<UINT64>(Ptr) >= Size;
 }
 //-------------------------------------------------------------------------
-FileWalker::FileWalker():
+api::FileWalker::FileWalker():
 	FileSize(0),
 	AllocSize(0),
 	ProcessedSize(0),
@@ -568,7 +568,7 @@ FileWalker::FileWalker():
 {
 }
 
-bool FileWalker::InitWalk(size_t BlockSize)
+bool api::FileWalker::InitWalk(size_t BlockSize)
 {
 	bool Result = false;
 	ChunkSize = static_cast<DWORD>(BlockSize);
@@ -619,7 +619,7 @@ bool FileWalker::InitWalk(size_t BlockSize)
 }
 
 
-bool FileWalker::Step()
+bool api::FileWalker::Step()
 {
 	bool Result = false;
 	if(Sparse)
@@ -647,32 +647,32 @@ bool FileWalker::Step()
 	return Result;
 }
 
-UINT64 FileWalker::GetChunkOffset() const
+UINT64 api::FileWalker::GetChunkOffset() const
 {
 	return CurrentChunk->Offset;
 }
 
-DWORD FileWalker::GetChunkSize() const
+DWORD api::FileWalker::GetChunkSize() const
 {
 	return CurrentChunk->Size;
 }
 
-int FileWalker::GetPercent() const
+int api::FileWalker::GetPercent() const
 {
 	return AllocSize? (ProcessedSize) * 100 / AllocSize : 0;
 }
 
 //-------------------------------------------------------------------------
 
-NTSTATUS GetLastNtStatus()
+NTSTATUS api::GetLastNtStatus()
 {
 	return Global->ifn->RtlGetLastNtStatusPresent()?Global->ifn->RtlGetLastNtStatus():STATUS_SUCCESS;
 }
 
-BOOL apiDeleteFile(const string& FileName)
+BOOL api::DeleteFile(const string& FileName)
 {
 	NTPath strNtName(FileName);
-	BOOL Result = DeleteFile(strNtName.data());
+	BOOL Result = ::DeleteFile(strNtName.data());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fDeleteFile(strNtName);
@@ -680,10 +680,10 @@ BOOL apiDeleteFile(const string& FileName)
 	return Result;
 }
 
-BOOL apiRemoveDirectory(const string& DirName)
+BOOL api::RemoveDirectory(const string& DirName)
 {
 	NTPath strNtName(DirName);
-	BOOL Result = RemoveDirectory(strNtName.data());
+	BOOL Result = ::RemoveDirectory(strNtName.data());
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
@@ -691,19 +691,19 @@ BOOL apiRemoveDirectory(const string& DirName)
 	return Result;
 }
 
-HANDLE apiCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
+HANDLE api::CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
 	NTPath strObject(Object);
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 
-	HANDLE Handle=CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+	HANDLE Handle=::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
-		DWORD Error=GetLastError();
+		DWORD Error=::GetLastError();
 		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-			Handle = CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+			Handle = ::CreateFile(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
@@ -713,14 +713,14 @@ HANDLE apiCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode,
 	{
 		if(ForceElevation && Handle!=INVALID_HANDLE_VALUE)
 		{
-			CloseHandle(Handle);
+			::CloseHandle(Handle);
 		}
 		Handle = Global->Elevation->fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	}
 	return Handle;
 }
 
-BOOL apiCopyFileEx(
+BOOL api::CopyFileEx(
     const string& ExistingFileName,
     const string& NewFileName,
     LPPROGRESS_ROUTINE lpProgressRoutine,
@@ -734,14 +734,14 @@ BOOL apiCopyFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = CopyFileEx(strFrom.data(), strTo.data(), lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+	BOOL Result = ::CopyFileEx(strFrom.data(), strTo.data(), lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			::SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 
 		else if (STATUS_FILE_IS_A_DIRECTORY == GetLastNtStatus())
-			SetLastError(ERROR_FILE_EXISTS);
+			::SetLastError(ERROR_FILE_EXISTS);
 
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 			Result = Global->Elevation->fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
@@ -749,7 +749,7 @@ BOOL apiCopyFileEx(
 	return Result;
 }
 
-BOOL apiMoveFile(
+BOOL api::MoveFile(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName   // address of new name for the file
 )
@@ -759,12 +759,12 @@ BOOL apiMoveFile(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = MoveFile(strFrom.data(), strTo.data());
+	BOOL Result = ::MoveFile(strFrom.data(), strTo.data());
 
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			::SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 			Result = Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
@@ -772,7 +772,7 @@ BOOL apiMoveFile(
 	return Result;
 }
 
-BOOL apiMoveFileEx(
+BOOL api::MoveFileEx(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
@@ -783,20 +783,20 @@ BOOL apiMoveFileEx(
 	{
 		strTo += PointToName(strFrom);
 	}
-	BOOL Result = MoveFileEx(strFrom.data(), strTo.data(), dwFlags);
+	BOOL Result = ::MoveFileEx(strFrom.data(), strTo.data(), dwFlags);
 	if(!Result)
 	{
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			::SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 		{
 			// exclude fake elevation request for: move file over existing directory with same name
-			DWORD f = apiGetFileAttributes(strFrom);
-			DWORD t = apiGetFileAttributes(strTo);
+			DWORD f = api::GetFileAttributes(strFrom);
+			DWORD t = api::GetFileAttributes(strTo);
 
 			if (f!=INVALID_FILE_ATTRIBUTES && t!=INVALID_FILE_ATTRIBUTES && 0==(f & FILE_ATTRIBUTE_DIRECTORY) && 0!=(t & FILE_ATTRIBUTE_DIRECTORY))
-				SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
+				::SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
 			else
 				Result = Global->Elevation->fMoveFileEx(strFrom, strTo, dwFlags);
 		}
@@ -804,10 +804,10 @@ BOOL apiMoveFileEx(
 	return Result;
 }
 
-DWORD apiGetEnvironmentVariable(const string& Name, string &strBuffer)
+bool api::GetEnvironmentVariable(const string& Name, string& strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetEnvironmentVariable(Name.data(), Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = ::GetEnvironmentVariable(Name.data(), Buffer, ARRAYSIZE(Buffer));
 
 	if (Size)
 	{
@@ -817,13 +817,43 @@ DWORD apiGetEnvironmentVariable(const string& Name, string &strBuffer)
 		}
 		else
 		{
-			wchar_t_ptr vBuffer(Size);
-			Size = GetEnvironmentVariable(Name.data(), vBuffer.get(), Size);
-			strBuffer.assign(vBuffer.get(), Size);
+			std::vector<wchar_t> vBuffer(Size);
+			Size = ::GetEnvironmentVariable(Name.data(), vBuffer.data(), Size);
+			strBuffer.assign(vBuffer.data(), Size);
 		}
 	}
 
-	return Size;
+	return Size != 0;
+}
+
+bool api::SetEnvironmentVariable(const string& Name, const string& Value)
+{
+	return ::SetEnvironmentVariable(Name.data(), Value.data()) != FALSE;
+}
+
+bool api::DeleteEnvironmentVariable(const string& Name)
+{
+	return ::SetEnvironmentVariable(Name.data(), nullptr) != FALSE;
+}
+
+string api::ExpandEnvironmentStrings(const string& str)
+{
+	WCHAR Buffer[MAX_PATH];
+	DWORD Size = ::ExpandEnvironmentStrings(str.data(), Buffer, ARRAYSIZE(Buffer));
+	if (Size)
+	{
+		if (Size <= ARRAYSIZE(Buffer))
+		{
+			return string(Buffer, Size - 1);
+		}
+		else
+		{
+			std::vector<wchar_t> vBuffer(Size);
+			Size = ::ExpandEnvironmentStrings(str.data(), vBuffer.data(), Size);
+			return string(vBuffer.data(), Size - 1);
+		}
+	}
+	return str;
 }
 
 string& strCurrentDirectory()
@@ -832,11 +862,11 @@ string& strCurrentDirectory()
 	return strCurrentDirectory;
 }
 
-void InitCurrentDirectory()
+void api::InitCurrentDirectory()
 {
 	//get real curdir:
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size=GetCurrentDirectory(ARRAYSIZE(Buffer),Buffer);
+	DWORD Size=::GetCurrentDirectory(ARRAYSIZE(Buffer),Buffer);
 	if(Size)
 	{
 		string strInitCurDir;
@@ -846,16 +876,16 @@ void InitCurrentDirectory()
 		}
 		else
 		{
-			wchar_t_ptr vBuffer(Size);
-			GetCurrentDirectory(Size, vBuffer.get());
-			strInitCurDir.assign(vBuffer.get(), Size);
+			std::vector<wchar_t> vBuffer(Size);
+			::GetCurrentDirectory(Size, vBuffer.data());
+			strInitCurDir.assign(vBuffer.data(), Size);
 		}
 		//set virtual curdir:
-		apiSetCurrentDirectory(strInitCurDir);
+		api::SetCurrentDirectory(strInitCurDir);
 	}
 }
 
-DWORD apiGetCurrentDirectory(string &strCurDir)
+DWORD api::GetCurrentDirectory(string &strCurDir)
 {
 	//never give outside world a direct pointer to our internal string
 	//who knows what they gonna do
@@ -863,7 +893,7 @@ DWORD apiGetCurrentDirectory(string &strCurDir)
 	return static_cast<DWORD>(strCurDir.size());
 }
 
-BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
+BOOL api::SetCurrentDirectory(const string& PathName, bool Validate)
 {
 	// correct path to our standard
 	string strDir=PathName;
@@ -887,10 +917,10 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 		string strDir=PathName;
 		AddEndSlash(strDir);
 		strDir+=L"*";
-		FAR_FIND_DATA fd;
-		if (!apiGetFindDataEx(strDir, fd))
+		api::FAR_FIND_DATA fd;
+		if (!api::GetFindDataEx(strDir, fd))
 		{
-			DWORD LastError = GetLastError();
+			DWORD LastError = ::GetLastError();
 			if(!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
 				return FALSE;
 		}
@@ -902,16 +932,16 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 	// try to synchronize far cur dir with process cur dir
 	if(Global->CtrlObject && Global->CtrlObject->Plugins->OemPluginsPresent())
 	{
-		SetCurrentDirectory(strCurrentDirectory().data());
+		::SetCurrentDirectory(strCurrentDirectory().data());
 	}
 #endif // NO_WRAPPER
 	return TRUE;
 }
 
-DWORD apiGetTempPath(string &strBuffer)
+DWORD api::GetTempPath(string &strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetTempPath(ARRAYSIZE(Buffer), Buffer);
+	DWORD Size = ::GetTempPath(ARRAYSIZE(Buffer), Buffer);
 	if(Size)
 	{
 		if(Size < ARRAYSIZE(Buffer))
@@ -920,21 +950,21 @@ DWORD apiGetTempPath(string &strBuffer)
 		}
 		else
 		{
-			wchar_t_ptr vBuffer(Size);
-			Size = GetTempPath(Size, vBuffer.get());
-			strBuffer.assign(vBuffer.get(), Size);
+			std::vector<wchar_t> vBuffer(Size);
+			Size = ::GetTempPath(Size, vBuffer.data());
+			strBuffer.assign(vBuffer.data(), Size);
 		}
 	}
 	return Size;
 };
 
 
-DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
+DWORD api::GetModuleFileName(HMODULE hModule, string &strFileName)
 {
-	return apiGetModuleFileNameEx(nullptr, hModule, strFileName);
+	return api::GetModuleFileNameEx(nullptr, hModule, strFileName);
 }
 
-DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
+DWORD api::GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
@@ -957,12 +987,12 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 			}
 			else
 			{
-				dwSize = GetModuleFileNameEx(hProcess, hModule, lpwszFileName, dwBufferSize);
+				dwSize = ::GetModuleFileNameEx(hProcess, hModule, lpwszFileName, dwBufferSize);
 			}
 		}
 		else
 		{
-			dwSize = GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
+			dwSize = ::GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
 		}
 	}
 	while ((dwSize >= dwBufferSize) || (!dwSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
@@ -974,44 +1004,22 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 	return dwSize;
 }
 
-bool apiExpandEnvironmentStrings(const string& Src, string &Dest)
-{
-	bool Result = false;
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ExpandEnvironmentStrings(Src.data(), Buffer, ARRAYSIZE(Buffer));
-	if (Size)
-	{
-		if (Size <= ARRAYSIZE(Buffer))
-		{
-			Dest.assign(Buffer, Size - 1);
-		}
-		else
-		{
-			wchar_t_ptr vBuffer(Size);
-			Size = ExpandEnvironmentStrings(Src.data(), vBuffer.get(), Size);
-			Dest.assign(vBuffer.get(), Size - 1);
-		}
-		Result = true;
-	}
-	return Result;
-}
-
-DWORD apiWNetGetConnection(const string& LocalName, string &RemoteName)
+DWORD api::WNetGetConnection(const string& LocalName, string &RemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
-	DWORD dwResult = WNetGetConnection(LocalName.data(), nullptr, &dwRemoteNameSize);
+	DWORD dwResult = ::WNetGetConnection(LocalName.data(), nullptr, &dwRemoteNameSize);
 
 	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
-		wchar_t_ptr Buffer(dwRemoteNameSize);
-		dwResult = WNetGetConnection(LocalName.data(), Buffer.get(), &dwRemoteNameSize);
-		RemoteName.assign(Buffer.get(), dwRemoteNameSize);
+		std::vector<wchar_t> Buffer(dwRemoteNameSize);
+		dwResult = ::WNetGetConnection(LocalName.data(), Buffer.data(), &dwRemoteNameSize);
+		RemoteName.assign(Buffer.data(), dwRemoteNameSize);
 	}
 
 	return dwResult;
 }
 
-BOOL apiGetVolumeInformation(
+BOOL api::GetVolumeInformation(
     const string& RootPathName,
     string *pVolumeName,
     LPDWORD lpVolumeSerialNumber,
@@ -1031,7 +1039,7 @@ BOOL apiGetVolumeInformation(
 		FileSystemNameBuffer.reset(MAX_PATH + 1);
 		FileSystemNameBuffer[0] = L'\0';
 	}
-	BOOL bResult = GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
+	BOOL bResult = ::GetVolumeInformation(RootPathName.data(), VolumeNameBuffer.get(), static_cast<DWORD>(VolumeNameBuffer.size()), lpVolumeSerialNumber,
 		lpMaximumComponentLength, lpFileSystemFlags, FileSystemNameBuffer.get(), static_cast<DWORD>(FileSystemNameBuffer.size()));
 
 	if (pVolumeName)
@@ -1043,9 +1051,9 @@ BOOL apiGetVolumeInformation(
 	return bResult;
 }
 
-bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
+bool api::GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
 {
-	FindFile Find(FileName, ScanSymLink);
+	api::FindFile Find(FileName, ScanSymLink);
 	if(Find.Get(FindData))
 	{
 		return true;
@@ -1056,14 +1064,14 @@ bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanS
 		ParsePath(FileName, &DirOffset);
 		if (!wcspbrk(FileName.data() + DirOffset,L"*?"))
 		{
-			DWORD dwAttr=apiGetFileAttributes(FileName);
+			DWORD dwAttr=api::GetFileAttributes(FileName);
 
 			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				// Ага, значит файл таки есть. Заполним структуру ручками.
 				FindData.Clear();
 				FindData.dwFileAttributes=dwAttr;
-				File file;
+				api::File file;
 				if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 				{
 					file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
@@ -1093,11 +1101,11 @@ bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanS
 	return false;
 }
 
-bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
+bool api::GetFileSizeEx(HANDLE hFile, UINT64 &Size)
 {
 	bool Result=false;
 
-	if (GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
+	if (::GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
 	{
 		Result=true;
 	}
@@ -1106,7 +1114,7 @@ bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 		GET_LENGTH_INFORMATION gli;
 		DWORD BytesReturned;
 
-		if (DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,nullptr,0,&gli,sizeof(gli),&BytesReturned,nullptr))
+		if (::DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,nullptr,0,&gli,sizeof(gli),&BytesReturned,nullptr))
 		{
 			Size=gli.Length.QuadPart;
 			Result=true;
@@ -1116,7 +1124,7 @@ bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 	return Result;
 }
 
-int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime)
+int api::RegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime)
 {
 	int ExitCode=ERROR_MORE_DATA;
 
@@ -1124,7 +1132,7 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 	{
 		wchar_t_ptr Buffer(Size);
 		DWORD RetSize = Size;
-		ExitCode = RegEnumKeyEx(hKey, dwIndex, Buffer.get(), &RetSize, nullptr, nullptr, nullptr, lpftLastWriteTime);
+		ExitCode = ::RegEnumKeyEx(hKey, dwIndex, Buffer.get(), &RetSize, nullptr, nullptr, nullptr, lpftLastWriteTime);
 		if (ExitCode == ERROR_SUCCESS)
 		{
 			strName.assign(Buffer.get(), RetSize);
@@ -1134,7 +1142,7 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 	return ExitCode;
 }
 
-BOOL apiIsDiskInDrive(const string& Root)
+BOOL api::IsDiskInDrive(const string& Root)
 {
 	string strVolName;
 	string strDrive;
@@ -1143,23 +1151,23 @@ BOOL apiIsDiskInDrive(const string& Root)
 	string strFS;
 	strDrive = Root;
 	AddEndSlash(strDrive);
-	BOOL Res = apiGetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
+	BOOL Res = api::GetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
 	return Res;
 }
 
-int apiGetFileTypeByName(const string& Name)
+int api::GetFileTypeByName(const string& Name)
 {
-	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
+	HANDLE hFile=api::CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
 
 	if (hFile==INVALID_HANDLE_VALUE)
 		return FILE_TYPE_UNKNOWN;
 
-	int Type=GetFileType(hFile);
+	int Type=::GetFileType(hFile);
 	CloseHandle(hFile);
 	return Type;
 }
 
-bool apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+bool api::GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
 	bool Result = false;
 	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
@@ -1168,7 +1176,7 @@ bool apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __i
 	uiTotalFree=0;
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
-	if(GetDiskFreeSpaceEx(strPath.data(),(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
+	if(::GetDiskFreeSpaceEx(strPath.data(),(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
 	{
 		Result = true;
 
@@ -1184,7 +1192,7 @@ bool apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __i
 	return Result;
 }
 
-HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
+HANDLE api::FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
@@ -1198,7 +1206,7 @@ HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkN
 	return hRet;
 }
 
-BOOL apiFindNextFileName(HANDLE hFindStream, string& LinkName)
+BOOL api::FindNextFileName(HANDLE hFindStream, string& LinkName)
 {
 	BOOL Ret=FALSE;
 	DWORD StringLength=0;
@@ -1211,19 +1219,19 @@ BOOL apiFindNextFileName(HANDLE hFindStream, string& LinkName)
 	return Ret;
 }
 
-BOOL apiCreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+BOOL api::CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return apiCreateDirectoryEx(L"", PathName, lpSecurityAttributes);
+	return api::CreateDirectoryEx(L"", PathName, lpSecurityAttributes);
 }
 
-BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
+BOOL api::CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	NTPath NtTemplateDirectory(TemplateDirectory);
 	NTPath NtNewDirectory(NewDirectory);
 	BOOL Result = FALSE;
 	for(size_t i = 0; i < 2 && !Result; ++i)
 	{
-		Result = NtTemplateDirectory.empty()?CreateDirectory(NtNewDirectory.data(), SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory.data(), NtNewDirectory.data(), SecurityAttributes);
+		Result = NtTemplateDirectory.empty()? ::CreateDirectory(NtNewDirectory.data(), SecurityAttributes) : ::CreateDirectoryEx(NtTemplateDirectory.data(), NtNewDirectory.data(), SecurityAttributes);
 		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
 			Result = Global->Elevation->fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
@@ -1237,10 +1245,10 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 	return Result;
 }
 
-DWORD apiGetFileAttributes(const string& FileName)
+DWORD api::GetFileAttributes(const string& FileName)
 {
 	NTPath NtName(FileName);
-	DWORD Result = GetFileAttributes(NtName.data());
+	DWORD Result = ::GetFileAttributes(NtName.data());
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		Result = Global->Elevation->fGetFileAttributes(NtName);
@@ -1248,10 +1256,10 @@ DWORD apiGetFileAttributes(const string& FileName)
 	return Result;
 }
 
-BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
+BOOL api::SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 {
 	NTPath NtName(FileName);
-	BOOL Result = SetFileAttributes(NtName.data(), dwFileAttributes);
+	BOOL Result = ::SetFileAttributes(NtName.data(), dwFileAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
@@ -1260,14 +1268,14 @@ BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 }
 
-bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
+bool api::CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
 	return Global->ifn->CreateSymbolicLinkWPresent()?
 		(Global->ifn->CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
-bool apiCreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName,DWORD dwFlags)
+bool api::CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName,DWORD dwFlags)
 {
 	NTPath NtSymlinkFileName(SymlinkFileName);
 	bool Result = CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, dwFlags);
@@ -1278,16 +1286,16 @@ bool apiCreateSymbolicLink(const string& SymlinkFileName, const string& TargetFi
 	return Result;
 }
 
-bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt)
+bool api::SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt)
 {
 	return Encrypt? EncryptFile(Name)!=FALSE : DecryptFile(Name, 0)!=FALSE;
 }
 
-bool apiSetFileEncryption(const string& Name, bool Encrypt)
+bool api::SetFileEncryption(const string& Name, bool Encrypt)
 {
 	NTPath NtName(Name);
-	bool Result = apiSetFileEncryptionInternal(NtName.data(), Encrypt);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in advapi32, NtStatus not affected
+	bool Result = api::SetFileEncryptionInternal(NtName.data(), Encrypt);
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in advapi::32, NtStatus not affected
 	{
 		Result=Global->Elevation->fSetFileEncryption(NtName, Encrypt);
 	}
@@ -1296,7 +1304,7 @@ bool apiSetFileEncryption(const string& Name, bool Encrypt)
 
 bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	bool Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
+	bool Result = ::CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fCreateHardLink(Object, Target, SecurityAttributes);
@@ -1304,7 +1312,7 @@ bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURIT
 	return Result;
 }
 
-BOOL apiCreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+BOOL api::CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
 	BOOL Result = CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes);
 	//bug in win2k: \\?\ fails
@@ -1315,7 +1323,7 @@ BOOL apiCreateHardLink(const string& FileName, const string& ExistingFileName, L
 	return Result;
 }
 
-HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
+HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
 	if(Global->ifn->FindFirstStreamWPresent())
@@ -1383,7 +1391,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 	return Ret;
 }
 
-BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
+BOOL api::FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
 	if(Global->ifn->FindFirstStreamWPresent())
@@ -1412,13 +1420,13 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 	return Ret;
 }
 
-BOOL apiFindStreamClose(HANDLE hFindStream)
+BOOL api::FindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
 	if(Global->ifn->FindFirstStreamWPresent())
 	{
-		Ret=FindClose(hFindStream);
+		Ret=::FindClose(hFindStream);
 	}
 	else
 	{
@@ -1431,11 +1439,11 @@ BOOL apiFindStreamClose(HANDLE hFindStream)
 	return Ret;
 }
 
-bool apiGetLogicalDriveStrings(string& DriveStrings)
+bool api::GetLogicalDriveStrings(string& DriveStrings)
 {
 	bool Result = false;
 	wchar_t Buffer[MAX_PATH];
-	DWORD Size = GetLogicalDriveStringsW(ARRAYSIZE(Buffer), Buffer);
+	DWORD Size = ::GetLogicalDriveStrings(ARRAYSIZE(Buffer), Buffer);
 
 	if (Size)
 	{
@@ -1446,7 +1454,7 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 		else
 		{
 			wchar_t_ptr vBuffer(Size);
-			Size = GetLogicalDriveStringsW(Size, vBuffer.get());
+			Size = ::GetLogicalDriveStrings(Size, vBuffer.get());
 			DriveStrings.assign(vBuffer.get(), Size);
 		}
 		Result = true;
@@ -1461,7 +1469,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	string NtPath;
 
 	{
-		ULONG BufSize = NT_MAX_PATH;
+		ULONG BufSize = api::NT_MAX_PATH;
 		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
 		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 
@@ -1490,7 +1498,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
 			string DriveStrings;
 
-			if (apiGetLogicalDriveStrings(DriveStrings))
+			if (api::GetLogicalDriveStrings(DriveStrings))
 			{
 				string DiskName(L"A:");
 				const wchar_t* Drive = DriveStrings.data();
@@ -1543,7 +1551,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	return !FinalFilePath.empty();
 }
 
-bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+bool api::GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	if (Global->ifn->GetFinalPathNameByHandleWPresent())
 	{
@@ -1566,14 +1574,14 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
 }
 
-bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest)
+bool api::SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest)
 {
-	DWORD dwSize = SearchPath(Path,FileName.data(),Extension,0,nullptr,nullptr);
+	DWORD dwSize = ::SearchPath(Path,FileName.data(),Extension,0,nullptr,nullptr);
 
 	if (dwSize)
 	{
 		wchar_t_ptr Buffer(dwSize);
-		dwSize = SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
+		dwSize = ::SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
 		strDest.assign(Buffer.get(), dwSize);
 		return true;
 	}
@@ -1581,35 +1589,36 @@ bool apiSearchPath(const wchar_t *Path, const string& FileName, const wchar_t *E
 	return false;
 }
 
-bool apiQueryDosDevice(const string& DeviceName, string &Path) {
+bool api::QueryDosDevice(const string& DeviceName, string &Path)
+{
 	SetLastError(NO_ERROR);
 	wchar_t Buffer[MAX_PATH];
-	DWORD Size = QueryDosDeviceW(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = ::QueryDosDevice(DeviceName.data(), Buffer, ARRAYSIZE(Buffer));
 	if (Size)
 	{
 		Path.assign(Buffer);	// don't copy trailing '\0'
 	}
-	else if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	else if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		wchar_t_ptr vBuffer(NT_MAX_PATH);
 		SetLastError(NO_ERROR);
-		Size = QueryDosDeviceW(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
+		Size = ::QueryDosDevice(DeviceName.data(), vBuffer.get(), static_cast<DWORD>(vBuffer.size()));
 		if (Size)
 		{
 			Path.assign(vBuffer.get());
 		}
 	}
 	
-	return Size && GetLastError() == NO_ERROR;
+	return Size && ::GetLastError() == NO_ERROR;
 }
 
-bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& VolumeName)
+bool api::GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& VolumeName)
 {
 	bool Result=false;
 	WCHAR VolumeNameBuffer[50];
 	NTPath strVolumeMountPoint(VolumeMountPoint);
 	AddEndSlash(strVolumeMountPoint);
-	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(),VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
+	if(::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(),VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
 	{
 		VolumeName=VolumeNameBuffer;
 		Result=true;
@@ -1617,16 +1626,16 @@ bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& 
 	return Result;
 }
 
-void apiEnableLowFragmentationHeap()
+void api::EnableLowFragmentationHeap()
 {
 	if (Global->ifn->HeapSetInformationPresent())
 	{
 		std::vector<HANDLE> Heaps(10);
-		DWORD ActualNumHeaps = GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+		DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 		if(ActualNumHeaps > Heaps.size())
 		{
 			Heaps.resize(ActualNumHeaps);
-			ActualNumHeaps = GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+			ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 		}
 		Heaps.resize(ActualNumHeaps);
 		std::for_each(CONST_RANGE(Heaps, i)
@@ -1637,9 +1646,9 @@ void apiEnableLowFragmentationHeap()
 	}
 }
 
-bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool api::GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	File dir;
+	api::File dir;
 	if (dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
 	{
 		return dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);
@@ -1647,7 +1656,7 @@ bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETI
 	return false;
 }
 
-bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool api::GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	bool Result = false;
 	const ULONG Length = 40;
@@ -1655,7 +1664,7 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Global->ifn->NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
+	::SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
 	if (Status == STATUS_SUCCESS)
 	{
 		if(CreationTime)
@@ -1683,7 +1692,7 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	return Result;
 }
 
-bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+bool api::SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	bool Result = false;
 	const ULONG Length = 40;
@@ -1711,12 +1720,12 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 	}
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Global->ifn->NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
+	::SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
 	Result = Status == STATUS_SUCCESS;
 	return Result;
 }
 
-int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault)
+int api::RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault)
 {
 	DWORD cbSize = 0;
 	int nResult = RegQueryValueEx(hKey, ValueName.data(), nullptr, nullptr, nullptr, &cbSize);
@@ -1725,7 +1734,7 @@ int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, con
 	{
 		wchar_t_ptr Data(cbSize/sizeof(wchar_t)+1);
 		DWORD Type=REG_SZ;
-		nResult = RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(Data.get()), &cbSize);
+		nResult = ::RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(Data.get()), &cbSize);
 		int Size=cbSize/sizeof(wchar_t);
 
 		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
@@ -1745,12 +1754,12 @@ int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, con
 }
 
 
-int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64, DWORD *lpType)
+int api::EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64, DWORD *lpType)
 {
 	HKEY hKey;
 	int RetCode=REG_NONE;
 	DWORD Type=(DWORD)-1;
-	if(RegOpenKeyEx(hRegRootKey, Key.data(), 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
+	if(::RegOpenKeyEx(hRegRootKey, Key.data(), 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
 	{
 		string strValueName;
 		DWORD ValNameSize=512;
@@ -1761,7 +1770,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 		{
 			wchar_t_ptr Name(ValNameSize);
 			DWORD RetValNameSize = ValNameSize;
-			ExitCode = RegEnumValue(hKey, Index, Name.get(), &RetValNameSize, nullptr, nullptr, nullptr, nullptr);
+			ExitCode = ::RegEnumValue(hKey, Index, Name.get(), &RetValNameSize, nullptr, nullptr, nullptr, nullptr);
 			strValueName.assign(Name.get(), RetValNameSize);
 		}
 
@@ -1770,7 +1779,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 			DWORD Size = 0;
 			DWORD RetValNameSize = ValNameSize;
 			// Get DataSize
-			/*ExitCode = */RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, nullptr, &Size);
+			/*ExitCode = */::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, nullptr, &Size);
 			// здесь ExitCode == ERROR_SUCCESS
 
 			// корректировка размера
@@ -1788,7 +1797,7 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 			wchar_t_ptr Data(Size/sizeof(wchar_t)+1);
 			RetValNameSize=ValNameSize;
 			DWORD RetSize = Size;
-			ExitCode = RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
+			ExitCode = ::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
 
 			if (ExitCode == ERROR_SUCCESS)
 			{
@@ -1819,35 +1828,35 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 	return RetCode;
 }
 
-bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
+bool api::GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
 {
 	bool Result = false;
 	NTPath NtObject(Object);
 	DWORD LengthNeeded = 0;
-	GetFileSecurity(NtObject.data(), RequestedInformation, nullptr, 0, &LengthNeeded);
+	::GetFileSecurity(NtObject.data(), RequestedInformation, nullptr, 0, &LengthNeeded);
 	if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		SecurityDescriptor.reset(LengthNeeded);
-		Result = GetFileSecurity(NtObject.data(), RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
+		Result = ::GetFileSecurity(NtObject.data(), RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
 	}
 	return Result;
 }
 
-bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
+bool api::SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
 {
-	return SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
+	return ::SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 }
 
-bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
+bool api::OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
 	DWORD Result = Global->ifn->OpenVirtualDisk(&VirtualStorageType, Object.data(), VirtualDiskAccessMask, Flags, &Parameters, &Handle);
-	SetLastError(Result);
+	::SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
-bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
+bool api::OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
 	NTPath NtObject(Object);
-	bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
+	bool Result = api::OpenVirtualDiskInternal(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
 	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		Result = Global->Elevation->fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
@@ -1855,9 +1864,9 @@ bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& 
 	return Result;
 }
 
-string apiGetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
+string api::GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
 {
 	wchar_t_ptr Buffer(NT_MAX_PATH);
-	DWORD size = GetPrivateProfileString(AppName.data(), KeyName.data(), Default.data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.data());
+	DWORD size = ::GetPrivateProfileString(AppName.data(), KeyName.data(), Default.data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.data());
 	return string(Buffer.get(), size);
 }

@@ -179,10 +179,10 @@ private:
 	string strFileName;
 	string strFullFileName;
 
-	File ViewFile;
+	api::File ViewFile;
 	CachedRead Reader;
 
-	FAR_FIND_DATA ViewFindData;
+	api::FAR_FIND_DATA ViewFindData;
 
 	string strTempViewName;
 

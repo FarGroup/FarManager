@@ -33,7 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define NT_MAX_PATH 32768
+
+class api
+{
+public:
+	static const size_t NT_MAX_PATH = 32768;
 
 struct FAR_FIND_DATA
 {
@@ -165,43 +169,38 @@ private:
 	PSID m_value;
 };
 
-NTSTATUS GetLastNtStatus();
+static NTSTATUS GetLastNtStatus();
 
-DWORD apiGetEnvironmentVariable(
-    const string& Name,
-    string &strBuffer
-);
+static bool GetEnvironmentVariable(const string& Name, string& Buffer);
+static bool SetEnvironmentVariable(const string& Name, const string& Value);
+static bool DeleteEnvironmentVariable(const string& Name);
+static string ExpandEnvironmentStrings(const string& str);
 
-DWORD apiGetCurrentDirectory(
+static DWORD GetCurrentDirectory(
     string &strCurDir
 );
 
-DWORD apiGetTempPath(
+static DWORD GetTempPath(
     string &strBuffer
 );
 
-DWORD apiGetModuleFileName(
+static DWORD GetModuleFileName(
     HMODULE hModule,
     string &strFileName
 );
 
-DWORD apiGetModuleFileNameEx(
+static DWORD GetModuleFileNameEx(
     HANDLE hProcess,
     HMODULE hModule,
     string &strFileName
 );
 
-bool apiExpandEnvironmentStrings(
-    const string& Src,
-    string &Dest
-);
-
-DWORD apiWNetGetConnection(
+static DWORD WNetGetConnection(
     const string& LocalName,
     string &RemoteName
 );
 
-BOOL apiGetVolumeInformation(
+static BOOL GetVolumeInformation(
     const string& RootPathName,
     string *pVolumeName,
     LPDWORD lpVolumeSerialNumber,
@@ -210,30 +209,28 @@ BOOL apiGetVolumeInformation(
     string *pFileSystemName
 );
 
-BOOL apiFindStreamClose(
+static BOOL FindStreamClose(
     HANDLE hFindFile
 );
 
-bool apiGetFindDataEx(
+static bool GetFindDataEx(
     const string& FileName,
     FAR_FIND_DATA& FindData,
     bool ScanSymLink=true);
 
-bool apiGetFileSizeEx(
+static bool GetFileSizeEx(
     HANDLE hFile,
     UINT64 &Size);
 
-//junk
-
-BOOL apiDeleteFile(
+static BOOL DeleteFile(
     const string& FileName
 );
 
-BOOL apiRemoveDirectory(
+static BOOL RemoveDirectory(
     const string& DirName
 );
 
-HANDLE apiCreateFile(
+static HANDLE CreateFile(
     const string& Object,
     DWORD DesiredAccess,
     DWORD ShareMode,
@@ -244,7 +241,7 @@ HANDLE apiCreateFile(
     bool ForceElevation = false
 );
 
-BOOL apiCopyFileEx(
+static BOOL CopyFileEx(
     const string& ExistingFileName,
     const string& NewFileName,
     LPPROGRESS_ROUTINE lpProgressRoutine,
@@ -253,154 +250,154 @@ BOOL apiCopyFileEx(
     DWORD dwCopyFlags
 );
 
-BOOL apiMoveFile(
+static BOOL MoveFile(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName   // address of new name for the file
 );
 
-BOOL apiMoveFileEx(
+static BOOL MoveFileEx(
     const string& ExistingFileName, // address of name of the existing file
     const string& NewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
 );
 
-int apiRegEnumKeyEx(
+static int RegEnumKeyEx(
     HKEY hKey,
     DWORD dwIndex,
     string &strName,
     PFILETIME lpftLastWriteTime=nullptr
 );
 
-BOOL apiIsDiskInDrive(
+static BOOL IsDiskInDrive(
     const string& Root
 );
 
-int apiGetFileTypeByName(
+static int GetFileTypeByName(
     const string& Name
 );
 
-bool apiGetDiskSize(
+static bool GetDiskSize(
     const string& Path,
     unsigned __int64 *TotalSize,
     unsigned __int64 *TotalFree,
     unsigned __int64 *UserFree
 );
 
-HANDLE apiFindFirstFileName(
+static HANDLE FindFirstFileName(
     const string& FileName,
     DWORD dwFlags,
     string& LinkName
 );
 
-BOOL apiFindNextFileName(
+static BOOL FindNextFileName(
     HANDLE hFindStream,
     string& LinkName
 );
 
-BOOL apiCreateDirectory(
+static BOOL CreateDirectory(
     const string& PathName,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 
-BOOL apiCreateDirectoryEx(
+static BOOL CreateDirectoryEx(
     const string& TemplateDirectory,
     const string& NewDirectory,
     LPSECURITY_ATTRIBUTES SecurityAttributes
 );
 
-DWORD apiGetFileAttributes(
+static DWORD GetFileAttributes(
     const string& FileName
 );
 
-BOOL apiSetFileAttributes(
+static BOOL SetFileAttributes(
     const string& FileName,
     DWORD dwFileAttributes
 );
 
-void InitCurrentDirectory();
+static void InitCurrentDirectory();
 
-BOOL apiSetCurrentDirectory(
+static BOOL SetCurrentDirectory(
     const string& PathName,
     bool Validate = true
 );
 
-// for elevation only, don't use outside.
-bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
-bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
-
-bool apiCreateSymbolicLink(
+static bool CreateSymbolicLink(
     const string& SymlinkFileName,
     const string& TargetFileName,
     DWORD dwFlags
 );
 
-bool apiSetFileEncryption(const string& Name, bool Encrypt);
+static bool SetFileEncryption(const string& Name, bool Encrypt);
 
-BOOL apiCreateHardLink(
+static BOOL CreateHardLink(
     const string& FileName,
     const string& ExistingFileName,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 
-HANDLE apiFindFirstStream(
+static HANDLE FindFirstStream(
     const string& FileName,
     STREAM_INFO_LEVELS InfoLevel,
     LPVOID lpFindStreamData,
     DWORD dwFlags=0
 );
 
-BOOL apiFindNextStream(
+static BOOL FindNextStream(
     HANDLE hFindStream,
     LPVOID lpFindStreamData
 );
 
-bool apiGetLogicalDriveStrings(
+static bool GetLogicalDriveStrings(
     string& DriveStrings
 );
 
-bool apiGetFinalPathNameByHandle(
+static bool GetFinalPathNameByHandle(
     HANDLE hFile,
     string& FinalFilePath
 );
 
-bool apiSearchPath(
+static bool SearchPath(
 	const wchar_t *Path,
 	const string& FileName,
 	const wchar_t *Extension,
 	string &strDest
 );
 
-bool apiQueryDosDevice(
+static bool QueryDosDevice(
 	const string& DeviceName,
 	string& Path
 );
 
-bool apiGetVolumeNameForVolumeMountPoint(
+static bool GetVolumeNameForVolumeMountPoint(
 	const string& VolumeMountPoint,
 	string& VolumeName
 );
 
-bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+static bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 
-// internal, dont' use outside.
-bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+static void EnableLowFragmentationHeap();
 
-void apiEnableLowFragmentationHeap();
-
-int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault = L"");
-int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
+static int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault = L"");
+static int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
 
 typedef block_ptr<SECURITY_DESCRIPTOR> FAR_SECURITY_DESCRIPTOR;
 
-bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+static bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 
-bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+static bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 
-// for elevation only, don't use outside.
-bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+static bool OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
 
-bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+static string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
 
-string apiGetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
 
+private:
+	static bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
+	static bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
+	static bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+	static bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+	static bool OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+
+	friend class elevation;
+	friend class elevated;
+};

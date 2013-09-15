@@ -641,7 +641,7 @@ static void GenerateName(string &strName,const wchar_t *Path=nullptr)
 	string strExt=PointToExt(strName);
 	size_t NameLength=strName.size()-strExt.size();
 
-	for (int i=1; apiGetFileAttributes(strName)!=INVALID_FILE_ATTRIBUTES; i++)
+	for (int i=1; api::GetFileAttributes(strName)!=INVALID_FILE_ATTRIBUTES; i++)
 	{
 		WCHAR Suffix[20]=L"_";
 		_itow(i,Suffix+1,10);
@@ -1210,7 +1210,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	string strInitDestDir = CopyDlg[ID_SC_TARGETEDIT].strData;
 	// Для фильтра
-	FAR_FIND_DATA fd;
+	api::FAR_FIND_DATA fd;
 	SrcPanel->GetSelName(nullptr,FileAttr);
 
 	bool AddSlash=false;
@@ -1612,7 +1612,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					GetPathRoot(strRootDir, strRootDir);
 					DWORD FileSystemFlags=0;
 
-					if (apiGetVolumeInformation(strRootDir,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
+					if (api::GetVolumeInformation(strRootDir,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
 						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
@@ -1646,7 +1646,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				{
 					string strDestDizName;
 					DestDiz.GetDizName(strDestDizName);
-					DWORD Attr=apiGetFileAttributes(strDestDizName);
+					DWORD Attr=api::GetFileAttributes(strDestDizName);
 					int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
 
 					if (LastIteration) // Скидываем только во время последней Op.
@@ -1670,7 +1670,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{
 			string strDestDizName;
 			DestDiz.GetDizName(strDestDizName);
-			DWORD Attr=apiGetFileAttributes(strDestDizName);
+			DWORD Attr=api::GetFileAttributes(strDestDizName);
 			int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
 
 			if (Move && !DestReadOnly)
@@ -1863,7 +1863,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
 		 && SrcPanel->GetSelCount() > 1
 		 && !IsSlash(strDest.back())
-		 && apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES)
+		 && api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES)
 		{
 			switch (Message(FMSG_WARNING,3,MSG(MWarning),strDest.data(),MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))
 			{
@@ -1875,10 +1875,10 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (dest_changed) // check destination drive ready
 		{
-			DestAttr = apiGetFileAttributes(strDest);
+			DestAttr = api::GetFileAttributes(strDest);
 			if (INVALID_FILE_ATTRIBUTES == DestAttr)
 			{
-				DWORD rattr1 = apiGetFileAttributes(strDestDriveRoot);
+				DWORD rattr1 = api::GetFileAttributes(strDestDriveRoot);
 				DWORD rattr2 = rattr1;
 				while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
 				{
@@ -1894,10 +1894,10 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 						return COPY_NEXT;
 					}
 
-					rattr2 = apiGetFileAttributes(strDestDriveRoot);
+					rattr2 = api::GetFileAttributes(strDestDriveRoot);
 				}
 				if (INVALID_FILE_ATTRIBUTES == rattr1 && INVALID_FILE_ATTRIBUTES != rattr2)
-					DestAttr = apiGetFileAttributes(strDest);
+					DestAttr = api::GetFileAttributes(strDest);
 			}
 		}
 
@@ -1909,15 +1909,15 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
 				Upper(strNewPath);
 
-			DWORD Attr=apiGetFileAttributes(strNewPath);
+			DWORD Attr=api::GetFileAttributes(strNewPath);
 			if (Attr == INVALID_FILE_ATTRIBUTES)
 			{
-				if (apiCreateDirectory(strNewPath,nullptr))
+				if (api::CreateDirectory(strNewPath,nullptr))
 					TreeList::AddTreeName(strNewPath);
 				else
 					CreatePath(strNewPath);
 
-				DestAttr = apiGetFileAttributes(strDest);
+				DestAttr = api::GetFileAttributes(strDest);
 			}
 			else if (!(Attr & FILE_ATTRIBUTE_DIRECTORY))
 			{
@@ -1933,7 +1933,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		first = false;
 		string strDestPath = strDest;
 
-		FAR_FIND_DATA SrcData;
+		api::FAR_FIND_DATA SrcData;
 		int CopyCode = COPY_SUCCESS, KeepPathPos;
 		Flags &= ~FCOPY_OVERWRITENEXT;
 
@@ -1959,7 +1959,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		else
 		{
 			// проверка на вшивость ;-)
-			if (!apiGetFindDataEx(strSelName,SrcData))
+			if (!api::GetFindDataEx(strSelName,SrcData))
 			{
 				strDestPath = strSelName;
 				CP->SetNames(strSelName,strDestPath);
@@ -2171,9 +2171,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 								      ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
 							{
 								if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+									api::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-								if (apiRemoveDirectory(strFullName))
+								if (api::RemoveDirectory(strFullName))
 									TreeList::DelTreeName(strFullName);
 							}
 						}
@@ -2191,9 +2191,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
 			{
 				if (FileAttr & FILE_ATTRIBUTE_READONLY)
-					apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+					api::SetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
-				if (apiRemoveDirectory(strSelName))
+				if (api::RemoveDirectory(strSelName))
 				{
 					TreeList::DelTreeName(strSelName);
 
@@ -2228,7 +2228,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 COPY_CODES ShellCopy::ShellCopyOneFile(
     const string& Src,
-    const FAR_FIND_DATA &SrcData,
+    const api::FAR_FIND_DATA &SrcData,
     string &strDest,
     int KeepPathPos,
     int Rename
@@ -2251,10 +2251,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 
-	FAR_FIND_DATA DestData;
+	api::FAR_FIND_DATA DestData;
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		if (apiGetFindDataEx(strDestPath,DestData))
+		if (api::GetFindDataEx(strDestPath,DestData))
 			DestAttr=DestData.dwFileAttributes;
 	}
 
@@ -2306,7 +2306,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			strDestPath += PathPtr;
 
-			if (!apiGetFindDataEx(strDestPath,DestData))
+			if (!api::GetFindDataEx(strDestPath,DestData))
 				DestAttr=INVALID_FILE_ATTRIBUTES;
 			else
 				DestAttr=DestData.dwFileAttributes;
@@ -2375,7 +2375,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					return(strDestPath == strSrcFullName? COPY_NEXT : COPY_SUCCESS);
 				}
 
-				int Type=apiGetFileTypeByName(strDestPath);
+				int Type=api::GetFileTypeByName(strDestPath);
 
 				if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)
 					return(Rename ? COPY_NEXT:COPY_SUCCESS);
@@ -2385,7 +2385,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				string strSrcFullName,strDestFullName;
 				ConvertNameToFull(Src,strSrcFullName);
-				FAR_SECURITY_DESCRIPTOR sd;
+				api::FAR_SECURITY_DESCRIPTOR sd;
 
 				// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
 				if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
@@ -2394,7 +2394,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
 						IsSetSecuty=FALSE;
-					else if (apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+					else if (api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
 					{
 						// ...получаем секьюрити родителя
 						if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
@@ -2407,7 +2407,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				// Пытаемся переименовать, пока не отменят
 				for (;;)
 				{
-					BOOL SuccessMove=apiMoveFile(Src,strDestPath);
+					BOOL SuccessMove=api::MoveFile(Src,strDestPath);
 
 					if (SuccessMove)
 					{
@@ -2436,12 +2436,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							case 1:
 							{
 								int CopySecurity = Flags&FCOPY_COPYSECURITY;
-								FAR_SECURITY_DESCRIPTOR tmpsd;
+								api::FAR_SECURITY_DESCRIPTOR tmpsd;
 
 								if ((CopySecurity) && !GetSecurity(Src,tmpsd))
 									CopySecurity = FALSE;
 								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.get(), FALSE};
-								if (apiCreateDirectory(strDestPath,CopySecurity?&TmpSecAttr:nullptr))
+								if (api::CreateDirectory(strDestPath,CopySecurity?&TmpSecAttr:nullptr))
 								{
 									if (PointToName(strDestPath)==strDestPath.data())
 										strRenamedName = strDestPath;
@@ -2459,14 +2459,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				} /* while */
 			} // if (Rename)
 
-			FAR_SECURITY_DESCRIPTOR sd;
+			api::FAR_SECURITY_DESCRIPTOR sd;
 
 			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sd))
 				return COPY_CANCEL;
 			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
 			if (RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
-				while (!apiCreateDirectoryEx(
+				while (!api::CreateDirectoryEx(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
 					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? L"" : Src,
@@ -2491,7 +2491,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					// не будем выставлять компрессию, если мылимся в каталог
 					// с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
 					// т.с. пропускаем лишний ход.
-					if (apiGetFileAttributes(strDestPath)&FILE_ATTRIBUTE_ENCRYPTED)
+					if (api::GetFileAttributes(strDestPath)&FILE_ATTRIBUTE_ENCRYPTED)
 						SetAttr&=~FILE_ATTRIBUTE_COMPRESSED;
 
 					if (SetAttr&FILE_ATTRIBUTE_COMPRESSED)
@@ -2536,7 +2536,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 								break;
 							}
 
-							apiRemoveDirectory(strDestPath);
+							api::RemoveDirectory(strDestPath);
 							return((MsgCode==-2 || MsgCode==3) ? COPY_CANCEL:COPY_NEXT);
 						}
 					}
@@ -2561,7 +2561,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 								break;
 							}
 
-							apiRemoveDirectory(strDestPath);
+							api::RemoveDirectory(strDestPath);
 							return((MsgCode==-2 || MsgCode==3) ? COPY_CANCEL:COPY_NEXT);
 						}
 					}
@@ -2630,7 +2630,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				strDest=strNewName;
 
-				if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+				if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
 				{
 					CreatePath(strNewName);
 				}
@@ -2661,7 +2661,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				if (strDestFSName == L"NWFS" && !Append &&
 				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
-					apiDeleteFile(strDestPath); //BUGBUG
+					api::DeleteFile(strDestPath); //BUGBUG
 				}
 
 				if (!Append)
@@ -2670,9 +2670,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					ConvertNameToFull(Src,strSrcFullName);
 
 					if (NWFS_Attr)
-						apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
+						api::SetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
 
-					FAR_SECURITY_DESCRIPTOR sd;
+					api::FAR_SECURITY_DESCRIPTOR sd;
 					IsSetSecuty=FALSE;
 
 					// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
@@ -2680,7 +2680,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
 							IsSetSecuty=FALSE;
-						else if (apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+						else if (api::GetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
 						{
 							string strDestFullName;
 
@@ -2693,16 +2693,16 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 
 					if (strDestFSName == L"NWFS")
-						MoveCode=apiMoveFile(strSrcFullName,strDestPath);
+						MoveCode=api::MoveFile(strSrcFullName,strDestPath);
 					else
-						MoveCode=apiMoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+						MoveCode=api::MoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
 
 					if (!MoveCode)
 					{
 						int MoveLastError=GetLastError();
 
 						if (NWFS_Attr)
-							apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes);
+							api::SetFileAttributes(strSrcFullName,SrcData.dwFileAttributes);
 
 						if (MoveLastError==ERROR_NOT_SAME_DEVICE)
 							return COPY_FAILURE;
@@ -2717,7 +2717,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 
 					if (NWFS_Attr)
-						apiSetFileAttributes(strDestPath,SrcData.dwFileAttributes);
+						api::SetFileAttributes(strDestPath,SrcData.dwFileAttributes);
 
 					if (ShowTotalCopySize && MoveCode)
 					{
@@ -2794,26 +2794,26 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 						if (DestAttr!=INVALID_FILE_ATTRIBUTES && !StrCmpI(strCopiedName.data(),DestData.strFileName.data()) &&
 						        strCopiedName != DestData.strFileName)
-							apiMoveFile(strDestPath,strDestPath); //???
+							api::MoveFile(strDestPath,strDestPath); //???
 					}
 
 					TotalFiles++;
 
 					if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-						apiSetFileAttributes(strDestPath,DestAttr);
+						api::SetFileAttributes(strDestPath,DestAttr);
 
 					return COPY_SUCCESS;
 				}
 				else if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
 				{
 					if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-						apiSetFileAttributes(strDestPath,DestAttr);
+						api::SetFileAttributes(strDestPath,DestAttr);
 
 					return((COPY_CODES)CopyCode);
 				}
 
 				if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-					apiSetFileAttributes(strDestPath,DestAttr);
+					api::SetFileAttributes(strDestPath,DestAttr);
 			}
 
 			//????
@@ -2868,7 +2868,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				strDest=strNewName;
 
-				if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+				if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
 				{
 					CreatePath(strNewName);
 				}
@@ -2960,10 +2960,10 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 				return(COPY_CANCEL);
 		}
 
-		apiSetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
+		api::SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(FullName):!apiDeleteFile(FullName))
+	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!api::RemoveDirectory(FullName):!api::DeleteFile(FullName))
 	{
 		Global->CatchError();
 		int MsgCode;
@@ -2992,7 +2992,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 
-int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
+int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &SrcData,
                              string &strDestName,DWORD &DestAttr,int Append)
 {
 	OrigScrX=ScrX;
@@ -3002,7 +3002,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 	{
 		if (RPT==RP_HARDLINK)
 		{
-			apiDeleteFile(strDestName); //BUGBUG
+			api::DeleteFile(strDestName); //BUGBUG
 			return(MkHardLink(SrcName,strDestName) ? COPY_SUCCESS:COPY_FAILURE);
 		}
 		else
@@ -3061,7 +3061,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		{
 			if (!Global->Opt->CMOpt.CopyOpened)
 			{
-				File SrcFile;
+				api::File SrcFile;
 				if (!SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
@@ -3076,7 +3076,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		}
 	}
 
-	FAR_SECURITY_DESCRIPTOR sd;
+	api::FAR_SECURITY_DESCRIPTOR sd;
 	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sd))
 		return COPY_CANCEL;
 
@@ -3085,7 +3085,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 	if (Global->Opt->CMOpt.CopyOpened)
 		OpenMode|=FILE_SHARE_WRITE;
 
-	FileWalker SrcFile;
+	api::FileWalker SrcFile;
 	bool Opened = SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 
 	if (!Opened && Global->Opt->CMOpt.CopyOpened)
@@ -3101,7 +3101,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		return COPY_FAILURE;
 	}
 
-	File DestFile;
+	api::File DestFile;
 	__int64 AppendPos=0;
 	DWORD flags_attrs=0;
 
@@ -3110,7 +3110,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
-		//apiDeleteFile(DestName);
+		//api::DeleteFile(DestName);
 		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
 		flags_attrs = SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
 		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), flags_attrs);
@@ -3130,7 +3130,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 		if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
 		{
 			DWORD VolFlags=0;
-			if(apiGetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&VolFlags,nullptr))
+			if(api::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&VolFlags,nullptr))
 			{
 				if(VolFlags&FILE_SUPPORTS_SPARSE_FILES)
 				{
@@ -3156,7 +3156,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 		// если места в приёмнике хватает - займём сразу.
 		UINT64 FreeBytes=0;
-		if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeBytes))
+		if (api::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeBytes))
 		{
 			if (FreeBytes>SrcData.nFileSize)
 			{
@@ -3214,8 +3214,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 					if (!Append)
 					{
-						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-						apiDeleteFile(strDestName); //BUGBUG
+						api::SetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+						api::DeleteFile(strDestName); //BUGBUG
 					}
 				}
 
@@ -3249,8 +3249,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 					if (!Append)
 					{
-						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-						apiDeleteFile(strDestName); //BUGBUG
+						api::SetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+						api::DeleteFile(strDestName); //BUGBUG
 					}
 				}
 
@@ -3282,7 +3282,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 						GetPathRoot(strDestName,strDriveRoot);
 						UINT64 FreeSize=0;
 
-						if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
+						if (api::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 						{
 							if (FreeSize<BytesRead &&
 								DestFile.Write(CopyBuffer.get(),(DWORD)FreeSize,BytesWritten,nullptr) &&
@@ -3299,8 +3299,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 									if (!Append)
 									{
-										apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-										apiDeleteFile(strDestName); //BUGBUG
+										api::SetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+										api::DeleteFile(strDestName); //BUGBUG
 									}
 
 									return COPY_FAILURE;
@@ -3312,7 +3312,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 									for (;;)
 									{
-										if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
+										if (api::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 										{
 											if (FreeSize<BytesRead)
 											{
@@ -3346,7 +3346,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 					if (Split)
 					{
 						INT64 FilePtr=SrcFile.GetPointer();
-						FAR_FIND_DATA SplitData=SrcData;
+						api::FAR_FIND_DATA SplitData=SrcData;
 						SplitData.nFileSize-=FilePtr;
 						int RetCode = COPY_CANCEL;
 						string strNewName;
@@ -3361,7 +3361,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 						{
 							strDestName=strNewName;
 
-							if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+							if (CutToSlash(strNewName) && api::GetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
 							{
 								CreatePath(strNewName);
 							}
@@ -3403,8 +3403,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA &SrcData,
 
 						if (!Append)
 						{
-							apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-							apiDeleteFile(strDestName); //BUGBUG
+							api::SetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+							api::DeleteFile(strDestName); //BUGBUG
 						}
 
 						CP->SetProgressValue(0,0);
@@ -3632,7 +3632,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
+int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
                             const string& SrcName,
                             const string& DestName, DWORD DestAttr,
                             int SameName,int Rename,int AskAppend,
@@ -3663,7 +3663,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),MSG(MCopyAppend)},
 		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCopyCancelOvr)},
 	};
-	FAR_FIND_DATA DestData;
+	api::FAR_FIND_DATA DestData;
 	int DestDataFilled=FALSE;
 	Append=FALSE;
 
@@ -3674,7 +3674,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 	}
 
 	if (DestAttr==INVALID_FILE_ATTRIBUTES)
-		if ((DestAttr=apiGetFileAttributes(DestName))==INVALID_FILE_ATTRIBUTES)
+		if ((DestAttr=api::GetFileAttributes(DestName))==INVALID_FILE_ATTRIBUTES)
 			return TRUE;
 
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -3688,13 +3688,13 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 		int Type;
 
 		if ((!Global->Opt->Confirm.Copy && !Rename) || (!Global->Opt->Confirm.Move && Rename) ||
-		        SameName || (Type=apiGetFileTypeByName(DestName))==FILE_TYPE_CHAR ||
+		        SameName || (Type=api::GetFileTypeByName(DestName))==FILE_TYPE_CHAR ||
 		        Type==FILE_TYPE_PIPE || (Flags&FCOPY_OVERWRITENEXT))
 			MsgCode=1;
 		else
 		{
 			DestData.Clear();
-			apiGetFindDataEx(DestName,DestData);
+			api::GetFindDataEx(DestName,DestData);
 			DestDataFilled=TRUE;
 
 			if ((Flags&FCOPY_ONLYNEWERFILES))
@@ -3716,8 +3716,8 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 				{
 					string RealName;
 					ConvertNameToReal(SrcName, RealName);
-					FAR_FIND_DATA FindData;
-					apiGetFindDataEx(RealName,FindData);
+					api::FAR_FIND_DATA FindData;
+					api::GetFindDataEx(RealName,FindData);
 					SrcSize=FindData.nFileSize;
 					SrcLastWriteTime = FindData.ftLastWriteTime;
 
@@ -3817,7 +3817,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 					if (!DestDataFilled)
 					{
 						DestData.Clear();
-						apiGetFindDataEx(DestName,DestData);
+						api::GetFindDataEx(DestName,DestData);
 					}
 
 					string strDateText,strTimeText;
@@ -3888,7 +3888,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 		}
 
 		if (!SameName && (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
-			apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+			api::SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
 	}
 
 	return TRUE;
@@ -3896,9 +3896,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA &SrcData,
 
 
 
-int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR& sd)
+int ShellCopy::GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	bool RetSec = apiGetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
+	bool RetSec = api::GetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 
 	if (!RetSec)
 	{
@@ -3914,9 +3914,9 @@ int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR& sd)
 
 
 
-int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd)
+int ShellCopy::SetSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	bool RetSec = apiSetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
+	bool RetSec = api::SetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 	if (!RetSec)
 	{
 		Global->CatchError();
@@ -3972,17 +3972,17 @@ BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
 }
 
 
-int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR& sd)
+int ShellCopy::SetRecursiveSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd)
 {
 	if (SetSecurity(FileName, sd))
 	{
-		if (apiGetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
+		if (api::GetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
 			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
 
 			string strFullName;
-			FAR_FIND_DATA SrcData;
+			api::FAR_FIND_DATA SrcData;
 			while (ScTree.GetNextName(&SrcData,strFullName))
 			{
 				if (!ShellCopySecuryMsg(CP.get(), strFullName))
@@ -4003,9 +4003,9 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DE
 
 
 
-int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA &SrcData)
+int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const api::FAR_FIND_DATA &SrcData)
 {
-	FAR_SECURITY_DESCRIPTOR sd;
+	api::FAR_SECURITY_DESCRIPTOR sd;
 
 	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
@@ -4013,7 +4013,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	CP->SetNames(SrcName,DestName);
 	CP->SetProgressValue(0,0);
 	TotalCopiedSizeEx=TotalCopiedSize;
-	if (!apiCopyFileEx(SrcName, DestName, CopyProgressRoutine, CP.get(), nullptr, Flags&FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
+	if (!api::CopyFileEx(SrcName, DestName, CopyProgressRoutine, CP.get(), nullptr, Flags&FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
@@ -4075,7 +4075,7 @@ bool ShellCopy::CalcTotalSize()
 	DWORD FileAttr;
 	unsigned __int64 FileSize;
 	// Для фильтра
-	FAR_FIND_DATA fd;
+	api::FAR_FIND_DATA fd;
 	
 	auto item = new CopyPreRedrawItem;
 	item->CP = CP.get();
@@ -4147,20 +4147,20 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	ConvertNameToFull(Dest,strRoot);
 	GetPathRoot(strRoot,strRoot);
 
-	if (apiGetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES) // Неудача, когда сетевой путь, да еще и симлинк
+	if (api::GetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES) // Неудача, когда сетевой путь, да еще и симлинк
 	{
 		// ... в этом случае проверим AS IS
 		ConvertNameToFull(Dest,strRoot);
 		GetPathRoot(strRoot,strRoot);
 
-		if (apiGetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES)
+		if (api::GetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES)
 		{
 			return false;
 		}
 	}
 
 	DWORD FileSystemFlagsDst=0;
-	int GetInfoSuccess=apiGetVolumeInformation(strRoot,nullptr,nullptr,nullptr,&FileSystemFlagsDst,nullptr);
+	int GetInfoSuccess=api::GetVolumeInformation(strRoot,nullptr,nullptr,nullptr,&FileSystemFlagsDst,nullptr);
 
 	if (GetInfoSuccess)
 	{
@@ -4175,7 +4175,7 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 		}
 	}
 
-	if (!apiSetFileAttributes(Dest,Attr))
+	if (!api::SetFileAttributes(Dest,Attr))
 	{
 		return FALSE;
 	}

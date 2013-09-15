@@ -174,7 +174,7 @@ SQLiteDb::~SQLiteDb()
 
 static bool can_create_file(const string& fname)
 {
-	return File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
+	return api::File().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
 
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
@@ -185,7 +185,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
 		if (!mem_db && db_exists < 0) {
-			DWORD attrs = apiGetFileAttributes(strPath);
+			DWORD attrs = api::GetFileAttributes(strPath);
 			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
 		}
 		bool ret = (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &pDb));
@@ -202,7 +202,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	bool ok = true, copied = false;
 	sqlite::sqlite3 *db_source = nullptr;
 
-	DWORD attrs = apiGetFileAttributes(strPath);
+	DWORD attrs = api::GetFileAttributes(strPath);
 	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
 	{
 		if (db_exists < 0)
@@ -212,10 +212,10 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		if (WAL && !can_create_file(strPath + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
 			FormatString strTmp;
-			apiGetTempPath(strTmp);
+			api::GetTempPath(strTmp);
 			strTmp << GetCurrentProcessId() << L'-' << DbFile;
-			ok = copied = FALSE != apiCopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
-			apiSetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
+			ok = copied = FALSE != api::CopyFileEx(strPath, strTmp, nullptr, nullptr, nullptr, 0);
+			api::SetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)
 				strPath = strTmp;
 			ok = ok && (SQLITE_OK == sqlite::sqlite3_open16(strPath.data(), &db_source));
@@ -246,7 +246,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (db_source)
 		sqlite::sqlite3_close(db_source);
 	if (copied)
-		apiDeleteFile(strPath);
+		api::DeleteFile(strPath);
 
 	strPath = L":memory:";
 	if (!ok)
@@ -266,7 +266,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 		++init_status;
 
 		bool in_memory = (Global->Opt->ReadOnlyConfig != 0)
-		 || !apiMoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+		 || !api::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)
 		{

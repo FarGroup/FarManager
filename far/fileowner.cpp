@@ -190,13 +190,9 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 			Sid = LocalAlloc(LMEM_FIXED, cSid);
 			if(Sid)
 			{
-				LPWSTR ReferencedDomainName = new WCHAR[ReferencedDomain];
-				if(ReferencedDomainName)
+				std::vector<wchar_t> ReferencedDomainName(ReferencedDomain);
+				if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
 				{
-					if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName, &ReferencedDomain, &Use))
-					{
-					}
-					delete[] ReferencedDomainName;
 				}
 			}
 		}

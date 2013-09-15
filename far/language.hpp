@@ -84,9 +84,9 @@ private:
 
 class VMenu2;
 
-bool OpenLangFile(File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang=FALSE,string *pstrLangName=nullptr);
-int GetLangParam(File& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-int GetOptionsParam(File& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
+bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang=FALSE,string *pstrLangName=nullptr);
+int GetLangParam(api::File& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+int GetOptionsParam(api::File& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
 

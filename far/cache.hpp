@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead
 {
 public:
-	CachedRead(File& file, DWORD buffer_size=0);
+	CachedRead(api::File& file, DWORD buffer_size=0);
 	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
 	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);
@@ -44,7 +44,7 @@ public:
 	void Clear();
 
 private:
-	File& file;
+	api::File& file;
 	const DWORD DefaultBufferSize;
 	DWORD ReadSize;
 	DWORD BytesLeft;
@@ -57,13 +57,13 @@ private:
 class CachedWrite
 {
 public:
-	CachedWrite(File& file);
+	CachedWrite(api::File& file);
 	~CachedWrite();
 	bool Write(LPCVOID Data, size_t DataSize);
 	bool Flush();
 
 private:
-	File& file;
+	api::File& file;
 	std::vector<BYTE> Buffer;
 	size_t FreeSize;
 	bool Flushed;

@@ -90,7 +90,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 	if (WithTempPath)
 	{
-		apiGetTempPath(strPath);
+		api::GetTempPath(strPath);
 	}
 	else if(UserTempPath)
 	{
@@ -110,8 +110,8 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			FindFile f(Buffer.get(), false);
-			FAR_FIND_DATA ffdata;
+			api::FindFile f(Buffer.get(), false);
+			api::FAR_FIND_DATA ffdata;
 			if (!f.Get(ffdata))
 				break;
 		}
@@ -127,7 +127,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 	return !strDest.empty();
 }
 
-void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA *pDest)
+void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, api::FAR_FIND_DATA *pDest)
 {
 	pDest->dwFileAttributes = pSrc->FileAttributes;
 	pDest->ftCreationTime = pSrc->CreationTime;
@@ -140,7 +140,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA *pDe
 	pDest->strAlternateFileName = NullToEmpty(pSrc->AlternateFileName);
 }
 
-void FindDataExToPluginPanelItem(const FAR_FIND_DATA *pSrc, PluginPanelItem *pDest)
+void FindDataExToPluginPanelItem(const api::FAR_FIND_DATA *pSrc, PluginPanelItem *pDest)
 {
 	pDest->FileAttributes = pSrc->dwFileAttributes;
 	pDest->CreationTime = pSrc->ftCreationTime;
@@ -277,13 +277,13 @@ void ReloadEnvironment()
 		std::for_each(CONST_RANGE(Types, t) // two passes
 		{
 			DWORD Type;
-			for(int j=0; EnumRegValueEx(i.Key, i.SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
+			for(int j=0; api::EnumRegValueEx(i.Key, i.SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
 			{
 				if(Type == t)
 				{
 					if(Type==REG_EXPAND_SZ)
 					{
-						apiExpandEnvironmentStrings(strData, strData);
+						strData = api::ExpandEnvironmentStrings(strData);
 					}
 					if (i.Key==HKEY_CURRENT_USER)
 					{
@@ -291,7 +291,7 @@ void ReloadEnvironment()
 						if(!StrCmpI(strName.data(), L"path") || !StrCmpI(strName.data(), L"libpath") || !StrCmpI(strName.data(), L"os2libpath"))
 						{
 							string strMergedPath;
-							apiGetEnvironmentVariable(strName, strMergedPath);
+							api::GetEnvironmentVariable(strName, strMergedPath);
 							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
@@ -299,7 +299,7 @@ void ReloadEnvironment()
 							strData=strMergedPath+strData;
 						}
 					}
-					SetEnvironmentVariable(strName.data(), strData.data());
+					api::SetEnvironmentVariable(strName, strData);
 				}
 			}
 		});

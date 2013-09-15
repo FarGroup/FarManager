@@ -246,7 +246,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 				HANDLE hProc = OpenProcess(Global->ifn->QueryFullProcessImageNameWPresent()? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, false, ProcID);
 				if (hProc)
 				{
-					apiGetModuleFileNameEx(hProc, nullptr, strTitle);
+					api::GetModuleFileNameEx(hProc, nullptr, strTitle);
 					CloseHandle(hProc);
 				}
 			}

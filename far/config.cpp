@@ -1894,7 +1894,7 @@ void Options::Load()
 
 	Palette.Load();
 	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
-	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
+	GlobalUserMenuDir = api::ExpandEnvironmentStrings(GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
 
@@ -2985,7 +2985,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 
 						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						SetEnvironmentVariable(L"FARLANG",strLanguage.data());
+						api::SetEnvironmentVariable(L"FARLANG", strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();
@@ -3074,5 +3074,5 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default)
 {
-	return apiGetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
+	return api::GetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
 }

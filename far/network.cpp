@@ -52,7 +52,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 
 	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
 	{
-		RegQueryStringValue(hKey, L"UserName", strUserName);
+		api::RegQueryStringValue(hKey, L"UserName", strUserName);
 		RegCloseKey(hKey);
 	}
 }
@@ -155,7 +155,7 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 	else
 	{
 		string LocalName(CurDir.data(), 2);
-		apiWNetGetConnection(LocalName, strNetDir);
+		api::WNetGetConnection(LocalName, strNetDir);
 	}
 
 	if (!strNetDir.compare(0, 2, L"\\\\"))
@@ -190,7 +190,7 @@ bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 
 	if (IsDriveTypeRemote(DriveType))
 	{
-		DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
+		DWORD res = api::WNetGetConnection(LocalName,strRemoteName);
 
 		if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
 		{

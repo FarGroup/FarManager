@@ -153,7 +153,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
-	FAR_FIND_DATA fdata;
+	api::FAR_FIND_DATA fdata;
 	decltype(ListData) OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
@@ -162,7 +162,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		return;
 
 	string strSaveDir;
-	apiGetCurrentDirectory(strSaveDir);
+	api::GetCurrentDirectory(strSaveDir);
 	{
 		string strOldCurDir(strCurDir);
 
@@ -174,7 +174,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			{
 				GetPathRoot(strOldCurDir,strOldCurDir);
 
-				if (!apiIsDiskInDrive(strOldCurDir))
+				if (!api::IsDiskInDrive(strOldCurDir))
 					IfGoHome(strOldCurDir.front());
 
 				/* При смене каталога путь не изменился */
@@ -201,7 +201,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	FreeDiskSize = -1;
 	if (Global->Opt->ShowPanelFree)
 	{
-		apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
+		api::GetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 	}
 
 	if (!ListData.empty())
@@ -231,7 +231,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DWORD FileSystemFlags = 0;
 	string PathRoot;
 	GetPathRoot(strCurDir, PathRoot);
-	apiGetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
+	api::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
 
 	ListData.clear();
 
@@ -280,7 +280,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	string strFind(strCurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
-	::FindFile Find(strFind, true);
+	api::FindFile Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
@@ -406,7 +406,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 
 		FILETIME TwoDotsTimes[4]={};
-		GetFileTimeSimple(strCurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
+		api::GetFileTimeSimple(strCurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
 		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
 
@@ -648,7 +648,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	{
 		if (Info.Flags & OPIF_REALNAMES)
 		{
-			apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
+			api::GetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 		}
 		else if (Info.Flags & OPIF_USEFREESIZE)
 			FreeDiskSize=Info.FreeSize;
@@ -788,9 +788,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (Info.HostFile && *Info.HostFile)
 		{
-			FAR_FIND_DATA FindData;
+			api::FAR_FIND_DATA FindData;
 
-			if (apiGetFindDataEx(Info.HostFile, FindData))
+			if (api::GetFindDataEx(Info.HostFile, FindData))
 			{
 				NewItem->WriteTime=FindData.ftLastWriteTime;
 				NewItem->CreationTime=FindData.ftCreationTime;
@@ -895,7 +895,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 					{
 						string strTempDir, strDizName;
 
-						if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,nullptr))
+						if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
 						{
 							if (Global->CtrlObject->Plugins->GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
 							{
@@ -906,7 +906,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 								break;
 							}
 
-							apiRemoveDirectory(strTempDir);
+							api::RemoveDirectory(strTempDir);
 							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 						}
 					}

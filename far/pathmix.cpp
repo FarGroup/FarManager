@@ -163,7 +163,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 			return false;
 
 		string dev;
-		if (apiQueryDosDevice(Path.substr(0,2), dev))
+		if (api::QueryDosDevice(Path.substr(0,2), dev))
 			return false;
 	}
 
@@ -184,7 +184,7 @@ bool TestCurrentDirectory(const string& TestDir)
 {
 	string strCurDir;
 
-	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.data(),TestDir.data()))
+	if (api::GetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.data(),TestDir.data()))
 		return true;
 
 	return false;
@@ -577,7 +577,7 @@ bool PathStartsWith(const string &Path, const string &Start)
 int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 {
 	string TargetPath;
-	if (apiQueryDosDevice(DeviceName, TargetPath))
+	if (api::QueryDosDevice(DeviceName, TargetPath))
 	{
 		if (PathStartsWith(NtPath, TargetPath))
 			return static_cast<int>(TargetPath.size());

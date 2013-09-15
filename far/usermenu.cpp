@@ -142,20 +142,13 @@ static void MenuListToFile(const std::list<UserMenu::UserMenuItem>& Menu, Cached
 	});
 }
 
-static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
-	INT64 Pos = MenuFile.GetPointer();
-	if (!Pos)
-	{
-		if (!GetFileFormat(MenuFile,MenuCP))
-			MenuCP = CP_OEMCP;
-	}
-
 	LPWSTR MenuStr = nullptr;
-	int MenuStrLength = 0;
 	UserMenu::UserMenuItem *MenuItem = nullptr;
 
-	while (GetStr.GetString(&MenuStr, MenuCP, MenuStrLength))
+	size_t MenuStrLength;
+	while (GetStr.GetString(&MenuStr, MenuStrLength))
 	{
 		RemoveTrailingSpaces(MenuStr);
 
@@ -164,7 +157,7 @@ static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, File& MenuFi
 
 		if (*MenuStr==L'{' && MenuItem)
 		{
-			MenuFileToList(MenuItem->Menu, MenuFile, GetStr, MenuCP);
+			MenuFileToList(MenuItem->Menu, GetStr, MenuCP);
 			MenuItem = nullptr;
 			continue;
 		}
@@ -193,7 +186,7 @@ static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, File& MenuFi
 			MenuItem->strHotKey = MenuStr;
 			MenuItem->strLabel = ChPtr+1;
 			RemoveLeadingSpaces(MenuItem->strLabel);
-			MenuItem->Submenu = (GetStr.PeekString(&MenuStr, MenuCP, MenuStrLength) && *MenuStr==L'{');
+			MenuItem->Submenu = (GetStr.PeekString(&MenuStr, MenuStrLength) && *MenuStr==L'{');
 
 			// Support for old 1.x separator format
 			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.empty())
@@ -231,7 +224,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 {
 	if (MenuModified)
 	{
-		DWORD FileAttr=apiGetFileAttributes(MenuFileName);
+		DWORD FileAttr=api::GetFileAttributes(MenuFileName);
 
 		if (FileAttr != INVALID_FILE_ATTRIBUTES)
 		{
@@ -241,15 +234,15 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 				AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
 
 				if (!AskOverwrite)
-					apiSetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+					api::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 			}
 
 			if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-				apiSetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+				api::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 		}
 
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-		File MenuFile;
+		api::File MenuFile;
 		if (MenuFile.Open(MenuFileName,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 		{
 			CachedWrite CW(MenuFile);
@@ -264,11 +257,11 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 			// если файл FarMenu.ini пуст, то удалим его
 			if (Size<3) // 2 for BOM
 			{
-				apiDeleteFile(MenuFileName);
+				api::DeleteFile(MenuFileName);
 			}
 			else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				apiSetFileAttributes(MenuFileName,FileAttr);
+				api::SetFileAttributes(MenuFileName,FileAttr);
 			}
 		}
 	}
@@ -318,12 +311,16 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 		Menu.clear();
 
 		// Пытаемся открыть файл на локальном диске
-		File MenuFile;
+		api::File MenuFile;
 		bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
 		if (FileOpened)
 		{
-			GetFileString GetStr(MenuFile);
-			MenuFileToList(Menu, MenuFile, GetStr);
+			uintptr_t MenuCP;
+			if (!GetFileFormat(MenuFile, MenuCP))
+				MenuCP = CP_OEMCP;
+
+			GetFileString GetStr(MenuFile, MenuCP);
+			MenuFileToList(Menu, GetStr);
 			MenuFile.Close();
 		}
 		else if (MenuMode != MM_USER)
@@ -456,7 +453,7 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& M
 		{
 			string strLabel = MenuItem->strLabel;
 			SubstFileName(nullptr,strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			apiExpandEnvironmentStrings(strLabel, strLabel);
+			strLabel = api::ExpandEnvironmentStrings(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			bool have_hotkey = !strHotKey.empty();
@@ -641,7 +638,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_ALTF4:       // редактировать все меню
 				case KEY_RALTF4:
 				{
-					File MenuFile;
+					api::File MenuFile;
 					FrameManager->GetFrame(0)->Unlock();
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
@@ -660,8 +657,13 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						}
 					}
 					MenuRoot.clear();
-					GetFileString GetStr(MenuFile);
-					MenuFileToList(MenuRoot, MenuFile, GetStr);
+
+					uintptr_t MenuCP;
+					if (!GetFileFormat(MenuFile, MenuCP))
+						MenuCP = CP_OEMCP;
+
+					GetFileString GetStr(MenuFile, MenuCP);
+					MenuFileToList(MenuRoot, GetStr);
 					MenuFile.Close();
 					MenuModified=true;
 					ReturnCode=0;
@@ -725,7 +727,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
 			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			apiExpandEnvironmentStrings(strSubMenuLabel, strSubMenuLabel);
+			strSubMenuLabel = api::ExpandEnvironmentStrings(strSubMenuLabel);
 
 			size_t pos = strSubMenuLabel.find(L'&');
 			if (pos != string::npos)
@@ -816,16 +818,16 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			} // strCommand != "REM"
 
 			if (!strListName.empty())
-				apiDeleteFile(strListName);
+				api::DeleteFile(strListName);
 
 			if (!strAnotherListName.empty())
-				apiDeleteFile(strAnotherListName);
+				api::DeleteFile(strAnotherListName);
 
 			if (!strShortListName.empty())
-				apiDeleteFile(strShortListName);
+				api::DeleteFile(strShortListName);
 
 			if (!strAnotherShortListName.empty())
-				apiDeleteFile(strAnotherShortListName);
+				api::DeleteFile(strAnotherShortListName);
 		});
 
 		Global->CtrlObject->CmdLine->LockUpdatePanel(FALSE);

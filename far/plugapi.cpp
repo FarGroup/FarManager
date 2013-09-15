@@ -1379,7 +1379,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 		TPreRedrawFuncGuard preRedrawFuncGuard(new PreRedrawItem(PR_FarGetDirListMsg));
 		SaveScreen SaveScr;
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 		string strFullName;
 		ScanTree ScTree(FALSE);
 		ScTree.SetFindPath(strDirName,L"*");
@@ -2400,7 +2400,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
 {
 	string strCurDir;
-	::apiGetCurrentDirectory(strCurDir);
+	api::GetCurrentDirectory(strCurDir);
 
 	if (Buffer && Size)
 	{
@@ -2459,7 +2459,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 
 		Flags=Flags&0x000000FF; // только младший байт!
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 		string strFullName;
 		ScTree.SetFindPath(InitDir,L"*");
 
@@ -2645,37 +2645,37 @@ wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLA
 
 HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
-	return ::apiCreateFile(Object,DesiredAccess,ShareMode,SecurityAttributes,CreationDistribution,FlagsAndAttributes,TemplateFile);
+	return api::CreateFile(Object,DesiredAccess,ShareMode,SecurityAttributes,CreationDistribution,FlagsAndAttributes,TemplateFile);
 }
 
 DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName)
 {
-	return ::apiGetFileAttributes(FileName);
+	return api::GetFileAttributes(FileName);
 }
 
 BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName,DWORD dwFileAttributes)
 {
-	return ::apiSetFileAttributes(FileName,dwFileAttributes);
+	return api::SetFileAttributes(FileName,dwFileAttributes);
 }
 
 BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName,const wchar_t *NewFileName,DWORD dwFlags)
 {
-	return ::apiMoveFileEx(ExistingFileName,NewFileName,dwFlags);
+	return api::MoveFileEx(ExistingFileName,NewFileName,dwFlags);
 }
 
 BOOL WINAPI apiDeleteFile(const wchar_t *FileName)
 {
-	return ::apiDeleteFile(FileName);
+	return api::DeleteFile(FileName);
 }
 
 BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName)
 {
-	return ::apiRemoveDirectory(DirName);
+	return api::RemoveDirectory(DirName);
 }
 
 BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return ::apiCreateDirectory(PathName,lpSecurityAttributes);
+	return api::CreateDirectory(PathName,lpSecurityAttributes);
 }
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)

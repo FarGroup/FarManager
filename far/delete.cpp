@@ -234,9 +234,9 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 {
 	bool Result = false;
 
-	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+	api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 
-	FileWalker WipeFile;
+	api::FileWalker WipeFile;
 
 	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
@@ -278,7 +278,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, Console
 		WipeFile.Close();
 		string strTempName;
 		FarMkTempEx(strTempName,nullptr,FALSE);
-		Result = apiMoveFile(Name,strTempName) && apiDeleteFile(strTempName);
+		Result = api::MoveFile(Name,strTempName) && api::DeleteFile(strTempName);
 	}
 	return Result;
 }
@@ -296,12 +296,12 @@ static int WipeDirectory(const string& Name)
 
 	FarMkTempEx(strTempName,nullptr, FALSE, strPath.empty()?nullptr:strPath.data());
 
-	if (!apiMoveFile(Name, strTempName))
+	if (!api::MoveFile(Name, strTempName))
 	{
 		return FALSE;
 	}
 
-	return apiRemoveDirectory(strTempName);
+	return api::RemoveDirectory(strTempName);
 }
 
 ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
@@ -313,7 +313,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 {
 	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
 	TPreRedrawFuncGuard preRedrawFuncGuard(new DelPreRedrawItem);
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
@@ -411,7 +411,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			NormalizeSymlinkName(strJuncName);
 			//SetMessageHelp(L"DeleteLink");
 			string strAskDeleteLink=MSG(MAskDeleteLink);
-			DWORD dwAttr=apiGetFileAttributes(strJuncName);
+			DWORD dwAttr=api::GetFileAttributes(strJuncName);
 
 			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
@@ -488,7 +488,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		SrcPanel->ReadDiz();
 
 	SrcPanel->GetDizName(strDizName);
-	DizPresent=(!strDizName.empty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
+	DizPresent=(!strDizName.empty() && api::GetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
 
 	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
 		return;
@@ -651,7 +651,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 							{
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+									api::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
@@ -700,7 +700,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							if (ScTree.IsDirSearchDone())
 							{
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+									api::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
@@ -741,7 +741,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				if (!Cancel)
 				{
 					if (FileAttr & FILE_ATTRIBUTE_READONLY)
-						apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+						api::SetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
 					int DeleteCode;
 
@@ -797,7 +797,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	}
 
 	if (UpdateDiz)
-		if (DizPresent==(!strDizName.empty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
+		if (DizPresent==(!strDizName.empty() && api::GetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
 			SrcPanel->FlushDiz();
 }
 
@@ -837,7 +837,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 			return(DELETE_CANCEL);
 	}
 
-	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+	api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 	return(DELETE_YES);
 }
 
@@ -893,7 +893,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 		}
 		else if (!Global->Opt->DeleteToRecycleBin)
 		{
-			if (apiDeleteFile(strFullName))
+			if (api::DeleteFile(strFullName))
 				break;
 		}
 		else
@@ -909,7 +909,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			if (SkipMode == -1 && ret == DELETE_YES)
 			{
 				recycle_bin = false;
-				if (apiDeleteFile(strFullName))
+				if (api::DeleteFile(strFullName))
 					break;
 			}
 		}
@@ -949,7 +949,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 		switch(Type)
 		{
 		case D_DEL:
-			Success = apiRemoveDirectory(Name) != FALSE;
+			Success = api::RemoveDirectory(Name) != FALSE;
 			break;
 
 		case D_WIPE:
@@ -1003,10 +1003,10 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (Global->WinVer() < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (Global->WinVer() < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && api::GetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 		ScanTree ScTree(TRUE,TRUE,FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
 
@@ -1073,25 +1073,25 @@ void DeleteDirTree(const string& Dir)
 		return;
 
 	string strFullName;
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	ScanTree ScTree(TRUE,TRUE,FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
 
 	while (ScTree.GetNextName(&FindData, strFullName))
 	{
-		apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+		api::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (ScTree.IsDirSearchDone())
-				apiRemoveDirectory(strFullName);
+				api::RemoveDirectory(strFullName);
 		}
 		else
-			apiDeleteFile(strFullName);
+			api::DeleteFile(strFullName);
 	}
 
-	apiSetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
-	apiRemoveDirectory(Dir);
+	api::SetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
+	api::RemoveDirectory(Dir);
 }
 
 bool DeleteFileWithFolder(const string& FileName)
@@ -1100,12 +1100,12 @@ bool DeleteFileWithFolder(const string& FileName)
 	string strFileOrFolderName(FileName);
 	Unquote(strFileOrFolderName);
 
-	if (apiSetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL))
+	if (api::SetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL))
 	{
-		if (apiDeleteFile(strFileOrFolderName)) //BUGBUG
+		if (api::DeleteFile(strFileOrFolderName)) //BUGBUG
 		{
 			CutToSlash(strFileOrFolderName,true);
-			Result = apiRemoveDirectory(strFileOrFolderName) != FALSE;
+			Result = api::RemoveDirectory(strFileOrFolderName) != FALSE;
 		}
 	}
 	return Result;

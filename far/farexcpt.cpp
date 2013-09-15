@@ -333,7 +333,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 		}
 		else
 		{
-			apiGetModuleFileName(nullptr, strFileName);
+			api::GetModuleFileName(nullptr, strFileName);
 		}
 	}
 	else

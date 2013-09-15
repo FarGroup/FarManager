@@ -304,12 +304,12 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		apiExpandEnvironmentStrings(strTemplatePath, strTemplatePath);
+		strTemplatePath = api::ExpandEnvironmentStrings(strTemplatePath);
 		Unquote(strTemplatePath);
 		ConvertNameToFull(strTemplatePath, strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
-		DWORD attr = apiGetFileAttributes(strTemplatePath);
+		DWORD attr = api::GetFileAttributes(strTemplatePath);
 		if (INVALID_FILE_ATTRIBUTES != attr && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
 			strTemplatePath += L"\\Default.farconfig";
 
@@ -321,13 +321,13 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		apiExpandEnvironmentStrings(strProfilePath, strProfilePath);
+		strProfilePath = api::ExpandEnvironmentStrings(strProfilePath);
 		Unquote(strProfilePath);
 		ConvertNameToFull(strProfilePath,strProfilePath);
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		apiExpandEnvironmentStrings(strLocalProfilePath, strLocalProfilePath);
+		strLocalProfilePath = api::ExpandEnvironmentStrings(strLocalProfilePath);
 		Unquote(strLocalProfilePath);
 		ConvertNameToFull(strLocalProfilePath,strLocalProfilePath);
 	}
@@ -369,8 +369,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
 			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
-			apiExpandEnvironmentStrings(strUserLocalProfileDir, strUserLocalProfileDir);
+			strUserProfileDir = api::ExpandEnvironmentStrings(strUserProfileDir);
+			strUserLocalProfileDir = api::ExpandEnvironmentStrings(strUserLocalProfileDir);
 			Unquote(strUserProfileDir);
 			Unquote(strUserLocalProfileDir);
 			ConvertNameToFull(strUserProfileDir, strUserProfileDir);
@@ -391,8 +391,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath.data());
-	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath.data());
+	api::SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath);
+	api::SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
 		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.data());
@@ -410,7 +410,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	// Applications do not need to enable the LFH for their heaps.
 	if(Global->WinVer() < _WIN32_WINNT_VISTA)
 	{
-		apiEnableLowFragmentationHeap();
+		api::EnableLowFragmentationHeap();
 	}
 
 	if(!Global->Console->IsFullscreenSupported())
@@ -419,9 +419,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		Global->ifn->SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
-	InitCurrentDirectory();
+	api::InitCurrentDirectory();
 
-	if (apiGetModuleFileName(nullptr, Global->g_strFarModuleName))
+	if (api::GetModuleFileName(nullptr, Global->g_strFarModuleName))
 	{
 		ConvertNameToLong(Global->g_strFarModuleName, Global->g_strFarModuleName);
 		PrepareDiskPath(Global->g_strFarModuleName);
@@ -430,16 +430,19 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath.data());
+	api::SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 #ifndef NO_WRAPPER
 	// don't inherit from parent process in any case
 	// for OEM plugins only!
-	SetEnvironmentVariable(L"FARUSER", nullptr);
+	api::DeleteEnvironmentVariable(L"FARUSER");
 #endif // NO_WRAPPER
 
-	SetEnvironmentVariable(L"FARADMINMODE", Global->IsUserAdmin()?L"1":nullptr);
+	if (Global->IsUserAdmin())
+		api::SetEnvironmentVariable(L"FARADMINMODE", L"1");
+	else
+		api::DeleteEnvironmentVariable(L"FARADMINMODE");
 
 	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
@@ -550,7 +553,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					{
 						//Affects OEM plugins only!
 						Global->strRegRoot.append(L"\\Users\\").append(Argv[I+1]);
-						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
+						api::SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
 						I++;
 					}
 					break;
@@ -588,7 +591,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 					if (Argv[I][2])
 					{
-						apiExpandEnvironmentStrings(&Argv[I][2], Global->Opt->LoadPlug.strCustomPluginsPath);
+						Global->Opt->LoadPlug.strCustomPluginsPath = api::ExpandEnvironmentStrings(&Argv[I][2]);
 						Unquote(Global->Opt->LoadPlug.strCustomPluginsPath);
 						ConvertNameToFull(Global->Opt->LoadPlug.strCustomPluginsPath, Global->Opt->LoadPlug.strCustomPluginsPath);
 					}
@@ -654,11 +657,11 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 				}
 				else
 				{
-					apiExpandEnvironmentStrings(ArgvI, ArgvI);
+					ArgvI = api::ExpandEnvironmentStrings(ArgvI);
 					Unquote(ArgvI);
 					ConvertNameToFull(ArgvI, ArgvI);
 
-					if (apiGetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
+					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
 					{
 						DestNames[CntDestName++] = ArgvI;
 					}
@@ -708,7 +711,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		throw FarException(LngMsg);
 	}
 
-	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage.data());
+	api::SetEnvironmentVariable(L"FARLANG", Global->Opt->strLanguage);
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;

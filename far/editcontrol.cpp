@@ -176,11 +176,10 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		Unquote(strStr);
 		if(!strStr.empty())
 		{
-			FAR_FIND_DATA d;
-			string strExp;
-			apiExpandEnvironmentStrings(strStr,strExp);
-			FindFile Find(strExp+L"*");
+			string strExp = api::ExpandEnvironmentStrings(strStr);
+			api::FindFile Find(strExp+L"*");
 			bool Separator=false;
+			api::FAR_FIND_DATA d;
 			while(Find.Get(d))
 			{
 				const wchar_t* FileName=PointToName(strStr);
@@ -245,21 +244,21 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 		string strName=Module;
 		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-		apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
+		api::GetEnvironmentVariable(L"PATHEXT",strPathExt);
 		auto PathExtList(StringToList(strPathExt));
 
 		string strPathEnv;
-		if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
+		if (api::GetEnvironmentVariable(L"PATH", strPathEnv))
 		{
 			auto PathList(StringToList(strPathEnv));
 
 			std::for_each(CONST_RANGE(PathList, i)
 			{
-				FAR_FIND_DATA data;
+				api::FAR_FIND_DATA data;
 				string str(i);
 				AddEndSlash(str);
 				str.append(strName).append(L"*");
-				FindFile Find(str);
+				api::FindFile Find(str);
 				while(Find.Get(data))
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
@@ -318,7 +317,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 				DWORD RetEnum = ERROR_SUCCESS;
 				while (RetEnum == ERROR_SUCCESS)
 				{
-					RetEnum = apiRegEnumKeyEx(hKey, Index++, strName);
+					RetEnum = api::RegEnumKeyEx(hKey, Index++, strName);
 					if(RetEnum == ERROR_SUCCESS)
 					{
 						HKEY hSubKey;

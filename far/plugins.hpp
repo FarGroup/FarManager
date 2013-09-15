@@ -238,7 +238,7 @@ private:
 	void ReadUserBackgound(SaveScreen *SaveScr);
 	void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey);
 	void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType,string &strHotKey);
-	Plugin* LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA &FindData, bool LoadToMem);
+	Plugin* LoadPlugin(const string& lpwszModuleName, const api::FAR_FIND_DATA &FindData, bool LoadToMem);
 	bool AddPlugin(Plugin *pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
 	bool UpdateId(Plugin *pPlugin, const GUID& Id);

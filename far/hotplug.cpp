@@ -317,7 +317,7 @@ DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
 	{
 		MountPoint[4] = Letter;
-		if(apiGetVolumeNameForVolumeMountPoint(MountPoint,strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
+		if(api::GetVolumeNameForVolumeMountPoint(MountPoint,strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0)
 			return (1 << (Letter-L'A'));
 	}
 
@@ -353,7 +353,7 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 								string strMountPoint(DData->DevicePath);
 								AddEndSlash(strMountPoint);
 								string strVolumeName;
-								if (apiGetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
+								if (api::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
 								{
 										dwMask |= DriveMaskFromVolumeName(strVolumeName);
 								}

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(File& file, DWORD buffer_size):
+CachedRead::CachedRead(api::File& file, DWORD buffer_size):
 	file(file),
 	DefaultBufferSize(0x10000),
 	ReadSize(0),
@@ -189,7 +189,7 @@ bool CachedRead::FillBuffer()
 	return Result;
 }
 
-CachedWrite::CachedWrite(File& file):
+CachedWrite::CachedWrite(api::File& file):
 	file(file),
 	Buffer(0x10000),
 	FreeSize(Buffer.size()),

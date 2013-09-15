@@ -93,7 +93,7 @@ struct ArcListItem
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
-	FAR_FIND_DATA FindData;
+	api::FAR_FIND_DATA FindData;
 	ArcListItem* Arc;
 	DWORD Used;
 	void* Data;
@@ -202,7 +202,7 @@ public:
 		return ArcList.back();
 	}
 
-	FindListItem& AddFindListItem(const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+	FindListItem& AddFindListItem(const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		CriticalSectionLock Lock(DataCS);
 
@@ -938,7 +938,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName,struct UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName,struct UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -1029,7 +1029,7 @@ int FindFiles::LookForString(const string& Name)
 	if (!(findStringCount = strFindStr.size()))
 		return true;
 
-	File file;
+	api::File file;
 	// Открываем файл
 	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
@@ -1325,7 +1325,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 					{
 						string strTempDir;
 						FarMkTempEx(strTempDir); // А проверка на nullptr???
-						apiCreateDirectory(strTempDir,nullptr);
+						api::CreateDirectory(strTempDir,nullptr);
 
 						bool GetFileResult=false;
 						{
@@ -1338,7 +1338,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 						}
 						else
 						{
-							apiRemoveDirectory(strTempDir);
+							api::RemoveDirectory(strTempDir);
 						}
 					}
 					else
@@ -1645,13 +1645,13 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								ClosePanel = true;
 							}
 							FarMkTempEx(strTempDir);
-							apiCreateDirectory(strTempDir, nullptr);
+							api::CreateDirectory(strTempDir, nullptr);
 							CriticalSectionLock Lock(PluginCS);
 							struct UserDataItem UserData={FindItem->Data,FindItem->FreeData};
 							bool bGet=GetPluginFile(FindItem->Arc,FindItem->FindData,strTempDir,strSearchFileName,&UserData);
 							if (!bGet)
 							{
-								apiRemoveDirectory(strTempDir);
+								api::RemoveDirectory(strTempDir);
 
 								if (ClosePanel)
 								{
@@ -1675,11 +1675,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (real_name)
 					{
 						strSearchFileName = FindItem->FindData.strFileName;
-						if (apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindItem->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
+						if (api::GetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && api::GetFileAttributes(FindItem->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
 							strSearchFileName = FindItem->FindData.strAlternateFileName;
 					}
 
-					DWORD FileAttr=apiGetFileAttributes(strSearchFileName);
+					DWORD FileAttr=api::GetFileAttributes(strSearchFileName);
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
@@ -1993,7 +1993,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!Dlg)
 		return;
@@ -2207,7 +2207,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const FAR_FIND
 
 void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, PluginPanelItem& FindData)
 {
-	FAR_FIND_DATA fdata;
+	api::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
 	AddMenuRecord(Dlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
@@ -2314,7 +2314,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		ScTree.SetFindPath(strCurRoot,L"*");
 		itd->SetFindMessage(strCurRoot);
-		FAR_FIND_DATA FindData;
+		api::FAR_FIND_DATA FindData;
 		string strFullName;
 
 		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
@@ -2330,7 +2330,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 			if (Global->Opt->FindOpt.FindAlternateStreams)
 			{
-				hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
+				hFindStream=api::FindFirstStream(strFullName,FindStreamInfoStandard,&sd);
 			}
 
 			// process default streams first
@@ -2345,9 +2345,9 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 					{
 						if (!FirstCall)
 						{
-							if (!apiFindNextStream(hFindStream,&sd))
+							if (!api::FindNextStream(hFindStream,&sd))
 							{
-								apiFindStreamClose(hFindStream);
+								api::FindStreamClose(hFindStream);
 								break;
 							}
 						}
@@ -2556,7 +2556,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	if (SearchMode==FINDAREA_INPATH)
 	{
 		string strPathEnv;
-		apiGetEnvironmentVariable(L"PATH",strPathEnv);
+		api::GetEnvironmentVariable(L"PATH",strPathEnv);
 		InitString = strPathEnv;
 	}
 	else if (SearchMode==FINDAREA_ROOT)
@@ -2582,7 +2582,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 			string strGuidVolime;
-			if(apiGetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
+			if(api::GetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
 			{
 				Volumes.emplace_back(strGuidVolime);
 			}
@@ -2925,7 +2925,7 @@ bool FindFiles::FindFilesProcess()
 					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')
 						strFileName.pop_back();
 
-					if ((apiGetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError() != ERROR_ACCESS_DENIED))
+					if ((api::GetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
 
 					const wchar_t *NamePtr = PointToName(strFileName);

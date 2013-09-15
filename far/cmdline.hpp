@@ -36,14 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "editcontrol.hpp"
 
-struct PushPopRecord
-{
-	string strName;
-
-	PushPopRecord& operator=(const PushPopRecord &rhs) {strName=rhs.strName; return *this;}
-};
-
-
 class CommandLine:public ScreenObject
 {
 public:
@@ -94,7 +86,7 @@ private:
 	string strCurDir;
 	string strLastCmdStr;
 	int LastCmdPartLength;
-	std::stack<PushPopRecord> ppstack;
+	std::stack<string> ppstack;
 	friend class SetAutocomplete;
 
 };

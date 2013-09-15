@@ -166,7 +166,7 @@ bool NativePluginModel::IsPlugin(const string& filename)
 		return false;
 
 	bool Result = false;
-	HANDLE hModuleFile = apiCreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	HANDLE hModuleFile = api::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 
 	if (hModuleFile != INVALID_HANDLE_VALUE)
 	{
@@ -498,8 +498,8 @@ bool Plugin::SaveToCache()
 
 	{
 		string strCurPluginID;
-		FAR_FIND_DATA fdata;
-		apiGetFindDataEx(m_strModuleName, fdata);
+		api::FAR_FIND_DATA fdata;
+		api::GetFindDataEx(m_strModuleName, fdata);
 		strCurPluginID = str_printf(
 			L"%I64x%x%x",
 			fdata.nFileSize,
@@ -597,13 +597,13 @@ bool Plugin::LoadData()
 	{
 		string strCurPath, strCurPlugDiskPath;
 		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
-		apiGetCurrentDirectory(strCurPath);
+		api::GetCurrentDirectory(strCurPath);
 
 		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.front();
-			apiGetEnvironmentVariable(Drive, strCurPlugDiskPath);
+			api::GetEnvironmentVariable(Drive, strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);
@@ -611,7 +611,7 @@ bool Plugin::LoadData()
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariable(Drive,strCurPlugDiskPath.data());
+			api::SetEnvironmentVariable(Drive, strCurPlugDiskPath);
 	}
 
 	if (!m_Instance)
@@ -715,7 +715,7 @@ bool Plugin::Load()
 	return true;
 }
 
-bool Plugin::LoadFromCache(const FAR_FIND_DATA &FindData)
+bool Plugin::LoadFromCache(const api::FAR_FIND_DATA &FindData)
 {
 	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
 

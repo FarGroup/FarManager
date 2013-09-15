@@ -99,36 +99,28 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 	return !Octets && !Ascii;
 }
 
-GetFileString::GetFileString(File& SrcFile):
+GetFileString::GetFileString(api::File& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
+	m_CodePage(CodePage),
 	ReadPos(0),
 	ReadSize(0),
 	Peek(false),
 	LastLength(0),
 	LastString(nullptr),
-	LastResult(0),
-	ReadBuf(ReadBufCount),
-	wReadBuf(ReadBufCount),
-	m_nStrLength(DELTA),
-	Str(static_cast<LPSTR>(xf_malloc(m_nStrLength))),
-	m_nwStrLength(DELTA),
-	wStr(static_cast<LPWSTR>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
+	LastResult(false),
+	m_ReadBuf(ReadBufCount),
+	m_wReadBuf(ReadBufCount),
 	SomeDataLost(false),
 	bCrCr(false)
 {
+	m_wStr.reserve(DELTA);
 }
 
-GetFileString::~GetFileString()
-{
-	xf_free(wStr);
-	xf_free(Str);
-}
-
-int GetFileString::PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
+bool GetFileString::PeekString(LPWSTR* DestStr, size_t& Length)
 {
 	if(!Peek)
 	{
-		LastResult = GetString(DestStr, nCodePage, Length);
+		LastResult = GetString(DestStr, Length);
 		Peek = true;
 		LastString = *DestStr;
 		LastLength = Length;
@@ -141,7 +133,19 @@ int GetFileString::PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 	return LastResult;
 }
 
-int GetFileString::GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
+bool GetFileString::GetString(string& str)
+{
+	wchar_t* s;
+	size_t len;
+	if (GetString(&s, len))
+	{
+		str.assign(s, len);
+		return true;
+	}
+	return false;
+}
+
+bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 {
 	if(Peek)
 	{
@@ -150,116 +154,144 @@ int GetFileString::GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 		Length = LastLength;
 		return LastResult;
 	}
-	int nExitCode;
 
-	if (nCodePage == CP_UNICODE) //utf-16
+	switch (m_CodePage)
 	{
-		nExitCode = GetUnicodeString(DestStr, Length, false);
-	}
-	else if (nCodePage == CP_REVERSEBOM)
-	{
-		nExitCode = GetUnicodeString(DestStr, Length, true);
-	}
-	else
-	{
-		char *Str;
-		nExitCode = GetAnsiString(&Str, Length);
-
-		if (nExitCode == 1)
+	case CP_UNICODE:
+	case CP_REVERSEBOM:
+		if (GetTString(m_wReadBuf, m_wStr, m_CodePage == CP_REVERSEBOM))
 		{
-			DWORD Result = ERROR_SUCCESS;
-			int nResultLength = 0;
-			bool bGet = false;
-			*wStr = L'\0';
+			*DestStr = m_wStr.data();
+			Length = m_wStr.size() - 1;
+			return true;
+		}
+		return false;
 
-			if (!SomeDataLost)
+	default:
+		{
+			std::vector<char> CharStr;
+			CharStr.reserve(DELTA);
+			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+
+			if (ExitCode)
 			{
-				// при CP_UTF7 dwFlags должен быть 0, см. MSDN
-				nResultLength = MultiByteToWideChar(nCodePage, (SomeDataLost || nCodePage==CP_UTF7) ? 0 : MB_ERR_INVALID_CHARS, Str, Length, wStr, m_nwStrLength - 1);
+				DWORD Result = ERROR_SUCCESS;
+				int nResultLength = 0;
+				bool bGet = false;
+				m_wStr.resize(CharStr.size());
 
-				if (!nResultLength)
+				if (!SomeDataLost)
 				{
-					Result = GetLastError();
-					if (Result == ERROR_NO_UNICODE_TRANSLATION)
+					// при CP_UTF7 dwFlags должен быть 0, см. MSDN
+					nResultLength = MultiByteToWideChar(m_CodePage, (SomeDataLost || m_CodePage == CP_UTF7) ? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+
+					if (!nResultLength)
 					{
-						SomeDataLost = true;
-						bGet = true;
+						Result = GetLastError();
+						if (Result == ERROR_NO_UNICODE_TRANSLATION)
+						{
+							SomeDataLost = true;
+							bGet = true;
+						}
 					}
 				}
-			}
-			else
-			{
-				bGet = true;
-			}
-			if (bGet)
-			{
-				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, wStr, m_nwStrLength - 1);
-				if (!nResultLength)
+				else
 				{
-					Result = GetLastError();
+					bGet = true;
 				}
+				if (bGet)
+				{
+					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					if (!nResultLength)
+					{
+						Result = GetLastError();
+					}
+				}
+				if (Result == ERROR_INSUFFICIENT_BUFFER)
+				{
+					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), nullptr, 0);
+					std::vector<wchar_t>(nResultLength + 1).swap(m_wStr);
+					nResultLength = MultiByteToWideChar(m_CodePage, 0, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), nResultLength);
+				}
+
+				m_wStr.resize(nResultLength);
+
+				*DestStr = m_wStr.data();
+				Length = m_wStr.size() - 1;
 			}
-			if (Result == ERROR_INSUFFICIENT_BUFFER)
-			{
-				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, nullptr, 0);
-				wStr = static_cast<LPWSTR>(xf_realloc_nomove(wStr, (nResultLength + 1) * sizeof(wchar_t)));
-				*wStr = L'\0';
-				m_nwStrLength = nResultLength+1;
-				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, wStr, nResultLength);
-			}
-			if (nResultLength)
-			{
-				wStr[nResultLength] = L'\0';
-			}
-			Length = nResultLength;
-			*DestStr = wStr;
+
+			return ExitCode;
 		}
 	}
-	return nExitCode;
 }
 
-int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
+template<class T>
+struct eol;
+
+template<>
+struct eol<char>
 {
-	int CurLength = 0;
-	int ExitCode = 1;
-	LPSTR ReadBufPtr = ReadPos < ReadSize ? ReadBuf.get() + ReadPos : nullptr;
+	static const char cr = '\r';
+	static const char lf = '\n';
+};
+
+template<>
+struct eol<wchar_t>
+{
+	static const wchar_t cr = L'\r';
+	static const wchar_t lf = L'\n';
+};
+
+template<class T>
+bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian)
+{
+	typedef eol<T> eol;
+
+	bool ExitCode = true;
+	T* ReadBufPtr = ReadPos < ReadSize ? From.data() + ReadPos / sizeof(T) : nullptr;
+
+	To.clear();
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
 	if (bCrCr)
 	{
-		*Str = '\r';
-		CurLength = 1;
+		To.emplace_back(eol::cr);
 		bCrCr = false;
 	}
 	else
 	{
 		EolType Eol = FEOL_NONE;
-		int x = 0;
-		for(;;)
+		for (;;)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(ReadBuf.get(), ReadBufCount, ReadSize) && ReadSize))
+				if (!(SrcFile.Read(From.data(), ReadBufCount*sizeof(T), ReadSize) && ReadSize))
 				{
-					if (!CurLength)
+					if (To.empty())
 					{
-						ExitCode=0;
+						ExitCode = false;
 					}
 					break;
 				}
+
+				if (bBigEndian && sizeof(T) != 1)
+				{
+					_swab(reinterpret_cast<char*>(From.data()), reinterpret_cast<char*>(From.data()), ReadSize);
+				}
+
 				ReadPos = 0;
-				ReadBufPtr = ReadBuf.get();
+				ReadBufPtr = From.data();
 			}
 			if (Eol == FEOL_NONE)
 			{
 				// UNIX
-				if (*ReadBufPtr == '\n')
+				if (*ReadBufPtr == eol::lf)
 				{
 					Eol = FEOL_UNIX;
 				}
 				// MAC / Windows? / Notepad?
-				else if (*ReadBufPtr == '\r')
+				else if (*ReadBufPtr == eol::cr)
 				{
 					Eol = FEOL_MAC;
 				}
@@ -267,12 +299,12 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 			else if (Eol == FEOL_MAC)
 			{
 				// Windows
-				if (*ReadBufPtr == '\n')
+				if (*ReadBufPtr == eol::lf)
 				{
 					Eol = FEOL_WINDOWS;
 				}
 				// Notepad?
-				else if (*ReadBufPtr == '\r')
+				else if (*ReadBufPtr == eol::cr)
 				{
 					Eol = FEOL_MAC2;
 				}
@@ -288,14 +320,14 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 			else if (Eol == FEOL_MAC2)
 			{
 				// Notepad
-				if (*ReadBufPtr == '\n')
+				if (*ReadBufPtr == eol::lf)
 				{
 					Eol = FEOL_NOTEPAD;
 				}
 				else
 				{
 					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
-					CurLength--;
+					To.pop_back();
 					bCrCr = true;
 					break;
 				}
@@ -304,143 +336,21 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 			{
 				break;
 			}
-			ReadPos++;
-			if (CurLength >= m_nStrLength - 1)
-			{
-				LPSTR NewStr = static_cast<LPSTR>(xf_realloc(Str, m_nStrLength + (DELTA << x)));
-				if (!NewStr)
-				{
-					return -1;
-				}
-				Str = NewStr;
-				m_nStrLength += DELTA << x;
-				x++;
-			}
-			Str[CurLength++] = *ReadBufPtr;
+
+			ReadPos += sizeof(T);
+
+			if (To.size() == To.capacity())
+				To.reserve(To.size() * 2);
+
+			To.emplace_back(*ReadBufPtr);
 			ReadBufPtr++;
 		}
 	}
-
-	Str[CurLength] = 0;
-	*DestStr = Str;
-	Length = CurLength;
+	To.push_back(0);
 	return ExitCode;
 }
 
-int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndian)
-{
-	int CurLength = 0;
-	int ExitCode = 1;
-	LPWSTR ReadBufPtr = ReadPos < ReadSize ? wReadBuf.get() + ReadPos / sizeof(wchar_t) : nullptr;
-
-	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
-	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
-	if (bCrCr)
-	{
-		*wStr = L'\r';
-		CurLength = 1;
-		bCrCr = false;
-	}
-	else
-	{
-		EolType Eol = FEOL_NONE;
-		int x = 0;
-		for(;;)
-		{
-			if (ReadPos >= ReadSize)
-			{
-				if (!(SrcFile.Read(wReadBuf.get(), ReadBufCount*sizeof(wchar_t), ReadSize) && ReadSize))
-				{
-					if (!CurLength)
-					{
-						ExitCode = 0;
-					}
-					break;
-				}
-
-				if (bBigEndian)
-				{
-					_swab(reinterpret_cast<char*>(wReadBuf.get()), reinterpret_cast<char*>(wReadBuf.get()), ReadSize);
-				}
-				ReadPos = 0;
-				ReadBufPtr = wReadBuf.get();
-			}
-			if (Eol == FEOL_NONE)
-			{
-				// UNIX
-				if (*ReadBufPtr == L'\n')
-				{
-					Eol = FEOL_UNIX;
-				}
-				// MAC / Windows? / Notepad?
-				else if (*ReadBufPtr == L'\r')
-				{
-					Eol = FEOL_MAC;
-				}
-			}
-			else if (Eol == FEOL_MAC)
-			{
-				// Windows
-				if (*ReadBufPtr == L'\n')
-				{
-					Eol = FEOL_WINDOWS;
-				}
-				// Notepad?
-				else if (*ReadBufPtr == L'\r')
-				{
-					Eol = FEOL_MAC2;
-				}
-				else
-				{
-					break;
-				}
-			}
-			else if (Eol == FEOL_WINDOWS || Eol == FEOL_UNIX)
-			{
-				break;
-			}
-			else if (Eol == FEOL_MAC2)
-			{
-				// Notepad
-				if (*ReadBufPtr == L'\n')
-				{
-					Eol = FEOL_NOTEPAD;
-				}
-				else
-				{
-					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
-					CurLength--;
-					bCrCr = true;
-					break;
-				}
-			}
-			else
-			{
-				break;
-			}
-			ReadPos += sizeof(wchar_t);
-			if (CurLength >= m_nwStrLength - 1)
-			{
-				LPWSTR NewStr = static_cast<LPWSTR>(xf_realloc(wStr, (m_nwStrLength + (DELTA << x)) * sizeof(wchar_t)));
-				if (!NewStr)
-				{
-					return -1;
-				}
-				wStr = NewStr;
-				m_nwStrLength += DELTA << x;
-				x++;
-			}
-			wStr[CurLength++] = *ReadBufPtr;
-			ReadBufPtr++;
-		}
-	}
-	wStr[CurLength] = 0;
-	*DestStr = wStr;
-	Length = CurLength;
-	return ExitCode;
-}
-
-bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics)
+bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics)
 {
 	DWORD dwTemp=0;
 	bool bSignatureFound = false;

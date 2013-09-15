@@ -5,6 +5,8 @@ library_extensions.hpp
 
 Some workarounds & emulations for C++11/14 features, missed in currently used compilers.
 Some useful STL-based templates && macros.
+
+Here be dragons
 */
 /*
 Copyright © 2013 Far Group
@@ -290,3 +292,15 @@ private:
 #define SCOPE_EXIT \
 	std::function<void()> SCOPE_EXIT_NAME(scope_exit_func_, __LINE__); \
 	ScopeExit SCOPE_EXIT_NAME(scope_exit_, __LINE__) = SCOPE_EXIT_NAME(scope_exit_func_, __LINE__) = [&]() /* lambda body here */
+
+template<class T>
+inline void resize_nomove(T& container, size_t size)
+{
+	T(size).swap(container);
+}
+
+template<class T>
+inline void clear_and_shrink(T& container)
+{
+	T().swap(container);
+}

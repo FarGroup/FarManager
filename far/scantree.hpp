@@ -58,7 +58,7 @@ enum
 struct ScanTreeData
 {
 	BitFlags Flags;
-	std::unique_ptr<FindFile> Find;
+	std::unique_ptr<api::FindFile> Find;
 	string RealPath;
 };
 
@@ -69,7 +69,7 @@ public:
 
 	// 3-й параметр - флаги из старшего слова
 	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-	bool GetNextName(FAR_FIND_DATA *fdata, string &strFullName);
+	bool GetNextName(api::FAR_FIND_DATA *fdata, string &strFullName);
 	void SkipDir();
 	int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);}
 	int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);}

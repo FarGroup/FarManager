@@ -370,7 +370,7 @@ void TreeList::Update(int Mode)
 		SyncDir();
 		TreeItem *CurPtr=ListData[CurFile].get();
 
-		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
+		if (api::GetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
 		{
 			DelTreeName(CurPtr->strName);
 			Update(UPDATE_KEEP_SELECTION);
@@ -406,7 +406,7 @@ int TreeList::ReadTree()
 	//SaveScreen SaveScr;
 	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
 	ScanTree ScTree(FALSE);
-	FAR_FIND_DATA fdata;
+	api::FAR_FIND_DATA fdata;
 	string strFullName;
 	SaveState();
 	FlushCache();
@@ -489,12 +489,12 @@ void TreeList::SaveTreeFile()
 	size_t RootLength=strRoot.empty()?0:strRoot.size()-1;
 	MkTreeFileName(strRoot, strName);
 	// получим и сразу сбросим атрибуты (если получится)
-	DWORD FileAttributes=apiGetFileAttributes(strName);
+	DWORD FileAttributes=api::GetFileAttributes(strName);
 
 	if (FileAttributes != INVALID_FILE_ATTRIBUTES)
-		apiSetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
+		api::SetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
 
-	File TreeFile;
+	api::File TreeFile;
 	if (!TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 	{
 		if (MustBeCached(strRoot))
@@ -543,11 +543,11 @@ void TreeList::SaveTreeFile()
 
 	if (!Success)
 	{
-		apiDeleteFile(strName);
+		api::DeleteFile(strName);
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName.data(),MSG(MOk));
 	}
 	else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-		apiSetFileAttributes(strName,FileAttributes);
+		api::SetFileAttributes(strName,FileAttributes);
 }
 
 int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir)
@@ -555,7 +555,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
 
-	if (!apiGetVolumeInformation(
+	if (!api::GetVolumeInformation(
 	            Root,
 	            &strVolumeName,
 	            &dwVolumeSerialNumber,
@@ -571,8 +571,8 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 	if (CreateDir)
 	{
-		apiCreateDirectory(strFolderName, nullptr);
-		apiSetFileAttributes(strFolderName,Global->Opt->Tree.TreeFileAttr);
+		api::CreateDirectory(strFolderName, nullptr);
+		api::SetFileAttributes(strFolderName,Global->Opt->Tree.TreeFileAttr);
 	}
 
 	string strRemoteName;
@@ -583,7 +583,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 	{
 		string LocalName(L"?:");
 		LocalName.front() = Root.front();
-		apiWNetGetConnection(LocalName, strRemoteName);
+		api::WNetGetConnection(LocalName, strRemoteName);
 
 		if (!strRemoteName.empty())
 			AddEndSlash(strRemoteName);
@@ -1384,7 +1384,7 @@ void TreeList::ProcessEnter()
 	DWORD Attr;
 	CurPtr=ListData[CurFile].get();
 
-	if ((Attr=apiGetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
+	if ((Attr=api::GetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		if (!ModalMode && FarChDir(CurPtr->strName))
 		{
@@ -1411,7 +1411,7 @@ int TreeList::ReadTreeFile()
 	FlushCache();
 	MkTreeFileName(strRoot,strName);
 
-	File TreeFile;
+	api::File TreeFile;
 	if (MustBeCached(strRoot) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 	{
 		if (!GetCacheTreeName(strRoot,strName,FALSE) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
@@ -1425,10 +1425,10 @@ int TreeList::ReadTreeFile()
 
 	{
 		string strLastDirName;
-		GetFileString GetStr(TreeFile);
+		GetFileString GetStr(TreeFile, CP_UNICODE);
 		LPWSTR Record=nullptr;
-		int RecordLength=0;
-		while(GetStr.GetString(&Record, CP_UNICODE, RecordLength) > 0)
+		size_t RecordLength;
+		while(GetStr.GetString(&Record, RecordLength))
 		{
 			string strDirName(strRoot.data(), RootLength);
 			strDirName.append(Record, RecordLength);
@@ -1525,7 +1525,7 @@ size_t TreeList::GetSelCount()
 	return 1;
 }
 
-int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA *fd)
+int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,api::FAR_FIND_DATA *fd)
 {
 	if (!strName)
 	{
@@ -1656,13 +1656,13 @@ void TreeList::ReadSubTree(const string& Path)
 	//SaveScreen SaveScr;
 	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
 	ScanTree ScTree(FALSE);
-	FAR_FIND_DATA fdata;
+	api::FAR_FIND_DATA fdata;
 	string strDirName;
 	string strFullName;
 	int Count=0;
 	DWORD FileAttr;
 
-	if ((FileAttr=apiGetFileAttributes(Path))==INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if ((FileAttr=api::GetFileAttributes(Path))==INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return;
 
 	ConvertNameToFull(Path, strDirName);
@@ -1701,53 +1701,51 @@ void TreeList::ClearCache(int EnableFreeMem)
 void TreeList::ReadCache(const string& TreeRoot)
 {
 	string strTreeName;
-	FILE *TreeFile=nullptr;
-
 	if (MkTreeFileName(TreeRoot,strTreeName) == Global->TreeCache->strTreeName)
 		return;
 
 	if (!Global->TreeCache->Names.empty())
 		FlushCache();
 
-	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName.data(),L"rb")))
-		if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || !(TreeFile=_wfopen(strTreeName.data(),L"rb")))
+	api::File TreeFile;
+
+	if (MustBeCached(TreeRoot) || !TreeFile.Open(strTreeName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+	{
+		if (!GetCacheTreeName(TreeRoot, strTreeName, FALSE) || !TreeFile.Open(strTreeName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			ClearCache(1);
 			return;
 		}
-
-	Global->TreeCache->strTreeName = strTreeName;
-	wchar_t_ptr DirName(NT_MAX_PATH);
-
-	if (DirName)
-	{
-		while (fgetws(DirName.get(),NT_MAX_PATH,TreeFile))
-		{
-			if (!IsSlash(DirName[0]))
-				continue;
-
-			wchar_t *ChPtr=wcschr(DirName.get(),L'\n');
-
-			if (ChPtr)
-				*ChPtr=0;
-
-			Global->TreeCache->Names.emplace_back(DirName.get());
-		}
 	}
 
-	fclose(TreeFile);
+	Global->TreeCache->strTreeName = strTreeName;
+	GetFileString GetStr(TreeFile, CP_UNICODE);
+
+	string Record;
+	while (GetStr.GetString(Record))
+	{
+		if (Record.empty() || !IsSlash(Record.front()))
+			continue;
+
+		size_t pos = Record.find(L'\n');
+
+		if (pos != string::npos)
+			Record.resize(pos);
+
+		Global->TreeCache->Names.emplace_back(std::move(Record));
+	}
 }
 
 void TreeList::FlushCache()
 {
 	if (!Global->TreeCache->strTreeName.empty())
 	{
-		DWORD FileAttributes=apiGetFileAttributes(Global->TreeCache->strTreeName);
+		DWORD FileAttributes=api::GetFileAttributes(Global->TreeCache->strTreeName);
 
 		if (FileAttributes != INVALID_FILE_ATTRIBUTES)
-			apiSetFileAttributes(Global->TreeCache->strTreeName,FILE_ATTRIBUTE_NORMAL);
+			api::SetFileAttributes(Global->TreeCache->strTreeName,FILE_ATTRIBUTE_NORMAL);
 
-		File TreeFile;
+		api::File TreeFile;
 		if (!TreeFile.Open(Global->TreeCache->strTreeName, FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS))
 		{
 			ClearCache(1);
@@ -1770,11 +1768,11 @@ void TreeList::FlushCache()
 		TreeFile.Close();
 		if (WriteError)
 		{
-			apiDeleteFile(Global->TreeCache->strTreeName);
+			api::DeleteFile(Global->TreeCache->strTreeName);
 			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Global->TreeCache->strTreeName.data(), MSG(MOk));
 		}
 		else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			apiSetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
+			api::SetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
 	}
 	ClearCache(1);
 }
@@ -1848,7 +1846,7 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 		return FALSE;
 
 	strName = ListData[Pos]->strName;
-	FileAttr=FILE_ATTRIBUTE_DIRECTORY|apiGetFileAttributes(ListData[Pos]->strName);
+	FileAttr=FILE_ATTRIBUTE_DIRECTORY|api::GetFileAttributes(ListData[Pos]->strName);
 	return TRUE;
 }
 
@@ -1895,7 +1893,7 @@ void TreeList::KillFocus()
 {
 	if (static_cast<size_t>(CurFile) < ListData.size())
 	{
-		if (apiGetFileAttributes(ListData[CurFile]->strName)==INVALID_FILE_ATTRIBUTES)
+		if (api::GetFileAttributes(ListData[CurFile]->strName)==INVALID_FILE_ATTRIBUTES)
 		{
 			DelTreeName(ListData[CurFile]->strName);
 			Update(UPDATE_KEEP_SELECTION);
@@ -2051,7 +2049,7 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength=0,FileSystemFlags=0,VolumeNumber=0;
 
-	if (apiGetVolumeInformation(strRootDir,&strVolumeName,
+	if (api::GetVolumeInformation(strRootDir,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 	{

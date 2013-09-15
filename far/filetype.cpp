@@ -231,16 +231,16 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	}
 
 	if (!strListName.empty())
-		apiDeleteFile(strListName);
+		api::DeleteFile(strListName);
 
 	if (!strAnotherListName.empty())
-		apiDeleteFile(strAnotherListName);
+		api::DeleteFile(strAnotherListName);
 
 	if (!strShortListName.empty())
-		apiDeleteFile(strShortListName);
+		api::DeleteFile(strShortListName);
 
 	if (!strAnotherShortListName.empty())
-		apiDeleteFile(strAnotherShortListName);
+		api::DeleteFile(strAnotherShortListName);
 
 	return true;
 }
@@ -292,17 +292,17 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	}
 
 	if (!strListName.empty())
-		apiDeleteFile(strListName);
+		api::DeleteFile(strListName);
 
 	if (!strAnotherListName.empty())
-		apiDeleteFile(strAnotherListName);
+		api::DeleteFile(strAnotherListName);
 
 
 	if (!strShortListName.empty())
-		apiDeleteFile(strShortListName);
+		api::DeleteFile(strShortListName);
 
 	if (!strAnotherShortListName.empty())
-		apiDeleteFile(strAnotherShortListName);
+		api::DeleteFile(strAnotherShortListName);
 }
 
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)

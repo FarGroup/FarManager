@@ -64,7 +64,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 }
 
-bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
+bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 {
 	if (ScanItems.empty())
 		return false;
@@ -77,7 +77,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 		ScanTreeData* LastItem = ScanItems.back().get();
 		if (!LastItem->Find)
 		{
-			LastItem->Find = std::make_unique<FindFile>(strFindPath);
+			LastItem->Find = std::make_unique<api::FindFile>(strFindPath);
 		}
 		Done=!LastItem->Find->Get(*fdata);
 
@@ -122,7 +122,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA *fdata,string &strFullName)
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
 				strFullName = strFindPathOriginal;
-				apiGetFindDataEx(strFindPath, *fdata);
+				api::GetFindDataEx(strFindPath, *fdata);
 			}
 
 			CutToSlash(strFindPath);

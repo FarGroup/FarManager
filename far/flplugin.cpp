@@ -111,7 +111,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		{
 			PluginPanelItem PanelItem={};
 			string strSaveDir;
-			apiGetCurrentDirectory(strSaveDir);
+			api::GetCurrentDirectory(strSaveDir);
 
 			if (FileNameToPluginItem(CurPlugin.strHostFile,&PanelItem))
 			{
@@ -218,9 +218,9 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 
 	FarChDir(strTempDir);
 	ClearStruct(*pi);
-	FAR_FIND_DATA fdata;
+	api::FAR_FIND_DATA fdata;
 
-	if (apiGetFindDataEx(Name, fdata))
+	if (api::GetFindDataEx(Name, fdata))
 	{
 		FindDataExToPluginPanelItem(&fdata, pi);
 		return TRUE;
@@ -491,7 +491,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
 	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.empty() &&
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
-	         apiGetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
+	         api::GetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
 	{
 		Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
 		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
@@ -526,10 +526,10 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 		{
 			string strTempDir;
 
-			if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,nullptr))
+			if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
 			{
 				string strSaveDir;
-				apiGetCurrentDirectory(strSaveDir);
+				api::GetCurrentDirectory(strSaveDir);
 				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
 				DestDiz->Flush(L"", &strDizName);
 
@@ -627,7 +627,7 @@ void FileList::PluginToPluginFiles(int Move)
 		return;
 
 	SaveSelection();
-	apiCreateDirectory(strTempDir,nullptr);
+	api::CreateDirectory(strTempDir,nullptr);
 	auto ItemList = CreatePluginItemList();
 
 	if (!ItemList.empty())
@@ -639,7 +639,7 @@ void FileList::PluginToPluginFiles(int Move)
 		if (PutCode==1 || PutCode==2)
 		{
 			string strSaveDir;
-			apiGetCurrentDirectory(strSaveDir);
+			api::GetCurrentDirectory(strSaveDir);
 			FarChDir(strTempDir);
 			PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), FALSE, 0);
 

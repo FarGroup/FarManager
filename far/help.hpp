@@ -77,7 +77,7 @@ private:
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
-	void Search(File& HelpFile,uintptr_t nCodePage);
+	void Search(api::File& HelpFile,uintptr_t nCodePage);
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
 	const class HelpRecord* GetHelpItem(int Pos);

@@ -3966,14 +3966,17 @@ static bool environFunc(FarMacroCall* Data)
 	string strEnv;
 
 
-	if (apiGetEnvironmentVariable(S.toString(), strEnv))
+	if (api::GetEnvironmentVariable(S.toString(), strEnv))
 		Ret=true;
 	else
 		strEnv.clear();
 
 	if (Mode.i()) // Mode != 0: Set
 	{
-		SetEnvironmentVariable(S.toString(),Value.isUnknown() || !*Value.s()?nullptr:Value.toString());
+		if (Value.isUnknown() || !*Value.s())
+			api::DeleteEnvironmentVariable(S.toString());
+		else
+			api::SetEnvironmentVariable(S.toString(), Value.toString());
 	}
 
 	PassString(strEnv, Data);
@@ -4041,8 +4044,8 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	{
 		parseParams(1,Params,Data);
 		TVar& Str(Params[0]);
-		FAR_FIND_DATA FindData;
-		apiGetFindDataEx(Str.toString(), FindData);
+		api::FAR_FIND_DATA FindData;
+		api::GetFindDataEx(Str.toString(), FindData);
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;
 	}

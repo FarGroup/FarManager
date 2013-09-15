@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 #include <algorithm>
 #include <bitset>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>

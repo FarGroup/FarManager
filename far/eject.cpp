@@ -83,7 +83,7 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 			return FALSE;
 	}
 
-	File Disk;
+	api::File Disk;
 	bool Opened = Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
@@ -190,7 +190,7 @@ bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 	{
 		string name(L"\\\\.\\?:");
 		name[4] = Letter;
-		File file;
+		api::File file;
 		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY dg={};

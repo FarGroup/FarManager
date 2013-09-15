@@ -385,9 +385,9 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 							{
 								Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 								if(!pPlugin) kill=true;
-								else if (!strHFile.empty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
+								else if (!strHFile.empty()&&api::GetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
 							}
-							else if (apiGetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES) kill=true;
+							else if (api::GetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES) kill=true;
 
 							if(kill)
 							{
@@ -541,7 +541,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 			//BUGUBUG: eliminate those magic numbers!
 			if (SelectedRecordType != 2 && SelectedRecordType != 3 // ignore external
-				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
+				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || TypeHistory == HISTORYTYPE_VIEW) && api::GetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				Global->CatchError();
