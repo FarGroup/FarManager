@@ -39,10 +39,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #endif // __GNUC__
 
-#include "nsUniversalDetectorEx.hpp"
-
 namespace ucd
 {
+#include "UCD/nscore.h"
+#include "UCD/nsUniversalDetector.h"
+
 #include "UCD/prmem.c"
 #include "UCD/CharDistribution.cpp"
 #include "UCD/JpCntx.cpp"
@@ -69,4 +70,74 @@ namespace ucd
 #include "UCD/nsSJISProber.cpp"
 #include "UCD/nsUniversalDetector.cpp"
 #include "UCD/nsUTF8Prober.cpp"
+};
+
+class nsUniversalDetectorEx : public ucd::nsUniversalDetector
+{
+public:
+	nsUniversalDetectorEx():
+		nsUniversalDetector(NS_FILTER_NON_CJK),
+		m_codepage(-1)
+	{
+		Names.insert(std::make_pair("windows-1250", 1250));
+		Names.insert(std::make_pair("windows-1251", 1251));
+		Names.insert(std::make_pair("windows-1252", 1252));
+		Names.insert(std::make_pair("windows-1253", 1253));
+		Names.insert(std::make_pair("windows-1255", 1255));
+		Names.insert(std::make_pair("UTF16-LE", CP_UNICODE));
+		Names.insert(std::make_pair("UTF16-BE", CP_REVERSEBOM));
+		Names.insert(std::make_pair("UTF-8", CP_UTF8));
+		Names.insert(std::make_pair("IBM855", 855));
+		Names.insert(std::make_pair("IBM866", 866));
+		Names.insert(std::make_pair("KOI8-R", 20866));
+		Names.insert(std::make_pair("x-mac-hebrew", 10005));
+		Names.insert(std::make_pair("x-mac-cyrillic", /*10007*/ 1251)); //ќно слишком похоже на 1251 и детектор, бывает, путает
+		Names.insert(std::make_pair("ISO-8859-2", 28592));
+		Names.insert(std::make_pair("ISO-8859-5", 28595));
+		Names.insert(std::make_pair("ISO-8859-7", 28597));
+		Names.insert(std::make_pair("ISO-8859-8", 28598));
+		Names.insert(std::make_pair("ISO-8859-8-I", 38598));
+
+		/*
+		and the rest:
+		"Shift_JIS"
+		"gb18030"
+		"x-euc-tw"
+		"EUC-KR"
+		"EUC-JP"
+		"Big5"
+		"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
+		"UTF-32BE"
+		"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
+		"UTF-32LE"
+		ISO-2022-CN
+		ISO-2022-JP
+		ISO-2022-KR
+		"TIS-620"
+		*/
+	}
+
+	int getCodePage() const
+	{
+		return m_codepage;
+	}
+
+protected:
+	virtual void Report(const char* aCharset) override
+	{
+		auto i = Names.find(aCharset);
+		m_codepage = i != Names.end()? i->second : -1;
+	}
+
+private:
+	int m_codepage;
+	std::unordered_map<std::string, uintptr_t> Names;
+};
+
+uintptr_t GetCpUsingUniversalDetector(const void* data, size_t size)
+{
+	static nsUniversalDetectorEx ns;
+	ns.HandleData(static_cast<const char*>(data), static_cast<ucd::PRUint32>(size));
+	ns.DataEnd();
+	return ns.getCodePage();
 }

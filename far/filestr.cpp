@@ -433,10 +433,7 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 			}
 			else
 			{
-				auto ns = std::make_unique<nsUniversalDetectorEx>();
-				ns->HandleData(Buffer.get(), ReadSize);
-				ns->DataEnd();
-				int cp = ns->getCodePage();
+				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
 				if ( cp >= 0 )
 				{
 					if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
