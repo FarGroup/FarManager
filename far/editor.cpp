@@ -826,11 +826,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
-			wchar_t *Text = VBlockStart ? VBlock2Text(nullptr) : Block2Text(nullptr);
-			*(string *)vParam = NullToEmpty(Text);
-			if (Text)
-				delete[] Text;
-
+			*reinterpret_cast<string*>(vParam) = VBlockStart ? VBlock2Text() : Block2Text();
 			return 1;
 		}
 	}
@@ -1592,7 +1588,7 @@ int Editor::ProcessKey(int Key)
 
 				ProcessKey(KEY_SHIFTINS);
 				Pasting--;
-				EmptyInternalClipboard();
+				ClearInternalClipboard();
 				Clipboard::SetUseInternalClipboardState(OldUseInternalClipboard);
 				/*$ 08.02.2001 SKV
 				  всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
@@ -4201,35 +4197,32 @@ void Editor::Paste(const wchar_t *Src)
 	if (Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	wchar_t *ClipText=const_cast<wchar_t*>(Src);
-	BOOL IsDeleteClipText=FALSE;
+	string data;
 
-	if (!ClipText)
+	if (!Src)
 	{
 		Clipboard clip;
 
 		if (!clip.Open())
 			return;
 
-		if ((ClipText=clip.PasteFormat(FCF_VERTICALBLOCK_UNICODE)))
+		if (clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, data))
 		{
-			VPaste(ClipText);
-			clip.Close();
+			Src = data.data();
+			VPaste(Src);
 			return;
 		}
 
-		if (!(ClipText=clip.Paste()))
+		if (!clip.Get(data))
 		{
-			clip.Close();
 			return;
 		}
+		Src = data.data();
 
 		clip.Close();
-
-		IsDeleteClipText=TRUE;
 	}
 
-	if (*ClipText)
+	if (*Src)
 	{
 		AddUndoData(UNDO_BEGIN);
 		Flags.Set(FEDITOR_NEWUNDO);
@@ -4266,9 +4259,9 @@ void Editor::Paste(const wchar_t *Src)
 			}
 		}
 
-		for (int I=0; ClipText[I];)
+		for (int I=0; Src[I];)
 		{
-			if (ClipText[I]==L'\n' || ClipText[I]==L'\r')
+			if (Src[I]==L'\n' || Src[I]==L'\r')
 			{
 				CurLine->Select(StartPos,-1);
 				StartPos=0;
@@ -4277,10 +4270,10 @@ void Editor::Paste(const wchar_t *Src)
 				ProcessKey(KEY_ENTER);
 
 				int eol_len = 1;   // LF or CR
-				if (ClipText[I] == L'\r') {
-					if (ClipText[I+1] == L'\n')
+				if (Src[I] == L'\r') {
+					if (Src[I+1] == L'\n')
 						eol_len = 2; // CRLF
-					else if (ClipText[I+1] == L'\r' && ClipText[I+2] == L'\n')
+					else if (Src[I+1] == L'\r' && Src[I+2] == L'\n')
 						eol_len = 3; // CRCRLF
 				}
 
@@ -4289,7 +4282,7 @@ void Editor::Paste(const wchar_t *Src)
 				else
 				{
 					wchar_t ClipEol[4];
-					wmemcpy(ClipEol, ClipText+I, eol_len);
+					wmemcpy(ClipEol, Src+I, eol_len);
 					ClipEol[eol_len] = L'\0';
 					PrevLine->SetEOL(ClipEol);
 				}
@@ -4301,7 +4294,7 @@ void Editor::Paste(const wchar_t *Src)
 				if (EdOpt.AutoIndent)      // первый символ вставим так, чтобы
 				{                          // сработал автоотступ
 					//ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
-					ProcessKey(ClipText[I]); //BUGBUG
+					ProcessKey(Src[I]); //BUGBUG
 					I++;
 					StartPos=CurLine->GetCurPos();
 
@@ -4310,7 +4303,7 @@ void Editor::Paste(const wchar_t *Src)
 
 				int Pos=I;
 
-				while (ClipText[Pos] && ClipText[Pos]!=L'\n' && ClipText[Pos]!=L'\r')
+				while (Src[Pos] && Src[Pos]!=L'\n' && Src[Pos]!=L'\r')
 					Pos++;
 
 				if (Pos>I)
@@ -4320,7 +4313,7 @@ void Editor::Paste(const wchar_t *Src)
 					CurLine->GetBinaryString(&Str,nullptr,Length);
 					CurPos=CurLine->GetCurPos();
 					AddUndoData(UNDO_EDIT,Str,CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-					CurLine->InsertBinaryString(&ClipText[I],Pos-I);
+					CurLine->InsertBinaryString(Src + I,Pos-I);
 					Change(ECTYPE_CHANGED,NumLine);
 				}
 
@@ -4342,9 +4335,6 @@ void Editor::Paste(const wchar_t *Src)
 		Unlock();
 		AddUndoData(UNDO_END);
 	}
-
-	if (IsDeleteClipText)
-		delete[] ClipText;
 }
 
 
@@ -4356,7 +4346,7 @@ void Editor::Copy(int Append)
 		return;
 	}
 
-	wchar_t *CopyData=nullptr;
+	string CopyData;
 
 	Clipboard clip;
 
@@ -4364,25 +4354,14 @@ void Editor::Copy(int Append)
 		return;
 
 	if (Append)
-		CopyData=clip.Paste();
+		clip.Get(CopyData);
 
-	if ((CopyData=Block2Text(CopyData)) )
-	{
-		clip.Copy(CopyData);
-		delete[] CopyData;
-	}
-
-	clip.Close();
+	clip.Set(Block2Text(CopyData));
 }
 
-wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
+string Editor::Block2Text(const wchar_t* InitData, size_t size)
 {
-	size_t DataSize=0;
-
-	if (ptrInitData)
-		DataSize = wcslen(ptrInitData);
-
-	size_t TotalChars = DataSize;
+	size_t TotalChars = size;
 	intptr_t StartSel, EndSel;
 	const wchar_t* Eol;
 	for (Edit *Ptr = BlockStart; Ptr; Ptr = Ptr->m_next)
@@ -4402,26 +4381,13 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		else
 			TotalChars += EndSel - StartSel;
 	}
-	TotalChars++; // '\0'
 
-	wchar_t *CopyData = new wchar_t[TotalChars];
+	string CopyData;
+	CopyData.reserve(TotalChars);
 
-	if (!CopyData)
+	if (InitData)
 	{
-		if (ptrInitData)
-			delete[] ptrInitData;
-
-		return nullptr;
-	}
-
-	if (ptrInitData)
-	{
-		wcscpy(CopyData,ptrInitData);
-		delete[] ptrInitData;
-	}
-	else
-	{
-		*CopyData=0;
+		CopyData.assign(InitData, size);
 	}
 
 	for (Edit *Ptr = BlockStart; Ptr; Ptr = Ptr->m_next)
@@ -4438,22 +4404,22 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		else
 			Length = EndSel - StartSel;
 
-		Ptr->GetSelString(CopyData + DataSize, Length + 1);
-		DataSize += Length;
+		string tmp;
+		Ptr->GetSelString(tmp, Length);
+		CopyData +=tmp;
 
 		if (EndSel == -1)
 		{
 			Eol = Ptr->GetEOL();
 			if (*Eol)
 			{
-				wcscpy(CopyData + DataSize, Eol);
-				DataSize += wcslen(Eol);
+				CopyData+= Eol;
 			}
 
 		}
 	}
 
-	return CopyData;
+	return std::move(CopyData);
 }
 
 
@@ -5423,7 +5389,7 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-	wchar_t *CopyData=nullptr;
+	string CopyData;
 
 	Clipboard clip;
 
@@ -5432,48 +5398,26 @@ void Editor::VCopy(int Append)
 
 	if (Append)
 	{
-		CopyData=clip.PasteFormat(FCF_VERTICALBLOCK_UNICODE);
-
-		if (!CopyData)
-			CopyData=clip.Paste();
+		if (!clip.GetFormat(FCF_VERTICALBLOCK_UNICODE, CopyData))
+			clip.Get(CopyData);
 	}
 
-	if ((CopyData=VBlock2Text(CopyData)) )
-	{
-		clip.Copy(CopyData);
-		clip.CopyFormat(FCF_VERTICALBLOCK_UNICODE, CopyData);
-		delete[] CopyData;
-	}
-
-	clip.Close();
+	string NewData = VBlock2Text(CopyData);
+	clip.Set(NewData);
+	clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, NewData);
 }
 
-wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
+string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 {
-	size_t DataSize=0;
-
-	if (ptrInitData)
-		DataSize = wcslen(ptrInitData);
-
 	//RealPos всегда <= TabPos, поэтому берём максимальный размер буффера
-	size_t TotalChars = DataSize + (VBlockSizeX + 2)*VBlockSizeY + 1;
+	size_t TotalChars = size + (VBlockSizeX + 2)*VBlockSizeY;
 
-	wchar_t *CopyData = new wchar_t[TotalChars];
+	string CopyData;
+	CopyData.reserve(TotalChars);
 
-	if (!CopyData)
+	if (InitData)
 	{
-		delete[] ptrInitData;
-		return nullptr;
-	}
-
-	if (ptrInitData)
-	{
-		wcscpy(CopyData,ptrInitData);
-		delete[] ptrInitData;
-	}
-	else
-	{
-		*CopyData=0;
+		CopyData.assign(InitData, size);
 	}
 
 	Edit *CurPtr=VBlockStart;
@@ -5493,27 +5437,23 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 			if (CopySize>TBlockSizeX)
 				CopySize=TBlockSizeX;
 
-			wmemcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
+			CopyData.append(CurStr+TBlockX, CopySize);
 
 			if (CopySize<TBlockSizeX)
-				wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
+				CopyData.append(TBlockSizeX-CopySize, L' ');
 		}
 		else
 		{
-			wmemset(CopyData+DataSize,L' ',TBlockSizeX);
+			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		DataSize+=TBlockSizeX;
-		wcscpy(CopyData+DataSize,DOS_EOL_fmt);
-		DataSize+=2;
+		CopyData.append(DOS_EOL_fmt);
 	}
 
-	return CopyData;
+	return std::move(CopyData);
 }
 
-
-
-void Editor::VPaste(wchar_t *ClipText)
+void Editor::VPaste(const wchar_t *ClipText)
 {
 	if (Flags.Check(FEDITOR_LOCKMODE))
 		return;
@@ -5605,8 +5545,6 @@ void Editor::VPaste(wchar_t *ClipText)
 		Unlock();
 		AddUndoData(UNDO_END);
 	}
-
-	delete[] ClipText;
 }
 
 

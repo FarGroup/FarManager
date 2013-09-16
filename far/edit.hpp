@@ -139,7 +139,7 @@ public:
 	void SetEOL(const wchar_t *EOL);
 	const wchar_t *GetEOL();
 	int GetSelString(wchar_t *Str,int MaxSize);
-	int GetSelString(string &strStr);
+	int GetSelString(string &strStr, size_t MaxSize = string::npos);
 	int GetLength();
 	void AppendString(const wchar_t *Str);
 	void InsertString(const string& Str);

@@ -1409,12 +1409,11 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				wchar_t *ClipText=PasteFromClipboard();
-
-				if (!ClipText)
+				string ClipText;
+				if (!GetClipboard(ClipText))
 					return TRUE;
 
-				if ( AddToFilter(ClipText) )
+				if (AddToFilter(ClipText.data()))
 				{
 					if (strFilter.empty())
 						RestoreFilteredItems();
@@ -1423,8 +1422,6 @@ int VMenu::ProcessKey(int Key)
 
 					DisplayObject();
 				}
-
-				delete[] ClipText;
 			}
 			return TRUE;
 		}

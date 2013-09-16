@@ -1340,17 +1340,14 @@ void Panel::FastFind(int FirstKey)
 					// для вставки воспользуемся макродвижком...
 					if (Key==KEY_CTRLV || Key==KEY_RCTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
 					{
-						wchar_t *ClipText=PasteFromClipboard();
-
-						if (ClipText)
+						string ClipText;
+						if (GetClipboard(ClipText))
 						{
-							if (*ClipText)
+							if (!ClipText.empty())
 							{
 								FastFindProcessName(&FindEdit,ClipText,strLastName,strName);
 								FastFindShow(FindX,FindY);
 							}
-
-							delete[] ClipText;
 						}
 
 						continue;

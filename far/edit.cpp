@@ -1347,18 +1347,18 @@ int Edit::ProcessKey(int Key)
 
 						xwcsncpy(ShortStr.get(),Str,StrSize+1);
 						RemoveTrailingSpaces(ShortStr.get());
-						CopyToClipboard(ShortStr.get());
+						SetClipboard(ShortStr.get());
 					}
 					else
 					{
-						CopyToClipboard(Str);
+						SetClipboard(Str);
 					}
 				}
 				else if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
 					int Ch=Str[SelEnd];
 					Str[SelEnd]=0;
-					CopyToClipboard(Str+SelStart);
+					SetClipboard(Str+SelStart);
 					Str[SelEnd]=Ch;
 				}
 			}
@@ -1367,15 +1367,18 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
-			std::unique_ptr<wchar_t[]> ClipText;
+			string ClipText;
 
 			if (GetMaxLength()==-1)
-				ClipText.reset(PasteFromClipboard());
+			{
+				if (!GetClipboard(ClipText))
+					return TRUE;
+			}
 			else
-				ClipText.reset(PasteFromClipboardEx(GetMaxLength()));
-
-			if (!ClipText)
-				return TRUE;
+			{
+				if (!GetClipboardEx(GetMaxLength(), ClipText))
+					return TRUE;
+			}
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			{
@@ -1405,11 +1408,11 @@ int Edit::ProcessKey(int Key)
 			{
 				LeftPos=0;
 				Flags.Clear(FEDITLINE_CLEARFLAG);
-				SetString(ClipText.get());
+				SetString(ClipText.data());
 			}
 			else
 			{
-				InsertString(ClipText.get());
+				InsertString(ClipText.data());
 			}
 
 			Show();
@@ -1841,7 +1844,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 	return TRUE;
 }
 
-int Edit::GetSelString(string &strStr)
+int Edit::GetSelString(string &strStr, size_t MaxSize)
 {
 	if (SelStart==-1 || (SelEnd!=-1 && SelEnd<=SelStart) ||
 	        SelStart>=StrSize)
@@ -1850,7 +1853,17 @@ int Edit::GetSelString(string &strStr)
 		return FALSE;
 	}
 
-	strStr.assign(this->Str + SelStart, SelEnd - SelStart + 1);
+	size_t CopyLength;
+
+	if (MaxSize == string::npos)
+		MaxSize = StrSize;
+
+	if (SelEnd==-1)
+		CopyLength=MaxSize;
+	else
+		CopyLength=std::min(MaxSize, static_cast<size_t>(SelEnd-SelStart+1));
+
+	strStr.assign(this->Str + SelStart, CopyLength);
 	return TRUE;
 }
 

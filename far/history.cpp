@@ -461,7 +461,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					{
 						string strName;
 						if (HistoryCfgRef()->Get(CurrentRecord, strName))
-							CopyToClipboard(strName);
+							SetClipboard(strName);
 					}
 
 					break;

@@ -1431,7 +1431,7 @@ int Viewer::ProcessKey(int Key)
 				__int64 CurFilePos=vtell();
 				vseek(SelectPos,SEEK_SET);
 				vread(SelData.get(), (int)SelectSize);
-				CopyToClipboard(SelData.get());
+				SetClipboard(SelData.get());
 				vseek(CurFilePos,SEEK_SET);
 			}
 			return TRUE;

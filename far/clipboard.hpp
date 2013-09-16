@@ -40,29 +40,30 @@ enum FAR_CLIPBOARD_FORMAT
 	FCF_CFSTR_PREFERREDDROPEFFECT,
 };
 
-wchar_t* PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format);
-int CopyFormatToClipboard(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-int CopyToClipboard(const wchar_t* Data);
-inline int CopyToClipboard(const string& Data) { return CopyToClipboard(Data.data()); }
-wchar_t* PasteFromClipboard();
-wchar_t* PasteFromClipboardEx(int max);
-bool EmptyInternalClipboard();
+int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
+int SetClipboard(const wchar_t* Data);
+inline int SetClipboard(const string& Data) { return SetClipboard(Data.data()); }
+
+bool GetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
+bool GetClipboard(string& data);
+bool GetClipboardEx(int max, string& data);
+bool ClearInternalClipboard();
 
 class Clipboard
 {
 public:
-	Clipboard() {}
-	~Clipboard() {}
-
+	~Clipboard() { Close(); }
 	bool Open();
 	bool Close();
-	bool Empty();
-	bool Copy(const wchar_t *Data);
-	bool CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-	bool CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
-	wchar_t *Paste();
-	wchar_t *PasteEx(int max);
-	wchar_t *PasteFormat(FAR_CLIPBOARD_FORMAT Format);
+	bool Clear();
+	bool Set(const wchar_t *Data);
+	bool Set(const string& Data) { return Set(Data.data()); }
+	bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
+	bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data()); }
+	bool SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
+	bool Get(string& data);
+	bool GetEx(int max, string& data);
+	bool GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
 	bool InternalCopy(bool FromWin);
 
 	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
@@ -75,5 +76,6 @@ private:
 	HANDLE SetData(UINT uFormat, HANDLE hMem);
 
 	static bool UseInternalClipboard;
-	static bool InternalClipboardOpen;
+	static bool InternalClipboardOpened;
+	static bool SystemClipboardOpened;
 };

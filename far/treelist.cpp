@@ -808,7 +808,7 @@ int TreeList::ProcessKey(int Key)
 			if (Key==KEY_CTRLALTINS||Key==KEY_RCTRLRALTINS||Key==KEY_CTRLRALTINS||Key==KEY_RCTRLALTINS||
 				Key==KEY_CTRLALTNUMPAD0||Key==KEY_RCTRLRALTNUMPAD0||Key==KEY_CTRLRALTNUMPAD0||Key==KEY_RCTRLALTNUMPAD0)
 			{
-				CopyToClipboard(strQuotedName);
+				SetClipboard(strQuotedName);
 			}
 			else
 			{

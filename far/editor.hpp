@@ -329,7 +329,7 @@ class Editor:public ScreenObject
 		void BlockRight();
 		void DeleteVBlock();
 		void VCopy(int Append);
-		void VPaste(wchar_t *ClipText);
+		void VPaste(const wchar_t *ClipText);
 		void VBlockShift(int Left);
 		Edit* GetStringByNumber(int DestLine);
 		static void EditorShowMsg(const string& Title,const string& Msg, const string& Name,int Percent);
@@ -385,8 +385,15 @@ class Editor:public ScreenObject
 		int BlockStart2NumLine(int *Pos);
 		int BlockEnd2NumLine(int *Pos);
 		bool CheckLine(const Edit* line);
-		wchar_t *Block2Text(wchar_t *ptrInitData);
-		wchar_t *VBlock2Text(wchar_t *ptrInitData);
+
+		string Block2Text(const wchar_t* InitData, size_t size);
+		string Block2Text(const string& InitData) { return Block2Text(InitData.data(), InitData.size()); }
+		string Block2Text() { return Block2Text(nullptr, 0); }
+
+		string VBlock2Text(const wchar_t* InitData, size_t size);
+		string VBlock2Text(const string& InitData) { return VBlock2Text(InitData.data(), InitData.size()); }
+		string VBlock2Text() { return VBlock2Text(nullptr, 0); }
+
 		void Change(EDITOR_CHANGETYPE Type,int StrNum);
 
 	protected:

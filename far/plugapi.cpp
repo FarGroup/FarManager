@@ -1934,31 +1934,27 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 	switch(Type)
 	{
 		case FCT_STREAM:
-			return CopyToClipboard(Data);
+			return SetClipboard(Data);
 		case FCT_COLUMN:
-			return CopyFormatToClipboard(FCF_VERTICALBLOCK_UNICODE, Data);
+			return SetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, Data);
 		default:
 			break;
 	}
 	return FALSE;
 }
 
-static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Length)
+static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
 {
-	size_t size=0;
-	wchar_t* str=Type? PasteFormatFromClipboard(FCF_VERTICALBLOCK_UNICODE) : PasteFromClipboard();
-	if(str)
+	string str;
+	if(Type? GetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, str) : GetClipboard(str))
 	{
-		size=wcslen(str)+1;
-		if(Data&&Length)
+		if(Data && Size)
 		{
-			if(Length>size) Length=size;
-			wmemcpy(Data,str,Length-1);
-			Data[Length-1]=0;
+			Size = std::min(Size, str.size() + 1);
+			wmemcpy(Data, str.data(), Size);
 		}
-		delete[] str;
 	}
-	return size;
+	return str.size() + 1;
 }
 
 size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length)
@@ -1968,10 +1964,9 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	{
 		case FCT_STREAM:
 			{
-				wchar_t* str=PasteFormatFromClipboard(FCF_VERTICALBLOCK_UNICODE);
-				if(str)
+				string str;
+				if(GetClipboardFormat(FCF_VERTICALBLOCK_UNICODE, str))
 				{
-					delete[] str;
 					break;
 				}
 			}

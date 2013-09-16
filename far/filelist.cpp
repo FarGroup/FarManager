@@ -4272,8 +4272,7 @@ void FileList::CopyFiles(bool bMoved)
 			Clipboard clip;
 			if(clip.Open())
 			{
-				clip.CopyHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t),bMoved);
-				clip.Close();
+				clip.SetHDROP(CopyData.data(), (CopyData.size()+1)*sizeof(wchar_t),bMoved);
 			}
 		}
 	}
@@ -4406,7 +4405,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		DataSize+=Length;
 	}
 
-	CopyToClipboard(CopyData);
+	SetClipboard(CopyData);
 	xf_free(CopyData);
 }
 

@@ -772,7 +772,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	CloseConsole();
 
-	EmptyInternalClipboard();
+	ClearInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 

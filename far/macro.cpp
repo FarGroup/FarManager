@@ -4645,12 +4645,10 @@ static bool clipFunc(FarMacroCall* Data)
 	{
 		case 0: // Get from Clipboard, "S" - ignore
 		{
-			wchar_t *ClipText=PasteFromClipboard();
-
-			if (ClipText)
+			string ClipText;
+			if (GetClipboard(ClipText))
 			{
 				PassString(ClipText, Data);
-				delete[] ClipText;
 				return true;
 			}
 
@@ -4664,13 +4662,12 @@ static bool clipFunc(FarMacroCall* Data)
 				if (clip.Open())
 				{
 					Ret=1;
-					clip.Empty();
+					clip.Clear();
 				}
-				clip.Close();
 			}
 			else
 			{
-				Ret=CopyToClipboard(Val.s());
+				Ret=SetClipboard(Val.s());
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4685,28 +4682,13 @@ static bool clipFunc(FarMacroCall* Data)
 
 			if (clip.Open())
 			{
-				wchar_t *CopyData=clip.Paste();
-
-				if (CopyData)
+				string CopyData;
+				if (clip.Get(CopyData))
 				{
-					size_t DataSize=StrLength(CopyData);
-					wchar_t_ptr NewPtr(DataSize+StrLength(Val.s())+2);
-					if (NewPtr)
-					{
-						wcscpy(NewPtr.get(), CopyData);
-						delete[] CopyData;
-						wcscpy(NewPtr.get()+DataSize,Val.s());
-						varClip=NewPtr.get();
-					}
-					else
-					{
-						delete[] CopyData;
-					}
+					varClip = CopyData + Val.s();
 				}
 
-				Ret=clip.Copy(varClip.s());
-
-				clip.Close();
+				Ret=clip.Set(varClip.s());
 			}
 
 			PassNumber(Ret, Data); // 0!  ???
@@ -4722,7 +4704,6 @@ static bool clipFunc(FarMacroCall* Data)
 			if (clip.Open())
 			{
 				Ret=clip.InternalCopy(cmdType == 4);
-				clip.Close();
 			}
 
 			PassNumber(Ret, Data); // 0!  ???

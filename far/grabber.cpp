@@ -98,27 +98,23 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	Y2=std::max(GArea.Y1,GArea.Y2);
 	int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
 	int BufSize=(GWidth+3)*GHeight;
-	FAR_CHAR_INFO* CharBuf=new FAR_CHAR_INFO[BufSize], *PtrCharBuf;
-	wchar_t *CopyBuf = new wchar_t[BufSize], *PtrCopyBuf;
-	WORD Chr;
-	GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(FAR_CHAR_INFO));
-	*CopyBuf=0;
-	PtrCharBuf=CharBuf;
-	PtrCopyBuf=CopyBuf;
+	std::vector<FAR_CHAR_INFO> CharBuf(BufSize);
+	string CopyBuf;
+	CopyBuf.reserve(BufSize);
+	GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size() * sizeof(FAR_CHAR_INFO));
 
+	FAR_CHAR_INFO* PtrCharBuf = CharBuf.data();
 	for (int I=0; I<GHeight; I++)
 	{
 		if (I>0)
 		{
-			*PtrCopyBuf++=L'\r';
-			*PtrCopyBuf++=L'\n';
-			*PtrCopyBuf=0;
+			CopyBuf.append(L"\r\n");
 		}
 
 		for (int J=0; J<GWidth; J++, ++PtrCharBuf)
 		{
 			WORD Chr2 = PtrCharBuf->Char;
-			Chr=PtrCharBuf->Char;
+			wchar_t Chr=PtrCharBuf->Char;
 
 			if (Global->Opt->CleanAscii)
 			{
@@ -156,14 +152,8 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 				}
 			}
 
-			*PtrCopyBuf++=Chr;
-			*PtrCopyBuf=0;
+			CopyBuf.push_back(Chr);
 		}
-
-		for (int K=StrLength(CopyBuf)-1; K>=0 && CopyBuf[K]==L' '; K--)
-			CopyBuf[K]=0;
-
-		PtrCopyBuf=CopyBuf+StrLength(CopyBuf);
 	}
 
 	Clipboard clip;
@@ -172,40 +162,22 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	{
 		if (Append)
 		{
-			wchar_t *AppendBuf=clip.Paste();
-			if (AppendBuf)
+			string OldData;
+			if (clip.Get(OldData))
 			{
-				int add=0;
-				size_t DataSize=StrLength(AppendBuf);
-
-				if (AppendBuf[DataSize-1]!=L'\n')
+				if (!OldData.empty() && OldData.back() != L'\n')
 				{
-					add=2;
+					OldData += L"\r\n";
 				}
-
-				auto newBuf = new wchar_t[DataSize+BufSize+add];
-				wcscpy(newBuf, AppendBuf);
-				delete[] AppendBuf;
-				wmemcpy(newBuf+DataSize+add,CopyBuf,BufSize);
-
-				if (add)
-					wmemcpy(newBuf+DataSize,L"\r\n",2);
-
-				delete[] CopyBuf;
-				CopyBuf=newBuf;
+				CopyBuf.insert(0, OldData);
 			}
 		}
 
 		if (VerticalBlock)
-			clip.CopyFormat(FCF_VERTICALBLOCK_UNICODE, CopyBuf);
+			clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyBuf);
 		else
-			clip.Copy(CopyBuf);
-
-		clip.Close();
+			clip.Set(CopyBuf);
 	}
-
-	delete[] CopyBuf;
-	delete[] CharBuf;
 }
 
 

@@ -55,7 +55,8 @@ InternalClipboard[] =
 
 
 bool Clipboard::UseInternalClipboard = false;
-bool Clipboard::InternalClipboardOpen = false;
+bool Clipboard::InternalClipboardOpened = false;
+bool Clipboard::SystemClipboardOpened = false;
 
 //Sets UseInternalClipboard to State, and returns previous state
 bool Clipboard::SetUseInternalClipboardState(bool State)
@@ -88,39 +89,50 @@ bool Clipboard::Open()
 {
 	if (UseInternalClipboard)
 	{
-		if (!InternalClipboardOpen)
+		if (!InternalClipboardOpened)
 		{
-			InternalClipboardOpen=true;
+			InternalClipboardOpened=true;
 			return true;
 		}
 
 		return false;
 	}
 
-	return OpenClipboard(Global->Console->GetWindow()) != FALSE;
+	if (!SystemClipboardOpened)
+	{
+		if (OpenClipboard(Global->Console->GetWindow()))
+		{
+			SystemClipboardOpened = true;
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Clipboard::Close()
 {
+	// Closing already closed buffer is OK
+
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpen)
-		{
-			InternalClipboardOpen=false;
-			return true;
-		}
-
-		return false;
+		InternalClipboardOpened = false;
+		return true;
 	}
 
-	return CloseClipboard() != FALSE;
+	if (SystemClipboardOpened)
+	{
+		if (!CloseClipboard())
+			return false;
+		SystemClipboardOpened = false;
+	}
+	return true;
 }
 
-bool Clipboard::Empty()
+bool Clipboard::Clear()
 {
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpen)
+		if (InternalClipboardOpened)
 		{
 			std::for_each(RANGE(InternalClipboard, i)
 			{
@@ -145,7 +157,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 {
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpen && uFormat != 0xFFFF)
+		if (InternalClipboardOpened && uFormat != 0xFFFF)
 		{
 			auto ItemIterator = std::find_if(CONST_RANGE(InternalClipboard, i)
 			{
@@ -165,7 +177,7 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 {
 	if (UseInternalClipboard)
 	{
-		if (InternalClipboardOpen)
+		if (InternalClipboardOpened)
 		{
 			auto ItemIterator = std::find_if(RANGE(InternalClipboard, i)
 			{
@@ -225,9 +237,9 @@ bool Clipboard::IsFormatAvailable(UINT Format)
 }
 
 // Перед вставкой производится очистка буфера
-bool Clipboard::Copy(const wchar_t *Data)
+bool Clipboard::Set(const wchar_t *Data)
 {
-	Empty();
+	Clear();
 	if (Data)
 	{
 		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
@@ -253,7 +265,7 @@ bool Clipboard::Copy(const wchar_t *Data)
 }
 
 // вставка без очистки буфера - на добавление
-bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
+bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 {
 	UINT FormatType=RegisterFormat(Format);
 
@@ -285,7 +297,7 @@ bool Clipboard::CopyFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 	return true;
 }
 
-bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved)
+bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved)
 {
 	bool Result=false;
 	if (NamesArray && NamesArraySize)
@@ -303,7 +315,7 @@ bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bM
 				Drop->fWide = TRUE;
 				memcpy(Drop+1,NamesArray,NamesArraySize);
 				GlobalUnlock(hMemory);
-				Empty();
+				Clear();
 				if(SetData(CF_HDROP, hMemory))
 				{
 					if(bMoved)
@@ -351,9 +363,9 @@ bool Clipboard::CopyHDROP(const void* NamesArray, size_t NamesArraySize, bool bM
 	return Result;
 }
 
-wchar_t *Clipboard::Paste()
+bool Clipboard::Get(string& data)
 {
-	wchar_t *ClipText=nullptr;
+	bool Result = false;
 	HANDLE hClipData=GetData(CF_UNICODETEXT);
 
 	if (hClipData)
@@ -362,7 +374,8 @@ wchar_t *Clipboard::Paste()
 
 		if (ClipAddr)
 		{
-			ClipText = DuplicateString(ClipAddr);
+			Result = true;
+			data = ClipAddr;
 			GlobalUnlock(hClipData);
 		}
 	}
@@ -376,18 +389,17 @@ wchar_t *Clipboard::Paste()
 			{
 				LPCSTR StartA=reinterpret_cast<LPCSTR>(Files)+Files->pFiles;
 				LPCWSTR Start=reinterpret_cast<LPCWSTR>(StartA);
-				string strClipText;
 				if(Files->fWide)
 				{
 					while(*Start)
 					{
-						size_t l1=strClipText.size();
-						strClipText+=Start;
-						Start+=strClipText.size()-l1;
+						size_t l1=data.size();
+						data+=Start;
+						Start+=data.size()-l1;
 						Start++;
 						if(*Start)
 						{
-							strClipText+=L"\r\n";
+							data+=L"\r\n";
 						}
 					}
 				}
@@ -395,31 +407,28 @@ wchar_t *Clipboard::Paste()
 				{
 					while(*StartA)
 					{
-						size_t l1=strClipText.size();
-						strClipText+=wide(StartA);
-						StartA+=strClipText.size()-l1;
+						size_t l1=data.size();
+						data+=wide(StartA);
+						StartA+=data.size()-l1;
 						StartA++;
 						if(*StartA)
 						{
-							strClipText+=L"\r\n";
+							data+=L"\r\n";
 						}
 					}
 				}
-				if(!strClipText.empty())
-				{
-					ClipText = DuplicateString(strClipText.data());
-				}
 				GlobalUnlock(hClipData);
+				Result = true;
 			}
 		}
 	}
-	return ClipText;
+	return Result;
 }
 
 // max - без учета символа конца строки!
-wchar_t *Clipboard::PasteEx(int max)
+bool Clipboard::GetEx(int max, string& data)
 {
-	wchar_t *ClipText=nullptr;
+	bool Result = false;
 	HANDLE hClipData=GetData(CF_UNICODETEXT);
 
 	if (hClipData)
@@ -429,23 +438,18 @@ wchar_t *Clipboard::PasteEx(int max)
 		if (ClipAddr)
 		{
 			int length = std::min(max, StrLength(ClipAddr));
-			ClipText = new wchar_t[length + 1];
-
-			if (ClipText)
-			{
-				xwcsncpy(ClipText,ClipAddr, length + 1);
-				ClipText[length] = 0;
-			}
-
+			data.assign(ClipAddr, length);
 			GlobalUnlock(hClipData);
+			Result = true;
 		}
 	}
 
-	return ClipText;
+	return Result;
 }
 
-wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
+bool Clipboard::GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
+	bool Result = false;
 	bool isOEMVBlock=false;
 	UINT FormatType=RegisterFormat(Format);
 
@@ -459,9 +463,8 @@ wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
 	}
 
 	if (!FormatType || !IsFormatAvailable(FormatType))
-		return nullptr;
+		return false;
 
-	wchar_t *ClipText=nullptr;
 	HANDLE hClipData=GetData(FormatType);
 
 	if (hClipData)
@@ -470,28 +473,17 @@ wchar_t *Clipboard::PasteFormat(FAR_CLIPBOARD_FORMAT Format)
 
 		if (ClipAddr)
 		{
-			size_t BufferSize;
-
 			if (isOEMVBlock)
-				BufferSize=strlen((LPCSTR)ClipAddr)+1;
+				data = wide(reinterpret_cast<char*>(ClipAddr));
 			else
-				BufferSize=wcslen(ClipAddr)+1;
-
-			ClipText = new wchar_t[BufferSize];
-
-			if (ClipText)
-			{
-				if (isOEMVBlock)
-					MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)ClipAddr,-1,ClipText,(int)BufferSize);
-				else
-					wcscpy(ClipText,ClipAddr);
-			}
+				data = ClipAddr;
 
 			GlobalUnlock(hClipData);
+			Result = true;
 		}
 	}
 
-	return ClipText;
+	return Result;
 }
 
 bool Clipboard::InternalCopy(bool FromWin)
@@ -518,78 +510,39 @@ bool Clipboard::InternalCopy(bool FromWin)
 }
 
 /* ------------------------------------------------------------ */
-int CopyToClipboard(const wchar_t* Data)
+int SetClipboard(const wchar_t* Data)
 {
 	Clipboard clip;
-
-	if (!clip.Open())
-		return FALSE;
-
-	BOOL ret = clip.Copy(Data);
-
-	clip.Close();
-
-	return ret;
+	return clip.Open()? clip.Set(Data) : FALSE;
 }
 
-int CopyFormatToClipboard(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data)
+int SetClipboardFormat(FAR_CLIPBOARD_FORMAT Format,const wchar_t *Data)
 {
 	Clipboard clip;
-
-	if (!clip.Open())
-		return FALSE;
-
-	BOOL ret = clip.CopyFormat(Format,Data);
-
-	clip.Close();
-
-	return ret;
+	return clip.Open()? clip.SetFormat(Format,Data) : FALSE;
 }
 
-wchar_t * PasteFromClipboard()
+bool GetClipboard(string& data)
 {
 	Clipboard clip;
-
-	if (!clip.Open())
-		return nullptr;
-
-	wchar_t *ClipText = clip.Paste();
-
-	clip.Close();
-
-	return ClipText;
+	return clip.Open() ? clip.Get(data) : false;
 }
 
 // max - без учета символа конца строки!
-wchar_t *PasteFromClipboardEx(int max)
+bool GetClipboardEx(int max, string& data)
 {
 	Clipboard clip;
+	return clip.Open()? clip.GetEx(max, data) : false;
 
-	if (!clip.Open())
-		return nullptr;
-
-	wchar_t *ClipText = clip.PasteEx(max);
-
-	clip.Close();
-
-	return ClipText;
 }
 
-wchar_t *PasteFormatFromClipboard(FAR_CLIPBOARD_FORMAT Format)
+bool GetClipboardFormat(FAR_CLIPBOARD_FORMAT Format, string& data)
 {
 	Clipboard clip;
-
-	if (!clip.Open())
-		return nullptr;
-
-	wchar_t *ClipText = clip.PasteFormat(Format);
-
-	clip.Close();
-
-	return ClipText;
+	return clip.Open()? clip.GetFormat(Format, data) : false;
 }
 
-bool EmptyInternalClipboard()
+bool ClearInternalClipboard()
 {
 	bool OldState = Clipboard::SetUseInternalClipboardState(true);
 
@@ -598,7 +551,7 @@ bool EmptyInternalClipboard()
 	if (!clip.Open())
 		return false;
 
-	bool ret = clip.Empty();
+	bool ret = clip.Clear();
 
 	clip.Close();
 
