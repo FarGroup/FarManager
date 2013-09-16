@@ -260,20 +260,26 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 	AutoMutex m(path.data(), DbName.data());
 	strName = DbName;
 	init_status = 0;
-	if (!InitializeImpl(DbName, Local))
+
+	bool in_memory = Global->Opt->ReadOnlyConfig != 0;
+
+	if (!in_memory && !InitializeImpl(DbName, Local))
 	{
 		Close();
 		++init_status;
 
-		bool in_memory = (Global->Opt->ReadOnlyConfig != 0)
-		 || !api::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+		in_memory = !api::MoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)
 		{
 			Close();
 			++init_status;
-			InitializeImpl(L":memory:", Local);
 		}
+	}
+
+	if (in_memory)
+	{
+		InitializeImpl(L":memory:", Local);
 	}
 }
 

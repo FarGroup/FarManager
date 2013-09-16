@@ -385,10 +385,6 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		Global->Opt->LocalProfilePath = strLocalProfilePath.empty() ? strProfilePath : strLocalProfilePath;
 	}
 
-	CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
-	if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
-		CreatePath(Global->Opt->LocalProfilePath, true);
-
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
 	api::SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath);
@@ -396,6 +392,15 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
 		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.data());
+
+	if (!Global->Opt->ReadOnlyConfig)
+	{
+		CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
+		if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
+		{
+			CreatePath(Global->Opt->LocalProfilePath, true);
+		}
+	}
 }
 
 static int mainImpl(int Argc, wchar_t *Argv[])
