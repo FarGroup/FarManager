@@ -2582,6 +2582,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			DWORD Options = Global->Opt->OnlyEditorViewerUsed; // bits 0x1 and 0x2
 			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x4;
 			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x8;
+			if (Global->Opt->ReadOnlyConfig)                    Options |= 0x10;
 			PassNumber(Options, Data);
 			break;
 		}

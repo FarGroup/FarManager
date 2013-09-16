@@ -436,8 +436,10 @@ local function LoadMacros (allAreas, unload)
   if not unload then
     local DummyFunc = function() end
     local dir = win.GetEnv("farprofile").."\\Macros"
-    win.CreateDir(dir.."\\scripts", true)
-    win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
+    if 0 == band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then -- not ReadOnlyConfig
+      win.CreateDir(dir.."\\scripts", true)
+      win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
+    end
 
     local macroinit_name, macroinit_done = dir.."\\scripts\\_macroinit.lua", false
     local isStationary = true
@@ -493,10 +495,7 @@ local function InitMacroSystem()
   LoadMacros(allAreas,true)
 end
 
-local function WriteOneMacro (macro, keyname, delete)
-  local dir = win.GetEnv("farprofile").."\\Macros\\internal"
-  if not win.CreateDir(dir, true) then return end
-
+local function WriteOneMacro (dir, macro, keyname, delete)
   local fname = ("%s\\%s_%s.lua"):format(dir, macro.area, (keyname:gsub(".", CharNames)))
   local attr = win.GetFileAttr(fname)
   if attr then
@@ -517,11 +516,16 @@ local function WriteOneMacro (macro, keyname, delete)
 end
 
 local function WriteMacros()
+  if 0 ~= band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then return end -- ReadOnlyConfig
+
+  local dir = win.GetEnv("farprofile").."\\Macros\\internal"
+  if not win.CreateDir(dir, true) then return end
+
   for areaname,area in pairs(Areas) do
     for keyname,macroarray in pairs(area) do
       local macro = macroarray.recorded
       if macro and macro.needsave then
-        WriteOneMacro(macro, macro.key, macro.disabled)
+        WriteOneMacro(dir, macro, macro.key, macro.disabled)
         macro.needsave = nil
         if macro.disabled then
           macroarray.recorded = nil
