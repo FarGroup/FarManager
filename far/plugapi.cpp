@@ -1953,8 +1953,9 @@ static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
 			Size = std::min(Size, str.size() + 1);
 			wmemcpy(Data, str.data(), Size);
 		}
+		return str.size() + 1;
 	}
-	return str.size() + 1;
+	return 0;
 }
 
 size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length)
