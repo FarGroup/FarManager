@@ -41,7 +41,7 @@ const wchar_t UNIX_EOL_fmt[] = L"\n";
 const wchar_t MAC_EOL_fmt[]  = L"\r";
 const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 
-const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
+const wchar_t * StrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	if (!*str2)
 		return str1;
@@ -67,7 +67,7 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 	return nullptr;
 }
 
-const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2)
+const wchar_t * StrStr(const wchar_t *str1, const wchar_t *str2)
 {
 	if (!*str2)
 		return str1;
@@ -93,7 +93,7 @@ const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2)
 	return nullptr;
 }
 
-const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
+const wchar_t * RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	int len1 = StrLength(str1);
 	int len2 = StrLength(str2);
@@ -126,7 +126,7 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	return nullptr;
 }
 
-const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
+const wchar_t * RevStrStr(const wchar_t *str1, const wchar_t *str2)
 {
 	int len1 = StrLength(str1);
 	int len2 = StrLength(str2);
@@ -232,94 +232,58 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 	return 0;
 }
 
-static bool alt_sort_initialized = false;
-static wchar_t *alt_sort_table = nullptr;
-
-class AltSortTableCleaner
+static const std::vector<wchar_t> create_alt_sort_table()
 {
-public:
-	AltSortTableCleaner()
-	{}
+	std::vector<wchar_t> alt_sort_table(WCHAR_MAX + 1);
+	std::vector<wchar_t> chars(WCHAR_MAX + 1);
 
-	~AltSortTableCleaner()
+	for_each_cnt(RANGE(chars, i, size_t index) { i = static_cast<wchar_t>(index); });
+
+	std::sort(chars.begin() + 1, chars.end(), [](wchar_t a, wchar_t b) { return StrCmpNN(&a, 1, &b, 1) < 0; });
+
+	int u_beg = 0, u_end = 0xffff;
+	for (int ic=0; ic < 0x10000; ++ic)
 	{
-		delete[] alt_sort_table;
-		alt_sort_table = nullptr;
-		alt_sort_initialized = true;
+		if (chars[ic] == L'a')
+		{
+			u_beg = ic;
+			break;
+		}
+		alt_sort_table[chars[ic]] = static_cast<wchar_t>(ic);
 	}
-};
 
-static AltSortTableCleaner alt_sort_cleaner;
+	for (int ic=0xffff; ic > u_beg; --ic)
+	{
+		if (IsUpper(chars[ic]))
+		{
+			u_end = ic;
+			break;
+		}
+		alt_sort_table[chars[ic]] = static_cast<wchar_t>(ic);
+	}
+	assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
 
-static int __cdecl cmp_w(const void *pv1, const void *pv2)
-{
-	wchar_t w1 = *((const wchar_t *)pv1), w2 = *((const wchar_t *)pv2);
-	return StrCmpNN(&w1,1, &w2,1);
+	int cc = u_beg;
+	for (int ic=u_beg; ic <= u_end; ++ic) // uppercase first
+	{
+		if (IsUpper(chars[ic]))
+			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
+	}
+	for (int ic=u_beg; ic <= u_end; ++ic) // than not uppercase
+	{
+		if (!IsUpper(chars[ic]))
+			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
+	}
+	assert(cc == u_end+1);
+	return std::move(alt_sort_table);
 }
 
-int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
+int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 {
-	if (!alt_sort_table)
-	{
-		if (alt_sort_initialized)
-			return StrCmpNN(s1,(int)n1, s2,(int)n2); // unsuccessful init - use regular sort
-
-		alt_sort_initialized = true;
-
-		wchar_t *table = new wchar_t[0x10000];
-		wchar_t *chars = new wchar_t[0x10000];
-		if (!table || !chars)
-		{
-			delete[] chars;
-			delete[] table;
-			return StrCmpNN(s1,(int)n1, s2,(int)n2);
-		}
-
-		for (int ic=0; ic < 0x10000; ++ic)
-			chars[ic] = static_cast<wchar_t>(ic);
-
-		qsort(chars+1, 0x10000-1, sizeof(wchar_t), cmp_w);
-
-		int u_beg = 0, u_end = 0xffff;
-		for (int ic=0; ic < 0x10000; ++ic)
-		{
-			if (chars[ic] == 0x0061) // L'a'
-			{
-				u_beg = ic;
-				break;
-			}
-			table[chars[ic]] = static_cast<wchar_t>(ic);
-		}
-		for (int ic=0xffff; ic > u_beg; --ic)
-		{
-			if (IsUpper(chars[ic]))
-			{
-				u_end = ic;
-				break;
-			}
-			table[chars[ic]] = static_cast<wchar_t>(ic);
-		}
-		assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
-
-		int cc = u_beg;
-		for (int ic=u_beg; ic <= u_end; ++ic) // uppercase first
-		{
-			if (IsUpper(chars[ic]))
-				table[chars[ic]] = static_cast<wchar_t>(cc++);
-		}
-		for (int ic=u_beg; ic <= u_end; ++ic) // than not uppercase
-		{
-			if (!IsUpper(chars[ic]))
-				table[chars[ic]] = static_cast<wchar_t>(cc++);
-		}
-		assert(cc == u_end+1);
-
-		delete[] chars;
-		alt_sort_table = table;
-	}
-
 	size_t l1 = 0;
 	size_t l2 = 0;
+	static const auto alt_sort_table = create_alt_sort_table();
+
 	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
 		int res = (int)alt_sort_table[*s1] - (int)alt_sort_table[*s2];

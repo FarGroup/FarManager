@@ -68,10 +68,10 @@ private:
 	void Free();
 
 	string strMessageFile;
-	wchar_t **MsgAddr;
+	std::vector<wchar_t*> Messages;
 	wchar_t *MsgList;
 #ifndef NO_WRAPPER
-	char **MsgAddrA; //фантастика, да
+	std::vector<char*> AnsiMessages; //фантастика, да
 	char *MsgListA;
 #endif // NO_WRAPPER
 	int MsgCount;

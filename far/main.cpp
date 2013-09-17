@@ -449,20 +449,26 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	else
 		api::DeleteEnvironmentVariable(L"FARADMINMODE");
 
+	auto isArg = [](const wchar_t* Name, const wchar_t* Arg)
+	{
+		return (*Arg==L'/' || *Arg == L'-') && !StrCmpI(Name, Arg);
+	};
+
+	// no isArg here - used by Far internally
 	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
 		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
-	else if (Argc <= 6 && Argc >= 3 && (!StrCmpI(Argv[1], L"/export") || !StrCmpI(Argv[1], L"/import")))
+	else if (Argc <= 6 && Argc >= 3 && (isArg(Argv[1], L"export") || isArg(Argv[1], L"import")))
 	{
-		bool Export = !StrCmpI(Argv[1], L"/export");
+		bool Export = isArg(Argv[1], L"export");
 		string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Global->Db = new Database(Export ? 'e' : 'i');
 		return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
 	}
-	else if (Argc>=2 && Argc<=4 && !StrCmpI(Argv[1], L"/clearcache"))
+	else if (Argc>=2 && Argc<=4 && isArg(Argv[1], L"clearcache"))
 	{
 		string strProfilePath(Argc>2 ? Argv[2] : L"");
 		string strLocalProfilePath(Argc>3 ? Argv[3] : L"");

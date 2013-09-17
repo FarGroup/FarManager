@@ -272,10 +272,8 @@ int GetOptionsParam(api::File& SrcFile,const wchar_t *KeyName,string &strValue, 
 }
 
 Language::Language():
-	MsgAddr(nullptr),
 	MsgList(nullptr),
 #ifndef NO_WRAPPER
-	MsgAddrA(nullptr),
 	MsgListA(nullptr),
 #endif // NO_WRAPPER
 	MsgCount(0),
@@ -435,35 +433,25 @@ bool Language::Init(const string& Path, int CountNeed)
 #endif // NO_WRAPPER
 	{
 		wchar_t *CurAddr = MsgList;
-		MsgAddr = new wchar_t*[MsgCount];
+		Messages.resize(MsgCount);
 
-		if (!MsgAddr)
+		std::for_each(RANGE(Messages, i)
 		{
-			return false;
-		}
-
-		for (int I=0; I<MsgCount; I++)
-		{
-			MsgAddr[I]=CurAddr;
+			i = CurAddr;
 			CurAddr+=StrLength(CurAddr)+1;
-		}
+		});
 	}
 #ifndef NO_WRAPPER
 	else
 	{
 		char *CurAddrA = MsgListA;
-		MsgAddrA = new char*[MsgCount];
+		AnsiMessages.resize(MsgCount);
 
-		if (!MsgAddrA)
+		std::for_each(RANGE(AnsiMessages, i)
 		{
-			return false;
-		}
-
-		for (int I=0; I<MsgCount; I++)
-		{
-			MsgAddrA[I]=CurAddrA;
+			i = CurAddrA;
 			CurAddrA+=strlen(CurAddrA)+1;
-		}
+		});
 	}
 #endif // NO_WRAPPER
 
@@ -489,31 +477,23 @@ Language::~Language()
 
 void Language::Free()
 {
+	MsgCount=0;
+
+	Messages.clear();
 	if (MsgList)
 	{
 		xf_free(MsgList);
 		MsgList=nullptr;
 	}
-	if (MsgAddr)
-	{
-		delete[] MsgAddr;
-		MsgAddr=nullptr;
-	}
 #ifndef NO_WRAPPER
+	AnsiMessages.clear();
 	if (MsgListA)
 	{
 		xf_free(MsgListA);
 		MsgListA=nullptr;
 	}
-	if (MsgAddrA)
-	{
-		delete[] MsgAddrA;
-		MsgAddrA=nullptr;
-	}
 	m_bUnicode = true;
 #endif // NO_WRAPPER
-
-	MsgCount=0;
 }
 
 void Language::Close()
@@ -524,19 +504,17 @@ void Language::Close()
 			Global->OldLang->Free();
 
 		Global->OldLang->MsgList=MsgList;
-		Global->OldLang->MsgAddr=MsgAddr;
+		Global->OldLang->Messages.swap(Messages);
 #ifndef NO_WRAPPER
 		Global->OldLang->MsgListA=MsgListA;
-		Global->OldLang->MsgAddrA=MsgAddrA;
+		Global->OldLang->AnsiMessages.swap(AnsiMessages);
 		Global->OldLang->m_bUnicode=m_bUnicode;
 #endif // NO_WRAPPER
 		Global->OldLang->MsgCount=MsgCount;
 
 		MsgList=nullptr;
-		MsgAddr=nullptr;
 	#ifndef NO_WRAPPER
 		MsgListA=nullptr;
-		MsgAddrA=nullptr;
 		m_bUnicode = true;
 	#endif // NO_WRAPPER
 		MsgCount=0;
@@ -596,9 +574,9 @@ const wchar_t* Language::GetMsg(LNGID nID) const
 		return L"";
 
 	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
-		return Global->OldLang->MsgAddr[nID];
+		return Global->OldLang->Messages[nID];
 
-	return MsgAddr[nID];
+	return Messages[nID];
 }
 
 #ifndef NO_WRAPPER
@@ -608,8 +586,8 @@ const char* Language::GetMsgA(LNGID nID) const
 		return "";
 
 	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
-		return Global->OldLang->MsgAddrA[nID];
+		return Global->OldLang->AnsiMessages[nID];
 
-	return MsgAddrA[nID];
+	return AnsiMessages[nID];
 }
 #endif // NO_WRAPPER

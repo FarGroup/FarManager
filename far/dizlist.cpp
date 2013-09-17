@@ -50,17 +50,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 DizList::DizList():
 	Modified(false),
-	OrigCodePage(CP_DEFAULT),
-	AnsiBuf(nullptr)
+	OrigCodePage(CP_DEFAULT)
 {
 }
 
 DizList::~DizList()
 {
 	Reset();
-
-	if (AnsiBuf)
-		xf_free(AnsiBuf);
 }
 
 void DizList::Reset()
@@ -247,13 +243,10 @@ desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
-		size_t len = Name.size();
-		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
+		std::vector<char> tmp(Name.size() + 1);
+		WideCharToMultiByte(OrigCodePage, 0, Name.data(), static_cast<int>(Name.size() + 1), tmp.data(), static_cast<int>(tmp.size()), nullptr, nullptr);
 
-		AnsiBuf = tmp;
-		WideCharToMultiByte(OrigCodePage, 0, Name.data(), static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
-		AnsiBuf[len]=0;
-		string strRecoded = wide(AnsiBuf, OrigCodePage);
+		string strRecoded = wide(tmp.data(), OrigCodePage);
 
 		if (strRecoded==Name)
 			return DizData.end();

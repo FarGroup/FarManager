@@ -452,6 +452,8 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	api::File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
+	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
+
 	bool DataRead = false;
 	FOR_CONST_RANGE(SortedPlugins, i)
 	{
@@ -464,15 +466,12 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
-				Info.Buffer = new BYTE[Global->Opt->PluginMaxReadData];
-				if (Info.Buffer)
+				DWORD DataSize = 0;
+				if (file.Read(Buffer.data(), static_cast<DWORD>(Buffer.size()), DataSize))
 				{
-					DWORD DataSize = 0;
-					if (file.Read(Info.Buffer, Global->Opt->PluginMaxReadData, DataSize))
-					{
-						Info.BufferSize = DataSize;
-						DataRead = true;
-					}
+					Info.Buffer = Buffer.data();
+					Info.BufferSize = DataSize;
+					DataRead = true;
 				}
 				file.Close();
 			}
@@ -602,11 +601,6 @@ HANDLE PluginManager::OpenFilePlugin(
 				pResult = items.end();
 			}
 		}
-	}
-
-	if(Info.Buffer)
-	{
-		delete[] (BYTE*)Info.Buffer;
 	}
 
 	std::for_each(CONST_RANGE(items, i)

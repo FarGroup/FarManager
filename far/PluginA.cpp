@@ -529,21 +529,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 		{
 			for (size_t i=0; i<iCount; i++)
 			{
-				size_t iColumnCount = 0;
-
-				if (pnmA[i].ColumnTypes)
-				{
-					char *lpTypes = DuplicateString(pnmA[i].ColumnTypes);
-					const char *lpToken = strtok(lpTypes, ",");
-
-					while (lpToken && *lpToken)
-					{
-						iColumnCount++;
-						lpToken = strtok(nullptr, ",");
-					}
-
-					delete[] lpTypes;
-				}
+				size_t iColumnCount = pnmA[i].ColumnTypes? StringToList(wide(pnmA[i].ColumnTypes), 0, L",").size() : 0;
 
 				pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
 				pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):nullptr;
@@ -1120,11 +1106,9 @@ static char* WINAPI PasteFromClipboardA()
 	size_t size = NativeFSF.PasteFromClipboard(FCT_ANY,nullptr,0);
 	if (size)
 	{
-		auto p = new wchar_t[size];
-		NativeFSF.PasteFromClipboard(FCT_STREAM,p,size);
-		char* result=UnicodeToAnsi(p);
-		delete[] p;
-		return result;
+		std::vector<wchar_t> p(size);
+		NativeFSF.PasteFromClipboard(FCT_STREAM, p.data(), p.size());
+		return UnicodeToAnsi(p.data());
 	}
 	return nullptr;
 }
@@ -1249,10 +1233,9 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSiz
 		{
 			if(Result > MAX_PATH)
 			{
-				wchar_t* Tmp = new wchar_t[DestSize];
-				NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp, DestSize);
-				UnicodeToOEM(Tmp, Dest, DestSize);
-				delete[] Tmp;
+				std::vector<wchar_t> Tmp(DestSize);
+				NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp.data(), Tmp.size());
+				UnicodeToOEM(Tmp.data(), Dest, DestSize);
 			}
 			else
 			{
@@ -2315,25 +2298,22 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 		case DN_CTLCOLORDLGLIST:
 			{
-				FarDialogItemColors* lc = reinterpret_cast<FarDialogItemColors*>(Param2);
-				oldfar::FarListColors lcA={};
-				lcA.ColorCount = static_cast<int>(lc->ColorsCount);
-				LPBYTE Colors = new BYTE[lcA.ColorCount];
-				lcA.Colors = Colors;
-				for(size_t i = 0; i < lc->ColorsCount; ++i)
+				auto lc = reinterpret_cast<FarDialogItemColors*>(Param2);
+				std::vector<BYTE> AnsiColors(lc->ColorsCount);
+				std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), [](const FarColor& i)
 				{
-					lcA.Colors[i] = static_cast<BYTE>(Colors::FarColorToConsoleColor(lc->Colors[i]));
-				}
+					return static_cast<BYTE>(Colors::FarColorToConsoleColor(i));
+				});
+				oldfar::FarListColors lcA={0, 0, static_cast<int>(AnsiColors.size()), AnsiColors.data()};
 				intptr_t Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 				if(Result)
 				{
 					lc->ColorsCount = lcA.ColorCount;
-					for(size_t i = 0; i < lc->ColorsCount; ++i)
+					std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, [](BYTE i)
 					{
-						lc->Colors[i] = Colors::ConsoleColorToFarColor(lcA.Colors[i]);
-					}
+						return Colors::ConsoleColorToFarColor(i);
+					});
 				}
-				delete[] Colors;
 				return Result != 0;
 			}
 			break;
@@ -2466,13 +2446,12 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
 			if (!didA->PtrLength) //вот такой хреновый API!!!
 				didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
-			auto text = new wchar_t[didA->PtrLength + 1];
+			std::vector<wchar_t> text(didA->PtrLength + 1);
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
-			FarDialogItemData did = {sizeof(FarDialogItemData), (size_t)didA->PtrLength, text};
+			FarDialogItemData did = {sizeof(FarDialogItemData), (size_t)didA->PtrLength, text.data()};
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
-			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
-			delete[] text;
+			UnicodeToOEM(text.data(), didA->PtrData, didA->PtrLength+1);
 			return ret;
 		}
 		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
@@ -2483,15 +2462,13 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 			int Count = Param1;
 			DWORD* KeysA = (DWORD*)Param2;
-			auto KeysW = new INPUT_RECORD[Count];
+			std::vector<INPUT_RECORD> KeysW(Count);
 
 			for (int i=0; i<Count; i++)
 			{
-				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
+				KeyToInputRecord(OldKeyToKey(KeysA[i]), &KeysW[i]);
 			}
-			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
-			delete[] KeysW;
-			return ret;
+			return NativeInfo.SendDlgMessage(hDlg, DM_KEY, Param1, KeysW.data());
 		}
 		case oldfar::DM_MOVEDIALOG: Msg = DM_MOVEDIALOG; break;
 		case oldfar::DM_SETDLGDATA: Msg = DM_SETDLGDATA; break;
@@ -2528,12 +2505,10 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 			if (!didA->PtrData) return 0;
 
-			wchar_t* text = AnsiToUnicode(didA->PtrData);
 			//BUGBUG - PtrLength ни на что не вли€ет.
-			FarDialogItemData di = {sizeof(FarDialogItemData),(size_t)didA->PtrLength,text};
-			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
-			delete[] text;
-			return ret;
+			string text(wide(didA->PtrData));
+			FarDialogItemData di = {sizeof(FarDialogItemData),(size_t)didA->PtrLength, UNSAFE_CSTR(text)};
+			return NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 		}
 		case oldfar::DM_SETMAXTEXTLENGTH: Msg = DM_SETMAXTEXTLENGTH; break;
 		case oldfar::DM_SHOWDIALOG:       Msg = DM_SHOWDIALOG; break;
@@ -2546,31 +2521,20 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 			if (!Param2) return length;
 
-			auto text = new wchar_t[length + 1];
-			FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text};
+			std::vector<wchar_t> text(length + 1);
+			FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text.data()};
 			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
-			UnicodeToOEM(text, (char *)Param2, length+1);
-			delete[] text;
+			UnicodeToOEM(text.data(), (char *)Param2, length+1);
 			return length;
 		}
 		case oldfar::DM_SETTEXTPTR:
 		{
-			if (!Param2) return FALSE;
-
-			wchar_t* text = AnsiToUnicode((char*)Param2);
-			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, text);
-			delete[] text;
-			return ret;
+			return Param2? NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, UNSAFE_CSTR(wide(static_cast<const char*>(Param2)))) : FALSE;
 		}
 		case oldfar::DM_SHOWITEM: Msg = DM_SHOWITEM; break;
 		case oldfar::DM_ADDHISTORY:
 		{
-			if (!Param2) return FALSE;
-
-			wchar_t* history = AnsiToUnicode((char*)Param2);
-			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, history);
-			delete[] history;
-			return ret;
+			return Param2? NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, UNSAFE_CSTR(wide(static_cast<const char*>(Param2)))) : FALSE;
 		}
 		case oldfar::DM_GETCHECK:
 		{
@@ -2654,6 +2618,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 		case oldfar::DM_LISTADD:
 		{
 			FarList newlist = {sizeof(FarList)};
+			std::vector<FarListItem> Items;
 
 			if (Param2)
 			{
@@ -2662,24 +2627,20 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (newlist.ItemsNumber)
 				{
-					newlist.Items = new FarListItem[newlist.ItemsNumber];
+					Items.resize(newlist.ItemsNumber);
+					for (size_t i=0; i<newlist.ItemsNumber; i++)
+						AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 
-					if (newlist.Items)
-					{
-						for (size_t i=0; i<newlist.ItemsNumber; i++)
-							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
-					}
+					newlist.Items = Items.data();
 				}
 			}
 
 			intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?&newlist:0);
 
-			if (newlist.Items)
+			std::for_each(RANGE(Items, i)
 			{
-				for (size_t i=0; i<newlist.ItemsNumber; i++)
-					delete[] newlist.Items[i].Text;
-				delete[] newlist.Items;
-			}
+				delete[] i.Text;
+			});
 
 			return ret;
 		}
@@ -2992,7 +2953,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	if (!Item || !ItemsNumber)
 		return -1;
 
-	oldfar::FarDialogItem* diA=new oldfar::FarDialogItem[ItemsNumber]();
+	std::vector<oldfar::FarDialogItem> diA(ItemsNumber);
 
 	// to save DIF_SETCOLOR state
 	for(int i = 0; i < ItemsNumber; ++i)
@@ -3000,8 +2961,8 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 		diA[i].Flags = Item[i].Flags;
 	}
 
-	FarDialogItem* di = new FarDialogItem[ItemsNumber]();
-	FarList* l = new FarList[ItemsNumber]();
+	std::vector<FarDialogItem> di(ItemsNumber);
+	std::vector<FarList> l(ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
@@ -3021,13 +2982,13 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
 
 	int ret = -1;
-	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
+	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), di.data(), ItemsNumber, 0, DlgFlags, DlgProcA, Param);
 	DialogData NewDialogData;
 	NewDialogData.DlgProc=DlgProc;
 	NewDialogData.hDlg=hDlg;
-	NewDialogData.diA=diA;
-	NewDialogData.di=di;
-	NewDialogData.l=l;
+	NewDialogData.diA=diA.data();
+	NewDialogData.di=di.data();
+	NewDialogData.l=l.data();
 
 	if(!DialogList)
 	{
@@ -3089,10 +3050,6 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	{
 		DialogList.reset();
 	}
-
-	delete[] diA;
-	delete[] di;
-	delete[] l;
 
 	return ret;
 }
@@ -3417,10 +3374,9 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,nullptr,FarGuid,nullptr};
+			string Dir(wide(static_cast<const char*>(Param)));
+			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir.data(),nullptr,FarGuid,nullptr};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
-			delete[] Dir;
 			return ret;
 		}
 		case oldfar::FCTL_SETANOTHERSORTMODE:
@@ -3681,14 +3637,13 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 				size_t PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
 				if(Param)
 				{
-					FarColor* Color = new FarColor[PaletteSize];
-					NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color);
+					std::vector<FarColor> Color(PaletteSize);
+					NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
 					LPBYTE OldColors = static_cast<LPBYTE>(Param);
-					for(size_t i = 0; i < PaletteSize; ++i)
+					std::transform(ALL_CONST_RANGE(Color), OldColors, [](const FarColor& i)
 					{
-						OldColors[i] = static_cast<BYTE>(Colors::FarColorToConsoleColor(Color[i]));
-					}
-					delete[] Color;
+						return static_cast<BYTE>(Colors::FarColorToConsoleColor(i));
+					});
 				}
 				return PaletteSize;
 			}
@@ -3936,19 +3891,19 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 		}
 		case oldfar::ACTL_SETARRAYCOLOR:
 		{
-			if (!Param) return FALSE;
+			if (!Param)
+				return FALSE;
 
-			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-			FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
-			for(size_t i = 0; i < sc.ColorsCount; ++i)
+			auto scA = static_cast<const oldfar::FarSetColors*>(Param);
+			std::vector<FarColor> Colors(scA->ColorCount);
+			std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), [](BYTE i)
 			{
-				sc.Colors[i] = Colors::ConsoleColorToFarColor(scA->Colors[i]);
-			}
-
-			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
-			intptr_t Result = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
-			delete[] sc.Colors;
-			return Result;
+				return Colors::ConsoleColorToFarColor(i);
+			});
+			FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, Colors.size(), Colors.data()};
+			if (scA->Flags&oldfar::FCLR_REDRAW)
+				sc.Flags|=FSETCLR_REDRAW;
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
 		}
 		case oldfar::ACTL_GETWCHARMODE:
 			return TRUE;
@@ -4025,10 +3980,9 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength
 {
 	if (szBuffer && nLength > 0)
 	{
-		auto wszTempTable = new wchar_t[nLength];
-		MultiByteToWideChar(nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
-		WideCharToMultiByte(nCPout, 0, wszTempTable, nLength, szBuffer, nLength, nullptr, nullptr);
-		delete[] wszTempTable;
+		std::vector<wchar_t> TempTable(nLength);
+		MultiByteToWideChar(nCPin, 0, szBuffer, nLength, TempTable.data(), nLength);
+		WideCharToMultiByte(nCPout, 0, TempTable.data(), nLength, szBuffer, nLength, nullptr, nullptr);
 	}
 };
 
@@ -4215,23 +4169,24 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 		case oldfar::ECTL_SAVEFILE:
 		{
 			EditorSaveFile newsf = {sizeof(EditorSaveFile)};
-
+			string FileName, EOL;
 			if (Param)
 			{
 				oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
 				if (*oldsf->FileName)
-					newsf.FileName = AnsiToUnicode(oldsf->FileName);
+				{
+					FileName = wide(oldsf->FileName);
+					newsf.FileName = FileName.data();
+				}
 				if (oldsf->FileEOL)
-					newsf.FileEOL = AnsiToUnicode(oldsf->FileEOL);
+				{
+					EOL = wide(oldsf->FileName);
+					newsf.FileEOL = EOL.data();
+				}
 				newsf.CodePage = CP_DEFAULT;
 			}
 
-			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0));
-
-			delete[] newsf.FileName;
-			delete[] newsf.FileEOL;
-
-			return ret;
+			return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0));
 		}
 		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG?
 		{
@@ -4390,12 +4345,13 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 					case oldfar::ESPT_SETWORDDIV:
 					{
 						newsp.Type = ESPT_SETWORDDIV;
-						newsp.wszParam = (oldsp->cParam)?AnsiToUnicode(oldsp->cParam):nullptr;
-						int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
-
-						delete[] newsp.wszParam;
-
-						return ret;
+						string cParam;
+						if (oldsp->cParam)
+						{
+							cParam = wide(oldsp->cParam);
+							newsp.wszParam = UNSAFE_CSTR(cParam);
+						}
+						return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
 					}
 					case oldfar::ESPT_GETWORDDIV:
 					{
@@ -4405,24 +4361,18 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 						newsp.Type = ESPT_GETWORDDIV;
 						newsp.Size = 0;
 						newsp.Size = NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp);
-						newsp.wszParam = new wchar_t[newsp.Size];
+						std::vector<wchar_t> Buffer(newsp.Size);
+						newsp.wszParam = Buffer.data();
+						int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
+						char *olddiv = UnicodeToAnsi(newsp.wszParam);
 
-						if (newsp.wszParam)
+						if (olddiv)
 						{
-							int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
-							char *olddiv = UnicodeToAnsi(newsp.wszParam);
-
-							if (olddiv)
-							{
-								xstrncpy(oldsp->cParam, olddiv, 0x100);
-								delete[] olddiv;
-							}
-
-							delete[] newsp.wszParam;
-							return ret;
+							xstrncpy(oldsp->cParam, olddiv, 0x100);
+							delete[] olddiv;
 						}
 
-						return FALSE;
+						return ret;
 					}
 					default:
 						return FALSE;
@@ -4454,18 +4404,13 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 		}
 		case oldfar::ECTL_SETTITLE:
 		{
-			wchar_t* newtit = nullptr;
+			string newtit;
 
 			if (Param)
 			{
-				newtit=AnsiToUnicode((char*)Param);
+				newtit = wide(static_cast<const char*>(Param));
 			}
-
-			int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETTITLE, 0, newtit));
-
-			delete[] newtit;
-
-			return ret;
+			return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETTITLE, 0, Param? UNSAFE_CSTR(newtit) : nullptr));
 		}
 		// BUGBUG, convert params
 		case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;

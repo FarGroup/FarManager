@@ -199,7 +199,6 @@ private:
 
 	__int64 FilePos;
 	__int64 SecondPos;
-	__int64 LastScrPos;
 	__int64 FileSize;
 	__int64 LastSelectPos, LastSelectSize;
 
@@ -234,13 +233,11 @@ private:
 	int update_check_period;
 	DWORD last_update_check;
 
-	char *vread_buffer;
-	int vread_buffer_size;
+	std::vector<char> vread_buffer;
 
 	__int64  lcache_first;
 	__int64  lcache_last;
-	__int64 *lcache_lines;
-	int      lcache_size;
+	std::vector<__int64> lcache_lines;
 	int      lcache_count;
 	int      lcache_base;
 	bool     lcache_ready;
@@ -249,11 +246,9 @@ private:
 	int      lcache_width;
 
 	int      max_backward_size;
-	int      llengths_size;
-	int     *llengths;
+	std::vector<int> llengths;
 
-	wchar_t *Search_buffer;
-	int Search_buffer_size;
+	std::vector<wchar_t> Search_buffer;
 
 	ViewerString vString;
 
@@ -265,7 +260,7 @@ private:
 
 	int dump_text_mode;
 
-	wchar_t* ReadBuffer;
+	std::vector<wchar_t> ReadBuffer;
 
 	friend class FileViewer;
 };

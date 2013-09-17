@@ -733,6 +733,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 	FarList NameList={sizeof(FarList)};
 	std::vector<string> Links;
+	std::vector<FarListItem> ListItems;
 
 	if (!DlgParam.Plugin)
 	{
@@ -917,9 +918,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									KnownReparsePoint = true;
 									ReparseTag = IO_REPARSE_TAG_DFS;
 
-									if ((NameList.ItemsNumber = pData->NumberOfStorages) > 0)
-										NameList.Items = new FarListItem[NameList.ItemsNumber]();
+									NameList.ItemsNumber = pData->NumberOfStorages;
+
+									ListItems.resize(NameList.ItemsNumber);
 									Links.resize(NameList.ItemsNumber);
+
+									NameList.Items = ListItems.data();
 
 									for (size_t i = 0; i < NameList.ItemsNumber; ++i)
 									{
@@ -1012,8 +1016,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
-					NameList.Items=new FarListItem[NameList.ItemsNumber]();
+					ListItems.resize(NameList.ItemsNumber);
 					Links.resize(NameList.ItemsNumber);
+					NameList.Items = ListItems.data();
 					HANDLE hFind=api::FindFirstFileName(strSelName,0, Links[0]);
 
 					if (hFind!=INVALID_HANDLE_VALUE)
@@ -1253,9 +1258,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		Dlg.SetPosition(-1,-1,DlgX,DlgY);
 		Dlg.Process();
-
-		if (NameList.Items)
-			delete[] NameList.Items;
 
 		switch(Dlg.GetExitCode())
 		{

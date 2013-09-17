@@ -4281,8 +4281,7 @@ void FileList::CopyFiles(bool bMoved)
 void FileList::CopyNames(bool FillPathName, bool UNC)
 {
 	OpenPanelInfo Info={};
-	wchar_t *CopyData=nullptr;
-	long DataSize=0;
+	string CopyData;
 	string strSelName, strSelShortName, strQuotedName;
 	DWORD FileAttr;
 
@@ -4295,10 +4294,9 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
-		if (DataSize>0)
+		if (!CopyData.empty())
 		{
-			wcscat(CopyData+DataSize,L"\r\n");
-			DataSize+=2;
+			CopyData += L"\r\n";
 		}
 
 		strQuotedName = (ShowShortNames && !strSelShortName.empty()) ? strSelShortName:strSelName;
@@ -4318,12 +4316,6 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 				if (!CreateFullPathName(strQuotedName,strSelShortName,FileAttr,strQuotedName,UNC))
 				{
-					if (CopyData)
-					{
-						xf_free(CopyData);
-						CopyData=nullptr;
-					}
-
 					break;
 				}
 			}
@@ -4385,28 +4377,10 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		if (Global->Opt->QuotedName&QUOTEDNAME_CLIPBOARD)
 			QuoteSpace(strQuotedName);
 
-		int Length=(int)strQuotedName.size();
-		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData, (DataSize+Length+3)*sizeof(wchar_t));
-
-		if (!NewPtr)
-		{
-			if (CopyData)
-			{
-				xf_free(CopyData);
-				CopyData=nullptr;
-			}
-
-			break;
-		}
-
-		CopyData=NewPtr;
-		CopyData[DataSize]=0;
-		wcscpy(CopyData+DataSize, strQuotedName.data());
-		DataSize+=Length;
+		CopyData += strQuotedName;
 	}
 
 	SetClipboard(CopyData);
-	xf_free(CopyData);
 }
 
 bool FileList::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)

@@ -2785,7 +2785,7 @@ int Editor::ProcessKey(int Key)
 
 				const wchar_t *Str;
 
-				wchar_t *CmpStr=0;
+				string CmpStr;
 
 				intptr_t Length,CurPos;
 
@@ -2837,9 +2837,7 @@ int Editor::ProcessKey(int Key)
 				{
 					CurLine->GetBinaryString(&Str,nullptr,Length);
 					CurPos=CurLine->GetCurPos();
-					CmpStr=new wchar_t[Length+1];
-					wmemcpy(CmpStr,Str,Length);
-					CmpStr[Length]=0;
+					CmpStr.assign(Str, Length);
 				}
 
 				if (Key == KEY_OP_XLAT)
@@ -2879,14 +2877,12 @@ int Editor::ProcessKey(int Key)
 						intptr_t NewLength;
 						CurLine->GetBinaryString(&NewCmpStr,nullptr,NewLength);
 
-						if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length*sizeof(wchar_t))!=0)
+						if (NewLength!=Length || memcmp(CmpStr.data(),NewCmpStr,Length*sizeof(wchar_t))!=0)
 						{
-							AddUndoData(UNDO_EDIT,CmpStr,CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+							AddUndoData(UNDO_EDIT,CmpStr.data(),CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							Change(ECTYPE_CHANGED,NumLine);
 							TextChanged(1);
 						}
-
-						delete[] CmpStr;
 					}
 
 					// <Bug 794>
@@ -2953,8 +2949,6 @@ int Editor::ProcessKey(int Key)
 					ShowEditor();
 					return TRUE;
 				}
-				else if (!SkipCheckUndo)
-					delete[] CmpStr;
 
 				if (VBlockStart)
 					Show();
@@ -4489,12 +4483,7 @@ void Editor::DeleteBlock()
 
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 
-		// дальше будет realloc, поэтому тут malloc.
-		wchar_t *TmpStr=(wchar_t*)xf_malloc((Length+3)*sizeof(wchar_t));
-
-		wmemcpy(TmpStr,CurStr,Length);
-
-		TmpStr[Length]=0;
+		string TmpStr(CurStr, Length);
 
 		int DeleteNext=FALSE;
 
@@ -4506,8 +4495,8 @@ void Editor::DeleteBlock()
 				DeleteNext=TRUE;
 		}
 
-		// wmemmove(TmpStr+StartSel,TmpStr+EndSel,StrLength(TmpStr+EndSel)+1);
-		wmemmove(TmpStr+StartSel,TmpStr+EndSel,Length-EndSel+1);
+		TmpStr.erase(StartSel, EndSel);
+
 		int CurPos=StartSel;
 		/*    if (CurPos>=StartSel)
 		    {
@@ -4516,7 +4505,6 @@ void Editor::DeleteBlock()
 		        CurPos=StartSel;
 		    }
 		*/
-		Length-=EndSel-StartSel;
 
 		if (DeleteNext)
 		{
@@ -4537,9 +4525,7 @@ void Editor::DeleteBlock()
 
 				if (NextLength>0)
 				{
-					TmpStr=(wchar_t *)xf_realloc(TmpStr,(Length+NextLength+3)*sizeof(wchar_t));
-					wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
-					Length+=NextLength;
+					TmpStr.append(NextStr + NextEndSel, NextLength);
 				}
 			}
 
@@ -4560,11 +4546,9 @@ void Editor::DeleteBlock()
 				NumLine--;
 		}
 
-		int EndLength=StrLength(EndSeq);
-		wmemcpy(TmpStr+Length,EndSeq,EndLength);
-		Length+=EndLength;
-		CurPtr->SetBinaryString(TmpStr,Length);
-		xf_free(TmpStr);
+		TmpStr+=EndSeq;
+		CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
+
 		CurPtr->SetCurPos(CurPos);
 		if (StartSel || EndSel)
 		{

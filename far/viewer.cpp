@@ -90,9 +90,10 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400
 #define MAX_VIEWLINEB (ViOpt.MaxLineSize+15) // 0x80f // 0x40f
 
-#define REPLACE_CHAR  0xFFFD // Replacement
-#define CONTINUE_CHAR 0x203A // Single Right-Pointing Angle Quotation Mark
-#define BOM_CHAR      0xFEFF // Zero Length Space
+static const wchar_t REPLACE_CHAR = L'\xFFFD'; // Replacement
+static const wchar_t CONTINUE_CHAR = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
+static const wchar_t BOM_CHAR = L'\xFEFF'; // Zero Length Space
+
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
 static bool IsCodePageSupported(uintptr_t cp)
@@ -104,72 +105,80 @@ static bool IsCodePageSupported(uintptr_t cp)
 	return mb >= 1 && mb <= 2;
 }
 
+// seems like this initialization list is toooooo long
 Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Global->Opt->ViOpt),
+	Signature(),
+	ViewKeyBar(),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
-	m_bQuickView(bQuickView)
+	DeleteFolder(true),
+	strLastSearchStr(Global->strGlobalSearchString),
+	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchWholeWords(Global->GlobalSearchWholeWords),
+	LastSearchReverse(Global->GlobalSearchReverse),
+	LastSearchHex(Global->GlobalSearchHex),
+	LastSearchRegexp(Global->Opt->ViOpt.SearchRegexp),
+	LastSearchDirection(Global->GlobalSearchReverse? -1 : +1),
+	StartSearchPos(),
+	VM(),
+	FilePos(),
+	SecondPos(),
+	FileSize(),
+	LastSelectPos(),
+	LastSelectSize(-1),
+	LeftPos(),
+	LastPage(),
+	SelectPos(),
+	SelectSize(-1),
+	SelectFlags(),
+	ShowStatusLine(true),
+	HideCursor(true),
+	CodePageChangedByUser(),
+	ReadStdin(),
+	InternalKey(),
+	LastKeyUndo(),
+	Width(),
+	XX2(),
+	ViewerID(::ViewerID++),
+	OpenFailed(),
+	bVE_READ_Sent(),
+	HostFileViewer(),
+	AdjustSelPosition(),
+	m_bQuickView(bQuickView),
+	DefCodePage(aCodePage),
+	update_check_period(),
+	last_update_check(),
+	vread_buffer(std::max(MAX_VIEWLINEB, 8192ll)),
+	lcache_first(-1),
+	lcache_last(-1),
+	lcache_lines(16*1000),
+	lcache_count(),
+	lcache_base(),
+	lcache_ready(),
+	lcache_wrap(-1),
+	lcache_wwrap(-1),
+	lcache_width(-1),
+	// dirty magic numbers, fix them!
+	max_backward_size(std::min(Options::ViewerOptions::eMaxLineSize*3ll, std::max(Global->Opt->ViOpt.MaxLineSize*2, 1024ll) * 32)),
+	llengths(max_backward_size / 40),
+	Search_buffer(3 * std::max(MAX_VIEWLINEB, 8000ll)),
+	vString(),
+	vgetc_buffer(),
+	vgetc_ready(),
+	vgetc_cb(),
+	vgetc_ib(),
+	vgetc_composite(L'\0'),
+	dump_text_mode(-1),
+	ReadBuffer(MAX_VIEWLINEB)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
 
-	strLastSearchStr = Global->strGlobalSearchString;
-	LastSearchCase=Global->GlobalSearchCase;
-	LastSearchRegexp=Global->Opt->ViOpt.SearchRegexp;
-	LastSearchWholeWords=Global->GlobalSearchWholeWords;
-	LastSearchReverse=Global->GlobalSearchReverse;
-	LastSearchHex=Global->GlobalSearchHex;
-	LastSearchDirection =Global->GlobalSearchReverse ? -1 : +1;
-	StartSearchPos = 0;
-	VM.CodePage=DefCodePage=aCodePage;
-	// Вспомним тип врапа
+	VM.CodePage=DefCodePage;
 	VM.Wrap=Global->Opt->ViOpt.ViewerIsWrap;
 	VM.WordWrap=Global->Opt->ViOpt.ViewerWrap;
-	VM.Hex = dump_text_mode = -1;
-	ViewKeyBar=nullptr;
-	FilePos=0;
-	LeftPos=0;
-	SecondPos=0;
-	FileSize=0;
-	LastPage=0;
-	SelectPos = 0; SelectSize = -1;
-	LastSelectPos = 0; LastSelectSize = -1;
-	SetStatusMode(TRUE);
-	HideCursor=TRUE;
-	DeleteFolder=TRUE;
-	CodePageChangedByUser=FALSE;
-	ReadStdin=FALSE;
-	LastKeyUndo=FALSE;
-	InternalKey=FALSE;
-	this->ViewerID=::ViewerID++;
+	VM.Hex = -1;
+
 	Global->CtrlObject->Plugins->SetCurViewer(this);
-	OpenFailed=false;
-	HostFileViewer=nullptr;
-	bVE_READ_Sent = false;
-	Signature = false;
-
-	vgetc_ready = false;
-	vgetc_cb = vgetc_ib = 0;
-	vgetc_composite = L'\0';
-
-	vread_buffer_size = std::max(MAX_VIEWLINEB, 8192ll);
-	vread_buffer = new char[vread_buffer_size];
-
-	lcache_first = lcache_last = -1;
-	lcache_lines = new INT64[lcache_size = 16*1000];
-	lcache_count = 0;
-	lcache_base = 0;
-	lcache_ready = false;
-	lcache_wrap = lcache_wwrap = lcache_width = -1;
-
-	int cached_buffer_size = 64*std::max(Global->Opt->ViOpt.MaxLineSize*2, 1024ll);
-	max_backward_size = Options::ViewerOptions::eMaxLineSize*3;
-	if ( max_backward_size > cached_buffer_size/2 )
-		max_backward_size = cached_buffer_size / 2;
-	llengths_size = max_backward_size / 40;
-	llengths = new int[llengths_size];
-
-	Search_buffer_size = 3 * std::max(MAX_VIEWLINEB, 8000ll);
-	Search_buffer = new wchar_t[Search_buffer_size];
-	ReadBuffer = new wchar_t[MAX_VIEWLINEB];
 }
 
 Viewer::~Viewer()
@@ -181,12 +190,6 @@ Viewer::~Viewer()
 		ViewFile.Close();
 		SavePosition();
 	}
-
-	delete[] ReadBuffer;
-	delete[] Search_buffer;
-	delete[] llengths;
-	delete[] lcache_lines;
-	delete[] vread_buffer;
 
 	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
@@ -278,9 +281,9 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 		DWORD ReadSize = 0, WrittenSize;
 
-		while (ReadFile(Global->Console->GetOriginalInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr) && ReadSize)
+		while (ReadFile(Global->Console->GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
-			ViewFile.Write(vread_buffer,ReadSize,WrittenSize);
+			ViewFile.Write(vread_buffer.data(),ReadSize,WrittenSize);
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -1240,7 +1243,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 	if (!eol_char && veof())
 		LastPage = 1;
 
-	pString->Data = ReadBuffer;
+	pString->Data = ReadBuffer.data();
 }
 
 
@@ -2089,28 +2092,28 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 	}
 	else if (start == lcache_last)
 	{
-		int i = (lcache_base + lcache_count - 1) % lcache_size;
+		int i = (lcache_base + lcache_count - 1) % lcache_lines.size();
 		lcache_lines[i] = (have_eol ? -start : +start);
-		i = (i + 1) % lcache_size;
+		i = (i + 1) % lcache_lines.size();
 		lcache_lines[i]	= lcache_last = start + length;
-		if (lcache_count < lcache_size)
+		if (static_cast<size_t>(lcache_count) < lcache_lines.size())
 			++lcache_count;
 		else
 		{
-			lcache_base = (lcache_base + 1) % lcache_size; // ++start
+			lcache_base = (lcache_base + 1) % lcache_lines.size(); // ++start
 			lcache_first = llabs(lcache_lines[lcache_base]);
 		}
 	}
 	else if (start+length == lcache_first)
 	{
-		lcache_base = (lcache_base + lcache_size - 1) % lcache_size; // --start
+		lcache_base = static_cast<int>((lcache_base + lcache_lines.size() - 1) % lcache_lines.size()); // --start
 		lcache_lines[lcache_base] = (have_eol ? -start : +start);
 		lcache_first = start;
-		if (lcache_count < lcache_size)
+		if (static_cast<size_t>(lcache_count) < lcache_lines.size())
 			++lcache_count;
 		else
 		{
-			int i = (lcache_base + lcache_size - 1) % lcache_size; // i = start - 1
+			size_t i = (lcache_base + lcache_lines.size() - 1) % lcache_lines.size(); // i = start - 1
 			lcache_last = llabs(lcache_lines[i]);
 		}
 	}
@@ -2123,7 +2126,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 			reset = (i < 0 || llabs(lcache_lines[i]) != start);
 			if ( !reset )
 			{
-				int j = (i + 1) % lcache_size;
+				int j = (i + 1) % lcache_lines.size();
 				reset = (llabs(lcache_lines[j]) != start+length);
 			}
 		}
@@ -2156,10 +2159,10 @@ int Viewer::CacheFindUp( __int64 start )
 	for (;;)
 	{
 		if ( i1+1 >= i2 )
-			return (lcache_base + i1) % lcache_size;
+			return (lcache_base + i1) % lcache_lines.size();
 
 		int i = (i1 + i2) / 2;
-		int j = (lcache_base + i) % lcache_size;
+		int j = (lcache_base + i) % lcache_lines.size();
 		if (llabs(lcache_lines[j]) < start)
 			i1 = i;
 		else
@@ -2201,7 +2204,7 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			if (i == lcache_base)
 				break;
-			i = (i + lcache_size - 1) % lcache_size;
+			i = static_cast<int>((i + lcache_lines.size() - 1) % lcache_lines.size());
 		}
 	}
 
@@ -2302,7 +2305,7 @@ void Viewer::Up( int nlines, bool adjust )
 		// split read portion
 		//
 		vseek(vString.nFilePos = fpos, SEEK_SET);
-		for (i = 0; i < llengths_size; ++i)
+		for (i = 0; i < static_cast<int>(llengths.size()); ++i)
 		{
 			ReadString(&vString, -1, false);
 			llengths[i] = (vString.have_eol ? -1 : +1) * vString.linesize;
@@ -2315,8 +2318,8 @@ void Viewer::Up( int nlines, bool adjust )
 				break;
 			}
 		}
-		assert(i < llengths_size);
-		if (i >= llengths_size)
+		assert(i < llengths.size());
+		if (i >= static_cast<int>(llengths.size()))
 			--i;
 
 		while ( i >= 0 )
@@ -2780,9 +2783,9 @@ struct Viewer::search_data
 
 int Viewer::search_hex_forward( search_data* sd )
 {
-	char *buff = (char *)Search_buffer;
+	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
-	int bsize = Search_buffer_size * static_cast<int>(sizeof(wchar_t)), slen = sd->search_len;
+	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	INT64 to, cpos = sd->CurPos;
 
 	bool up_half = cpos >= StartSearchPos;
@@ -2833,9 +2836,9 @@ int Viewer::search_hex_forward( search_data* sd )
 
 int Viewer::search_hex_backward( search_data* sd )
 {
-	char *buff = (char *)Search_buffer;
+	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
-	int bsize = Search_buffer_size * static_cast<int>(sizeof(wchar_t)), slen = sd->search_len;
+	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	INT64 to, cpos = sd->CurPos;
 
 	bool lo_half = cpos <= StartSearchPos;
@@ -2891,7 +2894,7 @@ int Viewer::search_hex_backward( search_data* sd )
 int Viewer::search_text_forward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
-	wchar_t prev_char = L'\0', *buff = Search_buffer, *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
+	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to1, to, cpos = sd->CurPos;
 
@@ -2964,7 +2967,7 @@ int Viewer::search_text_forward( search_data* sd )
 int Viewer::search_text_backward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
-	wchar_t *buff = Search_buffer, *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
+	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to, cpos = sd->CurPos;
 
@@ -3072,9 +3075,9 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 int Viewer::search_regex_forward( search_data* sd )
 {
 	assert(sd->pRex);
-	assert(Search_buffer_size >= 2*MAX_VIEWLINEB);
+	assert(Search_buffer.size() >= 2*MAX_VIEWLINEB);
 
-	wchar_t *line = Search_buffer, *t_line = sd->is_utf8 ? Search_buffer + MAX_VIEWLINEB : nullptr;
+	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0;
 
 	int first = (sd->first_Rex ? +1 : 0);
@@ -3136,9 +3139,9 @@ int Viewer::search_regex_forward( search_data* sd )
 int Viewer::search_regex_backward( search_data* sd )
 {
 	assert(sd->pRex);
-	assert(Search_buffer_size >= 2*MAX_VIEWLINEB);
+	assert(Search_buffer.size() >= 2*MAX_VIEWLINEB);
 
-	wchar_t *line = Search_buffer, *t_line = sd->is_utf8 ? Search_buffer + MAX_VIEWLINEB : nullptr;
+	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0, prev_pos = -1;
 
 	bool up_half = cpos > StartSearchPos;
@@ -3703,9 +3706,9 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 	}
 	else
 	{
-		char *TmpBuf = vread_buffer;
+		char *TmpBuf = vread_buffer.data();
 		char_ptr Buffer;
-		if (Count > vread_buffer_size)
+		if (static_cast<size_t>(Count) > vread_buffer.size())
 		{
 			Buffer.reset(Count);
 			TmpBuf = Buffer.get();

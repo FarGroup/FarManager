@@ -1476,14 +1476,13 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 string wide(const char *str, uintptr_t codepage)
 {
-	string result;
 	if (str && *str)
 	{
-		wchar_t_ptr Buffer(MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0));
-		MultiByteToWideChar(codepage, 0, str, -1, Buffer.get(), static_cast<int>(Buffer.size()));
-		result.assign(Buffer.get(), Buffer.size() - 1);
+		std::vector<wchar_t> Buffer(MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0));
+		MultiByteToWideChar(codepage, 0, str, -1, Buffer.data(), static_cast<int>(Buffer.size()));
+		return string(Buffer.data(), Buffer.size() - 1);
 	}
-	return result;
+	return string();
 }
 
 string str_printf(const wchar_t * format, ...)

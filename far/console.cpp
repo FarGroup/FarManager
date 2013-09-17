@@ -180,23 +180,22 @@ virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 
 virtual bool GetTitle(string &strTitle) const override
 {
-	DWORD dwSize = 0;
-	DWORD dwBufferSize = MAX_PATH;
-	wchar_t *lpwszTitle = nullptr;
+	DWORD Size = 0;
+	DWORD BufferSize = MAX_PATH;
+	wchar_t_ptr Title;
 
 	do
 	{
-		dwBufferSize <<= 1;
-		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof(wchar_t));
-		dwSize = GetConsoleTitle(lpwszTitle, dwBufferSize);
+		BufferSize <<= 1;
+		Title.reset(BufferSize);
+		Size = GetConsoleTitle(Title.get(), BufferSize);
 	}
-	while (!dwSize && GetLastError() == ERROR_SUCCESS);
+	while (!Size && GetLastError() == ERROR_SUCCESS);
 
-	if (dwSize)
-		strTitle = lpwszTitle;
+	if (Size)
+		strTitle.assign(Title.get(), Size);
 
-	xf_free(lpwszTitle);
-	return dwSize!=0;
+	return Size!=0;
 }
 
 virtual bool SetTitle(const string& Title) const override

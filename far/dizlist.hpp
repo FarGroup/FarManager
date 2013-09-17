@@ -69,5 +69,4 @@ private:
 	desc_map DizData;
 	bool Modified;
 	uintptr_t OrigCodePage;
-	char *AnsiBuf;
 };

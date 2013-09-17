@@ -65,7 +65,7 @@ std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))
 	{
 		DWORD bufsz = 16*1024;
-		NETRESOURCE *netResource = (NETRESOURCE *)xf_malloc(bufsz);
+		block_ptr<NETRESOURCE> netResource(bufsz);
 
 		if (netResource)
 		{
@@ -73,8 +73,8 @@ std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 			{
 				DWORD size=1;
 				bufsz = 16*1024;
-				memset(netResource,0,bufsz);
-				DWORD res = WNetEnumResource(hEnum, &size, netResource, &bufsz);
+				memset(netResource.get(),0,bufsz);
+				DWORD res = WNetEnumResource(hEnum, &size, netResource.get(), &bufsz);
 
 				if (res == NO_ERROR && size > 0 && netResource->lpLocalName )
 				{
@@ -95,8 +95,6 @@ std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
 					break;
 				}
 			}
-
-			xf_free(netResource);
 		}
 
 		WNetCloseEnum(hEnum);

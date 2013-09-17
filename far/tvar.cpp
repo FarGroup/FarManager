@@ -267,16 +267,7 @@ static wchar_t *dubstr(const wchar_t *s)
 
 static TVar addStr(const wchar_t *a, const wchar_t *b)
 {
-	TVar r(L"");
-	wchar_t *c = new wchar_t[StrLength(a ? a : L"")+StrLength(b ? b : L"")+1];
-
-	if (c)
-	{
-		r = wcscat(wcscpy(c, a ? a : L""), b ? b : L"");
-		delete [] c;
-	}
-
-	return r;
+	return TVar((string(a) + b).data());
 }
 
 TVar& TVar::AppendStr(const TVar& appStr)
