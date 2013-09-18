@@ -464,7 +464,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 
 	if (!IgnoreInput)
 	{
-		string title = DlgTitle;
+		string title = NullToEmpty(DlgTitle);
 		SubstFileName(nullptr,title,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 		ReplaceVariables(api::ExpandEnvironmentStrings(title).data(), strTmp, PSubstData);
 	}
