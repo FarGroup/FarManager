@@ -93,7 +93,7 @@ struct SIDCacheItem
 	SIDCacheItem& operator=(SIDCacheItem&& Right)
 	{
 		Sid.swap(Right.Sid);
-		strUserName = std::move(Right.strUserName);
+		strUserName.swap(Right.strUserName);
 		return *this;
 	}
 };

@@ -275,7 +275,7 @@ static const std::vector<wchar_t> create_alt_sort_table()
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
 	}
 	assert(cc == u_end+1);
-	return std::move(alt_sort_table);
+	return alt_sort_table;
 }
 
 int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)

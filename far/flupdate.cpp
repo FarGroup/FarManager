@@ -223,7 +223,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData = std::move(ListData);
+		OldData.swap(ListData);
 	}
 	else
 		DeleteListData(ListData);
@@ -704,7 +704,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData = std::move(ListData);
+		OldData.swap(ListData);
 	}
 	else
 	{

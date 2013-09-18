@@ -409,11 +409,9 @@ void ShowHotplugDevices()
 
 		if (!Info.empty())
 		{
-			MenuItemEx ListItem;
-
 			std::for_each(CONST_RANGE(Info, i)
 			{
-				ListItem.Clear();
+				MenuItemEx ListItem = {};
 				string strFriendlyName, strDescription;
 				if (GetDeviceProperty(i.DevInst, SPDRP_DEVICEDESC, strDescription, true) && !strDescription.empty())
 				{

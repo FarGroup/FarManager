@@ -4410,7 +4410,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		}
 	}
 
-	return std::move(CopyData);
+	return CopyData;
 }
 
 
@@ -5421,7 +5421,7 @@ string Editor::VBlock2Text(const wchar_t* InitData, size_t size)
 		CopyData.append(DOS_EOL_fmt);
 	}
 
-	return std::move(CopyData);
+	return CopyData;
 }
 
 void Editor::VPaste(const wchar_t *ClipText)

@@ -259,7 +259,7 @@ public:
 		CriticalSectionLock cslock(csQueueAccess);
 		T item = std::move(Queue.front());
 		Queue.pop();
-		return std::move(item);
+		return item;
 	}
 };
 

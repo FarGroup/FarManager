@@ -12,10 +12,6 @@ farrtl.cpp
 #include "imports.hpp"
 #include "synchro.hpp"
 
-#ifdef _MSC_VER
-#pragma intrinsic (memcpy)
-#endif
-
 #ifdef MEMCHECK
 #undef xf_malloc
 #undef xf_realloc

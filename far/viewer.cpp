@@ -2318,7 +2318,7 @@ void Viewer::Up( int nlines, bool adjust )
 				break;
 			}
 		}
-		assert(i < llengths.size());
+		assert(i < static_cast<int>(llengths.size()));
 		if (i >= static_cast<int>(llengths.size()))
 			--i;
 

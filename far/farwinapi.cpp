@@ -43,11 +43,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "plugins.hpp"
 
-struct PSEUDO_HANDLE
+struct pseudo_handle
 {
+	pseudo_handle():
+		NextOffset(),
+		BufferSize(),
+		Extended(),
+		ReadDone()
+	{
+	}
+
 	api::File Object;
-	PVOID BufferBase;
-	PVOID Buffer2;
+	block_ptr<BYTE> BufferBase;
+	block_ptr<BYTE> Buffer2;
 	ULONG NextOffset;
 	ULONG BufferSize;
 	bool Extended;
@@ -59,7 +67,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 	HANDLE Result = INVALID_HANDLE_VALUE;
 	if(!Name.empty() && !IsSlash(Name.back()))
 	{
-		PSEUDO_HANDLE* Handle = new PSEUDO_HANDLE;
+		auto Handle = new pseudo_handle;
 		if(Handle)
 		{
 			string strDirectory(Name);
@@ -69,27 +77,24 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 
 				// for network paths buffer size must be <= 65k
 				Handle->BufferSize = 0x10000;
-				Handle->BufferBase = xf_malloc(Handle->BufferSize);
+				Handle->BufferBase.reset(Handle->BufferSize);
 				if (Handle->BufferBase)
 				{
 					LPCWSTR NamePtr = PointToName(Name);
 					Handle->Extended = true;
-					Handle->Buffer2 = nullptr;
-					Handle->ReadDone = false;
 
-					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
+					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
 					if (QueryResult) // try next read immediately to avoid M#2128 bug
 					{
-						Handle->Buffer2 = xf_malloc(Handle->BufferSize);
+						Handle->Buffer2.reset(Handle->BufferSize);
 						if (!Handle->Buffer2)
 							QueryResult = false;
 						else
 						{
-							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
+							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
 							if (!QueryResult2)
 							{
-								xf_free(Handle->Buffer2);
-								Handle->Buffer2 = nullptr;
+								Handle->Buffer2.reset();
 								if (GetLastError() != ERROR_INVALID_LEVEL)
 									Handle->ReadDone = true;
 								else
@@ -106,12 +111,12 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 						Handle->Object.Close();
 						if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 						{
-							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
+							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
 						}
 					}
 					if(QueryResult)
 					{
-						PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+						auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
 						FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
 						FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
@@ -134,7 +139,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 						else
 						{
 							FindData.FileId = 0;
-							PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+							auto DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
 							FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
 							FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
 						}
@@ -154,7 +159,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 					}
 					else
 					{
-						xf_free(Handle->BufferBase);
+						Handle->BufferBase.reset();
 					}
 				}
 			}
@@ -178,9 +183,9 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
-	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
+	auto Handle = static_cast<pseudo_handle*>(Find);
 	bool Status = true, set_errcode = true;
-	PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+	auto DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 	if(Handle->NextOffset)
 	{
 		DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
@@ -195,13 +200,13 @@ static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 		{
 			if (Handle->Buffer2)
 			{
-				xf_free(Handle->BufferBase);
-				DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase = Handle->Buffer2);
-				Handle->Buffer2 = nullptr;
+				Handle->BufferBase.reset();
+				Handle->BufferBase.swap(Handle->Buffer2);
+				DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
 			}
 			else
 			{
-				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
 				set_errcode = false;
 			}
 		}
@@ -231,7 +236,7 @@ static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 		else
 		{
 			FindData.FileId = 0;
-			PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+			auto DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
 			FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
 			FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
 		}
@@ -258,10 +263,7 @@ static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 
 static bool FindCloseInternal(HANDLE Find)
 {
-	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
-	xf_free(Handle->Buffer2);
-	xf_free(Handle->BufferBase);
-	delete Handle;
+	delete static_cast<pseudo_handle*>(Find);
 	return true;
 }
 
@@ -966,42 +968,41 @@ DWORD api::GetModuleFileName(HMODULE hModule, string &strFileName)
 
 DWORD api::GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 {
-	DWORD dwSize = 0;
-	DWORD dwBufferSize = MAX_PATH;
-	wchar_t *lpwszFileName = nullptr;
+	DWORD Size = 0;
+	DWORD BufferSize = MAX_PATH;
+	wchar_t_ptr FileName;
 
 	do
 	{
-		dwBufferSize <<= 1;
-		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof(wchar_t));
+		BufferSize <<= 1;
+		FileName.reset(BufferSize);
 		if (hProcess)
 		{
 			if (Global->ifn->QueryFullProcessImageNameWPresent() && !hModule)
 			{
-				DWORD sz = dwBufferSize;
-				dwSize = 0;
-				if (Global->ifn->QueryFullProcessImageNameW(hProcess, 0, lpwszFileName, &sz))
+				DWORD sz = BufferSize;
+				Size = 0;
+				if (Global->ifn->QueryFullProcessImageNameW(hProcess, 0, FileName.get(), &sz))
 				{
-					dwSize = sz;
+					Size = sz;
 				}
 			}
 			else
 			{
-				dwSize = ::GetModuleFileNameEx(hProcess, hModule, lpwszFileName, dwBufferSize);
+				Size = ::GetModuleFileNameEx(hProcess, hModule, FileName.get(), BufferSize);
 			}
 		}
 		else
 		{
-			dwSize = ::GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
+			Size = ::GetModuleFileName(hModule, FileName.get(), BufferSize);
 		}
 	}
-	while ((dwSize >= dwBufferSize) || (!dwSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
+	while ((Size >= BufferSize) || (!Size && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
 
-	if (dwSize)
-		strFileName.assign(lpwszFileName, dwSize);
+	if (Size)
+		strFileName.assign(FileName.get(), Size);
 
-	xf_free(lpwszFileName);
-	return dwSize;
+	return Size;
 }
 
 DWORD api::WNetGetConnection(const string& LocalName, string &RemoteName)
@@ -1334,7 +1335,7 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 	{
 		if (InfoLevel==FindStreamInfoStandard)
 		{
-			PSEUDO_HANDLE* Handle=new PSEUDO_HANDLE;
+			auto Handle=new pseudo_handle;
 			if(Handle)
 			{
 				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
@@ -1342,27 +1343,25 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 					// for network paths buffer size must be <= 65k
 					// we double it in a first loop, so starting value is 32k
 					Handle->BufferSize = 0x8000;
-					Handle->BufferBase = nullptr;
-
 					NTSTATUS Result = STATUS_SEVERITY_ERROR;
 					do
 					{
 						Handle->BufferSize<<=1;
-						Handle->BufferBase=static_cast<LPBYTE>(xf_realloc_nomove(Handle->BufferBase, Handle->BufferSize));
+						Handle->BufferBase.reset(Handle->BufferSize);
 						if (Handle->BufferBase)
 						{
 							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-							PFILE_STREAM_INFORMATION StreamInfo = static_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+							auto StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get());
 							StreamInfo->StreamNameLength = 0;
-							Handle->Object.NtQueryInformationFile(Handle->BufferBase, Handle->BufferSize, FileStreamInformation, &Result);
+							Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferSize, FileStreamInformation, &Result);
 						}
 					}
 					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
 
 					if (Result == STATUS_SUCCESS)
 					{
-						PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-						PFILE_STREAM_INFORMATION StreamInfo = static_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+						auto pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+						auto StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get());
 						Handle->NextOffset = StreamInfo->NextEntryOffset;
 						if (StreamInfo->StreamNameLength)
 						{
@@ -1377,10 +1376,6 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 
 					if (Ret==INVALID_HANDLE_VALUE)
 					{
-						if(Handle->BufferBase)
-						{
-							xf_free(Handle->BufferBase);
-						}
 						delete Handle;
 					}
 				}
@@ -1400,12 +1395,12 @@ BOOL api::FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 	}
 	else
 	{
-		PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
+		auto Handle = static_cast<pseudo_handle*>(hFindStream);
 
 		if (Handle->NextOffset)
 		{
-			PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(Handle->BufferBase)+Handle->NextOffset);
-			PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+			auto pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase.get() + Handle->NextOffset);
+			auto pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
 			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 			{
@@ -1430,9 +1425,7 @@ BOOL api::FindStreamClose(HANDLE hFindStream)
 	}
 	else
 	{
-		PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
-		xf_free(Handle->BufferBase);
-		delete Handle;
+		delete static_cast<pseudo_handle*>(hFindStream);
 		Ret=TRUE;
 	}
 

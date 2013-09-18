@@ -265,119 +265,90 @@ void Edit::FastShow()
 	if (!Mask.empty())
 		RefreshStrByMask();
 
-	wchar_t *OutStrTmp=(wchar_t *)xf_malloc((EditLength+1)*sizeof(wchar_t));
-
-	if (!OutStrTmp)
-		return;
-
-	wchar_t *OutStr=(wchar_t *)xf_malloc((EditLength+1)*sizeof(wchar_t));
-
-	if (!OutStr)
-	{
-		xf_free(OutStrTmp);
-		return;
-	}
+	string OutStr, OutStrTmp;
+	OutStr.reserve(EditLength);
+	OutStrTmp.reserve(EditLength);
 
 	SetLineCursorPos(TabCurPos);
 	int RealLeftPos=TabPosToReal(LeftPos);
-	int OutStrLength=std::min(EditLength,StrSize-RealLeftPos);
 
-	if (OutStrLength < 0)
-	{
-		OutStrLength=0;
-	}
-	else
-	{
-		wmemcpy(OutStrTmp,Str+RealLeftPos,OutStrLength);
-	}
+	OutStrTmp.assign(Str + RealLeftPos, std::max(0, std::min(EditLength,StrSize-RealLeftPos)));
 
 	{
-		wchar_t *p=OutStrTmp;
-		wchar_t *e=OutStrTmp+OutStrLength;
-
-		wchar_t *TrailingSpaces = e - 1;
-		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && (e > p))
+		auto TrailingSpaces = OutStrTmp.cend();
+		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && !OutStrTmp.empty())
 		{
-			while(IsSpace(*TrailingSpaces))
-				TrailingSpaces--;
-		}
-		else
-		{
-			TrailingSpaces = nullptr;
+			TrailingSpaces = std::find_if_not(OutStrTmp.crbegin(), OutStrTmp.crend(), [](wchar_t i) { return IsSpace(i);}).base();
 		}
 
-		for (OutStrLength=0; OutStrLength<EditLength && p<e; p++)
+		for (auto i = OutStrTmp.begin(); OutStr.size() < EditLength && i != OutStrTmp.end(); ++i)
 		{
-			if ((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces))
+			if ((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces)
 			{
-				if (*p==L' ') // *p==L'\xA0' ==> NO-BREAK SPACE
+				if (*i==L' ') // *p==L'\xA0' ==> NO-BREAK SPACE
 				{
-					*p=L'\xB7';
+					*i=L'\xB7';
 				}
 			}
 
-			if (*p == L'\t')
+			if (*i == L'\t')
 			{
-				int S=GetTabSize()-((UnfixedLeftPos+OutStrLength) % GetTabSize());
-				OutStr[OutStrLength]=(((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces)) && (OutStrLength || S==GetTabSize()))?L'\x2192':L' ';
-				OutStrLength++;
-				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
+				int S=GetTabSize()-((UnfixedLeftPos+OutStr.size()) % GetTabSize());
+				OutStr.push_back((((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))?L'\x2192':L' ');
+				for (int i=1; i<S && OutStr.size() < EditLength; ++i)
 				{
-					OutStr[OutStrLength]=L' ';
+					OutStr.push_back(L' ');
 				}
 			}
 			else
 			{
-				if (!*p)
-					OutStr[OutStrLength]=L' ';
+				if (!*i)
+					OutStr.push_back(L' ');
 				else
-					OutStr[OutStrLength]=*p;
-
-				OutStrLength++;
+					OutStr.push_back(*i);
 			}
 		}
 
 		if (Flags.Check(FEDITLINE_PASSWORDMODE))
-			wmemset(OutStr,L'*',OutStrLength);
+			OutStr.assign(OutStr.size(), L'*');
 
-		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStrLength < EditLength))
+		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
 			switch(EndType)
 			{
 			case EOL_CR:
-				OutStr[OutStrLength++]=Oem2Unicode[13];
+				OutStr.push_back(Oem2Unicode[13]);
 				break;
 			case EOL_LF:
-				OutStr[OutStrLength++]=Oem2Unicode[10];
+				OutStr.push_back(Oem2Unicode[10]);
 				break;
 			case EOL_CRLF:
-				OutStr[OutStrLength++]=Oem2Unicode[13];
-				if(OutStrLength < EditLength)
+				OutStr.push_back(Oem2Unicode[13]);
+				if(OutStr.size() < EditLength)
 				{
-					OutStr[OutStrLength++]=Oem2Unicode[10];
+					OutStr.push_back(Oem2Unicode[10]);
 				}
 				break;
 			case EOL_CRCRLF:
-				OutStr[OutStrLength++]=Oem2Unicode[13];
-				if(OutStrLength < EditLength)
+				OutStr.push_back(Oem2Unicode[13]);
+				if(OutStr.size() < EditLength)
 				{
-					OutStr[OutStrLength++]=Oem2Unicode[13];
-					if(OutStrLength < EditLength)
+					OutStr.push_back(Oem2Unicode[13]);
+					if(OutStr.size() < EditLength)
 					{
-						OutStr[OutStrLength++]=Oem2Unicode[10];
+						OutStr.push_back(Oem2Unicode[10]);
 					}
 				}
 				break;
 			}
 		}
 
-		if(!m_next && Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStrLength < EditLength))
+		if(!m_next && Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
-			OutStr[OutStrLength++]=L'\x25a1';
+			OutStr.push_back(L'\x25a1');
 		}
 	}
 
-	OutStr[OutStrLength]=0;
 	SetColor(GetNormalColor());
 
 	if (TabSelStart==-1)
@@ -387,11 +358,11 @@ void Edit::FastShow()
 			SetColor(GetUnchangedColor());
 
 			if (!Mask.empty())
-				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
+				RemoveTrailingSpaces(OutStr);
 
-			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
+			Global->FS << fmt::LeftAlign() << OutStr;
 			SetColor(GetNormalColor());
-			int BlankLength=EditLength-OutStrLength;
+			size_t BlankLength=EditLength-OutStr.size();
 
 			if (BlankLength > 0)
 			{
@@ -415,8 +386,7 @@ void Edit::FastShow()
 		else if ((TabSelEnd-=LeftPos)<0)
 			TabSelEnd=0;
 
-		wmemset(OutStr+OutStrLength,L' ',EditLength-OutStrLength);
-		OutStr[EditLength]=0;
+		OutStr.append(EditLength - OutStr.size(), L' ');
 
 		/* $ 24.08.2000 SVS
 		   ! У DropDowList`а выделение по полной программе - на всю видимую длину
@@ -440,13 +410,13 @@ void Edit::FastShow()
 
 			if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
-				Global->FS << fmt::MaxWidth(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
+				Global->FS << fmt::MaxWidth(TabSelEnd-TabSelStart) << OutStr.data() + TabSelStart;
 
 				if (TabSelEnd<EditLength)
 				{
 					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
 					SetColor(GetNormalColor());
-					Text(OutStr+TabSelEnd);
+					Text(OutStr.data()+TabSelEnd);
 				}
 			}
 			else
@@ -455,9 +425,6 @@ void Edit::FastShow()
 			}
 		}
 	}
-
-	xf_free(OutStr);
-	xf_free(OutStrTmp);
 
 	/* $ 26.07.2000 tran
 	   при дроп-даун цвета нам не нужны */

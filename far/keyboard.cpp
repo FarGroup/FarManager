@@ -1845,7 +1845,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		}
 		else if (!FKey)
 		{
-			static const simple_pair<DWORD, DWORD> ExtKeyMap[]=
+			static const simple_pair<BaseDefKeyboard, DWORD> ExtKeyMap[]=
 			{
 				{KEY_SHIFT, VK_SHIFT},
 				{KEY_CTRL, VK_CONTROL},
@@ -1854,7 +1854,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				{KEY_RCTRL, VK_RCONTROL},
 				{KEY_RALT, VK_RMENU},
 			};
-			auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) {return i.first == FShift;});
+			auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) {return i.first == static_cast<BaseDefKeyboard>(FShift);});
 			if (ItemIterator != std::cend(ExtKeyMap))
 				VirtKey = ItemIterator->second;
 		}
