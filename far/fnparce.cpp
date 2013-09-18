@@ -463,7 +463,11 @@ int SubstFileName(const wchar_t *DlgTitle,
 	string strTmp = strStr;
 
 	if (!IgnoreInput)
-		ReplaceVariables(DlgTitle,strTmp,PSubstData);
+	{
+		string title = DlgTitle;
+		SubstFileName(nullptr,title,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+		ReplaceVariables(api::ExpandEnvironmentStrings(title).data(), strTmp, PSubstData);
+	}
 
 	const wchar_t *CurStr = strTmp.data();
 	string strOut;
