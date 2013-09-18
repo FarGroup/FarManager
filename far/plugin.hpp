@@ -2319,12 +2319,21 @@ struct NetBoxPrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+struct MacroPluginReturn
+{
+	intptr_t ReturnType;
+	size_t Count;
+	struct FarMacroValue *Values;
+};
+
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
+typedef void (WINAPI *FARAPICALLPLUGIN)(struct MacroPluginReturn* Data, struct FarMacroCall* Target);
 
 struct MacroPrivateInfo
 {
 	size_t StructSize;
 	FARAPICALLFAR CallFar;
+	FARAPICALLPLUGIN CallPlugin;
 };
 
 typedef unsigned __int64 PLUGIN_FLAGS;
@@ -2604,13 +2613,6 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINCOMMAND = 8,
 	MPRT_USERMENU      = 9,
 	MPRT_COMMONCASE    = 10,
-};
-
-struct MacroPluginReturn
-{
-	intptr_t ReturnType;
-	size_t Count;
-	struct FarMacroValue *Values;
 };
 
 struct OpenMacroPluginInfo

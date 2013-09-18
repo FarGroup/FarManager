@@ -1,3 +1,8 @@
+shmuel 19.09.2013 00:01:45 +0200 - build 3664
+
+1. M#2486: Разрешить использование Plugin.Call в Condition.
+   Добавлена макрофункция Plugin.SyncCall, см. macroapi_manual.chm.
+
 drkns 18.09.2013 23:15:01 +0200 - build 3663
 
 1. Рефакторинг.
@@ -29,7 +34,7 @@ drkns 17.09.2013 00:07:58 +0200 - build 3657
 
 drkns 16.09.2013 21:51:26 +0200 - build 3656
 
-1. Не создаём папки в профиле при ReadOnlyConfig==true. 
+1. Не создаём папки в профиле при ReadOnlyConfig==true.
 
 shmuel 16.09.2013 20:04:27 +0200 - build 3655
 

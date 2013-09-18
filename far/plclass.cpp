@@ -409,7 +409,8 @@ NetBoxPrivateInfo NetBoxInfo =
 MacroPrivateInfo MacroInfo =
 {
 	sizeof(MacroPrivateInfo),
-	pluginapi::apiCallFar
+	pluginapi::apiCallFar,
+	pluginapi::apiCallPlugin
 };
 
 void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)

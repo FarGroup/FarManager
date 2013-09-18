@@ -43,6 +43,7 @@ extern void SetFarColors(lua_State *L);
 extern void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
 extern int far_MacroCallFar(lua_State *L);
+extern int far_MacroCallPlugin(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 
@@ -5696,6 +5697,8 @@ static int luaopen_far(lua_State *L)
 	{
 		lua_pushcfunction(L, far_MacroCallFar);
 		lua_setfield(L, -2, "MacroCallFar");
+		lua_pushcfunction(L, far_MacroCallPlugin);
+		lua_setfield(L, -2, "MacroCallPlugin");
 	}
 
 	push_flags_table(L);

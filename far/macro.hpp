@@ -115,6 +115,7 @@ class RunningMacro
 	public:
 		intptr_t GetHandle() { return mp_info.Handle; }
 		void SetHandle(intptr_t handle) { mp_info.Handle=handle; }
+		FarMacroCall* GetData() { return mp_info.Data; }
 		void SetData(FarMacroCall* data) { mp_info.Data=data; }
 		OpenMacroPluginInfo* GetMPInfo() { return &mp_info; }
 		void ResetMPInfo() { mp_data.Count=0; mp_info.Data=&mp_data; }
@@ -206,6 +207,7 @@ class KeyMacro:NonCopyable
 		void PopState(bool withClip);
 		bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
 		void LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
+		void CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool CallPluginRules);
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -240,6 +242,7 @@ class KeyMacro:NonCopyable
 		bool ExecuteString(MacroExecuteString *Data);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
+		void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall *Target);
 		const wchar_t *eStackAsString() { return varTextDate; }
 		void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 };

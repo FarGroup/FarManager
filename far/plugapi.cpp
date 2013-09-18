@@ -2684,6 +2684,15 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 	return 0;
 }
 
+void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall* Target)
+{
+	if (Global->CtrlObject)
+	{
+		KeyMacro& Macro=Global->CtrlObject->Macro;
+		Macro.CallPluginSynchro(Data, Target);
+	}
+}
+
 namespace cfunctions
 {
 	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)

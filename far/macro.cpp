@@ -868,6 +868,70 @@ static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 		UserMenu uMenu(string(Values[0].String));
 }
 
+void KeyMacro::CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool CallPluginRules)
+{
+	size_t count = mpr->Count;
+	rmacro->ResetMPInfo();
+	rmacro->SetBooleanValue(0);
+	if(count>0 && mpr->Values[0].Type==FMVT_STRING)
+	{
+		const wchar_t* SysID = mpr->Values[0].String;
+		GUID guid;
+
+		if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
+		{
+			FarMacroCall* ResultCallPlugin=nullptr;
+
+			FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
+			OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
+			size_t EntryStackSize = m_StateStack.size();
+
+			if (CallPluginRules)
+			{
+				PushState(true);
+				rmacro->SetBooleanValue(1);
+			}
+			else
+				m_InternalInput++;
+
+			int lockCount = Global->ScrBuf->GetLockCount();
+			Global->ScrBuf->SetLockCount(0);
+
+			if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
+				ResultCallPlugin = nullptr;
+
+			Global->ScrBuf->SetLockCount(lockCount);
+
+			bool isSynchroCall=true;
+			if (CallPluginRules)
+			{
+				if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
+					PopState(true);
+				else
+					isSynchroCall=false;
+			}
+			else
+				m_InternalInput--;
+
+			if (isSynchroCall)
+			{
+				//в windows гарантируется, что не бывает указателей меньше 0x10000
+				if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
+					rmacro->SetData(ResultCallPlugin);
+				else
+					rmacro->SetBooleanValue(ResultCallPlugin != nullptr);
+			}
+		}
+	}
+}
+
+void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall *Target)
+{
+	RunningMacro rmacro;
+	CallPlugin(Params, &rmacro, false);
+	*Target = *rmacro.GetData();
+}
+
 int KeyMacro::GetKey()
 {
 	if (m_InternalInput || !FrameManager->GetCurrentFrame())
@@ -973,63 +1037,9 @@ int KeyMacro::GetKey()
 				return KEY_OP_PLAINTEXT;
 			}
 
-			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
+			case MPRT_PLUGINCALL: // V=Plugin.Call(Guid[,param])
 			{
-				size_t count = mpr->Count;
-				macro->SetBooleanValue(0);
-				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
-				{
-					const wchar_t* SysID = mpr->Values[0].String;
-					GUID guid;
-
-					if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
-					{
-						FarMacroCall* ResultCallPlugin=nullptr;
-
-						FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
-						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
-						MacroRecord* macro = GetCurMacro();
-						bool CallPluginRules = (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0;
-						size_t EntryStackSize = m_StateStack.size();
-
-						if (CallPluginRules)
-						{
-							PushState(true);
-							macro->SetBooleanValue(1);
-						}
-						else
-							m_InternalInput++;
-
-						int lockCount = Global->ScrBuf->GetLockCount();
-						Global->ScrBuf->SetLockCount(0);
-
-						if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
-							ResultCallPlugin = nullptr;
-
-						Global->ScrBuf->SetLockCount(lockCount);
-
-						bool isSynchroCall=true;
-						if (CallPluginRules)
-						{
-							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
-								PopState(true);
-							else
-								isSynchroCall=false;
-						}
-						else
-							m_InternalInput--;
-
-						if (isSynchroCall)
-						{
-							//в windows гарантируется, что не бывает указателей меньше 0x10000
-							if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-								macro->SetData(ResultCallPlugin);
-							else
-								macro->SetBooleanValue(ResultCallPlugin != nullptr);
-						}
-					}
-				}
-
+				CallPlugin(mpr, &macro->m_running, (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0);
 				break;
 			}
 

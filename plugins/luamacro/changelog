@@ -1,3 +1,8 @@
+shmuel 19.09.2013 00:01:45 +0200 - build 245
+
+1. M#2486: Разрешить использование Plugin.Call в Condition.
+   Добавлена макрофункция Plugin.SyncCall, см. macroapi_manual.chm.
+
 shmuel 16.09.2013 20:04:27 +0200 - build 244
 
 1. Если у Фара выставлена опция ReadOnlyConfig != 0, плагин не создаёт папки

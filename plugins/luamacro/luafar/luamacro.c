@@ -209,3 +209,21 @@ int far_MacroCallFar(lua_State *L)
 	pushed = MAXRET - cbdata.ret_avail;
 	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
 }
+
+int far_MacroCallPlugin(lua_State *L)
+{
+	int idx;
+	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)GetPluginData(L)->Info->Private;
+	struct MacroPluginReturn Params = {0,0,NULL};
+	struct FarMacroCall Ret;
+	size_t nargs = lua_gettop(L);
+
+	lua_createtable(L,0,1);
+	InitMPR(L, &Params, nargs, 0);
+	for(idx=0; idx<nargs; idx++)
+	{
+		ConvertLuaValue(L, idx+1, idx+Params.Values);
+	}
+	privateInfo->CallPlugin(&Params, &Ret);
+	return FL_PushParams(L, &Ret) ? Ret.Count : 0;
+}
