@@ -4275,10 +4275,7 @@ void Editor::Paste(const wchar_t *Src)
 					PrevLine->SetEOL(keep_eol);
 				else
 				{
-					wchar_t ClipEol[4];
-					wmemcpy(ClipEol, Src+I, eol_len);
-					ClipEol[eol_len] = L'\0';
-					PrevLine->SetEOL(ClipEol);
+					PrevLine->SetEOL(string(Src+I, eol_len).data());
 				}
 
 				I += eol_len;
@@ -4771,7 +4768,7 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 		x=_wtoi(argvx);
 	}
 
-	y=_wtoi(strArg.data());
+	y = std::stoi(strArg);
 
 	// + переход на проценты
 	if (strArg.find(L'%') != string::npos)
@@ -5177,29 +5174,24 @@ void Editor::BlockLeft()
 			break;
 
 		intptr_t Length=CurPtr->GetLength();
-		wchar_t_ptr TmpStr(Length + EdOpt.TabSize + 5);
+		string TmpStr;
 		const wchar_t *CurStr,*EndSeq;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-		Length--;
 
 		if (*CurStr==L' ')
-			wmemcpy(TmpStr.get(), CurStr + 1, Length);
+			TmpStr.assign(CurStr + 1, Length - 1);
 		else if (*CurStr==L'\t')
 		{
-			wmemset(TmpStr.get(), L' ', EdOpt.TabSize - 1);
-			wmemcpy(TmpStr.get() + EdOpt.TabSize - 1, CurStr + 1, Length);
-			Length+=EdOpt.TabSize-1;
+			TmpStr.assign(EdOpt.TabSize - 1, L' ');
+			TmpStr.append(CurStr + 1, Length - 1);
 		}
 
 		if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
 		{
-			int EndLength=StrLength(EndSeq);
-			wmemcpy(TmpStr.get() + Length,EndSeq,EndLength);
-			Length+=EndLength;
-			TmpStr[Length]=0;
+			TmpStr.append(EndSeq);
 			AddUndoData(UNDO_EDIT,CurStr,CurPtr->GetEOL(),LineNum,0,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
-			CurPtr->SetBinaryString(TmpStr.get(), Length);
+			CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
 			CurPtr->SetCurPos(CurPos>0 ? CurPos-1:CurPos);
 
 			if (!MoveLine)
@@ -5256,23 +5248,19 @@ void Editor::BlockRight()
 			break;
 
 		intptr_t Length=CurPtr->GetLength();
-		wchar_t_ptr TmpStr(Length + 5);
+		string TmpStr(1, L' ');
 		const wchar_t *CurStr,*EndSeq;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-		TmpStr[0]=L' ';
-		wmemcpy(TmpStr.get() + 1,CurStr,Length);
-		Length++;
+		TmpStr.append(CurStr, Length);
 
 		if (EndSel==-1 || EndSel>StartSel)
 		{
-			int EndLength=StrLength(EndSeq);
-			wmemcpy(TmpStr.get() + Length,EndSeq,EndLength);
-			TmpStr[Length+EndLength]=0;
+			TmpStr += EndSeq;
 			AddUndoData(UNDO_EDIT,CurStr,CurPtr->GetEOL(),LineNum,0,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
 
 			if (Length>1)
-				CurPtr->SetBinaryString(TmpStr.get(), Length + EndLength);
+				CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
 
 			CurPtr->SetCurPos(CurPos+1);
 
@@ -5374,7 +5362,6 @@ void Editor::DeleteVBlock()
 void Editor::VCopy(int Append)
 {
 	string CopyData;
-
 	Clipboard clip;
 
 	if (!clip.Open())
@@ -5386,9 +5373,9 @@ void Editor::VCopy(int Append)
 			clip.Get(CopyData);
 	}
 
-	string NewData = VBlock2Text(CopyData);
-	clip.Set(NewData);
-	clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, NewData);
+	CopyData = VBlock2Text(CopyData);
+	clip.Set(CopyData);
+	clip.SetFormat(FCF_VERTICALBLOCK_UNICODE, CopyData);
 }
 
 string Editor::VBlock2Text(const wchar_t* InitData, size_t size)

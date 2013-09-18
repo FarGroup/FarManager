@@ -269,7 +269,7 @@ int Help::ReadHelp(const string& Mask)
 
 	if (GetOptionsParam(HelpFile,L"TabSize",strReadStr, nCodePage))
 	{
-		CtrlTabSize=_wtoi(strReadStr.data());
+		CtrlTabSize = std::stoi(strReadStr);
 	}
 
 	if (CtrlTabSize < 0 || CtrlTabSize > 16)

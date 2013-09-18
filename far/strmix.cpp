@@ -780,24 +780,6 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 }
 
 
-
-// вставить с позиции Pos в Str строку InsStr (размером InsSize байт)
-// если InsSize = 0, то... вставлять все строку InsStr
-// возвращает указатель на Str
-
-wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
-{
-	int InsLen=StrLength(InsStr);
-
-	if (InsSize && InsSize < InsLen)
-		InsLen=InsSize;
-
-	wmemmove(Str+Pos+InsLen, Str+Pos, (StrLength(Str+Pos)+1));
-	wmemcpy(Str+Pos, InsStr, InsLen);
-	return Str;
-}
-
-
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
@@ -1192,7 +1174,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	unsigned __int64 n = _wtoi64(FileSizeStr.data());
+	unsigned __int64 n = std::stoull(FileSizeStr);
 	wchar_t c = Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix

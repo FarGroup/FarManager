@@ -3963,7 +3963,7 @@ static int GetEditorCodePageFavA()
 			if (!(selectType&CPST_FAVORITE))
 				continue;
 
-			if (static_cast<UINT>(_wtoi(sTableName.data())) == CodePage)
+			if (static_cast<UINT>(std::stoi(sTableName)) == CodePage)
 			{
 				result=FavIndex;
 				break;
@@ -4014,7 +4014,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 
 					if (FavIndex==Command)
 					{
-						nCP=_wtoi(strTableName.data());
+						nCP=std::stoi(strTableName);
 						break;
 					}
 

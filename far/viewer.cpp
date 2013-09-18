@@ -3075,7 +3075,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 int Viewer::search_regex_forward( search_data* sd )
 {
 	assert(sd->pRex);
-	assert(Search_buffer.size() >= 2*MAX_VIEWLINEB);
+	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
 
 	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0;
@@ -3139,7 +3139,7 @@ int Viewer::search_regex_forward( search_data* sd )
 int Viewer::search_regex_backward( search_data* sd )
 {
 	assert(sd->pRex);
-	assert(Search_buffer.size() >= 2*MAX_VIEWLINEB);
+	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
 
 	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0, prev_pos = -1;
@@ -4024,7 +4024,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			{
 				//int cPercent=ToPercent64(FilePos,FileSize);
 				PrevMode = RB_PRC;
-				int Percent=_wtoi(GoToDlg[1].strData.data());
+				int Percent=std::stoi(GoToDlg[1].strData);
 
 				//if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
 				//  return;

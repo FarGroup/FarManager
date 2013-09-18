@@ -622,7 +622,11 @@ void ScreenBuf::Scroll(int Num)
 	CriticalSectionLock Lock(CS);
 
 	if (Num > 0 && Num < BufY)
-		memmove(Buf.data(), Buf.data() + Num*BufX, (BufY - Num)*BufX*sizeof(FAR_CHAR_INFO));
+	{
+		size_t size = Buf.size();
+		Buf.erase(Buf.begin(), Buf.begin() + Num * BufX);
+		Buf.resize(size);
+	}
 
 #ifdef DIRECT_SCREEN_OUT
 	Flush();

@@ -397,7 +397,7 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	static const simple_pair<const wchar_t*, const wchar_t*> Sets[] =
+	static const simple_pair<string, string> Sets[] =
 	{
 		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
 		{L"temp", L"*.bak,*.tmp"},
@@ -1990,13 +1990,12 @@ void Options::Load()
 	{
 		if (!XLat.strLayouts.empty())
 		{
-			wchar_t *endptr;
 			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
 			size_t I=0;
 
 			FOR_CONST_RANGE(DestList, i)
 			{
-				DWORD res = wcstoul(i->data(), &endptr, 16);
+				DWORD res = std::stoul(*i, nullptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
@@ -2949,7 +2948,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 				ShowProcessList();
 				break;
 			case MENU_COMMANDS_HOTPLUGLIST: // HotPlug list
-				ShowHotplugDevice();
+				ShowHotplugDevices();
 				break;
 			}
 

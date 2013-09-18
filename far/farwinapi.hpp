@@ -347,9 +347,7 @@ static BOOL FindNextStream(
     LPVOID lpFindStreamData
 );
 
-static bool GetLogicalDriveStrings(
-    string& DriveStrings
-);
+static std::vector<string> GetLogicalDriveStrings();
 
 static bool GetFinalPathNameByHandle(
     HANDLE hFile,

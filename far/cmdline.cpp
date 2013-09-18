@@ -559,7 +559,7 @@ inline void AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 		else
 		{
 			TargetFlags |= SetFlag;
-			Target = wcstoul(Color.data(), nullptr, 16);
+			Target = std::stoul(Color, nullptr, 16);
 		}
 	}
 }
@@ -1189,8 +1189,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			++Ptr;
 		}
 
-		wchar_t *Ptr2;
-		UINT cp=(UINT)wcstol(strCmdLine.data(),&Ptr2,10); //BUGBUG
+		UINT cp = std::stoul(strCmdLine, nullptr, 10); //BUGBUG
 		BOOL r1=Global->Console->SetInputCodepage(cp);
 		BOOL r2=Global->Console->SetOutputCodepage(cp);
 

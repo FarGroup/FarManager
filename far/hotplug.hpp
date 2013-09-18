@@ -33,7 +33,5 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int  ProcessRemoveHotplugDevice(wchar_t Drive, DWORD Flags);
-void ShowHotplugDevice();
-//BOOL RemoveUSBDrive(char Letter,DWORD Flags);
-//BOOL IsDriveUsb(wchar_t DriveName,void *pDevInst);
+int RemoveHotplugDisk(wchar_t Disk, DWORD Flags);
+void ShowHotplugDevices();

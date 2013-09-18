@@ -1439,25 +1439,33 @@ BOOL api::FindStreamClose(HANDLE hFindStream)
 	return Ret;
 }
 
-bool api::GetLogicalDriveStrings(string& DriveStrings)
+std::vector<string> api::GetLogicalDriveStrings()
 {
-	bool Result = false;
+	std::vector<string> Result;
 	wchar_t Buffer[MAX_PATH];
 	DWORD Size = ::GetLogicalDriveStrings(ARRAYSIZE(Buffer), Buffer);
 
 	if (Size)
 	{
+		const wchar_t* Ptr;
+		wchar_t_ptr vBuffer;
+
 		if (Size < ARRAYSIZE(Buffer))
 		{
-			DriveStrings.assign(Buffer, Size);
+			Ptr = Buffer;
 		}
 		else
 		{
-			wchar_t_ptr vBuffer(Size);
+			vBuffer.reset(Size);
 			Size = ::GetLogicalDriveStrings(Size, vBuffer.get());
-			DriveStrings.assign(vBuffer.get(), Size);
+			Ptr = vBuffer.get();
 		}
-		Result = true;
+
+		while(*Ptr)
+		{
+			Result.emplace_back(Ptr);
+			Ptr += wcslen(Ptr) + 1;
+		}
 	}
 	return Result;
 }
@@ -1496,30 +1504,21 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		if (FinalFilePath.empty())
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			string DriveStrings;
-
-			if (api::GetLogicalDriveStrings(DriveStrings))
+			auto Strings = api::GetLogicalDriveStrings();
+			std::any_of(CONST_RANGE(Strings, i) -> bool
 			{
-				string DiskName(L"A:");
-				const wchar_t* Drive = DriveStrings.data();
+				int Len = MatchNtPathRoot(NtPath, i);
 
-				while (*Drive)
+				if (Len)
 				{
-					DiskName[0] = *Drive;
-					int Len = MatchNtPathRoot(NtPath, DiskName);
-
-					if (Len)
-					{
-						if (NtPath.compare(0, 14, L"\\Device\\WinDfs") == 0)
-							FinalFilePath = NtPath.replace(0, Len, 1, L'\\');
-						else
-							FinalFilePath = NtPath.replace(0, Len, DiskName);
-						break;
-					}
-
-					Drive += StrLength(Drive) + 1;
+					if (NtPath.compare(0, 14, L"\\Device\\WinDfs") == 0)
+						FinalFilePath = NtPath.replace(0, Len, 1, L'\\');
+					else
+						FinalFilePath = NtPath.replace(0, Len, i);
+					return true;
 				}
-			}
+				return false;
+			});
 		}
 
 		if (FinalFilePath.empty())

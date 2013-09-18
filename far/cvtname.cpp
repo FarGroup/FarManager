@@ -309,27 +309,17 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 
 		else
 		{
-			string DriveStrings;
-
-			if (api::GetLogicalDriveStrings(DriveStrings))
+			string strVolumeGuid;
+			auto Strings = api::GetLogicalDriveStrings();
+			std::any_of(CONST_RANGE(Strings, i) -> bool
 			{
-				const wchar_t* Drive = DriveStrings.data();
-				string strVolumeGuid;
-
-				while (*Drive)
+				if (api::GetVolumeNameForVolumeMountPoint(i, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
 				{
-					if (api::GetVolumeNameForVolumeMountPoint(Drive, strVolumeGuid))
-					{
-						if (Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0)
-						{
-							Result.replace(0, DirectoryOffset + 1, Drive);
-							break;
-						}
-					}
-
-					Drive += StrLength(Drive) + 1;
+					Result.replace(0, DirectoryOffset + 1, i);
+					return true;
 				}
-			}
+				return false;
+			});
 		}
 	}
 

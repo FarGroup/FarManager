@@ -74,7 +74,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		*IntValue = std::stoull(Item->strData.data());
+		*IntValue = std::stoull(Item->strData);
 	}
 
 	const wchar_t *GetMask()
@@ -100,7 +100,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		*IntValue = std::stoull(Item->strData.data()+1, nullptr, 16);
+		*IntValue = _wcstoi64(Item->strData.data() + 1, nullptr, 16);
 	}
 
 	const wchar_t *GetMask()

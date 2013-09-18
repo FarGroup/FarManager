@@ -1051,7 +1051,7 @@ int Panel::DisconnectDrive(const PanelMenuItem *item, VMenu2 &ChDisk)
 
 void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 {
-	int Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
+	int Code = RemoveHotplugDisk(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
 
 	if (!Code)
 	{
@@ -1068,7 +1068,7 @@ void Panel::RemoveHotplugDevice(const PanelMenuItem *item, VMenu2 &ChDisk)
 			// TODO: А если домашний каталог - USB? ;-)
 			IfGoHome(item->cDrive);
 			// очередная попытка извлечения без вывода сообщения
-			Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
+			Code = RemoveHotplugDisk(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
 
 			if (!Code)
 			{

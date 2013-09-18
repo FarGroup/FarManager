@@ -173,12 +173,7 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 
 WINDOWINFO_TYPE ModalType2WType(const int fType)
 {
-	struct map_item
-	{
-		MODALFRAME_TYPE FrameType;
-		WINDOWINFO_TYPE WindowType;
-	};
-	static map_item TypesMap[] =
+	static const simple_pair<MODALFRAME_TYPE, WINDOWINFO_TYPE> TypesMap[] =
 	{
 		{MODALTYPE_PANELS,     WTYPE_PANELS},
 		{MODALTYPE_VIEWER,     WTYPE_VIEWER},
@@ -195,9 +190,9 @@ WINDOWINFO_TYPE ModalType2WType(const int fType)
 
 	auto ItemIterator = std::find_if(CONST_RANGE(TypesMap, i)
 	{
-		return i.FrameType == fType;
+		return i.first == fType;
 	});
-	return ItemIterator == std::cend(TypesMap)? static_cast<WINDOWINFO_TYPE>(-1) : ItemIterator->WindowType;
+	return ItemIterator == std::cend(TypesMap)? static_cast<WINDOWINFO_TYPE>(-1) : ItemIterator->second;
 }
 
 SetAutocomplete::SetAutocomplete(EditControl* edit, bool NewState):
@@ -258,12 +253,7 @@ unsigned long CRC32(unsigned long crc, const void* buffer, size_t len)
 
 void ReloadEnvironment()
 {
-	static const struct addr
-	{
-		HKEY Key;
-		string SubKey;
-	}
-	Addr[]=
+	static const simple_pair<HKEY, string> Addr[]=
 	{
 		{HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"},
 		{HKEY_CURRENT_USER, L"Environment"},
@@ -277,7 +267,7 @@ void ReloadEnvironment()
 		std::for_each(CONST_RANGE(Types, t) // two passes
 		{
 			DWORD Type;
-			for(int j=0; api::EnumRegValueEx(i.Key, i.SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
+			for(int j=0; api::EnumRegValueEx(i.first, i.second, j, strName, strData, nullptr, nullptr, &Type); j++)
 			{
 				if(Type == t)
 				{
@@ -285,7 +275,7 @@ void ReloadEnvironment()
 					{
 						strData = api::ExpandEnvironmentStrings(strData);
 					}
-					if (i.Key==HKEY_CURRENT_USER)
+					if (i.first==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
 						if(!StrCmpI(strName.data(), L"path") || !StrCmpI(strName.data(), L"libpath") || !StrCmpI(strName.data(), L"os2libpath"))

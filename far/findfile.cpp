@@ -384,7 +384,7 @@ void FindFiles::InitInFileSearch()
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						uintptr_t codePage = _wtoi(codePageName.data());
+						uintptr_t codePage = std::stoi(codePageName);
 
 						// Проверяем дубли
 						if (!hasSelected)
@@ -2567,27 +2567,22 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
 		std::list<string> Volumes;
-		DWORD DiskMask=FarGetLogicalDrives();
-		for (WCHAR CurrentDisk=0; DiskMask; CurrentDisk++,DiskMask>>=1)
+		string strGuidVolime;
+		auto Strings = api::GetLogicalDriveStrings();
+		std::for_each(CONST_RANGE(Strings, i)
 		{
-			if (!(DiskMask & 1))
-				continue;
+			int DriveType=FAR_GetDriveType(i);
 
-			string Root(L"?:\\");
-			Root[0] = L'A' + CurrentDisk;
-			int DriveType=FAR_GetDriveType(Root);
+			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
+			{
+				if(api::GetVolumeNameForVolumeMountPoint(i, strGuidVolime))
+				{
+					Volumes.emplace_back(strGuidVolime);
+				}
+				InitString += i + L";";
+			}
+		});
 
-			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
-			{
-				continue;
-			}
-			string strGuidVolime;
-			if(api::GetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
-			{
-				Volumes.emplace_back(strGuidVolime);
-			}
-			InitString += Root + L";";
-		}
 		WCHAR VolumeName[50];
 
 		bool End = false;
