@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3652
+  Plugin API for Far Manager 3.0 build 3664
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3652
+#define FARMANAGERVERSION_BUILD 3664
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2161,12 +2161,21 @@ struct NetBoxPrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+struct MacroPluginReturn
+{
+	intptr_t ReturnType;
+	size_t Count;
+	struct FarMacroValue *Values;
+};
+
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
+typedef void (WINAPI *FARAPICALLPLUGIN)(struct MacroPluginReturn* Data, struct FarMacroCall* Target);
 
 struct MacroPrivateInfo
 {
 	size_t StructSize;
 	FARAPICALLFAR CallFar;
+	FARAPICALLPLUGIN CallPlugin;
 };
 
 typedef unsigned __int64 PLUGIN_FLAGS;
@@ -2446,13 +2455,6 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINCOMMAND = 8,
 	MPRT_USERMENU      = 9,
 	MPRT_COMMONCASE    = 10,
-};
-
-struct MacroPluginReturn
-{
-	intptr_t ReturnType;
-	size_t Count;
-	struct FarMacroValue *Values;
 };
 
 struct OpenMacroPluginInfo
