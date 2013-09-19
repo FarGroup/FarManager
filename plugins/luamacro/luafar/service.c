@@ -4916,6 +4916,38 @@ static int far_GetPlugins(lua_State *L)
 	return 1;
 }
 
+static int far_IsPluginLoaded(lua_State *L)
+{
+	UUID uuid;
+	size_t len;
+	intptr_t handle;
+	int result = 0;
+	const char *guid = luaL_checklstring(L, 1, &len);
+	PSInfo *Info = GetPluginData(L)->Info;
+
+	if (len == 16)
+		uuid = *(UUID*)guid;
+	else
+		luaL_argcheck(L, UuidFromStringA((unsigned char*)guid, &uuid) == RPC_S_OK, 1, "invalid GUID");
+
+	handle = Info->PluginsControl(NULL, PCTL_FINDPLUGIN, PFM_GUID, &uuid);
+	if (handle)
+	{
+		size_t size = Info->PluginsControl((HANDLE)handle, PCTL_GETPLUGININFORMATION, 0, 0);
+		if (size)
+		{
+			struct FarGetPluginInformation *pi = (struct FarGetPluginInformation *)malloc(size);
+			pi->StructSize = sizeof(*pi);
+			if (Info->PluginsControl((HANDLE)handle, PCTL_GETPLUGININFORMATION, size, pi))
+				result = (pi->Flags & FPF_LOADED) ? 1:0;
+
+			free(pi);
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
+
 static int far_XLat(lua_State *L)
 {
 	size_t size;
@@ -5625,6 +5657,7 @@ const luaL_Reg far_funcs[] =
 	{"FindPlugin",          far_FindPlugin},
 	{"GetPluginInformation",far_GetPluginInformation},
 	{"GetPlugins",          far_GetPlugins},
+	{"IsPluginLoaded",      far_IsPluginLoaded},
 	{"CreateSettings",      far_CreateSettings},
 	{"FreeSettings",        far_FreeSettings},
 	{"ColorDialog",         far_ColorDialog},

@@ -6140,6 +6140,30 @@ mtime=3560954741
 </article>
 </node>
 <node>
+id=491
+lv=2
+dt=Text
+nm=far.IsPluginLoaded
+ctime=3588795929
+mtime=3588796304
+<article>
+#_result = far.IsPluginLoaded (Guid)
+#_
+#_**Parameters:**
+#_  Guid:    string (either binary or text-form plugin's GUID)
+#_
+#_**Returns:**
+#_  result:  boolean
+#_
+#_**Description:**
+#_  Returns *true* if the plugin is loaded to memory.
+#_
+#_**Far API used:**
+#_  PluginsControl: PCTL_FINDPLUGIN, PCTL_GETPLUGININFORMATION
+#_
+</article>
+</node>
+<node>
 id=463
 lv=2
 dt=Text
