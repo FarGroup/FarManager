@@ -223,7 +223,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 void Edit::FastShow()
 {
-	const int EditLength=ObjWidth();
+	const size_t EditLength=ObjWidth();
 
 	if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
 		CurPos=StrSize;
@@ -272,7 +272,7 @@ void Edit::FastShow()
 	SetLineCursorPos(TabCurPos);
 	int RealLeftPos=TabPosToReal(LeftPos);
 
-	OutStrTmp.assign(Str + RealLeftPos, std::max(0, std::min(EditLength,StrSize-RealLeftPos)));
+	OutStrTmp.assign(Str + RealLeftPos, std::max(size_t(0), std::min(EditLength, static_cast<size_t>(StrSize-RealLeftPos))));
 
 	{
 		auto TrailingSpaces = OutStrTmp.cend();
@@ -382,7 +382,7 @@ void Edit::FastShow()
 		int AllString=(TabSelEnd==-1);
 
 		if (AllString)
-			TabSelEnd=EditLength;
+			TabSelEnd=static_cast<int>(EditLength);
 		else if ((TabSelEnd-=LeftPos)<0)
 			TabSelEnd=0;
 
@@ -392,7 +392,7 @@ void Edit::FastShow()
 		   ! Ó DropDowList`à âûäåëåíèå ïî ïîëíîé ïðîãðàììå - íà âñþ âèäèìóþ äëèíó
 		     ÄÀÆÅ ÅÑËÈ ÏÓÑÒÀß ÑÒÐÎÊÀ
 		*/
-		if (TabSelStart>=EditLength /*|| !AllString && TabSelStart>=StrSize*/ ||
+		if (TabSelStart>=static_cast<int>(EditLength) /*|| !AllString && TabSelStart>=StrSize*/ ||
 		        TabSelEnd<TabSelStart)
 		{
 			if (Flags.Check(FEDITLINE_DROPDOWNBOX))
@@ -412,7 +412,7 @@ void Edit::FastShow()
 			{
 				Global->FS << fmt::MaxWidth(TabSelEnd-TabSelStart) << OutStr.data() + TabSelStart;
 
-				if (TabSelEnd<EditLength)
+				if (TabSelEnd<static_cast<int>(EditLength))
 				{
 					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
 					SetColor(GetNormalColor());
