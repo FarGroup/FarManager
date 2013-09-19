@@ -333,6 +333,7 @@ Plugin = {
 --Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
 --Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
 }
+Plugin.SyncCall, far.MacroCallPlugin = far.MacroCallPlugin, nil
 --------------------------------------------------------------------------------
 
 Panel = {

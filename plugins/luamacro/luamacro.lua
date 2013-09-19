@@ -339,7 +339,6 @@ do
   Shared.utils = utils
 
   if not RunPluginFile("api.lua", Shared) then return end
-  Plugin.SyncCall, far.MacroCallPlugin = far.MacroCallPlugin, nil
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
   if not macrobrowser then return end
