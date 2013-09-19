@@ -755,7 +755,8 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
 
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
-				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
+				block_ptr<FarDialogItem> Buffer(Size);
+				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 				//MarkChar это FIXEDIT размером в 1 символ
 				wchar_t MarkChar[2];
@@ -764,7 +765,6 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
-				xf_free(gdi.Item);
 				return TRUE;
 			}
 
@@ -775,7 +775,8 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			{
 				HighlightDataColor *EditData = (HighlightDataColor *) Dlg->SendMessage( DM_GETDLGDATA, 0, 0);
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
-				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
+				block_ptr<FarDialogItem> Buffer(Size);
+				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 				Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 				//MarkChar это FIXEDIT размером в 1 символ
 				wchar_t MarkChar[2];
@@ -784,7 +785,6 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
-				xf_free(gdi.Item);
 				return TRUE;
 			}
 

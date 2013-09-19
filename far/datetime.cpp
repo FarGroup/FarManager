@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "imports.hpp"
 
-#define range(low,item,hi) std::max(low,std::min(item,hi))
-
 struct loc_names
 {
 	DWORD Locale;
@@ -141,7 +139,12 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 
 	if (chr==L'v')
 	{
-		strDest = str_printf(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),GetNames()[CurLang].AMonth[range(0, tmPtr->tm_mon,11)].data(),tmPtr->tm_year+1900);
+		strDest = str_printf(
+			L"%2d-%3.3s-%4d",
+			std::max(1,std::min(tmPtr->tm_mday,31)),
+			GetNames()[CurLang].AMonth[std::max(0,std::min(tmPtr->tm_mon, 11))].data(),
+			tmPtr->tm_year+1900);
+
 		Upper(strDest, 3, 3);
 	}
 	else

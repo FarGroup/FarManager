@@ -619,14 +619,18 @@ void UnquoteExternal(string &strStr)
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
 */
-#define MAX_UNITSTR_SIZE 16
-
-#define UNIT_COUNT 7 // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
+enum
+{
+	UNIT_COUNT = 7, // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
+	MAX_UNITSTR_SIZE = 16,
+};
 
 static wchar_t UnitStr[UNIT_COUNT][2][MAX_UNITSTR_SIZE]={};
 
+
 void PrepareUnitStr()
 {
+
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
 		xwcsncpy(UnitStr[i][0],MSG(MListBytes+i),MAX_UNITSTR_SIZE);

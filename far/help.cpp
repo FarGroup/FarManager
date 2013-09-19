@@ -106,8 +106,8 @@ public:
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
-#define HelpFormatLink L"<%s\\>%s"
-#define HelpFormatLinkModule L"<%s>%s"
+static const wchar_t* HelpFormatLink = L"<%s\\>%s";
+static const wchar_t* HelpFormatLinkModule = L"<%s>%s";
 
 string Help::MakeLink(const string& path, const string& topic)
 {

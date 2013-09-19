@@ -75,12 +75,12 @@ static int Recurse=0;
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
 static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 
-#define EDMASK_ANY    L'X' // позволяет вводить в строку ввода любой символ;
-#define EDMASK_DSS    L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
-#define EDMASK_DIGIT  L'9' // позволяет вводить в строку ввода только цифры;
-#define EDMASK_DIGITS L'N' // позволяет вводить в строку ввода только цифры и пробелы;
-#define EDMASK_ALPHA  L'A' // позволяет вводить в строку ввода только буквы.
-#define EDMASK_HEX    L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
+static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
+static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
+static const wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
+static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода только цифры и пробелы;
+static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
+static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),

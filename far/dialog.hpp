@@ -72,8 +72,6 @@ enum DIALOG_MODES
 	DMODE_OLDSTYLE              =0x80000000, // ƒиалог в старом (до 1.70) стиле
 };
 
-//#define DIMODE_REDRAW       0x00000001 // требуетс€ принудительна€ прорисовка итема?
-
 // —труктура, описывающа€ автоматизацию дл€ DIF_AUTOMATION
 // на первом этапе - примитивна€ - выставление флагов у элементов дл€ CheckBox
 struct DialogItemAutomation

@@ -37,7 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "hilight.hpp"
 
-#define DEFAULT_SORT_GROUP 10000
+enum
+{
+	DEFAULT_SORT_GROUP = 10000,
+};
 
 enum enumFileFilterFlagsType
 {

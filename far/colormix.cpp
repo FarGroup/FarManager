@@ -54,8 +54,6 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 		COLORREF TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
 		static const FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
 
-#define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
-
 		enum
 		{
 			BlueMask = 1,
@@ -79,8 +77,13 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 					int G = GetGValue(TrueColors[i]);
 					int B = GetBValue(TrueColors[i]);
 
+					auto InRange = [](int from, int what, int to)
+					{
+						return from <= what && what <= to;
+					};
+
 					// special case, silver color:
-					if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))
+					if(InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
 					{
 						IndexColors[i] = RedMask|GreenMask|BlueMask;
 					}
@@ -90,15 +93,15 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 						int IntenseCount = 0;
 						std::for_each(RANGE(p, component)
 						{
-							if(INSIDE(0, *component, 63))
+							if(InRange(0, *component, 63))
 							{
 								*component = 0;
 							}
-							else if(INSIDE(64, *component, 191))
+							else if(InRange(64, *component, 191))
 							{
 								*component = 128;
 							}
-							else if(INSIDE(192, *component, 255))
+							else if(InRange(192, *component, 255))
 							{
 								*component = 255;
 								++IntenseCount;
@@ -143,9 +146,6 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
 		}
 		Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift);
-
-#undef INSIDE
-
 	}
 
 	return Result;

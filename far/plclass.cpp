@@ -1240,8 +1240,10 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 		}
 #undef InitImport
 	}
-	catch(...)
+	catch(const SException&)
 	{
+		// TODO: notification
+		throw;
 	}
 };
 
@@ -1256,8 +1258,10 @@ CustomPluginModel::~CustomPluginModel()
 		}
 		FreeLibrary(m_Module);
 	}
-	catch(...)
+	catch(const SException&)
 	{
+		// TODO: notification
+		throw;
 	}
 }
 
@@ -1267,9 +1271,11 @@ bool CustomPluginModel::IsPlugin(const string& filename)
 	{
 		return Imports.pIsPlugin(filename.data()) != FALSE;
 	}
-	catch(...)
+	catch(const SException&)
 	{
-		return false;
+		// TODO: notification
+		throw;
+		//return false;
 	}
 }
 
@@ -1279,9 +1285,11 @@ GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& file
 	{
 		return Imports.pCreateInstance(filename.data());
 	}
-	catch(...)
+	catch(const SException&)
 	{
-		return nullptr;
+		// TODO: notification
+		throw;
+		//return nullptr;
 	}
 }
 
@@ -1294,8 +1302,10 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 			return *i.UName? reinterpret_cast<void*>(Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});
 	}
-	catch(...)
+	catch(const SException&)
 	{
+		// TODO: notification
+		throw;
 	}
 }
 
@@ -1305,8 +1315,10 @@ bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
 	{
 		return Imports.pDestroyInstance(module) != FALSE;
 	}
-	catch(...)
+	catch(const SException&)
 	{
-		return false;
+		// TODO: notification
+		throw;
+		//return false;
 	}
 }

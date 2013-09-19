@@ -45,11 +45,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "elevation.hpp"
 
-#define IsColon(str)         (str == L':')
-#define IsDot(str)           (str == L'.')
-#define IsSlashBackward(str) (str == L'\\')
-#define IsSlashForward(str)  (str == L'/')
-#define IsQuestion(str)      (str == L'?')
+inline bool IsColon(wchar_t c)         { return c == L':'; }
+inline bool IsDot(wchar_t c)           { return c == L'.'; }
+inline bool IsSlashBackward(wchar_t c) { return c == L'\\';}
+inline bool IsSlashForward(wchar_t c)  { return c == L'/'; }
+inline bool IsQuestion(wchar_t c)      { return c == L'?'; }
 
 bool MixToFullPath(string& strPath)
 {

@@ -3954,12 +3954,15 @@ wchar_t Viewer::vgetc_prev()
 	return ch;
 }
 
-#define RB_PRC 3
-#define RB_HEX 4
-#define RB_DEC 5
-
 void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 {
+	enum
+	{
+		RB_PRC = 3,
+		RB_HEX = 4,
+		RB_DEC = 5,
+	};
+
 	FarDialogItem GoToDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,31,7,0,nullptr,nullptr,0,MSG(MViewerGoTo)},

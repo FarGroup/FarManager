@@ -449,7 +449,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 								if (!WriteList.empty())
 								{
 									SMALL_RECT& Last=WriteList.back();
-#define MAX_DELTA 5
+									const int MAX_DELTA = 5;
 									if (WriteRegion.Top-1==Last.Bottom && ((WriteRegion.Left>=Last.Left && WriteRegion.Left-Last.Left<MAX_DELTA) || (Last.Right>=WriteRegion.Right && Last.Right-WriteRegion.Right<MAX_DELTA)))
 									{
 										Last.Bottom=WriteRegion.Bottom;

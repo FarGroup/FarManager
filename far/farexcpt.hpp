@@ -33,29 +33,37 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef MAKEFOURCC
-#define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
-	((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
-	 ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
-#endif
+enum
+{
+	FLOG_SYSINFO     = 0x00000001, // информация о системе
+	FLOG_EXCEPTION   = 0x00000002, // про исключение
+	FLOG_PLUGIN      = 0x00000004, // информация о плагине
+	FLOG_FARAREA     = 0x00000008, // "где мы сейчас находимся?"
+	FLOG_MACRO       = 0x00000010, // Макросы
+	FLOG_RAWDARA     = 0x00000020, // произвольные данные
+	FLOG_PLUGINSINFO = 0x80000000, // информация о плагинах
 
-#define FLOG_SYSINFO     0x00000001 // информация о системе
-#define FLOG_EXCEPTION   0x00000002 // про исключение
-#define FLOG_PLUGIN      0x00000004 // информация о плагине
-#define FLOG_FARAREA     0x00000008 // "где мы сейчас находимся?"
-#define FLOG_MACRO       0x00000010 // Макросы
-#define FLOG_RAWDARA     0x00000020 // произвольные данные
-#define FLOG_PLUGINSINFO 0x80000000 // информация о плагинах
-#define FLOG_ALL         0xFFFFFFFF
+	FLOG_ALL         = 0xFFFFFFFF
+};
+
+template<char c0, char c1, char c2, char c3>
+struct MakeFourCC
+{
+	static const int value =
+		(DWORD)(BYTE)(c0) |
+		((DWORD)(BYTE)(c1) << 8) |
+		((DWORD)(BYTE)(c2) << 16) |
+		((DWORD)(BYTE)(c3) << 24);
+};
 
 enum FARRECORDTYPE
 {
-	RTYPE_SYSINFO      =MAKEFOURCC('S','Y','S','T'),// информация о системе
-	RTYPE_EXCEPTION    =MAKEFOURCC('E','X','C','T'),// про исключение
-	RTYPE_PLUGIN       =MAKEFOURCC('C','P','L','G'),// информация о текущем плагине
-	RTYPE_FARAREA      =MAKEFOURCC('A','R','E','A'),// "где мы сейчас находимся?"
-	RTYPE_MACRO        =MAKEFOURCC('M','A','C','R'),// Макросы
-	RTYPE_RAWDARA      =MAKEFOURCC('R','A','W','D'),// произвольные данные
+	RTYPE_SYSINFO      = MakeFourCC<'S','Y','S','T'>::value, // информация о системе
+	RTYPE_EXCEPTION    = MakeFourCC<'E','X','C','T'>::value, // про исключение
+	RTYPE_PLUGIN       = MakeFourCC<'C','P','L','G'>::value, // информация о текущем плагине
+	RTYPE_FARAREA      = MakeFourCC<'A','R','E','A'>::value, // "где мы сейчас находимся?"
+	RTYPE_MACRO        = MakeFourCC<'M','A','C','R'>::value, // Макросы
+	RTYPE_RAWDARA      = MakeFourCC<'R','A','W','D'>::value, // произвольные данные
 };
 
 struct RECHEADER          // заголовок рекорда

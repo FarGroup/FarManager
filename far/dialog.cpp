@@ -60,8 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "plugins.hpp"
 
-#define VTEXT_ADN_SEPARATORS	1
-
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
 {
@@ -1150,8 +1148,6 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 			if (!Rect.Bottom || Rect.Bottom == Rect.Top)
 				Rect.Bottom=Rect.Top+Len-(Len?1:0);
 
-#if defined(VTEXT_ADN_SEPARATORS)
-
 			if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
 			{
 				Rect.Right=Rect.Left;
@@ -1159,9 +1155,8 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 				Rect.Bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
 				break;
 			}
-
-#endif
 			break;
+
 		case DI_BUTTON:
 			Rect.Bottom=Rect.Top;
 			Rect.Right=Rect.Left+Len;
@@ -1364,9 +1359,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			break;
 		}
 
-#if defined(VTEXT_ADN_SEPARATORS)
 		case DI_VTEXT:
-#endif
 		case DI_TEXT:
 		{
 			Color[0] = ColorIndexToColor((Flags & DIF_BOXCOLOR)? (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)) : (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)));
@@ -1379,25 +1372,6 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			}
 			break;
 		}
-
-#if !defined(VTEXT_ADN_SEPARATORS)
-		case DI_VTEXT:
-		{
-			if (Flags & DIF_BOXCOLOR)
-				Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
-				     (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
-						     (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX);
-			else if (Flags & DIF_SETCOLOR)
-				Attr=(Flags & DIF_COLORMASK);
-			else
-				Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-				      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
-						      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
-
-			Attr=MAKEWORD(MAKEWORD(ColorIndexToColor(Attr),0),MAKEWORD(0,0));
-			break;
-		}
-#endif
 
 		case DI_CHECKBOX:
 		case DI_RADIOBUTTON:
@@ -1560,7 +1534,6 @@ void Dialog::ShowDialog(size_t ID)
 		DrawItemCount=ID+1;
 	}
 
-	//IFlags.Set(DIMODE_REDRAW)
 	/* TODO:
 	   если рисуется контрол и по Z-order`у он пересекается с
 	   другим контролом (по координатам), то для "позднего"
@@ -1834,8 +1807,6 @@ void Dialog::ShowDialog(size_t ID)
 					*/
 				}
 
-#if defined(VTEXT_ADN_SEPARATORS)
-
 				if (Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 				{
 					SetColor(ItemColor[2]);
@@ -1846,7 +1817,6 @@ void Dialog::ShowDialog(size_t ID)
 					                 );
 				}
 
-#endif
 				SetColor(ItemColor[0]);
 				GotoXY(X1+X,Y1+Y);
 
@@ -4080,7 +4050,6 @@ int Dialog::SelectFromComboBox(
 		if (Dest<0)
 		{
 			Redraw();
-			//xf_free(Str);
 			return KEY_ESC;
 		}
 
@@ -4097,7 +4066,6 @@ int Dialog::SelectFromComboBox(
 
 		EditLine->SetLeftPos(0);
 		Redraw();
-		//xf_free(Str);
 		return KEY_ENTER;
 }
 
@@ -5529,7 +5497,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
-			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
+			block_ptr<FarDialogItem> Buffer(Item.Size);
+			Item.Item = Buffer.get();
 			intptr_t I=FALSE;
 			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{
@@ -5545,7 +5514,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
 				}
 			}
-			xf_free(Item.Item);
 			return I;
 		}
 		/*****************************************************************/
@@ -5653,7 +5621,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
-			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
+			block_ptr<FarDialogItem> Buffer(Item.Size);
+			Item.Item = Buffer.get();
 			intptr_t I=FALSE;
 			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{
@@ -5662,7 +5631,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
 					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem->Flags&DIF_DISABLE)!=0);
 			}
-			xf_free(Item.Item);
 			return I;
 		}
 		/*****************************************************************/

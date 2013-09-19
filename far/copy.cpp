@@ -83,9 +83,11 @@ extern long WaitUserTime;
 /* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
 static long OldCalcTime;
 
-#define SDDATA_SIZE   64*1024
-
-enum {COPY_BUFFER_SIZE  = 0x10000};
+enum
+{
+	SDDATA_SIZE = 64*1024,
+	COPY_BUFFER_SIZE = 0x10000,
+};
 
 enum
 {

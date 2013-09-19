@@ -400,9 +400,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 
 		ComplMenu.SetMacroMode(Area);
 
-#define CMP_ENABLED(c) ((Manual && (c)) || (!Manual && ((c) == 1)))
+		auto CompletionEnabled = [&Manual](int State)
+		{
+			return (Manual && State) || (!Manual && State == 1);
+		};
 
-		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Global->Opt->AutoComplete.UseHistory))
+		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 		{
 			if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 			{
@@ -419,11 +422,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				}
 			}
 		}
-		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Global->Opt->AutoComplete.UseFilesystem))
+		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 		{
 			EnumFiles(ComplMenu,strTemp);
 		}
-		if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Global->Opt->AutoComplete.UsePath))
+		if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
 		{
 			EnumModules(strTemp, &ComplMenu);
 		}
@@ -508,7 +511,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 								PrevPos=0;
 								if(!strTemp.empty())
 								{
-									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Global->Opt->AutoComplete.UseHistory))
+									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 									{
 										if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 										{
@@ -526,11 +529,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										}
 									}
 								}
-								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Global->Opt->AutoComplete.UseFilesystem))
+								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 								{
 									EnumFiles(ComplMenu,strTemp);
 								}
-								if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Global->Opt->AutoComplete.UsePath))
+								if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
 								{
 									EnumModules(strTemp, &ComplMenu);
 								}

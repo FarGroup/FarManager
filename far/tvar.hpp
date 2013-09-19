@@ -69,6 +69,7 @@ class TVar
 		TVar(int);
 		TVar(double);
 		TVar(const TVar&);
+		TVar(TVar&& rhs) { *this = std::move(rhs); }
 		~TVar();
 
 	public:
@@ -89,6 +90,7 @@ class TVar
 		friend TVar xor_op(const TVar&, const TVar&);
 
 		TVar& operator=(const TVar&);
+		TVar& operator=(TVar&&);
 
 		TVar& operator+=(const TVar& b)  { return *this = *this+b;  }
 		TVar& operator-=(const TVar& b)  { return *this = *this-b;  }

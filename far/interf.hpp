@@ -162,8 +162,8 @@ bool ScrollBarRequired(UINT Length, UINT64 ItemsCount);
 bool ScrollBarEx (UINT X1,UINT Y1,UINT Length, UINT64 TopItem,UINT64 ItemsCount);
 bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Size);
 void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
-#define ShowSeparator(Length,Type) DrawLine(Length,Type)
-#define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
+inline void ShowSeparator(int Length, int Type) { return DrawLine(Length,Type); }
+inline void ShowUserSeparator(int Length, int Type, const wchar_t* UserSep) { return DrawLine(Length,Type,UserSep); }
 string MakeSeparator(int Length, int Type=1, const wchar_t* UserSep=nullptr);
 
 void InitRecodeOutTable();
@@ -177,7 +177,7 @@ int HiStrlen(const string& Str);
 int HiFindRealPos(const string& Str, int Pos, BOOL ShowAmp);
 int HiFindNextVisualPos(const string& Str, int Pos, int Direct);
 string& HiText2Str(string& strDest, const string& Str);
-#define RemoveHighlights(Str) RemoveChar(Str,L'&')
+inline void RemoveHighlights(string& Str) { RemoveChar(Str,L'&'); }
 
 bool IsConsoleFullscreen();
 

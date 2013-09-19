@@ -2423,13 +2423,13 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 			if (item_size)
 			{
-				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), item_size, (FarDialogItem *)xf_malloc(item_size)};
+				block_ptr<FarDialogItem> Buffer(item_size);
+				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), item_size, Buffer.get()};
 
 				if (gdi.Item)
 				{
 					NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
 					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
-					xf_free(gdi.Item);
 					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
 					return TRUE;
 				}
@@ -3003,7 +3003,8 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 		for (int i=0; i<ItemsNumber; i++)
 		{
 			size_t Size = NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, 0);
-			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
+			block_ptr<FarDialogItem> Buffer(Size);
+			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
 
 			if (gdi.Item)
 			{
@@ -3026,8 +3027,6 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 				{
 					Item[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS,i,0));
 				}
-
-				xf_free(gdi.Item);
 			}
 
 			FreeAnsiDialogItem(diA[i]);
@@ -3206,34 +3205,24 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 					if (OldPI->PanelItems)
 					{
-						PluginPanelItem* PPI=nullptr; int PPISize=0;
+						block_ptr<PluginPanelItem> PPI; size_t PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.ItemsNumber); i++)
 						{
-							int NewPPISize=static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM,i,0));
+							size_t NewPPISize=static_cast<size_t>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM,i,0));
 
 							if (NewPPISize>PPISize)
 							{
-								PluginPanelItem* NewPPI=(PluginPanelItem*)xf_realloc(PPI,NewPPISize);
-
-								if (NewPPI)
-								{
-									PPI=NewPPI;
-									PPISize=NewPPISize;
-								}
-								else
-									break;
+								PPI.reset(NewPPISize);
+								PPISize=NewPPISize;
 							}
-							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), PPISize, PPI.get()};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM, i, &gpi);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
 							}
 						}
-
-						if (PPI)
-							xf_free(PPI);
 					}
 				}
 
@@ -3243,34 +3232,24 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 					if (OldPI->SelectedItems)
 					{
-						PluginPanelItem* PPI=nullptr; int PPISize=0;
+						block_ptr<PluginPanelItem> PPI; size_t PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.SelectedItemsNumber); i++)
 						{
-							int NewPPISize=static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0));
+							size_t NewPPISize=static_cast<size_t>(NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0));
 
 							if (NewPPISize>PPISize)
 							{
-								PluginPanelItem* NewPPI=(PluginPanelItem*)xf_realloc(PPI,NewPPISize);
-
-								if (NewPPI)
-								{
-									PPI=NewPPI;
-									PPISize=NewPPISize;
-								}
-								else
-									break;
+								PPI.reset(NewPPISize);
+								PPISize=NewPPISize;
 							}
-							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), PPISize, PPI.get()};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM, i, &gpi);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
 							}
 						}
-
-						if (PPI)
-							xf_free(PPI);
 					}
 				}
 

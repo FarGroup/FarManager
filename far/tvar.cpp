@@ -355,6 +355,19 @@ TVar& TVar::operator=(const TVar& v)
 	return *this;
 }
 
+TVar& TVar::operator=(TVar&& rhs)
+{
+	if (this != &rhs)
+	{
+		std::swap(vType, rhs.vType);
+		std::swap(inum, rhs.inum);
+		std::swap(dnum, rhs.dnum);
+		std::swap(str, rhs.str);
+	}
+
+	return *this;
+}
+
 __int64 TVar::i() const
 {
 	return isInteger() ? inum : (isDouble() ? (__int64)dnum : (str ? _wtoi64(str) : 0));
