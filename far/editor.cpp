@@ -4492,7 +4492,7 @@ void Editor::DeleteBlock()
 				DeleteNext=TRUE;
 		}
 
-		TmpStr.erase(StartSel, EndSel);
+		TmpStr.erase(StartSel, EndSel - StartSel);
 
 		int CurPos=StartSel;
 		/*    if (CurPos>=StartSel)
