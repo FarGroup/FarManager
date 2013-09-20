@@ -449,9 +449,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	else
 		api::DeleteEnvironmentVariable(L"FARADMINMODE");
 
-	auto isArg = [](const wchar_t* Name, const wchar_t* Arg)
+	auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
-		return (*Arg==L'/' || *Arg == L'-') && !StrCmpI(Name, Arg);
+		return (*Arg==L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
 	};
 
 	// no isArg here - used by Far internally
