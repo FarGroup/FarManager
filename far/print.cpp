@@ -70,8 +70,6 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 			strDefaultPrinter.assign(Buffer.get(), Buffer.size());
 	}
 
-	// Ёлемент меню
-	MenuItemEx Item;
 	// ѕризнак наличи€ принтера по умолчанию
 	bool bDefaultPrinterFound = false;
 
@@ -79,8 +77,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 	for (int i=0; i<PrinterNumber; i++)
 	{
 		PRINTER_INFO *printer = &pi[i];
-		Item.Clear();
-		Item.strName = printer->pPrinterName;
+		MenuItemEx Item(printer->pPrinterName);
 
 		if (strDefaultPrinter == printer->pPrinterName)
 		{
@@ -89,7 +86,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int Printer
 			Item.SetSelect(TRUE);
 		}
 
-		PrinterList->SetUserData(Item.strName.data(), (Item.strName.size()+1)*sizeof(wchar_t), PrinterList->AddItem(&Item));
+		PrinterList->SetUserData(Item.strName.data(), (Item.strName.size()+1)*sizeof(wchar_t), PrinterList->AddItem(Item));
 	}
 
 	if (!bDefaultPrinterFound)

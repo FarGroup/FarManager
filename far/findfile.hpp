@@ -99,7 +99,7 @@ private:
 	unsigned char *hexFindString;
 	size_t hexFindStringSize;
 	const wchar_t *findString;
-	wchar_t *findStringBuffer;
+	string findStringBuffer;
 	size_t* skipCharsTable;
 	int favoriteCodePages;
 	bool InFileSearchInited;

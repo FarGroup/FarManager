@@ -128,17 +128,8 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 	{
 		string strStr(Str);
 
-		bool OddQuote = false;
-		for(size_t i=0; i<strStr.size(); i++)
-		{
-			if(strStr[i] == L'"')
-			{
-				OddQuote = !OddQuote;
-			}
-		}
-
 		size_t Pos = 0;
-		if(OddQuote)
+		if(std::count(ALL_CONST_RANGE(strStr), L'"') & 1) // odd quotes count
 		{
 			Pos = strStr.rfind(L'"');
 		}
@@ -199,10 +190,10 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 					{
 						if(Menu.GetItemCount())
 						{
-							MenuItemEx Item={};
+							MenuItemEx Item;
 							Item.strName = MSG(MCompletionFilesTitle);
 							Item.Flags=LIF_SEPARATOR;
-							Menu.AddItem(&Item);
+							Menu.AddItem(Item);
 						}
 						else
 						{
@@ -356,10 +347,10 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 		{
 			if(DestMenu->GetItemCount())
 			{
-				MenuItemEx Item={};
+				MenuItemEx Item;
 				Item.strName = MSG(MCompletionFilesTitle);
 				Item.Flags=LIF_SEPARATOR;
-				DestMenu->AddItem(&Item);
+				DestMenu->AddItem(Item);
 			}
 			else
 			{
@@ -466,8 +457,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{
-				MenuItemEx EmptyItem={};
-				ComplMenu.AddItem(&EmptyItem,0);
+				MenuItemEx EmptyItem;
+				ComplMenu.AddItem(EmptyItem, 0);
 				SetMenuPos(ComplMenu);
 				ComplMenu.SetSelectPos(0,0);
 				ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -559,7 +550,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										this->Select(SelStart, GetLength());
 										RevertCallback();
 									}
-									ComplMenu.AddItem(&EmptyItem,0);
+									ComplMenu.AddItem(EmptyItem, 0);
 									SetMenuPos(ComplMenu);
 									ComplMenu.SetSelectPos(0,0);
 								}

@@ -895,7 +895,7 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 
 HANDLE Plugin::Open(OpenInfo* Info)
 {
-	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
+	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??
 	Global->g_strDirToSet.clear();
 	ExecuteStruct es = {iOpen};
@@ -904,7 +904,6 @@ HANDLE Plugin::Open(OpenInfo* Info)
 		Info->Instance = m_Instance;
 		EXECUTE_FUNCTION(es = FUNCTION(iOpen)(Info));
 	}
-	delete ChPriority;
 	return es;
 }
 

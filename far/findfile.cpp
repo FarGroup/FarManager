@@ -313,24 +313,11 @@ void FindFiles::InitInFileSearch()
 			// Формируем строку поиска
 			if (!CmpCase)
 			{
-				findStringBuffer = new wchar_t[2 * findStringCount];
-
-				for (size_t index = 0; index<strFindStr.size(); index++)
-				{
-					wchar_t ch = strFindStr[index];
-
-					if (IsCharLower(ch))
-					{
-						findStringBuffer[index] = Upper(ch);
-						findStringBuffer[index + findStringCount] = ch;
-					}
-					else
-					{
-						findStringBuffer[index] = ch;
-						findStringBuffer[index + findStringCount] = Lower(ch);
-					}
-				}
-				findString = findStringBuffer;
+				string UpperVersion(strFindStr), LowerVersion(strFindStr);
+				Upper(UpperVersion);
+				Lower(LowerVersion);
+				findStringBuffer = UpperVersion + LowerVersion;
+				findString = findStringBuffer.data();
 			}
 			else
 				findString = strFindStr.data();
@@ -481,9 +468,6 @@ void FindFiles::ReleaseInFileSearch()
 		skipCharsTable=nullptr;
 
 		codePages.clear();
-
-		delete[] findStringBuffer;
-		findStringBuffer=nullptr;
 
 		delete[] hexFindString;
 		hexFindString=nullptr;
@@ -2011,8 +1995,6 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	MenuItemEx ListItem = {};
-
 	FormatString MenuText;
 
 	const wchar_t *DisplayName=FindData.strFileName.data();
@@ -2134,9 +2116,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	{
 		if (ListBox->GetItemCount())
 		{
+			MenuItemEx ListItem;
 			ListItem.Flags|=LIF_SEPARATOR;
-			ListBox->AddItem(&ListItem);
-			ListItem.Flags&=~LIF_SEPARATOR;
+			ListBox->AddItem(ListItem);
 		}
 
 		strLastDirName = strPathName;
@@ -2156,7 +2138,6 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 				strPathName = strArcPathName;
 			}
 		}
-		ListItem.strName = strPathName;
 		FindListItem& FindItem = itd->AddFindListItem(FindData,Data,nullptr);
 		// Сбросим данные в FindData. Они там от файла
 		FindItem.FindData.Clear();
@@ -2169,7 +2150,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 		FindItem.Arc = itd->GetFindFileArcItem();;
 
 		auto Ptr = &FindItem;
-		ListBox->SetUserData(&Ptr,sizeof(Ptr),ListBox->AddItem(&ListItem));
+		MenuItemEx ListItem(strPathName);
+		ListBox->SetUserData(&Ptr,sizeof(Ptr),ListBox->AddItem(ListItem));
 	}
 
 	FindListItem& FindItem = itd->AddFindListItem(FindData,Data,FreeData);
@@ -2177,8 +2159,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	FindItem.Used=1;
 	FindItem.Arc = itd->GetFindFileArcItem();
 
-	ListItem.strName = MenuText;
-	int ListPos = ListBox->AddItem(&ListItem);
+	MenuItemEx ListItem(MenuText);
+	int ListPos = ListBox->AddItem(ListItem);
 	auto Ptr = &FindItem;
 	ListBox->SetUserData(&Ptr, sizeof(Ptr), ListPos);
 
@@ -3002,7 +2984,6 @@ FindFiles::FindFiles():
 	hexFindString = nullptr;
 	hexFindStringSize = 0;
 	findString = nullptr;
-	findStringBuffer = nullptr;
 	skipCharsTable = nullptr;
 	favoriteCodePages = 0;
 	InFileSearchInited = false;

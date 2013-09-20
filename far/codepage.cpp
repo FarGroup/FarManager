@@ -257,7 +257,6 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 	{
 		// Создаём новый элемент меню
 		MenuItemEx item;
-		item.Clear();
 
 		if (!enabled)
 			item.Flags |= MIF_GRAYED;
@@ -268,9 +267,9 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 
 		// Добавляем новый элемент в меню
 		if (position>=0)
-			CodePagesMenu->AddItem(&item, position);
+			CodePagesMenu->AddItem(item, position);
 		else
-			CodePagesMenu->AddItem(&item);
+			CodePagesMenu->AddItem(item);
 
 		// Если надо позиционируем курсор на добавленный элемент
 		if (currentCodePage==codePage)
@@ -338,14 +337,13 @@ void codepages::AddSeparator(LPCWSTR Label, int position)
 	else
 	{
 		MenuItemEx item;
-		item.Clear();
 		item.strName = Label;
 		item.Flags = MIF_SEPARATOR;
 
 		if (position>=0)
-			CodePagesMenu->AddItem(&item, position);
+			CodePagesMenu->AddItem(item, position);
 		else
-			CodePagesMenu->AddItem(&item);
+			CodePagesMenu->AddItem(item);
 	}
 }
 
@@ -501,7 +499,6 @@ void codepages::ProcessSelected(bool select)
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem;
-		newItem.Clear();
 		newItem.strName = CodePagesMenu->GetItemPtr()->strName;
 		newItem.UserData = &codePage;
 		newItem.UserDataSize = sizeof(codePage);
@@ -525,7 +522,7 @@ void codepages::ProcessSelected(bool select)
 			                      favoriteCodePages
 			                  );
 			// Добавляем кодовою страницу в выбранные
-			CodePagesMenu->AddItem(&newItem, newPosition);
+			CodePagesMenu->AddItem(newItem, newPosition);
 
 			// Удаляем разделитель, если нет обыкновынных кодовых страниц
 			if (normalCodePages==1)
@@ -552,7 +549,7 @@ void codepages::ProcessSelected(bool select)
 
 				// Добавляем кодовою страницу в нормальные
 				CodePagesMenu->AddItem(
-				    &newItem,
+				    newItem,
 				    GetCodePageInsertPosition(
 				        codePage,
 				        CodePagesMenu->GetItemCount()-normalCodePages,
@@ -677,11 +674,10 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				int Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
 				MenuItemEx NewItem;
-				NewItem.Clear();
 				NewItem.strName = strCodePage;
 				NewItem.UserData = &CodePage;
 				NewItem.UserDataSize = sizeof(CodePage);
-				CodePagesMenu->AddItem(&NewItem, Position);
+				CodePagesMenu->AddItem(NewItem, Position);
 				CodePagesMenu->SetSelectPos(Position, 1);
 			}
 		}

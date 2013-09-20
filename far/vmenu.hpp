@@ -93,8 +93,42 @@ class Dialog;
 class SaveScreen;
 
 
-struct MenuItemEx
+struct MenuItemEx:NonCopyable
 {
+	MenuItemEx(const string& Text = L""):
+		strName(Text),
+		Flags(),
+		UserData(),
+		UserDataSize(),
+		ShowPos(),
+		AccelKey(),
+		AmpPos(),
+		Len(),
+		Idx2()
+	{}
+
+	MenuItemEx(MenuItemEx&& rhs) { *this = std::move(rhs); }
+
+	MenuItemEx& operator=(MenuItemEx&& rhs)
+	{
+		if (this != &rhs)
+		{
+			strName.swap(rhs.strName);
+			std::swap(Flags, rhs.Flags);
+			std::swap(UserData, rhs.UserData);
+			std::swap(UserDataSize, rhs.UserDataSize);
+			std::swap(ShowPos, rhs.ShowPos);
+			std::swap(AccelKey, rhs.AccelKey);
+			std::swap(AmpPos, rhs.AmpPos);
+			std::swap(Len[0], rhs.Len[0]);
+			std::swap(Len[1], rhs.Len[1]);
+			std::swap(Idx2, rhs.Idx2);
+			Annotations.swap(rhs.Annotations);
+		}
+
+		return *this;
+	}
+
 	string strName;
 	UINT64  Flags;                  // Флаги пункта
 	void *UserData;                // Пользовательские данные:
@@ -125,42 +159,6 @@ struct MenuItemEx
 
 	UINT64 SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
 	UINT64 SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
-
-	void Clear()
-	{
-		strName.clear();
-		Flags = 0;
-		UserData = nullptr;
-		UserDataSize = 0;
-		ShowPos = 0;
-		AccelKey = 0;
-		AmpPos = 0;
-		Len[0] = 0;
-		Len[1] = 0;
-		Idx2 = 0;
-		Annotations.clear();
-	}
-
-	//UserData не копируется.
-	MenuItemEx& operator=(const MenuItemEx &srcMenu)
-	{
-		if (this != &srcMenu)
-		{
-			strName = srcMenu.strName;
-			Flags = srcMenu.Flags;
-			UserData = nullptr;
-			UserDataSize = 0;
-			ShowPos = srcMenu.ShowPos;
-			AccelKey = srcMenu.AccelKey;
-			AmpPos = srcMenu.AmpPos;
-			Len[0] = srcMenu.Len[0];
-			Len[1] = srcMenu.Len[1];
-			Idx2 = srcMenu.Idx2;
-			Annotations = srcMenu.Annotations;
-		}
-
-		return *this;
-	}
 };
 
 struct MenuDataEx
@@ -230,7 +228,7 @@ class VMenu: public Modal
 		bool bFilterLocked;
 		string strFilter;
 
-		std::vector<MenuItemEx*> Item;
+		std::vector<MenuItemEx> Items;
 
 		intptr_t ItemHiddenCount;
 		intptr_t ItemSubMenusCount;
@@ -310,7 +308,7 @@ class VMenu: public Modal
 		void DeleteItems();
 		int  DeleteItem(int ID,int Count=1);
 
-		int  AddItem(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
+		int  AddItem(MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
 		int  AddItem(const FarList *NewItem);
 		int  AddItem(const wchar_t *NewStrItem);
 
@@ -326,8 +324,8 @@ class VMenu: public Modal
  		bool AddToFilter(const wchar_t *str);
  		void SetFilterString(const wchar_t *str);
 
-		intptr_t GetItemCount() { return Item.size(); }
-		int  GetShowItemCount() { return static_cast<int>(Item.size())-ItemHiddenCount; }
+		intptr_t GetItemCount() { return Items.size(); }
+		int  GetShowItemCount() { return static_cast<int>(Items.size())-ItemHiddenCount; }
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 
@@ -360,7 +358,7 @@ class VMenu: public Modal
 			Param.Reverse = Reverse;
 			Param.Offset = Offset;
 
-			std::sort(Item.begin(), Item.end(), [&](const MenuItemEx* a, const MenuItemEx* b)->bool
+			std::sort(Items.begin(), Items.end(), [&](const MenuItemEx& a, const MenuItemEx& b)->bool
 			{
 				return Pred(a, b, Param);
 			});
@@ -385,7 +383,6 @@ class VMenu: public Modal
 		size_t GetVDialogItemID() const {return DialogItemID;}
 		void SetVDialogItemID(size_t NewDialogItemID) {DialogItemID=NewDialogItemID;}
 
-		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
 		void SetId(const GUID& Id);

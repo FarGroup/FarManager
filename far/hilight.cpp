@@ -511,7 +511,6 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 
 void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 {
-	MenuItemEx HiMenuItem;
 	const int Count[4][2] =
 	{
 		{0,                               FirstCount},
@@ -520,21 +519,22 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
 	};
 	HiMenu->DeleteItems();
-	HiMenuItem.Clear();
 
 	for (int j=0; j<4; j++)
 	{
 		for (int i=Count[j][0]; i<Count[j][1]; i++)
 		{
+			MenuItemEx HiMenuItem;
 			MenuString(HiMenuItem.strName, HiData[i].get(), true);
-			HiMenu->AddItem(&HiMenuItem);
+			HiMenu->AddItem(HiMenuItem);
 		}
 
-		HiMenuItem.strName.clear();
-		HiMenu->AddItem(&HiMenuItem);
+		MenuItemEx Empty;
+		HiMenu->AddItem(Empty);
 
 		if (j<3)
 		{
+			MenuItemEx HiMenuItem;
 			if (!j)
 				HiMenuItem.strName = MSG(MHighlightUpperSortGroup);
 			else if (j==1)
@@ -543,8 +543,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 				HiMenuItem.strName = MSG(MHighlightLastGroup);
 
 			HiMenuItem.Flags|=LIF_SEPARATOR;
-			HiMenu->AddItem(&HiMenuItem);
-			HiMenuItem.Flags=0;
+			HiMenu->AddItem(HiMenuItem);
 		}
 	}
 

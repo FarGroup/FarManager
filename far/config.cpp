@@ -416,7 +416,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 	string Name, Value;
 	for(DWORD i = 0; Global->Db->GeneralCfg()->EnumValues(L"Masks", i, Name, Value); ++i)
 	{
-		MenuItemEx Item = {};
+		MenuItemEx Item;
 		string DisplayName(Name);
 		const int NameWidth = 10;
 		TruncStrFromEnd(DisplayName, NameWidth);
@@ -424,7 +424,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + Value;
 		Item.UserData = UNSAFE_CSTR(Name);
 		Item.UserDataSize = (Name.size()+1)*sizeof(wchar_t);
-		MasksMenu.AddItem(&Item);
+		MasksMenu.AddItem(Item);
 	}
 	MasksMenu.SetSelectPos(SelPos, 0);
 }

@@ -411,7 +411,7 @@ void ShowHotplugDevices()
 		{
 			std::for_each(CONST_RANGE(Info, i)
 			{
-				MenuItemEx ListItem = {};
+				MenuItemEx ListItem;
 				string strFriendlyName, strDescription;
 				if (GetDeviceProperty(i.DevInst, SPDRP_DEVICEDESC, strDescription, true) && !strDescription.empty())
 				{
@@ -440,7 +440,7 @@ void ShowHotplugDevices()
 				{
 					ListItem.strName = L"UNKNOWN";
 				}
-				HotPlugList.AddItem(&ListItem);
+				HotPlugList.AddItem(ListItem);
 			});
 		}
 	};

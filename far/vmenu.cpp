@@ -62,6 +62,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "vmenu2.hpp"
 
+MenuItemEx FarList2MenuItem(const FarListItem& FItem)
+{
+	MenuItemEx Result;
+	Result.Flags = FItem.Flags;
+	Result.strName = NullToEmpty(FItem.Text);
+	return Result;
+}
+
 VMenu::VMenu(const string& Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
              int ItemsCount,     // количество пунктов меню
@@ -94,11 +102,9 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 	// инициализируем перед тем, как добавлять айтема
 	UpdateMaxLengthFromTitles();
 
-	MenuItemEx NewItem;
-
-	for (size_t I=0; I < Item.size(); I++)
+	for (size_t I=0; I < Items.size(); I++)
 	{
-		NewItem.Clear();
+		MenuItemEx NewItem;
 
 		if (!Global->IsPtr(Data[I].Name))
 			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(Data[I].Name)));
@@ -108,7 +114,7 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 		//NewItem.AmpPos = -1;
 		NewItem.AccelKey = Data[I].AccelKey;
 		NewItem.Flags = Data[I].Flags;
-		AddItem(&NewItem);
+		AddItem(NewItem);
 	}
 
 	SetMaxHeight(MaxHeight);
@@ -182,36 +188,36 @@ void VMenu::UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags)
 
 void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
 {
-	UpdateInternalCounters(Item[Pos]->Flags, NewFlags);
+	UpdateInternalCounters(Items[Pos].Flags, NewFlags);
 
 	if (!ItemCanHaveFocus(NewFlags))
 		NewFlags &= ~LIF_SELECTED;
 
 	//remove selection
-	if ((Item[Pos]->Flags&LIF_SELECTED) && !(NewFlags&LIF_SELECTED))
+	if ((Items[Pos].Flags&LIF_SELECTED) && !(NewFlags&LIF_SELECTED))
 	{
 		SelectPos = -1;
 	}
 	//set new selection
-	else if (!(Item[Pos]->Flags&LIF_SELECTED) && (NewFlags&LIF_SELECTED))
+	else if (!(Items[Pos].Flags&LIF_SELECTED) && (NewFlags&LIF_SELECTED))
 	{
 		if (SelectPos>=0)
-			Item[SelectPos]->Flags &= ~LIF_SELECTED;
+			Items[SelectPos].Flags &= ~LIF_SELECTED;
 
 		SelectPos = Pos;
 	}
 
-	Item[Pos]->Flags = NewFlags;
+	Items[Pos].Flags = NewFlags;
 
 	if (SelectPos < 0)
 		SetSelectPos(0,1);
 
-	if(LOWORD(Item[Pos]->Flags))
+	if(LOWORD(Items[Pos].Flags))
 	{
-		Item[Pos]->Flags|=LIF_CHECKED;
-		if(LOWORD(Item[Pos]->Flags)==1)
+		Items[Pos].Flags|=LIF_CHECKED;
+		if(LOWORD(Items[Pos].Flags)==1)
 		{
-			Item[Pos]->Flags&=0xFFFF0000;
+			Items[Pos].Flags&=0xFFFF0000;
 		}
 	}
 }
@@ -221,8 +227,13 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (Item.empty())
+	if (Items.empty())
 		return -1;
+
+	std::for_each(RANGE(Items, i)
+	{
+		i.Flags&=~LIF_SELECTED;
+	});
 
 	for (int Pass=0, I=0;;I++)
 	{
@@ -230,7 +241,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 		{
 			if (CheckFlags(VMENU_WRAPMODE))
 			{
-				Pos = static_cast<int>(Item.size()-1);
+				Pos = static_cast<int>(Items.size()-1);
 				TopPos = Pos;
 			}
 			else
@@ -241,7 +252,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			}
 		}
 
-		if (Pos>=static_cast<int>(Item.size()))
+		if (Pos>=static_cast<int>(Items.size()))
 		{
 			if (CheckFlags(VMENU_WRAPMODE))
 			{
@@ -250,12 +261,12 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			}
 			else
 			{
-				Pos = static_cast<int>(Item.size()-1);
+				Pos = static_cast<int>(Items.size()-1);
 				Pass++;
 			}
 		}
 
-		if (ItemCanHaveFocus(Item[Pos]->Flags))
+		if (ItemCanHaveFocus(Items[Pos].Flags))
 			break;
 
 		if (Pass)
@@ -263,14 +274,14 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 
 		Pos += Direct;
 
-		if (I>=static_cast<int>(Item.size())) // круг пройден - ничего не найдено :-(
+		if (I>=static_cast<int>(Items.size())) // круг пройден - ничего не найдено :-(
 			Pass++;
 	}
 
 	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
 		return SelectPos;
 
-	UpdateItemFlags(Pos, Item[Pos]->Flags|LIF_SELECTED);
+	UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
@@ -282,7 +293,7 @@ int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
-	int pos = std::min(static_cast<intptr_t>(Item.size()-1), std::max((intptr_t)0, ListPos->SelectPos));
+	int pos = std::min(static_cast<intptr_t>(Items.size()-1), std::max((intptr_t)0, ListPos->SelectPos));
 	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
@@ -319,33 +330,33 @@ void VMenu::UpdateSelectPos()
 {
 	CriticalSectionLock Lock(CS);
 
-	if (Item.empty())
+	if (Items.empty())
 		return;
 
 	// если selection стоит в некорректном месте - сбросим его
-	if (SelectPos >= 0 && !ItemCanHaveFocus(Item[SelectPos]->Flags))
+	if (SelectPos >= 0 && !ItemCanHaveFocus(Items[SelectPos].Flags))
 		SelectPos = -1;
 
-	for (size_t i=0; i<Item.size(); i++)
+	for (size_t i=0; i<Items.size(); i++)
 	{
-		if (!ItemCanHaveFocus(Item[i]->Flags))
+		if (!ItemCanHaveFocus(Items[i].Flags))
 		{
-			Item[i]->SetSelect(FALSE);
+			Items[i].SetSelect(FALSE);
 		}
 		else
 		{
 			if (SelectPos == -1)
 			{
-				Item[i]->SetSelect(TRUE);
+				Items[i].SetSelect(TRUE);
 				SelectPos = static_cast<int>(i);
 			}
 			else if (SelectPos != static_cast<int>(i))
 			{
-				Item[i]->SetSelect(FALSE);
+				Items[i].SetSelect(FALSE);
 			}
 			else
 			{
-				Item[i]->SetSelect(TRUE);
+				Items[i].SetSelect(TRUE);
 			}
 		}
 	}
@@ -357,8 +368,8 @@ int VMenu::GetItemPosition(int Position)
 
 	int DataPos = (Position==-1) ? SelectPos : Position;
 
-	if (DataPos>=static_cast<int>(Item.size()))
-		DataPos = -1; //Item.size()-1;
+	if (DataPos>=static_cast<int>(Items.size()))
+		DataPos = -1; //Items.size()-1;
 
 	return DataPos;
 }
@@ -380,10 +391,9 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 
 	if (NewItem)
 	{
-		MenuItemEx MItem;
-
-		if (AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index) >= 0)
-			return static_cast<int>(Item.size());
+		auto MenuItem = FarList2MenuItem(NewItem->Item);
+		if (AddItem(MenuItem, NewItem->Index) >= 0)
+			return static_cast<int>(Items.size());
 	}
 
 	return -1;
@@ -395,15 +405,14 @@ int VMenu::AddItem(const FarList *List)
 
 	if (List && List->Items)
 	{
-		MenuItemEx MItem;
-
 		for (size_t i=0; i<List->ItemsNumber; i++)
 		{
-			AddItem(FarList2MenuItem(&List->Items[i], &MItem));
+			auto MenuItem = FarList2MenuItem(List->Items[i]);
+			AddItem(MenuItem);
 		}
 	}
 
-	return static_cast<int>(Item.size());
+	return static_cast<int>(Items.size());
 }
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
@@ -427,70 +436,55 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 	return AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
 }
 
-int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
+int VMenu::AddItem(MenuItemEx& NewItem,int PosAdd)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (!NewItem)
-		return -1;
+	PosAdd = std::max(0, std::min(PosAdd, static_cast<int>(Items.size())));
 
-	PosAdd = std::max(0, std::min(PosAdd, static_cast<int>(Item.size())));
+	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
+	auto& NewMenuItem = Items[PosAdd];
 
-	auto AddPos = Item.begin();
-	std::advance(AddPos, PosAdd);
+	// BUGBUG
+	_SetUserData(&NewMenuItem, NewMenuItem.UserData, NewMenuItem.UserDataSize);
 
-	SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
-
-	auto NewMenuItem = new MenuItemEx;
-
-	NewMenuItem->Clear();
-	NewMenuItem->Flags = 0;
-	NewMenuItem->strName = NewItem->strName;
-	NewMenuItem->AccelKey = NewItem->AccelKey;
-	_SetUserData(NewMenuItem, NewItem->UserData, NewItem->UserDataSize);
-	//NewMenuItem->AmpPos = NewItem->AmpPos;
-	NewMenuItem->AmpPos = -1;
-	NewMenuItem->Len[0] = NewItem->Len[0];
-	NewMenuItem->Len[1] = NewItem->Len[1];
-	NewMenuItem->Idx2 = NewItem->Idx2;
-	//NewMenuItem->ShowPos = NewItem->ShowPos;
-	NewMenuItem->ShowPos = 0;
-
-	Item.emplace(AddPos, NewMenuItem);
+	NewMenuItem.AmpPos = -1;
+	NewMenuItem.ShowPos = 0;
 
 	if (PosAdd <= SelectPos)
 		SelectPos++;
 
 	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength((int)NewMenuItem->strName.size());
+		UpdateMaxLength((int)NewMenuItem.strName.size());
 	else
-		UpdateMaxLength(HiStrlen(NewMenuItem->strName));
+		UpdateMaxLength(HiStrlen(NewMenuItem.strName));
 
-	UpdateItemFlags(PosAdd, NewItem->Flags);
+	auto NewFlags = NewMenuItem.Flags;
+	NewMenuItem.Flags = 0;
+	UpdateItemFlags(PosAdd, NewFlags);
 
-	return static_cast<int>(Item.size()-1);
+	SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
+
+	return static_cast<int>(Items.size()-1);
 }
 
 int VMenu::UpdateItem(const FarListUpdate *NewItem)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (NewItem && (DWORD)NewItem->Index < (DWORD)Item.size())
+	if (NewItem && (DWORD)NewItem->Index < (DWORD)Items.size())
 	{
 		// Освободим память... от ранее занятого ;-)
-		MenuItemEx *PItem = Item[NewItem->Index];
-
 		if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 		{
-			xf_free(PItem->UserData);
-			PItem->UserData = nullptr;
-			PItem->UserDataSize = 0;
+			xf_free(Items[NewItem->Index].UserData);
+			Items[NewItem->Index].UserData = nullptr;
+			Items[NewItem->Index].UserDataSize = 0;
 		}
 
-		MenuItemEx MItem;
-		FarList2MenuItem(&NewItem->Item, &MItem);
+		MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
 
-		PItem->strName = MItem.strName;
+		Items[NewItem->Index].strName = MItem.strName;
 
 		UpdateItemFlags(NewItem->Index, MItem.Flags);
 
@@ -507,40 +501,37 @@ int VMenu::DeleteItem(int ID, int Count)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (ID < 0 || ID >= static_cast<int>(Item.size()) || Count <= 0)
-		return static_cast<int>(Item.size());
+	if (ID < 0 || ID >= static_cast<int>(Items.size()) || Count <= 0)
+		return static_cast<int>(Items.size());
 
-	if (ID+Count > static_cast<int>(Item.size()))
-		Count=static_cast<int>(Item.size()-ID);
+	if (ID+Count > static_cast<int>(Items.size()))
+		Count=static_cast<int>(Items.size()-ID);
 
 	if (Count <= 0)
-		return static_cast<int>(Item.size());
+		return static_cast<int>(Items.size());
 
-	if (!ID && Count == static_cast<int>(Item.size()))
+	if (!ID && Count == static_cast<int>(Items.size()))
 	{
 		DeleteItems();
-		return static_cast<int>(Item.size());
+		return static_cast<int>(Items.size());
 	}
 
 	// Надобно удалить данные, чтоб потери по памяти не были
 	for (int I=0; I < Count; ++I)
 	{
-		MenuItemEx *PtrItem = Item[ID+I];
-
-		xf_free(PtrItem->UserData);
-		UpdateInternalCounters(PtrItem->Flags,0);
-		delete PtrItem;
+		xf_free(Items[ID+I].UserData);
+		UpdateInternalCounters(Items[ID+I].Flags,0);
 	}
 
 	// а вот теперь перемещения
-	auto FirstIter = Item.begin()+ID, LastIter = FirstIter+Count;
-	if (Item.size() > 1)
-		Item.erase(FirstIter, LastIter);
+	auto FirstIter = Items.begin()+ID, LastIter = FirstIter+Count;
+	if (Items.size() > 1)
+		Items.erase(FirstIter, LastIter);
 
 	// коррекция текущей позиции
 	if (SelectPos >= ID && SelectPos < ID+Count)
 	{
-		if(SelectPos==static_cast<int>(Item.size()))
+		if(SelectPos==static_cast<int>(Items.size()))
 		{
 			ID--;
 		}
@@ -557,19 +548,18 @@ int VMenu::DeleteItem(int ID, int Count)
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	return static_cast<int>(Item.size());
+	return static_cast<int>(Items.size());
 }
 
 void VMenu::DeleteItems()
 {
 	CriticalSectionLock Lock(CS);
 
-	std::for_each(CONST_RANGE(Item, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
-		xf_free(i->UserData);
-		delete i;
+		xf_free(i.UserData);
 	});
-	Item.clear();
+	Items.clear();
 	ItemHiddenCount=0;
 	ItemSubMenusCount=0;
 	SelectPos=-1;
@@ -589,13 +579,13 @@ int VMenu::GetCheck(int Position)
 	if (ItemPos < 0)
 		return 0;
 
-	if (Item[ItemPos]->Flags & LIF_SEPARATOR)
+	if (Items[ItemPos].Flags & LIF_SEPARATOR)
 		return 0;
 
-	if (!(Item[ItemPos]->Flags & LIF_CHECKED))
+	if (!(Items[ItemPos].Flags & LIF_CHECKED))
 		return 0;
 
-	int Checked = Item[ItemPos]->Flags & 0xFFFF;
+	int Checked = Items[ItemPos].Flags & 0xFFFF;
 
 	return Checked ? Checked : 1;
 }
@@ -610,14 +600,14 @@ void VMenu::SetCheck(int Check, int Position)
 	if (ItemPos < 0)
 		return;
 
-	Item[ItemPos]->SetCheck(Check);
+	Items[ItemPos].SetCheck(Check);
 }
 
 void VMenu::RestoreFilteredItems()
 {
-	for (size_t i=0; i < Item.size(); i++)
+	for (size_t i=0; i < Items.size(); i++)
 	{
-		Item[i]->Flags &= ~LIF_HIDDEN;
+		Items[i].Flags &= ~LIF_HIDDEN;
 	}
 
 	ItemHiddenCount=0;
@@ -646,32 +636,30 @@ void VMenu::FilterStringUpdated()
 			bBottomMode = true;
 	}
 
-	MenuItemEx *CurItem=nullptr;
 	ItemHiddenCount=0;
 
-	for (size_t i=0; i < Item.size(); i++)
+	for_each_cnt(RANGE(Items, CurItem, size_t index)
 	{
-		CurItem=Item[i];
-		CurItem->Flags &= ~LIF_HIDDEN;
-		strName=CurItem->strName;
-		if (CurItem->Flags & LIF_SEPARATOR)
+		CurItem.Flags &= ~LIF_HIDDEN;
+		strName=CurItem.strName;
+		if (CurItem.Flags & LIF_SEPARATOR)
 		{
 			// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
 			if (PrevSeparator != -1)
 			{
-				Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+				Items[PrevSeparator].Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
 			}
 
 			if (strName.empty() && PrevGroup == -1)
 			{
-				CurItem->Flags |= LIF_HIDDEN;
+				CurItem.Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
 				PrevSeparator = -1;
 			}
 			else
 			{
-				PrevSeparator = static_cast<int>(i);
+				PrevSeparator = static_cast<int>(index);
 			}
 		}
 		else
@@ -680,38 +668,38 @@ void VMenu::FilterStringUpdated()
 			RemoveChar(strName,L'&',true);
 			if(!StrStrI(strName.data(), strFilter.data()))
 			{
-				CurItem->Flags |= LIF_HIDDEN;
+				CurItem.Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
-				if (SelectPos == static_cast<int>(i))
+				if (SelectPos == static_cast<int>(index))
 				{
-					CurItem->Flags &= ~LIF_SELECTED;
+					CurItem.Flags &= ~LIF_SELECTED;
 					SelectPos = -1;
 					LowerVisible = -1;
 				}
 			}
 			else
 			{
-				PrevGroup = static_cast<int>(i);
+				PrevGroup = static_cast<int>(index);
 				if (LowerVisible == -2)
 				{
-					if (ItemCanHaveFocus(CurItem->Flags))
-						UpperVisible = static_cast<int>(i);
+					if (ItemCanHaveFocus(CurItem.Flags))
+						UpperVisible = static_cast<int>(index);
 				}
 				else if (LowerVisible == -1)
 				{
-					if (ItemCanHaveFocus(CurItem->Flags))
-						LowerVisible = static_cast<int>(i);
+					if (ItemCanHaveFocus(CurItem.Flags))
+						LowerVisible = static_cast<int>(index);
 				}
 				// Этот разделитель - оставить видимым
 				if (PrevSeparator != -1)
 					PrevSeparator = -1;
 			}
 		}
-	}
+	});
 	// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
 	if (PrevSeparator != -1)
 	{
-		Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+		Items[PrevSeparator].Flags |= LIF_HIDDEN;
 		ItemHiddenCount++;
 	}
 
@@ -809,7 +797,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_BOF:
 			return GetVisualPos(SelectPos)<=0;
 		case MCODE_C_SELECTED:
-			return Item.size() > 0 && SelectPos >= 0;
+			return Items.size() > 0 && SelectPos >= 0;
 		case MCODE_V_ITEMCOUNT:
 			return GetShowItemCount();
 		case MCODE_V_CURPOS:
@@ -836,7 +824,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				*/
 				iParam&=0xFF;
 				int StartPos=Direct?SelectPos:0;
-				int EndPos=static_cast<int>(Item.size()-1);
+				int EndPos=static_cast<int>(Items.size()-1);
 
 				if (Direct == 1)
 				{
@@ -912,7 +900,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			else
 				Param = VisualPosToReal(Param);
 
-			if (Param>=0 && Param<static_cast<int>(Item.size()))
+			if (Param>=0 && Param<static_cast<int>(Items.size()))
 			{
 				MenuItemEx *menuEx = GetItemPtr(Param);
 				if (menuEx)
@@ -1223,7 +1211,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
 			{
-				if (ItemCanBeEntered(Item[SelectPos]->Flags))
+				if (ItemCanBeEntered(Items[SelectPos].Flags))
 				{
 					EndLoop = TRUE;
 					ExitCode = SelectPos;
@@ -1260,7 +1248,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
-			int p = static_cast<int>(Item.size())-1;
+			int p = static_cast<int>(Items.size())-1;
 			FarListPos pos={sizeof(FarListPos),p,std::max(0,p-MaxHeight+1)};
 			SetSelectPos(&pos, -1);
 			ShowMenu(true);
@@ -1287,8 +1275,8 @@ int VMenu::ProcessKey(int Key)
 			int pSel = VisualPosToReal(GetVisualPos(SelectPos)+dy);
 			int pTop = VisualPosToReal(GetVisualPos(SelectPos+1));
 
-			pSel = std::min(pSel, static_cast<int>(Item.size())-1);
-			pTop = std::min(pTop, static_cast<int>(Item.size())-1);
+			pSel = std::min(pSel, static_cast<int>(Items.size())-1);
+			pTop = std::min(pTop, static_cast<int>(Items.size())-1);
 
 			FarListPos pos={sizeof(FarListPos),pSel,pTop};
 			SetSelectPos(&pos, -1);
@@ -1302,23 +1290,22 @@ int VMenu::ProcessKey(int Key)
 		{
 			if (Key == KEY_ALTHOME || Key == KEY_RALTHOME || Key == (KEY_ALT|KEY_NUMPAD7) || Key == (KEY_RALT|KEY_NUMPAD7))
 			{
-				for (size_t I=0; I < Item.size(); ++I)
-					Item[I]->ShowPos=0;
+				std::for_each(RANGE(Items, i) { i.ShowPos=0; });
 			}
 			else
 			{
 				int _len;
 
-				for (size_t I=0; I < Item.size(); ++I)
+				std::for_each(RANGE(Items, i)
 				{
 					if (CheckFlags(VMENU_SHOWAMPERSAND))
-						_len=static_cast<int>(Item[I]->strName.size());
+						_len=static_cast<int>(i.strName.size());
 					else
-						_len=HiStrlen(Item[I]->strName);
+						_len=HiStrlen(i.strName);
 
 					if (_len >= MaxLineWidth)
-						Item[I]->ShowPos = _len - MaxLineWidth;
-				}
+						i.ShowPos = _len - MaxLineWidth;
+				});
 			}
 
 			ShowMenu(true);
@@ -1331,7 +1318,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			bool NeedRedraw=false;
 
-			for (size_t I=0; I < Item.size(); ++I)
+			for (size_t I=0; I < Items.size(); ++I)
 				if (ShiftItemShowPos(static_cast<int>(I),(Key == KEY_ALTLEFT || Key == KEY_RALTLEFT || Key == (KEY_ALT|KEY_NUMPAD4) || Key == (KEY_RALT|KEY_NUMPAD4) || Key == KEY_MSWHEEL_LEFT)?-1:1))
 					NeedRedraw=true;
 
@@ -1362,7 +1349,7 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_DOWN:
 		{
-			if(SelectPos < static_cast<int>(Item.size()-1))
+			if(SelectPos < static_cast<int>(Items.size()-1))
 			{
 				FarListPos Pos = {sizeof(Pos), SelectPos+1, TopPos+1};
 				SetSelectPos(&Pos);
@@ -1496,7 +1483,7 @@ int VMenu::ProcessKey(int Key)
 
 			if (IsHotkey && ParentDialog && ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
 			{
-				UpdateItemFlags(OldSelectPos,Item[OldSelectPos]->Flags|LIF_SELECTED);
+				UpdateItemFlags(OldSelectPos,Items[OldSelectPos].Flags|LIF_SELECTED);
 				ShowMenu(true);
 				EndLoop = FALSE;
 				break;
@@ -1556,7 +1543,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 		bShowScrollBar = true;
 
-	if (bShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<static_cast<int>(Item.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (bShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
 		if (MsY==SbY1)
 		{
@@ -1645,7 +1632,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		MsPos = VisualPosToReal(MsPos);
 
-		if (MsPos>=0 && MsPos<static_cast<int>(Item.size()) && ItemCanHaveFocus(Item[MsPos]->Flags))
+		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos].Flags))
 		{
 			if (IntKeyState.MouseX!=IntKeyState.PrevMouseX || IntKeyState.MouseY!=IntKeyState.PrevMouseY || !MouseEvent->dwEventFlags)
 			{
@@ -1722,14 +1709,14 @@ int VMenu::GetVisualPos(int Pos)
 	if (Pos < 0)
 		return -1;
 
-	if (Pos >= static_cast<int>(Item.size()))
+	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
 	int v=0;
 
 	for (int i=0; i < Pos; i++)
 	{
-		if (ItemIsVisible(Item[i]->Flags))
+		if (ItemIsVisible(Items[i].Flags))
 			v++;
 	}
 
@@ -1745,11 +1732,11 @@ int VMenu::VisualPosToReal(int VPos)
 		return -1;
 
 	if (VPos >= GetShowItemCount())
-		return static_cast<int>(Item.size());
+		return static_cast<int>(Items.size());
 
-	for (size_t i=0; i < Item.size(); i++)
+	for (size_t i=0; i < Items.size(); i++)
 	{
-		if (ItemIsVisible(Item[i]->Flags))
+		if (ItemIsVisible(Items[i].Flags))
 		{
 			if (!VPos--)
 				return static_cast<int>(i);
@@ -1762,12 +1749,12 @@ int VMenu::VisualPosToReal(int VPos)
 bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 {
 	int _len;
-	int ItemShowPos = Item[Pos]->ShowPos;
+	int ItemShowPos = Items[Pos].ShowPos;
 
 	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
-		_len = (int)Item[Pos]->strName.size();
+		_len = (int)Items[Pos].strName.size();
 	else
-		_len = HiStrlen(Item[Pos]->strName);
+		_len = HiStrlen(Items[Pos].strName);
 
 	if (_len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > _len))
 		return false;
@@ -1781,7 +1768,7 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 	}
 	else
 	{
-		ItemShowPos = HiFindNextVisualPos(Item[Pos]->strName,ItemShowPos,Direct);
+		ItemShowPos = HiFindNextVisualPos(Items[Pos].strName,ItemShowPos,Direct);
 	}
 
 	if (ItemShowPos < 0)
@@ -1790,9 +1777,9 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 	if (ItemShowPos + MaxLineWidth > _len)
 		ItemShowPos = _len - MaxLineWidth;
 
-	if (ItemShowPos != Item[Pos]->ShowPos)
+	if (ItemShowPos != Items[Pos].ShowPos)
 	{
-		Item[Pos]->ShowPos = ItemShowPos;
+		Items[Pos].ShowPos = ItemShowPos;
 		VMFlags.Set(VMENU_UPDATEREQUIRED);
 		return true;
 	}
@@ -2043,14 +2030,14 @@ void VMenu::ShowMenu(bool IsParent)
 	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
-	for (size_t i = 0; i < Item.size(); i++)
+	for (size_t i = 0; i < Items.size(); i++)
 	{
 		int ItemLen;
 
 		if (CheckFlags(VMENU_SHOWAMPERSAND))
-			ItemLen = static_cast<int>(Item[i]->strName.size());
+			ItemLen = static_cast<int>(Items[i].strName.size());
 		else
-			ItemLen = HiStrlen(Item[i]->strName);
+			ItemLen = HiStrlen(Items[i].strName);
 
 		if (ItemLen > MaxItemLength)
 			MaxItemLength = ItemLen;
@@ -2170,29 +2157,29 @@ void VMenu::ShowMenu(bool IsParent)
 	{
 		GotoXY(X1,Y);
 
-		if (I < static_cast<int>(Item.size()))
+		if (I < static_cast<int>(Items.size()))
 		{
-			if (!ItemIsVisible(Item[I]->Flags))
+			if (!ItemIsVisible(Items[I].Flags))
 			{
 				Y--;
 				continue;
 			}
 
-			if (Item[I]->Flags&LIF_SEPARATOR)
+			if (Items[I].Flags&LIF_SEPARATOR)
 			{
 				int SepWidth = X2-X1+1;
 
 				string strTmpStr = MakeSeparator(SepWidth, BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
-				if (!CheckFlags(VMENU_NOMERGEBORDER) && I>0 && I<static_cast<int>(Item.size()-1) && SepWidth>3)
+				if (!CheckFlags(VMENU_NOMERGEBORDER) && I>0 && I<static_cast<int>(Items.size()-1) && SepWidth>3)
 				{
 					for (size_t J = 0; J < strTmpStr.size() - 3; ++J)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName.data(),L'&',J);
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName.data(),L'&',J);
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Items[I-1].strName.data(),L'&',J);
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Items[I+1].strName.data(),L'&',J);
 
-						wchar_t PrevItem = (Item[I-1]->strName.size() > J + PCorrection) ? Item[I-1]->strName[J+PCorrection] : 0;
-						wchar_t NextItem = (Item[I+1]->strName.size() > J + NCorrection) ? Item[I+1]->strName[J+NCorrection] : 0;
+						wchar_t PrevItem = (Items[I-1].strName.size() > J + PCorrection) ? Items[I-1].strName[J+PCorrection] : 0;
+						wchar_t NextItem = (Items[I+1].strName.size() > J + NCorrection) ? Items[I+1].strName[J+NCorrection] : 0;
 
 						if (!PrevItem && !NextItem)
 							break;
@@ -2214,15 +2201,15 @@ void VMenu::ShowMenu(bool IsParent)
 				SetColor(Colors[VMenuColorSeparator]);
 				BoxText(strTmpStr,FALSE);
 
-				if (!Item[I]->strName.empty())
+				if (!Items[I].strName.empty())
 				{
-					int ItemWidth = (int)Item[I]->strName.size();
+					int ItemWidth = (int)Items[I].strName.size();
 
 					if (ItemWidth > X2-X1-3)
 						ItemWidth = X2-X1-3;
 
 					GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
+					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Items[I].strName << L" ";
 				}
 			}
 			else
@@ -2241,28 +2228,28 @@ void VMenu::ShowMenu(bool IsParent)
 					GotoXY(X1,Y);
 
 				FarColor CurColor;
-				if ((Item[I]->Flags&LIF_SELECTED))
-					CurColor = VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected];
+				if ((Items[I].Flags&LIF_SELECTED))
+					CurColor = VMenu::Colors[Items[I].Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected];
 				else
-					CurColor = VMenu::Colors[Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:(Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)];
+					CurColor = VMenu::Colors[Items[I].Flags&LIF_DISABLE?VMenuColorDisabled:(Items[I].Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)];
 
 				SetColor(CurColor);
 
 				string strMenuLine;
 				wchar_t CheckMark = L' ';
 
-				if (Item[I]->Flags & LIF_CHECKED)
+				if (Items[I].Flags & LIF_CHECKED)
 				{
-					if (!(Item[I]->Flags & 0x0000FFFF))
+					if (!(Items[I].Flags & 0x0000FFFF))
 						CheckMark = 0x221A;
 					else
-						CheckMark = static_cast<wchar_t>(Item[I]->Flags & 0x0000FFFF);
+						CheckMark = static_cast<wchar_t>(Items[I].Flags & 0x0000FFFF);
 				}
 
 				strMenuLine.push_back(CheckMark);
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
-				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-				string strMItemPtr(Item[I]->strName.data() + ShowPos);
+				int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
+				string strMItemPtr(Items[I].strName.data() + ShowPos);
 				int strMItemPtrLen;
 
 				if (CheckFlags(VMENU_SHOWAMPERSAND))
@@ -2277,7 +2264,7 @@ void VMenu::ShowMenu(bool IsParent)
 				// set highlight
 				if (!VMFlags.Check(VMENU_SHOWAMPERSAND))
 				{
-					int AmpPos = Item[I]->AmpPos - ShowPos;
+					int AmpPos = Items[I].AmpPos - ShowPos;
 
 					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (strMItemPtr[AmpPos] != L'&'))
 					{
@@ -2300,12 +2287,12 @@ void VMenu::ShowMenu(bool IsParent)
 
 				FarColor Col;
 
-				if (!(Item[I]->Flags & LIF_DISABLE))
+				if (!(Items[I].Flags & LIF_DISABLE))
 				{
-					if (Item[I]->Flags & LIF_SELECTED)
-						Col = Colors[Item[I]->Flags & LIF_GRAYED ? VMenuColorSelGrayed : VMenuColorHSelect];
+					if (Items[I].Flags & LIF_SELECTED)
+						Col = Colors[Items[I].Flags & LIF_GRAYED ? VMenuColorSelGrayed : VMenuColorHSelect];
 					else
-						Col = Colors[Item[I]->Flags & LIF_GRAYED ? VMenuColorGrayed : VMenuColorHilite];
+						Col = Colors[Items[I].Flags & LIF_GRAYED ? VMenuColorGrayed : VMenuColorHilite];
 				}
 				else
 				{
@@ -2314,7 +2301,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (CheckFlags(VMENU_SHOWAMPERSAND))
 				{
-					if (Item[I]->Annotations.empty())
+					if (Items[I].Annotations.empty())
 					{
 						Text(strMenuLine);
 					}
@@ -2324,9 +2311,9 @@ void VMenu::ShowMenu(bool IsParent)
 						size_t Pos = 0;
 						FarColor InvColor = CurColor;
 						std::swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
-						std::for_each(CONST_RANGE(Item[I]->Annotations, i)
+						std::for_each(CONST_RANGE(Items[I].Annotations, i)
 						{
-							size_t pre_len = i.first - Item[I]->ShowPos + StartOffset - Pos + 1;
+							size_t pre_len = i.first - Items[I].ShowPos + StartOffset - Pos + 1;
 							if (Pos < strMenuLine.size())
 							{
 								Text(strMenuLine.substr(Pos, pre_len));
@@ -2354,15 +2341,15 @@ void VMenu::ShowMenu(bool IsParent)
 						Global->FS << fmt::MinWidth(Width) << L"";
 				}
 
-				if (Item[I]->Flags & MIF_SUBMENU)
+				if (Items[I].Flags & MIF_SUBMENU)
 				{
 					GotoXY(X1+(BoxType!=NO_BOX?1:0)+2+MaxLineWidth+(HasRightScroll?1:0)+1,Y);
 					BoxText(L'\x25BA'); // sub menu arrow
 				}
 
-				SetColor(Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
+				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
-				if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
+				if (/*BoxType!=NO_BOX && */Items[I].ShowPos > 0)
 				{
 					GotoXY(X1+(BoxType!=NO_BOX?1:0)+1,Y);
 					BoxText(L'\xab'); // '<<'
@@ -2414,12 +2401,12 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	if (CheckSymbol)
 		CheckSymbol=Upper(CheckSymbol);
 
-	for (size_t I=StartPos; I < Item.size(); I++)
+	for (size_t I=StartPos; I < Items.size(); I++)
 	{
-		if (!ItemIsVisible(Item[I]->Flags))
+		if (!ItemIsVisible(Items[I].Flags))
 			continue;
 
-		wchar_t Ch = GetHighlights(Item[I]);
+		wchar_t Ch = GetHighlights(&Items[I]);
 
 		if (Ch)
 		{
@@ -2493,12 +2480,12 @@ void VMenu::AssignHighlights(int Reverse)
 	int I, Delta = Reverse ? -1 : 1;
 
 	// проверка заданных хоткеев
-	for (I = Reverse ? static_cast<int>(Item.size()-1) : 0; I>=0 && I<static_cast<int>(Item.size()); I+=Delta)
+	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
 	{
 		wchar_t Ch = 0;
-		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.data() + ShowPos;
-		Item[I]->AmpPos = -1;
+		int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
+		const wchar_t *Name = Items[I].strName.data() + ShowPos;
+		Items[I].AmpPos = -1;
 		// TODO: проверка на LIF_HIDDEN
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
@@ -2522,15 +2509,15 @@ void VMenu::AssignHighlights(int Reverse)
 			Used[Lower(ChKey)] = true;
 			Used[Upper(Ch)] = true;
 			Used[Lower(Ch)] = true;
-			Item[I]->AmpPos = static_cast<short>(ChPtr-Name)+static_cast<short>(ShowPos);
+			Items[I].AmpPos = static_cast<short>(ChPtr-Name)+static_cast<short>(ShowPos);
 		}
 	}
 
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
-	for (I = Reverse ? static_cast<int>(Item.size()-1) : 0; I>=0 && I<static_cast<int>(Item.size()); I+=Delta)
+	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
 	{
-		int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Item[I]->strName.data() + ShowPos;
+		int ShowPos = HiFindRealPos(Items[I].strName, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
+		const wchar_t *Name = Items[I].strName.data() + ShowPos;
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
 		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
@@ -2547,7 +2534,7 @@ void VMenu::AssignHighlights(int Reverse)
 					Used[Lower(ChKey)] = true;
 					Used[Upper(Ch)] = true;
 					Used[Lower(Ch)] = true;
-					Item[I]->AmpPos = J + ShowPos;
+					Items[I].AmpPos = J + ShowPos;
 					break;
 				}
 			}
@@ -2566,18 +2553,17 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 	if (CheckFlags(VMENU_LISTBOX))
 		EndLoop = FALSE;
 
-	for (size_t I=0; I < Item.size(); I++)
+	FOR_CONST_RANGE(Items, Iterator)
 	{
-		MenuItemEx *CurItem = Item[I];
-
-		if (ItemCanHaveFocus(CurItem->Flags) && ((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) || (Type && (CurItem->AmpPos>=0 || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))))
+		auto& CurItem = *Iterator;
+		if (ItemCanHaveFocus(CurItem.Flags) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AmpPos>=0 || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.strName,Key,Translate,CurItem.AmpPos))))
 		{
-			SetSelectPos(static_cast<int>(I),1);
+			SetSelectPos(static_cast<int>(Iterator - Items.cbegin()), 1);
 			ShowMenu(true);
 
-			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX)) && ItemCanBeEntered(Item[SelectPos]->Flags))
+			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
 			{
-				ExitCode = static_cast<int>(I);
+				ExitCode = static_cast<int>(Iterator - Items.cbegin());
 				EndLoop = TRUE;
 			}
 
@@ -2892,7 +2878,7 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 	if (Info)
 	{
 		Info->Flags = GetFlags() & (LINFO_SHOWNOBOX|LINFO_AUTOHIGHLIGHT|LINFO_REVERSEHIGHLIGHT|LINFO_WRAPMODE|LINFO_SHOWAMPERSAND);
-		Info->ItemsNumber = Item.size();
+		Info->ItemsNumber = Items.size();
 		Info->SelectPos = SelectPos;
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
@@ -2903,7 +2889,7 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 	return FALSE;
 }
 
-// Функция GetItemPtr - получить указатель на нужный Item.
+// Функция GetItemPtr - получить указатель на нужный Items.
 MenuItemEx *VMenu::GetItemPtr(int Position)
 {
 	CriticalSectionLock Lock(CS);
@@ -2913,7 +2899,7 @@ MenuItemEx *VMenu::GetItemPtr(int Position)
 	if (ItemPos < 0)
 		return nullptr;
 
-	return Item[ItemPos];
+	return &Items[ItemPos];
 }
 
 void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, size_t Size)
@@ -2938,7 +2924,7 @@ size_t VMenu::GetUserDataSize(int Position)
 	if (ItemPos < 0)
 		return 0;
 
-	return Item[ItemPos]->UserDataSize;
+	return Items[ItemPos].UserDataSize;
 }
 
 size_t VMenu::_SetUserData(MenuItemEx *PItem,
@@ -2978,7 +2964,7 @@ size_t VMenu::SetUserData(LPCVOID Data,   // Данные
 	if (ItemPos < 0)
 		return 0;
 
-	return _SetUserData(Item[ItemPos], Data, Size);
+	return _SetUserData(&Items[ItemPos], Data, Size);
 }
 
 // Получить данные
@@ -2991,7 +2977,7 @@ void* VMenu::GetUserData(void *Data,size_t Size,int Position)
 	if (ItemPos < 0)
 		return nullptr;
 
-	return _GetUserData(Item[ItemPos], Data, Size);
+	return _GetUserData(&Items[ItemPos], Data, Size);
 }
 
 FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
@@ -3002,19 +2988,6 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 		FItem->Flags = MItem->Flags;
 		FItem->Text = MItem->strName.data();
 		return FItem;
-	}
-
-	return nullptr;
-}
-
-MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem, MenuItemEx *MItem)
-{
-	if (FItem && MItem)
-	{
-		MItem->Clear();
-		MItem->Flags = FItem->Flags;
-		MItem->strName = NullToEmpty(FItem->Text);
-		return MItem;
 	}
 
 	return nullptr;
@@ -3039,13 +3012,13 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 {
 	CriticalSectionLock Lock(CS);
 
-	if ((DWORD)StartIndex < (DWORD)Item.size())
+	if ((DWORD)StartIndex < (DWORD)Items.size())
 	{
 		size_t LenPattern = Pattern.size();
 
-		for (size_t I=StartIndex; I < Item.size(); I++)
+		for (size_t I=StartIndex; I < Items.size(); I++)
 		{
-			string strTmpBuf(Item[I]->strName);
+			string strTmpBuf(Items[I].strName);
 			size_t LenNamePtr = strTmpBuf.size();
 			RemoveChar(strTmpBuf, L'&');
 
@@ -3069,10 +3042,10 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 // Offset - начало сравнения! по умолчанию =0
 void VMenu::SortItems(bool Reverse, int Offset)
 {
-	SortItems([](const MenuItemEx* a, const MenuItemEx* b, const SortItemParam& Param)->bool
+	SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)->bool
 	{
-		string strName1(a->strName);
-		string strName2(b->strName);
+		string strName1(a.strName);
+		string strName2(b.strName);
 		RemoveChar(strName1, L'&', true);
 		RemoveChar(strName2, L'&', true);
 		bool Less = StrCmpI(strName1.data()+Param.Offset, strName2.data() + Param.Offset) < 0;
@@ -3082,17 +3055,17 @@ void VMenu::SortItems(bool Reverse, int Offset)
 
 bool VMenu::Pack()
 {
-	auto OldItemCount=Item.size();
+	auto OldItemCount=Items.size();
 	size_t FirstIndex=0;
 
-	while (FirstIndex<Item.size())
+	while (FirstIndex<Items.size())
 	{
-		size_t LastIndex=static_cast<int>(Item.size()-1);
+		size_t LastIndex=static_cast<int>(Items.size()-1);
 		while (LastIndex>FirstIndex)
 		{
-			if (!(Item[FirstIndex]->Flags & LIF_SEPARATOR) && !(Item[LastIndex]->Flags & LIF_SEPARATOR))
+			if (!(Items[FirstIndex].Flags & LIF_SEPARATOR) && !(Items[LastIndex].Flags & LIF_SEPARATOR))
 			{
-				if (Item[FirstIndex]->strName == Item[LastIndex]->strName)
+				if (Items[FirstIndex].strName == Items[LastIndex].strName)
 				{
 					DeleteItem(static_cast<int>(LastIndex));
 				}
@@ -3101,7 +3074,7 @@ bool VMenu::Pack()
 		}
 		FirstIndex++;
 	}
-	return (OldItemCount!=Item.size());
+	return (OldItemCount!=Items.size());
 }
 
 void VMenu::SetId(const GUID& Id)

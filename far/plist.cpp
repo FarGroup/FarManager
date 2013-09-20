@@ -56,9 +56,9 @@ struct ProcInfo
 
 static struct task_sort
 {
-	bool operator()(const MenuItemEx* a, const MenuItemEx* b, SortItemParam& p) const
+	bool operator()(const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p) const
 	{
-		return StrCmp(a->strName.data() + PID_LENGTH + 1, b->strName.data() + PID_LENGTH + 1) < 0;
+		return StrCmp(a.strName.data() + PID_LENGTH + 1, b.strName.data() + PID_LENGTH + 1) < 0;
 	}
 }
 TaskSort;
@@ -265,10 +265,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		}
 		if (!strTitle.empty())
 		{
-			MenuItemEx ListItem;
-			ListItem.Clear();
-			ListItem.strName = FormatString()<<fmt::MinWidth(PID_LENGTH)<<ProcID<< L' ' << BoxSymbols[BS_V1]<< L' ' << strTitle;
-			ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+			ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(FormatString()<<fmt::MinWidth(PID_LENGTH)<<ProcID<< L' ' << BoxSymbols[BS_V1]<< L' ' << strTitle));
 		}
 
 	}

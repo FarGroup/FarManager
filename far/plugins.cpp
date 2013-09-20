@@ -539,23 +539,18 @@ HANDLE PluginManager::OpenFilePlugin(
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-			MenuItemEx mitem;
 
 			std::for_each(CONST_RANGE(items, i)
 			{
-				mitem.Clear();
-				mitem.strName = i.Handle.pPlugin->GetTitle();
-				menu.AddItem(&mitem);
+				menu.AddItem(i.Handle.pPlugin->GetTitle());
 			});
 
 			if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 			{
-				mitem.Clear();
+				MenuItemEx mitem;
 				mitem.Flags |= MIF_SEPARATOR;
-				menu.AddItem(&mitem);
-				mitem.Clear();
-				mitem.strName = MSG(MMenuPluginStdAssociation);
-				menu.AddItem(&mitem);
+				menu.AddItem(mitem);
+				menu.AddItem(MSG(MMenuPluginStdAssociation));
 			}
 
 			int ExitCode = menu.Run();
@@ -677,13 +672,10 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-			MenuItemEx mitem;
 
 			std::for_each(CONST_RANGE(items, i)
 			{
-				mitem.Clear();
-				mitem.strName = i.pPlugin->GetTitle();
-				menu.AddItem(&mitem);
+				menu.AddItem(i.pPlugin->GetTitle());
 			});
 
 			int ExitCode=menu.Run();
@@ -1329,8 +1321,6 @@ void PluginManager::Configure(int StartPos)
 
 						GetPluginHotKey(pPlugin,guid,PluginsHotkeysConfig::CONFIG_MENU,strHotKey);
 						MenuItemEx ListItem;
-						ListItem.Clear();
-
 #ifndef NO_WRAPPER
 						if (pPlugin->IsOemPlugin())
 							ListItem.Flags=LIF_CHECKED|L'A';
@@ -1345,7 +1335,7 @@ void PluginManager::Configure(int StartPos)
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
 						item.Guid = guid;
-						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
 					}
 				}
 
@@ -1513,7 +1503,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 						GetPluginHotKey(pPlugin,guid,PluginsHotkeysConfig::PLUGINS_MENU,strHotKey);
 						MenuItemEx ListItem;
-						ListItem.Clear();
 #ifndef NO_WRAPPER
 						if (pPlugin->IsOemPlugin())
 							ListItem.Flags=LIF_CHECKED|L'A';
@@ -1528,7 +1517,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
 						item.Guid = guid;
-						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
 					}
 				}
 
@@ -2147,13 +2136,12 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-		MenuItemEx mitem;
 
 		std::for_each(CONST_RANGE(items, i)
 		{
-			mitem.Clear();
+			MenuItemEx mitem;
 			mitem.strName=PointToName(i.pPlugin->GetModuleName());
-			menu.AddItem(&mitem);
+			menu.AddItem(mitem);
 		});
 
 		int ExitCode=menu.Run();

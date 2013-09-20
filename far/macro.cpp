@@ -3623,13 +3623,13 @@ static bool msgBoxFunc(FarMacroCall* Data)
 
 static struct menu_less
 {
-	bool operator()(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam& Param) const
+	bool operator()(const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param) const
 	{
-		if (((el1)->Flags & LIF_SEPARATOR) || ((el2)->Flags & LIF_SEPARATOR))
+		if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 			return false;
 
-		string strName1((el1)->strName);
-		string strName2((el2)->strName);
+		string strName1(a.strName);
+		string strName2(b.strName);
 		RemoveChar(strName1,L'&',true);
 		RemoveChar(strName2,L'&',true);
 		bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
@@ -3736,7 +3736,6 @@ static bool menushowFunc(FarMacroCall* Data)
 	while(CRFound)
 	{
 		MenuItemEx NewItem;
-		NewItem.Clear();
 		size_t SubstrLen=PosLF-CurrentPos;
 
 		if (SubstrLen==0)
@@ -3788,7 +3787,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			LineCount++;
 			NewItem.strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.data());
 		}
-		Menu.AddItem(&NewItem);
+		Menu.AddItem(NewItem);
 		CurrentPos=PosLF+1;
 		PosLF = strItems.find(L"\n",CurrentPos);
 		CRFound = PosLF != string::npos;

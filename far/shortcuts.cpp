@@ -276,8 +276,7 @@ static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw
 	Menu.DeleteItems();
 	FOR_CONST_RANGE(List, i)
 	{
-		MenuItemEx ListItem={};
-		ListItem.strName = MakeName(*i);
+		MenuItemEx ListItem(MakeName(*i));
 		if (ListItem.strName.empty())
 			continue;
 
@@ -296,7 +295,7 @@ static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw
 			ListItem.strName.clear();
 			ListItem.Flags = LIF_SEPARATOR;
 		}
-		Menu.AddItem(&ListItem);
+		Menu.AddItem(ListItem);
 	}
 }
 
@@ -351,12 +350,10 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 							}
 							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), NewItem);
 
-							MenuItemEx NewMenuItem = {};
-							NewMenuItem.strName = NewItem.strFolder;
-
+							MenuItemEx NewMenuItem(NewItem.strFolder);
 							NewMenuItem.UserData = &newIter;
 							NewMenuItem.UserDataSize = sizeof(newIter);
-							FolderList.AddItem(&NewMenuItem, ItemPos);
+							FolderList.AddItem(NewMenuItem, ItemPos);
 							FolderList.SetSelectPos(ItemPos, 1);
 						}
 						else
@@ -551,9 +548,9 @@ void Shortcuts::Configure()
 
 	for (int I=0; I < 10; I++)
 	{
-		MenuItemEx ListItem={};
+		MenuItemEx ListItem;
 		MakeItemName(I, &ListItem);
-		FolderList.AddItem(&ListItem);
+		FolderList.AddItem(ListItem);
 	}
 
 	bool raw_mode = false;

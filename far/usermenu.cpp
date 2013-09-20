@@ -430,12 +430,11 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
-	MenuItemEx FarUserMenuItem;
 	int NumLines=0;
 
 	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem, ++NumLines)
 	{
-		FarUserMenuItem.Clear();
+		MenuItemEx FarUserMenuItem;
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"
@@ -469,7 +468,7 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& M
 			FarUserMenuItem.SetSelect(NumLines==MenuPos);
 		}
 
-		int ItemPos=FarUserMenu.AddItem(&FarUserMenuItem);
+		int ItemPos=FarUserMenu.AddItem(FarUserMenuItem);
 
 		FarUserMenu.SetUserData(&MenuItem,sizeof(MenuItem),ItemPos);
 

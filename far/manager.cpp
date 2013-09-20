@@ -351,22 +351,18 @@ Frame *Manager::FrameMenu()
 
 	int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
 	{
-		MenuItemEx ModalMenuItem;
 		VMenu2 ModalMenu(MSG(MScreensTitle),nullptr,0,ScrY-4);
 		ModalMenu.SetHelp(L"ScrSwitch");
 		ModalMenu.SetFlags(VMENU_WRAPMODE);
 		ModalMenu.SetPosition(-1,-1,0,0);
 		ModalMenu.SetId(ScreensSwitchId);
 
-		if (!CheckCanLoseFocus)
-			ModalMenuItem.SetDisable(TRUE);
-
 		size_t n = 0;
 		std::for_each(CONST_RANGE(Frames, i)
 		{
 			string strType, strName, strNumText;
 			i->GetTypeAndName(strType, strName);
-			ModalMenuItem.Clear();
+			MenuItemEx ModalMenuItem;
 
 			if (n < 10)
 				strNumText = str_printf(L"&%d. ", n);
@@ -380,7 +376,7 @@ Frame *Manager::FrameMenu()
 			/*  добавляется "*" если файл изменен */
 			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
 			ModalMenuItem.SetSelect(static_cast<int>(n) == FramePos);
-			ModalMenu.AddItem(&ModalMenuItem);
+			ModalMenu.AddItem(ModalMenuItem);
 			++n;
 		});
 
@@ -792,16 +788,13 @@ int Manager::ProcessKey(DWORD Key)
 				double  d;
 			} zero_const; //, refers;
 			zero_const.i=0L;
-			MenuItemEx ModalMenuItem;
-			ModalMenuItem.Clear();
 			VMenu2 ModalMenu(L"Test Exceptions",nullptr,0,ScrY-4);
 			ModalMenu.SetFlags(VMENU_WRAPMODE);
 			ModalMenu.SetPosition(-1,-1,0,0);
 
 			std::for_each(CONST_RANGE(ECode, i)
 			{
-				ModalMenuItem.strName = i.Name;
-				ModalMenu.AddItem(&ModalMenuItem);
+				ModalMenu.AddItem(i.Name);
 			});
 
 			int ExitCode=ModalMenu.Run();

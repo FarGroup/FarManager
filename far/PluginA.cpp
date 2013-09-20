@@ -1311,10 +1311,7 @@ static int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 static void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 {
 	FarColor Color = Colors::ConsoleColorToFarColor(ConColor);
-	if (!Str)
-		return NativeInfo.Text(X,Y,&Color,nullptr);
-
-	return NativeInfo.Text(X, Y, &Color, wide(Str).data());
+	return NativeInfo.Text(X, Y, &Color, Str? wide(Str).data() : nullptr);
 }
 
 static BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
@@ -1450,7 +1447,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 
 	if (!Item) ItemsNumber=0;
 
-	auto mi = new FarMenuItem[ItemsNumber];
+	std::vector<FarMenuItem> mi(ItemsNumber);
 
 	if (Flags&oldfar::FMENU_USEEXT)
 	{
@@ -1515,14 +1512,14 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 		}
 	}
 
-	FarKey* NewBreakKeys=nullptr;
+	std::vector<FarKey> NewBreakKeys;
 	if (BreakKeys)
 	{
 		int BreakKeysCount=0;
 		while(BreakKeys[BreakKeysCount++]) ;
 		if (BreakKeysCount)
 		{
-			NewBreakKeys = new FarKey[BreakKeysCount];
+			NewBreakKeys.resize(BreakKeysCount);
 			for(int ii=0;ii<BreakKeysCount;++ii)
 			{
 				NewBreakKeys[ii].VirtualKeyCode=BreakKeys[ii]&0xffff;
@@ -1541,15 +1538,13 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 		Title? wide(Title).data() : nullptr,
 		Bottom? wide(Bottom).data() : nullptr,
 		HelpTopic? wide(HelpTopic).data() : nullptr,
-		NewBreakKeys, &NewBreakCode, mi, ItemsNumber);
+		BreakKeys? NewBreakKeys.data() : nullptr,
+		&NewBreakCode, mi.data(), ItemsNumber);
 
-	if (BreakCode) *BreakCode=NewBreakCode;
+	if (BreakCode)
+		*BreakCode = NewBreakCode;
 
-	for (int i=0; i<ItemsNumber; i++)
-		delete[] mi[i].Text;
-
-	delete[] mi;
-	delete[] NewBreakKeys;
+	std::for_each(CONST_RANGE(mi, i) { delete[] i.Text; } );
 
 	return ret;
 }

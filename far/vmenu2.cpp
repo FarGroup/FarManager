@@ -348,11 +348,12 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
 	std::vector<FarListItem> fli(ItemCount);
-	for(size_t i=0; i<ItemCount; ++i)
+	std::transform(Data, Data + ItemCount, fli.begin(), [](const MenuDataEx& i)
 	{
-		fli[i].Flags=Data[i].Flags;
-		fli[i].Text=Data[i].Name;
-	}
+		FarListItem Item = {i.Flags, i.Name};
+		return Item;
+	});
+
 	FarList fl={sizeof(FarList), ItemCount, fli.data()};
 
 	SendMessage(DM_LISTSET, 0, &fl);
@@ -418,7 +419,7 @@ int VMenu2::DeleteItem(int ID, int Count)
 	return GetItemCount();
 }
 
-int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
+int VMenu2::AddItem(MenuItemEx& NewItem, int PosAdd)
 {
 	// BUGBUG
 
@@ -429,16 +430,16 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem->Flags, NewItem->strName.data()};
+	FarListItem fi={NewItem.Flags, NewItem.strName.data()};
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 
-	FarListItemData flid={sizeof(FarListItemData), PosAdd, NewItem->UserDataSize, NewItem->UserData};
+	FarListItemData flid={sizeof(FarListItemData), PosAdd, NewItem.UserDataSize, NewItem.UserData};
 	SendMessage(DM_LISTSETDATA, 0, &flid);
 
-	GetItemPtr(PosAdd)->AccelKey=NewItem->AccelKey;
-	GetItemPtr(PosAdd)->Annotations=NewItem->Annotations;
+	GetItemPtr(PosAdd)->AccelKey=NewItem.AccelKey;
+	GetItemPtr(PosAdd)->Annotations=NewItem.Annotations;
 
 	Resize();
 	return n;

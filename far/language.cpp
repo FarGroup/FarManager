@@ -175,8 +175,6 @@ static bool SelectLanguage(bool HelpLanguage)
 		strDest=&Global->Opt->strLanguage;
 	}
 
-	MenuItemEx LangMenuItem;
-	LangMenuItem.Clear();
 	VMenu2 LangMenu(Title,nullptr,0,ScrY-4);
 	LangMenu.SetFlags(VMENU_WRAPMODE);
 	LangMenu.SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
@@ -202,7 +200,7 @@ static bool SelectLanguage(bool HelpLanguage)
 			if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,nullptr,nCodePage) &&
 			                      !GetLangParam(LangFile,L"DocumentContents",&strEntryName,nullptr,nCodePage)))
 			{
-				LangMenuItem.strName = str_printf(L"%.40s", !strLangDescr.empty() ? strLangDescr.data():strLangName.data());
+				MenuItemEx LangMenuItem(str_printf(L"%.40s", !strLangDescr.empty() ? strLangDescr.data():strLangName.data()));
 
 				/* $ 01.08.2001 SVS
 				   Не допускаем дубликатов!
@@ -212,7 +210,7 @@ static bool SelectLanguage(bool HelpLanguage)
 				if (LangMenu.FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(!StrCmpI(strDest->data(),strLangName.data()));
-					LangMenu.SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu.AddItem(&LangMenuItem));
+					LangMenu.SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu.AddItem(LangMenuItem));
 				}
 			}
 		}

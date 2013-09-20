@@ -92,10 +92,24 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
    Класс для хранения пункта плагина в меню выбора дисков
 */
 
-class ChDiskPluginItem
+class ChDiskPluginItem:NonCopyable
 {
 public:
-	ChDiskPluginItem(): HotKey() { Item.Clear(); }
+	ChDiskPluginItem(): HotKey() {}
+
+	ChDiskPluginItem(ChDiskPluginItem&& rhs) { *this = std::move(rhs); }
+
+	ChDiskPluginItem& operator=(ChDiskPluginItem&& rhs)
+	{
+		if (this != &rhs)
+		{
+			Item = std::move(rhs.Item);
+			HotKey=rhs.HotKey;
+		}
+		return *this;
+	}
+
+
 	bool operator ==(const ChDiskPluginItem& rhs) const
 	{
 		return HotKey==rhs.HotKey && !StrCmpI(Item.strName.data(), rhs.Item.strName.data()) && Item.UserData==rhs.Item.UserData;
@@ -106,16 +120,6 @@ public:
 		return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?
 			HotKey-1 < rhs.HotKey-1 :
 			StrCmpI(Item.strName.data(), rhs.Item.strName.data()) < 0;
-	}
-
-	ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs)
-	{
-		if (this != &rhs)
-		{
-			Item=rhs.Item;
-			HotKey=rhs.HotKey;
-		}
-		return *this;
 	}
 
 	MenuItemEx& getItem() { return Item; }
@@ -266,7 +270,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				OneItem.getItem().UserData=item;
 				OneItem.getItem().UserDataSize=sizeof(*item);
 
-				MPItems.emplace_back(OneItem);
+				MPItems.emplace_back(std::move(OneItem));
 			}
 		}
 	}
@@ -278,9 +282,8 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	if (PluginMenuItemsCount)
 	{
 		MenuItemEx ChDiskItem;
-		ChDiskItem.Clear();
 		ChDiskItem.Flags|=LIF_SEPARATOR;
-		ChDisk.AddItem(&ChDiskItem);
+		ChDisk.AddItem(ChDiskItem);
 
 		for_each_cnt(RANGE(MPItems, i, size_t index)
 		{
@@ -294,7 +297,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 			wchar_t HotKey = i.getHotKey();
 			const wchar_t HotKeyStr[]={HotKey? L'&' : L' ', HotKey? HotKey : L' ', L' ', HotKey? L' ' : L'\0', L'\0'};
 			i.getItem().strName = string(HotKeyStr) + i.getItem().strName;
-			ChDisk.AddItem(&i.getItem());
+			ChDisk.AddItem(i.getItem());
 
 			delete(PanelMenuItem*)i.getItem().UserData;  //ммда...
 		});
@@ -377,7 +380,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
-		MenuItemEx ChDiskItem;
 		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
 		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
 
@@ -530,7 +532,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		bool SetSelected=false;
 		std::for_each(CONST_RANGE(Items, i)
 		{
-			ChDiskItem.Clear();
+			MenuItemEx ChDiskItem;
 			int DiskNumber = i.Letter[1] - L'A';
 			if (FirstCall)
 			{
@@ -581,7 +583,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			item.bIsPlugin = false;
 			item.cDrive = L'A' + DiskNumber;
 			item.nDriveType = i.DriveType;
-			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(&ChDiskItem));
+			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(ChDiskItem));
 			MenuLine++;
 		});
 

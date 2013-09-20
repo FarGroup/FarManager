@@ -763,12 +763,11 @@ intptr_t WINAPI apiMenuFn(
 			MenuFlags|=VMENU_CHANGECONSOLETITLE;
 
 		FarMenu.SetFlags(MenuFlags);
-		MenuItemEx CurItem;
-		CurItem.Clear();
 		size_t Selected=0;
 
 		for (size_t i=0; i < ItemsNumber; i++)
 		{
+			MenuItemEx CurItem;
 			CurItem.Flags=Item[i].Flags;
 			CurItem.strName.clear();
 			// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
@@ -792,7 +791,7 @@ intptr_t WINAPI apiMenuFn(
 				FarKeyToInputRecord(Item[i].AccelKey,&input);
 				CurItem.AccelKey=InputRecordToKey(&input);
 			}
-			FarMenu.AddItem(&CurItem);
+			FarMenu.AddItem(CurItem);
 		}
 
 		if (!Selected)

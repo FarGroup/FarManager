@@ -93,7 +93,6 @@ bool FileFilter::FilterEdit()
 
 	Changed = true;
 	bMenuOpen = true;
-	MenuItemEx ListItem;
 	int ExitCode;
 	bool bNeedUpdate=false;
 	VMenu2 FilterList(MSG(MFilterTitle),nullptr,0,ScrY-6);
@@ -106,7 +105,7 @@ bool FileFilter::FilterEdit()
 	bool first = true;
 	std::for_each(CONST_RANGE(*FilterData, i)
 	{
-		ListItem.Clear();
+		MenuItemEx ListItem;
 		MenuString(ListItem.strName, i.get());
 
 		if (first)
@@ -119,7 +118,7 @@ bool FileFilter::FilterEdit()
 		if (Check)
 			ListItem.SetCheck(Check);
 
-		FilterList.AddItem(&ListItem);
+		FilterList.AddItem(ListItem);
 	});
 
 	if (m_FilterType != FFT_CUSTOM)
@@ -144,18 +143,24 @@ bool FileFilter::FilterEdit()
 					break;
 			}
 		}
-		ListItem.Clear();
-		ListItem.Flags|=LIF_SEPARATOR;
-		FilterList.AddItem(&ListItem);
-		ListItem.Clear();
-		FoldersFilter->SetTitle(MSG(MFolderFileType));
-		MenuString(ListItem.strName,FoldersFilter,false,L'0');
-		int Check = GetCheck(FoldersFilter);
 
-		if (Check)
-			ListItem.SetCheck(Check);
+		{
+			MenuItemEx ListItem;
+			ListItem.Flags|=LIF_SEPARATOR;
+			FilterList.AddItem(ListItem);
+		}
 
-		FilterList.AddItem(&ListItem);
+		{
+			FoldersFilter->SetTitle(MSG(MFolderFileType));
+			MenuItemEx ListItem;
+			MenuString(ListItem.strName,FoldersFilter,false,L'0');
+			int Check = GetCheck(FoldersFilter);
+
+			if (Check)
+				ListItem.SetCheck(Check);
+
+			FilterList.AddItem(ListItem);
+		}
 
 		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
 		{
@@ -179,15 +184,15 @@ bool FileFilter::FilterEdit()
 		}
 
 		Extensions.sort();
-		ListItem.Clear();
 
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
+			MenuItemEx ListItem;
 			MenuString(ListItem.strName, nullptr, false, h, true, i->first.data(), MSG(MPanelFileType));
 			size_t Length = i->first.size() + 1;
 			ListItem.SetCheck(i->second);
-			FilterList.SetUserData(i->first.data(), Length * sizeof(wchar_t), FilterList.AddItem(&ListItem));
+			FilterList.SetUserData(i->first.data(), Length * sizeof(wchar_t), FilterList.AddItem(ListItem));
 		}
 	}
 
@@ -260,7 +265,7 @@ bool FileFilter::FilterEdit()
 				{
 					if (FileFilterConfig(FilterData->at(SelPos).get()))
 					{
-						ListItem.Clear();
+						MenuItemEx ListItem;
 						MenuString(ListItem.strName,FilterData->at(SelPos).get());
 						int Check = GetCheck(FilterData->at(SelPos).get());
 
@@ -268,7 +273,7 @@ bool FileFilter::FilterEdit()
 							ListItem.SetCheck(Check);
 
 						FilterList.DeleteItem(SelPos);
-						FilterList.AddItem(&ListItem,SelPos);
+						FilterList.AddItem(ListItem,SelPos);
 						FilterList.SetSelectPos(SelPos,1);
 						bNeedUpdate=true;
 					}
@@ -332,9 +337,9 @@ bool FileFilter::FilterEdit()
 
 				if (FileFilterConfig(NewFilter))
 				{
-					ListItem.Clear();
+					MenuItemEx ListItem;
 					MenuString(ListItem.strName,NewFilter);
-					FilterList.AddItem(&ListItem,static_cast<int>(SelPos));
+					FilterList.AddItem(ListItem,static_cast<int>(SelPos));
 					FilterList.SetSelectPos(static_cast<int>(SelPos),1);
 					bNeedUpdate=true;
 				}
@@ -385,24 +390,9 @@ bool FileFilter::FilterEdit()
 					!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && SelPos==(int)(FilterData->size()-1)))
 				{
 					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
-					MenuItemEx CurItem  = *FilterList.GetItemPtr(SelPos);
-					MenuItemEx NextItem = *FilterList.GetItemPtr(NewPos);
+					std::swap(*FilterList.GetItemPtr(SelPos), *FilterList.GetItemPtr(NewPos));
 					auto i1 = FilterData->begin() + NewPos, i2 = FilterData->begin() + SelPos;
 					std::swap(*i1, *i2);
-
-					if (NewPos<SelPos)
-					{
-						FilterList.DeleteItem(NewPos,2);
-						FilterList.AddItem(&CurItem,NewPos);
-						FilterList.AddItem(&NextItem,SelPos);
-					}
-					else
-					{
-						FilterList.DeleteItem(SelPos,2);
-						FilterList.AddItem(&NextItem,SelPos);
-						FilterList.AddItem(&CurItem,NewPos);
-					}
-
 					FilterList.SetSelectPos(NewPos,1);
 					bNeedUpdate=true;
 				}

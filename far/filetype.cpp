@@ -138,7 +138,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 {
 	string strCommand, strDescription, strMask;
 	{
-		MenuItemEx TypesMenuItem;
 		VMenu2 TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
 		TypesMenu.SetHelp(L"FileAssoc");
 		TypesMenu.SetFlags(VMENU_WRAPMODE);
@@ -171,7 +170,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 					continue;
 			}
 
-			TypesMenuItem.Clear();
 			string strCommandText = strCommand;
 			SubstFileName(nullptr,strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 
@@ -186,9 +184,9 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			else
 				strDescription = strCommandText;
 
-			TypesMenuItem.strName = strDescription;
+			MenuItemEx TypesMenuItem(strDescription);
 			TypesMenuItem.SetSelect(Index==1);
-			TypesMenu.SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
+			TypesMenu.SetUserData(strCommand.data(), (strCommand.size()+1)*sizeof(wchar_t), TypesMenu.AddItem(TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -308,7 +306,6 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 {
 	int DizWidth=GetDescriptionWidth();
-	MenuItemEx TypesMenuItem;
 	TypesMenu->DeleteItems();
 	DWORD Index=0;
 	string strMask;
@@ -317,8 +314,6 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 
 	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
-		TypesMenuItem.Clear();
-
 		string strMenuText;
 
 		if (DizWidth)
@@ -331,9 +326,9 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 		}
 
 		strMenuText += strMask;
-		TypesMenuItem.strName = strMenuText;
+		MenuItemEx TypesMenuItem(strMenuText);
 		TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);
-		TypesMenu->SetUserData(&id, sizeof(id), TypesMenu->AddItem(&TypesMenuItem));
+		TypesMenu->SetUserData(&id, sizeof(id), TypesMenu->AddItem(TypesMenuItem));
 	}
 
 	return (int)(Index-1);

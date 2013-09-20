@@ -205,7 +205,6 @@ int History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr
 
 int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
-	MenuItemEx MenuItem;
 	unsigned __int64 SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
 	int SelectedRecordType = 0;
@@ -270,19 +269,18 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					LastDay = SavedTime.wDay;
 					LastMonth = SavedTime.wMonth;
 					LastYear = SavedTime.wYear;
-					MenuItemEx Separator={};
+					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
 					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE, TRUE);
-					HistoryMenu.AddItem(&Separator);
+					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += strHName;
 
 				if (TypeHistory != HISTORYTYPE_DIALOG)
 					ReplaceStrings(strRecord, L"&",L"&&", -1);
 
-				MenuItem.Clear();
-				MenuItem.strName = strRecord;
+				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(HLock?1:0);
 
 				if (!SetUpMenuPos && CurrentItem==id)
@@ -291,7 +289,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					bSelected=true;
 				}
 
-				HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(&MenuItem));
+				HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(MenuItem));
 			}
 
 			if (!SetUpMenuPos && !bSelected && TypeHistory!=HISTORYTYPE_DIALOG)
@@ -663,13 +661,12 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
 	{
 		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
-			MenuItemEx NewItem={};
-			NewItem.strName = strHName;
+			MenuItemEx NewItem(strHName);
 			if(HLock)
 			{
 				NewItem.Flags|=LIF_CHECKED;
 			}
-			HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(&NewItem));
+			HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(NewItem));
 		}
 	}
 	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.size() == static_cast<size_t>(Length))
