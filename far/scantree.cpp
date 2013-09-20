@@ -50,7 +50,7 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
-	ScanItems.emplace_back(new ScanTreeData());
+	ScanItems.emplace_back(ScanTreeData());
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
@@ -58,7 +58,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	AddEndSlash(strFindPathOriginal);
 	ConvertNameToReal(strFindPath, strFindPath);
 	strFindPath = NTPath(strFindPath);
-	ScanItems.back()->RealPath = strFindPath;
+	ScanItems.back().RealPath = strFindPath;
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -74,16 +74,16 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 
 	for (;;)
 	{
-		ScanTreeData* LastItem = ScanItems.back().get();
-		if (!LastItem->Find)
+		ScanTreeData& LastItem = ScanItems.back();
+		if (!LastItem.Find)
 		{
-			LastItem->Find = std::make_unique<api::FindFile>(strFindPath);
+			LastItem.Find = std::make_unique<api::FindFile>(strFindPath);
 		}
-		Done=!LastItem->Find->Get(*fdata);
+		Done=!LastItem.Find->Get(*fdata);
 
 		if (Flags.Check(FSCANTREE_FILESFIRST))
 		{
-			if (LastItem->Flags.Check(FSCANTREE_SECONDPASS))
+			if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
 			{
 				if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					continue;
@@ -95,8 +95,8 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 
 				if (Done)
 				{
-					LastItem->Find.reset();
-					LastItem->Flags.Set(FSCANTREE_SECONDPASS);
+					LastItem.Find.reset();
+					LastItem.Flags.Set(FSCANTREE_SECONDPASS);
 					continue;
 				}
 			}
@@ -113,7 +113,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 			return false;
 		else
 		{
-			if (ScanItems.back()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
+			if (ScanItems.back().Flags.Check(FSCANTREE_INSIDEJUNCTION))
 				Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
 			CutToSlash(strFindPath,true);
@@ -143,7 +143,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 		if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
 		        (!(fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
-			string RealPath(ScanItems.back()->RealPath);
+			string RealPath(ScanItems.back().RealPath);
 			AddEndSlash(RealPath);
 			RealPath += fdata->strFileName;
 
@@ -151,7 +151,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 				ConvertNameToReal(RealPath, RealPath);
 
 			//recursive symlinks guard
-			if (std::none_of(CONST_RANGE(ScanItems, i) {return i->RealPath == RealPath;}))
+			if (std::none_of(CONST_RANGE(ScanItems, i) {return i.RealPath == RealPath;}))
 			{
 				CutToSlash(strFindPath);
 				CutToSlash(strFindPathOriginal);
@@ -161,17 +161,17 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 				AddEndSlash(strFindPathOriginal);
 				strFindPath += L"\\";
 				strFindPath += strFindMask;
-				auto Data = new ScanTreeData();
-				Data->Flags = ScanItems.back()->Flags; // наследуем флаг
-				Data->Flags.Clear(FSCANTREE_SECONDPASS);
-				Data->RealPath = RealPath;
+				ScanTreeData Data;
+				Data.Flags = ScanItems.back().Flags; // наследуем флаг
+				Data.Flags.Clear(FSCANTREE_SECONDPASS);
+				Data.RealPath = RealPath;
 
 				if (fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 				{
-					Data->Flags.Set(FSCANTREE_INSIDEJUNCTION);
+					Data.Flags.Set(FSCANTREE_INSIDEJUNCTION);
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
 				}
-				ScanItems.emplace_back(Data);
+				ScanItems.emplace_back(std::move(Data));
 
 				return true;
 			}
@@ -195,7 +195,7 @@ void ScanTree::SkipDir()
 	if (ScanItems.empty())
 		return;
 
-	if (!ScanItems.back()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
+	if (!ScanItems.back().Flags.Check(FSCANTREE_INSIDEJUNCTION))
 		Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
 	CutToSlash(strFindPath,true);

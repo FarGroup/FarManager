@@ -55,8 +55,21 @@ enum
 	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
 };
 
-struct ScanTreeData
+struct ScanTreeData:NonCopyable
 {
+public:
+	ScanTreeData() {}
+
+	ScanTreeData(ScanTreeData&& rhs) { *this = std::move(rhs); }
+
+	ScanTreeData& operator =(ScanTreeData&& rhs)
+	{
+		std::swap(Flags, rhs.Flags);
+		Find.swap(rhs.Find);
+		RealPath.swap(rhs.RealPath);
+		return *this;
+	}
+
 	BitFlags Flags;
 	std::unique_ptr<api::FindFile> Find;
 	string RealPath;
@@ -76,7 +89,7 @@ public:
 
 private:
 	BitFlags Flags;
-	std::list<std::unique_ptr<ScanTreeData>> ScanItems;
+	std::list<ScanTreeData> ScanItems;
 	// path in full NT format, used internally to get correct results
 	string strFindPath;
 	// relative path, it's what caller expects to receive

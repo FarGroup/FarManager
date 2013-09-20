@@ -58,7 +58,7 @@ private:
 	{
 	public:
 		masks(): bRE(false) {}
-		masks(masks&& Right) {*this = std::move(Right);}
+		masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
 		~masks() {}
 
 		masks& operator =(masks&& Right);

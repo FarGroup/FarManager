@@ -372,22 +372,32 @@ RunningMacro::RunningMacro()
 	mp_info.Data = &mp_data;
 }
 
-RunningMacro& RunningMacro::operator= (const RunningMacro& src)
+RunningMacro::RunningMacro(RunningMacro&& rhs)
 {
-	memcpy(mp_values, src.mp_values, sizeof(mp_values));
-	mp_data = src.mp_data;
+	SetBooleanValue(0);
+	mp_data.StructSize = sizeof(mp_data);
+	mp_data.Count = 0;
 	mp_data.Values = mp_values;
-	mp_info = src.mp_info;
+	mp_data.Callback = nullptr;
+	mp_data.CallbackData = nullptr;
+
+	mp_info.CallType = MCT_MACROSTEP;
+	mp_info.Handle = 0;
 	mp_info.Data = &mp_data;
-	return *this;
+
+	*this = std::move(rhs);
 }
 
-MacroRecord::MacroRecord():
-	m_flags(0),
-	m_key(-1),
-	m_macroId(0),
-	m_running()
+
+RunningMacro& RunningMacro::operator= (RunningMacro&& rhs)
 {
+	std::swap(mp_values, rhs.mp_values);
+	std::swap(mp_data, rhs.mp_data);
+	std::swap(mp_data.Values, rhs.mp_data.Values);
+	std::swap(mp_info, rhs.mp_info);
+	std::swap(mp_info.Data, rhs.mp_info.Data);
+
+	return *this;
 }
 
 MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description):
@@ -400,53 +410,42 @@ MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar
 {
 }
 
-MacroRecord& MacroRecord::operator= (const MacroRecord& src)
+MacroRecord& MacroRecord::operator= (MacroRecord&& rhs)
 {
-	if (this != &src)
+	if (this != &rhs)
 	{
-		m_flags = src.m_flags;
-		m_key = src.m_key;
-		m_code = src.m_code;
-		m_description = src.m_description;
-		m_macroId = src.m_macroId;
-		m_running = src.m_running;
+		std::swap(m_flags, rhs.m_flags);
+		std::swap(m_key, rhs.m_key);
+		m_code.swap(rhs.m_code);
+		m_description.swap(rhs.m_description);
+		std::swap(m_macroId, rhs.m_macroId);
+		m_running = std::move(rhs.m_running);
 	}
 	return *this;
-}
-
-MacroState::MacroState() :
-	cRec(),
-	Executing(0),
-	KeyProcess(0),
-	HistoryDisable(0),
-	UseInternalClipboard(false)
-{
 }
 
 void KeyMacro::PushState(bool withClip)
 {
 	if (withClip)
-		m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+		m_CurState.UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
 
-	m_StateStack.push(m_CurState);
-	m_CurState = new MacroState();
+	m_StateStack.push(std::move(m_CurState));
 }
 
 void KeyMacro::PopState(bool withClip)
 {
 	if (!m_StateStack.empty())
 	{
-		if(!m_CurState->m_MacroQueue.empty())
+		MacroState& dst = m_StateStack.top();
+		if(!m_CurState.m_MacroQueue.empty())
 		{
-			MacroState* dst = m_StateStack.top();
-			dst->m_MacroQueue.splice(dst->m_MacroQueue.end(), m_CurState->m_MacroQueue);
+			dst.m_MacroQueue.splice(dst.m_MacroQueue.end(), m_CurState.m_MacroQueue);
 		}
-		delete m_CurState;
-		m_CurState = m_StateStack.top();
+		m_CurState = std::move(dst);
 		m_StateStack.pop();
 
 		if (withClip)
-			Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
+			Clipboard::SetUseInternalClipboardState(m_CurState.UseInternalClipboard);
 	}
 }
 
@@ -464,13 +463,11 @@ KeyMacro::KeyMacro():
 	varTextDate()
 {
 	//print_opcodes();
-	m_CurState = new MacroState();
 }
 
 KeyMacro::~KeyMacro()
 {
 	while (!m_StateStack.empty()) PopState(false);
-	delete m_CurState;
 }
 
 // инициализация всех переменных
@@ -478,44 +475,44 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 {
 	if (InitedRAM)
 	{
-		m_CurState->m_MacroQueue.clear();
-		m_CurState->Executing=MACROMODE_NOMACRO;
+		m_CurState.m_MacroQueue.clear();
+		m_CurState.Executing=MACROMODE_NOMACRO;
 	}
-	m_CurState->HistoryDisable=0;
+	m_CurState.HistoryDisable=0;
 	m_Recording=MACROMODE_NOMACRO;
 	m_InternalInput=0;
 }
 
-int KeyMacro::IsExecuting()
+int KeyMacro::IsExecuting() const
 {
-	MacroRecord* m = GetCurMacro();
+	auto m = GetCurMacro();
 	if (m && m->GetHandle())
 		return m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS ? MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON;
 	else
 		return m_StateStack.empty() ? MACROMODE_NOMACRO : MACROMODE_EXECUTING_COMMON;
 }
 
-int KeyMacro::IsDisableOutput()
+int KeyMacro::IsDisableOutput() const
 {
-	MacroRecord* m = GetCurMacro();
+	auto m = GetCurMacro();
 	return m && !(m->Flags()&MFLAGS_ENABLEOUTPUT);
 }
 
 DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
 {
-	DWORD OldHistoryDisable=m_CurState->HistoryDisable;
-	m_CurState->HistoryDisable=Mask;
+	DWORD OldHistoryDisable=m_CurState.HistoryDisable;
+	m_CurState.HistoryDisable=Mask;
 	return OldHistoryDisable;
 }
 
-DWORD KeyMacro::GetHistoryDisableMask()
+DWORD KeyMacro::GetHistoryDisableMask() const
 {
-	return m_CurState->HistoryDisable;
+	return m_CurState.HistoryDisable;
 }
 
-bool KeyMacro::IsHistoryDisable(int TypeHistory)
+bool KeyMacro::IsHistoryDisable(int TypeHistory) const
 {
-	return !m_CurState->m_MacroQueue.empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
+	return !m_CurState.m_MacroQueue.empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
 }
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
@@ -545,7 +542,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
 	msValues[ConstIndex] = Value;
 }
 
-int KeyMacro::GetCurRecord()
+int KeyMacro::GetCurRecord() const
 {
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
@@ -553,7 +550,7 @@ int KeyMacro::GetCurRecord()
 bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 {
 	void* ptr;
-	MacroRecord* macro = GetCurMacro();
+	auto macro = GetCurMacro();
 
 	if (macro)
 		Global->ScrBuf->ResetLockCount();
@@ -579,7 +576,7 @@ bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 bool KeyMacro::InitMacroExecution()
 {
 	//_SHMUEL(SysLog(L"+InitMacroExecution"));
-	MacroRecord* macro = GetCurMacro();
+	auto macro = GetCurMacro();
 	if (macro)
 	{
 		FarMacroValue values[2] = {{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}}};
@@ -604,7 +601,7 @@ bool KeyMacro::InitMacroExecution()
 	return false;
 }
 
-void KeyMacro::RestoreMacroChar(void)
+void KeyMacro::RestoreMacroChar()
 {
 	Global->ScrBuf->RestoreMacroChar();
 
@@ -646,8 +643,7 @@ struct GetMacroData
 };
 
 // эта функция может вывести меню выбора макроса
-bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon,
-	bool CheckOnly)
+bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly)
 {
 	FarMacroValue InValues[4]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
 	InValues[0].Double=Mode;
@@ -762,7 +758,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting()||(m_CurState->m_MacroQueue.empty()&&!m_DisableNested))
+				if (!IsExecuting()||(m_CurState.m_MacroQueue.empty()&&!m_DisableNested))
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
@@ -780,8 +776,8 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					{
 						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey))
 						{
-							m_CurState->HistoryDisable = 0;
-							m_CurState->cRec = RecCopy;
+							m_CurState.HistoryDisable = 0;
+							m_CurState.cRec = RecCopy;
 						}
 						return true;
 					}
@@ -939,7 +935,7 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
-	if (m_CurState->m_MacroQueue.empty() && !m_MacroPluginIsRunning)
+	if (m_CurState.m_MacroQueue.empty() && !m_MacroPluginIsRunning)
 	{
 		if (!m_StateStack.empty())
 		{
@@ -990,7 +986,7 @@ int KeyMacro::GetKey()
 					Global->ScrBuf->Unlock();
 
 				RemoveCurMacro();
-				if (m_CurState->m_MacroQueue.empty())
+				if (m_CurState.m_MacroQueue.empty())
 				{
 					RestoreMacroChar();
 					return 0;
@@ -1008,11 +1004,11 @@ int KeyMacro::GetKey()
 					DWORD aKey=KEY_NONE;
 					if (!(macro->Flags()&MFLAGS_POSTFROMPLUGIN))
 					{
-						INPUT_RECORD *inRec=&m_CurState->cRec;
-						if (!inRec->EventType)
-							inRec->EventType = KEY_EVENT;
-						if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-							aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
+						INPUT_RECORD& inRec = m_CurState.cRec;
+						if (!inRec.EventType)
+							inRec.EventType = KEY_EVENT;
+						if(inRec.EventType == MOUSE_EVENT || inRec.EventType == KEY_EVENT || inRec.EventType == FARMACRO_KEY_EVENT)
+							aKey=ShieldCalcKeyCode(&inRec,FALSE,nullptr);
 					}
 					else
 						aKey=macro->Key();
@@ -1204,10 +1200,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* PlainText,UINT64 Flags,DW
 {
 	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
 	{
-		MacroRecord* macro=new MacroRecord(Flags, MacroId, AKey, PlainText, L"");
-
-		m_CurState->m_MacroQueue.emplace_back(macro);
-
+		m_CurState.m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText, L""));
 		return true;
 	}
 	return false;
@@ -2853,11 +2846,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
 				{
-					INPUT_RECORD *inRec = &m_StateStack.top()->cRec;
-					if (!inRec->EventType)
-						inRec->EventType = KEY_EVENT;
-					if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-						aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
+					INPUT_RECORD& inRec = m_StateStack.top().cRec;
+					if (!inRec.EventType)
+						inRec.EventType = KEY_EVENT;
+					if(inRec.EventType == MOUSE_EVENT || inRec.EventType == KEY_EVENT || inRec.EventType == FARMACRO_KEY_EVENT)
+						aKey=ShieldCalcKeyCode(&inRec,FALSE,nullptr);
 				}
 				else if (!aKey)
 					aKey=KEY_NONE;
@@ -2882,11 +2875,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			DWORD oldHistoryDisable=0;
 			if (!m_StateStack.empty())
 			{
-				MacroState* ms = m_StateStack.top();
-				oldHistoryDisable=ms->HistoryDisable;
+				MacroState& ms = m_StateStack.top();
+				oldHistoryDisable=ms.HistoryDisable;
 
 				if (!State.isUnknown())
-					ms->HistoryDisable=(DWORD)State.getInteger();
+					ms.HistoryDisable=(DWORD)State.getInteger();
 			}
 			return oldHistoryDisable;
 		}

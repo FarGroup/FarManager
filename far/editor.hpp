@@ -71,11 +71,12 @@ struct EditorUndoData
 	static size_t UndoDataSize;
 
 	EditorUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1):
-		Type(0),
-		StrPos(0),
-		StrNum(0),
-		Length(0),
-		BM(0)
+		Type(),
+		StrPos(),
+		StrNum(),
+		EOL(),
+		Length(),
+		BM()
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos, Length);
 	}
@@ -87,11 +88,15 @@ struct EditorUndoData
 		DeleteAllSessionBM();
 	}
 
-	EditorUndoData(EditorUndoData&& Right):
-		BM(0)
+	EditorUndoData(EditorUndoData&& rhs):
+		Type(),
+		StrPos(),
+		StrNum(),
+		EOL(),
+		Length(),
+		BM()
 	{
-		*this = std::move(Right);
-		Right.Length = 0;
+		*this = std::move(rhs);
 	}
 
 	EditorUndoData& operator=(EditorUndoData&& Right)

@@ -72,9 +72,11 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 	TOKEN_PRIVILEGES State={1};
 	if (LookupPrivilegeValue(nullptr,PrivilegeName,&State.Privileges[0].Luid))
 	{
-		HANDLE hToken=INVALID_HANDLE_VALUE;
+		HANDLE hToken;
 		if (OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&hToken))
 		{
+			SCOPE_EXIT { CloseHandle(hToken); };
+
 			DWORD TokenInformationLength=0;
 			GetTokenInformation(hToken,TokenPrivileges,nullptr,0,&TokenInformationLength);
 			if (TokenInformationLength)
@@ -84,14 +86,12 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 				{
 					if(GetTokenInformation(hToken,TokenPrivileges,TokenInformation.get(),TokenInformationLength,&TokenInformationLength))
 					{
-						for(DWORD i=0;i<TokenInformation->PrivilegeCount;i++)
+						auto ItemIterator = std::find_if(TokenInformation->Privileges, TokenInformation->Privileges + TokenInformation->PrivilegeCount, [&State](decltype(*TokenInformation->Privileges)& i)
 						{
-							if (TokenInformation->Privileges[i].Luid.LowPart==State.Privileges[0].Luid.LowPart && TokenInformation->Privileges[i].Luid.HighPart==State.Privileges[0].Luid.HighPart)
-							{
-								Result = (TokenInformation->Privileges[i].Attributes&(SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT)) != 0;
-								break;
-							}
-						}
+							return i.Luid.LowPart == State.Privileges[0].Luid.LowPart && i.Luid.HighPart==State.Privileges[0].Luid.HighPart;
+						});
+						if (ItemIterator != TokenInformation->Privileges + TokenInformation->PrivilegeCount)
+							Result = (ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT)) != 0;
 					}
 				}
 			}

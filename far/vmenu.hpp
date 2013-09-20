@@ -105,9 +105,22 @@ struct MenuItemEx:NonCopyable
 		AmpPos(),
 		Len(),
 		Idx2()
-	{}
+	{
+	}
 
-	MenuItemEx(MenuItemEx&& rhs) { *this = std::move(rhs); }
+	MenuItemEx(MenuItemEx&& rhs):
+		strName(),
+		Flags(),
+		UserData(),
+		UserDataSize(),
+		ShowPos(),
+		AccelKey(),
+		AmpPos(),
+		Len(),
+		Idx2()
+	{
+		*this = std::move(rhs);
+	}
 
 	MenuItemEx& operator=(MenuItemEx&& rhs)
 	{

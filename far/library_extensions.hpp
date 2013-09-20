@@ -199,7 +199,7 @@ class array_ptr
 {
 public:
 	array_ptr() : m_size() {}
-	array_ptr(array_ptr&& other) { *this = std::move(other); }
+	array_ptr(array_ptr&& other) : m_size() { *this = std::move(other); }
 	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
 	array_ptr& operator=(array_ptr&& other) { m_array = std::move(other.m_array); m_size = other.m_size; other.m_size = 0; return *this;}
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}

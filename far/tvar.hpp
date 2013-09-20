@@ -69,7 +69,7 @@ class TVar
 		TVar(int);
 		TVar(double);
 		TVar(const TVar&);
-		TVar(TVar&& rhs) { *this = std::move(rhs); }
+		TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
 		~TVar();
 
 	public:

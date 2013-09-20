@@ -95,9 +95,15 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 class ChDiskPluginItem:NonCopyable
 {
 public:
-	ChDiskPluginItem(): HotKey() {}
+	ChDiskPluginItem():
+		HotKey()
+	{}
 
-	ChDiskPluginItem(ChDiskPluginItem&& rhs) { *this = std::move(rhs); }
+	ChDiskPluginItem(ChDiskPluginItem&& rhs):
+		HotKey()
+	{
+		*this = std::move(rhs);
+	}
 
 	ChDiskPluginItem& operator=(ChDiskPluginItem&& rhs)
 	{
