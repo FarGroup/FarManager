@@ -348,7 +348,7 @@ VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, in
 	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
 	std::vector<FarListItem> fli(ItemCount);
-	std::transform(Data, Data + ItemCount, fli.begin(), [](const MenuDataEx& i)
+	std::transform(Data, Data + ItemCount, fli.begin(), [](const MenuDataEx& i)->FarListItem
 	{
 		FarListItem Item = {i.Flags, i.Name};
 		return Item;
