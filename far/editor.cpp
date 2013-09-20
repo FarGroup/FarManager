@@ -3725,7 +3725,7 @@ BOOL Editor::Search(int Next)
 	VMenu2 FindAllList(L"", nullptr, 0);
 	UINT AllRefLines = 0;
 	{
-		TPreRedrawFuncGuard preRedrawFuncGuard(new EditorPreRedrawItem);
+		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<EditorPreRedrawItem>());
 		strMsgStr=strSearchStr;
 		InsertQuote(strMsgStr);
 		SetCursorType(FALSE,-1);
@@ -3891,7 +3891,7 @@ BOOL Editor::Search(int Next)
 							strQReplaceStr.insert(0, 1, L'"');
 							strQReplaceStr.push_back(L'"');
 
-							PreRedrawItem* pitem = nullptr;
+							std::unique_ptr<PreRedrawItem> pitem;
 							if (!Global->PreRedraw->empty())
 							{
 								pitem = Global->PreRedraw->take();
@@ -3901,7 +3901,7 @@ BOOL Editor::Search(int Next)
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
 							if (pitem)
 							{
-								Global->PreRedraw->push(pitem);
+								Global->PreRedraw->push(std::move(pitem));
 							}
 							if (MsgCode==1)
 								ReplaceAll=TRUE;

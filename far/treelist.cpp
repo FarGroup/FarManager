@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "plugins.hpp"
+#include "manager.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -404,7 +405,7 @@ int TreeList::ReadTree()
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(FALSE);
 	api::FAR_FIND_DATA fdata;
 	string strFullName;
@@ -416,7 +417,7 @@ int TreeList::ReadTree()
 
 	ListData.reserve(4096);
 
-	ListData.emplace_back(new TreeItem(strRoot));
+	ListData.emplace_back(std::make_unique<TreeItem>(strRoot));
 	SaveScreen SaveScrTree;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
 	/* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
@@ -436,7 +437,14 @@ int TreeList::ReadTree()
 
 		if (CheckForEscSilent())
 		{
+			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
+			Frame *f = FrameManager->GetTopModal();
+			f->Lock();
+
 			AscAbort=ConfirmAbortOp();
+
+			f->Unlock();
+
 			FirstCall=TRUE;
 		}
 
@@ -451,7 +459,7 @@ int TreeList::ReadTree()
 			ListData.reserve(ListData.size() + 4096);
 		}
 
-		ListData.emplace_back(new TreeItem(strFullName));
+		ListData.emplace_back(std::make_unique<TreeItem>(strFullName));
 	}
 
 	if (AscAbort && !Flags.Check(FTREELIST_ISPANEL))
@@ -1454,7 +1462,7 @@ int TreeList::ReadTreeFile()
 				ListData.reserve(ListData.size() + 4096);
 			}
 
-			ListData.emplace_back(new TreeItem(strDirName));
+			ListData.emplace_back(std::make_unique<TreeItem>(strDirName));
 		}
 	}
 
@@ -1654,7 +1662,7 @@ void TreeList::ReadSubTree(const string& Path)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(new TreePreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(FALSE);
 	api::FAR_FIND_DATA fdata;
 	string strDirName;
@@ -2165,10 +2173,10 @@ bool TreeList::RestoreState()
 	if (!SaveListData.empty())
 	{
 		ListData.resize(SaveListData.size());
-		for (size_t i=0; i < SaveListData.size(); ++i)
+		std::transform(SaveListData.cbegin(), SaveListData.cend(), ListData.begin(), [](const TreeItem& i)
 		{
-			ListData.emplace_back(new TreeItem(SaveListData[i]));
-		}
+			return std::make_unique<TreeItem>(i);
+		});
 
 		WorkDir=SaveWorkDir;
 		*Global->TreeCache = *Global->tempTreeCache;

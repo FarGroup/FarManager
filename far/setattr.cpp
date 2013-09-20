@@ -1282,7 +1282,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[i].strData[8]=GetTimeSeparator();
 				});
 
-				TPreRedrawFuncGuard preRedrawFuncGuard(new AttrPreRedrawItem);
+				TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<AttrPreRedrawItem>());
 				ShellSetFileAttributesMsg(SelCount==1? strSelName : string());
 				int SkipMode=-1;
 

@@ -138,7 +138,7 @@ static void PR_ReadFileNamesMsg()
 
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
-	TPreRedrawFuncGuard preRedrawFuncGuard(new FileListPreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<FileListPreRedrawItem>());
 	TaskBar TB(false);
 
 	strOriginalCurDir = strCurDir;
@@ -725,7 +725,8 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	for (size_t i = 0; i < ListData.size(); i++)
 	{
-		ListData[FileListCount].reset(new FileListItem());
+		// BUGBUG, make_unique
+		ListData[FileListCount].reset(new FileListItem);
 		FileListItem& CurListData = *ListData[FileListCount].get();
 
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))

@@ -103,7 +103,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	ConvertNameToFull(DirName, strFullDirName);
 	SaveScreen SaveScr;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
-	TPreRedrawFuncGuard preRedrawFuncGuard(new DirInfoPreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<DirInfoPreRedrawItem>());
 	TaskBar TB(MsgWaitTime!=-1);
 	wakeful W;
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
@@ -433,7 +433,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 	{
 		SaveScreen SaveScr;
-		TPreRedrawFuncGuard preRedrawFuncGuard(new PluginDirInfoPreRedrawItem);
+		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PluginDirInfoPreRedrawItem>());
 		{
 			string strDirName;
 			strDirName = Dir;
@@ -524,19 +524,19 @@ int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCoun
 
 	if ((ExitCode=GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //intptr_t - BUGBUG
 	{
-		for (size_t I=0; I<ItemsNumber; I++)
+		std::for_each(PanelItem, PanelItem + ItemsNumber, [&](PluginPanelItem& i)
 		{
-			if (PanelItem[I].FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			if (i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				DirCount++;
 			}
 			else
 			{
 				FileCount++;
-				FileSize+=PanelItem[I].FileSize;
-				CompressedFileSize+=PanelItem[I].AllocationSize?PanelItem[I].AllocationSize:PanelItem[I].FileSize;
+				FileSize += i.FileSize;
+				CompressedFileSize += i.AllocationSize? i.AllocationSize : i.FileSize;
 			}
-		}
+		});
 	}
 
 	if (PanelItem)

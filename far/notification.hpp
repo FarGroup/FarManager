@@ -70,7 +70,7 @@ class inotification
 public:
 	virtual ~inotification() {}
 
-	void notify(const payload* p);
+	void notify(std::unique_ptr<const payload> p);
 	void dispatch();
 	void subscribe(ilistener* l) { m_listeners.emplace_back(l); }
 	void unsubscribe(ilistener* l) { m_listeners.remove(l); }
@@ -98,7 +98,7 @@ public:
 	inotification& at(const string& key) { return *m_notifications.at(key).get(); }
 
 	void dispatch();
-	void add(inotification* i);
+	void add(std::unique_ptr<inotification> i);
 
 private:
 	std::map<string, std::unique_ptr<inotification>> m_notifications;

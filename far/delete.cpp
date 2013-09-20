@@ -312,7 +312,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	ProcessedItems(0)
 {
 	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
-	TPreRedrawFuncGuard preRedrawFuncGuard(new DelPreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<DelPreRedrawItem>());
 	api::FAR_FIND_DATA FindData;
 	string strDeleteFilesMsg;
 	string strSelName;

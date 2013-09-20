@@ -1622,9 +1622,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 				int I;
 				{
-					auto item = new CopyPreRedrawItem;
+					auto item = std::make_unique<CopyPreRedrawItem>();
 					item->CP = CP.get();
-					TPreRedrawFuncGuard Guard(item);
+					TPreRedrawFuncGuard Guard(std::move(item));
 					I=CopyFileTree(strNameTmp);
 				}
 
@@ -4078,10 +4078,10 @@ bool ShellCopy::CalcTotalSize()
 	unsigned __int64 FileSize;
 	// Для фильтра
 	api::FAR_FIND_DATA fd;
-	
-	auto item = new CopyPreRedrawItem;
+
+	auto item = std::make_unique<CopyPreRedrawItem>();
 	item->CP = CP.get();
-	TPreRedrawFuncGuard Guard(item);
+	TPreRedrawFuncGuard Guard(std::move(item));
 
 	TotalCopySize=CurCopiedSize=0;
 	TotalFilesToProcess = 0;

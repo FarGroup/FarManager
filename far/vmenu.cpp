@@ -605,10 +605,7 @@ void VMenu::SetCheck(int Check, int Position)
 
 void VMenu::RestoreFilteredItems()
 {
-	for (size_t i=0; i < Items.size(); i++)
-	{
-		Items[i].Flags &= ~LIF_HIDDEN;
-	}
+	std::for_each(RANGE(Items, i) { i.Flags &= ~LIF_HIDDEN; });
 
 	ItemHiddenCount=0;
 
@@ -1734,16 +1731,8 @@ int VMenu::VisualPosToReal(int VPos)
 	if (VPos >= GetShowItemCount())
 		return static_cast<int>(Items.size());
 
-	for (size_t i=0; i < Items.size(); i++)
-	{
-		if (ItemIsVisible(Items[i].Flags))
-		{
-			if (!VPos--)
-				return static_cast<int>(i);
-		}
-	}
-
-	return -1;
+	auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i.Flags) && !VPos--; });
+	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
 bool VMenu::ShiftItemShowPos(int Pos, int Direct)

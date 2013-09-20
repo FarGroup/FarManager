@@ -4546,7 +4546,7 @@ int FileList::GetCurrentPos() const
 void FileList::EditFilter()
 {
 	if (!Filter)
-		Filter.reset(new FileFilter(this,FFT_PANEL));
+		Filter = std::make_unique<FileFilter>(this,FFT_PANEL);
 
 	Filter->FilterEdit();
 }

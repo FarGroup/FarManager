@@ -237,7 +237,7 @@ static const std::vector<wchar_t> create_alt_sort_table()
 	std::vector<wchar_t> alt_sort_table(WCHAR_MAX + 1);
 	std::vector<wchar_t> chars(WCHAR_MAX + 1);
 
-	for_each_cnt(RANGE(chars, i, size_t index) { i = static_cast<wchar_t>(index); });
+	std::iota(ALL_RANGE(chars), 0);
 
 	std::sort(chars.begin() + 1, chars.end(), [](wchar_t a, wchar_t b) { return StrCmpNN(&a, 1, &b, 1) < 0; });
 
@@ -320,7 +320,7 @@ int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 	{
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
-			// skip leading zeroes
+			// skip leading zeros
 			while (l1 < n1 && *s1 == L'0')
 			{
 				s1++;

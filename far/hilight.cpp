@@ -318,7 +318,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 				if (!cfg->GetValue(key,HLS.Mask,strMask))
 					break;
 
-				HiData.emplace_back(new FileFilterParams);
+				HiData.emplace_back(std::make_unique<FileFilterParams>());
 				LoadFilter(cfg, key, HiData.back().get(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
 				++*Item.Count;
 			}

@@ -47,10 +47,10 @@ struct PreRedrawItem
 class TPreRedrawFunc
 {
 public:
-	void push(PreRedrawItem* Source){return Items.emplace(Source);}
+	void push(std::unique_ptr<PreRedrawItem> Source){return Items.emplace(std::move(Source));}
 	void pop() { Items.pop(); }
 	PreRedrawItem* top() {return Items.top().get();}
-	PreRedrawItem* take() { auto Top = Items.top().release(); Items.pop(); return Top; }
+	std::unique_ptr<PreRedrawItem> take() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
 	bool empty() const {return Items.empty();}
 
 private:
@@ -60,9 +60,9 @@ private:
 class TPreRedrawFuncGuard
 {
 public:
-	TPreRedrawFuncGuard(PreRedrawItem* Item)
+	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem> Item)
 	{
-		Global->PreRedraw->push(Item);
+		Global->PreRedraw->push(std::move(Item));
 	}
 	~TPreRedrawFuncGuard()
 	{

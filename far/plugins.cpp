@@ -307,10 +307,10 @@ Plugin *PluginManager::GetPlugin(const string& ModuleName)
 
 void PluginManager::LoadModels()
 {
-	PluginModels.emplace_back(new NativePluginModel(this));
+	PluginModels.emplace_back(std::make_unique<NativePluginModel>(this));
 #ifndef NO_WRAPPER
 	if (Global->Opt->LoadPlug.OEMPluginsSupport)
-		PluginModels.emplace_back(new wrapper::OEMPluginModel(this));
+		PluginModels.emplace_back(std::make_unique<wrapper::OEMPluginModel>(this));
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);

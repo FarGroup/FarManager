@@ -71,7 +71,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 						//PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
-						Global->Notifier->at(devices_notify).notify(new payload);
+						Global->Notifier->at(devices_notify).notify(std::make_unique<payload>());
 					}
 				}
 				break;
@@ -83,7 +83,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	case WM_SETTINGCHANGE:
 		if(Global->Opt->UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 		{
-			Global->Notifier->at(environment_notify).notify(new payload);
+			Global->Notifier->at(environment_notify).notify(std::make_unique<payload>());
 			break;
 		}
 
@@ -93,7 +93,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		case PBT_APMPOWERSTATUSCHANGE: // change status
 
 		case PBT_POWERSETTINGCHANGE:   // change percent
-			Global->Notifier->at(power_notify).notify(new payload);
+			Global->Notifier->at(power_notify).notify(std::make_unique<payload>());
 			break;
 		// TODO:
 		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
@@ -109,9 +109,9 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 WindowHandler::WindowHandler():
 	m_Hwnd(nullptr)
 {
-	Global->Notifier->add(new notification(devices_notify));
-	Global->Notifier->add(new notification(power_notify));
-	Global->Notifier->add(new notification(environment_notify));
+	Global->Notifier->add(std::make_unique<notification>(devices_notify));
+	Global->Notifier->add(std::make_unique<notification>(power_notify));
+	Global->Notifier->add(std::make_unique<notification>(environment_notify));
 
 	m_exitEvent.Open();
 

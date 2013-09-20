@@ -57,9 +57,9 @@ listener::listener(std::function<void(const payload&)> function, const string& i
 {
 }
 
-void inotification::notify(const payload* p)
+void inotification::notify(std::unique_ptr<const payload> p)
 {
-	m_events.Push(std::unique_ptr<const payload>(p));
+	m_events.Push(std::move(p));
 }
 
 void inotification::dispatch()
@@ -83,7 +83,7 @@ void notifier::dispatch()
 	});
 }
 
-void notifier::add(inotification* i)
+void notifier::add(std::unique_ptr<inotification> i)
 {
-	m_notifications.insert(VALUE_TYPE(m_notifications)(i->name(), VALUE_TYPE(m_notifications)::second_type(i)));
+	m_notifications.insert(VALUE_TYPE(m_notifications)(i->name(), std::move(i)));
 }

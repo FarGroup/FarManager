@@ -116,7 +116,7 @@ string Help::MakeLink(const string& path, const string& topic)
 
 
 Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
-	TopScreen(new SaveScreen),
+	TopScreen(std::make_unique<SaveScreen>()),
 	StrCount(0),
 	FixCount(0),
 	FixSize(0),
@@ -200,7 +200,6 @@ Help::~Help()
 {
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	SetRestoreScreenMode(FALSE);
-	delete TopScreen;
 }
 
 
@@ -692,7 +691,7 @@ void Help::HighlightsCorrection(string &strStr)
 void Help::DisplayObject()
 {
 	if (!TopScreen)
-		TopScreen=new SaveScreen;
+		TopScreen = std::make_unique<SaveScreen>();
 
 	if (!TopicFound)
 	{
@@ -2187,8 +2186,7 @@ void Help::ResizeConsole()
 	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
 	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic=FALSE;
-	delete TopScreen;
-	TopScreen=nullptr;
+	TopScreen.reset();
 	Hide();
 
 	if (Global->Opt->FullScreenHelp)

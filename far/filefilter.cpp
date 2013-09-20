@@ -798,7 +798,7 @@ void FileFilter::InitFilter()
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
 
-		FilterData->emplace_back(new FileFilterParams);
+		FilterData->emplace_back(std::make_unique<FileFilterParams>());
 
 		//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 		//настройки старых версий фара.
@@ -860,7 +860,7 @@ void FileFilter::InitFilter()
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
 
-		TempFilterData->emplace_back(new FileFilterParams);
+		TempFilterData->emplace_back(std::make_unique<FileFilterParams>());
 
 		TempFilterData->back()->SetMask(1,strMask);
 		//Авто фильтры они только для файлов, папки не должны к ним подходить

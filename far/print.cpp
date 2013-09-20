@@ -189,7 +189,7 @@ void PrintFiles(FileList* SrcPanel)
 
 		auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
 
-		TPreRedrawFuncGuard preRedrawFuncGuard(new PreRedrawItem(PR_PrintMsg));
+		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(FALSE,0);
 		PR_PrintMsg();
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();

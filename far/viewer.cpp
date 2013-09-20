@@ -3408,7 +3408,7 @@ void Viewer::Search(int Next,int FirstChar)
 	if ( !found )
 	{
 		TaskBar TB;
-		TPreRedrawFuncGuard preRedrawFuncGuard(new ViewerPreRedrawItem);
+		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(FALSE,0);
 
 		DWORD start_time = GetTickCount();

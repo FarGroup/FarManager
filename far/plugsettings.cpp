@@ -209,7 +209,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		m_Enum.emplace_back(new FarSettingsNameItems);
+		m_Enum.emplace_back(std::make_unique<FarSettingsNameItems>());
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
@@ -376,7 +376,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				m_Enum.emplace_back(new FarSettingsHistoryItems);
+				m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
@@ -419,7 +419,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
 	int result=static_cast<int>(m_Keys.size());
-	m_Keys.emplace_back(new string(Value.Value));
+	m_Keys.emplace_back(std::make_unique<string>(Value.Value));
 	return result+FSSF_COUNT;
 }
 
@@ -446,7 +446,7 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	m_Enum.emplace_back(new FarSettingsHistoryItems);
+	m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
 	FarSettingsHistory item={0};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;

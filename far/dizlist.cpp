@@ -80,7 +80,7 @@ void DizList::Read(const string& Path, const string* DizName)
 		DizPreRedrawItem() : PreRedrawItem(PR_ReadingMsg) {}
 	};
 
-	TPreRedrawFuncGuard preRedrawFuncGuard(new DizPreRedrawItem);
+	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<DizPreRedrawItem>());
 	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.data();
 
 	for (;;)

@@ -114,7 +114,7 @@ private:
 	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
 	string strCtrlStartPosChar;
 	string strLastSearchStr;
-	SaveScreen *TopScreen;      // область сохранения под хелпом
+	std::unique_ptr<SaveScreen> TopScreen;      // область сохранения под хелпом
 
 	int StrCount;             // количество строк в теме
 	int FixCount;             // количество строк непрокручиваемой области
