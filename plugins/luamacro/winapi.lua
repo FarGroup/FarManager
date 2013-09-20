@@ -31,11 +31,12 @@ typedef unsigned int UINT;
 typedef unsigned long DWORD;
 typedef DWORD COLORREF;
 typedef int BOOL;
+typedef int WINBOOL;
 typedef ULONG_PTR DWORD_PTR;
 typedef wchar_t WCHAR;
 typedef void *HANDLE;
 
-typedef struct _GUID
+typedef struct
 {
   unsigned long Data1;
   unsigned short Data2;
@@ -43,17 +44,115 @@ typedef struct _GUID
   unsigned char Data4[8];
 } GUID;
 
-typedef struct _FILETIME {
+typedef struct {
+  SHORT X;
+  SHORT Y;
+} COORD;
+
+typedef struct {
+  SHORT Left;
+  SHORT Top;
+  SHORT Right;
+  SHORT Bottom;
+} SMALL_RECT;
+
+typedef struct {
+  WINBOOL bKeyDown;
+  WORD wRepeatCount;
+  WORD wVirtualKeyCode;
+  WORD wVirtualScanCode;
+  union {
+    WCHAR UnicodeChar;
+    CHAR AsciiChar;
+  } uChar;
+  DWORD dwControlKeyState;
+} KEY_EVENT_RECORD;
+
+static const uint32_t
+  RIGHT_ALT_PRESSED = 0x1,
+  LEFT_ALT_PRESSED = 0x2,
+  RIGHT_CTRL_PRESSED = 0x4,
+  LEFT_CTRL_PRESSED = 0x8,
+  SHIFT_PRESSED = 0x10,
+  NUMLOCK_ON = 0x20,
+  SCROLLLOCK_ON = 0x40,
+  CAPSLOCK_ON = 0x80,
+  ENHANCED_KEY = 0x100,
+  NLS_DBCSCHAR = 0x10000,
+  NLS_ALPHANUMERIC = 0x0,
+  NLS_KATAKANA = 0x20000,
+  NLS_HIRAGANA = 0x40000,
+  NLS_ROMAN = 0x400000,
+  NLS_IME_CONVERSION = 0x800000,
+  NLS_IME_DISABLE = 0x20000000;
+
+typedef struct {
+  COORD dwMousePosition;
+  DWORD dwButtonState;
+  DWORD dwControlKeyState;
+  DWORD dwEventFlags;
+} MOUSE_EVENT_RECORD;
+
+static const uint32_t
+  FROM_LEFT_1ST_BUTTON_PRESSED = 0x1,
+  RIGHTMOST_BUTTON_PRESSED = 0x2,
+  FROM_LEFT_2ND_BUTTON_PRESSED = 0x4,
+  FROM_LEFT_3RD_BUTTON_PRESSED = 0x8,
+  FROM_LEFT_4TH_BUTTON_PRESSED = 0x10;
+
+static const uint32_t
+  MOUSE_MOVED = 0x1,
+  DOUBLE_CLICK = 0x2,
+  MOUSE_WHEELED = 0x4,
+  MOUSE_HWHEELED = 0x8;
+
+typedef struct {
+  COORD dwSize;
+} WINDOW_BUFFER_SIZE_RECORD;
+
+typedef struct {
+  UINT dwCommandId;
+} MENU_EVENT_RECORD;
+
+typedef struct {
+  WINBOOL bSetFocus;
+} FOCUS_EVENT_RECORD;
+
+typedef struct {
+  WORD EventType;
+  union {
+    KEY_EVENT_RECORD KeyEvent;
+    MOUSE_EVENT_RECORD MouseEvent;
+    WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
+    MENU_EVENT_RECORD MenuEvent;
+    FOCUS_EVENT_RECORD FocusEvent;
+  } Event;
+} INPUT_RECORD;
+
+static const uint32_t
+  KEY_EVENT = 0x1,
+  MOUSE_EVENT = 0x2,
+  WINDOW_BUFFER_SIZE_EVENT = 0x4,
+  MENU_EVENT = 0x8,
+  FOCUS_EVENT = 0x10;
+
+typedef struct {
   DWORD dwLowDateTime;
   DWORD dwHighDateTime;
 } FILETIME;
 
-typedef struct tagRECT {
+typedef struct {
   LONG left;
   LONG top;
   LONG right;
   LONG bottom;
 } RECT;
+
+typedef struct {
+  DWORD nLength;
+  VOID *lpSecurityDescriptor;
+  WINBOOL bInheritHandle;
+} SECURITY_ATTRIBUTES;
 
 enum {
   FILE_ATTRIBUTE_READONLY            = 0x00000001,

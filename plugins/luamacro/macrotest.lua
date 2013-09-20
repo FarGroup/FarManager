@@ -401,6 +401,11 @@ do -- Plugin.Call: test arguments and returns
   for k=1,N do src[k]=k end
   local trg = { Plugin.Call(luamacroId, "argtest", unpack(src)) }
   assert(#trg==N and trg[1]==1 and trg[N]==N)
+
+  local N,src = 4000-8,{}
+  for k=1,N do src[k]=k end
+  local trg = { Plugin.SyncCall(luamacroId, "argtest", unpack(src)) }
+  assert(#trg==N and trg[1]==1 and trg[N]==N)
 end
 
 local t = far.MacroExecute("return ...", nil, "foo", false, 5, nil, bit64.new("0x8765876587658765"), {"bar"})

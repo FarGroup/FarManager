@@ -6145,7 +6145,7 @@ lv=2
 dt=Text
 nm=far.IsPluginLoaded
 ctime=3588795929
-mtime=3588796304
+mtime=3588834989
 <article>
 #_result = far.IsPluginLoaded (Guid)
 #_
@@ -6156,7 +6156,7 @@ mtime=3588796304
 #_  result:  boolean
 #_
 #_**Description:**
-#_  Returns *true* if the plugin is loaded to memory.
+#_  Returns *true* if the plugin is loaded in memory.
 #_
 #_**Far API used:**
 #_  PluginsControl: PCTL_FINDPLUGIN, PCTL_GETPLUGININFORMATION
