@@ -380,7 +380,7 @@ local function EnumMacros (strArea, resetEnum)
             if len > 62 then code = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
           end
           LastMessage = pack(macro.id, macro.key, macro.flags, code, macro.description or "")
-          return F.MPRT_COMMONCASE, LastMessage
+          return F.MPRT_NORMALFINISH, LastMessage
         end
       else
         EnumState.index = 0
@@ -683,7 +683,7 @@ local function GetMacroWrapper (...)
   if macro then
     LastMessage = macro.id and pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
       macro.flags, macro.guid, macro.callback, macro.callbackId) or pack(0)
-    return F.MPRT_COMMONCASE, LastMessage
+    return F.MPRT_NORMALFINISH, LastMessage
   end
 end
 

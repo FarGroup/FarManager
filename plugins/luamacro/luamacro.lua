@@ -229,9 +229,9 @@ local function ExecString (text, flags, params)
     if chunk then
       local env = setmetatable({},{__index=_G})
       TableExecString = pack(setfenv(chunk, env)(unpack(params,1,params.n)))
-      return F.MPRT_COMMONCASE, TableExecString
+      return F.MPRT_NORMALFINISH, TableExecString
     else
-      far.Message(msg, "LuaMacro", nil, "wl")
+      ErrMsg(msg)
       TableExecString = { msg }
       return F.MPRT_ERRORPARSE, TableExecString
     end
@@ -278,12 +278,12 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_PANELSORT      then
       if panelsort then
         TablePanelSort = { panelsort.SortPanelItems(...) }
-        if TablePanelSort[1] then return F.MPRT_COMMONCASE, TablePanelSort end
+        if TablePanelSort[1] then return F.MPRT_NORMALFINISH, TablePanelSort end
       end
     elseif calltype==F.MCT_GETCUSTOMSORTMODES then
       if panelsort then
         TablePanelSort = panelsort.GetSortModes()
-        return F.MPRT_COMMONCASE, TablePanelSort
+        return F.MPRT_NORMALFINISH, TablePanelSort
       end
     end
 

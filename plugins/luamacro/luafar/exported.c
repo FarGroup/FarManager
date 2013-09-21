@@ -704,7 +704,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values)
 {
 	size_t i;
-	lua_createtable(L, (int)Count, 0);
+	lua_createtable(L, (int)Count, 1);
 	for(i=0; i < Count; i++)
 	{
 		PushFarMacroValue(L, Values + i);

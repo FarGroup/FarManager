@@ -1586,7 +1586,7 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_EXECSTRING,0,&fmc};
 
-	if (CallMacroPlugin(&info) && info.Ret.ReturnType != MPRT_ERRORFINISH && info.Ret.ReturnType != MPRT_ERRORPARSE)
+	if (CallMacroPlugin(&info) && info.Ret.ReturnType == MPRT_NORMALFINISH)
 	{
 		Data->OutValues = info.Ret.Values;
 		Data->OutCount = info.Ret.Count;
