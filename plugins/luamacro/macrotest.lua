@@ -392,12 +392,12 @@ assert(type(Far.KeyBar_Show(0))=="number")
 
 assert(type(Far.Window_Scroll)=="function")
 
-do -- Plugin.Call: test arguments and returns
-  local i1 = bit64.new("0x8765876587658765")
-  local r1,r2,r3,r4,r5 = Plugin.Call(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
-  assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
-
+do -- Plugin.Call, Plugin.SyncCall: test arguments and returns
   local function test (func, N)
+    local i1 = bit64.new("0x8765876587658765")
+    local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
+    assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
+
     local src = {}
     for k=1,N do src[k]=k end
     local trg = { func(luamacroId, "argtest", unpack(src)) }
