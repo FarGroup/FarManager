@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3664
+  Plugin API for Far Manager 3.0 build 3674
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3664
+#define FARMANAGERVERSION_BUILD 3674
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2454,7 +2454,6 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINCONFIG  = 7,
 	MPRT_PLUGINCOMMAND = 8,
 	MPRT_USERMENU      = 9,
-	MPRT_COMMONCASE    = 10,
 };
 
 struct OpenMacroPluginInfo
