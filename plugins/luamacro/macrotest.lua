@@ -397,15 +397,14 @@ do -- Plugin.Call: test arguments and returns
   local r1,r2,r3,r4,r5 = Plugin.Call(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
   assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
 
-  local N,src = 8000-8,{}
-  for k=1,N do src[k]=k end
-  local trg = { Plugin.Call(luamacroId, "argtest", unpack(src)) }
-  assert(#trg==N and trg[1]==1 and trg[N]==N)
-
-  local N,src = 4000-8,{}
-  for k=1,N do src[k]=k end
-  local trg = { Plugin.SyncCall(luamacroId, "argtest", unpack(src)) }
-  assert(#trg==N and trg[1]==1 and trg[N]==N)
+  local function test (func, N)
+    local src = {}
+    for k=1,N do src[k]=k end
+    local trg = { func(luamacroId, "argtest", unpack(src)) }
+    assert(#trg==N and trg[1]==1 and trg[N]==N)
+  end
+  test(Plugin.Call, 8000-8)
+  test(Plugin.SyncCall, 8000-8)
 end
 
 local t = far.MacroExecute("return ...", nil, "foo", false, 5, nil, bit64.new("0x8765876587658765"), {"bar"})

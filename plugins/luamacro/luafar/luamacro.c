@@ -12,7 +12,7 @@ static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44
 
 static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 {
-	int ret = lua_checkstack(L, (int)Data->Count);
+	int ret = lua_checkstack(L, 2 + (int)Data->Count);
 	if (ret)
 	{
 		size_t i;
@@ -212,11 +212,10 @@ int far_MacroCallFar(lua_State *L)
 
 int far_MacroCallPlugin(lua_State *L)
 {
-	int idx;
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)GetPluginData(L)->Info->Private;
 	struct MacroPluginReturn Params = {0,0,NULL};
 	struct FarMacroCall Ret;
-	size_t nargs = lua_gettop(L);
+	int idx, nargs = lua_gettop(L);
 
 	lua_createtable(L,0,1);
 	InitMPR(L, &Params, nargs, 0);
@@ -225,5 +224,6 @@ int far_MacroCallPlugin(lua_State *L)
 		ConvertLuaValue(L, idx+1, idx+Params.Values);
 	}
 	privateInfo->CallPlugin(&Params, &Ret);
-	return FL_PushParams(L, &Ret) ? Ret.Count : 0;
+	lua_settop(L, lua_gettop(L) - nargs - 1); // free stack for return values
+	return FL_PushParams(L, &Ret) ? (int)Ret.Count : luaL_error(L,"too many values");
 }
