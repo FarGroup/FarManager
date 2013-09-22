@@ -799,7 +799,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
-				UINT64 Flags=MFLAGS_CALLPLUGINENABLEMACRO;
+				UINT64 Flags=0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
 				FrameManager->ResetLastInputRecord();
 				FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
@@ -1035,7 +1035,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(Guid[,param])
 			{
-				CallPlugin(mpr, &macro->m_running, (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0);
+				CallPlugin(mpr, &macro->m_running, true);
 				break;
 			}
 
@@ -2913,24 +2913,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				case 2: // Get MacroRecord Flags
 				{
 					return PassNumber((MR->Flags()<<8) | MACROAREA_COMMON, Data);
-				}
-
-				case 3: // CallPlugin Rules
-				{
-					Result=MR->Flags()&MFLAGS_CALLPLUGINENABLEMACRO?1:0;
-					switch (nValue)
-					{
-						case 0: // блокировать макросы при вызове плагина функцией CallPlugin
-							MR->m_flags&=~MFLAGS_CALLPLUGINENABLEMACRO;
-							break;
-						case 1: // разрешить макросы
-							MR->m_flags|=MFLAGS_CALLPLUGINENABLEMACRO;
-							break;
-						case 2: // изменяет режим
-							MR->m_flags^=MFLAGS_CALLPLUGINENABLEMACRO;
-							break;
-					}
-					return PassNumber(Result, Data);
 				}
 			}
 		}

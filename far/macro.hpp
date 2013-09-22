@@ -81,8 +81,7 @@ static const MACROFLAGS_MFLAGS
 
 	// private flags, for runtime purposes only
 	MFLAGS_PRIVATE_MASK            =0xFFFFFFFF00000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000, // последовательность пришла от АПИ
-	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000200000000; // разрешить макросы при вызове плагина функцией CallPlugin
+	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000; // последовательность пришла от АПИ
 
 
 // коды возврата для KeyMacro::GetCurRecord()
@@ -194,7 +193,7 @@ public:
 		*this = std::move(rhs);
 	}
 
-	MacroState& operator =(MacroState&& rhs) 
+	MacroState& operator =(MacroState&& rhs)
 	{
 		std::swap(cRec, rhs.cRec);
 		std::swap(Executing, rhs.Executing);
