@@ -38,13 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
+	PreviousLastWriteTime(),
+	CurrentLastWriteTime(),
 	bOpen(false),
 	WatchSubtree(false)
 {
-	PreviousLastWriteTime.dwLowDateTime = 0;
-	PreviousLastWriteTime.dwHighDateTime = 0;
-	CurrentLastWriteTime.dwLowDateTime = 0;
-	CurrentLastWriteTime.dwHighDateTime = 0;
 	WatchRegistered.Open(true, true);
 	Changed.Open(true, false);
 	Done.Open(true, false);

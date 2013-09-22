@@ -83,11 +83,8 @@ static int SetFileCompression(const string& Name,int State)
 		return FALSE;
 
 	USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
-	DWORD Result;
-	int RetCode=file.IoControl(FSCTL_SET_COMPRESSION,&NewState,
-	                            sizeof(NewState),nullptr,0,&Result);
-	file.Close();
-	return(RetCode);
+	DWORD BytesReturned;
+	return file.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0, &BytesReturned);
 }
 
 
@@ -277,7 +274,6 @@ static bool SetFileSparse(const string& Name,bool State)
 		DWORD BytesReturned;
 		FILE_SET_SPARSE_BUFFER sb={State};
 		Ret=file.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
-		file.Close();
 	}
 	return Ret;
 }

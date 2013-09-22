@@ -143,7 +143,6 @@ global::global():
 	tempTreeCache = new TreeListCache;
 	PluginSynchroManager = new PluginSynchro;
 	CodePages = new codepages;
-	CodePages->init();
 	Sets = new sets;
 }
 

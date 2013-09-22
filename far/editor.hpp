@@ -101,12 +101,12 @@ struct EditorUndoData
 
 	EditorUndoData& operator=(EditorUndoData&& Right)
 	{
-		Type = Right.Type;
-		StrPos = Right.StrPos;
-		StrNum = Right.StrNum;
-		Length = Right.Length;
+		std::swap(Type, Right.Type);
+		std::swap(StrPos, Right.StrPos);
+		std::swap(StrNum, Right.StrNum);
+		std::swap(Length, Right.Length);
 		Str.swap(Right.Str);
-		wcscpy(EOL, Right.EOL);
+		std::swap(EOL, Right.EOL);
 		std::swap(BM, Right.BM);
 		return *this;
 	}

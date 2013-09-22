@@ -208,10 +208,18 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
 	}
 
-	string strListName, strAnotherListName;
-	string strShortListName, strAnotherShortListName;
+	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
+
+	const string* ListNames[] =
+	{
+		&strListName,
+		&strAnotherListName,
+		&strShortListName,
+		&strAnotherShortListName
+	};
+
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
+	bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), std::not1(std::mem_fn(&string::empty)));
 
 	// —нова все "подставлено", теперь проверим услови€ "if exist"
 	if (ExtractIfExistCommand(strCommand))
@@ -228,17 +236,11 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		}
 	}
 
-	if (!strListName.empty())
-		api::DeleteFile(strListName);
-
-	if (!strAnotherListName.empty())
-		api::DeleteFile(strAnotherListName);
-
-	if (!strShortListName.empty())
-		api::DeleteFile(strShortListName);
-
-	if (!strAnotherShortListName.empty())
-		api::DeleteFile(strAnotherShortListName);
+	std::for_each(CONST_RANGE(ListNames, i)
+	{
+		if (!i->empty())
+			api::DeleteFile(*i);
+	});
 
 	return true;
 }
@@ -261,24 +263,33 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 */
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
 {
-	string strListName, strAnotherListName;
-	string strShortListName, strAnotherShortListName;
-	string strFullName, strFullShortName;
-	string strExecStr = Command;
-	string strFullExecStr = Command;
+	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
+
+	const string* ListNames[] =
 	{
-		int PreserveLFN=SubstFileName(nullptr,strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
+		&strListName,
+		&strAnotherListName,
+		&strShortListName,
+		&strAnotherShortListName
+	};
+
+	{
+		string strExecStr = Command;
+		int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+		bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), std::not1(std::mem_fn(&string::empty)));
 
 		// —нова все "подставлено", теперь проверим услови€ "if exist"
 		if (!ExtractIfExistCommand(strExecStr))
 			return;
 
 		PreserveLongName PreserveName(ShortName,PreserveLFN);
-		ConvertNameToFull(Name,strFullName);
+		string strFullName;
+		ConvertNameToFull(Name, strFullName);
+		string strFullShortName;
 		ConvertNameToShort(strFullName,strFullShortName);
 		//BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
-		SubstFileName(nullptr,strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+		string strFullExecStr = Command;
+		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 
 		// —нова все "подставлено", теперь проверим услови€ "if exist"
 		if (!ExtractIfExistCommand(strFullExecStr))
@@ -289,18 +300,11 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}
 
-	if (!strListName.empty())
-		api::DeleteFile(strListName);
-
-	if (!strAnotherListName.empty())
-		api::DeleteFile(strAnotherListName);
-
-
-	if (!strShortListName.empty())
-		api::DeleteFile(strShortListName);
-
-	if (!strAnotherShortListName.empty())
-		api::DeleteFile(strAnotherShortListName);
+	std::for_each(CONST_RANGE(ListNames, i)
+	{
+		if (!i->empty())
+			api::DeleteFile(*i);
+	});
 }
 
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
@@ -384,19 +388,10 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			if (Param1==ETR_BUTTON_OK)
 			{
-				BOOL Result=TRUE;
-				string Masks(reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
-				filemasks FMask;
-
-				if (!FMask.Set(Masks))
-				{
-					Result=FALSE;
-				}
-
-				return Result;
+				return filemasks().Set(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, 0)));
 			}
-
 			break;
+
 		default:
 			break;
 	}

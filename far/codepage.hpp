@@ -65,12 +65,14 @@ enum CodePagesCallbackCallSource
 
 class Dialog;
 struct DialogBuilderListItem2;
+class VMenu2;
 
 class codepages
 {
 public:
 	codepages();
-	void init();
+	~codepages();
+
 	int GetCodePageInfo(UINT cp, wchar_t *name=nullptr, size_t cb=0); // returns MaxCharSize
 
 	bool IsCodePageSupported(uintptr_t CodePage);
@@ -98,12 +100,12 @@ private:
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	friend BOOL CALLBACK enum_cp(wchar_t *cpNum);
+	friend class system_codepages_enumerator;
 
 	Dialog* dialog;
 	UINT control;
 	std::vector<DialogBuilderListItem2> *DialogBuilderList;
-	class VMenu2 *CodePagesMenu;
+	std::unique_ptr<VMenu2> CodePagesMenu;
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;

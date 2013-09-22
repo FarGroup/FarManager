@@ -52,81 +52,79 @@ const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
 // Стандартные элементы меню кодовых страниц
 enum StandardCodePagesMenuItems
 {
-	SearchAll = 1,	  // Find-in-Files dialog
-	AutoCP = 2,		  // show <Autodetect> item
-	OEM = 4,			  // show OEM codepage
-	ANSI = 8,		  // show ANSI codepage
-	UTF8 = 16,		  // show UTF-8 codepage
-	UTF16LE = 32,	  // show UTF-16 LE codepage
-	UTF16BE = 64,	  // show UTF-16 BE codepage
-	VOnly = 128,	  // show only viewer-supported codepages
-	AllStandard = OEM | ANSI | UTF8 | UTF16BE | UTF16LE,
-	DefaultCP = 256, // show <Default> item
+	SearchAll   = 0x001,  // Find-in-Files dialog
+	AutoCP      = 0x002,  // show <Autodetect> item
+	OEM         = 0x004,  // show OEM codepage
+	ANSI        = 0x008,  // show ANSI codepage
+	UTF8        = 0x010,  // show UTF-8 codepage
+	UTF16LE     = 0x020,  // show UTF-16 LE codepage
+	UTF16BE     = 0x040,  // show UTF-16 BE codepage
+	VOnly       = 0x080,  // show only viewer-supported codepages
+	DefaultCP   = 0x100, // show <Default> item
+
+	AllStandard = OEM | ANSI | UTF8 | UTF16BE | UTF16LE
 };
 
-// Номера контролов диалога редактирования имени кодовой страницы
-enum EditCodePagesDialogControls
+class system_codepages_enumerator
 {
-	EDITCP_BORDER,
-	EDITCP_EDIT,
-	EDITCP_SEPARATOR,
-	EDITCP_OK,
-	EDITCP_CANCEL,
-	EDITCP_RESET,
-};
+public:
+	static codepages* context;
 
-BOOL CALLBACK enum_cp(wchar_t *cpNum)
-{
-	UINT cp = static_cast<UINT>(_wtoi(cpNum));
-	if (cp == CP_UTF8)
-		return TRUE; // skip standard unicode
-
-	CPINFOEX cpix;
-	if (!GetCPInfoEx(cp, 0, &cpix))
+	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
-		CPINFO cpi;
-		if (!GetCPInfo(cp, &cpi))
-			return TRUE;
+		UINT cp = static_cast<UINT>(_wtoi(cpNum));
+		if (cp == CP_UTF8)
+			return TRUE; // skip standard unicode
 
-		cpix.MaxCharSize = cpi.MaxCharSize;
-		wcscpy(cpix.CodePageName, cpNum);
-	}
-	if (cpix.MaxCharSize > 0)
-	{
-		string cp_data(cpix.CodePageName);
-		size_t pos = cp_data.find(L"(");
-		// Windows: "XXXX (Name)", Wine: "Name"
-		if (pos != string::npos)
+		CPINFOEX cpix;
+		if (!GetCPInfoEx(cp, 0, &cpix))
 		{
-			cp_data = cp_data.substr(pos+1);
-			pos = cp_data.find(L")");
-			if (pos != string::npos)
-				cp_data = cp_data.substr(0, pos);
-		}
-		wchar_t mcs[2] = {(wchar_t)cpix.MaxCharSize};
-		Global->CodePages->installed_cp[cp] = mcs + cp_data;
-	}
+			CPINFO cpi;
+			if (!GetCPInfo(cp, &cpi))
+				return TRUE;
 
-	return TRUE;
-}
+			cpix.MaxCharSize = cpi.MaxCharSize;
+			wcscpy(cpix.CodePageName, cpNum);
+		}
+		if (cpix.MaxCharSize > 0)
+		{
+			string cp_data(cpix.CodePageName);
+			size_t pos = cp_data.find(L"(");
+			// Windows: "XXXX (Name)", Wine: "Name"
+			if (pos != string::npos)
+			{
+				cp_data = cp_data.substr(pos + 1);
+				pos = cp_data.find(L")");
+				if (pos != string::npos)
+					cp_data = cp_data.substr(0, pos);
+			}
+			wchar_t mcs[2] = { (wchar_t) cpix.MaxCharSize };
+			context->installed_cp[cp] = mcs + cp_data;
+		}
+
+		return TRUE;
+
+	}
+};
+
+codepages* system_codepages_enumerator::context;
 
 codepages::codepages():
 	dialog(nullptr),
 	control(0),
-	DialogBuilderList(nullptr),
-	CodePagesMenu(nullptr),
 	currentCodePage(0),
 	favoriteCodePages(0),
 	normalCodePages(0),
 	selectedCodePages(false),
 	CallbackCallSource(CodePageSelect)
-{}
-
-void codepages::init()
 {
-	if (installed_cp.empty())
-		EnumSystemCodePages(enum_cp, CP_INSTALLED);
+	system_codepages_enumerator::context = this;
+	EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
+	system_codepages_enumerator::context = nullptr;
 }
+
+codepages::~codepages()
+{}
 
 int codepages::GetCodePageInfo(UINT cp, wchar_t *name, size_t cb)
 {
@@ -617,8 +615,7 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 // Форматируем имя таблицы символов
 wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom)
 {
-	FormatString strCodePage;
-	strCodePage<<CodePage;
+	string strCodePage = std::to_wstring(CodePage);
 	string strCodePageName;
 
 	if (CodePageName && Length // Пытаемся получить заданное пользователем имя таблицы символов
@@ -641,6 +638,17 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 	return CodePageName;
 }
 
+// Номера контролов диалога редактирования имени кодовой страницы
+enum EditCodePagesDialogControls
+{
+	EDITCP_BORDER,
+	EDITCP_EDIT,
+	EDITCP_SEPARATOR,
+	EDITCP_OK,
+	EDITCP_CANCEL,
+	EDITCP_RESET,
+};
+
 // Каллбак для диалога редактирования имени кодовой страницы
 intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -657,7 +665,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				strCodePageName = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
-			if (!strCodePageName.size())
+			if (strCodePageName.empty())
 				Global->Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
 				Global->Db->GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
@@ -673,8 +681,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				// Обновляем имя кодовой страницы
 				int Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
-				MenuItemEx NewItem;
-				NewItem.strName = strCodePage;
+				MenuItemEx NewItem(strCodePage);
 				NewItem.UserData = &CodePage;
 				NewItem.UserDataSize = sizeof(CodePage);
 				CodePagesMenu->AddItem(NewItem, Position);
@@ -718,7 +725,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
 	// Создаём меню
-	CodePagesMenu = new VMenu2(L"", nullptr, 0, ScrY-4);
+	CodePagesMenu = std::make_unique<VMenu2>(L"", nullptr, 0, ScrY-4);
 	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
@@ -766,8 +773,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 		CodePage = GetMenuItemCodePage();
 		Result = true;
 	}
-	delete CodePagesMenu;
-	CodePagesMenu = nullptr;
+	CodePagesMenu.reset();
 	return Result;
 }
 
