@@ -55,6 +55,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 	if (om_info->Data && !FL_PushParams(L, om_info->Data))
 	{
 		lua_pop(L, 4);
+		LF_Message(L, L"too many values to place onto Lua stack", L"LuaMacro", L"OK", "wl", NULL, NULL);
 		return NULL;
 	}
 
@@ -225,5 +226,5 @@ int far_MacroCallPlugin(lua_State *L)
 	}
 	privateInfo->CallPlugin(&Params, &Ret);
 	lua_settop(L, lua_gettop(L) - nargs - 1); // free stack for return values
-	return FL_PushParams(L, &Ret) ? (int)Ret.Count : luaL_error(L,"too many values");
+	return FL_PushParams(L, &Ret) ? (int)Ret.Count : luaL_error(L, "too many values to place onto Lua stack");
 }

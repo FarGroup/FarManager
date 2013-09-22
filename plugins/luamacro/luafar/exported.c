@@ -851,7 +851,6 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	if(Info->OpenFrom == OPEN_FROMMACRO)
 	{
 		int top = lua_gettop(L);
-		lua_checkstack(L, 4096);
 		if (pcall_msg(L, 3, LUA_MULTRET) == 0)
 		{
 			int narg = lua_gettop(L) - top + 4;

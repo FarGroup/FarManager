@@ -197,7 +197,7 @@ end
 local function MacroFinal (handle)
   if RunningMacros[handle] then
     RunningMacros[handle] = false -- false, not nil!
-    --far.Message("Final: closed handle "..handle)
+    --LOG("Final: closed handle "..handle)
     return 1
   else
     -- Far debug only: should not be here
