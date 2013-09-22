@@ -105,6 +105,10 @@ struct EditorUndoData
 		std::swap(StrPos, Right.StrPos);
 		std::swap(StrNum, Right.StrNum);
 		std::swap(Length, Right.Length);
+
+		if (Length > 0)
+			UndoDataSize += Length;
+
 		Str.swap(Right.Str);
 		std::swap(EOL, Right.EOL);
 		std::swap(BM, Right.BM);
