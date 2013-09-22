@@ -3,6 +3,234 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 22.09.2013 20:02:30 +0200 - build 3677
+
+1. Macros, experimental:
+   - Plugin.Call() always works asyncronously, i.e. as before, after mmode(3,1) call.
+   - If the syncronous mode is needed, use Plugin.SyncCall().
+   - mmode(3,x) always returns 0 and does not influence anything.
+
+drkns 22.09.2013 15:28:35 +0200 - build 3676
+
+1. 0002492: Editor CtrlZ once more.
+
+drkns 22.09.2013 15:24:17 +0200 - build 3675
+
+1. 0002492: Editor CtrlZ
+
+2. Refactoring.
+
+shmuel 21.09.2013 11:50:29 +0200 - build 3674
+
+1. Refactoring.
+
+drkns 20.09.2013 23:50:03 +0200 - build 3673
+
+1. Refactoring.
+
+2. Folder tree manual update caused a crash.
+
+drkns 20.09.2013 17:09:53 +0200 - build 3672
+
+1. Refactoring.
+
+w17 20.09.2013 16:53:54 +0400 - build 3671
+
+1. vc10 build fix
+
+drkns 20.09.2013 14:21:44 +0200 - build 3670
+
+1. Correction of 3668.
+
+drkns 20.09.2013 13:56:44 +0200 - build 3669
+
+1. Refactoring.
+
+drkns 19.09.2013 20:07:18 +0200 - build 3668
+
+1. Refactoring.
+
+drkns 19.09.2013 13:31:43 +0200 - build 3667
+
+1. Correction of 3666.
+
+drkns 19.09.2013 09:49:54 +0200 - build 3666
+
+1. Correction of 3656.
+
+2. gcc warnings.
+
+drkns 19.09.2013 09:31:02 +0200 - build 3665
+
+1. 0002490: Editor kills end of line since ver. 3659
+
+shmuel 19.09.2013 00:01:45 +0200 - build 3664
+
+1. M#2486: Enable Plugin.Call use in Condition.
+   Plugin.SyncCall macrofunction added, see macroapi_manual.chm.
+
+drkns 18.09.2013 23:15:01 +0200 - build 3663
+
+1. Refactoring.
+
+drkns 18.09.2013 18:43:08 +0200 - build 3662
+
+1. Refactoring.
+
+w17 18.09.2013 17:12:50 +0400 - build 3661
+
+1. Correction of 3660 (from Denis)
+
+w17 18.09.2013 13:23:02 +0400 - build 3660
+
+1. M#2488: Special Symbols aren't shown in DialogTilte of "!?<title>?<init>!"
+   Metasymbols replaced in the dialog caption (same as in the top level usermenu).
+
+drkns 17.09.2013 20:50:44 +0200 - build 3659
+
+1. Refactoring.
+
+w17 17.09.2013 11:41:16 +0400 - build 3658
+
+1. Forum: Malfunction of clipboard clear test
+
+drkns 17.09.2013 00:07:58 +0200 - build 3657
+
+1. Refactoring.
+
+drkns 16.09.2013 21:51:26 +0200 - build 3656
+
+1. Do not create directories in the profile if ReadOnlyConfig==true.
+
+shmuel 16.09.2013 20:04:27 +0200 - build 3655
+
+1. LuaMacro plugin is given the value of "ReadOnlyConfig" FAR option, so that it does not create
+   directories nor create/change/delete files, when it is disabled.
+
+drkns 16.09.2013 00:29:14 +0200 - build 3654
+
+1. UCD wrapper is redone.
+   UCD\nscore.h proved to contaminate global namespace with stuff like "#define typename"
+   with predictable consequences, therefore it is removed from headers.
+
+drkns 15.09.2013 21:06:55 +0200 - build 3653
+
+1. Refactoring.
+
+shmuel 15.09.2013 21:01:09 +0200 - build 3652
+
+1. Refactoring.
+
+w17 12.09.2013 21:07:14 +0400 - build 3651
+
+1. M#2483: '&' modifiers do not work in main menu.
+
+drkns 12.09.2013 14:23:24 +0200 - build 3650
+
+1. 0002482: FAR crash on attempt of copying files with privilege elevation.
+
+2. A couple of minor issues.
+
+drkns 11.09.2013 23:06:23 +0200 - build 3649
+
+1. Refactoring.
+
+shmuel 10.09.2013 23:57:52 +0200 - build 3648
+
+1. PluginPanelItemEx renamed to SortingPanelItem.
+
+shmuel 10.09.2013 23:10:05 +0200 - build 3647
+
+1. Custom panel sortings use PluginPanelItemEx structure instead of PluginPanelItem.
+   (This is the breaking change, so check your code).
+
+drkns 10.09.2013 20:40:20 +0200 - build 3646
+
+1. Refactoring.
+
+shmuel 10.09.2013 11:17:28 +0200 - build 3645
+
+1. Custom panel sortings did not get 'ChangeTime' value.
+
+2. GCC warnings.
+
+shmuel 10.09.2013 10:43:17 +0200 - build 3644
+
+1. Correction of 3643.
+
+drkns 10.09.2013 09:48:29 +0200 - build 3643
+
+1. Refactoring.
+
+shmuel 08.09.2013 20:14:02 +0200 - build 3642
+
+1. In 3641, sorting direction was broken when chosing a sorting mode via CtrlF12 menu on Enter press.
+
+drkns 08.09.2013 17:30:27 +0200 - build 3641
+
+1. Refactoring.
+
+2. cppcheck warnings.
+
+3. correction of "folder sorting by extension" mode.
+
+drkns 06.09.2013 13:04:00 +0200 - build 3640
+
+1. Forum: "Somewhere between 3597-3635 a crash is observed on attempt to call "Continue" of S&R plugin in editor."
+
+shmuel 05.09.2013 22:41:24 +0200 - build 3639
+
+1. Refactoring.
+
+drkns 05.09.2013 13:47:00 +0200 - build 3638
+
+1. A couple of corrections of 3636.
+
+w17 05.09.2013 00:25:22 +0400 - build 3637
+
+1. VC10 build fix.
+
+2. -warnings.
+
+drkns 04.09.2013 21:41:29 +0200 - build 3636
+
+1. Refactoring.
+
+2. cppcheck warnings.
+
+shmuel 04.09.2013 19:31:48 +0200 - build 3635
+
+1. Panel sorting menu (CtrlF12) also includes custom sorting modes if they exist.
+
+w17 04.09.2013 12:57:16 +0400 - build 3634
+
+1. Single-character plugin prefixes плагинов are allowed with the following restrictions:
+   A-Z are prohibited;
+   others are allowed if there is no volume with the same name in the system (checked with QueryDosDevice)
+
+drkns 04.09.2013 00:06:16 +0200 - build 3633
+
+1. When copying to several targets, the taskbar button blinked after each operation.
+
+svs 03.09.2013 23:42:01 +0400 - build 3632
+
+1. SQLite 3.8.0.2
+
+shmuel 03.09.2013 14:58:38 +0200 - build 3631
+
+1. If a plugin running from a macro called MCTL_EXECSTRING then after MCTL_EXECSTRING execution
+   screen redrawing could be disabled, so the plugin was unable to display a menu.
+
+2. Slightly refactoring.
+
+shmuel 02.09.2013 11:19:10 +0200 - build 3630
+
+1. FSF.CopyToClipboard() clears the clipboard if Data==NULL.
+
+shmuel 02.09.2013 07:25:59 +0200 - build 3629
+
+1. FSF.CopyToClipboard function did not copy empty strings.
+
 zg 31.08.2013 04:12:54 +0200 - build 3628
 
 1. forum: Crash on PCTL_GETPLUGININFORMATION call.
