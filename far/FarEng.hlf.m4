@@ -235,7 +235,7 @@ the "dir" command in the provided example), Far will wait for the end of data
 in the input stream until you press Ctrl-Break.
 
   #/w[-]#
-  Stretch to console window instead of console buffer or vise versa.
+  Stretch to console window instead of console buffer or vice versa.
 
   #/t templateprofile#
   Location of Far template configuration file - overrides Far.exe.ini.
@@ -1150,7 +1150,7 @@ for viewing the folder description file.
     - ^<wrap>значение заряда батареи (в процентах);
     - ^<wrap>статус заряда ("Высокий" - более 66%, "Низкий" - менее 33%, "Критичный" - критически низкий уровень, "Зарядка", "Батареи нет", "Не определено");
     - ^<wrap>время до разряда;
-    - ^<wrap>полное время работы от баратеи (система оценивает это время исходя из времени до разряда и значения заряда батареи;
+    - ^<wrap>полное время работы от батареи (система оценивает это время исходя из времени до разряда и значения заряда батареи;
 без наличия умных подсистем батареи это значение не актуально и обычно указано как "Не определено").
 
     ^<wrap>Состояние подключения к сети обновляется автоматически.
