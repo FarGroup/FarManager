@@ -204,7 +204,7 @@ shmuel 04.09.2013 19:31:48 +0200 - build 3635
 
 w17 04.09.2013 12:57:16 +0400 - build 3634
 
-1. Single-character plugin prefixes плагинов are allowed with the following restrictions:
+1. Single-character plugin prefixes are allowed with the following restrictions:
    A-Z are prohibited;
    others are allowed if there is no volume with the same name in the system (checked with QueryDosDevice)
 
@@ -660,7 +660,7 @@ w17 20.07.2013 12:51:48 +0400 - build 3532
 
 w17 20.07.2013 11:51:56 +0400 - build 3531
 
-1. ещё 3528, ждём когда рефакторнесс избавится от deprecated...
+1. more 3528, waiting when refactorness will get rid from deprecated...
 
 drkns 20.07.2013 01:16:35 +0200 - build 3530
 
@@ -831,7 +831,7 @@ drkns 04.07.2013 01:21:03 +0200 - build 3497
 
 shmuel 03.07.2013 21:13:37 +0200 - build 3496
 
-1. Forum: "Why does FAR create directories in the root of disk С".
+1. Forum: "Why does FAR create directories in the root of disk C".
    CreatePath inner FAR function is imported into LuaMacro plugin.
 
 svs 03.07.2013 12:49:18 +0400 - build 3495
@@ -1059,11 +1059,11 @@ svs 13.06.2013 18:09:50 +0400 - build 3452
 svs 13.06.2013 13:34:37 +0400 - build 3451
 
 1. Small changes in process list (Ctrl-W).
-   а) process PID is added.
-   б) F2 switches the view:
+   a) process PID is added.
+   b) F2 switches the view:
       "PID + process window caption"
       "PID + executable path"
-   в) the list is sorted by PID
+   c) the list is sorted by PID
 
    The list includes duplicate items by PID - it's ok, "move" to a necessary window is performed correctly.
 
@@ -1535,7 +1535,7 @@ t-rex 18.04.2013 11:30:20 +0200 - build 3348
 
 drkns 18.04.2013 09:39:27 +0200 - build 3347
 
-1. 0002377: Far Manager v3.0 build 3345 создает пустые файлы при копировании
+1. 0002377: Far Manager v3.0 build 3345 creates empty files when it does copying
 
 svs 18.04.2013 09:29:05 +0400 - build 3346
 
@@ -2159,7 +2159,7 @@ shmuel 28.02.2013 17:22:41 +0200 - build 3223
 svs 28.02.2013 11:46:34 +0400 - build 3222
 
 1. Mantis#0002270: User menu from any file
-   Часть 1: implementation.
+   Part 1: implementation.
    UserMenu(filename) constructor is added. It is expected that 'filename' is the full path to the menu file.
 
 
@@ -2522,11 +2522,11 @@ shmuel 08.02.2013 01:25:45 +0200 - build
 
 shmuel 07.02.2013 20:15:14 +0200 - build
 
-1. Макросы: new specification for events handler (modifies the specification from 05.02.2013).
-   * key="Read" key in the table-parameter of Macro function is cancelled.
+1. Macros: new specification for events handler (modifies the specification from 05.02.2013).
+   * key="Read" key in the table-parameter of Macro function is canceled.
    * New boot function 'Event'; as well as 'Macro' function, it accepts one parameter - a table.
    * Differences of the fields from the fields of the table-parameter of the Macro function: instead of 'area' and 'key' fields there are
-     'group' и 'name' fields.
+     'group' and 'name' fields.
    * At the moment, 'group' can have the following values: 'EditorEvent' and 'ViewerEvent'.
    * In EditorEvent group, 'name' can have the 'Read' and 'Save' values.
    * In ViewerEvent group, 'name' can have the 'Read' value.
@@ -2695,7 +2695,7 @@ t-rex 30.01.2013 22:48:47 +0200 - build 3135
 t-rex 30.01.2013 22:04:15 +0200 - build 3134
 
 1. Mantis#2281: Memory exhaustion at search with replace in editor.
-   Now there is a limit for the amount of memory used for undo buffer in editor в редакторе, 100MB by default.
+   Now there is a limit for the amount of memory used for undo buffer in editor, 100MB by default.
    It is set up in Editor.UndoDataSize (size in bytes), old and useless Editor.EditorUndoSize setting is removed.
 
 w17 30.01.2013 15:33:36 +0400 - build 3133
@@ -2828,11 +2828,11 @@ svs 21.01.2013 17:37:30 +0400 - build 3106
                {F776FEC0-50F7-4e7e-BDA6-2A63F84A957B}
      Editor: file with RSH attributes open prompt
                {D8AA706F-DA7E-4bbf-AB78-6B7BDB49E006}
-     Редактор: file save when switching to the viewer if the file (or containing directory) was deleted.
+     Editor: file save when switching to the viewer if the file (or containing directory) was deleted.
                {85532BD5-1583-456d-A810-41AB345995A9}
-     Редактор: file save and exiting the editor if the file (or containing directory) was deleted.
+     Editor: file save and exiting the editor if the file (or containing directory) was deleted.
                {2D71DCCE-F0B8-4e29-A3A9-1F6D8C1128C2}
-     Редактор: file rewrite prompt
+     Editor: file rewrite prompt
                {4109C8B3-760D-4011-B1D5-14C36763B23E}
 
 
@@ -3019,7 +3019,7 @@ svs 09.01.2013 22:04:32 +0400 - build 3069
 1. Mantis#0002245: Add GUID for search results window on panels
      FindFileResultId={536754EB-C2D1-4626-933F-A25D1E1D110A}
 
-2. Mantis#0002243: There's no way to know if a separator has been set with alignment to center if it is set with Х=-1
+2. Mantis#0002243: There's no way to know if a separator has been set with alignment to center if it is set with X=-1
       For DIF_SEPARATOR or DIF_SEPARATOR2 given, if X1 or Y1=-1 then FAR aligns the text and
       forces the DIF_CENTERTEXT flag. In this case the coordinates of the separator are not equal to -1.
 
@@ -3038,7 +3038,7 @@ lort 04.01.2013 18:02:57 +0400 - build 3066
 shmuel 04.01.2013 15:52:07 +0200 - build 3065
 
 1. M#2220: MoreHistory -> View/Edit history -> F4 Esc Esc -> Random crash
-   (от Michael Lukashov).
+   (from Michael Lukashov).
 
 shmuel 03.01.2013 23:35:20 +0200 - build 3064
 
@@ -3969,7 +3969,7 @@ shmuel 24.10.2012 00:16:56 +0200 - build 2898
 
 lort 23.10.2012 19:19:23 +0400 - build 2897
 
-1. All menus are redone and now based on dialogs, VMenu class is now used for DI_LISTBOX и DI_COMBOBOX
+1. All menus are redone and now based on dialogs, VMenu class is now used for DI_LISTBOX and DI_COMBOBOX
    implementation only, VMenu2 in other places.
 
 2. DN_LISTHOTKEY is now sent only if a hotkey has been really pressed.
@@ -4444,7 +4444,7 @@ zg 16.09.2012 20:27:31 +0200 - build 2803
 1. API is changed: the type for string lengths and in-string offsets is changed from int to intptr_t.
    all native plugins are broken. also, side effects are possible for x64 FAR.
 
-2. в ViewerSelect тип BlockLen __int64.
+2. in ViewerSelect type of BlockLen is now __int64.
    all native plugins are broken.
 
 zg 16.09.2012 18:29:46 +0200 - build 2802
@@ -5959,7 +5959,7 @@ svs 17.03.2012 15:17:38 +0400 - build 2553
     a) via farconfig file
     b) via msave() macrofunction.
 
-   http://forum.farmanager.com/viewtopic.php?p=89561#p89561 п.1
+   http://forum.farmanager.com/viewtopic.php?p=89561#p89561 par.1
 
    The code of the KeyMacro::WriteVarsConsts() function is "hidden" so far.
 
@@ -5968,7 +5968,7 @@ svs 17.03.2012 13:43:33 +0400 - build 2552
 1. Macro: bug $SelWord
    macro:post ShiftF4 t e s t Enter t e s t $SelWord msgbox("","Not selected") Space Left $SelWord msgbox("","Selected")
 
-   http://forum.farmanager.com/viewtopic.php?p=89561#p89561  п.5
+   http://forum.farmanager.com/viewtopic.php?p=89561#p89561  par.5
 
 zg 16.03.2012 20:06:10 +0200 - build 2551
 
@@ -6596,7 +6596,7 @@ zg 06.02.2012 22:39:15 +0200 - build 2439
    accordingly, EE_GOTFOCUS, EE_KILLFOCUS and EE_CLOSE have Param equal to NULL.
    plugins using these events will work incorrectly.
 
-2. в ProcessViewerEventInfo is appended with ViewerID field.
+2. ProcessViewerEventInfo is appended with ViewerID field.
    accordingly VE_GOTFOCUS, VE_KILLFOCUS and VE_CLOSE have Param equal to NULL.
    plugins using these events will work incorrectly.
 
@@ -8542,7 +8542,7 @@ drkns 04.08.2011 23:43:18 +0200 - build 2130
 
 1. FarColor.ForegroundColor and FarColor.BackgroundColor - COLORREF. If FCF_<F|B>G_4BIT  flag is not mentioned, then 0xAABBGGRR formatted color is expected.
 
-2. Generated headers (farcolor.hpp, plugin.hpp) are now compiled during build process (as С and С++) in order to discover possible problems at an earlier stage.
+2. Generated headers (farcolor.hpp, plugin.hpp) are now compiled during build process (as C and C++) in order to discover possible problems at an earlier stage.
 
 drkns 04.08.2011 12:17:52 +0200 - build 2129
 
@@ -9305,7 +9305,7 @@ drkns 30.04.2011 16:28:33 +0200 - build 2018
 
 drkns 29.04.2011 23:55:55 +0200 - build 2017
 
-1. GСС warnings.
+1. GCC warnings.
 
 2. A couple of minorities.
 
@@ -10687,7 +10687,7 @@ drkns 04.02.2011 14:15:16 +0200 - build 1818
 
 drkns 04.02.2011 00:37:26 +0200 - build 1817
 
-1. Bells and whistles: proper copyright character "©" instead of "(С)".
+1. Bells and whistles: proper copyright character "©" instead of "(C)".
 
 zg 03.02.2011 18:27:43 +0200 - build 1816
 
@@ -13048,7 +13048,7 @@ drkns 22.03.2010 20:18:31 +0200 - build 1452
 1. “links” from “mount points” distinction AI is removed in panel columns.
 Alas, the performance degrades too much.
 
-2. х64 warnings.
+2. x64 warnings.
 
 chupakabra 22.03.2010 04:03:00 +0200 - build 1451
 
@@ -13406,7 +13406,7 @@ garry 17.02.2010 18:00:27 +0300 - build 1405
 svs 17.02.2010 17:49:19 +0300 - build 1404
 
 1. Macro: loading again.
-  "...Сonsider some panel macro. Let's call MacroView and make an error in the macro.
+  "...Consider some panel macro. Let's call MacroView and make an error in the macro.
   FAR reports the error, the macro doesn't work anymore, but all other macros except the panel ones cease functioning.
   If the error is in viewer/editor macro, then common macros stop working..."
 
