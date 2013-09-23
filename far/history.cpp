@@ -236,27 +236,17 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				string strRecord;
 
 				if (TypeHistory == HISTORYTYPE_VIEW)
-				{
-					strRecord += GetTitle(HType);
-					strRecord += L":";
-					strRecord += (HType==4?L"-":L" ");
-				}
-				if (TypeHistory == HISTORYTYPE_FOLDER)
+					strRecord = GetTitle(HType) + string(L":") + (HType == 4 ? L"-" : L" ");
+
+				else if (TypeHistory == HISTORYTYPE_FOLDER)
 				{
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
 					{
 						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						if(pPlugin)
-						{
-							strRecord += pPlugin->GetTitle();
-							strRecord += L":";
-							if(!strHFile.empty())
-							{
-								strRecord += strHFile;
-								strRecord += L":";
-							}
-						}
+						strRecord = (pPlugin ? pPlugin->GetTitle() : L"{" + strHGuid + L"}") + L":";
+						if(!strHFile.empty())
+							strRecord += strHFile + L":";
 					}
 				}
 				FILETIME FTTime;
