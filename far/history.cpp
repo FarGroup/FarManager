@@ -174,7 +174,6 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 		HistoryMenu.SetHelp(HelpTopic);
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
-	HistoryMenu.AssignHighlights(TRUE);
 
 	if (TypeHistory == HISTORYTYPE_CMD || TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu.SetId(TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
