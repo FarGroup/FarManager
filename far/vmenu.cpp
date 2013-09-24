@@ -251,8 +251,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 				Pass++;
 			}
 		}
-
-		if (Pos>=static_cast<int>(Items.size()))
+		else if (Pos>=static_cast<int>(Items.size()))
 		{
 			if (CheckFlags(VMENU_WRAPMODE))
 			{
@@ -270,7 +269,10 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			break;
 
 		if (Pass)
-			return SelectPos;
+		{
+			Pos = SelectPos;
+			break;
+		}
 
 		Pos += Direct;
 
@@ -278,12 +280,13 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			Pass++;
 	}
 
-	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
-		return SelectPos;
+	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
+		Pos = SelectPos;
 
 	UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	if (Pos != SelectPos)
+		SetFlags(VMENU_UPDATEREQUIRED);
 
 	return Pos;
 }
