@@ -123,7 +123,9 @@ bool FileFilter::FilterEdit()
 
 	if (m_FilterType != FFT_CUSTOM)
 	{
-		std::list<std::pair<string, int>> Extensions;
+		typedef std::list<std::pair<string, int>> extension_list;
+		extension_list Extensions;
+
 		{
 			enumFileFilterFlagsType FFFT = GetFFFT();
 
@@ -183,7 +185,10 @@ bool FileFilter::FilterEdit()
 					break;
 		}
 
-		Extensions.sort();
+		Extensions.sort([](const extension_list::value_type& a, const extension_list::value_type& b)
+		{
+			return StrCmpI(a.first.data(), b.first.data()) < 0;
+		});
 
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
