@@ -283,7 +283,8 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
 		Pos = SelectPos;
 
-	UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
+	if (Pos >= 0)
+		UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
 
 	if (Pos != SelectPos)
 		SetFlags(VMENU_UPDATEREQUIRED);
