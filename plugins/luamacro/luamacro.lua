@@ -107,20 +107,28 @@ local function SplitMacroString (Text)
   assert(not c4, "Invalid macrosequence specification")
 end
 
-local function loadmacro (Text)
-  local fname, params = SplitMacroString(Text)
+local function loadmacro (Text, Env)
+  local f1,f2,msg
+  local fname,params = SplitMacroString(Text)
+
   if fname then
+    fname = ExpandEnv(fname)
     if params then
-      local f2, msg = loadstring("return "..params)
-      if not f2 then return nil, msg end
-      local f1, msg = loadfile(ExpandEnv(fname))
-      if not f1 then return nil, msg end
-      return f1, f2
-    else
-      return loadfile(ExpandEnv(fname))
+      f2,msg = loadstring("return "..params)
+      if not f2 then return nil,msg end
     end
+    f1,msg = loadfile(fname)
   else
-    return loadstring(Text)
+    f1,msg = loadstring(Text)
+  end
+
+  if f1 then
+    Env = Env or setmetatable({_filename=fname}, gmeta)
+    setfenv(f1, Env)
+    if f2 then setfenv(f2, Env) end
+    return f1,f2
+  else
+    return nil,msg
   end
 end
 
@@ -136,11 +144,6 @@ local function MacroInit (Id, Text)
     end
   end
   if chunk then
-    if Id == 0 then
-      local env = setmetatable({}, gmeta)
-      setfenv(chunk, env)
-    end
-    if params then setfenv(params, getfenv(chunk)) end
     local macro = { coro=co_create(chunk), params=params, store={} }
     table.insert(RunningMacros, macro)
     return #RunningMacros
@@ -227,8 +230,7 @@ local function ExecString (text, flags, params)
   if type(text)=="string" then
     local chunk, msg = loadmacro(text)
     if chunk then
-      local env = setmetatable({},{__index=_G})
-      TableExecString = pack(setfenv(chunk, env)(unpack(params,1,params.n)))
+      TableExecString = pack(chunk(unpack(params,1,params.n)))
       return F.MPRT_NORMALFINISH, TableExecString
     else
       ErrMsg(msg)

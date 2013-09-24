@@ -397,19 +397,16 @@ function mf.eval (str, mode)
     end
   end
 
-  local chunk, params = args.loadmacro(str)
+  local chunk, params = args.loadmacro(str, getfenv(2))
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end
-    local env = getfenv(2)
-    setfenv(chunk, env)
-    if params then chunk(setfenv(params, env)())
+    if params then chunk(params)
     else chunk()
     end
     return 0
   else
-    local msg = params
-    far.Message(msg, "LuaMacro", nil, "wl")
+    args.ErrMsg(params)
     return mode==3 and msg or 11
   end
 end
