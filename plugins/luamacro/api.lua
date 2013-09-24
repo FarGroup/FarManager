@@ -406,7 +406,8 @@ function mf.eval (str, mode)
     end
     return 0
   else
-    args.ErrMsg(params)
+    local msg = params
+    args.ErrMsg(msg)
     return mode==3 and msg or 11
   end
 end
