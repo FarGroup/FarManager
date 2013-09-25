@@ -1,18 +1,5 @@
 Macro {
-  area="Shell"; key="Ctrl&quot;"; flags=""; description="Opening last view/edit of a file"; action = function()
+  area="Shell Viewer Editor"; key="Ctrl'"; description="Opening last view/edit of a file"; action = function()
 Keys('AltF11 Up Enter')
   end;
 }
-
-Macro {
-  area="Viewer"; key="Ctrl&quot;"; flags=""; description="Opening last view/edit of a file"; action = function()
-Keys('AltF11 Up Enter')
-  end;
-}
-
-Macro {
-  area="Editor"; key="Ctrl&quot;"; flags=""; description="Opening last view/edit of a file"; action = function()
-Keys('AltF11 Up Enter')
-  end;
-}
-
