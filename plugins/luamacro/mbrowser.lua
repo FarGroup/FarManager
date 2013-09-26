@@ -57,6 +57,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
         end
       end
     else
+      m.description=m.description or "id="..m.id
       events[#events+1]=m
     end
   end
@@ -77,7 +78,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
 
   for i,m in ipairs(events) do
     items[#items+1] = { text=("%-19s │ %s"):format(
-                        m.group, m.description or "id="..m.id), macro=m, }
+                        m.group, m.description), macro=m, }
   end
 
   return items
@@ -122,10 +123,58 @@ local ShowOnlyActive = Data and Data.ShowOnlyActive
 
 local function ShowHelp()
   far.Message(
-    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
+    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
       M.MBHelpLine1, M.MBHelpLine2, M.MBHelpLine3, M.MBHelpLine4, M.MBHelpLine5,
-      M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8, M.MBHelpLine9),
+      M.MBHelpLine6, M.MBHelpLine7, M.MBHelpLine8, M.MBHelpLine9, M.MBHelpLine10),
     Title, nil, "l")
+end
+
+local function ShowInfo (m)
+  if m.area then
+    local code = m.code and m.code:gsub("\r?\n"," ") or ""
+    if code:len() > 50 then code = code:sub(1,47).."..." end
+
+    local str = ([[
+description │ %s
+area        │ %s
+key         │ %s
+flags       │ %s
+filemask    │ %s
+priority    │ %s
+condition   │ %s
+action      │ %s
+code        │ %s
+%s
+%s]]) :format(m.description or "id="..m.id,
+              m.area,
+              m.key,
+              utils.FlagsToString(m.flags),
+              m.filemask or "", m.priority or "",
+              m.condition and tostring(m.condition) or "",
+              m.action and tostring(m.action) or "",
+              code,
+              "\1",
+              m.FileName or "<"..M.MBNoFileNameAvail..">")
+    far.Message(str,M.MBTitleMacro,nil,"l")
+  else
+    local str = ([[
+description │ %s
+group       │ %s
+filemask    │ %s
+priority    │ %s
+condition   │ %s
+action      │ %s
+%s
+%s]]) :format(m.description or "",
+              m.group,
+              m.filemask or "",
+              m.priority or "",
+              m.condition and tostring(m.condition) or "",
+              m.action and tostring(m.action) or "",
+              "\1",
+              m.FileName)
+    far.Message(str,M.MBTitleEventHandler,nil,"l")
+  end
 end
 
 local function MenuLoop()
@@ -138,7 +187,9 @@ local function MenuLoop()
     MaxHeight = farRect.Bottom - farRect.Top - 6,
   }
 
-  local bkeys = { {BreakKey="F1"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"}, }
+  local bkeys = {
+    {BreakKey="F1"},{BreakKey="F3"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"},
+  }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
   assert(CmpFuncs[SortKey][InvSort])
@@ -165,11 +216,14 @@ local function MenuLoop()
           end
           if check then
             if far.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
-              local key1 = m.keyregex and "" or m.key:match("%S+")
-              if (not m.condition or m.condition(key1)) then
-                far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags, key1)
-                break
-              else Message("condition() check failed")
+              if not m.keyregex then
+                local key1 = m.key:match("%S+")
+                if (not m.condition or m.condition(key1)) then
+                  far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags, key1)
+                  break
+                else Message("condition() check failed")
+                end
+              else Message("cannot guess a key when the macro has regex key specification")
               end
             else Message("flags check failed")
             end
@@ -188,6 +242,9 @@ local function MenuLoop()
     ----------------------------------------------------------------------------
     elseif BrKey=="F1" then
       ShowHelp()
+    ----------------------------------------------------------------------------
+    elseif BrKey=="F3" and items[pos] then
+      ShowInfo(items[pos].macro)
     ----------------------------------------------------------------------------
     elseif BrKey=="C+H" then -- hide inactive macros
       ShowOnlyActive = not ShowOnlyActive

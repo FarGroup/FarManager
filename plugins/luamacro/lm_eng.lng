@@ -5,6 +5,7 @@
 
 // macro browser help window
 "F1         show this help window"
+"F3         show info about macro/event"
 "F4         open file in editor"
 "AltF4      open file in modal editor"
 "CtrlPgUp   locate file in active panel"
@@ -17,11 +18,15 @@
 // macro browser separators
 "Macros"
 "Active macros"
-"Events"
+"Event handlers"
 
 // macro browser messages
 "No file name available"
 "File not found"
+
+// macro browser F3 titles
+"Macro"
+"Event handler"
 
 // custom panel sort
 "Sort mode "

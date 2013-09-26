@@ -12,6 +12,7 @@ local list = {
   "MBHelpLine7",
   "MBHelpLine8",
   "MBHelpLine9",
+  "MBHelpLine10",
 
   -- macro browser separators
   "MBSepMacros",
@@ -21,6 +22,10 @@ local list = {
   -- macro browser messages
   "MBNoFileNameAvail",
   "MBFileNotFound",
+
+  -- macro browser F3 titles
+  "MBTitleMacro",
+  "MBTitleEventHandler",
 
   -- custom panel sort
   "PSDefaultMenuItemText",

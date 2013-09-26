@@ -806,4 +806,5 @@ return {
   WriteMacros = WriteMacros,
   GetMacroCopy = GetMacroCopy,
   CheckFileName = CheckFileName,
+  FlagsToString = FlagsToString,
 }
