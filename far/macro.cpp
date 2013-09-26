@@ -727,10 +727,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
-				// Полиция 18
-				if (Global->Opt->Policies.DisabledOptions&FFPOL_CREATEMACRO)
-					return false;
-
 				if (!Global->CtrlObject->Plugins->FindPlugin(LuamacroGuid))
 				{
 					Message(MSG_WARNING,1,MSG(MError),

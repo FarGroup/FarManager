@@ -354,7 +354,7 @@ void PluginManager::LoadPlugins()
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
 			// ...а персональные есть?
-			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
+			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty())
 				strPluginsDir += L";" + Global->Opt->LoadPlug.strPersonalPluginsPath;
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
@@ -1258,10 +1258,6 @@ struct PluginMenuItemData
 */
 void PluginManager::Configure(int StartPos)
 {
-	// ѕолици€ 4 - ѕараметры внешних модулей
-	if (Global->Opt->Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
-		return;
-
 	FARMACROAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 	Global->CtrlObject->Macro.SetMode(MACROAREA_MENU);
 

@@ -1673,7 +1673,6 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"SetFindList", &PluginConfirm.SetFindList, false},
 		{FSSF_PRIVATE,       NKeyPluginConfirmations, L"StandardAssociation", &PluginConfirm.StandardAssociation, false},
 
-		{FSSF_PRIVATE,       NKeyPolicies,L"DisabledOptions", &Policies.DisabledOptions, 0},
 		{FSSF_PRIVATE,       NKeyPolicies,L"ShowHiddenDrives", &Policies.ShowHiddenDrives, true},
 
 		{FSSF_PRIVATE,       NKeyScreen, L"Clock", &Clock, true},
@@ -1873,7 +1872,6 @@ void Options::Load()
 	/* BUGBUG??
 	SetRegRootKey(HKEY_LOCAL_MACHINE);
 	DWORD OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
-	DWORD OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
 	SetRegRootKey(HKEY_CURRENT_USER);
 	*/
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
@@ -1954,8 +1952,6 @@ void Options::Load()
 	// уточняем системную политику
 	// для дисков юзер может только отменять показ
 	Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
-	// для опций юзер может только добавлять блокироку пунктов
-	Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 	*/
 
 	if (Exec.strExecuteBatchType.empty()) // предохраняемся
@@ -2041,9 +2037,6 @@ void Options::Load()
 void Options::Save(bool Ask)
 {
 	InitConfig();
-
-	if (Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
-		return;
 
 	if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
 		return;
@@ -2715,17 +2708,6 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
-
-	if (Policies.DisabledOptions)
-	{
-		for (size_t I = 0; I < ARRAYSIZE(OptionsMenu); ++I)
-		{
-			if (I >= MENU_OPTIONS_CONFIRMATIONS)
-				OptionsMenu[I].SetGrayed((Policies.DisabledOptions >> (I-1)) & 1);
-			else
-				OptionsMenu[I].SetGrayed((Policies.DisabledOptions >> I) & 1);
-		}
-	}
 
 	SetLeftRightMenuChecks(LeftMenu, true);
 	SetLeftRightMenuChecks(RightMenu, false);

@@ -97,13 +97,6 @@ void ShowProcessList()
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					// Полиция 21
-					if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
-					{
-						Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
-						break;
-					}
-
 					HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
 					if (ProcWnd)
@@ -203,10 +196,6 @@ void ShowProcessList()
 
 BOOL KillProcess(DWORD dwPID)
 {
-	// Полиция 21
-	if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
-		return FALSE;
-
 	HANDLE hProcess;
 	BOOL bRet;
 	hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);

@@ -593,10 +593,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 				case L'P':
 				{
-					// Полиция 19 - BUGBUG ни кто эту опцию вообще не читал
-					//if (Global->Opt->Policies.DisabledOptions&FFPOL_USEPSWITCH)
-						//break;
-
 					Global->Opt->LoadPlug.PluginsPersonal = false;
 					Global->Opt->LoadPlug.MainPluginDir = false;
 
