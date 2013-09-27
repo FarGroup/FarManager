@@ -103,11 +103,11 @@ static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 	return Str;
 }
 
-static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
+static string& InsertCustomQuote(string &strStr, wchar_t QuoteChar)
 {
 	size_t l = strStr.size();
 
-	if (strStr[0] != QuoteChar)
+	if (!l || strStr[0] != QuoteChar)
 	{
 		strStr.insert(0, 1, QuoteChar);
 		l++;

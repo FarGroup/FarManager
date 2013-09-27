@@ -1,3 +1,9 @@
+w17 27.09.2013 18:12:55 +0400 - build 3684
+
+1. M#2499: Exception при попытке поиска в файле в режиме просмотра
+
+2. Editor Clipboard paste fix.vc10
+
 svs 26.09.2013 13:02:27 +0400 - build 3683
 
 1. Удалены политики (Policies.DisabledOptions)

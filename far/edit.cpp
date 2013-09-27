@@ -1357,17 +1357,17 @@ int Edit::ProcessKey(int Key)
 			for (int i=StrLength(Str)-1; i>=0 && IsEol(Str[i]); i--)
 				Str[i]=0;
 
-			for (int i=0; ClipText[i]; i++)
+			for (size_t i=0; ClipText.data()[i]; i++)
 			{
-				if (IsEol(ClipText[i]))
+				if (IsEol(ClipText.data()[i]))
 				{
-					if (IsEol(ClipText[i+1]))
-						wmemmove(&ClipText[i],&ClipText[i+1],StrLength(&ClipText[i+1])+1);
+					if (IsEol(ClipText.data()[i+1]))
+						ClipText.erase(i, 1);
 
-					if (!ClipText[i+1])
-						ClipText[i]=0;
+					if (i+1 == ClipText.size())
+						ClipText.resize(i);
 					else
-						ClipText[i]=L' ';
+						ClipText[i] = L' ';
 				}
 			}
 

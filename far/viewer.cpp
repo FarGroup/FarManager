@@ -173,6 +173,9 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
 
+	if (DefCodePage != CP_DEFAULT)
+		MB.SetCP(DefCodePage);
+
 	VM.CodePage=DefCodePage;
 	VM.Wrap=Global->Opt->ViOpt.ViewerIsWrap;
 	VM.WordWrap=Global->Opt->ViOpt.ViewerWrap;
@@ -2755,7 +2758,6 @@ struct Viewer::search_data
 	const wchar_t *search_text;
 	int search_len;
 	int  ch_size;
-	bool is_utf8;
 	bool first_Rex;
 	int RexMatchCount;
 	std::vector<RegExpMatch> RexMatch;
@@ -2768,7 +2770,6 @@ struct Viewer::search_data
 		search_text(nullptr),
 		search_len(0),
 		ch_size(0),
-		is_utf8(false),
 		first_Rex(true),
 		RexMatchCount(0)
 	{
@@ -2894,7 +2895,7 @@ int Viewer::search_hex_backward( search_data* sd )
 int Viewer::search_text_forward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
-	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
+	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to1, to, cpos = sd->CurPos;
 
@@ -2967,7 +2968,7 @@ int Viewer::search_text_forward( search_data* sd )
 int Viewer::search_text_backward( search_data* sd )
 {
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
-	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->is_utf8 ? buff + bsize : nullptr);
+	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
 	INT64 to, cpos = sd->CurPos;
 
@@ -3077,7 +3078,7 @@ int Viewer::search_regex_forward( search_data* sd )
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
 
-	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
+	wchar_t *line = Search_buffer.data(), *t_line = sd->ch_size < 0 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0;
 
 	int first = (sd->first_Rex ? +1 : 0);
@@ -3141,7 +3142,7 @@ int Viewer::search_regex_backward( search_data* sd )
 	assert(sd->pRex);
 	assert(Search_buffer.size() >= static_cast<size_t>(2*MAX_VIEWLINEB));
 
-	wchar_t *line = Search_buffer.data(), *t_line = sd->is_utf8 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
+	wchar_t *line = Search_buffer.data(), *t_line = sd->ch_size < 0 ? Search_buffer.data() + MAX_VIEWLINEB : nullptr;
 	INT64 cpos = sd->CurPos, bpos = 0, prev_pos = -1;
 
 	bool up_half = cpos > StartSearchPos;
@@ -3325,7 +3326,6 @@ void Viewer::Search(int Next,int FirstChar)
 	}
 	else
 	{
-		sd.is_utf8 = VM.CodePage == CP_UTF8;
 		sd.ch_size = getCharSize();
 		sd.search_text = strSearchStr.data();
 
@@ -3728,7 +3728,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			ReadSize = 0;
 			for (int ib = 0; ib < ConvertSize; )
 			{
-				int clen = MB.GetChar((BYTE *)TmpBuf, ConvertSize-ib, *(Buf+ReadSize));
+				int clen = MB.GetChar((BYTE *)(TmpBuf+ib), ConvertSize-ib, *(Buf+ReadSize));
 				if (clen > 0)
 				{
 					if (Buf2)
