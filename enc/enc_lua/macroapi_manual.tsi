@@ -61,7 +61,7 @@ lv=2
 dt=Text
 nm=»зменени€ API в сравнении с макро€зыком
 ctime=3553185939
-mtime=3555411576
+mtime=3589486028
 <article>
 #_<markdown>
 #_
@@ -102,6 +102,7 @@ mtime=3555411576
 #_1. `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- см. таблицу [`Mouse`][Mouse]
 #_1. `RCounter` больше не существует.
 #_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` и `Macro.Var` больше не существуют.
+#_1. ¬ спецификаци€х макросов флаг `DisableOutput` больше не существует; перерисовка экрана по умолчанию запрещена; добавлен флаг `EnableOutput` (примен€ть его, если нужна перерисовка экрана во врем€ исполнени€ макроса).
 #_
 #_[exit]: 61.html
 #_[mload]: 13.html
