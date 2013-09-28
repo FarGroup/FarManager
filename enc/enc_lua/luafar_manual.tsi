@@ -2373,9 +2373,23 @@ lv=2
 dt=Text
 nm=far.CreateUserControl
 ctime=3585338276
-mtime=3585338455
+mtime=3589527758
 <article>
-#_**NOT DOCUMENTED**
+#_<markdown>
+#_Поддержка буфера для `DI_USERCONTROL`. Использовать примерно так:
+#_
+#_```
+#_local buffer=far.CreateUserControl(10,10)
+#_local textel={Char="a",Attributes={Flags=bit64.bor(F.FCF_FG_4BIT,F.FCF_BG_4BIT),ForegroundColor=9,BackgroundColor=8}}
+#_for ii=1,#buffer do
+#_  buffer[ii]=textel
+#_end
+#_local items={
+#_  {"DI_DOUBLEBOX",0,0,11,11,0,0,0,0,""},
+#_  {"DI_USERCONTROL",1,1,10,10,buffer,0,0,0,""}
+#_}
+#_```
+#_
 </article>
 </node>
 <node>
