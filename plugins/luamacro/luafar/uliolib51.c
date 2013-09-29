@@ -202,13 +202,25 @@ static int io_tostring(lua_State *L)
 }
 
 
+static volatile int wfopen_error;
+
+// Prevents CRTs newer than msvcrt.dll from terminating the application when the script calls, e.g.
+//   io.open(filename, "qwerty")
+static void wfopen_invalid_parameter_handler (const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved)
+{
+	wfopen_error = 1;
+}
+
 static int io_open(lua_State *L)
 {
 	const wchar_t *filename = check_utf8_string(L, 1, NULL);
 	const wchar_t *mode = opt_utf8_string(L, 2, L"r");
 	FILE **pf = newfile(L);
+	_invalid_parameter_handler oldhandler = _set_invalid_parameter_handler(wfopen_invalid_parameter_handler);
+	wfopen_error = 0;
 	*pf = _wfopen(filename, mode);
-	return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
+	_set_invalid_parameter_handler(oldhandler);
+	return (wfopen_error || *pf == NULL) ? pushresult(L, 0, filename) : 1;
 }
 
 
