@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 27.09.2013 18:12:55 +0400 - build 3684
+
+1. M#2499: Exception while trying to search for a file in the viewer mode
+
+2. Editor Clipboard paste fix.vc10
+
+svs 26.09.2013 13:02:27 +0400 - build 3683
+
+1. Policies are removed (Policies.DisabledOptions)
+
+drkns 25.09.2013 00:08:15 +0200 - build 3682
+
+1. 0002498: Filter cannot be disabled if there are same extensions with a different case
+
+w17 25.09.2013 00:36:10 +0400 - build 3681
+
+1. correction of 3680
+
+drkns 24.09.2013 22:10:50 +0200 - build 3680
+
+1. 0002497: If down arrow is pressed and held on any but last menu item then the cursor runs off the menu.
+
+w17 23.09.2013 20:33:42 +0400 - build 3679
+
+1. M#2495: [Folders history] In the absence of an appropriate plug-in history an empty string is shown.
+   (from Denis)
+
+w17 23.09.2013 19:54:36 +0400 - build 3678
+
+1. M#2496: Disable hotkeys highlighting in history for its slowness on large number of items
+   (from Denis)
+
 shmuel 22.09.2013 20:02:30 +0200 - build 3677
 
 1. Macros, experimental:
