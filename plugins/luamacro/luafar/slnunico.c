@@ -1672,7 +1672,7 @@ static int str_format(lua_State *L)
 					size_t l;
 					wchar_t *s = check_utf8_string(L, arg, &l);
 
-					if(!hasprecision && l >= 100)
+					if(!hasprecision && l >= 1000)
 					{
 						/* no precision and string is too long to be formatted;
 							 keep original string */
