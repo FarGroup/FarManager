@@ -103,9 +103,14 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	CopyBuf.reserve(BufSize);
 	GetText(X1,Y1,X2,Y2,CharBuf.data(), CharBuf.size() * sizeof(FAR_CHAR_INFO));
 
-	FAR_CHAR_INFO* PtrCharBuf = CharBuf.data();
+	string Line;
+	Line.reserve(GWidth);
+
+	auto PtrCharBuf = CharBuf.begin();
 	for (int I=0; I<GHeight; I++)
 	{
+		Line.clear();
+
 		if (I>0)
 		{
 			CopyBuf.append(L"\r\n");
@@ -152,8 +157,9 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 				}
 			}
 
-			CopyBuf.push_back(Chr);
+			Line.push_back(Chr);
 		}
+		CopyBuf += RemoveTrailingSpaces(Line);
 	}
 
 	Clipboard clip;
