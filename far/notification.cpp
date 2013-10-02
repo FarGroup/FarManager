@@ -45,13 +45,13 @@ ilistener::~ilistener()
 	m_notification.unsubscribe(this);
 }
 
-listener::listener(const string& id, std::function<void()> function):
+listener::listener(const string& id, const std::function<void()>& function):
 	ilistener(Global->Notifier->at(id)),
 	m_function(function)
 {
 }
 
-listener::listener(std::function<void(const payload&)> function, const string& id):
+listener::listener(const std::function<void(const payload&)>& function, const string& id):
 	ilistener(Global->Notifier->at(id)),
 	m_ex_function(function)
 {

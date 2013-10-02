@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 #include "imports.hpp"
+#include "notification.hpp"
 
 struct loc_names
 {
@@ -638,36 +639,34 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	}
 }
 
-void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
-                 int Brief,int TextMonth,int FullYear,int DynInit)
-{
-	static int WDateFormat;
-	static wchar_t WDateSeparator,WTimeSeparator,WDecimalSeparator;
-	static bool Init=false;
-	static SYSTEMTIME lt;
-	int DateFormat;
-	wchar_t DateSeparator,TimeSeparator,DecimalSeparator;
+static bool IntlInit=false;
 
-	if (!Init)
+void OnIntlSettingsChange()
+{
+	IntlInit = false;
+}
+
+void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
+                 int Brief,int TextMonth,int FullYear)
+{
+	static SYSTEMTIME lt;
+	static int DateFormat;
+	static wchar_t DateSeparator,TimeSeparator,DecimalSeparator;
+
+	if (!IntlInit)
 	{
-		WDateFormat=GetDateFormat();
-		WDateSeparator=GetDateSeparator();
-		WTimeSeparator=GetTimeSeparator();
-		WDecimalSeparator=GetDecimalSeparator();
+		DateFormat=GetDateFormat();
+		DateSeparator=GetDateSeparator();
+		TimeSeparator=GetTimeSeparator();
+		DecimalSeparator=GetDecimalSeparator();
 		GetLocalTime(&lt);
-		Init=true;
+		IntlInit = true;
 	}
 
-	DateFormat=DynInit?GetDateFormat():WDateFormat;
-	DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
-	TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
-	DecimalSeparator=DynInit?GetDecimalSeparator():WDecimalSeparator;
 	int CurDateFormat=DateFormat;
 
 	if (Brief && CurDateFormat==2)
 		CurDateFormat=0;
-
-	SYSTEMTIME st;
 
 	if (!ft.dwHighDateTime)
 	{
@@ -676,6 +675,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		return;
 	}
 
+	SYSTEMTIME st;
 	Utc2Local(ft, st);
 	//if ( !strTimeText.empty() )
 	{

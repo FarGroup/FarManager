@@ -487,7 +487,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					ft=*reinterpret_cast<PFILETIME>(Param2);
 				}
 
-				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2,TRUE);
+				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2);
 			}
 
 			// Глянем на место, где был клик
@@ -854,10 +854,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					if (DlgParam.Plugin || api::GetFindDataEx(strSelName, FindData))
 					{
-						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2,TRUE);
-						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2,TRUE);
-						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2,TRUE);
-						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2,TRUE);
+						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
 					}
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
@@ -1078,7 +1078,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				std::for_each(CONST_RANGE(Dates, i)
 				{
-					ConvertDate(*i.TimeValue, AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, FALSE, FALSE, 2, TRUE);
+					ConvertDate(*i.TimeValue, AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, FALSE, FALSE, 2);
 				});
 			}
 

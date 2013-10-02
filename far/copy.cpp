@@ -3730,9 +3730,9 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 				FormatString strDestSizeText;
 				strDestSizeText<<DestSize;
 				string strDateText, strTimeText;
-				ConvertDate(SrcLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(SrcLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
 				strSrcFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopySource)<<L" "<<fmt::ExactWidth(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
-				ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
 				strDestFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopyDest)<<L" "<<fmt::ExactWidth(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 
 				WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr.data();
@@ -3830,9 +3830,9 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 					unsigned __int64 DestSize = DestData.nFileSize;
 					FormatString strDestSizeText;
 					strDestSizeText<<DestSize;
-					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
 					strSrcFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopySource)<<L" "<<fmt::ExactWidth(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
-					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
 					strDestFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopyDest)<<L" "<<fmt::ExactWidth(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr.data();

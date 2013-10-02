@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const wchar_t* devices_notify = L"devices";
 static const wchar_t* power_notify = L"power";
 static const wchar_t* environment_notify = L"environment";
+static const wchar_t* intl_notify = L"intl";
 
 LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -81,11 +82,21 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SETTINGCHANGE:
-		if(Global->Opt->UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
+		if(lParam)
 		{
-			Global->Notifier->at(environment_notify).notify(std::make_unique<payload>());
-			break;
+			if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
+			{
+				if (Global->Opt->UpdateEnvironment) 
+				{
+					Global->Notifier->at(environment_notify).notify(std::make_unique<payload>());
+				}
+			}
+			else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"intl"))
+			{
+				Global->Notifier->at(intl_notify).notify(std::make_unique<payload>());
+			}
 		}
+		break;
 
 	case WM_POWERBROADCAST:
 		switch(wParam)
@@ -112,6 +123,7 @@ WindowHandler::WindowHandler():
 	Global->Notifier->add(std::make_unique<notification>(devices_notify));
 	Global->Notifier->add(std::make_unique<notification>(power_notify));
 	Global->Notifier->add(std::make_unique<notification>(environment_notify));
+	Global->Notifier->add(std::make_unique<notification>(intl_notify));
 
 	m_exitEvent.Open();
 

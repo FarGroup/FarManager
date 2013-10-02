@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "notification.hpp"
 #include "message.hpp"
+#include "datetime.hpp"
 
 global *Global = nullptr;
 
@@ -476,11 +477,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		Database::ClearPluginsCache();
 		return 0;
 	}
-
-	listener EnvironmentListener(L"environment", []()
-	{
-		ReloadEnvironment();
-	});
+	listener EnvironmentListener(L"environment", &ReloadEnvironment);
+	listener IntlListener(L"intl", &OnIntlSettingsChange);
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 

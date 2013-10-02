@@ -261,7 +261,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE, TRUE);
+					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += strHName;

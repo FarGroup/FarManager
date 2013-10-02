@@ -56,8 +56,8 @@ private:
 class listener : public ilistener
 {
 public:
-	listener(const string& id, std::function<void()> function);
-	listener(std::function<void(const payload&)> function, const string& id);
+	listener(const string& id, const std::function<void()>& function);
+	listener(const std::function<void(const payload&)>& function, const string& id);
 	virtual void callback(const payload& p) { m_ex_function? m_ex_function(p) : m_function(); }
 
 private:

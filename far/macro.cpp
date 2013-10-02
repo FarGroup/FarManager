@@ -5085,19 +5085,19 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber((long)filelistItem->FileAttr, Data);
 				return false;
 			case 3:  // CreationTime
-				ConvertDate(filelistItem->CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(filelistItem->CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
 				Ret=TVar(strDate);
 				break;
 			case 4:  // AccessTime
-				ConvertDate(filelistItem->AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(filelistItem->AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
 				Ret=TVar(strDate);
 				break;
 			case 5:  // WriteTime
-				ConvertDate(filelistItem->WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(filelistItem->WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
 				Ret=TVar(strDate);
@@ -5145,7 +5145,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(filelistItem->StreamsSize, Data);
 				return false;
 			case 20:  // ChangeTime
-				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				strDate += L" ";
 				strDate += strTime;
 				Ret=TVar(strDate);
