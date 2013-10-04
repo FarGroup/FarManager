@@ -203,7 +203,7 @@ static int MainProcess(
 					AddEndSlash(strPath);
 				}
 
-				auto& CurrentPanelOptions = (Global->Opt->LeftFocus && active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
+				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
 				CurrentPanelOptions.Type=FILE_PANEL;  // сменим моду панели
 				CurrentPanelOptions.Visible=TRUE;     // и включим ее
 				CurrentPanelOptions.Folder = strPath;
@@ -769,6 +769,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		if (Message(MSG_WARNING, 2, MSG(MExcTrappedException), wide(e.what()).data(), MSG(MExcTerminate), MSG(MExcDebugger)) == 0)
 			std::terminate();
 	}
+
+	delete Global->CtrlObject;
+	Global->CtrlObject = nullptr;
 
 	CloseConsole();
 
