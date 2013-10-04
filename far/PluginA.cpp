@@ -2624,7 +2624,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				{
 					Items.resize(newlist.ItemsNumber);
 					for (size_t i=0; i<newlist.ItemsNumber; i++)
-						AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
+						AnsiListItemToUnicode(&oldlist->Items[i], &Items[i]);
 
 					newlist.Items = Items.data();
 				}
