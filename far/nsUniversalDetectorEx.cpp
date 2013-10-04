@@ -136,7 +136,7 @@ private:
 
 uintptr_t GetCpUsingUniversalDetector(const void* data, size_t size)
 {
-	static nsUniversalDetectorEx ns;
+	nsUniversalDetectorEx ns;
 	ns.HandleData(static_cast<const char*>(data), static_cast<ucd::PRUint32>(size));
 	ns.DataEnd();
 	return ns.getCodePage();
