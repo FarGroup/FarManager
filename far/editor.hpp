@@ -65,12 +65,17 @@ struct EditorUndoData
 	int StrPos;
 	int StrNum;
 	wchar_t EOL[10];
-	int Length;
+	size_t Length;
 	wchar_t_ptr Str;
 	InternalEditorSessionBookMark *BM; //treat as uni-directional linked list
+
+private:
 	static size_t UndoDataSize;
 
-	EditorUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1):
+public:
+	static size_t GetUndoDataSize() { return UndoDataSize; }
+
+	EditorUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,size_t Length):
 		Type(),
 		StrPos(),
 		StrNum(),
@@ -83,8 +88,7 @@ struct EditorUndoData
 
 	~EditorUndoData()
 	{
-		if (Length > 0)
-			UndoDataSize -= Length;
+		UndoDataSize -= Length;
 		DeleteAllSessionBM();
 	}
 
@@ -105,28 +109,19 @@ struct EditorUndoData
 		std::swap(StrPos, Right.StrPos);
 		std::swap(StrNum, Right.StrNum);
 		std::swap(Length, Right.Length);
-
-		if (Length > 0)
-			UndoDataSize += Length;
-
 		Str.swap(Right.Str);
 		std::swap(EOL, Right.EOL);
 		std::swap(BM, Right.BM);
 		return *this;
 	}
 
-	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)
+	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,size_t Length)
 	{
-		if (Length == -1 && Str)
-			Length = StrLength(Str);
-
 		this->Type=Type;
 		this->StrPos=StrPos;
 		this->StrNum=StrNum;
-		if (this->Length > 0)
-			UndoDataSize -= this->Length;
-		if (Length > 0)
-			UndoDataSize += Length;
+		UndoDataSize -= this->Length;
+		UndoDataSize += Length;
 		this->Length=Length;
 		xwcsncpy(EOL,Eol?Eol:L"",ARRAYSIZE(EOL)-1);
 
@@ -329,7 +324,8 @@ class Editor:public ScreenObject
 		void UnmarkEmptyBlock();
 		void UnmarkMacroBlock();
 
-		void AddUndoData(int Type,const wchar_t *Str=nullptr,const wchar_t *Eol=nullptr,int StrNum=0,int StrPos=0,int Length=-1);
+		void AddUndoData(int Type) { return AddUndoData(Type, nullptr, nullptr, 0, 0, 0); }
+		void AddUndoData(int Type,const wchar_t *Str, const wchar_t *Eol, int StrNum, int StrPos, int Length);
 		void AddUndoData(const InternalEditorSessionBookMark *BM);
 		void Undo(int redo);
 		void SelectAll();

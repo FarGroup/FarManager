@@ -887,7 +887,7 @@ string& FarFormatText(const string& SrcText,      // источник
 	}
 
 	long i=0, l=0, pgr=0;
-	wchar_t *newtext;
+	string newtext;
 	const wchar_t *text= strSrc.data();
 	long linelength = Width;
 	int breakcharlen = StrLength(breakchar);
@@ -897,13 +897,7 @@ string& FarFormatText(const string& SrcText,      // источник
 
 	if (breakcharlen == 1 && !docut)
 	{
-		newtext = DuplicateString(text);
-
-		if (!newtext)
-		{
-			strDestText.clear();
-			return strDestText;
-		}
+		newtext = text;
 
 		while (newtext[i] != L'\0')
 		{
@@ -962,16 +956,6 @@ string& FarFormatText(const string& SrcText,      // источник
 	else
 	{
 		int last = 0;
-		/* Multiple character line break */
-		newtext = new wchar_t[strSrc.size() * (breakcharlen + 1 ) + 1];
-
-		if (!newtext)
-		{
-			strDestText.clear();
-			return strDestText;
-		}
-
-		newtext[0] = L'\0';
 		i = 0;
 
 		while (text[i] != L'\0')
@@ -1000,8 +984,8 @@ string& FarFormatText(const string& SrcText,      // источник
 				{
 					if (text[i+l] == L' ')
 					{
-						wcsncat(newtext, text+last, i+l-last);
-						wcscat(newtext, breakchar);
+						newtext.append(text+last, i+l-last);
+						newtext += breakchar;
 						last = i + l + 1;
 						break;
 					}
@@ -1020,8 +1004,8 @@ string& FarFormatText(const string& SrcText,      // источник
 						{
 							if (text[i+l] == L' ')
 							{
-								wcsncat(newtext, text+last, i+l-last);
-								wcscat(newtext, breakchar);
+								newtext.append(text+last, i+l-last);
+								newtext += breakchar;
 								last = i + l + 1;
 								break;
 							}
@@ -1031,8 +1015,8 @@ string& FarFormatText(const string& SrcText,      // источник
 						{
 							if (text[i+l] == L' ' || l > i-last)
 							{
-								wcsncat(newtext, text+last, i+l-last+1);
-								wcscat(newtext, breakchar);
+								newtext.append(text+last, i+l-last+1);
+								newtext += breakchar;
 								last = i + l + 1;
 								break;
 							}
@@ -1052,12 +1036,11 @@ string& FarFormatText(const string& SrcText,      // источник
 
 		if (i+l > last)
 		{
-			wcscat(newtext, text+last);
+			newtext += text+last;
 		}
 	}
 
 	strDestText = newtext;
-	delete[] newtext;
 	return strDestText;
 }
 

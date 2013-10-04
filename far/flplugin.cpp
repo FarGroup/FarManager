@@ -352,7 +352,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	{
 		fi->DizText=new wchar_t[StrLength(pi->Description)+1];
 		wcscpy(fi->DizText, pi->Description);
-		fi->DeleteDiz=TRUE;
+		fi->DeleteDiz=true;
 	}
 	else
 		fi->DizText=nullptr;

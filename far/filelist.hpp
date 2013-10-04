@@ -57,7 +57,7 @@ struct FileListItem:public Panel::panelitem
 	size_t Position;
 	int SortGroup;
 	wchar_t *DizText;
-	char DeleteDiz;
+	bool DeleteDiz;
 	string strOwner;
 	wchar_t **CustomColumnData;
 	size_t CustomColumnNumber;

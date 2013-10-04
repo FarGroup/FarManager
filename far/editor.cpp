@@ -3379,7 +3379,7 @@ void Editor::InsertString()
 		AddUndoData(UNDO_BEGIN);
 		AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
 		            CurLine->GetCurPos(),CurLine->GetLength());
-		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
+		AddUndoData(UNDO_INSSTR, nullptr, CurLine->GetEOL(), NumLine+1, 0, 0);
 		AddUndoData(UNDO_END);
 		wchar_t_ptr NewCurLineStr(CurPos + 1);
 
@@ -3402,7 +3402,7 @@ void Editor::InsertString()
 	else
 	{
 		NewString->SetString(L"");
-		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
+		AddUndoData(UNDO_INSSTR, nullptr, CurLine->GetEOL(), NumLine+1, 0, 0);
 	}
 
 	if (EndSeq && *EndSeq)
@@ -4880,7 +4880,7 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 
 	if (EdOpt.UndoSize>0)
 	{
-		while (!UndoData.empty() && (EditorUndoData::UndoDataSize>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
+		while (!UndoData.empty() && (EditorUndoData::GetUndoDataSize()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
 			auto u=UndoData.begin();
 
@@ -5011,7 +5011,7 @@ void Editor::Undo(int redo)
 
 				if (ud->Str)
 				{
-					CurLine->SetString(ud->Str.get(),ud->Length);
+					CurLine->SetString(ud->Str.get(), static_cast<int>(ud->Length));
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}
@@ -5023,7 +5023,7 @@ void Editor::Undo(int redo)
 
 				if (ud->Str)
 				{
-					CurLine->SetString(ud->Str.get(),ud->Length);
+					CurLine->SetString(ud->Str.get(), static_cast<int>(ud->Length));
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
 					Change(ECTYPE_CHANGED,NumLine);
 				}

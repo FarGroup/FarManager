@@ -199,7 +199,7 @@ public:
 	static void DelTreeName(const string& Name);
 	static void RenTreeName(const string& SrcName, const string& DestName);
 	static void ReadSubTree(const string& Path);
-	static void ClearCache(int EnableFreeMem);
+	static void ClearCache();
 	static void ReadCache(const string& TreeRoot);
 	static void FlushCache();
 

@@ -76,7 +76,7 @@ ControlObject::ControlObject():
 
 void ControlObject::Init(int DirCount)
 {
-	TreeList::ClearCache(0);
+	TreeList::ClearCache();
 	SetColor(COL_COMMANDLINEUSERSCREEN);
 	GotoXY(0,ScrY-3);
 	ShowCopyright();

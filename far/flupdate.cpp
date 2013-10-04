@@ -750,7 +750,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		if (!CurListData.DizText)
 		{
-			CurListData.DeleteDiz=FALSE;
+			CurListData.DeleteDiz=false;
 			//CurListData.DizText=nullptr;
 		}
 
@@ -925,7 +925,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	{
 		if (!i->DizText)
 		{
-			i->DeleteDiz = FALSE;
+			i->DeleteDiz = false;
 			i->DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i->strName, i->strShortName, i->FileSize));
 		}
 	});

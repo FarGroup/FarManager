@@ -1701,7 +1701,7 @@ void TreeList::ReadSubTree(const string& Path)
 	}
 }
 
-void TreeList::ClearCache(int EnableFreeMem)
+void TreeList::ClearCache()
 {
 	Global->TreeCache->Clean();
 }
@@ -1721,7 +1721,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 	{
 		if (!GetCacheTreeName(TreeRoot, strTreeName, FALSE) || !TreeFile.Open(strTreeName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			ClearCache(1);
+			ClearCache();
 			return;
 		}
 	}
@@ -1756,7 +1756,7 @@ void TreeList::FlushCache()
 		api::File TreeFile;
 		if (!TreeFile.Open(Global->TreeCache->strTreeName, FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS))
 		{
-			ClearCache(1);
+			ClearCache();
 			return;
 		}
 		CachedWrite Cache(TreeFile);
@@ -1782,7 +1782,7 @@ void TreeList::FlushCache()
 		else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
 			api::SetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
 	}
-	ClearCache(1);
+	ClearCache();
 }
 
 void TreeList::UpdateViewPanel()
