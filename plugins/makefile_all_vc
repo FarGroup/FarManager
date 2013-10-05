@@ -48,6 +48,7 @@ VC=10
 !endif
 
 !include ./makefile_vc_getmode
+!include ./makefile_vc_base
 
 ##########################
 all:    libcrt $(OUTPATH) $(ALLDIRS)
