@@ -3,6 +3,44 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.10.2013 13:26:56 +0200 - build 3692
+
+1. Entering some characters in the drive change dialog could cause AV.
+
+drkns 04.10.2013 22:29:28 +0200 - build 3691
+
+1. Another correction on CtrlZ in the editor.
+
+2. Refactoring.
+
+drkns 04.10.2013 14:12:40 +0200 - build 3690
+
+1. Correction of 3654.
+
+drkns 04.10.2013 12:40:35 +0200 - build 3689
+
+1. Correction of 3659.
+
+w17 04.10.2013 07:04:27 +0400 - build 3688
+
+1. Forum:
+   Issue #1. FAR starts with %temp% on one panel only, another one shows some old folder.
+   Issue #2. Exiting FAR --> a blinking cursor is hidden in an original cmd window.
+
+drkns 02.10.2013 12:44:54 +0200 - build 3687
+
+1. Watch for date/time format change dynamically.
+
+drkns 02.10.2013 11:23:30 +0200 - build 3686
+
+1. For a date format beginning with the year it was shown without leading zero. 
+
+drkns 01.10.2013 18:51:46 +0200 - build 3685
+
+1. Restore stripping of spaces when copying text from the screen.
+
+2. Start with an empty console caption (start "" far.exe) caused crash.
+
 w17 27.09.2013 18:12:55 +0400 - build 3684
 
 1. M#2499: Exception while trying to search for a file in the viewer mode
