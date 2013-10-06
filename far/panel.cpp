@@ -910,7 +910,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
 
-			if (NetworkMask[mitem->cDrive-L'A'])
+			// In general, mitem->cDrive can contain any unicode character
+			if (mitem->cDrive >= L'A' && mitem->cDrive <= L'Z' && NetworkMask[mitem->cDrive-L'A'])
 			{
 				ConnectToNetworkDrive(NewDir);
 			}
@@ -946,7 +947,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (Builder.ShowDialog())
 			{
-				mitem->cDrive = DriveLetter[0];
+				mitem->cDrive = Upper(DriveLetter[0]);
 			}
 			else
 			{
