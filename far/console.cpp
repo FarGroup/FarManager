@@ -189,7 +189,6 @@ virtual bool GetTitle(string &strTitle) const override
 		std::vector<wchar_t> Buffer(Length + 1);
 		GetWindowText(GetWindow(), Buffer.data(), Length + 1);
 		strTitle.assign(Buffer.data(), Length);
-		MessageBox(0,strTitle.data(),0,0);
 	}
 
 	return true;
