@@ -41,7 +41,8 @@ enum
 	DefaultColor=0xf,
 	ConsoleMask=0xf,
 	ConsoleBgShift=4,
-	ConsoleFgShift=0
+	ConsoleFgShift=0,
+	ConsoleExtraMask = 0xff00
 };
 
 WORD Colors::FarColorToConsoleColor(const FarColor& Color)
@@ -148,13 +149,14 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 		Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift);
 	}
 
-	return Result;
+	return (WORD)(Result | ((WORD)(Color.Flags) & ConsoleExtraMask));
 }
 
 FarColor Colors::ConsoleColorToFarColor(WORD Color)
 {
 	FarColor NewColor;
-	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
+	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask, "Wrong FCF_RAWATTR_MASK");
+	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & ConsoleExtraMask);
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
 	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
 	MAKE_OPAQUE(NewColor.ForegroundColor);
