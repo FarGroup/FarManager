@@ -180,27 +180,19 @@ virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 
 virtual bool GetTitle(string &strTitle) const override
 {
-	wchar_t Buffer[MAX_PATH];
+	// Don't use GetConsoleTitle here, it's buggy.
 
-	// MSDN says that second parameter is the size of the buffer _in characters_, but it's a lie.
-	DWORD Size = GetConsoleTitle(Buffer, ARRAYSIZE(Buffer) * sizeof(wchar_t));
+	size_t Length = GetWindowTextLength(GetWindow());
 
-	if (Size)
+	if (Length)
 	{
-		if (Size + 1 <= ARRAYSIZE(Buffer))
-		{
-			strTitle.assign(Buffer, Size);
-		}
-		else
-		{
-			std::vector<wchar_t> vBuffer(Size + 1);
-			// MSDN says that second parameter is the size of the buffer _in characters_, but it's a lie.
-			GetConsoleTitle(vBuffer.data(), (Size + 1) * sizeof(wchar_t));
-			strTitle.assign(vBuffer.data(), Size);
-		}
+		std::vector<wchar_t> Buffer(Length + 1);
+		GetWindowText(GetWindow(), Buffer.data(), Length + 1);
+		strTitle.assign(Buffer.data(), Length);
+		MessageBox(0,strTitle.data(),0,0);
 	}
 
-	return Size!=0;
+	return true;
 }
 
 virtual bool SetTitle(const string& Title) const override
