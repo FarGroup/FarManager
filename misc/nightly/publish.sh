@@ -14,7 +14,7 @@ processFarBuild()
 	BASE=$PWD
 	
 	cd ../outfinalnew$1
-	if [ ! $? ]; then
+	if [ $? -ne 0 ]; then
 		echo "cd ../outfinalnew$1 failed"
 		return 1
 	fi

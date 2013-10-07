@@ -1,22 +1,18 @@
 #!/bin/bash
 
+function run {
+  ./$1.sh &> logs/$1
+  if [ $? -ne 0 ]; then
+    echo "$1.sh failed"
+    return 1
+  fi
+}
+
 #start mspdbsrv.exe manually before compilation, with an infinite timeout
 #prevents compilation being stuck when using cmake
 wine c:/VC10/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
 
-./far.sh &> logs/far && \
-
-./plugins.sh &> logs/plugins && \
-
-./colorer.sh &> logs/colorer && \
-
-./netbox.sh &> logs/netbox && \
-
-./enc.sh &> logs/enc && \
-
-./docs.sh &> logs/docs && \
-
-./publish.sh &> logs/publish
+run "far" && run "plugins" && run "colorer" && run "netbox" && run "enc" && run "docs" && run "publish"
 
 #kill mspdbsrv.exe as it is no longer needed
 kill `pidof mspdbsrv.exe`
