@@ -182,7 +182,7 @@ virtual bool GetTitle(string &strTitle) const override
 {
 	// Don't use GetConsoleTitle here, it's buggy.
 
-	size_t Length = GetWindowTextLength(GetWindow());
+	int Length = GetWindowTextLength(GetWindow());
 
 	if (Length)
 	{
