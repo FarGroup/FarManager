@@ -1,8 +1,7 @@
 #!/bin/bash
 
 function run {
-  ./$1.sh &> logs/$1
-  if [ $? -ne 0 ]; then
+  if ! ./$1.sh &> logs/$1; then
     echo "$1.sh failed"
     return 1
   fi
