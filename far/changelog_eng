@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.10.2013 20:28:43 +0200 - build 3695
+
+1. Forgotten lancet inside 3694.
+
+drkns 07.10.2013 20:15:52 +0200 - build 3694
+
+1. Once more on obtaining the caption of the console.
+
+w17 07.10.2013 14:31:23 +0400 - build 3693
+
+1. M#2505: duplication of Japanese characters after command run
+
 drkns 06.10.2013 13:26:56 +0200 - build 3692
 
 1. Entering some characters in the drive change dialog could cause AV.
