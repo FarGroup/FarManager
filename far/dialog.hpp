@@ -299,8 +299,8 @@ private:
 	size_t ProcessRadioButton(size_t);
 	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
 	int ProcessMoveDialog(DWORD Key);
-	int Do_ProcessTab(int Next);
-	int Do_ProcessNextCtrl(bool, bool IsRedraw=true);
+	int Do_ProcessTab(bool Next);
+	int Do_ProcessNextCtrl(bool Up, bool IsRedraw=true);
 	int Do_ProcessFirstCtrl();
 	int Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);

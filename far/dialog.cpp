@@ -2621,7 +2621,8 @@ int Dialog::ProcessKey(int Key)
 					strMove = strStr;
 				}
 				Do_ProcessNextCtrl(false, true);
-				((DlgEdit *)Items[FocusPos].ObjPtr)->Changed();
+				if (FocusPos <= EditorLastPos)
+					((DlgEdit *)Items[FocusPos].ObjPtr)->Changed();
 				ShowDialog();
 				return TRUE;
 			}
@@ -3662,7 +3663,7 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 	return TRUE;
 }
 
-int Dialog::Do_ProcessTab(int Next)
+int Dialog::Do_ProcessTab(bool Next)
 {
 	CriticalSectionLock Lock(CS);
 	size_t I;
