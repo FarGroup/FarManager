@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 18.10.2013 11:41:12 +0400 - build 3697
+
+1. SQLite 3.8.1
+
+w17 18.10.2013 00:23:12 +0400 - build 3696
+
+1. Correction of 3300
+
 drkns 07.10.2013 20:28:43 +0200 - build 3695
 
 1. Forgotten lancet inside 3694.
