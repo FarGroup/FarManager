@@ -885,7 +885,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	bool Silent=false;
 
-	if (CmdLine[0] == L'@')
+	if (CmdLine.data()[0] == L'@')
 	{
 		CmdLine.erase(0, 1);
 		Silent=true;
@@ -1000,7 +1000,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	RemoveTrailingSpaces(strCmdLine);
 	bool SilentInt=false;
 
-	if (CmdLine[0] == L'@')
+	if (CmdLine.data()[0] == L'@')
 	{
 		SilentInt=true;
 		strCmdLine.erase(0, 1);

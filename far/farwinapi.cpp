@@ -145,7 +145,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 						}
 
 						// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-						if(!FindData.strFileName.back())
+						if(!FindData.strFileName.empty() && !FindData.strFileName.back())
 						{
 							FindData.strFileName.pop_back();
 						}
@@ -242,7 +242,7 @@ static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 		}
 
 		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-		if(!FindData.strFileName.back())
+		if(!FindData.strFileName.empty() && !FindData.strFileName.back())
 		{
 			FindData.strFileName.pop_back();
 		}
