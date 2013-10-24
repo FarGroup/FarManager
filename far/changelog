@@ -1,3 +1,7 @@
+drkns 24.10.2013 22:22:03 +0200 - build 3699
+
+1. 0002517: Invalid line number supplied in "Go to position" dialog crashes Far Manager
+
 w17 22.10.2013 22:30:45 +0400 - build 3698
 
 1. M#2513: Far падает на файлах с пустым именем (from SEt)

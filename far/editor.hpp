@@ -497,7 +497,7 @@ class Editor:public ScreenObject
 		// который не нужно менять
 		void SetSavePosMode(int SavePos, int SaveShortPos);
 
-		void GetRowCol(const string& argv,int *row,int *col);
+		void GetRowCol(const string& argv,int& row,int& col);
 
 		int  GetLineCurPos();
 		void BeginVBlockMarking();

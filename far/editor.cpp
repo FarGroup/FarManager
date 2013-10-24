@@ -4729,7 +4729,7 @@ void Editor::GoToPosition()
 		int CurPos=CurLine->GetCurPos();
 
 		int NewLine=0, NewCol=0;
-		GetRowCol(strData,&NewLine,&NewCol);
+		GetRowCol(strData, NewLine, NewCol);
 		GoToLine(NewLine);
 
 		if (NewCol == -1)
@@ -4745,29 +4745,43 @@ void Editor::GoToPosition()
 	}
 }
 
-void Editor::GetRowCol(const string& _argv,int *row,int *col)
+void Editor::GetRowCol(const string& _argv, int& row,int& col)
 {
 	int x=0xffff,y;
 
 	int LeftPos=CurLine->GetTabCurPos() + 1;
 	string strArg = _argv;
+	string argvx;
 	// что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
 	// "прибьем" все внешние пробелы.
 	RemoveExternalSpaces(strArg);
-	// получаем индекс вхождения любого разделителя
-	// в искомой строке
-	size_t l = wcscspn(strArg.data(),L",:;. ");
-	// если разделителя нету, то l=strlen(argv)
 
-	const wchar_t* argvx = nullptr;
-	if (l < strArg.size()) // Варианты: "row,col" или ",col"?
+	size_t separator_pos = strArg.find_first_of(L",:;. ");
+	if (separator_pos != string::npos) // Варианты: "row,col" или ",col"?
 	{
-		strArg[l]=L'\0'; // Вместо разделителя впиндюлим "конец строки" :-)
-		argvx=strArg.data()+l+1;
-		x=_wtoi(argvx);
+		argvx = strArg.substr(separator_pos + 1);
+		try
+		{
+			x = std::stoi(argvx);
+		}
+		catch(const std::invalid_argument&)
+		{
+			// TODO maybe we need to display message in case of incorrect input
+			x = 0;
+		}
+		strArg.resize(separator_pos);
 	}
 
-	y = std::stoi(strArg);
+	try
+	{
+		y = std::stoi(strArg);
+	}
+	catch(const std::invalid_argument&)
+	{
+		// TODO maybe we need to display message in case of incorrect input
+		y = 0;
+	}
+
 
 	// + переход на проценты
 	if (strArg.find(L'%') != string::npos)
@@ -4777,7 +4791,7 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 	if (strArg[0]==L'-' || strArg[0]==L'+')
 		y=NumLine+y+1;
 
-	if (argvx)
+	if (!argvx.empty())
 	{
 		if (argvx[0]==L'-' || argvx[0]==L'+')
 		{
@@ -4786,24 +4800,22 @@ void Editor::GetRowCol(const string& _argv,int *row,int *col)
 	}
 
 	// теперь загоним результат назад
-	*row=y;
+	row=y;
 
 	if (x!=0xffff)
-		*col=x;
+		col=x;
 	else
-		*col=LeftPos;
+		col=LeftPos;
 
-	(*row)--;
+	--row;
 
-	if (*row< 0)   // если ввели ",Col"
-		*row=NumLine;  //   то переходим на текущую строку и колонку
+	if (row < 0)   // если ввели ",Col"
+		row=NumLine;  //   то переходим на текущую строку и колонку
 
-	(*col)--;
+	--col;
 
-	if (*col< -1)
-		*col=-1;
-
-	return ;
+	if (col < -1)
+		col = -1;
 }
 
 size_t EditorUndoData::UndoDataSize = 0;
