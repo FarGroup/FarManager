@@ -4764,7 +4764,7 @@ void Editor::GetRowCol(const string& _argv, int& row,int& col)
 		{
 			x = std::stoi(argvx);
 		}
-		catch(const std::invalid_argument&)
+		catch(const std::exception&)
 		{
 			// TODO maybe we need to display message in case of incorrect input
 			x = 0;
@@ -4776,7 +4776,7 @@ void Editor::GetRowCol(const string& _argv, int& row,int& col)
 	{
 		y = std::stoi(strArg);
 	}
-	catch(const std::invalid_argument&)
+	catch(const std::exception&)
 	{
 		// TODO maybe we need to display message in case of incorrect input
 		y = 0;
