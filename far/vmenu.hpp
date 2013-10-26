@@ -400,4 +400,6 @@ class VMenu: public Modal
 
 		void SetId(const GUID& Id);
 		const GUID& Id(void);
+
+		static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 };

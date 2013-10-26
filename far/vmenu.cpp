@@ -3079,3 +3079,20 @@ const GUID& VMenu::Id(void)
 {
 	return MenuId;
 }
+
+void VMenu::AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize)
+{
+	size_t MaxLength = 0;
+	std::for_each(Menu, Menu + MenuSize, [&](const MenuDataEx& i) { MaxLength = std::max(MaxLength, wcslen(i.Name)); });
+	for (size_t i = 0; i < MenuSize; ++i)
+	{
+		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)
+		{
+			string Key;
+			KeyToText(Menu[i].AccelKey, Key);
+			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
+			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
+			Menu[i].Name = Strings[i].data();
+		}
+	}
+}

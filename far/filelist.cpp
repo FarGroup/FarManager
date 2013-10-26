@@ -4676,6 +4676,9 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
+		std::vector<string> MenuStrings(SortMenu.size());
+		VMenu::AddHotkeys(MenuStrings, SortMenu.data(), SortMenu.size());
+
 		VMenu2 SortModeMenu(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
