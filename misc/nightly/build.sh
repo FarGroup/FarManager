@@ -7,11 +7,18 @@ function run {
   fi
 }
 
-#start mspdbsrv.exe manually before compilation, with an infinite timeout
-#prevents compilation being stuck when using cmake
-wine c:/VC10/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
+if svnsync sync file://`pwd`/fromgoogle; then
 
-run "far" && run "plugins" && run "colorer" && run "netbox" && run "enc" && run "docs" && run "publish"
+	#start mspdbsrv.exe manually before compilation, with an infinite timeout
+	#prevents compilation being stuck when using cmake
+	wine c:/VC10/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
 
-#kill mspdbsrv.exe as it is no longer needed
-kill `pidof mspdbsrv.exe`
+
+	run "far" && run "plugins" && run "colorer" && run "netbox" && run "enc" && run "docs" && run "publish"
+
+	#kill mspdbsrv.exe as it is no longer needed
+	kill `pidof mspdbsrv.exe`
+else
+	echo "svnsync failed"
+	exit 1
+fi

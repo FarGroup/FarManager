@@ -31,8 +31,8 @@ rm -fR plugins
 rm -fR misc
 
 ( \
-	svn co http://localhost/svn/trunk/plugins plugins && \
-	svn co http://localhost/svn/trunk/misc misc \
+	svn co file://`pwd`/fromgoogle/trunk/plugins plugins && \
+	svn co file://`pwd`/fromgoogle/trunk/misc misc \
 ) || exit 1
 
 cp -f unicode_far/Include/*.hpp plugins/common/unicode/

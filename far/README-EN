@@ -22,19 +22,19 @@ http://groups.google.com/group/farcommits
 farcommits@googlegroups.com
 
 Get the code
-svn co http://farmanager.com/svn/trunk/unicode_far unicode_far
+svn co http://farmanager.googlecode.com/svn/trunk/unicode_far unicode_far
 
 Far Plugins
-svn co http://farmanager.com/svn/trunk/plugins plugins
+svn co http://farmanager.googlecode.com/svn/trunk/plugins plugins
 
 Far Documentation
-svn co http://farmanager.com/svn/trunk/docs docs
+svn co http://farmanager.googlecode.com/svn/trunk/docs docs
 
 Far Addons
-svn co http://farmanager.com/svn/trunk/addons addons
+svn co http://farmanager.googlecode.com/svn/trunk/addons addons
 
 Encyclopedia
-svn co http://farmanager.com/svn/trunk/enc enc
+svn co http://farmanager.googlecode.com/svn/trunk/enc enc
 
 Get it all
-svn co http://farmanager.com/svn/trunk fardev
+svn co http://farmanager.googlecode.com/svn/trunk fardev

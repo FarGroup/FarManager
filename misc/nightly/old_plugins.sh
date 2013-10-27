@@ -49,7 +49,7 @@ rm -fR outfinalnew32
 rm -fR outfinalnew64
 rm -fR plugins
 
-svn co http://localhost/svn/trunk/plugins plugins || exit 1
+svn co file://`pwd`/fromgoogle/trunk/plugins plugins || exit 1
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins

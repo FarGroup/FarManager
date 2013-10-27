@@ -1,4 +1,4 @@
-"""
+﻿"""
 Make web suitable Encyclopedia
 """
 

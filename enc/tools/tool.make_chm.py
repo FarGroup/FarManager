@@ -1,4 +1,4 @@
-"""
+﻿"""
 Make projects files for building Far Manager Encyclopedia in .CHM format
 """
 
