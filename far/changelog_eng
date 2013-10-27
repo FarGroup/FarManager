@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.10.2013 21:11:58 +0200 - build 3701
+
+1. Refactoring.
+
+drkns 25.10.2013 09:03:21 +0200 - build 3700
+
+1. Correction of 3699.
+
+drkns 24.10.2013 22:22:03 +0200 - build 3699
+
+1. 0002517: Invalid line number supplied in "Go to position" dialog crashes Far Manager
+
+w17 22.10.2013 22:30:45 +0400 - build 3698
+
+1. M#2513: FAR crash on files with empty names (from SEt)
+
 svs 18.10.2013 11:41:12 +0400 - build 3697
 
 1. SQLite 3.8.1
