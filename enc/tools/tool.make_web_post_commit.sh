@@ -8,7 +8,7 @@
 /usr/bin/svnlook changed "$1" -r "$2" | /bin/grep trunk/enc
 if [ $? -ne 0 ]; then exit 0; fi
 
-/usr/bin/svn co -q --force "$1/trunk/enc/" /var/tmp/enc
+/usr/bin/svn co -q --force "file://$1/trunk/enc/" /var/tmp/enc
 
 # need to set up path as the script will try to run svn
 export PATH=$PATH:/usr/bin
