@@ -11,11 +11,5 @@ $postcommitmsg = json_decode($json_input, true);
 
 if ($postcommitmsg['revision_count'] < 1) exit();
 
-$repo = escapeshellarg('http://farmanager.googlecode.com/svn');
-
-for ($i=0; $i<$postcommitmsg['revision_count']; $i++)
-{
-	$rev = escapeshellarg($postcommitmsg['revisions'][$i]['revision']);
-	exec("/var/www/tool.make_web_post_commit.sh $repo $rev");
-}
+exec("svnsync sync file:///home/alex/.wine/drive_c/src/fromgoogle");
 ?>
