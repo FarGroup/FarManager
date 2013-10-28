@@ -4755,7 +4755,7 @@ void FileList::SelectSortMode()
 	// sort options
 	else
 	{
-		auto Switch = [&](int CurrentState)
+		auto Switch = [&](bool CurrentState)
 		{
 			return PlusPressed? true : InvertPressed? !CurrentState : false;
 		};
@@ -4771,11 +4771,13 @@ void FileList::SelectSortMode()
 			break;
 
 		case SortOptUseGroups:
-			ProcessKey(KEY_SHIFTF11);
+			if (SortGroups != Switch(SortGroups))
+				ProcessKey(KEY_SHIFTF11);
 			break;
 
 		case SortOptSelectedFirst:
-			ProcessKey(KEY_SHIFTF12);
+			if (SelectedFirst != Switch(SelectedFirst))
+				ProcessKey(KEY_SHIFTF12);
 			break;
 
 		case SortOptDirectoriesFirst:
