@@ -352,13 +352,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	// Удаление в корзину только для  FIXED-дисков
 	{
 		string strRoot;
-//    char FSysNameSrc[NM];
 		SrcPanel->GetSelName(nullptr,FileAttr);
 		SrcPanel->GetSelName(&strSelName,FileAttr);
 		ConvertNameToFull(strSelName, strRoot);
 		GetPathRoot(strRoot,strRoot);
 
-//_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
 		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
 			Global->Opt->DeleteToRecycleBin=0;
 	}
@@ -429,14 +427,10 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 	}
 
-	if (Ret && (Global->Opt->Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (Ret && Global->Opt->Confirm.Delete)
 	{
 		const wchar_t *DelMsg;
 		const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
-		/* $ 05.01.2001 IS
-		   ! Косметика в сообщениях - разные сообщения в зависимости от того,
-		     какие и сколько элементов выделено.
-		*/
 		BOOL folder=(FileAttr & FILE_ATTRIBUTE_DIRECTORY);
 
 		if (SelCount==1)
@@ -464,20 +458,11 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				DelMsg=MSG(MAskDelete);
 		}
 
-		const wchar_t* const Items[] = {DelMsg, strDeleteFilesMsg.data(), MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)};
-		if (Message(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
-		{
-			NeedUpdate=FALSE;
-			return;
-		}
-	}
-
-	if (Global->Opt->Confirm.Delete && SelCount>1)
-	{
-		//SaveScreen SaveScr;
-		SetCursorType(FALSE,0);
-		const wchar_t* const Items[] = {MSG(Wipe? MAskWipe : MAskDelete), strDeleteFilesMsg.data(), MSG(MDeleteFileAll), MSG(MDeleteFileCancel)};
-		if (Message(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
+		const wchar_t* const Items[] = {
+			DelMsg, strDeleteFilesMsg.data(),
+			MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)
+		};
+		if (Message(Wipe || !Global->Opt->DeleteToRecycleBin ? MSG_WARNING : 0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
 			return;
