@@ -2035,6 +2035,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_ALTDEL:
 		case KEY_RALTDEL:
 		{
+			if (IsRepeatedKey() /*&& !Global->Opt->Confirmation.Delete*/) // не удаляем, если зажата клавиша
+				return TRUE;
+
 			_ALGO(CleverSysLog clv(L"F8/Shift-F8/Shift-Del/Alt-Del"));
 			_ALGO(SysLog(L"%s, FileCount=%d, Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
