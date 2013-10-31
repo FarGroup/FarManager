@@ -83,6 +83,17 @@ static const string& GetFarTitleAddons()
 	return strTitleAddons;
 }
 
+static string& GetUserTitle()
+{
+	static string str;
+	return str;
+}
+
+void SetUserTitle(const string& str)
+{
+	GetUserTitle() = str;
+}
+
 bool ConsoleTitle::TitleModified = false;
 DWORD ConsoleTitle::ShowTime = 0;
 
@@ -135,8 +146,17 @@ void ConsoleTitle::SetFarTitle(const string& Title)
 	string strOldFarTitle;
 
 	Global->Console->GetTitle(strOldFarTitle);
-	FarTitle() = Title;
-	FarTitle() += GetFarTitleAddons();
+
+	if (!GetUserTitle().empty())
+	{
+		FarTitle() = GetUserTitle();
+	}
+	else
+	{
+		FarTitle() = Title;
+		FarTitle() += GetFarTitleAddons();
+	}
+
 	TitleModified=true;
 
 	if (strOldFarTitle != FarTitle() && !Global->ScrBuf->GetLockCount())

@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "plugins.hpp"
 #include "colormix.hpp"
+#include "constitle.hpp"
 
 enum
 {
@@ -1245,6 +1246,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
 		IntChDir(strCmdLine,Length==5,SilentInt);
+		return TRUE;
+	}
+	else if (IsCommand(L"TITLE", false))
+	{
+		if (CheckCmdLineForHelp(strCmdLine.data() + 5))
+			return FALSE; // מעהאהטלסÿ COMSPEC`ף
+
+		SetUserTitle(strCmdLine.data() + 5);
 		return TRUE;
 	}
 	else if (IsCommand(L"EXIT",false))

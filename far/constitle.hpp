@@ -51,3 +51,5 @@ private:
 	static bool TitleModified;
 	static DWORD ShowTime;
 };
+
+void SetUserTitle(const string& str);

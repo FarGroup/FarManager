@@ -4516,6 +4516,10 @@ exist and the environment variable "variable" is defined.
 
     Очищает стек каталогов, сохраненных командой PUSHD.
 
+    #title# [string]
+
+    Sets the fixed title for the console window.
+
     Notes:
 
     1. ^<wrap>Any other commands will be sent to the operating
