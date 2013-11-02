@@ -86,15 +86,16 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		return FALSE;
 	}
 
-	const PluginsListItem& CurPlugin = PluginsList.back();
+	const PluginsListItem CurPlugin = PluginsList.back();
+
+	PluginsList.pop_back();
+	--Global->PluginPanelsCount;
 
 	Global->CtrlObject->Plugins->ClosePanel(hPlugin);
 
-	if (PluginsList.size() > 1)
+	if (!PluginsList.empty())
 	{
-		auto NextTopPlugin = PluginsList.end();
-		std::advance(NextTopPlugin, -2);
-		hPlugin=NextTopPlugin->hPlugin;
+		hPlugin = PluginsList.back().hPlugin;
 		strOriginalCurDir=CurPlugin.strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
@@ -153,9 +154,6 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 	if (EnableRestoreViewMode)
 		Global->CtrlObject->Cp()->RedrawKeyBar();
-
-	PluginsList.pop_back();
-	--Global->PluginPanelsCount;
 
 	return TRUE;
 }
