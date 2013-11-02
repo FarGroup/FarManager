@@ -1,3 +1,7 @@
+shmuel 02.11.2013 18:36:31 +0200 - build 258
+
+1. LuaFAR: для элементов плагиновых панелей не заполнялся массив CustomColumnData.
+
 shmuel 30.09.2013 13:54:30 +0200 - build 257
 
 1. LuaFAR (unicode.utf8.format): уточнение билда 141.

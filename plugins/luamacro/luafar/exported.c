@@ -261,6 +261,7 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 		pi->AlternateFileName = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "AlternateFileName");
 		pi->Description       = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Description");
 		pi->Owner             = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Owner");
+		pi->CustomColumnData  = CreateStringsArray(L, CollectorPos, "CustomColumnData", &pi->CustomColumnNumber);
 	}
 	else
 	{
