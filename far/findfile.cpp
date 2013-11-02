@@ -2452,13 +2452,11 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& R
 			PauseEvent.Wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
-			string strCurName=CurPanelItem->FileName;
-			string strFullName;
-
-			if (strCurName == L"." || TestParentFolderName(strCurName))
+			string strCurName=NullToEmpty(CurPanelItem->FileName);
+			if (strCurName.empty() || strCurName == L"." || TestParentFolderName(strCurName))
 				continue;
 
-			strFullName = strPluginSearchPath;
+			string strFullName = strPluginSearchPath;
 			strFullName += strCurName;
 
 			if (!UseFilter || Filter->FileInFilter(*CurPanelItem))
