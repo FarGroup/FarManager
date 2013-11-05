@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.11.2013 01:25:39 +0200 - build 3707
+
+1. 0002521: Far crash on 'My Documents' ANSI plugin start, since build 3506
+
+shmuel 02.11.2013 21:39:35 +0200 - build 3706
+
+1. Find file (AltF7): crash when searching on a non-file plugin panel.
+
+drkns 31.10.2013 22:34:33 +0200 - build 3705
+
+1. Far processes the "title" command.
+   The argument string is used instead of standard console caption formatting logic until the end of the current session.
+   If the string is omitted, default behavior is restored.
+
+w17 31.10.2013 02:35:53 +0400 - build 3704
+
+1. Continuation of 3703: pressing and holding a key cancels deletion
+
+w17 30.10.2013 23:41:30 +0400 - build 3703
+
+1. M#2419: Two almost identical confirmation dialogs for deletion of multiple files (from SEt)
+
+w17 28.10.2013 06:51:10 +0400 - build 3702
+
+1. Forum: 'Use sort groups' and 'Show selected first' cannot be forced on/off
+
 drkns 26.10.2013 21:11:58 +0200 - build 3701
 
 1. Refactoring.
