@@ -1535,10 +1535,10 @@ id=101
 lv=2
 dt=Text
 nm=export.GetFiles
-mtime=3509018904
+mtime=3592895010
 <article>
-#_result = export.GetFiles (object, handle, PanelItems, Move,
-#_                          DestPath, OpMode)
+#_result [, newDestPath] = export.GetFiles (object, handle, PanelItems,
+#_                                          Move, DestPath, OpMode)
 #_
 #_**Parameters:**
 #_  object:     plugin object
@@ -1549,7 +1549,8 @@ mtime=3509018904
 #_  OpMode:     flags
 #_
 #_**Returns:**
-#_  result:     integer
+#_  result:      integer
+#_  newDestPath: string (optional)
 #_
 #_@@@
 #_<lua> Links = { PluginPanelItem="85.html" } </lua>
