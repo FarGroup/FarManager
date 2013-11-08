@@ -12,12 +12,12 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 1. Redistributions of source code must retain the above copyright
-	 notice, this list of conditions and the following disclaimer.
+   notice, this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright
-	 notice, this list of conditions and the following disclaimer in the
-	 documentation and/or other materials provided with the distribution.
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
 3. The name of the authors may not be used to endorse or promote products
-	 derived from this software without specific prior written permission.
+   derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -730,9 +730,9 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				if (!Global->CtrlObject->Plugins->FindPlugin(LuamacroGuid))
 				{
 					Message(MSG_WARNING,1,MSG(MError),
-						 MSG(MMacroPluginLuamacroNotLoaded),
-						 MSG(MMacroRecordingIsDisabled),
-						 MSG(MOk));
+					   MSG(MMacroPluginLuamacroNotLoaded),
+					   MSG(MMacroRecordingIsDisabled),
+					   MSG(MOk));
 					return false;
 				}
 
@@ -1405,8 +1405,8 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wchar_t *Descr)
 {
 	/*
-						1         2         3         4         5         6
-		 3456789012345678901234567890123456789012345678901234567890123456789
+	          1         2         3         4         5         6
+	   3456789012345678901234567890123456789012345678901234567890123456789
 	 1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
 	 2 | Последовательность:                                             |
 	 3 | _______________________________________________________________ |
@@ -1506,27 +1506,27 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	if (MacroSettingsDlg[MS_CHECKBOX_A_PANEL].Selected)
 	{
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
+		       (MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
+		       (MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
+		       (MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
 	}
 
 	if (MacroSettingsDlg[MS_CHECKBOX_P_PANEL].Selected)
 	{
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==0?MFLAGS_PNOPLUGINPANELS:MFLAGS_PNOFILEPANELS);
+		       (MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==0?MFLAGS_PNOPLUGINPANELS:MFLAGS_PNOFILEPANELS);
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==0?MFLAGS_PNOFOLDERS:MFLAGS_PNOFILES);
+		       (MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==0?MFLAGS_PNOFOLDERS:MFLAGS_PNOFILES);
 		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==2?0:
-					 (MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==0?MFLAGS_PNOSELECTION:MFLAGS_PSELECTION);
+		       (MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==0?MFLAGS_PNOSELECTION:MFLAGS_PSELECTION);
 	}
 
 	Flags|=MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==2?0:
-				 (MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
+	       (MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
 	Flags|=MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==2?0:
-				 (MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
+	       (MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
 	return TRUE;
 }
 
@@ -3218,7 +3218,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		2 - hide
 		3 - swap
 		ret: prev mode or -1 - KeyBar not found
-		*/
+    */
 	auto Params = parseParams<1>(Data);
 	Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
 
@@ -3381,8 +3381,8 @@ static bool dateFunc(FarMacroCall* Data)
 
 // S=xlat(S[,Flags])
 /*
-	Flags:
-		XLAT_SWITCHKEYBLAYOUT  = 1
+  Flags:
+  	XLAT_SWITCHKEYBLAYOUT  = 1
 		XLAT_SWITCHKEYBBEEP    = 2
 		XLAT_USEKEYBLAYOUTNAME = 4
 */
@@ -3403,30 +3403,30 @@ static bool beepFunc(FarMacroCall* Data)
 		MB_ICONASTERISK = 0x00000040
 			Звук Звездочка
 		MB_ICONEXCLAMATION = 0x00000030
-				Звук Восклицание
+		    Звук Восклицание
 		MB_ICONHAND = 0x00000010
-				Звук Критическая ошибка
+		    Звук Критическая ошибка
 		MB_ICONQUESTION = 0x00000020
-				Звук Вопрос
+		    Звук Вопрос
 		MB_OK = 0x0
-				Стандартный звук
+		    Стандартный звук
 		SIMPLE_BEEP = 0xffffffff
-				Встроенный динамик
+		    Встроенный динамик
 	*/
 	bool Ret=MessageBeep((UINT)Params[0].i()) != FALSE;
 
 	/*
 		http://msdn.microsoft.com/en-us/library/dd743680%28VS.85%29.aspx
 		BOOL PlaySound(
-				LPCTSTR pszSound,
-				HMODULE hmod,
-				DWORD fdwSound
+	    	LPCTSTR pszSound,
+	    	HMODULE hmod,
+	    	DWORD fdwSound
 		);
 
 		http://msdn.microsoft.com/en-us/library/dd798676%28VS.85%29.aspx
 		BOOL sndPlaySound(
-				LPCTSTR lpszSound,
-				UINT fuSound
+	    	LPCTSTR lpszSound,
+	    	UINT fuSound
 		);
 	*/
 
@@ -4097,16 +4097,16 @@ static bool panelfexistFunc(FarMacroCall* Data)
 
 // N=FLock(Nkey,NState)
 /*
-	Nkey:
-		 0 - NumLock
-		 1 - CapsLock
-		 2 - ScrollLock
+  Nkey:
+     0 - NumLock
+     1 - CapsLock
+     2 - ScrollLock
 
-	State:
-		-1 get state
-		 0 off
-		 1 on
-		 2 flip
+  State:
+    -1 get state
+     0 off
+     1 on
+     2 flip
 */
 static bool flockFunc(FarMacroCall* Data)
 {
@@ -4945,8 +4945,8 @@ Replace=="" - return Str (с удалением всех подстрок Find)
 Str=="" return ""
 
 Mode:
-			0 - case insensitive
-			1 - case sensitive
+      0 - case insensitive
+      1 - case sensitive
 
 */
 static bool replaceFunc(FarMacroCall* Data)
@@ -5359,31 +5359,31 @@ static bool editorselFunc(FarMacroCall* Data)
 {
 	/*
 	 MCODE_F_EDITOR_SEL
-		Action: 0 = Get Param
-								Opt:  0 = return FirstLine
-											1 = return FirstPos
-											2 = return LastLine
-											3 = return LastPos
-											4 = return block type (0=nothing 1=stream, 2=column)
-								return: 0 = failure, 1... request value
+	  Action: 0 = Get Param
+	              Opt:  0 = return FirstLine
+	                    1 = return FirstPos
+	                    2 = return LastLine
+	                    3 = return LastPos
+	                    4 = return block type (0=nothing 1=stream, 2=column)
+	              return: 0 = failure, 1... request value
 
-						1 = Set Pos
-								Opt:  0 = begin block (FirstLine & FirstPos)
-											1 = end block (LastLine & LastPos)
-								return: 0 = failure, 1 = success
+	          1 = Set Pos
+	              Opt:  0 = begin block (FirstLine & FirstPos)
+	                    1 = end block (LastLine & LastPos)
+	              return: 0 = failure, 1 = success
 
-						2 = Set Stream Selection Edge
-								Opt:  0 = selection start
-											1 = selection finish
-								return: 0 = failure, 1 = success
+	          2 = Set Stream Selection Edge
+	              Opt:  0 = selection start
+	                    1 = selection finish
+	              return: 0 = failure, 1 = success
 
-						3 = Set Column Selection Edge
-								Opt:  0 = selection start
-											1 = selection finish
-								return: 0 = failure, 1 = success
-						4 = Unmark selected block
-								Opt: ignore
-								return 1
+	          3 = Set Column Selection Edge
+	              Opt:  0 = selection start
+	                    1 = selection finish
+	              return: 0 = failure, 1 = success
+	          4 = Unmark selected block
+	              Opt: ignore
+	              return 1
 	*/
 	auto Params = parseParams<2>(Data);
 	TVar Ret(0ll);
@@ -5660,7 +5660,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			goto M1;
 	}
 	else if (Msg == DN_CONTROLINPUT && record->EventType==KEY_EVENT && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||
-														 (((key&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (key&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
+	                           (((key&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (key&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
 	{
 		//if((key&0x00FFFFFF) >= 'A' && (key&0x00FFFFFF) <= 'Z' && ShiftPressed)
 		//key|=KEY_SHIFT;
@@ -5669,9 +5669,9 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		// <Обработка особых клавиш: F1 & Enter>
 		// Esc & (Enter и предыдущий Enter) - не обрабатываем
 		if (key == KEY_ESC ||
-						((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
-						key == KEY_CTRLDOWN || key == KEY_RCTRLDOWN ||
-						key == KEY_F1)
+		        ((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
+		        key == KEY_CTRLDOWN || key == KEY_RCTRLDOWN ||
+		        key == KEY_F1)
 		{
 			return FALSE;
 		}
@@ -5682,8 +5682,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		// а второй раз - второй раз уже назначение
 		if(key == KEY_F1 && LastKey!=KEY_F1)
 		{
-			LastKey=KEY_F1;
-			return FALSE;
+		  LastKey=KEY_F1;
+		  return FALSE;
 		}
 		*/
 		// Было что-то уже нажато и Enter`ом подтверждаем
@@ -5736,13 +5736,13 @@ M1:
 				{
 					const wchar_t* NoKey=MSG(MNo);
 					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
-										strBuf.data(),
-										MSG(MMacroSequence),
-										strBufKey.data(),
-										MSG(SetChange?MMacroDeleteKey2:MMacroReDefinedKey2),
-										MSG(MYes),
-										(SetChange?MSG(MMacroEditKey):NoKey),
-										(!SetChange?nullptr:NoKey));
+					          strBuf.data(),
+					          MSG(MMacroSequence),
+					          strBufKey.data(),
+					          MSG(SetChange?MMacroDeleteKey2:MMacroReDefinedKey2),
+					          MSG(MYes),
+					          (SetChange?MSG(MMacroEditKey):NoKey),
+					          (!SetChange?nullptr:NoKey));
 				}
 
 				if (!Result)
@@ -5792,10 +5792,10 @@ M1:
 int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 {
 	/*
-		+------ Define macro ------+
-		| Press the desired key    |
-		| ________________________ |
-		+--------------------------+
+	  +------ Define macro ------+
+	  | Press the desired key    |
+	  | ________________________ |
+	  +--------------------------+
 	*/
 	FarDialogItem MacroAssignDlgData[]=
 	{
