@@ -175,7 +175,7 @@ class MacroState:NonCopyable
 {
 public:
 	MacroState():
-		cRec(),
+		IntKey(0),
 		Executing(),
 		KeyProcess(),
 		HistoryDisable(),
@@ -184,7 +184,7 @@ public:
 	}
 
 	MacroState(MacroState&& rhs):
-		cRec(),
+		IntKey(0),
 		Executing(),
 		KeyProcess(),
 		HistoryDisable(),
@@ -195,7 +195,7 @@ public:
 
 	MacroState& operator =(MacroState&& rhs)
 	{
-		std::swap(cRec, rhs.cRec);
+		std::swap(IntKey, rhs.IntKey);
 		std::swap(Executing, rhs.Executing);
 		m_MacroQueue.swap(rhs.m_MacroQueue);
 		std::swap(KeyProcess, rhs.KeyProcess);
@@ -209,7 +209,7 @@ public:
 	void RemoveCurMacro() { m_MacroQueue.pop_front(); }
 
 public:
-	INPUT_RECORD cRec; // "описание реально нажатой клавиши"
+	DWORD IntKey; // "описание реально нажатой клавиши"
 	int Executing;
 	std::list<MacroRecord> m_MacroQueue;
 	int KeyProcess;
