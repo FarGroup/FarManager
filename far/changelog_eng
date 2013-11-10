@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 08.11.2013 18:47:05 +0200 - build 3708
+
+1. M#2440: akey(1) and single modifier key press.
+
 drkns 03.11.2013 01:25:39 +0200 - build 3707
 
 1. 0002521: Far crash on 'My Documents' ANSI plugin start, since build 3506
