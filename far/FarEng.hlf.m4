@@ -2789,8 +2789,6 @@ $ #Viewer: control keys#
     #F4#                 Toggle text/hex or dump/hex mode
     #Shift-F4#           Select viewer mode (text/hex/dump)
     #F6#                 Switch to ~editor~@Editor@
-    #Alt-F5#             Print the file
-                       ("Print manager" plugin is used).
     #F7#                 ~Search~@ViewerSearch@
     #Shift-F7, Space#    Continue search
     #Alt-F7#             Continue search in "reverse" mode
@@ -2979,7 +2977,6 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F2#                      Save file
    #Shift-F2#                ~Save file as...~@FileSaveAs@
    #Shift-F4#                Edit ~new file~@FileOpenCreate@
-   #Alt-F5#                  ^<wrap>Print file or selected block ("Print manager" plugin is used).
    #F6#                      Switch to ~viewer~@Viewer@
    #F7#                      ~Search~@EditorSearch@
    #Ctrl-F7#                 ~Replace~@EditorSearch@
@@ -4519,6 +4516,8 @@ exist and the environment variable "variable" is defined.
     #title# [string]
 
     Sets the fixed title for the console window.
+    ^<wrap>String will be used instead of standard Far console title till the end of current session. 
+If string is not specified default title will be restored.
 
     Notes:
 
