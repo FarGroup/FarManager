@@ -7,8 +7,8 @@
 #include "compat52.h"
 
 #define CAST(tp,expr) ((tp)(expr))
-#define TRANSFORM_REF(h)        (h > 0 ? h : h - 2)
-#define UNTRANSFORM_REF(h)      (int)((intptr_t)h > 0 ? (intptr_t)h : (intptr_t)h + 2)
+#define TRANSFORM_REF(L,h)   ((char*)(L)+(h))
+#define UNTRANSFORM_REF(L,h) (int)((char*)(h)-(char*)(L))
 
 // Prevent crashes on divide by 0, etc., due to plugins activating FPU exceptions.
 // (it takes approximately 20 nanosec.)
@@ -126,12 +126,12 @@ int pcall_msg(lua_State* L, int narg, int nret)
 
 void PushPluginTable(lua_State* L, HANDLE hPlugin)
 {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(hPlugin));
+	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,hPlugin));
 }
 
 void PushPluginPair(lua_State* L, HANDLE hPlugin)
 {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(hPlugin));
+	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,hPlugin));
 	lua_getfield(L, -1, KEY_OBJECT);
 	lua_remove(L, -2);
 	lua_pushinteger(L, (intptr_t)hPlugin);
@@ -425,7 +425,7 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 //---------------------------------------------------------------------------
 
 // return FALSE only if error occurred
-BOOL CheckReloadDefaultScript(lua_State *L)
+static BOOL CheckReloadDefaultScript(lua_State *L)
 {
 	// reload default script?
 	int reload;
@@ -440,7 +440,7 @@ BOOL CheckReloadDefaultScript(lua_State *L)
 // -- a new table is created, the object is put into it under the key KEY_OBJECT;
 // -- the table is put into the registry, and reference to it is obtained;
 // -- the function pops the object and returns the reference;
-intptr_t RegisterObject(lua_State* L)
+static HANDLE RegisterObject(lua_State* L)
 {
 	int ref;
 	lua_newtable(L);               //+2: Obj,Tbl
@@ -448,7 +448,7 @@ intptr_t RegisterObject(lua_State* L)
 	lua_setfield(L,-2,KEY_OBJECT); //+2: Obj,Tbl
 	ref = luaL_ref(L, LUA_REGISTRYINDEX); //+1: Obj
 	lua_pop(L,1);                  //+0
-	return TRANSFORM_REF(ref);
+	return TRANSFORM_REF(L,ref);
 }
 
 static void PushAnalyseInfo(lua_State* L, const struct AnalyseInfo *Info)
@@ -870,7 +870,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 				return PANEL_STOP;
 			}
 			else if(lua_toboolean(L, -1))             //+1: Obj
-				return CAST(HANDLE, RegisterObject(L)); //+0
+				return RegisterObject(L);               //+0
 
 			lua_pop(L,1);
 		}
@@ -888,7 +888,7 @@ void LF_ClosePanel(lua_State* L, const struct ClosePanelInfo *Info)
 	}
 
 	DestroyCollector(L, Info->hPanel, COLLECTOR_OPI);
-	luaL_unref(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(Info->hPanel));
+	luaL_unref(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,Info->hPanel));
 }
 
 intptr_t LF_Compare(lua_State* L, const struct CompareInfo *Info)
