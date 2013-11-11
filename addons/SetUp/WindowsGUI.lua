@@ -16,7 +16,7 @@ Macro {
 }
 
 Macro {
-  area="Editor"; key="CtrlDel"; flags="Selection";
+  area="Editor"; key="CtrlDel"; flags="EVSelection";
   description="Ctrl-Del will delete selection or words in the editor";
   action=function() Keys("CtrlD") end;
 }
