@@ -1200,9 +1200,9 @@ int Edit::ProcessKey(int Key)
 				int i,j;
 				for (i=CurPos,j=CurPos; i<MaskLen; i++)
 				{
-					if (CheckCharMask(Mask[i+1]))
+					if (CheckCharMask(Mask.data()[i+1]))
 					{
-						while (!CheckCharMask(Mask[j]) && j<MaskLen)
+						while (!CheckCharMask(Mask.data()[j]) && j<MaskLen)
 							j++;
 
 						Str[j]=Str[i+1];

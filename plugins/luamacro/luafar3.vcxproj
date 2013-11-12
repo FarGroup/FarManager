@@ -161,21 +161,11 @@
     </ResourceCompile>
     <PreBuildEvent>
       <Command>nmake -logo -f makefile_lib_vc luafar\flags.c luafar\keysandcolors.c</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>@copy /y luasdk\32\lua5.1.dll $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
       <Message>copy lua5.1.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\32\lua51.dll $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy lua51.dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -207,17 +197,11 @@
     </ResourceCompile>
     <PreBuildEvent>
       <Command>nmake -logo -f makefile_lib_vc luafar\flags.c luafar\keysandcolors.c</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>@copy /y luasdk\64\lua5.1.dll $(OutDir) 1&gt;nul</Command>
       <Message>copy lua5.1.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\64\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
@@ -286,21 +270,11 @@
     </ResourceCompile>
     <PreBuildEvent>
       <Command>nmake -logo -f makefile_lib_vc luafar\flags.c luafar\keysandcolors.c</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>@copy /y luasdk\32\lua5.1.dll $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
       <Message>copy lua5.1.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\32\lua51.dll $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy lua51.dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -335,17 +309,11 @@
     </ResourceCompile>
     <PreBuildEvent>
       <Command>nmake -logo -f makefile_lib_vc luafar\flags.c luafar\keysandcolors.c</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>@copy /y luasdk\64\lua5.1.dll $(OutDir) 1&gt;nul</Command>
       <Message>copy lua5.1.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\64\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">

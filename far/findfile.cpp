@@ -845,7 +845,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 								for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
 								{
-									// Получаем элемент таблицы симолов
+									// Получаем элемент таблицы символов
 									FarListGetItem CheckItem = { sizeof(FarListGetItem), Index };
 									Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &CheckItem);
 
