@@ -38,7 +38,7 @@ private:
     if (time == 0)
       speed = 0;
     else
-      speed = round(static_cast<double>(completed) / time * ticks_per_sec());
+      speed = al_round(static_cast<double>(completed) / time * ticks_per_sec());
 
     unsigned __int64 total_time;
     if (completed)

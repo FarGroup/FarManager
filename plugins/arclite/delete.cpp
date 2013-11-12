@@ -17,7 +17,7 @@ private:
     if (total == 0)
       percent_done = 0;
     else
-      percent_done = round(static_cast<double>(completed) * 100 / total);
+      percent_done = al_round(static_cast<double>(completed) * 100 / total);
     if (percent_done > 100)
       percent_done = 100;
 
@@ -25,7 +25,7 @@ private:
     if (time_elapsed() == 0)
       speed = 0;
     else
-      speed = round(static_cast<double>(completed) / time_elapsed() * ticks_per_sec());
+      speed = al_round(static_cast<double>(completed) / time_elapsed() * ticks_per_sec());
 
     wostringstream st;
     st << setw(7) << format_data_size(completed, get_size_suffixes()) << L" / " << format_data_size(total, get_size_suffixes()) << L" @ " << setw(9) << format_data_size(speed, get_speed_suffixes()) << L'\n';

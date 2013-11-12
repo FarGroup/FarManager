@@ -19,10 +19,10 @@ wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent
   const wchar_t c_pb_black = 9608;
   const wchar_t c_pb_gray = 9619;
   const wchar_t c_pb_white = 9617;
-  unsigned len1 = round(static_cast<double>(percent1) / 100 * width);
+  unsigned len1 = al_round(static_cast<double>(percent1) / 100 * width);
   if (len1 > width)
     len1 = width;
-  unsigned len2 = round(static_cast<double>(percent2) / 100 * width);
+  unsigned len2 = al_round(static_cast<double>(percent2) / 100 * width);
   if (len2 > width)
     len2 = width;
   if (len2 > len1)
@@ -57,7 +57,7 @@ private:
     if (time_elapsed() == 0)
       extract_speed = 0;
     else
-      extract_speed = round(static_cast<double>(extract_completed) / time_elapsed() * ticks_per_sec());
+      extract_speed = al_round(static_cast<double>(extract_completed) / time_elapsed() * ticks_per_sec());
 
     if (extract_total && cache_total > extract_total)
       cache_total = extract_total;

@@ -1355,7 +1355,7 @@ public:
     new_line();
     open_shared_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_OPEN_SHARED), options.open_shared);
     spacer(2);
-    enable_filter_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_ENABLE_FILTER), options.filter);
+    enable_filter_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_ENABLE_FILTER), options.filter != nullptr);
     new_line();
 
     separator();
@@ -1406,7 +1406,7 @@ private:
         if (col_widths[col_index] < items[i].size())
           col_widths[col_index] = items[i].size();
       }
-      size_t width = accumulate(col_widths.cbegin(), col_widths.cend(), 0);
+      size_t width = accumulate(col_widths.cbegin(), col_widths.cend(), size_t(0));
       width += num_cols * 4 + (num_cols - 1);
       size_t height = items.size() / num_cols + (items.size() % num_cols ? 1 : 0);
       double ratio = static_cast<double>(width) / height;

@@ -1,4 +1,5 @@
 #include "comutils.hpp"
+#include <memory>
 
 // simple format name like '7z', 'zip', etc.
 const wchar_t* c_name = L"example";

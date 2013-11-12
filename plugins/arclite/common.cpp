@@ -8,7 +8,7 @@
 
 Error g_com_error;
 
-int round(double d) {
+int al_round(double d) {
   double a = fabs(d);
   int res = static_cast<int>(a);
   double frac = a - res;
@@ -25,7 +25,7 @@ unsigned calc_percent(unsigned __int64 completed, unsigned __int64 total) {
   if (total == 0)
     percent = 0;
   else
-    percent = round(static_cast<double>(completed) / total * 100);
+    percent = al_round(static_cast<double>(completed) / total * 100);
   if (percent > 100)
     percent = 100;
   return percent;

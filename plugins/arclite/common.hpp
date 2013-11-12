@@ -190,7 +190,7 @@ struct Attr {
 };
 typedef list<Attr> AttrList;
 
-int round(double d);
+int al_round(double d);
 unsigned calc_percent(unsigned __int64 completed, unsigned __int64 total);
 unsigned __int64 get_module_version(const wstring& file_path);
 unsigned __int64 parse_size_string(const wstring& str);

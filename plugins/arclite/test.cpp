@@ -23,7 +23,7 @@ private:
     if (time_elapsed() == 0)
       speed = 0;
     else
-      speed = round(static_cast<double>(completed) / time_elapsed() * ticks_per_sec());
+      speed = al_round(static_cast<double>(completed) / time_elapsed() * ticks_per_sec());
 
     wostringstream st;
     st << fit_str(file_path, c_width) << L'\n';

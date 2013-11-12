@@ -324,7 +324,7 @@ void Archive::load_arc_attr() {
       if (File::get_find_data_nt(volume_path, find_data))
         arc_size += find_data.size();
     });
-    unsigned ratio = total_size ? round(static_cast<double>(arc_size) / total_size * 100) : 100;
+    unsigned ratio = total_size ? al_round(static_cast<double>(arc_size) / total_size * 100) : 100;
     if (ratio > 100)
       ratio = 100;
     attr.value = int_to_str(ratio) + L'%';
