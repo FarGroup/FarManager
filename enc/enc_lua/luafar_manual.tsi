@@ -2164,7 +2164,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3579626654
+mtime=3593413411
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2198,11 +2198,13 @@ mtime=3579626654
 #_        BreakKey:     string (see **NOTE 1**)
 #_
 #_**Returns:**
-#_  Item:     table   (**chosen** item), or
-#_            nil     (the menu was cancelled by the user)
+#_  Item:     table   Either the selected element of *Items* array (if *Enter* was pressed)
+#_                    or an element of *BreakKeys* array (if a corresponding break key was
+#_                    pressed).
+#_            nil     The menu was cancelled by the user.
 #_
-#_  Position: integer (position of the **selected** item), or
-#_            nil     (the menu was cancelled by the user)
+#_  Position: integer Position of the **selected** item at the moment of closing the menu.
+#_            nil     The menu was cancelled by the user.
 #_
 #_**NOTE 1**
 #_  Example of constructing a BreakKey string:
@@ -2212,17 +2214,10 @@ mtime=3579626654
 #_    *DELETE* - virtual key *VK_DELETE* (prefix *VK_* is removed).
 #_
 #_**NOTE 2**
-#_  The first return value (*Item*) should be used by the program
-#_  for performing the item-specific action. To do so, the program
-#_  can put some specific field(s) into each element of *Items* and
-#_  *BreakKeys* tables. For example, such fields can be "action",
-#_  "filename", etc.
-#_
-#_  The second return value (*Position*) does not necessarily
-#_  correspond to the position of the menuitem that the user have
-#_  chosen, it is the menuitem that was selected at the time of
-#_  the menu closing. It is provided so that the program would be
-#_  able to call the closed menu again in the same visible state.
+#_  The first return value (*Item*) can be used by the program for performing
+#_  the item-specific action. To do so, the program can put some specific field(s)
+#_  into each element of *Items* and *BreakKeys* tables. For example, such fields
+#_  can be "action", "filename", etc.
 #_
 #_**Far API used:**
 #_  Menu
