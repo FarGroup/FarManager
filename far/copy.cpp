@@ -3162,9 +3162,10 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		{
 			if (FreeBytes>SrcData.nFileSize)
 			{
-				INT64 CurPtr=DestFile.GetPointer();
-				if (DestFile.SetPointer(SrcData.nFileSize,nullptr,FILE_CURRENT) && DestFile.SetEnd())
-					DestFile.SetPointer(CurPtr,nullptr,FILE_BEGIN);
+				INT64 CurPtr = DestFile.GetPointer();
+				DestFile.SetPointer(SrcData.nFileSize, nullptr, FILE_CURRENT);
+				DestFile.SetEnd();
+				DestFile.SetPointer(CurPtr, nullptr, FILE_BEGIN);
 			}
 		}
 	}

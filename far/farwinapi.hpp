@@ -117,6 +117,8 @@ private:
 	HANDLE Handle;
 	INT64 Pointer;
 	bool NeedSyncPointer;
+	string name;
+	DWORD share_mode;
 
 	inline void SyncPointer();
 };

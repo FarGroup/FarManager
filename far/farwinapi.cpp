@@ -349,7 +349,8 @@ bool api::FindFile::Get(FAR_FIND_DATA& FindData)
 api::File::File():
 	Handle(INVALID_HANDLE_VALUE),
 	Pointer(0),
-	NeedSyncPointer(false)
+	NeedSyncPointer(false),
+	share_mode(0)
 {
 }
 
@@ -363,15 +364,26 @@ bool api::File::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode,
 	assert(Handle == INVALID_HANDLE_VALUE);
 	HANDLE TemplateFileHandle = TemplateFile? TemplateFile->Handle : nullptr;
 	Handle = api::CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
-	return Handle != INVALID_HANDLE_VALUE;
+	bool ok =  Handle != INVALID_HANDLE_VALUE;
+	if (ok)
+	{
+		name = Object;
+		share_mode = ShareMode;
+	}
+	else
+	{
+		name.clear();
+		share_mode = 0;
+	}
+	return ok;
 }
 
 inline void api::File::SyncPointer()
 {
 	if(NeedSyncPointer)
 	{
-		SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&Pointer), reinterpret_cast<PLARGE_INTEGER>(&Pointer), FILE_BEGIN);
-		NeedSyncPointer = false;
+		if (SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&Pointer), reinterpret_cast<PLARGE_INTEGER>(&Pointer), FILE_BEGIN))
+			NeedSyncPointer = false;
 	}
 }
 
@@ -466,7 +478,19 @@ bool api::File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD Mo
 bool api::File::SetEnd()
 {
 	SyncPointer();
-	return SetEndOfFile(Handle) != FALSE;
+	bool ok = SetEndOfFile(Handle) != FALSE;
+	if (!ok && !name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
+	{
+		INT64 fsize = GetPointer();
+		Close();
+		if (Open(name, GENERIC_WRITE, share_mode, nullptr, OPEN_EXISTING, 0))
+		{
+			SetPointer(fsize, nullptr, FILE_BEGIN);
+			SyncPointer();
+			ok = SetEndOfFile(Handle) != FALSE;
+		}
+	}
+	return ok;
 }
 
 bool api::File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
