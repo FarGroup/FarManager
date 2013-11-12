@@ -542,13 +542,17 @@ bool api::File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_I
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
+	auto di = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(FileInformation);
+	di->NextEntryOffset = 0xffffffffUL;
+
 	NTSTATUS Result = Global->ifn->NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
 	}
-	return Result == STATUS_SUCCESS;
+
+	return (Result == STATUS_SUCCESS) && (di->NextEntryOffset != 0xffffffffUL);
 }
 
 bool api::File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
