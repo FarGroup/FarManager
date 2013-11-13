@@ -7,35 +7,6 @@
 
 CPlugin *thePlug=NULL;
 
-#if defined(__GNUC__)
-  #define DLLMAINFUNC DllMainCRTStartup
-#else
-  #define DLLMAINFUNC _DllMainCRTStartup
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  if (dwReason==DLL_PROCESS_ATTACH)
-  {
-    if (!DisableThreadLibraryCalls((HINSTANCE)hDll))
-    {
-      assert(0);
-    }
-  }
-
-  return TRUE;
-}
-#ifdef __cplusplus
-};
-#endif
-
-#ifdef DEBUG
-extern "C" void __cdecl main(void) {}
-#endif
-
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
   Info->StructSize=sizeof(GlobalInfo);

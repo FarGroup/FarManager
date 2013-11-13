@@ -1,3 +1,9 @@
+drkns 13.11.2013 22:10:48 +0200 - build 60
+
+1. Убираем DisableThreadLibraryCalls.
+   MSDN: Do not call this function from a DLL that is linked to the static C run-time library (CRT).
+   The static CRT requires DLL_THREAD_ATTACH and DLL_THREAD_DETATCH notifications to function properly.
+
 shmuel 10.11.2012 22:44:44 +0200 - build 59
 
 1. Встроенные в код макросы были в старом формате.

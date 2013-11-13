@@ -14,44 +14,6 @@ PluginStartupInfo Info;
 FarStandardFunctions FSF;
 wchar_t *PluginRootKey;
 
-#if defined(__GNUC__)
-#define DLLMAINFUNC DllMainCRTStartup
-#else
-#define DLLMAINFUNC _DllMainCRTStartup
-#endif
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-	BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-	{
-		(void) lpReserved;
-		BOOL rc = TRUE;
-
-		switch (dwReason)
-		{
-			case DLL_PROCESS_ATTACH:
-				DisableThreadLibraryCalls((HINSTANCE)hDll);
-				break;
-			case DLL_PROCESS_DETACH:
-				DebugToken::CloseToken();
-				break;
-		}
-
-		return rc;
-	}
-#ifdef __cplusplus
-};
-#endif
-
-#ifndef __GNUC__
-// for ms-link BUG
-#ifndef _WIN64
-void __cdecl main(void) {}
-#endif
-#endif
-
 //-----------------------------------------------------------------------------
 static LONG WINAPI fNtQueryInformationProcess(
     HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG)
