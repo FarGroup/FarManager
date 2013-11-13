@@ -53,7 +53,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 }
 </pre>
 <li>Если в плагине используются <a href="../fsf/index.html">стандартные функции</a> из структуры <a href="../structures/farstandardfunctions.html">FarStandardFunctions</a>,
-    то член <a href="../structures/pluginstartupinfo.html">PluginStartupInfo.FSF</a> так же должен быть сохранён в локальное пространство плагина:
+    то член <a href="../structures/pluginstartupinfo.html">PluginStartupInfo.FSF</a> также должен быть сохранён в локальное пространство плагина:
   <pre class=code>static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 
