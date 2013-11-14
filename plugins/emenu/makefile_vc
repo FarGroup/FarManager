@@ -13,6 +13,7 @@ DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng Hotkey.f
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1
+EXCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 
