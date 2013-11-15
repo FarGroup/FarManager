@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if defined(TREEFILE_PROJECT)
 #include "cddrv.hpp"
 #include "drivemix.hpp"
+#include "network.hpp"
 #endif
 
 static bool StaticSortNumeric;
@@ -2071,7 +2072,7 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	{
 		if (DriveType == DRIVE_SUBSTITUTE) // Разворачиваем и делаем подмену
 		{
-			//DriveType=;
+			DriveType=DRIVE_FIXED; //????
 		}
 
 		switch(DriveType)
@@ -2097,10 +2098,11 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 					string strServer, strShare;
 					if (PathType == PATH_REMOTE)
 					{
-						;//
+						CurPath2ComputerName(strRootDir, strServer, strShare);
+						DeleteEndSlash(strShare);
 					}
 
-					ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+					ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
 					strPath = Global->Opt->Tree.strSaveNetPath;
 				}
 				break;

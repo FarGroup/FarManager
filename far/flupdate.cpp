@@ -255,7 +255,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (ReadOwners)
 	{
-		CurPath2ComputerName(strCurDir, strComputerName);
+		string strTemp;
+		CurPath2ComputerName(strCurDir, strComputerName, strTemp);
 		// סבנמסטל ך‎ר SID`מג
 		SIDCacheFlush();
 	}

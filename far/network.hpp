@@ -36,7 +36,7 @@ std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask);
 
 void ConnectToNetworkDrive(const string& NewDir);
 
-string &CurPath2ComputerName(const string& CurDir, string &strComputerName);
+string &CurPath2ComputerName(const string& CurDir, string &strComputerName, string &strTail);
 
 // Получить из имени диска RemoteName
 bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);

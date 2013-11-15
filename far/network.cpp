@@ -141,10 +141,11 @@ void ConnectToNetworkDrive(const string& NewDir)
 	}
 }
 
-string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
+string &CurPath2ComputerName(const string& CurDir, string &strComputerName, string &strTail)
 {
 	string strNetDir;
 	strComputerName.clear();
+	strTail.clear();
 
 	if (!CurDir.compare(0, 2, L"\\\\"))
 	{
@@ -164,7 +165,10 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName)
 		if (!FindSlash(pos,strComputerName))
 			strComputerName.clear();
 		else
+		{
+			strTail = strComputerName.data() + pos + 1;
 			strComputerName.resize(pos);
+		}
 	}
 
 	return strComputerName;

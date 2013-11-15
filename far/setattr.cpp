@@ -1085,7 +1085,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			string strComputerName;
 			if(SrcPanel)
 			{
-				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName);
+				string strTemp;
+				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName, strTemp);
 			}
 			GetFileOwner(strComputerName,strSelName,AttrDlg[SA_EDIT_OWNER].strData);
 		}
@@ -1122,8 +1123,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			if(SrcPanel)
 			{
-				string strComputerName;
-				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName);
+				string strComputerName, strTemp;
+				CurPath2ComputerName(SrcPanel->GetCurDir(), strComputerName, strTemp);
 
 				bool CheckOwner=true;
 				while (SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData))
@@ -1691,7 +1692,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 										{
 											RetCode=EDeleteReparsePoint(strFullName, FindData.dwFileAttributes, SkipMode);
-		                
+
 											if (RetCode == SETATTR_RET_ERROR)
 											{
 												break;
