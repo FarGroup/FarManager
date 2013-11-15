@@ -77,6 +77,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
+#if defined(TREEFILE_PROJECT)
+#include "cddrv.hpp"
+#include "drivemix.hpp"
+#endif
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -1986,13 +1990,13 @@ string &TreeList::MkTreeCacheFolderName(const string& RootDir,string &strDest)
   Global->Opt->Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
   Global->Opt->Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
-     constLocalDiskTemplate=L"%D.%SN.tree"
+     constLocalDiskTemplate=L"LD.%D.%SN.tree"
   Global->Opt->Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
-     constNetDiskTemplate=L"%D.%SN.tree";
+     constNetDiskTemplate=L"ND.%D.%SN.tree";
   Global->Opt->Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
-     constNetPathTemplate=L"%SR.%SH.tree";
+     constNetPathTemplate=L"NP.%SR.%SH.tree";
   Global->Opt->Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
-     constRemovableDiskTemplate=L"%SN.tree";
+     constRemovableDiskTemplate=L"RD.%SN.tree";
   Global->Opt->Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
      constCDDiskTemplate=L"CD.%L.%SN.tree";
 
@@ -2024,7 +2028,7 @@ string &ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
 	     %SR   - server name
     	 %SH   - share name
 	*/
-	string strDiskLetter=D && *D?D[0]:L"";
+	string strDiskLetter(D ? D : L"", 1);
 	ReplaceStrings(strDest,L"%D",strDiskLetter,-1);
 	ReplaceStrings(strDest,L"%SN",strDiskNumber,-1);
 	ReplaceStrings(strDest,L"%L",L && *L?L:L"",-1);
@@ -2041,8 +2045,12 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 #if defined(TREEFILE_PROJECT)
 	string strRootDir = ExtractPathRoot(Path);
 	string strTreeFileName;
-	UINT DriveType = FAR_GetDriveType(strRootDir,nullptr);
+	string strPath;
+	UINT DriveType = FAR_GetDriveType(strRootDir,0);
 	PATH_TYPE PathType=ParsePath(strRootDir);
+
+	// check Global->Opt->Tree.strExceptPath
+
 	/*
 	PATH_UNKNOWN,
 	PATH_DRIVELETTER,
@@ -2072,22 +2080,28 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 			case DRIVE_REMOVABLE:
 				if (Global->Opt->Tree.RemovableDisk)
 				{
-					// Global->Opt->Tree.strSaveLocalPath
-					// Global->Opt->Tree.strRemovableDisk
+					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+					strPath = Global->Opt->Tree.strSaveLocalPath;
 				}
 				break;
 			case DRIVE_FIXED:
 				if (Global->Opt->Tree.LocalDisk)
 				{
-					ConvertTemplateTreeName(strTreeFileName,Global->Opt->Tree.strLocalDisk,strRootDir,VolumeNumber,strVolumeName,nullptr,nullptr);
-					// Global->Opt->Tree.strSaveLocalPath
+					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+					strPath = Global->Opt->Tree.strSaveLocalPath;
 				}
 				break;
 			case DRIVE_REMOTE:
-				if (Global->Opt->Tree.NetDisk)
+				if (Global->Opt->Tree.NetDisk || Global->Opt->Tree.NetPath)
 				{
-					// Global->Opt->Tree.NetPath
-					// Global->Opt->Tree.strSaveNetPath
+					string strServer, strShare;
+					if (PathType == PATH_REMOTE)
+					{
+						;//
+					}
+
+					ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+					strPath = Global->Opt->Tree.strSaveNetPath;
 				}
 				break;
 			case DRIVE_CD_RW:
@@ -2102,8 +2116,8 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 			case DRIVE_CDROM:
 				if (Global->Opt->Tree.CDDisk)
 				{
-					// Global->Opt->Tree.strSaveLocalPath
-					// Global->Opt->Tree.strCDDisk
+					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+					strPath = Global->Opt->Tree.strSaveLocalPath;
 				}
 				break;
 			case DRIVE_VIRTUAL:
@@ -2114,10 +2128,15 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 				break;
 
 		}
+		strDest = api::ExpandEnvironmentStrings(strPath);
+		AddEndSlash(strDest);
+		strDest += strTreeFileName;
 	}
 	else
 	{
-		// куда? в "Local AppData\Far\" ?
+		strDest = Path;
+		AddEndSlash(strDest);
+		strDest += L"tree3.far";
 	}
 
 #else
