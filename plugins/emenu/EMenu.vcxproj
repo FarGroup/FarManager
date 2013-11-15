@@ -156,8 +156,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRT.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -199,8 +198,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRT64.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -238,8 +236,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRTIA64.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -276,8 +273,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRT.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -321,8 +317,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRT64.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -365,8 +360,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libCRTIA64.lib;chkstk.obj;kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;wbemuuid.lib</AdditionalDependencies>
       <ModuleDefinitionFile>EMenuW.vc.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -595,11 +589,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\common\CRT\crt.vcxproj">
-      <Project>{d9387b45-34a6-4cb6-a1b0-563e3480cff9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
