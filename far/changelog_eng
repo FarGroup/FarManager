@@ -1,4 +1,4 @@
-=======================================================================================
+Ôªø=======================================================================================
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
@@ -992,7 +992,7 @@ drkns 02.07.2013 16:34:23 +0200 - build 3493
 svs 02.07.2013 17:15:47 +0400 - build 3492
 
 1. Correction in help
-   "Ú‡Í ÊÂ" -> "Ú‡ÍÊÂ"
+   "—Ç–∞–∫ –∂–µ" -> "—Ç–∞–∫–∂–µ"
    @CopyAskOverwrite - capability of F3 on items was not described.
    @MaskGroupsSettings - list control keys were not described.
 
@@ -10172,13 +10172,13 @@ svs 17.03.2011 17:55:16 +0300 - build 1909
        XLAT_USEKEYBLAYOUTNAME = 4
 
    print(xlat("Qwerty"))
-   outputs "…ˆÛÍÂÌ" and herewith:
+   outputs "–ô—Ü—É–∫–µ–Ω" and herewith:
      * keyboard layout is not switched
      * there's no sound
      * values "00000409", "00000419" etc. from "HKCU\Software\Far2\XLat" branch are not used
 
    print(xlat("Qwerty",6))
-   outputs "…ˆÛÍÂÌ" and herewith:
+   outputs "–ô—Ü—É–∫–µ–Ω" and herewith:
      * keyboard layout is not switched
      * there's a beep (sound)
      * values "00000409", "00000419" etc. from "HKCU\Software\Far2\XLat" branch are used
@@ -10823,7 +10823,7 @@ drkns 04.02.2011 14:15:16 +0200 - build 1818
 
 drkns 04.02.2011 00:37:26 +0200 - build 1817
 
-1. Bells and whistles: proper copyright character "©" instead of "(C)".
+1. Bells and whistles: proper copyright character "¬©" instead of "(C)".
 
 zg 03.02.2011 18:27:43 +0200 - build 1816
 
@@ -12331,7 +12331,7 @@ t-rex 15.06.2010 00:05:09 +0200 - build 1590
 
 t-rex 14.06.2010 00:56:58 +0200 - build 1589
 
-1. Mantis#1405: C:\>cls stays on screen after issuing ìclsî.
+1. Mantis#1405: C:\>cls stays on screen after issuing ‚Äúcls‚Äù.
 
 t-rex 12.06.2010 19:14:06 +0200 - build 1588
 
@@ -12387,11 +12387,11 @@ drkns 06.06.2010 22:01:56 +0200 - build 1579
 
 drkns 01.06.2010 14:12:22 +0200 - build 1578
 
-1. ì!=\î metacharacter quoted strings for some purpose.
+1. ‚Äú!=\‚Äù metacharacter quoted strings for some purpose.
 
 drkns 31.05.2010 22:40:13 +0200 - build 1577
 
-1. ìARRAYSIZEî macro instead of ìcountofî.
+1. ‚ÄúARRAYSIZE‚Äù macro instead of ‚Äúcountof‚Äù.
   Rationale: ARRAYSIZE is for arrays only, an attempt of placing a pointer there results in compilation error (not runtime error, as in case of sizeof/sizeof).
 
 drkns 29.05.2010 13:08:42 +0200 - build 1576
@@ -12561,7 +12561,7 @@ drkns 13.05.2010 00:21:42 +0200 - build 1546
 
 drkns 11.05.2010 22:53:26 +0200 - build 1545
 
-1. From Anton Sinitsin: "®" in FarRus.lng.
+1. From Anton Sinitsin: "–Å" in FarRus.lng.
 
 2. Documentation and build specifications.
 
@@ -12623,7 +12623,7 @@ drkns 02.05.2010 19:13:38 +0200 - build 1534
 
 2. Another couple of improvements of 1530.2.
 
-3. Mantis#0001356: ìCopyingî stays in caption after copying finish
+3. Mantis#0001356: ‚ÄúCopying‚Äù stays in caption after copying finish
 
 drkns 30.04.2010 17:14:30 +0200 - build 1533
 
@@ -12876,7 +12876,7 @@ drkns 11.04.2010 02:23:13 +0200 - build 1494
 
 1. Privileges elevation:
   - the query happens only if it's needed (the access is denied via ACL), not for every ERROR_ACCESS_DENIED.
-  - file time and ìcompressedî and ìsparseîattributes changing.
+  - file time and ‚Äúcompressed‚Äù and ‚Äúsparse‚Äùattributes changing.
   - content search.
   - theoretically, own copy implementation must also work ("[ ] Use system copy routine"). It hasn't been tested thoroughly, be careful.
 
@@ -13063,7 +13063,7 @@ zg 29.03.2010 03:37:49 +0200 - build 1463
 
 zg 29.03.2010 01:55:26 +0200 - build 1462
 
-1. Optimization of 1460. When creating a panel, ìshowî was done twice and sorting took place. although this was not needed.
+1. Optimization of 1460. When creating a panel, ‚Äúshow‚Äù was done twice and sorting took place. although this was not needed.
 
 2. After 1448, in case of sorting by extension, when sorting by extension is off and folder option is off, the sorting  was unstable.
 
@@ -13146,7 +13146,7 @@ RCounter = undefined
 
   Outside the loop, the constant value is undefined/any/meaningless.
 
-2. Macro: "N=Print(Str)" function is added - display ìstrî at cursor.
+2. Macro: "N=Print(Str)" function is added - display ‚Äústr‚Äù at cursor.
   This is the $Text's analog, but Str can be an expression.
   It always returns 1.
 
@@ -13181,7 +13181,7 @@ chupakabra 23.03.2010 00:51:00 +0200 - build 1453
 
 drkns 22.03.2010 20:18:31 +0200 - build 1452
 
-1. ìlinksî from ìmount pointsî distinction AI is removed in panel columns.
+1. ‚Äúlinks‚Äù from ‚Äúmount points‚Äù distinction AI is removed in panel columns.
 Alas, the performance degrades too much.
 
 2. x64 warnings.
@@ -13230,7 +13230,7 @@ chupakabra 20.03.2010 04:38:00 +0200 - build 1444
 
 drkns 20.03.2010 00:42:00 +0200 - build 1443
 
-1. Mantis#0001309: Cancel does not work in ìapply attributesî dialog if incorrect owner is entered
+1. Mantis#0001309: Cancel does not work in ‚Äúapply attributes‚Äù dialog if incorrect owner is entered
 
 2. When invoking folder properties in some OS the file properties could appear for the file with the same name and extension from %pathext%.
 
@@ -13374,7 +13374,7 @@ svs 01.03.2010 19:00:24 +0300 - build 1429
   Here's the Achtung!
   Due to quite old bugs in registry, the content of shortcuts filled with zeros could be saved.
   Therefore, it is recommended to delete ShortXXX values in Editor\LastPositions and Viewer\LastPositions registry keys.
-5. For uniformity... the word ìViewerî is removed from Opt.ViOpt.SaveViewerPos and Opt.ViOpt.SaveViewerShortPos.
+5. For uniformity... the word ‚ÄúViewer‚Äù is removed from Opt.ViOpt.SaveViewerPos and Opt.ViOpt.SaveViewerShortPos.
 
 drkns 28.02.2010 11:29:36 +0200 - build 1428
 
@@ -13431,7 +13431,7 @@ svs 22.02.2010 17:10:45 +0300 - build 1419
 
 drkns 22.02.2010 15:49:34 +0200 - build 1418
 
-1. The continuation of previous build. Now probably the wolves will be fed and the sheep would remain intact - ì./..î items are shown but buggy drivers don't go insane from checking.
+1. The continuation of previous build. Now probably the wolves will be fed and the sheep would remain intact - ‚Äú./..‚Äù items are shown but buggy drivers don't go insane from checking.
 
 t-rex 22.02.2010 13:53:43 +0200 - build 1417
 
@@ -13458,7 +13458,7 @@ drkns 20.02.2010 20:24:44 +0200 - build 1413
 
 2. No more ACTL_CONSOLEMODE.
 
-3. ìWindowedî state is replaced with ìFullscreenî in macro language.
+3. ‚ÄúWindowed‚Äù state is replaced with ‚ÄúFullscreen‚Äù in macro language.
 
 svs 19.02.2010 17:18:28 +0300 - build 1412
 
@@ -13470,7 +13470,7 @@ svs 19.02.2010 17:18:28 +0300 - build 1412
   Panel.SetPosIdx(0,0,0) - returns coordinates in file array taking the filter into consideration
   Panel.SetPosIdx(0,0,1) - returns coordinates in selected files virtual array taking the filter into consideration
 
-4. ìConfigî variables related to macros are grouped into one structure.
+4. ‚ÄúConfig‚Äù variables related to macros are grouped into one structure.
 
 5. Temporary rule is added: KeyMacros/CallPluginRules:dword (Mantis#1280)
   0 - block macros when invoking the plugin with calling the CallPlugin function, 1 - enable macros (achtung!)
@@ -13626,7 +13626,7 @@ drkns 11.02.2010 23:52:09 +0200 - build 1393
 svs 11.02.2010 22:26:57 +0300 - build 1392
 
 1. Mantis#0001268:Only first character is inserted into the dialogs filter.
-Ctrl-V/Shift-Ins is added (for ìwe are in the filterî mode only)
+Ctrl-V/Shift-Ins is added (for ‚Äúwe are in the filter‚Äù mode only)
 
 svs 11.02.2010 21:57:33 +0300 - build 1391
 
@@ -13695,7 +13695,7 @@ svs 09.02.2010 12:50:38 +0300 - build 1381
 when pressed in panels, dialogs etc, in works adequately.
 when pressed in menu, the result is the button which invoked the menu, not F1.
 
-2. MCMD_CHECKMACRO is ìpublishedî, it returns ActlKeyMacro.Param.MacroResult
+2. MCMD_CHECKMACRO is ‚Äúpublished‚Äù, it returns ActlKeyMacro.Param.MacroResult
 struct
 {
 DWORD ErrCode; // error code (see FARMACROPARSEERRORCODE)
@@ -13839,7 +13839,7 @@ drkns 28.01.2010 11:27:44 +0200 - build 1358
 
 t-rex 27.01.2010 21:59:14 +0200 - build 1357
 
-1. Mantis#1255: ìfar /v -î does not respond.
+1. Mantis#1255: ‚Äúfar /v -‚Äù does not respond.
 
 chupakabra 26.01.2010 19:57:00 +0200 - build 1356
 
@@ -13867,7 +13867,7 @@ svs 22.01.2010 17:15:01 +0300 - build 1352
 
 svs 22.01.2010 14:46:29 +0300 - build 1351
 
-1. Mantis#0001240: Outer editor is not started if its path contains spaces and prepended with ì@î symbol.
+1. Mantis#0001240: Outer editor is not started if its path contains spaces and prepended with ‚Äú@‚Äù symbol.
 
 drkns 22.01.2010 00:40:31 +0200 - build 1350
 
@@ -13957,7 +13957,7 @@ drkns 13.01.2010 19:22:50 +0200 - build 1336
 
 t-rex 12.01.2010 23:07:52 +0200 - build 1335
 
-1. FarDialogItem.Param.ListPos is now set centrally when any structure is ìgotî from Far.
+1. FarDialogItem.Param.ListPos is now set centrally when any structure is ‚Äúgot‚Äù from Far.
 Buggy plugins based on assumption that FarDialogItem.Param.ListItems is set will be broken.
 These cases are asked to inform about, although this shouldn't hapen.
 
@@ -13981,11 +13981,11 @@ drkns 11.01.2010 20:07:38 +0200 - build 1333
 
 chupakabra 11.01.2010 02:28:00 +0200 - build 1332
 
-1. ìconstî in plugin api.
+1. ‚Äúconst‚Äù in plugin api.
 
 drkns 11.01.2010 01:19:27 +0200 - build 1331
 
-1. Mantis#0000848: Find Folder: incorrect ì*î symbol handling.
+1. Mantis#0000848: Find Folder: incorrect ‚Äú*‚Äù symbol handling.
 
 t-rex 10.01.2010 23:55:43 +0200 - build 1330
 
@@ -14261,7 +14261,7 @@ If tab symbols got there, this casted a miracle.
 
 t-rex 18.12.2009 17:59:11 +0200 - build 1285
 
-1. At users' requests, an addition to 1282, if Mouse option is off in Far interface settings, then additional console mode ìquick editî isn't switched off if the shortcut/window setting is on.
+1. At users' requests, an addition to 1282, if Mouse option is off in Far interface settings, then additional console mode ‚Äúquick edit‚Äù isn't switched off if the shortcut/window setting is on.
 
 drkns 17.12.2009 21:00:01 +0200 - build 1284
 
@@ -14329,7 +14329,7 @@ drkns 05.12.2009 18:46:16 +0200 - build 1273
 Ibid: removed Windows version check (need to check how it works under NT<6) a couple of minor things. t-rex 05.12.2009 17:29:08 +0200 - build 1272
 
 1. Remakes in TitleAddons:
-a. GUI option. Please always add it for new GUI features, say no to ìtechinfoî.
+a. GUI option. Please always add it for new GUI features, say no to ‚Äútechinfo‚Äù.
 b. No spaces etc. are substituted anywhere, the string is inserted as-is.
 c. All additions go after " - Far ", don't touch this piece.
 d. Trailing spaces are removed if anybody wants to know.
@@ -14432,11 +14432,11 @@ t-rex 02.12.2009 22:03:01 +0200 - build 1260
 
 zg 02.12.2009 00:10:59 +0200 - build 1259
 
-1. 1258 is being continued. Now the ìPackedî column contains real values.
+1. 1258 is being continued. Now the ‚ÄúPacked‚Äù column contains real values.
 
 zg 01.12.2009 23:21:54 +0200 - build 1258
 
-1. Mantis#0000916: Garbage in Detailed mode, ìPackedî column.
+1. Mantis#0000916: Garbage in Detailed mode, ‚ÄúPacked‚Äù column.
 
 t-rex 01.12.2009 20:37:20 +0200 - build 1257
 
@@ -14506,7 +14506,7 @@ It is also the cause of Mantis#0001079: [x] Add signature (BOM) option is always
 
 3. #2 of build 1237 is rolled back. This dialog is annoying indeed.
 
-4. When saving with ShiftF2, current position in ìCode pageî combobox had been taken somewhere from astral.
+4. When saving with ShiftF2, current position in ‚ÄúCode page‚Äù combobox had been taken somewhere from astral.
 
 t-rex 29.11.2009 02:23:03 +0200
 
@@ -14514,7 +14514,7 @@ t-rex 29.11.2009 02:23:03 +0200
 
 t-rex 28.11.2009 21:57:13 +0200
 
-1. Added /Oy- in release to ìhelpî fexcept.
+1. Added /Oy- in release to ‚Äúhelp‚Äù fexcept.
 
 drkns 28.11.2009 21:55:50 +0200
 
@@ -14694,7 +14694,7 @@ chupakabra 17.11.2009 23:17:00 +0200 - build 1211
 
 t-rex 17.11.2009 22:22:04 +0200 - build 1210
 
-1. Stubs again, in order to avoid Windows bug which makes the launcher ìstuckî in Win7 telnet session.
+1. Stubs again, in order to avoid Windows bug which makes the launcher ‚Äústuck‚Äù in Win7 telnet session.
 
 drkns 17.11.2009 00:46:37 +0200 - build 1209
 
@@ -15507,7 +15507,7 @@ t-rex 04.09.2009 00:16:00 +0200 - build 1104
 
 Just in case:
 
-1. At editor search with ì[x] Select foundî, the cursor is set on the first letter of found text, like in search without the option; that's a common way, in general.
+1. At editor search with ‚Äú[x] Select found‚Äù, the cursor is set on the first letter of found text, like in search without the option; that's a common way, in general.
 Thus, the problem with regexp search with this option is gone, also is removed an excessive piece of code with ugly AI, which in addition could cause miscellaneous problems.
 
 drkns 03.09.2009 20:01:23 +0200 - build 1103
@@ -15520,10 +15520,10 @@ svs 03.09.2009 18:07:57 +0300 - build 1102
 1. Mantis#0000547 is corrected:
 "...Open FarRus.hlf with F4,
 F7, search for 3, then some other 3\d
-and check [x] ìRegular expressionsî.
+and check [x] ‚ÄúRegular expressions‚Äù.
 find it, press Shift+F7 - ok, it goes on searching.
 
-Check [x] ìSelect foundî, the search goes ok at the first time, but Shift+F7 doesn't work..."
+Check [x] ‚ÄúSelect found‚Äù, the search goes ok at the first time, but Shift+F7 doesn't work..."
 
 The problem code is commented out until examination; it marked with "CHECK!!!: for...".
 
@@ -15554,13 +15554,13 @@ t-rex 29.08.2009 23:11:42 +0200 - build 1098
 
 drkns 29.08.2009 21:53:31 +0200 - build 1097
 
-1. Mantis#0001026: The ìSearchî button in viewer was broken.
+1. Mantis#0001026: The ‚ÄúSearch‚Äù button in viewer was broken.
 
 drkns 29.08.2009 00:51:58 +0200 - build 1096
 
 1. A few memset's removed.
 
-2. Help files: codepage names at section ìFileSaveAsî.
+2. Help files: codepage names at section ‚ÄúFileSaveAs‚Äù.
 
 chupakabra 28.08.2009 18:28:00 +0200 - build 1095
 
@@ -15581,9 +15581,9 @@ svs 28.08.2009 19:01:31 +0300 - build 1094
   A comment is added to Edit::Search():
 // Q: what's more important: dialog option or RegExp option?
 
-([x] ìCase sensitiveî and /regexp/i are meant)
+([x] ‚ÄúCase sensitive‚Äù and /regexp/i are meant)
 
-3. Same for RegExp option in viewer ó R/O so far (TBD)
+3. Same for RegExp option in viewer ‚Äî R/O so far (TBD)
 
 4. Help: "@RegExp. The beginning" - there's a chapter, it needs to be changed carefully as development proceeds.
   "RegExp" checkbox state is saved now, like in editor.
