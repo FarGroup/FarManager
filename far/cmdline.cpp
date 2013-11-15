@@ -409,6 +409,8 @@ int CommandLine::ProcessKey(int Key)
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
+				Global->CtrlObject->CmdHistory->AddToHistory(strStr, 0, nullptr, nullptr, strCurDir.data());
+
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr.data())))
 				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false,

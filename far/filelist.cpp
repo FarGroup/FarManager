@@ -2557,7 +2557,8 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			QuoteSpace(strFileName);
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
-				Global->CtrlObject->CmdHistory->AddToHistory(strFileName);
+				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, 0, nullptr, nullptr, strCurDir.data());
+
 
 			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs);
 
