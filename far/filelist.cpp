@@ -633,8 +633,6 @@ void FileList::SortFileList(int KeepPosition)
 
 		if (KeepPosition)
 			GoToFile(strCurName);
-
-		ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	}
 }
 
@@ -2338,11 +2336,13 @@ int FileList::ProcessKey(int Key)
 				ReadSortGroups();
 
 			SortFileList(TRUE);
+			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
 			return TRUE;
 		case KEY_SHIFTF12:
 			SelectedFirst=!SelectedFirst;
 			SortFileList(TRUE);
+			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
 			return TRUE;
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
@@ -3243,6 +3243,7 @@ void FileList::ApplySortMode(int Mode)
 	if (!ListData.empty())
 		SortFileList(TRUE);
 
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	FrameManager->RefreshFrame();
 }
 
@@ -3296,6 +3297,7 @@ void FileList::ChangeNumericSort(bool Mode)
 {
 	Panel::ChangeNumericSort(Mode);
 	SortFileList(TRUE);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
 
@@ -3303,6 +3305,7 @@ void FileList::ChangeCaseSensitiveSort(bool Mode)
 {
 	Panel::ChangeCaseSensitiveSort(Mode);
 	SortFileList(TRUE);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
 
@@ -3310,6 +3313,7 @@ void FileList::ChangeDirectoriesFirst(bool Mode)
 {
 	Panel::ChangeDirectoriesFirst(Mode);
 	SortFileList(TRUE);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
 
@@ -5221,12 +5225,14 @@ void FileList::SetSelectedFirstMode(bool Mode)
 {
 	SelectedFirst=Mode;
 	SortFileList(TRUE);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 }
 
 void FileList::ChangeSortOrder(bool Reverse)
 {
 	Panel::ChangeSortOrder(Reverse);
 	SortFileList(TRUE);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
 
