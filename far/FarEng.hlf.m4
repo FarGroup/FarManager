@@ -918,7 +918,7 @@ controlled by plugins.
 possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
 displayed left to the item. The #A# symbol in leftmost menu column means that
 the corresponding plugin is written for Far 1.7x and it does not support all
-possibilities available in Far 2 (these are, in particular, Unicode characters
+possibilities available in Far 3 (these are, in particular, Unicode characters
 in filenames and in editor).
 
     #Plugin commands# menu hotkeys:
@@ -956,7 +956,7 @@ topic for the selected plugin will be shown.
 this possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
 displayed left to the item. The #A# symbol in leftmost menu column means that
 the corresponding plugin is written for Far 1.7x and it does not support all
-possibilities available in Far 2 (these are, in particular, Unicode characters
+possibilities available in Far 3 (these are, in particular, Unicode characters
 in filenames and in editor).
 
     Pressing #F3# will show some technical information about the plugin.
@@ -3365,7 +3365,7 @@ currently selected plugin, if the plugin has a help file.
 
     The #A# symbol in leftmost menu column means that the corresponding plugin is
 written for Far 1.7x and it does not support all possibilities available in
-Far 2 (these are, in particular, Unicode characters in filenames and in editor).
+Far 3 (these are, in particular, Unicode characters in filenames and in editor).
 
     See also:
 

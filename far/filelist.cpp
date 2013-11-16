@@ -633,6 +633,8 @@ void FileList::SortFileList(int KeepPosition)
 
 		if (KeepPosition)
 			GoToFile(strCurName);
+
+		ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	}
 }
 

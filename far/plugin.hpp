@@ -2638,15 +2638,16 @@ enum FAR_PKF_FLAGS
 
 enum FAR_EVENTS
 {
-	FE_CHANGEVIEWMODE =0,
-	FE_REDRAW         =1,
-	FE_IDLE           =2,
-	FE_CLOSE          =3,
-	FE_BREAK          =4,
-	FE_COMMAND        =5,
+	FE_CHANGEVIEWMODE   =0,
+	FE_REDRAW           =1,
+	FE_IDLE             =2,
+	FE_CLOSE            =3,
+	FE_BREAK            =4,
+	FE_COMMAND          =5,
 
-	FE_GOTFOCUS       =6,
-	FE_KILLFOCUS      =7,
+	FE_GOTFOCUS         =6,
+	FE_KILLFOCUS        =7,
+	FE_CHANGESORTPARAMS =8,
 };
 
 struct OpenInfo

@@ -71,6 +71,10 @@ struct ProcessPanelEventInfo
     <td class="cont" width="60%">Панель получила фокус ввода.<br>Активная панель получает событие <code>FE_GOTFOCUS</code> сразу после создания.<br>
     <code>Param</code> равен <code>NULL</code>.<br>
     Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGESORTPARAMS">FE_CHANGESORTPARAMS</a></td>
+    <td class="cont" width="60%">Сменился режим сортировки панели.<br>Активная панель получает событие <code>FE_CHANGESORTPARAMS</code> после любого изменения в параметрах сортировки.<br>
+    <code>Param</code> равен <code>NULL</code>.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
     </table></div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
