@@ -1704,7 +1704,7 @@ id=112
 lv=2
 dt=Text
 nm=export.ProcessPanelEvent
-mtime=3557617922
+mtime=3593805087
 <article>
 #_result = export.ProcessPanelEvent (object, handle, Event, Param)
 #_
@@ -1712,7 +1712,7 @@ mtime=3557617922
 #_  object:  plugin object
 #_  handle:  panel handle
 #_  Event:   integer
-#_  Param:   nil
+#_  Param:   string (for FE_CHANGEVIEWMODE and FE_COMMAND), or nil
 #_
 #_**Returns:**
 #_  result:  boolean

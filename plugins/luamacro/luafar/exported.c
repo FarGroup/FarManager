@@ -992,7 +992,15 @@ intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *
 	{
 		PushPluginPair(L, Info->hPanel);   //+3
 		lua_pushinteger(L, Info->Event);   //+4
-		lua_pushnil(L);                    //+5
+
+		switch (Info->Event)
+		{
+			case FE_CHANGEVIEWMODE:
+			case FE_COMMAND:
+				push_utf8_string(L, (wchar_t*)Info->Param, -1); break;
+			default:
+				lua_pushnil(L); break;         //+5
+		}
 
 		if(0 == pcall_msg(L, 4, 1))        //+1
 		{
