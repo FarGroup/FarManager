@@ -408,7 +408,6 @@ int CommandLine::ProcessKey(int Key)
 			ActivePanel->SetCurPath();
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 				Global->CtrlObject->CmdHistory->AddToHistory(strStr, 0, nullptr, nullptr, strCurDir.data());
 
 
