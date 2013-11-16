@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3674
+  Plugin API for Far Manager 3.0 build 3714
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3674
+#define FARMANAGERVERSION_BUILD 3714
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -66,6 +66,8 @@ static const FARCOLORFLAGS
 	FCF_FG_4BIT       = 0x0000000000000001ULL,
 	FCF_BG_4BIT       = 0x0000000000000002ULL,
 	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT|FCF_BG_4BIT
+
+	FCF_RAWATTR_MASK  = 0x000000000000FF00ULL, // stored console attributes
 
 	FCF_EXTENDEDFLAGS = 0xFFFFFFFFFFFFFFFCULL, // ~FCF_4BITMASK
 
@@ -2467,15 +2469,16 @@ struct OpenMacroPluginInfo
 
 enum FAR_EVENTS
 {
-	FE_CHANGEVIEWMODE =0,
-	FE_REDRAW         =1,
-	FE_IDLE           =2,
-	FE_CLOSE          =3,
-	FE_BREAK          =4,
-	FE_COMMAND        =5,
+	FE_CHANGEVIEWMODE   =0,
+	FE_REDRAW           =1,
+	FE_IDLE             =2,
+	FE_CLOSE            =3,
+	FE_BREAK            =4,
+	FE_COMMAND          =5,
 
-	FE_GOTFOCUS       =6,
-	FE_KILLFOCUS      =7,
+	FE_GOTFOCUS         =6,
+	FE_KILLFOCUS        =7,
+	FE_CHANGESORTPARAMS =8,
 };
 
 struct OpenInfo
