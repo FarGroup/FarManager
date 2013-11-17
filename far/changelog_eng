@@ -3,6 +3,60 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 16.11.2013 17:17:31 +0200 - build 3716
+
+1. Correction of 3713.
+
+shmuel 16.11.2013 16:55:01 +0200 - build 3715
+
+1. Correction of 3714.
+
+shmuel 16.11.2013 14:54:12 +0200 - build 3714
+
+1. An event type in added in Panel API: FE_CHANGESORTPARAMS.
+
+w17 16.11.2013 03:05:43 +0400 - build 3713
+
+1. M#2208: Memorize the folder a command was launched at (from fml2)
+
+svs 15.11.2013 17:39:24 +0400 - build 3712
+
+1. Corrections (some) on TREEFILE_PROJECT (Mantis#0000186)
+   concerning network paths
+
+svs 15.11.2013 15:35:21 +0400 - build 3711
+
+1. Corrections (some) on TREEFILE_PROJECT (Mantis#0000186)
+   Templates of tree files are changed:
+    "LD.%D.%SN.tree"      the template of a tree file name for local volumes
+    "ND.%D.%SN.tree"      the template of a tree file name for network volumes
+    "NP.%SR.%SH.tree"     the template of a tree file name for network paths
+    "RD.%SN.tree"         the template of a tree file name for removable drives
+    "CD.%L.%SN.tree"      the template of a tree file name for CD/DVD/BD/etc drives
+
+   <ACHTUNG>
+
+   1. No need for /D TREEFILE_PROJECT - the project is in development. Testing only.
+   2. Post your ideas and comments here - http://bugs.farmanager.com/view.php?id=186
+
+   </ACHTUNG>
+
+w17 13.11.2013 01:12:09 +0400 - build 3710
+
+1. M#2524: Падает при переименовании файла на маковском сетевом диске
+   Experimental workaround for buggy OSX SMB.
+
+w17 12.11.2013 20:11:28 +0400 - build 3709
+
+1. M#2525: Incorrect clipping of edited file on Mac network drive
+   Experimental workaround for buggy OSX SMB.
+
+svs 11.11.2013 11:16:52 +0400 - build
+
+1. Corrections in 'title' command help topic
+
+2. References to print function (Alt-F5) are removed from help topics on editor and viewer, as there's no support for it in code.
+
 shmuel 08.11.2013 18:47:05 +0200 - build 3708
 
 1. M#2440: akey(1) and single modifier key press.
