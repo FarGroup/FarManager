@@ -240,38 +240,38 @@ void Options::TreeSettings()
 	Builder.AddSeparator(MConfigTreeLabel1);
 
 	Checkbox = Builder.AddCheckbox(MConfigTreeLabelLocalDisk, Tree.LocalDisk);
-	TemplateEdit = Builder.AddEditField(Tree.strLocalDisk, 36);
+	TemplateEdit = Builder.AddEditField(Tree.strLocalDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetDisk, Tree.NetDisk);
-	TemplateEdit = Builder.AddEditField(Tree.strNetDisk, 36);
+	TemplateEdit = Builder.AddEditField(Tree.strNetDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetPath, Tree.NetPath);
-	TemplateEdit = Builder.AddEditField(Tree.strNetPath, 36);
+	TemplateEdit = Builder.AddEditField(Tree.strNetPath, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Checkbox = Builder.AddCheckbox(MConfigTreeLabelRemovableDisk, Tree.RemovableDisk);
-	TemplateEdit = Builder.AddEditField(Tree.strRemovableDisk, 36);
+	TemplateEdit = Builder.AddEditField(Tree.strRemovableDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Checkbox = Builder.AddCheckbox(MConfigTreeLabelCDDisk, Tree.CDDisk);
-	TemplateEdit = Builder.AddEditField(Tree.strCDDisk, 36);
+	TemplateEdit = Builder.AddEditField(Tree.strCDDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
 	Builder.AddText(MConfigTreeLabelSaveLocalPath);
-	Builder.AddEditField(Tree.strSaveLocalPath, 40);
+	Builder.AddEditField(Tree.strSaveLocalPath, 48);
 
 	Builder.AddText(MConfigTreeLabelSaveNetPath);
-	Builder.AddEditField(Tree.strSaveNetPath, 40);
+	Builder.AddEditField(Tree.strSaveNetPath, 48);
 
 	Builder.AddText(MConfigTreeLabelExceptPath);
-	Builder.AddEditField(Tree.strExceptPath, 40);
+	Builder.AddEditField(Tree.strExceptPath, 48);
 #endif
 
 	Builder.AddOKCancel();

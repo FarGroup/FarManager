@@ -501,6 +501,10 @@ void TreeList::SaveTreeFile()
 
 	size_t RootLength=strRoot.empty()?0:strRoot.size()-1;
 	MkTreeFileName(strRoot, strName);
+#if defined(TREEFILE_PROJECT)
+	if (strName.empty())
+		return;
+#endif
 	// получим и сразу сбросим атрибуты (если получится)
 	DWORD FileAttributes=api::GetFileAttributes(strName);
 
@@ -559,8 +563,15 @@ void TreeList::SaveTreeFile()
 		api::DeleteFile(strName);
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName.data(),MSG(MOk));
 	}
-	else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-		api::SetFileAttributes(strName,FileAttributes);
+	else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)... или установим, согласно опции?
+	{
+#if defined(TREEFILE_PROJECT)
+		api::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
+#else
+		api::SetFileAttributes(strName, FileAttributes);
+#endif
+	}
+
 }
 
 int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir)
@@ -581,6 +592,10 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 	string strFolderName;
 	string strFarPath;
 	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
+#if defined(TREEFILE_PROJECT)
+	if (strFolderName.empty())
+		return FALSE;
+#endif
 
 	if (CreateDir)
 	{
@@ -1423,6 +1438,10 @@ int TreeList::ReadTreeFile()
 	//SaveState();
 	FlushCache();
 	MkTreeFileName(strRoot,strName);
+#if defined(TREEFILE_PROJECT)
+	if (strName.empty())
+		return FALSE;
+#endif
 
 	api::File TreeFile;
 	if (MustBeCached(strRoot) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
@@ -2047,11 +2066,22 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	string strRootDir = ExtractPathRoot(Path);
 	string strTreeFileName;
 	string strPath;
-	UINT DriveType = FAR_GetDriveType(strRootDir,0);
-	PATH_TYPE PathType=ParsePath(strRootDir);
+	strDest = L"";
 
-	// check Global->Opt->Tree.strExceptPath
+	auto ExceptPathList(StringToList(Global->Opt->Tree.strExceptPath, STLF_UNIQUE));
+	if (!ExceptPathList.empty())
+	{
+		FOR_CONST_RANGE(ExceptPathList, i)
+		{
+			if (strRootDir == *i)
+			{
+				return strDest;
+			}
+		}
+	}
 
+	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
+	PATH_TYPE PathType = ParsePath(strRootDir);
 	/*
 	PATH_UNKNOWN,
 	PATH_DRIVELETTER,
