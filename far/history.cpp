@@ -120,13 +120,13 @@ void History::AddToHistory(const string& Str, int Type, const GUID* Guid, const 
 			if (EqualType(Type,HType))
 			{
 				typedef int (*CompareFunction)(const string&, const string&);
-				CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
-				CompareFunction CmpFunction = (RemoveDups==2)? CaseInsensitive : CaseSenitive;
+				CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
+				CompareFunction CmpFunction = (RemoveDups == 2 ? CaseInsensitive : CaseSensitive);
 
 				if (!CmpFunction(strName, strHName) &&
 					!CmpFunction(strGuid, strHGuid) &&
 					!CmpFunction(strFile, strHFile) &&
-					!CmpFunction(strData, strHData))
+					(TypeHistory == HISTORYTYPE_CMD || !CmpFunction(strData, strHData)))
 				{
 					Lock = Lock || HLock;
 					DeleteId = id;

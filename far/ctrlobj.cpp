@@ -65,6 +65,7 @@ ControlObject::ControlObject():
 	Plugins = new PluginManager;
 
 	CmdHistory=new History(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory, false);
+	CmdHistory->SetAddMode(true, 2, false); // case insensitive
 	FolderHistory=new History(HISTORYTYPE_FOLDER, string(), Global->Opt->SaveFoldersHistory, true);
 	ViewHistory=new History(HISTORYTYPE_VIEW, string(), Global->Opt->SaveViewHistory, true);
 	FolderHistory->SetAddMode(true,2,true);
