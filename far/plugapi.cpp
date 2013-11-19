@@ -1837,7 +1837,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t *lpwszPath)
 size_t WINAPI apiGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,size_t Size)
 {
 	string strOwner;
-	GetFileOwner(Computer,Name,strOwner);
+	GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner);
 
 	if (Owner && Size)
 		xwcsncpy(Owner,strOwner.data(),Size);
