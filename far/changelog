@@ -1,4 +1,8 @@
-﻿drkns 19.11.2013 21:18:07 +0200 - build 3719
+﻿w17 20.11.2013 13:48:49 +0400 - build 3720
+
+1. M#2527: Crash when restarting with rebuilding tree(fix b2673.2)
+
+drkns 19.11.2013 21:18:07 +0200 - build 3719
 
 1. 0002528: Падение при включении режима панели LCtrl8
 

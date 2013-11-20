@@ -444,11 +444,13 @@ int TreeList::ReadTree()
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
 			Frame *f = FrameManager->GetTopModal();
-			f->Lock();
+			if (f)
+				f->Lock();
 
 			AscAbort=ConfirmAbortOp();
 
-			f->Unlock();
+			if (f)
+				f->Unlock();
 
 			FirstCall=TRUE;
 		}
