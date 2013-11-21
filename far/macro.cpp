@@ -773,7 +773,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey))
 						{
 							m_CurState.HistoryDisable = 0;
-							m_CurState.IntKey = key;
+							m_CurState.IntKey = Rec->IntKey;
 						}
 						return true;
 					}
