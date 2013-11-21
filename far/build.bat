@@ -1,4 +1,5 @@
 @echo off
+  setlocal
   rem examples:
   rem ---------------------------------------------------------------
   rem   build.bat
@@ -31,6 +32,7 @@
   for %%a in (%*) do call :proc_param %%a
   set opath=%PATH%
   for %%c in (%ccomp%) do for %%b in (%nbits%) do call :init %%c %%b& call :build_%%c %%b
+  endlocal
 goto :EOF
 
 :set_gcc
