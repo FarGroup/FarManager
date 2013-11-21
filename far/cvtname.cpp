@@ -64,7 +64,7 @@ bool MixToFullPath(string& strPath)
 		//fragment "."
 		if (IsDot(strPath[Pos]) && (!Pos || IsSlash(strPath[Pos - 1])))
 		{
-			switch (strPath[Pos + 1])
+			switch (strPath.data()[Pos + 1])
 			{
 					//fragment ".\"
 				case L'\\':
