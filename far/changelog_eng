@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.11.2013 21:37:36 +0200 - build 3723
+
+1. Refactoring.
+
+2. Wiping unused code.
+
+w17 21.11.2013 21:10:00 +0400 - build 3722
+
+1. Exception on CtrlJ/C/F in panel when the cursor is on '..'
+
+shmuel 21.11.2013 17:11:54 +0200 - build 3721
+
+1. Correction of build 3708 (M#2440).
+
+w17 20.11.2013 13:48:49 +0400 - build 3720
+
+1. M#2527: Crash when restarting with rebuilding tree(fix b3673.2)
+
+drkns 19.11.2013 21:18:07 +0200 - build 3719
+
+1. 0002528: Crash when LCtrl8 panel mode is on
+
+﻿svs 18.11.2013 15:42:46 +0400 - build 3718
+
+1. Corrections on TREEFILE_PROJECT (Mantis#0000186)
+
+w17 18.11.2013 11:37:28 +0400 - build 3717
+
+1. Correction of 3713 (do not store duplicate commands from different folders)
+
 shmuel 16.11.2013 17:17:31 +0200 - build 3716
 
 1. Correction of 3713.
