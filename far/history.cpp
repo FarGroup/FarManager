@@ -70,7 +70,7 @@ History::~History()
 
 void History::CompactHistory()
 {
-	Global->Db->HistoryCfg()->BeginTransaction();
+	auto t(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
 	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
@@ -82,8 +82,6 @@ void History::CompactHistory()
 	{
 		Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
 	}
-
-	Global->Db->HistoryCfg()->EndTransaction();
 }
 
 /*
@@ -352,7 +350,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					{
 						bool ModifiedHistory=false;
 
-						HistoryCfgRef()->BeginTransaction();
+						auto t(HistoryCfgRef()->ScopedTransaction());
 
 						DWORD index=0;
 						string strHName,strHGuid,strHFile,strHData;
@@ -382,8 +380,6 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 								ModifiedHistory=true;
 							}
 						}
-
-						HistoryCfgRef()->EndTransaction();
 
 						if (ModifiedHistory) // избавляемся от лишних телодвижений
 						{

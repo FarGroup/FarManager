@@ -216,7 +216,6 @@ LINK_OBJS = \
 	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
-	"$(INTDIR)\UnicodeString.obj" \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \

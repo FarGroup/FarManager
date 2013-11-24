@@ -845,13 +845,8 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.empty())
 			{
-				wchar_t_ptr ShortStr(StrSize + 1);
-
-				if (!ShortStr)
-					return FALSE;
-
-				xwcsncpy(ShortStr.get(), Str, StrSize + 1);
-				Len = StrLength(RemoveTrailingSpaces(ShortStr.get()));
+				string ShortStr(Str, StrSize);
+				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 			}
 			else
 				Len=StrSize;
@@ -1114,13 +1109,8 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.empty())
 			{
-				wchar_t_ptr ShortStr(StrSize + 1);
-
-				if (!ShortStr)
-					return FALSE;
-
-				xwcsncpy(ShortStr.get(), Str, StrSize + 1);
-				CurPos=StrLength(RemoveTrailingSpaces(ShortStr.get()));
+				string ShortStr(Str, StrSize);
+				CurPos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 			}
 			else
 				CurPos=StrSize;
@@ -1147,13 +1137,8 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.empty())
 			{
-				wchar_t_ptr ShortStr(StrSize + 1);
-
-				if (!ShortStr)
-					return FALSE;
-
-				xwcsncpy(ShortStr.get(), Str, StrSize+1);
-				int Len=StrLength(RemoveTrailingSpaces(ShortStr.get()));
+				string ShortStr(Str, StrSize);
+				int Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 				if (Len>CurPos)
 					CurPos++;
@@ -1196,13 +1181,13 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.empty())
 			{
-				int MaskLen = static_cast<int>(Mask.size());
-				int i,j;
-				for (i=CurPos,j=CurPos; i<MaskLen; i++)
+				const size_t MaskLen = Mask.size();
+				size_t j = CurPos;
+				for (size_t i = CurPos; i < MaskLen; ++i)
 				{
-					if (CheckCharMask(Mask.data()[i+1]))
+					if (i+1 < MaskLen && CheckCharMask(Mask[i+1]))
 					{
-						while (!CheckCharMask(Mask.data()[j]) && j<MaskLen)
+						while (j < MaskLen && !CheckCharMask(Mask[j]))
 							j++;
 
 						Str[j]=Str[i+1];
@@ -1257,13 +1242,8 @@ int Edit::ProcessKey(int Key)
 
 			if (!Mask.empty())
 			{
-				wchar_t_ptr ShortStr(StrSize+1);
-
-				if (!ShortStr)
-					return FALSE;
-
-				xwcsncpy(ShortStr.get(),Str,StrSize+1);
-				Len=StrLength(RemoveTrailingSpaces(ShortStr.get()));
+				string ShortStr(Str, StrSize);
+				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 				if (Len>CurPos)
 					CurPos++;
@@ -1307,14 +1287,8 @@ int Edit::ProcessKey(int Key)
 				{
 					if (!Mask.empty())
 					{
-						wchar_t_ptr ShortStr(StrSize + 1);
-
-						if (!ShortStr)
-							return FALSE;
-
-						xwcsncpy(ShortStr.get(),Str,StrSize+1);
-						RemoveTrailingSpaces(ShortStr.get());
-						SetClipboard(ShortStr.get());
+						string ShortStr(Str, StrSize);
+						SetClipboard(RemoveTrailingSpaces(ShortStr));
 					}
 					else
 					{
@@ -1357,11 +1331,11 @@ int Edit::ProcessKey(int Key)
 			for (int i=StrLength(Str)-1; i>=0 && IsEol(Str[i]); i--)
 				Str[i]=0;
 
-			for (size_t i=0; ClipText.data()[i]; i++)
+			for (size_t i=0; i < ClipText.size(); ++i)
 			{
-				if (IsEol(ClipText.data()[i]))
+				if (IsEol(ClipText[i]))
 				{
-					if (IsEol(ClipText.data()[i+1]))
+					if (IsEol(i + i < ClipText.size() && ClipText[i+1]))
 						ClipText.erase(i, 1);
 
 					if (i+1 == ClipText.size())
@@ -1936,13 +1910,8 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 				StrSize=CurPos;
 			}
 
-			int TmpSize=StrSize-CurPos;
-			wchar_t_ptr TmpStr(TmpSize + 16);
+			string TmpStr(this->Str + CurPos, StrSize-CurPos);
 
-			if (!TmpStr)
-				return;
-
-			wmemcpy(TmpStr.get(), &this->Str[CurPos], TmpSize);
 			StrSize+=Length;
 
 			if (!(NewStr=(wchar_t *)xf_realloc(this->Str,(StrSize+1)*sizeof(wchar_t))))
@@ -1954,7 +1923,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			wmemcpy(&this->Str[CurPos],Str,Length);
 			SetPrevCurPos(CurPos);
 			CurPos+=Length;
-			wmemcpy(this->Str + CurPos, TmpStr.get(), TmpSize);
+			wmemcpy(this->Str + CurPos, TmpStr.data(), TmpStr.size());
 			this->Str[StrSize]=0;
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
@@ -2119,13 +2088,8 @@ void Edit::SetTabCurPos(int NewPos)
 	auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		wchar_t_ptr ShortStr(StrSize + 1);
-
-		if (!ShortStr)
-			return;
-
-		xwcsncpy(ShortStr.get(), Str, StrSize + 1);
-		int Pos=StrLength(RemoveTrailingSpaces(ShortStr.get()));
+		string ShortStr(Str, StrSize);
+		int Pos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
 
 		if (NewPos>Pos)
 			NewPos=Pos;

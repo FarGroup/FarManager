@@ -480,7 +480,7 @@ bool Plugin::SaveToCache()
 
 	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
 
-	PlCache.BeginTransaction();
+	auto t(PlCache.ScopedTransaction());
 
 	PlCache.DeleteCache(m_strCacheName);
 	unsigned __int64 id = PlCache.CreateCache(m_strCacheName);
@@ -536,8 +536,6 @@ bool Plugin::SaveToCache()
 	PlCache.SetAuthor(id, strAuthor);
 
 	m_model->SaveExportsToCache(&PlCache, id, Exports);
-
-	PlCache.EndTransaction();
 
 	return true;
 }

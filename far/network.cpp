@@ -159,14 +159,14 @@ string &CurPath2ComputerName(const string& CurDir, string &strComputerName, stri
 
 	if (!strNetDir.compare(0, 2, L"\\\\"))
 	{
-		strComputerName = strNetDir.data()+2;
+		strComputerName = strNetDir.substr(2);
 		size_t pos;
 
 		if (!FindSlash(pos,strComputerName))
 			strComputerName.clear();
 		else
 		{
-			strTail = strComputerName.data() + pos + 1;
+			strTail = strComputerName.substr(pos + 1);
 			strComputerName.resize(pos);
 		}
 	}

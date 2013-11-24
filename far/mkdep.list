@@ -252,13 +252,10 @@ TaskBar.hpp
 tinyxml.cpp
 tinyxml.hpp
 TPreRedrawFunc.hpp
-tree.hpp
 treelist.cpp
 treelist.hpp
 tvar.cpp
 tvar.hpp
-UnicodeString.cpp
-UnicodeString.hpp
 usermenu.cpp
 usermenu.hpp
 valuename.hpp

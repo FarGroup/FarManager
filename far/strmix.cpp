@@ -249,7 +249,7 @@ string& TruncStr(string &strStr, int maxLength)
 
 	if (Length > MaxLength)
 	{
-		strStr.assign(strStr.data()+Length-MaxLength, MaxLength);
+		strStr = strStr.substr(Length-MaxLength, MaxLength);
 		if (MaxLength > (size_t)DotsLen)
 			strStr.replace(0, DotsLen, DotsLen, L'.');
 	}
@@ -886,7 +886,7 @@ string& FarFormatText(const string& SrcText,      // источник
 		return strDestText;
 	}
 
-	long i=0, l=0, pgr=0;
+	long l=0, pgr=0;
 	string newtext;
 	const wchar_t *text= strSrc.data();
 	long linelength = Width;
@@ -898,13 +898,14 @@ string& FarFormatText(const string& SrcText,      // источник
 	if (breakcharlen == 1 && !docut)
 	{
 		newtext = text;
+		size_t i = 0;
 
-		while (newtext[i] != L'\0')
+		while (i != newtext.size())
 		{
 			/* prescan line to see if it is greater than linelength */
 			l = 0;
 
-			while (newtext[i+l] != breakchar[0])
+			while (i+l < newtext.size() && newtext[i+l] != breakchar[0])
 			{
 				if (newtext[i+l] == L'\0')
 				{
@@ -956,7 +957,7 @@ string& FarFormatText(const string& SrcText,      // источник
 	else
 	{
 		int last = 0;
-		i = 0;
+		long i = 0;
 
 		while (text[i] != L'\0')
 		{

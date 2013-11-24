@@ -127,7 +127,7 @@ bool FileFilter::FilterEdit()
 		extension_list Extensions;
 
 		{
-			enumFileFilterFlagsType FFFT = GetFFFT();
+			auto FFFT = GetFFFT();
 
 			FOR_CONST_RANGE(*TempFilterData, i)
 			{
@@ -431,7 +431,7 @@ bool FileFilter::FilterEdit()
 	return (ExitCode!=-1);
 }
 
-enumFileFilterFlagsType FileFilter::GetFFFT()
+const enumFileFilterFlagsType FileFilter::GetFFFT()
 {
 	if (m_FilterType == FFT_PANEL)
 	{
@@ -483,7 +483,7 @@ int FileFilter::GetCheck(const FileFilterParams *FFP)
 
 void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
-	enumFileFilterFlagsType FFFT = GetFFFT();
+	auto FFFT = GetFFFT();
 
 	for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
 	{
@@ -611,7 +611,7 @@ bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foun
 
 bool FileFilter::FileInFilter(const api::FAR_FIND_DATA& fde,enumFileInFilterType *foundType, const string* FullName)
 {
-	enumFileFilterFlagsType FFFT = GetFFFT();
+	auto FFFT = GetFFFT();
 	bool bFound=false;
 	bool bAnyIncludeFound=false;
 	bool bAnyFolderIncludeFound=false;
@@ -745,24 +745,15 @@ bool FileFilter::IsEnabledOnPanel()
 	if (m_FilterType != FFT_PANEL)
 		return false;
 
-	enumFileFilterFlagsType FFFT = GetFFFT();
+	auto FFFT = GetFFFT();
 
-	for (size_t i=0; i<FilterData->size(); i++)
-	{
-		if (FilterData->at(i)->GetFlags(FFFT))
-			return true;
-	}
-
+	if (std::any_of(CONST_RANGE(*FilterData, i) { return i->GetFlags(FFFT); }))
+		return true;
+	
 	if (FoldersFilter->GetFlags(FFFT))
 		return true;
 
-	for (size_t i=0; i<TempFilterData->size(); i++)
-	{
-		if (TempFilterData->at(i)->GetFlags(FFFT))
-			return true;
-	}
-
-	return false;
+	return std::any_of(CONST_RANGE(*TempFilterData, i) { return i->GetFlags(FFFT); });
 }
 
 void FileFilter::InitFilter()

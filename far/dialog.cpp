@@ -2922,7 +2922,7 @@ int Dialog::ProcessKey(int Key)
 
 								if (SelStart > -1)
 								{
-									string strEnd=strStr.data()+SelEnd;
+									string strEnd=strStr.substr(SelEnd);
 									strStr.resize(SelStart);
 									strStr+=strEnd;
 									edt->SetString(strStr);

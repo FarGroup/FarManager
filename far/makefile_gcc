@@ -130,7 +130,6 @@ SRCS = \
 	TaskBar.cpp \
 	treelist.cpp \
 	tvar.cpp \
-	UnicodeString.cpp \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \

@@ -249,12 +249,12 @@ void palette::Save()
 {
 	if (PaletteChanged)
 	{
-		Global->Db->ColorsCfg()->BeginTransaction();
+		auto t(Global->Db->ColorsCfg()->ScopedTransaction());
+
 		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
 		{
 			Global->Db->ColorsCfg()->SetValue(Init[index].Name, i);
 		});
-		Global->Db->ColorsCfg()->EndTransaction();
 		PaletteChanged = false;
 	}
 }

@@ -513,7 +513,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="treelist.cpp" />
     <ClCompile Include="tvar.cpp" />
-    <ClCompile Include="UnicodeString.cpp" />
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc_crt_fix_impl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -875,10 +874,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
-    <ClInclude Include="tree.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
-    <ClInclude Include="UnicodeString.hpp" />
     <ClInclude Include="usermenu.hpp" />
     <ClInclude Include="valuename.hpp" />
     <ClInclude Include="viewer.hpp" />

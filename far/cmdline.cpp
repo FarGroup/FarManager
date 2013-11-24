@@ -887,7 +887,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	bool Silent=false;
 
-	if (CmdLine.data()[0] == L'@')
+	if (!CmdLine.empty() && CmdLine[0] == L'@')
 	{
 		CmdLine.erase(0, 1);
 		Silent=true;
@@ -1002,7 +1002,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	RemoveTrailingSpaces(strCmdLine);
 	bool SilentInt=false;
 
-	if (CmdLine.data()[0] == L'@')
+	if (!CmdLine.empty() && CmdLine[0] == L'@')
 	{
 		SilentInt=true;
 		strCmdLine.erase(0, 1);
@@ -1082,7 +1082,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		}
 		else
 		{
-			string strExpandedStr = api::ExpandEnvironmentStrings(strCmdLine.data()+pos+1);
+			string strExpandedStr = api::ExpandEnvironmentStrings(strCmdLine.substr(pos+1));
 			strCmdLine.resize(pos);
 			api::SetEnvironmentVariable(strCmdLine, strExpandedStr);
 		}

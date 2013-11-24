@@ -216,9 +216,10 @@ struct simple_pair
 	second_type second;
 };
 
+typedef std::wstring string;
+
 #include "noncopyable.hpp"
 #include "farrtl.hpp"
-#include "UnicodeString.hpp"
 #include "format.hpp"
 #include "local.hpp"
 #include "farwinapi.hpp"

@@ -63,6 +63,18 @@ public:
 	virtual bool BeginTransaction() = 0;
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;
+
+	class scoped_transaction
+	{
+	public:
+		scoped_transaction(Transactional* parent):m_parent(parent) { m_parent->BeginTransaction(); }
+		~scoped_transaction() { m_parent->EndTransaction(); }
+
+	private:
+		Transactional* m_parent;
+	};
+
+	scoped_transaction ScopedTransaction() {return scoped_transaction(this); }
 };
 
 class GeneralConfig: public XmlConfig, public Transactional {

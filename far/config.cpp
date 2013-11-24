@@ -2092,12 +2092,11 @@ void Options::Save(bool Ask)
 
 	std::for_each(CONST_RANGE(Config, i)
 	{
-		i.first->BeginTransaction();
+		auto t(i.first->ScopedTransaction());
 		std::for_each(CONST_RANGE(i.second, j)
 		{
 			j.Value->StoreValue(i.first, j.KeyName, j.ValName);
 		});
-		i.first->EndTransaction();
 	});
 
 	/* <оняропнжеяяш> *************************************************** */

@@ -186,6 +186,27 @@ private:
 	size_t Size;
 };
 
+class xml_iterator:public std::iterator<std::forward_iterator_tag, tinyxml::TiXmlElement>
+{
+public:
+	xml_iterator(const tinyxml::TiXmlHandle& base, std::string&& name):
+		m_name(name),
+		m_iterator(base.FirstChildElement(name.data()).Element())
+	{}
+	xml_iterator(const tinyxml::TiXmlElement* base, std::string&& name):
+		m_name(name),
+		m_iterator(base)
+	{}
+	const tinyxml::TiXmlElement* operator ->() const { return m_iterator; }
+	const tinyxml::TiXmlElement& operator *() const { return *m_iterator; }
+	xml_iterator& operator ++() { m_iterator = m_iterator->NextSiblingElement(m_name.data()); return *this; }
+	xml_iterator operator ++(int) {auto ret = *this; m_iterator = m_iterator->NextSiblingElement(m_name.data()); return ret;}
+	operator bool() const { return m_iterator != nullptr; }
+
+private:
+	std::string m_name;
+	const tinyxml::TiXmlElement* m_iterator;
+};
 
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
@@ -416,9 +437,8 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		BeginTransaction();
-		for (const auto* e = root.FirstChild(GetKeyName()).FirstChildElement("setting").Element();
-			e != nullptr; e = e->NextSiblingElement("setting"))
+		auto t(ScopedTransaction());
+		for (xml_iterator e(root.FirstChild(GetKeyName()), "setting"); e; ++e)
 		{
 			const char *key = e->Attribute("key");
 			const char *name = e->Attribute("name");
@@ -454,8 +474,6 @@ public:
 				continue;
 			}
 		}
-		EndTransaction();
-
 		return true;
 	}
 
@@ -813,7 +831,7 @@ public:
 				return;
 		}
 
-		for (const auto* e = key->FirstChildElement("value"); e; e=e->NextSiblingElement("value"))
+		for (xml_iterator e(key, "value"); e; ++e)
 		{
 			const char *name = e->Attribute("name");
 			const char *type = e->Attribute("type");
@@ -846,7 +864,7 @@ public:
 			{
 				// custom types, value is optional
 				char_ptr Blob;
-				int Size = DeserializeBlob(name, type, value, e, Blob);
+				int Size = DeserializeBlob(name, type, value, &(*e), Blob);
 				if (Blob)
 				{
 					SetValue(id, Name, Blob.get(), Size);
@@ -863,12 +881,11 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		BeginTransaction();
-		for (const auto* e = root.FirstChild("hierarchicalconfig").FirstChildElement("key").Element(); e; e=e->NextSiblingElement("key"))
+		auto t(ScopedTransaction());
+		for (xml_iterator e(root.FirstChild("hierarchicalconfig"), "key"); e; ++e)
 		{
-			Import(0, e);
+			Import(0, &(*e));
 		}
-		EndTransaction();
 		return true;
 	}
 };
@@ -1047,8 +1064,8 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		BeginTransaction();
-		for (const auto* e = root.FirstChild("colors").FirstChildElement("object").Element(); e; e=e->NextSiblingElement("object"))
+		auto t(ScopedTransaction());
+		for (xml_iterator e(root.FirstChild("colors"), "object"); e; ++e)
 		{
 			const char *name = e->Attribute("name");
 			const char *background = e->Attribute("background");
@@ -1073,7 +1090,6 @@ public:
 				DeleteValue(Name);
 			}
 		}
-		EndTransaction();
 		return true;
 	}
 
@@ -1323,10 +1339,10 @@ public:
 		if (!base.ToElement())
 			return false;
 
-		BeginTransaction();
+		auto t(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
-		for (const auto* e = base.FirstChildElement("filetype").Element(); e; e=e->NextSiblingElement("filetype"))
+		for (xml_iterator e(base, "filetype"); e; ++e)
 		{
 			const char *mask = e->Attribute("mask");
 			const char *description = e->Attribute("description");
@@ -1357,8 +1373,6 @@ public:
 			}
 
 		}
-		EndTransaction();
-
 		return true;
 	}
 };
@@ -1811,9 +1825,8 @@ public:
 
 	bool DiscardCache()
 	{
-		BeginTransaction();
+		auto t(ScopedTransaction());
 		bool ret = Exec("DELETE FROM cachename");
-		EndTransaction();
 		return ret;
 	}
 
@@ -1956,8 +1969,8 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		BeginTransaction();
-		for (const auto* e = root.FirstChild("pluginhotkeys").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("plugin"))
+		auto t(ScopedTransaction());
+		for (xml_iterator e(root.FirstChild("pluginhotkeys"), "plugin"); e; ++e)
 		{
 			const char *key = e->Attribute("key");
 
@@ -1988,8 +2001,6 @@ public:
 			}
 
 		}
-		EndTransaction();
-
 		return true;
 	}
 };
@@ -2667,14 +2678,14 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 				p->Import(root);
 			else if (!plugin)
 				p->Import(root.FirstChildElement(son));
-			else {
-				for (auto plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+			else
+			{
+				for (xml_iterator plugin(root.FirstChild("pluginsconfig"), "plugin"); plugin; ++plugin)
 				{
 					const char *guid = plugin->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
-						const tinyxml::TiXmlHandle h(plugin);
-						p->Import(h);
+						p->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement *>(&(*plugin))));
 						break;
 					}
 				}
@@ -2868,7 +2879,7 @@ bool Database::Import(const string& File)
 			RegExp re;
 			re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
-			for (auto plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+			for (xml_iterator plugin(root.FirstChild("pluginsconfig"), "plugin"); plugin; ++plugin)
 			{
 				const char *guid = plugin->Attribute("guid");
 				if (!guid)
@@ -2879,7 +2890,7 @@ bool Database::Import(const string& File)
 				intptr_t mc = 2;
 				if (re.Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
 				{
-					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(plugin));
+					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement*>(&(*plugin))));
 				}
 			}
 

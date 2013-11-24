@@ -220,7 +220,7 @@ int Help::ReadHelp(const string& Mask)
 
 	if (StackData.strHelpTopic.front()==HelpBeginLink)
 	{
-		strPath = StackData.strHelpTopic.data()+1;
+		strPath = StackData.strHelpTopic.substr(1);
 		size_t pos = strPath.find(HelpEndLink);
 
 		if (pos == string::npos)
@@ -1405,7 +1405,7 @@ int Help::JumpTopic()
 	        && !IsAbsolutePath(StackData.strSelTopic.data()+1)
 	        && !StackData.strHelpPath.empty())
 	{
-		strNewTopic.assign(StackData.strSelTopic.data()+1, pos);
+		strNewTopic = StackData.strSelTopic.substr(1, pos);
 		string strFullPath = StackData.strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath);
@@ -1440,7 +1440,7 @@ int Help::JumpTopic()
 	{
 		if (StackData.strSelTopic.front()==L':')
 		{
-			strNewTopic = StackData.strSelTopic.data()+1;
+			strNewTopic = StackData.strSelTopic.substr(1);
 			StackData.Flags&=~FHELP_CUSTOMFILE;
 		}
 		else if (StackData.Flags&FHELP_CUSTOMFILE)
@@ -1869,7 +1869,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 		}
 		else if (TopicFound && strReadStr[0]==L'$' && strReadStr[1] && !strCurTopic.empty())
 		{
-			strEntryName=strReadStr.data()+1;
+			strEntryName=strReadStr.substr(1);
 			RemoveExternalSpaces(strEntryName);
 			RemoveChar(strEntryName,L'#',false);
 		}

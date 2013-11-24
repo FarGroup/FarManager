@@ -196,10 +196,10 @@ static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 
 	if (Handler)
 	{
-		for (size_t I = 0; I < strStr.size(); I++)
+		for_each_cnt(RANGE(strStr, i, size_t index)
 		{
-			Handler(I);
-		}
+			Handler(index);
+		});
 	}
 }
 

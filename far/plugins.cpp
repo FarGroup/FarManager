@@ -1377,7 +1377,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.data()+nOffset;
+							strTitle = PluginList.GetItemPtr()->strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
@@ -1557,7 +1557,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.data()+nOffset;
+							strTitle = PluginList.GetItemPtr()->strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
@@ -2149,7 +2149,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 	}
 
 	Global->CtrlObject->CmdLine->SetString(L"");
-	string strPluginCommand=strCommand.data()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
+	string strPluginCommand=strCommand.substr(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
 	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
 	HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);

@@ -64,7 +64,18 @@ bool MixToFullPath(string& strPath)
 		//fragment "."
 		if (IsDot(strPath[Pos]) && (!Pos || IsSlash(strPath[Pos - 1])))
 		{
-			switch (strPath.data()[Pos + 1])
+			//fragment "." at the end
+			if(strPath.size() == Pos + 1)
+			{
+				strPath.resize(Pos);
+				// don't change x:\ to x:
+				if (strPath[Pos - 2] != L':')
+				{
+					strPath.pop_back();
+				}
+				continue;
+			}
+			else switch (strPath[Pos + 1])
 			{
 					//fragment ".\"
 				case L'\\':
@@ -72,19 +83,6 @@ bool MixToFullPath(string& strPath)
 				case L'/':
 				{
 					strPath.erase(Pos, 2);
-					continue;
-				}
-				break;
-
-				//fragment "." at the end
-				case 0:
-				{
-					strPath.resize(Pos);
-					// don't change x:\ to x:
-					if (strPath[Pos - 2] != L':')
-					{
-						strPath.pop_back();
-					}
 					continue;
 				}
 				break;
@@ -201,7 +199,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						}
 						else
 						{
-							strDest=DriveVar.data()+1;
+							strDest=DriveVar.substr(1);
 						}
 					}
 					AddEndSlash(strDest);
