@@ -1920,7 +1920,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			}
 
 			this->Str=NewStr;
-			wmemcpy(&this->Str[CurPos],Str,Length);
+			wmemcpy(this->Str + CurPos, Str, Length);
 			SetPrevCurPos(CurPos);
 			CurPos+=Length;
 			wmemcpy(this->Str + CurPos, TmpStr.data(), TmpStr.size());

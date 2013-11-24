@@ -189,11 +189,11 @@ private:
 class xml_iterator:public std::iterator<std::forward_iterator_tag, tinyxml::TiXmlElement>
 {
 public:
-	xml_iterator(const tinyxml::TiXmlHandle& base, std::string&& name):
+	xml_iterator(const tinyxml::TiXmlHandle& base, const std::string& name):
 		m_name(name),
 		m_iterator(base.FirstChildElement(name.data()).Element())
 	{}
-	xml_iterator(const tinyxml::TiXmlElement* base, std::string&& name):
+	xml_iterator(const tinyxml::TiXmlElement* base, const std::string& name):
 		m_name(name),
 		m_iterator(base)
 	{}

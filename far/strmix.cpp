@@ -900,7 +900,7 @@ string& FarFormatText(const string& SrcText,      // источник
 		newtext = text;
 		size_t i = 0;
 
-		while (i != newtext.size())
+		while (i < newtext.size())
 		{
 			/* prescan line to see if it is greater than linelength */
 			l = 0;
