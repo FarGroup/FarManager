@@ -211,8 +211,8 @@ bool filemasks::Compare(const string& FileName) const
 
 bool filemasks::empty() const
 {
-	return std::none_of(CONST_RANGE(Include, i){return !i.empty();}) &&
-	       std::none_of(CONST_RANGE(Exclude, i){return !i.empty();});
+	return std::all_of(CONST_RANGE(Include, i){return i.empty();}) &&
+	       std::all_of(CONST_RANGE(Exclude, i){return i.empty();});
 }
 
 void filemasks::ErrorMessage() const

@@ -195,7 +195,7 @@ public:
 	{}
 	xml_iterator(const tinyxml::TiXmlElement* base, const std::string& name):
 		m_name(name),
-		m_iterator(base)
+		m_iterator(base->FirstChildElement(name.data()))
 	{}
 	const tinyxml::TiXmlElement* operator ->() const { return m_iterator; }
 	const tinyxml::TiXmlElement& operator *() const { return *m_iterator; }
@@ -872,9 +872,9 @@ public:
 			}
 		}
 
-		for (const auto* e = key->FirstChildElement("key"); e; e=e->NextSiblingElement("key"))
+		for (xml_iterator e(key, "key"); e; ++e)
 		{
-			Import(id, e);
+			Import(id, &(*e));
 		}
 
 	}
@@ -1357,7 +1357,7 @@ public:
 			if (!id)
 				continue;
 
-			for (const auto* se = e->FirstChildElement("command"); se; se=se->NextSiblingElement("command"))
+			for (xml_iterator se(&(*e), "command"); se; ++se)
 			{
 				const char *command = se->Attribute("command");
 				int type=0;
@@ -1979,7 +1979,7 @@ public:
 
 			string Key = wide(key, CP_UTF8);
 
-			for (const auto* se = e->FirstChildElement("hotkey"); se; se=se->NextSiblingElement("hotkey"))
+			for (xml_iterator se(&(*e), "hotkey"); se; ++se)
 			{
 				const char *stype = se->Attribute("menu");
 				const char *guid = se->Attribute("guid");
