@@ -111,14 +111,17 @@ void EditControl::Changed(bool DelBlock)
 void EditControl::SetMenuPos(VMenu2& menu)
 {
 	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.GetItemCount())+2;
+
+	int NewX2 = std::max(std::min(ScrX-2,(int)X2), X1 + 20);
+
 	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), std::min(ScrX-2,(int)X2), Y1-1);
+		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), NewX2, Y1-1);
 	}
 	else
 	{
-		menu.SetPosition(X1,Y1+1,X2,std::min(static_cast<int>(ScrY), Y1+1+MaxHeight));
+		menu.SetPosition(X1, Y1+1, NewX2, std::min(static_cast<int>(ScrY), Y1+1+MaxHeight));
 	}
 }
 

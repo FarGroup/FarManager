@@ -2055,6 +2055,8 @@ void VMenu::ShowMenu(bool IsParent)
 		MaxLineWidth -= 1; // right horz. scroll
 	}
 
+	MaxLineWidth = std::max(MaxLineWidth, 0);
+
 	if (X2<=X1 || Y2<=Y1)
 	{
 		if (!(CheckFlags(VMENU_SHOWNOBOX) && Y2==Y1))
