@@ -1958,7 +1958,8 @@ void Options::Load()
 		Exec.strExecuteBatchType=constBatchExt;
 
 	// Инициализация XLat для русской раскладки qwerty<->йцукен
-	if (XLat.Table[0].empty())
+	if (std::any_of(ALL_CONST_RANGE(XLat.Table), std::mem_fn(&StringOption::empty)) ||
+		std::any_of(ALL_CONST_RANGE(XLat.Rules), std::mem_fn(&StringOption::empty)))
 	{
 		bool RussianExists=false;
 		HKL Layouts[32];
@@ -1975,11 +1976,21 @@ void Options::Load()
 
 		if (RussianExists)
 		{
-			XLat.Table[0] = L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e";
-			XLat.Table[1] = L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>";
-			XLat.Rules[0] = L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"";
-			XLat.Rules[1] = L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d";
-			XLat.Rules[2] = L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/";
+			static const wchar_t* Tables[] =
+			{
+				L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
+				L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
+			};
+
+			static const wchar_t* Rules[] =
+			{
+				L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
+				L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",
+				L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
+			};
+
+			for_each_cnt(RANGE(XLat.Table, i, size_t index) { if (i.empty()) i = Tables[index]; });
+			for_each_cnt(RANGE(XLat.Rules, i, size_t index) { if (i.empty()) i = Rules[index]; });
 		}
 	}
 
