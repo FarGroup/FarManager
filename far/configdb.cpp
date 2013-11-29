@@ -892,8 +892,8 @@ public:
 
 static const std::array<value_name_pair<FARCOLORFLAGS, const wchar_t*>, 5> ColorFlagNames =
 {{
-	{FCF_FG_4BIT,      L"bg4bit"   },
-	{FCF_BG_4BIT,      L"fg4bit"   },
+	{FCF_FG_4BIT,      L"fg4bit"   },
+	{FCF_BG_4BIT,      L"bg4bit"   },
 	{FCF_FG_BOLD,      L"bold"     },
 	{FCF_FG_ITALIC,    L"italic"   },
 	{FCF_FG_UNDERLINE, L"underline"},
