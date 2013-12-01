@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 29.11.2013 21:29:21 +0200 - build 3728
+
+1. fg4bit and bg4bit switched places in import/export.
+
+drkns 27.11.2013 22:00:17 +0200 - build 3727
+
+1. 0002533: Xlat settings cannot be read on Far start
+
+drkns 27.11.2013 21:13:16 +0200 - build 3726
+
+1. 0002535: Crash when opening History in a small EditBox
+
+drkns 26.11.2013 23:03:45 +0200 - build 3725
+
+1. A couple of corrections in 3723.
+
+drkns 25.11.2013 01:55:45 +0200 - build 3724
+
+1. A couple of corrections in 3723.
+
 drkns 24.11.2013 21:37:36 +0200 - build 3723
 
 1. Refactoring.
