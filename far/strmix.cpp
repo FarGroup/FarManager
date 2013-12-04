@@ -1455,12 +1455,10 @@ string wide(const char *str, uintptr_t codepage)
 	return string();
 }
 
-string str_printf(const wchar_t * format, ...)
+string str_vprintf(const wchar_t * format, va_list argptr)
 {
 	wchar_t_ptr buffer;
 	size_t size = 128;
-	va_list argptr;
-	va_start(argptr, format);
 	int length = -1;
 	do
 	{
@@ -1473,8 +1471,16 @@ string str_printf(const wchar_t * format, ...)
 	}
 	while (length < 0);
 
-	va_end(argptr);
 	return string(buffer.get());
+}
+
+string str_printf(const wchar_t * format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	string result = str_vprintf(format, argptr);
+	va_end(argptr);
+	return result;
 }
 
 std::list<string> StringToList(const string& InitString, DWORD Flags, const wchar_t* Separators)

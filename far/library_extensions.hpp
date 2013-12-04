@@ -243,6 +243,17 @@ inline F for_each_cnt(I First, I Last, F Func)
 	return Func;
 }
 
+// for_each for 2 containers
+template<class A, class B, class F>
+inline F for_each_2(A FirstA, A LastA, B FirstB, F Func)
+{
+	for (; FirstA != LastA; ++FirstA, ++FirstB)
+	{
+		Func(*FirstA, *FirstB);
+	}
+	return Func;
+}
+
 template<int id>
 struct write_t
 {

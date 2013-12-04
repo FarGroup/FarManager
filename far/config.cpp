@@ -132,17 +132,6 @@ static const wchar_t* NKeyViewEditHistory=L"History.ViewEditHistory";
 static const wchar_t* NKeyFolderHistory=L"History.FolderHistory";
 static const wchar_t* NKeyDialogHistory=L"History.DialogHistory";
 
-static const WCHAR _BoxSymbols[48+1] =
-{
-	0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-	0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
-	0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
-	0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
-	0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
-	0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
-	0x0000
-};
-
 void Options::SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
@@ -924,10 +913,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 
 	if (Index < 0)
 	{
-		for_each_cnt(CONST_RANGE(Init, i, size_t index)
-		{
-			InitMode(i, Modes[index]);
-		});
+		for_each_2(ALL_CONST_RANGE(Init), Modes, InitMode);
 	}
 	else
 	{
@@ -1455,6 +1441,18 @@ Options::farconfig::value_type& Options::farconfig::operator[](size_t i) const {
 
 void Options::InitRoamingCFG()
 {
+	static const wchar_t DefaultBoxSymbols[] =
+	{
+		L'\x2591', L'\x2592', L'\x2593', L'\x2502', L'\x2524', L'\x2561', L'\x2562', L'\x2556',
+		L'\x2555', L'\x2563', L'\x2551', L'\x2557', L'\x255D', L'\x255C', L'\x255B', L'\x2510',
+		L'\x2514', L'\x2534', L'\x252C', L'\x251C', L'\x2500', L'\x253C', L'\x255E', L'\x255F',
+		L'\x255A', L'\x2554', L'\x2569', L'\x2566', L'\x2560', L'\x2550', L'\x256C', L'\x2567',
+		L'\x2568', L'\x2564', L'\x2565', L'\x2559', L'\x2558', L'\x2552', L'\x2553', L'\x256B',
+		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
+		L'\0'
+	};
+	static_assert(ARRAYSIZE(DefaultBoxSymbols) == 48 + 1, "wrong DefaultBoxSymbols array");
+
 	static FARConfigItem _CFG[] =
 	{
 		{FSSF_PRIVATE,       NKeyCmdline, L"AutoComplete", &CmdLine.AutoComplete, true},
@@ -1686,7 +1684,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"AllCtrlAltShiftRule", &AllCtrlAltShiftRule, 0x0000FFFF},
 		{FSSF_PRIVATE,       NKeySystem,L"AutoSaveSetup", &AutoSaveSetup, false},
 		{FSSF_PRIVATE,       NKeySystem,L"AutoUpdateRemoteDrive", &AutoUpdateRemoteDrive, true},
-		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", &strBoxSymbols, _BoxSymbols},
+		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", &strBoxSymbols, DefaultBoxSymbols},
 		{FSSF_PRIVATE,       NKeySystem,L"CASRule", &CASRule, -1},
 		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", &CloseCDGate, true},
 		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", &CmdHistoryRule, false},
@@ -1961,37 +1959,36 @@ void Options::Load()
 	if (std::any_of(ALL_CONST_RANGE(XLat.Table), std::mem_fn(&StringOption::empty)) ||
 		std::any_of(ALL_CONST_RANGE(XLat.Rules), std::mem_fn(&StringOption::empty)))
 	{
-		bool RussianExists=false;
-		HKL Layouts[32];
-		UINT Count=GetKeyboardLayoutList(ARRAYSIZE(Layouts), Layouts);
-		WORD RussianLanguageId=MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
-		for (UINT I=0; I<Count; I++)
+		int Count = GetKeyboardLayoutList(0, nullptr);
+		if (Count)
 		{
-			if (LOWORD(Layouts[I]) == RussianLanguageId)
+			std::vector<HKL> Layouts(Count);
+			if (GetKeyboardLayoutList(static_cast<int>(Layouts.size()), Layouts.data()))
 			{
-				RussianExists = true;
-				break;
+				const WORD RussianLanguageId = MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
+				if (std::any_of(CONST_RANGE(Layouts, i){ return LOWORD(i) == RussianLanguageId; }))
+				{
+					static const wchar_t* Tables[] =
+					{
+						L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
+						L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
+					};
+
+					static const wchar_t* Rules[] =
+					{
+						L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
+						L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",
+						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
+					};
+
+					auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
+
+					for_each_2(ALL_RANGE(XLat.Table), Tables, SetIfEmpty);
+					for_each_2(ALL_RANGE(XLat.Rules), Rules, SetIfEmpty);
+				}
 			}
 		}
 
-		if (RussianExists)
-		{
-			static const wchar_t* Tables[] =
-			{
-				L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
-				L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
-			};
-
-			static const wchar_t* Rules[] =
-			{
-				L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
-				L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",
-				L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
-			};
-
-			for_each_cnt(RANGE(XLat.Table, i, size_t index) { if (i.empty()) i = Tables[index]; });
-			for_each_cnt(RANGE(XLat.Rules, i, size_t index) { if (i.empty()) i = Rules[index]; });
-		}
 	}
 
 	{

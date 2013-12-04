@@ -128,6 +128,7 @@ inline int StrCmpI(const string& a, const string& b) { return StrCmpI(a.data(), 
 string wide(const char *str, uintptr_t codepage = CP_OEMCP);
 
 string str_printf(const wchar_t * format, ...);
+string str_vprintf(const wchar_t * format, va_list argptr);
 
 inline string& Upper(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towupper); return str;}
 inline string& Lower(string& str, size_t pos = 0, size_t n = string::npos) {std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, towlower); return str;}

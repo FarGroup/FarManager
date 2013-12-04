@@ -249,7 +249,7 @@ void SysLog(const wchar_t *fmt,...)
 
 	va_list argptr;
 	va_start(argptr, fmt);
-	string msg = str_printf(fmt, argptr);
+	string msg = str_vprintf(fmt, argptr);
 	va_end(argptr);
 	OpenSysLog();
 
@@ -319,7 +319,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 
 	va_list argptr;
 	va_start(argptr, fmt);
-	string msg = str_printf(fmt, argptr);
+	string msg = str_vprintf(fmt, argptr);
 	va_end(argptr);
 	OpenSysLog();
 
@@ -754,7 +754,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 
 	va_list argptr;
 	va_start(argptr, fmt);
-	string msg = str_printf(fmt, argptr);
+	string msg = str_vprintf(fmt, argptr);
 	va_end(argptr);
 	SysLog(l);
 	OpenSysLog();
