@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MAX_LOG_LINE 10240
 
 static FILE *LogStream=0;
+static int   LogStreamCount=0;
 static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
 
@@ -128,7 +129,7 @@ FILE * OpenLogStream(const string& file)
 #if defined(SYSLOG)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
-	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t",SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t,ccs=UTF-8",SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -138,21 +139,23 @@ void OpenSysLog()
 {
 #if defined(SYSLOG)
 
-	if (LogStream)
-		fclose(LogStream);
-
-	string strLogFileName=Global->g_strFarPath+L"$Log";
-	DWORD Attr=api::GetFileAttributes(strLogFileName);
-
-	if (Attr == INVALID_FILE_ATTRIBUTES)
+	if (!LogStream)
 	{
-		if (!api::CreateDirectory(strLogFileName,nullptr))
-			strLogFileName.resize(Global->g_strFarPath.size());
-	}
-	else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
-		strLogFileName.resize(Global->g_strFarPath.size());
+		string strLogFileName=Global->g_strFarPath+L"$Log";
+		DWORD Attr=api::GetFileAttributes(strLogFileName);
 
-	LogStream=OpenLogStream(strLogFileName);
+		if (Attr == INVALID_FILE_ATTRIBUTES)
+		{
+			if (!api::CreateDirectory(strLogFileName,nullptr))
+				strLogFileName.resize(Global->g_strFarPath.size());
+		}
+		else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
+			strLogFileName.resize(Global->g_strFarPath.size());
+
+		LogStream=OpenLogStream(strLogFileName);
+		LogStreamCount=0;
+	}
+	LogStreamCount++;
 	//if ( !LogStream )
 	//{
 	//    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);
@@ -163,8 +166,13 @@ void OpenSysLog()
 void CloseSysLog()
 {
 #if defined(SYSLOG)
-	fclose(LogStream);
-	LogStream=0;
+	--LogStreamCount;
+	if (LogStreamCount <= 0 && LogStream)
+	{
+		fclose(LogStream);
+		LogStreamCount = 0;
+		LogStream = 0;
+	}
 #endif
 }
 
@@ -2114,5 +2122,13 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 	if (InternalLog)
 		CloseSysLog();
 
+#endif
+}
+
+void PrintSysLogStat()
+{
+#if defined(SYSLOG)
+    string oss=str_printf(L"SYSLOG::LogStream = %p\n",LogStream);
+	OutputDebugString(oss.data());
 #endif
 }

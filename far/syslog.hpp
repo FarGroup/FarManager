@@ -301,3 +301,5 @@ class CleverSysLog  // ;-)
 		CleverSysLog(int Line,const wchar_t *Title);
 		~CleverSysLog();
 };
+
+void PrintSysLogStat();

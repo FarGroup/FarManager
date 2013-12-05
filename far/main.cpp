@@ -787,6 +787,9 @@ int wmain(int Argc, wchar_t *Argv[])
 	try
 	{
 		atexit(PrintMemory);
+#if defined(SYSLOG)
+		atexit(PrintSysLogStat);
+#endif
 		_wsetlocale(LC_ALL, L"");
 		std::set_new_handler(nullptr);
 		EnableSeTranslation();
