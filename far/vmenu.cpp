@@ -1274,7 +1274,7 @@ int VMenu::ProcessKey(int Key)
 			int dy = ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
 
 			int pSel = VisualPosToReal(GetVisualPos(SelectPos)+dy);
-			int pTop = VisualPosToReal(GetVisualPos(SelectPos+1));
+			int pTop = VisualPosToReal(GetVisualPos(TopPos + 1));
 
 			pSel = std::min(pSel, static_cast<int>(Items.size())-1);
 			pTop = std::min(pTop, static_cast<int>(Items.size())-1);
@@ -1352,7 +1352,11 @@ int VMenu::ProcessKey(int Key)
 		{
 			if(SelectPos < static_cast<int>(Items.size()-1))
 			{
-				FarListPos Pos = {sizeof(Pos), SelectPos+1, TopPos+1};
+				FarListPos Pos = { sizeof(Pos), SelectPos + 1, TopPos };
+				int Items_size=static_cast<int>(Items.size());
+				int Height_size = ((BoxType != NO_BOX) ? Y2 - Y1 - 1 : Y2 - Y1 + 1);
+				if (!(Items_size - TopPos <= Height_size || Items_size <= Height_size) )
+					Pos.TopPos++;
 				SetSelectPos(&Pos);
 				ShowMenu(true);
 			}
