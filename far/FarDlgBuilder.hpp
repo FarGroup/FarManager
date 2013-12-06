@@ -64,6 +64,8 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 	private:
 		const wchar_t *HelpTopic;
 		DWORD Mode;
+		GUID Id;
+		bool IdExist;
 
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
@@ -138,4 +140,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void SetDialogMode(DWORD Flags);
 
 		int AddTextWrap(const wchar_t *text, bool center=false, int width=0);
+
+		void SetId(const GUID& Id);
+		const GUID& GetId() const {return Id;}
 };

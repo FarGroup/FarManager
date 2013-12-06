@@ -311,6 +311,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			FolderList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 			FolderList.SetHelp(HelpFolderShortcuts);
 			FolderList.SetBottomTitle(MSG(MFolderShortcutBottomSub));
+			FolderList.SetId(FolderShortcutsMoreId);
 			FillMenu(FolderList, Items[Pos], raw);
 
 			int ExitCode=FolderList.Run([&](int Key)->int
@@ -497,6 +498,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 		Builder.AddText(MFSShortcutPluginData);
 		Builder.AddEditField(&NewItem.strPluginData, 50, L"FS_Path", DIF_EDITPATH);
 	}
+	Builder.SetId(FolderShortcutsDlgId);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())

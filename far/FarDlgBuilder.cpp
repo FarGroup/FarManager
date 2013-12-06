@@ -215,13 +215,13 @@ static bool IsEditField(DialogItemEx *Item)
 */
 
 DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
-	HelpTopic(NullToEmpty(HelpTopic)), Mode(0)
+	HelpTopic(NullToEmpty(HelpTopic)), Mode(0), IdExist(false)
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():
-	HelpTopic(L""),  Mode(0)
+	HelpTopic(L""),  Mode(0), IdExist(false)
 {
 	AddBorder(L"");
 }
@@ -589,6 +589,8 @@ intptr_t DialogBuilder::DoShowDialog()
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
 	if (Mode)
 		Dlg.SetDialogMode(Mode);
+	if (IdExist)
+		Dlg.SetId(Id);
 	Dlg.Process();
 	return Dlg.GetExitCode();
 }
@@ -628,3 +630,8 @@ int DialogBuilder::AddTextWrap(const wchar_t *text, bool center, int width)
 	return LineCount;
 }
 
+void DialogBuilder::SetId(const GUID& Id)
+{
+	this->Id=Id;
+	IdExist=true;
+}
