@@ -84,80 +84,15 @@ enum CDROM_DeviceCapabilities
 	CAPABILITIES_GENERIC_HDDVDRW	= CAPABILITIES_WRITE_HDDVD
 };
 
-enum MMC_Features
-{
-	MMC_FEATUREPROFILE_LIST				= 0x0000,
-	MMC_FEATURECORE						= 0x0001,
-	MMC_FEATURE_MORPHING				= 0x0002,
-	MMC_FEATURE_REMOVABLE				= 0x0003,
-	MMC_FEATURE_WRITE_PROTECT			= 0x0004,
-	MMC_FEATURE_RANDOM_READ				= 0x0010,
-	MMC_FEATURE_MULTIREAD				= 0x001D,
-	MMC_FEATURE_CD_READ					= 0x001E,
-	MMC_FEATURE_DVD_READ				= 0x001F,
-	MMC_FEATURE_RANDOM_WRITE			= 0x0020,
-	MMC_FEATURE_INC_STREAM_WRITE		= 0x0021,
-	MMC_FEATURE_SECTOR_ERASE			= 0x0022,
-	MMC_FEATURE_FORMAT					= 0x0023,
-	MMC_FEATURE_HW_DEFECT_MANAGEMENT	= 0x0024,
-	MMC_FEATURE_WRITE_ONCE				= 0x0025,
-	MMC_FEATURE_RESTRICTED_OW			= 0x0026,
-	MMC_FEATURE_CWRW_CAV_WRITE			= 0x0027,
-	MMC_FEATURE_MRW						= 0x0028,
-	MMC_FEATURE_ENH_DEFECT_REPORT		= 0x0029,
-	MMC_FEATURE_DVDPLUSRW				= 0x002A,
-	MMC_FEATURE_DVDPLUSR				= 0x002B,
-	MMC_FEATURE_RIGID_RESTRICTED_OW		= 0x002C,
-	MMC_FEATURE_CD_TAO					= 0x002D,
-	MMC_FEATURE_CD_MASTERING			= 0x002E,
-	MMC_FEATURE_DVDMINUSR_RW_WRITE		= 0x002F,
-	MMC_FEATURE_DDCD_READ				= 0x0030,
-	MMC_FEATURE_DDCDR_WRITE				= 0x0031,
-	MMC_FEATURE_DDCDRW_WRITE			= 0x0032,
-	MMC_FEATURE_CDRW_WRITE				= 0x0037,
-	MMC_FEATURE_POWER_MANAGEMENT		= 0x0100,
-	MMC_FEATURE_SMART					= 0x0101,
-	MMC_FEATURE_EMBEDDED_CHARGER		= 0x0102,
-	MMC_FEATURE_CD_AUDIO_ANALOG			= 0x0103,
-	MMC_FEATURE_MICROCODE_UPGRADE		= 0x0104,
-	MMC_FEATURE_TIMEOUT					= 0x0105,
-	MMC_FEATURE_DVD_CSS					= 0x0106,
-	MMC_FEATURE_REALTIME_STREAM			= 0x0107,
-	MMC_FEATURE_DRIVE_SN				= 0x0108,
-	MMC_FEATURE_DISC_CTRL_BLOCKS		= 0x010A,
-	MMC_FEATURE_DVD_CPRM				= 0x010B,
-	MMC_FEATURE_FIRMWARE_INFO			= 0x010C,
-	// MMC-5/MMC-6.
-	MMC_FEATURE_LAYER_JUMP_REC			= 0x0033,
-	MMC_FEATURE_BDR_POW					= 0x0038,
-	MMC_FEATURE_DVDPLUSRW_DL			= 0x003A,
-	MMC_FEATURE_DVDPLUSR_DL				= 0x003B,
-	MMC_FEATURE_BD_READ					= 0x0040,
-	MMC_FEATURE_BD_WRITE				= 0x0041,
-	MMC_FEATURE_TSR						= 0x0042,
-	MMC_FEATURE_HDDVD_READ				= 0x0050,
-	MMC_FEATURE_HDDVD_WRITE				= 0x0051,
-	MMC_FEATURE_HYBRID_DISC				= 0x0080,
-	MMC_FEATURE_AACS					= 0x010D,
-	MMC_FEATURE_VCPS					= 0x0110
-};
-
 static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 {
-	char productID[1024];
-	int idx = 0;
+	std::string productID;
 
-	for (int i = 0; prodID[i]; i++)
+	for (auto i = prodID; *i; ++i)
 	{
-		char c = prodID[i];
-
-		if (c >= 'A' && c <= 'Z')
-			productID[idx++] = c;
-		else if (c >= 'a' && c <= 'z')
-			productID[idx++] = c - 'a' + 'A';
+		if (isalpha(*i))
+			productID.push_back(toupper(*i));
 	}
-
-	productID[idx] = 0;
 
 	int caps = CAPABILITIES_NONE;
 
@@ -171,9 +106,10 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 		{"BDROM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
 		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
+
 	std::for_each(CONST_RANGE(Capabilities, i)
 	{
-		if (strstr(productID, i.first))
+		if (productID.find(i.first) != std::string::npos)
 			caps |= i.second;
 	});
 
@@ -285,13 +221,72 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::File& Device)
 
 		ptr += 8;
 
+		enum MMC_Features
+		{
+			MMC_FEATUREPROFILE_LIST             = 0x0000,
+			MMC_FEATURECORE                     = 0x0001,
+			MMC_FEATURE_MORPHING                = 0x0002,
+			MMC_FEATURE_REMOVABLE               = 0x0003,
+			MMC_FEATURE_WRITE_PROTECT           = 0x0004,
+			MMC_FEATURE_RANDOM_READ             = 0x0010,
+			MMC_FEATURE_MULTIREAD               = 0x001D,
+			MMC_FEATURE_CD_READ                 = 0x001E,
+			MMC_FEATURE_DVD_READ                = 0x001F,
+			MMC_FEATURE_RANDOM_WRITE            = 0x0020,
+			MMC_FEATURE_INC_STREAM_WRITE        = 0x0021,
+			MMC_FEATURE_SECTOR_ERASE            = 0x0022,
+			MMC_FEATURE_FORMAT                  = 0x0023,
+			MMC_FEATURE_HW_DEFECT_MANAGEMENT    = 0x0024,
+			MMC_FEATURE_WRITE_ONCE              = 0x0025,
+			MMC_FEATURE_RESTRICTED_OW           = 0x0026,
+			MMC_FEATURE_CWRW_CAV_WRITE          = 0x0027,
+			MMC_FEATURE_MRW                     = 0x0028,
+			MMC_FEATURE_ENH_DEFECT_REPORT       = 0x0029,
+			MMC_FEATURE_DVDPLUSRW               = 0x002A,
+			MMC_FEATURE_DVDPLUSR                = 0x002B,
+			MMC_FEATURE_RIGID_RESTRICTED_OW     = 0x002C,
+			MMC_FEATURE_CD_TAO                  = 0x002D,
+			MMC_FEATURE_CD_MASTERING            = 0x002E,
+			MMC_FEATURE_DVDMINUSR_RW_WRITE      = 0x002F,
+			MMC_FEATURE_DDCD_READ               = 0x0030,
+			MMC_FEATURE_DDCDR_WRITE             = 0x0031,
+			MMC_FEATURE_DDCDRW_WRITE            = 0x0032,
+			MMC_FEATURE_CDRW_WRITE              = 0x0037,
+			MMC_FEATURE_POWER_MANAGEMENT        = 0x0100,
+			MMC_FEATURE_SMART                   = 0x0101,
+			MMC_FEATURE_EMBEDDED_CHARGER        = 0x0102,
+			MMC_FEATURE_CD_AUDIO_ANALOG         = 0x0103,
+			MMC_FEATURE_MICROCODE_UPGRADE       = 0x0104,
+			MMC_FEATURE_TIMEOUT                 = 0x0105,
+			MMC_FEATURE_DVD_CSS                 = 0x0106,
+			MMC_FEATURE_REALTIME_STREAM         = 0x0107,
+			MMC_FEATURE_DRIVE_SN                = 0x0108,
+			MMC_FEATURE_DISC_CTRL_BLOCKS        = 0x010A,
+			MMC_FEATURE_DVD_CPRM                = 0x010B,
+			MMC_FEATURE_FIRMWARE_INFO           = 0x010C,
+			// MMC-5/MMC-6.
+			MMC_FEATURE_LAYER_JUMP_REC          = 0x0033,
+			MMC_FEATURE_BDR_POW                 = 0x0038,
+			MMC_FEATURE_DVDPLUSRW_DL            = 0x003A,
+			MMC_FEATURE_DVDPLUSR_DL             = 0x003B,
+			MMC_FEATURE_BD_READ                 = 0x0040,
+			MMC_FEATURE_BD_WRITE                = 0x0041,
+			MMC_FEATURE_TSR                     = 0x0042,
+			MMC_FEATURE_HDDVD_READ              = 0x0050,
+			MMC_FEATURE_HDDVD_WRITE             = 0x0051,
+			MMC_FEATURE_HYBRID_DISC             = 0x0080,
+			MMC_FEATURE_AACS                    = 0x010D,
+			MMC_FEATURE_VCPS                    = 0x0110
+		};
+
 		while ( ptr < ptr_end )
 		{
-			unsigned short feature_code = (static_cast<unsigned short>(ptr[0]) << 8) | ptr[1];
-
-			switch ( feature_code )
+			switch (static_cast<MMC_Features>((ptr[0] << 8) | ptr[1]))
 			{
-				//USEFULL ONLY IF MODE SENSE FAILED
+				default:
+					break;
+
+					//USEFULL ONLY IF MODE SENSE FAILED
 				case MMC_FEATURE_CD_READ:
 					caps |= CAPABILITIES_READ_CDROM; //useless junk
 					break;
@@ -328,7 +323,6 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::File& Device)
 				case MMC_FEATURE_HDDVD_WRITE:
 					caps |= CAPABILITIES_WRITE_HDDVD;
 					break;
-
 			}
 
 			ptr += ptr[3];
@@ -341,26 +335,20 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(api::File& Device)
 
 static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::File& Device)
 {
-	char outBuf[1024];
-	DWORD returnedLength;
+	STORAGE_DESCRIPTOR_HEADER hdr = {};
 	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery};
-
-	if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), outBuf, sizeof(outBuf), &returnedLength))
+	DWORD returnedLength;
+	if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &hdr, sizeof(hdr), &returnedLength) && hdr.Size)
 	{
-		PSTORAGE_DEVICE_DESCRIPTOR devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(outBuf);
-
-		if (devDesc->ProductIdOffset && outBuf[devDesc->ProductIdOffset])
+		std::vector<char> Buffer(hdr.Size);
+		if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		{
-			char productID[1024];
-			int idx = 0;
+			PSTORAGE_DEVICE_DESCRIPTOR devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
-			for (DWORD i = devDesc->ProductIdOffset; i < returnedLength && outBuf[i]; i++)
+			if (devDesc->ProductIdOffset && Buffer[devDesc->ProductIdOffset])
 			{
-				productID[idx++] = outBuf[i];
+				return getCapsUsingProductId(&Buffer[devDesc->ProductIdOffset]);
 			}
-
-			productID[idx] = 0;
-			return getCapsUsingProductId(productID);
 		}
 	}
 
@@ -442,10 +430,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		api::File Device;
 		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
-			CDROM_DeviceCapabilities caps = GetDeviceCapabilities(Device);
-			Device.Close();
-
-			DrvType = GetDeviceTypeByCaps(caps);
+			DrvType = GetDeviceTypeByCaps(GetDeviceCapabilities(Device));
 		}
 
 		if (DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
@@ -459,18 +444,14 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\" + strRootDir;
 		DeleteEndSlash(drive);
 
-		HANDLE hDevice = ::CreateFileW(
-			drive.data(),
-			GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0, nullptr
-		);
-		if ( INVALID_HANDLE_VALUE != hDevice )
+		api::File Device;
+		if (Device.Open(drive, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY g;
 			DWORD dwOutBytes;
-			if ( DeviceIoControl(hDevice,IOCTL_DISK_GET_DRIVE_GEOMETRY,nullptr,0,&g,(DWORD)sizeof(g),&dwOutBytes,nullptr) )
+			if (Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, sizeof(g), &dwOutBytes, nullptr))
 				if ( g.MediaType == FixedMedia || g.MediaType == RemovableMedia )
 					DrvType = DRIVE_USBDRIVE;
-			CloseHandle(hDevice);
 		}
 	}
 //	if((Detect&2) && IsDriveUsb(*LocalName,nullptr)) //DrvType == DRIVE_REMOVABLE

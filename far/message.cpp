@@ -113,7 +113,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 		break;
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
@@ -177,12 +177,7 @@ Message::Message(DWORD Flags,size_t Buttons,const string& Title,const wchar_t *S
 	m_ExitCode(0)
 {
 	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12};
-	int StrCount=0;
-
-	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount])
-		StrCount++;
-
-	Init(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr);
+	Init(Flags, Buttons, Title, Str, std::count_if(CONST_RANGE(Str, i) { return i != nullptr; }), nullptr, nullptr);
 }
 
 Message::Message(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):

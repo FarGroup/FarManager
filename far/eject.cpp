@@ -52,12 +52,11 @@ static BOOL DismountVolume(HANDLE hVolume)
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет "вставлять" диск :-)
 */
-BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
+bool EjectVolume(wchar_t Letter,UINT64 Flags)
 {
 	BOOL Retry=TRUE;
 	BOOL fAutoEject=FALSE;
 	DWORD temp;
-	BOOL ReadOnly=FALSE;
 	UINT uDriveType;
 	DWORD dwAccessFlags;
 	BOOL fRemoveSafely = FALSE;
@@ -66,21 +65,25 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	RootName[4] = Letter;
 	// OpenVolume
 	uDriveType = FAR_GetDriveType(RootName.data()+4);
-	RootName.resize(6);
+	RootName.pop_back();
+
+	bool ReadOnly = false;
+
 	switch (uDriveType)
 	{
 		case DRIVE_REMOVABLE:
 			dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
 			break;
-		default:
 
+		default:
 			if (IsDriveTypeCDROM(uDriveType))
 			{
 				dwAccessFlags = GENERIC_READ;
+				ReadOnly = true;
 				break;
 			}
 
-			return FALSE;
+			return false;
 	}
 
 	api::File Disk;
@@ -88,7 +91,7 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
 		Opened = Disk.Open(RootName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
-		ReadOnly=FALSE;
+		ReadOnly = true;
 	}
 
 	if (Opened)
@@ -172,35 +175,22 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 		} // END: while(Retry)
 
 		Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &temp);
-		Disk.Close();
 	}
 
 	return fAutoEject||fRemoveSafely; //???
 }
 
-bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
+bool IsEjectableMedia(wchar_t Letter)
 {
 	bool Result = false;
-
-	if (ForceCDROM && IsDriveTypeCDROM(DriveType))
+	string name(L"\\\\.\\?:");
+	name[4] = Letter;
+	api::File file;
+	if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 	{
-		Result = true;
-	}
-	else
-	{
-		string name(L"\\\\.\\?:");
-		name[4] = Letter;
-		api::File file;
-		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
-		{
-			DISK_GEOMETRY dg={};
-			DWORD Bytes=0;
-			if(file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes))
-			{
-				Result = dg.MediaType == RemovableMedia;
-			}
-			file.Close();
-		}
+		DISK_GEOMETRY dg;
+		DWORD Bytes;
+		Result = file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes) && dg.MediaType == RemovableMedia;
 	}
 	return Result;
 }

@@ -84,7 +84,7 @@ class VMenu2 : public Dialog
 
 		void DeleteItems();
 		int DeleteItem(int ID,int Count=1);
-		int AddItem(MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
+		int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
 		int AddItem(const FarList *NewItem);
 		int AddItem(const string& NewStrItem);
 

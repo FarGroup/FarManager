@@ -248,7 +248,5 @@ LangString::LangString(enum LNGID MessageId):
 
 void LangString::Commit(const string& Data)
 {
-	FormatString Insert;
-	Insert << L"%" << ++Iteration;
-	ReplaceStrings(*this, Insert, Data);
+	ReplaceStrings(*this, L"%" + std::to_wstring(++Iteration), Data);
 }

@@ -38,28 +38,37 @@ class FileFilterParams;
 class FileList;
 struct FileListItem;
 
-enum enumHighlightDataColor
-{
-	HIGHLIGHTCOLOR_NORMAL = 0,
-	HIGHLIGHTCOLOR_SELECTED,
-	HIGHLIGHTCOLOR_UNDERCURSOR,
-	HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
-
-	HIGHLIGHTCOLORTYPE_FILE = 0,
-	HIGHLIGHTCOLORTYPE_MARKCHAR = 1,
-};
-
-struct HighlightDataColor
-{
-	FarColor Color[2][4]; // [0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]; if HIBYTE == 0xFF then transparent
-	DWORD MarkChar;
-};
-
 class HighlightFiles
 {
 public:
+	enum highlight_color
+	{
+		NORMAL_COLOR,
+		SELECTED_COLOR,
+		UNDERCURSOR_COLOR,
+		SELECTEDUNDERCURSOR_COLOR,
+
+		HIGHLIGHT_COUNT
+	};
+
+	struct highlight_item
+	{
+		struct
+		{
+			FarColor FileColor;
+			FarColor MarkColor;
+		}
+		Color[HIGHLIGHT_COUNT];
+
+		struct
+		{
+			wchar_t Char;
+			bool Transparent;
+		}
+		Mark;
+	};
+
 	HighlightFiles();
-	~HighlightFiles();
 
 	void UpdateCurrentTime();
 	void GetHiColor(FileListItem* To, bool UseAttrHighlighting = false);

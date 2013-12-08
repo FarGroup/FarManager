@@ -448,22 +448,22 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-const FarColor FileList::GetShowColor(int Position, int ColorType)
+const FarColor FileList::GetShowColor(int Position, bool FileColor)
 {
 	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
 
 	if (static_cast<size_t>(Position) < ListData.size())
 	{
-		int Pos = HIGHLIGHTCOLOR_NORMAL;
+		int Pos = HighlightFiles::NORMAL_COLOR;
 
 		if (CurFile==Position && Focus && !ListData.empty())
 		{
-			Pos=ListData[Position]->Selected?HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR:HIGHLIGHTCOLOR_UNDERCURSOR;
+			Pos=ListData[Position]->Selected? HighlightFiles::SELECTEDUNDERCURSOR_COLOR : HighlightFiles::UNDERCURSOR_COLOR;
 		}
 		else if (ListData[Position]->Selected)
-			Pos = HIGHLIGHTCOLOR_SELECTED;
+			Pos = HighlightFiles::SELECTED_COLOR;
 
-		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
+		ColorAttr = FileColor? ListData[Position]->Colors.Color[Pos].FileColor : ListData[Position]->Colors.Color[Pos].MarkColor;
 
 		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Global->Opt->Highlight)
 		{
@@ -475,9 +475,9 @@ const FarColor FileList::GetShowColor(int Position, int ColorType)
 	return ColorAttr;
 }
 
-void FileList::SetShowColor(int Position, int ColorType)
+void FileList::SetShowColor(int Position, bool FileColor)
 {
-	SetColor(GetShowColor(Position,ColorType));
+	SetColor(GetShowColor(Position,FileColor));
 }
 
 void FileList::ShowSelectedSize()
@@ -908,7 +908,7 @@ void FileList::HighlightBorder(int Level, int ListPos)
 	}
 	else
 	{
-		FarColor FileColor = GetShowColor(ListPos, HIGHLIGHTCOLORTYPE_FILE);
+		FarColor FileColor = GetShowColor(ListPos, true);
 		if (Global->Opt->HighlightColumnSeparator)
 		{
 			SetColor(FileColor);
@@ -1036,14 +1036,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Width-=2;
 							}
 
-							if (ListData[ListPos]->Colors.MarkChar && Global->Opt->Highlight && Width>1)
+							if (ListData[ListPos]->Colors.Mark.Char && Global->Opt->Highlight && Width>1)
 							{
 								Width--;
-								OutCharacter[0]=(wchar_t)ListData[ListPos]->Colors.MarkChar;
+								OutCharacter[0] = ListData[ListPos]->Colors.Mark.Char;
 								FarColor OldColor=GetColor();
 
 								if (!ShowStatus)
-									SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
+									SetShowColor(ListPos, false);
 
 								Text(OutCharacter);
 								SetColor(OldColor);

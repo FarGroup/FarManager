@@ -105,8 +105,7 @@ bool FileFilter::FilterEdit()
 	bool first = true;
 	std::for_each(CONST_RANGE(*FilterData, i)
 	{
-		MenuItemEx ListItem;
-		MenuString(ListItem.strName, i.get());
+		MenuItemEx ListItem(MenuString(i.get()));
 
 		if (first)
 		{
@@ -154,8 +153,7 @@ bool FileFilter::FilterEdit()
 
 		{
 			FoldersFilter->SetTitle(MSG(MFolderFileType));
-			MenuItemEx ListItem;
-			MenuString(ListItem.strName,FoldersFilter,false,L'0');
+			MenuItemEx ListItem(MenuString(FoldersFilter,false,L'0'));
 			int Check = GetCheck(FoldersFilter);
 
 			if (Check)
@@ -193,8 +191,7 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
-			MenuItemEx ListItem;
-			MenuString(ListItem.strName, nullptr, false, h, true, i->first.data(), MSG(MPanelFileType));
+			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i->first.data(), MSG(MPanelFileType)));
 			size_t Length = i->first.size() + 1;
 			ListItem.SetCheck(i->second);
 			FilterList.SetUserData(i->first.data(), Length * sizeof(wchar_t), FilterList.AddItem(ListItem));
@@ -270,8 +267,7 @@ bool FileFilter::FilterEdit()
 				{
 					if (FileFilterConfig(FilterData->at(SelPos).get()))
 					{
-						MenuItemEx ListItem;
-						MenuString(ListItem.strName,FilterData->at(SelPos).get());
+						MenuItemEx ListItem(MenuString(FilterData->at(SelPos).get()));
 						int Check = GetCheck(FilterData->at(SelPos).get());
 
 						if (Check)
@@ -342,8 +338,7 @@ bool FileFilter::FilterEdit()
 
 				if (FileFilterConfig(NewFilter))
 				{
-					MenuItemEx ListItem;
-					MenuString(ListItem.strName,NewFilter);
+					MenuItemEx ListItem(MenuString(NewFilter));
 					FilterList.AddItem(ListItem,static_cast<int>(SelPos));
 					FilterList.SetSelectPos(static_cast<int>(SelPos),1);
 					bNeedUpdate=true;

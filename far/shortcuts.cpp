@@ -95,7 +95,7 @@ Shortcuts::Shortcuts()
 	Changed = false;
 
 	auto cfg = Global->Db->CreateShortcutsConfig();
-	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
+	auto root = cfg->GetKeyID(0,FolderShortcutsKey);
 
 	if (root)
 	{
@@ -107,31 +107,22 @@ Shortcuts::Shortcuts()
 			{
 				for(size_t j=0; ; j++)
 				{
-					FormatString ValueName;
-					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << j;
-					string strValue;
-					if (!cfg->GetValue(key, ValueName, strValue))
-						break;
+					const auto sIndex = std::to_wstring(j);
+
 					ShortcutItem Item;
-					Item.strFolder = strValue;
+					if (!cfg->GetValue(key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, Item.strFolder))
+						break;
 
-					ValueName.clear();
-					ValueName << RecTypeName[PSCR_RT_NAME] << j;
-					cfg->GetValue(key, ValueName, Item.strName);
+					cfg->GetValue(key, RecTypeName[PSCR_RT_NAME] + sIndex, Item.strName);
 
-					ValueName.clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
 					string strPluginGuid;
-					cfg->GetValue(key, ValueName, strPluginGuid);
-					if(!StrToGuid(strPluginGuid,Item.PluginGuid)) Item.PluginGuid=FarGuid;
+					cfg->GetValue(key, RecTypeName[PSCR_RT_PLUGINGUID] + sIndex, strPluginGuid);
+					if(!StrToGuid(strPluginGuid, Item.PluginGuid))
+						Item.PluginGuid=FarGuid;
 
-					ValueName.clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
-					cfg->GetValue(key, ValueName, Item.strPluginFile);
+					cfg->GetValue(key, RecTypeName[PSCR_RT_PLUGINFILE] + sIndex, Item.strPluginFile);
+					cfg->GetValue(key, RecTypeName[PSCR_RT_PLUGINDATA] + sIndex, Item.strPluginData);
 
-					ValueName.clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
-					cfg->GetValue(key, ValueName, Item.strPluginData);
 					i.emplace_back(Item);
 				}
 			}
@@ -155,39 +146,29 @@ Shortcuts::~Shortcuts()
 	{
 		for_each_cnt(CONST_RANGE(Items, i, size_t index)
 		{
-			unsigned __int64 key = cfg->CreateKey(root, std::to_wstring(index));
+			auto key = cfg->CreateKey(root, std::to_wstring(index));
 			if (key)
 			{
 				for_each_cnt(CONST_RANGE(i, j, size_t index)
 				{
-					FormatString ValueName;
-					ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
-					cfg->SetValue(key, ValueName, j.strFolder);
+					const auto sIndex = std::to_wstring(index);
 
-					ValueName.clear();
-					ValueName << RecTypeName[PSCR_RT_NAME] << index;
-					cfg->SetValue(key, ValueName, j.strName);
+					cfg->SetValue(key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, j.strFolder);
+					cfg->SetValue(key, RecTypeName[PSCR_RT_NAME] + sIndex, j.strName);
 
 					if(j.PluginGuid != FarGuid)
 					{
-						ValueName.clear();
-						ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
-						string strPluginGuid=GuidToStr(j.PluginGuid);
-						cfg->SetValue(key, ValueName, strPluginGuid);
+						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINGUID] + sIndex, GuidToStr(j.PluginGuid));
 					}
 
 					if(!j.strPluginFile.empty())
 					{
-						ValueName.clear();
-						ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
-						cfg->SetValue(key, ValueName, j.strPluginFile);
+						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINFILE] + sIndex, j.strPluginFile);
 					}
 
 					if(!j.strPluginData.empty())
 					{
-						ValueName.clear();
-						ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
-						cfg->SetValue(key, ValueName, j.strPluginData);
+						cfg->SetValue(key, RecTypeName[PSCR_RT_PLUGINDATA] + sIndex, j.strPluginData);
 					}
 				});
 			}

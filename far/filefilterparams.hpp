@@ -121,7 +121,7 @@ class FileFilterParams
 
 		struct
 		{
-			HighlightDataColor Colors;
+			HighlightFiles::highlight_item Colors;
 			int SortGroup;
 			bool bContinueProcessing;
 		} FHighlight;
@@ -140,7 +140,7 @@ class FileFilterParams
 		void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 		void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 		void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
-		void SetColors(const HighlightDataColor *Colors);
+		void SetColors(const HighlightFiles::highlight_item& Colors);
 		void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
 		void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
 		void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
@@ -154,8 +154,8 @@ class FileFilterParams
 		const string& GetSizeBelow() const {return FSize.SizeBelow;}
 		bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 		bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
-		void  GetColors(HighlightDataColor *Colors) const;
-		int   GetMarkChar() const;
+		HighlightFiles::highlight_item GetColors() const;
+		wchar_t GetMarkChar() const;
 		int   GetSortGroup() const { return FHighlight.SortGroup; }
 		bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
 		DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
@@ -174,4 +174,4 @@ class FileFilterParams
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+string MenuString(FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);

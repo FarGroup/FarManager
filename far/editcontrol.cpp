@@ -460,8 +460,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{
-				MenuItemEx EmptyItem;
-				ComplMenu.AddItem(EmptyItem, 0);
+				ComplMenu.AddItem(MenuItemEx(), 0);
 				SetMenuPos(ComplMenu);
 				ComplMenu.SetSelectPos(0,0);
 				ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -553,7 +552,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 										this->Select(SelStart, GetLength());
 										RevertCallback();
 									}
-									ComplMenu.AddItem(EmptyItem, 0);
+									ComplMenu.AddItem(MenuItemEx(), 0);
 									SetMenuPos(ComplMenu);
 									ComplMenu.SetSelectPos(0,0);
 								}

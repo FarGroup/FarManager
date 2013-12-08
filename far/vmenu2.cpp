@@ -419,7 +419,7 @@ int VMenu2::DeleteItem(int ID, int Count)
 	return GetItemCount();
 }
 
-int VMenu2::AddItem(MenuItemEx& NewItem, int PosAdd)
+int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 {
 	// BUGBUG
 

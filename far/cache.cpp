@@ -59,7 +59,7 @@ void CachedRead::AdjustAlignment()
 	size_t buff_size = Buffer.size();
 	DISK_GEOMETRY g;
 
-	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr,0, &g,(DWORD)sizeof(g), &ret,nullptr))
+	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr,0, &g, sizeof(g), &ret, nullptr))
 	{
 		if (g.BytesPerSector > 512 && g.BytesPerSector <= 256*1024)
 		{

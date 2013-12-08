@@ -428,10 +428,8 @@ void codepages::AddCodePages(DWORD codePages)
 		bool IsCodePageNameCustom = false;
 		wchar_t *cpName = FormatCodePageName(cp, cpix.CodePageName, ARRAYSIZE(cpix.CodePageName), IsCodePageNameCustom);
 
-		FormatString cpNum;
-		cpNum << cp;
 		long long selectType = 0;
-		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, cpNum, &selectType, 0);
+		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &selectType, 0);
 
 		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы символов
 		if (selectType & CPST_FAVORITE)
@@ -481,8 +479,8 @@ void codepages::ProcessSelected(bool select)
 	if ((select && IsPositionFavorite(itemPosition)) || (!select && IsPositionNormal(itemPosition)))
 	{
 		// Преобразуем номер таблицы символов в строку
-		FormatString strCPName;
-		strCPName<<codePage;
+		const auto strCPName = std::to_wstring(codePage);
+
 		// Получаем текущее состояние флага в реестре
 		long long selectType = 0;
 		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);

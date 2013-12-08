@@ -61,13 +61,12 @@ FileFilterParams::FileFilterParams():
 	FFlags()
 {
 	SetMask(1,L"*");
-	for(size_t i = 0; i < 2; ++i)
+
+	std::for_each(RANGE(FHighlight.Colors.Color, i)
 	{
-		for(size_t j = 0; j < 4; ++j)
-		{
-			MAKE_OPAQUE(FHighlight.Colors.Color[i][j].ForegroundColor);
-		}
-	}
+		MAKE_OPAQUE(i.FileColor.ForegroundColor);
+		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
+	});
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
@@ -84,7 +83,7 @@ FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 		FDate=FF.FDate;
 		FAttr=FF.FAttr;
 		FHardLinks = FF.FHardLinks;
-		FF.GetColors(&FHighlight.Colors);
+		FHighlight.Colors = FF.GetColors();
 		FHighlight.SortGroup=FF.GetSortGroup();
 		FHighlight.bContinueProcessing=FF.GetContinueProcessing();
 		memcpy(FFlags,FF.FFlags,sizeof(FFlags));
@@ -146,9 +145,9 @@ void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 	FAttr.AttrClear=AttrClear;
 }
 
-void FileFilterParams::SetColors(const HighlightDataColor *Colors)
+void FileFilterParams::SetColors(const HighlightFiles::highlight_item& Colors)
 {
-	FHighlight.Colors=*Colors;
+	FHighlight.Colors = Colors;
 }
 
 const string& FileFilterParams::GetTitle() const
@@ -208,14 +207,14 @@ bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 	return FAttr.Used;
 }
 
-void FileFilterParams::GetColors(HighlightDataColor *Colors) const
+HighlightFiles::highlight_item FileFilterParams::GetColors() const
 {
-	*Colors=FHighlight.Colors;
+	return FHighlight.Colors;
 }
 
-int FileFilterParams::GetMarkChar() const
+wchar_t FileFilterParams::GetMarkChar() const
 {
-	return FHighlight.Colors.MarkChar;
+	return FHighlight.Colors.Mark.Char;
 }
 
 bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime)
@@ -359,8 +358,10 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+string MenuString(FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
+	string strDest;
+
 	const wchar_t Format1a[] = L"%-21.21s %c %-26.26s %-3.3s %c %s";
 	const wchar_t Format1b[] = L"%-22.22s %c %-26.26s %-3.3s %c %s";
 	const wchar_t Format1c[] = L"&%c. %-18.18s %c %-26.26s %-3.3s %c %s";
@@ -383,7 +384,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 	}
 	else
 	{
-		MarkChar[1]=(wchar_t)FF->GetMarkChar();
+		MarkChar[1] = FF->GetMarkChar();
 
 		if (!MarkChar[1])
 			*MarkChar=0;
@@ -399,8 +400,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
 
-	struct attr_item {DWORD Attribute; wchar_t Name;};
-	static const attr_item AttrArray[] =
+	static const simple_pair<DWORD, wchar_t> AttrArray[] =
 	{
 		{FILE_ATTRIBUTE_READONLY, L'R'},
 		{FILE_ATTRIBUTE_ARCHIVE, L'A'},
@@ -416,22 +416,30 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		{FILE_ATTRIBUTE_OFFLINE, L'O'},
 		{FILE_ATTRIBUTE_VIRTUAL, L'V'},
 	};
-	wchar_t Attr[ARRAYSIZE(AttrArray) * 2] = {};
 
-	for (size_t i=0; i<ARRAYSIZE(AttrArray); i++)
+	string Attr;
+	Attr.reserve(ARRAYSIZE(AttrArray) * 2);
+
+	std::for_each(CONST_RANGE(AttrArray, i)
 	{
-		wchar_t *Ptr=Attr+i*2;
-		*Ptr=AttrArray[i].Name;
-
-		if (IncludeAttr&AttrArray[i].Attribute)
-			*(Ptr+1)=L'+';
-		else if (ExcludeAttr&AttrArray[i].Attribute)
-			*(Ptr+1)=L'-';
+		if (IncludeAttr & i.first)
+		{
+			Attr.push_back(i.second);
+			Attr.push_back(L'+');
+		}
+		else if (ExcludeAttr & i.first)
+		{
+			Attr.push_back(i.second);
+			Attr.push_back(L'-');
+		}
 		else
-			*Ptr=*(Ptr+1)=L'.';
-	}
+		{
+			Attr.push_back(L'.');
+			Attr.push_back(L'.');
+		}
+	});
 
-	wchar_t SizeDate[5] = L"....";
+	wchar_t SizeDate[] = L"....";
 
 	if (UseSize)
 	{
@@ -456,7 +464,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (FF->GetContinueProcessing())
 			SizeDate[3]=DownArrow;
 
-		strDest = str_printf(Format2, MarkChar, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+		strDest = str_printf(Format2, MarkChar, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 	}
 	else
 	{
@@ -464,18 +472,19 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = str_printf(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+			strDest = str_printf(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 		}
 		else
 		{
 			if (Hotkey)
-				strDest = str_printf(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = str_printf(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 			else
-				strDest = str_printf(Format1d, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = str_printf(Format1d, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
 		}
 	}
 
 	RemoveTrailingSpaces(strDest);
+	return strDest;
 }
 
 enum enumFileFilterConfig
@@ -559,55 +568,53 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const HighlightDataColor &Colors)
+void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const HighlightFiles::highlight_item &Colors)
 {
 	const wchar_t *ptr;
 	FarColor Color;
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+	int VBufRow = 0;
 
-	for (size_t i = 0; i < ARRAYSIZE(PalColor); ++i)
+	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, PaletteColors pal)
 	{
-		Color=Colors.Color[HIGHLIGHTCOLORTYPE_FILE][i];
+		Color = i.FileColor;
 
 		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
-			Color=ColorIndexToColor(PalColor[i]);
+			Color=ColorIndexToColor(pal);
 			Color.Flags|=ExFlags;
 
 		}
 
-		if (Colors.MarkChar&0x0000FFFF)
-			ptr=MSG(MHighlightExample2);
-		else
-			ptr=MSG(MHighlightExample1);
+		ptr=MSG(Colors.Mark.Char? MHighlightExample2 : MHighlightExample1);
 
 		for (int k=0; k<15; k++)
 		{
-			VBufColorExample[15*i+k].Char=ptr[k];
-			VBufColorExample[15*i+k].Attributes=Color;
+			VBufColorExample[15*VBufRow+k].Char=ptr[k];
+			VBufColorExample[15*VBufRow+k].Attributes=Color;
 		}
 
-		if (LOWORD(Colors.MarkChar))
+		if (Colors.Mark.Char)
 		{
 			// inherit only color mode, not style
-			VBufColorExample[15*i+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
-			VBufColorExample[15*i+1].Char=LOWORD(Colors.MarkChar);
-			if (COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) || COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
+			VBufColorExample[15*VBufRow+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
+			VBufColorExample[15*VBufRow+1].Char = Colors.Mark.Char;
+			if (COLORVALUE(i.MarkColor.ForegroundColor) || COLORVALUE(i.MarkColor.BackgroundColor))
 			{
-				VBufColorExample[15*i+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i];
+				VBufColorExample[15*VBufRow+1].Attributes=i.MarkColor;
 			}
 			else
 			{
 				// apply all except color mode
-				FARCOLORFLAGS ExFlags = Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&FCF_EXTENDEDFLAGS;
-				VBufColorExample[15*i+1].Attributes.Flags|=ExFlags;
+				VBufColorExample[15*VBufRow+1].Attributes.Flags |= i.MarkColor.Flags & FCF_EXTENDEDFLAGS;
 			}
 		}
 
-		VBufColorExample[15*i].Attributes=ColorIndexToColor(COL_PANELBOX);
-		VBufColorExample[15*i+14].Attributes=ColorIndexToColor(COL_PANELBOX);
-	}
+		VBufColorExample[15*VBufRow].Attributes=ColorIndexToColor(COL_PANELBOX);
+		VBufColorExample[15*VBufRow+14].Attributes=ColorIndexToColor(COL_PANELBOX);
+		++VBufRow;
+	});
 }
 
 void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
@@ -716,14 +723,15 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				HighlightDataColor *Colors = (HighlightDataColor *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+				auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
 
-				for (int i=0; i<2; i++)
-					for (int j=0; j<4; j++)
-					{
-						MAKE_TRANSPARENT(Colors->Color[i][j].ForegroundColor);
-						MAKE_TRANSPARENT(Colors->Color[i][j].BackgroundColor);
-					}
+				std::for_each(RANGE(Colors->Color, i)
+				{
+					MAKE_TRANSPARENT(i.FileColor.ForegroundColor);
+					MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
+					MAKE_TRANSPARENT(i.MarkColor.ForegroundColor);
+					MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
+				});
 
 				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
 				break;
@@ -739,20 +747,18 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			        || (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && ((INPUT_RECORD *)Param2)->EventType == MOUSE_EVENT && ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
-				HighlightDataColor *EditData = (HighlightDataColor *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
 
 				if (Msg==DN_CONTROLINPUT)
 				{
 					Param1 = ID_HER_NORMALFILE + ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwMousePosition.Y*2;
 
-					if (((INPUT_RECORD *)Param2)->Event.MouseEvent.dwMousePosition.X==1 && (EditData->MarkChar&0x0000FFFF))
+					if (((INPUT_RECORD *)Param2)->Event.MouseEvent.dwMousePosition.X==1 && (EditData->Mark.Char))
 						Param1 = ID_HER_NORMALMARKING + ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwMousePosition.Y*2;
 				}
 
 				//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
-				FarColor Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
-				Global->Console->GetColorDialog(Color,true,true);
-				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
+				Global->Console->GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
 
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
 				block_ptr<FarDialogItem> Buffer(Size);
@@ -762,7 +768,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				wchar_t MarkChar[2];
 				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
 				Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
-				EditData->MarkChar=*MarkChar;
+				EditData->Mark.Char = *MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
 				return TRUE;
@@ -773,7 +779,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 			if (Param1 == ID_HER_MARKEDIT)
 			{
-				HighlightDataColor *EditData = (HighlightDataColor *) Dlg->SendMessage( DM_GETDLGDATA, 0, 0);
+				auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
@@ -782,7 +788,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				wchar_t MarkChar[2];
 				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
 				Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
-				EditData->MarkChar=*MarkChar;
+				EditData->Mark.Char = *MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
 				return TRUE;
@@ -975,13 +981,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.size()-(FilterDlg[ID_HER_NORMALFILE].strData.find(L'&') != string::npos? 1 : 0) + 1;
 
 	FAR_CHAR_INFO VBufColorExample[15*4]={};
-	HighlightDataColor Colors;
-	FF->GetColors(&Colors);
+	auto Colors = FF->GetColors();
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
 	FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
-	wchar_t MarkChar[] = {static_cast<wchar_t>(Colors.MarkChar), 0};
-	FilterDlg[ID_HER_MARKEDIT].strData=MarkChar;
-	FilterDlg[ID_HER_MARKTRANSPARENT].Selected=(Colors.MarkChar&0xFF0000?1:0);
+	FilterDlg[ID_HER_MARKEDIT].strData.assign(1, Colors.Mark.Char);
+	FilterDlg[ID_HER_MARKTRANSPARENT].Selected = Colors.Mark.Transparent;
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);
 	FilterDlg[ID_FF_NAMEEDIT].strData = FF->GetTitle();
 	const wchar_t *FMask;
@@ -1101,12 +1105,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set(FilterDlg[ID_FF_MASKEDIT].strData,0))
 				continue;
 
-			if (FilterDlg[ID_HER_MARKTRANSPARENT].Selected)
-				Colors.MarkChar|=0x00FF0000;
-			else
-				Colors.MarkChar&=0x0000FFFF;
+			Colors.Mark.Transparent = FilterDlg[ID_HER_MARKTRANSPARENT].Selected == BSTATE_CHECKED;
 
-			FF->SetColors(&Colors);
+			FF->SetColors(Colors);
 			FF->SetContinueProcessing(FilterDlg[ID_HER_CONTINUEPROCESSING].Selected!=0);
 			FF->SetTitle(FilterDlg[ID_FF_NAMEEDIT].strData);
 			FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected!=0,

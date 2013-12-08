@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "language.hpp"
 
-struct HighlightStrings
+static const struct
 {
 	const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
 	*IgnoreMask,*UseMask,*Mask,
@@ -73,9 +73,8 @@ struct HighlightStrings
 	*UseSize,*SizeAbove,*SizeBelow,
 	*UseHardLinks,*HardLinksAbove,*HardLinksBelow,
 	*HighlightEdit,*HighlightList;
-};
-
-static const HighlightStrings HLS=
+}
+HLS =
 {
 	L"UseAttr",L"IncludeAttributes",L"ExcludeAttributes",L"AttrSet",L"AttrClear",
 	L"IgnoreMask",L"UseMask",L"Mask",
@@ -106,18 +105,16 @@ static const wchar_t HighlightKeyName[]=L"Highlight";
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
-	unsigned __int64 root;
-
 	if (DeleteOld)
 	{
-		root = cfg->GetKeyID(0, HighlightKeyName);
+		auto root = cfg->GetKeyID(0, HighlightKeyName);
 		if (root)
 			cfg->DeleteKeyTree(root);
 	}
 
 	if (!cfg->GetKeyID(0, HighlightKeyName))
 	{
-		root = cfg->CreateKey(0,HighlightKeyName);
+		auto root = cfg->CreateKey(0,HighlightKeyName);
 		if (root)
 		{
 			static const wchar_t *Masks[]=
@@ -263,20 +260,23 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 
 	HData->SetSortGroup(SortGroup);
 
-	HighlightDataColor Colors = {};
-	cfg->GetValue(key,HLS.NormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
-	cfg->GetValue(key,HLS.SelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
-	cfg->GetValue(key,HLS.CursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
-	cfg->GetValue(key,HLS.SelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
+	HighlightFiles::highlight_item Colors = {};
+	cfg->GetValue(key,HLS.NormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.SelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.CursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.SelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
 
 	unsigned __int64 MarkChar;
 	if (cfg->GetValue(key,HLS.MarkChar,&MarkChar))
-		Colors.MarkChar=static_cast<DWORD>(MarkChar);
-	HData->SetColors(&Colors);
+	{
+		Colors.Mark.Char = LOWORD(MarkChar);
+		Colors.Mark.Transparent = LOBYTE(HIWORD(MarkChar)) == 0xff;
+	}
+	HData->SetColors(Colors);
 
 	unsigned __int64 ContinueProcessing = 0;
 	cfg->GetValue(key,HLS.ContinueProcessing,&ContinueProcessing);
@@ -327,11 +327,6 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 }
 
 
-HighlightFiles::~HighlightFiles()
-{
-	ClearData();
-}
-
 void HighlightFiles::ClearData()
 {
 	HiData.clear();
@@ -340,120 +335,120 @@ void HighlightFiles::ClearData()
 
 static const DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
-static void ApplyDefaultStartingColors(HighlightDataColor *Colors)
+static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
 {
-	for (int j=0; j<2; j++)
+	std::for_each(RANGE(Colors.Color, i)
 	{
-		for (int i=0; i<4; i++)
-		{
-			MAKE_OPAQUE(Colors->Color[j][i].ForegroundColor);
-			MAKE_TRANSPARENT(Colors->Color[j][i].BackgroundColor);
-		}
-	}
+		MAKE_OPAQUE(i.FileColor.ForegroundColor);
+		MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
+		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
+		MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
+	});
 
-	Colors->MarkChar=0x00FF0000;
+	Colors.Mark.Transparent = true;
+	Colors.Mark.Char = 0;
 }
 
-static void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
+static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item& Colors)
 {
-	for (int i=0; i<4; i++)
+	auto InheritColor = [](FarColor& Color, const FarColor& Base)
+	{
+		if (!COLORVALUE(Color.ForegroundColor) && !COLORVALUE(Color.BackgroundColor))
+		{
+			Color.BackgroundColor=ALPHAVALUE(Color.BackgroundColor)|COLORVALUE(Base.BackgroundColor);
+			Color.ForegroundColor=ALPHAVALUE(Color.ForegroundColor)|COLORVALUE(Base.ForegroundColor);
+			Color.Flags &= FCF_EXTENDEDFLAGS;
+			Color.Flags |= Base.Flags;
+			Color.Reserved = Base.Reserved;
+		}
+	};
+
+	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
 	{
 		//Применим black on black.
 		//Для файлов возьмем цвета панели не изменяя прозрачность.
+		InheritColor(i.FileColor, Global->Opt->Palette[pal - COL_FIRSTPALETTECOLOR]);
 		//Для пометки возьмем цвета файла включая прозрачность.
-		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor))
-		{
-			FarColor NewColor = Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR];
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor)|COLORVALUE(NewColor.BackgroundColor);
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor)|COLORVALUE(NewColor.ForegroundColor);
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags&=FCF_EXTENDEDFLAGS;
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags |= NewColor.Flags;
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Reserved = NewColor.Reserved;
-		}
-		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
-		{
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor)|COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor);
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor)|COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor);
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&=FCF_EXTENDEDFLAGS;
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags |= Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags;
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Reserved = Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Reserved;
-		}
-	}
+		InheritColor(i.MarkColor, i.FileColor);
+	});
 }
 
-static void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
+static void ApplyColors(HighlightFiles::highlight_item& DestColors, const HighlightFiles::highlight_item& Src)
 {
 	//Обработаем black on black чтоб наследовать правильные цвета
 	//и чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColors(DestColors);
+	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors);
 
-	for (int j=0; j<2; j++)
+	auto ApplyColor = [](FarColor& Dst, const FarColor& Src)
 	{
-		for (int i=0; i<4; i++)
+		//Если текущие цвета в Src (fore и/или back) не прозрачные
+		//то унаследуем их в Dest.
+
+		auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 		{
-			//Если текущие цвета в Src (fore и/или back) не прозрачные
-			//то унаследуем их в Dest.
-			if (IS_OPAQUE(SrcColors->Color[j][i].ForegroundColor))
+			if(IS_OPAQUE(Dst.*Color))
 			{
-				DestColors->Color[j][i].ForegroundColor=SrcColors->Color[j][i].ForegroundColor;
-				SrcColors->Color[j][i].Flags&FCF_FG_4BIT? DestColors->Color[j][i].Flags|=FCF_FG_4BIT : DestColors->Color[j][i].Flags&=~FCF_FG_4BIT;
+				Dst.*Color = Src.*Color;
+				(Src.Flags & Flag)? (Dst.Flags |= Flag) : (Dst.Flags &= ~Flag);
 			}
-			if (IS_OPAQUE(SrcColors->Color[j][i].BackgroundColor))
-			{
-				DestColors->Color[j][i].BackgroundColor=SrcColors->Color[j][i].BackgroundColor;
-				SrcColors->Color[j][i].Flags&FCF_BG_4BIT? DestColors->Color[j][i].Flags|=FCF_BG_4BIT : DestColors->Color[j][i].Flags&=~FCF_BG_4BIT;
-			}
-			DestColors->Color[j][i].Flags |= SrcColors->Color[j][i].Flags&FCF_EXTENDEDFLAGS;
-		}
-	}
+		};
+
+		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
+		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
+
+		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
+	};
+
+	for_each_2(ALL_RANGE(DestColors.Color), SrcColors.Color, [&](VALUE_TYPE(DestColors.Color)& Dst, const VALUE_TYPE(SrcColors.Color)& Src)
+	{
+		ApplyColor(Dst.FileColor, Src.FileColor);
+		ApplyColor(Dst.MarkColor, Src.MarkColor);
+	});
 
 	//Унаследуем пометку из Src если она не прозрачная
-	if (!(SrcColors->MarkChar&0x00FF0000))
-		DestColors->MarkChar=SrcColors->MarkChar;
+	if (!SrcColors.Mark.Transparent)
+	{
+		DestColors.Mark.Transparent = false;
+		DestColors.Mark.Char = SrcColors.Mark.Char;
+	}
 }
 
-static void ApplyFinalColors(HighlightDataColor *Colors)
+static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
 {
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColors(Colors);
 
-	for (int j=0; j<2; j++)
+	auto ApplyFinalColor = [](FarColor& i, DWORD pal)
 	{
-		for (int i=0; i<4; i++)
+		//Если какой то из текущих цветов (fore или back) прозрачный
+		//то унаследуем соответствующий цвет с панелей.
+
+		const auto& PanelColor = Global->Opt->Palette[pal - COL_FIRSTPALETTECOLOR];
+
+		auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 		{
-			//Если какой то из текущих цветов (fore или back) прозрачный
-			//то унаследуем соответствующий цвет с панелей.
-			if(IS_TRANSPARENT(Colors->Color[j][i].BackgroundColor))
+			if(IS_TRANSPARENT(i.*Color))
 			{
-				Colors->Color[j][i].BackgroundColor=Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
-				if(Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
-				{
-					Colors->Color[j][i].Flags|=FCF_BG_4BIT;
-				}
-				else
-				{
-					Colors->Color[j][i].Flags&=~FCF_BG_4BIT;
-				}
+				i.*Color = PanelColor.*Color;
+				(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
 			}
-			if(IS_TRANSPARENT(Colors->Color[j][i].ForegroundColor))
-			{
-				Colors->Color[j][i].ForegroundColor=Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
-				if(Global->Opt->Palette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
-				{
-					Colors->Color[j][i].Flags|=FCF_FG_4BIT;
-				}
-				else
-				{
-					Colors->Color[j][i].Flags&=~FCF_FG_4BIT;
-				}
-			}
-		}
-	}
+		};
+
+		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
+		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
+	};
+
+	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
+	{
+		ApplyFinalColor(i.FileColor, pal);
+		ApplyFinalColor(i.MarkColor, pal);
+	});
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
-	if (Colors->MarkChar&0x00FF0000)
-		Colors->MarkChar=0;
+	if (Colors.Mark.Transparent)
+		Colors.Mark.Char = 0;
 
 	//Параноя но случится может:
 	//Обработаем black on black снова чтоб обработались унаследованые цвета.
@@ -472,7 +467,7 @@ void HighlightFiles::UpdateCurrentTime()
 
 void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 {
-	ApplyDefaultStartingColors(&To->Colors);
+	ApplyDefaultStartingColors(To->Colors);
 
 	FOR_CONST_RANGE(HiData, i)
 	{
@@ -481,15 +476,13 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 
 		if ((*i)->FileInFilter(To, CurrentTime))
 		{
-			HighlightDataColor TempColors;
-			(*i)->GetColors(&TempColors);
-			ApplyColors(&To->Colors,&TempColors);
+			ApplyColors(To->Colors, (*i)->GetColors());
 
 			if (!(*i)->GetContinueProcessing())
 				break;
 		}
 	}
-	ApplyFinalColors(&To->Colors);
+	ApplyFinalColors(To->Colors);
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)
@@ -511,41 +504,39 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 
 void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 {
-	const int Count[4][2] =
-	{
-		{0,                               FirstCount},
-		{FirstCount,                      FirstCount+UpperCount},
-		{FirstCount+UpperCount,           FirstCount+UpperCount+LowerCount},
-		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
-	};
 	HiMenu->DeleteItems();
 
-	for (int j=0; j<4; j++)
+	const struct
 	{
-		for (int i=Count[j][0]; i<Count[j][1]; i++)
+		int from;
+		int to;
+		const wchar_t* next_title;
+	}
+	Data[] =
+	{
+		{0, FirstCount, MSG(MHighlightUpperSortGroup)},
+		{FirstCount, FirstCount+UpperCount, MSG(MHighlightLowerSortGroup)},
+		{FirstCount+UpperCount, FirstCount+UpperCount+LowerCount, MSG(MHighlightLastGroup)},
+		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount, nullptr}
+	};
+
+	std::for_each(CONST_RANGE(Data, i)
+	{
+		for (auto j = i.from; j != i.to; ++j)
 		{
-			MenuItemEx HiMenuItem;
-			MenuString(HiMenuItem.strName, HiData[i].get(), true);
+			MenuItemEx HiMenuItem(MenuString(HiData[j].get(), true));
 			HiMenu->AddItem(HiMenuItem);
 		}
 
-		MenuItemEx Empty;
-		HiMenu->AddItem(Empty);
+		HiMenu->AddItem(MenuItemEx());
 
-		if (j<3)
+		if (i.next_title)
 		{
-			MenuItemEx HiMenuItem;
-			if (!j)
-				HiMenuItem.strName = MSG(MHighlightUpperSortGroup);
-			else if (j==1)
-				HiMenuItem.strName = MSG(MHighlightLowerSortGroup);
-			else
-				HiMenuItem.strName = MSG(MHighlightLastGroup);
-
+			MenuItemEx HiMenuItem(i.next_title);
 			HiMenuItem.Flags|=LIF_SEPARATOR;
 			HiMenu->AddItem(HiMenuItem);
 		}
-	}
+	});
 
 	HiMenu->SetSelectPos(MenuPos,1);
 }
@@ -852,17 +843,16 @@ static void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	cfg->SetValue(key,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
-	HighlightDataColor Colors;
-	CurHiData->GetColors(&Colors);
-	cfg->SetValue(key,HLS.NormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
-	cfg->SetValue(key,HLS.SelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
-	cfg->SetValue(key,HLS.CursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
-	cfg->SetValue(key,HLS.SelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
-	cfg->SetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
-	cfg->SetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
-	cfg->SetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
-	cfg->SetValue(key,HLS.MarkChar, Colors.MarkChar);
+	auto Colors = CurHiData->GetColors();
+	cfg->SetValue(key,HLS.NormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.SelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.CursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.SelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor, sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));
 	cfg->SetValue(key,HLS.ContinueProcessing, CurHiData->GetContinueProcessing()?1:0);
 }
 
@@ -873,38 +863,46 @@ void HighlightFiles::SaveHiData()
 
 	Changed = false;
 
-	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
-	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
-	const int Count[4][2] =
+	auto cfg = Global->Db->CreateHighlightConfig();
+	auto root = cfg->GetKeyID(0, HighlightKeyName);
+
+	if (root)
+		cfg->DeleteKeyTree(root);
+
+	root = cfg->GetKeyID(0, SortGroupsKeyName);
+
+	if (root)
+		cfg->DeleteKeyTree(root);
+
+	const struct
 	{
-		{0,                               FirstCount},
-		{FirstCount,                      FirstCount+UpperCount},
-		{FirstCount+UpperCount,           FirstCount+UpperCount+LowerCount},
-		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
+		bool IsSort;
+		const wchar_t* KeyName;
+		const wchar_t* GroupName;
+		int from;
+		int to;
+	}
+	Data[] =
+	{
+		{false, HighlightKeyName, fmtFirstGroup, 0, FirstCount},
+		{true, SortGroupsKeyName, fmtUpperGroup, FirstCount, FirstCount+UpperCount},
+		{true, SortGroupsKeyName, fmtLowerGroup, FirstCount + UpperCount, FirstCount + UpperCount + LowerCount},
+		{false, HighlightKeyName, fmtLastGroup, FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount},
 	};
 
-	auto cfg = Global->Db->CreateHighlightConfig();
-
-	unsigned __int64 root = cfg->GetKeyID(0, HighlightKeyName);
-	if (root)
-		cfg->DeleteKeyTree(root);
-	root = cfg->GetKeyID(0, SortGroupsKeyName);
-	if (root)
-		cfg->DeleteKeyTree(root);
-
-	for (int j=0; j<4; j++)
+	std::for_each(CONST_RANGE(Data, i)
 	{
-		root = cfg->CreateKey(0, KeyNames[j]);
-		if (!root)
-			continue;
-
-		for (int i=Count[j][0]; i<Count[j][1]; i++)
+		root = cfg->CreateKey(0, i.KeyName);
+		if (root)
 		{
-			unsigned __int64 key = cfg->CreateKey(root, str_printf(GroupNames[j],i-Count[j][0]));
-			if (!key)
-				break;
-
-			SaveFilter(cfg.get(), key, HiData[i].get(), j && j!=3);
+			for (int j = i.from; j != i.to; ++j)
+			{
+				auto key = cfg->CreateKey(root, str_printf(i.GroupName, j - i.from));
+				if (key)
+					SaveFilter(cfg.get(), key, HiData[j].get(), i.IsSort);
+				// else diagnostics
+			}
 		}
-	}
+		// else diagnostics
+	});
 }

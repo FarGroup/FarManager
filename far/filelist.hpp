@@ -46,7 +46,7 @@ struct FileListItem:public Panel::panelitem
 	char PrevSelected;
 	char ShowFolderSize;
 	char ShortNamePresent;
-	HighlightDataColor Colors;
+	HighlightFiles::highlight_item Colors;
 
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
@@ -255,8 +255,8 @@ private:
 	void CorrectPosition();
 	void ShowFileList(int Fast);
 	void ShowList(int ShowStatus,int StartColumn);
-	void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
-	const FarColor GetShowColor(int Position, int ColorType);
+	void SetShowColor(int Position, bool FileColor = true);
+	const FarColor GetShowColor(int Position, bool FileColor = true);
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
 	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr);
