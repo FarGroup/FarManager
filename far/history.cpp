@@ -166,7 +166,7 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 {
 	int Height=ScrY-8;
 	VMenu2 HistoryMenu(Title,nullptr,0,Height);
-	HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+	HistoryMenu.SetFlags(VMENU_WRAPMODE);
 
 	if (HelpTopic)
 		HistoryMenu.SetHelp(HelpTopic);
