@@ -4774,13 +4774,11 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 								break;
 						}
 
-						if ( (!InSelection || (InSelection && SelPanel->IsSelected(I))) && SelPanel->FileInFilter(I) )
+						if (!InSelection || (InSelection && SelPanel->IsSelected(I)))
 						{
 							if (idxFoundItem == idxItem)
 							{
 								idxItem = static_cast<long>(I);
-								if (SelPanel->FilterIsEnabled())
-									idxItem--;
 								found=true;
 								break;
 							}
