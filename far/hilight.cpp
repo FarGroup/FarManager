@@ -388,7 +388,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 
 		auto ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
 		{
-			if(IS_OPAQUE(Dst.*Color))
+			if(IS_OPAQUE(Src.*Color))
 			{
 				Dst.*Color = Src.*Color;
 				(Src.Flags & Flag)? (Dst.Flags |= Flag) : (Dst.Flags &= ~Flag);
