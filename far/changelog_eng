@@ -3,6 +3,49 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 09.12.2013 14:03:54 +0400 - build 3736
+
+1. Correction of 3678 (M#2496)
+
+w17 09.12.2013 13:43:23 +0400 - build 3735
+
+1. M#2543: incorrect functioning of Panel.SetPosIdx when panel filter is on
+
+svs 09.12.2013 10:55:43 +0400 - build 3734
+
+1. SQLite 3.8.2
+
+drkns 08.12.2013 23:04:44 +0200 - build 3733
+
+1. Refactoring.
+
+svs 06.12.2013 14:31:24 +0400 - build 3732
+
+1. Mantis#0002331: Hotkeys and/or GUIDs for Folder Shortcuts 
+
+    FolderShortcutsDlgId  = {DC8D98AC-475C-4f37-AB1D-45765EF06269} --> Dlg.Id
+      Path editing dialog.
+    FolderShortcutsMoreId = {601DD149-92FA-4601-B489-74C981BC8E38} --> Menu.Id
+      The menu shown when more than one path is bound to a shortcut.
+      Earlier, entered FolderShortcutsId was the menu of the common list of shortcuts (F9 c d).
+
+2. SetId/GetId functions assigning a GUID to dialogs are added to DialogBuilder.
+
+svs 05.12.2013 17:07:29 +0400 - build 3731
+
+1. Mantis#0002537: a list with DIF_LISTNOBOX flag in dialog shows unusual scrolling
+   ...similar behavior was for PgDn
+
+svs 05.12.2013 14:43:33 +0400 - build 3730
+
+1. SysLog. Output file is in UTF-8; correction of file open/close (with debug info on app close)
+
+drkns 04.12.2013 20:32:29 +0200 - build 3729
+
+1. Refactoring.
+
+2. syslog used wrong *printf functions.
+
 zg 29.11.2013 21:29:21 +0200 - build 3728
 
 1. fg4bit and bg4bit switched places in import/export.
