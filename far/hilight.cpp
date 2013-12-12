@@ -470,7 +470,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 {
 	ApplyDefaultStartingColors(To->Colors);
 
-	std::any_of(CONST_RANGE(HiData, i)
+	std::any_of(CONST_RANGE(HiData, i) -> bool
 	{
 		if (!(UseAttrHighlighting && i.GetMask(nullptr)))
 		{
