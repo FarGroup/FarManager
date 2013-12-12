@@ -499,7 +499,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir.data(),CurDir.data()) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(strCurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 

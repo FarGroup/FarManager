@@ -84,7 +84,7 @@ private:
 	void FillMenu(VMenu2 *HiMenu,int MenuPos);
 	void ProcessGroups();
 
-	std::vector<std::unique_ptr<FileFilterParams>> HiData;
+	std::vector<FileFilterParams> HiData;
 	int FirstCount, UpperCount, LowerCount, LastCount;
 	unsigned __int64 CurrentTime;
 	bool Changed;

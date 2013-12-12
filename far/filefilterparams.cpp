@@ -71,25 +71,46 @@ FileFilterParams::FileFilterParams():
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
 
-FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
+FileFilterParams::FileFilterParams(FileFilterParams&& rhs):
+	FDate(),
+	FSize(),
+	FHardLinks(),
+	FAttr(),
+	FHighlight(),
+	FFlags()
 {
-	if (this != &FF)
-	{
-		SetTitle(FF.GetTitle());
-		const wchar_t *Mask;
-		FF.GetMask(&Mask);
-		SetMask(FF.GetMask(nullptr),Mask);
-		FSize=FF.FSize;
-		FDate=FF.FDate;
-		FAttr=FF.FAttr;
-		FHardLinks = FF.FHardLinks;
-		FHighlight.Colors = FF.GetColors();
-		FHighlight.SortGroup=FF.GetSortGroup();
-		FHighlight.bContinueProcessing=FF.GetContinueProcessing();
-		memcpy(FFlags,FF.FFlags,sizeof(FFlags));
-	}
+	*this = std::move(rhs);
+}
 
+FileFilterParams& FileFilterParams::operator=(FileFilterParams&& rhs)
+{
+	std::swap(m_strTitle, rhs.m_strTitle);
+	std::swap(FMask, rhs.FMask);
+	std::swap(FDate, rhs.FDate);
+	std::swap(FSize, rhs.FSize);
+	std::swap(FHardLinks, rhs.FHardLinks);
+	std::swap(FAttr, rhs.FAttr);
+	std::swap(FHighlight, rhs.FHighlight);
+	std::swap(FFlags, rhs.FFlags);
 	return *this;
+}
+
+FileFilterParams FileFilterParams::Clone()
+{
+	FileFilterParams Result;
+	Result.m_strTitle = m_strTitle;
+	const wchar_t *Mask;
+	GetMask(&Mask);
+	Result.SetMask(GetMask(nullptr), Mask);
+	Result.FSize = FSize;
+	Result.FDate = FDate;
+	Result.FAttr = FAttr;
+	Result.FHardLinks = FHardLinks;
+	Result.FHighlight.Colors = FHighlight.Colors;
+	Result.FHighlight.SortGroup = FHighlight.SortGroup;
+	Result.FHighlight.bContinueProcessing = FHighlight.bContinueProcessing;
+	Result.FFlags = FFlags;
+	return Result;
 }
 
 void FileFilterParams::SetTitle(const string& Title)
@@ -217,7 +238,7 @@ wchar_t FileFilterParams::GetMarkChar() const
 	return FHighlight.Colors.Mark.Char;
 }
 
-bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime)
+bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const
 {
 	api::FAR_FIND_DATA fde;
 	fde.dwFileAttributes=fli->FileAttr;
@@ -232,7 +253,7 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 Cu
 	return FileInFilter(fde, CurrentTime, &fli->strName);
 }
 
-bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName)
+bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
@@ -350,7 +371,7 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 	return true;
 }
 
-bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime)
+bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const
 {
 	api::FAR_FIND_DATA fde;
 	PluginPanelItemToFindDataEx(&fd, &fde);

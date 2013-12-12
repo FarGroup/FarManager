@@ -219,7 +219,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	};
 
 	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), std::not1(std::mem_fn(&string::empty)));
+	bool ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
 	// —нова все "подставлено", теперь проверим услови€ "if exist"
 	if (ExtractIfExistCommand(strCommand))
@@ -282,7 +282,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	{
 		string strExecStr = Command;
 		int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		bool ListFileUsed = std::any_of(ALL_CONST_RANGE(ListNames), std::not1(std::mem_fn(&string::empty)));
+		bool ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
 		// —нова все "подставлено", теперь проверим услови€ "if exist"
 		if (!ExtractIfExistCommand(strExecStr))

@@ -2714,7 +2714,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 	if (ColorsIn)
 	{
-		memmove(Colors,ColorsIn->Colors,sizeof(Colors));
+		std::copy(ColorsIn->Colors, ColorsIn->Colors + std::min(ARRAYSIZE(Colors), ColorsIn->ColorsCount), Colors);
 	}
 	else
 	{
@@ -2859,7 +2859,7 @@ void VMenu::GetColors(FarDialogItemColors *ColorsOut)
 {
 	CriticalSectionLock Lock(CS);
 
-	memmove(ColorsOut->Colors, Colors, std::min(sizeof(Colors), ColorsOut->ColorsCount*sizeof(Colors[0])));
+	std::copy(Colors, Colors + std::min(ARRAYSIZE(Colors), ColorsOut->ColorsCount), ColorsOut->Colors);
 }
 
 void VMenu::SetOneColor(int Index, PaletteColors Color)

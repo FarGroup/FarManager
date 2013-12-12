@@ -438,7 +438,7 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 		{
 			i->GetTypeAndName(strType, strName);
 
-			if (!StrCmpI(strName.data(), strFullFileName.data()))
+			if (!StrCmpI(strName, strFullFileName))
 				return true;
 		}
 		++n;

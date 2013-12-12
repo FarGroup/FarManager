@@ -975,7 +975,7 @@ public:
 				if(ParentProcess)
 				{
 					string strCurrentProcess, strParentProcess;
-					bool TrustedServer = api::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && api::GetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess.data(), strParentProcess.data()));
+					bool TrustedServer = api::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && api::GetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
 					CloseHandle(ParentProcess);
 					if(TrustedServer)
 					{

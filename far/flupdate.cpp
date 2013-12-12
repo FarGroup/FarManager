@@ -493,7 +493,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.data(), strCurName.data()))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName, strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -839,7 +839,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName.data(),strCurName.data()))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 

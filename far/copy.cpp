@@ -1172,7 +1172,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{
 			case NORMAL_PANEL:
 			{
-				if ((strDestDir.empty() || !DestPanel->IsVisible() || !StrCmpI(strSrcDir.data(),strDestDir.data())) && SelCount==1)
+				if ((strDestDir.empty() || !DestPanel->IsVisible() || !StrCmpI(strSrcDir, strDestDir)) && SelCount==1)
 					CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
 				else
 				{
@@ -1929,7 +1929,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		// копируем полный контент, независимо от опции (но не для случая переименования линка по сети)
-		if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot.data(),strDestDriveRoot.data()))
+		if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot, strDestDriveRoot))
 			Flags |= FCOPY_COPYSYMLINKCONTENTS;
 
 		first = false;
@@ -2794,7 +2794,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 							ShellSetAttr(strDestPath,SrcData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 
-						if (DestAttr!=INVALID_FILE_ATTRIBUTES && !StrCmpI(strCopiedName.data(),DestData.strFileName.data()) &&
+						if (DestAttr!=INVALID_FILE_ATTRIBUTES && !StrCmpI(strCopiedName, DestData.strFileName) &&
 						        strCopiedName != DestData.strFileName)
 							api::MoveFile(strDestPath,strDestPath); //???
 					}

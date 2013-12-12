@@ -58,8 +58,8 @@ class FileFilter
 		int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 		void ProcessSelection(VMenu2 *FilterList);
 		const enumFileFilterFlagsType GetFFFT();
-		int  GetCheck(const FileFilterParams *FFP);
-		static void SwapPanelFlags(FileFilterParams *CurFilterData);
+		int  GetCheck(const FileFilterParams& FFP);
+		static void SwapPanelFlags(FileFilterParams& CurFilterData);
 
 	public:
 		FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);

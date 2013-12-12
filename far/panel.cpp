@@ -118,14 +118,14 @@ public:
 
 	bool operator ==(const ChDiskPluginItem& rhs) const
 	{
-		return HotKey==rhs.HotKey && !StrCmpI(Item.strName.data(), rhs.Item.strName.data()) && Item.UserData==rhs.Item.UserData;
+		return HotKey==rhs.HotKey && !StrCmpI(Item.strName, rhs.Item.strName) && Item.UserData==rhs.Item.UserData;
 	}
 
 	bool operator <(const ChDiskPluginItem& rhs) const
 	{
 		return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?
 			HotKey-1 < rhs.HotKey-1 :
-			StrCmpI(Item.strName.data(), rhs.Item.strName.data()) < 0;
+			StrCmpI(Item.strName, rhs.Item.strName) < 0;
 	}
 
 	MenuItemEx& getItem() { return Item; }
@@ -960,7 +960,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ((PanelMode == NORMAL_PANEL) &&
 		        (GetType() == FILE_PANEL) &&
-		        !StrCmpI(strCurDir.data(),strNewCurDir.data()) &&
+		        !StrCmpI(strCurDir, strNewCurDir) &&
 		        IsVisible())
 		{
 			// ј нужно ли делать здесь Update????
@@ -1742,7 +1742,7 @@ bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 
 void Panel::InitCurDir(const string& CurDir)
 {
-	if (StrCmpI(strCurDir.data(),CurDir.data()) || !TestCurrentDirectory(CurDir))
+	if (StrCmpI(strCurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 
@@ -2517,7 +2517,7 @@ BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 {
 	/* ќбновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-	        !StrCmpI(AnotherPanel->strCurDir.data(), strCurDir.data()))
+	        !StrCmpI(AnotherPanel->strCurDir, strCurDir))
 		return TRUE;
 
 	return FALSE;

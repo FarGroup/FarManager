@@ -319,7 +319,7 @@ string VMenu2::GetMenuTitle(bool bottom)
 	return string(title.get(), size - 1);
 }
 
-std::array<FarDialogItem, 1> VMenu2DialogItems =
+const std::array<FarDialogItem, 1> VMenu2DialogItems =
 {{
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 }};

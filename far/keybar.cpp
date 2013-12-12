@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 
 KeyBar::KeyBar():
+	Items(KBL_GROUP_COUNT),
 	CustomArea(),
 	Owner(nullptr),
 	AltState(0),
@@ -53,7 +54,6 @@ KeyBar::KeyBar():
 	ShiftState(0),
 	CustomLabelsReaded(false)
 {
-	Items.resize(KBL_GROUP_COUNT);
 	std::for_each(RANGE(Items, i)
 	{
 		i.resize(KEY_COUNT);
@@ -202,13 +202,12 @@ void KeyBar::SetLabels(LNGID StartIndex)
 
 static int FnGroup(DWORD ControlState)
 {
-	struct group_item
+	static const struct
 	{
 		DWORD Group;
 		DWORD ControlState;
-	};
-
-	static const group_item Area[] =
+	}
+	Area[] =
 	{
 		{KBL_MAIN, 0},
 		{KBL_SHIFT, KEY_SHIFT},
@@ -245,7 +244,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 	static_assert(ARRAYSIZE(Names) == KBA_COUNT, "Names not filled properly");
 
-	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage.data(), Global->Opt->strLanguage.data()) || Area != CustomArea))
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;

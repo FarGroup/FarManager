@@ -235,7 +235,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 				strCurDirName = strFullName;
 				CutToSlash(strCurDirName); //???
 
-				if (StrCmpI(strCurDirName.data(),strLastDirName.data()))
+				if (StrCmpI(strCurDirName, strLastDirName))
 				{
 					Data.DirCount++;
 					strLastDirName = strCurDirName;
@@ -403,7 +403,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 
 int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
-	if (!StrCmp(Dir.data(),L".") || TestParentFolderName(Dir))
+	if (Dir == L"." || TestParentFolderName(Dir))
 		return FALSE;
 
 	static PluginHandle DirListPlugin;

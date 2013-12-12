@@ -424,7 +424,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		{
 			EnumModules(strTemp, &ComplMenu);
 		}
-		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.data(),ComplMenu.GetItemPtr(0)->strName.data())))
+		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp, ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -443,7 +443,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 				if(!CurrentLine.empty())
 				{
 					int Count = ComplMenu.GetItemCount();
-					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName.data(), CurrentLine.data()) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName, CurrentLine) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
 						++Offset;
 					if(Offset < Count)
 						++Offset;
@@ -530,7 +530,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 								{
 									EnumModules(strTemp, &ComplMenu);
 								}
-								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp.data(),ComplMenu.GetItemPtr(0)->strName.data())))
+								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp, ComplMenu.GetItemPtr(0)->strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{

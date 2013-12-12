@@ -208,34 +208,6 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 	return sz;
 }
 
-static bool ConvertItemEx(
-    CVTITEMFLAGS FromPlugin,
-    FarDialogItem *Item,
-    DialogItemEx *ItemEx,
-    size_t Count
-)
-{
-	if (!Item || !ItemEx)
-		return false;
-
-	switch (FromPlugin)
-	{
-		case CVTITEM_TOPLUGINSHORT:
-			for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
-			{
-				ConvertItemSmall(*ItemEx, *Item);
-			}
-			break;
-
-		case CVTITEM_FROMPLUGIN:
-		case CVTITEM_FROMPLUGINSHORT:
-			ItemToItemEx(Item, ItemEx, Count, FromPlugin == CVTITEM_FROMPLUGINSHORT);
-			break;
-	}
-
-	return true;
-}
-
 static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
 	size_t size=sizeof(FarDialogItem);
@@ -265,7 +237,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 	return size;
 }
 
-void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count, bool Short)
+void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count, bool Short)
 {
 	if (!Item || !ItemEx)
 		return;
@@ -310,13 +282,13 @@ void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner*
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
-void Dialog::Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
 	SavedItems = nullptr;
 
 	Items.resize(SrcItemCount);
 	//BUGBUG add error check
-	ConvertItemEx(CVTITEM_FROMPLUGIN, const_cast<FarDialogItem *>(*SrcItem), Items.data(), SrcItemCount);
+	ItemToItemEx(*SrcItem, Items.data(), SrcItemCount);
 	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
@@ -5955,8 +5927,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
 		{
-			if (Param2 && ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
+			if (Param2)
+			{
+				ConvertItemSmall(*CurItem, *static_cast<FarDialogItem*>(Param2));
 				return TRUE;
+			}
 			return FALSE;
 		}
 		/*****************************************************************/
@@ -5966,12 +5941,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (!Param2)
 				return FALSE;
 
-			if (Type != ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
+			if (Type != static_cast<FarDialogItem*>(Param2)->Type) // пока нефига менять тип
 				return FALSE;
 
-			// не менять
-			if (!ConvertItemEx((Msg==DM_SETDLGITEM)?CVTITEM_FROMPLUGIN:CVTITEM_FROMPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
-				return FALSE; // invalid parameters
+			ItemToItemEx(static_cast<FarDialogItem*>(Param2), CurItem, 1, Msg != DM_SETDLGITEM);
 
 			CurItem->Type=Type;
 

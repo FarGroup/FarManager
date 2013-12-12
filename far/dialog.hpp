@@ -154,11 +154,11 @@ struct DialogItemEx: public FarDialogItem
 };
 
 template<size_t N>
-std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
+std::array<DialogItemEx, N> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
-	std::vector<DialogItemEx> Item(N);
-	ItemToItemEx(InitData, Item.data(), N);
-	return Item;
+	std::array<DialogItemEx, N> Items;
+	ItemToItemEx(InitData, Items.data(), N);
+	return Items;
 }
 
 // proxy class to pass raw arrays to Dialog ctor
@@ -269,7 +269,7 @@ private:
 	virtual const string& GetTitle(string& Title) override;
 	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
 	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
-	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
+	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
 	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr);

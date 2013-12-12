@@ -1265,7 +1265,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		case SA_BUTTON_SET:
 			{
 				//reparse point editor
-				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData.data(),strLinkName.data()))
+				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
 				{
 					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
 					Unquote(strTarget);
@@ -1299,7 +1299,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					});
 
-					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data()))
+					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 					{
 						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 						if(Result==SETATTR_RET_SKIPALL)
@@ -1450,7 +1450,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								break;
 						}
 
-						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data()))
+						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && StrCmpI(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 						{
 							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 							if(Result==SETATTR_RET_SKIPALL)
@@ -1591,7 +1591,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner.data(),AttrDlg[SA_EDIT_OWNER].strData.data())))
+									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData)))
 									{
 										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 										if(Result==SETATTR_RET_SKIPALL)

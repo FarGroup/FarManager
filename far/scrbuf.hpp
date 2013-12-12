@@ -54,8 +54,8 @@ public:
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 
 	void FillBuf();
-	void Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxTextLength);
-	void Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength);
+	void Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t Size);
+	void Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size);
 	void RestoreMacroChar();
 	void RestoreElevationChar();
 

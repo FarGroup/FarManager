@@ -74,104 +74,120 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class FileFilterParams
+class FileFilterParams:NonCopyable
 {
-	private:
-
-		string m_strTitle;
-
-		struct
-		{
-			bool Used;
-			string strMask;
-			filemasks FilterMask; // Хранилище скомпилированной маски.
-		} FMask;
-
-		struct
-		{
-			ULARGE_INTEGER DateAfter;
-			ULARGE_INTEGER DateBefore;
-			enumFDateType DateType;
-			bool Used;
-			bool bRelative;
-		} FDate;
-
-		struct
-		{
-			unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
-			unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
-			string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
-			string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
-			bool Used;
-		} FSize;
-
-		struct // Новая структура в фильтре, чтобы считать количество жестких ссылок. Пока что реально используем только флаг Used и априорно заданное условие "ссылок больше чем одна"
-		{
-			bool Used;
-			DWORD CountAbove;
-			DWORD CountBelow;
-		} FHardLinks;
-
-		struct
-		{
-			bool Used;
-			DWORD AttrSet;
-			DWORD AttrClear;
-		} FAttr;
-
-		struct
-		{
-			HighlightFiles::highlight_item Colors;
-			int SortGroup;
-			bool bContinueProcessing;
-		} FHighlight;
-
-		DWORD FFlags[FFFT_COUNT];
-
 	public:
 
-		FileFilterParams();
+	FileFilterParams();
 
-		FileFilterParams &operator=(const FileFilterParams &FF);
+	FileFilterParams(FileFilterParams&& rhs);
+	FileFilterParams& operator= (FileFilterParams&& rhs);
 
-		void SetTitle(const string& Title);
-		void SetMask(bool Used, const string& Mask);
-		void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
-		void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
-		void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
-		void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
-		void SetColors(const HighlightFiles::highlight_item& Colors);
-		void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
-		void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
-		void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
-		void ClearAllFlags() { ClearArray(FFlags); }
+	FileFilterParams Clone();
 
-		const string& GetTitle() const;
-		bool  GetMask(const wchar_t **Mask) const;
-		bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
-		bool IsSizeUsed() const {return FSize.Used;}
-		const string& GetSizeAbove() const {return FSize.SizeAbove;}
-		const string& GetSizeBelow() const {return FSize.SizeBelow;}
-		bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
-		bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
-		HighlightFiles::highlight_item GetColors() const;
-		wchar_t GetMarkChar() const;
-		int   GetSortGroup() const { return FHighlight.SortGroup; }
-		bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
-		DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
-		void RefreshMask() {if(FMask.Used) FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);}
+	void SetTitle(const string& Title);
+	void SetMask(bool Used, const string& Mask);
+	void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
+	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
+	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
+	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
+	void SetColors(const HighlightFiles::highlight_item& Colors);
+	void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
+	void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
+	void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
+	void ClearAllFlags() { FFlags.fill(0); }
+
+	const string& GetTitle() const;
+	bool  GetMask(const wchar_t **Mask) const;
+	bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
+	bool IsSizeUsed() const {return FSize.Used;}
+	const string& GetSizeAbove() const {return FSize.SizeAbove;}
+	const string& GetSizeBelow() const {return FSize.SizeBelow;}
+	bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
+	bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
+	HighlightFiles::highlight_item GetColors() const;
+	wchar_t GetMarkChar() const;
+	int   GetSortGroup() const { return FHighlight.SortGroup; }
+	bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
+	DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
+	void RefreshMask() {if(FMask.Used) FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);}
 
 
-		// Данный метод вызывается "снаружи" и служит для определения:
-		// попадает ли файл fd под условие установленного фильтра.
-		// Возвращает true  - попадает;
-		//            false - не попадает.
-		bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime);
-		bool FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr); //Used in dirinfo, copy, findfile
-		bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime);
+	// Данный метод вызывается "снаружи" и служит для определения:
+	// попадает ли файл fd под условие установленного фильтра.
+	// Возвращает true  - попадает;
+	//            false - не попадает.
+	bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const;
+	bool FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const;
+
+
+private:
+
+	string m_strTitle;
+
+	struct fmask:NonCopyable
+	{
+		bool Used;
+		string strMask;
+		filemasks FilterMask; // Хранилище скомпилированной маски.
+
+		fmask():Used(false) {}
+		fmask(fmask&& rhs):Used(false) {*this = std::move(rhs);}
+		fmask& operator=(fmask&& rhs)
+		{
+			std::swap(Used, rhs.Used);
+			std::swap(strMask, rhs.strMask);
+			std::swap(FilterMask, rhs.FilterMask);
+			return *this;
+		}
+
+	} FMask;
+
+	struct
+	{
+		ULARGE_INTEGER DateAfter;
+		ULARGE_INTEGER DateBefore;
+		enumFDateType DateType;
+		bool Used;
+		bool bRelative;
+	} FDate;
+
+	struct
+	{
+		unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
+		unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
+		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
+		string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
+		bool Used;
+	} FSize;
+
+	struct // Новая структура в фильтре, чтобы считать количество жестких ссылок. Пока что реально используем только флаг Used и априорно заданное условие "ссылок больше чем одна"
+	{
+		bool Used;
+		DWORD CountAbove;
+		DWORD CountBelow;
+	} FHardLinks;
+
+	struct
+	{
+		bool Used;
+		DWORD AttrSet;
+		DWORD AttrClear;
+	} FAttr;
+
+	struct
+	{
+		HighlightFiles::highlight_item Colors;
+		int SortGroup;
+		bool bContinueProcessing;
+	} FHighlight;
+
+	std::array<DWORD, FFFT_COUNT> FFlags;
+
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+string MenuString(FileFilterParams* FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);

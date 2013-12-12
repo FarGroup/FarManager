@@ -33,13 +33,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "strmix.hpp"
+
 struct DizRecord;
 
 struct diz_less
 {
 	bool operator() (const string& a, const string& b) const
 	{
-		return StrCmpI(a.data(), b.data()) < 0;
+		return StrCmpI(a, b) < 0;
 	}
 };
 

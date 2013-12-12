@@ -1227,8 +1227,8 @@ void FilePanels::GoToFile(const string& FileName)
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir.data(),strNameDir.data());
-		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir.data(),strNameDir.data());
+		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
+		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)

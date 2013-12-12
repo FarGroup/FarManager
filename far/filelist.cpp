@@ -456,7 +456,7 @@ static struct list_less
 				break;
 
 			case BY_OWNER:
-				RetCode = StrCmpI(SPtr1->strOwner.data(), SPtr2->strOwner.data());
+				RetCode = StrCmpI(SPtr1->strOwner, SPtr2->strOwner);
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -497,7 +497,7 @@ static struct list_less
 				}
 				else
 				{
-					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName.data(), SPtr2->strName.data()) : StrCmpI(SPtr1->strName.data(), SPtr2->strName.data());
+					RetCode = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName.data(), SPtr2->strName.data()) : StrCmpI(SPtr1->strName, SPtr2->strName);
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
@@ -516,7 +516,7 @@ static struct list_less
 					return less_opt(true);
 
 				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()) : NumStrCmpI(SPtr1->strCustomData.data(), SPtr2->strCustomData.data())) :
-					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()) : StrCmpI(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()));
+					(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData.data(), SPtr2->strCustomData.data()) : StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -2775,7 +2775,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			string strFullNewDir;
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
-			if (StrCmpI(strFullNewDir.data(), strCurDir.data()))
+			if (StrCmpI(strFullNewDir, strCurDir))
 				Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
 		}
 
@@ -3342,7 +3342,7 @@ long FileList::FindFile(const string& Name,BOOL OnlyPartName)
 	{
 		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.data();
 
-		if (!StrCmp(Name.data(),CurPtrName))
+		if (Name == CurPtrName)
 			return I;
 
 		if (II < 0 && !StrCmpI(Name.data(),CurPtrName))
@@ -4178,7 +4178,7 @@ void FileList::CompareDir()
 
 		if (api::GetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
 		        api::GetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
-			if (StrCmpI(strFileSystemName1.data(),strFileSystemName2.data()))
+			if (StrCmpI(strFileSystemName1, strFileSystemName2))
 				CompareFatTime=TRUE;
 	}
 

@@ -38,7 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //   Группы меток
 enum
 {
-	KBL_MAIN=0,	// порядок соответствует .lng файлу
+	// порядок соответствует .lng файлу
+	KBL_MAIN,
 	KBL_SHIFT,
 	KBL_ALT,
 	KBL_CTRL,

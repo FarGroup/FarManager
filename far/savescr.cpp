@@ -101,7 +101,7 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 	// - we don't care about old content
 	resize_nomove(ScreenBuf, ScreenBufCharCount());
 
-	GetText(X1, Y1, X2, Y2, ScreenBuf.data(), ScreenBuf.size() * sizeof(FAR_CHAR_INFO));
+	GetText(X1, Y1, X2, Y2, ScreenBuf.data(), ScreenBuf.size());
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -111,7 +111,7 @@ void SaveScreen::SaveArea()
 	if (ScreenBuf.empty())
 		return;
 
-	GetText(X1, Y1, X2, Y2, ScreenBuf.data(), ScreenBuf.size() * sizeof(FAR_CHAR_INFO));
+	GetText(X1, Y1, X2, Y2, ScreenBuf.data(), ScreenBuf.size());
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -282,7 +282,7 @@ int SaveScreen::ScreenBufCharCount()
 
 void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer, const FAR_CHAR_INFO* FromBuffer, int Count)
 {
-	memcpy(ToBuffer,FromBuffer,Count*sizeof(FAR_CHAR_INFO));
+	std::copy(FromBuffer, FromBuffer + Count, ToBuffer);
 }
 
 void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)

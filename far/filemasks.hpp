@@ -40,11 +40,18 @@ enum FM_FLAGS
 	FMF_SILENT = 1,
 };
 
-class filemasks
+class filemasks:NonCopyable
 {
 public:
 	filemasks() {}
 	~filemasks() {}
+	filemasks(filemasks&& rhs) { *this = std::move(rhs); }
+	filemasks& operator =(filemasks&& rhs)
+	{
+		Include.swap(rhs.Include);
+		Exclude.swap(rhs.Exclude);
+		return *this;
+	}
 
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
@@ -54,7 +61,7 @@ public:
 private:
 	void Free();
 
-	class masks
+	class masks:NonCopyable
 	{
 	public:
 		masks(): bRE(false) {}

@@ -1359,7 +1359,7 @@ int Help::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!StackData.strSelTopic.empty() && StrCmpI(StackData.strHelpTopic.data(),StackData.strSelTopic.data()))
+			if (!StackData.strSelTopic.empty() && StrCmpI(StackData.strHelpTopic, StackData.strSelTopic))
 			{
 				Stack.push(StackData);
 				IsNewTopic=TRUE;

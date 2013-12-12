@@ -184,7 +184,7 @@ bool TestCurrentDirectory(const string& TestDir)
 {
 	string strCurDir;
 
-	if (api::GetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir.data(),TestDir.data()))
+	if (api::GetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir, TestDir))
 		return true;
 
 	return false;

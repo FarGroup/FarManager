@@ -2112,7 +2112,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 	}
 	AddEndSlash(strPathName);
 
-	if (StrCmpI(strPathName.data(),strLastDirName.data()))
+	if (StrCmpI(strPathName, strLastDirName))
 	{
 		if (ListBox->GetItemCount())
 		{
@@ -2943,7 +2943,7 @@ bool FindFiles::FindFilesProcess()
 					if (Length>1 && IsSlash(strDirTmp[Length-1]) && strDirTmp[Length-2] != L':')
 						strDirTmp.pop_back();
 
-					if (StrCmpI(strFileName.data(), strDirTmp.data()))
+					if (StrCmpI(strFileName, strDirTmp))
 						FindPanel->SetCurDir(strFileName,true);
 
 					if (!strSetName.empty())

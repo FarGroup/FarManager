@@ -96,10 +96,10 @@ HLS =
 	L"HighlightEdit",L"HighlightList"
 };
 
-static const wchar_t fmtFirstGroup[]=L"Group%d";
-static const wchar_t fmtUpperGroup[]=L"UpperGroup%d";
-static const wchar_t fmtLowerGroup[]=L"LowerGroup%d";
-static const wchar_t fmtLastGroup[]=L"LastGroup%d";
+static const wchar_t fmtFirstGroup[]=L"Group";
+static const wchar_t fmtUpperGroup[]=L"UpperGroup";
+static const wchar_t fmtLowerGroup[]=L"LowerGroup";
+static const wchar_t fmtLastGroup[]=L"LastGroup";
 static const wchar_t SortGroupsKeyName[]=L"SortGroups";
 static const wchar_t HighlightKeyName[]=L"Highlight";
 
@@ -133,7 +133,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			static struct DefaultData
 			{
 				const wchar_t *Mask;
-				int IgnoreMask;
+				bool IgnoreMask;
 				DWORD IncludeAttr;
 				BYTE InitNC;
 				BYTE InitCC;
@@ -142,16 +142,16 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			}
 			StdHighlightData[]=
 			{
-				/* 0 */{Masks[0], 0, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-				/* 1 */{Masks[0], 0, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-				/* 2 */{Masks[3], 0, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
-				/* 3 */{Masks[4], 0, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
-				/* 4 */{Masks[5], 0, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
-				/* 5 */{Masks[1], 0, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
-				/* 6 */{Masks[2], 0, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
+				/* 0 */{Masks[0], false, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+				/* 1 */{Masks[0], false, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+				/* 2 */{Masks[3], false, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+				/* 3 */{Masks[4], false, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
+				/* 4 */{Masks[5], false, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
+				/* 5 */{Masks[1], false, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
+				/* 6 */{Masks[2], false, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
 				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
 				// без учета масок (например, список хостов в "far navigator")
-				/* 7 */{Masks[0], 1, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+				/* 7 */{Masks[0], true, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
 			};
 
 			size_t Index = 0;
@@ -193,7 +193,7 @@ HighlightFiles::HighlightFiles()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *HData, const string& Mask, int SortGroup, bool bSortGroup)
+static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
 {
 	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 	//настройки старых версий фара.
@@ -201,17 +201,18 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	{
 		unsigned __int64 UseMask = 1;
 		cfg->GetValue(key,HLS.UseMask,&UseMask);
-		HData->SetMask(UseMask!=0, Mask);
+		HData.SetMask(UseMask!=0, Mask);
 	}
 	else
 	{
 		unsigned __int64 IgnoreMask = 0;
 		cfg->GetValue(key,HLS.IgnoreMask,&IgnoreMask);
-		HData->SetMask(IgnoreMask==0, Mask);
+		HData.SetMask(IgnoreMask==0, Mask);
 	}
 
-	FILETIME DateAfter = {}, DateBefore = {};
+	FILETIME DateAfter = {};
 	cfg->GetValue(key,HLS.DateAfter, &DateAfter, sizeof(DateAfter));
+	FILETIME DateBefore = {};
 	cfg->GetValue(key,HLS.DateBefore, &DateBefore, sizeof(DateBefore));
 	unsigned __int64 UseDate = 0;
 	cfg->GetValue(key,HLS.UseDate,&UseDate);
@@ -219,23 +220,23 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	cfg->GetValue(key,HLS.DateType,&DateType);
 	unsigned __int64 DateRelative = 0;
 	cfg->GetValue(key,HLS.DateRelative, &DateRelative);
-	HData->SetDate(UseDate!=0, (DWORD)DateType, DateAfter, DateBefore, DateRelative!=0);
+	HData.SetDate(UseDate!=0, (DWORD)DateType, DateAfter, DateBefore, DateRelative!=0);
 
 	string strSizeAbove;
-	string strSizeBelow;
 	cfg->GetValue(key,HLS.SizeAbove,strSizeAbove);
+	string strSizeBelow;
 	cfg->GetValue(key,HLS.SizeBelow,strSizeBelow);
 	unsigned __int64 UseSize = 0;
 	cfg->GetValue(key,HLS.UseSize,&UseSize);
-	HData->SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
+	HData.SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
 
 	unsigned __int64 UseHardLinks = 0;
-	unsigned __int64 HardLinksAbove = 0;
-	unsigned __int64 HardLinksBelow = 0;
 	cfg->GetValue(key,HLS.UseHardLinks,&UseHardLinks);
+	unsigned __int64 HardLinksAbove = 0;
 	cfg->GetValue(key,HLS.HardLinksAbove,&HardLinksAbove);
+	unsigned __int64 HardLinksBelow = 0;
 	cfg->GetValue(key,HLS.HardLinksBelow,&HardLinksBelow);
-	HData->SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
+	HData.SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
 
 	if (bSortGroup)
 	{
@@ -245,7 +246,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 		cfg->GetValue(key,HLS.AttrSet,&AttrSet);
 		unsigned __int64 AttrClear = FILE_ATTRIBUTE_DIRECTORY;
 		cfg->GetValue(key,HLS.AttrClear,&AttrClear);
-		HData->SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
+		HData.SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
 	}
 	else
 	{
@@ -255,10 +256,10 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 		cfg->GetValue(key,HLS.IncludeAttributes,&IncludeAttributes);
 		unsigned __int64 ExcludeAttributes = 0;
 		cfg->GetValue(key,HLS.ExcludeAttributes,&ExcludeAttributes);
-		HData->SetAttr(UseAttr!=0, (DWORD)IncludeAttributes, (DWORD)ExcludeAttributes);
+		HData.SetAttr(UseAttr!=0, (DWORD)IncludeAttributes, (DWORD)ExcludeAttributes);
 	}
 
-	HData->SetSortGroup(SortGroup);
+	HData.SetSortGroup(SortGroup);
 
 	HighlightFiles::highlight_item Colors = {};
 	cfg->GetValue(key,HLS.NormalColor, &Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor, sizeof(FarColor));
@@ -276,11 +277,11 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 		Colors.Mark.Char = LOWORD(MarkChar);
 		Colors.Mark.Transparent = LOBYTE(HIWORD(MarkChar)) == 0xff;
 	}
-	HData->SetColors(Colors);
+	HData.SetColors(Colors);
 
 	unsigned __int64 ContinueProcessing = 0;
 	cfg->GetValue(key,HLS.ContinueProcessing,&ContinueProcessing);
-	HData->SetContinueProcessing(ContinueProcessing!=0);
+	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
@@ -310,7 +311,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 		{
 			for (int i=0;; ++i)
 			{
-				auto key = cfg->GetKeyID(root, str_printf(Item.GroupName, i));
+				auto key = cfg->GetKeyID(root, Item.GroupName + std::to_wstring(i));
 				if (!key)
 					break;
 
@@ -318,8 +319,8 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 				if (!cfg->GetValue(key,HLS.Mask,strMask))
 					break;
 
-				HiData.emplace_back(std::make_unique<FileFilterParams>());
-				LoadFilter(cfg, key, HiData.back().get(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+				HiData.emplace_back(FileFilterParams());
+				LoadFilter(cfg, key, HiData.back(), strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
 				++*Item.Count;
 			}
 		}
@@ -458,8 +459,8 @@ static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
 void HighlightFiles::UpdateCurrentTime()
 {
 	SYSTEMTIME cst;
-	FILETIME cft;
 	GetSystemTime(&cst);
+	FILETIME cft;
 	SystemTimeToFileTime(&cst, &cft);
 	ULARGE_INTEGER current = {cft.dwLowDateTime, cft.dwHighDateTime};
 	CurrentTime = current.QuadPart;
@@ -469,19 +470,19 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 {
 	ApplyDefaultStartingColors(To->Colors);
 
-	FOR_CONST_RANGE(HiData, i)
+	std::any_of(CONST_RANGE(HiData, i)
 	{
-		if (UseAttrHighlighting && (*i)->GetMask(nullptr))
-			continue;
-
-		if ((*i)->FileInFilter(To, CurrentTime))
+		if (!(UseAttrHighlighting && i.GetMask(nullptr)))
 		{
-			ApplyColors(To->Colors, (*i)->GetColors());
-
-			if (!(*i)->GetContinueProcessing())
-				break;
+			if (i.FileInFilter(To, CurrentTime))
+			{
+				ApplyColors(To->Colors, i.GetColors());
+				if (!i.GetContinueProcessing())
+					return true;
+			}
 		}
-	}
+		return false;
+	});
 	ApplyFinalColors(To->Colors);
 }
 
@@ -489,14 +490,14 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 {
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
 	{
-		if (HiData[i]->FileInFilter(fli, CurrentTime))
-			return(HiData[i]->GetSortGroup());
+		if (HiData[i].FileInFilter(fli, CurrentTime))
+			return(HiData[i].GetSortGroup());
 	}
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
 	{
-		if (HiData[i]->FileInFilter(fli, CurrentTime))
-			return(HiData[i]->GetSortGroup());
+		if (HiData[i].FileInFilter(fli, CurrentTime))
+			return(HiData[i].GetSortGroup());
 	}
 
 	return DEFAULT_SORT_GROUP;
@@ -524,7 +525,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	{
 		for (auto j = i.from; j != i.to; ++j)
 		{
-			MenuItemEx HiMenuItem(MenuString(HiData[j].get(), true));
+			MenuItemEx HiMenuItem(MenuString(&HiData[j], true));
 			HiMenu->AddItem(HiMenuItem);
 		}
 
@@ -544,16 +545,16 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 void HighlightFiles::ProcessGroups()
 {
 	for (int i=0; i<FirstCount; i++)
-		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP);
+		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
-		HiData[i]->SetSortGroup(i-FirstCount);
+		HiData[i].SetSortGroup(i-FirstCount);
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
-		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
+		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
 
 	for (int i=FirstCount+UpperCount+LowerCount; i<FirstCount+UpperCount+LowerCount+LastCount; i++)
-		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP);
+		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 }
 
 int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
@@ -591,8 +592,7 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 	ProcessGroups();
 
 	if(RefreshMasks)
-		for (size_t i = 0; i < HiData.size(); ++i)
-			HiData[i]->RefreshMask();
+		std::for_each(ALL_RANGE(HiData), std::mem_fn(&FileFilterParams::RefreshMask));
 
 	//FrameManager->RefreshFrame(); // рефрешим
 	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -652,7 +652,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					if (Count && RealSelectPos<(int)HiData.size())
 					{
 						const wchar_t *Mask;
-						HiData[RealSelectPos]->GetMask(&Mask);
+						HiData[RealSelectPos].GetMask(&Mask);
 
 						if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 						            MSG(MHighlightAskDel),Mask,
@@ -674,7 +674,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && RealSelectPos<(int)HiData.size())
-						if (FileFilterConfig(HiData[RealSelectPos].get(),true))
+						if (FileFilterConfig(&HiData[RealSelectPos], true))
 							NeedUpdate=TRUE;
 
 					break;
@@ -689,12 +689,12 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					if (Count)
 					{
-						auto NewHData = std::make_unique<FileFilterParams>();
+						FileFilterParams NewHData;
 
 						if (Key == KEY_F5)
-							*NewHData = *HiData[RealSelectPos];
+							NewHData = HiData[RealSelectPos].Clone();
 
-						if (FileFilterConfig(NewHData.get(), true))
+						if (FileFilterConfig(&NewHData, true))
 						{
 							(*Count)++;
 							NeedUpdate=TRUE;
@@ -897,9 +897,9 @@ void HighlightFiles::SaveHiData()
 		{
 			for (int j = i.from; j != i.to; ++j)
 			{
-				auto key = cfg->CreateKey(root, str_printf(i.GroupName, j - i.from));
+				auto key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from));
 				if (key)
-					SaveFilter(cfg.get(), key, HiData[j].get(), i.IsSort);
+					SaveFilter(cfg.get(), key, &HiData[j], i.IsSort);
 				// else diagnostics
 			}
 		}

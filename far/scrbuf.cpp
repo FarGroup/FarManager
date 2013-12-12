@@ -111,26 +111,26 @@ void ScreenBuf::FillBuf()
 
 /* Записать Text в виртуальный буфер
 */
-void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength)
+void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 {
 	CriticalSectionLock Lock(CS);
 
 	if (X<0)
 	{
 		Text-=X;
-		TextLength=std::max(0,TextLength+X);
+		Size = std::max(size_t(0), Size + X);
 		X=0;
 	}
 
-	if (X>=BufX || Y>=BufY || !TextLength || Y<0)
+	if (X>=BufX || Y>=BufY || !Size || Y<0)
 		return;
 
-	if (X+TextLength >= BufX)
-		TextLength=BufX-X; //??
+	if (X+Size >= static_cast<size_t>(BufX))
+		Size=BufX-X; //??
 
 	FAR_CHAR_INFO *PtrBuf=Buf.data()+Y*BufX+X;
 
-	for (int i=0; i<TextLength; i++)
+	for (size_t i=0; i < Size; i++)
 	{
 		SetVidChar(PtrBuf[i],Text[i].Char);
 		PtrBuf[i].Attributes=Text[i].Attributes;
@@ -150,15 +150,14 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength)
 
 /* Читать блок из виртуального буфера.
 */
-void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxTextLength)
+void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Size)
 {
 	CriticalSectionLock Lock(CS);
-	int Width=X2-X1+1;
-	int Height=Y2-Y1+1;
-	int I, Idx;
+	size_t Width=X2-X1+1;
+	size_t Height=Y2-Y1+1;
 
-	for (Idx=I=0; I < Height; I++, Idx+=Width)
-		memcpy(Text + Idx, Buf.data() + (Y1 + I)*BufX + X1, std::min(sizeof(FAR_CHAR_INFO)*Width, MaxTextLength));
+	for (size_t Idx = 0, I = 0; I < Height; I++, Idx+=Width)
+		std::copy(Buf.data() + (Y1 + I)*BufX + X1, Buf.data() + (Y1 + I)*BufX + X1 + std::min(Width, Size), Text + Idx);
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской

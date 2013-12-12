@@ -1256,7 +1256,7 @@ int TreeList::SetDirPosition(const string& NewDir)
 {
 	for (size_t i = 0; i < ListData.size(); ++i)
 	{
-		if (!StrCmpI(NewDir.data(), ListData[i]->strName.data()))
+		if (!StrCmpI(NewDir, ListData[i]->strName))
 		{
 			WorkDir = i;
 			CurFile = static_cast<int>(i);
@@ -1466,7 +1466,7 @@ int TreeList::ReadTreeFile()
 		{
 			string strDirName(strRoot.data(), RootLength);
 			strDirName.append(Record, RecordLength);
-			if (!IsSlash(*Record) || !StrCmpI(strDirName.data(), strLastDirName.data()))
+			if (!IsSlash(*Record) || !StrCmpI(strDirName, strLastDirName))
 			{
 				continue;
 			}
@@ -1661,7 +1661,7 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	string strSrcRoot = ExtractPathRoot(SrcNameFull);
 	string strDestRoot = ExtractPathRoot(DestNameFull);
 
-	if (StrCmpI(strSrcRoot.data(), strDestRoot.data()) )
+	if (StrCmpI(strSrcRoot, strDestRoot))
 	{
 		DelTreeName(strSrcName);
 		ReadSubTree(strSrcName);

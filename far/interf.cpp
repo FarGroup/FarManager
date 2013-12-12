@@ -641,7 +641,7 @@ void Text(const string& Str)
 		BufPtr[i].Attributes=CurColor;
 	}
 
-	Global->ScrBuf->Write(CurX, CurY, BufPtr, static_cast<int>(Length));
+	Global->ScrBuf->Write(CurX, CurY, BufPtr, Length);
 	CurX+=static_cast<int>(Length);
 }
 

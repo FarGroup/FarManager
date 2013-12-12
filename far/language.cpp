@@ -68,7 +68,7 @@ bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,con
 		{
 			GetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName.data(),Language.data()))
+			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName, Language))
 				break;
 
 			LangFile.Close();
@@ -209,7 +209,7 @@ static bool SelectLanguage(bool HelpLanguage)
 				*/
 				if (LangMenu.FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
-					LangMenuItem.SetSelect(!StrCmpI(strDest->data(),strLangName.data()));
+					LangMenuItem.SetSelect(!StrCmpI(*strDest, strLangName));
 					LangMenu.SetUserData(strLangName.data(), (strLangName.size()+1)*sizeof(wchar_t), LangMenu.AddItem(LangMenuItem));
 				}
 			}
@@ -353,7 +353,7 @@ bool Language::Init(const string& Path, int CountNeed)
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
-	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage.data(),strLangName.data()))
+	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage, strLangName))
 		Global->Opt->strLanguage=strLangName;
 
 	UINT64 FileSize;

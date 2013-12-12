@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "namelist.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 NamesList::NamesList()
 {
@@ -110,7 +111,7 @@ void NamesList::GetCurDir(string &strDir)
 
 void NamesList::SetCurDir(const string& Dir)
 {
-	if (StrCmpI(strCurrentDir.data(),Dir.data()) || !TestCurrentDirectory(Dir))
+	if (StrCmpI(strCurrentDir, Dir) || !TestCurrentDirectory(Dir))
 	{
 		strCurrentDir = Dir;
 		PrepareDiskPath(strCurrentDir);

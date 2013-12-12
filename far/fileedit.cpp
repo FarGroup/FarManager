@@ -1044,7 +1044,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						strSaveAsName = api::ExpandEnvironmentStrings(strSaveAsName);
 						Unquote(strSaveAsName);
-						NameChanged=StrCmpI(strSaveAsName.data(), (Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName).data());
+						NameChanged=StrCmpI(strSaveAsName, Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ÏÎ×ÅÌÓ? À íóæíî ëè???
@@ -2206,7 +2206,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 			{
 				DeleteEndSlash(strCurPath);
 
-				if (!StrCmpI(strFilePath.data(), strCurPath.data()))
+				if (!StrCmpI(strFilePath, strCurPath))
 					strFileName=PointToName(strFullFileName);
 			}
 		}
@@ -2607,7 +2607,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (SetFileName(strName))
 				{
-					if (StrCmpI(strFullFileName.data(),strOldFullFileName.data()))
+					if (StrCmpI(strFullFileName, strOldFullFileName))
 					{
 						if (!AskOverwrite(strName))
 						{
