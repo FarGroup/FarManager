@@ -525,8 +525,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	{
 		for (auto j = i.from; j != i.to; ++j)
 		{
-			MenuItemEx HiMenuItem(MenuString(&HiData[j], true));
-			HiMenu->AddItem(HiMenuItem);
+			HiMenu->AddItem(MenuString(&HiData[j], true));
 		}
 
 		HiMenu->AddItem(MenuItemEx());
