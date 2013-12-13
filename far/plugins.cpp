@@ -1265,6 +1265,7 @@ void PluginManager::Configure(int StartPos)
 		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginsConfig");
+		PluginList.SetId(PluginsConfigMenuId);
 
 		while (!Global->CloseFAR)
 		{
