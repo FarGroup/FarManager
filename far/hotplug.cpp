@@ -70,8 +70,8 @@ public:
 
 	bool Create(const wchar_t* id)
 	{
-		m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE|DIGCF_PRESENT);
 		m_id = id;
+		m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE|DIGCF_PRESENT);
 		return m_info != INVALID_HANDLE_VALUE;
 	}
 
@@ -85,7 +85,7 @@ public:
 		return SetupDiGetDeviceRegistryProperty(m_info, &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
 	}
 
-	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA DeviceInterfaceData)
+	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData)
 	{
 		return SetupDiEnumDeviceInterfaces(m_info, nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
