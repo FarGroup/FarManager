@@ -118,7 +118,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 	if (X<0)
 	{
 		Text-=X;
-		Size = std::max(size_t(0), Size + X);
+		Size = std::max(0, static_cast<int>(Size) + X);
 		X=0;
 	}
 
