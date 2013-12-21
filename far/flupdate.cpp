@@ -288,7 +288,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	DWORD StartTime = GetTickCount();
 
-	std::all_of(CONST_RANGE(Find, fdata)
+	std::all_of(CONST_RANGE(Find, fdata) -> bool
 	{
 		Global->CatchError();
 		FindErrorCode = Global->CaughtError();

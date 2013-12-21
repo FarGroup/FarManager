@@ -93,6 +93,11 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 
 			Done = LastItem.Iterator == LastItem.Find->end();
 
+			if (!Done)
+			{
+				*fdata = *ScanItems.back().Iterator;
+			}
+
 			if (Flags.Check(FSCANTREE_FILESFIRST))
 			{
 				if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
@@ -153,8 +158,6 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 	}
 	else
 	{
-		*fdata = *ScanItems.back().Iterator;
-
 		if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
 		        (!(fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{

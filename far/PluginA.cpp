@@ -3933,7 +3933,7 @@ static int GetEditorCodePageFavA()
 		DWORD FavIndex = 2;
 		const auto strCP = std::to_wstring(CodePage);
 		const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
-		std::any_of(CONST_RANGE(CpEnum, i)
+		std::any_of(CONST_RANGE(CpEnum, i) -> bool
 		{
 			if (i.second & CPST_FAVORITE)
 			{
@@ -3979,7 +3979,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 			{
 				int FavIndex=2;
 				const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
-				std::any_of(CONST_RANGE(CpEnum, i)
+				std::any_of(CONST_RANGE(CpEnum, i) -> bool
 				{
 					if (i.second & CPST_FAVORITE)
 					{
