@@ -72,6 +72,7 @@ public:
 
 	BitFlags Flags;
 	std::unique_ptr<api::FindFile> Find;
+	api::FindFile::iterator Iterator;
 	string RealPath;
 };
 

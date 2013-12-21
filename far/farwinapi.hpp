@@ -74,17 +74,18 @@ struct FAR_FIND_DATA
 	}
 };
 
-class FindFile:NonCopyable
+class FindFile:NonCopyable, public enumerator<FAR_FIND_DATA>
 {
 public:
 	FindFile(const string& Object, bool ScanSymLink = true);
 	~FindFile();
-	bool Get(FAR_FIND_DATA& FindData);
 
 private:
-	HANDLE Handle;
-	bool empty;
-	FAR_FIND_DATA Data;
+	virtual bool get(size_t index, FAR_FIND_DATA& value) override;
+
+	string m_Object;
+	HANDLE m_Handle;
+	bool m_ScanSymLink;
 };
 
 class File:NonCopyable

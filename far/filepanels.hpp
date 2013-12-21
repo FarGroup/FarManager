@@ -64,7 +64,7 @@ class FilePanels:public Frame
 		RightStateBeforeHide;
 
 	public:
-		FilePanels();
+		FilePanels(bool CreatePanels = true);
 		virtual ~FilePanels();
 
 	public:

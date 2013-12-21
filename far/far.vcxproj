@@ -712,10 +712,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\farcolor.hpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <ClInclude Include="common.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="console.hpp" />
     <ClInclude Include="constitle.hpp" />
     <ClInclude Include="copy.hpp" />
+    <ClInclude Include="cpp.hpp" />
     <ClInclude Include="ctrlobj.hpp" />
     <ClInclude Include="cvtname.hpp" />
     <ClInclude Include="datetime.hpp" />
@@ -794,7 +796,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="keys.hpp" />
     <ClInclude Include="language.hpp" />
     <ClInclude Include="lasterror.hpp" />
-    <ClInclude Include="library_extensions.hpp" />
     <ClInclude Include="local.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />

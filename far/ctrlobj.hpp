@@ -54,7 +54,7 @@ public:
 
 	void Init(int DirCount);
 	FilePanels *Cp();
-	void CreateFilePanels();
+	void CreateDummyFilePanels();
 	static void ShowCopyright(DWORD Flags=0);
 
 	CommandLine *CmdLine;
@@ -69,4 +69,5 @@ public:
 
 private:
 	FilePanels *FPanels;
+	std::unique_ptr<FilePanels> DummyPanels;
 };

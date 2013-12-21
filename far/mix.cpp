@@ -111,8 +111,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
 			api::FindFile f(Buffer.get(), false);
-			api::FAR_FIND_DATA ffdata;
-			if (!f.Get(ffdata))
+			if (f.begin() == f.end())
 				break;
 		}
 
@@ -251,6 +250,27 @@ unsigned long CRC32(unsigned long crc, const void* buffer, size_t len)
 	return crc ^ 0xffffffffL;
 }
 
+struct reg_item
+{
+	string name;
+	string value;
+	DWORD type;
+};
+
+class reg_enum: public enumerator<reg_item>
+{
+public:
+	reg_enum(HKEY root, const string& key): m_root(root), m_key(key) {}
+	virtual bool get(size_t index, reg_item& value) override
+	{
+		return api::EnumRegValueEx(m_root, m_key, static_cast<DWORD>(index), value.name, value.value, nullptr, nullptr, &value.type) != REG_NONE;
+	}
+
+private:
+	HKEY m_root;
+	const string& m_key;
+};
+
 void ReloadEnvironment()
 {
 	static const simple_pair<HKEY, string> Addr[]=
@@ -260,38 +280,37 @@ void ReloadEnvironment()
 		{HKEY_CURRENT_USER, L"Volatile Environment"}
 	};
 
-	string strName, strData;
 	std::for_each(CONST_RANGE(Addr, i)
 	{
 		static const DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
 		std::for_each(CONST_RANGE(Types, t) // two passes
 		{
-			DWORD Type;
-			for(int j=0; api::EnumRegValueEx(i.first, i.second, j, strName, strData, nullptr, nullptr, &Type); j++)
+			reg_enum RegEnum(i.first, i.second);
+			std::for_each(RANGE(RegEnum, j)
 			{
-				if(Type == t)
+				if(j.type == t)
 				{
-					if(Type==REG_EXPAND_SZ)
+					if(j.type==REG_EXPAND_SZ)
 					{
-						strData = api::ExpandEnvironmentStrings(strData);
+						j.value = api::ExpandEnvironmentStrings(j.value);
 					}
 					if (i.first==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(strName.data(), L"path") || !StrCmpI(strName.data(), L"libpath") || !StrCmpI(strName.data(), L"os2libpath"))
+						if(!StrCmpI(j.name.data(), L"path") || !StrCmpI(j.name.data(), L"libpath") || !StrCmpI(j.name.data(), L"os2libpath"))
 						{
 							string strMergedPath;
-							api::GetEnvironmentVariable(strName, strMergedPath);
+							api::GetEnvironmentVariable(j.name, strMergedPath);
 							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
 							}
-							strData=strMergedPath+strData;
+							j.value = strMergedPath + j.value;
 						}
 					}
-					api::SetEnvironmentVariable(strName, strData);
+					api::SetEnvironmentVariable(j.name, j.value);
 				}
-			}
+			});
 		});
 	});
 }

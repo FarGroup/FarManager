@@ -72,37 +72,50 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 	bool Done=false;
 	Flags.Clear(FSCANTREE_SECONDDIRNAME);
 
-	for (;;)
 	{
 		ScanTreeData& LastItem = ScanItems.back();
-		if (!LastItem.Find)
+		for (;;)
 		{
-			LastItem.Find = std::make_unique<api::FindFile>(strFindPath);
-		}
-		Done=!LastItem.Find->Get(*fdata);
-
-		if (Flags.Check(FSCANTREE_FILESFIRST))
-		{
-			if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
+			if (!LastItem.Find)
 			{
-				if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					continue;
+				LastItem.Find = std::make_unique<api::FindFile>(strFindPath);
+				LastItem.Iterator = LastItem.Find->end();
+			}
+
+			if (LastItem.Iterator == LastItem.Find->end())
+			{
+				LastItem.Iterator = LastItem.Find->begin();
 			}
 			else
 			{
-				if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					continue;
+				++LastItem.Iterator;
+			}
 
-				if (Done)
+			Done = LastItem.Iterator == LastItem.Find->end();
+
+			if (Flags.Check(FSCANTREE_FILESFIRST))
+			{
+				if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
 				{
-					LastItem.Find.reset();
-					LastItem.Flags.Set(FSCANTREE_SECONDPASS);
-					continue;
+					if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+						continue;
+				}
+				else
+				{
+					if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+						continue;
+
+					if (Done)
+					{
+						LastItem.Find.reset();
+						LastItem.Flags.Set(FSCANTREE_SECONDPASS);
+						continue;
+					}
 				}
 			}
-		}
 
-		break;
+			break;
+		}
 	}
 
 	if (Done)
@@ -140,6 +153,8 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 	}
 	else
 	{
+		*fdata = *ScanItems.back().Iterator;
+
 		if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
 		        (!(fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{

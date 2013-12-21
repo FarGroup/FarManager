@@ -288,7 +288,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	DWORD StartTime = GetTickCount();
 
-	while (Find.Get(fdata))
+	std::all_of(CONST_RANGE(Find, fdata)
 	{
 		Global->CatchError();
 		FindErrorCode = Global->CaughtError();
@@ -388,10 +388,14 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				bool check = CheckForEsc();
 				Global->CtrlObject->Macro.SuspendMacros(false);
 				if (check)
-					break;
+				{
+					// break loop
+					return false;
+				}
 			}
 		}
-	}
+		return true;
+	});
 
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));

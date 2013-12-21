@@ -173,15 +173,14 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			string strExp = api::ExpandEnvironmentStrings(strStr);
 			api::FindFile Find(strExp+L"*");
 			bool Separator=false;
-			api::FAR_FIND_DATA d;
-			while(Find.Get(d))
+			std::for_each(CONST_RANGE(Find, i)
 			{
 				const wchar_t* FileName=PointToName(strStr);
-				bool NameMatch=!StrCmpNI(FileName,d.strFileName.data(),StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName.data(),StrLength(FileName));
+				bool NameMatch=!StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName)), AltNameMatch = NameMatch? false : !StrCmpNI(FileName, i.strAlternateFileName.data(), StrLength(FileName));
 				if(NameMatch || AltNameMatch)
 				{
 					strStr.resize(FileName-strStr.data());
-					string strAdd (strStr + (NameMatch ? d.strFileName : d.strAlternateFileName));
+					string strAdd (strStr + (NameMatch ? i.strFileName : i.strAlternateFileName));
 					if (!StartQuote)
 						QuoteSpace(strAdd);
 
@@ -206,7 +205,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 					}
 					Menu.AddItem(strTmp);
 				}
-			}
+			});
 		}
 	}
 }
@@ -248,19 +247,18 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 			std::for_each(CONST_RANGE(PathList, i)
 			{
-				api::FAR_FIND_DATA data;
 				string str(i);
 				AddEndSlash(str);
 				str.append(strName).append(L"*");
 				api::FindFile Find(str);
-				while(Find.Get(data))
+				std::for_each(CONST_RANGE(Find, i)
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
 					{
-						LPCWSTR ModuleExt=wcsrchr(data.strFileName.data(),L'.');
+						LPCWSTR ModuleExt=wcsrchr(i.strFileName.data(),L'.');
 						if(!StrCmpI(ModuleExt, Ext.data()))
 						{
-							str = data.strFileName;
+							str = i.strFileName;
 							if(std::find(List.cbegin(), List.cend(), str) == List.cend())
 							{
 								List.emplace_back(str);
@@ -268,7 +266,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 							Result=true;
 						}
 					});
-				}
+				});
 			});
 		}
 

@@ -402,19 +402,20 @@ static void ApplyDefaultMaskGroups()
 static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
-	string Name, Value;
-	for(DWORD i = 0; Global->Db->GeneralCfg()->EnumValues(L"Masks", i, Name, Value); ++i)
+
+	const auto MasksEnum = Global->Db->GeneralCfg()->GetStringValuesEnumerator(L"Masks");
+	std::for_each(CONST_RANGE(MasksEnum, i)
 	{
 		MenuItemEx Item;
-		string DisplayName(Name);
+		string DisplayName(i.first);
 		const int NameWidth = 10;
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
-		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + Value;
-		Item.UserData = UNSAFE_CSTR(Name);
-		Item.UserDataSize = (Name.size()+1)*sizeof(wchar_t);
+		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + i.second;
+		Item.UserData = UNSAFE_CSTR(i.first);
+		Item.UserDataSize = (i.first.size()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(Item);
-	}
+	});
 	MasksMenu.SetSelectPos(SelPos, 0);
 }
 
@@ -3046,4 +3047,9 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default)
 {
 	return api::GetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
+}
+
+int GetFarIniInt(const string& AppName, const string& KeyName, int Default)
+{
+	return GetPrivateProfileInt(AppName.data(), KeyName.data(), Default, Global->g_strFarINI.data());
 }

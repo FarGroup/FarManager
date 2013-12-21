@@ -91,7 +91,25 @@ public:
 
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD *Value) = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD& Value) = 0;
+
+	template<class T>
+	class values_enumerator: public enumerator<std::pair<string, T>>
+	{
+	public:
+		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
+		virtual bool get(size_t index, std::pair<string, T>& value) override
+		{
+			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
+		}
+
+	private:
+		GeneralConfig& m_provider;
+		const string& m_key;
+	};
+
+	values_enumerator<string> GetStringValuesEnumerator(const string& key) { return values_enumerator<string>(*this, key); }
+	values_enumerator<DWORD> GetIntValuesEnumerator(const string& key) { return values_enumerator<DWORD>(*this, key); }
 
 protected:
 	GeneralConfig() {}

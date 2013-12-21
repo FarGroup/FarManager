@@ -43,7 +43,7 @@ static char sddata[64*1024];
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
-struct SIDCacheItem
+struct SIDCacheItem:NonCopyable
 {
 	block_ptr<SID> Sid;
 	string strUserName;

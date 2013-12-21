@@ -125,62 +125,54 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	api::FAR_FIND_DATA fdata;
 	api::FindFile Find(strFindPath);
-
-	bool bFind = false;
-	if(Find.Get(fdata))
+	auto ItemIterator = Find.begin();
+	if (ItemIterator != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
 	}
 
-	if (!bFind)
-	{       Global->CatchError();
-		DWORD LastError = Global->CaughtError();
-		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
+	Global->CatchError();
+	DWORD LastError = Global->CaughtError();
+	if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
+		return TSTFLD_EMPTY;
+
+	if (LastError == ERROR_PATH_NOT_FOUND)
+		return TSTFLD_NOTFOUND;
+
+	// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
+	// поэтому посмотрим на Root
+	GetPathRoot(Path,strFindPath);
+
+	if (strFindPath == Path)
+	{
+		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+		if (api::GetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+		{
+			if (LastError == ERROR_ACCESS_DENIED)
+				return TSTFLD_NOTACCESS;
+
 			return TSTFLD_EMPTY;
-
-		if (LastError == ERROR_PATH_NOT_FOUND)
-			return TSTFLD_NOTFOUND;
-
-		// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
-		// поэтому посмотрим на Root
-		GetPathRoot(Path,strFindPath);
-
-		if (strFindPath == Path)
-		{
-			// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-			if (api::GetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
-			{
-				if (LastError == ERROR_ACCESS_DENIED)
-					return TSTFLD_NOTACCESS;
-
-				return TSTFLD_EMPTY;
-			}
 		}
-
-		strFindPath = Path;
-
-		if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
-		{
-			if (strFindPath != Path)
-				return TSTFLD_NOTFOUND;
-		}
-
-		{
-			DisableElevation de;
-
-			DWORD Attr=api::GetFileAttributes(strFindPath);
-
-			if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
-				return TSTFLD_ERROR;
-		}
-		return TSTFLD_NOTACCESS;
 	}
 
+	strFindPath = Path;
 
-	// однозначно каталог пуст
-	return TSTFLD_EMPTY;
+	if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
+	{
+		if (strFindPath != Path)
+			return TSTFLD_NOTFOUND;
+	}
+
+	{
+		DisableElevation de;
+
+		DWORD Attr=api::GetFileAttributes(strFindPath);
+
+		if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+			return TSTFLD_ERROR;
+	}
+	return TSTFLD_NOTACCESS;
 }
 
 /*

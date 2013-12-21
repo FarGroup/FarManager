@@ -145,7 +145,7 @@ static int MainProcess(
 		{
 			Panel* DummyPanel=new dummy_panel;
 			_tran(SysLog(L"create dummy panels"));
-			Global->CtrlObject->CreateFilePanels();
+			Global->CtrlObject->CreateDummyFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
 			Global->CtrlObject->Plugins->LoadPlugins();
 			Global->CtrlObject->Macro.LoadMacros(true,false);
@@ -335,7 +335,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.empty())
 	{
-		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI.data());
+		int UseSystemProfiles = GetFarIniInt(L"General", L"UseSystemProfiles", 1);
 		if (UseSystemProfiles)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
@@ -392,7 +392,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	api::SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
-		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI.data());
+		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{

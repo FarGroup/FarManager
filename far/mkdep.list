@@ -26,6 +26,7 @@ constitle.cpp
 constitle.hpp
 copy.cpp
 copy.hpp
+cpp.hpp
 ctrlobj.cpp
 ctrlobj.hpp
 cvtname.cpp

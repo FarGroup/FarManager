@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "notification.hpp"
 #include "lasterror.hpp"
+#include "flink.hpp"
 
 /*
 A device is considered a HotPlug device if the following are TRUE:
@@ -88,6 +89,30 @@ public:
 	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData)
 	{
 		return SetupDiEnumDeviceInterfaces(m_info, nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
+	}
+
+	class device_interfaces: public enumerator<SP_DEVICE_INTERFACE_DATA>
+	{
+	public:
+		device_interfaces(HDEVINFO& info, const GUID& InterfaceClassGuid):
+			m_info(info),
+			m_InterfaceClassGuid(InterfaceClassGuid)
+		{}
+
+		virtual bool get(size_t index, SP_DEVICE_INTERFACE_DATA& value) override
+		{
+			value.cbSize = sizeof(value);
+			return SetupDiEnumDeviceInterfaces(m_info, nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
+		}
+
+	private:
+		HDEVINFO& m_info;
+		const GUID& m_InterfaceClassGuid;
+	};
+
+	device_interfaces GetDeviceInterfaces(const GUID& InterfaceClassGuid)
+	{
+		return device_interfaces(m_info, InterfaceClassGuid);
 	}
 
 	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData)
@@ -198,11 +223,10 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 		dev_info Info;
 		if(Info.Create(szDeviceID))
 		{
-			SP_DEVICE_INTERFACE_DATA sdid = {sizeof(sdid)};
-			DWORD MemberIndex = 0;
-			while(Info.EnumDeviceInterfaces(GUID_DEVINTERFACE_VOLUME, MemberIndex++, sdid))
+			auto interfaces = Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME);
+			std::for_each(RANGE(interfaces, i)
 			{
-				string strMountPoint(Info.GetDevicePath(sdid));
+				string strMountPoint(Info.GetDevicePath(i));
 				if (!strMountPoint.empty())
 				{
 					AddEndSlash(strMountPoint);
@@ -212,7 +236,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 						dwMask |= DriveMaskFromVolumeName(strVolumeName);
 					}
 				}
-			}
+			});
 		}
 	}
 	return dwMask;
@@ -432,6 +456,16 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 {
+	string DevName(L"?:");
+	DevName[0] = Disk;
+	if (GetVHDName(DevName, DevName))
+	{
+		// Removing VHD disk as hotplug is very bad idea.
+		// Currently OS removes the device but doesn't closes the file handle, rendering the file completely unavailable until reboot.
+		// So just use the Del key.
+		return -1;
+	}
+
 	GuardLastError gle;
 	const auto Info = GetHotplugDevicesInfo();
 	const size_t DiskNumber = Upper(Disk) - L'A';

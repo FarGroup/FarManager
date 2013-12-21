@@ -200,7 +200,6 @@ public:
 	const tinyxml::TiXmlElement* operator ->() const { return m_iterator; }
 	const tinyxml::TiXmlElement& operator *() const { return *m_iterator; }
 	xml_iterator& operator ++() { m_iterator = m_iterator->NextSiblingElement(m_name.data()); return *this; }
-	xml_iterator operator ++(int) {auto ret = *this; m_iterator = m_iterator->NextSiblingElement(m_name.data()); return ret;}
 	operator bool() const { return m_iterator != nullptr; }
 
 private:
@@ -375,7 +374,7 @@ public:
 		return false;
 	}
 
-	bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD *Value)
+	bool EnumValues(const string& Key, DWORD Index, string &strName, DWORD& Value)
 	{
 		if (Index == 0)
 			stmtEnumValues.Reset().Bind(Key,false);
@@ -383,7 +382,7 @@ public:
 		if (stmtEnumValues.Step())
 		{
 			strName = stmtEnumValues.GetColText(0);
-			*Value = (DWORD)stmtEnumValues.GetColInt(1);
+			Value = (DWORD)stmtEnumValues.GetColInt(1);
 			return true;
 		}
 
@@ -1954,7 +1953,7 @@ public:
 				e->SetAttribute("menu", type);
 				e->SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
 				const char *hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
-				e->SetAttribute("hotkey", hotkey ? hotkey : "");
+				e->SetAttribute("hotkey", NullToEmpty(hotkey));
 				p->LinkEndChild(e);
 			}
 			stmtEnumAllHotkeysPerKey.Reset();
@@ -2815,20 +2814,19 @@ bool Database::Export(const string& File)
 	{ //TODO: export for local plugin settings
 		e = new tinyxml::TiXmlElement("pluginsconfig");
 		api::FindFile ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
-		api::FAR_FIND_DATA fd;
-		while (ff.Get(fd))
+		std::for_each(RANGE(ff, i)
 		{
-			fd.strFileName.resize(fd.strFileName.size()-3);
-			Upper(fd.strFileName);
+			i.strFileName.resize(i.strFileName.size()-3);
+			Upper(i.strFileName);
 			intptr_t mc = 2;
-			if (re.Match(fd.strFileName.data(), fd.strFileName.data() + fd.strFileName.size(), m, mc))
+			if (re.Match(i.strFileName.data(), i.strFileName.data() + i.strFileName.size(), m, mc))
 			{
 				auto plugin = new tinyxml::TiXmlElement("plugin");
-				plugin->SetAttribute("guid", Utf8String(fd.strFileName).data());
-				plugin->LinkEndChild(CreatePluginsConfig(fd.strFileName)->Export());
+				plugin->SetAttribute("guid", Utf8String(i.strFileName).data());
+				plugin->LinkEndChild(CreatePluginsConfig(i.strFileName)->Export());
 				e->LinkEndChild(plugin);
 			}
-		}
+		});
 		root->LinkEndChild(e);
 	}
 

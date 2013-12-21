@@ -164,59 +164,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define _wcstoi64 wcstoll
 #endif // __GNUC__
 
-inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";}
-inline const wchar_t* EmptyToNull(const wchar_t* Str) { return (Str && !*Str)? nullptr : Str;}
+#include "cpp.hpp"
 
 template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
 inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
 
-template<typename T>
-inline void ClearStruct(T& s)
-{
-	static_assert(std::is_pod<T>::value, "ClearStruct template requires a POD type");
-	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
-	memset(&s, 0, sizeof(s));
-}
-
-template<typename T>
-inline void ClearStructUnsafe(T& s)
-{
-	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
-	memset(&s, 0, sizeof(s));
-}
-
-template<typename T>
-inline void ClearArray(T& a)
-{
-	static_assert(std::is_pod<T>::value, "ClearArray template requires a POD type");
-	static_assert(std::is_array<T>::value, "ClearArray template requires an array");
-	memset(a, 0, sizeof(a));
-}
 
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 
-#include "library_extensions.hpp"
-
-template <typename T>
-bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}
-template <typename T>
-bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
-
-template <typename type_1, typename type_2>
-struct simple_pair
-{
-	typedef type_1 first_type;
-	typedef type_2 second_type;
-
-	first_type first;
-	second_type second;
-};
-
 typedef std::wstring string;
+
+#include "common.hpp"
 
 #include "noncopyable.hpp"
 #include "farrtl.hpp"

@@ -131,9 +131,10 @@ void ControlObject::Init(int DirCount)
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog(L"AnotherPanel->GetCurDir='%s'",PPP));
 }
 
-void ControlObject::CreateFilePanels()
+void ControlObject::CreateDummyFilePanels()
 {
-	FPanels=new FilePanels();
+	DummyPanels = std::make_unique<FilePanels>(false);
+	FPanels = DummyPanels.get();
 }
 
 ControlObject::~ControlObject()

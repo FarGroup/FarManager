@@ -879,3 +879,4 @@ private:
 };
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
+int GetFarIniInt(const string& AppName, const string& KeyName, int Default);

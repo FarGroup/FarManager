@@ -1781,16 +1781,10 @@ int FileList::ProcessKey(int Key)
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								api::FAR_FIND_DATA FindData;
 								api::FindFile Find(strFindName);
-								while(Find.Get(FindData))
-								{
-									if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-									{
-										strTempName = strPath+FindData.strFileName;
-										break;
-									}
-								}
+								auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return (i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0; });
+								if (ItemIterator != Find.end())
+									strTempName = strPath + ItemIterator->strFileName;
 							}
 
 							if (FileNameToPluginItem(strTempName,&PanelItem))

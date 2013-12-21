@@ -559,6 +559,9 @@
     <ClInclude Include="colormix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -566,6 +569,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="copy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ctrlobj.hpp">
@@ -740,9 +746,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lasterror.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="library_extensions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="local.hpp">

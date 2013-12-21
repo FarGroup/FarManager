@@ -3930,21 +3930,22 @@ static int GetEditorCodePageFavA()
 	}
 	else
 	{
-		DWORD selectType, Index = 0, FavIndex = 2;
-		string sTableName;
-		while (Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
+		DWORD FavIndex = 2;
+		const auto strCP = std::to_wstring(CodePage);
+		const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+		std::any_of(CONST_RANGE(CpEnum, i)
 		{
-			if (!(selectType&CPST_FAVORITE))
-				continue;
-
-			if (static_cast<UINT>(std::stoi(sTableName)) == CodePage)
+			if (i.second & CPST_FAVORITE)
 			{
-				result=FavIndex;
-				break;
+				if (i.first == strCP)
+				{
+					result = FavIndex;
+					return true;
+				}
+				FavIndex++;
 			}
-
-			FavIndex++;
-		}
+			return false;
+		});
 	}
 
 	return result;
@@ -3962,8 +3963,7 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength
 
 static uintptr_t ConvertCharTableToCodePage(int Command)
 {
-	string strTableName;
-	uintptr_t nCP = 0;
+	uintptr_t nCP = CP_DEFAULT;
 
 	if (Command<0)
 	{
@@ -3977,23 +3977,21 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 			case 1 /* ANSI */:	nCP = GetACP(); 	break;
 			default:
 			{
-				DWORD selectType,Index=0;
 				int FavIndex=2;
-
-				for (;;)
+				const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+				std::any_of(CONST_RANGE(CpEnum, i)
 				{
-					if (!Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
-
-					if (!(selectType&CPST_FAVORITE)) continue;
-
-					if (FavIndex==Command)
+					if (i.second & CPST_FAVORITE)
 					{
-						nCP=std::stoi(strTableName);
-						break;
+						if (FavIndex==Command)
+						{
+							nCP=std::stoi(i.first);
+							return true;
+						}
+						FavIndex++;
 					}
-
-					FavIndex++;
-				}
+					return false;
+				});
 			}
 		}
 	}

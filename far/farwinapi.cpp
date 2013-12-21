@@ -269,67 +269,73 @@ static bool FindCloseInternal(HANDLE Find)
 
 //-------------------------------------------------------------------------
 api::FindFile::FindFile(const string& Object, bool ScanSymLink):
-	Handle(INVALID_HANDLE_VALUE),
-	empty(false)
+	m_Handle(INVALID_HANDLE_VALUE),
+	m_ScanSymLink(ScanSymLink)
 {
-	NTPath strName(Object);
+	m_Object = NTPath(Object);
 	bool Root = false;
-	PATH_TYPE Type = ParsePath(strName, nullptr, &Root);
+	PATH_TYPE Type = ParsePath(m_Object, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
-		AddEndSlash(strName);
+		AddEndSlash(m_Object);
 	}
 	else
 	{
-		DeleteEndSlash(strName);
+		DeleteEndSlash(m_Object);
 	}
-	// temporary disable elevation to try "real" name first
-	{
-		DisableElevation DE;
-		Handle = FindFirstFileInternal(strName, Data);
-	}
-
-	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
-	{
-		if(ScanSymLink)
-		{
-			string strReal(strName);
-			// only links in path should be processed, not the object name itself
-			CutToSlash(strReal);
-			ConvertNameToReal(strReal, strReal);
-			AddEndSlash(strReal);
-			strReal+=PointToName(Object);
-			strReal = NTPath(strReal);
-			Handle = FindFirstFileInternal(strReal, Data);
-		}
-
-		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
-		{
-			Handle = FindFirstFileInternal(strName, Data);
-		}
-	}
-	empty = Handle == INVALID_HANDLE_VALUE;
 }
 
 api::FindFile::~FindFile()
 {
-	if(Handle != INVALID_HANDLE_VALUE)
+	if(m_Handle != INVALID_HANDLE_VALUE)
 	{
-		FindCloseInternal(Handle);
+		FindCloseInternal(m_Handle);
 	}
 }
 
-bool api::FindFile::Get(FAR_FIND_DATA& FindData)
+bool api::FindFile::get(size_t index, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
-	if (!empty)
+	if (!index)
 	{
-		FindData = Data;
-		Result = true;
+		if(m_Handle != INVALID_HANDLE_VALUE)
+		{
+			FindCloseInternal(m_Handle);
+		}
+
+		// temporary disable elevation to try "real" name first
+		{
+			DisableElevation DE;
+			m_Handle = FindFirstFileInternal(m_Object, FindData);
+		}
+
+		if (m_Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
+		{
+			if(m_ScanSymLink)
+			{
+				string strReal(m_Object);
+				// only links in path should be processed, not the object name itself
+				CutToSlash(strReal);
+				ConvertNameToReal(strReal, strReal);
+				AddEndSlash(strReal);
+				strReal+=PointToName(m_Object);
+				strReal = NTPath(strReal);
+				m_Handle = FindFirstFileInternal(strReal, FindData);
+			}
+
+			if (m_Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
+			{
+				m_Handle = FindFirstFileInternal(m_Object, FindData);
+			}
+		}
+		Result = m_Handle != INVALID_HANDLE_VALUE;
 	}
-	if(Result)
+	else
 	{
-		empty = !FindNextFileInternal(Handle, Data);
+		if (m_Handle != INVALID_HANDLE_VALUE)
+		{
+			Result = FindNextFileInternal(m_Handle, FindData);
+		}
 	}
 
 	// skip ".." & "."
@@ -338,7 +344,8 @@ bool api::FindFile::Get(FAR_FIND_DATA& FindData)
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от. (UPD: или бывает, но такое же)
 		(FindData.strAlternateFileName.empty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
-		Result = Get(FindData);
+		// index not important here, anything but 0 is fine
+		Result = get(1, FindData);
 	}
 	return Result;
 }
@@ -1083,8 +1090,10 @@ BOOL api::GetVolumeInformation(
 bool api::GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
 {
 	api::FindFile Find(FileName, ScanSymLink);
-	if(Find.Get(FindData))
+	auto ItemIterator = Find.begin();
+	if(ItemIterator != Find.end())
 	{
+		FindData = std::move(*ItemIterator);
 		return true;
 	}
 	else

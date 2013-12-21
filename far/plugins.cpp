@@ -978,23 +978,13 @@ int PluginManager::GetFile(
 	strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	api::FAR_FIND_DATA fdata;
 	api::FindFile Find(strFindPath);
-	bool Done = true;
-	while(Find.Get(fdata))
-	{
-		if(!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-		{
-			Done = false;
-			break;
-		}
-	}
-
-	if (!Done)
+	auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
+	if (ItemIterator != Find.cend())
 	{
 		strResultName = Info.DestPath;
 		AddEndSlash(strResultName);
-		strResultName += fdata.strFileName;
+		strResultName += ItemIterator->strFileName;
 
 		if (GetCode!=1)
 		{

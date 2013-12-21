@@ -343,7 +343,7 @@ void FindFiles::InitInFileSearch()
 				bool hasSelected = false;
 
 				// Проверяем наличие выбранных страниц символов
-				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
+				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, data); i++)
 				{
 					if (data & CPST_FIND)
 					{
@@ -367,7 +367,7 @@ void FindFiles::InitInFileSearch()
 				}
 
 				// Добавляем любимые таблицы символов
-				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
+				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, data); i++)
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{

@@ -55,11 +55,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "language.hpp"
 
-FilePanels::FilePanels():
+FilePanels::FilePanels(bool CreatePanels):
 	LastLeftFilePanel(nullptr),
 	LastRightFilePanel(nullptr),
-	LeftPanel(CreatePanel(Global->Opt->LeftPanel.Type)),
-	RightPanel(CreatePanel(Global->Opt->RightPanel.Type)),
+	LeftPanel(CreatePanels? CreatePanel(Global->Opt->LeftPanel.Type) : nullptr),
+	RightPanel(CreatePanels? CreatePanel(Global->Opt->RightPanel.Type) : nullptr),
 	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
