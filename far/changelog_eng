@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.12.2013 22:00:20 +0200 - build 3745
+
+1. Correction of 3744.1.
+
+drkns 21.12.2013 21:20:13 +0200 - build 3744
+
+1. Refactoring.
+
+2. Memory leaks when started with /v or /e keys.
+
+drkns 15.12.2013 04:54:32 +0200 - build 3743
+
+1. Correction of 3738.
+
+drkns 13.12.2013 22:15:29 +0200 - build 3742
+
+1. Correction of 3738.
+
+svs 13.12.2013 12:06:12 +0400 - build 3741
+
+1. Mantis#0002545: GUID for the plugin parameters menu
+
+    PluginsConfigMenuId   =  {B4C242E7-AA8E-4449-B0C3-BD8D9FA11AED} --> Menu.Id
+
+drkns 13.12.2013 09:23:31 +0200 - build 3740
+
+1. Correction of 3738.
+
+drkns 13.12.2013 01:21:33 +0200 - build 3739
+
+1. VC10 fix.
+
+drkns 13.12.2013 00:57:54 +0200 - build 3738
+
+1. Refactoring.
+
+drkns 09.12.2013 20:56:45 +0200 - build 3737
+
+1. File coloring was broken in 3733.
+
 w17 09.12.2013 14:03:54 +0400 - build 3736
 
 1. Correction of 3678 (M#2496)
