@@ -2865,7 +2865,7 @@ lv=1
 dt=Text
 nm=Dialog Events
 ctime=3477040474
-mtime=3573932638
+mtime=3596973351
 <article>
 #_<markdown>
 #_
@@ -2886,14 +2886,11 @@ mtime=3573932638
 #_
 #_### Treating the return value of dialog event handler (in the order of preference)
 #_
-#_1. Return value of **nil** (or no value) causes **`DefDlgProc`**
-#_   to be called. Its return value is returned to Far.
-#_1. For some events ([`DN_CTLCOLORDLGLIST`](286.html),
-#_   [`DN_GETDIALOGINFO`](305.html), [`DN_HELP`](289.html), etc.),
-#_   see the return values and their meaning in the article describing
-#_   that event.
-#_1. If the return value is **number**, then that number is returned
-#_   to Far.
+#_1. Return value of **nil** (or no value) causes **`DefDlgProc`** to be called.
+#_   Its return value is returned to Far.
+#_1. For some events ([`DN_CTLCOLORDLGLIST`](286.html), [`DN_HELP`](289.html), etc.),
+#_   see the return values and their meaning in the article describing that event.
+#_1. If the return value is **number**, then that number is returned to Far.
 #_1. Otherwise, the boolean equivalent of the return value (that is, either
 #_   0 or 1) is returned to Far.
 #_
