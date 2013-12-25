@@ -97,9 +97,8 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				if (!Global->Opt->MultiMakeDir)
 				{
 					// уберем все лишние кавычки
-					Unquote(strDirName);
 					// возьмем в кавычки, т.к. могут быть разделители
-					InsertQuote(strDirName);
+					InsertQuote(Unquote(strDirName));
 				}
 
 				auto pDirList=reinterpret_cast<std::list<string>*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
@@ -159,11 +158,11 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
 		string strOriginalDirName;
 		bool SkipAll = false;
-		FOR_CONST_RANGE(DirList, i)
+		FOR(const auto& i, DirList)
 		{
 			// TODO: almost the same code in dirmix::CreatePath()
 
-			strDirName = *i;
+			strDirName = i;
 			strOriginalDirName = strDirName;
 
 			//Unquote(DirName);

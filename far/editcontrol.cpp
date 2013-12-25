@@ -166,8 +166,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 			StartQuote=true;
 		}
 		string strStart(strStr.data(),Pos);
-		strStr.erase(0, Pos);
-		Unquote(strStr);
+		Unquote(strStr.erase(0, Pos));
 		if(!strStr.empty())
 		{
 			string strExp = api::ExpandEnvironmentStrings(strStr);

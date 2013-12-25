@@ -305,9 +305,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		strTemplatePath = api::ExpandEnvironmentStrings(strTemplatePath);
-		Unquote(strTemplatePath);
-		ConvertNameToFull(strTemplatePath, strTemplatePath);
+		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strTemplatePath)), strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
 		DWORD attr = api::GetFileAttributes(strTemplatePath);
@@ -322,15 +320,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		strProfilePath = api::ExpandEnvironmentStrings(strProfilePath);
-		Unquote(strProfilePath);
-		ConvertNameToFull(strProfilePath,strProfilePath);
+		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strProfilePath)), strProfilePath);
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		strLocalProfilePath = api::ExpandEnvironmentStrings(strLocalProfilePath);
-		Unquote(strLocalProfilePath);
-		ConvertNameToFull(strLocalProfilePath,strLocalProfilePath);
+		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strLocalProfilePath)), strLocalProfilePath);
 	}
 
 	if (strProfilePath.empty())
@@ -370,14 +364,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
 			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			strUserProfileDir = api::ExpandEnvironmentStrings(strUserProfileDir);
-			strUserLocalProfileDir = api::ExpandEnvironmentStrings(strUserLocalProfileDir);
-			Unquote(strUserProfileDir);
-			Unquote(strUserLocalProfileDir);
-			ConvertNameToFull(strUserProfileDir, strUserProfileDir);
-			ConvertNameToFull(strUserLocalProfileDir, strUserLocalProfileDir);
-			Global->Opt->ProfilePath = strUserProfileDir;
-			Global->Opt->LocalProfilePath = strUserLocalProfileDir;
+			ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strUserProfileDir)), Global->Opt->ProfilePath);
+			ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
 		}
 	}
 	else
@@ -596,9 +584,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 					if (Argv[I][2])
 					{
-						Global->Opt->LoadPlug.strCustomPluginsPath = api::ExpandEnvironmentStrings(&Argv[I][2]);
-						Unquote(Global->Opt->LoadPlug.strCustomPluginsPath);
-						ConvertNameToFull(Global->Opt->LoadPlug.strCustomPluginsPath, Global->Opt->LoadPlug.strCustomPluginsPath);
+						ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(&Argv[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
 					}
 					else
 					{
@@ -663,8 +649,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 				else
 				{
 					ArgvI = api::ExpandEnvironmentStrings(ArgvI);
-					Unquote(ArgvI);
-					ConvertNameToFull(ArgvI, ArgvI);
+					ConvertNameToFull(Unquote(ArgvI), ArgvI);
 
 					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
 					{

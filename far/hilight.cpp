@@ -155,22 +155,22 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			};
 
 			size_t Index = 0;
-			FOR_RANGE(StdHighlightData, i)
+			FOR(auto& i, StdHighlightData)
 			{
-				i->NormalColor = Colors::ConsoleColorToFarColor(i->InitNC);
-				MAKE_TRANSPARENT(i->NormalColor.BackgroundColor);
-				i->CursorColor = Colors::ConsoleColorToFarColor(i->InitCC);
-				MAKE_TRANSPARENT(i->CursorColor.BackgroundColor);
+				i.NormalColor = Colors::ConsoleColorToFarColor(i.InitNC);
+				MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
+				i.CursorColor = Colors::ConsoleColorToFarColor(i.InitCC);
+				MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
 
 				unsigned __int64 key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
 				if (!key)
 					break;
-				cfg->SetValue(key,HLS.Mask,i->Mask);
-				cfg->SetValue(key,HLS.IgnoreMask,i->IgnoreMask);
-				cfg->SetValue(key,HLS.IncludeAttributes,i->IncludeAttr);
+				cfg->SetValue(key,HLS.Mask,i.Mask);
+				cfg->SetValue(key,HLS.IgnoreMask,i.IgnoreMask);
+				cfg->SetValue(key,HLS.IncludeAttributes,i.IncludeAttr);
 
-				cfg->SetValue(key,HLS.NormalColor, &i->NormalColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.CursorColor, &i->CursorColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.NormalColor, &i.NormalColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.CursorColor, &i.CursorColor, sizeof(FarColor));
 
 				const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
 				cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));

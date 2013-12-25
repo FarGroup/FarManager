@@ -1067,11 +1067,11 @@ int FindFiles::LookForString(const string& Name)
 		else
 		{
 			bool ErrorState = false;
-			FOR_RANGE(codePages, cpi)
+			FOR(auto& i, codePages)
 			{
 				ErrorState = false;
 				// Пропускаем ошибочные кодовые страницы
-				if (!cpi->MaxCharSize)
+				if (!i.MaxCharSize)
 				{
 					ErrorState = true;
 					continue;
@@ -1080,8 +1080,8 @@ int FindFiles::LookForString(const string& Name)
 				// Если начало файла очищаем информацию о поиске по словам
 				if (WholeWords && alreadyRead==readBlockSize)
 				{
-					cpi->WordFound = false;
-					cpi->LastSymbol = 0;
+					i.WordFound = false;
+					i.LastSymbol = 0;
 				}
 
 				// Если ничего не прочитали
@@ -1089,7 +1089,7 @@ int FindFiles::LookForString(const string& Name)
 				{
 					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
 					// то считаем, что нашли то, что нужно
-					if(WholeWords && cpi->WordFound)
+					if(WholeWords && i.WordFound)
 						return true;
 					else
 					{
@@ -1099,7 +1099,7 @@ int FindFiles::LookForString(const string& Name)
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
 				}
 
-				if (readBlockSize < findStringCount && !(WholeWords && cpi->WordFound))
+				if (readBlockSize < findStringCount && !(WholeWords && i.WordFound))
 				{
 					ErrorState = true;
 					continue;
@@ -1112,7 +1112,7 @@ int FindFiles::LookForString(const string& Name)
 				wchar_t *buffer;
 
 				// Перегоняем буфер в UTF-16
-				if (IsUnicodeCodePage(cpi->CodePage))
+				if (IsUnicodeCodePage(i.CodePage))
 				{
 					// Вычисляем размер буфера в UTF-16
 					bufferCount = readBlockSize/sizeof(wchar_t);
@@ -1125,7 +1125,7 @@ int FindFiles::LookForString(const string& Name)
 					}
 
 					// Копируем буфер чтения в буфер сравнения
-					if (cpi->CodePage==CP_REVERSEBOM)
+					if (i.CodePage==CP_REVERSEBOM)
 					{
 						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
 						bufferCount = LCMapStringW(
@@ -1154,7 +1154,7 @@ int FindFiles::LookForString(const string& Name)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = MultiByteToWideChar(cpi->CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize * sizeof(wchar_t));
+					bufferCount = MultiByteToWideChar(i.CodePage, 0, readBufferA, readBlockSize, readBuffer, readBufferSize * sizeof(wchar_t));
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
@@ -1166,16 +1166,16 @@ int FindFiles::LookForString(const string& Name)
 					// Если прочитали меньше размера строки поиска и поиска по словам, то проверяем
 					// первый символ блока на разделитель и выходим
 					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
-					if (WholeWords && cpi->WordFound)
+					if (WholeWords && i.WordFound)
 					{
 						// Если конец файла, то считаем, что есть разделитель в конце
 						if (findStringCount-1>=bufferCount)
 							return true;
 						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
 						// при переходе между блоками
-						cpi->LastSymbol = readBuffer[findStringCount-1];
+						i.LastSymbol = readBuffer[findStringCount-1];
 
-						if (IsWordDiv(cpi->LastSymbol))
+						if (IsWordDiv(i.LastSymbol))
 							return true;
 
 						// Если размер буфера меньше размера слова, то выходим
@@ -1216,15 +1216,15 @@ int FindFiles::LookForString(const string& Name)
 						// Если мы находимся вначале файла, то считаем, что разделитель есть
 						// Если мы находимся вначале блока, то проверяем является
 						// или нет последний символ предыдущего блока разделителем
-						if (alreadyRead==readBlockSize || IsWordDiv(cpi->LastSymbol))
+						if (alreadyRead==readBlockSize || IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
 					}
 					else
 					{
 						// Проверяем является или нет предыдущий найденому символ блока разделителем
-						cpi->LastSymbol = buffer[index-1];
+						i.LastSymbol = buffer[index-1];
 
-						if (IsWordDiv(cpi->LastSymbol))
+						if (IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
 					}
 
@@ -1235,13 +1235,13 @@ int FindFiles::LookForString(const string& Name)
 						if (index+findStringCount!=bufferCount)
 						{
 							// Проверяем является или нет последующий за найденым символ блока разделителем
-							cpi->LastSymbol = buffer[index+findStringCount];
+							i.LastSymbol = buffer[index+findStringCount];
 
-							if (IsWordDiv(cpi->LastSymbol))
+							if (IsWordDiv(i.LastSymbol))
 								return true;
 						}
 						else
-							cpi->WordFound = true;
+							i.WordFound = true;
 					}
 				}
 				while (++index<=bufferCount-findStringCount);
@@ -1253,7 +1253,7 @@ int FindFiles::LookForString(const string& Name)
 					continue;
 				}
 				// Запоминаем последний символ блока
-				cpi->LastSymbol = buffer[bufferCount-1];
+				i.LastSymbol = buffer[bufferCount-1];
 			}
 
 			if (ErrorState)
@@ -2001,9 +2001,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 
 	MenuText << L' ';
 
-	FOR_RANGE(Global->Opt->FindOpt.OutColumns, i)
+	FOR(auto& i, Global->Opt->FindOpt.OutColumns)
 	{
-		int CurColumnType = static_cast<int>(i->type & 0xFF);
+		int CurColumnType = static_cast<int>(i.type & 0xFF);
 
 		switch (CurColumnType)
 		{
@@ -2050,8 +2050,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 								0,
 								FindData.dwReserved0,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
-								i->type,
-								i->width);
+								i.type,
+								i.width);
 
 				MenuText << BoxSymbols[BS_V1];
 				break;
@@ -2084,7 +2084,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR
 						break;
 				}
 
-				MenuText << FormatStr_DateTime(FileTime,CurColumnType,i->type,i->width) << BoxSymbols[BS_V1];
+				MenuText << FormatStr_DateTime(FileTime, CurColumnType, i.type, i.width) << BoxSymbols[BS_V1];
 				break;
 			}
 		}
@@ -2697,11 +2697,7 @@ bool FindFiles::FindFilesProcess()
 	if (!strFindStr.empty())
 	{
 		string strFStr=strFindStr;
-		TruncStrFromEnd(strFStr,10);
-		InsertQuote(strFStr);
-		string strTemp=L" ";
-		strTemp+=strFStr;
-		strSearchStr << strTemp;
+		strSearchStr << L" " + InsertQuote(TruncStrFromEnd(strFStr,10));
 	}
 	else
 	{

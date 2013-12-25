@@ -231,13 +231,13 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	string strPluginText;
 	size_t PluginMenuItemsCount = 0;
 
-	FOR_CONST_RANGE(*Global->CtrlObject->Plugins, i)
+	FOR(const auto& i, *Global->CtrlObject->Plugins)
 	{
 		if(Done)
 			break;
 		for (PluginItem=0;; ++PluginItem)
 		{
-			Plugin *pPlugin = *i;
+			Plugin *pPlugin = i;
 
 			WCHAR HotKey = 0;
 			GUID guid;

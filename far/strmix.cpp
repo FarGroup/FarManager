@@ -599,10 +599,11 @@ void Unquote(wchar_t *Str)
 	*Dst=0;
 }
 
-void Unquote(string &strStr)
+string& Unquote(string &strStr)
 {
 	auto new_end = std::remove(ALL_RANGE(strStr), L'"');
 	strStr.resize(new_end - strStr.begin());
+	return strStr;
 }
 
 

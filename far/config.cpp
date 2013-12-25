@@ -1998,9 +1998,9 @@ void Options::Load()
 			auto DestList(StringToList(XLat.strLayouts, STLF_UNIQUE));
 			size_t I=0;
 
-			FOR_CONST_RANGE(DestList, i)
+			FOR(const auto& i, DestList)
 			{
-				DWORD res = std::stoul(*i, nullptr, 16);
+				DWORD res = std::stoul(i, nullptr, 16);
 				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 

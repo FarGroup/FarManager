@@ -64,8 +64,13 @@ wchar_t* RemoveExternalSpaces(wchar_t *Str);
 wchar_t* QuoteSpaceOnly(wchar_t *Str);
 
 string &QuoteSpace(string &strStr);
+
 string& InsertQuote(string& strStr);
-void Unquote(string &strStr);
+inline string InsertQuote(string&& strStr) { return std::move(InsertQuote(strStr)); }
+
+string& Unquote(string &strStr);
+inline string Unquote(string&& strStr) { return std::move(Unquote(strStr)); }
+
 string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
 string& RemoveLeadingSpaces(string &strStr);

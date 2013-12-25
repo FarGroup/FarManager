@@ -1083,9 +1083,7 @@ bool DeleteFileWithFolder(const string& FileName)
 {
 	bool Result = false;
 	string strFileOrFolderName(FileName);
-	Unquote(strFileOrFolderName);
-
-	if (api::SetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL))
+	if (api::SetFileAttributes(Unquote(strFileOrFolderName), FILE_ATTRIBUTE_NORMAL))
 	{
 		if (api::DeleteFile(strFileOrFolderName)) //BUGBUG
 		{

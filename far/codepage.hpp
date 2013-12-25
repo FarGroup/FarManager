@@ -73,23 +73,23 @@ public:
 	codepages();
 	~codepages();
 
-	int GetCodePageInfo(UINT cp, wchar_t *name=nullptr, size_t cb=0); // returns MaxCharSize
-
-	bool IsCodePageSupported(uintptr_t CodePage);
+	UINT GetCodePageInfo(UINT cp, string& name) const;
+	UINT GetCodePageInfo(UINT cp) const { string dummy; return GetCodePageInfo(cp, dummy); }
+	bool IsCodePageSupported(uintptr_t CodePage) const;
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly=false, bool bShowAutoDetect=false);
 	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
-	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
+	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
 
 private:
-	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom);
+	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
 	inline uintptr_t GetMenuItemCodePage(int Position=-1);
 	inline uintptr_t GetListItemCodePage(int Position=-1);
 	inline bool IsPositionStandard(UINT position);
 	inline bool IsPositionFavorite(UINT position);
 	inline bool IsPositionNormal(UINT position);
-	void FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, string& CodePageNameString, bool IsCodePageNameCustom);
-	void AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
+	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
+	void AddCodePage(const string& codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
 	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position=-1, bool enabled=true);
 	void AddSeparator(LPCWSTR Label=nullptr,int position=-1);
 	int GetItemsCount();
@@ -110,7 +110,7 @@ private:
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;
 	CodePagesCallbackCallSource CallbackCallSource;
-	std::map<UINT, string> installed_cp;
+	std::map<UINT, std::pair<UINT, string>> installed_cp;
 };
 
 //#############################################################################

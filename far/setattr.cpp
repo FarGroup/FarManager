@@ -1268,8 +1268,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
 				{
 					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
-					Unquote(strTarget);
-					if(!ModifyReparsePoint(strSelName, strTarget))
+					if(!ModifyReparsePoint(strSelName, Unquote(strTarget)))
 					{
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName.data(),MSG(MHOk));

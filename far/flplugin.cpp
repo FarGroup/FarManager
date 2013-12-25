@@ -921,14 +921,14 @@ void FileList::ProcessHostFile()
 
 			if (SCount > 0)
 			{
-				FOR_CONST_RANGE(ListData, i)
+				FOR(const auto& i, ListData)
 				{
-					if ((*i)->Selected)
+					if (i->Selected)
 					{
-						Done=ProcessOneHostFile(i);
+						Done=ProcessOneHostFile(i.get());
 
 						if (Done == 1)
-							Select(i->get(), 0);
+							Select(i.get(), 0);
 						else if (Done == -1)
 							continue;
 						else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
@@ -941,7 +941,7 @@ void FileList::ProcessHostFile()
 			}
 			else
 			{
-				if ((Done=ProcessOneHostFile(ListData.begin() + CurFile)) == 1)
+				if ((Done=ProcessOneHostFile((ListData.begin() + CurFile)->get())) == 1)
 					ClearSelection();
 			}
 		}
@@ -964,11 +964,11 @@ void FileList::ProcessHostFile()
      0 - Плагин вернул FALSE
      1 - Плагин вернул TRUE
 */
-int FileList::ProcessOneHostFile(std::vector<std::unique_ptr<FileListItem>>::const_iterator Idx)
+int FileList::ProcessOneHostFile(const FileListItem* Item)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
-	HANDLE hNewPlugin=OpenPluginForFile(&(*Idx)->strName, (*Idx)->FileAttr, OFP_COMMANDS);
+	HANDLE hNewPlugin=OpenPluginForFile(&Item->strName, Item->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{

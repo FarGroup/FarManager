@@ -420,22 +420,22 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 
 	TextPtr=ColumnWidths.data();
 
-	FOR_RANGE(Columns, i)
+	FOR(auto& i, Columns)
 	{
 		string strArgName;
 
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		i->width = std::stoi(strArgName);
-		i->width_type = COUNT_WIDTH;
+		i.width = std::stoi(strArgName);
+		i.width_type = COUNT_WIDTH;
 
 		if (strArgName.size()>1)
 		{
 			switch (strArgName.back())
 			{
 				case L'%':
-					i->width_type = PERCENT_WIDTH;
+					i.width_type = PERCENT_WIDTH;
 					break;
 			}
 		}

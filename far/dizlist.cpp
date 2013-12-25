@@ -338,16 +338,16 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!AnyError)
 		{
-			FOR_CONST_RANGE(DizData, i)
+			FOR(const auto& i, DizData)
 			{
-				string dump = i->first;
+				string dump = i.first;
 				QuoteSpaceOnly(dump);
-				dump += i->second.front();
-				if(i->second.size() > 1)
+				dump += i.second.front();
+				if(i.second.size() > 1)
 				{
-					auto start = i->second.cbegin();
+					auto start = i.second.cbegin();
 					++start;
-					std::for_each(start, i->second.cend(), CONST_LAMBDA_PREDICATE(i->second, j)
+					std::for_each(start, i.second.cend(), [&](const VALUE_TYPE(i.second)& j)
 					{
 						dump.append(L"\r\n ").append(j);
 					});

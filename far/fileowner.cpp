@@ -179,8 +179,9 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 	bool Result = false;
 
 	PSID Sid = nullptr;
-	//в winapi от mingw.org неправильный тип параметра.
-	if(!ConvertStringSidToSid(const_cast<LPWSTR>(Owner), &Sid))
+	SCOPE_EXIT { LocalFree(Sid); };
+
+	if(!ConvertStringSidToSid(Owner, &Sid))
 	{
 		SID_NAME_USE Use;
 		DWORD cSid=0, ReferencedDomain=0;
@@ -193,6 +194,7 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 				std::vector<wchar_t> ReferencedDomainName(ReferencedDomain);
 				if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
 				{
+					;
 				}
 			}
 		}
@@ -210,7 +212,6 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 		{
 			SetLastError(dwResult);
 		}
-		LocalFree(Sid);
 	}
 	return Result;
 }

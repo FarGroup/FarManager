@@ -3649,12 +3649,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	int nLeftShift=0;
 	if (bAutoNumbering)
 	{
-		int numlines=0;
-		for (const wchar_t* p=strItems.data(); *p; p++)
-		{
-			if (*p==L'\n') numlines++;
-		}
-		for (; numlines; numlines/=10)
+		for (int numlines = std::count(ALL_CONST_RANGE(strItems), L'\n'); numlines; numlines/=10)
 		{
 			nLeftShift++;
 		}

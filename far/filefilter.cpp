@@ -117,19 +117,19 @@ bool FileFilter::FilterEdit()
 		{
 			auto FFFT = GetFFFT();
 
-			FOR_CONST_RANGE(*TempFilterData, i)
+			FOR(const auto& i, *TempFilterData)
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню
-				if (!i->GetFlags(FFFT))
+				if (!i.GetFlags(FFFT))
 					continue;
 
 				const wchar_t *FMask;
-				i->GetMask(&FMask);
+				i.GetMask(&FMask);
 				string strMask = FMask;
 				Unquote(strMask);
 
-				if (!ParseAndAddMasks(Extensions, strMask, 0, GetCheck(*i)))
+				if (!ParseAndAddMasks(Extensions, strMask, 0, GetCheck(i)))
 					break;
 			}
 		}

@@ -258,8 +258,8 @@ static unsigned WINAPI LocalUpper(unsigned LowerChar)
 
 static void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
-	for (int I=0; I<Length; I++)
-		Buf[I]=LocalUpper(Buf[I]);
+	auto str = as_string(Buf, Length);
+	std::for_each(RANGE(str, i) { i = LowerToUpper[as_index(i)]; });
 }
 
 static unsigned WINAPI LocalLower(unsigned UpperChar)
@@ -269,26 +269,20 @@ static unsigned WINAPI LocalLower(unsigned UpperChar)
 
 static void WINAPI LocalLowerBuf(char *Buf,int Length)
 {
-	for (int I=0; I<Length; I++)
-		Buf[I]=LocalLower(Buf[I]);
+	auto str = as_string(Buf, Length);
+	std::for_each(RANGE(str, i) { i = UpperToLower[as_index(i)]; });
 }
 
 static void WINAPI LocalStrupr(char *s1)
 {
-	while (*s1)
-	{
-		*s1=LowerToUpper[(unsigned)*s1];
-		s1++;
-	}
+	auto str = as_string(s1);
+	std::for_each(RANGE(str, i) { i = LowerToUpper[as_index(i)]; });
 }
 
 static void WINAPI LocalStrlwr(char *s1)
 {
-	while (*s1)
-	{
-		*s1=UpperToLower[(unsigned)*s1];
-		s1++;
-	}
+	auto str = as_string(s1);
+	std::for_each(RANGE(str, i) { i = UpperToLower[as_index(i)]; });
 }
 
 static int __cdecl LocalStricmp(const char *s1,const char *s2)
@@ -4640,10 +4634,11 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		if (cpiex.MaxCharSize != 1)
 			return -1;
 
-		wchar_t *codePageName = Global->CodePages->FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+		string CodepageName(cpiex.CodePageName);
+		Global->CodePages->FormatCodePageName(nCP, CodepageName);
 		string sTableName = std::to_wstring(nCP);
 		sTableName.resize(std::max(sTableName.size(), size_t(5)), L' ');
-		sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(codePageName);
+		sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(CodepageName);
 		UnicodeToOEM(sTableName.data(), TableSet->TableName, sizeof(TableSet->TableName) - 1);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));

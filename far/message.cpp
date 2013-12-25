@@ -124,7 +124,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					{
 						DialogBuilder Builder(MError, nullptr);
 						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtError() << L" - " << GetWin32ErrorString(Global->CaughtError()), 65);
-						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtStatus() << L" - " << GetNtErrorString(Global->CaughtStatus()), 65);
+						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<DWORD>(Global->CaughtStatus()) << L" - " << GetNtErrorString(Global->CaughtStatus()), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}

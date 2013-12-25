@@ -1299,8 +1299,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType()!=FILE_PANEL && Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-	string strExpandedDir = api::ExpandEnvironmentStrings(CmdLine);
-	Unquote(strExpandedDir);
+	string strExpandedDir = Unquote(api::ExpandEnvironmentStrings(CmdLine));
 
 	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && api::GetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
 	{

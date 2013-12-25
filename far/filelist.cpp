@@ -1588,8 +1588,7 @@ int FileList::ProcessKey(int Key)
 
 						if (!strFileName.empty())
 						{
-							Unquote(strFileName);
-							ConvertNameToShort(strFileName,strShortFileName);
+							ConvertNameToShort(Unquote(strFileName), strShortFileName);
 
 							if (IsAbsolutePath(strFileName))
 							{
@@ -3100,7 +3099,7 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	int PanelX=MouseEvent->dwMousePosition.X-X1-1;
 	int Level = 0;
 
-	FOR_RANGE(ViewSettings.PanelColumns, i)
+	FOR(auto& i, ViewSettings.PanelColumns)
 	{
 		if (Level == ColumnsInGlobal)
 		{
@@ -3108,7 +3107,7 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Level = 0;
 		}
 
-		ColumnsWidth += i->width;
+		ColumnsWidth += i.width;
 
 		if (ColumnsWidth>=PanelX)
 			break;
@@ -4178,19 +4177,19 @@ void FileList::CompareDir()
 
 	// теперь начнем цикл по снятию выделений
 	// каждый элемент активной панели...
-	FOR_CONST_RANGE(ListData, i)
+	FOR(const auto& i, ListData)
 	{
-		if (((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		if (i->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
-		FOR_CONST_RANGE(Another->ListData, j)
+		FOR(const auto& j, Another->ListData)
 		{
-			if (((*j)->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
+			if (j->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
-			PtrTempName1=PointToName((*i)->strName);
-			PtrTempName2=PointToName((*j)->strName);
+			PtrTempName1=PointToName(i->strName);
+			PtrTempName2=PointToName(j->strName);
 
 			if (!StrCmpI(PtrTempName1,PtrTempName2))
 			{
@@ -4198,8 +4197,8 @@ void FileList::CompareDir()
 				if (CompareFatTime)
 				{
 					WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
-					FileTimeToDosDateTime(&(*i)->WriteTime,&DosDate,&DosTime);
-					FileTimeToDosDateTime(&(*j)->WriteTime,&AnotherDosDate,&AnotherDosTime);
+					FileTimeToDosDateTime(&i->WriteTime,&DosDate,&DosTime);
+					FileTimeToDosDateTime(&j->WriteTime,&AnotherDosDate,&AnotherDosTime);
 					DWORD FullDosTime,AnotherFullDosTime;
 					FullDosTime=((DWORD)DosDate<<16)+DosTime;
 					AnotherFullDosTime=((DWORD)AnotherDosDate<<16)+AnotherDosTime;
@@ -4212,18 +4211,18 @@ void FileList::CompareDir()
 				}
 				else
 				{
-					__int64 RetCompare=FileTimeDifference(&(*i)->WriteTime,&(*j)->WriteTime);
+					__int64 RetCompare=FileTimeDifference(&i->WriteTime,&j->WriteTime);
 					Cmp=!RetCompare?0:(RetCompare > 0?1:-1);
 				}
 
-				if (!Cmp && ((*i)->FileSize != (*j)->FileSize))
+				if (!Cmp && (i->FileSize != j->FileSize))
 					continue;
 
-				if (Cmp < 1 && (*i)->Selected)
-					Select(i->get(), 0);
+				if (Cmp < 1 && i->Selected)
+					Select(i.get(), 0);
 
-				if (Cmp > -1 && (*j)->Selected)
-					Another->Select(j->get(), 0);
+				if (Cmp > -1 && j->Selected)
+					Another->Select(j.get(), 0);
 
 				if (Another->PanelMode!=PLUGIN_PANEL)
 					break;
@@ -5009,22 +5008,22 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
 
-	FOR_CONST_RANGE(ListData, i)
+	FOR(const auto& i, ListData)
 	{
-		if ((*i)->Selected && ((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (i->Selected && (i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
 			if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-			        GetPluginDirInfo(hPlugin, (*i)->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
+			        GetPluginDirInfo(hPlugin, i->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 			        ||
 			        ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle), (*i)->strName, Data, 0, Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+			         GetDirInfo(MSG(MDirInfoViewTitle), i->strName, Data, 0, Filter.get(), GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
-				SelFileSize -= (*i)->FileSize;
+				SelFileSize -= i->FileSize;
 				SelFileSize += Data.FileSize;
-				(*i)->FileSize = Data.FileSize;
-				(*i)->AllocationSize = Data.AllocationSize;
-				(*i)->ShowFolderSize=1;
+				i->FileSize = Data.FileSize;
+				i->AllocationSize = Data.AllocationSize;
+				i->ShowFolderSize=1;
 			}
 			else
 				break;

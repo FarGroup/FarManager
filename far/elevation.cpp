@@ -291,6 +291,8 @@ bool elevation::Initialize()
 			PSECURITY_DESCRIPTOR pSD = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
 			if(pSD)
 			{
+				SCOPE_EXIT { LocalFree(pSD); };
+
 				if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
 				{
 					PACL pACL = nullptr;
@@ -303,6 +305,8 @@ bool elevation::Initialize()
 					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
 					if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
 					{
+						SCOPE_EXIT { LocalFree(pACL); };
+
 						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
 						{
 							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
@@ -310,10 +314,8 @@ bool elevation::Initialize()
 							strPipe+=strPipeID;
 							Pipe=CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
 						}
-						LocalFree(pACL);
 					}
 				}
-				LocalFree(pSD);
 			}
 		}
 	}

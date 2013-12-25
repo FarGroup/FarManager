@@ -87,12 +87,13 @@ enum CDROM_DeviceCapabilities
 static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 {
 	std::string productID;
+	auto strID = as_string(prodID);
 
-	for (auto i = prodID; *i; ++i)
+	std::for_each(CONST_RANGE(strID, i)
 	{
-		if (isalpha(*i))
-			productID.push_back(toupper(*i));
-	}
+		if (isalpha(i))
+			productID.push_back(toupper(i));
+	});
 
 	int caps = CAPABILITIES_NONE;
 

@@ -271,13 +271,13 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			api::GetEnvironmentVariable(L"PATHEXT",strPathExt);
 			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
 
-			FOR_CONST_RANGE(PathExtList, i) // первый проход - в текущем каталоге
+			FOR(const auto& i, PathExtList) // первый проход - в текущем каталоге
 			{
 				string strTmpName=strFullName;
 
 				if (!ModuleExt)
 				{
-					strTmpName += *i;
+					strTmpName += i;
 				}
 
 				DWORD Attr=api::GetFileAttributes(strTmpName);
@@ -303,13 +303,13 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				{
 					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
 
-					FOR_CONST_RANGE(PathList, Path)
+					FOR(const auto& Path, PathList)
 					{
-						FOR_CONST_RANGE(PathExtList, Ext)
+						FOR(const auto& Ext, PathExtList)
 						{
 							string Dest;
 
-							if (api::SearchPath(Path->data(), strFullName, Ext->data(), Dest))
+							if (api::SearchPath(Path.data(), strFullName, Ext.data(), Dest))
 							{
 								DWORD Attr=api::GetFileAttributes(Dest);
 
@@ -328,11 +328,11 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 				if (!Result)
 				{
-					FOR_CONST_RANGE(PathExtList, Ext)
+					FOR(const auto& Ext, PathExtList)
 					{
 						string Dest;
 
-						if (api::SearchPath(nullptr, strFullName, Ext->data(), Dest))
+						if (api::SearchPath(nullptr, strFullName, Ext.data(), Dest))
 						{
 							DWORD Attr=api::GetFileAttributes(Dest);
 
@@ -393,8 +393,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 							if (RegResult==ERROR_SUCCESS)
 							{
-								strFullName = api::ExpandEnvironmentStrings(strFullName);
-								Unquote(strFullName);
+								strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
 								Result=true;
 								break;
 							}
@@ -420,8 +419,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 									if (RegResult==ERROR_SUCCESS)
 									{
-										strFullName = api::ExpandEnvironmentStrings(strFullName);
-										Unquote(strFullName);
+										strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
 										return true;
 									}
 								}
@@ -577,17 +575,17 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		if (RetPtr && !ActionList.empty())
 		{
 			HKEY hOpenKey;
-			FOR_CONST_RANGE(ActionList ,i)
+			FOR(const auto& i, ActionList)
 			{
 				strNewValue = strValue;
-				strNewValue += *i;
+				strNewValue += i;
 				strNewValue += command_action;
 
 				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.data(),&hOpenKey)==ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
-					strValue += *i;
-					strAction = *i;
+					strValue += i;
+					strAction = i;
 					RetPtr = strAction.data();
 					RetEnum = ERROR_NO_MORE_ITEMS;
 				}
@@ -1347,11 +1345,8 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 			{
-				strCmd.assign(CmdStart,PtrCmd-CmdStart);
-				Unquote(strCmd);
-
 //_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
-				strExpandedStr = api::ExpandEnvironmentStrings(strCmd);
+				strExpandedStr = api::ExpandEnvironmentStrings(Unquote(strCmd.assign(CmdStart,PtrCmd-CmdStart)));
 				string strFullPath;
 
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))

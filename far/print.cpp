@@ -144,11 +144,9 @@ void PrintFiles(FileList* SrcPanel)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
 			SrcPanel->GetSelName(&strName,FileAttr);
-			TruncStr(strName,50);
-			strSelName=strName;
-			InsertQuote(strSelName);
+			strSelName = TruncStr(strName,50);
 			strTitle = MPrintTo;
-			strTitle << strSelName;
+			strTitle << InsertQuote(strSelName);
 		}
 		else
 		{

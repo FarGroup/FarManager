@@ -755,13 +755,8 @@ bool TreeList::FillLastData()
 
 UINT TreeList::CountSlash(const wchar_t *Str)
 {
-	UINT Count=0;
-
-	for (; *Str; Str++)
-		if (IsSlash(*Str))
-			Count++;
-
-	return(Count);
+	auto str = as_string(Str);
+	return std::count_if(ALL_CONST_RANGE(str), IsSlash);
 }
 
 __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -2073,9 +2068,9 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	auto ExceptPathList(StringToList(Global->Opt->Tree.strExceptPath, STLF_UNIQUE));
 	if (!ExceptPathList.empty())
 	{
-		FOR_CONST_RANGE(ExceptPathList, i)
+		FOR(const auto& i, ExceptPathList)
 		{
-			if (strRootDir == *i)
+			if (strRootDir == i)
 			{
 				return strDest;
 			}

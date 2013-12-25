@@ -84,6 +84,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FOR_CONST_RANGE(T, i) for(auto i = std::cbegin(T); i != std::cend(T); ++i)
 #define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = std::crbegin(T); i != std::crend(T); ++i)
 
+// C++11-like range-based for
+#if defined _MSC_VER && _MSC_VER < 1700
+#define DECORATED(name) _RANGE_FOR_EMULATION_ ## name ## _
+#define f_container DECORATED(container)
+#define f_stop DECORATED(stop)
+#define f_it DECORATED(it)
+#define f_stop_it DECORATED(stop_it)
+#define FOR(i, c) \
+	if (bool f_stop = false); \
+	else for (auto&& f_container = c; !f_stop; f_stop = true) \
+	for (auto f_it = std::begin(f_container), e = false? f_it : std::end(f_container); f_it != e && !f_stop; ++f_it) \
+	if (bool f_stop_it = !(f_stop = true)); \
+			else for (i = *f_it; !f_stop_it; f_stop_it = true, f_stop = false)
+// { body }
+#undef f_stop_it
+#undef f_it
+#undef f_stop
+#undef f_container
+#undef DECORATED
+#else
+#define FOR(i, c) for(i: c)
+#endif
 
 template<class T>
 class array_ptr
@@ -270,6 +292,47 @@ private:
 	friend iterator;
 	virtual bool get(size_t index, T& value) = 0;
 };
+
+// begin() / end() interface for null-terminated strings
+template<class T>
+class as_string_t: public enumerator<T>
+{
+public:
+	as_string_t(const T* str, size_t size): m_str(str), m_size(size) {}
+	virtual bool get(size_t index, T& value) override
+	{
+		if (m_size == size_t(-1))
+		{
+			return (value = m_str[index]) != 0;
+		}
+		else
+		{
+			if (index == m_size)
+			{
+				return false;
+			}
+			else
+			{
+				value = m_str[index];
+				return true;
+			}
+		}
+	}
+
+private:
+	const T* m_str;
+	size_t m_size;
+};
+
+template<class T>
+typename std::enable_if<!std::is_array<T>::value, as_string_t<T>>::type as_string(const T* str, size_t size = size_t(-1)) { return as_string_t<T>(str, size); }
+
+// to avoid processing null character in cases like char c[] = "foo".
+template <typename T, size_t N>
+typename std::enable_if<std::is_array<T>::value, as_string_t<T>>::type as_string(T(&str)[N]) { return as_string_t<T>(str, N - 1); }
+
+template<class T>
+size_t as_index(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
 
 template<typename T>
 inline void ClearStruct(T& s)

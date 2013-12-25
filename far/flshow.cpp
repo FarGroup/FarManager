@@ -748,41 +748,41 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 	int TotalWidth = static_cast<int>(Columns.size()-1);
 	TotalPercentCount=TotalPercentWidth=0;
 
-	FOR_RANGE(Columns, i)
+	FOR(auto& i, Columns)
 	{
-		if (i->width < 0)
+		if (i.width < 0)
 		{
 			EmptyColumns++;
 			continue;
 		}
 
-		int ColumnType = i->type & 0xff;
+		int ColumnType = i.type & 0xff;
 
-		if (!i->width)
+		if (!i.width)
 		{
-			i->width_type = COUNT_WIDTH; //manage all zero-width columns in same way
-			i->width = ColumnTypeWidth[ColumnType];
+			i.width_type = COUNT_WIDTH; //manage all zero-width columns in same way
+			i.width = ColumnTypeWidth[ColumnType];
 
 			if (ColumnType==WDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CHDATE_COLUMN)
 			{
-				if (i->type & COLUMN_BRIEF)
-					i->width -= 3;
+				if (i.type & COLUMN_BRIEF)
+					i.width -= 3;
 
-				if (i->type & COLUMN_MONTH)
-					++i->width;
+				if (i.type & COLUMN_MONTH)
+					++i.width;
 			}
 		}
 
-		if (!i->width)
+		if (!i.width)
 			ZeroLengthCount++;
 
-		switch (i->width_type)
+		switch (i.width_type)
 		{
 			case COUNT_WIDTH:
-				TotalWidth += i->width;
+				TotalWidth += i.width;
 				break;
 			case PERCENT_WIDTH:
-				TotalPercentWidth += i->width;
+				TotalPercentWidth += i.width;
 				TotalPercentCount++;
 				break;
 		}
@@ -801,40 +801,40 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 		int ExtraPercentWidth=(TotalPercentWidth>100 || !ZeroLengthCount)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
 		int TempWidth=0;
 
-		FOR_RANGE(Columns, i)
+		FOR(auto& i, Columns)
 		{
 			if (!TotalPercentCount)
 				break;
 
-			if (i->width_type == PERCENT_WIDTH)
+			if (i.width_type == PERCENT_WIDTH)
 			{
-				int PercentWidth = (TotalPercentCount>1)?(ExtraPercentWidth*i->width/TotalPercentWidth):(ExtraPercentWidth-TempWidth);
+				int PercentWidth = (TotalPercentCount > 1)? (ExtraPercentWidth * i.width / TotalPercentWidth) : (ExtraPercentWidth - TempWidth);
 
 				if (PercentWidth<1)
 					PercentWidth=1;
 
 				TempWidth+=PercentWidth;
-				i->width = PercentWidth;
-				i->width_type = COUNT_WIDTH;
+				i.width = PercentWidth;
+				i.width_type = COUNT_WIDTH;
 				TotalPercentCount--;
 			}
 		}
 		ExtraWidth-=TempWidth;
 	}
 
-	FOR_RANGE(Columns, i)
+	FOR(auto& i, Columns)
 	{
 		if (!ZeroLengthCount)
 			break;
 
-		if (!i->width)
+		if (!i.width)
 		{
 			int AutoWidth=ExtraWidth/ZeroLengthCount;
 
 			if (AutoWidth<1)
 				AutoWidth=1;
 
-			i->width = AutoWidth;
+			i.width = AutoWidth;
 			ExtraWidth-=AutoWidth;
 			ZeroLengthCount--;
 		}
@@ -871,7 +871,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 	ColumnsInGlobal = 1;
 	int GlobalColumns=0;
 
-	FOR_RANGE(ViewSettings.PanelColumns, i)
+	FOR_CONST_RANGE(ViewSettings.PanelColumns, i)
 	{
 		int Remainder = ViewSettings.PanelColumns.size() % ColumnsInGlobal;
 		GlobalColumns = static_cast<int>(ViewSettings.PanelColumns.size() / ColumnsInGlobal);

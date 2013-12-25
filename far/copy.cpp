@@ -1162,8 +1162,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 		if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData.data(),L",;"))
 		{
-			Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);     // уберем все лишние кавычки
-			InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
+			// уберем все лишние кавычки
+			// возьмем в кавычки, т.к. могут быть разделители
+			InsertQuote(Unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
 		}
 	}
 	else
@@ -1186,8 +1187,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				*/
 				if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData.data(),L",;"))
 				{
-					Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);     // уберем все лишние кавычки
-					InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
+					// уберем все лишние кавычки
+					// возьмем в кавычки, т.к. могут быть разделители
+					InsertQuote(Unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
 				}
 
 				break;
@@ -1272,9 +1274,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (!Ask)
 	{
 		strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
-		Unquote(strCopyDlgValue);
-		InsertQuote(strCopyDlgValue);
-		DestList = StringToList(strCopyDlgValue, STLF_UNIQUE);
+		DestList = StringToList(InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
 		if (DestList.empty())
 			Ask=TRUE;
 	}
@@ -1355,10 +1355,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				if (!CopyDlg[ID_SC_MULTITARGET].Selected || !wcspbrk(strCopyDlgValue.data(),L",;")) // отключено multi*
 				{
 					// уберем лишние кавычки
-					Unquote(strCopyDlgValue);
 					// добавим кавычки, чтобы "список" удачно скомпилировался вне
 					// зависимости от наличия разделителей в оном
-					InsertQuote(strCopyDlgValue);
+					InsertQuote(Unquote(strCopyDlgValue));
 				}
 
 				DestList = StringToList(strCopyDlgValue, STLF_UNIQUE);

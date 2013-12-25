@@ -255,15 +255,15 @@ static string MakeName(const ShortcutItem& Item)
 static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw_mode=false)
 {
 	Menu.DeleteItems();
-	FOR_CONST_RANGE(List, i)
+	FOR(const auto& i, List)
 	{
-		MenuItemEx ListItem(MakeName(*i));
+		MenuItemEx ListItem(MakeName(i));
 		if (ListItem.strName.empty())
 			continue;
 
-		ListItem.UserData = &i;
+		ListItem.UserData = const_cast<ShortcutItem*>(&i);
 		ListItem.UserDataSize = sizeof(i);
-		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.empty())
+		if (!raw_mode && i.PluginGuid == FarGuid && i.strFolder.empty())
 		{
 			if (ListItem.strName != L"--")
 			{
@@ -487,10 +487,8 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 		bool Save=true;
 		if (Item.PluginGuid == FarGuid)
 		{
-			Unquote(NewItem.strFolder);
-
 			bool PathRoot = false;
-			PATH_TYPE Type = ParsePath(NewItem.strFolder, nullptr, &PathRoot);
+			PATH_TYPE Type = ParsePath(Unquote(NewItem.strFolder), nullptr, &PathRoot);
 			if(!(PathRoot && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
 			{
 				DeleteEndSlash(NewItem.strFolder);
