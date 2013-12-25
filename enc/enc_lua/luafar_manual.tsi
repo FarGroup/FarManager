@@ -7583,7 +7583,7 @@ lv=2
 dt=Text
 nm=far.Timer
 ctime=3482124061
-mtime=3520022259
+mtime=3597159757
 <article>
 #_timer = far.Timer (interval, handler)
 #_
@@ -7608,11 +7608,7 @@ mtime=3520022259
 #_     to Far. Thus the real interval between *handler* calls is not
 #_     exact and can significantly differ from the specified value.
 #_
-#_  2. The handler should take into account that at the moment it is
-#_     called, the timer can already be closed. It can be found out
-#_     by examining the *Closed* property of the timer.
-#_
-#_  3. This function requires that the plugin DLL has
+#_  2. This function requires that the plugin DLL has
 #_     *ProcessSynchroEventW* exported. (There is not such a requirement
 #_     for export.ProcessSynchroEvent though, as it is not called by the
 #_     Timer function and methods).

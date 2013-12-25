@@ -19,8 +19,6 @@ typedef struct
 	struct PluginStartupInfo *Info;
 	int interval, interval_changed;
 	int funcRef, objRef;
-	HANDLE hThread;
-	DWORD threadId;
 	FILETIME tStart;
 	int needClose;
 	int enabled;
@@ -28,13 +26,10 @@ typedef struct
 
 typedef struct
 {
+	TTimerData *timerData;
 	int regAction;
-	int objRef;
-	int funcRef;
 	int data;
 } TSynchroData;
-
-void InitSynchroData(TSynchroData*,int,int,int,int);
 
 typedef struct
 {

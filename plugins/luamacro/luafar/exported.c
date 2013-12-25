@@ -1317,13 +1317,13 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 
 		if(sd.regAction != 0)
 		{
-			if(sd.regAction & LUAFAR_TIMER_CALL)
+			if(!sd.timerData->needClose && (sd.regAction & LUAFAR_TIMER_CALL))
 			{
-				lua_rawgeti(L, LUA_REGISTRYINDEX, sd.funcRef); //+1: Func
+				lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->funcRef); //+1: Func
 
 				if(lua_type(L, -1) == LUA_TFUNCTION)
 				{
-					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.objRef); //+2: Obj
+					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->objRef); //+2: Obj
 
 					if(pcall_msg(L, 1, 1) == 0)     //+1
 					{
@@ -1337,8 +1337,8 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 
 			if(sd.regAction & LUAFAR_TIMER_UNREF)
 			{
-				luaL_unref(L, LUA_REGISTRYINDEX, sd.objRef);
-				luaL_unref(L, LUA_REGISTRYINDEX, sd.funcRef);
+				luaL_unref(L, LUA_REGISTRYINDEX, sd.timerData->objRef);
+				luaL_unref(L, LUA_REGISTRYINDEX, sd.timerData->funcRef);
 			}
 		}
 		else if(GetExportFunction(L, "ProcessSynchroEvent"))     //+1: Func

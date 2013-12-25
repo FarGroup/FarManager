@@ -144,6 +144,14 @@ const char* VirtualKeyStrings[256] =
 	"NONAME", "PA1", "OEM_CLEAR", NULL,
 };
 
+
+static void InitSynchroData(TSynchroData* SD, TTimerData *td, int action, int data)
+{
+	SD->timerData = td;
+	SD->regAction = action;
+	SD->data = data;
+}
+
 static int IsFarSpring(lua_State *L)
 {
 	TPluginData *pd = GetPluginData(L);
@@ -4197,7 +4205,7 @@ static int far_AdvControl(lua_State *L)
 		{
 			intptr_t p = luaL_checkinteger(L, 2);
 			Param2 = malloc(sizeof(TSynchroData));
-			InitSynchroData((TSynchroData*)Param2, 0, 0, 0, (int)p);
+			InitSynchroData((TSynchroData*)Param2, NULL, 0, (int)p);
 			break;
 		}
 		case ACTL_SETPROGRESSSTATE:
@@ -4980,18 +4988,17 @@ static int far_FormatFileSize(lua_State *L)
 DWORD WINAPI TimerThreadFunc(LPVOID data)
 {
 	FILETIME tCurrent;
-	LARGE_INTEGER lStart, lCurrent;
+	UINT64 lStart, lCurrent;
 	TSynchroData *sd;
 	TTimerData* td = (TTimerData*)data;
 	int interval_copy = td->interval;
 	td->interval_changed = 0;
 	memcpy(&lStart, &td->tStart, sizeof(lStart));
 
-	for(; !td->needClose; lStart.QuadPart += interval_copy * 10000ll)
+	for(; !td->needClose; lStart += interval_copy * 10000LL)
 	{
 		while(!td->needClose)
 		{
-			long long llElapsed;
 			int iElapsed;
 			GetSystemTimeAsFileTime(&tCurrent);
 			memcpy(&lCurrent, &tCurrent, sizeof(lCurrent));
@@ -4999,12 +5006,11 @@ DWORD WINAPI TimerThreadFunc(LPVOID data)
 			if(td->interval_changed)
 			{
 				interval_copy = td->interval;
-				lStart.QuadPart = lCurrent.QuadPart;
+				lStart = lCurrent;
 				td->interval_changed = 0;
 			}
 
-			llElapsed = lCurrent.QuadPart - lStart.QuadPart;
-			iElapsed = CAST(int, llElapsed / 10000);
+			iElapsed = CAST(int, (lCurrent - lStart) / 10000);
 
 			if(iElapsed + 5 < interval_copy)
 			{
@@ -5016,13 +5022,13 @@ DWORD WINAPI TimerThreadFunc(LPVOID data)
 		if(!td->needClose && td->enabled)
 		{
 			sd = (TSynchroData*) malloc(sizeof(TSynchroData));
-			InitSynchroData(sd, LUAFAR_TIMER_CALL, td->objRef, td->funcRef, 0);
+			InitSynchroData(sd, td, LUAFAR_TIMER_CALL, 0);
 			td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 		}
 	}
 
 	sd = (TSynchroData*) malloc(sizeof(TSynchroData));
-	InitSynchroData(sd, LUAFAR_TIMER_UNREF, td->objRef, td->funcRef, 0);
+	InitSynchroData(sd, td, LUAFAR_TIMER_UNREF, 0);
 	td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 	return 0;
 }
@@ -5050,9 +5056,8 @@ static int far_Timer(lua_State *L)
 	td->interval_changed = 1;
 	td->needClose = 0;
 	td->enabled = 1;
-	td->hThread = CreateThread(NULL, 0, TimerThreadFunc, td, 0, &td->threadId);
 
-	if(td->hThread != NULL)
+	if(CreateThread(NULL, 0, TimerThreadFunc, td, 0, NULL))
 	{
 		luaL_getmetatable(L, FarTimerType);
 		lua_setmetatable(L, -2);
@@ -5111,7 +5116,7 @@ static int timer_index(lua_State *L)
 	}
 	else if(!strcmp(method, "OnTimer"))     lua_rawgeti(L, LUA_REGISTRYINDEX, td->funcRef);
 	else if(!strcmp(method, "Closed"))      lua_pushboolean(L, td->needClose);
-	else                                     luaL_error(L, "attempt to call non-existent method");
+	else                                    luaL_error(L, "attempt to call non-existent method");
 
 	return 1;
 }

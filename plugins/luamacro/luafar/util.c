@@ -87,11 +87,3 @@ int GetAttrFromTable(lua_State *L)
 	lua_pop(L, 1);
 	return attr;
 }
-
-void InitSynchroData(TSynchroData* SD, int a, int b, int c, int d)
-{
-	SD->regAction = a;
-	SD->objRef = b;
-	SD->funcRef = c;
-	SD->data = d;
-}
