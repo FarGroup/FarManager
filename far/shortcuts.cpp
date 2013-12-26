@@ -255,15 +255,15 @@ static string MakeName(const ShortcutItem& Item)
 static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw_mode=false)
 {
 	Menu.DeleteItems();
-	FOR(const auto& i, List)
+	FOR_CONST_RANGE(List, i)
 	{
-		MenuItemEx ListItem(MakeName(i));
+		MenuItemEx ListItem(MakeName(*i));
 		if (ListItem.strName.empty())
 			continue;
 
-		ListItem.UserData = const_cast<ShortcutItem*>(&i);
+		ListItem.UserData = &i;
 		ListItem.UserDataSize = sizeof(i);
-		if (!raw_mode && i.PluginGuid == FarGuid && i.strFolder.empty())
+		if (!raw_mode && i->PluginGuid == FarGuid && i->strFolder.empty())
 		{
 			if (ListItem.strName != L"--")
 			{
