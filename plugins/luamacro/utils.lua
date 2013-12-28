@@ -295,6 +295,7 @@ local function AddMacro (srctable)
 
     macro.id = #LoadedMacros+1
     LoadedMacros[macro.id] = macro
+    return macro.id
   end
 end
 
@@ -360,6 +361,7 @@ local function AddEvent (srctable)
 
   macro.id = #LoadedMacros+1
   LoadedMacros[macro.id] = macro
+  return macro.id
 end
 
 local function EnumMacros (strArea, resetEnum)
