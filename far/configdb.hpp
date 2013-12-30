@@ -105,7 +105,7 @@ public:
 
 	private:
 		GeneralConfig& m_provider;
-		const string& m_key;
+		const string m_key;
 	};
 
 	values_enumerator<string> GetStringValuesEnumerator(const string& key) { return values_enumerator<string>(*this, key); }

@@ -52,10 +52,11 @@ class AbstractSettings
 		virtual int SubKey(const FarSettingsValue& Value, bool bCreate)=0;
 };
 
-class FarSettingsNameItems
+class FarSettingsNameItems: NonCopyable
 {
 public:
-	std::vector<FarSettingsName> Items;
+	FarSettingsNameItems() {}
+	FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
 	~FarSettingsNameItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)
@@ -63,12 +64,19 @@ public:
 			delete[] i.Name;
 		});
 	}
+	FarSettingsNameItems& operator =(FarSettingsNameItems&& rhs)
+	{
+		Items.swap(rhs.Items);
+		return *this;
+	}
+
+	std::vector<FarSettingsName> Items;
 };
 
 class PluginSettings: public AbstractSettings
 {
 	private:
-		std::vector<std::unique_ptr<FarSettingsNameItems>> m_Enum;
+		std::vector<FarSettingsNameItems> m_Enum;
 		std::vector<unsigned __int64> m_Keys;
 		HierarchicalConfigUniquePtr PluginsCfg;
 		PluginSettings();
@@ -82,10 +90,11 @@ class PluginSettings: public AbstractSettings
 		int SubKey(const FarSettingsValue& Value, bool bCreate);
 };
 
-class FarSettingsHistoryItems
+class FarSettingsHistoryItems: NonCopyable
 {
 public:
-	std::vector<FarSettingsHistory> Items;
+	FarSettingsHistoryItems() {}
+	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
 	~FarSettingsHistoryItems()
 	{
 		std::for_each(CONST_RANGE(Items, i)
@@ -95,13 +104,20 @@ public:
 			delete[] i.File;
 		});
 	}
+	FarSettingsHistoryItems& operator =(FarSettingsHistoryItems&& rhs)
+	{
+		Items.swap(rhs.Items);
+		return *this;
+	}
+
+	std::vector<FarSettingsHistory> Items;
 };
 
 class FarSettings: public AbstractSettings
 {
 	private:
-		std::vector<std::unique_ptr<FarSettingsHistoryItems>> m_Enum;
-		std::vector<std::unique_ptr<string>> m_Keys;
+		std::vector<FarSettingsHistoryItems> m_Enum;
+		std::vector<string> m_Keys;
 		typedef bool (*HistoryFilter)(int Type);
 		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:

@@ -189,19 +189,19 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-static void AddItem(FarSettingsNameItems* Array, FarSettingsName& Item, const string& String)
+static void AddItem(FarSettingsNameItems& Array, FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
-	Array->Items.emplace_back(Item);
+	Array.Items.emplace_back(Item);
 }
 
-static void AddItem(FarSettingsHistoryItems* Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
+static void AddItem(FarSettingsHistoryItems& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
 	Item.PluginId=Guid;
 	Item.File=AddString(File);
-	Array->Items.emplace_back(Item);
+	Array.Items.emplace_back(Item);
 }
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
@@ -209,7 +209,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.size())
 	{
-		m_Enum.emplace_back(std::make_unique<FarSettingsNameItems>());
+		m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
@@ -218,7 +218,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
-			AddItem(m_Enum.back().get(),item,strName);
+			AddItem(m_Enum.back(), item, strName);
 		}
 		Index=0;
 		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
@@ -238,13 +238,13 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
-				AddItem(m_Enum.back().get(),item,strName);
+				AddItem(m_Enum.back(), item, strName);
 			}
 		}
-		if (!m_Enum.back()->Items.empty())
+		if (!m_Enum.back().Items.empty())
 		{
-			Enum.Count = m_Enum.back()->Items.size();
-			Enum.Items = m_Enum.back()->Items.data();
+			Enum.Count = m_Enum.back().Items.size();
+			Enum.Items = m_Enum.back().Items.data();
 		}
 		else
 		{
@@ -376,18 +376,18 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
+				m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 				FarSettingsHistory item = {};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
 				while(Shortcuts().Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
 				{
-					AddItem(m_Enum.back().get(),item,strName,strData,plugin,strFile);
+					AddItem(m_Enum.back(), item, strName, strData, plugin, strFile);
 				}
-				if (!m_Enum.back()->Items.empty())
+				if (!m_Enum.back().Items.empty())
 				{
-					Enum.Count = m_Enum.back()->Items.size();
-					Enum.Histories = m_Enum.back()->Items.data();
+					Enum.Count = m_Enum.back().Items.size();
+					Enum.Histories = m_Enum.back().Items.data();
 				}
 				else
 				{
@@ -403,7 +403,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				size_t root=Enum.Root-FSSF_COUNT;
 				if(root < m_Keys.size())
 				{
-					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys[root],Enum,FilterNone);
+					return FillHistory(HISTORYTYPE_DIALOG, m_Keys[root], Enum, FilterNone);
 				}
 			}
 	}
@@ -419,7 +419,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
 	int result=static_cast<int>(m_Keys.size());
-	m_Keys.emplace_back(std::make_unique<string>(Value.Value));
+	m_Keys.emplace_back(Value.Value);
 	return result+FSSF_COUNT;
 }
 
@@ -446,7 +446,7 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
+	m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 	FarSettingsHistory item = {};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
@@ -463,13 +463,13 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			AddItem(m_Enum.back().get(),item,strName,strData,Guid,strFile);
+			AddItem(m_Enum.back(), item, strName, strData, Guid, strFile);
 		}
 	}
-	if (!m_Enum.back()->Items.empty())
+	if (!m_Enum.back().Items.empty())
 	{
-		Enum.Count = m_Enum.back()->Items.size();
-		Enum.Histories = m_Enum.back()->Items.data();
+		Enum.Count = m_Enum.back().Items.size();
+		Enum.Histories = m_Enum.back().Items.data();
 	}
 	else
 	{

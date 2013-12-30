@@ -129,9 +129,9 @@ static struct tree_less
 
 static struct list_less
 {
-	bool operator()(const std::unique_ptr<TreeList::TreeItem>& a, const std::unique_ptr<TreeList::TreeItem>& b) const
+	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
 	{
-		return TreeLess(a->strName, b->strName, StaticSortNumeric, StaticSortCaseSensitive);
+		return TreeLess(a.strName, b.strName, StaticSortNumeric, StaticSortCaseSensitive);
 	}
 }
 ListLess;
@@ -229,7 +229,7 @@ void TreeList::DisplayTree(int Fast)
 		{BoxSymbols[BS_LB_H1V1],BoxSymbols[BS_H1],0},
 		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
 	};
-	TreeItem *CurPtr;
+
 	string strTitle;
 	std::unique_ptr<LockScreen> LckScreen;
 
@@ -239,7 +239,7 @@ void TreeList::DisplayTree(int Fast)
 	CorrectPosition();
 
 	if (!ListData.empty())
-		strCurDir = ListData[CurFile]->strName; //BUGBUG
+		strCurDir = ListData[CurFile].strName; //BUGBUG
 
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
@@ -264,7 +264,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (J < ListData.size() && Flags.Check(FTREELIST_TREEISPREPARED))
 		{
-			CurPtr=ListData[J].get();
+			auto& CurPtr=ListData[J];
 
 			if (!J)
 			{
@@ -274,14 +274,14 @@ void TreeList::DisplayTree(int Fast)
 			{
 				string strOutStr;
 
-				for (int i=0; i<CurPtr->Depth-1 && WhereX()+3*i<X2-6; i++)
+				for (int i=0; i<CurPtr.Depth-1 && WhereX()+3*i<X2-6; i++)
 				{
-					strOutStr+=TreeLineSymbol[CurPtr->Last[i]?0:1];
+					strOutStr+=TreeLineSymbol[CurPtr.Last[i]?0:1];
 				}
 
-				strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
+				strOutStr+=TreeLineSymbol[CurPtr.Last[CurPtr.Depth-1]?2:3];
 				BoxText(strOutStr);
-				const wchar_t *ChPtr=LastSlash(CurPtr->strName.data());
+				const wchar_t *ChPtr=LastSlash(CurPtr.strName.data());
 
 				if (ChPtr)
 					DisplayTreeName(ChPtr+1,J);
@@ -308,7 +308,7 @@ void TreeList::DisplayTree(int Fast)
 	if (!ListData.empty())
 	{
 		GotoXY(X1+1,Y2-1);
-		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<ListData[CurFile]->strName;
+		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<ListData[CurFile].strName;
 	}
 
 	UpdateViewPanel();
@@ -374,11 +374,11 @@ void TreeList::Update(int Mode)
 	if (RetFromReadTree && !ListData.empty() && (!(Mode & UPDATE_KEEP_SELECTION) || LastTreeCount != ListData.size()))
 	{
 		SyncDir();
-		TreeItem *CurPtr=ListData[CurFile].get();
+		auto& CurPtr=ListData[CurFile];
 
-		if (api::GetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
+		if (api::GetFileAttributes(CurPtr.strName)==INVALID_FILE_ATTRIBUTES)
 		{
-			DelTreeName(CurPtr->strName);
+			DelTreeName(CurPtr.strName);
 			Update(UPDATE_KEEP_SELECTION);
 			Show();
 		}
@@ -414,15 +414,15 @@ int TreeList::ReadTree()
 	ScanTree ScTree(FALSE);
 	api::FAR_FIND_DATA fdata;
 	string strFullName;
-	SaveState();
 	FlushCache();
+	SaveState();
 	GetRoot();
 
 	ListData.clear();
 
 	ListData.reserve(4096);
 
-	ListData.emplace_back(std::make_unique<TreeItem>(strRoot));
+	ListData.emplace_back(strRoot);
 	SaveScreen SaveScrTree;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
 	/* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
@@ -466,7 +466,7 @@ int TreeList::ReadTree()
 			ListData.reserve(ListData.size() + 4096);
 		}
 
-		ListData.emplace_back(std::make_unique<TreeItem>(strFullName));
+		ListData.emplace_back(strFullName);
 	}
 
 	if (AscAbort && !Flags.Check(FTREELIST_ISPANEL))
@@ -533,7 +533,7 @@ void TreeList::SaveTreeFile()
 	CachedWrite Cache(TreeFile);
 	for (auto i = ListData.begin(); i != ListData.end() && Success; ++i)
 	{
-		if (RootLength>=(*i)->strName.size())
+		if (RootLength >= i->strName.size())
 		{
 			Success=Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
 			if (!Success)
@@ -542,7 +542,7 @@ void TreeList::SaveTreeFile()
 		}
 		else
 		{
-			Success=Cache.Write((*i)->strName.data()+RootLength, static_cast<DWORD>((*i)->strName.size() - RootLength) * sizeof(wchar_t));
+			Success=Cache.Write(i->strName.data()+RootLength, static_cast<DWORD>(i->strName.size() - RootLength) * sizeof(wchar_t));
 			if(Success)
 			{
 				Success=Cache.Write(L"\n",1 * sizeof(wchar_t));
@@ -715,10 +715,10 @@ bool TreeList::FillLastData()
 	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
 	for (auto i = ListData.begin() + 1 ; i != ListData.end(); ++i)
 	{
-		size_t Pos = (*i)->strName.rfind(L'\\');
+		size_t Pos = i->strName.rfind(L'\\');
 		int PathLength = Pos != string::npos? (int)Pos+1 : 0;
 
-		size_t Depth=(*i)->Depth=CountSlash((*i)->strName.data()+RootLength);
+		size_t Depth = i->Depth=CountSlash(i->strName.data()+RootLength);
 
 		if (!Depth)
 			return false;
@@ -728,14 +728,14 @@ bool TreeList::FillLastData()
 
 		for (auto j = i+1; j != ListData.end(); ++j)
 		{
-			if (CountSlash((*j)->strName.data()+RootLength)>Depth)
+			if (CountSlash(j->strName.data()+RootLength)>Depth)
 			{
 				SubDirPos = j;
 				continue;
 			}
 			else
 			{
-				if (!StrCmpNI((*i)->strName.data(), (*j)->strName.data(), PathLength))
+				if (!StrCmpNI(i->strName.data(), j->strName.data(), PathLength))
 					Last=0;
 				break;
 			}
@@ -743,11 +743,11 @@ bool TreeList::FillLastData()
 
 		for (auto j = i; j != SubDirPos + 1; ++j)
 		{
- 			if (Depth > (*j)->Last.size())
+ 			if (Depth > j->Last.size())
 			{
-				(*j)->Last.resize((*j)->Last.size() + MAX_PATH, 0);
+				j->Last.resize(j->Last.size() + MAX_PATH, 0);
 			}
-			(*j)->Last[Depth-1]=Last;
+			j->Last[Depth-1]=Last;
 		}
 	}
 	return true;
@@ -827,7 +827,7 @@ int TreeList::ProcessKey(int Key)
 		case KEY_CTRLRALTNUMPAD0:
 		case KEY_RCTRLALTNUMPAD0:
 		{
-			string strQuotedName=ListData[CurFile]->strName;
+			string strQuotedName=ListData[CurFile].strName;
 			QuoteSpace(strQuotedName);
 
 			if (Key==KEY_CTRLALTINS||Key==KEY_RCTRLRALTINS||Key==KEY_CTRLRALTINS||Key==KEY_RCTRLALTINS||
@@ -926,14 +926,14 @@ int TreeList::ProcessKey(int Key)
 					PluginPanelItem Item;
 					int ItemNumber=1;
 					auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
-					FileList::FileNameToPluginItem(ListData[CurFile]->strName, &Item);
+					FileList::FileNameToPluginItem(ListData[CurFile].strName, &Item);
 					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
 
 					if (PutCode==1 || PutCode==2)
 						AnotherPanel->SetPluginModified();
 
 					if (Move)
-						ReadSubTree(ListData[CurFile]->strName);
+						ReadSubTree(ListData[CurFile].strName);
 
 					Update(0);
 					Redraw();
@@ -1144,10 +1144,10 @@ int TreeList::GetNextNavPos()
 
 	if (static_cast<size_t>(CurFile+1) < ListData.size())
 	{
-		int CurDepth=ListData[CurFile]->Depth;
+		int CurDepth=ListData[CurFile].Depth;
 
 		for (size_t I=CurFile+1; I < ListData.size(); ++I)
-			if (ListData[I]->Depth == CurDepth)
+			if (ListData[I].Depth == CurDepth)
 			{
 				NextPos=static_cast<int>(I);
 				break;
@@ -1163,10 +1163,10 @@ int TreeList::GetPrevNavPos()
 
 	if (CurFile-1 > 0)
 	{
-		int CurDepth=ListData[CurFile]->Depth;
+		int CurDepth=ListData[CurFile].Depth;
 
 		for (int I=CurFile-1; I > 0; --I)
-			if (ListData[I]->Depth == CurDepth)
+			if (ListData[I].Depth == CurDepth)
 			{
 				PrevPos=I;
 				break;
@@ -1251,7 +1251,7 @@ int TreeList::SetDirPosition(const string& NewDir)
 {
 	for (size_t i = 0; i < ListData.size(); ++i)
 	{
-		if (!StrCmpI(NewDir, ListData[i]->strName))
+		if (!StrCmpI(NewDir, ListData[i].strName))
 		{
 			WorkDir = i;
 			CurFile = static_cast<int>(i);
@@ -1274,7 +1274,7 @@ const string& TreeList::GetCurDir()
 			strCurDir.clear();
 	}
 	else
-		strCurDir = ListData[CurFile]->strName; //BUGBUG
+		strCurDir = ListData[CurFile].strName; //BUGBUG
 
 	return strCurDir;
 }
@@ -1405,24 +1405,23 @@ void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::ProcessEnter()
 {
-	TreeItem *CurPtr;
 	DWORD Attr;
-	CurPtr=ListData[CurFile].get();
+	auto& CurPtr=ListData[CurFile];
 
-	if ((Attr=api::GetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
+	if ((Attr=api::GetFileAttributes(CurPtr.strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
 	{
-		if (!ModalMode && FarChDir(CurPtr->strName))
+		if (!ModalMode && FarChDir(CurPtr.strName))
 		{
 			Panel *AnotherPanel=GetRootPanel();
-			SetCurDir(CurPtr->strName,true);
+			SetCurDir(CurPtr.strName,true);
 			Show();
-			AnotherPanel->SetCurDir(CurPtr->strName,true);
+			AnotherPanel->SetCurDir(CurPtr.strName,true);
 			AnotherPanel->Redraw();
 		}
 	}
 	else
 	{
-		DelTreeName(CurPtr->strName);
+		DelTreeName(CurPtr.strName);
 		Update(UPDATE_KEEP_SELECTION);
 		Show();
 	}
@@ -1483,7 +1482,7 @@ int TreeList::ReadTreeFile()
 				ListData.reserve(ListData.size() + 4096);
 			}
 
-			ListData.emplace_back(std::make_unique<TreeItem>(strDirName));
+			ListData.emplace_back(strDirName);
 		}
 	}
 
@@ -1526,7 +1525,7 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (int i=CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < ListData.size(); i+=Direct)
 	{
-		if (CmpName(strMask.data(),ListData[i]->strName.data(),true,(i==CurFile)))
+		if (CmpName(strMask.data(),ListData[i].strName.data(),true,(i==CurFile)))
 		{
 			CurFile=i;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1537,7 +1536,7 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 
 	for (size_t i=(Direct > 0)?0:ListData.size()-1; (Direct > 0) ? i < static_cast<size_t>(CurFile):i > static_cast<size_t>(CurFile); i+=Direct)
 	{
-		if (CmpName(strMask.data(),ListData[i]->strName.data(),true))
+		if (CmpName(strMask.data(),ListData[i].strName.data(),true))
 		{
 			CurFile=static_cast<int>(i);
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1587,7 +1586,7 @@ int TreeList::GetCurName(string &strName, string &strShortName)
 		return FALSE;
 	}
 
-	strName = ListData[CurFile]->strName;
+	strName = ListData[CurFile].strName;
 	strShortName = strName;
 	return TRUE;
 }
@@ -1837,7 +1836,7 @@ long TreeList::FindFile(const string& Name,BOOL OnlyPartName)
 {
 	for (size_t i=0; i < ListData.size(); ++i)
 	{
-		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[i]->strName):ListData[i]->strName.data();
+		const wchar_t* CurPtrName = OnlyPartName? PointToName(ListData[i].strName) : ListData[i].strName.data();
 
 		if (Name == CurPtrName)
 			return static_cast<long>(i);
@@ -1860,8 +1859,8 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	{
 		for (size_t i = StartPos; i < ListData.size(); ++i)
 		{
-			if (CmpName(Name.data(), ListData[i]->strName.data(), true))
-				if (!TestParentFolderName(ListData[i]->strName))
+			if (CmpName(Name.data(), ListData[i].strName.data(), true))
+				if (!TestParentFolderName(ListData[i].strName))
 					return static_cast<long>(i);
 		}
 	}
@@ -1874,8 +1873,8 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 	if (Pos < 0 || static_cast<size_t>(Pos) >= ListData.size())
 		return FALSE;
 
-	strName = ListData[Pos]->strName;
-	FileAttr=FILE_ATTRIBUTE_DIRECTORY|api::GetFileAttributes(ListData[Pos]->strName);
+	strName = ListData[Pos].strName;
+	FileAttr=FILE_ATTRIBUTE_DIRECTORY|api::GetFileAttributes(ListData[Pos].strName);
 	return TRUE;
 }
 
@@ -1922,9 +1921,9 @@ void TreeList::KillFocus()
 {
 	if (static_cast<size_t>(CurFile) < ListData.size())
 	{
-		if (api::GetFileAttributes(ListData[CurFile]->strName)==INVALID_FILE_ATTRIBUTES)
+		if (api::GetFileAttributes(ListData[CurFile].strName)==INVALID_FILE_ATTRIBUTES)
 		{
-			DelTreeName(ListData[CurFile]->strName);
+			DelTreeName(ListData[CurFile].strName);
 			Update(UPDATE_KEEP_SELECTION);
 		}
 	}
@@ -1961,7 +1960,7 @@ void TreeList::SetTitle()
 	{
 		string strTitleDir(L"{");
 
-		const wchar_t *Ptr=ListData.empty()? L"" : ListData[CurFile]->strName.data();
+		const wchar_t *Ptr=ListData.empty()? L"" : ListData[CurFile].strName.data();
 
 		if (*Ptr)
 		{
@@ -2176,7 +2175,7 @@ string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
 	return strDest;
 }
 
-TreeList::TreeItem* TreeList::GetItem(size_t Index) const
+const TreeList::TreeItem* TreeList::GetItem(size_t Index) const
 {
 	if (static_cast<int>(Index) == -1 || static_cast<int>(Index) == -2)
 		Index=GetCurrentPos();
@@ -2184,7 +2183,7 @@ TreeList::TreeItem* TreeList::GetItem(size_t Index) const
 	if (Index>= ListData.size())
 		return nullptr;
 
-	return ListData[Index].get();
+	return &ListData[Index];
 }
 
 int TreeList::GetCurrentPos() const
@@ -2199,13 +2198,9 @@ bool TreeList::SaveState()
 
 	if (!ListData.empty())
 	{
-		SaveListData.resize(ListData.size());
-
-		for (size_t i=0; i < ListData.size(); ++i)
-			SaveListData[i] = *ListData[i];
-
+		SaveListData = std::move(ListData);
+		*Global->tempTreeCache = std::move(*Global->TreeCache);
 		SaveWorkDir=WorkDir;
-		*Global->tempTreeCache = *Global->TreeCache;
 		return true;
 	}
 
@@ -2220,15 +2215,10 @@ bool TreeList::RestoreState()
 
 	if (!SaveListData.empty())
 	{
-		ListData.resize(SaveListData.size());
-		std::transform(SaveListData.cbegin(), SaveListData.cend(), ListData.begin(), [](const TreeItem& i)
-		{
-			return std::make_unique<TreeItem>(i);
-		});
-
-		WorkDir=SaveWorkDir;
-		*Global->TreeCache = *Global->tempTreeCache;
+		ListData = std::move(SaveListData);
+		*Global->TreeCache = std::move(*Global->tempTreeCache);
 		Global->tempTreeCache->Clean();
+		WorkDir=SaveWorkDir;
 		return true;
 	}
 

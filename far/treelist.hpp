@@ -52,16 +52,25 @@ enum TREELIST_FLAGS
 class TreeListCache
 {
 public:
+	TreeListCache() {}
+	TreeListCache(TreeListCache&& rhs) { *this = std::move(rhs); }
 	void Clean()
 	{
 		Names.clear();
 		strTreeName.clear();
 	}
 
-	TreeListCache& operator=(const TreeListCache& from)
+	TreeListCache& operator =(const TreeListCache& rhs)
 	{
-		strTreeName = from.strTreeName;
-		Names = from.Names;
+		strTreeName = rhs.strTreeName;
+		Names = rhs.Names;
+		return *this;
+	}
+
+	TreeListCache& operator =(TreeListCache&& rhs)
+	{
+		strTreeName.swap(rhs.strTreeName);
+		Names.swap(rhs.Names);
 		return *this;
 	}
 
@@ -79,13 +88,13 @@ public:
 		std::vector<int> Last;
 		int Depth;
 
-		TreeItem& operator=(const TreeItem &tiCopy)
+		TreeItem& operator=(const TreeItem& rhs)
 		{
-			if (this != &tiCopy)
+			if (this != &rhs)
 			{
-				strName=tiCopy.strName;
-				Last = tiCopy.Last;
-				Depth=tiCopy.Depth;
+				panelitem::operator=(rhs);
+				Last = rhs.Last;
+				Depth = rhs.Depth;
 			}
 			return *this;
 		}
@@ -102,11 +111,19 @@ public:
 			Depth(0)
 		{
 		}
+
+		TreeItem(TreeItem&& rhs): Depth() { *this = std::move(rhs); }
+		TreeItem& operator =(TreeItem&& rhs)
+		{
+			Last.swap(rhs.Last);
+			std::swap(Depth, rhs.Depth);
+			return *this;
+		}
 	};
 
 private:
 	FARMACROAREA PrevMacroMode;
-	std::vector<std::unique_ptr<TreeItem>> ListData;
+	std::vector<TreeItem> ListData;
 	string strRoot;
 	size_t WorkDir;
 	long GetSelPosition;
@@ -190,7 +207,7 @@ public:
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
-	virtual TreeItem* GetItem(size_t Index) const override;
+	virtual const TreeItem* GetItem(size_t Index) const override;
 	virtual int GetCurrentPos() const override;
 
 	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,api::FAR_FIND_DATA *fd=nullptr) override;

@@ -203,8 +203,21 @@ public:
 	struct panelitem
 	{
 		panelitem() {}
+		panelitem(panelitem&& rhs) { *this = std::move(rhs); }
 		panelitem(const string& Name):strName(Name) {}
 		virtual ~panelitem() {};
+
+		panelitem& operator=(const panelitem& rhs)
+		{
+			strName = rhs.strName;
+			return *this;
+		}
+
+		panelitem& operator=(panelitem&& rhs)
+		{
+			strName.swap(rhs.strName);
+			return *this;
+		}
 
 		string strName;
 	};
