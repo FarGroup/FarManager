@@ -95,7 +95,7 @@ VMenu::VMenu(const string& Title,       // заголовок меню
 	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
-	CurrentFrame = FrameManager->GetCurrentFrame();
+	CurrentFrame = Global->FrameManager->GetCurrentFrame();
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 	bRightBtnPressed = false;
 
@@ -137,7 +137,7 @@ VMenu::~VMenu()
 	Hide();
 	DeleteItems();
 
-	if (FrameManager->GetCurrentFrame() == CurrentFrame)
+	if (Global->FrameManager->GetCurrentFrame() == CurrentFrame)
 		SetCursorType(PrevCursorVisible,PrevCursorSize);
 }
 
@@ -1205,7 +1205,7 @@ int VMenu::ProcessKey(int Key)
 	{
 		case KEY_ALTF9:
 		case KEY_RALTF9:
-			FrameManager->ProcessKey(KEY_ALTF9);
+			Global->FrameManager->ProcessKey(KEY_ALTF9);
 			break;
 		case KEY_NUMENTER:
 		case KEY_ENTER:

@@ -118,7 +118,7 @@ private:
 
 struct PluginsListItem
 {
-	HANDLE hPlugin;
+	PluginHandle* hPlugin;
 	string strHostFile;
 	string strPrevOriginalCurDir;
 	int Modified;
@@ -193,14 +193,14 @@ public:
 	virtual int GetColumnsCount() override { return Columns;}
 	virtual void SetReturnCurrentFile(int Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
-	virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
+	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
 	virtual size_t GetSelCount() override;
 	virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,api::FAR_FIND_DATA *fde=nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned __int64 GetLastSelectedSize() override;
 	virtual const FileListItem* GetLastSelectedItem() const override;
-	virtual HANDLE GetPluginHandle() override;
+	virtual PluginHandle* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
@@ -210,7 +210,7 @@ public:
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
 
-	HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 	long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 	void ProcessHostFile();
 	bool GetPluginInfo(PluginInfo *PInfo);
@@ -222,7 +222,7 @@ public:
 	void PluginSetSelection(int ItemNumber,bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
-	int PluginPanelHelp(HANDLE hPlugin);
+	int PluginPanelHelp(PluginHandle* hPlugin);
 	bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
@@ -269,7 +269,7 @@ private:
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, std::vector<std::unique_ptr<FileListItem>>& To);
-	void PushPlugin(HANDLE hPlugin,const string& HostFile);
+	void PushPlugin(PluginHandle* hPlugin,const string& HostFile);
 	int PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
 	void CopyFiles(bool bMoved=false);
@@ -279,7 +279,7 @@ private:
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot=TRUE);
 	void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
-	HANDLE OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo);
@@ -339,7 +339,7 @@ private:
 	string strOriginalCurDir;
 	string strPluginDizName;
 	std::vector<std::unique_ptr<FileListItem>> ListData;
-	HANDLE hPlugin;
+	PluginHandle* hPlugin;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;
 	FileSystemWatcher FSWatcher;

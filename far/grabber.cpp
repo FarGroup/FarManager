@@ -52,7 +52,7 @@ Grabber::Grabber():
 	ResetArea(true),
 	VerticalBlock(false)
 {
-	Frame *pFrame = FrameManager->GetCurrentFrame();
+	Frame *pFrame = Global->FrameManager->GetCurrentFrame();
 	pFrame->Lock();
 	SaveScr=new SaveScreen;
 	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
@@ -76,7 +76,7 @@ Grabber::Grabber():
 	Process();
 	delete SaveScr;
 	pFrame->Unlock();
-	FrameManager->RefreshFrame();
+	Global->FrameManager->RefreshFrame();
 }
 
 

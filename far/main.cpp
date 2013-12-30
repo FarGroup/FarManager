@@ -158,7 +158,7 @@ static int MainProcess(
 
 				if (!ShellEditor->GetExitCode())  // ????????????
 				{
-					FrameManager->ExitMainLoop(0);
+					Global->FrameManager->ExitMainLoop(0);
 				}
 			}
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
@@ -169,13 +169,13 @@ static int MainProcess(
 
 				if (!ShellViewer->GetExitCode())
 				{
-					FrameManager->ExitMainLoop(0);
+					Global->FrameManager->ExitMainLoop(0);
 				}
 
 				_tran(SysLog(L"make shellviewer, %p",ShellViewer));
 			}
 
-			FrameManager->EnterMainLoop();
+			Global->FrameManager->EnterMainLoop();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=nullptr;
 			DummyPanel->Destroy();
 			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
@@ -273,7 +273,7 @@ static int MainProcess(
 				ActivePanel->Redraw();
 			}
 
-			FrameManager->EnterMainLoop();
+			Global->FrameManager->EnterMainLoop();
 		}
 
 		TreeList::FlushCache();
@@ -549,8 +549,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					if (I+1<Argc)
 					{
 						//Affects OEM plugins only!
-						Global->strRegRoot.append(L"\\Users\\").append(Argv[I+1]);
-						api::SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
+						Global->strRegUser = Argv[I+1];
 						I++;
 					}
 					break;

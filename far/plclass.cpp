@@ -865,12 +865,12 @@ bool Plugin::CheckMinFarVersion()
 	return true;
 }
 
-HANDLE Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
+PluginHandle* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
 {
 	return nullptr;
 }
 
-HANDLE Plugin::Analyse(AnalyseInfo *Info)
+PluginHandle* Plugin::Analyse(AnalyseInfo *Info)
 {
 	ExecuteStruct es = {iAnalyse};
 	if (Load() && Exports[es.id] && !Global->ProcessException)
@@ -891,7 +891,7 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 	}
 }
 
-HANDLE Plugin::Open(OpenInfo* Info)
+PluginHandle* Plugin::Open(OpenInfo* Info)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??

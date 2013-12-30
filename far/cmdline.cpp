@@ -295,7 +295,7 @@ int CommandLine::ProcessKey(int Key)
 			Global->Opt->Save(true);
 			return TRUE;
 		case KEY_F10:
-			FrameManager->ExitMainLoop(TRUE);
+			Global->FrameManager->ExitMainLoop(TRUE);
 			return TRUE;
 		case KEY_ALTF10:
 		case KEY_RALTF10:
@@ -869,7 +869,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		{
 			if(Preserve)
 			{
-				bool redraw = FrameManager->IsPanelsActive();
+				bool redraw = Global->FrameManager->IsPanelsActive();
 				Global->CtrlObject->CmdLine->SetString(strOldCmdLine, redraw);
 				Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos, redraw);
 				Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
@@ -1262,7 +1262,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (CheckCmdLineForHelp(strCmdLine.data()+4))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		FrameManager->ExitMainLoop(FALSE);
+		Global->FrameManager->ExitMainLoop(FALSE);
 		return TRUE;
 	}
 

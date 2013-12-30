@@ -368,7 +368,7 @@ FileEditor::~FileEditor()
 		   FEDITOR_DELETEONCLOSE, то удаляем только файл.
 		*/
 		if (Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
-		        !FrameManager->CountFramesWithName(strFullFileName))
+		        !Global->FrameManager->CountFramesWithName(strFullFileName))
 		{
 			if (Flags.Check(FFILEEDIT_DELETEONCLOSE))
 				DeleteFileWithFolder(strFullFileName);
@@ -464,13 +464,13 @@ void FileEditor::Init(
 	if (Flags.Check(FFILEEDIT_ENABLEF6))
 	{
 		//if (Flags.Check(FFILEEDIT_ENABLEF6))
-		int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
+		int FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
 
 		if (FramePos!=-1)
 		{
 			int SwitchTo=FALSE;
 
-			if (!FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) ||
+			if (!Global->FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) ||
 			        Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
@@ -491,15 +491,15 @@ void FileEditor::Init(
 				{
 					case 0:         // Current
 						SwitchTo=TRUE;
-						FrameManager->DeleteFrame(this); //???
+						Global->FrameManager->DeleteFrame(this); //???
 						break;
 					case 1:         // NewOpen
 						SwitchTo=FALSE;
 						break;
 					case 2:         // Reload
 					{
-						FrameManager->DeleteFrame(FramePos);
-						Frame *deleted_frame = FrameManager->GetFrame(FramePos);
+						Global->FrameManager->DeleteFrame(FramePos);
+						Frame *deleted_frame = Global->FrameManager->GetFrame(FramePos);
 						if ( deleted_frame )
 							deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
 						SetExitCode(-2);
@@ -510,7 +510,7 @@ void FileEditor::Init(
 						SetExitCode(XC_EXISTS);
 						return;
 					default:
-						FrameManager->DeleteFrame(this);  //???
+						Global->FrameManager->DeleteFrame(this);  //???
 						SetExitCode(MsgCode == -100?XC_EXISTS:XC_QUIT);
 						return;
 				}
@@ -522,7 +522,7 @@ void FileEditor::Init(
 
 			if (SwitchTo)
 			{
-				FrameManager->ActivateFrame(FramePos);
+				Global->FrameManager->ActivateFrame(FramePos);
 				//FrameManager->PluginCommit();
 				SetExitCode((OpenModeExstFile != FEOPMODE_QUERY)?XC_EXISTS:TRUE);
 				return ;
@@ -623,8 +623,8 @@ void FileEditor::Init(
 			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
 			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
-			if (!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
-				FrameManager->RefreshFrame();
+			if (!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED)
+				Global->FrameManager->RefreshFrame();
 
 			return;
 		}
@@ -657,9 +657,9 @@ void FileEditor::Init(
 	F4KeyOnly=true;
 
 	if (Flags.Check(FFILEEDIT_ENABLEF6))
-		FrameManager->InsertFrame(this);
+		Global->FrameManager->InsertFrame(this);
 	else
-		FrameManager->ExecuteFrame(this);
+		Global->FrameManager->ExecuteFrame(this);
 }
 
 void FileEditor::InitKeyBar()
@@ -924,7 +924,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
 			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord() != MACROMODE_NOMACRO !!!!",__LINE__));
 
-		ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
+		ProcessedNext=!ProcessEditorInput(Global->FrameManager->GetLastInputRecord());
 	}
 
 	if (ProcessedNext)
@@ -980,7 +980,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				{
 					m_editor->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
 
-					if (FrameManager->ShowBackground())
+					if (Global->FrameManager->ShowBackground())
 					{
 						SetCursorType(FALSE,0);
 						WaitKey();
@@ -1389,7 +1389,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 				}
 			}
 
-			FrameManager->DeleteFrame();
+			Global->FrameManager->DeleteFrame();
 			SetExitCode(XC_QUIT);
 			break;
 		}
@@ -2086,7 +2086,7 @@ int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
 	if (!EditKeyBar.ProcessMouse(MouseEvent))
-		if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
+		if (!ProcessEditorInput(Global->FrameManager->GetLastInputRecord()))
 			if (!m_editor->ProcessMouse(MouseEvent))
 				return FALSE;
 
@@ -2631,7 +2631,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				FrameManager->DeleteFrame(this);
+				Global->FrameManager->DeleteFrame(this);
 				SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
 			}
 			return TRUE;

@@ -59,7 +59,7 @@ public:
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info) override;
 	virtual bool SetStartupInfo(PluginStartupInfo* Info) override;
-	virtual HANDLE Open(OpenInfo* OpenInfo) override;
+	virtual PluginHandle* Open(OpenInfo* OpenInfo) override;
 	virtual void ClosePanel(ClosePanelInfo* Info) override;
 	virtual bool GetPluginInfo(PluginInfo *pi) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
@@ -85,13 +85,13 @@ public:
 	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info) override;
 	virtual int ProcessSynchroEvent(ProcessSynchroEventInfo* Info) override { return 0; }
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) override { return 0; }
-	virtual HANDLE Analyse(AnalyseInfo *Info) override { return nullptr; }
+	virtual PluginHandle* Analyse(AnalyseInfo *Info) override { return nullptr; }
 	virtual void CloseAnalyse(CloseAnalyseInfo* Info) override {}
 
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) override { return 0; }
 	virtual void FreeCustomData(wchar_t *CustomData) override {}
 
-	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
+	virtual PluginHandle* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode) override;
 	virtual bool CheckMinFarVersion() override;
 
 

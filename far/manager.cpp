@@ -59,8 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
 
-Manager *FrameManager;
-long CurrentWindowType=-1;
+long Manager::CurrentWindowType=-1;
 
 Manager::Manager():
 	InsertedFrame(nullptr),
@@ -81,11 +80,6 @@ Manager::Manager():
 	Frames.reserve(1024);
 	ModalFrames.reserve(1024);
 }
-
-Manager::~Manager()
-{
-}
-
 
 /* $ 29.12.2000 IS
   Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
@@ -711,7 +705,7 @@ int Manager::ProcessKey(DWORD Key)
 #ifndef NO_WRAPPER
 					if (Global->CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
-						PluginHandle *ph=(PluginHandle*)Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+						auto ph= Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
 						if (ph && ph->pPlugin->IsOemPlugin())
 							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
 								return TRUE;
@@ -958,7 +952,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_F11:
 				{
-					int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+					int TypeFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 					static int reentry=0;
 					if(!reentry && (TypeFrame == MODALTYPE_DIALOG || TypeFrame == MODALTYPE_VMENU))
 					{
@@ -969,7 +963,7 @@ int Manager::ProcessKey(DWORD Key)
 					}
 
 					PluginsMenu();
-					FrameManager->RefreshFrame();
+					Global->FrameManager->RefreshFrame();
 					//_MANAGER(SysLog(-1));
 					return TRUE;
 				}
@@ -1014,7 +1008,7 @@ int Manager::ProcessKey(DWORD Key)
 				}
 				case KEY_F12:
 				{
-					int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+					int TypeFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 
 					if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG && TypeFrame != MODALTYPE_VMENU)
 					{
@@ -1078,7 +1072,7 @@ int Manager::ProcessKey(DWORD Key)
 								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 							}
 
-							FrameManager->RefreshFrame();
+							Global->FrameManager->RefreshFrame();
 						}
 
 						return TRUE;
@@ -1688,8 +1682,7 @@ void Manager::ResizeAllFrame()
 	});
 
 	ImmediateHide();
-	FrameManager->RefreshFrame();
-	//RefreshFrame();
+	RefreshFrame();
 	Global->ScrBuf->Unlock();
 }
 

@@ -346,7 +346,7 @@ Dialog::~Dialog()
 		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
-	if (Global->Opt->Clock && FrameManager->IsPanelsActive(true))
+	if (Global->Opt->Clock && Global->FrameManager->IsPanelsActive(true))
 		ShowTime(0);
 
 	if(!CheckDialogMode(DMODE_ISMENU))
@@ -2775,7 +2775,7 @@ int Dialog::ProcessKey(int Key)
 			{
 				if(!CheckDialogMode(DMODE_NOPLUGINS))
 				{
-					return FrameManager->ProcessKey(Key);
+					return Global->FrameManager->ProcessKey(Key);
 				}
 			}
 			break;
@@ -4321,7 +4321,7 @@ void Dialog::Process()
 			WaitUserTime = -1;
 		}
 
-		FrameManager->ExecuteModal(this);
+		Global->FrameManager->ExecuteModal(this);
 		save += (clock() - btm);
 
 		if (InterlockedDecrement(&in_dialog) == -1)
@@ -4349,11 +4349,11 @@ intptr_t Dialog::CloseDialog()
 		DialogMode.Set(DMODE_ENDLOOP);
 		Hide();
 
-		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->FrameManager->ManagerStarted()))
 		{
 			DialogMode.Clear(DMODE_BEGINLOOP);
-			FrameManager->DeleteFrame(this);
-			FrameManager->PluginCommit();
+			Global->FrameManager->DeleteFrame(this);
+			Global->FrameManager->PluginCommit();
 		}
 
 		_DIALOG(CleverSysLog CL(L"Close Dialog"));

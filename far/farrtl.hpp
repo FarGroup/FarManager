@@ -28,7 +28,6 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 #define xf_realloc(block, size) xf_realloc(block, size, __FUNCTION__, __FILE__, __LINE__)
 #define xf_realloc_nomove(block, size) xf_realloc_nomove(block, size, __FUNCTION__, __FILE__, __LINE__)
 #define DuplicateString(string) DuplicateString(string, __FUNCTION__, __FILE__, __LINE__)
-#define DuplicateString(string) DuplicateString(string, __FUNCTION__, __FILE__, __LINE__)
 #define new new(__FUNCTION__, __FILE__, __LINE__)
 #else
 void* xf_malloc(size_t size);

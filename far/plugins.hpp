@@ -149,37 +149,39 @@ struct CallPluginInfo
 struct PluginHandle
 {
 	HANDLE hPlugin;
-	class Plugin *pPlugin;
+	Plugin *pPlugin;
 };
 
 class Dialog;
 
 class PluginManager
 {
+	struct plugin_less { bool operator ()(const Plugin* a, const Plugin *b); };
+
 public:
 	PluginManager();
 	~PluginManager();
 
 	// API functions
-	HANDLE Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
-	HANDLE OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
-	HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
-	void ClosePanel(HANDLE hPlugin);
-	void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
-	int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
-	void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
-	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-	int SetDirectory(HANDLE hPlugin,const string& Dir,int OpMode,struct UserDataItem *UserData=nullptr);
-	int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
-	int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
-	int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
-	int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-	int MakeDirectory(HANDLE hPlugin,const wchar_t **Name,int OpMode);
-	int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-	int ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec,bool Pred);
-	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-	int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
+	PluginHandle* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
+	PluginHandle* OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
+	void ClosePanel(PluginHandle* hPlugin);
+	void GetOpenPanelInfo(PluginHandle* hPlugin, OpenPanelInfo *Info);
+	int GetFindData(PluginHandle* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
+	void FreeFindData(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
+	int GetVirtualFindData(PluginHandle* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
+	void FreeVirtualFindData(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+	int SetDirectory(PluginHandle* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData=nullptr);
+	int GetFile(PluginHandle* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
+	int GetFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
+	int PutFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
+	int DeleteFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	int MakeDirectory(PluginHandle* hPlugin,const wchar_t **Name,int OpMode);
+	int ProcessHostFile(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	int ProcessKey(PluginHandle* hPlugin,const INPUT_RECORD *Rec,bool Pred);
+	int ProcessEvent(PluginHandle* hPlugin,int Event,void *Param);
+	int Compare(PluginHandle* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param,int EditorID);
 	int ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds);
@@ -189,20 +191,20 @@ public:
 	string GetCustomData(const string& Name) const;
 
 	int UnloadPlugin(Plugin *pPlugin, int From);
-	HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
-	int UnloadPluginExternal(HANDLE hPlugin);
+	Plugin* LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
+	int UnloadPluginExternal(Plugin* hPlugin);
 	bool IsPluginUnloaded(Plugin* pPlugin);
 	void LoadModels();
 	void LoadPlugins();
-	std::list<Plugin*>::const_iterator begin() const { return SortedPlugins.cbegin(); }
-	std::list<Plugin*>::const_iterator end() const { return SortedPlugins.cend(); }
-	std::list<Plugin*>::const_iterator cbegin() const { return begin(); }
-	std::list<Plugin*>::const_iterator cend() const { return end(); }
-#if defined(_MSC_VER) && _MSC_VER < 1700
-	// buggy implementation of begin()/end() in VC10, name "iterator" is hardcoded.
-	typedef std::list<Plugin*>::const_iterator iterator;
-#endif
+
 	typedef Plugin* value_type;
+	typedef std::set<Plugin*, plugin_less>::const_iterator iterator;
+
+	iterator begin() const { return SortedPlugins.cbegin(); }
+	iterator end() const { return SortedPlugins.cend(); }
+	iterator cbegin() const { return begin(); }
+	iterator cend() const { return end(); }
+
 	Plugin *GetPlugin(const string& ModuleName);
 	size_t GetPluginsCount() const { return SortedPlugins.size(); }
 #ifndef NO_WRAPPER
@@ -214,7 +216,7 @@ public:
 	void ConfigureCurrent(Plugin *pPlugin,const GUID& Guid);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin,size_t PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
-	int UseFarCommand(HANDLE hPlugin,int CommandType);
+	int UseFarCommand(PluginHandle* hPlugin,int CommandType);
 	void ReloadLanguage();
 	void DiscardCache();
 	int ProcessCommandLine(const string& Command,Panel *Target=nullptr);
@@ -225,7 +227,7 @@ public:
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	Plugin *FindPlugin(const GUID& SysID) const;
-	static const GUID& GetGUID(HANDLE hPlugin);
+	static const GUID& GetGUID(PluginHandle* hPlugin);
 	void RefreshPluginsList();
 	void UndoRemove(Plugin* plugin);
 	FileEditor* GetCurEditor() const { return m_CurEditor; }
@@ -246,7 +248,7 @@ private:
 
 	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
-	std::list<Plugin*> SortedPlugins;
+	std::set<Plugin*, plugin_less> SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
 	BitFlags Flags;
 #ifndef NO_WRAPPER

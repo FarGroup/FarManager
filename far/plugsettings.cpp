@@ -377,7 +377,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_9:
 			{
 				m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
-				FarSettingsHistory item={0};
+				FarSettingsHistory item = {};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
 				while(Shortcuts().Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
@@ -447,7 +447,7 @@ static HistoryConfig* HistoryRef(int Type)
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
 	m_Enum.emplace_back(std::make_unique<FarSettingsHistoryItems>());
-	FarSettingsHistory item={0};
+	FarSettingsHistory item = {};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
 

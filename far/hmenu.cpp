@@ -58,13 +58,13 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 {
 	SetDynamicallyBorn(FALSE);
 	SetRestoreScreenMode(TRUE);
-	FrameManager->ModalizeFrame(this);
+	Global->FrameManager->ModalizeFrame(this);
 }
 
 HMenu::~HMenu()
 {
-	FrameManager->UnmodalizeFrame(this);
-	FrameManager->RefreshFrame();
+	Global->FrameManager->UnmodalizeFrame(this);
+	Global->FrameManager->RefreshFrame();
 }
 
 void HMenu::DisplayObject()
@@ -192,7 +192,7 @@ int HMenu::ProcessKey(int Key)
 	{
 		case KEY_ALTF9:
 		case KEY_RALTF9:
-			FrameManager->ProcessKey(KEY_ALTF9);
+			Global->FrameManager->ProcessKey(KEY_ALTF9);
 			break;
 		case KEY_OP_PLAINTEXT:
 		{

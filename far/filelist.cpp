@@ -91,7 +91,7 @@ static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
 static bool RevertSorting;
 static int ListPanelMode,ListNumericSort,ListCaseSensitiveSort;
-static HANDLE hSortPlugin;
+static PluginHandle* hSortPlugin;
 
 enum SELECT_MODES
 {
@@ -590,7 +590,7 @@ void FileList::SortFileList(int KeepPosition)
 			strCurName = ListData[CurFile]->strName;
 		}
 
-		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && static_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:nullptr;
+		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && hPlugin->pPlugin->HasCompare()) ? hPlugin:nullptr;
 
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 		// при считывании дирректории
@@ -675,10 +675,10 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 
 bool FileList::GetPluginInfo(PluginInfo *PInfo)
 {
-	if (GetMode() == PLUGIN_PANEL && hPlugin && ((PluginHandle*)hPlugin)->pPlugin)
+	if (GetMode() == PLUGIN_PANEL && hPlugin && hPlugin->pPlugin)
 	{
 		PInfo->StructSize=sizeof(PluginInfo);
-		return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo) != 0;
+		return hPlugin->pPlugin->GetPluginInfo(PInfo) != 0;
 	}
 	return false;
 }
@@ -724,8 +724,8 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
 			PluginInfo *PInfo=(PluginInfo *)vParam;
-			if (GetMode() == PLUGIN_PANEL && hPlugin && ((PluginHandle*)hPlugin)->pPlugin)
-				return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo)?1:0;
+			if (GetMode() == PLUGIN_PANEL && hPlugin && hPlugin->pPlugin)
+				return hPlugin->pPlugin->GetPluginInfo(PInfo)?1:0;
 			return 0;
 		}
 
@@ -1069,10 +1069,8 @@ int FileList::ProcessKey(int Key)
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
 		{
-			PluginHandle *ph = (PluginHandle*)hPlugin;
-
 			if (PanelMode==PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ConfigureCurrent(ph->pPlugin, FarGuid);
+				Global->CtrlObject->Plugins->ConfigureCurrent(hPlugin->pPlugin, FarGuid);
 			else
 				Global->CtrlObject->Plugins->Configure();
 
@@ -1368,8 +1366,8 @@ int FileList::ProcessKey(int Key)
 				if (!ListData.empty() && ApplyCommand())
 				{
 					// позиционируемся в панели
-					if (!FrameManager->IsPanelsActive())
-						FrameManager->ActivateFrame(0);
+					if (!Global->FrameManager->IsPanelsActive())
+						Global->FrameManager->ActivateFrame(0);
 
 					Update(UPDATE_KEEP_SELECTION);
 					Redraw();
@@ -1721,12 +1719,12 @@ int FileList::ProcessKey(int Key)
 								ProcessExternal(Global->Opt->strExternalEditor,strFileName,strShortFileName,PluginMode);
 							else if (PluginMode)
 							{
-								RefreshedPanel=FrameManager->GetCurrentFrame()->GetType() != MODALTYPE_EDITOR;
+								RefreshedPanel = Global->FrameManager->GetCurrentFrame()->GetType() != MODALTYPE_EDITOR;
 								FileEditor ShellEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
 								ShellEditor.SetDynamicallyBorn(false);
-								FrameManager->EnterModalEV();
-								FrameManager->ExecuteModal();//OT
-								FrameManager->ExitModalEV();
+								Global->FrameManager->EnterModalEV();
+								Global->FrameManager->ExecuteModal();//OT
+								Global->FrameManager->ExitModalEV();
 								/* $ 24.11.2001 IS
 								     Если мы создали новый файл, то не важно, изменялся он
 								     или нет, все равно добавим его на панель плагина.
@@ -1761,7 +1759,7 @@ int FileList::ProcessKey(int Key)
 											ShellEditor->SetNamesList(&EditList);
 										}
 
-										FrameManager->ExecuteModal();
+										Global->FrameManager->ExecuteModal();
 									}
 								}
 							}
@@ -2740,7 +2738,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		{
 			strFindDir = strInfoCurDir;
 
-			struct UserDataItem UserData={0};
+			UserDataItem UserData = {};
 			UserData.Data=CurPtr?CurPtr->UserData:nullptr;
 			UserData.FreeData=CurPtr?CurPtr->Callback:nullptr;
 
@@ -2823,7 +2821,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	if (!FarChDir(strSetDir))
 	{
 		Global->CatchError();
-		if (FrameManager && FrameManager->ManagerStarted())
+		if (Global->FrameManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
 			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), (dot2Present?L"..":strSetDir.data()), MSG(MOk));
@@ -3206,7 +3204,7 @@ void FileList::SetViewMode(int Mode)
 		else
 		{
 			ViewMode=Mode;
-			FrameManager->RefreshFrame();
+			Global->FrameManager->RefreshFrame();
 		}
 	}
 
@@ -3237,7 +3235,7 @@ void FileList::ApplySortMode(int Mode)
 		SortFileList(TRUE);
 
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	FrameManager->RefreshFrame();
+	Global->FrameManager->RefreshFrame();
 }
 
 void FileList::SetSortMode(int Mode, bool KeepOrder)
@@ -5086,21 +5084,21 @@ bool FileList::GetPrevDirectoriesFirst()
 	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().PrevDirectoriesFirst:DirectoriesFirst;
 }
 
-HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
+PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
 {
 	if (!PushPrev && PanelMode==PLUGIN_PANEL)
 	{
 		for (;;)
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
-				return(PANEL_STOP);
+				return static_cast<PluginHandle*>(PANEL_STOP);
 
 			if (!PopPlugin(TRUE))
 				break;
 		}
 	}
 
-	HANDLE hNewPlugin=OpenPluginForFile(FileName, 0, Type);
+	auto hNewPlugin=OpenPluginForFile(FileName, 0, Type);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
@@ -5246,11 +5244,10 @@ void FileList::UpdateKeyBar()
 
 }
 
-int FileList::PluginPanelHelp(HANDLE hPlugin)
+int FileList::PluginPanelHelp(PluginHandle* hPlugin)
 {
 	string strPath, strFileName, strStartTopic;
-	PluginHandle *ph = (PluginHandle*)hPlugin;
-	strPath = ph->pPlugin->GetModuleName();
+	strPath = hPlugin->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
 	api::File HelpFile;
@@ -5272,7 +5269,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 	if (Global->Opt->SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
+		auto ph = SrcPanel->hPlugin;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))

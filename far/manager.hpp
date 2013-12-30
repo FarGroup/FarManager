@@ -38,7 +38,7 @@ class Frame;
 class Manager
 {
 #if defined(SYSLOG)
-		friend void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp);
+		friend void ManagerClass_Dump(const wchar_t *Title,FILE *fp);
 #endif
 	private:
 		INPUT_RECORD LastInputRecord;
@@ -73,6 +73,8 @@ class Manager
 		int ModalExitCode;
 		int  StartManager;
 
+		static long CurrentWindowType;
+
 	private:
 		Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 		int HaveAnyFrame();
@@ -95,9 +97,10 @@ class Manager
 
 	public:
 		Manager();
-		~Manager();
 
 	public:
+		static long GetCurrentWindowType() { return CurrentWindowType; }
+
 		// Эти функции можно безопасно вызывать практически из любого места кода
 		// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
 		void InsertFrame(Frame *NewFrame);
@@ -197,6 +200,3 @@ class Manager
 		size_t GetModalStackCount() const {return ModalFrames.size();}
 		Frame* GetModalFrame(size_t index) const {return ModalFrames[index];}
 };
-
-extern Manager *FrameManager;
-extern long CurrentWindowType;

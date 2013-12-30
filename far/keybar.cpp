@@ -380,7 +380,7 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	//if (Owner)
 	//Owner->ProcessKey(Key);
-	FrameManager->ProcessKey(Key);
+	Global->FrameManager->ProcessKey(Key);
 	return TRUE;
 }
 

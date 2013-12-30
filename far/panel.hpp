@@ -193,6 +193,8 @@ private:
 	DelayedDestroy *m_host;
 };
 
+struct PluginHandle;
+
 class Panel:public ScreenObject, public DelayedDestroy
 {
 public:
@@ -230,10 +232,10 @@ public:
 	virtual void SetReturnCurrentFile(int Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(struct OpenPanelInfo *Info) {}
-	virtual void SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
+	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
 	virtual void SetPluginModified() {}
 	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
-	virtual HANDLE GetPluginHandle() {return nullptr;}
+	virtual PluginHandle* GetPluginHandle() const {return nullptr;}
 	virtual void SetTitle();
 	virtual const string& GetTitle(string &Title);
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;

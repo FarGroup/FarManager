@@ -128,6 +128,8 @@ private:
 	virtual bool FindExport(const char* ExportName);
 };
 
+struct PluginHandle;
+
 class Plugin
 {
 public:
@@ -136,7 +138,7 @@ public:
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
 	virtual bool SetStartupInfo(PluginStartupInfo *Info);
-	virtual HANDLE Open(OpenInfo* Info);
+	virtual PluginHandle* Open(OpenInfo* Info);
 	virtual void ClosePanel(ClosePanelInfo* Info);
 	virtual bool GetPluginInfo(PluginInfo *pi);
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
@@ -162,13 +164,13 @@ public:
 	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info);
 	virtual int ProcessSynchroEvent(ProcessSynchroEventInfo* Info);
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
-	virtual HANDLE Analyse(AnalyseInfo *Info);
+	virtual PluginHandle* Analyse(AnalyseInfo *Info);
 	virtual void CloseAnalyse(CloseAnalyseInfo* Info);
 
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
 	virtual void FreeCustomData(wchar_t *CustomData);
 
-	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
+	virtual PluginHandle* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual bool CheckMinFarVersion();
 
 
@@ -249,7 +251,7 @@ protected:
 		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
 		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
 		operator intptr_t() const { return Result; }
-		operator HANDLE() const { return reinterpret_cast<HANDLE>(Result); }
+		operator PluginHandle*() const { return reinterpret_cast<PluginHandle*>(Result); }
 
 		EXPORTS_ENUM id;
 

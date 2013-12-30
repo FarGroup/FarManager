@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <memory>
 #include <numeric>
+#include <set>
 #include <sstream>
 #include <stack>
 #include <string>

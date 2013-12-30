@@ -431,7 +431,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
 	{
-		HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
+		auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
 		PluginPanelItem *PanelData=nullptr;
 		string strPath(strCurDir);
 		AddEndSlash(strPath);
@@ -504,7 +504,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	/* $ 13.02.2002 DJ
 		SetTitle() - только если мы текущий фрейм!
 	*/
-	if (Global->CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
 		SetTitle();
 
 	FarChDir(strSaveDir); //???

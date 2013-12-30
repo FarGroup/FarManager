@@ -62,12 +62,12 @@ RefreshFrameManager::RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, B
 
 RefreshFrameManager::~RefreshFrameManager()
 {
-	if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
+	if (DontRedrawFrame || !Global->FrameManager->ManagerStarted())
 		return;
 	else if (OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
 	{
 		LockScreen LckScr;
-		FrameManager->ResizeAllFrame();
-		FrameManager->GetCurrentFrame()->Show();
+		Global->FrameManager->ResizeAllFrame();
+		Global->FrameManager->GetCurrentFrame()->Show();
 	}
 }

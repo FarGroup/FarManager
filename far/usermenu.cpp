@@ -356,12 +356,12 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 		}
 
 		FARMACROAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
-		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
+		int _CurrentFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 		Global->CtrlObject->Macro.SetMode(MACROAREA_USERMENU);
 		// вызываем меню
 		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath);
 
-		if (_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
+		if (_CurrentFrame == Global->FrameManager->GetCurrentFrame()->GetType()) //???
 			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 		// ...запишем изменения обратно в файл
@@ -422,7 +422,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 		}
 	}
 
-	if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
+	if (Global->FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
 }
 
@@ -638,16 +638,16 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RALTF4:
 				{
 					api::File MenuFile;
-					FrameManager->GetFrame(0)->Unlock();
+					Global->FrameManager->GetFrame(0)->Unlock();
 					{
 						auto OldTitle = std::make_unique<ConsoleTitle>();
 						SaveMenu(MenuFileName);
 						FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 						OldTitle.reset();
 						ShellEditor.SetDynamicallyBorn(false);
-						FrameManager->EnterModalEV();
-						FrameManager->ExecuteModal();
-						FrameManager->ExitModalEV();
+						Global->FrameManager->EnterModalEV();
+						Global->FrameManager->ExecuteModal();
+						Global->FrameManager->ExitModalEV();
 						if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 						{
 							ReturnCode=0;

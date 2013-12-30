@@ -91,7 +91,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 			FindEdit->SetEditBeyondEnd(FALSE);
 			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();
-			FrameManager->ExecuteModal(this); //OT
+			Global->FrameManager->ExecuteModal(this); //OT
 		}
 
 		strResultFolder = strNewFolder;
@@ -170,8 +170,8 @@ void FolderTree::ResizeConsole()
 	SetCoords();
 	Tree->SetPosition(X1,Y1,X2,Y2);
 	//ReadHelp(StackData.HelpMask);
-	FrameManager->ImmediateHide();
-	FrameManager->RefreshFrame();
+	Global->FrameManager->ImmediateHide();
+	Global->FrameManager->RefreshFrame();
 }
 
 void FolderTree::SetScreenPosition()
@@ -213,7 +213,7 @@ int FolderTree::ProcessKey(int Key)
 		break;
 		case KEY_ESC:
 		case KEY_F10:
-			FrameManager->DeleteFrame();
+			Global->FrameManager->DeleteFrame();
 			SetExitCode(XC_MODIFIED);
 			break;
 		case KEY_NUMENTER:
@@ -222,7 +222,7 @@ int FolderTree::ProcessKey(int Key)
 
 			if (api::GetFileAttributes(strNewFolder)!=INVALID_FILE_ATTRIBUTES)
 			{
-				FrameManager->DeleteFrame();
+				Global->FrameManager->DeleteFrame();
 				SetExitCode(XC_MODIFIED);
 			}
 			else

@@ -47,6 +47,7 @@ enum FINDAREA
 };
 
 class Dialog;
+struct PluginHandle;
 
 class FindFiles
 {
@@ -59,11 +60,11 @@ private:
 	void ReleaseInFileSearch();
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
 	bool IsWordDiv(const wchar_t symbol);
-	void SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool UpdatePanel=false,struct UserDataItem *UserData=nullptr);
+	void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	bool GetPluginFile(struct ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName,struct UserDataItem *UserData);
+	bool GetPluginFile(struct ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
 	int LookForString(const string& Name);
@@ -74,7 +75,7 @@ private:
 	void DoPreparePluginList(Dialog* Dlg, bool Internal);
 	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
 	void DoScanTree(Dialog* Dlg, const string& strRoot);
-	void ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
+	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
 	void DoPrepareFileList(Dialog* Dlg);
 	unsigned int ThreadRoutine(LPVOID Param);
 	bool FindFilesProcess();

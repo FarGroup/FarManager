@@ -1393,7 +1393,7 @@ int Edit::ProcessKey(int Key)
 
 			if (InsertKey(Key))
 			{
-				int CurWindowType = FrameManager->GetCurrentFrame()->GetType();
+				int CurWindowType = Global->FrameManager->GetCurrentFrame()->GetType();
 				if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
 				{
 					Show();

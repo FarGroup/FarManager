@@ -1463,7 +1463,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 			if (p[i].Flags&oldfar::MIF_HIDDEN)
 				mi[i].Flags|=MIF_HIDDEN;
 			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].TextPtr:p[i].Text);
-			INPUT_RECORD input={0};
+			INPUT_RECORD input = {};
 			KeyToInputRecord(OldKeyToKey(p[i].AccelKey),&input);
 			mi[i].AccelKey.VirtualKeyCode = input.Event.KeyEvent.dwControlKeyState;
 			mi[i].AccelKey.ControlKeyState = input.Event.KeyEvent.dwControlKeyState;
@@ -3533,7 +3533,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 	HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 	if(Settings)
 	{
-		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_UNKNOWN,{0}};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_UNKNOWN,{}};
 		if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
 		{
 			result=item.Number;
@@ -3568,7 +3568,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 			if(Settings)
 			{
-				FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
+				FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{}};
 				if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 				{
 					Length=std::min(oldfar::NM,StrLength(item.String)+1);
@@ -3580,7 +3580,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 		}
 		case oldfar::ACTL_WAITKEY:
 			{
-				INPUT_RECORD input={0};
+				INPUT_RECORD input = {};
 				KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&input);
 				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
 			}
@@ -4950,9 +4950,13 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
-		strRootKey = Global->strRegRoot + L"\\Plugins";
+
+		strRootKey = L"Software\\Far Manager" + (Global->strRegUser.empty()? L"" : L"\\Users\\" + Global->strRegUser) + L"\\Plugins";
 		RootKey.reset(UnicodeToAnsi(strRootKey.data()));
 		_info.RootKey = RootKey.get();
+
+		api::SetEnvironmentVariable(L"FARUSER", Global->strRegUser);
+
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
 
 		if (bPendingRemove)
@@ -4977,14 +4981,14 @@ bool PluginA::CheckMinFarVersion()
 	return true;
 }
 
-static HANDLE TranslateResult(HANDLE hResult)
+static PluginHandle* TranslateResult(PluginHandle* hResult)
 {
 	if(INVALID_HANDLE_VALUE==hResult) return nullptr;
-	if((HANDLE)-2==hResult) return PANEL_STOP;
+	if(hResult == reinterpret_cast<PluginHandle*>(-2)) return static_cast<PluginHandle*>(PANEL_STOP);
 	return hResult;
 }
 
-HANDLE PluginA::Open(OpenInfo* Info)
+PluginHandle* PluginA::Open(OpenInfo* Info)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -5080,7 +5084,7 @@ HANDLE PluginA::Open(OpenInfo* Info)
 	return TranslateResult(es);
 }
 
-HANDLE PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
+PluginHandle* PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
 {
 	ExecuteStruct es = {iOpenFilePlugin};
 	if (Load() && Exports[es.id] && !Global->ProcessException)

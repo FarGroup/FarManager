@@ -57,7 +57,7 @@ public:
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) override;
 
-	void ShowFile(const string& FileName,int TempFile,HANDLE hDirPlugin);
+	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
 
 private:
 	virtual ~QuickView();

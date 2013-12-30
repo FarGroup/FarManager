@@ -488,7 +488,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
-	Frame* Current = FrameManager->GetCurrentFrame();
+	Frame* Current = Global->FrameManager->GetCurrentFrame();
 	if(Current)
 	{
 		Current->Lock();
@@ -522,7 +522,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 
 	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
-		FrameManager && !FrameManager->ManagerIsDown())
+		Global->FrameManager && !Global->FrameManager->ManagerIsDown())
 	{
 		Recurse = true;
 		GuardLastError error;
@@ -925,7 +925,7 @@ bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 {
 	bool Result = false;
-	if(Global->Opt->ElevationMode&Mode)
+	if(Global && Global->Opt && Global->Opt->ElevationMode & Mode)
 	{
 		if(UseNtStatus && Global->ifn->RtlGetLastNtStatusPresent())
 		{

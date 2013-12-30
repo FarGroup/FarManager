@@ -624,7 +624,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 }
 
 
-void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
+void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 {
 #if defined(SYSLOG)
 
@@ -641,7 +641,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 	if (fp)
 	{
-		const Manager *Man=m?m:FrameManager;
+		const Manager *Man = Global->FrameManager;
 //StartSysLog
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal frames ***\nFrameList.size()=%u, FramePos=%d\n",Man->Frames.size(),Man->FramePos);

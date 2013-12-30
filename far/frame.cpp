@@ -71,7 +71,7 @@ void Frame::UpdateKeyBar()
 
 int Frame::IsTopFrame()
 {
-	return FrameManager->GetCurrentFrame() == this;
+	return Global->FrameManager->GetCurrentFrame() == this;
 }
 
 void Frame::OnChangeFocus(int focus)
@@ -149,7 +149,7 @@ bool Frame::RemoveModal(const Frame *aFrame)
 
 void Frame::ResizeConsole()
 {
-	FrameManager->ResizeAllModal(this);
+	Global->FrameManager->ResizeAllModal(this);
 }
 
 bool Frame::HasSaveScreen()

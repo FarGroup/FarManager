@@ -398,7 +398,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	}
 
 	int MsgCode=0;
-	if (FrameManager && !FrameManager->ManagerIsDown())
+	if (Global && Global->FrameManager && !Global->FrameManager->ManagerIsDown())
 	{
 		MsgCode=ExcDialog(strFileName,Exception,xr->ExceptionAddress);
 		ShowMessages=TRUE;

@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CachedRead::CachedRead(api::File& file, DWORD buffer_size):
 	file(file),
-	DefaultBufferSize(0x10000),
 	ReadSize(0),
 	BytesLeft(0),
 	LastPtr(0),

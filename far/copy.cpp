@@ -273,9 +273,9 @@ void CopyProgress::Flush()
 		{
 			if (CheckForEscSilent())
 			{
-				FrameManager->GetFrame(0)->Lock();
+				Global->FrameManager->GetFrame(0)->Lock();
 				IsCancelled=ConfirmAbortOp()!=0;
-				FrameManager->GetFrame(0)->Unlock();
+				Global->FrameManager->GetFrame(0)->Unlock();
 			}
 		}
 
@@ -684,7 +684,7 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 	{
 		ZoomedState=curZoomedState;
 		ChangeVideoMode(ZoomedState);
-		Frame *frame=FrameManager->GetBottomFrame();
+		Frame *frame = Global->FrameManager->GetBottomFrame();
 		int LockCount=-1;
 
 		while (frame->Locked())
@@ -693,8 +693,8 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 			frame->Unlock();
 		}
 
-		FrameManager->ResizeAllFrame();
-		FrameManager->PluginCommit();
+		Global->FrameManager->ResizeAllFrame();
+		Global->FrameManager->PluginCommit();
 
 		while (LockCount > 0)
 		{
@@ -948,7 +948,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
-	FrameManager->GetFrame(0)->Lock();
+	Global->FrameManager->GetFrame(0)->Lock();
 	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
 	CopyBufferSize=std::max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
@@ -1740,8 +1740,8 @@ ShellCopy::~ShellCopy()
 
 	// $ 26.05.2001 OT Разрешить перерисовку панелей
 	_tran(SysLog(L"call (*FrameManager)[0]->UnlockRefresh()"));
-	FrameManager->GetFrame(0)->Unlock();
-	FrameManager->GetFrame(0)->Refresh();
+	Global->FrameManager->GetFrame(0)->Unlock();
+	Global->FrameManager->GetFrame(0)->Refresh();
 
 	if (Filter) // Уничтожим объект фильтра
 		delete Filter;
@@ -3553,10 +3553,10 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				Viewer.SetDynamicallyBorn(FALSE);
 				// а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
 				Viewer.SetTempViewName(L"nul",FALSE);
-				FrameManager->EnterModalEV();
-				FrameManager->ExecuteModal();
-				FrameManager->ExitModalEV();
-				FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+				Global->FrameManager->EnterModalEV();
+				Global->FrameManager->ExecuteModal();
+				Global->FrameManager->ExitModalEV();
+				Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 			}
 		}
 		break;

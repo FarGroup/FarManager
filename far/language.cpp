@@ -538,7 +538,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 		/* $ 26.03.2002 DJ
 		   если менеджер уже в дауне - сообщение не выводим
 		*/
-		if (FrameManager && !FrameManager->ManagerIsDown())
+		if (!Global->FrameManager->ManagerIsDown())
 		{
 			/* $ 03.09.2000 IS
 			   ! Ќормальное сообщение об отсутствии строки в €зыковом файле

@@ -579,7 +579,7 @@ bool KeyMacro::InitMacroExecution()
 	auto macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[2] = {{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}}};
+		FarMacroValue values[2] = {{FMVT_DOUBLE,{}},{FMVT_STRING,{}}};
 		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
 		OpenMacroPluginInfo info = {MCT_MACROINIT,0,&fmc};
 
@@ -713,7 +713,7 @@ void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const s
 int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
 	//_SHMUEL(SysLog(L"+KeyMacro::ProcessEvent"));
-	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
+	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
 	string textKey;
@@ -779,8 +779,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					}
 
 					// Mantis 0002307: При вызове msgbox из condition(), ключ закрытия msgbox передаётся дальше (не съедается)
-					if (FrameManager)
-						FrameManager->SetLastInputRecord(&RecCopy);
+					Global->FrameManager->SetLastInputRecord(&RecCopy);
 				}
 			}
 		}
@@ -792,13 +791,13 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				m_InternalInput=1;
 				Global->WaitInMainLoop=FALSE;
 				// Залочить _текущий_ фрейм, а не _последний немодальный_
-				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
+				Global->FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
 				UINT64 Flags=0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
-				FrameManager->ResetLastInputRecord();
-				FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
+				Global->FrameManager->ResetLastInputRecord();
+				Global->FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
@@ -926,7 +925,7 @@ void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall *Target
 
 int KeyMacro::GetKey()
 {
-	if (m_InternalInput || !FrameManager->GetCurrentFrame())
+	if (m_InternalInput || !Global->FrameManager->GetCurrentFrame())
 	{
 		return 0;
 	}
@@ -1095,7 +1094,7 @@ int KeyMacro::GetKey()
 				}
 
 				// По аналогии с KEY_F11
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 				break;
 			}
 
@@ -1201,7 +1200,7 @@ static BOOL CheckEditSelected(FARMACROAREA Mode, UINT64 CurFlags)
 	if (Mode==MACROAREA_EDITOR || Mode==MACROAREA_DIALOG || Mode==MACROAREA_VIEWER || (Mode==MACROAREA_SHELL&&Global->CtrlObject->CmdLine->IsVisible()))
 	{
 		int NeedType = Mode == MACROAREA_EDITOR?MODALTYPE_EDITOR:(Mode == MACROAREA_VIEWER?MODALTYPE_VIEWER:(Mode == MACROAREA_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
-		Frame* CurFrame=FrameManager->GetCurrentFrame();
+		Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 		if (CurFrame && CurFrame->GetType()==NeedType)
 		{
@@ -1486,7 +1485,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	Dialog Dlg(MacroSettingsDlg, this, &KeyMacro::ParamMacroDlgProc, &Param);
 	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");
-	Frame* BottomFrame = FrameManager->GetBottomFrame();
+	Frame* BottomFrame = Global->FrameManager->GetBottomFrame();
 	if(BottomFrame)
 	{
 		BottomFrame->Lock(); // отменим прорисовку фрейма
@@ -1534,7 +1533,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool sk
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	FarMacroValue values[5]={{FMVT_STRING,{}},{FMVT_BOOLEAN,{}},{FMVT_BOOLEAN,{}},{FMVT_STRING,{}},{FMVT_STRING,{}}};
 	values[0].String=Sequence;
 	values[1].Boolean=onlyCheck?1:0;
 	values[2].Boolean=skipFile?1:0;
@@ -1558,7 +1557,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool sk
 			if (!onlyCheck)
 			{
 				RestoreMacroChar();
-				FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+				Global->FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
 			}
 		}
 	}
@@ -1567,7 +1566,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool sk
 
 bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 {
-	FarMacroValue values[3]={{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_ARRAY,{0}}};
+	FarMacroValue values[3]={{FMVT_STRING,{}},{FMVT_INTEGER,{}},{FMVT_ARRAY,{}}};
 	values[0].String = Data->SequenceText;
 	values[1].Integer = Data->Flags;
 	values[2].Array.Count = Data->InCount;
@@ -1811,7 +1810,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	if (CheckCode == 0)
 	{
 		return PassNumber (Global->WaitInMainLoop ?
-			FrameManager->GetCurrentFrame()->GetMacroMode() : GetMode(), Data);
+			Global->FrameManager->GetCurrentFrame()->GetMacroMode() : GetMode(), Data);
 	}
 
 	Panel *ActivePanel=Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel : nullptr;
@@ -1820,7 +1819,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	if (ActivePanel)
 		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-	Frame* CurFrame=FrameManager->GetCurrentFrame();
+	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 	switch (CheckCode)
 	{
@@ -1923,7 +1922,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 				while (f)
 				{
@@ -1958,7 +1957,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else
 			{
 				{
-					Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+					Frame* f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 					while (f)
 					{
@@ -1988,9 +1987,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		{
 			if (CurFrame && CurFrame->GetType()==MODALTYPE_VMENU)
 			{
-				int idx=FrameManager->IndexOfStack(CurFrame);
+				int idx = Global->FrameManager->IndexOfStack(CurFrame);
 				if(idx>0)
-					CurFrame=FrameManager->GetModalFrame(idx-1);
+					CurFrame = Global->FrameManager->GetModalFrame(idx-1);
 			}
 			if (!CurFrame || CurFrame->GetType()!=MODALTYPE_DIALOG)
 				return (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER) ? PassString(L"", Data) : 0;
@@ -2284,7 +2283,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_TITLE: // Title
 		{
-			Frame *f=FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetTopModal();
 
 			if (f)
 			{
@@ -2314,7 +2313,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
 		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
 		{
-			Frame *f=FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetTopModal();
 
 			if (f)
 			{
@@ -2343,7 +2342,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 				while (f)
 				{
@@ -2381,7 +2380,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
 		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
 		{
-			Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+			Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 			while (f)
 			{
@@ -2625,7 +2624,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& p2(Params[1]);
 
 			__int64 Result=0;
-			Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+			Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 			while (f)
 			{
@@ -2659,7 +2658,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 				while (f)
 				{
@@ -2737,7 +2736,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 				while (f)
 				{
@@ -2771,7 +2770,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACROAREA_DIALOG)
 			{
-				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+				Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 				while (f)
 				{
@@ -3220,7 +3219,7 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		ret: prev mode or -1 - KeyBar not found
     */
 	auto Params = parseParams<1>(Data);
-	Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+	Frame *f = Global->FrameManager->GetCurrentFrame(), *fo=nullptr;
 
 	//f=f->GetTopModal();
 	while (f)
@@ -3782,7 +3781,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	Frame *frame;
 
-	if ((frame=FrameManager->GetBottomFrame()) )
+	if ((frame = Global->FrameManager->GetBottomFrame()) )
 		frame->Lock();
 
 	int PrevSelectedPos=Menu.GetSelectPos();
@@ -4139,7 +4138,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 	auto Params = parseParams<1>(Data);
 	TVar Ret(-1);
 	unsigned Index=(unsigned)Params[0].getInteger()-1;
-	Frame* CurFrame=FrameManager->GetCurrentFrame();
+	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
@@ -4173,7 +4172,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams<2>(Data);
 	TVar Ret(-1);
-	Frame* CurFrame=FrameManager->GetCurrentFrame();
+	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
@@ -4856,7 +4855,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 
 		if (SelPanel)
 		{
-			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName),FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_PANELS))
+			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName), Global->FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_PANELS))
 			{
 				ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 				PassivePanel=ActivePanel?Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel):nullptr;
@@ -4874,7 +4873,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 					//ShellUpdatePanels(SelPanel);
 					SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 				}
-				FrameManager->RefreshFrame(FrameManager->GetTopModal());
+				Global->FrameManager->RefreshFrame(Global->FrameManager->GetTopModal());
 				// </Mantis#0000289>
 				Ret=1;
 			}
@@ -4919,7 +4918,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 				// <Mantis#0000289> - грозно, но со вкусом :-)
 				//ShellUpdatePanels(SelPanel);
 				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-				FrameManager->RefreshFrame(FrameManager->GetTopModal());
+				Global->FrameManager->RefreshFrame(Global->FrameManager->GetTopModal());
 				// </Mantis#0000289>
 				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
 			}
@@ -5385,7 +5384,7 @@ static bool editorselFunc(FarMacroCall* Data)
 
 	FARMACROAREA Mode=Global->CtrlObject->Macro.GetMode();
 	int NeedType = Mode == MACROAREA_EDITOR?MODALTYPE_EDITOR:(Mode == MACROAREA_VIEWER?MODALTYPE_VIEWER:(Mode == MACROAREA_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACROAREA_SHELL?
-	Frame* CurFrame=FrameManager->GetCurrentFrame();
+	Frame* CurFrame = Global->FrameManager->GetCurrentFrame();
 
 	if (CurFrame && CurFrame->GetType()==NeedType)
 	{

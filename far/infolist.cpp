@@ -110,7 +110,7 @@ void InfoList::Update(int Mode)
 	if (!EnableUpdate)
 		return;
 
-	if (Global->CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
 		Redraw();
 }
 

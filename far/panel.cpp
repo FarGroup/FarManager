@@ -684,8 +684,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
 						{
 							Global->ScrBuf->Lock(); // отмен€ем вс€кую прорисовку
-							FrameManager->ResizeAllFrame();
-							FrameManager->PluginCommit(); // коммитим.
+							Global->FrameManager->ResizeAllFrame();
+							Global->FrameManager->PluginCommit(); // коммитим.
 							Global->ScrBuf->Unlock(); // разрешаем прорисовку
 							RetCode=(((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
@@ -982,7 +982,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	else //эта плагин, да
 	{
-		HANDLE hPlugin = Global->CtrlObject->Plugins->Open(
+		auto hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
 		                     (Global->CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
@@ -1172,8 +1172,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 				// если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
 				// удалению
 				IfGoHome(Drive);
-				FrameManager->ResizeAllFrame();
-				FrameManager->GetCurrentFrame()->Show();
+				Global->FrameManager->ResizeAllFrame();
+				Global->FrameManager->GetCurrentFrame()->Show();
 				// </ ќ—“џЋ№>
 
 				if (WNetCancelConnection2(DiskLetter.data(),UpdateProfile,FALSE)==NO_ERROR)
@@ -1327,7 +1327,7 @@ void Panel::FastFind(int FirstKey)
 			int Key;
 			if (FirstKey)
 			{
-				FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
+				FirstKey=_CorrectFastFindKbdLayout(Global->FrameManager->GetLastInputRecord(),FirstKey);
 				// // _SVS(SysLog(L"Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
 				// // _SVS(SysLog(L"if (FirstKey)"));
 				Key=FirstKey;
@@ -1819,7 +1819,7 @@ int Panel::SetCurPath()
 					break;
 			}
 
-			if (FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
+			if (Global->FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
 			{
 				SetCurDir(Global->g_strFarPath,true);                    // если запущен - выставим путь который мы точно знаем что существует
 				ChangeDisk();                                    // и вызовем меню выбора дисков
@@ -1951,9 +1951,9 @@ void Panel::ShowScreensCount()
 {
 	if (Global->Opt->ShowScreensNumber && !X1)
 	{
-		int Viewers=FrameManager->GetFrameCountByType(MODALTYPE_VIEWER);
-		int Editors=FrameManager->GetFrameCountByType(MODALTYPE_EDITOR);
-		int Dialogs=FrameManager->GetFrameCountByType(MODALTYPE_DIALOG);
+		int Viewers = Global->FrameManager->GetFrameCountByType(MODALTYPE_VIEWER);
+		int Editors = Global->FrameManager->GetFrameCountByType(MODALTYPE_EDITOR);
+		int Dialogs = Global->FrameManager->GetFrameCountByType(MODALTYPE_DIALOG);
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
@@ -2139,8 +2139,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 				if (Info->Flags&PFLAGS_PLUGIN)
 				{
-					Info->OwnerGuid = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->pPlugin->GetGUID();
-					Info->PluginHandle = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->hPlugin;
+					Info->OwnerGuid = DestFilePanel->GetPluginHandle()->pPlugin->GetGUID();
+					Info->PluginHandle = DestFilePanel->GetPluginHandle()->hPlugin;
 					static int Reenter=0;
 					if (!Reenter)
 					{
@@ -2528,11 +2528,10 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 	bool result=true;
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		HANDLE hPlugin=GetPluginHandle();
-		PluginHandle *ph = (PluginHandle*)hPlugin;
+		auto ph = GetPluginHandle();
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &Info);
 		ShortcutInfo.PluginFile = NullToEmpty(Info.HostFile);
 		ShortcutInfo.ShortcutFolder = NullToEmpty(Info.CurDir);
 		ShortcutInfo.PluginData = NullToEmpty(Info.ShortcutData);
@@ -2679,7 +2678,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					strPluginData.empty()?nullptr:strPluginData.data(),
 					(SrcPanel==Global->CtrlObject->Cp()->ActivePanel)?FOSF_ACTIVE:FOSF_NONE
 				};
-				HANDLE hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
+				auto hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
 				if (hNewPlugin)
 				{
@@ -2690,7 +2689,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 					if (!strShortcutFolder.empty())
 					{
-						struct UserDataItem UserData={0}; //????
+						UserDataItem UserData = {}; //????
 						Global->CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0,&UserData);
 					}
 

@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    В стеке ФАРова панель не хранится - только плагиновые!
 */
 
-void FileList::PushPlugin(HANDLE hPlugin,const string& HostFile)
+void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
 {
 	PluginsList.emplace_back(VALUE_TYPE(PluginsList)());
 	PluginsListItem& stItem = PluginsList.back();
@@ -392,9 +392,9 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 }
 
 
-HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+PluginHandle* FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
-	HANDLE Result = nullptr;
+	PluginHandle* Result = nullptr;
 	if(!FileName->empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
@@ -705,14 +705,13 @@ void FileList::PluginHostGetFiles()
 
 	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
 	{
-		HANDLE hCurPlugin;
+		PluginHandle* hCurPlugin;
 
 		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
 		        hCurPlugin!=PANEL_STOP)
 		{
-			PluginHandle *ph = (PluginHandle *)hCurPlugin;
 			int OpMode=OPM_TOPLEVEL;
-			if(UsedPlugins.find(ph->pPlugin) != UsedPlugins.cend())
+			if(UsedPlugins.find(hCurPlugin->pPlugin) != UsedPlugins.cend())
 				OpMode|=OPM_SILENT;
 
 			PluginPanelItem *ItemList;
@@ -734,7 +733,7 @@ void FileList::PluginHostGetFiles()
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
 				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber,true);
-				UsedPlugins.emplace(ph->pPlugin);
+				UsedPlugins.emplace(hCurPlugin->pPlugin);
 			}
 
 			_ALGO(SysLog(L"call Plugins.ClosePanel"));
@@ -754,7 +753,7 @@ void FileList::PluginPutFilesToNew()
 	_ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
 	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
-	HANDLE hNewPlugin=Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, 0, OFP_CREATE);
+	auto hNewPlugin=Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, 0, OFP_CREATE);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
@@ -968,7 +967,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
-	HANDLE hNewPlugin=OpenPluginForFile(&Item->strName, Item->FileAttr, OFP_COMMANDS);
+	auto hNewPlugin=OpenPluginForFile(&Item->strName, Item->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
@@ -993,7 +992,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 
 
 
-void FileList::SetPluginMode(HANDLE hPlugin,const string& PluginFile,bool SendOnFocus)
+void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus)
 {
 	if (PanelMode!=PLUGIN_PANEL)
 	{
@@ -1177,9 +1176,9 @@ void FileList::SetPluginModified()
 }
 
 
-HANDLE FileList::GetPluginHandle()
+PluginHandle* FileList::GetPluginHandle() const
 {
-	return(hPlugin);
+	return hPlugin;
 }
 
 

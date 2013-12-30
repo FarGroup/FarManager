@@ -61,7 +61,6 @@ ControlObject::ControlObject():
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 
 	HiFiles = new HighlightFiles;
-	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
 	CmdHistory=new History(HISTORYTYPE_CMD, string(), Global->Opt->SaveHistory, false);
@@ -102,11 +101,11 @@ void ControlObject::Init(int DirCount)
 
 	// LoadPlugins() before panel updates
 	//
-	FrameManager->InsertFrame(FPanels); // before PluginCommit()
+	Global->FrameManager->InsertFrame(FPanels); // before PluginCommit()
 	{
 		string strOldTitle;
 		Global->Console->GetTitle(strOldTitle);
-		FrameManager->PluginCommit();
+		Global->FrameManager->PluginCommit();
 		Plugins->LoadPlugins();
 		Global->Console->SetTitle(strOldTitle);
 	}
@@ -123,7 +122,7 @@ void ControlObject::Init(int DirCount)
 	Macro.LoadMacros();
 	Cp()->LeftPanel->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
 	Cp()->RightPanel->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
-	FrameManager->SwitchToPanels();  // otherwise panels are empty
+	Global->FrameManager->SwitchToPanels();  // otherwise panels are empty
 	/*
 		FarChDir(StartCurDir);
 	*/
@@ -157,7 +156,7 @@ ControlObject::~ControlObject()
 
 	SIDCacheFlush();
 	Global->Lang->Close();
-	FrameManager->CloseAll();
+	Global->FrameManager->CloseAll();
 	FPanels=nullptr;
 	FileFilter::CloseFilter();
 	History::CompactHistory();
@@ -168,7 +167,6 @@ ControlObject::~ControlObject()
 	delete FolderHistory;
 	delete CmdHistory;
 	delete Plugins;
-	delete FrameManager;
 	delete HiFiles;
 }
 

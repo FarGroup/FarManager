@@ -165,11 +165,11 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 	if (EnableSwitch)
 	{
-		FrameManager->InsertFrame(this);
+		Global->FrameManager->InsertFrame(this);
 	}
 	else
 	{
-		FrameManager->ExecuteFrame(this);
+		Global->FrameManager->ExecuteFrame(this);
 	}
 }
 
@@ -316,11 +316,11 @@ int FileViewer::ProcessKey(int Key)
 
 			if (!Global->Opt->OnlyEditorViewerUsed)
 			{
-				if (FrameManager->ShowBackground())
+				if (Global->FrameManager->ShowBackground())
 				{
 					SetCursorType(FALSE,0);
 					WaitKey();
-					FrameManager->RefreshFrame();
+					Global->FrameManager->RefreshFrame();
 				}
 			}
 
@@ -333,7 +333,7 @@ int FileViewer::ProcessKey(int Key)
 
 		case KEY_ESC:
 		case KEY_F10:
-			FrameManager->DeleteFrame();
+			Global->FrameManager->DeleteFrame();
 			return TRUE;
 		case KEY_F6:
 
@@ -367,7 +367,7 @@ int FileViewer::ProcessKey(int Key)
 				SetTempViewName(L"");
 				SetExitCode(0);
 
-				FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
+				Global->FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
 				ShowTime(2);
 			}
 

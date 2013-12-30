@@ -85,7 +85,7 @@ const size_t readBufferSize = 32768;
 struct ArcListItem
 {
 	string strArcName;
-	HANDLE hPlugin;    // Plugin handle
+	PluginHandle* hPlugin;    // Plugin handle
 	UINT64 Flags;       // OpenPanelInfo.Flags
 	string strRootPath; // Root path in plugin after opening.
 };
@@ -188,7 +188,7 @@ public:
 		ArcList.clear();
 	}
 
-	ArcListItem& AddArcListItem(const string& ArcName,HANDLE hPlugin,UINT64 dwFlags,const string& RootPath)
+	ArcListItem& AddArcListItem(const string& ArcName, PluginHandle* hPlugin, UINT64 dwFlags, const string& RootPath)
 	{
 		CriticalSectionLock Lock(DataCS);
 
@@ -528,7 +528,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct Plug
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const string& DirName,HANDLE hPlugin,bool UpdatePanel,struct UserDataItem *UserData)
+void FindFiles::SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel, UserDataItem *UserData)
 {
 	if (!DirName.empty())
 	{
@@ -694,7 +694,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					// Ну что ж, раз пошла такая пьянка рефрешить фреймы
 					// будем таким способом.
 					//FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-					FrameManager->ResizeAllFrame();
+					Global->FrameManager->ResizeAllFrame();
 					Global->IsRedrawFramesInProcess--;
 					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot);
@@ -922,7 +922,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName,struct UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -1280,7 +1280,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 {
 	bool FileFound=FileMaskForFindFile->Compare(PointToName(FullName));
 	ArcListItem* ArcItem = itd->GetFindFileArcItem();
-	HANDLE hPlugin=nullptr;
+	PluginHandle* hPlugin=nullptr;
 	if(ArcItem)
 	{
 		hPlugin = ArcItem->hPlugin;
@@ -1478,7 +1478,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_CTRLW:
 			case KEY_RCTRLW:
 				{
-					FrameManager->ProcessKey((DWORD)key);
+					Global->FrameManager->ProcessKey((DWORD)key);
 					return TRUE;
 				}
 				break;
@@ -1631,7 +1631,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							FarMkTempEx(strTempDir);
 							api::CreateDirectory(strTempDir, nullptr);
 							CriticalSectionLock Lock(PluginCS);
-							struct UserDataItem UserData={FindItem->Data,FindItem->FreeData};
+							UserDataItem UserData = {FindItem->Data,FindItem->FreeData};
 							bool bGet=GetPluginFile(FindItem->Arc,FindItem->FindData,strTempDir,strSearchFileName,&UserData);
 							if (!bGet)
 							{
@@ -1717,11 +1717,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 										ShellViewer.SetSaveToSaveAs(true);
 									}
 								}
-								FrameManager->EnterModalEV();
-								FrameManager->ExecuteModal();
-								FrameManager->ExitModalEV();
+								Global->FrameManager->EnterModalEV();
+								Global->FrameManager->ExecuteModal();
+								Global->FrameManager->ExitModalEV();
 								// заставляем рефрешится экран
-								FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+								Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
 							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
@@ -1793,11 +1793,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 											ShellEditor.SetSaveToSaveAs(TRUE);
 										}
 									}
-									FrameManager->EnterModalEV();
-									FrameManager->ExecuteModal();
-									FrameManager->ExitModalEV();
+									Global->FrameManager->EnterModalEV();
+									Global->FrameManager->ExecuteModal();
+									Global->FrameManager->ExitModalEV();
 									// заставляем рефрешится экран
-									FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+									Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 								}
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
@@ -2203,7 +2203,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 	int SavePluginsOutput=Global->DisablePluginsOutput;
 	Global->DisablePluginsOutput=TRUE;
 	string strArcName = ArcName;
-	HANDLE hArc;
+	PluginHandle* hArc;
 	{
 		CriticalSectionLock Lock(PluginCS);
 		hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
@@ -2423,7 +2423,7 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 	}
 }
 
-void FindFiles::ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel)
+void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -2726,7 +2726,7 @@ bool FindFiles::FindFilesProcess()
 	if (PluginMode)
 	{
 		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-		HANDLE hPlugin=ActivePanel->GetPluginHandle();
+		auto hPlugin=ActivePanel->GetPluginHandle();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		itd->SetFindFileArcItem(&itd->AddArcListItem(NullToEmpty(Info.HostFile), hPlugin, Info.Flags, NullToEmpty(Info.CurDir)));
@@ -2829,7 +2829,7 @@ bool FindFiles::FindFilesProcess()
 					}
 				});
 				itd->Unlock();
-				HANDLE hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size());
+				auto hNewPlugin=Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size());
 
 				if (hNewPlugin)
 				{

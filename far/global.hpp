@@ -89,7 +89,7 @@ public:
 	int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 	DWORD ErrorMode;
 #ifndef NO_WRAPPER
-	string strRegRoot;
+	string strRegUser;
 #endif // NO_WRAPPER
 
 	// BUGBUG end
@@ -112,6 +112,7 @@ public:
 	class TPreRedrawFunc* PreRedraw;
 	class notifier* Notifier;
 	class WindowHandler *Window;
+	class Manager* FrameManager;
 	class Options *Opt;
 	class Language *Lang;
 	class Language *OldLang;

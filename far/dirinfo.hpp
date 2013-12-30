@@ -57,7 +57,9 @@ struct DirInfoData
 
 int GetDirInfo(const wchar_t *Title,const string& DirName, DirInfoData& Data, clock_t MsgWaitTime, FileFilter *Filter, DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 
-int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCount,
+struct PluginHandle;
+
+int GetPluginDirInfo(PluginHandle* hPlugin,const string& DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize);
 

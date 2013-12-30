@@ -327,7 +327,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
-	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
+	Frame *FrameFromLaunched = Global->FrameManager->GetCurrentFrame();
 	FrameFromLaunched->Lock();
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||

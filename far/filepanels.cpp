@@ -403,7 +403,7 @@ int FilePanels::SwapPanels()
 		Ret=TRUE;
 	}
 	SetScreenPosition();
-	FrameManager->RefreshFrame();
+	Global->FrameManager->RefreshFrame();
 	return Ret;
 }
 
@@ -421,14 +421,14 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				MainKeyBar.Show();
 				KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar=0;
 				MainKeyBar.Hide();
 				KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 				break;
 			case 3:
 				ProcessKey(KEY_CTRLB);
@@ -525,7 +525,7 @@ int FilePanels::ProcessKey(int Key)
 				MainKeyBar.Hide();
 
 			SetScreenPosition();
-			FrameManager->RefreshFrame();
+			Global->FrameManager->RefreshFrame();
 			break;
 		}
 		case KEY_CTRLL: case KEY_RCTRLL:
@@ -590,7 +590,7 @@ int FilePanels::ProcessKey(int Key)
 					RightStateBeforeHide=RightVisible;
 					LeftPanel->Hide();
 					RightPanel->Hide();
-					FrameManager->RefreshFrame();
+					Global->FrameManager->RefreshFrame();
 				}
 				else
 				{
@@ -629,7 +629,7 @@ int FilePanels::ProcessKey(int Key)
 				Global->CtrlObject->CmdLine->Redraw();
 			}
 
-			FrameManager->RefreshFrame();
+			Global->FrameManager->RefreshFrame();
 			break;
 		}
 		case KEY_CTRLI:
@@ -699,7 +699,7 @@ int FilePanels::ProcessKey(int Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -721,7 +721,7 @@ int FilePanels::ProcessKey(int Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -735,7 +735,7 @@ int FilePanels::ProcessKey(int Key)
 			{
 				++HeightDecrement;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 			break;
 		}
@@ -748,7 +748,7 @@ int FilePanels::ProcessKey(int Key)
 			{
 				--HeightDecrement;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 			break;
 		}
@@ -760,7 +760,7 @@ int FilePanels::ProcessKey(int Key)
 			{
 				Global->Opt->WidthDecrement++;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -772,7 +772,7 @@ int FilePanels::ProcessKey(int Key)
 			{
 				Global->Opt->WidthDecrement--;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -784,7 +784,7 @@ int FilePanels::ProcessKey(int Key)
 			{
 				Global->Opt->WidthDecrement=0;
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -808,7 +808,7 @@ int FilePanels::ProcessKey(int Key)
 			if(Set)
 			{
 				SetScreenPosition();
-				FrameManager->RefreshFrame();
+				Global->FrameManager->RefreshFrame();
 			}
 
 			break;
@@ -848,7 +848,7 @@ int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
 		SetScreenPosition();
 
 		if (RefreshFrame)
-			FrameManager->RefreshFrame();
+			Global->FrameManager->RefreshFrame();
 
 		return TRUE;
 	}

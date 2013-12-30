@@ -199,7 +199,7 @@ Viewer::~Viewer()
 	   Удаляем файл только, если нет открытых фреймов с таким именем.
 	*/
 
-	if (!strTempViewName.empty() && !FrameManager->CountFramesWithName(strTempViewName))
+	if (!strTempViewName.empty() && !Global->FrameManager->CountFramesWithName(strTempViewName))
 	{
 		/* $ 14.06.2002 IS
 		   Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
@@ -4336,12 +4336,12 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			   не является панелью информации и быстрого просмотра (т.е.
 			   фактически панелей на экране не видно)
 			*/
-			if (!FrameManager->IsPanelsActive())
+			if (!Global->FrameManager->IsPanelsActive())
 			{
 				/* $ 29.09.2002 IS
 				   без этого не закрывался вьюер, а просили именно это
 				*/
-				FrameManager->DeleteFrame(HostFileViewer);
+				Global->FrameManager->DeleteFrame(HostFileViewer);
 
 				if (HostFileViewer)
 					HostFileViewer->SetExitCode(0);

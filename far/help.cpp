@@ -178,7 +178,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 		InitKeyBar();
 		MacroMode = MACROAREA_HELP;
 		MoveToReference(1,1);
-		FrameManager->ExecuteModal(this); //OT
+		Global->FrameManager->ExecuteModal(this); //OT
 	}
 	else
 	{
@@ -1119,7 +1119,7 @@ int Help::ProcessKey(int Key)
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			FrameManager->DeleteFrame();
+			Global->FrameManager->DeleteFrame();
 			SetExitCode(XC_QUIT);
 			return TRUE;
 		}
@@ -1547,7 +1547,7 @@ int Help::JumpTopic()
 		MoveToReference(1,1);
 
 	//FrameManager->ImmediateHide();
-	FrameManager->RefreshFrame();
+	Global->FrameManager->RefreshFrame();
 	return TRUE;
 }
 
@@ -2204,8 +2204,8 @@ void Help::ResizeConsole()
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;
 	ScreenObjectWithShadow::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
-	FrameManager->ImmediateHide();
-	FrameManager->RefreshFrame();
+	Global->FrameManager->ImmediateHide();
+	Global->FrameManager->RefreshFrame();
 }
 
 int Help::FastHide()

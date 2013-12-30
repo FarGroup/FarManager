@@ -190,7 +190,7 @@ void PrintFiles(FileList* SrcPanel)
 		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(FALSE,0);
 		PR_PrintMsg();
-		HANDLE hPlugin=SrcPanel->GetPluginHandle();
+		auto hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
 		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 		SrcPanel->GetSelName(nullptr,FileAttr);

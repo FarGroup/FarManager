@@ -443,7 +443,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			Frame *f = FrameManager->GetTopModal();
+			Frame *f = Global->FrameManager->GetTopModal();
 			if (f)
 				f->Lock();
 
@@ -925,7 +925,7 @@ int TreeList::ProcessKey(int Key)
 				{
 					PluginPanelItem Item;
 					int ItemNumber=1;
-					HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
+					auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
 					FileList::FileNameToPluginItem(ListData[CurFile]->strName, &Item);
 					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
 

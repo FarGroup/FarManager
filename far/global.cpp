@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "edit.hpp"
 #include "notification.hpp"
+#include "manager.hpp"
 
 thread DWORD global::m_LastError = ERROR_SUCCESS;
 thread NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
@@ -120,9 +121,6 @@ global::global():
 	KeepUserScreen = 0;
 	Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 	ErrorMode = SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
-#ifndef NO_WRAPPER
-	strRegRoot = L"Software\\Far Manager";
-#endif // NO_WRAPPER
 
 	// BUGBUG end
 
@@ -135,6 +133,7 @@ global::global():
 	PreRedraw = new TPreRedrawFunc;
 	Notifier = new notifier;
 	Window = new WindowHandler;
+	FrameManager = new Manager;
 	Opt = new Options;
 	Lang = new Language;
 	OldLang = new Language;
@@ -170,6 +169,8 @@ global::~global()
 	Lang = nullptr;
 	delete Opt;
 	Opt = nullptr;
+	delete FrameManager;
+	FrameManager = nullptr;
 	delete Window;
 	Window = nullptr;
 	delete Notifier;

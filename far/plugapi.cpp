@@ -215,7 +215,7 @@ intptr_t WINAPI apiInputBox(
     unsigned __int64 Flags
 )
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return FALSE;
 
 	string strDest;
@@ -231,7 +231,7 @@ BOOL WINAPI apiShowHelp(
     FARHELPFLAGS Flags
 )
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return FALSE;
 
 	if (!HelpTopic)
@@ -324,7 +324,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		WindowType* info=(WindowType*)Param2;
 		if (CheckStructSize(info))
 		{
-			WINDOWINFO_TYPE type=ModalType2WType(CurrentWindowType);
+			WINDOWINFO_TYPE type=ModalType2WType(Manager::GetCurrentWindowType());
 			switch(type)
 			{
 			case WTYPE_PANELS:
@@ -357,7 +357,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			break;
 		default:
 
-			if (FrameManager->ManagerIsDown())
+			if (Global->FrameManager->ManagerIsDown())
 				return 0;
 	}
 
@@ -429,8 +429,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
 						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-						FrameManager->ResizeAllFrame();
-						FrameManager->PluginCommit(); // коммитим.
+						Global->FrameManager->ResizeAllFrame();
+						Global->FrameManager->PluginCommit(); // коммитим.
 						Global->ScrBuf->Unlock(); // разрешаем прорисовку
 					}
 
@@ -492,18 +492,18 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				  + Если Pos == -1 то берем текущий фрейм */
 				if (wi->Pos == -1)
 				{
-					f=FrameManager->GetCurrentFrame();
-					modal=(FrameManager->IndexOfStack(f)>=0);
+					f = Global->FrameManager->GetCurrentFrame();
+					modal=(Global->FrameManager->IndexOfStack(f)>=0);
 				}
 				else
 				{
-					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()))
+					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(Global->FrameManager->GetFrameCount()))
 					{
-						f = FrameManager->GetFrame(wi->Pos);
+						f = Global->FrameManager->GetFrame(wi->Pos);
 					}
-					else if(wi->Pos >= static_cast<intptr_t>(FrameManager->GetFrameCount()) && wi->Pos < static_cast<intptr_t>(FrameManager->GetFrameCount()+FrameManager->GetModalStackCount()))
+					else if(wi->Pos >= static_cast<intptr_t>(Global->FrameManager->GetFrameCount()) && wi->Pos < static_cast<intptr_t>(Global->FrameManager->GetFrameCount() + Global->FrameManager->GetModalStackCount()))
 					{
-						f=FrameManager->GetModalFrame(wi->Pos-FrameManager->GetFrameCount());
+						f = Global->FrameManager->GetModalFrame(wi->Pos - Global->FrameManager->GetFrameCount());
 						modal=true;
 					}
 				}
@@ -531,13 +531,13 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					wi->NameSize=static_cast<int>(strName.size()+1);
 				}
 
-				if(-1==wi->Pos) wi->Pos=FrameManager->IndexOf(f);
-				if(-1==wi->Pos) wi->Pos=FrameManager->IndexOfStack(f)+FrameManager->GetFrameCount();
+				if(-1==wi->Pos) wi->Pos = Global->FrameManager->IndexOf(f);
+				if(-1==wi->Pos) wi->Pos = Global->FrameManager->IndexOfStack(f) + Global->FrameManager->GetFrameCount();
 				wi->Type=ModalType2WType(f->GetType());
 				wi->Flags=0;
 				if (f->IsFileModified())
 					wi->Flags|=WIF_MODIFIED;
-				if (f==FrameManager->GetCurrentFrame())
+				if (f == Global->FrameManager->GetCurrentFrame())
 					wi->Flags|=WIF_CURRENT;
 				if (modal)
 					wi->Flags|=WIF_MODAL;
@@ -565,21 +565,21 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 		case ACTL_GETWINDOWCOUNT:
 		{
-			return FrameManager->GetFrameCount()+FrameManager->GetModalStackCount();
+			return Global->FrameManager->GetFrameCount() + Global->FrameManager->GetModalStackCount();
 		}
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (!FrameManager->InModalEV() && FrameManager->GetFrame(Param1))
+			if (!Global->FrameManager->InModalEV() && Global->FrameManager->GetFrame(Param1))
 			{
-				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+				int TypeFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 
 				// Запретим переключение фрэймов, если находимся в хелпе или диалоге (тоже модальных)
 				if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
 				{
-					Frame* PrevFrame = FrameManager->GetCurrentFrame();
-					FrameManager->ActivateFrame(Param1);
-					FrameManager->DeactivateFrame(PrevFrame, 0);
+					Frame* PrevFrame = Global->FrameManager->GetCurrentFrame();
+					Global->FrameManager->ActivateFrame(Param1);
+					Global->FrameManager->DeactivateFrame(PrevFrame, 0);
 					return TRUE;
 				}
 			}
@@ -592,7 +592,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_COMMIT:
 		{
-			return FrameManager->PluginCommit();
+			return Global->FrameManager->PluginCommit();
 		}
 		/* $ 15.09.2001 tran
 		   пригодится плагинам */
@@ -602,8 +602,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 		case ACTL_REDRAWALL:
 		{
-			int Ret=FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-			FrameManager->PluginCommit();
+			int Ret = Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+			Global->FrameManager->PluginCommit();
 			return Ret;
 		}
 
@@ -628,7 +628,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_QUIT:
 		{
 			Global->CloseFARMenu=TRUE;
-			FrameManager->ExitMainLoop(FALSE);
+			Global->FrameManager->ExitMainLoop(FALSE);
 			return TRUE;
 		}
 
@@ -721,7 +721,7 @@ intptr_t WINAPI apiMenuFn(
     size_t ItemsNumber
 )
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return -1;
 
 	if (Global->DisablePluginsOutput)
@@ -787,7 +787,7 @@ intptr_t WINAPI apiMenuFn(
 			}
 			else
 			{
-				INPUT_RECORD input={0};
+				INPUT_RECORD input = {};
 				FarKeyToInputRecord(Item[i].AccelKey,&input);
 				CurItem.AccelKey=InputRecordToKey(&input);
 			}
@@ -869,7 +869,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
 
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return hDlg;
 
 	if (Global->DisablePluginsOutput || ItemsNumber <= 0 || !Item)
@@ -923,7 +923,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 
 intptr_t WINAPI apiDialogRun(HANDLE hDlg)
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return -1;
 
 	if (hDlg==INVALID_HANDLE_VALUE)
@@ -935,7 +935,7 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg)
 	int ExitCode=FarDialog->GetExitCode();
 
 	if (Global->IsMainThread()) // BUGBUG, findfile
-		FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+		Global->FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
 
 	return ExitCode;
 }
@@ -969,7 +969,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if (Flags&FMSG_ERRORTYPE)
 		Global->CatchError();
 
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return -1;
 
 	if (Global->DisablePluginsOutput)
@@ -1091,7 +1091,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	}
 
 	// непосредственно... вывод
-	Frame *frame = FrameManager->GetBottomFrame();
+	Frame *frame = Global->FrameManager->GetBottomFrame();
 
 	if (frame)
 		frame->Lock(); // отменим прорисовку фрейма
@@ -1119,7 +1119,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	if (Command == FCTL_CHECKPANELSEXIST)
 		return !Global->Opt->OnlyEditorViewerUsed;
 
-	if (Global->Opt->OnlyEditorViewerUsed || !Global->CtrlObject || FrameManager->ManagerIsDown())
+	if (Global->Opt->OnlyEditorViewerUsed || !Global->CtrlObject || Global->FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=Global->CtrlObject->Cp();
@@ -1176,11 +1176,10 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Panel *LeftPanel=FPanels->LeftPanel;
 			Panel *RightPanel=FPanels->RightPanel;
 			int Processed=FALSE;
-			PluginHandle *PlHandle;
 
 			if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
 			{
-				PlHandle=(PluginHandle *)LeftPanel->GetPluginHandle();
+				auto PlHandle = LeftPanel->GetPluginHandle();
 
 				if (PlHandle)
 				{
@@ -1195,7 +1194,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
 			{
-				PlHandle=(PluginHandle *)RightPanel->GetPluginHandle();
+				auto PlHandle = RightPanel->GetPluginHandle();
 
 				if (PlHandle)
 				{
@@ -1233,7 +1232,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		}
 		case FCTL_GETUSERSCREEN:
 		{
-			FrameManager->ShowBackground();
+			Global->FrameManager->ShowBackground();
 			int Lock=Global->ScrBuf->GetLockCount();
 			Global->ScrBuf->SetLockCount(0);
 			MoveCursor(0,ScrY-1);
@@ -1314,7 +1313,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 			if (pPanel && (pPanel->GetMode() == PLUGIN_PANEL))
 			{
-				PluginHandle* PlHandle = (PluginHandle *)pPanel->GetPluginHandle();
+				auto PlHandle = pPanel->GetPluginHandle();
 
 				if (PlHandle)
 				{
@@ -1335,7 +1334,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
 {
-	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || Global->FrameManager->ManagerIsDown())
 		return nullptr;
 
 	if (X2==-1)
@@ -1350,7 +1349,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
 
 void WINAPI apiRestoreScreen(HANDLE hScreen)
 {
-	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || Global->FrameManager->ManagerIsDown())
 		return;
 
 	if (!hScreen)
@@ -1368,7 +1367,7 @@ void FreeDirList(std::vector<PluginPanelItem>* Items)
 
 intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
 {
-	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+	if (Global->FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
 
 	string strDirName;
@@ -1433,7 +1432,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
-	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+	if (Global->FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
 	return GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, pPanelItem, pItemsNumber);
 }
@@ -1453,14 +1452,14 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
                      intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage)
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return FALSE;
 
 	class ConsoleTitle ct;
 	int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 	// $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
-	if (FrameManager->InModalEV())
+	if (Global->FrameManager->InModalEV())
 	{
 		Flags&=~VF_NONMODAL;
 	}
@@ -1487,14 +1486,14 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		*/
 		if (!(Flags&VF_IMMEDIATERETURN))
 		{
-			FrameManager->ExecuteNonModal();
+			Global->FrameManager->ExecuteNonModal();
 		}
 		else
 		{
 			if (Global->GlobalSaveScrPtr)
 				Global->GlobalSaveScrPtr->Discard();
 
-			FrameManager->PluginCommit();
+			Global->FrameManager->PluginCommit();
 		}
 	}
 	else
@@ -1506,9 +1505,9 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 		/* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
 		Viewer.SetDynamicallyBorn(false);
-		FrameManager->EnterModalEV();
-		FrameManager->ExecuteModal();
-		FrameManager->ExitModalEV();
+		Global->FrameManager->EnterModalEV();
+		Global->FrameManager->ExecuteModal();
+		Global->FrameManager->ExitModalEV();
 
 		/* $ 14.06.2002 IS
 		   Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
@@ -1528,7 +1527,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage)
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;
 
 	ConsoleTitle ct;
@@ -1560,7 +1559,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 	  Запретим вызов немодального редактора, если находимся в модальном
 	  редакторе или вьюере.
 	*/
-	if (FrameManager->InModalEV())
+	if (Global->FrameManager->InModalEV())
 	{
 		Flags&=~EF_NONMODAL;
 	}
@@ -1599,14 +1598,14 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
 			if (!(Flags&EF_IMMEDIATERETURN))
 			{
-				FrameManager->ExecuteNonModal();
+				Global->FrameManager->ExecuteNonModal();
 			}
 			else
 			{
 				if (Global->GlobalSaveScrPtr)
 					Global->GlobalSaveScrPtr->Discard();
 
-				FrameManager->PluginCommit();
+				Global->FrameManager->PluginCommit();
 			}
 
 			ExitCode=XC_MODIFIED;
@@ -1636,9 +1635,9 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			/* $ 15.05.2002 SKV
 			  Зафиксируем вход и выход в/из модального редактора.
 			*/
-			FrameManager->EnterModalEV();
-			FrameManager->ExecuteModal();
-			FrameManager->ExitModalEV();
+			Global->FrameManager->EnterModalEV();
+			Global->FrameManager->ExecuteModal();
+			Global->FrameManager->ExitModalEV();
 			ExitCode = Editor.GetExitCode();
 
 			if (ExitCode)
@@ -1659,7 +1658,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str)
 {
-	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || Global->FrameManager->ManagerIsDown())
 		return;
 
 	if (!Str)
@@ -1677,7 +1676,7 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 
 intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return 0;
 
 	FileEditor* currentEditor=Global->CtrlObject->Plugins->GetCurEditor();
@@ -1700,10 +1699,10 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 
 		for(size_t ii=0;ii<ARRAYSIZE(Functions);++ii)
 		{
-			size_t count=(FrameManager->*Functions[ii].second)();
+			size_t count=(Global->FrameManager->*Functions[ii].second)();
 			for(size_t jj=0;jj<count;++jj)
 			{
-				Frame *frame=(FrameManager->*Functions[ii].first)(jj);
+				Frame *frame=(Global->FrameManager->*Functions[ii].first)(jj);
 				if (frame->GetType() == MODALTYPE_EDITOR)
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
@@ -1720,7 +1719,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 
 intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
-	if (FrameManager->ManagerIsDown())
+	if (Global->FrameManager->ManagerIsDown())
 		return 0;
 
 	if (ViewerID == -1)
@@ -1734,7 +1733,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 	{
 		int idx=0;
 		Frame *frame;
-		while((frame = FrameManager->GetFrame(idx++)))
+		while((frame = Global->FrameManager->GetFrame(idx++)))
 		{
 			if (frame->GetType() == MODALTYPE_VIEWER)
 			{
@@ -2153,7 +2152,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 		case PCTL_UNLOADPLUGIN:
 			{
-				return Global->CtrlObject->Plugins->UnloadPluginExternal(Handle);
+				return Global->CtrlObject->Plugins->UnloadPluginExternal(static_cast<Plugin*>(Handle));
 			}
 			break;
 
@@ -2546,7 +2545,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
 {
 	BOOL Result = FALSE;
-	if (!FrameManager->ManagerIsDown())
+	if (!Global->FrameManager->ManagerIsDown())
 	{
 		Result = Global->Console->GetColorDialog(*Color, true, false);
 	}

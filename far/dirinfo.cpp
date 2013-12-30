@@ -268,7 +268,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 }
 
 static int StopSearch;
-static HANDLE hDirListPlugin;
+static PluginHandle* hDirListPlugin;
 static int PluginSearchMsgOut;
 
 static void PR_FarGetPluginDirListMsg();
@@ -417,12 +417,12 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 		/* $ 30.11.2001 DJ
 			А плагиновая ли это панель?
 		*/
-		HANDLE Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel:Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
+		auto Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel:Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
 
 		if (!Handle)
 			return FALSE;
 
-		DirListPlugin=*(PluginHandle *)Handle;
+		DirListPlugin = *Handle;
 	}
 	else
 	{
@@ -442,7 +442,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			SetCursorType(FALSE,0);
 			FarGetPluginDirListMsg(strDirName,0);
 			PluginSearchMsgOut=FALSE;
-			hDirListPlugin=(HANDLE)&DirListPlugin;
+			hDirListPlugin = &DirListPlugin;
 			StopSearch=FALSE;
 
 			auto PluginDirList = new std::vector<PluginPanelItem>;
@@ -456,7 +456,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = NullToEmpty(Info.CurDir);
 
-			struct UserDataItem UserData={0};  // How to find the value of a variable?
+			UserDataItem UserData = {};  // How to find the value of a variable?
 
 			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT|OpMode,&UserData))
 			{
@@ -511,7 +511,7 @@ void FreePluginDirList(HANDLE hPlugin, const PluginPanelItem *PanelItem)
 	delete PluginDirList;
 }
 
-int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCount,
+int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize)
 {
@@ -520,7 +520,6 @@ int GetPluginDirInfo(HANDLE hPlugin,const string& DirName,unsigned long &DirCoun
 	int ExitCode;
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
-	PluginHandle *ph = (PluginHandle*)hPlugin;
 
 	if ((ExitCode=GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //intptr_t - BUGBUG
 	{

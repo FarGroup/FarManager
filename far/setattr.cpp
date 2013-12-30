@@ -714,7 +714,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		HANDLE hPlugin=SrcPanel->GetPluginHandle();
+		auto hPlugin=SrcPanel->GetPluginHandle();
 
 		if (hPlugin == INVALID_HANDLE_VALUE)
 		{

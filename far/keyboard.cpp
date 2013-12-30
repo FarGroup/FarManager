@@ -303,7 +303,7 @@ static TFKey3 SpecKeyName[]=
 
 /* ----------------------------------------------------------------- */
 
-static HKL Layout[10]={0};
+static HKL Layout[10] = {};
 static int LayoutNumber=0;
 
 /*
@@ -689,7 +689,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			(CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_RALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS) || CalcKey == (KEY_RALT|KEY_INS)))
 		{
 			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-			FrameManager->SetLastInputRecord(rec);
+			Global->FrameManager->SetLastInputRecord(rec);
 			irec.IntKey=CalcKey;
 			irec.Rec=*rec;
 			if (Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -705,7 +705,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (!NotMacros)
 		{
 			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-			FrameManager->SetLastInputRecord(rec);
+			Global->FrameManager->SetLastInputRecord(rec);
 			irec.IntKey=CalcKey;
 			irec.Rec=*rec;
 			if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -788,7 +788,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (Global->CloseFAR && !ExitInProcess)
 		{
 			ExitInProcess = true;
-			FrameManager->ExitMainLoop(FALSE);
+			Global->FrameManager->ExitMainLoop(FALSE);
 			return KEY_NONE;
 		}
 
@@ -807,7 +807,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 					if (!UpdateReenter && CurTime-KeyPressedLastTime>300)
 					{
-						if (FrameManager->IsPanelsActive())
+						if (Global->FrameManager->IsPanelsActive())
 						{
 							UpdateReenter = true;
 							Global->CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
@@ -964,7 +964,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if (IntKeyState.ReturnAltValue && !NotMacros)
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		FrameManager->SetLastInputRecord(rec);
+		Global->FrameManager->SetLastInputRecord(rec);
 		irec.IntKey=CalcKey;
 		irec.Rec=*rec;
 		if (Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -1012,7 +1012,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			// _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
 			Sleep(1);
 
-			if (FrameManager)
+			if (Global->FrameManager)
 			{
 				Global->ScrBuf->ResetShadow();
 				// апдейтим панели (именно они сейчас!)
@@ -1021,8 +1021,8 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				if (Global->GlobalSaveScrPtr)
 					Global->GlobalSaveScrPtr->Discard();
 
-				FrameManager->ResizeAllFrame();
-				FrameManager->GetCurrentFrame()->Show();
+				Global->FrameManager->ResizeAllFrame();
+				Global->FrameManager->GetCurrentFrame()->Show();
 				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
 				if (!Global->PreRedraw->empty())
 				{
@@ -1104,9 +1104,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			{
 				_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(Key)));
-				if(FrameManager)
+				if(Global->FrameManager)
 				{
-					FrameManager->SetLastInputRecord(rec);
+					Global->FrameManager->SetLastInputRecord(rec);
 				}
 				irec.IntKey=Key;
 				irec.Rec=*rec;
@@ -1322,9 +1322,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					else
 					{
 						_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
-						if(FrameManager)
+						if(Global->FrameManager)
 						{
-							FrameManager->SetLastInputRecord(rec);
+							Global->FrameManager->SetLastInputRecord(rec);
 						}
 						irec.IntKey=MsCalcKey;
 						irec.Rec=*rec;
@@ -1341,9 +1341,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		if(FrameManager)
+		if(Global->FrameManager)
 		{
-			FrameManager->SetLastInputRecord(rec);
+			Global->FrameManager->SetLastInputRecord(rec);
 		}
 		irec.IntKey=CalcKey;
 		irec.Rec=*rec;
@@ -1489,7 +1489,7 @@ bool CheckForEscSilent()
 	*/
 
 	// если в "макросе"...
-	if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && Global->FrameManager->GetCurrentFrame())
 	{
 		if (Global->CtrlObject->Macro.IsDisableOutput())
 			Processed = false;
@@ -1508,7 +1508,7 @@ bool CheckForEscSilent()
 			return true;
 		}
 		else if (Key==KEY_ALTF9 || Key==KEY_RALTF9)
-			FrameManager->ProcessKey(KEY_ALTF9);
+			Global->FrameManager->ProcessKey(KEY_ALTF9);
 	}
 
 	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)

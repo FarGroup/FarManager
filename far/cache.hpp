@@ -45,7 +45,7 @@ public:
 
 private:
 	api::File& file;
-	const DWORD DefaultBufferSize;
+	static const DWORD DefaultBufferSize = 0x10000;
 	DWORD ReadSize;
 	DWORD BytesLeft;
 	INT64 LastPtr;
