@@ -148,7 +148,7 @@ static int MainProcess(
 			Global->CtrlObject->CreateDummyFilePanels();
 			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
 			Global->CtrlObject->Plugins->LoadPlugins();
-			Global->CtrlObject->Macro.LoadMacros(true,false);
+			Global->CtrlObject->Macro.Load(true, false);
 
 			if (!ename.empty())
 			{

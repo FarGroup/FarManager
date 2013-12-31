@@ -792,7 +792,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				FillMenu(&HiMenu,MenuPos=SelectPos);
 
 				if (Global->Opt->AutoSaveSetup)
-					SaveHiData();
+					Save(false);
 				Global->ScrBuf->Unlock(); // разрешаем прорисовку
 			}
 			return KeyProcessed;
@@ -855,9 +855,9 @@ static void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	cfg->SetValue(key,HLS.ContinueProcessing, CurHiData->GetContinueProcessing()?1:0);
 }
 
-void HighlightFiles::SaveHiData()
+void HighlightFiles::Save(bool always)
 {
-	if (!Changed)
+	if (!always && !Changed)
 		return;
 
 	Changed = false;

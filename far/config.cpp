@@ -907,7 +907,7 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 	};
 	static_assert(ARRAYSIZE(Init) == predefined_panel_modes_count, "not all initial modes defined");
 
-	auto InitMode = [&](const panelmode_init& src, PanelViewSettings& dst)
+	auto InitMode = [](const panelmode_init& src, PanelViewSettings& dst)
 	{
 		dst.PanelColumns.resize(src.Columns.count);
 		std::copy(src.Columns.init, src.Columns.init + src.Columns.count, dst.PanelColumns.begin());
@@ -1116,22 +1116,21 @@ void Options::SetFilePanelModes()
 		int ExitCode;
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
-		PanelViewSettings NewSettings = ViewSettings[ModeNumber];
-
-		if (AddNewMode)
+		if (!AddNewMode)
 		{
-			NewSettings.clear();
+			auto& CurrentSettings = ViewSettings[ModeNumber];
+
+			ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected = (CurrentSettings.Flags & PVS_FULLSCREEN) != 0;
+			ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected = (CurrentSettings.Flags & PVS_ALIGNEXTENSIONS) != 0;
+			ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected = (CurrentSettings.Flags & PVS_FOLDERALIGNEXTENSIONS) != 0;
+			ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected = (CurrentSettings.Flags & PVS_FOLDERUPPERCASE) != 0;
+			ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected = (CurrentSettings.Flags & PVS_FILELOWERCASE) != 0;
+			ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected = (CurrentSettings.Flags & PVS_FILEUPPERTOLOWERCASE) != 0;
+			ModeDlg[MD_EDITNAME].strData = CurrentSettings.Name;
+			ViewSettingsToText(CurrentSettings.PanelColumns, ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData);
+			ViewSettingsToText(CurrentSettings.StatusColumns, ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 		}
 
-		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=(NewSettings.Flags&PVS_FULLSCREEN)?1:0;
-		ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected=(NewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0;
-		ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected=(NewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0;
-		ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected=(NewSettings.Flags&PVS_FOLDERUPPERCASE)?1:0;
-		ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected=(NewSettings.Flags&PVS_FILELOWERCASE)?1:0;
-		ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected=(NewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)?1:0;
-		ModeDlg[MD_EDITNAME].strData = NewSettings.Name;
-		ViewSettingsToText(NewSettings.PanelColumns, ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData);
-		ViewSettingsToText(NewSettings.StatusColumns, ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 		{
 			Dialog Dlg(ModeDlg);
 			Dlg.SetPosition(-1,-1,76,19);
@@ -1143,9 +1142,10 @@ void Options::SetFilePanelModes()
 
 		if (ExitCode == MD_BUTTON_OK || ExitCode == MD_BUTTON_RESET)
 		{
+			PanelViewSettings NewSettings;
+
 			if (ExitCode == MD_BUTTON_OK)
 			{
-				NewSettings.clear();
 				if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
 					NewSettings.Flags|=PVS_FULLSCREEN;
 				if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)
@@ -1169,11 +1169,11 @@ void Options::SetFilePanelModes()
 
 			if (AddNewMode)
 			{
-				AddViewSettings(ModeNumber, &NewSettings);
+				AddViewSettings(ModeNumber, std::move(NewSettings));
 			}
 			else
 			{
-				SetViewSettings(ModeNumber, &NewSettings);
+				SetViewSettings(ModeNumber, std::move(NewSettings));
 			}
 			Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
 			Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
@@ -1288,9 +1288,9 @@ bool BoolOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, con
 	return ReceiveValue(Storage, KeyName, ValueName, Default->bDefault);
 }
 
-bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
+bool BoolOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
-	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
+	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
 
@@ -1323,9 +1323,9 @@ bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const string& KeyName, co
 	return ReceiveValue(Storage, KeyName, ValueName, Default->iDefault);
 }
 
-bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
+bool Bool3Option::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
-	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
+	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
 
@@ -1361,9 +1361,9 @@ bool IntOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, cons
 	return ReceiveValue(Storage, KeyName, ValueName, Default->iDefault);
 }
 
-bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
+bool IntOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
-	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
+	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
 const string IntOption::ExInfo() const
@@ -1413,9 +1413,9 @@ bool StringOption::ReceiveValue(GeneralConfig* Storage, const string& KeyName, c
 	return ReceiveValue(Storage, KeyName, ValueName, Default->sDefault);
 }
 
-bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const
+bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
-	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
+	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }
 
 
@@ -2048,79 +2048,60 @@ void Options::Load()
 	});
 }
 
-void Options::Save(bool Ask)
+void Options::Save(bool Manual)
 {
 	InitConfig();
 
-	if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
+	if (Manual && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
 		return;
 
 	/* <опеопнжеяяш> *************************************************** */
-	Panel *LeftPanelPtr=Global->CtrlObject->Cp()->LeftPanel;
-	Panel *RightPanelPtr=Global->CtrlObject->Cp()->RightPanel;
-	LeftPanel.Visible=LeftPanelPtr->IsVisible() != 0;
-	RightPanel.Visible=RightPanelPtr->IsVisible() != 0;
 
-	if (LeftPanelPtr->GetMode()==NORMAL_PANEL)
+	auto StorePanelOptions = [](Panel* PanelPtr, PanelOptions& Panel)
 	{
-		LeftPanel.Type=LeftPanelPtr->GetType();
-		LeftPanel.ViewMode=LeftPanelPtr->GetViewMode();
-		LeftPanel.SortMode=LeftPanelPtr->GetSortMode();
-		LeftPanel.ReverseSortOrder=LeftPanelPtr->GetSortOrder();
-		LeftPanel.SortGroups=LeftPanelPtr->GetSortGroups() != 0;
-		LeftPanel.ShowShortNames=LeftPanelPtr->GetShowShortNamesMode() != 0;
-		LeftPanel.NumericSort=LeftPanelPtr->GetNumericSort() != 0;
-		LeftPanel.CaseSensitiveSort=LeftPanelPtr->GetCaseSensitiveSort() != 0;
-		LeftPanel.SelectedFirst=LeftPanelPtr->GetSelectedFirstMode() != 0;
-		LeftPanel.DirectoriesFirst=LeftPanelPtr->GetDirectoriesFirst() != 0;
-	}
+		if (PanelPtr->GetMode()==NORMAL_PANEL)
+		{
+			Panel.Type = PanelPtr->GetType();
+			Panel.ViewMode = PanelPtr->GetViewMode();
+			Panel.SortMode = PanelPtr->GetSortMode();
+			Panel.ReverseSortOrder = PanelPtr->GetSortOrder();
+			Panel.SortGroups = PanelPtr->GetSortGroups();
+			Panel.ShowShortNames = PanelPtr->GetShowShortNamesMode();
+			Panel.NumericSort = PanelPtr->GetNumericSort();
+			Panel.CaseSensitiveSort = PanelPtr->GetCaseSensitiveSort();
+			Panel.SelectedFirst = PanelPtr->GetSelectedFirstMode();
+			Panel.DirectoriesFirst = PanelPtr->GetDirectoriesFirst();
+		}
+		Panel.Visible = PanelPtr->IsVisible();
+		Panel.Folder = PanelPtr->GetCurDir();
+		string strTemp1, strTemp2;
+		PanelPtr->GetCurBaseName(strTemp1, strTemp2);
+		Panel.CurFile = strTemp1;
+	};
 
-	LeftPanel.Folder = LeftPanelPtr->GetCurDir();
-	string strTemp1, strTemp2;
-	LeftPanelPtr->GetCurBaseName(strTemp1, strTemp2);
-	LeftPanel.CurFile = strTemp1;
-	if (RightPanelPtr->GetMode()==NORMAL_PANEL)
-	{
-		RightPanel.Type=RightPanelPtr->GetType();
-		RightPanel.ViewMode=RightPanelPtr->GetViewMode();
-		RightPanel.SortMode=RightPanelPtr->GetSortMode();
-		RightPanel.ReverseSortOrder=RightPanelPtr->GetSortOrder();
-		RightPanel.SortGroups=RightPanelPtr->GetSortGroups() != 0;
-		RightPanel.ShowShortNames=RightPanelPtr->GetShowShortNamesMode() != 0;
-		RightPanel.NumericSort=RightPanelPtr->GetNumericSort() != 0;
-		RightPanel.CaseSensitiveSort=RightPanelPtr->GetCaseSensitiveSort() != 0;
-		RightPanel.SelectedFirst=RightPanelPtr->GetSelectedFirstMode() != 0;
-		RightPanel.DirectoriesFirst=RightPanelPtr->GetDirectoriesFirst() != 0;
-	}
+	StorePanelOptions(Global->CtrlObject->Cp()->LeftPanel, LeftPanel);
+	StorePanelOptions(Global->CtrlObject->Cp()->RightPanel, RightPanel);
 
-	RightPanel.Folder = RightPanelPtr->GetCurDir();
-	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
-	RightPanel.CurFile = strTemp1;
+	LeftFocus = Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->LeftPanel;
 
-	LeftFocus = Global->CtrlObject->Cp()->ActivePanel == LeftPanelPtr;
-
-	Global->CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </опеопнжеяяш> */
 
-	Palette.Save();
+	Global->CtrlObject->HiFiles->Save(Manual);
+
+	Palette.Save(Manual);
 
 	std::for_each(CONST_RANGE(Config, i)
 	{
 		auto t(i.first->ScopedTransaction());
 		std::for_each(CONST_RANGE(i.second, j)
 		{
-			j.Value->StoreValue(i.first, j.KeyName, j.ValName);
+			j.Value->StoreValue(i.first, j.KeyName, j.ValName, Manual);
 		});
 	});
 
-	/* <оняропнжеяяш> *************************************************** */
-	FileFilter::SaveFilters();
-	SavePanelModes();
-
-	if (Ask)
-		Global->CtrlObject->Macro.SaveMacros();
-
-	/* *************************************************** </оняропнжеяяш> */
+	FileFilter::Save(Manual);
+	SavePanelModes(Manual);
+	Global->CtrlObject->Macro.Save(Manual);
 }
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -2263,17 +2244,17 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	return true;
 }
 
-void Options::SetViewSettings(size_t Index, const struct PanelViewSettings* Data)
+void Options::SetViewSettings(size_t Index, PanelViewSettings&& Data)
 {
 	assert(Index < m_ViewSettings.size());
 
-	m_ViewSettings[Index] = *Data;
+	m_ViewSettings[Index] = std::move(Data);
 	m_ViewSettingsChanged = true;
 }
 
-void Options::AddViewSettings(size_t Index, const struct PanelViewSettings* Data)
+void Options::AddViewSettings(size_t Index, PanelViewSettings&& Data)
 {
-	m_ViewSettings.emplace(m_ViewSettings.begin() + std::max(Index, predefined_panel_modes_count), *Data);
+	m_ViewSettings.emplace(m_ViewSettings.begin() + std::max(Index, predefined_panel_modes_count), std::move(Data));
 	m_ViewSettingsChanged = true;
 }
 
@@ -2341,7 +2322,7 @@ void Options::ReadPanelModes()
 		{
 			PanelViewSettings NewSettings;
 			if (ReadMode(NewSettings, i))
-				m_ViewSettings.push_back(NewSettings);
+				m_ViewSettings.emplace_back(std::move(NewSettings));
 			else
 				break;
 		}
@@ -2351,9 +2332,9 @@ void Options::ReadPanelModes()
 }
 
 
-void Options::SavePanelModes()
+void Options::SavePanelModes(bool always)
 {
-	if (!m_ViewSettingsChanged)
+	if (!always && !m_ViewSettingsChanged)
 		return;
 
 	auto cfg = Global->Db->CreatePanelModeConfig();

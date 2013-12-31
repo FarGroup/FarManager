@@ -115,6 +115,7 @@ public:
 		TreeItem(TreeItem&& rhs): Depth() { *this = std::move(rhs); }
 		TreeItem& operator =(TreeItem&& rhs)
 		{
+			panelitem::operator=(std::move(rhs));
 			Last.swap(rhs.Last);
 			std::swap(Depth, rhs.Depth);
 			return *this;

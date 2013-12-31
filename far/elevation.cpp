@@ -522,7 +522,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 
 	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
-		Global->FrameManager && !Global->FrameManager->ManagerIsDown())
+ 		Global->FrameManager && !Global->FrameManager->ManagerIsDown())
 	{
 		Recurse = true;
 		GuardLastError error;

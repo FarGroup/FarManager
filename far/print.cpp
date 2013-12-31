@@ -213,7 +213,7 @@ void PrintFiles(FileList* SrcPanel)
 					if (ListItem)
 					{
 						PluginPanelItem PanelItem;
-						FileList::FileListToPluginItem(ListItem, &PanelItem);
+						FileList::FileListToPluginItem(*ListItem, &PanelItem);
 
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;

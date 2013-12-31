@@ -99,7 +99,7 @@ public:
 	explicit Option(const long long Value):iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
 	bool Changed() const {return ValueChanged;}
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const = 0;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
 	virtual const string toString() const = 0;
 	virtual const string ExInfo() const = 0;
 	virtual const OptionType getType() const = 0;
@@ -136,7 +136,7 @@ public:
 	const bool Get() const {return GetInt() != 0;}
 	operator bool() const {return GetInt() != 0;}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return Get()? L"true" : L"false";}
 	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_BOOLEAN;}
@@ -163,7 +163,7 @@ public:
 	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
 	operator int() const {return GetInt() % 3;}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, int Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
 	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_BOOLEAN3;}
@@ -194,7 +194,7 @@ public:
 	IntOption operator++(int){long long Current = GetInt(); Set(Current+1); return Current;}
 	operator long long() const {return GetInt();}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string&  ValueName, long long Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return std::to_wstring(Get());}
 	virtual const string ExInfo() const override;
 	virtual const OptionType getType() const override {return TYPE_INTEGER;}
@@ -225,7 +225,7 @@ public:
 	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const wchar_t* Default);
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName) const override;
+	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return Get();}
 	virtual const string ExInfo() const override {return string();}
 	virtual const OptionType getType() const override {return TYPE_STRING;}
@@ -252,7 +252,7 @@ public:
 	Options();
 	void ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load();
-	void Save(bool Ask);
+	void Save(bool Manual);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
 	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
@@ -843,11 +843,11 @@ private:
 	void AutoCompleteSettings();
 	void TreeSettings();
 	void SetFilePanelModes();
-	void SetViewSettings(size_t Index, const struct PanelViewSettings* Data);
-	void AddViewSettings(size_t Index, const struct PanelViewSettings* Data);
+	void SetViewSettings(size_t Index, PanelViewSettings&& Data);
+	void AddViewSettings(size_t Index, PanelViewSettings&& Data);
 	void DeleteViewSettings(size_t Index);
 	void ReadPanelModes();
-	void SavePanelModes();
+	void SavePanelModes(bool always);
 
 	class farconfig:NonCopyable
 	{

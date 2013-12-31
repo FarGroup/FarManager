@@ -206,15 +206,15 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (!ListData.empty())
 	{
-		strCurName = ListData[CurFile]->strName;
+		strCurName = ListData[CurFile].strName;
 
-		if (ListData[CurFile]->Selected && !ReturnCurrentFile)
+		if (ListData[CurFile].Selected && !ReturnCurrentFile)
 		{
 			for (size_t i=CurFile+1; i < ListData.size(); i++)
 			{
-				if (!ListData[i]->Selected)
+				if (!ListData[i].Selected)
 				{
-					strNextCurName = ListData[i]->strName;
+					strNextCurName = ListData[i].strName;
 					break;
 				}
 			}
@@ -298,56 +298,56 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			if (ListData.size() == ListData.capacity())
 				ListData.reserve(ListData.size() + 4096);
 
-			auto NewItem = new FileListItem;
-			NewItem->FileAttr = fdata.dwFileAttributes;
-			NewItem->CreationTime = fdata.ftCreationTime;
-			NewItem->AccessTime = fdata.ftLastAccessTime;
-			NewItem->WriteTime = fdata.ftLastWriteTime;
-			NewItem->ChangeTime = fdata.ftChangeTime;
-			NewItem->FileSize = fdata.nFileSize;
-			NewItem->AllocationSize = fdata.nAllocationSize;
-			NewItem->strName = fdata.strFileName;
-			NewItem->strShortName = fdata.strAlternateFileName;
-			NewItem->Position = ListData.size();
-			NewItem->NumberOfLinks=1;
+			ListData.emplace_back(VALUE_TYPE(ListData)());
+			auto& NewItem = ListData.back();
+
+			NewItem.FileAttr = fdata.dwFileAttributes;
+			NewItem.CreationTime = fdata.ftCreationTime;
+			NewItem.AccessTime = fdata.ftLastAccessTime;
+			NewItem.WriteTime = fdata.ftLastWriteTime;
+			NewItem.ChangeTime = fdata.ftChangeTime;
+			NewItem.FileSize = fdata.nFileSize;
+			NewItem.AllocationSize = fdata.nAllocationSize;
+			NewItem.strName = fdata.strFileName;
+			NewItem.strShortName = fdata.strAlternateFileName;
+			NewItem.Position = ListData.size() - 1;
+			NewItem.NumberOfLinks=1;
 
 			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
-				NewItem->ReparseTag=fdata.dwReserved0; //MSDN
+				NewItem.ReparseTag=fdata.dwReserved0; //MSDN
 			}
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				TotalFileSize += NewItem->FileSize;
+				TotalFileSize += NewItem.FileSize;
 
 				if (ReadNumLinks)
-					NewItem->NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
+					NewItem.NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
 			}
 			else
 			{
-				NewItem->AllocationSize = 0;
+				NewItem.AllocationSize = 0;
 			}
 
-			NewItem->SortGroup=DEFAULT_SORT_GROUP;
+			NewItem.SortGroup=DEFAULT_SORT_GROUP;
 
 			if (ReadOwners)
 			{
 				string strOwner;
-				GetFileOwner(strComputerName, NewItem->strName,strOwner);
-				NewItem->strOwner = strOwner;
+				GetFileOwner(strComputerName, NewItem.strName,strOwner);
+				NewItem.strOwner = strOwner;
 			}
 
-			NewItem->NumberOfStreams=NewItem->FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
-			NewItem->StreamsSize=NewItem->FileSize;
+			NewItem.NumberOfStreams=NewItem.FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
+			NewItem.StreamsSize=NewItem.FileSize;
 
 			if (ReadNumStreams||ReadStreamsSize)
 			{
-				EnumStreams(TestParentFolderName(fdata.strFileName)? strCurDir : fdata.strFileName, NewItem->StreamsSize, NewItem->NumberOfStreams);
+				EnumStreams(TestParentFolderName(fdata.strFileName)? strCurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
 			}
 
 			if (ReadCustomData)
-				NewItem->strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem->strName);
-
-			ListData.emplace_back(NewItem);
+				NewItem.strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem.strName);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -402,7 +402,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
 	{
-		auto NewItem = new FileListItem;
+		ListData.emplace_back(VALUE_TYPE(ListData)());
+		auto& NewItem = ListData.back();
 
 		string TwoDotsOwner;
 		if (ReadOwners)
@@ -413,9 +414,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		FILETIME TwoDotsTimes[4]={};
 		api::GetFileTimeSimple(strCurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
 
-		AddParentPoint(NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
-
-		ListData.emplace_back(NewItem);
+		AddParentPoint(&NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
 	}
 
 	if (IsColumnDisplayed(DIZ_COLUMN))
@@ -425,7 +424,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		std::for_each(RANGE(ListData, i)
 		{
-			Global->CtrlObject->HiFiles->GetHiColor(i.get());
+			Global->CtrlObject->HiFiles->GetHiColor(&i);
 		});
 	}
 
@@ -445,21 +444,21 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			auto PluginPtr = PanelData;
 			for (auto i = ListData.begin() + OldSize; i != ListData.end(); ++i, ++PluginPtr, ++Position)
 			{
-				PluginToFileListItem(PluginPtr, i->get());
-				(*i)->Position = Position;
+				PluginToFileListItem(PluginPtr, &*i);
+				i->Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
-				(*i)->PrevSelected = (*i)->Selected=0;
-				(*i)->ShowFolderSize = 0;
-				(*i)->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i->get());
+				i->PrevSelected = i->Selected=0;
+				i->ShowFolderSize = 0;
+				i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(&*i);
 
-				if (!TestParentFolderName(PluginPtr->FileName) && !((*i)->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!TestParentFolderName(PluginPtr->FileName) && !(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 					TotalFileCount++;
 			}
 
 			// цветовую боевую раскраску в самом конце, за один раз
-			std::for_each(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount, LAMBDA_PREDICATE(ListData, i)
+			std::for_each(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount, [](VALUE_TYPE(ListData)& i)
 			{
-				Global->CtrlObject->HiFiles->GetHiColor(i.get());
+				Global->CtrlObject->HiFiles->GetHiColor(&i);
 			});
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
@@ -473,9 +472,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
 		if (LastSelPosition >= 0 && static_cast<size_t>(LastSelPosition) < OldData.size())
-			strLastSel = OldData[LastSelPosition]->strName;
+			strLastSel = OldData[LastSelPosition].strName;
 		if (GetSelPosition >= 0 && static_cast<size_t>(GetSelPosition) < OldData.size())
-			strGetSel = OldData[GetSelPosition]->strName;
+			strGetSel = OldData[GetSelPosition].strName;
 
 		MoveSelection(OldData, ListData);
 		DeleteListData(OldData);
@@ -497,7 +496,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName, strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile].strName, strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -590,14 +589,14 @@ void FileList::StopFSWatcher()
 
 struct search_list_less
 {
-	bool operator()(const std::unique_ptr<FileListItem>& a, const std::unique_ptr<FileListItem>& b) const
+	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
-		return a->strName < b->strName;
+		return a.strName < b.strName;
 	}
 }
 SearchListLess;
 
-void FileList::MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, std::vector<std::unique_ptr<FileListItem>>& To)
+void FileList::MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To)
 {
 	SelFileCount=0;
 	SelFileSize=0;
@@ -606,23 +605,22 @@ void FileList::MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, s
 
 	std::sort(From.begin(), From.end(), SearchListLess);
 
-	std::for_each(CONST_RANGE(To, i)
+	std::for_each(RANGE(To, i)
 	{
-		auto Iterator = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
-		if (Iterator != From.end())
+		auto OldItem = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
+		if (OldItem != From.end())
 		{
-			auto OldItem = Iterator->get();
-			if (OldItem->strName == i->strName)
+			if (OldItem->strName == i.strName)
 			{
 				if (OldItem->ShowFolderSize)
 				{
-					i->ShowFolderSize = 2;
-					i->FileSize = OldItem->FileSize;
-					i->AllocationSize = OldItem->AllocationSize;
+					i.ShowFolderSize = 2;
+					i.FileSize = OldItem->FileSize;
+					i.AllocationSize = OldItem->AllocationSize;
 				}
 
-				this->Select(i.get(), OldItem->Selected);
-				i->PrevSelected = OldItem->PrevSelected;
+				this->Select(i, OldItem->Selected);
+				i.PrevSelected = OldItem->PrevSelected;
 			}
 		}
 	});
@@ -641,7 +639,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 
 	DizRead=FALSE;
-	std::vector<std::unique_ptr<FileListItem>> OldData;
+	std::vector<FileListItem> OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
 	LastCurFile=-1;
@@ -685,18 +683,15 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	if (!ListData.empty())
 	{
-		auto CurPtr=ListData[CurFile].get();
-		strCurName = CurPtr->strName;
+		strCurName = ListData[CurFile].strName;
 
-		if (CurPtr->Selected)
+		if (ListData[CurFile].Selected)
 		{
 			for (size_t i = CurFile + 1; i < ListData.size(); ++i)
 			{
-				CurPtr = ListData[i].get();
-
-				if (!CurPtr->Selected)
+				if (!ListData[i].Selected)
 				{
-					strNextCurName = CurPtr->strName;
+					strNextCurName = ListData[i].strName;
 					break;
 				}
 			}
@@ -716,8 +711,6 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		DeleteListData(ListData);
 	}
 
-	ListData.resize(PluginFileCount);
-
 	if (!Filter)
 		Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
 
@@ -725,14 +718,14 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	Filter->UpdateCurrentTime();
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	int DotsPresent=FALSE;
-	int FileListCount=0;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 
-	for (size_t i = 0; i < ListData.size(); i++)
+	ListData.reserve(PluginFileCount);
+
+	for (size_t i = 0; i < PluginFileCount; i++)
 	{
-		// BUGBUG, make_unique
-		ListData[FileListCount].reset(new FileListItem);
-		FileListItem& CurListData = *ListData[FileListCount].get();
+		ListData.push_back(VALUE_TYPE(ListData)());
+		FileListItem& CurListData = ListData.back();
 
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
 		{
@@ -770,27 +763,24 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		}
 
 		TotalFileSize += CurListData.FileSize;
-		FileListCount++;
 	}
-
-	ListData.resize(FileListCount);
 
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
 	{
 		std::for_each(RANGE(ListData, i)
 		{
-			Global->CtrlObject->HiFiles->GetHiColor(i.get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(&i, (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 		});
 	}
 
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{
-		auto NewItem = new FileListItem;
-		AddParentPoint(NewItem, ListData.size());
-		ListData.emplace_back(NewItem);
+		ListData.emplace_back(VALUE_TYPE(ListData)());
+		auto& NewItem = ListData.back();
+		AddParentPoint(&NewItem, ListData.size());
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			Global->CtrlObject->HiFiles->GetHiColor(ListData.back().get(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(&ListData.back(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -798,10 +788,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 			if (api::GetFindDataEx(Info.HostFile, FindData))
 			{
-				NewItem->WriteTime=FindData.ftLastWriteTime;
-				NewItem->CreationTime=FindData.ftCreationTime;
-				NewItem->AccessTime=FindData.ftLastAccessTime;
-				NewItem->ChangeTime=FindData.ftChangeTime;
+				NewItem.WriteTime=FindData.ftLastWriteTime;
+				NewItem.CreationTime=FindData.ftCreationTime;
+				NewItem.AccessTime=FindData.ftLastAccessTime;
+				NewItem.ChangeTime=FindData.ftChangeTime;
 			}
 		}
 	}
@@ -822,9 +812,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (KeepSelection || PrevSelFileCount>0)
 	{
 		if (LastSelPosition >= 0 && LastSelPosition < static_cast<long>(OldData.size()))
-			strLastSel = OldData[LastSelPosition]->strName;
+			strLastSel = OldData[LastSelPosition].strName;
 		if (GetSelPosition >= 0 && GetSelPosition < static_cast<long>(OldData.size()))
-			strGetSel = OldData[GetSelPosition]->strName;
+			strGetSel = OldData[GetSelPosition].strName;
 
 		MoveSelection(OldData, ListData);
 		DeleteListData(OldData);
@@ -843,7 +833,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, FALSE);
 
-	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile]->strName,strCurName))
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile].strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -926,12 +916,12 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		}
 	}
 
-	std::for_each(CONST_RANGE(ListData, i)
+	std::for_each(RANGE(ListData, i)
 	{
-		if (!i->DizText)
+		if (!i.DizText)
 		{
-			i->DeleteDiz = false;
-			i->DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i->strName, i->strShortName, i->FileSize));
+			i.DeleteDiz = false;
+			i.DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i.strName, i.strShortName, i.FileSize));
 		}
 	});
 }
@@ -948,9 +938,9 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		SortGroupsRead=TRUE;
 
-		std::for_each(CONST_RANGE(ListData, i)
+		std::for_each(RANGE(ListData, i)
 		{
-			i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(i.get());
+			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&i);
 		});
 	}
 }

@@ -119,7 +119,7 @@ void ControlObject::Init(int DirCount)
 	FarChDir(Cp()->ActivePanel->GetCurDir());
 	Cp()->ActivePanel->SetFocus();
 
-	Macro.LoadMacros();
+	Macro.Load();
 	Cp()->LeftPanel->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
 	Cp()->RightPanel->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
 	Global->FrameManager->SwitchToPanels();  // otherwise panels are empty

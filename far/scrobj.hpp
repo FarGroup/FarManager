@@ -73,7 +73,7 @@ public:
 	bool Locked();
 	void SavePrevScreen();
 	void Redraw();
-	int IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
+	bool IsVisible() const {return Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);}
 	void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
 	void SetOwner(ScreenObject *pOwner) {this->pOwner = pOwner;}

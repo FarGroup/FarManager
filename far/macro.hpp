@@ -233,8 +233,8 @@ public:
 	DWORD GetHistoryDisableMask() const;
 	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	FARMACROAREA GetMode() const { return m_Mode; }
-	bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
-	bool SaveMacros();
+	bool Load(bool InitedRAM=true,bool LoadAll=true);
+	bool Save(bool always);
 	// получить данные о макросе (возвращает статус)
 	int GetCurRecord() const;
 	int ProcessEvent(const FAR_INPUT_RECORD *Rec);

@@ -524,16 +524,16 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         L"PrevDirectoriesFirst=%02d "
 				         L"HostFile=%s\n",
 				         I,
-				         ListItems[I].hPlugin,
-				         (ListItems[I].Modified?L"True ":L"False"),
-				         ListItems[I].PrevViewMode,
-				         ListItems[I].PrevSortMode,
-				         (ListItems[I].PrevSortMode<BY_CUSTOMDATA?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
-				         ListItems[I].PrevSortOrder,
-				         ListItems[I].PrevNumericSort,
-						 ListItems[I].PrevCaseSensitiveSort,
-				         ListItems[I].PrevDirectoriesFirst,
-				         ListItems[I].strHostFile.data());
+				         ListItems[I].m_Plugin,
+				         (ListItems[I].m_Modified?L"True ":L"False"),
+				         ListItems[I].m_PrevViewMode,
+				         ListItems[I].m_PrevSortMode,
+				         (ListItems[I].m_PrevSortMode<BY_CUSTOMDATA?__SORT[ListItems[I].m_PrevSortMode].Name:L"<Unknown>"),
+				         ListItems[I].m_PrevSortOrder,
+				         ListItems[I].m_PrevNumericSort,
+						 ListItems[I].m_PrevCaseSensitiveSort,
+				         ListItems[I].m_PrevDirectoriesFirst,
+				         ListItems[I].m_HostFile.data());
 		}
 
 		fwprintf(fp,L"\n");

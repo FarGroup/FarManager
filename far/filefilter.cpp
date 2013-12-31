@@ -400,7 +400,7 @@ bool FileFilter::FilterEdit()
 		ProcessSelection(&FilterList);
 
 	if (Global->Opt->AutoSaveSetup)
-		SaveFilters();
+		Save(false);
 
 	if (ExitCode!=-1 || bNeedUpdate)
 	{
@@ -868,9 +868,9 @@ void FileFilter::CloseFilter()
 	}
 }
 
-void FileFilter::SaveFilters()
+void FileFilter::Save(bool always)
 {
-	if (!Changed)
+	if (!always && !Changed)
 		return;
 
 	Changed = false;

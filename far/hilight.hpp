@@ -75,7 +75,7 @@ public:
 	int GetGroup(const FileListItem *fli);
 	void HiEdit(int MenuPos);
 	void UpdateHighlighting(bool RefreshMasks = false);
-	void SaveHiData();
+	void Save(bool always);
 
 private:
 	void InitHighlightFiles(class HierarchicalConfig* cfg);

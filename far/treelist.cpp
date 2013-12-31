@@ -1503,7 +1503,7 @@ bool TreeList::GetPlainString(string& Dest,int ListPos)
 #if defined(Mantis_698)
 	if (ListPos<TreeCount)
 	{
-		Dest=ListData[ListPos]->strName;
+		Dest=ListData[ListPos].strName;
 		return true;
 	}
 #endif

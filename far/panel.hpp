@@ -45,14 +45,28 @@ struct column
 	int width_type;
 };
 
-struct PanelViewSettings
+struct PanelViewSettings: NonCopyable
 {
-	std::vector<column> PanelColumns;
-	std::vector<column> StatusColumns;
-	string Name;
-	unsigned __int64 Flags;
+	PanelViewSettings(): Flags() {}
+	PanelViewSettings(PanelViewSettings&& rhs): Flags() { *this = std::move(rhs); }
+	PanelViewSettings& operator =(PanelViewSettings&& rhs)
+	{
+		PanelColumns.swap(rhs.PanelColumns);
+		StatusColumns.swap(rhs.StatusColumns);
+		Name.swap(rhs.Name);
+		std::swap(Flags, rhs.Flags);
+		return *this;
+	}
 
-	PanelViewSettings():Flags(0){}
+	PanelViewSettings clone() const
+	{
+		PanelViewSettings result;
+		result.PanelColumns = PanelColumns;
+		result.StatusColumns = StatusColumns;
+		result.Name = Name;
+		result.Flags = Flags;
+		return result;
+	}
 
 	void clear()
 	{
@@ -61,6 +75,11 @@ struct PanelViewSettings
 		Name.clear();
 		Flags = 0;
 	}
+
+	std::vector<column> PanelColumns;
+	std::vector<column> StatusColumns;
+	string Name;
+	unsigned __int64 Flags;
 };
 
 enum

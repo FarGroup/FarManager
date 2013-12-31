@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem:public Panel::panelitem
+struct FileListItem:public Panel::panelitem, NonCopyable
 {
 	char Selected;
 	char PrevSelected;
@@ -80,55 +80,166 @@ struct FileListItem:public Panel::panelitem
 
 	string strCustomData;
 
-	~FileListItem();
-
-private:
-	// no construction outside of FileList
 	FileListItem():
-		Selected(0),
-		PrevSelected(0),
-		ShowFolderSize(0),
-		ShortNamePresent(0),
+		Selected(),
+		PrevSelected(),
+		ShowFolderSize(),
+		ShortNamePresent(),
 		Colors(),
-		NumberOfLinks(0),
-		NumberOfStreams(0),
-		UserFlags(0),
-		UserData(nullptr),
-		Callback(nullptr),
-		Position(0),
-		SortGroup(0),
-		DizText(nullptr),
-		DeleteDiz(0),
-		CustomColumnData(nullptr),
-		CustomColumnNumber(0),
-		CRC32(0),
-		FileAttr(0),
+		NumberOfLinks(),
+		NumberOfStreams(),
+		UserFlags(),
+		UserData(),
+		Callback(),
+		Position(),
+		SortGroup(),
+		DizText(),
+		DeleteDiz(),
+		CustomColumnData(),
+		CustomColumnNumber(),
+		CRC32(),
+		FileAttr(),
 		CreationTime(),
 		AccessTime(),
 		WriteTime(),
 		ChangeTime(),
-		FileSize(0),
-		AllocationSize(0),
-		StreamsSize(0),
-		ReparseTag(0)
+		FileSize(),
+		AllocationSize(),
+		StreamsSize(),
+		ReparseTag()
 	{
 	}
-	friend class FileList;
+
+	FileListItem(FileListItem&& rhs):
+		Selected(),
+		PrevSelected(),
+		ShowFolderSize(),
+		ShortNamePresent(),
+		Colors(),
+		NumberOfLinks(),
+		NumberOfStreams(),
+		UserFlags(),
+		UserData(),
+		Callback(),
+		Position(),
+		SortGroup(),
+		DizText(),
+		DeleteDiz(),
+		CustomColumnData(),
+		CustomColumnNumber(),
+		CRC32(),
+		FileAttr(),
+		CreationTime(),
+		AccessTime(),
+		WriteTime(),
+		ChangeTime(),
+		FileSize(),
+		AllocationSize(),
+		StreamsSize(),
+		ReparseTag()
+	{
+		*this = std::move(rhs);
+	}
+
+	~FileListItem();
+
+	FileListItem& operator =(FileListItem&& rhs)
+	{
+		panelitem::operator=(std::move(rhs));
+
+		Selected = rhs.Selected;
+		PrevSelected = rhs.PrevSelected;
+		ShowFolderSize = rhs.ShowFolderSize;
+		ShortNamePresent = rhs.ShortNamePresent;
+		Colors = rhs.Colors;
+		NumberOfLinks = rhs.NumberOfLinks;
+		NumberOfStreams = rhs.NumberOfStreams;
+		UserFlags = rhs.UserFlags;
+		std::swap(UserData, rhs.UserData);
+		std::swap(Callback, rhs.Callback);
+		Position = rhs.Position;
+		SortGroup = rhs.SortGroup;
+		std::swap(DizText, rhs.DizText);
+		std::swap(DeleteDiz, rhs.DeleteDiz);
+		strOwner.swap(rhs.strOwner);
+		std::swap(CustomColumnData, rhs.CustomColumnData);
+		std::swap(CustomColumnNumber, rhs.CustomColumnNumber);
+		CRC32 = rhs.CRC32;
+		FileAttr = rhs.FileAttr;
+		CreationTime = rhs.CreationTime;
+		AccessTime = rhs.AccessTime;
+		WriteTime = rhs.WriteTime;
+		ChangeTime = rhs.ChangeTime;
+		FileSize = rhs.FileSize;
+		AllocationSize = rhs.AllocationSize;
+		StreamsSize = rhs.StreamsSize;
+		strShortName.swap(rhs.strShortName);
+		ReparseTag = rhs.ReparseTag;
+		strCustomData.swap(rhs.strCustomData);
+
+		return *this;
+	}
 };
 
-struct PluginsListItem
+struct PluginsListItem: NonCopyable
 {
-	PluginHandle* hPlugin;
-	string strHostFile;
-	string strPrevOriginalCurDir;
-	int Modified;
-	int PrevViewMode;
-	int PrevSortMode;
-	bool PrevSortOrder;
-	bool PrevNumericSort;
-	bool PrevCaseSensitiveSort;
-	bool PrevDirectoriesFirst;
-	PanelViewSettings PrevViewSettings;
+	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, int PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+		m_Plugin(hPlugin),
+		m_HostFile(HostFile),
+		m_PrevOriginalCurDir(PrevOriginalCurDir),
+		m_Modified(Modified),
+		m_PrevViewMode(PrevViewMode),
+		m_PrevSortMode(PrevSortMode),
+		m_PrevSortOrder(PrevSortOrder),
+		m_PrevNumericSort(PrevNumericSort),
+		m_PrevCaseSensitiveSort(PrevCaseSensitiveSort),
+		m_PrevDirectoriesFirst(PrevDirectoriesFirst),
+		m_PrevViewSettings(PrevViewSettings.clone())
+	{}
+
+	PluginsListItem(PluginsListItem&& rhs):
+		m_Plugin(),
+		m_HostFile(),
+		m_PrevOriginalCurDir(),
+		m_Modified(),
+		m_PrevViewMode(),
+		m_PrevSortMode(),
+		m_PrevSortOrder(),
+		m_PrevNumericSort(),
+		m_PrevCaseSensitiveSort(),
+		m_PrevDirectoriesFirst(),
+		m_PrevViewSettings()
+	{
+		*this = std::move(rhs);
+	}
+
+	PluginsListItem& operator =(PluginsListItem&& rhs)
+	{
+		m_Plugin = rhs.m_Plugin;
+		m_HostFile.swap(rhs.m_HostFile);
+		m_PrevOriginalCurDir.swap(rhs.m_PrevOriginalCurDir);
+		m_Modified = rhs.m_Modified;
+		m_PrevViewMode = rhs.m_PrevViewMode;
+		m_PrevSortMode = rhs.m_PrevSortMode;
+		m_PrevSortOrder = rhs.m_PrevSortOrder;
+		m_PrevNumericSort = rhs.m_PrevNumericSort;
+		m_PrevCaseSensitiveSort = rhs.m_PrevCaseSensitiveSort;
+		m_PrevDirectoriesFirst = rhs.m_PrevDirectoriesFirst;
+		m_PrevViewSettings = std::move(rhs.m_PrevViewSettings);
+		return *this;
+	}
+
+	PluginHandle* m_Plugin;
+	string m_HostFile;
+	string m_PrevOriginalCurDir;
+	int m_Modified;
+	int m_PrevViewMode;
+	int m_PrevSortMode;
+	bool m_PrevSortOrder;
+	bool m_PrevNumericSort;
+	bool m_PrevCaseSensitiveSort;
+	bool m_PrevDirectoriesFirst;
+	PanelViewSettings m_PrevViewSettings;
 };
 
 ENUM(OPENFILEPLUGINTYPE);
@@ -231,7 +342,7 @@ public:
 	static void ReadPanelModes();
 	static size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
 	static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
-	static void FileListToPluginItem(const FileListItem *fi,PluginPanelItem *pi);
+	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem *pi);
 	static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
 	static bool IsModeFullScreen(int Mode);
 	static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
@@ -248,7 +359,7 @@ private:
 	virtual int GetCurBaseName(string &strName, string &strShortName) override;
 
 	void ApplySortMode(int Mode);
-	void DeleteListData(std::vector<std::unique_ptr<FileListItem>>& ListData);
+	void DeleteListData(std::vector<FileListItem>& ListData);
 	void Up(int Count);
 	void Down(int Count);
 	void Scroll(int Count);
@@ -260,7 +371,7 @@ private:
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
 	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr);
-	void Select(FileListItem *SelPtr,int Selection);
+	void Select(FileListItem& SelItem, int Selection);
 	long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
@@ -268,7 +379,7 @@ private:
 	void CountDirSize(UINT64 PluginFlags);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
-	void MoveSelection(std::vector<std::unique_ptr<FileListItem>>& From, std::vector<std::unique_ptr<FileListItem>>& To);
+	void MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To);
 	void PushPlugin(PluginHandle* hPlugin,const string& HostFile);
 	int PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
@@ -301,7 +412,7 @@ private:
 
 	struct PrevDataItem
 	{
-		PrevDataItem(const string& rhsPrevName, std::vector<std::unique_ptr<FileListItem>>&& rhsPrevListData, int rhsPrevTopFile):
+		PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
 			strPrevName(rhsPrevName),
 			PrevTopFile(rhsPrevTopFile)
 		{
@@ -323,7 +434,7 @@ private:
 		}
 
 		string strPrevName;
-		std::vector<std::unique_ptr<FileListItem>> PrevListData;
+		std::vector<FileListItem> PrevListData;
 		int PrevTopFile;
 	};
 
@@ -338,7 +449,7 @@ private:
 
 	string strOriginalCurDir;
 	string strPluginDizName;
-	std::vector<std::unique_ptr<FileListItem>> ListData;
+	std::vector<FileListItem> ListData;
 	PluginHandle* hPlugin;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;

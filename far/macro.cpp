@@ -515,7 +515,7 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory) const
 	return !m_CurState.m_MacroQueue.empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
 }
 
-bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
+bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
 {
 	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
@@ -529,7 +529,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::SaveMacros()
+bool KeyMacro::Save(bool /*always*/)
 {
 	OpenMacroPluginInfo info={MCT_WRITEMACROS,0,nullptr};
 	return CallMacroPlugin(&info);
@@ -829,7 +829,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
-					SaveMacros(); // записать только изменения!
+					Save(false); // записать только изменения!
 
 				return true;
 			}

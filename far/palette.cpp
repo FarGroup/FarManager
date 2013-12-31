@@ -245,9 +245,9 @@ void palette::Load()
 	PaletteChanged = false;
 }
 
-void palette::Save()
+void palette::Save(bool always)
 {
-	if (PaletteChanged)
+	if (always || PaletteChanged)
 	{
 		auto t(Global->Db->ColorsCfg()->ScopedTransaction());
 

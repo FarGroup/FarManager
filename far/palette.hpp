@@ -38,7 +38,7 @@ class palette
 public:
 	palette();
 	void Load();
-	void Save();
+	void Save(bool always);
 	void ResetToDefault();
 	void ResetToBlack();
 	void Set(size_t StartOffset, FarColor* Value, size_t Count);
