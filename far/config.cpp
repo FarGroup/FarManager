@@ -470,25 +470,30 @@ void Options::MaskGroupsSettings()
 			case KEY_NUMENTER:
 			case KEY_F4:
 				{
-					string Name(Item), Value;
-					if(Item)
+					if (Item)
 					{
-						Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
-					}
-					DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
-					Builder.AddText(MMaskGroupName);
-					Builder.AddEditField(&Name, 60);
-					Builder.AddText(MMaskGroupMasks);
-					Builder.AddEditField(&Value, 60);
-					Builder.AddOKCancel();
-					if(Builder.ShowDialog())
-					{
-						if(Item)
+						string Name, Value;
+
+						if (*Item)
 						{
-							Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+							Name = Item;
+							Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 						}
-						Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
-						Changed = true;
+						DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
+						Builder.AddText(MMaskGroupName);
+						Builder.AddEditField(&Name, 60);
+						Builder.AddText(MMaskGroupMasks);
+						Builder.AddEditField(&Value, 60);
+						Builder.AddOKCancel();
+						if(Builder.ShowDialog())
+						{
+							if(*Item)
+							{
+								Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+							}
+							Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
+							Changed = true;
+						}
 					}
 				}
 				break;
