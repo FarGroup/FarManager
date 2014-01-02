@@ -82,19 +82,6 @@ FileFilterParams::FileFilterParams(FileFilterParams&& rhs):
 	*this = std::move(rhs);
 }
 
-FileFilterParams& FileFilterParams::operator=(FileFilterParams&& rhs)
-{
-	std::swap(m_strTitle, rhs.m_strTitle);
-	std::swap(FMask, rhs.FMask);
-	std::swap(FDate, rhs.FDate);
-	std::swap(FSize, rhs.FSize);
-	std::swap(FHardLinks, rhs.FHardLinks);
-	std::swap(FAttr, rhs.FAttr);
-	std::swap(FHighlight, rhs.FHighlight);
-	std::swap(FFlags, rhs.FFlags);
-	return *this;
-}
-
 FileFilterParams FileFilterParams::Clone()
 {
 	FileFilterParams Result;

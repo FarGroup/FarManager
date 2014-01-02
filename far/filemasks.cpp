@@ -220,15 +220,6 @@ void filemasks::ErrorMessage() const
 	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
 }
 
-filemasks::masks& filemasks::masks::operator =(filemasks::masks&& Right)
-{
-	Masks.swap(Right.Masks);
-	re.swap(Right.re);
-	m.swap(Right.m);
-	bRE = Right.bRE;
-	return *this;
-}
-
 bool filemasks::masks::Set(const string& masks)
 {
 	Free();

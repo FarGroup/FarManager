@@ -59,7 +59,7 @@ struct InternalEditorBookmark
 	intptr_t LeftPos;
 };
 
-struct EditorUndoData
+struct EditorUndoData: NonCopyable
 {
 	int Type;
 	int StrPos;
@@ -103,16 +103,17 @@ public:
 		*this = std::move(rhs);
 	}
 
-	EditorUndoData& operator=(EditorUndoData&& Right)
+	MOVE_OPERATOR_BY_SWAP(EditorUndoData);
+
+	void swap(EditorUndoData& rhs)
 	{
-		std::swap(Type, Right.Type);
-		std::swap(StrPos, Right.StrPos);
-		std::swap(StrNum, Right.StrNum);
-		std::swap(Length, Right.Length);
-		Str.swap(Right.Str);
-		std::swap(EOL, Right.EOL);
-		std::swap(BM, Right.BM);
-		return *this;
+		std::swap(Type, rhs.Type);
+		std::swap(StrPos, rhs.StrPos);
+		std::swap(StrNum, rhs.StrNum);
+		std::swap(Length, rhs.Length);
+		Str.swap(rhs.Str);
+		std::swap(EOL, rhs.EOL);
+		std::swap(BM, rhs.BM);
 	}
 
 	void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,size_t Length)
@@ -172,6 +173,8 @@ public:
 			return NULL;
 	}
 };
+
+STD_SWAP_SPEC(EditorUndoData);
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITOR

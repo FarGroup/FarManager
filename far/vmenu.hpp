@@ -122,24 +122,20 @@ struct MenuItemEx:NonCopyable
 		*this = std::move(rhs);
 	}
 
-	MenuItemEx& operator=(MenuItemEx&& rhs)
-	{
-		if (this != &rhs)
-		{
-			strName.swap(rhs.strName);
-			std::swap(Flags, rhs.Flags);
-			std::swap(UserData, rhs.UserData);
-			std::swap(UserDataSize, rhs.UserDataSize);
-			std::swap(ShowPos, rhs.ShowPos);
-			std::swap(AccelKey, rhs.AccelKey);
-			std::swap(AmpPos, rhs.AmpPos);
-			std::swap(Len[0], rhs.Len[0]);
-			std::swap(Len[1], rhs.Len[1]);
-			std::swap(Idx2, rhs.Idx2);
-			Annotations.swap(rhs.Annotations);
-		}
+	MOVE_OPERATOR_BY_SWAP(MenuItemEx);
 
-		return *this;
+	void swap(MenuItemEx& rhs)
+	{
+		strName.swap(rhs.strName);
+		std::swap(Flags, rhs.Flags);
+		std::swap(UserData, rhs.UserData);
+		std::swap(UserDataSize, rhs.UserDataSize);
+		std::swap(ShowPos, rhs.ShowPos);
+		std::swap(AccelKey, rhs.AccelKey);
+		std::swap(AmpPos, rhs.AmpPos);
+		std::swap(Len, rhs.Len);
+		std::swap(Idx2, rhs.Idx2);
+		Annotations.swap(rhs.Annotations);
 	}
 
 	string strName;
@@ -173,6 +169,8 @@ struct MenuItemEx:NonCopyable
 	UINT64 SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
 	UINT64 SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
+
+STD_SWAP_SPEC(MenuItemEx);
 
 struct MenuDataEx
 {

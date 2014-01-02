@@ -54,6 +54,15 @@ class TreeListCache
 public:
 	TreeListCache() {}
 	TreeListCache(TreeListCache&& rhs) { *this = std::move(rhs); }
+
+	MOVE_OPERATOR_BY_SWAP(TreeListCache);
+
+	void swap(TreeListCache& rhs)
+	{
+		strTreeName.swap(rhs.strTreeName);
+		Names.swap(rhs.Names);
+	}
+
 	void Clean()
 	{
 		Names.clear();
@@ -67,37 +76,22 @@ public:
 		return *this;
 	}
 
-	TreeListCache& operator =(TreeListCache&& rhs)
-	{
-		strTreeName.swap(rhs.strTreeName);
-		Names.swap(rhs.Names);
-		return *this;
-	}
-
 	void Sort();
 
 	string strTreeName;
 	std::list<string> Names;
 };
 
+STD_SWAP_SPEC(TreeListCache);
+
 class TreeList: public Panel
 {
 public:
-	struct TreeItem:public panelitem
+	struct TreeItem: NonCopyable
 	{
+		string strName;
 		std::vector<int> Last;
 		int Depth;
-
-		TreeItem& operator=(const TreeItem& rhs)
-		{
-			if (this != &rhs)
-			{
-				panelitem::operator=(rhs);
-				Last = rhs.Last;
-				Depth = rhs.Depth;
-			}
-			return *this;
-		}
 
 		TreeItem():
 			Last(MAX_PATH/2),
@@ -106,19 +100,21 @@ public:
 		}
 
 		TreeItem(const string& Name):
-			panelitem(Name),
+			strName(Name),
 			Last(MAX_PATH/2),
 			Depth(0)
 		{
 		}
 
 		TreeItem(TreeItem&& rhs): Depth() { *this = std::move(rhs); }
-		TreeItem& operator =(TreeItem&& rhs)
+
+		MOVE_OPERATOR_BY_SWAP(TreeItem);
+
+		void swap(TreeItem& rhs)
 		{
-			panelitem::operator=(std::move(rhs));
+			strName.swap(rhs.strName);
 			Last.swap(rhs.Last);
 			std::swap(Depth, rhs.Depth);
-			return *this;
 		}
 	};
 
@@ -208,7 +204,7 @@ public:
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
-	virtual const TreeItem* GetItem(size_t Index) const override;
+	const TreeItem* GetItem(size_t Index) const;
 	virtual int GetCurrentPos() const override;
 
 	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,api::FAR_FIND_DATA *fd=nullptr) override;
@@ -224,3 +220,5 @@ public:
 	static int MustBeCached(const string& Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла
 	static void PR_MsgReadTree();
 };
+
+STD_SWAP_SPEC(TreeList::TreeItem);

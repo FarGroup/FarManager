@@ -379,9 +379,9 @@ bool FileFilter::FilterEdit()
 					!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && SelPos==(int)(FilterData->size()-1)))
 				{
 					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
-					std::swap(*FilterList.GetItemPtr(SelPos), *FilterList.GetItemPtr(NewPos));
+					FilterList.GetItemPtr(SelPos)->swap(*FilterList.GetItemPtr(NewPos));
 					auto i1 = FilterData->begin() + NewPos, i2 = FilterData->begin() + SelPos;
-					std::swap(*i1, *i2);
+					i1->swap(*i2);
 					FilterList.SetSelectPos(NewPos,1);
 					bNeedUpdate=true;
 				}

@@ -108,7 +108,16 @@ class RunningMacro:NonCopyable
 public:
 	RunningMacro();
 	RunningMacro(RunningMacro&& rhs);
-	RunningMacro& operator= (RunningMacro&& src);
+	MOVE_OPERATOR_BY_SWAP(RunningMacro);
+
+	void swap(RunningMacro& rhs)
+	{
+		std::swap(mp_values, rhs.mp_values);
+		std::swap(mp_data, rhs.mp_data);
+		std::swap(mp_data.Values, rhs.mp_data.Values);
+		std::swap(mp_info, rhs.mp_info);
+		std::swap(mp_info.Data, rhs.mp_info.Data);
+	}
 
 	intptr_t GetHandle() const { return mp_info.Handle; }
 	void SetHandle(intptr_t handle) { mp_info.Handle=handle; }
@@ -123,6 +132,8 @@ private:
 	FarMacroCall mp_data;
 	OpenMacroPluginInfo mp_info;
 };
+
+STD_SWAP_SPEC(RunningMacro);
 
 class MacroRecord:NonCopyable
 {
@@ -144,9 +155,19 @@ public:
 		*this = std::move(rhs);
 	}
 
+	MOVE_OPERATOR_BY_SWAP(MacroRecord);
+
 	MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description);
 
-	MacroRecord& operator =(MacroRecord&& rhs);
+	void swap(MacroRecord& rhs)
+	{
+		std::swap(m_flags, rhs.m_flags);
+		std::swap(m_key, rhs.m_key);
+		m_code.swap(rhs.m_code);
+		m_description.swap(rhs.m_description);
+		std::swap(m_macroId, rhs.m_macroId);
+		m_running.swap(rhs.m_running);
+	}
 
 	MACROFLAGS_MFLAGS Flags() const {return m_flags;}
 	int Key() const { return m_key; }
@@ -171,6 +192,8 @@ private:
 	friend class KeyMacro;
 };
 
+STD_SWAP_SPEC(MacroRecord);
+
 class MacroState:NonCopyable
 {
 public:
@@ -193,7 +216,9 @@ public:
 		*this = std::move(rhs);
 	}
 
-	MacroState& operator =(MacroState&& rhs)
+	MOVE_OPERATOR_BY_SWAP(MacroState);
+
+	void swap(MacroState& rhs)
 	{
 		std::swap(IntKey, rhs.IntKey);
 		std::swap(Executing, rhs.Executing);
@@ -201,7 +226,6 @@ public:
 		std::swap(KeyProcess, rhs.KeyProcess);
 		std::swap(HistoryDisable, rhs.HistoryDisable);
 		std::swap(UseInternalClipboard, rhs.UseInternalClipboard);
-		return *this;
 	}
 
 	MacroRecord* GetCurMacro() { return m_MacroQueue.empty()? nullptr : &m_MacroQueue.front(); }
@@ -216,6 +240,8 @@ public:
 	DWORD HistoryDisable;
 	bool UseInternalClipboard;
 };
+
+STD_SWAP_SPEC(MacroState);
 
 class Dialog;
 

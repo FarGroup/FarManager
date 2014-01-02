@@ -361,3 +361,20 @@ template<class T>
 inline const T* NullToEmpty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }
 template<class T>
 inline const T* EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
+
+#define MOVE_OPERATOR_BY_SWAP(Type) \
+Type& operator=(Type&& rhs) { swap(rhs); return *this; }
+
+#define STD_SWAP_SPEC(Type) \
+namespace std \
+{ \
+	template<> \
+	inline void swap(Type& a, Type& b) \
+	{ \
+		a.swap(b); \
+	} \
+}
+
+#define ALLOW_SWAP_ACCESS(Type) \
+friend void std::swap<Type>(Type&, Type&);
+

@@ -105,16 +105,13 @@ public:
 		*this = std::move(rhs);
 	}
 
-	ChDiskPluginItem& operator=(ChDiskPluginItem&& rhs)
-	{
-		if (this != &rhs)
-		{
-			Item = std::move(rhs.Item);
-			HotKey=rhs.HotKey;
-		}
-		return *this;
-	}
+	MOVE_OPERATOR_BY_SWAP(ChDiskPluginItem);
 
+	void swap(ChDiskPluginItem& rhs)
+	{
+		Item.swap(rhs.Item);
+		std::swap(HotKey, rhs.HotKey);
+	}
 
 	bool operator ==(const ChDiskPluginItem& rhs) const
 	{
@@ -136,6 +133,7 @@ private:
 	WCHAR HotKey;
 };
 
+STD_SWAP_SPEC(ChDiskPluginItem);
 
 Panel::Panel():
 	ProcessingPluginCommand(0),

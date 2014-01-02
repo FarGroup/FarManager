@@ -40,8 +40,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-struct FileListItem:public Panel::panelitem, NonCopyable
+struct FileListItem: NonCopyable
 {
+	string strName;
 	char Selected;
 	char PrevSelected;
 	char ShowFolderSize;
@@ -143,43 +144,44 @@ struct FileListItem:public Panel::panelitem, NonCopyable
 
 	~FileListItem();
 
-	FileListItem& operator =(FileListItem&& rhs)
-	{
-		panelitem::operator=(std::move(rhs));
+	MOVE_OPERATOR_BY_SWAP(FileListItem);
 
-		Selected = rhs.Selected;
-		PrevSelected = rhs.PrevSelected;
-		ShowFolderSize = rhs.ShowFolderSize;
-		ShortNamePresent = rhs.ShortNamePresent;
-		Colors = rhs.Colors;
-		NumberOfLinks = rhs.NumberOfLinks;
-		NumberOfStreams = rhs.NumberOfStreams;
-		UserFlags = rhs.UserFlags;
+	void swap(FileListItem& rhs)
+	{
+		strName.swap(rhs.strName);
+		std::swap(Selected, rhs.Selected);
+		std::swap(PrevSelected, rhs.PrevSelected);
+		std::swap(ShowFolderSize, rhs.ShowFolderSize);
+		std::swap(ShortNamePresent, rhs.ShortNamePresent);
+		std::swap(Colors, rhs.Colors);
+		std::swap(NumberOfLinks, rhs.NumberOfLinks);
+		std::swap(NumberOfStreams, rhs.NumberOfStreams);
+		std::swap(UserFlags, rhs.UserFlags);
 		std::swap(UserData, rhs.UserData);
 		std::swap(Callback, rhs.Callback);
-		Position = rhs.Position;
-		SortGroup = rhs.SortGroup;
+		std::swap(Position, rhs.Position);
+		std::swap(SortGroup, rhs.SortGroup);
 		std::swap(DizText, rhs.DizText);
 		std::swap(DeleteDiz, rhs.DeleteDiz);
 		strOwner.swap(rhs.strOwner);
 		std::swap(CustomColumnData, rhs.CustomColumnData);
 		std::swap(CustomColumnNumber, rhs.CustomColumnNumber);
-		CRC32 = rhs.CRC32;
-		FileAttr = rhs.FileAttr;
-		CreationTime = rhs.CreationTime;
-		AccessTime = rhs.AccessTime;
-		WriteTime = rhs.WriteTime;
-		ChangeTime = rhs.ChangeTime;
-		FileSize = rhs.FileSize;
-		AllocationSize = rhs.AllocationSize;
-		StreamsSize = rhs.StreamsSize;
+		std::swap(CRC32, rhs.CRC32);
+		std::swap(FileAttr, rhs.FileAttr);
+		std::swap(CreationTime, rhs.CreationTime);
+		std::swap(AccessTime, rhs.AccessTime);
+		std::swap(WriteTime, rhs.WriteTime);
+		std::swap(ChangeTime, rhs.ChangeTime);
+		std::swap(FileSize, rhs.FileSize);
+		std::swap(AllocationSize, rhs.AllocationSize);
+		std::swap(StreamsSize, rhs.StreamsSize);
 		strShortName.swap(rhs.strShortName);
-		ReparseTag = rhs.ReparseTag;
+		std::swap(ReparseTag, rhs.ReparseTag);
 		strCustomData.swap(rhs.strCustomData);
-
-		return *this;
 	}
 };
+
+STD_SWAP_SPEC(FileListItem);
 
 struct PluginsListItem: NonCopyable
 {
@@ -213,20 +215,21 @@ struct PluginsListItem: NonCopyable
 		*this = std::move(rhs);
 	}
 
-	PluginsListItem& operator =(PluginsListItem&& rhs)
+	MOVE_OPERATOR_BY_SWAP(PluginsListItem);
+
+	void swap(PluginsListItem& rhs)
 	{
-		m_Plugin = rhs.m_Plugin;
+		std::swap(m_Plugin, rhs.m_Plugin);
 		m_HostFile.swap(rhs.m_HostFile);
 		m_PrevOriginalCurDir.swap(rhs.m_PrevOriginalCurDir);
-		m_Modified = rhs.m_Modified;
-		m_PrevViewMode = rhs.m_PrevViewMode;
-		m_PrevSortMode = rhs.m_PrevSortMode;
-		m_PrevSortOrder = rhs.m_PrevSortOrder;
-		m_PrevNumericSort = rhs.m_PrevNumericSort;
-		m_PrevCaseSensitiveSort = rhs.m_PrevCaseSensitiveSort;
-		m_PrevDirectoriesFirst = rhs.m_PrevDirectoriesFirst;
-		m_PrevViewSettings = std::move(rhs.m_PrevViewSettings);
-		return *this;
+		std::swap(m_Modified, rhs.m_Modified);
+		std::swap(m_PrevViewMode, rhs.m_PrevViewMode);
+		std::swap(m_PrevSortMode, rhs.m_PrevSortMode);
+		std::swap(m_PrevSortOrder, rhs.m_PrevSortOrder);
+		std::swap(m_PrevNumericSort, rhs.m_PrevNumericSort);
+		std::swap(m_PrevCaseSensitiveSort, rhs.m_PrevCaseSensitiveSort);
+		std::swap(m_PrevDirectoriesFirst, rhs.m_PrevDirectoriesFirst);
+		m_PrevViewSettings.swap(rhs.m_PrevViewSettings);
 	}
 
 	PluginHandle* m_Plugin;
@@ -241,6 +244,8 @@ struct PluginsListItem: NonCopyable
 	bool m_PrevDirectoriesFirst;
 	PanelViewSettings m_PrevViewSettings;
 };
+
+STD_SWAP_SPEC(PluginsListItem);
 
 ENUM(OPENFILEPLUGINTYPE);
 
@@ -310,14 +315,14 @@ public:
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned __int64 GetLastSelectedSize() override;
-	virtual const FileListItem* GetLastSelectedItem() const override;
+	const FileListItem* GetLastSelectedItem() const;
 	virtual PluginHandle* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void SetTitle() override;
 	virtual size_t GetFileCount() override {return ListData.size();}
-	virtual const FileListItem* GetItem(size_t Index) const override;
+	const FileListItem* GetItem(size_t Index) const;
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
 
@@ -416,27 +421,25 @@ private:
 			strPrevName(rhsPrevName),
 			PrevTopFile(rhsPrevTopFile)
 		{
-			std::swap(PrevListData, rhsPrevListData);
+			PrevListData.swap(rhsPrevListData);
 		}
 
-		PrevDataItem(PrevDataItem&& rhs):
-			PrevTopFile()
-		{
-			*this = std::move(rhs);
-		}
+		PrevDataItem(PrevDataItem&& rhs): PrevTopFile() { *this = std::move(rhs); }
 
-		PrevDataItem& operator=(PrevDataItem&& rhs)
+		MOVE_OPERATOR_BY_SWAP(PrevDataItem);
+
+		void swap(PrevDataItem& rhs)
 		{
-			std::swap(strPrevName, rhs.strPrevName);
-			std::swap(PrevListData, rhs.PrevListData);
+			strPrevName.swap(rhs.strPrevName);
+			PrevListData.swap(rhs.PrevListData);
 			std::swap(PrevTopFile, rhs.PrevTopFile);
-			return *this;
 		}
 
 		string strPrevName;
 		std::vector<FileListItem> PrevListData;
 		int PrevTopFile;
 	};
+	ALLOW_SWAP_ACCESS(PrevDataItem);
 
 	std::unique_ptr<FileFilter> Filter;
 	DizList Diz;
@@ -483,3 +486,5 @@ private:
 
 	wchar_t CustomSortIndicator[2];
 };
+
+STD_SWAP_SPEC(FileList::PrevDataItem);

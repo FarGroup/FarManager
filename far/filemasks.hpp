@@ -46,11 +46,12 @@ public:
 	filemasks() {}
 	~filemasks() {}
 	filemasks(filemasks&& rhs) { *this = std::move(rhs); }
-	filemasks& operator =(filemasks&& rhs)
+	MOVE_OPERATOR_BY_SWAP(filemasks);
+	
+	void swap(filemasks& rhs)
 	{
 		Include.swap(rhs.Include);
 		Exclude.swap(rhs.Exclude);
-		return *this;
 	}
 
 	bool Set(const string& Masks, DWORD Flags = 0);
@@ -67,8 +68,16 @@ private:
 		masks(): bRE(false) {}
 		masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
 		~masks() {}
+		MOVE_OPERATOR_BY_SWAP(masks);
 
-		masks& operator =(masks&& Right);
+		void swap(masks& rhs)
+		{
+			Masks.swap(rhs.Masks);
+			re.swap(rhs.re);
+			m.swap(rhs.m);
+			std::swap(bRE, rhs.bRE);
+		}
+
 		bool Set(const string& Masks);
 		bool operator ==(const string& Name) const;
 		void Free();
@@ -80,5 +89,10 @@ private:
 		std::vector<RegExpMatch> m;
 		bool bRE;
 	};
+	ALLOW_SWAP_ACCESS(masks);
+
 	std::list<masks> Include, Exclude;
 };
+
+STD_SWAP_SPEC(filemasks);
+STD_SWAP_SPEC(filemasks::masks);

@@ -62,12 +62,13 @@ public:
 
 	ScanTreeData(ScanTreeData&& rhs) { *this = std::move(rhs); }
 
-	ScanTreeData& operator =(ScanTreeData&& rhs)
+	MOVE_OPERATOR_BY_SWAP(ScanTreeData);
+
+	void swap(ScanTreeData& rhs)
 	{
 		std::swap(Flags, rhs.Flags);
 		Find.swap(rhs.Find);
 		RealPath.swap(rhs.RealPath);
-		return *this;
 	}
 
 	BitFlags Flags;
@@ -75,6 +76,8 @@ public:
 	api::FindFile::iterator Iterator;
 	string RealPath;
 };
+
+STD_SWAP_SPEC(ScanTreeData);
 
 class ScanTree
 {

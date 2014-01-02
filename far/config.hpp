@@ -858,7 +858,8 @@ private:
 
 		farconfig():m_items(nullptr), m_size(0) {}
 		farconfig(farconfig&& rhs):m_items(nullptr), m_size(0) { *this = std::move(rhs); }
-		farconfig& operator=(farconfig&& rhs) { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); return *this; }
+		MOVE_OPERATOR_BY_SWAP(farconfig);
+		void swap(farconfig& rhs) { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); }
 		void assign(FARConfigItem* Items, size_t Size) { m_items = Items; m_size = Size; }
 		iterator begin() const;
 		iterator end() const;
@@ -871,12 +872,15 @@ private:
 		value_type* m_items;
 		size_t m_size;
 	};
+	ALLOW_SWAP_ACCESS(farconfig);
 
 	std::vector<std::pair<GeneralConfig*, farconfig>> Config;
 	farconfig_mode CurrentConfig;
 	std::vector<struct PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };
+
+STD_SWAP_SPEC(Options::farconfig);
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default);

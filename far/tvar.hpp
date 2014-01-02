@@ -72,7 +72,14 @@ class TVar
 		TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
 		~TVar();
 
-	public:
+		void swap(TVar& rhs)
+		{
+			std::swap(vType, rhs.vType);
+			std::swap(inum, rhs.inum);
+			std::swap(dnum, rhs.dnum);
+			std::swap(str, rhs.str);
+		}
+
 		friend TVar operator+(const TVar&, const TVar&);
 		friend TVar operator-(const TVar&, const TVar&);
 		friend TVar operator*(const TVar&, const TVar&);
@@ -90,7 +97,7 @@ class TVar
 		friend TVar xor_op(const TVar&, const TVar&);
 
 		TVar& operator=(const TVar&);
-		TVar& operator=(TVar&&);
+		MOVE_OPERATOR_BY_SWAP(TVar);
 
 		TVar& operator+=(const TVar& b)  { return *this = *this+b;  }
 		TVar& operator-=(const TVar& b)  { return *this = *this-b;  }
@@ -144,3 +151,5 @@ class TVar
 		__int64 getInteger() const;
 		double getDouble() const;
 };
+
+STD_SWAP_SPEC(TVar);

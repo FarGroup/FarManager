@@ -49,13 +49,14 @@ struct PanelViewSettings: NonCopyable
 {
 	PanelViewSettings(): Flags() {}
 	PanelViewSettings(PanelViewSettings&& rhs): Flags() { *this = std::move(rhs); }
-	PanelViewSettings& operator =(PanelViewSettings&& rhs)
+	MOVE_OPERATOR_BY_SWAP(PanelViewSettings);
+
+	void swap(PanelViewSettings& rhs)
 	{
 		PanelColumns.swap(rhs.PanelColumns);
 		StatusColumns.swap(rhs.StatusColumns);
 		Name.swap(rhs.Name);
 		std::swap(Flags, rhs.Flags);
-		return *this;
 	}
 
 	PanelViewSettings clone() const
@@ -81,6 +82,8 @@ struct PanelViewSettings: NonCopyable
 	string Name;
 	unsigned __int64 Flags;
 };
+
+STD_SWAP_SPEC(PanelViewSettings);
 
 enum
 {
@@ -219,28 +222,6 @@ class Panel:public ScreenObject, public DelayedDestroy
 public:
 	Panel();
 
-	struct panelitem
-	{
-		panelitem() {}
-		panelitem(panelitem&& rhs) { *this = std::move(rhs); }
-		panelitem(const string& Name):strName(Name) {}
-		virtual ~panelitem() {};
-
-		panelitem& operator=(const panelitem& rhs)
-		{
-			strName = rhs.strName;
-			return *this;
-		}
-
-		panelitem& operator=(panelitem&& rhs)
-		{
-			strName.swap(rhs.strName);
-			return *this;
-		}
-
-		string strName;
-	};
-
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
 	virtual void UpdateViewPanel() {}
@@ -281,7 +262,6 @@ public:
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
 	virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}
-	virtual const panelitem* GetLastSelectedItem() const {return nullptr;}
 	virtual int GetCurName(string &strName, string &strShortName);
 	virtual int GetCurBaseName(string &strName, string &strShortName);
 	virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
@@ -320,7 +300,6 @@ public:
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
 	virtual size_t GetFileCount() {return 0;}
-	virtual const panelitem* GetItem(size_t) const {return nullptr;}
 	virtual void Hide() override;
 	virtual void Show() override;
 	virtual void DisplayObject() override {}

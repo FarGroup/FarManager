@@ -389,17 +389,6 @@ RunningMacro::RunningMacro(RunningMacro&& rhs)
 }
 
 
-RunningMacro& RunningMacro::operator= (RunningMacro&& rhs)
-{
-	std::swap(mp_values, rhs.mp_values);
-	std::swap(mp_data, rhs.mp_data);
-	std::swap(mp_data.Values, rhs.mp_data.Values);
-	std::swap(mp_info, rhs.mp_info);
-	std::swap(mp_info.Data, rhs.mp_info.Data);
-
-	return *this;
-}
-
 MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description):
 	m_flags(Flags),
 	m_key(Key),
@@ -408,20 +397,6 @@ MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar
 	m_macroId(MacroId),
 	m_running()
 {
-}
-
-MacroRecord& MacroRecord::operator= (MacroRecord&& rhs)
-{
-	if (this != &rhs)
-	{
-		std::swap(m_flags, rhs.m_flags);
-		std::swap(m_key, rhs.m_key);
-		m_code.swap(rhs.m_code);
-		m_description.swap(rhs.m_description);
-		std::swap(m_macroId, rhs.m_macroId);
-		m_running = std::move(rhs.m_running);
-	}
-	return *this;
 }
 
 void KeyMacro::PushState(bool withClip)
@@ -5034,7 +5009,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 
 	if (TypePanel == TREE_PANEL)
 	{
-		auto treeItem = SelPanel->GetItem(Index);
+		const auto treeItem = static_cast<TreeList*>(SelPanel)->GetItem(Index);
 		if (treeItem && !TypeInfo)
 		{
 			PassString(treeItem->strName, Data);
@@ -5048,7 +5023,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 		if (TypeInfo == 11)
 			SelPanel->ReadDiz();
 
-		const FileListItem* filelistItem = static_cast<FileList*>(SelPanel)->GetItem(Index);
+		const auto filelistItem = static_cast<FileList*>(SelPanel)->GetItem(Index);
 
 		if (!filelistItem)
 			TypeInfo=-1;

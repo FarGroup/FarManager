@@ -81,7 +81,19 @@ class FileFilterParams:NonCopyable
 	FileFilterParams();
 
 	FileFilterParams(FileFilterParams&& rhs);
-	FileFilterParams& operator= (FileFilterParams&& rhs);
+	MOVE_OPERATOR_BY_SWAP(FileFilterParams);
+
+	void swap(FileFilterParams& rhs)
+	{
+		m_strTitle.swap(rhs.m_strTitle);
+		FMask.swap(rhs.FMask);
+		std::swap(FDate, rhs.FDate);
+		std::swap(FSize, rhs.FSize);
+		std::swap(FHardLinks, rhs.FHardLinks);
+		std::swap(FAttr, rhs.FAttr);
+		std::swap(FHighlight, rhs.FHighlight);
+		FFlags.swap(rhs.FFlags);
+	}
 
 	FileFilterParams Clone();
 
@@ -134,15 +146,18 @@ private:
 
 		fmask():Used(false) {}
 		fmask(fmask&& rhs):Used(false) {*this = std::move(rhs);}
-		fmask& operator=(fmask&& rhs)
+		MOVE_OPERATOR_BY_SWAP(fmask);
+
+		void swap(fmask& rhs)
 		{
 			std::swap(Used, rhs.Used);
-			std::swap(strMask, rhs.strMask);
-			std::swap(FilterMask, rhs.FilterMask);
-			return *this;
+			strMask.swap(rhs.strMask);
+			FilterMask.swap(rhs.FilterMask);
 		}
 
 	} FMask;
+
+	ALLOW_SWAP_ACCESS(fmask);
 
 	struct
 	{
@@ -186,6 +201,9 @@ private:
 	std::array<DWORD, FFFT_COUNT> FFlags;
 
 };
+
+STD_SWAP_SPEC(FileFilterParams);
+STD_SWAP_SPEC(FileFilterParams::fmask);
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 

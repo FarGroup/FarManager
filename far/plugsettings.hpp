@@ -64,14 +64,18 @@ public:
 			delete[] i.Name;
 		});
 	}
-	FarSettingsNameItems& operator =(FarSettingsNameItems&& rhs)
+
+	MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
+	
+	void swap(FarSettingsNameItems& rhs)
 	{
 		Items.swap(rhs.Items);
-		return *this;
 	}
 
 	std::vector<FarSettingsName> Items;
 };
+
+STD_SWAP_SPEC(FarSettingsNameItems);
 
 class PluginSettings: public AbstractSettings
 {
@@ -104,14 +108,18 @@ public:
 			delete[] i.File;
 		});
 	}
-	FarSettingsHistoryItems& operator =(FarSettingsHistoryItems&& rhs)
+
+	MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
+
+	void swap(FarSettingsHistoryItems& rhs)
 	{
 		Items.swap(rhs.Items);
-		return *this;
 	}
 
 	std::vector<FarSettingsHistory> Items;
 };
+
+STD_SWAP_SPEC(FarSettingsHistoryItems);
 
 class FarSettings: public AbstractSettings
 {
