@@ -67,8 +67,6 @@ private:
 	bool OldState;
 };
 
-unsigned long CRC32(unsigned long crc, const void* buffer, size_t len);
-
 struct uuid_hash
 {
 	size_t operator ()(const GUID& Key) const
@@ -91,17 +89,10 @@ struct color_hash
 {
 	size_t operator ()(const FarColor& Key) const
 	{
-		return CRC32(0, &Key, sizeof(Key));
-	}
-};
-
-struct color_equal
-{
-	bool operator ()(const FarColor& a, const FarColor& b) const
-	{
-		return a.ForegroundColor == b.ForegroundColor &&
-			a.BackgroundColor == b.BackgroundColor &&
-			a.Flags == b.Flags;
+		return std::hash<long long>()(Key.Flags)
+			^ std::hash<int>()(Key.BackgroundColor)
+			^ std::hash<int>()(Key.ForegroundColor)
+			^ std::hash<void*>()(Key.Reserved);
 	}
 };
 

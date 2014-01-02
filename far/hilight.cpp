@@ -402,7 +402,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
 	};
 
-	for_each_2(ALL_RANGE(DestColors.Color), SrcColors.Color, [&](VALUE_TYPE(DestColors.Color)& Dst, const VALUE_TYPE(SrcColors.Color)& Src)
+	for_each_2(ALL_RANGE(DestColors.Color), std::begin(SrcColors.Color), [&](VALUE_TYPE(DestColors.Color)& Dst, const VALUE_TYPE(SrcColors.Color)& Src)
 	{
 		ApplyColor(Dst.FileColor, Src.FileColor);
 		ApplyColor(Dst.MarkColor, Src.MarkColor);
@@ -441,7 +441,7 @@ static void ApplyFinalColors(HighlightFiles::highlight_item& Colors)
 		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
 	};
 
-	for_each_2(ALL_RANGE(Colors.Color), PalColor, [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
+	for_each_2(ALL_RANGE(Colors.Color), std::begin(PalColor), [&](VALUE_TYPE(Colors.Color)& i, DWORD pal)
 	{
 		ApplyFinalColor(i.FileColor, pal);
 		ApplyFinalColor(i.MarkColor, pal);
@@ -468,7 +468,9 @@ void HighlightFiles::UpdateCurrentTime()
 
 void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 {
-	ApplyDefaultStartingColors(To->Colors);
+	highlight_item item = {};
+
+	ApplyDefaultStartingColors(item);
 
 	std::any_of(CONST_RANGE(HiData, i) -> bool
 	{
@@ -476,14 +478,16 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 		{
 			if (i.FileInFilter(To, CurrentTime))
 			{
-				ApplyColors(To->Colors, i.GetColors());
+				ApplyColors(item, i.GetColors());
 				if (!i.GetContinueProcessing())
 					return true;
 			}
 		}
 		return false;
 	});
-	ApplyFinalColors(To->Colors);
+	ApplyFinalColors(item);
+
+	To->ColorsIterator = Colors.emplace(item).first;
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)

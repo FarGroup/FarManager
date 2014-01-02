@@ -220,36 +220,6 @@ SetAutocomplete::~SetAutocomplete()
 	edit->SetAutocomplete(OldState);
 };
 
-
-unsigned long CRC32(unsigned long crc, const void* buffer, size_t len)
-{
-	const unsigned char* buf = reinterpret_cast<const unsigned char*>(buffer);
-	static unsigned long crc_table[256];
-
-	if (!crc_table[1])
-	{
-		int n, k;
-
-		for (n = 0; n < 256; n++)
-		{
-			unsigned long c = (unsigned long)n;
-
-			for (k = 0; k < 8; k++) c = (c >> 1) ^(c & 1 ? 0xedb88320L : 0);
-
-			crc_table[n] = c;
-		}
-	}
-
-	crc = crc ^ 0xffffffffL;
-
-	while (len--)
-	{
-		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^(crc >> 8);
-	}
-
-	return crc ^ 0xffffffffL;
-}
-
 struct reg_item
 {
 	string name;

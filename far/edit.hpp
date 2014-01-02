@@ -94,7 +94,7 @@ struct ColorItem
 class sets
 {
 public:
-	std::unordered_set<FarColor, color_hash, color_equal> ColorSet;
+	std::unordered_set<FarColor, color_hash> ColorSet;
 	std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
 };
 

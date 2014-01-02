@@ -97,6 +97,16 @@ struct FarColor
 	COLORREF ForegroundColor;
 	COLORREF BackgroundColor;
 	void* Reserved;
+
+#ifdef __cplusplus
+	bool operator ==(const FarColor& rhs) const
+	{
+		return Flags == rhs.Flags
+			&& ForegroundColor == rhs.ForegroundColor
+			&& BackgroundColor == rhs.BackgroundColor
+			&& Reserved == rhs.Reserved;
+	}
+#endif
 };
 
 #define INDEXMASK 0x0000000f

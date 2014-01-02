@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "mix.hpp"
+
 class VMenu2;
 class FileFilterParams;
 class FileList;
@@ -53,12 +55,14 @@ public:
 
 	struct highlight_item
 	{
-		struct
+		struct color
 		{
 			FarColor FileColor;
 			FarColor MarkColor;
-		}
-		Color[HIGHLIGHT_COUNT];
+
+			bool operator ==(const color& rhs) const { return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor; }
+		};
+		std::array<color, HIGHLIGHT_COUNT> Color;
 
 		struct
 		{
@@ -66,6 +70,11 @@ public:
 			bool Transparent;
 		}
 		Mark;
+
+		bool operator ==(const highlight_item& rhs) const
+		{
+			return Color == rhs.Color && Mark.Char == rhs.Mark.Char && Mark.Transparent == rhs.Mark.Transparent;
+		}
 	};
 
 	HighlightFiles();
@@ -84,8 +93,30 @@ private:
 	void FillMenu(VMenu2 *HiMenu,int MenuPos);
 	void ProcessGroups();
 
+	struct highlight_item_hash
+	{
+		size_t operator()(const highlight_item& item) const
+		{
+			size_t result = 0;
+			std::for_each(CONST_RANGE(item.Color, i)
+			{
+				result ^= color_hash()(i.FileColor) ^ color_hash()(i.MarkColor);
+			});
+			result ^= std::hash<wchar_t>()(item.Mark.Char) ^ std::hash<bool>()(item.Mark.Transparent);
+			return result;
+		}
+	};
+
+	typedef std::unordered_set<highlight_item, highlight_item_hash> highlight_set;
+
+	highlight_set Colors;
+
 	std::vector<FileFilterParams> HiData;
+
 	int FirstCount, UpperCount, LowerCount, LastCount;
 	unsigned __int64 CurrentTime;
 	bool Changed;
+
+public:
+	typedef highlight_set::const_iterator highlight_iterator;
 };

@@ -46,7 +46,7 @@ struct FileListItem:public Panel::panelitem, NonCopyable
 	char PrevSelected;
 	char ShowFolderSize;
 	char ShortNamePresent;
-	HighlightFiles::highlight_item Colors;
+	HighlightFiles::highlight_iterator ColorsIterator;
 
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
@@ -85,7 +85,6 @@ struct FileListItem:public Panel::panelitem, NonCopyable
 		PrevSelected(),
 		ShowFolderSize(),
 		ShortNamePresent(),
-		Colors(),
 		NumberOfLinks(),
 		NumberOfStreams(),
 		UserFlags(),
@@ -115,7 +114,6 @@ struct FileListItem:public Panel::panelitem, NonCopyable
 		PrevSelected(),
 		ShowFolderSize(),
 		ShortNamePresent(),
-		Colors(),
 		NumberOfLinks(),
 		NumberOfStreams(),
 		UserFlags(),
@@ -151,7 +149,7 @@ struct FileListItem:public Panel::panelitem, NonCopyable
 		PrevSelected = rhs.PrevSelected;
 		ShowFolderSize = rhs.ShowFolderSize;
 		ShortNamePresent = rhs.ShortNamePresent;
-		Colors = rhs.Colors;
+		ColorsIterator = rhs.ColorsIterator;
 		NumberOfLinks = rhs.NumberOfLinks;
 		NumberOfStreams = rhs.NumberOfStreams;
 		UserFlags = rhs.UserFlags;
