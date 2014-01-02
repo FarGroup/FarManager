@@ -107,16 +107,10 @@ private:
 		}
 	};
 
-	typedef std::unordered_set<highlight_item, highlight_item_hash> highlight_set;
-
-	highlight_set Colors;
-
+	std::unordered_set<highlight_item, highlight_item_hash> Colors;
 	std::vector<FileFilterParams> HiData;
 
 	int FirstCount, UpperCount, LowerCount, LastCount;
 	unsigned __int64 CurrentTime;
 	bool Changed;
-
-public:
-	typedef highlight_set::const_iterator highlight_iterator;
 };

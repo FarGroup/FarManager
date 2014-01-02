@@ -487,7 +487,7 @@ void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)
 	});
 	ApplyFinalColors(item);
 
-	To->ColorsIterator = Colors.emplace(item).first;
+	To->Colors = &*Colors.emplace(item).first;
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)

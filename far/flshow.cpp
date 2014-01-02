@@ -463,7 +463,7 @@ const FarColor FileList::GetShowColor(int Position, bool FileColor)
 		else if (ListData[Position].Selected)
 			Pos = HighlightFiles::SELECTED_COLOR;
 
-		ColorAttr = FileColor? ListData[Position].ColorsIterator->Color[Pos].FileColor : ListData[Position].ColorsIterator->Color[Pos].MarkColor;
+		ColorAttr = FileColor? ListData[Position].Colors->Color[Pos].FileColor : ListData[Position].Colors->Color[Pos].MarkColor;
 
 		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Global->Opt->Highlight)
 		{
@@ -1036,10 +1036,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Width-=2;
 							}
 
-							if (ListData[ListPos].ColorsIterator->Mark.Char && Global->Opt->Highlight && Width>1)
+							if (ListData[ListPos].Colors->Mark.Char && Global->Opt->Highlight && Width>1)
 							{
 								Width--;
-								OutCharacter[0] = ListData[ListPos].ColorsIterator->Mark.Char;
+								OutCharacter[0] = ListData[ListPos].Colors->Mark.Char;
 								FarColor OldColor=GetColor();
 
 								if (!ShowStatus)
