@@ -173,6 +173,7 @@ static struct FileListItem *mysave(struct FileListItem *x, size_t off)
 static void myrestore(struct FileListItem *x, size_t off, struct FileListItem *y)
 {
 	*(x+off) = std::move(*y);
+	delete y;
 }
 
 static void myswap(struct FileListItem *x, size_t off1, struct FileListItem *y, size_t off2)
