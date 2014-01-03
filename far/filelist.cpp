@@ -600,8 +600,13 @@ void FileList::SortFileList(int KeepPosition)
 		else
 		{
 			CustomSort cs;
-			cs.Data = (const FileListItem**)ListData.data();
-			cs.DataSize = ListData.size();
+
+			// BUGBUG, workaround
+			std::vector<FileListItem*> PtrData(ListData.size());
+			std::transform(ALL_RANGE(ListData), PtrData.begin(), [](VALUE_TYPE(ListData)& i) { return &i; });
+
+			cs.Data = const_cast<const FileListItem**>(PtrData.data());
+			cs.DataSize = PtrData.size();
 			cs.FileListToPluginItem = FileListToSortingPanelItem;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
@@ -621,6 +626,11 @@ void FileList::SortFileList(int KeepPosition)
 			{
 				CustomSortIndicator[0] = info.Ret.Values[0].String[0];
 				CustomSortIndicator[1] = info.Ret.Values[0].String[1];
+
+				// BUGBUG, workaround
+				decltype(ListData) NewListData(ListData.size());
+				for_each_2(ALL_RANGE(PtrData), NewListData.begin(), [](VALUE_TYPE(PtrData)& i, VALUE_TYPE(NewListData)& j) { j.swap(*i); });
+				ListData.swap(NewListData);
 			}
 			else
 			{
