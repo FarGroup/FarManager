@@ -108,15 +108,17 @@ enum SELECT_MODES
 	SELECT_INVERTMASK      = 10,
 };
 
+namespace custom_sort
+{
+
 struct CustomSort
 {
 	FileListItem          *Data;
 	size_t                 DataSize;
-	void                 (*FileListToPluginItem)(const FileListItem*, SortingPanelItem*);
-	void                 (*FileListToPluginItem2)(const FileListItem*, size_t, SortingPanelItem*);
-	struct FileListItem* (*save)(struct FileListItem*, size_t);
-	void                 (*restore)(struct FileListItem*, size_t, struct FileListItem*);
-	void                 (*swap)(struct FileListItem*, size_t, struct FileListItem*, size_t);
+	void                 (*FileListToPluginItem)(const FileListItem*, size_t, SortingPanelItem*);
+	FileListItem*        (*save)(FileListItem*, size_t);
+	void                 (*restore)(FileListItem*, size_t, FileListItem*);
+	void                 (*swap)(FileListItem*, size_t, size_t);
 	int                    ListSortGroups;
 	int                    ListSelectedFirst;
 	int                    ListDirectoriesFirst;
@@ -127,8 +129,9 @@ struct CustomSort
 	HANDLE                 hSortPlugin;
 };
 
-static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem *pi)
+static void FileListToSortingPanelItem(const FileListItem *fi, size_t off, SortingPanelItem *pi)
 {
+	fi += off;
 	pi->FileName = fi->strName.data();               //! CHANGED
 	pi->AlternateFileName = fi->strShortName.data(); //! CHANGED
 	pi->FileSize=fi->FileSize;
@@ -159,27 +162,24 @@ static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem 
 	pi->StreamsSize=fi->StreamsSize;
 }
 
-static void FileListToSortingPanelItem2(const FileListItem *fi, size_t off, SortingPanelItem *pi)
+static FileListItem *save(FileListItem *x, size_t off)
 {
-	FileListToSortingPanelItem(fi+off, pi);
+	static FileListItem s;
+	s = std::move(x[off]);
+	return &s;
 }
 
-static struct FileListItem *mysave(struct FileListItem *x, size_t off)
+static void restore(FileListItem *x, size_t off, FileListItem *y)
 {
-	struct FileListItem *s = new FileListItem(std::move(*(x+off)));
-	return s;
+	x[off] = std::move(*y);
 }
 
-static void myrestore(struct FileListItem *x, size_t off, struct FileListItem *y)
+static void swap(FileListItem *x, size_t off1, size_t off2)
 {
-	*(x+off) = std::move(*y);
-	delete y;
+	x[off1].swap(x[off2]);
 }
 
-static void myswap(struct FileListItem *x, size_t off1, struct FileListItem *y, size_t off2)
-{
-	std::swap(*(x+off1), *(y+off2));
-}
+};
 
 FileListItem::~FileListItem()
 {
@@ -625,14 +625,13 @@ void FileList::SortFileList(int KeepPosition)
 		}
 		else
 		{
-			CustomSort cs;
+			custom_sort::CustomSort cs;
 			cs.Data = ListData.data();
 			cs.DataSize = ListData.size();
-			cs.FileListToPluginItem = FileListToSortingPanelItem;
-			cs.FileListToPluginItem2 = FileListToSortingPanelItem2;
-			cs.save = mysave;
-			cs.restore = myrestore;
-			cs.swap = myswap;
+			cs.FileListToPluginItem = custom_sort::FileListToSortingPanelItem;
+			cs.save = custom_sort::save;
+			cs.restore = custom_sort::restore;
+			cs.swap = custom_sort::swap;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;
