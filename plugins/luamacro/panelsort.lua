@@ -26,7 +26,7 @@ local function shellsort(t, n, before, save, restore, swap)
       local v = save(t,i-1)
       for j = i - h, 1, -h do
         if not before(v, t, j-1) then break end
-        swap(t, i-1, t, j-1); i = j
+        swap(t, i-1, j-1); i = j
       end
       restore(t, i-1, v)
     end
@@ -139,11 +139,10 @@ ffi.cdef[[
   {
     struct FileListItem        *Data;
     size_t                      DataSize;
-    void                      (*FileListToPluginItem)(const struct FileListItem*, struct SortingPanelItem*);
-    void                      (*FileListToPluginItem2)(const struct FileListItem*, size_t, struct SortingPanelItem*);
+    void                      (*FileListToPluginItem)(const struct FileListItem*, size_t, struct SortingPanelItem*);
     struct FileListItem*      (*save)(struct FileListItem*, size_t);
     void                      (*restore)(struct FileListItem*, size_t, struct FileListItem*);
-    void                      (*swap)(struct FileListItem*, size_t, struct FileListItem*, size_t);
+    void                      (*swap)(struct FileListItem*, size_t, size_t);
     int                         SortGroups;
     int                         SelectedFirst;
     int                         DirectoriesFirst;
@@ -219,8 +218,8 @@ local function SortPanelItems (params)
   }
 
   local function Before(e1, e2, off)
-    params.FileListToPluginItem(e1, pi1)
-    params.FileListToPluginItem2(e2, off, pi2)
+    params.FileListToPluginItem(e1, 0, pi1)
+    params.FileListToPluginItem(e2, off, pi2)
     ----------------------------------------------------------------------------
     -- TODO: fix in Far
     if IsTwoDots(pi1.FileName) then
