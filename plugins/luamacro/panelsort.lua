@@ -20,16 +20,15 @@ local incs = { 1391376,
                13776, 4592, 1968, 861, 336,
                112, 48, 21, 7, 3, 1 }
 
-local function shellsort(t, n, before)
+local function shellsort(t, n, before, save, restore, swap)
   for _, h in ipairs(incs) do
     for i = h + 1, n do
-      local v = t[i-1]
+      local v = save(t,i-1)
       for j = i - h, 1, -h do
-        local testval = t[j-1]
-        if not before(v, testval) then break end
-        t[i-1] = testval; i = j
+        if not before(v, t, j-1) then break end
+        swap(t, i-1, t, j-1); i = j
       end
-      t[i-1] = v
+      restore(t, i-1, v)
     end
   end
   return t
@@ -138,9 +137,13 @@ ffi.cdef[[
   struct FileListItem;
   typedef struct
   {
-    const struct FileListItem **Data;
+    struct FileListItem        *Data;
     size_t                      DataSize;
     void                      (*FileListToPluginItem)(const struct FileListItem*, struct SortingPanelItem*);
+    void                      (*FileListToPluginItem2)(const struct FileListItem*, size_t, struct SortingPanelItem*);
+    struct FileListItem*      (*save)(struct FileListItem*, size_t);
+    void                      (*restore)(struct FileListItem*, size_t, struct FileListItem*);
+    void                      (*swap)(struct FileListItem*, size_t, struct FileListItem*, size_t);
     int                         SortGroups;
     int                         SelectedFirst;
     int                         DirectoriesFirst;
@@ -215,9 +218,9 @@ local function SortPanelItems (params)
     CaseSensitiveSort = params.CaseSensitiveSort ~= 0;
   }
 
-  local function Before(e1, e2)
+  local function Before(e1, e2, off)
     params.FileListToPluginItem(e1, pi1)
-    params.FileListToPluginItem(e2, pi2)
+    params.FileListToPluginItem2(e2, off, pi2)
     ----------------------------------------------------------------------------
     -- TODO: fix in Far
     if IsTwoDots(pi1.FileName) then
@@ -263,7 +266,7 @@ local function SortPanelItems (params)
 
   if tSettings.InitSort then tSettings.InitSort(outParams) end
 
-  shellsort(params.Data, tonumber(params.DataSize), Before)
+  shellsort(params.Data, tonumber(params.DataSize), Before, params.save, params.restore, params.swap)
   -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
 
   if tSettings.EndSort then tSettings.EndSort() end

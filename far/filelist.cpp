@@ -110,17 +110,21 @@ enum SELECT_MODES
 
 struct CustomSort
 {
-	const FileListItem **Data;
-	size_t               DataSize;
-	void               (*FileListToPluginItem)(const FileListItem*, SortingPanelItem*);
-	int                  ListSortGroups;
-	int                  ListSelectedFirst;
-	int                  ListDirectoriesFirst;
-	int                  ListSortMode;
-	int                  RevertSorting;
-	int                  ListNumericSort;
-	int                  ListCaseSensitiveSort;
-	HANDLE               hSortPlugin;
+	FileListItem          *Data;
+	size_t                 DataSize;
+	void                 (*FileListToPluginItem)(const FileListItem*, SortingPanelItem*);
+	void                 (*FileListToPluginItem2)(const FileListItem*, size_t, SortingPanelItem*);
+	struct FileListItem* (*save)(struct FileListItem*, size_t);
+	void                 (*restore)(struct FileListItem*, size_t, struct FileListItem*);
+	void                 (*swap)(struct FileListItem*, size_t, struct FileListItem*, size_t);
+	int                    ListSortGroups;
+	int                    ListSelectedFirst;
+	int                    ListDirectoriesFirst;
+	int                    ListSortMode;
+	int                    RevertSorting;
+	int                    ListNumericSort;
+	int                    ListCaseSensitiveSort;
+	HANDLE                 hSortPlugin;
 };
 
 static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem *pi)
@@ -153,6 +157,27 @@ static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem 
 	pi->Owner = EmptyToNull(fi->strOwner.data());
 	pi->NumberOfStreams=fi->NumberOfStreams;
 	pi->StreamsSize=fi->StreamsSize;
+}
+
+static void FileListToSortingPanelItem2(const FileListItem *fi, size_t off, SortingPanelItem *pi)
+{
+	FileListToSortingPanelItem(fi+off, pi);
+}
+
+static struct FileListItem *mysave(struct FileListItem *x, size_t off)
+{
+	struct FileListItem *s = new FileListItem(std::move(*(x+off)));
+	return s;
+}
+
+static void myrestore(struct FileListItem *x, size_t off, struct FileListItem *y)
+{
+	*(x+off) = std::move(*y);
+}
+
+static void myswap(struct FileListItem *x, size_t off1, struct FileListItem *y, size_t off2)
+{
+	std::swap(*(x+off1), *(y+off2));
 }
 
 FileListItem::~FileListItem()
@@ -600,14 +625,13 @@ void FileList::SortFileList(int KeepPosition)
 		else
 		{
 			CustomSort cs;
-
-			// BUGBUG, workaround
-			std::vector<FileListItem*> PtrData(ListData.size());
-			std::transform(ALL_RANGE(ListData), PtrData.begin(), [](VALUE_TYPE(ListData)& i) { return &i; });
-
-			cs.Data = const_cast<const FileListItem**>(PtrData.data());
-			cs.DataSize = PtrData.size();
+			cs.Data = ListData.data();
+			cs.DataSize = ListData.size();
 			cs.FileListToPluginItem = FileListToSortingPanelItem;
+			cs.FileListToPluginItem2 = FileListToSortingPanelItem2;
+			cs.save = mysave;
+			cs.restore = myrestore;
+			cs.swap = myswap;
 			cs.ListSortGroups = ListSortGroups;
 			cs.ListSelectedFirst = ListSelectedFirst;
 			cs.ListDirectoriesFirst = ListDirectoriesFirst;
@@ -626,11 +650,6 @@ void FileList::SortFileList(int KeepPosition)
 			{
 				CustomSortIndicator[0] = info.Ret.Values[0].String[0];
 				CustomSortIndicator[1] = info.Ret.Values[0].String[1];
-
-				// BUGBUG, workaround
-				decltype(ListData) NewListData(ListData.size());
-				for_each_2(ALL_RANGE(PtrData), NewListData.begin(), [](VALUE_TYPE(PtrData)& i, VALUE_TYPE(NewListData)& j) { i->swap(j); });
-				ListData.swap(NewListData);
 			}
 			else
 			{
