@@ -463,9 +463,10 @@ const FarColor FileList::GetShowColor(int Position, bool FileColor)
 		else if (ListData[Position].Selected)
 			Pos = HighlightFiles::SELECTED_COLOR;
 
-		ColorAttr = FileColor? ListData[Position].Colors->Color[Pos].FileColor : ListData[Position].Colors->Color[Pos].MarkColor;
+		if (Global->Opt->Highlight)
+			ColorAttr = FileColor? ListData[Position].Colors->Color[Pos].FileColor : ListData[Position].Colors->Color[Pos].MarkColor;
 
-		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Global->Opt->Highlight)
+		if (!Global->Opt->Highlight || !(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor))
 		{
 			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
 			ColorAttr=ColorIndexToColor(PalColor[Pos]);
@@ -1036,7 +1037,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Width-=2;
 							}
 
-							if (ListData[ListPos].Colors->Mark.Char && Global->Opt->Highlight && Width>1)
+							if (Global->Opt->Highlight && ListData[ListPos].Colors->Mark.Char && Width>1)
 							{
 								Width--;
 								OutCharacter[0] = ListData[ListPos].Colors->Mark.Char;
