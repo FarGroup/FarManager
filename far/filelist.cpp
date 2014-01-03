@@ -629,7 +629,7 @@ void FileList::SortFileList(int KeepPosition)
 
 				// BUGBUG, workaround
 				decltype(ListData) NewListData(ListData.size());
-				for_each_2(ALL_RANGE(PtrData), NewListData.begin(), [](VALUE_TYPE(PtrData)& i, VALUE_TYPE(NewListData)& j) { j.swap(*i); });
+				for_each_2(ALL_RANGE(PtrData), NewListData.begin(), [](VALUE_TYPE(PtrData)& i, VALUE_TYPE(NewListData)& j) { i->swap(j); });
 				ListData.swap(NewListData);
 			}
 			else
