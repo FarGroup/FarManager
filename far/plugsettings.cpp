@@ -426,7 +426,7 @@ static HistoryConfig* HistoryRef(int Type)
 	return Save? Global->Db->HistoryCfg().get() : Global->Db->HistoryCfgMem().get();
 }
 
-int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
+int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)
 {
 	m_Enum.emplace_back(VALUE_TYPE(m_Enum)());
 	FarSettingsHistory item = {};
