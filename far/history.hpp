@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Dialog;
 class VMenu2;
 
-enum enumHISTORYTYPE
+enum history_type
 {
 	HISTORYTYPE_CMD,
 	HISTORYTYPE_FOLDER,
@@ -47,35 +47,58 @@ enum enumHISTORYTYPE
 	HISTORYTYPE_DIALOG
 };
 
+ENUM(history_record_type)
+{
+	HR_DEFAULT,
+	HR_VIEWER = HR_DEFAULT,
+	HR_EDITOR,
+	HR_EXTERNAL,
+	HR_EXTERNAL_WAIT,
+	HR_EDITOR_RO,
+};
+
+ENUM(history_return_type)
+{
+	HRT_CANCEL,
+	HRT_ENTER,
+	HRT_SHIFTETNER,
+	HRT_CTRLENTER,
+	HRT_F3, //internal
+	HRT_F4, //internal
+	HRT_CTRLSHIFTENTER,
+	HRT_CTRLALTENTER,
+};
+
 class History
 {
-	private:
-		string strHistoryName;
-		bool EnableAdd, KeepSelectedPos, SaveType;
-		int RemoveDups;
-		enumHISTORYTYPE TypeHistory;
-		const BoolOption& EnableSave;
-		unsigned __int64 CurrentItem;
-	private:
-		bool EqualType(int Type1, int Type2);
-		const wchar_t *GetTitle(int Type);
-		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, int &Type, Dialog *Dlg);
-		HistoryConfig* HistoryCfgRef(void);
-	public:
-		History(enumHISTORYTYPE TypeHistory, const string& HistoryName, const BoolOption& EnableSave, bool SaveType);
-		~History();
+public:
+	History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave);
+	~History();
 
-		void AddToHistory(const string& Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
-		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
-		int  Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
-		void GetPrev(string &strStr);
-		void GetNext(string &strStr);
-		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
-		bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str);
-		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-		void ResetPosition() { CurrentItem = 0; }
-		bool DeleteIfUnlocked(unsigned __int64 id);
-		bool ReadLastItem(const string& HistoryName, string &strStr);
+	void AddToHistory(const string& Str, history_record_type Type = HR_DEFAULT, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
+	history_return_type Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
+	history_return_type Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
+	void GetPrev(string &strStr);
+	void GetNext(string &strStr);
+	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
+	bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str);
+	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
+	void ResetPosition() { CurrentItem = 0; }
+	bool DeleteIfUnlocked(unsigned __int64 id);
+	bool ReadLastItem(const string& HistoryName, string &strStr);
 
-		static void CompactHistory();
+	static void CompactHistory();
+
+private:
+	bool EqualType(history_record_type Type1, history_record_type Type2) const;
+	history_return_type ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type& Type, Dialog *Dlg);
+	const std::unique_ptr<HistoryConfig>& HistoryCfgRef() const;
+
+	history_type TypeHistory;
+	string strHistoryName;
+	const BoolOption& EnableSave;
+	bool EnableAdd;
+	bool KeepSelectedPos;
+	int RemoveDups;
+	unsigned __int64 CurrentItem;
 };

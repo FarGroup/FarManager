@@ -2302,7 +2302,7 @@ public:
 		return DeleteInternal(id);
 	}
 
-	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
+	bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
 		WaitAllAsync();
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
@@ -2314,7 +2314,7 @@ public:
 		{
 			*id = stmt.GetColInt64(0);
 			strName = stmt.GetColText(1);
-			*Type = stmt.GetColInt(2);
+			*Type = static_cast<history_record_type>(stmt.GetColInt(2));
 			*Lock = stmt.GetColInt(3) != 0;
 			*Time = stmt.GetColInt64(4);
 			strGuid = stmt.GetColText(5);
@@ -2396,14 +2396,14 @@ public:
 		return b;
 	}
 
-	bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData)
+	bool Get(unsigned __int64 id, string &strName, history_record_type* Type, string &strGuid, string &strFile, string &strData)
 	{
 		WaitAllAsync();
 		bool b = stmtGetNameAndType.Bind(id).Step();
 		if (b)
 		{
 			strName = stmtGetNameAndType.GetColText(0);
-			*Type = stmtGetNameAndType.GetColInt(1);
+			*Type = static_cast<history_record_type>(stmtGetNameAndType.GetColInt(1));
 			strGuid = stmtGetNameAndType.GetColText(2);
 			strFile = stmtGetNameAndType.GetColText(3);
 			strData = stmtGetNameAndType.GetColText(4);

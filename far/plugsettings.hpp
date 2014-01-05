@@ -126,7 +126,7 @@ class FarSettings: public AbstractSettings
 	private:
 		std::vector<FarSettingsHistoryItems> m_Enum;
 		std::vector<string> m_Keys;
-		typedef bool (*HistoryFilter)(int Type);
+		typedef bool (*HistoryFilter)(history_record_type Type);
 		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:
 		int Set(const FarSettingsItem& Item);

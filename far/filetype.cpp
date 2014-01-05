@@ -235,7 +235,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			{
 				string curDir;
 				Global->CtrlObject->CmdLine->GetCurDir(curDir);
-				Global->CtrlObject->CmdHistory->AddToHistory(strCommand, 0, nullptr, nullptr, curDir.data());
+				Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
 			}
 		}
 	}
@@ -260,7 +260,7 @@ void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunA
 	{
 		string curDir;
 		Global->CtrlObject->CmdLine->GetCurDir(curDir);
-		Global->CtrlObject->CmdHistory->AddToHistory(strName, 0, nullptr, nullptr, curDir.data());
+		Global->CtrlObject->CmdHistory->AddToHistory(strName, HR_DEFAULT, nullptr, nullptr, curDir.data());
 	}
 }
 
@@ -301,7 +301,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		if (!ExtractIfExistCommand(strFullExecStr))
 			return;
 
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
 
 		Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, false, true);
 	}

@@ -245,6 +245,8 @@ protected:
 	PluginsHotkeysConfig() {}
 };
 
+ENUM(history_record_type);
+
 class HistoryConfig: public XmlConfig, public Transactional {
 
 public:
@@ -252,14 +254,14 @@ public:
 	virtual ~HistoryConfig() {}
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, DWORD TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
 	virtual bool DeleteAndAddAsync(unsigned __int64 DeleteId, DWORD TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName) = 0;
 	virtual bool GetNewest(DWORD TypeHistory, const string& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
-	virtual bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool Get(unsigned __int64 id, string &strName, history_record_type* Type, string &strGuid, string &strFile, string &strData) = 0;
 	virtual DWORD Count(DWORD TypeHistory, const string& HistoryName) = 0;
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;

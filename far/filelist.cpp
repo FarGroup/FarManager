@@ -2555,7 +2555,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			QuoteSpace(strFileName);
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
-				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, 0, nullptr, nullptr, strCurDir.data());
+				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, strCurDir.data());
 
 
 			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs);
@@ -2711,7 +2711,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		//string strInfoFormat=NullToEmpty(Info.Format);
 		string strInfoHostFile=NullToEmpty(Info.HostFile);
 		string strInfoData=NullToEmpty(Info.ShortcutData);
-		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile.data(),strInfoData.data());
+		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetGUID(hPlugin), strInfoHostFile.data(), strInfoData.data());
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/

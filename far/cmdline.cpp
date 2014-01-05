@@ -271,22 +271,20 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_ALTF8:
 		case KEY_RALTF8:
 		{
-			int Type;
-			// $ 19.09.2000 SVS - При выборе из History (по Alt-F8) плагин не получал управление!
-			int SelectType=Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
-			// BUGBUG, magic numbers
-			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
+			history_record_type Type;
+			auto SelectType = Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle), L"History", strStr, Type);
+			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
 				std::unique_ptr<SetAutocomplete> disable;
-				if(SelectType<3 || SelectType == 7)
+				if(SelectType != HRT_CTRLENTER)
 				{
 					disable = std::make_unique<SetAutocomplete>(&CmdStr);
 				}
 				SetString(strStr);
 
-				if (SelectType < 3 || SelectType == 7)
+				if (SelectType != HRT_CTRLENTER)
 				{
-					ProcessKey(SelectType==7?static_cast<int>(KEY_CTRLALTENTER):(SelectType==1?static_cast<int>(KEY_ENTER):static_cast<int>(KEY_SHIFTENTER)));
+					ProcessKey(SelectType == HRT_CTRLALTENTER? static_cast<int>(KEY_CTRLALTENTER) : (SelectType == HRT_ENTER? static_cast<int>(KEY_ENTER) : static_cast<int>(KEY_SHIFTENTER)));
 				}
 			}
 		}
@@ -341,47 +339,53 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_ALTF12:
 		case KEY_RALTF12:
 		{
-			int Type;
-			GUID Guid; string strFile, strData;
-			int SelectType=Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type,&Guid,&strFile,&strData);
+			history_record_type Type;
+			GUID Guid;
+			string strFile, strData;
+			auto SelectType = Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
 
-			/*
-			   SelectType = 0 - Esc
-			                1 - Enter
-			                2 - Shift-Enter
-			                3 - Ctrl-Enter
-			                6 - Ctrl-Shift-Enter - на пассивную панель со сменой позиции
-			*/
-			if (SelectType == 1 || SelectType == 2 || SelectType == 6)
+			switch(SelectType)
 			{
-				if (SelectType==2)
-					Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
-
-				// пусть плагин сам прыгает... ;-)
-				Panel *Panel=Global->CtrlObject->Cp()->ActivePanel;
-
-				if (SelectType == 6)
-					Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
-
-				//Type==1 - плагиновый путь
-				//Type==0 - обычный путь
-				Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
-				// Panel may be changed
-				if(SelectType == 6)
+			case HRT_ENTER:
+			case HRT_SHIFTETNER:
+			case HRT_CTRLSHIFTENTER:
 				{
-					Panel=Global->CtrlObject->Cp()->ActivePanel;
-					Panel->SetCurPath();
-					Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
+
+					if (SelectType == HRT_SHIFTETNER)
+						Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
+
+					// пусть плагин сам прыгает... ;-)
+					Panel *Panel=Global->CtrlObject->Cp()->ActivePanel;
+
+					if (SelectType == HRT_CTRLSHIFTENTER)
+						Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
+
+					//Type==1 - плагиновый путь
+					//Type==0 - обычный путь
+					Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
+					// Panel may be changed
+					if(SelectType == HRT_CTRLSHIFTENTER)
+					{
+						Panel=Global->CtrlObject->Cp()->ActivePanel;
+						Panel->SetCurPath();
+						Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
+					}
+					else
+					{
+						Panel=Global->CtrlObject->Cp()->ActivePanel;
+					}
+					Panel->Redraw();
+					Global->CtrlObject->FolderHistory->SetAddMode(true,2,true);
 				}
-				else
-				{
-					Panel=Global->CtrlObject->Cp()->ActivePanel;
-				}
-				Panel->Redraw();
-				Global->CtrlObject->FolderHistory->SetAddMode(true,2,true);
-			}
-			else if (SelectType==3)
+				break;
+
+			case HRT_CTRLENTER:
 				SetString(strStr);
+				break;
+
+			default:
+				break;
+			}
 		}
 		return TRUE;
 		case KEY_NUMENTER:
@@ -408,7 +412,7 @@ int CommandLine::ProcessKey(int Key)
 			ActivePanel->SetCurPath();
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-				Global->CtrlObject->CmdHistory->AddToHistory(strStr, 0, nullptr, nullptr, strCurDir.data());
+				Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, strCurDir.data());
 
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr.data())))
@@ -755,53 +759,58 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
-	int Type;
-	int SelectType=Global->CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type);
-	/*
-	   SelectType = 0 - Esc
-	                1 - Enter
-	                2 - Shift-Enter
-	                3 - Ctrl-Enter
-	*/
+	history_record_type Type;
+	auto SelectType = Global->CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle), L"HistoryViews", strStr, Type);
 
-	if (SelectType == 1 || SelectType == 2)
+	switch(SelectType)
 	{
-		if (SelectType!=2)
-			Global->CtrlObject->ViewHistory->AddToHistory(strStr,Type);
-
-		Global->CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
-
-		switch (Type)
+	case HRT_ENTER:
+	case HRT_SHIFTETNER:
 		{
-			case 0: // вьювер
-			{
-				new FileViewer(strStr,TRUE);
-				break;
-			}
-			case 1: // обычное открытие в редакторе
-			case 4: // открытие с локом
-			{
-				// пусть файл создается
-				FileEditor *FEdit=new FileEditor(strStr,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
+			if (SelectType == HRT_ENTER)
+				Global->CtrlObject->ViewHistory->AddToHistory(strStr,Type);
 
-				if (Type == 4)
-					FEdit->SetLockEditor(TRUE);
+			Global->CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
 
-				break;
-			}
-			// 2 и 3 - заполняется в ProcessExternal
-			case 2:
-			case 3:
+			switch (Type)
 			{
-				ExecString(strStr, Type>2, false, false, false, false, true);
-				break;
+				case HR_VIEWER:
+				{
+					new FileViewer(strStr,TRUE);
+					break;
+				}
+
+				case HR_EDITOR:
+				case HR_EDITOR_RO:
+				{
+					// пусть файл создается
+					FileEditor *FEdit=new FileEditor(strStr,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
+
+					if (Type == HR_EDITOR_RO)
+						FEdit->SetLockEditor(TRUE);
+
+					break;
+				}
+
+				case HR_EXTERNAL:
+				case HR_EXTERNAL_WAIT:
+				{
+					ExecString(strStr, Type == HR_EXTERNAL_WAIT, false, false, false, false, true);
+					break;
+				}
 			}
+
+			Global->CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 		}
+		break;
 
-		Global->CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
-	}
-	else if (SelectType==3) // скинуть из истории в ком.строку?
+	case HRT_CTRLENTER:
 		SetString(strStr);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)

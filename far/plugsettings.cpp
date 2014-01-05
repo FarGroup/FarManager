@@ -331,28 +331,10 @@ int FarSettings::Get(FarSettingsItem& Item)
 	return FALSE;
 }
 
-static bool FilterNone(int)
-{
-	return true;
-}
-
-static bool FilterView(int Type)
-{
-	return !Type;
-}
-
-static bool FilterEdit(int Type)
-{
-	return Type == 1 || Type == 4;
-}
-
-static bool FilterExt(int Type)
-{
-	return Type ==2 || Type == 3;
-}
-
 int FarSettings::Enum(FarSettingsEnum& Enum)
 {
+	auto FilterNone = [](history_record_type) { return true; };
+
 	switch(Enum.Root)
 	{
 		case FSSF_HISTORY_CMD:
@@ -360,11 +342,11 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_HISTORY_FOLDER:
 			return FillHistory(HISTORYTYPE_FOLDER,L"",Enum,FilterNone);
 		case FSSF_HISTORY_VIEW:
-			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterView);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum, [](history_record_type Type) { return Type == HR_VIEWER; });
 		case FSSF_HISTORY_EDIT:
-			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterEdit);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum, [](history_record_type Type) { return Type == HR_EDITOR || Type == HR_EDITOR_RO; });
 		case FSSF_HISTORY_EXTERNAL:
-			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterExt);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum, [](history_record_type Type) { return Type == HR_EXTERNAL || Type == HR_EXTERNAL_WAIT; });
 		case FSSF_FOLDERSHORTCUT_0:
 		case FSSF_FOLDERSHORTCUT_1:
 		case FSSF_FOLDERSHORTCUT_2:
@@ -452,10 +434,10 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 	string strName,strGuid,strFile,strData;
 
 	unsigned __int64 id;
-	int HType;
+	history_record_type HType;
 	bool HLock;
 	unsigned __int64 Time;
-	while(HistoryRef(Type)->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
+	while(HistoryRef(Type)->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData))
 	{
 		if(Filter(HType))
 		{

@@ -4057,7 +4057,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		return FALSE;
 
 	string strStr;
-	int ret=0;
+	history_return_type ret = HRT_CANCEL;
 	History *DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 
 	if(DlgHist)
@@ -4078,7 +4078,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 //		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
 	}
 
-	if (ret > 0)
+	if (ret != HRT_CANCEL)
 	{
 		EditLine->SetString(strStr);
 		EditLine->SetLeftPos(0);
