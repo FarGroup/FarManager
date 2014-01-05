@@ -20,15 +20,18 @@ local incs = { 1391376,
                13776, 4592, 1968, 861, 336,
                112, 48, 21, 7, 3, 1 }
 
-local function shellsort(t, n, before, save, restore, swap)
+local function shellsort(t, n, sz, before)
+  t = ffi.cast("char*", t)
+  local v = ffi.new("char[?]", sz)
   for _, h in ipairs(incs) do
-    for i = h + 1, n do
-      local v = save(t,i-1)
-      for j = i - h, 1, -h do
-        if not before(v, t, j-1) then break end
-        swap(t, i-1, j-1); i = j
+    for i = h, n - 1 do
+      ffi.copy(v, t+i*sz, sz)
+      for j = i - h, 0, -h do
+        local testval = t+j*sz
+        if not before(v, testval) then break end
+        ffi.copy(t+i*sz, testval, sz); i = j
       end
-      restore(t, i-1, v)
+      ffi.copy(t+i*sz, v, sz)
     end
   end
   return t
@@ -134,15 +137,12 @@ local function GetSortModes()
 end
 
 ffi.cdef[[
-  struct FileListItem;
   typedef struct
   {
-    struct FileListItem        *Data;
-    size_t                      DataSize;
-    void                      (*FileListToPluginItem)(const struct FileListItem*, size_t, struct SortingPanelItem*);
-    struct FileListItem*      (*save)(struct FileListItem*, size_t);
-    void                      (*restore)(struct FileListItem*, size_t, struct FileListItem*);
-    void                      (*swap)(struct FileListItem*, size_t, size_t);
+    void                       *Items;
+    size_t                      ItemsCount;
+    size_t                      ItemSize;
+    void                      (*FileListToPluginItem)(const void*, struct SortingPanelItem*);
     int                         SortGroups;
     int                         SelectedFirst;
     int                         DirectoriesFirst;
@@ -217,9 +217,9 @@ local function SortPanelItems (params)
     CaseSensitiveSort = params.CaseSensitiveSort ~= 0;
   }
 
-  local function Before(e1, e2, off)
-    params.FileListToPluginItem(e1, 0, pi1)
-    params.FileListToPluginItem(e2, off, pi2)
+  local function Before(e1, e2)
+    params.FileListToPluginItem(e1, pi1)
+    params.FileListToPluginItem(e2, pi2)
     ----------------------------------------------------------------------------
     -- TODO: fix in Far
     if IsTwoDots(pi1.FileName) then
@@ -265,8 +265,8 @@ local function SortPanelItems (params)
 
   if tSettings.InitSort then tSettings.InitSort(outParams) end
 
-  shellsort(params.Data, tonumber(params.DataSize), Before, params.save, params.restore, params.swap)
-  -- qsort(params.Data, 0, tonumber(params.DataSize)-1, Before)
+  shellsort(params.Items, tonumber(params.ItemsCount), params.ItemSize, Before)
+  -- qsort(params.Items, 0, tonumber(params.ItemsCount)-1, Before)
 
   if tSettings.EndSort then tSettings.EndSort() end
 
