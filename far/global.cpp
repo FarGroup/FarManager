@@ -54,8 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "manager.hpp"
 
-thread DWORD global::m_LastError = ERROR_SUCCESS;
-thread NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
+thread_local DWORD global::m_LastError = ERROR_SUCCESS;
+thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
@@ -219,19 +219,6 @@ bool global::IsUserAdmin() const
 		Checked = true;
 	}
 	return Result;
-}
-
-const OSVERSIONINFO& global::WinVer() const
-{
-	static OSVERSIONINFO Info;
-	static bool Checked = false;
-	if(!Checked)
-	{
-		Info.dwOSVersionInfoSize = sizeof(Info);
-		GetVersionEx(&Info);
-		Checked = true;
-	}
-	return Info;
 }
 
 bool global::IsPtr(const void* Address) const

@@ -145,7 +145,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	GetPathRoot(DirName, Root);
 	if(api::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
-		if(Global->WinVer() < _WIN32_WINNT_WIN7)
+		if (!IsWindows7OrGreater())
 		{
 			CheckHardlinks = FileSystemName == L"NTFS";
 		}

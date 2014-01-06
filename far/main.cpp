@@ -402,7 +402,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
-	if(Global->WinVer() < _WIN32_WINNT_VISTA)
+	if (!IsWindowsVistaOrGreater())
 	{
 		api::EnableLowFragmentationHeap();
 	}

@@ -45,7 +45,6 @@ public:
 	const LARGE_INTEGER& FarUpTime() const {return m_FarUpTime;}
 	bool IsPtr(const void* Address) const;
 	bool IsUserAdmin() const;
-	const OSVERSIONINFO& WinVer() const;
 	const wchar_t* Version() const;
 	const wchar_t* Copyright() const;
 
@@ -99,8 +98,8 @@ private:
 	LARGE_INTEGER m_FarUpTime;
 	HANDLE m_MainThreadHandle;
 
-	static thread DWORD m_LastError;
-	static thread NTSTATUS m_LastStatus;
+	static thread_local DWORD m_LastError;
+	static thread_local NTSTATUS m_LastStatus;
 
 public:
 	class ImportedFunctions* ifn;

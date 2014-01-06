@@ -1354,7 +1354,7 @@ BOOL api::CreateHardLink(const string& FileName, const string& ExistingFileName,
 {
 	BOOL Result = CreateHardLinkInternal(NTPath(FileName),NTPath(ExistingFileName), lpSecurityAttributes);
 	//bug in win2k: \\?\ fails
-	if (!Result && Global->WinVer() <= _WIN32_WINNT_WIN2K)
+	if (!Result && !IsWindowsXPOrGreater())
 	{
 		Result = CreateHardLinkInternal(FileName, ExistingFileName, lpSecurityAttributes);
 	}
@@ -1898,4 +1898,28 @@ string api::GetPrivateProfileString(const string& AppName, const string& KeyName
 	wchar_t_ptr Buffer(NT_MAX_PATH);
 	DWORD size = ::GetPrivateProfileString(AppName.data(), KeyName.data(), Default.data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.data());
 	return string(Buffer.get(), size);
+}
+
+DWORD api::GetAppPathsRedirectionFlag()
+{
+	DWORD RedirectionFlag = 0;
+	static bool Checked = false;
+	if (!Checked)
+	{
+		// App Paths key is shared in Windows 7 and above
+		if (!IsWindows7OrGreater())
+		{
+#ifdef _WIN64
+			RedirectionFlag = KEY_WOW64_32KEY;
+#else
+			BOOL Wow64Process = FALSE;
+			if (Global->ifn->IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			{
+				RedirectionFlag = KEY_WOW64_64KEY;
+			}
+#endif
+		}
+		Checked = true;
+	}
+	return RedirectionFlag;
 }

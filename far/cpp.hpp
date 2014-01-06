@@ -131,9 +131,5 @@ namespace std
 #endif
 
 #ifdef _MSC_VER
-#define thread __declspec(thread)
-#endif
-
-#ifdef __GNUC__
-#define thread __thread
+#define thread_local __declspec(thread)
 #endif

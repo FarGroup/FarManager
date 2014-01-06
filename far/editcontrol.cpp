@@ -274,20 +274,8 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 		HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
-		DWORD RedirectionFlag = 0;
-		// App Paths key is shared in Windows 7 and above
-		if (Global->WinVer() < _WIN32_WINNT_WIN7)
-		{
-#ifdef _WIN64
-			RedirectionFlag = KEY_WOW64_32KEY;
-#else
-			BOOL Wow64Process = FALSE;
-			if (Global->ifn->IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
-			{
-				RedirectionFlag = KEY_WOW64_64KEY;
-			}
-#endif
-		}
+		DWORD RedirectionFlag = api::GetAppPathsRedirectionFlag();
+
 		for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 		{
 			if (i==ARRAYSIZE(RootFindKey)-1)

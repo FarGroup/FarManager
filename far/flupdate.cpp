@@ -240,7 +240,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	bool ReadNumStreams = IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	bool ReadStreamsSize = IsColumnDisplayed(STREAMSSIZE_COLUMN);
 
-	if (!(FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) && Global->WinVer() >= _WIN32_WINNT_WIN7)
+	if (!(FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) && IsWindows7OrGreater())
 	{
 		ReadNumLinks = false;
 	}

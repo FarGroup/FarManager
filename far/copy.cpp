@@ -3056,8 +3056,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 	{
 		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
 		        ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-		         ((Global->WinVer() > _WIN32_WINNT_WIN2K) ||
-		          !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
+		        (IsWindowsXPOrGreater() || !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
 		   )
 		{
 			if (!Global->Opt->CMOpt.CopyOpened)
@@ -3465,7 +3464,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		// TODO: ÇÄÅÑß ÑÒÀÂÈÒÜ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (Global->WinVer() == _WIN32_WINNT_WS03) // WS2003-Share SetFileTime BUG
+		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // WS2003-Share SetFileTime BUG
 		{
 			string strRoot;
 			GetPathRoot(strDestName, strRoot);

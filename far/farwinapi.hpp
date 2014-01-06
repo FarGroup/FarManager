@@ -391,6 +391,7 @@ static bool OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const stri
 
 static string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
 
+static DWORD GetAppPathsRedirectionFlag();
 
 private:
 	static bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
