@@ -39,32 +39,37 @@ end
 
 -- qsort [ extracted from Lua 5.1 distribution (file /test/sort.lua) ]
 local function qsort(x,l,u,sz,f)
-  if l<u then
-    x = ffi.cast("char*",x)
-    local v = ffi.new("char[?]",sz)
-    local function swap(i1,i2)
-      i1, i2 = x+i1*sz, x+i2*sz
-      ffi.copy(v,i1,sz); ffi.copy(i1,i2,sz); ffi.copy(i2,v,sz)
-    end
+  x = ffi.cast("char*",x)
+  local v = ffi.new("char[?]",sz)
 
-    local m=math.random(u-(l-1))+l-1 -- choose a random pivot in range l..u
-    swap(l,m) -- swap pivot to first position
-    local t=x+l*sz        -- pivot value
-    m=l
-    local i=l+1
-    while i<=u do
-      -- invariant: x[l+1..m] < t <= x[m+1..i-1]
-      if f(x+i*sz, t) then
-        m = m+1
-        swap(m,i)  -- swap x[i] and x[m]
-      end
-      i=i+1
-    end
-    swap(l,m)      -- swap pivot to a valid place
-    -- x[l+1..m-1] < x[m] <= x[m+1..u]
-    qsort(x,l,m-1,sz,f)
-    qsort(x,m+1,u,sz,f)
+  local function swap(i1,i2)
+    i1, i2 = x+i1*sz, x+i2*sz
+    ffi.copy(v,i1,sz); ffi.copy(i1,i2,sz); ffi.copy(i2,v,sz)
   end
+
+  local function recurse(l,u)
+    if l<u then
+      local m=math.random(u-(l-1))+l-1 -- choose a random pivot in range l..u
+      swap(l,m) -- swap pivot to first position
+      local t=x+l*sz        -- pivot value
+      m=l
+      local i=l+1
+      while i<=u do
+        -- invariant: x[l+1..m] < t <= x[m+1..i-1]
+        if f(x+i*sz, t) then
+          m = m+1
+          swap(m,i)  -- swap x[i] and x[m]
+        end
+        i=i+1
+      end
+      swap(l,m)      -- swap pivot to a valid place
+      -- x[l+1..m-1] < x[m] <= x[m+1..u]
+      recurse(l, m-1)
+      recurse(m+1, u)
+    end
+  end
+
+  recurse(l,u)
 end
 
 local BooleanProperties = {
@@ -83,6 +88,7 @@ local function LoadCustomSortMode (nMode, Settings)
     local t = { Compare=Settings.Compare }
     if type(Settings.InitSort)=="function" then t.InitSort=Settings.InitSort end
     if type(Settings.EndSort)=="function" then t.EndSort=Settings.EndSort end
+    if type(Settings.SortFunction)=="string" then t.SortFunction=Settings.SortFunction end
 
     for _,v in ipairs(BooleanProperties) do t[v] = not not Settings[v] end
     for _,v in ipairs(TernaryProperties) do t[v] = Settings[v]==0 and 0 or Settings[v]==1 and 1 or 2 end
@@ -272,8 +278,11 @@ local function SortPanelItems (params)
 
   if tSettings.InitSort then tSettings.InitSort(outParams) end
 
-  shellsort(params.Items, tonumber(params.ItemsCount), params.ItemSize, Before)
-  -- qsort(params.Items, 0, tonumber(params.ItemsCount)-1, params.ItemSize, Before)
+  if tSettings.SortFunction == "qsort" then
+    qsort(params.Items, 0, tonumber(params.ItemsCount)-1, params.ItemSize, Before)
+  else -- default
+    shellsort(params.Items, tonumber(params.ItemsCount), params.ItemSize, Before)
+  end
 
   if tSettings.EndSort then tSettings.EndSort() end
 
