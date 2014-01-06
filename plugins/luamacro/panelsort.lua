@@ -38,25 +38,32 @@ local function shellsort(t, n, sz, before)
 end
 
 -- qsort [ extracted from Lua 5.1 distribution (file /test/sort.lua) ]
-local function qsort(x,l,u,f)
+local function qsort(x,l,u,sz,f)
   if l<u then
+    x = ffi.cast("char*",x)
+    local v = ffi.new("char[?]",sz)
+    local function swap(i1,i2)
+      i1, i2 = x+i1*sz, x+i2*sz
+      ffi.copy(v,i1,sz); ffi.copy(i1,i2,sz); ffi.copy(i2,v,sz)
+    end
+
     local m=math.random(u-(l-1))+l-1 -- choose a random pivot in range l..u
-    x[l],x[m]=x[m],x[l] -- swap pivot to first position
-    local t=x[l]        -- pivot value
+    swap(l,m) -- swap pivot to first position
+    local t=x+l*sz        -- pivot value
     m=l
     local i=l+1
     while i<=u do
       -- invariant: x[l+1..m] < t <= x[m+1..i-1]
-      if f(x[i],t) then
-        m=m+1
-        x[m],x[i]=x[i],x[m]  -- swap x[i] and x[m]
+      if f(x+i*sz, t) then
+        m = m+1
+        swap(m,i)  -- swap x[i] and x[m]
       end
       i=i+1
     end
-    x[l],x[m]=x[m],x[l]      -- swap pivot to a valid place
+    swap(l,m)      -- swap pivot to a valid place
     -- x[l+1..m-1] < x[m] <= x[m+1..u]
-    qsort(x,l,m-1,f)
-    qsort(x,m+1,u,f)
+    qsort(x,l,m-1,sz,f)
+    qsort(x,m+1,u,sz,f)
   end
 end
 
@@ -266,7 +273,7 @@ local function SortPanelItems (params)
   if tSettings.InitSort then tSettings.InitSort(outParams) end
 
   shellsort(params.Items, tonumber(params.ItemsCount), params.ItemSize, Before)
-  -- qsort(params.Items, 0, tonumber(params.ItemsCount)-1, Before)
+  -- qsort(params.Items, 0, tonumber(params.ItemsCount)-1, params.ItemSize, Before)
 
   if tSettings.EndSort then tSettings.EndSort() end
 
