@@ -53,14 +53,12 @@ local function qsort(x,l,u,sz,f)
       swap(l,m) -- swap pivot to first position
       local t=x+l*sz        -- pivot value
       m=l
-      local i=l+1
-      while i<=u do
+      for i=l+1, u do
         -- invariant: x[l+1..m] < t <= x[m+1..i-1]
         if f(x+i*sz, t) then
           m = m+1
           swap(m,i)  -- swap x[i] and x[m]
         end
-        i=i+1
       end
       swap(l,m)      -- swap pivot to a valid place
       -- x[l+1..m-1] < x[m] <= x[m+1..u]
