@@ -724,9 +724,6 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	for (size_t i = 0; i < PluginFileCount; i++)
 	{
-		ListData.push_back(VALUE_TYPE(ListData)());
-		FileListItem& CurListData = ListData.back();
-
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
 		{
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -737,7 +734,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		//ClearStruct(*CurListData);
+		ListData.push_back(VALUE_TYPE(ListData)());
+		auto& CurListData = ListData.back();
+
 		PluginToFileListItem(&PanelData[i], &CurListData);
 		CurListData.Position=i;
 
