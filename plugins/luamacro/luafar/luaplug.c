@@ -191,10 +191,7 @@ intptr_t LUAPLUG GetFindDataW(struct GetFindDataInfo *Info)
 
 	return FALSE;
 }
-#endif
-//---------------------------------------------------------------------------
 
-#ifdef EXPORT_FREEFINDDATA
 void LUAPLUG FreeFindDataW(const struct FreeFindDataInfo *Info)
 {
 	if(LS) LF_FreeFindData(LS, Info);
