@@ -99,7 +99,6 @@ class VMenu2 : public Dialog
 		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
 
-		virtual void GetPosition(int &X1,int &Y1,int &X2,int &Y2) const override;
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
 		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 
