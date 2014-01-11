@@ -48,7 +48,7 @@ void GetFullName(const string& Name, string &strFullName)
 
 void FilePositionCache::CompactHistory()
 {
-	auto t(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 	Global->Db->HistoryCfg()->DeleteOldPositions(90,1000);
 }
 
@@ -60,7 +60,7 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	auto t(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
 	unsigned __int64 id = Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
@@ -117,7 +117,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	auto t(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
 	unsigned __int64 id = Global->Db->HistoryCfg()->SetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.Hex_Wrap, poscache.CodePage);

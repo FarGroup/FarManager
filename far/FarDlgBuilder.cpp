@@ -100,7 +100,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		*IntValue = _wcstoi64(Item->strData.data() + 1, nullptr, 16);
+		*IntValue = wcstoll(Item->strData.data() + 1, nullptr, 16);
 	}
 
 	const wchar_t *GetMask()

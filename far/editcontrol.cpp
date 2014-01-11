@@ -213,7 +213,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 {
 	bool Result=false;
 
-	DisableElevation de;
+	SCOPED_ACTION(elevation::suppress);
 
 	if(!Module.empty() && !FirstSlash(Module.data()))
 	{

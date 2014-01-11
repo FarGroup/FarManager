@@ -183,11 +183,11 @@ void PrintFiles(FileList* SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
-		SaveScreen SaveScr;
+		SCOPED_ACTION(SaveScreen);
 
 		auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
 
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PreRedrawItem>(PR_PrintMsg));
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(FALSE,0);
 		PR_PrintMsg();
 		auto hPlugin=SrcPanel->GetPluginHandle();

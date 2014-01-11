@@ -102,10 +102,10 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	string strFullName, strCurDirName, strLastDirName;
 	ConvertNameToFull(DirName, strFullDirName);
 	SaveScreen SaveScr;
-	UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<DirInfoPreRedrawItem>());
-	TaskBar TB(MsgWaitTime!=-1);
-	wakeful W;
+	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
+	SCOPED_ACTION(TaskBar)(MsgWaitTime != -1);
+	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
 	api::FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
@@ -433,7 +433,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 
 	{
 		SaveScreen SaveScr;
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PluginDirInfoPreRedrawItem>());
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PluginDirInfoPreRedrawItem>());
 		{
 			string strDirName;
 			strDirName = Dir;

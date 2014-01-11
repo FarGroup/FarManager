@@ -342,7 +342,7 @@ bool Language::Init(const string& Path, int CountNeed)
 #endif // NO_WRAPPER
 	)
 		return true;
-	GuardLastError gle;
+	SCOPED_ACTION(GuardLastError);
 	LastError = LERROR_SUCCESS;
 	uintptr_t nCodePage = CP_OEMCP;
 	string strLangName=Global->Opt->strLanguage.Get();

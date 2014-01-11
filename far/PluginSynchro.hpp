@@ -49,5 +49,5 @@ class PluginSynchro
 		PluginSynchro();
 		~PluginSynchro();
 		void Synchro(bool Plugin, const GUID& PluginId,void* Param);
-		bool Process(void);
+		bool Process();
 };

@@ -126,7 +126,7 @@ static int MainProcess(
     int StartChar
 )
 {
-		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
 		Global->Console->GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
@@ -394,7 +394,9 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 static int mainImpl(int Argc, wchar_t *Argv[])
 {
-	global _g;
+	SCOPED_ACTION(global);
+
+	auto NoElevetionDuringBoot = std::make_unique<elevation::suppress>();
 
 	SetErrorMode(Global->ErrorMode);
 
@@ -736,6 +738,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	}
 
 	Global->CtrlObject = new ControlObject;
+
+	NoElevetionDuringBoot.reset();
 
 	int Result = 1;
 

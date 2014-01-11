@@ -76,7 +76,7 @@ ScreenBuf::ScreenBuf():
 
 void ScreenBuf::AllocBuf(int X,int Y)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (X==BufX && Y==BufY)
 		return;
@@ -97,7 +97,7 @@ void ScreenBuf::AllocBuf(int X,int Y)
 */
 void ScreenBuf::FillBuf()
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={};
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
 	Global->Console->ReadOutput(Buf.data(), BufferSize, BufferCoord, ReadRegion);
@@ -113,7 +113,7 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (X<0)
 	{
@@ -152,7 +152,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 */
 void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Size)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t Width=X2-X1+1;
 	size_t Height=Y2-Y1+1;
 
@@ -165,7 +165,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text, size_t Siz
 */
 void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int Width=X2-X1+1;
 	int Height=Y2-Y1+1;
 	int I, J;
@@ -211,7 +211,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 // used in block selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
 		X1=std::max(0,X1);
@@ -265,7 +265,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 // used in stream selection
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
 		X1=std::max(0,X1);
@@ -304,7 +304,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int Width=X2-X1+1;
 	int Height=Y2-Y1+1;
 	int I, J;
@@ -333,7 +333,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 */
 void ScreenBuf::Flush(bool SuppressIndicators)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (!LockCount)
 	{
@@ -552,7 +552,7 @@ void ScreenBuf::ResetShadow()
 
 void ScreenBuf::MoveCursor(int X,int Y)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (CurX<0||CurY<0||CurX>ScrX||CurY>ScrY)
 	{
@@ -618,7 +618,7 @@ void ScreenBuf::RestoreElevationChar()
 //  проскроллировать буффер на одну строку вверх.
 void ScreenBuf::Scroll(int Num)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	if (Num > 0 && Num < BufY)
 	{

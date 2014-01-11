@@ -645,7 +645,7 @@ void PR_ShellSetFileAttributesMsg()
 
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	short DlgX=70,DlgY=24;
 	FarDialogItem AttrDlgData[]=
 	{
@@ -1282,7 +1282,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[i].strData[8]=GetTimeSeparator();
 				});
 
-				TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<AttrPreRedrawItem>());
+				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
 				ShellSetFileAttributesMsg(SelCount==1? strSelName : string());
 				int SkipMode=-1;
 
@@ -1424,8 +1424,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					{
 						SrcPanel->GetSelName(nullptr,FileAttr);
 					}
-					TaskBar TB;
-					wakeful W;
+					SCOPED_ACTION(TaskBar);
+					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 					DWORD LastTime=0;
 

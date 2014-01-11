@@ -165,7 +165,7 @@ int TestFolder(const string& Path)
 	}
 
 	{
-		DisableElevation de;
+		SCOPED_ACTION(elevation::suppress);
 
 		DWORD Attr=api::GetFileAttributes(strFindPath);
 

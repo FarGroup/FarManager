@@ -57,7 +57,7 @@ Privilege::~Privilege()
 {
 	if(hToken!=INVALID_HANDLE_VALUE)
 	{
-		GuardLastError LE;
+		SCOPED_ACTION(GuardLastError);
 		if(Changed)
 		{
 			AdjustTokenPrivileges(hToken,FALSE,&SavedState,sizeof(SavedState),nullptr,nullptr);

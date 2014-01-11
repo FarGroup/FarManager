@@ -138,8 +138,8 @@ static void PR_ReadFileNamesMsg()
 
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<FileListPreRedrawItem>());
-	TaskBar TB(false);
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<FileListPreRedrawItem>());
+	SCOPED_ACTION(TaskBar)(false);
 
 	strOriginalCurDir = strCurDir;
 

@@ -69,7 +69,7 @@ History::~History()
 
 void History::CompactHistory()
 {
-	auto t(Global->Db->HistoryCfg()->ScopedTransaction());
+	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
 	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
@@ -337,7 +337,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					{
 						bool ModifiedHistory=false;
 
-						auto t(HistoryCfgRef()->ScopedTransaction());
+						SCOPED_ACTION(auto)(HistoryCfgRef()->ScopedTransaction());
 
 						DWORD index=0;
 						string strHName,strHGuid,strHFile,strHData;

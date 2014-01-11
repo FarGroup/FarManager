@@ -497,7 +497,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 
 void EditFileTypes()
 {
-	auto t(Global->Db->AssocConfig()->ScopedTransaction());
+	SCOPED_ACTION(auto)(Global->Db->AssocConfig()->ScopedTransaction());
 
 	int MenuPos=0;
 	unsigned __int64 id;

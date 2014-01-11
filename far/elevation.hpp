@@ -43,15 +43,6 @@ enum ELEVATION_MODE
 
 ENUM(ELEVATION_COMMAND);
 
-class DisableElevation:NonCopyable
-{
-public:
-	DisableElevation();
-	~DisableElevation();
-private:
-	DWORD Value;
-};
-
 class elevation:NonCopyable
 {
 public:
@@ -76,6 +67,16 @@ public:
 	bool fSetFileEncryption(const string& Object, bool Encrypt);
 	bool fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
 
+	class suppress: NonCopyable
+	{
+	public:
+		suppress(): m_owner(*Global->Elevation) { InterlockedIncrement(&m_owner.m_suppressions); }
+		~suppress() { InterlockedDecrement(&m_owner.m_suppressions); }
+
+	private:
+		elevation& m_owner;
+	};
+
 private:
 	bool Write(const void* Data, size_t DataSize) const;
 	template<typename T>
@@ -87,14 +88,15 @@ private:
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
-	HANDLE Pipe;
-	HANDLE Process;
-	HANDLE Job;
-	int PID;
+	volatile unsigned long long m_suppressions;
+	HANDLE m_pipe;
+	HANDLE m_process;
+	HANDLE m_job;
+	int m_pid;
+	bool AskApprove;
+
 	bool Elevation;
 	bool DontAskAgain;
-	bool Approve;
-	bool AskApprove;
 	bool Recurse;
 	CriticalSection CS;
 	string strPipeID;

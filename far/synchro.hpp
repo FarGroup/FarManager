@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farexcpt.hpp"
 
-class CriticalSection
+class CriticalSection: NonCopyable
 {
 
 public:
@@ -70,20 +70,14 @@ public:
 
 	HandleWrapper() : h(nullptr) {}
 
-	void SetName(const wchar_t *HashPart, const wchar_t *TextPart)
+	void SetName(const string& HashPart, const string& TextPart)
 	{
-		if (!TextPart)
-			return;
-		unsigned hs = 0;
-		if (HashPart)
-			while (*HashPart)
-				hs = hs*17 + *HashPart++;
-		strName = GetNamespace() + std::to_wstring(hs) + L" " + TextPart;
+		strName = GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
 	}
 
 	virtual const wchar_t *GetNamespace() const = 0;
 
-	bool Opened() { return h != nullptr; }
+	bool Opened() const { return h != nullptr; }
 
 	bool Close()
 	{
@@ -93,9 +87,9 @@ public:
 		return ret;
 	}
 
-	bool Wait(DWORD Milliseconds=INFINITE) { return WaitForSingleObject(h, Milliseconds)==WAIT_OBJECT_0; }
+	bool Wait(DWORD Milliseconds = INFINITE) const{ return WaitForSingleObject(h, Milliseconds) == WAIT_OBJECT_0; }
 
-	bool Signaled() { return Wait(0); }
+	bool Signaled() const { return Wait(0); }
 
 	virtual ~HandleWrapper() { Close(); }
 
@@ -179,9 +173,9 @@ public:
 		return h != nullptr;
 	}
 
-	bool Lock() { return Wait(); }
+	bool Lock() const { return Wait(); }
 
-	bool Unlock() { return ReleaseMutex(h) != FALSE; }
+	bool Unlock() const { return ReleaseMutex(h) != FALSE; }
 };
 
 class AutoMutex:NonCopyable
@@ -220,11 +214,11 @@ public:
 		return h != nullptr;
 	}
 
-	bool Set() { return SetEvent(h)!=FALSE; }
+	bool Set() const { return SetEvent(h) != FALSE; }
 
-	bool Reset() { return ResetEvent(h)!=FALSE; }
+	bool Reset() const { return ResetEvent(h) != FALSE; }
 
-	void Associate(OVERLAPPED& o) { o.hEvent = h; }
+	void Associate(OVERLAPPED& o) const { o.hEvent = h; }
 };
 
 template<class T> class SyncedQueue:NonCopyable {
@@ -238,25 +232,25 @@ public:
 
 	bool Empty()
 	{
-		CriticalSectionLock cslock(csQueueAccess);
+		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
 		return Queue.empty();
 	}
 
 	void Push(const T& item)
 	{
-		CriticalSectionLock cslock(csQueueAccess);
+		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
 		Queue.push(item);
 	}
 
 	void Push(T&& item)
 	{
-		CriticalSectionLock cslock(csQueueAccess);
+		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
 		Queue.push(std::forward<T>(item));
 	}
 
 	T Pop()
 	{
-		CriticalSectionLock cslock(csQueueAccess);
+		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
 		T item = std::move(Queue.front());
 		Queue.pop();
 		return item;

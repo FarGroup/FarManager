@@ -133,3 +133,8 @@ namespace std
 #ifdef _MSC_VER
 #define thread_local __declspec(thread)
 #endif
+
+// already included in VC2013
+#if defined _MSC_VER && _MSC_VER < 1800
+# define wcstoll _wcstoi64
+#endif

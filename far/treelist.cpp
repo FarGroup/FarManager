@@ -408,9 +408,9 @@ struct TreePreRedrawItem : public PreRedrawItem
 
 int TreeList::ReadTree()
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<TreePreRedrawItem>());
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(FALSE);
 	api::FAR_FIND_DATA fdata;
 	string strFullName;
@@ -434,8 +434,8 @@ int TreeList::ReadTree()
 	ScTree.SetFindPath(strRoot, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
-	TaskBar TB;
-	wakeful W;
+	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(&fdata,strFullName))
 	{
 		TreeList::MsgReadTree(ListData.size(), FirstCall);
@@ -1680,9 +1680,9 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 
 void TreeList::ReadSubTree(const string& Path)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<TreePreRedrawItem>());
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(FALSE);
 	api::FAR_FIND_DATA fdata;
 	string strDirName;

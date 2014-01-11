@@ -360,7 +360,8 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 */
 void ConvertNameToReal(const string& Src, string &strDest)
 {
-	DisableElevation de;
+	SCOPED_ACTION(elevation::suppress);
+
 	// Получим сначала полный путь до объекта обычным способом
 	string FullPath;
 	ConvertNameToFull(Src, FullPath);
@@ -516,7 +517,7 @@ void ConvertNameToUNC(string &strFileName)
 string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	// elevation not required during cosmetic operation
-	DisableElevation de;
+	SCOPED_ACTION(elevation::suppress);
 
 	if (!strPath.empty())
 	{

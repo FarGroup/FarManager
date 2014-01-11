@@ -886,7 +886,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	int ConsoleOutputCP = CP_OEMCP;
 	int add_show_clock = 0;
 
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ConsoleTitle OldTitle;
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};

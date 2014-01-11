@@ -170,43 +170,32 @@ namespace pipe
 	}
 }
 
-DisableElevation::DisableElevation()
-{
-	Value = Global->Opt->ElevationMode;
-	Global->Opt->ElevationMode = 0;
-}
-
-DisableElevation::~DisableElevation()
-{
-	Global->Opt->ElevationMode = Value;
-}
-
 
 elevation::elevation():
-	Pipe(INVALID_HANDLE_VALUE),
-	Process(nullptr),
-	Job(nullptr),
-	PID(0),
+	m_suppressions(),
+	m_pipe(INVALID_HANDLE_VALUE),
+	m_process(),
+	m_job(),
+	m_pid(),
+	AskApprove(true),
 	Elevation(false),
 	DontAskAgain(false),
-	Approve(false),
-	AskApprove(true),
 	Recurse(false)
 {
 }
 
 elevation::~elevation()
 {
-	if(Pipe != INVALID_HANDLE_VALUE)
+	if (m_pipe != INVALID_HANDLE_VALUE)
 	{
 		SendCommand(C_SERVICE_EXIT);
-		DisconnectNamedPipe(Pipe);
-		CloseHandle(Pipe);
+		DisconnectNamedPipe(m_pipe);
+		CloseHandle(m_pipe);
 	}
 
-	if(Job)
+	if(m_job)
 	{
-		CloseHandle(Job);
+		CloseHandle(m_job);
 	}
 }
 
@@ -214,7 +203,6 @@ void elevation::ResetApprove()
 {
 	if(!DontAskAgain)
 	{
-		Approve=false;
 		AskApprove=true;
 		if(Elevation)
 		{
@@ -226,25 +214,25 @@ void elevation::ResetApprove()
 
 bool elevation::Write(const void* Data,size_t DataSize) const
 {
-	return pipe::Write(Pipe, Data, DataSize);
+	return pipe::Write(m_pipe, Data, DataSize);
 }
 
 template<typename T>
 inline bool elevation::Read(T& Data) const
 {
-	return pipe::Read(Pipe, Data);
+	return pipe::Read(m_pipe, Data);
 }
 
 template<>
 inline bool elevation::Read(char_ptr& Data) const
 {
-	return pipe::Read(Pipe, Data);
+	return pipe::Read(m_pipe, Data);
 }
 
 template<typename T>
 inline bool elevation::Write(const T& Data) const
 {
-	return pipe::Write(Pipe, Data);
+	return pipe::Write(m_pipe, Data);
 }
 
 template<>
@@ -255,7 +243,7 @@ inline bool elevation::Write(const string& Data) const
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 {
-	return pipe::Write(Pipe, Command);
+	return pipe::Write(m_pipe, Command);
 }
 
 struct ERRORCODES
@@ -279,7 +267,7 @@ bool elevation::ReceiveLastError() const
 bool elevation::Initialize()
 {
 	bool Result=false;
-	if(Pipe==INVALID_HANDLE_VALUE)
+	if (m_pipe == INVALID_HANDLE_VALUE)
 	{
 		GUID Id;
 		if(CoCreateGuid(&Id) == S_OK)
@@ -312,34 +300,34 @@ bool elevation::Initialize()
 							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
 							string strPipe(L"\\\\.\\pipe\\");
 							strPipe+=strPipeID;
-							Pipe=CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
+							m_pipe = CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
 						}
 					}
 				}
 			}
 		}
 	}
-	if(Pipe!=INVALID_HANDLE_VALUE)
+	if (m_pipe != INVALID_HANDLE_VALUE)
 	{
-		if(Process)
+		if(m_process)
 		{
-			if(WaitForSingleObject(Process, 0) == WAIT_TIMEOUT)
+			if (WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
 			{
 				Result = true;
 			}
 			else
 			{
-				CloseHandle(Process);
-				Process = nullptr;
+				CloseHandle(m_process);
+				m_process = nullptr;
 			}
 		}
 		if(!Result)
 		{
-			TaskBar TB;
-			DisconnectNamedPipe(Pipe);
+			SCOPED_ACTION(TaskBar);
+			DisconnectNamedPipe(m_pipe);
 
 			BOOL InJob = FALSE;
-			if(!Job)
+			if (!m_job)
 			{
 				// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
 				// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
@@ -348,13 +336,13 @@ bool elevation::Initialize()
 				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr);
 				if (!InJob)
 				{
-					Job = CreateJobObject(nullptr, nullptr);
-					if(Job)
+					m_job = CreateJobObject(nullptr, nullptr);
+					if (m_job)
 					{
 						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
-						if(SetInformationJobObject(Job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+						if (SetInformationJobObject(m_job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 						{
-							AssignProcessToJobObject(Job, GetCurrentProcess());
+							AssignProcessToJobObject(m_job, GetCurrentProcess());
 						}
 					}
 				}
@@ -374,22 +362,22 @@ bool elevation::Initialize()
 			};
 			if(ShellExecuteEx(&info))
 			{
-				Process = info.hProcess;
-				if(!InJob && Job)
+				m_process = info.hProcess;
+				if (!InJob && m_job)
 				{
-					AssignProcessToJobObject(Job, Process);
+					AssignProcessToJobObject(m_job, m_process);
 				}
 				OVERLAPPED Overlapped;
 				Event AEvent;
 				AEvent.Open();
 				AEvent.Associate(Overlapped);
-				ConnectNamedPipe(Pipe, &Overlapped);
+				ConnectNamedPipe(m_pipe, &Overlapped);
 				if(AEvent.Wait(15000))
 				{
 					DWORD NumberOfBytesTransferred;
-					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+					if (GetOverlappedResult(m_pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 					{
-						if(Read(PID))
+						if (Read(m_pid))
 						{
 							Result = true;
 						}
@@ -397,15 +385,15 @@ bool elevation::Initialize()
 				}
 				if(!Result)
 				{
-					if(WaitForSingleObject(Process, 0) == WAIT_TIMEOUT)
+					if(WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
 					{
-						TerminateProcess(Process, 0);
-						CloseHandle(Process);
-						Process = nullptr;
-						if(Job)
+						TerminateProcess(m_process, 0);
+						CloseHandle(m_process);
+						m_process = nullptr;
+						if (m_job)
 						{
-							CloseHandle(Job);
-							Job = nullptr;
+							CloseHandle(m_job);
+							m_job = nullptr;
 						}
 					}
 					SetLastError(ERROR_PROCESS_ABORTED);
@@ -455,16 +443,16 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-struct EAData
+struct EAData: NonCopyable
 {
 	std::unique_ptr<Event> pEvent;
 	const string& Object;
 	LNGID Why;
 	bool& AskApprove;
-	bool& Approve;
+	bool& IsApproved;
 	bool& DontAskAgain;
-	EAData(const string& Object, LNGID Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
-		Object(Object), Why(Why), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
+	EAData(const string& Object, LNGID Why, bool& AskApprove, bool& IsApproved, bool& DontAskAgain):
+		Object(Object), Why(Why), AskApprove(AskApprove), IsApproved(IsApproved), DontAskAgain(DontAskAgain){}
 };
 
 void ElevationApproveDlgSync(LPVOID Param)
@@ -500,7 +488,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	}
 
 	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
-	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
+	Data->IsApproved = Dlg.GetExitCode() == AAD_BUTTON_OK;
 	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
 	if(Data->pEvent)
 	{
@@ -510,24 +498,29 @@ void ElevationApproveDlgSync(LPVOID Param)
 
 bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
+	if (m_suppressions)
+		return false;
+
 	// request for backup&restore privilege is useless if the user already has them
 	{
-		GuardLastError Error;
+		SCOPED_ACTION(GuardLastError);
 		if(AskApprove &&  Global->IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
 		{
-			Approve = true;
 			AskApprove = false;
+			return true;
 		}
 	}
+
+	bool IsApproved = false;
 
 	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
  		Global->FrameManager && !Global->FrameManager->ManagerIsDown())
 	{
 		Recurse = true;
-		GuardLastError error;
+		SCOPED_ACTION(GuardLastError);
 		TaskBarPause TBP;
-		EAData Data(Object, Why, AskApprove, Approve, DontAskAgain);
+		EAData Data(Object, Why, AskApprove, IsApproved, DontAskAgain);
 		if(!Global->IsMainThread())
 		{
 			Data.pEvent = std::make_unique<Event>();
@@ -541,18 +534,19 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		}
 		Recurse = false;
 	}
-	return Approve;
+	return IsApproved;
 }
 
 bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
@@ -570,13 +564,14 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 
 bool elevation::fRemoveDirectory(const string& Object)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = RemoveDirectory(Object.data()) != FALSE;
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
@@ -593,13 +588,14 @@ bool elevation::fRemoveDirectory(const string& Object)
 
 bool elevation::fDeleteFile(const string& Object)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = DeleteFile(Object.data()) != FALSE;
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
@@ -635,13 +631,14 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 
 bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result = false;
 	if(ElevationApproveDlg(MElevationRequiredCopy, From))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
@@ -671,13 +668,14 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 
 bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredMove, From))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
@@ -694,13 +692,14 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 
 DWORD elevation::fGetFileAttributes(const string& Object)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
 	if(ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = GetFileAttributes(Object.data());
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
@@ -717,13 +716,14 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 
 bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = SetFileAttributes(Object.data(), FileAttributes) != FALSE;
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
@@ -740,13 +740,14 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 
 bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredHardLink, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 		}
 		// BUGBUG: SecurityAttributes ignored.
@@ -764,13 +765,14 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 
 bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSymLink, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = api::CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
@@ -787,13 +789,14 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int Result = 0x78; //DE_ACCESSDENIEDSRC
 	if(ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = SHFileOperation(&FileOpStruct);
 		}
 		else
@@ -823,13 +826,14 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 
 bool elevation::fSetOwner(const string& Object, const string& Owner)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSetOwner, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = SetOwnerInternal(Object.data(), Owner.data());
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
@@ -846,13 +850,14 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 
 HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
 	if(ElevationApproveDlg(MElevationRequiredOpen, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 		// BUGBUG: SecurityAttributes ignored
@@ -871,13 +876,14 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 
 bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = api::SetFileEncryptionInternal(Object.data(), Encrypt);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
@@ -894,13 +900,14 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 
 bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
 		if(Global->IsUserAdmin())
 		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
+			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 			Result = api::OpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters))
@@ -957,12 +964,11 @@ public:
 
 		SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
-		Privilege
-			BackupPrivilege(UsePrivileges?SE_BACKUP_NAME:nullptr),
-			RestorePrivilege(UsePrivileges?SE_RESTORE_NAME:nullptr),
-			TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
-			DebugPrivilege(SE_DEBUG_NAME),
-			CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
+		SCOPED_ACTION(Privilege)(UsePrivileges ? SE_BACKUP_NAME : nullptr);
+		SCOPED_ACTION(Privilege)(UsePrivileges ? SE_RESTORE_NAME : nullptr);
+		SCOPED_ACTION(Privilege)(SE_TAKE_OWNERSHIP_NAME);
+		SCOPED_ACTION(Privilege)(SE_DEBUG_NAME);
+		SCOPED_ACTION(Privilege)(SE_CREATE_SYMBOLIC_LINK_NAME);
 
 		string strPipe(L"\\\\.\\pipe\\");
 		strPipe+=guid;

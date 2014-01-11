@@ -34,12 +34,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Privilege
 {
-	HANDLE hToken;
-	bool Changed;
-	TOKEN_PRIVILEGES SavedState;
 public:
 	Privilege(LPCWSTR PrivilegeName);
 	~Privilege();
+
+private:
+	HANDLE hToken;
+	bool Changed;
+	TOKEN_PRIVILEGES SavedState;
 };
 
 bool CheckPrivilege(LPCWSTR PrivilegeName);

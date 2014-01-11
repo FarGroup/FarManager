@@ -1415,7 +1415,7 @@ namespace oldfar
 	typedef void (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
 	typedef BOOL (WINAPI *FARSTDADDENDSLASH)(char *Path);
 	typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
-	typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+	typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)();
 	typedef int (WINAPI *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
 	typedef int (WINAPI *FARSTDLOCALISLOWER)(unsigned Ch);
 	typedef int (WINAPI *FARSTDLOCALISUPPER)(unsigned Ch);

@@ -3407,8 +3407,8 @@ void Viewer::Search(int Next,int FirstChar)
 	sd.CurPos = LastSelectPos;
 	if ( !found )
 	{
-		TaskBar TB;
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<ViewerPreRedrawItem>());
+		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(FALSE,0);
 
 		DWORD start_time = GetTickCount();

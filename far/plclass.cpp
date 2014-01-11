@@ -210,11 +210,8 @@ void NativePluginModel::InitExports(GenericPluginModel::plugin_instance instance
 
 bool NativePluginModel::FindExport(const char* ExportName)
 {
-	auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
-	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
-	{
-		return !strcmp(ExportName, i.AName);
-	}) != ExportsEnd;
+	// only module with GetGlobalInfoW can be native plugin
+	return !strcmp(ExportName, m_ExportsNames[iGetGlobalInfo].AName);
 }
 
 bool NativePluginModel::IsPlugin2(const void* Module)
@@ -480,7 +477,7 @@ bool Plugin::SaveToCache()
 
 	PluginsCacheConfig& PlCache = *Global->Db->PlCacheCfg();
 
-	auto t(PlCache.ScopedTransaction());
+	SCOPED_ACTION(auto)(PlCache.ScopedTransaction());
 
 	PlCache.DeleteCache(m_strCacheName);
 	unsigned __int64 id = PlCache.CreateCache(m_strCacheName);
@@ -642,7 +639,7 @@ bool Plugin::LoadData()
 		Info.StructSize &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
-		Info.Author && *Info.Author)
+ 		Info.Author && *Info.Author)
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;
@@ -893,7 +890,7 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 
 PluginHandle* Plugin::Open(OpenInfo* Info)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	CheckScreenLock(); //??
 	Global->g_strDirToSet.clear();
 	ExecuteStruct es = {iOpen};

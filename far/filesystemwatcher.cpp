@@ -92,7 +92,8 @@ unsigned int FileSystemWatcher::WatchRegister(LPVOID lpParameter)
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 {
-	DisableElevation de;
+	SCOPED_ACTION(elevation::suppress);
+
 	if(!bOpen)
 	{
 		bOpen = true;

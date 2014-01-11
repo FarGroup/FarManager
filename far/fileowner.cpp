@@ -201,8 +201,8 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 	}
 	if(Sid)
 	{
-		Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
-		Privilege RestorePrivilege(SE_RESTORE_NAME);
+		SCOPED_ACTION(Privilege)(SE_TAKE_OWNERSHIP_NAME);
+		SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
 		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
 		if(dwResult == ERROR_SUCCESS)
 		{

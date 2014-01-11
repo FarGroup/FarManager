@@ -1375,8 +1375,8 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 	{
 		auto PR_FarGetDirListMsg = [](){ Message(0,0,L"",MSG(MPreparingList)); };
 
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
-		SaveScreen SaveScr;
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
+		SCOPED_ACTION(SaveScreen);
 		api::FAR_FIND_DATA FindData;
 		string strFullName;
 		ScanTree ScTree(FALSE);

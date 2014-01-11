@@ -311,8 +311,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	SkipFoldersMode(-1),
 	ProcessedItems(0)
 {
-	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<DelPreRedrawItem>());
+	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
 	api::FAR_FIND_DATA FindData;
 	string strDeleteFilesMsg;
 	string strSelName;
@@ -483,8 +483,8 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 	{
 		ConsoleTitle DeleteTitle(MSG(MDeletingTitle));
-		TaskBar TB;
-		wakeful W;
+		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
 		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);

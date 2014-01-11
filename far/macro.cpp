@@ -3110,7 +3110,7 @@ static bool atoiFunc(FarMacroCall* Data)
 	auto Params = parseParams<2>(Data);
 	bool Ret=true;
 	wchar_t *endptr;
-	PassInteger(_wcstoi64(Params[0].toString(),&endptr,(int)Params[1].toInteger()), Data);
+	PassInteger(wcstoll(Params[0].toString(), &endptr, (int) Params[1].toInteger()), Data);
 	return Ret;
 }
 
@@ -5543,7 +5543,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 
 	if (tmpVar.isString())
 	{
-		DisableElevation de;
+		SCOPED_ACTION(elevation::suppress);
 		Ret=(__int64)TestFolder(tmpVar.s());
 	}
 

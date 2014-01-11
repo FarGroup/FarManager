@@ -36,101 +36,123 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class AbstractSettings
 {
-	private:
-		char* Add(const wchar_t* Data,size_t Size);
-	protected:
-		std::list<char_ptr> m_Data;
-		char* Add(const string& String);
-		char* Add(size_t Size);
-	public:
-		virtual ~AbstractSettings(){};
-		virtual bool IsValid(void);
-		virtual int Set(const FarSettingsItem& Item)=0;
-		virtual int Get(FarSettingsItem& Item)=0;
-		virtual int Enum(FarSettingsEnum& Enum)=0;
-		virtual int Delete(const FarSettingsValue& Value)=0;
-		virtual int SubKey(const FarSettingsValue& Value, bool bCreate)=0;
+public:
+	virtual ~AbstractSettings(){};
+	virtual bool IsValid() const = 0;
+	virtual int Set(const FarSettingsItem& Item) = 0;
+	virtual int Get(FarSettingsItem& Item) = 0;
+	virtual int Enum(FarSettingsEnum& Enum) = 0;
+	virtual int Delete(const FarSettingsValue& Value) = 0;
+	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) = 0;
+
+protected:
+	wchar_t* Add(const string& String);
+	void* Add(size_t Size);
+
+private:
+	wchar_t* Add(const wchar_t* Data, size_t Size);
+	std::list<char_ptr> m_Data;
 };
 
-class FarSettingsNameItems: NonCopyable
+class PluginSettings: NonCopyable, public AbstractSettings
 {
 public:
-	FarSettingsNameItems() {}
-	FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
-	~FarSettingsNameItems()
+	PluginSettings(const GUID& Guid, bool Local);
+	virtual bool IsValid() const override;
+	virtual int Set(const FarSettingsItem& Item) override;
+	virtual int Get(FarSettingsItem& Item) override;
+	virtual int Enum(FarSettingsEnum& Enum) override;
+	virtual int Delete(const FarSettingsValue& Value) override;
+	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+	class FarSettingsNameItems : NonCopyable
 	{
-		std::for_each(CONST_RANGE(Items, i)
-		{
-			delete[] i.Name;
-		});
-	}
-
-	MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
-	
-	void swap(FarSettingsNameItems& rhs)
-	{
-		Items.swap(rhs.Items);
-	}
-
-	std::vector<FarSettingsName> Items;
-};
-
-STD_SWAP_SPEC(FarSettingsNameItems);
-
-class PluginSettings: public AbstractSettings
-{
-	private:
-		std::vector<FarSettingsNameItems> m_Enum;
-		std::vector<unsigned __int64> m_Keys;
-		HierarchicalConfigUniquePtr PluginsCfg;
-		PluginSettings();
 	public:
-		PluginSettings(const GUID& Guid, bool Local);
-		bool IsValid(void);
-		int Set(const FarSettingsItem& Item);
-		int Get(FarSettingsItem& Item);
-		int Enum(FarSettingsEnum& Enum);
-		int Delete(const FarSettingsValue& Value);
-		int SubKey(const FarSettingsValue& Value, bool bCreate);
+		FarSettingsNameItems() {}
+		FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
+		~FarSettingsNameItems()
+		{
+			std::for_each(CONST_RANGE(Items, i)
+			{
+				delete [] i.Name;
+			});
+		}
+
+		MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
+
+		void swap(FarSettingsNameItems& rhs)
+		{
+			Items.swap(rhs.Items);
+		}
+
+		void add(FarSettingsName& Item, const string& String);
+
+		void get(FarSettingsEnum& e) const
+		{
+			e.Count = Items.size();
+			e.Items = e.Count? Items.data() : nullptr;
+		}
+
+	private:
+		std::vector<FarSettingsName> Items;
+	};
+
+private:
+	std::vector<FarSettingsNameItems> m_Enum;
+	std::vector<unsigned __int64> m_Keys;
+	HierarchicalConfigUniquePtr PluginsCfg;
 };
 
-class FarSettingsHistoryItems: NonCopyable
+STD_SWAP_SPEC(PluginSettings::FarSettingsNameItems);
+
+class FarSettings: NonCopyable, public AbstractSettings
 {
 public:
-	FarSettingsHistoryItems() {}
-	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
-	~FarSettingsHistoryItems()
+	virtual bool IsValid() const override { return true; }
+	virtual int Set(const FarSettingsItem& Item) override;
+	virtual int Get(FarSettingsItem& Item) override;
+	virtual int Enum(FarSettingsEnum& Enum) override;
+	virtual int Delete(const FarSettingsValue& Value) override;
+	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+	class FarSettingsHistoryItems : NonCopyable
 	{
-		std::for_each(CONST_RANGE(Items, i)
-		{
-			delete[] i.Name;
-			delete[] i.Param;
-			delete[] i.File;
-		});
-	}
-
-	MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
-
-	void swap(FarSettingsHistoryItems& rhs)
-	{
-		Items.swap(rhs.Items);
-	}
-
-	std::vector<FarSettingsHistory> Items;
-};
-
-STD_SWAP_SPEC(FarSettingsHistoryItems);
-
-class FarSettings: public AbstractSettings
-{
-	private:
-		std::vector<FarSettingsHistoryItems> m_Enum;
-		std::vector<string> m_Keys;
-		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
 	public:
-		int Set(const FarSettingsItem& Item);
-		int Get(FarSettingsItem& Item);
-		int Enum(FarSettingsEnum& Enum);
-		int Delete(const FarSettingsValue& Value);
-		int SubKey(const FarSettingsValue& Value, bool bCreate);
+		FarSettingsHistoryItems() {}
+		FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
+		~FarSettingsHistoryItems()
+		{
+			std::for_each(CONST_RANGE(Items, i)
+			{
+				delete [] i.Name;
+				delete [] i.Param;
+				delete [] i.File;
+			});
+		}
+
+		MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
+
+		void swap(FarSettingsHistoryItems& rhs)
+		{
+			Items.swap(rhs.Items);
+		}
+
+		void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
+
+		void get(FarSettingsEnum& e) const
+		{
+			e.Count = Items.size();
+			e.Histories = e.Count? Items.data() : nullptr;
+		}
+			
+	private:
+		std::vector<FarSettingsHistory> Items;
+	};
+
+private:
+	int FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
+	std::vector<FarSettingsHistoryItems> m_Enum;
+	std::vector<string> m_Keys;
 };
+
+STD_SWAP_SPEC(FarSettings::FarSettingsHistoryItems);

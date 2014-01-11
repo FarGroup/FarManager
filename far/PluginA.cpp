@@ -132,6 +132,7 @@ Plugin* OEMPluginModel::CreatePlugin(const string& filename)
 
 bool OEMPluginModel::FindExport(const char* ExportName)
 {
+	// module with ANY known export can be OEM plugin
 	auto ExportsBegin = m_ExportsNames, ExportsEnd = ExportsBegin + ExportsCount;
 	return std::find_if(ExportsBegin, ExportsEnd, [&](const export_name& i)
 	{
@@ -4990,7 +4991,7 @@ static PluginHandle* TranslateResult(PluginHandle* hResult)
 
 PluginHandle* PluginA::Open(OpenInfo* Info)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	CheckScreenLock();
 

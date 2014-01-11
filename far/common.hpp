@@ -211,11 +211,12 @@ private:
 	std::function<void()> m_f;
 };
 
-#define _SCOPE_EXIT_NAME(name, suffix) name ## suffix
-#define SCOPE_EXIT_NAME(name, suffix) _SCOPE_EXIT_NAME(name, suffix)
+#define _ADD_SUFFIX(s, suffix) s ## suffix
+#define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
+
 #define SCOPE_EXIT \
-	std::function<void()> SCOPE_EXIT_NAME(scope_exit_func_, __LINE__); \
-	ScopeExit SCOPE_EXIT_NAME(scope_exit_, __LINE__) = SCOPE_EXIT_NAME(scope_exit_func_, __LINE__) = [&]() /* lambda body here */
+	std::function<void()> ADD_SUFFIX(scope_exit_func_, __LINE__); \
+	ScopeExit ADD_SUFFIX(scope_exit_, __LINE__) = ADD_SUFFIX(scope_exit_func_, __LINE__) = [&]() /* lambda body here */
 
 template<class T>
 inline void resize_nomove(T& container, size_t size)
@@ -343,13 +344,6 @@ inline void ClearStruct(T& s)
 }
 
 template<typename T>
-inline void ClearStructUnsafe(T& s)
-{
-	static_assert(!std::is_pointer<T>::value, "ClearStruct template requires a reference to an object");
-	memset(&s, 0, sizeof(s));
-}
-
-template<typename T>
 inline void ClearArray(T& a)
 {
 	static_assert(std::is_pod<T>::value, "ClearArray template requires a POD type");
@@ -378,3 +372,38 @@ namespace std \
 #define ALLOW_SWAP_ACCESS(Type) \
 friend void std::swap<Type>(Type&, Type&);
 
+#define SCOPED_ACTION(RAII_type) \
+RAII_type ADD_SUFFIX(scoped_object_, __LINE__)
+
+template<class T>
+inline size_t make_hash(const T& value)
+{
+	return std::hash<T>()(value);
+}
+
+template <class T>
+inline const T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
+
+inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
+
+#ifdef _DEBUG
+#define SELF_TEST(code) \
+namespace \
+{ \
+	struct SelfTest \
+	{ \
+		SelfTest() \
+		{ \
+			code; \
+		} \
+	} _SelfTest; \
+}
+#else
+#define SELF_TEST(code)
+#endif
+
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8       0xBFBBEF
+
+typedef std::wstring string;

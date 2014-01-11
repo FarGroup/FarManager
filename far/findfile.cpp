@@ -118,7 +118,7 @@ public:
 	InterThreadData() {Init();}
 	void Init()
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		FindFileArcItem = nullptr;
 		Percent=0;
 		LastFoundNumber=0;
@@ -134,38 +134,87 @@ public:
 	void Lock() {DataCS.Enter();}
 	void Unlock() {DataCS.Leave();}
 
-	ArcListItem* GetFindFileArcItem(){CriticalSectionLock Lock(DataCS); return FindFileArcItem;}
-	void SetFindFileArcItem(ArcListItem* Value){CriticalSectionLock Lock(DataCS); FindFileArcItem = Value;}
+	ArcListItem* GetFindFileArcItem()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return FindFileArcItem;
+	}
 
-	int GetPercent(){CriticalSectionLock Lock(DataCS); return Percent;}
-	void SetPercent(int Value){CriticalSectionLock Lock(DataCS); Percent=Value;}
+	void SetFindFileArcItem(ArcListItem* Value)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		FindFileArcItem = Value;
+	}
 
-	int GetLastFoundNumber(){CriticalSectionLock Lock(DataCS); return LastFoundNumber;}
-	void SetLastFoundNumber(int Value){CriticalSectionLock Lock(DataCS); LastFoundNumber=Value;}
+	int GetPercent()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return Percent;
+	}
 
-	int GetFileCount(){CriticalSectionLock Lock(DataCS); return FileCount;}
-	void SetFileCount(int Value){CriticalSectionLock Lock(DataCS); FileCount=Value;}
+	void SetPercent(int Value)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		Percent = Value;
+	}
 
-	int GetDirCount(){CriticalSectionLock Lock(DataCS); return DirCount;}
-	void SetDirCount(int Value){CriticalSectionLock Lock(DataCS); DirCount=Value;}
+	int GetLastFoundNumber()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return LastFoundNumber;
+	}
 
-	size_t GetFindListCount(){CriticalSectionLock Lock(DataCS); return FindList.size();}
+	void SetLastFoundNumber(int Value)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		LastFoundNumber = Value;
+	}
+
+	int GetFileCount()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return FileCount;
+	}
+
+	void SetFileCount(int Value)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		FileCount = Value;
+	}
+
+	int GetDirCount()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return DirCount;
+	}
+
+	void SetDirCount(int Value)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		DirCount = Value;
+	}
+
+	size_t GetFindListCount()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		return FindList.size();
+	}
 
 	void GetFindMessage(string& To)
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		To=strFindMessage;
 	}
 
 	void SetFindMessage(const string& From)
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		strFindMessage=From;
 	}
 
 	void ClearAllLists()
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		FindFileArcItem = nullptr;
 
 		if (!FindList.empty())
@@ -190,7 +239,7 @@ public:
 
 	ArcListItem& AddArcListItem(const string& ArcName, PluginHandle* hPlugin, UINT64 dwFlags, const string& RootPath)
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 
 		ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
@@ -204,7 +253,7 @@ public:
 
 	FindListItem& AddFindListItem(const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
-		CriticalSectionLock Lock(DataCS);
+		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 
 		FindListItem NewItem;
 		NewItem.FindData = FindData;
@@ -1313,7 +1362,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 
 						bool GetFileResult=false;
 						{
-							CriticalSectionLock Lock(PluginCS);
+							SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 							GetFileResult=Global->CtrlObject->Plugins->GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
 						}
 						if (GetFileResult)
@@ -1351,7 +1400,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	CriticalSectionLock Lock(PluginCS);
+	SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	static bool Recurse=false;
@@ -1614,7 +1663,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								int SavePluginsOutput=Global->DisablePluginsOutput;
 								Global->DisablePluginsOutput=TRUE;
 								{
-									CriticalSectionLock Lock(PluginCS);
+									SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
 								}
 								Global->DisablePluginsOutput=SavePluginsOutput;
@@ -1630,7 +1679,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							}
 							FarMkTempEx(strTempDir);
 							api::CreateDirectory(strTempDir, nullptr);
-							CriticalSectionLock Lock(PluginCS);
+							SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 							UserDataItem UserData = {FindItem->Data,FindItem->FreeData};
 							bool bGet=GetPluginFile(FindItem->Arc,FindItem->FindData,strTempDir,strSearchFileName,&UserData);
 							if (!bGet)
@@ -2205,7 +2254,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 	string strArcName = ArcName;
 	PluginHandle* hArc;
 	{
-		CriticalSectionLock Lock(PluginCS);
+		SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 		hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
 	}
 	Global->DisablePluginsOutput=SavePluginsOutput;
@@ -2245,7 +2294,7 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 			strPluginSearchPath = strSaveSearchPath;
 			ArcListItem* ArcItem = itd->GetFindFileArcItem();
 			{
-				CriticalSectionLock Lock(PluginCS);
+				SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 				Global->CtrlObject->Plugins->ClosePanel(ArcItem->hPlugin);
 			}
 			ArcItem->hPlugin = nullptr;
@@ -2429,7 +2478,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 	size_t ItemCount=0;
 	bool GetFindDataResult=false;
 	{
-		CriticalSectionLock Lock(PluginCS);
+		SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 		{
 			if(!StopEvent.Signaled())
 			{
@@ -2488,7 +2537,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 			) {
 				bool SetDirectoryResult=false;
 				{
-					CriticalSectionLock Lock(PluginCS);
+					SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, &CurPanelItem->UserData)!=FALSE;
 				}
 				if (SetDirectoryResult)
@@ -2508,7 +2557,7 @@ void FindFiles::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags,
 
 					SetDirectoryResult=false;
 					{
-						CriticalSectionLock Lock(PluginCS);
+						SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 						SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;
 					}
 					if (!SetDirectoryResult)
@@ -2607,7 +2656,7 @@ void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 	OpenPanelInfo Info;
 	string strSaveDir;
 	{
-		CriticalSectionLock Lock(PluginCS);
+		SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 		strSaveDir = NullToEmpty(Info.CurDir);
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
@@ -2627,7 +2676,7 @@ void FindFiles::DoPreparePluginList(Dialog* Dlg, bool Internal)
 
 	if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 	{
-		CriticalSectionLock Lock(PluginCS);
+		SCOPED_ACTION(CriticalSectionLock)(PluginCS);
 		Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,strSaveDir,OPM_FIND,&Info.UserData);
 	}
 
@@ -2721,7 +2770,7 @@ bool FindFiles::FindFilesProcess()
 		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindStop)},
 	};
 	auto FindDlg = MakeDialogItemsEx(FindDlgData);
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	if (PluginMode)
 	{
@@ -2768,7 +2817,7 @@ bool FindFiles::FindFilesProcess()
 	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
 	{
 		TB=new TaskBar;
-		wakeful W;
+		SCOPED_ACTION(wakeful);
 		Dlg.Process();
 		FindThread.Wait();
 		FindThread.Close();

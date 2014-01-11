@@ -375,8 +375,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	public:
 		Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;}
 		~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;}
-	}
-	_guard_Macro_DskShowPosType(this);
+	};
+	SCOPED_ACTION(Guard_Macro_DskShowPosType)(this);
 
 	std::bitset<32> Mask(static_cast<int>(FarGetLogicalDrives()));
 	const std::bitset<32> NetworkMask = AddSavedNetworkDisks(Mask);
@@ -407,7 +407,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 
 
-		auto DE = std::make_unique<DisableElevation>();
+		auto DE = std::make_unique<elevation::suppress>();
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
 		for (size_t i = 0; i < Mask.size(); ++i)
@@ -1311,7 +1311,7 @@ void Panel::FastFind(int FirstKey)
 	{
 		int FindX=std::min(X1+9,ScrX-22);
 		int FindY=std::min(Y2,static_cast<SHORT>(ScrY-2));
-		ChangeMacroMode MacroMode(MACROAREA_SEARCH);
+		SCOPED_ACTION(ChangeMacroMode)(MACROAREA_SEARCH);
 		SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
 		FastFindShow(FindX,FindY);
 		EditControl FindEdit(this);
@@ -1716,7 +1716,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 	else
 		MsgX=X;
 
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	delete DragSaveScr;
 	DragSaveScr=new SaveScreen(MsgX,Y,MsgX+Length-1,Y);
 	GotoXY(MsgX,Y);

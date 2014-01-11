@@ -101,20 +101,20 @@ CriticalSection TitleCS;
 
 ConsoleTitle::ConsoleTitle()
 {
-	CriticalSectionLock Lock(TitleCS);
+	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	Global->Console->GetTitle(strOldTitle);
 }
 
 ConsoleTitle::ConsoleTitle(const string& title)
 {
-	CriticalSectionLock Lock(TitleCS);
+	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	Global->Console->GetTitle(strOldTitle);
 	SetFarTitle(title);
 }
 
 ConsoleTitle::~ConsoleTitle()
 {
-	CriticalSectionLock Lock(TitleCS);
+	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	const string &strTitleAddons = GetFarTitleAddons();
 	size_t OldLen = strOldTitle.size();
 	size_t AddonsLen = strTitleAddons.size();
@@ -142,7 +142,7 @@ static string& FarTitle()
 }
 void ConsoleTitle::SetFarTitle(const string& Title)
 {
-	CriticalSectionLock Lock(TitleCS);
+	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	string strOldFarTitle;
 
 	Global->Console->GetTitle(strOldFarTitle);

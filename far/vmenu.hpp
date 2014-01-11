@@ -75,9 +75,6 @@ enum VMENU_FLAGS
 	VMENU_WRAPMODE             =0x00008000, // зацикленный список (при перемещении)
 	VMENU_SHOWAMPERSAND        =0x00010000, // символ '&' показывать AS IS
 	VMENU_WARNDIALOG           =0x00020000, //
-//	VMENU_NOTCENTER            =0x00040000, // не цитровать
-//	VMENU_LEFTMOST             =0x00080000, // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
-	VMENU_NOTCHANGE            =0x00100000, //
 	VMENU_LISTHASFOCUS         =0x00200000, // меню является списком в диалоге и имеет фокус
 	VMENU_COMBOBOX             =0x00400000, // меню является комбобоксом и обрабатывается менеджером по-особому.
 	VMENU_MOUSEDOWN            =0x00800000, //
@@ -363,7 +360,7 @@ class VMenu: public Modal
 		template<class predicate>
 		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 		{
-			CriticalSectionLock Lock(CS);
+			SCOPED_ACTION(CriticalSectionLock)(CS);
 
 			SortItemParam Param;
 			Param.Reverse = Reverse;
@@ -397,7 +394,7 @@ class VMenu: public Modal
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
 		void SetId(const GUID& Id);
-		const GUID& Id(void);
+		const GUID& Id();
 
 		static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 };

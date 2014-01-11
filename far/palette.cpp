@@ -249,7 +249,7 @@ void palette::Save(bool always)
 {
 	if (always || PaletteChanged)
 	{
-		auto t(Global->Db->ColorsCfg()->ScopedTransaction());
+		SCOPED_ACTION(auto)(Global->Db->ColorsCfg()->ScopedTransaction());
 
 		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
 		{

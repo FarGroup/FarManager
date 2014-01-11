@@ -394,18 +394,13 @@ enum REOp
 	opRegExpEnd
 };
 
-struct REOpCode
+struct REOpCode_data
 {
 	int op;
 	REOpCode *next,*prev;
 #ifdef RE_DEBUG
 	int    srcpos;
 #endif
-	REOpCode()
-	{
-		ClearStructUnsafe(*this);
-	}
-	~REOpCode();
 
 	struct SBracket
 	{
@@ -462,15 +457,23 @@ struct REOpCode
 	};
 };
 
-REOpCode::~REOpCode()
+struct REOpCode: public REOpCode_data
 {
-	switch (op)
+	REOpCode()
 	{
+		ClearStruct(*static_cast<REOpCode_data*>(this));
+	}
+
+	~REOpCode()
+	{
+		switch (op)
+		{
 		case opSymbolClass:delete symbolclass; break;
 		case opClassRange:
 		case opClassMinRange:delete range.symbolclass; break;
+		}
 	}
-}
+};
 
 
 void RegExp::Init(const wchar_t* expr,int options)

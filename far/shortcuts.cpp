@@ -75,11 +75,6 @@ static const wchar_t* FolderShortcutsKey = L"Shortcuts";
 static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
 
-ShortcutItem::ShortcutItem():
-	PluginGuid(FarGuid)
-{
-}
-
 bool ShortcutItem::operator==(const ShortcutItem& Item) const
 {
 	return
@@ -123,7 +118,7 @@ Shortcuts::Shortcuts()
 					cfg->GetValue(key, RecTypeName[PSCR_RT_PLUGINFILE] + sIndex, Item.strPluginFile);
 					cfg->GetValue(key, RecTypeName[PSCR_RT_PLUGINDATA] + sIndex, Item.strPluginData);
 
-					i.emplace_back(Item);
+					i.emplace_back(std::move(Item));
 				}
 			}
 		});
@@ -330,9 +325,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								NewItem.strPluginFile.clear();
 								NewItem.strPluginData.clear();
 							}
-							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), NewItem);
+							auto newIter = Items[Pos].emplace(Item ? *Item : Items[Pos].end(), std::move(NewItem));
 
-							MenuItemEx NewMenuItem(NewItem.strFolder);
+							MenuItemEx NewMenuItem(newIter->strFolder);
 							NewMenuItem.UserData = &newIter;
 							NewMenuItem.UserDataSize = sizeof(newIter);
 							FolderList.AddItem(NewMenuItem, ItemPos);
@@ -434,12 +429,7 @@ void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
 	Changed = true;
-	ShortcutItem Item;
-	Item.strFolder = Folder;
-	Item.PluginGuid = PluginGuid;
-	Item.strPluginFile = PluginFile;
-	Item.strPluginData = PluginData;
-	Items[Pos].emplace_back(Item);
+	Items[Pos].emplace_back(VALUE_TYPE(Items[Pos])(string(), Folder, PluginFile, PluginData, PluginGuid));
 }
 
 void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
@@ -464,7 +454,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 
 void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 {
-	ShortcutItem NewItem = Item;
+	auto NewItem(Item.clone());
 
 	DialogBuilder Builder(MFolderShortcutsTitle, HelpFolderShortcuts);
 	Builder.AddText(MFSShortcutName);
@@ -506,7 +496,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 		if (Save && NewItem != Item)
 		{
 			Changed = true;
-			Item = NewItem;
+			Item = std::move(NewItem);
 
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
 			if(Root)
@@ -527,10 +517,10 @@ void Shortcuts::Configure()
 	FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
 	FolderList.SetId(FolderShortcutsId);
 
-	for (int I=0; I < 10; I++)
+	for (size_t i = 0; i < Items.size(); ++i)
 	{
 		MenuItemEx ListItem;
-		MakeItemName(I, &ListItem);
+		MakeItemName(i, &ListItem);
 		FolderList.AddItem(ListItem);
 	}
 
@@ -629,14 +619,15 @@ void Shortcuts::Configure()
 	}
 }
 
-bool Shortcuts::Accept(void)
+bool Shortcuts::Accept()
 {
 	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	if (ActivePanel->GetMode() == PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		ActivePanel->GetOpenPanelInfo(&Info);
-		if(!(Info.Flags&OPIF_SHORTCUT)) return false;
+		if(!(Info.Flags&OPIF_SHORTCUT))
+			return false;
 	}
 	return true;
 }

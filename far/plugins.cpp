@@ -327,7 +327,7 @@ void PluginManager::LoadModels()
 
 void PluginManager::LoadPlugins()
 {
-	TaskBar TB(false);
+	SCOPED_ACTION(TaskBar)(false);
 	Flags.Clear(PSIF_PLUGINSLOADDED);
 
 	LoadModels();
@@ -422,7 +422,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 		bool operator ==(const PluginInfo& rhs) const {return Handle.hPlugin == rhs.Handle.hPlugin && Handle.pPlugin == rhs.Handle.pPlugin && Analyse == rhs.Analyse;}
 		bool operator !=(const PluginInfo& rhs) const {return !(*this == rhs);}
 	};
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ConsoleTitle ct(Global->Opt->ShowCheckingFile?MSG(MCheckingFileInPlugin):L"");
 	PluginHandle* hResult = nullptr;
 	std::list<PluginInfo> items;
@@ -621,7 +621,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 
 PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	std::list<PluginHandle> items;
 	auto pResult = items.end();
 
@@ -717,7 +717,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 
 void PluginManager::ClosePanel(PluginHandle* hPlugin)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ClosePanelInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
 	hPlugin->pPlugin->ClosePanel(&Info);
@@ -832,7 +832,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 
 int PluginManager::GetFindData(PluginHandle* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
 	Info.OpMode = OpMode;
@@ -858,7 +858,7 @@ void PluginManager::FreeFindData(PluginHandle* hPlugin, PluginPanelItem *PanelIt
 
 int PluginManager::GetVirtualFindData(PluginHandle* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, const string& Path)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	*pItemsNumber=0;
 
 	GetVirtualFindDataInfo Info = {sizeof(Info)};
@@ -883,7 +883,7 @@ void PluginManager::FreeVirtualFindData(PluginHandle* hPlugin, PluginPanelItem *
 
 int PluginManager::SetDirectory(PluginHandle* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
 	Info.Dir = Dir.data();
@@ -899,7 +899,7 @@ int PluginManager::SetDirectory(PluginHandle* hPlugin, const string& Dir, int Op
 
 int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen *SaveScr=nullptr;
 	int Found=FALSE;
 	Global->KeepUserScreen=FALSE;
@@ -948,7 +948,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 
 int PluginManager::DeleteFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
 
@@ -969,7 +969,7 @@ int PluginManager::DeleteFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem
 
 int PluginManager::MakeDirectory(PluginHandle* hPlugin, const wchar_t **Name, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
 
@@ -991,7 +991,7 @@ int PluginManager::MakeDirectory(PluginHandle* hPlugin, const wchar_t **Name, in
 
 int PluginManager::ProcessHostFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
 
@@ -1012,7 +1012,7 @@ int PluginManager::ProcessHostFile(PluginHandle* hPlugin, PluginPanelItem *Panel
 
 int PluginManager::GetFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->hPlugin;
@@ -1030,7 +1030,7 @@ int PluginManager::GetFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, s
 
 int PluginManager::PutFiles(PluginHandle* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
 

@@ -305,7 +305,7 @@ bool api::FindFile::get(size_t index, FAR_FIND_DATA& FindData)
 
 		// temporary disable elevation to try "real" name first
 		{
-			DisableElevation DE;
+			SCOPED_ACTION(elevation::suppress);
 			m_Handle = FindFirstFileInternal(m_Object, FindData);
 		}
 

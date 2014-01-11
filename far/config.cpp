@@ -2092,7 +2092,7 @@ void Options::Save(bool Manual)
 
 	std::for_each(CONST_RANGE(Config, i)
 	{
-		auto t(i.first->ScopedTransaction());
+		SCOPED_ACTION(auto)(i.first->ScopedTransaction());
 		std::for_each(CONST_RANGE(i.second, j)
 		{
 			j.Value->StoreValue(i.first, j.KeyName, j.ValName, Manual);
@@ -2714,7 +2714,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
 			HOptMenu.Show();
 			{
-				ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+				SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
 				HOptMenu.ProcessKey(KEY_DOWN);
 			}
 		}
@@ -2730,13 +2730,13 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 
 		if (MouseEvent)
 		{
-			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+			SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
 			HOptMenu.Show();
 			HOptMenu.ProcessMouse(MouseEvent);
 		}
 
 		{
-			ChangeMacroMode MacroMode(MACROAREA_MAINMENU);
+			SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
 			HOptMenu.Process();
 		}
 

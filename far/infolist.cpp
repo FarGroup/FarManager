@@ -567,7 +567,7 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-void InfoList::SelectShowMode(void)
+void InfoList::SelectShowMode()
 {
 	MenuDataEx ShowModeMenuItem[]=
 	{

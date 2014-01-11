@@ -33,17 +33,47 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct ShortcutItem
+#include "FarGuid.hpp"
+
+struct ShortcutItem: NonCopyable
 {
-	string strName;
-	string strFolder;
-	GUID PluginGuid;
-	string strPluginFile;
-	string strPluginData;
-	ShortcutItem();
+	ShortcutItem(): PluginGuid(FarGuid) {}
+	ShortcutItem(const string& Name, const string Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
+		strName(Name),
+		strFolder(Folder),
+		strPluginFile(PluginFile),
+		strPluginData(PluginData),
+		PluginGuid(PluginGuid)
+	{
+	}
+
+	ShortcutItem(ShortcutItem&& rhs): PluginGuid(FarGuid) { *this = std::move(rhs); }
+
+	MOVE_OPERATOR_BY_SWAP(ShortcutItem);
 	bool operator==(const ShortcutItem& Item) const;
 	bool operator!=(const ShortcutItem& Item) const { return !(*this == Item); }
+	void swap(ShortcutItem& rhs)
+	{
+		strName.swap(rhs.strName);
+		strFolder.swap(rhs.strFolder);
+		strPluginFile.swap(rhs.strPluginFile);
+		strPluginData.swap(rhs.strPluginData);
+		std::swap(PluginGuid, rhs.PluginGuid);
+	}
+
+	ShortcutItem clone()
+	{
+		return ShortcutItem(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
+	}
+
+	string strName;
+	string strFolder;
+	string strPluginFile;
+	string strPluginData;
+	GUID PluginGuid;
 };
+
+STD_SWAP_SPEC(ShortcutItem);
 
 class VMenu2;
 struct MenuItemEx;
@@ -64,5 +94,5 @@ private:
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
 	void EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw=false);
-	bool Accept(void);
+	bool Accept();
 };

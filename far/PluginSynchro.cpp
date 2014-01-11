@@ -49,7 +49,7 @@ PluginSynchro::~PluginSynchro()
 
 void PluginSynchro::Synchro(bool Plugin, const GUID& PluginId,void* Param)
 {
-	CriticalSectionLock Lock(CS);
+	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SynchroData item;
 	item.Plugin=Plugin;
 	item.PluginId=PluginId;
@@ -57,12 +57,12 @@ void PluginSynchro::Synchro(bool Plugin, const GUID& PluginId,void* Param)
 	Data.emplace_back(item);
 }
 
-bool PluginSynchro::Process(void)
+bool PluginSynchro::Process()
 {
 	bool res=false;
 	bool process=false; bool plugin=false; GUID PluginId=FarGuid; void* param=nullptr;
 	{
-		CriticalSectionLock Lock(CS);
+		SCOPED_ACTION(CriticalSectionLock)(CS);
 
 		if (!Data.empty())
 		{

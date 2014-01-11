@@ -46,27 +46,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "sqlitedb.hpp"
 
-char* AbstractSettings::Add(const string& String)
+wchar_t* AbstractSettings::Add(const string& String)
 {
 	return Add(String.data(),(String.size()+1)*sizeof(wchar_t));
 }
 
-char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
+wchar_t* AbstractSettings::Add(const wchar_t* Data, size_t Size)
 {
-	char* result=Add(Size);
-	memcpy(result,Data,Size);
-	return result;
+	return static_cast<wchar_t*>(memcpy(Add(Size), Data, Size));
 }
 
-char* AbstractSettings::Add(size_t Size)
+void* AbstractSettings::Add(size_t Size)
 {
 	m_Data.emplace_back(Size);
 	return m_Data.back().get();
-}
-
-bool AbstractSettings::IsValid(void)
-{
-	return true;
 }
 
 PluginSettings::PluginSettings(const GUID& Guid, bool Local):
@@ -99,7 +92,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	}
 }
 
-bool PluginSettings::IsValid(void)
+bool PluginSettings::IsValid() const
 {
 	return !m_Keys.empty();
 }
@@ -163,7 +156,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					int size=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,nullptr,0);
 					if (size)
 					{
-						char* data=Add(size);
+						auto data = Add(size);
 						int checkedSize=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,data,size);
 						if (size==checkedSize)
 						{
@@ -189,19 +182,19 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-static void AddItem(FarSettingsNameItems& Array, FarSettingsName& Item, const string& String)
+void PluginSettings::FarSettingsNameItems::add(FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
-	Array.Items.emplace_back(Item);
+	Items.emplace_back(Item);
 }
 
-static void AddItem(FarSettingsHistoryItems& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
+void FarSettings::FarSettingsHistoryItems::add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
 	Item.PluginId=Guid;
 	Item.File=AddString(File);
-	Array.Items.emplace_back(Item);
+	Items.emplace_back(Item);
 }
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
@@ -218,7 +211,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
-			AddItem(m_Enum.back(), item, strName);
+			m_Enum.back().add(item, strName);
 		}
 		Index=0;
 		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
@@ -238,19 +231,10 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
-				AddItem(m_Enum.back(), item, strName);
+				m_Enum.back().add(item, strName);
 			}
 		}
-		if (!m_Enum.back().Items.empty())
-		{
-			Enum.Count = m_Enum.back().Items.size();
-			Enum.Items = m_Enum.back().Items.data();
-		}
-		else
-		{
-			Enum.Count = 0;
-			Enum.Items = nullptr;
-		}
+		m_Enum.back().get(Enum);
 		result=TRUE;
 	}
 	return result;
@@ -364,18 +348,9 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				GUID plugin; size_t index=0;
 				while(Shortcuts().Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
 				{
-					AddItem(m_Enum.back(), item, strName, strData, plugin, strFile);
+					m_Enum.back().add(item, strName, strData, plugin, strFile);
 				}
-				if (!m_Enum.back().Items.empty())
-				{
-					Enum.Count = m_Enum.back().Items.size();
-					Enum.Histories = m_Enum.back().Items.data();
-				}
-				else
-				{
-					Enum.Count = 0;
-					Enum.Items = nullptr;
-				}
+				m_Enum.back().get(Enum);
 				return TRUE;
 			}
 			break;
@@ -445,18 +420,9 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			AddItem(m_Enum.back(), item, strName, strData, Guid, strFile);
+			m_Enum.back().add(item, strName, strData, Guid, strFile);
 		}
 	}
-	if (!m_Enum.back().Items.empty())
-	{
-		Enum.Count = m_Enum.back().Items.size();
-		Enum.Histories = m_Enum.back().Items.data();
-	}
-	else
-	{
-		Enum.Count = 0;
-		Enum.Items = nullptr;
-	}
+	m_Enum.back().get(Enum);
 	return TRUE;
 }

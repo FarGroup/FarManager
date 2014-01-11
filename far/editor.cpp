@@ -273,7 +273,7 @@ void Editor::DisplayObject()
 }
 
 
-void Editor::ShowEditor(void)
+void Editor::ShowEditor()
 {
 	if (Locked() || !TopList)
 		return;
@@ -3718,7 +3718,7 @@ BOOL Editor::Search(int Next)
 	VMenu2 FindAllList(L"", nullptr, 0);
 	UINT AllRefLines = 0;
 	{
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<EditorPreRedrawItem>());
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
 		strMsgStr=strSearchStr;
 		InsertQuote(strMsgStr);
 		SetCursorType(FALSE,-1);
@@ -3764,8 +3764,8 @@ BOOL Editor::Search(int Next)
 
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
-		TaskBar TB;
-		wakeful W;
+		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
 		while (CurPtr)
@@ -6898,7 +6898,7 @@ int Editor::GetLineCurPos()
 	return CurLine->GetTabCurPos();
 }
 
-void Editor::ProcessVBlockMarking(void)
+void Editor::ProcessVBlockMarking()
 {
 	if (Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
 	{
@@ -7668,7 +7668,7 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 	--EditorControlLock;
 }
 
-void Editor::TurnOffMarkingBlock(void)
+void Editor::TurnOffMarkingBlock()
 {
 	Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 }

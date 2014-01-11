@@ -160,7 +160,7 @@ int ScreenSaver(int EnableExit)
 	if (Global->ScreenSaverActive)
 		return 1;
 
-	ChangePriority ChPriority(THREAD_PRIORITY_IDLE);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_IDLE);
 
 	for (WaitTime=clock(); clock()-WaitTime<500;)
 	{

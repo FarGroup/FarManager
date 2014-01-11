@@ -78,7 +78,7 @@ class InfoList:public Panel
 		void PrintText(LNGID MsgID);
 		void PrintInfo(const string& Str);
 		void PrintInfo(LNGID MsgID);
-		void SelectShowMode(void);
+		void SelectShowMode();
 		void DrawTitle(string &strTitle,int Id,int &CurY);
 
 		int  OpenDizFile(const string& DizFile,int YPos);

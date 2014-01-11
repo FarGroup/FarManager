@@ -162,22 +162,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 # include "SDK/sdk.gcc.h"
-# define _wcstoi64 wcstoll
 #endif // __GNUC__
 
 #include "cpp.hpp"
-
-template <class T>
-inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
-
-inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
-
-
-#define SIGN_UNICODE    0xFEFF
-#define SIGN_REVERSEBOM 0xFFFE
-#define SIGN_UTF8       0xBFBBEF
-
-typedef std::wstring string;
 
 #include "common.hpp"
 
@@ -190,18 +177,5 @@ typedef std::wstring string;
 
 #include "plugin.hpp"
 #include "colors.hpp"
-
-#ifdef _DEBUG
-#define SELF_TEST(code) \
-	namespace { \
-		struct SelfTest { \
-			SelfTest() { \
-				code; \
-			} \
-		} _SelfTest; \
-	}
-#else
-#define SELF_TEST(code)
-#endif
 
 #include "global.hpp"

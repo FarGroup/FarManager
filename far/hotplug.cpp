@@ -466,7 +466,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 		return -1;
 	}
 
-	GuardLastError gle;
+	SCOPED_ACTION(GuardLastError);
 	const auto Info = GetHotplugDevicesInfo();
 	const size_t DiskNumber = Upper(Disk) - L'A';
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});

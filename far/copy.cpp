@@ -1623,7 +1623,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				{
 					auto item = std::make_unique<CopyPreRedrawItem>();
 					item->CP = CP.get();
-					TPreRedrawFuncGuard Guard(std::move(item));
+					SCOPED_ACTION(TPreRedrawFuncGuard)(std::move(item));
 					I=CopyFileTree(strNameTmp);
 				}
 
@@ -1749,7 +1749,7 @@ ShellCopy::~ShellCopy()
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;
@@ -4080,7 +4080,7 @@ bool ShellCopy::CalcTotalSize()
 
 	auto item = std::make_unique<CopyPreRedrawItem>();
 	item->CP = CP.get();
-	TPreRedrawFuncGuard Guard(std::move(item));
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::move(item));
 
 	TotalCopySize=CurCopiedSize=0;
 	TotalFilesToProcess = 0;

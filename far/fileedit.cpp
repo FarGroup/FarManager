@@ -1421,10 +1421,10 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<Editor::EditorPreRedrawItem>());
-	TaskBar TB;
-	wakeful W;
+	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
+	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(wakeful);
 	int LastLineCR = 0;
 	EditorPosCache pc;
 	UserBreak = 0;
@@ -1644,8 +1644,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		codepage=m_editor->GetCodePage();
 	}
 
-	TaskBar TB;
-	wakeful W;
+	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(wakeful);
 
 	if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
 		return SAVEFILE_SUCCESS;
@@ -1892,7 +1892,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		    }
 		*/
 		SetCursorType(FALSE,0);
-		TPreRedrawFuncGuard preRedrawFuncGuard(std::make_unique<Editor::EditorPreRedrawItem>());
+		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 
 		if (!bSaveAs)
 			AddSignature=m_bAddSignature;

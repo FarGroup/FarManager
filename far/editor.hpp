@@ -305,7 +305,7 @@ class Editor:public ScreenObject
 
 	private:
 		virtual void DisplayObject() override;
-		void ShowEditor(void);
+		void ShowEditor();
 		void DeleteString(Edit *DelPtr,int LineNumber,int DeleteLast,int UndoLine);
 		void InsertString();
 		void Up();
@@ -405,7 +405,7 @@ class Editor:public ScreenObject
 		void Change(EDITOR_CHANGETYPE Type,int StrNum);
 
 	protected:
-		void TurnOffMarkingBlock(void);
+		void TurnOffMarkingBlock();
 
 	public:
 		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);
@@ -504,7 +504,7 @@ class Editor:public ScreenObject
 
 		int  GetLineCurPos();
 		void BeginVBlockMarking();
-		void ProcessVBlockMarking(void);
+		void ProcessVBlockMarking();
 		void AdjustVBlock(int PrevX);
 
 		void Xlat();

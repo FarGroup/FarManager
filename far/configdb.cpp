@@ -436,7 +436,7 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (xml_iterator e(root.FirstChild(GetKeyName()), "setting"); e; ++e)
 		{
 			const char *key = e->Attribute("key");
@@ -532,7 +532,7 @@ public:
 
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false)
 	{
-		AsyncDone.SetName(strPath.data(), strName.data());
+		AsyncDone.SetName(strPath, strName);
 		AsyncDone.Open(true,true); // If a thread with same event name is running, we will open that event here
 		AsyncDone.Wait();          // and wait for the signal
 		Initialize(DbName, Local);
@@ -880,7 +880,7 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (xml_iterator e(root.FirstChild("hierarchicalconfig"), "key"); e; ++e)
 		{
 			Import(0, &(*e));
@@ -1063,7 +1063,7 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (xml_iterator e(root.FirstChild("colors"), "object"); e; ++e)
 		{
 			const char *name = e->Attribute("name");
@@ -1338,7 +1338,7 @@ public:
 		if (!base.ToElement())
 			return false;
 
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
 		for (xml_iterator e(base, "filetype"); e; ++e)
@@ -1824,7 +1824,7 @@ public:
 
 	bool DiscardCache()
 	{
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		bool ret = Exec("DELETE FROM cachename");
 		return ret;
 	}
@@ -1968,7 +1968,7 @@ public:
 
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
-		auto t(ScopedTransaction());
+		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (xml_iterator e(root.FirstChild("pluginhotkeys"), "plugin"); e; ++e)
 		{
 			const char *key = e->Attribute("key");
@@ -2069,8 +2069,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		StopEvent.Open();
 		if (strPath != L":memory:")
 		{
-			AsyncDeleteAddDone.SetName(strPath.data(), strName.data());
-			AsyncCommitDone.SetName(strPath.data(), strName.data());
+			AsyncDeleteAddDone.SetName(strPath, strName);
+			AsyncCommitDone.SetName(strPath, strName);
 		}
 		AsyncDeleteAddDone.Open(true,true);
 		AsyncCommitDone.Open(true,true);
