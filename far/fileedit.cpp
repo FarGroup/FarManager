@@ -2071,7 +2071,10 @@ end:
 	/* 28.12.2001 VVM
 	  ! Проверить на успешную запись */
 	if (RetCode==SAVEFILE_SUCCESS)
+	{
 		m_editor->TextChanged(0);
+		m_editor->Flags.Set(FEDITOR_NEWUNDO);
+	}
 
 	if (GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
 		strTitle.clear();
