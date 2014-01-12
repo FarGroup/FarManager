@@ -3,6 +3,100 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.01.2014 13:24:37 +0200 - build 3768
+
+1. Correction of 3767.
+
+drkns 12.01.2014 00:21:01 +0200 - build 3767
+
+1. Crash if there is no rights for writing to profile.
+
+2. Unsupported plugins (for example, Far 2) could be considered as "correct" ones.
+
+3. Refactoring.
+
+shmuel 11.01.2014 23:43:43 +0200 - build 3766
+
+1. M#2551: Object.Height/Width do not work in menu.
+
+drkns 09.01.2014 00:20:44 +0200 - build 3765
+
+1. Correction of 3752 for plugin panels.
+
+drkns 08.01.2014 19:43:29 +0200 - build 3764
+
+1. After 3751, hidden files on a plugin panel were shown incorrectly.
+
+drkns 06.01.2014 17:13:09 +0200 - build 3763
+
+1. Use OS version checks recommended by MS instead of deprecated GetVersionEx.
+
+2. Use native thread_local in gcc.
+
+drkns 05.01.2014 22:55:23 +0200 - build 3762
+
+1. VC10.
+
+drkns 05.01.2014 19:39:38 +0200 - build 3761
+
+1. 0002553: Useless hotkeys F3/F4 in commands history (Alt-F8)
+
+shmuel 05.01.2014 19:22:10 +0200 - build 3760
+
+1. Refactoring of custom sorting.
+
+drkns 03.01.2014 13:37:10 +0200 - build 3759
+
+1. Continuation of 3756: allocations are removed, the code is slightly simplified.
+
+drkns 03.01.2014 11:23:21 +0200 - build 3758
+
+1. Correction of 3752.
+
+t-rex 03.01.2014 11:08:14 +0200 - build 3757
+
+1. Memory leak in 3756.
+
+t-rex 03.01.2014 04:59:02 +0200 - build 3756
+
+1. Fix for custom sorting, this is made ugly to pay attention on it.
+
+drkns 03.01.2014 04:00:21 +0200 - build 3755
+
+1. "Restore" custom sorting modes.
+
+drkns 02.01.2014 18:06:05 +0200 - build 3754
+
+1. Optimization of inner classes moving.
+
+drkns 02.01.2014 04:33:52 +0200 - build 3753
+
+1. Continuation of 3752.
+
+drkns 02.01.2014 02:55:55 +0200 - build 3752
+
+1. Optimization similar to 3401: each file panel item occupies about 200 bytes of memory less.
+
+drkns 31.12.2013 16:06:31 +0200 - build 3751
+
+1. Refactoring.
+
+2. Correction of 3749.
+
+3. ShiftF9 always forces settings save "with no heuristics nor optimization".
+
+drkns 31.12.2013 03:05:45 +0200 - build 3750
+
+1. F4 in mask groups menu crashed FAR.
+
+drkns 31.12.2013 00:38:12 +0200 - build 3749
+
+1. Refactoring.
+
+drkns 30.12.2013 21:25:21 +0200 - build 3748
+
+1. Refactoring.
+
 drkns 26.12.2013 19:36:19 +0200 - build 3747
 
 1. Correction of 3746.
