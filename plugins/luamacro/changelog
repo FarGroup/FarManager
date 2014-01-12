@@ -1,3 +1,8 @@
+shmuel 12.01.2014 20:21:37 +0200 - build 270
+
+1. LuaFAR (far.MacroAdd) - доработка build 150:
+   -- Callback(Id,Flags) получает первым параметром не число, а light userdata.
+
 shmuel 10.01.2014 16:45:19 +0200 - build 269
 
 1. LuaFAR-плагины, собираемые GCC:

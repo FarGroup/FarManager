@@ -4465,7 +4465,7 @@ intptr_t LF_MacroCallback(lua_State* L, void* Id, FARADDKEYMACROFLAGS Flags)
 
 	if(lua_type(L,-1) == LUA_TFUNCTION)
 	{
-		lua_pushinteger(L, funcref);
+		lua_pushlightuserdata(L, Id);
 		bit64_push(L, Flags);
 
 		if(lua_pcall(L, 2, 1, 0) == 0)
