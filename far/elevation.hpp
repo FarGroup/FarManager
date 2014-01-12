@@ -88,7 +88,7 @@ private:
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
-	volatile unsigned long long m_suppressions;
+	volatile long m_suppressions;
 	HANDLE m_pipe;
 	HANDLE m_process;
 	HANDLE m_job;
