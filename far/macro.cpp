@@ -358,11 +358,10 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
-MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description):
+MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code):
 	m_flags(Flags),
 	m_key(Key),
 	m_code(Code),
-	m_description(Description),
 	m_macroId(MacroId),
 	m_handle(0)
 {
@@ -1145,7 +1144,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* PlainText,UINT64 Flags,DW
 {
 	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
 	{
-		m_CurState.m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText, L""));
+		m_CurState.m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText));
 		return true;
 	}
 	return false;

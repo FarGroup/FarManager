@@ -124,14 +124,13 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(MacroRecord);
 
-	MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description);
+	MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code);
 
 	void swap(MacroRecord& rhs)
 	{
 		std::swap(m_flags, rhs.m_flags);
 		std::swap(m_key, rhs.m_key);
 		m_code.swap(rhs.m_code);
-		m_description.swap(rhs.m_description);
 		std::swap(m_macroId, rhs.m_macroId);
 		std::swap(m_macrovalue, rhs.m_macrovalue);
 		std::swap(m_handle, rhs.m_handle);
@@ -140,7 +139,6 @@ public:
 	MACROFLAGS_MFLAGS Flags() const {return m_flags;}
 	int Key() const { return m_key; }
 	const string& Code() const {return m_code;}
-	const string& Description() const {return m_description;}
 
 	intptr_t GetHandle() const { return m_handle; }
 	void SetHandle(intptr_t handle) { m_handle = handle; }
@@ -151,7 +149,6 @@ private:
 	MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
 	int m_key;                     // Ќазначенна€ клавиша
 	string m_code;                 // оригинальный "текст" макроса
-	string m_description;          // описание макроса
 	int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
 	FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
 	intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
