@@ -365,17 +365,39 @@ int Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
-			if (strKeyName.front() == L'~')
+			if (strKeyName.data()[0] == L'~')
 			{
 				MI++;
 				continue;
+			}
+
+			if (strKeyName.size() > SizeKeyName)
+			{
+				FarFormatText(strKeyName, (int)SizeKeyName, strKeyName, L"\n", 0);
+				size_t nl;
+
+				while ((nl = strKeyName.find(L'\n')) != string::npos)
+				{
+					string keys = strKeyName.substr(0, nl);
+					strKeyName.erase(0, nl+1);
+
+					ReplaceStrings(keys, L"~", L"~~",-1);
+					ReplaceStrings(keys, L"#", L"##",-1);
+					ReplaceStrings(keys, L"@", L"@@",-1);
+
+					keys = L" #" + keys + L"#";
+					AddLine(keys); // separate line for long key names
+				}
+
+				if (strKeyName.size() > SizeKeyName)
+					strKeyName.resize(SizeKeyName); // cut key names
 			}
 
 			ReplaceStrings(strKeyName,L"~",L"~~",-1);
 			ReplaceStrings(strKeyName,L"#",L"##",-1);
 			ReplaceStrings(strKeyName,L"@",L"@@",-1);
 
-			if (strKeyName.find(L'~') != string::npos) // корректировка размера
+			if (strKeyName.find(L'~') != string::npos) // коррекция размера
 				SizeKeyName++;
 
 			strOutTemp = str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
@@ -400,7 +422,7 @@ int Help::ReadHelp(const string& Mask)
 		{
 			strReadStr[PosTab] = L' ';
 
-			if (CtrlTabSize > 1) // заменим табулятор по всем праивилам
+			if (CtrlTabSize > 1) // заменим табулятор по всем правилам
 				strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
 		}
 
@@ -484,7 +506,7 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName=std::max(SizeKeyName,strKeyName.size());
+						SizeKeyName = std::min(std::max(SizeKeyName,strKeyName.size()), (size_t)MaxLength/2);
 						MI++;
 					}
 					MI=0;
@@ -548,7 +570,7 @@ m1:
 						}
 					}
 
-					if (!strReadStr.empty() && IsSpace(strReadStr.front()) && Formatting)
+					if (!strReadStr.empty() && IsSpace(strReadStr[0]) && Formatting)
 					{
 						if (StringLen(strSplitLine)<RealMaxLength)
 						{
@@ -587,7 +609,7 @@ m1:
 					for (int I=(int)strSplitLine.size()-1; I > 0; I--)
 					{
 						if (I > 0 && strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
-						{
+						 {
 							I--;
 							continue;
 						}
@@ -601,13 +623,13 @@ m1:
 							while (I > 0 && strSplitLine[I] != L'~');
 
 							continue;
-						}
+					}
 
 						if (strSplitLine[I] == L' ')
 						{
 							string FirstPart = strSplitLine.substr(0, I);
 							if (StringLen(FirstPart.data()) < RealMaxLength)
-							{
+					{
 								AddLine(FirstPart.data());
 								strSplitLine.erase(1, I);
 								strSplitLine[0] = L' ';
@@ -685,8 +707,8 @@ void Help::AddTitle(const string& Title)
 void Help::HighlightsCorrection(string &strStr)
 {
 	if ((std::count(ALL_CONST_RANGE(strStr), L'#') & 1) && strStr.front() != L'$')
-		strStr.insert(0, 1, L'#');
-}
+			strStr.insert(0, 1, L'#');
+	}
 
 void Help::DisplayObject()
 {
@@ -695,8 +717,8 @@ void Help::DisplayObject()
 
 	if (!TopicFound)
 	{
-		if (!ErrorHelp) // если это убрать, то при несуществующей ссылки
-		{              // с нынешним манагером попадаем в бесконечный цикл.
+		if (!ErrorHelp) // если это убрать, то при несуществующей ссылке
+		{               // с нынешним манагером попадаем в бесконечный цикл.
 			ErrorHelp=TRUE;
 
 			if (!(StackData.Flags&FHELP_NOSHOWERROR))
@@ -951,13 +973,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 		x = X1 + 1 + std::max(0, (X2 - X1 - 1 - w)/2);
 	}
 
-	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar[0]);
+	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.data()[0]);
 }
 
 int Help::StringLen(const string& Str)
 {
 	int len = 0;
-	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar[0]);
+	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar.data()[0]);
 	return len;
 }
 
@@ -966,7 +988,7 @@ void Help::OutString(const wchar_t *Str)
 	wchar_t OutStr[512]; //BUGBUG
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
-	wchar_t cColor = strCtrlColorChar[0];
+	wchar_t cColor = strCtrlColorChar.data()[0];
 
 	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{
@@ -1856,7 +1878,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 
 		RemoveTrailingSpaces(strReadStr);
 
-		if (strReadStr[0]==L'@' && !(strReadStr[1]==L'+' || strReadStr[1]==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
+		if (strReadStr.data()[0]==L'@' && !(strReadStr.data()[1]==L'+' || strReadStr[1]==L'-') && strReadStr.find(L'=') == string::npos)// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
@@ -1867,7 +1889,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 				TopicFound=true;
 			}
 		}
-		else if (TopicFound && strReadStr[0]==L'$' && strReadStr[1] && !strCurTopic.empty())
+		else if (TopicFound && strReadStr.data()[0]==L'$' && strReadStr.data()[1] && !strCurTopic.empty())
 		{
 			strEntryName=strReadStr.substr(1);
 			RemoveExternalSpaces(strEntryName);

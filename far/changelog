@@ -1,4 +1,8 @@
-﻿shmuel 14.01.2014 11:15:34 +0200 - build 3770
+﻿w17 14.01.2014 16:58:53 +0400 - build 3771
+
+1. M#2556: Crash in Help if macro has lots of keys assigned
+
+shmuel 14.01.2014 11:15:34 +0200 - build 3770
 
 1. Рефакторинг в системе макросов.
 
