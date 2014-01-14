@@ -153,8 +153,8 @@ private:
 	string m_code;                 // оригинальный "текст" макроса
 	string m_description;          // описание макроса
 	int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
-  FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
-  intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
+	FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
+	intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
 
 	friend class KeyMacro;
 };
