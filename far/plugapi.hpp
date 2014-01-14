@@ -133,5 +133,5 @@ namespace pluginapi
 	BOOL     WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	//luamacro
 	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data);
-	void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall* Target);
+	void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int* Boolean);
 };

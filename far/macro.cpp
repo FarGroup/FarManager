@@ -358,44 +358,13 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
-RunningMacro::RunningMacro()
-{
-	SetBooleanValue(0);
-	mp_data.StructSize = sizeof(mp_data);
-	mp_data.Count = 0;
-	mp_data.Values = mp_values;
-	mp_data.Callback = nullptr;
-	mp_data.CallbackData = nullptr;
-
-	mp_info.CallType = MCT_MACROSTEP;
-	mp_info.Handle = 0;
-	mp_info.Data = &mp_data;
-}
-
-RunningMacro::RunningMacro(RunningMacro&& rhs)
-{
-	SetBooleanValue(0);
-	mp_data.StructSize = sizeof(mp_data);
-	mp_data.Count = 0;
-	mp_data.Values = mp_values;
-	mp_data.Callback = nullptr;
-	mp_data.CallbackData = nullptr;
-
-	mp_info.CallType = MCT_MACROSTEP;
-	mp_info.Handle = 0;
-	mp_info.Data = &mp_data;
-
-	*this = std::move(rhs);
-}
-
-
 MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code,const wchar_t* Description):
 	m_flags(Flags),
 	m_key(Key),
 	m_code(Code),
 	m_description(Description),
 	m_macroId(MacroId),
-	m_running()
+	m_handle(0)
 {
 }
 
@@ -834,11 +803,11 @@ static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 		UserMenu uMenu(string(Values[0].String));
 }
 
-void KeyMacro::CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool CallPluginRules)
+void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool CallPluginRules)
 {
 	size_t count = mpr->Count;
-	rmacro->ResetMPInfo();
-	rmacro->SetBooleanValue(0);
+	fmvalue->Type=FMVT_BOOLEAN;
+	fmvalue->Boolean=0;
 	if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 	{
 		const wchar_t* SysID = mpr->Values[0].String;
@@ -855,7 +824,7 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool Cal
 			if (CallPluginRules)
 			{
 				PushState(true);
-				rmacro->SetBooleanValue(1);
+				fmvalue->Boolean=1;
 			}
 			else
 				m_InternalInput++;
@@ -883,19 +852,28 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool Cal
 			{
 				//в windows гарантируется, что не бывает указателей меньше 0x10000
 				if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-					rmacro->SetData(ResultCallPlugin);
+				{
+					fmvalue->Type=FMVT_POINTER;
+					fmvalue->Pointer=ResultCallPlugin;
+				}
 				else
-					rmacro->SetBooleanValue(ResultCallPlugin != nullptr);
+					fmvalue->Boolean=(ResultCallPlugin != nullptr);
 			}
 		}
 	}
 }
 
-void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall *Target)
+void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean)
 {
-	RunningMacro rmacro;
-	CallPlugin(Params, &rmacro, false);
-	*Target = *rmacro.GetData();
+	FarMacroValue fmvalue;
+	CallPlugin(Params, &fmvalue, false);
+	if (fmvalue.Type == FMVT_POINTER)
+		*Target = (FarMacroCall*)fmvalue.Pointer;
+	else
+	{
+		*Target = nullptr;
+		*Boolean = (int)fmvalue.Boolean;
+	}
 }
 
 int KeyMacro::GetKey()
@@ -935,9 +913,13 @@ int KeyMacro::GetKey()
 	MacroRecord* macro;
 	while ((macro=GetCurMacro()) != nullptr && (macro->GetHandle() || InitMacroExecution()))
 	{
-		OpenMacroPluginInfo* ompInfo = macro->GetMPInfo();
-		MacroPluginReturn* mpr = CallMacroPlugin(ompInfo) ? &ompInfo->Ret : nullptr;
-		macro->ResetMPInfo();
+		FarMacroCall fmc = { sizeof(FarMacroCall),1,macro->GetValue(),nullptr,nullptr };
+		OpenMacroPluginInfo ompInfo = { MCT_MACROSTEP,macro->GetHandle(),&fmc };
+		if (macro->GetValue()->Type == FMVT_POINTER)
+			ompInfo.Data = (FarMacroCall*)macro->GetValue()->Pointer;
+
+		MacroPluginReturn* mpr = CallMacroPlugin(&ompInfo) ? &ompInfo.Ret : nullptr;
+		macro->SetBooleanValue(0);
 
 		switch (mpr ? mpr->ReturnType : MPRT_ERRORFINISH)
 		{
@@ -947,9 +929,8 @@ int KeyMacro::GetKey()
 			{
 				if (mpr == nullptr)
 				{
-					OpenMacroPluginInfo *info = macro->GetMPInfo();
-					info->CallType = MCT_MACROFINAL;
-					CallMacroPlugin(info);
+					OpenMacroPluginInfo info = { MCT_MACROFINAL,macro->GetHandle(),nullptr };
+					CallMacroPlugin(&info);
 				}
 
 				if (!(macro->Flags() & MFLAGS_ENABLEOUTPUT))
@@ -999,7 +980,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(Guid[,param])
 			{
-				CallPlugin(mpr, &macro->m_running, true);
+				CallPlugin(mpr, macro->GetValue(), true);
 				break;
 			}
 

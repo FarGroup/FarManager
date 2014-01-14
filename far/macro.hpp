@@ -103,38 +103,6 @@ struct MacroPanelSelect
 	int     Mode;
 };
 
-class RunningMacro:NonCopyable
-{
-public:
-	RunningMacro();
-	RunningMacro(RunningMacro&& rhs);
-	MOVE_OPERATOR_BY_SWAP(RunningMacro);
-
-	void swap(RunningMacro& rhs)
-	{
-		std::swap(mp_values, rhs.mp_values);
-		std::swap(mp_data, rhs.mp_data);
-		std::swap(mp_data.Values, rhs.mp_data.Values);
-		std::swap(mp_info, rhs.mp_info);
-		std::swap(mp_info.Data, rhs.mp_info.Data);
-	}
-
-	intptr_t GetHandle() const { return mp_info.Handle; }
-	void SetHandle(intptr_t handle) { mp_info.Handle=handle; }
-	FarMacroCall* GetData() const { return mp_info.Data; }
-	void SetData(FarMacroCall* data) { mp_info.Data=data; }
-	OpenMacroPluginInfo* GetMPInfo() { return &mp_info; }
-	void ResetMPInfo() { mp_data.Count=0; mp_info.Data=&mp_data; }
-	void SetBooleanValue(int val) { mp_values[0].Type=FMVT_BOOLEAN; mp_values[0].Boolean=val; mp_data.Count=1; }
-
-private:
-	FarMacroValue mp_values[1];
-	FarMacroCall mp_data;
-	OpenMacroPluginInfo mp_info;
-};
-
-STD_SWAP_SPEC(RunningMacro);
-
 class MacroRecord:NonCopyable
 {
 public:
@@ -142,15 +110,14 @@ public:
 		m_flags(),
 		m_key(-1),
 		m_macroId(),
-		m_running()
+		m_handle(0)
 	{
 	}
 
 	MacroRecord(MacroRecord&& rhs):
 		m_flags(),
 		m_key(-1),
-		m_macroId(),
-		m_running()
+		m_macroId()
 	{
 		*this = std::move(rhs);
 	}
@@ -166,7 +133,8 @@ public:
 		m_code.swap(rhs.m_code);
 		m_description.swap(rhs.m_description);
 		std::swap(m_macroId, rhs.m_macroId);
-		m_running.swap(rhs.m_running);
+		std::swap(m_macrovalue, rhs.m_macrovalue);
+		std::swap(m_handle, rhs.m_handle);
 	}
 
 	MACROFLAGS_MFLAGS Flags() const {return m_flags;}
@@ -174,12 +142,10 @@ public:
 	const string& Code() const {return m_code;}
 	const string& Description() const {return m_description;}
 
-	intptr_t GetHandle() const { return m_running.GetHandle(); }
-	void SetHandle(intptr_t handle) { m_running.SetHandle(handle); }
-	void SetData(FarMacroCall* data) { m_running.SetData(data); }
-	OpenMacroPluginInfo* GetMPInfo() { return m_running.GetMPInfo(); }
-	void ResetMPInfo() { m_running.ResetMPInfo(); }
-	void SetBooleanValue(int val) { m_running.SetBooleanValue(val); }
+	intptr_t GetHandle() const { return m_handle; }
+	void SetHandle(intptr_t handle) { m_handle = handle; }
+	void SetBooleanValue(int val) { m_macrovalue.Type=FMVT_BOOLEAN; m_macrovalue.Boolean=val; }
+	FarMacroValue* GetValue() { return &m_macrovalue; }
 
 private:
 	MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
@@ -187,7 +153,8 @@ private:
 	string m_code;                 // оригинальный "текст" макроса
 	string m_description;          // описание макроса
 	int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
-	RunningMacro m_running;        // ƒанные времени исполнени€
+  FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
+  intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
 
 	friend class KeyMacro;
 };
@@ -281,7 +248,7 @@ public:
 	bool ExecuteString(MacroExecuteString *Data);
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
-	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall *Target);
+	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
 	const wchar_t *eStackAsString() { return varTextDate; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
@@ -304,7 +271,7 @@ private:
 	void PopState(bool withClip);
 	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
 	void LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
-	void CallPlugin(MacroPluginReturn *mpr, RunningMacro *rmacro, bool CallPluginRules);
+	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 
 	FARMACROAREA m_Mode;
 	MacroState m_CurState;

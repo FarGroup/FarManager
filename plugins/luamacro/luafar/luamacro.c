@@ -215,8 +215,8 @@ int far_MacroCallPlugin(lua_State *L)
 {
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)GetPluginData(L)->Info->Private;
 	struct MacroPluginReturn Params = {0,0,NULL};
-	struct FarMacroCall Ret;
-	int idx, nargs = lua_gettop(L);
+	struct FarMacroCall *Ret;
+	int boolean, idx, nargs = lua_gettop(L);
 
 	lua_createtable(L,0,1);
 	InitMPR(L, &Params, nargs, 0);
@@ -224,7 +224,13 @@ int far_MacroCallPlugin(lua_State *L)
 	{
 		ConvertLuaValue(L, idx+1, idx+Params.Values);
 	}
-	privateInfo->CallPlugin(&Params, &Ret);
+	privateInfo->CallPlugin(&Params, &Ret, &boolean);
 	lua_settop(L, lua_gettop(L) - nargs - 1); // free stack for return values
-	return FL_PushParams(L, &Ret) ? (int)Ret.Count : luaL_error(L, "too many values to place onto Lua stack");
+	if (Ret == NULL)
+		return lua_pushboolean(L, boolean), 1;
+	else
+	{
+		size_t count = Ret->Count; // copy it, since after FL_PushParams() Ret can point to freed memory
+		return FL_PushParams(L, Ret) ? (int)count : luaL_error(L, "too many values to place onto Lua stack");
+	}
 }

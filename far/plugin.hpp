@@ -2339,7 +2339,7 @@ struct MacroPluginReturn
 };
 
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
-typedef void (WINAPI *FARAPICALLPLUGIN)(struct MacroPluginReturn* Data, struct FarMacroCall* Target);
+typedef void (WINAPI *FARAPICALLPLUGIN)(struct MacroPluginReturn* Data, struct FarMacroCall** Target, int* Boolean);
 
 struct MacroPrivateInfo
 {

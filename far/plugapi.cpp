@@ -2682,13 +2682,10 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 	return 0;
 }
 
-void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall* Target)
+void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *Boolean)
 {
 	if (Global->CtrlObject)
-	{
-		KeyMacro& Macro=Global->CtrlObject->Macro;
-		Macro.CallPluginSynchro(Data, Target);
-	}
+		Global->CtrlObject->Macro.CallPluginSynchro(Data, Target, Boolean);
 }
 
 namespace cfunctions
