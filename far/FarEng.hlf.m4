@@ -5111,7 +5111,7 @@ $ #Макросы: Поиск папки#
 
 @KeyMacroEditList
 $ #Макросы: Редактор#
-    Macro-commands available in the editor are listed below. Descriptions are read from the registry.
+    Macro-commands available in the editor are listed below.
 
 <!Macro:Common!>
 <!Macro:Editor!>
@@ -5120,7 +5120,7 @@ $ #Макросы: Редактор#
 
 @KeyMacroViewerList
 $ #Макросы: Программа просмотра#
-    Macro-commands available in the viewer are listed below. Descriptions are read from the registry.
+    Macro-commands available in the viewer are listed below.
 
 <!Macro:Common!>
 <!Macro:Viewer!>
