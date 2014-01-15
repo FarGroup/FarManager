@@ -316,7 +316,8 @@ int Help::ReadHelp(const string& Mask)
 	string strMacroArea;
 
 	GetFileString GetStr(HelpFile, nCodePage);
-	size_t SizeKeyName=20;
+	const size_t StartSizeKeyName = 20;
+	size_t SizeKeyName = StartSizeKeyName;
 
 	for (;;)
 	{
@@ -352,11 +353,10 @@ int Help::ReadHelp(const string& Mask)
 			}
 		}
 
-		if (MacroProcess)
+		if (!RepeatLastLine && MacroProcess)
 		{
 			string strDescription;
 			string strKeyName;
-			string strOutTemp;
 
 			if (!Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 			{
@@ -371,11 +371,12 @@ int Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
+			strReadStr.clear();
 			if (strKeyName.size() > SizeKeyName)
 			{
 				FarFormatText(strKeyName, (int)SizeKeyName, strKeyName, L"\n", 0);
+			
 				size_t nl;
-
 				while ((nl = strKeyName.find(L'\n')) != string::npos)
 				{
 					string keys = strKeyName.substr(0, nl);
@@ -385,8 +386,7 @@ int Help::ReadHelp(const string& Mask)
 					ReplaceStrings(keys, L"#", L"##",-1);
 					ReplaceStrings(keys, L"@", L"@@",-1);
 
-					keys = L" #" + keys + L"#";
-					AddLine(keys); // separate line for long key names
+					strReadStr += L" #" + keys + L"#\n";
 				}
 
 				if (strKeyName.size() > SizeKeyName)
@@ -400,19 +400,17 @@ int Help::ReadHelp(const string& Mask)
 			if (strKeyName.find(L'~') != string::npos) // коррекция размера
 				SizeKeyName++;
 
-			strOutTemp = str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
+			strReadStr += str_printf(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.data());
 
 			if (!strDescription.empty())
 			{
 				ReplaceStrings(strDescription,L"#",L"##",-1);
 				ReplaceStrings(strDescription,L"~",L"~~",-1);
 				ReplaceStrings(strDescription,L"@",L"@@",-1);
-				strOutTemp+=strCtrlStartPosChar;
-				strOutTemp+=strDescription;
+				strReadStr += strCtrlStartPosChar;
+				strReadStr += strDescription;
 			}
 
-			strReadStr=strOutTemp;
-			MacroProcess=true;
 			MI++;
 		}
 
@@ -433,7 +431,10 @@ int Help::ReadHelp(const string& Mask)
 			size_t pos = strReadStr.find(strCtrlStartPosChar);
 			if (pos != string::npos)
 			{
-				LastStartPos = StringLen(strReadStr.substr(0, pos));
+				size_t p1 = strReadStr.rfind(L'\n') + 1;
+				if (p1 > pos)
+					p1 = 0;
+				LastStartPos = StringLen(strReadStr.substr(p1, pos-p1));
 				strReadStr.erase(pos, strCtrlStartPosChar.size());
 			}
 		}
@@ -503,6 +504,7 @@ m1:
 					strMacroArea=strReadStr.substr(8,PosTab-1-8); //???
 					MacroProcess=true;
 					MI=0;
+					SizeKeyName = StartSizeKeyName;
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
@@ -580,7 +582,14 @@ m1:
 								StartPos = (DWORD)-1;
 							}
 
-							strSplitLine=strReadStr;
+							for (size_t nl = strReadStr.find(L'\n'); nl != string::npos; )
+							{
+								AddLine(strReadStr.substr(0, nl));
+								strReadStr.erase(0, nl+1);
+								nl = strReadStr.find(L'\n');
+							}
+
+							strSplitLine = strReadStr;
 							strReadStr.clear();
 							continue;
 						}
@@ -623,14 +632,14 @@ m1:
 							while (I > 0 && strSplitLine[I] != L'~');
 
 							continue;
-					}
+						}
 
 						if (strSplitLine[I] == L' ')
 						{
 							string FirstPart = strSplitLine.substr(0, I);
 							if (StringLen(FirstPart.data()) < RealMaxLength)
-					{
-								AddLine(FirstPart.data());
+							{
+								AddLine(FirstPart);
 								strSplitLine.erase(1, I);
 								strSplitLine[0] = L' ';
 								HighlightsCorrection(strSplitLine);
