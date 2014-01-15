@@ -263,8 +263,9 @@ active panel, the second path - to the passive one:
   - ^<wrap>if a file is specified, Far will change to the folder where it
 resides and place the cursor on the file, if it exists;
   - ^<wrap>when prefixes specified (simultaneous use with common paths allowed)
-passive command executes first (passive panel activates temporary). Single letter prefixes will be ignored.
-  Example: far arc:c:\\Far20.7z "macro:post msgbox(\\"Far Manager\\",\\"Successfully started\\")"
+passive command executes first (passive panel activates temporary).
+Single letter prefixes A-Z or conflicted with disk letter will be ignored.
+  Example: far arc:c:\\Far20.7z "macro:post msgbox('Far Manager','Successfully started')"
 
 
 @KeyRef
@@ -5024,6 +5025,7 @@ $ #Макросы: Панель быстрого просмотра#
     Ниже приведены комбинации макроклавиш, действующих в панели быстрого просмотра.
 
 <!Macro:Common!>
+
 <!Macro:Qview!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5033,6 +5035,7 @@ $ #Макросы: Главное меню#
     Ниже приведены комбинации макроклавиш, действующих в главном меню.
 
 <!Macro:Common!>
+
 <!Macro:MainMenu!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5042,6 +5045,7 @@ $ #Макросы: Панель папок#
     Ниже приведены комбинации макроклавиш, действующих в панели папок.
 
 <!Macro:Common!>
+
 <!Macro:Tree!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5051,6 +5055,7 @@ $ #Макросы: Диалоги#
     Ниже приведены комбинации макроклавиш, действующих в диалогах.
 
 <!Macro:Common!>
+
 <!Macro:Dialog!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5060,6 +5065,7 @@ $ #Макросы: Информационная панель#
     Ниже приведены комбинации макроклавиш, действующих в информационной панели.
 
 <!Macro:Common!>
+
 <!Macro:Info!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5069,6 +5075,7 @@ $ #Макросы: Меню выбора дисков#
     Ниже приведены комбинации макроклавиш, действующих в меню выбора дисков.
 
 <!Macro:Common!>
+
 <!Macro:Disks!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5078,6 +5085,7 @@ $ #Макросы: Меню пользователя#
     Ниже приведены комбинации макроклавиш, действующих в пользовательском меню.
 
 <!Macro:Common!>
+
 <!Macro:UserMenu!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5087,6 +5095,7 @@ $ #Макросы: Панели#
     Ниже приведены комбинации макроклавиш, действующих в файловых панелях.
 
 <!Macro:Common!>
+
 <!Macro:Shell!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5096,6 +5105,7 @@ $ #Макросы: Быстрый поиск в панелях#
     Ниже приведены комбинации макроклавиш, действующих в быстром поиске файловых панелей.
 
 <!Macro:Common!>
+
 <!Macro:Search!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5105,6 +5115,7 @@ $ #Макросы: Поиск папки#
     Ниже приведены комбинации макроклавиш, действующих в поиске папки.
 
 <!Macro:Common!>
+
 <!Macro:FindFolder!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5114,6 +5125,7 @@ $ #Макросы: Редактор#
     Macro-commands available in the editor are listed below.
 
 <!Macro:Common!>
+
 <!Macro:Editor!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5123,6 +5135,7 @@ $ #Макросы: Программа просмотра#
     Macro-commands available in the viewer are listed below.
 
 <!Macro:Common!>
+
 <!Macro:Viewer!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5132,6 +5145,7 @@ $ #Макросы: Прочие меню#
     Ниже приведены комбинации макроклавиш, действующих в прочих меню.
 
 <!Macro:Common!>
+
 <!Macro:Menu!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5141,6 +5155,7 @@ $ #Макросы: Файл помощи#
     Ниже приведены комбинации макроклавиш, действующих в файле помощи.
 
 <!Macro:Common!>
+
 <!Macro:Help!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5150,6 +5165,7 @@ $ #Макросы: Остальные области#
     Ниже приведены комбинации макроклавиш, действующих в других областях: копировании текста с экрана, вертикальных меню.
 
 <!Macro:Common!>
+
 <!Macro:Other!>
 
     См. также ~"Список установленных макросов"~@KeyMacroList@
@@ -5159,6 +5175,7 @@ $ #Макросы: Автодополнение в панелях#
     Ниже приведены комбинации макроклавиш, действующих в автодополнении в панелях.
 
 <!Macro:Common!>
+
 <!Macro:ShellAutoCompletion!>
 
     См. также ~«Список установленных макросов»~@KeyMacroList@
@@ -5168,6 +5185,7 @@ $ #Макросы: Автодополнение в диалогах#
     Ниже приведены комбинации макроклавиш, действующих в автодополнении в диалогах.
 
 <!Macro:Common!>
+
 <!Macro:DialogAutoCompletion!>
 
     См. также ~«Список установленных макросов»~@KeyMacroList@
@@ -6052,7 +6070,7 @@ $ #far:config XLat.Layouts#
 
     Far для "Layouts" считывает первые 10 значений, остальные, если есть, игнорируются.
 
-    По умолчанию значению отсутствует.
+    По умолчанию значение отсутствует.
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
