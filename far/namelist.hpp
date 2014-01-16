@@ -35,50 +35,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class NamesList
 {
-	private:
-		struct FileName2
-		{
-			string strName;
-			string strShortName;
-		};
+public:
+	NamesList(): CurrentName(Names.end()) {};
+	NamesList(NamesList&& rhs): CurrentName(Names.end()) { *this = std::move(rhs); }
+	MOVE_OPERATOR_BY_SWAP(NamesList);
 
-		struct OneName
-		{
-			struct FileName2 Value;
+	void swap(NamesList& rhs)
+	{
+		Names.swap(rhs.Names);
+		std::swap(CurrentName, rhs.CurrentName);
+		strCurrentDir.swap(rhs.strCurrentDir);
+	}
 
-			OneName(const string& Name, const string& ShortName)
-			{
-				Value.strName = Name;
-				Value.strShortName = ShortName;
-			}
+	void AddName(const string& Name,const string& ShortName);
+	bool GetNextName(string &strName, string &strShortName);
+	bool GetPrevName(string &strName, string &strShortName);
+	void SetCurName(const string& Name);
+	string GetCurDir() const { return strCurrentDir; }
+	void SetCurDir(const string& Dir);
 
-			// для перекрывающихся объектов поведение как у xstrncpy!
-			OneName& operator=(const FileName2& rhs)
-			{
-				Value.strName = rhs.strName;
-				Value.strShortName = rhs.strShortName;
-				return *this;
-			}
-		};
-
-		std::list<OneName> Names;
-		std::list<OneName>::const_iterator CurrentName;
-
-		string strCurrentDir;
-
-	private:
-		void Init();
-
-	public:
-		NamesList();
-		~NamesList();
-
-	public:
-		void AddName(const string& Name,const string& ShortName);
-		bool GetNextName(string &strName, string &strShortName);
-		bool GetPrevName(string &strName, string &strShortName);
-		void SetCurName(const string& Name);
-		void MoveData(NamesList &Dest);
-		void GetCurDir(string &strDir);
-		void SetCurDir(const string& Dir);
+private:
+	typedef std::list<std::pair<string, string>> names_list;
+	names_list Names;
+	names_list::const_iterator CurrentName;
+	string strCurrentDir;
 };

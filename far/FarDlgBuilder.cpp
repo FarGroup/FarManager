@@ -232,7 +232,6 @@ DialogBuilder::~DialogBuilder()
 
 void DialogBuilder::InitDialogItem(DialogItemEx *Item, const wchar_t* Text)
 {
-	Item->Clear();
 	Item->ID = DialogItemsCount-1;
 	Item->strData = Text;
 }

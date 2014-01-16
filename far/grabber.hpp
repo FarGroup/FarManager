@@ -64,7 +64,7 @@ class Grabber:Modal
 	public:
 		Grabber();
 		virtual ~Grabber();
-		virtual int GetType() override {return MODALTYPE_GRABBER;}
+		virtual int GetType() const override {return MODALTYPE_GRABBER;}
 		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_GRABBER;}
 };
 

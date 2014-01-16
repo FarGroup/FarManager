@@ -1256,7 +1256,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		case FCTL_INSERTCMDLINE:
 		{
 			{
-				SetAutocomplete disable(CmdLine);
+				SCOPED_ACTION(SetAutocomplete)(CmdLine);
 				if (Command==FCTL_SETCMDLINE)
 					CmdLine->SetString((const wchar_t*)Param2);
 				else

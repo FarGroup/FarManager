@@ -356,6 +356,9 @@ inline const T* NullToEmpty(const T* Str) { static const T empty = T(); return S
 template<class T>
 inline const T* EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
 
+#define COPY_OPERATOR_BY_SWAP(Type) \
+Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
+
 #define MOVE_OPERATOR_BY_SWAP(Type) \
 Type& operator=(Type&& rhs) { swap(rhs); return *this; }
 

@@ -77,32 +77,32 @@ enum
 	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
-class HelpRecord
+class HelpRecord: NonCopyable
 {
 public:
 	string HelpStr;
 
-	HelpRecord(const string& HStr):HelpStr(HStr){};
+	HelpRecord(const string& HStr): HelpStr(HStr) {}
+	HelpRecord(HelpRecord&& rhs) { *this = std::move(rhs); }
+	MOVE_OPERATOR_BY_SWAP(HelpRecord);
 
-	HelpRecord& operator=(const HelpRecord &rhs)
+	void swap(HelpRecord& rhs)
 	{
-		if (this != &rhs)
-		{
-			HelpStr = rhs.HelpStr;
-		}
-		return *this;
+		HelpStr.swap(rhs.HelpStr);
 	}
 
-	bool operator==(const HelpRecord &rhs) const
+	bool operator ==(const HelpRecord& rhs) const
 	{
 		return !StrCmpI(HelpStr, rhs.HelpStr);
 	}
 
-	bool operator <(const HelpRecord &rhs) const
+	bool operator <(const HelpRecord& rhs) const
 	{
-		return HelpStr < rhs.HelpStr;
+		return StrCmpI(HelpStr, rhs.HelpStr) < 0;
 	}
 };
+
+STD_SWAP_SPEC(HelpRecord);
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
@@ -117,7 +117,6 @@ string Help::MakeLink(const string& path, const string& topic)
 
 Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	TopScreen(std::make_unique<SaveScreen>()),
-	StrCount(0),
 	FixCount(0),
 	FixSize(0),
 	MouseDownX(0),
@@ -144,7 +143,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(FALSE);
 	Global->CtrlObject->Macro.SetMode(MACROAREA_HELP);
-	StackData.Clear();
+
 	StackData.Flags=Flags;
 	StackData.strHelpMask = NullToEmpty(Mask); // сохраним маску файла
 	StackData.strHelpTopic = Topic;
@@ -300,7 +299,6 @@ int Help::ReadHelp(const string& Mask)
 		return TRUE;
 	}
 
-	StrCount=0;
 	FixCount=0;
 	TopicFound=0;
 	RepeatLastLine=FALSE;
@@ -705,7 +703,6 @@ void Help::AddLine(const string& Line)
 
 	strLine += Line;
 	HelpList.emplace_back(strLine);
-	StrCount++;
 }
 
 void Help::AddTitle(const string& Title)
@@ -717,7 +714,7 @@ void Help::HighlightsCorrection(string &strStr)
 {
 	if ((std::count(ALL_CONST_RANGE(strStr), L'#') & 1) && strStr.front() != L'$')
 			strStr.insert(0, 1, L'#');
-	}
+}
 
 void Help::DisplayObject()
 {
@@ -802,10 +799,9 @@ void Help::FastShow()
 				StrPos--;
 		}
 
-		if (StrPos<StrCount)
+		if (StrPos < static_cast<int>(HelpList.size()))
 		{
-			const HelpRecord *rec=GetHelpItem(StrPos);
-			const wchar_t *OutStr= rec? rec->HelpStr.data() : L"";
+			const wchar_t *OutStr = HelpList[StrPos].HelpStr.data();
 
 			if (*OutStr==L'^')
 			{
@@ -824,7 +820,7 @@ void Help::FastShow()
 	if (!Locked())
 	{
 		SetColor(COL_HELPSCROLLBAR);
-		ScrollBarEx(X2,Y1+FixSize+1,Y2-Y1-FixSize-1,StackData.TopStr,StrCount-FixCount);
+		ScrollBarEx(X2, Y1 + FixSize + 1, Y2 - Y1 - FixSize - 1, StackData.TopStr, HelpList.size() - FixCount);
 	}
 }
 
@@ -968,14 +964,15 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	else
 		y = realY - Y1 - 1 - FixSize+FixCount + StackData.TopStr;
 
-	if (y < 0 || y >= StrCount)
+	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
-	const HelpRecord *rec = GetHelpItem(y);
-	if (!rec || rec->HelpStr.empty())
+
+	const wchar_t *Str = HelpList[y].HelpStr.data();
+
+	if (!*Str)
 		return false;
 
 	int x = X1 + 1;
-	const wchar_t *Str = rec->HelpStr.data();
 	if (*Str == L'^') // center
 	{
 		int w = StringLen(++Str);
@@ -1102,11 +1099,7 @@ void Help::CorrectPosition()
 		StackData.CurY=0;
 	}
 
-	if (StackData.TopStr>StrCount-FixCount-(Y2-Y1-1-FixSize))
-		StackData.TopStr=StrCount-FixCount-(Y2-Y1-1-FixSize);
-
-	if (StackData.TopStr<0)
-		StackData.TopStr=0;
+	StackData.TopStr = std::max(0, std::min(StackData.TopStr, static_cast<int>(HelpList.size()) - FixCount - (Y2 - Y1 - 1 - FixSize)));
 }
 
 __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -1176,7 +1169,7 @@ int Help::ProcessKey(int Key)
 		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
 		{
 			StackData.CurX=StackData.CurY=0;
-			StackData.TopStr=StrCount;
+			StackData.TopStr = static_cast<int>(HelpList.size());
 			FastShow();
 
 			if (StackData.strSelTopic.empty())
@@ -1212,7 +1205,7 @@ int Help::ProcessKey(int Key)
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
-			if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
+			if (StackData.TopStr < static_cast<int>(HelpList.size()) - FixCount - (Y2 - Y1 - 1 - FixSize))
 			{
 				StackData.TopStr++;
 
@@ -1378,7 +1371,7 @@ int Help::ProcessKey(int Key)
 			// Если стек возврата пуст - выходим их хелпа
 			if (!Stack.empty())
 			{
-				StackData = Stack.top();
+				StackData = std::move(Stack.top());
 				Stack.pop();
 				JumpTopic(StackData.strHelpTopic);
 				ErrorHelp=FALSE;
@@ -1397,7 +1390,7 @@ int Help::ProcessKey(int Key)
 
 				if (!JumpTopic())
 				{
-					StackData = Stack.top();
+					StackData = std::move(Stack.top());
 					Stack.pop();
 					ReadHelp(StackData.strHelpMask); // вернем то, что отображали.
 				}
@@ -1649,14 +1642,14 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		int ScrollY=Y1+FixSize+1;
 		int Height=Y2-Y1-FixSize-1;
 
-		if (StrCount > Height)
+		if (static_cast<int>(HelpList.size()) > Height)
 		{
 			while (IsMouseButtonPressed())
 			{
 				if (IntKeyState.MouseY > ScrollY && IntKeyState.MouseY < ScrollY+Height+1)
 				{
 					StackData.CurX=StackData.CurY=0;
-					StackData.TopStr=(IntKeyState.MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
+					StackData.TopStr = (IntKeyState.MouseY - ScrollY - 1) * (static_cast<int>(HelpList.size()) - FixCount - Height + 1) / (Height - 2);
 					FastShow();
 				}
 			}
@@ -1744,26 +1737,17 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Help::IsReferencePresent()
+bool Help::IsReferencePresent()
 {
 	CorrectPosition();
 	int StrPos=FixCount+StackData.TopStr+StackData.CurY;
 
-	if (StrPos >= StrCount)
+	if (StrPos >= static_cast<int>(HelpList.size()))
 	{
-		return FALSE;
+		return false;
 	}
 
-	const HelpRecord *rec=GetHelpItem(StrPos);
-	const wchar_t *OutStr=rec?rec->HelpStr.data():nullptr;
-	return (OutStr  && wcschr(OutStr,L'@')  && wcschr(OutStr,L'~') );
-}
-
-const HelpRecord* Help::GetHelpItem(int Pos)
-{
-	if (static_cast<size_t>(Pos) < HelpList.size())
-		return &HelpList[Pos];
-	return nullptr;
+	return HelpList[StrPos].HelpStr.find(L"~@") != string::npos;
 }
 
 void Help::MoveToReference(int Forward,int CurScreen)
@@ -1790,7 +1774,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 					StackData.CurX=0;
 					StackData.CurY++;
 
-					if (StackData.TopStr+StackData.CurY>=StrCount-FixCount ||
+					if (StackData.TopStr + StackData.CurY >= static_cast<int>(HelpList.size()) - FixCount ||
 					        (CurScreen && StackData.CurY>Y2-Y1-2-FixSize))
 						break;
 				}
@@ -1841,7 +1825,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
 
 void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 {
-	StrCount=0;
 	FixCount=1;
 	FixSize=2;
 	StackData.TopStr=0;
@@ -1933,7 +1916,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	HelpList.clear();
 
 	strCurPluginContents.clear();
-	StrCount=0;
 	FixCount=1;
 	FixSize=2;
 	StackData.TopStr=0;

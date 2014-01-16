@@ -91,7 +91,7 @@ class FileViewer:public Frame
 
 		virtual int GetTypeAndName(string &strType, string &strName) override;
 		virtual const wchar_t *GetTypeName() override {return L"[FileView]";}
-		virtual int GetType() override { return MODALTYPE_VIEWER; }
+		virtual int GetType() const override { return MODALTYPE_VIEWER; }
 
 		void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
 		/* $ ¬ведена дл€ нужд CtrlAltShift OT */

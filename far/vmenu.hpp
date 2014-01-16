@@ -384,7 +384,7 @@ class VMenu: public Modal
 		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
 		virtual int GetTypeAndName(string &strType, string &strName) override;
 
-		virtual int GetType() override { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
+		virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
 
 		void SetMaxHeight(int NewMaxHeight);
 

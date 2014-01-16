@@ -82,6 +82,6 @@ class HMenu: public Modal
 		virtual void ResizeConsole() override;
 
 		void GetExitCode(int &ExitCode,int &VExitCode);
-		virtual int GetType() override {return MODALTYPE_HMENU;}
+		virtual int GetType() const override {return MODALTYPE_HMENU;}
 		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_HMENU;}
 };

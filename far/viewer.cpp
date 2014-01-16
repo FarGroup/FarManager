@@ -1034,8 +1034,7 @@ const string& Viewer::GetTitle(string &strName)
 	{
 		if (!IsAbsolutePath(strFileName))
 		{
-			string strPath;
-			ViewNamesList.GetCurDir(strPath);
+			string strPath(ViewNamesList.GetCurDir());
 			AddEndSlash(strPath);
 			strName = strPath+strFileName;
 		}
@@ -1552,8 +1551,7 @@ int Viewer::ProcessKey(int Key)
 
 					if (PointToName(strName) == strName.data())
 					{
-						string strViewDir;
-						ViewNamesList.GetCurDir(strViewDir);
+						string strViewDir(ViewNamesList.GetCurDir());
 
 						if (!strViewDir.empty())
 							FarChDir(strViewDir);
@@ -3558,10 +3556,9 @@ void Viewer::SetPluginData(const wchar_t *PluginData)
 	Viewer::strPluginData = NullToEmpty(PluginData);
 }
 
-void Viewer::SetNamesList(NamesList *List)
+void Viewer::SetNamesList(NamesList& List)
 {
-	if (List)
-		List->MoveData(ViewNamesList);
+	ViewNamesList = std::move(List);
 }
 
 

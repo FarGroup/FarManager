@@ -310,14 +310,14 @@ public:
 	virtual void SetReturnCurrentFile(int Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
 	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
-	virtual size_t GetSelCount() override;
+	virtual size_t GetSelCount() const override;
 	virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,api::FAR_FIND_DATA *fde=nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned __int64 GetLastSelectedSize() override;
 	const FileListItem* GetLastSelectedItem() const;
 	virtual PluginHandle* GetPluginHandle() const override;
-	virtual size_t GetRealSelCount() override;
+	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void SetTitle() override;

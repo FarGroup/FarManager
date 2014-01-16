@@ -64,7 +64,7 @@ public:
 	virtual BOOL IsFileModified() const { return FALSE; }
 	virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
-	virtual int GetType() = 0;
+	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
 	virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
 	virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)

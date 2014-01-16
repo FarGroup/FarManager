@@ -86,13 +86,12 @@ struct DialogItemAutomation
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
 */
-struct DialogItemEx: public FarDialogItem
+struct DialogItemEx: NonCopyable, public FarDialogItem
 {
 	int ListPos;
 	string strHistory;
 	string strMask;
 	string strData;
-
 	int ID;
 	BitFlags IFlags;
 	std::vector<DialogItemAutomation> Auto;
@@ -102,31 +101,64 @@ struct DialogItemEx: public FarDialogItem
 	intptr_t SelStart;
 	intptr_t SelEnd;
 
-	DialogItemEx() {Clear();}
+	DialogItemEx():
+		FarDialogItem(),
+		ListPos(),
+		ID(),
+		ObjPtr(),
+		ListPtr(),
+		UCData(),
+		SelStart(),
+		SelEnd()
+	{}
 
-	void Clear()
+	DialogItemEx(const DialogItemEx& rhs):
+		FarDialogItem(rhs),
+		ListPos(rhs.ListPos),
+		strHistory(rhs.strHistory),
+		strMask(rhs.strMask),
+		strData(rhs.strData),
+		ID(rhs.ID),
+		IFlags(rhs.IFlags),
+		Auto(rhs.Auto),
+		ObjPtr(rhs.ObjPtr),
+		ListPtr(rhs.ListPtr),
+		UCData(rhs.UCData),
+		SelStart(rhs.SelStart),
+		SelEnd(rhs.SelEnd)
+	{}
+
+	DialogItemEx(DialogItemEx&& rhs):
+		FarDialogItem(),
+		ListPos(),
+		ID(),
+		ObjPtr(),
+		ListPtr(),
+		UCData(),
+		SelStart(),
+		SelEnd()
 	{
-		ClearStruct(*static_cast<FarDialogItem*>(this));
-
-		ListPos=0;
-		strHistory.clear();
-		strMask.clear();
-		strData.clear();
-		ID=0;
-		IFlags.ClearAll();
-		Auto.clear();
-		UserData=0;
-		ObjPtr=nullptr;
-		ListPtr=nullptr;
-		UCData=nullptr;
-		SelStart=0;
-		SelEnd=0;
+		*this = std::move(rhs);
 	}
 
-	DialogItemEx &operator=(const FarDialogItem &Other)
+	COPY_OPERATOR_BY_SWAP(DialogItemEx);
+	MOVE_OPERATOR_BY_SWAP(DialogItemEx);
+
+	void swap(DialogItemEx& rhs)
 	{
-		*static_cast<FarDialogItem*>(this) = Other;
-		return *this;
+		std::swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
+		std::swap(ListPos, rhs.ListPos);
+		strHistory.swap(rhs.strHistory);
+		strMask.swap(rhs.strMask);
+		strData.swap(rhs.strData);
+		std::swap(ID, rhs.ID);
+		std::swap(IFlags, rhs.IFlags);
+		Auto.swap(rhs.Auto);
+		std::swap(ObjPtr, rhs.ObjPtr);
+		std::swap(ListPtr, rhs.ListPtr);
+		std::swap(UCData, rhs.UCData);
+		std::swap(SelStart, rhs.SelStart);
+		std::swap(SelEnd, rhs.SelEnd);
 	}
 
 	void Indent(int Delta)
@@ -152,6 +184,8 @@ struct DialogItemEx: public FarDialogItem
 		return true;
 	}
 };
+
+STD_SWAP_SPEC(DialogItemEx);
 
 template<size_t N>
 std::array<DialogItemEx, N> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
@@ -219,7 +253,7 @@ public:
 	virtual void Hide() override;
 	virtual void SetExitCode(int Code) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() override { return MODALTYPE_DIALOG; }
+	virtual int GetType() const override { return MODALTYPE_DIALOG; }
 	virtual const wchar_t *GetTypeName() override {return L"[Dialog]";}
 	virtual FARMACROAREA GetMacroMode() override;
 	virtual int FastHide() override;

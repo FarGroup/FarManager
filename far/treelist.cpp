@@ -1548,7 +1548,7 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct,int ExcludeSet
 	return FALSE;
 }
 
-size_t TreeList::GetSelCount()
+size_t TreeList::GetSelCount() const
 {
 	return 1;
 }

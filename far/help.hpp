@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 #include "strmix.hpp"
 
+class HelpRecord;
+
 class Help:public Frame
 {
 public:
@@ -54,10 +56,10 @@ public:
 	virtual int  FastHide() override; // Введена для нужд CtrlAltShift
 	virtual const wchar_t *GetTypeName() override {return L"[Help]";}
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() override { return MODALTYPE_HELP; }
+	virtual int GetType() const override { return MODALTYPE_HELP; }
 	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
 
-	BOOL GetError() {return ErrorHelp;}
+	BOOL GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
 	static string MakeLink(const string& path, const string& topic);
 
@@ -73,38 +75,71 @@ private:
 	void OutString(const wchar_t *Str);
 	int  StringLen(const string& Str);
 	void CorrectPosition();
-	int  IsReferencePresent();
+	bool IsReferencePresent();
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(api::File& HelpFile,uintptr_t nCodePage);
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
-	const class HelpRecord* GetHelpItem(int Pos);
 
-	struct StackHelpData
+	struct StackHelpData: NonCopyable
 	{
-		UINT64 Flags;                  // флаги
-		int   TopStr;                 // номер верхней видимой строки темы
-		int   CurX,CurY;              // координаты (???)
+		StackHelpData():
+			Flags(),
+			TopStr(),
+			CurX(),
+			CurY()
+		{}
+
+		StackHelpData(const StackHelpData& rhs):
+			strHelpMask(rhs.strHelpMask),
+			strHelpPath(rhs.strHelpPath),
+			strHelpTopic(rhs.strHelpTopic),
+			strSelTopic(rhs.strSelTopic),
+			Flags(rhs.Flags),
+			TopStr(rhs.TopStr),
+			CurX(rhs.CurX),
+			CurY(rhs.CurY)
+		{}
+
+
+		StackHelpData(StackHelpData&& rhs):
+			Flags(),
+			TopStr(),
+			CurX(),
+			CurY()
+		{
+			*this = std::move(rhs);
+		}
+
+		COPY_OPERATOR_BY_SWAP(StackHelpData);
+		MOVE_OPERATOR_BY_SWAP(StackHelpData);
+
+		void swap(StackHelpData& rhs)
+		{
+			strHelpMask.swap(rhs.strHelpMask);
+			strHelpPath.swap(rhs.strHelpPath);
+			strHelpTopic.swap(rhs.strHelpTopic);
+			strSelTopic.swap(rhs.strSelTopic);
+			std::swap(Flags, rhs.Flags);
+			std::swap(Flags, rhs.Flags);
+			std::swap(CurX, rhs.CurX);
+			std::swap(CurY, rhs.CurY);
+		}
 
 		string strHelpMask;           // значение маски
 		string strHelpPath;           // путь к хелпам
 		string strHelpTopic;         // текущий топик
 		string strSelTopic;          // выделенный топик (???)
 
-		void Clear()
-		{
-			Flags=0;
-			TopStr=0;
-			CurX=CurY=0;
-			strHelpMask.clear();
-			strHelpPath.clear();
-			strHelpTopic.clear();
-			strSelTopic.clear();
-		}
+		UINT64 Flags;                  // флаги
+		int   TopStr;                 // номер верхней видимой строки темы
+		int   CurX,CurY;              // координаты (???)
 	}
 	StackData;
+
+	ALLOW_SWAP_ACCESS(StackHelpData);
 
 	KeyBar      HelpKeyBar;     // кейбар
 	std::stack<StackHelpData> Stack; // стек возврата
@@ -116,7 +151,6 @@ private:
 	string strLastSearchStr;
 	std::unique_ptr<SaveScreen> TopScreen;      // область сохранения под хелпом
 
-	int StrCount;             // количество строк в теме
 	int FixCount;             // количество строк непрокручиваемой области
 	int FixSize;              // Размер непрокручиваемой области
 
@@ -138,3 +172,5 @@ private:
 	bool ErrorHelp;
 	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };
+
+STD_SWAP_SPEC(Help::StackHelpData);

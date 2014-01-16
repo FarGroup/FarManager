@@ -408,8 +408,6 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 		size_t ItemCount=StrCount+Buttons+1;
 		std::vector<DialogItemEx> MsgDlg(ItemCount + 1);
 
-		std::for_each(ALL_RANGE(MsgDlg), std::mem_fn(&DialogItemEx::Clear));
-
 		int RetCode;
 		MessageY2=++Y2;
 		MsgDlg[0].Type=DI_DOUBLEBOX;

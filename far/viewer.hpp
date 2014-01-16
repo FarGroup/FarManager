@@ -104,7 +104,7 @@ public:
 	__int64 GetViewFilePos() const { return FilePos; }
 	__int64 GetViewFileSize() const { return FileSize; }
 	void SetPluginData(const wchar_t *PluginData);
-	void SetNamesList(NamesList *List);
+	void SetNamesList(NamesList& List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
 	void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);
@@ -114,7 +114,7 @@ public:
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 	int GetHexMode() const { return VM.Hex; }
 	uintptr_t GetCodePage() const { return VM.CodePage; }
-	NamesList *GetNamesList() { return &ViewNamesList; }
+	NamesList& GetNamesList() { return ViewNamesList; }
 	BOOL isTemporary();
 	int ProcessHexMode(int newMode, bool isRedraw=TRUE);
 	int ProcessWrapMode(int newMode, bool isRedraw=TRUE);

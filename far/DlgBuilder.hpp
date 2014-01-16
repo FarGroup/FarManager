@@ -328,9 +328,7 @@ class DialogBuilderBase
 			}
 		}
 
-		virtual void InitDialogItem(T *NewDialogItem, const wchar_t *Text)
-		{
-		}
+		virtual void InitDialogItem(T *NewDialogItem, const wchar_t *Text) = 0;
 
 		virtual int TextWidth(const T &Item)
 		{

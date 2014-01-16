@@ -244,7 +244,7 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 
 	for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
 	{
-		*ItemEx = *Item;
+		*static_cast<FarDialogItem*>(ItemEx) = *Item;
 
 		ItemEx->ID = static_cast<int>(i);
 		if(!Short)
@@ -2963,7 +2963,7 @@ int Dialog::ProcessKey(int Key)
 
 					if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 					{
-						SetAutocomplete enable(edt, true);
+						SCOPED_ACTION(SetAutocomplete)(edt, true);
 						edt->AutoComplete(true,false);
 						Redraw();
 						return TRUE;
@@ -2989,7 +2989,7 @@ int Dialog::ProcessKey(int Key)
 								edt->LastPartLength = CurCmdPartLength;
 							}
 							{
-								SetAutocomplete disable(edt);
+								SCOPED_ACTION(SetAutocomplete)(edt);
 								edt->SetString(strStr);
 								edt->Select(edt->LastPartLength, static_cast<int>(strStr.size()));
 							}
@@ -4329,8 +4329,7 @@ void Dialog::Process()
 	}
 
 	if (SavedItems)
-		for (unsigned i = 0; i < Items.size(); i++)
-			SavedItems[i] = Items[i];
+		std::transform(ALL_CONST_RANGE(Items), SavedItems, [](const VALUE_TYPE(Items)& i) { return i; });
 
 	if (TBE)
 	{
@@ -5842,7 +5841,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							bool ReadOnly=EditLine->GetReadOnly();
 							EditLine->SetReadOnly(0);
 							{
-								SetAutocomplete da(EditLine);
+								SCOPED_ACTION(SetAutocomplete)(EditLine);
 								EditLine->SetString(CurItem->strData);
 							}
 							EditLine->SetReadOnly(ReadOnly);

@@ -152,7 +152,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		View.SetFilePos(ViewStartPos);
 
 	if (ViewNamesList)
-		View.SetNamesList(ViewNamesList);
+		View.SetNamesList(*ViewNamesList);
 
 	ExitCode=TRUE;
 	ViewKeyBar.Show();

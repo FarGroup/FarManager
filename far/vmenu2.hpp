@@ -166,6 +166,6 @@ class VMenu2 : public Dialog
 
 		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
 		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual int GetType() override { return MODALTYPE_VMENU; }
+		virtual int GetType() const override { return MODALTYPE_VMENU; }
 		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 };

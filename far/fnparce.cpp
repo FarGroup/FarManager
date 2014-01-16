@@ -502,7 +502,6 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 	// BUGBUG
 	size_t DlgSize = 0;
 
-	DlgData[DlgSize].Clear();
 	DlgData[DlgSize].Type=DI_DOUBLEBOX;
 	DlgData[DlgSize].X1=3;
 	DlgData[DlgSize].Y1=1;
@@ -539,11 +538,9 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 		StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
 		StrPos[StrPosSize++]=(int)(Str-StartStr-2);
-		DlgData[DlgSize].Clear();
 		DlgData[DlgSize].Type=DI_TEXT;
 		DlgData[DlgSize].X1=5;
 		DlgData[DlgSize].Y1=DlgData[DlgSize].Y2=DlgSize+1;
-		DlgData[DlgSize+1].Clear();
 		DlgData[DlgSize+1].Type=DI_EDIT;
 		DlgData[DlgSize+1].X1=5;
 		DlgData[DlgSize+1].X2=70;

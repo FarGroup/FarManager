@@ -42,9 +42,11 @@ public:
 	OEMPluginModel(PluginManager* owner);
 
 	virtual Plugin* CreatePlugin(const string& filename) override;
+	std::string getUserName();
 
 private:
 	virtual bool FindExport(const char* ExportName) override;
+	std::string m_userName;
 };
 
 class file_version;
@@ -54,7 +56,7 @@ class file_version;
 class PluginA: public Plugin
 {
 public:
-	PluginA(GenericPluginModel* model, const string& ModuleName);
+	PluginA(OEMPluginModel* model, const string& ModuleName);
 	~PluginA();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info) override;
@@ -109,9 +111,6 @@ private:
 	void ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest);
 	void FreeOpenPanelInfo();
 	void ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
-
-	string strRootKey;
-	std::unique_ptr<char[]> RootKey;
 
 	PluginInfo PI;
 	OpenPanelInfo OPI;

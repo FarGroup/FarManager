@@ -256,8 +256,8 @@ public:
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 	virtual void ChangeDirToCurrent();
 	virtual const string& GetCurDir();
-	virtual size_t GetSelCount() {return 0;}
-	virtual size_t GetRealSelCount() {return 0;}
+	virtual size_t GetSelCount() const { return 0; }
+	virtual size_t GetRealSelCount() const {return 0;}
 	virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,api::FAR_FIND_DATA *fd=nullptr) {return FALSE;}
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
@@ -304,24 +304,24 @@ public:
 	virtual void Show() override;
 	virtual void DisplayObject() override {}
 
-	int GetMode() {return(PanelMode);}
+	int GetMode() const { return(PanelMode); }
 	void SetMode(int Mode) {PanelMode=Mode;}
-	int GetModalMode() {return(ModalMode);}
+	int GetModalMode() const { return(ModalMode); }
 	void SetModalMode(int ModalMode) {Panel::ModalMode=ModalMode;}
-	int GetViewMode() {return(ViewMode);}
+	int GetViewMode() const { return(ViewMode); }
 	void SetPrevViewMode(int PrevViewMode) {Panel::PrevViewMode=PrevViewMode;}
-	int GetSortMode() {return(SortMode);}
-	bool GetNumericSort() { return NumericSort; }
+	int GetSortMode() const { return(SortMode); }
+	bool GetNumericSort() const { return NumericSort; }
 	void SetNumericSort(bool Mode) { NumericSort = Mode; }
-	bool GetCaseSensitiveSort() {return CaseSensitiveSort;}
+	bool GetCaseSensitiveSort() const { return CaseSensitiveSort; }
 	void SetCaseSensitiveSort(bool Mode) {CaseSensitiveSort = Mode;}
-	bool GetDirectoriesFirst() { return DirectoriesFirst; }
+	bool GetDirectoriesFirst() const { return DirectoriesFirst; }
 	void SetDirectoriesFirst(bool Mode) { DirectoriesFirst = Mode != 0; }
-	bool GetSortOrder() {return ReverseSortOrder;}
+	bool GetSortOrder() const { return ReverseSortOrder; }
 	void SetSortOrder(bool Reverse) {ReverseSortOrder = Reverse;}
-	bool GetSortGroups() {return(SortGroups);}
+	bool GetSortGroups() const { return(SortGroups); }
 	void SetSortGroups(bool Mode) {SortGroups=Mode;}
-	bool GetShowShortNamesMode() {return(ShowShortNames);}
+	bool GetShowShortNamesMode() const { return(ShowShortNames); }
 	void SetShowShortNamesMode(bool Mode) {ShowShortNames=Mode;}
 	void InitCurDir(const string& CurDir);
 	bool ExecShortcutFolder(int Pos, bool raw=false);
@@ -330,8 +330,8 @@ public:
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	int PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
 	void ChangeDisk();
-	bool GetFocus() {return Focus;}
-	int GetType() {return(Type);}
+	bool GetFocus() const { return Focus; }
+	int GetType() const {return(Type);}
 	void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
 	int SetCurPath();

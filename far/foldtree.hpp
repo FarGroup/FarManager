@@ -80,6 +80,6 @@ class FolderTree:public Frame
 
 		virtual const wchar_t *GetTypeName() override {return L"[FolderTree]";}
 		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual int GetType() override { return MODALTYPE_FINDFOLDER; }
+		virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }
 
 };

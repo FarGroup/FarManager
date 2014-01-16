@@ -49,7 +49,7 @@ enum TREELIST_FLAGS
 	FTREELIST_ISPANEL                 = 0x00040000,
 };
 
-class TreeListCache
+class TreeListCache: NonCopyable
 {
 public:
 	TreeListCache() {}
@@ -67,13 +67,6 @@ public:
 	{
 		Names.clear();
 		strTreeName.clear();
-	}
-
-	TreeListCache& operator =(const TreeListCache& rhs)
-	{
-		strTreeName = rhs.strTreeName;
-		Names = rhs.Names;
-		return *this;
 	}
 
 	void Sort();
@@ -147,7 +140,7 @@ private:
 	void SyncDir();
 	void SaveTreeFile();
 	int ReadTreeFile();
-	virtual size_t GetSelCount() override;
+	virtual size_t GetSelCount() const override;
 	void DynamicUpdateKeyBar();
 	int GetNextNavPos();
 	int GetPrevNavPos();

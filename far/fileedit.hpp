@@ -89,7 +89,7 @@ class FileEditor : public Frame
 		void ShowStatus();
 		void SetLockEditor(BOOL LockMode);
 		bool IsFullScreen() {return Flags.Check(FFILEEDIT_FULLSCREEN)!=FALSE;}
-		void SetNamesList(NamesList *Names);
+		void SetNamesList(NamesList& Names);
 		void SetEnableF6(bool AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }
 		// Добавлено для поиска по AltF7. При редактировании найденного файла из
 		// архива для клавиши F2 сделать вызов ShiftF2.
@@ -150,7 +150,7 @@ class FileEditor : public Frame
 		virtual void OnChangeFocus(int focus) override;
 		virtual void SetScreenPosition() override;
 		virtual const wchar_t *GetTypeName() override {return L"[FileEdit]";}
-		virtual int GetType() override { return MODALTYPE_EDITOR; }
+		virtual int GetType() const override { return MODALTYPE_EDITOR; }
 		virtual void OnDestroy() override;
 		virtual int GetCanLoseFocus(int DynamicMode=FALSE) const override;
 		virtual int FastHide() override; // для нужд CtrlAltShift

@@ -93,8 +93,9 @@ private:
 	HANDLE m_process;
 	HANDLE m_job;
 	int m_pid;
-	bool AskApprove;
 
+	bool IsApproved;
+	bool AskApprove;
 	bool Elevation;
 	bool DontAskAgain;
 	bool Recurse;

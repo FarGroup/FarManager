@@ -697,12 +697,12 @@ void FileEditor::InitKeyBar()
 	SetKeyBar(&EditKeyBar);
 }
 
-void FileEditor::SetNamesList(NamesList *Names)
+void FileEditor::SetNamesList(NamesList& Names)
 {
 	if (!EditNamesList)
 		EditNamesList = new NamesList;
 
-	Names->MoveData(*EditNamesList);
+	*EditNamesList = std::move(Names);
 }
 
 void FileEditor::Show()

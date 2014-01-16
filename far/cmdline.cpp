@@ -188,7 +188,7 @@ int CommandLine::ProcessKey(int Key)
 		}
 
 		{
-			SetAutocomplete disable(&CmdStr);
+			SCOPED_ACTION(SetAutocomplete)(&CmdStr);
 			CmdStr.SetString(strStr.data());
 			CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.size()));
 		}
@@ -241,7 +241,7 @@ int CommandLine::ProcessKey(int Key)
 				}
 
 				{
-					SetAutocomplete disable(&CmdStr);
+					SCOPED_ACTION(SetAutocomplete)(&CmdStr);
 					SetString(strStr);
 				}
 
@@ -484,7 +484,7 @@ int CommandLine::ProcessKey(int Key)
 
 			if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 			{
-				SetAutocomplete enable(&CmdStr, true);
+				SCOPED_ACTION(SetAutocomplete)(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);
 				return TRUE;
 			}
@@ -903,7 +903,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	}
 
 	{
-		SetAutocomplete disable(&CmdStr);
+		SCOPED_ACTION(SetAutocomplete)(&CmdStr);
 		SetString(CmdLine);
 	}
 

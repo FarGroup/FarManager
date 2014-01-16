@@ -38,22 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
-NamesList::NamesList()
-{
-	Init();
-}
-
-NamesList::~NamesList()
-{
-}
-
 void NamesList::AddName(const string& Name,const string& ShortName)
 {
-	Names.emplace_back(OneName(Name, ShortName));
+	Names.emplace_back(std::make_pair(Name, ShortName));
 	CurrentName = Names.end();
 	--CurrentName;
 }
-
 
 bool NamesList::GetNextName(string &strName, string &strShortName)
 {
@@ -64,11 +54,10 @@ bool NamesList::GetNextName(string &strName, string &strShortName)
 		return false;
 	}
 
-	strName = CurrentName->Value.strName;
-	strShortName = CurrentName->Value.strShortName;
+	strName = CurrentName->first;
+	strShortName = CurrentName->second;
 	return true;
 }
-
 
 bool NamesList::GetPrevName(string &strName, string &strShortName)
 {
@@ -76,38 +65,18 @@ bool NamesList::GetPrevName(string &strName, string &strShortName)
 		return false;
 
 	--CurrentName;
-	strName = CurrentName->Value.strName;
-	strShortName = CurrentName->Value.strShortName;
+	strName = CurrentName->first;
+	strShortName = CurrentName->second;
 	return true;
 }
 
-
 void NamesList::SetCurName(const string& Name)
 {
-	auto ItemIterator = std::find_if(CONST_RANGE(Names, i)
-	{
-		return i.Value.strName == Name;
-	});
+	auto ItemIterator = std::find_if(CONST_RANGE(Names, i) { return i.first == Name; });
 
 	if (ItemIterator != Names.cend())
 		CurrentName = ItemIterator;
 }
-
-
-void NamesList::MoveData(NamesList &Dest)
-{
-	Dest.Names.swap(Names);
-	Dest.strCurrentDir = strCurrentDir;
-	Dest.CurrentName = CurrentName;
-	Init();
-}
-
-
-void NamesList::GetCurDir(string &strDir)
-{
-	strDir = strCurrentDir;
-}
-
 
 void NamesList::SetCurDir(const string& Dir)
 {
@@ -116,11 +85,4 @@ void NamesList::SetCurDir(const string& Dir)
 		strCurrentDir = Dir;
 		PrepareDiskPath(strCurrentDir);
 	}
-}
-
-void NamesList::Init()
-{
-	Names.clear();
-	strCurrentDir.clear();
-	CurrentName = Names.end();
 }

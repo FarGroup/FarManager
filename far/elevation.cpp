@@ -177,6 +177,7 @@ elevation::elevation():
 	m_process(),
 	m_job(),
 	m_pid(),
+	IsApproved(false),
 	AskApprove(true),
 	Elevation(false),
 	DontAskAgain(false),
@@ -510,8 +511,6 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 			return true;
 		}
 	}
-
-	bool IsApproved = false;
 
 	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&

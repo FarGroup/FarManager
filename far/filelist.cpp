@@ -1761,7 +1761,7 @@ int FileList::ProcessKey(int Key)
 											});
 											EditList.SetCurDir(strCurDir);
 											EditList.SetCurName(strFileName);
-											ShellEditor->SetNamesList(&EditList);
+											ShellEditor->SetNamesList(EditList);
 										}
 
 										Global->FrameManager->ExecuteModal();
@@ -3678,13 +3678,13 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 	return false;
 }
 
-size_t FileList::GetSelCount()
+size_t FileList::GetSelCount() const
 {
 	assert(ListData.empty() || !(ReturnCurrentFile||!SelFileCount) || (CurFile < static_cast<int>(ListData.size())));
 	return !ListData.empty()? ((ReturnCurrentFile||!SelFileCount)?(TestParentFolderName(ListData[CurFile].strName)?0:1):SelFileCount):0;
 }
 
-size_t FileList::GetRealSelCount()
+size_t FileList::GetRealSelCount() const
 {
 	return !ListData.empty()? SelFileCount : 0;
 }

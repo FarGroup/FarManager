@@ -92,7 +92,7 @@ class FilePanels:public Frame
 		void Update();
 
 		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual int GetType() override { return MODALTYPE_PANELS; }
+		virtual int GetType() const override { return MODALTYPE_PANELS; }
 		virtual const wchar_t *GetTypeName() override {return L"[FilePanels]";}
 
 		virtual void OnChangeFocus(int focus) override;

@@ -80,6 +80,23 @@ typedef void   (WINAPI *iSetStartupInfoPrototype)      (const oldfar::PluginStar
 typedef int    (WINAPI *iProcessViewerEventPrototype)  (int Event,void *Param);
 typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 
+inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
+{
+	return WideCharToMultiByte(CP_OEMCP, 0, src, -1, dst, (int) lendst, nullptr, nullptr);
+}
+
+inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
+{
+	return MultiByteToWideChar(CP_OEMCP, 0, src, -1, dst, (int) lendst);
+}
+
+inline std::string ansi(const string& str)
+{
+	std::vector<char> Buffer(str.size() + 1);
+	UnicodeToOEM(str.data(), Buffer.data(), Buffer.size());
+	return std::string(Buffer.data(), str.size());
+}
+
 OEMPluginModel::OEMPluginModel(PluginManager* owner):
 	NativePluginModel(owner)
 {
@@ -130,6 +147,13 @@ Plugin* OEMPluginModel::CreatePlugin(const string& filename)
 	return IsPlugin(filename)? new PluginA(this, filename) : nullptr;
 }
 
+std::string OEMPluginModel::getUserName()
+{
+	if (m_userName.empty())
+		m_userName = "Software\\Far Manager" + (Global->strRegUser.empty() ? "" : "\\Users\\" + ansi(Global->strRegUser)) + "\\Plugins";
+	return m_userName;
+}
+
 bool OEMPluginModel::FindExport(const char* ExportName)
 {
 	// module with ANY known export can be OEM plugin
@@ -140,16 +164,6 @@ bool OEMPluginModel::FindExport(const char* ExportName)
 	}) != ExportsEnd;
 }
 
-
-inline int UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
-{
-	return WideCharToMultiByte(CP_OEMCP, 0, src, -1, dst , (int)lendst, nullptr, nullptr);
-}
-
-inline int OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
-{
-	return MultiByteToWideChar(CP_OEMCP, 0, src, -1, dst, (int)lendst);
-}
 
 static inline int IsSpaceA(int x) { return x==' '  || x=='\t'; }
 static inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
@@ -4759,7 +4773,7 @@ private:
 };
 
 
-PluginA::PluginA(GenericPluginModel* model, const string& lpwszModuleName):
+PluginA::PluginA(OEMPluginModel* model, const string& lpwszModuleName) :
 	Plugin(model,lpwszModuleName),
 	PI(),
 	OPI(),
@@ -4952,9 +4966,7 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
 
-		strRootKey = L"Software\\Far Manager" + (Global->strRegUser.empty()? L"" : L"\\Users\\" + Global->strRegUser) + L"\\Plugins";
-		RootKey.reset(UnicodeToAnsi(strRootKey.data()));
-		_info.RootKey = RootKey.get();
+		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 
 		api::SetEnvironmentVariable(L"FARUSER", Global->strRegUser);
 
