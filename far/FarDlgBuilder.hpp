@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "DlgBuilder.hpp"
+#include "dialog.hpp"
 #include "config.hpp"
 
 struct DialogItemEx;
@@ -66,6 +67,8 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DWORD Mode;
 		GUID Id;
 		bool IdExist;
+		DialogOwner *DlgOwner;
+		MemberHandlerFunction DlgProc;
 
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
@@ -83,7 +86,8 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
 	public:
-		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic);
+		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, DialogOwner *owner, MemberHandlerFunction dlgproc);
+		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic=nullptr);
 		DialogBuilder();
 		~DialogBuilder();
 

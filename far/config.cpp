@@ -205,7 +205,6 @@ void Options::PanelSettings()
 		if (!AutoUpdate)
 			AutoUpdateLimit = 0;
 
-	//  FrameManager->RefreshFrame();
 		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 		Global->CtrlObject->Cp()->Redraw();
@@ -291,7 +290,7 @@ void Options::InterfaceSettings()
 
 	Builder.AddCheckbox(MConfigCopyTotal, CMOpt.CopyShowTotal);
 	Builder.AddCheckbox(MConfigCopyTimeRule, CMOpt.CopyTimeRule);
-	Builder.AddCheckbox(MConfigDeleteTotal, DelOpt.DelShowTotal);
+	Builder.AddCheckbox(MConfigDeleteTotal, DelOpt.ShowTotal);
 	Builder.AddCheckbox(MConfigPgUpChangeDisk, PgUpChangeDisk);
 	Builder.AddCheckbox(MConfigClearType, ClearType);
 	DialogItemEx* SetIconCheck = Builder.AddCheckbox(MConfigSetConsoleIcon, SetIcon);
@@ -1548,7 +1547,9 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Count", &ViewHistoryCount, 1000},
 		{FSSF_PRIVATE,       NKeyViewEditHistory, L"Lifetime", &ViewHistoryLifetime, 90},
 
-		{FSSF_PRIVATE,       NKeyInterface,L"DelShowTotal", &DelOpt.DelShowTotal, false},
+		{FSSF_PRIVATE,       NKeyInterface,L"DelHighlightSelected", &DelOpt.HighlightSelected, true},
+		{FSSF_PRIVATE,       NKeyInterface,L"DelShowSelected", &DelOpt.ShowSelected, 10},
+		{FSSF_PRIVATE,       NKeyInterface,L"DelShowTotal", &DelOpt.ShowTotal, false},
 
 		{FSSF_PRIVATE,       NKeyInterface, L"AltF9", &AltF9, true},
 		{FSSF_PRIVATE,       NKeyInterface, L"ClearType", &ClearType, true},

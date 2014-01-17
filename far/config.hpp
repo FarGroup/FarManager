@@ -422,7 +422,7 @@ public:
 		BoolOption AutoComplete;         // Разрешено автодополнение?
 		BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
 		IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
-		IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+		IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мыши как команд закрытия окна диалога
 		BoolOption DelRemovesBlocks;
 		IntOption CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
 	};
@@ -536,7 +536,9 @@ public:
 
 	struct DeleteOptions
 	{
-		BoolOption DelShowTotal;         // показать общий индикатор удаления
+		BoolOption ShowTotal;         // показать общий индикатор удаления
+		BoolOption HighlightSelected;
+		IntOption  ShowSelected;
 	};
 
 	struct MacroOptions

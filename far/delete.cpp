@@ -59,6 +59,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "stddlg.hpp"
 #include "language.hpp"
+#include "FarDlgBuilder.hpp"
+#include "colormix.hpp"
 
 enum DEL_MODE
 {
@@ -407,7 +409,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
 		{
 			NormalizeSymlinkName(strJuncName);
-			//SetMessageHelp(L"DeleteLink");
 			string strAskDeleteLink=MSG(MAskDeleteLink);
 			DWORD dwAttr=api::GetFileAttributes(strJuncName);
 
@@ -429,42 +430,116 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 	if (Ret && Global->Opt->Confirm.Delete)
 	{
-		const wchar_t *DelMsg;
-		const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
-		BOOL folder=(FileAttr & FILE_ATTRIBUTE_DIRECTORY);
+		LNGID mTitle = Wipe ? MDeleteWipeTitle : MDeleteTitle;
+		LNGID mDText;
+		string tText;
+		LNGID mDBttn = Wipe ? MDeleteWipe : Global->Opt->DeleteToRecycleBin ? MDeleteRecycle : MDelete;
+		bool bHilite = Global->Opt->DelOpt.HighlightSelected;
+		int mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY/2);
+		
+		std::vector<string> items;
+		items.push_back(strDeleteFilesMsg);
 
-		if (SelCount==1)
+		if (SelCount == 1)
 		{
+			bool folder = (FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
 			if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-				DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
+				mDText = folder ? MAskWipeFolder : MAskWipeFile;
 			else
 			{
 				if (Global->Opt->DeleteToRecycleBin)
-					DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
+					mDText = folder ? MAskDeleteRecycleFolder : MAskDeleteRecycleFile;
 				else
-					DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
+					mDText = folder ? MAskDeleteFolder : MAskDeleteFile;
+			}
+			if (bHilite)
+			{
+				string name, sname;
+				SrcPanel->GetCurName(name, sname);
+				QuoteLeadingSpace(name);
+				bHilite = strDeleteFilesMsg != name;
 			}
 		}
 		else
 		{
-			if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+			if (Wipe)
 			{
-				DelMsg=MSG(MAskWipe);
-				TitleMsg=MSG(MDeleteWipeTitle);
+				mDText = MAskWipe;
+				mTitle = MDeleteWipeTitle;
 			}
-			else if (Global->Opt->DeleteToRecycleBin)
-				DelMsg=MSG(MAskDeleteRecycle);
 			else
-				DelMsg=MSG(MAskDelete);
+				mDText = Global->Opt->DeleteToRecycleBin ? MAskDeleteRecycle : MAskDelete;
+
+			if (mshow > 1)
+			{
+				tText = MSG(mDText) + string(L" ") + strDeleteFilesMsg;
+				items.clear();
+				DWORD attr;
+				string name;
+				SrcPanel->GetSelName(nullptr, attr);
+
+				for (size_t i = 0; i < SelCount; ++i)
+				{
+					if (i == (size_t)mshow-1 && i+1 < SelCount)
+					{
+						items.push_back(L"...");
+						break;
+					}
+					SrcPanel->GetSelName(&name, attr);
+					QuoteLeadingSpace(name);
+					items.push_back(name);
+				}
+			}
 		}
 
-		const wchar_t* const Items[] = {
-			DelMsg, strDeleteFilesMsg.data(),
-			MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)
-		};
-		if (Message(Wipe || !Global->Opt->DeleteToRecycleBin ? MSG_WARNING : 0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
+		class HiliteText : public DialogOwner
 		{
-			NeedUpdate=FALSE;
+		public:
+			int start_hilite, end_hilite;
+
+			HiliteText() : start_hilite(0), end_hilite(0) {}
+
+			intptr_t DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+			{
+				if (Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite) 
+				{
+					FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+					Colors->Colors[0] = Colors->Colors[1];
+				}
+				return Dlg->DefProc(Msg, Param1, Param2);
+			}
+		} dlg_owner;
+
+		DialogBuilder Builder(mTitle, nullptr,
+			bHilite ? &dlg_owner : nullptr,
+			bHilite ? static_cast<MemberHandlerFunction>(&HiliteText::DlgProc) : nullptr);
+
+		if (tText.empty())
+			tText = MSG(mDText);
+
+		Builder.AddText(tText.data())->Flags = DIF_CENTERTEXT;
+
+		if (bHilite || (mshow > 1 && SelCount > 1))
+			Builder.AddSeparator();
+
+		FOR_CONST_RANGE(items, i)
+		{
+			DialogItemEx *dx = Builder.AddText(i->data());
+			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
+         dlg_owner.end_hilite = dx->ID;
+			if (!dlg_owner.start_hilite)
+				dlg_owner.start_hilite = dx->ID;
+		}
+
+		Builder.AddOKCancel(mDBttn, MCancel);
+
+		if (Wipe || !Global->Opt->DeleteToRecycleBin)
+			Builder.SetDialogMode(DMODE_WARNINGSTYLE);
+
+		if (!Builder.ShowDialog())
+		{
+			NeedUpdate = FALSE;
 			return;
 		}
 	}
@@ -486,7 +561,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		SCOPED_ACTION(TaskBar);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
-		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);
 		ReadOnlyDeleteMode=-1;
 		SkipMode=-1;
@@ -495,7 +569,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		ULONG ItemsCount=0;
 		ProcessedItems=0;
 
-		if (Global->Opt->DelOpt.DelShowTotal)
+		if (Global->Opt->DelOpt.ShowTotal)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
 			bool FirstTime=true;
@@ -537,7 +611,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				continue;
 
 			DWORD CurTime=GetTickCount();
-			int TotalPercent = (Global->Opt->DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
+			int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout || FirstTime)
 			{
 				StartTime=CurTime;
@@ -612,7 +686,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
 						DWORD CurTime=GetTickCount();
-						int TotalPercent = (Global->Opt->DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
+						int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 						if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 						{
 							StartTime=CurTime;

@@ -214,14 +214,20 @@ static bool IsEditField(DialogItemEx *Item)
 }
 */
 
-DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
-	HelpTopic(NullToEmpty(HelpTopic)), Mode(0), IdExist(false)
+DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, DialogOwner *owner, MemberHandlerFunction dlgproc):
+	HelpTopic(NullToEmpty(HelpTopic)), Mode(0), IdExist(false), DlgOwner(owner), DlgProc(dlgproc)
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
+DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
+HelpTopic(NullToEmpty(HelpTopic)), Mode(0), IdExist(false), DlgOwner(nullptr), DlgProc(nullptr)
+{
+	AddBorder(GetLangString(TitleMessageId));
+}
+	
 DialogBuilder::DialogBuilder():
-	HelpTopic(L""),  Mode(0), IdExist(false)
+	HelpTopic(L""),  Mode(0), IdExist(false), DlgOwner(nullptr), DlgProc(nullptr)
 {
 	AddBorder(L"");
 }
@@ -583,7 +589,7 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGI
 
 intptr_t DialogBuilder::DoShowDialog()
 {
-	Dialog Dlg(pass_as_container(DialogItems, DialogItemsCount));
+	Dialog Dlg(pass_as_container(DialogItems, DialogItemsCount), DlgOwner, DlgProc, nullptr);
 	Dlg.SetHelp(HelpTopic);
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
 	if (Mode)
