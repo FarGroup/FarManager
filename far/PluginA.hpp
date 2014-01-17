@@ -42,7 +42,7 @@ public:
 	OEMPluginModel(PluginManager* owner);
 
 	virtual Plugin* CreatePlugin(const string& filename) override;
-	std::string getUserName();
+	const std::string& getUserName();
 
 private:
 	virtual bool FindExport(const char* ExportName) override;

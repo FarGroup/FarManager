@@ -147,7 +147,7 @@ Plugin* OEMPluginModel::CreatePlugin(const string& filename)
 	return IsPlugin(filename)? new PluginA(this, filename) : nullptr;
 }
 
-std::string OEMPluginModel::getUserName()
+const std::string& OEMPluginModel::getUserName()
 {
 	if (m_userName.empty())
 		m_userName = "Software\\Far Manager" + (Global->strRegUser.empty() ? "" : "\\Users\\" + ansi(Global->strRegUser)) + "\\Plugins";
