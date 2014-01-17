@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "language.hpp"
 #include "FarDlgBuilder.hpp"
-#include "colormix.hpp"
 
 enum DEL_MODE
 {

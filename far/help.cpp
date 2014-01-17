@@ -58,10 +58,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
 
-static const wchar_t *FoundContents=L"__FoundContents__";
-static const wchar_t *PluginContents=L"__PluginContents__";
-static const wchar_t *HelpOnHelpTopic=L":Help";
-static const wchar_t *HelpContents=L"Contents";
+static const wchar_t FoundContents[]=L"__FoundContents__";
+static const wchar_t PluginContents[]=L"__PluginContents__";
+static const wchar_t HelpOnHelpTopic[]=L":Help";
+static const wchar_t HelpContents[]=L"Contents";
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
@@ -113,7 +113,6 @@ string Help::MakeLink(const string& path, const string& topic)
 {
 	return string(L"<") + path + L"\\>" + topic;
 }
-
 
 Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	TopScreen(std::make_unique<SaveScreen>()),
@@ -201,12 +200,10 @@ Help::~Help()
 	SetRestoreScreenMode(FALSE);
 }
 
-
 void Help::Hide()
 {
 	ScreenObjectWithShadow::Hide();
 }
-
 
 int Help::ReadHelp(const string& Mask)
 {
@@ -684,7 +681,6 @@ m1:
 	return TopicFound;
 }
 
-
 void Help::AddLine(const string& Line)
 {
 	string strLine;
@@ -713,7 +709,7 @@ void Help::AddTitle(const string& Title)
 void Help::HighlightsCorrection(string &strStr)
 {
 	if ((std::count(ALL_CONST_RANGE(strStr), L'#') & 1) && strStr.front() != L'$')
-			strStr.insert(0, 1, L'#');
+		strStr.insert(0, 1, L'#');
 }
 
 void Help::DisplayObject()
@@ -757,7 +753,6 @@ void Help::DisplayObject()
 		HelpKeyBar.Hide();
 	}
 }
-
 
 void Help::FastShow()
 {
@@ -1078,7 +1073,6 @@ void Help::OutString(const wchar_t *Str)
 	}
 }
 
-
 void Help::CorrectPosition()
 {
 	if (StackData.CurX>X2-X1-2)
@@ -1368,7 +1362,7 @@ int Help::ProcessKey(int Key)
 		case KEY_RALTF1:
 		case KEY_BS:
 		{
-			// Если стек возврата пуст - выходим их хелпа
+			// Если стек возврата пуст - выходим из хелпа
 			if (!Stack.empty())
 			{
 				StackData = std::move(Stack.top());
@@ -1575,8 +1569,6 @@ int Help::JumpTopic()
 	return TRUE;
 }
 
-
-
 int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (HelpKeyBar.ProcessMouse(MouseEvent))
@@ -1736,7 +1728,6 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return TRUE;
 }
 
-
 bool Help::IsReferencePresent()
 {
 	CorrectPosition();
@@ -1891,7 +1882,6 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 		if (TopicFound && !strEntryName.empty())
 		{
 			// !!!BUGBUG: необходимо "очистить" строку strReadStr от элементов разметки !!!
-
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
@@ -2141,20 +2131,8 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{
-#if 0
-						SHELLEXECUTEINFO sei={sizeof(sei)};
-						sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-						sei.lpFile=RemoveExternalSpaces(Buf);
-						sei.nShow=SW_SHOWNORMAL;
-						seInfo.lpDirectory=strCurDir;
-
-						if (ShellExecuteEx(&sei))
-							EditCode=1;
-
-#else
 						strAction=FilteredURLPath;
 						EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction).data(), 0, strCurDir.data(), SW_SHOWNORMAL)?1:2;
-#endif
 					}
 					else
 					{
@@ -2225,7 +2203,6 @@ int Help::FastHide()
 {
 	return Global->Opt->AllCtrlAltShiftRule & CASR_HELP;
 }
-
 
 int Help::GetTypeAndName(string &strType, string &strName)
 {
