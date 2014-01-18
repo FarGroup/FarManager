@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "keyboard.hpp"
-#include "lockscrn.hpp"
 #include "manager.hpp"
 #include "message.hpp"
 #include "panel.hpp"
