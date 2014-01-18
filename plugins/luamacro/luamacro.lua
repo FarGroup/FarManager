@@ -8,6 +8,7 @@ local function LOG (fmt, ...)
   end
 end
 
+local MCODE_F_POSTNEWMACRO = 0x80C64
 local F, M = far.Flags, nil
 local bor = bit64.bor
 local co_create, co_yield, co_resume, co_status, co_wrap =
@@ -16,6 +17,7 @@ local co_create, co_yield, co_resume, co_status, co_wrap =
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local RunningMacros = {}
+local PostedMacros = {}
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
@@ -132,10 +134,24 @@ local function loadmacro (Text, Env)
   end
 end
 
+local function postmacro (f, ...)
+  if type(f) == "function" then
+    local Id = #PostedMacros+1
+    PostedMacros[Id] = pack(f, ...)
+    return far.MacroCallFar(MCODE_F_POSTNEWMACRO, -Id, "", 0)
+  end
+  return false
+end
+
 local function MacroInit (Id, Text)
   local chunk, params
   if Id == 0 then -- Id==0 может быть только для "одноразовых" макросов, запускаемых посредством MSSC_POST.
     chunk, params = loadmacro(Text)
+  elseif Id < 0 then -- Id<0 может быть только для макросов, запускаемых посредством mf.postmacro.
+    local mtable = PostedMacros[-Id]
+    PostedMacros[-Id] = false
+    chunk = mtable[1]
+    params = function() return unpack(mtable, 2, mtable.n) end
   else
     local mtable = utils.GetMacroById(Id)
     if mtable then
@@ -341,6 +357,7 @@ do
   Shared.utils = utils
 
   if not RunPluginFile("api.lua", Shared) then return end
+  mf.postmacro = postmacro
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
   if not macrobrowser then return end

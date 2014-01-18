@@ -256,7 +256,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3581755140
+mtime=3599211999
 <article>
 #_**Свойства:** нет.
 #_
@@ -272,30 +272,30 @@ mtime=3581755140
 #_  bor              mod
 #_  bxor             msave
 #_  chr              msgbox
-#_  clip             print
-#_  date             printf
-#_  env              prompt
-#_  eval             replace
-#_  exit             rindex
-#_  fattr            rshift
-#_  fexist           size2str
-#_  float            sleep
-#_  flock            string
-#_  fmatch           strpad
-#_  fsplit           strwrap
-#_  GetMacroCopy     substr
-#_  iif              testfolder
-#_  index            trim
-#_  int              ucase
-#_  itoa             usermenu
-#_  key              waitkey
-#_  Keys             xlat
-#_  lcase
+#_  clip             postmacro
+#_  date             print
+#_  env              printf
+#_  eval             prompt
+#_  exit             replace
+#_  fattr            rindex
+#_  fexist           rshift
+#_  float            size2str
+#_  flock            sleep
+#_  fmatch           string
+#_  fsplit           strpad
+#_  GetMacroCopy     strwrap
+#_  iif              substr
+#_  index            testfolder
+#_  int              trim
+#_  itoa             ucase
+#_  key              usermenu
+#_  Keys             waitkey
+#_  lcase            xlat
 #_
 #_@@@
 #_<lua> Links = {
 #_  mload="13.html", msave="12.html", mdelete="15.html", usermenu="69.html",
-#_  GetMacroCopy="72.html", eval="79.html",
+#_  GetMacroCopy="72.html", eval="79.html", postmacro="85.html",
 #_} </lua>
 #_
 </article>
@@ -426,6 +426,29 @@ mtime=3574088210
 #_     ключи типов:    number, string, boolean.
 #_     значения типов: number, string, boolean, table.
 #_  Сохраняются и вложенные таблицы, при этом рекурсивные вложения пропускаются.
+#_
+</article>
+</node>
+<node>
+id=85
+lv=3
+dt=Text
+nm=postmacro
+ctime=3599211970
+mtime=3599212421
+<article>
+#_result = mf.postmacro (func, ...)
+#_
+#_**Параметры:**
+#_  func:    function
+#_  ...:     0 или более Lua-величин
+#_
+#_**Возвращает:**
+#_  result:  boolean
+#_
+#_**Описание:**
+#_  Функция помещает новый макрос в очередь для исполнения. При исполнении макроса
+#_  будет вызвана функция *func*, которой будут переданы аргументы *...*
 #_
 </article>
 </node>
