@@ -397,7 +397,6 @@ KeyMacro::KeyMacro():
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACROAREA_OTHER),
 	StartMode(MACROAREA_OTHER),
-	m_LockScr(nullptr),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
 	m_MacroPluginIsRunning(0),
@@ -678,8 +677,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					   MSG(MOk));
 					return false;
 				}
-
-				UpdateLockScreen(false);
 
 				// √де мы?
 				m_RecMode=(m_Mode==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Mode;
@@ -1546,19 +1543,6 @@ void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
 	ErrPos->X = 0;
 	ErrPos->Y = static_cast<SHORT>(m_LastErrorLine);
 	*ErrSrc = m_LastErrorStr;
-}
-
-bool KeyMacro::UpdateLockScreen(bool recreate)
-{
-	bool oldstate = (m_LockScr!=nullptr);
-	if (m_LockScr)
-	{
-		delete m_LockScr;
-		m_LockScr=nullptr;
-	}
-	if (recreate)
-		m_LockScr = new LockScreen;
-	return oldstate;
 }
 
 static bool absFunc(FarMacroCall*);

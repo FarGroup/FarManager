@@ -257,7 +257,6 @@ private:
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void InitInternalVars(bool InitedRAM=true);
 	bool InitMacroExecution();
-	bool UpdateLockScreen(bool recreate=false);
 	MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
 	const MacroRecord* GetCurMacro() const { return m_CurState.GetCurMacro(); }
 	MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top().GetCurMacro(); }
@@ -278,7 +277,6 @@ private:
 	string m_RecDescription;
 	FARMACROAREA m_RecMode;
 	FARMACROAREA StartMode; //FIXME
-	class LockScreen* m_LockScr;
 	string m_LastErrorStr;
 	int m_LastErrorLine;
 	int m_InternalInput;
