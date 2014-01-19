@@ -214,7 +214,7 @@ namespace scope_exit
 		~guard() { m_f(); }
 
 	private:
-		const F& m_f;
+		const F m_f;
 	};
 
 	class make_guard
