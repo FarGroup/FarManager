@@ -3,6 +3,73 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.01.2014 23:03:16 +0200 - build 3781
+
+1. #0002294: Unused code is removed.
+
+drkns 19.01.2014 21:18:14 +0200 - build 3780
+
+1. Correction of 3779.
+
+drkns 19.01.2014 19:58:42 +0200 - build 3779
+
+1. PVS & cppcheck warnings.
+
+2. Refactoring.
+
+drkns 19.01.2014 02:39:29 +0200 - build 3778
+
+1. Refactoring.
+
+shmuel 18.01.2014 20:50:43 +0200 - build 3777
+
+1. Refactoring in macro system.
+
+w17 17.01.2014 14:12:54 +0400 - build 3776
+
+1. M#2557: Confirmation of multiple files deletion
+
+   2 parameters added (far:config):
+
+   a) Interface.DelHighlightSelected -- bool, default = true
+   true -- taking the case when the list of items to delete differs from the item under the cursor.
+
+   b) Interface.DelShowSelected -- int, default = 10
+   Show names in multiple files deletion, but not more than the number specified, 
+   scaled to range 1..screen_length/2
+
+   Old behavior = (false, 1)
+
+drkns 17.01.2014 09:50:47 +0200 - build 3775
+
+1. Correction of 3774.
+
+drkns 16.01.2014 22:11:50 +0200 - build 3774
+
+1. 0002565: Regression with privilege escalation and folder reading
+
+2. Refactoring.
+
+w17 15.01.2014 16:38:20 +0400 - build 3773
+
+1. Continuation of b3771
+
+shmuel 14.01.2014 19:24:08 +0200 - build 3772
+
+1. Refactoring in macro system.
+
+w17 14.01.2014 16:58:53 +0400 - build 3771
+
+1. M#2556: Crash in Help if macro has lots of keys assigned
+
+shmuel 14.01.2014 11:15:34 +0200 - build 3770
+
+1. Refactoring in macro system.
+
+w17 13.01.2014 00:08:49 +0400 - build 3769
+
+1. M#2558: Undo does not take file save into account (from CyberShadow)
+
 drkns 12.01.2014 13:24:37 +0200 - build 3768
 
 1. Correction of 3767.
