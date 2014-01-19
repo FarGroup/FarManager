@@ -81,25 +81,16 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 {
 	std::list<PreserveStyleToken> Result;
 
-	wchar_t Sep = 0;
 	std::vector<bool> Seps(Length, false);
 	for (size_t I = From+1; I+1 < From+Length; I++)
+	{
 		if (IsPreserveStyleTokenSeparator(strStr[I])
 				&& !IsPreserveStyleTokenSeparator(strStr[I-1])
 				&& !IsPreserveStyleTokenSeparator(strStr[I+1]))
 		{
-			if (Sep != 0 && strStr[I] != Sep)
-			{
-				PreserveStyleToken T;
-				T.Token = strStr.substr(From, Length);
-				T.PrependChar = 0;
-				T.TypeMask = 1 << UNKNOWN;
-				Result.emplace_back(T);
-				return Result;
-			}
-
 			Seps[I-From] = true;
 		}
+	}
 
 	size_t L = From;
 	for (size_t I = From+1; I < From+Length; I++)
