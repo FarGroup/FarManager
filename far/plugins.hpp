@@ -182,7 +182,7 @@ public:
 	int ProcessKey(PluginHandle* hPlugin,const INPUT_RECORD *Rec,bool Pred);
 	int ProcessEvent(PluginHandle* hPlugin,int Event,void *Param);
 	int Compare(PluginHandle* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
-	int ProcessEditorInput(INPUT_RECORD *Rec);
+	int ProcessEditorInput(const INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param,int EditorID);
 	int ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds);
 	int ProcessViewerEvent(int Event,void *Param,int ViewerID);
@@ -227,7 +227,7 @@ public:
 	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	int CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	Plugin *FindPlugin(const GUID& SysID) const;
-	static const GUID& GetGUID(PluginHandle* hPlugin);
+	static const GUID& GetGUID(const PluginHandle* hPlugin);
 	void RefreshPluginsList();
 	void UndoRemove(Plugin* plugin);
 	FileEditor* GetCurEditor() const { return m_CurEditor; }

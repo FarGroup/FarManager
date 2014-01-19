@@ -619,8 +619,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 			}
 		}
 
-		VBufColorExample[15*VBufRow].Attributes=ColorIndexToColor(COL_PANELBOX);
-		VBufColorExample[15*VBufRow+14].Attributes=ColorIndexToColor(COL_PANELBOX);
+		VBufColorExample[15 * VBufRow].Attributes = VBufColorExample[15 * VBufRow + 14].Attributes = ColorIndexToColor(COL_PANELBOX);
 		++VBufRow;
 	});
 }
@@ -978,15 +977,15 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		FilterDlg[ID_FF_MAKETRANSPARENT].Flags=DIF_HIDDEN;
 	}
 
-	FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+(int)FilterDlg[ID_FF_NAME].strData.size()-(FilterDlg[ID_FF_NAME].strData.find(L'&') != string::npos? 1 : 0) + 1;
-	FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+(int)FilterDlg[ID_FF_MATCHMASK].strData.size()-(FilterDlg[ID_FF_MATCHMASK].strData.find(L'&') != string::npos? 1 : 0) + 5;
-	FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-(int)FilterDlg[ID_FF_BLANK].strData.size()+(FilterDlg[ID_FF_BLANK].strData.find(L'&') != string::npos? 1 : 0) - 3;
+	FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+FilterDlg[ID_FF_NAME].strData.size()-(FilterDlg[ID_FF_NAME].strData.find(L'&') != string::npos? 1 : 0) + 1;
+	FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+FilterDlg[ID_FF_MATCHMASK].strData.size()-(FilterDlg[ID_FF_MATCHMASK].strData.find(L'&') != string::npos? 1 : 0) + 5;
+	FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-FilterDlg[ID_FF_BLANK].strData.size()+(FilterDlg[ID_FF_BLANK].strData.find(L'&') != string::npos? 1 : 0) - 3;
 	FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
-	FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-(int)FilterDlg[ID_FF_CURRENT].strData.size()+(FilterDlg[ID_FF_CURRENT].strData.find(L'&') != string::npos? 1 : 0) - 3;
-	FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+(int)FilterDlg[ID_HER_MARK_TITLE].strData.size()-(FilterDlg[ID_HER_MARK_TITLE].strData.find(L'&') != string::npos? 1 : 0) + 1;
+	FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-FilterDlg[ID_FF_CURRENT].strData.size()+(FilterDlg[ID_FF_CURRENT].strData.find(L'&') != string::npos? 1 : 0) - 3;
+	FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+FilterDlg[ID_HER_MARK_TITLE].strData.size()-(FilterDlg[ID_HER_MARK_TITLE].strData.find(L'&') != string::npos? 1 : 0) + 1;
 
 	for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
-		FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.size()-(FilterDlg[ID_HER_NORMALFILE].strData.find(L'&') != string::npos? 1 : 0) + 1;
+		FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+FilterDlg[ID_HER_NORMALFILE].strData.size()-(FilterDlg[ID_HER_NORMALFILE].strData.find(L'&') != string::npos? 1 : 0) + 1;
 
 	FAR_CHAR_INFO VBufColorExample[15*4]={};
 	auto Colors = FF->GetColors();

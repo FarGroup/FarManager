@@ -201,22 +201,33 @@ public:
 	FarRecoverableException(const char* Message) : FarException(Message) {}
 };
 
-class ScopeExit
-{
-public:
-	ScopeExit(const std::function<void()>& f) : m_f(f) {}
-	~ScopeExit() { m_f(); }
-
-private:
-	std::function<void()> m_f;
-};
-
 #define _ADD_SUFFIX(s, suffix) s ## suffix
 #define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
 
+namespace scope_exit
+{
+	template<typename F>
+	class guard
+	{
+	public:
+		guard(const F& f) : m_f(f) {}
+		~guard() { m_f(); }
+
+	private:
+		const F& m_f;
+	};
+
+	class make_guard
+	{
+	public:
+		template<typename F>
+		guard<F> operator << (const F &f) { return guard<F>(f); }
+	};
+
+};
+
 #define SCOPE_EXIT \
-	std::function<void()> ADD_SUFFIX(scope_exit_func_, __LINE__); \
-	ScopeExit ADD_SUFFIX(scope_exit_, __LINE__) = ADD_SUFFIX(scope_exit_func_, __LINE__) = [&]() /* lambda body here */
+const auto ADD_SUFFIX(scope_exit_guard_, __LINE__) = scope_exit::make_guard() << [&]() /* lambda body here */
 
 template<class T>
 inline void resize_nomove(T& container, size_t size)

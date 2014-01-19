@@ -48,7 +48,7 @@ class Grabber:Modal
 		SaveScreen *SaveScr;
 		GrabberArea PrevArea;
 		GrabberArea GArea;
-		int ResetArea;
+		bool ResetArea;
 		FARMACROAREA PrevMacroMode;
 		bool VerticalBlock;
 

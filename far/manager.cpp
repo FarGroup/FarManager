@@ -809,8 +809,8 @@ int Manager::ProcessKey(DWORD Key)
 				case 3:
 #if defined(_MSC_VER)
 #ifdef _M_IA64
-#define __REG_IA64_IntR0 1024
-					__setReg(__REG_IA64_IntR0, 666);
+					const int REG_IA64_IntR0 = 1024;
+					__setReg(REG_IA64_IntR0, 666);
 #else
 					__ud2();
 #endif
@@ -1204,11 +1204,11 @@ int Manager::IndexOf(Frame *Frame)
 	})? Result - 1 : -1;
 }
 
-BOOL Manager::Commit()
+bool Manager::Commit()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
-	int Result = false;
+	bool Result = false;
 
 	if (DeletedFrame && (InsertedFrame||ExecutedFrame))
 	{

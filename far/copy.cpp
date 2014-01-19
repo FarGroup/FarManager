@@ -1263,7 +1263,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	}
 
 	// корректирем позицию " to"
-	CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+(int)CopyDlg[ID_SC_SOURCEFILENAME].strData.size();
+	CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+CopyDlg[ID_SC_SOURCEFILENAME].strData.size();
 
 	/* $ 15.06.2002 IS
 	   Обработка копирования мышкой - в этом случае диалог не показывается,
@@ -1743,8 +1743,7 @@ ShellCopy::~ShellCopy()
 	Global->FrameManager->GetFrame(0)->Unlock();
 	Global->FrameManager->GetFrame(0)->Refresh();
 
-	if (Filter) // Уничтожим объект фильтра
-		delete Filter;
+	delete Filter;
 }
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
@@ -3168,12 +3167,12 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		}
 	}
 
-	int   AbortOp = FALSE;
-
 	CP->SetProgressValue(0,0);
 
 	if(SrcFile.InitWalk(CopyBufferSize))
 	{
+		bool AbortOp = false;
+
 		do
 		{
 			BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
@@ -3549,7 +3548,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				}
 
 				FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,nullptr,nullptr,FALSE);
-				Viewer.SetDynamicallyBorn(FALSE);
+				Viewer.SetDynamicallyBorn(false);
 				// а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
 				Viewer.SetTempViewName(L"nul",FALSE);
 				Global->FrameManager->EnterModalEV();
@@ -4212,8 +4211,4 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	}
 
 	return true;
-}
-
-void ShellCopy::CheckUpdatePanel() // выставляет флаг FCOPY_UPDATEPPANEL
-{
 }

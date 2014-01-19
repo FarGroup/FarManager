@@ -67,7 +67,7 @@ private:
 	bool GetPluginFile(struct ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
-	int LookForString(const string& Name);
+	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AddMenuRecord(Dialog* Dlg,const string& FullName, const api::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);

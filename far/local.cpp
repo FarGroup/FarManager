@@ -159,79 +159,6 @@ const wchar_t * RevStrStr(const wchar_t *str1, const wchar_t *str2)
 	return nullptr;
 }
 
-int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
-{
-	size_t l1 = 0;
-	size_t l2 = 0;
-	while (l1 < n1 && l2 < n2 && *s1 && *s2)
-	{
-		if (iswdigit(*s1) && iswdigit(*s2))
-		{
-			// skip leading zeroes
-			while (l1 < n1 && *s1 == L'0')
-			{
-				s1++;
-				l1++;
-			}
-			while (l2 < n2 && *s2 == L'0')
-			{
-				s2++;
-				l2++;
-			}
-
-			// if end of string reached
-			if (l1 == n1 || !*s1 || l2 == n2 || !*s2)
-				break;
-
-			// compare numbers
-			int res = 0;
-			while (l1 < n1 && l2 < n2 && iswdigit(*s1) && iswdigit(*s2))
-			{
-				if (!res && *s1 != *s2)
-					res = *s1 < *s2 ? -1 : 1;
-
-				s1++; s2++;
-				l1++; l2++;
-			}
-			if ((l1 == n1 || !iswdigit(*s1)) && (l2 == n2 || !iswdigit(*s2)))
-			{
-				if (res)
-					return res;
-			}
-			else if (l1 == n1 || !iswdigit(*s1))
-				return -1;
-			else if (l2 == n2 || !iswdigit(*s2))
-				return 1;
-		}
-		else
-		{
-			int res = IgnoreCase ? StrCmpNI(s1, s2, 1) : StrCmpN(s1, s2, 1);
-			if (res)
-				return res;
-
-			s1++; s2++;
-			l1++; l2++;
-		}
-	}
-
-	if ((l1 == n1 || !*s1) && (l2 == n2 || !*s2))
-	{
-		if (l1 < l2)
-			return -1;
-		else if (l1 == l2)
-			return 0;
-		else
-			return 1;
-	}
-	else if (l1 == n1 || !*s1)
-		return -1;
-	else if (l2 == n2 || !*s2)
-		return 1;
-
-	assert(false);
-	return 0;
-}
-
 static const std::vector<wchar_t> create_alt_sort_table()
 {
 	std::vector<wchar_t> alt_sort_table(WCHAR_MAX + 1);
@@ -312,7 +239,7 @@ int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 	return 0;
 }
 
-int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
+static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, int(*comparer)(const wchar_t*, const wchar_t*, size_t))
 {
 	size_t l1 = 0;
 	size_t l2 = 0;
@@ -358,7 +285,7 @@ int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 		}
 		else
 		{
-			int res = StrCmpNC(s1, s2, 1);
+			int res = comparer(s1, s2, 1);
 			if (res)
 				return res;
 
@@ -384,6 +311,23 @@ int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 	assert(false);
 	return 0;
 }
+
+static inline int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
+{
+	return NumStrCmp_base(s1, n1, s2, n2, StrCmpNC);
+}
+
+static inline int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
+{
+	return NumStrCmp_base(s1, n1, s2, n2, IgnoreCase? StrCmpNI : StrCmpN);
+}
+
+int NumStrCmpN(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return NumStrCmp(s1, n1, s2, n2, false); }
+int NumStrCmpNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return NumStrCmp(s1, n1, s2, n2, true); }
+int NumStrCmpNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return NumStrCmpC(s1, n1, s2, n2); }
+int NumStrCmp(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, false); }
+int NumStrCmpI(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, true); }
+int NumStrCmpC(const wchar_t *s1, const wchar_t *s2) { return NumStrCmpC(s1, -1, s2, -1); }
 
 SELF_TEST(
 	assert(!NumStrCmp(L"", -1, L"", -1, false));

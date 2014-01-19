@@ -333,7 +333,7 @@ class VMenu: public Modal
  		void SetFilterString(const wchar_t *str);
 
 		intptr_t GetItemCount() { return Items.size(); }
-		int  GetShowItemCount() { return static_cast<int>(Items.size())-ItemHiddenCount; }
+		int  GetShowItemCount() { return static_cast<int>(Items.size()-ItemHiddenCount); }
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 

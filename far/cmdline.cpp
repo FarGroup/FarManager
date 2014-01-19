@@ -88,8 +88,7 @@ CommandLine::CommandLine():
 
 CommandLine::~CommandLine()
 {
-	if (BackgroundScreen)
-		delete BackgroundScreen;
+	delete BackgroundScreen;
 
 	Global->ScrBuf->Flush(true);
 }
@@ -815,11 +814,7 @@ void CommandLine::ShowViewEditHistory()
 
 void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
 {
-	if (BackgroundScreen)
-	{
-		delete BackgroundScreen;
-	}
-
+	delete BackgroundScreen;
 	BackgroundScreen=new SaveScreen(X1,Y1,X2,Y2);
 }
 

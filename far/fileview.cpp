@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FileViewer::FileViewer(
 	const string& Name,int EnableSwitch,int DisableHistory,
 	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,int ToSaveAs,uintptr_t aCodePage,
+	NamesList *ViewNamesList,bool ToSaveAs,uintptr_t aCodePage,
 	const wchar_t *Title, int DeleteOnClose)
  : View(false,aCodePage),
 	FullScreen(true),
@@ -121,7 +121,7 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 
 void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,int ToSaveAs)
+	NamesList *ViewNamesList,bool ToSaveAs)
 {
 	RedrawTitle = FALSE;
 	ViewKeyBar.SetOwner(this);

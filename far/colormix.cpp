@@ -91,7 +91,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 					else
 					{
 						int* p[] = {&R, &G, &B};
-						int IntenseCount = 0;
+						size_t IntenseCount = 0;
 						std::for_each(RANGE(p, component)
 						{
 							if(InRange(0, *component, 63))

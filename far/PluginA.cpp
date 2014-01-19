@@ -525,8 +525,7 @@ static void FreeUnicodeInfoPanelLines(const InfoPanelLine *iplW,size_t InfoLines
 		delete[] iplW[i].Data;
 	}
 
-	if (iplW)
-		delete[] iplW;
+	delete[] iplW;
 }
 
 static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t iCount)
@@ -1994,8 +1993,7 @@ static void FreeUnicodeDialogItem(FarDialogItem &di)
 				{
 					for (size_t i=0; i<di.ListItems->ItemsNumber; i++)
 					{
-						if (di.ListItems->Items[i].Text)
-							delete[] di.ListItems->Items[i].Text;
+						delete[] di.ListItems->Items[i].Text;
 					}
 
 					delete[] di.ListItems->Items;
@@ -3262,7 +3260,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					block_ptr<FarPanelDirectory> dirInfo(dirSize);
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, static_cast<int>(dirSize), dirInfo.get());
+					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
 					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
 				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
@@ -3304,7 +3302,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					block_ptr<FarPanelDirectory> dirInfo(dirSize);
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, static_cast<int>(dirSize), dirInfo.get());
+					NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
 					UnicodeToOEM(dirInfo->Name, OldPI->CurDir, sizeof(OldPI->CurDir));
 				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
@@ -3706,10 +3704,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 						}
 
 						case MSSC_POST:
-
-							if (mtW.SequenceText)
-								delete[] mtW.SequenceText;
-
+							delete[] mtW.SequenceText;
 							break;
 					}
 				}
@@ -3796,15 +3791,8 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 						UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
 					}
 
-					if (wi.TypeName)
-					{
-						delete[] wi.TypeName;
-					}
-
-					if (wi.Name)
-					{
-						delete[] wi.Name;
-					}
+					delete[] wi.TypeName;
+					delete[] wi.Name;
 				}
 				else
 				{
@@ -3818,7 +3806,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 		case oldfar::ACTL_GETWINDOWCOUNT:
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWCOUNT, 0, 0);
 		case oldfar::ACTL_SETCURRENTWINDOW:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETCURRENTWINDOW, static_cast<int>(reinterpret_cast<intptr_t>(Param)), nullptr);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETCURRENTWINDOW, reinterpret_cast<intptr_t>(Param), nullptr);
 		case oldfar::ACTL_COMMIT:
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_COMMIT, 0, 0);
 		case oldfar::ACTL_GETFARHWND:
@@ -4302,7 +4290,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 
 								newsp.iParam=ConvertCharTableToCodePage(newsp.iParam);
 
-								if ((UINT)newsp.iParam==CP_DEFAULT) return FALSE;
+								if (static_cast<uintptr_t>(newsp.iParam) == CP_DEFAULT)
+									return FALSE;
 
 								break;
 						}
@@ -5598,8 +5587,7 @@ void PluginA::FreePluginInfo()
 		delete[] PI.PluginConfig.Strings;
 	}
 
-	if (PI.CommandPrefix)
-		delete[] PI.CommandPrefix;
+	delete[] PI.CommandPrefix;
 
 	ClearStruct(PI);
 }

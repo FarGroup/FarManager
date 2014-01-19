@@ -309,7 +309,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > FilterData->size()+2)
 					{
-						NewFilter.SetMask(1,static_cast<const wchar_t*>(FilterList.GetUserData(nullptr, 0, static_cast<int>(SelPos2-1))));
+						NewFilter.SetMask(1,static_cast<const wchar_t*>(FilterList.GetUserData(nullptr, 0, SelPos2-1)));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 					}

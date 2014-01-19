@@ -294,7 +294,7 @@ void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 
 void Dialog::Init()
 {
-	SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
+	SetDynamicallyBorn(false); // $OT: По умолчанию все диалоги создаются статически
 	CanLoseFocus = FALSE;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
@@ -1169,21 +1169,16 @@ void Dialog::DeleteDialogObjects()
 			case DI_PSWEDIT:
 			case DI_COMBOBOX:
 			case DI_MEMOEDIT:
-
-				if (i.ObjPtr)
-					delete(DlgEdit *)(i.ObjPtr);
+				delete(DlgEdit *)(i.ObjPtr);
 
 			case DI_LISTBOX:
 
-				if ((i.Type == DI_COMBOBOX || i.Type == DI_LISTBOX) && i.ListPtr)
+				if ((i.Type == DI_COMBOBOX || i.Type == DI_LISTBOX))
 					delete i.ListPtr;
 
 				break;
 			case DI_USERCONTROL:
-
-				if (i.UCData)
-					delete i.UCData;
-
+				delete i.UCData;
 				break;
 
 			default:
@@ -3672,7 +3667,7 @@ int Dialog::Do_ProcessSpace()
 
 	if (Items[FocusPos].Type==DI_CHECKBOX)
 	{
-		int OldSelected=Items[FocusPos].Selected;
+		auto OldSelected=Items[FocusPos].Selected;
 
 		if (Items[FocusPos].Flags&DIF_3STATE)
 			(++Items[FocusPos].Selected)%=3;
@@ -4326,10 +4321,7 @@ void Dialog::Process()
 	if (SavedItems)
 		std::transform(ALL_CONST_RANGE(Items), SavedItems, [](const VALUE_TYPE(Items)& i) { return i; });
 
-	if (TBE)
-	{
-		delete TBE;
-	}
+	delete TBE;
 }
 
 intptr_t Dialog::CloseDialog()
@@ -6035,7 +6027,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_SETITEMPOSITION: // Param1 = ID; Param2 = SMALL_RECT
 		{
-			return SetItemRect((int)Param1,(SMALL_RECT*)Param2);
+			return SetItemRect(Param1, (SMALL_RECT*)Param2);
 		}
 		/*****************************************************************/
 		/* $ 31.08.2000 SVS

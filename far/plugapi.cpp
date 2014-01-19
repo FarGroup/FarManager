@@ -519,7 +519,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				else
 				{
-					wi->TypeNameSize=static_cast<int>(strType.size()+1);
+					wi->TypeNameSize=strType.size()+1;
 				}
 
 				if (wi->NameSize && wi->Name)
@@ -528,7 +528,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				else
 				{
-					wi->NameSize=static_cast<int>(strName.size()+1);
+					wi->NameSize=strName.size()+1;
 				}
 
 				if(-1==wi->Pos) wi->Pos = Global->FrameManager->IndexOf(f);

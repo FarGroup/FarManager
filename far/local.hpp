@@ -50,20 +50,6 @@ inline wchar_t Upper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
 inline wchar_t Lower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
 
-inline int StrCmpNNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
-inline int StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNNI(s1,n,s2,n); }
-
-inline int StrCmpI(const wchar_t *s1, const wchar_t *s2) { return CompareString(0,NORM_IGNORECASE|SORT_STRINGSORT,s1,-1,s2,-1)-2; }
-
-inline int StrCmpNN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
-inline int StrCmpN(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNN(s1,n,s2,n); }
-
-int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
-inline int StrCmpNC(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNNC(s1,n,s2,n); }
-inline int StrCmpC(const wchar_t *s1, const wchar_t *s2) { return StrCmpNNC(s1,-1, s2,-1); }
-
-inline int StrCmp(const wchar_t *s1, const wchar_t *s2) { return CompareString(0,SORT_STRINGSORT,s1,-1,s2,-1)-2; }
-
 inline int IsUpper(wchar_t Ch) { return IsCharUpper(Ch); }
 
 inline int IsLower(wchar_t Ch) { return IsCharLower(Ch); }
@@ -85,11 +71,23 @@ const wchar_t* StrStrI(const wchar_t *str1, const wchar_t *str2);
 const wchar_t* RevStrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t* RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase);
-int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
-inline int NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, false); }
-inline int NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, true); }
-inline int NumStrCmpNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmpC(s1, n1, s2, n2); }
-inline int NumStrCmp(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, false); }
-inline int NumStrCmpI(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, true); }
-inline int NumStrCmpC(const wchar_t *s1, const wchar_t *s2) { return NumStrCmpC(s1, -1, s2, -1); }
+inline int StrCmpNNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return CompareString(0, NORM_IGNORECASE | NORM_STOP_ON_NULL | SORT_STRINGSORT, s1, static_cast<int>(n1), s2, static_cast<int>(n2)) - 2; }
+inline int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n) { return StrCmpNNI(s1, n, s2, n); }
+
+inline int StrCmpI(const wchar_t *s1, const wchar_t *s2) { return CompareString(0, NORM_IGNORECASE | SORT_STRINGSORT, s1, -1, s2, -1) - 2; }
+
+inline int StrCmpNN(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return CompareString(0, NORM_STOP_ON_NULL | SORT_STRINGSORT, s1, static_cast<int>(n1), s2, static_cast<int>(n2)) - 2; }
+inline int StrCmpN(const wchar_t *s1, const wchar_t *s2, size_t n) { return StrCmpNN(s1, n, s2, n); }
+
+int StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
+inline int StrCmpNC(const wchar_t *s1, const wchar_t *s2, size_t n) { return StrCmpNNC(s1, n, s2, n); }
+inline int StrCmpC(const wchar_t *s1, const wchar_t *s2) { return StrCmpNNC(s1, -1, s2, -1); }
+
+inline int StrCmp(const wchar_t *s1, const wchar_t *s2) { return CompareString(0, SORT_STRINGSORT, s1, -1, s2, -1) - 2; }
+
+int NumStrCmpN(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
+int NumStrCmpNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
+int NumStrCmpNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
+int NumStrCmp(const wchar_t *s1, const wchar_t *s2);
+int NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
+int NumStrCmpC(const wchar_t *s1, const wchar_t *s2);

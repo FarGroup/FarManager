@@ -621,7 +621,7 @@ int DialogBuilder::AddTextWrap(const wchar_t *text, bool center, int width)
 	int LineCount = 1 + std::count(ALL_CONST_RANGE(str), L'\n');
 	std::replace(ALL_RANGE(str), L'\n', L'\0');
 	const wchar_t *ps = str.data();
-	for (int i = 0; i < LineCount; ++i, ps += StrLength(ps) + 1)
+	for (int i = 0; i < LineCount; ++i, ps += wcslen(ps) + 1)
 	{
 		DialogItemEx *Text = AddText(ps);
 		Text->Flags = (center ? DIF_CENTERTEXT : 0);

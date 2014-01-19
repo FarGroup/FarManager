@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct ShortcutItem: NonCopyable
 {
 	ShortcutItem(): PluginGuid(FarGuid) {}
-	ShortcutItem(const string& Name, const string Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
+	ShortcutItem(const string& Name, const string& Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
 		strName(Name),
 		strFolder(Folder),
 		strPluginFile(PluginFile),

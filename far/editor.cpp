@@ -6234,7 +6234,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						{
 							rc = FALSE;
 						}
-						else if ((UINT)espar->iParam==CP_DEFAULT) //BUGBUG
+						else if (static_cast<uintptr_t>(espar->iParam) == CP_DEFAULT) //BUGBUG
 						{
 							rc=FALSE;
 						}

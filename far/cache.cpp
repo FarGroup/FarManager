@@ -225,7 +225,7 @@ bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
 		else
 		{
 			memcpy(&Buffer[Buffer.size() - FreeSize], Data, DataSize);
-			FreeSize -= static_cast<DWORD>(DataSize);
+			FreeSize -= DataSize;
 			Flushed=false;
 			Result=true;
 		}

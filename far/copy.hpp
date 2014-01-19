@@ -62,7 +62,6 @@ private:
 	bool CalcTotalSize();
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
-	void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
 	intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 

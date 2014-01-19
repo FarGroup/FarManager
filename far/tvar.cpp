@@ -286,8 +286,7 @@ TVar& TVar::AppendStr(wchar_t addChr)
 
 TVar::~TVar()
 {
-	if (str)
-		delete [] str;
+	delete [] str;
 }
 
 TVar::TVar(__int64 v) :
@@ -346,8 +345,7 @@ TVar& TVar::operator=(const TVar& v)
 		inum = v.inum;
 		dnum = v.dnum;
 
-		if (str)
-			delete [] str;
+		delete [] str;
 
 		str=dubstr(v.str);
 	}
@@ -398,8 +396,7 @@ const wchar_t *TVar::toString()
 			return str;
 	}
 
-	if (str)
-		delete [] str;
+	delete [] str;
 
 	str = dubstr(s);
 	vType = vtString;

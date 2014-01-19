@@ -1053,7 +1053,7 @@ const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t sea
 }
 
 
-int FindFiles::LookForString(const string& Name)
+bool FindFiles::LookForString(const string& Name)
 {
 	// Длина строки поиска
 	size_t findStringCount;
@@ -1756,7 +1756,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
 							{
 								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,nullptr,(list_count > 1 ? &ViewList : nullptr));
-								ShellViewer.SetDynamicallyBorn(FALSE);
+								ShellViewer.SetDynamicallyBorn(false);
 								ShellViewer.SetEnableF6(TRUE);
 
 								if(FindItem->Arc)
@@ -1819,7 +1819,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 															if (SwitchTo)
 															{
 																(*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
-																(*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
+																(*FrameManager)[FramePos]->SetDynamicallyBorn(false);
 																FrameManager->ActivateFrame(FramePos);
 																FrameManager->EnterModalEV();
 																FrameManager->ExecuteModal ();
@@ -1832,14 +1832,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								*/
 								{
 									FileEditor ShellEditor(strSearchFileName,CP_DEFAULT,0);
-									ShellEditor.SetDynamicallyBorn(FALSE);
+									ShellEditor.SetDynamicallyBorn(false);
 									ShellEditor.SetEnableF6(TRUE);
 
 									if(FindItem->Arc)
 									{
 										if(!(FindItem->Arc->Flags & OPIF_REALNAMES))
 										{
-											ShellEditor.SetSaveToSaveAs(TRUE);
+											ShellEditor.SetSaveToSaveAs(true);
 										}
 									}
 									Global->FrameManager->EnterModalEV();
@@ -3257,15 +3257,7 @@ FindFiles::~FindFiles()
 	Global->ScrBuf->ResetShadow();
 
 	delete itd;
-
-	if (Filter)
-	{
-		delete Filter;
-	}
+	delete Filter;
 	delete FileMaskForFindFile;
-
-	if(TB)
-	{
-		delete TB;
-	}
+	delete TB;
 }

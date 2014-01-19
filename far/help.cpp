@@ -140,7 +140,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	CanLoseFocus=FALSE;
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
-	SetDynamicallyBorn(FALSE);
+	SetDynamicallyBorn(false);
 	Global->CtrlObject->Macro.SetMode(MACROAREA_HELP);
 
 	StackData.Flags=Flags;

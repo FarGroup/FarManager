@@ -136,9 +136,9 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 					case 0xFF: Chr=L' '; break;
 					default:
 
-						if (Chr2 < 0x20)
+						if (Chr2 < L' ')
 							Chr=L'.';
-						else if (Chr2 < 0x100)
+						else if (Chr2 <= UCHAR_MAX)
 							Chr=Chr2;
 
 						break;

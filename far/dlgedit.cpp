@@ -100,17 +100,10 @@ DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 
 DlgEdit::~DlgEdit()
 {
-	if(iHistory)
-	{
-		delete iHistory;
-	}
-
-	if (lineEdit)  delete lineEdit;
-
+	delete iHistory;
+	delete lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
-
-	if (multiEdit) delete multiEdit;
-
+	delete multiEdit;
 #endif
 }
 

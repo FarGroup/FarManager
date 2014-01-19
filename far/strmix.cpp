@@ -41,6 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
 
+namespace strmix
+{
+
 string &FormatNumber(const string& Src, string &strDest, int NumDigits)
 {
 	static bool first = true;
@@ -1164,7 +1167,7 @@ unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
 		return 0;
 
 	unsigned __int64 n = std::stoull(FileSizeStr);
-	wchar_t c = Upper(FileSizeStr.back());
+	wchar_t c = ::Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1261,7 +1264,7 @@ string ReplaceBrackets(const wchar_t *SearchStr,const string& ReplaceStr, const 
 			if (pos>=length)
 				break;
 
-			wchar_t symbol=Upper(ReplaceStr[pos]);
+			wchar_t symbol = ::Upper(ReplaceStr[pos]);
 			int index=-1;
 
 			if (symbol>='0'&&symbol<='9')
@@ -1393,9 +1396,9 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
 					{
 						if (IsUpper(Source[I]))
-							ReplaceStr.front() = Upper(ReplaceStr.front());
+							ReplaceStr.front() = ::Upper(ReplaceStr.front());
 						if (IsLower(Source[I]))
-							ReplaceStr.front() = Lower(ReplaceStr.front());
+							ReplaceStr.front() = ::Lower(ReplaceStr.front());
 					}
 
 					return true;
@@ -1675,3 +1678,5 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 	UserDefinedList list(InitString, Flags, Separators);
 	return std::list<string>(list.ItemsList.begin(), list.ItemsList.end());
 }
+
+};

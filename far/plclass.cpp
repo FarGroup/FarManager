@@ -1255,7 +1255,6 @@ CustomPluginModel::~CustomPluginModel()
 	catch(const SException&)
 	{
 		// TODO: notification
-		throw;
 	}
 }
 

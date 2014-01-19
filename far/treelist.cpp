@@ -149,8 +149,6 @@ TreeList::TreeList(bool IsPanel):
 	PrevMacroMode(MACROAREA_INVALID),
 	WorkDir(0),
 	GetSelPosition(0),
-	NumericSort(FALSE),
-	CaseSensitiveSort(FALSE),
 	ExitCode(1),
 	SaveWorkDir(0)
 {

@@ -121,7 +121,7 @@ public:
 	bool operator <(const ChDiskPluginItem& rhs) const
 	{
 		return (Global->Opt->ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?
-			HotKey-1 < rhs.HotKey-1 :
+			HotKey < rhs.HotKey :
 			StrCmpI(Item.strName, rhs.Item.strName) < 0;
 	}
 
@@ -2490,7 +2490,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 			DCDlg[5].Selected=Global->Opt->ChangeDriveDisconnectMode;
 	}
 	// скорректируем размеры диалога - дл€ дизайн”
-	DCDlg[0].X2=DCDlg[0].X1+static_cast<int>(Len1)+3;
+	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;
 	int ExitCode=7;
 
 	if (Global->Opt->Confirm.RemoveConnection)

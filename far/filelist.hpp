@@ -338,7 +338,7 @@ public:
 	void PluginSetSelection(int ItemNumber,bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
-	int PluginPanelHelp(PluginHandle* hPlugin);
+	int PluginPanelHelp(const PluginHandle* hPlugin);
 	bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
@@ -350,7 +350,7 @@ public:
 	static void FileListToPluginItem(const FileListItem& fi,PluginPanelItem *pi);
 	static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
 	static bool IsModeFullScreen(int Mode);
-	static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
+	static string &AddPluginPrefix(const FileList *SrcPanel,string &strPrefix);
 
 protected:
 	virtual void ClearAllItem() override;

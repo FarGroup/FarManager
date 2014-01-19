@@ -3028,7 +3028,7 @@ bool VMenu::Pack()
 
 	while (FirstIndex<Items.size())
 	{
-		size_t LastIndex=static_cast<int>(Items.size()-1);
+		size_t LastIndex=Items.size()-1;
 		while (LastIndex>FirstIndex)
 		{
 			if (!(Items[FirstIndex].Flags & LIF_SEPARATOR) && !(Items[LastIndex].Flags & LIF_SEPARATOR))

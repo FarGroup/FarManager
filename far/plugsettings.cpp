@@ -382,7 +382,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 
 static HistoryConfig* HistoryRef(int Type)
 {
-	int Save=true;
+	bool Save=true;
 	switch(Type)
 	{
 		case HISTORYTYPE_CMD:

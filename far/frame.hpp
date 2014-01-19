@@ -83,14 +83,14 @@ public:
 	int IsTitleBarVisible() const {return TitleBarVisible;}
 	int IsTopFrame();
 	Frame *GetTopModal() {return NextModal;}
-	void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
-	int GetDynamicallyBorn() {return DynamicallyBorn;}
+	void SetDynamicallyBorn(bool Born) {DynamicallyBorn=Born;}
+	bool GetDynamicallyBorn() {return DynamicallyBorn;}
 	bool RemoveModal(const Frame *aFrame);
 	bool HasSaveScreen();
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 
 protected:
-	int DynamicallyBorn;
+	bool DynamicallyBorn;
 	int CanLoseFocus;
 	int ExitCode;
 	int KeyBarVisible;

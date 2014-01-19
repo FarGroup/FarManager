@@ -242,7 +242,7 @@ bool Clipboard::Set(const wchar_t *Data)
 	Clear();
 	if (Data)
 	{
-		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		size_t BufferSize=(wcslen(Data)+1)*sizeof(wchar_t);
 		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
 		if (hData)
 		{
@@ -274,7 +274,7 @@ bool Clipboard::SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data)
 
 	if (Data && *Data)
 	{
-		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		size_t BufferSize=(wcslen(Data)+1)*sizeof(wchar_t);
 		HGLOBAL hData = GlobalAlloc(GMEM_MOVEABLE,BufferSize);
 		if (hData)
 		{

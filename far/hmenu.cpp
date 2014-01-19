@@ -53,10 +53,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 HMenu::HMenu(HMenuData *Item,int ItemCount):
 	SubMenu(nullptr),
 	Item(Item),
+	SelectPos(),
 	ItemCount(ItemCount),
-	VExitCode(-1)
+	VExitCode(-1),
+	ItemX()
 {
-	SetDynamicallyBorn(FALSE);
+	SetDynamicallyBorn(false);
 	SetRestoreScreenMode(TRUE);
 	Global->FrameManager->ModalizeFrame(this);
 }

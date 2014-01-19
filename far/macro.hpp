@@ -110,6 +110,17 @@ public:
 		m_flags(),
 		m_key(-1),
 		m_macroId(),
+		m_macrovalue(),
+		m_handle(0)
+	{
+	}
+
+	MacroRecord(MACROFLAGS_MFLAGS Flags, int MacroId, int Key, const wchar_t* Code):
+		m_flags(Flags),
+		m_key(Key),
+		m_code(Code),
+		m_macroId(MacroId),
+		m_macrovalue(),
 		m_handle(0)
 	{
 	}
@@ -117,14 +128,14 @@ public:
 	MacroRecord(MacroRecord&& rhs):
 		m_flags(),
 		m_key(-1),
-		m_macroId()
+		m_macroId(),
+		m_macrovalue(),
+		m_handle(0)
 	{
 		*this = std::move(rhs);
 	}
 
 	MOVE_OPERATOR_BY_SWAP(MacroRecord);
-
-	MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code);
 
 	void swap(MacroRecord& rhs)
 	{

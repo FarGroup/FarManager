@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 
 Frame::Frame():
-	DynamicallyBorn(TRUE),
+	DynamicallyBorn(true),
 	CanLoseFocus(FALSE),
 	ExitCode(-1),
 	KeyBarVisible(0),

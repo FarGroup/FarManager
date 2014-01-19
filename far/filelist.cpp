@@ -330,15 +330,15 @@ void FileList::CorrectPosition()
 		CurTopFile=CurFile-Columns*Height+1;
 }
 
-inline bool less_opt(bool less)
-{
-	return RevertSorting? !less : less;
-}
-
 static struct list_less
 {
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
+		auto less_opt = [](bool less)
+		{
+			return RevertSorting ? !less : less;
+		};
+
 		int RetCode;
 		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
@@ -386,6 +386,12 @@ static struct list_less
 		}
 
 		__int64 RetCode64;
+
+		auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
+		{
+			return FileTimeDifference(&(a.*time), &(b.*time));
+		};
+
 		switch (ListSortMode)
 		{
 			case BY_NAME:
@@ -395,10 +401,15 @@ static struct list_less
 			case BY_EXT:
 				UseReverseNameSort = true;
 
-				Ext1 = !Global->Opt->SortFolderExt && (a.FileAttr & FILE_ATTRIBUTE_DIRECTORY)?
-					a.strName.data() + a.strName.size() : PointToExt(a.strName);
-				Ext2 = !Global->Opt->SortFolderExt && (b.FileAttr & FILE_ATTRIBUTE_DIRECTORY)?
-					b.strName.data() + b.strName.size() : PointToExt(b.strName);
+				{
+					auto GetExt = [](const FileListItem& i)
+					{
+						return !Global->Opt->SortFolderExt && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? i.strName.data() + i.strName.size() : PointToExt(i.strName);
+					};
+
+					Ext1 = GetExt(a);
+					Ext2 = GetExt(b);
+				}
 
 				if (!*Ext1)
 				{
@@ -409,30 +420,31 @@ static struct list_less
 				}
 				if (!*Ext2)
 					return less_opt(false);
-
-				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(Ext1+1, Ext2+1) : NumStrCmpI(Ext1+1, Ext2+1)) :
-					(ListCaseSensitiveSort? StrCmpC(Ext1+1, Ext2+1) : StrCmpI(Ext1+1, Ext2+1));
+				{
+					auto Comparer = ListNumericSort ? (ListCaseSensitiveSort ? NumStrCmpC : NumStrCmpI) : (ListCaseSensitiveSort ? StrCmpC : ::StrCmpI);
+					RetCode = Comparer(Ext1 + 1, Ext2 + 1);
+				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
 
 			case BY_MTIME:
-				if ((RetCode64=FileTimeDifference(&a.WriteTime,&b.WriteTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::WriteTime)))
 					return less_opt(RetCode64 < 0);
 				break;
 
 			case BY_CTIME:
-				if ((RetCode64=FileTimeDifference(&a.CreationTime,&b.CreationTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::CreationTime)))
 					return less_opt(RetCode64 < 0);
 				break;
 
 			case BY_ATIME:
-				if (!(RetCode64=FileTimeDifference(&a.AccessTime,&b.AccessTime)))
-					break;
-				return less_opt(RetCode64 < 0);
+				if ((RetCode64 = CompareTime(&FileListItem::AccessTime)))
+					return less_opt(RetCode64 < 0);
+				break;
 
 			case BY_CHTIME:
-				if ((RetCode64=FileTimeDifference(&a.ChangeTime, &b.ChangeTime)))
+				if ((RetCode64 = CompareTime(&FileListItem::ChangeTime)))
 					return less_opt(RetCode64 < 0);
 				break;
 
@@ -453,8 +465,10 @@ static struct list_less
 				if (!b.DizText)
 					return less_opt(true);
 
-				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(a.DizText, b.DizText) : NumStrCmpI(a.DizText, b.DizText)) :
-					(ListCaseSensitiveSort? StrCmpC(a.DizText, b.DizText) : StrCmpI(a.DizText, b.DizText));
+				{
+					auto Comparer = ListNumericSort ? (ListCaseSensitiveSort ? NumStrCmpC : NumStrCmpI) : (ListCaseSensitiveSort ? StrCmpC : ::StrCmpI);
+					RetCode = Comparer(a.DizText, b.DizText);
+				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -489,19 +503,23 @@ static struct list_less
 				UseReverseNameSort = true;
 				if (ListNumericSort)
 				{
-					const wchar_t *Path1 = a.strName.data();
-					const wchar_t *Path2 = b.strName.data();
-					const wchar_t *Name1 = PointToName(a.strName);
-					const wchar_t *Name2 = PointToName(b.strName);
-					RetCode = ListCaseSensitiveSort ? StrCmpNNC(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
-					if (!RetCode)
-						RetCode = ListCaseSensitiveSort ? NumStrCmpC(Name1, Name2) : NumStrCmpI(Name1, Name2);
+					auto Path1 = a.strName.data();
+					auto Path2 = b.strName.data();
+					auto Name1 = PointToName(a.strName);
+					auto Name2 = PointToName(b.strName);
+					auto NameComparer = ListCaseSensitiveSort ? StrCmpNNC : StrCmpNNI;
+					auto NumPathComparer = ListCaseSensitiveSort ? NumStrCmpC : NumStrCmpI;
+					auto PathComparer = ListCaseSensitiveSort ? StrCmpC : ::StrCmpI;
+
+					if (!NameComparer(Path1, Name1 - Path1, Path2, Name2 - Path2))
+						RetCode = NumPathComparer(Name1, Name2);
 					else
-						RetCode = ListCaseSensitiveSort ? StrCmpC(Path1, Path2) : StrCmpI(Path1, Path2);
+						RetCode = PathComparer(Path1, Path2);
 				}
 				else
 				{
-					RetCode = ListCaseSensitiveSort ? StrCmpC(a.strName.data(), b.strName.data()) : StrCmpI(a.strName, b.strName);
+					auto Comparer = ListCaseSensitiveSort ? StrCmpC : ::StrCmpI;
+					RetCode = Comparer(a.strName.data(), b.strName.data());
 				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
@@ -519,8 +537,10 @@ static struct list_less
 				if (b.strCustomData.empty())
 					return less_opt(true);
 
-				RetCode = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC(a.strCustomData.data(), b.strCustomData.data()) : NumStrCmpI(a.strCustomData.data(), b.strCustomData.data())) :
-					(ListCaseSensitiveSort?StrCmpC(a.strCustomData.data(), b.strCustomData.data()) : StrCmpI(a.strCustomData, b.strCustomData));
+				{
+					auto Comparer = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC : NumStrCmpI) : (ListCaseSensitiveSort? StrCmpC : ::StrCmpI);
+					RetCode = Comparer(a.strCustomData.data(), b.strCustomData.data());
+				}
 				if (RetCode)
 					return less_opt(RetCode < 0);
 				break;
@@ -549,21 +569,19 @@ static struct list_less
 		const wchar_t *Name1=PointToName(a.strName);
 		const wchar_t *Name2=PointToName(b.strName);
 
-		if (ListNumericSort)
-			NameCmp=ListCaseSensitiveSort?NumStrCmpNC(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
-		else
-			NameCmp=ListCaseSensitiveSort?StrCmpNNC(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
-
-		if (!NameCmp)
 		{
-			if (ListNumericSort)
-				NameCmp=ListCaseSensitiveSort?NumStrCmpC(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
-			else
-				NameCmp=ListCaseSensitiveSort?StrCmpC(Ext1,Ext2):StrCmpI(Ext1,Ext2);
+			auto Comparer = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpNC : NumStrCmpNI) : (ListCaseSensitiveSort? StrCmpNNC : StrCmpNNI);
+			NameCmp = Comparer(Name1, Ext1 - Name1, Name2, Ext2 - Name2);
 		}
 
 		if (!NameCmp)
-			NameCmp = a.Position < b.Position ? -1 : 1;
+		{
+			auto Comparer = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpC : NumStrCmpI) : (ListCaseSensitiveSort? StrCmpC : ::StrCmpI);
+			NameCmp = Comparer(Ext1, Ext2);
+		}
+
+		if (!NameCmp)
+			NameCmp = a.Position < b.Position? -1 : 1;
 
 		return UseReverseNameSort? less_opt(NameCmp < 0) : NameCmp < 0;
 	}
@@ -5246,7 +5264,7 @@ void FileList::UpdateKeyBar()
 
 }
 
-int FileList::PluginPanelHelp(PluginHandle* hPlugin)
+int FileList::PluginPanelHelp(const PluginHandle* hPlugin)
 {
 	string strPath, strFileName, strStartTopic;
 	strPath = hPlugin->pPlugin->GetModuleName();
@@ -5264,7 +5282,7 @@ int FileList::PluginPanelHelp(PluginHandle* hPlugin)
 /* $ 19.11.2001 IS
      для файловых панелей с реальными файлами никакого префикса не добавляем
 */
-string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
+string &FileList::AddPluginPrefix(const FileList *SrcPanel, string &strPrefix)
 {
 	strPrefix.clear();
 

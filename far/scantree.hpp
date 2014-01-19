@@ -68,6 +68,7 @@ public:
 	{
 		std::swap(Flags, rhs.Flags);
 		Find.swap(rhs.Find);
+		std::swap(Iterator, rhs.Iterator);
 		RealPath.swap(rhs.RealPath);
 	}
 

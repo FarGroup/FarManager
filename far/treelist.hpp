@@ -117,8 +117,6 @@ private:
 	string strRoot;
 	size_t WorkDir;
 	long GetSelPosition;
-	bool NumericSort;
-	bool CaseSensitiveSort;
 	int ExitCode; // актуально только для дерева, вызванного из копира!
 
 	std::vector<TreeItem> SaveListData;

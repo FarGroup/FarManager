@@ -380,14 +380,9 @@ FileEditor::~FileEditor()
 		}
 	}
 
-	if (m_editor)
-		delete m_editor;
-
-	m_editor=nullptr;
+	delete m_editor;
 	CurrentEditor=nullptr;
-
-	if (EditNamesList)
-		delete EditNamesList;
+	delete EditNamesList;
 }
 
 void FileEditor::Init(
@@ -2475,7 +2470,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName.data());
 			}
 
-			return static_cast<int>(strFullFileName.size()+1);
+			return strFullFileName.size()+1;
 		}
 		case ECTL_GETBOOKMARKS:
 		{

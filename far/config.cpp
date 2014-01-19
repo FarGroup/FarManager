@@ -2499,7 +2499,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 	{
 	case FILE_PANEL:
 		{
-			int MenuLine = pPanel->GetViewMode()-VIEW_0;
+			int MenuLine = pPanel->GetViewMode();
 
 			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
 			{

@@ -57,7 +57,7 @@ class FileViewer:public Frame
 		  Добавлено для поиска по AltF7. При редактировании найденного файла из
 		  архива для клавиши F2 сделать вызов ShiftF2.
 		*/
-		int SaveToSaveAs;
+		bool SaveToSaveAs;
 
 		int delete_on_close;
 		string    str_title;
@@ -66,7 +66,7 @@ class FileViewer:public Frame
 		FileViewer(
 			const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
 			int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
-			NamesList *ViewNamesList=nullptr,int ToSaveAs=FALSE,uintptr_t aCodePage=CP_DEFAULT,
+			NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
 			const wchar_t *Title=nullptr, int DeleteOnClose=0);
 		FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 			const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
@@ -74,7 +74,7 @@ class FileViewer:public Frame
 
 	public:
 		void Init(const string& Name,int EnableSwitch,int DisableHistory,
-			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
+			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,bool ToSaveAs);
 		virtual void InitKeyBar() override;
 		virtual int ProcessKey(int Key) override;
 		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -101,7 +101,7 @@ class FileViewer:public Frame
 		  Добавлено для поиска по AltF7. При редактировании найденного файла из
 		  архива для клавиши F2 сделать вызов ShiftF2.
 		*/
-		void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+		void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 		bool IsFullScreen() {return FullScreen;}
 		virtual const string& GetTitle(string &Title) override;

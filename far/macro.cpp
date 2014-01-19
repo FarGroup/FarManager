@@ -357,15 +357,6 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
-MacroRecord::MacroRecord(MACROFLAGS_MFLAGS Flags,int MacroId,int Key,const wchar_t* Code):
-	m_flags(Flags),
-	m_key(Key),
-	m_code(Code),
-	m_macroId(MacroId),
-	m_handle(0)
-{
-}
-
 void KeyMacro::PushState(bool withClip)
 {
 	if (withClip)
@@ -2818,13 +2809,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				return 1;
 			}
 
-			__int64 Result=0;
-
 			switch (Action.getInteger())
 			{
 				case 1: // DisableOutput
 				{
-					Result = (MR->Flags()&MFLAGS_ENABLEOUTPUT) ? 0:1;
+					__int64 Result = (MR->Flags()&MFLAGS_ENABLEOUTPUT) ? 0:1;
 					if (nValue>=0 && nValue<=2 && nValue!=Result)
 						MR->m_flags ^= MFLAGS_ENABLEOUTPUT;
 

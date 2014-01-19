@@ -404,8 +404,7 @@ class DialogBuilderBase
 		{
 			for(int i=0; i<DialogItemsCount; i++)
 			{
-				if (Bindings [i])
-					delete Bindings [i];
+				delete Bindings [i];
 			}
 			delete [] DialogItems;
 			delete [] Bindings;

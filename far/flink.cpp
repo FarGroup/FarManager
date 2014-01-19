@@ -425,7 +425,7 @@ bool DelSubstDrive(const string& DeviceName)
 	if (GetSubstName(DRIVE_NOT_INIT,DeviceName,strTargetPath))
 	{
 		strTargetPath.insert(0, L"\\??\\", 4);
-		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.data(),strTargetPath.data())==TRUE);
+		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName.data(),strTargetPath.data())!=FALSE);
 	}
 
 	return Result;

@@ -2746,7 +2746,7 @@ const FarColor& Edit::GetSelectedColor() const
 
 const FarColor& Edit::GetUnchangedColor() const
 {
-	return static_cast<Editor*>(GetOwner())->GetNormalColor();
+	return GetNormalColor();
 }
 
 const int Edit::GetTabSize() const

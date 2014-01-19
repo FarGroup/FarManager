@@ -33,6 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+class RegExp;
+
+namespace strmix
+{
+
 typedef unsigned __int64 FILEPANEL_COLUMN_MODES;
 static const FILEPANEL_COLUMN_MODES
 	COLUMN_MARK                   = 0x8000000000000000LL,
@@ -127,8 +132,8 @@ bool StrToGuid(const string& Value,GUID& Guid);
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, struct RegExpMatch *pm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
-inline int StrCmp(const string& a, const string& b) { return StrCmp(a.data(), b.data()); }
-inline int StrCmpI(const string& a, const string& b) { return StrCmpI(a.data(), b.data()); }
+inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
+inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
 
 string wide(const char *str, uintptr_t codepage = CP_OEMCP);
 
@@ -157,3 +162,7 @@ enum STL_FLAGS
 };
 
 std::list<string> StringToList(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,");
+
+};
+
+using namespace strmix;

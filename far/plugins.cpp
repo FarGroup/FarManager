@@ -725,7 +725,7 @@ void PluginManager::ClosePanel(PluginHandle* hPlugin)
 }
 
 
-int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
+int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec)
 {
 	ProcessEditorInputInfo Info={sizeof(Info)};
 	Info.Rec=*Rec;
@@ -2389,7 +2389,7 @@ string PluginManager::GetCustomData(const string& Name) const
 	return strCustomData;
 }
 
-const GUID& PluginManager::GetGUID(PluginHandle* hPlugin)
+const GUID& PluginManager::GetGUID(const PluginHandle* hPlugin)
 {
 	return hPlugin->pPlugin->GetGUID();
 }
