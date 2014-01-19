@@ -3264,7 +3264,7 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		Dialog Dlg(SearchDlg, this, &Viewer::ViewerSearchDlgProc, nullptr);
+		Dialog Dlg(SearchDlg, this, &Viewer::ViewerSearchDlgProc);
 		Dlg.SetPosition(-1,-1,76,13);
 		Dlg.SetHelp(L"ViewerSearch");
 

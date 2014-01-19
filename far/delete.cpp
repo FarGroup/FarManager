@@ -492,27 +492,18 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			}
 		}
 
-		class HiliteText : public DialogOwner
+		int start_hilite = 0, end_hilite = 0;
+
+		DialogBuilder Builder(mTitle, nullptr, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 		{
-		public:
-			int start_hilite, end_hilite;
-
-			HiliteText() : start_hilite(0), end_hilite(0) {}
-
-			intptr_t DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+			if (bHilite && Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite)
 			{
-				if (Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite) 
-				{
-					FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
-					Colors->Colors[0] = Colors->Colors[1];
-				}
-				return Dlg->DefProc(Msg, Param1, Param2);
+				auto Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Colors->Colors[1];
 			}
-		} dlg_owner;
+			return Dlg->DefProc(Msg, Param1, Param2);
+		});
 
-		DialogBuilder Builder(mTitle, nullptr,
-			bHilite ? &dlg_owner : nullptr,
-			bHilite ? static_cast<MemberHandlerFunction>(&HiliteText::DlgProc) : nullptr);
 
 		if (tText.empty())
 			tText = MSG(mDText);
@@ -522,14 +513,14 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (bHilite || (mshow > 1 && SelCount > 1))
 			Builder.AddSeparator();
 
-		FOR_CONST_RANGE(items, i)
+		std::for_each(CONST_RANGE(items, i)
 		{
-			DialogItemEx *dx = Builder.AddText(i->data());
+			DialogItemEx *dx = Builder.AddText(i.data());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
-         dlg_owner.end_hilite = dx->ID;
-			if (!dlg_owner.start_hilite)
-				dlg_owner.start_hilite = dx->ID;
-		}
+			end_hilite = dx->ID;
+			if (!start_hilite)
+				start_hilite = dx->ID;
+		});
 
 		Builder.AddOKCancel(mDBttn, MCancel);
 

@@ -1043,7 +1043,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 		}
 
-		Dialog Dlg(EditDlg, this, &UserMenu::EditMenuDlgProc, nullptr);
+		Dialog Dlg(EditDlg, this, &UserMenu::EditMenuDlgProc);
 		Dlg.SetHelp(L"UserMenu");
 		Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg.Process();

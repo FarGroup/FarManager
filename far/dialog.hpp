@@ -217,31 +217,30 @@ class ConsoleTitle;
 class Plugin;
 class Dialog;
 
-class DialogOwner
-{
-public:
-	intptr_t Handler(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-};
-typedef intptr_t (DialogOwner::*MemberHandlerFunction)(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-typedef intptr_t (*StaticHandlerFunction)(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 class Dialog: public Frame
 {
 public:
+	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
+
 	template<class T, class O>
-	Dialog(T& Src, O* OwnerClass, intptr_t (O::*HandlerFunction)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
-		bInitOK(false)
+	Dialog(T& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
+		bInitOK(false),
+		DataDialog(InitParam),
+		m_handler(std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 	{
 		auto Ptr = Src.data();
-		Construct(&Ptr, Src.size(), reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
+		Construct(&Ptr, Src.size());
 	}
 
 	template<class T>
-	Dialog(T& Src, StaticHandlerFunction DlgProc = nullptr, void* InitParam = nullptr):
-		bInitOK(false)
+	Dialog(T& Src, dialog_handler handler = nullptr, void* InitParam = nullptr):
+		bInitOK(false),
+		DataDialog(InitParam),
+		m_handler(handler)
 	{
 		auto Ptr = Src.data();
-		Construct(&Ptr, Src.size(), nullptr, nullptr, DlgProc, InitParam);
+		Construct(&Ptr, Src.size());
 	}
 
 	virtual ~Dialog();
@@ -302,9 +301,9 @@ private:
 	virtual void DisplayObject() override;
 	virtual const string& GetTitle(string& Title) override;
 	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
-	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
-	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
-	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
+	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount);
+	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount);
+	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& lpwszStr);
 	int LenStrItem(size_t ID);
@@ -352,12 +351,9 @@ private:
 	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
 	ConsoleTitle *OldTitle;     // предыдущий заголовок
 	FARMACROAREA PrevMacroMode;          // предыдущий режим макро
-	DialogOwner *OwnerClass;
-	union
-	{
-		MemberHandlerFunction DialogHandler;
-		StaticHandlerFunction RealDlgProc;      // функция обработки диалога
-	};
+
+	dialog_handler m_handler;
+
 	// переменные для перемещения диалога
 	int OldX1,OldX2,OldY1,OldY2;
 	string HelpTopic;

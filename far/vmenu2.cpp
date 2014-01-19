@@ -325,7 +325,7 @@ const std::array<FarDialogItem, 1> VMenu2DialogItems =
 }};
 
 VMenu2::VMenu2(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags):
-	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc, nullptr),
+	Dialog(VMenu2DialogItems, this, &VMenu2::VMenu2DlgProc),
 	MaxHeight(MaxHeight),
 	cancel(0),
 	X1(-1),

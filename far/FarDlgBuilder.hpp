@@ -67,8 +67,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DWORD Mode;
 		GUID Id;
 		bool IdExist;
-		DialogOwner *DlgOwner;
-		MemberHandlerFunction DlgProc;
+		Dialog::dialog_handler m_handler;
 
 		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
@@ -86,8 +85,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
 	public:
-		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic, DialogOwner *owner, MemberHandlerFunction dlgproc);
-		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic=nullptr);
+		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic = nullptr, Dialog::dialog_handler handler = nullptr);
 		DialogBuilder();
 		~DialogBuilder();
 

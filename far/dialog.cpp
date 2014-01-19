@@ -273,50 +273,45 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 {
 	SavedItems = *SrcItem;
 
 	Items.resize(SrcItemCount);
 	Items.assign(*SrcItem, *SrcItem + SrcItemCount);
-	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
+	Init();
 }
 
-void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 {
 	SavedItems = nullptr;
 
 	Items.resize(SrcItemCount);
 	//BUGBUG add error check
 	ItemToItemEx(*SrcItem, Items.data(), SrcItemCount);
-	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
+	Init();
 }
 
-void Dialog::Init(DialogOwner* Owner, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
+void Dialog::Init()
 {
 	SetDynamicallyBorn(FALSE); // $OT: ѕо умолчанию все диалоги создаютс€ статически
 	CanLoseFocus = FALSE;
 	//Ќомер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
-	DataDialog=InitParam;
 	DialogMode.Set(DMODE_ISCANMOVE);
 	SetDropDownOpened(FALSE);
 	IsEnableRedraw=0;
 	FocusPos=(size_t)-1;
 	PrevFocusPos=(size_t)-1;
 
-	OwnerClass = Owner;
-	DialogHandler = OwnerClass? HandlerFunction : nullptr;
-	if (!DialogHandler)
+	// функци€ должна быть всегда!!!
+	if (!m_handler)
 	{
-		if (!DlgProc) // функци€ должна быть всегда!!!
-		{
-			DlgProc=&DefProcFunction;
-			// знать диалог в старом стиле - учтем этот факт!
-			DialogMode.Set(DMODE_OLDSTYLE);
-		}
-		RealDlgProc=DlgProc;
+		m_handler = &DefProcFunction;
+		// знать диалог в старом стиле - учтем этот факт!
+		DialogMode.Set(DMODE_OLDSTYLE);
 	}
+
 	if (Global->CtrlObject)
 	{
 		// запомним пред. режим макро.
@@ -4479,10 +4474,9 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 		if (Global->CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
 	}
-	if (OwnerClass)
-		Result=(OwnerClass->*DialogHandler)(this,Msg,Param1,Param2);
-	else
-		Result = RealDlgProc(this,Msg,Param1,Param2);
+
+	Result = m_handler(this,Msg,Param1,Param2);
+
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		de.Result=Result;
