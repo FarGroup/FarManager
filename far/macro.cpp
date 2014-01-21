@@ -499,18 +499,21 @@ bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (result && macro && macro->GetHandle() && !(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Info->CallType==MCT_MACROSTEP)
+	if (result && macro && !(macro->Flags()&MFLAGS_ENABLEOUTPUT) && Info->CallType==MCT_MACROSTEP)
 		Global->ScrBuf->Lock();
 
 	return result && ptr;
 }
 
-bool KeyMacro::InitMacroExecution()
+MacroRecord* KeyMacro::CheckCurMacro()
 {
-	//_SHMUEL(SysLog(L"+InitMacroExecution"));
-	auto macro = GetCurMacro();
+	//_SHMUEL(SysLog(L"+CheckCurMacro"));
+	MacroRecord *macro = GetCurMacro();
 	if (macro)
 	{
+		if (macro->GetHandle())
+			return macro;
+
 		FarMacroValue values[2] = {{FMVT_DOUBLE,{}},{FMVT_STRING,{}}};
 		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
 		OpenMacroPluginInfo info = {MCT_MACROINIT,0,&fmc};
@@ -525,12 +528,12 @@ bool KeyMacro::InitMacroExecution()
 		if (CallMacroPlugin(&info))
 		{
 			macro->SetHandle(info.Ret.ReturnType);
-			return true;
+			return macro;
 		}
 		RemoveCurMacro();
 		RestoreMacroChar();
 	}
-	return false;
+	return nullptr;
 }
 
 void KeyMacro::RestoreMacroChar()
@@ -897,7 +900,7 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	while ((macro=GetCurMacro()) != nullptr && (macro->GetHandle() || InitMacroExecution()))
+	while ((macro=CheckCurMacro()) != nullptr)
 	{
 		FarMacroCall fmc = { sizeof(FarMacroCall),1,macro->GetValue(),nullptr,nullptr };
 		OpenMacroPluginInfo ompInfo = { MCT_MACROSTEP,macro->GetHandle(),&fmc };

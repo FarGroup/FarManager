@@ -267,7 +267,7 @@ private:
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void InitInternalVars(bool InitedRAM=true);
-	bool InitMacroExecution();
+	MacroRecord* CheckCurMacro();
 	MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
 	const MacroRecord* GetCurMacro() const { return m_CurState.GetCurMacro(); }
 	MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top().GetCurMacro(); }
