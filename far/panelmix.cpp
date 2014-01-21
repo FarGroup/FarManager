@@ -427,7 +427,16 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
-		i.width = std::stoi(strArgName);
+		try
+		{
+			i.width = std::stoi(strArgName);
+		}
+		catch(const std::exception&)
+		{
+			// TODO: diagnostics
+			i.width = 0;
+		}
+
 		i.width_type = COUNT_WIDTH;
 
 		if (strArgName.size()>1)
