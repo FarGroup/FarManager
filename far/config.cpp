@@ -729,13 +729,13 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
 		Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
 		DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, ViOpt.SaveShortPos);
 		Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
 		Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
 		Builder.AddCheckbox(MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
-		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.AddText(MViewConfigDefaultCodePage);
 		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
 		Builder.AddComboBox(ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
