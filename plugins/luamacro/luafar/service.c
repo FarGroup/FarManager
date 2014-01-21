@@ -1721,6 +1721,7 @@ int LF_Message(lua_State *L,
 	UINT64 Flags = 0;
 	// Buttons
 	wchar_t *BtnCopy = NULL, *ptr = NULL;
+	int wrap = !(aFlags && strchr(aFlags, 'n'));
 
 	if(*aButtons == L';')
 	{
@@ -1783,12 +1784,12 @@ int LF_Message(lua_State *L,
 		}
 		else if(pos-start < max_len)            // characters inside the line
 		{
-			if (!isalnum(*pos) && *pos != L'_' && *pos != L'\'' && *pos != L'\"')
+			if (wrap && !iswalnum(*pos) && *pos != L'_' && *pos != L'\'' && *pos != L'\"')
 				lastDelim = pos;
 
 			pos++;
 		}
-		else                                   // the 1-st character beyond the line
+		else if (wrap)                          // the 1-st character beyond the line
 		{
 			size_t len;
 			wchar_t **q;
@@ -1802,6 +1803,8 @@ int LF_Message(lua_State *L,
 			start = pos;
 			lastDelim = NULL;
 		}
+		else
+			pos++;
 	}
 
 	if(*aButtons != L';')

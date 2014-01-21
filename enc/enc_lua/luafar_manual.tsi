@@ -2578,7 +2578,7 @@ id=65
 lv=2
 dt=Text
 nm=far.Message
-mtime=3573932486
+mtime=3599503305
 <article>
 #_result = far.Message (Msg, [Title], [Buttons], [Flags], [HelpTopic], [Id])
 #_
@@ -2602,6 +2602,7 @@ mtime=3573932486
 #_      'e' stands for FMSG_ERRORTYPE
 #_      'k' stands for FMSG_KEEPBACKGROUND
 #_      'l' stands for FMSG_LEFTALIGN
+#_      'n' stands for "no wrapping of long lines"
 #_
 #_  *HelpTopic:* string
 #_
@@ -2612,7 +2613,7 @@ mtime=3573932486
 #_
 #_**Note:**
 #_  Before calling FAR function *Message*, the function:
-#_    a) wraps long lines, and
+#_    a) wraps long lines (unless the flag 'n' is present), and
 #_    b) limits the maximal number of lines and buttons.
 #_
 #_**Far API used:**
