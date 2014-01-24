@@ -4590,6 +4590,8 @@ static int far_MakeMenuItems(lua_State *L)
 		{
 			size_t len, j;
 			wchar_t *str, *start;
+
+			lua_pushvalue(L, i); // keep the original argument here
 			lua_getglobal(L, "tostring");
 
 			if(i == 1 && lua_type(L,-1) != LUA_TFUNCTION)
@@ -4619,10 +4621,14 @@ static int far_MakeMenuItems(lua_State *L)
 				push_utf8_string(L, start, nl ? (nl++) - start : (intptr_t)len - (start-str));
 				lua_concat(L, 2);
 				lua_setfield(L, -2, "text");
-				lua_rawseti(L, argn+1, item++);
+				lua_pushvalue(L, -2);
+				lua_setfield(L, -2, "arg");
+				lua_rawseti(L, -3, item++);
 				start = nl;
 			}
 			while(start);
+
+			lua_pop(L, 1); // pop the original argument
 		}
 	}
 
@@ -4634,8 +4640,7 @@ static int far_Show(lua_State *L)
 	const char* f =
 	    "local items,n=...\n"
 	    "local bottom=n==0 and 'No arguments' or n==1 and '1 argument' or n..' arguments'\n"
-	    "far.Menu({Title='',Bottom=bottom,Flags='FMENU_SHOWAMPERSAND'},\n"
-	    "items,{{BreakKey='RETURN'},{BreakKey='SPACE'}})";
+	    "return far.Menu({Title='',Bottom=bottom,Flags='FMENU_SHOWAMPERSAND'},items)";
 	int argn = lua_gettop(L);
 	far_MakeMenuItems(L);
 
@@ -4645,10 +4650,10 @@ static int far_Show(lua_State *L)
 	lua_pushvalue(L, -2);
 	lua_pushinteger(L, argn);
 
-	if(lua_pcall(L, 2, 0, 0) != 0)
+	if(lua_pcall(L, 2, LUA_MULTRET, 0) != 0)
 		luaL_error(L, lua_tostring(L, -1));
 
-	return 0;
+	return lua_gettop(L) - argn - 1;
 }
 
 void NewVirtualKeyTable(lua_State* L, BOOL twoways)

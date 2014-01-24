@@ -7498,7 +7498,7 @@ lv=2
 dt=Text
 nm=far.MakeMenuItems
 ctime=3476605549
-mtime=3476625213
+mtime=3599756117
 <article>
 #_Items = far.MakeMenuItems (...)
 #_
@@ -7508,7 +7508,8 @@ mtime=3476625213
 #_
 #_**Returns:**
 #_  Items: table (array of tables)
-#_           - each element is a table in the form { text=<string> }           
+#_           - each element is a table in the form
+#_             { text=<string>, arg=<argument value> }
 #_           - number of elements >= number of arguments, as one
 #_             argument can have a multiple line representation.
 #_
@@ -7555,22 +7556,26 @@ lv=2
 dt=Text
 nm=far.Show
 ctime=3476617735
-mtime=3476624928
+mtime=3599756101
 <article>
-#_far.Show (...)
+#_Item, Position = far.Show (...)
 #_
 #_**Parameters:**
 #_  Arbitrary number of arguments.
 #_  Each argument may be of any Lua type.
 #_
 #_**Returns:**
-#_  nothing
+#_  Item, Position - same as in far.Menu.
 #_
 #_**Description:**
 #_  This function shows representation of its arguments in a menu
 #_  window. It is handy for displaying multiple values at once, or
 #_  long multi-line strings.
+#_
 #_  The function calls far.MakeMenuItems internally, then far.Menu.
+#_
+#_  Due to using far.MakeMenuItems the returned *Item* table contains
+#_  the value of the corresponding original argument under the field 'arg'.
 #_
 #_@@@
 #_<lua> Links = {  ["far.MakeMenuItems"]="280.html",
