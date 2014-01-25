@@ -644,3 +644,13 @@ unsigned Archive::get_crc(UInt32 index) const {
   else
     return 0;
 }
+
+bool Archive::get_anti(UInt32 index) const {
+  PropVariant prop;
+  if (index >= num_indices)
+    return false;
+  else if (in_arc->GetProperty(index, kpidIsAnti, prop.ref()) == S_OK && prop.is_bool())
+    return prop.get_bool();
+  else
+    return false;
+}

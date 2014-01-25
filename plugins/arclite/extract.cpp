@@ -441,6 +441,12 @@ public:
     else
       overwrite = oaAsk;
 
+    if (archive->get_anti(index))
+    {
+      if (File::exists(file_path)) File::delete_file(file_path);
+      return S_OK;
+    }
+
     progress->update_extract_file(file_path);
     cache->store_file(file_path, index, overwrite);
     ComObject<ISequentialOutStream> out_stream(new CachedFileExtractStream(cache));
@@ -582,10 +588,17 @@ private:
         FileIndexRange dir_list = archive.get_dir_list(file_index);
         set_dir_attr(dir_list, file_path);
         RETRY_OR_IGNORE_BEGIN
-        File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
-        File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
-        File::set_attr(file_path, archive.get_attr(file_index));
-        file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+        if (archive.get_anti(file_index))
+        {
+          if (File::exists(file_path)) File::remove_dir(file_path);
+        }
+        else
+        {
+          File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
+          File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
+          File::set_attr(file_path, archive.get_attr(file_index));
+          file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+        }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }
     });
