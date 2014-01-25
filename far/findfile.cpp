@@ -599,6 +599,7 @@ void FindFiles::SetPluginDirectory(const string& DirName, PluginHandle* hPlugin,
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 			}
 
+			DeleteEndSlash(Dir);
 			if (!Dir.empty())
 			{
 				Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.data(), OPM_SILENT, UserData);
