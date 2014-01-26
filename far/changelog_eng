@@ -3,6 +3,23 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 25.01.2014 04:09:09 +0200 - build 3785
+
+1. 0002567: browsing an archive after search
+   SetDirectoryW was passed a path with a trailing slash.
+
+drkns 21.01.2014 22:47:59 +0200 - build 3784
+
+1. 0002568: Exception on attempt of entering a string into fields designed for numeric values
+
+w17 21.01.2014 23:14:25 +0400 - build 3783
+
+1. M#2569: Incorrect functioning of AltM shortcut in Viewer settings dialog
+
+shmuel 21.01.2014 19:26:55 +0200 - build 3782
+
+1. Refactoring in macro system.
+
 drkns 19.01.2014 23:03:16 +0200 - build 3781
 
 1. #0002294: Unused code is removed.
