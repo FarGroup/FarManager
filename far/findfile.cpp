@@ -2351,12 +2351,14 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
 		{
+			HANDLE hFindStream = INVALID_HANDLE_VALUE;
+			SCOPE_EXIT{ if (hFindStream != INVALID_HANDLE_VALUE) api::FindStreamClose(hFindStream); };
+
 			Sleep(0);
 			PauseEvent.Wait();
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
-			HANDLE hFindStream = INVALID_HANDLE_VALUE;
 			bool FirstCall=true;
 			string strFindDataFileName=FindData.strFileName;
 
@@ -2379,7 +2381,6 @@ void FindFiles::DoScanTree(Dialog* Dlg, const string& strRoot)
 						{
 							if (!api::FindNextStream(hFindStream,&sd))
 							{
-								api::FindStreamClose(hFindStream);
 								break;
 							}
 						}

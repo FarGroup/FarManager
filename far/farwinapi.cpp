@@ -1410,11 +1410,10 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 					}
 
 					Handle->Object.Close();
-
-					if (Ret==INVALID_HANDLE_VALUE)
-					{
-						delete Handle;
-					}
+				}
+				if (Ret == INVALID_HANDLE_VALUE)
+				{
+					delete Handle;
 				}
 			}
 		}
