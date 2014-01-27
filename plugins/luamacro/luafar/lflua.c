@@ -1,6 +1,8 @@
 #include "ustring.h"
 #include "luafar.h"
 
+extern int IsLuaJIT();
+
 /* Taken from Lua 5.1; modified to work with Unicode filenames. */
 /* ------------------------------------------------------------ */
 /*
@@ -85,7 +87,7 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 		if(lf.f == NULL) return errfile(L, "open", fnameindex);
 	}
 
-	c = skipBOM(lf.f);
+	c = IsLuaJIT() ? getc(lf.f) : skipBOM(lf.f);
 
 	if(c == '#')     /* Unix exec. file? */
 	{

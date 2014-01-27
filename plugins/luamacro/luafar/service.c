@@ -144,6 +144,28 @@ const char* VirtualKeyStrings[256] =
 	"NONAME", "PA1", "OEM_CLEAR", NULL,
 };
 
+static lua_CFunction luaopen_bit = NULL;
+static lua_CFunction luaopen_ffi = NULL;
+static lua_CFunction luaopen_jit = NULL;
+int IsLuaJIT() { return luaopen_jit != NULL; }
+
+BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
+{
+	(void) lpReserved;
+	if(DLL_PROCESS_ATTACH == dwReason && hDll)
+	{
+		// Try to load LuaJIT 2.0 libraries. This is done dynamically to ensure that
+		// LuaFAR works with either Lua 5.1 or LuaJIT 2.0
+		HMODULE hLib = GetModuleHandleA(LUADLL);
+		if (hLib)
+		{
+			luaopen_bit = (lua_CFunction) GetProcAddress(hLib, "luaopen_bit");
+			luaopen_ffi = (lua_CFunction) GetProcAddress(hLib, "luaopen_ffi");
+			luaopen_jit = (lua_CFunction) GetProcAddress(hLib, "luaopen_jit");
+		}
+	}
+	return TRUE;
+}
 
 static void InitSynchroData(TSynchroData* SD, TTimerData *td, int action, int data)
 {
@@ -471,7 +493,7 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
 	PutNumToTable      (L, "NumberOfLinks",     (double)PanelItem->NumberOfLinks);
 	PutNumToTable      (L, "CRC32",             (double)PanelItem->CRC32);
 
-  PutAttrToTable(L, (int)PanelItem->FileAttributes);
+	PutAttrToTable(L, (int)PanelItem->FileAttributes);
 
 	if(PanelItem->Description)
 		PutWStrToTable(L, "Description", PanelItem->Description, -1);
@@ -4767,8 +4789,8 @@ static int filefilter_IsFileInFilter(lua_State *L)
 	HANDLE h = CheckValidFileFilter(L, 1);
 	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_settop(L, 2);                // +2
-  FillPluginPanelItem(L, &ppi, 0); // +6
-  lua_pushboolean(L, Info->FileFilterControl(h, FFCTL_ISFILEINFILTER, 0, &ppi) != 0);
+	FillPluginPanelItem(L, &ppi, 0); // +6
+	lua_pushboolean(L, Info->FileFilterControl(h, FFCTL_ISFILEINFILTER, 0, &ppi) != 0);
 	return 1;
 }
 
@@ -5974,23 +5996,17 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_pop(L, 3);
 #if LUA_VERSION_NUM == 501
 	{
-		// Try to load LuaJIT 2.0 libraries. This is done dynamically to ensure that
-		// LuaFAR works with either Lua 5.1 or LuaJIT 2.0
-		HMODULE hLib = GetModuleHandleA(LUADLL);
-
-		if(hLib)
+		if (IsLuaJIT())
 		{
-			static const char* names[] = { "luaopen_bit", "luaopen_ffi", "luaopen_jit", NULL };
-			const char** pName;
-
-			for(pName=names; *pName; pName++)
+			int i;
+			static const char* names[] = { "bit", "ffi", "jit" };
+			const lua_CFunction funcs[] = { luaopen_bit, luaopen_ffi, luaopen_jit };
+			for(i=0; i<DIM(names); i++)
 			{
-				lua_CFunction func = (lua_CFunction) GetProcAddress(hLib, *pName);
-
-				if(func)
+				if(funcs[i])
 				{
-					lua_pushcfunction(L, func);
-					lua_pushstring(L, *pName + 8); // skip "luaopen_" prefix
+					lua_pushcfunction(L, funcs[i]);
+					lua_pushstring(L, names[i]);
 					lua_call(L, 1, 0);
 				}
 			}
