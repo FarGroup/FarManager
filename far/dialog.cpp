@@ -5624,6 +5624,19 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
+			auto InitItemData=[did,&Ptr,&Len](void)->void
+			{
+				if (!did->PtrLength)
+					did->PtrLength=Len;
+				else if (Len > did->PtrLength)
+					Len=did->PtrLength;
+
+				if (did->PtrData)
+				{
+					wmemmove(did->PtrData,Ptr,Len);
+					did->PtrData[Len]=L'\0';
+				}
+			};
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
 				Len=0;
@@ -5662,18 +5675,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								Ptr+=2;
 							}
 						}
-
-						if (!did->PtrLength)
-							did->PtrLength=Len;
-						else if (Len > did->PtrLength)
-							Len=did->PtrLength;
-
-						if (did->PtrData)
-						{
-							wmemmove(did->PtrData,Ptr,Len);
-							did->PtrData[Len]=L'\0';
-						}
-
+						InitItemData();
 						break;
 					case DI_USERCONTROL:
 						/*did->PtrLength=CurItem->Ptr.PtrLength; BUGBUG
@@ -5681,9 +5683,14 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX:
 					{
-//            if(!CurItem->ListPtr)
-//              break;
-//            did->PtrLength=CurItem->ListPtr->GetUserData(did->PtrData,did->PtrLength,-1);
+						MenuItemEx *ListMenuItem;
+
+						if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) )
+						{
+							Len=(int)ListMenuItem->strName.size()+1;
+							Ptr=ListMenuItem->strName.c_str();
+						}
+						InitItemData();
 						break;
 					}
 					default:  // подразумеваем, что остались
