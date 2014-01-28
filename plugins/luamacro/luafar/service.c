@@ -2998,8 +2998,7 @@ static int far_SendDlgMessage(lua_State *L)
 			fdid.StructSize = sizeof(fdid);
 			fdid.PtrData = buf;
 			fdid.PtrLength = sizeof(buf)/sizeof(buf[0]) - 1;
-			Info->SendDlgMessage(hDlg, Msg, Param1, &fdid);
-			push_utf8_string(L, fdid.PtrData, -1);
+			push_utf8_string(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid)?fdid.PtrData:L"", -1);
 			return 1;
 		}
 		case DM_GETCONSTTEXTPTR:
