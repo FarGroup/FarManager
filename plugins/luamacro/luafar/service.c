@@ -3002,8 +3002,11 @@ static int far_SendDlgMessage(lua_State *L)
 			return 1;
 		}
 		case DM_GETCONSTTEXTPTR:
-			push_utf8_string(L, (wchar_t*)Info->SendDlgMessage(hDlg, Msg, Param1, 0), -1);
+		{
+			wchar_t *ptr = (wchar_t*)Info->SendDlgMessage(hDlg, Msg, Param1, 0);
+			push_utf8_string(L, ptr ? ptr:L"", -1);
 			return 1;
+		}
 		case DM_SETTEXT:
 		{
 			struct FarDialogItemData fdid;
@@ -3070,10 +3073,15 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarListPos flp;
 			flp.StructSize = sizeof(flp);
-			Info->SendDlgMessage(hDlg, Msg, Param1, &flp);
-			lua_createtable(L,0,2);
-			PutIntToTable(L, "SelectPos", flp.SelectPos+1);
-			PutIntToTable(L, "TopPos", flp.TopPos+1);
+			if (Info->SendDlgMessage(hDlg, Msg, Param1, &flp))
+			{
+				lua_createtable(L,0,2);
+				PutIntToTable(L, "SelectPos", flp.SelectPos+1);
+				PutIntToTable(L, "TopPos", flp.TopPos+1);
+			}
+			else
+				lua_pushnil(L);
+
 			return 1;
 		}
 		case DM_LISTGETITEM:
@@ -3081,9 +3089,7 @@ static int far_SendDlgMessage(lua_State *L)
 			struct FarListGetItem flgi;
 			flgi.StructSize = sizeof(flgi);
 			flgi.ItemIndex = luaL_checkinteger(L, 4) - 1;
-			res = Info->SendDlgMessage(hDlg, Msg, Param1, &flgi);
-
-			if(res)
+			if (Info->SendDlgMessage(hDlg, Msg, Param1, &flgi))
 			{
 				lua_createtable(L,0,2);
 				PutFlagsToTable(L, "Flags", flgi.Item.Flags);
@@ -3101,9 +3107,7 @@ static int far_SendDlgMessage(lua_State *L)
 			flt.Bottom = buf + DIM(buf)/2;
 			flt.TitleSize = DIM(buf)/2;
 			flt.BottomSize = DIM(buf)/2;
-			res = Info->SendDlgMessage(hDlg, Msg, Param1, &flt);
-
-			if(res)
+			if (Info->SendDlgMessage(hDlg, Msg, Param1, &flt))
 			{
 				lua_createtable(L,0,2);
 				PutWStrToTable(L, "Title", flt.Title, -1);
@@ -3129,9 +3133,7 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarListInfo fli;
 			fli.StructSize = sizeof(fli);
-			res = Info->SendDlgMessage(hDlg, Msg, Param1, &fli);
-
-			if(res)
+			if (Info->SendDlgMessage(hDlg, Msg, Param1, &fli))
 			{
 				lua_createtable(L,0,6);
 				PutFlagsToTable(L, "Flags", fli.Flags);

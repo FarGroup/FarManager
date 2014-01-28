@@ -1,3 +1,7 @@
+shmuel 28.01.2014 23:23:52 +0200 - build 277
+
+1. LuaFAR: уточнения в DM_GETCONSTTEXTPTR и DM_LISTGETCURPOS.
+
 zg 28.01.2014 12:07:51 +0200 - build 276
 
 1. LuaFAR: DM_GETTEXT для несуществующих элементов диалога возвращало мусор.
