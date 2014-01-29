@@ -3073,15 +3073,10 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarListPos flp;
 			flp.StructSize = sizeof(flp);
-			if (Info->SendDlgMessage(hDlg, Msg, Param1, &flp))
-			{
-				lua_createtable(L,0,2);
-				PutIntToTable(L, "SelectPos", flp.SelectPos+1);
-				PutIntToTable(L, "TopPos", flp.TopPos+1);
-			}
-			else
-				lua_pushnil(L);
-
+			Info->SendDlgMessage(hDlg, Msg, Param1, &flp);
+			lua_createtable(L,0,2);
+			PutIntToTable(L, "SelectPos", flp.SelectPos+1);
+			PutIntToTable(L, "TopPos", flp.TopPos+1);
 			return 1;
 		}
 		case DM_LISTGETITEM:
