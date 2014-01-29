@@ -683,8 +683,8 @@ end
 local function GetMacroWrapper (...)
   local macro,area = GetMacro(...)
   if macro then
-    LastMessage = macro.id and pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
-      macro.flags, macro.guid, macro.callback, macro.callbackId) or pack(0)
+    LastMessage = macro.id and pack(macro.id, GetAreaCode(area), macro.code or "",
+      macro.description or "", macro.flags) or pack(0)
     return F.MPRT_NORMALFINISH, LastMessage
   end
 end

@@ -572,9 +572,6 @@ struct GetMacroData
 	const wchar_t *Code;
 	const wchar_t *Description;
 	MACROFLAGS_MFLAGS Flags;
-	GUID Guid;
-	FARMACROCALLBACK Callback;
-	void* CallbackId;
 };
 
 // эта функция может вывести меню выбора макроса
@@ -589,9 +586,8 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(InValues),InValues,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_GETMACRO,0,&fmc};
 
-	if (CallMacroPlugin(&info))
+	if (CallMacroPlugin(&info) && info.Ret.Count>=5)
 	{
-		size_t Count = info.Ret.Count;
 		const FarMacroValue* Values = info.Ret.Values;
 		Data->MacroId = (int)Values[0].Double;
 		if (Data->MacroId != 0)
@@ -600,10 +596,6 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& 
 			Data->Code        = Values[2].Type==FMVT_STRING ? Values[2].String : L"";
 			Data->Description = Values[3].Type==FMVT_STRING ? Values[3].String : L"";
 			Data->Flags       = (MACROFLAGS_MFLAGS)Values[4].Double;
-
-			Data->Guid        = (Count>=6 && Values[5].Type==FMVT_BINARY)  ? *(GUID*)Values[5].Binary.Data : FarGuid;
-			Data->Callback    = (Count>=7 && Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)Values[6].Pointer : nullptr;
-			Data->CallbackId  = (Count>=8 && Values[7].Type==FMVT_POINTER) ? Values[7].Pointer : nullptr;
 		}
 		return true;
 	}
