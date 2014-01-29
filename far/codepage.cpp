@@ -68,7 +68,7 @@ enum StandardCodePagesMenuItems
 class system_codepages_enumerator
 {
 public:
-	static codepages* context;
+	const static codepages::codepages_data* context;
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
@@ -106,7 +106,19 @@ public:
 	}
 };
 
-codepages* system_codepages_enumerator::context;
+const codepages::codepages_data* system_codepages_enumerator::context;
+
+const codepages::codepages_data::cp_map& codepages::codepages_data::get() const
+{
+	if (installed_cp.empty())
+	{
+		system_codepages_enumerator::context = this;
+		EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
+		system_codepages_enumerator::context = nullptr;
+	}
+	return installed_cp;
+}
+
 
 codepages::codepages():
 	dialog(nullptr),
@@ -117,9 +129,6 @@ codepages::codepages():
 	selectedCodePages(false),
 	CallbackCallSource(CodePageSelect)
 {
-	system_codepages_enumerator::context = this;
-	EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
-	system_codepages_enumerator::context = nullptr;
 }
 
 codepages::~codepages()
@@ -127,9 +136,10 @@ codepages::~codepages()
 
 UINT codepages::GetCodePageInfo(UINT cp, string& name) const
 {
-	auto found = installed_cp.find(cp); // Standard unicode CP
-	if (installed_cp.end() == found)		//	(1200, 1201, 65001)
-		return 0;								// = NOT in the list =
+	// Standard unicode CPs (1200, 1201, 65001) are NOT in the list.
+	auto found = data.get().find(cp);
+	if (data.get().end() == found)
+		return 0;
 
 	name = found->second.second;
 	return found->second.first; // returns MaxCharSize
@@ -409,9 +419,9 @@ void codepages::AddCodePages(DWORD codePages)
 
 	// other codepages
 	//
-	for (auto i = installed_cp.begin(); i != installed_cp.end(); ++i)
+	FOR(const auto& i, data.get())
 	{
-		UINT cp = i->first;
+		UINT cp = i.first;
 		if (IsStandardCodePage(cp))
 			continue;
 

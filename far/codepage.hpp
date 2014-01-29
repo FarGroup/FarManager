@@ -110,7 +110,19 @@ private:
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;
 	CodePagesCallbackCallSource CallbackCallSource;
-	std::map<UINT, std::pair<UINT, string>> installed_cp;
+
+	class codepages_data
+	{
+	public:
+		typedef std::map<UINT, std::pair<UINT, string>> cp_map;
+		const cp_map& get() const;
+
+	private:
+		mutable cp_map installed_cp;
+
+		friend class system_codepages_enumerator;
+	}
+	data;
 };
 
 //#############################################################################
