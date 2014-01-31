@@ -88,6 +88,7 @@ public:
 	void Set(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
 	void Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
 	void Configure();
+	void Save();
 
 private:
 	std::array<std::list<ShortcutItem>, 10> Items;

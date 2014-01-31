@@ -127,6 +127,11 @@ Shortcuts::Shortcuts()
 
 Shortcuts::~Shortcuts()
 {
+	Save();
+}
+
+void Shortcuts::Save()
+{
 	if (!Changed)
 		return;
 
@@ -406,8 +411,7 @@ bool Shortcuts::Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, 
 {
 	if(Items[Pos].size()<=Index)
 		return false;
-	auto RetItem = Items[Pos].begin();
-	std::advance(RetItem, Index);
+	auto RetItem = std::next(Items[Pos].begin(), Index);
 	Fill(*RetItem,Folder,PluginGuid,PluginFile,PluginData);
 	return true;
 }
@@ -615,6 +619,7 @@ void Shortcuts::Configure()
 
 	if(ExitCode>=0)
 	{
+		Save();
 		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode, raw_mode);
 	}
 }
