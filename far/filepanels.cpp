@@ -869,15 +869,15 @@ Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
 			Current->SetFocus();
 	}
 
-	return(Current);
+	return Current;
 }
 
 Panel* FilePanels::GetAnotherPanel(const Panel *Current)
 {
 	if (Current==LeftPanel)
-		return(RightPanel);
+		return RightPanel;
 	else
-		return(LeftPanel);
+		return LeftPanel;
 }
 
 
@@ -890,7 +890,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	int OldPanelMode=Current->GetMode();
 
 	if (!Force && NewType==OldType && OldPanelMode==NORMAL_PANEL)
-		return(Current);
+		return Current;
 
 	int UseLastPanel=0;
 
@@ -1037,7 +1037,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		NewPanel->SetDirectoriesFirst(OldDirectoriesFirst);
 	}
 
-	return(NewPanel);
+	return NewPanel;
 }
 
 int  FilePanels::GetTypeAndName(string &strType, string &strName)
@@ -1057,7 +1057,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 	}
 
 	strName = strFullName;
-	return(MODALTYPE_PANELS);
+	return MODALTYPE_PANELS;
 }
 
 void FilePanels::OnChangeFocus(int f)

@@ -173,7 +173,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 						const wchar_t *dot = wcsrchr(str, L'.');
 
 						if (!pattern[1])
-							return (!dot || !dot[1]);
+							return !dot || !dot[1];
 
 						const wchar_t *patdot = wcschr(pattern+1, L'.');
 
@@ -198,7 +198,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				if (!wcschr(pattern,L']'))
 				{
 					if (patternc != stringc)
-						return (FALSE);
+						return FALSE;
 
 					break;
 				}
@@ -246,7 +246,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				if (patternc != stringc)
 				{
 					if (patternc==L'.' && !stringc && !CmpNameSearchMode)
-						return(*pattern!=L'.' && CmpName(pattern,str,true,CmpNameSearchMode));
+						return *pattern != L'.' && CmpName(pattern, str, true, CmpNameSearchMode);
 					else
 						return FALSE;
 				}

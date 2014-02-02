@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
-bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b)
+bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) const
 {
 	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
 }
@@ -338,7 +338,7 @@ void PluginManager::LoadPlugins()
 	}
 	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.empty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty()))
 	{
-		ScanTree ScTree(FALSE,TRUE,Global->Opt->LoadPlug.ScanSymlinks);
+		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
 		string strFullName;
 		api::FAR_FIND_DATA FindData;
@@ -548,8 +548,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 			{
 				if(ExitCode < static_cast<int>(items.size()))
 				{
-					pResult = items.begin();
-					std::advance(pResult, ExitCode);
+					pResult = std::next(items.begin(), ExitCode);
 				}
 			}
 		}
@@ -667,8 +666,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 
 			if (ExitCode>=0)
 			{
-				pResult=items.begin();
-				std::advance(pResult, ExitCode);
+				pResult = std::next(items.begin(), ExitCode);
 			}
 		}
 		else
@@ -725,7 +723,7 @@ void PluginManager::ClosePanel(PluginHandle* hPlugin)
 }
 
 
-int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec)
+int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 {
 	ProcessEditorInputInfo Info={sizeof(Info)};
 	Info.Rec=*Rec;
@@ -734,7 +732,7 @@ int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec)
 }
 
 
-int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
+int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID) const
 {
 	int nResult = 0;
 
@@ -756,7 +754,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds)
+int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int EditorID, const std::list<GUID> &PluginIds) const
 {
 	int nResult = 0;
 
@@ -779,7 +777,7 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event,void *Param,int Editor
 }
 
 
-int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
+int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID) const
 {
 	int nResult = 0;
 
@@ -796,7 +794,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 	return nResult;
 }
 
-int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
+int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 {
 	ProcessDialogEventInfo Info = {sizeof(Info)};
 	Info.Event = Event;
@@ -805,7 +803,7 @@ int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->HasProcessDialogEvent() && i->ProcessDialogEvent(&Info);});
 }
 
-int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
+int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 {
 	int nResult = 0;
 
@@ -1563,7 +1561,7 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	strPluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
 	size_t FarPathLength=Global->g_strFarPath.size();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().data(), Global->g_strFarPath.data(), (int)FarPathLength))
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().data(), Global->g_strFarPath.data(), FarPathLength))
 		strPluginKey.erase(0, FarPathLength);
 #endif // NO_WRAPPER
 }
@@ -1882,13 +1880,13 @@ int PluginManager::UseFarCommand(PluginHandle* hPlugin,int CommandType)
 	{
 		case PLUGIN_FARGETFILE:
 		case PLUGIN_FARGETFILES:
-			return(!hPlugin->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET));
+			return !hPlugin->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET);
 		case PLUGIN_FARPUTFILES:
-			return(!hPlugin->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT));
+			return !hPlugin->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT);
 		case PLUGIN_FARDELETEFILES:
-			return(!hPlugin->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE));
+			return !hPlugin->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE);
 		case PLUGIN_FARMAKEDIRECTORY:
-			return(!hPlugin->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
+			return !hPlugin->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR);
 	}
 
 	return TRUE;
@@ -1975,7 +1973,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (!StrCmpNI(strPrefix.data(), PrStart, (int)Len))
+			if (!StrCmpNI(strPrefix.data(), PrStart, Len))
 			{
 				if (i->Load() && i->HasOpen())
 				{

@@ -536,7 +536,7 @@ MacroRecord* KeyMacro::CheckCurMacro()
 	return nullptr;
 }
 
-void KeyMacro::RestoreMacroChar()
+void KeyMacro::RestoreMacroChar() const
 {
 	Global->ScrBuf->RestoreMacroChar();
 
@@ -1045,7 +1045,7 @@ int KeyMacro::GetKey()
 	return 0;
 }
 
-int KeyMacro::PeekKey()
+int KeyMacro::PeekKey() const
 {
 	//_SHMUEL(SysLog(L"+PeekKey"));
 	return !m_InternalInput && IsExecuting();
@@ -1072,7 +1072,7 @@ void KeyMacro::SendDropProcess()
 {//FIXME
 }
 
-bool KeyMacro::CheckWaitKeyFunc()
+bool KeyMacro::CheckWaitKeyFunc() const
 {
 	return m_WaitKey != 0;
 }
@@ -1268,9 +1268,9 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
 	DWORD Chk12=Chk1|Chk2, FlagsChk12=Flags&Chk12;
 
 	if (FlagsChk12 == Chk12 || !FlagsChk12)
-		return (2);
+		return 2;
 	else
-		return (Flags&Chk1?1:0);
+		return (Flags & Chk1)? 1 : 0;
 }
 
 enum MACROSETTINGSDLG
@@ -1522,7 +1522,7 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 	return false;
 }
 
-void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
+void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const
 {
 	*ErrCode = m_LastErrorStr == L"" ? MPEC_SUCCESS : MPEC_ERROR;
 	ErrPos->X = 0;
@@ -1755,10 +1755,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_MSLASTCTRLSTATE: return PassNumber(msValues[constMsLastCtrlState], Data);
 
 		case MCODE_V_FAR_WIDTH:
-			return (ScrX+1);
+			return ScrX + 1;
 
 		case MCODE_V_FAR_HEIGHT:
-			return (ScrY+1);
+			return ScrY + 1;
 
 		case MCODE_V_FAR_TITLE:
 			Global->Console->GetTitle(strFileName);
@@ -2018,7 +2018,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_SELCOUNT: // PPanel.SelCount
 		{
 			Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
-			return static_cast<int>(SelPanel ? SelPanel->GetRealSelCount() : 0);
+			return SelPanel ? SelPanel->GetRealSelCount() : 0;
 		}
 
 		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
@@ -4206,9 +4206,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 					if (IsEdit(ItemType))
 					{
-						DlgEdit *EditPtr;
-
-						if ((EditPtr = (DlgEdit *)(Item.ObjPtr)) )
+						if (auto EditPtr = static_cast<DlgEdit*>(Item.ObjPtr))
 							Ret=EditPtr->GetStringAddr();
 					}
 

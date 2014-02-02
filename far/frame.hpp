@@ -59,7 +59,7 @@ public:
 	Frame();
 	virtual ~Frame();
 
-	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return(CanLoseFocus); }
+	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return CanLoseFocus; }
 	virtual void SetExitCode(int Code) { ExitCode=Code; }
 	virtual BOOL IsFileModified() const { return FALSE; }
 	virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
@@ -77,16 +77,16 @@ public:
 	virtual void ResizeConsole();
 
 	void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
-	int GetExitCode() { return ExitCode; }
+	int GetExitCode() const { return ExitCode; }
 	void SetKeyBar(KeyBar *FrameKeyBar);
 	void UpdateKeyBar();
 	int IsTitleBarVisible() const {return TitleBarVisible;}
-	int IsTopFrame();
+	int IsTopFrame() const;
 	Frame *GetTopModal() {return NextModal;}
 	void SetDynamicallyBorn(bool Born) {DynamicallyBorn=Born;}
-	bool GetDynamicallyBorn() {return DynamicallyBorn;}
+	bool GetDynamicallyBorn() const {return DynamicallyBorn;}
 	bool RemoveModal(const Frame *aFrame);
-	bool HasSaveScreen();
+	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { Flags.Set(flags); }
 
 protected:

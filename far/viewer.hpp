@@ -90,12 +90,12 @@ public:
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
 	void SetStatusMode(int Mode);
 	void EnableHideCursor(int HideCursor);
-	bool GetWrapMode();
+	bool GetWrapMode() const;
 	void SetWrapMode(bool Wrap);
-	bool GetWrapType();
+	bool GetWrapType() const;
 	void SetWrapType(bool TypeWrap);
-	void KeepInitParameters();
-	void GetFileName(string &strName);
+	void KeepInitParameters() const;
+	void GetFileName(string &strName) const;
 	void SetTempViewName(const string& Name, BOOL DeleteFolder);
 	void SetTitle(const wchar_t *Title);
 	const string& GetTitle(string &Title);
@@ -115,10 +115,10 @@ public:
 	int GetHexMode() const { return VM.Hex; }
 	uintptr_t GetCodePage() const { return VM.CodePage; }
 	NamesList& GetNamesList() { return ViewNamesList; }
-	BOOL isTemporary();
-	int ProcessHexMode(int newMode, bool isRedraw=TRUE);
-	int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
-	int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
+	bool isTemporary() const;
+	int ProcessHexMode(int newMode, bool isRedraw = true);
+	int ProcessWrapMode(int newMode, bool isRedraw = true);
+	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
 	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
 
 private:
@@ -142,7 +142,6 @@ private:
 	__int64 EndOfScreen( int line );
 	__int64 BegOfScreen();
 	void ChangeViewKeyBar();
-	uintptr_t GetDefaultCodePage();
 	void Search(int Next,int FirstChar);
 	struct search_data;
 	int search_hex_forward( search_data* sd );
@@ -163,8 +162,10 @@ private:
 	bool isBinaryFile(uintptr_t cp);
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
-	int getCharSize();
-	int txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail);
+	int getCharSize() const;
+	int txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const;
+
+	static uintptr_t GetDefaultCodePage();
 
 private:
 	Options::ViewerOptions ViOpt;

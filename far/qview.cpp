@@ -84,7 +84,7 @@ QuickView::~QuickView()
 }
 
 
-const string& QuickView::GetTitle(string &strTitle)
+const string& QuickView::GetTitle(string &strTitle) const
 {
 	strTitle=L" ";
 	strTitle+=MSG(MQuickViewTitle);
@@ -394,12 +394,12 @@ int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return FALSE;
 
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return(RetCode);
+		return RetCode;
 
 	SetFocus();
 
 	if (QView && !Directory)
-		return(QView->ProcessMouse(MouseEvent));
+		return QView->ProcessMouse(MouseEvent);
 
 	return FALSE;
 }
@@ -480,7 +480,7 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 		if (!strCurFileName.empty())
 		{
 			QView=new Viewer(true);
-			QView->SetRestoreScreenMode(FALSE);
+			QView->SetRestoreScreenMode(false);
 			QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
 			QView->SetStatusMode(0);
 			QView->EnableHideCursor(0);
@@ -617,16 +617,16 @@ void QuickView::SetMacroMode(int Restore)
 	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACROAREA_QVIEWPANEL);
 }
 
-int QuickView::GetCurName(string &strName, string &strShortName)
+int QuickView::GetCurName(string &strName, string &strShortName) const
 {
 	if (!strCurFileName.empty())
 	{
 		strName = strCurFileName;
 		strShortName = strName;
-		return (TRUE);
+		return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 void QuickView::UpdateKeyBar()
@@ -635,7 +635,7 @@ void QuickView::UpdateKeyBar()
 	DynamicUpdateKeyBar();
 }
 
-void QuickView::DynamicUpdateKeyBar()
+void QuickView::DynamicUpdateKeyBar() const
 {
 	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 

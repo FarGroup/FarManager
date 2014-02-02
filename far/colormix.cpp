@@ -48,14 +48,27 @@ enum
 WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	static COLORREF LastTrueColors[2] = {};
+	static FARCOLORFLAGS LastFlags = 0;
 	static WORD Result = 0;
-	if(Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1])
+	if (Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1] || (Color.Flags & FCF_4BITMASK) != (LastFlags & FCF_4BITMASK))
 	{
-		static BYTE IndexColors[2] = {};
-		COLORREF TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
-		static const FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
+		LastFlags = Color.Flags;
 
-		enum
+		static BYTE IndexColors[2] = {};
+		const struct color_data
+		{
+			COLORREF Color;
+			FARCOLORFLAGS Flags;
+			COLORREF* LastColor;
+			BYTE* IndexColor;
+		}
+		data[2] =
+		{
+			{Color.BackgroundColor, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
+			{Color.ForegroundColor, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
+		};
+
+		enum console_mask
 		{
 			BlueMask = 1,
 			GreenMask = 2,
@@ -63,34 +76,34 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 			IntensityMask = 8,
 		};
 
-		for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
+		FOR(auto& i, data)
 		{
-			if(TrueColors[i] != LastTrueColors[i])
+			if(i.Color != *i.LastColor)
 			{
-				LastTrueColors[i] = TrueColors[i];
-				if(Color.Flags&Flags[i])
+				*i.LastColor = i.Color;
+				if(Color.Flags & i.Flags)
 				{
-					IndexColors[i] = TrueColors[i]&ConsoleMask;
+					*i.IndexColor = i.Color & ConsoleMask;
 				}
 				else
 				{
-					int R = GetRValue(TrueColors[i]);
-					int G = GetGValue(TrueColors[i]);
-					int B = GetBValue(TrueColors[i]);
+					size_t R = GetRValue(i.Color);
+					size_t G = GetGValue(i.Color);
+					size_t B = GetBValue(i.Color);
 
-					auto InRange = [](int from, int what, int to)
+					auto InRange = [](size_t from, size_t what, size_t to)
 					{
 						return from <= what && what <= to;
 					};
 
 					// special case, silver color:
-					if(InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
+					if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
 					{
-						IndexColors[i] = RedMask|GreenMask|BlueMask;
+						*i.IndexColor = RedMask|GreenMask|BlueMask;
 					}
 					else
 					{
-						int* p[] = {&R, &G, &B};
+						size_t* p[] = { &R, &G, &B };
 						size_t IntenseCount = 0;
 						std::for_each(RANGE(p, component)
 						{
@@ -119,29 +132,15 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 								}
 							});
 						}
-						IndexColors[i] = 0;
-						if(R)
-						{
-							IndexColors[i]|=RedMask;
-						}
-						if(G)
-						{
-							IndexColors[i]|=GreenMask;
-						}
-						if(B)
-						{
-							IndexColors[i]|=BlueMask;
-						}
-						if(IntenseCount)
-						{
-							IndexColors[i]|=IntensityMask;
-						}
+
+						auto ToMask = [](size_t component, console_mask mask) -> BYTE { return component ? mask : 0; };
+						*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 					}
 				}
 			}
 		}
 
-		if(COLORVALUE(TrueColors[0]) != COLORVALUE(TrueColors[1]) && IndexColors[0] == IndexColors[1])
+		if (COLORVALUE(data[0].Color) != COLORVALUE(data[1].Color) && IndexColors[0] == IndexColors[1])
 		{
 			// oops, unreadable
 			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;

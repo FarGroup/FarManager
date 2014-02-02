@@ -89,7 +89,7 @@ public:
 private:
 	void InitHighlightFiles(class HierarchicalConfig* cfg);
 	void ClearData();
-	int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
+	int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert=false);
 	void FillMenu(VMenu2 *HiMenu,int MenuPos);
 	void ProcessGroups();
 

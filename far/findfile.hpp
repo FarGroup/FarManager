@@ -59,14 +59,10 @@ private:
 	void InitInFileSearch();
 	void ReleaseInFileSearch();
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
-	bool IsWordDiv(const wchar_t symbol);
-	void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
-	intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	bool GetPluginFile(struct ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
-	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
-	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
+	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
+	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -79,6 +75,11 @@ private:
 	void DoPrepareFileList(Dialog* Dlg);
 	unsigned int ThreadRoutine(LPVOID Param);
 	bool FindFilesProcess();
+
+	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	static bool IsWordDiv(const wchar_t symbol);
+	static void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
+	static bool GetPluginFile(struct ArcListItem* ArcItem, const api::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 private:
 	// BUGBUG

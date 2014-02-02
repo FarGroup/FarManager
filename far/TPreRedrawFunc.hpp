@@ -34,11 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-struct PreRedrawItem
+struct PreRedrawItem: NonCopyable
 {
 	typedef std::function<void()> handler_type;
 
-	PreRedrawItem(handler_type PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
+	PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
 	virtual ~PreRedrawItem(){}
 
 	handler_type m_PreRedrawFunc;

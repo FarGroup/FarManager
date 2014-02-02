@@ -53,27 +53,27 @@ class Clipboard
 {
 public:
 	~Clipboard() { Close(); }
-	bool Open();
-	bool Close();
-	bool Clear();
-	bool Set(const wchar_t *Data);
-	bool Set(const string& Data) { return Set(Data.data()); }
-	bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
-	bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data()); }
-	bool SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
-	bool Get(string& data);
-	bool GetEx(int max, string& data);
-	bool GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
-	bool InternalCopy(bool FromWin);
+	static bool Open();
+	static bool Close();
+	static bool Clear();
+	static bool Set(const wchar_t *Data);
+	static bool Set(const string& Data) { return Set(Data.data()); }
+	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const wchar_t *Data);
+	static bool SetFormat(FAR_CLIPBOARD_FORMAT Format, const string& Data) { return SetFormat(Format, Data.data()); }
+	static bool SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMoved=false);
+	static bool Get(string& data);
+	static bool GetEx(int max, string& data);
+	static bool GetFormat(FAR_CLIPBOARD_FORMAT Format, string& data);
+	static bool InternalCopy(bool FromWin);
 
 	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
 	static bool GetUseInternalClipboardState();
 
 private:
-	UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format);
-	bool IsFormatAvailable(UINT Format);
-	HANDLE GetData(UINT uFormat);
-	HANDLE SetData(UINT uFormat, HANDLE hMem);
+	static UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format);
+	static bool IsFormatAvailable(UINT Format);
+	static HANDLE GetData(UINT uFormat);
+	static HANDLE SetData(UINT uFormat, HANDLE hMem);
 
 	static bool UseInternalClipboard;
 	static bool InternalClipboardOpened;

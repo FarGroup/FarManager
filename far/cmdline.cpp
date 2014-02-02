@@ -80,7 +80,7 @@ CommandLine::CommandLine():
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
 {
-	CmdStr.SetEditBeyondEnd(FALSE);
+	CmdStr.SetEditBeyondEnd(false);
 	CmdStr.SetMacroAreaAC(MACROAREA_SHELLAUTOCOMPLETION);
 	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
 	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
@@ -300,7 +300,7 @@ int CommandLine::ProcessKey(int Key)
 			Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 			{
 				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
-				FolderTree Tree(strStr,MODALTREE_ACTIVE,TRUE,FALSE);
+				FolderTree Tree(strStr, MODALTREE_ACTIVE, TRUE, false);
 			}
 			Global->CtrlObject->Cp()->RedrawKeyBar();
 
@@ -1015,7 +1015,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	auto IsCommand = [&strCmdLine](const string& cmd, bool bslash)->bool
 	{
 		size_t n = cmd.size();
-		return (!StrCmpNI(strCmdLine.data(), cmd.data(), static_cast<int>(n))
+		return (!StrCmpNI(strCmdLine.data(), cmd.data(), n)
 		 && (n==strCmdLine.size() || nullptr != wcschr(L"/ \t",strCmdLine[n]) || (bslash && strCmdLine[n]==L'\\')));
 	};
 

@@ -180,7 +180,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 	}
 	else
 	{
-		ErrorHelp=TRUE;
+		ErrorHelp = true;
 
 		if (!(Flags&FHELP_NOSHOWERROR))
 		{
@@ -197,7 +197,7 @@ Help::Help(const string& Topic, const wchar_t *Mask,UINT64 Flags):
 Help::~Help()
 {
 	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
-	SetRestoreScreenMode(FALSE);
+	SetRestoreScreenMode(false);
 }
 
 void Help::Hide()
@@ -245,7 +245,7 @@ int Help::ReadHelp(const string& Mask)
 
 	if (!OpenLangFile(HelpFile, strPath,(Mask.empty()?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
 	{
-		ErrorHelp=TRUE;
+		ErrorHelp = true;
 
 		if (!ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 		{
@@ -476,7 +476,7 @@ int Help::ReadHelp(const string& Mask)
 			{
 				size_t n1 = StackData.strHelpTopic.size();
 				size_t n2 = strReadStr.size();
-				if (1+n1+1 < n2 && !StrCmpNI(strReadStr.data()+1, StackData.strHelpTopic.data(), (int)n1) && strReadStr[1 + n1] == L'=')
+				if (1+n1+1 < n2 && !StrCmpNI(strReadStr.data()+1, StackData.strHelpTopic.data(), n1) && strReadStr[1 + n1] == L'=')
 				{
 					StackData.strHelpTopic = strReadStr.substr(1+n1+1);
 					continue;
@@ -670,7 +670,7 @@ m1:
 
 	AddLine(L"");
 	FixSize=FixCount?FixCount+1:0;
-	ErrorHelp=FALSE;
+	ErrorHelp = false;
 
 	if (IsNewTopic)
 	{
@@ -721,7 +721,7 @@ void Help::DisplayObject()
 	{
 		if (!ErrorHelp) // если это убрать, то при несуществующей ссылке
 		{               // с нынешним манагером попадаем в бесконечный цикл.
-			ErrorHelp=TRUE;
+			ErrorHelp = true;
 
 			if (!(StackData.Flags&FHELP_NOSHOWERROR))
 			{
@@ -1290,10 +1290,10 @@ int Help::ProcessKey(int Key)
 			if (StrCmpI(StackData.strHelpTopic.data(),HelpOnHelpTopic))
 			{
 				Stack.emplace(StackData);
-				IsNewTopic=TRUE;
+				IsNewTopic = true;
 				JumpTopic(HelpOnHelpTopic);
-				IsNewTopic=FALSE;
-				ErrorHelp=FALSE;
+				IsNewTopic = false;
+				ErrorHelp = false;
 			}
 
 			return TRUE;
@@ -1304,10 +1304,10 @@ int Help::ProcessKey(int Key)
 			if (StrCmpI(StackData.strHelpTopic.data(),HelpContents))
 			{
 				Stack.emplace(StackData);
-				IsNewTopic=TRUE;
+				IsNewTopic = true;
 				JumpTopic(HelpContents);
-				ErrorHelp=FALSE;
-				IsNewTopic=FALSE;
+				ErrorHelp = false;
+				IsNewTopic = false;
 			}
 
 			return TRUE;
@@ -1335,10 +1335,10 @@ int Help::ProcessKey(int Key)
 				LastSearchRegexp=Regexp;
 
 				Stack.emplace(StackData);
-				IsNewTopic=TRUE;
+				IsNewTopic = true;
 				JumpTopic(FoundContents);
-				ErrorHelp=FALSE;
-				IsNewTopic=FALSE;
+				ErrorHelp = false;
+				IsNewTopic = false;
 			}
 
 			return TRUE;
@@ -1350,10 +1350,10 @@ int Help::ProcessKey(int Key)
 			if (StrCmpI(StackData.strHelpTopic.data(),PluginContents))
 			{
 				Stack.emplace(StackData);
-				IsNewTopic=TRUE;
+				IsNewTopic = true;
 				JumpTopic(PluginContents);
-				ErrorHelp=FALSE;
-				IsNewTopic=FALSE;
+				ErrorHelp = false;
+				IsNewTopic = false;
 			}
 
 			return TRUE;
@@ -1368,7 +1368,7 @@ int Help::ProcessKey(int Key)
 				StackData = std::move(Stack.top());
 				Stack.pop();
 				JumpTopic(StackData.strHelpTopic);
-				ErrorHelp=FALSE;
+				ErrorHelp = false;
 				return TRUE;
 			}
 
@@ -1380,7 +1380,7 @@ int Help::ProcessKey(int Key)
 			if (!StackData.strSelTopic.empty() && StrCmpI(StackData.strHelpTopic, StackData.strSelTopic))
 			{
 				Stack.push(StackData);
-				IsNewTopic=TRUE;
+				IsNewTopic = true;
 
 				if (!JumpTopic())
 				{
@@ -1389,8 +1389,8 @@ int Help::ProcessKey(int Key)
 					ReadHelp(StackData.strHelpMask); // вернем то, что отображали.
 				}
 
-				ErrorHelp=FALSE;
-				IsNewTopic=FALSE;
+				ErrorHelp = false;
+				IsNewTopic = false;
 			}
 
 			return TRUE;
@@ -1548,7 +1548,7 @@ int Help::JumpTopic()
 
 	if (HelpList.empty())
 	{
-		ErrorHelp=TRUE;
+		ErrorHelp = true;
 
 		if (!(StackData.Flags&FHELP_NOSHOWERROR))
 		{
@@ -1685,7 +1685,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		BeforeMouseDownY = StackData.CurY;
 		StackData.CurX = MouseDownX = MsX-X1-1;
 		StackData.CurY = MouseDownY = MsY-Y1-1-FixSize;
-		MouseDown = TRUE;
+		MouseDown = true;
 		simple_move = false;
 	}
 
@@ -1694,7 +1694,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	 && MouseDown)
 	{
 		simple_move = false;
-		MouseDown = FALSE;
+		MouseDown = false;
 		if (!StackData.strSelTopic.empty())
 		{
 			if (StackData.CurX == MouseDownX && StackData.CurY == MouseDownY)
@@ -1819,7 +1819,7 @@ void Help::Search(api::File& HelpFile,uintptr_t nCodePage)
 	FixCount=1;
 	FixSize=2;
 	StackData.TopStr=0;
-	TopicFound=TRUE;
+	TopicFound = true;
 	StackData.CurX=StackData.CurY=0;
 	strCtrlColorChar.clear();
 
@@ -1909,7 +1909,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	FixCount=1;
 	FixSize=2;
 	StackData.TopStr=0;
-	TopicFound=TRUE;
+	TopicFound = true;
 	StackData.CurX=StackData.CurY=0;
 	strCtrlColorChar.clear();
 	const wchar_t *PtrTitle=0, *ContentsName=0;
@@ -2176,7 +2176,7 @@ void Help::ResizeConsole()
 	bool OldIsNewTopic=IsNewTopic;
 	bool ErrCannotOpenHelp=ScreenObjectWithShadow::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
 	ScreenObjectWithShadow::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
-	IsNewTopic=FALSE;
+	IsNewTopic = false;
 	TopScreen.reset();
 	Hide();
 
@@ -2189,7 +2189,7 @@ void Help::ResizeConsole()
 		SetPosition(4,2,ScrX-4,ScrY-2);
 
 	ReadHelp(StackData.strHelpMask);
-	ErrorHelp=FALSE;
+	ErrorHelp = false;
 	//StackData.CurY--; // Ё“ќ ≈—ћ№  ќ—“џЋ№ (пусть пока будет так!)
 	StackData.CurX--;
 	MoveToReference(1,1);
@@ -2208,5 +2208,5 @@ int Help::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MHelpType);
 	strName = strFullHelpPathName;
-	return(MODALTYPE_HELP);
+	return MODALTYPE_HELP;
 }

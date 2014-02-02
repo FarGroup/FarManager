@@ -318,7 +318,6 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 							{
 								OpenPanelInfo Info;
 								ActivePanel->GetOpenPanelInfo(&Info);
-								string strTemp;
 								auto ph = ActivePanel->GetPluginHandle();
 								NewItem.PluginGuid = ph->pPlugin->GetGUID();
 								NewItem.strPluginFile = NullToEmpty(Info.HostFile);
@@ -561,7 +560,6 @@ void Shortcuts::Configure()
 					{
 						OpenPanelInfo Info;
 						ActivePanel->GetOpenPanelInfo(&Info);
-						string strTemp;
 						auto ph = ActivePanel->GetPluginHandle();
 						ItemIterator->PluginGuid = ph->pPlugin->GetGUID();
 						ItemIterator->strPluginFile = NullToEmpty(Info.HostFile);

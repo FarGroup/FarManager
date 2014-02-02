@@ -95,5 +95,6 @@ private:
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
 	void EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw=false);
-	bool Accept();
+
+	static bool Accept();
 };

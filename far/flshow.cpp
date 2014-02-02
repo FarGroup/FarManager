@@ -448,7 +448,7 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-const FarColor FileList::GetShowColor(int Position, bool FileColor)
+const FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
 	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
 
@@ -481,7 +481,7 @@ const FarColor FileList::GetShowColor(int Position, bool FileColor)
 	return ColorAttr;
 }
 
-void FileList::SetShowColor(int Position, bool FileColor)
+void FileList::SetShowColor(int Position, bool FileColor) const
 {
 	SetColor(GetShowColor(Position,FileColor));
 }
@@ -600,7 +600,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 }
 
-int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr)
+int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr) const
 {
 	strDest.reserve(MaxLength);
 
@@ -906,7 +906,7 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 }
 
 
-void FileList::HighlightBorder(int Level, int ListPos)
+void FileList::HighlightBorder(int Level, int ListPos) const
 {
 	if (Level == ColumnsInGlobal)
 	{
@@ -1298,7 +1298,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						{
 							const wchar_t* Owner=ListData[ListPos].strOwner.data();
 
-							if (Owner && !(Columns[K].type & COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
+							if (!(Columns[K].type & COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
 							{
 								const wchar_t* SlashPos=FirstSlash(Owner);
 

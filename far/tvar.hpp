@@ -110,10 +110,10 @@ class TVar
 		TVar& operator>>=(const TVar& b) { return *this = *this>>b; }
 		TVar& operator<<=(const TVar& b) { return *this = *this<<b; }
 
-		TVar operator+();
-		TVar operator-();
-		TVar operator!();
-		TVar operator~();
+		TVar operator+() const;
+		TVar operator-() const;
+		TVar operator!() const;
+		TVar operator~() const;
 
 		TVar& operator ++();     // ++a
 		TVar  operator ++(int);  // a++

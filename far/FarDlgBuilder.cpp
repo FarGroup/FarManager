@@ -85,7 +85,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 		}
 	}
 
-	const wchar_t *GetMask()
+	const wchar_t *GetMask() const
 	{
 		return Mask;
 	}
@@ -111,7 +111,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 		*IntValue = wcstoll(Item->strData.data() + 1, nullptr, 16);
 	}
 
-	const wchar_t *GetMask()
+	const wchar_t *GetMask() const
 	{
 		return Mask;
 	}

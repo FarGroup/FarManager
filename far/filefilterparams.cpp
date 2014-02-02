@@ -82,7 +82,7 @@ FileFilterParams::FileFilterParams(FileFilterParams&& rhs):
 	*this = std::move(rhs);
 }
 
-FileFilterParams FileFilterParams::Clone()
+FileFilterParams FileFilterParams::Clone() const
 {
 	FileFilterParams Result;
 	Result.m_strTitle = m_strTitle;

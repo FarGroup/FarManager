@@ -69,7 +69,7 @@ private:
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);
-	void HighlightsCorrection(string &strStr);
+	static void HighlightsCorrection(string &strStr);
 	void FastShow();
 	void DrawWindowFrame();
 	void OutString(const wchar_t *Str);
@@ -83,7 +83,7 @@ private:
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
 
-	struct StackHelpData: NonCopyable
+	struct StackHelpData: ::NonCopyable
 	{
 		StackHelpData():
 			Flags(),
@@ -123,7 +123,7 @@ private:
 			strHelpTopic.swap(rhs.strHelpTopic);
 			strSelTopic.swap(rhs.strSelTopic);
 			std::swap(Flags, rhs.Flags);
-			std::swap(Flags, rhs.Flags);
+			std::swap(TopStr, rhs.TopStr);
 			std::swap(CurX, rhs.CurX);
 			std::swap(CurY, rhs.CurY);
 		}

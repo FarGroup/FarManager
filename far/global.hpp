@@ -43,14 +43,14 @@ public:
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
 	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	const LARGE_INTEGER& FarUpTime() const {return m_FarUpTime;}
-	bool IsPtr(const void* Address) const;
-	bool IsUserAdmin() const;
-	const wchar_t* Version() const;
-	const wchar_t* Copyright() const;
+	static bool IsPtr(const void* Address);
+	static bool IsUserAdmin();
+	static const wchar_t* Version();
+	static const wchar_t* Copyright();
 
-	void CatchError();
-	DWORD CaughtError() const {return m_LastError;}
-	NTSTATUS CaughtStatus() const {return m_LastStatus;}
+	static void CatchError();
+	static DWORD CaughtError() {return m_LastError;}
+	static NTSTATUS CaughtStatus() {return m_LastStatus;}
 
 	// BUGBUG
 

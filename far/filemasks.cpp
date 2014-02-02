@@ -215,7 +215,7 @@ bool filemasks::empty() const
 	       std::all_of(ALL_CONST_RANGE(Exclude), std::mem_fn(&masks::empty));
 }
 
-void filemasks::ErrorMessage() const
+void filemasks::ErrorMessage()
 {
 	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
 }

@@ -74,16 +74,16 @@ class InfoList:public Panel
 		bool ShowDirDescription(int YPos);
 		bool ShowPluginDescription(int YPos);
 
-		void PrintText(const string& Str);
-		void PrintText(LNGID MsgID);
-		void PrintInfo(const string& Str);
-		void PrintInfo(LNGID MsgID);
+		void PrintText(const string& Str) const;
+		void PrintText(LNGID MsgID) const;
+		void PrintInfo(const string& Str) const;
+		void PrintInfo(LNGID MsgID) const;
 		void SelectShowMode();
 		void DrawTitle(string &strTitle,int Id,int &CurY);
 
 		int  OpenDizFile(const string& DizFile,int YPos);
 		void SetMacroMode(int Restore = FALSE);
-		void DynamicUpdateKeyBar();
+		void DynamicUpdateKeyBar() const;
 
 	public:
 		InfoList();
@@ -97,8 +97,8 @@ class InfoList:public Panel
 		virtual void Update(int Mode) override;
 		virtual void SetFocus() override;
 		virtual void KillFocus() override;
-		virtual const string& GetTitle(string &Title) override;
+		virtual const string& GetTitle(string &Title) const override;
 		virtual void UpdateKeyBar() override;
 		virtual void CloseFile() override;
-		virtual int GetCurName(string &strName, string &strShortName) override;
+		virtual int GetCurName(string &strName, string &strShortName) const override;
 };

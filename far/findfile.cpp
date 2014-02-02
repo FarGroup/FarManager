@@ -663,7 +663,7 @@ void FindFiles::AdvancedDialog()
 		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
-	Dialog Dlg(AdvancedDlg, this, &FindFiles::AdvancedDlgProc);
+	Dialog Dlg(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg.SetHelp(L"FindFileAdvanced");
 	Dlg.SetPosition(-1,-1,52+4,7+7);
 	Dlg.Process();
@@ -1012,7 +1012,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& Fi
 }
 
 // Алгоритма Бойера-Мура-Хорспула поиска подстроки (Unicode версия)
-const int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount)
+const int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const
 {
 	size_t findStringCount = strFindStr.size();
 	const wchar_t *buffer = searchBuffer;
@@ -1034,7 +1034,7 @@ const int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBuf
 }
 
 // Алгоритма Бойера-Мура-Хорспула поиска подстроки (Char версия)
-const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount)
+const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
 {
 	const unsigned char *buffer = searchBuffer;
 	size_t lastBufferChar = hexFindStringSize-1;
@@ -1340,7 +1340,7 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 	{
 		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
 		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Global->Opt->FindOpt.FindFolders || SearchHex))
-			return FALSE;
+			return false;
 
 		if (!strFindStr.empty() && FileFound)
 		{
@@ -1464,11 +1464,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(MSG(MFindCancel)));
 		Dlg->SendMessage( DM_ENABLEREDRAW, TRUE, 0);
 		ConsoleTitle::SetFarTitle(strMessage);
-		if(TB)
-		{
-			delete TB;
-			TB=nullptr;
-		}
+		delete TB;
+		TB=nullptr;
 		Finalized=true;
 	}
 
@@ -1834,7 +1831,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								{
 									FileEditor ShellEditor(strSearchFileName,CP_DEFAULT,0);
 									ShellEditor.SetDynamicallyBorn(false);
-									ShellEditor.SetEnableF6(TRUE);
+									ShellEditor.SetEnableF6(true);
 
 									if(FindItem->Arc)
 									{
@@ -1914,11 +1911,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						return TRUE;
 					}
 					FindExitItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr, 0));
-					if (TB)
-					{
-						delete TB;
-						TB=nullptr;
-					}
+					delete TB;
+					TB=nullptr;
 					return FALSE;
 				}
 				break;
@@ -1963,7 +1957,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			for (int i = 0; i <= FD_BUTTON_STOP; i++)
 			{
-				Dlg->SendMessage( DM_SHOWITEM, i, FALSE);
+				Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(FALSE));
 			}
 
 			if ((IncX > 0) || (IncY > 0))
@@ -2887,7 +2881,7 @@ bool FindFiles::FindFilesProcess()
 					Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 					Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
 					NewPanel->SetPluginMode(hNewPlugin,L"",true);
-					NewPanel->SetVisible(TRUE);
+					NewPanel->SetVisible(true);
 					NewPanel->Update(0);
 					//if (FindExitItem)
 					//NewPanel->GoToFile(FindExitItem->FindData.cFileName);
@@ -2978,7 +2972,7 @@ bool FindFiles::FindFilesProcess()
 					// Сменим панель на обычную файловую...
 					{
 						FindPanel=Global->CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
-						FindPanel->SetVisible(TRUE);
+						FindPanel->SetVisible(true);
 						FindPanel->Update(0);
 					}
 
@@ -3059,11 +3053,8 @@ FindFiles::FindFiles():
 		SearchFromChanged=false;
 		FindPositionChanged=false;
 		Finalized=false;
-		if(TB)
-		{
-			delete TB;
-			TB=nullptr;
-		}
+		delete TB;
+		TB=nullptr;
 		itd->ClearAllLists();
 		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();

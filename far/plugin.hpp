@@ -2086,8 +2086,8 @@ typedef size_t (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_
 typedef size_t (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
 typedef int (WINAPI *FARSTDATOI)(const wchar_t *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const wchar_t *s);
-typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *string, int radix);
-typedef wchar_t   *(WINAPI *FARSTDITOA)(int value, wchar_t *string, int radix);
+typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *Str, int radix);
+typedef wchar_t   *(WINAPI *FARSTDITOA)(int value, wchar_t *Str, int radix);
 typedef wchar_t   *(WINAPI *FARSTDLTRIM)(wchar_t *Str);
 typedef wchar_t   *(WINAPI *FARSTDRTRIM)(wchar_t *Str);
 typedef wchar_t   *(WINAPI *FARSTDTRIM)(wchar_t *Str);

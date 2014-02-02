@@ -45,8 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	VMenu2 *vm = static_cast<VMenu2*>(Dlg);
-
 	switch(Msg)
 	{
 	case DN_CTLCOLORDIALOG:
@@ -85,63 +83,63 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		}
 
 	case DN_CLOSE:
-		if(!ForceClosing && !Param1 && vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
+		if(!ForceClosing && !Param1 && GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
 			return false;
-		if(vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))
+		if(Call(Msg, (void*)(Param1<0 ? Param1 : GetSelectPos())))
 			return false;
 		break;
 
 	case DN_LISTHOTKEY:
-		if (!vm->Call(Msg, Param2))
+		if (!Call(Msg, Param2))
 			Dlg->SendMessage( DM_CLOSE, -1, nullptr);
 		break;
 
 	case DN_DRAWDIALOGDONE:
-		if(vm->DefRec.EventType)
+		if(DefRec.EventType)
 		{
-			INPUT_RECORD rec=vm->DefRec;
-			ClearStruct(vm->DefRec);
-			if(!vm->Call(DN_INPUT, &rec))
+			INPUT_RECORD rec=DefRec;
+			ClearStruct(DefRec);
+			if(!Call(DN_INPUT, &rec))
 				Dlg->SendMessage( DM_KEY, 1, &rec);
 		}
 		break;
 
 	case DN_CONTROLINPUT:
 	case DN_INPUT:
-		if(!vm->cancel)
+		if(!cancel)
 		{
 			if (Msg==DN_CONTROLINPUT)
 			{
 				INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(Param2);
 				int key=InputRecordToKey(ir);
 
-				if(vm->ListBox().ProcessFilterKey(key))
+				if(ListBox().ProcessFilterKey(key))
 					return true;
 			}
 
-			if(vm->Call(DN_INPUT, Param2))
+			if(Call(DN_INPUT, Param2))
 				return Msg==DN_CONTROLINPUT;
 		}
 		break;
 
 	case DN_LISTCHANGE:
 	case DN_ENTERIDLE:
-		if(!vm->cancel)
+		if(!cancel)
 		{
-			if(vm->Call(Msg, Param2))
+			if(Call(Msg, Param2))
 				return false;
 		}
 		break;
 
 	case DN_RESIZECONSOLE:
-		if(!vm->cancel)
+		if(!cancel)
 		{
 			INPUT_RECORD ReadRec={WINDOW_BUFFER_SIZE_EVENT};
 			ReadRec.Event.WindowBufferSizeEvent.dwSize=*(COORD*)Param2;
-			if(vm->Call(DN_INPUT, &ReadRec))
+			if(Call(DN_INPUT, &ReadRec))
 				return false;
 			else
-				vm->Resize();
+				Resize();
 		}
 		break;
 

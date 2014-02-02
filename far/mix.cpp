@@ -54,7 +54,7 @@ int ToPercent(unsigned long N1,unsigned long N2)
 	if (!N2)
 		return 0;
 
-	return((int)(N1*100/N2));
+	return (int)(N1*100/N2);
 }
 
 int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)

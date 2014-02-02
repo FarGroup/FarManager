@@ -256,10 +256,8 @@ static wchar_t *dubstr(const wchar_t *s)
 
 	if (s)
 	{
-		newStr = new wchar_t[StrLength(s)+1];
-
-		if (newStr)
-			wcscpy(newStr, s);
+		newStr = new wchar_t[wcslen(s) + 1];
+		wcscpy(newStr, s);
 	}
 
 	return newStr;
@@ -1617,12 +1615,12 @@ TVar xor_op(const TVar& a, const TVar& b)
 	return r;
 }
 
-TVar TVar::operator+()
+TVar TVar::operator+() const
 {
 	return *this;
 }
 
-TVar TVar::operator-()
+TVar TVar::operator-() const
 {
 	switch (vType)
 	{
@@ -1636,7 +1634,7 @@ TVar TVar::operator-()
 	}
 }
 
-TVar TVar::operator!()
+TVar TVar::operator!() const
 {
 	switch (vType)
 	{
@@ -1651,7 +1649,7 @@ TVar TVar::operator!()
 	}
 }
 
-TVar TVar::operator~()
+TVar TVar::operator~() const
 {
 	switch (vType)
 	{

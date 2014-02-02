@@ -46,11 +46,26 @@ enum
 	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
 };
 
-class ScreenObject
+class ScreenObject: NonCopyable
 {
 public:
 	ScreenObject();
+	ScreenObject(ScreenObject&& rhs);
 	virtual ~ScreenObject();
+
+	MOVE_OPERATOR_BY_SWAP(ScreenObject);
+
+	void swap(ScreenObject& rhs)
+	{
+		std::swap(SaveScr, rhs.SaveScr);
+		std::swap(pOwner, rhs.pOwner);
+		std::swap(Flags, rhs.Flags);
+		std::swap(nLockCount, rhs.nLockCount);
+		std::swap(X1, rhs.X1);
+		std::swap(Y1, rhs.Y1);
+		std::swap(X2, rhs.X2);
+		std::swap(Y2, rhs.Y2);
+	}
 
 	int ObjWidth() const {return X2 - X1 + 1;}
 	int ObjHeight() const {return Y2 - Y1 + 1;}

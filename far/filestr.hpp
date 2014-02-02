@@ -40,7 +40,7 @@ class GetFileString
 		bool PeekString(LPWSTR* DestStr, size_t& Length);
 		bool GetString(LPWSTR* DestStr, size_t& Length);
 		bool GetString(string& str);
-		bool IsConversionValid() { return !SomeDataLost; }
+		bool IsConversionValid() const { return !SomeDataLost; }
 
 	private:
 		api::File& SrcFile;

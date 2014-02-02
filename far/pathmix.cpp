@@ -247,7 +247,7 @@ const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
 		++Path;
 	}
 
-	return ((*NamePtr)?NamePtr:prevNamePtr);
+	return *NamePtr? NamePtr : prevNamePtr;
 }
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath)

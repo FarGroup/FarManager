@@ -494,9 +494,6 @@
     <ClCompile Include="plclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tinyxml\tinystr.cpp">
-      <Filter>Source Files\tinyxml</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml\tinyxml.cpp">
       <Filter>Source Files\tinyxml</Filter>
     </ClCompile>
@@ -1008,9 +1005,6 @@
     </ClInclude>
     <ClInclude Include="farversion.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tinyxml\tinystr.h">
-      <Filter>Header Files\tinyxml</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml\tinyxml.h">
       <Filter>Header Files\tinyxml</Filter>

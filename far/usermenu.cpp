@@ -430,10 +430,11 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
-	int NumLines=0;
+	int NumLines = -1;
 
-	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem, ++NumLines)
+	FOR_RANGE(Menu, MenuItem)
 	{
+		++NumLines;
 		MenuItemEx FarUserMenuItem;
 		int FuncNum=0;
 
@@ -758,7 +759,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		string strCmdLineDir;
 		Global->CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
-		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
+		Global->CtrlObject->CmdLine->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)
 		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
@@ -810,7 +811,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 						if (!strCommand.empty())
 						{
-							Global->CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed, false, true);
+							Global->CtrlObject->CmdLine->ExecString(strCommand, false, 0, 0, ListFileUsed, false, true);
 						}
 					}
 				}
@@ -829,7 +830,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				api::DeleteFile(strAnotherShortListName);
 		});
 
-		Global->CtrlObject->CmdLine->LockUpdatePanel(FALSE);
+		Global->CtrlObject->CmdLine->LockUpdatePanel(false);
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		/*

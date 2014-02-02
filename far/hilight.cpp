@@ -495,13 +495,13 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
 	{
 		if (HiData[i].FileInFilter(fli, CurrentTime))
-			return(HiData[i].GetSortGroup());
+			return HiData[i].GetSortGroup();
 	}
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
 	{
 		if (HiData[i].FileInFilter(fli, CurrentTime))
-			return(HiData[i].GetSortGroup());
+			return HiData[i].GetSortGroup();
 	}
 
 	return DEFAULT_SORT_GROUP;
@@ -560,30 +560,30 @@ void HighlightFiles::ProcessGroups()
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 }
 
-int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
+int HighlightFiles::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
 {
 	int Pos=MenuPos;
-	*Count=nullptr;
+	Count = nullptr;
 	int x = Insert ? 1 : 0;
 
 	if (MenuPos<FirstCount+x)
 	{
-		*Count=&FirstCount;
+		Count = &FirstCount;
 	}
 	else if (MenuPos>FirstCount+1 && MenuPos<FirstCount+UpperCount+2+x)
 	{
 		Pos=MenuPos-2;
-		*Count=&UpperCount;
+		Count = &UpperCount;
 	}
 	else if (MenuPos>FirstCount+UpperCount+3 && MenuPos<FirstCount+UpperCount+LowerCount+4+x)
 	{
 		Pos=MenuPos-4;
-		*Count=&LowerCount;
+		Count = &LowerCount;
 	}
 	else if (MenuPos>FirstCount+UpperCount+LowerCount+5 && MenuPos<FirstCount+UpperCount+LowerCount+LastCount+6+x)
 	{
 		Pos=MenuPos-6;
-		*Count=&LastCount;
+		Count = &LastCount;
 	}
 
 	return Pos;
@@ -650,7 +650,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_DEL:
 				{
 					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
 					if (Count && RealSelectPos<(int)HiData.size())
 					{
@@ -674,7 +674,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_F4:
 				{
 					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
 					if (Count && RealSelectPos<(int)HiData.size())
 						if (FileFilterConfig(&HiData[RealSelectPos], true))
@@ -688,7 +688,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_F5:
 				{
 					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count,true);
+					int RealSelectPos=MenuPosToRealPos(SelectPos, Count,true);
 
 					if (Count)
 					{
@@ -712,7 +712,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 				{
 					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
 					if (Count && SelectPos > 0)
 					{
@@ -750,7 +750,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 				{
 					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
 					if (Count && SelectPos < (int)HiMenu.GetItemCount()-2)
 					{

@@ -68,8 +68,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 	if(!Name.empty() && !IsSlash(Name.back()))
 	{
 		auto Handle = new pseudo_handle;
-		if(Handle)
-		{
+
 			string strDirectory(Name);
 			CutToSlash(strDirectory);
 			if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
@@ -83,7 +82,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 					LPCWSTR NamePtr = PointToName(Name);
 					Handle->Extended = true;
 
-					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
+					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, true);
 					if (QueryResult) // try next read immediately to avoid M#2128 bug
 					{
 						Handle->Buffer2.reset(Handle->BufferSize);
@@ -91,7 +90,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 							QueryResult = false;
 						else
 						{
-							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
+							bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, false);
 							if (!QueryResult2)
 							{
 								Handle->Buffer2.reset();
@@ -111,7 +110,7 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 						Handle->Object.Close();
 						if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 						{
-							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
+							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileBothDirectoryInformation, false, NamePtr, true);
 						}
 					}
 					if(QueryResult)
@@ -175,7 +174,6 @@ static HANDLE FindFirstFileInternal(const string& Name, api::FAR_FIND_DATA& Find
 			{
 				delete Handle;
 			}
-		}
 	}
 	return Result;
 }
@@ -206,7 +204,7 @@ static bool FindNextFileInternal(HANDLE Find, api::FAR_FIND_DATA& FindData)
 			}
 			else
 			{
-				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, nullptr, false);
 				set_errcode = false;
 			}
 		}
@@ -269,10 +267,10 @@ static bool FindCloseInternal(HANDLE Find)
 
 //-------------------------------------------------------------------------
 api::FindFile::FindFile(const string& Object, bool ScanSymLink):
+	m_Object(NTPath(Object)),
 	m_Handle(INVALID_HANDLE_VALUE),
 	m_ScanSymLink(ScanSymLink)
 {
-	m_Object = NTPath(Object);
 	bool Root = false;
 	PATH_TYPE Type = ParsePath(m_Object, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
@@ -1373,8 +1371,7 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 		if (InfoLevel==FindStreamInfoStandard)
 		{
 			auto Handle=new pseudo_handle;
-			if(Handle)
-			{
+
 				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 				{
 					// for network paths buffer size must be <= 65k
@@ -1415,7 +1412,6 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 				{
 					delete Handle;
 				}
-			}
 		}
 	}
 

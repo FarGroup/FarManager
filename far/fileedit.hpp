@@ -88,7 +88,7 @@ class FileEditor : public Frame
 
 		void ShowStatus();
 		void SetLockEditor(BOOL LockMode);
-		bool IsFullScreen() {return Flags.Check(FFILEEDIT_FULLSCREEN)!=FALSE;}
+		bool IsFullScreen() {return Flags.Check(FFILEEDIT_FULLSCREEN);}
 		void SetNamesList(NamesList& Names);
 		void SetEnableF6(bool AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }
 		// Добавлено для поиска по AltF7. При редактировании найденного файла из
@@ -100,7 +100,7 @@ class FileEditor : public Frame
 		bool SetCodePage(uintptr_t codepage);  //BUGBUG
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		void GetEditorOptions(Options::EditorOptions& EdOpt);
+		void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 		void SetEditorOptions(const Options::EditorOptions& EdOpt);
 		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);}
 		virtual void Show() override;
@@ -156,7 +156,7 @@ class FileEditor : public Frame
 		virtual int FastHide() override; // для нужд CtrlAltShift
 		// возвращает признак того, является ли файл временным
 		// используется для принятия решения переходить в каталог по CtrlF10
-		BOOL isTemporary();
+		bool isTemporary() const;
 		virtual void ResizeConsole() override;
 		int LoadFile(const string& Name, int &UserBreak);
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
@@ -171,7 +171,8 @@ class FileEditor : public Frame
 		const wchar_t *GetPluginData() {return strPluginData.data();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
-		uintptr_t GetDefaultCodePage();
+
+		static uintptr_t GetDefaultCodePage();
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);

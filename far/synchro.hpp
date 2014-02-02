@@ -107,12 +107,7 @@ public:
 
 	virtual const wchar_t *GetNamespace() const override { return L""; }
 
-	bool Start(std::function<void()> Function)
-	{
-		return Start([Function](void*)->unsigned int { Function(); return 0; }, nullptr);
-	}
-
-	bool Start(std::function<unsigned int(void*) > Function, void* Parameter)
+	bool Start(const std::function<unsigned int(void*)>& Function, void* Parameter)
 	{
 		return Starter(std::bind(Function, Parameter));
 	}
@@ -120,19 +115,18 @@ public:
 	template<class T>
 	bool Start(unsigned int (T::*Function)(void*), T* Object, void* Parameter = nullptr)
 	{
-		return Starter(std::bind(std::mem_fn(Function), Object, Parameter));
+		return Starter(std::bind(Function, Object, Parameter));
 	}
 
 	unsigned int GetId() const { return m_ThreadId; }
 
 private:
-	template<class T>
-	bool Starter(T&& f)
+	bool Starter(const std::function<unsigned int()>& f)
 	{
 		assert(!h);
 
-		auto Param = new T(f);
-		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId))))
+		auto Param = new std::function<unsigned int()>(f);
+		if (!(h = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper, Param, 0, &m_ThreadId))))
 		{
 			delete Param;
 			return false;
@@ -140,12 +134,11 @@ private:
 		return true;
 	}
 
-	template<class T>
 	static unsigned int WINAPI Wrapper(void* p)
 	{
 		EnableSeTranslation();
 
-		auto pParam = reinterpret_cast<T*>(p);
+		auto pParam = reinterpret_cast<std::function<unsigned int()>*>(p);
 		auto Param = *pParam;
 		delete pParam;
 

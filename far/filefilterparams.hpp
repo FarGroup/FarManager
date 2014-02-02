@@ -95,7 +95,7 @@ class FileFilterParams:NonCopyable
 		FFlags.swap(rhs.FFlags);
 	}
 
-	FileFilterParams Clone();
+	FileFilterParams Clone() const;
 
 	void SetTitle(const string& Title);
 	void SetMask(bool Used, const string& Mask);

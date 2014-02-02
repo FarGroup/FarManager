@@ -241,7 +241,7 @@ void Viewer::SavePosition()
 	}
 }
 
-void Viewer::KeepInitParameters()
+void Viewer::KeepInitParameters() const
 {
 	Global->strGlobalSearchString = strLastSearchStr;
 	Global->GlobalSearchCase=LastSearchCase;
@@ -272,13 +272,13 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 		if (!FarMkTempEx(strTempName))
 		{
-			OpenFailed=TRUE;
+			OpenFailed = true;
 			return FALSE;
 		}
 
 		if (!ViewFile.Open(strTempName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE))
 		{
-			OpenFailed=true;
+			OpenFailed = true;
 			return FALSE;
 		}
 
@@ -443,7 +443,7 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00
 		return true; // special files like '\\?\C:' are binary
 
 	if ( nr < 2 )
-		return (nr > 0 && !bf[0]);
+		return nr > 0 && !bf[0];
 
 	bool ucs2 = IsUnicodeCodePage(cp)
 	 || ( bf[0] == (unsigned char)0xFE && bf[1] == (unsigned char)0xFF )
@@ -546,11 +546,9 @@ void Viewer::ShowPage(int nMode)
 				Strings.pop_front();
 				Strings.emplace_back(VALUE_TYPE(Strings)());
 				FilePos = Strings.front().nFilePos;
-				auto Second = Strings.begin();
-				++Second;
+				auto Second = std::next(Strings.begin());
 				SecondPos = Second->nFilePos;
-				auto PreLast = Strings.end();
-				std::advance(PreLast, -2);
+				auto PreLast = std::prev(Strings.end(), 2);
 				Strings.back().nFilePos = PreLast->nFilePos + PreLast->linesize;
 			}
 			else
@@ -566,36 +564,37 @@ void Viewer::ShowPage(int nMode)
 
 	if (nMode != SHOW_HEX && nMode != SHOW_DUMP)
 	{
-		int Y = Y1;
-		for (auto i = Strings.begin(); i != Strings.end(); ++i, ++Y)
+		int Y = Y1 - 1;
+		FOR (auto& i, Strings)
 		{
+			++Y;
 			SetColor(COL_VIEWERTEXT);
 			GotoXY(X1,Y);
 
-			if (static_cast<long long>(i->Data.size()) > LeftPos)
+			if (static_cast<long long>(i.Data.size()) > LeftPos)
 			{
-				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i->Data.data() + LeftPos;
+				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i.Data.data() + LeftPos;
 			}
 			else
 			{
 				Global->FS << fmt::MinWidth(Width)<<L"";
 			}
 
-			if ( SelectSize >= 0 && i->bSelection)
+			if (SelectSize >= 0 && i.bSelection)
 			{
 				__int64 SelX1;
 
-				if (LeftPos > i->nSelStart)
+				if (LeftPos > i.nSelStart)
 					SelX1 = X1;
 				else
-					SelX1 = i->nSelStart-LeftPos;
+					SelX1 = i.nSelStart - LeftPos;
 
-				if (!VM.Wrap && (i->nSelStart < LeftPos || i->nSelStart > LeftPos+XX2-X1))
+				if (!VM.Wrap && (i.nSelStart < LeftPos || i.nSelStart > LeftPos + XX2 - X1))
 				{
 					if (AdjustSelPosition)
 					{
-						LeftPos = i->nSelStart-1;
-						AdjustSelPosition = FALSE;
+						LeftPos = i.nSelStart - 1;
+						AdjustSelPosition = false;
 						Show();
 						return;
 					}
@@ -604,26 +603,26 @@ void Viewer::ShowPage(int nMode)
 				{
 					SetColor(COL_VIEWERSELECTEDTEXT);
 					GotoXY(static_cast<int>(X1+SelX1),Y);
-					__int64 Length = i->nSelEnd-i->nSelStart;
+					__int64 Length = i.nSelEnd - i.nSelStart;
 
-					if (LeftPos > i->nSelStart)
-						Length = i->nSelEnd-LeftPos;
+					if (LeftPos > i.nSelStart)
+						Length = i.nSelEnd - LeftPos;
 
-					if (LeftPos > i->nSelEnd)
+					if (LeftPos > i.nSelEnd)
 						Length = 0;
 
-					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i->Data.data() + SelX1 + LeftPos;
+					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i.Data.data() + SelX1 + LeftPos;
 				}
 			}
 
-			if (static_cast<long long>(i->Data.size()) > LeftPos + Width && ViOpt.ShowArrows)
+			if (static_cast<long long>(i.Data.size()) > LeftPos + Width && ViOpt.ShowArrows)
 			{
 				GotoXY(XX2,Y);
 				SetColor(COL_VIEWERARROWS);
 				BoxText(0xbb);
 			}
 
-			if (LeftPos>0 && !i->Data.empty()  && ViOpt.ShowArrows)
+			if (LeftPos>0 && !i.Data.empty() && ViOpt.ShowArrows)
 			{
 				GotoXY(X1,Y);
 				SetColor(COL_VIEWERARROWS);
@@ -642,14 +641,14 @@ void Viewer::DisplayObject()
 }
 
 
-int Viewer::getCharSize()
+int Viewer::getCharSize() const
 {
 	if (CP_UTF8 == VM.CodePage)
 		return -1;
 	else if (CP_UNICODE == VM.CodePage || CP_REVERSEBOM == VM.CodePage)
 		return +2;
 	else 
-		return (static_cast<UINT>(VM.CodePage) == MB.current_cp ? -MB.current_mb : +1);
+		return (static_cast<UINT>(VM.CodePage) == MB.current_cp)? -MB.current_mb : +1;
 }
 
 static inline int getChSize( UINT cp )
@@ -662,7 +661,7 @@ static inline int getChSize( UINT cp )
 
 static const int mline = 512;
 
-int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail)
+int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
 {
 	int ib, iw;
 	wchar_t w1[mline];
@@ -852,7 +851,7 @@ void Viewer::ShowHex()
 		else
 			LastPage = EndFile = veof() ? 1 : 0;
 
-		if (nr <= 0)
+		if (!nr)
 		{
 			*OutStr = L'\0';
 		}
@@ -1255,8 +1254,7 @@ __int64 Viewer::EndOfScreen( int line )
 
 	if (!VM.Hex)
 	{
-		auto i = Strings.begin();
-		std::advance(i, Y2-Y1+line);
+		auto i = std::next(Strings.begin(), Y2-Y1+line);
 		pos = i->nFilePos + i->linesize;
 		if ( !line && !VM.Wrap && Strings.back().linesize > 0 )
 		{
@@ -1311,9 +1309,7 @@ __int64 Viewer::BegOfScreen()
 				break;
 			if ( ch == L'\n' || ch == L'\r' )
 			{
-				auto SecondLine = Strings.begin();
-				++SecondLine;
-				pos = SecondLine->nFilePos;
+				pos = std::next(Strings.begin())->nFilePos;
 				break;
 			}
 			if ( ch == L'\t' )
@@ -1452,7 +1448,7 @@ int Viewer::ProcessKey(int Key)
 				Global->CtrlObject->Cp()->ActivePanel->Redraw();
 
 			Show();
-			return (TRUE);
+			return TRUE;
 		}
 		case KEY_IDLE:
 		{
@@ -2020,7 +2016,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		return (TRUE);
+		return TRUE;
 	}
 
 	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
@@ -2830,7 +2826,7 @@ int Viewer::search_hex_forward( search_data* sd )
 	}
 
 	sd->CurPos = cpos + nr - slen + 1;
-	return (up_half || sd->CurPos < StartSearchPos ? 0 : -1);
+	return (up_half || sd->CurPos < StartSearchPos)? 0 : -1;
 }
 
 int Viewer::search_hex_backward( search_data* sd )
@@ -2887,7 +2883,7 @@ int Viewer::search_hex_backward( search_data* sd )
 	}
 
 	sd->CurPos = cpos - nr + slen - 1;
-	return (lo_half || sd->CurPos > StartSearchPos ? 0 : -1);
+	return (lo_half || sd->CurPos > StartSearchPos)? 0 : -1;
 }
 
 int Viewer::search_text_forward( search_data* sd )
@@ -2952,7 +2948,7 @@ int Viewer::search_text_forward( search_data* sd )
 	if ( up_half && is_eof )
 	{
 		sd->CurPos = 0;
-		return (StartSearchPos > 0 ? 0 : -1);
+		return (StartSearchPos > 0)? 0 : -1;
 	}
 	else
 	{
@@ -3087,7 +3083,7 @@ int Viewer::search_regex_forward( search_data* sd )
 	if ( lsize <= 0 )
 	{
 		sd->CurPos = 0;
-		return (up_half && StartSearchPos > 0 ? 0 : -1);
+		return (up_half && StartSearchPos > 0)? 0 : -1;
 	}
 
 	int off = 0;
@@ -3125,13 +3121,13 @@ int Viewer::search_regex_forward( search_data* sd )
 		if ( veof() )
 		{
 			sd->CurPos = 0;
-			return (StartSearchPos > 0 ? 0 : -1);
+			return (StartSearchPos > 0)? 0 : -1;
 		}
 		return 0;
 	}
 	else
 	{
-		return (sd->CurPos >= StartSearchPos ? -1 : 0);
+		return (sd->CurPos >= StartSearchPos)? -1 : 0;
 	}
 }
 
@@ -3183,9 +3179,9 @@ int Viewer::search_regex_backward( search_data* sd )
 	{
 		SetFileSize();
 		sd->CurPos = FileSize;
-		return (StartSearchPos >= FileSize ? -1 : 0);
+		return (StartSearchPos >= FileSize)? -1 : 0;
 	}
-	return (up_half && bpos <= StartSearchPos ? -1 : 0);
+	return (up_half && bpos <= StartSearchPos)? -1 : 0;
 }
 
 
@@ -3407,7 +3403,7 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		SCOPED_ACTION(TaskBar);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
-		SetCursorType(FALSE,0);
+		SetCursorType(false, 0);
 
 		DWORD start_time = GetTickCount();
 		for (;;)
@@ -3469,9 +3465,9 @@ void Viewer::Search(int Next,int FirstChar)
 
 		Up(FromTop, false);
 
-		AdjustSelPosition = TRUE;
+		AdjustSelPosition = true;
 		Show();
-		AdjustSelPosition = FALSE;
+		AdjustSelPosition = false;
 	}
 	else
 	{
@@ -3486,9 +3482,9 @@ void Viewer::Search(int Next,int FirstChar)
 }
 
 
-bool Viewer::GetWrapMode()
+bool Viewer::GetWrapMode() const
 {
-	return(VM.Wrap != 0);
+	return VM.Wrap != 0;
 }
 
 void Viewer::SetWrapMode(bool Wrap)
@@ -3501,9 +3497,9 @@ void Viewer::EnableHideCursor(int HideCursor)
 	Viewer::HideCursor=HideCursor;
 }
 
-bool Viewer::GetWrapType()
+bool Viewer::GetWrapType() const
 {
-	return(VM.WordWrap != 0);
+	return VM.WordWrap != 0;
 }
 
 void Viewer::SetWrapType(bool TypeWrap)
@@ -3511,7 +3507,7 @@ void Viewer::SetWrapType(bool TypeWrap)
 	Viewer::VM.WordWrap=TypeWrap;
 }
 
-void Viewer::GetFileName(string &strName)
+void Viewer::GetFileName(string &strName) const
 {
 	strName = strFullFileName;
 }
@@ -4184,11 +4180,11 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 		}
 	}
 
-	if (0 != (flags & 1))
+	if (flags & 1)
 	{
-		AdjustSelPosition = TRUE;
+		AdjustSelPosition = true;
 		Show();
-		AdjustSelPosition = FALSE;
+		AdjustSelPosition = false;
 	}
 }
 
@@ -4387,7 +4383,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	return FALSE;
 }
 
-BOOL Viewer::isTemporary()
+bool Viewer::isTemporary() const
 {
 	return !strTempViewName.empty();
 }

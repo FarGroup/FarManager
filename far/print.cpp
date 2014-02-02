@@ -123,7 +123,7 @@ void PrintFiles(FileList* SrcPanel)
 		return;
 
 
-	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,nullptr,0,&Needed,&Returned) || Needed<=0)
+	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,nullptr,0,&Needed,&Returned) || !Needed)
 		return;
 
 	block_ptr<PRINTER_INFO> pi(Needed);
@@ -188,7 +188,7 @@ void PrintFiles(FileList* SrcPanel)
 		auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
-		SetCursorType(FALSE,0);
+		SetCursorType(false, 0);
 		PR_PrintMsg();
 		auto hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&

@@ -255,7 +255,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
-										Dlg->SendMessage(DM_SET3STATE,i,FALSE);
+										Dlg->SendMessage(DM_SET3STATE, i, ToPtr(FALSE));
 										Dlg->SendMessage(DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
 									}
 									if(!DlgParam->OwnerChanged)
@@ -874,7 +874,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 				}
 
-				FolderPresent=TRUE;
+				FolderPresent = true;
 			}
 			else
 			{
@@ -1569,7 +1569,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 							if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
 							{
-								ScanTree ScTree(FALSE);
+								ScanTree ScTree(false);
 								ScTree.SetFindPath(strSelName,L"*");
 								DWORD LastTime2=GetTickCount();
 								string strFullName;

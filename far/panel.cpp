@@ -1316,7 +1316,7 @@ void Panel::FastFind(int FirstKey)
 		FastFindShow(FindX,FindY);
 		EditControl FindEdit(this);
 		FindEdit.SetPosition(FindX+2,FindY+1,FindX+19,FindY+1);
-		FindEdit.SetEditBeyondEnd(FALSE);
+		FindEdit.SetEditBeyondEnd(false);
 		FindEdit.SetObjectColor(COL_DIALOGEDIT);
 		FindEdit.Show();
 
@@ -1659,7 +1659,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 }
 
 
-int  Panel::IsDragging()
+bool Panel::IsDragging()
 {
 	return DragSaveScr!=nullptr;
 }
@@ -1725,9 +1725,9 @@ void Panel::DragMessage(int X,int Y,int Move)
 }
 
 
-const string& Panel::GetCurDir()
+const string& Panel::GetCurDir() const
 {
-	return strCurDir; // TODO: ноюямн!!!
+	return strCurDir;
 }
 
 
@@ -1915,7 +1915,7 @@ void Panel::Show()
 		{
 			if (AnotherPanel->IsFullScreen())
 			{
-				SetVisible(TRUE);
+				SetVisible(true);
 				return;
 			}
 
@@ -1998,7 +1998,7 @@ void Panel::SetTitle()
 	}
 }
 
-const string& Panel::GetTitle(string &strTitle)
+const string& Panel::GetTitle(string &strTitle) const
 {
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -2406,7 +2406,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 }
 
 
-int Panel::GetCurName(string &strName, string &strShortName)
+int Panel::GetCurName(string &strName, string &strShortName) const
 {
 	strName.clear();
 	strShortName.clear();
@@ -2414,7 +2414,7 @@ int Panel::GetCurName(string &strName, string &strShortName)
 }
 
 
-int Panel::GetCurBaseName(string &strName, string &strShortName)
+int Panel::GetCurBaseName(string &strName, string &strShortName) const
 {
 	strName.clear();
 	strShortName.clear();
@@ -2521,7 +2521,7 @@ BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
 	return FALSE;
 }
 
-bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
+bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 {
 	bool result=true;
 	if (PanelMode==PLUGIN_PANEL)
@@ -2545,7 +2545,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 	return result;
 }
 
-bool Panel::SaveShortcutFolder(int Pos, bool Add)
+bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 {
 	ShortcutInfo Info;
 	if(GetShortcutInfo(Info))

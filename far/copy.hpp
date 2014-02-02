@@ -56,13 +56,13 @@ private:
 	int ShellSystemCopy(const string& SrcName,const string& DestName,const api::FAR_FIND_DATA &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
 	int AskOverwrite(const api::FAR_FIND_DATA &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	int GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd);
-	int SetSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
+	static int GetSecurity(const string& FileName, api::FAR_SECURITY_DESCRIPTOR& sd);
+	static int SetSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
 	int SetRecursiveSecurity(const string& FileName,const api::FAR_SECURITY_DESCRIPTOR& sd);
 	bool CalcTotalSize();
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
-	intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	static intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	std::unique_ptr<CopyProgress> CP;

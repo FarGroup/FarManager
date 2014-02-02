@@ -841,7 +841,7 @@ intptr_t WINAPI apiMenuFn(
 		});
 	}
 //  CheckScreenLock();
-	return(ExitCode);
+	return ExitCode;
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
@@ -872,7 +872,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 	if (Global->FrameManager->ManagerIsDown())
 		return hDlg;
 
-	if (Global->DisablePluginsOutput || ItemsNumber <= 0 || !Item)
+	if (Global->DisablePluginsOutput || !ItemsNumber || !Item)
 		return hDlg;
 
 	// ФИЧА! нельзя указывать отрицательные X2 и Y2
@@ -1207,7 +1207,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				}
 			}
 
-			return(Processed);
+			return Processed;
 		}
 		case FCTL_SETUSERSCREEN:
 		{
@@ -1379,7 +1379,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		SCOPED_ACTION(SaveScreen);
 		api::FAR_FIND_DATA FindData;
 		string strFullName;
-		ScanTree ScTree(FALSE);
+		ScanTree ScTree(false);
 		ScTree.SetFindPath(strDirName,L"*");
 		*pItemsNumber=0;
 		*pPanelItem=nullptr;
@@ -1401,7 +1401,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 				if (!MsgOut)
 				{
-					SetCursorType(FALSE,0);
+					SetCursorType(false, 0);
 					PR_FarGetDirListMsg();
 					MsgOut = true;
 				}
@@ -1697,12 +1697,12 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 			{&Manager::GetModalFrame, &Manager::GetModalStackCount},
 		};
 
-		for(size_t ii=0;ii<ARRAYSIZE(Functions);++ii)
+		FOR(const auto& i, Functions)
 		{
-			size_t count=(Global->FrameManager->*Functions[ii].second)();
-			for(size_t jj=0;jj<count;++jj)
+			size_t count=(Global->FrameManager->*i.second)();
+			for(size_t j = 0;j < count; ++j)
 			{
-				Frame *frame=(Global->FrameManager->*Functions[ii].first)(jj);
+				Frame *frame=(Global->FrameManager->*i.first)(j);
 				if (frame->GetType() == MODALTYPE_EDITOR)
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
@@ -2230,12 +2230,8 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			}
 
 			Filter = new FileFilter((Panel *)hHandle, (FAR_FILE_FILTER_TYPE)Param1);
-
-			if (Filter)
-			{
-				*((HANDLE *)Param2) = (HANDLE)Filter;
-				return TRUE;
-			}
+			*((HANDLE *)Param2) = (HANDLE)Filter;
+			return TRUE;
 
 			break;
 		}
@@ -2286,11 +2282,8 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			*((HANDLE*)Param2) = INVALID_HANDLE_VALUE;
 			re = new RegExp;
 
-			if (re)
-			{
-				*((HANDLE*)Param2) = (HANDLE)re;
-				return TRUE;
-			}
+			*((HANDLE*)Param2) = (HANDLE)re;
+			return TRUE;
 
 			break;
 		case RECTL_FREE:
@@ -2568,7 +2561,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 	}
 	else if (KeyText)
 		*KeyText = 0;
-	return (len+1);
+	return len+1;
 }
 
 BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey)

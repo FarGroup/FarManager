@@ -2347,11 +2347,11 @@ upd:"InfoPanel settings"
 
 MConfigInfoPanelCNTitle
 "Форма&т вывода имени компьютера"
-upd:"Computer&Name format"
-upd:"Computer&Name format"
-upd:"Computer&Name format"
-upd:"Computer&Name format"
-upd:"Computer&Name format"
+upd:"Computer &name format"
+upd:"Computer &name format"
+upd:"Computer &name format"
+upd:"Computer &name format"
+upd:"Computer &name format"
 "Formato nombre de &computadora"
 "Formát &názvu počítača"
 
@@ -2437,11 +2437,11 @@ upd:"DNS fully-qualified"
 
 MConfigInfoPanelUNTitle
 "Формат вывода имени &пользователя"
-upd:"&UserName format"
-upd:"&UserName format"
-upd:"&UserName format"
-upd:"&UserName format"
-upd:"&UserName format"
+upd:"&User name format"
+upd:"&User name format"
+upd:"&User name format"
+upd:"&User name format"
+upd:"&User name format"
 "Formato nombre de &usuario"
 "Formát &užívateľského mena"
 

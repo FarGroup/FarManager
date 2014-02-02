@@ -240,12 +240,12 @@ public:
 	int GetCurRecord() const;
 	int ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	int GetKey();
-	int PeekKey();
+	int PeekKey() const;
 	bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription);
 	static void SetMacroConst(int ConstIndex, __int64 Value);
 	// послать сигнал на прерывание макроса
 	void SendDropProcess();
-	bool CheckWaitKeyFunc();
+	bool CheckWaitKeyFunc() const;
 
 	bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 	void RunStartMacro();
@@ -254,10 +254,10 @@ public:
 	bool PostNewMacro(const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,PlainText,Flags,AKey); }
 	bool ParseMacroString(const wchar_t* Sequence,bool onlyCheck,bool skipFile);
 	bool ExecuteString(MacroExecuteString *Data);
-	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
+	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
-	const wchar_t *eStackAsString() { return varTextDate; }
+	const wchar_t *eStackAsString() const { return varTextDate; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
@@ -272,7 +272,7 @@ private:
 	const MacroRecord* GetCurMacro() const { return m_CurState.GetCurMacro(); }
 	MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top().GetCurMacro(); }
 	void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
-	void RestoreMacroChar();
+	void RestoreMacroChar() const;
 	bool PostNewMacro(int macroId,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
 	void PushState(bool withClip);
 	void PopState(bool withClip);

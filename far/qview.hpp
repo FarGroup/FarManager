@@ -51,11 +51,11 @@ public:
 	virtual void QViewDelTempName() override;
 	virtual int UpdateIfChanged(panel_update_mode UpdateMode) override;
 	virtual void SetTitle() override;
-	virtual const string& GetTitle(string &Title) override;
+	virtual const string& GetTitle(string &Title) const override;
 	virtual void SetFocus() override;
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
-	virtual int GetCurName(string &strName, string &strShortName) override;
+	virtual int GetCurName(string &strName, string &strShortName) const override;
 
 	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
 
@@ -65,7 +65,7 @@ private:
 
 	void PrintText(const string& Str);
 	void SetMacroMode(int Restore = FALSE);
-	void DynamicUpdateKeyBar();
+	void DynamicUpdateKeyBar() const;
 
 	Viewer *QView;
 

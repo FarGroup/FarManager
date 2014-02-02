@@ -95,22 +95,22 @@ void KeyBar::DisplayObject()
 
 				if (!IntKeyState.AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
 				{
-					Label = Items[KBL_CTRLSHIFT][i].Title;
+					Label = Items[KBL_CTRLSHIFT][i].first;
 				}
 				else if (!(Global->Opt->CASRule&1) || !(Global->Opt->CASRule&2))
 				{
-					Label = Items[KBL_CTRLALTSHIFT][i].Title;
+					Label = Items[KBL_CTRLALTSHIFT][i].first;
 				}
 			}
 			else if (IntKeyState.AltPressed)
 			{
-				Label = Items[KBL_ALTSHIFT][i].Title;
+				Label = Items[KBL_ALTSHIFT][i].first;
 
 				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
-				Label = Items[KBL_SHIFT][i].Title;
+				Label = Items[KBL_SHIFT][i].first;
 			}
 		}
 		else if (IntKeyState.CtrlPressed)
@@ -119,24 +119,24 @@ void KeyBar::DisplayObject()
 
 			if (IntKeyState.AltPressed)
 			{
-				Label = Items[KBL_CTRLALT][i].Title;
+				Label = Items[KBL_CTRLALT][i].first;
 
 				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
-				Label = Items[KBL_CTRL][i].Title;
+				Label = Items[KBL_CTRL][i].first;
 			}
 		}
 		else if (IntKeyState.AltPressed)
 		{
 			AltState=IntKeyState.AltPressed;
 
-			Label = Items[KBL_ALT][i].Title;
+			Label = Items[KBL_ALT][i].first;
 		}
 		else
 		{
-			Label = Items[KBL_MAIN][i].Title;
+			Label = Items[KBL_MAIN][i].first;
 		}
 
 		if (Label.find(L'|') != string::npos)
@@ -184,7 +184,7 @@ void KeyBar::ClearKeyTitles(bool Custom)
 	{
 		std::for_each(RANGE(i, j)
 		{
-			(Custom? j.CustomTitle : j.Title).clear();
+			(Custom? j.second : j.first).clear();
 		});
 	});
 }
@@ -195,7 +195,7 @@ void KeyBar::SetLabels(LNGID StartIndex)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			i.Title = MSG(StartIndex++);
+			i.first = MSG(StartIndex++);
 		});
 	});
 }
@@ -262,19 +262,19 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 			{
 				int fgroup = FnGroup(Key & KEY_CTRLMASK);
 				if (fgroup >= 0)
-					Items[fgroup][fnum].CustomTitle = strValue;
+					Items[fgroup][fnum].second = strValue;
 			}
 		}
-		CustomLabelsReaded=TRUE;
+		CustomLabelsReaded = true;
 	}
 
 	std::for_each(RANGE(Items, Group)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			if (!i.CustomTitle.empty())
+			if (!i.second.empty())
 			{
-				i.Title = i.CustomTitle;
+				i.first = i.second;
 			}
 		});
 	});
@@ -285,7 +285,7 @@ void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
 	if (NewStr)
 	{
-		Items[Group][Pos].Title = NewStr;
+		Items[Group][Pos].first = NewStr;
 	}
 }
 

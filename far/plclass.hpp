@@ -227,13 +227,13 @@ public:
 	const string& GetTitle() const { return strTitle; }
 	const string& GetDescription() const { return strDescription; }
 	const string& GetAuthor() const { return strAuthor; }
-	const VersionInfo& GetVersion() { return PluginVersion; }
-	const VersionInfo& GetMinFarVersion() { return MinFarVersion; }
-	const string& GetVersionString() { return VersionString; }
+	const VersionInfo& GetVersion() const { return PluginVersion; }
+	const VersionInfo& GetMinFarVersion() const { return MinFarVersion; }
+	const string& GetVersionString() const { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
 	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
 
-	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
+	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 	DWORD GetWorkFlags() const { return WorkFlags.Flags(); }
 	DWORD GetFuncFlags() const { return FuncFlags.Flags(); }
 
@@ -243,7 +243,7 @@ public:
 	bool LoadFromCache(const api::FAR_FIND_DATA &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
-	bool Active() {return Activity != 0;}
+	bool Active() const {return Activity != 0;}
 
 protected:
 	struct ExecuteStruct

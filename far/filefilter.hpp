@@ -55,11 +55,11 @@ class FileFilter
 		unsigned __int64 CurrentTime;
 
 		Panel *GetHostPanel();
-		int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 		void ProcessSelection(VMenu2 *FilterList);
 		const enumFileFilterFlagsType GetFFFT();
 		int  GetCheck(const FileFilterParams& FFP);
 		static void SwapPanelFlags(FileFilterParams& CurFilterData);
+		static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 
 	public:
 		FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);

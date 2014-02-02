@@ -69,7 +69,7 @@ void Frame::UpdateKeyBar()
 		FrameKeyBar->RedrawIfChanged();
 }
 
-int Frame::IsTopFrame()
+int Frame::IsTopFrame() const
 {
 	return Global->FrameManager->GetCurrentFrame() == this;
 }
@@ -152,7 +152,7 @@ void Frame::ResizeConsole()
 	Global->FrameManager->ResizeAllModal(this);
 }
 
-bool Frame::HasSaveScreen()
+bool Frame::HasSaveScreen() const
 {
 	if (this->SaveScr||this->ShadowSaveScr)
 	{

@@ -395,7 +395,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 		{
 			for(size_t i=0;i<pList->ItemsNumber;i++)
 			{
-				if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), static_cast<int>(strTemp.size())) && pList->Items[i].Text != strTemp.data())
+				if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
 				{
 					ComplMenu.AddItem(pList->Items[i].Text);
 				}
@@ -500,7 +500,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 									{
 										for(size_t i=0;i<pList->ItemsNumber;i++)
 										{
-											if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), static_cast<int>(strTemp.size())) && pList->Items[i].Text != strTemp.data())
+											if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
 											{
 												ComplMenu.AddItem(pList->Items[i].Text);
 											}

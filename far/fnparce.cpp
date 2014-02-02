@@ -208,10 +208,10 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	{
 		string *pListName;
 		string *pAnotherListName;
-		bool ShortN0 = FALSE;
+		bool ShortN0 = false;
 
 		if (CurStr[1] == L'$')
-			ShortN0 = TRUE;
+			ShortN0 = true;
 
 		if (ShortN0)
 		{
@@ -316,12 +316,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	if (!StrCmpN(CurStr,L"!\\",2) || !StrCmpN(CurStr,L"!=\\",3) || !StrCmpN(CurStr,L"!/",2) || !StrCmpN(CurStr,L"!=/",3))
 	{
 		string strCurDir;
-		bool ShortN0 = FALSE;
+		bool ShortN0 = false;
 		int RealPath= CurStr[1]==L'='?1:0;
 
 		if (CurStr[1] == L'/' || (RealPath && CurStr[2] == L'/'))
 		{
-			ShortN0 = TRUE;
+			ShortN0 = true;
 		}
 
 		if (PSubstData->PassivePanel)
@@ -486,7 +486,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	}
 
 	strStr = strOut;
-	return(PSubstData->PreserveLFN);
+	return PSubstData->PreserveLFN;
 }
 
 int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)

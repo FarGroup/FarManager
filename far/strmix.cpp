@@ -176,7 +176,7 @@ string& QuoteSpaceOnly(string &strStr)
 	if (strStr.find(L' ') != string::npos)
 		InsertQuote(strStr);
 
-	return(strStr);
+	return strStr;
 }
 
 string &QuoteLeadingSpace(string &strStr)
@@ -1580,7 +1580,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 			}
 		}
 
-		const wchar_t *Skip(const wchar_t *Str, const string& strSeparators, const BitFlags& Flags, int &Length, int &RealLength, bool &Error)
+		static const wchar_t *Skip(const wchar_t *Str, const string& strSeparators, const BitFlags& Flags, int &Length, int &RealLength, bool &Error)
 		{
 			Length=RealLength=0;
 			Error=false;

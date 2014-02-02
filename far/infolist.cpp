@@ -114,7 +114,7 @@ void InfoList::Update(int Mode)
 		Redraw();
 }
 
-const string& InfoList::GetTitle(string &strTitle)
+const string& InfoList::GetTitle(string &strTitle) const
 {
 	strTitle.clear();
 	strTitle.append(L" ").append(MSG(MInfoTitle)).append(L" ");
@@ -766,7 +766,7 @@ int InfoList::ProcessKey(int Key)
 				DizView->InRecursion--;
 			}
 
-			return(ret);
+			return ret;
 		}
 	}
 
@@ -779,7 +779,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	int RetCode;
 
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return(RetCode);
+		return RetCode;
 
 	bool NeedRedraw=false;
 	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
@@ -851,13 +851,13 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (DizView)
 	{
 		if (DVY1 < Y2)
-			return(DizView->ProcessMouse(MouseEvent));
+			return DizView->ProcessMouse(MouseEvent);
 	}
 	return TRUE;
 }
 
 
-void InfoList::PrintText(const string& Str)
+void InfoList::PrintText(const string& Str) const
 {
 	if (WhereY()<=Y2-1)
 	{
@@ -866,13 +866,13 @@ void InfoList::PrintText(const string& Str)
 }
 
 
-void InfoList::PrintText(LNGID MsgID)
+void InfoList::PrintText(LNGID MsgID) const
 {
 	PrintText(MSG(MsgID));
 }
 
 
-void InfoList::PrintInfo(const string& str)
+void InfoList::PrintInfo(const string& str) const
 {
 	if (WhereY()>Y2-1)
 		return;
@@ -898,7 +898,7 @@ void InfoList::PrintInfo(const string& str)
 }
 
 
-void InfoList::PrintInfo(LNGID MsgID)
+void InfoList::PrintInfo(LNGID MsgID) const
 {
 	PrintInfo(MSG(MsgID));
 }
@@ -1012,11 +1012,8 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	{
 		DizView=new DizViewer;
 
-		if (!DizView)
-			return FALSE;
-
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
-		DizView->SetRestoreScreenMode(FALSE);
+		DizView->SetRestoreScreenMode(false);
 		DizView->SetPosition(X1+1,YPos,X2-1,Y2-1);
 		DizView->SetStatusMode(0);
 		DizView->EnableHideCursor(0);
@@ -1077,11 +1074,11 @@ void InfoList::SetMacroMode(int Restore)
 }
 
 
-int InfoList::GetCurName(string &strName, string &strShortName)
+int InfoList::GetCurName(string &strName, string &strShortName) const
 {
 	strName = strDizFileName;
 	ConvertNameToShort(strName, strShortName);
-	return (TRUE);
+	return TRUE;
 }
 
 void InfoList::UpdateKeyBar()
@@ -1090,7 +1087,7 @@ void InfoList::UpdateKeyBar()
 	DynamicUpdateKeyBar();
 }
 
-void InfoList::DynamicUpdateKeyBar()
+void InfoList::DynamicUpdateKeyBar() const
 {
 	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 

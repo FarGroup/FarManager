@@ -204,7 +204,7 @@ static int weeknumber(const tm *timeptr,const int firstweekday)
 // isleap --- is a year a leap year?
 static int isleap(const int year)
 {
-	return ((!(year%4)&&(year%100))||!(year%400));
+	return (!(year%4) && (year%100)) || !(year%400);
 }
 
 static int iso8601wknum(const tm *timeptr)

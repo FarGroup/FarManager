@@ -59,7 +59,7 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 	ItemX()
 {
 	SetDynamicallyBorn(false);
-	SetRestoreScreenMode(TRUE);
+	SetRestoreScreenMode(true);
 	Global->FrameManager->ModalizeFrame(this);
 }
 
@@ -351,7 +351,7 @@ int HMenu::ProcessKey(int Key)
 }
 
 
-bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 {
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;

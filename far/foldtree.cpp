@@ -58,15 +58,15 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	PrevMacroMode(Global->CtrlObject->Macro.GetMode())
 {
 	SetDynamicallyBorn(false);
-	SetRestoreScreenMode(TRUE);
+	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
 	KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	if ((Tree=new TreeList(false)))
-	{
+	Tree = new TreeList(false);
+
 		Global->CtrlObject->Macro.SetMode(MACROAREA_FINDFOLDER);
 		MacroMode = MACROAREA_FINDFOLDER;
 		strLastName.clear();
@@ -76,30 +76,20 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 		if (ModalMode == MODALTREE_FREE)
 			Tree->SetRootDir(strResultFolder);
 
-		Tree->SetVisible(TRUE);
+		Tree->SetVisible(true);
 		Tree->Update(0);
 
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			if (!(FindEdit=new EditControl(this)))
-			{
-				SetExitCode(XC_OPEN_ERROR);
-				return;
-			}
-
-			FindEdit->SetEditBeyondEnd(FALSE);
+			FindEdit = new EditControl(this);
+			FindEdit->SetEditBeyondEnd(false);
 			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();
 			Global->FrameManager->ExecuteModal(this); //OT
 		}
 
 		strResultFolder = strNewFolder;
-	}
-	else
-	{
-		SetExitCode(XC_OPEN_ERROR);
-	}
 }
 
 FolderTree::~FolderTree()

@@ -127,7 +127,7 @@ void SaveScreen::CorrectRealScreenCoord()
 	if (Y2 >= ScrY) Y2=ScrY;
 }
 
-void SaveScreen::AppendArea(SaveScreen *NewArea)
+void SaveScreen::AppendArea(const SaveScreen *NewArea)
 {
 	for (int X=X1; X<=X2; X++)
 		if (X>=NewArea->X1 && X<=NewArea->X2)
@@ -275,7 +275,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 }
 
 
-int SaveScreen::ScreenBufCharCount()
+int SaveScreen::ScreenBufCharCount() const
 {
 	return (X2-X1+1)*(Y2-Y1+1);
 }

@@ -88,13 +88,8 @@ private:
 	virtual void DisplayObject() override;
 	void ClearKeyTitles(bool Custom);
 
-	struct titles
-	{
-		string Title;
-		string CustomTitle;
-	};
-
-	std::vector<std::vector<titles>> Items;
+	// title, custom title
+	std::vector<std::vector<std::pair<string, string>>> Items;
 	string strLanguage;
 	KEYBARAREA CustomArea;
 	ScreenObject *Owner;

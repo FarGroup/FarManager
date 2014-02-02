@@ -155,7 +155,7 @@ bool FileFilter::FilterEdit()
 		{
 			string strFileName;
 			api::FAR_FIND_DATA fdata;
-			ScanTree ScTree(FALSE,FALSE);
+			ScanTree ScTree(false, false);
 			ScTree.SetFindPath(GetHostPanel()->GetCurDir(), L"*");
 
 			while (ScTree.GetNextName(&fdata,strFileName))
@@ -178,7 +178,7 @@ bool FileFilter::FilterEdit()
 		});
 
 		wchar_t h = L'1';
-		for (auto i = Extensions.begin(); i != Extensions.end(); ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
+		for (auto i = Extensions.begin(), end = Extensions.end(); i != end; ++i, (h == L'9'? h = L'A' : (h == L'Z' || h? h++ : h=0)))
 		{
 			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i->first.data(), MSG(MPanelFileType)));
 			size_t Length = i->first.size() + 1;
@@ -412,7 +412,7 @@ bool FileFilter::FilterEdit()
 	}
 
 	bMenuOpen = false;
-	return (ExitCode!=-1);
+	return ExitCode != -1;
 }
 
 const enumFileFilterFlagsType FileFilter::GetFFFT()
@@ -855,17 +855,11 @@ void FileFilter::InitFilter()
 
 void FileFilter::CloseFilter()
 {
-	if(FilterData)
-	{
-		delete FilterData;
-		FilterData = nullptr;
-	}
+	delete FilterData;
+	FilterData = nullptr;
 
-	if(TempFilterData)
-	{
-		delete TempFilterData;
-		TempFilterData = nullptr;
-	}
+	delete TempFilterData;
+	TempFilterData = nullptr;
 }
 
 void FileFilter::Save(bool always)

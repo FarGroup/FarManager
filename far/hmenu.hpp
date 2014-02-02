@@ -68,7 +68,7 @@ class HMenu: public Modal
 		                    int X,int Y,int &Position);
 		wchar_t GetHighlights(const struct HMenuData *_item);
 		int CheckHighlights(WORD CheckSymbol,int StartPos=0);
-		bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent);
+		bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 
 	public:
 		HMenu(struct HMenuData *Item,int ItemCount);

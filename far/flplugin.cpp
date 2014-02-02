@@ -101,7 +101,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 			if (FileNameToPluginItem(CurPlugin.m_HostFile,&PanelItem))
 			{
-				Global->CtrlObject->Plugins->PutFiles(hPlugin,&PanelItem,1,FALSE,0);
+				Global->CtrlObject->Plugins->PutFiles(hPlugin, &PanelItem, 1, false, 0);
 			}
 			else
 			{
@@ -522,7 +522,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 				PluginPanelItem PanelItem;
 
 				if (FileNameToPluginItem(strDizName,&PanelItem))
-					Global->CtrlObject->Plugins->PutFiles(DestPanel->hPlugin,&PanelItem,1,FALSE,OPM_SILENT|OPM_DESCR);
+					Global->CtrlObject->Plugins->PutFiles(DestPanel->hPlugin, &PanelItem, 1, false, OPM_SILENT | OPM_DESCR);
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
@@ -616,7 +616,7 @@ void FileList::PluginToPluginFiles(int Move)
 	if (!ItemList.empty())
 	{
 		const wchar_t *lpwszTempDir=strTempDir.data();
-		int PutCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), FALSE, &lpwszTempDir, OPM_SILENT);
+		int PutCode = Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), false, &lpwszTempDir, OPM_SILENT);
 		strTempDir=lpwszTempDir;
 
 		if (PutCode==1 || PutCode==2)
@@ -624,7 +624,7 @@ void FileList::PluginToPluginFiles(int Move)
 			string strSaveDir;
 			api::GetCurrentDirectory(strSaveDir);
 			FarChDir(strTempDir);
-			PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), FALSE, 0);
+			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), false, 0);
 
 			if (PutCode==1 || PutCode==2)
 			{
@@ -707,7 +707,7 @@ void FileList::PluginHostGetFiles()
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
 				const wchar_t *lpwszDestPath=strDestPath.data();
-				ExitLoop=Global->CtrlObject->Plugins->GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,&lpwszDestPath,OpMode)!=1;
+				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin, ItemList, ItemNumber, false, &lpwszDestPath, OpMode) != 1;
 				strDestPath=lpwszDestPath;
 
 				if (!ExitLoop)
@@ -852,7 +852,7 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 }
 
 
-void FileList::GetOpenPanelInfo(OpenPanelInfo *Info)
+void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
 {
 	_ALGO(CleverSysLog clv(L"FileList::GetOpenPanelInfo()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
@@ -1170,7 +1170,7 @@ PluginHandle* FileList::GetPluginHandle() const
 int FileList::ProcessPluginEvent(int Event,void *Param)
 {
 	if (PanelMode==PLUGIN_PANEL)
-		return(Global->CtrlObject->Plugins->ProcessEvent(hPlugin,Event,Param));
+		return Global->CtrlObject->Plugins->ProcessEvent(hPlugin,Event,Param);
 
 	return FALSE;
 }

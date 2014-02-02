@@ -551,7 +551,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		SCOPED_ACTION(TaskBar);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
-		SetCursorType(FALSE,0);
+		SetCursorType(false, 0);
 		ReadOnlyDeleteMode=-1;
 		SkipMode=-1;
 		SkipWipeMode=-1;
@@ -656,7 +656,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 				if (!DirSymLink && (!Global->Opt->DeleteToRecycleBin || Wipe))
 				{
 					string strFullName;
-					ScanTree ScTree(TRUE,TRUE,FALSE);
+					ScanTree ScTree(true, true, FALSE);
 					string strSelFullName;
 
 					if (IsAbsolutePath(strSelName))
@@ -855,7 +855,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	int MsgCode;
 
 	if (!(Attr & FILE_ATTRIBUTE_READONLY))
-		return(DELETE_YES);
+		return DELETE_YES;
 
 	if (!Global->Opt->Confirm.RO)
 		ReadOnlyDeleteMode=1;
@@ -876,18 +876,18 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 			ReadOnlyDeleteMode=1;
 			break;
 		case 2:
-			return(DELETE_SKIP);
+			return DELETE_SKIP;
 		case 3:
 			ReadOnlyDeleteMode=3;
-			return(DELETE_SKIP);
+			return DELETE_SKIP;
 		case -1:
 		case -2:
 		case 4:
-			return(DELETE_CANCEL);
+			return DELETE_CANCEL;
 	}
 
 	api::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-	return(DELETE_YES);
+	return DELETE_YES;
 }
 
 DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent, ConsoleTitle* DeleteTitle)
@@ -1056,7 +1056,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	{
 		string strFullName2;
 		api::FAR_FIND_DATA FindData;
-		ScanTree ScTree(TRUE,TRUE,FALSE);
+		ScanTree ScTree(true, true, FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
 
 		while (ScTree.GetNextName(&FindData,strFullName2))
@@ -1123,7 +1123,7 @@ void DeleteDirTree(const string& Dir)
 
 	string strFullName;
 	api::FAR_FIND_DATA FindData;
-	ScanTree ScTree(TRUE,TRUE,FALSE);
+	ScanTree ScTree(true, true, FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
 
 	while (ScTree.GetNextName(&FindData, strFullName))

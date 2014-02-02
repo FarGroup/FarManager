@@ -70,7 +70,7 @@ Grabber::Grabber():
 	}
 
 	GArea.X1=-1;
-	SetCursorType(TRUE,60);
+	SetCursorType(true, 60);
 	PrevArea=GArea;
 	DisplayObject();
 	Process();
@@ -246,7 +246,7 @@ int Grabber::ProcessKey(int Key)
 	      0,0 консоли.
 	  Ќе было учтено режима выполнени€ макроса.
 	*/
-	SetCursorType(TRUE,60);
+	SetCursorType(true, 60);
 
 	if (Global->CtrlObject->Macro.IsExecuting())
 	{

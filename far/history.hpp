@@ -85,7 +85,7 @@ public:
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned __int64 id);
-	bool ReadLastItem(const string& HistoryName, string &strStr);
+	bool ReadLastItem(const string& HistoryName, string &strStr) const;
 
 	static void CompactHistory();
 

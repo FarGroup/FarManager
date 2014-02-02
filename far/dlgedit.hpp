@@ -83,61 +83,61 @@ public:
 	void  SetDropDownBox(bool NewDropDownBox);
 	void  SetPasswordMode(bool Mode);
 
-	int   GetMaxLength();
+	int   GetMaxLength() const;
 	void  SetMaxLength(int Length);
-	int   GetLength();
-	int   GetStrSize(int Row=-1);
+	int   GetLength() const;
+	int   GetStrSize(int Row = -1) const;
 
 	void  SetInputMask(const string& InputMask);
-	const wchar_t* GetInputMask();
+	const wchar_t* GetInputMask() const;
 
 	void  SetOvertypeMode(bool Mode);
-	bool  GetOvertypeMode();
+	bool  GetOvertypeMode() const;
 
 	void  SetEditBeyondEnd(bool Mode);
 
 	void  SetClearFlag(bool Flag);
-	int   GetClearFlag();
+	int   GetClearFlag() const;
 
 	void  Changed();
 	void  SetString(const string& Str, bool disable_autocomplete = false, int pos = -1);
 	void  InsertString(const string& Str);
 	void  SetHiString(const string& Str);
-	void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
-	void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
-	const wchar_t* GetStringAddr();
+	void  GetString(wchar_t *Str, int MaxSize, int Row = -1) const; // Row==-1 - current line
+	void  GetString(string &strStr, int Row = -1) const;            // Row==-1 - current line
+	const wchar_t* GetStringAddr() const;
 
 	void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line
-	int   GetCurPos();
-	int   GetCurRow();
+	int   GetCurPos() const;
+	int   GetCurRow() const;
 
-	int   GetTabCurPos();
+	int   GetTabCurPos() const;
 	void  SetTabCurPos(int NewPos);
 
 	void  SetPersistentBlocks(bool Mode);
-	int   GetPersistentBlocks();
+	int   GetPersistentBlocks() const;
 	void  SetDelRemovesBlocks(bool NewMode);
-	int   GetDelRemovesBlocks();
+	int   GetDelRemovesBlocks() const;
 
 	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor=COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
 	void  SetObjectColor(const FarColor& Color,const FarColor& SelColor,const FarColor& ColorUnChanged);
-	void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
+	void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) const;
 
 	void  FastShow();
-	int   GetLeftPos();
+	int   GetLeftPos() const;
 	void  SetLeftPos(int NewPos,int Row=-1); // Row==-1 - current line
 
 	void  DeleteBlock();
 
 	void  Select(int Start,int End);           // TODO: не учтено для multiline!
-	void  GetSelection(intptr_t &Start,intptr_t &End);   // TODO: не учтено для multiline!
+	void  GetSelection(intptr_t &Start, intptr_t &End) const;   // TODO: не учтено для multiline!
 
 	void Xlat(bool All=false);
 
 	void SetCursorType(bool Visible, DWORD Size);
-	void GetCursorType(bool& Visible, DWORD& Size);
+	void GetCursorType(bool& Visible, DWORD& Size) const;
 
-	bool  GetReadOnly();
+	bool  GetReadOnly() const;
 	void SetReadOnly(bool NewReadOnly);
 
 	void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}

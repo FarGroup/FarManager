@@ -274,16 +274,16 @@ public:
 	virtual void ChangeCaseSensitiveSort(bool Mode) override;
 	virtual void ChangeDirectoriesFirst(bool Mode) override;
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
-	virtual int GetPrevSortMode() override;
-	virtual bool GetPrevSortOrder() override;
-	virtual int GetPrevViewMode() override;
-	virtual bool GetPrevNumericSort() override;
-	virtual bool GetPrevCaseSensitiveSort() override;
-	virtual bool GetPrevDirectoriesFirst() override;
-	virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) override;
+	virtual int GetPrevSortMode() const override;
+	virtual bool GetPrevSortOrder() const override;
+	virtual int GetPrevViewMode() const override;
+	virtual bool GetPrevNumericSort() const override;
+	virtual bool GetPrevCaseSensitiveSort() const override;
+	virtual bool GetPrevDirectoriesFirst() const override;
+	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual int GetCurrentPos() const override;
 	virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
-	virtual bool GetPlainString(string& Dest,int ListPos) override;
+	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual int GoToFile(long idxItem) override;
 	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) override;
 	virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) override;
@@ -302,26 +302,26 @@ public:
 	virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) override;
 	virtual void DeleteDiz(const string& Name, const string& ShortName) override;
 	virtual void FlushDiz() override;
-	virtual void GetDizName(string &strDizName) override;
+	virtual void GetDizName(string &strDizName) const override;
 	virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	virtual bool IsDizDisplayed() override;
 	virtual bool IsColumnDisplayed(int Type) override;
-	virtual int GetColumnsCount() override { return Columns;}
+	virtual int GetColumnsCount() const override { return Columns; }
 	virtual void SetReturnCurrentFile(int Mode) override;
-	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override;
+	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
 	virtual size_t GetSelCount() const override;
-	virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,api::FAR_FIND_DATA *fde=nullptr) override;
+	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, api::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
-	virtual unsigned __int64 GetLastSelectedSize() override;
+	virtual unsigned __int64 GetLastSelectedSize() const override;
 	const FileListItem* GetLastSelectedItem() const;
 	virtual PluginHandle* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void SetTitle() override;
-	virtual size_t GetFileCount() override {return ListData.size();}
+	virtual size_t GetFileCount() const override { return ListData.size(); }
 	const FileListItem* GetItem(size_t Index) const;
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
@@ -338,8 +338,8 @@ public:
 	void PluginSetSelection(int ItemNumber,bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
-	int PluginPanelHelp(const PluginHandle* hPlugin);
-	bool CreateFullPathName(const string& Name,const string& ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
+	int PluginPanelHelp(const PluginHandle* hPlugin) const;
+	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
 	static void SetFilePanelModes();
@@ -358,10 +358,10 @@ protected:
 private:
 	virtual ~FileList();
 	virtual void SetSelectedFirstMode(bool Mode) override;
-	virtual bool GetSelectedFirstMode() override {return SelectedFirst;}
+	virtual bool GetSelectedFirstMode() const override { return SelectedFirst; }
 	virtual void DisplayObject() override;
-	virtual int GetCurName(string &strName, string &strShortName) override;
-	virtual int GetCurBaseName(string &strName, string &strShortName) override;
+	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual int GetCurBaseName(string &strName, string &strShortName) const override;
 
 	void ApplySortMode(int Mode);
 	void DeleteListData(std::vector<FileListItem>& ListData);
@@ -371,11 +371,11 @@ private:
 	void CorrectPosition();
 	void ShowFileList(int Fast);
 	void ShowList(int ShowStatus,int StartColumn);
-	void SetShowColor(int Position, bool FileColor = true);
-	const FarColor GetShowColor(int Position, bool FileColor = true);
+	void SetShowColor(int Position, bool FileColor = true) const;
+	const FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr);
+	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, int Selection);
 	long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
@@ -393,8 +393,8 @@ private:
 	void SelectSortMode();
 	bool ApplyCommand();
 	void DescribeFiles();
-	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot=TRUE);
-	void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
+	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
+	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	PluginHandle* OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
@@ -410,10 +410,11 @@ private:
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 	void ProcessCopyKeys(int Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-	void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 	int ProcessOneHostFile(const FileListItem* Item);
-	void HighlightBorder(int Level, int ListPos);
+	void HighlightBorder(int Level, int ListPos) const;
 	void InitFSWatcher(bool CheckTree);
+
+	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 
 	struct PrevDataItem
 	{

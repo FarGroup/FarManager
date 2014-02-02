@@ -285,7 +285,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 				{
 					string strPath(PathName);
 
-					if (path && strPath.size() <= path_len && 0 == StrCmpNI(path, PathName, static_cast<int>(strPath.size())))
+					if (path && strPath.size() <= path_len && 0 == StrCmpNI(path, PathName, strPath.size()))
 						return strPath;
 
 					if (IsRootPath(strPath))
@@ -330,7 +330,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 {
 	size_t n = drive_root.size();
-	if (abs_path.size() >= n && 0 == StrCmpNI(abs_path.data(), drive_root.data(), static_cast<int>(n)))
+	if (abs_path.size() >= n && 0 == StrCmpNI(abs_path.data(), drive_root.data(), n))
 		return n;
 
 	size_t dir_offset = 0;

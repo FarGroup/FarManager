@@ -106,10 +106,10 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
 	SCOPED_ACTION(TaskBar)(MsgWaitTime != -1);
 	SCOPED_ACTION(wakeful);
-	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
+	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
 	api::FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
-	SetCursorType(FALSE,0);
+	SetCursorType(false, 0);
 	GetPathRoot(strFullDirName,strDriveRoot);
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
@@ -197,7 +197,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 			StartTime=CurTime;
 			MsgWaitTime=500;
 			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName << fmt::Flush(); // покажем заголовок консоли
-			SetCursorType(FALSE,0);
+			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}
 
@@ -439,7 +439,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, Pl
 			strDirName = Dir;
 			TruncStr(strDirName,30);
 			CenterStr(strDirName,strDirName,30);
-			SetCursorType(FALSE,0);
+			SetCursorType(false, 0);
 			FarGetPluginDirListMsg(strDirName,0);
 			PluginSearchMsgOut=FALSE;
 			hDirListPlugin = &DirListPlugin;
@@ -543,5 +543,5 @@ int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long &DirCo
 		FreePluginDirList(ph->hPlugin, PanelItem);
 	}
 
-	return(ExitCode);
+	return ExitCode;
 }

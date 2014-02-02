@@ -556,7 +556,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 
 	if (CurX<0||CurY<0||CurX>ScrX||CurY>ScrY)
 	{
-		CurVisible=FALSE;
+		CurVisible = false;
 	}
 
 	if(X!=CurX || Y!=CurY || !CurVisible)

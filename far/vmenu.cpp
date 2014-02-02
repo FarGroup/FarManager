@@ -147,19 +147,19 @@ void VMenu::ResetCursor()
 }
 
 //может иметь фокус
-bool VMenu::ItemCanHaveFocus(UINT64 Flags)
+bool VMenu::ItemCanHaveFocus(UINT64 Flags) const
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR));
 }
 
 //может быть выбран
-bool VMenu::ItemCanBeEntered(UINT64 Flags)
+bool VMenu::ItemCanBeEntered(UINT64 Flags) const
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR));
 }
 
 //видимый
-bool VMenu::ItemIsVisible(UINT64 Flags)
+bool VMenu::ItemIsVisible(UINT64 Flags) const
 {
 	return !(Flags&(LIF_HIDDEN));
 }
@@ -745,12 +745,12 @@ void VMenu::FilterUpdateHeight(bool bShrink)
 	}
 }
 
-bool VMenu::IsFilterEditKey(int Key)
+static bool IsFilterEditKey(int Key)
 {
 	return (Key>=(int)KEY_SPACE && Key<0xffff) || Key==KEY_BS;
 }
 
-bool VMenu::ShouldSendKeyToFilter(int Key)
+bool VMenu::ShouldSendKeyToFilter(int Key) const
 {
 	if (Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF)
 		return true;
@@ -1435,7 +1435,7 @@ int VMenu::ProcessKey(int Key)
 			{
 				const wchar_t *FilterString=strFilter.data();
 				int start=StrLength(FilterString);
-				bool DoXlat=TRUE;
+				bool DoXlat = true;
 
 				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
 				{
@@ -1895,11 +1895,8 @@ void VMenu::Hide()
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	if (OldTitle)
-	{
-		delete OldTitle;
-		OldTitle = nullptr;
-	}
+	delete OldTitle;
+	OldTitle = nullptr;
 }
 
 void VMenu::DisplayObject()
@@ -2649,11 +2646,8 @@ void VMenu::SetTitle(const string& Title)
 		}
 		else
 		{
-			if (OldTitle)
-			{
-				delete OldTitle;
-				OldTitle = nullptr;
-			}
+			delete OldTitle;
+			OldTitle = nullptr;
 		}
 	}
 }
@@ -3042,7 +3036,7 @@ bool VMenu::Pack()
 		}
 		FirstIndex++;
 	}
-	return (OldItemCount!=Items.size());
+	return OldItemCount != Items.size();
 }
 
 void VMenu::SetId(const GUID& Id)
@@ -3050,7 +3044,7 @@ void VMenu::SetId(const GUID& Id)
 	MenuId=Id;
 }
 
-const GUID& VMenu::Id()
+const GUID& VMenu::Id() const
 {
 	return MenuId;
 }

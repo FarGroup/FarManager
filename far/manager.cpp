@@ -299,7 +299,7 @@ void Manager::ExecuteModal(Frame *Executed)
 	return;// GetModalExitCode();
 }
 
-int Manager::GetModalExitCode()
+int Manager::GetModalExitCode() const
 {
 	return ModalExitCode;
 }
@@ -384,10 +384,10 @@ Frame *Manager::FrameMenu()
 		if (ExitCode>=0)
 		{
 			ActivateFrame(ExitCode);
-			return (ActivatedFrame==CurrentFrame || !CurrentFrame->GetCanLoseFocus()?nullptr:CurrentFrame);
+			return (ActivatedFrame == CurrentFrame || !CurrentFrame->GetCanLoseFocus())? nullptr : CurrentFrame;
 		}
 
-		return (ActivatedFrame==CurrentFrame?nullptr:CurrentFrame);
+		return (ActivatedFrame == CurrentFrame)? nullptr : CurrentFrame;
 	}
 
 	return nullptr;
@@ -443,14 +443,14 @@ int  Manager::FindFrameByFile(int ModalType,const string& FileName, const wchar_
 	return -1;
 }
 
-BOOL Manager::ShowBackground()
+bool Manager::ShowBackground()
 {
 	if (Global->CtrlObject->CmdLine)
 	{
 		Global->CtrlObject->CmdLine->ShowBackground();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -557,13 +557,10 @@ void Manager::SwitchToPanels()
 }
 
 
-int Manager::HaveAnyFrame()
+bool Manager::HaveAnyFrame() const
 {
-	if (!Frames.empty() || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
-	        ModalizedFrame || DeactivatedFrame || ExecutedFrame || CurrentFrame)
-		return 1;
-
-	return 0;
+	return !Frames.empty() || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
+		ModalizedFrame || DeactivatedFrame || ExecutedFrame || CurrentFrame;
 }
 
 void Manager::EnterMainLoop()
@@ -707,7 +704,7 @@ int Manager::ProcessKey(DWORD Key)
 					{
 						auto ph= Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
 						if (ph && ph->pPlugin->IsOemPlugin())
-							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
+							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key, true))
 								return TRUE;
 					}
 #endif // NO_WRAPPER
@@ -816,8 +813,6 @@ int Manager::ProcessKey(DWORD Key)
 #endif
 #elif defined(__GNUC__)
 					asm("ud2");
-#else
-#error "Unsupported compiler"
 #endif
 					break;
 				case 4:
@@ -1118,7 +1113,7 @@ int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return ret;
 }
 
-void Manager::PluginsMenu()
+void Manager::PluginsMenu() const
 {
 	_MANAGER(SysLog(1));
 	int curType = CurrentFrame->GetType();
@@ -1160,7 +1155,7 @@ void Manager::PluginsMenu()
 	_MANAGER(SysLog(-1));
 }
 
-bool Manager::IsPanelsActive(bool and_not_qview)
+bool Manager::IsPanelsActive(bool and_not_qview) const
 {
 	if (FramePos>=0 && CurrentFrame)
 	{

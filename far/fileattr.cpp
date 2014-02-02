@@ -136,7 +136,7 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 		api::SetFileAttributes(Name,FileAttr);
 
-	return(Ret);
+	return Ret;
 }
 
 
@@ -193,7 +193,7 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 		api::SetFileAttributes(Name,FileAttr);
 
-	return(Ret);
+	return Ret;
 }
 
 

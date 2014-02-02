@@ -52,9 +52,9 @@ class Modal: public Frame
 		virtual ~Modal() {}
 
 	public:
-		int Done();
+		int Done() const;
 		void ClearDone();
-		int  GetExitCode();
+		int  GetExitCode() const;
 		virtual void SetExitCode(int Code) override;
 
 		void Process();

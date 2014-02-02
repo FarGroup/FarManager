@@ -68,7 +68,7 @@ RedrawDesktop::RedrawDesktop(BOOL IsHidden):
 			Global->CtrlObject->Cp()->RightPanel->Hide();
 			Global->CtrlObject->Cp()->LeftPanel->Hide();
 		}
-		Global->Opt->Clock=FALSE;
+		Global->Opt->Clock = false;
 		Global->CtrlObject->MainKeyBar->Hide();
 		Global->CtrlObject->TopMenuBar->Hide();
 	}
@@ -92,15 +92,15 @@ RedrawDesktop::~RedrawDesktop()
 
 	if (RightVisible && RightType!=QVIEW_PANEL)
 		//Global->CtrlObject->Cp()->RightPanel->Show();
-		Global->CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
+		Global->CtrlObject->Cp()->RightPanel->SetVisible(true);
 
 	if (LeftVisible)
 		// Global->CtrlObject->Cp()->LeftPanel->Show();
-		Global->CtrlObject->Cp()->LeftPanel->SetVisible(TRUE);
+		Global->CtrlObject->Cp()->LeftPanel->SetVisible(true);
 
 	if (RightVisible && RightType==QVIEW_PANEL)
 		// Global->CtrlObject->Cp()->RightPanel->Show();
-		Global->CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
+		Global->CtrlObject->Cp()->RightPanel->SetVisible(true);
 
 	// Временное решение!
 	// Иначе траблы при пересчете...

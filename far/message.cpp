@@ -658,5 +658,5 @@ bool AbortMessage()
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;
 
-	return ((Global->Opt->Confirm.EscTwiceToInterrupt && Res) || (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res));
+	return (Global->Opt->Confirm.EscTwiceToInterrupt && Res) || (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res);
 }

@@ -258,14 +258,13 @@ class VMenu: public Modal
 		int CheckHighlights(wchar_t Chr,int StartPos=0);
 		wchar_t GetHighlights(const struct MenuItemEx *_item);
 		bool ShiftItemShowPos(int Pos,int Direct);
-		bool ItemCanHaveFocus(UINT64 Flags);
-		bool ItemCanBeEntered(UINT64 Flags);
-		bool ItemIsVisible(UINT64 Flags);
+		bool ItemCanHaveFocus(UINT64 Flags) const;
+		bool ItemCanBeEntered(UINT64 Flags) const;
+		bool ItemIsVisible(UINT64 Flags) const;
 		void UpdateMaxLengthFromTitles();
 		void UpdateMaxLength(int Length);
 		void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
-		bool IsFilterEditKey(int Key);
-		bool ShouldSendKeyToFilter(int Key);
+		bool ShouldSendKeyToFilter(int Key) const;
 		//коректировка текущей позиции и флагов SELECTED
 		void UpdateSelectPos();
 
@@ -332,8 +331,8 @@ class VMenu: public Modal
  		bool AddToFilter(const wchar_t *str);
  		void SetFilterString(const wchar_t *str);
 
-		intptr_t GetItemCount() { return Items.size(); }
-		int  GetShowItemCount() { return static_cast<int>(Items.size()-ItemHiddenCount); }
+		intptr_t GetItemCount() const { return Items.size(); }
+		int  GetShowItemCount() const { return static_cast<int>(Items.size()-ItemHiddenCount); }
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 
@@ -341,7 +340,7 @@ class VMenu: public Modal
 		size_t GetUserDataSize(int Position=-1);
 		size_t  SetUserData(LPCVOID Data,size_t Size=0,int Position=-1);
 
-		int  GetSelectPos() { return SelectPos; }
+		int  GetSelectPos() const { return SelectPos; }
 		int  GetSelectPos(FarListPos *ListPos);
 		int  SetSelectPos(const FarListPos *ListPos, int Direct=0);
 		int  SetSelectPos(int Pos, int Direct, bool stop_on_edge=false);
@@ -394,7 +393,7 @@ class VMenu: public Modal
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
 		void SetId(const GUID& Id);
-		const GUID& Id();
+		const GUID& Id() const;
 
 		static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 };

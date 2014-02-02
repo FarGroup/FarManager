@@ -205,7 +205,7 @@ static int MainProcess(
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
 				CurrentPanelOptions.Type=FILE_PANEL;  // сменим моду панели
-				CurrentPanelOptions.Visible=TRUE;     // и включим ее
+				CurrentPanelOptions.Visible = true;     // и включим ее
 				CurrentPanelOptions.Folder = strPath;
 			};
 
@@ -491,12 +491,12 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					switch (Upper(Argv[I][2]))
 					{
 						case 0:
-							Global->Opt->CleanAscii=TRUE;
+							Global->Opt->CleanAscii = true;
 							break;
 						case L'G':
 
 							if (!Argv[I][3])
-								Global->Opt->NoGraphics=TRUE;
+								Global->Opt->NoGraphics = true;
 
 							break;
 					}
@@ -779,7 +779,6 @@ int wmain(int Argc, wchar_t *Argv[])
 		atexit(PrintSysLogStat);
 #endif
 		_wsetlocale(LC_ALL, L"");
-		std::set_new_handler(nullptr);
 		EnableSeTranslation();
 #ifndef _MSC_VER
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);

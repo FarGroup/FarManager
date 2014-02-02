@@ -124,7 +124,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			{
 				if (!(DizData.size() & 127) && clock()-StartTime>1000)
 				{
-					SetCursorType(FALSE,0);
+					SetCursorType(false, 0);
 					PR_ReadingMsg();
 
 					if (CheckForEsc())
@@ -436,7 +436,7 @@ bool DizList::CopyDiz(const string& Name, const string& ShortName, const string&
 	return true;
 }
 
-void DizList::GetDizName(string &strDizName)
+void DizList::GetDizName(string &strDizName) const
 {
 	strDizName = strDizFileName;
 }

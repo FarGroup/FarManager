@@ -181,7 +181,7 @@ struct UniSet
 			negative=src.negative;
 		}
 
-		return (*this);
+		return *this;
 	}
 
 	void Reset()

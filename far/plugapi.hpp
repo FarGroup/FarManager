@@ -45,10 +45,10 @@ namespace pluginapi
 #ifndef _MSC_VER
 	int      WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...);
 #endif
-	wchar_t* WINAPI apiItoa(int value, wchar_t *string, int radix);
-	__int64  WINAPI apiAtoi64(const wchar_t *s);
-	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *string, int radix);
-	int      WINAPI apiAtoi(const wchar_t *s);
+	wchar_t* WINAPI apiItoa(int value, wchar_t *Str, int radix);
+	__int64  WINAPI apiAtoi64(const wchar_t *Str);
+	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *Str, int radix);
+	int      WINAPI apiAtoi(const wchar_t *Str);
 	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user);
 	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user);
 	wchar_t* WINAPI apiQuoteSpace(wchar_t *Str);
@@ -113,7 +113,6 @@ namespace pluginapi
 	intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2);
 	size_t   WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer);
 	size_t   WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS ViewFlags, wchar_t *Dest, size_t DestSize);
-	typedef int (WINAPI *FRSUSERFUNC)(const PluginPanelItem *FData,const wchar_t *FullName,void *param);
 	void     WINAPI apiRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNC func,unsigned __int64 flags,void *param);
 	size_t   WINAPI apiMkTemp(wchar_t *Dest, size_t size, const wchar_t *Prefix);
 	size_t   WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags);

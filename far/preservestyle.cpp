@@ -132,11 +132,8 @@ static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string&
 
 	if (Result.size() > 1)
 	{
-		auto Start = Result.cbegin();
-		++Start;
-		wchar_t PrependChar = Start->PrependChar;
-		++Start;
-		for (auto i = Start; i != Result.end(); ++i)
+		wchar_t PrependChar = std::next(Result.cbegin())->PrependChar;
+		for (CONST_ITERATOR(Result) i = std::next(Result.cbegin(), 2), end = Result.cend(); i != end; ++i)
 		{
 			if (PrependChar != i->PrependChar)
 			{
@@ -371,8 +368,10 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			bool Same = SourceTokens.size() == StrTokens.size();
 			if(Same)
 			{
-				for(auto SrcI = SourceTokens.cbegin(), StrI = StrTokens.cbegin(); Same && SrcI != SourceTokens.cend(); ++SrcI, ++StrI)
-					Same &= SrcI->Token.size() == StrI->Token.size();
+				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](const VALUE_TYPE(SourceTokens)& a, const VALUE_TYPE(StrTokens)& b)
+				{
+					return a.Token.size() == b.Token.size();
+				});
 			}
 
 			if (Same)
@@ -411,10 +410,8 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 					{
 						int AfterFirstCommonTypeMask = -1;
 						wchar_t PrependChar = SourceTokens.back().PrependChar;
-						
-						auto SourceI = SourceTokens.cbegin();
-						++SourceI;
-						for (; SourceI != SourceTokens.end(); ++SourceI)
+
+						for (auto SourceI = std::next(SourceTokens.cbegin()); SourceI != SourceTokens.cend(); ++SourceI)
 						{
 							if (AfterFirstCommonTypeMask == -1)
 								AfterFirstCommonTypeMask = SourceI->TypeMask;
@@ -431,9 +428,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 							PrependChar = ReplaceStrTokens.back().PrependChar;
 						}
 
-						auto ReplaceI = ReplaceStrTokens.begin();
-						++ReplaceI;
-						for (; ReplaceI != ReplaceStrTokens.end(); ++ReplaceI)
+						for (ITERATOR(ReplaceStrTokens) ReplaceI = std::next(ReplaceStrTokens.begin()), end = ReplaceStrTokens.end(); ReplaceI != end; ++ReplaceI)
 						{
 							ToPreserveStyleType(ReplaceI->Token, ChoosePreserveStyleType(AfterFirstCommonTypeMask));
 							ReplaceI->PrependChar = PrependChar;

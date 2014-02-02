@@ -57,7 +57,8 @@ public:
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
 	bool empty() const;
-	void ErrorMessage() const;
+
+	static void ErrorMessage();
 
 private:
 	void Free();

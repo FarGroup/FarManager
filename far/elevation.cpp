@@ -1315,7 +1315,7 @@ private:
 
 		Exit = false;
 
-		static void (elevated::*Handlers[])() const =
+		static const decltype(&elevated::ExitHandler) Handlers[] =
 		{
 			&elevated::ExitHandler,
 			&elevated::CreateDirectoryExHandler,

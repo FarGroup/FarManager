@@ -55,18 +55,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "plugins.hpp"
 
-FileViewer::FileViewer(
-	const string& Name,int EnableSwitch,int DisableHistory,
-	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,bool ToSaveAs,uintptr_t aCodePage,
-	const wchar_t *Title, int DeleteOnClose)
- : View(false,aCodePage),
+FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
+                       __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
+                       uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose):
+	View(false,aCodePage),
 	FullScreen(true),
 	DisableEdit(DisableEdit),
-	delete_on_close(0)
+	delete_on_close(0),
+	str_title(NullToEmpty(Title))
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
-	str_title = (Title && *Title ? Title : L"");
 	if (!str_title.empty())
 		View.SetTitle(Title);
 	if (DeleteOnClose)
@@ -80,13 +78,13 @@ FileViewer::FileViewer(
 
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
-                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage): View(false,aCodePage)
+                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage):
+	View(false,aCodePage),
+	DisableEdit(TRUE),
+	delete_on_close(0),
+	str_title(NullToEmpty(Title))
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
-	DisableEdit=TRUE;
-
-	delete_on_close = 0;
-	str_title = (Title && *Title ? Title : L"");
 
 	if (X1 < 0)
 		X1=0;
@@ -115,7 +113,7 @@ FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
 	SetPosition(X1,Y1,X2,Y2);
 	FullScreen=(!X1 && !Y1 && X2==ScrX && Y2==ScrY);
 	View.SetTitle(Title);
-	Init(Name,EnableSwitch,DisableHistory,-1,L"",nullptr,FALSE);
+	Init(Name, EnableSwitch, DisableHistory, -1, L"", nullptr, false);
 }
 
 
@@ -288,7 +286,7 @@ int FileViewer::ProcessKey(int Key)
 			View.GetFileName(strFileName);
 			Global->CtrlObject->Cp()->GoToFile(strFileName);
 			RedrawTitle = TRUE;
-			return (TRUE);
+			return TRUE;
 		}
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
@@ -302,14 +300,14 @@ int FileViewer::ProcessKey(int Key)
 
 			Show();
 			KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
-			return (TRUE);
+			return TRUE;
 		case KEY_CTRLSHIFTB:
 		case KEY_RCTRLSHIFTB:
 		{
 			Global->Opt->ViOpt.ShowTitleBar=!Global->Opt->ViOpt.ShowTitleBar;
 			TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 			Show();
-			return (TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
@@ -318,7 +316,7 @@ int FileViewer::ProcessKey(int Key)
 			{
 				if (Global->FrameManager->ShowBackground())
 				{
-					SetCursorType(FALSE,0);
+					SetCursorType(false, 0);
 					WaitKey();
 					Global->FrameManager->RefreshFrame();
 				}
@@ -359,7 +357,7 @@ int FileViewer::ProcessKey(int Key)
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
 					str_title.empty() ? nullptr: &str_title,
 					-1,-1, -1, -1, delete_on_close );
-				ShellEditor->SetEnableF6(TRUE);
+				ShellEditor->SetEnableF6(true);
 				/* $ 07.05.2001 DJ сохраняем NamesList */
 				ShellEditor->SetNamesList(View.GetNamesList());
 
@@ -401,7 +399,7 @@ int FileViewer::ProcessKey(int Key)
 					ViewKeyBar.Show();
 
 			if (!ViewKeyBar.ProcessKey(Key))
-				return(View.ProcessKey(Key));
+				return View.ProcessKey(Key);
 		}
 		return TRUE;
 	}
@@ -423,7 +421,7 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MScreensView);
 	View.GetFileName(strName);
-	return(MODALTYPE_VIEWER);
+	return MODALTYPE_VIEWER;
 }
 
 

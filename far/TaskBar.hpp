@@ -40,7 +40,7 @@ public:
 	TBPFLAG GetProgressState();
 	void SetProgressState(TBPFLAG tbpFlags);
 	void SetProgressValue(UINT64 Completed, UINT64 Total);
-	void Flash();
+	static void Flash();
 
 private:
 	bool CoInited;

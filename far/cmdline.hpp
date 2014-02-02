@@ -49,35 +49,35 @@ public:
 
 	int GetCurDir(string &strCurDir);
 	void SetCurDir(const string& CurDir);
-	void GetString(string &strStr) { CmdStr.GetString(strStr); }
-	int GetLength() { return CmdStr.GetLength(); }
+	void GetString(string &strStr) const { CmdStr.GetString(strStr); }
+	int GetLength() const { return CmdStr.GetLength(); }
 	void SetString(const string& Str,bool Redraw=true);
 	void InsertString(const string& Str);
 	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false);
 	void ShowViewEditHistory();
 	void SetCurPos(int Pos, int LeftPos=0, bool Redraw=true);
-	int GetCurPos() { return CmdStr.GetCurPos(); }
-	int GetLeftPos() { return CmdStr.GetLeftPos(); }
+	int GetCurPos() const { return CmdStr.GetCurPos(); }
+	int GetLeftPos() const { return CmdStr.GetLeftPos(); }
 	void SetPersistentBlocks(bool Mode);
 	void SetDelRemovesBlocks(bool Mode);
 	void SetAutoComplete(int Mode);
-	void GetSelection(intptr_t &Start,intptr_t &End) { CmdStr.GetSelection(Start,End); }
+	void GetSelection(intptr_t &Start,intptr_t &End) const { CmdStr.GetSelection(Start,End); }
 	void Select(int Start, int End) { CmdStr.Select(Start,End); }
 	void SaveBackground(int X1,int Y1,int X2,int Y2);
 	void SaveBackground();
 	void ShowBackground();
 	void CorrectRealScreenCoord();
 	void LockUpdatePanel(bool Mode);
-	const int GetPromptSize() {return PromptSize;}
+	const int GetPromptSize() const {return PromptSize;}
 	void SetPromptSize(int NewSize);
 
 private:
 	virtual void DisplayObject() override;
 	int ProcessOSCommands(const string& CmdLine,bool SeparateWindow, bool &PrintCommand);
 	std::list<std::pair<string, FarColor>> GetPrompt();
-	bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
-	bool CheckCmdLineForHelp(const wchar_t *CmdLine);
-	bool CheckCmdLineForSet(const string& CmdLine);
+	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
+	static bool CheckCmdLineForHelp(const wchar_t *CmdLine);
+	static bool CheckCmdLineForSet(const string& CmdLine);
 
 	int PromptSize;
 	EditControl CmdStr;

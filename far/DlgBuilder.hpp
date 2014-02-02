@@ -342,7 +342,7 @@ class DialogBuilderBase
 			Bindings [DialogItemsCount-1] = Binding;
 		}
 
-		int GetItemID(T *Item)
+		int GetItemID(T *Item) const
 		{
 			int Index = static_cast<int>(Item - DialogItems);
 			if (Index >= 0 && Index < DialogItemsCount)
@@ -412,7 +412,7 @@ class DialogBuilderBase
 
 	public:
 
-		int GetLastID()
+		int GetLastID() const
 		{
 			return DialogItemsCount-1;
 		}
@@ -767,7 +767,7 @@ public:
 		return Buffer;
 	}
 
-	const wchar_t *GetMask()
+	const wchar_t *GetMask() const
 	{
 		return Mask;
 	}

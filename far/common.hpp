@@ -45,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # endif
 #endif
 
+#define _ADD_SUFFIX(s, suffix) s ## suffix
+#define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
+
 // trick to allow usage of operator :: with decltype(T)
 #define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
 #define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
@@ -79,10 +82,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CONST_RANGE(T, i, ...) ALL_CONST_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
 #define CONST_REVERSE_RANGE(T, i, ...) ALL_CONST_REVERSE_RANGE(T), CONST_LAMBDA_PREDICATE(T, i, ##__VA_ARGS__)
 
-#define FOR_RANGE(T, i) for(auto i = std::begin(T); i != std::end(T); ++i)
-#define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T); i != std::rend(T); ++i)
-#define FOR_CONST_RANGE(T, i) for(auto i = std::cbegin(T); i != std::cend(T); ++i)
-#define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = std::crbegin(T); i != std::crend(T); ++i)
+#define FOR_RANGE(T, i) for(auto i = std::begin(T), ADD_SUFFIX(end, __LINE__) = std::end(T); i != ADD_SUFFIX(end, __LINE__); ++i)
+#define FOR_REVERSE_RANGE(T, i) for(auto i = std::rbegin(T), ADD_SUFFIX(rend, __LINE__) = std::rand(T); i != ADD_SUFFIX(rend, __LINE__); ++i)
+#define FOR_CONST_RANGE(T, i) for(auto i = std::cbegin(T), ADD_SUFFIX(cend, __LINE__) = std::cend(T); i != ADD_SUFFIX(cend, __LINE__); ++i)
+#define FOR_CONST_REVERSE_RANGE(T, i) for(auto i = std::crbegin(T), ADD_SUFFIX(crend, __LINE__) = std::crend(T); i != ADD_SUFFIX(crend, __LINE__); ++i)
 
 // C++11-like range-based for
 #if defined _MSC_VER && _MSC_VER < 1700
@@ -200,9 +203,6 @@ class FarRecoverableException : public FarException
 public:
 	FarRecoverableException(const char* Message) : FarException(Message) {}
 };
-
-#define _ADD_SUFFIX(s, suffix) s ## suffix
-#define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
 
 namespace scope_exit
 {
@@ -371,7 +371,7 @@ inline const T* EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str
 Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
 
 #define MOVE_OPERATOR_BY_SWAP(Type) \
-Type& operator=(Type&& rhs) { swap(rhs); return *this; }
+Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
 
 #define STD_SWAP_SPEC(Type) \
 namespace std \
@@ -415,6 +415,8 @@ namespace \
 #else
 #define SELF_TEST(code)
 #endif
+
+#define BIT(number) (1 << (number))
 
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE

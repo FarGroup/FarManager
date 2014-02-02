@@ -198,7 +198,7 @@ void DlgEdit::SetDropDownBox(bool NewDropDownBox)
 		lineEdit->SetDropDownBox(NewDropDownBox);
 }
 
-int DlgEdit::GetMaxLength()
+int DlgEdit::GetMaxLength() const
 {
 	if (Type == DLGEDIT_SINGLELINE)
 		return lineEdit->GetMaxLength();
@@ -229,7 +229,7 @@ void DlgEdit::SetOvertypeMode(bool Mode)
 		lineEdit->SetOvertypeMode(Mode);
 }
 
-bool DlgEdit::GetOvertypeMode()
+bool DlgEdit::GetOvertypeMode() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -246,7 +246,7 @@ void DlgEdit::SetInputMask(const string& InputMask)
 		lineEdit->SetInputMask(InputMask);
 }
 
-const wchar_t* DlgEdit::GetInputMask()
+const wchar_t* DlgEdit::GetInputMask() const
 {
 	if (Type == DLGEDIT_SINGLELINE)
 		return lineEdit->GetInputMask().data();
@@ -276,7 +276,7 @@ void DlgEdit::SetClearFlag(bool Flag)
 		lineEdit->SetClearFlag(Flag);
 }
 
-int DlgEdit::GetClearFlag()
+int DlgEdit::GetClearFlag() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -287,7 +287,7 @@ int DlgEdit::GetClearFlag()
 		return lineEdit->GetClearFlag();
 }
 
-const wchar_t* DlgEdit::GetStringAddr()
+const wchar_t* DlgEdit::GetStringAddr() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -358,7 +358,7 @@ void DlgEdit::InsertString(const string& Str)
 		lineEdit->InsertString(Str);
 }
 
-void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row)
+void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -371,7 +371,7 @@ void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row)
 		lineEdit->GetString(Str,MaxSize);
 }
 
-void DlgEdit::GetString(string &strStr,int Row)
+void DlgEdit::GetString(string &strStr,int Row) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -395,7 +395,7 @@ void DlgEdit::SetCurPos(int NewCol, int NewRow) // Row==-1 - current line
 		lineEdit->SetCurPos(NewCol);
 }
 
-int DlgEdit::GetCurPos()
+int DlgEdit::GetCurPos() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -406,7 +406,7 @@ int DlgEdit::GetCurPos()
 		return lineEdit->GetCurPos();
 }
 
-int DlgEdit::GetCurRow()
+int DlgEdit::GetCurRow() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -417,7 +417,7 @@ int DlgEdit::GetCurRow()
 		return 0;
 }
 
-int DlgEdit::GetTabCurPos()
+int DlgEdit::GetTabCurPos() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -451,7 +451,7 @@ void DlgEdit::SetPersistentBlocks(bool Mode)
 		lineEdit->SetPersistentBlocks(Mode);
 }
 
-int  DlgEdit::GetPersistentBlocks()
+int  DlgEdit::GetPersistentBlocks() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -473,7 +473,7 @@ void DlgEdit::SetDelRemovesBlocks(bool Mode)
 		lineEdit->SetDelRemovesBlocks(Mode);
 }
 
-int  DlgEdit::GetDelRemovesBlocks()
+int  DlgEdit::GetDelRemovesBlocks() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -505,7 +505,7 @@ void DlgEdit::SetObjectColor(const FarColor& Color,const FarColor& SelColor,cons
 		lineEdit->SetObjectColor(Color,SelColor,ColorUnChanged);
 }
 
-void DlgEdit::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
+void DlgEdit::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -527,7 +527,7 @@ void DlgEdit::FastShow()
 		lineEdit->FastShow();
 }
 
-int DlgEdit::GetLeftPos()
+int DlgEdit::GetLeftPos() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -560,7 +560,7 @@ void DlgEdit::DeleteBlock()
 		lineEdit->DeleteBlock();
 }
 
-int DlgEdit::GetLength()
+int DlgEdit::GetLength() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -582,7 +582,7 @@ void DlgEdit::Select(int Start,int End)
 		lineEdit->Select(Start,End);
 }
 
-void DlgEdit::GetSelection(intptr_t &Start,intptr_t &End)
+void DlgEdit::GetSelection(intptr_t &Start,intptr_t &End) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -604,7 +604,7 @@ void DlgEdit::Xlat(bool All)
 		lineEdit->Xlat(All);
 }
 
-int  DlgEdit::GetStrSize(int Row)
+int  DlgEdit::GetStrSize(int Row) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -626,7 +626,7 @@ void DlgEdit::SetCursorType(bool Visible, DWORD Size)
 		lineEdit->SetCursorType(Visible,Size);
 }
 
-void DlgEdit::GetCursorType(bool& Visible, DWORD& Size)
+void DlgEdit::GetCursorType(bool& Visible, DWORD& Size) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -637,7 +637,7 @@ void DlgEdit::GetCursorType(bool& Visible, DWORD& Size)
 		lineEdit->GetCursorType(Visible,Size);
 }
 
-bool DlgEdit::GetReadOnly()
+bool DlgEdit::GetReadOnly() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

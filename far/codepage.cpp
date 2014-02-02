@@ -123,6 +123,7 @@ const codepages::codepages_data::cp_map& codepages::codepages_data::get() const
 codepages::codepages():
 	dialog(nullptr),
 	control(0),
+	DialogBuilderList(),
 	currentCodePage(0),
 	favoriteCodePages(0),
 	normalCodePages(0),

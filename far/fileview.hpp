@@ -103,7 +103,7 @@ class FileViewer:public Frame
 		*/
 		void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
-		bool IsFullScreen() {return FullScreen;}
+		bool IsFullScreen() const {return FullScreen;}
 		virtual const string& GetTitle(string &Title) override;
 		__int64 GetViewFileSize() const;
 		__int64 GetViewFilePos() const;

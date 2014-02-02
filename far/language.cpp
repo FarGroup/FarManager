@@ -53,7 +53,7 @@ bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,con
 	string strFullName, strEngFileName;
 	api::FAR_FIND_DATA FindData;
 	string strLangName;
-	ScanTree ScTree(FALSE,FALSE);
+	ScanTree ScTree(false, false);
 	ScTree.SetFindPath(Path,Mask);
 
 	while (ScTree.GetNextName(&FindData, strFullName))
@@ -154,7 +154,7 @@ int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, 
 	}
 
 	LangFile.SetPointer(OldPos, nullptr, FILE_BEGIN);
-	return(Found);
+	return Found;
 }
 
 static bool SelectLanguage(bool HelpLanguage)
@@ -180,7 +180,7 @@ static bool SelectLanguage(bool HelpLanguage)
 	LangMenu.SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 	string strFullName;
 	api::FAR_FIND_DATA FindData;
-	ScanTree ScTree(FALSE,FALSE);
+	ScanTree ScTree(false, false);
 	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 
 	while (ScTree.GetNextName(&FindData,strFullName))
@@ -476,20 +476,13 @@ Language::~Language()
 void Language::Free()
 {
 	MsgCount=0;
-
 	Messages.clear();
-	if (MsgList)
-	{
-		xf_free(MsgList);
-		MsgList=nullptr;
-	}
+	xf_free(MsgList);
+	MsgList=nullptr;
 #ifndef NO_WRAPPER
 	AnsiMessages.clear();
-	if (MsgListA)
-	{
-		xf_free(MsgListA);
-		MsgListA=nullptr;
-	}
+	xf_free(MsgListA);
+	MsgListA=nullptr;
 	m_bUnicode = true;
 #endif // NO_WRAPPER
 }

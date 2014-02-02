@@ -93,7 +93,7 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 		SetExitCode(-1);
 	}
 
-	return(ReadKey);
+	return ReadKey;
 }
 
 
@@ -112,9 +112,9 @@ void Modal::ProcessInput()
 }
 
 
-int Modal::Done()
+int Modal::Done() const
 {
-	return(EndLoop);
+	return EndLoop;
 }
 
 
@@ -124,9 +124,9 @@ void Modal::ClearDone()
 }
 
 
-int Modal::GetExitCode()
+int Modal::GetExitCode() const
 {
-	return(ExitCode);
+	return ExitCode;
 }
 
 

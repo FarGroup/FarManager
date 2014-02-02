@@ -841,7 +841,7 @@ private:
 	void EditorConfig(Options::EditorOptions &EdOptRef, bool Local = false);
 	void SetFolderInfoFiles();
 	void InfoPanelSettings();
-	void MaskGroupsSettings();
+	static void MaskGroupsSettings();
 	void AutoCompleteSettings();
 	void TreeSettings();
 	void SetFilePanelModes();

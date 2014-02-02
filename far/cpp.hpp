@@ -82,7 +82,7 @@ namespace std
 	inline typename enable_if<is_array<T>::value && extent<T>::value == 0, unique_ptr<T> >::type make_unique(size_t Size)
 	{
 		typedef typename remove_extent<T>::type Elem;
-		return (unique_ptr<T>(new Elem[Size]()));
+		return unique_ptr<T>(new Elem[Size]());
 	}
 
 	template<typename T>
@@ -132,6 +132,10 @@ namespace std
 
 #ifdef _MSC_VER
 #define thread_local __declspec(thread)
+#endif
+
+#ifdef _MSC_VER
+#define noexcept throw()
 #endif
 
 // already included in VC2013

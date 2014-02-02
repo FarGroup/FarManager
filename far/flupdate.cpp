@@ -442,7 +442,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			ListData.resize(ListData.size() + PanelCount);
 
 			auto PluginPtr = PanelData;
-			for (auto i = ListData.begin() + OldSize; i != ListData.end(); ++i, ++PluginPtr, ++Position)
+			for (ITERATOR(ListData) i = ListData.begin() + OldSize, end = ListData.end(); i != end; ++i, ++PluginPtr, ++Position)
 			{
 				PluginToFileListItem(PluginPtr, &*i);
 				i->Position = Position;
@@ -734,7 +734,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		ListData.push_back(VALUE_TYPE(ListData)());
+		ListData.emplace_back(VALUE_TYPE(ListData)());
 		auto& CurListData = ListData.back();
 
 		PluginToFileListItem(&PanelData[i], &CurListData);

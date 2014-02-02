@@ -238,12 +238,12 @@ static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, siz
 
 static int WINAPI LocalIslower(unsigned Ch)
 {
-	return(Ch<256 && IsUpperOrLower[Ch]==1);
+	return Ch<256 && IsUpperOrLower[Ch]==1;
 }
 
 static int WINAPI LocalIsupper(unsigned Ch)
 {
-	return(Ch<256 && IsUpperOrLower[Ch]==2);
+	return Ch<256 && IsUpperOrLower[Ch]==2;
 }
 
 static int WINAPI LocalIsalpha(unsigned Ch)
@@ -253,7 +253,7 @@ static int WINAPI LocalIsalpha(unsigned Ch)
 
 	char CvtCh=Ch;
 	OemToCharBuffA(&CvtCh,&CvtCh,1);
-	return(IsCharAlphaA(CvtCh));
+	return IsCharAlphaA(CvtCh);
 }
 
 static int WINAPI LocalIsalphanum(unsigned Ch)
@@ -263,12 +263,12 @@ static int WINAPI LocalIsalphanum(unsigned Ch)
 
 	char CvtCh=Ch;
 	OemToCharBuffA(&CvtCh,&CvtCh,1);
-	return(IsCharAlphaNumericA(CvtCh));
+	return IsCharAlphaNumericA(CvtCh);
 }
 
 static unsigned WINAPI LocalUpper(unsigned LowerChar)
 {
-	return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
+	return LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar;
 }
 
 static void WINAPI LocalUpperBuf(char *Buf,int Length)
@@ -279,7 +279,7 @@ static void WINAPI LocalUpperBuf(char *Buf,int Length)
 
 static unsigned WINAPI LocalLower(unsigned UpperChar)
 {
-	return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
+	return UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar;
 }
 
 static void WINAPI LocalLowerBuf(char *Buf,int Length)
@@ -533,8 +533,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 	if (pnmA && ppnmW && (iCount>0))
 	{
 		PanelMode *pnmW = new PanelMode[iCount]();
-		if (pnmW)
-		{
+
 			for (size_t i=0; i<iCount; i++)
 			{
 				size_t iColumnCount = pnmA[i].ColumnTypes? StringToList(wide(pnmA[i].ColumnTypes), 0, L",").size() : 0;
@@ -550,7 +549,6 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 				if (pnmA[i].AlignExtensions) pnmW[i].Flags |= PMFLAGS_ALIGNEXTENSIONS;
 				if (pnmA[i].CaseConversion) pnmW[i].Flags |= PMFLAGS_CASECONVERSION;
 			}
-		}
 
 		*ppnmW = pnmW;
 	}
@@ -616,8 +614,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 		if (kbtW->CountLabels)
 		{
 			kbtW->Labels=new KeyBarLabel[kbtW->CountLabels];
-			if (kbtW->Labels)
-			{
+
 				int j;
 				for (j=i=0; i<12; i++)
 				{
@@ -640,10 +637,6 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 							ProcLabels(kbtA->CtrlAltTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED);
 					}
 				}
-
-			}
-			else
-				kbtW->CountLabels=0;
 		}
 	}
 }
@@ -896,7 +889,7 @@ static char* WINAPI PointToNameA(char *Path)
 		Path++;
 	}
 
-	return(NamePtr);
+	return NamePtr;
 }
 
 static void WINAPI UnquoteA(char *Str)
@@ -960,7 +953,7 @@ static char* WINAPI TruncStrA(char *Str,int MaxLength)
 		}
 	}
 
-	return(Str);
+	return Str;
 }
 
 static char* WINAPI TruncPathStrA(char *Str, int MaxLength)
@@ -1021,7 +1014,7 @@ static char* WINAPI QuoteSpaceOnlyA(char *Str)
 	if (Str && strchr(Str,' '))
 		InsertQuoteA(Str);
 
-	return(Str);
+	return Str;
 }
 
 static BOOL AddEndSlashA(char *Path,char TypeSlash)
@@ -1428,7 +1421,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber,DWORD Flags,const char *He
 static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle,int MsgId)
 {
 	//BUGBUG, надо проверять, что PluginHandle - плагин
-	PluginA *pPlugin = (PluginA*)PluginHandle;
+	auto pPlugin = reinterpret_cast<PluginA*>(PluginHandle);
 	string strPath = pPlugin->GetModuleName();
 	CutToSlash(strPath);
 
@@ -1528,15 +1521,17 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWO
 		if (BreakKeysCount)
 		{
 			NewBreakKeys.resize(BreakKeysCount);
-			for(int ii=0;ii<BreakKeysCount;++ii)
+			std::transform(BreakKeys, BreakKeys + BreakKeysCount, NewBreakKeys.begin(), [&](int i) -> VALUE_TYPE(NewBreakKeys)
 			{
-				NewBreakKeys[ii].VirtualKeyCode=BreakKeys[ii]&0xffff;
-				NewBreakKeys[ii].ControlKeyState=0;
-				DWORD Flags=BreakKeys[ii]>>16;
-				if(Flags&oldfar::PKF_CONTROL) NewBreakKeys[ii].ControlKeyState|=LEFT_CTRL_PRESSED;
-				if(Flags&oldfar::PKF_ALT) NewBreakKeys[ii].ControlKeyState|=LEFT_ALT_PRESSED;
-				if(Flags&oldfar::PKF_SHIFT) NewBreakKeys[ii].ControlKeyState|=SHIFT_PRESSED;
-			}
+				VALUE_TYPE(NewBreakKeys) Item;
+				Item.VirtualKeyCode = i & 0xffff;
+				Item.ControlKeyState = 0;
+				DWORD Flags = i >> 16;
+				if (Flags & oldfar::PKF_CONTROL) Item.ControlKeyState|=LEFT_CTRL_PRESSED;
+				if (Flags & oldfar::PKF_ALT) Item.ControlKeyState |= LEFT_ALT_PRESSED;
+				if (Flags & oldfar::PKF_SHIFT) Item.ControlKeyState |= SHIFT_PRESSED;
+				return Item;
+			});
 		}
 	}
 
@@ -1720,11 +1715,8 @@ static FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 		// + 1 потому что там храним поинтер на анси vbuf.
 		VBuf = new FAR_CHAR_INFO[Size + 1];
 
-		if (VBuf)
-		{
-			AnsiVBufToUnicode(diA.VBuf, VBuf, Size,(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
-			SetAnsiVBufPtr(VBuf, diA.VBuf, Size);
-		}
+		AnsiVBufToUnicode(diA.VBuf, VBuf, Size,(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
+		SetAnsiVBufPtr(VBuf, diA.VBuf, Size);
 	}
 
 	return VBuf;
@@ -2323,7 +2315,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 		case DN_DRAWDLGITEM:
 		{
 			Msg=oldfar::DN_DRAWDLGITEM;
-			FarDialogItem *di = (FarDialogItem *)Param2;
+			auto di = static_cast<FarDialogItem*>(Param2);
 			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 			intptr_t ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
 			if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
@@ -2848,12 +2840,8 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (newlist.ItemsNumber)
 				{
 					newlist.Items = new FarListItem[newlist.ItemsNumber];
-
-					if (newlist.Items)
-					{
-						for (size_t i=0; i<newlist.ItemsNumber; i++)
-							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
-					}
+					for (size_t i=0; i<newlist.ItemsNumber; i++)
+						AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 				}
 			}
 
@@ -2958,10 +2946,10 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	std::vector<oldfar::FarDialogItem> diA(ItemsNumber);
 
 	// to save DIF_SETCOLOR state
-	for(int i = 0; i < ItemsNumber; ++i)
+	for_each_2(ALL_RANGE(diA), Item, [](oldfar::FarDialogItem& diA_i, const oldfar::FarDialogItem& Item_i)
 	{
-		diA[i].Flags = Item[i].Flags;
-	}
+		diA_i.Flags = Item_i.Flags;
+	});
 
 	std::vector<FarDialogItem> di(ItemsNumber);
 	std::vector<FarList> l(ItemsNumber);
@@ -3205,8 +3193,6 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					OldPI->PanelItems = new oldfar::PluginPanelItem[PI.ItemsNumber]();
 
-					if (OldPI->PanelItems)
-					{
 						block_ptr<PluginPanelItem> PPI; size_t PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.ItemsNumber); i++)
@@ -3225,15 +3211,12 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
 							}
 						}
-					}
 				}
 
 				if (PI.SelectedItemsNumber)
 				{
 					OldPI->SelectedItems = new oldfar::PluginPanelItem[PI.SelectedItemsNumber]();
 
-					if (OldPI->SelectedItems)
-					{
 						block_ptr<PluginPanelItem> PPI; size_t PPISize=0;
 
 						for (int i=0; i<static_cast<int>(PI.SelectedItemsNumber); i++)
@@ -3252,7 +3235,6 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
 							}
 						}
-					}
 				}
 
 				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
@@ -4329,7 +4311,6 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 
 						*oldsp->cParam=0;
 						newsp.Type = ESPT_GETWORDDIV;
-						newsp.Size = 0;
 						newsp.Size = NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 						std::vector<wchar_t> Buffer(newsp.Size);
 						newsp.wszParam = Buffer.data();
@@ -5015,7 +4996,7 @@ PluginHandle* PluginA::Open(OpenInfo* Info)
 			OpenFromA = oldfar::OPEN_COMMANDLINE;
 			if (Info->Data)
 			{
-				Buffer.reset(UnicodeToAnsi(((OpenCommandLineInfo *)Info->Data)->CommandLine));
+				Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			}
 			break;
@@ -5024,9 +5005,9 @@ PluginHandle* PluginA::Open(OpenInfo* Info)
 			OpenFromA = oldfar::OPEN_SHORTCUT;
 			if (Info->Data)
 			{
-				const wchar_t *shortcutdata = ((OpenShortcutInfo *)Info->Data)->ShortcutData;
+				auto shortcutdata = reinterpret_cast<OpenShortcutInfo*>(Info->Data)->ShortcutData;
 				if (!shortcutdata)
-					shortcutdata = ((OpenShortcutInfo *)Info->Data)->HostFile;
+					shortcutdata = reinterpret_cast<OpenShortcutInfo*>(Info->Data)->HostFile;
 
 				Buffer.reset(UnicodeToAnsi(shortcutdata));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
@@ -5065,7 +5046,7 @@ PluginHandle* PluginA::Open(OpenInfo* Info)
 
 		case OPEN_FROMMACRO:
 			OpenFromA = oldfar::OPEN_FROMMACRO|Global->CtrlObject->Macro.GetMode();
-			Buffer.reset(UnicodeToAnsi(((OpenMacroInfo*)Info->Data)->Count?((OpenMacroInfo*)Info->Data)->Values[0].String:L""));
+			Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
 			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			break;
 

@@ -204,7 +204,7 @@ void InitConsole(int FirstInit)
 		}
 	}
 
-	Global->Console->SetControlHandler(CtrlHandler,TRUE);
+	Global->Console->SetControlHandler(CtrlHandler, true);
 	Global->Console->GetMode(Global->Console->GetInputHandle(),InitialConsoleMode);
 	Global->Console->GetTitle(Global->strInitTitle);
 	Global->Console->GetWindowRect(InitWindowRect);
@@ -495,13 +495,13 @@ void GotoXY(int X,int Y)
 
 int WhereX()
 {
-	return(CurX);
+	return CurX;
 }
 
 
 int WhereY()
 {
-	return(CurY);
+	return CurY;
 }
 
 
@@ -620,11 +620,10 @@ void Text(int X, int Y, const FarColor& Color, const string& Str)
 
 void Text(const string& Str)
 {
-	size_t Length=Str.size();
-
-	if (Length<=0)
+	if (Str.empty())
 		return;
 
+	size_t Length=Str.size();
 	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
 	std::vector<FAR_CHAR_INFO> HeapBuffer;
 	FAR_CHAR_INFO* BufPtr=StackBuffer;
@@ -818,7 +817,7 @@ void ClearScreen(const FarColor& Color)
 
 const FarColor& GetColor()
 {
-	return(CurColor);
+	return CurColor;
 }
 
 

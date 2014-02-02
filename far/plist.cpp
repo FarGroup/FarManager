@@ -212,7 +212,7 @@ BOOL KillProcess(DWORD dwPID)
 	else
 		bRet=FALSE;
 
-	return(bRet);
+	return bRet;
 }
 
 

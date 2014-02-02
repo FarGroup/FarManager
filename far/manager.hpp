@@ -77,7 +77,7 @@ class Manager
 
 	private:
 		Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
-		int HaveAnyFrame();
+		bool HaveAnyFrame() const;
 
 		bool Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
 		// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
@@ -93,7 +93,7 @@ class Manager
 		void ModalizeCommit();
 		void UnmodalizeCommit();
 
-		int GetModalExitCode();
+		int GetModalExitCode() const;
 
 	public:
 		Manager();
@@ -144,9 +144,9 @@ class Manager
 
 		int CountFramesWithName(const string& Name, BOOL IgnoreCase=TRUE);
 
-		bool IsPanelsActive(bool and_not_qview=false); // используется как признак Global->WaitInMainLoop
+		bool IsPanelsActive(bool and_not_qview=false) const; // используется как признак Global->WaitInMainLoop
 		int  FindFrameByFile(int ModalType,const string& FileName,const wchar_t *Dir=nullptr);
-		BOOL ShowBackground();
+		static bool ShowBackground();
 
 		void EnterMainLoop();
 		void ProcessMainLoop();
@@ -154,7 +154,7 @@ class Manager
 		int ProcessKey(DWORD key);
 		int ProcessMouse(const MOUSE_EVENT_RECORD *me);
 
-		void PluginsMenu(); // вызываем меню по F11
+		void PluginsMenu() const; // вызываем меню по F11
 		void SwitchToPanels();
 
 		INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
@@ -174,12 +174,12 @@ class Manager
 		  Для вызова ResizeConsole для всех NextModal у
 		  модального фрейма.
 		*/
-		void ResizeAllModal(Frame *ModalFrame);
+		static void ResizeAllModal(Frame *ModalFrame);
 
 		Frame *GetBottomFrame() { return GetFrame(FramePos); }
 
-		BOOL ManagerIsDown() {return EndLoop;}
-		BOOL ManagerStarted() {return StartManager;}
+		BOOL ManagerIsDown() const {return EndLoop;}
+		BOOL ManagerStarted() const {return StartManager;}
 
 		void InitKeyBar();
 
@@ -190,7 +190,7 @@ class Manager
 		*/
 		void EnterModalEV() {ModalEVCount++;}
 		void ExitModalEV() {ModalEVCount--;}
-		BOOL InModalEV() {return ModalEVCount;}
+		BOOL InModalEV() const {return ModalEVCount;}
 
 		void ResizeAllFrame();
 

@@ -393,8 +393,6 @@ public:
 	tinyxml::TiXmlElement *Export()
 	{
 		auto root = new tinyxml::TiXmlElement(GetKeyName());
-		if (!root)
-			return nullptr;
 
 		SQLiteStmt stmtEnumAllValues;
 		InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
@@ -402,8 +400,6 @@ public:
 		while (stmtEnumAllValues.Step())
 		{
 			auto e = new tinyxml::TiXmlElement("setting");
-			if (!e)
-				break;
 
 			e->SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
 			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
@@ -750,8 +746,6 @@ public:
 		while (stmtEnumValues.Step())
 		{
 			auto e = new tinyxml::TiXmlElement("value");
-			if (!e)
-				break;
 
 			const char* name = stmtEnumValues.GetColTextUTF8(0);
 			e->SetAttribute("name", name);
@@ -781,8 +775,6 @@ public:
 		while (stmtEnumSubKeys.Step())
 		{
 			auto e = new tinyxml::TiXmlElement("key");
-			if (!e)
-				break;
 
 			e->SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
 			const char *description = stmtEnumSubKeys.GetColTextUTF8(2);
@@ -799,8 +791,6 @@ public:
 	tinyxml::TiXmlElement *Export()
 	{
 		auto root = new tinyxml::TiXmlElement("hierarchicalconfig");
-		if (!root)
-			return nullptr;
 
 		Export(0, root);
 
@@ -1036,8 +1026,6 @@ public:
 	tinyxml::TiXmlElement *Export()
 	{
 		auto root = new tinyxml::TiXmlElement("colors");
-		if (!root)
-			return nullptr;
 
 		SQLiteStmt stmtEnumAllValues;
 		InitStmt(stmtEnumAllValues, L"SELECT name, value FROM colors ORDER BY name;");
@@ -1045,8 +1033,6 @@ public:
 		while (stmtEnumAllValues.Step())
 		{
 			auto e = new tinyxml::TiXmlElement("object");
-			if (!e)
-				break;
 
 			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
@@ -1293,8 +1279,6 @@ public:
 	tinyxml::TiXmlElement *Export()
 	{
 		auto root = new tinyxml::TiXmlElement("associations");
-		if (!root)
-			return nullptr;
 
 		SQLiteStmt stmtEnumAllTypes;
 		InitStmt(stmtEnumAllTypes, L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
@@ -1304,8 +1288,6 @@ public:
 		while (stmtEnumAllTypes.Step())
 		{
 			auto e = new tinyxml::TiXmlElement("filetype");
-			if (!e)
-				break;
 
 			e->SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1));
 			e->SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2));
@@ -1314,8 +1296,6 @@ public:
 			while (stmtEnumCommandsPerFiletype.Step())
 			{
 				auto se = new tinyxml::TiXmlElement("command");
-				if (!se)
-					break;
 
 				se->SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
 				se->SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
@@ -1430,7 +1410,7 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb {
 		return stmtSetMenuItem.Bind(id).Bind((int)type).Bind(index).Bind(Guid).Bind(Text).StepAndReset();
 	}
 
-	string GetTextFromID(SQLiteStmt &stmt, unsigned __int64 id)
+	static string GetTextFromID(SQLiteStmt &stmt, unsigned __int64 id)
 	{
 		string strText;
 		if (stmt.Bind(id).Step())
@@ -1919,8 +1899,6 @@ public:
 	tinyxml::TiXmlElement *Export()
 	{
 		auto root = new tinyxml::TiXmlElement("pluginhotkeys");
-		if (!root)
-			return nullptr;
 
 		SQLiteStmt stmtEnumAllPluginKeys;
 		InitStmt(stmtEnumAllPluginKeys, L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
@@ -1930,8 +1908,6 @@ public:
 		while (stmtEnumAllPluginKeys.Step())
 		{
 			auto p = new tinyxml::TiXmlElement("plugin");
-			if (!p)
-				break;
 
 			string Key = stmtEnumAllPluginKeys.GetColText(0);
 			p->SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
@@ -1940,8 +1916,6 @@ public:
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
 				auto e = new tinyxml::TiXmlElement("hotkey");
-				if (!e)
-					break;
 
 				const char *type;
 				switch (stmtEnumAllHotkeysPerKey.GetColInt(1))
@@ -2034,7 +2008,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 	SQLiteStmt stmtDeleteOldEditor;
 	SQLiteStmt stmtDeleteOldViewer;
 
-	unsigned __int64 CalcDays(int Days)
+	static unsigned __int64 CalcDays(int Days)
 	{
 		return ((unsigned __int64)Days) * 24ull * 60ull * 60ull * 10000000ull;
 	}
@@ -2061,8 +2035,8 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 
 	SyncedQueue<AsyncWorkItem*> WorkQueue;
 
-	void WaitAllAsync() { AllWaiter.Wait(true,INFINITE); }
-	void WaitCommitAsync() { AsyncCommitDone.Wait(); }
+	void WaitAllAsync() const { AllWaiter.Wait(true,INFINITE); }
+	void WaitCommitAsync() const { AsyncCommitDone.Wait(); }
 
 	void StartThread()
 	{
@@ -2080,7 +2054,7 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb {
 		WorkThread.Start(&HistoryConfigCustom::ThreadProc, this);
 	}
 
-	void StopThread()
+	void StopThread() const
 	{
 		WaitAllAsync();
 		StopEvent.Set();

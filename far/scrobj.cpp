@@ -39,17 +39,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 
 ScreenObject::ScreenObject():
-	SaveScr(nullptr),
-	pOwner(nullptr),
-	nLockCount(0),
-	X1(0),
-	Y1(0),
-	X2(0),
-	Y2(0)
+	SaveScr(),
+	pOwner(),
+	nLockCount(),
+	X1(),
+	Y1(),
+	X2(),
+	Y2()
 {
 //  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
 }
 
+ScreenObject::ScreenObject(ScreenObject&& rhs):
+	SaveScr(),
+	pOwner(),
+	nLockCount(),
+	X1(),
+	Y1(),
+	X2(),
+	Y2()
+{
+	*this = std::move(rhs);
+}
 
 ScreenObject::~ScreenObject()
 {
@@ -60,8 +71,7 @@ ScreenObject::~ScreenObject()
 			SaveScr->Discard();
 	}
 
-	if (SaveScr)
-		delete SaveScr;
+	delete SaveScr;
 }
 
 void ScreenObject::Lock()
@@ -90,11 +100,8 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 	    предотвращения восстановления ранее сохранённого
 	    изображения в новом месте.
 	*/
-	if (SaveScr)
-	{
-		delete SaveScr;
-		SaveScr=nullptr;
-	}
+	delete SaveScr;
+	SaveScr=nullptr;
 
 	ScreenObject::X1=X1;
 	ScreenObject::Y1=Y1;
@@ -125,11 +132,8 @@ void ScreenObject::Hide()
 
 	Flags.Clear(FSCROBJ_VISIBLE);
 
-	if (SaveScr)
-	{
-		delete SaveScr;
-		SaveScr=nullptr;
-	}
+	delete SaveScr;
+	SaveScr=nullptr;
 }
 
 /* $ 15.07.2000 tran
@@ -187,8 +191,7 @@ ScreenObjectWithShadow::~ScreenObjectWithShadow()
 		if (ShadowSaveScr)
 			ShadowSaveScr->Discard();
 	}
-	if (ShadowSaveScr)
-		delete ShadowSaveScr;
+	delete ShadowSaveScr;
 }
 
 void ScreenObjectWithShadow::Hide()
@@ -196,11 +199,8 @@ void ScreenObjectWithShadow::Hide()
 	if (!Flags.Check(FSCROBJ_VISIBLE))
 		return;
 
-	if (ShadowSaveScr)
-	{
-		delete ShadowSaveScr;
-		ShadowSaveScr=nullptr;
-	}
+	delete ShadowSaveScr;
+	ShadowSaveScr=nullptr;
 
 	ScreenObject::Hide();
 }

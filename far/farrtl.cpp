@@ -20,50 +20,7 @@ farrtl.cpp
 #undef new
 #endif
 
-static bool InsufficientMemoryHandler()
-{
-	if (!Global)
-		return false;
-	Global->Console->SetTextAttributes(Colors::ConsoleColorToFarColor(FOREGROUND_RED|FOREGROUND_INTENSITY));
-	COORD OldPos,Pos={};
-	Global->Console->GetCursorPosition(OldPos);
-	Global->Console->SetCursorPosition(Pos);
-	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
-	Global->Console->Write(ErrorMessage, ARRAYSIZE(ErrorMessage)-1);
-	Global->Console->Commit();
-	Global->Console->SetCursorPosition(OldPos);
-	INPUT_RECORD ir={};
-	size_t Read;
-	do
-	{
-		Global->Console->ReadInput(&ir, 1, Read);
-	}
-	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
-	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
-}
-
-static void* ReleaseAllocator(size_t size)
-{
-	void* newBlock;
-	do newBlock = malloc(size);
-	while (!newBlock && InsufficientMemoryHandler());
-	return newBlock;
-}
-
-static void ReleaseDeallocator(void* block)
-{
-	return free(block);
-}
-
-static void* ReleaseReallocator(void* block, size_t size)
-{
-	void* newBlock;
-	do newBlock = realloc(block, size);
-	while (!newBlock && InsufficientMemoryHandler());
-	return newBlock;
-}
-
-static void* ReleaseExpander(void* block, size_t size)
+static void* Expander(void* block, size_t size)
 {
 #ifdef _MSC_VER
 	return _expand(block, size);
@@ -76,17 +33,17 @@ static void* ReleaseExpander(void* block, size_t size)
 
 void* xf_malloc(size_t size)
 {
-	return ReleaseAllocator(size);
+	return malloc(size);
 }
 
 void xf_free(void* block)
 {
-	return ReleaseDeallocator(block);
+	return free(block);
 }
 
 void* xf_realloc(void* block, size_t size)
 {
-	return ReleaseReallocator(block, size);
+	return realloc(block, size);
 }
 
 void* xf_realloc_nomove(void * block, size_t size)
@@ -95,7 +52,7 @@ void* xf_realloc_nomove(void * block, size_t size)
 	{
 		return xf_malloc(size);
 	}
-	else if (ReleaseExpander(block, size))
+	else if (Expander(block, size))
 	{
 		return block;
 	}
@@ -106,34 +63,14 @@ void* xf_realloc_nomove(void * block, size_t size)
 	}
 }
 
-void* operator new(size_t size) throw()
+char* DuplicateString(const char * str)
 {
-	return ReleaseAllocator(size);
+	return str? strcpy(new char[strlen(str) + 1], str) : nullptr;
 }
 
-void* operator new[](size_t size) throw()
+wchar_t* DuplicateString(const wchar_t * str)
 {
-	return ReleaseAllocator(size);
-}
-
-void operator delete(void* block)
-{
-	return ReleaseDeallocator(block);
-}
-
-void operator delete[](void* block)
-{
-	return ReleaseDeallocator(block);
-}
-
-char* DuplicateString(const char * string)
-{
-	return string? strcpy(new char[strlen(string) + 1], string) : nullptr;
-}
-
-wchar_t* DuplicateString(const wchar_t * string)
-{
-	return string? wcscpy(new wchar_t[wcslen(string) + 1], string) : nullptr;
+	return str? wcscpy(new wchar_t[wcslen(str) + 1], str) : nullptr;
 }
 
 #else
@@ -207,6 +144,13 @@ static inline void updateCallCount(ALLOCATION_TYPE type, bool increment)
 	}
 }
 
+static const int EndMarker = 0xDEADBEEF;
+
+inline static int& GetMarker(MEMINFO* Info)
+{
+	return *reinterpret_cast<int*>(reinterpret_cast<char*>(Info)+Info->Size-sizeof(EndMarker));
+}
+
 static void RegisterBlock(MEMINFO *block)
 {
 	if (!MonitoringEnabled)
@@ -258,15 +202,86 @@ static void UnregisterBlock(MEMINFO *block)
 		DeleteCriticalSection(&CS);
 }
 
-static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
+static std::string FormatLine(const char* File, int Line, const char* Function, ALLOCATION_TYPE Type, size_t Size)
 {
-	size_t realSize = size + sizeof(MEMINFO);
-	MEMINFO* Info = static_cast<MEMINFO*>(ReleaseAllocator(realSize));
+	const char* sType = nullptr;
+	switch (Type)
+	{
+	case AT_RAW:
+		sType = "malloc";
+		break;
+	case AT_SCALAR:
+		sType = "operator new";
+		break;
+	case AT_VECTOR:
+		sType = "operator new[]";
+		break;
+	};
+
+	return std::string(File) + ':' + std::to_string(Line) + " -> " + Function + ':' + sType + " (" + std::to_string(Size) + " bytes)";
+}
+
+thread_local bool inside_far_bad_alloc = false;
+
+class far_bad_alloc: public std::bad_alloc
+{
+public:
+	far_bad_alloc(const char* File, int Line, const char* Function, ALLOCATION_TYPE Type, size_t Size) noexcept
+	{
+		if (!inside_far_bad_alloc)
+		{
+			inside_far_bad_alloc = true;
+			try
+			{
+				m_What = "bad allocation at " + FormatLine(File, Line, Function, Type, Size);
+			}
+			catch (...)
+			{
+			}
+			inside_far_bad_alloc = false;
+		}
+	}
+
+	far_bad_alloc(far_bad_alloc&& rhs) noexcept { *this = std::move(rhs); }
+	MOVE_OPERATOR_BY_SWAP(far_bad_alloc);
+
+	virtual const char* what() const noexcept override { return m_What.empty() ? std::bad_alloc::what() : m_What.data(); }
+
+	void swap(far_bad_alloc& rhs)
+	{
+		m_What.swap(rhs.m_What);
+	}
+
+private:
+	std::string m_What;
+};
+
+inline static size_t GetRequiredSize(size_t RequestedSize)
+{
+	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
+}
+
+static void* DebugAllocator(size_t size, bool Noexcept, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
+{
+	size_t realSize = GetRequiredSize(size);
+	MEMINFO* Info = static_cast<MEMINFO*>(malloc(realSize));
+
+	if (!Info)
+	{
+		if (Noexcept)
+			return nullptr;
+		else
+			throw far_bad_alloc(File, Line, Function, type, size);
+	}
+
 	Info->AllocationType = type;
 	Info->Size = realSize;
 	Info->Function = Function;
 	Info->File = File;
 	Info->Line = Line;
+
+	GetMarker(Info) = EndMarker;
+
 	RegisterBlock(Info);
 	return ToUser(Info);
 }
@@ -278,25 +293,33 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 	{
 		MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
 		assert(Info->AllocationType == type);
+		assert(GetMarker(Info) == EndMarker);
 		UnregisterBlock(Info);
 	}
-	ReleaseDeallocator(realBlock);
+	free(realBlock);
 }
 
 static void* DebugReallocator(void* block, size_t size, const char* Function, const char* File, int Line)
 {
 	if(!block)
-		return DebugAllocator(size, AT_RAW, Function, File, Line);
+		return DebugAllocator(size, true, AT_RAW, Function, File, Line);
 
 	MEMINFO* Info = ToReal(block);
 	assert(Info->AllocationType == AT_RAW);
+	assert(GetMarker(Info) == EndMarker);
 	UnregisterBlock(Info);
-	size_t realSize = size + sizeof(MEMINFO);
+	size_t realSize = GetRequiredSize(size);
 
-	Info = static_cast<MEMINFO*>(ReleaseReallocator(Info, realSize));
+	Info = static_cast<MEMINFO*>(realloc(Info, realSize));
+
+	if (!Info)
+		return nullptr;
 
 	Info->AllocationType = AT_RAW;
 	Info->Size = realSize;
+
+	GetMarker(Info) = EndMarker;
+
 	RegisterBlock(Info);
 	return ToUser(Info);
 }
@@ -305,11 +328,11 @@ static void* DebugExpander(void* block, size_t size)
 {
 	MEMINFO* Info = ToReal(block);
 	assert(Info->AllocationType == AT_RAW);
-	size_t realSize = size + sizeof(MEMINFO);
+	size_t realSize = GetRequiredSize(size);
 
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
 	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
-	Info = static_cast<MEMINFO*>(ReleaseExpander(Info, realSize));
+	Info = static_cast<MEMINFO*>(Expander(Info, realSize));
 	//RtlNtStatusToDosError also remembers the status code value in the TEB:
 	Global->ifn->RtlNtStatusToDosError(status);
 
@@ -318,20 +341,10 @@ static void* DebugExpander(void* block, size_t size)
 		AllocatedMemorySize-=Info->Size;
 		Info->Size = realSize;
 		AllocatedMemorySize+=Info->Size;
+		GetMarker(Info) = EndMarker;
 	}
 
 	return Info? ToUser(Info) : nullptr;
-}
-
-static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
-{
-	switch(type)
-	{
-	case AT_RAW: return "malloc";
-	case AT_SCALAR: return "operator new";
-	case AT_VECTOR: return "operator new[]";
-	}
-	return "unknown";
 }
 
 void PrintMemory()
@@ -363,7 +376,7 @@ void PrintMemory()
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			oss << i->File << L':' << i->Line << L" -> " << i->Function << L':' << getAllocationTypeString(i->AllocationType) << L" (" << i->Size - sizeof(MEMINFO) << L" bytes)" << std::endl;
+			oss << FormatLine(i->File, i->Line, i->Function, i->AllocationType, i->Size - sizeof(MEMINFO)).data() << std::endl;
 			std::wcerr << oss.str();
 			OutputDebugString(oss.str().data());
 			oss.str(string());
@@ -374,9 +387,11 @@ void PrintMemory()
 
 };
 
+STD_SWAP_SPEC(memcheck::far_bad_alloc);
+
 void* xf_malloc(size_t size, const char* Function, const char* File, int Line)
 {
-	return memcheck::DebugAllocator(size, memcheck::AT_RAW, Function, File, Line);
+	return memcheck::DebugAllocator(size, true, memcheck::AT_RAW, Function, File, Line);
 }
 
 void xf_free(void* block)
@@ -408,22 +423,42 @@ void* xf_realloc_nomove(void * block, size_t size, const char* Function, const c
 
 void* operator new(size_t size)
 {
-	return memcheck::DebugAllocator(size, memcheck::AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, false, memcheck::AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
+}
+
+void* operator new(size_t size, const std::nothrow_t& nothrow_value) noexcept
+{
+	return memcheck::DebugAllocator(size, true, memcheck::AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
 }
 
 void* operator new[](size_t size)
 {
-	return memcheck::DebugAllocator(size, memcheck::AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, false, memcheck::AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
+}
+
+void* operator new[](size_t size, const std::nothrow_t& nothrow_value) noexcept
+{
+	return memcheck::DebugAllocator(size, true, memcheck::AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
 }
 
 void* operator new(size_t size, const char* Function, const char* File, int Line)
 {
-	return memcheck::DebugAllocator(size, memcheck::AT_SCALAR, Function, File, Line);
+	return memcheck::DebugAllocator(size, false, memcheck::AT_SCALAR, Function, File, Line);
+}
+
+void* operator new(size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept
+{
+	return memcheck::DebugAllocator(size, true, memcheck::AT_SCALAR, Function, File, Line);
 }
 
 void* operator new[](size_t size, const char* Function, const char* File, int Line)
 {
-	return memcheck::DebugAllocator(size, memcheck::AT_VECTOR, Function, File, Line);
+	return memcheck::DebugAllocator(size, false, memcheck::AT_VECTOR, Function, File, Line);
+}
+
+void* operator new[](size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept
+{
+	return memcheck::DebugAllocator(size, true, memcheck::AT_VECTOR, Function, File, Line);
 }
 
 void operator delete(void* block)
@@ -446,14 +481,14 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 	return memcheck::DebugDeallocator(block, memcheck::AT_VECTOR);
 }
 
-char* DuplicateString(const char * string, const char* Function, const char* File, int Line)
+char* DuplicateString(const char * str, const char* Function, const char* File, int Line)
 {
-	return string ? strcpy(new(Function, File, Line) char[strlen(string) + 1], string) : nullptr;
+	return str? strcpy(new(Function, File, Line) char[strlen(str) + 1], str) : nullptr;
 }
 
-wchar_t* DuplicateString(const wchar_t * string, const char* Function, const char* File, int Line)
+wchar_t* DuplicateString(const wchar_t * str, const char* Function, const char* File, int Line)
 {
-	return string ? wcscpy(new(Function, File, Line) wchar_t[wcslen(string) + 1], string) : nullptr;
+	return str? wcscpy(new(Function, File, Line) wchar_t[wcslen(str) + 1], str) : nullptr;
 }
 
 #endif

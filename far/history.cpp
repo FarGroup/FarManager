@@ -138,7 +138,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 	ResetPosition();
 }
 
-bool History::ReadLastItem(const string& HistoryName, string &strStr)
+bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 {
 	strStr.clear();
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);

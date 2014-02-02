@@ -50,7 +50,7 @@ public:
 
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
-	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
+	bool GetAutocomplete() const {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
 	void SetMacroAreaAC(FARMACROAREA Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
@@ -83,7 +83,7 @@ private:
 	virtual const string& WordDiv() const override;
 	virtual int GetPrevCurPos() const override { return PrevCurPos; }
 	virtual void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
-	virtual int GetCursorSize() override { return CursorSize; }
+	virtual int GetCursorSize() const override { return CursorSize; }
 	virtual void SetCursorSize(int Size) override { CursorSize = Size; }
 	virtual int GetMacroSelectionStart() const override {return MacroSelectionStart;}
 	virtual void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}

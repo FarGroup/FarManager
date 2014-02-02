@@ -195,7 +195,7 @@ global::~global()
 	Global = nullptr;
 }
 
-bool global::IsUserAdmin() const
+bool global::IsUserAdmin()
 {
 	static bool Checked = false;
 	static bool Result = false;
@@ -221,7 +221,7 @@ bool global::IsUserAdmin() const
 	return Result;
 }
 
-bool global::IsPtr(const void* Address) const
+bool global::IsPtr(const void* Address)
 {
 	static SYSTEM_INFO info;
 	static bool Checked = false;

@@ -180,7 +180,7 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		Item.Flags[1][1]=CheckedSkip;
 		Item.Flags[2][0]=Checked3Set;
 		Item.Flags[2][1]=Checked3Skip;
-		Auto.push_back(Item);
+		Auto.emplace_back(Item);
 		return true;
 	}
 };
@@ -263,7 +263,7 @@ public:
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
 	void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
-	bool CheckDialogMode(DWORD Flags) const { return DialogMode.Check(Flags)!=FALSE; }
+	bool CheckDialogMode(DWORD Flags) const { return DialogMode.Check(Flags); }
 	// метод для перемещения диалога
 	void AdjustEditPos(int dx,int dy);
 	int IsMoving() const {return DialogMode.Check(DMODE_DRAGGED);}
@@ -324,8 +324,8 @@ private:
 	void SelectOnEntry(size_t Pos,BOOL Selected);
 	void CheckDialogCoord();
 	BOOL GetItemRect(size_t I,SMALL_RECT& Rect);
-	bool ItemHasDropDownArrow(const DialogItemEx *Item) const;
-	BOOL SetItemRect(size_t ID, const SMALL_RECT *Rect);
+	bool SetItemRect(size_t ID, const SMALL_RECT& Rect);
+	bool SetItemRect(DialogItemEx& item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	int GetDropDownOpened() const { return DropDownOpened; }
 	void ProcessCenterGroup();
@@ -339,6 +339,9 @@ private:
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
 	void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
 	void ProcessKey(int Key, size_t ItemPos);
+
+	static bool ItemHasDropDownArrow(const DialogItemEx *Item);
+
 
 	bool bInitOK;               // диалог был успешно инициализирован
 	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic

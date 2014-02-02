@@ -209,7 +209,7 @@ void TreeList::DisplayObject()
 	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
-const string& TreeList::GetTitle(string &strTitle)
+const string& TreeList::GetTitle(string &strTitle) const
 {
 	strTitle = L" ";
 	strTitle += ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle);
@@ -272,7 +272,7 @@ void TreeList::DisplayTree(int Fast)
 			{
 				string strOutStr;
 
-				for (int i=0; i<CurPtr.Depth-1 && WhereX()+3*i<X2-6; i++)
+				for (size_t i=0; i<CurPtr.Depth-1 && WhereX() + 3 * i < X2 - 6u; i++)
 				{
 					strOutStr+=TreeLineSymbol[CurPtr.Last[i]?0:1];
 				}
@@ -409,7 +409,7 @@ int TreeList::ReadTree()
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(FALSE);
+	ScanTree ScTree(false);
 	api::FAR_FIND_DATA fdata;
 	string strFullName;
 	FlushCache();
@@ -474,7 +474,7 @@ int TreeList::ReadTree()
 		return FALSE;
 	}
 
-	StaticSortNumeric=NumericSort=StaticSortCaseSensitive=CaseSensitiveSort=FALSE;
+	StaticSortNumeric = NumericSort = StaticSortCaseSensitive = CaseSensitiveSort = false;
 	std::sort(ListData.begin(), ListData.end(), ListLess);
 
 	if (!FillLastData())
@@ -590,7 +590,6 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 		return FALSE;
 
 	string strFolderName;
-	string strFarPath;
 	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
 #if defined(TREEFILE_PROJECT)
 	if (strFolderName.empty())
@@ -648,7 +647,7 @@ Panel* TreeList::GetRootPanel()
 	else
 		RootPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
-	return(RootPanel);
+	return RootPanel;
 }
 
 void TreeList::SyncDir()
@@ -710,8 +709,14 @@ int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
 
 bool TreeList::FillLastData()
 {
+	auto CountSlash = [](const wchar_t *Str) -> size_t
+	{
+		auto str = as_string(Str);
+		return std::count_if(ALL_CONST_RANGE(str), IsSlash);
+	};
+
 	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
-	for (auto i = ListData.begin() + 1 ; i != ListData.end(); ++i)
+	for (ITERATOR(ListData) i = ListData.begin() + 1, end = ListData.end(); i != end; ++i)
 	{
 		size_t Pos = i->strName.rfind(L'\\');
 		int PathLength = Pos != string::npos? (int)Pos+1 : 0;
@@ -724,7 +729,7 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		for (auto j = i+1; j != ListData.end(); ++j)
+		for (auto j = i+1; j != end; ++j)
 		{
 			if (CountSlash(j->strName.data()+RootLength)>Depth)
 			{
@@ -749,12 +754,6 @@ bool TreeList::FillLastData()
 		}
 	}
 	return true;
-}
-
-UINT TreeList::CountSlash(const wchar_t *Str)
-{
-	auto str = as_string(Str);
-	return std::count_if(ALL_CONST_RANGE(str), IsSlash);
 }
 
 __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -785,8 +784,6 @@ int TreeList::ProcessKey(int Key)
 
 	if (ListData.empty() && Key!=KEY_CTRLR && Key!=KEY_RCTRLR)
 		return FALSE;
-
-	string strTemp;
 
 	if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9))
 	{
@@ -1136,13 +1133,13 @@ int TreeList::ProcessKey(int Key)
 	return FALSE;
 }
 
-int TreeList::GetNextNavPos()
+int TreeList::GetNextNavPos() const
 {
 	int NextPos=CurFile;
 
 	if (static_cast<size_t>(CurFile+1) < ListData.size())
 	{
-		int CurDepth=ListData[CurFile].Depth;
+		auto CurDepth=ListData[CurFile].Depth;
 
 		for (size_t I=CurFile+1; I < ListData.size(); ++I)
 			if (ListData[I].Depth == CurDepth)
@@ -1155,13 +1152,13 @@ int TreeList::GetNextNavPos()
 	return NextPos;
 }
 
-int TreeList::GetPrevNavPos()
+int TreeList::GetPrevNavPos() const
 {
 	int PrevPos=CurFile;
 
 	if (CurFile-1 > 0)
 	{
-		int CurDepth=ListData[CurFile].Depth;
+		auto CurDepth=ListData[CurFile].Depth;
 
 		for (int I=CurFile-1; I > 0; --I)
 			if (ListData[I].Depth == CurDepth)
@@ -1262,19 +1259,17 @@ int TreeList::SetDirPosition(const string& NewDir)
 	return FALSE;
 }
 
-const string& TreeList::GetCurDir()
+const string& TreeList::GetCurDir() const
 {
 	if (ListData.empty())
 	{
-		if (ModalMode==MODALTREE_FREE)
-			strCurDir = strRoot;
+		if (ModalMode == MODALTREE_FREE)
+			return strRoot;
 		else
-			strCurDir.clear();
+			return Empty;
 	}
 	else
-		strCurDir = ListData[CurFile].strName; //BUGBUG
-
-	return strCurDir;
+		return ListData[CurFile].strName; //BUGBUG
 }
 
 int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -1323,7 +1318,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
-		return(RetCode);
+		return RetCode;
 
 	if (MouseEvent->dwMousePosition.Y>Y1 && MouseEvent->dwMousePosition.Y<Y2-2)
 	{
@@ -1489,13 +1484,13 @@ int TreeList::ReadTreeFile()
 	if (ListData.empty())
 		return FALSE;
 
-	NumericSort=FALSE;
-	CaseSensitiveSort=FALSE;
+	NumericSort = false;
+	CaseSensitiveSort = false;
 	Global->TreeCache->Sort();
 	return FillLastData();
 }
 
-bool TreeList::GetPlainString(string& Dest,int ListPos)
+bool TreeList::GetPlainString(string& Dest, int ListPos) const
 {
 	Dest.clear();
 #if defined(Mantis_698)
@@ -1551,7 +1546,7 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,api::FAR_FIND_DATA *fd)
+int TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, api::FAR_FIND_DATA *fd)
 {
 	if (!strName)
 	{
@@ -1575,7 +1570,7 @@ int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,ap
 	return FALSE;
 }
 
-int TreeList::GetCurName(string &strName, string &strShortName)
+int TreeList::GetCurName(string &strName, string &strShortName) const
 {
 	if (ListData.empty())
 	{
@@ -1681,7 +1676,7 @@ void TreeList::ReadSubTree(const string& Path)
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(FALSE);
+	ScanTree ScTree(false);
 	api::FAR_FIND_DATA fdata;
 	string strDirName;
 	string strFullName;
@@ -1866,7 +1861,7 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	return -1;
 }
 
-int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
+int TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 {
 	if (Pos < 0 || static_cast<size_t>(Pos) >= ListData.size())
 		return FALSE;
