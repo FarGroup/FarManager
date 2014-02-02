@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.02.2014 17:48:43 +0200 - build 3791
+
+1. Refactoring.
+
+3. Overloading of new/delete is removed in Release and corrected in Debug.
+
+3. PVS & cppcheck warnings.
+
+drkns 31.01.2014 08:42:27 +0200 - build 3790
+
+1. 0002588: After directory change in a dialog and Enter key press, the former directory is opened
+
+drkns 29.01.2014 23:43:43 +0200 - build 3789
+
+1. For the sake of perfectionism, do not query info on codepages till needed.
+
+shmuel 29.01.2014 18:45:16 +0200 - build 3788
+
+1. Refactoring in macro system.
+
+zg 27.01.2014 21:37:49 +0200 - build 3787
+
+1. 0002579: DM_GETTEXT returns garbage in some cases (LuaFAR)
+
+drkns 27.01.2014 21:09:26 +0200 - build 3786
+
+1. 0002578: Memory allocation issue when searching with a filter
+
 zg 25.01.2014 04:09:09 +0200 - build 3785
 
 1. 0002567: browsing an archive after search
