@@ -2423,7 +2423,7 @@ int Editor::ProcessKey(int Key)
 		case KEY_ALTDOWN:
 		case KEY_RALTDOWN:
 		{
-			if (CurLine == FirstLine)
+			if (CurLine == LastLine)
 				return TRUE;
 
 			ProcessVBlockMarking();
@@ -2787,9 +2787,9 @@ int Editor::ProcessKey(int Key)
 
 				if (IsCharKey(Key) && CurPos>0 && !Length)
 				{
-					auto PrevLine = std::prev(CurLine);
+					auto PrevLine = CurLine == FirstLine? Lines.end() : std::prev(CurLine);
 
-					while (!PrevLine->GetLength())
+					while (PrevLine != Lines.end() && !PrevLine->GetLength())
 					{
 						if (PrevLine != FirstLine)
 						{
@@ -2798,7 +2798,6 @@ int Editor::ProcessKey(int Key)
 						else
 						{
 							PrevLine = Lines.end();
-							break;
 						}
 					}
 
@@ -5521,7 +5520,7 @@ void Editor::VPaste(const wchar_t *ClipText)
 
 				VBlockSizeY++;
 
-				if (CurLine != LastLine)
+				if (CurLine == LastLine)
 				{
 					if (ClipText[I+2])
 					{

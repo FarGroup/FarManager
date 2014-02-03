@@ -1539,7 +1539,7 @@ int Edit::InsertKey(int Key)
 					return FALSE;
 
 				Str=NewStr;
-				memset(Str + StrSize, L' ', CurPos - StrSize);
+				wmemset(Str + StrSize, L' ', CurPos - StrSize);
 				Str[CurPos + 1] = 0;
 				StrSize=CurPos+1;
 			}
@@ -1916,7 +1916,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 					return;
 
 				this->Str=NewStr;
-				memset(this->Str + StrSize, L' ', CurPos - StrSize);
+				wmemset(this->Str + StrSize, L' ', CurPos - StrSize);
 				this->Str[CurPos + 1] = 0;
 				StrSize=CurPos;
 			}
