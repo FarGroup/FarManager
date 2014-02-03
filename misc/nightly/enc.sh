@@ -55,7 +55,8 @@ mkdir -p enc/build/lua
 pushd enc/build/lua || exit 1
 
 ( \
-	blua macroapi_manual && \
+	blua macroapi_manual.ru && \
+	blua macroapi_manual.en && \
 	blua luafar_manual \
 ) || exit 1
 

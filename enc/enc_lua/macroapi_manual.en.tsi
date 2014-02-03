@@ -1,0 +1,2079 @@
+<header>
+tag=SMZ1
+ver=2.7
+</header>
+<node>
+id=1
+lv=0
+dt=Text
+nm=Far Manager macro system manual
+ctime=3551829092
+mtime=3600452420
+<article>
+#_<markdown>
+#_
+#_Since 30.09.2012 (Far 3.0.2851), Far Manager uses [Lua][lua] programming language (version 5.1)
+#_instead of the built-in macro language.
+#_
+#_A macro is a Lua-script and its meta-data such as:
+#_
+#_* Areas from which the script may be executed
+#_* Keys that initiate execution of the script from those areas
+#_* Prerequisites for the execution of the script
+#_* Run-time flags: `EnableOutput` and `NoSendKeysToPlugins`
+#_
+#_Functionality
+#_--------------
+#_
+#_* Macro recording and playback
+#_* Standard Lua libraries
+#_* LuaFAR libraries ("plugin API")
+#_* [Libraries of macro functions][2] ("macro API")
+#_* For plugins: function [`MacroControl`][3]
+#_
+#_[lua]: http://www.lua.org/
+#_[2]: 42.html
+#_[3]: http://api.farmanager.com/ru/macroapi/index.html
+#_
+</article>
+</node>
+<node>
+id=42
+lv=1
+dt=Text
+nm=Libraries of macro functions
+ctime=3553243413
+mtime=3600452998
+<article>
+#_<markdown>
+#_The description of the APIs in this document is **not** self-contained, it is *supplementing and clarifying* the description of the Far objects' properties and functions in the [Macro language][2] section of Far Encyclopedia.
+#_
+#_Ideally, the API must match the original macro language API, with the exception of the cases listed in article [API changes in comparison to the macro language][1].
+#_
+#_[1]: 38.html
+#_[2]: http://api.farmanager.com/ru/macro/macrocmd/index.html
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=38
+lv=2
+dt=Text
+nm=API changes in comparison to the macro language
+ctime=3553185939
+mtime=3600458682
+<article>
+#_<markdown>
+#_
+#_1. All identifiers are case sensitive.
+#_1. Instead of directly specifying the keys you use function [`Keys`][Keys].
+#_1. `$AKey -> Keys("AKey")`
+#_1. `$SelWord -> Keys("SelWord")`
+#_1. `$XLat -> Keys("XLat")`
+#_1. `$Exit ->` ` `[`exit()`][exit]
+#_1. Logical properties have type *boolean* (so it does not make sense to compare them
+#_   with the number `0`).
+#_1. Function `prompt` can return either a string or a `false` (but never a number `0`).
+#_1. Many functions are placed in the table [`mf`][mf] (abbreviation from *macrofunctions*),
+#_   e.g.: `mf.abs`, `mf.fsplit`, etc.
+#_1. Function `mf.fexist` returns a boolean rather than a number.
+#_1. Functions [`mload`] [mload] and [`msave`] [msave] have changed, see their descriptions.
+#_1. Context dependent properties are placed in the table [`Object`][Object],
+#_   e.g.: `Object.CurPos`, `Object.Empty`.
+#_1. `CheckHotkey -> Object.CheckHotkey`
+#_1. `GetHotkey -> Object.GetHotkey`
+#_1. Logical properties for testing execution areas are in table [`Area`][Area],
+#_   e.g.: `Area.Editor`, `Area.Shell`.
+#_1. `Macro.Area -> Area.Current`.
+#_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
+#_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
+#_1. `CallPlugin -> Plugin.Call`. This call is always asynchronous.
+#_   For synchronous calls use [`Plugin.SyncCall`][SyncCall].
+#_1. `mmode(3,x)` no more affects synchronicity/asynchronicity of calls to plugins;
+#_   it does nothing and returns `0`.
+#_1. `Dlg.Info.Id -> Dlg.Id`
+#_1. `Dlg.Info.Owner -> Dlg.Owner`
+#_1. `Far.Cfg.Get -> Far.Cfg_Get`. This function returns a string in case of success
+#_    and `false` in case of failure.
+#_1. `Far.Cfg.Err` does not exist anymore.
+#_1. `FullScreen -> Far.FullScreen`
+#_1. `IsUserAdmin -> Far.IsUserAdmin`
+#_1. `History.Disable -> Far.DisableHistory`
+#_1. `KbdLayout -> Far.KbdLayout`
+#_1. `KeyBar.Show -> Far.KeyBar_Show`
+#_1. `Window.Scroll -> Far.Window_Scroll`
+#_1. `Menu.Info.Id -> Menu.Id`
+#_1. `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- see table [`Mouse`][Mouse]
+#_1. `RCounter` does not exist anymore.
+#_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` è `Macro.Var` do not exist anymore.
+#_1. Macro specification: flag `DisableOutput` does not exist; screen redraw is disabled by default;
+#_   added flag `EnableOutput` (apply it if screen redraw is needed during macro execution).
+#_1. Macro specification: flags `Selection` and `NoSelection` are no more applicable for
+#_   editor/viewer/dialog areas. For these areas one should use respectively `EVSelection` and
+#_   `NoEVSelection` flags.
+#_
+#_[exit]: 61.html
+#_[mload]: 13.html
+#_[msave]: 12.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
+#_[Area]: 36.html
+#_[Object]: 45.html
+#_[Mouse]: 59.html
+#_[SyncCall]: 83.html
+#_
+#_
+</article>
+</node>
+<node>
+id=20
+lv=2
+dt=Text
+nm=Global properties and functions
+ctime=3552221109
+mtime=3600459259
+<article>
+#_**Properties:** none.
+#_
+#_**Functions:**
+#_
+#_  akey
+#_  band, bnot, bor, bxor, lshift, rshift
+#_  eval
+#_  exit
+#_  Keys
+#_  mmode
+#_  msgbox
+#_  print
+#_  printf
+#_  prompt
+#_
+#_**Notes:**
+#_
+#_1. Functions *band*, *bnot*, *bor*, *bxor*, *lshift* è *rshift* (bitwise operations)
+#_   are global aliases of the same-named functions of *bit64* library.
+#_   (see LuaFAR manual).
+#_
+#_2. Functions *akey* and *mmode*, when called from within function *condition* of a macro,
+#_   return *false*.
+#_
+#_3. For uniformity sake, all the above functions are duplicated in table mf,
+#_   for example: *eval* è *mf.eval* reference the same function.
+#_
+#_@@@
+#_<lua> Links = {
+#_  exit="61.html",
+#_  Keys="4.html",
+#_  ["mf(?!\\.)"]="44.html",
+#_  printf="60.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=61
+lv=3
+dt=Text
+nm=exit
+ctime=3555411121
+mtime=3600459808
+<article>
+#_exit ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Exit macro.
+#_
+</article>
+</node>
+<node>
+id=4
+lv=3
+dt=Text
+nm=Keys
+ctime=3551902602
+mtime=3600460117
+<article>
+#_Keys (...)
+#_
+#_**Parameters:**
+#_  One or more arguments of string type.
+#_  Each argument may contain multiple keys separated by whitespace characters.
+#_  The arguments are case insensitive.
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Send one or more keys to Far Manager.
+#_
+#_**Notes:**
+#_
+#_  1. Special keys:
+#_     *"AKey"*    - send Far Manager a key that started this macro.
+#_     *"SelWord"* - select the word under cursor.
+#_     *"XLat"*    - convert the word under cursor.
+#_
+#_**Example:**
+#_  mykeys = "CtrlF5 Esc"
+#_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
+#_
+#_
+</article>
+</node>
+<node>
+id=60
+lv=3
+dt=Text
+nm=printf
+ctime=3554233087
+mtime=3600460574
+<article>
+#_printf (fmt, ...)
+#_
+#_**Parameters:**
+#_  fmt :  string
+#_  ... :  0 or more arguments, according to format specified by argument *fmt*.
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Works just like the macro language function *print*, but with additional
+#_  ability of formatting. Formatting rules are described in the Lua manual.
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["Lua manual"]="http://www.lua.org/manual/5.1/manual.html#pdf-string.format",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=44
+lv=2
+dt=Text
+nm=mf
+ctime=3553243522
+mtime=3600460623
+<article>
+#_**Properties:** none.
+#_
+#_**Functions:**
+#_
+#_  abs              len
+#_  akey             lshift
+#_  asc              max
+#_  atoi             mdelete
+#_  band             min
+#_  beep             mload
+#_  bnot             mmode
+#_  bor              mod
+#_  bxor             msave
+#_  chr              msgbox
+#_  clip             postmacro
+#_  date             print
+#_  env              printf
+#_  eval             prompt
+#_  exit             replace
+#_  fattr            rindex
+#_  fexist           rshift
+#_  float            size2str
+#_  flock            sleep
+#_  fmatch           string
+#_  fsplit           strpad
+#_  GetMacroCopy     strwrap
+#_  iif              substr
+#_  index            testfolder
+#_  int              trim
+#_  itoa             ucase
+#_  key              usermenu
+#_  Keys             waitkey
+#_  lcase            xlat
+#_
+#_@@@
+#_<lua> Links = {
+#_  mload="13.html", msave="12.html", mdelete="15.html", usermenu="69.html",
+#_  GetMacroCopy="72.html", eval="79.html", postmacro="85.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=79
+lv=3
+dt=Text
+nm=eval
+ctime=3581755102
+mtime=3600463667
+<article>
+#_<markdown>
+#_This function corresponds to [description][1] in Far Manager Encyclopedia, but additionally,
+#_in modes 0, 1, 3 parameter `S` can refer to a script-file, if this parameter begins with the
+#_`@` character.
+#_
+#_In this case the `S` parameter must be in the following format:
+#_
+#_        @<script-file name> [<script parameters>]
+#_
+#_- The file name can contain environment variables, they will be expanded.
+#_- Optional script parameters are a list of Lua expressions separated by commas.
+#_
+#_###Example:###
+#_```
+#_    eval("@%MyFarScripts%\\calc.lua 'factorial', 3+5")
+#_```
+#_
+#_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_
+</article>
+</node>
+<node>
+id=72
+lv=3
+dt=Text
+nm=GetMacroCopy
+ctime=3578176338
+mtime=3600463398
+<article>
+#_macro = mf.GetMacroCopy (index)
+#_
+#_**Parameters:**
+#_  index:  integer
+#_
+#_**Returns:**
+#_  macro:  table or nil
+#_
+#_**Description:**
+#_  *GetMacroCopy* returns a copy of a loaded macro (or event handler) table
+#_  by its index in the internal array (starting from 1). If the index is greater
+#_  than the size of the array, the function returns nil, so one can determine
+#_  the end of the array.
+#_
+#_**Notes:**
+#_  * Inactive (unloaded or deleted) elements have the field "disabled" == true.
+#_  * To distinguish between macro table from event handler table: there is the field
+#_    "area" of type string that is present only in macro tables.
+#_
+</article>
+</node>
+<node>
+id=15
+lv=3
+dt=Text
+nm=mdelete
+ctime=3552066075
+mtime=3600499908
+<article>
+#_mf.mdelete (key, name)
+#_
+#_**Parameters:**
+#_  key:   string
+#_  name:  string
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Function *mdelete* deletes a value or key from the database.
+#_  To delete a key, specify *name* == `"*"` (asterisk).
+#_
+</article>
+</node>
+<node>
+id=13
+lv=3
+dt=Text
+nm=mload
+ctime=3551993209
+mtime=3600493907
+<article>
+#_ret = mf.mload (key, name)
+#_
+#_**Parameters:**
+#_  key:   string
+#_  name:  string
+#_
+#_**Returns:**
+#_  ret:   number, string, boolean, table or nil.
+#_
+#_**Description:**
+#_  Function *mload* reads a value from the database.
+#_
+</article>
+</node>
+<node>
+id=12
+lv=3
+dt=Text
+nm=msave
+ctime=3551993205
+mtime=3600499927
+<article>
+#_mf.msave (key, name, value)
+#_
+#_**Parameters:**
+#_  key:    string
+#_  name:   string
+#_  value:  number, string, boolean or table
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Function *msave* saves the specified value into the database.
+#_  When you save the table the following will be saved:
+#_     keys of types:    number, string, boolean.
+#_     values of types:  number, string, boolean, table.
+#_  Nested tables are also saved but recursive references are skipped.
+#_
+</article>
+</node>
+<node>
+id=85
+lv=3
+dt=Text
+nm=postmacro
+ctime=3599211970
+mtime=3600496919
+<article>
+#_result = mf.postmacro (func [, ...])
+#_
+#_**Parameters:**
+#_  func:    function
+#_  ...:     0 or more Lua values
+#_
+#_**Returns:**
+#_  result:  boolean
+#_
+#_**Description:**
+#_  The function places a new macro in a queue for execution.
+#_  When the execution begins *func* is called with arguments *...*
+#_
+</article>
+</node>
+<node>
+id=69
+lv=3
+dt=Text
+nm=usermenu
+ctime=3571243204
+mtime=3600499998
+<article>
+#_mf.usermenu (mode, filename)
+#_
+#_**Parameters:**
+#_  mode:     number (0 by default)
+#_  filename: string or nil
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Opens or creates a user menu.
+#_
+#_  Function behavior depends on the least significant byte of *mode*:
+#_
+#_    0: equivalent to pressing F2 in panels; *filename* is ignored.
+#_    1: displays the dialog for user menu selection; *filename* is ignored.
+#_    2: opens user menu from the file "as is", i.e. by specified *filename*.
+#_    3: opens user menu from the file *filename* in %farprofile%\Menus
+#_       (the directory is created automatically).
+#_
+#_  If the bit 0x100 of *mode* is set the function will return only upon closing
+#_  the menu (synchronous call). If that bit is cleared the function will return
+#_  immediately when the menu is opened (asynchronous call).
+#_
+</article>
+</node>
+<node>
+id=36
+lv=2
+dt=Text
+nm=Area
+ctime=3552736839
+mtime=3600500948
+<article>
+#_**Area** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  Current:               string
+#_  Other:                 boolean
+#_  Shell:                 boolean
+#_  Viewer:                boolean
+#_  Editor:                boolean
+#_  Dialog:                boolean
+#_  Search:                boolean
+#_  Disks:                 boolean
+#_  MainMenu:              boolean
+#_  Menu:                  boolean
+#_  Help:                  boolean
+#_  Info:                  boolean
+#_  QView:                 boolean
+#_  Tree:                  boolean
+#_  FindFolder:            boolean
+#_  UserMenu:              boolean
+#_  ShellAutoCompletion:   boolean
+#_  DialogAutoCompletion:  boolean
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=46
+lv=2
+dt=Text
+nm=APanel, PPanel
+ctime=3553252677
+mtime=3600500988
+<article>
+#_**APanel**, **PPanel** - tables with the following fields:
+#_
+#_**Properties:**
+#_
+#_  Bof:          boolean
+#_  ColumnCount:  number
+#_  CurPos:       number
+#_  Current:      string
+#_  DriveType:    number
+#_  Empty:        boolean
+#_  Eof:          boolean
+#_  FilePanel:    boolean
+#_  Filter:       boolean
+#_  Folder:       boolean
+#_  Format:       string
+#_  Height:       number
+#_  HostFile:     string
+#_  ItemCount:    number
+#_  Left:         boolean
+#_  LFN:          boolean
+#_  OPIFlags:     number
+#_  Path:         string
+#_  Path0:        string
+#_  Plugin:       boolean
+#_  Prefix:       string
+#_  Root:         boolean
+#_  SelCount:     number
+#_  Selected:     boolean
+#_  Type:         number
+#_  UNCPath:      string
+#_  Visible:      boolean
+#_  Width:        number
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=57
+lv=2
+dt=Text
+nm=Panel
+ctime=3553252776
+mtime=3600501236
+<article>
+#_**Panel** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  None.
+#_
+#_**Functions:**
+#_
+#_  FAttr
+#_  FExist
+#_  Item
+#_  Select
+#_  SetPath
+#_  SetPos
+#_  SetPosIdx
+#_  CustomSortMenu
+#_  LoadCustomSortMode
+#_  SetCustomSortMode
+#_
+#_**Note:**
+#_  Functions CustomSortMenu, LoadCustomSortMode and SetCustomSortMode
+#_  are available only if the Lua engine is LuaJIT 2.x.
+#_
+#_@@@
+#_<lua> Links = {
+#_  LoadCustomSortMode="80.html",
+#_  SetCustomSortMode="81.html",
+#_  CustomSortMenu="82.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=82
+lv=3
+dt=Text
+nm=CustomSortMenu
+ctime=3585577926
+mtime=3600501590
+<article>
+#_Panel.CustomSortMenu ()
+#_
+#_**Parameters:**
+#_  None
+#_
+#_**Returns:**
+#_  Nothing
+#_
+#_**Description:**
+#_  Displays a menu containing the list of loaded custom sort modes.
+#_  Pressing **Enter** will set the selected sort mode in the active panel,
+#_  pressing **CtrlEnter** - in the passive panel, **CtrlShiftEnter** - in both panels.
+#_
+</article>
+</node>
+<node>
+id=80
+lv=3
+dt=Text
+nm=LoadCustomSortMode
+ctime=3585324926
+mtime=3600506614
+<article>
+#_Panel.LoadCustomSortMode (Mode, Settings)
+#_
+#_**Parameters:**
+#_  Mode:         sort mode; integer >=100 and <=0x7FFFFFFF
+#_  Settings:     a table containing the following fields:
+#_      *Compare* (required field):
+#_         Function, see its description below.
+#_      *DirectoriesFirst, SelectedFirst, RevertSorting, SortGroups:*
+#_         These optional fields specify corresponding sorting options:
+#_         0 - the option is off, 1 - the option is on. Any other value (or missing value)
+#_         mean "use the current setting of Far Manager".
+#_      *InvertByDefault:*
+#_         Whether the default sort direction is the inverse one.
+#_      *Indicator:*
+#_         Indication of sort mode on the panel, a two character string
+#_         (1-st character for the direct sort mode, 2-nd for the inverse one).
+#_      *NoSortEqualsByName:*
+#_         By default the elements equal from the sorting algorithm's point of view
+#_         are sorted by name. If that is not desired, set this field in *true*.
+#_      *Description:*
+#_         Textual description of the sorting mode. If this field is specified
+#_         it is used in the custom sort menu (see Panel.CustomSortMenu).
+#_      *SortFunction:*
+#_         Specify the sorting algorithm out of the 2 available ones.
+#_         It is a string: "shellsort" (default value) or "qsort".
+#_      *InitSort:*
+#_         Function. If specified, it will be called before the sorting begins.
+#_         It receives one argument: *FarOptions* table (see the same-named parameter
+#_         of the function *Compare*).
+#_      *EndSort:*
+#_         Function. If specified, it will be called after the sorting ends.
+#_
+#_    If the value of *Settings* is nil or false, it means unloading (removal) of the given
+#_    sorting mode.
+#_
+#_**Returns:**
+#_  Nothing
+#_
+#_**Description:**
+#_  This function loads (or unloads) a custom panel sort mode.
+#_  Once the mode is loaded it can be set in the panel by means of calling
+#_  Panel.SetCustomSortMode.
+#_
+#_**Function Compare**
+#_  result = Compare (Pi1, Pi2, FarOptions)
+#_
+#_  **Parameters:**
+#_    Pi1 è Pi2  - panel elements being compared, structures of SortingPanelItem type.
+#_    FarOptions - a table containing the current Far Manager panel sort options
+#_                 (all values are boolean): *DirectoriesFirst, SelectedFirst,*
+#_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
+#_
+#_  **Returns:**
+#_    result     - if the 1-st element should appear after direct sorting above the 2-nd one,
+#_                 a negative number should be returned, if below - a positive number,
+#_                 and if the elements are equal by sorting criteria - return zero.
+#_
+#_**Note 1:**
+#_  Custom panel sorting uses the LuaJIT's FFI library. The use of FFI requires familiarity
+#_  with its documentation.
+#_
+#_**Note 2:**
+#_  Custom panel sort modes are automatically restored after Far Manager restart, provided
+#_  that the configuration has been saved and the corresponding Panel.LoadCustomSortMode()
+#_  calls are done during the process of loading macros.
+#_  Restoring of custom panel sort modes takes place after the macros have been loaded,
+#_  before the execution of auto-starting macros.
+#_
+#_**Note 3:**
+#_  The custom panel sort modes are forcibly unloaded when the macros are unloaded.
+#_
+#_
+#_**Example:**
+#_  *-- Load the sorting by file name length.*
+#_  local ffi = require "ffi"
+#_  local C = ffi.C
+#_  ffi.cdef [[
+#_    int wcslen(const wchar_t`*`,const wchar_t`*`);
+#_  ]]
+#_  Panel.LoadCustomSortMode (100,
+#_    { 
+#_      Compare = function(p1, p2, opt)
+#_        return C.wcslen(p1.FileName) - C.wcslen(p2.FileName)
+#_      end;
+#_      Indicator = "bB";
+#_    })
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["documentation"]="http://luajit.org/ext_ffi.html",
+#_  SortingPanelItem="http://api.farmanager.com/ru/structures/sortingpanelitem.html",
+#_  ["Panel.SetCustomSortMode"]="81.html",
+#_  ["Panel.CustomSortMenu"]="82.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=81
+lv=3
+dt=Text
+nm=SetCustomSortMode
+ctime=3585499487
+mtime=3600507018
+<article>
+#_Panel.SetCustomSortMode (Mode, whatpanel)
+#_
+#_**Parameters:**
+#_  Mode:         sorting mode, an integer >=100 and <=0x7FFFFFFF
+#_  whatpanel:    0=active panel, 1=passive panel
+#_
+#_**Returns:**
+#_  Nothing
+#_
+#_**Description:**
+#_  If the specified sorting mode is loaded (see Panel.LoadCustomSortMode), that sorting mode
+#_  will be set in the specified panel. Otherwise, no actions will be done.
+#_
+#_**Example:**
+#_  *-- Set the given custom sort mode in the active panel.*
+#_  Macro {
+#_    description="Sort files by their name lengths";
+#_    area="Shell"; key="CtrlShiftF1";
+#_    action=function() Panel.SetCustomSortMode(100,0) end;
+#_  }
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["Panel.LoadCustomSortMode"]="80.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=58
+lv=2
+dt=Text
+nm=BM
+ctime=3553686730
+mtime=3600507080
+<article>
+#_**BM** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  None.
+#_
+#_**Functions:**
+#_
+#_  Add
+#_  Back
+#_  Clear
+#_  Del
+#_  Get
+#_  Goto
+#_  Next
+#_  Pop
+#_  Prev
+#_  Push
+#_  Stat
+#_
+</article>
+</node>
+<node>
+id=47
+lv=2
+dt=Text
+nm=CmdLine
+ctime=3553252699
+mtime=3600507119
+<article>
+#_**CmdLine** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  Bof:        boolean
+#_  Empty:      boolean
+#_  Eof:        boolean
+#_  Selected:   boolean
+#_  CurPos:     number
+#_  ItemCount:  number
+#_  Value:      string
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=51
+lv=2
+dt=Text
+nm=Dlg
+ctime=3553252729
+mtime=3600507135
+<article>
+#_**Dlg** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  CurPos:     number
+#_  Id:         string (GUID)
+#_  Owner:      string (GUID)
+#_  ItemCount:  number
+#_  ItemType:   number
+#_  PrevPos:    number
+#_
+#_**Functions:**
+#_
+#_  GetValue
+#_  SetFocus
+#_
+#_
+</article>
+</node>
+<node>
+id=48
+lv=2
+dt=Text
+nm=Drv
+ctime=3553252704
+mtime=3600507154
+<article>
+#_**Drv** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  ShowMode:  number
+#_  ShowPos:   number
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=52
+lv=2
+dt=Text
+nm=Editor
+ctime=3553252733
+mtime=3600507163
+<article>
+#_**Editor** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  CurLine:   number
+#_  CurPos:    number
+#_  FileName:  string
+#_  Lines:     number
+#_  RealPos:   number
+#_  SelValue:  string
+#_  State:     number
+#_  Value:     string
+#_
+#_**Functions:**
+#_
+#_  DelLine
+#_  GetStr
+#_  InsStr
+#_  Pos
+#_  Sel
+#_  Set
+#_  SetStr
+#_  SetTitle
+#_  Undo
+#_
+</article>
+</node>
+<node>
+id=54
+lv=2
+dt=Text
+nm=Far
+ctime=3553252749
+mtime=3600507173
+<article>
+#_**Far** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  FullScreen:      boolean
+#_  Height:          number
+#_  IsUserAdmin:     boolean
+#_  PID:             number
+#_  Title:           string
+#_  UpTime:          number
+#_  Width:           number
+#_
+#_**Functions:**
+#_
+#_  Cfg_Get
+#_  DisableHistory
+#_  KbdLayout
+#_  KeyBar_Show
+#_  Window_Scroll
+#_
+</article>
+</node>
+<node>
+id=49
+lv=2
+dt=Text
+nm=Help
+ctime=3553252714
+mtime=3600507187
+<article>
+#_**Help** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  FileName:  string
+#_  SelTopic:  string
+#_  Topic:     string
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=53
+lv=2
+dt=Text
+nm=Menu
+ctime=3553252746
+mtime=3600507198
+<article>
+#_**Menu** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  Id:     string (GUID)
+#_  Value:  string
+#_
+#_**Functions:**
+#_
+#_  Filter
+#_  FilterStr
+#_  GetValue
+#_  ItemStatus
+#_  Select
+#_  Show
+#_
+</article>
+</node>
+<node>
+id=59
+lv=2
+dt=Text
+nm=Mouse
+ctime=3553790262
+mtime=3600507905
+<article>
+#_**Mouse** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  X:              number
+#_  Y:              number 
+#_  Button:         number
+#_  CtrlState:      number
+#_  EventFlags:     number
+#_  LastCtrlState:  number
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+#_**Note:**
+#_
+#_  *Mouse.LastCtrlState* differs from *Mouse.CtrlState* by that its value updates
+#_  on both mouse events and keyboard events.
+#_
+</article>
+</node>
+<node>
+id=45
+lv=2
+dt=Text
+nm=Object
+ctime=3553245384
+mtime=3600508051
+<article>
+#_**Context-dependent values.**
+#_
+#_**Object**: - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  Bof:         boolean
+#_  CurPos:      number
+#_  Empty:       boolean
+#_  Eof:         boolean
+#_  Height:      number
+#_  ItemCount:   number
+#_  Selected:    boolean
+#_  Title:       string
+#_  Width:       number
+#_
+#_**Functions:**
+#_
+#_  CheckHotkey
+#_  GetHotkey
+#_
+#_
+</article>
+</node>
+<node>
+id=56
+lv=2
+dt=Text
+nm=Plugin
+ctime=3553252766
+mtime=3600508080
+<article>
+#_**Plugin** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  None.
+#_
+#_**Functions:**
+#_
+#_  Call
+#_  Command
+#_  Config
+#_  Exist
+#_  Load
+#_  Menu
+#_  SyncCall
+#_  Unload
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["\\bCall\\b"]="65.html", SyncCall="83.html",
+#_} </lua>
+#_
+#_
+</article>
+</node>
+<node>
+id=65
+lv=3
+dt=Text
+nm=Call
+ctime=3560706460
+mtime=3600511225
+<article>
+#_... = Plugin.Call (PluginId [, ...])
+#_
+#_**Parameters:**
+#_  PluginId: string (plugin's GUID in textual representation)
+#_  ...     : zero or more additional parameters
+#_
+#_**Returns:**
+#_  ...     : zero or more return values
+#_
+#_**Description:**
+#_  1. The function implements the "asynchronous" plugin call.
+#_     If the plugin call turned out to be asynchronous (e.g. if the plugin displayed
+#_     a dialog on the screen) then the function returns *true* without waiting for the plugin
+#_     return, and the macro continues its execution.
+#_
+#_  2. If the plugin call turned out to be synchronous, the macros gets values corresponding
+#_     to those returned by the plugin:
+#_     - If the plugin is not found or returned 0, then *false* is returned to the macro.
+#_     - If the plugin returned 1 or INVALID_HANDLE_VALUE, then *true* is returned to the macro.
+#_     - If the plugin returned a pointer to a *FarMacroCall* structure, see p. 4.
+#_
+#_  3. Arguments are passed to the plugin in accordance with their Lua types:
+#_       nil      -> FMVT_NIL
+#_       boolean  -> FMVT_BOOLEAN
+#_       number   -> FMVT_DOUBLE
+#_       int64    -> FMVT_INTEGER (int64 - kind of userdata, created by *bit64* library)
+#_       string   -> FMVT_STRING  (automatically converted from UTF-8 to UTF-16LE)
+#_       {string} -> FMVT_BINARY  (in order to pass an arbitrary string without UTF-8 -> UTF16LE
+#_                                conversion, the string should be placed in a table as an element
+#_                                with its key==1)
+#_
+#_  4. Values returned by the plugin via a *FarMacroCall* structure are passed to the macro
+#_     the following way:
+#_       FMVT_NIL     -> nil
+#_       FMVT_BOOLEAN -> boolean
+#_       FMVT_DOUBLE  -> number
+#_       FMVT_INTEGER -> number, if it "fits" in 53 bits, otherwise int64
+#_       FMVT_STRING  -> string (automatically converted from UTF-16LE to UTF-8)
+#_       FMVT_BINARY  -> table (the table contains a string as an element with its key==1;
+#_                              the string is placed as is, without conversion)
+#_       FMVT_ARRAY   -> table (array of elements; the table contains 2 fields:
+#_                              ["type"] = "array", and
+#_                              ["n"] = number of array elements)
+#_
+</article>
+</node>
+<node>
+id=83
+lv=3
+dt=Text
+nm=SyncCall
+ctime=3588708461
+mtime=3600516727
+<article>
+#_... = Plugin.SyncCall (PluginId [, ...])
+#_
+#_This function works identically to Plugin.Call, except that:
+#_
+#_1. Its call is always synchronous, i.e. the macro continues its execution
+#_   only after the *OpenW* function of the plugin returns.
+#_2. This function does not have limitations that Plugin.Call has.
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["Plugin.Call"]="65.html",
+#_  ["limitations"]="62.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=50
+lv=2
+dt=Text
+nm=Viewer
+ctime=3553252718
+mtime=3600516840
+<article>
+#_**Viewer** - a table with the following fields:
+#_
+#_**Properties:**
+#_
+#_  FileName:  string
+#_  State:     number
+#_
+#_**Functions:**
+#_
+#_  None.
+#_
+</article>
+</node>
+<node>
+id=67
+lv=1
+dt=Text
+nm=Format of macros and event handlers
+ctime=3568746613
+mtime=3600517601
+<article>
+#_@@@
+#_At the stage of loading macros all regular and keyboard macro files are run one by one.
+#_
+</article>
+</node>
+<node>
+id=75
+lv=2
+dt=Text
+nm=Regular macros
+ctime=3580139016
+mtime=3600523160
+<article>
+#_<markdown>
+#_
+#_* Regular macros and [event handlers][events] are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. (Further we will call these files *macrofiles*). The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
+#_
+#_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
+#_
+#_* One macrofile can contain arbitrary number of macros and event handlers.
+#_
+#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
+#_    If we define a variable at top of the macrofile, e.g.<br>
+#_    `local MacroFileName = ...`<br>
+#_    then this variable will be available to all the macros and event handlers defined in that file.
+#_
+#_* The process of loading macros begins with executing the file<br>
+#_  `%FARPROFILE%\Macros\scripts\_macroinit.lua`,<br>
+#_  if this file exists. The order of execution for other macrofiles is not defined.
+#_
+#_* A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns a number-identifier of the loaded macro.
+#_
+#_```
+#_  Macro {
+#_    area        = "Shell Info Tree";                         -- string
+#_    key         = "CtrlF11 ShiftHome";                       -- string
+#_    description = "Macro example";                           -- string (optional field)
+#_    flags       = "NoPluginPanels EmptyCommandLine";         -- string (optional field)
+#_    filemask    = "*.txt,*.cpp";                             -- string (optional field)
+#_    priority    = 50;                                        -- number (optional field)
+#_    condition   = function(key) return Far.Height>30 end;    -- function (optional field)
+#_    action      = function() msgbox("","Macro example") end; -- function
+#_  }
+#_```
+#_
+#_1. The field `area` can contain names of one or more areas, separated by whitespaces.
+#_
+#_1. The field `key` can contain names of one or more keys, separated by whitespaces.<br>
+#_   Keys can contain modifiers: `Ctrl,LCtrl,RCtrl,Alt,RAlt,LAlt,Shift`.<br>
+#_   `Ctrl` means "any of `LCtrl,RCtrl`", the same goes for `Alt`.
+#_   The order of modifiers can be arbitrary.<br><br>
+#_   Alternatively, the field `key` can be specified as a regular expression, enclosed in
+#_   slashes (`/`).
+#_   * In this case `/Ctrl/` will not work when `RCtrl` is pressed, it should be specified
+#_     explicitly `/[LR]Ctrl/` etc.
+#_   * Also in this case it is necessary to maintain the order in the sequence
+#_     `Ctrl`,`Alt`,`Shift`,<br>e.g. `/[LR]Alt[LR]CtrlF1/` would never work.<br><br>
+#_
+#_1. Optional field `priority` - a number in the range 0 to 100.<br>
+#_   The default value = 50 (for `Common` area = 40).<br>
+#_   Macros added via `MCTL_ADDMACRO` have priority = 50.
+#_
+#_1. Optional field `filemask` - a string.<br>
+#_   It is applicable only for `Editor` and `Viewer` areas. It is processed according to
+#_   the same rules that Far Manager applies for file masks when searching from panels, etc.
+#_   If name of the file open in editor or viewer does not match the given mask, the macro
+#_   will not execute.
+#_
+#_1. Optional field `condition` - a function.
+#_   * It is called with one argument: the name of pressed key.
+#_     For auto-started macros it is called with no arguments.
+#_   * If the function returns `false`/`nil`/nothing, the macro will not execute.
+#_   * If it returns a number then this number is used instead of `priority`.
+#_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>
+#_
+#_1. Field `action` - a function.<br>
+#_   If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
+#_   then this functgion is called.
+#_
+#_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
+#_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.
+#_
+#_[LuaMacro]: 7.html
+#_[events]: 78.html
+#_
+</article>
+</node>
+<node>
+id=76
+lv=2
+dt=Text
+nm=Keyboard macros
+ctime=3580139029
+mtime=3600530574
+<article>
+#_<markdown>
+#_
+#_* Keyboard macros are usually used for quick recording and replaying key-press sequences.
+#_  These macros are less powerful than regular macros and for the long-term use regular
+#_  macros should be preferred.
+#_
+#_* Keyboard macros are loaded from Lua-files (extension `*.lua`), residing in the directory<br>
+#_  `%FARPROFILE%\Macros\internal`.
+#_
+#_* Far Manager automatically creates, modifies and deletes files in this directory
+#_  in accordance with operations conducted on keyboard macros. It is **not** recommended
+#_  to manually edit these files, except for their deletion.
+#_
+#_* Modifications to keyboard macros become permanent either after executing<br>
+#_  `MacroControl(MCTL_SAVEALL)`, or automatically (when the "Auto save setup" option is on).
+#_
+#_* The field "area" may contain only one area name.
+#_
+#_* The field "key" may contain only one key name.<br>
+#_  In key names only modifiers `Ctrl,Alt,Shift` may be used, modifiers
+#_  `LCtrl,RCtrl,LAlt,RAlt` are not supported. Regular expressions are not supported.
+#_
+#_* It is not allowed to have more than one keyboard macro for a (`key`,`area`) combination.
+#_
+#_* Keyboard macros have higher priority than all other macros.
+#_  This avoids the need of resolving conflicts when one creates a temporary macro
+#_  (the typical use case of keyboard macros).
+#_
+</article>
+</node>
+<node>
+id=78
+lv=2
+dt=Text
+nm=Event handlers
+ctime=3580139337
+mtime=3600533342
+<article>
+#_<markdown>
+#_
+#_Like [regular macros][1], event handlers are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. Each Lua-file may contain both macros and event handlers.
+#_
+#_Loading a handler occurs when the global function `Event` is called. It receives one argument - a table containing parameters of the event handler. On successful completion the function returns a number-identifier of the loaded handler.
+#_
+#_```
+#_Event {
+#_  group       = "EditorEvent";         -- string
+#_  description = "Event example";       -- string (optional field)
+#_  filemask    = "*.txt,*.cpp";         -- string (optional field)
+#_  priority    = 50;                    -- number (optional field)
+#_  condition   = function() ...... end; -- function (optional field)
+#_  action      = function() ...... end; -- function
+#_}
+#_```
+#_
+#_The field `group` can have one of the following values:<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent"`.<br>
+#_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
+#_        export.ProcessDialogEvent -> DialogEvent
+#_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).
+#_
+#_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
+#_
+#_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
+#_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
+#_
+#_[1]: 75.html
+#_
+</article>
+</node>
+<node>
+id=77
+lv=2
+dt=Text
+nm=Lua modules
+ctime=3580139041
+mtime=3600534120
+<article>
+#_<markdown>
+#_
+#_Lua modules can be placed in `%FARPROFILE%\Macros\modules` and its subdirectories, as
+#_
+#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`
+#_
+#_is automatically included in `package.path`.
+#_
+</article>
+</node>
+<node>
+id=7
+lv=1
+dt=Text
+nm=LuaMacro plugin
+ctime=3551991405
+mtime=3600534915
+<article>
+#_<markdown>
+#_This plugin is necessary for macros to work, therefore it should be installed.
+#_The same is true regarding the runtime (files *lua5.1.dll* and *luafar3.dll*) that is necessary
+#_for plugin's work.
+#_
+#_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
+#_
+#_### Command line operations (prefix LM)
+#_        lm: load
+#_        lm: save
+#_        lm: post  <sequence> | @<filename> [<params>]
+#_        lm: check <sequence> | @<filename> [<params>]
+#_        lm: unload
+#_
+#_These operations are the same as operations `macro:` of `FarCmds` plugin, with the following differences:
+#_
+#_1. File name should be specified immediately after the `@` character; the `<` character
+#_   is not supported.<br>
+#_   For passing parameters to the script they should be specified after file name separated
+#_   with whitespace. Parameters are the sequence of Lua expressions delimited with commas.
+#_1. `lm:unload` - unloads all macros, except those created with `MCTL_ADDMACRO` operation.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=5
+lv=1
+dt=Text
+nm=Misc
+ctime=3551990771
+mtime=3551990771
+<article>
+</article>
+</node>
+<node>
+id=2
+lv=2
+dt=Text
+nm=Macros beginning with @
+ctime=3551901528
+mtime=3600535533
+<article>
+#_<markdown>
+#_If a macrosequence begins with the `@` character, then the rest of the sequence is treated as name of the file containing Lua script.
+#_
+#_* Environment variables in the file name are automatically expanded.
+#_
+#_* The global (within the environment of the script) variable `_filename` contains the file name.
+#_
+#_* Such scripts are easier for debugging and modifications, as they are automatically reloaded at each macro invocation.
+#_
+#_**Example 1:** `lm:post @%FARHOME%\test\test.lua 123, "hello"`
+#_
+#_**Example 2:** [running script from within the editor][example].
+#_
+#_[example]: 74.html
+#_
+</article>
+</node>
+<node>
+id=14
+lv=2
+dt=Text
+nm=Variables
+ctime=3552028510
+mtime=3600542728
+<article>
+#_<markdown>
+#_### Macrofile environment variables
+#_Macros that are loaded from the same file share a common environment table.
+#_The variables declared without the *local* keyword belong to that environment.
+#_
+#_      Example: var = 15
+#_
+#_The macrofile's environment variables keep their values unchanged between macro calls.
+#_Their values are reset to initial state upon execution of any macro loading operation:
+#_Far Manager start, `macro:load`, `lm:load`, `far.MacroLoadAll`, `MacroControl(MCTL_LOADALL)`.
+#_
+#_### Global variables
+#_To set global variables, whose values are stored during the whole Far Manager session and are accessible from any script, one should use the `_G` table.
+#_
+#_      Example: _G.var = 15
+#_
+#_Global variables do not change their values even when macros are reloaded, except for Far Manager restart or LuaMacro plugin reload.
+#_
+#_When reading a non-existent environment variable, a same-named global variable can be read instead.
+#_
+#_      Example:
+#_        var = 5
+#_        _G.var = 10
+#_        far.Message(var) --> 5
+#_        var = nil
+#_        far.Message(var) --> 10
+#_
+#_### Upvalues
+#_Top-level local variables accessible from functions of one or several macros (upvalues) keep their values unchanged between macro calls. Their values are reset upon execution of any macro loading operation.
+#_
+#_      Example:
+#_        local var = 15
+#_        function inc_var() var = var+1 end
+#_        function dec_var() var = var-1 end
+#_
+</article>
+</node>
+<node>
+id=62
+lv=2
+dt=Text
+nm=Restrictions in the use of some functions
+ctime=3557323094
+mtime=3600544639
+<article>
+#_<markdown>
+#_The following functions have certain restrictions on their use in macros: 
+#_
+#_* [`exit`][exit]
+#_* [`mf.usermenu`][usermenu] (in the "asynchronous" call mode)
+#_* [`Keys`][keys]
+#_* [`Plugin.Call`][plugincall]
+#_* `Plugin.Command`
+#_* `Plugin.Config`
+#_* `Plugin.Menu`
+#_* `print`
+#_* [`printf`][printf]
+#_
+#_1. If a macro creates coroutines with `coroutine.wrap(f)`, then the above listed functions will not work when called from the body of `f` function.<br>
+#_This restriction does not exist if coroutines are created with `coroutine.create(f)`.
+#_
+#_1. The above listed functions, when called directly or indirectly with `pcall`, will cause the immediate failure of `pcall`.<br>
+#_This restriction does not exist if LuaJIT 2.x is used.
+#_
+#_1. The above listed functions will not work when called from:
+#_     - dialog procedures
+#_     - function *condition* of a macro
+#_     - [event handlers][event]
+#_
+#_The restrictions of p.3 do not exist, if the above listed functions are called via [`mf.postmacro`][postmacro] or `far.MacroPost`.
+#_
+#_[usermenu]: 69.html
+#_[postmacro]: 85.html
+#_[event]: 78.html
+#_[plugincall]: 65.html
+#_[exit]: 61.html
+#_[keys]: 4.html
+#_[printf]: 60.html
+#_
+</article>
+</node>
+<node>
+id=63
+lv=2
+dt=Text
+nm=Introspection
+ctime=3558901787
+mtime=3600587996
+<article>
+#_<markdown>
+#_The global tables of macro API can be examined with `pairs()`,
+#_separately for functions and "properties".
+#_
+#_**Example:**
+#_
+#_```
+#_    for k,v in pairs(Editor) do .... end -- for functions
+#_
+#_    for k,v in pairs(Editor.properties) do .... end -- for properties
+#_```
+#_
+</article>
+</node>
+<node>
+id=64
+lv=2
+dt=Text
+nm=unicode.utf8.cfind
+ctime=3559410790
+mtime=3600589290
+<article>
+#_<markdown>
+#_
+#_This function is similar to `unicode.utf8.find`, except that it treats the input offset and returns the output offset in characters rather than bytes. "Positional captures" are still returned in bytes.
+#_
+</article>
+</node>
+<node>
+id=84
+lv=2
+dt=Text
+nm=editor.SubscribeChangeEvent
+ctime=3589525063
+mtime=3600593081
+<article>
+#_<markdown>
+#_LuaFAR library contains the function `editor.SubscribeChangeEvent`. This function is redefined by [LuaMacro][LuaMacro] plugin for use by [event handlers][events]:
+#_
+#_* The original function is called only when the internal *subscription counter* changes from 0 to 1 (if argument `Subscribe==true`), or from 1 to 0 (if argument `Subscribe==false`). It is therefore necessary that every event handler containing a call `Subscribe==true`, contained also a matching call `Subscribe==false`.
+#_
+#_* Unlike plugins, the `EE_CHANGE` event could come to an event handler regardless of whether that handler called `editor.SubscribeChangeEvent`.
+#_
+#_* There is a separate subscription counter for each editor session.
+#_
+#_[LuaMacro]: 7.html
+#_[events]: 78.html
+</article>
+</node>
+<node>
+id=73
+lv=2
+dt=Text
+nm=package.nounload
+ctime=3578403115
+mtime=3600594181
+<article>
+#_<markdown>
+#_
+#_`package.nounload` is a table whose keys are module names, that should not be deleted from `package.loaded` when macros are unloaded or reloaded (operations `MCTL_LOADALL`, `lm:load`, `lm:unload`).
+#_
+#_* This table is created automatically by [LuaMacro][1] plugin.
+#_* A use case: place in this table names of modules using LuaJIT FFI that call `ffi.cdef`.
+#_
+#_For example, after executing
+#_
+#_        package.nounload.mylib = true
+#_
+#_the module `mylib` will not be removed from `package.loaded` during macro unload/reload operations. 
+#_
+#_[1]: 7.html
+#_
+</article>
+</node>
+<node>
+id=29
+lv=1
+dt=Text
+nm=Examples
+ctime=3552222267
+mtime=3552222267
+<article>
+</article>
+</node>
+<node>
+id=39
+lv=2
+dt=Text
+nm=Select the word under cursor
+ctime=3553195063
+mtime=3600595127
+<article>
+#_<markdown>
+#_```
+#_Macro {
+#_  description="Select/deselect the word under the cursor";
+#_  area="Editor"; key="CtrlM";
+#_  action=function()
+#_    Keys"RCtrl9 CtrlRight CtrlLeft"
+#_    Keys(Object.Selected and "CtrlU" or "CtrlShiftRight")
+#_    Keys"Ctrl9"
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=40
+lv=2
+dt=Text
+nm=Invoke the "change drive" menu
+ctime=3553195940
+mtime=3600601551
+<article>
+#_<markdown>
+#_```
+#_-- Invoke the "change drive" menu on the opposite panel.
+#_-- Make the panel where drive change occurs visible if it was not.
+#_Macro {
+#_  description="Invoke the 'change drive' menu on the opposite panel";
+#_  area="Disks"; key="CtrlM";
+#_  action=function()
+#_    Keys"Esc"
+#_    if not PPanel.Visible then
+#_      Keys(APanel.Left and "CtrlF2" or "CtrlF1")
+#_    end
+#_    Keys"Tab F9 Enter End Enter"
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=30
+lv=2
+dt=Text
+nm=Select files newer than current one
+ctime=3552222560
+mtime=3600607440
+<article>
+#_<markdown>
+#_```
+#_-- Select all files newer than the current one in the active panel,
+#_-- using plugin API (LuaFAR).
+#_Macro {
+#_  description="Select all files/folders newer than the current one in the active panel";
+#_  area="Shell"; key="CtrlM";
+#_  action=function()
+#_    local info = panel.GetPanelInfo(nil,1)
+#_    local curItem = panel.GetCurrentPanelItem(nil,1)
+#_    for i=1,info.ItemsNumber do
+#_      local item = panel.GetPanelItem(nil,1,i)
+#_      if item.LastWriteTime > curItem.LastWriteTime then
+#_        panel.SetSelection(nil,1,i,true)
+#_      end
+#_    end
+#_    panel.RedrawPanel(nil,1)
+#_  end;
+#_}
+#_```
+#_
+#_```
+#_-- Select all files newer than the current one in the active panel,
+#_-- using macro API (LuaFAR + LuaMacro).
+#_Macro {
+#_  description="Select all files/folders newer than the current one in the active panel";
+#_  area="Shell"; key="CtrlM";
+#_  action=function()
+#_    d = Panel.Item(0,0,17)
+#_    for i=1,APanel.ItemCount do
+#_      if Panel.Item(0,i,17) > d then
+#_        Panel.Select(0,1,1,i)
+#_      end
+#_    end
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=41
+lv=2
+dt=Text
+nm=Create a directory with name = current date
+ctime=3553206604
+mtime=3600607611
+<article>
+#_<markdown>
+#_```
+#_Macro {
+#_  description="Create a directory with name = current date";
+#_  area="Shell"; key="CtrlShiftF7"; flags="NoPluginPanels";
+#_  action=function()
+#_    folder = mf.date("%d.%m0.%Y")
+#_    if Panel.FExist(0,folder)==0 then
+#_      Keys"F7 CtrlY"
+#_      print(folder)
+#_      Keys"Enter"
+#_    end
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=74
+lv=2
+dt=Text
+nm=Running script from within the editor
+ctime=3578455778
+mtime=3600607897
+<article>
+#_<markdown>
+#_```
+#_-- This macro saves the editor contents (if it was modified)
+#_-- then runs the edited file as Lua-script.
+#_Macro {
+#_  description="Save and run script from editor";
+#_  area="Editor"; key="CtrlF10";
+#_  action=function()
+#_    for k=1,2 do
+#_      local info=editor.GetInfo()
+#_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
+#_        far.MacroPost("@"..info.FileName); break
+#_      end
+#_      if k==1 then editor.SaveFile(); end
+#_    end
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
+id=70
+lv=1
+dt=Text
+nm=Articles
+ctime=3576179916
+mtime=3578043315
+<article>
+</article>
+</node>
+<node>
+id=71
+lv=2
+dt=Text
+nm=FAR Manager. Macros and whatnot.
+ctime=3578043305
+mtime=3578065765
+<article>
+#_<markdown>
+#_<font face="Tahoma">
+#_
+#_By **Gleb Varenov** ("Acerbic") » Tue 23 Apr, 2013 22:53<br>
+#_[Revision 1.1][article on forum]
+#_
+#_*Gather round, boys and girls, for I am about to tell you a story.*
+#_
+#_## Macro in your FAR Manager? It's more likely than you think.
+#_
+#_The "macro" term is used loosely in Far to describe a broad range of user-made modifications of the application's behavior. For the sake of simplicity, let me divide them into several use cases:
+#_
+#_1. Assigning <font color="red">hotkeys</font> / remapping key bindings.
+#_This is the simplest. You want one custom key (or combination with Ctrl, Shift, Alt modifiers) do what another key (combination) already does. It is one for one replacement.
+#_
+#_2. Your typical <font color="red">macro</font>. Press one key to emulate a sequence of many keys.
+#_Its not much different from just a hot key. You press a key - it is treated as if you pressed some fixed predefined string of keys.
+#_
+#_3. <font color="red">Script</font>.
+#_Now this is interesting. Script involves logic and decision making, not just some fixed reaction. A script has means to analyze current situation and affect Far Manager in non-trivial ways. Requires programming skills to create, but luckily the are many scripts already written and you may find one just fitting your needs.
+#_
+#_4. <font color="red">Plugin</font>.
+#_Well, this is a moot point. With the course Far development is following now the gap between a complex script and a full fledged plugin is closing rapidly. As of right now, a script has most of functional capabilities a plugin has, it has access to both macro API and plugin API, in the latest builds a macro script can be started by an event, not just by a key pressed and so forth...
+#_
+#_## History and identification of obsolete.
+#_
+#_FAR Manager has traveled a long way from its early versions and so did its macro capabilities. In Far1 and Far2 the configuration was stored in Windows registry, including macros. In Far3 configuration was moved to SQLite database files located in user's profile folder. But later it was decided that it would be better to allow users simpler access to macros and they were moved from a database to individual files (still inside user's profile folder). Also, parallel to moving macro definitions to external files, the macro language was changed to LUA.
+#_
+#_In addition to that, there is a very popular plugin called "MacroLib". It provides extended macro features on top of built-in system. It used to overlay old macro language, but then switched to LUA as well. It always stored macros in external files.
+#_
+#_So, what to look out for to spot outdated manuals / macro recipes?
+#_
+#_1. \*.reg files. Partial and full configurations were distributed as reg import files in times of Far1 and Far2. That included macros. No \*.reg files are used by Far3 plugins or Far3 itself, but some old (ANSI) Far1 plugins can still use them. Any macros contained in them won't work in Far3.
+#_
+#_2. \*.farconfig files. Those are XML text files containing configurations for Far3. They are still used for other parts of configuration (coloring schemes and such) but not for macros anymore.
+#_
+#_3. Old macro language. It contained keywords like "$IF" "$ELSE" - denoted by dollar sign.
+#_
+#_4. Old MacroLib files \*.fml - new MacroLib macro files use "fmlua" extension.
+#_
+#_It is important to note that internal help in Far (called by "F1") is massively lagging behind development - hence this article.
+#_
+#_## What now?
+#_
+#_At present, by means of storage macros fall in three groups.
+#_
+#_1. Files of the built-in macro system. \*.lua
+#_Located in <font color="blue">%FARPROFILE%/Macros/internal</font> and <font color="blue">%FARPROFILE%/Macros/scripts</font>
+#_
+#_2. MacroLib files \*.fmlua.
+#_By default are located within plugin's folder, but it can be configured to read macros from any user defined path (or several).
+#_
+#_3. Other macro processing plugins. "Lua4Editor", for example. I don't know much about these, you are on your own here, folks.
+#_
+#_Important warning! There are plugins written in LUA. These are something different from macros. They are legit plugins with all the things a "usual" plugin has (like being listed in plugins' menu "F11"). Except they are written in LUA and distributed as source files. They should not confuse you as they lie in their folders in <font color="blue">%FARHOME%/Plugins</font>
+#_
+#_## Conversion.
+#_
+#_It is best to rewrite your macros in LUA from scratch. If they are few and simple, it won't take much effort. If they are complex, conversion is likely to fail to do it automatically. But if you are still interested in doing things hard way, there are few tools to help you. They were meant as quick fixes for transition period and aren't supported anymore, probably.
+#_
+#_1. Far1, Far2 -> Far 3 [2x3 perl converter][perl converter]
+#_This tool is used to convert old configuration from registry to database. This includes macros.
+#_The result will be a bunch of XML files containing far configurations and macros in the old language.
+#_
+#_2. Translation from old language to the new one is done by [Macro2Lua Converter][m2l converter] plugin. The readme is in Russian, but here is an excerpt regarding main usage via command line
+#_><span style="background-color: #CCCCCC;">`M2L: convert <input file> <output file> [<syntax>]`</span><br>
+#_where `<syntax>` is optional input format specifier and is one of following:
+#_`xml_file`, `xml_macros`, `xml_keymacros`, `xml_macro`, `fml_file`, `fml_macro`, `chunk`, `expression`. General file format is the part before underscore, the specific section of a file is the part after underscore. "`chunk`" and "`expression`" are some kind of raw macro pieces of texts.
+#_The result should be a XML file (`<farconfig>...</farconfig>`) with macros translated to LUA inside of it or a MacroLib fmlua file if original was \*.fml and corresponding syntax was specified.
+#_
+#_3. Far3 2927-3000 -> Far3 3001+
+#_Now you need an older version of Far3 (pre3001). You import your macros to Far per usual command, then use a script provided in the following forum thread:<br>
+#_[Macros have been moved from macros.db to files][move to files]
+#_
+#_## Managing confusion.
+#_
+#_While all macros are written in LUA, file contents are not interchangeable as of right now. It means that you can't rename X.fmlua to X.lua, move it to <font color="blue">%FARPROFILE%/Macros/scripts</font> and expect it to work. Likewise you can't just move files from <font color="blue">/internal</font> to <font color="blue">/scripts</font>.
+#_
+#_Luckily, with few rules I am about to explain, you won't get lost in all of the LUA files lying around.
+#_
+#_1. Don't touch your internals!
+#_Files in <font color="blue">%FARPROFILE%/Macros/internal</font> are to be manipulated (created/edited/deleted) by FAR Manager itself. And while it is possible to edit them manually, better to leave them alone. Unless you really know what are you doing. Or just feeling adventurous.
+#_
+#_2. MacroLib files are always named \*.fmlua, so you can never confuse them with native script files, even if you configured the MacroLib so they are located in the same directory.
+#_
+#_3. User-made native script files are located in <font color="blue">%FARPROFILE%/Macros/scripts</font> and are named \*.lua. They are read at Far launch, but you can make Far to re-read the folder via command line (more on that later).
+#_
+#_So, only (2) and (3) are in user's management and they are different in names, location and internal structure.
+#_
+#_But there are similarities too.
+#_
+#_1. Both MacroLib and native macros have a concept of "Area of execution" - basically, a broad condition limiting macro effect. Typical are "Editor" - when editor is open, "Shell" - when file panels are in focus, etc...
+#_
+#_2. In addition to general area, some more conditions might be specified for activation of a macro. Like passive panel being visible, command line not being empty and similar. These conditions/flags are legacy carried over from times when macro language was primitive and things like that were hard to check in script itself. Alternatives are being developed (like custom function conditionals in native scripts) but there is no sign that old flags will be abandoned yet.
+#_
+#_3. And finally, there are two flags that control execution of the macro itself. One is to disable/enable intermediate visual output during macro execution (reduces flicker of menus and dialogs being open/closed, for example), another is to control if plugins can intercept keyboard events generated by macro. No other macro can intercept current macro while it is executing - so you don't have to worry about nasty macro interferences.
+#_
+#_## Out of the box.
+#_
+#_In the beginning of time the macro language was ugly and everyone was sad. And few of the developers raised their voices: "Look! There in the great outside lies shiny LUA. Let us take it for ourselves, let us bind it to our manager and then we won't be suffering dollar-signed keywords no more." And so they did. And night turned day, and day turned night, and the Moon died and was born again as they tinkered and meddled and compiled and debugged. Seasons passed by, but finally, the day has come and their labor was over.
+#_And they stood proud among men and shouted: "Behold this LuaMacro plugin! We can rework our ugly macros into LUA, we have the technology now. But wait! There's more: we can write plugins in LUA as well, if we desire so." And everyone rejoiced.
+#_And gathered developers of Far and saw what their brethren did, and saw that it was good. So good in fact, they put the new plugin in the core package and abandoned their old ways of macros.
+#_
+#_So, native macro capabilities are provided by LuaMacro plugin, which is distributed with Far itself as part of its core package. The plugin has no configuration dialog, but has a list of commands to manipulate it:
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: unload`</span> - Far forgets all macros. They are still on disk and can be loaded back with next command.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: load`</span> - makes Far discard all macros and then re-read them from directories anew.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: post <sequence>|@<filename>`</span> - executes a macro code immediately. Either a "raw" piece of code typed in command line, or same raw code saved in a file. File name is prefixed with "@" symbol.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: check <sequence>|@<filename>`</span> - same as above. Except the macro is not executed but checked for syntax errors.
+#_
+#_* <span style="background-color: #CCCCCC;">`lm: save`</span> - saves changes made to "internal" macro files. Useful if you have "Auto save setup" option turned off.
+#_
+#_When "load" and "unload" operations are concerned, only native macros are affected. I.e. those *.lua that are located in <font color="blue">/internal/</font> and <font color="blue">/scripts/</font>. MacroLib macros are not touched. List of all currently loaded native macros is available in Far built-in help "F1". That part of help is not translated to English yet, and its not very convenient in operation anyway. Check [this][farman macro] macro out though.
+#_
+#_Note. "lm:" commands are similar to ones provided by FarCommands plugin via "macro:" and "far:macro " prefixes. There was a difference in that FarCommands used "<" symbol to specify filename, but now it supports both "<" and "@" for this.
+#_
+#_It is time now to explain why some macros are put in <font color="blue">/internal/</font> and others in <font color="blue">/scripts/</font>. Its fairly simple - "internal" is a codename for "recorded" and all the recoded macros go there. More on recorded macros is in the "<font color="red">Hotkeys / Macro use case</font>" chapter.
+#_User-made macros are to be placed in <font color="blue">/scripts/</font>. Sadly, there's no comprehensible manual on how to write them. One is reduced to scavenging for bits and pieces of knowledge by perusing Far's changelog and dissecting macros written by others ([SimSU macro pack][SimSU] for example, topic in Russian forum: [http://forum.farmanager.com/viewtopic.php?f=15&t=7075] [SimSU topic]). Here is a script for the Editor that pastes a macro template on "Ctrl+F11" by Shmuel: [InsertMacro.lua.7z][InsertMacro]
+#_
+#_## MacroLib.
+#_
+#_This is what all the cool kids use. MacroLib is a plugin that provides somewhat extended functionality to macros. It is built on top of native macro system, so 99% of the code working for "regular" macro will work for MacroLib as well.
+#_Project's main page: [http://code.google.com/p/far-plugins/wiki/MacroLib] [macrolib main], download page: [http://code.google.com/p/far-plugins/downloads/list?q=MacroLib] [macrolib dload], documentation (Russian): [http://code.google.com/p/far-plugins/wiki/FML] [macrolib docs].
+#_MacroLib files are named *.fmlua and are located in one or several directories designated by user in configuration dialog. The dialog allows you to update macros from disk and shows you a very neat list of all macros currently loaded with ability to sort, filter, run a macro from the list.
+#_
+#_MacroLib used to have many advantages over built-in system, but nowadays Far has caught up for the most part and is ahead in some experimental things (like events). However, there are two things \*.fmlua scripts have over \*.lua ones.
+#_
+#_1. You can use modifiers to your assigned hotkeys, such as "Hold" (macro is invoked after the key was held for a certain period of time), "Double"(on double click or double key tap), "Release" (macro is called on key being released, rather than being pressed).
+#_2. You frame your macro code in double curly brackets for extra swag {{ }}.
+#_
+#_## Hotkey / Macro use case.
+#_
+#_Can't get used to saving edited file by "F2"? Too lazy to run through menus every time you want to view your current Folder Shortcuts? Then this chapter is for YOU. This chapter covers a very simple usage of Far macros - redefining hotkeys for existing actions and creating hotkeys for actions that don't have them by default.
+#_The easiest way to do said things is by using "Recorded Macro" feature. The Far Manager has an ability to record your actions (keyboard events) and assign them to a specific key, pressing which will replay your actions. This function is in there from Far1 and is explained in "F1" Help, but I will rehash it for you anyway.
+#_You start recording by pressing "Ctrl+." (Control key plus dot key) or "CtrlShift+.", a little red "R" letter appears in the top-left corner and your following key presses will be recorded. You continue to use Far as usual, doing things you want to be put in the macro, or just pressing one key you want to be remapped. Then you finish recording by pressing "Ctrl+." or "CtrlShift+." again. Then you will be asked for a key to which this macro will be assigned, you can select one from a drop-down list with a mouse or just press the desired combination, then "Enter". At this moment an optional dialog might appear to configure additional parameters of you macro.
+#_
+#_So,
+#_
+#_1. "Ctrl+." or "CtrlShift+."
+#_2. Do stuff on record.
+#_3. "Ctrl+." or "CtrlShift+."
+#_4. Select a desired key to assign to.
+#_5. (optional) Configuration dialog.
+#_
+#_If you finish recording with "CtrlShift+." on step 3 you will be shown a dialog on step 5. Otherwise you won't be. To know more about this dialog, press "F1" while in there, its covered in the Help.
+#_Starting the recording with "CtrlShift+." puts a "NoSendKeysToPlugins" flag on your macro, which means that during macro playback plugins won't be able to react to keyboard events generated by this macro - it forces plugins to ignore this macro in that regard.
+#_
+#_If you made a mistake in your macro during recording you may interrupt the recording by usual "Ctrl+." and then hit "Esc" when asked about desired key.
+#_If you select a key that is already taken by a macro, you will be asked if you want to overwrite previous macro. This means you cannot have two recorded macros on the same key in the same area of execution. You can, however, have one for each area (one in Editor, one in Viewer, etc.)
+#_If you need to delete a macro you previously recorded, you create an empty macro for the key you want to free: "Ctrl+.", "Ctrl+.", the key. Then select "yes" to confirm deletion.
+#_
+#_If you have "F9"->"Options"->"System Settings"->"Auto save setup" option turned on, then every change to your recorded macros (creation, modification, deletion) will be immediately saved to files. Otherwise you can use <span style="background-color: #CCCCCC;">`lm: save`</span> command to save your recorded macros or press "Shift+F9" to save full setup.
+#_If you want to know what macros are already recorded, you can navigate to <font color="blue">%FARPROFILE%/Macros/internal</font>. It is possible delete macros in there, just don't forget to use <span style="background-color: #CCCCCC;">`lm: load`</span> command to update, or restart Far.
+#_
+#_Example: lets bind a hotkey to "File associations" menu.
+#_
+#_0. (preparation) Make sure you are in the Shell area of Far, its where two panels with files and folders are.
+#_1. Press "Ctrl+." and make sure the red "R" letter appeared.
+#_2. Press "F9" to move input focus to Far's menu (usually is the top line of the window), then "c" for commands, then "a". Now, if done right the "File associations" menu is on screen.
+#_3. Press "Ctrl+."again, a little "Define macro" box should pop up. Press "Ctrl+Shift+a" and confirm that corresponding key code appeared in the box ("CtrlShiftA").
+#_4. Press "Enter" and enjoy a new quality of life improvement you just created for yourself. Now every time you press "Ctrl+Shift+a" combo in Far shell, the menu will instantly appear.
+#_
+#_## Script use case.
+#_"Script" is a program that runs within/by other program (as opposed to one run by CPU/OS). Scripts in Far evolved from macros to a point when macros themselves are considered primitive cases of scripting. Being programs, scripts require "Programming / Coding" skill to be created, therefore, if you intend to use Far to its fullest potential you might want to invest few skill points in it on your next level up. Alternatively, you can utilize macros written by someone else - just copy the files in appropriate folders.
+#_As mentioned before, Far uses LUA language for scripting. From within the script you have access to
+#_
+#_1. Far (plugin) API - functions of Far that are available to plugins.
+#_
+#_2. Far macro API - some specific functions that were available in old language. These overlap "Plugin API" to some extend and considered legacy API. Better use "Plugin API" where possible.
+#_
+#_3. Custom functions exported by plugins - some plugins export their functions to be called from macro. Those depend on plugin being installed and loaded, of course.
+#_
+#_4. LUA libraries - native to LUA (see language manual) plus few libraries additionally shipped with LuaFar ("bit64", "win" - gate to Win API, Selene Unicode)
+#_
+#_5. Far UI - you can control Far simply by issuing keyboard/mouse commands to it. Why bother finding a function that will open Editor for file under cursor when you can just send "F4" to Far?
+#_
+#_Your main source of information about Far APIs is in <font color="blue">%FARHOME%\Encyclopedia</font> files. Lets look at them.
+#_
+#_* "FarEncyclopedia.ru.chm" - includes (1) and (2), in Russian. Macro API is outdated (pre-LUA). There's an online version too: [http://api.farmanager.com/ru/] [encyclopedia]
+#_
+#_* "luafar_manual.chm" - originally a LuaFar plugin manual (writing plugins in LUA), but we can use it in scripts too. Covers (1) in LUA in English. Very spartan - most of the functions have no textual descriptions, only input parameters and result values (implies ability to read "FarEncyclopedia.ru.chm"). For the most part it is not a problem though, functions' names are self-descriptive.
+#_
+#_* "macroapi_manual.chm" - mapping of (2) to LUA. Again, almost no descriptions.
+#_
+#_Damn, its kinda depressing, ain't it? Luckily for you, I have a magical artifact that will allow you to understand Russian: [abracadabra][abracadabra]. Paste a link to Russian website or text fragment and hit "Enter".
+#_And Acerbic saves the day once again! You are welcome.
+#_
+#_To sum it up: you will use "luafar_manual.chm" in conjunction with [translated online encyclopedia][translated] for Far plugin API reference and "macroapi_manual.chm" in conjunction with [this link][this link] for Macro API reference.
+#_I found this script very helpful: [lua_explorer][lua explorer]. It allows you to browse Lua tables/values/functions soup available to LUA script. [Thread][thread] on the forum.
+#_
+#_## Native or MacroLib?
+#_
+#_MacroLib.
+#_
+#_## Sample script.
+#_
+#_Here's a little demonstration of what you can do in MacroLib: "RCtrl Folder shortcuts.fmlua"
+#_
+#_```
+#_;;
+#_;; Folder shortcuts menu
+#_;; RCtrl single pressing or holding will pop-up the shortcuts menu. Press RCtrl again (or Esc) to close it.
+#_;; RCtrl1-0 will go to set shortcut
+#_;;
+#_ 
+#_const FolderShortcutsId = "4CD742BC-295F-4AFA-A158-7AA05A16BEA1"
+#_ 
+#_macro
+#_area="Shell"
+#_description="Folder shortcuts popup"
+#_key="RCtrl:Hold RCtrl:Release"  ;; call on holding LCtrl or single press of the button (Need to specify Release after Hold bc of a bug)
+#_EatOnRun=0 ;; allows RCtrl:Release in Menu area after RCtrl:Hold was caught
+#_{{ 
+#_    Keys("F9 c d");
+#_}}
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts: RCtrl+digit"
+#_key="/RCtrl\d/"
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys(regex.match(akey(1),"RCtrl(\\d)?")) -- double escaping \\ because of LUA strings parsing
+#_    end;
+#_}}
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts: pass RCtrl+not_digit through"
+#_key="/RCtrl(?!\d$).+/"      ;; Takes RCtrlSOMETHING. Ignores RCtrl0 .. RCtrl9 and bare RCtrl
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys("Esc AKey");
+#_    end;
+#_}}
+#_ 
+#_ 
+#_macro
+#_area="Menu"
+#_description="Folder shortcuts popup close on second RCtrl or on RCtrl:Release after RCtrl:Hold"
+#_key="RCtrl:Release"
+#_{{
+#_    if (Menu.Id == #%FolderShortcutsId) then
+#_        Keys("Esc");
+#_    end;
+#_}}
+#_```
+#_
+#_</font>
+#_
+#_[article on forum]: http://forum.farmanager.com/viewtopic.php?f=35&t=7927#p108538
+#_[perl converter]: http://code.google.com/p/mini-gnu/downloads/list?can=2&q=2x3
+#_[m2l converter]: http://plugring.farmanager.com/plugin.php?pid=884&l=en
+#_[move to files]: http://forum.farmanager.com/viewtopic.php?f=35&t=7564
+#_[farman macro]: http://forum.farmanager.com/viewtopic.php?f=35&t=7893
+#_[SimSU]: http://code.google.com/p/simsufar/downloads/list
+#_[SimSU topic]: http://forum.farmanager.com/viewtopic.php?f=15&t=7075
+#_[InsertMacro]: http://forum.farmanager.com/download/file.php?id=5665
+#_[macrolib main]: http://code.google.com/p/far-plugins/wiki/MacroLib
+#_[macrolib dload]: http://code.google.com/p/far-plugins/downloads/list?q=MacroLib
+#_[macrolib docs]: http://code.google.com/p/far-plugins/wiki/FML
+#_[encyclopedia]: http://api.farmanager.com/ru/
+#_[abracadabra]: http://translate.google.com/#ru/en/
+#_[translated]: http://translate.google.com/translate?sl=ru&tl=en&js=n&prev=_t&hl=en&ie=UTF-8&eotf=1&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2F
+#_[this link]: http://translate.google.com/translate?hl=en&sl=ru&tl=en&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2Fmacro%2Fmacrocmd%2Fprop_func%2Findex.html
+#_[lua explorer]: http://forum.farmanager.com/download/file.php?id=5553
+#_[thread]: http://forum.farmanager.com/viewtopic.php?f=60&t=7521
+#_
+</article>
+</node>

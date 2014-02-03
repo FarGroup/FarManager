@@ -124,6 +124,7 @@
         <ComponentRef Id="Plugins.Review.txt" />
         <ComponentRef Id="TechInfo.txt" />
         <ComponentRef Id="luafar_manual.chm" />
+        <ComponentRef Id="macroapi_manual.en.chm" />
       </Feature>
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="Bug.Report.txt_1" />
@@ -132,7 +133,7 @@
         <ComponentRef Id="Plugins.Review.txt_1" />
         <ComponentRef Id="TechInfo.txt_1" />
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
-        <ComponentRef Id="macroapi_manual.chm" />
+        <ComponentRef Id="macroapi_manual.ru.chm" />
       </Feature>
 <?if $(var.Platform) = x86 ?>
       <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">

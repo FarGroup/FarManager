@@ -369,6 +369,7 @@
 <?define Guid.FarColorW.pas = "BD78C082-3848-4C2F-B85D-2F0CF2EF18E5" ?>
 <?define Guid.PluginW.pas = "670E7A5E-B238-4781-924E-97F744088DC0" ?>
 <?define Guid.luafar_manual.chm = "B967FB08-E65C-4609-9246-672D4C4CD23B" ?>
-<?define Guid.macroapi_manual.chm = "87920E80-E03F-4F6D-A687-7F50CE93BE9C" ?>
+<?define Guid.macroapi_manual.ru.chm = "87920E80-E03F-4F6D-A687-7F50CE93BE9C" ?>
+<?define Guid.macroapi_manual.en.chm = "72D9C2F2-0110-4415-AA2F-0C4E6A0FC0E4" ?>
 <?define Guid.FarEncyclopedia.ru.chm = "D94650F5-956A-4887-8F26-B66B5453287D" ?>
 </Include>

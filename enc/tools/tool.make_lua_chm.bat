@@ -7,7 +7,8 @@ cd ..\build\lua
 if not '%1'=='' goto :make
 
 call :make luafar_manual
-call :make macroapi_manual
+call :make macroapi_manual.ru
+call :make macroapi_manual.en
 
 goto :EOF
 
