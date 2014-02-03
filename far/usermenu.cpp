@@ -427,7 +427,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+static void FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	int NumLines = -1;
@@ -478,7 +478,6 @@ int FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& M
 			FuncPos[FuncNum-1]=ItemPos;
 		}
 	}
-	return NumLines;
 }
 
 // обработка единичного меню
@@ -486,7 +485,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 {
 	for (;;)
 	{
-		int NumLine=0, ExitCode, FuncPos[24];
+		int ExitCode, FuncPos[24];
 
 		// очистка F-хоткеев
 		std::fill(ALL_RANGE(FuncPos), -1);
@@ -532,7 +531,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		int ReturnCode=1;
 
-		NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+		FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 		ITERATOR(Menu)* CurrentMenuItem;
 		ExitCode=UserMenu.Run([&](int Key)->int
 		{
@@ -586,7 +585,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (CurrentMenuItem)
 					{
 						DeleteMenuRecord(Menu,(*CurrentMenuItem));
-						NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+						FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					}
 					break;
 
@@ -600,7 +599,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, bNew);
-					NumLine = FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+					FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					break;
 				}
 
@@ -713,7 +712,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		if (ReturnCode!=1)
 			return ReturnCode;
 
-		if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
+		if (ExitCode < 0 || !CurrentMenuItem)
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
 		void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
