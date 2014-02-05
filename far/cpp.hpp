@@ -48,6 +48,13 @@ namespace std
 	inline wstring to_wstring(unsigned long val) {return to_wstring(static_cast<unsigned long long>(val));}
 	inline wstring to_wstring(float val) {return to_wstring(static_cast<long double>(val));}
 	inline wstring to_wstring(double val) {return to_wstring(static_cast<long double>(val));}
+
+	inline string to_string(int val) {return to_string(static_cast<long long>(val));}
+	inline string to_string(unsigned val) {return to_string(static_cast<unsigned long long>(val));}
+	inline string to_string(long val) {return to_string(static_cast<long long>(val));}
+	inline string to_string(unsigned long val) {return to_string(static_cast<unsigned long long>(val));}
+	inline string to_string(float val) {return to_string(static_cast<long double>(val));}
+	inline string to_string(double val) {return to_string(static_cast<long double>(val));}
 };
 #endif
 
