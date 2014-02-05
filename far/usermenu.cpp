@@ -536,9 +536,10 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		ExitCode=UserMenu.Run([&](int Key)->int
 		{
 			MenuPos=UserMenu.GetSelectPos();
-			void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
-			CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
-
+			{
+				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+				CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+			}
 			if (Key==KEY_SHIFTF1)
 			{
 				UserMenu.Key(KEY_F1);

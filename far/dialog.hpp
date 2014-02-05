@@ -188,9 +188,9 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 STD_SWAP_SPEC(DialogItemEx);
 
 template<size_t N>
-std::array<DialogItemEx, N> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
+std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
-	std::array<DialogItemEx, N> Items;
+	std::vector<DialogItemEx> Items(N);
 	ItemToItemEx(InitData, Items.data(), N);
 	return Items;
 }

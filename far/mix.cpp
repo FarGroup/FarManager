@@ -43,34 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 
-int ToPercent(unsigned long N1,unsigned long N2)
-{
-	if (N1 > 10000)
-	{
-		N1/=100;
-		N2/=100;
-	}
-
-	if (!N2)
-		return 0;
-
-	return (int)(N1*100/N2);
-}
-
-int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
-{
-	if (N1 > 10000)
-	{
-		N1/=100;
-		N2/=100;
-	}
-
-	if (!N2)
-		return 0;
-
-	return static_cast<int>(N1*100/N2);
-}
-
 
 /*
              v - точка

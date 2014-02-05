@@ -2484,10 +2484,12 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 			DCDlg[5].Flags|=DIF_DISABLE;
 			DCDlg[5].Selected=0;
 			IsPersistent=FALSE;
-			RegCloseKey(hKey);
 		}
 		else
-			DCDlg[5].Selected=Global->Opt->ChangeDriveDisconnectMode;
+		{
+			DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
+			RegCloseKey(hKey);
+		}
 	}
 	// скорректируем размеры диалога - дл€ дизайн”
 	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;

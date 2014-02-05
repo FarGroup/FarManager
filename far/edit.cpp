@@ -306,7 +306,7 @@ void Edit::FastShow()
 			{
 				int S=GetTabSize()-((UnfixedLeftPos+OutStr.size()) % GetTabSize());
 				OutStr.push_back((((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))?L'\x2192':L' ');
-				for (int i=1; i<S && OutStr.size() < EditLength; ++i)
+				for (int j=1; j<S && OutStr.size() < EditLength; ++j)
 				{
 					OutStr.push_back(L' ');
 				}

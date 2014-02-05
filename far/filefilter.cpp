@@ -573,9 +573,11 @@ void FileFilter::UpdateCurrentTime()
 	SYSTEMTIME cst;
 	GetSystemTime(&cst);
 	FILETIME cft;
-	SystemTimeToFileTime(&cst, &cft);
-	ULARGE_INTEGER current = {cft.dwLowDateTime, cft.dwHighDateTime};
-	CurrentTime = current.QuadPart;
+	if (SystemTimeToFileTime(&cst, &cft))
+	{
+		ULARGE_INTEGER current = { cft.dwLowDateTime, cft.dwHighDateTime };
+		CurrentTime = current.QuadPart;
+	}
 }
 
 bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)

@@ -2244,16 +2244,17 @@ void FindFiles::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
 
-	int SavePluginsOutput=Global->DisablePluginsOutput;
-	Global->DisablePluginsOutput=TRUE;
-	string strArcName = ArcName;
 	PluginHandle* hArc;
 	{
-		SCOPED_ACTION(CriticalSectionLock)(PluginCS);
-		hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
+		int SavePluginsOutput = Global->DisablePluginsOutput;
+		Global->DisablePluginsOutput = TRUE;
+		string strArcName = ArcName;
+		{
+			SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+			hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
+		}
+		Global->DisablePluginsOutput = SavePluginsOutput;
 	}
-	Global->DisablePluginsOutput=SavePluginsOutput;
-
 	if (hArc==PANEL_STOP)
 	{
 		//StopEvent.Set(); // ??

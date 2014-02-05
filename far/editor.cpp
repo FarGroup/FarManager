@@ -821,8 +821,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case MCODE_F_EDITOR_SETSTR:  // N=Editor.SetStr([S[,Line]])
 				{
 					string strEOL=EditPtr->GetEOL();
-					int CurPos=EditPtr->GetCurPos();
-					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.data(),DestLine,CurPos,EditPtr->GetLength());
+					AddUndoData(UNDO_EDIT, EditPtr->GetStringAddr(), strEOL.data(), DestLine, EditPtr->GetCurPos(), EditPtr->GetLength());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
 					EditPtr->SetEOL(strEOL.data());
 					Change(ECTYPE_CHANGED,DestLine);
@@ -4972,18 +4971,18 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 	{
 		while (!UndoData.empty() && (EditorUndoData::GetUndoDataSize()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
-			auto u=UndoData.begin();
+			auto ub=UndoData.begin();
 
-			if (u->Type==UNDO_BEGIN)
+			if (ub->Type==UNDO_BEGIN)
 				++UndoSkipLevel;
 
-			if (u->Type==UNDO_END && UndoSkipLevel>0)
+			if (ub->Type==UNDO_END && UndoSkipLevel>0)
 				--UndoSkipLevel;
 
 			if (UndoSavePos == UndoData.end())
 				Flags.Set(FEDITOR_UNDOSAVEPOSLOST);
 
-			if (u==UndoSavePos)
+			if (ub==UndoSavePos)
 				UndoSavePos == UndoData.end();
 
 			UndoData.pop_front();
@@ -7375,7 +7374,7 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 		}
 
 		int length = WideCharToMultiByte(m_codepage, 0, edit->Str, edit->StrSize, decoded.data(), static_cast<int>(decoded.size()), nullptr, lpUsedDefaultChar);
-		if (UsedDefaultChar)
+		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
 			if ( check_only )

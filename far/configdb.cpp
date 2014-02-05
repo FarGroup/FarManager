@@ -2653,12 +2653,12 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 				p->Import(root.FirstChildElement(son));
 			else
 			{
-				for (xml_iterator plugin(root.FirstChild("pluginsconfig"), "plugin"); plugin; ++plugin)
+				for (xml_iterator plugin_i(root.FirstChild("pluginsconfig"), "plugin"); plugin_i; ++plugin_i)
 				{
-					const char *guid = plugin->Attribute("guid");
+					const char *guid = plugin_i->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
-						p->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement *>(&(*plugin))));
+						p->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement *>(&(*plugin_i))));
 						break;
 					}
 				}

@@ -144,9 +144,9 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 		strDest.clear();
 		LPCWSTR pstPath = stPath.data(), pstCurrentDir = nullptr;
 		bool blIgnore = false;
-		size_t DirOffset = 0;
-		PATH_TYPE PathType = ParsePath(stPath, &DirOffset);
-		pstPath+=DirOffset;
+		size_t PathDirOffset = 0;
+		PATH_TYPE PathType = ParsePath(stPath, &PathDirOffset);
+		pstPath += PathDirOffset;
 		switch (PathType)
 		{
 			case PATH_UNKNOWN:
@@ -155,10 +155,10 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 				{
 					if (!stCurrentDir.empty())
 					{
-						size_t DirOffset = 0;
-						if (ParsePath(stCurrentDir, &DirOffset)!=PATH_UNKNOWN)
+						size_t CurDirDirOffset = 0;
+						if (ParsePath(stCurrentDir, &CurDirDirOffset) != PATH_UNKNOWN)
 						{
-							strDest=string(stCurrentDir.data(), DirOffset);
+							strDest = string(stCurrentDir.data(), CurDirDirOffset);
 						}
 					}
 				}

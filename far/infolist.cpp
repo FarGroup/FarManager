@@ -385,7 +385,7 @@ void InfoList::DisplayObject()
 		if (GlobalMemoryStatusEx(&ms))
 		{
 			if (!ms.dwMemoryLoad)
-				ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+				ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
 
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);

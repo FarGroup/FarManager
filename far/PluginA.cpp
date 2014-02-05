@@ -464,8 +464,8 @@ static DWORD OldKeyToKey(DWORD dOldKey)
 		{
 			char OemChar=static_cast<char>(CleanKey);
 			wchar_t WideChar=0;
-			MultiByteToWideChar(CP_OEMCP,0,&OemChar,1,&WideChar,1);
-			dOldKey=(dOldKey^CleanKey)|WideChar;
+			if (MultiByteToWideChar(CP_OEMCP,0,&OemChar,1,&WideChar,1))
+				dOldKey=(dOldKey^CleanKey)|WideChar;
 		}
 	}
 
@@ -490,8 +490,8 @@ static DWORD KeyToOldKey(DWORD dKey)
 		{
 			wchar_t WideChar=static_cast<wchar_t>(CleanKey);
 			char OemChar=0;
-			WideCharToMultiByte(CP_OEMCP,0,&WideChar,1,&OemChar,1,0,nullptr);
-			dKey=(dKey^CleanKey)|OemChar;
+			if (WideCharToMultiByte(CP_OEMCP,0,&WideChar,1,&OemChar,1,0,nullptr))
+				dKey=(dKey^CleanKey)|OemChar;
 		}
 	}
 
@@ -4151,15 +4151,15 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 					case FARMACRO_KEY_EVENT:
 					{
 						wchar_t res;
-						MultiByteToWideChar(
+						if (MultiByteToWideChar(
 						    CP_OEMCP,
 						    0,
 						    &pIR->Event.KeyEvent.uChar.AsciiChar,
 						    1,
 						    &res,
 						    1
-						);
-						pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+						))
+							pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 					}
 					default:
 						break;
@@ -4188,7 +4188,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 					case FARMACRO_KEY_EVENT:
 					{
 						char res;
-						WideCharToMultiByte(
+						if (WideCharToMultiByte(
 						    CP_OEMCP,
 						    0,
 						    &pIR->Event.KeyEvent.uChar.UnicodeChar,
@@ -4197,8 +4197,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 						    1,
 						    nullptr,
 						    nullptr
-						);
-						pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+						))
+							pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 					}
 				}
 			}
@@ -4697,7 +4697,7 @@ public:
 	bool Read()
 	{
 		bool Result = false;
-		DWORD dummy, dwlen = GetFileVersionInfoSize(file.data(), &dummy);
+		DWORD dummy = 0, dwlen = GetFileVersionInfoSize(file.data(), &dummy);
 		if (dwlen)
 		{
 			buffer.reset(dwlen);

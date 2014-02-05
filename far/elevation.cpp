@@ -364,7 +364,7 @@ bool elevation::Initialize()
 			if(ShellExecuteEx(&info))
 			{
 				m_process = info.hProcess;
-				if (!InJob && m_job)
+				if (!InJob && m_job && m_process)
 				{
 					AssignProcessToJobObject(m_job, m_process);
 				}
@@ -386,7 +386,7 @@ bool elevation::Initialize()
 				}
 				if(!Result)
 				{
-					if(WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
+					if (m_process && WaitForSingleObject(m_process, 0) == WAIT_TIMEOUT)
 					{
 						TerminateProcess(m_process, 0);
 						CloseHandle(m_process);

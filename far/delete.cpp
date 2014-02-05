@@ -319,7 +319,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 	string strSelName;
 	string strSelShortName;
 	string strDizName;
-	string strFullName;
 	DWORD FileAttr;
 	size_t SelCount;
 	int UpdateDiz;
@@ -620,6 +619,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			{
 				if (!DeleteAllFolders && !cannot_recycle_try_delete_folder)
 				{
+					string strFullName;
 					ConvertNameToFull(strSelName, strFullName);
 
 					if (TestFolder(strFullName) == TSTFLD_NOTEMPTY)
@@ -671,15 +671,15 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
-					DWORD StartTime=GetTickCount();
+					DWORD TreeStartTime=GetTickCount();
 
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
-						DWORD CurTime=GetTickCount();
-						int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
-						if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+						DWORD TreeCurTime=GetTickCount();
+						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
+						if (TreeCurTime - TreeStartTime > (DWORD)Global->Opt->RedrawTimeout)
 						{
-							StartTime=CurTime;
+							TreeStartTime = TreeCurTime;
 
 							if (CheckForEscSilent())
 							{
@@ -692,7 +692,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 								}
 							}
 
-							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0, &DeleteTitle);
+							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TreeTotalPercent, 0, &DeleteTitle);
 						}
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -778,7 +778,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName,Wipe,TotalPercent, &DeleteTitle)==DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName,Wipe, TreeTotalPercent, &DeleteTitle)==DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;

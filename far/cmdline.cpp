@@ -636,11 +636,11 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				{L'$', L'$'},   // $$ - $ (dollar sign)
 			};
 
-			FOR_CONST_RANGE(strExpandedDestStr, i)
+			FOR_CONST_RANGE(strExpandedDestStr, it)
 			{
-				if (*i==L'$')
+				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
-					wchar_t Chr=Upper(*++i);
+					wchar_t Chr = Upper(*++it);
 
 					auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
 					{
@@ -655,9 +655,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					{
 						switch (Chr)
 						{
-								/* эти не раелизованы
+								/* эти не реaлизованы
 								$E - Escape code (ASCII code 27)
-								$V - Windows XP version number
+								$V - Windows version number
 								$_ - Carriage return and linefeed
 								*/
 							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
@@ -684,13 +684,19 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'@': // $@xx - Admin
 							{
-								wchar_t lb=*++i;
-								wchar_t rb=*++i;
-								if ( Global->IsUserAdmin() )
+								if (it + 1 != strExpandedDestStr.cend())
 								{
-									strDestStr += lb;
-									strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
-									strDestStr += rb;
+									wchar_t lb = *(++it);
+									if (it + 1 != strExpandedDestStr.cend())
+									{
+										wchar_t rb = *(++it);
+										if (Global->IsUserAdmin())
+										{
+											strDestStr += lb;
+											strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
+											strDestStr += rb;
+										}
+									}
 								}
 								break;
 							}
@@ -727,11 +733,19 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							}
 							case L'#': //$#nn - max promt width in %
 							{
-								NewPromptSize = 0;
-								for (int j=0; j<2 && iswdigit(*(i+1)); j++)
+								if (it + 1 != strExpandedDestStr.end())
 								{
-									NewPromptSize *= 10;
-									NewPromptSize += *++i - L'0';
+									try
+									{
+										size_t pos = 0;
+										NewPromptSize = std::stoi(string(++it, strExpandedDestStr.cend()), &pos);
+										it += pos;
+									}
+									catch (const std::exception&)
+									{
+										// bad format, NewPromptSize unchanged
+										// TODO: diagnostics
+									}
 								}
 							}
 						}
@@ -739,7 +753,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				}
 				else
 				{
-					strDestStr += *i;
+					strDestStr += *it;
 				}
 			}
 		});

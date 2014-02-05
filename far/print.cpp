@@ -97,7 +97,7 @@ void PrintFiles(FileList* SrcPanel)
 {
 	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
 	string strPrinterName;
-	DWORD Needed,Returned;
+	DWORD Needed = 0, Returned;
 	DWORD FileAttr;
 	string strSelName;
 	size_t DirsCount=0;
@@ -122,8 +122,9 @@ void PrintFiles(FileList* SrcPanel)
 	if (DirsCount==SelCount)
 		return;
 
+	EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, nullptr, 0, &Needed, &Returned);
 
-	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,nullptr,0,&Needed,&Returned) || !Needed)
+	if (!Needed)
 		return;
 
 	block_ptr<PRINTER_INFO> pi(Needed);

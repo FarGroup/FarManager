@@ -1392,10 +1392,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						else
 							ListItem.strName = str_printf(L"   %s", strName.data());
 
-						PluginMenuItemData item;
-						item.pPlugin = i;
-						item.Guid = guid;
-						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
+						PluginMenuItemData itemdata;
+						itemdata.pPlugin = i;
+						itemdata.Guid = guid;
+						PluginList.SetUserData(&itemdata, sizeof(PluginMenuItemData),PluginList.AddItem(ListItem));
 					}
 				}
 

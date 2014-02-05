@@ -267,7 +267,7 @@ void QuickView::DisplayObject()
 			SetColor(iColor);
 			InsertCommas(Data.AllocationSize,strSize);
 			FString.clear();
-			FString << prefix << strSize << L" (" << ToPercent64(Data.AllocationSize,Data.FileSize) << L"%)";
+			FString << prefix << strSize << L" (" << ToPercent(Data.AllocationSize,Data.FileSize) << L"%)";
 			PrintText(FString);
 
 			if (Directory!=4)
@@ -285,7 +285,7 @@ void QuickView::DisplayObject()
 				SetColor(iColor);
 				InsertCommas(Data.FilesSlack, strSize);
 				FString.clear();
-				FString << prefix << strSize << L" (" << ToPercent64(Data.FilesSlack, Data.AllocationSize) << L"%)";
+				FString << prefix << strSize << L" (" << ToPercent(Data.FilesSlack, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
 				SetColor(COL_PANELTEXT);
@@ -294,7 +294,7 @@ void QuickView::DisplayObject()
 				SetColor(iColor);
 				InsertCommas(Data.MFTOverhead, strSize);
 				FString.clear();
-				FString<<prefix<<strSize<<L" ("<<ToPercent64(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
+				FString<<prefix<<strSize<<L" ("<<ToPercent(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
 				PrintText(FString);
 
 			}

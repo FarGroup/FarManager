@@ -508,7 +508,7 @@ void FileViewer::ShowStatus()
 	    View.FileSize,
 	    MSG(MViewerStatusCol),
 	    View.LeftPos,
-	    (View.LastPage ? 100:ToPercent64(View.FilePos,View.FileSize))
+	    (View.LastPage ? 100:ToPercent(View.FilePos,View.FileSize))
 	);
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(X1,Y1);

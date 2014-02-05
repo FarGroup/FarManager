@@ -70,7 +70,7 @@ FarKeyboardState IntKeyState={};
 
 /* end Глобальные переменные */
 
-static SHORT KeyToVKey[WCHAR_MAX];
+static SHORT KeyToVKey[WCHAR_MAX + 1];
 static WCHAR VKeyToASCII[0x200];
 
 static unsigned int AltValue=0;

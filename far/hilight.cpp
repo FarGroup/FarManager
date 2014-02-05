@@ -461,9 +461,11 @@ void HighlightFiles::UpdateCurrentTime()
 	SYSTEMTIME cst;
 	GetSystemTime(&cst);
 	FILETIME cft;
-	SystemTimeToFileTime(&cst, &cft);
-	ULARGE_INTEGER current = {cft.dwLowDateTime, cft.dwHighDateTime};
-	CurrentTime = current.QuadPart;
+	if (SystemTimeToFileTime(&cst, &cft))
+	{
+		ULARGE_INTEGER current = { cft.dwLowDateTime, cft.dwHighDateTime };
+		CurrentTime = current.QuadPart;
+	}
 }
 
 void HighlightFiles::GetHiColor(FileListItem* To, bool UseAttrHighlighting)

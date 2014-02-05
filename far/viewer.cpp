@@ -2002,7 +2002,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					Perc=0;
 				}
 				else
-					Perc=ToPercent64(FilePos,FileSize);
+					Perc=ToPercent(FilePos,FileSize);
 
 				if (Perc == 100)
 					ProcessKey(KEY_CTRLEND);
@@ -4016,35 +4016,30 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				//Relative=0; // при hex значении никаких относительных значений?
 			}
 
-			if (GoToDlg[RB_PRC].Selected)
+			try
 			{
-				//int cPercent=ToPercent64(FilePos,FileSize);
-				PrevMode = RB_PRC;
-				int Percent=std::stoi(GoToDlg[1].strData);
+				if (GoToDlg[RB_PRC].Selected)
+				{
+					unsigned long Percent = std::stoul(GoToDlg[1].strData);
+					if (Percent > 100)
+						return;
+					PrevMode = RB_PRC;
+					Offset = FileSize / 100 * Percent;
 
-				//if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
-				//  return;
-				if (Percent>100)
-					return;
-
-				//if ( Percent<0 )
-				//  Percent=0;
-				Offset=FileSize/100*Percent;
-
-				while (ToPercent64(Offset,FileSize)<Percent)
-					Offset++;
+					while (ToPercent(Offset, FileSize) < Percent)
+						Offset++;
+				}
+				else
+				{
+					bool hex = GoToDlg[RB_HEX].Selected != 0;
+					Offset = std::stoull(GoToDlg[1].strData, nullptr, hex ? 16 : 10);
+					PrevMode = hex ? RB_HEX : RB_DEC;
+				}
 			}
-
-			if (GoToDlg[RB_HEX].Selected)
+			catch (const std::exception&)
 			{
-				PrevMode = RB_HEX;
-				swscanf(GoToDlg[1].strData.data(),L"%I64x",&Offset);
-			}
-
-			if (GoToDlg[RB_DEC].Selected)
-			{
-				PrevMode = RB_DEC;
-				swscanf(GoToDlg[1].strData.data(),L"%I64d",&Offset);
+				// wrong input, Offset unchanged.
+				// TODO: diagnostics
 			}
 		}// ShowDlg
 		else
@@ -4062,7 +4057,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				//  Percent=0;
 				Offset=FileSize/100*Percent;
 
-				while (ToPercent64(Offset,FileSize)<Percent)
+				while (ToPercent(Offset,FileSize)<Percent)
 					Offset++;
 			}
 		}

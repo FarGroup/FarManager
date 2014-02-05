@@ -1504,7 +1504,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	{
 		ULONG BufSize = api::NT_MAX_PATH;
 		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
-		NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+		Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
@@ -1551,9 +1551,9 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
 			wchar_t VolumeName[MAX_PATH];
 			HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
-			BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+			BOOL Result = hEnum != INVALID_HANDLE_VALUE;
 
-			while (Res)
+			while (Result)
 			{
 				DeleteEndSlash(VolumeName);
 				int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
@@ -1564,7 +1564,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 					break;
 				}
 
-				Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
+				Result = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
 			}
 
 			if (hEnum != INVALID_HANDLE_VALUE)
@@ -1758,15 +1758,18 @@ int api::RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData
 	{
 		wchar_t_ptr Data(cbSize/sizeof(wchar_t)+1);
 		DWORD Type=REG_SZ;
-		nResult = ::RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(Data.get()), &cbSize);
-		int Size=cbSize/sizeof(wchar_t);
-
-		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
+		nResult = RegQueryValueEx(hKey, ValueName.data(), nullptr, &Type, reinterpret_cast<LPBYTE>(Data.get()), &cbSize);
+		if (nResult == ERROR_SUCCESS)
 		{
-			if (!Data[Size - 1])
-				Size--;
+			int Size=cbSize/sizeof(wchar_t);
+
+			if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
+			{
+				if (!Data[Size - 1])
+					Size--;
+			}
+			strData.assign(Data.get(), Size);
 		}
-		strData.assign(Data.get(), Size);
 	}
 
 	if (nResult != ERROR_SUCCESS)
@@ -1803,44 +1806,45 @@ int api::EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string
 			DWORD Size = 0;
 			DWORD RetValNameSize = ValNameSize;
 			// Get DataSize
-			/*ExitCode = */::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, nullptr, &Size);
-			// здесь ExitCode == ERROR_SUCCESS
-
-			// корректировка размера
-			if (Type == REG_DWORD)
-			{
-				if (Size < sizeof(DWORD))
-					Size = sizeof(DWORD);
-			}
-			else if (Type == REG_QWORD)
-			{
-				if (Size < sizeof(__int64))
-					Size = sizeof(__int64);
-			}
-
-			wchar_t_ptr Data(Size/sizeof(wchar_t)+1);
-			RetValNameSize=ValNameSize;
-			DWORD RetSize = Size;
-			ExitCode = ::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
-
+			ExitCode = ::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, nullptr, &Size);
 			if (ExitCode == ERROR_SUCCESS)
 			{
+				// корректировка размера
 				if (Type == REG_DWORD)
 				{
-					if (IData)
-						*IData=*(DWORD*)Data.get();
+					if (Size < sizeof(DWORD))
+						Size = sizeof(DWORD);
 				}
 				else if (Type == REG_QWORD)
 				{
-					if (IData64)
-						*IData64=*(__int64*)Data.get();
+					if (Size < sizeof(__int64))
+						Size = sizeof(__int64);
 				}
 
-				RetCode=Type;
-				strDestName = strValueName;
-			}
+				wchar_t_ptr Data(Size/sizeof(wchar_t)+1);
+				RetValNameSize=ValNameSize;
+				DWORD RetSize = Size;
+				ExitCode = ::RegEnumValue(hKey, Index, UNSAFE_CSTR(strValueName), &RetValNameSize, nullptr, &Type, (LPBYTE)Data.get(), &RetSize);
 
-			strSData.assign(Data.get(), RetSize/sizeof(wchar_t));
+				if (ExitCode == ERROR_SUCCESS)
+				{
+					if (Type == REG_DWORD)
+					{
+						if (IData)
+							*IData=*(DWORD*)Data.get();
+					}
+					else if (Type == REG_QWORD)
+					{
+						if (IData64)
+							*IData64=*(__int64*)Data.get();
+					}
+
+					RetCode=Type;
+					strDestName = strValueName;
+				}
+
+				strSData.assign(Data.get(), RetSize/sizeof(wchar_t));
+			}
 		}
 
 		RegCloseKey(hKey);

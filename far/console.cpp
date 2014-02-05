@@ -269,13 +269,16 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 {
 	DWORD dwNumberOfEventsRead = 0;
 	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
-	NumberOfEventsRead = dwNumberOfEventsRead;
-	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if (Result)
 	{
-		Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
-		COORD Size={};
-		GetSize(Size);
-		Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		NumberOfEventsRead = dwNumberOfEventsRead;
+		if (Global->Opt->WindowMode && Buffer->EventType == MOUSE_EVENT)
+		{
+			Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
+			COORD Size={};
+			GetSize(Size);
+			Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		}
 	}
 	return Result;
 }

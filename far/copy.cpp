@@ -281,7 +281,7 @@ void CopyProgress::Flush()
 
 		if (Total || (TotalFilesToProcess==1))
 		{
-			CopyTitle << L"{" << (Total?ToPercent64(TotalCopiedSize>>8,TotalCopySize>>8):Percents) << L"%} " << MSG(Move? MCopyMovingTitle : MCopyCopyingTitle) << fmt::Flush();
+			CopyTitle << L"{" << (Total?ToPercent(TotalCopiedSize>>8,TotalCopySize>>8):Percents) << L"%} " << MSG(Move? MCopyMovingTitle : MCopyCopyingTitle) << fmt::Flush();
 		}
 	}
 }
@@ -509,7 +509,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	}
 
 	Bar[BarLength]=0;
-	Percents=ToPercent64(CompletedSize,TotalSize);
+	Percents=ToPercent(CompletedSize,TotalSize);
 	FormatString strPercents;
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
 	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,FormatString()<<fmt::MinWidth(4)<<Percents<<L"%");

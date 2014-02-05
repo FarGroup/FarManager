@@ -48,13 +48,14 @@ TaskBarCore::TaskBarCore():
 		case S_FALSE:
 			CoInited=true;
 		case RPC_E_CHANGED_MODE:
-			CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
+			if (CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
 #ifdef __GNUC__
 				IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)
 #else
 				IID_PPV_ARGS(&pTaskbarList)
 #endif
-			);
+			) != S_OK)
+				pTaskbarList = nullptr;
 			break;
 		default:
 			CoInited=false;

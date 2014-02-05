@@ -1005,10 +1005,16 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	bool NeedFixCurDir = (api::GetFileAttributes(strCurDir) & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
 	if (NeedFixCurDir)
 	{
-		GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir);
-		string RealPath;
-		ConvertNameToReal(strCurDir, RealPath);
-		SetCurrentDirectory(RealPath.data());
+		if (!GetCurrentDirectory(ARRAYSIZE(CurDir), CurDir))
+		{
+			NeedFixCurDir = false;
+		}
+		else
+		{
+			string RealPath;
+			ConvertNameToReal(strCurDir, RealPath);
+			NeedFixCurDir = SetCurrentDirectory(RealPath.data()) != FALSE;
+		}
 	}
 
 	DWORD dwError = 0;
