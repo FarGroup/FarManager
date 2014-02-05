@@ -749,6 +749,11 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								}
 							}
 						}
+
+						if (it == strExpandedDestStr.cend())
+						{
+							break;
+						}
 					}
 				}
 				else
