@@ -2569,7 +2569,7 @@ struct FarList* CreateList(lua_State *L, int historyindex)
 static void PushList (lua_State *L, const struct FarList *list)
 {
 	int i;
-	lua_createtable(L, list->ItemsNumber, 0);
+	lua_createtable(L, (int)list->ItemsNumber, 0);
 	for (i=0; i<(int)list->ItemsNumber; i++)
 	{
 		lua_createtable(L,0,2);
