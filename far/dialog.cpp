@@ -208,7 +208,25 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 
 static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
-	size_t size=sizeof(FarDialogItem);
+	size_t size=ALIGN(sizeof(FarDialogItem)),offsetList=size,offsetListItems=size;
+	VMenu *ListBox=nullptr; intptr_t ListBoxSize=0;
+	if (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX)
+	{
+		ListBox=ItemEx->ListPtr;
+		if (ListBox)
+		{
+			size+=ALIGN(sizeof(FarList));
+			offsetListItems=size;
+			ListBoxSize=ListBox->GetItemCount();
+			size+=ListBoxSize*sizeof(FarListItem);
+			for(intptr_t ii=0;ii<ListBoxSize;++ii)
+			{
+				MenuItemEx* item=ListBox->GetItemPtr(ii);
+				size+=(item->strName.size()+1)*sizeof(wchar_t);
+			}
+		}
+	}
+	size_t offsetStrings=size;
 	string str;
 	size_t sz = ItemStringAndSize(ItemEx,str);
 	size+=(sz+1)*sizeof(wchar_t);
@@ -220,8 +238,26 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 		if(Item->Item && Item->Size >= size)
 		{
 			ConvertItemSmall(*ItemEx, *Item->Item);
-
-			wchar_t* p=(wchar_t*)(Item->Item+1);
+			if (ListBox)
+			{
+				FarList* list=(FarList*)((char*)(Item->Item)+offsetList);
+				FarListItem* listItems=(FarListItem*)((char*)(Item->Item)+offsetListItems);
+				wchar_t* text=(wchar_t*)(listItems+ListBoxSize);
+				for(intptr_t ii=0;ii<ListBoxSize;++ii)
+				{
+					MenuItemEx* item=ListBox->GetItemPtr(ii);
+					listItems[ii].Flags=item->Flags;
+					listItems[ii].Text=text;
+					wmemcpy(text, item->strName.data(), item->strName.size()+1);
+					text+=item->strName.size()+1;
+					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
+				}
+				list->StructSize=sizeof(list);
+				list->ItemsNumber=ListBoxSize;
+				list->Items=listItems;
+				Item->Item->ListItems=list;
+			}
+			wchar_t* p=(wchar_t*)((char*)(Item->Item)+offsetStrings);
 			Item->Item->Data = p;
 			wmemcpy(p, str.data(), sz+1);
 			p+=sz+1;
