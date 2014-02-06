@@ -1,3 +1,10 @@
+shmuel 06.02.2014 18:28:38 +0200 - build 282
+
+1. LuaFAR: доработка far.GetDlgItem и far.SendDlgMessage(DM_GETDLGITEM):
+   для элементов типа DI_LISTBOX и DI_COMBOBOX элемент 6 (ListItems) передавался нулём.
+
+2. LuaFAR: мелкий рефакторинг.
+
 shmuel 30.01.2014 11:20:16 +0200 - build 281
 
 1. LuaFAR: откат билда 279 (сломалось получение пустых строк).

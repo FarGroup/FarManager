@@ -2530,17 +2530,14 @@ static UINT64 GetItemFlags(lua_State* L, int flag_index, int item_index)
 // list table is on Lua stack top
 struct FarList* CreateList(lua_State *L, int historyindex)
 {
-	int i;
-	struct FarList* list;
-	int n = (int)lua_objlen(L,-1);
-	char* ptr = (char*)lua_newuserdata(L,
-	                                   sizeof(struct FarList) + n*sizeof(struct FarListItem)); // +2
+	int i, n = (int)lua_objlen(L,-1);
+	struct FarList* list = (struct FarList*)lua_newuserdata(L,
+	                       sizeof(struct FarList) + n*sizeof(struct FarListItem)); // +2
 	int len = (int)lua_objlen(L, historyindex);
 	lua_rawseti(L, historyindex, ++len);  // +1; put into "histories" table to avoid being gc'ed
-	list = (struct FarList*) ptr;
 	list->StructSize = sizeof(struct FarList);
 	list->ItemsNumber = n;
-	list->Items = (struct FarListItem*)(ptr + sizeof(struct FarList));
+	list->Items = (struct FarListItem*)(list+1);
 
 	for(i=0; i<n; i++)
 	{
@@ -2569,14 +2566,29 @@ struct FarList* CreateList(lua_State *L, int historyindex)
 	return list;
 }
 
+static void PushList (lua_State *L, const struct FarList *list)
+{
+	int i;
+	lua_createtable(L, list->ItemsNumber, 0);
+	for (i=0; i<(int)list->ItemsNumber; i++)
+	{
+		lua_createtable(L,0,2);
+		PutFlagsToTable(L, "Flags", list->Items[i].Flags);
+		PutWStrToTable(L, "Text", list->Items[i].Text, -1);
+		lua_rawseti(L,-2,i+1);
+		if (list->Items[i].Flags & LIF_SELECTED)
+			PutIntToTable(L, "SelectIndex", i+1);
+	}
+}
+
 //	enum FARDIALOGITEMTYPES Type;            1
-//	int X1,Y1,X2,Y2;                         2,3,4,5
+//	intptr_t X1,Y1,X2,Y2;                    2,3,4,5
 //	union
 //	{
-//		DWORD_PTR Reserved;                    6
-//		int Selected;                          6
+//		intptr_t Selected;                     6
 //		struct FarList *ListItems;             6
-//		FAR_CHAR_INFO *VBuf;                   6
+//		struct FAR_CHAR_INFO *VBuf;            6
+//		intptr_t Reserved0;                    6
 //	}
 //#ifndef __cplusplus
 //	Param
@@ -2587,7 +2599,8 @@ struct FarList* CreateList(lua_State *L, int historyindex)
 //	FARDIALOGITEMFLAGS Flags;                9
 //	const wchar_t *Data;                     10
 //	size_t MaxLength;                        11  // terminate 0 not included (if == 0 string size is unlimited)
-//	LONG_PTR UserData;                       12
+//	intptr_t UserData;                       12
+//	intptr_t Reserved[2];
 
 
 // item table is on Lua stack top
@@ -2669,22 +2682,22 @@ static void SetFarDialogItem(lua_State *L, struct FarDialogItem* Item, int itemi
 static void PushDlgItem(lua_State *L, const struct FarDialogItem* pItem, BOOL table_exist)
 {
 	if(! table_exist)
-	{
 		lua_createtable(L, 12, 0);
-
-		if(pItem->Type == DI_LISTBOX || pItem->Type == DI_COMBOBOX)
-		{
-			lua_createtable(L, 0, 1);
-			lua_rawseti(L, -2, 6);
-		}
-	}
 
 	PutIntToArray(L, 1, pItem->Type);
 	PutIntToArray(L, 2, pItem->X1);
 	PutIntToArray(L, 3, pItem->Y1);
 	PutIntToArray(L, 4, pItem->X2);
 	PutIntToArray(L, 5, pItem->Y2);
-	PutIntToArray(L, 6, pItem->Param.Selected);
+
+	if ((pItem->Type == DI_LISTBOX || pItem->Type == DI_COMBOBOX) && pItem->Param.ListItems)
+	{
+		PushList(L, pItem->Param.ListItems);
+		lua_rawseti(L, -2, 6);
+	}
+	else
+		PutIntToArray(L, 6, pItem->Param.Selected);
+
 	PutFlagsToArray(L, 9, pItem->Flags);
 	lua_pushinteger(L, 10);
 	push_utf8_string(L, pItem->Data, -1);
@@ -5731,7 +5744,7 @@ const luaL_Reg far_funcs[] =
 };
 
 const char far_Dialog[] =
-    "function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)\n\
+"function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)\n\
   local hDlg = far.DialogInit(Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)\n\
   if hDlg == nil then return nil end\n\
 \n\
