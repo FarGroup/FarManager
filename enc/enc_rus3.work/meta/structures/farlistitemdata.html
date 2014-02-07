@@ -36,7 +36,7 @@ struct FarListItemData
   <div class=dfn>Index</div>
     <div class=dfndescr>Индекс элемента списка.</div>
   <div class=dfn>DataSize</div>
-    <div class=dfndescr>Размер данных <code>Data</code> или <code>0</code>, если предполагается ассоциировать с пунктом списка Unicide-строку.</div>
+    <div class=dfndescr>Размер данных <code>Data</code> или <code>0</code>, если предполагается ассоциировать с пунктом списка Unicode-строку.</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Указатель на данные.</div>
 </div>
@@ -47,7 +47,7 @@ struct FarListItemData
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">DataSize</th><th class="cont" width="60%">Data</th></tr>
 <tr class="cont"><td class="cont" width="40%"><code>0</code></td>
-<td class="cont" width="60%">Указатель на Unicode строку. Выделяется память размером <code>wcslen(Data)+1</code> байт. Передаваемые данные копируются в выделенную область памяти.</td></tr>
+<td class="cont" width="60%">Указатель на Unicode-строку. Выделяется память размером <code>wcslen(Data)+1</code> символов. Передаваемые данные копируются в выделенную область памяти.</td></tr>
 <tr class="cont"><td class="cont" width="40%"><code>!=0</code></td>
 <td class="cont" width="60%">Произвольные данные. Выделяется память размером <code>DataSize</code>. Передаваемые данные копируются в выделенную область памяти.</td></tr>
 </table>

@@ -1,3 +1,8 @@
+shmuel 07.02.2014 22:37:35 +0200 - build 283
+
+1. LuaFAR: far.SendDlgMessage(DM_LISTSETDATA) при повторной установке данных по тому же индексу
+   не затирал предыдущее значение, что приводило к росту потребления памяти.
+
 shmuel 06.02.2014 18:28:38 +0200 - build 282
 
 1. LuaFAR: доработка far.GetDlgItem и far.SendDlgMessage(DM_GETDLGITEM):

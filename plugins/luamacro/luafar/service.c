@@ -3192,18 +3192,28 @@ static int far_SendDlgMessage(lua_State *L)
 		}
 		case DM_LISTSETDATA:
 		{
-			struct FarListItemData flid;
-			int ref;
-			memset(&flid, 0, sizeof(flid));
-			flid.StructSize = sizeof(flid);
+			intptr_t FarData, Index;
 			luaL_checktype(L, 4, LUA_TTABLE);
-			flid.Index = GetOptIntFromTable(L, "Index", 1) - 1;
+			Index = GetOptIntFromTable(L, "Index", 1) - 1;
 			lua_getfenv(L, 1);
 			lua_getfield(L, 4, "Data");
-			ref = luaL_ref(L, -2);
-			flid.Data = &ref;
-			flid.DataSize = sizeof(int);
-			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
+			FarData = Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
+			if (FarData) // there is some data already - replace it; reference remains unchanged
+			{
+				lua_rawseti(L, -2, *(int*)FarData);
+				lua_pushinteger(L, sizeof(int));
+			}
+			else // place data at new reference
+			{
+				int ref = luaL_ref(L, -2);
+				struct FarListItemData flid;
+				memset(&flid, 0, sizeof(flid));
+				flid.StructSize = sizeof(flid);
+				flid.Index = Index;
+				flid.Data = &ref;
+				flid.DataSize = sizeof(int);
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
+			}
 			return 1;
 		}
 		case DM_LISTGETDATA:
