@@ -2628,7 +2628,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3573932564
+mtime=3600981779
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
@@ -2762,7 +2762,7 @@ mtime=3573932564
 #_DM_LISTSETDATA:
 #_    Param2:  table
 #_               ["Index"] - integer (1-based list index)
-#_               ["Data"]  - any Lua value
+#_               ["Data"]  - any Lua value except nil
 #_    Result:  integer (returned from Far)
 #_
 #_DM_GETDLGITEM:

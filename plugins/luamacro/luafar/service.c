@@ -3197,6 +3197,11 @@ static int far_SendDlgMessage(lua_State *L)
 			Index = GetOptIntFromTable(L, "Index", 1) - 1;
 			lua_getfenv(L, 1);
 			lua_getfield(L, 4, "Data");
+			if (lua_isnil(L,-1)) // nil is not allowed
+			{
+				lua_pushinteger(L,0);
+				return 1;
+			}
 			FarData = Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
 			if (FarData) // there is some data already - replace it; reference remains unchanged
 			{
