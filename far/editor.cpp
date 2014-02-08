@@ -3834,7 +3834,7 @@ BOOL Editor::Search(int Next)
 					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
 
 					int Skip=FALSE;
-					
+
 					// Отступим на четверть и проверим на перекрытие диалогом замены
 					int FromTop=(ScrY-2)/4;
 					if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
@@ -4404,7 +4404,7 @@ void Editor::DeleteBlock()
 		return;
 	}
 
-	
+
 	AddUndoData(UNDO_BEGIN);
 
 	for (ITERATOR(Lines) CurPtr = BlockStart, end = Lines.end(); CurPtr != end;)
@@ -7365,7 +7365,7 @@ DWORD Editor::EditSetCodePage(iterator edit, uintptr_t codepage, bool check_only
 	}
 	DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
 
-	if ( edit->Str )
+	if ( edit->Str && edit->StrSize )
 	{
 		if ( 3*static_cast<size_t>(edit->StrSize)+1 > decoded.size() )
 		{
