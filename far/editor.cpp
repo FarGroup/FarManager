@@ -5306,19 +5306,19 @@ void Editor::BlockRight()
 			break;
 
 		intptr_t Length=CurPtr->GetLength();
-		string TmpStr(1, L' ');
-		const wchar_t *CurStr,*EndSeq;
-		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-		TmpStr.append(CurStr, Length);
 
-		if (EndSel==-1 || EndSel>StartSel)
+		if (Length && (EndSel == -1 || EndSel > StartSel))
 		{
+			const wchar_t *CurStr, *EndSeq;
+			CurPtr->GetBinaryString(&CurStr, &EndSeq, Length);
+			string TmpStr(1, L' ');
+			TmpStr.append(CurStr, Length);
 			TmpStr += EndSeq;
+
 			AddUndoData(UNDO_EDIT,CurStr,CurPtr->GetEOL(),LineNum,0,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
 
-			if (Length>1)
-				CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
+			CurPtr->SetBinaryString(TmpStr.data(), static_cast<int>(TmpStr.size()));
 
 			CurPtr->SetCurPos(CurPos+1);
 
