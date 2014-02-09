@@ -2898,7 +2898,6 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_GETDROPDOWNOPENED:
 		case DM_GETFOCUS:
 		case DM_GETITEMDATA:
-		case DM_LISTGETDATASIZE:
 		case DM_LISTSORT:
 		case DM_REDRAW:               // alias: DM_SETREDRAW
 		case DM_SET3STATE:
@@ -2912,7 +2911,10 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_SHOWDIALOG:
 		case DM_SHOWITEM:
 		case DM_USER:
-			Param2 = (void*)(LONG_PTR)luaL_optlong(L, 4, 0);
+			Param2 = (void*)(intptr_t)luaL_optint(L,4,0);
+			break;
+		case DM_LISTGETDATASIZE:
+			Param2 = (void*)(intptr_t)(luaL_optint(L,4,1) - 1);
 			break;
 		case DM_LISTADDSTR:
 		case DM_ADDHISTORY:
@@ -3192,7 +3194,10 @@ static int far_SendDlgMessage(lua_State *L)
 		}
 		case DM_LISTSETDATA:
 		{
-			intptr_t FarData, Index;
+			int ref, *oldRef;
+			intptr_t Index;
+			struct FarListItemData flid;
+
 			luaL_checktype(L, 4, LUA_TTABLE);
 			Index = GetOptIntFromTable(L, "Index", 1) - 1;
 			lua_getfenv(L, 1);
@@ -3202,23 +3207,18 @@ static int far_SendDlgMessage(lua_State *L)
 				lua_pushinteger(L,0);
 				return 1;
 			}
-			FarData = Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
-			if (FarData) // there is some data already - replace it; reference remains unchanged
+
+			oldRef = (int*)Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
+			if (oldRef)
 			{
-				lua_rawseti(L, -2, *(int*)FarData);
-				lua_pushinteger(L, sizeof(int));
+				luaL_unref(L, -2, *oldRef);
 			}
-			else // place data at new reference
-			{
-				int ref = luaL_ref(L, -2);
-				struct FarListItemData flid;
-				memset(&flid, 0, sizeof(flid));
-				flid.StructSize = sizeof(flid);
-				flid.Index = Index;
-				flid.Data = &ref;
-				flid.DataSize = sizeof(int);
-				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
-			}
+			ref = luaL_ref(L, -2);
+			flid.StructSize = sizeof(flid);
+			flid.Index = Index;
+			flid.Data = &ref;
+			flid.DataSize = sizeof(int);
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
 			return 1;
 		}
 		case DM_LISTGETDATA:
