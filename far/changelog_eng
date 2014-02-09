@@ -3,6 +3,47 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.02.2014 12:39:25 +0200 - build 3800
+
+1. 0002577: Block shift does not work for one character line
+
+zg 08.02.2014 03:38:56 +0200 - build 3799
+
+1. correction of 3794:
+   in editor, on code page change, any empty line causes a warning:
+   "Editor contains characters, which cannot be correctly saved using selected codepage."
+
+zg 06.02.2014 23:38:11 +0200 - build 3798
+
+1. DM_GETDLGITEM returns the current list for DI_LISTBOX and DI_COMBOBOX items, instead of the list which
+   they were initialized by at their creation.
+
+w17 06.02.2014 01:14:29 +0400 - build 3797
+
+1. vc++ 2010 fix
+
+drkns 05.02.2014 20:45:24 +0200 - build 3796
+
+1. Correction of 3794.
+
+svs 05.02.2014 12:25:36 +0400 - build 3795
+
+1. SQLite 3.8.3
+
+drkns 05.02.2014 09:43:50 +0200 - build 3794
+
+1. Analyzer warnings.
+
+2. Refactoring.
+
+drkns 03.02.2014 20:20:22 +0200 - build 3793
+
+1. 0002593: Far Manager v3.0 build 3791 x86 (3792) block selection works incorrectly.
+
+drkns 03.02.2014 08:35:23 +0200 - build 3792
+
+1. Correction of 3791.
+
 drkns 02.02.2014 17:48:43 +0200 - build 3791
 
 1. Refactoring.
