@@ -1,3 +1,8 @@
+shmuel 10.02.2014 09:34:12 +0200 - build 286
+
+1. LuaFAR: уточнение обработки DM_LISTSETDATA/DM_LISTGETDATA.
+   DM_LISTGETDATA возвращает light userdata для "чужих" данных (см. мануал LuaFAR).
+
 shmuel 09.02.2014 22:27:26 +0200 - build 285
 
 1. LuaFAR: исправление обработки DM_LISTGETDATASIZE (номер элемента списка отсчитывался от 0, а не 1).

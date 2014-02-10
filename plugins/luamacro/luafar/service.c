@@ -2829,6 +2829,7 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 
 static int far_SendDlgMessage(lua_State *L)
 {
+	typedef struct { void *Id; int Ref; } listdata_t;
 	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t res;
 	intptr_t Msg, Param1=0, res_incr=0;
@@ -3194,7 +3195,7 @@ static int far_SendDlgMessage(lua_State *L)
 		}
 		case DM_LISTSETDATA:
 		{
-			int ref, *oldRef;
+			listdata_t Data, *oldData;
 			intptr_t Index;
 			struct FarListItemData flid;
 
@@ -3208,30 +3209,42 @@ static int far_SendDlgMessage(lua_State *L)
 				return 1;
 			}
 
-			oldRef = (int*)Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
-			if (oldRef)
+			oldData = (listdata_t*)Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
+			if (oldData &&
+				sizeof(listdata_t) == Info->SendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, (void*)Index) &&
+				oldData->Id == L)
 			{
-				luaL_unref(L, -2, *oldRef);
+				luaL_unref(L, -2, oldData->Ref);
 			}
-			ref = luaL_ref(L, -2);
+			Data.Id = L;
+			Data.Ref = luaL_ref(L, -2);
 			flid.StructSize = sizeof(flid);
 			flid.Index = Index;
-			flid.Data = &ref;
-			flid.DataSize = sizeof(int);
+			flid.Data = &Data;
+			flid.DataSize = sizeof(Data);
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
 			return 1;
 		}
 		case DM_LISTGETDATA:
-			res = Info->SendDlgMessage(hDlg, Msg, Param1, (void*)(luaL_checkinteger(L, 4)-1));
-
-			if(res)
+		{
+			intptr_t Index = luaL_checkinteger(L, 4) - 1;
+			listdata_t *Data = (listdata_t*)Info->SendDlgMessage(hDlg, Msg, Param1, (void*)Index);
+			if (Data)
 			{
-				lua_getfenv(L, 1);
-				lua_rawgeti(L, -1, *(int*)res);
+				if (sizeof(listdata_t) == Info->SendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, (void*)Index) &&
+					Data->Id == L)
+				{
+					lua_getfenv(L, 1);
+					lua_rawgeti(L, -1, Data->Ref);
+				}
+				else
+					lua_pushlightuserdata(L, Data);
 			}
-			else lua_pushnil(L);
+			else
+				lua_pushnil(L);
 
 			return 1;
+		}
 		case DM_GETDLGITEM:
 			return PushDlgItemNum(L, hDlg, (int)Param1, 4, Info), 1;
 		case DM_SETDLGITEM:

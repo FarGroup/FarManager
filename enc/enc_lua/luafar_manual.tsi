@@ -2628,7 +2628,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3600981779
+mtime=3601185976
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
@@ -2756,8 +2756,10 @@ mtime=3600981779
 #_
 #_DM_LISTGETDATA:
 #_    Param2:  integer (1-based list index)
-#_    Result:  either value passed by the last DM_LISTSETDATA call
-#_             in the ["Data"] field of the table, or nil.
+#_    Result:  either of
+#_               - nil - if Far returned 0
+#_               - light userdata (raw data pointer) - if alien data detected
+#_               - value passed by the last DM_LISTSETDATA call
 #_
 #_DM_LISTSETDATA:
 #_    Param2:  table
