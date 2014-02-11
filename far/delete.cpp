@@ -436,7 +436,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		int mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY/2);
 		
 		std::vector<string> items;
-		items.push_back(strDeleteFilesMsg);
+		items.push_back(TruncStrFromCenter(strDeleteFilesMsg, ScrX+1-6*2));
 
 		if (SelCount == 1)
 		{
@@ -486,7 +486,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 					SrcPanel->GetSelName(&name, attr);
 					QuoteLeadingSpace(name);
-					items.push_back(name);
+					items.push_back(TruncStrFromCenter(name, ScrX+1-6*2));
 				}
 			}
 		}
