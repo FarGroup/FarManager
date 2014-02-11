@@ -2830,7 +2830,8 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 static int far_SendDlgMessage(lua_State *L)
 {
 	typedef struct { void *Id; int Ref; } listdata_t;
-	PSInfo *Info = GetPluginData(L)->Info;
+	TPluginData *pluginData = GetPluginData(L);
+	PSInfo *Info = pluginData->Info;
 	intptr_t res;
 	intptr_t Msg, Param1=0, res_incr=0;
 	void* Param2 = NULL;
@@ -3212,11 +3213,11 @@ static int far_SendDlgMessage(lua_State *L)
 			oldData = (listdata_t*)Info->SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, (void*)Index);
 			if (oldData &&
 				sizeof(listdata_t) == Info->SendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, (void*)Index) &&
-				oldData->Id == L)
+				oldData->Id == pluginData)
 			{
 				luaL_unref(L, -2, oldData->Ref);
 			}
-			Data.Id = L;
+			Data.Id = pluginData;
 			Data.Ref = luaL_ref(L, -2);
 			flid.StructSize = sizeof(flid);
 			flid.Index = Index;
@@ -3232,7 +3233,7 @@ static int far_SendDlgMessage(lua_State *L)
 			if (Data)
 			{
 				if (sizeof(listdata_t) == Info->SendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, (void*)Index) &&
-					Data->Id == L)
+					Data->Id == pluginData)
 				{
 					lua_getfenv(L, 1);
 					lua_rawgeti(L, -1, Data->Ref);

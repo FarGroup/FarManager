@@ -1,3 +1,9 @@
+shmuel 11.02.2014 16:56:31 +0200 - build 287
+
+1. LuaFAR: очередное исправление обработки DM_LISTSETDATA/DM_LISTGETDATA.
+   В качестве идентификатора данных теперь используем GetPluginData(L), а не L,
+   поскольку L разное для разных макросов.
+
 shmuel 10.02.2014 09:34:12 +0200 - build 286
 
 1. LuaFAR: уточнение обработки DM_LISTSETDATA/DM_LISTGETDATA.
