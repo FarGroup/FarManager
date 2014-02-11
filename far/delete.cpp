@@ -436,7 +436,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		int mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY/2);
 		
 		std::vector<string> items;
-		items.push_back(TruncStrFromCenter(strDeleteFilesMsg, ScrX+1-6*2));
+		items.push_back(strDeleteFilesMsg);
 
 		if (SelCount == 1)
 		{
@@ -486,7 +486,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 					}
 					SrcPanel->GetSelName(&name, attr);
 					QuoteLeadingSpace(name);
-					items.push_back(TruncStrFromCenter(name, ScrX+1-6*2));
+					items.push_back(name);
 				}
 			}
 		}
@@ -512,8 +512,9 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		if (bHilite || (mshow > 1 && SelCount > 1))
 			Builder.AddSeparator();
 
-		std::for_each(CONST_RANGE(items, i)
+		std::for_each(RANGE(items, i)
 		{
+			TruncStrFromCenter(i, ScrX+1-6*2);
 			DialogItemEx *dx = Builder.AddText(i.data());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			end_hilite = dx->ID;
