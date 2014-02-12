@@ -1,3 +1,7 @@
+shmuel 12.02.2014 22:50:28 +0200 - build 288
+
+1. Убрана локализация coroutine.create - для удобства отладки с ZeroBrane Studio.
+
 shmuel 11.02.2014 16:56:31 +0200 - build 287
 
 1. LuaFAR: очередное исправление обработки DM_LISTSETDATA/DM_LISTGETDATA.

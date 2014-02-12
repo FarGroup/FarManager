@@ -11,8 +11,8 @@ end
 local MCODE_F_POSTNEWMACRO = 0x80C64
 local F, M = far.Flags, nil
 local bor = bit64.bor
-local co_create, co_yield, co_resume, co_status, co_wrap =
-  coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
+local co_yield, co_resume, co_status, co_wrap =
+  coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
@@ -160,7 +160,7 @@ local function MacroInit (Id, Text)
     end
   end
   if chunk then
-    local macro = { coro=co_create(chunk), params=params, store={} }
+    local macro = { coro=coroutine.create(chunk), params=params, store={} }
     table.insert(RunningMacros, macro)
     return #RunningMacros
   else
