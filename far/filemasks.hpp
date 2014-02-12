@@ -48,7 +48,7 @@ public:
 	filemasks(filemasks&& rhs) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(filemasks);
 	
-	void swap(filemasks& rhs)
+	void swap(filemasks& rhs) noexcept
 	{
 		Include.swap(rhs.Include);
 		Exclude.swap(rhs.Exclude);
@@ -71,7 +71,7 @@ private:
 		~masks() {}
 		MOVE_OPERATOR_BY_SWAP(masks);
 
-		void swap(masks& rhs)
+		void swap(masks& rhs) noexcept
 		{
 			Masks.swap(rhs.Masks);
 			re.swap(rhs.re);

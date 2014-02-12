@@ -45,6 +45,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 
+enum
+{
+	KEY_COUNT = 12
+};
+
 KeyBar::KeyBar():
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),

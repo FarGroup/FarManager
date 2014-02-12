@@ -52,7 +52,7 @@ struct ShortcutItem: NonCopyable
 	MOVE_OPERATOR_BY_SWAP(ShortcutItem);
 	bool operator==(const ShortcutItem& Item) const;
 	bool operator!=(const ShortcutItem& Item) const { return !(*this == Item); }
-	void swap(ShortcutItem& rhs)
+	void swap(ShortcutItem& rhs) noexcept
 	{
 		strName.swap(rhs.strName);
 		strFolder.swap(rhs.strFolder);

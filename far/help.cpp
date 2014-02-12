@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
+#include "language.hpp"
 
 static const wchar_t FoundContents[]=L"__FoundContents__";
 static const wchar_t PluginContents[]=L"__PluginContents__";
@@ -86,7 +87,7 @@ public:
 	HelpRecord(HelpRecord&& rhs) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(HelpRecord);
 
-	void swap(HelpRecord& rhs)
+	void swap(HelpRecord& rhs) noexcept
 	{
 		HelpStr.swap(rhs.HelpStr);
 	}

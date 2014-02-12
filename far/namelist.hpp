@@ -40,7 +40,7 @@ public:
 	NamesList(NamesList&& rhs): CurrentName(Names.end()) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(NamesList);
 
-	void swap(NamesList& rhs)
+	void swap(NamesList& rhs) noexcept
 	{
 		Names.swap(rhs.Names);
 		std::swap(CurrentName, rhs.CurrentName);

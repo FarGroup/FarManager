@@ -57,7 +57,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(TreeListCache);
 
-	void swap(TreeListCache& rhs)
+	void swap(TreeListCache& rhs) noexcept
 	{
 		strTreeName.swap(rhs.strTreeName);
 		Names.swap(rhs.Names);
@@ -103,7 +103,7 @@ public:
 
 		MOVE_OPERATOR_BY_SWAP(TreeItem);
 
-		void swap(TreeItem& rhs)
+		void swap(TreeItem& rhs) noexcept
 		{
 			strName.swap(rhs.strName);
 			Last.swap(rhs.Last);

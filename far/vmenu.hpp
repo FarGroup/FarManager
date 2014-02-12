@@ -121,7 +121,7 @@ struct MenuItemEx:NonCopyable
 
 	MOVE_OPERATOR_BY_SWAP(MenuItemEx);
 
-	void swap(MenuItemEx& rhs)
+	void swap(MenuItemEx& rhs) noexcept
 	{
 		strName.swap(rhs.strName);
 		std::swap(Flags, rhs.Flags);

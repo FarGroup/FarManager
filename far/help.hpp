@@ -116,7 +116,7 @@ private:
 		COPY_OPERATOR_BY_SWAP(StackHelpData);
 		MOVE_OPERATOR_BY_SWAP(StackHelpData);
 
-		void swap(StackHelpData& rhs)
+		void swap(StackHelpData& rhs) noexcept
 		{
 			strHelpMask.swap(rhs.strHelpMask);
 			strHelpPath.swap(rhs.strHelpPath);

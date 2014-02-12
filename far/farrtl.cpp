@@ -247,7 +247,7 @@ public:
 
 	virtual const char* what() const noexcept override { return m_What.empty() ? std::bad_alloc::what() : m_What.data(); }
 
-	void swap(far_bad_alloc& rhs)
+	void swap(far_bad_alloc& rhs) noexcept
 	{
 		m_What.swap(rhs.m_What);
 	}

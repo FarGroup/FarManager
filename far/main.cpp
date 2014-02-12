@@ -682,25 +682,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	}
 
 	InitConsole();
+	SCOPE_EXIT { CloseConsole(); };
 
-	if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
-	{
-		ControlObject::ShowCopyright(1);
-		const char* LngMsg;
-		switch(Global->Lang->GetLastError())
-		{
-		case LERROR_BAD_FILE:
-			LngMsg = "Language data is incorrect or damaged";
-			break;
-		case LERROR_FILE_NOT_FOUND:
-			LngMsg = "Cannot find language data";
-			break;
-		default:
-			LngMsg = "Cannot load language data";
-			break;
-		}
-		throw FarException(LngMsg);
-	}
+	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
 
 	api::SetEnvironmentVariable(L"FARLANG", Global->Opt->strLanguage);
 
@@ -760,8 +744,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	delete Global->CtrlObject;
 	Global->CtrlObject = nullptr;
-
-	CloseConsole();
 
 	ClearInternalClipboard();
 

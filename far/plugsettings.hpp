@@ -80,7 +80,7 @@ public:
 
 		MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
 
-		void swap(FarSettingsNameItems& rhs)
+		void swap(FarSettingsNameItems& rhs) noexcept
 		{
 			Items.swap(rhs.Items);
 		}
@@ -132,7 +132,7 @@ public:
 
 		MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
 
-		void swap(FarSettingsHistoryItems& rhs)
+		void swap(FarSettingsHistoryItems& rhs) noexcept
 		{
 			Items.swap(rhs.Items);
 		}

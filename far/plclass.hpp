@@ -29,10 +29,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bitflags.hpp"
-#include "language.hpp"
 
 class PluginManager;
 class Plugin;
+class Language;
 
 enum EXPORTS_ENUM
 {
@@ -179,8 +179,8 @@ public:
 #endif // NO_WRAPPER
 	virtual const string& GetHotkeyName() const { return m_strGuid; }
 
-	virtual bool InitLang(const string& Path) { return PluginLang.Init(Path); }
-	void CloseLang() { PluginLang.Close(); }
+	virtual bool InitLang(const string& Path);
+	void CloseLang();
 
 	#define HAS_FUNCTION(Name) bool Has##Name() const { return Exports[i##Name] != nullptr; }
 
@@ -231,7 +231,7 @@ public:
 	const VersionInfo& GetMinFarVersion() const { return MinFarVersion; }
 	const string& GetVersionString() const { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
-	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
+	const wchar_t *GetMsg(LNGID nID) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 	DWORD GetWorkFlags() const { return WorkFlags.Flags(); }
@@ -263,7 +263,7 @@ protected:
 	void* Exports[ExportsCount];
 
 	GenericPluginModel *m_model;
-	Language PluginLang;
+	std::unique_ptr<Language> PluginLang;
 	size_t Activity;
 	bool bPendingRemove;
 

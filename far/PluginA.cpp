@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "keys.hpp"
 #include "processname.hpp"
+#include "language.hpp"
 
 namespace wrapper
 {
@@ -5673,6 +5674,42 @@ void PluginA::ExitFAR(ExitInfo *Info)
 		// ExitInfo ignored for ansi plugins
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)());
 	}
+}
+
+class AnsiLanguage: public Language
+{
+public:
+	AnsiLanguage(const string& Path) { init(Path); }
+	const char* GetMsgA(LNGID nID) const { return CheckMsgId(nID)? m_AnsiMessages[nID].data() : ""; }
+
+private:
+	virtual size_t size() const override { return m_AnsiMessages.size(); }
+	virtual void reserve(size_t size) override { m_AnsiMessages.reserve(size); }
+	virtual void add(string&& str) override { m_AnsiMessages.emplace_back(ansi(str)); }
+
+	std::vector<std::string> m_AnsiMessages;
+};
+
+bool PluginA::InitLang(const string& Path)
+{
+	bool Result = true;
+	if (!PluginLang)
+	{
+		try
+		{
+			PluginLang.reset(new AnsiLanguage(Path));
+		}
+		catch (const std::exception&)
+		{
+			Result = false;
+		}
+	}
+	return Result;
+}
+
+const char* PluginA::GetMsgA(LNGID nID) const
+{
+	return static_cast<AnsiLanguage*>(PluginLang.get())->GetMsgA(nID);
 }
 
 };

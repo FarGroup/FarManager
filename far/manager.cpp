@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 long Manager::CurrentWindowType=-1;
 
@@ -1594,11 +1595,11 @@ void Manager::ImmediateHide()
 
 			if (ModalFrames.size() > 1)
 			{
-				for(auto i = ModalFrames.cbegin(); i != ModalFrames.cend() - 1; ++i)
+				FOR(const auto& i, make_subrange(ModalFrames.cbegin(), ModalFrames.cend() - 1))
 				{
-					if (!((*i)->FastHide() & CASR_HELP))
+					if (!(i->FastHide() & CASR_HELP))
 					{
-						RefreshFrame(*i);
+						RefreshFrame(i);
 						Commit();
 					}
 					else

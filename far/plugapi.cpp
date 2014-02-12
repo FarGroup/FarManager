@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "xlat.hpp"
 #include "dirinfo.hpp"
+#include "language.hpp"
 
 namespace pluginapi
 {

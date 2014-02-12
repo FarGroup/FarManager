@@ -114,7 +114,6 @@ public:
 	class Manager* FrameManager;
 	class Options *Opt;
 	class Language *Lang;
-	class Language *OldLang;
 	class elevation *Elevation;
 	class TreeListCache* TreeCache;
 	class TreeListCache* tempTreeCache;

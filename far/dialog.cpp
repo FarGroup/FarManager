@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "mix.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
@@ -6267,10 +6268,4 @@ void Dialog::SetId(const GUID& Id)
 {
 	this->Id=Id;
 	IdExist=true;
-}
-
-intptr_t PluginDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
-{
-	// TODO: SEH
-	return static_cast<PluginDialog*>(Dlg)->Proc()(Dlg, Msg, Param1, Param2);
 }

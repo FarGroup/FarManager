@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "configdb.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 

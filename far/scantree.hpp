@@ -64,7 +64,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(ScanTreeData);
 
-	void swap(ScanTreeData& rhs)
+	void swap(ScanTreeData& rhs) noexcept
 	{
 		std::swap(Flags, rhs.Flags);
 		Find.swap(rhs.Find);

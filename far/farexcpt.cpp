@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "configdb.hpp"
 #include "console.hpp"
+#include "language.hpp"
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
@@ -129,7 +130,7 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 static bool LanguageLoaded()
 {
-	return Global && Global->Lang && Global->Lang->IsLanguageLoaded();
+	return Global && Global->Lang;
 }
 
 static bool ExcDialog(const string& ModuleName,LPCWSTR Exception,LPVOID Adress)

@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 // Флаги для ReadDiz()
 enum ReadDizFlags
@@ -442,24 +443,27 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			ListData.resize(ListData.size() + PanelCount);
 
 			auto PluginPtr = PanelData;
-			for (ITERATOR(ListData) i = ListData.begin() + OldSize, end = ListData.end(); i != end; ++i, ++PluginPtr, ++Position)
+			FOR(auto& i, make_subrange(ListData.begin() + OldSize, ListData.end()))
 			{
-				PluginToFileListItem(PluginPtr, &*i);
-				i->Position = Position;
+				PluginToFileListItem(PluginPtr, &i);
+				i.Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
-				i->PrevSelected = i->Selected=0;
-				i->ShowFolderSize = 0;
-				i->SortGroup=Global->CtrlObject->HiFiles->GetGroup(&*i);
+				i.PrevSelected = i.Selected=0;
+				i.ShowFolderSize = 0;
+				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i);
 
-				if (!TestParentFolderName(PluginPtr->FileName) && !(i->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!TestParentFolderName(PluginPtr->FileName) && !(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 					TotalFileCount++;
+
+				++PluginPtr;
+				++Position;
 			}
 
 			// цветовую боевую раскраску в самом конце, за один раз
-			std::for_each(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount, [](VALUE_TYPE(ListData)& i)
+			FOR(auto& i, make_subrange(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount))
 			{
 				Global->CtrlObject->HiFiles->GetHiColor(&i);
-			});
+			}
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
 	}

@@ -83,7 +83,7 @@ class FileFilterParams:NonCopyable
 	FileFilterParams(FileFilterParams&& rhs);
 	MOVE_OPERATOR_BY_SWAP(FileFilterParams);
 
-	void swap(FileFilterParams& rhs)
+	void swap(FileFilterParams& rhs) noexcept
 	{
 		m_strTitle.swap(rhs.m_strTitle);
 		FMask.swap(rhs.FMask);
@@ -148,7 +148,7 @@ private:
 		fmask(fmask&& rhs):Used(false) {*this = std::move(rhs);}
 		MOVE_OPERATOR_BY_SWAP(fmask);
 
-		void swap(fmask& rhs)
+		void swap(fmask& rhs) noexcept
 		{
 			std::swap(Used, rhs.Used);
 			strMask.swap(rhs.strMask);
@@ -168,8 +168,15 @@ private:
 		bool bRelative;
 	} FDate;
 
-	struct
+	struct f_size
 	{
+		// ctor required, VC doesn't support C++03 value initialization for non-POD types
+		f_size():
+			SizeAboveReal(),
+			SizeBelowReal(),
+			Used()
+		{}
+
 		unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
 		unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
 		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер

@@ -146,7 +146,7 @@ struct FileListItem: NonCopyable
 
 	MOVE_OPERATOR_BY_SWAP(FileListItem);
 
-	void swap(FileListItem& rhs)
+	void swap(FileListItem& rhs) noexcept
 	{
 		strName.swap(rhs.strName);
 		std::swap(Selected, rhs.Selected);
@@ -217,7 +217,7 @@ struct PluginsListItem: NonCopyable
 
 	MOVE_OPERATOR_BY_SWAP(PluginsListItem);
 
-	void swap(PluginsListItem& rhs)
+	void swap(PluginsListItem& rhs) noexcept
 	{
 		std::swap(m_Plugin, rhs.m_Plugin);
 		m_HostFile.swap(rhs.m_HostFile);
@@ -429,7 +429,7 @@ private:
 
 		MOVE_OPERATOR_BY_SWAP(PrevDataItem);
 
-		void swap(PrevDataItem& rhs)
+		void swap(PrevDataItem& rhs) noexcept
 		{
 			strPrevName.swap(rhs.strPrevName);
 			PrevListData.swap(rhs.PrevListData);

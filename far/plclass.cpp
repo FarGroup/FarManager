@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "savescr.hpp"
 #include "processname.hpp"
+#include "language.hpp"
 
 typedef void     (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef intptr_t (WINAPI *iComparePrototype)             (const CompareInfo *Info);
@@ -557,7 +558,6 @@ Plugin::Plugin(GenericPluginModel* model, const string& ModuleName):
 
 Plugin::~Plugin()
 {
-	PluginLang.Close();
 }
 
 void Plugin::SetGuid(const GUID& Guid)
@@ -860,6 +860,33 @@ bool Plugin::CheckMinFarVersion()
 	}
 
 	return true;
+}
+
+bool Plugin::InitLang(const string& Path)
+{
+	bool Result = true;
+	if (!PluginLang)
+	{
+		try
+		{
+			PluginLang.reset(new Language(Path));
+		}
+		catch (const std::exception&)
+		{
+			Result = false;
+		}
+	}
+	return Result;
+}
+
+void Plugin::CloseLang()
+{
+	PluginLang.reset();
+}
+
+const wchar_t* Plugin::GetMsg(LNGID nID) const
+{
+	return PluginLang->GetMsg(nID);
 }
 
 PluginHandle* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)

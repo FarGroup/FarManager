@@ -72,7 +72,7 @@ class TVar
 		TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
 		~TVar();
 
-		void swap(TVar& rhs)
+		void swap(TVar& rhs) noexcept
 		{
 			std::swap(vType, rhs.vType);
 			std::swap(inum, rhs.inum);

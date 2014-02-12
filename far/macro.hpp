@@ -137,7 +137,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(MacroRecord);
 
-	void swap(MacroRecord& rhs)
+	void swap(MacroRecord& rhs) noexcept
 	{
 		std::swap(m_flags, rhs.m_flags);
 		std::swap(m_key, rhs.m_key);
@@ -193,7 +193,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(MacroState);
 
-	void swap(MacroState& rhs)
+	void swap(MacroState& rhs) noexcept
 	{
 		std::swap(IntKey, rhs.IntKey);
 		std::swap(Executing, rhs.Executing);

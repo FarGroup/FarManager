@@ -51,7 +51,7 @@ struct PanelViewSettings: NonCopyable
 	PanelViewSettings(PanelViewSettings&& rhs): Flags() { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(PanelViewSettings);
 
-	void swap(PanelViewSettings& rhs)
+	void swap(PanelViewSettings& rhs) noexcept
 	{
 		PanelColumns.swap(rhs.PanelColumns);
 		StatusColumns.swap(rhs.StatusColumns);

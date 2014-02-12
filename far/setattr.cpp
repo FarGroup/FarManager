@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "plugins.hpp"
 #include "imports.hpp"
+#include "language.hpp"
 
 enum SETATTRDLG
 {

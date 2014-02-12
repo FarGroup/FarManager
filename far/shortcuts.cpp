@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
+#include "language.hpp"
 
 enum PSCR_RECTYPE
 {

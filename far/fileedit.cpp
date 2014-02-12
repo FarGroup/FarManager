@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "stddlg.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 enum enumOpenEditor
 {

@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "plugins.hpp"
 #include "interf.hpp"
+#include "language.hpp"
 
 #if 0
 void print_opcodes()

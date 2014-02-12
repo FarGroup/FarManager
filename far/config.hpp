@@ -861,7 +861,7 @@ private:
 		farconfig():m_items(nullptr), m_size(0) {}
 		farconfig(farconfig&& rhs):m_items(nullptr), m_size(0) { *this = std::move(rhs); }
 		MOVE_OPERATOR_BY_SWAP(farconfig);
-		void swap(farconfig& rhs) { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); }
+		void swap(farconfig& rhs) noexcept { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); }
 		void assign(FARConfigItem* Items, size_t Size) { m_items = Items; m_size = Size; }
 		iterator begin() const;
 		iterator end() const;

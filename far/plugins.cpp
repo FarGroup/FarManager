@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "mix.hpp"
 #include "manager.hpp"
+#include "language.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 

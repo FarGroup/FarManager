@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -4338,18 +4339,18 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 {
 	size_t TotalChars = size;
 
-	for (ITERATOR(Lines) Ptr = BlockStart, end = Lines.end(); Ptr != end; ++Ptr)
+	FOR(const auto& i, make_subrange(BlockStart, Lines.end()))
 	{
 		intptr_t StartSel, EndSel;
-		Ptr->GetSelection(StartSel, EndSel);
+		i.GetSelection(StartSel, EndSel);
 		if (StartSel == -1)
 			break;
 		if (EndSel == -1)
 		{
-			// BUGBUG, don't use Ptr->GetLength() here: Ptr->Str may contain \0
-			//TotalChars += Ptr->GetLength() - StartSel;
-			TotalChars += StrLength(Ptr->Str + StartSel);
-			TotalChars += wcslen(Ptr->GetEOL()); // CRLF/CRCRLF/...
+			// BUGBUG, don't use i.GetLength() here: Ptr->Str may contain \0
+			//TotalChars += i.GetLength() - StartSel;
+			TotalChars += wcslen(i.Str + StartSel);
+			TotalChars += wcslen(i.GetEOL()); // CRLF/CRCRLF/...
 
 		}
 		else
@@ -4364,28 +4365,28 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		CopyData.assign(InitData, size);
 	}
 
-	for (ITERATOR(Lines) Ptr = BlockStart, end = Lines.end(); Ptr != end; ++Ptr)
+	FOR (const auto& i, make_subrange(BlockStart, Lines.end()))
 	{
 		intptr_t StartSel, EndSel;
-		Ptr->GetSelection(StartSel, EndSel);
+		i.GetSelection(StartSel, EndSel);
 		if (StartSel==-1)
 			break;
 
 		int Length;
 		if (EndSel == -1)
-			// BUGBUG, don't use Ptr->GetLength() here: Ptr->Str may contain \0
-			//Length = Ptr->GetLength() - StartSel;
-			Length = StrLength(Ptr->Str + StartSel);
+			// BUGBUG, don't use i.GetLength() here: i.Str may contain \0
+			//Length = i.GetLength() - StartSel;
+			Length = StrLength(i.Str + StartSel);
 		else
 			Length = EndSel - StartSel;
 
 		string tmp;
-		Ptr->GetSelString(tmp, Length);
+		i.GetSelString(tmp, Length);
 		CopyData +=tmp;
 
 		if (EndSel == -1)
 		{
-			CopyData += Ptr->GetEOL();
+			CopyData += i.GetEOL();
 		}
 	}
 
@@ -4852,7 +4853,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(EditorUndoData);
 
-	void swap(EditorUndoData& rhs)
+	void swap(EditorUndoData& rhs) noexcept
 	{
 		std::swap(Type, rhs.Type);
 		std::swap(StrPos, rhs.StrPos);

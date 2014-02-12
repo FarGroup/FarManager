@@ -1452,9 +1452,13 @@ string wide(const char *str, uintptr_t codepage)
 {
 	if (str && *str)
 	{
-		std::vector<wchar_t> Buffer(MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0));
-		MultiByteToWideChar(codepage, 0, str, -1, Buffer.data(), static_cast<int>(Buffer.size()));
-		return string(Buffer.data(), Buffer.size() - 1);
+		size_t Size = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
+		if (Size)
+		{
+			std::vector<wchar_t> Buffer(Size);
+			MultiByteToWideChar(codepage, 0, str, -1, Buffer.data(), static_cast<int>(Buffer.size()));
+			return string(Buffer.data(), Buffer.size() - 1);
+		}
 	}
 	return string();
 }

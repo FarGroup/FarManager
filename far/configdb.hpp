@@ -71,7 +71,7 @@ public:
 		~scoped_transaction() { if (m_parent) m_parent->EndTransaction(); }
 		scoped_transaction(scoped_transaction&& rhs) :m_parent(nullptr) { *this = std::move(rhs); }
 		MOVE_OPERATOR_BY_SWAP(scoped_transaction);
-		void swap(scoped_transaction& rhs) { std::swap(m_parent, rhs.m_parent);  }
+		void swap(scoped_transaction& rhs) noexcept { std::swap(m_parent, rhs.m_parent); }
 
 	private:
 		Transactional* m_parent;

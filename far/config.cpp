@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
+#include "language.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -2934,12 +2935,15 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 				{
 					if (SelectInterfaceLanguage())
 					{
-						Global->Lang->Close();
-
-						if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
+						try
 						{
-							Message(MSG_WARNING, 1, L"Error", L"Cannot load language data", L"Ok");
-							exit(0);
+							Language NewLanguage(Global->g_strFarPath, MNewFileName + 1);
+							Global->Lang->swap(NewLanguage);
+							strLanguage = Global->Lang->GetFileName();
+						}
+						catch (const std::exception& e)
+						{
+							Message(MSG_WARNING, 1, MSG(MError), wide(e.what()).data(), MSG(MOk));
 						}
 
 						SelectHelpLanguage();

@@ -110,6 +110,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FOR(i, c) for(i: c)
 #endif
 
+#define COPY_OPERATOR_BY_SWAP(Type) \
+Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
+
+#define MOVE_OPERATOR_BY_SWAP(Type) \
+Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
+
+#define STD_SWAP_SPEC(Type) \
+namespace std \
+{ \
+	template<> \
+	inline void swap(Type& a, Type& b) \
+	{ \
+		a.swap(b); \
+	} \
+}
+
+#define ALLOW_SWAP_ACCESS(Type) \
+friend void std::swap<Type>(Type&, Type&);
+
 template<class T>
 class array_ptr
 {
@@ -117,10 +136,10 @@ public:
 	array_ptr() : m_size() {}
 	array_ptr(array_ptr&& other) : m_size() { *this = std::move(other); }
 	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
-	array_ptr& operator=(array_ptr&& other) { m_array = std::move(other.m_array); m_size = other.m_size; other.m_size = 0; return *this;}
+	MOVE_OPERATOR_BY_SWAP(array_ptr);
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }
-	void swap(array_ptr& other) { m_array.swap(other.m_array); std::swap(m_size, other.m_size); }
+	void swap(array_ptr& other) noexcept { m_array.swap(other.m_array); std::swap(m_size, other.m_size); }
 	size_t size() const {return m_size;}
 	operator bool() const { return get() != nullptr; }
 	T* get() const {return m_array.get();}
@@ -346,6 +365,46 @@ typename std::enable_if<std::is_array<T>::value, as_string_t<T>>::type as_string
 template<class T>
 size_t as_index(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
 
+template<class iterator_type>
+class subrange
+{
+public:
+	typedef iterator_type iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef typename std::iterator_traits<iterator>::reference reference;
+
+	subrange(iterator i_begin, iterator i_end):
+		m_begin(i_begin),
+		m_end(i_end)
+	{}
+
+	iterator begin() const { return m_begin; }
+	iterator end() const { return m_end; }
+
+	reverse_iterator rbegin() const { return reverse_iterator(m_end); }
+	reverse_iterator rend() const { return reverse_iterator(m_begin); }
+
+
+	reference operator[](size_t n) { return *(m_begin + n); }
+	const reference operator[](size_t n) const { return *(m_begin + n); }
+
+	reference front() { return *m_begin; }
+	reference back() { return *std::prev(m_end); }
+
+	bool empty() const { return m_begin == m_end; }
+	size_t size() const { return m_end - m_begin; }
+
+private:
+	iterator m_begin;
+	iterator m_end;
+};
+
+template<class iterator_type>
+inline subrange<iterator_type> make_subrange(iterator_type i_begin, iterator_type i_end)
+{
+	return subrange<iterator_type>(i_begin, i_end);
+}
+
 template<typename T>
 inline void ClearStruct(T& s)
 {
@@ -366,25 +425,6 @@ template<class T>
 inline const T* NullToEmpty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }
 template<class T>
 inline const T* EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
-
-#define COPY_OPERATOR_BY_SWAP(Type) \
-Type& operator=(const Type& rhs) { Type t(rhs); swap(t); return *this; }
-
-#define MOVE_OPERATOR_BY_SWAP(Type) \
-Type& operator=(Type&& rhs) noexcept { swap(rhs); return *this; }
-
-#define STD_SWAP_SPEC(Type) \
-namespace std \
-{ \
-	template<> \
-	inline void swap(Type& a, Type& b) \
-	{ \
-		a.swap(b); \
-	} \
-}
-
-#define ALLOW_SWAP_ACCESS(Type) \
-friend void std::swap<Type>(Type&, Type&);
 
 #define SCOPED_ACTION(RAII_type) \
 RAII_type ADD_SUFFIX(scoped_object_, __LINE__)

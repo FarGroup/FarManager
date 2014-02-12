@@ -69,7 +69,6 @@ FileFilterParams::FileFilterParams():
 	});
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
-	FSize.Used = false;
 }
 
 FileFilterParams::FileFilterParams(FileFilterParams&& rhs):

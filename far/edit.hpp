@@ -122,7 +122,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(Edit);
 
-	void swap(Edit& rhs)
+	void swap(Edit& rhs) noexcept
 	{
 		ScreenObject::swap(rhs);
 		std::swap(Str, rhs.Str);

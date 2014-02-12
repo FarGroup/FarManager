@@ -70,7 +70,6 @@ global::global():
 	Window(nullptr),
 	Opt(nullptr),
 	Lang(nullptr),
-	OldLang(nullptr),
 	Elevation(nullptr),
 	TreeCache(nullptr),
 	tempTreeCache(nullptr),
@@ -135,8 +134,6 @@ global::global():
 	Window = new WindowHandler;
 	FrameManager = new Manager;
 	Opt = new Options;
-	Lang = new Language;
-	OldLang = new Language;
 	Elevation = new elevation;
 	TreeCache = new TreeListCache;
 	tempTreeCache = new TreeListCache;
@@ -163,8 +160,7 @@ global::~global()
 	TreeCache = nullptr;
 	delete Elevation;
 	Elevation = nullptr;
-	delete OldLang;
-	OldLang = nullptr;
+	// TODO: it could be useful to delete Lang only at the very end
 	delete Lang;
 	Lang = nullptr;
 	delete Opt;

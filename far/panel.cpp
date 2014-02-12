@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "elevation.hpp"
 #include "stddlg.hpp"
-#include "lang.hpp"
+#include "language.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
 
@@ -107,7 +107,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(ChDiskPluginItem);
 
-	void swap(ChDiskPluginItem& rhs)
+	void swap(ChDiskPluginItem& rhs) noexcept
 	{
 		Item.swap(rhs.Item);
 		std::swap(HotKey, rhs.HotKey);

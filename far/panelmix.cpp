@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "flink.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static_assert(ARRAYSIZE(ColumnTypeWidth) == COLUMN_TYPES_COUNT, "wrong size of ColumnTypeWidth array");

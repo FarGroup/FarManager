@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
+#include "language.hpp"
 
 enum SHOW_MODES
 {

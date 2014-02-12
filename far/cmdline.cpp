@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "colormix.hpp"
 #include "constitle.hpp"
+#include "language.hpp"
 
 enum
 {

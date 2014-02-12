@@ -55,7 +55,7 @@ public:
 
 	MOVE_OPERATOR_BY_SWAP(ScreenObject);
 
-	void swap(ScreenObject& rhs)
+	void swap(ScreenObject& rhs) noexcept
 	{
 		std::swap(SaveScr, rhs.SaveScr);
 		std::swap(pOwner, rhs.pOwner);

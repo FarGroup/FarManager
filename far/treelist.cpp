@@ -82,6 +82,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "network.hpp"
 #endif
+#include "language.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;
@@ -527,30 +528,23 @@ void TreeList::SaveTreeFile()
 		}
 	}
 
-	bool Success=true;
 	CachedWrite Cache(TreeFile);
-	for (auto i = ListData.begin(); i != ListData.end() && Success; ++i)
+	bool Success = std::all_of(RANGE(ListData, i)
 	{
-		if (RootLength >= i->strName.size())
+		bool Result = false;
+		if (RootLength >= i.strName.size())
 		{
-			Success=Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
-			if (!Success)
-				Global->CatchError();
-
+			Result = Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
 		}
 		else
 		{
-			Success=Cache.Write(i->strName.data()+RootLength, static_cast<DWORD>(i->strName.size() - RootLength) * sizeof(wchar_t));
-			if(Success)
-			{
-				Success=Cache.Write(L"\n",1 * sizeof(wchar_t));
-			}
-			else
-			{
-				Global->CatchError();
-			}
+			Result = Cache.Write(i.strName.data() + RootLength, static_cast<DWORD>(i.strName.size() - RootLength) * sizeof(wchar_t)) &&
+				Cache.Write(L"\n", 1 * sizeof(wchar_t));
 		}
-	}
+		if (!Result)
+			Global->CatchError();
+		return Result;
+	});
 	Success = Success && Cache.Flush();
 	if (!Success)
 		Global->CatchError();
@@ -716,7 +710,8 @@ bool TreeList::FillLastData()
 	};
 
 	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
-	for (ITERATOR(ListData) i = ListData.begin() + 1, end = ListData.end(); i != end; ++i)
+	auto Range = make_subrange(ListData.begin() + 1, ListData.end());
+	FOR_RANGE(Range, i)
 	{
 		size_t Pos = i->strName.rfind(L'\\');
 		int PathLength = Pos != string::npos? (int)Pos+1 : 0;
@@ -729,7 +724,8 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		for (auto j = i+1; j != end; ++j)
+		auto SubRange = make_subrange(i + 1, Range.end());
+		FOR_RANGE(SubRange, j)
 		{
 			if (CountSlash(j->strName.data()+RootLength)>Depth)
 			{

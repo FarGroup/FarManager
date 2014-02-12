@@ -86,6 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -4998,11 +4999,11 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			DoubleDotDir->FileSize     = 0;
 			DoubleDotDir->AllocationSize    = 0;
 
-			for (ITERATOR(ListData) i = ListData.begin() + 1, end = ListData.end(); i != end; ++i)
+			FOR (const auto& i, make_subrange(ListData.begin() + 1, ListData.end()))
 			{
-				if (i->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+				if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (GetPluginDirInfo(hPlugin, i->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
+					if (GetPluginDirInfo(hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 					{
 						DoubleDotDir->FileSize += Data.FileSize;
 						DoubleDotDir->AllocationSize += Data.AllocationSize;
@@ -5010,8 +5011,8 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 				}
 				else
 				{
-					DoubleDotDir->FileSize += i->FileSize;
-					DoubleDotDir->AllocationSize += i->AllocationSize;
+					DoubleDotDir->FileSize += i.FileSize;
+					DoubleDotDir->AllocationSize += i.AllocationSize;
 				}
 			}
 		}

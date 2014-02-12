@@ -100,8 +100,8 @@ public:
 	virtual bool IsOemPlugin() const override { return true; }
 	virtual const string& GetHotkeyName() const override { return GetCacheName(); }
 
-	virtual bool InitLang(const string& Path) override { return PluginLang.InitA(Path); }
-	const char *GetMsgA(LNGID nID) const { return PluginLang.GetMsgA(nID); }
+	virtual bool InitLang(const string& Path) override;
+	const char *GetMsgA(LNGID nID) const;
 
 private:
 	virtual void Prologue() override { SetFileApisToOEM(); OEMApiCnt++; }

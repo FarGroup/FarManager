@@ -35,51 +35,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lang.hpp"
 
-enum LngErrors
-{
-	LERROR_SUCCESS,
-	LERROR_FILE_NOT_FOUND,
-	LERROR_BAD_FILE,
-};
-
-class Language
+class Language: NonCopyable
 {
 public:
-	Language();
-	~Language();
+	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
+	Language(Language&& rhs) { *this = std::move(rhs); }
+	virtual ~Language() {}
 
-	bool Init(const string& Path, int CountNeed=-1);
-#ifndef NO_WRAPPER
-	bool InitA(const string& Path, int CountNeed=-1);
-#endif // NO_WRAPPER
-	void Close();
+	MOVE_OPERATOR_BY_SWAP(Language);
 
 	const wchar_t* GetMsg(LNGID nID) const;
+	const string& GetFileName() const { return m_FileName; }
 
-#ifndef NO_WRAPPER
-	const char* GetMsgA(LNGID nID) const;
-#endif // NO_WRAPPER
+	void swap(Language& rhs) noexcept
+	{
+		m_Messages.swap(rhs.m_Messages);
+		m_FileName.swap(rhs.m_FileName);
+	}
 
-	bool IsLanguageLoaded() const {return LanguageLoaded;}
-	LngErrors GetLastError() const {return LastError;}
+protected:
+	Language() {}
+
+	void init(const string& Path, int CountNeed = -1);
+	bool CheckMsgId(LNGID MsgId) const;
 
 private:
-	bool CheckMsgId(LNGID MsgId) const;
-	void Free();
+	virtual size_t size() const { return m_Messages.size(); }
+	virtual void reserve(size_t size) { m_Messages.reserve(size); }
+	virtual void add(string&& str) { m_Messages.emplace_back(str); }
 
-	string strMessageFile;
-	std::vector<wchar_t*> Messages;
-	wchar_t *MsgList;
-#ifndef NO_WRAPPER
-	std::vector<char*> AnsiMessages; //фантастика, да
-	char *MsgListA;
-#endif // NO_WRAPPER
-	int MsgCount;
-	LngErrors LastError;
-#ifndef NO_WRAPPER
-	bool m_bUnicode;
-#endif // NO_WRAPPER
-	bool LanguageLoaded;
+	std::vector<string> m_Messages;
+	string m_FileName;
+	bool m_checked;
 };
 
 bool OpenLangFile(api::File& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);

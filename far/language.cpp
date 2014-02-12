@@ -269,23 +269,11 @@ int GetOptionsParam(api::File& SrcFile,const wchar_t *KeyName,string &strValue, 
 	return FALSE;
 }
 
-Language::Language():
-	MsgList(nullptr),
-#ifndef NO_WRAPPER
-	MsgListA(nullptr),
-#endif // NO_WRAPPER
-	MsgCount(0),
-	LastError(LERROR_SUCCESS),
-#ifndef NO_WRAPPER
-	m_bUnicode(true),
-#endif // NO_WRAPPER
-	LanguageLoaded(false)
+static string ConvertString(const wchar_t *Src, size_t size)
 {
-}
+	string strDest;
+	strDest.reserve(size);
 
-void ConvertString(const wchar_t *Src,string &strDest)
-{
-	strDest.reserve(wcslen(Src));
 	while (*Src)
 	{
 		switch (*Src)
@@ -332,189 +320,51 @@ void ConvertString(const wchar_t *Src,string &strDest)
 			break;
 		}
 	}
+
+	return strDest;
 }
 
-bool Language::Init(const string& Path, int CountNeed)
+void Language::init(const string& Path, int CountNeed)
 {
-	if (MsgList
-#ifndef NO_WRAPPER
-	|| MsgListA
-#endif // NO_WRAPPER
-	)
-		return true;
 	SCOPED_ACTION(GuardLastError);
-	LastError = LERROR_SUCCESS;
+
 	uintptr_t nCodePage = CP_OEMCP;
-	string strLangName=Global->Opt->strLanguage.Get();
+	string strLangName = Global->Opt->strLanguage.Get();
 	api::File LangFile;
 
-	if (!OpenLangFile(LangFile,Path,LangFileMask,Global->Opt->strLanguage,strMessageFile, nCodePage, false, &strLangName))
+	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, m_FileName, nCodePage, false, &strLangName))
 	{
-		LastError = LERROR_FILE_NOT_FOUND;
-		return false;
+		throw std::runtime_error("Cannot find language data");
 	}
-	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage, strLangName))
-		Global->Opt->strLanguage=strLangName;
-
-	UINT64 FileSize;
-	LangFile.GetSize(FileSize);
-
-#ifndef NO_WRAPPER
-	if (!m_bUnicode)
-	{
-		MsgListA = static_cast<char*>(xf_malloc(FileSize));
-	}
-	else
-#endif // NO_WRAPPER
-	{
-		MsgList = static_cast<wchar_t*>(xf_malloc(FileSize * sizeof(wchar_t)));
-	}
-
-	wchar_t* ReadStr;
-
-	size_t MsgSize = 0;
 
 	GetFileString GetStr(LangFile, nCodePage);
-	size_t ReadSize;
-	while (GetStr.GetString(&ReadStr, ReadSize))
-	{
-		string strDestStr;
-		RemoveExternalSpaces(ReadStr);
 
-		if (*ReadStr != L'\"')
+	if (CountNeed != -1)
+	{
+		reserve(CountNeed);
+	}
+
+	string Buffer;
+	while (GetStr.GetString(Buffer))
+	{
+		RemoveExternalSpaces(Buffer);
+
+		if (Buffer.empty() || Buffer.front() != L'\"')
 			continue;
 
-		int SrcLength=StrLength(ReadStr);
-
-		if (ReadStr[SrcLength-1]==L'\"')
-			ReadStr[SrcLength-1]=0;
-
-		ConvertString(ReadStr+1,strDestStr);
-		size_t DestLength=strDestStr.size()+1;
-
-#ifndef NO_WRAPPER
-		if (m_bUnicode)
-#endif // NO_WRAPPER
+		if (Buffer.size() > 1 && Buffer.back() == L'\"')
 		{
-			wcscpy(MsgList+MsgSize, strDestStr.data());
+			Buffer.pop_back();
 		}
-#ifndef NO_WRAPPER
-		else
-		{
-			WideCharToMultiByte(CP_OEMCP, 0, strDestStr.data(), -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
-		}
-#endif // NO_WRAPPER
-		MsgSize+=DestLength;
-		MsgCount++;
+
+		add(ConvertString(Buffer.data() + 1, Buffer.size() - 1));
 	}
 
 	//   Проведем проверку на количество строк в LNG-файлах
-	if (CountNeed != -1 && CountNeed != MsgCount-1)
+	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
-		LastError = LERROR_BAD_FILE;
-		return false;
+		throw std::runtime_error("Language data is incorrect or damaged");
 	}
-
-#ifndef NO_WRAPPER
-	if (!m_bUnicode)
-	{
-		MsgListA = static_cast<char*>(xf_realloc(MsgListA, MsgSize));
-	}
-	else
-#endif // NO_WRAPPER
-	{
-		MsgList = static_cast<wchar_t*>(xf_realloc(MsgList, MsgSize * sizeof(wchar_t)));
-	}
-
-#ifndef NO_WRAPPER
-	if (m_bUnicode)
-#endif // NO_WRAPPER
-	{
-		wchar_t *CurAddr = MsgList;
-		Messages.resize(MsgCount);
-
-		std::for_each(RANGE(Messages, i)
-		{
-			i = CurAddr;
-			CurAddr+=StrLength(CurAddr)+1;
-		});
-	}
-#ifndef NO_WRAPPER
-	else
-	{
-		char *CurAddrA = MsgListA;
-		AnsiMessages.resize(MsgCount);
-
-		std::for_each(RANGE(AnsiMessages, i)
-		{
-			i = CurAddrA;
-			CurAddrA+=strlen(CurAddrA)+1;
-		});
-	}
-#endif // NO_WRAPPER
-
-	if (this == Global->Lang)
-		Global->OldLang->Free();
-
-	LanguageLoaded=true;
-	return true;
-}
-
-#ifndef NO_WRAPPER
-bool Language::InitA(const string& Path, int CountNeed)
-{
-	m_bUnicode = false;
-	return Init(Path, CountNeed);
-}
-#endif // NO_WRAPPER
-
-Language::~Language()
-{
-	Free();
-}
-
-void Language::Free()
-{
-	MsgCount=0;
-	Messages.clear();
-	xf_free(MsgList);
-	MsgList=nullptr;
-#ifndef NO_WRAPPER
-	AnsiMessages.clear();
-	xf_free(MsgListA);
-	MsgListA=nullptr;
-	m_bUnicode = true;
-#endif // NO_WRAPPER
-}
-
-void Language::Close()
-{
-	if (this == Global->Lang)
-	{
-		if (Global->OldLang->MsgCount)
-			Global->OldLang->Free();
-
-		Global->OldLang->MsgList=MsgList;
-		Global->OldLang->Messages.swap(Messages);
-#ifndef NO_WRAPPER
-		Global->OldLang->MsgListA=MsgListA;
-		Global->OldLang->AnsiMessages.swap(AnsiMessages);
-		Global->OldLang->m_bUnicode=m_bUnicode;
-#endif // NO_WRAPPER
-		Global->OldLang->MsgCount=MsgCount;
-
-		MsgList=nullptr;
-	#ifndef NO_WRAPPER
-		MsgListA=nullptr;
-		m_bUnicode = true;
-	#endif // NO_WRAPPER
-		MsgCount=0;
-	}
-	else
-	{
-		Free();
-	}
-	LanguageLoaded=false;
 }
 
 bool Language::CheckMsgId(LNGID MsgId) const
@@ -523,11 +373,8 @@ bool Language::CheckMsgId(LNGID MsgId) const
 	   при отрицательном индексе - также покажем сообщение об ошибке
 	   (все лучше, чем трапаться)
 	*/
-	if (MsgId>=MsgCount || MsgId < 0)
+	if (MsgId >= static_cast<int>(size()) || MsgId < 0)
 	{
-		if (this == Global->Lang && !LanguageLoaded && this != Global->OldLang && Global->OldLang->CheckMsgId(MsgId))
-			return true;
-
 		/* $ 26.03.2002 DJ
 		   если менеджер уже в дауне - сообщение не выводим
 		*/
@@ -538,8 +385,10 @@ bool Language::CheckMsgId(LNGID MsgId) const
 			     (раньше имя файла обрезалось справа и приходилось иногда гадать - в
 			     каком же файле ошибка)
 			*/
+
+			// TODO: localization
 			string strMsg1(L"Incorrect or damaged ");
-			strMsg1+=strMessageFile;
+			strMsg1 += m_FileName;
 			/* IS $ */
 			if (Message(MSG_WARNING, 2,
 				L"Error",
@@ -557,28 +406,5 @@ bool Language::CheckMsgId(LNGID MsgId) const
 
 const wchar_t* Language::GetMsg(LNGID nID) const
 {
-	if (
-#ifndef NO_WRAPPER
-	!m_bUnicode ||
-#endif // NO_WRAPPER
-	!CheckMsgId(nID))
-		return L"";
-
-	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
-		return Global->OldLang->Messages[nID];
-
-	return Messages[nID];
+	return CheckMsgId(nID)? m_Messages[nID].data() : L"";
 }
-
-#ifndef NO_WRAPPER
-const char* Language::GetMsgA(LNGID nID) const
-{
-	if (m_bUnicode || !CheckMsgId(nID))
-		return "";
-
-	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
-		return Global->OldLang->AnsiMessages[nID];
-
-	return AnsiMessages[nID];
-}
-#endif // NO_WRAPPER

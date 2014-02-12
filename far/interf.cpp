@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "res.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 consoleicons::consoleicons():
 	LargeIcon(nullptr),

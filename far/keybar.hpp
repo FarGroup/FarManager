@@ -65,8 +65,6 @@ enum KEYBARAREA
 	KBA_COUNT
 };
 
-const size_t KEY_COUNT = 12;
-
 class KeyBar: public ScreenObject
 {
 public:

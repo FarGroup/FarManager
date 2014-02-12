@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "macroopcode.hpp"
 #include "plugins.hpp"
+#include "language.hpp"
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
                        __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,

@@ -144,7 +144,7 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 	COPY_OPERATOR_BY_SWAP(DialogItemEx);
 	MOVE_OPERATOR_BY_SWAP(DialogItemEx);
 
-	void swap(DialogItemEx& rhs)
+	void swap(DialogItemEx& rhs) noexcept
 	{
 		std::swap(*static_cast<FarDialogItem*>(this), static_cast<FarDialogItem&>(rhs));
 		std::swap(ListPos, rhs.ListPos);
@@ -227,7 +227,7 @@ public:
 	Dialog(T& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
 		bInitOK(false),
 		DataDialog(InitParam),
-		m_handler(std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+		m_handler((object && function)? std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) : dialog_handler())
 	{
 		auto Ptr = Src.data();
 		Construct(&Ptr, Src.size());
@@ -374,17 +374,19 @@ private:
 bool IsKeyHighlighted(const string& Str,int Key,int Translate,int AmpPos=-1);
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
 
-intptr_t PluginDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-
 class PluginDialog: public Dialog
 {
 public:
 	template<class T>
 	PluginDialog(const T& Src, FARWINDOWPROC DlgProc, void* InitParam):
-		Dialog(Src, DlgProc? PluginDialogProc : nullptr, InitParam),
+		Dialog(Src, DlgProc? this : nullptr, DlgProc? &PluginDialog::Proc : nullptr, InitParam),
 		m_Proc(DlgProc)
 	{}
-	FARWINDOWPROC Proc() {return m_Proc;}
+
+	intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	{
+		return m_Proc(hDlg, Msg, Param1, Param2);
+	}
 
 private:
 	FARWINDOWPROC m_Proc;
