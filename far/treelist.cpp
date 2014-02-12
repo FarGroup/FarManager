@@ -529,7 +529,7 @@ void TreeList::SaveTreeFile()
 	}
 
 	CachedWrite Cache(TreeFile);
-	bool Success = std::all_of(RANGE(ListData, i)
+	bool Success = std::all_of(RANGE(ListData, i) -> bool
 	{
 		bool Result = false;
 		if (RootLength >= i.strName.size())
