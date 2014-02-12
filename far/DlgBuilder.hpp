@@ -80,7 +80,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 		int Mask;
 
 	public:
-		CheckBoxBinding(BOOL *aValue, int aMask) : Value(aValue), Mask(aMask) { }
+		CheckBoxBinding(int *aValue, int aMask) : Value(aValue), Mask(aMask) { }
 
 		virtual void SaveValue(T *Item, int RadioGroupIndex)
 		{
@@ -383,7 +383,7 @@ class DialogBuilderBase
 			return -1;
 		}
 
-		virtual DialogItemBinding<T> *CreateCheckBoxBinding(BOOL *Value, int Mask)
+		virtual DialogItemBinding<T> *CreateCheckBoxBinding(int *Value, int Mask)
 		{
 			return nullptr;
 		}
@@ -434,7 +434,7 @@ class DialogBuilderBase
 		}
 
 		// Добавляет чекбокс.
-		T *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0, bool ThreeState=false)
+		T *AddCheckbox(int TextMessageId, int *Value, int Mask=0, bool ThreeState=false)
 		{
 			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
 			if (ThreeState && !Mask)
@@ -670,11 +670,11 @@ protected:
 
 class PluginCheckBoxBinding: public DialogAPIBinding
 {
-	BOOL *Value;
+	int *Value;
 	int Mask;
 
 public:
-	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue, int aMask)
+	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, int aMask)
 		: DialogAPIBinding(aInfo, aHandle, aID),
 		  Value(aValue), Mask(aMask)
 	{
@@ -682,7 +682,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		BOOL Selected = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0) != 0;
+		int Selected = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
 		if (!Mask)
 		{
 			*Value = Selected;
@@ -811,7 +811,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Info.DialogRun(DialogHandle);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(BOOL *Value, int Mask)
+		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask)
 		{
 			return new PluginCheckBoxBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Mask);
 		}
