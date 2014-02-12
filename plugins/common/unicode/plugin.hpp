@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3770
+  Plugin API for Far Manager 3.0 build 3803
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3770
+#define FARMANAGERVERSION_BUILD 3803
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1928,8 +1928,8 @@ typedef size_t (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_
 typedef size_t (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
 typedef int (WINAPI *FARSTDATOI)(const wchar_t *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const wchar_t *s);
-typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *string, int radix);
-typedef wchar_t   *(WINAPI *FARSTDITOA)(int value, wchar_t *string, int radix);
+typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *Str, int radix);
+typedef wchar_t   *(WINAPI *FARSTDITOA)(int value, wchar_t *Str, int radix);
 typedef wchar_t   *(WINAPI *FARSTDLTRIM)(wchar_t *Str);
 typedef wchar_t   *(WINAPI *FARSTDRTRIM)(wchar_t *Str);
 typedef wchar_t   *(WINAPI *FARSTDTRIM)(wchar_t *Str);
