@@ -950,7 +950,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	Global->FrameManager->GetFrame(0)->Lock();
 	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
-	CopyBufferSize=std::max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
+	if (!CopyBufferSize)
+		CopyBufferSize  = COPY_BUFFER_SIZE;
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
 	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
 	SelectedFolderNameLength=0;
@@ -1554,7 +1555,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				}
 
 				if (CheckNulOrCon(strNameTmp.data()))
+				{
 					Flags|=FCOPY_COPYTONUL;
+					strNameTmp = L"\\\\?\\nul\\";
+				}
 				else
 					Flags&=~FCOPY_COPYTONUL;
 
@@ -3051,7 +3055,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const api::FAR_FIND_DATA &Src
 		}
 	}
 
-	if (!(Flags&FCOPY_COPYTONUL)&&(Flags&FCOPY_USESYSTEMCOPY)&&!Append)
+	if ((Flags & FCOPY_USESYSTEMCOPY) && !Append)
 	{
 		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
 		        ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&

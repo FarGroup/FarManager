@@ -66,7 +66,6 @@ private:
 
 	std::vector<string> m_Messages;
 	string m_FileName;
-	bool m_checked;
 };
 
 bool OpenLangFile(api::File& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
