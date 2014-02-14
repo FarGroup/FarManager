@@ -198,7 +198,8 @@ public:
 	void LoadPlugins();
 
 	typedef Plugin* value_type;
-	typedef std::set<Plugin*, plugin_less>::const_iterator iterator;
+	typedef std::multiset<Plugin*, plugin_less> plugins_set;
+	typedef plugins_set::const_iterator iterator;
 
 	iterator begin() const { return SortedPlugins.cbegin(); }
 	iterator end() const { return SortedPlugins.cend(); }
@@ -250,7 +251,7 @@ private:
 
 	std::vector<std::unique_ptr<GenericPluginModel>> PluginModels;
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash, uuid_equal> Plugins;
-	std::set<Plugin*, plugin_less> SortedPlugins;
+	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
 	BitFlags Flags;
 #ifndef NO_WRAPPER

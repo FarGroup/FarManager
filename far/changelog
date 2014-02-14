@@ -1,4 +1,8 @@
-﻿svs 14.02.2014 09:40:25 +0400 - build 3807
+﻿drkns 14.02.2014 19:33:07 +0200 - build 3808
+
+1. 0002600: Far doesn't load plugins with the same dll-name
+
+svs 14.02.2014 09:40:25 +0400 - build 3807
 
 1. SQLite 3.8.3.1
 
