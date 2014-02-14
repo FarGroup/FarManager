@@ -63,7 +63,7 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3600458682
+mtime=3601577705
 <article>
 #_<markdown>
 #_
@@ -78,6 +78,7 @@ mtime=3600458682
 #_1. Function `prompt` can return either a string or a `false` (but never a number `0`).
 #_1. Many functions are placed in the table [`mf`][mf] (abbreviation from *macrofunctions*),
 #_   e.g.: `mf.abs`, `mf.fsplit`, etc.
+#_1. Function `mf.beep` returns a boolean rather than a number.
 #_1. Function `mf.fexist` returns a boolean rather than a number.
 #_1. Functions [`mload`] [mload] and [`msave`] [msave] have changed, see their descriptions.
 #_1. Context dependent properties are placed in the table [`Object`][Object],
