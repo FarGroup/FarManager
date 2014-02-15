@@ -34,5 +34,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace tinyxml
 {
 #define TIXML_USE_STL
-#include "tinyxml/tinyxml.h"
+#include "thirdparty/tinyxml/tinyxml.h"
 }

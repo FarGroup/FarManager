@@ -1,4 +1,8 @@
-﻿drkns 14.02.2014 19:33:07 +0200 - build 3808
+﻿drkns 15.02.2014 13:30:44 +0200 - build 3809
+
+1. Сторонние библиотеки (UCD, sqlite, tinyxml) переехали в thirdparty.
+
+drkns 14.02.2014 19:33:07 +0200 - build 3808
 
 1. 0002600: Far doesn't load plugins with the same dll-name
 

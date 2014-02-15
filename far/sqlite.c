@@ -46,6 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //to enable DESC indexes
 #define SQLITE_DEFAULT_FILE_FORMAT 4
 
-#include "sqlite/sqlite3.c"
+#include "thirdparty/sqlite/sqlite3.c"
 
 #pragma warning(pop)

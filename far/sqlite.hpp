@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlite
 {
-#include "sqlite/sqlite3.h"
+#include "thirdparty/sqlite/sqlite3.h"
 }
 
 #undef SQLITE_STATIC

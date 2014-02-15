@@ -16,9 +16,6 @@
     <Filter Include="Header Files\SDK">
       <UniqueIdentifier>{581cdf3b-8152-4a6b-8f7c-56cdd69d68a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\UCD">
-      <UniqueIdentifier>{02703ef0-7a1b-44d8-9899-aeb474515944}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{ea54c485-1c1b-4a96-8b54-e32eda53c949}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
@@ -26,21 +23,6 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{4899c339-df6a-472f-863a-80899a0de10f}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
-    </Filter>
-    <Filter Include="Source Files\UCD">
-      <UniqueIdentifier>{f4426ce0-aacd-4ea2-9dbf-8081d3d886bc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\sqlite">
-      <UniqueIdentifier>{5742a9a6-c759-4d33-a3e4-d7221e8d51e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\sqlite">
-      <UniqueIdentifier>{033665e1-e02c-4d12-9e70-e716ebd8caea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\tinyxml">
-      <UniqueIdentifier>{d651bb89-e60a-4001-ba76-e68308107194}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\tinyxml">
-      <UniqueIdentifier>{4da3f557-bcde-4502-92d0-1556a81a9104}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -383,84 +365,6 @@
     <ClCompile Include="tvar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ucd\CharDistribution.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\JpCntx.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangBulgarianModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangCyrillicModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangGreekModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangHebrewModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangHungarianModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\LangThaiModel.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsBig5Prober.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsCharSetProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsEscCharsetProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsEscSM.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsEUCJPProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsEUCKRProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsEUCTWProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsGB2312Prober.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsHebrewProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsLatin1Prober.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsMBCSGroupProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsMBCSSM.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsSBCharSetProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsSBCSGroupProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsSJISProber.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsUniversalDetector.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="ucd\nsUTF8Prober.cpp">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
-    <ClCompile Include="UCD\prmem.c">
-      <Filter>Source Files\UCD</Filter>
-    </ClCompile>
     <ClCompile Include="usermenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -494,20 +398,8 @@
     <ClCompile Include="plclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tinyxml\tinyxml.cpp">
-      <Filter>Source Files\tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
-      <Filter>Source Files\tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
-      <Filter>Source Files\tinyxml</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlite\sqlite3.c">
-      <Filter>Source Files\sqlite</Filter>
     </ClCompile>
     <ClCompile Include="sqlite.c">
       <Filter>Source Files</Filter>
@@ -524,8 +416,6 @@
     <ClCompile Include="filesystemwatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="elevation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -907,75 +797,6 @@
     <ClInclude Include="tvar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UCD\CharDistribution.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\JpCntx.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsBig5Prober.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsCharSetProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsCodingStateMachine.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nscore.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsError.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsEscCharsetProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsEUCJPProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsEUCKRProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsEUCTWProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsGB2312Prober.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsHebrewProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsLatin1Prober.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsMBCSGroupProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsPkgInt.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsSBCharSetProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsSBCSGroupProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsSJISProber.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsUniversalDetector.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\nsUTF8Prober.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\prmem.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
-    <ClInclude Include="UCD\prtypes.h">
-      <Filter>Header Files\UCD</Filter>
-    </ClInclude>
     <ClInclude Include="usermenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1005,12 +826,6 @@
     </ClInclude>
     <ClInclude Include="farversion.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tinyxml\tinyxml.h">
-      <Filter>Header Files\tinyxml</Filter>
-    </ClInclude>
-    <ClInclude Include="sqlite\sqlite3.h">
-      <Filter>Header Files\sqlite</Filter>
     </ClInclude>
     <ClInclude Include="sqlite.hpp">
       <Filter>Header Files</Filter>
