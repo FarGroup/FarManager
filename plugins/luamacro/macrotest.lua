@@ -1,4 +1,4 @@
--- Started: 2012-08-20.
+﻿-- Started: 2012-08-20.
 
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
 
@@ -47,6 +47,7 @@ local function test_areas()
 end
 
 local function test_akey()
+  assert(akey == mf.akey)
   local k0,k1 = akey(0),akey(1)
   assert(k0==0x0501007B and k1=="CtrlShiftF12" or
          k0==0x1401007B and k1=="RCtrlShiftF12")
@@ -54,6 +55,13 @@ local function test_akey()
 end
 
 local function test_bit64()
+  assert(band==mf.band)
+  assert(bnot==mf.bnot)
+  assert(bor==mf.bor)
+  assert(bxor==mf.bxor)
+  assert(lshift==mf.lshift)
+  assert(rshift==mf.rshift)
+
   assert(band(0xFF,0xFE,0xFD) == 0xFC)
   assert(bor(1,2,4) == 7)
   assert(bnot(5) == -6)
@@ -61,6 +69,8 @@ local function test_bit64()
 end
 
 local function test_eval()
+  assert(eval==mf.eval)
+
   temp=nil
   assert(eval("temp=5+7")==0)
   assert(temp==12)
@@ -137,6 +147,7 @@ local function test_fexist()
 end
 
 local function test_msgbox()
+  assert(msgbox == mf.msgbox)
   mf.postmacro(function() Keys("Esc") end)
   assert(0 == msgbox("title","message"))
   mf.postmacro(function() Keys("Enter") end)
@@ -144,6 +155,7 @@ local function test_msgbox()
 end
 
 local function test_prompt()
+  assert(prompt == mf.prompt)
   mf.postmacro(function() Keys("a b c Esc") end)
   assert(not prompt())
   mf.postmacro(function() Keys("a b c Enter") end)
@@ -362,28 +374,49 @@ local function test_beep()
   assert(type(mf.beep())=="boolean")
 end
 
-local function test_CmdLine()
-  Keys"Esc f o o Space Б а р"
-  assert(CmdLine.Value=="foo Бар")
-  assert(not CmdLine.Selected)
-  Keys"SelWord"
-  assert(CmdLine.Selected)
-  Keys"Esc"
-  assert(CmdLine.Value=="")
-
-  Keys"Esc"
-  print("foo Бар")
-  assert(CmdLine.Value=="foo Бар")
-  Keys"Esc"
-
-  Keys"Esc"
-  printf("%s %d %s", "foo", 5+7, "Бар")
-  assert(CmdLine.Value=="foo 12 Бар")
-  Keys"Esc"
-end
-
 local function test_flock()
   assert(type(mf.flock(0,-1))=="number")
+end
+
+local function test_GetMacroCopy()
+  assert(type(mf.GetMacroCopy) == "function")
+end
+
+local function test_Keys()
+  assert(Keys == mf.Keys)
+  assert(type(Keys) == "function")
+end
+
+local function test_exit()
+  assert(exit == mf.exit)
+  assert(type(exit) == "function")
+end
+
+local function test_mmode()
+  assert(mmode == mf.mmode)
+  assert(1 == mmode(1,-1))
+end
+
+local function test_print()
+  assert(print == mf.print)
+  assert(type(print) == "function")
+end
+
+local function test_printf()
+  assert(printf == mf.printf)
+  assert(type(print) == "function")
+end
+
+local function test_postmacro()
+  assert(type(mf.postmacro) == "function")
+end
+
+local function test_sleep()
+  assert(type(mf.sleep) == "function")
+end
+
+local function test_usermenu()
+  assert(type(mf.usermenu) == "function")
 end
 
 local function test_mf()
@@ -398,28 +431,36 @@ local function test_mf()
   test_date()
   test_env()
   test_eval()
+  test_exit()
   test_fattr()
   test_fexist()
   test_float()
   test_flock()
   test_fmatch()
   test_fsplit()
+  test_GetMacroCopy()
   test_iif()
   test_index()
   test_int()
   test_itoa()
   test_key()
+  test_Keys()
   test_lcase()
   test_len()
   test_max()
   test_min()
+  test_mmode()
   test_mod()
   test_msave()
   test_msgbox()
+  test_postmacro()
+  test_print()
+  test_printf()
   test_prompt()
   test_replace()
   test_rindex()
   test_size2str()
+  test_sleep()
   test_string()
   test_strpad()
   test_strwrap()
@@ -427,8 +468,46 @@ local function test_mf()
   test_testfolder()
   test_trim()
   test_ucase()
+  test_usermenu()
   test_waitkey()
   test_xlat()
+end
+
+local function test_CmdLine()
+  Keys"Esc f o o Space Б а р"
+  assert(CmdLine.Bof==false)
+  assert(CmdLine.Eof==true)
+  assert(CmdLine.Empty==false)
+  assert(CmdLine.Selected==false)
+  assert(CmdLine.Value=="foo Бар")
+  assert(CmdLine.ItemCount==7)
+  assert(CmdLine.CurPos==8)
+
+  Keys"SelWord"
+  assert(CmdLine.Selected)
+
+  Keys"CtrlHome"
+  assert(CmdLine.Bof==true)
+  assert(CmdLine.Eof==false)
+
+  Keys"Esc"
+  assert(CmdLine.Bof==true)
+  assert(CmdLine.Eof==true)
+  assert(CmdLine.Empty==true)
+  assert(CmdLine.Selected==false)
+  assert(CmdLine.Value=="")
+  assert(CmdLine.ItemCount==0)
+  assert(CmdLine.CurPos==1)
+
+  Keys"Esc"
+  print("foo Бар")
+  assert(CmdLine.Value=="foo Бар")
+
+  Keys"Esc"
+  printf("%s %d %s", "foo", 5+7, "Бар")
+  assert(CmdLine.Value=="foo 12 Бар")
+
+  Keys"Esc"
 end
 
 local function test_Far()
@@ -522,6 +601,27 @@ local function test_Panel()
   assert(type(Panel.SetPosIdx) == "function")
 end
 
+local function test_Dlg()
+  Keys"F7 a b c"
+  assert(Area.Dialog)
+  assert(Dlg.Id == "FAD00DBE-3FFF-4095-9232-E1CC70C67737")
+  assert(Dlg.Owner == "00000000-0000-0000-0000-000000000000")
+  assert(Dlg.ItemCount > 6)
+  assert(Dlg.ItemType == 4)
+  assert(Dlg.CurPos == 3)
+  assert(Dlg.PrevPos == 0)
+
+  Keys"Tab"
+  local pos = Dlg.CurPos
+  assert(Dlg.CurPos > 3)
+  assert(Dlg.PrevPos == 3)
+  assert(pos == Dlg.SetFocus(3))
+  assert(pos == Dlg.PrevPos)
+
+  assert(Dlg.GetValue(0,0) == Dlg.ItemCount)
+  Keys"Esc"
+end
+
 local function test_Plugin() -- Plugin.Call, Plugin.SyncCall: test arguments and returns
   local function test (func, N)
     local i1 = bit64.new("0x8765876587658765")
@@ -556,17 +656,20 @@ local function test_far_MacroExecute()
     type(t[6])=="table" and t[6][1]=="bar")
 end
 
-TestArea("Shell", "Run these tests from the Shell area.")
-assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
+do
+  TestArea("Shell", "Run these tests from the Shell area.")
+  assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
 
-test_areas()
-test_mf()
-test_CmdLine()
-test_Far()
-test_Panel()
-test_Plugin()
-test_XPanel(APanel)
-test_XPanel(PPanel)
-test_far_MacroExecute()
+  test_areas()
+  test_mf()
+  test_CmdLine()
+  test_Dlg()
+  test_Far()
+  test_Panel()
+  test_Plugin()
+  test_XPanel(APanel)
+  test_XPanel(PPanel)
+  test_far_MacroExecute()
 
-far.Message("All tests OK", "LuaMacro")
+  far.Message("All tests OK", "LuaMacro")
+end
