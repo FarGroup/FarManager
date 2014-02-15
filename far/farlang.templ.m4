@@ -10398,7 +10398,7 @@ MFilterBottom
 "+,-,Leer,I,X,BS,UmschBS,Einf,Entf,F4,F5,StrgUp,StrgDn"
 "+,-,Szóköz,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
 "+,-,Spacja,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Space,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Espacio,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 "+,-,Medzera,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
@@ -10509,7 +10509,7 @@ MFindFileCodePageBottom
 "Space, Ins"
 "Space, Ins"
 "Space, Ins"
-"Espacio, Ins"
+"Espacio,Ins"
 "Medzera, Ins"
 
 MFindFileCase
@@ -11718,7 +11718,7 @@ MInfoPowerStatusACUnknown
 upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
-"Unknown"
+"Desconocido"
 "Neznámy"
 
 MInfoPowerStatusBCLifePercent
@@ -11728,7 +11728,7 @@ MInfoPowerStatusBCLifePercent
 upd:"Battery life percent"
 upd:"Battery life percent"
 upd:"Battery life percent"
-"Battery life percent"
+"Porcentaje carga de batería"
 "Stav akumulátora v percentách"
 
 MInfoPowerStatusBCLifePercentUnknown
@@ -11738,7 +11738,7 @@ MInfoPowerStatusBCLifePercentUnknown
 upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
-"Unknown"
+"Desconocido"
 "Neznámy"
 
 MInfoPowerStatusBC
@@ -11748,7 +11748,7 @@ MInfoPowerStatusBC
 upd:"Battery charge status"
 upd:"Battery charge status"
 upd:"Battery charge status"
-"Battery charge status"
+"Estado de carga de batería"
 "Kapacita akumulátora"
 
 MInfoPowerStatusBCHigh
@@ -11758,7 +11758,7 @@ MInfoPowerStatusBCHigh
 upd:"High"
 upd:"High"
 upd:"High"
-"High"
+"Alto"
 "Vysoká"
 
 MInfoPowerStatusBCLow
@@ -11768,7 +11768,7 @@ MInfoPowerStatusBCLow
 upd:"Low"
 upd:"Low"
 upd:"Low"
-"Low"
+"Bajo"
 "Nízka"
 
 MInfoPowerStatusBCCritical
@@ -11778,7 +11778,7 @@ MInfoPowerStatusBCCritical
 upd:"Critical"
 upd:"Critical"
 upd:"Critical"
-"Critical"
+"Crítico"
 "Kritická"
 
 MInfoPowerStatusBCCharging
@@ -11788,7 +11788,7 @@ MInfoPowerStatusBCCharging
 upd:"Charging"
 upd:"Charging"
 upd:"Charging"
-"Charging"
+"Cargando"
 "Nabíjanie"
 
 MInfoPowerStatusBCNoSysBat
@@ -11798,7 +11798,7 @@ MInfoPowerStatusBCNoSysBat
 upd:"No system battery"
 upd:"No system battery"
 upd:"No system battery"
-"No system battery"
+"No hay batería de sistema"
 "Chýba systémový akumulátor"
 
 MInfoPowerStatusBCUnknown
@@ -11808,7 +11808,7 @@ MInfoPowerStatusBCUnknown
 upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
-"Unknown"
+"Desconocido"
 "Neznámy"
 
 MInfoPowerStatusBCTimeRem
@@ -11818,7 +11818,7 @@ MInfoPowerStatusBCTimeRem
 upd:"Battery life time"
 upd:"Battery life time"
 upd:"Battery life time"
-"Battery life time"
+"Tiempo de vida de batería"
 "Doba práce z akumulátora"
 
 MInfoPowerStatusBCTMUnknown
@@ -11828,7 +11828,7 @@ MInfoPowerStatusBCTMUnknown
 upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
-"Unknown"
+"Desconocido"
 "Neznámy"
 
 MInfoPowerStatusBCFullTimeRem
@@ -11838,7 +11838,7 @@ MInfoPowerStatusBCFullTimeRem
 upd:"Battery full time"
 upd:"Battery full time"
 upd:"Battery full time"
-"Battery full time"
+"Tiempo completo de batería"
 "Plná doba práce z akumulátora"
 
 MInfoPowerStatusBCFTMUnknown
@@ -11848,7 +11848,7 @@ MInfoPowerStatusBCFTMUnknown
 upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
-"Unknown"
+"Desconocido"
 "Neznámy"
 
 MAccessDenied
@@ -11940,7 +11940,7 @@ MMakeFolderLinkNone
 upd:"None"
 upd:"None"
 upd:"None"
-"Nada"
+"Ninguno"
 "Žiadny"
 
 MMakeFolderLinkJunction
@@ -14027,7 +14027,7 @@ MQuickViewFolders
 "Ordner           "
 "Mappák száma     "
 "Katalogi            "
-"Directorios         "
+"Directorios      "
 "Priečinky         "
 
 MQuickViewFiles
@@ -14037,7 +14037,7 @@ MQuickViewFiles
 "Dateien          "
 "Fájlok száma     "
 "Pliki               "
-"Archivos            "
+"Archivos         "
 "Súbory            "
 
 MQuickViewBytes
@@ -14047,7 +14047,7 @@ MQuickViewBytes
 "Gesamtgröße      "
 "Fájlok mérete    "
 "Rozmiar plików      "
-"Tamaño archivos     "
+"Tamaño archivos  "
 "Veľkosť súborov   "
 
 MQuickViewAllocated
@@ -14057,7 +14057,7 @@ MQuickViewAllocated
 upd:"Allocated size   "
 upd:"Allocated size   "
 upd:"Allocated size   "
-"Tamaño alojado      "
+"Tamaño alojado   "
 "Alokovaná veľkosť "
 
 MQuickViewCluster
@@ -14067,7 +14067,7 @@ MQuickViewCluster
 "Clustergröße     "
 "Klaszterméret    "
 "Rozmiar klastra     "
-"Tamaño cluster      "
+"Tamaño cluster   "
 "Veľkosť klastra   "
 
 MQuickViewSlack
@@ -14077,7 +14077,7 @@ MQuickViewSlack
 "Verlust          "
 "Meddő terület    "
 "Przestrzeń stracona "
-"Desperdiciado       "
+"Desperdiciado    "
 "Mŕtve miesto      "
 
 MQuickViewMFTOverhead
