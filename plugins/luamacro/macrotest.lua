@@ -1,4 +1,4 @@
-﻿-- Started: 2012-08-20.
+-- Started: 2012-08-20.
 
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
 
