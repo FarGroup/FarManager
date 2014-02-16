@@ -79,7 +79,7 @@ local function test_eval()
   assert(eval("temp=5+7",1)==0)
   assert(temp==nil)
 
-  mf.postmacro(function() assert(Area.Dialog); Keys("Esc") end) -- test for error message box
+  mf.postmacro(function() assert(Area.Dialog); Keys("Esc") end) -- close the error message box
   assert(eval("5+7")==11)
 end
 
@@ -111,16 +111,18 @@ local function test_chr()
 end
 
 local function test_clip()
-  mf.clip(5,2) -- включить внутренний буфер обмена
+  local oldval = far.PasteFromClipboard() -- store
+  mf.clip(5,2) -- turn on the internal clipboard
   assert(mf.clip(5,-1)==2)
-  assert(mf.clip(5,1)==2) -- включить буфер обмена OS
+  assert(mf.clip(5,1)==2) -- turn on the OS clipboard
   assert(mf.clip(5,-1)==1)
-  for clipnum=2,1,-1 do -- в конце оставляет включенным буфер обмена OS
+  for clipnum=2,1,-1 do -- leaves the OS clipboard active in the end
     mf.clip(5,clipnum)
     local str = "foo"..clipnum
     assert(mf.clip(1,str) ~= 0)
     assert(mf.clip(0,str) == str)
   end
+  far.CopyToClipboard(oldval) -- restore
 end
 
 local function test_env()
@@ -215,8 +217,15 @@ local function test_itoa()
 end
 
 local function test_key()
-  assert(mf.key(83951739)=="CtrlShiftF12")
+  assert(mf.key(0x01000000)=="Ctrl")
+  assert(mf.key(0x02000000)=="Alt")
+  assert(mf.key(0x04000000)=="Shift")
+  assert(mf.key(0x10000000)=="RCtrl")
+  assert(mf.key(0x20000000)=="RAlt")
+
+  assert(mf.key(0x0501007B)=="CtrlShiftF12")
   assert(mf.key("CtrlShiftF12")=="CtrlShiftF12")
+
   assert(mf.key("foobar")=="")
 end
 
@@ -389,7 +398,15 @@ end
 
 local function test_exit()
   assert(exit == mf.exit)
-  assert(type(exit) == "function")
+  local N
+  mf.postmacro(
+    function()
+      local function f() N=50; exit(); end
+      f(); N=100
+    end)
+  mf.postmacro(function() Keys"Esc" end)
+  far.Message("dummy")
+  assert(N == 50)
 end
 
 local function test_mmode()
@@ -519,6 +536,48 @@ local function test_Far()
   assert(type(Far.KbdLayout(0))=="number")
   assert(type(Far.KeyBar_Show(0))=="number")
   assert(type(Far.Window_Scroll)=="function")
+end
+
+local function test_Object()
+  assert(type(Object.Bof)         == "boolean")
+  assert(type(Object.CurPos)      == "number")
+  assert(type(Object.Empty)       == "boolean")
+  assert(type(Object.Eof)         == "boolean")
+  assert(type(Object.Height)      == "number")
+  assert(type(Object.ItemCount)   == "number")
+  assert(type(Object.Selected)    == "boolean")
+  assert(type(Object.Title)       == "string")
+  assert(type(Object.Width)       == "number")
+
+  assert(type(Object.CheckHotkey) == "function")
+  assert(type(Object.GetHotkey)   == "function")
+end
+
+local function test_Drv()
+  Keys"AltF1"
+  assert(type(Drv.ShowMode) == "number")
+  assert(Drv.ShowPos == 1)
+  Keys"Esc AltF2"
+  assert(type(Drv.ShowMode) == "number")
+  assert(Drv.ShowPos == 2)
+  Keys"Esc"
+end
+
+local function test_Help()
+  Keys"F1"
+  assert(type(Help.FileName)=="string")
+  assert(type(Help.SelTopic)=="string")
+  assert(type(Help.Topic)=="string")
+  Keys"Esc"
+end
+
+local function test_Mouse()
+  assert(type(Mouse.X) == "number")
+  assert(type(Mouse.Y) == "number")
+  assert(type(Mouse.Button) == "number")
+  assert(type(Mouse.CtrlState) == "number")
+  assert(type(Mouse.EventFlags) == "number")
+  assert(type(Mouse.LastCtrlState) == "number")
 end
 
 local function test_XPanel(pan) -- (@pan: either APanel or PPanel)
@@ -663,8 +722,12 @@ do
   test_areas()
   test_mf()
   test_CmdLine()
+  test_Help()
   test_Dlg()
+  test_Drv()
   test_Far()
+  test_Mouse()
+  test_Object()
   test_Panel()
   test_Plugin()
   test_XPanel(APanel)

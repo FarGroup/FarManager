@@ -1,3 +1,7 @@
+shmuel 16.02.2014 19:48:43 +0200 - build 289
+
+1. LuaFAR: добавлен 5-й параметр в функцию far.RecursiveSearch.
+
 shmuel 12.02.2014 22:50:28 +0200 - build 288
 
 1. Убрана локализация coroutine.create - для удобства отладки с ZeroBrane Studio.
