@@ -43,9 +43,15 @@ class QuickView:public Panel
 {
 public:
 	QuickView();
+
+	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
+
+private:
+	virtual ~QuickView();
+
 	virtual int ProcessKey(int Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 	virtual void Update(int Mode) override;
 	virtual void CloseFile() override;
 	virtual void QViewDelTempName() override;
@@ -56,11 +62,6 @@ public:
 	virtual void KillFocus() override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
-
-	void ShowFile(const string& FileName, int TempFile, PluginHandle* hDirPlugin);
-
-private:
-	virtual ~QuickView();
 	virtual void DisplayObject() override;
 
 	void PrintText(const string& Str);

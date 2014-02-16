@@ -34,71 +34,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
-#include "dizviewer.hpp"
-#include "macro.hpp"
 #include "notification.hpp"
+
+class DizViewer;
 
 class InfoList:public Panel
 {
-	// Состояние секций
-	struct InfoListSectionState
-	{
-		bool Show;   // раскрыть/свернуть?
-		SHORT Y;     // Где?
-	};
+public:
+	InfoList();
 
-	enum InfoListSectionStateIndex
-	{
-		// Порядок не менять! Только добавлять в конец!
-		ILSS_DISKINFO,
-		ILSS_MEMORYINFO,
-		ILSS_DIRDESCRIPTION,
-		ILSS_PLDESCRIPTION,
-		ILSS_POWERSTATUS,
+private:
+	virtual ~InfoList();
 
-		ILSS_LAST
-	};
+	virtual void DisplayObject() override;
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual void Update(int Mode) override;
+	virtual void SetFocus() override;
+	virtual void KillFocus() override;
+	virtual const string& GetTitle(string &Title) const override;
+	virtual void UpdateKeyBar() override;
+	virtual void CloseFile() override;
+	virtual int GetCurName(string &strName, string &strShortName) const override;
 
-	private:
-		DizViewer *DizView;
-		FARMACROAREA PrevMacroMode;
-		bool OldWrapMode;
-		bool OldWrapType;
-		string strDizFileName;
-		InfoListSectionState SectionState[ILSS_LAST];
+	bool ShowDirDescription(int YPos);
+	bool ShowPluginDescription(int YPos);
+	void PrintText(const string& Str) const;
+	void PrintText(LNGID MsgID) const;
+	void PrintInfo(const string& Str) const;
+	void PrintInfo(LNGID MsgID) const;
+	void SelectShowMode();
+	void DrawTitle(string &strTitle, int Id, int &CurY);
+	int  OpenDizFile(const string& DizFile, int YPos);
+	void SetMacroMode(int Restore = FALSE);
+	void DynamicUpdateKeyBar() const;
 
-		listener PowerListener;
-
-	private:
-		virtual void DisplayObject() override;
-		bool ShowDirDescription(int YPos);
-		bool ShowPluginDescription(int YPos);
-
-		void PrintText(const string& Str) const;
-		void PrintText(LNGID MsgID) const;
-		void PrintInfo(const string& Str) const;
-		void PrintInfo(LNGID MsgID) const;
-		void SelectShowMode();
-		void DrawTitle(string &strTitle,int Id,int &CurY);
-
-		int  OpenDizFile(const string& DizFile,int YPos);
-		void SetMacroMode(int Restore = FALSE);
-		void DynamicUpdateKeyBar() const;
-
-	public:
-		InfoList();
-	private:
-		virtual ~InfoList();
-
-	public:
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		virtual void Update(int Mode) override;
-		virtual void SetFocus() override;
-		virtual void KillFocus() override;
-		virtual const string& GetTitle(string &Title) const override;
-		virtual void UpdateKeyBar() override;
-		virtual void CloseFile() override;
-		virtual int GetCurName(string &strName, string &strShortName) const override;
+	DizViewer *DizView;
+	FARMACROAREA PrevMacroMode;
+	bool OldWrapMode;
+	bool OldWrapType;
+	string strDizFileName;
+	struct InfoListSectionState;
+	std::vector<struct InfoListSectionState> SectionState;
+	listener PowerListener;
 };

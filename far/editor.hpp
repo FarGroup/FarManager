@@ -68,7 +68,6 @@ public:
 	long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
-	FileEditor *GetHostFileEditor() { return HostFileEditor; }
 	void PrepareResizedConsole() { Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);

@@ -47,9 +47,22 @@ class ImportedFunctions
 		T pointer;
 	};
 
+	class module
+	{
+	public:
+		module(const wchar_t* name);
+		~module();
+
+		FARPROC GetProcAddress(const char* name) const;
+		operator bool() const { return m_module != nullptr; }
+
+	private:
+		HMODULE m_module;
+		bool m_loaded;
+	};
+
 public:
 	ImportedFunctions();
-	~ImportedFunctions();
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
 private: function_pointer<RETTYPE (CALLTYPE*)ARGS> pfn##NAME;\
@@ -111,6 +124,11 @@ public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 #undef DECLARE_IMPORT_FUNCTION
 
 private:
-	HMODULE hVirtDisk;
-	HMODULE hRstrtMgr;
+	module m_Ntdll;
+	module m_Kernel;
+	module m_Shell;
+	module m_User32;
+	module m_NetApi;
+	module m_VirtDisk;
+	module m_RstrtMgr;
 };

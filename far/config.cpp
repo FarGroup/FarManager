@@ -2933,17 +2933,18 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 				break;
 			case MENU_OPTIONS_LANGUAGES:   // Languages
 				{
+					string SavedLanguage = strLanguage.Get();
 					if (SelectInterfaceLanguage())
 					{
 						try
 						{
 							Language NewLanguage(Global->g_strFarPath, MNewFileName + 1);
 							Global->Lang->swap(NewLanguage);
-							strLanguage = Global->Lang->GetFileName();
 						}
 						catch (const std::exception& e)
 						{
 							Message(MSG_WARNING, 1, MSG(MError), wide(e.what()).data(), MSG(MOk));
+							strLanguage = SavedLanguage;
 						}
 
 						SelectHelpLanguage();

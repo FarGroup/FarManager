@@ -90,12 +90,259 @@ static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
 
+
+/*
+  Global->Opt->Tree.LocalDisk          Хранить файл структуры папок для локальных дисков
+  Global->Opt->Tree.NetDisk            Хранить файл структуры папок для сетевых дисков
+  Global->Opt->Tree.NetPath            Хранить файл структуры папок для сетевых путей
+  Global->Opt->Tree.RemovableDisk      Хранить файл структуры папок для сменных дисков
+  Global->Opt->Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
+
+  Global->Opt->Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
+     constLocalDiskTemplate=L"LD.%D.%SN.tree"
+  Global->Opt->Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
+     constNetDiskTemplate=L"ND.%D.%SN.tree";
+  Global->Opt->Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
+     constNetPathTemplate=L"NP.%SR.%SH.tree";
+  Global->Opt->Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
+     constRemovableDiskTemplate=L"RD.%SN.tree";
+  Global->Opt->Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+     constCDDiskTemplate=L"CD.%L.%SN.tree";
+
+     %D    - буква диска
+     %SN   - серийный номер
+     %L    - метка диска
+     %SR   - server name
+     %SH   - share name
+
+  Global->Opt->Tree.strExceptPath;     // для перечисленных здесь не хранить
+
+  Global->Opt->Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
+  Global->Opt->Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
+*/
+
+#if defined(TREEFILE_PROJECT)
+string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, const wchar_t *D, DWORD SN, const wchar_t *L, const wchar_t *SR, const wchar_t *SH)
+{
+	strDest=strTemplate;
+	FormatString strDiskNumber;
+
+	strDiskNumber <<
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(SN) << L'-' <<
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(SN);
+	/*
+    	 %D    - буква диска
+	     %SN   - серийный номер
+    	 %L    - метка диска
+	     %SR   - server name
+    	 %SH   - share name
+	*/
+	string strDiskLetter(D ? D : L"", 1);
+	ReplaceStrings(strDest,L"%D",strDiskLetter,-1);
+	ReplaceStrings(strDest,L"%SN",strDiskNumber,-1);
+	ReplaceStrings(strDest,L"%L",L && *L?L:L"",-1);
+	ReplaceStrings(strDest,L"%SR",SR && *SR?SR:L"",-1);
+	ReplaceStrings(strDest,L"%SH",SH && *SH?SH:L"",-1);
+
+	return strDest;
+}
+#endif
+
+string& CreateTreeFileName(const string& Path, string &strDest)
+{
+#if defined(TREEFILE_PROJECT)
+	string strRootDir = ExtractPathRoot(Path);
+	string strTreeFileName;
+	string strPath;
+	strDest = L"";
+
+	auto ExceptPathList(StringToList(Global->Opt->Tree.strExceptPath, STLF_UNIQUE));
+	if (!ExceptPathList.empty())
+	{
+		FOR(const auto& i, ExceptPathList)
+		{
+			if (strRootDir == i)
+			{
+				return strDest;
+			}
+		}
+	}
+
+	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
+	PATH_TYPE PathType = ParsePath(strRootDir);
+	/*
+	PATH_UNKNOWN,
+	PATH_DRIVELETTER,
+	PATH_DRIVELETTERUNC,
+	PATH_REMOTE,
+	PATH_REMOTEUNC,
+	PATH_VOLUMEGUID,
+	PATH_PIPE,
+	*/
+
+	// получение инфы о томе
+	string strVolumeName, strFileSystemName;
+	DWORD MaxNameLength = 0, FileSystemFlags = 0, VolumeNumber = 0;
+
+	if (api::GetVolumeInformation(strRootDir, &strVolumeName,
+		&VolumeNumber, &MaxNameLength, &FileSystemFlags,
+		&strFileSystemName))
+	{
+		if (DriveType == DRIVE_SUBSTITUTE) // Разворачиваем и делаем подмену
+		{
+			DriveType = DRIVE_FIXED; //????
+		}
+
+		switch (DriveType)
+		{
+		case DRIVE_USBDRIVE:
+		case DRIVE_REMOVABLE:
+			if (Global->Opt->Tree.RemovableDisk)
+			{
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				strPath = Global->Opt->Tree.strSaveLocalPath;
+			}
+			break;
+		case DRIVE_FIXED:
+			if (Global->Opt->Tree.LocalDisk)
+			{
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				strPath = Global->Opt->Tree.strSaveLocalPath;
+			}
+			break;
+		case DRIVE_REMOTE:
+			if (Global->Opt->Tree.NetDisk || Global->Opt->Tree.NetPath)
+			{
+				string strServer, strShare;
+				if (PathType == PATH_REMOTE)
+				{
+					CurPath2ComputerName(strRootDir, strServer, strShare);
+					DeleteEndSlash(strShare);
+				}
+
+				ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
+				strPath = Global->Opt->Tree.strSaveNetPath;
+			}
+			break;
+		case DRIVE_CD_RW:
+		case DRIVE_CD_RWDVD:
+		case DRIVE_DVD_ROM:
+		case DRIVE_DVD_RW:
+		case DRIVE_DVD_RAM:
+		case DRIVE_BD_ROM:
+		case DRIVE_BD_RW:
+		case DRIVE_HDDVD_ROM:
+		case DRIVE_HDDVD_RW:
+		case DRIVE_CDROM:
+			if (Global->Opt->Tree.CDDisk)
+			{
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				strPath = Global->Opt->Tree.strSaveLocalPath;
+			}
+			break;
+		case DRIVE_VIRTUAL:
+		case DRIVE_RAMDISK:
+			break;
+		case DRIVE_REMOTE_NOT_CONNECTED:
+		case DRIVE_NOT_INIT:
+			break;
+
+		}
+		strDest = api::ExpandEnvironmentStrings(strPath);
+		AddEndSlash(strDest);
+		strDest += strTreeFileName;
+	}
+	else
+	{
+		strDest = Path;
+		AddEndSlash(strDest);
+		strDest += L"tree3.far";
+	}
+
+#else
+	strDest = Path;
+	AddEndSlash(strDest);
+	strDest += L"tree3.far";
+#endif
+	return strDest;
+}
+
+// TODO: Файлы "Tree3.Far" для локальных дисков должны храниться в "Local AppData\Far Manager"
+// TODO: Файлы "Tree3.Far" для сменных дисков должны храниться на самих "дисках"
+// TODO: Файлы "Tree3.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
+//                        если эти переменные среды не определены, то "%APPDATA%\Far Manager"
+string& MkTreeFileName(const string& RootDir, string &strDest)
+{
+	CreateTreeFileName(RootDir, strDest);
+	return strDest;
+}
+
+// этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
+string& MkTreeCacheFolderName(const string& RootDir, string &strDest)
+{
+#if defined(TREEFILE_PROJECT)
+	// в проекте TREEFILE_PROJECT наличие каталога tree3.cache не предполагается
+	CreateTreeFileName(RootDir, strDest);
+#else
+	strDest = RootDir;
+	AddEndSlash(strDest);
+	strDest += L"tree3.cache";
+#endif
+	return strDest;
+}
+
+int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
+{
+	string strVolumeName, strFileSystemName;
+	DWORD dwVolumeSerialNumber;
+
+	if (!api::GetVolumeInformation(
+		Root,
+		&strVolumeName,
+		&dwVolumeSerialNumber,
+		nullptr,
+		nullptr,
+		&strFileSystemName
+		))
+		return FALSE;
+
+	string strFolderName;
+	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
+#if defined(TREEFILE_PROJECT)
+	if (strFolderName.empty())
+		return FALSE;
+#endif
+
+	if (CreateDir)
+	{
+		api::CreateDirectory(strFolderName, nullptr);
+		api::SetFileAttributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
+	}
+
+	string strRemoteName;
+
+	if (Root.front() == L'\\')
+		strRemoteName = Root;
+	else
+	{
+		string LocalName(L"?:");
+		LocalName.front() = Root.front();
+		api::WNetGetConnection(LocalName, strRemoteName);
+
+		if (!strRemoteName.empty())
+			AddEndSlash(strRemoteName);
+	}
+
+	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
+	strName = FormatString() << strFolderName << L"\\" << strVolumeName << L"." << fmt::Radix(16) << dwVolumeSerialNumber << L"." << strFileSystemName << L"." << strRemoteName;
+	return TRUE;
+}
+
 static struct tree_less
 {
-	bool operator()(const string& a, const string& b, bool Numeric, bool CaseSensitive) const
+	bool operator()(const string& a, const string& b, decltype(StrCmpNNI) comparer = StrCmpNNI) const
 	{
-		const wchar_t* Str1 = a.data(), *Str2 = b.data();
-		auto cmpfunc = Numeric? (CaseSensitive? NumStrCmpN : NumStrCmpNI) : (CaseSensitive? StrCmpNN : StrCmpNNI);
+		auto Str1 = a.data(), Str2 = b.data();
 
 		if (*Str1 == L'\\' && *Str2 == L'\\')
 		{
@@ -103,12 +350,11 @@ static struct tree_less
 			Str2++;
 		}
 
-		const wchar_t *s1 = wcschr(Str1,L'\\');
-		const wchar_t *s2 = wcschr(Str2,L'\\');
+		auto s1 = wcschr(Str1, L'\\'), s2 = wcschr(Str2, L'\\');
 
 		while (s1 && s2)
 		{
-			int r = cmpfunc(Str1,static_cast<int>(s1-Str1),Str2,static_cast<int>(s2-Str2));
+			int r = comparer(Str1, static_cast<int>(s1 - Str1), Str2, static_cast<int>(s2 - Str2));
 
 			if (r)
 				return r < 0;
@@ -121,10 +367,10 @@ static struct tree_less
 
 		if (s1 || s2)
 		{
-			int r = cmpfunc(Str1,s1?static_cast<int>(s1-Str1):-1,Str2,s2?static_cast<int>(s2-Str2):-1);
+			int r = comparer(Str1, s1? static_cast<int>(s1 - Str1) : -1, Str2, s2? static_cast<int>(s2 - Str2) : -1);
 			return r? r < 0 : !s1;
 		}
-		return cmpfunc(Str1, -1, Str2, -1) < 0;
+		return comparer(Str1, -1, Str2, -1) < 0;
 	}
 } TreeLess;
 
@@ -132,26 +378,77 @@ static struct list_less
 {
 	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
 	{
-		return TreeLess(a.strName, b.strName, StaticSortNumeric, StaticSortCaseSensitive);
+		auto comparer = StaticSortNumeric? (StaticSortCaseSensitive ? NumStrCmpN : NumStrCmpNI) : (StaticSortCaseSensitive ? StrCmpNN : StrCmpNNI);
+
+		return TreeLess(a.strName, b.strName, comparer);
 	}
 }
 ListLess;
 
-void TreeListCache::Sort()
+bool TreeListCache::cache_less::operator()(const string& a, const string& b) const
 {
-	Names.sort([](const string& a, const string& b)
-	{
-		return TreeLess(a, b, StaticSortNumeric, false);
-	});
+	return TreeLess(a, b);
 }
 
+void TreeListCache::add(const wchar_t* Name)
+{
+	m_Names.emplace(Name);
+}
+
+void TreeListCache::add(string&& Name)
+{
+	m_Names.emplace(std::move(Name));
+}
+
+void TreeListCache::remove(const wchar_t* Name)
+{
+	size_t Length = StrLength(Name);
+
+	FOR_RANGE(m_Names, i)
+	{
+		if (i->size() < Length)
+			continue;
+
+		if (!StrCmpNI(Name, i->data(), static_cast<int>(Length)) && (i->size() == Length || IsSlash(i->at(Length))))
+		{
+			i = m_Names.erase(i);
+			if (i == m_Names.end())
+				break;
+		}
+	}
+}
+
+void TreeListCache::rename(const wchar_t* OldName, const wchar_t* NewName)
+{
+	size_t SrcLength = StrLength(OldName);
+
+	FOR_RANGE(m_Names, i)
+	{
+		size_t iLen = i->size();
+		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), static_cast<int>(SrcLength)))
+		{
+			string newName = string(NewName) + (i->data() + SrcLength);
+			i = m_Names.erase(i);
+			m_Names.insert(std::move(newName));
+			if (i == m_Names.end())
+				break;
+		}
+	}
+}
+
+enum TREELIST_FLAGS
+{
+	FTREELIST_TREEISPREPARED = 0x00010000,
+	FTREELIST_UPDATEREQUIRED = 0x00020000,
+	FTREELIST_ISPANEL = 0x00040000,
+};
 
 TreeList::TreeList(bool IsPanel):
-	PrevMacroMode(MACROAREA_INVALID),
 	WorkDir(0),
+	SaveWorkDir(0),
+	PrevMacroMode(MACROAREA_INVALID),
 	GetSelPosition(0),
-	ExitCode(1),
-	SaveWorkDir(0)
+	ExitCode(1)
 {
 	Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
@@ -162,7 +459,7 @@ TreeList::TreeList(bool IsPanel):
 
 TreeList::~TreeList()
 {
-	Global->tempTreeCache->Clean();
+	Global->tempTreeCache->clear();
 	FlushCache();
 	SetMacroMode(TRUE);
 }
@@ -395,15 +692,155 @@ void TreeList::Update(int Mode)
 	}
 }
 
-struct TreePreRedrawItem : public PreRedrawItem
+static void PR_MsgReadTree();
+
+struct TreePreRedrawItem: public PreRedrawItem
 {
 	TreePreRedrawItem():
-		PreRedrawItem(TreeList::PR_MsgReadTree),
+		PreRedrawItem(PR_MsgReadTree),
 		TreeCount()
 	{}
 
 	size_t TreeCount;
 };
+
+static int MsgReadTree(size_t TreeCount, int &FirstCall)
+{
+	/* $ 24.09.2001 VVM
+	! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
+	BOOL IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
+
+	if (IsChangeConsole)
+	{
+		LastScrX = ScrX;
+		LastScrY = ScrY;
+	}
+
+	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
+	{
+		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
+		if (!Global->PreRedraw->empty())
+		{
+			auto item = dynamic_cast<TreePreRedrawItem*>(Global->PreRedraw->top());
+			item->TreeCount = TreeCount;
+		}
+		TreeStartTime = clock();
+	}
+
+	return 1;
+}
+
+static void PR_MsgReadTree()
+{
+	if (!Global->PreRedraw->empty())
+	{
+		int FirstCall = 1;
+		auto item = dynamic_cast<const TreePreRedrawItem*>(Global->PreRedraw->top());
+		MsgReadTree(item->TreeCount, FirstCall);
+	}
+}
+
+static api::File OpenTreeFile(const string& Name, bool Writable)
+{
+	api::File Result;
+	Result.Open(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
+	return std::move(Result);
+}
+
+static bool MustBeCached(const string& Root)
+{
+	auto type = FAR_GetDriveType(Root);
+
+	if (type==DRIVE_UNKNOWN || type==DRIVE_NO_ROOT_DIR || type==DRIVE_REMOVABLE || IsDriveTypeCDROM(type))
+	{
+		// кешируются CD, removable и неизвестно что :)
+		return true;
+	}
+
+	/* остались
+	    DRIVE_REMOTE
+	    DRIVE_RAMDISK
+	    DRIVE_FIXED
+	*/
+	return false;
+}
+
+static api::File OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
+{
+	api::File Result;
+	if (!MustBeCached(Root))
+		Result = OpenTreeFile(Name, Writable);
+
+	if (!Result.Opened())
+	{
+		if (GetCacheTreeName(Root, Name, Writable))
+		{
+			Result = OpenTreeFile(Name, Writable);
+		}
+	}
+	return std::move(Result);
+}
+
+static void ReadLines(api::File& TreeFile, const std::function<void(string&)>& Inserter)
+{
+	GetFileString GetStr(TreeFile, CP_UNICODE);
+	string Record;
+	while (GetStr.GetString(Record))
+	{
+		if (Record.empty() || !IsSlash(Record.front()))
+			continue;
+
+		size_t pos = Record.find(L'\n');
+
+		if (pos != string::npos)
+			Record.resize(pos);
+
+		Inserter(Record);
+	}
+}
+
+template<class string_type, class container_type, class opener_type>
+static inline void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
+{
+	// получим и сразу сбросим атрибуты (если получится)
+	DWORD SavedAttributes = api::GetFileAttributes(Name);
+
+	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
+		api::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL);
+
+	api::File TreeFile = Opener(Name);
+
+	bool Result = false;
+
+	if (TreeFile.Opened())
+	{
+		CachedWrite Cache(TreeFile);
+
+		auto WriteLine = [&](const string& str)
+		{
+			return Cache.Write(str.data() + offset, (str.size() - offset) * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
+		};
+
+		Result = std::all_of(RANGE(Container, i) { return WriteLine(i); }) && Cache.Flush();
+
+		if (!Result)
+			Global->CatchError();
+
+		TreeFile.SetEnd();
+		TreeFile.Close();
+	}
+
+	if (Result)
+	{
+		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
+			api::SetFileAttributes(Name, SavedAttributes);
+	}
+	else
+	{
+		api::DeleteFile(Global->TreeCache->GetTreeName());
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
+	}
+}
 
 int TreeList::ReadTree()
 {
@@ -437,7 +874,7 @@ int TreeList::ReadTree()
 	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(&fdata,strFullName))
 	{
-		TreeList::MsgReadTree(ListData.size(), FirstCall);
+		MsgReadTree(ListData.size(), FirstCall);
 
 		if (CheckForEscSilent())
 		{
@@ -506,113 +943,15 @@ void TreeList::SaveTreeFile()
 	if (strName.empty())
 		return;
 #endif
-	// получим и сразу сбросим атрибуты (если получится)
-	DWORD FileAttributes=api::GetFileAttributes(strName);
 
-	if (FileAttributes != INVALID_FILE_ATTRIBUTES)
-		api::SetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
+	auto Opener = [&](string& Name) { return OpenCacheableTreeFile(strRoot, Name, true); };
 
-	api::File TreeFile;
-	if (!TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
-	{
-		if (MustBeCached(strRoot))
-		{
-			if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
-			{
-				return;
-			}
-		}
-		else
-		{
-			return;
-		}
-	}
+	WriteTree(strName, ListData, Opener, RootLength);
 
-	CachedWrite Cache(TreeFile);
-	bool Success = std::all_of(RANGE(ListData, i) -> bool
-	{
-		bool Result = false;
-		if (RootLength >= i.strName.size())
-		{
-			Result = Cache.Write(L"\\\n", 2 * sizeof(wchar_t));
-		}
-		else
-		{
-			Result = Cache.Write(i.strName.data() + RootLength, static_cast<DWORD>(i.strName.size() - RootLength) * sizeof(wchar_t)) &&
-				Cache.Write(L"\n", 1 * sizeof(wchar_t));
-		}
-		if (!Result)
-			Global->CatchError();
-		return Result;
-	});
-	Success = Success && Cache.Flush();
-	if (!Success)
-		Global->CatchError();
-
-	TreeFile.SetEnd();
-	TreeFile.Close();
-
-	if (!Success)
-	{
-		api::DeleteFile(strName);
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName.data(),MSG(MOk));
-	}
-	else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)... или установим, согласно опции?
-	{
 #if defined(TREEFILE_PROJECT)
-		api::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
-#else
-		api::SetFileAttributes(strName, FileAttributes);
-#endif
-	}
-
-}
-
-int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir)
-{
-	string strVolumeName, strFileSystemName;
-	DWORD dwVolumeSerialNumber;
-
-	if (!api::GetVolumeInformation(
-	            Root,
-	            &strVolumeName,
-	            &dwVolumeSerialNumber,
-	            nullptr,
-	            nullptr,
-	            &strFileSystemName
-	        ))
-		return FALSE;
-
-	string strFolderName;
-	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
-#if defined(TREEFILE_PROJECT)
-	if (strFolderName.empty())
-		return FALSE;
+	api::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
 #endif
 
-	if (CreateDir)
-	{
-		api::CreateDirectory(strFolderName, nullptr);
-		api::SetFileAttributes(strFolderName,Global->Opt->Tree.TreeFileAttr);
-	}
-
-	string strRemoteName;
-
-	if (Root.front() == L'\\')
-		strRemoteName = Root;
-	else
-	{
-		string LocalName(L"?:");
-		LocalName.front() = Root.front();
-		api::WNetGetConnection(LocalName, strRemoteName);
-
-		if (!strRemoteName.empty())
-			AddEndSlash(strRemoteName);
-	}
-
-	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
-	strName = FormatString() << strFolderName << L"\\" << strVolumeName << L"." << fmt::Radix(16) << dwVolumeSerialNumber << L"." << strFileSystemName << L"." << strRemoteName;
-	return TRUE;
 }
 
 void TreeList::GetRoot()
@@ -663,42 +1002,6 @@ void TreeList::SyncDir()
 		else
 			SetDirPosition(strPanelDir);
 	}
-}
-
-void TreeList::PR_MsgReadTree()
-{
-	if (!Global->PreRedraw->empty())
-	{
-		int FirstCall=1;
-		auto item = dynamic_cast<const TreePreRedrawItem*>(Global->PreRedraw->top());
-		TreeList::MsgReadTree(item->TreeCount, FirstCall);
-	}
-}
-
-int TreeList::MsgReadTree(size_t TreeCount,int &FirstCall)
-{
-	/* $ 24.09.2001 VVM
-	  ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
-	BOOL IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
-
-	if (IsChangeConsole)
-	{
-		LastScrX = ScrX;
-		LastScrY = ScrY;
-	}
-
-	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
-	{
-		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
-		if (!Global->PreRedraw->empty())
-		{
-			auto item = dynamic_cast<TreePreRedrawItem*>(Global->PreRedraw->top());
-			item->TreeCount = TreeCount;
-		}
-		TreeStartTime = clock();
-	}
-
-	return 1;
 }
 
 bool TreeList::FillLastData()
@@ -1428,52 +1731,25 @@ int TreeList::ReadTreeFile()
 		return FALSE;
 #endif
 
-	api::File TreeFile;
-	if (MustBeCached(strRoot) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
+	auto TreeFile = OpenCacheableTreeFile(strRoot, strName, false);
+	if (!TreeFile.Opened())
 	{
-		if (!GetCacheTreeName(strRoot,strName,FALSE) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
-		{
-			//RestoreState();
-			return FALSE;
-		}
+		//RestoreState();
+		return FALSE;
 	}
 
 	ListData.clear();
 
+	auto ListIserter = [&](string& Name)
 	{
-		string strLastDirName;
-		GetFileString GetStr(TreeFile, CP_UNICODE);
-		LPWSTR Record=nullptr;
-		size_t RecordLength;
-		while(GetStr.GetString(&Record, RecordLength))
+		if (ListData.size() == ListData.capacity())
 		{
-			string strDirName(strRoot.data(), RootLength);
-			strDirName.append(Record, RecordLength);
-			if (!IsSlash(*Record) || !StrCmpI(strDirName, strLastDirName))
-			{
-				continue;
-			}
-
-			strLastDirName=strDirName;
-			size_t Pos = strDirName.find(L'\n');
-			if(Pos != string::npos)
-			{
-				strDirName.resize(Pos);
-			}
-
-			if (RootLength>0 && strDirName[RootLength-1] != L':' && IsSlash(strDirName[RootLength]) && !strDirName[RootLength+1])
-			{
-				strDirName.resize(RootLength);
-			}
-
-			if (ListData.size() == ListData.capacity())
-			{
-				ListData.reserve(ListData.size() + 4096);
-			}
-
-			ListData.emplace_back(strDirName);
+			ListData.reserve(ListData.size() + 4096);
 		}
-	}
+		ListData.emplace_back(string(strRoot.data(), RootLength) + Name);
+	};
+
+	ReadLines(TreeFile, ListIserter);
 
 	TreeFile.Close();
 
@@ -1482,7 +1758,6 @@ int TreeList::ReadTreeFile()
 
 	NumericSort = false;
 	CaseSensitiveSort = false;
-	Global->TreeCache->Sort();
 	return FillLastData();
 }
 
@@ -1596,19 +1871,7 @@ void TreeList::AddTreeName(const string& Name)
 
 	ReadCache(strRoot);
 
-	FOR_RANGE(Global->TreeCache->Names, i)
-	{
-		int Result = StrCmpI(i->data(), NamePtr);
-
-		if (!Result)
-			break;
-
-		if (Result > 0)
-		{
-			i = Global->TreeCache->Names.emplace(i, NamePtr);
-			break;
-		}
-	}
+	Global->TreeCache->add(NamePtr);
 }
 
 void TreeList::DelTreeName(const string& Name)
@@ -1623,17 +1886,7 @@ void TreeList::DelTreeName(const string& Name)
 	NamePtr += strRoot.size() - 1;
 	ReadCache(strRoot);
 
-	size_t Length = StrLength(NamePtr);
-
-	FOR_RANGE(Global->TreeCache->Names, i)
-	{
-		if (i->size() < Length) continue;
-
-		if (!StrCmpNI(NamePtr, i->data(), static_cast<int>(Length)) && (i->size() == Length || IsSlash(i->at(Length))))
-		{
-			i = Global->TreeCache->Names.erase(i);
-		}
-	}
+	Global->TreeCache->remove(NamePtr);
 }
 
 void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
@@ -1655,16 +1908,8 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	const wchar_t* DestName = strDestName.data();
 	DestName += strDestRoot.size() - 1;
 	ReadCache(strSrcRoot);
-	size_t SrcLength = StrLength(SrcName);
 
-	std::for_each(RANGE(Global->TreeCache->Names, i)
-	{
-		size_t iLen = i.size();
-		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash(i[SrcLength]))) && !StrCmpNI(SrcName, i.data(), static_cast<int>(SrcLength)))
-		{
-			i = string(DestName) + (i.data() + SrcLength);
-		}
-	});
+	Global->TreeCache->rename(SrcName, DestName);
 }
 
 void TreeList::ReadSubTree(const string& Path)
@@ -1693,7 +1938,7 @@ void TreeList::ReadSubTree(const string& Path)
 	{
 		if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			TreeList::MsgReadTree(Count+1,FirstCall);
+			MsgReadTree(Count+1,FirstCall);
 
 			if (CheckForEscSilent())
 			{
@@ -1712,84 +1957,37 @@ void TreeList::ReadSubTree(const string& Path)
 
 void TreeList::ClearCache()
 {
-	Global->TreeCache->Clean();
+	Global->TreeCache->clear();
 }
 
 void TreeList::ReadCache(const string& TreeRoot)
 {
 	string strTreeName;
-	if (MkTreeFileName(TreeRoot,strTreeName) == Global->TreeCache->strTreeName)
+	if (MkTreeFileName(TreeRoot, strTreeName) == Global->TreeCache->GetTreeName())
 		return;
 
-	if (!Global->TreeCache->Names.empty())
+	if (!Global->TreeCache->empty())
 		FlushCache();
 
-	api::File TreeFile;
-
-	if (MustBeCached(TreeRoot) || !TreeFile.Open(strTreeName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+	auto TreeFile = OpenCacheableTreeFile(TreeRoot, strTreeName, false);
+	if (!TreeFile.Opened())
 	{
-		if (!GetCacheTreeName(TreeRoot, strTreeName, FALSE) || !TreeFile.Open(strTreeName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
-		{
-			ClearCache();
-			return;
-		}
+		ClearCache();
+		return;
 	}
 
-	Global->TreeCache->strTreeName = strTreeName;
-	GetFileString GetStr(TreeFile, CP_UNICODE);
+	Global->TreeCache->SetTreeName(TreeFile.GetName());
 
-	string Record;
-	while (GetStr.GetString(Record))
-	{
-		if (Record.empty() || !IsSlash(Record.front()))
-			continue;
-
-		size_t pos = Record.find(L'\n');
-
-		if (pos != string::npos)
-			Record.resize(pos);
-
-		Global->TreeCache->Names.emplace_back(std::move(Record));
-	}
+	ReadLines(TreeFile, [](string& Name){ Global->TreeCache->add(std::move(Name)); });
 }
 
 void TreeList::FlushCache()
 {
-	if (!Global->TreeCache->strTreeName.empty())
+	if (!Global->TreeCache->empty())
 	{
-		DWORD FileAttributes=api::GetFileAttributes(Global->TreeCache->strTreeName);
+		auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
 
-		if (FileAttributes != INVALID_FILE_ATTRIBUTES)
-			api::SetFileAttributes(Global->TreeCache->strTreeName,FILE_ATTRIBUTE_NORMAL);
-
-		api::File TreeFile;
-		if (!TreeFile.Open(Global->TreeCache->strTreeName, FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS))
-		{
-			ClearCache();
-			return;
-		}
-		CachedWrite Cache(TreeFile);
-
-		Global->TreeCache->Sort();
-
-		bool WriteError = !std::all_of(CONST_RANGE(Global->TreeCache->Names, i)
-		{
-			return Cache.Write(i.data(), i.size() * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
-		});
-
-		if (!WriteError)
-			WriteError = !Cache.Flush();
-		if (WriteError)
-			Global->CatchError();
-		TreeFile.SetEnd();
-		TreeFile.Close();
-		if (WriteError)
-		{
-			api::DeleteFile(Global->TreeCache->strTreeName);
-			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Global->TreeCache->strTreeName.data(), MSG(MOk));
-		}
-		else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			api::SetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
+		WriteTree(Global->TreeCache->GetTreeName(), *Global->TreeCache, Opener, 0);
 	}
 	ClearCache();
 }
@@ -1867,38 +2065,6 @@ int TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 	return TRUE;
 }
 
-/* $ 16.10.2000 tran
- функция, определяющаяя необходимость кеширования
- файла */
-int TreeList::MustBeCached(const string& Root)
-{
-	UINT type;
-	type=FAR_GetDriveType(Root);
-
-	if (type==DRIVE_UNKNOWN ||
-	        type==DRIVE_NO_ROOT_DIR ||
-	        type==DRIVE_REMOVABLE ||
-	        IsDriveTypeCDROM(type)
-	   )
-	{
-		if (type==DRIVE_REMOVABLE)
-		{
-			if (Upper(Root[0])==L'A' || Upper(Root[0])==L'B')
-				return FALSE; // это дискеты
-		}
-
-		return TRUE;
-		// кешируются CD, removable и неизвестно что :)
-	}
-
-	/* остались
-	    DRIVE_REMOTE
-	    DRIVE_RAMDISK
-	    DRIVE_FIXED
-	*/
-	return FALSE;
-}
-
 void TreeList::SetFocus()
 {
 	Panel::SetFocus();
@@ -1935,11 +2101,6 @@ void TreeList::SetMacroMode(int Restore)
 void TreeList::UpdateKeyBar()
 {
 	Global->CtrlObject->MainKeyBar->SetLabels(MKBTreeF1);
-	DynamicUpdateKeyBar();
-}
-
-void TreeList::DynamicUpdateKeyBar()
-{
 	Global->CtrlObject->MainKeyBar->SetCustomLabels(KBA_TREE);
 }
 
@@ -1961,207 +2122,6 @@ void TreeList::SetTitle()
 
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
-}
-
-// TODO: Файлы "Tree3.Far" для локальных дисков должны храниться в "Local AppData\Far Manager"
-// TODO: Файлы "Tree3.Far" для сменных дисков должны храниться на самих "дисках"
-// TODO: Файлы "Tree3.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
-//                        если эти переменные среды не определены, то "%APPDATA%\Far Manager"
-string &TreeList::MkTreeFileName(const string& RootDir,string &strDest)
-{
-	CreateTreeFileName(RootDir,strDest);
-	return strDest;
-}
-
-// этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
-string &TreeList::MkTreeCacheFolderName(const string& RootDir,string &strDest)
-{
-#if defined(TREEFILE_PROJECT)
-	// в проекте TREEFILE_PROJECT наличие каталога tree3.cache не предполагается
-	CreateTreeFileName(RootDir,strDest);
-#else
-	strDest = RootDir;
-	AddEndSlash(strDest);
-	strDest += L"tree3.cache";
-#endif
-	return strDest;
-}
-
-/*
-  Global->Opt->Tree.LocalDisk          Хранить файл структуры папок для локальных дисков
-  Global->Opt->Tree.NetDisk            Хранить файл структуры папок для сетевых дисков
-  Global->Opt->Tree.NetPath            Хранить файл структуры папок для сетевых путей
-  Global->Opt->Tree.RemovableDisk      Хранить файл структуры папок для сменных дисков
-  Global->Opt->Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
-
-  Global->Opt->Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
-     constLocalDiskTemplate=L"LD.%D.%SN.tree"
-  Global->Opt->Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
-     constNetDiskTemplate=L"ND.%D.%SN.tree";
-  Global->Opt->Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
-     constNetPathTemplate=L"NP.%SR.%SH.tree";
-  Global->Opt->Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
-     constRemovableDiskTemplate=L"RD.%SN.tree";
-  Global->Opt->Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
-     constCDDiskTemplate=L"CD.%L.%SN.tree";
-
-     %D    - буква диска
-     %SN   - серийный номер
-     %L    - метка диска
-     %SR   - server name
-     %SH   - share name
-
-  Global->Opt->Tree.strExceptPath;     // для перечисленных здесь не хранить
-
-  Global->Opt->Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
-  Global->Opt->Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
-*/
-
-#if defined(TREEFILE_PROJECT)
-string &ConvertTemplateTreeName(string &strDest, const string &strTemplate, const wchar_t *D, DWORD SN, const wchar_t *L, const wchar_t *SR, const wchar_t *SH)
-{
-	strDest=strTemplate;
-	FormatString strDiskNumber;
-
-	strDiskNumber <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(SN) << L'-' <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(SN);
-	/*
-    	 %D    - буква диска
-	     %SN   - серийный номер
-    	 %L    - метка диска
-	     %SR   - server name
-    	 %SH   - share name
-	*/
-	string strDiskLetter(D ? D : L"", 1);
-	ReplaceStrings(strDest,L"%D",strDiskLetter,-1);
-	ReplaceStrings(strDest,L"%SN",strDiskNumber,-1);
-	ReplaceStrings(strDest,L"%L",L && *L?L:L"",-1);
-	ReplaceStrings(strDest,L"%SR",SR && *SR?SR:L"",-1);
-	ReplaceStrings(strDest,L"%SH",SH && *SH?SH:L"",-1);
-
-	return strDest;
-}
-#endif
-
-
-string &TreeList::CreateTreeFileName(const string& Path,string &strDest)
-{
-#if defined(TREEFILE_PROJECT)
-	string strRootDir = ExtractPathRoot(Path);
-	string strTreeFileName;
-	string strPath;
-	strDest = L"";
-
-	auto ExceptPathList(StringToList(Global->Opt->Tree.strExceptPath, STLF_UNIQUE));
-	if (!ExceptPathList.empty())
-	{
-		FOR(const auto& i, ExceptPathList)
-		{
-			if (strRootDir == i)
-			{
-				return strDest;
-			}
-		}
-	}
-
-	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
-	PATH_TYPE PathType = ParsePath(strRootDir);
-	/*
-	PATH_UNKNOWN,
-	PATH_DRIVELETTER,
-	PATH_DRIVELETTERUNC,
-	PATH_REMOTE,
-	PATH_REMOTEUNC,
-	PATH_VOLUMEGUID,
-	PATH_PIPE,
-	*/
-
-	// получение инфы о томе
-	string strVolumeName, strFileSystemName;
-	DWORD MaxNameLength=0,FileSystemFlags=0,VolumeNumber=0;
-
-	if (api::GetVolumeInformation(strRootDir,&strVolumeName,
-		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
-		                            &strFileSystemName))
-	{
-		if (DriveType == DRIVE_SUBSTITUTE) // Разворачиваем и делаем подмену
-		{
-			DriveType=DRIVE_FIXED; //????
-		}
-
-		switch(DriveType)
-		{
-			case DRIVE_USBDRIVE:
-			case DRIVE_REMOVABLE:
-				if (Global->Opt->Tree.RemovableDisk)
-				{
-					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
-					strPath = Global->Opt->Tree.strSaveLocalPath;
-				}
-				break;
-			case DRIVE_FIXED:
-				if (Global->Opt->Tree.LocalDisk)
-				{
-					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
-					strPath = Global->Opt->Tree.strSaveLocalPath;
-				}
-				break;
-			case DRIVE_REMOTE:
-				if (Global->Opt->Tree.NetDisk || Global->Opt->Tree.NetPath)
-				{
-					string strServer, strShare;
-					if (PathType == PATH_REMOTE)
-					{
-						CurPath2ComputerName(strRootDir, strServer, strShare);
-						DeleteEndSlash(strShare);
-					}
-
-					ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
-					strPath = Global->Opt->Tree.strSaveNetPath;
-				}
-				break;
-			case DRIVE_CD_RW:
-			case DRIVE_CD_RWDVD:
-			case DRIVE_DVD_ROM:
-			case DRIVE_DVD_RW:
-			case DRIVE_DVD_RAM:
-			case DRIVE_BD_ROM:
-			case DRIVE_BD_RW:
-			case DRIVE_HDDVD_ROM:
-			case DRIVE_HDDVD_RW:
-			case DRIVE_CDROM:
-				if (Global->Opt->Tree.CDDisk)
-				{
-					ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
-					strPath = Global->Opt->Tree.strSaveLocalPath;
-				}
-				break;
-			case DRIVE_VIRTUAL:
-			case DRIVE_RAMDISK:
-				break;
-			case DRIVE_REMOTE_NOT_CONNECTED:
-			case DRIVE_NOT_INIT:
-				break;
-
-		}
-		strDest = api::ExpandEnvironmentStrings(strPath);
-		AddEndSlash(strDest);
-		strDest += strTreeFileName;
-	}
-	else
-	{
-		strDest = Path;
-		AddEndSlash(strDest);
-		strDest += L"tree3.far";
-	}
-
-#else
-	strDest=Path;
-	AddEndSlash(strDest);
-	strDest += L"tree3.far";
-#endif
-	return strDest;
 }
 
 const TreeList::TreeItem* TreeList::GetItem(size_t Index) const
@@ -2206,7 +2166,7 @@ bool TreeList::RestoreState()
 	{
 		ListData = std::move(SaveListData);
 		*Global->TreeCache = std::move(*Global->tempTreeCache);
-		Global->tempTreeCache->Clean();
+		Global->tempTreeCache->clear();
 		WorkDir=SaveWorkDir;
 		return true;
 	}

@@ -42,13 +42,6 @@ enum
 	MODALTREE_FREE    =3
 };
 
-enum TREELIST_FLAGS
-{
-	FTREELIST_TREEISPREPARED          = 0x00010000,
-	FTREELIST_UPDATEREQUIRED          = 0x00020000,
-	FTREELIST_ISPANEL                 = 0x00040000,
-};
-
 class TreeListCache: NonCopyable
 {
 public:
@@ -59,20 +52,42 @@ public:
 
 	void swap(TreeListCache& rhs) noexcept
 	{
-		strTreeName.swap(rhs.strTreeName);
-		Names.swap(rhs.Names);
+		m_TreeName.swap(rhs.m_TreeName);
+		m_Names.swap(rhs.m_Names);
 	}
 
-	void Clean()
+	void clear()
 	{
-		Names.clear();
-		strTreeName.clear();
+		m_Names.clear();
+		m_TreeName.clear();
 	}
 
-	void Sort();
+	bool empty() const { return m_Names.empty(); }
 
-	string strTreeName;
-	std::list<string> Names;
+	void add(const wchar_t* Name);
+	void add(string&& Name);
+	void remove(const wchar_t* Name);
+	void rename(const wchar_t* OldName, const wchar_t* NewName);
+
+	const string& GetTreeName() const { return m_TreeName; }
+	void SetTreeName(const string& Name) { m_TreeName = Name; }
+
+private:
+	struct cache_less
+	{
+		bool operator()(const string& a, const string& b) const;
+	};
+
+	typedef std::set<string, cache_less> cache_set;
+
+public:
+	typedef cache_set::const_iterator const_iterator;
+	const_iterator begin() const { return m_Names.cbegin(); }
+	const_iterator end() const { return m_Names.cend(); }
+
+private:
+	cache_set m_Names;
+	string m_TreeName;
 };
 
 STD_SWAP_SPEC(TreeListCache);
@@ -109,22 +124,60 @@ public:
 			Last.swap(rhs.Last);
 			std::swap(Depth, rhs.Depth);
 		}
+
+		operator string() const { return strName; }
 	};
 
+public:
+	TreeList(bool IsPanel = true);
+
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual int GoToFile(const string& Name, BOOL OnlyPartName = FALSE) override;
+	virtual int FindPartName(const string& Name, int Next, int Direct = 1, int ExcludeSets = 0) override;
+	virtual void Update(int Mode) override;
+	virtual const string& GetCurDir() const override;
+
+	void SetRootDir(const string& NewRootDir);
+	void ProcessEnter();
+	int GetExitCode() const { return ExitCode; }
+	const TreeItem* GetItem(size_t Index) const;
+
+	static void AddTreeName(const string& Name);
+	static void DelTreeName(const string& Name);
+	static void RenTreeName(const string& SrcName, const string& DestName);
+	static void ReadSubTree(const string& Path);
+	static void ClearCache();
+	static void ReadCache(const string& TreeRoot);
+	static void FlushCache();
+
 private:
-	FARMACROAREA PrevMacroMode;
-	std::vector<TreeItem> ListData;
-	string strRoot;
-	const string Empty; // bugbug
-	size_t WorkDir;
-	long GetSelPosition;
-	int ExitCode; // актуально только дл€ дерева, вызванного из копира!
+	virtual ~TreeList();
 
-	std::vector<TreeItem> SaveListData;
-	size_t SaveWorkDir;
-
-	void SetMacroMode(int Restore = FALSE);
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
+	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual void UpdateViewPanel() override;
+	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool GetPlainString(string& Dest, int ListPos) const override;
+	virtual int GoToFile(long idxItem) override;
+	virtual long FindFile(const string& Name, BOOL OnlyPartName = FALSE) override;
+	virtual long FindFirst(const string& Name) override;
+	virtual long FindNext(int StartPos, const string& Name) override;
+	virtual size_t GetFileCount() const override { return ListData.size(); }
+	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
+	virtual void SetTitle() override;
+	virtual const string& GetTitle(string &Title) const override;
+	virtual void SetFocus() override;
+	virtual void KillFocus() override;
+	virtual void UpdateKeyBar() override;
+	virtual int GetCurrentPos() const override;
+	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, api::FAR_FIND_DATA *fd = nullptr) override;
 	virtual void DisplayObject() override;
+	virtual size_t GetSelCount() const override;
+
+	int ReadTree();
+	void SetMacroMode(int Restore = FALSE);
 	void DisplayTree(int Fast);
 	void DisplayTreeName(const wchar_t *Name, size_t Pos);
 	void Up(int Count);
@@ -138,79 +191,20 @@ private:
 	void SyncDir();
 	void SaveTreeFile();
 	int ReadTreeFile();
-	virtual size_t GetSelCount() const override;
 	int GetNextNavPos() const;
 	int GetPrevNavPos() const;
-
-	static string &MkTreeFileName(const string& RootDir,string &strDest);
-	static string &MkTreeCacheFolderName(const string& RootDir,string &strDest);
-	static string &CreateTreeFileName(const string& Path,string &strDest);
-	static void DynamicUpdateKeyBar();
-
 	bool SaveState();
 	bool RestoreState();
 
-	static int MsgReadTree(size_t TreeCount,int &FirstCall);
-	static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
-
-public:
-	TreeList(bool IsPanel=true);
-private:
-	virtual ~TreeList();
-
-public:
-	virtual int ProcessKey(int Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-	virtual void Update(int Mode) override;
-	int  ReadTree();
-
-	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true) override;
-
-	void SetRootDir(const string& NewRootDir);
-
-	virtual const string& GetCurDir() const override;
-
-	virtual int GetCurName(string &strName, string &strShortName) const override;
-
-	virtual void UpdateViewPanel() override;
-	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual int FindPartName(const string& Name,int Next,int Direct=1,int ExcludeSets=0) override;
-	virtual bool GetPlainString(string& Dest, int ListPos) const override;
-
-	virtual int GoToFile(long idxItem) override;
-	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) override;
-	virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) override;
-
-	void ProcessEnter();
-
-	virtual long FindFirst(const string& Name) override;
-	virtual long FindNext(int StartPos, const string& Name) override;
-
-	int GetExitCode() const {return ExitCode;}
-	virtual size_t GetFileCount() const override { return ListData.size(); }
-	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
-
-	virtual void SetTitle() override;
-	virtual const string& GetTitle(string &Title) const override;
-	virtual void SetFocus() override;
-	virtual void KillFocus() override;
-	virtual void UpdateKeyBar() override;
-	const TreeItem* GetItem(size_t Index) const;
-	virtual int GetCurrentPos() const override;
-
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, api::FAR_FIND_DATA *fd = nullptr) override;
-
-	static void AddTreeName(const string& Name);
-	static void DelTreeName(const string& Name);
-	static void RenTreeName(const string& SrcName, const string& DestName);
-	static void ReadSubTree(const string& Path);
-	static void ClearCache();
-	static void ReadCache(const string& TreeRoot);
-	static void FlushCache();
-
-	static int MustBeCached(const string& Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла
-	static void PR_MsgReadTree();
+	std::vector<TreeItem> ListData;
+	std::vector<TreeItem> SaveListData;
+	const string Empty; // bugbug
+	string strRoot;
+	size_t WorkDir;
+	size_t SaveWorkDir;
+	FARMACROAREA PrevMacroMode;
+	long GetSelPosition;
+	int ExitCode; // актуально только дл€ дерева, вызванного из копира!
 };
 
 STD_SWAP_SPEC(TreeList::TreeItem);

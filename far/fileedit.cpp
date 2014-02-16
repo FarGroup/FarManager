@@ -737,8 +737,8 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
 		MacroEditState|=Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_MODIFIED)?0x00000008:0;
-		MacroEditState|=m_editor->BlockStart == m_editor->Lines.end()? 0x00000010 : 0;
-		MacroEditState|=m_editor->VBlockStart == m_editor->Lines.end()? 0x00000020 : 0;
+		MacroEditState|=m_editor->BlockStart != m_editor->Lines.end()? 0x00000010 : 0;
+		MacroEditState|=m_editor->VBlockStart != m_editor->Lines.end()? 0x00000020 : 0;
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_WASCHANGED)?0x00000040:0;
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_OVERTYPE)?0x00000080:0;
 		MacroEditState|=m_editor->Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;

@@ -37,98 +37,106 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "farexcpt.hpp"
 
-ImportedFunctions::ImportedFunctions()
+ImportedFunctions::module::module(const wchar_t* name):
+	m_module(GetModuleHandle(name)),
+	m_loaded(false)
 {
-	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
-	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
-	HMODULE hShell = GetModuleHandle(L"shell32.dll");
-	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
-	HMODULE hNetApi = GetModuleHandle(L"netapi32.dll");
-	hVirtDisk = LoadLibrary(L"virtdisk.dll");
-	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
-
-	#define InitImport(Module, Name) pfn##Name = GetProcAddress(Module, #Name)
-
-	if (hKernel)
+	if (!m_module)
 	{
-		InitImport(hKernel, GetConsoleKeyboardLayoutNameW);
-		InitImport(hKernel, CreateSymbolicLinkW);
-		InitImport(hKernel, FindFirstFileNameW);
-		InitImport(hKernel, FindNextFileNameW);
-		InitImport(hKernel, FindFirstStreamW);
-		InitImport(hKernel, FindNextStreamW);
-		InitImport(hKernel, GetFinalPathNameByHandleW);
-		InitImport(hKernel, GetVolumePathNamesForVolumeNameW);
-		InitImport(hKernel, GetPhysicallyInstalledSystemMemory);
-		InitImport(hKernel, HeapSetInformation);
-		InitImport(hKernel, IsWow64Process);
-		InitImport(hKernel, GetNamedPipeServerProcessId);
-		InitImport(hKernel, CancelSynchronousIo);
-		InitImport(hKernel, SetConsoleKeyShortcuts);
-		InitImport(hKernel, GetConsoleScreenBufferInfoEx);
-		InitImport(hKernel, QueryFullProcessImageNameW);
-		InitImport(hKernel, TzSpecificLocalTimeToSystemTime);
+		m_loaded = (m_module = LoadLibrary(name)) != nullptr;
+	}
+}
+
+ImportedFunctions::module::~module()
+{
+	if (m_loaded)
+	{
+		FreeLibrary(m_module);
+	}
+}
+
+FARPROC ImportedFunctions::module::GetProcAddress(const char* name) const
+{
+	return ::GetProcAddress(m_module, name);
+}
+
+ImportedFunctions::ImportedFunctions():
+	m_Ntdll(L"ntdll"),
+	m_Kernel(L"kernel32"),
+	m_Shell(L"shell32"),
+	m_User32(L"user32"),
+	m_NetApi(L"netapi32"),
+	m_VirtDisk(L"virtdisk"),
+	m_RstrtMgr(L"rstrtmgr")
+{
+	#define InitImport(Module, Name) pfn##Name = Module.GetProcAddress(#Name)
+
+	if (m_Kernel)
+	{
+		InitImport(m_Kernel, GetConsoleKeyboardLayoutNameW);
+		InitImport(m_Kernel, CreateSymbolicLinkW);
+		InitImport(m_Kernel, FindFirstFileNameW);
+		InitImport(m_Kernel, FindNextFileNameW);
+		InitImport(m_Kernel, FindFirstStreamW);
+		InitImport(m_Kernel, FindNextStreamW);
+		InitImport(m_Kernel, GetFinalPathNameByHandleW);
+		InitImport(m_Kernel, GetVolumePathNamesForVolumeNameW);
+		InitImport(m_Kernel, GetPhysicallyInstalledSystemMemory);
+		InitImport(m_Kernel, HeapSetInformation);
+		InitImport(m_Kernel, IsWow64Process);
+		InitImport(m_Kernel, GetNamedPipeServerProcessId);
+		InitImport(m_Kernel, CancelSynchronousIo);
+		InitImport(m_Kernel, SetConsoleKeyShortcuts);
+		InitImport(m_Kernel, GetConsoleScreenBufferInfoEx);
+		InitImport(m_Kernel, QueryFullProcessImageNameW);
+		InitImport(m_Kernel, TzSpecificLocalTimeToSystemTime);
 	}
 
-	if (hNtdll)
+	if (m_Ntdll)
 	{
-		InitImport(hNtdll, NtQueryDirectoryFile);
-		InitImport(hNtdll, NtQueryInformationFile);
-		InitImport(hNtdll, NtSetInformationFile);
-		InitImport(hNtdll, NtQueryObject);
-		InitImport(hNtdll, NtOpenSymbolicLinkObject);
-		InitImport(hNtdll, NtQuerySymbolicLinkObject);
-		InitImport(hNtdll, NtClose);
-		InitImport(hNtdll, RtlGetLastNtStatus);
-		InitImport(hNtdll, RtlNtStatusToDosError);
+		InitImport(m_Ntdll, NtQueryDirectoryFile);
+		InitImport(m_Ntdll, NtQueryInformationFile);
+		InitImport(m_Ntdll, NtSetInformationFile);
+		InitImport(m_Ntdll, NtQueryObject);
+		InitImport(m_Ntdll, NtOpenSymbolicLinkObject);
+		InitImport(m_Ntdll, NtQuerySymbolicLinkObject);
+		InitImport(m_Ntdll, NtClose);
+		InitImport(m_Ntdll, RtlGetLastNtStatus);
+		InitImport(m_Ntdll, RtlNtStatusToDosError);
 	}
 
-	if (hShell)
+	if (m_Shell)
 	{
-		InitImport(hShell, SHCreateAssociationRegistration);
+		InitImport(m_Shell, SHCreateAssociationRegistration);
 	}
 
-	if (hNetApi)
+	if (m_NetApi)
 	{
-		InitImport(hNetApi, NetDfsGetInfo);
+		InitImport(m_NetApi, NetDfsGetInfo);
 	}
 
-	if (hVirtDisk)
+	if (m_VirtDisk)
 	{
-		InitImport(hVirtDisk, GetStorageDependencyInformation);
-		InitImport(hVirtDisk, OpenVirtualDisk);
-		InitImport(hVirtDisk, DetachVirtualDisk);
+		InitImport(m_VirtDisk, GetStorageDependencyInformation);
+		InitImport(m_VirtDisk, OpenVirtualDisk);
+		InitImport(m_VirtDisk, DetachVirtualDisk);
 	}
 
-	if (hUser32)
+	if (m_User32)
 	{
-		InitImport(hUser32, RegisterPowerSettingNotification);
-		InitImport(hUser32, UnregisterPowerSettingNotification);
+		InitImport(m_User32, RegisterPowerSettingNotification);
+		InitImport(m_User32, UnregisterPowerSettingNotification);
 	}
 
-	if (hRstrtMgr)
+	if (m_RstrtMgr)
 	{
-		InitImport(hRstrtMgr, RmStartSession);
-		InitImport(hRstrtMgr, RmEndSession);
-		InitImport(hRstrtMgr, RmRegisterResources);
-		InitImport(hRstrtMgr, RmGetList);
+		InitImport(m_RstrtMgr, RmStartSession);
+		InitImport(m_RstrtMgr, RmEndSession);
+		InitImport(m_RstrtMgr, RmRegisterResources);
+		InitImport(m_RstrtMgr, RmGetList);
 	}
 
 	#undef InitImport
-}
-
-
-ImportedFunctions::~ImportedFunctions()
-{
-	if(hRstrtMgr)
-	{
-		FreeLibrary(hRstrtMgr);
-	}
-
-	if(hVirtDisk)
-	{
-		FreeLibrary(hVirtDisk);
-	}
 }
 
 

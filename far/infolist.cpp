@@ -60,21 +60,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "window.hpp"
 #include "language.hpp"
+#include "dizviewer.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
 static bool LastDizWrapType = false;
 static bool LastDizShowScrollbar = false;
 
+enum InfoListSectionStateIndex
+{
+	// Порядок не менять! Только добавлять в конец!
+	ILSS_DISKINFO,
+	ILSS_MEMORYINFO,
+	ILSS_DIRDESCRIPTION,
+	ILSS_PLDESCRIPTION,
+	ILSS_POWERSTATUS,
+
+	ILSS_SIZE
+};
+
+struct InfoList::InfoListSectionState
+{
+	bool Show;   // раскрыть/свернуть?
+	SHORT Y;     // Где?
+};
+
+
 InfoList::InfoList():
 	DizView(nullptr),
 	PrevMacroMode(MACROAREA_INVALID),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr),
+	SectionState(ILSS_SIZE),
 	PowerListener(L"power", [&]() { if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
 	Type=INFO_PANEL;
-	if (Global->Opt->InfoPanel.strShowStatusInfo.size() == 0)
+	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
 	{
 		std::for_each(RANGE(SectionState, i)
 		{

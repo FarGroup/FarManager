@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "interf.hpp"
 #include "language.hpp"
+#include "config.hpp"
 
 FilePanels::FilePanels(bool CreatePanels):
 	LastLeftFilePanel(nullptr),

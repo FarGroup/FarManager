@@ -93,6 +93,26 @@ class File:NonCopyable
 public:
 	File();
 	~File();
+	File(File&& rhs):
+		Handle(INVALID_HANDLE_VALUE),
+		Pointer(),
+		NeedSyncPointer(),
+		share_mode()
+	{
+		*this = std::move(rhs);
+	}
+
+	MOVE_OPERATOR_BY_SWAP(File);
+
+	void swap(File& rhs) noexcept
+	{
+		std::swap(Handle, rhs.Handle);
+		std::swap(Pointer, rhs.Pointer);
+		std::swap(NeedSyncPointer, rhs.NeedSyncPointer);
+		name.swap(rhs.name);
+		std::swap(share_mode, rhs.share_mode);
+	}
+
 	bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, File* TemplateFile=nullptr, bool ForceElevation=false);
 	bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 	bool Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
@@ -113,6 +133,7 @@ public:
 	bool Close();
 	bool Eof();
 	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
+	const string& GetName() const { return name; }
 
 private:
 	HANDLE Handle;
@@ -403,3 +424,5 @@ private:
 	friend class elevation;
 	friend class elevated;
 };
+
+STD_SWAP_SPEC(api::File);

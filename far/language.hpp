@@ -45,7 +45,6 @@ public:
 	MOVE_OPERATOR_BY_SWAP(Language);
 
 	const wchar_t* GetMsg(LNGID nID) const;
-	const string& GetFileName() const { return m_FileName; }
 
 	void swap(Language& rhs) noexcept
 	{
