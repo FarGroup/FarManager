@@ -7030,16 +7030,16 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3601742071
+mtime=3601748444
 <article>
-#_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags [, Param]])
+#_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags [, ...]])
 #_
 #_**Parameters:**
 #_  InitDir:  string
 #_  Mask:     string
 #_  UserFunc: function
 #_  Flags:    flags
-#_  Param:    any Lua value
+#_  ...:      additional arguments, any Lua values
 #_
 #_**Returns:**
 #_  In case the search was stopped by *UserFunc*:  all values returned by *UserFunc*.
@@ -7047,10 +7047,10 @@ mtime=3601742071
 #_  In case of error in *UserFunc*:                nothing.
 #_
 #_**Description:**
-#_  On every file found, *UserFunc* is called with 3 arguments passed to it:
+#_  On every file found, *UserFunc* is called with the following arguments passed to it:
 #_      (1) a PluginPanelItem table
 #_      (2) the full pathname of the found file
-#_      (3) argument *Param* that was passed to far.RecursiveSearch
+#_      (3...) additional arguments that was passed to far.RecursiveSearch
 #_
 #_  If the 1-st return value of *UserFunc* is neither *false* nor *nil* then the search
 #_  is stopped.
