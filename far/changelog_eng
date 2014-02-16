@@ -3,6 +3,56 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.02.2014 19:18:25 +0200 - build 3810
+
+1. Flags 0x10 and 0x20 were set incorrectly in Editor.State.
+
+2. Incorrect change of UI language.
+
+3. Refactoring.
+
+drkns 15.02.2014 13:30:44 +0200 - build 3809
+
+1. Third party libraries (UCD, sqlite, tinyxml) moved to thirdparty.
+
+drkns 14.02.2014 19:33:07 +0200 - build 3808
+
+1. 0002600: Far doesn't load plugins with the same dll-name
+
+svs 14.02.2014 09:40:25 +0400 - build 3807
+
+1. SQLite 3.8.3.1
+
+drkns 13.02.2014 20:56:37 +0200 - build 3806
+
+1. The size of copy buffer could not be less than 64 K.
+
+2. Copying to nul did not use the system copy function.
+
+drkns 13.02.2014 00:23:02 +0200 - build 3805
+
+1. VC10.
+
+drkns 13.02.2014 00:10:00 +0200 - build 3804
+
+1. GCC build could crash when plugin was creating a dialog with a handler.
+
+2. Now an error on language change does not cause the process terminate.
+
+3. Refactoring.
+
+shmuel 12.02.2014 18:00:50 +0200 - build 3803
+
+1. Uninitialized state of "Size" checkbox in file filter creation dialog.
+
+w17 11.02.2014 17:41:29 +0400 - build 3802
+
+1. Correction of 3801
+
+w17 11.02.2014 13:59:15 +0400 - build 3801
+
+1. Long names in deletion dialog (from the forum)
+
 drkns 08.02.2014 12:39:25 +0200 - build 3800
 
 1. 0002577: Block shift does not work for one character line
