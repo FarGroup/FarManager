@@ -821,7 +821,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 			return Cache.Write(str.data() + offset, (str.size() - offset) * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
 		};
 
-		Result = std::all_of(RANGE(Container, i) { return WriteLine(i); }) && Cache.Flush();
+		Result = std::all_of(ALL_RANGE(Container), WriteLine) && Cache.Flush();
 
 		if (!Result)
 			Global->CatchError();
@@ -1983,7 +1983,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 
 void TreeList::FlushCache()
 {
-	if (!Global->TreeCache->empty())
+	if (!Global->TreeCache->GetTreeName().empty())
 	{
 		auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
 
