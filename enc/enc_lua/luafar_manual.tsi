@@ -4633,9 +4633,9 @@ id=252
 lv=2
 dt=Text
 nm=panel.GetCurrentPanelItem
-mtime=3571802975
+mtime=3601752085
 <article>
-#_item = panel.GetCurrentPanelItem ([handle], whatpanel)
+#_item = panel.GetCurrentPanelItem (handle, whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
