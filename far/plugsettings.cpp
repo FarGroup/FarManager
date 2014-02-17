@@ -48,12 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 wchar_t* AbstractSettings::Add(const string& String)
 {
-	return Add(String.data(),(String.size()+1)*sizeof(wchar_t));
-}
-
-wchar_t* AbstractSettings::Add(const wchar_t* Data, size_t Size)
-{
-	return static_cast<wchar_t*>(memcpy(Add(Size), Data, Size));
+	auto size = (String.size() + 1) * sizeof(wchar_t);
+	return static_cast<wchar_t*>(memcpy(Add(size), String.data(), size));
 }
 
 void* AbstractSettings::Add(size_t Size)
@@ -286,31 +282,15 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
-	Option::OptionType Type;
 	Option* Data;
-	if (Global->Opt->GetConfigValue(Item.Root,Item.Name,Type,Data))
+	if (Global->Opt->GetConfigValue(Item.Root,Item.Name,Data))
 	{
-		Item.Type=FST_UNKNOWN;
-		switch(Type)
-		{
-			case Option::TYPE_BOOLEAN:
-				Item.Type=FST_QWORD;
-				Item.Number=static_cast<BoolOption*>(Data)->Get();
-				break;
-			case Option::TYPE_BOOLEAN3:
-				Item.Type=FST_QWORD;
-				Item.Number=static_cast<Bool3Option*>(Data)->Get();
-				break;
-			case Option::TYPE_INTEGER:
-				Item.Type=FST_QWORD;
-				Item.Number=static_cast<IntOption*>(Data)->Get();
-				break;
-			case Option::TYPE_STRING:
-				Item.Type=FST_STRING;
-				Item.String=(wchar_t*)Add(static_cast<StringOption*>(Data)->Get());
-				break;
-		}
-		if(FST_UNKNOWN!=Item.Type) return TRUE;
+		Data->Export(Item);
+
+		if (Item.Type == FST_STRING)
+			Item.String = Add(Item.String);
+
+		return TRUE;
 	}
 	return FALSE;
 }

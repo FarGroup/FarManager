@@ -339,7 +339,6 @@ public:
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
 	int PluginPanelHelp(const PluginHandle* hPlugin) const;
-	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 
 	static void SetFilePanelModes();

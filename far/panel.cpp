@@ -2287,22 +2287,27 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELITEM:
 		{
-			Result=CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
+			if (GetType()==FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
 			break;
 		}
 
 		case FCTL_GETSELECTEDPANELITEM:
 		{
-			Result=CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
+			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetSelectedPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
 			break;
 		}
 
 		case FCTL_GETCURRENTPANELITEM:
 		{
-			PanelInfo Info;
-			FileList *DestPanel = ((FileList*)this);
-			DestPanel->PluginGetPanelInfo(Info);
-			Result = CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem),(FarGetPluginPanelItem*)Param2):0;
+			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+			{
+				PanelInfo Info;
+				FileList* DestPanel = static_cast<FileList*>(this);
+				DestPanel->PluginGetPanelInfo(Info);
+				Result = static_cast<int>(DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem), static_cast<FarGetPluginPanelItem*>(Param2)));
+			}
 			break;
 		}
 
@@ -2724,4 +2729,82 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 	SrcPanel->Redraw();
 	return true;
+}
+
+bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs) const
+{
+	string strFileName = strDest;
+	const wchar_t *ShortNameLastSlash=LastSlash(ShortName.data());
+	const wchar_t *NameLastSlash=LastSlash(Name.data());
+
+	if (nullptr==ShortNameLastSlash && nullptr==NameLastSlash)
+	{
+		ConvertNameToFull(strFileName, strFileName);
+	}
+
+	/* BUGBUG весь этот if какая то чушь
+	else if (ShowShortNames)
+	{
+	  string strTemp = Name;
+
+	  if (NameLastSlash)
+	    strTemp.SetLength(1+NameLastSlash-Name);
+
+	  const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
+
+	  if(NamePtr )
+	    NamePtr++;
+	  else
+	    NamePtr=strFileName;
+
+	  strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
+	  strFileName = strTemp;
+	}
+	*/
+
+	if (ShowShortNames && ShortNameAsIs)
+		ConvertNameToShort(strFileName,strFileName);
+
+	/* $ 29.01.2001 VVM
+	  + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+	if (UNC)
+		ConvertNameToUNC(strFileName);
+
+	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
+	if (Global->Opt->PanelCtrlFRule)
+	{
+		/* $ 13.10.2000 tran
+		  по Ctrl-f имя должно отвечать условиям на панели */
+		if (ViewSettings.Flags&PVS_FOLDERUPPERCASE)
+		{
+			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				Upper(strFileName);
+			}
+			else
+			{
+				size_t pos;
+				Upper(strFileName, 0, FindLastSlash(pos,strFileName)? pos : string::npos);
+			}
+		}
+
+		if ((ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			size_t pos;
+
+			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.data()+pos))
+				Lower(strFileName, pos);
+		}
+
+		if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			size_t pos;
+
+			if (FindLastSlash(pos,strFileName))
+				Lower(strFileName, pos);
+		}
+	}
+
+	strDest = strFileName;
+	return !strDest.empty();
 }

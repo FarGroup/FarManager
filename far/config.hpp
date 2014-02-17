@@ -87,14 +87,6 @@ struct column;
 class Option
 {
 public:
-	enum OptionType
-	{
-		TYPE_BOOLEAN,
-		TYPE_BOOLEAN3,
-		TYPE_INTEGER,
-		TYPE_STRING,
-		TYPE_LAST = TYPE_STRING,
-	};
 	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false){}
 	explicit Option(const long long Value):iValue(Value), ValueChanged(false){}
 	virtual ~Option(){}
@@ -102,11 +94,12 @@ public:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
 	virtual const string toString() const = 0;
 	virtual const string ExInfo() const = 0;
-	virtual const OptionType getType() const = 0;
 	virtual const string typeToString() const = 0;
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const = 0;
 	virtual void SetDefault(const struct FARConfigItem* Holder) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
+	virtual void Export(FarSettingsItem& To) = 0;
+
 protected:
 	const string& GetString() const {return *sValue;}
 	const long long GetInt() const {return iValue;}
@@ -139,11 +132,12 @@ public:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return Get()? L"true" : L"false";}
 	virtual const string ExInfo() const override {return string();}
-	virtual const OptionType getType() const override {return TYPE_BOOLEAN;}
 	virtual const string typeToString() const override {return L"boolean";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	virtual void Export(FarSettingsItem& To) override;
+
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
@@ -166,11 +160,12 @@ public:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override { int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
 	virtual const string ExInfo() const override {return string();}
-	virtual const OptionType getType() const override {return TYPE_BOOLEAN3;}
 	virtual const string typeToString() const override {return L"3-state";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	virtual void Export(FarSettingsItem& To) override;
+
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
@@ -197,11 +192,12 @@ public:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return std::to_wstring(Get());}
 	virtual const string ExInfo() const override;
-	virtual const OptionType getType() const override {return TYPE_INTEGER;}
 	virtual const string typeToString() const override {return L"integer";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	virtual void Export(FarSettingsItem& To) override;
+
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
@@ -228,11 +224,12 @@ public:
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 	virtual const string toString() const override {return Get();}
 	virtual const string ExInfo() const override {return string();}
-	virtual const OptionType getType() const override {return TYPE_STRING;}
 	virtual const string typeToString() const override {return L"string";}
 	virtual bool IsDefault(const struct FARConfigItem* Holder) const override;
 	virtual void SetDefault(const struct FARConfigItem* Holder) override;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	virtual void Export(FarSettingsItem& To) override;
+
 private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
@@ -254,7 +251,7 @@ public:
 	void Load();
 	void Save(bool Manual);
 	bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue);
-	bool GetConfigValue(size_t Root, const wchar_t* Name, Option::OptionType& Type, Option*& Data);
+	bool GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data);
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void LocalViewerConfig(Options::ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(Options::EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
@@ -858,11 +855,30 @@ private:
 		typedef const FARConfigItem* const_iterator;
 		typedef FARConfigItem value_type;
 
-		farconfig():m_items(nullptr), m_size(0) {}
-		farconfig(farconfig&& rhs):m_items(nullptr), m_size(0) { *this = std::move(rhs); }
+		farconfig(FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
+			m_items(Items),
+			m_size(Size),
+			m_cfg(cfg)
+		{
+		}
+
+		farconfig(farconfig&& rhs):
+			m_items(),
+			m_size(),
+			m_cfg()
+		{
+			*this = std::move(rhs);
+		}
+
 		MOVE_OPERATOR_BY_SWAP(farconfig);
-		void swap(farconfig& rhs) noexcept { std::swap(m_items, rhs.m_items); std::swap(m_size, rhs.m_size); }
-		void assign(FARConfigItem* Items, size_t Size) { m_items = Items; m_size = Size; }
+
+		void swap(farconfig& rhs) noexcept
+		{
+			std::swap(m_items, rhs.m_items);
+			std::swap(m_size, rhs.m_size);
+			std::swap(m_cfg, rhs.m_cfg);
+		}
+
 		iterator begin() const;
 		iterator end() const;
 		const_iterator cbegin() const;
@@ -870,13 +886,16 @@ private:
 		size_t size() const {return m_size;}
 		value_type& operator[](size_t i) const;
 
+		GeneralConfig* GetConfig() const { return m_cfg; }
+
 	private:
 		value_type* m_items;
 		size_t m_size;
+		GeneralConfig* m_cfg;
 	};
 	ALLOW_SWAP_ACCESS(farconfig);
 
-	std::vector<std::pair<GeneralConfig*, farconfig>> Config;
+	std::vector<farconfig> Config;
 	farconfig_mode CurrentConfig;
 	std::vector<struct PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;

@@ -218,7 +218,6 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				}
 				else
 				{
-					/* TODO: «десь нужно учесть, что у TreeList тоже есть путь :-) */
 					if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
 						return FALSE;
 
@@ -226,14 +225,10 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 
 					if (SrcPanel->GetMode()!=PLUGIN_PANEL)
 					{
-						FileList *SrcFilePanel=(FileList *)SrcPanel;
-						strPathName = SrcFilePanel->GetCurDir();
-						{
-							if (NeedRealName)
-								SrcFilePanel->CreateFullPathName(strPathName, strPathName,FILE_ATTRIBUTE_DIRECTORY, strPathName,TRUE,ShortNameAsIs);
-						}
+						if (NeedRealName)
+							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, TRUE, ShortNameAsIs);
 
-						if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
+						if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
 							ConvertNameToShort(strPathName,strPathName);
 					}
 					else

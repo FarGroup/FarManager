@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "configdb.hpp"
 
-class AbstractSettings
+class AbstractSettings: NonCopyable
 {
 public:
 	virtual ~AbstractSettings(){};
@@ -50,11 +50,10 @@ protected:
 	void* Add(size_t Size);
 
 private:
-	wchar_t* Add(const wchar_t* Data, size_t Size);
 	std::list<char_ptr> m_Data;
 };
 
-class PluginSettings: NonCopyable, public AbstractSettings
+class PluginSettings: public AbstractSettings
 {
 public:
 	PluginSettings(const GUID& Guid, bool Local);
@@ -65,7 +64,8 @@ public:
 	virtual int Delete(const FarSettingsValue& Value) override;
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
-	class FarSettingsNameItems : NonCopyable
+private:
+	class FarSettingsNameItems: ::NonCopyable
 	{
 	public:
 		FarSettingsNameItems() {}
@@ -96,8 +96,8 @@ public:
 	private:
 		std::vector<FarSettingsName> Items;
 	};
+	ALLOW_SWAP_ACCESS(FarSettingsNameItems);
 
-private:
 	std::vector<FarSettingsNameItems> m_Enum;
 	std::vector<unsigned __int64> m_Keys;
 	HierarchicalConfigUniquePtr PluginsCfg;
@@ -105,7 +105,7 @@ private:
 
 STD_SWAP_SPEC(PluginSettings::FarSettingsNameItems);
 
-class FarSettings: NonCopyable, public AbstractSettings
+class FarSettings: public AbstractSettings
 {
 public:
 	virtual bool IsValid() const override { return true; }
@@ -115,7 +115,8 @@ public:
 	virtual int Delete(const FarSettingsValue& Value) override;
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
-	class FarSettingsHistoryItems : NonCopyable
+private:
+	class FarSettingsHistoryItems: ::NonCopyable
 	{
 	public:
 		FarSettingsHistoryItems() {}
@@ -148,8 +149,8 @@ public:
 	private:
 		std::vector<FarSettingsHistory> Items;
 	};
+	ALLOW_SWAP_ACCESS(FarSettingsHistoryItems);
 
-private:
 	int FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
 	std::vector<FarSettingsHistoryItems> m_Enum;
 	std::vector<string> m_Keys;
