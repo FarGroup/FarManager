@@ -1268,13 +1268,26 @@ static int editor_RealToTab(lua_State *L)
 	return _EditorTabConvert(L, ECTL_REALTOTAB);
 }
 
-void GetFarColorFromTable(lua_State *L, int pos, struct FarColor* Color)
+int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 {
-	lua_pushvalue(L, pos);
-	Color->Flags  = CheckFlagsFromTable(L, -1, "Flags");
-	Color->ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
-	Color->BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
-	lua_pop(L, 1);
+	if(lua_istable(L, pos))
+	{
+		lua_pushvalue(L, pos);
+		Color->Flags = CheckFlagsFromTable(L, -1, "Flags");
+		Color->ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
+		Color->BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
+		lua_pop(L, 1);
+		return 1;
+	}
+	else if(lua_isnumber(L, pos))
+	{
+		intptr_t num = lua_tointeger(L, pos);
+		Color->Flags = FCF_4BITMASK;
+		Color->ForegroundColor = num & 0x0F;
+		Color->BackgroundColor = (num>>4) & 0x0F;
+		return 1;
+	}
+	return 0;
 }
 
 void PushFarColor(lua_State *L, const struct FarColor* Color)
@@ -1308,8 +1321,7 @@ static int editor_AddColor(lua_State *L)
 	ec.StartPos     = luaL_checkinteger(L, 3) - 1;
 	ec.EndPos       = luaL_checkinteger(L, 4) - 1;
 	ec.Flags        = CheckFlags(L, 5);
-	luaL_checktype(L, 6, LUA_TTABLE);
-	GetFarColorFromTable(L, 6, &ec.Color);
+	luaL_argcheck(L, GetFarColor(L, 6, &ec.Color), 6, "table or number expected");
 	ec.Priority     = CAST(unsigned, luaL_optnumber(L, 7, EDITOR_COLOR_NORMAL_PRIORITY));
 	GetOptGuid(L, 8, &ec.Owner, pd->PluginId);
 	lua_pushboolean(L, pd->Info->EditorControl(EditorId, ECTL_ADDCOLOR, 0, &ec) != 0);
@@ -3426,18 +3438,14 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 			for(i = 0; i < (int)len; i++)
 			{
 				lua_rawgeti(L, -1, i+1);
-
-				if(lua_istable(L, -1))
-					GetFarColorFromTable(L, -1, &fdic->Colors[i]);
-
+				GetFarColor(L, -1, &fdic->Colors[i]);
 				lua_pop(L, 1);
 			}
 		}
 	}
 	else if(Msg == DN_CTLCOLORDIALOG)
 	{
-		if((ret = lua_istable(L,-1)) != 0)
-			GetFarColorFromTable(L, -1, (struct FarColor*)Param2);
+		ret = GetFarColor(L, -1, (struct FarColor*)Param2);
 	}
 	else if(Msg == DN_HELP)
 	{
@@ -3856,19 +3864,10 @@ static int far_Text(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t *Str;
-	struct FarColor fc = { (FCF_FG_4BIT | FCF_BG_4BIT), 0x0F, 0x00, NULL };
+	struct FarColor fc = { FCF_4BITMASK, 0x0F, 0x00, NULL };
 	intptr_t X = luaL_checkinteger(L, 1);
 	intptr_t Y = luaL_checkinteger(L, 2);
-
-	if(lua_istable(L, 3))
-		GetFarColorFromTable(L, 3, &fc);
-	else if(lua_isnumber(L, 3))
-	{
-		intptr_t Color = lua_tointeger(L, 3);
-		fc.ForegroundColor = Color & 0x0F;
-		fc.BackgroundColor = (Color>>4) & 0x0F;
-	}
-
+	GetFarColor(L, 3, &fc);
 	Str = opt_utf8_string(L, 4, NULL);
 	Info->Text(X, Y, &fc, Str);
 	return 0;
@@ -4382,10 +4381,7 @@ static int far_AdvControl(lua_State *L)
 			for(i=0; i < (int)fsc.ColorsCount; i++)
 			{
 				lua_rawgeti(L, 3, i+1);
-
-				if(lua_istable(L, -1))
-					GetFarColorFromTable(L, -1, &fsc.Colors[i]);
-
+				GetFarColor(L, -1, &fsc.Colors[i]);
 				lua_pop(L,1);
 			}
 
@@ -5535,14 +5531,11 @@ static int far_ColorDialog(lua_State *L)
 	TPluginData *pd = GetPluginData(L);
 	int istable = lua_istable(L, 1);
 
-	if(istable)
-		GetFarColorFromTable(L, 1, &Color);
-	else
+	if(!GetFarColor(L, 1, &Color))
 	{
-		intptr_t code = luaL_optinteger(L, 1, 0x0F);
-		Color.ForegroundColor = code & 0x0F;
-		Color.BackgroundColor = (code & 0xF0) >> 4;
-		Color.Flags = (FCF_FG_4BIT | FCF_BG_4BIT);
+		Color.ForegroundColor = 0x0F;
+		Color.BackgroundColor = 0x00;
+		Color.Flags = FCF_4BITMASK;
 	}
 
 	Flags = CheckFlags(L, 2);

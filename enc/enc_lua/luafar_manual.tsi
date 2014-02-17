@@ -1995,7 +1995,7 @@ id=153
 lv=2
 dt=Text
 nm=far.AdvControl
-mtime=3573851648
+mtime=3601842989
 <article>
 #_Result = far.AdvControl (Command, Param1, Param2)
 #_
@@ -2051,7 +2051,8 @@ mtime=3573851648
 #_
 #_ACTL_SETARRAYCOLOR:
 #_    Param2:  table (see its fields below;
-#_             its array part contains FarColor tables)
+#_             its array part contains colors
+#_             (each color can be supplied as either a FarColor table or a number)
 #_        Flags:       flags
 #_        StartIndex:  integer
 #_    Result:  integer    
@@ -2973,16 +2974,16 @@ lv=2
 dt=Text
 nm=DN_CTLCOLORDIALOG
 ctime=3477111575
-mtime=3517904357
+mtime=3601845235
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (FarColor)
+#_    table FarColor
 #_
 #_**Return**
-#_    table (FarColor), or nothing
+#_    table FarColor, or integer, or nothing
 #_
 #_For default processing of the return value, see the description.
 #_
@@ -3420,7 +3421,7 @@ id=22
 lv=2
 dt=Text
 nm=editor.AddColor
-mtime=3573236978
+mtime=3601843477
 <article>
 #_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags,
 #_                          Color, Priority, Owner)
@@ -3431,7 +3432,7 @@ mtime=3573236978
 #_  StartPos:     integer (1-based)
 #_  EndPos:       integer (1-based)
 #_  Flags:        flags
-#_  Color:        table FarColor
+#_  Color:        table FarColor or integer
 #_  Priority:     integer (optional; default=EDITOR_COLOR_NORMAL_PRIORITY)
 #_  Owner:        string, or nil  (defaults to the calling plugin's GUID)
 #_

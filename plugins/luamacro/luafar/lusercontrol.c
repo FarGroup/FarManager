@@ -61,7 +61,7 @@ static int uc_newindex(lua_State* L)
 	}
 	lua_pop(L, 1);
 	lua_getfield(L, 3, "Attributes");
-	GetFarColorFromTable(L, -1, &fuc->VBuf[index].Attributes);
+	GetFarColor(L, -1, &fuc->VBuf[index].Attributes);
 	lua_pop(L, 1);
 	return 0;
 }

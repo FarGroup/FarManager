@@ -52,7 +52,7 @@ FILETIME GetFileTimeFromTable(lua_State *L, const char *key);
 void  PutFileTimeToTable(lua_State *L, const char* key, FILETIME ft);
 TDialogData* NewDialogData(lua_State* L, struct PluginStartupInfo *Info, HANDLE hDlg,
                            BOOL isOwned);
-void GetFarColorFromTable(lua_State *L, int pos, struct FarColor* Color);
+int GetFarColor(lua_State *L, int pos, struct FarColor* Color);
 void PushFarColor(lua_State *L, const struct FarColor* Color);
 
 typedef struct
