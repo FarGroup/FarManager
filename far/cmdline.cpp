@@ -739,7 +739,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 									try
 									{
 										size_t pos = 0;
-										NewPromptSize = std::stoi(string(++it, strExpandedDestStr.cend()), &pos);
+										NewPromptSize = std::stoi(string(it+1, strExpandedDestStr.cend()), &pos);
 										it += pos;
 									}
 									catch (const std::exception&)

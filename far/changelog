@@ -1,4 +1,8 @@
-﻿drkns 17.02.2014 22:47:09 +0200 - build 3812
+﻿w17 18.02.2014 18:54:03 +0400 - build 3813
+
+1. fix $#nn (с форума)
+
+drkns 17.02.2014 22:47:09 +0200 - build 3812
 
 1. 0002603: Падение по вызове FCTL_GETCURRENTPANELITEM на PTYPE_QVIEWPANEL и PTYPE_INFOPANEL
 
