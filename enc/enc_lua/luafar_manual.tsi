@@ -7791,7 +7791,7 @@ lv=2
 dt=Text
 nm=far.Colors
 ctime=3512119667
-mtime=3512120926
+mtime=3601872729
 <article>
 #_far.Colors
 #_
@@ -7801,7 +7801,7 @@ mtime=3512120926
 #_
 #_**Example of use:**
 #_  local FC = far.Colors
-#_  far.AdvControl ("ACTL_SETARRAYCOLOR",
+#_  far.AdvControl ("ACTL_SETARRAYCOLOR", nil,
 #_      { Flags="FCLR_REDRAW", StartIndex=FC.COL_EDITORTEXT,
 #_        0x4E, 0xE4
 #_      })

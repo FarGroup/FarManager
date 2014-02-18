@@ -46,8 +46,7 @@ end
 
 -- prefix lines in article
 local function prefix_lines(text)
-    if text == "" then return ""; end
-    text = string_gsub(text.."\n", "([^\n]*\n)", "#_%1")
+    text = string_gsub(text, "[^\n]*\n?", function(c) return c~="" and "#_"..c end)
     return text
 end
 

@@ -4,7 +4,7 @@ shmuel 18.02.2014 00:06:10 +0200 - build 291
      - editor.AddColor
      - far.AdvControl(ACTL_SETARRAYCOLOR)
      - far.CreateUserControl
-     - диалоговые процедуры (DN_CTLCOLORDLGLIST,  DN_CTLCOLORDLGITEM, DN_CTLCOLORDIALOG)
+     - диалоговые процедуры (DN_CTLCOLORDLGLIST, DN_CTLCOLORDLGITEM, DN_CTLCOLORDIALOG)
    Передача числа подразумевает стандартные 4-битные цвета (обрабатывается только младший байт числа).
 
 shmuel 16.02.2014 21:41:56 +0200 - build 290
