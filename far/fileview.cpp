@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "exitcode.hpp"
 
 FileViewer::FileViewer(const string& Name,int EnableSwitch,int DisableHistory, int DisableEdit,
                        __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
@@ -358,15 +359,24 @@ int FileViewer::ProcessKey(int Key)
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
 					str_title.empty() ? nullptr: &str_title,
 					-1,-1, -1, -1, delete_on_close );
-				ShellEditor->SetEnableF6(true);
-				/* $ 07.05.2001 DJ сохраняем NamesList */
-				ShellEditor->SetNamesList(View.GetNamesList());
 
-				// Если переключаемся в редактор, то удалять файл уже не нужно
-				SetTempViewName(L"");
-				SetExitCode(0);
+				int load = ShellEditor->GetExitCode();
+				if (load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR)
+				{
+					delete ShellEditor;
+				}
+				else
+				{
+					ShellEditor->SetEnableF6(true);
+					/* $ 07.05.2001 DJ сохраняем NamesList */
+					ShellEditor->SetNamesList(View.GetNamesList());
 
-				Global->FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
+					// Если переключаемся в редактор, то удалять файл уже не нужно
+					SetTempViewName(L"");
+					SetExitCode(0);
+
+					Global->FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
+				}
 				ShowTime(2);
 			}
 
