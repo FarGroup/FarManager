@@ -401,7 +401,7 @@ function mf.eval (str, mode)
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end
-    if params then chunk(params)
+    if params then chunk(params())
     else chunk()
     end
     return 0
