@@ -596,6 +596,7 @@ id=248
 lv=1
 dt=Text
 nm=Version 1.0.0
+mtime=3601969207
 <article>
 #_<markdown>
 #_
@@ -649,8 +650,6 @@ nm=Version 1.0.0
 #_1. [`far.LuafarVersion`](191.html):
 #_   result can be obtained either as a string, or as 3 numbers.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -659,6 +658,7 @@ id=231
 lv=1
 dt=Text
 nm=Version 0.9.0
+mtime=3601969228
 <article>
 #_<markdown>
 #_###Service Functions added:
@@ -698,8 +698,6 @@ nm=Version 0.9.0
 #_1. The [generic LuaFAR plugin](214.html) will export only functions
 #_   listed explicitly in the makefile.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -708,6 +706,7 @@ id=232
 lv=1
 dt=Text
 nm=Version 0.8.0
+mtime=3601969238
 <article>
 #_<markdown>
 #_The following new functions were added:
@@ -724,8 +723,6 @@ nm=Version 0.8.0
 #_1. [`far.GetRegKey`](61.html), [`far.SetRegKey`](73.html):
 #_   added support of `REG_EXPAND_SZ` and `REG_MULTI_SZ` data types.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -734,11 +731,10 @@ id=234
 lv=1
 dt=Text
 nm=Version 0.7.2
+mtime=3601969246
 <article>
 #_<markdown>
 #_1. [`far.CPluginStartupInfo`](185.html) - new function added
-#_
-#_@@@
 #_
 #_
 </article>
@@ -748,6 +744,7 @@ id=236
 lv=1
 dt=Text
 nm=Version 0.7
+mtime=3601969255
 <article>
 #_<markdown>
 #_1. [`far.SendDlgMessage`](71.html) - fixed and extended
@@ -755,8 +752,6 @@ nm=Version 0.7
 #_
 #_2. [`far.Dialog`](20.html) - added support for the following
 #_   controls: `DI_LISTBOX` and `DI_COMBOBOX`
-#_
-#_@@@
 #_
 #_
 </article>
@@ -766,6 +761,7 @@ id=237
 lv=1
 dt=Text
 nm=Version 0.6
+mtime=3601969261
 <article>
 #_<markdown>
 #_1. [`far.AdvControl](153.html) - added
@@ -773,8 +769,6 @@ nm=Version 0.6
 #_1. [`far.ProcessEditorInput`](111.html) - extended
 #_1. [farcolor.lua](154.html) - module added
 #_1. [Lua BitOp](143.html) - library updated to version 1.0.1
-#_
-#_@@@
 #_
 #_
 </article>
@@ -1362,7 +1356,7 @@ id=118
 lv=2
 dt=Text
 nm=export.SetStartupInfo
-mtime=3510177042
+mtime=3601969283
 <article>
 #_<markdown>
 #_**`This function is not called by LuaFAR`**
@@ -1372,8 +1366,6 @@ mtime=3510177042
 #_
 #_1. [`LF_InitLuaState2`](423.html)
 #_1. [`LF_RunDefaultScript`](130.html)
-#_
-#_@@@
 #_
 #_
 </article>
@@ -8112,7 +8104,7 @@ lv=2
 dt=Text
 nm=PluginMenuItem
 ctime=3536865687
-mtime=3536866037
+mtime=3601969300
 <article>
 #_<markdown>
 #_**`PluginMenuItem`** is a table with the following predefined fields:
@@ -8121,7 +8113,6 @@ mtime=3536866037
 #_      Guids:    array of strings (binary GUID's)
 #_      Strings:  array of strings
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -8130,7 +8121,7 @@ id=85
 lv=2
 dt=Text
 nm=PluginPanelItem
-mtime=3562835590
+mtime=3601969306
 <article>
 #_<markdown>
 #_**`PluginPanelItem`** is a table with the following predefined fields:
@@ -8177,7 +8168,6 @@ mtime=3562835590
 #_and **`ChangeTime`** are values measured in number of milliseconds
 #_elapsed since January 1, 1601.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -8824,7 +8814,7 @@ id=213
 lv=2
 dt=Text
 nm=win.GetFileInfo
-mtime=3562834993
+mtime=3601969978
 <article>
 #_<markdown>
 #_    Info = win.GetFileInfo (FileName)
@@ -8835,24 +8825,20 @@ mtime=3562834993
 #_   wildcard characters (`*` and `?`)
 #_
 #_###Returns
-#_  **`Info`**: `PluginPanelItem` table, or nil
+#_  **`Info`**: [`PluginPanelItem`][] table, or nil
 #_
 #_###Description
 #_  This function provides information about the specified file.
-#_  The same information can be obtained with `far.RecursiveSearch`
+#_  The same information can be obtained with [`far.RecursiveSearch`][]
 #_  function, but this function has simpler API and is much faster
 #_  when single file data are needed.
 #_
 #_###Windows API used
 #_  `FindFirstFile`, `FindClose`
 #_
-#_@@@
-#_<lua>
-#_Links = {
-#_  PluginPanelItem="85.html",
-#_  ["far.RecursiveSearch"]="211.html"
-#_}
-#_</lua>
+#_
+#_[`PluginPanelItem`]: 85.html
+#_[`far.RecursiveSearch`]: 211.html
 #_
 </article>
 </node>
@@ -9706,7 +9692,7 @@ lv=2
 dt=Text
 nm=LF_Analyse
 ctime=3507872169
-mtime=3557616851
+mtime=3601970445
 <article>
 #_<markdown>
 #_    intptr_t LF_Analyse(lua_State* L, const struct AnalyseInfo *Info)
@@ -9722,7 +9708,6 @@ mtime=3557616851
 #_
 #_If Lua function [`export.Analyse`](425.html) exists, it is called.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9732,7 +9717,7 @@ lv=2
 dt=Text
 nm=LF_CloseAnalyse
 ctime=3538549895
-mtime=3538553222
+mtime=3601970134
 <article>
 #_<markdown>
 #_    void LF_CloseAnalyse (lua_State* L, const struct CloseAnalyseInfo *Info)
@@ -9745,10 +9730,7 @@ mtime=3538553222
 #_      nothing
 #_
 #_#### Description:
-#_This function removes the value returned by `export.Analyse` from the Lua registry.
-#_
-#_@@@
-#_<lua> Links = { ["export.Analyse"]="425.html" } </lua>
+#_This function removes the value returned by [`export.Analyse`](425.html) from the Lua registry.
 #_
 </article>
 </node>
@@ -9757,7 +9739,7 @@ id=158
 lv=2
 dt=Text
 nm=LF_ClosePanel
-mtime=3509019389
+mtime=3601970163
 <article>
 #_<markdown>
 #_    void LF_ClosePanel(lua_State* L, HANDLE hPanel)
@@ -9774,7 +9756,6 @@ mtime=3509019389
 #_If Lua function [`export.ClosePanel`](94.html) exists, it is called.
 #_Then, the resources associated with the plugin are freed.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9783,7 +9764,7 @@ id=159
 lv=2
 dt=Text
 nm=LF_Compare
-mtime=3557616869
+mtime=3601970171
 <article>
 #_<markdown>
 #_    intptr_t LF_Compare(lua_State* L, const struct CompareInfo *Info)
@@ -9801,7 +9782,6 @@ mtime=3557616869
 #_else `-2` is returned (directing to use the default FAR compare
 #_function).
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9810,7 +9790,7 @@ id=160
 lv=2
 dt=Text
 nm=LF_Configure
-mtime=3557616875
+mtime=3601970176
 <article>
 #_<markdown>
 #_    intptr_t LF_Configure(lua_State* L, const GUID* Guid)
@@ -9827,8 +9807,6 @@ mtime=3557616875
 #_If Lua function [`export.Configure`](96.html) exists, it is called,
 #_else `FALSE` is returned.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -9837,7 +9815,7 @@ id=161
 lv=2
 dt=Text
 nm=LF_DeleteFiles
-mtime=3557616884
+mtime=3601970180
 <article>
 #_<markdown>
 #_    intptr_t LF_DeleteFiles(lua_State* L, const struct DeleteFilesInfo *Info)
@@ -9854,7 +9832,6 @@ mtime=3557616884
 #_If Lua function [`export.DeleteFiles`](97.html) exists, it is called,
 #_else `FALSE` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9864,7 +9841,7 @@ lv=2
 dt=Text
 nm=LF_DlgProc
 ctime=3511601410
-mtime=3557617183
+mtime=3601970185
 <article>
 #_<markdown>
 #_    intptr_t LF_DlgProc (lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -9880,8 +9857,6 @@ mtime=3557617183
 #_This function is called only if the 9-th argument (`DlgProc`)
 #_passed to [`far.DialogInit`](378.html) was a function.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -9890,7 +9865,7 @@ id=162
 lv=2
 dt=Text
 nm=LF_ExitFAR
-mtime=3509019421
+mtime=3601970190
 <article>
 #_<markdown>
 #_    void LF_ExitFAR(lua_State* L)
@@ -9905,7 +9880,6 @@ mtime=3509019421
 #_
 #_First, the acquired resources are freed. Then, if Lua function [`export.ExitFAR`](98.html) exists, it is called.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9915,7 +9889,7 @@ lv=2
 dt=Text
 nm=LF_FreeCustomData
 ctime=3485769061
-mtime=3485769185
+mtime=3601970194
 <article>
 #_<markdown>
 #_    void LF_FreeCustomData(
@@ -9933,8 +9907,6 @@ mtime=3485769185
 #_
 #_No Lua function is called. LuaFAR frees the "custom data" internally.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -9943,7 +9915,7 @@ id=163
 lv=2
 dt=Text
 nm=LF_FreeFindData
-mtime=3508823158
+mtime=3601970198
 <article>
 #_<markdown>
 #_    void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
@@ -9959,7 +9931,6 @@ mtime=3508823158
 #_
 #_No Lua function is called. LuaFAR frees the "find data" internally.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -9969,7 +9940,7 @@ lv=2
 dt=Text
 nm=LF_GetCustomData
 ctime=3485766195
-mtime=3557616936
+mtime=3601970202
 <article>
 #_<markdown>
 #_    intptr_t LF_GetCustomData(
@@ -9986,8 +9957,6 @@ mtime=3557616936
 #_If Lua function [`export.GetCustomData`](364.html) exists, it is called,
 #_else `0` is returned.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -9996,7 +9965,7 @@ id=165
 lv=2
 dt=Text
 nm=LF_GetFiles
-mtime=3557616943
+mtime=3601970206
 <article>
 #_<markdown>
 #_    intptr_t LF_GetFiles (lua_State* L, struct GetFilesInfo *Info)
@@ -10012,7 +9981,6 @@ mtime=3557616943
 #_If Lua function [`export.GetFiles`](101.html) exists, it is called,
 #_else `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10021,7 +9989,7 @@ id=166
 lv=2
 dt=Text
 nm=LF_GetFindData
-mtime=3557616949
+mtime=3601970212
 <article>
 #_<markdown>
 #_    intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
@@ -10037,7 +10005,6 @@ mtime=3557616949
 #_If Lua function [`export.GetFindData`](102.html) exists,
 #_it is called, else `FALSE` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10047,7 +10014,7 @@ lv=2
 dt=Text
 nm=LF_GetGlobalInfo
 ctime=3507489886
-mtime=3510177543
+mtime=3601970216
 <article>
 #_<markdown>
 #_    int LF_GetGlobalInfo (lua_State* L, struct GlobalInfo *Info, const wchar_t *PluginDir)
@@ -10068,8 +10035,6 @@ mtime=3510177543
 #_
 #_Then, if Lua function [`export.GetGlobalInfo`](402.html) exists, it is called.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -10078,7 +10043,7 @@ id=168
 lv=2
 dt=Text
 nm=LF_GetOpenPanelInfo
-mtime=3509019472
+mtime=3601970220
 <article>
 #_<markdown>
 #_    void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
@@ -10093,7 +10058,6 @@ mtime=3509019472
 #_#### Description:
 #_If Lua function [`export.GetOpenPanelInfo`](104.html) exists, it is called.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10102,7 +10066,7 @@ id=169
 lv=2
 dt=Text
 nm=LF_GetPluginInfo
-mtime=3509019478
+mtime=3601970224
 <article>
 #_<markdown>
 #_    void LF_GetPluginInfo(lua_State* L, struct PluginInfo *PI)
@@ -10118,7 +10082,6 @@ mtime=3509019478
 #_
 #_If Lua function [`export.GetPluginInfo`](105.html) exists, it is called.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10127,7 +10090,7 @@ id=171
 lv=2
 dt=Text
 nm=LF_MakeDirectory
-mtime=3557616959
+mtime=3601970227
 <article>
 #_<markdown>
 #_    intptr_t LF_MakeDirectory (lua_State* L, struct MakeDirectoryInfo *Info)
@@ -10143,7 +10106,6 @@ mtime=3557616959
 #_
 #_If Lua function [`export.MakeDirectory`](107.html) exists, it is called.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10152,7 +10114,7 @@ id=173
 lv=2
 dt=Text
 nm=LF_Open
-mtime=3509019501
+mtime=3601970230
 <article>
 #_<markdown>
 #_    HANDLE LF_Open (lua_State* L, const struct OpenInfo *Info)
@@ -10167,7 +10129,6 @@ mtime=3509019501
 #_#### Description:
 #_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `INVALID_HANDLE_VALUE` is returned to FAR.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10177,7 +10138,7 @@ lv=2
 dt=Text
 nm=LF_ProcessConsoleInput
 ctime=3557661157
-mtime=3557666577
+mtime=3601970233
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *Info)
@@ -10193,7 +10154,6 @@ mtime=3557666577
 #_If Lua function [`export.ProcessConsoleInput`](481.html) exists, it is called.
 #_Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10202,7 +10162,7 @@ id=222
 lv=2
 dt=Text
 nm=LF_ProcessDialogEvent
-mtime=3557617287
+mtime=3601970236
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessDialogEvent (lua_State* L, const struct ProcessDialogEventInfo *Info)
@@ -10218,7 +10178,6 @@ mtime=3557617287
 #_
 #_If Lua function [`export.ProcessDialogEvent`](221.html) exists, it is called. Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10227,7 +10186,7 @@ id=174
 lv=2
 dt=Text
 nm=LF_ProcessEditorEvent
-mtime=3557617358
+mtime=3601970239
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessEditorEvent (lua_State* L, const struct ProcessEditorEventInfo *Info)
@@ -10243,7 +10202,6 @@ mtime=3557617358
 #_
 #_If Lua function [`export.ProcessEditorEvent`](110.html) exists, it is called. Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10252,7 +10210,7 @@ id=175
 lv=2
 dt=Text
 nm=LF_ProcessEditorInput
-mtime=3557617389
+mtime=3601970243
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessEditorInput (lua_State* L, const struct ProcessEditorInputInfo *Info)
@@ -10267,7 +10225,6 @@ mtime=3557617389
 #_#### Description:
 #_If Lua function [`export.ProcessEditorInput`](111.html) exists, it is called. Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10276,7 +10233,7 @@ id=176
 lv=2
 dt=Text
 nm=LF_ProcessPanelEvent
-mtime=3557617418
+mtime=3601970245
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *Info)
@@ -10293,7 +10250,6 @@ mtime=3557617418
 #_If Lua function [`export.ProcessPanelEvent`](112.html) exists, it is called.
 #_Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10302,7 +10258,7 @@ id=177
 lv=2
 dt=Text
 nm=LF_ProcessHostFile
-mtime=3557617043
+mtime=3601970248
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessHostFile(lua_State* L, const struct ProcessHostFileInfo *Info)
@@ -10318,7 +10274,6 @@ mtime=3557617043
 #_If Lua function [`export.ProcessHostFile`](113.html) exists,
 #_it is called. Else, `FALSE` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10327,7 +10282,7 @@ id=178
 lv=2
 dt=Text
 nm=LF_ProcessPanelInput
-mtime=3557617857
+mtime=3601970250
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessPanelInput(lua_State* L, const struct ProcessPanelInputInfo *Info)
@@ -10343,7 +10298,6 @@ mtime=3557617857
 #_If Lua function [`export.ProcessPanelInput`](457.html) exists, it is called.
 #_Else, `FALSE` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10353,7 +10307,7 @@ lv=2
 dt=Text
 nm=LF_ProcessSynchroEvent
 ctime=3480185179
-mtime=3557617972
+mtime=3601970253
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessSynchroEvent (lua_State* L, const struct ProcessSynchroEventInfo *Info)
@@ -10369,7 +10323,6 @@ mtime=3557617972
 #_
 #_If Lua function [`export.ProcessSynchroEvent`](319.html) exists, it is called. Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10378,7 +10331,7 @@ id=179
 lv=2
 dt=Text
 nm=LF_ProcessViewerEvent
-mtime=3557618010
+mtime=3601970255
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessViewerEvent (lua_State* L, const struct ProcessViewerEventInfo *Info)
@@ -10394,7 +10347,6 @@ mtime=3557618010
 #_
 #_If Lua function [`export.ProcessViewerEvent`](127.html) exists, it is called. Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10403,7 +10355,7 @@ id=180
 lv=2
 dt=Text
 nm=LF_PutFiles
-mtime=3557617093
+mtime=3601970258
 <article>
 #_<markdown>
 #_    intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info)
@@ -10419,7 +10371,6 @@ mtime=3557617093
 #_If Lua function [`export.PutFiles`](115.html) exists, it is called.
 #_Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10428,7 +10379,7 @@ id=181
 lv=2
 dt=Text
 nm=LF_SetDirectory
-mtime=3557617099
+mtime=3601970261
 <article>
 #_<markdown>
 #_    intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info)
@@ -10444,7 +10395,6 @@ mtime=3557617099
 #_If Lua function [`export.SetDirectory`](116.html) exists, it is called.
 #_Else, `0` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10453,7 +10403,7 @@ id=182
 lv=2
 dt=Text
 nm=LF_SetFindList
-mtime=3557617104
+mtime=3601970263
 <article>
 #_<markdown>
 #_    intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
@@ -10470,7 +10420,6 @@ mtime=3557617104
 #_If Lua function [`export.SetFindList`](117.html) exists, it is called.
 #_Else, `FALSE` is returned.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10488,7 +10437,7 @@ lv=2
 dt=Text
 nm=LF_DoFile
 ctime=3542468968
-mtime=3542475359
+mtime=3601970266
 <article>
 #_<markdown>
 #_    int LF_DoFile (lua_State *L, const wchar_t *filename, int argc, wchar_t *argv[])
@@ -10517,7 +10466,6 @@ mtime=3542475359
 #_          return status;
 #_        }
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10527,7 +10475,7 @@ lv=2
 dt=Text
 nm=LF_Gsub
 ctime=3481108972
-mtime=3481109785
+mtime=3601970270
 <article>
 #_<markdown>
 #_    const wchar_t *LF_Gsub (lua_State *L, const wchar_t *s,
@@ -10538,8 +10486,6 @@ mtime=3481109785
 #_The function can be used as a replacement for `luaL_gsub`,
 #_working with wide char parameters, otherwise identical.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -10549,7 +10495,7 @@ lv=2
 dt=Text
 nm=LF_LoadFile
 ctime=3481108964
-mtime=3481109892
+mtime=3601970273
 <article>
 #_<markdown>
 #_    int LF_LoadFile (lua_State *L, const wchar_t *filename)
@@ -10559,8 +10505,6 @@ mtime=3481109892
 #_The function can be used as a replacement for `luaL_loadfile`,
 #_working with wide char *filename* parameter, otherwise identical.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -10569,6 +10513,7 @@ id=156
 lv=2
 dt=Text
 nm=LF_Message
+mtime=3601970276
 <article>
 #_<markdown>
 #_    int LF_Message(
@@ -10601,7 +10546,6 @@ nm=LF_Message
 #_#### Description:
 #_This is an alternative interface to the FAR function `Message`.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10611,7 +10555,7 @@ lv=2
 dt=Text
 nm=LF_InitLuaState1
 ctime=3497514263
-mtime=3512990165
+mtime=3601970278
 <article>
 #_<markdown>
 #_    void LF_InitLuaState1 (lua_State* L, lua_CFunction OpenLibs)
@@ -10628,8 +10572,6 @@ mtime=3512990165
 #_It opens the standard Lua libraries, [`win`](430.html), [`bit64`](405.html) and
 #_[`unicode`](250.html) libraries and calls `OpenLibs` function.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -10639,7 +10581,7 @@ lv=2
 dt=Text
 nm=LF_InitLuaState2
 ctime=3507652269
-mtime=3512990399
+mtime=3601970281
 <article>
 #_<markdown>
 #_    void LF_InitLuaState2 (lua_State *L, TPluginData *Data)
@@ -10653,8 +10595,6 @@ mtime=3512990399
 #_
 #_This function is called by the plugin during **`SetStartupInfoW`** call. It stores pointer to the plugin's data within the Lua state, making them available to all LuaFAR functions. Then it loads [`far`](131.html) library.
 #_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -10664,7 +10604,7 @@ lv=2
 dt=Text
 nm=LF_ProcessEnvVars
 ctime=3512931631
-mtime=3512932244
+mtime=3601970284
 <article>
 #_<markdown>
 #_    void LF_ProcessEnvVars (lua_State* L,
@@ -10691,7 +10631,6 @@ mtime=3512932244
 #_1. Process `LUAFAR_INIT` the same way the standard Lua
 #_   interpreter does with `LUA_INIT`.
 #_
-#_@@@
 #_
 </article>
 </node>
@@ -10700,7 +10639,7 @@ id=130
 lv=2
 dt=Text
 nm=LF_RunDefaultScript
-mtime=3510176888
+mtime=3601970286
 <article>
 #_<markdown>
 #_    BOOL LF_RunDefaultScript(lua_State* L)
@@ -10723,7 +10662,6 @@ mtime=3510176888
 #_
 #_This mechanism allows the default script to be either embedded into the application or external.
 #_
-#_@@@
 #_
 </article>
 </node>

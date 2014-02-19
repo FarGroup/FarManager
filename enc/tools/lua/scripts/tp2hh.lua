@@ -141,8 +141,7 @@ local function process_article (article)
     return article, true
   elseif line == "<markdown>" then
     article = article:sub(start)
-    local part1, part2 = split1(article, "@@@")
-    part1 = part1:gsub("```(.-)```",
+    article = article:gsub("```(.-)```",
       function(c)
         return lxsh.highlighters.lua(c,
           { formatter=lxsh.formatters.html,
@@ -150,8 +149,8 @@ local function process_article (article)
             colors=lxsh.colors.earendel })
       end
     )
-    part1 = discount(part1)
-    return postprocess_article(part1, part2, false), false
+    article = discount(article)
+    return postprocess_article(article, "", false), false
   else
     local part1, part2 = split1(article, "@@@")
     part1 = HTML_convert(part1 or article)
