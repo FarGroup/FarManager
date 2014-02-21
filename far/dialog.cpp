@@ -1016,16 +1016,14 @@ bool Dialog::SetItemRect(size_t ID, const SMALL_RECT& Rect)
 	return ID >= Items.size()? false : SetItemRect(Items[ID], Rect);
 }
 
-bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& pRect)
+bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
 	FARDIALOGITEMTYPES Type=Item.Type;
-	SMALL_RECT Rect=pRect;
-	if (Rect.Left > -1 && Rect.Left > Rect.Right)
-		std::swap(Rect.Left,Rect.Right);
-	if (Rect.Top > -1 && Rect.Top > Rect.Bottom)
-		std::swap(Rect.Top,Rect.Bottom);
+	if ((Rect.Left > -1 && Rect.Left > Rect.Right) || (Rect.Top > -1 && Rect.Top > Rect.Bottom))
+		return false;
+
 	Item.X1 = Rect.Left;
 	Item.Y1 = (Rect.Top<0)? 0 : Rect.Top;
 
