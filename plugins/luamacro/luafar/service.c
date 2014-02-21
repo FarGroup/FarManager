@@ -5926,15 +5926,6 @@ void LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* P
 		}
 	}
 
-	// prepend <plugin directory>\?.lua; to package.path
-	lua_getglobal(L, "package");        //+1
-	push_utf8_string(L, PluginDir, -1); //+2
-	lua_pushliteral(L, "?.lua;");       //+3
-	lua_getfield(L, -3, "path");        //+4
-	lua_concat(L, 3);                   //+2
-	lua_setfield(L, -2, "path");        //+1
-	lua_pop(L, 1);
-
 	if(bufVal)
 	{
 		int size;
