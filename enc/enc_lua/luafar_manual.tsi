@@ -10604,7 +10604,7 @@ lv=2
 dt=Text
 nm=LF_ProcessEnvVars
 ctime=3512931631
-mtime=3601970284
+mtime=3602178351
 <article>
 #_<markdown>
 #_    void LF_ProcessEnvVars (lua_State* L,
@@ -10625,7 +10625,6 @@ mtime=3601970284
 #_
 #_1. Process `LUAFAR_PATH` the same way the standard Lua
 #_   interpreter does with `LUA_PATH`.
-#_1. Prepend `<plugin directory>\?.lua;` to `package.path`.
 #_1. Process `LUAFAR_CPATH` the same way the standard Lua
 #_   interpreter does with `LUA_CPATH`.
 #_1. Process `LUAFAR_INIT` the same way the standard Lua
