@@ -1020,10 +1020,10 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	FARDIALOGITEMTYPES Type=Item.Type;
-	if ((Rect.Left > -1 && Rect.Left > Rect.Right) || (Rect.Top > -1 && Rect.Top > Rect.Bottom))
+	if (Rect.Left > Rect.Right || Rect.Top > Rect.Bottom)
 		return false;
 
+	FARDIALOGITEMTYPES Type=Item.Type;
 	Item.X1 = Rect.Left;
 	Item.Y1 = (Rect.Top<0)? 0 : Rect.Top;
 
