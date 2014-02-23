@@ -65,6 +65,7 @@
     <None Include="project.ini" />
     <None Include="ru.hlf" />
     <None Include="ru.msg" />
+    <None Include="es.msg" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

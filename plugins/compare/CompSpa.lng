@@ -1,0 +1,40 @@
+﻿.Language=Spanish,Spanish
+
+"Aceptar"
+"Cancelar"
+"Si"
+"No"
+
+"Comparación avanzada"
+
+"Comparación avanzada"
+"Procesar:"
+"sub&carpetas"
+"&máxima profundidad de carpeta:"
+"solo ítems s&eleccionados"
+"Comparar:"
+"&hora"
+"&precisión de dos segundos"
+"&ignorar posible diferencia de zona horaria"
+"&tamaño"
+"&contenidos"
+"i&gnorar:"
+"differences in new &line characters"
+"&espacios en blanco"
+"Mostrar mensaje si &no se encontró diferencias"
+
+"Dos paneles arch. requeridos para comparación"
+
+"Comparando archivos..."
+
+"No hay diferencias"
+"Los archivos comparados parecen ser idénticos"
+
+"No hay memoria disponible"
+"No hay memoria disponible para inicializar complemento"
+
+"Operación fue interrumpida"
+"Desea realmente cancelar?"
+
+"Error"
+"algunos archivos no se pudieron ser abiertos"

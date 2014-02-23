@@ -211,6 +211,7 @@
             <ComponentRef Id="Align.dll" />
             <ComponentRef Id="AlignEng.lng" />
             <ComponentRef Id="AlignSky.lng" />
+            <ComponentRef Id="AlignSpa.lng" />
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
@@ -227,6 +228,7 @@
             <ComponentRef Id="AutoWrap.dll" />
             <ComponentRef Id="WrapEng.lng" />
             <ComponentRef Id="WrapSky.lng" />
+            <ComponentRef Id="WrapSpa.lng" />
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
@@ -243,6 +245,7 @@
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
             <ComponentRef Id="BrackSky.lng" />
+            <ComponentRef Id="BrackSpa.lng" />
             <ComponentRef Id="Brackets.lua" />
             <ComponentRef Id="Brackets.dll" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -262,6 +265,7 @@
             <ComponentRef Id="DrawEng.hlf" />
             <ComponentRef Id="DrawEng.lng" />
             <ComponentRef Id="DrawSky.lng" />
+            <ComponentRef Id="DrawSpa.lng" />
             <ComponentRef Id="DrawLine.dll" />
             <Feature Id="DrawLine.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawRus.hlf" />
@@ -280,6 +284,7 @@
             <ComponentRef Id="ECaseEng.hlf" />
             <ComponentRef Id="ECaseEng.lng" />
             <ComponentRef Id="ECaseSky.lng" />
+            <ComponentRef Id="ECaseSpa.lng" />
             <ComponentRef Id="EditCase.dll" />
             <Feature Id="EditCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseRus.hlf" />
@@ -299,6 +304,7 @@
           <ComponentRef Id="arclite.dll" />
           <ComponentRef Id="arclite_eng.hlf" />
           <ComponentRef Id="arclite_eng.lng" />
+          <ComponentRef Id="arclite_spa.lng" />
           <Feature Id="_7z.dll" Level="1" Title="!(loc.Feature.Title._7z.dll)" AllowAdvertise="no" Description="!(loc.Feature.Description._7z.dll)">
             <ComponentRef Id="_7z.dll" />
           </Feature>
@@ -337,6 +343,7 @@
           <ComponentRef Id="Compare.dll" />
           <ComponentRef Id="CompEng.lng" />
           <ComponentRef Id="CompSky.lng" />
+          <ComponentRef Id="CompSpa.lng" />
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
@@ -355,6 +362,7 @@
           <ComponentRef Id="EMenuEng.hlf" />
           <ComponentRef Id="EMenuEng.lng" />
           <ComponentRef Id="EMenuSky.lng" />
+          <ComponentRef Id="EMenuSpa.lng" />
           <ComponentRef Id="Hotkey.lua" />
           <ComponentRef Id="Hotkey.farconfig" />
           <ComponentRef Id="HotkeyClipboard.lua" />
@@ -488,6 +496,7 @@
           <ComponentRef Id="FARCmdsEng.hlf" />
           <ComponentRef Id="FARCmdsEng.lng" />
           <ComponentRef Id="FARCmdsSky.lng" />
+          <ComponentRef Id="FARCmdsSpa.lng" />
           <Feature Id="FARCmds.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmdsRus.hlf" />
             <ComponentRef Id="FARCmdsRus.lng" />
@@ -504,6 +513,7 @@
         <Feature Id="FileCase" Level="1" Title="!(loc.Feature.Title.FileCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.FileCase)">
           <ComponentRef Id="CaseEng.hlf" />
           <ComponentRef Id="CaseEng.lng" />
+          <ComponentRef Id="CaseSpa.lng" />
           <ComponentRef Id="FileCase.dll" />
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseRus.hlf" />
@@ -536,6 +546,7 @@
           <ComponentRef Id="HlfViewerEng.hlf" />
           <ComponentRef Id="HlfViewerEng.lng" />
           <ComponentRef Id="HlfViewerSky.lng" />
+          <ComponentRef Id="HlfViewerSpa.lng" />
           <Feature Id="HlfViewer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerRus.hlf" />
             <ComponentRef Id="HlfViewerRus.lng" />
@@ -582,6 +593,7 @@
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />
           <ComponentRef Id="NetSky.lng" />
+          <ComponentRef Id="NetSpa.lng" />
           <ComponentRef Id="Network.dll" />
           <Feature Id="Network.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="NetRus.hlf" />
@@ -619,6 +631,7 @@
           <ComponentRef Id="shortcuts.eng.temp" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
+          <ComponentRef Id="TmpSpa.lng" />
           <ComponentRef Id="TmpPanel.dll" />
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />

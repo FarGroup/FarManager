@@ -99,8 +99,8 @@ depfile: $(OUTDIR) $(OUTDIR)\msg.h $(OUTDIR)\plugin.h
 instmak: $(OUTDIR)
   $(TOOL) geninst $(FILES) changelog > $(OUTDIR)\install.mak
 
-$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg
-  $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng
+$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg
+  $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng
 
 $(OUTDIR)\version.res: $(OUTDIR)\version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
@@ -117,6 +117,9 @@ $(OUTDIR)\en.msg: project.ini en.msg
   $(PREPROC)
 
 $(OUTDIR)\ru.msg: project.ini ru.msg
+  $(PREPROC)
+
+$(OUTDIR)\es.msg: project.ini es.msg
   $(PREPROC)
 
 $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf

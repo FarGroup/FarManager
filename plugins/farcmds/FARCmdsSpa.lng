@@ -1,0 +1,23 @@
+﻿.Language=Spanish,Spanish
+
+"Comandos FAR"
+"Misma Carpeta"
+
+"Añadir "Misma Carpeta" al menú de com&plementos"
+"Añadir "Misma Carpeta" al menú de &discos"
+"Separador comando/objeto"
+"&Ocultar salida de comando externo"
+"&Mantener salida de comando externo"
+"D&uplicar salida interceptada a pantalla"
+"Interceptar am&bos stdout y stderr"
+"Interceptar std&out solamente (Cadena de salida estándar)"
+"Interceptar std&err solamente (Cadena de errores estándar)"
+"Interceptar stdout &y stderr separadamente"
+"Ver/editar archivos &vacíos"
+"Editar archivos &nuevos"
+"El &tamaño de lectura de datos"
+"<stdout>:"
+"<stderr>:"
+
+"&Aceptar"
+"Cancelar"

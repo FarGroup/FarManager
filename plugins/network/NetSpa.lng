@@ -1,0 +1,72 @@
+﻿.Language=Spanish,Spanish
+
+"Aceptar"
+"Cancelar"
+"Error"
+"Si"
+
+"Network browser"
+
+"network"
+
+"Map"
+"MapA"
+"TMap"
+"TMapA"
+"DesMap"
+"Removr"
+"GesCon"
+
+"Por favor, espere"
+"Escaneando la red..."
+
+"No se puede navegar en la red"
+"No se puede conectar \"%.40s\" a %s"
+"El nombre de disco tiene conexión recordada"
+
+"Si usted no cierra los archivos abiertos, los datos pueden ser perdidos."
+"Quiere desconectarse del dispositivo de todas maneras?"
+"No se puede desconectar desde %s"
+
+"No hay letras de discos libres disponibles"
+
+"Nombre usuario"
+"Contraseña usuario"
+
+"Conexión permanente a"
+"Conexión temporal a"
+"F6 - temporal"
+"F6 - permanente"
+
+"Red"
+"Nombre de Red"
+"*:"
+"Comentario"
+
+"Network browser"
+"Añadir a menú de &Discos"
+"Añadir a menú de Com&plementos"
+"&Tecla rápida en menú ('1'-'9'). Dejar vacío para autoasignar"
+"Mo&strar red local"
+"Mostrar compart&idos ocultos"
+"Mostrar i&mpresoras"
+"Mostrar nom&bre completo de compartido"
+"Mostrar \"..\" en los proveedores"
+"&Navegar hasta favoritos si es posible"
+"Comprobar accesibilidad de recu&rsos"
+
+"Desconectar unidad de red"
+"Quiere desconectarse desde la unidad %s?"
+"La unidad %s esta mapeada a"
+"&Reconectar al inicio de sesión"
+
+"Desconectar unidad de red\nLa unidad %s esta mapeada a múltiples letras de unidades\nEn cual quiere desconectarse?\n"
+
+"Favoritos"
+"Carpeta de Favoritos"
+
+"Recordar contrase&ña"
+
+"Remover desde Favoritos"
+"Remover \"%s\" desde Favoritos"
+"Remover %d ítems desde Favoritos"
