@@ -3,7 +3,7 @@
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 
-DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng
+DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng
 
 !if "$(BUILD_PLATFORM)" == "X86"
 NEEDENTRY = 1

@@ -1,6 +1,6 @@
 NAME = EditCase
 SRCS = EditCase.cpp
-DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng
+DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng
 
 include ../../unicode_far/makefile_gcc_common
 

@@ -1,6 +1,6 @@
 NAME = DrawLine
 SRCS = DrawLine.cpp
-DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng
+DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng DrawSpa.lng
 
 include ../../unicode_far/makefile_gcc_common
 

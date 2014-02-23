@@ -2,7 +2,7 @@
 
 NAME = AutoWrap
 LINK_OBJS = $(OBJDIR)\AutoWrap.obj
-DOCS = WrapEng.lng WrapRus.lng WrapSky.lng
+DOCS = WrapEng.lng WrapRus.lng WrapSky.lng WrapSpa.lng
 
 !include ..\makefile_vc_def_inc
 

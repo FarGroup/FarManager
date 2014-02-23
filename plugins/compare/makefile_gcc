@@ -1,6 +1,6 @@
 NAME = Compare
 SRCS = Compare.cpp
-DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng
+DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng
 
 include ../../unicode_far/makefile_gcc_common
 

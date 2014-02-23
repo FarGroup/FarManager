@@ -9,7 +9,7 @@ $(OBJDIR)\OleThread.obj \
 $(OBJDIR)\Pidl.obj \
 $(OBJDIR)\Plugin.obj
 
-DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng Hotkey.farconfig Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua
+DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng Hotkey.farconfig Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1

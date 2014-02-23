@@ -2,7 +2,7 @@
 
 NAME = FileCase
 LINK_OBJS = $(OBJDIR)\FileCase.obj
-DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng
+DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSpa.lng
 
 !include ..\makefile_vc_def_inc
 

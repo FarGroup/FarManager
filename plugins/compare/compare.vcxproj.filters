@@ -52,6 +52,9 @@
     <CustomBuild Include="CompSky.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="CompSpa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="CmpEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

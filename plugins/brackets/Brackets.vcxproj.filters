@@ -66,6 +66,9 @@
     <CustomBuild Include="BrackSky.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="BrackSpa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="BrackEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

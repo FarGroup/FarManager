@@ -57,5 +57,8 @@
     <CustomBuild Include="WrapSky.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="WrapSpa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

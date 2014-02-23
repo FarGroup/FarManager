@@ -2,7 +2,7 @@
 
 NAME = FARCmds
 LINK_OBJS = $(OBJDIR)\FARCmds.obj
-DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng
+DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng
 
 !include ..\makefile_vc_def_inc
 

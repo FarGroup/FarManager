@@ -1,6 +1,6 @@
 NAME = Align
 SRCS = Align.cpp
-DOCS = AlignEng.lng AlignRus.lng AlignSky.lng
+DOCS = AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng
 
 include ../../unicode_far/makefile_gcc_common
 

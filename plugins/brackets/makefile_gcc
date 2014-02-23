@@ -1,6 +1,6 @@
 NAME = Brackets
 SRCS = Brackets.cpp
-DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng Brackets.lua
+DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng Brackets.lua
 
 include ../../unicode_far/makefile_gcc_common
 

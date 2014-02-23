@@ -78,6 +78,9 @@
     <CustomBuild Include="TmpRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="TmpSpa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="TmpEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

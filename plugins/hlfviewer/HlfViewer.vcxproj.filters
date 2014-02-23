@@ -57,6 +57,9 @@
     <CustomBuild Include="HlfViewerSky.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="HlfViewerSpa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="HlfViewerEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
