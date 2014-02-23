@@ -3,6 +3,37 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 21.02.2014 18:11:56 +0200 - build 3817
+
+1. M#0002607. Another correction.
+
+svs 21.02.2014 08:05:46 +0400 - build 3816
+
+1. Mantis#0002607. Correction.
+   DM_SETITEMPOSITION returns false with wrong coordinates given.
+
+svs 20.02.2014 21:33:03 +0400 - build 3815
+
+1. Mantis#0002607: DM_SETITEMPOSITION causes FAR crash if Right < Left - 1
+
+w17 19.02.2014 16:59:31 +0400 - build 3814
+
+1. M#2605: Memory freed after editing
+
+w17 18.02.2014 18:54:03 +0400 - build 3813
+
+1. fix $#nn (from the forum)
+
+drkns 17.02.2014 22:47:09 +0200 - build 3812
+
+1. 0002603: Crash on FCTL_GETCURRENTPANELITEM called with PTYPE_QVIEWPANEL and PTYPE_INFOPANEL
+
+2. Refactoring.
+
+drkns 17.02.2014 00:03:05 +0200 - build 3811
+
+1. Correction of 3810.
+
 drkns 16.02.2014 19:18:25 +0200 - build 3810
 
 1. Flags 0x10 and 0x20 were set incorrectly in Editor.State.
