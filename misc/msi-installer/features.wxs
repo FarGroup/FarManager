@@ -576,6 +576,7 @@
           <ComponentRef Id="winapi.lua" />
           <ComponentRef Id="farapi.lua" />
           <ComponentRef Id="lm_eng.lng" />
+          <ComponentRef Id="lm_spa.lng" />
           <Feature Id="LuaMacro.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="lm_rus.lng" />
           </Feature>

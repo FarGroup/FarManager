@@ -1,0 +1,33 @@
+﻿.Language=Spanish,Spanish
+
+"Ejecutar un macro"
+"AltF4 - abrir en editor"
+
+// macro browser help window
+"F1         mostrar esta ventana de ayuda"
+"F3         mostrar info acerca de macro/evento"
+"F4         abrir archivo en editor"
+"AltF4      abrir archivo en modo editor"
+"CtrlPgUp   localizar archivo en panel activo"
+"CtrlF1     ordenar macros por área"
+"CtrlF2     ordenar macros por tecla"
+"CtrlF3     ordenar macros por descripción"
+"Enter      ejecutar macro seleccionado"
+"CtrlH      ocultar macros inactivos"
+
+// macro browser separators
+"Macros"
+"Macros activos"
+"Eventos"
+
+// macro browser messages
+"No hay nombre de archivo disponible"
+"Archivo no encontrado"
+
+// macro browser F3 titles
+"Macro"
+"Gestor de eventos"
+
+// custom panel sort
+"Modo de ordenamiento"
+"Ordenamiento panel personalizado"

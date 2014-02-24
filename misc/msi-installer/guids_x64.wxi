@@ -372,6 +372,7 @@
 <?define Guid.farapi.lua = "21B96B6F-9361-48B1-BEA5-E1C193D59003" ?>
 <?define Guid.lm_eng.lng = "B50183C5-630F-4BBD-BB62-227D13B01AEF" ?>
 <?define Guid.lm_rus.lng = "B6E42F80-D6AD-4FC3-A3E8-E022F6EDE2AF" ?>
+<?define Guid.lm_spa.lng = "3E6287BD-2455-4924-B26D-663E7EEBB89D" ?>
 <?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>
 <?define Guid.lua51.dll = "31F36739-E199-4FA9-BD95-E08D99C54F27" ?>
 <?define Guid.luafar3.dll = "51D92B8C-EFB1-47A7-98FA-AD3BB73BBDD8" ?>
