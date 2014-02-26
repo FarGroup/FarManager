@@ -8,12 +8,12 @@ lv=0
 dt=Text
 nm=Справка по системе макросов Far Manager
 ctime=3551829092
-mtime=3589556969
+mtime=3602513778
 <article>
 #_<markdown>
 #_
 #_Начиная с 30.09.2012 (Far 3.0.2851), в Far Manager вместо встроенного макроязыка
-#_используется [скриптовый язык Lua][lua] (версия 5.1).
+#_используется [скриптовый язык Lua][1] (версия 5.1).
 #_
 #_Под макросом понимается Lua-скрипт и его мета-данные, такие как:
 #_
@@ -29,11 +29,10 @@ mtime=3589556969
 #_* Библиотеки функций Lua.
 #_* Библиотеки функций LuaFAR (API плагинов).
 #_* [Библиотеки функций макроязыка][2] (API макросов).
-#_* Для плагинов: API [`MacroControl`][3].
+#_* Для плагинов: API `MacroControl`.
 #_
-#_[lua]: http://www.lua.org/
+#_[1]: http://www.lua.org/
 #_[2]: 42.html
-#_[3]: http://api.farmanager.com/ru/macroapi/index.html
 #_
 </article>
 </node>
@@ -128,7 +127,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3601293434
+mtime=3602578114
 <article>
 #_**Свойства:** нет.
 #_
@@ -137,12 +136,12 @@ mtime=3601293434
 #_  akey
 #_  band, bnot, bor, bxor, lshift, rshift
 #_  eval
-#_  exit
-#_  Keys
+#_  `exit`
+#_  `Keys`
 #_  mmode
 #_  msgbox
 #_  print
-#_  printf
+#_  `printf`
 #_  prompt
 #_
 #_**Примечания:**
@@ -153,16 +152,14 @@ mtime=3601293434
 #_
 #_2. Функции *akey* и *mmode*, будучи вызваны из функции *condition* макроса, возвращают *false*.
 #_
-#_3. Для единообразия, все данные функции продублированы в таблице mf,
+#_3. Для единообразия, все данные функции продублированы в таблице `mf`,
 #_   например: *eval* и *mf.eval* - это одна и та же функция.
 #_
 #_@@@
-#_<lua> Links = {
-#_  exit="61.html",
-#_  Keys="4.html",
-#_  mf="44.html",
-#_  printf="60.html",
-#_} </lua>
+#_[exit]: 61.html
+#_[printf]: 60.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
 #_
 </article>
 </node>
@@ -242,12 +239,10 @@ mtime=3554233809
 #_
 #_**Описание:**
 #_  Работает аналогично функции макроязыка *print*, но с дополнительной
-#_  возможностью форматирования. Правила форматирования описаны в мануале Lua.
+#_  возможностью форматирования. Правила форматирования описаны в `мануале Lua`.
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["мануале Lua"]="http://www.lua.org/manual/5.1/manual.html#pdf-string.format",
-#_} </lua>
+#_[мануале Lua]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
 #_
 </article>
 </node>
@@ -266,17 +261,17 @@ mtime=3599211999
 #_  abs              len
 #_  akey             lshift
 #_  asc              max
-#_  atoi             mdelete
+#_  atoi             `mdelete`
 #_  band             min
-#_  beep             mload
+#_  beep             `mload`
 #_  bnot             mmode
 #_  bor              mod
-#_  bxor             msave
+#_  bxor             `msave`
 #_  chr              msgbox
-#_  clip             postmacro
+#_  clip             `postmacro`
 #_  date             print
 #_  env              printf
-#_  eval             prompt
+#_  `eval`             prompt
 #_  exit             replace
 #_  fattr            rindex
 #_  fexist           rshift
@@ -284,20 +279,23 @@ mtime=3599211999
 #_  flock            sleep
 #_  fmatch           string
 #_  fsplit           strpad
-#_  GetMacroCopy     strwrap
+#_  `GetMacroCopy`     strwrap
 #_  iif              substr
 #_  index            testfolder
 #_  int              trim
 #_  itoa             ucase
-#_  key              usermenu
+#_  key              `usermenu`
 #_  Keys             waitkey
 #_  lcase            xlat
 #_
 #_@@@
-#_<lua> Links = {
-#_  mload="13.html", msave="12.html", mdelete="15.html", usermenu="69.html",
-#_  GetMacroCopy="72.html", eval="79.html", postmacro="85.html",
-#_} </lua>
+#_[GetMacroCopy]: 72.html
+#_[msave]: 12.html
+#_[mdelete]: 15.html
+#_[usermenu]: 69.html
+#_[mload]: 13.html
+#_[eval]: 79.html
+#_[postmacro]: 85.html
 #_
 </article>
 </node>
@@ -595,20 +593,18 @@ mtime=3586234479
 #_  SetPath
 #_  SetPos
 #_  SetPosIdx
-#_  CustomSortMenu
-#_  LoadCustomSortMode
-#_  SetCustomSortMode
+#_  `CustomSortMenu`
+#_  `LoadCustomSortMode`
+#_  `SetCustomSortMode`
 #_
 #_**Примечание:**
-#_  Функции CustomSortMenu, LoadCustomSortMode и SetCustomSortMode присутствуют только
+#_  Функции `CustomSortMenu`, `LoadCustomSortMode` и `SetCustomSortMode` присутствуют только
 #_  если в качестве движка Lua используется LuaJIT 2.
 #_
 #_@@@
-#_<lua> Links = {
-#_  LoadCustomSortMode="80.html",
-#_  SetCustomSortMode="81.html",
-#_  CustomSortMenu="82.html",
-#_} </lua>
+#_[CustomSortMenu]: 82.html
+#_[SetCustomSortMode]: 81.html
+#_[LoadCustomSortMode]: 80.html
 #_
 </article>
 </node>
@@ -666,7 +662,7 @@ mtime=3598188837
 #_                     в true.
 #_                  *Description:*
 #_                     Текстовое описание режима сортировки. Если данное поле задано,
-#_                     оно используется в меню (см. Panel.CustomSortMenu).
+#_                     оно используется в меню (см. `Panel.CustomSortMenu`).
 #_                  *SortFunction:*
 #_                     Опция выбора функции сортировки из двух встроенных.
 #_                     Задаётся строкой: "shellsort" (значение по умолчанию) или "qsort".
@@ -686,13 +682,13 @@ mtime=3598188837
 #_**Описание:**
 #_  Функция загружает (или выгружает) пользовательский режим сортировки для панелей.
 #_  Если режим загружен, он может быть установлен в панели посредством вызова функции
-#_  Panel.SetCustomSortMode.
+#_  `Panel.SetCustomSortMode`.
 #_
 #_**Функция Compare**
 #_  result = Compare (Pi1, Pi2, FarOptions)
 #_
 #_  **Параметры:**
-#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа SortingPanelItem.
+#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа `SortingPanelItem`.
 #_    FarOptions - таблица, содержащая текущие опции сортировки панели в Far Manager
 #_                 (все значения - булевые): *DirectoriesFirst, SelectedFirst,*
 #_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
@@ -704,7 +700,7 @@ mtime=3598188837
 #_
 #_**Примечание 1:**
 #_  Пользовательская сортировка использует библиотеку FFI от LuaJIT 2. Программирование
-#_  с использованием LuaJIT FFI требует предварительного освоения документации.
+#_  с использованием LuaJIT FFI требует предварительного освоения `документации`.
 #_
 #_**Примечание 2:**
 #_  Пользовательские режимы сортировок панелей восстанавливаются при перезапуске Far,
@@ -733,12 +729,10 @@ mtime=3598188837
 #_    })
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["документации"]="http://luajit.org/ext_ffi.html",
-#_  SortingPanelItem="http://api.farmanager.com/ru/structures/sortingpanelitem.html",
-#_  ["Panel.SetCustomSortMode"]="81.html",
-#_  ["Panel.CustomSortMenu"]="82.html",
-#_} </lua>
+#_[Panel.CustomSortMenu]: 82.html
+#_[SortingPanelItem]: http://api.farmanager.com/ru/structures/sortingpanelitem.html
+#_[Panel.SetCustomSortMode]: 81.html
+#_[документации]: http://luajit.org/ext_ffi.html
 #_
 </article>
 </node>
@@ -760,7 +754,7 @@ mtime=3585600342
 #_  Ничего
 #_
 #_**Описание:**
-#_  Если заданный режим сортировки загружен (см. Panel.LoadCustomSortMode),
+#_  Если заданный режим сортировки загружен (см. `Panel.LoadCustomSortMode`),
 #_  то будет произведена установка этого режима сортировки в заданной панели.
 #_  Иначе не будет произведено никаких действий.
 #_
@@ -773,11 +767,9 @@ mtime=3585600342
 #_  }
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["документации"]="http://luajit.org/ext_ffi.html",
-#_  PluginPanelItem="http://api.farmanager.com/ru/structures/pluginpanelitem.html",
-#_  ["Panel.LoadCustomSortMode"]="80.html",
-#_} </lua>
+#_[PluginPanelItem]: http://api.farmanager.com/ru/structures/pluginpanelitem.html
+#_[Panel.LoadCustomSortMode]: 80.html
+#_[документации]: http://luajit.org/ext_ffi.html
 #_
 </article>
 </node>
@@ -1066,7 +1058,7 @@ lv=2
 dt=Text
 nm=Plugin
 ctime=3553252766
-mtime=3588708621
+mtime=3602539387
 <article>
 #_**Plugin** - таблица со следующими полями:
 #_
@@ -1076,20 +1068,18 @@ mtime=3588708621
 #_
 #_**Функции:**
 #_
-#_  Call
+#_  `Call`
 #_  Command
 #_  Config
 #_  Exist
 #_  Load
 #_  Menu
-#_  SyncCall
+#_  `SyncCall`
 #_  Unload
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["\\bCall\\b"]="65.html", SyncCall="83.html",
-#_} </lua>
-#_
+#_[SyncCall]: 83.html
+#_[Call]: 65.html
 #_
 </article>
 </node>
@@ -1157,17 +1147,15 @@ mtime=3588709114
 <article>
 #_... = Plugin.SyncCall (PluginId, ...)
 #_
-#_Данная функция работает идентично Plugin.Call, за исключением того, что:
+#_Данная функция работает идентично `Plugin.Call`, за исключением того, что:
 #_
 #_1. Её вызов - всегда синхронный, то-есть возврат управления макросу происходит
 #_   только после возврата функции *OpenW* плагина.
-#_2. Данная функция не имеет ограничений в использовании, которые есть у Plugin.Call.
+#_2. Данная функция не имеет `ограничений` в использовании, которые есть у `Plugin.Call`.
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["Plugin.Call"]="65.html",
-#_  ["ограничений"]="62.html",
-#_} </lua>
+#_[ограничений]: 62.html
+#_[Plugin.Call]: 65.html
 #_
 </article>
 </node>
@@ -1424,7 +1412,7 @@ lv=1
 dt=Text
 nm=Разное
 ctime=3551990771
-mtime=3551990771
+mtime=3602512460
 <article>
 </article>
 </node>

@@ -7,7 +7,7 @@ id=91
 lv=0
 dt=Text
 nm=Manual of LuaFAR 3
-mtime=3542521459
+mtime=3602340141
 <article>
 #_<markdown>
 #_### Brief description of LuaFAR package
@@ -18,7 +18,7 @@ mtime=3542521459
 #_
 #_* To program functions exported by the plugin in Lua: e.g., the function `OpenW` should be named [`export.Open`](109.html) in the Lua program, the same goes for all functions exported by the plugin.
 #_ 
-#_* To call FAR service functions from a Lua program. The service functions are placed in the `far`, `editor`, `viewer` and `panel` tables, and their names aren't identical to the names of the respective FAR API functions. For instance, function `EditorControl` with parameter `ECTL_GETINFO` will be named [`editor.GetInfo`](29.html) in Lua programs.
+#_* To call FAR service functions from a Lua program. The service functions are placed in the `far`, `editor`, `viewer`, `panel` and `regex` tables, and their names aren't identical to the names of the respective FAR API functions. For instance, function `EditorControl` with parameter `ECTL_GETINFO` will be named [`editor.GetInfo`](29.html) in Lua programs.
 #_
 #_* **Note:** the functions of the Unicode LuaFAR library assume string arguments and string return values to be in the **UTF-8** encoding. (There are a few exceptions from this rule, mostly when strings are used to exchange binary data).
 #_
@@ -48,7 +48,7 @@ lv=1
 dt=Text
 nm=Flags
 ctime=3480257526
-mtime=3519379190
+mtime=3602510587
 <article>
 #_<markdown>
 #_
@@ -60,11 +60,11 @@ mtime=3519379190
 #_
 #_#### Example 1 (single flag)
 #_The following 2 calls are equivalent:
-#_        (1)  far.EditorUndoRedo(nil, F.EUR_UNDO) -- where F=far.Flags
-#_        (2)  far.EditorUndoRedo(nil, "EUR_UNDO")
+#_        (1)  editor.UndoRedo(nil, F.EUR_UNDO) -- where F=far.Flags
+#_        (2)  editor.UndoRedo(nil, "EUR_UNDO")
 #_
 #_#### Example 2 (flags combination)
-#_The 7-th parameter to function [`far.Editor`](21.html) can be
+#_The 7-th parameter to function [`editor.Editor`](21.html) can be
 #_supplied from Lua in the following equivalent forms:
 #_        (1)  bit64.bor(F.EF_NONMODAL, F.EF_IMMEDIATERETURN, ....)
 #_        (2)  { EF_NONMODAL=1, EF_IMMEDIATERETURN=1, .... }
@@ -133,7 +133,7 @@ id=214
 lv=1
 dt=Text
 nm=Generic LuaFAR plugin
-mtime=3512990593
+mtime=3602275505
 <article>
 #_<markdown>
 #_
@@ -152,7 +152,7 @@ mtime=3512990593
 #_- **`FAR_EXPORTS`** - list of functions that should be exported by the plugin (in uppercase, whitespace-separated, final letter `W` removed), e.g.:<br>
 #_  "`FAR_EXPORTS = OPEN EXITFAR`".<br>
 #_The following functions are always exported, so there's no need to include them in the list:
-#_*GetGlobalInfoW*, *SetStartupInfoW*, *GetPluginInfoW* and *ProcessSynchroEventW*.
+#_`GetGlobalInfoW`, `SetStartupInfoW`, `GetPluginInfoW` and `ProcessSynchroEventW`.
 #_
 #_- **`PATH_LUAFAR`** - root directory of the LuaFAR distribution.
 #_
@@ -1150,7 +1150,7 @@ id=94
 lv=2
 dt=Text
 nm=export.ClosePanel
-mtime=3509018829
+mtime=3602280385
 <article>
 #_export.ClosePanel (object, handle)
 #_
@@ -1161,7 +1161,8 @@ mtime=3509018829
 #_**Returns:**
 #_  nothing
 #_
-#_@@@
+#_**Far API used:**
+#_  ClosePanelW, ClosePanelInfo
 #_
 </article>
 </node>
@@ -1170,7 +1171,7 @@ id=96
 lv=2
 dt=Text
 nm=export.Configure
-mtime=3509018837
+mtime=3602280848
 <article>
 #_result = export.Configure (Guid)
 #_
@@ -1180,8 +1181,8 @@ mtime=3509018837
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
-#_
+#_**Far API used:**
+#_  ConfigureW, ConfigureInfo
 #_
 </article>
 </node>
@@ -1190,7 +1191,7 @@ id=98
 lv=2
 dt=Text
 nm=export.ExitFAR
-mtime=3509018842
+mtime=3602280344
 <article>
 #_export.ExitFAR()
 #_
@@ -1200,7 +1201,8 @@ mtime=3509018842
 #_**Returns:**
 #_  nothing
 #_
-#_@@@
+#_**Far API used:**
+#_  ExitFARW, ExitInfo
 #_
 </article>
 </node>
@@ -1210,25 +1212,25 @@ lv=2
 dt=Text
 nm=export.GetGlobalInfo
 ctime=3506281912
-mtime=3515075300
+mtime=3602446008
 <article>
-#_GlobalInfo = export.GetGlobalInfo ()
+#_GInfo = export.GetGlobalInfo ()
 #_
 #_**Parameters:**
 #_  none
 #_
 #_**Returns:**
-#_  GlobalInfo: table
-#_    fields of GlobalInfo:
+#_  GInfo: table
+#_    fields of GInfo:
 #_      MinFarVersion:       table (array of 5 integers)
 #_      Version:             table (array of 5 integers)
-#_      Guid:                string
+#_      Guid:                string (binary GUID)
 #_      Title:               string
 #_      Description:         string
 #_      Author:              string
 #_
-#_@@@
-#_
+#_**Far API used:**
+#_  GetGlobalInfoW, GlobalInfo
 #_
 </article>
 </node>
@@ -1237,40 +1239,41 @@ id=104
 lv=2
 dt=Text
 nm=export.GetOpenPanelInfo
-mtime=3509018860
+mtime=3602579547
 <article>
-#_OpenPanelInfo = export.GetOpenPanelInfo (object, handle)
+#_OPInfo = export.GetOpenPanelInfo (object, handle)
 #_
 #_**Parameters:**
 #_  object: plugin object
 #_  handle: panel handle
 #_
 #_**Returns:**
-#_  OpenPanelInfo: table, or string "reuse" (if no changes occured)
-#_    fields of OpenPanelInfo:
+#_  OPInfo: table, or string "reuse" (if no changes occured)
+#_    fields of OPInfo:
 #_      Flags:            flags
 #_      HostFile:         string
 #_      CurDir:           string
 #_      Format:           string
 #_      PanelTitle:       string
-#_      InfoLines:        table (array of InfoLine tables)
+#_      InfoLines:        table (array of `tInfoLine` tables)
 #_      InfoLinesNumber:  integer
 #_      DescrFiles:       table (array of strings)
-#_      PanelModesArray:  table (array of PanelMode tables)
+#_      PanelModesArray:  table (array of `tPanelMode` tables)
 #_      PanelModesNumber: integer
 #_      StartPanelMode:   integer
 #_      StartSortMode:    integer
 #_      StartSortOrder:   integer
-#_      KeyBar:           table (array of KeyBarLabel tables)
+#_      KeyBar:           table (array of `tKeyBarLabel` tables)
 #_      ShortcutData:     string
 #_      FreeSize:         number
 #_
+#_**Far API used:**
+#_  GetOpenPanelInfoW, OpenPanelInfo
+#_
 #_@@@
-#_<lua> Links = {
-#_  ["\\bInfoLine\\b"]="120.html",
-#_  ["\\bPanelMode\\b"]="121.html",
-#_  KeyBarLabel="406.html" 
-#_} </lua>
+#_[tKeyBarLabel]: 406.html
+#_[tInfoLine]: 120.html
+#_[tPanelMode]: 121.html
 #_
 </article>
 </node>
@@ -1279,16 +1282,16 @@ id=105
 lv=2
 dt=Text
 nm=export.GetPluginInfo
-mtime=3509018866
+mtime=3602279498
 <article>
-#_PluginInfo = export.GetPluginInfo ()
+#_PInfo = export.GetPluginInfo ()
 #_
 #_**Parameters:**
 #_  none
 #_
 #_**Returns:**
-#_  PluginInfo: table
-#_    fields of PluginInfo:
+#_  PInfo: table
+#_    fields of PInfo:
 #_      Flags:               flags
 #_
 #_      DiskMenuStrings:     array of strings
@@ -1302,7 +1305,8 @@ mtime=3509018866
 #_
 #_      CommandPrefix:       string
 #_
-#_@@@
+#_**Far API used:**
+#_  GetPluginInfoW, PluginInfo
 #_
 </article>
 </node>
@@ -1312,20 +1316,22 @@ lv=2
 dt=Text
 nm=export.ProcessConsoleInput
 ctime=3557661223
-mtime=3557937753
+mtime=3602280132
 <article>
 #_result = export.ProcessConsoleInput (rec, flags)
 #_
 #_**Parameters:**
-#_  rec:    table InputRecord
+#_  rec:    table `tInputRecord`
 #_  flags:  flags
 #_
 #_**Returns:**
-#_  result: 0, 1, or table InputRecord
+#_  result: 0, 1, or table `tInputRecord`
+#_
+#_**Far API used:**
+#_  ProcessConsoleInputW, ProcessConsoleInputInfo
 #_
 #_@@@
-#_<lua> Links = { InputRecord="187.html", } </lua>
-#_
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -1335,7 +1341,7 @@ lv=2
 dt=Text
 nm=export.ProcessSynchroEvent
 ctime=3480185395
-mtime=3509018871
+mtime=3602280249
 <article>
 #_ret = export.ProcessSynchroEvent (event, param)
 #_
@@ -1346,8 +1352,8 @@ mtime=3509018871
 #_**Returns:**
 #_  ret:   integer
 #_
-#_@@@
-#_
+#_**Far API used:**
+#_  ProcessSynchroEventW, ProcessSynchroEventInfo
 #_
 </article>
 </node>
@@ -1356,12 +1362,12 @@ id=118
 lv=2
 dt=Text
 nm=export.SetStartupInfo
-mtime=3601969283
+mtime=3602446223
 <article>
 #_<markdown>
 #_**`This function is not called by LuaFAR`**
 #_
-#_The C-language part of a plugin should implement and export function **`SetStartupInfoW`**.
+#_The C-language part of a plugin should implement and export function `SetStartupInfoW`.
 #_Within this function, it should call:
 #_
 #_1. [`LF_InitLuaState2`](423.html)
@@ -1384,12 +1390,12 @@ lv=2
 dt=Text
 nm=export.Analyse
 ctime=3507872410
-mtime=3538559117
+mtime=3602340395
 <article>
 #_Handle = export.Analyse (Data)
 #_
 #_**Parameters:**
-#_  Data:   table AnalyseInfo
+#_  Data:   table `tAnalyseInfo`
 #_
 #_**Returns:**
 #_  Handle: any Lua value, or nothing
@@ -1397,15 +1403,16 @@ mtime=3538559117
 #_**Description:**
 #_  The returned value of false/nil/nothing means the plugin will not process
 #_  the file. Otherwise, the value is stored in the registry, may be passed
-#_  to the plugin in export.Open and will be removed from the registry in
-#_  either export.Open or LF_CloseAnalyse.
+#_  to the plugin in `export.Open` and will be removed from the registry in
+#_  either `export.Open` or `LF_CloseAnalyse`.
+#_
+#_**Far API used:**
+#_  AnalyseW, AnalyseInfo
 #_
 #_@@@
-#_<lua> Links = {
-#_  AnalyseInfo="461.html",
-#_  ["export.Open"]="109.html",
-#_  LF_CloseAnalyse="474.html",
-#_} </lua>
+#_[export.Open]: 109.html
+#_[tAnalyseInfo]: 461.html
+#_[LF_CloseAnalyse]: 474.html
 #_
 </article>
 </node>
@@ -1415,11 +1422,11 @@ lv=2
 dt=Text
 nm=export.CloseAnalyse
 ctime=3538549704
-mtime=3538552826
+mtime=3602340467
 <article>
 #_**This function is not called by LuaFAR**
 #_
-#_@@@
+#_See Far API: CloseAnalyseW
 #_
 </article>
 </node>
@@ -1428,23 +1435,25 @@ id=95
 lv=2
 dt=Text
 nm=export.Compare
-mtime=3509018885
+mtime=3602340534
 <article>
 #_result = export.Compare (object, handle, PanelItem1, PanelItem2, Mode)
 #_
 #_**Parameters:**
 #_  object:     plugin object
 #_  handle:     panel handle
-#_  PanelItem1: table PluginPanelItem
-#_  PanelItem2: table PluginPanelItem
+#_  PanelItem1: table `tPluginPanelItem`
+#_  PanelItem2: table `tPluginPanelItem`
 #_  Mode:       integer
 #_
 #_**Returns:**
 #_  result:     integer
 #_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_**Far API used:**
+#_  CompareW, CompareInfo
 #_
+#_@@@
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1453,22 +1462,24 @@ id=97
 lv=2
 dt=Text
 nm=export.DeleteFiles
-mtime=3509018889
+mtime=3602340590
 <article>
 #_result = export.DeleteFiles (object, handle, PanelItems, OpMode)
 #_
 #_**Parameters:**
 #_  object:     plugin object
 #_  handle:     panel handle
-#_  PanelItems: table (array of PluginPanelItem)
+#_  PanelItems: table (array of `tPluginPanelItem`)
 #_  OpMode:     flags
 #_
 #_**Returns:**
 #_  result:     boolean
 #_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_**Far API used:**
+#_  DeleteFilesW, DeleteFilesInfo
 #_
+#_@@@
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1478,11 +1489,9 @@ lv=2
 dt=Text
 nm=export.FreeCustomData
 ctime=3485765946
-mtime=3485765967
+mtime=3602340689
 <article>
 #_**This function is not called by LuaFAR**
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -1491,10 +1500,11 @@ id=99
 lv=2
 dt=Text
 nm=export.FreeFindData
+mtime=3602340713
 <article>
 #_**This function is not called by LuaFAR**
 #_
-#_@@@
+#_See Far API: FreeFindDataW
 #_
 </article>
 </node>
@@ -1518,8 +1528,6 @@ mtime=3509018899
 #_  As of time of this writing, this function exploits an experimental
 #_  feature of Far, introduced in Far 2.0 build 1588.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -1527,7 +1535,7 @@ id=101
 lv=2
 dt=Text
 nm=export.GetFiles
-mtime=3592895010
+mtime=3602340891
 <article>
 #_result [, newDestPath] = export.GetFiles (object, handle, PanelItems,
 #_                                          Move, DestPath, OpMode)
@@ -1535,7 +1543,7 @@ mtime=3592895010
 #_**Parameters:**
 #_  object:     plugin object
 #_  handle:     panel handle
-#_  PanelItems: table (array of PluginPanelItem)
+#_  PanelItems: table (array of `tPluginPanelItem`)
 #_  Move:       boolean
 #_  DestPath:   string
 #_  OpMode:     flags
@@ -1544,9 +1552,11 @@ mtime=3592895010
 #_  result:      integer
 #_  newDestPath: string (optional)
 #_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_**Far API used:**
+#_  GetFilesW, GetFilesInfo
 #_
+#_@@@
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1555,7 +1565,7 @@ id=102
 lv=2
 dt=Text
 nm=export.GetFindData
-mtime=3509018910
+mtime=3602340944
 <article>
 #_Items = export.GetFindData (object, handle, OpMode)
 #_
@@ -1565,13 +1575,13 @@ mtime=3509018910
 #_  OpMode:  flags
 #_
 #_**Returns:**
-#_  Items:   table (array of PluginPanelItem)
+#_  Items:   table (array of `tPluginPanelItem`)
+#_
+#_**Far API used:**
+#_  GetFindDataW, GetFindDataInfo
 #_
 #_@@@
-#_<lua>
-#_Links = { PluginPanelItem="85.html" }
-#_</lua>
-#_
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1580,7 +1590,7 @@ id=107
 lv=2
 dt=Text
 nm=export.MakeDirectory
-mtime=3509018919
+mtime=3602340977
 <article>
 #_Status [, NewName] = export.MakeDirectory (object, handle, Name, OpMode)
 #_
@@ -1594,7 +1604,8 @@ mtime=3509018919
 #_  Status:  integer (in accordance with FAR API)
 #_  NewName: string
 #_
-#_@@@
+#_**Far API used:**
+#_  MakeDirectoryW, MakeDirectoryInfo
 #_
 </article>
 </node>
@@ -1603,13 +1614,13 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3586981183
+mtime=3602446378
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
 #_**Definitions:**
 #_  **"int64"**
-#_    Type of userdata, produced by bit64 library.
+#_    Type of userdata, produced by `bit64` library.
 #_  **"binary"**
 #_    By convention, it is a string enclosed in a table as its first element.
 #_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
@@ -1634,7 +1645,7 @@ mtime=3586981183
 #_      table:
 #_        *hDlg*: userdata
 #_    if OpenFrom == OPEN_ANALYSE:
-#_      table AnalyseInfo
+#_      table `tAnalyseInfo`
 #_    if OpenFrom == something else:
 #_      integer
 #_
@@ -1657,13 +1668,12 @@ mtime=3586981183
 #_  when the plugin does actions other than opening a panel, to tell
 #_  Far that the file has already been processed.
 #_
+#_**Far API used:**
+#_  OpenW, OpenInfo
+#_
 #_@@@
-#_<lua>
-#_Links = {
-#_  AnalyseInfo="461.html",
-#_  bit64="405.html",
-#_}
-#_</lua>
+#_[bit64]: 405.html
+#_[tAnalyseInfo]: 461.html
 #_
 </article>
 </node>
@@ -1672,22 +1682,24 @@ id=113
 lv=2
 dt=Text
 nm=export.ProcessHostFile
-mtime=3509018931
+mtime=3602341071
 <article>
 #_result = export.ProcessHostFile (object, handle, Items, OpMode)
 #_
 #_**Parameters:**
 #_  object: plugin object
 #_  handle: panel handle
-#_  Items:  table (array of PluginPanelItem)
+#_  Items:  table (array of `tPluginPanelItem`)
 #_  OpMode: flags
 #_
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_**Far API used:**
+#_  ProcessHostFileW, ProcessHostFileInfo
 #_
+#_@@@
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1696,7 +1708,7 @@ id=112
 lv=2
 dt=Text
 nm=export.ProcessPanelEvent
-mtime=3593805087
+mtime=3602341119
 <article>
 #_result = export.ProcessPanelEvent (object, handle, Event, Param)
 #_
@@ -1709,9 +1721,8 @@ mtime=3593805087
 #_**Returns:**
 #_  result:  boolean
 #_
-#_@@@
-#_
-#_
+#_**Far API used:**
+#_  ProcessPanelEventW, ProcessPanelEventInfo
 #_
 </article>
 </node>
@@ -1721,21 +1732,23 @@ lv=2
 dt=Text
 nm=export.ProcessPanelInput
 ctime=3528882615
-mtime=3528882963
+mtime=3602341156
 <article>
 #_result = export.ProcessPanelInput (object, handle, rec)
 #_
 #_**Parameters:**
 #_  object: plugin object
 #_  handle: panel handle
-#_  rec:    table InputRecord
+#_  rec:    table `tInputRecord`
 #_
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
-#_<lua> Links = { InputRecord="187.html", } </lua>
+#_**Far API used:**
+#_  ProcessPanelInputW, ProcessPanelInputInfo
 #_
+#_@@@
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -1744,14 +1757,14 @@ id=115
 lv=2
 dt=Text
 nm=export.PutFiles
-mtime=3509018940
+mtime=3602341245
 <article>
 #_result = export.PutFiles (object, handle, Items, Move, SrcPath, OpMode)
 #_
 #_**Parameters:**
 #_  object:  plugin object
 #_  handle:  panel handle
-#_  Items:   table (array of PluginPanelItem)
+#_  Items:   table (array of `tPluginPanelItem`)
 #_  Move:    boolean
 #_  SrcPath: string
 #_  OpMode:  flags
@@ -1759,8 +1772,11 @@ mtime=3509018940
 #_**Returns:**
 #_  result: integer
 #_
+#_**Far API used:**
+#_  PutFilesW, PutFilesInfo
+#_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1769,7 +1785,7 @@ id=116
 lv=2
 dt=Text
 nm=export.SetDirectory
-mtime=3509018944
+mtime=3602341267
 <article>
 #_result = export.SetDirectory (object, handle, Dir, OpMode)
 #_
@@ -1782,7 +1798,8 @@ mtime=3509018944
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
+#_**Far API used:**
+#_  SetDirectoryW, SetDirectoryInfo
 #_
 </article>
 </node>
@@ -1791,21 +1808,23 @@ id=117
 lv=2
 dt=Text
 nm=export.SetFindList
-mtime=3509018950
+mtime=3602341303
 <article>
 #_result = export.SetFindList (object, handle, Items)
 #_
 #_**Parameters:**
 #_  object: plugin object
 #_  handle: panel handle
-#_  Items:  table (array of PluginPanelItem)
+#_  Items:  table (array of `tPluginPanelItem`)
 #_
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_**Far API used:**
+#_  SetFindListW, SetFindListInfo
 #_
+#_@@@
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -1822,7 +1841,7 @@ id=110
 lv=2
 dt=Text
 nm=export.ProcessEditorEvent
-mtime=3583238355
+mtime=3602341363
 <article>
 #_result = export.ProcessEditorEvent (EditorID, Event, Param)
 #_
@@ -1841,7 +1860,8 @@ mtime=3583238355
 #_**Returns:**
 #_  result:   integer
 #_
-#_@@@
+#_**Far API used:**
+#_  ProcessEditorEventW, ProcessEditorEventInfo
 #_
 </article>
 </node>
@@ -1850,19 +1870,21 @@ id=111
 lv=2
 dt=Text
 nm=export.ProcessEditorInput
-mtime=3522051184
+mtime=3602341405
 <article>
 #_result = export.ProcessEditorInput (Rec)
 #_
 #_**Parameters:**
-#_  Rec:    table InputRecord
+#_  Rec:    table `tInputRecord`
 #_
 #_**Returns:**
 #_  result: boolean
 #_
-#_@@@
-#_<lua> Links = { InputRecord="187.html" } </lua>
+#_**Far API used:**
+#_  ProcessEditorInputW, ProcessEditorInputInfo
 #_
+#_@@@
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -1879,7 +1901,7 @@ id=127
 lv=2
 dt=Text
 nm=export.ProcessViewerEvent
-mtime=3537733501
+mtime=3602341445
 <article>
 #_result = export.ProcessViewerEvent (ViewerID, Event, Param)
 #_
@@ -1891,7 +1913,8 @@ mtime=3537733501
 #_**Returns:**
 #_  result:   integer
 #_
-#_@@@
+#_**Far API used:**
+#_  ProcessViewerEventW, ProcessViewerEventInfo
 #_
 </article>
 </node>
@@ -1908,13 +1931,13 @@ id=221
 lv=2
 dt=Text
 nm=export.ProcessDialogEvent
-mtime=3574341460
+mtime=3602341668
 <article>
 #_ret = export.ProcessDialogEvent (Event, Param)
 #_
 #_**Parameters:**
 #_  Event:  integer
-#_  Param:  table *FarDialogEvent*
+#_  Param:  table *tFarDialogEvent*
 #_            hDlg   : userdata
 #_            Msg    : integer
 #_            Param1 : integer
@@ -1928,7 +1951,8 @@ mtime=3574341460
 #_  Otherwise, it is assumed that the plugin has processed the event, and *ret*
 #_  will then be used as the return value of the dialog event handler.
 #_
-#_@@@
+#_**Far API used:**
+#_  ProcessDialogEventW, ProcessDialogEventInfo, FarDialogEvent
 #_
 </article>
 </node>
@@ -1945,7 +1969,7 @@ id=150
 lv=2
 dt=Text
 nm=export.OnError
-mtime=3578860636
+mtime=3602341732
 <article>
 #_export.OnError (ErrorMsg)
 #_
@@ -1957,9 +1981,8 @@ mtime=3578860636
 #_
 #_**Description:**
 #_  This is a user-defined hook into LuaFAR.
-#_  If this function is defined by a user application, then,
-#_  instead of displaying an error message box, LuaFAR calls
-#_  this function, passing it the error message value.
+#_  If this function is defined by a user application, then, instead of displaying
+#_  an error message box, LuaFAR calls this function, passing it the error message value.
 #_  The return values of export.OnError (if any) are ignored.
 #_
 #_
@@ -1987,7 +2010,7 @@ id=153
 lv=2
 dt=Text
 nm=far.AdvControl
-mtime=3601842989
+mtime=3602445221
 <article>
 #_Result = far.AdvControl (Command, Param1, Param2)
 #_
@@ -2017,15 +2040,15 @@ mtime=3601842989
 #_    Result:  integer
 #_
 #_ACTL_WAITKEY:
-#_    Param2:  table InputRecord, or string (e.g. "CtrlF12"), or nil (for any key)
+#_    Param2:  table `tInputRecord`, or string (e.g. "CtrlF12"), or nil (for any key)
 #_    Result:  integer
 #_
 #_ACTL_GETCOLOR:
 #_    Param1:  integer
-#_    Result:  table FarColor, or nil
+#_    Result:  table `tFarColor`, or nil
 #_
 #_ACTL_GETARRAYCOLOR:
-#_    Result:  table (array of FarColor tables)
+#_    Result:  table (array of `tFarColor` tables)
 #_
 #_ACTL_GETFARMANAGERVERSION:
 #_    Param1:  boolean (optional)
@@ -2044,7 +2067,7 @@ mtime=3601842989
 #_ACTL_SETARRAYCOLOR:
 #_    Param2:  table (see its fields below;
 #_             its array part contains colors
-#_             (each color can be supplied as either a FarColor table or a number)
+#_             (each color can be supplied as either a `tFarColor` table or a number)
 #_        Flags:       flags
 #_        StartIndex:  integer
 #_    Result:  integer    
@@ -2079,7 +2102,8 @@ mtime=3601842989
 #_  AdvControl
 #_
 #_@@@
-#_<lua>Links = { FarColor="427.html", InputRecord="187.html" }</lua>
+#_[tFarColor]: 427.html
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -2088,7 +2112,7 @@ id=53
 lv=2
 dt=Text
 nm=far.GetDirList
-mtime=3562834626
+mtime=3602278880
 <article>
 #_list = far.GetDirList (dir)
 #_
@@ -2096,14 +2120,14 @@ mtime=3562834626
 #_  dir:  string
 #_
 #_**Returns:**
-#_  list: array of PluginPanelItem tables, or nil
+#_  list: array of `tPluginPanelItem` tables, or nil
 #_
 #_**Far API used:**
 #_  GetDirList, FreeDirList
 #_
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -2112,6 +2136,7 @@ id=58
 lv=2
 dt=Text
 nm=far.GetMsg
+mtime=3602446551
 <article>
 #_msg = far.GetMsg (MsgId)
 #_
@@ -2119,12 +2144,10 @@ nm=far.GetMsg
 #_  MsgId: integer
 #_
 #_**Returns:**
-#_  msg: string
+#_  msg:   string
 #_
 #_**Far API used:**
 #_  GetMsg
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -2133,7 +2156,7 @@ id=60
 lv=2
 dt=Text
 nm=far.GetPluginDirList
-mtime=3507552662
+mtime=3602278886
 <article>
 #_list = far.GetPluginDirList (handle, Dir)
 #_
@@ -2142,13 +2165,13 @@ mtime=3507552662
 #_  Dir:          string
 #_
 #_**Returns:**
-#_  list:         array of PluginPanelItem
+#_  list:         array of `tPluginPanelItem`
 #_
 #_**Far API used:**
 #_  GetPluginDirList, FreePluginDirList
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -2157,7 +2180,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3593413411
+mtime=3602539031
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2183,7 +2206,7 @@ mtime=3593413411
 #_        disable:      boolean
 #_        grayed:       boolean
 #_        hidden:       boolean
-#_        AccelKey:     table FarKey
+#_        AccelKey:     table `tFarKey`
 #_
 #_  BreakKeys: table (array of break key items)
 #_      a break key item is a table;
@@ -2204,7 +2227,7 @@ mtime=3593413411
 #_  **BreakKey="AS+DELETE"**, where:
 #_    *AS*     - stands for AltShift
 #_    *+*      - separates key modifiers from key
-#_    *DELETE* - virtual key *VK_DELETE* (prefix *VK_* is removed).
+#_    *DELETE* - `virtual key` *VK_DELETE* (prefix *VK_* is removed).
 #_
 #_**NOTE 2**
 #_  The first return value (*Item*) can be used by the program for performing
@@ -2213,13 +2236,12 @@ mtime=3593413411
 #_  can be "action", "filename", etc.
 #_
 #_**Far API used:**
-#_  Menu
+#_  `Menu`
 #_
 #_@@@
-#_<lua> Links = {
-#_  FarKey="445.html",
-#_  ["virtual key"]=[[http://api.farmanager.com/ru/winapi/virtualkeycodes.html]],
-#_} </lua>
+#_[virtual key]: http://api.farmanager.com/ru/winapi/virtualkeycodes.html
+#_[Menu]: http://api.farmanager.com/ru/service_functions/menu.html
+#_[tFarKey]: 445.html
 #_
 </article>
 </node>
@@ -2228,6 +2250,7 @@ id=69
 lv=2
 dt=Text
 nm=far.RestoreScreen
+mtime=3602343103
 <article>
 #_result = far.RestoreScreen (handle)
 #_
@@ -2239,8 +2262,6 @@ nm=far.RestoreScreen
 #_
 #_**Far API used:**
 #_  RestoreScreen
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -2263,8 +2284,6 @@ nm=far.SaveScreen
 #_
 #_**Far API used:**
 #_  SaveScreen
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -2289,8 +2308,6 @@ mtime=3507818182
 #_  ShowHelp
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -2298,25 +2315,25 @@ id=76
 lv=2
 dt=Text
 nm=far.Text
-mtime=3521831927
+mtime=3602539056
 <article>
 #_far.Text (X, Y, Color, Str)
 #_
 #_**Parameters:**
 #_  X:     integer
 #_  Y:     integer
-#_  Color: table FarColor, or integer
+#_  Color: table `tFarColor`, or integer
 #_  Str:   string, or nil (if nil, NULL is passed to Far)
 #_
 #_**Returns:**
 #_  nothing
 #_
 #_**Far API used:**
-#_  Text
+#_  `Text`
 #_
 #_@@@
-#_<lua> Links = { FarColor="427.html" } </lua>
-#_
+#_[tFarColor]: 427.html
+#_[Text]: http://api.farmanager.com/ru/service_functions/text.html
 #_
 </article>
 </node>
@@ -2334,16 +2351,16 @@ lv=2
 dt=Text
 nm=far.ColorDialog
 ctime=3511465011
-mtime=3511507793
+mtime=3602277807
 <article>
 #_OutColor = far.ColorDialog (InColor, Flags)
 #_
 #_**Parameters:**
-#_  InColor:  table FarColor, or integer (optional; default=0x0F)
+#_  InColor:  table `tFarColor`, or integer (optional; default=0x0F)
 #_  Flags:    flags (optional)
 #_
 #_**Returns:**
-#_  OutColor: table FarColor, integer, or nil
+#_  OutColor: table `tFarColor`, integer, or nil
 #_
 #_**Note:**
 #_  Type of *OutColor* is the same as that of *InColor*.
@@ -2352,7 +2369,7 @@ mtime=3511507793
 #_  ColorDialog
 #_
 #_@@@
-#_<lua> Links = { FarColor="427.html", } </lua>
+#_[tFarColor]: 427.html
 #_
 </article>
 </node>
@@ -2362,7 +2379,7 @@ lv=2
 dt=Text
 nm=far.CreateUserControl
 ctime=3585338276
-mtime=3589527758
+mtime=3602351435
 <article>
 #_<markdown>
 #_Поддержка буфера для `DI_USERCONTROL`. Использовать примерно так:
@@ -2386,12 +2403,12 @@ id=20
 lv=2
 dt=Text
 nm=far.Dialog
-mtime=3573932450
+mtime=3602349751
 <article>
-#_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)
+#_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
 #_**Parameters:**
-#_  Same parameters as in far.DialogInit
+#_  Same parameters as in `far.DialogInit`
 #_
 #_**Returns:**
 #_  result: integer (1-based)
@@ -2401,12 +2418,10 @@ mtime=3573932450
 #_  the dialog items have at the moment of dialog closing.
 #_
 #_**Far API used:**
-#_  DialogInit, DialogRun, DialogFree
+#_  DialogInit, DialogRun, DialogFree, DlgProc
 #_
 #_@@@
-#_<lua> Links = {
-#_  FarDialogItem="295.html", ["far.DialogInit"]="378.html",
-#_} </lua>
+#_[far.DialogInit]: 378.html
 #_
 </article>
 </node>
@@ -2421,7 +2436,7 @@ mtime=3490521200
 #_far.DialogFree (handle)
 #_
 #_**Parameters:**
-#_  handle: userdata (obtained from a far.DialogInit call)
+#_  handle: userdata (obtained from a `far.DialogInit` call)
 #_
 #_**Returns:**
 #_  nothing
@@ -2434,7 +2449,7 @@ mtime=3490521200
 #_  DialogFree
 #_
 #_@@@
-#_<lua> Links = { ["far.DialogInit"]="378.html" } </lua>
+#_[far.DialogInit]: 378.html
 #_
 </article>
 </node>
@@ -2444,9 +2459,9 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3507818322
+mtime=3602349776
 <article>
-#_handle = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)
+#_handle = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
 #_**Parameters:**
 #_  Guid:      string
@@ -2455,10 +2470,10 @@ mtime=3507818322
 #_  X2:        integer
 #_  Y2:        integer
 #_  HelpTopic: string, or nil
-#_  Items:     table (array of FarDialogItem)
+#_  Items:     table (array of `tFarDialogItem`)
 #_  Flags:     flags
-#_  DlgProc:   function, or nil
-#_    ret = DlgProc (hDlg, Msg, Param1, Param2)
+#_  fDlgProc:  function, or nil
+#_    ret = fDlgProc (hDlg, Msg, Param1, Param2)
 #_      Parameters:
 #_        hDlg   : userdata
 #_        Msg    : integer
@@ -2471,11 +2486,10 @@ mtime=3507818322
 #_  handle: userdata
 #_
 #_**Far API used:**
-#_  DialogInit
+#_  DialogInit, DlgProc
 #_
 #_@@@
-#_<lua> Links = { FarDialogItem="295.html" } </lua>
-#_
+#_[tFarDialogItem]: 295.html
 #_
 </article>
 </node>
@@ -2490,7 +2504,7 @@ mtime=3573932440
 #_result = far.DialogRun (handle)
 #_
 #_**Parameters:**
-#_  handle: userdata (obtained from a far.DialogInit call)
+#_  handle: userdata (obtained from a `far.DialogInit` call)
 #_
 #_**Returns:**
 #_  result: integer (1-based)
@@ -2499,7 +2513,7 @@ mtime=3573932440
 #_  DialogRun
 #_
 #_@@@
-#_<lua> Links = { ["far.DialogInit"]="378.html" } </lua>
+#_[far.DialogInit]: 378.html
 #_
 </article>
 </node>
@@ -2508,7 +2522,7 @@ id=54
 lv=2
 dt=Text
 nm=far.GetDlgItem
-mtime=3573888158
+mtime=3602350154
 <article>
 #_result = far.GetDlgItem (hDlg, numitem [,item])
 #_
@@ -2522,14 +2536,13 @@ mtime=3573888158
 #_
 #_**Note:**
 #_  This function is equivalent to
-#_    far.SendDlgMessage(hDlg, "DM_GETDLGITEM", numitem, item)
+#_    `far.SendDlgMessage`(hDlg, "DM_GETDLGITEM", numitem, item)
 #_
 #_**Far API used:**
 #_  SendDlgMessage, DM_GETDLGITEM
 #_
 #_@@@
-#_<lua> Links = { ["far.SendDlgMessage"]="71.html" } </lua>
-#_
+#_[far.SendDlgMessage]: 71.html
 #_
 </article>
 </node>
@@ -2561,9 +2574,6 @@ mtime=3534766496
 #_  InputBox
 #_
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -2571,7 +2581,7 @@ id=65
 lv=2
 dt=Text
 nm=far.Message
-mtime=3599503305
+mtime=3602539082
 <article>
 #_result = far.Message (Msg, [Title], [Buttons], [Flags], [HelpTopic], [Id])
 #_
@@ -2610,9 +2620,10 @@ mtime=3599503305
 #_    b) limits the maximal number of lines and buttons.
 #_
 #_**Far API used:**
-#_  Message
+#_  `Message`
 #_
 #_@@@
+#_[Message]: http://api.farmanager.com/ru/service_functions/message.html
 #_
 </article>
 </node>
@@ -2621,7 +2632,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3601185976
+mtime=3602446733
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
@@ -2766,7 +2777,7 @@ mtime=3601185976
 #_    *Note:*
 #_      res = SendDlgMessage(hDlg, "DM_GETDLGITEM", numitem, item)
 #_          *is equivalent to*
-#_      res = far.GetDlgItem(hDlg, numitem, item)
+#_      res = `far.GetDlgItem`(hDlg, numitem, item)
 #_
 #_DM_SETDLGITEM:
 #_    Param2:  table
@@ -2774,7 +2785,7 @@ mtime=3601185976
 #_    *Note:*
 #_      res = SendDlgMessage(hDlg, "DM_SETDLGITEM", numitem, item)
 #_          *is equivalent to*
-#_      res = far.SetDlgItem(hDlg, numitem, item)
+#_      res = `far.SetDlgItem`(hDlg, numitem, item)
 #_
 #_DM_RESIZEDIALOG,
 #_DM_MOVEDIALOG:
@@ -2799,7 +2810,7 @@ mtime=3601185976
 #_DM_SETSELECTION:
 #_    Param2:  table
 #_    Result:  integer
-#_    *Note:* this function has much in common with editor.Select
+#_    *Note:* this function has much in common with `editor.Select`
 #_
 #_DM_SETCOMBOBOXEVENT:
 #_    Param2:  flags
@@ -2817,11 +2828,9 @@ mtime=3601185976
 #_  SendDlgMessage
 #_
 #_@@@
-#_<lua> Links = { ["far.GetDlgItem"]="54.html",
-#_                ["far.SetDlgItem"]="72.html",
-#_                ["editor.Select"]="42.html" }
-#_</lua>
-#_
+#_[far.GetDlgItem]: 54.html
+#_[far.SetDlgItem]: 72.html
+#_[editor.Select]: 42.html
 #_
 </article>
 </node>
@@ -2844,14 +2853,13 @@ mtime=3573888533
 #_
 #_**Note:**
 #_  This function is equivalent to
-#_    far.SendDlgMessage(hDlg, "DM_SETDLGITEM", numitem, item)
+#_    `far.SendDlgMessage`(hDlg, "DM_SETDLGITEM", numitem, item)
 #_
 #_**Far API used:**
 #_  SendDlgMessage, DM_SETDLGITEM
 #_
 #_@@@
-#_<lua> Links = { ["far.SendDlgMessage"]="71.html" } </lua>
-#_
+#_[far.SendDlgMessage]: 71.html
 #_
 </article>
 </node>
@@ -2899,7 +2907,7 @@ lv=2
 dt=Text
 nm=DN_BTNCLICK
 ctime=3477111575
-mtime=3477128221
+mtime=3602352332
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -2908,10 +2916,14 @@ mtime=3477128221
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_BTNCLICK
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
+#_
 </article>
 </node>
 <node>
@@ -2920,7 +2932,7 @@ lv=2
 dt=Text
 nm=DN_CLOSE
 ctime=3477111575
-mtime=3477128999
+mtime=3602352355
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -2929,10 +2941,13 @@ mtime=3477128999
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_CLOSE
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -2942,21 +2957,22 @@ lv=2
 dt=Text
 nm=DN_CONTROLINPUT
 ctime=3507553254
-mtime=3507553599
+mtime=3602352372
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    InputRecord
+#_    `tInputRecord`
 #_
 #_**Return**
 #_    default processing of the return value, see description.
 #_
+#_**Far API used:**
+#_  DlgProc, DN_CONTROLINPUT
+#_
 #_@@@
-#_<lua>
-#_Links = { InputRecord="187.html" }
-#_</lua>
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -2966,21 +2982,25 @@ lv=2
 dt=Text
 nm=DN_CTLCOLORDIALOG
 ctime=3477111575
-mtime=3601845235
+mtime=3602352390
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table FarColor
+#_    table `tFarColor`
 #_
 #_**Return**
-#_    table FarColor, or integer, or nothing
+#_    table `tFarColor`, or integer, or nothing
 #_
-#_For default processing of the return value, see the description.
+#_For default processing of the return value, see the `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_CTLCOLORDIALOG
 #_
 #_@@@
-#_<lua>Links = { description="285.html", FarColor="427.html" }</lua>
+#_[description]: 285.html
+#_[tFarColor]: 427.html
 #_
 </article>
 </node>
@@ -2990,21 +3010,23 @@ lv=2
 dt=Text
 nm=DN_CTLCOLORDLGITEM
 ctime=3477111575
-mtime=3517904325
+mtime=3602352410
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (FarDialogItemColors)
+#_    table (`tFarDialogItemColors`)
 #_
 #_**Return**
 #_    If the function returned a table (an array of new color
 #_    attributes to be set), 1 is returned to Far, otherwise 0.
 #_
-#_@@@
-#_<lua> Links = { FarDialogItemColors="293.html" } </lua>
+#_**Far API used:**
+#_  DlgProc, DN_CTLCOLORDLGITEM
 #_
+#_@@@
+#_[tFarDialogItemColors]: 293.html
 #_
 </article>
 </node>
@@ -3014,21 +3036,23 @@ lv=2
 dt=Text
 nm=DN_CTLCOLORDLGLIST
 ctime=3477040544
-mtime=3517898033
+mtime=3602352428
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (FarDialogItemColors)
+#_    table (`tFarDialogItemColors`)
 #_
 #_**Return**
 #_    If the function returned a table (an array of new color
 #_    attributes to be set), 1 is returned to Far, otherwise 0.
 #_
-#_@@@
-#_<lua> Links = { FarDialogItemColors="293.html" } </lua>
+#_**Far API used:**
+#_  DlgProc, DN_CTLCOLORDLGLIST
 #_
+#_@@@
+#_[tFarDialogItemColors]: 293.html
 #_
 </article>
 </node>
@@ -3038,7 +3062,7 @@ lv=2
 dt=Text
 nm=DN_DRAGGED
 ctime=3477111575
-mtime=3477133365
+mtime=3602352444
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3047,10 +3071,13 @@ mtime=3477133365
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DRAGGED
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3060,7 +3087,7 @@ lv=2
 dt=Text
 nm=DN_DRAWDIALOG
 ctime=3477111575
-mtime=3477133526
+mtime=3602352459
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3069,10 +3096,13 @@ mtime=3477133526
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DRAWDIALOG
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3082,7 +3112,7 @@ lv=2
 dt=Text
 nm=DN_DRAWDIALOGDONE
 ctime=3477111575
-mtime=3477133567
+mtime=3602352477
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3091,10 +3121,13 @@ mtime=3477133567
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DRAWDIALOGDONE
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3104,21 +3137,23 @@ lv=2
 dt=Text
 nm=DN_DRAWDLGITEM
 ctime=3477040579
-mtime=3477135140
+mtime=3602352490
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (FarDialogItem)
+#_    table (`tFarDialogItem`)
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DRAWDLGITEM
 #_
 #_@@@
-#_<lua>Links = {
-#_  description="285.html", FarDialogItem="295.html" }</lua>
-#_
+#_[description]: 285.html
+#_[tFarDialogItem]: 295.html
 #_
 </article>
 </node>
@@ -3128,20 +3163,23 @@ lv=2
 dt=Text
 nm=DN_EDITCHANGE
 ctime=3477040592
-mtime=3477135273
+mtime=3602352502
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (FarDialogItem)
+#_    table (`tFarDialogItem`)
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_EDITCHANGE
 #_
 #_@@@
-#_<lua>Links = {
-#_  description="285.html", FarDialogItem="295.html" }</lua>
+#_[description]: 285.html
+#_[tFarDialogItem]: 295.html
 #_
 </article>
 </node>
@@ -3151,7 +3189,7 @@ lv=2
 dt=Text
 nm=DN_ENTERIDLE
 ctime=3477111575
-mtime=3477135407
+mtime=3602352513
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3160,10 +3198,13 @@ mtime=3477135407
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_ENTERIDLE
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3173,7 +3214,7 @@ lv=2
 dt=Text
 nm=DN_GETVALUE
 ctime=3525638668
-mtime=3525668226
+mtime=3602353306
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3181,20 +3222,20 @@ mtime=3525668226
 #_**Param2**
 #_    table
 #_      GetType: integer
-#_      ValType: integer (enum *FARMACROVARTYPE*)
+#_      ValType: integer (enum FARMACROVARTYPE)
 #_      Value:   nil, flags, string, or number (depends on ValType)
 #_
 #_**Return**
 #_    table
-#_      ValType: integer (enum *FARMACROVARTYPE*)
+#_      ValType: integer (enum FARMACROVARTYPE)
 #_      Value:   flags, string, or number (depends on ValType)
 #_
 #_**Note**
 #_    If the returned value is not a table containing valid values,
 #_    then 0 is returned to Far.
 #_
-#_@@@
-#_
+#_**Far API used:**
+#_  DlgProc, DN_GETVALUE
 #_
 </article>
 </node>
@@ -3204,7 +3245,7 @@ lv=2
 dt=Text
 nm=DN_GOTFOCUS
 ctime=3477111575
-mtime=3477137091
+mtime=3602352577
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3213,10 +3254,13 @@ mtime=3477137091
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_GOTFOCUS
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3226,7 +3270,7 @@ lv=2
 dt=Text
 nm=DN_HELP
 ctime=3477040601
-mtime=3477153723
+mtime=3602352587
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3238,7 +3282,8 @@ mtime=3477153723
 #_    If the function returned a string, its address is returned
 #_    to Far, otherwise 0 is returned.
 #_
-#_@@@
+#_**Far API used:**
+#_  DlgProc, DN_HELP
 #_
 </article>
 </node>
@@ -3248,7 +3293,7 @@ lv=2
 dt=Text
 nm=DN_HOTKEY
 ctime=3477111575
-mtime=3477137752
+mtime=3602352595
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3257,10 +3302,13 @@ mtime=3477137752
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_HOTKEY
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3270,7 +3318,7 @@ lv=2
 dt=Text
 nm=DN_INITDIALOG
 ctime=3477111575
-mtime=3501423628
+mtime=3602352610
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3279,10 +3327,13 @@ mtime=3501423628
 #_    nil
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_INITDIALOG
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3292,22 +3343,23 @@ lv=2
 dt=Text
 nm=DN_INPUT
 ctime=3507553234
-mtime=3507709772
+mtime=3602352620
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    InputRecord
+#_    `tInputRecord`
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_INPUT
 #_
 #_@@@
-#_<lua>
-#_Links = { InputRecord="187.html",
-#_          description="285.html" }
-#_</lua>
+#_[description]: 285.html
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -3317,7 +3369,7 @@ lv=2
 dt=Text
 nm=DN_KILLFOCUS
 ctime=3477111575
-mtime=3477138131
+mtime=3602352635
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3326,10 +3378,13 @@ mtime=3477138131
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_KILLFOCUS
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3339,7 +3394,7 @@ lv=2
 dt=Text
 nm=DN_LISTCHANGE
 ctime=3477111575
-mtime=3477138149
+mtime=3602352644
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3348,10 +3403,13 @@ mtime=3477138149
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_LISTCHANGE
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3361,7 +3419,7 @@ lv=2
 dt=Text
 nm=DN_LISTHOTKEY
 ctime=3477111575
-mtime=3477138161
+mtime=3602352656
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3370,10 +3428,13 @@ mtime=3477138161
 #_    integer; according to Far API 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_LISTHOTKEY
 #_
 #_@@@
-#_<lua>Links = { description="285.html" }</lua>
+#_[description]: 285.html
 #_
 </article>
 </node>
@@ -3383,20 +3444,23 @@ lv=2
 dt=Text
 nm=DN_RESIZECONSOLE
 ctime=3477040640
-mtime=3477138715
+mtime=3602353245
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    table (Coord) 
+#_    table (`tCoord`) 
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_RESIZECONSOLE
 #_
 #_@@@
-#_<lua>Links = { description="285.html",
-#_Coord="314.html" }</lua>
+#_[description]: 285.html
+#_[tCoord]: 314.html
 #_
 </article>
 </node>
@@ -3413,7 +3477,7 @@ id=22
 lv=2
 dt=Text
 nm=editor.AddColor
-mtime=3601843477
+mtime=3602277824
 <article>
 #_result = editor.AddColor (EditorId, StringNumber, StartPos, EndPos, Flags,
 #_                          Color, Priority, Owner)
@@ -3424,7 +3488,7 @@ mtime=3601843477
 #_  StartPos:     integer (1-based)
 #_  EndPos:       integer (1-based)
 #_  Flags:        flags
-#_  Color:        table FarColor or integer
+#_  Color:        table `tFarColor` or integer
 #_  Priority:     integer (optional; default=EDITOR_COLOR_NORMAL_PRIORITY)
 #_  Owner:        string, or nil  (defaults to the calling plugin's GUID)
 #_
@@ -3435,7 +3499,7 @@ mtime=3601843477
 #_  EditorControl, ECTL_ADDCOLOR
 #_
 #_@@@
-#_<lua> Links = { FarColor="427.html" } </lua>
+#_[tFarColor]: 427.html
 #_
 </article>
 </node>
@@ -3503,8 +3567,6 @@ mtime=3572708824
 #_**Far API used:**
 #_  EditorControl, ECTL_DELCOLOR
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3525,8 +3587,6 @@ mtime=3507542607
 #_**Far API used:**
 #_  EditorControl, ECTL_DELETEBLOCK
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3546,8 +3606,6 @@ mtime=3507542619
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_DELETECHAR
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -3591,8 +3649,6 @@ mtime=3507542669
 #_**Far API used:**
 #_  EditorControl, ECTL_DELETESTRING
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3623,9 +3679,6 @@ mtime=3572708971
 #_**Far API used:**
 #_  Editor
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -3646,8 +3699,6 @@ mtime=3572618138
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_EXPANDTABS
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -3679,8 +3730,6 @@ mtime=3507542713
 #_**Far API used:**
 #_  EditorControl, ECTL_GETBOOKMARKS, ECTL_GETINFO
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3688,7 +3737,7 @@ id=28
 lv=2
 dt=Text
 nm=editor.GetColor
-mtime=3541023889
+mtime=3602277830
 <article>
 #_colordata = editor.GetColor(EditorId, StringNumber, ColorItem)
 #_
@@ -3703,14 +3752,14 @@ mtime=3541023889
 #_                  EndPos:       integer
 #_                  Priority:     integer
 #_                  Flags:        flags
-#_                  Color:        table FarColor
+#_                  Color:        table `tFarColor`
 #_                  Owner:        string (GUID)
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_GETCOLOR
 #_
 #_@@@
-#_<lua> Links = { FarColor="427.html" } </lua>
+#_[tFarColor]: 427.html
 #_
 </article>
 </node>
@@ -3732,9 +3781,6 @@ mtime=3507542738
 #_**Far API used:**
 #_  EditorControl, ECTL_GETFILENAME
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -3742,7 +3788,7 @@ id=29
 lv=2
 dt=Text
 nm=editor.GetInfo
-mtime=3572709006
+mtime=3602447116
 <article>
 #_Info = editor.GetInfo (EditorId)
 #_
@@ -3775,8 +3821,6 @@ mtime=3572709006
 #_**Far API used:**
 #_  EditorControl, ECTL_GETINFO
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3805,9 +3849,6 @@ mtime=3572709021
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_GETINFO, ECTL_SETPOSITION, ECTL_GETSTRING
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -3838,8 +3879,6 @@ mtime=3507542793
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_GETSESSIONBOOKMARKS
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -3887,8 +3926,6 @@ mtime=3578687911
 #_  EditorControl, ECTL_GETINFO, ECTL_SETPOSITION, ECTL_GETSTRING
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3899,10 +3936,10 @@ nm=editor.GetStringW
 ctime=3523911376
 mtime=3523911537
 <article>
-#_Same as editor.GetString but *StringText* and *StringEOL* are encoded in UTF-16LE.
+#_Same as `editor.GetString` but *StringText* and *StringEOL* are encoded in UTF-16LE.
 #_
 #_@@@
-#_<lua> Links = { ["editor.GetString"]="31.html" } </lua>
+#_[editor.GetString]: 31.html
 #_
 </article>
 </node>
@@ -3925,8 +3962,6 @@ mtime=3507542843
 #_**Far API used:**
 #_  EditorControl, ECTL_INSERTSTRING
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3948,8 +3983,6 @@ mtime=3507542869
 #_**Far API used:**
 #_  EditorControl, ECTL_INSERTTEXT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -3960,11 +3993,10 @@ nm=editor.InsertTextW
 ctime=3523911742
 mtime=3523911803
 <article>
-#_Same as editor.InsertText but *text* should be encoded in UTF-16LE.
+#_Same as `editor.InsertText` but *text* should be encoded in UTF-16LE.
 #_
 #_@@@
-#_<lua> Links = { ["editor.InsertText"]="33.html" } </lua>
-#_
+#_[editor.InsertText]: 33.html
 #_
 </article>
 </node>
@@ -4015,13 +4047,13 @@ id=36
 lv=2
 dt=Text
 nm=editor.ProcessInput
-mtime=3507543023
+mtime=3602278569
 <article>
 #_result = editor.ProcessInput (EditorId, Input)
 #_
 #_**Parameters:**
 #_  EditorId: integer, or nil
-#_  Input:    table InputRecord.
+#_  Input:    table `tInputRecord`.
 #_              (Field *EventType* is mandatory, other fields
 #_              are optional. If some field is missing, the default
 #_              value of 0/false is used, except for *wRepeatCount*
@@ -4034,8 +4066,7 @@ mtime=3507543023
 #_  EditorControl, ECTL_PROCESSINPUT
 #_
 #_@@@
-#_<lua> Links = { InputRecord="187.html" } </lua>
-#_
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -4057,8 +4088,6 @@ mtime=3507543136
 #_**Far API used:**
 #_  EditorControl, ECTL_QUIT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4066,7 +4095,7 @@ id=38
 lv=2
 dt=Text
 nm=editor.ReadInput
-mtime=3507543149
+mtime=3602278578
 <article>
 #_Info = editor.ReadInput (EditorId)
 #_
@@ -4074,14 +4103,13 @@ mtime=3507543149
 #_  EditorId: integer, or nil
 #_
 #_**Returns:**
-#_  Info:     table InputRecord, or nil
+#_  Info:     table `tInputRecord`, or nil
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_READINPUT
 #_
 #_@@@
-#_<lua> Links = { InputRecord="187.html" } </lua>
-#_
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -4106,8 +4134,6 @@ mtime=3572709078
 #_  EditorControl, ECTL_REALTOTAB
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4127,8 +4153,6 @@ mtime=3507543169
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_REDRAW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4153,8 +4177,6 @@ mtime=3577044333
 #_**Far API used:**
 #_  EditorControl, ECTL_SAVEFILE
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4162,12 +4184,12 @@ id=42
 lv=2
 dt=Text
 nm=editor.Select
-mtime=3572709094
+mtime=3602447196
 <article>
 #_result = editor.Select (EditorId, SelectData)
 #_  or
 #_result = editor.Select (EditorId, BlockType, BlockStartLine, BlockStartPos,
-#_                           BlockWidth, BlockHeight)
+#_                        BlockWidth, BlockHeight)
 #_
 #_**Parameters:**
 #_  EditorId:   integer, or nil
@@ -4188,8 +4210,6 @@ mtime=3572709094
 #_**Far API used:**
 #_  EditorControl, ECTL_SELECT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4197,7 +4217,7 @@ id=139
 lv=2
 dt=Text
 nm=editor.SetKeyBar
-mtime=3507547801
+mtime=3602278704
 <article>
 #_result = editor.SetKeyBar (EditorId, param)
 #_
@@ -4206,7 +4226,7 @@ mtime=3507547801
 #_  param, either of:
 #_      - string "redraw":  redraw the key bar titles;
 #_      - string "restore": restore the original titles;
-#_      - table (array of KeyBarLabel tables)
+#_      - table (array of `tKeyBarLabel` tables)
 #_
 #_**Returns:**
 #_  result:   boolean
@@ -4215,8 +4235,7 @@ mtime=3507547801
 #_  EditorControl, ECTL_SETKEYBAR
 #_
 #_@@@
-#_<lua> Links = { KeyBarLabel="406.html" } </lua>
-#_
+#_[tKeyBarLabel]: 406.html
 #_
 </article>
 </node>
@@ -4241,8 +4260,6 @@ mtime=3507818234
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_SETPARAM
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4278,8 +4295,6 @@ mtime=3572709106
 #_**Far API used:**
 #_  EditorControl, ECTL_SETPOSITION
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4303,8 +4318,6 @@ mtime=3572379327
 #_**Far API used:**
 #_  EditorControl, ECTL_SETSTRING
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4315,11 +4328,11 @@ nm=editor.SetStringW
 ctime=3523911625
 mtime=3523911700
 <article>
-#_Same as editor.SetString but *StringText* and *StringEOL*
+#_Same as `editor.SetString` but *StringText* and *StringEOL*
 #_should be encoded in UTF-16LE.
 #_
 #_@@@
-#_<lua> Links = { ["editor.SetString"]="44.html" } </lua>
+#_[editor.SetString]: 44.html
 #_
 </article>
 </node>
@@ -4342,9 +4355,6 @@ mtime=3507543302
 #_**Far API used:**
 #_  EditorControl, ECTL_SETTITLE
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -4366,9 +4376,6 @@ mtime=3576326560
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT.
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -4393,8 +4400,6 @@ mtime=3572709125
 #_  EditorControl, ECTL_TABTOREAL
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4416,9 +4421,6 @@ mtime=3507818238
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_UNDOREDO
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -4450,8 +4452,6 @@ mtime=3571802922
 #_**Far API used:**
 #_  PanelControl, FCTL_CHECKPANELSEXIST
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4478,8 +4478,6 @@ mtime=3571802936
 #_  FCTL_CLEARSELECTION, FCTL_ENDSELECTION
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4502,8 +4500,6 @@ mtime=3571802942
 #_**Far API used:**
 #_  PanelControl, FCTL_CLOSEPANEL
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4525,8 +4521,6 @@ mtime=3571802946
 #_  PanelControl, FCTL_GETCMDLINE
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4546,8 +4540,6 @@ mtime=3571802951
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETCMDLINEPOS
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4571,8 +4563,6 @@ mtime=3571802956
 #_**Far API used:**
 #_  PanelControl, FCTL_GETCMDLINESELECTION
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4593,8 +4583,6 @@ mtime=3571802960
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETCOLUMNTYPES
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4617,8 +4605,6 @@ mtime=3571802965
 #_**Far API used:**
 #_  PanelControl, FCTL_GETCOLUMNWIDTHS
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4626,7 +4612,7 @@ id=252
 lv=2
 dt=Text
 nm=panel.GetCurrentPanelItem
-mtime=3601752085
+mtime=3602278895
 <article>
 #_item = panel.GetCurrentPanelItem (handle, whatpanel)
 #_
@@ -4635,13 +4621,13 @@ mtime=3601752085
 #_  whatpanel: 1=active panel; 0=passive panel;
 #_
 #_**Returns:**
-#_  item:      PluginPanelItem
+#_  item:      `tPluginPanelItem`
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETCURRENTPANELITEM
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -4650,7 +4636,7 @@ id=260
 lv=2
 dt=Text
 nm=panel.GetPanelDirectory
-mtime=3571802979
+mtime=3602278434
 <article>
 #_PanelDir = panel.GetPanelDirectory ([handle], whatpanel)
 #_
@@ -4659,13 +4645,13 @@ mtime=3571802979
 #_  whatpanel: 1=active panel; 0=passive panel;
 #_
 #_**Returns:**
-#_  PanelDir:  table FarPanelDirectory
+#_  PanelDir:  table `tFarPanelDirectory`
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELDIRECTORY
 #_
 #_@@@
-#_<lua> Links = { FarPanelDirectory="459.html" } </lua>
+#_[tFarPanelDirectory]: 459.html
 #_
 </article>
 </node>
@@ -4689,9 +4675,6 @@ mtime=3571802983
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELFORMAT
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -4714,9 +4697,6 @@ mtime=3571802988
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELHOSTFILE
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -4724,17 +4704,17 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3571802993
+mtime=3602447338
 <article>
-#_PanelInfo = panel.GetPanelInfo ([handle], whatpanel)
+#_tPanelInfo = panel.GetPanelInfo ([handle], whatpanel)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
 #_  whatpanel: 1=active panel; 0=passive panel;
 #_
 #_**Returns:**
-#_  PanelInfo: table, or nil
-#_    fields of PanelInfo:
+#_  tPanelInfo: table, or nil
+#_    fields of tPanelInfo:
 #_      OwnerGuid:           string
 #_      PluginHandle:        userdata
 #_      PanelType:           integer
@@ -4748,11 +4728,7 @@ mtime=3571802993
 #_      Flags:               flags
 #_
 #_**Far API used:**
-#_  PanelControl, FCTL_GETPANELINFO
-#_
-#_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
-#_
+#_  PanelControl, FCTL_GETPANELINFO, PanelInfo
 #_
 </article>
 </node>
@@ -4761,7 +4737,7 @@ id=253
 lv=2
 dt=Text
 nm=panel.GetPanelItem
-mtime=3571802997
+mtime=3602278929
 <article>
 #_item = panel.GetPanelItem ([handle], whatpanel, itemindex)
 #_
@@ -4771,13 +4747,13 @@ mtime=3571802997
 #_  itemindex: integer (1-based)
 #_
 #_**Returns:**
-#_  item:      PluginPanelItem
+#_  item:      `tPluginPanelItem`
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELITEM
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -4801,9 +4777,6 @@ mtime=3571803002
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELPREFIX
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -4811,7 +4784,7 @@ id=254
 lv=2
 dt=Text
 nm=panel.GetSelectedPanelItem
-mtime=3571803006
+mtime=3602278934
 <article>
 #_item = panel.GetSelectedPanelItem ([handle], whatpanel, itemindex)
 #_
@@ -4821,13 +4794,13 @@ mtime=3571803006
 #_  itemindex: integer (1-based)
 #_
 #_**Returns:**
-#_  item:      PluginPanelItem
+#_  item:      `tPluginPanelItem`
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETSELECTEDPANELITEM
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -4857,9 +4830,6 @@ mtime=3582913573
 #_    panel.SetUserScreen()
 #_  end
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -4882,8 +4852,6 @@ mtime=3571803014
 #_  PanelControl, FCTL_INSERTCMDLINE
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4905,8 +4873,6 @@ mtime=3571803018
 #_**Far API used:**
 #_  PanelControl, FCTL_ISACTIVEPANEL
 #_
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4933,8 +4899,6 @@ mtime=3571803022
 #_  PanelControl, FCTL_REDRAWPANEL
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -4956,8 +4920,6 @@ mtime=3573119438
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETACTIVEPANEL
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -4982,8 +4944,6 @@ mtime=3571803026
 #_**Far API used:**
 #_  PanelControl, FCTL_SETCASESENSITIVESORT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5006,8 +4966,6 @@ mtime=3571803030
 #_  PanelControl, FCTL_SETCMDLINE
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5028,8 +4986,6 @@ mtime=3571803034
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETCMDLINEPOS
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5053,8 +5009,6 @@ mtime=3571803039
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETCMDLINESELECTION
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5080,8 +5034,6 @@ mtime=3584893925
 #_**Far API used:**
 #_  PanelControl, FCTL_SETDIRECTORIESFIRST
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5104,8 +5056,6 @@ mtime=3571803044
 #_**Far API used:**
 #_  PanelControl, FCTL_SETNUMERICSORT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5113,14 +5063,14 @@ id=13
 lv=2
 dt=Text
 nm=panel.SetPanelDirectory
-mtime=3571803048
+mtime=3602278440
 <article>
 #_result = panel.SetPanelDirectory (handle, whatpanel, dir)
 #_
 #_**Parameters:**
 #_  handle:    panel handle, or nil
 #_  whatpanel: 1=active panel; 0=passive panel;
-#_  dir:       string, or table FarPanelDirectory
+#_  dir:       string, or table `tFarPanelDirectory`
 #_             (if dir.PluginId is not set, it defaults to Far ID)
 #_
 #_**Returns:**
@@ -5130,7 +5080,7 @@ mtime=3571803048
 #_  PanelControl, FCTL_SETPANELDIRECTORY
 #_
 #_@@@
-#_<lua> Links = { FarPanelDirectory="459.html" } </lua>
+#_[tFarPanelDirectory]: 459.html
 #_
 </article>
 </node>
@@ -5157,9 +5107,6 @@ mtime=3571803052
 #_  PanelControl, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
 #_  FCTL_SETSELECTION, FCTL_ENDSELECTION
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -5181,8 +5128,6 @@ mtime=3571803056
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETSORTMODE
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5206,8 +5151,6 @@ mtime=3571803060
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_SETSORTORDER
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5237,8 +5180,6 @@ mtime=3582913564
 #_    panel.SetUserScreen()
 #_  end
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5262,8 +5203,6 @@ mtime=3571803067
 #_  PanelControl, FCTL_SETVIEWMODE
 #_
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5286,8 +5225,6 @@ mtime=3571803071
 #_**Far API used:**
 #_  PanelControl, FCTL_UPDATEPANEL
 #_
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5318,9 +5255,6 @@ mtime=3557414017
 #_**Far API used:**
 #_  ViewerControl, VCTL_GETFILENAME
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -5328,7 +5262,7 @@ id=132
 lv=2
 dt=Text
 nm=viewer.GetInfo
-mtime=3573763083
+mtime=3602447477
 <article>
 #_Info = viewer.GetInfo (ViewerID)
 #_
@@ -5347,13 +5281,13 @@ mtime=3573763083
 #_      Options:        integer
 #_      TabSize:        integer
 #_      LeftPos:        integer, 1-based
-#_      CurMode:        table
+#_      `CurMode`:        table
 #_
 #_**Far API used:**
 #_  ViewerControl, VCTL_GETINFO
 #_
 #_@@@
-#_<lua> Links = { CurMode="133.html" } </lua>
+#_[CurMode]: 133.html
 #_
 </article>
 </node>
@@ -5375,8 +5309,6 @@ mtime=3507624360
 #_**Far API used:**
 #_  ViewerControl, VCTL_QUIT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5396,8 +5328,6 @@ mtime=3507624410
 #_
 #_**Far API used:**
 #_  ViewerControl, VCTL_REDRAW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5421,8 +5351,6 @@ mtime=3507624477
 #_**Far API used:**
 #_  ViewerControl, VCTL_SELECT
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5430,7 +5358,7 @@ id=141
 lv=2
 dt=Text
 nm=viewer.SetKeyBar
-mtime=3507624927
+mtime=3602278710
 <article>
 #_result = viewer.SetKeyBar (ViewerID, param)
 #_
@@ -5439,7 +5367,7 @@ mtime=3507624927
 #_  param, either of:
 #_      - string "redraw":  redraw the key bar titles;
 #_      - string "restore": restore the original titles;
-#_      - table (array of KeyBarLabel tables)
+#_      - table (array of `tKeyBarLabel` tables)
 #_
 #_**Returns:**
 #_  result:   boolean
@@ -5448,8 +5376,7 @@ mtime=3507624927
 #_  ViewerControl, VCTL_SETKEYBAR
 #_
 #_@@@
-#_<lua> Links = { KeyBarLabel="406.html" } </lua>
-#_
+#_[tKeyBarLabel]: 406.html
 #_
 </article>
 </node>
@@ -5506,8 +5433,6 @@ mtime=3573762591
 #_**Far API used:**
 #_  ViewerControl, VCTL_SETPOSITION
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5534,10 +5459,6 @@ mtime=3523944710
 #_
 #_**Far API used:**
 #_  Viewer
-#_
-#_@@@
-#_
-#_
 #_
 </article>
 </node>
@@ -5608,17 +5529,17 @@ mtime=3507818385
 #_  f:          userdata (file filter object), or nil
 #_
 #_**Description:**
-#_  The created object has the following methods: FreeFileFilter,
-#_  OpenFiltersMenu, StartingToFilter and IsFileInFilter.
+#_  The created object has the following methods: `FreeFileFilter`,
+#_  `OpenFiltersMenu`, `StartingToFilter` and `IsFileInFilter`.
 #_
 #_**Far API used:**
 #_  FileFilterControl, FFCTL_CREATEFILEFILTER
 #_
 #_@@@
-#_<lua> Links =
-#_{ FreeFileFilter="324.html", OpenFiltersMenu="325.html",
-#_  StartingToFilter="326.html", IsFileInFilter="327.html" }
-#_</lua>
+#_[FreeFileFilter]: 324.html
+#_[IsFileInFilter]: 327.html
+#_[OpenFiltersMenu]: 325.html
+#_[StartingToFilter]: 326.html
 #_
 </article>
 </node>
@@ -5645,9 +5566,6 @@ mtime=3481258596
 #_**Far API used:**
 #_  FileFilterControl, FFCTL_FREEFILEFILTER
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -5668,9 +5586,6 @@ mtime=3480252058
 #_
 #_**Far API used:**
 #_  FileFilterControl, FFCTL_OPENFILTERSMENU
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -5693,9 +5608,6 @@ mtime=3480252113
 #_**Far API used:**
 #_  FileFilterControl, FFCTL_STARTINGTOFILTER
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -5704,13 +5616,13 @@ lv=2
 dt=Text
 nm=f:IsFileInFilter
 ctime=3480243336
-mtime=3562834694
+mtime=3602278939
 <article>
 #_result = f:IsFileInFilter (fileData)
 #_
 #_**Parameters:**
 #_  f:        file filter object
-#_  fileData: table PluginPanelItem
+#_  fileData: table `tPluginPanelItem`
 #_
 #_**Returns:**
 #_  result:  boolean
@@ -5719,7 +5631,7 @@ mtime=3562834694
 #_  FileFilterControl, FFCTL_ISFILEINFILTER
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html", } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -5739,21 +5651,21 @@ lv=2
 dt=Text
 nm=far.MacroAdd
 ctime=3523354795
-mtime=3579101813
+mtime=3602278585
 <article>
 #_Id = far.MacroAdd (Area, Flags, AKey, SequenceText, Description, Callback)
 #_
 #_**Parameters:**
 #_  Area:         flags (defaults to MACROAREA_COMMON)
 #_  Flags:        flags (defaults to 0)
-#_  AKey:         table InputRecord, or string (e.g. "CtrlShiftF12")
+#_  AKey:         table `tInputRecord`, or string (e.g. "CtrlShiftF12")
 #_  SequenceText: string
 #_  Description:  string (defaults to "")
 #_  Callback:     function, or nil
 #_
 #_**Returns:**
 #_  Id:           light userdata (success), or nil (failure)
-#_                  used in Callback and far.MacroDelete
+#_                  used in Callback and `far.MacroDelete`
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_ADDMACRO)
@@ -5774,10 +5686,8 @@ mtime=3579101813
 #_    Callback)
 #_
 #_@@@
-#_<lua> Links = {
-#_  InputRecord="187.html",
-#_  ["far.MacroDelete"]="447.html",
-#_} </lua>
+#_[far.MacroDelete]: 447.html
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -5787,7 +5697,7 @@ lv=2
 dt=Text
 nm=far.MacroCheck
 ctime=3507633625
-mtime=3580282181
+mtime=3602278612
 <article>
 #_result = far.MacroCheck (SequenceText, Flags)
 #_
@@ -5801,8 +5711,6 @@ mtime=3580282181
 #_**Far API used:**
 #_  MacroControl(MCTL_SENDSTRING, MSSC_CHECK)
 #_
-#_@@@
-#_<lua> Links = { InputRecord="187.html" } </lua>
 #_
 </article>
 </node>
@@ -5817,7 +5725,7 @@ mtime=3577031249
 #_result = far.MacroDelete (Id)
 #_
 #_**Parameters:**
-#_  Id:      light userdata (value returned by far.MacroAdd)
+#_  Id:      light userdata (value returned by `far.MacroAdd`)
 #_
 #_**Returns:**
 #_  result:  boolean
@@ -5826,9 +5734,7 @@ mtime=3577031249
 #_  MacroControl(MCTL_DELMACRO)
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["far.MacroAdd"]="446.html",
-#_} </lua>
+#_[far.MacroAdd]: 446.html
 #_
 </article>
 </node>
@@ -5873,8 +5779,6 @@ mtime=3580545597
 #_**Far API used:**
 #_  MacroControl(MCTL_EXECSTRING)
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5895,8 +5799,6 @@ mtime=3523362800
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_GETAREA)
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -5923,8 +5825,6 @@ mtime=3535655604
 #_**Far API used:**
 #_  MacroControl(MCTL_GETLASTERROR)
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5945,9 +5845,6 @@ mtime=3523362887
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_GETSTATE)
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -5970,8 +5867,6 @@ mtime=3523362830
 #_**Far API used:**
 #_  MacroControl(MCTL_LOADALL)
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -5980,14 +5875,14 @@ lv=2
 dt=Text
 nm=far.MacroPost
 ctime=3507633616
-mtime=3523358392
+mtime=3602447685
 <article>
 #_result = far.MacroPost (SequenceText, Flags, AKey)
 #_
 #_**Parameters:**
 #_  SequenceText: string
 #_  Flags:        flags (defaults to 0)
-#_  AKey:         table InputRecord, or string (e.g. "CtrlShiftF12"); optional
+#_  AKey:         table `tInputRecord`, or string (e.g. "CtrlShiftF12"); optional
 #_
 #_**Returns:**
 #_  result: boolean
@@ -5996,7 +5891,7 @@ mtime=3523358392
 #_  MacroControl(MCTL_SENDSTRING, MSSC_POST)
 #_
 #_@@@
-#_<lua> Links = { InputRecord="187.html" } </lua>
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -6018,9 +5913,6 @@ mtime=3523362847
 #_
 #_**Far API used:**
 #_  MacroControl(MCTL_SAVEALL)
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -6086,7 +5978,7 @@ lv=2
 dt=Text
 nm=far.GetPluginInformation
 ctime=3536863851
-mtime=3536865798
+mtime=3602278794
 <article>
 #_Info = far.GetPluginInformation (Handle)
 #_
@@ -6099,9 +5991,9 @@ mtime=3536865798
 #_    Flags:      flags
 #_    PInfo:      table
 #_      Flags:         flags
-#_      DiskMenu:      table PluginMenuItem
-#_      PluginMenu:    table PluginMenuItem
-#_      PluginConfig:  table PluginMenuItem
+#_      DiskMenu:      table `tPluginMenuItem`
+#_      PluginMenu:    table `tPluginMenuItem`
+#_      PluginConfig:  table `tPluginMenuItem`
 #_      CommandPrefix: string, or nil
 #_    GInfo:      table
 #_      MinFarVersion: table (array of 5 integers)
@@ -6115,8 +6007,7 @@ mtime=3536865798
 #_  PluginsControl
 #_
 #_@@@
-#_<lua> Links = { PluginMenuItem="471.html" } </lua>
-#_
+#_[tPluginMenuItem]: 471.html
 #_
 </article>
 </node>
@@ -6255,9 +6146,6 @@ mtime=3536037740
 #_**Far API used:**
 #_  SettingsControl
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -6278,18 +6166,13 @@ mtime=3576062233
 #_
 #_**Description:**
 #_  Frees all settings handles that might be open by previous calls
-#_  to far.CreateSettings and not freed.
+#_  to `far.CreateSettings` and not freed.
 #_
 #_**Far API used:**
 #_  SettingsControl
 #_
 #_@@@
-#_<lua>
-#_  Links = {
-#_    ["far.CreateSettings"]="416.html",
-#_  }
-#_</lua>
-#_
+#_[far.CreateSettings]: 416.html
 #_
 </article>
 </node>
@@ -6319,9 +6202,6 @@ mtime=3513280434
 #_**Far API used:**
 #_  SettingsControl
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -6346,8 +6226,6 @@ mtime=3576228671
 #_
 #_**Far API used:**
 #_  SettingsControl
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -6412,8 +6290,6 @@ mtime=3513280678
 #_**Far API used:**
 #_  SettingsControl
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -6440,8 +6316,6 @@ mtime=3513106776
 #_**Far API used:**
 #_  SettingsControl
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -6466,8 +6340,6 @@ mtime=3513280638
 #_
 #_**Far API used:**
 #_  SettingsControl
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -6498,8 +6370,6 @@ mtime=3513143858
 #_**Far API used:**
 #_  SettingsControl
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -6516,7 +6386,7 @@ lv=2
 dt=Text
 nm=far.ConvertPath
 ctime=3476911603
-mtime=3507818389
+mtime=3602447883
 <article>
 #_Dest = far.ConvertPath (Src [, Mode])
 #_
@@ -6528,10 +6398,7 @@ mtime=3507818389
 #_  Dest: string
 #_
 #_**Far API used:**
-#_  FSF.ConvertPath
-#_
-#_
-#_@@@
+#_  ConvertPath
 #_
 #_
 </article>
@@ -6541,7 +6408,7 @@ id=3
 lv=2
 dt=Text
 nm=far.CopyToClipboard
-mtime=3587293480
+mtime=3602447964
 <article>
 #_result = far.CopyToClipboard (str [,type])
 #_
@@ -6556,10 +6423,8 @@ mtime=3587293480
 #_  To clear the clipboard, pass *str* as nil
 #_
 #_**Far API used:**
-#_  FSF.CopyToClipboard
+#_  CopyToClipboard
 #_
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -6569,7 +6434,7 @@ lv=2
 dt=Text
 nm=far.FormatFileSize
 ctime=3536871985
-mtime=3536900087
+mtime=3602447969
 <article>
 #_result = far.FormatFileSize (Size, Width, Flags [, MinSizeIndex])
 #_
@@ -6583,9 +6448,7 @@ mtime=3536900087
 #_  result:       string
 #_
 #_**Far API used:**
-#_  FSF.FormatFileSize
-#_
-#_@@@
+#_  FormatFileSize
 #_
 </article>
 </node>
@@ -6594,6 +6457,7 @@ id=262
 lv=2
 dt=Text
 nm=far.GetCurrentDirectory
+mtime=3602447974
 <article>
 #_CurDir = far.GetCurrentDirectory ()
 #_
@@ -6604,10 +6468,7 @@ nm=far.GetCurrentDirectory
 #_  CurDir: string
 #_
 #_**Far API used:**
-#_  FSF.GetCurrentDirectory
-#_
-#_@@@
-#_
+#_  GetCurrentDirectory
 #_
 </article>
 </node>
@@ -6616,6 +6477,7 @@ id=56
 lv=2
 dt=Text
 nm=far.GetFileOwner
+mtime=3602447980
 <article>
 #_result = far.GetFileOwner (Computer, Name)
 #_
@@ -6627,9 +6489,7 @@ nm=far.GetFileOwner
 #_  result: string, or nil
 #_
 #_**Far API used:**
-#_  FSF.GetFileOwner
-#_
-#_@@@
+#_  GetFileOwner
 #_
 </article>
 </node>
@@ -6638,6 +6498,7 @@ id=59
 lv=2
 dt=Text
 nm=far.GetNumberOfLinks
+mtime=3602447986
 <article>
 #_result = far.GetNumberOfLinks (Name)
 #_
@@ -6648,9 +6509,7 @@ nm=far.GetNumberOfLinks
 #_  result: integer
 #_
 #_**Far API used:**
-#_  FSF.GetNumberOfLinks
-#_
-#_@@@
+#_  GetNumberOfLinks
 #_
 </article>
 </node>
@@ -6659,6 +6518,7 @@ id=199
 lv=2
 dt=Text
 nm=far.GetPathRoot
+mtime=3602447990
 <article>
 #_Root = far.GetPathRoot (Path)
 #_
@@ -6669,9 +6529,7 @@ nm=far.GetPathRoot
 #_  Root: string
 #_
 #_**Far API used:**
-#_  FSF.GetPathRoot
-#_
-#_@@@
+#_  GetPathRoot
 #_
 </article>
 </node>
@@ -6680,6 +6538,7 @@ id=200
 lv=2
 dt=Text
 nm=far.GetReparsePointInfo
+mtime=3602447995
 <article>
 #_Dest = far.GetReparsePointInfo (Src)
 #_
@@ -6690,9 +6549,7 @@ nm=far.GetReparsePointInfo
 #_  Dest: string, or nil
 #_
 #_**Far API used:**
-#_  FSF.GetReparsePointInfo
-#_
-#_@@@
+#_  GetReparsePointInfo
 #_
 </article>
 </node>
@@ -6701,13 +6558,13 @@ id=186
 lv=2
 dt=Text
 nm=far.InputRecordToName
-mtime=3532787197
+mtime=3602448001
 <article>
 #_KeyComb = far.InputRecordToName (Input)
 #_Ctrl,Alt,Shift,Key = far.InputRecordToName (Input, true)
 #_
 #_**Parameters:**
-#_  Input:    table InputRecord
+#_  Input:    table `tInputRecord`
 #_            (Field *EventType* is mandatory, other fields
 #_            are optional. If some field is missing, the default
 #_            value of 0/false is used, except for *RepeatCount*
@@ -6721,11 +6578,10 @@ mtime=3532787197
 #_  Key:      key without key-modifiers, or *false*
 #_
 #_**Far API used:**
-#_  FSF.FarInputRecordToName
+#_  FarInputRecordToName
 #_
 #_@@@
-#_<lua> Links = { ["\\bInputRecord\\b"]="187.html", }
-#_</lua>
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -6734,6 +6590,7 @@ id=201
 lv=2
 dt=Text
 nm=far.LIsAlpha
+mtime=3602448007
 <article>
 #_result = far.LIsAlpha (str)
 #_
@@ -6744,9 +6601,7 @@ nm=far.LIsAlpha
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  FSF.LIsAlpha
-#_
-#_@@@
+#_  LIsAlpha
 #_
 </article>
 </node>
@@ -6755,6 +6610,7 @@ id=202
 lv=2
 dt=Text
 nm=far.LIsAlphanum
+mtime=3602448012
 <article>
 #_result = far.LIsAlphanum (str)
 #_
@@ -6765,9 +6621,7 @@ nm=far.LIsAlphanum
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  FSF.LIsAlphanum
-#_
-#_@@@
+#_  LIsAlphanum
 #_
 </article>
 </node>
@@ -6776,6 +6630,7 @@ id=203
 lv=2
 dt=Text
 nm=far.LIsLower
+mtime=3602448015
 <article>
 #_result = far.LIsLower (str)
 #_
@@ -6786,9 +6641,7 @@ nm=far.LIsLower
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  FSF.LIsLower
-#_
-#_@@@
+#_  LIsLower
 #_
 </article>
 </node>
@@ -6797,6 +6650,7 @@ id=204
 lv=2
 dt=Text
 nm=far.LIsUpper
+mtime=3602448019
 <article>
 #_result = far.LIsUpper (str)
 #_
@@ -6807,9 +6661,7 @@ nm=far.LIsUpper
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  FSF.LIsUpper
-#_
-#_@@@
+#_  LIsUpper
 #_
 </article>
 </node>
@@ -6818,6 +6670,7 @@ id=205
 lv=2
 dt=Text
 nm=far.LLowerBuf
+mtime=3602448024
 <article>
 #_result = far.LLowerBuf (str)
 #_
@@ -6828,9 +6681,7 @@ nm=far.LLowerBuf
 #_  result: string
 #_
 #_**Far API used:**
-#_  FSF.LLowerBuf
-#_
-#_@@@
+#_  LLowerBuf
 #_
 </article>
 </node>
@@ -6839,6 +6690,7 @@ id=188
 lv=2
 dt=Text
 nm=far.LStricmp
+mtime=3602448028
 <article>
 #_result = far.LStricmp (str1, str2)
 #_
@@ -6850,7 +6702,7 @@ nm=far.LStricmp
 #_  result: integer
 #_
 #_**Far API used:**
-#_  FSF.LStricmp
+#_  LStricmp
 #_
 #_
 </article>
@@ -6860,6 +6712,7 @@ id=189
 lv=2
 dt=Text
 nm=far.LStrnicmp
+mtime=3602448032
 <article>
 #_result = far.LStrnicmp (str1, str2, num)
 #_
@@ -6872,7 +6725,7 @@ nm=far.LStrnicmp
 #_  result: integer
 #_
 #_**Far API used:**
-#_  FSF.LStrnicmp
+#_  LStrnicmp
 #_
 #_
 </article>
@@ -6882,6 +6735,7 @@ id=206
 lv=2
 dt=Text
 nm=far.LUpperBuf
+mtime=3602448036
 <article>
 #_result = far.LUpperBuf (str)
 #_
@@ -6892,9 +6746,7 @@ nm=far.LUpperBuf
 #_  result: string
 #_
 #_**Far API used:**
-#_  FSF.LUpperBuf
-#_
-#_@@@
+#_  LUpperBuf
 #_
 </article>
 </node>
@@ -6903,7 +6755,7 @@ id=208
 lv=2
 dt=Text
 nm=far.MkLink
-mtime=3507818400
+mtime=3602448040
 <article>
 #_result = far.MkLink (Src, Dest, Type, Flags)
 #_
@@ -6917,9 +6769,7 @@ mtime=3507818400
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  FSF.MkLink
-#_
-#_@@@
+#_  MkLink
 #_
 </article>
 </node>
@@ -6928,6 +6778,7 @@ id=207
 lv=2
 dt=Text
 nm=far.MkTemp
+mtime=3602448044
 <article>
 #_result = far.MkTemp ([prefix])
 #_
@@ -6938,9 +6789,7 @@ nm=far.MkTemp
 #_  result: string
 #_
 #_**Far API used:**
-#_  FSF.MkTemp
-#_
-#_@@@
+#_  MkTemp
 #_
 </article>
 </node>
@@ -6950,7 +6799,7 @@ lv=2
 dt=Text
 nm=far.NameToInputRecord
 ctime=3508525223
-mtime=3532787207
+mtime=3602448047
 <article>
 #_Record = far.NameToInputRecord (Name)
 #_
@@ -6958,15 +6807,14 @@ mtime=3532787207
 #_  Name:   string
 #_
 #_**Returns:**
-#_  Record: table InputRecord, or nil
+#_  Record: table `tInputRecord`, or nil
 #_er
 #_
 #_**Far API used:**
-#_  FSF.FarNameToInputRecord
+#_  FarNameToInputRecord
 #_
 #_@@@
-#_<lua> Links = { ["\\bInputRecord\\b"]="187.html", } </lua>
-#_
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>
@@ -6975,7 +6823,7 @@ id=67
 lv=2
 dt=Text
 nm=far.PasteFromClipboard
-mtime=3587293469
+mtime=3602448051
 <article>
 #_result = far.PasteFromClipboard ([type])
 #_
@@ -6986,9 +6834,7 @@ mtime=3587293469
 #_  result: string, or nil
 #_
 #_**Far API used:**
-#_  FSF.PasteFromClipboard
-#_
-#_@@@
+#_  PasteFromClipboard
 #_
 </article>
 </node>
@@ -6997,7 +6843,7 @@ id=190
 lv=2
 dt=Text
 nm=far.ProcessName
-mtime=3539893673
+mtime=3602448056
 <article>
 #_Result = far.ProcessName (Op, Mask, Name, Flags, Size)
 #_
@@ -7013,7 +6859,7 @@ mtime=3539893673
 #_          String is returned on success if Op==PN_GENERATENAME
 #_
 #_**Far API used:**
-#_  FSF.ProcessName
+#_  ProcessName
 #_
 #_
 </article>
@@ -7023,7 +6869,7 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3601748444
+mtime=3602448062
 <article>
 #_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags [, ...]])
 #_
@@ -7041,7 +6887,7 @@ mtime=3601748444
 #_
 #_**Description:**
 #_  On every file found, *UserFunc* is called with the following arguments passed to it:
-#_      (1) a PluginPanelItem table
+#_      (1) a `tPluginPanelItem` table
 #_      (2) the full pathname of the found file
 #_      (3...) additional arguments that was passed to far.RecursiveSearch
 #_
@@ -7049,10 +6895,10 @@ mtime=3601748444
 #_  is stopped.
 #_
 #_**Far API used:**
-#_  FSF.FarRecursiveSearch
+#_  FarRecursiveSearch
 #_
 #_@@@
-#_<lua> Links = { PluginPanelItem="85.html" } </lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -7061,6 +6907,7 @@ id=209
 lv=2
 dt=Text
 nm=far.TruncPathStr
+mtime=3602448065
 <article>
 #_result = far.TruncPathStr (Str, MaxLength)
 #_
@@ -7072,9 +6919,7 @@ nm=far.TruncPathStr
 #_  result:    string
 #_
 #_**Far API used:**
-#_  FSF.TruncPathStr
-#_
-#_@@@
+#_  TruncPathStr
 #_
 </article>
 </node>
@@ -7083,6 +6928,7 @@ id=210
 lv=2
 dt=Text
 nm=far.TruncStr
+mtime=3602448069
 <article>
 #_result = far.TruncStr (Str, MaxLength)
 #_
@@ -7094,9 +6940,7 @@ nm=far.TruncStr
 #_  result:    string
 #_
 #_**Far API used:**
-#_  FSF.TruncStr
-#_
-#_@@@
+#_  TruncStr
 #_
 </article>
 </node>
@@ -7106,7 +6950,7 @@ lv=2
 dt=Text
 nm=far.XLat
 ctime=3480362672
-mtime=3511946413
+mtime=3602448075
 <article>
 #_result = far.XLat (Line, StartPos, EndPos, Flags)
 #_
@@ -7120,9 +6964,7 @@ mtime=3511946413
 #_  result:   string, or nil
 #_
 #_**Far API used:**
-#_  FSF.XLat
-#_
-#_@@@
+#_  XLat
 #_
 </article>
 </node>
@@ -7240,8 +7082,6 @@ mtime=3549007487
 #_**Far API used:**
 #_  RegExpControl
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -7303,14 +7143,16 @@ mtime=3532684281
 #_    -- Via the *cflags* parameter.
 #_
 #_**Object methods:**
-#_  bracketscount, find, gsub, match
+#_  `bracketscount`, `find`, `gsub`, `match`
 #_
 #_**Far API used:**
 #_  RegExpControl
 #_
 #_@@@
-#_<lua> Links = { find="267.html", match="268.html", gsub="386.html",
-#_  bracketscount="377.html" } </lua>
+#_[gsub]: 386.html
+#_[bracketscount]: 377.html
+#_[find]: 267.html
+#_[match]: 268.html
 #_
 </article>
 </node>
@@ -7449,8 +7291,6 @@ mtime=3526661259
 #_  The function is used to give access to Far functions to DLL's other
 #_  than the plugin DLL.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -7486,8 +7326,6 @@ mtime=3558792319
 #_    far.Show(F.FARMANAGERVERSION_MAJOR, F.FARMANAGERVERSION_MINOR,
 #_             F.FARMANAGERVERSION_BUILD)
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -7513,10 +7351,10 @@ mtime=3599756117
 #_
 #_**Description:**
 #_  This function returns representation of its arguments, suitable
-#_  for passing to function far.Menu as its *Items* parameter.
+#_  for passing to function `far.Menu` as its *Items* parameter.
 #_
 #_@@@
-#_<lua> Links = {  ["far.Menu"]="64.html" } </lua>
+#_[far.Menu]: 64.html
 #_
 </article>
 </node>
@@ -7525,7 +7363,7 @@ id=68
 lv=2
 dt=Text
 nm=far.PluginStartupInfo
-mtime=3561666722
+mtime=3602448401
 <article>
 #_Info = far.PluginStartupInfo ()
 #_
@@ -7541,10 +7379,8 @@ mtime=3561666722
 #_
 #_**Description:**
 #_  Returns a table containing the data elements of the
-#_  *PluginStartupInfo* struct that plugin obtains when FAR call its
-#_  function *SetStartupInfo*.
-#_
-#_@@@
+#_  *PluginStartupInfo* struct that plugin obtains when FAR calls
+#_  its function *SetStartupInfoW*.
 #_
 </article>
 </node>
@@ -7563,21 +7399,21 @@ mtime=3599756101
 #_  Each argument may be of any Lua type.
 #_
 #_**Returns:**
-#_  Item, Position - same as in far.Menu.
+#_  Item, Position - same as in `far.Menu`.
 #_
 #_**Description:**
 #_  This function shows representation of its arguments in a menu
 #_  window. It is handy for displaying multiple values at once, or
 #_  long multi-line strings.
 #_
-#_  The function calls far.MakeMenuItems internally, then far.Menu.
+#_  The function calls `far.MakeMenuItems` internally, then `far.Menu`.
 #_
-#_  Due to using far.MakeMenuItems the returned *Item* table contains
+#_  Due to using `far.MakeMenuItems` the returned *Item* table contains
 #_  the value of the corresponding original argument under the field 'arg'.
 #_
 #_@@@
-#_<lua> Links = {  ["far.MakeMenuItems"]="280.html",
-#_["far.Menu"]="64.html" } </lua>
+#_[far.Menu]: 64.html
+#_[far.MakeMenuItems]: 280.html
 #_
 </article>
 </node>
@@ -7587,7 +7423,7 @@ lv=2
 dt=Text
 nm=far.Timer
 ctime=3482124061
-mtime=3597159757
+mtime=3602539284
 <article>
 #_timer = far.Timer (interval, handler)
 #_
@@ -7614,7 +7450,7 @@ mtime=3597159757
 #_
 #_  2. This function requires that the plugin DLL has
 #_     *ProcessSynchroEventW* exported. (There is not such a requirement
-#_     for export.ProcessSynchroEvent though, as it is not called by the
+#_     for `export.ProcessSynchroEvent` though, as it is not called by the
 #_     Timer function and methods).
 #_
 #_**Far API used:**
@@ -7624,10 +7460,7 @@ mtime=3597159757
 #_  CreateThread
 #_
 #_@@@
-#_<lua> Links = {
-#_["\\bexport.ProcessSynchroEvent\\b"]="319.html",
-#_} </lua>
-#_
+#_[export.ProcessSynchroEvent]: 319.html
 #_
 </article>
 </node>
@@ -7673,9 +7506,6 @@ mtime=3482345154
 #_  called. The initial value of this property is *true*.
 #_  This is a read/write boolean property.
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -7693,9 +7523,6 @@ mtime=3482344791
 #_**Description:**
 #_  Query or set the interval (in milliseconds) of the timer.
 #_  This is a read/write integer property.
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -7732,9 +7559,6 @@ mtime=3482491377
 #_  A timer object is garbage-collected only when its lua_State closes,
 #_  thus it is the application's responsibility to call the *Close*
 #_  method when the timer is not needed anymore.
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -7816,15 +7640,11 @@ mtime=3512058652
 #_
 #_  Keys of the table are always strings. Values are 64-bit integers
 #_  represented either as numbers, or strings in the format acceptable
-#_  by the bit64 library. Therefore, these values should be tested or
+#_  by the `bit64 library`. Therefore, these values should be tested or
 #_  manipulated only by functions of that library.
 #_
 #_@@@
-#_<lua>
-#_Links = {
-#_  ["bit64 library"]="405.html"
-#_}
-#_</lua>
+#_[bit64 library]: 405.html
 #_
 </article>
 </node>
@@ -7840,12 +7660,12 @@ nm="Structures"
 id=461
 lv=2
 dt=Text
-nm=AnalyseInfo
+nm=tAnalyseInfo
 ctime=3536040267
-mtime=3559159279
+mtime=3602277550
 <article>
 #_<markdown>
-#_**`AnalyseInfo`** is a table with the following predefined fields:
+#_**`tAnalyseInfo`** is a table with the following predefined fields:
 #_
 #_      FileName: string (UTF-8)
 #_      Buffer:   string
@@ -7862,7 +7682,7 @@ mtime=3559159279
 id=314
 lv=2
 dt=Text
-nm=Coord
+nm=tCoord
 ctime=3477138634
 mtime=3477138672
 <article>
@@ -7877,12 +7697,12 @@ mtime=3477138672
 id=427
 lv=2
 dt=Text
-nm=FarColor
+nm=tFarColor
 ctime=3508689565
-mtime=3508689711
+mtime=3602277839
 <article>
 #_<markdown>
-#_**`FarColor`** is a table with the following predefined fields:
+#_**`tFarColor`** is a table with the following predefined fields:
 #_
 #_      Flags:           flags
 #_      ForegroundColor: integer
@@ -7895,12 +7715,12 @@ mtime=3508689711
 id=295
 lv=2
 dt=Text
-nm=FarDialogItem
+nm=tFarDialogItem
 ctime=3477054110
-mtime=3523911182
+mtime=3602278320
 <article>
 #_<markdown>
-#_**`FarDialogItem`** is a table (array)
+#_**`tFarDialogItem`** is a table (array)
 #_
 #_Fields of a dialog item:
 #_
@@ -7930,17 +7750,17 @@ mtime=3523911182
 id=293
 lv=2
 dt=Text
-nm=FarDialogItemColors
+nm=tFarDialogItemColors
 ctime=3477043729
-mtime=3517898220
+mtime=3602278327
 <article>
 #_<markdown>
-#_**`FarDialogItemColors`** is a table with the following predefined fields:
+#_**`tFarDialogItemColors`** is a table with the following predefined fields:
 #_
 #_      Flags:  flags
 #_
 #_The array part of the table keeps colors, represented by
-#_[`FarColor`](427.html) tables.
+#_[`tFarColor`](427.html) tables.
 #_Color count can be obtained via the operator `#`.
 #_
 #_
@@ -7950,12 +7770,12 @@ mtime=3517898220
 id=445
 lv=2
 dt=Text
-nm=FarKey
+nm=tFarKey
 ctime=3519480559
-mtime=3519480675
+mtime=3602278411
 <article>
 #_<markdown>
-#_**`FarKey`** is a table with the following predefined fields:
+#_**`tFarKey`** is a table with the following predefined fields:
 #_
 #_      VirtualKeyCode:     integer
 #_      ControlKeyState:    integer
@@ -7967,12 +7787,12 @@ mtime=3519480675
 id=459
 lv=2
 dt=Text
-nm=FarPanelDirectory
+nm=tFarPanelDirectory
 ctime=3534535611
-mtime=3534535770
+mtime=3602278445
 <article>
 #_<markdown>
-#_**`FarPanelDirectory`** is a table with the following predefined fields:
+#_**`tFarPanelDirectory`** is a table with the following predefined fields:
 #_
 #_      Name:     string
 #_      Param:    string
@@ -7986,11 +7806,11 @@ mtime=3534535770
 id=120
 lv=2
 dt=Text
-nm=InfoLine
-mtime=3557517877
+nm=tInfoLine
+mtime=3602278509
 <article>
 #_<markdown>
-#_**`InfoLine`** is a table with the following predefined fields:
+#_**`tInfoLine`** is a table with the following predefined fields:
 #_
 #_      Text:   string
 #_      Data:   string
@@ -8002,8 +7822,8 @@ mtime=3557517877
 id=187
 lv=2
 dt=Text
-nm=InputRecord
-mtime=3536353853
+nm=tInputRecord
+mtime=3602278734
 <article>
 #_**The table has the following fields:**
 #_
@@ -8018,7 +7838,7 @@ mtime=3536353853
 #_  ControlKeyState:  integer
 #_
 #_  *--if EventType is MOUSE_EVENT:*
-#_  see MouseEventRecord
+#_  see `tMouseEventRecord`
 #_
 #_  *--if EventType is WINDOW_BUFFER_SIZE_EVENT:*
 #_  SizeX             integer
@@ -8031,13 +7851,11 @@ mtime=3536353853
 #_  SetFocus          boolean
 #_
 #_@@@
-#_<lua> Links = {
-#_  ['editor.ProcessInput']="36.html",
-#_  ['editor.ReadInput']="38.html",
-#_  ['far.InputRecordToKey']="186.html",
-#_  ['far.ProcessKey']="114.html",
-#_  MouseEventRecord="313.html",
-#_} </lua>
+#_[editor.ProcessInput]: 36.html
+#_[tMouseEventRecord]: 313.html
+#_[far.ProcessKey]: 114.html
+#_[far.InputRecordToKey]: 186.html
+#_[editor.ReadInput]: 38.html
 #_
 </article>
 </node>
@@ -8045,12 +7863,12 @@ mtime=3536353853
 id=406
 lv=2
 dt=Text
-nm=KeyBarLabel
+nm=tKeyBarLabel
 ctime=3507471475
-mtime=3507818574
+mtime=3602278714
 <article>
 #_<markdown>
-#_**`KeyBarLabel`** is a table with the following predefined fields:
+#_**`tKeyBarLabel`** is a table with the following predefined fields:
 #_
 #_      VirtualKeyCode:  integer
 #_      ControlKeyState: flags
@@ -8064,7 +7882,7 @@ mtime=3507818574
 id=313
 lv=2
 dt=Text
-nm=MouseEventRecord
+nm=tMouseEventRecord
 ctime=3477138206
 mtime=3532719874
 <article>
@@ -8083,11 +7901,11 @@ mtime=3532719874
 id=121
 lv=2
 dt=Text
-nm=PanelMode
-mtime=3507818587
+nm=tPanelMode
+mtime=3602278770
 <article>
 #_<markdown>
-#_**`PanelMode`** is a table with the following predefined fields:
+#_**`tPanelMode`** is a table with the following predefined fields:
 #_
 #_      ColumnTypes:        string
 #_      ColumnWidths:       string
@@ -8102,12 +7920,12 @@ mtime=3507818587
 id=471
 lv=2
 dt=Text
-nm=PluginMenuItem
+nm=tPluginMenuItem
 ctime=3536865687
-mtime=3601969300
+mtime=3602278799
 <article>
 #_<markdown>
-#_**`PluginMenuItem`** is a table with the following predefined fields:
+#_**`tPluginMenuItem`** is a table with the following predefined fields:
 #_
 #_      Count:    integer
 #_      Guids:    array of strings (binary GUID's)
@@ -8120,11 +7938,11 @@ mtime=3601969300
 id=85
 lv=2
 dt=Text
-nm=PluginPanelItem
-mtime=3601969306
+nm=tPluginPanelItem
+mtime=3602278950
 <article>
 #_<markdown>
-#_**`PluginPanelItem`** is a table with the following predefined fields:
+#_**`tPluginPanelItem`** is a table with the following predefined fields:
 #_
 #_      LastWriteTime:      number
 #_      LastAccessTime:     number
@@ -8175,10 +7993,11 @@ mtime=3601969306
 id=218
 lv=2
 dt=Text
-nm=SystemTime
+nm=tSystemTime
+mtime=3602279009
 <article>
 #_<markdown>
-#_**`SystemTime`** is a table with the following predefined fields:
+#_**`tSystemTime`** is a table with the following predefined fields:
 #_
 #_      wYear:          number
 #_      wMonth:         number
@@ -8224,7 +8043,7 @@ lv=1
 dt=Text
 nm=bit64
 ctime=3507278228
-mtime=3583608796
+mtime=3602448570
 <article>
 #_<markdown>
 #_As Far 3.0 started to use 64-bit integer values ("flags") in its API, arose the need to represent and handle them from Lua. This is the role of **bit64** library.
@@ -8290,8 +8109,6 @@ mtime=3554959390
 #_is a userdata of the type created by this library, otherwise nil
 #_is returned.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8329,8 +8146,6 @@ mtime=3554816005
 #_If *arg* is a "64-bit int" type userdata then a new userdata with the same
 #_value is created and returned.
 #_
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8382,8 +8197,6 @@ nm=win.CompareString
 #_**Windows API used:**
 #_  CompareStringW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8406,8 +8219,6 @@ mtime=3484575702
 #_
 #_**Windows API used:**
 #_  CopyFileW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8446,8 +8257,6 @@ mtime=3582538169
 #_**Windows API used:**
 #_  CreateDirectoryW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8469,8 +8278,6 @@ mtime=3484575728
 #_**Windows API used:**
 #_  DeleteFileW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8491,8 +8298,6 @@ mtime=3540381906
 #_
 #_**Description:**
 #_  This function deletes a registry key.
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8517,8 +8322,6 @@ mtime=3568712434
 #_**Description:**
 #_  This function enumerates subkeys of the given registry key.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8541,8 +8344,6 @@ mtime=3568712451
 #_
 #_**Description:**
 #_  This function enumerates values of the given registry key.
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8567,8 +8368,6 @@ mtime=3500809371
 #_**Windows API used:**
 #_  EnumSystemCodePagesW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8592,8 +8391,6 @@ nm=win.ExtractKey
 #_**Windows API used:**
 #_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8602,15 +8399,15 @@ lv=2
 dt=Text
 nm=win.FileTimeToLocalFileTime
 ctime=3536488129
-mtime=3536488349
+mtime=3602448763
 <article>
-#_local_filetime = win.FileTimeToLocalFileTime (filetime)
+#_local_ftime = win.FileTimeToLocalFileTime (ftime)
 #_
 #_**Parameters:**
-#_  filetime : number (number of milliseconds since January 1, 1601)
+#_  ftime       : number (number of milliseconds since January 1, 1601)
 #_
 #_**Returns:**
-#_  local_filetime : number (number of milliseconds since January 1, 1601)
+#_  local_ftime : number (number of milliseconds since January 1, 1601)
 #_
 #_**Windows API used:**
 #_  FileTimeToLocalFileTime
@@ -8623,24 +8420,21 @@ id=215
 lv=2
 dt=Text
 nm=win.FileTimeToSystemTime
-mtime=3536485069
+mtime=3602448840
 <article>
-#_result = win.FileTimeToSystemTime (filetime)
+#_result = win.FileTimeToSystemTime (ftime)
 #_
 #_**Parameters:**
-#_  filetime : number
-#_             (number of milliseconds since January 1, 1601)
+#_  ftime :  number (number of milliseconds since January 1, 1601)
 #_
 #_**Returns:**
-#_  result   : table SystemTime, or nil
+#_  result : table `tSystemTime`, or nil
 #_
 #_**Windows API used:**
 #_  FileTimeToSystemTime
 #_
 #_@@@
-#_<lua> Links = { ["\\bSystemTime\\b"]="218.html" } </lua>
-#_
-#_
+#_[tSystemTime]: 218.html
 #_
 </article>
 </node>
@@ -8662,8 +8456,6 @@ mtime=3500653738
 #_
 #_**Windows API used:**
 #_  GetACP
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8698,8 +8490,6 @@ mtime=3532720056
 #_**Windows API used:**
 #_  GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleScreenBufferInfo
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8727,8 +8517,6 @@ mtime=3500809349
 #_
 #_**Windows API used:**
 #_  GetCPInfoExW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -8758,9 +8546,6 @@ mtime=3504253386
 #_**Windows API used:**
 #_  GetDriveTypeW
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -8781,8 +8566,6 @@ nm=win.GetEnv
 #_  Use this instead of os.getenv, since the latter
 #_  does not always work correctly. 
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8791,7 +8574,7 @@ lv=2
 dt=Text
 nm=win.GetFileAttr
 ctime=3511264574
-mtime=3562834802
+mtime=3602278956
 <article>
 #_attr = win.GetFileAttr (FileName)
 #_
@@ -8799,13 +8582,13 @@ mtime=3562834802
 #_  FileName: string
 #_
 #_**Returns:**
-#_  attr:     string (see PluginPanelItem page), or nil
+#_  attr:     string (see `tPluginPanelItem` page), or nil
 #_
 #_**Windows API used:**
 #_  GetFileAttributesW
 #_
 #_@@@
-#_<lua>Links = { PluginPanelItem="85.html", }</lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -8814,7 +8597,7 @@ id=213
 lv=2
 dt=Text
 nm=win.GetFileInfo
-mtime=3601969978
+mtime=3602278965
 <article>
 #_<markdown>
 #_    Info = win.GetFileInfo (FileName)
@@ -8825,7 +8608,7 @@ mtime=3601969978
 #_   wildcard characters (`*` and `?`)
 #_
 #_###Returns
-#_  **`Info`**: [`PluginPanelItem`][] table, or nil
+#_  **`Info`**: [`tPluginPanelItem`][] table, or nil
 #_
 #_###Description
 #_  This function provides information about the specified file.
@@ -8837,7 +8620,7 @@ mtime=3601969978
 #_  `FindFirstFile`, `FindClose`
 #_
 #_
-#_[`PluginPanelItem`]: 85.html
+#_[`tPluginPanelItem`]: 85.html
 #_[`far.RecursiveSearch`]: 211.html
 #_
 </article>
@@ -8861,9 +8644,6 @@ mtime=3504247079
 #_**Windows API used:**
 #_  GetLogicalDriveStringsW
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -8884,9 +8664,6 @@ mtime=3500653766
 #_
 #_**Windows API used:**
 #_  GetOEMCP
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -8915,8 +8692,6 @@ mtime=3540381898
 #_**Description:**
 #_  This function gets a value from a registry key.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -8924,7 +8699,7 @@ id=217
 lv=2
 dt=Text
 nm=win.GetSystemTimeAsFileTime
-mtime=3536484931
+mtime=3602279052
 <article>
 #_result = win.GetSystemTimeAsFileTime ()
 #_
@@ -8939,9 +8714,6 @@ mtime=3536484931
 #_
 #_**Windows API used:**
 #_  GetSystemTimeAsFileTime
-#_
-#_@@@
-#_<lua> Links = { ["\\bSystemTime\\b"]="218.html" } </lua>
 #_
 #_
 </article>
@@ -8976,9 +8748,6 @@ mtime=3522050567
 #_  far.Message(vk.ESCAPE) --> 27
 #_  far.Message(vk[27])    --> ESCAPE
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -9011,9 +8780,6 @@ mtime=3509699035
 #_**Windows API used:**
 #_  GlobalMemoryStatusEx
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -9035,8 +8801,6 @@ mtime=3523940191
 #_**Description:**
 #_  This function is similar to *string.len* except that it works on UTF-16LE strings
 #_  and returns their lengths as  number of characters rather than bytes.
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9064,8 +8828,6 @@ mtime=3484631380
 #_
 #_**Windows API used:**
 #_  MoveFileExW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9095,8 +8857,6 @@ mtime=3500869003
 #_**Windows API used:**
 #_  MultiByteToWideChar
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9112,8 +8872,6 @@ nm=win.OemToUtf8
 #_
 #_**Returns:**
 #_  str_out : string in UTF-8 encoding
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9135,8 +8893,6 @@ mtime=3488897675
 #_
 #_**Windows API used:**
 #_  RemoveDirectoryW
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9175,8 +8931,6 @@ mtime=3509095033
 #_**Windows API used:**
 #_  SearchPathW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9197,8 +8951,6 @@ nm=win.SetEnv
 #_**Description:**
 #_  This function sets or deletes a given environment variable.
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9207,13 +8959,13 @@ lv=2
 dt=Text
 nm=win.SetFileAttr
 ctime=3511264583
-mtime=3562835062
+mtime=3602278974
 <article>
 #_result = win.SetFileAttr (FileName, Attr)
 #_
 #_**Parameters:**
 #_  FileName: string
-#_  Attr:     string (see PluginPanelItem page)
+#_  Attr:     string (see `tPluginPanelItem` page)
 #_
 #_**Returns:**
 #_  result:   boolean
@@ -9222,7 +8974,7 @@ mtime=3562835062
 #_  SetFileAttributesW
 #_
 #_@@@
-#_<lua>Links = { PluginPanelItem="85.html", }</lua>
+#_[tPluginPanelItem]: 85.html
 #_
 </article>
 </node>
@@ -9248,8 +9000,6 @@ mtime=3540381988
 #_
 #_**Description:**
 #_  This function sets a value in a registry key.
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9277,9 +9027,6 @@ mtime=3509086519
 #_**Windows API used:**
 #_  ShellExecuteW
 #_
-#_@@@
-#_
-#_
 </article>
 </node>
 <node>
@@ -9302,8 +9049,6 @@ mtime=3512540211
 #_**Windows API used:**
 #_  SHGetFolderPathW
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9325,8 +9070,6 @@ mtime=3510764708
 #_**Windows API used:**
 #_  Sleep
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9335,9 +9078,9 @@ lv=2
 dt=Text
 nm=win.subW
 ctime=3523918268
-mtime=3523940177
+mtime=3602449058
 <article>
-#_substr = win.subW (str, from, to)
+#_strOut = win.subW (str, from, to)
 #_
 #_**Parameters:**
 #_  str:    string
@@ -9345,15 +9088,11 @@ mtime=3523940177
 #_  to:     integer (default = -1)
 #_
 #_**Returns:**
-#_  substr: string
+#_  strOut: string
 #_
 #_**Description:**
 #_  This function is similar to *string.sub* except that it works on UTF-16LE strings
 #_  and considers arguments *from* and *to* expressed in characters rather than bytes.
-#_
-#_@@@
-#_
-#_
 #_
 </article>
 </node>
@@ -9362,22 +9101,22 @@ id=216
 lv=2
 dt=Text
 nm=win.SystemTimeToFileTime
+mtime=3602449161
 <article>
-#_result = win.SystemTimeToFileTime (systemtime)
+#_result = win.SystemTimeToFileTime (systime)
 #_
 #_**Parameters:**
-#_  systemtime : table SystemTime (missing fields default to 0)
+#_  systime : table `tSystemTime` (missing fields default to 0)
 #_
 #_**Returns:**
-#_  result     : number, or nil
-#_               (number of milliseconds since January 1, 1601)
+#_  result  : number, or nil
+#_            (number of milliseconds since January 1, 1601)
 #_
 #_**Windows API used:**
 #_  SystemTimeToFileTime
 #_
 #_@@@
-#_<lua> Links = { ["\\bSystemTime\\b"]="218.html" } </lua>
-#_
+#_[tSystemTime]: 218.html
 #_
 </article>
 </node>
@@ -9396,8 +9135,6 @@ mtime=3491909511
 #_**Returns:**
 #_  str_out : string in UTF-8 encoding
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9413,9 +9150,6 @@ nm=win.Utf8ToOem
 #_
 #_**Returns:**
 #_  str_out : string in OEM encoding
-#_
-#_@@@
-#_
 #_
 </article>
 </node>
@@ -9433,8 +9167,6 @@ mtime=3491909525
 #_
 #_**Returns:**
 #_  str_out : string in UTF-16 (little endian) encoding
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9486,8 +9218,6 @@ nm=win.wcscmp
 #_**C API used:**
 #_  wcscmp, wcsicmp
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9516,8 +9246,6 @@ mtime=3528778037
 #_**Windows API used:**
 #_  WideCharToMultiByte
 #_
-#_@@@
-#_
 </article>
 </node>
 <node>
@@ -9525,7 +9253,7 @@ id=250
 lv=1
 dt=Text
 nm=Selene Unicode
-mtime=3514823822
+mtime=3602449302
 <article>
 #_<markdown>
 #_There are four string-like ctype closures: **`unicode.ascii`**,
@@ -9585,7 +9313,7 @@ mtime=3514823822
 #_      %z the 0 byte
 #_
 #_c.f.<br>
-#_[http://www.unicode.org/reports/tr44/tr44-6.html#Property_Values](http://www.unicode.org/reports/tr44/tr44-6.html#Property_Values)
+#_[http://www.unicode.org/reports/tr44/tr44-6.html#Property_Values](http://www.unicode.org/reports/tr44/tr44-6.html#Property_Values)<br>
 #_[http://unicode.org/Public/UNIDATA/UnicodeData.txt](http://unicode.org/Public/UNIDATA/UnicodeData.txt)
 #_
 #_**NOTE:**
@@ -9640,8 +9368,6 @@ mtime=3579944916
 #_
 #_**Note:**
 #_  This is added function, not present in the original **Selene Unicode** library.
-#_
-#_@@@
 #_
 </article>
 </node>
@@ -9739,14 +9465,14 @@ id=158
 lv=2
 dt=Text
 nm=LF_ClosePanel
-mtime=3601970163
+mtime=3602449494
 <article>
 #_<markdown>
-#_    void LF_ClosePanel(lua_State* L, HANDLE hPanel)
+#_    void LF_ClosePanel(lua_State* L, const struct ClosePanelInfo *Info)
 #_
 #_#### Parameters:
 #_      L:       Lua state
-#_      hPanel:  Panel handle
+#_      ....
 #_
 #_#### Returns:
 #_      nothing
@@ -9790,10 +9516,10 @@ id=160
 lv=2
 dt=Text
 nm=LF_Configure
-mtime=3601970176
+mtime=3602449552
 <article>
 #_<markdown>
-#_    intptr_t LF_Configure(lua_State* L, const GUID* Guid)
+#_    intptr_t LF_Configure(lua_State* L, const struct ConfigureInfo *Info)
 #_
 #_#### Parameters:
 #_      L:       Lua state
@@ -9865,13 +9591,14 @@ id=162
 lv=2
 dt=Text
 nm=LF_ExitFAR
-mtime=3601970190
+mtime=3602449616
 <article>
 #_<markdown>
-#_    void LF_ExitFAR(lua_State* L)
+#_    void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
 #_
 #_#### Parameters:
 #_      L:       Lua state
+#_      ....
 #_
 #_#### Returns:
 #_      nothing
@@ -9889,12 +9616,10 @@ lv=2
 dt=Text
 nm=LF_FreeCustomData
 ctime=3485769061
-mtime=3601970194
+mtime=3602449699
 <article>
 #_<markdown>
-#_    void LF_FreeCustomData(
-#_        lua_State* L,
-#_        wchar_t* CustomData)
+#_    void LF_FreeCustomData (lua_State* L, wchar_t* CustomData)
 #_
 #_#### Parameters:
 #_      L:       Lua state
@@ -10233,14 +9958,13 @@ id=176
 lv=2
 dt=Text
 nm=LF_ProcessPanelEvent
-mtime=3601970245
+mtime=3602449785
 <article>
 #_<markdown>
 #_    intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *Info)
 #_
 #_#### Parameters:
 #_      L:       Lua state
-#_      hPanel:  Panel handle
 #_      ....
 #_
 #_#### Returns:
@@ -10513,7 +10237,7 @@ id=156
 lv=2
 dt=Text
 nm=LF_Message
-mtime=3601970276
+mtime=3602450753
 <article>
 #_<markdown>
 #_    int LF_Message(
@@ -10533,11 +10257,11 @@ mtime=3601970276
 #_      Buttons:     Button captions; if multiple, then the captions
 #_                   must be separated by ';'
 #_      Flags:       A combination of the following characters:
-#_                     'w' stands for FMSG_WARNING;
-#_                     'e' stands for FMSG_ERRORTYPE;
-#_                     'k' stands for FMSG_KEEPBACKGROUND;
-#_                     'd' stands for FMSG_DOWN;
-#_                     'l' stands for FMSG_LEFTALIGN;
+#_                     'w' stands for FMSG_WARNING
+#_                     'e' stands for FMSG_ERRORTYPE
+#_                     'k' stands for FMSG_KEEPBACKGROUND
+#_                     'l' stands for FMSG_LEFTALIGN
+#_                     'n' stands for "no wrapping of long lines"
 #_      HelpTopic:   Help Topic (can be NULL)
 #_
 #_#### Returns:

@@ -8,11 +8,11 @@ lv=0
 dt=Text
 nm=Far Manager macro system manual
 ctime=3551829092
-mtime=3600452420
+mtime=3602513805
 <article>
 #_<markdown>
 #_
-#_Since 30.09.2012 (Far 3.0.2851), Far Manager uses [Lua][lua] programming language (version 5.1)
+#_Since 30.09.2012 (Far 3.0.2851), Far Manager uses [Lua][1] programming language (version 5.1)
 #_instead of the built-in macro language.
 #_
 #_A macro is a Lua-script and its meta-data such as:
@@ -29,11 +29,10 @@ mtime=3600452420
 #_* Standard Lua libraries
 #_* LuaFAR libraries ("plugin API")
 #_* [Libraries of macro functions][2] ("macro API")
-#_* For plugins: function [`MacroControl`][3]
+#_* For plugins: function `MacroControl`
 #_
-#_[lua]: http://www.lua.org/
+#_[1]: http://www.lua.org/
 #_[2]: 42.html
-#_[3]: http://api.farmanager.com/ru/macroapi/index.html
 #_
 </article>
 </node>
@@ -134,7 +133,7 @@ lv=2
 dt=Text
 nm=Global properties and functions
 ctime=3552221109
-mtime=3600459259
+mtime=3602539540
 <article>
 #_**Properties:** none.
 #_
@@ -143,12 +142,12 @@ mtime=3600459259
 #_  akey
 #_  band, bnot, bor, bxor, lshift, rshift
 #_  eval
-#_  exit
-#_  Keys
+#_  `exit`
+#_  `Keys`
 #_  mmode
 #_  msgbox
 #_  print
-#_  printf
+#_  `printf`
 #_  prompt
 #_
 #_**Notes:**
@@ -160,16 +159,14 @@ mtime=3600459259
 #_2. Functions *akey* and *mmode*, when called from within function *condition* of a macro,
 #_   return *false*.
 #_
-#_3. For uniformity sake, all the above functions are duplicated in table mf,
+#_3. For uniformity sake, all the above functions are duplicated in table `mf`,
 #_   for example: *eval* è *mf.eval* reference the same function.
 #_
 #_@@@
-#_<lua> Links = {
-#_  exit="61.html",
-#_  Keys="4.html",
-#_  ["mf(?!\\.)"]="44.html",
-#_  printf="60.html",
-#_} </lua>
+#_[exit]: 61.html
+#_[printf]: 60.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
 #_
 </article>
 </node>
@@ -248,12 +245,10 @@ mtime=3600460574
 #_
 #_**Description:**
 #_  Works just like the macro language function *print*, but with additional
-#_  ability of formatting. Formatting rules are described in the Lua manual.
+#_  ability of formatting. Formatting rules are described in the `Lua manual`.
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["Lua manual"]="http://www.lua.org/manual/5.1/manual.html#pdf-string.format",
-#_} </lua>
+#_[Lua manual]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
 #_
 </article>
 </node>
@@ -272,17 +267,17 @@ mtime=3600460623
 #_  abs              len
 #_  akey             lshift
 #_  asc              max
-#_  atoi             mdelete
+#_  atoi             `mdelete`
 #_  band             min
-#_  beep             mload
+#_  beep             `mload`
 #_  bnot             mmode
 #_  bor              mod
-#_  bxor             msave
+#_  bxor             `msave`
 #_  chr              msgbox
-#_  clip             postmacro
+#_  clip             `postmacro`
 #_  date             print
 #_  env              printf
-#_  eval             prompt
+#_  `eval`             prompt
 #_  exit             replace
 #_  fattr            rindex
 #_  fexist           rshift
@@ -290,20 +285,23 @@ mtime=3600460623
 #_  flock            sleep
 #_  fmatch           string
 #_  fsplit           strpad
-#_  GetMacroCopy     strwrap
+#_  `GetMacroCopy`     strwrap
 #_  iif              substr
 #_  index            testfolder
 #_  int              trim
 #_  itoa             ucase
-#_  key              usermenu
+#_  key              `usermenu`
 #_  Keys             waitkey
 #_  lcase            xlat
 #_
 #_@@@
-#_<lua> Links = {
-#_  mload="13.html", msave="12.html", mdelete="15.html", usermenu="69.html",
-#_  GetMacroCopy="72.html", eval="79.html", postmacro="85.html",
-#_} </lua>
+#_[GetMacroCopy]: 72.html
+#_[msave]: 12.html
+#_[mdelete]: 15.html
+#_[usermenu]: 69.html
+#_[mload]: 13.html
+#_[eval]: 79.html
+#_[postmacro]: 85.html
 #_
 </article>
 </node>
@@ -601,20 +599,18 @@ mtime=3600501236
 #_  SetPath
 #_  SetPos
 #_  SetPosIdx
-#_  CustomSortMenu
-#_  LoadCustomSortMode
-#_  SetCustomSortMode
+#_  `CustomSortMenu`
+#_  `LoadCustomSortMode`
+#_  `SetCustomSortMode`
 #_
 #_**Note:**
-#_  Functions CustomSortMenu, LoadCustomSortMode and SetCustomSortMode
+#_  Functions `CustomSortMenu`, `LoadCustomSortMode` and `SetCustomSortMode`
 #_  are available only if the Lua engine is LuaJIT 2.x.
 #_
 #_@@@
-#_<lua> Links = {
-#_  LoadCustomSortMode="80.html",
-#_  SetCustomSortMode="81.html",
-#_  CustomSortMenu="82.html",
-#_} </lua>
+#_[CustomSortMenu]: 82.html
+#_[SetCustomSortMode]: 81.html
+#_[LoadCustomSortMode]: 80.html
 #_
 </article>
 </node>
@@ -670,7 +666,7 @@ mtime=3600506614
 #_         are sorted by name. If that is not desired, set this field in *true*.
 #_      *Description:*
 #_         Textual description of the sorting mode. If this field is specified
-#_         it is used in the custom sort menu (see Panel.CustomSortMenu).
+#_         it is used in the custom sort menu (see `Panel.CustomSortMenu`).
 #_      *SortFunction:*
 #_         Specify the sorting algorithm out of the 2 available ones.
 #_         It is a string: "shellsort" (default value) or "qsort".
@@ -690,13 +686,13 @@ mtime=3600506614
 #_**Description:**
 #_  This function loads (or unloads) a custom panel sort mode.
 #_  Once the mode is loaded it can be set in the panel by means of calling
-#_  Panel.SetCustomSortMode.
+#_  `Panel.SetCustomSortMode`.
 #_
 #_**Function Compare**
 #_  result = Compare (Pi1, Pi2, FarOptions)
 #_
 #_  **Parameters:**
-#_    Pi1 è Pi2  - panel elements being compared, structures of SortingPanelItem type.
+#_    Pi1 è Pi2  - panel elements being compared, structures of `SortingPanelItem` type.
 #_    FarOptions - a table containing the current Far Manager panel sort options
 #_                 (all values are boolean): *DirectoriesFirst, SelectedFirst,*
 #_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
@@ -708,7 +704,7 @@ mtime=3600506614
 #_
 #_**Note 1:**
 #_  Custom panel sorting uses the LuaJIT's FFI library. The use of FFI requires familiarity
-#_  with its documentation.
+#_  with its `documentation`.
 #_
 #_**Note 2:**
 #_  Custom panel sort modes are automatically restored after Far Manager restart, provided
@@ -737,12 +733,10 @@ mtime=3600506614
 #_    })
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["documentation"]="http://luajit.org/ext_ffi.html",
-#_  SortingPanelItem="http://api.farmanager.com/ru/structures/sortingpanelitem.html",
-#_  ["Panel.SetCustomSortMode"]="81.html",
-#_  ["Panel.CustomSortMenu"]="82.html",
-#_} </lua>
+#_[Panel.CustomSortMenu]: 82.html
+#_[documentation]: http://luajit.org/ext_ffi.html
+#_[Panel.SetCustomSortMode]: 81.html
+#_[SortingPanelItem]: http://api.farmanager.com/ru/structures/sortingpanelitem.html
 #_
 </article>
 </node>
@@ -764,7 +758,7 @@ mtime=3600507018
 #_  Nothing
 #_
 #_**Description:**
-#_  If the specified sorting mode is loaded (see Panel.LoadCustomSortMode), that sorting mode
+#_  If the specified sorting mode is loaded (see `Panel.LoadCustomSortMode`), that sorting mode
 #_  will be set in the specified panel. Otherwise, no actions will be done.
 #_
 #_**Example:**
@@ -776,9 +770,7 @@ mtime=3600507018
 #_  }
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["Panel.LoadCustomSortMode"]="80.html",
-#_} </lua>
+#_[Panel.LoadCustomSortMode]: 80.html
 #_
 </article>
 </node>
@@ -1067,7 +1059,7 @@ lv=2
 dt=Text
 nm=Plugin
 ctime=3553252766
-mtime=3600508080
+mtime=3602539580
 <article>
 #_**Plugin** - a table with the following fields:
 #_
@@ -1077,20 +1069,18 @@ mtime=3600508080
 #_
 #_**Functions:**
 #_
-#_  Call
+#_  `Call`
 #_  Command
 #_  Config
 #_  Exist
 #_  Load
 #_  Menu
-#_  SyncCall
+#_  `SyncCall`
 #_  Unload
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["\\bCall\\b"]="65.html", SyncCall="83.html",
-#_} </lua>
-#_
+#_[SyncCall]: 83.html
+#_[Call]: 65.html
 #_
 </article>
 </node>
@@ -1158,17 +1148,15 @@ mtime=3600516727
 <article>
 #_... = Plugin.SyncCall (PluginId [, ...])
 #_
-#_This function works identically to Plugin.Call, except that:
+#_This function works identically to `Plugin.Call`, except that:
 #_
 #_1. Its call is always synchronous, i.e. the macro continues its execution
 #_   only after the *OpenW* function of the plugin returns.
-#_2. This function does not have limitations that Plugin.Call has.
+#_2. This function does not have `limitations` that `Plugin.Call` has.
 #_
 #_@@@
-#_<lua> Links = {
-#_  ["Plugin.Call"]="65.html",
-#_  ["limitations"]="62.html",
-#_} </lua>
+#_[limitations]: 62.html
+#_[Plugin.Call]: 65.html
 #_
 </article>
 </node>

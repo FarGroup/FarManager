@@ -102,22 +102,19 @@ local function writeTopicFooter(fp_out, fp_template)
   end
 end
 
-local function postprocess_article (part1, part2, preformat)
+local function postprocess_article (part1, part2)
   if part2 then
-    local script = part2:match("<lua>(.-)</lua>")
-    if script then
-      local env = {}
-      local f = assert(loadstring(script))
-      setfenv(f, env)()
-      if env.Links then
-        for str, trg in pairs(env.Links) do
-          part1 = rex.gsub(part1, str, '<a href="'..trg..'">%1</a>')
-        end
-      end
-      if env.no_preformat then preformat = false end
+    local links = {}
+    for line in part2:gmatch("[^\n]+") do
+      local name, url = line:match("^%s*%[([^%]]+)%]%s*:%s*(%S+)")
+      if name then links[name] = url end
     end
+    part1 = part1:gsub("`([^`\n]+)`",
+      function(c)
+        return links[c] and ('<a href="%s">%s</a>'):format(links[c], c)
+      end)
   end
-  return preformat and "\n<pre>"..part1.."</pre>\n" or part1
+  return "\n<pre>"..part1.."</pre>\n"
 end
 
 -- For long subjects, this function is _much_ faster than subj:match("(.-)delim(.*)")
@@ -150,17 +147,16 @@ local function process_article (article)
       end
     )
     article = discount(article)
-    return postprocess_article(article, "", false), false
+    return article, false
   else
     local part1, part2 = split1(article, "@@@")
     part1 = HTML_convert(part1 or article)
-    part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* | \`(.*?)\` ]],
-      function(c1,c2,c3)
+    part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* ]],
+      function(c1,c2)
         return c1 and "<strong>" ..c1.. "</strong>" or -- make bold
-               c2 and "<em>"     ..c2.. "</em>"     or -- make italic
-               c3 and "<code>"   ..c3.. "</code>"      -- make code
+               c2 and "<em>"     ..c2.. "</em>"        -- make italic
       end, nil, "x")
-    return postprocess_article(part1, part2, true), false
+    return postprocess_article(part1, part2), false
   end
 end
 
@@ -248,15 +244,15 @@ TP2HH: Treepad to HTML Help Conversion Utility
 end
 
 do
-  local param1, lib, tem = ...
+  local datafile, lib, tem = ...
   if not lib then
     syntax(); return
   end
-  assert(lib=="hjt" or lib=="tsi", "safety check failed")
+  assert(lib=="hjt" or lib=="tsi", "library not supported")
   lib = require(lib)
   local fp_template = tem and assert(io.open(tem))
-  local project_name = param1:match("[^/\\]+$"):gsub("%.[^.]+$", "")
-  generateFPT(lib.Nodes(param1), project_name, fp_template)
+  local project_name = datafile:match("[^/\\]+$"):gsub("%.[^.]+$", "")
+  generateFPT(lib.Nodes(datafile), project_name, fp_template)
   if fp_template then fp_template:close() end
 end
 
