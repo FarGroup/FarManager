@@ -3656,7 +3656,7 @@ id=21
 lv=2
 dt=Text
 nm=editor.Editor
-mtime=3572708971
+mtime=3602603270
 <article>
 #_result = editor.Editor (FileName, Title, X1, Y1, X2, Y2,
 #_                        Flags, StartLine, StartChar, CodePage)
@@ -3677,7 +3677,11 @@ mtime=3572708971
 #_  result: integer
 #_
 #_**Far API used:**
-#_  Editor
+#_  `Editor`
+#_
+#_@@@
+#_[Editor]: http://api.farmanager.com/ru/service_functions/editor.html
+#_
 #_
 </article>
 </node>
