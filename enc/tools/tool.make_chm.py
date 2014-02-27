@@ -227,9 +227,8 @@ def make_chm_lang(lang):
     if iv[1] in titles:
       macro_list[ix][1] = iv[1]+" (Macros)"
 
-  title_list.sort(key=operator.itemgetter(1))
-  macro_list.sort(key=operator.itemgetter(1))
   title_list.extend(macro_list)
+  title_list.sort(key=operator.itemgetter(1))
 
   # processing duplicates
   for i,x in enumerate(title_list):

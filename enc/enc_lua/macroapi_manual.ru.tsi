@@ -252,7 +252,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3599211999
+mtime=3602656135
 <article>
 #_**Свойства:** нет.
 #_
@@ -270,9 +270,9 @@ mtime=3599211999
 #_  chr              msgbox
 #_  clip             `postmacro`
 #_  date             print
-#_  env              printf
+#_  env              `printf`
 #_  `eval`             prompt
-#_  exit             replace
+#_  `exit`             replace
 #_  fattr            rindex
 #_  fexist           rshift
 #_  float            size2str
@@ -285,17 +285,21 @@ mtime=3599211999
 #_  int              trim
 #_  itoa             ucase
 #_  key              `usermenu`
-#_  Keys             waitkey
+#_  `Keys`             waitkey
 #_  lcase            xlat
 #_
 #_@@@
-#_[GetMacroCopy]: 72.html
-#_[msave]: 12.html
-#_[mdelete]: 15.html
-#_[usermenu]: 69.html
-#_[mload]: 13.html
 #_[eval]: 79.html
+#_[exit]: 61.html
+#_[GetMacroCopy]: 72.html
+#_[Keys]: 4.html
+#_[mdelete]: 15.html
+#_[mload]: 13.html
+#_[msave]: 12.html
 #_[postmacro]: 85.html
+#_[printf]: 60.html
+#_[usermenu]: 69.html
+#_
 #_
 </article>
 </node>
