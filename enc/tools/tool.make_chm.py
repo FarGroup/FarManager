@@ -228,7 +228,7 @@ def make_chm_lang(lang):
       macro_list[ix][1] = iv[1]+" (Macros)"
 
   title_list.extend(macro_list)
-  title_list.sort(key=operator.itemgetter(1))
+  title_list.sort(key=lambda x: x[1].lower())
 
   # processing duplicates
   for i,x in enumerate(title_list):
