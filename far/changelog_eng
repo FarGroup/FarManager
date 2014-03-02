@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 02.03.2014 09:53:50 +0200 - build 3818
+
+1. Custom sorting in panels: indication of current sorting mode would not be drawn on an empty panel in some cases.
+
 shmuel 21.02.2014 18:11:56 +0200 - build 3817
 
 1. M#0002607. Another correction.
