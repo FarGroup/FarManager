@@ -3865,8 +3865,8 @@ static int far_Text(lua_State *L)
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t *Str;
 	struct FarColor fc = { FCF_4BITMASK, 0x0F, 0x00, NULL };
-	intptr_t X = luaL_checkinteger(L, 1);
-	intptr_t Y = luaL_checkinteger(L, 2);
+	intptr_t X = luaL_optinteger(L, 1, 0);
+	intptr_t Y = luaL_optinteger(L, 2, 0);
 	GetFarColor(L, 3, &fc);
 	Str = opt_utf8_string(L, 4, NULL);
 	Info->Text(X, Y, &fc, Str);

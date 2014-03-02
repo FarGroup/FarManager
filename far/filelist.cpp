@@ -591,7 +591,7 @@ ListLess;
 
 void FileList::SortFileList(int KeepPosition)
 {
-	if (ListData.size() > 1)
+	if (!ListData.empty())
 	{
 		string strCurName;
 
