@@ -99,11 +99,7 @@ static const wchar_t BOM_CHAR = L'\xFEFF'; // Zero Length Space
 
 static bool IsCodePageSupported(uintptr_t cp)
 {
-	if (cp == CP_DEFAULT || IsStandardCodePage(cp))
-		return true;
-
-	int mb = Global->CodePages->GetCodePageInfo(cp);
-	return mb >= 1 && mb <= 2;
+	return Global->CodePages->IsCodePageSupported(cp, 2);
 }
 
 // seems like this initialization list is toooooo long

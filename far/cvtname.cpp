@@ -411,25 +411,54 @@ void ConvertNameToReal(const string& Src, string &strDest)
 
 void ConvertNameToShort(const string& Src, string &strDest)
 {
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetShortPathName(Src.data(), Buffer, ARRAYSIZE(Buffer));
 
-	if(Size)
+	auto GetShortName = [&strDest](const string& str) ->bool
 	{
-		if (Size < ARRAYSIZE(Buffer))
+		WCHAR Buffer[MAX_PATH];
+		DWORD Size = GetShortPathName(str.data(), Buffer, ARRAYSIZE(Buffer));
+		if (Size)
 		{
-			strDest.assign(Buffer, Size);
+			if (Size < ARRAYSIZE(Buffer))
+			{
+				strDest.assign(Buffer, Size);
+			}
+			else
+			{
+				wchar_t_ptr vBuffer(Size);
+				Size = GetShortPathName(str.data(), vBuffer.get(), Size);
+				strDest.assign(vBuffer.get(), Size);
+			}
+			return true;
 		}
-		else
-		{
-			wchar_t_ptr vBuffer(Size);
-			Size = GetShortPathName(Src.data(), vBuffer.get(), Size);
-			strDest.assign(vBuffer.get(), Size);
-		}
-	}
-	else
+		return false;
+	};
+
+	if(!GetShortName(Src))
 	{
 		strDest = Src;
+
+		bool Prefixed = HasPathPrefix(Src);
+		if (!Prefixed)
+		{
+			string NtName = NTPath(Src);
+			if (GetShortName(NtName))
+			{
+				switch (ParsePath(strDest))
+				{
+				case PATH_DRIVELETTERUNC:
+					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					break;
+
+				case PATH_REMOTEUNC:
+					strDest.erase(2, 6); // \\?\UNC\server -> \\server
+					break;
+
+				default:
+					// should never happen
+					break;
+				}
+			}
+		}
 	}
 }
 

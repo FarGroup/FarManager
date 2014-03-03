@@ -281,7 +281,6 @@ void ItemToItemEx(const FarDialogItem* Item, DialogItemEx *ItemEx, size_t Count,
 	{
 		*static_cast<FarDialogItem*>(ItemEx) = *Item;
 
-		ItemEx->ID = static_cast<int>(i);
 		if(!Short)
 		{
 			ItemEx->strHistory = NullToEmpty(Item->History);
@@ -3917,7 +3916,7 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 	if (IDParent < Items.size() && (Items[IDParent].Flags&DIF_AUTOMATION) &&
 	        id < Items.size() && IDParent != id) // Сами себя не юзаем!
 	{
-		Ret = Items[IDParent].AddAutomation(id, UncheckedSet, UncheckedSkip,
+		Ret = Items[IDParent].AddAutomation(&Items[id], UncheckedSet, UncheckedSkip,
 			                                    CheckedSet, CheckedSkip,
 				 						        Checked3Set, Checked3Skip);
 	}
@@ -3955,7 +3954,7 @@ int Dialog::SelectFromComboBox(
 		ComboBox->SetColors(nullptr);
 		ComboBox->GetColors(&ListColors);
 
-		if (DlgProc(DN_CTLCOLORDLGLIST,CurItem->ID,&ListColors))
+		if (DlgProc(DN_CTLCOLORDLGLIST,CurItem - Items.data(), &ListColors))
 			ComboBox->SetColors(&ListColors);
 
 		// Выставим то, что есть в строке ввода!
@@ -5516,8 +5515,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				std::for_each(RANGE(CurItem->Auto, i)
 				{
-					FARDIALOGITEMFLAGS NewFlags=Items[i.ID].Flags;
-					Items[i.ID].Flags=(NewFlags&(~i.Flags[iParam][1]))|i.Flags[iParam][0];
+					FARDIALOGITEMFLAGS NewFlags = i.Owner->Flags;
+					i.Owner->Flags=(NewFlags&(~i.Flags[iParam][1]))|i.Flags[iParam][0];
 					// здесь намеренно в обработчик не посылаются эвенты об изменении
 					// состояния...
 				});
@@ -5575,8 +5574,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						State%=3;
 						std::for_each(RANGE(CurItem->Auto, i)
 						{
-							FARDIALOGITEMFLAGS NewFlags = Items[i.ID].Flags;
-							Items[i.ID].Flags=(NewFlags&(~i.Flags[State][1]))|i.Flags[State][0];
+							FARDIALOGITEMFLAGS NewFlags = i.Owner->Flags;
+							i.Owner->Flags=(NewFlags&(~i.Flags[State][1]))|i.Flags[State][0];
 							// здесь намеренно в обработчик не посылаются эвенты об изменении
 							// состояния...
 						});

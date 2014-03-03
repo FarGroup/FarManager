@@ -193,7 +193,7 @@ $(OBJDIR)%.o: %.cpp
 	@echo $<
 	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
 
-$(OBJDIR)headers.gch: headers.cpp
+$(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo making precompiled headers
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 

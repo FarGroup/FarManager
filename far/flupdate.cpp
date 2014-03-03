@@ -258,8 +258,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		string strTemp;
 		CurPath2ComputerName(strCurDir, strComputerName, strTemp);
-		// סבנמסטל ך‎ר SID`מג
-		SIDCacheFlush();
 	}
 
 	SetLastError(ERROR_SUCCESS);

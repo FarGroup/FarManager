@@ -364,9 +364,9 @@ private:
 
 	void ApplySortMode(int Mode);
 	void DeleteListData(std::vector<FileListItem>& ListData);
-	void Up(int Count);
-	void Down(int Count);
-	void Scroll(int Count);
+	void ToBegin();
+	void ToEnd();
+	void Scroll(int offset);
 	void CorrectPosition();
 	void ShowFileList(int Fast);
 	void ShowList(int ShowStatus,int StartColumn);
@@ -399,7 +399,7 @@ private:
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo);
 	void PluginDelete();
-	void PutDizToPlugin(FileList *DestPanel,std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz);
+	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz);
 	void PluginGetFiles(const wchar_t **DestPath,int Move);
 	void PluginToPluginFiles(int Move);
 	void PluginHostGetFiles();

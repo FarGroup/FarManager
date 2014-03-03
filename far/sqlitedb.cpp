@@ -222,11 +222,9 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		}
 		else
 		{
-			int n8 = WideCharToMultiByte(CP_UTF8,0, strPath.data(),-1, nullptr,0, nullptr,nullptr);
-			char_ptr name8(n8);
-			WideCharToMultiByte(CP_UTF8,0, strPath.data(),-1, name8.get(), n8, nullptr,nullptr);
+			Utf8String name8(strPath);
 			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
-			ok = (SQLITE_OK == sqlite::sqlite3_open_v2(name8.get(), &db_source, flags, nullptr));
+			ok = (SQLITE_OK == sqlite::sqlite3_open_v2(name8.data(), &db_source, flags, nullptr));
 		}
 		if (ok)
 		{

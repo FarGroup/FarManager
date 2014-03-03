@@ -833,7 +833,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 		{
 			SCOPED_ACTION(Privilege)(SE_BACKUP_NAME);
 			SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
-			Result = SetOwnerInternal(Object.data(), Owner.data());
+			Result = SetOwnerInternal(Object, Owner);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
 		{
@@ -1196,7 +1196,7 @@ private:
 		string Object, Owner;
 		if(Read(Object) && Read(Owner))
 		{
-			bool Result = SetOwnerInternal(Object.data(), Owner.data());
+			bool Result = SetOwnerInternal(Object, Owner);
 			ERRORCODES ErrorCodes;
 			if(Write(Result))
 			{

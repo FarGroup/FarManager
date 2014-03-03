@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "configdb.hpp"
+
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
@@ -40,28 +42,11 @@ enum CPSelectType
 	CPST_FIND     = 2  // Таблица символов участвующая в поиске по всем таблицам символов
 };
 
-extern const wchar_t *FavoriteCodePagesKey;
-
 const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 1 /* UTF-8 */;
 
-inline bool IsStandardCodePage(uintptr_t cp) {
-	return cp==CP_UNICODE || cp==CP_UTF8 || cp==CP_REVERSEBOM || cp==GetOEMCP() || cp==GetACP();
-}
-
-inline bool IsUnicodeCodePage(uintptr_t cp) { return cp==CP_UNICODE || cp==CP_REVERSEBOM; }
-
-inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) {
-	return cp==CP_UNICODE || cp==CP_UTF8 || cp==CP_REVERSEBOM || cp==CP_UTF7;
-}
-
-// Источник вызова каллбака прохода по кодовым страницам
-enum CodePagesCallbackCallSource
-{
-	CodePageSelect,
-	CodePagesFill,
-	CodePagesFill2,
-	CodePageCheck
-};
+inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == CP_REVERSEBOM; }
+inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
+inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp==CP_UTF8 || cp==CP_UTF7; }
 
 class Dialog;
 struct DialogBuilderListItem2;
@@ -73,13 +58,16 @@ public:
 	codepages();
 	~codepages();
 
-	UINT GetCodePageInfo(UINT cp, string& name) const;
-	UINT GetCodePageInfo(UINT cp) const { string dummy; return GetCodePageInfo(cp, dummy); }
-	bool IsCodePageSupported(uintptr_t CodePage) const;
+	std::pair<UINT, string> GetCodePageInfo(UINT cp) const;
+	bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1)) const;
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly=false, bool bShowAutoDetect=false);
 	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	void FillCodePagesList(std::vector<DialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool bViewOnly=false);
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
+	long long GetFavorite(uintptr_t cp) const;
+	void SetFavorite(uintptr_t cp, long long value);
+	void DeleteFavorite(uintptr_t cp);
+	GeneralConfig::values_enumerator<DWORD> GetFavoritesEnumerator();
 
 private:
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
@@ -109,6 +97,7 @@ private:
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;
 	bool selectedCodePages;
+	ENUM(CodePagesCallbackCallSource);
 	CodePagesCallbackCallSource CallbackCallSource;
 
 	class codepages_data
@@ -132,8 +121,6 @@ class MultibyteCodepageDecoder
 public:
 	UINT current_cp;
 	int  current_mb;
-
-	static int MaxLen(UINT cp);
 
 	bool SetCP(UINT cp);
 

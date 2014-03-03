@@ -259,7 +259,6 @@ tvar.cpp
 tvar.hpp
 usermenu.cpp
 usermenu.hpp
-valuename.hpp
 vc_crt_fix_impl.cpp
 viewer.cpp
 viewer.hpp

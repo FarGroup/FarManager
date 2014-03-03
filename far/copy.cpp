@@ -918,15 +918,24 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
-	RPT(RP_EXACTCOPY)
+	Flags((Move? FCOPY_MOVE : 0) | (Link? FCOPY_LINK : 0) | (CurrentOnly? FCOPY_CURRENTONLY : 0)),
+	SrcPanel(SrcPanel),
+	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
+	SrcPanelMode(SrcPanel->GetMode()),
+	DestPanelMode(ToPlugin? DestPanel->GetMode() : NORMAL_PANEL),
+	SrcDriveType(),
+	DestDriveType(),
+	CopyBufferSize(Global->Opt->CMOpt.BufferSize ? Global->Opt->CMOpt.BufferSize : COPY_BUFFER_SIZE),
+	SelectedFolderNameLength(),
+	RPT(RP_EXACTCOPY),
+	AltF10(),
+	CopySecurity(),
+	FileAttr(),
+	FolderPresent(),
+	FilesPresent(),
+	AskRO()
 {
 	Filter=nullptr;
-	AltF10 = 0;
-	CopySecurity = 0;
-	FileAttr = 0;
-	FolderPresent = false;
-	FilesPresent = false;
-	AskRO = false;
 
 	if (!(SelCount=SrcPanel->GetSelCount()))
 		return;
@@ -949,19 +958,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	Global->FrameManager->GetFrame(0)->Lock();
-	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
-	if (!CopyBufferSize)
-		CopyBufferSize  = COPY_BUFFER_SIZE;
-	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
 	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
-	SelectedFolderNameLength=0;
 	int DestPlugin=ToPlugin;
 	ToPlugin=FALSE;
-	SrcDriveType=0;
-	this->SrcPanel=SrcPanel;
-	DestPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-	DestPanelMode=DestPlugin ? DestPanel->GetMode():NORMAL_PANEL;
-	SrcPanelMode=SrcPanel->GetMode();
 
 	// ***********************************************************************
 	// *** Prepare Dialog Controls

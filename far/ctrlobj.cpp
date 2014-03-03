@@ -154,7 +154,6 @@ ControlObject::~ControlObject()
 		}
 	}
 
-	SIDCacheFlush();
 	Global->FrameManager->CloseAll();
 	FPanels=nullptr;
 	FileFilter::CloseFilter();

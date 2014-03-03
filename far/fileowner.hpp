@@ -33,11 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool GetFileOwner(const string& Computer,const string& Name, string &strOwner);
+bool GetFileOwner(const string& Computer, const string& Object, string &Owner);
+bool SetFileOwner(const string& Object, const string& Owner);
+
 
 // internal, for elevation only.
-bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner);
+bool SetOwnerInternal(const string& Object, const string& Owner);
 
-bool SetOwner(const string& Object, const string& Owner);
-
-void SIDCacheFlush();

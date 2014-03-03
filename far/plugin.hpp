@@ -708,13 +708,8 @@ struct PluginPanelItem
 	FILETIME ChangeTime;
 	unsigned __int64 FileSize;
 	unsigned __int64 AllocationSize;
-#ifdef FAR_USE_INTERNALS
-	wchar_t *FileName;
-	wchar_t *AlternateFileName;
-#else // ELSE FAR_USE_INTERNALS
 	const wchar_t *FileName;
 	const wchar_t *AlternateFileName;
-#endif // END FAR_USE_INTERNALS
 	const wchar_t *Description;
 	const wchar_t *Owner;
 	const wchar_t * const *CustomColumnData;

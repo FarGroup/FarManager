@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class RegExp;
+#include "RegExp.hpp"
 
 namespace strmix
 {
@@ -162,6 +162,36 @@ enum STL_FLAGS
 };
 
 std::list<string> StringToList(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,");
+
+class Utf8String
+{
+public:
+	Utf8String(const wchar_t* Str)
+	{
+		Init(Str, StrLength(Str));
+	}
+
+	Utf8String(const string& Str)
+	{
+		Init(Str.data(), Str.size());
+	}
+
+	const char* data() const { return Data.get(); }
+	size_t size() const { return Size; }
+
+
+private:
+	void Init(const wchar_t* Str, size_t Length)
+	{
+		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
+		Data.reset(Size);
+		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data.get(), static_cast<int>(Size - 1), nullptr, nullptr);
+		Data[Size - 1] = 0;
+	}
+
+	char_ptr Data;
+	size_t Size;
+};
 
 };
 

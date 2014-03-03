@@ -105,3 +105,5 @@ struct color_hash
 };
 
 void ReloadEnvironment();
+
+unsigned int CRC32(unsigned int crc, const void* buffer, size_t size);

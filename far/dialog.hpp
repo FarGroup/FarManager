@@ -72,11 +72,13 @@ enum DIALOG_MODES
 	DMODE_OLDSTYLE              =0x80000000, // Диалог в старом (до 1.70) стиле
 };
 
+struct DialogItemEx;
+
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox
 struct DialogItemAutomation
 {
-	WORD ID;                    // Для этого элемента...
+	DialogItemEx* Owner;                    // Для этого элемента...
 	FARDIALOGITEMFLAGS Flags[3][2];          // ...выставить вот эти флаги
 	// [0] - Unchecked, [1] - Checked, [2] - 3Checked
 	// [][0] - Set, [][1] - Skip
@@ -92,7 +94,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 	string strHistory;
 	string strMask;
 	string strData;
-	int ID;
 	BitFlags IFlags;
 	std::vector<DialogItemAutomation> Auto;
 	void *ObjPtr;
@@ -104,7 +105,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 	DialogItemEx():
 		FarDialogItem(),
 		ListPos(),
-		ID(),
 		ObjPtr(),
 		ListPtr(),
 		UCData(),
@@ -118,7 +118,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		strHistory(rhs.strHistory),
 		strMask(rhs.strMask),
 		strData(rhs.strData),
-		ID(rhs.ID),
 		IFlags(rhs.IFlags),
 		Auto(rhs.Auto),
 		ObjPtr(rhs.ObjPtr),
@@ -131,7 +130,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 	DialogItemEx(DialogItemEx&& rhs):
 		FarDialogItem(),
 		ListPos(),
-		ID(),
 		ObjPtr(),
 		ListPtr(),
 		UCData(),
@@ -151,7 +149,6 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		strHistory.swap(rhs.strHistory);
 		strMask.swap(rhs.strMask);
 		strData.swap(rhs.strData);
-		std::swap(ID, rhs.ID);
 		std::swap(IFlags, rhs.IFlags);
 		Auto.swap(rhs.Auto);
 		std::swap(ObjPtr, rhs.ObjPtr);
@@ -167,13 +164,13 @@ struct DialogItemEx: NonCopyable, public FarDialogItem
 		X2 += Delta;
 	}
 
-	bool AddAutomation(int id,
+	bool AddAutomation(DialogItemEx* DlgItem,
 		FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
 		FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
 	{
 		DialogItemAutomation Item;
-		Item.ID=id;
+		Item.Owner = DlgItem;
 		Item.Flags[0][0]=UncheckedSet;
 		Item.Flags[0][1]=UncheckedSkip;
 		Item.Flags[1][0]=CheckedSet;

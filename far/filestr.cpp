@@ -108,11 +108,14 @@ GetFileString::GetFileString(api::File& SrcFile, uintptr_t CodePage) :
 	LastLength(0),
 	LastString(nullptr),
 	LastResult(false),
-	m_ReadBuf(ReadBufCount),
-	m_wReadBuf(ReadBufCount),
 	SomeDataLost(false),
 	bCrCr(false)
 {
+	if (m_CodePage == CP_UNICODE || m_CodePage == CP_REVERSEBOM)
+		m_wReadBuf.resize(ReadBufCount);
+	else
+		m_ReadBuf.resize(ReadBufCount);
+
 	m_wStr.reserve(DELTA);
 }
 
@@ -442,8 +445,7 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 						{
 							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
 							{
-								long long selectType = 0;
-								Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &selectType, 0);
+								long long selectType = Global->CodePages->GetFavorite(cp);
 								if (0 == (selectType & CPST_FAVORITE))
 									cp = -1;
 							}

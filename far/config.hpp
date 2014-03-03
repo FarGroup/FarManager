@@ -84,7 +84,7 @@ enum DIZUPDATETYPE
 struct default_value;
 struct column;
 
-class Option
+class Option: NonCopyable
 {
 public:
 	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false){}

@@ -149,3 +149,9 @@ namespace std
 #if defined _MSC_VER && _MSC_VER < 1800
 # define wcstoll _wcstoi64
 #endif
+
+// already fixed in VC2013
+#if defined _MSC_VER && _MSC_VER < 1800
+// operator :: not works with decltype(T) in VC prior to 2013, this trick fixes it:
+#define decltype(T) std::enable_if<true, decltype(T)>::type
+#endif

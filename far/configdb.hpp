@@ -318,16 +318,9 @@ public:
 	HierarchicalConfigUniquePtr CreatePanelModeConfig();
 
 private:
-	enum DBCHECK
-	{
-		CHECK_NONE = 0,
-		CHECK_FILTERS = 0x1,
-		CHECK_HIGHLIGHT = 0x2,
-		CHECK_SHORTCUTS = 0x4,
-		CHECK_PANELMODES = 0x8,
-	};
-	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local=false, bool plugin=false);
-	template<class T> T* CreateDatabase(const char *son = nullptr);
+	ENUM(dbcheck);
+	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
+	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
 	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(SQLiteDb *pDb);
 

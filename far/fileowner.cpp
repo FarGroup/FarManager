@@ -38,122 +38,108 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "privilege.hpp"
 #include "elevation.hpp"
-
-static char sddata[64*1024];
+#include "mix.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
-struct SIDCacheItem:NonCopyable
+static bool SidToName(PSID Sid, string& Name, const string& Computer)
 {
-	block_ptr<SID> Sid;
-	string strUserName;
-
-	SIDCacheItem(const string& Computer,PSID InitSID)
+	bool Result = false;
+	DWORD AccountLength=0,DomainLength=0;
+	SID_NAME_USE snu;
+	LookupAccountSid(Computer.data(), Sid, nullptr, &AccountLength, nullptr, &DomainLength, &snu);
+	if (AccountLength && DomainLength)
 	{
-		Sid.reset(GetLengthSid(InitSID));
-		if(Sid)
+		wchar_t_ptr AccountName(AccountLength);
+		wchar_t_ptr DomainName(DomainLength);
+		if(LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 		{
-			if(CopySid(GetLengthSid(InitSID), Sid.get(), InitSID))
+			Name.assign(DomainName.get(), DomainLength).append(L"\\").append(AccountName.get(), AccountLength);
+			Result = true;
+		}
+	}
+	else
+	{
+		LPWSTR StrSid;
+		if(ConvertSidToStringSid(Sid, &StrSid))
+		{
+			Name = StrSid;
+			LocalFree(StrSid);
+			Result = true;
+		}
+	}
+	return Result;
+}
+
+static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
+{
+	bool Result = false;
+
+	class sid_cache
+	{
+	public:
+		typedef block_ptr<SID> sid;
+
+	private:
+		struct hash
+		{
+			size_t operator ()(const sid& Sid) const
 			{
-				DWORD AccountLength=0,DomainLength=0;
-				SID_NAME_USE snu;
-				LookupAccountSid(Computer.data(), Sid.get(), nullptr, &AccountLength, nullptr, &DomainLength, &snu);
-				if (AccountLength && DomainLength)
-				{
-					wchar_t_ptr AccountName(AccountLength);
-					wchar_t_ptr DomainName(DomainLength);
-					if(LookupAccountSid(Computer.data(), Sid.get(), AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
-					{
-						strUserName.assign(DomainName.get(), DomainLength).append(L"\\").append(AccountName.get(), AccountLength);
-					}
-				}
-				else
-				{
-					LPWSTR StrSid;
-					if(ConvertSidToStringSid(Sid.get(), &StrSid))
-					{
-						strUserName = StrSid;
-						LocalFree(StrSid);
-					}
-				}
+				return CRC32(0, Sid.get(), GetLengthSid(Sid.get()));
 			}
-		}
+		};
 
-		if(strUserName.empty())
+		struct equal
 		{
-			Sid.reset();
+			bool operator ()(const sid& Sid1, const sid& Sid2) const
+			{
+				return EqualSid(Sid1.get(), Sid2.get()) != FALSE;
+			}
+		};
+
+	public:
+		typedef std::unordered_map<sid, string, hash, equal> map;
+
+		static sid make_sid(PSID Sid)
+		{
+			DWORD Size = GetLengthSid(Sid);
+			sid Copy(Size);
+			CopySid(Size, Copy.get(), Sid);
+			return Copy;
+		};
+	};
+
+	static sid_cache::map SIDCache;
+
+	auto SidCopy = sid_cache::make_sid(Sid);
+	auto ItemIterator = SIDCache.find(SidCopy);
+
+	if (ItemIterator != SIDCache.cend())
+	{
+		Name = ItemIterator->second;
+		Result = true;
+	}
+	else
+	{
+		if (SidToName(Sid, Name, Computer))
+		{
+			SIDCache.insert(std::make_pair(std::move(SidCopy), Name));
+			Result = true;
 		}
 	}
-
-	SIDCacheItem(SIDCacheItem&& Right)
-	{
-		*this = std::move(Right);
-	}
-
-	SIDCacheItem& operator=(SIDCacheItem&& Right)
-	{
-		Sid.swap(Right.Sid);
-		strUserName.swap(Right.strUserName);
-		return *this;
-	}
-};
-
-std::unique_ptr<std::list<SIDCacheItem>> SIDCache;
-
-void SIDCacheFlush()
-{
-	SIDCache.reset();
+	return Result;
 }
-
-bool AddSIDToCache(const string& Computer, PSID Sid, string& Result)
-{
-	SIDCacheItem NewItem(Computer, Sid);
-	if(!NewItem.strUserName.empty())
-	{
-		if(!SIDCache)
-		{
-			SIDCache = std::make_unique<DECLTYPE(SIDCache)::element_type>();
-		}
-		SIDCache->emplace_back(std::move(NewItem));
-		Result = SIDCache->back().strUserName;
-		return true;
-	}
-	return false;
-}
-
-bool GetNameFromSIDCache(PSID Sid,string& Name)
-{
-	if(SIDCache)
-	{
-		auto ItemIterator = std::find_if(CONST_RANGE(*SIDCache, i)
-		{
-			return EqualSid(i.Sid.get(), Sid);
-		});
-		if(ItemIterator != SIDCache->cend())
-		{
-			Name = ItemIterator->strUserName;
-			return true;
-		}
-	}
-	return false;
-}
-
 
 bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 {
 	bool Result=false;
-	/*
-	if(!Owner)
-	{
-		SIDCacheFlush();
-		return TRUE;
-	}
-	*/
+
 	strOwner.clear();
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	NTPath strName(Name);
-	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
+	static char sddata[64 * 1024];
+	PSECURITY_DESCRIPTOR sd = reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
 	if (GetFileSecurity(strName.data(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{
@@ -163,36 +149,32 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 		{
 			if (IsValidSid(pOwner))
 			{
-				Result = GetNameFromSIDCache(pOwner, strOwner);
-				if (!Result)
-				{
-					Result = AddSIDToCache(Computer, pOwner, strOwner);
-				}
+				Result = SidToNameCached(pOwner, strOwner, Computer);
 			}
 		}
 	}
 	return Result;
 }
 
-bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
+bool SetOwnerInternal(const string& Object, const string& Owner)
 {
 	bool Result = false;
 
 	PSID Sid = nullptr;
 	SCOPE_EXIT { LocalFree(Sid); };
 
-	if(!ConvertStringSidToSid(Owner, &Sid))
+	if(!ConvertStringSidToSid(Owner.data(), &Sid))
 	{
 		SID_NAME_USE Use;
 		DWORD cSid=0, ReferencedDomain=0;
-		LookupAccountName(nullptr, Owner, nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
+		LookupAccountName(nullptr, Owner.data(), nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
 		if(cSid)
 		{
 			Sid = LocalAlloc(LMEM_FIXED, cSid);
 			if(Sid)
 			{
 				std::vector<wchar_t> ReferencedDomainName(ReferencedDomain);
-				if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
+				if(LookupAccountName(nullptr, Owner.data(), Sid, &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
 				{
 					;
 				}
@@ -203,7 +185,7 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 	{
 		SCOPED_ACTION(Privilege)(SE_TAKE_OWNERSHIP_NAME);
 		SCOPED_ACTION(Privilege)(SE_RESTORE_NAME);
-		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
+		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
 		if(dwResult == ERROR_SUCCESS)
 		{
 			Result = true;
@@ -216,11 +198,10 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 	return Result;
 }
 
-
-bool SetOwner(const string& Object, const string& Owner)
+bool SetFileOwner(const string& Object, const string& Owner)
 {
 	NTPath strNtObject(Object);
-	bool Result = SetOwnerInternal(strNtObject.data(), Owner.data());
+	bool Result = SetOwnerInternal(strNtObject, Owner);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Global->Elevation->fSetOwner(strNtObject, Owner);

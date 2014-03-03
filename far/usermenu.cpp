@@ -144,18 +144,17 @@ static void MenuListToFile(const std::list<UserMenu::UserMenuItem>& Menu, Cached
 
 static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
-	LPWSTR MenuStr = nullptr;
 	UserMenu::UserMenuItem *MenuItem = nullptr;
 
-	size_t MenuStrLength;
-	while (GetStr.GetString(&MenuStr, MenuStrLength))
+	string MenuStr;
+	while (GetStr.GetString(MenuStr))
 	{
 		RemoveTrailingSpaces(MenuStr);
 
-		if (!*MenuStr)
+		if (MenuStr.empty())
 			continue;
 
-		if (*MenuStr==L'{' && MenuItem)
+		if (MenuStr.front() == L'{' && MenuItem)
 		{
 			MenuFileToList(MenuItem->Menu, GetStr, MenuCP);
 			MenuItem = nullptr;
@@ -163,30 +162,32 @@ static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, GetFileStrin
 		}
 
 		// '}' can be a hotkey as well
-		if (*MenuStr==L'}' && MenuStr[1] != L':')
+		if (MenuStr.front() == L'}' && MenuStr[1] != L':')
 			break;
 
-		if (!IsSpace(*MenuStr))
+		if (!IsSpace(MenuStr.front()))
 		{
-			wchar_t *ChPtr = nullptr;
+			size_t ChPos = MenuStr.find(L':');
 
-			if (!(ChPtr=wcschr(MenuStr,L':')))
+			if (ChPos == string::npos)
 				continue;
 
 			// special case: hotkey is ':'
-			if (ChPtr[1] == ':')
+			if (ChPos + 1 != MenuStr.size() && MenuStr[ChPos + 1] == ':')
 			{
-				++ChPtr;
+				++ChPos;
 			}
 
 			Menu.resize(Menu.size() + 1);
 			MenuItem = &Menu.back();
 
-			*ChPtr = 0;
-			MenuItem->strHotKey = MenuStr;
-			MenuItem->strLabel = ChPtr+1;
+			MenuItem->strHotKey = MenuStr.substr(0, ChPos);
+			MenuItem->strLabel = MenuStr.substr(ChPos + 1);
 			RemoveLeadingSpaces(MenuItem->strLabel);
-			MenuItem->Submenu = (GetStr.PeekString(&MenuStr, MenuStrLength) && *MenuStr==L'{');
+
+			wchar_t* Tmp;
+			size_t TmpLength;
+			MenuItem->Submenu = (GetStr.PeekString(&Tmp, TmpLength) && *Tmp == L'{');
 
 			// Support for old 1.x separator format
 			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.empty())

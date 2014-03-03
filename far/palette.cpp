@@ -233,7 +233,7 @@ void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
 
 void palette::CopyTo(FarColor* Destination) const
 {
-	memcpy(Destination, CurrentPalette.data(), CurrentPalette.size() * sizeof(DECLTYPE(CurrentPalette)::value_type));
+	memcpy(Destination, CurrentPalette.data(), CurrentPalette.size() * sizeof(decltype(CurrentPalette)::value_type));
 }
 
 void palette::Load()

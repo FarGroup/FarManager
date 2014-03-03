@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "flink.hpp"
 #include "panelmix.hpp"
-#include "valuename.hpp"
 #include "colormix.hpp"
 #include "language.hpp"
 #include "plugins.hpp"
@@ -255,7 +254,7 @@ void FileList::ShowFileList(int Fast)
 		const wchar_t *Ch = nullptr;
 		if (SortMode < SORTMODE_COUNT)
 		{
-			static const value_name_pair<int, LNGID> ModeNames[] =
+			static const simple_pair<int, LNGID> ModeNames[] =
 			{
 				{UNSORTED, MMenuUnsorted},
 				{BY_NAME, MMenuSortByName},
@@ -276,7 +275,7 @@ void FileList::ShowFileList(int Fast)
 			};
 			static_assert(ARRAYSIZE(ModeNames) == SORTMODE_COUNT, "Incomplete ModeNames array");
 
-			Ch = wcschr(MSG(GetNameOfValue(SortMode, ModeNames)), L'&');
+			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == SortMode; })->second), L'&');
 		}
 
 		if (Ch || SortMode >= SORTMODE_COUNT)

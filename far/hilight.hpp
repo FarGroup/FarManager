@@ -55,6 +55,7 @@ public:
 
 	struct highlight_item
 	{
+	private:
 		struct color
 		{
 			FarColor FileColor;
@@ -62,6 +63,8 @@ public:
 
 			bool operator ==(const color& rhs) const { return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor; }
 		};
+
+	public:
 		std::array<color, HIGHLIGHT_COUNT> Color;
 
 		struct

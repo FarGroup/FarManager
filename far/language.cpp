@@ -105,7 +105,6 @@ bool OpenLangFile(api::File& LangFile, const string& Path,const string& Mask,con
 
 int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
-	wchar_t* ReadStr;
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
 	int Length=(int)strFullParamName.size();
@@ -115,17 +114,17 @@ int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, 
 	BOOL Found = FALSE;
 	auto OldPos = LangFile.GetPointer();
 
-	size_t ReadLength;
+	string ReadStr;
 	GetFileString GetStr(LangFile, nCodePage);
-	while (GetStr.GetString(&ReadStr, ReadLength))
+	while (GetStr.GetString(ReadStr))
 	{
-		if (!StrCmpNI(ReadStr,strFullParamName.data(),Length))
+		if (!StrCmpNI(ReadStr.data(), strFullParamName.data(), Length))
 		{
-			wchar_t *Ptr=wcschr(ReadStr,L'=');
+			size_t Pos = ReadStr.find(L'=');
 
-			if (Ptr)
+			if (Pos != string::npos)
 			{
-				*strParam1 = Ptr+1;
+				*strParam1 = ReadStr.substr(Pos + 1);
 
 				if (strParam2)
 					strParam2->clear();
@@ -149,7 +148,7 @@ int GetLangParam(api::File& LangFile,const string& ParamName,string *strParam1, 
 				break;
 			}
 		}
-		else if (!StrCmpNI(ReadStr, L"@Contents", 9))
+		else if (!StrCmpNI(ReadStr.data(), L"@Contents", 9))
 			break;
 	}
 
@@ -236,17 +235,16 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
 */
 int GetOptionsParam(api::File& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
-	wchar_t* ReadStr;
-	string strFullParamName;
 	int Length=StrLength(L".Options");
 	auto CurFilePos = SrcFile.GetPointer();
+	string ReadStr;
 	GetFileString GetStr(SrcFile, nCodePage);
-	size_t ReadSize;
-	while (GetStr.GetString(&ReadStr, ReadSize))
+	while (GetStr.GetString(ReadStr))
 	{
-		if (!StrCmpNI(ReadStr,L".Options",Length))
+		if (!StrCmpNI(ReadStr.data(), L".Options", Length))
 		{
-			strFullParamName = RemoveExternalSpaces(ReadStr+Length);
+			string strFullParamName = ReadStr.substr(Length);
+			RemoveExternalSpaces(strFullParamName);
 			size_t pos = strFullParamName.rfind(L'=');
 			if (pos != string::npos)
 			{

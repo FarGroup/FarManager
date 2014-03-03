@@ -326,7 +326,7 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 {
 	int Ret=SETATTR_RET_OK;
-	while (!SetOwner(Name,Owner))
+	while (!SetFileOwner(Name, Owner))
 	{
 		Global->CatchError();
 		int Code;

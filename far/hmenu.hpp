@@ -50,38 +50,35 @@ class VMenu2;
 
 class HMenu: public Modal
 {
-	private:
-		VMenu2 *SubMenu;
-		struct HMenuData *Item;
-		int SelectPos;
-		int ItemCount;
-		int VExitCode;
-		int ItemX[16];
-		CriticalSection CS;
+public:
+	HMenu(HMenuData* Item, int ItemCount);
+	virtual ~HMenu();
 
-	private:
-		virtual void DisplayObject() override;
-		virtual const string& GetTitle(string& Title) override {return Title;}
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual void ResizeConsole() override;
+	virtual int GetType() const override { return MODALTYPE_HMENU; }
+	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_HMENU; }
 
-		void ShowMenu();
-		void ProcessSubMenu(const MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
-		                    int X,int Y,int &Position);
-		wchar_t GetHighlights(const struct HMenuData *_item);
-		int CheckHighlights(WORD CheckSymbol,int StartPos=0);
-		bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
+	void GetExitCode(int &ExitCode, int &VExitCode);
 
-	public:
-		HMenu(struct HMenuData *Item,int ItemCount);
-		virtual ~HMenu();
+private:
+	virtual void DisplayObject() override;
+	virtual const string& GetTitle(string& Title) override { return Title; }
 
-	public:
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	void ShowMenu();
+	void ProcessSubMenu(const MenuDataEx *Data, int DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
+	wchar_t GetHighlights(const struct HMenuData *_item);
+	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);
+	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 
-		virtual void ResizeConsole() override;
-
-		void GetExitCode(int &ExitCode,int &VExitCode);
-		virtual int GetType() const override {return MODALTYPE_HMENU;}
-		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_HMENU;}
+private:
+	VMenu2* SubMenu;
+	HMenuData* Item;
+	int SelectPos;
+	int ItemCount;
+	int VExitCode;
+	int ItemX[16];
+	CriticalSection CS;
 };

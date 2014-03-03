@@ -48,14 +48,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _ADD_SUFFIX(s, suffix) s ## suffix
 #define ADD_SUFFIX(s, suffix) _ADD_SUFFIX(s, suffix)
 
-// trick to allow usage of operator :: with decltype(T)
-#define DECLTYPE(T) std::enable_if<true, decltype(T)>::type
 #define PTRTYPE(T) std::remove_pointer<decltype(T)>::type
 
-#define VALUE_TYPE(T) std::remove_reference<typename DECLTYPE(*std::begin(T))>::type
-#define CONST_VALUE_TYPE(T) std::remove_reference<typename DECLTYPE(*std::cbegin(T))>::type
+#define VALUE_TYPE(T) std::remove_reference<decltype(*std::begin(T))>::type
+#define CONST_VALUE_TYPE(T) std::remove_reference<decltype(*std::cbegin(T))>::type
 
-#define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<typename DECLTYPE(T)>::type>::type::subtype
+#define DECLTYPEOF(T, subtype) std::remove_reference<typename std::remove_pointer<decltype(T)>::type>::type::subtype
 #define ITERATOR(T) DECLTYPEOF(T, iterator)
 #define CONST_ITERATOR(T) DECLTYPEOF(T, const_iterator)
 #define REVERSE_ITERATOR(T) DECLTYPEOF(T, reverse_iterator)

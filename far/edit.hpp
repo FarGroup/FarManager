@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "macro.hpp"
 #include "mix.hpp"
+#include "RegExp.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
@@ -105,8 +106,6 @@ enum SetCPFlags
 	SETCP_MB2WCERROR = 0x00000002,
 	SETCP_OTHERERROR = 0x10000000,
 };
-
-class RegExp;
 
 class Edit:public ScreenObject
 {

@@ -108,7 +108,6 @@ void DizList::Read(const string& Path, const string* DizName)
 		api::File DizFile;
 		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			wchar_t *DizText;
 			clock_t StartTime=clock();
 			uintptr_t CodePage=CP_DEFAULT;
 			bool bSigFound=false;
@@ -119,8 +118,8 @@ void DizList::Read(const string& Path, const string* DizName)
 			GetFileString GetStr(DizFile, CodePage);
 
 			auto LastAdded = DizData.end(); 
-			size_t DizLength;
-			while (GetStr.GetString(&DizText, DizLength))
+			string DizText;
+			while (GetStr.GetString(DizText))
 			{
 				if (!(DizData.size() & 127) && clock()-StartTime>1000)
 				{
@@ -133,9 +132,9 @@ void DizList::Read(const string& Path, const string* DizName)
 
 				RemoveTrailingSpaces(DizText);
 
-				if (*DizText)
+				if (!DizText.empty())
 				{
-					if(!IsSpace(*DizText))
+					if(!IsSpace(DizText.front()))
 					{
 						LastAdded = AddRecord(DizText);
 					}

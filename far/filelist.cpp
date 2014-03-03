@@ -270,35 +270,23 @@ void FileList::DeleteListData(std::vector<FileListItem>& ListData)
 	ListData.clear();
 }
 
-void FileList::Up(int Count)
+void FileList::ToBegin()
 {
-	CurFile-=Count;
-
-	if (CurFile < 0)
-		CurFile=0;
-
+	CurFile = 0;
 	ShowFileList(TRUE);
 }
 
 
-void FileList::Down(int Count)
+void FileList::ToEnd()
 {
-	CurFile+=Count;
-
-	if (CurFile >= static_cast<int>(ListData.size()))
-		CurFile = static_cast<int>(ListData.size() - 1);
-
+	CurFile = static_cast<int>(ListData.size() - 1);
 	ShowFileList(TRUE);
 }
 
-void FileList::Scroll(int Count)
+void FileList::Scroll(int offset)
 {
-	CurTopFile+=Count;
-
-	if (Count<0)
-		Up(-Count);
-	else
-		Down(Count);
+	CurFile = std::min(std::max(0, CurFile + offset), static_cast<int>(ListData.size() - 1));
+	ShowFileList(TRUE);
 }
 
 void FileList::CorrectPosition()
@@ -2109,26 +2097,26 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_HOME:         case KEY_NUMPAD7:
-			Up(0x7fffff);
+			ToBegin();
 			return TRUE;
 		case KEY_END:          case KEY_NUMPAD1:
-			Down(0x7fffff);
+			ToEnd();
 			return TRUE;
 		case KEY_UP:           case KEY_NUMPAD8:
-			Up(1);
+			Scroll(-1);
 			return TRUE;
 		case KEY_DOWN:         case KEY_NUMPAD2:
-			Down(1);
+			Scroll(1);
 			return TRUE;
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=Columns*Height-1;
 			CurTopFile-=N;
-			Up(N);
+			Scroll(-N);
 			return TRUE;
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=Columns*Height-1;
 			CurTopFile+=N;
-			Down(N);
+			Scroll(N);
 			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
@@ -2137,7 +2125,7 @@ int FileList::ProcessKey(int Key)
 				if (CurTopFile>=Height && CurFile-CurTopFile<Height)
 					CurTopFile-=Height;
 
-				Up(Height);
+				Scroll(-Height);
 				return TRUE;
 			}
 
@@ -2149,7 +2137,7 @@ int FileList::ProcessKey(int Key)
 				if (CurFile+Height < static_cast<int>(ListData.size()) && CurFile-CurTopFile>=(Columns-1)*(Height))
 					CurTopFile+=Height;
 
-				Down(Height);
+				Scroll(Height);
 				return TRUE;
 			}
 
@@ -2267,9 +2255,9 @@ int FileList::ProcessKey(int Key)
 			Select(*CurPtr, ShiftSelection);
 
 			if (Key==KEY_SHIFTUP || Key == KEY_SHIFTNUMPAD8)
-				Up(1);
+				Scroll(-1);
 			else
-				Down(1);
+				Scroll(1);
 
 			if (SelectedFirst && !InternalProcessKey)
 				SortFileList(TRUE);
@@ -2286,13 +2274,13 @@ int FileList::ProcessKey(int Key)
 			CurPtr = &ListData[CurFile];
 			Select(*CurPtr,!CurPtr->Selected);
 			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
-			Down(1);
+			Scroll(1);
 
 			if (SelectedFirst)
 			{
 				SortFileList(TRUE);
 				if (avoid_up_jump)
-					Down(0x10000000);
+					ToEnd();
 			}
 
 			ShowFileList(TRUE);
@@ -2704,7 +2692,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 			ConvertNameToFull(strSetDir,strSetDir);
 		PrepareDiskPath(strSetDir, ResolvePath);
 
-		if (!StrCmpN(strSetDir.data(), L"\\\\?\\", 4) && strSetDir[5] == L':' && !strSetDir[6])
+		if (HasPathPrefix(strSetDir) && strSetDir[5] == L':' && !strSetDir[6])
 			AddEndSlash(strSetDir);
 	}
 
@@ -3059,7 +3047,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<=Y1+1)
 		{
-			Up(1);
+			Scroll(-1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
@@ -3083,7 +3071,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2-2)
 		{
-			Down(1);
+			Scroll(1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{

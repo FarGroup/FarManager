@@ -42,67 +42,55 @@ class CommandLine;
 
 class FilePanels:public Frame
 {
-	private:
-		virtual void DisplayObject() override;
-		virtual const string& GetTitle(string& Title) override {return Title;}
+public:
+	FilePanels(bool CreatePanels = true);
+	virtual ~FilePanels();
 
-		typedef class Frame inherited;
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual void SetScreenPosition() override;
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual int GetType() const override { return MODALTYPE_PANELS; }
+	virtual const wchar_t *GetTypeName() override { return L"[FilePanels]"; }
+	virtual void OnChangeFocus(int focus) override;
+	virtual void RedrawKeyBar() override;
+	virtual void ShowConsoleTitle() override;
+	virtual void ResizeConsole() override;
+	virtual int FastHide() override;
+	virtual void Refresh() override;
+	virtual FARMACROAREA GetMacroMode() override;
 
-	public:
-		Panel *LastLeftFilePanel,
-			*LastRightFilePanel;
-		Panel *LeftPanel,
-			*RightPanel,
-			*ActivePanel;
+	void Init(int DirCount);
+	Panel* GetAnotherPanel(const Panel *Current);
+	Panel* ChangePanelToFilled(Panel *Current, int NewType);
+	Panel* ChangePanel(Panel *Current, int NewType, int CreateNew, int Force);
+	void GoToFile(const string& FileName);
+	int ChangePanelViewMode(Panel *Current, int Mode, BOOL RefreshFrame);
 
-		KeyBar      MainKeyBar;
-		MenuBar     TopMenuBar;
+private:
+	virtual void DisplayObject() override;
+	virtual const string& GetTitle(string& Title) override {return Title;}
 
-		int LastLeftType,
-		LastRightType;
-		int LeftStateBeforeHide,
-		RightStateBeforeHide;
+	Panel* CreatePanel(int Type);
+	void DeletePanel(Panel *Deleted);
+	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen);
+	int SetAnhoterPanelFocus();
+	int SwapPanels();
+	void Update();
 
-	public:
-		FilePanels(bool CreatePanels = true);
-		virtual ~FilePanels();
+public:
+	Panel *LastLeftFilePanel;
+	Panel *LastRightFilePanel;
+	Panel *LeftPanel;
+	Panel *RightPanel;
+	Panel *ActivePanel;
 
-	public:
-		void Init(int DirCount);
+	KeyBar MainKeyBar;
+	MenuBar TopMenuBar;
 
-		Panel* CreatePanel(int Type);
-		void   DeletePanel(Panel *Deleted);
-		Panel* GetAnotherPanel(const Panel *Current);
-		Panel* ChangePanelToFilled(Panel *Current,int NewType);
-		Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);
-		void   SetPanelPositions(bool LeftFullScreen,bool RightFullScreen);
-
-		void   SetupKeyBar();
-
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-
-		int SetAnhoterPanelFocus();
-		int SwapPanels();
-		int ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame);
-
-		virtual void SetScreenPosition() override;
-
-		void Update();
-
-		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual int GetType() const override { return MODALTYPE_PANELS; }
-		virtual const wchar_t *GetTypeName() override {return L"[FilePanels]";}
-
-		virtual void OnChangeFocus(int focus) override;
-
-		virtual void RedrawKeyBar() override;
-		virtual void ShowConsoleTitle() override;
-		virtual void ResizeConsole() override;
-		virtual int FastHide() override;
-		virtual void Refresh() override;
-		void GoToFile(const string& FileName);
-
-		virtual FARMACROAREA GetMacroMode() override;
+	int LastLeftType;
+	int LastRightType;
+	int LeftStateBeforeHide;
+	int RightStateBeforeHide;
 };

@@ -324,11 +324,8 @@ int Help::ReadHelp(const string& Mask)
 
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
-			wchar_t *ReadStr;
-			size_t nStrLength;
-			if (!GetStr.GetString(&ReadStr, nStrLength))
+			if (!GetStr.GetString(strReadStr))
 			{
-				strReadStr=ReadStr;
 				if (StringLen(strSplitLine)<MaxLength)
 				{
 					if (!strSplitLine.empty())
@@ -342,10 +339,6 @@ int Help::ReadHelp(const string& Mask)
 				}
 
 				break;
-			}
-			else
-			{
-				strReadStr=ReadStr;
 			}
 		}
 

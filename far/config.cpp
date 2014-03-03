@@ -330,7 +330,7 @@ void Options::AutoCompleteSettings()
 
 void Options::InfoPanelSettings()
 {
-	DialogBuilderListItem UNListItems[]=
+	static const DialogBuilderListItem UNListItems[]=
 	{
 		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
 		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
@@ -342,7 +342,8 @@ void Options::InfoPanelSettings()
 		{ MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
 		{ MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
 	};
-	DialogBuilderListItem CNListItems[]=
+
+	static const DialogBuilderListItem CNListItems[] =
 	{
 		{ MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
 		{ MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
@@ -584,21 +585,29 @@ void Options::DialogSettings()
 
 void Options::VMenuSettings()
 {
-	DialogBuilderListItem CAListItems[]=
+
+	static const DialogBuilderListItem CAListItems[]=
 	{
 		{ MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
 		{ MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
 		{ MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
 	};
 
+	static const simple_pair<LNGID, IntOption*> DialogItems[] =
+	{
+		{ MConfigVMenuLBtnClick, &VMenu.LBtnClick },
+		{ MConfigVMenuRBtnClick, &VMenu.RBtnClick },
+		{ MConfigVMenuMBtnClick, &VMenu.MBtnClick },
+	};
+
 	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
 
-	Builder.AddText(MConfigVMenuLBtnClick);
-	Builder.AddComboBox(VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
-	Builder.AddText(MConfigVMenuRBtnClick);
-	Builder.AddComboBox(VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
-	Builder.AddText(MConfigVMenuMBtnClick);
-	Builder.AddComboBox(VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	std::for_each(CONST_RANGE(DialogItems, i)
+	{
+		Builder.AddText(i.first);
+		Builder.AddComboBox(*i.second, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	});
+
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
@@ -777,12 +786,13 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	}
 
 	Builder.AddText(MEditConfigExpandTabsTitle);
-	static const DialogBuilderListItem ExpandTabsItems[] = {
+	static const DialogBuilderListItem ExpandTabsItems[] =
+	{
 		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOptRef.ExpandTabs, 64, ExpandTabsItems, 3, DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE|DIF_DROPDOWNLIST);
+	Builder.AddComboBox(EdOptRef.ExpandTabs, 64, ExpandTabsItems, ARRAYSIZE(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);

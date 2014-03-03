@@ -388,51 +388,33 @@ void FindFiles::InitInFileSearch()
 			// Формируем список кодовых страниц
 			if (CodePage == CP_DEFAULT)
 			{
-				DWORD data;
-				string codePageName;
-				bool hasSelected = false;
-
 				// Проверяем наличие выбранных страниц символов
-				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, data); i++)
-				{
-					if (data & CPST_FIND)
-					{
-						hasSelected = true;
-						break;
-					}
-				}
+				const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
+				bool hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
 
-				// Добавляем стандартные таблицы символов
-				if (!hasSelected)
-				{
-					codePages.emplace_back(GetOEMCP());
-					codePages.emplace_back(GetACP());
-					codePages.emplace_back(CP_UTF8);
-					codePages.emplace_back(CP_UNICODE);
-					codePages.emplace_back(CP_REVERSEBOM);
-				}
-				else
+				if (hasSelected)
 				{
 					codePages.clear();
 				}
+				else
+				{
+					// Добавляем стандартные таблицы символов
+					const uintptr_t Predefined[] = { GetOEMCP(), GetACP(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
+					codePages.insert(codePages.end(), ALL_CONST_RANGE(Predefined));
+				}
 
 				// Добавляем любимые таблицы символов
-				for (DWORD i=0; Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, data); i++)
+				std::for_each(CONST_RANGE(CpEnum, i)
 				{
-					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
+					if (i.second & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						uintptr_t codePage = std::stoi(codePageName);
+						uintptr_t codePage = std::stoi(i.first);
 
 						// Проверяем дубли
-						if (!hasSelected)
-						{
-							if (std::any_of(CONST_RANGE(codePages, i) {return i.CodePage == CodePage;}))
-								continue;
-						}
-
-						codePages.emplace_back(codePage);
+						if (hasSelected || !std::any_of(CONST_RANGE(codePages, i) {return i.CodePage == CodePage;}))
+							codePages.emplace_back(codePage);
 					}
-				}
+				});
 			}
 			else
 			{
@@ -856,12 +838,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 							if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
 							{
-								// Преобразуем номер таблицы сиволов к строке
-								string strCodePageName;
-								strCodePageName = std::to_wstring(SelectedCodePage);
 								// Получаем текущее состояние флага в реестре
-								long long SelectType = 0;
-								Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
+								long long SelectType = Global->CodePages->GetFavorite(SelectedCodePage);
 
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
@@ -869,15 +847,15 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									// Для стандартных таблиц символов просто удаляем значение из рееста, для
 									// любимых же оставляем в реестре флаг, что таблица символов любимая
 									if (SelectType & CPST_FAVORITE)
-										Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
+										Global->CodePages->SetFavorite(SelectedCodePage, CPST_FAVORITE);
 									else
-										Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, strCodePageName);
+										Global->CodePages->DeleteFavorite(SelectedCodePage);
 
 									Item.Item.Flags &= ~LIF_CHECKED;
 								}
 								else
 								{
-									Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
+									Global->CodePages->SetFavorite(SelectedCodePage, CPST_FIND | (SelectType & CPST_FAVORITE ? CPST_FAVORITE : 0));
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 
@@ -2870,7 +2848,7 @@ bool FindFiles::FindFilesProcess()
 
 							if (pi.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 							{
-								DeleteEndSlash(pi.FileName);
+								DeleteEndSlash(const_cast<wchar_t*>(pi.FileName));
 							}
 						}
 					}

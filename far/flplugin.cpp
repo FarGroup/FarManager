@@ -449,7 +449,7 @@ void FileList::PluginDelete()
 		if (Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), 0))
 		{
 			SetPluginModified();
-			PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
+			PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
 		}
 
 		DeletePluginItemList(ItemList);
@@ -462,7 +462,7 @@ void FileList::PluginDelete()
 }
 
 
-void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz, DizList *DestDiz)
+void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PutDizToPlugin()"));
 	OpenPanelInfo Info;
@@ -484,17 +484,17 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 
 		bool DizPresent = false;
 
-		std::for_each(RANGE(ItemList, i)
+		std::for_each(CONST_RANGE(ItemList, i)
 		{
 			if (i.Flags & PPIF_PROCESSDESCR)
 			{
 				int Code;
 
 				if (Delete)
-					Code=DestDiz->DeleteDiz(i.FileName, i.AlternateFileName);
+					Code = DestPanel->Diz.DeleteDiz(i.FileName, i.AlternateFileName);
 				else
 				{
-					Code=SrcDiz->CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.AlternateFileName, DestDiz);
+					Code = SrcDiz->CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.AlternateFileName, &DestPanel->Diz);
 
 					if (Code && Move)
 						SrcDiz->DeleteDiz(i.FileName, i.AlternateFileName);
@@ -514,7 +514,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 				string strSaveDir;
 				api::GetCurrentDirectory(strSaveDir);
 				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
-				DestDiz->Flush(L"", &strDizName);
+				DestPanel->Diz.Flush(L"", &strDizName);
 
 				if (Move)
 					SrcDiz->Flush(L"");
@@ -526,9 +526,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::vector<PluginPanelItem>&
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
-					pi.FileName = DuplicateString(DestPanel->strPluginDizName.data());
+					pi.FileName = DestPanel->strPluginDizName.data();
 					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
-					delete[] pi.FileName;
 				}
 
 				FarChDir(strSaveDir);
@@ -579,7 +578,7 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 			if (Move)
 			{
 				SetPluginModified();
-				PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
+				PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
 			}
 		}
 		else if (!ReturnCurrentFile)
@@ -632,13 +631,13 @@ void FileList::PluginToPluginFiles(int Move)
 					ClearSelection();
 
 				AnotherPanel->SetPluginModified();
-				PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, FALSE, &Diz, &AnotherFilePanel->Diz);
+				PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, FALSE, &Diz);
 
 				if (Move && Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), OPM_SILENT))
-					{
-						SetPluginModified();
-						PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr, &Diz);
-					}
+				{
+					SetPluginModified();
+					PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
+				}
 			}
 			else if (!ReturnCurrentFile)
 				PluginClearSelection(ItemList);
@@ -830,7 +829,7 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 			}
 
 			_ALGO(SysLog(L"call PutDizToPlugin"));
-			PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, Move, &Diz, &AnotherFilePanel->Diz);
+			PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, Move, &Diz);
 			AnotherPanel->SetPluginModified();
 		}
 		else if (!ReturnCurrentFile)

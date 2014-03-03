@@ -685,7 +685,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
     <ClInclude Include="usermenu.hpp" />
-    <ClInclude Include="valuename.hpp" />
     <ClInclude Include="viewer.hpp" />
     <ClInclude Include="vmenu.hpp" />
     <ClInclude Include="vmenu2.hpp" />

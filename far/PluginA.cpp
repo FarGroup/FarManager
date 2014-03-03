@@ -2983,7 +2983,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 
 	if(!DialogList)
 	{
-		DialogList = std::make_unique<DECLTYPE(DialogList)::element_type>();
+		DialogList = std::make_unique<decltype(DialogList)::element_type>();
 	}
 	DialogList->emplace_back(NewDialogData);
 
@@ -3912,7 +3912,7 @@ static int GetEditorCodePageFavA()
 	{
 		DWORD FavIndex = 2;
 		const auto strCP = std::to_wstring(CodePage);
-		const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+		const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
 		std::any_of(CONST_RANGE(CpEnum, i) -> bool
 		{
 			if (i.second & CPST_FAVORITE)
@@ -3958,7 +3958,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 			default:
 			{
 				int FavIndex=2;
-				const auto CpEnum = Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+				const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
 				std::any_of(CONST_RANGE(CpEnum, i) -> bool
 				{
 					if (i.second & CPST_FAVORITE)

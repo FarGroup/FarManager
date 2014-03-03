@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "language.hpp"
 #include "message.hpp"
-#include "valuename.hpp"
 #include "synchro.hpp"
 
 static int IntToHex(int h)
@@ -156,55 +155,45 @@ static void PrintError(const wchar_t *Title, const tinyxml::TiXmlDocument &doc)
 	PrintError(Title, wide(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
 }
 
-class Utf8String
-{
-public:
-	Utf8String(const wchar_t* Str)
-	{
-		Init(Str, StrLength(Str));
-	}
-
-	Utf8String(const string& Str)
-	{
-		Init(Str.data(), Str.size());
-	}
-
-	const char* data() const {return Data.get();}
-	size_t size() const {return Size;}
-
-
-private:
-	void Init(const wchar_t* Str, size_t Length)
-	{
-		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
-		Data.reset(Size);
-		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data.get(), static_cast<int>(Size-1), nullptr, nullptr);
-		Data[Size-1] = 0;
-	}
-
-	char_ptr Data;
-	size_t Size;
-};
-
 class xml_iterator:public std::iterator<std::forward_iterator_tag, tinyxml::TiXmlElement>
 {
 public:
-	xml_iterator(const tinyxml::TiXmlHandle& base, const std::string& name):
-		m_name(name),
-		m_iterator(base.FirstChildElement(name.data()).Element())
-	{}
-	xml_iterator(const tinyxml::TiXmlElement* base, const std::string& name):
-		m_name(name),
-		m_iterator(base->FirstChildElement(name.data()))
-	{}
+	xml_iterator(): m_iterator() {}
+	xml_iterator(const tinyxml::TiXmlElement* rhs): m_iterator(rhs) {}
+	xml_iterator& operator =(const tinyxml::TiXmlElement* rhs) { m_iterator = rhs; return *this; }
 	const tinyxml::TiXmlElement* operator ->() const { return m_iterator; }
 	const tinyxml::TiXmlElement& operator *() const { return *m_iterator; }
-	xml_iterator& operator ++() { m_iterator = m_iterator->NextSiblingElement(m_name.data()); return *this; }
 	operator bool() const { return m_iterator != nullptr; }
 
 private:
-	std::string m_name;
 	const tinyxml::TiXmlElement* m_iterator;
+};
+
+class xml_enum: public enumerator<xml_iterator>
+{
+public:
+	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
+		m_name(name),
+		m_hbase(&base),
+		m_ebase()
+	{}
+	xml_enum(const tinyxml::TiXmlElement* base, const std::string& name):
+		m_name(name),
+		m_hbase(),
+		m_ebase(base)
+	{}
+
+	virtual bool get(size_t index, xml_iterator& value) override
+	{
+		return index?
+			value = value->NextSiblingElement(m_name.data()) :
+			value = m_hbase? m_hbase->FirstChildElement(m_name.data()).Element() : m_ebase->FirstChildElement(m_name.data());
+	}
+
+private:
+	std::string m_name;
+	const tinyxml::TiXmlHandle* m_hbase;
+	const tinyxml::TiXmlElement* m_ebase;
 };
 
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
@@ -433,7 +422,7 @@ public:
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (xml_iterator e(root.FirstChild(GetKeyName()), "setting"); e; ++e)
+		FOR(const auto& e, xml_enum(root.FirstChild(GetKeyName()), "setting"))
 		{
 			const char *key = e->Attribute("key");
 			const char *name = e->Attribute("name");
@@ -820,7 +809,7 @@ public:
 				return;
 		}
 
-		for (xml_iterator e(key, "value"); e; ++e)
+		FOR(const auto& e, xml_enum(key, "value"))
 		{
 			const char *name = e->Attribute("name");
 			const char *type = e->Attribute("type");
@@ -853,7 +842,7 @@ public:
 			{
 				// custom types, value is optional
 				char_ptr Blob;
-				int Size = DeserializeBlob(name, type, value, &(*e), Blob);
+				int Size = DeserializeBlob(name, type, value, &*e, Blob);
 				if (Blob)
 				{
 					SetValue(id, Name, Blob.get(), Size);
@@ -861,9 +850,9 @@ public:
 			}
 		}
 
-		for (xml_iterator e(key, "key"); e; ++e)
+		FOR(const auto& e, xml_enum(key, "key"))
 		{
-			Import(id, &(*e));
+			Import(id, &*e);
 		}
 
 	}
@@ -871,22 +860,63 @@ public:
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (xml_iterator e(root.FirstChild("hierarchicalconfig"), "key"); e; ++e)
+		FOR(const auto& e, xml_enum(root.FirstChild("hierarchicalconfig"), "key"))
 		{
-			Import(0, &(*e));
+			Import(0, &*e);
 		}
 		return true;
 	}
 };
 
-static const std::array<value_name_pair<FARCOLORFLAGS, const wchar_t*>, 5> ColorFlagNames =
-{{
+static const simple_pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
+{
 	{FCF_FG_4BIT,      L"fg4bit"   },
 	{FCF_BG_4BIT,      L"bg4bit"   },
 	{FCF_FG_BOLD,      L"bold"     },
 	{FCF_FG_ITALIC,    L"italic"   },
 	{FCF_FG_UNDERLINE, L"underline"},
-}};
+};
+
+template<class container>
+const string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
+{
+	string strFlags;
+	std::for_each(CONST_RANGE(From, i)
+	{
+		if (Flags & i.first)
+		{
+			strFlags.append(i.second).append(1, Separator);
+		}
+	});
+
+	if(!strFlags.empty())
+	{
+		strFlags.pop_back();
+	}
+
+	return strFlags;
+}
+
+template<class container>
+unsigned long long StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+{
+	auto Flags = decltype(std::begin(From)->first)();
+	if(!strFlags.empty())
+	{
+		auto FlagList(StringToList(strFlags, STLF_UNIQUE, Separators));
+		std::for_each(CONST_RANGE(FlagList, i)
+		{
+			auto ItemIterator = std::find_if(CONST_RANGE(From, j)
+			{
+				return !StrCmpI(i, j.second);
+			});
+			if (ItemIterator != std::cend(From))
+				Flags |= ItemIterator->first;
+		});
+	}
+	return Flags;
+}
+
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
@@ -1050,7 +1080,7 @@ public:
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (xml_iterator e(root.FirstChild("colors"), "object"); e; ++e)
+		FOR(const auto& e, xml_enum(root.FirstChild("colors"), "object"))
 		{
 			const char *name = e->Attribute("name");
 			const char *background = e->Attribute("background");
@@ -1321,7 +1351,7 @@ public:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
-		for (xml_iterator e(base, "filetype"); e; ++e)
+		FOR(const auto& e, xml_enum(base, "filetype"))
 		{
 			const char *mask = e->Attribute("mask");
 			const char *description = e->Attribute("description");
@@ -1336,7 +1366,7 @@ public:
 			if (!id)
 				continue;
 
-			for (xml_iterator se(&(*e), "command"); se; ++se)
+			FOR(const auto& se, xml_enum(&*e, "command"))
 			{
 				const char *command = se->Attribute("command");
 				int type=0;
@@ -1943,7 +1973,7 @@ public:
 	bool Import(const tinyxml::TiXmlHandle &root)
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (xml_iterator e(root.FirstChild("pluginhotkeys"), "plugin"); e; ++e)
+		FOR(const auto& e, xml_enum(root.FirstChild("pluginhotkeys"), "plugin"))
 		{
 			const char *key = e->Attribute("key");
 
@@ -1952,7 +1982,7 @@ public:
 
 			string Key = wide(key, CP_UTF8);
 
-			for (xml_iterator se(&(*e), "hotkey"); se; ++se)
+			FOR(const auto& se, xml_enum(&*e, "hotkey"))
 			{
 				const char *stype = se->Attribute("menu");
 				const char *guid = se->Attribute("guid");
@@ -2653,12 +2683,12 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 				p->Import(root.FirstChildElement(son));
 			else
 			{
-				for (xml_iterator plugin_i(root.FirstChild("pluginsconfig"), "plugin"); plugin_i; ++plugin_i)
+				FOR(const auto& i, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 				{
-					const char *guid = plugin_i->Attribute("guid");
+					const char *guid = i->Attribute("guid");
 					if (guid && 0 == strcmp(guid, son))
 					{
-						p->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement *>(&(*plugin_i))));
+						p->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement *>(&*i)));
 						break;
 					}
 				}
@@ -2668,19 +2698,19 @@ void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 }
 
 template<class T>
-T* Database::CreateDatabase(const char *son)
+std::unique_ptr<T> Database::CreateDatabase(const char *son)
 {
-	T* cfg = new T();
-	CheckDatabase(cfg);
+	auto cfg = std::make_unique<T>();
+	CheckDatabase(cfg.get());
 	if ('i' != m_ImportExportMode && cfg->IsNew())
 	{
-		TryImportDatabase(cfg, son);
+		TryImportDatabase(cfg.get(), son);
 	}
 	return cfg;
 }
 
 template<class T>
-HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
+HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -2694,6 +2724,15 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(DBCHECK DbId, con
 	CheckedDb.Set(DbId);
 	return HierarchicalConfigUniquePtr(cfg);
 }
+
+ENUM(Database::dbcheck)
+{
+	CHECK_NONE = 0,
+	CHECK_FILTERS = BIT(0),
+	CHECK_HIGHLIGHT = BIT(1),
+	CHECK_SHORTCUTS = BIT(2),
+	CHECK_PANELMODES = BIT(3),
+};
 
 HierarchicalConfigUniquePtr Database::CreatePluginsConfig(const string& guid, bool Local)
 {
@@ -2741,17 +2780,23 @@ Database::~Database()
 	Global->Db->WaitForThreads();
 }
 
+RegExp& GetRE()
+{
+	static RegExp re;
+	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE | OP_OPTIMIZE);
+	return re;
+}
+
 bool Database::Export(const string& File)
 {
 	FILE* XmlFile = _wfopen(NTPath(File).data(), L"w");
 	if(!XmlFile)
 		return false;
 
-	bool ret = false;
-
-	RegExpMatch m[2];
-	RegExp re;
-	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
+	SCOPE_EXIT
+	{
+		fclose(XmlFile);
+	};
 
 	tinyxml::TiXmlDocument doc;
 	doc.LinkEndChild(new tinyxml::TiXmlDeclaration("1.0", "UTF-8", ""));
@@ -2792,8 +2837,9 @@ bool Database::Export(const string& File)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			Upper(i.strFileName);
-			intptr_t mc = 2;
-			if (re.Match(i.strFileName.data(), i.strFileName.data() + i.strFileName.size(), m, mc))
+			RegExpMatch m[2];
+			intptr_t mc = ARRAYSIZE(m);
+			if (GetRE().Match(i.strFileName.data(), i.strFileName.data() + i.strFileName.size(), m, mc))
 			{
 				auto plugin = new tinyxml::TiXmlElement("plugin");
 				plugin->SetAttribute("guid", Utf8String(i.strFileName).data());
@@ -2805,10 +2851,7 @@ bool Database::Export(const string& File)
 	}
 
 	doc.LinkEndChild(root);
-	ret = doc.SaveFile(XmlFile);
-
-	fclose(XmlFile);
-	return ret;
+	return doc.SaveFile(XmlFile);
 }
 
 bool Database::Import(const string& File)
@@ -2816,6 +2859,11 @@ bool Database::Import(const string& File)
 	FILE* XmlFile = _wfopen(NTPath(File).data(), L"rb");
 	if(!XmlFile)
 		return false;
+
+	SCOPE_EXIT
+	{
+		fclose(XmlFile);
+	};
 
 	bool ret = false;
 
@@ -2848,10 +2896,8 @@ bool Database::Import(const string& File)
 
 			//TODO: import for local plugin settings
 			RegExpMatch m[2];
-			RegExp re;
-			re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
-			for (xml_iterator plugin(root.FirstChild("pluginsconfig"), "plugin"); plugin; ++plugin)
+			FOR(const auto& plugin, xml_enum(root.FirstChild("pluginsconfig"), "plugin"))
 			{
 				const char *guid = plugin->Attribute("guid");
 				if (!guid)
@@ -2859,10 +2905,10 @@ bool Database::Import(const string& File)
 				string Guid = wide(guid, CP_UTF8);
 				Upper(Guid);
 
-				intptr_t mc = 2;
-				if (re.Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
+				intptr_t mc = ARRAYSIZE(m);
+				if (GetRE().Match(Guid.data(), Guid.data() + Guid.size(), m, mc))
 				{
-					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement*>(&(*plugin))));
+					CreatePluginsConfig(Guid)->Import(tinyxml::TiXmlHandle(const_cast<tinyxml::TiXmlElement*>(&*plugin)));
 				}
 			}
 
@@ -2873,7 +2919,6 @@ bool Database::Import(const string& File)
 	if (doc.Error())
 		PrintError(L"XML Error", doc);
 
-	fclose(XmlFile);
 	return ret;
 }
 

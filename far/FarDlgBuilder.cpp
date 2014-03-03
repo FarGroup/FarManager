@@ -240,7 +240,6 @@ DialogBuilder::~DialogBuilder()
 
 void DialogBuilder::InitDialogItem(DialogItemEx *Item, const wchar_t* Text)
 {
-	Item->ID = DialogItemsCount-1;
 	Item->strData = Text;
 }
 
@@ -564,7 +563,7 @@ void DialogBuilder::AddRadioButtons(IntOption& Value, int OptionCount, const int
 void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels)
 {
 	Parent->Flags |= DIF_AUTOMATION;
-	Parent->AddAutomation(Target->ID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+	Parent->AddAutomation(Target, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
 	if (!Parent->Selected)
 		Target->Flags |= Flags;
 
@@ -573,19 +572,19 @@ void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIA
 		DialogItemBinding<DialogItemEx> *Binding = FindBinding(Target);
 		if (Binding)
 		{
-			LinkFlagsByID(Parent, Binding->BeforeLabelID, Flags);
-			LinkFlagsByID(Parent, Binding->AfterLabelID, Flags);
+			LinkFlagsByID(Parent, &DialogItems[Binding->BeforeLabelID], Flags);
+			LinkFlagsByID(Parent, &DialogItems[Binding->AfterLabelID], Flags);
 		}
 	}
 }
 
-void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags)
+void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags)
 {
-	if (TargetID >= 0)
+	if (Target)
 	{
-		Parent->AddAutomation(TargetID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+		Parent->AddAutomation(Target, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
 		if (!Parent->Selected)
-			DialogItems [TargetID].Flags |= Flags;
+			Target->Flags |= Flags;
 	}
 }
 

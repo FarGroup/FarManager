@@ -33,18 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include  "RegExp.hpp"
-
 enum FM_FLAGS
 {
 	FMF_SILENT = 1,
 };
 
+class RegExp;
+
 class filemasks:NonCopyable
 {
 public:
 	filemasks() {}
-	~filemasks() {}
+	~filemasks() {};
 	filemasks(filemasks&& rhs) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(filemasks);
 	
@@ -68,7 +68,7 @@ private:
 	public:
 		masks(): bRE(false) {}
 		masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
-		~masks() {}
+		~masks();
 		MOVE_OPERATOR_BY_SWAP(masks);
 
 		void swap(masks& rhs) noexcept

@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "processname.hpp"
 #include "configdb.hpp"
+#include "RegExp.hpp"
 
 const wchar_t ExcludeMaskSeparator = L'|';
 const wchar_t RE_start = L'/', RE_end = L'/';
@@ -73,6 +74,10 @@ static inline const wchar_t* SkipRE(const wchar_t* masks)
 			masks++;
 	}
 	return masks;
+}
+
+filemasks::masks::~masks()
+{
 }
 
 bool filemasks::Set(const string& masks, DWORD Flags)

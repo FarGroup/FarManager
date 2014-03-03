@@ -491,7 +491,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			}
 		}
 
-		int start_hilite = 0, end_hilite = 0;
+		intptr_t start_hilite = 0, end_hilite = 0;
 
 		DialogBuilder Builder(mTitle, nullptr, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 		{
@@ -517,9 +517,10 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			TruncStrFromCenter(i, ScrX+1-6*2);
 			DialogItemEx *dx = Builder.AddText(i.data());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
-			end_hilite = dx->ID;
+			size_t index = Builder.GetLastID();
+			end_hilite = index;
 			if (!start_hilite)
-				start_hilite = dx->ID;
+				start_hilite = index;
 		});
 
 		Builder.AddOKCancel(mDBttn, MCancel);

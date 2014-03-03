@@ -49,6 +49,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
 const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
 
+// Источник вызова каллбака прохода по кодовым страницам
+ENUM(codepages::CodePagesCallbackCallSource)
+{
+	CodePageSelect,
+	CodePagesFill,
+	CodePagesFill2,
+	CodePageCheck
+};
+
 // Стандартные элементы меню кодовых страниц
 enum StandardCodePagesMenuItems
 {
@@ -135,15 +144,14 @@ codepages::codepages():
 codepages::~codepages()
 {}
 
-UINT codepages::GetCodePageInfo(UINT cp, string& name) const
+std::pair<UINT, string> codepages::GetCodePageInfo(UINT cp) const
 {
 	// Standard unicode CPs (1200, 1201, 65001) are NOT in the list.
 	auto found = data.get().find(cp);
 	if (data.get().end() == found)
-		return 0;
+		return std::pair<UINT, string>();
 
-	name = found->second.second;
-	return found->second.first; // returns MaxCharSize
+	return found->second;
 }
 
 // Получаем кодовую страницу для элемента в меню
@@ -293,10 +301,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 
 	if (selectedCodePages && codePage!=CP_DEFAULT)
 	{
-		long long selectType = 0;
-		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(codePage), &selectType, 0);
-
-		if (selectType & CPST_FIND)
+		if (GetFavorite(codePage) & CPST_FIND)
 			checked = true;
 	}
 
@@ -427,15 +432,15 @@ void codepages::AddCodePages(DWORD codePages)
 			continue;
 
 		string CodepageName;
-		int mb = Global->CodePages->GetCodePageInfo(cp, CodepageName);
-		if (mb <= 0 || (mb > 2 && (codePages & ::VOnly)))
+		UINT len = 0;
+		std::tie(len, CodepageName) = Global->CodePages->GetCodePageInfo(cp);
+		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 
 		bool IsCodePageNameCustom = false;
 		FormatCodePageName(cp, CodepageName, IsCodePageNameCustom);
 
-		long long selectType = 0;
-		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &selectType, 0);
+		long long selectType = GetFavorite(cp);
 
 		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы символов
 		if (selectType & CPST_FAVORITE)
@@ -484,20 +489,16 @@ void codepages::ProcessSelected(bool select)
 
 	if ((select && IsPositionFavorite(itemPosition)) || (!select && IsPositionNormal(itemPosition)))
 	{
-		// Преобразуем номер таблицы символов в строку
-		const auto strCPName = std::to_wstring(codePage);
-
 		// Получаем текущее состояние флага в реестре
-		long long selectType = 0;
-		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);
+		long long selectType = GetFavorite(codePage);
 
 		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
 		if (select)
-			Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
+			SetFavorite(codePage, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
-			Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FIND);
+			SetFavorite(codePage, CPST_FIND);
 		else
-			Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, strCPName);
+			DeleteFavorite(codePage);
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem(CodePagesMenu->GetItemPtr()->strName);
@@ -672,7 +673,9 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				Global->Db->GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
 			// Получаем информацию о кодовой странице
 			string CodepageName;
-			if (GetCodePageInfo(static_cast<UINT>(CodePage), CodepageName))
+			UINT len = 0;
+			std::tie(len, CodepageName) = GetCodePageInfo(static_cast<UINT>(CodePage));
+			if (len)
 			{
 				// Формируем имя таблиц символов
 				bool IsCodePageNameCustom = false;
@@ -839,46 +842,68 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 	return favoriteCodePages;
 }
 
-bool codepages::IsCodePageSupported(uintptr_t CodePage) const
+bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) const
 {
 	if (CodePage == CP_DEFAULT || IsStandardCodePage(CodePage))
 		return true;
 
-	return GetCodePageInfo(static_cast<UINT>(CodePage)) > 0;
+	auto CharSize = GetCodePageInfo(static_cast<UINT>(CodePage)).first;
+	return CharSize != 0 && CharSize <= MaxCharSize;
 }
 
-//#############################################################################
+long long codepages::GetFavorite(uintptr_t cp) const
+{
+	long long value = 0;
+	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), &value, 0);
+	return value;
+}
 
-int MultibyteCodepageDecoder::MaxLen(UINT cp)
+void codepages::SetFavorite(uintptr_t cp, long long value)
+{
+	Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, std::to_wstring(cp), value);
+}
+
+void codepages::DeleteFavorite(uintptr_t cp)
+{
+	Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, std::to_wstring(cp));
+}
+
+GeneralConfig::values_enumerator<DWORD> codepages::GetFavoritesEnumerator()
+{
+	return Global->Db->GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+}
+
+
+inline bool IsValid(UINT cp)
 {
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
-		return 0;
+		return false;
 
 	if (cp==CP_UTF8 || cp==CP_UNICODE || cp==CP_REVERSEBOM)
-		return 0;
+		return false;
 
-	return Global->CodePages->GetCodePageInfo(cp);
+	return Global->CodePages->GetCodePageInfo(cp).first == 2;
 }
-	
-//#############################################################################
+
 
 bool MultibyteCodepageDecoder::SetCP(UINT cp)
 {
 	if (cp && cp == current_cp)
 		return true;
 
-	int ml = MaxLen(cp);
-	if (ml != 2)
+	if (!IsValid(cp))
 		return false;
 
 	if (len_mask.empty())
 		len_mask.resize(256);
 	else
 		std::fill(ALL_RANGE(len_mask), 0);
+
 	if (m1.empty())
 		m1.resize(256);
 	else
 		std::fill(ALL_RANGE(m1), 0);
+
 	if (m2.empty())
 		m2.resize(256*256);
 	else
