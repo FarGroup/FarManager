@@ -3058,7 +3058,7 @@ void VMenu::AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t Me
 		if (!(Menu[i].Flags & LIF_SEPARATOR) && Menu[i].AccelKey)
 		{
 			string Key;
-			KeyToText(Menu[i].AccelKey, Key);
+			KeyToLocalizedText(Menu[i].AccelKey, Key);
 			bool Hl = HiStrlen(Menu[i].Name) != static_cast<int>(wcslen(Menu[i].Name));
 			Strings[i] = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Menu[i].Name << Key;
 			Menu[i].Name = Strings[i].data();

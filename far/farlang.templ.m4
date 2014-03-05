@@ -2028,14 +2028,14 @@ upd:"Show total delete progress indicator"
 "Zobraziť indikátor celkového priebehu ma&zania"
 
 MConfigPgUpChangeDisk
-"Использовать Ctrl-PgUp для в&ыбора диска"
-"Use Ctrl-Pg&Up to change drive"
-"Použít Ctrl-Pg&Up pro změnu jednotky"
-"Strg-Pg&Up wechselt das Laufwerk"
-"A Ctrl-Pg&Up meghajtót vált"
-"Użyj Ctrl-Pg&Up do zmiany napędu"
-"Usar Ctrl-Pg&Up para cambiar unidad"
-"Použiť Ctrl-Pg&Up na zmenu disku"
+"Использовать Ctrl+PgUp для в&ыбора диска"
+"Use Ctrl+Pg&Up to change drive"
+"Použít Ctrl+Pg&Up pro změnu jednotky"
+"Strg+Pg&Up wechselt das Laufwerk"
+"A Ctrl+Pg&Up meghajtót vált"
+"Użyj Ctrl+Pg&Up do zmiany napędu"
+"Usar Ctrl+Pg&Up para cambiar unidad"
+"Použiť Ctrl+Pg&Up na zmenu disku"
 
 MConfigClearType
 "Перер&исовка с поддержкой ClearType (может быть медленной)"
@@ -2628,14 +2628,14 @@ l:
 "Zobrazovač"
 
 MViewConfigExternalF3
-"Запускать внешнюю программу просмотра по F3 вместо Alt-F3"
-"Use external viewer for F3 instead of Alt-F3"
-"Použít externí prohlížeč u F3 místo Alt-F3"
-upd:"Use external viewer for F3 instead of Alt-F3"
-"Alt-F3 helyett F3 indítja a külső nézőkét"
-upd:"Use external viewer for F3 instead of Alt-F3"
-"Usar visor externo con F3 en lugar de Alt-F3"
-"Použiť externý zobrazovač pre F3 namiesto Alt-F3"
+"Запускать внешнюю программу просмотра по F3 вместо Alt+F3"
+"Use external viewer for F3 instead of Alt+F3"
+"Použít externí prohlížeč u F3 místo Alt+F3"
+upd:"Use external viewer for F3 instead of Alt+F3"
+"Alt+F3 helyett F3 indítja a külső nézőkét"
+upd:"Use external viewer for F3 instead of Alt+F3"
+"Usar visor externo con F3 en lugar de Alt+F3"
+"Použiť externý zobrazovač pre F3 namiesto Alt+F3"
 
 MViewConfigExternalCommand
 "&Команда просмотра:"
@@ -2799,14 +2799,14 @@ l:
 "Editor"
 
 MEditConfigEditorF4
-"Запускать внешний редактор по F4 вместо Alt-F4"
-"Use external editor for F4 instead of Alt-F4"
-"Použít externí editor u F4 místo Alt-F4"
-upd:"Use external editor for F4 instead of Alt-F4"
-"Alt-F4 helyett F4 indítja a külső szerkesztőt"
-upd:"Use external editor for F4 instead of Alt-F4"
-"Usar editor externo con F4 en lugar de Alt-F4"
-"Použiť externý editor pre F4 namiesto Alt-F4"
+"Запускать внешний редактор по F4 вместо Alt+F4"
+"Use external editor for F4 instead of Alt+F4"
+"Použít externí editor u F4 místo Alt+F4"
+upd:"Use external editor for F4 instead of Alt+F4"
+"Alt+F4 helyett F4 indítja a külső szerkesztőt"
+upd:"Use external editor for F4 instead of Alt+F4"
+"Usar editor externo con F4 en lugar de Alt+F4"
+"Použiť externý editor pre F4 namiesto Alt+F4"
 
 MEditConfigEditorCommand
 "&Команда редактирования:"
@@ -5120,14 +5120,14 @@ upd:"Occurrences: %1, lines: %2"
 "Nájdených: %1, riadky: %2"
 
 MEditFindAllMenuFooter
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Añadir"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Añadir"
+"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
 
 MEditNotFound
 "Строка не найдена"
@@ -8270,14 +8270,14 @@ MFileAssocExec
 "&Vykonať príkaz (platí pre Enter):"
 
 MFileAssocAltExec
-"Коман&да, выполняемая по Ctrl-PgDn:"
-"Exec&ute command (used for Ctrl-PgDn):"
-"V&ykonat příkaz (použito pro Ctrl-PgDn):"
-"Befehl a&usführen (mit Strg-PgDn):"
-"Vé&grehajtandó parancs (Ctrl-PgDown-ra):"
-"Polecenie (po naciśnięciu &Ctrl-PgDn):"
-"Ejecutar comando (usado por Ctrl-PgDn):"
-"V&ykonať príkaz (platí pre Ctrl-PgDn):"
+"Коман&да, выполняемая по Ctrl+PgDn:"
+"Exec&ute command (used for Ctrl+PgDn):"
+"V&ykonat příkaz (použito pro Ctrl+PgDn):"
+"Befehl a&usführen (mit Strg+PgDn):"
+"Vé&grehajtandó parancs (Ctrl+PgDown-ra):"
+"Polecenie (po naciśnięciu &Ctrl+PgDn):"
+"Ejecutar comando (usado por Ctrl+PgDn):"
+"V&ykonať príkaz (platí pre Ctrl+PgDn):"
 
 MFileAssocView
 "Команда &просмотра, выполняемая по F3:"
@@ -8290,14 +8290,14 @@ MFileAssocView
 "Príkaz &Zobraz (platí pre F3):"
 
 MFileAssocAltView
-"Команда просмотра, в&ыполняемая по Alt-F3:"
-"V&iew command (used for Alt-F3):"
-"Příkaz Z&obraz (použito pro Alt-F3):"
-"Bet&rachten (mit Alt-F3):"
-"N&ézőke parancs (Alt-F3-ra):"
-"Podg&ląd (po naciśnięciu Alt-F3):"
-"Comando de visor (usado por Alt-F3):"
-"Príkaz Z&obraz (platí pre Alt-F3):"
+"Команда просмотра, в&ыполняемая по Alt+F3:"
+"V&iew command (used for Alt+F3):"
+"Příkaz Z&obraz (použito pro Alt+F3):"
+"Bet&rachten (mit Alt+F3):"
+"N&ézőke parancs (Alt+F3-ra):"
+"Podg&ląd (po naciśnięciu Alt+F3):"
+"Comando de visor (usado por Alt+F3):"
+"Príkaz Z&obraz (platí pre Alt+F3):"
 
 MFileAssocEdit
 "Команда &редактирования, выполняемая по F4:"
@@ -8310,14 +8310,14 @@ MFileAssocEdit
 "Príkaz &Uprav (platí pre F4):"
 
 MFileAssocAltEdit
-"Команда редактировани&я, выполняемая по Alt-F4:"
-"Edit comm&and (used for Alt-F4):"
-"Příkaz Editu&j (použito pro Alt-F4):"
-"Bearbe&iten (mit Alt-F4):"
-"Sze&rkesztés parancs (Alt-F4-re):"
-"E&dycja  (po naciśnięciu Alt-F4):"
-"Comando de editor (usado por Alt-F4):"
-"Príkaz Upra&v (platí pre Alt-F4):"
+"Команда редактировани&я, выполняемая по Alt+F4:"
+"Edit comm&and (used for Alt+F4):"
+"Příkaz Editu&j (použito pro Alt+F4):"
+"Bearbe&iten (mit Alt+F4):"
+"Sze&rkesztés parancs (Alt+F4-re):"
+"E&dycja  (po naciśnięciu Alt+F4):"
+"Comando de editor (usado por Alt+F4):"
+"Príkaz Upra&v (platí pre Alt+F4):"
 
 MViewF1
 l:
@@ -10392,14 +10392,14 @@ l:
 "Menu filtrov"
 
 MFilterBottom
-"+,-,Пробел,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Space,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Mezera,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Leer,I,X,BS,UmschBS,Einf,Entf,F4,F5,StrgUp,StrgDn"
-"+,-,Szóköz,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
-"+,-,Spacja,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Espacio,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Medzera,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Пробел,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
+"+,-,Space,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
+"+,-,Mezera,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
+"+,-,Leer,I,X,BS,UmschBS,Einf,Entf,F4,F5,Strg+Up,Strg+Dn"
+"+,-,Szóköz,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Fel,Ctrl+Le"
+"+,-,Spacja,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
+"+,-,Espacio,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
+"+,-,Medzera,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
 
 MPanelFileType
 "Файлы панели"
@@ -10979,24 +10979,24 @@ upd:"Other"
 "Iné"
 
 MGetCodePageBottomTitle
-"Ctrl-H, Del, Ins, F4"
-"Ctrl-H, Del, Ins, F4"
-"Ctrl-H, Del, Ins, F4"
-"Strg-H, Entf, Einf, F4"
-"Ctrl-H, Del, Ins, F4"
-"Ctrl-H, Del, Ins, F4"
-"Ctrl-H, Del, Ins, F4"
-"Ctrl-H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
+"Strg+H, Entf, Einf, F4"
+"Ctrl+H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
+"Ctrl+H, Del, Ins, F4"
 
 MGetCodePageBottomShortTitle
-"Ctrl-H, Del, F4"
-"Ctrl-H, Del, F4"
-"Ctrl-H, Del, F4"
-"Strg-H, Entf, F4"
-"Ctrl-H, Del, F4"
-"Ctrl-H, Del, F4"
-"Ctrl-H, Del, F4"
-"Ctrl-H, Del, F4"
+"Ctrl+H, Del, F4"
+"Ctrl+H, Del, F4"
+"Ctrl+H, Del, F4"
+"Strg+H, Entf, F4"
+"Ctrl+H, Del, F4"
+"Ctrl+H, Del, F4"
+"Ctrl+H, Del, F4"
+"Ctrl+H, Del, F4"
 
 MGetCodePageEditCodePageName
 "Изменить имя кодовой страницы"
@@ -11030,14 +11030,14 @@ l:
 "Zvýrazňovanie súborov"
 
 MHighlightBottom
-"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Einf,Entf,F4,F5,StrgUp,StrgDown"
-"Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
-"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Ins,Del,F4,F5,Ctrl-Nahor,Ctrl-Nadol"
+"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
+"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
+"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
+"Einf,Entf,F4,F5,Strg+Up,Strg+Down"
+"Ins,Del,F4,F5,Ctrl+Fel,Ctrl+Le"
+"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
+"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
+"Ins,Del,F4,F5,Ctrl+Nahor,Ctrl+Nadol"
 
 MHighlightUpperSortGroup
 "Верхняя группа сортировки"
@@ -13061,14 +13061,14 @@ upd:"Usar orden sensible min/mayúsc."
 upd:"Triediť podľa malých a VEĽKÝCH písmen"
 
 MMaskGroupBottom
-"Редактирование: Ins, Del, F4, F7, Ctrl-R"
-"Edit: Ins, Del, F4, F7, Ctrl-R"
-"Změnit: Ins, Del, F4, F7, Ctrl-R"
-"Tasten: Einf, Entf, F4, F7, StrgR"
-"Szerk.: Ins, Del, F4, F7, Ctrl-R"
-"Edycja: Ins, Del, F4, F7, Ctrl-R"
-"Editar: Ins, Del, F4, F7, Ctrl-R"
-"Upraviť: Ins, Del, F4, F7, Ctrl-R"
+"Редактирование: Ins, Del, F4, F7, Ctrl+R"
+"Edit: Ins, Del, F4, F7, Ctrl+R"
+"Změnit: Ins, Del, F4, F7, Ctrl+R"
+"Tasten: Einf, Entf, F4, F7, Strg+R"
+"Szerk.: Ins, Del, F4, F7, Ctrl+R"
+"Edycja: Ins, Del, F4, F7, Ctrl+R"
+"Editar: Ins, Del, F4, F7, Ctrl+R"
+"Upraviť: Ins, Del, F4, F7, Ctrl+R"
 
 MMaskGroupName
 "&Имя:"
@@ -13485,14 +13485,14 @@ MHotPlugListTitle
 "Zoznam vyberateľných zariadení"
 
 MHotPlugListBottom
-"Редактирование: Del,Ctrl-R"
-"Edit: Del,Ctrl-R"
-"Edit: Del,Ctrl-R"
-"Tasten: Entf,StrgR,F1"
-"Szerkesztés: Del,Ctrl-R"
-"Edycja: Del,Ctrl-R"
-"Editar: Del,Ctrl-R"
-"Edit: Del,Ctrl-R"
+"Редактирование: Del,Ctrl+R"
+"Edit: Del,Ctrl+R"
+"Edit: Del,Ctrl+R"
+"Tasten: Entf,Strg+R,F1"
+"Szerkesztés: Del,Ctrl+R"
+"Edycja: Del,Ctrl+R"
+"Editar: Del,Ctrl+R"
+"Edit: Del,Ctrl+R"
 
 MChangeDriveDisconnectTitle
 l:
@@ -13687,14 +13687,14 @@ upd:"Show ne&twork drive parameters"
 "Zobraziť parametre sie&ťovej jednotky"
 
 MChangeDriveMenuFooter
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
-"Del,Shift-Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
+"Del,Shift+Del,F3,F4,F9"
 
 MSearchFileTitle
 l:
@@ -13780,14 +13780,14 @@ l:
 "Zoznam úloh"
 
 MProcessListBottom
-"Редактирование: Del,Ctrl-R,F2"
-"Edit: Del,Ctrl-R,F2"
-"Změnit: Del,Ctrl-R,F2"
-"Tasten: Entf,StrgR,F2"
-"Szerk.: Del,Ctrl-R,F2"
-"Edycja: Del,Ctrl-R,F2"
-"Editar: Del,Ctrl-R,F2"
-"Upraviť: Del,Ctrl-R,F2"
+"Редактирование: Del,Ctrl+R,F2"
+"Edit: Del,Ctrl+R,F2"
+"Změnit: Del,Ctrl+R,F2"
+"Tasten: Entf,Strg+R,F2"
+"Szerk.: Del,Ctrl+R,F2"
+"Edycja: Del,Ctrl+R,F2"
+"Editar: Del,Ctrl+R,F2"
+"Upraviť: Del,Ctrl+R,F2"
 
 MKillProcessTitle
 "Удаление задачи"
@@ -17020,14 +17020,14 @@ MLocalMenuTitle
 "Miestne menu"
 
 MMainMenuBottomTitle
-"Редактирование: Del,Ins,F4,Alt-F4"
-"Edit: Del,Ins,F4,Alt-F4"
-"Změnit: Del,Ins,F4,Alt-F4"
-"Bearb.: Entf,Einf,F4,Alt-F4"
-"Szerk.: Del,Ins,F4,Alt-F4"
-"Edycja: Del,Ins,F4,Alt-F4"
+"Редактирование: Del,Ins,F4,Alt+F4"
+"Edit: Del,Ins,F4,Alt+F4"
+"Změnit: Del,Ins,F4,Alt+F4"
+"Bearb.: Entf,Einf,F4,Alt+F4"
+"Szerk.: Del,Ins,F4,Alt+F4"
+"Edycja: Del,Ins,F4,Alt+F4"
 "Editar: Del,Ins,F4"
-"Upraviť: Del,Ins,F4,Alt-F4"
+"Upraviť: Del,Ins,F4,Alt+F4"
 
 MAskDeleteMenuItem
 "Вы хотите удалить пункт меню"
@@ -18997,7 +18997,7 @@ MHelpF12
 
 MHelpShiftF1
 l:
-l:// Help KeyBar Shift-F1-12
+l:// Help KeyBar Shift+F1-12
 "Содерж"
 "Index"
 "Index"
@@ -19119,7 +19119,7 @@ MHelpShiftF12
 
 MHelpAltF1
 l:
-l:// Help KeyBar Alt-F1-12
+l:// Help KeyBar Alt+F1-12
 "Пред."
 "Prev"
 "Předch"
@@ -19241,7 +19241,7 @@ MHelpAltF12
 
 MHelpCtrlF1
 l:
-l:// Help KeyBar Ctrl-F1-12
+l:// Help KeyBar Ctrl+F1-12
 ""
 ""
 ""
@@ -19973,7 +19973,7 @@ MInfoF12
 
 MInfoShiftF1
 l:
-l:// InfoPanel KeyBar Shift-F1-F12
+l:// InfoPanel KeyBar Shift+F1-F12
 ""
 ""
 ""
@@ -20095,7 +20095,7 @@ MInfoShiftF12
 
 MInfoAltF1
 l:
-l:// InfoPanel KeyBar Alt-F1-F12
+l:// InfoPanel KeyBar Alt+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -20217,7 +20217,7 @@ MInfoAltF12
 
 MInfoCtrlF1
 l:
-l:// InfoPanel KeyBar Ctrl-F1-F12
+l:// InfoPanel KeyBar Ctrl+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -20949,7 +20949,7 @@ MQViewF12
 
 MQViewShiftF1
 l:
-l:// QView KeyBar Shift-F1-F12
+l:// QView KeyBar Shift+F1-F12
 ""
 ""
 ""
@@ -21071,7 +21071,7 @@ MQViewShiftF12
 
 MQViewAltF1
 l:
-l:// QView KeyBar Alt-F1-F12
+l:// QView KeyBar Alt+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -21193,7 +21193,7 @@ MQViewAltF12
 
 MQViewCtrlF1
 l:
-l:// QView KeyBar Ctrl-F1-F12
+l:// QView KeyBar Ctrl+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -21925,7 +21925,7 @@ MKBTreeF12
 
 MKBTreeShiftF1
 l:
-l:// Tree KeyBar Shift-F1-F12
+l:// Tree KeyBar Shift+F1-F12
 ""
 ""
 ""
@@ -22047,7 +22047,7 @@ MKBTreeShiftF12
 
 MKBTreeAltF1
 l:
-l:// Tree KeyBar Alt-F1-F12
+l:// Tree KeyBar Alt+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -22169,7 +22169,7 @@ MKBTreeAltF12
 
 MKBTreeCtrlF1
 l:
-l:// Tree KeyBar Ctrl-F1-F12
+l:// Tree KeyBar Ctrl+F1-F12
 "Левая"
 "Left"
 "Levý"
@@ -23577,6 +23577,1087 @@ upd:"Show configuration folders"
 "Mostrar carpetas de configuración"
 "Zobraziť konfiguračné priečinky"
 
+MKeyLaunchMediaSelect
+l:// keys
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserFavorites
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMediaPrevTrack
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMediaPlayPause
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMediaNextTrack
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserRefresh
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserForward
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserSearch
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMswheelRight
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMswheelDown
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMswheelLeft
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserStop
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserHome
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBrowserBack
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyVolumeMute
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyVolumeDown
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyScrolllock
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyLaunchMail
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyLaunchApp2
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyLaunchApp1
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMswheelUp
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMediaStop
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBackslash
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMsm1click
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMsm2click
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMsm3click
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMslclick
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMsrclick
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyVolumeUp
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeySubtract
+"Gray -"
+"Gray -"
+"Gray -"
+"Gray -"
+"Gray -"
+"Gray -"
+"Gray -"
+"Gray -"
+
+MKeyNumenter
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyMultiply
+"Gray *"
+"Gray *"
+"Gray *"
+"Gray *"
+"Gray *"
+"Gray *"
+"Gray *"
+"Gray *"
+
+MKeyCapslock
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyPrntscrn
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumlock
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyDecimal
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyStandby
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyDivide
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumdel
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeySpace
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyRight
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyPause
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyEnter
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyClear
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBreak
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyPgup
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyPgdn
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyLeft
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyHome
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyDown
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyApps
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyRwin
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad9
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad8
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad7
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad6
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad5
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad4
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad3
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad2
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad1
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyNumpad0
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyLwin
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyTab
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyIns
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF10
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF11
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF12
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF13
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF14
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF15
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF16
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF17
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF18
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF19
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF20
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF21
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF22
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF23
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF24
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyEsc
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyEnd
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyDel
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyAdd
+"Gray +"
+"Gray +"
+"Gray +"
+"Gray +"
+"Gray +"
+"Gray +"
+"Gray +"
+"Gray +"
+
+MKeyUp
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF9
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF8
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF7
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF6
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF5
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF4
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF3
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF2
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyF1
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBs
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBackbracket
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyQuote
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyBracket
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyColon
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeySemicolon
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeySlash
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyDot
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyComma
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyRCtrl
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyShift
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyCtrl
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyRAlt
+""
+""
+""
+""
+""
+""
+""
+""
+
+MKeyAlt
+le:// keys end
+""
+""
+""
+""
+""
+""
+""
+""
 
 #Must be the last
 MNewFileName

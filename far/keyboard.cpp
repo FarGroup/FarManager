@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
+#include "language.hpp"
 
 /* start Глобальные переменные */
 
@@ -129,9 +130,10 @@ static const simple_pair<int, int> Table_KeyToVK[] =
 	{KEY_NUMPAD5,       VK_CLEAR},
 };
 
-struct TFKey3
+struct TFKey
 {
 	DWORD Key;
+	LNGID LocalizedNameId;
 	int   Len;
 	const wchar_t *Name;
 	const wchar_t *UName;
@@ -139,165 +141,183 @@ struct TFKey3
 	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
-static TFKey3 FKeys1[]=
+static TFKey FKeys1[]=
 {
-	{ KEY_RCTRLALTSHIFTRELEASE,24, L"RightCtrlAltShiftRelease", L"RIGHTCTRLALTSHIFTRELEASE"},
-	{ KEY_RCTRLALTSHIFTPRESS,  22, L"RightCtrlAltShiftPress", L"RIGHTCTRLALTSHIFTPRESS"},
-	{ KEY_CTRLALTSHIFTRELEASE, 19, L"CtrlAltShiftRelease", L"CTRLALTSHIFTRELEASE"},
-	{ KEY_CTRLALTSHIFTPRESS,   17, L"CtrlAltShiftPress", L"CTRLALTSHIFTPRESS"},
-	{ KEY_LAUNCH_MEDIA_SELECT, 17, L"LaunchMediaSelect", L"LAUNCHMEDIASELECT"},
-	{ KEY_BROWSER_FAVORITES,   16, L"BrowserFavorites", L"BROWSERFAVORITES"},
-	{ KEY_MEDIA_PREV_TRACK,    14, L"MediaPrevTrack", L"MEDIAPREVTRACK"},
-	{ KEY_MEDIA_PLAY_PAUSE,    14, L"MediaPlayPause", L"MEDIAPLAYPAUSE"},
-	{ KEY_MEDIA_NEXT_TRACK,    14, L"MediaNextTrack", L"MEDIANEXTTRACK"},
-	{ KEY_BROWSER_REFRESH,     14, L"BrowserRefresh", L"BROWSERREFRESH"},
-	{ KEY_BROWSER_FORWARD,     14, L"BrowserForward", L"BROWSERFORWARD"},
-	//{ KEY_HP_COMMUNITIES,      13, L"HPCommunities", L"HPCOMMUNITIES"},
-	{ KEY_BROWSER_SEARCH,      13, L"BrowserSearch", L"BROWSERSEARCH"},
-	{ KEY_MSWHEEL_RIGHT,       12, L"MsWheelRight", L"MSWHEELRIGHT"},
+	{KEY_RCTRLALTSHIFTRELEASE, LNGID(-1),             24, L"RightCtrlAltShiftRelease", L"RIGHTCTRLALTSHIFTRELEASE"},
+	{KEY_RCTRLALTSHIFTPRESS,   LNGID(-1),             22, L"RightCtrlAltShiftPress",   L"RIGHTCTRLALTSHIFTPRESS"},
+	{KEY_CTRLALTSHIFTRELEASE,  LNGID(-1),             19, L"CtrlAltShiftRelease",      L"CTRLALTSHIFTRELEASE"},
+	{KEY_CTRLALTSHIFTPRESS,    LNGID(-1),             17, L"CtrlAltShiftPress",        L"CTRLALTSHIFTPRESS"},
+	{KEY_LAUNCH_MEDIA_SELECT,  MKeyLaunchMediaSelect, 17, L"LaunchMediaSelect",        L"LAUNCHMEDIASELECT"},
+	{KEY_BROWSER_FAVORITES,    MKeyBrowserFavorites,  16, L"BrowserFavorites",         L"BROWSERFAVORITES"},
+	{KEY_MEDIA_PREV_TRACK,     MKeyMediaPrevTrack,    14, L"MediaPrevTrack",           L"MEDIAPREVTRACK"},
+	{KEY_MEDIA_PLAY_PAUSE,     MKeyMediaPlayPause,    14, L"MediaPlayPause",           L"MEDIAPLAYPAUSE"},
+	{KEY_MEDIA_NEXT_TRACK,     MKeyMediaNextTrack,    14, L"MediaNextTrack",           L"MEDIANEXTTRACK"},
+	{KEY_BROWSER_REFRESH,      MKeyBrowserRefresh,    14, L"BrowserRefresh",           L"BROWSERREFRESH"},
+	{KEY_BROWSER_FORWARD,      MKeyBrowserForward,    14, L"BrowserForward",           L"BROWSERFORWARD"},
+//	{KEY_HP_COMMUNITIES,       MKeyHpCommunities,     13, L"HPCommunities",            L"HPCOMMUNITIES"},
+	{KEY_BROWSER_SEARCH,       MKeyBrowserSearch,     13, L"BrowserSearch",            L"BROWSERSEARCH"},
+	{KEY_MSWHEEL_RIGHT,        MKeyMswheelRight,      12, L"MsWheelRight",             L"MSWHEELRIGHT"},
 #if 0
-	{ KEY_MSM1DBLCLICK,        12, L"MsM1DblClick", L"MSM1DBLCLICK"},
-	{ KEY_MSM2DBLCLICK,        12, L"MsM2DblClick", L"MSM2DBLCLICK"},
-	{ KEY_MSM3DBLCLICK,        12, L"MsM3DblClick", L"MSM3DBLCLICK"},
-	{ KEY_MSLDBLCLICK,         11, L"MsLDblClick", L"MSLDBLCLICK"},
-	{ KEY_MSRDBLCLICK,         11, L"MsRDblClick", L"MSRDBLCLICK"},
+	{KEY_MSM1DBLCLICK,         MKeyMsm1dblclick,      12, L"MsM1DblClick",             L"MSM1DBLCLICK"},
+	{KEY_MSM2DBLCLICK,         MKeyMsm2dblclick,      12, L"MsM2DblClick",             L"MSM2DBLCLICK"},
+	{KEY_MSM3DBLCLICK,         MKeyMsm3dblclick,      12, L"MsM3DblClick",             L"MSM3DBLCLICK"},
+	{KEY_MSLDBLCLICK,          MKeyMsldblclick,       11, L"MsLDblClick",              L"MSLDBLCLICK"},
+	{KEY_MSRDBLCLICK,          MKeyMsrdblclick,       11, L"MsRDblClick",              L"MSRDBLCLICK"},
 #endif
-	{ KEY_MSWHEEL_DOWN,        11, L"MsWheelDown", L"MSWHEELDOWN"},
-	{ KEY_MSWHEEL_LEFT,        11, L"MsWheelLeft", L"MSWHEELLEFT"},
-	//{ KEY_AC_BOOKMARKS,        11, L"ACBookmarks", L"ACBOOKMARKS"},
-	{ KEY_BROWSER_STOP,        11, L"BrowserStop", L"BROWSERSTOP"},
-	{ KEY_BROWSER_HOME,        11, L"BrowserHome", L"BROWSERHOME"},
-	{ KEY_BROWSER_BACK,        11, L"BrowserBack", L"BROWSERBACK"},
-	{ KEY_VOLUME_MUTE,         10, L"VolumeMute", L"VOLUMEMUTE"},
-	{ KEY_VOLUME_DOWN,         10, L"VolumeDown", L"VOLUMEDOWN"},
-	{ KEY_SCROLLLOCK,          10, L"ScrollLock", L"SCROLLLOCK"},
-	{ KEY_LAUNCH_MAIL,         10, L"LaunchMail", L"LAUNCHMAIL"},
-	{ KEY_LAUNCH_APP2,         10, L"LaunchApp2", L"LAUNCHAPP2"},
-	{ KEY_LAUNCH_APP1,         10, L"LaunchApp1", L"LAUNCHAPP1"},
-	//{ KEY_HP_INTERNET,         10, L"HPInternet", L"HPINTERNET"},
-	//{ KEY_AC_FORWARD,           9, L"ACForward", L"ACFORWARD"},
-	//{ KEY_AC_REFRESH,           9, L"ACRefresh", L"ACREFRESH"},
-	{ KEY_MSWHEEL_UP,           9, L"MsWheelUp", L"MSWHEELUP"},
-	{ KEY_MEDIA_STOP,           9, L"MediaStop", L"MEDIASTOP"},
-	{ KEY_BACKSLASH,            9, L"BackSlash", L"BACKSLASH"},
-	//{ KEY_HP_MEETING,           9, L"HPMeeting", L"HPMEETING"},
-	{ KEY_MSM1CLICK,            9, L"MsM1Click", L"MSM1CLICK"},
-	{ KEY_MSM2CLICK,            9, L"MsM2Click", L"MSM2CLICK"},
-	{ KEY_MSM3CLICK,            9, L"MsM3Click", L"MSM3CLICK"},
-	{ KEY_MSLCLICK,             8, L"MsLClick", L"MSLCLICK"},
-	{ KEY_MSRCLICK,             8, L"MsRClick", L"MSRCLICK"},
-	//{ KEY_HP_MARKET,            8, L"HPMarket", L"HPMARKET"},
-	{ KEY_VOLUME_UP,            8, L"VolumeUp", L"VOLUMEUP"},
-	{ KEY_SUBTRACT,             8, L"Subtract", L"SUBTRACT"},
-	{ KEY_NUMENTER,             8, L"NumEnter", L"NUMENTER"},
-	{ KEY_MULTIPLY,             8, L"Multiply", L"MULTIPLY"},
-	{ KEY_CAPSLOCK,             8, L"CapsLock", L"CAPSLOCK"},
-	{ KEY_PRNTSCRN,             8, L"PrntScrn", L"PRNTSCRN"},
-	{ KEY_NUMLOCK,              7, L"NumLock", L"NUMLOCK"},
-	{ KEY_DECIMAL,              7, L"Decimal", L"DECIMAL"},
-	{ KEY_STANDBY,              7, L"Standby", L"STANDBY"},
-	//{ KEY_HP_SEARCH,            8, L"HPSearch", L"HPSEARCH"},
-	//{ KEY_HP_HOME,              6, L"HPHome", L"HPHOME"},
-	//{ KEY_HP_MAIL,              6, L"HPMail", L"HPMAIL"},
-	//{ KEY_HP_NEWS,              6, L"HPNews", L"HPNEWS"},
-	//{ KEY_AC_BACK,              6, L"ACBack", L"ACBACK"},
-	//{ KEY_AC_STOP,              6, L"ACStop", L"ACSTOP"},
-	{ KEY_DIVIDE,               6, L"Divide", L"DIVIDE"},
-	{ KEY_NUMDEL,               6, L"NumDel", L"NUMDEL"},
-	{ KEY_SPACE,                5, L"Space", L"SPACE"},
-	{ KEY_RIGHT,                5, L"Right", L"RIGHT"},
-	{ KEY_PAUSE,                5, L"Pause", L"PAUSE"},
-	{ KEY_ENTER,                5, L"Enter", L"ENTER"},
-	{ KEY_CLEAR,                5, L"Clear", L"CLEAR"},
-	{ KEY_BREAK,                5, L"Break", L"BREAK"},
-	{ KEY_PGUP,                 4, L"PgUp", L"PGUP"},
-	{ KEY_PGDN,                 4, L"PgDn", L"PGDN"},
-	{ KEY_LEFT,                 4, L"Left", L"LEFT"},
-	{ KEY_HOME,                 4, L"Home", L"HOME"},
-	{ KEY_DOWN,                 4, L"Down", L"DOWN"},
-	{ KEY_APPS,                 4, L"Apps", L"APPS"},
-	{ KEY_RWIN,                 4 ,L"RWin", L"RWIN"},
-	{ KEY_NUMPAD9,              4 ,L"Num9", L"NUM9"},
-	{ KEY_NUMPAD8,              4 ,L"Num8", L"NUM8"},
-	{ KEY_NUMPAD7,              4 ,L"Num7", L"NUM7"},
-	{ KEY_NUMPAD6,              4 ,L"Num6", L"NUM6"},
-	{ KEY_NUMPAD5,              4, L"Num5", L"NUM5"},
-	{ KEY_NUMPAD4,              4 ,L"Num4", L"NUM4"},
-	{ KEY_NUMPAD3,              4 ,L"Num3", L"NUM3"},
-	{ KEY_NUMPAD2,              4 ,L"Num2", L"NUM2"},
-	{ KEY_NUMPAD1,              4 ,L"Num1", L"NUM1"},
-	{ KEY_NUMPAD0,              4 ,L"Num0", L"NUM0"},
-	{ KEY_LWIN,                 4 ,L"LWin", L"LWIN"},
-	{ KEY_TAB,                  3, L"Tab", L"TAB"},
-	{ KEY_INS,                  3, L"Ins", L"INS"},
-	{ KEY_F10,                  3, L"F10", L"F10"},
-	{ KEY_F11,                  3, L"F11", L"F11"},
-	{ KEY_F12,                  3, L"F12", L"F12"},
-	{ KEY_F13,                  3, L"F13", L"F13"},
-	{ KEY_F14,                  3, L"F14", L"F14"},
-	{ KEY_F15,                  3, L"F15", L"F15"},
-	{ KEY_F16,                  3, L"F16", L"F16"},
-	{ KEY_F17,                  3, L"F17", L"F17"},
-	{ KEY_F18,                  3, L"F18", L"F18"},
-	{ KEY_F19,                  3, L"F19", L"F19"},
-	{ KEY_F20,                  3, L"F20", L"F20"},
-	{ KEY_F21,                  3, L"F21", L"F21"},
-	{ KEY_F22,                  3, L"F22", L"F22"},
-	{ KEY_F23,                  3, L"F23", L"F23"},
-	{ KEY_F24,                  3, L"F24", L"F24"},
-	{ KEY_ESC,                  3, L"Esc", L"ESC"},
-	{ KEY_END,                  3, L"End", L"END"},
-	{ KEY_DEL,                  3, L"Del", L"DEL"},
-	{ KEY_ADD,                  3, L"Add", L"ADD"},
-	{ KEY_UP,                   2, L"Up", L"UP"},
-	{ KEY_F9,                   2, L"F9", L"F9"},
-	{ KEY_F8,                   2, L"F8", L"F8"},
-	{ KEY_F7,                   2, L"F7", L"F7"},
-	{ KEY_F6,                   2, L"F6", L"F6"},
-	{ KEY_F5,                   2, L"F5", L"F5"},
-	{ KEY_F4,                   2, L"F4", L"F4"},
-	{ KEY_F3,                   2, L"F3", L"F3"},
-	{ KEY_F2,                   2, L"F2", L"F2"},
-	{ KEY_F1,                   2, L"F1", L"F1"},
-	{ KEY_BS,                   2, L"BS", L"BS"},
-	{ KEY_BACKBRACKET,          1, L"]",  L"]"},
-	{ KEY_QUOTE,                1, L"\"",  L"\""},
-	{ KEY_BRACKET,              1, L"[",  L"["},
-	{ KEY_COLON,                1, L":",  L":"},
-	{ KEY_SEMICOLON,            1, L";",  L";"},
-	{ KEY_SLASH,                1, L"/",  L"/"},
-	{ KEY_DOT,                  1, L".",  L"."},
-	{ KEY_COMMA,                1, L",",  L","},
+	{KEY_MSWHEEL_DOWN,         MKeyMswheelDown,       11, L"MsWheelDown",              L"MSWHEELDOWN"},
+	{KEY_MSWHEEL_LEFT,         MKeyMswheelLeft,       11, L"MsWheelLeft",              L"MSWHEELLEFT"},
+//	{KEY_AC_BOOKMARKS,         MKeyAcBookmarks,       11, L"ACBookmarks",              L"ACBOOKMARKS"},
+	{KEY_BROWSER_STOP,         MKeyBrowserStop,       11, L"BrowserStop",              L"BROWSERSTOP"},
+	{KEY_BROWSER_HOME,         MKeyBrowserHome,       11, L"BrowserHome",              L"BROWSERHOME"},
+	{KEY_BROWSER_BACK,         MKeyBrowserBack,       11, L"BrowserBack",              L"BROWSERBACK"},
+	{KEY_VOLUME_MUTE,          MKeyVolumeMute,        10, L"VolumeMute",               L"VOLUMEMUTE"},
+	{KEY_VOLUME_DOWN,          MKeyVolumeDown,        10, L"VolumeDown",               L"VOLUMEDOWN"},
+	{KEY_SCROLLLOCK,           MKeyScrolllock,        10, L"ScrollLock",               L"SCROLLLOCK"},
+	{KEY_LAUNCH_MAIL,          MKeyLaunchMail,        10, L"LaunchMail",               L"LAUNCHMAIL"},
+	{KEY_LAUNCH_APP2,          MKeyLaunchApp2,        10, L"LaunchApp2",               L"LAUNCHAPP2"},
+	{KEY_LAUNCH_APP1,          MKeyLaunchApp1,        10, L"LaunchApp1",               L"LAUNCHAPP1"},
+//	{KEY_HP_INTERNET,          MKeyHpInternet,        10, L"HPInternet",               L"HPINTERNET"},
+//	{KEY_AC_FORWARD,           MKeyAcForward,         9,  L"ACForward",                L"ACFORWARD"},
+//	{KEY_AC_REFRESH,           MKeyAcRefresh,         9,  L"ACRefresh",                L"ACREFRESH"},
+	{KEY_MSWHEEL_UP,           MKeyMswheelUp,         9,  L"MsWheelUp",                L"MSWHEELUP"},
+	{KEY_MEDIA_STOP,           MKeyMediaStop,         9,  L"MediaStop",                L"MEDIASTOP"},
+	{KEY_BACKSLASH,            MKeyBackslash,         9,  L"BackSlash",                L"BACKSLASH"},
+//	{KEY_HP_MEETING,           MKeyHpMeeting,         9,  L"HPMeeting",                L"HPMEETING"},
+	{KEY_MSM1CLICK,            MKeyMsm1click,         9,  L"MsM1Click",                L"MSM1CLICK"},
+	{KEY_MSM2CLICK,            MKeyMsm2click,         9,  L"MsM2Click",                L"MSM2CLICK"},
+	{KEY_MSM3CLICK,            MKeyMsm3click,         9,  L"MsM3Click",                L"MSM3CLICK"},
+	{KEY_MSLCLICK,             MKeyMslclick,          8,  L"MsLClick",                 L"MSLCLICK"},
+	{KEY_MSRCLICK,             MKeyMsrclick,          8,  L"MsRClick",                 L"MSRCLICK"},
+//	{KEY_HP_MARKET,            MKeyHpMarket,          8,  L"HPMarket",                 L"HPMARKET"},
+	{KEY_VOLUME_UP,            MKeyVolumeUp,          8,  L"VolumeUp",                 L"VOLUMEUP"},
+	{KEY_SUBTRACT,             MKeySubtract,          8,  L"Subtract",                 L"SUBTRACT"},
+	{KEY_NUMENTER,             MKeyNumenter,          8,  L"NumEnter",                 L"NUMENTER"},
+	{KEY_MULTIPLY,             MKeyMultiply,          8,  L"Multiply",                 L"MULTIPLY"},
+	{KEY_CAPSLOCK,             MKeyCapslock,          8,  L"CapsLock",                 L"CAPSLOCK"},
+	{KEY_PRNTSCRN,             MKeyPrntscrn,          8,  L"PrntScrn",                 L"PRNTSCRN"},
+	{KEY_NUMLOCK,              MKeyNumlock,           7,  L"NumLock",                  L"NUMLOCK"},
+	{KEY_DECIMAL,              MKeyDecimal,           7,  L"Decimal",                  L"DECIMAL"},
+	{KEY_STANDBY,              MKeyStandby,           7,  L"Standby",                  L"STANDBY"},
+//	{KEY_HP_SEARCH,            MKeyHpSearch,          8,  L"HPSearch",                 L"HPSEARCH"},
+//	{KEY_HP_HOME,              MKeyHpHome,            6,  L"HPHome",                   L"HPHOME"},
+//	{KEY_HP_MAIL,              MKeyHpMail,            6,  L"HPMail",                   L"HPMAIL"},
+//	{KEY_HP_NEWS,              MKeyHpNews,            6,  L"HPNews",                   L"HPNEWS"},
+//	{KEY_AC_BACK,              MKeyAcBack,            6,  L"ACBack",                   L"ACBACK"},
+//	{KEY_AC_STOP,              MKeyAcStop,            6,  L"ACStop",                   L"ACSTOP"},
+	{KEY_DIVIDE,               MKeyDivide,            6,  L"Divide",                   L"DIVIDE"},
+	{KEY_NUMDEL,               MKeyNumdel,            6,  L"NumDel",                   L"NUMDEL"},
+	{KEY_SPACE,                MKeySpace,             5,  L"Space",                    L"SPACE"},
+	{KEY_RIGHT,                MKeyRight,             5,  L"Right",                    L"RIGHT"},
+	{KEY_PAUSE,                MKeyPause,             5,  L"Pause",                    L"PAUSE"},
+	{KEY_ENTER,                MKeyEnter,             5,  L"Enter",                    L"ENTER"},
+	{KEY_CLEAR,                MKeyClear,             5,  L"Clear",                    L"CLEAR"},
+	{KEY_BREAK,                MKeyBreak,             5,  L"Break",                    L"BREAK"},
+	{KEY_PGUP,                 MKeyPgup,              4,  L"PgUp",                     L"PGUP"},
+	{KEY_PGDN,                 MKeyPgdn,              4,  L"PgDn",                     L"PGDN"},
+	{KEY_LEFT,                 MKeyLeft,              4,  L"Left",                     L"LEFT"},
+	{KEY_HOME,                 MKeyHome,              4,  L"Home",                     L"HOME"},
+	{KEY_DOWN,                 MKeyDown,              4,  L"Down",                     L"DOWN"},
+	{KEY_APPS,                 MKeyApps,              4,  L"Apps",                     L"APPS"},
+	{KEY_RWIN,                 MKeyRwin,              4,  L"RWin",                     L"RWIN"},
+	{KEY_NUMPAD9,              MKeyNumpad9,           4,  L"Num9",                     L"NUM9"},
+	{KEY_NUMPAD8,              MKeyNumpad8,           4,  L"Num8",                     L"NUM8"},
+	{KEY_NUMPAD7,              MKeyNumpad7,           4,  L"Num7",                     L"NUM7"},
+	{KEY_NUMPAD6,              MKeyNumpad6,           4,  L"Num6",                     L"NUM6"},
+	{KEY_NUMPAD5,              MKeyNumpad5,           4,  L"Num5",                     L"NUM5"},
+	{KEY_NUMPAD4,              MKeyNumpad4,           4,  L"Num4",                     L"NUM4"},
+	{KEY_NUMPAD3,              MKeyNumpad3,           4,  L"Num3",                     L"NUM3"},
+	{KEY_NUMPAD2,              MKeyNumpad2,           4,  L"Num2",                     L"NUM2"},
+	{KEY_NUMPAD1,              MKeyNumpad1,           4,  L"Num1",                     L"NUM1"},
+	{KEY_NUMPAD0,              MKeyNumpad0,           4,  L"Num0",                     L"NUM0"},
+	{KEY_LWIN,                 MKeyLwin,              4,  L"LWin",                     L"LWIN"},
+	{KEY_TAB,                  MKeyTab,               3,  L"Tab",                      L"TAB"},
+	{KEY_INS,                  MKeyIns,               3,  L"Ins",                      L"INS"},
+	{KEY_F10,                  MKeyF10,               3,  L"F10",                      L"F10"},
+	{KEY_F11,                  MKeyF11,               3,  L"F11",                      L"F11"},
+	{KEY_F12,                  MKeyF12,               3,  L"F12",                      L"F12"},
+	{KEY_F13,                  MKeyF13,               3,  L"F13",                      L"F13"},
+	{KEY_F14,                  MKeyF14,               3,  L"F14",                      L"F14"},
+	{KEY_F15,                  MKeyF15,               3,  L"F15",                      L"F15"},
+	{KEY_F16,                  MKeyF16,               3,  L"F16",                      L"F16"},
+	{KEY_F17,                  MKeyF17,               3,  L"F17",                      L"F17"},
+	{KEY_F18,                  MKeyF18,               3,  L"F18",                      L"F18"},
+	{KEY_F19,                  MKeyF19,               3,  L"F19",                      L"F19"},
+	{KEY_F20,                  MKeyF20,               3,  L"F20",                      L"F20"},
+	{KEY_F21,                  MKeyF21,               3,  L"F21",                      L"F21"},
+	{KEY_F22,                  MKeyF22,               3,  L"F22",                      L"F22"},
+	{KEY_F23,                  MKeyF23,               3,  L"F23",                      L"F23"},
+	{KEY_F24,                  MKeyF24,               3,  L"F24",                      L"F24"},
+	{KEY_ESC,                  MKeyEsc,               3,  L"Esc",                      L"ESC"},
+	{KEY_END,                  MKeyEnd,               3,  L"End",                      L"END"},
+	{KEY_DEL,                  MKeyDel,               3,  L"Del",                      L"DEL"},
+	{KEY_ADD,                  MKeyAdd,               3,  L"Add",                      L"ADD"},
+	{KEY_UP,                   MKeyUp,                2,  L"Up",                       L"UP"},
+	{KEY_F9,                   MKeyF9,                2,  L"F9",                       L"F9"},
+	{KEY_F8,                   MKeyF8,                2,  L"F8",                       L"F8"},
+	{KEY_F7,                   MKeyF7,                2,  L"F7",                       L"F7"},
+	{KEY_F6,                   MKeyF6,                2,  L"F6",                       L"F6"},
+	{KEY_F5,                   MKeyF5,                2,  L"F5",                       L"F5"},
+	{KEY_F4,                   MKeyF4,                2,  L"F4",                       L"F4"},
+	{KEY_F3,                   MKeyF3,                2,  L"F3",                       L"F3"},
+	{KEY_F2,                   MKeyF2,                2,  L"F2",                       L"F2"},
+	{KEY_F1,                   MKeyF1,                2,  L"F1",                       L"F1"},
+	{KEY_BS,                   MKeyBs,                2,  L"BS",                       L"BS"},
+	{KEY_BACKBRACKET,          MKeyBackbracket,       1,  L"]",                        L"]"},
+	{KEY_QUOTE,                MKeyQuote,             1,  L"\"",                       L"\""},
+	{KEY_BRACKET,              MKeyBracket,           1,  L"[",                        L"["},
+	{KEY_COLON,                MKeyColon,             1,  L":",                        L":"},
+	{KEY_SEMICOLON,            MKeySemicolon,         1,  L";",                        L";"},
+	{KEY_SLASH,                MKeySlash,             1,  L"/",                        L"/"},
+	{KEY_DOT,                  MKeyDot,               1,  L".",                        L"."},
+	{KEY_COMMA,                MKeyComma,             1,  L",",                        L","},
 };
 
-static TFKey3 ModifKeyName[]=
+enum modifs
 {
-	{ KEY_RCTRL  ,5 ,L"RCtrl", L"RCTRL"},
-	{ KEY_SHIFT  ,5 ,L"Shift", L"SHIFT"},
-	{ KEY_CTRL   ,4 ,L"Ctrl", L"CTRL"},
-	{ KEY_RALT   ,4 ,L"RAlt", L"RALT"},
-	{ KEY_ALT    ,3 ,L"Alt", L"ALT"},
-	{ KEY_M_SPEC ,4 ,L"Spec", L"SPEC"},
-	{ KEY_M_OEM  ,3 ,L"Oem", L"OEM"},
-//  { KEY_LCTRL  ,5 ,L"LCtrl", L"LCTRL"},
-//  { KEY_LALT   ,4 ,L"LAlt", L"LALT"},
-//  { KEY_LSHIFT ,6 ,L"LShift", L"LSHIFT"},
-//  { KEY_RSHIFT ,6 ,L"RShift", L"RSHIFT"},
+	m_rctrl,
+//	m_lctrl,
+	m_ctrl,
+//	m_rshift,
+//	m_lshift,
+	m_shift,
+	m_ralt,
+//	m_lalt,
+	m_alt,
+	m_spec,
+	m_oem,
+
+	m_count
 };
+static TFKey ModifKeyName[]=
+{
+	{KEY_RCTRL,    MKeyRCtrl,  5, L"RCtrl",  L"RCTRL"},
+//  {KEY_LCTRL,    MKeyLCtrl,  5, L"LCtrl",  L"LCTRL"},
+	{KEY_CTRL,     MKeyCtrl,   4, L"Ctrl",   L"CTRL"},
+//  {KEY_RSHIFT,   MKeyRShift, 6, L"RShift", L"RSHIFT"},
+//  {KEY_LSHIFT,   MKeyLShift, 6, L"LShift", L"LSHIFT"},
+	{KEY_SHIFT,    MKeyShift,  5, L"Shift",  L"SHIFT"},
+	{KEY_RALT,     MKeyRAlt,   4, L"RAlt",   L"RALT"},
+//  {KEY_LALT,     MKeyLAlt,   4, L"LAlt",   L"LALT"},
+	{KEY_ALT,      MKeyAlt,    3, L"Alt",    L"ALT"},
+	{KEY_M_SPEC,   LNGID(-1),  4, L"Spec",   L"SPEC"},
+	{KEY_M_OEM,    LNGID(-1),  3, L"Oem",    L"OEM"},
+};
+
+static_assert(ARRAYSIZE(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
 
 #if defined(SYSLOG)
-static TFKey3 SpecKeyName[]=
+static TFKey SpecKeyName[]=
 {
-	{ KEY_CONSOLE_BUFFER_RESIZE,19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
-	{ KEY_OP_SELWORD           ,10, L"OP_SelWord", L"OP_SELWORD"},
-	{ KEY_KILLFOCUS             ,9, L"KillFocus", L"KILLFOCUS"},
-	{ KEY_GOTFOCUS              ,8, L"GotFocus", L"GOTFOCUS"},
-	{ KEY_DRAGCOPY             , 8, L"DragCopy", L"DRAGCOPY"},
-	{ KEY_DRAGMOVE             , 8, L"DragMove", L"DRAGMOVE"},
-	{ KEY_OP_PLAINTEXT         , 7, L"OP_Text", L"OP_TEXT"},
-	{ KEY_OP_XLAT              , 7, L"OP_Xlat", L"OP_XLAT"},
-	{ KEY_NONE                 , 4, L"None", L"NONE"},
-	{ KEY_IDLE                 , 4, L"Idle", L"IDLE"},
+	{ KEY_CONSOLE_BUFFER_RESIZE, LNGID(-1), 19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
+	{ KEY_OP_SELWORD,            LNGID(-1), 10, L"OP_SelWord",          L"OP_SELWORD"},
+	{ KEY_KILLFOCUS,             LNGID(-1), 9, L"KillFocus",           L"KILLFOCUS"},
+	{ KEY_GOTFOCUS,              LNGID(-1), 8, L"GotFocus",            L"GOTFOCUS"},
+	{ KEY_DRAGCOPY,              LNGID(-1), 8, L"DragCopy",            L"DRAGCOPY"},
+	{ KEY_DRAGMOVE,              LNGID(-1), 8, L"DragMove",            L"DRAGMOVE"},
+	{ KEY_OP_PLAINTEXT,          LNGID(-1), 7, L"OP_Text",             L"OP_TEXT"},
+	{ KEY_OP_XLAT,               LNGID(-1), 7, L"OP_Xlat",             L"OP_XLAT"},
+	{ KEY_NONE,                  LNGID(-1), 4, L"None",                L"NONE"},
+	{ KEY_IDLE,                  LNGID(-1), 4, L"Idle",                L"IDLE"},
 };
 #endif
 
@@ -1530,34 +1550,44 @@ bool CheckForEsc()
 	return CheckForEscSilent()? ConfirmAbortOp() : false;
 }
 
-/* $ 25.07.2000 SVS
-    ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
-*/
-/* $ 01.08.2000 SVS
-   ! дополнительный параметра у KeyToText - размер данных
-   Size=0 - по максимуму!
-*/
-static string &GetShiftKeyName(string &strName, DWORD Key)
+typedef const wchar_t* (*tfkey_to_text)(const TFKey* i);
+typedef void (*add_separator)(string& str);
+
+static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	if ((Key&KEY_RCTRL) == KEY_RCTRL)   strName += ModifKeyName[0].Name;
-	else if (Key&KEY_CTRL)              strName += ModifKeyName[2].Name;
+	auto AddText = [&](modifs ModId)
+	{
+		AddSeparator(strName);
+		strName += ToText(ModifKeyName + ModId);
+	};
 
-//  else if(Key&KEY_LCTRL)             strcat(Name,ModifKeyName[3].Name);
+	if (Key & KEY_CTRL)
+		AddText(m_ctrl);
+	else if (Key & KEY_RCTRL)
+		AddText(m_rctrl);
+	//	else if (Key & KEY_LCTRL)
+	//		AddText(m_lctrl);
 
-	if ((Key&KEY_RALT) == KEY_RALT)     strName += ModifKeyName[3].Name;
-	else if (Key&KEY_ALT)               strName += ModifKeyName[4].Name;
+	if (Key & KEY_ALT)
+		AddText(m_alt);
+	else if (Key & KEY_RALT)
+		AddText(m_ralt);
+	//	else if (Key & KEY_LALT)
+	//		AddText(m_lalt);
 
-//  else if(Key&KEY_LALT)    strcat(Name,ModifKeyName[6].Name);
+	if (Key & KEY_SHIFT)
+		AddText(m_shift);
+	//	else if(Key & KEY_LSHIFT)
+	//		AddText(m_lshift);
+	//	else if(Key & KEY_RSHIFT)
+	//		AddText(m_rshift);
 
-	if (Key&KEY_SHIFT)                  strName += ModifKeyName[1].Name;
-
-//  else if(Key&KEY_LSHIFT)  strcat(Name,ModifKeyName[0].Name);
-//  else if(Key&KEY_RSHIFT)  strcat(Name,ModifKeyName[1].Name);
-	if (Key&KEY_M_SPEC)                 strName += ModifKeyName[5].Name;
-	else if (Key&KEY_M_OEM)             strName += ModifKeyName[6].Name;
-
-	return strName;
+	if (Key & KEY_M_SPEC)
+		AddText(m_spec);
+	else if (Key & KEY_M_OEM)
+		AddText(m_oem);
 }
+
 
 /* $ 24.09.2000 SVS
  + Функция KeyNameToKey - получение кода клавиши по имени
@@ -1667,9 +1697,7 @@ int KeyNameToKey(const string& Name)
 
 				if (Ptr+5 == endptr)
 				{
-					if (Key == KEY_ALT || Key == KEY_RALT) // Вариант (3) - Alt-Num
-						Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
-					else if (Key == KEY_M_SPEC) // Вариант (4)
+					if (Key == KEY_M_SPEC) // Вариант (4)
 						Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
 					else if (Key == KEY_M_OEM) // Вариант (5)
 						Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
@@ -1690,82 +1718,99 @@ bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
 	return KeyToText(InputRecordToKey(Rec),strKeyText) != 0;
 }
 
-BOOL KeyToText(int Key0, string &strKeyText0)
+bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	string strKeyText;
-	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
-	//if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
-	//  return KeyMacroToText(Key0, strKeyText0);
+	strKeyText.clear();
 
-	if (Key&KEY_ALTDIGIT)
+	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
+
+	GetShiftKeyName(strKeyText, Key, ToText, AddSeparator);
+
+	auto ItemIterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
+	if (ItemIterator != std::cend(FKeys1))
 	{
-		strKeyText = str_printf(L"Alt%05d", Key&FKey);
+		AddSeparator(strKeyText);
+		strKeyText += ToText(ItemIterator);
 	}
 	else
 	{
-		GetShiftKeyName(strKeyText,Key);
-
-		auto ItemIterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
-		if (ItemIterator != std::cend(FKeys1))
+		FormatString strKeyTemp;
+		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 		{
-			strKeyText += ItemIterator->Name;
+			strKeyTemp << L"Spec" <<fmt::MinWidth(5) << FKey-KEY_VK_0xFF_BEGIN;
+			AddSeparator(strKeyText);
+			strKeyText += strKeyTemp;
+		}
+		else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_CTRLALTSHIFTPRESS)
+		{
+			strKeyTemp << L"Oem" <<fmt::MinWidth(5) << FKey-KEY_FKEY_BEGIN;
+			AddSeparator(strKeyText);
+			strKeyText += strKeyTemp;
 		}
 		else
 		{
-			FormatString strKeyTemp;
-			if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
+#if defined(SYSLOG)
+			// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
+			auto ItemIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
+			if (ItemIterator != std::cend(SpecKeyName))
 			{
-				strKeyTemp << L"Spec" <<fmt::MinWidth(5) << FKey-KEY_VK_0xFF_BEGIN;
-				strKeyText += strKeyTemp;
-			}
-			else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_CTRLALTSHIFTPRESS)
-			{
-				strKeyTemp << L"Oem" <<fmt::MinWidth(5) << FKey-KEY_FKEY_BEGIN;
-				strKeyText += strKeyTemp;
+				AddSeparator(strKeyText);
+				strKeyText += ToText(ItemIterator);
 			}
 			else
+#endif
 			{
-				#if defined(SYSLOG)
-				// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-				auto ItemIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
-				if (ItemIterator != std::cend(SpecKeyName))
+				FKey=Upper((wchar_t)Key&0xFFFF);
+
+				wchar_t KeyText[2]={};
+
+				if (FKey >= L'A' && FKey <= L'Z')
 				{
-					strKeyText += ItemIterator->Name;
+					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
+						KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+					else
+						KeyText[0]=(wchar_t)(Key&0xFFFF);
 				}
 				else
-				#endif
-
-				{
-					FKey=Upper((wchar_t)Key&0xFFFF);
-
-					wchar_t KeyText[2]={};
-
-					if (FKey >= L'A' && FKey <= L'Z')
-					{
-						if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-							KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
-						else
-							KeyText[0]=(wchar_t)(Key&0xFFFF);
-					}
-					else
-						KeyText[0]=(wchar_t)Key&0xFFFF;
-
-					strKeyText += KeyText;
-				}
+					KeyText[0]=(wchar_t)Key&0xFFFF;
+					
+				AddSeparator(strKeyText);
+				strKeyText += KeyText;
 			}
-		}
-
-		if (strKeyText.empty())
-		{
-			strKeyText0.clear();
-			return FALSE;
 		}
 	}
 
-	strKeyText0 = strKeyText;
-	return TRUE;
+	return !strKeyText.empty();
 }
 
+bool KeyToText(int Key, string &strKeyText)
+{
+	return KeyToTextImpl(Key, strKeyText,
+		[](const TFKey* i) { return i->Name; },
+		[](string&) {}
+	);
+}
+
+bool KeyToLocalizedText(int Key, string &strKeyText)
+{
+	return KeyToTextImpl(Key, strKeyText,
+		[](const TFKey* i)
+		{
+			if (i->LocalizedNameId != LNGID(-1))
+			{
+				auto Msg = MSG(i->LocalizedNameId);
+				if (*Msg)
+					return Msg;
+			}
+			return i->Name;
+		},
+		[](string& str)
+		{
+			if (!str.empty())
+				str += L"+";
+		}
+	);
+}
 
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
@@ -1795,7 +1840,6 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 	if (!KeyInTable)
 	{
-		// TODO: KEY_ALTDIGIT
 		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
 		{
 			VirtKey=FKey;

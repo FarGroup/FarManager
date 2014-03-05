@@ -55,7 +55,6 @@ enum BaseDefKeyboard
 	//
 	KEY_RCTRL                =0x10000000,
 	KEY_RALT                 =0x20000000,
-	KEY_ALTDIGIT             =0x40000000,
 	KEY_RSHIFT               =0x80000000,
 
 	KEY_BRACKET              ='[',
