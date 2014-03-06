@@ -2463,7 +2463,7 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3602349776
+mtime=3603272525
 <article>
 #_handle = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
@@ -2476,15 +2476,7 @@ mtime=3602349776
 #_  HelpTopic: string, or nil
 #_  Items:     table (array of `tFarDialogItem`)
 #_  Flags:     flags
-#_  fDlgProc:  function, or nil
-#_    ret = fDlgProc (hDlg, Msg, Param1, Param2)
-#_      Parameters:
-#_        hDlg   : userdata
-#_        Msg    : integer
-#_        Param1 : integer
-#_        Param2 : depends on *Msg*
-#_      Returns:
-#_        ret    : depends on *Msg*
+#_  fDlgProc:  function (`dialog event handler`), or nil
 #_
 #_**Returns:**
 #_  handle: userdata
@@ -2494,7 +2486,7 @@ mtime=3602349776
 #_
 #_@@@
 #_[tFarDialogItem]: 295.html
-#_
+#_[dialog event handler]: 285.html
 </article>
 </node>
 <node>
@@ -2873,23 +2865,35 @@ lv=1
 dt=Text
 nm=Dialog Events
 ctime=3477040474
-mtime=3596973351
+mtime=3603273205
 <article>
 #_<markdown>
 #_
-#_### Common information
+#_### Common information about dialog event handler
 #_
-#_When the 9-th argument in the [`far.Dialog`](20.html) call is
-#_function (*event handler*), that function will be called by Far
+#_When the 9-th argument in the [`far.DialogInit`](378.html) or [`far.Dialog`](20.html)
+#_call is function (*event handler*), that function will be called by Far
 #_whenever any of the numerous dialog events occur.
 #_
+#_        ret = fDlgProc (hDlg, Msg, Param1, Param2)
+#_**Parameters:**
+#_        hDlg   : userdata
+#_        Msg    : integer
+#_        Param1 : integer
+#_        Param2 : depends on Msg
+#_**Returns:**
+#_        ret    : depends on Msg
 #_
 #_### Parameters passed to event handler
 #_
-#_1. `Param1` is integer for all event types (1-based if it is ID of a dialog element,
-#_   0-based otherwise).
-#_1. For most event types, `Param2` is also integer, in accordance to Far API.
-#_1. For some events, `Param2` is non-integer, see the articles describing those events.
+#_1. `hDlg`: dialog handle. It has the following methods:
+#_   `__tostring`, `__gc` and `rawhandle`.<br>
+#_   `hDlg:rawhandle()` returns the original value of handle received from Far Manager
+#_   that is suitable for using with LuaJIT FFI and as a table key.
+#_1. `Msg`: integer, any `DN_*` value, e.g. `DN_BTNCLICK`, `DN_CLOSE`, etc.
+#_1. `Param1`: integer (1-based if it is ID of a dialog element, 0-based otherwise).
+#_1. `Param2`: integer for most event types, in accordance to Far API.<br>
+#_   For some events, `Param2` is non-integer, see the articles describing those events.
 #_
 #_
 #_### Treating the return value of dialog event handler (in the order of preference)

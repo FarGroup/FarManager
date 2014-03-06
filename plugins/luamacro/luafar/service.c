@@ -3621,6 +3621,18 @@ static int dialog_tostring(lua_State *L)
 	return 1;
 }
 
+static int dialog_rawhandle(lua_State *L)
+{
+	TDialogData* dd = CheckDialog(L, 1);
+
+	if(dd->hDlg != INVALID_HANDLE_VALUE)
+		lua_pushlightuserdata(L, dd->hDlg);
+	else
+		lua_pushnil(L);
+
+	return 1;
+}
+
 static int far_GetDlgItem(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
@@ -5575,6 +5587,7 @@ const luaL_Reg dialog_methods[] =
 {
 	{"__gc",                far_DialogFree},
 	{"__tostring",          dialog_tostring},
+	{"rawhandle",           dialog_rawhandle},
 	{NULL, NULL},
 };
 
