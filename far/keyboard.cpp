@@ -1550,8 +1550,9 @@ bool CheckForEsc()
 	return CheckForEscSilent()? ConfirmAbortOp() : false;
 }
 
-typedef const wchar_t* (*tfkey_to_text)(const TFKey* i);
-typedef void (*add_separator)(string& str);
+// VC10 can't convert captureless lambda to pure function
+typedef std::function<const wchar_t*(const TFKey*)> tfkey_to_text;
+typedef std::function<void(string&)> add_separator;
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
@@ -1794,7 +1795,7 @@ bool KeyToText(int Key, string &strKeyText)
 bool KeyToLocalizedText(int Key, string &strKeyText)
 {
 	return KeyToTextImpl(Key, strKeyText,
-		[](const TFKey* i)
+		[](const TFKey* i) -> const wchar_t*
 		{
 			if (i->LocalizedNameId != LNGID(-1))
 			{
