@@ -1,4 +1,8 @@
-﻿drkns 05.03.2014 22:41:01 +0200 - build 3820
+﻿zg 07.03.2014 02:13:56 +0200 - build 3821
+
+1. 0002614: SendDlgMessage: не падать при невалидном hDlg.
+
+drkns 05.03.2014 22:41:01 +0200 - build 3820
 
 1. 0002604: Translate in file menu Add, Subtract, Multiply...
 

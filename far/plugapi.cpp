@@ -858,8 +858,10 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
-		return static_cast<Dialog*>(hDlg)->SendMessage(Msg,Param1,Param2);
-
+	{
+		Dialog* dialog=static_cast<Dialog*>(hDlg);
+		if (Dialog::IsValid(dialog)) return dialog->SendMessage(Msg,Param1,Param2);
+	}
 	return 0;
 }
 

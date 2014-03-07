@@ -61,6 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 
+std::unordered_set<Dialog*> DialogsList;
+
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
 {
@@ -384,6 +386,7 @@ Dialog::~Dialog()
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);
 	delete OldTitle;
+	RemoveFromList();
 	_DIALOG(CleverSysLog CL(L"Destroy Dialog"));
 }
 
@@ -6270,4 +6273,19 @@ void Dialog::SetId(const GUID& Id)
 {
 	this->Id=Id;
 	IdExist=true;
+}
+
+void Dialog::AddToList(void)
+{
+	if(!DialogsList.insert(this).second) assert(false);
+}
+
+void Dialog::RemoveFromList(void)
+{
+	if(!DialogsList.erase(this)) assert(false);
+}
+
+bool Dialog::IsValid(Dialog* Handle)
+{
+	return DialogsList.count(Handle);
 }

@@ -226,6 +226,7 @@ public:
 		DataDialog(InitParam),
 		m_handler((object && function)? std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) : dialog_handler())
 	{
+		AddToList();
 		auto Ptr = Src.data();
 		Construct(&Ptr, Src.size());
 	}
@@ -236,6 +237,7 @@ public:
 		DataDialog(InitParam),
 		m_handler(handler)
 	{
+		AddToList();
 		auto Ptr = Src.data();
 		Construct(&Ptr, Src.size());
 	}
@@ -290,9 +292,12 @@ public:
 	const GUID& GetId() const {return Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
+	static bool IsValid(Dialog* Handle);
 
 protected:
 	size_t InitDialogObjects(size_t ID=(size_t)-1);
+	void AddToList(void);
+	void RemoveFromList(void);
 
 private:
 	virtual void DisplayObject() override;
