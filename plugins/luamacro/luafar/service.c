@@ -3025,9 +3025,10 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarDialogItemData fdid;
 			fdid.StructSize = sizeof(fdid);
-			fdid.PtrData = buf;
-			fdid.PtrLength = sizeof(buf)/sizeof(buf[0]) - 1;
+			fdid.PtrLength = (size_t) Info->SendDlgMessage(hDlg, Msg, Param1, NULL);
+			fdid.PtrData = (wchar_t*) malloc((fdid.PtrLength+1) * sizeof(wchar_t));
 			push_utf8_string(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid)?fdid.PtrData:L"", -1);
+			free(fdid.PtrData);
 			return 1;
 		}
 		case DM_GETCONSTTEXTPTR:
