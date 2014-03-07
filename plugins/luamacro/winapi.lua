@@ -10,7 +10,7 @@ typedef unsigned __int64 UINT_PTR;
 typedef __int64 LONG_PTR;
 typedef unsigned __int64 ULONG_PTR;
 typedef unsigned __int64 HANDLE_PTR;
-typedef int HALF_PTR
+typedef int HALF_PTR;
 typedef unsigned int UHALF_PTR;
 ]]
 else -- "x86"
