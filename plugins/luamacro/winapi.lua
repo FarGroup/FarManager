@@ -10,31 +10,143 @@ typedef unsigned __int64 UINT_PTR;
 typedef __int64 LONG_PTR;
 typedef unsigned __int64 ULONG_PTR;
 typedef unsigned __int64 HANDLE_PTR;
+typedef int HALF_PTR
+typedef unsigned int UHALF_PTR;
 ]]
 else -- "x86"
 ffi.cdef[[
-typedef  int INT_PTR;
-typedef  unsigned int UINT_PTR;
-typedef  long LONG_PTR;
-typedef  unsigned long ULONG_PTR;
+typedef int INT_PTR;
+typedef unsigned int UINT_PTR;
+typedef long LONG_PTR;
+typedef unsigned long ULONG_PTR;
 typedef unsigned long HANDLE_PTR;
+typedef short HALF_PTR;
+typedef unsigned short UHALF_PTR;
 ]]
 end
 
 ffi.cdef[[
-typedef void VOID;
-typedef char CHAR;
-typedef short SHORT;
-typedef long LONG;
-typedef unsigned short WORD;
-typedef unsigned int UINT;
-typedef unsigned long DWORD;
+typedef INT_PTR *PINT_PTR;
+typedef UINT_PTR *PUINT_PTR;
+typedef LONG_PTR *PLONG_PTR;
+typedef ULONG_PTR *PULONG_PTR;
+typedef HALF_PTR *PHALF_PTR;
+typedef UHALF_PTR *PUHALF_PTR;
+
+typedef LONG_PTR SSIZE_T, *PSSIZE_T;
+typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
+typedef ULONG_PTR SIZE_T, *PSIZE_T;
+typedef signed char INT8, *PINT8;
+typedef signed short INT16, *PINT16;
+typedef signed int INT32, *PINT32;
+typedef signed __int64 INT64, *PINT64;
+typedef unsigned char UINT8, *PUINT8;
+typedef unsigned short UINT16, *PUINT16;
+typedef unsigned int UINT32, *PUINT32;
+typedef unsigned __int64 UINT64, *PUINT64;
+typedef signed int LONG32, *PLONG32;
+typedef __int64 LONG64, *PLONG64;
+typedef unsigned int ULONG32, *PULONG32;
+typedef unsigned __int64 ULONG64, *PULONG64;
+typedef unsigned int DWORD32, *PDWORD32;
+typedef unsigned __int64 DWORD64, *PDWORD64;
+typedef unsigned __int64 QWORD;
+
+typedef unsigned long ULONG, *PULONG;
+typedef unsigned short USHORT, *PUSHORT;
+typedef unsigned char UCHAR, *PUCHAR;
+typedef unsigned long DWORD, *PDWORD, *LPDWORD;
+typedef int BOOL, *PBOOL, *LPBOOL;
+typedef unsigned char BYTE, *PBYTE, *LPBYTE;
+typedef unsigned short WORD, *PWORD, *LPWORD;
+typedef float FLOAT, *PFLOAT;
+typedef int INT,*PINT, *LPINT;
+typedef void VOID, *PVOID, *LPVOID;
+typedef const void *LPCVOID;
+typedef unsigned int UINT, *PUINT;
+typedef short SHORT, *PSHORT;
+typedef long LONG, *PLONG, *LPLONG;
+typedef char CCHAR;
+typedef char CHAR, *PCHAR, *LPSTR, *PSTR;
+typedef const CHAR *PCSTR, *LPCSTR;
+typedef wchar_t WCHAR, *PWCHAR, *LPWSTR, *PWSTR;
+typedef const WCHAR *LPCWSTR, *PCWSTR;
+//#ifdef UNICODE
+typedef LPWSTR PTSTR, LPTSTR;
+typedef LPCWSTR PCTSTR, LPCTSTR;
+typedef WCHAR TCHAR, *PTCHAR;
+typedef WCHAR TBYTE, *PTBYTE;
+
+typedef struct _UNICODE_STRING {
+  USHORT  Length;
+  USHORT  MaximumLength;
+  PWSTR  Buffer;
+} UNICODE_STRING;
+typedef UNICODE_STRING *PUNICODE_STRING;
+typedef const UNICODE_STRING *PCUNICODE_STRING;
+
+typedef PVOID HANDLE;
+typedef HANDLE *PHANDLE, *LPHANDLE;
+typedef DWORD LCID;
+typedef PDWORD PLCID;
+typedef WORD LANGID;
+typedef __int64 LONGLONG; //!defined(_M_IX86)
+typedef LONGLONG *PLONGLONG;
+typedef unsigned __int64 DWORDLONG;
+typedef DWORDLONG *PDWORDLONG;
+typedef unsigned __int64 ULONGLONG; //!defined(_M_IX86)
+typedef ULONGLONG *PULONGLONG;
+typedef LONGLONG USN;
+typedef BYTE BOOLEAN, *PBOOLEAN;
+
+typedef UINT_PTR WPARAM;
+typedef LONG_PTR LPARAM;
+typedef LONG_PTR LRESULT;
+typedef LONG HRESULT;
+typedef WORD ATOM;
+
+typedef HANDLE HHOOK;
+typedef HANDLE HGLOBAL;
+typedef HANDLE HLOCAL;
+typedef HANDLE HGDIOBJ;
+typedef HANDLE HACCEL;
+typedef HANDLE HBITMAP;
+typedef HANDLE HBRUSH;
+typedef HANDLE HCOLORSPACE;
+typedef HANDLE HDC;
+typedef HANDLE HDESK;
+typedef HANDLE HENHMETAFILE;
+typedef HANDLE HFONT;
+typedef HANDLE HICON;
+typedef HANDLE HKEY, *PHKEY;
+typedef HANDLE HMONITOR;
+typedef HANDLE HMENU;
+typedef HANDLE HMETAFILE;
+typedef HANDLE HINSTANCE;
+typedef HINSTANCE HMODULE;
+typedef HANDLE HPALETTE;
+typedef HANDLE HPEN;
+typedef HANDLE HRGN;
+typedef HANDLE HRSRC;
+typedef HANDLE HWND;
+typedef HANDLE HWINSTA;
+typedef HANDLE HKL;
+typedef HANDLE HCONV;
+typedef HANDLE HCONVLIST;
+typedef HANDLE HDDEDATA;
+typedef HANDLE HDROP;
+typedef HANDLE HDWP;
+typedef HANDLE HSZ;
+typedef HANDLE SC_HANDLE;
+typedef LPVOID SC_LOCK;
+typedef HANDLE SERVICE_STATUS_HANDLE;
+typedef int HFILE;
+typedef HICON HCURSOR;
 typedef DWORD COLORREF;
-typedef int BOOL;
+typedef DWORD *LPCOLORREF;
+typedef DWORD LCTYPE;
+typedef DWORD LGRPID;
 typedef int WINBOOL;
-typedef ULONG_PTR DWORD_PTR;
-typedef wchar_t WCHAR;
-typedef void *HANDLE;
 
 typedef struct
 {
