@@ -862,6 +862,12 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 		Dialog* dialog=static_cast<Dialog*>(hDlg);
 		if (Dialog::IsValid(dialog)) return dialog->SendMessage(Msg,Param1,Param2);
 	}
+	switch (Msg)
+	{
+		case DM_GETFOCUS:
+		case DM_LISTADDSTR:
+			return -1;
+	}
 	return 0;
 }
 
