@@ -236,7 +236,7 @@ wchar_t* TruncStr(wchar_t *Str, int MaxLength)
 
 		if (Length > MaxLength)
 		{
-			memmove(Str, Str+Length-MaxLength, MaxLength+1);
+			wmemmove(Str, Str+Length-MaxLength, MaxLength+1);
 			if (MaxLength > DotsLen)
 				wmemset(Str, L'.', DotsLen);
 		}
