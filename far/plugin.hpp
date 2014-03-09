@@ -106,6 +106,11 @@ struct FarColor
 			&& BackgroundColor == rhs.BackgroundColor
 			&& Reserved == rhs.Reserved;
 	}
+
+	bool operator !=(const FarColor& rhs) const
+	{
+		return !(*this == rhs);
+	}
 #endif
 };
 
@@ -502,6 +507,18 @@ struct FAR_CHAR_INFO
 {
 	WCHAR Char;
 	struct FarColor Attributes;
+
+#ifdef __cplusplus
+	bool operator ==(const FAR_CHAR_INFO& rhs) const
+	{
+		return Char == rhs.Char && Attributes == rhs.Attributes;
+	}
+
+	bool operator !=(const FAR_CHAR_INFO& rhs) const
+	{
+		return !(*this == rhs);
+	}
+#endif
 };
 
 struct FarDialogItem

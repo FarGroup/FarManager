@@ -403,7 +403,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 						WriteRegion.Top=I;
 						WriteRegion.Bottom=I-1;
 
-						while (I<BufY && memcmp(PtrBuf,PtrShadow,BufX*sizeof(FAR_CHAR_INFO))!=0)
+						while (I<BufY && !std::equal(PtrBuf, PtrBuf + BufX, PtrShadow))
 						{
 							I++;
 							PtrBuf+=BufX;
@@ -427,7 +427,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 					{
 						for (SHORT J=0; J<BufX; J++,++PtrBuf,++PtrShadow)
 						{
-							if (memcmp(PtrBuf,PtrShadow,sizeof(FAR_CHAR_INFO))!=0)
+							if (*PtrBuf != *PtrShadow)
 							{
 								WriteRegion.Left=std::min(WriteRegion.Left,J);
 								WriteRegion.Top=std::min(WriteRegion.Top,I);
