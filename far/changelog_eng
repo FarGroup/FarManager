@@ -3,6 +3,39 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 09.03.2014 15:08:27 +0200 - build 3825
+
+1. Forum: DI_FIXEDIT + DIF_HISTORY for lines longer than 2 characters.
+   (The presence of DIF_HISTORY flag allowed input of 1 excessive character in input field).
+
+shmuel 08.03.2014 23:07:41 +0200 - build 3824
+
+1. Forum: FSF.TruncStr() returns incorrect result.
+
+zg 08.03.2014 18:40:47 +0200 - build 3823
+
+1. correction of 3821. for DM_GETFOCUS and DM_LISTADDSTR -1 is returned if there is no dialog.
+
+drkns 07.03.2014 02:38:36 +0200 - build 3822
+
+1. VC10 fix.
+
+2. Warning.
+
+zg 07.03.2014 02:13:56 +0200 - build 3821
+
+1. 0002614: SendDlgMessage: fix for crash on invalid hDlg.
+
+drkns 05.03.2014 22:41:01 +0200 - build 3820
+
+1. 0002604: Translate in file menu Add, Subtract, Multiply...
+
+drkns 04.03.2014 01:22:32 +0200 - build 3819
+
+1. Forum: long to short names conversion did not work for file names longer than 255 characters.
+
+2. Refactoring.
+
 shmuel 02.03.2014 09:53:50 +0200 - build 3818
 
 1. Custom sorting in panels: indication of current sorting mode would not be drawn on an empty panel in some cases.
