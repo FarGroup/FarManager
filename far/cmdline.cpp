@@ -135,7 +135,7 @@ void CommandLine::DisplayObject()
 
 	GotoXY(X2+1,Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
-	Text(L"\x2191");
+	Text(L'\x2191');
 }
 
 
@@ -967,7 +967,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 			Redraw();
 			strCurDir=strNewDir;
 			GotoXY(X2+1,Y1);
-			Text(L" ");
+			Text(L' ');
 			ScrollScreen(2);
 			SaveBackground();
 		}
@@ -993,7 +993,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
 	{
 		GotoXY(X2+1,Y1);
-		Text(L" ");
+		Text(L' ');
 		Global->CtrlObject->CmdLine->CorrectRealScreenCoord();
 	}
 	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
@@ -1071,7 +1071,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			// display command //???
 			Redraw();
 			GotoXY(X2+1,Y1);
-			Text(L" ");
+			Text(L' ');
 			Global->ScrBuf->Flush();
 			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut(L"\n");

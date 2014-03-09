@@ -1511,9 +1511,9 @@ void Panel::FastFindShow(int FindX,int FindY)
 {
 	SetColor(COL_DIALOGTEXT);
 	GotoXY(FindX+1,FindY+1);
-	Text(L" ");
+	Text(L' ');
 	GotoXY(FindX+20,FindY+1);
-	Text(L" ");
+	Text(L' ');
 	Box(FindX,FindY,FindX+21,FindY+2,ColorIndexToColor(COL_DIALOGBOX),DOUBLE_BOX);
 	GotoXY(FindX+7,FindY);
 	SetColor(COL_DIALOGBOXTITLE);

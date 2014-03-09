@@ -136,15 +136,29 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
-void Text(int X, int Y, const FarColor& Color, const string& Str);
-void Text(const string& Str);
+void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size);
+inline void Text(int X, int Y, const FarColor& Color, const wchar_t* Str) { return Text(X, Y, Color, Str, wcslen(Str)); }
+inline void Text(int X, int Y, const FarColor& Color, const string& Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
+
+void Text(const wchar_t* Str, size_t Size);
+inline void Text(const wchar_t* Str) { return Text(Str, wcslen(Str)); }
+inline void Text(const string& Str) { return Text(Str.data(), Str.size()); }
+inline void Text(wchar_t c) { return Text(&c, 1); }
+
 void Text(LNGID MsgId);
-void VText(const string& Str);
+
+void VText(const wchar_t* Str, size_t Size);
+inline void VText(const wchar_t* Str) { return VText(Str, wcslen(Str)); }
+inline void VText(const string& Str) { return VText(Str.data(), Str.size()); }
+
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
 void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize);
-void BoxText(wchar_t Chr);
-void BoxText(const string& Str,int IsVert=0);
+
+void BoxText(const wchar_t* Str, size_t Size, bool IsVert = false);
+inline void BoxText(const string& Str, bool IsVert = false) { return BoxText(Str.data(), Str.size(), IsVert); }
+inline void BoxText(const wchar_t* Str, bool IsVert = false) { return BoxText(Str, wcslen(Str), IsVert); }
+inline void BoxText(wchar_t Chr) { return BoxText(&Chr, 1, false); }
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);

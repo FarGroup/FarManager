@@ -170,7 +170,7 @@ void KeyBar::DisplayObject()
 		if (i<KEY_COUNT-1)
 		{
 			SetColor(COL_KEYBARBACKGROUND);
-			Text(L" ");
+			Text(L' ');
 		}
 	}
 

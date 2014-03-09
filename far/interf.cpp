@@ -611,38 +611,37 @@ void InitRecodeOutTable()
 }
 
 
-void Text(int X, int Y, const FarColor& Color, const string& Str)
+void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size)
 {
 	CurColor=Color;
 	CurX=X;
 	CurY=Y;
-	Text(Str);
+	Text(Str, Size);
 }
 
-void Text(const string& Str)
+void Text(const wchar_t* Str, size_t Size)
 {
-	if (Str.empty())
+	if (!Size)
 		return;
 
-	size_t Length=Str.size();
 	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
 	std::vector<FAR_CHAR_INFO> HeapBuffer;
 	FAR_CHAR_INFO* BufPtr=StackBuffer;
 
-	if (Length >= StackBufferSize/sizeof(FAR_CHAR_INFO))
+	if (Size >= StackBufferSize / sizeof(FAR_CHAR_INFO))
 	{
-		HeapBuffer.resize(Length+1);
+		HeapBuffer.resize(Size + 1);
 		BufPtr=HeapBuffer.data();
 	}
 
-	for (size_t i=0; i < Length; i++)
+	for (size_t i = 0; i < Size; i++)
 	{
 		BufPtr[i].Char=Str[i];
 		BufPtr[i].Attributes=CurColor;
 	}
 
-	Global->ScrBuf->Write(CurX, CurY, BufPtr, Length);
-	CurX+=static_cast<int>(Length);
+	Global->ScrBuf->Write(CurX, CurY, BufPtr, Size);
+	CurX += static_cast<int>(Size);
 }
 
 
@@ -651,15 +650,15 @@ void Text(LNGID MsgId)
 	Text(MSG(MsgId));
 }
 
-void VText(const string& Str)
+void VText(const wchar_t* Str, size_t Size)
 {
-	if (Str.empty())
+	if (!Size)
 		return;
 
 	int StartCurX=CurX;
 	WCHAR ChrStr[2]={};
 
-	for (size_t i = 0; i != Str.size(); ++i)
+	for (size_t i = 0; i != Size; ++i)
 	{
 		GotoXY(CurX,CurY);
 		ChrStr[0]=Str[i];
@@ -841,19 +840,12 @@ void PutText(int X1, int Y1, int X2, int Y2, const FAR_CHAR_INFO *Src)
 		Global->ScrBuf->Write(X1, Y, Src, Width);
 }
 
-void BoxText(wchar_t Chr)
-{
-	wchar_t Str[]={Chr,L'\0'};
-	BoxText(Str);
-}
-
-
-void BoxText(const string& Str,int IsVert)
+void BoxText(const wchar_t* Str, size_t Size, bool IsVert)
 {
 	if (IsVert)
-		VText(Str);
+		VText(Str, Size);
 	else
-		Text(Str);
+		Text(Str, Size);
 }
 
 
@@ -881,9 +873,9 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	wmemset(BufPtr, BoxSymbols[Type?BS_V2:BS_V1], height-1);
 	BufPtr[height-1]=0;
 	GotoXY(x1,y1+1);
-	VText(BufPtr);
+	VText(BufPtr, height - 1);
 	GotoXY(x2,y1+1);
-	VText(BufPtr);
+	VText(BufPtr, height - 1);
 	const size_t width=x2-x1+2;
 	if(width>StackBufferSize/sizeof(WCHAR))
 	{
@@ -898,11 +890,11 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	BufPtr[width-2]=BoxSymbols[Type?BS_RT_H2V2:BS_RT_H1V1];
 	BufPtr[width-1]=0;
 	GotoXY(x1,y1);
-	Text(BufPtr);
+	Text(BufPtr, width - 1);
 	BufPtr[0]=BoxSymbols[Type?BS_LB_H2V2:BS_LB_H1V1];
 	BufPtr[width-2]=BoxSymbols[Type?BS_RB_H2V2:BS_RB_H1V1];
 	GotoXY(x1,y2);
-	Text(BufPtr);
+	Text(BufPtr, width - 1);
 }
 
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)

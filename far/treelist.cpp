@@ -556,7 +556,7 @@ void TreeList::DisplayTree(int Fast)
 	{
 		GotoXY(X1+1, static_cast<int>(I));
 		SetColor(COL_PANELTEXT);
-		Text(L" ");
+		Text(L' ');
 
 		if (J < ListData.size() && Flags.Check(FTREELIST_TREEISPREPARED))
 		{

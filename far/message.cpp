@@ -581,7 +581,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const string& Title, const wchar
 				if (TextLength<Length)
 				{
 					GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
-					Text(CPtrStr);
+					Text(CPtrStr, TextLength);
 				}
 
 				SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGTEXT);

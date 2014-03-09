@@ -906,7 +906,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		Global->CtrlObject->CmdLine->ShowBackground();
 		Global->CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
-		Text(L" ");
+		Text(L' ');
 		MoveCursor(X1,Y1);
 		GetCursorType(Visible,Size);
 		SetInitialCursorType();

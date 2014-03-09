@@ -58,13 +58,13 @@ struct star
 
 static std::array<star, 16> Star;
 
-static const wchar_t* StarSymbol[]=
+static const wchar_t StarSymbol[]=
 {
-	L"\x25A0",
-	L"\x2219",
-	L"\x2219",
-	L"\x00B0",
-	L"\x00B7",
+	L'\x25A0',
+	L'\x2219',
+	L'\x2219',
+	L'\x00B0',
+	L'\x00B7',
 };
 
 static void ShowSaver(int Step)
@@ -75,7 +75,7 @@ static void ShowSaver(int Step)
 		{
 			SetColor(F_LIGHTCYAN|B_BLACK);
 			GotoXY(i.X/100, i.Y/100);
-			Text(L" ");
+			Text(L' ');
 			int dx = i.X/100 - ScrX/2;
 			i.X += dx*10+((dx<0) ? -1:1);
 			int dy = i.Y/100-ScrY/2;

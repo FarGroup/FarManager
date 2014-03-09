@@ -353,11 +353,13 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 
 	// skip unused region
 	int Offset = BufferCoord.Y*BufferSize.X;
-	std::vector<CHAR_INFO> ConsoleBuffer(BufferSize.X*BufferSize.Y-Offset);
-	for(int i = Offset; i < BufferSize.X*BufferSize.Y; ++i)
+	std::vector<CHAR_INFO> ConsoleBuffer;
+	const size_t Size = BufferSize.X * BufferSize.Y - Offset;
+	ConsoleBuffer.reserve(Size);
+	for(size_t i = 0; i < Size; ++i)
 	{
-		ConsoleBuffer[i-Offset].Char.UnicodeChar = Buffer[i].Char;
-		ConsoleBuffer[i-Offset].Attributes = Colors::FarColorToConsoleColor(Buffer[i].Attributes);
+		CHAR_INFO Info = {Buffer[i + Offset].Char, Colors::FarColorToConsoleColor(Buffer[i + Offset].Attributes)};
+		ConsoleBuffer.emplace_back(Info);
 	}
 
 	BufferSize.Y-=BufferCoord.Y;
