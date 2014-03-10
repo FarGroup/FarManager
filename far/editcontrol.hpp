@@ -73,6 +73,8 @@ protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE);
 
 private:
+	friend class DlgEdit;
+
 	virtual const FarColor& GetNormalColor() const override;
 	virtual const FarColor& GetSelectedColor() const override;
 	virtual const FarColor& GetUnchangedColor() const override;
@@ -130,6 +132,4 @@ private:
 	bool MenuUp;
 	bool ACState;
 	bool CallbackSaveState;
-
-	friend class DlgEdit;
 };

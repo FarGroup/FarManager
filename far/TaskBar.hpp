@@ -32,52 +32,57 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class TaskBarCore:NonCopyable
+class taskbar: NonCopyable
 {
 public:
-	TaskBarCore();
-	~TaskBarCore();
+	~taskbar();
 	TBPFLAG GetProgressState();
 	void SetProgressState(TBPFLAG tbpFlags);
 	void SetProgressValue(UINT64 Completed, UINT64 Total);
 	static void Flash();
 
 private:
+	friend taskbar& Taskbar();
+
+	taskbar();
+
 	bool CoInited;
 	TBPFLAG State;
 	ITaskbarList3* pTaskbarList;
 };
 
-class TaskBar
+taskbar& Taskbar();
+
+class IndeterminateTaskBar: NonCopyable
 {
 public:
-	TaskBar(bool EndFlash=true);
-	~TaskBar();
+	IndeterminateTaskBar(bool EndFlash = true);
+	~IndeterminateTaskBar();
 
 private:
 	bool EndFlash;
 };
 
 template<TBPFLAG T>
-class TaskBarState:NonCopyable
+class TaskBarState: NonCopyable
 {
 public:
-	TaskBarState():PrevState(Global->TBC->GetProgressState())
+	TaskBarState():PrevState(Taskbar().GetProgressState())
 	{
 		if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 		{
 			if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
 			{
-				Global->TBC->SetProgressValue(1,1);
+				Taskbar().SetProgressValue(1,1);
 			}
-			Global->TBC->SetProgressState(T);
-			Global->TBC->Flash();
+			Taskbar().SetProgressState(T);
+			Taskbar().Flash();
 		}
 	}
 
 	~TaskBarState()
 	{
-		Global->TBC->SetProgressState(PrevState);
+		Taskbar().SetProgressState(PrevState);
 	}
 
 private:

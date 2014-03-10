@@ -100,7 +100,7 @@ bool Clipboard::Open()
 
 	if (!SystemClipboardOpened)
 	{
-		if (OpenClipboard(Global->Console->GetWindow()))
+		if (OpenClipboard(Console().GetWindow()))
 		{
 			SystemClipboardOpened = true;
 			return true;

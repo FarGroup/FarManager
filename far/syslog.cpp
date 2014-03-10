@@ -1787,7 +1787,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	int InternalLog = !fp;
 	size_t ReadCount2;
 	// берем количество оставшейся порции эвентов
-	Global->Console->GetNumberOfInputEvents(ReadCount2);
+	Console().GetNumberOfInputEvents(ReadCount2);
 
 	if (ReadCount2 <= 1)
 		return;
@@ -1810,7 +1810,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 		{
 			std::vector<INPUT_RECORD> TmpRec(ReadCount2);
 			size_t ReadCount3;
-			Global->Console->PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
+			Console().PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
 
 			for (DWORD I=0; I < ReadCount3; ++I)
 			{

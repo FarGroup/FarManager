@@ -44,42 +44,37 @@ class SaveScreen;
 
 class FolderTree:public Frame
 {
-	private:
-		TreeList *Tree;
-		EditControl *FindEdit;
+public:
+	FolderTree(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
+	virtual ~FolderTree();
 
-		KeyBar TreeKeyBar;     // кейбар
-		int ModalMode;
-		bool IsFullScreen;
-		int IsStandalone;
-		FARMACROAREA PrevMacroMode;        // предыдущий режим макроса
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual void InitKeyBar() override;
+	virtual void OnChangeFocus(int focus) override; // вызываетс€ при смене фокуса
+	virtual void SetScreenPosition() override;
+	virtual void ResizeConsole() override;
+	/* $ ¬ведена дл€ нужд CtrlAltShift OT */
+	virtual int  FastHide() override;
+	virtual const wchar_t *GetTypeName() override { return L"[FolderTree]"; }
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }
 
-		string strNewFolder;
-		string strLastName;
-
-	private:
-		virtual const string& GetTitle(string& Title) override {return Title;}
-		virtual void DisplayObject() override;
-		void DrawEdit();
-		void SetCoords();
-
-	public:
-		FolderTree(string &strResultFolder,int ModalMode,int IsStandalone=TRUE,bool IsFullScreen=true);
-		virtual ~FolderTree();
-
-	public:
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-
-		virtual void InitKeyBar() override;
-		virtual void OnChangeFocus(int focus) override; // вызываетс€ при смене фокуса
-		virtual void SetScreenPosition() override;
-		virtual void ResizeConsole() override;
-		/* $ ¬ведена дл€ нужд CtrlAltShift OT */
-		virtual int  FastHide() override;
-
-		virtual const wchar_t *GetTypeName() override {return L"[FolderTree]";}
-		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual int GetType() const override { return MODALTYPE_FINDFOLDER; }
-
+private:
+	virtual const string& GetTitle(string& Title) override { return Title; }
+	virtual void DisplayObject() override;
+	void DrawEdit();
+	void SetCoords();
+	
+	TreeList *Tree;
+	EditControl *FindEdit;
+	// кейбар
+	KeyBar TreeKeyBar;
+	int ModalMode;
+	bool IsFullScreen;
+	int IsStandalone;
+	// предыдущий режим макроса
+	FARMACROAREA PrevMacroMode;
+	string strNewFolder;
+	string strLastName;
 };

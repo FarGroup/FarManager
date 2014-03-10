@@ -880,7 +880,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTUP:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindow(-1);
+						Console().ScrollWindow(-1);
 						return TRUE;
 					}
 					break;
@@ -891,7 +891,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTDOWN:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindow(1);
+						Console().ScrollWindow(1);
 						return TRUE;
 					}
 					break;
@@ -902,7 +902,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTPGUP:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindow(-ScrY);
+						Console().ScrollWindow(-ScrY);
 						return TRUE;
 					}
 					break;
@@ -913,7 +913,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTHOME:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindowToBegin();
+						Console().ScrollWindowToBegin();
 						return TRUE;
 					}
 					break;
@@ -924,7 +924,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTPGDN:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindow(ScrY);
+						Console().ScrollWindow(ScrY);
 						return TRUE;
 					}
 					break;
@@ -935,7 +935,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTEND:
 					if(scrollable)
 					{
-						Global->Console->ScrollWindowToEnd();
+						Console().ScrollWindowToEnd();
 						return TRUE;
 					}
 					break;

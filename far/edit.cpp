@@ -57,7 +57,8 @@ const GUID& ColorItem::GetOwner() const
 
 void ColorItem::SetOwner(const GUID& Value)
 {
-	Owner = &*Global->Sets->GuidSet.emplace(Value).first;
+	static std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
+	Owner = &*GuidSet.emplace(Value).first;
 }
 
 const FarColor& ColorItem::GetColor() const
@@ -67,7 +68,8 @@ const FarColor& ColorItem::GetColor() const
 
 void ColorItem::SetColor(const FarColor& Value)
 {
-	Color = &*Global->Sets->ColorSet.emplace(Value).first;
+	static std::unordered_set<FarColor, color_hash> ColorSet;
+	Color = &*ColorSet.emplace(Value).first;
 }
 
 static int Recurse=0;

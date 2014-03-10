@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class CachedRead
+class CachedRead: NonCopyable
 {
 public:
 	CachedRead(api::File& file, DWORD buffer_size=0);
@@ -54,7 +54,7 @@ private:
 };
 
 
-class CachedWrite
+class CachedWrite: NonCopyable
 {
 public:
 	CachedWrite(api::File& file);

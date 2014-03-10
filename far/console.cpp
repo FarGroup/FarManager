@@ -1,5 +1,5 @@
 /*
-Global->Console->cpp
+Console().cpp
 
 Console functions
 */
@@ -129,8 +129,8 @@ virtual bool SetSize(COORD Size) const override
 			{
 				// windows sometimes uses existing colors to init right region of screen buffer
 				FarColor Color;
-				Global->Console->GetTextAttributes(Color);
-				Global->Console->ClearExtraRegions(Color, CR_RIGHT);
+				Console().GetTextAttributes(Color);
+				Console().ClearExtraRegions(Color, CR_RIGHT);
 			}
 		}
 		if(SetWindowRect(csbi.srWindow))
@@ -203,7 +203,7 @@ virtual bool GetKeyboardLayoutName(string &strName) const override
 {
 	bool Result=false;
 	wchar_t Buffer[KL_NAMELENGTH];
-	if (Global->ifn->GetConsoleKeyboardLayoutNameW(Buffer))
+	if (Imports().GetConsoleKeyboardLayoutNameW(Buffer))
 	{
 		Result=true;
 		strName = Buffer;
@@ -662,7 +662,7 @@ virtual bool IsFullscreenSupported() const override
 #else
 	bool Result = true;
 	CONSOLE_SCREEN_BUFFER_INFOEX csbiex = {sizeof(csbiex)};
-	if(Global->ifn->GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+	if(Imports().GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
 	{
 		Result = csbiex.bFullscreenSupported != FALSE;
 	}
@@ -705,33 +705,6 @@ private:
 class extendedconsole:public basicconsole
 {
 public:
-	extendedconsole():
-		Imports(),
-		Module(LoadLibrary(L"extendedconsole.dll")),
-		ImportsPresent(false)
-	{
-		if(Module)
-		{
-			#define InitImport(Name) InitImport(Imports.p##Name, #Name)
-
-			InitImport(ReadOutput);
-			InitImport(WriteOutput);
-			InitImport(Commit);
-			InitImport(GetTextAttributes);
-			InitImport(SetTextAttributes);
-			InitImport(ClearExtraRegions);
-			InitImport(GetColorDialog);
-
-			#undef InitImport
-
-			if(!ImportsPresent)
-			{
-				FreeLibrary(Module);
-				Module = nullptr;
-			}
-		}
-	}
-
 	virtual ~extendedconsole()
 	{
 		if(Module)
@@ -839,6 +812,35 @@ public:
 	}
 
 private:
+	friend console& Console();
+
+	extendedconsole():
+		Imports(),
+		Module(LoadLibrary(L"extendedconsole.dll")),
+		ImportsPresent(false)
+	{
+		if (Module)
+		{
+			#define InitImport(Name) InitImport(Imports.p##Name, #Name)
+
+			InitImport(ReadOutput);
+			InitImport(WriteOutput);
+			InitImport(Commit);
+			InitImport(GetTextAttributes);
+			InitImport(SetTextAttributes);
+			InitImport(ClearExtraRegions);
+			InitImport(GetColorDialog);
+
+			#undef InitImport
+
+			if (!ImportsPresent)
+			{
+				FreeLibrary(Module);
+				Module = nullptr;
+			}
+		}
+	}
+
 	struct ModuleImports
 	{
 		BOOL (WINAPI *pReadOutput)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion);
@@ -865,7 +867,9 @@ private:
 	bool ImportsPresent;
 };
 
-console* console::CreateInstance(bool extended)
+console& Console()
 {
-	return extended? new extendedconsole() : new basicconsole();
+	//static console ec;
+	static extendedconsole ec;
+	return ec;
 }

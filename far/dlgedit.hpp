@@ -149,6 +149,8 @@ public:
 	void SetHistory(const string& Name);
 
 private:
+	friend class SetAutocomplete;
+
 	Dialog* m_Dialog;
 	size_t m_Index;
 	DLGEDITTYPE Type;
@@ -162,5 +164,4 @@ private:
 	virtual void DisplayObject() override;
 	static void EditChange(void* aParam);
 	void DoEditChange();
-	friend class SetAutocomplete;
 };

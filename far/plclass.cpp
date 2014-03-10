@@ -1236,7 +1236,7 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 	{
 		m_Module = LoadLibraryEx(filename.data(), nullptr, 0);
 
-#define InitImport(Name) InitImport(Imports.p##Name, #Name)
+#define InitImport(Name) InitImport(m_Imports.p##Name, #Name)
 
 		if (InitImport(Initialize) &&
 			InitImport(IsPlugin) &&
@@ -1248,7 +1248,7 @@ CustomPluginModel::CustomPluginModel(PluginManager* owner, const string& filenam
 		{
 			GlobalInfo Info={sizeof(Info)};
 
-			if(Imports.pInitialize(&Info) &&
+			if (m_Imports.pInitialize(&Info) &&
 				Info.StructSize &&
 				Info.Title && *Info.Title &&
 				Info.Description && *Info.Description &&
@@ -1275,7 +1275,7 @@ CustomPluginModel::~CustomPluginModel()
 		if (m_Success)
 		{
 			ExitInfo Info = {sizeof(Info)};
-			Imports.pFree(&Info);
+			m_Imports.pFree(&Info);
 		}
 		FreeLibrary(m_Module);
 	}
@@ -1289,7 +1289,7 @@ bool CustomPluginModel::IsPlugin(const string& filename)
 {
 	try
 	{
-		return Imports.pIsPlugin(filename.data()) != FALSE;
+		return m_Imports.pIsPlugin(filename.data()) != FALSE;
 	}
 	catch(const SException&)
 	{
@@ -1303,7 +1303,7 @@ GenericPluginModel::plugin_instance CustomPluginModel::Create(const string& file
 {
 	try
 	{
-		return Imports.pCreateInstance(filename.data());
+		return m_Imports.pCreateInstance(filename.data());
 	}
 	catch(const SException&)
 	{
@@ -1319,7 +1319,7 @@ void CustomPluginModel::InitExports(GenericPluginModel::plugin_instance instance
 	{
 		std::transform(m_ExportsNames, m_ExportsNames + ExportsCount, exports, [&](const export_name& i)
 		{
-			return *i.UName? reinterpret_cast<void*>(Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
+			return *i.UName ? reinterpret_cast<void*>(m_Imports.pGetFunctionAddress(static_cast<HANDLE>(instance), i.UName)) : nullptr;
 		});
 	}
 	catch(const SException&)
@@ -1333,7 +1333,7 @@ bool CustomPluginModel::Destroy(GenericPluginModel::plugin_instance module)
 {
 	try
 	{
-		return Imports.pDestroyInstance(module) != FALSE;
+		return m_Imports.pDestroyInstance(module) != FALSE;
 	}
 	catch(const SException&)
 	{

@@ -154,7 +154,7 @@ struct PluginHandle
 
 class Dialog;
 
-class PluginManager
+class PluginManager: NonCopyable
 {
 	struct plugin_less { bool operator ()(const Plugin* a, const Plugin *b) const; };
 
@@ -238,6 +238,8 @@ public:
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 
 private:
+	friend class Plugin;
+
 	void LoadIfCacheAbsent();
 	Plugin* LoadPlugin(const string& lpwszModuleName, const api::FAR_FIND_DATA &FindData, bool LoadToMem);
 	bool AddPlugin(Plugin *pPlugin);
@@ -259,6 +261,4 @@ private:
 #endif // NO_WRAPPER
 	FileEditor* m_CurEditor;
 	Viewer* m_CurViewer;
-
-	friend class Plugin;
 };

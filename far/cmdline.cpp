@@ -950,7 +950,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	int Code;
 	COORD Size0;
-	Global->Console->GetSize(Size0);
+	Console().GetSize(Size0);
 
 	if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		FarChDir(strCurDir);
@@ -988,7 +988,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 	}
 
 	COORD Size1;
-	Global->Console->GetSize(Size1);
+	Console().GetSize(Size1);
 
 	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
 	{
@@ -1073,7 +1073,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			GotoXY(X2+1,Y1);
 			Text(L' ');
 			Global->ScrBuf->Flush();
-			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+			Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut(L"\n");
 			int CmdLength = static_cast<int>(strCmdLine.size());
 			LPWCH Environment = GetEnvironmentStrings();
@@ -1088,8 +1088,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			}
 			FreeEnvironmentStrings(Environment);
 			strOut.append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
-			Global->Console->Write(strOut);
-			Global->Console->Commit();
+			Console().Write(strOut);
+			Console().Commit();
 			Global->ScrBuf->FillBuf();
 			SaveBackground();
 			PrintCommand = false;
@@ -1216,8 +1216,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		}
 
 		UINT cp = std::stoul(strCmdLine, nullptr, 10); //BUGBUG
-		BOOL r1=Global->Console->SetInputCodepage(cp);
-		BOOL r2=Global->Console->SetOutputCodepage(cp);
+		BOOL r1=Console().SetInputCodepage(cp);
+		BOOL r2=Console().SetOutputCodepage(cp);
 
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{

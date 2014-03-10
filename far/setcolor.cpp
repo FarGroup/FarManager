@@ -60,7 +60,7 @@ void GetColor(int PaletteIndex)
 	SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MENU);
 	FarColor NewColor = Global->Opt->Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
-	if (Global->Console->GetColorDialog(NewColor))
+	if (Console().GetColorDialog(NewColor))
 	{
 		Global->Opt->Palette.Set(PaletteIndex-COL_FIRSTPALETTECOLOR, &NewColor, 1);
 		Global->ScrBuf->Lock(); // отменяем всякую прорисовку

@@ -360,7 +360,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 	static int Reenter=0;
 	string CurrentLine;
 	size_t EventsCount = 0;
-	Global->Console->GetNumberOfInputEvents(EventsCount);
+	Console().GetNumberOfInputEvents(EventsCount);
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord() == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;

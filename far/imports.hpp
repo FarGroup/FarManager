@@ -33,8 +33,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ImportedFunctions
+class ImportedFunctions: NonCopyable
 {
+private:
 	template<typename T>
 	class function_pointer
 	{
@@ -60,9 +61,6 @@ class ImportedFunctions
 		HMODULE m_module;
 		bool m_loaded;
 	};
-
-public:
-	ImportedFunctions();
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
 private: function_pointer<RETTYPE (CALLTYPE*)ARGS> pfn##NAME;\
@@ -124,6 +122,10 @@ public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 #undef DECLARE_IMPORT_FUNCTION
 
 private:
+	friend ImportedFunctions& Imports();
+
+	ImportedFunctions();
+
 	module m_Ntdll;
 	module m_Kernel;
 	module m_Shell;
@@ -132,3 +134,5 @@ private:
 	module m_VirtDisk;
 	module m_RstrtMgr;
 };
+
+ImportedFunctions& Imports();

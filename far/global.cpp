@@ -35,23 +35,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "imports.hpp"
-#include "console.hpp"
 #include "scrbuf.hpp"
-#include "TaskBar.hpp"
 #include "format.hpp"
-#include "TPreRedrawFunc.hpp"
-#include "window.hpp"
 #include "config.hpp"
 #include "language.hpp"
 #include "elevation.hpp"
-#include "treelist.hpp"
-#include "interf.hpp"
 #include "PluginSynchro.hpp"
 #include "codepage.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
-#include "edit.hpp"
-#include "notification.hpp"
 #include "manager.hpp"
 
 thread_local DWORD global::m_LastError = ERROR_SUCCESS;
@@ -59,23 +51,10 @@ thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
-	ifn(nullptr),
-	Console(nullptr),
 	ScrBuf(nullptr),
-	TBC(nullptr),
-	ConsoleIcons(nullptr),
-	//FS(nullptr),
-	PreRedraw(nullptr),
-	Notifier(nullptr),
-	Window(nullptr),
 	Opt(nullptr),
 	Lang(nullptr),
 	Elevation(nullptr),
-	TreeCache(nullptr),
-	tempTreeCache(nullptr),
-	PluginSynchroManager(nullptr),
-	CodePages(nullptr),
-	Sets(nullptr),
 	Db(nullptr),
 	CtrlObject(nullptr)
 {
@@ -123,23 +102,10 @@ global::global():
 
 	// BUGBUG end
 
-	ifn = new ImportedFunctions;
-	Console = console::CreateInstance(true);
 	ScrBuf = new ScreenBuf;
-	TBC = new TaskBarCore;
-	ConsoleIcons = new consoleicons;
-	//FS = new FormatScreen;
-	PreRedraw = new TPreRedrawFunc;
-	Notifier = new notifier;
-	Window = new WindowHandler;
 	FrameManager = new Manager;
 	Opt = new Options;
 	Elevation = new elevation;
-	TreeCache = new TreeListCache;
-	tempTreeCache = new TreeListCache;
-	PluginSynchroManager = new PluginSynchro;
-	CodePages = new codepages;
-	Sets = new sets;
 }
 
 global::~global()
@@ -148,16 +114,6 @@ global::~global()
 	CtrlObject = nullptr;
 	delete Db;
 	Db = nullptr;
-	delete Sets;
-	Sets = nullptr;
-	delete CodePages;
-	CodePages = nullptr;
-	delete PluginSynchroManager;
-	PluginSynchroManager = nullptr;
-	delete tempTreeCache;
-	tempTreeCache = nullptr;
-	delete TreeCache;
-	TreeCache = nullptr;
 	delete Elevation;
 	Elevation = nullptr;
 	// TODO: it could be useful to delete Lang only at the very end
@@ -167,24 +123,8 @@ global::~global()
 	Opt = nullptr;
 	delete FrameManager;
 	FrameManager = nullptr;
-	delete Window;
-	Window = nullptr;
-	delete Notifier;
-	Notifier = nullptr;
-	delete PreRedraw;
-	PreRedraw = nullptr;
-	//delete FS;
-	//FS = nullptr;
-	delete ConsoleIcons;
-	ConsoleIcons = nullptr;
-	delete TBC;
-	TBC = nullptr;
 	delete ScrBuf;
 	ScrBuf = nullptr;
-	delete Console;
-	Console = nullptr;
-	delete ifn;
-	ifn = nullptr;
 
 	CloseHandle(m_MainThreadHandle);
 
@@ -233,7 +173,7 @@ bool global::IsPtr(const void* Address)
 void global::CatchError()
 {
 	m_LastError = GetLastError();
-	m_LastStatus = Global->ifn->RtlGetLastNtStatus();
+	m_LastStatus = Imports().RtlGetLastNtStatus();
 }
 
 #include "bootstrap/copyright.inc"

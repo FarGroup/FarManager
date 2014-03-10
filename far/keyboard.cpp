@@ -648,9 +648,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
-		Global->PluginSynchroManager->Process();
+		PluginSynchroManager().Process();
 
-	Global->Notifier->dispatch();
+	Notifier().dispatch();
 
 	if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Cp())
 	{
@@ -751,15 +751,15 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	LastEventIdle=FALSE;
 
-	BOOL ZoomedState=IsZoomed(Global->Console->GetWindow());
-	BOOL IconicState=IsIconic(Global->Console->GetWindow());
+	BOOL ZoomedState=IsZoomed(Console().GetWindow());
+	BOOL IconicState=IsIconic(Console().GetWindow());
 
 	bool FullscreenState=IsConsoleFullscreen();
 
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(Global->Console->GetWindow()) && IconicState==IsIconic(Global->Console->GetWindow()))
+		if (ZoomedState!=IsZoomed(Console().GetWindow()) && IconicState==IsIconic(Console().GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState);
@@ -778,11 +778,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				ChangeVideoMode(25,80);
 			}
 			FullscreenState=CurrentFullscreenState;
-
-			Global->Window->Check();
 		}
 
-		Global->Console->PeekInput(rec, 1, ReadCount);
+		Console().PeekInput(rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
 		   ! Убрал подмену колесика */
@@ -793,7 +791,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			{
 				INPUT_RECORD pinp;
 				size_t nread;
-				Global->Console->ReadInput(&pinp, 1, nread);
+				Console().ReadInput(&pinp, 1, nread);
 				was_repeat = false;
 				last_pressed_keycode = (WORD)-1;
 				continue;
@@ -854,7 +852,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 		if (!(LoopCount & 3))
 		{
-			if (Global->PluginSynchroManager->Process())
+			if (PluginSynchroManager().Process())
 			{
 				ClearStruct(*rec);
 				return KEY_NONE;
@@ -918,7 +916,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					INPUT_RECORD pinp;
 					size_t nread;
 					// Удалим из очереди...
-					Global->Console->ReadInput(&pinp, 1, nread);
+					Console().ReadInput(&pinp, 1, nread);
 					return KEY_NONE;
 				}
 			}
@@ -963,7 +961,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.MouseButtonState=0;
 		ShiftState=FALSE;
 		PressedLastTime=0;
-		Global->Console->ReadInput(rec, 1, ReadCount);
+		Console().ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		//ClearStruct(*rec);
 		//rec->EventType=KEY_EVENT;
@@ -996,7 +994,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		return CalcKey;
 	}
 
-	Global->Console->ReadInput(rec, 1, ReadCount);
+	Console().ReadInput(rec, 1, ReadCount);
 
 	if (EnableShowTime)
 		ShowTime(1);
@@ -1005,7 +1003,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if(Global->Opt->WindowMode)
 	{
 		SMALL_RECT CurConRect;
-		Global->Console->GetWindowRect(CurConRect);
+		Console().GetWindowRect(CurConRect);
 		if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
 		{
 			SizeChanged=true;
@@ -1044,9 +1042,9 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				Global->FrameManager->ResizeAllFrame();
 				Global->FrameManager->GetCurrentFrame()->Show();
 				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-				if (!Global->PreRedraw->empty())
+				if (!PreRedrawStack().empty())
 				{
-					Global->PreRedraw->top()->m_PreRedrawFunc();
+					PreRedrawStack().top()->m_PreRedrawFunc();
 				}
 			}
 
@@ -1395,7 +1393,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		Global->Console->PeekInput(rec, 1, ReadCount);
+		Console().PeekInput(rec, 1, ReadCount);
 	}
 
 	if (!ReadCount)
@@ -1482,7 +1480,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.dwControlKeyState=0;
 		}
 
-		return Global->Console->WriteInput(&Rec, 1, WriteCount);
+		return Console().WriteInput(&Rec, 1, WriteCount);
 	}
 	else if (KeyQueue && KeyQueue->size() < 1024)
 	{
@@ -2305,7 +2303,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
 			size_t ReadCount;
-			Global->Console->ReadInput(&TempRec, 1, ReadCount);
+			Console().ReadInput(&TempRec, 1, ReadCount);
 			IntKeyState.ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 			AltValue&=0xFFFF;

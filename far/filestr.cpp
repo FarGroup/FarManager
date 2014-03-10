@@ -445,7 +445,7 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 						{
 							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
 							{
-								long long selectType = Global->CodePages->GetFavorite(cp);
+								long long selectType = Codepages().GetFavorite(cp);
 								if (0 == (selectType & CPST_FAVORITE))
 									cp = -1;
 							}

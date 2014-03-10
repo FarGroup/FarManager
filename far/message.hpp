@@ -66,7 +66,7 @@ enum
 class Plugin;
 class Dialog;
 
-class Message
+class Message: NonCopyable
 {
 public:
 	Message(DWORD Flags, size_t Buttons, const string& Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);

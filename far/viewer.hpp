@@ -65,7 +65,7 @@ struct ViewerUndoData
 	__int64 UndoLeft;
 };
 
-struct ViewerModeInternal
+struct ViewerModeInternal: NonCopyable
 {
  	uintptr_t CodePage;
 	int Wrap;
@@ -168,6 +168,8 @@ private:
 	static uintptr_t GetDefaultCodePage();
 
 private:
+	friend class FileViewer;
+
 	Options::ViewerOptions ViOpt;
 
 	bool Signature;
@@ -262,6 +264,4 @@ private:
 	int dump_text_mode;
 
 	std::vector<wchar_t> ReadBuffer;
-
-	friend class FileViewer;
 };

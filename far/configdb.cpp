@@ -146,8 +146,8 @@ static inline void PrintError(const wchar_t *Title, const string& Error, int Row
 {
 	string strResult(Title);
 	strResult += L" (" + std::to_wstring(Row) + L"," + std::to_wstring(Col) + L"): " + Error + L'\n';
-	Global->Console->Write(strResult);
-	Global->Console->Commit();
+	Console().Write(strResult);
+	Console().Commit();
 }
 
 static void PrintError(const wchar_t *Title, const tinyxml::TiXmlDocument &doc)
@@ -2643,8 +2643,8 @@ void Database::CheckDatabase(SQLiteDb *pDb)
 	{
 		if (m_ImportExportMode)
 		{
-			Global->Console->Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
-			Global->Console->Commit();
+			Console().Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
+			Console().Commit();
 		}
 		else
 		{

@@ -92,13 +92,6 @@ struct ColorItem
 	}
 };
 
-class sets
-{
-public:
-	std::unordered_set<FarColor, color_hash> ColorSet;
-	std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
-};
-
 enum SetCPFlags
 {
 	SETCP_NOERROR    = 0x00000000,
@@ -245,6 +238,10 @@ protected:
 	int StrSize;
 	int CurPos;
 private:
+	friend class DlgEdit;
+	friend class Editor;
+	friend class FileEditor;
+
 	// KEEP ALIGNED!
 	ColorItem *ColorList;
 	int ColorCount;
@@ -254,8 +251,4 @@ private:
 	int LeftPos;
 	TBitFlags<unsigned char> ColorListFlags;
 	unsigned char EndType;
-
-	friend class DlgEdit;
-	friend class Editor;
-	friend class FileEditor;
 };

@@ -100,11 +100,11 @@ void ScreenBuf::FillBuf()
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={};
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
-	Global->Console->ReadOutput(Buf.data(), BufferSize, BufferCoord, ReadRegion);
+	Console().ReadOutput(Buf.data(), BufferSize, BufferCoord, ReadRegion);
 	std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
-	Global->Console->GetCursorPosition(CursorPosition);
+	Console().GetCursorPosition(CursorPosition);
 	CurX=CursorPosition.X;
 	CurY=CursorPosition.Y;
 }
@@ -372,7 +372,7 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			Global->Console->SetCursorInfo(cci);
+			Console().SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -489,9 +489,9 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 				{
 					COORD BufferSize={BufX, BufY}, BufferCoord={i.Left, i.Top};
 					SMALL_RECT WriteRegion = i;
-					Global->Console->WriteOutput(Buf.data(), BufferSize, BufferCoord, WriteRegion);
+					Console().WriteOutput(Buf.data(), BufferSize, BufferCoord, WriteRegion);
 				});
-				Global->Console->Commit();
+				Console().Commit();
 				std::copy(ALL_CONST_RANGE(Buf), Shadow.begin());
 			}
 		}
@@ -509,14 +509,14 @@ void ScreenBuf::Flush(bool SuppressIndicators)
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			COORD C={CurX,CurY};
-			Global->Console->SetCursorPosition(C);
+			Console().SetCursorPosition(C);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			Global->Console->SetCursorInfo(cci);
+			Console().SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 

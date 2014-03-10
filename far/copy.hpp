@@ -42,7 +42,7 @@ class CopyProgress;
 ENUM(COPY_CODES);
 ENUM(ReparsePointTypes);
 
-class ShellCopy
+class ShellCopy: NonCopyable
 {
 public:
 	ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);

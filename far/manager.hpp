@@ -35,168 +35,135 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Frame;
 
-class Manager
+class Manager: NonCopyable
 {
+public:
+	Manager();
+
+	// Эти функции можно безопасно вызывать практически из любого места кода
+	// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
+	void InsertFrame(Frame *NewFrame);
+	void DeleteFrame(Frame *Deleted = nullptr);
+	void DeleteFrame(int Index);
+	void DeactivateFrame(Frame *Deactivated, int Direction);
+	void ActivateFrame(Frame *Activated);
+	void ActivateFrame(int Index);
+	void RefreshFrame(Frame *Refreshed = nullptr);
+	void RefreshFrame(int Index);
+	//! Функции для запуска модальных фреймов.
+	void ExecuteFrame(Frame *Executed);
+	//! Входит в новый цикл обработки событий
+	void ExecuteModal(Frame *Executed = nullptr);
+	//! Запускает немодальный фрейм в модальном режиме
+	void ExecuteNonModal();
+	//!  Функции, которые работают с очередью немодально фрейма.
+	//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
+	void ModalizeFrame(Frame *Modalized = nullptr, int Mode = TRUE);
+	void UnmodalizeFrame(Frame *Unmodalized);
+	void CloseAll();
+	/* $ 29.12.2000 IS
+	Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
+	если пользователь продолжил редактировать файл.
+	Возвращает TRUE, если все закрыли и можно выходить из фара.
+	*/
+	BOOL ExitAll();
+	size_t GetFrameCount()const { return Frames.size(); }
+	int  GetFrameCountByType(int Type);
+	/*$ 26.06.2001 SKV
+	Для вызова через ACTL_COMMIT
+	*/
+	BOOL PluginCommit();
+	int CountFramesWithName(const string& Name, BOOL IgnoreCase = TRUE);
+	bool IsPanelsActive(bool and_not_qview = false) const; // используется как признак Global->WaitInMainLoop
+	int  FindFrameByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
+	void EnterMainLoop();
+	void ProcessMainLoop();
+	void ExitMainLoop(int Ask);
+	int ProcessKey(DWORD key);
+	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
+	void PluginsMenu() const; // вызываем меню по F11
+	void SwitchToPanels();
+	INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
+	void SetLastInputRecord(const INPUT_RECORD *Rec);
+	void ResetLastInputRecord() { LastInputRecord.EventType = 0; }
+	Frame *GetCurrentFrame() { return CurrentFrame; }
+	Frame* GetFrame(size_t Index) const;
+	int IndexOf(Frame *Frame);
+	int IndexOfStack(Frame *Frame);
+	void ImmediateHide();
+	Frame *GetBottomFrame() { return GetFrame(FramePos); }
+	BOOL ManagerIsDown() const { return EndLoop; }
+	BOOL ManagerStarted() const { return StartManager; }
+	void InitKeyBar();
+	/* $ 15.05.2002 SKV
+	Так как нужно это в разных местах,
+	а глобальные счётчики не концептуально,
+	то лучше это делать тут.
+	*/
+	void EnterModalEV() { ModalEVCount++; }
+	void ExitModalEV() { ModalEVCount--; }
+	BOOL InModalEV() const { return ModalEVCount; }
+	void ResizeAllFrame();
+	// возвращает top-модал или сам фрейм, если у фрейма нету модалов
+	Frame* GetTopModal();
+	size_t GetModalStackCount() const { return ModalFrames.size(); }
+	Frame* GetModalFrame(size_t index) const { return ModalFrames[index]; }
+	/* $ 13.04.2002 KM
+	Для вызова ResizeConsole для всех NextModal у
+	модального фрейма.
+	*/
+	static void ResizeAllModal(Frame *ModalFrame);
+	static long GetCurrentWindowType() { return CurrentWindowType; }
+	static bool ShowBackground();
+
+private:
 #if defined(SYSLOG)
-		friend void ManagerClass_Dump(const wchar_t *Title,FILE *fp);
+	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
 #endif
-	private:
-		INPUT_RECORD LastInputRecord;
-		/*$ Претенденты на ... */
-		Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
-		Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-		Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений
-		Frame *RefreshedFrame;  // Фрейм, который нужно просто освежить, т.е. перерисовать
-		Frame *ModalizedFrame;  // Фрейм, который становится в "очередь" к текущему немодальному фрейму
-		Frame *UnmodalizedFrame;// Фрейм, убираюющийся из "очереди" немодального фрейма
-		Frame *DeactivatedFrame;// Фрейм, который указывает на предудущий активный фрейм
-		Frame *ExecutedFrame;   // Фрейм, которого вскорости нужно будет поставить на вершину модального сттека
 
-		Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
-		// его можно получить с помощью FrameManager->GetCurrentFrame();
+	Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
+	bool HaveAnyFrame() const;
+	bool Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
+	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
+	// Функции, "подмастерья начальника" - Commit'a
+	// Иногда вызываются не только из него и из других мест
+	void RefreshCommit();  //
+	void DeactivateCommit(); //
+	void ActivateCommit(); //
+	void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
+	void InsertCommit();
+	void DeleteCommit();
+	void ExecuteCommit();
+	void ModalizeCommit();
+	void UnmodalizeCommit();
+	int GetModalExitCode() const;
 
-		std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
-		std::vector<Frame*> Frames;       // Очередь модальных фреймов
-		int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
-		// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
-
-		/* $ 15.05.2002 SKV
-		  Так как есть полумодалы, что б не было путаницы,
-		  заведём счётчик модальных editor/viewer'ов.
-		  Дёргать его  надо ручками перед вызовом ExecuteModal.
-		  А автоматом нельзя, так как ExecuteModal вызывается
-		  1) не только для настоящих модалов (как это не пародоксально),
-		  2) не только для editor/viewer'ов.
-		*/
-		int ModalEVCount;
-		int  EndLoop;            // Признак выхода из цикла
-		int ModalExitCode;
-		int  StartManager;
-
-		static long CurrentWindowType;
-
-	private:
-		Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
-		bool HaveAnyFrame() const;
-
-		bool Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
-		// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
-		// Функции, "подмастерья начальника" - Commit'a
-		// Иногда вызываются не только из него и из других мест
-		void RefreshCommit();  //
-		void DeactivateCommit(); //
-		void ActivateCommit(); //
-		void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
-		void InsertCommit();
-		void DeleteCommit();
-		void ExecuteCommit();
-		void ModalizeCommit();
-		void UnmodalizeCommit();
-
-		int GetModalExitCode() const;
-
-	public:
-		Manager();
-
-	public:
-		static long GetCurrentWindowType() { return CurrentWindowType; }
-
-		// Эти функции можно безопасно вызывать практически из любого места кода
-		// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
-		void InsertFrame(Frame *NewFrame);
-		void DeleteFrame(Frame *Deleted=nullptr);
-		void DeleteFrame(int Index);
-		void DeactivateFrame(Frame *Deactivated,int Direction);
-		void ActivateFrame(Frame *Activated);
-		void ActivateFrame(int Index);
-		void RefreshFrame(Frame *Refreshed=nullptr);
-		void RefreshFrame(int Index);
-
-		//! Функции для запуска модальных фреймов.
-		void ExecuteFrame(Frame *Executed);
-
-
-		//! Входит в новый цикл обработки событий
-		void ExecuteModal(Frame *Executed=nullptr);
-		//! Запускает немодальный фрейм в модальном режиме
-		void ExecuteNonModal();
-
-		//!  Функции, которые работают с очередью немодально фрейма.
-		//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
-		void ModalizeFrame(Frame *Modalized=nullptr, int Mode=TRUE);
-		void UnmodalizeFrame(Frame *Unmodalized);
-
-		void CloseAll();
-		/* $ 29.12.2000 IS
-		     Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
-		     если пользователь продолжил редактировать файл.
-		     Возвращает TRUE, если все закрыли и можно выходить из фара.
-		*/
-		BOOL ExitAll();
-
-		size_t GetFrameCount()const {return Frames.size();}
-		int  GetFrameCountByType(int Type);
-
-		/*$ 26.06.2001 SKV
-		Для вызова через ACTL_COMMIT
-		*/
-		BOOL PluginCommit();
-
-		int CountFramesWithName(const string& Name, BOOL IgnoreCase=TRUE);
-
-		bool IsPanelsActive(bool and_not_qview=false) const; // используется как признак Global->WaitInMainLoop
-		int  FindFrameByFile(int ModalType,const string& FileName,const wchar_t *Dir=nullptr);
-		static bool ShowBackground();
-
-		void EnterMainLoop();
-		void ProcessMainLoop();
-		void ExitMainLoop(int Ask);
-		int ProcessKey(DWORD key);
-		int ProcessMouse(const MOUSE_EVENT_RECORD *me);
-
-		void PluginsMenu() const; // вызываем меню по F11
-		void SwitchToPanels();
-
-		INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
-		void SetLastInputRecord(const INPUT_RECORD *Rec);
-		void ResetLastInputRecord() { LastInputRecord.EventType=0; }
-
-		Frame *GetCurrentFrame() { return CurrentFrame; }
-
-		Frame* GetFrame(size_t Index) const;
-
-		int IndexOf(Frame *Frame);
-
-		int IndexOfStack(Frame *Frame);
-
-		void ImmediateHide();
-		/* $ 13.04.2002 KM
-		  Для вызова ResizeConsole для всех NextModal у
-		  модального фрейма.
-		*/
-		static void ResizeAllModal(Frame *ModalFrame);
-
-		Frame *GetBottomFrame() { return GetFrame(FramePos); }
-
-		BOOL ManagerIsDown() const {return EndLoop;}
-		BOOL ManagerStarted() const {return StartManager;}
-
-		void InitKeyBar();
-
-		/* $ 15.05.2002 SKV
-		  Так как нужно это в разных местах,
-		  а глобальные счётчики не концептуально,
-		  то лучше это делать тут.
-		*/
-		void EnterModalEV() {ModalEVCount++;}
-		void ExitModalEV() {ModalEVCount--;}
-		BOOL InModalEV() const {return ModalEVCount;}
-
-		void ResizeAllFrame();
-
-		// возвращает top-модал или сам фрейм, если у фрейма нету модалов
-		Frame* GetTopModal();
-
-		size_t GetModalStackCount() const {return ModalFrames.size();}
-		Frame* GetModalFrame(size_t index) const {return ModalFrames[index];}
+	INPUT_RECORD LastInputRecord;
+	/*$ Претенденты на ... */
+	Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
+	Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
+	Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений
+	Frame *RefreshedFrame;  // Фрейм, который нужно просто освежить, т.е. перерисовать
+	Frame *ModalizedFrame;  // Фрейм, который становится в "очередь" к текущему немодальному фрейму
+	Frame *UnmodalizedFrame;// Фрейм, убираюющийся из "очереди" немодального фрейма
+	Frame *DeactivatedFrame;// Фрейм, который указывает на предудущий активный фрейм
+	Frame *ExecutedFrame;   // Фрейм, которого вскорости нужно будет поставить на вершину модального сттека
+	Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке, его можно получить с помощью FrameManager->GetCurrentFrame();
+	std::vector<Frame*> ModalFrames;     // Стек модальных фреймов
+	std::vector<Frame*> Frames;       // Очередь модальных фреймов
+	int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
+	// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
+	/* $ 15.05.2002 SKV
+		Так как есть полумодалы, что б не было путаницы,
+		заведём счётчик модальных editor/viewer'ов.
+		Дёргать его  надо ручками перед вызовом ExecuteModal.
+		А автоматом нельзя, так как ExecuteModal вызывается
+		1) не только для настоящих модалов (как это не пародоксально),
+		2) не только для editor/viewer'ов.
+	*/
+	int ModalEVCount;
+	int  EndLoop;            // Признак выхода из цикла
+	int ModalExitCode;
+	int  StartManager;
+	static long CurrentWindowType;
 };

@@ -45,6 +45,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
 
+codepages& Codepages()
+{
+	static codepages cp;
+	return cp;
+}
+
 // Ключ где хранятся имена кодовых страниц
 const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
 const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
@@ -433,7 +439,7 @@ void codepages::AddCodePages(DWORD codePages)
 
 		string CodepageName;
 		UINT len = 0;
-		std::tie(len, CodepageName) = Global->CodePages->GetCodePageInfo(cp);
+		std::tie(len, CodepageName) = GetCodePageInfo(cp);
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 
@@ -882,7 +888,7 @@ inline bool IsValid(UINT cp)
 	if (cp==CP_UTF8 || cp==CP_UNICODE || cp==CP_REVERSEBOM)
 		return false;
 
-	return Global->CodePages->GetCodePageInfo(cp).first == 2;
+	return Codepages().GetCodePageInfo(cp).first == 2;
 }
 
 

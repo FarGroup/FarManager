@@ -42,9 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 Modal::Modal():
+	EndLoop(0),
 	ReadKey(-1),
-	WriteKey(-1),
-	EndLoop(0)
+	WriteKey(-1)
 {
 }
 

@@ -90,7 +90,7 @@ class Dialog;
 class SaveScreen;
 
 
-struct MenuItemEx:NonCopyable
+struct MenuItemEx: NonCopyable
 {
 	MenuItemEx(const string& Text = L""):
 		strName(Text),
@@ -205,195 +205,156 @@ class Frame;
 
 class VMenu: public Modal
 {
-	private:
-		string strTitle;
-		string strBottomTitle;
+public:
 
-		int SelectPos;
-		int TopPos;
-		int MaxHeight;
-		bool WasAutoHeight;
-		int MaxLength;
-		int BoxType;
-		Frame *CurrentFrame;
-		bool PrevCursorVisible;
-		DWORD PrevCursorSize;
-		FARMACROAREA PrevMacroMode;
+	VMenu(const string& Title, MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
+	virtual ~VMenu();
 
-		// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
-		BitFlags VMFlags;
-		BitFlags VMOldFlags;
+	virtual void Show() override;
+	virtual void Hide() override;
+	virtual const string& GetTitle(string &strDest) override;
+	virtual const wchar_t *GetTypeName() override { return L"[VMenu]"; }
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? MODALTYPE_COMBOBOX : MODALTYPE_VMENU; }
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr) override;
+	virtual void ResizeConsole() override;
 
-		Dialog *ParentDialog;         // Для LisBox - родитель в виде диалога
-		size_t DialogItemID;
-		FARWINDOWPROC VMenuProc;      // функция обработки меню
+	void FastShow() { ShowMenu(); }
+	void ResetCursor();
+	void SetTitle(const string& Title);
+	void SetBottomTitle(const wchar_t *BottomTitle);
+	string &GetBottomTitle(string &strDest);
+	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
+	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
+	void SetBoxType(int BoxType);
+	void SetFlags(DWORD Flags) { VMFlags.Set(Flags); }
+	void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
+	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
+	DWORD GetFlags() const { return VMFlags.Flags(); }
+	DWORD ChangeFlags(DWORD Flags, bool Status) { return VMFlags.Change(Flags, Status); }
+	void AssignHighlights(int Reverse);
+	void SetColors(const FarDialogItemColors *ColorsIn = nullptr);
+	void GetColors(FarDialogItemColors *ColorsOut);
+	void SetOneColor(int Index, PaletteColors Color);
+	int ProcessFilterKey(int Key);
+	void DeleteItems();
+	int DeleteItem(int ID, int Count = 1);
+	int AddItem(MenuItemEx& NewItem, int PosAdd = 0x7FFFFFFF);
+	int AddItem(const FarList *NewItem);
+	int AddItem(const wchar_t *NewStrItem);
+	int InsertItem(const FarListInsert *NewItem);
+	int UpdateItem(const FarListUpdate *NewItem);
+	int FindItem(const FarListFind *FindItem);
+	int FindItem(int StartIndex, const string& Pattern, UINT64 Flags = 0);
+	void RestoreFilteredItems();
+	void FilterStringUpdated();
+	void FilterUpdateHeight(bool bShrink = false);
+	void SetFilterEnabled(bool bEnabled) { bFilterEnabled = bEnabled; }
+	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
+	bool AddToFilter(const wchar_t *str);
+	void SetFilterString(const wchar_t *str);
+	intptr_t GetItemCount() const { return Items.size(); }
+	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
+	int GetVisualPos(int Pos);
+	int VisualPosToReal(int VPos);
+	void *GetUserData(void *Data, size_t Size, int Position = -1);
+	size_t GetUserDataSize(int Position = -1);
+	size_t  SetUserData(LPCVOID Data, size_t Size = 0, int Position = -1);
+	int GetSelectPos() const { return SelectPos; }
+	int GetSelectPos(FarListPos *ListPos);
+	int SetSelectPos(const FarListPos *ListPos, int Direct = 0);
+	int SetSelectPos(int Pos, int Direct, bool stop_on_edge = false);
+	int GetCheck(int Position = -1);
+	void SetCheck(int Check, int Position = -1);
+	bool UpdateRequired();
+	void UpdateItemFlags(int Pos, UINT64 NewFlags);
+	struct MenuItemEx *GetItemPtr(int Position = -1);
+	void SortItems(bool Reverse = false, int Offset = 0);
+	bool Pack();
+	BOOL GetVMenuInfo(struct FarListInfo* Info);
+	void SetMaxHeight(int NewMaxHeight);
+	size_t GetVDialogItemID() const { return DialogItemID; }
+	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
+	void SetId(const GUID& Id);
+	const GUID& Id() const;
 
-		ConsoleTitle *OldTitle;     // предыдущий заголовок
+	template<class predicate>
+	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(CS);
 
-		CriticalSection CS;
+		SortItemParam Param;
+		Param.Reverse = Reverse;
+		Param.Offset = Offset;
 
-		bool bFilterEnabled;
-		bool bFilterLocked;
-		string strFilter;
-
-		std::vector<MenuItemEx> Items;
-
-		intptr_t ItemHiddenCount;
-		intptr_t ItemSubMenusCount;
-
-		FarColor Colors[VMENU_COLOR_COUNT];
-
-		int MaxLineWidth;
-		bool bRightBtnPressed;
-		GUID MenuId;
-
-	private:
-		virtual void DisplayObject() override;
-		void ShowMenu(bool IsParent=false);
-		void DrawTitles();
-		int GetItemPosition(int Position);
-		static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
-		static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
-		bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
-		int CheckHighlights(wchar_t Chr,int StartPos=0);
-		wchar_t GetHighlights(const struct MenuItemEx *_item);
-		bool ShiftItemShowPos(int Pos,int Direct);
-		bool ItemCanHaveFocus(UINT64 Flags) const;
-		bool ItemCanBeEntered(UINT64 Flags) const;
-		bool ItemIsVisible(UINT64 Flags) const;
-		void UpdateMaxLengthFromTitles();
-		void UpdateMaxLength(int Length);
-		void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
-		bool ShouldSendKeyToFilter(int Key) const;
-		//коректировка текущей позиции и флагов SELECTED
-		void UpdateSelectPos();
-
-	public:
-
-		VMenu(const string& Title,
-		      MenuDataEx *Data,
-		      int ItemCount,
-		      int MaxHeight=0,
-		      DWORD Flags=0,
-		      Dialog *ParentDialog=nullptr);
-
-
-		virtual ~VMenu();
-
-		void FastShow() {ShowMenu();}
-		virtual void Show() override;
-		virtual void Hide() override;
-		void ResetCursor();
-
-		void SetTitle(const string& Title);
-		virtual const string& GetTitle(string &strDest) override;
-
-		void SetBottomTitle(const wchar_t *BottomTitle);
-		string &GetBottomTitle(string &strDest);
-		void SetDialogStyle(bool Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(nullptr);}
-		void SetUpdateRequired(bool SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
-		void SetBoxType(int BoxType);
-
-		void SetFlags(DWORD Flags) { VMFlags.Set(Flags); }
-		void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
-		bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
-		DWORD GetFlags() const { return VMFlags.Flags(); }
-		DWORD ChangeFlags(DWORD Flags,bool Status) {return VMFlags.Change(Flags,Status);}
-
-		void AssignHighlights(int Reverse);
-
-		void SetColors(const FarDialogItemColors *ColorsIn=nullptr);
-		void GetColors(FarDialogItemColors *ColorsOut);
-		void SetOneColor(int Index, PaletteColors Color);
-
-		int ProcessFilterKey(int Key);
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr) override;
-
-		void DeleteItems();
-		int  DeleteItem(int ID,int Count=1);
-
-		int  AddItem(MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
-		int  AddItem(const FarList *NewItem);
-		int  AddItem(const wchar_t *NewStrItem);
-
-		int  InsertItem(const FarListInsert *NewItem);
-		int  UpdateItem(const FarListUpdate *NewItem);
-		int  FindItem(const FarListFind *FindItem);
-		int  FindItem(int StartIndex,const string& Pattern,UINT64 Flags=0);
-		void RestoreFilteredItems();
-		void FilterStringUpdated();
-		void FilterUpdateHeight(bool bShrink=false);
-		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; }
-		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; }
- 		bool AddToFilter(const wchar_t *str);
- 		void SetFilterString(const wchar_t *str);
-
-		intptr_t GetItemCount() const { return Items.size(); }
-		int  GetShowItemCount() const { return static_cast<int>(Items.size()-ItemHiddenCount); }
-		int  GetVisualPos(int Pos);
-		int  VisualPosToReal(int VPos);
-
-		void *GetUserData(void *Data,size_t Size,int Position=-1);
-		size_t GetUserDataSize(int Position=-1);
-		size_t  SetUserData(LPCVOID Data,size_t Size=0,int Position=-1);
-
-		int  GetSelectPos() const { return SelectPos; }
-		int  GetSelectPos(FarListPos *ListPos);
-		int  SetSelectPos(const FarListPos *ListPos, int Direct=0);
-		int  SetSelectPos(int Pos, int Direct, bool stop_on_edge=false);
-		int  GetCheck(int Position=-1);
-		void SetCheck(int Check, int Position=-1);
-
-		bool UpdateRequired();
-		void UpdateItemFlags(int Pos, UINT64 NewFlags);
-
-		virtual void ResizeConsole() override;
-
-		struct MenuItemEx *GetItemPtr(int Position=-1);
-
-		void SortItems(bool Reverse = false, int Offset = 0);
-
-		template<class predicate>
-		void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
+		std::sort(Items.begin(), Items.end(), [&](const MenuItemEx& a, const MenuItemEx& b)->bool
 		{
-			SCOPED_ACTION(CriticalSectionLock)(CS);
+			return Pred(a, b, Param);
+		});
 
-			SortItemParam Param;
-			Param.Reverse = Reverse;
-			Param.Offset = Offset;
+		// скорректируем SelectPos
+		UpdateSelectPos();
 
-			std::sort(Items.begin(), Items.end(), [&](const MenuItemEx& a, const MenuItemEx& b)->bool
-			{
-				return Pred(a, b, Param);
-			});
+		SetFlags(VMENU_UPDATEREQUIRED);
+	}
 
-			// скорректируем SelectPos
-			UpdateSelectPos();
+	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);
+	static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
 
-			SetFlags(VMENU_UPDATEREQUIRED);
-		}
+private:
+	virtual void DisplayObject() override;
 
-		bool Pack();
+	void ShowMenu(bool IsParent=false);
+	void DrawTitles();
+	int GetItemPosition(int Position);
+	static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
+	static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
+	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
+	int CheckHighlights(wchar_t Chr,int StartPos=0);
+	wchar_t GetHighlights(const struct MenuItemEx *_item);
+	bool ShiftItemShowPos(int Pos,int Direct);
+	bool ItemCanHaveFocus(UINT64 Flags) const;
+	bool ItemCanBeEntered(UINT64 Flags) const;
+	bool ItemIsVisible(UINT64 Flags) const;
+	void UpdateMaxLengthFromTitles();
+	void UpdateMaxLength(int Length);
+	void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
+	bool ShouldSendKeyToFilter(int Key) const;
+	//коректировка текущей позиции и флагов SELECTED
+	void UpdateSelectPos();
 
-		BOOL GetVMenuInfo(struct FarListInfo* Info);
-
-		virtual const wchar_t *GetTypeName() override {return L"[VMenu]";}
-		virtual int GetTypeAndName(string &strType, string &strName) override;
-
-		virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
-
-		void SetMaxHeight(int NewMaxHeight);
-
-		size_t GetVDialogItemID() const {return DialogItemID;}
-		void SetVDialogItemID(size_t NewDialogItemID) {DialogItemID=NewDialogItemID;}
-
-		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
-
-		void SetId(const GUID& Id);
-		const GUID& Id() const;
-
-		static void AddHotkeys(std::vector<string>& Strings, MenuDataEx* Menu, size_t MenuSize);
+	string strTitle;
+	string strBottomTitle;
+	int SelectPos;
+	int TopPos;
+	int MaxHeight;
+	bool WasAutoHeight;
+	int MaxLength;
+	int BoxType;
+	Frame *CurrentFrame;
+	bool PrevCursorVisible;
+	DWORD PrevCursorSize;
+	FARMACROAREA PrevMacroMode;
+	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
+	BitFlags VMFlags;
+	BitFlags VMOldFlags;
+	// Для LisBox - родитель в виде диалога
+	Dialog *ParentDialog;
+	size_t DialogItemID;
+	FARWINDOWPROC VMenuProc;
+	ConsoleTitle *OldTitle;
+	CriticalSection CS;
+	bool bFilterEnabled;
+	bool bFilterLocked;
+	string strFilter;
+	std::vector<MenuItemEx> Items;
+	intptr_t ItemHiddenCount;
+	intptr_t ItemSubMenusCount;
+	FarColor Colors[VMENU_COLOR_COUNT];
+	int MaxLineWidth;
+	bool bRightBtnPressed;
+	GUID MenuId;
 };

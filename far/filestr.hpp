@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class GetFileString
+class GetFileString: NonCopyable
 {
 	public:
 		GetFileString(api::File& SrcFile, uintptr_t CodePage);

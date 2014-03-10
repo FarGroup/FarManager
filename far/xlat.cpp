@@ -77,7 +77,7 @@ wchar_t* Xlat(wchar_t *Line,
 	bool ProcessLayoutName=false;
 	StringOption RulesNamed;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Global->Console->GetKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Console().GetKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			”точнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -217,7 +217,7 @@ wchar_t* Xlat(wchar_t *Line,
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		HWND hWnd = Global->Console->GetWindow();
+		HWND hWnd = Console().GetWindow();
 
 		if (hWnd)
 		{

@@ -317,7 +317,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{
-		Global->PluginSynchroManager->Synchro(true, *PluginId, Param2);
+		PluginSynchroManager().Synchro(true, *PluginId, Param2);
 		return 0;
 	}
 	if (ACTL_GETWINDOWTYPE==Command)
@@ -599,7 +599,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		   пригодится плагинам */
 		case ACTL_GETFARHWND:
 		{
-			return (intptr_t)Global->Console->GetWindow();
+			return (intptr_t)Console().GetWindow();
 		}
 		case ACTL_REDRAWALL:
 		{
@@ -610,7 +610,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_SETPROGRESSSTATE:
 		{
-			Global->TBC->SetProgressState(static_cast<TBPFLAG>(Param1));
+			Taskbar().SetProgressState(static_cast<TBPFLAG>(Param1));
 			return TRUE;
 		}
 
@@ -620,7 +620,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			ProgressValue* PV=static_cast<ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
-				Global->TBC->SetProgressValue(PV->Completed,PV->Total);
+				Taskbar().SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
 			return Result;
@@ -641,12 +641,12 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param2);
 					if(Global->Opt->WindowMode)
 					{
-						Result=Global->Console->GetWorkingRect(Rect);
+						Result=Console().GetWorkingRect(Rect);
 					}
 					else
 					{
 						COORD Size;
-						if(Global->Console->GetSize(Size))
+						if(Console().GetSize(Size))
 						{
 							Rect.Left=0;
 							Rect.Top=0;
@@ -666,7 +666,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					COORD& Pos=*static_cast<PCOORD>(Param2);
-					Result=Global->Console->GetCursorPosition(Pos);
+					Result=Console().GetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -678,7 +678,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					COORD& Pos=*static_cast<PCOORD>(Param2);
-					Result=Global->Console->SetCursorPosition(Pos);
+					Result=Console().SetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -686,7 +686,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_PROGRESSNOTIFY:
 		{
-			Global->TBC->Flash();
+			Taskbar().Flash();
 			return TRUE;
 		}
 
@@ -2549,7 +2549,7 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct 
 	BOOL Result = FALSE;
 	if (!Global->FrameManager->ManagerIsDown())
 	{
-		Result = Global->Console->GetColorDialog(*Color, true, false);
+		Result = Console().GetColorDialog(*Color, true, false);
 	}
 	return Result;
 }

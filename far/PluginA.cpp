@@ -3912,7 +3912,7 @@ static int GetEditorCodePageFavA()
 	{
 		DWORD FavIndex = 2;
 		const auto strCP = std::to_wstring(CodePage);
-		const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
+		const auto CpEnum = Codepages().GetFavoritesEnumerator();
 		std::any_of(CONST_RANGE(CpEnum, i) -> bool
 		{
 			if (i.second & CPST_FAVORITE)
@@ -3958,7 +3958,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 			default:
 			{
 				int FavIndex=2;
-				const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
+				const auto CpEnum = Codepages().GetFavoritesEnumerator();
 				std::any_of(CONST_RANGE(CpEnum, i) -> bool
 				{
 					if (i.second & CPST_FAVORITE)
@@ -4621,7 +4621,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			return -1;
 
 		string CodepageName(cpiex.CodePageName);
-		Global->CodePages->FormatCodePageName(nCP, CodepageName);
+		Codepages().FormatCodePageName(nCP, CodepageName);
 		string sTableName = std::to_wstring(nCP);
 		sTableName.resize(std::max(sTableName.size(), size_t(5)), L' ');
 		sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(CodepageName);

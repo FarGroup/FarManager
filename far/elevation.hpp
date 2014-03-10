@@ -43,7 +43,7 @@ enum ELEVATION_MODE
 
 ENUM(ELEVATION_COMMAND);
 
-class elevation:NonCopyable
+class elevation: NonCopyable
 {
 public:
 	elevation();

@@ -747,7 +747,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.AddCheckbox(MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
 		Builder.AddText(MViewConfigDefaultCodePage);
-		Global->CodePages->FillCodePagesList(Items, false, false, false, true);
+		Codepages().FillCodePagesList(Items, false, false, false, true);
 		Builder.AddComboBox(ViOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
@@ -820,7 +820,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
 		Builder.AddCheckbox(MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(MEditConfigDefaultCodePage);
-		Global->CodePages->FillCodePagesList(Items, false, false, false, false);
+		Codepages().FillCodePagesList(Items, false, false, false, false);
 		Builder.AddComboBox(EdOpt.DefaultCodePage, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
 
@@ -3040,7 +3040,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
 				{
 					uintptr_t CodePage = CP_DEFAULT;
-					Global->CodePages->SelectCodePage(CodePage, true, false, true);
+					Codepages().SelectCodePage(CodePage, true, false, true);
 				}
 				break;
 			case MENU_OPTIONS_COLORS:  // Colors

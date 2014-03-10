@@ -33,21 +33,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class PluginSynchro
+class PluginSynchro: NonCopyable
 {
-	private:
-		struct SynchroData
-		{
-			bool Plugin;
-			GUID PluginId;
-			void* Param;
-		};
-		CriticalSection CS;
-		std::list<SynchroData> Data;
+public:
+	~PluginSynchro();
+	void Synchro(bool Plugin, const GUID& PluginId, void* Param);
+	bool Process();
 
-	public:
-		PluginSynchro();
-		~PluginSynchro();
-		void Synchro(bool Plugin, const GUID& PluginId,void* Param);
-		bool Process();
+private:
+	friend PluginSynchro& PluginSynchroManager();
+
+	PluginSynchro();
+
+	CriticalSection CS;
+	struct SynchroData;
+	std::list<struct SynchroData> Data;
 };
+
+PluginSynchro& PluginSynchroManager();

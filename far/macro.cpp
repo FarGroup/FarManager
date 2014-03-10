@@ -1762,7 +1762,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return ScrY + 1;
 
 		case MCODE_V_FAR_TITLE:
-			Global->Console->GetTitle(strFileName);
+			Console().GetTitle(strFileName);
 			return PassString(strFileName, Data);
 
 		case MCODE_V_FAR_PID:
@@ -3078,7 +3078,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 			Lines=0;
 		}
 
-		if (Global->Console->ScrollWindow(Lines, Columns))
+		if (Console().ScrollWindow(Lines, Columns))
 		{
 			Ret=true;
 			L=1;
@@ -3377,14 +3377,14 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	HKL RetLayout=0;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
-	if (Global->ifn->GetConsoleKeyboardLayoutNameW(LayoutName))
+	if (Imports().GetConsoleKeyboardLayoutNameW(LayoutName))
 	{
 		wchar_t *endptr;
 		DWORD res=wcstoul(LayoutName, &endptr, 16);
 		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 
-	HWND hWnd = Global->Console->GetWindow();
+	HWND hWnd = Console().GetWindow();
 
 	if (hWnd && dwLayout)
 	{

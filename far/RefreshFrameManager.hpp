@@ -35,21 +35,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 
-class UndoGlobalSaveScrPtr
+class UndoGlobalSaveScrPtr: NonCopyable
 {
-	public:
-		UndoGlobalSaveScrPtr(SaveScreen *SaveScr);
-		~UndoGlobalSaveScrPtr();
+public:
+	UndoGlobalSaveScrPtr(SaveScreen *SaveScr);
+	~UndoGlobalSaveScrPtr();
 };
 
-class RefreshFrameManager
+class RefreshFrameManager: NonCopyable
 {
-	private:
-		int OScrX,OScrY;
-		long MsgWaitTime;
-		BOOL DontRedrawFrame;
+public:
+	RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame=FALSE);
+	~RefreshFrameManager();
 
-	public:
-		RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame=FALSE);
-		~RefreshFrameManager();
+private:
+	int OScrX,OScrY;
+	long MsgWaitTime;
+	BOOL DontRedrawFrame;
 };

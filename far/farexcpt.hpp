@@ -214,7 +214,7 @@ DWORD WINAPI xfilter(Plugin *Module, const wchar_t* function, EXCEPTION_POINTERS
 // for Far
 inline DWORD WINAPI xfilter(const wchar_t* function, EXCEPTION_POINTERS *xp) { return xfilter(nullptr, function, xp); }
 
-class SException : public std::exception
+class SException: public std::exception
 {
 public: 
 	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}

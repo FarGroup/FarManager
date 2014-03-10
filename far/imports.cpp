@@ -37,6 +37,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "farexcpt.hpp"
 
+ImportedFunctions& Imports()
+{
+	static ImportedFunctions ifn;
+	return ifn;
+}
+
 ImportedFunctions::module::module(const wchar_t* name):
 	m_module(GetModuleHandle(name)),
 	m_loaded(false)

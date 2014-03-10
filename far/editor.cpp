@@ -2877,7 +2877,7 @@ int Editor::ProcessKey(int Key)
 						intptr_t NewLength;
 						CurLine->GetBinaryString(&NewCmpStr,nullptr,NewLength);
 
-						if (NewLength!=Length || memcmp(CmpStr.data(),NewCmpStr,Length*sizeof(wchar_t))!=0)
+						if (NewLength != Length || !std::equal(CmpStr.begin(), CmpStr.begin() + Length, NewCmpStr))
 						{
 							AddUndoData(UNDO_EDIT,CmpStr.data(),CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							Change(ECTYPE_CHANGED,NumLine);
@@ -3759,7 +3759,7 @@ BOOL Editor::Search(int Next)
 
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
-		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
@@ -3786,7 +3786,7 @@ BOOL Editor::Search(int Next)
 				int Total=FindAllReferences? NumLastLine : (ReverseSearch? StartLine : NumLastLine - StartLine);
 				int Current=abs(NewNumLine-StartLine);
 				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
-				Global->TBC->SetProgressValue(Current,Total);
+				Taskbar().SetProgressValue(Current,Total);
 			}
 
 			int SearchLength = 0;
@@ -3880,16 +3880,16 @@ BOOL Editor::Search(int Next)
 							strQReplaceStr.push_back(L'"');
 
 							std::unique_ptr<PreRedrawItem> pitem;
-							if (!Global->PreRedraw->empty())
+							if (!PreRedrawStack().empty())
 							{
-								pitem = Global->PreRedraw->take();
+								pitem = PreRedrawStack().take();
 							}
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
 											strQSearchStr.data(),MSG(MEditAskReplaceWith),strQReplaceStr.data(),
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
 							if (pitem)
 							{
-								Global->PreRedraw->push(std::move(pitem));
+								PreRedrawStack().push(std::move(pitem));
 							}
 							if (MsgCode==1)
 								ReplaceAll = true;
@@ -6292,7 +6292,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						/* $ 07.08.2001 IS сменить кодировку из плагина */
 					case ESPT_CODEPAGE:
 					{
-						if (!Global->CodePages->IsCodePageSupported(espar->iParam))
+						if (!Codepages().IsCodePageSupported(espar->iParam))
 						{
 							rc = FALSE;
 						}
@@ -7185,13 +7185,13 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 		std::fill(strProgress.begin() + CurPos, strProgress.end(), BoxSymbols[BS_X_B0]);
 		strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
 
-		Global->TBC->SetProgressValue(Percent,100);
+		Taskbar().SetProgressValue(Percent,100);
 	}
 
 	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<EditorPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());
 		item->Title = Title;
 		item->Msg = Msg;
 		item->Name = Name;
@@ -7201,9 +7201,9 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 
 void Editor::PR_EditorShowMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const EditorPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const EditorPreRedrawItem*>(PreRedrawStack().top());
 		Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
 	}
 }

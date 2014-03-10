@@ -79,42 +79,41 @@ static void show_help()
 		L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
 		L"          for the passive panel\n\n"
 		L"The following switches may be used in the command line:\n\n"
-		L" /?   This help.\n"
-		L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
-		L" /ag  Disable display of pseudographics characters.\n"
-		L" /co  Forces FAR to load plugins from the cache only.\n"
+		L" -?   This help.\n"
+		L" -a   Disable display of characters with codes 0 - 31 and 255.\n"
+		L" -ag  Disable display of pseudographics characters.\n"
+		L" -clearcache [profilepath [localprofilepath]]\n"
+		L"      Clear plugins cache.\n"
+		L" -co  Forces FAR to load plugins from the cache only.\n"
 #ifdef DIRECT_RT
-		L" /do  Direct output.\n"
+		L" -do  Direct output.\n"
 #endif
-		L" /e[<line>[:<pos>]] <filename>\n"
+		L" -e[<line>[:<pos>]] <filename>\n"
 		L"      Edit the specified file.\n"
-		L" /m   Do not load macros.\n"
-		L" /ma  Do not execute auto run macros.\n"
-		L" /p[<path>]\n"
+		L" -export <out.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Export settings.\n"
+		L" -import <in.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Import settings.\n"
+		L" -m   Do not load macros.\n"
+		L" -ma  Do not execute auto run macros.\n"
+		L" -p[<path>]\n"
 		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-		L" /s <profilepath> [<localprofilepath>]\n"
+		L" -ro[-] Read-Only or Normal config mode.\n"
+		L" -s <profilepath> [<localprofilepath>]\n"
 		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
-		L" /t <path>\n"
+		L" -t <path>\n"
 		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
 #ifndef NO_WRAPPER
-		L" /u <username>\n"
+		L" -u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"
 		L"      Affects only 1.x Far Manager plugins\n"
 #endif // NO_WRAPPER
-		L" /v <filename>\n"
+		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-		L" /w[-] Stretch to console window instead of console buffer or vise versa.\n"
-		L" /clearcache [profilepath [localprofilepath]]\n"
-		L"      Clear plugins cache.\n"
-		L" /export <out.farconfig> [profilepath [localprofilepath]]\n"
-		L"      Export settings.\n"
-		L" /import <in.farconfig> [profilepath [localprofilepath]]\n"
-		L"      Import settings.\n"
-		L" /ro  Read-Only config mode.\n"
-		L" /rw  Normal config mode.\n"
+		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
 		;
-	Global->Console->Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
-	Global->Console->Commit();
+	Console().Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
+	Console().Commit();
 }
 
 static int MainProcess(
@@ -128,7 +127,7 @@ static int MainProcess(
 {
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
-		Global->Console->GetTextAttributes(InitAttributes);
+		Console().GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
@@ -280,7 +279,7 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		Global->Console->SetTextAttributes(InitAttributes);
+		Console().SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetShadow();
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
@@ -379,7 +378,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	api::SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath);
 	api::SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
-	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
+	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
 		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
 
 	if (!Global->Opt->ReadOnlyConfig)
@@ -409,10 +408,10 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		api::EnableLowFragmentationHeap();
 	}
 
-	if(!Global->Console->IsFullscreenSupported())
+	if(!Console().IsFullscreenSupported())
 	{
 		const BYTE ReserveAltEnter = 0x8;
-		Global->ifn->SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
+		Imports().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	api::InitCurrentDirectory();
@@ -467,6 +466,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		Database::ClearPluginsCache();
 		return 0;
 	}
+
 	listener EnvironmentListener(L"environment", &ReloadEnvironment);
 	listener IntlListener(L"intl", &OnIntlSettingsChange);
 

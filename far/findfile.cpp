@@ -389,7 +389,7 @@ void FindFiles::InitInFileSearch()
 			if (CodePage == CP_DEFAULT)
 			{
 				// Проверяем наличие выбранных страниц символов
-				const auto CpEnum = Global->CodePages->GetFavoritesEnumerator();
+				const auto CpEnum = Codepages().GetFavoritesEnumerator();
 				bool hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
 
 				if (hasSelected)
@@ -697,7 +697,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = Global->CodePages->FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true, false, false);
+			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true, false, false);
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
@@ -839,7 +839,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
 							{
 								// Получаем текущее состояние флага в реестре
-								long long SelectType = Global->CodePages->GetFavorite(SelectedCodePage);
+								long long SelectType = Codepages().GetFavorite(SelectedCodePage);
 
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
@@ -847,15 +847,15 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									// Для стандартных таблиц символов просто удаляем значение из рееста, для
 									// любимых же оставляем в реестре флаг, что таблица символов любимая
 									if (SelectType & CPST_FAVORITE)
-										Global->CodePages->SetFavorite(SelectedCodePage, CPST_FAVORITE);
+										Codepages().SetFavorite(SelectedCodePage, CPST_FAVORITE);
 									else
-										Global->CodePages->DeleteFavorite(SelectedCodePage);
+										Codepages().DeleteFavorite(SelectedCodePage);
 
 									Item.Item.Flags &= ~LIF_CHECKED;
 								}
 								else
 								{
-									Global->CodePages->SetFavorite(SelectedCodePage, CPST_FIND | (SelectType & CPST_FAVORITE ? CPST_FAVORITE : 0));
+									Codepages().SetFavorite(SelectedCodePage, CPST_FIND | (SelectType & CPST_FAVORITE ? CPST_FAVORITE : 0));
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 
@@ -1694,7 +1694,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
 						string strOldTitle;
-						Global->Console->GetTitle(strOldTitle);
+						Console().GetTitle(strOldTitle);
 
 						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
 						{
@@ -1829,7 +1829,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
 							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
 						}
-						Global->Console->SetTitle(strOldTitle);
+						Console().SetTitle(strOldTitle);
 					}
 					if (RemoveTemp)
 					{
@@ -2792,7 +2792,7 @@ bool FindFiles::FindFilesProcess()
 	Thread FindThread;
 	if (FindThread.Start(&FindFiles::ThreadRoutine, this, &Param))
 	{
-		TB=new TaskBar;
+		TB = new IndeterminateTaskBar;
 		SCOPED_ACTION(wakeful);
 		Dlg.Process();
 		FindThread.Wait();

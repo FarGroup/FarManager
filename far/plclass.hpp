@@ -79,7 +79,7 @@ enum EXPORTS_ENUM
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
 
-class GenericPluginModel
+class GenericPluginModel: NonCopyable
 {
 public:
 	typedef void* plugin_instance;
@@ -130,7 +130,7 @@ private:
 
 struct PluginHandle;
 
-class Plugin
+class Plugin: NonCopyable
 {
 public:
 	Plugin(GenericPluginModel* model, const string& ModuleName);
@@ -268,6 +268,10 @@ protected:
 	bool bPendingRemove;
 
 private:
+	friend class PluginManager;
+	friend class GenericPluginModel;
+	friend class NativePluginModel;
+
 	virtual void Prologue() {};
 	virtual void Epilogue() {};
 
@@ -294,10 +298,6 @@ private:
 
 	GUID m_Guid;
 	string m_strGuid;
-
-	friend class PluginManager;
-	friend class GenericPluginModel;
-	friend class NativePluginModel;
 };
 
 
@@ -330,7 +330,7 @@ private:
 		BOOL (WINAPI *pDestroyInstance)(HANDLE Instance);
 		void (WINAPI *pFree)(const ExitInfo* info);
 	}
-	Imports;
+	m_Imports;
 	HMODULE m_Module;
 	bool m_Success;
 };

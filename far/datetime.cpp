@@ -801,9 +801,9 @@ bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
 
 static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	if (Global->ifn->TzSpecificLocalTimeToSystemTimePresent())
+	if (Imports().TzSpecificLocalTimeToSystemTimePresent())
 	{
-		return Global->ifn->TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
+		return Imports().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 	else
 	{

@@ -172,7 +172,7 @@ int ScreenSaver(int EnableExit)
 
 	Global->ScreenSaverActive=TRUE;
 	CONSOLE_CURSOR_INFO CursorInfo;
-	Global->Console->GetCursorInfo(CursorInfo);
+	Console().GetCursorInfo(CursorInfo);
 	{
 		SaveScreen SaveScr;
 		SetCursorType(0,10);

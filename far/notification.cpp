@@ -33,36 +33,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "notification.hpp"
+#include "window.hpp"
 
-ilistener::ilistener(inotification& n):
-	m_notification(n)
+listener::listener(const string& id, const std::function<void()>& function):
+	m_notification(Notifier().at(id)),
+	m_function(function)
 {
 	m_notification.subscribe(this);
 }
 
-ilistener::~ilistener()
+listener::listener(const std::function<void(const payload&)>& function, const string& id):
+m_notification(Notifier().at(id)),
+m_ex_function(function)
+{
+	m_notification.subscribe(this);
+}
+
+listener::~listener()
 {
 	m_notification.unsubscribe(this);
 }
 
-listener::listener(const string& id, const std::function<void()>& function):
-	ilistener(Global->Notifier->at(id)),
-	m_function(function)
-{
-}
-
-listener::listener(const std::function<void(const payload&)>& function, const string& id):
-	ilistener(Global->Notifier->at(id)),
-	m_ex_function(function)
-{
-}
-
-void inotification::notify(std::unique_ptr<const payload> p)
+void notification::notify(std::unique_ptr<const payload> p)
 {
 	m_events.Push(std::move(p));
 }
 
-void inotification::dispatch()
+void notification::dispatch()
 {
 	while(!m_events.Empty())
 	{
@@ -74,6 +71,16 @@ void inotification::dispatch()
 	}
 }
 
+notifier& Notifier()
+{
+	static notifier n;
+	return n;
+}
+
+notifier::notifier():
+	m_Window(std::make_unique<window_handler>(this))
+{
+}
 
 void notifier::dispatch()
 {
@@ -81,9 +88,12 @@ void notifier::dispatch()
 	{
 		i.second->dispatch();
 	});
+
+	m_Window->Check();
 }
 
-void notifier::add(std::unique_ptr<inotification> i)
+void notifier::add(std::unique_ptr<notification> i)
 {
-	m_notifications.insert(VALUE_TYPE(m_notifications)(i->name(), std::move(i)));
+	auto Name = i->name();
+	m_notifications.insert(VALUE_TYPE(m_notifications)(std::move(Name), std::move(i)));
 }

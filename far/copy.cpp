@@ -209,7 +209,7 @@ enum CopyMode
 class CopyProgress
 {
 		ConsoleTitle CopyTitle;
-		TaskBar TB;
+		IndeterminateTaskBar TB;
 		wakeful W;
 		SMALL_RECT Rect;
 		wchar_t Bar[100];
@@ -483,7 +483,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 	if (Total==TotalProgress)
 	{
-		Global->TBC->SetProgressValue(CompletedSize,TotalSize);
+		Taskbar().SetProgressValue(CompletedSize,TotalSize);
 	}
 
 	UINT64 OldCompletedSize = CompletedSize;
@@ -667,16 +667,16 @@ struct CopyPreRedrawItem : public PreRedrawItem
 
 static void PR_ShellCopyMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<CopyPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
 		item->CP->CreateBackground();
 	}
 }
 
 BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 {
-	HWND hWnd = Global->Console->GetWindow();
+	HWND hWnd = Console().GetWindow();
 	BOOL curZoomedState=IsZoomed(hWnd);
 	BOOL curIconicState=IsIconic(hWnd);
 
@@ -951,8 +951,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			return;
 	}
 
-	ZoomedState=IsZoomed(Global->Console->GetWindow());
-	IconicState=IsIconic(Global->Console->GetWindow());
+	ZoomedState=IsZoomed(Console().GetWindow());
+	IconicState=IsIconic(Console().GetWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
@@ -3965,9 +3965,9 @@ BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
 
 	//BUGBUG, not used
 	/*
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<CopyPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
 		item->name = Name;
 	}
 	*/
@@ -4103,7 +4103,7 @@ bool ShellCopy::CalcTotalSize()
 				if (__Ret <= 0)
 				{
 					ShowTotalCopySize=false;
-					Global->PreRedraw->pop();
+					PreRedrawStack().pop();
 					return false;
 				}
 

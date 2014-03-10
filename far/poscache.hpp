@@ -39,7 +39,7 @@ const int POS_NONE = -1;
 const size_t BOOKMARK_COUNT = 10;
 
 template<class T>
-class Bookmarks:public std::array<T, BOOKMARK_COUNT>
+class Bookmarks: public std::array<T, BOOKMARK_COUNT>
 {
 public:
 	Bookmarks()
@@ -67,7 +67,7 @@ struct editor_bookmark
 	{}
 };
 
-struct EditorPosCache
+struct EditorPosCache: NonCopyable
 {
 	Bookmarks<editor_bookmark> bm;
 	editor_bookmark cur;
@@ -86,7 +86,7 @@ struct viewer_bookmark
 	{}
 };
 
-struct ViewerPosCache
+struct ViewerPosCache: NonCopyable
 {
 	Bookmarks<viewer_bookmark> bm;
 	viewer_bookmark cur;
@@ -96,14 +96,14 @@ struct ViewerPosCache
 	void Clear() { bm.Clear(); cur.FilePos = cur.LeftPos=0; Hex_Wrap=0; CodePage=0; }
 };
 
-class FilePositionCache
+class FilePositionCache: NonCopyable
 {
-	public:
-		static bool AddPosition(const string& Name, const EditorPosCache& poscache);
-		static bool GetPosition(const string& Name, EditorPosCache& poscache);
+public:
+	static bool AddPosition(const string& Name, const EditorPosCache& poscache);
+	static bool GetPosition(const string& Name, EditorPosCache& poscache);
 
-		static bool AddPosition(const string& Name, const ViewerPosCache& poscache);
-		static bool GetPosition(const string& Name, ViewerPosCache& poscache);
+	static bool AddPosition(const string& Name, const ViewerPosCache& poscache);
+	static bool GetPosition(const string& Name, ViewerPosCache& poscache);
 
-		static void CompactHistory();
+	static void CompactHistory();
 };

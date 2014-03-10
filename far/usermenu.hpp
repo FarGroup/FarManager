@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ENUM(MENUMODE);
 
-class UserMenu
+class UserMenu: NonCopyable
 {
 public:
 	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге

@@ -118,7 +118,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 		if(Percent==-1)
 		{
-			Global->TBC->SetProgressValue(WipePercent, 100);
+			Taskbar().SetProgressValue(WipePercent, 100);
 		}
 	}
 
@@ -131,7 +131,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 		strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
 		*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
 
-		Global->TBC->SetProgressValue(Percent,100);
+		Taskbar().SetProgressValue(Percent,100);
 	}
 
 	string strOutFileName(Name);
@@ -153,9 +153,9 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
 		strOutFileName.data(), Progress1, Progress2);
 
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<DelPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<DelPreRedrawItem*>(PreRedrawStack().top());
 		item->name = Name;
 		item->Title = DeleteTitle;
 		item->Mode = Mode;
@@ -166,9 +166,9 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 static void PR_ShellDeleteMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const DelPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
 		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent, item->Title);
 	}
 }
@@ -549,7 +549,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 
 	{
 		ConsoleTitle DeleteTitle(MSG(MDeletingTitle));
-		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
 		SetCursorType(false, 0);

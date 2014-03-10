@@ -47,7 +47,7 @@ class WindowHandler;
 class PluginManager;
 class Manager;
 
-class ControlObject:NonCopyable
+class ControlObject: NonCopyable
 {
 public:
 	ControlObject();

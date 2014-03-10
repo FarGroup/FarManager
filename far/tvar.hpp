@@ -48,108 +48,107 @@ enum TVarType
 	vtDouble  = 3,
 };
 
-typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);
+typedef bool (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
 
-class TVar
+class TVar: NonCopyable
 {
-	private:
-		__int64 inum;
-		double  dnum;
-		wchar_t *str;
-		TVarType vType;
+public:
+	TVar(__int64 = 0);
+	TVar(const wchar_t*);
+	TVar(const string&);
+	TVar(int);
+	TVar(double);
+	TVar(const TVar&);
+	TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
+	~TVar();
 
-	private:
-		static int CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);
+	void swap(TVar& rhs) noexcept
+	{
+		std::swap(vType, rhs.vType);
+		std::swap(inum, rhs.inum);
+		std::swap(dnum, rhs.dnum);
+		std::swap(str, rhs.str);
+	}
 
-	public:
-		TVar(__int64 = 0);
-		TVar(const wchar_t*);
-		TVar(const string&);
-		TVar(int);
-		TVar(double);
-		TVar(const TVar&);
-		TVar(TVar&& rhs): inum(), dnum(), str(), vType(vtUnknown) { *this = std::move(rhs); }
-		~TVar();
+	TVar& operator=(const TVar&);
+	MOVE_OPERATOR_BY_SWAP(TVar);
 
-		void swap(TVar& rhs) noexcept
-		{
-			std::swap(vType, rhs.vType);
-			std::swap(inum, rhs.inum);
-			std::swap(dnum, rhs.dnum);
-			std::swap(str, rhs.str);
-		}
+	TVar& operator+=(const TVar& b)  { return *this = *this+b;  }
+	TVar& operator-=(const TVar& b)  { return *this = *this-b;  }
+	TVar& operator*=(const TVar& b)  { return *this = *this*b;  }
+	TVar& operator/=(const TVar& b)  { return *this = *this/b;  }
+	TVar& operator%=(const TVar& b)  { return *this = *this%b;  }
+	TVar& operator&=(const TVar& b)  { return *this = *this&b;  }
+	TVar& operator|=(const TVar& b)  { return *this = *this|b;  }
+	TVar& operator^=(const TVar& b)  { return *this = *this^b;  }
+	TVar& operator>>=(const TVar& b) { return *this = *this>>b; }
+	TVar& operator<<=(const TVar& b) { return *this = *this<<b; }
 
-		friend TVar operator+(const TVar&, const TVar&);
-		friend TVar operator-(const TVar&, const TVar&);
-		friend TVar operator*(const TVar&, const TVar&);
-		friend TVar operator/(const TVar&, const TVar&);
-		friend TVar operator%(const TVar&, const TVar&);
+	TVar operator+() const;
+	TVar operator-() const;
+	TVar operator!() const;
+	TVar operator~() const;
 
-		friend TVar operator&(const TVar&, const TVar&);
-		friend TVar operator|(const TVar&, const TVar&);
-		friend TVar operator^(const TVar&, const TVar&);
-		friend TVar operator>>(const TVar&, const TVar&);
-		friend TVar operator<<(const TVar&, const TVar&);
+	TVar& operator ++();     // ++a
+	TVar  operator ++(int);  // a++
+	TVar& operator --();     // --a
+	TVar  operator --(int);  // a--
 
-		friend TVar operator&&(const TVar&, const TVar&);
-		friend TVar operator||(const TVar&, const TVar&);
-		friend TVar xor_op(const TVar&, const TVar&);
+	TVar& AppendStr(wchar_t);
+	TVar& AppendStr(const TVar&);
 
-		TVar& operator=(const TVar&);
-		MOVE_OPERATOR_BY_SWAP(TVar);
+	TVarType type()const { return vType; }
+	void SetType(TVarType newType) {vType=newType;}
 
-		TVar& operator+=(const TVar& b)  { return *this = *this+b;  }
-		TVar& operator-=(const TVar& b)  { return *this = *this-b;  }
-		TVar& operator*=(const TVar& b)  { return *this = *this*b;  }
-		TVar& operator/=(const TVar& b)  { return *this = *this/b;  }
-		TVar& operator%=(const TVar& b)  { return *this = *this%b;  }
-		TVar& operator&=(const TVar& b)  { return *this = *this&b;  }
-		TVar& operator|=(const TVar& b)  { return *this = *this|b;  }
-		TVar& operator^=(const TVar& b)  { return *this = *this^b;  }
-		TVar& operator>>=(const TVar& b) { return *this = *this>>b; }
-		TVar& operator<<=(const TVar& b) { return *this = *this<<b; }
+	bool isString()   const { return vType == vtString;  }
+	bool isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
+	bool isDouble()   const { return vType == vtDouble;  }
+	bool isUnknown()  const { return vType == vtUnknown;  }
 
-		TVar operator+() const;
-		TVar operator-() const;
-		TVar operator!() const;
-		TVar operator~() const;
+	bool isNumber()   const;
 
-		TVar& operator ++();     // ++a
-		TVar  operator ++(int);  // a++
-		TVar& operator --();     // --a
-		TVar  operator --(int);  // a--
+	double d()         const;
+	__int64 i()        const;
+	const wchar_t *s() const;
 
-		friend int operator==(const TVar&, const TVar&);
-		friend int operator!=(const TVar&, const TVar&);
-		friend int operator<(const TVar&, const TVar&);
-		friend int operator<=(const TVar&, const TVar&);
-		friend int operator>(const TVar&, const TVar&);
-		friend int operator>=(const TVar&, const TVar&);
+	const wchar_t *toString();
+	double toDouble();
+	__int64 toInteger();
 
-		TVar& AppendStr(wchar_t);
-		TVar& AppendStr(const TVar&);
+	__int64 getInteger() const;
+	double getDouble() const;
 
-		TVarType type()const { return vType; }
-		void SetType(TVarType newType) {vType=newType;}
+private:
+	friend TVar operator+(const TVar&, const TVar&);
+	friend TVar operator-(const TVar&, const TVar&);
+	friend TVar operator*(const TVar&, const TVar&);
+	friend TVar operator/(const TVar&, const TVar&);
+	friend TVar operator%(const TVar&, const TVar&);
 
-		bool isString()   const { return vType == vtString;  }
-		bool isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
-		bool isDouble()   const { return vType == vtDouble;  }
-		bool isUnknown()  const { return vType == vtUnknown;  }
+	friend TVar operator&(const TVar&, const TVar&);
+	friend TVar operator|(const TVar&, const TVar&);
+	friend TVar operator^(const TVar&, const TVar&);
+	friend TVar operator>>(const TVar&, const TVar&);
+	friend TVar operator<<(const TVar&, const TVar&);
 
-		bool isNumber()   const;
+	friend TVar operator&&(const TVar&, const TVar&);
+	friend TVar operator||(const TVar&, const TVar&);
+	friend TVar xor_op(const TVar&, const TVar&);
 
-		double d()         const;
-		__int64 i()        const;
-		const wchar_t *s() const;
+	friend bool operator==(const TVar&, const TVar&);
+	friend bool operator!=(const TVar&, const TVar&);
+	friend bool operator<(const TVar&, const TVar&);
+	friend bool operator<=(const TVar&, const TVar&);
+	friend bool operator>(const TVar&, const TVar&);
+	friend bool operator>=(const TVar&, const TVar&);
 
-		const wchar_t *toString();
-		double toDouble();
-		__int64 toInteger();
+	friend bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);
 
-		__int64 getInteger() const;
-		double getDouble() const;
+	__int64 inum;
+	double  dnum;
+	wchar_t *str;
+	TVarType vType;
 };
 
 STD_SWAP_SPEC(TVar);

@@ -99,7 +99,7 @@ static const wchar_t BOM_CHAR = L'\xFEFF'; // Zero Length Space
 
 static bool IsCodePageSupported(uintptr_t cp)
 {
-	return Global->CodePages->IsCodePageSupported(cp, 2);
+	return Codepages().IsCodePageSupported(cp, 2);
 }
 
 // seems like this initialization list is toooooo long
@@ -281,7 +281,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 		DWORD ReadSize = 0, WrittenSize;
 
-		while (ReadFile(Global->Console->GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
+		while (ReadFile(Console().GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
 			ViewFile.Write(vread_buffer.data(),ReadSize,WrittenSize);
 		}
@@ -1580,10 +1580,11 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_SHIFTF4:
 		{
-			MenuDataEx ModeListMenu[] = {
-				MSG(MViewF4Text),0,0, // Text
-				MSG(MViewF4),0,0,     // Hex
-				MSG(MViewF4Dump),0,0  // Dump
+			MenuDataEx ModeListMenu[] =
+			{
+				{MSG(MViewF4Text), 0, 0}, // Text
+				{MSG(MViewF4), 0, 0 },     // Hex
+				{MSG(MViewF4Dump), 0, 0}  // Dump
 			};
 			int mode;
 			{
@@ -1631,7 +1632,7 @@ int Viewer::ProcessKey(int Key)
 		case KEY_SHIFTF8:
 		{
 			uintptr_t nCodePage = VM.CodePage;
-			if (Global->CodePages->SelectCodePage(nCodePage, true, true, true))
+			if (Codepages().SelectCodePage(nCodePage, true, true, true))
 			{
 				if (nCodePage == CP_DEFAULT)
 				{
@@ -2574,9 +2575,9 @@ struct ViewerPreRedrawItem : public PreRedrawItem
 
 static void PR_ViewerSearchMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const ViewerPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const ViewerPreRedrawItem*>(PreRedrawStack().top());
 		ViewerSearchMsg(item->name, item->percent, item->hex);
 	}
 }
@@ -2597,13 +2598,13 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 		std::wostringstream oss;
 		oss << std::setw(3) << Percent;
 		strProgress += L' ' + oss.str() + L'%';
-		Global->TBC->SetProgressValue(Percent,100);
+		Taskbar().SetProgressValue(Percent,100);
 	}
 
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<ViewerPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
 		item->name = MsgStr;
 		item->percent = Percent;
 		item->hex = SearchHex;
@@ -3398,7 +3399,7 @@ void Viewer::Search(int Next,int FirstChar)
 	sd.CurPos = LastSelectPos;
 	if ( !found )
 	{
-		SCOPED_ACTION(TaskBar);
+		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 

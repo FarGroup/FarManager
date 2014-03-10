@@ -296,12 +296,18 @@ public:
 
 protected:
 	size_t InitDialogObjects(size_t ID=(size_t)-1);
-	void AddToList(void);
-	void RemoveFromList(void);
 
 private:
+	friend class History;
+	friend class DlgEdit;
+
 	virtual void DisplayObject() override;
 	virtual const string& GetTitle(string& Title) override;
+	typedef std::unordered_set<Dialog*> dialogs_set;
+	static dialogs_set& DialogsList();
+	void AddToList();
+	void RemoveFromList();
+
 	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
 	void Construct(DialogItemEx** SrcItem, size_t SrcItemCount);
 	void Construct(const FarDialogItem** SrcItem, size_t SrcItemCount);
@@ -368,9 +374,6 @@ private:
 	GUID Id;
 	bool IdExist;
 	MOUSE_EVENT_RECORD PrevMouseRecord;
-
-	friend class History;
-	friend class DlgEdit;
 };
 
 bool IsKeyHighlighted(const string& Str,int Key,int Translate,int AmpPos=-1);

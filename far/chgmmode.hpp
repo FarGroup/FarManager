@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 
-class ChangeMacroMode
+class ChangeMacroMode: NonCopyable
 {
 public:
 	ChangeMacroMode(FARMACROAREA NewMode);

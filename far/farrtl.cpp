@@ -331,10 +331,10 @@ static void* DebugExpander(void* block, size_t size)
 	size_t realSize = GetRequiredSize(size);
 
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
-	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
+	NTSTATUS status = Imports().RtlGetLastNtStatus();
 	Info = static_cast<MEMINFO*>(Expander(Info, realSize));
 	//RtlNtStatusToDosError also remembers the status code value in the TEB:
-	Global->ifn->RtlNtStatusToDosError(status);
+	Imports().RtlNtStatusToDosError(status);
 
 	if(Info)
 	{

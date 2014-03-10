@@ -102,13 +102,13 @@ CriticalSection TitleCS;
 ConsoleTitle::ConsoleTitle()
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	Global->Console->GetTitle(strOldTitle);
+	Console().GetTitle(strOldTitle);
 }
 
 ConsoleTitle::ConsoleTitle(const string& title)
 {
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
-	Global->Console->GetTitle(strOldTitle);
+	Console().GetTitle(strOldTitle);
 	SetFarTitle(title);
 }
 
@@ -145,7 +145,7 @@ void ConsoleTitle::SetFarTitle(const string& Title)
 	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
 	string strOldFarTitle;
 
-	Global->Console->GetTitle(strOldFarTitle);
+	Console().GetTitle(strOldFarTitle);
 
 	if (!GetUserTitle().empty())
 	{
@@ -161,7 +161,7 @@ void ConsoleTitle::SetFarTitle(const string& Title)
 
 	if (strOldFarTitle != FarTitle() && !Global->ScrBuf->GetLockCount())
 	{
-		Global->Console->SetTitle(FarTitle());
+		Console().SetTitle(FarTitle());
 		TitleModified=true;
 	}
 }
@@ -175,7 +175,7 @@ void ConsoleTitle::RestoreTitle()
 			Не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
-		Global->Console->SetTitle(FarTitle());
+		Console().SetTitle(FarTitle());
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}

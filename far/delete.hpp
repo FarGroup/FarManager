@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ENUM(DIRDELTYPE);
 ENUM(DEL_RESULT);
 
-class ShellDelete
+class ShellDelete: NonCopyable
 {
 public:
 	ShellDelete(class Panel *SrcPanel, bool Wipe);

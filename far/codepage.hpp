@@ -52,10 +52,9 @@ class Dialog;
 struct DialogBuilderListItem2;
 class VMenu2;
 
-class codepages
+class codepages: NonCopyable
 {
 public:
-	codepages();
 	~codepages();
 
 	std::pair<UINT, string> GetCodePageInfo(UINT cp) const;
@@ -70,6 +69,11 @@ public:
 	GeneralConfig::values_enumerator<DWORD> GetFavoritesEnumerator();
 
 private:
+	friend codepages& Codepages();
+	friend class system_codepages_enumerator;
+
+	codepages();
+
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
 	inline uintptr_t GetMenuItemCodePage(int Position=-1);
 	inline uintptr_t GetListItemCodePage(int Position=-1);
@@ -88,8 +92,6 @@ private:
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	friend class system_codepages_enumerator;
-
 	Dialog* dialog;
 	UINT control;
 	std::vector<DialogBuilderListItem2> *DialogBuilderList;
@@ -107,12 +109,14 @@ private:
 		const cp_map& get() const;
 
 	private:
-		mutable cp_map installed_cp;
-
 		friend class system_codepages_enumerator;
+
+		mutable cp_map installed_cp;
 	}
 	data;
 };
+
+codepages& Codepages();
 
 //#############################################################################
 

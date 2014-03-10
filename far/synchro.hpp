@@ -49,7 +49,7 @@ private:
 	CRITICAL_SECTION object;
 };
 
-class CriticalSectionLock:NonCopyable
+class CriticalSectionLock: NonCopyable
 {
 public:
 	CriticalSectionLock(CriticalSection &object): object(object) { object.Enter(); }
@@ -59,7 +59,7 @@ private:
 	CriticalSection &object;
 };
 
-class HandleWrapper:NonCopyable
+class HandleWrapper: NonCopyable
 {
 protected:
 
@@ -94,8 +94,9 @@ public:
 	virtual ~HandleWrapper() { Close(); }
 
 private:
-	HANDLE GetHandle() const { return h; }
 	friend class MultiWaiter;
+
+	HANDLE GetHandle() const { return h; }
 };
 
 class Thread: public HandleWrapper
@@ -171,7 +172,7 @@ public:
 	bool Unlock() const { return ReleaseMutex(h) != FALSE; }
 };
 
-class AutoMutex:NonCopyable
+class AutoMutex: NonCopyable
 {
 public:
 
@@ -214,7 +215,7 @@ public:
 	void Associate(OVERLAPPED& o) const { o.hEvent = h; }
 };
 
-template<class T> class SyncedQueue:NonCopyable {
+template<class T> class SyncedQueue: NonCopyable {
 	std::queue<T> Queue;
 	CriticalSection csQueueAccess;
 
@@ -250,7 +251,7 @@ public:
 	}
 };
 
-class MultiWaiter:NonCopyable
+class MultiWaiter: NonCopyable
 {
 public:
 	MultiWaiter() { Objects.reserve(10); }

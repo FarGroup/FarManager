@@ -49,7 +49,7 @@ enum FINDAREA
 class Dialog;
 struct PluginHandle;
 
-class FindFiles
+class FindFiles: NonCopyable
 {
 public:
 	FindFiles();
@@ -113,7 +113,7 @@ private:
 	bool FindPositionChanged;
 	bool Finalized;
 	bool PluginMode;
-	class TaskBar *TB;
+	class IndeterminateTaskBar *TB;
 
 	struct CodePageInfo
 	{

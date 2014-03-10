@@ -294,6 +294,7 @@ public:
 
 	private:
 		friend enumerator;
+
 		enumerator* m_collection;
 		size_t m_index;
 		T m_value;
@@ -319,6 +320,7 @@ public:
 
 private:
 	friend iterator;
+
 	virtual bool get(size_t index, T& value) = 0;
 };
 

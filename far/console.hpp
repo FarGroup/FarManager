@@ -39,10 +39,9 @@ enum CLEAR_REGION
 	CR_BOTH=CR_TOP|CR_RIGHT,
 };
 
-class console
+class console: NonCopyable
 {
 public:
-	static console* CreateInstance(bool exnended);
 	virtual ~console(){};
 
 	virtual bool Allocate() const = 0;
@@ -129,4 +128,10 @@ public:
 
 protected:
 	console(){};
+
+private:
+	friend console& Console();
+
 };
+
+console& Console();

@@ -78,7 +78,7 @@ STD_SWAP_SPEC(ShortcutItem);
 class VMenu2;
 struct MenuItemEx;
 
-class Shortcuts
+class Shortcuts: NonCopyable
 {
 public:
 	Shortcuts();

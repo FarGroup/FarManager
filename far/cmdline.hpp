@@ -79,6 +79,8 @@ private:
 	static bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 	static bool CheckCmdLineForSet(const string& CmdLine);
 
+	friend class SetAutocomplete;
+
 	int PromptSize;
 	EditControl CmdStr;
 	SaveScreen *BackgroundScreen;
@@ -86,6 +88,4 @@ private:
 	string strLastCmdStr;
 	int LastCmdPartLength;
 	std::stack<string> ppstack;
-	friend class SetAutocomplete;
-
 };

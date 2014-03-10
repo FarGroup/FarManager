@@ -61,8 +61,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 
-std::unordered_set<Dialog*> DialogsList;
-
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
 {
@@ -462,9 +460,9 @@ void Dialog::Show()
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
-	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !Global->PreRedraw->empty())
+	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !PreRedrawStack().empty())
 	{
-		auto item = Global->PreRedraw->top();
+		auto item = PreRedrawStack().top();
 		item->m_PreRedrawFunc();
 	}
 
@@ -6275,17 +6273,23 @@ void Dialog::SetId(const GUID& Id)
 	IdExist=true;
 }
 
-void Dialog::AddToList(void)
+Dialog::dialogs_set& Dialog::DialogsList()
 {
-	if(!DialogsList.insert(this).second) assert(false);
+	static dialogs_set DlgSet;
+	return DlgSet;
 }
 
-void Dialog::RemoveFromList(void)
+void Dialog::AddToList()
 {
-	if(!DialogsList.erase(this)) assert(false);
+	if (!DialogsList().insert(this).second) assert(false);
+}
+
+void Dialog::RemoveFromList()
+{
+	if (!DialogsList().erase(this)) assert(false);
 }
 
 bool Dialog::IsValid(Dialog* Handle)
 {
-	return DialogsList.find(Handle) != DialogsList.cend();
+	return DialogsList().find(Handle) != DialogsList().cend();
 }

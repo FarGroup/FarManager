@@ -38,7 +38,7 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class SQLiteStmt
+class SQLiteStmt: NonCopyable
 {
 	int param;
 
@@ -46,6 +46,8 @@ protected:
 	sqlite::sqlite3_stmt* pStmt;
 
 public:
+	friend class SQLiteDb;
+
 	enum ColumnType
 	{
 		TYPE_INTEGER,
@@ -73,10 +75,9 @@ public:
 	unsigned __int64 GetColInt64(int Col);
 	const char *GetColBlob(int Col);
 	ColumnType GetColType(int Col);
-	friend class SQLiteDb;
 };
 
-class SQLiteDb
+class SQLiteDb: NonCopyable
 {
 public:
 	SQLiteDb();

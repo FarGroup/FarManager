@@ -328,7 +328,7 @@ void PluginManager::LoadModels()
 
 void PluginManager::LoadPlugins()
 {
-	SCOPED_ACTION(TaskBar)(false);
+	SCOPED_ACTION(IndeterminateTaskBar)(false);
 	Flags.Clear(PSIF_PLUGINSLOADDED);
 
 	LoadModels();
@@ -2237,7 +2237,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					{
 						for (size_t i = 0; i < MenuItems->Count; i++)
 						{
-							if (memcmp(Data->ItemGuid, &(MenuItems->Guids[i]), sizeof(GUID)) == 0)
+							if (*Data->ItemGuid == MenuItems->Guids[i])
 							{
 								Data->FoundGuid=*Data->ItemGuid;
 								Data->ItemGuid=&Data->FoundGuid;

@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "panel.hpp"
 #include "panelctype.hpp"
 #include "configdb.hpp"
 #include "palette.hpp"
@@ -108,14 +109,15 @@ protected:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) = 0;
 	void Free() {delete sValue;}
 private:
-	void MakeUnchanged(){ValueChanged = false;}
+	friend class Options;
+
+	void MakeUnchanged(){ ValueChanged = false; }
 	union
 	{
 		string* sValue;
 		long long iValue;
 	};
 	bool ValueChanged;
-	friend class Options;
 };
 
 class BoolOption:public Option
@@ -234,7 +236,7 @@ private:
 	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const default_value* Default) override;
 };
 
-class Options
+class Options: NonCopyable
 {
 	enum farconfig_mode
 	{

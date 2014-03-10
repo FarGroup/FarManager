@@ -99,8 +99,9 @@ protected:
 	FARMACROAREA MacroMode;
 
 private:
+	friend class Manager;
+
 	void Push(Frame* Modalized);
 	Frame *FrameToBack;
 	Frame *NextModal;
-	friend class Manager;
 };

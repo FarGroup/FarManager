@@ -104,10 +104,10 @@ void ControlObject::Init(int DirCount)
 	Global->FrameManager->InsertFrame(FPanels); // before PluginCommit()
 	{
 		string strOldTitle;
-		Global->Console->GetTitle(strOldTitle);
+		Console().GetTitle(strOldTitle);
 		Global->FrameManager->PluginCommit();
 		Plugins->LoadPlugins();
-		Global->Console->SetTitle(strOldTitle);
+		Console().SetTitle(strOldTitle);
 	}
 
 	Cp()->LeftPanel->Update(0);
@@ -175,14 +175,14 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	{
 		string strOut(Global->Version());
 		strOut.append(L"\n").append(Global->Copyright()).append(L"\n");
-		Global->Console->Write(strOut);
-		Global->Console->Commit();
+		Console().Write(strOut);
+		Console().Commit();
 	}
 	else
 	{
 		COORD Size, CursorPosition;
-		Global->Console->GetSize(Size);
-		Global->Console->GetCursorPosition(CursorPosition);
+		Console().GetSize(Size);
+		Console().GetCursorPosition(CursorPosition);
 		int FreeSpace=Size.Y-CursorPosition.Y-1;
 
 		if (FreeSpace<5)

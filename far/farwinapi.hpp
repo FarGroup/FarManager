@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-class api
+class api: NonCopyable
 {
 public:
 	static const size_t NT_MAX_PATH = 32768;
@@ -74,7 +74,7 @@ struct FAR_FIND_DATA
 	}
 };
 
-class FindFile:NonCopyable, public enumerator<FAR_FIND_DATA>
+class FindFile: NonCopyable, public enumerator<FAR_FIND_DATA>
 {
 public:
 	FindFile(const string& Object, bool ScanSymLink = true);
@@ -88,7 +88,7 @@ private:
 	bool m_ScanSymLink;
 };
 
-class File:NonCopyable
+class File: NonCopyable
 {
 public:
 	File();
@@ -171,7 +171,7 @@ private:
 	bool Sparse;
 };
 
-class sid_object:NonCopyable
+class sid_object: NonCopyable
 {
 public:
 	sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
@@ -415,14 +415,14 @@ static string GetPrivateProfileString(const string& AppName, const string& KeyNa
 static DWORD GetAppPathsRedirectionFlag();
 
 private:
-	static bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
+	friend class elevation;
+	friend class elevated;
+
+	static bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
 	static bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
 	static bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	static bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	static bool OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
-
-	friend class elevation;
-	friend class elevated;
 };
 
 STD_SWAP_SPEC(api::File);

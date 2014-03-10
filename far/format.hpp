@@ -130,7 +130,7 @@ private:
 	virtual void Commit(const string& Data) override;
 };
 
-class FormatScreen:public BaseFormat
+class FormatScreen: NonCopyable, public BaseFormat
 {
 public:
 	template<class T>

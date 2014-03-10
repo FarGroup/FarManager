@@ -36,7 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "console.hpp"
 
-TaskBarCore::TaskBarCore():
+taskbar& Taskbar()
+{
+	static taskbar tb;
+	return tb;
+}
+
+taskbar::taskbar():
 	State(TBPF_NOPROGRESS),
 	pTaskbarList(nullptr)
 {
@@ -63,7 +69,7 @@ TaskBarCore::TaskBarCore():
 	}
 }
 
-TaskBarCore::~TaskBarCore()
+taskbar::~taskbar()
 {
 	if (pTaskbarList)
 	{
@@ -76,38 +82,38 @@ TaskBarCore::~TaskBarCore()
 	}
 }
 
-void TaskBarCore::SetProgressState(TBPFLAG tbpFlags)
+void taskbar::SetProgressState(TBPFLAG tbpFlags)
 {
 	if (pTaskbarList)
 	{
 		State=tbpFlags;
-		pTaskbarList->SetProgressState(Global->Console->GetWindow(),tbpFlags);
+		pTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
 	}
 }
 
-void TaskBarCore::SetProgressValue(UINT64 Completed, UINT64 Total)
+void taskbar::SetProgressValue(UINT64 Completed, UINT64 Total)
 {
 	if (pTaskbarList)
 	{
 		State=TBPF_NORMAL;
-		pTaskbarList->SetProgressValue(Global->Console->GetWindow(),Completed,Total);
+		pTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
 	}
 }
 
-TBPFLAG TaskBarCore::GetProgressState()
+TBPFLAG taskbar::GetProgressState()
 {
 	return State;
 }
 
-void TaskBarCore::Flash()
+void taskbar::Flash()
 {
 	WINDOWINFO WI={sizeof(WI)};
 
-	if (GetWindowInfo(Global->Console->GetWindow(),&WI))
+	if (GetWindowInfo(Console().GetWindow(),&WI))
 	{
 		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
 		{
-			FLASHWINFO FWI={sizeof(FWI),Global->Console->GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
+			FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
 			FlashWindowEx(&FWI);
 		}
 	}
@@ -115,23 +121,23 @@ void TaskBarCore::Flash()
 
 
 
-TaskBar::TaskBar(bool EndFlash):
+IndeterminateTaskBar::IndeterminateTaskBar(bool EndFlash):
 	EndFlash(EndFlash)
 {
-	if (Global->TBC->GetProgressState()!=TBPF_INDETERMINATE)
+	if (Taskbar().GetProgressState()!=TBPF_INDETERMINATE)
 	{
-		Global->TBC->SetProgressState(TBPF_INDETERMINATE);
+		Taskbar().SetProgressState(TBPF_INDETERMINATE);
 	}
 }
 
-TaskBar::~TaskBar()
+IndeterminateTaskBar::~IndeterminateTaskBar()
 {
-	if (Global->TBC->GetProgressState()!=TBPF_NOPROGRESS)
+	if (Taskbar().GetProgressState()!=TBPF_NOPROGRESS)
 	{
-		Global->TBC->SetProgressState(TBPF_NOPROGRESS);
+		Taskbar().SetProgressState(TBPF_NOPROGRESS);
 	}
 	if(EndFlash)
 	{
-		Global->TBC->Flash();
+		Taskbar().Flash();
 	}
 }

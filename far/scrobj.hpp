@@ -112,8 +112,6 @@ protected:
 
 class ScreenObjectWithShadow:public ScreenObject
 {
-protected:
-	SaveScreen *ShadowSaveScr;
 public:
 	ScreenObjectWithShadow():
 		ShadowSaveScr(nullptr)
@@ -123,4 +121,7 @@ public:
 	virtual void Hide() override;
 
 	void Shadow(bool Full=false);
+
+protected:
+	SaveScreen *ShadowSaveScr;
 };

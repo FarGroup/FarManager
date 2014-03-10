@@ -38,32 +38,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Modal: public Frame
 {
-	private:
-		int     ReadKey;
-		int     WriteKey;
+public:
+	Modal();
+	virtual ~Modal() {}
 
-	protected:
-		INPUT_RECORD ReadRec;
-		string strHelpTopic;
-		int  EndLoop;
+	virtual int ReadInput(INPUT_RECORD *GetReadRec = nullptr);
+	virtual void SetExitCode(int Code) override;
 
-	public:
-		Modal();
-		virtual ~Modal() {}
+	int Done() const;
+	void ClearDone();
+	int GetExitCode() const;
+	void Process();
+	void WriteInput(int Key);
+	void ProcessInput();
+	void SetHelp(const wchar_t *Topic);
+	void ShowHelp();
 
-	public:
-		int Done() const;
-		void ClearDone();
-		int  GetExitCode() const;
-		virtual void SetExitCode(int Code) override;
+protected:
+	INPUT_RECORD ReadRec;
+	string strHelpTopic;
+	int EndLoop;
 
-		void Process();
-
-		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr);
-		void WriteInput(int Key);
-		void ProcessInput();
-
-		void SetHelp(const wchar_t *Topic);
-		void ShowHelp();
-
+private:
+	int ReadKey;
+	int WriteKey;
 };

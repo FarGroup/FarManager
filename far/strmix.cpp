@@ -1525,7 +1525,7 @@ std::list<string> StringToList(const string& InitString, DWORD Flags, const wcha
 					CurList=Skip(CurList, strSeparators, Flags, Length, RealLength, Error);
 					if (Length > 0)
 					{
-						if (Flags.Check(STLF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
+						if (Flags.Check(STLF_PACKASTERISKS) && 3==Length && !wcsncmp(CurList, L"*.*", 3))
 						{
 							item.Str = L"*";
 							ItemsList.emplace_back(item);

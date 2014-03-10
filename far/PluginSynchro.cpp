@@ -39,6 +39,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "plugins.hpp"
 
+PluginSynchro& PluginSynchroManager()
+{
+	static PluginSynchro ps;
+	return ps;
+}
+
+struct PluginSynchro::SynchroData
+{
+	bool Plugin;
+	GUID PluginId;
+	void* Param;
+};
+
 PluginSynchro::PluginSynchro()
 {
 }

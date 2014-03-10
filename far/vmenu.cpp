@@ -2171,8 +2171,8 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					for (size_t J = 0; J < strTmpStr.size() - 3; ++J)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Items[I-1].strName.data(),L'&',J);
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Items[I+1].strName.data(),L'&',J);
+						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I - 1].strName.find(L'&') < J;
+						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I + 1].strName.find(L'&') < J;
 
 						wchar_t PrevItem = (Items[I-1].strName.size() > J + PCorrection) ? Items[I-1].strName[J+PCorrection] : 0;
 						wchar_t NextItem = (Items[I+1].strName.size() > J + NCorrection) ? Items[I+1].strName[J+NCorrection] : 0;

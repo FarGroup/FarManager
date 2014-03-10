@@ -33,16 +33,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-class WindowHandler
+class notifier;
+
+class window_handler: NonCopyable
 {
 public:
-	WindowHandler();
-	~WindowHandler();
+	window_handler(notifier* owner);
+	~window_handler();
 	void Check();
 
 private:
 	unsigned int WindowThreadRoutine(void* Param);
 
+	notifier* m_Owner;
 	Thread m_Thread;
 	HWND m_Hwnd;
 

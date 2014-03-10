@@ -436,6 +436,18 @@ void TreeListCache::rename(const wchar_t* OldName, const wchar_t* NewName)
 	}
 }
 
+TreeListCache& TreeCache()
+{
+	static TreeListCache cache;
+	return cache;
+}
+
+TreeListCache& tempTreeCache()
+{
+	static TreeListCache cache;
+	return cache;
+}
+
 enum TREELIST_FLAGS
 {
 	FTREELIST_TREEISPREPARED = 0x00010000,
@@ -459,7 +471,7 @@ TreeList::TreeList(bool IsPanel):
 
 TreeList::~TreeList()
 {
-	Global->tempTreeCache->clear();
+	tempTreeCache().clear();
 	FlushCache();
 	SetMacroMode(TRUE);
 }
@@ -719,9 +731,9 @@ static int MsgReadTree(size_t TreeCount, int &FirstCall)
 	if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
 	{
 		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
-		if (!Global->PreRedraw->empty())
+		if (!PreRedrawStack().empty())
 		{
-			auto item = dynamic_cast<TreePreRedrawItem*>(Global->PreRedraw->top());
+			auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
 			item->TreeCount = TreeCount;
 		}
 		TreeStartTime = clock();
@@ -732,10 +744,10 @@ static int MsgReadTree(size_t TreeCount, int &FirstCall)
 
 static void PR_MsgReadTree()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
 		int FirstCall = 1;
-		auto item = dynamic_cast<const TreePreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const TreePreRedrawItem*>(PreRedrawStack().top());
 		MsgReadTree(item->TreeCount, FirstCall);
 	}
 }
@@ -837,7 +849,7 @@ static inline void WriteTree(string_type& Name, const container_type& Container,
 	}
 	else
 	{
-		api::DeleteFile(Global->TreeCache->GetTreeName());
+		api::DeleteFile(TreeCache().GetTreeName());
 		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
 	}
 }
@@ -870,7 +882,7 @@ int TreeList::ReadTree()
 	ScTree.SetFindPath(strRoot, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
-	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(&fdata,strFullName))
 	{
@@ -1871,7 +1883,7 @@ void TreeList::AddTreeName(const string& Name)
 
 	ReadCache(strRoot);
 
-	Global->TreeCache->add(NamePtr);
+	TreeCache().add(NamePtr);
 }
 
 void TreeList::DelTreeName(const string& Name)
@@ -1886,7 +1898,7 @@ void TreeList::DelTreeName(const string& Name)
 	NamePtr += strRoot.size() - 1;
 	ReadCache(strRoot);
 
-	Global->TreeCache->remove(NamePtr);
+	TreeCache().remove(NamePtr);
 }
 
 void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
@@ -1909,7 +1921,7 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	DestName += strDestRoot.size() - 1;
 	ReadCache(strSrcRoot);
 
-	Global->TreeCache->rename(SrcName, DestName);
+	TreeCache().rename(SrcName, DestName);
 }
 
 void TreeList::ReadSubTree(const string& Path)
@@ -1957,16 +1969,16 @@ void TreeList::ReadSubTree(const string& Path)
 
 void TreeList::ClearCache()
 {
-	Global->TreeCache->clear();
+	TreeCache().clear();
 }
 
 void TreeList::ReadCache(const string& TreeRoot)
 {
 	string strTreeName;
-	if (MkTreeFileName(TreeRoot, strTreeName) == Global->TreeCache->GetTreeName())
+	if (MkTreeFileName(TreeRoot, strTreeName) == TreeCache().GetTreeName())
 		return;
 
-	if (!Global->TreeCache->empty())
+	if (!TreeCache().empty())
 		FlushCache();
 
 	auto TreeFile = OpenCacheableTreeFile(TreeRoot, strTreeName, false);
@@ -1976,18 +1988,18 @@ void TreeList::ReadCache(const string& TreeRoot)
 		return;
 	}
 
-	Global->TreeCache->SetTreeName(TreeFile.GetName());
+	TreeCache().SetTreeName(TreeFile.GetName());
 
-	ReadLines(TreeFile, [](string& Name){ Global->TreeCache->add(std::move(Name)); });
+	ReadLines(TreeFile, [](string& Name){ TreeCache().add(std::move(Name)); });
 }
 
 void TreeList::FlushCache()
 {
-	if (!Global->TreeCache->GetTreeName().empty())
+	if (!TreeCache().GetTreeName().empty())
 	{
 		auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
 
-		WriteTree(Global->TreeCache->GetTreeName(), *Global->TreeCache, Opener, 0);
+		WriteTree(TreeCache().GetTreeName(), TreeCache(), Opener, 0);
 	}
 	ClearCache();
 }
@@ -2148,7 +2160,7 @@ bool TreeList::SaveState()
 	if (!ListData.empty())
 	{
 		SaveListData = std::move(ListData);
-		*Global->tempTreeCache = std::move(*Global->TreeCache);
+		tempTreeCache() = std::move(TreeCache());
 		SaveWorkDir=WorkDir;
 		return true;
 	}
@@ -2165,8 +2177,8 @@ bool TreeList::RestoreState()
 	if (!SaveListData.empty())
 	{
 		ListData = std::move(SaveListData);
-		*Global->TreeCache = std::move(*Global->tempTreeCache);
-		Global->tempTreeCache->clear();
+		TreeCache() = std::move(tempTreeCache());
+		tempTreeCache().clear();
 		WorkDir=SaveWorkDir;
 		return true;
 	}

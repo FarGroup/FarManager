@@ -79,9 +79,9 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 S
 	FileSizeToStr(strSize, Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize.data());
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<DirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
 		item->Title = Title;
 		item->Name = Name;
 		item->Size = Size;
@@ -90,9 +90,9 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 S
 
 static void PR_DrawGetDirInfoMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const DirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const DirInfoPreRedrawItem*>(PreRedrawStack().top());
 		DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
 	}
 }
@@ -105,7 +105,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, c
 	SaveScreen SaveScr;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
-	SCOPED_ACTION(TaskBar)(MsgWaitTime != -1);
+	SCOPED_ACTION(IndeterminateTaskBar)(MsgWaitTime != -1);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
 	api::FAR_FIND_DATA FindData;
@@ -288,9 +288,9 @@ struct PluginDirInfoPreRedrawItem : public PreRedrawItem
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
 	Message(Flags,0,L"",MSG(MPreparingList),Name.data());
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
 		item->Name = Name;
 		item->Flags = Flags;
 	}
@@ -298,9 +298,9 @@ static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 
 static void PR_FarGetPluginDirListMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
 		FarGetPluginDirListMsg(item->Name, item->Flags);
 	}
 }

@@ -695,7 +695,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	if (IsWindowsVistaOrGreater())
 	{
 		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = Global->ifn->SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+		HRESULT hr = Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
 
 		if (SUCCEEDED(hr))
 		{
@@ -921,12 +921,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		Global->ScrBuf->SetLockCount(0);
 		Global->ScrBuf->Flush(true);
 
-		ConsoleCP = Global->Console->GetInputCodepage();
-		ConsoleOutputCP = Global->Console->GetOutputCodepage();
+		ConsoleCP = Console().GetInputCodepage();
+		ConsoleOutputCP = Console().GetOutputCodepage();
 		FlushInputBuffer();
 		ChangeConsoleMode(InitialConsoleMode);
-		Global->Console->GetWindowRect(ConsoleWindowRect);
-		Global->Console->GetSize(ConsoleSize);
+		Console().GetWindowRect(ConsoleWindowRect);
+		Console().GetSize(ConsoleSize);
 
 		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
@@ -997,7 +997,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if(!Silent)
 	{
-		Global->Console->ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
+		Console().ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
 	}
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
@@ -1055,8 +1055,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					  Отделение фаровской консоли от неинтерактивного процесса.
 					  Задаётся кнопкой в System/ConsoleDetachKey
 					*/
-					HANDLE hOutput = Global->Console->GetOutputHandle();
-					HANDLE hInput = Global->Console->GetInputHandle();
+					HANDLE hOutput = Console().GetOutputHandle();
+					HANDLE hInput = Console().GetInputHandle();
 					INPUT_RECORD ir[256];
 					size_t rd;
 					int vkey=0,ctrl=0;
@@ -1070,7 +1070,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Global->Console->PeekInput(ir, 256, rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console().PeekInput(ir, 256, rd) && rd)
 						{
 							int stop=0;
 
@@ -1090,9 +1090,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										Global->ConsoleIcons->restorePreviousIcons();
+										ConsoleIcons().restorePreviousIcons();
 
-										Global->Console->ReadInput(ir, 256, rd);
+										Console().ReadInput(ir, 256, rd);
 										/*
 										  Не будем вызывать CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
@@ -1101,20 +1101,20 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
 										KeyQueue.reset();
-										Global->Console->Free();
-										Global->Console->Allocate();
+										Console().Free();
+										Console().Allocate();
 
-										HWND hWnd = Global->Console->GetWindow();
+										HWND hWnd = Console().GetWindow();
 										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
 
-										Global->Console->SetSize(ConsoleSize);
-										Global->Console->SetWindowRect(ConsoleWindowRect);
-										Global->Console->SetSize(ConsoleSize);
+										Console().SetSize(ConsoleSize);
+										Console().SetWindowRect(ConsoleWindowRect);
+										Console().SetSize(ConsoleSize);
 										Sleep(100);
 										InitConsole(0);
 
-										Global->ConsoleIcons->setFarIcons();
+										ConsoleIcons().setFarIcons();
 
 										stop=1;
 										break;
@@ -1132,13 +1132,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 				{
 					bool SkipScroll = false;
 					COORD Size;
-					if(Global->Console->GetSize(Size))
+					if(Console().GetSize(Size))
 					{
 						COORD BufferSize = {Size.X, static_cast<SHORT>(Global->Opt->ShowKeyBar?3:2)};
 						std::vector<FAR_CHAR_INFO> Buffer(BufferSize.X * BufferSize.Y);
 						COORD BufferCoord = {};
 						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - BufferSize.Y), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
-						if(Global->Console->ReadOutput(Buffer.data(), BufferSize, BufferCoord, ReadRegion))
+						if(Console().ReadOutput(Buffer.data(), BufferSize, BufferCoord, ReadRegion))
 						{
 							FarColor Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
 							SkipScroll = true;
@@ -1154,7 +1154,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					}
 					if(!SkipScroll)
 					{
-						Global->Console->ScrollScreenBuffer(Global->Opt->ShowKeyBar?2:1);
+						Console().ScrollScreenBuffer(Global->Opt->ShowKeyBar?2:1);
 					}
 				}
 
@@ -1177,10 +1177,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	*/
 	SetCursorType(Visible,Size);
 	CONSOLE_CURSOR_INFO cci={Size, Visible};
-	Global->Console->SetCursorInfo(cci);
+	Console().SetCursorInfo(cci);
 
 	COORD ConSize;
-	Global->Console->GetSize(ConSize);
+	Console().GetSize(ConSize);
 	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
 	{
 		ChangeVideoMode(ConSize.Y, ConSize.X);
@@ -1197,11 +1197,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
 		// восстановим CP-консоли после исполнения проги
-		Global->Console->SetInputCodepage(ConsoleCP);
-		Global->Console->SetOutputCodepage(ConsoleOutputCP);
+		Console().SetInputCodepage(ConsoleCP);
+		Console().SetOutputCodepage(ConsoleOutputCP);
 	}
 
-	Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+	Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 
 	if(dwError)
 	{
@@ -1453,7 +1453,7 @@ bool ProcessOSAliases(string &strStr)
 
 	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);
-	int ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), lpwszExeName);
+	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), lpwszExeName);
 
 	if (!ret)
 	{
@@ -1461,7 +1461,7 @@ bool ProcessOSAliases(string &strStr)
 		if (api::GetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
-			ret = Global->Console->GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);
+			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);
 		}
 	}
 

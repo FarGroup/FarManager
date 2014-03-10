@@ -46,8 +46,8 @@ namespace tinyxml
 	class TiXmlDocument;
 }
 
-class XmlConfig {
-
+class XmlConfig: NonCopyable
+{
 public:
 
 	virtual ~XmlConfig() {}
@@ -55,8 +55,8 @@ public:
 	virtual bool Import(const tinyxml::TiXmlHandle &root) { return true; }
 };
 
-class Transactional {
-
+class Transactional
+{
 public:
 
 	virtual ~Transactional() {}
@@ -288,7 +288,7 @@ protected:
 	HistoryConfig() {}
 };
 
-class Database
+class Database: NonCopyable
 {
 public:
 	Database(char ImportExportMode='\0');

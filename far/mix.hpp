@@ -62,7 +62,7 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 
 WINDOWINFO_TYPE ModalType2WType(const int fType);
 
-class SetAutocomplete:NonCopyable
+class SetAutocomplete: NonCopyable
 {
 public:
 	SetAutocomplete(class EditControl* edit, bool NewState = false);

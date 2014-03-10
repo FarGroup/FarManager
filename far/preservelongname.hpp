@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class PreserveLongName
+class PreserveLongName: NonCopyable
 {
-	private:
-		string strSaveLongName;
-		string strSaveShortName;
-		int Preserve;
+public:
+	PreserveLongName(const string& ShortName,int Preserve);
+	~PreserveLongName();
 
-	public:
-		PreserveLongName(const string& ShortName,int Preserve);
-		~PreserveLongName();
+private:
+	string strSaveLongName;
+	string strSaveShortName;
+	int Preserve;
 };

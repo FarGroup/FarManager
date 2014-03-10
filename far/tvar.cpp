@@ -476,98 +476,98 @@ bool TVar::isNumber() const
 	return false;
 }
 
-static int _cmp_Ne(TVarType vt,const void *a, const void *b)
+static bool _cmp_Ne(TVarType vt,const void *a, const void *b)
 {
-	int r = 1;
+	bool r = true;
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a != *(const __int64*)b?1:0; break;
-		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) > DBL_EPSILON? 1 : 0; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) ; break;
+		case vtInteger: r = *(const __int64*)a != *(const __int64*)b; break;
+		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) > DBL_EPSILON; break;
+		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) != 0 ; break;
 	}
 
 	return r;
 }
 
-static int _cmp_Eq(TVarType vt,const void *a, const void *b)
+static bool _cmp_Eq(TVarType vt,const void *a, const void *b)
 {
-	int r = 0;
+	bool r = false;
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a == *(const __int64*)b?1:0; break;
-		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) < DBL_EPSILON? 1 : 0; break;
+		case vtInteger: r = *(const __int64*)a == *(const __int64*)b; break;
+		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) < DBL_EPSILON; break;
 		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
 	return r;
 }
-static int _cmp_Lt(TVarType vt,const void *a, const void *b)
+static bool _cmp_Lt(TVarType vt,const void *a, const void *b)
 {
-	int r = 0;
+	bool r = false;
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a < *(const __int64*)b?1:0; break;
-		case vtDouble:  r = *(const double*)a < *(const double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a < *(const __int64*)b; break;
+		case vtDouble:  r = *(const double*)a < *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) < 0; break;
 	}
 
 	return r;
 }
 
-static int _cmp_Le(TVarType vt,const void *a, const void *b)
+static bool _cmp_Le(TVarType vt, const void *a, const void *b)
 {
-	int r = 0;
+	bool r = false; 
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a <= *(const __int64*)b?1:0; break;
-		case vtDouble:  r = *(const double*)a <= *(const double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a <= *(const __int64*)b; break;
+		case vtDouble:  r = *(const double*)a <= *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) <= 0; break;
 	}
 
 	return r;
 }
 
-static int _cmp_Gt(TVarType vt,const void *a, const void *b)
+static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 {
-	int r = 0;
+	bool r = false;
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a > *(const __int64*)b?1:0; break;
-		case vtDouble:  r = *(const double*)a > *(const double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a > *(const __int64*)b; break;
+		case vtDouble:  r = *(const double*)a > *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) > 0; break;
 	}
 
 	return r;
 }
 
-static int _cmp_Ge(TVarType vt,const void *a, const void *b)
+static bool _cmp_Ge(TVarType vt, const void *a, const void *b)
 {
-	int r = 0;
+	bool r = false;
 
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a >= *(const __int64*)b?1:0; break;
-		case vtDouble:  r = *(const double*)a >= *(const double*)b?1:0; break;
+		case vtInteger: r = *(const __int64*)a >= *(const __int64*)b; break;
+		case vtDouble:  r = *(const double*)a >= *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) >= 0; break;
 	}
 
 	return r;
 }
 
-int TVar::CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
+bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 {
-	int r = 1;
+	bool r = true;
 	__int64 bi;
 	double bd;
 
@@ -655,34 +655,34 @@ int TVar::CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 	return r;
 };
 
-int operator!=(const TVar& a, const TVar& b)
+bool operator!=(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Ne);
+	return CompAB(a, b, _cmp_Ne);
 }
 
-int operator==(const TVar& a, const TVar& b)
+bool operator==(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Eq);
+	return CompAB(a, b, _cmp_Eq);
 }
 
-int operator<(const TVar& a, const TVar& b)
+bool operator<(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Lt);
+	return CompAB(a, b, _cmp_Lt);
 }
 
-int operator<=(const TVar& a, const TVar& b)
+bool operator<=(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Le);
+	return CompAB(a, b, _cmp_Le);
 }
 
-int operator>(const TVar& a, const TVar& b)
+bool operator>(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Gt);
+	return CompAB(a, b, _cmp_Gt);
 }
 
-int operator>=(const TVar& a, const TVar& b)
+bool operator>=(const TVar& a, const TVar& b)
 {
-	return TVar::CompAB(a, b, _cmp_Ge);
+	return CompAB(a, b, _cmp_Ge);
 }
 
 TVar operator+(const TVar& a, const TVar& b)

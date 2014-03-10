@@ -103,7 +103,7 @@ struct MacroPanelSelect
 	int     Mode;
 };
 
-class MacroRecord:NonCopyable
+class MacroRecord: NonCopyable
 {
 public:
 	MacroRecord():
@@ -157,19 +157,19 @@ public:
 	FarMacroValue* GetValue() { return &m_macrovalue; }
 
 private:
+	friend class KeyMacro;
+
 	MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
 	int m_key;                     // Ќазначенна€ клавиша
 	string m_code;                 // оригинальный "текст" макроса
 	int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
 	FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
 	intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
-
-	friend class KeyMacro;
 };
 
 STD_SWAP_SPEC(MacroRecord);
 
-class MacroState:NonCopyable
+class MacroState: NonCopyable
 {
 public:
 	MacroState():
@@ -220,7 +220,7 @@ STD_SWAP_SPEC(MacroState);
 
 class Dialog;
 
-class KeyMacro:NonCopyable
+class KeyMacro: NonCopyable
 {
 public:
 	KeyMacro();
@@ -295,7 +295,6 @@ private:
 	int m_DisableNested;
 	int m_WaitKey;
 	const wchar_t* varTextDate;
-
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}

@@ -206,7 +206,7 @@ private:
 
 };
 
-class DelayDestroy
+class DelayDestroy: NonCopyable
 {
 public:
 	DelayDestroy(DelayedDestroy *host):m_host(host) { m_host->AddRef(); }

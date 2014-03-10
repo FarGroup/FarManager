@@ -572,9 +572,9 @@ void ShellSetFileAttributesMsg(const string& Name)
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.data());
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<AttrPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
 		item->Name = Name;
 	}
 }
@@ -637,9 +637,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 
 void PR_ShellSetFileAttributesMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const AttrPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
 		ShellSetFileAttributesMsg(item->Name);
 	}
 }
@@ -913,7 +913,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								path += L"\\" + strSelName;
 								PDFS_INFO_3 pData;
-								NET_API_STATUS ns = Global->ifn->NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData);
+								NET_API_STATUS ns = Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, (LPBYTE *)&pData);
 								if (NERR_Success == ns)
 								{
 									KnownReparsePoint = true;
@@ -1425,7 +1425,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					{
 						SrcPanel->GetSelName(nullptr,FileAttr);
 					}
-					SCOPED_ACTION(TaskBar);
+					SCOPED_ACTION(IndeterminateTaskBar);
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 					DWORD LastTime=0;

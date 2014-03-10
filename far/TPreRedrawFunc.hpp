@@ -44,7 +44,7 @@ struct PreRedrawItem: NonCopyable
 	handler_type m_PreRedrawFunc;
 };
 
-class TPreRedrawFunc
+class TPreRedrawFunc: NonCopyable
 {
 public:
 	void push(std::unique_ptr<PreRedrawItem> Source){return Items.emplace(std::move(Source));}
@@ -54,18 +54,27 @@ public:
 	bool empty() const {return Items.empty();}
 
 private:
+	friend TPreRedrawFunc& PreRedrawStack();
+
+	TPreRedrawFunc() {}
 	std::stack<std::unique_ptr<PreRedrawItem>> Items;
 };
 
-class TPreRedrawFuncGuard
+inline TPreRedrawFunc& PreRedrawStack()
+{
+	static TPreRedrawFunc pr;
+	return pr;
+}
+
+class TPreRedrawFuncGuard: NonCopyable
 {
 public:
 	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem> Item)
 	{
-		Global->PreRedraw->push(std::move(Item));
+		PreRedrawStack().push(std::move(Item));
 	}
 	~TPreRedrawFuncGuard()
 	{
-		Global->PreRedraw->pop();
+		PreRedrawStack().pop();
 	}
 };

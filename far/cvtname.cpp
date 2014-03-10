@@ -265,16 +265,16 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == PATH_VOLUMEGUID)
 	{
-		if (Global->ifn->GetVolumePathNamesForVolumeNameWPresent())
+		if (Imports().GetVolumePathNamesForVolumeNameWPresent())
 		{
 			wchar_t_ptr Buffer(api::NT_MAX_PATH);
 			DWORD RetSize;
-			BOOL Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
+			BOOL Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 
 			if (!Res && RetSize > Buffer.size())
 			{
 				Buffer.reset(RetSize);
-				Res = Global->ifn->GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
+				Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize);
 			}
 
 			if (Res)

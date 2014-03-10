@@ -530,7 +530,7 @@ bool api::File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSi
 
 bool api::File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = Global->ifn->GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	DWORD Result = Imports().GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -550,8 +550,8 @@ bool api::File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_I
 	auto di = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
-	NTSTATUS Result = Global->ifn->NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
-	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
+	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
@@ -563,8 +563,8 @@ bool api::File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_I
 bool api::File::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Result = Global->ifn->NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
-	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
+	NTSTATUS Result = Imports().NtQueryInformationFile(Handle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
+	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
@@ -701,7 +701,7 @@ int api::FileWalker::GetPercent() const
 
 NTSTATUS api::GetLastNtStatus()
 {
-	return Global->ifn->RtlGetLastNtStatusPresent()?Global->ifn->RtlGetLastNtStatus():STATUS_SUCCESS;
+	return Imports().RtlGetLastNtStatusPresent()?Imports().RtlGetLastNtStatus():STATUS_SUCCESS;
 }
 
 BOOL api::DeleteFile(const string& FileName)
@@ -1011,11 +1011,11 @@ DWORD api::GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFile
 		FileName.reset(BufferSize);
 		if (hProcess)
 		{
-			if (Global->ifn->QueryFullProcessImageNameWPresent() && !hModule)
+			if (Imports().QueryFullProcessImageNameWPresent() && !hModule)
 			{
 				DWORD sz = BufferSize;
 				Size = 0;
-				if (Global->ifn->QueryFullProcessImageNameW(hProcess, 0, FileName.get(), &sz))
+				if (Imports().QueryFullProcessImageNameW(hProcess, 0, FileName.get(), &sz))
 				{
 					Size = sz;
 				}
@@ -1233,10 +1233,10 @@ HANDLE api::FindFirstFileName(const string& FileName, DWORD dwFlags, string& Lin
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
 	NTPath NtFileName(FileName);
-	if (Global->ifn->FindFirstFileNameW(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if (Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
 		wchar_t_ptr Buffer(StringLength);
-		hRet=Global->ifn->FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
+		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
 		LinkName.assign(Buffer.get());
 	}
 	return hRet;
@@ -1246,10 +1246,10 @@ BOOL api::FindNextFileName(HANDLE hFindStream, string& LinkName)
 {
 	BOOL Ret=FALSE;
 	DWORD StringLength=0;
-	if (!Global->ifn->FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
+	if (!Imports().FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
 	{
 		wchar_t_ptr Buffer(StringLength);
-		Ret = Global->ifn->FindNextFileNameW(hFindStream, &StringLength, Buffer.get());
+		Ret = Imports().FindNextFileNameW(hFindStream, &StringLength, Buffer.get());
 		LinkName.assign(Buffer.get());
 	}
 	return Ret;
@@ -1306,8 +1306,8 @@ BOOL api::SetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 bool api::CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
-	return Global->ifn->CreateSymbolicLinkWPresent()?
-		(Global->ifn->CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
+	return Imports().CreateSymbolicLinkWPresent()?
+		(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
@@ -1362,9 +1362,9 @@ BOOL api::CreateHardLink(const string& FileName, const string& ExistingFileName,
 HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if(Global->ifn->FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamWPresent())
 	{
-		Ret=Global->ifn->FindFirstStreamW(NTPath(FileName).data(),InfoLevel,lpFindStreamData,dwFlags);
+		Ret=Imports().FindFirstStreamW(NTPath(FileName).data(),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{
@@ -1421,9 +1421,9 @@ HANDLE api::FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,
 BOOL api::FindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-	if(Global->ifn->FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamWPresent())
 	{
-		Ret=Global->ifn->FindNextStreamW(hFindStream,lpFindStreamData);
+		Ret=Imports().FindNextStreamW(hFindStream,lpFindStreamData);
 	}
 	else
 	{
@@ -1451,7 +1451,7 @@ BOOL api::FindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if(Global->ifn->FindFirstStreamWPresent())
+	if(Imports().FindFirstStreamWPresent())
 	{
 		Ret=::FindClose(hFindStream);
 	}
@@ -1504,12 +1504,12 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	{
 		ULONG BufSize = api::NT_MAX_PATH;
 		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
-		Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+		Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
 			oni.reset(BufSize = RetLen);
-			Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+			Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
 		}
 
 		if (Res == STATUS_SUCCESS)
@@ -1577,10 +1577,10 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 bool api::GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (Global->ifn->GetFinalPathNameByHandleWPresent())
+	if (Imports().GetFinalPathNameByHandleWPresent())
 	{
 		wchar_t Buffer[MAX_PATH];
-		size_t Size = Global->ifn->GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
+		size_t Size = Imports().GetFinalPathNameByHandle(hFile, Buffer, ARRAYSIZE(Buffer), VOLUME_NAME_GUID);
 		if (Size < ARRAYSIZE(Buffer))
 		{
 			FinalFilePath.assign(Buffer, Size);
@@ -1588,7 +1588,7 @@ bool api::GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		else
 		{
 			wchar_t_ptr vBuffer(Size);
-			Size = Global->ifn->GetFinalPathNameByHandle(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
+			Size = Imports().GetFinalPathNameByHandle(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
 			FinalFilePath.assign(vBuffer.get(), Size);
 		}
 
@@ -1652,7 +1652,7 @@ bool api::GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string
 
 void api::EnableLowFragmentationHeap()
 {
-	if (Global->ifn->HeapSetInformationPresent())
+	if (Imports().HeapSetInformationPresent())
 	{
 		std::vector<HANDLE> Heaps(10);
 		DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
@@ -1665,7 +1665,7 @@ void api::EnableLowFragmentationHeap()
 		std::for_each(CONST_RANGE(Heaps, i)
 		{
 			ULONG HeapFragValue = 2;
-			Global->ifn->HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+			Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 		});
 	}
 }
@@ -1687,8 +1687,8 @@ bool api::GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastA
 	BYTE Buffer[Length] = {};
 	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Global->ifn->NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
+	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	::SetLastError(Imports().RtlNtStatusToDosError(Status));
 	if (Status == STATUS_SUCCESS)
 	{
 		if(CreationTime)
@@ -1743,8 +1743,8 @@ bool api::SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILET
 		fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
 	}
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Global->ifn->NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
+	NTSTATUS Status = Imports().NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	::SetLastError(Imports().RtlNtStatusToDosError(Status));
 	Result = Status == STATUS_SUCCESS;
 	return Result;
 }
@@ -1877,7 +1877,7 @@ bool api::SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedIn
 
 bool api::OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
-	DWORD Result = Global->ifn->OpenVirtualDisk(&VirtualStorageType, Object.data(), VirtualDiskAccessMask, Flags, &Parameters, &Handle);
+	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VirtualDiskAccessMask, Flags, &Parameters, &Handle);
 	::SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -1912,7 +1912,7 @@ DWORD api::GetAppPathsRedirectionFlag()
 			RedirectionFlag = KEY_WOW64_32KEY;
 #else
 			BOOL Wow64Process = FALSE;
-			if (Global->ifn->IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			if (Imports().IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 			{
 				RedirectionFlag = KEY_WOW64_64KEY;
 			}

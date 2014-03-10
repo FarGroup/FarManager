@@ -47,33 +47,33 @@ enum enumFileInFilterType
 };
 
 
-class FileFilter
+class FileFilter: NonCopyable
 {
-	private:
-		Panel *m_HostPanel;
-		FAR_FILE_FILTER_TYPE m_FilterType;
-		unsigned __int64 CurrentTime;
+public:
+	FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
+	~FileFilter();
 
-		Panel *GetHostPanel();
-		void ProcessSelection(VMenu2 *FilterList);
-		const enumFileFilterFlagsType GetFFFT();
-		int  GetCheck(const FileFilterParams& FFP);
-		static void SwapPanelFlags(FileFilterParams& CurFilterData);
-		static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
+	bool FilterEdit();
+	void UpdateCurrentTime();
+	bool FileInFilter(const FileListItem* fli, enumFileInFilterType *foundType = nullptr);
+	bool FileInFilter(const api::FAR_FIND_DATA& fde, enumFileInFilterType *foundType = nullptr, const string* FullName = nullptr);
+	bool FileInFilter(const PluginPanelItem& fd, enumFileInFilterType *foundType = nullptr);
+	bool IsEnabledOnPanel();
 
-	public:
-		FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
-		~FileFilter();
+	static void InitFilter();
+	static void CloseFilter();
+	static void SwapFilter();
+	static void Save(bool always);
 
-		bool FilterEdit();
-		void UpdateCurrentTime();
-		bool FileInFilter(const FileListItem* fli, enumFileInFilterType *foundType=nullptr);
-		bool FileInFilter(const api::FAR_FIND_DATA& fde, enumFileInFilterType *foundType=nullptr, const string* FullName=nullptr);
-		bool FileInFilter(const PluginPanelItem& fd, enumFileInFilterType *foundType=nullptr);
-		bool IsEnabledOnPanel();
+private:
+	Panel *GetHostPanel();
+	void ProcessSelection(VMenu2 *FilterList);
+	const enumFileFilterFlagsType GetFFFT();
+	int  GetCheck(const FileFilterParams& FFP);
+	static void SwapPanelFlags(FileFilterParams& CurFilterData);
+	static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 
-		static void InitFilter();
-		static void CloseFilter();
-		static void SwapFilter();
-		static void Save(bool always);
+	Panel *m_HostPanel;
+	FAR_FILE_FILTER_TYPE m_FilterType;
+	unsigned __int64 CurrentTime;
 };

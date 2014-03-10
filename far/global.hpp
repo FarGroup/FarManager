@@ -34,7 +34,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class global
+class global: NonCopyable
 {
 public:
 	global();
@@ -102,35 +102,16 @@ private:
 	static thread_local NTSTATUS m_LastStatus;
 
 public:
-	class ImportedFunctions* ifn;
-	class console* Console;
 	class ScreenBuf* ScrBuf;
-	class TaskBarCore* TBC;
-	class consoleicons* ConsoleIcons;
 	class FormatScreen FS;
-	class TPreRedrawFunc* PreRedraw;
-	class notifier* Notifier;
-	class WindowHandler *Window;
 	class Manager* FrameManager;
 	class Options *Opt;
 	class Language *Lang;
 	class elevation *Elevation;
-	class TreeListCache* TreeCache;
-	class TreeListCache* tempTreeCache;
-	class PluginSynchro* PluginSynchroManager;
-	class codepages* CodePages;
-	class sets* Sets;
 	class Database* Db;
 	class ControlObject* CtrlObject;
 };
 
 #define MSG(ID) Global->Lang->GetMsg(ID)
-
-// VersionConstant: LOWBYTE - minor, HIBYTE - major
-inline bool operator< (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) < VersionConstant;}
-inline bool operator> (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) > VersionConstant;}
-inline bool operator<= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) <= VersionConstant;}
-inline bool operator>= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) >= VersionConstant;}
-inline bool operator== (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) == VersionConstant;}
 
 extern global* Global;

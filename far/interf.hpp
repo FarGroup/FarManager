@@ -195,14 +195,17 @@ inline void RemoveHighlights(string& Str) { RemoveChar(Str,L'&'); }
 
 bool IsConsoleFullscreen();
 
-class consoleicons
+class consoleicons:NonCopyable
 {
 public:
-	consoleicons();
 	void setFarIcons();
 	void restorePreviousIcons();
 
 private:
+	friend consoleicons& ConsoleIcons();
+
+	consoleicons();
+
 	HICON LargeIcon;
 	HICON SmallIcon;
 	HICON PreviousLargeIcon;
@@ -211,3 +214,5 @@ private:
 	bool LargeChanged;
 	bool SmallChanged;
 };
+
+consoleicons& ConsoleIcons();

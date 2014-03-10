@@ -44,28 +44,28 @@ struct GrabberArea
 
 class Grabber:Modal
 {
-	private:
-		SaveScreen *SaveScr;
-		GrabberArea PrevArea;
-		GrabberArea GArea;
-		bool ResetArea;
-		FARMACROAREA PrevMacroMode;
-		bool VerticalBlock;
+public:
+	Grabber();
+	virtual ~Grabber();
 
-	private:
-		virtual void DisplayObject() override;
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual const string& GetTitle(string& Title) override {return Title;}
+	virtual int GetType() const override { return MODALTYPE_GRABBER; }
+	virtual int GetTypeAndName(string &, string &) override { return MODALTYPE_GRABBER; }
 
-		void CopyGrabbedArea(bool Append, bool VerticalBlock);
-		void Reset();
+private:
+	virtual void DisplayObject() override;
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual const string& GetTitle(string& Title) override { return Title; }
 
-	public:
-		Grabber();
-		virtual ~Grabber();
-		virtual int GetType() const override {return MODALTYPE_GRABBER;}
-		virtual int GetTypeAndName(string &,string &) override {return MODALTYPE_GRABBER;}
+	void CopyGrabbedArea(bool Append, bool VerticalBlock);
+	void Reset();
+
+	SaveScreen *SaveScr;
+	GrabberArea PrevArea;
+	GrabberArea GArea;
+	bool ResetArea;
+	FARMACROAREA PrevMacroMode;
+	bool VerticalBlock;
 };
 
 bool RunGraber();

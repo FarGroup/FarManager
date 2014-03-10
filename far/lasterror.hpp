@@ -35,19 +35,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imports.hpp"
 
-class GuardLastError
+class GuardLastError: NonCopyable
 {
 public:
 	GuardLastError():
 		LastError(GetLastError()),
-		LastStatus(Global->ifn->RtlGetLastNtStatus())
+		LastStatus(Imports().RtlGetLastNtStatus())
 	{
 	}
 
 	~GuardLastError()
 	{
 		SetLastError(LastError);
-		Global->ifn->RtlNtStatusToDosError(LastStatus);
+		Imports().RtlNtStatusToDosError(LastStatus);
 	}
 
 private:

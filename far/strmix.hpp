@@ -163,7 +163,7 @@ enum STL_FLAGS
 
 std::list<string> StringToList(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,");
 
-class Utf8String
+class Utf8String: NonCopyable
 {
 public:
 	Utf8String(const wchar_t* Str)

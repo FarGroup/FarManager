@@ -121,18 +121,18 @@ void ReadFileNamesMsg(const string& Msg)
 {
 	Message(0,0,MSG(MReadingTitleFiles),Msg.data());
 
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<FileListPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<FileListPreRedrawItem*>(PreRedrawStack().top());
 		item->Msg = Msg;
 	}
 }
 
 static void PR_ReadFileNamesMsg()
 {
-	if (!Global->PreRedraw->empty())
+	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<const FileListPreRedrawItem*>(Global->PreRedraw->top());
+		auto item = dynamic_cast<const FileListPreRedrawItem*>(PreRedrawStack().top());
 		ReadFileNamesMsg(item->Msg);
 	}
 }
@@ -140,7 +140,7 @@ static void PR_ReadFileNamesMsg()
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<FileListPreRedrawItem>());
-	SCOPED_ACTION(TaskBar)(false);
+	SCOPED_ACTION(IndeterminateTaskBar)(false);
 
 	strOriginalCurDir = strCurDir;
 

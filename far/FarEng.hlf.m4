@@ -253,7 +253,7 @@ in the input stream until you press Ctrl-Break.
   Let's you work without writing any changes to Far configuration.
 Overrides Far.exe.ini.
 
-  #/rw#
+  #/ro-#
   Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
 
   It is possible to specify at most two paths (to folders, files or archives) or

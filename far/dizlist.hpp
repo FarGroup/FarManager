@@ -47,7 +47,7 @@ struct diz_less
 
 typedef std::map<string, std::list<string>, diz_less> desc_map;
 
-class DizList
+class DizList: NonCopyable
 {
 public:
 	DizList();

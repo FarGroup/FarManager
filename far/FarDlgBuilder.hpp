@@ -60,7 +60,7 @@ struct DialogBuilderListItem2
 Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
 другого). Реализуется при помощи метода LinkFlags().
 */
-class DialogBuilder: public DialogBuilderBase<DialogItemEx>
+class DialogBuilder: NonCopyable, public DialogBuilderBase<DialogItemEx>
 {
 	private:
 		const wchar_t *HelpTopic;

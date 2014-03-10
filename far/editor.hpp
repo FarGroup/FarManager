@@ -147,6 +147,10 @@ public:
 	struct EditorUndoData;
 
 private:
+	friend class DlgEdit;
+	friend class FileEditor;
+	friend class AutoUndoBlock;
+
 	typedef std::list<Edit> editor_container;
 	typedef editor_container::iterator iterator;
 
@@ -357,8 +361,4 @@ private:
 		string Name;
 		int Percent;
 	};
-
-	friend class DlgEdit;
-	friend class FileEditor;
-	friend class AutoUndoBlock;
 };

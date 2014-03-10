@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class RedrawDesktop
+class RedrawDesktop: NonCopyable
 {
-	private:
-		int LeftVisible;
-		int RightVisible;
-		bool ClockVisible;
+public:
+	RedrawDesktop(BOOL IsHidden=FALSE);
+	~RedrawDesktop();
 
-	public:
-		RedrawDesktop(BOOL IsHidden=FALSE);
-		~RedrawDesktop();
+private:
+	int LeftVisible;
+	int RightVisible;
+	bool ClockVisible;
 };

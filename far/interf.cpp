@@ -55,6 +55,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 
+consoleicons& ConsoleIcons()
+{
+	static consoleicons icons;
+	return icons;
+}
+
 consoleicons::consoleicons():
 	LargeIcon(nullptr),
 	SmallIcon(nullptr),
@@ -78,7 +84,7 @@ void consoleicons::setFarIcons()
 			Loaded = true;
 		}
 
-		HWND hWnd = Global->Console->GetWindow();
+		HWND hWnd = Console().GetWindow();
 		if (hWnd)
 		{
 			if(LargeIcon)
@@ -99,7 +105,7 @@ void consoleicons::restorePreviousIcons()
 {
 	if(Global->Opt->SetIcon)
 	{
-		HWND hWnd = Global->Console->GetWindow();
+		HWND hWnd = Console().GetWindow();
 		if (hWnd)
 		{
 			if(LargeChanged)
@@ -140,7 +146,7 @@ static std::unique_ptr<Event> CancelIoInProgress;
 
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
-	unsigned int Result = Global->ifn->CancelSynchronousIo(Thread);
+	unsigned int Result = Imports().CancelSynchronousIo(Thread);
 	CancelIoInProgress->Reset();
 	return Result;
 }
@@ -192,12 +198,12 @@ void InitConsole(int FirstInit)
 		CancelIoInProgress->Open(true);
 
 		DWORD Mode;
-		if(!Global->Console->GetMode(Global->Console->GetInputHandle(), Mode))
+		if(!Console().GetMode(Console().GetInputHandle(), Mode))
 		{
 			HANDLE ConIn = CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 			SetStdHandle(STD_INPUT_HANDLE, ConIn);
 		}
-		if(!Global->Console->GetMode(Global->Console->GetOutputHandle(), Mode))
+		if(!Console().GetMode(Console().GetOutputHandle(), Mode))
 		{
 			HANDLE ConOut = CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 			SetStdHandle(STD_OUTPUT_HANDLE, ConOut);
@@ -205,12 +211,12 @@ void InitConsole(int FirstInit)
 		}
 	}
 
-	Global->Console->SetControlHandler(CtrlHandler, true);
-	Global->Console->GetMode(Global->Console->GetInputHandle(),InitialConsoleMode);
-	Global->Console->GetTitle(Global->strInitTitle);
-	Global->Console->GetWindowRect(InitWindowRect);
-	Global->Console->GetSize(InitialSize);
-	Global->Console->GetCursorInfo(InitialCursorInfo);
+	Console().SetControlHandler(CtrlHandler, true);
+	Console().GetMode(Console().GetInputHandle(),InitialConsoleMode);
+	Console().GetTitle(Global->strInitTitle);
+	Console().GetWindowRect(InitWindowRect);
+	Console().GetSize(InitialSize);
+	Console().GetCursorInfo(InitialCursorInfo);
 
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
@@ -225,12 +231,12 @@ void InitConsole(int FirstInit)
 	if (FirstInit)
 	{
 		SMALL_RECT WindowRect;
-		Global->Console->GetWindowRect(WindowRect);
-		Global->Console->GetSize(InitSize);
+		Console().GetWindowRect(WindowRect);
+		Console().GetSize(InitSize);
 
 		if(Global->Opt->WindowMode)
 		{
-			Global->Console->ResetPosition();
+			Console().ResetPosition();
 		}
 		else
 		{
@@ -239,29 +245,29 @@ void InitConsole(int FirstInit)
 				COORD newSize;
 				newSize.X = WindowRect.Right - WindowRect.Left + 1;
 				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
-				Global->Console->SetSize(newSize);
-				Global->Console->GetSize(InitSize);
+				Console().SetSize(newSize);
+				Console().GetSize(InitSize);
 			}
 		}
-		if (IsZoomed(Global->Console->GetWindow()))
+		if (IsZoomed(Console().GetWindow()))
 			ChangeVideoMode(1);
 	}
 
 	GetVideoMode(CurSize);
 	Global->ScrBuf->FillBuf();
 
-	Global->ConsoleIcons->setFarIcons();
+	ConsoleIcons().setFarIcons();
 }
 void CloseConsole()
 {
 	Global->ScrBuf->Flush();
-	Global->Console->SetCursorInfo(InitialCursorInfo);
+	Console().SetCursorInfo(InitialCursorInfo);
 	ChangeConsoleMode(InitialConsoleMode);
 
-	Global->Console->SetTitle(Global->strInitTitle);
-	Global->Console->SetSize(InitialSize);
+	Console().SetTitle(Global->strInitTitle);
+	Console().SetSize(InitialSize);
 	COORD CursorPos = {};
-	Global->Console->GetCursorPosition(CursorPos);
+	Console().GetCursorPosition(CursorPos);
 	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
 		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
@@ -269,11 +275,11 @@ void CloseConsole()
 		InitWindowRect.Left = std::max(0, CursorPos.X-Width);
 	InitWindowRect.Bottom = InitWindowRect.Top + Height;
 	InitWindowRect.Right = InitWindowRect.Left + Width;
-	Global->Console->SetWindowRect(InitWindowRect);
-	Global->Console->SetSize(InitialSize);
+	Console().SetWindowRect(InitWindowRect);
+	Console().SetSize(InitialSize);
 
 	KeyQueue.reset();
-	Global->ConsoleIcons->restorePreviousIcons();
+	ConsoleIcons().restorePreviousIcons();
 	CancelIoInProgress.reset();
 }
 
@@ -294,7 +300,7 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 	}
 
 	if (SetsActiveBuffer)
-		Global->Console->SetActiveScreenBuffer(Global->Console->GetOutputHandle());
+		Console().SetActiveScreenBuffer(Console().GetOutputHandle());
 
 	ChangeConsoleMode(Mode);
 
@@ -306,32 +312,32 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 void ChangeConsoleMode(int Mode, int Choose)
 {
 	DWORD CurrentConsoleMode;
-	HANDLE hCon = (Choose == 0) ? Global->Console->GetInputHandle() : ((Choose == 1) ? Global->Console->GetOutputHandle() : Global->Console->GetErrorHandle());
-	Global->Console->GetMode(hCon, CurrentConsoleMode);
+	HANDLE hCon = (Choose == 0) ? Console().GetInputHandle() : ((Choose == 1) ? Console().GetOutputHandle() : Console().GetErrorHandle());
+	Console().GetMode(hCon, CurrentConsoleMode);
 
 	if (CurrentConsoleMode!=(DWORD)Mode)
-		Global->Console->SetMode(hCon, Mode);
+		Console().SetMode(hCon, Mode);
 }
 
 void SaveConsoleWindowRect()
 {
-	Global->Console->GetWindowRect(windowholder_rect);
+	Console().GetWindowRect(windowholder_rect);
 }
 
 void RestoreConsoleWindowRect()
 {
 	SMALL_RECT WindowRect;
-	Global->Console->GetWindowRect(WindowRect);
+	Console().GetWindowRect(WindowRect);
 	if(WindowRect.Right-WindowRect.Left<windowholder_rect.Right-windowholder_rect.Left ||
 		WindowRect.Bottom-WindowRect.Top<windowholder_rect.Bottom-windowholder_rect.Top)
 	{
-		Global->Console->SetWindowRect(windowholder_rect);
+		Console().SetWindowRect(windowholder_rect);
 	}
 }
 
 void FlushInputBuffer()
 {
-	Global->Console->FlushInputBuffer();
+	Console().FlushInputBuffer();
 	IntKeyState.MouseButtonState=0;
 	IntKeyState.MouseEventFlags=0;
 }
@@ -354,14 +360,14 @@ void ChangeVideoMode(int Maximized)
 
 	if (Maximized)
 	{
-		SendMessage(Global->Console->GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
-		coordScreen = Global->Console->GetLargestWindowSize();
+		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
+		coordScreen = Console().GetLargestWindowSize();
 		coordScreen.X+=Global->Opt->ScrSize.DeltaX;
 		coordScreen.Y+=Global->Opt->ScrSize.DeltaY;
 	}
 	else
 	{
-		SendMessage(Global->Console->GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
+		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
 		coordScreen = InitSize;
 	}
 
@@ -373,7 +379,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	short xSize=NumColumns,ySize=NumLines;
 
 	COORD Size;
-	Global->Console->GetSize(Size);
+	Console().GetSize(Size);
 
 	SMALL_RECT srWindowRect;
 	srWindowRect.Right = xSize-1;
@@ -387,28 +393,28 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		if (Size.X < xSize-1)
 		{
 			srWindowRect.Right = Size.X - 1;
-			Global->Console->SetWindowRect(srWindowRect);
+			Console().SetWindowRect(srWindowRect);
 			srWindowRect.Right = xSize-1;
 		}
 
 		if (Size.Y < ySize-1)
 		{
 			srWindowRect.Bottom=Size.Y - 1;
-			Global->Console->SetWindowRect(srWindowRect);
+			Console().SetWindowRect(srWindowRect);
 			srWindowRect.Bottom = ySize-1;
 		}
 
-		Global->Console->SetSize(coordScreen);
+		Console().SetSize(coordScreen);
 	}
 
-	if (!Global->Console->SetWindowRect(srWindowRect))
+	if (!Console().SetWindowRect(srWindowRect))
 	{
-		Global->Console->SetSize(coordScreen);
-		Global->Console->SetWindowRect(srWindowRect);
+		Console().SetSize(coordScreen);
+		Console().SetWindowRect(srWindowRect);
 	}
 	else
 	{
-		Global->Console->SetSize(coordScreen);
+		Console().SetSize(coordScreen);
 	}
 
 	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
@@ -419,14 +425,14 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 	COORD Size={};
 	if (Sx==-1 || Sy==-1)
 	{
-		Global->Console->GetSize(Size);
+		Console().GetSize(Size);
 	}
 	INPUT_RECORD Rec;
 	Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
 	Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?Size.X:Sx;
 	Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?Size.Y:Sy;
 	size_t Writes;
-	Global->Console->WriteInput(&Rec,1,Writes);
+	Console().WriteInput(&Rec,1,Writes);
 }
 
 void GetVideoMode(COORD& Size)
@@ -435,7 +441,7 @@ void GetVideoMode(COORD& Size)
 	SaveConsoleWindowRect();
 	Size.X=0;
 	Size.Y=0;
-	Global->Console->GetSize(Size);
+	Console().GetSize(Size);
 	ScrX=Size.X-1;
 	ScrY=Size.Y-1;
 	assert(ScrX>0);
@@ -543,14 +549,14 @@ void GetCursorType(bool& Visible, DWORD& Size)
 void MoveRealCursor(int X,int Y)
 {
 	COORD C={static_cast<SHORT>(X),static_cast<SHORT>(Y)};
-	Global->Console->SetCursorPosition(C);
+	Console().SetCursorPosition(C);
 }
 
 
 void GetRealCursorPos(SHORT& X,SHORT& Y)
 {
 	COORD CursorPosition;
-	Global->Console->GetCursorPosition(CursorPosition);
+	Console().GetCursorPosition(CursorPosition);
 	X=CursorPosition.X;
 	Y=CursorPosition.Y;
 }
@@ -800,7 +806,7 @@ void SetColor(const FarColor& Color)
 
 void SetRealColor(const FarColor& Color)
 {
-	Global->Console->SetTextAttributes(Color);
+	Console().SetTextAttributes(Color);
 }
 
 void ClearScreen(const FarColor& Color)
@@ -808,11 +814,11 @@ void ClearScreen(const FarColor& Color)
 	Global->ScrBuf->FillRect(0,0,ScrX,ScrY,L' ',Color);
 	if(Global->Opt->WindowMode)
 	{
-		Global->Console->ClearExtraRegions(Color, CR_BOTH);
+		Console().ClearExtraRegions(Color, CR_BOTH);
 	}
 	Global->ScrBuf->ResetShadow();
 	Global->ScrBuf->Flush();
-	Global->Console->SetTextAttributes(Color);
+	Console().SetTextAttributes(Color);
 }
 
 const FarColor& GetColor()
@@ -1278,11 +1284,11 @@ int HiFindNextVisualPos(const string& Str, int Pos, int Direct)
 bool IsConsoleFullscreen()
 {
 	bool Result=false;
-	static bool Supported = Global->Console->IsFullscreenSupported();
+	static bool Supported = Console().IsFullscreenSupported();
 	if(Supported)
 	{
 		DWORD ModeFlags=0;
-		if(Global->Console->GetDisplayMode(ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
+		if(Console().GetDisplayMode(ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
 		{
 			Result=true;
 		}

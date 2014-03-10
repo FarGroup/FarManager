@@ -74,7 +74,7 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class FileFilterParams:NonCopyable
+class FileFilterParams: NonCopyable
 {
 	public:
 

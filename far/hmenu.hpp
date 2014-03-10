@@ -73,7 +73,6 @@ private:
 	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 
-private:
 	VMenu2* SubMenu;
 	HMenuData* Item;
 	int SelectPos;

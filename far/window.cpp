@@ -43,7 +43,7 @@ static const wchar_t* power_notify = L"power";
 static const wchar_t* environment_notify = L"environment";
 static const wchar_t* intl_notify = L"intl";
 
-LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(Msg)
 	{
@@ -72,7 +72,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 						//PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
-						Global->Notifier->at(devices_notify).notify(std::make_unique<payload>());
+						Notifier().at(devices_notify).notify(std::make_unique<payload>());
 					}
 				}
 				break;
@@ -88,12 +88,12 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			{
 				if (Global->Opt->UpdateEnvironment) 
 				{
-					Global->Notifier->at(environment_notify).notify(std::make_unique<payload>());
+					Notifier().at(environment_notify).notify(std::make_unique<payload>());
 				}
 			}
 			else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"intl"))
 			{
-				Global->Notifier->at(intl_notify).notify(std::make_unique<payload>());
+				Notifier().at(intl_notify).notify(std::make_unique<payload>());
 			}
 		}
 		break;
@@ -104,7 +104,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		case PBT_APMPOWERSTATUSCHANGE: // change status
 
 		case PBT_POWERSETTINGCHANGE:   // change percent
-			Global->Notifier->at(power_notify).notify(std::make_unique<payload>());
+			Notifier().at(power_notify).notify(std::make_unique<payload>());
 			break;
 		// TODO:
 		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
@@ -117,20 +117,21 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
-WindowHandler::WindowHandler():
+window_handler::window_handler(notifier* owner):
+	m_Owner(owner),
 	m_Hwnd(nullptr)
 {
-	Global->Notifier->add(std::make_unique<notification>(devices_notify));
-	Global->Notifier->add(std::make_unique<notification>(power_notify));
-	Global->Notifier->add(std::make_unique<notification>(environment_notify));
-	Global->Notifier->add(std::make_unique<notification>(intl_notify));
+	m_Owner->add(std::make_unique<notification>(devices_notify));
+	m_Owner->add(std::make_unique<notification>(power_notify));
+	m_Owner->add(std::make_unique<notification>(environment_notify));
+	m_Owner->add(std::make_unique<notification>(intl_notify));
 
 	m_exitEvent.Open();
 
 	Check();
 }
 
-WindowHandler::~WindowHandler()
+window_handler::~window_handler()
 {
 	m_exitEvent.Set();
 	if(m_Hwnd)
@@ -143,16 +144,16 @@ WindowHandler::~WindowHandler()
 	}
 }
 
-void WindowHandler::Check()
+void window_handler::Check()
 {
 	if (!m_Thread.Opened() || m_Thread.Signaled())
 	{
 		m_Thread.Close();
-		m_Thread.Start(&WindowHandler::WindowThreadRoutine, this);
+		m_Thread.Start(&window_handler::WindowThreadRoutine, this);
 	}
 }
 
-unsigned int WindowHandler::WindowThreadRoutine(void* Param)
+unsigned int window_handler::WindowThreadRoutine(void* Param)
 {
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
@@ -164,7 +165,7 @@ unsigned int WindowHandler::WindowThreadRoutine(void* Param)
 		if(m_Hwnd)
 		{
 			// for PBT_POWERSETTINGCHANGE
-			HPOWERNOTIFY hpn=Global->ifn->RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+			HPOWERNOTIFY hpn=Imports().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
 
 			MSG Msg;
 			while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
@@ -174,7 +175,7 @@ unsigned int WindowHandler::WindowThreadRoutine(void* Param)
 			}
 
 			if (hpn) // for PBT_POWERSETTINGCHANGE
-				Global->ifn->UnregisterPowerSettingNotification(hpn);
+				Imports().UnregisterPowerSettingNotification(hpn);
 
 		}
 		UnregisterClass(wc.lpszClassName, 0);

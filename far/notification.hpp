@@ -39,67 +39,58 @@ public:
 	virtual ~payload() {}
 };
 
-class inotification;
+class notification;
 
-class ilistener
-{
-public:
-	ilistener(inotification& n);
-	virtual ~ilistener();
-
-	virtual void callback(const payload& p) = 0;
-
-private:
-	inotification& m_notification;
-};
-
-class listener : public ilistener
+class listener: NonCopyable
 {
 public:
 	listener(const string& id, const std::function<void()>& function);
 	listener(const std::function<void(const payload&)>& function, const string& id);
-	virtual void callback(const payload& p) { m_ex_function? m_ex_function(p) : m_function(); }
+	~listener();
+
+	void callback(const payload& p) { m_ex_function? m_ex_function(p) : m_function(); }
 
 private:
+	notification& m_notification;
 	std::function<void()> m_function;
 	std::function<void(const payload&)> m_ex_function;
 };
 
-class inotification
+class notification: NonCopyable
 {
 public:
-	virtual ~inotification() {}
+	notification(const string& name): m_name(name) {}
+	~notification() {}
 
 	void notify(std::unique_ptr<const payload> p);
 	void dispatch();
-	void subscribe(ilistener* l) { m_listeners.emplace_back(l); }
-	void unsubscribe(ilistener* l) { m_listeners.remove(l); }
+	void subscribe(listener* l) { m_listeners.emplace_back(l); }
+	void unsubscribe(listener* l) { m_listeners.remove(l); }
 	const string& name() const { return m_name; }
-
-protected:
-	inotification(const string& name) : m_name(name) {}
 
 private:
 	string m_name;
-	std::list<ilistener*> m_listeners;
+	std::list<listener*> m_listeners;
 	SyncedQueue<std::unique_ptr<const payload>> m_events;
 };
 
+class window_handler;
 
-class notification : public inotification
+class notifier: NonCopyable
 {
 public:
-	notification(const string& name) : inotification(name) {}
-};
-
-class notifier
-{
-public:
-	inotification& at(const string& key) { return *m_notifications.at(key).get(); }
+	notification& at(const string& key) { return *m_notifications.at(key).get(); }
 
 	void dispatch();
-	void add(std::unique_ptr<inotification> i);
+	void add(std::unique_ptr<notification> i);
 
 private:
-	std::map<string, std::unique_ptr<inotification>> m_notifications;
+	friend notifier& Notifier();
+
+	notifier();
+
+	std::map<string, std::unique_ptr<notification>> m_notifications;
+	std::unique_ptr<window_handler> m_Window;
 };
+
+notifier& Notifier();

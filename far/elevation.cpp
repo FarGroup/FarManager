@@ -252,7 +252,7 @@ struct ERRORCODES
 	DWORD Win32Error;
 	NTSTATUS NtError;
 
-	ERRORCODES():Win32Error(GetLastError()), NtError(Global->ifn->RtlGetLastNtStatus()){}
+	ERRORCODES():Win32Error(GetLastError()), NtError(Imports().RtlGetLastNtStatus()){}
 	ERRORCODES(DWORD Win32Error, NTSTATUS NtError):Win32Error(Win32Error), NtError(NtError){}
 };
 
@@ -261,7 +261,7 @@ bool elevation::ReceiveLastError() const
 	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
 	bool Result = Read(ErrorCodes);
 	SetLastError(ErrorCodes.Win32Error);
-	Global->ifn->RtlNtStatusToDosError(ErrorCodes.NtError);
+	Imports().RtlNtStatusToDosError(ErrorCodes.NtError);
 	return Result;
 }
 
@@ -324,7 +324,7 @@ bool elevation::Initialize()
 		}
 		if(!Result)
 		{
-			SCOPED_ACTION(TaskBar);
+			SCOPED_ACTION(IndeterminateTaskBar);
 			DisconnectNamedPipe(m_pipe);
 
 			BOOL InJob = FALSE;
@@ -524,7 +524,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		{
 			Data.pEvent = std::make_unique<Event>();
 			Data.pEvent->Open();
-			Global->PluginSynchroManager->Synchro(false, FarGuid, &Data);
+			PluginSynchroManager().Synchro(false, FarGuid, &Data);
 			Data.pEvent->Wait();
 		}
 		else
@@ -933,7 +933,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	bool Result = false;
 	if(Global && Global->Opt && Global->Opt->ElevationMode & Mode)
 	{
-		if(UseNtStatus && Global->ifn->RtlGetLastNtStatusPresent())
+		if(UseNtStatus && Imports().RtlGetLastNtStatusPresent())
 		{
 			NTSTATUS LastNtStatus = api::GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -976,7 +976,7 @@ public:
 		if (Pipe != INVALID_HANDLE_VALUE)
 		{
 			ULONG ServerProcessId;
-			if(!Global->ifn->GetNamedPipeServerProcessIdPresent() || (Global->ifn->GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+			if(!Imports().GetNamedPipeServerProcessIdPresent() || (Imports().GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 			{
 				HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
 				if(ParentProcess)

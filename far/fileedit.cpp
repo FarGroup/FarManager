@@ -94,7 +94,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	if (msg == DN_INITDIALOG)
 	{
 		uintptr_t codepage = *(uintptr_t*)param2;
-		Global->CodePages->FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false);
+		Codepages().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false);
 	}
 
 	if (msg == DN_CLOSE)
@@ -171,7 +171,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		case DN_INITDIALOG:
 		{
 			codepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
-			Global->CodePages->FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, false);
+			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, false);
 			break;
 		}
 		case DN_CLOSE:
@@ -1273,7 +1273,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!IsUnicodeCodePage(m_codepage))
 				{
 					uintptr_t codepage = m_codepage;
-					if (Global->CodePages->SelectCodePage(codepage, false, false, true))
+					if (Codepages().SelectCodePage(codepage, false, false, true))
 					{
 						if (codepage == CP_DEFAULT)
 						{
@@ -1294,7 +1294,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								detect = false;
 								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorSwitchToUnicodeCPDisabled) << codepage).data(), MSG(MEditorTryReloadFile), MSG(MOk));
 							}
-							else if ( !Global->CodePages->IsCodePageSupported(codepage) )
+							else if ( !Codepages().IsCodePageSupported(codepage) )
 							{
 								detect = false;
 								Message(MSG_WARNING, 1, MSG(MEditTitle), (LangString(MEditorCPNotSupported) << codepage).data(), MSG(MOk));
@@ -1412,7 +1412,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
-	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
 	int LastLineCR = 0;
 	EditorPosCache pc;
@@ -1491,7 +1491,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	}
 
 	// Проверяем поддерживается или нет загруженная кодовая страница
-	if (bCached && pc.CodePage && !Global->CodePages->IsCodePageSupported(pc.CodePage))
+	if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
 		pc.CodePage = 0;
 
 	m_editor->GlobalEOL.clear(); //BUGBUG???
@@ -1508,7 +1508,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		// Проверяем поддерживается или нет задетектировання кодовая страница
 		if (Detect)
-			Detect = Global->CodePages->IsCodePageSupported(dwCP);
+			Detect = Codepages().IsCodePageSupported(dwCP);
 	}
 
 	if (m_codepage == CP_DEFAULT)
@@ -1628,7 +1628,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		codepage=m_editor->GetCodePage();
 	}
 
-	SCOPED_ACTION(TaskBar);
+	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
 
 	if (m_editor->Flags.Check(Editor::FEDITOR_LOCKMODE) && !m_editor->Flags.Check(Editor::FEDITOR_MODIFIED) && !bSaveAs)
@@ -2820,7 +2820,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 uintptr_t FileEditor::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->EdOpt.DefaultCodePage;
-	if (cp < 0 || !Global->CodePages->IsCodePageSupported(cp))
+	if (cp < 0 || !Codepages().IsCodePageSupported(cp))
 		cp = GetACP();
 	return cp;
 }

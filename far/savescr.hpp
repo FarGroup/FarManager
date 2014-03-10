@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class SaveScreen
+class SaveScreen: NonCopyable
 {
 public:
 	SaveScreen();
@@ -50,6 +50,8 @@ public:
 	void DumpBuffer(const wchar_t *Title);
 
 private:
+	friend class Grabber;
+
 	int ScreenBufCharCount() const;
 
 	static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize);
@@ -60,6 +62,4 @@ private:
 	bool CurVisible;
 	DWORD CurSize;
 	int X1,Y1,X2,Y2;
-
-	friend class Grabber;
 };
