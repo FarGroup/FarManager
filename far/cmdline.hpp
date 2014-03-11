@@ -53,7 +53,7 @@ public:
 	int GetLength() const { return CmdStr.GetLength(); }
 	void SetString(const string& Str,bool Redraw=true);
 	void InsertString(const string& Str);
-	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false);
+	int ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool RunAs = false, bool RestoreCmd = false, bool FromPanel=false);
 	void ShowViewEditHistory();
 	void SetCurPos(int Pos, int LeftPos=0, bool Redraw=true);
 	int GetCurPos() const { return CmdStr.GetCurPos(); }

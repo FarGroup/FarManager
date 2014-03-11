@@ -873,7 +873,7 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
 }
 
-int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd)
+int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool RunAs, bool RestoreCmd, bool FromPanel)
 {
 	class preservecmdline
 	{
@@ -911,7 +911,7 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	bool Silent=false;
 
-	if (!CmdLine.empty() && CmdLine[0] == L'@')
+	if (!FromPanel && !CmdLine.empty() && CmdLine[0] == L'@')
 	{
 		CmdLine.erase(0, 1);
 		Silent=true;

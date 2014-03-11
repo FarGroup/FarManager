@@ -2588,7 +2588,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			{
 				if (EnableExec && hOpen!=PANEL_STOP)
 					if (SeparateWindow || Global->Opt->UseRegisteredTypes)
-						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
+						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs, true);
 
 				if (PluginMode)
 				{

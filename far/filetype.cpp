@@ -250,11 +250,11 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 }
 
 
-void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs)
+void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs, bool FromPanel)
 {
 	string strName(Name);
 	QuoteSpace(strName);
-	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs);
+	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, RunAs, false, FromPanel);
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
