@@ -1756,7 +1756,7 @@ lv=2
 dt=Text
 nm=Запуск скрипта из редактора
 ctime=3578455778
-mtime=3578456003
+mtime=3603569933
 <article>
 #_<markdown>
 #_```
@@ -1769,7 +1769,8 @@ mtime=3578456003
 #_    for k=1,2 do
 #_      local info=editor.GetInfo()
 #_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
-#_        far.MacroPost("@"..info.FileName); break
+#_        far.MacroPost('@"' .. info.FileName .. '"')
+#_        break
 #_      end
 #_      if k==1 then editor.SaveFile(); end
 #_    end

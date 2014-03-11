@@ -5253,14 +5253,14 @@ l:
 "Skratky priečinkov"
 
 MFolderShortcutBottom
-"Редактирование: Del,Ins,ShiftIns,F4"
-"Edit: Del,Ins,ShiftIns,F4"
-"Změnit: Del,Ins,ShiftIns,F4"
-"Bearb.: Entf,Einf,ShiftEinf,F4"
-"Szerk.: Del,Ins,ShiftIns,F4"
-"Edycja: Del,Ins,ShiftIns,F4"
-"Editar: Del,Ins,ShiftIns,F4"
-"Upraviť: Del,Ins,ShiftIns,F4"
+"Редактирование: Del,Ins,Shift+Ins,F4"
+"Edit: Del,Ins,Shift+Ins,F4"
+"Změnit: Del,Ins,Shift+Ins,F4"
+"Bearb.: Entf,Einf,Shift+Einf,F4"
+"Szerk.: Del,Ins,Shift+Ins,F4"
+"Edycja: Del,Ins,Shift+Ins,F4"
+"Editar: Del,Ins,Shift+Ins,F4"
+"Upraviť: Del,Ins,Shift+Ins,F4"
 
 MFolderShortcutBottomSub
 "Редактирование: Del,Ins,F4"
