@@ -2055,7 +2055,7 @@ upd:"Set console icon"
 upd:"Set console icon"
 upd:"Set console icon"
 "Poner ícono para ventana de consola"
-upd:"Set console icon"
+"Nastaviť ikonu konzoly"
 
 MConfigSetAdminConsoleIcon
 upd:"Альтернативная для администратора"
@@ -2065,7 +2065,7 @@ upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
 "Alternar por Administrador"
-upd:"Alternate for Administrator"
+"Alternatívne pre správcu"
 
 MConfigTitleAddons
 "Дополнительная информация для &заголовка окна:"
@@ -2075,7 +2075,7 @@ upd:"Far window title addons:"
 upd:"Far window title addons:"
 upd:"Far window title addons:"
 "Título de ventana de FAR:"
-"Far &window title addons:"
+"Doplnky názvu okna &FAR:"
 
 MConfigDlgSetsTitle
 l:
@@ -2755,7 +2755,7 @@ upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
 "Página de códigos por defecto:"
-upd:"Default code page:"
+"Predvolená tabuľka znakov:"
 
 MViewConfigMaxLineSize
 "&Максимальная ширина строки"
@@ -3038,7 +3038,7 @@ upd:"Default code page:"
 upd:"Default code page:"
 upd:"Default code page:"
 "Página de códigos por defecto:"
-upd:"Default code page:"
+"Predvolená tabuľka znakov:"
 
 MSaveSetupTitle
 l:
@@ -4615,7 +4615,7 @@ MDeleteHardLink2
 "kisöprése a linkelt fájlokat is megsemmisíti."
 "Wymazanie tego pliku wymaże wszystkie pliki dolinkowane."
 "Limpiando este archivo invalidará todos los archivos enlazados."
-"Vymazanie tohto súboru zneplatní všetky súbory, ktoré naň prepojené."
+"Vymazanie tohto súboru zneplatní všetky súbory, ktoré sú naň prepojené."
 
 MDeleteHardLink3
 "Уничтожать файл?"
@@ -4696,7 +4696,7 @@ upd:"Cannot move file to the Recycle Bin"
 upd:"Cannot move file to the Recycle Bin"
 upd:"Cannot move file to the Recycle Bin"
 "No se puede mover el archivo a la Papelera de Reciclaje"
-upd:"Cannot move file to the Recycle Bin"
+"Nemôžem premiestniť súbor do Koša"
 
 MCannotRecycleFolder
 "Не удалось переместить папку в Корзину"
@@ -4706,7 +4706,7 @@ upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 "No se puede mover la carpeta a la Papelera de Reciclaje"
-upd:"Cannot move folder to the Recycle Bin"
+"Nemôžem premiestniť priečinok do Koša"
 
 MCannotGetSecurity
 l:
@@ -5260,7 +5260,7 @@ MFolderShortcutBottom
 "Szerk.: Del,Ins,Shift+Ins,F4"
 "Edycja: Del,Ins,Shift+Ins,F4"
 "Editar: Del,Ins,Shift+Ins,F4"
-"Upraviť: Del,Ins,Shift+Ins,F4"
+"Upraviť: Del,Ins,ShiftIns,F4"
 
 MFolderShortcutBottomSub
 "Редактирование: Del,Ins,F4"
@@ -5330,7 +5330,7 @@ upd:"Data:"
 upd:"Data:"
 upd:"Data:"
 "Dato:"
-upd:"Data:"
+"Dáta:"
 
 
 MNeedNearPath
