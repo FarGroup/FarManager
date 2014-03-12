@@ -151,7 +151,7 @@ MSkip
 "Überspringen"
 "Kihagy"
 "Omiń"
-"Omitir"
+"Saltar"
 "Preskočiť"
 
 MAbort
@@ -222,7 +222,7 @@ MHSkip
 "Über&springen"
 "Ki&hagy"
 "&Omiń"
-"&Omitir"
+"&Saltar"
 "&Preskočiť"
 
 MHSkipAll
@@ -232,7 +232,7 @@ MHSkipAll
 "Alle übersprin&gen"
 "Kihagy &mind"
 "Omiń &wszystkie"
-"Omitir &Todo"
+"Saltar &todo"
 "Preskočiť &všetko"
 
 MHAbort
@@ -346,7 +346,7 @@ MF2
 "BenuMn"
 "FhMenü"
 "Menu"
-"Menú "
+"Menú"
 "Menu"
 
 MF3
@@ -356,7 +356,7 @@ MF3
 "Betr."
 "Megnéz"
 "Zobacz"
-"Ver "
+"Ver"
 "Zobraz"
 
 MF4
@@ -396,7 +396,7 @@ MF7
 "VerzEr"
 "ÚjMapp"
 "UtwKat"
-"CrDIR "
+"CrDIR"
 "VytvAd"
 
 MF8
@@ -477,7 +477,7 @@ MShiftF3
 "ArcBef"
 "TömPar"
 "Polec"
-"ArcCmd"
+"CmdArc"
 "PríkPk"
 
 MShiftF4
@@ -578,7 +578,7 @@ l:
 "Links"
 "Bal"
 "Lewy"
-"Izqda "
+"Izqda"
 "Ľavý"
 
 MAltF2
@@ -588,7 +588,7 @@ MAltF2
 "Rechts"
 "Jobb"
 "Prawy"
-"Drcha "
+"Drcha"
 "Pravý"
 
 MAltF3
@@ -678,7 +678,7 @@ MAltF11
 "BetrHs"
 "NézElő"
 "HsPodg"
-"VerHis"
+"HisVer"
 "HsZobr"
 
 MAltF12
@@ -688,7 +688,7 @@ MAltF12
 "BearHs"
 "MapElő"
 "HsKat"
-"HisDir"
+"HisDIR"
 "HsAdrs"
 
 MCtrlF1
@@ -699,7 +699,7 @@ l:
 "Links"
 "Bal"
 "Lewy"
-"Izqda "
+"Izqda"
 "Ľavý"
 
 MCtrlF2
@@ -709,7 +709,7 @@ MCtrlF2
 "Rechts"
 "Jobb"
 "Prawy"
-"Drcha "
+"Drcha"
 "Pravý"
 
 MCtrlF3
@@ -901,7 +901,7 @@ MAltShiftF9
 "KonfPn"
 "PluKnf"
 "KonfPl"
-"ConfPl"
+"CfgCmp"
 "KonfPl"
 
 MAltShiftF10
@@ -963,7 +963,7 @@ MCtrlShiftF3
 "Betr"
 "Megnéz"
 "Podgląd"
-"Ver "
+"Ver"
 "Zobraziť"
 
 MCtrlShiftF4
@@ -1349,7 +1349,7 @@ MHistoryView
 "Betr"
 "Nézett"
 "Zobacz"
-"Ver   "
+"Ver"
 "Zobrazenie"
 
 MHistoryEdit
@@ -1380,7 +1380,7 @@ l:
 "Die gesamte Historie wird gelöscht. Fortfahren?"
 "Az előzmények minden eleme törlődik. Folytatja?"
 "Wszystkie wpisy historii będą usunięte. Kontynuować?"
-"Los datos en el historial serán borrados. Continuar?"
+"Todos los datos en el historial serán borrados. Continuar?"
 "Všetky záznamy v histórii budú zmazané. Pokračovať?"
 
 MClear
@@ -1411,7 +1411,7 @@ MConfigRecycleBin
 "In Papierkorb &löschen"
 "&Törlés a Lomtárba"
 "&Usuwaj do Kosza"
-"Borrar hacia &papelera de reciclaje"
+"Borrar hacia &Papelera de Reciclaje"
 "&Mazať do Koša"
 
 MConfigRecycleBinLink
@@ -1602,7 +1602,7 @@ MConfigTreeAutoChange
 "Ordner &automatisch wechseln (Baumansicht)"
 "&Automatikus mappaváltás"
 "&Automatycznie zmieniaj katalog"
-"&Auto cambiar directorio"
+"&Autocambiar directorio"
 "&Automaticky meniť priečinok"
 
 MConfigTreeLabelMinFolder
@@ -1783,7 +1783,7 @@ MConfigAutoUpdateLimit
 "Automatisches Panelupdate &deaktivieren"
 "Pan&el automatikus frissítése kikapcsolva,"
 "&Wyłącz automatyczną aktualizację paneli"
-"Desactiva actualización automát. de &paneles"
+"Desactiva actuali&zación automát. de paneles"
 "Zrušiť a&utomatickú aktualizáciu panelov"
 
 MConfigAutoUpdateLimit2
@@ -1833,7 +1833,7 @@ upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
-"Determinar punto Montaje Volumen"
+"Determinar &punto Montaje Volumen"
 upd:"Determine Volume Mount point"
 
 MConfigShowTotal
@@ -1843,7 +1843,7 @@ MConfigShowTotal
 "&Gesamtzahl für Dateien anzeigen"
 "Fájl össze&s információja mutatva"
 "Wyświetl &całkowitą informację o plikach"
-"Mostrar información comple&ta de archivos"
+"Mostrar información de &total de archivos"
 "Zobrazovať &informácie o súboroch"
 
 MConfigShowFree
@@ -1893,7 +1893,7 @@ MConfigShowDotsInRoot
 "Show \"..\" in root folders"
 "Show \"..\" in root folders"
 "Show \"..\" in root folders"
-"Mostrar \"..\" en directorio raíz"
+"Mostrar \"
 "Zobrazovať \"..\" v koreňových priečinkoch"
 
 MConfigHighlightColumnSeparator
@@ -2331,7 +2331,7 @@ l:
 upd:"&Append first matched item"
 upd:"&Append first matched item"
 upd:"&Append first matched item"
-"&Agregar primer ítem coincidente"
+"&Anexar primer ítem coincidente"
 "&Pripojiť prvú nájdenú položku"
 
 MConfigInfoPanelTitle
@@ -2432,7 +2432,7 @@ upd:"DNS fully-qualified"
 upd:"DNS fully-qualified"
 upd:"DNS fully-qualified"
 upd:"DNS fully-qualified"
-"DNS Calificado"
+"DNS calificado"
 "DNS fully-qualified"
 
 MConfigInfoPanelUNTitle
@@ -2552,7 +2552,7 @@ MConfigInfoPanelShowCDInfo
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
-"Mostrar parámetros uni&dad de CD\DVD\BD"
+"Mostrar parámetros de uni&dad de CD\DVD\BD"
 "Zobraziť parametre jednotky &CD"
 
 MMenuInfoShowModeTitle
@@ -2774,7 +2774,7 @@ MViewConfigVisible0x00
 upd:"Visible '\\0'"
 upd:"Visible '\\0'"
 upd:"Visible '\\0'"
-"Visible '\\0'"
+"Visible '\\&0'"
 "Viditeľné '\\0'"
 
 MViewConfigEditAutofocus
@@ -2784,7 +2784,7 @@ MViewConfigEditAutofocus
 upd:"Search dialog auto-focus"
 upd:"Search dialog auto-focus"
 upd:"Search dialog auto-focus"
-"Auto-enfocar búsqueda en &diálogo"
+"Auto-enfocar en &diálogo de búsqueda"
 "Automaticky aktivovať dialóg hľadania"
 
 MEditConfigTitle
@@ -3017,7 +3017,7 @@ MEditConfigSelFound
 "Treffer &markieren"
 "&Találat kijelölése"
 "W&ybierz znalezione"
-"Se&leccionado encontrado"
+"Se&leccionar lo encontrado"
 "Vy&brať nájdené"
 
 MEditConfigCursorAtEnd
@@ -3179,7 +3179,7 @@ MCopyAskRO
 "Bei Dateien mit Sch&reibschutz fragen"
 "&Csak olvasható fájloknál is kérdez"
 "&Pytaj także o pliki tylko do odczytu"
-"Preguntar también archivos Sólo Lectu&ra"
+"Preguntar también en archivos de sólo lectu&ra"
 "Opýtať sa aj pri súboroch &R/O"
 
 MCopyOnlyNewerFiles
@@ -3189,7 +3189,7 @@ MCopyOnlyNewerFiles
 "Nur &neuere Dateien"
 "Cs&ak az újabb fájlokat"
 "Tylko &nowsze pliki"
-"Sólo archivo(s) más nuev&os"
+"Sólo archiv&o(s) más recientes"
 "Len &novšie súbory"
 
 MLinkType
@@ -3209,7 +3209,7 @@ MLinkTypeJunction
 "Ordner&knotenpunkt"
 "Mappa &csomópont"
 "directory &junction"
-"unión de directorio"
+"empalme de directorio"
 "kríženie pr&iečinkov"
 
 MLinkTypeHardlink
@@ -3249,7 +3249,7 @@ MLinkTypeSymlinkDirectory
 "Symbolischer Link (Or&dner)"
 "Szimbolikus link (&mappa)"
 "link symboliczny (do &folderu)"
-"enlace simbólico (&directorios)"
+"enlace simbólico (&directorio)"
 "symbolické prepoj. (prie&činok)"
 
 MCopySymLinkContents
@@ -3450,7 +3450,7 @@ MCMLTargetIN
 upd:" &in:"
 upd:" &in:"
 upd:" &in:"
-" &en:"
+" en:"
 " &v:"
 
 MCMLItems0
@@ -3646,7 +3646,7 @@ MCopySkip
 "Ausla&ssen"
 "&Kihagy"
 "&Omiń"
-"&Omitir"
+"&Saltar"
 "&Preskočiť"
 
 MCopySkipAll
@@ -3656,7 +3656,7 @@ MCopySkipAll
 "Alle aus&lassen"
 "Mi&nd"
 "Omiń w&szystkie"
-"O&mitir todos"
+"Saltar t&odos"
 "Pr&eskočiť všetko"
 
 MCopyCancel
@@ -3697,7 +3697,7 @@ MCopyCannotCreateJunctionToFile
 "Knotenpunkt wurde nicht erstellt. Datei existiert bereits:"
 "A csomópont nem hozható létre. A fájl már létezik:"
 "Nie można utworzyć połączenia - plik już istnieje:"
-"No se puede unir. El archivo ya existe:"
+"No se puede crear empalme. El archivo ya existe:"
 "Nemôžem vytvoriť krížový odkaz. Súbor už existuje:"
 
 MCopyCannotCreateVolMount
@@ -3882,7 +3882,7 @@ MCopySkipOvr
 "Über&spr."
 "&Kihagy"
 "&Omiń"
-"&Omitir"
+"Sa&ltar"
 "Pres&kočiť"
 
 MCopyAppend
@@ -3912,7 +3912,7 @@ MCopyRename
 upd:"R&ename"
 "Á&tnevez"
 upd:"R&ename"
-"Renombrar"
+"R&enombrar"
 "Pr&emenovať"
 
 MCopyCancelOvr
@@ -4003,7 +4003,7 @@ MCopySkipRO
 "Über&springen"
 "&Kihagyja"
 "&Omiń"
-"&Omitir"
+"Sa&ltar"
 "Pres&kočiť"
 
 MCopySkipAllRO
@@ -4013,7 +4013,7 @@ MCopySkipAllRO
 "A&lle überspringen"
 "Mind&et"
 "O&miń wszystkie"
-"O&mitir todos"
+"Saltar to&dos"
 "Pr&eskočiť všetky"
 
 MCopyCancelRO
@@ -4228,7 +4228,7 @@ MAskDeleteRecycleFolder
 "Wollen Sie den Ordner in den Papierkorb verschieben"
 "A Lomtárba akarja dobni a mappát?"
 "Czy chcesz przenieść katalog do Kosza"
-"Desea mover hacia la papelera de reciclaje el directorio"
+"Desea mover hacia la Papelera de Reciclaje el directorio"
 "Chcete presunúť do Koša priečinok"
 
 MAskDeleteRecycleFile
@@ -4238,7 +4238,7 @@ MAskDeleteRecycleFile
 "Wollen Sie die Datei in den Papierkorb verschieben"
 "A Lomtárba akarja dobni a fájlt?"
 "Czy chcesz przenieść plik do Kosza"
-"Desea mover hacia la papelera de reciclaje el archivo"
+"Desea mover hacia la Papelera de Reciclaje el archivo"
 "Chcete presunúť do Koša súbor"
 
 MAskDeleteRecycle
@@ -4248,7 +4248,7 @@ MAskDeleteRecycle
 "Wollen Sie das Objekt in den Papierkorb verschieben"
 "A Lomtárba akar dobni"
 "Czy chcesz przenieść do Kosza"
-"Desea mover hacia la papelera de reciclaje"
+"Desea mover hacia la Papelera de Reciclaje"
 "Chcete presunúť do Koša"
 
 MDeleteWipeTitle
@@ -4308,7 +4308,7 @@ MAskDeleteLink
 "ist ein Link auf"
 "linkelve ide:"
 "jest linkiem do"
-"es un enlace simbólico al"
+"es un enlace a"
 "je prepojenie na"
 
 MAskDeleteLinkFolder
@@ -4439,7 +4439,7 @@ upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
 upd:"The following folder will be moved to the Recycle Bin:"
-"La siguiente carpeta será movida a la Papelera de Reciclaje:"
+"El siguiente directorio será movido a la Papelera de Reciclaje:"
 upd:"The following folder will be moved to the Recycle Bin:"
 
 MDeleteWipe
@@ -4449,7 +4449,7 @@ MDeleteWipe
 "Sicheres Löschen"
 "Kisöpör"
 "Wymaż"
-"Limpiar"
+"Destruir"
 "Vymazať"
 
 MDeleteRecycle
@@ -4479,7 +4479,7 @@ MDeleteFileWipe
 "&Sicher löschen"
 "Kisö&pör"
 "&Wymaż"
-"Destruir"
+"&Destruir"
 "V&ymazať"
 
 MDeleteFileAll
@@ -4499,7 +4499,7 @@ MDeleteFileSkip
 "Über&springen"
 "&Kihagy"
 "&Omiń"
-"&Omitir"
+"Sa&ltar"
 "Pres&kočiť"
 
 MDeleteFileSkipAll
@@ -4509,7 +4509,7 @@ MDeleteFileSkipAll
 "A&lle überspr."
 "Mind&et"
 "O&miń wszystkie"
-"O&mitir todos"
+"Saltar t&odos"
 "Pr&eskočiť všetky"
 
 MDeleteFileCancel
@@ -4604,7 +4604,7 @@ l:
 "Mehrere Hardlinks zeigen auf diese Datei."
 "Több hardlink kapcsolódik a fájlhoz, a fájl"
 "Do tego pliku prowadzi wiele linków trwałych."
-"Demasiados enlaces duros a este archivo."
+"Demasiados enlaces duros enlazan a este archivo."
 "Niekoľko pevných prepojení ukazuje na tento súbor."
 
 MDeleteHardLink2
@@ -4614,7 +4614,7 @@ MDeleteHardLink2
 "Sicheres Löschen dieser Datei entfernt ebenfalls alle Links."
 "kisöprése a linkelt fájlokat is megsemmisíti."
 "Wymazanie tego pliku wymaże wszystkie pliki dolinkowane."
-"Limpiando este archivo invalidará todos los archivos enlazados."
+"Destruyendo este archivo invalidará todos los archivos enlazados."
 "Vymazanie tohto súboru zneplatní všetky súbory, ktoré sú naň prepojené."
 
 MDeleteHardLink3
@@ -4665,7 +4665,7 @@ MDeleteSkip
 "Über&springen"
 "&Kihagy"
 "Po&miń"
-"&Omitir"
+"&Saltar"
 "Pres&kočiť"
 
 MDeleteSkipAll
@@ -4675,7 +4675,7 @@ MDeleteSkipAll
 "A&lle überspr."
 "Min&d"
 "Pomiń &wszystkie"
-"Omitir &Todo"
+"Saltar &todo"
 "Preskočiť &všetky"
 
 MDeleteCancel
@@ -4705,7 +4705,7 @@ upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
 upd:"Cannot move folder to the Recycle Bin"
-"No se puede mover la carpeta a la Papelera de Reciclaje"
+"No se puede mover el directorio a la Papelera de Reciclaje"
 "Nemôžem premiestniť priečinok do Koša"
 
 MCannotGetSecurity
@@ -4716,7 +4716,7 @@ l:
 "Kann Zugriffsrechte nicht lesen für"
 "A fájlhoz nincs hozzáférési joga:"
 "Nie mogę pobrać praw dostępu dla"
-"No se puede tener permisos de acceso a archivo"
+"No se puede obtener permisos de acceso al archivo"
 "Nemôžem získať prístupové práva pre"
 
 MCannotSetSecurity
@@ -4726,7 +4726,7 @@ MCannotSetSecurity
 "Kann Zugriffsrechte nicht setzen für"
 "A fájl hozzáférési jogát nem állíthatja:"
 "Nie mogę ustawić praw dostępu dla"
-"No se puede poner permisos de acceso a archivo"
+"No se puede poner permisos de acceso al archivo"
 "Nemôžem nastaviť prístupové práva pre"
 
 MEditTitle
@@ -4994,7 +4994,7 @@ MEditSearchCase
 "G&roß-/Kleinschrb."
 "&Nagy/kisbetű érz."
 "&Uwzględnij wielkość liter"
-"Sensible min/ma&y"
+"Sensible min./ma&y."
 "&malé a VEĽKÉ"
 
 MEditSearchWholeWords
@@ -5004,7 +5004,7 @@ MEditSearchWholeWords
 "&Ganze Wörter"
 "Csak e&gész szavak"
 "Tylko całe słowa"
-"&Palabras completas"
+"&Palabras enteras"
 "&Celé slová"
 
 MEditSearchReverse
@@ -5187,7 +5187,7 @@ MEditSkip
 "Über&springen"
 "&Kihagy"
 "&Omiń"
-"&Omitir"
+"&Saltar"
 "Pres&kočiť"
 
 MEditCancel
@@ -5340,7 +5340,7 @@ MNeedNearPath
 "Zum nahesten existierenden Ordner springen?"
 "Ugrás a legközelebbi létező mappára?"
 "Przejść do najbliższego istniejącego folderu?"
-"Saltar al próximo directorio existente"
+"Saltar al próximo directorio existente?"
 "Skočiť na najbližší existujúci priečinok?"
 
 MSaveThisShortcut
@@ -5350,7 +5350,7 @@ MSaveThisShortcut
 "Verknüpfung speichern?"
 "Mentsem a gyorsbillentyűket?"
 "Zapisać skróty?"
-"Guardar este atajo"
+"Guardar este atajo?"
 "Uložiť tieto skratky?"
 
 MEditF1
@@ -5412,7 +5412,7 @@ MEditF6
 "Betr."
 "Megnéz"
 "Zobacz"
-"Ver "
+"Ver"
 "Zobraziť"
 
 MEditF7
@@ -7368,7 +7368,7 @@ MEditSaveAsFormatTitle
 "Zeilenumbrüche setzen:"
 "Sortörés konverzió:"
 "Zamień znaki końca linii na:"
-"Cambiar fin de líneas a:"
+"Cambiar salto de líneas a:"
 "Zmeniť konce riadkov na:"
 
 MEditSaveOriginal
@@ -7598,7 +7598,7 @@ MEditorSwitchUnicodeCPDisabled
 upd:"Unicode codepage switch is not supported"
 upd:"Unicode codepage switch is not supported"
 upd:"Unicode codepage switch is not supported"
-"Cambio a página de códigos Unicode no está soportado"
+"Cambio a página de códigos unicode no está soportado"
 "Prepínač Unicode nie je podporovaný"
 
 MEditorTryReloadFile
@@ -7638,7 +7638,7 @@ MEditorCPNotDetected
 upd:"Cannot determine the codepage"
 upd:"Cannot determine the codepage"
 upd:"Cannot determine the codepage"
-"No se detectó página de códigos"
+"No se pudo determinar página de códigos"
 "Nebola zistená tabuľka znakov"
 
 MColumnName
@@ -7719,7 +7719,7 @@ MColumnCreated
 "Erstellt"
 "Létrejött"
 "Utworzenie"
-"Creado "
+"Creado"
 "Vytvorený"
 
 MColumnAccessed
@@ -7729,7 +7729,7 @@ MColumnAccessed
 "Zugriff"
 "Hozzáférés"
 "Użycie"
-"Acceso  "
+"Accedido"
 "Prístup"
 
 MColumnChanged
@@ -7850,7 +7850,7 @@ MListJunction
 "Knoten"
 "Csomópt"
 "Dowiązania"
-" Unir "
+"Empalme"
 "Kríženie"
 
 MListVolMount
@@ -8349,7 +8349,7 @@ MViewF3
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MViewF4
@@ -8419,7 +8419,7 @@ MViewF10
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MViewF11
@@ -9369,7 +9369,7 @@ MSingleViewF3
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MSingleViewF4
@@ -9439,7 +9439,7 @@ MSingleViewF10
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MSingleViewF11
@@ -10324,7 +10324,7 @@ l:// this is another text for F2
 "KeinUm"
 "NemTör"
 "Rozwij"
-"DsAjus"
+"NoDivi"
 "Nezalom."
 
 MSingleViewF4Text
@@ -10357,7 +10357,7 @@ MViewMode
 upd:"View mode"
 upd:"View mode"
 upd:"View mode"
-"Modo de vista"
+"Modo de visualización"
 "View mode"
 
 MInViewer
@@ -10489,7 +10489,7 @@ MFindFileHex
 "En&thält Hex (xx xx ...):"
 "Tartalmazza a he&xát:"
 "Zawierający wartość &szesnastkową:"
-"Conteniendo Hexa:"
+"Conteniendo hexa:"
 "Obsahujúci &hex:"
 
 MFindFileCodePage
@@ -10519,7 +10519,7 @@ MFindFileCase
 "Gr&oß-/Kleinschreibung"
 "&Nagy/kisbetű érzékeny"
 "&Uwzględnij wielkość liter"
-"Sensible min/ma&yúsc."
+"Sensible min./ma&y."
 "ma&lé a VEĽKÉ písmená"
 
 MFindFileWholeWords
@@ -10529,7 +10529,7 @@ MFindFileWholeWords
 "Nur &ganze Wörter"
 "Csak egés&z szavak"
 "Tylko &całe słowa"
-"&Palabras completas"
+"&Palabras enteras"
 "&Celé slová"
 
 MFindFileAllCodePages
@@ -10579,7 +10579,7 @@ MSearchForHex
 "Nach &Hex suchen"
 "Keresés &hexákra"
 "Szukaj wartości &szesnastkowej"
-"Buscar cadena &hexa"
+"Buscar cadena &hexadecimal"
 "Hľadať &hex"
 
 MSearchWhere
@@ -10599,7 +10599,7 @@ MSearchAllDisks
 "Auf &allen festen Datenträger"
 "Minden &fix meghajtón"
 "Na dyskach &stałych"
-"Buscar en todas las unidades no-removibles"
+"En tod&as las unidades no-removibles"
 "na všetkých p&evných diskoch"
 
 MSearchAllButNetwork
@@ -10609,7 +10609,7 @@ MSearchAllButNetwork
 "Auf allen &lokalen Datenträgern"
 "Minden hel&yi meghajtón"
 "Na dyskach &lokalnych"
-"Buscar en todas las unidades locales"
+"En todas las unidades &locales"
 "na všetkých &lokálnych diskoch"
 
 MSearchInPATH
@@ -10629,7 +10629,7 @@ MSearchFromRootOfDrive
 "Ab Wu&rzelverz. von"
 "Meghajtó &gyökerétől:"
 "Od &korzenia"
-"Buscar desde &raíz de"
+"Desde &raíz de"
 "od &koreňa"
 
 MSearchFromRootFolder
@@ -10639,7 +10639,7 @@ MSearchFromRootFolder
 "Ab Wu&rzelverzeichnis"
 "A &gyökérmappától"
 "Od katalogu &głównego"
-"Buscar desde el directorio &raíz"
+"Desde el directorio &raíz"
 "od koreňo&vého priečinka"
 
 MSearchFromCurrent
@@ -10649,7 +10649,7 @@ MSearchFromCurrent
 "Ab dem aktuelle&n Ordner"
 "Az akt&uális mappától"
 "Od &bieżącego katalogu"
-"Buscar desde directorio actual"
+"Desde directorio actual"
 "od tohto prie&činka"
 
 MSearchInCurrent
@@ -10659,7 +10659,7 @@ MSearchInCurrent
 "Nur im aktue&llen Ordner"
 "&Csak az aktuális mappában"
 "&Tylko w bieżącym katalogu"
-"Buscar en el directorio actua&l solamente"
+"En el directorio actua&l solamente"
 "len v &tomto priečinku"
 
 MSearchInSelected
@@ -10769,7 +10769,7 @@ MFindView
 "&Betrachten"
 "Meg&néz"
 "&Podgląd"
-"&Ver "
+"&Ver"
 "Zo&braziť"
 
 MFindPanel
@@ -10800,7 +10800,7 @@ l:
 "Suche beendet. %1 Datei(en) und %2 Ordner gefunden."
 "A keresés kész. %1 fájlt és %2 mappát találtam."
 "Wyszukiwanie zakończone (znalazłem %1 plików i %2 folderów)"
-"Búsqueda finalizada. Encontrados %1 archivo(s) y %2 directorio(s)"
+"Búsqueda finalizada. Encontrados: %1 archivo(s) y %2 directorio(s)"
 "Hľadanie skončilo. Nájdených %1 súbor(ov) a %2 priečink(ov)"
 
 MFindCancel
@@ -10821,7 +10821,7 @@ l:
 " Dateien: %1, Ordner: %2 "
 " Fájlt: %1, mappát: %2 "
 " Plików: %1, folderów: %2 "
-" Archivos: %1, carpetas: %2 "
+" Archivos: %1, directorios: %2 "
 " Súborov: %1, priečinkov: %2 "
 
 MFindFileFolder
@@ -10852,7 +10852,7 @@ MFindFileJunction
 "Knoten"
 "Csomópt"
 "Dowiązania"
-"Unión"
+"Empalme"
 "Kríženie"
 
 MFindFileAdvancedTitle
@@ -10873,7 +10873,7 @@ MFindFileSearchFirst
 "Nur &in den ersten x Bytes:"
 "Keresés csak az első &x bájtban:"
 "Szukaj wyłącznie w &pierwszych:"
-"Buscar solamente en el &primer:"
+"Buscar solamente en los &primeros:"
 "Hľadať &len v prvých:"
 
 MFindFileSearchOutputFormat
@@ -10893,7 +10893,7 @@ MFindAlternateStreams
 upd:"Process &alternate data streams"
 "&Alternatív adatsávok (stream) feldolgozása"
 upd:"Process &alternate data streams"
-"Procesar flujo alternativo de datos"
+"Procesar flujo &alternativo de datos"
 "Spracovať stried&avé dátové toky"
 
 MFindAlternateModeTypes
@@ -10903,7 +10903,7 @@ MFindAlternateModeTypes
 "Spalten&typen"
 "Oszlop&típusok"
 "&Typy kolumn"
-"&Tipos de columna"
+"&Tipos de columnas"
 "&Typ stĺpcov"
 
 MFindAlternateModeWidths
@@ -10913,7 +10913,7 @@ MFindAlternateModeWidths
 "Spalten&breiten"
 "Oszlop&szélességek"
 "&Szerokości kolumn"
-"Anc&ho de columna"
+"Anc&ho de columnas"
 "Šír&ka stĺpcov"
 
 MFoldTreeSearch
@@ -11005,7 +11005,7 @@ MGetCodePageEditCodePageName
 upd:"Edit code page name"
 upd:"Edit code page name"
 upd:"Edit code page name"
-"Editar página de códigos"
+"Editar nombre de página de códigos"
 "Upraviť názov tabuľky znakov"
 
 MGetCodePageResetCodePageName
@@ -11137,7 +11137,7 @@ MHighlightColors
 " Dateinamenfarben (\"Schwarz auf Schwarz\"=Standard) "
 " Fájlnév színek (feketén fekete = alapértelmezett szín) "
 " Kolory nazw plików (domyślny - \"czarny na czarnym\") "
-" Colores de archivos (\"negro en negro\" - color por defecto) "
+" Colores de archivos (\"
 " Farba názvov súborov (\"čierna na čiernej\" - východisková) "
 
 MHighlightFileName1
@@ -11227,7 +11227,7 @@ MHighlightExample1
 "║dateinam.erw │"
 "║fájlneve.kit │"
 "║nazwa.roz    │"
-"║nombre.ext   │"
+"║nombre.ext  │"
 "║filename.ext │"
 
 MHighlightExample2
@@ -11237,7 +11237,7 @@ MHighlightExample2
 "║ dateinam.erw│"
 "║ fájlneve.kit│"
 "║ nazwa.roz   │"
-"║ nombre.ext  │"
+"║ nombre.ext │"
 "║ filename.ext│"
 
 MHighlightContinueProcessing
@@ -11268,7 +11268,7 @@ MInfoCompName
 "Computername"
 "Számítógép neve"
 "Nazwa komputera"
-"Nombre computadora"
+"Nombre de computadora"
 "Názov počítača"
 
 MInfoCompDescription
@@ -11558,7 +11558,7 @@ MInfoMemoryLoad
 "Speicherverbrauch"
 "Használt memória"
 "Użycie pamięci"
-"Carga en Memoria"
+"Carga en memoria"
 "Obsadenie pamäte"
 
 MInfoMemoryInstalled
@@ -11648,7 +11648,7 @@ MInfoDizAbsent
 "Keine Datei mit Ordnerbeschreibungen vorhanden."
 "Mappa megjegyzésfájl nincs"
 "Plik opisu katalogu nie istnieje"
-"archivo descripción del directorio está ausente"
+"Archivo descripción del directorio está ausente"
 "Chýba popisný súbor priečinka"
 
 MInfoPlugin
@@ -11950,7 +11950,7 @@ MMakeFolderLinkJunction
 "Ordnerknotenpunkt"
 "Mappa csomópont"
 "directory junction"
-"unión de directorio"
+"empalme de directorio"
 "kríženie priečinkov"
 
 MMakeFolderLinkSymlink
@@ -11970,7 +11970,7 @@ MMakeFolderLinkTarget
 upd:"Target:"
 upd:"Target:"
 upd:"Target:"
-"Objetivo:"
+"Destino:"
 "Cieľ:"
 
 MMultiMakeDir
@@ -12091,7 +12091,7 @@ MMenuLinksView
 "Dateilin&ks"
 "Fájl li&nkek"
 "Dowiąza&nia"
-"En&laces"
+"En&laces de archivo"
 "Prepo&jenia súboru"
 
 MMenuAlternativeView
@@ -12122,7 +12122,7 @@ MMenuTreePanel
 "Baumansich&t"
 "&Fastruktúra"
 "Drz&ewo"
-"Panel árbol"
+"Panel ár&bol"
 "Pa&nel Strom"
 
 MMenuQuickView
@@ -12233,7 +12233,7 @@ MMenuLink
 upd:"Link"
 upd:"Link"
 upd:"Link"
-"Enlace"
+"En&lace"
 upd:"Link"
 
 MMenuCreateFolder
@@ -12374,7 +12374,7 @@ l:
 "Dateien &finden"
 "Fájl&keresés"
 "&Znajdź plik"
-"&Buscar archivos"
+"&Encontrar archivos"
 "Ná&jsť súbor"
 
 MMenuHistory
@@ -12454,7 +12454,7 @@ MMenuCompareFolders
 "Ordner verglei&chen"
 "Mappák össze&hasonlítása"
 "Porówna&j katalogi"
-"&Compara directorios"
+"&Comparar directorios"
 "Po&rovnať priečinky"
 
 MMenuUserMenu
@@ -12464,7 +12464,7 @@ MMenuUserMenu
 "Benutzer&menu editieren"
 "Felhasználói m&enü szerk."
 "Edytuj &menu użytkownika"
-"Editar &menú usuario"
+"Editar &menú de usuario"
 "Upraviť užívateľské &menu"
 
 MMenuFileAssociations
@@ -12484,7 +12484,7 @@ MMenuFolderShortcuts
 "Or&dnerschnellzugriff"
 "Mappa gyorsbillent&yűk"
 "&Skróty katalogów"
-"Atajos a dir&ectorios"
+"Ata&jos a directorios"
 "Skratk&y priečinkov"
 
 MMenuFilter
@@ -12514,7 +12514,7 @@ MMenuWindowsList
 "Seite&nliste"
 "Képer&nyők"
 "L&ista ekranów"
-"&Listado ventanas"
+"&Listado de ventanas"
 "Zoznam okie&n"
 
 MMenuProcessList
@@ -12534,7 +12534,7 @@ MMenuHotPlugList
 "Sicheres En&tfernen"
 "H&otplug eszközök"
 "Lista urządzeń Ho&tplug"
-"Lista dispositivos hotplu&g"
+"Lista de dispositivos hotplu&g"
 "Zoznam vy&berateľných zariadení"
 
 MMenuSystemSettings
@@ -12605,7 +12605,7 @@ MMenuPluginsManagerSettings
 upd:"Plugins manager settings"
 upd:"Plugins manager settings"
 upd:"Plugins manager settings"
-"E&xplorador de complementos"
+"&Gestor de complementos"
 "Nastavenia správcu modulov"
 
 MMenuDialogSettings
@@ -12655,7 +12655,7 @@ MMenuInfoPanelSettings
 upd:"Inf&oPanel settings"
 upd:"Inf&oPanel settings"
 upd:"Inf&oPanel settings"
-"Panel de in&formación"
+"&Panel de información"
 "Nastavenia Inf&oPanela"
 
 MMenuMaskGroups
@@ -12715,7 +12715,7 @@ MMenuViewer
 "Be&trachter einrichten"
 "&Nézőke beállítások"
 "Ustawienia pod&glądu"
-"&Visor "
+"&Visor"
 "Nastavenia zob&razovača"
 
 MMenuEditor
@@ -12725,7 +12725,7 @@ MMenuEditor
 "&Editor einrichten"
 "&Szerkesztő beállítások"
 "Ustawienia &edytora"
-"&Editor "
+"&Editor"
 "Nastavenia &editora"
 
 MMenuCodePages
@@ -12765,7 +12765,7 @@ MMenuSaveSetup
 "Setup &speichern"
 "Beállítások men&tése"
 "&Zapisz ustawienia"
-"&Guardar configuración"
+"Guardar con&figuración"
 "&Uložiť nastavenia"
 
 MMenuTogglePanelRight
@@ -13158,7 +13158,7 @@ MChangeDriveFixed
 "fest"
 "fix"
 "stały"
-"Disco duro "
+"Disco duro"
 "pevný"
 
 MChangeDriveNetwork
@@ -13359,7 +13359,7 @@ MChangeDriveOpenFiles
 "Wenn Sie offene Dateien nicht schließen könnten Daten verloren gehen"
 "Ha a nyitott fájlokat nem zárja be, az adatok elveszhetnek"
 "Jeśli nie zamkniesz otwartych plików, możesz utracić dane"
-"Si no cierra los archivos abiertos, los datos se pueden perder."
+"Si no cierra los archivos abiertos, los datos se pueden perder"
 "Ak nezatvoríte otvorené súbory, môžete stratiť dáta"
 
 MChangeSUBSTDisconnectDriveTitle
@@ -13481,7 +13481,7 @@ MHotPlugListTitle
 "Hardware sicher entfernen"
 "Hotplug eszközök"
 "Lista urządzeń Hotplug"
-"Lista de conexión de dispositivos"
+"Lista de dispositivos Hotplug"
 "Zoznam vyberateľných zariadení"
 
 MHotPlugListBottom
@@ -13532,7 +13532,7 @@ MChangeDriveDisconnectReconnect
 "Bei Anmeldung &verbinden"
 "&Bejelentkezésnél újracsatlakoztat"
 "&Podłącz ponownie przy logowaniu"
-"&Reconectar al desconectar"
+"&Reconectar al iniciar sesión"
 "&Znova pripojiť pri prihlásení"
 
 MChangeDriveAskDisconnect
@@ -13603,7 +13603,7 @@ MChangeDriveShowLabel
 upd:"Show disk &label"
 upd:"Show disk &label"
 upd:"Show disk &label"
-"Mostrar etiqueta"
+"Mostrar etiqueta de disco"
 "Zobraziť názov disk&u"
 
 MChangeDriveShowFileSystem
@@ -13816,7 +13816,7 @@ MKillProcessWarning
 "Alle ungespeicherten Daten dieses Programmes gehen verloren"
 "A program minden mentetlen adata elvész"
 "Utracisz wszystkie niezapisane dane w tym programie"
-"Usted perder cualquier información no grabada de este programa"
+"Usted perderá cualquier información no guardada de este programa"
 "V tomto programe sa stratia neuložené informácie"
 
 MKillProcessKill
@@ -13877,7 +13877,7 @@ MQuickViewJunction
 "Knotenpunkt"
 "Csomópont"
 "Powiązanie"
-"Unión"
+"Empalme"
 "Kríženie"
 
 MQuickViewSymlink
@@ -14128,7 +14128,7 @@ MSetAttrHardLinks
 "Hardlinks"
 "hardlink"
 "linków trwałych"
-"Enlaces duro"
+"Enlaces duros"
 "pevné prepojenia"
 
 MSetAttrJunction
@@ -14148,7 +14148,7 @@ MSetAttrSymlink
 "Symlink:"
 "Szimlink:"
 "Link:"
-"Enlace:"
+"Enlace simbólico:"
 "Prepojenie:"
 
 MSetAttrVolMount
@@ -14178,7 +14178,7 @@ MSetAttrUnknownJunction
 "(nicht verfügbar)"
 "(adat nem elérhető)"
 "(dane niedostępne)"
-"(dato no disponible)"
+"(datos no disponibles)"
 "(dáta nie sú k dispozícii)"
 
 MSetAttrRO
@@ -14248,7 +14248,7 @@ MSetAttrNotIndexed
 "Nicht &indiziert"
 "Nem inde&xelt"
 "Nie z&indeksowany"
-"No &Indexar"
+"No &indexado"
 "Neinde&xovaný"
 
 MSetAttrSparse
@@ -14288,7 +14288,7 @@ MSetAttrReparsePoint
 upd:"Reparse point"
 upd:"Reparse point"
 upd:"Reparse point"
-"Reanalizar punto"
+"Punto de análisis"
 "Reparse point"
 
 MSetAttrVirtual
@@ -14773,7 +14773,7 @@ MSetColorPanelTotalInfo
 "Gesamtinfo"
 "Összes info"
 "Całkowite info"
-"Info total"
+"Info de total"
 "Celkové info"
 
 MSetColorPanelSelectedInfo
@@ -15004,7 +15004,7 @@ MSetColorDialogComboBoxControl
 "Kombinatiosfelder"
 "Lenyíló szövegablak"
 "Pole combo"
-"Cuadro combo"
+"Cuadro desplegable (combobox)"
 "Výber položiek"
 
 MSetColorDialogListText
@@ -15085,7 +15085,7 @@ MSetColorDialogListGrayed
 upd:"Grayed list text"
 "Szürke listaszöveg"
 upd:"Grayed list text"
-"Texto de listado en gris"
+"Texto deshabilitado de lista"
 "Grayed list text"
 
 MSetColorDialogSelectedListGrayed
@@ -15095,7 +15095,7 @@ MSetColorDialogSelectedListGrayed
 upd:"Selected grayed list text"
 "Kijelölt szürke listaszöveg"
 upd:"Selected grayed list text"
-"Texto de listado en gris seleccionado"
+"Texto seleccionado deshabilitado de lista"
 "Selected grayed list text"
 
 MSetColorDialogListScrollBar
@@ -15196,7 +15196,7 @@ MSetColorMenuGrayed
 upd:"Grayed text"
 "Szürke szöveg"
 upd:"Grayed text"
-"Texto en gris"
+"Texto deshabilitado"
 "Stmavený text"
 
 MSetColorMenuSelectedGrayed
@@ -15206,7 +15206,7 @@ MSetColorMenuSelectedGrayed
 upd:"Selected grayed text"
 "Kijelölt szürke szöveg"
 upd:"Selected grayed text"
-"Texto en gris seleccionado"
+"Texto deshabilitado seleccionado"
 "Vybraný stmavený text"
 
 MSetColorMenuBox
@@ -15236,7 +15236,7 @@ MSetColorMenuScrollBar
 "Scrollbalken"
 "Gördítősáv"
 "Suwak"
-"Barra desplazamiento"
+"Barra de desplazamiento"
 "Posuvník"
 
 MSetColorMenuArrows
@@ -15461,7 +15461,7 @@ MSetColorViewerScrollbar
 "Scrollbalken"
 "Gördítősáv"
 "Suwak"
-"Barras desplazamiento"
+"Barra de desplazamiento"
 "Posuvník"
 
 MSetColorEditorNormal
@@ -15573,7 +15573,7 @@ MSetColorHelpScrollbar
 "Scrollbalken"
 "Gördítősáv"
 "Suwak"
-"Barra desplazamiento"
+"Barra de desplazamiento"
 "Posuvník"
 
 MSetColorGroupsTitle
@@ -15716,7 +15716,7 @@ MSetConfirmRO
 upd:"&Overwrite and delete R/O files"
 "&Csak olv. fájlok felülírása/törlése"
 upd:"&Overwrite and delete R/O files"
-"S&obrescribir y borrar archivos Sólo/Lectura"
+"S&obrescribir y borrar archivos de Sólo-lectura"
 "Pr&epísanie a zmazanie súborov R/O"
 
 
@@ -15868,7 +15868,7 @@ MPluginsManagerOFP
 upd:"&File processing"
 "&Fájl feldolgozása"
 upd:"&File processing"
-"Proceso de archivo"
+"Procesado de archivo"
 "Spra&covanie súboru"
 
 MPluginsManagerStdAssoc
@@ -15878,7 +15878,7 @@ MPluginsManagerStdAssoc
 upd:"Show standard &association item"
 "Szabvány társítás megjelenítése"
 upd:"Show standard &association item"
-"Mostrar asociaciones normales de ítems"
+"Mostrar &asociaciones normales de ítems"
 "Zobrazi&ť položku štandardnej asociácie"
 
 MPluginsManagerEvenOne
@@ -15888,7 +15888,7 @@ MPluginsManagerEvenOne
 upd:"Even if only &one plugin found"
 "Akkor is, ha csak egy plugin van"
 upd:"Even if only &one plugin found"
-"Aún si solo se encontró un complemento"
+"Aún si solo se &encontró un complemento"
 "aj keď sa náj&de len jeden modul"
 
 MPluginsManagerSFL
@@ -15898,7 +15898,7 @@ MPluginsManagerSFL
 upd:"Search &results (SetFindList)"
 "Keresés eredménye (SetFindList)"
 upd:"Search &results (SetFindList)"
-"Resultados de búsqueda (SetFindList)"
+"&Resultados de búsqueda (SetFindList)"
 "Výs&ledky hľadania (SetFindList)"
 
 MPluginsManagerPF
@@ -15908,7 +15908,7 @@ MPluginsManagerPF
 upd:"&Prefix processing"
 "Előtag feldolgozása"
 upd:"&Prefix processing"
-"Proceso de prefijo"
+"Procesado de &prefijo"
 "S&pracovanie predpony"
 
 MPluginConfirmationTitle
@@ -16954,7 +16954,7 @@ MChooseMenuType
 "Wählen Sie den Typ des zu editierenden Benutzermenüs"
 "Felhasználói menü típusa:"
 "Wybierz typ menu do edycji"
-"Elija tipo de menú usuario a editar"
+"Elija tipo de menú de usuario a editar"
 "Zvoľte typ užívateľského menu na úpravu"
 
 MChooseMenuMain
@@ -17026,7 +17026,7 @@ MMainMenuBottomTitle
 "Bearb.: Entf,Einf,F4,Alt+F4"
 "Szerk.: Del,Ins,F4,Alt+F4"
 "Edycja: Del,Ins,F4,Alt+F4"
-"Editar: Del,Ins,F4"
+"Editar: Del,Ins,F4,Alt+F4"
 "Upraviť: Del,Ins,F4,Alt+F4"
 
 MAskDeleteMenuItem
@@ -17261,7 +17261,7 @@ MViewSearchCase
 "Gr&oß-/Kleinschreibung"
 "&Nagy/kisbetű érzékeny"
 "&Uwzględnij wielkość liter"
-"Sensible min/ma&yúsculas"
+"Sensible min./ma&y."
 "&malé a VEĽKÉ"
 
 MViewSearchWholeWords
@@ -17271,7 +17271,7 @@ MViewSearchWholeWords
 "Ganze &Wörter"
 "Csak e&gész szavak"
 "Tylko całe słowa"
-"&Palabras completas"
+"&Palabras enteras"
 "Celé &slová"
 
 MViewSearchReverse
@@ -17281,7 +17281,7 @@ MViewSearchReverse
 "Richtung um&kehren"
 "&Visszafelé keres"
 "Szukaj w &odwrotnym kierunku"
-"Buscar al in&verso"
+"Búsqueda in&versa"
 "&Opačné hľadanie"
 
 MViewSearchRegexp
@@ -17362,7 +17362,7 @@ MViewSearchFromBegin
 "Mit Suche am Anfang des Dokuments fortfahren?"
 "Folytassam a keresést a dokumentum elejétől?"
 "Kontynuować wyszukiwanie od początku dokumentu?"
-"Continuar búsqueda desde el comienzo del documento"
+"Continuar búsqueda desde el comienzo del documento?"
 "Pokračovať v hľadaní od začiatku dokumentu?"
 
 MViewSearchFromEnd
@@ -17372,7 +17372,7 @@ MViewSearchFromEnd
 "Mit Suche am Ende des Dokuments fortfahren?"
 "Folytassam a keresést a dokumentum végétől?"
 "Kontynuować wyszukiwanie od końca dokumentu?"
-"Continuar búsqueda desde el final del documento"
+"Continuar búsqueda desde el final del documento?"
 "Pokračovať v hľadaní od konca dokumentu?"
 
 MPrintTitle
@@ -17454,7 +17454,7 @@ l:
 "Beschreibung ändern"
 "Fájlmegjegyzés"
 "Opisz plik"
-"Describir archivos"
+"Describir archivo"
 "Súbor popisov"
 
 MEnterDescription
@@ -17464,7 +17464,7 @@ MEnterDescription
 "Beschreibung für"
 upd:"Írja be megjegyzését:"
 "Wprowadź opis"
-"Entrar descripción de"
+"Ingresar descripción para"
 "Zadajte popis"
 
 MReadingDiz
@@ -17495,7 +17495,7 @@ MCannotUpdateRODiz
 "Die Beschreibungsdatei ist schreibgeschützt."
 "A megjegyzésfájl csak olvasható"
 "Opis jest plikiem tylko do odczytu"
-"El archivo descripción es de sólo lectura"
+"El archivo descripción es de sólo-lectura"
 "Súbor popisov je len na čítanie"
 
 MCfgDizTitle
@@ -17526,7 +17526,7 @@ MCfgDizSetHidden
 "Setze das '&Versteckt'-Attribut für neu angelegte Dateien"
 "Az új megjegyzésfájl ""&rejtett"" attribútumú legyen"
 "Ustaw atrybut ""&Ukryty"" dla nowych plików z opisami"
-"Poner atributo ""&Oculto"" a las nuevas listas de descripción"
+"Poner atributo "
 "Nové súbory s popismi nastaviť s atribútom ""&Skrytý"""
 
 MCfgDizROUpdate
@@ -17659,7 +17659,7 @@ MEditPanelModeTypes
 "Spalten&typen"
 "Oszlop&típusok"
 "&Typy kolumn"
-"&Tipos de columna"
+"&Tipos de columnas"
 "&Typ stĺpcov"
 
 MEditPanelModeWidths
@@ -17669,7 +17669,7 @@ MEditPanelModeWidths
 "Spalten&breiten"
 "Oszlop&szélességek"
 "&Szerokości kolumn"
-"&Ancho de columna"
+"&Ancho de columnas"
 "Šír&ka stĺpcov"
 
 MEditPanelModeStatusTypes
@@ -17729,7 +17729,7 @@ MEditPanelModeFoldersUpperCase
 "Ordner in Großb&uchstaben zeigen"
 "Mappák NAG&YBETŰVEL mutatva"
 "Nazwy katalogów &WIELKIMI LITERAMI"
-"&Directorios en mayúsculas"
+"Mostrar &directorios en mayúsculas"
 "Zobraziť priečinky &VEĽKÝMI písmenami"
 
 MEditPanelModeFilesLowerCase
@@ -17739,7 +17739,7 @@ MEditPanelModeFilesLowerCase
 "Dateien in K&leinbuchstaben zeigen"
 "Fájlok kis&betűvel mutatva"
 "&Nazwy plików małymi literami"
-"Archivos en m&inúsculas"
+"Mostrar archivos en m&inúsculas"
 "Zobraziť súbory ma&lými písmenami"
 
 MEditPanelModeUpperToLowerCase
@@ -17770,7 +17770,7 @@ l:
 "Ordnerbeschreibungen"
 "Mappa megjegyzésfájlok"
 "Pliki opisu katalogu"
-"Descripción de directorios"
+"Archivos de descripción de directorios"
 "Súbory s popisom priečinka"
 
 MSetFolderInfoNames
@@ -17780,7 +17780,7 @@ MSetFolderInfoNames
 "Dateiliste, getrennt mit Komma (Jokerzeichen möglich):"
 "Fájlnevek, vesszővel elválasztva (joker is használható)"
 "Nazwy plików oddzielone przecinkami (znaki ? i * dopuszczalne)"
-"Ingrese nombre archivo delimitado con comas (comodines permitidos)"
+"Ingrese nombres de archivos delimitado con comas (comodines permitidos)"
 "Zadajte názvy súborov oddelené čiarkami (* je povolené)"
 
 MScreensTitle
@@ -18107,7 +18107,7 @@ MMacroSettingsSelectionBlockPresent
 "Mar&kierter Text vorhanden"
 "Ha van kijelölt &blokk"
 "Obecny &blok zaznaczenia"
-"Selección de bloque presente"
+"Selección de &bloque presente"
 "Existujúci blok výber&u"
 
 MMacroPErrorTitle
@@ -18300,7 +18300,7 @@ MPluginHotKey
 "Buchstabe oder Ziffer:"
 "Nyomja le a billentyűt (betű vagy szám)"
 "Podaj klawisz skrótu (litera lub cyfra)"
-"Entrar tecla rápida (letra o dígito)"
+"Entrar tecla de atajo (letra o dígito)"
 "Zadajte skratkový kláves (písmeno alebo číslicu)"
 
 MPluginInformation
@@ -18360,7 +18360,7 @@ MPluginModulePath
 upd:"&Module path:"
 upd:"&Module path:"
 upd:"&Module path:"
-"Ruta de &Modulo:"
+"Ruta de &módulo:"
 "Cesta k &modulu:"
 
 MPluginGUID
@@ -18443,7 +18443,7 @@ MGoToHex
 "Position (&Hex)"
 "&Hexában"
 "Pozycja (&szesnastkowo)"
-"Dirección &Hexa"
+"Dirección &hexa"
 "&Hex offset"
 
 MGoToDecimal
@@ -18453,7 +18453,7 @@ MGoToDecimal
 "Position (&dezimal)"
 "&Decimálisan"
 "Pozycja (&dziesiętnie)"
-"Dirección &Decimal"
+"Dirección &decimal"
 "&Desiatkový offset"
 
 MExcTrappedException
@@ -18694,7 +18694,7 @@ MNetUserPassword
 "Benutzerpasswort"
 "Felhasználói jelszó"
 "Hasło użytkownika"
-"Clave de usuario"
+"Contraseña de usuario"
 "Heslo užívateľa"
 
 MReadFolderError
@@ -18746,7 +18746,7 @@ MPlgLoadPluginError
 upd:"Fehler beim Laden des Pluginmoduls"
 upd:"Plugin betöltési hiba"
 upd:"Błąd ładowania modułu plugina"
-"Error cargando módulo complemento"
+"Error al cargar complemento"
 "Chyba pri nahrávaní zásuvného modulu"
 
 MCheckBox2State
@@ -18839,7 +18839,7 @@ MDocumentsHelpTitle
 "Dokumentenhilfe"
 "Dokumentumok súgói"
 "Pomoc dla dokumentów"
-"Ayuda documentos"
+"Documentos de ayuda"
 "Pomocník k dokumentom"
 
 MHelpSearchTitle
@@ -19948,7 +19948,7 @@ MInfoF10
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MInfoF11
@@ -20162,7 +20162,7 @@ MInfoAltF7
 "Suchen"
 "Keres"
 "Znajdź"
-"Encont"
+"Buscar"
 "Hľadať"
 
 MInfoAltF8
@@ -20924,7 +20924,7 @@ MQViewF10
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MQViewF11
@@ -21138,7 +21138,7 @@ MQViewAltF7
 "Suchen"
 "Keres"
 "Znajdź"
-"Encont"
+"Buscar"
 "Hľadať"
 
 MQViewAltF8
@@ -21820,7 +21820,7 @@ MKBTreeF2
 "BenuMn"
 "FelhMn"
 "UserMn"
-"Menú"
+"MenúUs"
 "UžívMn"
 
 MKBTreeF3
@@ -21900,7 +21900,7 @@ MKBTreeF10
 "Ende"
 "Kilép"
 "Koniec"
-"Quitar"
+"Salir"
 "Koniec"
 
 MKBTreeF11
@@ -22114,7 +22114,7 @@ MKBTreeAltF7
 "Suchen"
 "Keres"
 "Znajdź"
-"Encont"
+"Buscar"
 "Hľadať"
 
 MKBTreeAltF8
@@ -22154,7 +22154,7 @@ MKBTreeAltF11
 "BetrHs"
 "NézElő"
 "Historia"
-"VerHis"
+"HisVer"
 "HsZobr"
 
 MKBTreeAltF12
@@ -22993,7 +22993,7 @@ MFileHardLinksCount
 upd:"Has more than one hardlink"
 upd:"Has more than one hardlink"
 upd:"Has more than one hardlink"
-"Tiene mas de un enlace rígido"
+"Tiene mas de un enlace duro"
 "Má viac než jedno pevné prepojenie"
 
 MFileFilterDate
@@ -23113,7 +23113,7 @@ MFileFilterAttrR
 "Sch&reibschutz"
 "&Csak olvasható"
 "&Do odczytu"
-"Sólo &Lectura"
+"Sólo &lectura"
 "Len na čít&anie"
 
 MFileFilterAttrA
@@ -23193,7 +23193,7 @@ MFileFilterAttrSparse
 "Reserve"
 "Ritk&ított"
 "S&parse"
-"Escas&o"
+"Dispers&o"
 "Ried&ky"
 
 MFileFilterAttrT
@@ -23544,7 +23544,7 @@ MObjectLockedSwitchTo
 upd:"Switch to"
 upd:"Switch to"
 upd:"Switch to"
-"Cambiar a"
+"Cambiar a:"
 "Prepnúť na"
 
 MObjectLockedClose
@@ -23574,7 +23574,7 @@ MShowConfigFolders
 upd:"Show configuration folders"
 upd:"Show configuration folders"
 upd:"Show configuration folders"
-"Mostrar carpetas de configuración"
+"Mostrar directorios de configuración"
 "Zobraziť konfiguračné priečinky"
 
 MKeyLaunchMediaSelect
@@ -23875,7 +23875,7 @@ MKeySubtract
 "Gray -"
 "Gray -"
 "Gray -"
-"Gray -"
+"Tecla -"
 "Gray -"
 
 MKeyNumenter
@@ -23895,7 +23895,7 @@ MKeyMultiply
 "Gray *"
 "Gray *"
 "Gray *"
-"Gray *"
+"Tecla *"
 "Gray *"
 
 MKeyCapslock
@@ -24415,7 +24415,7 @@ MKeyAdd
 "Gray +"
 "Gray +"
 "Gray +"
-"Gray +"
+"Tecla +"
 "Gray +"
 
 MKeyUp
