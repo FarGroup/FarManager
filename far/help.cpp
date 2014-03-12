@@ -210,6 +210,8 @@ int Help::ReadHelp(const string& Mask)
 {
 	string strSplitLine;
 	int Formatting=TRUE,RepeatLastLine,BreakProcess;
+	bool drawline = false;
+	wchar_t DrawLineChar=0;
 	size_t PosTab;
 	const int MaxLength=X2-X1-1;
 	string strTabSpace;
@@ -364,7 +366,7 @@ int Help::ReadHelp(const string& Mask)
 			if (strKeyName.size() > SizeKeyName)
 			{
 				FarFormatText(strKeyName, (int)SizeKeyName, strKeyName, L"\n", 0);
-			
+
 				size_t nl;
 				while ((nl = strKeyName.find(L'\n')) != string::npos)
 				{
@@ -449,6 +451,17 @@ int Help::ReadHelp(const string& Mask)
 					Formatting=FALSE;
 					PrevSymbol=0;
 					continue;
+				}
+
+				// @=[Symbol]
+				// '@=' - одинарная горизонтальная линия на всю ширину окна хелпа
+				// '@=*' - она же из символов '*'
+				if (strReadStr[1] == L'=')
+				{
+					DrawLineChar = strReadStr[2]; // TODO: hex! ==> \xHHHH
+					drawline = true;
+					PrevSymbol=0;
+					goto m1;
 				}
 
 				if (!strSplitLine.empty())
@@ -584,6 +597,22 @@ m1:
 						}
 						else
 							RepeatLastLine=TRUE;
+					}
+
+					if (drawline)
+					{
+						drawline = false;
+						if (!strSplitLine.empty())
+						{
+							AddLine(strSplitLine);
+							StartPos = (DWORD)-1;
+						}
+						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
+						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
+						AddLine(MakeSeparator((X2 - X1 - 1) * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
+						strReadStr.clear();
+						strSplitLine.clear();
+						continue;
 					}
 
 					if (!RepeatLastLine)

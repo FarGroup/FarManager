@@ -1024,18 +1024,19 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 // "Нарисовать" сепаратор в памяти.
 string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 {
+	// left-center-right/top-center-bottom
 	wchar_t BoxType[12][3]=
 	{
 		// h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
-		/* 00 */{L' ',                 L' ',                 BoxSymbols[BS_H1]}, //  -     h1s
-		/* 01 */{BoxSymbols[BS_L_H1V2],BoxSymbols[BS_R_H1V2],BoxSymbols[BS_H1]}, // ||-||  h1b2
-		/* 02 */{BoxSymbols[BS_L_H1V1],BoxSymbols[BS_R_H1V1],BoxSymbols[BS_H1]}, // |-|    h1b1
-		/* 03 */{BoxSymbols[BS_L_H2V2],BoxSymbols[BS_R_H2V2],BoxSymbols[BS_H2]}, // ||=||  h2b2
+		/* 00 */{L' ',                 BoxSymbols[BS_H1],                 L' '}, //  -     h1s
+		/* 01 */{BoxSymbols[BS_L_H1V2],BoxSymbols[BS_H1],BoxSymbols[BS_R_H1V2]}, // ||-||  h1b2
+		/* 02 */{BoxSymbols[BS_L_H1V1],BoxSymbols[BS_H1],BoxSymbols[BS_R_H1V1]}, // |-|    h1b1
+		/* 03 */{BoxSymbols[BS_L_H2V2],BoxSymbols[BS_H2],BoxSymbols[BS_R_H2V2]}, // ||=||  h2b2
 
-		/* 04 */{L' ',                 L' ',                 BoxSymbols[BS_V1]}, //  |     v1s
-		/* 05 */{BoxSymbols[BS_T_H2V1],BoxSymbols[BS_B_H2V1],BoxSymbols[BS_V1]}, // =|=    v1b2
-		/* 06 */{BoxSymbols[BS_T_H1V1],BoxSymbols[BS_B_H1V1],BoxSymbols[BS_V1]}, // -|-    v1b1
-		/* 07 */{BoxSymbols[BS_T_H2V2],BoxSymbols[BS_B_H2V2],BoxSymbols[BS_V2]}, // =||=   v2b2
+		/* 04 */{L' ',                 BoxSymbols[BS_V1],                 L' '}, //  |     v1s
+		/* 05 */{BoxSymbols[BS_T_H2V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H2V1]}, // =|=    v1b2
+		/* 06 */{BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1]}, // -|-    v1b1
+		/* 07 */{BoxSymbols[BS_T_H2V2],BoxSymbols[BS_V2],BoxSymbols[BS_B_H2V2]}, // =||=   v2b2
 
 		/* 08 */{BoxSymbols[BS_H1],    BoxSymbols[BS_H1],    BoxSymbols[BS_H1]}, // -      h1
 		/* 09 */{BoxSymbols[BS_H2],    BoxSymbols[BS_H2],    BoxSymbols[BS_H2]}, // =      h2
@@ -1050,7 +1051,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 	{
 		wchar_t c[3];
 		bool stdUse=true;
-		if (Type > static_cast<int>(ARRAYSIZE(BoxType)))
+		if (Type >= static_cast<int>(ARRAYSIZE(BoxType)))
 		{
 			if (UserSep)
 			{
@@ -1077,9 +1078,9 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 		}
 
 		Result.resize(Length);
-		std::fill(Result.begin() + 1, Result.end() - 1, c[2]);
+		std::fill(Result.begin() + 1, Result.end() - 1, c[1]);
 		Result.front() = c[0];
-		Result.back() = c[1];
+		Result.back() = c[2];
 	}
 
 	return Result;
