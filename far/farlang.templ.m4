@@ -3027,7 +3027,7 @@ upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
-upd:"Cursor at end"
+"Cursor al final"
 "Kurzor na konci"
 
 MEditConfigDefaultCodePage
@@ -10539,7 +10539,7 @@ upd:"Všechny kódové stránky"
 upd:"Alle Zeichentabellen"
 upd:"Minden kódlappal"
 upd:"Wszystkie zainstalowane"
-upd:"Todas las páginas de códigos"
+"Todas las páginas de códigos estándar"
 upd:"Všetky tabuľky znakov"
 
 MFindArchives
@@ -13057,7 +13057,7 @@ MMenuSortUseCaseSensitive
 upd:"Sortierung abhängig von Groß-/Kleinschreibung"
 upd:"Nagy/kisbetű érzékeny rendezés"
 upd:"Sortuj uwzględniając wielkość liter"
-upd:"Usar orden sensible min/mayúsc."
+"Usar orden sensible min./may."
 upd:"Triediť podľa malých a VEĽKÝCH písmen"
 
 MMaskGroupBottom
@@ -13997,7 +13997,7 @@ upd:"Unknown reparse point"
 upd:"Unknown reparse point"
 upd:"Unknown reparse point"
 upd:"Unknown reparse point"
-upd:"Unknown reparse point"
+"Punto de análisis desconocido"
 upd:"Unknown reparse point"
 
 MQuickViewNoData
