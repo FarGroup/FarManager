@@ -2404,12 +2404,6 @@ int Dialog::ProcessKey(int Key)
 	if (ProcessMoveDialog(Key))
 		return TRUE;
 
-	// BugZ#488 - Shift=enter
-	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER||Key==KEY_NUMENTER) && !Global->CtrlObject->Macro.IsExecuting() && Items[FocusPos].Type != DI_BUTTON)
-	{
-		Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
-	}
-
 	if (!(((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
 		// wrap-stop mode for user lists

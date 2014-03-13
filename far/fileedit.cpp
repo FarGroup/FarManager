@@ -403,7 +403,7 @@ void FileEditor::Init(
 	public:
 		SmartLock(Editor *e): m_editor(e) { m_editor->Lock(); }
 		~SmartLock() { m_editor->Unlock(); }
-	
+
 	private:
 		Editor *m_editor;
 	};
@@ -803,12 +803,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
-
-	// BugZ#488 - Shift=enter
-	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER || Key == KEY_NUMENTER) && Global->CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
-	{
-		Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
-	}
 
 	// Все сотальные необработанные клавиши пустим далее
 	/* $ 28.04.2001 DJ

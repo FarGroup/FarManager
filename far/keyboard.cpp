@@ -1772,7 +1772,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 				}
 				else
 					KeyText[0]=(wchar_t)Key&0xFFFF;
-					
+
 				AddSeparator(strKeyText);
 				strKeyText += KeyText;
 			}
@@ -2689,9 +2689,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	switch (KeyCode)
 	{
 		case VK_RETURN:
-			if (IntKeyState.ShiftPressed && RealKey && !ShiftPressedLast && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !LastShiftEnterPressed)
-				return (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER;
-
 			LastShiftEnterPressed = (Modif&KEY_SHIFT) != 0;
 			return Modif|((CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
 		case VK_BROWSER_BACK:

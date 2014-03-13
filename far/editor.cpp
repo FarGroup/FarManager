@@ -2014,16 +2014,13 @@ int Editor::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (Pasting || !IntKeyState.ShiftPressed || Global->CtrlObject->Macro.IsExecuting())
-			{
-				if (!Pasting && !EdOpt.PersistentBlocks && BlockStart != Lines.end())
-					DeleteBlock();
+			if (!Pasting && !EdOpt.PersistentBlocks && BlockStart != Lines.end())
+				DeleteBlock();
 
-				Flags.Set(FEDITOR_NEWUNDO);
-				InsertString();
-				CurLine->FastShow();
-				Show();
-			}
+			Flags.Set(FEDITOR_NEWUNDO);
+			InsertString();
+			CurLine->FastShow();
+			Show();
 
 			return TRUE;
 		}
