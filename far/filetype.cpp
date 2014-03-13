@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "pathmix.hpp"
 #include "language.hpp"
+#include "DlgGuid.hpp"
 
 /* $ 25.04.2001 DJ
    обработка @ в IF EXIST: функция, которая извлекает команду из строки
@@ -141,6 +142,8 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		VMenu2 TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
 		TypesMenu.SetHelp(L"FileAssoc");
 		TypesMenu.SetFlags(VMENU_WRAPMODE);
+		TypesMenu.SetId(SelectAssocMenuId);
+
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
 
@@ -455,6 +458,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 
 	Dialog Dlg(EditDlg, EditTypeRecordDlgProc);
 	Dlg.SetHelp(L"FileAssocModify");
+	Dlg.SetId(FileAssocModifyId);
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.Process();
 
@@ -505,6 +509,7 @@ void EditFileTypes()
 	TypesMenu.SetHelp(L"FileAssoc");
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
+	TypesMenu.SetId(FileAssocMenuId);
 
 	for (;;)
 	{

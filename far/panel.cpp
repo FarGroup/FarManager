@@ -81,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
+#include "DlgGuid.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -389,6 +390,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk.SetHelp(L"DriveDlg");
 		ChDisk.SetFlags(VMENU_WRAPMODE);
+		ChDisk.SetId(ChangeDiskMenuId);
 
 		struct DiskMenuItem
 		{
