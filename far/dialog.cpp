@@ -310,9 +310,21 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 {
 	SavedItems = *SrcItem;
+	auto Src = *SrcItem;
 
 	Items.resize(SrcItemCount);
-	Items.assign(*SrcItem, *SrcItem + SrcItemCount);
+	Items.assign(Src, Src + SrcItemCount);
+
+	// Items[i].Auto.Owner points to SrcItems, we need to update:
+	for_each_2(ALL_RANGE(Items), Src, [&](DialogItemEx& item, const DialogItemEx& initItem)
+	{
+		for_each_2(ALL_RANGE(item.Auto), initItem.Auto.begin(), [&](DialogItemAutomation& itemAuto, const DialogItemAutomation& initAuto)
+		{
+			auto ItemNumber = std::find_if(Src, Src + SrcItemCount, [&](const DialogItemEx& i) { return &i == initAuto.Owner; }) - Src;
+			itemAuto.Owner = &Items[ItemNumber];
+		});
+	});
+
 	Init();
 }
 

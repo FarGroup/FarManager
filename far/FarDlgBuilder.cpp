@@ -572,20 +572,19 @@ void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIA
 		DialogItemBinding<DialogItemEx> *Binding = FindBinding(Target);
 		if (Binding)
 		{
-			LinkFlagsByID(Parent, &DialogItems[Binding->BeforeLabelID], Flags);
-			LinkFlagsByID(Parent, &DialogItems[Binding->AfterLabelID], Flags);
+			if (Binding->BeforeLabelID != -1)
+				LinkFlagsByID(Parent, &DialogItems[Binding->BeforeLabelID], Flags);
+			if (Binding->AfterLabelID != -1)
+				LinkFlagsByID(Parent, &DialogItems[Binding->AfterLabelID], Flags);
 		}
 	}
 }
 
 void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags)
 {
-	if (Target)
-	{
-		Parent->AddAutomation(Target, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
-		if (!Parent->Selected)
-			Target->Flags |= Flags;
-	}
+	Parent->AddAutomation(Target, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+	if (!Parent->Selected)
+		Target->Flags |= Flags;
 }
 
 intptr_t DialogBuilder::DoShowDialog()
