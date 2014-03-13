@@ -682,7 +682,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		int Selected = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
+		int Selected = (int) Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
 		if (!Mask)
 		{
 			*Value = Selected;
