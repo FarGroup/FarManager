@@ -513,6 +513,7 @@
         <Feature Id="FileCase" Level="1" Title="!(loc.Feature.Title.FileCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.FileCase)">
           <ComponentRef Id="CaseEng.hlf" />
           <ComponentRef Id="CaseEng.lng" />
+          <ComponentRef Id="CaseSky.lng" />
           <ComponentRef Id="CaseSpa.lng" />
           <ComponentRef Id="FileCase.dll" />
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -576,6 +577,7 @@
           <ComponentRef Id="winapi.lua" />
           <ComponentRef Id="farapi.lua" />
           <ComponentRef Id="lm_eng.lng" />
+          <ComponentRef Id="lm_sky.lng" />
           <ComponentRef Id="lm_spa.lng" />
           <Feature Id="LuaMacro.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="lm_rus.lng" />
@@ -632,6 +634,7 @@
           <ComponentRef Id="shortcuts.eng.temp" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
+          <ComponentRef Id="TmpSky.lng" />
           <ComponentRef Id="TmpSpa.lng" />
           <ComponentRef Id="TmpPanel.dll" />
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">

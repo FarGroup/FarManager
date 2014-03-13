@@ -1006,6 +1006,9 @@
           <Component Id="CaseRus.lng" Guid="$(var.Guid.CaseRus.lng)" Win64="$(var.Win64)">
             <File Id="CaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseRus.lng" />
           </Component>
+          <Component Id="CaseSky.lng" Guid="$(var.Guid.CaseSky.lng)" Win64="$(var.Win64)">
+            <File Id="CaseSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseSky.lng" />
+          </Component>
           <Component Id="CaseSpa.lng" Guid="$(var.Guid.CaseSpa.lng)" Win64="$(var.Win64)">
             <File Id="CaseSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseSpa.lng" />
           </Component>
@@ -1118,6 +1121,9 @@
           <Component Id="lm_rus.lng" Guid="$(var.Guid.lm_rus.lng)" Win64="$(var.Win64)">
             <File Id="lm_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_rus.lng" />
           </Component>
+          <Component Id="lm_sky.lng" Guid="$(var.Guid.lm_sky.lng)" Win64="$(var.Win64)">
+            <File Id="lm_sky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_sky.lng" />
+          </Component>
           <Component Id="lm_spa.lng" Guid="$(var.Guid.lm_spa.lng)" Win64="$(var.Win64)">
             <File Id="lm_spa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_spa.lng" />
           </Component>
@@ -1210,6 +1216,9 @@
           </Component>
           <Component Id="TmpEng.lng" Guid="$(var.Guid.TmpEng.lng)" Win64="$(var.Win64)">
             <File Id="TmpEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpEng.lng" />
+          </Component>
+          <Component Id="TmpSky.lng" Guid="$(var.Guid.TmpSky.lng)" Win64="$(var.Win64)">
+            <File Id="TmpSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpSky.lng" />
           </Component>
           <Component Id="TmpSpa.lng" Guid="$(var.Guid.TmpSpa.lng)" Win64="$(var.Win64)">
             <File Id="TmpSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpSpa.lng" />

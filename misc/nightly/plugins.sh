@@ -58,13 +58,13 @@ bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawEng.lng 
 bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng EditCase.map" && \
 bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenu.map HotkeyClipboard.lua HotkeyProperties.lua Hotkey.lua Hotkey.farconfig" && \
 bplugin "farcmds" "FarCmds" "FARCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng FARCmds.map" && \
-bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSpa.lng FileCase.map" && \
+bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng FileCase.map" && \
 bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewer.map" && \
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng Network.map" && \
 bplugin "proclist" "ProcList" "Proclist.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng Proclist.map" && \
-bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSpa.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp" && \
+bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp" && \
 bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng" && \
-bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua lm_eng.lng lm_rus.lng lm_spa.lng LuaMacro.map" \
+bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng LuaMacro.map" \
 ) || exit 1
 
 ( \

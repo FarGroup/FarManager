@@ -305,6 +305,7 @@
 <?define Guid.FARCmdsSpa.lng = "69C931C3-EE99-4D79-9784-F24DD5E06C7A" ?>
 <?define Guid.CaseEng.hlf = "FAE61049-FD8F-4E26-ADB5-F9CD98DF9EC0" ?>
 <?define Guid.CaseEng.lng = "B012A5C1-CB22-42AD-84C8-8D25AE2622EF" ?>
+<?define Guid.CaseSky.lng = "AEC49654-8080-433F-8D68-CC228B880955" ?>
 <?define Guid.CaseSpa.lng = "1F8C1BEA-E12F-4E27-983C-3BC7F1412F08" ?>
 <?define Guid.CaseRus.hlf = "1F7AEA2F-6CC6-4353-A203-8D8C3D973211" ?>
 <?define Guid.CaseRus.lng = "8F866F89-0303-4CCF-BF9E-EB3208FACF90" ?>
@@ -352,6 +353,7 @@
 <?define Guid.shortcuts.rus.temp = "63539EEB-2A95-42FD-86DB-057011BB731A" ?>
 <?define Guid.TmpEng.hlf = "C1EEFF12-0A91-4DC6-A105-529610D2BB77" ?>
 <?define Guid.TmpEng.lng = "9C067B5B-CD92-41A3-B566-25E4ED1C4528" ?>
+<?define Guid.TmpSky.lng = "46C21F30-EEE1-4100-A9BB-1278E9549932" ?>
 <?define Guid.TmpSpa.lng = "67AFBA75-4A04-4360-8860-BD662D5F6BF2" ?>
 <?define Guid.TmpPanel.dll = "7FB21AFC-112F-4E5C-A274-184617A75BE5" ?>
 <?define Guid.TmpPanel.map = "6D85B2D5-32B4-476A-A92D-A460008E4EFA" ?>
@@ -372,6 +374,7 @@
 <?define Guid.farapi.lua = "E1635B47-5D61-4874-94CB-6F05AB04C089" ?>
 <?define Guid.lm_eng.lng = "399E5A27-56F7-4C13-9D1A-9AC153950F75" ?>
 <?define Guid.lm_rus.lng = "77516C3A-46FC-4709-A21C-77C13F4DCDFB" ?>
+<?define Guid.lm_sky.lng = "CA4E6E77-0A9B-4AB1-9546-582622BECD97" ?>
 <?define Guid.lm_spa.lng = "0F5E0D6A-68F4-45A1-AEC9-25C88E9CFE74" ?>
 <?define Guid.lua5.1.dll = "26D2B351-46E7-48F7-9193-69A277D47643" ?>
 <?define Guid.lua51.dll = "1D39E4A8-1D26-44B0-8189-418D87D83809" ?>
