@@ -1,8 +1,8 @@
 !include ../makefile_vc_base
 
 NAME=luafar3
-LUA_VER=5.1
-LUA_PROXY=lua51.dll
+LUA_VER=51
+LUA_PROXY=lua5.1.dll
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
 

@@ -11,7 +11,7 @@
 
 #ifndef LUADLL
 # if LUA_VERSION_NUM == 501
-#  define LUADLL "lua5.1.dll"
+#  define LUADLL "lua51.dll"
 # elif LUA_VERSION_NUM == 502
 #  define LUADLL "lua52.dll"
 # endif

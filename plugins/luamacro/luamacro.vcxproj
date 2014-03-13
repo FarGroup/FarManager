@@ -149,7 +149,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\unicode_far\Debug.32.vc;luasdk/32</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
@@ -184,7 +184,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../unicode_far/Debug.64.vc;luasdk/64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
@@ -219,7 +219,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\unicode_far\Debug.IA64.vc;luasdk/IA64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
@@ -257,7 +257,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\unicode_far\Release.32.vc;luasdk/32</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
@@ -295,7 +295,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\unicode_far\Release.64.vc;luasdk/64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
@@ -333,7 +333,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua5.1.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\unicode_far\Release.IA64.vc;luasdk/IA64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>

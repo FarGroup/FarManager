@@ -2,7 +2,6 @@ include ../../unicode_far/makefile_gcc_common
 
 NAME = luamacro
 LUAVER=51
-LUA_VER=$(subst 51,5.1,$(LUAVER))
 
 ifndef FAR_WORKDIR
 FAR_WORKDIR := $(FARDIR)$(DIRNAME).$(DIRBIT).gcc
@@ -16,7 +15,7 @@ SRCS = luafar/luaplug.c
 USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR \
           -DEXPORT_PROCESSEDITOREVENT -DEXPORT_PROCESSVIEWEREVENT \
           -DEXPORT_PROCESSDIALOGEVENT -DEXPORT_PROCESSEDITORINPUT
-USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUA_VER).dll
+USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUAVER).dll
 
 NEEDENTRY  = 1
 NEEDDEFLIB = 1

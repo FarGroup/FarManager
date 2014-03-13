@@ -2,11 +2,10 @@ include ../../unicode_far/makefile_gcc_common
 
 NAME=luafar3
 LUAVER=51
-LUA_VER=$(subst 51,5.1,$(LUAVER))
-LUA_PROXY=lua51.dll
+LUA_PROXY=lua5.1.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
-DOCS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll luasdk/$(DIRBIT)/$(LUA_PROXY)
+DOCS = luasdk/$(DIRBIT)/lua$(LUAVER).dll luasdk/$(DIRBIT)/$(LUA_PROXY)
 SRCS = \
 luafar/bit64.c \
 luafar/exported.c \
@@ -29,8 +28,8 @@ ifeq ($(LUAVER),52)
 SRCS += luafar/compat52.c
 endif
 
-USERLIBS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll -lrpcrt4
-USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUA_VER).dll\"
+USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).dll -lrpcrt4
+USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\"
 
 NEEDENTRY  = 1
 NEEDDEFLIB = 1

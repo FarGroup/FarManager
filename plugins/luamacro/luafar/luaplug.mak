@@ -17,7 +17,7 @@ ifeq ($(LUAVERSION),52)
   LUADLLNAME = lua52
 else
   INC_LUA = $(PATH_LUAFAR)\..\luasdk\include
-  LUADLLNAME = lua5.1
+  LUADLLNAME = lua51
 endif
 
 DIRBIT = 32

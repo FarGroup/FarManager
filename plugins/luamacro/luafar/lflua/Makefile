@@ -3,7 +3,7 @@ ifeq ($(LUAVERSION),52)
   LUADLLNAME = lua52
 else
   PATH_LUASRC = ../../../../lua_thirdparty/lua/src
-  LUADLLNAME = lua5.1
+  LUADLLNAME = lua51
 endif
 
 TARGET = lflua.exe
