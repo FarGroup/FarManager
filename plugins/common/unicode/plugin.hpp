@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3803
+  Plugin API for Far Manager 3.0 build 3834
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3803
+#define FARMANAGERVERSION_BUILD 3834
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -92,6 +92,11 @@ struct FarColor
 			&& ForegroundColor == rhs.ForegroundColor
 			&& BackgroundColor == rhs.BackgroundColor
 			&& Reserved == rhs.Reserved;
+	}
+
+	bool operator !=(const FarColor& rhs) const
+	{
+		return !(*this == rhs);
 	}
 #endif
 };
@@ -475,6 +480,18 @@ struct FAR_CHAR_INFO
 {
 	WCHAR Char;
 	struct FarColor Attributes;
+
+#ifdef __cplusplus
+	bool operator ==(const FAR_CHAR_INFO& rhs) const
+	{
+		return Char == rhs.Char && Attributes == rhs.Attributes;
+	}
+
+	bool operator !=(const FAR_CHAR_INFO& rhs) const
+	{
+		return !(*this == rhs);
+	}
+#endif
 };
 
 struct FarDialogItem

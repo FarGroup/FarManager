@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3803
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3834
 */
 
 /*
@@ -679,7 +679,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		int Selected = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
+		int Selected = (int) Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
 		if (!Mask)
 		{
 			*Value = Selected;
