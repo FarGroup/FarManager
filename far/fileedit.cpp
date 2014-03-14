@@ -1257,7 +1257,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				}
 				else
 				{
-					Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk));
+					const wchar_t* const Items[] = {MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk)};
+					Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSwitchUnicodeCPDisabledId);
 				}
 
 				return TRUE;
@@ -1306,7 +1307,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				}
 				else
 				{
-					Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk));
+					const wchar_t* const Items[] = {MSG(MEditorSwitchUnicodeCPDisabled),MSG(MEditorTryReloadFile),MSG(MOk)};
+					Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorSwitchUnicodeCPDisabledId);
 				}
 
 				return TRUE;
