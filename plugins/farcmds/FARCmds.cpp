@@ -240,7 +240,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
     Builder.AddSeparator();
 
-    FarDialogItem *MaxData = Builder.AddIntEditField((int *)&Opt.MaxDataSize, 10);
+    FarDialogItem *MaxData = Builder.AddUIntEditField((unsigned int *)&Opt.MaxDataSize, 10);
     Builder.AddTextBefore(MaxData, MMaxDataSize);
 
     Builder.AddOKCancel(MOk, MCancel);
@@ -254,6 +254,10 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 		settings.Set(0,OptName.CatchMode,Opt.CatchMode);
 		settings.Set(0,OptName.ViewZeroFiles,Opt.ViewZeroFiles);
 		settings.Set(0,OptName.EditNewFiles,Opt.EditNewFiles);
+		if (!Opt.MaxDataSize)
+			Opt.MaxDataSize=1048576;
+		if (Opt.MaxDataSize > 0xFFFFFFFFU)
+			Opt.MaxDataSize=0xFFFFFFFFU;
 		settings.Set(0,OptName.MaxDataSize,Opt.MaxDataSize);
 		return TRUE;
 	}
