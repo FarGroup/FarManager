@@ -50,6 +50,20 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="lm_eng.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="lm_rus.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="lm_sky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="lm_spa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="luamacroW.vc.def">
       <Filter>Source Files</Filter>
     </None>
