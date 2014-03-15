@@ -66,6 +66,9 @@
     <CustomBuild Include="CaseRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="CaseSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="CaseSpa.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
