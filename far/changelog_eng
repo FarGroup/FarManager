@@ -3,6 +3,85 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 14.03.2014 12:20:09 +0400 - build 3835
+
+1. Mantis#0002613: GUIDs needed for drives and associations menu
+
+    EditorSwitchUnicodeCPDisabledId = {15568DC5-4D6B-4c60-B43D-2040EE39871A} --> Dlg.Id
+       "Unicode codepage switch is not supported" message
+       It is shown on attempt of changing the codepage while editing an Unicode file (for example, codepage 1200).
+
+2. Mantis#0002570: Processing of an incorrect value in the settings dialog
+   DlgBuilder is provided with unsigned int values processing capability.
+
+svs 13.03.2014 20:13:49 +0400 - build 3834
+
+1. Mantis#0002613: GUIDs needed for drives and associations menu
+
+    ChangeDiskMenuId      = {252CE4A3-C415-4b19-956B-83E2FDD85960}  --> Menu.Id
+       Drive selection menu
+
+    FileAssocMenuId       = {F6D2437C-FEDC-4075-AA56-275666FC8979}  --> Menu.Id
+       Associations editing menu
+    SelectAssocMenuId     = {D2BCB5A5-6B82-4eb5-B321-1AE7607A6236}  --> Menu.Id
+       Associations list menu
+    FileAssocModifyId     = {6F245B1A-47D9-41a6-AF3F-FA2C8DBEEBD0}  --> Dlg.Id
+       Current association editing menu
+
+drkns 13.03.2014 11:55:36 +0200 - build 3833
+
+1. After 3819 the logical binding of the dialog items did not work.
+
+zg 13.03.2014 02:20:45 +0200 - build 3832
+
+1. 0002620: Stuck Shift key when sending ECTL_PROCESSINPUT.
+
+svs 12.03.2014 16:03:57 +0400 - build 3831
+
+1. SQLite 3.8.4.1
+
+2. Mantis#0002619: Missing horizontal line in help
+   The help markup is added the instruction:
+     @=[Sym] (at the beginning of the line)
+     Draws a horizontal line from "Sym" characters with the normal text color.
+     The line is drawn onw the entire width of the Help window indented by one symbol from the left and from the right.
+     If "Sym" is omitted, then the single horizontal line will be drawn (character code 0x2500).
+     The rest of the line is ignored.
+
+3. DIF_SEPARATORUSER did not work (at least for the horizontal separator)
+
+svs 11.03.2014 10:24:41 +0400 - build 3830
+
+1. Bug: Incorrect functioning of launch files from panels when the file name contains '@' at the beginning.
+   For example, "@@@@howl_by_tomape.jpg" while proceeding inner functions is transformed to "@@@howl_by_tomape.jpg"
+   I.e. "@" character at the beginning of the line treated as a silent mode flag, then the line is truncated by -1 character.
+
+   Now: Enter on a file panel item skips the algorithm of '@' character definition at the beginning of the name.
+        For '@@@@howl_by_tomape.jpg' in command line a warning will be issued that the file "@@@howl_by_tomape.jpg" does not exist.
+        For '"@@@@howl_by_tomape.jpg"' (quoted name) the '@@@@howl_by_tomape.jpg' file will be launched.
+
+
+svs 10.03.2014 22:56:53 +0400 - build 3829
+
+1. SQLite 3.8.4
+
+drkns 10.03.2014 19:37:56 +0200 - build 3828
+
+1. "/rw" key renamed to "/ro-".
+
+2. After 3821 the debug build detected false memory leak. It is better to avoid global std objects.
+
+3. Placing NonCopyable, getting rid of some global objects and other refactoring.
+
+drkns 10.03.2014 01:28:52 +0200 - build 3827
+
+1. Another couple of drawing optimizations.
+
+drkns 10.03.2014 01:08:07 +0200 - build 3826
+
+1. A very old bug, introduced in 2.0.1077.
+   In some cases the optimization worked not as expected and caused slowdown.
+
 shmuel 09.03.2014 15:08:27 +0200 - build 3825
 
 1. Forum: DI_FIXEDIT + DIF_HISTORY for lines longer than 2 characters.
