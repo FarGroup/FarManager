@@ -31,7 +31,7 @@ intptr_t WINAPI ViewerControl(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>ViewerID</div>
-    <div class=dfndescr>Идентификатор экземпляра вьювера (текущий вьювер: <code>-1</code>). Каждый экземпляр встроенной программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+    <div class=dfndescr>Идентификатор экземпляра вьюера (текущий вьюер: <code>-1</code>). Каждый экземпляр встроенной программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
   <div class=dfn>Command</div>
     <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="VIEWER_CONTROL_COMMANDS">VIEWER_CONTROL_COMMANDS</a>):
     <table class="cont">
@@ -80,7 +80,7 @@ intptr_t WINAPI ViewerControl(
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETFILENAME">VCTL_GETFILENAME</a></td>
-    <td class="cont" width="60%">Получить имя открытого во вьювере файла.<br>
+    <td class="cont" width="60%">Получить имя открытого во вьюере файла.<br>
     <code>Param1</code> - размер буфера в символах, который выделил плагин для данных.<br>
     <code>Param2</code> указывает на буфер, выделенный плагином, куда будет помещено имя файла.<br>
     Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.<br>
