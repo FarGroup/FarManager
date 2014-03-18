@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "TaskBar.hpp"
 #include "language.hpp"
+#include "DlgGuid.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -410,6 +411,7 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	{
 		Dialog Dlg(PassDlg);
 		Dlg.SetPosition(-1,-1,76,10);
+		Dlg.SetId(GetNameAndPasswordId);
 
 		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);

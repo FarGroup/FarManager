@@ -309,6 +309,7 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 
 void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 {
+	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
 	SavedItems = *SrcItem;
 	auto Src = *SrcItem;
 
@@ -330,6 +331,7 @@ void Dialog::Construct(DialogItemEx** SrcItem, size_t SrcItemCount)
 
 void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 {
+	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 2"));
 	SavedItems = nullptr;
 
 	Items.resize(SrcItemCount);
@@ -340,6 +342,7 @@ void Dialog::Construct(const FarDialogItem** SrcItem, size_t SrcItemCount)
 
 void Dialog::Init()
 {
+	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
 	SetDynamicallyBorn(false); // $OT: ѕо умолчанию все диалоги создаютс€ статически
 	CanLoseFocus = FALSE;
 	//Ќомер плагина, вызвавшего диалог (-1 = Main)
@@ -380,7 +383,8 @@ void Dialog::Init()
 */
 Dialog::~Dialog()
 {
-	_tran(SysLog(L"[%p] Dialog::~Dialog()",this));
+	_DIALOG(CleverSysLog CL(L"Dialog::~Dialog()"));
+	_DIALOG(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
 
 	if (Global->CtrlObject)
@@ -397,7 +401,7 @@ Dialog::~Dialog()
 //	PeekInputRecord(&rec);
 	delete OldTitle;
 	RemoveFromList();
-	_DIALOG(CleverSysLog CL(L"Destroy Dialog"));
+	_DIALOG(SysLog(L"Destroy Dialog"));
 }
 
 void Dialog::CheckDialogCoord()
@@ -425,6 +429,7 @@ void Dialog::CheckDialogCoord()
 void Dialog::InitDialog()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::InitDialog()"));
 
 	if(Global->CloseFAR)
 	{
@@ -467,7 +472,8 @@ void Dialog::InitDialog()
 void Dialog::Show()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	_tran(SysLog(L"[%p] Dialog::Show()",this));
+	_DIALOG(CleverSysLog CL(L"Dialog::Show()"));
+	_DIALOG(SysLog(L"[%p] Dialog::Show()",this));
 
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
@@ -491,7 +497,8 @@ void Dialog::Show()
 void Dialog::Hide()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
-	_tran(SysLog(L"[%p] Dialog::Hide()",this));
+	_DIALOG(CleverSysLog CL(L"Dialog::Hide()"));
+	_DIALOG(SysLog(L"[%p] Dialog::Hide()",this));
 
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
@@ -507,6 +514,7 @@ void Dialog::Hide()
 void Dialog::DisplayObject()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::DisplayObject()"));
 
 	if (DialogMode.Check(DMODE_SHOW))
 	{
@@ -615,7 +623,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	FARDIALOGITEMTYPES Type;
 	size_t InitItemCount;
 	unsigned __int64 ItemFlags;
-	_DIALOG(CleverSysLog CL(L"Init Dialog"));
+	_DIALOG(CleverSysLog CL(L"Dialog::InitDialogObjects()"));
 	bool AllElements = false;
 
 	if (ID+1 > Items.size())
@@ -1206,6 +1214,7 @@ bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 void Dialog::DeleteDialogObjects()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::DeleteDialogObjects()"));
 
 	std::for_each(RANGE(Items, i)
 	{
@@ -1495,6 +1504,8 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 void Dialog::ShowDialog(size_t ID)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::ShowDialog()"));
+	_DIALOG(SysLog(L"Locked()=%d, DMODE_SHOW=%d DMODE_DRAWING=%d",Locked(),DialogMode.Check(DMODE_SHOW),DialogMode.Check(DMODE_DRAWING)));
 
 	if (Locked())
 		return;
@@ -1512,6 +1523,7 @@ void Dialog::ShowDialog(size_t ID)
 	        !DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
+	_DIALOG(SysLog(L"[%d] DialogMode.Set(DMODE_DRAWING)",__LINE__));
 	DialogMode.Set(DMODE_DRAWING);  // диалог рисуетс€!!!
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -1520,6 +1532,7 @@ void Dialog::ShowDialog(size_t ID)
 		//   ѕеред прорисовкой диалога посылаем сообщение в обработчик
 		if (!DlgProc(DN_DRAWDIALOG,0,0))
 		{
+			_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 			DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 			return;
 		}
@@ -2031,7 +2044,6 @@ void Dialog::ShowDialog(size_t ID)
 		}
 	});
 
-	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 	DialogMode.Set(DMODE_SHOW); // диалог на экране!
 
 	if (DialogMode.Check(DMODE_DRAGGED))
@@ -2045,6 +2057,9 @@ void Dialog::ShowDialog(size_t ID)
 	}
 	else
 		DlgProc(DN_DRAWDIALOGDONE,0,0);
+
+	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
+	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 }
 
 int Dialog::LenStrItem(size_t ID)
@@ -2214,6 +2229,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 
 __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
+	_DIALOG(CleverSysLog CL(L"Dialog::VMProcess()"));
 	switch (OpCode)
 	{
 		case MCODE_F_MENU_CHECKHOTKEY:
@@ -3941,6 +3957,7 @@ int Dialog::SelectFromComboBox(
     VMenu *ComboBox)    // список строк
 {
 		SCOPED_ACTION(CriticalSectionLock)(CS);
+		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		string strStr;
 		int I,Dest, OriginalPos;
 		size_t CurFocusPos=FocusPos;
@@ -4080,6 +4097,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
                                    string &strIStr)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::SelectFromEditHistory()"));
 
 	if (!EditLine)
 		return FALSE;
@@ -4328,6 +4346,7 @@ long WaitUserTime;
 */
 void Dialog::Process()
 {
+	_DIALOG(CleverSysLog CL(L"Dialog::Process()"));
 //  if(DialogMode.Check(DMODE_SMALLDIALOG))
 	SetRestoreScreenMode(true);
 	ClearStruct(PrevMouseRecord);
@@ -4365,6 +4384,7 @@ void Dialog::Process()
 intptr_t Dialog::CloseDialog()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::CloseDialog()"));
 	GetDialogObjectsData();
 
 	intptr_t result=DlgProc(DN_CLOSE,ExitCode,0);
@@ -4410,6 +4430,7 @@ void Dialog::ShowHelp()
 void Dialog::ClearDone()
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
+	_DIALOG(CleverSysLog CL(L"Dialog::ClearDone()"));
 	ExitCode=-1;
 	DialogMode.Clear(DMODE_ENDLOOP);
 }
@@ -4493,8 +4514,11 @@ void Dialog::ResizeConsole()
 
 intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 {
+	_DIALOG(CleverSysLog CL(L"Dialog.DlgProc()"));
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
+	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
+
 
 	intptr_t Result;
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
@@ -4707,6 +4731,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (W1<OldW1 || H1<OldH1)
 				{
+					_DIALOG(SysLog(L"[%d] DialogMode.Set(DMODE_DRAWING)",__LINE__));
 					DialogMode.Set(DMODE_DRAWING);
 
 					FOR(auto& i, Items)
@@ -4734,6 +4759,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 					}
 
+					_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 					DialogMode.Clear(DMODE_DRAWING);
 				}
 			}

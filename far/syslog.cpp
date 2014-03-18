@@ -1438,7 +1438,7 @@ string __DLGDIF_ToName(DWORD Msg)
 	{
 		if (Message[i].Val == Msg)
 		{
-			return str_printf(L"\"%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
+			return str_printf(L"\"DIF_%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
 		}
 	}
 
@@ -1453,8 +1453,7 @@ string __DLGMSG_ToName(DWORD Msg)
 {
 #if defined(SYSLOG)
 #define DEF_DM_(m) { DM_##m , L#m }
-#define DEF_DN_(m) { DN_##m , L#m }
-	__XXX_Name Message[]=
+	__XXX_Name DM[]=
 	{
 		DEF_DM_(FIRST),
 		DEF_DM_(CLOSE),
@@ -1521,6 +1520,11 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DM_(GETDLGITEMSHORT),
 		DEF_DM_(SETDLGITEMSHORT),
 		DEF_DM_(GETDIALOGINFO),
+	};
+
+#define DEF_DN_(m) { DN_##m , L#m }
+	__XXX_Name DN[]=
+	{
 		DEF_DN_(FIRST),
 		DEF_DN_(BTNCLICK),
 		DEF_DN_(CTLCOLORDIALOG),
@@ -1550,13 +1554,27 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DN_(ACTIVATEAPP),
 	};
 
-	for (size_t i=0; i<ARRAYSIZE(Message); i++)
+	if (Msg < DN_FIRST)
 	{
-		if (Message[i].Val == Msg)
+		for (size_t i = 0; i < ARRAYSIZE(DM); i++)
 		{
-			return str_printf(L"\"%s\" [%d/0x%08X]",Message[i].Name,Msg,Msg);
+			if (DM[i].Val == Msg)
+			{
+				return str_printf(L"\"DM_%s\" [%d/0x%08X]", DM[i].Name, Msg, Msg);
+			}
 		}
 	}
+	else
+	{
+		for (size_t i = 0; i<ARRAYSIZE(DN); i++)
+		{
+			if (DN[i].Val == Msg)
+			{
+				return str_printf(L"\"DN_%s\" [%d/0x%08X]", DN[i].Name, Msg, Msg);
+			}
+		}
+	}
+
 
 	return str_printf(L"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?L"DN_FIRST":(Msg>=DM_USER?L"DM_USER":L"DM_FIRST")),Msg,Msg);
 #else
