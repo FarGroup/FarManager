@@ -398,6 +398,10 @@ code a:hover { border-bottom-color: #cc9900}
 
 
 /* общий класс таблиц*/
+table.cont code
+{
+    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
+}
 table.cont2
 {
     margin-top: 0.6em;
