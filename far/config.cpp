@@ -736,13 +736,12 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	{
 		Builder.AddSeparator();
 		Builder.StartColumns();
-		DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
+		Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
 		Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
-		DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+		Builder.AddCheckbox(MViewConfigSaveShortPos, ViOpt.SaveShortPos);
 		Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
 		Builder.AddCheckbox(MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
@@ -812,9 +811,8 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	if (!Local)
 	{
 		Builder.AddSeparator();
-		DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, EdOptRef.SavePos);
-		DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
-		Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+		Builder.AddCheckbox(MEditConfigSavePos, EdOptRef.SavePos);
+		Builder.AddCheckbox(MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
 		Builder.AddCheckbox(MEditShareWrite, EdOpt.EditOpenedForWrite);
 		Builder.AddCheckbox(MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
 		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
@@ -1881,7 +1879,7 @@ bool Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &st
 bool Options::GetConfigValue(size_t Root, const wchar_t* Name, Option*& Data)
 {
 	// TODO Use local too?
-	bool Result = false; 
+	bool Result = false;
 	if (Root != FSSF_PRIVATE)
 	{
 		auto ItemIterator = std::find_if(CONST_RANGE(Config[cfg_roaming], i) { return Root == i.ApiRoot && !StrCmpI(i.ValName, Name); });

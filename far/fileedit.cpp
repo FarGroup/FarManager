@@ -345,7 +345,7 @@ FileEditor::~FileEditor()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos && Global->CtrlObject)
+	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos) && Global->CtrlObject)
 		SaveToCache();
 
 	int FEditEditorID=m_editor->EditorID;
@@ -1118,7 +1118,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!Global->Opt->OnlyEditorViewerUsed && GetCanLoseFocus())
 				{
-					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos) // save position/codepage before reload
+					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
 					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
 				}

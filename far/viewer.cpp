@@ -223,7 +223,7 @@ Viewer::~Viewer()
 
 void Viewer::SavePosition()
 {
-	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
+	if (Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
 	{
 		ViewerPosCache poscache;
 
@@ -318,13 +318,13 @@ int Viewer::OpenFile(const string& Name,int warning)
 	api::GetFindDataEx(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
-	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
+	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{
 		string strCacheName=strPluginData.empty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
-		if (Global->Opt->ViOpt.SavePos)
+		if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos)
 		{
 			__int64 NewFilePos=poscache.cur.FilePos;
 			__int64 NewLeftPos=poscache.cur.LeftPos;
@@ -644,7 +644,7 @@ int Viewer::getCharSize() const
 		return -1;
 	else if (CP_UNICODE == VM.CodePage || CP_REVERSEBOM == VM.CodePage)
 		return +2;
-	else 
+	else
 		return (static_cast<UINT>(VM.CodePage) == MB.current_cp)? -MB.current_mb : +1;
 }
 

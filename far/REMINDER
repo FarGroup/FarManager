@@ -14,25 +14,6 @@ SetConsoleTitle & Macro
    svs 26.01.2007 16:02:00 +0300
 
 
-Editor:Save bookmarks
-   Mantis#0000327: [X] Save bookmarks не работает без [X] Save file position 
-   Если второе будет независимым, то в config.cpp::EditorConfig() убрать строку:
-     Dlg.SetAutomation(ID_EC_SAVEPOSITION,ID_EC_SAVEBOOKMARKS,...
-   тоже самое и в config.cpp::ViewerConfig():
-     Dlg.SetAutomation(ID_VC_SAVEPOSITION,ID_VC_SAVEBOOKMARKS,...
-   а так же убрать флаги DIF_AUTOMATION в обоих контролах, ответственных за
-   "Save file position"
-   и убрать строки
-    
-    if(!Opt.ViOpt.SaveViewerPos)
-      CfgDlg[ID_VC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-
-    if(!EdOpt.SavePos)
-      CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-
-
-   svs 09.09.2007 18:18:00 +0300
-
 IA64Stacks
    В IA64 два стека, регистровый и "обычный", имитация с помощью структуры
    вот примерно такого:

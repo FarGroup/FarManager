@@ -54,7 +54,7 @@ void FilePositionCache::CompactHistory()
 
 bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& poscache)
 {
-	if (!Global->Opt->EdOpt.SavePos)
+	if (!(Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos))
 		return false;
 
 	string strFullName;
@@ -63,7 +63,13 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
-	unsigned __int64 id = Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
+
+	unsigned __int64 id = 0;
+
+	if (Global->Opt->EdOpt.SavePos)
+		id=Global->Db->HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
+	else if (Global->Opt->EdOpt.SaveShortPos)
+		id=Global->Db->HistoryCfg()->SetEditorPos(strFullName, 0, 0, 0, 0, 0);
 
 	if (id)
 	{
@@ -85,13 +91,18 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 {
 	poscache.Clear();
 
-	if (!Global->Opt->EdOpt.SavePos)
-		return false;
-
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = Global->Db->HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
+	unsigned __int64 id = 0;
+
+	if (Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos)
+		id = Global->Db->HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
+
+	if (!Global->Opt->EdOpt.SavePos)
+	{
+		poscache.Clear();
+	}
 
 	if (id)
 	{
@@ -111,7 +122,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 
 bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& poscache)
 {
-	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
+	if (!(Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos))
 		return false;
 
 	string strFullName;
@@ -120,11 +131,20 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	SCOPED_ACTION(auto)(Global->Db->HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
-	unsigned __int64 id = Global->Db->HistoryCfg()->SetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.Hex_Wrap, poscache.CodePage);
+	unsigned __int64 id = 0;
+
+	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
+		id=Global->Db->HistoryCfg()->SetViewerPos(strFullName,
+				Global->Opt->ViOpt.SavePos?poscache.cur.FilePos:0,
+				Global->Opt->ViOpt.SavePos?poscache.cur.LeftPos:0,
+				Global->Opt->ViOpt.SaveWrapMode?poscache.Hex_Wrap:0,
+				Global->Opt->ViOpt.SaveCodepage?poscache.CodePage:0);
+	else if (Global->Opt->ViOpt.SaveShortPos)
+		id=Global->Db->HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
 
 	if (id)
 	{
-		if (Global->Opt->ViOpt.SavePos && Global->Opt->ViOpt.SaveShortPos)
+		if (Global->Opt->ViOpt.SaveShortPos)
 		{
 			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 			{
@@ -142,17 +162,22 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 {
 	poscache.Clear();
 
-	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
-		return false;
-
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = Global->Db->HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
+	unsigned __int64 id = 0;
+
+	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos)
+		id = Global->Db->HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
+
+	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
+	{
+		poscache.Clear();
+	}
 
 	if (id)
 	{
-		if (!Global->Opt->ViOpt.SavePos || !Global->Opt->ViOpt.SaveShortPos)
+		if (!Global->Opt->ViOpt.SaveShortPos)
 			return true;
 
 		for_each_cnt(RANGE(poscache.bm, i, size_t index)

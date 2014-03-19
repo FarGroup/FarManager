@@ -1,4 +1,21 @@
-﻿svs 18.03.2014 15:20:34 +0400 - build 3836
+﻿svs 19.03.2014 16:17:34 +0400 - build 3837
+
+1. Mantis#0000327: [X] Save bookmarks не работает без [X] Save file position 
+
+   Опции стали независимы, но!
+
+   Вариант без переделки структуры history.db. 
+   Сейчас таблицы editorposition_history/viewerbookmarks_history зависят от 
+   editorposition_history/viewerposition_history (в последних храниться имя файла).
+
+   В editorposition_history/viewerposition_history делается запись если 
+   "запоминать позицию" ИЛИ "запоминать букмарк" выставлены.
+   Если есть "запоминать букмарк", но нет "запоминать позицию", то в таблицы 
+   editorposition_history/viewerposition_history информация о положении записывается нулями.
+
+2. Косметика (UCase) для GUID
+
+svs 18.03.2014 15:20:34 +0400 - build 3836
 
 1. GUID для диалога запроса логина и пароля.
     
@@ -23,7 +40,7 @@ svs 14.03.2014 12:20:09 +0400 - build 3835
 
 1. Mantis#0002613: Требуются гуиды для меню дисков, меню ассоциаций
 
-    EditorSwitchUnicodeCPDisabledId = {15568DC5-4D6B-4c60-B43D-2040EE39871A} --> Dlg.Id
+    EditorSwitchUnicodeCPDisabledId = {15568DC5-4D6B-4C60-B43D-2040EE39871A} --> Dlg.Id
        Сообщение "Нельзя изменить юникодную кодовую страницу"
        Появляется, когда при редактировании файла в Unicode-кодировке (например, 1200) пытаемся поменять кодовую страницу.
 
@@ -34,14 +51,14 @@ svs 13.03.2014 20:13:49 +0400 - build 3834
 
 1. Mantis#0002613: Требуются гуиды для меню дисков, меню ассоциаций
 
-    ChangeDiskMenuId      = {252CE4A3-C415-4b19-956B-83E2FDD85960}  --> Menu.Id
+    ChangeDiskMenuId      = {252CE4A3-C415-4B19-956B-83E2FDD85960}  --> Menu.Id
        Меню выбора диска
 
     FileAssocMenuId       = {F6D2437C-FEDC-4075-AA56-275666FC8979}  --> Menu.Id
        Меню редактирования ассоциаций
-    SelectAssocMenuId     = {D2BCB5A5-6B82-4eb5-B321-1AE7607A6236}  --> Menu.Id
+    SelectAssocMenuId     = {D2BCB5A5-6B82-4EB5-B321-1AE7607A6236}  --> Menu.Id
        Меню выбора из списка ассоциаций
-    FileAssocModifyId     = {6F245B1A-47D9-41a6-AF3F-FA2C8DBEEBD0}  --> Dlg.Id
+    FileAssocModifyId     = {6F245B1A-47D9-41A6-AF3F-FA2C8DBEEBD0}  --> Dlg.Id
        Диалог редактирования очередной ассоциации
 
 drkns 13.03.2014 11:55:36 +0200 - build 3833
@@ -531,7 +548,7 @@ svs 06.12.2013 14:31:24 +0400 - build 3732
 
 1. Mantis#0002331: Хоткеи и\или GUID для Folder Shortcuts
 
-    FolderShortcutsDlgId  = {DC8D98AC-475C-4f37-AB1D-45765EF06269} --> Dlg.Id
+    FolderShortcutsDlgId  = {DC8D98AC-475C-4F37-AB1D-45765EF06269} --> Dlg.Id
       Диалог редактирования пути.
     FolderShortcutsMoreId = {601DD149-92FA-4601-B489-74C981BC8E38} --> Menu.Id
       Меню, показываемое, когда на один шорткат навешено больше одного пути.
