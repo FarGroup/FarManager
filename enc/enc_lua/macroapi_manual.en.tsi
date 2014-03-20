@@ -373,7 +373,7 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3600499908
+mtime=3604499459
 <article>
 #_mf.mdelete (key, name)
 #_
@@ -386,7 +386,7 @@ mtime=3600499908
 #_
 #_**Description:**
 #_  Function *mdelete* deletes a value or key from the database.
-#_  To delete a key, specify *name* == `"*"` (asterisk).
+#_  To delete a key, specify *name* == "`*`" (asterisk).
 #_
 </article>
 </node>

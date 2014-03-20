@@ -151,10 +151,11 @@ local function process_article (article)
   else
     local part1, part2 = split1(article, "@@@")
     part1 = HTML_convert(part1 or article)
-    part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* ]],
-      function(c1,c2)
+    part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* | `(\*+)` ]],
+      function(c1,c2,c3)
         return c1 and "<strong>" ..c1.. "</strong>" or -- make bold
-               c2 and "<em>"     ..c2.. "</em>"        -- make italic
+               c2 and "<em>"     ..c2.. "</em>" or     -- make italic
+               c3                                      -- literal asterisks
       end, nil, "x")
     return postprocess_article(part1, part2), false
   end
