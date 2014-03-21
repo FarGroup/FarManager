@@ -2029,6 +2029,8 @@ void Dialog::ShowDialog(size_t ID)
 				/* ***************************************************************** */
 				//.........
 		} // end switch(...
+
+		SendMessage(DN_DRAWDLGITEMDONE,I,0);
 	} // end for (I=...
 
 	// КОСТЫЛЬ!
@@ -2063,8 +2065,6 @@ void Dialog::ShowDialog(size_t ID)
 		else
 			DlgProc(DN_DRAWDIALOGDONE, 0, 0);
 	}
-	else
-		DefProc(DN_DRAWDLGITEMDONE, ID, 0);
 
 	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
@@ -2413,6 +2413,11 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Dialog::ProcessKey(int Key)
 {
+	// flag to call global ProcessKey out of critical section, Mantis#2511
+	bool doGlobalProcessKey = false;
+
+	// enter critical section
+	{
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
 	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(Key)));
@@ -2829,9 +2834,7 @@ int Dialog::ProcessKey(int Key)
 			if (!Global->IsProcessAssignMacroKey)
 			{
 				if(!CheckDialogMode(DMODE_NOPLUGINS))
-				{
-					return Global->FrameManager->ProcessKey(Key);
-				}
+					doGlobalProcessKey = true;
 			}
 			break;
 
@@ -3068,6 +3071,12 @@ int Dialog::ProcessKey(int Key)
 			return ProcessHighlighting(Key,FocusPos,TRUE);
 		}
 	}
+	} // exit from critical section
+
+	// call global ProcessKey out of critical section to avoid dead lock
+	if (doGlobalProcessKey)
+		return Global->FrameManager->ProcessKey(Key);
+
 	return FALSE;
 }
 

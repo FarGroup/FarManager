@@ -1,4 +1,26 @@
-﻿svs 21.03.2014 13:59:21 +0400 - build 3838
+﻿svs 21.03.2014 16:28:10 +0400 - build 3839
+
+1. Уточнение относительно DN_DRAWDLGITEMDONE
+   Схема следующая:
+      1. Отрисовка всего диалога: 
+          DN_DRAWDIALOG
+          DN_CTLCOLORDIALOG
+          CountItem раз {
+            DN_DRAWDLGITEM
+            DN_CTLCOLORDLGLIST
+            DN_DRAWDLGITEMDONE
+          }
+          DN_DRAWDIALOGDONE
+
+      2. Отрисовка одного элемента: 
+          DN_DRAWDLGITEM
+          DN_CTLCOLORDLGLIST
+          DN_DRAWDLGITEMDONE
+
+2. Mantis#2511: ACTL_GETWINDOWINFO зависает при вызове для диалога при недавнем наличии другого диалога
+   (from NightRoman)
+
+svs 21.03.2014 13:59:21 +0400 - build 3838
 
 1. Dialog API. Добавка:
     
