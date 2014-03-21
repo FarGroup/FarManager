@@ -2920,6 +2920,9 @@ static bool substrFunc(FarMacroCall* Data)
 
 static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 {
+	if (!lpFullName)
+		return FALSE;
+
 	enum
 	{
 		FLAG_DISK = 1,

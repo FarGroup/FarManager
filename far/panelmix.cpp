@@ -464,6 +464,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 	{
 		string strType;
 		int ColumnType=static_cast<int>(i.type & 0xff);
+		// If ColumnType >= ARRAYSIZE(ColumnSymbol) ==> BUGBUG!!!
 		strType = ColumnSymbol[ColumnType];
 
 		if (ColumnType==NAME_COLUMN)

@@ -2358,6 +2358,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 		case DN_DRAGGED:        Msg=oldfar::DN_DRAGGED; break;
 		case DN_RESIZECONSOLE:  Msg=oldfar::DN_RESIZECONSOLE; break;
 		case DN_DRAWDIALOGDONE: Msg=oldfar::DN_DRAWDIALOGDONE; break;
+		case DN_DRAWDLGITEMDONE:Msg=oldfar::DN_DRAWDIALOGDONE; break;
 		case DM_KILLSAVESCREEN: Msg=oldfar::DM_KILLSAVESCREEN; break;
 		case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
 		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
@@ -5342,7 +5343,7 @@ int PluginA::ProcessPanelInput(ProcessPanelInputInfo* Info)
 
 		bool Prepocess = (Info->Rec.EventType & 0x4000) != 0;
 		Info->Rec.EventType &= ~0x4000;
-		
+
 		//BUGBUG: здесь можно проще.
 		TranslateKeyToVK(InputRecordToKey(&Info->Rec),VirtKey,dwControlState);
 		if (dwControlState&PKF_RALT)

@@ -1514,6 +1514,7 @@ void Dialog::ShowDialog(size_t ID)
 	int X,Y;
 	size_t I,DrawItemCount;
 	FarColor ItemColor[4] = {};
+	bool DrawFullDialog = false;
 
 	//   Если не разрешена отрисовка, то вываливаем.
 	if (IsEnableRedraw ||                // разрешена прорисовка ?
@@ -1529,6 +1530,8 @@ void Dialog::ShowDialog(size_t ID)
 
 	if (ID == (size_t)-1) // рисуем все?
 	{
+		DrawFullDialog = true;
+
 		//   Перед прорисовкой диалога посылаем сообщение в обработчик
 		if (!DlgProc(DN_DRAWDIALOG,0,0))
 		{
@@ -2046,17 +2049,22 @@ void Dialog::ShowDialog(size_t ID)
 
 	DialogMode.Set(DMODE_SHOW); // диалог на экране!
 
-	if (DialogMode.Check(DMODE_DRAGGED))
+	if (DrawFullDialog)
 	{
-		/*
-		- BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
-		  Убираем вызов плагиновго обработчика.
-		*/
-		//DlgProc(this,DN_DRAWDIALOGDONE,1,0);
-		DefProc(DN_DRAWDIALOGDONE,1,0);
+		if (DialogMode.Check(DMODE_DRAGGED))
+		{
+			/*
+			- BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
+			Убираем вызов плагиновго обработчика.
+			*/
+			//DlgProc(this,DN_DRAWDIALOGDONE,1,0);
+			DefProc(DN_DRAWDIALOGDONE, 1, 0);
+		}
+		else
+			DlgProc(DN_DRAWDIALOGDONE, 0, 0);
 	}
 	else
-		DlgProc(DN_DRAWDIALOGDONE,0,0);
+		DefProc(DN_DRAWDLGITEMDONE, ID, 0);
 
 	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
@@ -3969,6 +3977,7 @@ int Dialog::SelectFromComboBox(
 			EditX2=EditX1+20;
 
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)1);
 		SetComboBoxPos(CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
 		FarColor RealColors[VMENU_COLOR_COUNT] = {};
@@ -3990,6 +3999,7 @@ int Dialog::SelectFromComboBox(
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 		ComboBox->Show();
+
 		OriginalPos=Dest=ComboBox->GetSelectPos();
 		CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
 
@@ -4064,6 +4074,7 @@ int Dialog::SelectFromComboBox(
 			ComboBox->SetSelectPos(OriginalPos,0); //????
 
 		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)0);
 
 		if (Dest<0)
 		{
@@ -4118,7 +4129,11 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
 //		CurItem->ListPtr=&HistoryMenu;
+		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)1);
 		ret = DlgHist->Select(HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
+		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
+		DlgProc(DN_DROPDOWNOPENED, FocusPos, (void*)0);
 		// забудим (не нужен)
 //		CurItem->ListPtr=nullptr;
 //		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
@@ -4578,6 +4593,8 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			return reinterpret_cast<intptr_t>(Param2); // что передали, то и...
 		case DN_DRAGGED:
 			return TRUE; // согласен с перемещалкой.
+		case DN_DRAWDLGITEMDONE: // Param1 = ID
+			return TRUE;
 		case DN_DRAWDIALOGDONE:
 		{
 			if (Param1 == 1) // Нужно отрисовать "салазки"?
@@ -4985,9 +5002,43 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			return DlgProc(Msg,Param1,Param2);
 		}
+		/*****************************************************************/
 		case DM_GETDIALOGINFO:
 		{
 			return DlgProc(DM_GETDIALOGINFO,Param1,Param2);
+		}
+		/*****************************************************************/
+		// Param1=0, Param2=FarDialogItemData, Ret=size (without '\0')
+		case DM_GETDIALOGTITLE:
+		{
+			const wchar_t *Ptr=nullptr;
+			size_t Len=0;
+
+			FarDialogItemData *did=(FarDialogItemData*)Param2;
+			auto InitItemData=[did,&Ptr,&Len](void)->void
+			{
+				if (!did->PtrLength)
+					did->PtrLength=Len;
+				else if (Len > did->PtrLength)
+					Len=did->PtrLength;
+
+				if (did->PtrData)
+				{
+					wmemmove(did->PtrData,Ptr,Len);
+					did->PtrData[Len]=L'\0';
+				}
+			};
+
+			string strTitleDialog;
+			Len = GetTitle(strTitleDialog).size();
+			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
+			{
+				Ptr=strTitleDialog.c_str();
+				//Len=StrLength(Ptr);
+				InitItemData();
+			}
+
+			return Len-(!Len?0:1);
 		}
 		default:
 			break;
@@ -5683,6 +5734,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			return (intptr_t)Ptr;
 		}
 		/*****************************************************************/
+		// Param1=ID, Param2=FarDialogItemData, Ret=size (without '\0')
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;

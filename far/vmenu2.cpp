@@ -94,6 +94,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 			Dlg->SendMessage( DM_CLOSE, -1, nullptr);
 		break;
 
+	case DN_DRAWDLGITEMDONE: //???
 	case DN_DRAWDIALOGDONE:
 		if(DefRec.EventType)
 		{

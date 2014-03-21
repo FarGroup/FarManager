@@ -335,6 +335,9 @@ enum FARMESSAGE
 
 	DM_GETDIALOGINFO                = 66,
 
+	DM_GETDIALOGTITLE               = 67,
+	DN_DRAWDLGITEMDONE              = 68,
+
 	DN_FIRST                        = 4096,
 	DN_BTNCLICK                     = 4097,
 	DN_CTLCOLORDIALOG               = 4098,
@@ -358,6 +361,7 @@ enum FARMESSAGE
 	DN_CONTROLINPUT                 = 4116,
 	DN_CLOSE                        = 4117,
 	DN_GETVALUE                     = 4118,
+	DN_DROPDOWNOPENED               = 4119,
 
 	DM_USER                         = 0x4000,
 

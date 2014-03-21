@@ -1456,6 +1456,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 		break;
 
+	case DN_DRAWDLGITEMDONE: //???
 	case DN_DRAWDIALOGDONE:
 		{
 			Dlg->DefProc(Msg,Param1,Param2);
