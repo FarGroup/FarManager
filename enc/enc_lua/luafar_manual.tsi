@@ -2628,7 +2628,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3602446733
+mtime=3604690946
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
@@ -2690,6 +2690,7 @@ mtime=3602446733
 #_    Param2:  none
 #_    Result:  table, or nil
 #_
+#_DM_GETDIALOGTITLE,
 #_DM_GETTEXT,
 #_DM_GETCONSTTEXTPTR:
 #_    Param2:  none
@@ -3162,6 +3163,56 @@ mtime=3602352490
 #_@@@
 #_[description]: 285.html
 #_[tFarDialogItem]: 295.html
+#_
+</article>
+</node>
+<node>
+id=493
+lv=2
+dt=Text
+nm=DN_DRAWDLGITEMDONE
+ctime=3604691147
+mtime=3604691338
+<article>
+#_**Param1**
+#_    integer; according to Far API 
+#_
+#_**Param2**
+#_    integer; according to Far API 
+#_
+#_**Return**
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DRAWDLGITEMDONE
+#_
+#_@@@
+#_[description]: 285.html
+#_
+</article>
+</node>
+<node>
+id=492
+lv=2
+dt=Text
+nm=DN_DROPDOWNOPENED
+ctime=3604691109
+mtime=3604691304
+<article>
+#_**Param1**
+#_    integer; according to Far API 
+#_
+#_**Param2**
+#_    integer; according to Far API 
+#_
+#_**Return**
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_DROPDOWNOPENED
+#_
+#_@@@
+#_[description]: 285.html
 #_
 </article>
 </node>

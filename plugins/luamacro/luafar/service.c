@@ -2804,7 +2804,7 @@ int DialogHandleEqual(lua_State* L)
 
 int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 {
-	if (! ((Msg>DM_FIRST && Msg<=DM_GETDIALOGINFO) || Msg==DM_USER))
+	if (! ((Msg>DM_FIRST && Msg<=DM_GETDIALOGTITLE) || Msg==DM_USER))
 		return 0;
 
 	lua_pushinteger(L, Msg);             //+1
@@ -2817,6 +2817,7 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 			break;
 		case DM_ENABLEREDRAW:
 		case DM_GETDIALOGINFO:
+		case DM_GETDIALOGTITLE:
 		case DM_GETDLGDATA:
 		case DM_GETDLGRECT:
 		case DM_GETDROPDOWNOPENED:
@@ -2865,6 +2866,7 @@ static int far_SendDlgMessage(lua_State *L)
 			break;
 		case DM_ENABLEREDRAW:
 		case DM_GETDIALOGINFO:
+		case DM_GETDIALOGTITLE:
 		case DM_GETDLGDATA:
 		case DM_GETDLGRECT:
 		case DM_GETDROPDOWNOPENED:
@@ -3022,6 +3024,7 @@ static int far_SendDlgMessage(lua_State *L)
 			return 1;
 		}
 		case DM_GETTEXT:
+		case DM_GETDIALOGTITLE:
 		{
 			struct FarDialogItemData fdid;
 			fdid.StructSize = sizeof(fdid);
@@ -3314,7 +3317,7 @@ static int far_SendDlgMessage(lua_State *L)
 
 int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 {
-	if (! (Msg>DN_FIRST && Msg<=DN_GETVALUE))
+	if (! (Msg>DN_FIRST && Msg<=DN_DRAWDLGITEMDONE))
 		return 0;
 
 	lua_pushinteger(L, Msg);             //+1
