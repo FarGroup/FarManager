@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3836
+  Plugin API for Far Manager 3.0 build 3840
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3836
+#define FARMANAGERVERSION_BUILD 3840
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -313,6 +313,8 @@ enum FARMESSAGE
 
 	DM_GETDIALOGINFO                = 66,
 
+	DM_GETDIALOGTITLE               = 67,
+
 	DN_FIRST                        = 4096,
 	DN_BTNCLICK                     = 4097,
 	DN_CTLCOLORDIALOG               = 4098,
@@ -336,6 +338,8 @@ enum FARMESSAGE
 	DN_CONTROLINPUT                 = 4116,
 	DN_CLOSE                        = 4117,
 	DN_GETVALUE                     = 4118,
+	DN_DROPDOWNOPENED               = 4119,
+	DN_DRAWDLGITEMDONE              = 4120,
 
 	DM_USER                         = 0x4000,
 
