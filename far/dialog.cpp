@@ -5047,7 +5047,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				InitItemData();
 			}
 
-			return Len-(!Len?0:1);
+			return Len;
 		}
 		default:
 			break;
