@@ -3,6 +3,130 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.03.2014 21:51:18 +0200 - build 3842
+
+1. Refactoring.
+
+shmuel 22.03.2014 21:27:21 +0200 - build 3841
+
+1. Correction of 3838 (DM_GETDIALOGTITLE).
+
+drkns 21.03.2014 20:28:49 +0200 - build 3840
+
+1. Moving DN_DRAWDLGITEMDONE to a correct place.
+
+svs 21.03.2014 16:28:10 +0400 - build 3839
+
+1. Correction of DN_DRAWDLGITEMDONE
+   The scheme is following:
+      1. Drawing the whole dialog: 
+          DN_DRAWDIALOG
+          DN_CTLCOLORDIALOG
+          CountItem times {
+            DN_DRAWDLGITEM
+            DN_CTLCOLORDLGLIST
+            DN_DRAWDLGITEMDONE
+          }
+          DN_DRAWDIALOGDONE
+
+      2. Drawing a single item: 
+          DN_DRAWDLGITEM
+          DN_CTLCOLORDLGLIST
+          DN_DRAWDLGITEMDONE
+
+2. Mantis#2511: ACTL_GETWINDOWINFO freezes on call for a dialog is another dialog has been present recently
+   (from NightRoman)
+
+svs 21.03.2014 13:59:21 +0400 - build 3838
+
+1. Dialog API. Addition:
+    
+    DM_GETDIALOGTITLE message (67) allows to get the caption of the dialog.
+      Param1 = 0
+      Param2 = Pointer to FarDialogItemData structure
+      Return = The size of the caption in characters, without trailing '\0'
+
+    Far takes data for the dialog caption (including the caption of the console window) from
+    the first 'text' (like DI_TEXT, DI_DOUBLEBOX, DI_SINGLEBOX items)
+    or "list" (like DI_LISTBOX) available.
+    If the dialog items array lacks at least one of these items then the caption is empty.
+
+
+2. Dialog API. Addition:
+
+    DN_DRAWDLGITEMDONE event (68) is sent at the end of dialog item drawing (pair DN_DRAWDLGITEM).
+      Param1 = ID
+      Param2 = 0
+      Return = 0
+
+    Earlier, DN_DRAWDIALOGDONE was always send to signal of the end of a single item redraw
+    (the same as for drawing the whole dialog).
+
+    Now:
+      1. Drawing the whole dialog: 
+          DN_DRAWDIALOG
+          DN_CTLCOLORDIALOG
+          CountItem times {
+            DN_DRAWDLGITEM
+            DN_CTLCOLORDLGLIST
+          }
+          DN_DRAWDIALOGDONE
+
+      2. Drawing a single item: 
+          DN_DRAWDLGITEM
+          DN_CTLCOLORDLGLIST
+          DN_DRAWDLGITEMDONE
+
+
+3. Mantis#0002586: Events: there's no possibility to handle a combo box opening
+
+   Dialog API. Addition:
+
+   DN_DROPDOWNOPENED event (4119) is sent before Combobox or History open and after them close.
+      Param1 = ID
+      Param2 = 1 - opened, 0 - closed
+      Return = 0
+
+   Perhaps the correction of the place of call is necessary here.
+
+
+svs 19.03.2014 16:17:34 +0400 - build 3837
+
+1. Mantis#0000327: [X] Save bookmarks does not work without [X] Save file position 
+
+   The options have become independent, although:
+
+   The variant without history.db redone. 
+   Now tables editorposition_history/viewerbookmarks_history depend on
+   editorposition_history/viewerposition_history (the latter ones contain the filename).
+
+   A record is made in editorposition_history/viewerposition_history if
+   "save position" OR "save bookmark" are set.
+   If "save bookmark" is set but "save position" is not, then the tables
+   editorposition_history/viewerposition_history get zeros as information about position.
+
+2. Makeup (UCase) for GUID
+
+svs 18.03.2014 15:20:34 +0400 - build 3836
+
+1. GUID for the login and password duery dialog.
+    
+    GetNameAndPasswordId  = {CD2AC546-9E4F-4445-A258-AB5F7A7800E0}  --> Dlg.Id
+
+    It is shown (optionally) on opening a mapped volume from the drive selection menu.
+
+2. Corrections in SysLog and some logging in dialogs.
+
+3. <ACHTUNG!>
+
+   DMODE_DRAWING dialog flag was cleared before sending DN_DRAWDIALOGDONE, in some cases it caused
+   an endless loop in dialog drawing operation (with stack overflow and subsequent FAR crash).
+
+   Clearing of DMODE_DRAWING flag moved to the end of DMODE_DRAWING Dialog::ShowDialog().
+
+   </ACHTUNG!>
+
+
 svs 14.03.2014 12:20:09 +0400 - build 3835
 
 1. Mantis#0002613: GUIDs needed for drives and associations menu
