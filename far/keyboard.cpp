@@ -64,9 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* start Глобальные переменные */
 
-// "дополнительная" очередь кодов клавиш
-std::unique_ptr<std::queue<DWORD>> KeyQueue;
-
 FarKeyboardState IntKeyState={};
 
 /* end Глобальные переменные */
@@ -310,21 +307,24 @@ static TFKey SpecKeyName[]=
 {
 	{ KEY_CONSOLE_BUFFER_RESIZE, LNGID(-1), 19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
 	{ KEY_OP_SELWORD,            LNGID(-1), 10, L"OP_SelWord",          L"OP_SELWORD"},
-	{ KEY_KILLFOCUS,             LNGID(-1), 9, L"KillFocus",           L"KILLFOCUS"},
-	{ KEY_GOTFOCUS,              LNGID(-1), 8, L"GotFocus",            L"GOTFOCUS"},
-	{ KEY_DRAGCOPY,              LNGID(-1), 8, L"DragCopy",            L"DRAGCOPY"},
-	{ KEY_DRAGMOVE,              LNGID(-1), 8, L"DragMove",            L"DRAGMOVE"},
-	{ KEY_OP_PLAINTEXT,          LNGID(-1), 7, L"OP_Text",             L"OP_TEXT"},
-	{ KEY_OP_XLAT,               LNGID(-1), 7, L"OP_Xlat",             L"OP_XLAT"},
-	{ KEY_NONE,                  LNGID(-1), 4, L"None",                L"NONE"},
-	{ KEY_IDLE,                  LNGID(-1), 4, L"Idle",                L"IDLE"},
+	{ KEY_KILLFOCUS,             LNGID(-1), 9,  L"KillFocus",           L"KILLFOCUS"},
+	{ KEY_GOTFOCUS,              LNGID(-1), 8,  L"GotFocus",            L"GOTFOCUS"},
+	{ KEY_DRAGCOPY,              LNGID(-1), 8,  L"DragCopy",            L"DRAGCOPY"},
+	{ KEY_DRAGMOVE,              LNGID(-1), 8,  L"DragMove",            L"DRAGMOVE"},
+	{ KEY_OP_PLAINTEXT,          LNGID(-1), 7,  L"OP_Text",             L"OP_TEXT"},
+	{ KEY_OP_XLAT,               LNGID(-1), 7,  L"OP_Xlat",             L"OP_XLAT"},
+	{ KEY_NONE,                  LNGID(-1), 4,  L"None",                L"NONE"},
+	{ KEY_IDLE,                  LNGID(-1), 4,  L"Idle",                L"IDLE"},
 };
 #endif
 
 /* ----------------------------------------------------------------- */
 
-static HKL Layout[10] = {};
-static int LayoutNumber=0;
+static std::vector<HKL>& Layout()
+{
+	static std::vector<HKL> s_Layout;
+	return s_Layout;
+}
 
 /*
    Инициализация массива клавиш.
@@ -333,55 +333,47 @@ static int LayoutNumber=0;
 */
 void InitKeysArray()
 {
-	LayoutNumber=GetKeyboardLayoutList(ARRAYSIZE(Layout),Layout); // возвращает 0! в telnet
+	int LayoutNumber = GetKeyboardLayoutList(0, nullptr);
 
-	if (!LayoutNumber)
+	if (LayoutNumber)
 	{
-		HKEY hk=nullptr;
-
-		if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
+		Layout().resize(LayoutNumber);
+		LayoutNumber = GetKeyboardLayoutList(LayoutNumber, Layout().data());
+		Layout().resize(LayoutNumber); // if less than expected
+	}
+	else // GetKeyboardLayoutList can return 0 in telnet mode
+	{
+		Layout().reserve(10);
+		FOR(const auto& i, api::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
 		{
-			DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
-			wchar_t SData[16], SValue[16];
-
-			for (dwIndex=0; dwIndex < (int)ARRAYSIZE(Layout); dwIndex++)
+			if (i.Type == REG_SZ && std::isdigit(i.Name.front()))
 			{
-				dwValueSize=16;
-				dwDataSize=16*sizeof(wchar_t);
-
-				if (ERROR_SUCCESS==RegEnumValue(hk, dwIndex, SValue, &dwValueSize, nullptr, &dwType,(LPBYTE)SData, &dwDataSize))
+				string Value = i.GetString();
+				if (!Value.empty() && (std::isdigit(Value.front()) || InRange(L'A', Upper(Value.front()), L'Z')))
 				{
-					if (dwType == REG_SZ && isdigit(SValue[0]) &&
-					        (isdigit(SData[0]) || (SData[0] >= L'a' && SData[0] <= L'f') || (SData[0] >= L'A' && SData[0] <= L'F')))
+					try
 					{
-						wchar_t *endptr=nullptr;
-						dwKeyb=wcstoul(SData, &endptr, 16); // SData=="00000419"
-
-						if (dwKeyb)
+						if (uintptr_t KbLayout = std::stoul(Value, nullptr, 16))
 						{
-							if (dwKeyb <= 0xFFFF)
-								dwKeyb |= (dwKeyb << 16);
-
-							Layout[LayoutNumber++] = (HKL)((intptr_t)dwKeyb);
+							if (KbLayout <= 0xffff)
+								KbLayout |= KbLayout << 16;
+							Layout().push_back(reinterpret_cast<HKL>(KbLayout));
 						}
 					}
+					catch (const std::exception&)
+					{
+					}
 				}
-				else
-					break;
 			}
-
-			RegCloseKey(hk);
 		}
 	}
 
 	ClearArray(KeyToVKey);
 	ClearArray(VKeyToASCII);
 
-	if (LayoutNumber && LayoutNumber < (int)ARRAYSIZE(Layout))
+	if (!Layout().empty())
 	{
 		BYTE KeyState[0x100]={};
-		WCHAR buf[1];
-
 		//KeyToVKey - используется чтоб проверить если два символа это одна и таже кнопка на клаве
 		//*********
 		//Так как сделать полноценное мапирование между всеми раскладками не реально,
@@ -395,17 +387,18 @@ void InitKeysArray()
 		{
 			KeyState[VK_SHIFT]=j*0x80;
 
-			for (int i=0; i<LayoutNumber; i++)
+			std::for_each(CONST_RANGE(Layout(), i)
 			{
 				for (int VK=0; VK<256; VK++)
 				{
-					if (ToUnicodeEx(LOBYTE(VK),0,KeyState,buf,1,0,Layout[i]) > 0)
+					wchar_t idx;
+					if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, 0, i) > 0)
 					{
-						if (!KeyToVKey[buf[0]])
-							KeyToVKey[buf[0]] = VK + j*0x100;
+						if (!KeyToVKey[idx])
+							KeyToVKey[idx] = VK + j * 0x100;
 					}
 				}
-			}
+			});
 		}
 
 		//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
@@ -697,10 +690,10 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		}
 	}
 
-	if (KeyQueue && KeyQueue->size())
+	if (KeyQueue().size())
 	{
-		CalcKey=KeyQueue->front();
-		KeyQueue->pop();
+		CalcKey=KeyQueue().front();
+		KeyQueue().pop_front();
 		NotMacros=CalcKey&0x80000000?1:0;
 		CalcKey&=~0x80000000;
 
@@ -1375,13 +1368,20 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	return CalcKey;
 }
 
+// "дополнительная" очередь кодов клавиш
+std::deque<DWORD>& KeyQueue()
+{
+	static std::deque<DWORD> s_KeyQueue;
+	return s_KeyQueue;
+}
+
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
 	size_t ReadCount;
 	DWORD Key;
 	Global->ScrBuf->Flush();
 
-	if (KeyQueue && KeyQueue->size() && (Key=KeyQueue->front()) )
+	if (!KeyQueue().empty() && (Key = KeyQueue().front()) )
 	{
 		int VirtKey,ControlState;
 		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
@@ -1482,9 +1482,9 @@ int WriteInput(int Key,DWORD Flags)
 
 		return Console().WriteInput(&Rec, 1, WriteCount);
 	}
-	else if (KeyQueue && KeyQueue->size() < 1024)
+	else if (KeyQueue().size() < 1024)
 	{
-		KeyQueue->push(Key|(Flags&SKEY_NOTMACROS?0x80000000:0));
+		KeyQueue().push_back(Key | (Flags&SKEY_NOTMACROS ? 0x80000000 : 0));
 		return TRUE;
 	}
 	else
@@ -1854,7 +1854,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			short Vk = VkKeyScan(static_cast<WCHAR>(FKey));
 			if (Vk == -1)
 			{
-				std::any_of(CONST_RANGE(Layout, i)
+				std::any_of(CONST_RANGE(Layout(), i)
 				{
 					return (Vk = VkKeyScanEx(static_cast<WCHAR>(FKey), i)) != -1;
 				});

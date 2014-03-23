@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 DWORD FarGetLogicalDrives()
 {
 	static DWORD LogicalDrivesMask = 0;
-	DWORD NoDrives=0;
+	unsigned int NoDrives=0;
 
 	if ((!Global->Opt->RememberLogicalDrives) || !LogicalDrivesMask)
 		LogicalDrivesMask=GetLogicalDrives();
@@ -64,19 +64,7 @@ DWORD FarGetLogicalDrives()
 		const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
 		std::any_of(CONST_RANGE(Roots, i) -> bool
 		{
-			bool Result = false;
-			HKEY hKey;
-			if (RegOpenKeyEx(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", 0, KEY_QUERY_VALUE, &hKey)==ERROR_SUCCESS && hKey)
-			{
-				DWORD Data, Size = sizeof(Data);
-				if(RegQueryValueEx(hKey, L"NoDrives", nullptr, nullptr, reinterpret_cast<BYTE *>(&Data), &Size) == ERROR_SUCCESS)
-				{
-					NoDrives = Data;
-					Result = true;
-				}
-				RegCloseKey(hKey);
-			}
-			return Result;
+			return api::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives);
 		});
 	}
 

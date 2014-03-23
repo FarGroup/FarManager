@@ -50,7 +50,7 @@ enum
 		RIGHTMOST_BUTTON_PRESSED,
 };
 
-extern std::unique_ptr<std::queue<DWORD>> KeyQueue;
+std::deque<DWORD>& KeyQueue();
 
 struct FarKeyboardState {
 	int AltPressed;

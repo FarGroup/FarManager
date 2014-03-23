@@ -169,7 +169,7 @@ private:
 	const tinyxml::TiXmlElement* m_iterator;
 };
 
-class xml_enum: public enumerator<xml_iterator>
+class xml_enum: NonCopyable, public enumerator<xml_iterator>
 {
 public:
 	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
@@ -2832,7 +2832,7 @@ bool Database::Export(const string& File)
 
 	{ //TODO: export for local plugin settings
 		e = new tinyxml::TiXmlElement("pluginsconfig");
-		api::FindFile ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
+		api::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
 		std::for_each(RANGE(ff, i)
 		{
 			i.strFileName.resize(i.strFileName.size()-3);

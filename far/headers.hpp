@@ -54,7 +54,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unordered_set>
 #include <vector>
 #include <cassert>
+#include <cctype>
 #include <ctime>
+#include <cstdint>
 
 #ifdef __GNUC__
 #include <climits>

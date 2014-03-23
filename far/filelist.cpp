@@ -1787,7 +1787,7 @@ int FileList::ProcessKey(int Key)
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								api::FindFile Find(strFindName);
+								api::enum_file Find(strFindName);
 								auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return (i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0; });
 								if (ItemIterator != Find.end())
 									strTempName = strPath + ItemIterator->strFileName;

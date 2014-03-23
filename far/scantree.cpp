@@ -78,7 +78,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<api::FindFile>(strFindPath);
+				LastItem.Find = std::make_unique<api::enum_file>(strFindPath);
 				LastItem.Iterator = LastItem.Find->end();
 			}
 

@@ -142,12 +142,17 @@ COORD InitialSize;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
-static std::unique_ptr<Event> CancelIoInProgress;
+
+static Event& CancelIoInProgress()
+{
+	static Event s_CancelIoInProgress;
+	return s_CancelIoInProgress;
+}
 
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	unsigned int Result = Imports().CancelSynchronousIo(Thread);
-	CancelIoInProgress->Reset();
+	CancelIoInProgress().Reset();
 	return Result;
 }
 
@@ -159,9 +164,9 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		return TRUE;
 
 	case CTRL_BREAK_EVENT:
-		if(!CancelIoInProgress->Signaled())
+		if(!CancelIoInProgress().Signaled())
 		{
-			CancelIoInProgress->Set();
+			CancelIoInProgress().Set();
 			Thread CancelSynchronousIoThread;
 			CancelSynchronousIoThread.Start(CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
@@ -194,8 +199,7 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress = std::make_unique<decltype(CancelIoInProgress)::element_type>();
-		CancelIoInProgress->Open(true);
+		CancelIoInProgress().Open(true);
 
 		DWORD Mode;
 		if(!Console().GetMode(Console().GetInputHandle(), Mode))
@@ -217,10 +221,6 @@ void InitConsole(int FirstInit)
 	Console().GetWindowRect(InitWindowRect);
 	Console().GetSize(InitialSize);
 	Console().GetCursorInfo(InitialCursorInfo);
-
-	// размер клавиатурной очереди = 1024 кода клавиши
-	if (!KeyQueue)
-		KeyQueue = std::make_unique<decltype(KeyQueue)::element_type>();
 
 	SetFarConsoleMode();
 
@@ -278,9 +278,9 @@ void CloseConsole()
 	Console().SetWindowRect(InitWindowRect);
 	Console().SetSize(InitialSize);
 
-	KeyQueue.reset();
+	KeyQueue().clear();
 	ConsoleIcons().restorePreviousIcons();
-	CancelIoInProgress.reset();
+	CancelIoInProgress().Close();
 }
 
 
@@ -571,7 +571,7 @@ void InitRecodeOutTable()
 
 	if (Global->Opt->CleanAscii)
 	{
-		std::fill(std::begin(Oem2Unicode), std::begin(Oem2Unicode) + 32, L'.');
+		std::fill(std::begin(Oem2Unicode), std::begin(Oem2Unicode) + L' ', L'.');
 
 		Oem2Unicode[0x07]=L'*';
 		Oem2Unicode[0x10]=L'>';
@@ -584,36 +584,28 @@ void InitRecodeOutTable()
 		Oem2Unicode[0x1B]=L'<';
 		Oem2Unicode[0x1E]=L'X';
 		Oem2Unicode[0x1F]=L'X';
-
 		Oem2Unicode[0x7F]=L'.';
+		Oem2Unicode[0xFF]=L' ';
 	}
+
+	auto ApplyNoGraphics = [](wchar_t* Buffer)
+	{
+		std::fill(Buffer + BS_V1, Buffer + BS_LT_H1V1 + 1, L'+');
+
+		Buffer[BS_V1] = L'|';
+		Buffer[BS_V2] = L'|';
+		Buffer[BS_H1] = L'-';
+		Buffer[BS_H2] = L'=';
+	};
+
+	// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
+	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), ARRAYSIZE(BoxSymbols) - 1);
 
 	if (Global->Opt->NoGraphics)
 	{
-		std::fill(std::begin(Oem2Unicode) + 0xB3, std::begin(Oem2Unicode) + 0xDB, L'+');
-
-		Oem2Unicode[0xB3]=L'|';
-		Oem2Unicode[0xBA]=L'|';
-		Oem2Unicode[0xC4]=L'-';
-		Oem2Unicode[0xCD]=L'=';
+		ApplyNoGraphics(Oem2Unicode);
+		ApplyNoGraphics(BoxSymbols);
 	}
-
-	{
-		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		xwcsncpy(BoxSymbols,Global->Opt->strBoxSymbols.data(),ARRAYSIZE(BoxSymbols)-1);
-
-		if (Global->Opt->NoGraphics)
-		{
-			for (int i=BS_V1; i<=BS_LT_H1V1; i++)
-				BoxSymbols[i]=L'+';
-
-			BoxSymbols[BS_V1]=BoxSymbols[BS_V2]=L'|';
-			BoxSymbols[BS_H1]=L'-';
-			BoxSymbols[BS_H2]=L'=';
-		}
-	}
-
-	//_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),nullptr));
 }
 
 

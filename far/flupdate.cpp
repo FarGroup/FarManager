@@ -280,7 +280,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	string strFind(strCurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
-	api::FindFile Find(strFind, true);
+	api::enum_file Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;

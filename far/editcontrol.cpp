@@ -170,7 +170,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		if(!strStr.empty())
 		{
 			string strExp = api::ExpandEnvironmentStrings(strStr);
-			api::FindFile Find(strExp+L"*");
+			api::enum_file Find(strExp+L"*");
 			bool Separator=false;
 			std::for_each(CONST_RANGE(Find, i)
 			{
@@ -217,20 +217,14 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 	if(!Module.empty() && !FirstSlash(Module.data()))
 	{
-		std::list<string> List;
-		string str;
-		int ModuleLength = static_cast<int>(Module.size());
+		std::unordered_set<string> Modules;
 		auto ExcludeCmdsList(StringToList(Global->Opt->Exec.strExcludeCmds));
 		std::for_each(CONST_RANGE(ExcludeCmdsList, i)
 		{
-			if (!StrCmpNI(Module.data(), i.data(), ModuleLength))
+			if (!StrCmpNI(Module.data(), i.data(), Module.size()))
 			{
-				Result=true;
-				str = i;
-				if(std::find(List.cbegin(), List.cend(), str) == List.cend())
-				{
-					List.emplace_back(str);
-				}
+				Modules.emplace(i);
+				Result = true;
 			}
 		});
 
@@ -249,7 +243,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 				string str(i);
 				AddEndSlash(str);
 				str.append(strName).append(L"*");
-				api::FindFile Find(str);
+				api::enum_file Find(str);
 				std::for_each(CONST_RANGE(Find, i)
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
@@ -257,11 +251,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 						LPCWSTR ModuleExt=wcsrchr(i.strFileName.data(),L'.');
 						if(!StrCmpI(ModuleExt, Ext.data()))
 						{
-							str = i.strFileName;
-							if(std::find(List.cbegin(), List.cend(), str) == List.cend())
-							{
-								List.emplace_back(str);
-							}
+							Modules.emplace(i.strFileName);
 							Result=true;
 						}
 					});
@@ -271,16 +261,15 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 
 		static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-		HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
+		static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
-		DWORD RedirectionFlag = api::GetAppPathsRedirectionFlag();
 
 		for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 		{
 			if (i==ARRAYSIZE(RootFindKey)-1)
 			{
-				if(RedirectionFlag)
+				if (DWORD RedirectionFlag = api::GetAppPathsRedirectionFlag())
 				{
 					samDesired|=RedirectionFlag;
 				}
@@ -292,30 +281,21 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 			HKEY hKey;
 			if (RegOpenKeyEx(RootFindKey[i], RegPath, 0, samDesired, &hKey) == ERROR_SUCCESS)
 			{
-				DWORD Index = 0;
-				DWORD RetEnum = ERROR_SUCCESS;
-				while (RetEnum == ERROR_SUCCESS)
+				FOR(const auto& i, api::reg::enum_key(hKey))
 				{
-					RetEnum = api::RegEnumKeyEx(hKey, Index++, strName);
-					if(RetEnum == ERROR_SUCCESS)
+					HKEY hSubKey;
+					if (RegOpenKeyEx(hKey, i.data(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
 					{
-						HKEY hSubKey;
-						if (RegOpenKeyEx(hKey, strName.data(), 0, samDesired, &hSubKey) == ERROR_SUCCESS)
+						DWORD cbSize = 0;
+						if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
 						{
-							DWORD cbSize = 0;
-							if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
+							if (!StrCmpNI(Module.data(), i.data(), Module.size()))
 							{
-								if (!StrCmpNI(Module.data(), strName.data(), ModuleLength))
-								{
-									if(std::find(List.cbegin(), List.cend(), strName) == List.cend())
-									{
-										List.emplace_back(strName);
-									}
-									Result=true;
-								}
+								Modules.emplace(i);
+								Result=true;
 							}
-							RegCloseKey(hSubKey);
 						}
+						RegCloseKey(hSubKey);
 					}
 				}
 				RegCloseKey(hKey);
@@ -335,8 +315,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 		{
 			if(DestMenu->GetItemCount())
 			{
-				MenuItemEx Item;
-				Item.strName = MSG(MCompletionFilesTitle);
+				MenuItemEx Item(MSG(MCompletionFilesTitle));
 				Item.Flags=LIF_SEPARATOR;
 				DestMenu->AddItem(Item);
 			}
@@ -346,7 +325,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 			}
 		}
 
-		std::for_each(CONST_RANGE(List, i)
+		std::for_each(CONST_RANGE(Modules, i)
 		{
 			DestMenu->AddItem(i);
 		});

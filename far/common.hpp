@@ -440,6 +440,12 @@ inline const T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 :
 
 inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
 
+template<class T>
+bool InRange(const T& from, const T& what, const T& to)
+{
+	return from <= what && what <= to;
+};
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \

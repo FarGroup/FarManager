@@ -82,7 +82,7 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, cons
 
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			api::FindFile f(Buffer.get(), false);
+			api::enum_file f(Buffer.get(), false);
 			if (f.begin() == f.end())
 				break;
 		}
@@ -192,69 +192,48 @@ SetAutocomplete::~SetAutocomplete()
 	edit->SetAutocomplete(OldState);
 };
 
-struct reg_item
-{
-	string name;
-	string value;
-	DWORD type;
-};
-
-class reg_enum: public enumerator<reg_item>
-{
-public:
-	reg_enum(HKEY root, const string& key): m_root(root), m_key(key) {}
-	virtual bool get(size_t index, reg_item& value) override
-	{
-		return api::EnumRegValueEx(m_root, m_key, static_cast<DWORD>(index), value.name, value.value, nullptr, nullptr, &value.type) != REG_NONE;
-	}
-
-private:
-	HKEY m_root;
-	const string& m_key;
-};
-
 void ReloadEnvironment()
 {
-	static const simple_pair<HKEY, string> Addr[]=
+	static const simple_pair<HKEY, const wchar_t*> Addr[]=
 	{
 		{HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"},
 		{HKEY_CURRENT_USER, L"Environment"},
 		{HKEY_CURRENT_USER, L"Volatile Environment"}
 	};
 
-	std::for_each(CONST_RANGE(Addr, i)
+	FOR(const auto& i, Addr)
 	{
 		static const DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
-		std::for_each(CONST_RANGE(Types, t) // two passes
+		FOR(const auto& t, Types) // two passes
 		{
-			reg_enum RegEnum(i.first, i.second);
-			std::for_each(RANGE(RegEnum, j)
+			FOR(const auto& j, api::reg::enum_value(i.first, i.second))
 			{
-				if(j.type == t)
+				if(j.Type == t)
 				{
-					if(j.type==REG_EXPAND_SZ)
+					string Value = j.GetString();
+					if(j.Type==REG_EXPAND_SZ)
 					{
-						j.value = api::ExpandEnvironmentStrings(j.value);
+						Value = api::ExpandEnvironmentStrings(Value);
 					}
 					if (i.first==HKEY_CURRENT_USER)
 					{
 						// see http://support.microsoft.com/kb/100843 for details
-						if(!StrCmpI(j.name.data(), L"path") || !StrCmpI(j.name.data(), L"libpath") || !StrCmpI(j.name.data(), L"os2libpath"))
+						if(!StrCmpI(j.Name.data(), L"path") || !StrCmpI(j.Name.data(), L"libpath") || !StrCmpI(j.Name.data(), L"os2libpath"))
 						{
 							string strMergedPath;
-							api::GetEnvironmentVariable(j.name, strMergedPath);
+							api::GetEnvironmentVariable(j.Name, strMergedPath);
 							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
 							}
-							j.value = strMergedPath + j.value;
+							Value = strMergedPath + Value;
 						}
 					}
-					api::SetEnvironmentVariable(j.name, j.value);
+					api::SetEnvironmentVariable(j.Name, Value);
 				}
-			});
-		});
-	});
+			}
+		}
+	}
 }
 
 unsigned int CRC32(unsigned int crc, const void* buffer, size_t size)

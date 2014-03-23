@@ -2108,13 +2108,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 			else
 			{
 				strType += L"\\shell\\open\\command";
-				HKEY hKey;
-
-				if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType.data(),0,KEY_READ,&hKey) == ERROR_SUCCESS)
-				{
-					Success = api::RegQueryStringValue(hKey, L"", strAction, L"") == ERROR_SUCCESS;
-					RegCloseKey(hKey);
-				}
+				Success = api::reg::GetValue(HKEY_CLASSES_ROOT, strType, L"", strAction);
 			}
 
 			if (Success)

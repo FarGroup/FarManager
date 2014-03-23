@@ -125,14 +125,18 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			{
 				switch (Chr2)
 				{
-					case L'.':  Chr=L'.'; break;
 					case 0x07: Chr=L'*'; break;
 					case 0x10: Chr=L'>'; break;
 					case 0x11: Chr=L'<'; break;
-					case 0x18:
+					case 0x15: Chr=L'$'; break;
+					case 0x16: Chr=L'-'; break;
+					case 0x18: Chr=L'|'; break;
 					case 0x19: Chr=L'|'; break;
-					case 0x1E:
+					case 0x1A: Chr=L'>'; break;
+					case 0x1B: Chr=L'<'; break;
+					case 0x1E: Chr=L'X'; break;
 					case 0x1F: Chr=L'X'; break;
+					case 0x7F: Chr=L'X'; break;
 					case 0xFF: Chr=L' '; break;
 					default:
 
@@ -145,15 +149,26 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 				}
 			}
 
-			if (Global->Opt->NoGraphics && Chr2 >=0xB3 && Chr2 <= 0xDA)
+			if (Global->Opt->NoGraphics && InRange(BS_V1, BOX_DEF_SYMBOLS(Chr2), BS_LT_H1V1))
 			{
 				switch (Chr2)
 				{
-					case 0xB3:
-					case 0xBA: Chr=L'|'; break;
-					case 0xC4: Chr=L'-'; break;
-					case 0xCD: Chr=L'='; break;
-					default:   Chr=L'+'; break;
+				case BS_V1:
+				case BS_V2:
+					Chr = L'|';
+					break;
+
+				case BS_H1:
+					Chr = L'-';
+					break;
+
+				case BS_H2:
+					Chr = L'=';
+					break;
+				
+				default:
+					Chr=L'+';
+					break;
 				}
 			}
 

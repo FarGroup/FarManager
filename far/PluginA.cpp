@@ -1562,23 +1562,26 @@ struct DialogData
 	FarList *l;
 };
 
-std::unique_ptr<std::list<DialogData>> DialogList;
+static std::list<DialogData>& DialogList()
+{
+	static std::list<DialogData> s_DialogList;
+	return s_DialogList;
+}
 
 oldfar::FarDialogItem* OneDialogItem=nullptr;
 
 static DialogData* FindDialogData(HANDLE hDlg)
 {
-	DialogData* Result = nullptr;
-	if (DialogList)
+	auto ItemIterator = std::find_if(RANGE(DialogList(), i)
 	{
-		auto ItemIterator = std::find_if(RANGE(*DialogList, i)
-		{
-			return i.hDlg == hDlg;
-		});
-		if (ItemIterator != DialogList->end())
-		{
-			Result = &*ItemIterator;
-		}
+		return i.hDlg == hDlg;
+	});
+
+	DialogData* Result = nullptr;
+
+	if (ItemIterator != DialogList().end())
+	{
+		Result = &*ItemIterator;
 	}
 	return Result;
 }
@@ -2982,11 +2985,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 	NewDialogData.di=di.data();
 	NewDialogData.l=l.data();
 
-	if(!DialogList)
-	{
-		DialogList = std::make_unique<decltype(DialogList)::element_type>();
-	}
-	DialogList->emplace_back(NewDialogData);
+	DialogList().emplace_back(NewDialogData);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{
@@ -3035,12 +3034,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2
 		}
 	}
 
-	DialogList->pop_back();
-
-	if(DialogList->empty())
-	{
-		DialogList.reset();
-	}
+	DialogList().pop_back();
 
 	return ret;
 }

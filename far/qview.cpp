@@ -442,13 +442,7 @@ void QuickView::ShowFile(const string& FileName, int TempFile, PluginHandle* hDi
 
 		if (GetShellType(strCurFileName.data()+pos, strValue))
 		{
-			HKEY hKey;
-
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)==ERROR_SUCCESS)
-			{
-				api::RegQueryStringValue(hKey,L"",strCurFileType,L"");
-				RegCloseKey(hKey);
-			}
+			api::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strCurFileType);
 		}
 	}
 

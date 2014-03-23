@@ -922,7 +922,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 	strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	api::FindFile Find(strFindPath);
+	api::enum_file Find(strFindPath);
 	auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{

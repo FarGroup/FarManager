@@ -34,395 +34,313 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-class api: NonCopyable
+namespace api
 {
-public:
-	static const size_t NT_MAX_PATH = 32768;
-
-struct FAR_FIND_DATA
-{
-	FILETIME ftCreationTime;
-	FILETIME ftLastAccessTime;
-	FILETIME ftLastWriteTime;
-	FILETIME ftChangeTime;
-	unsigned __int64 nFileSize;
-	unsigned __int64 nAllocationSize;
-	unsigned __int64 FileId;
-	string strFileName;
-	string strAlternateFileName;
-	DWORD dwFileAttributes;
-	DWORD dwReserved0;
-
-	FAR_FIND_DATA()
+	enum
 	{
-		Clear();
-	}
-
-	void Clear()
-	{
-		ClearStruct(ftCreationTime);
-		ClearStruct(ftLastAccessTime);
-		ClearStruct(ftLastWriteTime);
-		ClearStruct(ftChangeTime);
-		nFileSize=0;
-		nAllocationSize=0;
-		FileId = 0;
-		strFileName.clear();
-		strAlternateFileName.clear();
-		dwFileAttributes=0;
-		dwReserved0=0;
-	}
-};
-
-class FindFile: NonCopyable, public enumerator<FAR_FIND_DATA>
-{
-public:
-	FindFile(const string& Object, bool ScanSymLink = true);
-	~FindFile();
-
-private:
-	virtual bool get(size_t index, FAR_FIND_DATA& value) override;
-
-	string m_Object;
-	HANDLE m_Handle;
-	bool m_ScanSymLink;
-};
-
-class File: NonCopyable
-{
-public:
-	File();
-	~File();
-	File(File&& rhs):
-		Handle(INVALID_HANDLE_VALUE),
-		Pointer(),
-		NeedSyncPointer(),
-		share_mode()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(File);
-
-	void swap(File& rhs) noexcept
-	{
-		std::swap(Handle, rhs.Handle);
-		std::swap(Pointer, rhs.Pointer);
-		std::swap(NeedSyncPointer, rhs.NeedSyncPointer);
-		name.swap(rhs.name);
-		std::swap(share_mode, rhs.share_mode);
-	}
-
-	bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, File* TemplateFile=nullptr, bool ForceElevation=false);
-	bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
-	bool Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
-	bool Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead);
-	bool Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten);
-	bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
-	INT64 GetPointer(){return Pointer;}
-	bool SetEnd();
-	bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-	bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
-	bool GetSize(UINT64& Size);
-	bool FlushBuffers();
-	bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
-	bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
-	bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
-	bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
-	bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
-	bool Close();
-	bool Eof();
-	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
-	const string& GetName() const { return name; }
-
-private:
-	HANDLE Handle;
-	INT64 Pointer;
-	bool NeedSyncPointer;
-	string name;
-	DWORD share_mode;
-
-	inline void SyncPointer();
-};
-
-class FileWalker: public File
-{
-public:
-	FileWalker();
-	bool InitWalk(size_t BlockSize);
-	bool Step();
-	UINT64 GetChunkOffset() const;
-	DWORD GetChunkSize() const;
-	int GetPercent() const;
-
-private:
-	struct Chunk
-	{
-		UINT64 Offset;
-		DWORD Size;
-		Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
+		NT_MAX_PATH = 32768
 	};
-	std::list<Chunk> ChunkList;
-	UINT64 FileSize;
-	UINT64 AllocSize;
-	UINT64 ProcessedSize;
-	std::list<Chunk>::iterator CurrentChunk;
-	DWORD ChunkSize;
-	bool Sparse;
-};
 
-class sid_object: NonCopyable
-{
-public:
-	sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
+	struct FAR_FIND_DATA
 	{
-		if (!AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &m_value))
+		FILETIME ftCreationTime;
+		FILETIME ftLastAccessTime;
+		FILETIME ftLastWriteTime;
+		FILETIME ftChangeTime;
+		unsigned __int64 nFileSize;
+		unsigned __int64 nAllocationSize;
+		unsigned __int64 FileId;
+		string strFileName;
+		string strAlternateFileName;
+		DWORD dwFileAttributes;
+		DWORD dwReserved0;
+
+		FAR_FIND_DATA()
 		{
-			throw FarRecoverableException("unable to allocate and initialize SID");
+			Clear();
 		}
-	}
 
-	~sid_object()
+		void Clear()
+		{
+			ClearStruct(ftCreationTime);
+			ClearStruct(ftLastAccessTime);
+			ClearStruct(ftLastWriteTime);
+			ClearStruct(ftChangeTime);
+			nFileSize=0;
+			nAllocationSize=0;
+			FileId = 0;
+			strFileName.clear();
+			strAlternateFileName.clear();
+			dwFileAttributes=0;
+			dwReserved0=0;
+		}
+	};
+
+	class enum_file: NonCopyable, public enumerator<FAR_FIND_DATA>
 	{
-		FreeSid(m_value);
+	public:
+		enum_file(const string& Object, bool ScanSymLink = true);
+		~enum_file();
+
+	private:
+		virtual bool get(size_t index, FAR_FIND_DATA& value) override;
+
+		string m_Object;
+		HANDLE m_Handle;
+		bool m_ScanSymLink;
+	};
+
+	class File: NonCopyable
+	{
+	public:
+		File();
+		~File();
+		File(File&& rhs):
+			Handle(INVALID_HANDLE_VALUE),
+			Pointer(),
+			NeedSyncPointer(),
+			share_mode()
+		{
+			*this = std::move(rhs);
+		}
+
+		MOVE_OPERATOR_BY_SWAP(File);
+
+		void swap(File& rhs) noexcept
+		{
+			std::swap(Handle, rhs.Handle);
+			std::swap(Pointer, rhs.Pointer);
+			std::swap(NeedSyncPointer, rhs.NeedSyncPointer);
+			name.swap(rhs.name);
+			std::swap(share_mode, rhs.share_mode);
+		}
+
+		bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, File* TemplateFile=nullptr, bool ForceElevation=false);
+		bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
+		bool Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
+		bool Read(LPVOID Buffer, size_t Nr, size_t& NumberOfBytesRead);
+		bool Write(LPCVOID Buffer, size_t Nw, size_t& NumberOfBytesWritten);
+		bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
+		INT64 GetPointer(){return Pointer;}
+		bool SetEnd();
+		bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+		bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+		bool GetSize(UINT64& Size);
+		bool FlushBuffers();
+		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
+		bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
+		bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
+		bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
+		bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
+		bool Close();
+		bool Eof();
+		bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
+		const string& GetName() const { return name; }
+
+	private:
+		HANDLE Handle;
+		INT64 Pointer;
+		bool NeedSyncPointer;
+		string name;
+		DWORD share_mode;
+
+		inline void SyncPointer();
+	};
+
+	class FileWalker: public File
+	{
+	public:
+		FileWalker();
+		bool InitWalk(size_t BlockSize);
+		bool Step();
+		UINT64 GetChunkOffset() const;
+		DWORD GetChunkSize() const;
+		int GetPercent() const;
+
+	private:
+		struct Chunk
+		{
+			UINT64 Offset;
+			DWORD Size;
+			Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
+		};
+		std::list<Chunk> ChunkList;
+		UINT64 FileSize;
+		UINT64 AllocSize;
+		UINT64 ProcessedSize;
+		std::list<Chunk>::iterator CurrentChunk;
+		DWORD ChunkSize;
+		bool Sparse;
+	};
+
+	class sid_object: NonCopyable
+	{
+	public:
+		sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
+		{
+			if (!AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &m_value))
+			{
+				throw FarRecoverableException("unable to allocate and initialize SID");
+			}
+		}
+
+		~sid_object()
+		{
+			FreeSid(m_value);
+		}
+
+		PSID get() const { return m_value; }
+
+	private:
+		PSID m_value;
+	};
+
+	NTSTATUS GetLastNtStatus();
+	bool GetEnvironmentVariable(const string& Name, string& Buffer);
+	bool SetEnvironmentVariable(const string& Name, const string& Value);
+	bool DeleteEnvironmentVariable(const string& Name);
+	string ExpandEnvironmentStrings(const string& str);
+	DWORD GetCurrentDirectory(string &strCurDir);
+	DWORD GetTempPath(string &strBuffer);
+	DWORD GetModuleFileName(HMODULE hModule, string &strFileName);
+	DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
+	DWORD WNetGetConnection(const string& LocalName, string &RemoteName);
+	BOOL GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
+	BOOL FindStreamClose(HANDLE hFindFile);
+	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
+	bool GetFileSizeEx(HANDLE hFile, UINT64 &Size);
+	BOOL DeleteFile(const string& FileName);
+	BOOL RemoveDirectory(const string& DirName);
+	HANDLE CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
+	BOOL CopyFileEx(const string& ExistingFileName, const string& NewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags);
+	BOOL MoveFile(const string& ExistingFileName, const string& NewFileName);
+	BOOL MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
+	BOOL IsDiskInDrive(const string& Root);
+	int GetFileTypeByName(const string& Name);
+	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
+	HANDLE FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
+	BOOL FindNextFileName(HANDLE hFindStream, string& LinkName);
+	BOOL CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	BOOL CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes);
+	DWORD GetFileAttributes(const string& FileName);
+	BOOL SetFileAttributes(const string& FileName, DWORD dwFileAttributes);
+	void InitCurrentDirectory();
+	BOOL SetCurrentDirectory(const string& PathName, bool Validate = true);
+	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD dwFlags);
+	bool SetFileEncryption(const string& Name, bool Encrypt);
+	BOOL CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	HANDLE FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
+	BOOL FindNextStream(HANDLE hFindStream, LPVOID lpFindStreamData);
+	std::vector<string> GetLogicalDriveStrings();
+	bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath);
+	bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest);
+	bool QueryDosDevice(const string& DeviceName, string& Path);
+	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
+	bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+	void EnableLowFragmentationHeap();
+	typedef block_ptr<SECURITY_DESCRIPTOR> FAR_SECURITY_DESCRIPTOR;
+	bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+	bool OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
+	DWORD GetAppPathsRedirectionFlag();
+
+	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
+	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
+	bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+	bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+	bool OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+
+	namespace reg
+	{
+		inline bool IsStringType(DWORD Type)
+		{
+			return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
+		}
+
+		class key:NonCopyable
+		{
+		public:
+			key(HKEY Key): m_Key(Key), m_Opened() {}
+			key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam);
+			~key();
+
+			operator bool() const { return m_Key != nullptr; }
+			HKEY Key() const { return m_Key; }
+
+		private:
+			HKEY m_Key;
+			bool m_Opened;
+		};
+
+		struct value
+		{
+			string Name;
+			DWORD Type;
+
+			string GetString() const;
+			unsigned int GetUnsigned() const;
+			uint64_t GetUnsigned64() const;
+
+		private:
+			friend bool EnumValue(HKEY, size_t, value&);
+
+			HKEY m_Key;
+		};
+
+		bool EnumKey(HKEY Key, size_t Index, string& Name);
+		bool EnumValue(HKEY Key, size_t Index, value& Value);
+
+		bool GetValue(HKEY Key, const wchar_t* Name, string& Value);
+		bool GetValue(HKEY Key, const wchar_t* Name, unsigned int& Value);
+		bool GetValue(HKEY Key, const wchar_t* Name, uint64_t& Value);
+
+#define IS_SAME(T1, T2) std::is_same<T1, T2>::value
+#define CHECK_TYPE(T) static_assert(IS_SAME(T, string) || IS_SAME(T, unsigned int) || IS_SAME(T, uint64_t), "this type is not supported");
+
+		template<class T>
+		bool GetValue(HKEY Key, const string& Name, T& Value) { CHECK_TYPE(T); return GetValue(Key, Name.data(), Value); }
+
+		template<class T>
+		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0)
+		{
+			CHECK_TYPE(T);
+			key Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam);
+			return Key && GetValue(Key.Key(), Name, Value);
+		}
+
+		template<class T>
+		bool GetValue(HKEY RootKey, const string& SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey.data(), Name, Value, Sam); }
+		template<class T>
+		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const string& Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey, Name.data(), Value, Sam); }
+		template<class T>
+		bool GetValue(HKEY RootKey, const string& SubKey, const string& Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey.data(), Name.data(), Value, Sam); }
+
+#undef CHECK_TYPE
+#undef IS_SAME
+
+		class enum_key: NonCopyable, public enumerator<string>
+		{
+		public:
+			enum_key(HKEY Key): m_Key(Key) {}
+			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam) {}
+			virtual bool get(size_t Index, string& Value) override { return m_Key && EnumKey(m_Key.Key(), Index, Value); }
+
+		private:
+			key m_Key;
+		};
+
+		class enum_value: NonCopyable, public enumerator<value>
+		{
+		public:
+			enum_value(HKEY Key): m_Key(Key) {}
+			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(RootKey, SubKey, KEY_QUERY_VALUE | Sam) {}
+			virtual bool get(size_t Index, value& Value) override { return m_Key && EnumValue(m_Key.Key(), Index, Value); }
+
+		private:
+			key m_Key;
+		};
 	}
-
-	PSID get() const { return m_value; }
-
-private:
-	PSID m_value;
-};
-
-static NTSTATUS GetLastNtStatus();
-
-static bool GetEnvironmentVariable(const string& Name, string& Buffer);
-static bool SetEnvironmentVariable(const string& Name, const string& Value);
-static bool DeleteEnvironmentVariable(const string& Name);
-static string ExpandEnvironmentStrings(const string& str);
-
-static DWORD GetCurrentDirectory(
-    string &strCurDir
-);
-
-static DWORD GetTempPath(
-    string &strBuffer
-);
-
-static DWORD GetModuleFileName(
-    HMODULE hModule,
-    string &strFileName
-);
-
-static DWORD GetModuleFileNameEx(
-    HANDLE hProcess,
-    HMODULE hModule,
-    string &strFileName
-);
-
-static DWORD WNetGetConnection(
-    const string& LocalName,
-    string &RemoteName
-);
-
-static BOOL GetVolumeInformation(
-    const string& RootPathName,
-    string *pVolumeName,
-    LPDWORD lpVolumeSerialNumber,
-    LPDWORD lpMaximumComponentLength,
-    LPDWORD lpFileSystemFlags,
-    string *pFileSystemName
-);
-
-static BOOL FindStreamClose(
-    HANDLE hFindFile
-);
-
-static bool GetFindDataEx(
-    const string& FileName,
-    FAR_FIND_DATA& FindData,
-    bool ScanSymLink=true);
-
-static bool GetFileSizeEx(
-    HANDLE hFile,
-    UINT64 &Size);
-
-static BOOL DeleteFile(
-    const string& FileName
-);
-
-static BOOL RemoveDirectory(
-    const string& DirName
-);
-
-static HANDLE CreateFile(
-    const string& Object,
-    DWORD DesiredAccess,
-    DWORD ShareMode,
-    LPSECURITY_ATTRIBUTES SecurityAttributes,
-    DWORD CreationDistribution,
-    DWORD FlagsAndAttributes=0,
-    HANDLE TemplateFile=nullptr,
-    bool ForceElevation = false
-);
-
-static BOOL CopyFileEx(
-    const string& ExistingFileName,
-    const string& NewFileName,
-    LPPROGRESS_ROUTINE lpProgressRoutine,
-    LPVOID lpData,
-    LPBOOL pbCancel,
-    DWORD dwCopyFlags
-);
-
-static BOOL MoveFile(
-    const string& ExistingFileName, // address of name of the existing file
-    const string& NewFileName   // address of new name for the file
-);
-
-static BOOL MoveFileEx(
-    const string& ExistingFileName, // address of name of the existing file
-    const string& NewFileName,   // address of new name for the file
-    DWORD dwFlags   // flag to determine how to move file
-);
-
-static int RegEnumKeyEx(
-    HKEY hKey,
-    DWORD dwIndex,
-    string &strName,
-    PFILETIME lpftLastWriteTime=nullptr
-);
-
-static BOOL IsDiskInDrive(
-    const string& Root
-);
-
-static int GetFileTypeByName(
-    const string& Name
-);
-
-static bool GetDiskSize(
-    const string& Path,
-    unsigned __int64 *TotalSize,
-    unsigned __int64 *TotalFree,
-    unsigned __int64 *UserFree
-);
-
-static HANDLE FindFirstFileName(
-    const string& FileName,
-    DWORD dwFlags,
-    string& LinkName
-);
-
-static BOOL FindNextFileName(
-    HANDLE hFindStream,
-    string& LinkName
-);
-
-static BOOL CreateDirectory(
-    const string& PathName,
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes
-);
-
-static BOOL CreateDirectoryEx(
-    const string& TemplateDirectory,
-    const string& NewDirectory,
-    LPSECURITY_ATTRIBUTES SecurityAttributes
-);
-
-static DWORD GetFileAttributes(
-    const string& FileName
-);
-
-static BOOL SetFileAttributes(
-    const string& FileName,
-    DWORD dwFileAttributes
-);
-
-static void InitCurrentDirectory();
-
-static BOOL SetCurrentDirectory(
-    const string& PathName,
-    bool Validate = true
-);
-
-static bool CreateSymbolicLink(
-    const string& SymlinkFileName,
-    const string& TargetFileName,
-    DWORD dwFlags
-);
-
-static bool SetFileEncryption(const string& Name, bool Encrypt);
-
-static BOOL CreateHardLink(
-    const string& FileName,
-    const string& ExistingFileName,
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes
-);
-
-static HANDLE FindFirstStream(
-    const string& FileName,
-    STREAM_INFO_LEVELS InfoLevel,
-    LPVOID lpFindStreamData,
-    DWORD dwFlags=0
-);
-
-static BOOL FindNextStream(
-    HANDLE hFindStream,
-    LPVOID lpFindStreamData
-);
-
-static std::vector<string> GetLogicalDriveStrings();
-
-static bool GetFinalPathNameByHandle(
-    HANDLE hFile,
-    string& FinalFilePath
-);
-
-static bool SearchPath(
-	const wchar_t *Path,
-	const string& FileName,
-	const wchar_t *Extension,
-	string &strDest
-);
-
-static bool QueryDosDevice(
-	const string& DeviceName,
-	string& Path
-);
-
-static bool GetVolumeNameForVolumeMountPoint(
-	const string& VolumeMountPoint,
-	string& VolumeName
-);
-
-static bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-
-static void EnableLowFragmentationHeap();
-
-static int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault = L"");
-static int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
-
-typedef block_ptr<SECURITY_DESCRIPTOR> FAR_SECURITY_DESCRIPTOR;
-
-static bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
-
-static bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
-
-static bool OpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
-
-static string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
-
-static DWORD GetAppPathsRedirectionFlag();
-
-private:
-	friend class elevation;
-	friend class elevated;
-
-	static bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
-	static bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
-	static bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-	static bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
-	static bool OpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
-};
+}
 
 STD_SWAP_SPEC(api::File);

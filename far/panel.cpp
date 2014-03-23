@@ -2479,25 +2479,21 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	// проверяем - это было постоянное соедение или нет?
 	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
 	//   есть постоянное подключение.
-	BOOL IsPersistent = FALSE;
-	{
-		HKEY hKey;
-		IsPersistent=TRUE;
-		string KeyName(L"Network\\");
-		KeyName+=Letter;
 
-		if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName.data(),0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
-		{
-			DCDlg[5].Flags|=DIF_DISABLE;
-			DCDlg[5].Selected=0;
-			IsPersistent=FALSE;
-		}
-		else
-		{
-			DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
-			RegCloseKey(hKey);
-		}
+	bool IsPersistent = true;
+	const wchar_t KeyName[] = {L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0'};
+
+	if (api::reg::key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
+	{
+		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}
+	else
+	{
+		DCDlg[5].Flags |= DIF_DISABLE;
+		DCDlg[5].Selected = 0;
+		IsPersistent = false;
+	}
+
 	// скорректируем размеры диалога - для дизайнУ
 	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;
 	int ExitCode=7;

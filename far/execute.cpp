@@ -177,18 +177,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 
 static bool IsProperProgID(const string& ProgID)
 {
-	if (!ProgID.empty())
-	{
-		HKEY hProgID;
-
-		if (RegOpenKey(HKEY_CLASSES_ROOT, ProgID.data(), &hProgID) == ERROR_SUCCESS)
-		{
-			RegCloseKey(hProgID);
-			return true;
-		}
-	}
-
-	return false;
+	return !ProgID.empty() && api::reg::key(HKEY_CLASSES_ROOT, ProgID.data(), KEY_QUERY_VALUE);
 }
 
 /*
@@ -198,34 +187,13 @@ strType - сюда запишется результат, если будет найден
 */
 static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 {
-	HKEY hExtIDListSubKey;
-
-	if (RegOpenKey(hExtKey, L"OpenWithProgids", &hExtIDListSubKey) == ERROR_SUCCESS)
+	FOR(const auto& i, api::reg::enum_value(hExtKey, L"OpenWithProgids"))
 	{
-		DWORD nValueIndex = 0;
-		LONG nRet;
-		const DWORD dwNameBufSize = 64;
-		wchar_t wszValueName[dwNameBufSize];
-		DWORD nValueNameSize = dwNameBufSize;
-		DWORD nValueType;
-
-		// Пройдемся по всем значениям и проверим имена на пренадлежность к валидным типам
-		while ((nRet = RegEnumValue(hExtIDListSubKey, nValueIndex, wszValueName, &nValueNameSize, nullptr, &nValueType, nullptr, nullptr)) != ERROR_NO_MORE_ITEMS)
+		if (i.Type == REG_SZ && IsProperProgID(i.Name))
 		{
-			if (nRet != ERROR_SUCCESS) break;
-
-			if ((nValueType == REG_SZ || nValueType == REG_NONE) && IsProperProgID(wszValueName))
-			{
-				strType = wszValueName;
-				RegCloseKey(hExtIDListSubKey);
-				return true;
-			}
-
-			nValueIndex++;
-			nValueNameSize = dwNameBufSize;	// сбросим значение до полного размера буфера (после функции тут будет размер строки)
+			strType = i.Name;
+			return true;
 		}
-
-		RegCloseKey(hExtIDListSubKey);
 	}
 
 	return false;
@@ -358,13 +326,12 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 					strFullName+=Module;
 
 					DWORD samDesired = KEY_QUERY_VALUE;
-					DWORD RedirectionFlag = api::GetAppPathsRedirectionFlag();
 
 					for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 					{
 						if (i==ARRAYSIZE(RootFindKey)-1)
 						{
-							if(RedirectionFlag)
+							if (DWORD RedirectionFlag = api::GetAppPathsRedirectionFlag())
 							{
 								samDesired|=RedirectionFlag;
 							}
@@ -373,18 +340,12 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 								break;
 							}
 						}
-						HKEY hKey;
-						if (RegOpenKeyEx(RootFindKey[i],strFullName.data(), 0, samDesired, &hKey)==ERROR_SUCCESS)
-						{
-							int RegResult=api::RegQueryStringValue(hKey, L"", strFullName, L"");
-							RegCloseKey(hKey);
 
-							if (RegResult==ERROR_SUCCESS)
-							{
-								strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
-								Result=true;
-								break;
-							}
+						if (api::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
+						{
+							strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
+							Result=true;
+							break;
 						}
 					}
 
@@ -398,18 +359,10 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 							return std::any_of(CONST_RANGE(RootFindKey, i) -> bool
 							{
-								HKEY hKey;
-
-								if (RegOpenKeyEx(i, strFullName.data(), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+								if (api::reg::GetValue(i, strFullName, L"", strFullName))
 								{
-									int RegResult=api::RegQueryStringValue(hKey, L"", strFullName, L"");
-									RegCloseKey(hKey);
-
-									if (RegResult==ERROR_SUCCESS)
-									{
-										strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
-										return true;
-									}
+									strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
+									return true;
 								}
 								return false;
 							});
@@ -494,23 +447,8 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 
 static bool RunAsSupported(LPCWSTR Name)
 {
-	bool Result = false;
-	string Extension(PointToExt(Name));
-	if(!Extension.empty())
-	{
-		string strType;
-		if(GetShellType(Extension, strType))
-		{
-			HKEY hKey;
-
-			if (RegOpenKey(HKEY_CLASSES_ROOT,strType.append(L"\\shell\\runas\\command").data(),&hKey)==ERROR_SUCCESS)
-			{
-				RegCloseKey(hKey);
-				Result = true;
-			}
-		}
-	}
-	return Result;
+	string Extension(PointToExt(Name)), Type;
+	return !Extension.empty() && GetShellType(Extension, Type) && api::reg::key(HKEY_CLASSES_ROOT, Type.append(L"\\shell\\runas\\command").data(), KEY_QUERY_VALUE);
 }
 
 /*
@@ -547,14 +485,14 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 	strValue += L"\\shell";
 
-	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)!=ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CLASSES_ROOT, strValue.data(), 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
 		return nullptr;
 
-	static string strAction;
-	int RetQuery = api::RegQueryStringValue(hKey, L"", strAction, L"");
 	strValue += L"\\";
 
-	if (RetQuery == ERROR_SUCCESS)
+	static string strAction;
+
+	if (api::reg::GetValue(hKey, L"", strAction))
 	{
 		RetPtr = EmptyToNull(strAction.data());
 		LONG RetEnum = ERROR_SUCCESS;
@@ -562,16 +500,14 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 
 		if (RetPtr && !ActionList.empty())
 		{
-			HKEY hOpenKey;
 			FOR(const auto& i, ActionList)
 			{
 				strNewValue = strValue;
 				strNewValue += i;
 				strNewValue += command_action;
 
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.data(),&hOpenKey)==ERROR_SUCCESS)
+				if (api::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 				{
-					RegCloseKey(hOpenKey);
 					strValue += i;
 					strAction = i;
 					RetPtr = strAction.data();
@@ -600,45 +536,35 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 	// Посмотрим - есть ли вообще что-нибудь у этого расширения
 	if (!RetPtr)
 	{
-		LONG RetEnum = ERROR_SUCCESS;
-		DWORD dwIndex = 0;
-		HKEY hOpenKey;
 		// Сначала проверим "open"...
 		strAction = L"open";
 		strNewValue = strValue;
 		strNewValue += strAction;
 		strNewValue += command_action;
 
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.data(),&hOpenKey)==ERROR_SUCCESS)
+		if (api::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 		{
-			RegCloseKey(hOpenKey);
 			strValue += strAction;
 			RetPtr = strAction.data();
-			RetEnum = ERROR_NO_MORE_ITEMS;
-		} /* if */
+		}
 
 		// ... а теперь все остальное, если "open" нету
-		while (RetEnum == ERROR_SUCCESS)
+		FOR(const auto& i, api::reg::enum_key(hKey))
 		{
-			RetEnum=api::RegEnumKeyEx(hKey, dwIndex++,strAction);
+			strAction = i;
 
-			if (RetEnum == ERROR_SUCCESS)
+			// Проверим наличие "команды" у этого ключа
+			strNewValue = strValue;
+			strNewValue += strAction;
+			strNewValue += command_action;
+
+			if (api::reg::key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
 			{
-				// Проверим наличие "команды" у этого ключа
-				strNewValue = strValue;
-				strNewValue += strAction;
-				strNewValue += command_action;
-
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue.data(),&hOpenKey)==ERROR_SUCCESS)
-				{
-					RegCloseKey(hOpenKey);
-					strValue += strAction;
-					RetPtr = strAction.data();
-					RetEnum = ERROR_NO_MORE_ITEMS;
-				} /* if */
-			} /* if */
-		} /* while */
-	} /* if */
+				strValue += strAction;
+				RetPtr = strAction.data();
+			}
+		}
+	}
 
 	RegCloseKey(hKey);
 
@@ -647,40 +573,34 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		strValue += command_action;
 
 		// а теперь проверим ГУЕвость запускаемой проги
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue.data(),&hKey)==ERROR_SUCCESS)
+		if (api::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
 		{
-			RetQuery=api::RegQueryStringValue(hKey, L"", strNewValue, L"");
-			RegCloseKey(hKey);
+			strNewValue = api::ExpandEnvironmentStrings(strNewValue);
 
-			if (RetQuery == ERROR_SUCCESS && !strNewValue.empty())
+			// Выделяем имя модуля
+			if (strNewValue.front() == L'\"')
 			{
-				strNewValue = api::ExpandEnvironmentStrings(strNewValue);
+				size_t QuotePos = strNewValue.find(L'\"', 1);
 
-				// Выделяем имя модуля
-				if (strNewValue.front() == L'\"')
+				if (QuotePos != string::npos)
 				{
-					size_t QuotePos = strNewValue.find(L'\"', 1);
-
-					if (QuotePos != string::npos)
-					{
-						strNewValue.resize(QuotePos);
-						strNewValue.erase(0, 1);
-					}
+					strNewValue.resize(QuotePos);
+					strNewValue.erase(0, 1);
 				}
-				else
-				{
-					auto pos = strNewValue.find_first_of(L" \t/");
-					if (pos != string::npos)
-						strNewValue.resize(pos);
-				}
-
-				GetImageSubsystem(strNewValue,ImageSubsystem);
 			}
 			else
 			{
-				Error=ERROR_NO_ASSOCIATION;
-				RetPtr=nullptr;
+				auto pos = strNewValue.find_first_of(L" \t/");
+				if (pos != string::npos)
+					strNewValue.resize(pos);
 			}
+
+			GetImageSubsystem(strNewValue,ImageSubsystem);
+		}
+		else
+		{
+			Error=ERROR_NO_ASSOCIATION;
+			RetPtr=nullptr;
 		}
 	}
 
@@ -725,26 +645,17 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 
 		if (aType == AT_FILEEXTENSION)
 		{
-			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
-			strExplorerTypeKey.append(Ext);
-
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey.data(), &hUserKey) == ERROR_SUCCESS)
+			if (api::reg::GetValue(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
 			{
-				if ((api::RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
-				{
-					strType = strFoundValue;
-				}
+				strType = strFoundValue;
 			}
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext.data(), &hCRKey) == ERROR_SUCCESS))
+		if (strType.empty() && api::reg::GetValue(HKEY_CLASSES_ROOT, Ext, L"", strFoundValue) && IsProperProgID(strFoundValue))
 		{
-			if ((api::RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
-			{
-				strType = strFoundValue;
-			}
+			strType = strFoundValue;
 		}
 
 		if (strType.empty() && hUserKey)
@@ -1100,7 +1011,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 										*/
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
-										KeyQueue.reset();
+										KeyQueue().clear();
 										Console().Free();
 										Console().Allocate();
 

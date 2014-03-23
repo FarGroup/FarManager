@@ -73,8 +73,8 @@ public:
 	}
 
 	BitFlags Flags;
-	std::unique_ptr<api::FindFile> Find;
-	api::FindFile::iterator Iterator;
+	std::unique_ptr<api::enum_file> Find;
+	api::enum_file::iterator Iterator;
 	string RealPath;
 };
 

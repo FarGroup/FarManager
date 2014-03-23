@@ -87,14 +87,9 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 				}
 				else
 				{
-					size_t R = GetRValue(i.Color);
-					size_t G = GetGValue(i.Color);
-					size_t B = GetBValue(i.Color);
-
-					auto InRange = [](size_t from, size_t what, size_t to)
-					{
-						return from <= what && what <= to;
-					};
+					int R = GetRValue(i.Color);
+					int G = GetGValue(i.Color);
+					int B = GetBValue(i.Color);
 
 					// special case, silver color:
 					if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
@@ -103,7 +98,7 @@ WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 					}
 					else
 					{
-						size_t* p[] = { &R, &G, &B };
+						int* p[] = { &R, &G, &B };
 						size_t IntenseCount = 0;
 						std::for_each(RANGE(p, component)
 						{

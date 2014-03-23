@@ -125,7 +125,7 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	api::FindFile Find(strFindPath);
+	api::enum_file Find(strFindPath);
 	auto ItemIterator = Find.begin();
 	if (ItemIterator != Find.end())
 	{

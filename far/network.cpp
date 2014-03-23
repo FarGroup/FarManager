@@ -48,13 +48,8 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	//Тут может быть надо заюзать WNetGetUser
 	strUserName.clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
-	HKEY hKey;
 
-	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
-	{
-		api::RegQueryStringValue(hKey, L"UserName", strUserName);
-		RegCloseKey(hKey);
-	}
+	api::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
 }
 
 std::bitset<32> AddSavedNetworkDisks(std::bitset<32>& Mask)
