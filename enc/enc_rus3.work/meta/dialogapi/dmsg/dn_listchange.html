@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Событие <code>DN_LISTCHANGE</code> оповещает обработчик об изменении состояния элемента списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>, <a href="../controls/di_listbox.html">DI_LISTBOX</a>, <a href="../flags/dif_history.html">DIF_HISTORY</a>).
+Событие <code>DN_LISTCHANGE</code> оповещает обработчик об изменении позиции курсора элемента списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>, <a href="../controls/di_listbox.html">DI_LISTBOX</a>, <a href="../flags/dif_history.html">DIF_HISTORY</a>).
 </div>
 
 <h3>Param1</h3>
@@ -26,13 +26,13 @@ ID элемента диалога.
 
 <h3>Param2</h3>
 <div class=descr>
-Текущая позиция в списке.
+Новая позиция в списке.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-<code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
-<code>FALSE</code> - запретить изменение.
+<code>TRUE</code> - разрешить изменение позиции курсора.<br>
+<code>FALSE</code> - запретить изменение позиции курсора.
 </div>
 
 <h3>Элементы</h3>
