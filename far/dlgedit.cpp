@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dlgedit.hpp"
 #include "dialog.hpp"
 #include "history.hpp"
+#include "syslog.hpp"
 
 DlgEdit::DlgEdit(Dialog* pOwner,size_t Index,DLGEDITTYPE Type):
 	LastPartLength(-1),
@@ -743,6 +744,8 @@ void DlgEdit::EditChange(void* aParam)
 
 void DlgEdit::DoEditChange()
 {
+	_DIALOG(CleverSysLog CL(L"DlgEdit::DoEditChange()"));
+	_DIALOG(SysLog(L"m_Dialog=%p, m_Dialog->IsInited()=%d, m_Index=%d",m_Dialog,m_Dialog->IsInited(),m_Index));
 	if (m_Dialog->IsInited())
 	{
 		m_Dialog->SendMessage(DN_EDITCHANGE,m_Index,0);

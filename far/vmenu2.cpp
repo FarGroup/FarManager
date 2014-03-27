@@ -42,9 +42,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "interf.hpp"
 #include "ctrlobj.hpp"
+#include "syslog.hpp"
 
 intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
+	_DIALOG(CleverSysLog CL(L"VMenu2::VMenu2DlgProc()"));
+	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",Dlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 	switch(Msg)
 	{
 	case DN_CTLCOLORDIALOG:

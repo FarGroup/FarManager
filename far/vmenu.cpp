@@ -1240,7 +1240,8 @@ int VMenu::ProcessKey(int Key)
 		{
 			FarListPos pos={sizeof(FarListPos),0,-1};
 			SetSelectPos(&pos, 1);
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 		case KEY_END:          case KEY_NUMPAD1:
@@ -1252,7 +1253,8 @@ int VMenu::ProcessKey(int Key)
 			int p = static_cast<int>(Items.size())-1;
 			FarListPos pos={sizeof(FarListPos),p,std::max(0,p-MaxHeight+1)};
 			SetSelectPos(&pos, -1);
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 		case KEY_PGUP:         case KEY_NUMPAD9:
@@ -1266,7 +1268,8 @@ int VMenu::ProcessKey(int Key)
 
 			FarListPos pos={sizeof(FarListPos),p,p};
 			SetSelectPos(&pos, 1);
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 		case KEY_PGDN:         case KEY_NUMPAD3:
@@ -1281,7 +1284,8 @@ int VMenu::ProcessKey(int Key)
 
 			FarListPos pos={sizeof(FarListPos),pSel,pTop};
 			SetSelectPos(&pos, -1);
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 		case KEY_ALTHOME:           case KEY_ALT|KEY_NUMPAD7:
@@ -1344,7 +1348,8 @@ int VMenu::ProcessKey(int Key)
 			{
 				FarListPos Pos = {sizeof(Pos), SelectPos-1, TopPos-1};
 				SetSelectPos(&Pos);
-				ShowMenu(true);
+				if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+					ShowMenu(true);
 			}
 			break;
 		}
@@ -1358,7 +1363,8 @@ int VMenu::ProcessKey(int Key)
 				if (!(Items_size - TopPos <= Height_size || Items_size <= Height_size) )
 					Pos.TopPos++;
 				SetSelectPos(&Pos);
-				ShowMenu(true);
+				if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+					ShowMenu(true);
 			}
 			break;
 		}
@@ -1367,7 +1373,8 @@ int VMenu::ProcessKey(int Key)
 		case KEY_UP:           case KEY_NUMPAD8:
 		{
 			SetSelectPos(SelectPos-1,-1,IsRepeatedKey());
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 
@@ -1375,7 +1382,8 @@ int VMenu::ProcessKey(int Key)
 		case KEY_DOWN:         case KEY_NUMPAD2:
 		{
 			SetSelectPos(SelectPos+1,1,IsRepeatedKey());
-			ShowMenu(true);
+			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
+				ShowMenu(true);
 			break;
 		}
 

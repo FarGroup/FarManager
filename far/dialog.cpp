@@ -2540,6 +2540,7 @@ int Dialog::ProcessKey(int Key)
 
 				if (NewListPos != CurListPos && !DlgProc(DN_LISTCHANGE,FocusPos,ToPtr(NewListPos)))
 				{
+					List->SetSelectPos(CurListPos,0);
 					if (!DialogMode.Check(DMODE_SHOW))
 						return TRUE;
 
@@ -4025,12 +4026,16 @@ int Dialog::SelectFromComboBox(
 
 			if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
 			{
-				if (DlgProc(DN_CONTROLINPUT,FocusPos,&ReadRec))
+				if (DlgProc(DN_CONTROLINPUT, FocusPos, &ReadRec))
+				{
 					continue;
+				}
 			}
 			else if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
-				if (!DlgProc(DN_INPUT,0,&ReadRec))
+				if (!DlgProc(DN_INPUT, 0, &ReadRec))
+				{
 					continue;
+				}
 
 			// здесь можно добавить что-то свое, например,
 			I=ComboBox->GetSelectPos();
@@ -4043,8 +4048,11 @@ int Dialog::SelectFromComboBox(
 
 			if (I != Dest)
 			{
-				if (!DlgProc(DN_LISTCHANGE,CurFocusPos,ToPtr(I)))
-					ComboBox->SetSelectPos(Dest,Dest<I?-1:1); //????
+				if (!DlgProc(DN_LISTCHANGE, CurFocusPos, ToPtr(I)))
+				{
+					ComboBox->SetSelectPos(Dest, Dest < I ? -1 : 1); //????
+					ComboBox->Show();
+				}
 				else
 					Dest=I;
 
