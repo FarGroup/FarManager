@@ -1,39 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mozilla Communicator client code.
- *
- * The Initial Developer of the Original Code is
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSBCharSetProber.h"
 /****************************************************************
@@ -45,7 +13,7 @@
 *****************************************************************/
 
 //Character Mapping Table:
-unsigned char Latin2_HungarianCharToOrderMap[] =
+static const unsigned char Latin2_HungarianCharToOrderMap[] =
 {
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  //00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  //10
@@ -65,7 +33,7 @@ unsigned char Latin2_HungarianCharToOrderMap[] =
 245,246,247, 25, 73, 42, 24,248,249,250, 31, 56, 29,251,252,253,
 };
 
-unsigned char win1250HungarianCharToOrderMap[] =
+static const unsigned char win1250HungarianCharToOrderMap[] =
 {
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  //00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  //10
@@ -91,7 +59,7 @@ unsigned char win1250HungarianCharToOrderMap[] =
 //first 1024 sequences:5.2623%
 //rest  sequences:     0.8894%
 //negative sequences:  0.0009% 
-char HungarianLangModel[] = 
+static const uint8_t HungarianLangModel[] = 
 {
 0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 3,3,3,3,3,3,3,3,3,3,2,3,3,3,3,3,3,3,3,2,2,3,3,1,1,2,2,2,2,2,1,2,
@@ -223,20 +191,20 @@ char HungarianLangModel[] =
 0,1,1,1,1,1,1,0,1,1,0,1,0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,
 };
 
-SequenceModel Latin2HungarianModel = 
+const SequenceModel Latin2HungarianModel = 
 {
   Latin2_HungarianCharToOrderMap,
   HungarianLangModel,
   (float)0.947368,
-  PR_TRUE,
+  true,
   "ISO-8859-2"
 };
 
-SequenceModel Win1250HungarianModel = 
+const SequenceModel Win1250HungarianModel = 
 {
   win1250HungarianCharToOrderMap,
   HungarianLangModel,
   (float)0.947368,
-  PR_TRUE,
+  true,
   "windows-1250"
 };

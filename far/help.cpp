@@ -2113,7 +2113,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 			if (Success)
 			{
-				strAction = api::ExpandEnvironmentStrings(strAction);
+				strAction = api::env::expand_strings(strAction);
 
 				string FilteredURLPath(URLPath);
 				// удалим два идущих подряд ~~

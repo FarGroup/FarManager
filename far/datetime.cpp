@@ -51,9 +51,9 @@ struct loc_names
 	string Weekday[7];
 };
 
-std::array<loc_names, 2>& GetNames()
+static std::array<loc_names, 2>& GetNames()
 {
-	static std::array<loc_names, 2> LocNames = 
+	static FN_RETURN_TYPE(GetNames) LocNames =
 	{{
 		{LANG_ENGLISH},
 		{LANG_NEUTRAL},

@@ -39,74 +39,64 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileViewer:public Frame
 {
-	private:
-		virtual void Show() override;
-		virtual void DisplayObject() override;
-		Viewer View;
-		int RedrawTitle;
-		KeyBar ViewKeyBar;
-		bool F3KeyOnly;
-		bool FullScreen;
-		int DisableEdit;
-		int DisableHistory;
-
-		string strName;
-
-		typedef class Frame inherited;
-		/* $ 17.08.2001 KM
-		  Добавлено для поиска по AltF7. При редактировании найденного файла из
-		  архива для клавиши F2 сделать вызов ShiftF2.
-		*/
-		bool SaveToSaveAs;
-
-		int delete_on_close;
-		string    str_title;
+	public:
+	FileViewer(const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
+		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
+		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
+		const wchar_t *Title=nullptr, int DeleteOnClose=0);
+	FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
+		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
+	virtual ~FileViewer();
 
 	public:
-		FileViewer(
-			const string& Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
-			int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
-			NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
-			const wchar_t *Title=nullptr, int DeleteOnClose=0);
-		FileViewer(const string& Name,int EnableSwitch,int DisableHistory,
-			const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
-		virtual ~FileViewer();
+	virtual void InitKeyBar() override;
+	virtual int ProcessKey(int Key) override;
+	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual void ShowConsoleTitle() override;
+	virtual void OnDestroy() override;
+	virtual void OnChangeFocus(int focus) override;
+	virtual int GetTypeAndName(string &strType, string &strName) override;
+	virtual const wchar_t *GetTypeName() override { return L"[FileView]"; }
+	virtual int GetType() const override { return MODALTYPE_VIEWER; }
+	/* $ Введена для нужд CtrlAltShift OT */
+	virtual int FastHide() override;
+	virtual const string& GetTitle(string &Title) override;
 
-	public:
-		void Init(const string& Name,int EnableSwitch,int DisableHistory,
-			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,bool ToSaveAs);
-		virtual void InitKeyBar() override;
-		virtual int ProcessKey(int Key) override;
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
-		virtual void ShowConsoleTitle() override;
-		/* $ 14.06.2002 IS
-		   Параметр DeleteFolder - удалить не только файл, но и каталог, его
-		   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
-		   поведение SetTempViewName такое же, как и раньше)
-		*/
-		void SetTempViewName(const string& Name,BOOL DeleteFolder=TRUE);
-		virtual void OnDestroy() override;
-		virtual void OnChangeFocus(int focus) override;
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs);
+	/* $ 14.06.2002 IS
+	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
+	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
+	   поведение SetTempViewName такое же, как и раньше)
+	*/
+	void SetTempViewName(const string& Name,BOOL DeleteFolder=TRUE);
+	void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
+	/* $ 17.08.2001 KM
+		Добавлено для поиска по AltF7. При редактировании найденного файла из
+		архива для клавиши F2 сделать вызов ShiftF2.
+	*/
+	void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
+	bool IsFullScreen() const {return FullScreen;}
+	__int64 GetViewFileSize() const;
+	__int64 GetViewFilePos() const;
+	void ShowStatus();
+	int GetId() const { return View.ViewerID; }
 
-		virtual int GetTypeAndName(string &strType, string &strName) override;
-		virtual const wchar_t *GetTypeName() override {return L"[FileView]";}
-		virtual int GetType() const override { return MODALTYPE_VIEWER; }
 
-		void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
-		/* $ Введена для нужд CtrlAltShift OT */
-		virtual int FastHide() override;
+private:
+	virtual void Show() override;
+	virtual void DisplayObject() override;
 
-		/* $ 17.08.2001 KM
-		  Добавлено для поиска по AltF7. При редактировании найденного файла из
-		  архива для клавиши F2 сделать вызов ShiftF2.
-		*/
-		void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
-		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
-		bool IsFullScreen() const {return FullScreen;}
-		virtual const string& GetTitle(string &Title) override;
-		__int64 GetViewFileSize() const;
-		__int64 GetViewFilePos() const;
-		void ShowStatus();
-		int GetId() const { return View.ViewerID; }
+	Viewer View;
+	int RedrawTitle;
+	KeyBar ViewKeyBar;
+	bool F3KeyOnly;
+	bool FullScreen;
+	int DisableEdit;
+	int DisableHistory;
+	string strName;
+	bool SaveToSaveAs;
+	int delete_on_close;
+	string str_title;
 };

@@ -1025,7 +1025,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return FALSE;
 
-						strSaveAsName = Unquote(api::ExpandEnvironmentStrings(strSaveAsName));
+						strSaveAsName = Unquote(api::env::expand_strings(strSaveAsName));
 						NameChanged=StrCmpI(strSaveAsName, Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)

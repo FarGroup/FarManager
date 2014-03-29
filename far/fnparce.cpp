@@ -466,7 +466,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	{
 		string title = NullToEmpty(DlgTitle);
 		SubstFileName(nullptr,title,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-		ReplaceVariables(api::ExpandEnvironmentStrings(title).data(), strTmp, PSubstData);
+		ReplaceVariables(api::env::expand_strings(title).data(), strTmp, PSubstData);
 	}
 
 	const wchar_t *CurStr = strTmp.data();
@@ -657,7 +657,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		DlgData[DlgSize+1].strData = strTxt;
-		DlgData[DlgSize].strData = api::ExpandEnvironmentStrings(DlgData[DlgSize].strData);
+		DlgData[DlgSize].strData = api::env::expand_strings(DlgData[DlgSize].strData);
 		DlgSize+=2;
 	}
 
@@ -713,7 +713,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 	}
 
-	strStr = api::ExpandEnvironmentStrings(strTmpStr);
+	strStr = api::env::expand_strings(strTmpStr);
 	return 1;
 }
 

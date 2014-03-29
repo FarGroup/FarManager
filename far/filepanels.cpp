@@ -83,7 +83,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		strSrc = api::ExpandEnvironmentStrings(strSrc);
+		strSrc = api::env::expand_strings(strSrc);
 	}
 
 	if (strSrc == L"/")

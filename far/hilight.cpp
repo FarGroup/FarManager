@@ -107,15 +107,13 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
 	if (DeleteOld)
 	{
-		auto root = cfg->GetKeyID(0, HighlightKeyName);
-		if (root)
+		if (auto root = cfg->GetKeyID(0, HighlightKeyName))
 			cfg->DeleteKeyTree(root);
 	}
 
 	if (!cfg->GetKeyID(0, HighlightKeyName))
 	{
-		auto root = cfg->CreateKey(0,HighlightKeyName);
-		if (root)
+		if (auto root = cfg->CreateKey(0, HighlightKeyName))
 		{
 			static const wchar_t *Masks[]=
 			{
@@ -306,8 +304,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 	std::for_each(CONST_RANGE(GroupItems, Item)
 	{
-		auto root = cfg->GetKeyID(0, Item.KeyName);
-		if (root)
+		if (auto root = cfg->GetKeyID(0, Item.KeyName))
 		{
 			for (int i=0;; ++i)
 			{

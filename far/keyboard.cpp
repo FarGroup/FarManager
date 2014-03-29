@@ -322,7 +322,7 @@ static TFKey SpecKeyName[]=
 
 static std::vector<HKL>& Layout()
 {
-	static std::vector<HKL> s_Layout;
+	static FN_RETURN_TYPE(Layout) s_Layout;
 	return s_Layout;
 }
 
@@ -1371,7 +1371,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 // "дополнительная" очередь кодов клавиш
 std::deque<DWORD>& KeyQueue()
 {
-	static std::deque<DWORD> s_KeyQueue;
+	static FN_RETURN_TYPE(KeyQueue) s_KeyQueue;
 	return s_KeyQueue;
 }
 

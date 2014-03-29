@@ -622,7 +622,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 		{
 			string& strDestStr = i.first;
 			string strExpandedDestStr;
-			strExpandedDestStr = api::ExpandEnvironmentStrings(strDestStr);
+			strExpandedDestStr = api::env::expand_strings(strDestStr);
 			strDestStr.clear();
 			static const simple_pair<wchar_t, wchar_t> ChrFmt[] =
 			{
@@ -1075,18 +1075,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Global->ScrBuf->Flush();
 			Console().SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut(L"\n");
-			int CmdLength = static_cast<int>(strCmdLine.size());
-			LPWCH Environment = GetEnvironmentStrings();
-			for (LPCWSTR Ptr = Environment; *Ptr;)
+			FOR(const auto& i, api::env::enum_strings())
 			{
-				int PtrLength = StrLength(Ptr);
-				if (!StrCmpNI(Ptr, strCmdLine.data(), CmdLength))
+				size_t ItemLength = wcslen(i);
+				if (!StrCmpNI(i, strCmdLine.data(), strCmdLine.size()))
 				{
-					strOut.append(Ptr, PtrLength).append(L"\n");
+					strOut.append(i, ItemLength).append(L"\n");
 				}
-				Ptr+=PtrLength+1;
 			}
-			FreeEnvironmentStrings(Environment);
 			strOut.append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
 			Console().Write(strOut);
 			Console().Commit();
@@ -1102,13 +1098,13 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (strCmdLine.size() == pos+1) //set var=
 		{
 			strCmdLine.resize(pos);
-			api::DeleteEnvironmentVariable(strCmdLine);
+			api::env::delete_variable(strCmdLine);
 		}
 		else
 		{
-			string strExpandedStr = api::ExpandEnvironmentStrings(strCmdLine.substr(pos+1));
+			string strExpandedStr = api::env::expand_strings(strCmdLine.substr(pos + 1));
 			strCmdLine.resize(pos);
-			api::SetEnvironmentVariable(strCmdLine, strExpandedStr);
+			api::env::set_variable(strCmdLine, strExpandedStr);
 		}
 
 		return TRUE;
@@ -1147,7 +1143,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (IntChDir(strCmdLine,true,SilentInt))
 		{
 			ppstack.push(PushDir);
-			api::SetEnvironmentVariable(L"FARDIRSTACK", PushDir);
+			api::env::set_variable(L"FARDIRSTACK", PushDir);
 		}
 		else
 		{
@@ -1169,11 +1165,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				api::SetEnvironmentVariable(L"FARDIRSTACK", ppstack.top());
+				api::env::set_variable(L"FARDIRSTACK", ppstack.top());
 			}
 			else
 			{
-				api::DeleteEnvironmentVariable(L"FARDIRSTACK");
+				api::env::delete_variable(L"FARDIRSTACK");
 			}
 			return Ret;
 		}
@@ -1184,7 +1180,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	else if (IsCommand(L"CLRD",false))
 	{
 		clear_and_shrink(ppstack);
-		api::DeleteEnvironmentVariable(L"FARDIRSTACK");
+		api::env::delete_variable(L"FARDIRSTACK");
 		return TRUE;
 	}
 	/*
@@ -1323,7 +1319,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType()!=FILE_PANEL && Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-	string strExpandedDir = Unquote(api::ExpandEnvironmentStrings(CmdLine));
+	string strExpandedDir = Unquote(api::env::expand_strings(CmdLine));
 
 	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && api::GetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir[1])))
 	{
@@ -1338,7 +1334,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			}
 
 			DeleteEndSlash(strTemp);
-			strExpandedDir = api::ExpandEnvironmentStrings(strTemp);
+			strExpandedDir = api::env::expand_strings(strTemp);
 		}
 	}
 

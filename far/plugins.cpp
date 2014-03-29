@@ -362,7 +362,7 @@ void PluginManager::LoadPlugins()
 		std::for_each(CONST_RANGE(PluginPathList, i)
 		{
 			// расширяем значение пути
-			strFullName = Unquote(api::ExpandEnvironmentStrings(i)); //??? здесь ХЗ
+			strFullName = Unquote(api::env::expand_strings(i)); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
 			{

@@ -599,7 +599,7 @@ bool Plugin::LoadData()
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.front();
-			api::GetEnvironmentVariable(Drive, strCurPlugDiskPath);
+			api::env::get_variable(Drive, strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);
@@ -607,7 +607,7 @@ bool Plugin::LoadData()
 		FarChDir(strCurPath);
 
 		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			api::SetEnvironmentVariable(Drive, strCurPlugDiskPath);
+			api::env::set_variable(Drive, strCurPlugDiskPath);
 	}
 
 	if (!m_Instance)

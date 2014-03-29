@@ -304,7 +304,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strTemplatePath)), strTemplatePath);
+		ConvertNameToFull(Unquote(api::env::expand_strings(strTemplatePath)), strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
 		DWORD attr = api::GetFileAttributes(strTemplatePath);
@@ -319,11 +319,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strProfilePath)), strProfilePath);
+		ConvertNameToFull(Unquote(api::env::expand_strings(strProfilePath)), strProfilePath);
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strLocalProfilePath)), strLocalProfilePath);
+		ConvertNameToFull(Unquote(api::env::expand_strings(strLocalProfilePath)), strLocalProfilePath);
 	}
 
 	if (strProfilePath.empty())
@@ -363,8 +363,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
 			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strUserProfileDir)), Global->Opt->ProfilePath);
-			ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
+			ConvertNameToFull(Unquote(api::env::expand_strings(strUserProfileDir)), Global->Opt->ProfilePath);
+			ConvertNameToFull(Unquote(api::env::expand_strings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
 		}
 	}
 	else
@@ -375,8 +375,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	api::SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath);
-	api::SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
+	api::env::set_variable(L"FARPROFILE", Global->Opt->ProfilePath);
+	api::env::set_variable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
 		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
@@ -425,19 +425,19 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	api::SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath);
+	api::env::set_variable(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 #ifndef NO_WRAPPER
 	// don't inherit from parent process in any case
 	// for OEM plugins only!
-	api::DeleteEnvironmentVariable(L"FARUSER");
+	api::env::delete_variable(L"FARUSER");
 #endif // NO_WRAPPER
 
 	if (Global->IsUserAdmin())
-		api::SetEnvironmentVariable(L"FARADMINMODE", L"1");
+		api::env::set_variable(L"FARADMINMODE", L"1");
 	else
-		api::DeleteEnvironmentVariable(L"FARADMINMODE");
+		api::env::delete_variable(L"FARADMINMODE");
 
 	auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
@@ -585,7 +585,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 					if (Argv[I][2])
 					{
-						ConvertNameToFull(Unquote(api::ExpandEnvironmentStrings(&Argv[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
+						ConvertNameToFull(Unquote(api::env::expand_strings(&Argv[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
 					}
 					else
 					{
@@ -649,7 +649,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 				}
 				else
 				{
-					ArgvI = api::ExpandEnvironmentStrings(ArgvI);
+					ArgvI = api::env::expand_strings(ArgvI);
 					ConvertNameToFull(Unquote(ArgvI), ArgvI);
 
 					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
@@ -686,7 +686,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
 
-	api::SetEnvironmentVariable(L"FARLANG", Global->Opt->strLanguage);
+	api::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;

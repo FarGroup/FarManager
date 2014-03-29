@@ -842,58 +842,6 @@ BOOL MoveFileEx(
 	return Result;
 }
 
-bool GetEnvironmentVariable(const string& Name, string& strBuffer)
-{
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ::GetEnvironmentVariable(Name.data(), Buffer, ARRAYSIZE(Buffer));
-
-	if (Size)
-	{
-		if (Size < ARRAYSIZE(Buffer))
-		{
-			strBuffer.assign(Buffer, Size);
-		}
-		else
-		{
-			std::vector<wchar_t> vBuffer(Size);
-			Size = ::GetEnvironmentVariable(Name.data(), vBuffer.data(), Size);
-			strBuffer.assign(vBuffer.data(), Size);
-		}
-	}
-
-	return Size != 0;
-}
-
-bool SetEnvironmentVariable(const string& Name, const string& Value)
-{
-	return ::SetEnvironmentVariable(Name.data(), Value.data()) != FALSE;
-}
-
-bool DeleteEnvironmentVariable(const string& Name)
-{
-	return ::SetEnvironmentVariable(Name.data(), nullptr) != FALSE;
-}
-
-string ExpandEnvironmentStrings(const string& str)
-{
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ::ExpandEnvironmentStrings(str.data(), Buffer, ARRAYSIZE(Buffer));
-	if (Size)
-	{
-		if (Size <= ARRAYSIZE(Buffer))
-		{
-			return string(Buffer, Size - 1);
-		}
-		else
-		{
-			std::vector<wchar_t> vBuffer(Size);
-			Size = ::ExpandEnvironmentStrings(str.data(), vBuffer.data(), Size);
-			return string(vBuffer.data(), Size - 1);
-		}
-	}
-	return str;
-}
-
 string& strCurrentDirectory()
 {
 	static string strCurrentDirectory;
@@ -1937,6 +1885,78 @@ DWORD GetAppPathsRedirectionFlag()
 			uint64_t Result = 0;
 			GetValue(m_Key, Name.data(), Result);
 			return Result;
+		}
+	}
+
+
+	namespace env
+	{
+		enum_strings::enum_strings():
+			m_Environment(GetEnvironmentStrings()),
+			m_Ptr(m_Environment)
+		{
+		}
+
+		enum_strings::~enum_strings()
+		{
+			FreeEnvironmentStrings(m_Environment);
+		}
+
+		bool enum_strings::get(size_t index, const wchar_t*& value)
+		{
+			return *(value = index? value + wcslen(value) + 1 : m_Environment) != L'\0';
+		}
+
+		bool get_variable(const wchar_t* Name, string& strBuffer)
+		{
+			WCHAR Buffer[MAX_PATH];
+			DWORD Size = ::GetEnvironmentVariable(Name, Buffer, ARRAYSIZE(Buffer));
+
+			if (Size)
+			{
+				if (Size < ARRAYSIZE(Buffer))
+				{
+					strBuffer.assign(Buffer, Size);
+				}
+				else
+				{
+					std::vector<wchar_t> vBuffer(Size);
+					Size = ::GetEnvironmentVariable(Name, vBuffer.data(), Size);
+					strBuffer.assign(vBuffer.data(), Size);
+				}
+			}
+
+			return Size != 0;
+		}
+
+		bool set_variable(const wchar_t* Name, const wchar_t* Value)
+		{
+			return ::SetEnvironmentVariable(Name, Value) != FALSE;
+		}
+
+		bool delete_variable(const wchar_t* Name)
+		{
+			return ::SetEnvironmentVariable(Name, nullptr) != FALSE;
+		}
+
+		string expand_strings(const wchar_t* str)
+		{
+			WCHAR Buffer[MAX_PATH];
+			DWORD Size = ::ExpandEnvironmentStrings(str, Buffer, ARRAYSIZE(Buffer));
+			if (Size)
+			{
+				if (Size <= ARRAYSIZE(Buffer))
+				{
+					return string(Buffer, Size - 1);
+				}
+				else
+				{
+					std::vector<wchar_t> vBuffer(Size);
+					Size = ::ExpandEnvironmentStrings(str, vBuffer.data(), Size);
+					return string(vBuffer.data(), Size - 1);
+				}
+			}
+			return str;
 		}
 	}
 }

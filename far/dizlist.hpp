@@ -33,20 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "strmix.hpp"
-
-struct DizRecord;
-
-struct diz_less
-{
-	bool operator() (const string& a, const string& b) const
-	{
-		return StrCmpI(a, b) < 0;
-	}
-};
-
-typedef std::map<string, std::list<string>, diz_less> desc_map;
-
 class DizList: NonCopyable
 {
 public:
@@ -63,6 +49,13 @@ public:
 	void GetDizName(string &strDizName) const;
 
 private:
+	struct diz_less
+	{
+		bool operator()(const string& a, const string& b) const;
+	};
+
+	typedef std::map<string, std::list<string>, diz_less> desc_map;
+
 	desc_map::iterator Find(const string& Name, const string& ShortName);
 	desc_map::iterator AddRecord(const string& Name, const string& Description);
 	desc_map::iterator AddRecord(const string& DizText);

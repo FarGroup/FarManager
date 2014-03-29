@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#pragma warning(push, 1)
+
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #pragma GCC diagnostic ignored "-Wuseless-cast"
@@ -41,10 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ucd
 {
-#include "thirdparty/ucd/nscore.h"
+#include "thirdparty/ucd/nsCore.h"
+#include "thirdparty/ucd/nsError.h"
 #include "thirdparty/ucd/nsUniversalDetector.h"
-
-#include "thirdparty/ucd/prmem.c"
 #include "thirdparty/ucd/CharDistribution.cpp"
 #include "thirdparty/ucd/JpCntx.cpp"
 #include "thirdparty/ucd/LangBulgarianModel.cpp"
@@ -72,72 +73,83 @@ namespace ucd
 #include "thirdparty/ucd/nsUTF8Prober.cpp"
 };
 
+#pragma warning(pop)
+
+static const std::unordered_map<std::string, uintptr_t>& CpMap()
+{
+	static FN_RETURN_TYPE(CpMap) sCpMap;
+	
+	if (sCpMap.empty())
+	{
+		static const simple_pair<const char*, uintptr_t> CodepagesInit[] =
+		{
+			{ "UTF16-LE", CP_UNICODE },
+			{ "UTF16-BE", CP_REVERSEBOM },
+			{ "UTF-8", CP_UTF8 },
+			{ "windows-1250", 1250 },
+			{ "windows-1251", 1251 },
+			{ "windows-1252", 1252 },
+			{ "windows-1253", 1253 },
+			{ "windows-1255", 1255 },
+			{ "IBM855", 855 },
+			{ "IBM866", 866 },
+			{ "KOI8-R", 20866 },
+			{ "x-mac-hebrew", 10005 },
+			{ "x-mac-cyrillic", /*10007*/ 1251 }, //ќно слишком похоже на 1251 и детектор, бывает, путает
+			{ "ISO-8859-2", 28592 },
+			{ "ISO-8859-5", 28595 },
+			{ "ISO-8859-7", 28597 },
+			{ "ISO-8859-8", 28598 },
+			{ "ISO-8859-8-I", 38598 },
+
+			/*
+			and the rest:
+
+			"Shift_JIS"
+			"gb18030"
+			"x-euc-tw"
+			"EUC-KR"
+			"EUC-JP"
+			"Big5"
+			"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
+			"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
+			"UTF-32BE"
+			"UTF-32LE"
+			"ISO-2022-CN"
+			"ISO-2022-JP"
+			"ISO-2022-KR"
+			"TIS-620"
+			*/
+		};
+
+		std::for_each(CONST_RANGE(CodepagesInit, i)
+		{
+			sCpMap.insert(std::make_pair(i.first, i.second));
+		});
+	}
+	return sCpMap;
+}
+
 class nsUniversalDetectorEx : public ucd::nsUniversalDetector
 {
 public:
-	nsUniversalDetectorEx():
-		nsUniversalDetector(NS_FILTER_NON_CJK),
-		m_codepage(-1)
-	{
-		Names.insert(std::make_pair("windows-1250", 1250));
-		Names.insert(std::make_pair("windows-1251", 1251));
-		Names.insert(std::make_pair("windows-1252", 1252));
-		Names.insert(std::make_pair("windows-1253", 1253));
-		Names.insert(std::make_pair("windows-1255", 1255));
-		Names.insert(std::make_pair("UTF16-LE", CP_UNICODE));
-		Names.insert(std::make_pair("UTF16-BE", CP_REVERSEBOM));
-		Names.insert(std::make_pair("UTF-8", CP_UTF8));
-		Names.insert(std::make_pair("IBM855", 855));
-		Names.insert(std::make_pair("IBM866", 866));
-		Names.insert(std::make_pair("KOI8-R", 20866));
-		Names.insert(std::make_pair("x-mac-hebrew", 10005));
-		Names.insert(std::make_pair("x-mac-cyrillic", /*10007*/ 1251)); //ќно слишком похоже на 1251 и детектор, бывает, путает
-		Names.insert(std::make_pair("ISO-8859-2", 28592));
-		Names.insert(std::make_pair("ISO-8859-5", 28595));
-		Names.insert(std::make_pair("ISO-8859-7", 28597));
-		Names.insert(std::make_pair("ISO-8859-8", 28598));
-		Names.insert(std::make_pair("ISO-8859-8-I", 38598));
-
-		/*
-		and the rest:
-		"Shift_JIS"
-		"gb18030"
-		"x-euc-tw"
-		"EUC-KR"
-		"EUC-JP"
-		"Big5"
-		"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
-		"UTF-32BE"
-		"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
-		"UTF-32LE"
-		ISO-2022-CN
-		ISO-2022-JP
-		ISO-2022-KR
-		"TIS-620"
-		*/
-	}
-
-	int getCodePage() const
-	{
-		return m_codepage;
-	}
-
-protected:
-	virtual void Report(const char* aCharset) override
-	{
-		auto i = Names.find(aCharset);
-		m_codepage = i != Names.end()? i->second : -1;
-	}
+	nsUniversalDetectorEx(): nsUniversalDetector(NS_FILTER_NON_CJK), m_codepage(-1) {}
+	int getCodePage() const { return m_codepage; }
 
 private:
+	virtual void Report(const char* aCharset) override
+	{
+		auto i = CpMap().find(aCharset);
+		m_codepage = i != CpMap().end()? i->second : -1;
+	}
+
 	int m_codepage;
-	std::unordered_map<std::string, uintptr_t> Names;
 };
 
 uintptr_t GetCpUsingUniversalDetector(const void* data, size_t size)
 {
 	nsUniversalDetectorEx ns;
-	ns.HandleData(static_cast<const char*>(data), static_cast<ucd::PRUint32>(size));
+	ns.HandleData(static_cast<const char*>(data), static_cast<uint32_t>(size));
 	ns.DataEnd();
 	return ns.getCodePage();
 }

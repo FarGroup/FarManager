@@ -221,7 +221,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
-		string strExcludeCmds = api::ExpandEnvironmentStrings(Global->Opt->Exec.strExcludeCmds);
+		string strExcludeCmds = api::env::expand_strings(Global->Opt->Exec.strExcludeCmds);
 		auto ExcludeCmdsList(StringToList(strExcludeCmds, STLF_UNIQUE));
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
@@ -236,7 +236,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-			api::GetEnvironmentVariable(L"PATHEXT",strPathExt);
+			api::env::get_variable(L"PATHEXT", strPathExt);
 			auto PathExtList(StringToList(strPathExt, STLF_UNIQUE));
 
 			FOR(const auto& i, PathExtList) // первый проход - в текущем каталоге
@@ -267,7 +267,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			{
 				string strPathEnv;
 
-				if (api::GetEnvironmentVariable(L"PATH", strPathEnv))
+				if (api::env::get_variable(L"PATH", strPathEnv))
 				{
 					auto PathList(StringToList(strPathEnv, STLF_UNIQUE));
 
@@ -343,7 +343,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 						if (api::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
 						{
-							strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
+							strFullName = Unquote(api::env::expand_strings(strFullName));
 							Result=true;
 							break;
 						}
@@ -361,7 +361,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 							{
 								if (api::reg::GetValue(i, strFullName, L"", strFullName))
 								{
-									strFullName = Unquote(api::ExpandEnvironmentStrings(strFullName));
+									strFullName = Unquote(api::env::expand_strings(strFullName));
 									return true;
 								}
 								return false;
@@ -389,7 +389,7 @@ static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNe
 {
 	int PipeFound = 0, Escaped = 0;
 	bool quoted = false;
-	strNewCmdStr = api::ExpandEnvironmentStrings(CmdStr);
+	strNewCmdStr = api::env::expand_strings(CmdStr);
 	RemoveExternalSpaces(strNewCmdStr);
 	const wchar_t * const NewCmdStr = strNewCmdStr.data();
 	const wchar_t *CmdPtr = NewCmdStr;
@@ -575,7 +575,7 @@ static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsyste
 		// а теперь проверим ГУЕвость запускаемой проги
 		if (api::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
 		{
-			strNewValue = api::ExpandEnvironmentStrings(strNewValue);
+			strNewValue = api::env::expand_strings(strNewValue);
 
 			// Выделяем имя модуля
 			if (strNewValue.front() == L'\"')
@@ -721,7 +721,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	string strComspec;
-	api::GetEnvironmentVariable(L"COMSPEC", strComspec);
+	api::env::get_variable(L"COMSPEC", strComspec);
 	if (strComspec.empty() && !DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
@@ -872,7 +872,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 	else
 	{
-		string strNotQuotedShell = api::ExpandEnvironmentStrings(Global->Opt->Exec.strNotQuotedShell);
+		string strNotQuotedShell = api::env::expand_strings(Global->Opt->Exec.strNotQuotedShell);
 		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
 		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
 		QuoteSpace(strNewCmdStr);
@@ -1251,7 +1251,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 			{
 //_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
-				strExpandedStr = api::ExpandEnvironmentStrings(Unquote(strCmd.assign(CmdStart,PtrCmd-CmdStart)));
+				strExpandedStr = api::env::expand_strings(Unquote(strCmd.assign(CmdStart, PtrCmd - CmdStart)));
 				string strFullPath;
 
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
@@ -1321,7 +1321,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				{
 					strCmd.assign(CmdStart,PtrCmd-CmdStart);
 
-					DWORD ERet=api::GetEnvironmentVariable(strCmd,strExpandedStr);
+					DWORD ERet = api::env::get_variable(strCmd, strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
@@ -1348,7 +1348,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 */
 bool IsBatchExtType(const string& ExtPtr)
 {
-	string strExecuteBatchType = api::ExpandEnvironmentStrings(Global->Opt->Exec.strExecuteBatchType);
+	string strExecuteBatchType = api::env::expand_strings(Global->Opt->Exec.strExecuteBatchType);
 	if (strExecuteBatchType.empty())
 		strExecuteBatchType = L".BAT;.CMD";
 	auto BatchExtList(StringToList(strExecuteBatchType, STLF_UNIQUE));
@@ -1369,7 +1369,7 @@ bool ProcessOSAliases(string &strStr)
 	if (!ret)
 	{
 		string strComspec;
-		if (api::GetEnvironmentVariable(L"COMSPEC",strComspec))
+		if (api::env::get_variable(L"COMSPEC", strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
 			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , lpwszExeName);

@@ -1289,7 +1289,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldf
 
 static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
-	string strD = api::ExpandEnvironmentStrings(wide(src));
+	string strD = api::env::expand_strings(wide(src));
 	DWORD len = (DWORD)std::min(strD.size(),size-1);
 	UnicodeToOEM(strD.data(), dest, len+1);
 	return len;
@@ -1564,7 +1564,7 @@ struct DialogData
 
 static std::list<DialogData>& DialogList()
 {
-	static std::list<DialogData> s_DialogList;
+	static FN_RETURN_TYPE(DialogList) s_DialogList;
 	return s_DialogList;
 }
 
@@ -4934,7 +4934,7 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 
 		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 
-		api::SetEnvironmentVariable(L"FARUSER", Global->strRegUser);
+		api::env::set_variable(L"FARUSER", Global->strRegUser);
 
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
 

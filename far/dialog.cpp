@@ -1302,7 +1302,7 @@ void Dialog::GetDialogObjectsData()
 
 					if ((IFlags&DIF_EDITEXPAND) && i.Type != DI_PSWEDIT && i.Type != DI_FIXEDIT)
 					{
-						strData = api::ExpandEnvironmentStrings(strData);
+						strData = api::env::expand_strings(strData);
 						//как бы грязный хак, нам нужно обновить строку чтоб отдавалась правильная строка
 						//для различных DM_* после закрытия диалога, но ни в коем случае нельзя чтоб
 						//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.

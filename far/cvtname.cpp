@@ -187,7 +187,7 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 					string DriveVar(_DriveVar);
 					string strValue;
 
-					if (api::GetEnvironmentVariable(DriveVar,strValue))
+					if (api::env::get_variable(DriveVar,strValue))
 					{
 						strDest=strValue;
 					}

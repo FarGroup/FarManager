@@ -196,10 +196,6 @@ namespace api
 	};
 
 	NTSTATUS GetLastNtStatus();
-	bool GetEnvironmentVariable(const string& Name, string& Buffer);
-	bool SetEnvironmentVariable(const string& Name, const string& Value);
-	bool DeleteEnvironmentVariable(const string& Name);
-	string ExpandEnvironmentStrings(const string& str);
 	DWORD GetCurrentDirectory(string &strCurDir);
 	DWORD GetTempPath(string &strBuffer);
 	DWORD GetModuleFileName(HMODULE hModule, string &strFileName);
@@ -340,6 +336,36 @@ namespace api
 		private:
 			key m_Key;
 		};
+	}
+
+	namespace env
+	{
+		class enum_strings: NonCopyable, public enumerator<const wchar_t*>
+		{
+		public:
+			enum_strings();
+			~enum_strings();
+
+			virtual bool get(size_t index, const wchar_t*& value) override;
+
+		private:
+			wchar_t* m_Environment;
+			const wchar_t* m_Ptr;
+		};
+
+		bool get_variable(const wchar_t* Name, string& strBuffer);
+		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }
+
+		bool set_variable(const wchar_t* Name, const wchar_t* Value);
+		inline bool set_variable(const wchar_t* Name, const string& Value) { return set_variable(Name, Value.data()); }
+		inline bool set_variable(const string& Name, const wchar_t* Value) { return set_variable(Name.data(), Value); }
+		inline bool set_variable(const string& Name, const string& Value) { return set_variable(Name.data(), Value.data()); }
+
+		bool delete_variable(const wchar_t* Name);
+		inline bool delete_variable(const string& Name) { return delete_variable(Name.data()); }
+
+		string expand_strings(const wchar_t* str);
+		inline string expand_strings(const string& str) { return expand_strings(str.data()); }
 	}
 }
 

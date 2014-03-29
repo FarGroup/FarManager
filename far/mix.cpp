@@ -213,7 +213,7 @@ void ReloadEnvironment()
 					string Value = j.GetString();
 					if(j.Type==REG_EXPAND_SZ)
 					{
-						Value = api::ExpandEnvironmentStrings(Value);
+						Value = api::env::expand_strings(Value);
 					}
 					if (i.first==HKEY_CURRENT_USER)
 					{
@@ -221,7 +221,7 @@ void ReloadEnvironment()
 						if(!StrCmpI(j.Name.data(), L"path") || !StrCmpI(j.Name.data(), L"libpath") || !StrCmpI(j.Name.data(), L"os2libpath"))
 						{
 							string strMergedPath;
-							api::GetEnvironmentVariable(j.Name, strMergedPath);
+							api::env::get_variable(j.Name, strMergedPath);
 							if(strMergedPath.back() != L';')
 							{
 								strMergedPath+=L';';
@@ -229,7 +229,7 @@ void ReloadEnvironment()
 							Value = strMergedPath + Value;
 						}
 					}
-					api::SetEnvironmentVariable(j.Name, Value);
+					api::env::set_variable(j.Name, Value);
 				}
 			}
 		}

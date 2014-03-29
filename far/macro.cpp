@@ -3865,7 +3865,7 @@ static bool environFunc(FarMacroCall* Data)
 	string strEnv;
 
 
-	if (api::GetEnvironmentVariable(S.toString(), strEnv))
+	if (api::env::get_variable(S.toString(), strEnv))
 		Ret=true;
 	else
 		strEnv.clear();
@@ -3873,9 +3873,9 @@ static bool environFunc(FarMacroCall* Data)
 	if (Mode.i()) // Mode != 0: Set
 	{
 		if (Value.isUnknown() || !*Value.s())
-			api::DeleteEnvironmentVariable(S.toString());
+			api::env::delete_variable(S.toString());
 		else
-			api::SetEnvironmentVariable(S.toString(), Value.toString());
+			api::env::set_variable(S.toString(), Value.toString());
 	}
 
 	PassString(strEnv, Data);

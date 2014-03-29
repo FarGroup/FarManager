@@ -169,7 +169,7 @@ void EnumFiles(VMenu2& Menu, const string& Str)
 		Unquote(strStr.erase(0, Pos));
 		if(!strStr.empty())
 		{
-			string strExp = api::ExpandEnvironmentStrings(strStr);
+			string strExp = api::env::expand_strings(strStr);
 			api::enum_file Find(strExp+L"*");
 			bool Separator=false;
 			std::for_each(CONST_RANGE(Find, i)
@@ -230,11 +230,11 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 
 		string strName=Module;
 		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
-		api::GetEnvironmentVariable(L"PATHEXT",strPathExt);
+		api::env::get_variable(L"PATHEXT", strPathExt);
 		auto PathExtList(StringToList(strPathExt));
 
 		string strPathEnv;
-		if (api::GetEnvironmentVariable(L"PATH", strPathEnv))
+		if (api::env::get_variable(L"PATH", strPathEnv))
 		{
 			auto PathList(StringToList(strPathEnv));
 

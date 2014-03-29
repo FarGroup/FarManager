@@ -446,6 +446,22 @@ bool InRange(const T& from, const T& what, const T& to)
 	return from <= what && what <= to;
 };
 
+template <class F> struct return_type;
+#define DEFINE_R_TYPE { typedef typename std::remove_const<typename std::remove_reference<R>::type>::type type; };
+#if defined _MSC_VER && _MSC_VER < 1800
+template <class R> struct return_type<R(*)()> DEFINE_R_TYPE
+template <class R, class A0> struct return_type<R(*)(A0)> DEFINE_R_TYPE
+template <class R, class A0, class A1> struct return_type<R(*)(A0, A1)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2> struct return_type<R(*)(A0, A1, A2)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3> struct return_type<R(*)(A0, A1, A2, A3)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3, class A4> struct return_type<R(*)(A0, A1, A2, A3, A4)> DEFINE_R_TYPE
+template <class R, class A0, class A1, class A2, class A3, class A4, class A5> struct return_type<R(*)(A0, A1, A2, A3, A4, A5)> DEFINE_R_TYPE
+#else
+template <class R, class... A> struct return_type<R(*)(A...)> DEFINE_R_TYPE
+#endif
+#undef DEFINE_R_TYPE
+#define FN_RETURN_TYPE(function_name) return_type<decltype(&function_name)>::type
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \

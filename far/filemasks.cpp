@@ -235,7 +235,7 @@ bool filemasks::masks::Set(const string& masks)
 	if (StrStrI(expmasks.data(), PathExtName))
 	{
 		string strSysPathExt;
-		if (api::GetEnvironmentVariable(L"PATHEXT" ,strSysPathExt))
+		if (api::env::get_variable(L"PATHEXT", strSysPathExt))
 		{
 			auto MaskList(StringToList(strSysPathExt, STLF_UNIQUE));
 			if (!MaskList.empty())

@@ -1931,7 +1931,7 @@ void Options::Load()
 
 	Palette.Load();
 	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
-	GlobalUserMenuDir = api::ExpandEnvironmentStrings(GlobalUserMenuDir);
+	GlobalUserMenuDir = api::env::expand_strings(GlobalUserMenuDir);
 	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
 	AddEndSlash(GlobalUserMenuDir);
 
@@ -2983,7 +2983,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 
 						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						api::SetEnvironmentVariable(L"FARLANG", strLanguage);
+						api::env::set_variable(L"FARLANG", strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
 						Global->FrameManager->InitKeyBar();

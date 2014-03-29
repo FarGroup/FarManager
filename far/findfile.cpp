@@ -990,21 +990,21 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const api::FAR_FIND_DATA& Fi
 	return nResult;
 }
 
-// Алгоритма Бойера-Мура-Хорспула поиска подстроки (Unicode версия)
-const int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const
+
+// Алгоритма Бойера-Мура-Хорспула поиска подстроки
+template<class T, class Pred>
+int FindFiles::FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const
 {
-	size_t findStringCount = strFindStr.size();
-	const wchar_t *buffer = searchBuffer;
-	const wchar_t *findStringLower = CmpCase ? nullptr : findString+findStringCount;
-	size_t lastBufferChar = findStringCount-1;
+	auto buffer = searchBuffer;
+	auto lastBufferChar = findStringCount - 1;
 
-	while (searchBufferCount>=findStringCount)
+	while (searchBufferCount >= findStringCount)
 	{
-		for (size_t index = lastBufferChar; buffer[index]==findString[index] || (CmpCase ? 0 : buffer[index]==findStringLower[index]); index--)
+		for (auto index = lastBufferChar; p(buffer, index); index--)
 			if (!index)
-				return static_cast<int>(buffer-searchBuffer);
+				return static_cast<int>(buffer - searchBuffer);
 
-		size_t offset = skipCharsTable[buffer[lastBufferChar]];
+		auto offset = skipCharsTable[buffer[lastBufferChar]];
 		searchBufferCount -= offset;
 		buffer += offset;
 	}
@@ -1012,24 +1012,23 @@ const int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBuf
 	return -1;
 }
 
-// Алгоритма Бойера-Мура-Хорспула поиска подстроки (Char версия)
-const int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
+int FindFiles::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const
 {
-	const unsigned char *buffer = searchBuffer;
-	size_t lastBufferChar = hexFindStringSize-1;
+	size_t findStringCount = strFindStr.size();
+	const wchar_t *findStringLower = CmpCase? nullptr : findString + findStringCount;
 
-	while (searchBufferCount>=hexFindStringSize)
+	return FindStringBMH(searchBuffer, searchBufferCount, findStringCount, [&](const wchar_t* Buffer, size_t index)
 	{
-		for (size_t index = lastBufferChar; buffer[index]==hexFindString[index]; index--)
-			if (!index)
-				return static_cast<int>(buffer-searchBuffer);
+		return Buffer[index] == findString[index] || (CmpCase ? 0 : Buffer[index] == findStringLower[index]);
+	});
+}
 
-		size_t offset = skipCharsTable[buffer[lastBufferChar]];
-		searchBufferCount -= offset;
-		buffer += offset;
-	}
-
-	return -1;
+int FindFiles::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
+{
+	return FindStringBMH(searchBuffer, searchBufferCount, hexFindStringSize, [&](const unsigned char* Buffer, size_t index)
+	{
+		return Buffer[index] == hexFindString[index];
+	});
 }
 
 
@@ -2562,7 +2561,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	if (SearchMode==FINDAREA_INPATH)
 	{
 		string strPathEnv;
-		api::GetEnvironmentVariable(L"PATH",strPathEnv);
+		api::env::get_variable(L"PATH", strPathEnv);
 		InitString = strPathEnv;
 	}
 	else if (SearchMode==FINDAREA_ROOT)

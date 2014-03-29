@@ -79,7 +79,7 @@ static int GetPeserveCaseStyleMask(const string& strStr)
 
 static std::list<PreserveStyleToken> InternalPreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
 {
-	std::list<PreserveStyleToken> Result;
+	FN_RETURN_TYPE(InternalPreserveStyleTokenize) Result;
 
 	std::vector<bool> Seps(Length, false);
 	for (size_t I = From+1; I+1 < From+Length; I++)

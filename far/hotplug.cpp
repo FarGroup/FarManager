@@ -370,7 +370,7 @@ static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>
 
 static std::vector<DeviceInfo> GetHotplugDevicesInfo()
 {
-	std::vector<DeviceInfo> Result;
+	FN_RETURN_TYPE(GetHotplugDevicesInfo) Result;
 
 	DEVNODE hDevRoot;
 	if (CM_Locate_DevNodeW(&hDevRoot, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
@@ -476,7 +476,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 void ShowHotplugDevices()
 {
 	VMenu2 HotPlugList(MSG(MHotPlugListTitle), nullptr, 0, 0);
-	static std::vector<DeviceInfo> Info;
+	std::vector<DeviceInfo> Info;
 
 	auto FillMenu = [&]()
 	{

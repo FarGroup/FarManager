@@ -91,9 +91,8 @@ Shortcuts::Shortcuts()
 	Changed = false;
 
 	auto cfg = Global->Db->CreateShortcutsConfig();
-	auto root = cfg->GetKeyID(0,FolderShortcutsKey);
 
-	if (root)
+	if (auto root = cfg->GetKeyID(0, FolderShortcutsKey))
 	{
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
@@ -181,7 +180,7 @@ static void Fill(const ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, 
 {
 	if(Folder)
 	{
-		*Folder = api::ExpandEnvironmentStrings(RetItem.strFolder);
+		*Folder = api::env::expand_strings(RetItem.strFolder);
 	}
 	if(PluginGuid)
 	{
@@ -212,7 +211,7 @@ static string MakeName(const ShortcutItem& Item)
 		{
 			result = Item.strFolder;
 		}
-		result = api::ExpandEnvironmentStrings(result);
+		result = api::env::expand_strings(result);
 	}
 	else
 	{
@@ -488,7 +487,7 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 				DeleteEndSlash(NewItem.strFolder);
 			}
 
-			string strTemp = api::ExpandEnvironmentStrings(NewItem.strFolder);
+			string strTemp = api::env::expand_strings(NewItem.strFolder);
 
 			if ((!raw || !strTemp.empty()) && api::GetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 			{

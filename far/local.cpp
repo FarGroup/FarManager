@@ -161,8 +161,8 @@ const wchar_t * RevStrStr(const wchar_t *str1, const wchar_t *str2)
 
 static const std::vector<wchar_t> create_alt_sort_table()
 {
-	std::vector<wchar_t> alt_sort_table(WCHAR_MAX + 1);
-	std::vector<wchar_t> chars(WCHAR_MAX + 1);
+	FN_RETURN_TYPE(create_alt_sort_table) alt_sort_table(WCHAR_MAX + 1);
+	decltype(alt_sort_table) chars(WCHAR_MAX + 1);
 
 	std::iota(ALL_RANGE(chars), 0);
 

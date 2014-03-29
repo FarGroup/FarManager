@@ -61,8 +61,10 @@ private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
-	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
+	template<class T, class Pred>
+	int FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const;
+	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
+	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

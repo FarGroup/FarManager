@@ -656,12 +656,10 @@ static inline int getChSize( UINT cp )
 		return +1;
 }
 
-static const int mline = 512;
-
 int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch, int tail) const
 {
 	int ib, iw;
-	wchar_t w1[mline];
+	std::vector<wchar_t> w1(width);
 	UINT cp = static_cast<UINT>(VM.CodePage);
 
 	if (cp == CP_UNICODE)
@@ -682,9 +680,9 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 	else if (cp == CP_UTF8)
 	{
 		int tail, nw;
-		wchar_t w2[mline];
+		std::vector<wchar_t> w2(width);
 		ib = iw = 0;
-		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1, w2, width, tail);
+		nw = utf8_to_WideChar(reinterpret_cast<const char*>(line), (int)nr, w1.data(), w2.data(), width, tail);
 		bool first = true;
 		while (ib < width && iw < nw)
 		{
@@ -697,7 +695,7 @@ int Viewer::txt_dump(const unsigned char *line, DWORD nr, int width, wchar_t *ou
 				first = false;
 				outstr[ib++] = w1[iw];
 			}
-			int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, nullptr,0, nullptr,nullptr);
+			int clen = WideCharToMultiByte(CP_UTF8, 0, w2.data()+iw, 1, nullptr,0, nullptr,nullptr);
 			while (--clen > 0 && ib < width)
 				outstr[ib++] = CONTINUE_CHAR;
 			++iw;
@@ -754,9 +752,8 @@ void Viewer::ShowDump()
 	int Y, EndFile = 0, ch_size = getChSize(VM.CodePage);
 	int tail = 0, xl = VM.CodePage == CP_UTF8 ? 4-1 : (VM.CodePage==MB.current_cp ? MB.current_mb-1 : 0);
 
-	assert(Width <= mline);
-	unsigned char line[mline*2];
-	wchar_t OutStr[mline+1];
+	std::vector<unsigned char> line(Width * 2);
+	std::vector<wchar_t> OutStr(Width + 1);
 	DWORD nr, nb = (DWORD)Width*ch_size + xl, mb = (DWORD)Width*ch_size;
 	__int64 bpos;
 
@@ -778,21 +775,21 @@ void Viewer::ShowDump()
 			SecondPos = bpos;
 
 		nr = 0;
-		Reader.Read(line, nb, &nr);
+		Reader.Read(line.data(), nb, &nr);
 		if (nr > mb)
 			Reader.Unread(nr-mb);
 		else
 			LastPage = EndFile = veof() ? 1 : 0;
 
-		tail = txt_dump(line, nr, Width, OutStr, ZERO_CHAR, tail);
+		tail = txt_dump(line.data(), nr, Width, OutStr.data(), ZERO_CHAR, tail);
 
-		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth())<<OutStr;
+		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth()) << OutStr.data();
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
 			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
 			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(bsel, Y);
-			Global->FS << fmt::MaxWidth(esel-bsel)<<OutStr+bsel;
+			Global->FS << fmt::MaxWidth(esel-bsel)<<OutStr.data() + bsel;
 		}
 	}
 }

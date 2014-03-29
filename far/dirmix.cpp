@@ -63,7 +63,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	{
 		Drive[1] = Upper(NewDir[0]);
 
-		if (!api::GetEnvironmentVariable(Drive, strCurDir))
+		if (!api::env::get_variable(Drive, strCurDir))
 		{
 			strCurDir = NewDir;
 			AddEndSlash(strCurDir);
@@ -98,7 +98,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		        strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = Upper(strCurDir[0]);
-			api::SetEnvironmentVariable(Drive, strCurDir);
+			api::env::set_variable(Drive, strCurDir);
 		}
 	}
 

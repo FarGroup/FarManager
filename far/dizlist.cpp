@@ -161,7 +161,8 @@ void DizList::Read(const string& Path, const string* DizName)
 	Modified=false;
 	strDizFileName.clear();
 }
-desc_map::iterator DizList::AddRecord(const string& Name, const string& Description)
+
+DizList::desc_map::iterator DizList::AddRecord(const string& Name, const string& Description)
 {
 	Modified=true;
 	std::list<string> DescStrings;
@@ -169,7 +170,7 @@ desc_map::iterator DizList::AddRecord(const string& Name, const string& Descript
 	return DizData.insert(DizData.begin(), VALUE_TYPE(DizData)(Name, DescStrings));
 }
 
-desc_map::iterator DizList::AddRecord(const string& DizText)
+DizList::desc_map::iterator DizList::AddRecord(const string& DizText)
 {
 	size_t NameStart = 0, NameLength = 0;
 	const wchar_t* DizTextPtr = DizText.data();
@@ -232,7 +233,7 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 	return DizText;
 }
 
-desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
+DizList::desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 {
 	auto i = DizData.find(Name);
 	if(i == DizData.end())
@@ -439,3 +440,9 @@ void DizList::GetDizName(string &strDizName) const
 {
 	strDizName = strDizFileName;
 }
+
+bool DizList::diz_less::operator()(const string& a, const string& b) const
+{
+	return StrCmpI(a, b) < 0;
+}
+

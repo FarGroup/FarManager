@@ -1,42 +1,10 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is mozilla.org code.
- *
- * The Initial Developer of the Original Code is
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include "nsCodingStateMachine.h"
 
-static PRUint32 HZ_cls[ 256 / 8 ] = {
+static const uint32_t HZ_cls[ 256 / 8 ] = {
 PCK4BITS(1,0,0,0,0,0,0,0),  // 00 - 07 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 08 - 0f 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 10 - 17 
@@ -72,7 +40,7 @@ PCK4BITS(1,1,1,1,1,1,1,1)   // f8 - ff
 };
 
 
-static PRUint32 HZ_st [ 6] = {
+static const uint32_t HZ_st [ 6] = {
 PCK4BITS(eStart,eError,     3,eStart,eStart,eStart,eError,eError),//00-07 
 PCK4BITS(eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe),//08-0f 
 PCK4BITS(eItsMe,eItsMe,eError,eError,eStart,eStart,     4,eError),//10-17 
@@ -81,18 +49,18 @@ PCK4BITS(     4,eError,     4,     4,     4,eError,     4,eError),//20-27
 PCK4BITS(     4,eItsMe,eStart,eStart,eStart,eStart,eStart,eStart) //28-2f 
 };
 
-static const PRUint32 HZCharLenTable[] = {0, 0, 0, 0, 0, 0};
+static const uint32_t HZCharLenTable[] = {0, 0, 0, 0, 0, 0};
 
-SMModel HZSMModel = {
+const SMModel HZSMModel = {
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, HZ_cls },
    6,
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, HZ_st },
-  HZCharLenTable,
+  CHAR_LEN_TABLE(HZCharLenTable),
   "HZ-GB-2312",
 };
 
 
-static PRUint32 ISO2022CN_cls [ 256 / 8 ] = {
+static const uint32_t ISO2022CN_cls [ 256 / 8 ] = {
 PCK4BITS(2,0,0,0,0,0,0,0),  // 00 - 07 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 08 - 0f 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 10 - 17 
@@ -128,7 +96,7 @@ PCK4BITS(2,2,2,2,2,2,2,2)   // f8 - ff
 };
 
 
-static PRUint32 ISO2022CN_st [ 8] = {
+static const uint32_t ISO2022CN_st [ 8] = {
 PCK4BITS(eStart,     3,eError,eStart,eStart,eStart,eStart,eStart),//00-07 
 PCK4BITS(eStart,eError,eError,eError,eError,eError,eError,eError),//08-0f 
 PCK4BITS(eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe),//10-17 
@@ -139,17 +107,17 @@ PCK4BITS(eError,eError,eError,eItsMe,eError,eError,eError,eError),//30-37
 PCK4BITS(eError,eError,eError,eError,eError,eItsMe,eError,eStart) //38-3f 
 };
 
-static const PRUint32 ISO2022CNCharLenTable[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const uint32_t ISO2022CNCharLenTable[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-SMModel ISO2022CNSMModel = {
+const SMModel ISO2022CNSMModel = {
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022CN_cls },
   9,
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022CN_st },
-  ISO2022CNCharLenTable,
+  CHAR_LEN_TABLE(ISO2022CNCharLenTable),
   "ISO-2022-CN",
 };
 
-static PRUint32 ISO2022JP_cls [ 256 / 8 ] = {
+static const uint32_t ISO2022JP_cls [ 256 / 8 ] = {
 PCK4BITS(2,0,0,0,0,0,0,0),  // 00 - 07 
 PCK4BITS(0,0,0,0,0,0,2,2),  // 08 - 0f 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 10 - 17 
@@ -185,7 +153,7 @@ PCK4BITS(2,2,2,2,2,2,2,2)   // f8 - ff
 };
 
 
-static PRUint32 ISO2022JP_st [ 9] = {
+static const uint32_t ISO2022JP_st [ 9] = {
 PCK4BITS(eStart,     3,eError,eStart,eStart,eStart,eStart,eStart),//00-07 
 PCK4BITS(eStart,eStart,eError,eError,eError,eError,eError,eError),//08-0f 
 PCK4BITS(eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe),//10-17 
@@ -197,17 +165,17 @@ PCK4BITS(eError,eError,eError,eItsMe,eError,eError,eError,eError),//38-3f
 PCK4BITS(eError,eError,eError,eError,eItsMe,eError,eStart,eStart) //40-47 
 };
 
-static const PRUint32 ISO2022JPCharLenTable[] = {0, 0, 0, 0, 0, 0, 0, 0};
+static const uint32_t ISO2022JPCharLenTable[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-SMModel ISO2022JPSMModel = {
+const SMModel ISO2022JPSMModel = {
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022JP_cls },
   10,
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022JP_st },
-  ISO2022JPCharLenTable,
+  CHAR_LEN_TABLE(ISO2022JPCharLenTable),
   "ISO-2022-JP",
 };
 
-static PRUint32 ISO2022KR_cls [ 256 / 8 ] = {
+static const uint32_t ISO2022KR_cls [ 256 / 8 ] = {
 PCK4BITS(2,0,0,0,0,0,0,0),  // 00 - 07 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 08 - 0f 
 PCK4BITS(0,0,0,0,0,0,0,0),  // 10 - 17 
@@ -243,7 +211,7 @@ PCK4BITS(2,2,2,2,2,2,2,2)   // f8 - ff
 };
 
 
-static PRUint32 ISO2022KR_st [ 5] = {
+static const uint32_t ISO2022KR_st [ 5] = {
 PCK4BITS(eStart,     3,eError,eStart,eStart,eStart,eError,eError),//00-07 
 PCK4BITS(eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe),//08-0f 
 PCK4BITS(eItsMe,eItsMe,eError,eError,eError,     4,eError,eError),//10-17 
@@ -251,13 +219,13 @@ PCK4BITS(eError,eError,eError,eError,     5,eError,eError,eError),//18-1f
 PCK4BITS(eError,eError,eError,eItsMe,eStart,eStart,eStart,eStart) //20-27 
 };
 
-static const PRUint32 ISO2022KRCharLenTable[] = {0, 0, 0, 0, 0, 0};
+static const uint32_t ISO2022KRCharLenTable[] = {0, 0, 0, 0, 0, 0};
 
-SMModel ISO2022KRSMModel = {
+const SMModel ISO2022KRSMModel = {
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022KR_cls },
    6,
   {eIdxSft4bits, eSftMsk4bits, eBitSft4bits, eUnitMsk4bits, ISO2022KR_st },
-  ISO2022KRCharLenTable,
+  CHAR_LEN_TABLE(ISO2022KRCharLenTable),
   "ISO-2022-KR",
 };
 
