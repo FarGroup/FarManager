@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.03.2014 12:21:55 +0200 - build 3846
+
+1. 0002628: Warning with incomprehensible choices
+
+2. In 3843 keyboard control of combo boxes was broken.
+
+drkns 29.03.2014 20:20:06 +0200 - build 3845
+
+1. M#0002631: Buffer overflow displaying a file at the window and line width > 512 characters.
+
+2. The new version of the universal charset detector.
+
+3. Refactoring.
+
+svs 27.03.2014 10:14:07 +0400 - build 3844
+
+1. SQLite 3.8.4.2
+
+svs 27.03.2014 09:09:23 +0400 - build 3843
+
+1. Mantis#0001301: Errors on processing DM_LISTUPDATE, DN_LISTCHANGE
+
+   DN_LISTCHANGE - docs contained incorrect description of the event (copy-paste from DN_EDITCHANGE).
+   DI_LISTBOX missed the return of cursor position to its previous state if the dialog procedure returned 0.
+   In DI_COMBOBOX - separate processing (vmenu.cpp), sending DN_LISTCHANGE message (and reacting on it) after displaying;
+     in VMenu class, the presence of the "owner" (dialog) and a combo box (VMENU_COMBOBOX) was not taken into account when displaying.
+
 drkns 23.03.2014 21:51:18 +0200 - build 3842
 
 1. Refactoring.
