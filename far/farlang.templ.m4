@@ -7581,6 +7581,16 @@ MEditorSaveNotRecommended
 "No se recomienda guardar este archivo."
 "Neodporúčame uložiť tento súbor."
 
+MEditorSave
+"Сохранить"
+"Save"
+"Uložit"
+"Speichern"
+"Mentés"
+"Zapisz"
+"Guardar"
+"Uložiť"
+
 MEditorSaveCPWarnShow
 "Показать"
 "Show"

@@ -4054,7 +4054,10 @@ int Dialog::SelectFromComboBox(
 					ComboBox->Show();
 				}
 				else
-					Dest=I;
+				{
+					Dest = I;
+					ComboBox->Show();
+				}
 
 #if 0
 

@@ -70,7 +70,7 @@ intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
-		case DN_LISTCHANGE:
+		case DN_EDITCHANGE:
 			{
 				if (Param1 == MKDIR_COMBOBOX_LINKTYPE)
 				{
