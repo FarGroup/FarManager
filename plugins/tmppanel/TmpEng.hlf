@@ -184,7 +184,7 @@ $ #Temporary panel: list files#
      - or the name of a network resource (\\Server\Music)
 
    If the option #"Any elements in panel#" in the
-~configuration dialog@Config@ is not enabled, lines not matching any
+~configuration dialog~@Config@ is not enabled, lines not matching any
 of the conditions mentioned above are not added to the panel. If the
 option is enabled, the list file can contain arbitrary lines - all of
 them will be shown in the panel.
