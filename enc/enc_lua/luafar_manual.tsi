@@ -2383,10 +2383,10 @@ lv=2
 dt=Text
 nm=far.CreateUserControl
 ctime=3585338276
-mtime=3602351435
+mtime=3605129666
 <article>
 #_<markdown>
-#_Поддержка буфера для `DI_USERCONTROL`. Использовать примерно так:
+#_Buffer support for `DI_USERCONTROL`. Use it like this:
 #_
 #_```
 #_local buffer=far.CreateUserControl(10,10)

@@ -1382,11 +1382,11 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3601988290
+mtime=3605509845
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
-#_The same is true regarding the runtime (files *lua5.1.dll* and *luafar3.dll*) that is necessary
+#_The same is true regarding the runtime (files *lua51.dll* and *luafar3.dll*) that is necessary
 #_for plugin's work.
 #_
 #_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
