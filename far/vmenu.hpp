@@ -264,6 +264,7 @@ public:
 	size_t GetUserDataSize(int Position = -1);
 	size_t  SetUserData(LPCVOID Data, size_t Size = 0, int Position = -1);
 	int GetSelectPos() const { return SelectPos; }
+	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos);
 	int SetSelectPos(const FarListPos *ListPos, int Direct = 0);
 	int SetSelectPos(int Pos, int Direct, bool stop_on_edge = false);
@@ -312,7 +313,7 @@ private:
 	int GetItemPosition(int Position);
 	static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
 	static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
-	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
+	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
 	int CheckHighlights(wchar_t Chr,int StartPos=0);
 	wchar_t GetHighlights(const struct MenuItemEx *_item);
 	bool ShiftItemShowPos(int Pos,int Direct);
@@ -329,6 +330,7 @@ private:
 	string strTitle;
 	string strBottomTitle;
 	int SelectPos;
+	int SelectPosResult;
 	int TopPos;
 	int MaxHeight;
 	bool WasAutoHeight;

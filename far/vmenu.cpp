@@ -79,6 +79,7 @@ VMenu::VMenu(const string& Title,       // заголовок меню
             ):  // родитель для ListBox
 	strTitle(Title),
 	SelectPos(-1),
+	SelectPosResult(-1),
 	TopPos(0),
 	WasAutoHeight(false),
 	MaxLength(0),
@@ -227,6 +228,8 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
+	SelectPosResult=-1;
+
 	if (Items.empty())
 		return -1;
 
@@ -283,12 +286,19 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
 		Pos = SelectPos;
 
+	if (Pos != SelectPos && ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && ParentDialog->IsInited() && !ParentDialog->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+	{
+		UpdateItemFlags(SelectPos, Items[SelectPos].Flags|LIF_SELECTED);
+		return -1;
+	}
+
 	if (Pos >= 0)
 		UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
 
 	if (Pos != SelectPos)
 		SetFlags(VMENU_UPDATEREQUIRED);
 
+	SelectPosResult=Pos;
 	return Pos;
 }
 
@@ -1240,8 +1250,7 @@ int VMenu::ProcessKey(int Key)
 		{
 			FarListPos pos={sizeof(FarListPos),0,-1};
 			SetSelectPos(&pos, 1);
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 		case KEY_END:          case KEY_NUMPAD1:
@@ -1253,8 +1262,7 @@ int VMenu::ProcessKey(int Key)
 			int p = static_cast<int>(Items.size())-1;
 			FarListPos pos={sizeof(FarListPos),p,std::max(0,p-MaxHeight+1)};
 			SetSelectPos(&pos, -1);
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 		case KEY_PGUP:         case KEY_NUMPAD9:
@@ -1268,8 +1276,7 @@ int VMenu::ProcessKey(int Key)
 
 			FarListPos pos={sizeof(FarListPos),p,p};
 			SetSelectPos(&pos, 1);
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 		case KEY_PGDN:         case KEY_NUMPAD3:
@@ -1284,8 +1291,7 @@ int VMenu::ProcessKey(int Key)
 
 			FarListPos pos={sizeof(FarListPos),pSel,pTop};
 			SetSelectPos(&pos, -1);
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 		case KEY_ALTHOME:           case KEY_ALT|KEY_NUMPAD7:
@@ -1348,8 +1354,7 @@ int VMenu::ProcessKey(int Key)
 			{
 				FarListPos Pos = {sizeof(Pos), SelectPos-1, TopPos-1};
 				SetSelectPos(&Pos);
-				if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-					ShowMenu(true);
+				ShowMenu(true);
 			}
 			break;
 		}
@@ -1363,8 +1368,7 @@ int VMenu::ProcessKey(int Key)
 				if (!(Items_size - TopPos <= Height_size || Items_size <= Height_size) )
 					Pos.TopPos++;
 				SetSelectPos(&Pos);
-				if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-					ShowMenu(true);
+				ShowMenu(true);
 			}
 			break;
 		}
@@ -1373,8 +1377,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_UP:           case KEY_NUMPAD8:
 		{
 			SetSelectPos(SelectPos-1,-1,IsRepeatedKey());
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 
@@ -1382,8 +1385,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_DOWN:         case KEY_NUMPAD2:
 		{
 			SetSelectPos(SelectPos+1,1,IsRepeatedKey());
-			if (!(ParentDialog && CheckFlags(VMENU_COMBOBOX)))
-				ShowMenu(true);
+			ShowMenu(true);
 			break;
 		}
 
@@ -1473,9 +1475,10 @@ int VMenu::ProcessKey(int Key)
 				return TRUE;
 
 			int OldSelectPos=SelectPos;
+			int NewPos=SelectPos;
 
 			bool IsHotkey=true;
-			if (!CheckKeyHiOrAcc(Key,0,0))
+			if (!CheckKeyHiOrAcc(Key, 0, 0, !(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX)), NewPos))
 			{
 				if (Key == KEY_SHIFTF1 || Key == KEY_F1)
 				{
@@ -1488,18 +1491,37 @@ int VMenu::ProcessKey(int Key)
 				}
 				else
 				{
-					if (!CheckKeyHiOrAcc(Key,1,FALSE))
-						if (!CheckKeyHiOrAcc(Key,1,TRUE))
+					if (!CheckKeyHiOrAcc(Key,1,FALSE,!(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
+						if (!CheckKeyHiOrAcc(Key,1,TRUE,!(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
 							IsHotkey=false;
 				}
 			}
 
-			if (IsHotkey && ParentDialog && ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
+			if (IsHotkey && ParentDialog)
 			{
-				UpdateItemFlags(OldSelectPos,Items[OldSelectPos].Flags|LIF_SELECTED);
-				ShowMenu(true);
-				EndLoop = FALSE;
-				break;
+				if (ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(NewPos)))
+				{
+					UpdateItemFlags(OldSelectPos,Items[OldSelectPos].Flags|LIF_SELECTED);
+					ShowMenu(true);
+					EndLoop = FALSE;
+					break;
+				}
+				else
+				{
+					if (NewPos != OldSelectPos)
+					{
+						if (SetSelectPos(NewPos, 1) < 0)
+						{
+							EndLoop = FALSE;
+						}
+						else
+						{
+							EndLoop = CheckFlags(VMENU_COMBOBOX) ? TRUE : FALSE;
+						}
+
+						break;
+					}
+				}
 			}
 
 			return FALSE;
@@ -1542,7 +1564,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED&&(MsX==X1+2||MsX==X2-1-((CheckFlags(VMENU_COMBOBOX)||CheckFlags(VMENU_LISTBOX))?0:2)))
+	if ( (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && ( MsX==X1+2||MsX==X2-1-(CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)?0:2) ) )
 	{
 		while (IsMouseButtonPressed())
 			ProcessKey(MsX==X1+2?KEY_ALTLEFT:KEY_ALTRIGHT);
@@ -1641,9 +1663,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	        (MsX>X1 && MsX<X2 && MsY>Y1 && MsY<Y2):
 	        (MsX>=X1 && MsX<=X2 && MsY>=Y1 && MsY<=Y2))
 	{
-		int MsPos=GetVisualPos(TopPos)+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
-
-		MsPos = VisualPosToReal(MsPos);
+		int MsPos=VisualPosToReal(GetVisualPos(TopPos)+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1));
 
 		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos].Flags))
 		{
@@ -2549,7 +2569,7 @@ void VMenu::AssignHighlights(int Reverse)
 	ClearFlags(VMENU_SHOWAMPERSAND);
 }
 
-bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
+bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, int& NewPos)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -2562,12 +2582,16 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 		auto& CurItem = *Iterator;
 		if (ItemCanHaveFocus(CurItem.Flags) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AmpPos>=0 || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.strName,Key,Translate,CurItem.AmpPos))))
 		{
-			SetSelectPos(static_cast<int>(Iterator - Items.cbegin()), 1);
-			ShowMenu(true);
-
-			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
+			NewPos=static_cast<int>(Iterator - Items.cbegin());
+			if (ChangePos)
 			{
-				ExitCode = static_cast<int>(Iterator - Items.cbegin());
+				SetSelectPos(NewPos, 1);
+				ShowMenu(true);
+			}
+
+			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
+			{
+				ExitCode = NewPos;
 				EndLoop = TRUE;
 			}
 

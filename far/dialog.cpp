@@ -2534,19 +2534,15 @@ int Dialog::ProcessKey(int Key)
 			case KEY_ENTER:
 				VMenu *List=Items[FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
-				int CheckedListItem=List->GetCheck(-1);
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
 
-				if (NewListPos != CurListPos && !DlgProc(DN_LISTCHANGE,FocusPos,ToPtr(NewListPos)))
+				if (NewListPos != CurListPos)
 				{
-					List->SetSelectPos(CurListPos,0);
 					if (!DialogMode.Check(DMODE_SHOW))
 						return TRUE;
 
-					List->SetCheck(CheckedListItem,CurListPos);
-
-					if (DialogMode.Check(DMODE_SHOW) && !(Items[FocusPos].Flags&DIF_HIDDEN))
+					if (!(Items[FocusPos].Flags&DIF_HIDDEN))
 						ShowDialog(FocusPos); // FocusPos
 				}
 
@@ -2848,18 +2844,15 @@ int Dialog::ProcessKey(int Key)
 			{
 				VMenu *List=Items[FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
-				int CheckedListItem=List->GetCheck(-1);
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
 
-				if (NewListPos != CurListPos && !DlgProc(DN_LISTCHANGE,FocusPos,ToPtr(NewListPos)))
+				if (NewListPos != CurListPos)
 				{
 					if (!DialogMode.Check(DMODE_SHOW))
 						return TRUE;
 
-					List->SetCheck(CheckedListItem,CurListPos);
-
-					if (DialogMode.Check(DMODE_SHOW) && !(Items[FocusPos].Flags&DIF_HIDDEN))
+					if (!(Items[FocusPos].Flags&DIF_HIDDEN))
 						ShowDialog(FocusPos); // FocusPos
 				}
 
@@ -3139,7 +3132,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			VMenu *List=Items[I].ListPtr;
 			int Pos=List->GetSelectPos();
-			int CheckedListItem=List->GetCheck(-1);
 
 			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
@@ -3164,27 +3156,20 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					List->ProcessMouse(&MouseRecord);
 					int NewListPos=List->GetSelectPos();
-
-					if (NewListPos != Pos && !SendMessage(DN_LISTCHANGE,I,ToPtr(NewListPos)))
-					{
-						List->SetCheck(CheckedListItem,Pos);
-
-						if (DialogMode.Check(DMODE_SHOW) && !(Items[I].Flags&DIF_HIDDEN))
-							ShowDialog(I); // FocusPos
-					}
-					else
-					{
+					if (List->GetLastSelectPosResult() >= 0)
 						Pos=NewListPos;
-					}
 				}
-				else if (!SendMessage(DN_CONTROLINPUT,I,&mouse))
+				else
 				{
-#if 1
+					if (SendMessage(DN_CONTROLINPUT,I,&mouse))
+					{
+						return TRUE;
+					}
 					List->ProcessMouse(&MouseRecord);
 					int NewListPos=List->GetSelectPos();
 					int InScroolBar=(MsX==X1+Items[I].X2 && MsY >= Y1+Items[I].Y1 && MsY <= Y1+Items[I].Y2) &&
 					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar);
-
+#if 0
 					if (!InScroolBar       &&                                                                // вне скроллбара и
 					        NewListPos != Pos &&                                                                 // позиция изменилась и
 					        !SendMessage(DN_LISTCHANGE,I,ToPtr(NewListPos)))                      // и плагин сказал в морг
@@ -3195,10 +3180,14 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 							ShowDialog(I); // FocusPos
 					}
 					else
+#else
+					if (List->GetLastSelectPosResult() >= 0)
+#endif
 					{
 						Pos=NewListPos;
 
 						if (List->CheckFlags(VMENU_SHOWNOBOX) ||  (MsY > Y1+Items[I].Y1 && MsY < Y1+Items[I].Y2))
+						{
 							if (!InScroolBar && !(Items[I].Flags&DIF_LISTNOCLOSE))
 							{
 								if (MouseRecord.dwEventFlags==DOUBLE_CLICK)
@@ -3210,19 +3199,8 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 								if (!MouseRecord.dwEventFlags && (MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 									PrevMouseRecord=MouseRecord;
 							}
+						}
 					}
-
-#else
-
-					if (SendDlgMessage(this,DN_LISTCHANGE,I,(intptr_t)Pos))
-					{
-						if (MsX==X1+Items[I].X2 && MsY >= Y1+Items[I].Y1 && MsY <= Y1+Items[I].Y2)
-							List->ProcessMouse(&mouse.Event.MouseEvent); // забыл проверить на клик на скролбар (KM)
-						else
-							ProcessKey(KEY_ENTER, I);
-					}
-
-#endif
 				}
 
 				return TRUE;
@@ -3235,16 +3213,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						List->ProcessMouse(&mouse.Event.MouseEvent);
 						int NewListPos=List->GetSelectPos();
-
-						if (NewListPos != Pos && !SendMessage(DN_LISTCHANGE,I,ToPtr(NewListPos)))
-						{
-							List->SetCheck(CheckedListItem,Pos);
-
-							if (DialogMode.Check(DMODE_SHOW) && !(Items[I].Flags&DIF_HIDDEN))
-								ShowDialog(I); // FocusPos
-						}
-						else
-							//BUGBUG, never used
+						if (List->GetLastSelectPosResult() >= 0)
 							Pos=NewListPos;
 					}
 				}
@@ -3291,7 +3260,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			GetItemRect(I,Rect);
 			Rect.Left+=X1;  Rect.Top+=Y1;
 			Rect.Right+=X1; Rect.Bottom+=Y1;
-//_D(SysLog(L"? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Items[I].Data));
 
 			if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
 			{
@@ -3319,7 +3287,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					mouse.Event.MouseEvent.dwMousePosition.Y-=Rect.Top;
 				}
 
-//_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Items[I].Data,mouse.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK));
 				if (DlgProc(DN_CONTROLINPUT,I,&mouse))
 					return TRUE;
 
@@ -3339,8 +3306,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if ((mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 		{
-			//for (I=0;I<ItemCount;I++)
-
 			for (size_t I=Items.size()-1; I!=(size_t)-1; I--)
 			{
 				//   Исключаем из списка оповещаемых о мыши недоступные элементы
@@ -3978,7 +3943,6 @@ int Dialog::SelectFromComboBox(
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		string strStr;
 		int I,Dest, OriginalPos;
-		size_t CurFocusPos=FocusPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
@@ -4045,20 +4009,11 @@ int Dialog::SelectFromComboBox(
 				ComboBox->ProcessKey(KEY_ENTER);
 				continue; //??
 			}
-
+#if 1
 			if (I != Dest)
 			{
-				if (!DlgProc(DN_LISTCHANGE, CurFocusPos, ToPtr(I)))
-				{
-					ComboBox->SetSelectPos(Dest, Dest < I ? -1 : 1); //????
-					ComboBox->Show();
-				}
-				else
-				{
-					Dest = I;
-					ComboBox->Show();
-				}
-
+				Dest = I;
+				ComboBox->Show();
 #if 0
 
 				// во время навигации по DropDown листу - отобразим ЭТО дело в
@@ -4075,7 +4030,7 @@ int Dialog::SelectFromComboBox(
 
 #endif
 			}
-
+#endif
 			// обработку multiselect ComboBox
 			// ...
 			ComboBox->ProcessInput();
