@@ -68,28 +68,19 @@
 &lt;meta http-equiv="Content-Type" content="text/html; charset=Windows-1251"&gt;
 &lt;link rel="stylesheet" type="text/css" href="../styles/styles.css"&gt;
 &lt;script language="javascript" type="text/javascript"&gt;&lt;!--
-var roll = document.images != null;
-function DrawNotFound(){
- if (roll &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1){
-  var agent = navigator.userAgent.toLowerCase();
-  if(agent.indexOf("msie 4")&gt;0 || agent.indexOf("msie 5")&gt;0 || agent.indexOf("msie 6")&gt;0){
-   f=document.location.href.indexOf("?");
-   if(f &gt; 0){
-    qu=document.location.href.substring(f+1);
-    str=" по &lt;a href='http://search.microsoft.com/default.asp?boolean=ALL&amp;"
-    str=str+"nq=NEW&amp;so=RECCNT&amp;p=1&amp;ig=01&amp;i=00&amp;i=01&amp;i=02&amp;"
-    str=str+"i=03&amp;i=04&amp;i=05&amp;i=06&amp;i=07&amp;i=08&amp;i=09&amp;i=10&amp;"
-    str=str+"i=11&amp;i=12&amp;i=13&amp;i=14&amp;i=15&amp;i=16&amp;i=17&amp;i=18&amp;"
-    str=str+"i=19&amp;i=20&amp;i=21&amp;i=22&amp;i=23&amp;i=24&amp;i=25&amp;i=26&amp;"
-    str=str+"i=27&amp;i=28&amp;i=29&amp;i=30&amp;i=31&amp;i=32&amp;i=33&amp;i=34&amp;"
-    str=str+"i=35&amp;i=36&amp;i=37&amp;i=38&amp;i=39&amp;i=40&amp;i=41&amp;"
-    str=str+"siteid=us/dev&amp;qu=" + qu + "' target='_blank' style='font-weight:bold;'&gt;"
-    str=str+ qu+ "&lt;/a&gt; ";
-    inf.innerHTML=str
-   }
+function DrawNotFound()
+{
+  if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
+  {
+    f=document.location.href.indexOf("?")
+    if(f > 0)
+    {
+      qu=document.location.href.substring(f+1)
+      inf.innerHTML=" по &lt;a href='http://social.msdn.microsoft.com/Search/?query=" +
+          qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
+    }
   }
- }
-}
+};
 //--&gt;&lt;/script&gt;
 &lt;/head&gt;
 
