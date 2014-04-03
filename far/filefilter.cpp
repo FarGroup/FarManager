@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "DlgGuid.hpp"
 #include "language.hpp"
+#include "datetime.hpp"
 
 static std::vector<FileFilterParams> *FilterData, *TempFilterData;
 
@@ -575,8 +576,7 @@ void FileFilter::UpdateCurrentTime()
 	FILETIME cft;
 	if (SystemTimeToFileTime(&cst, &cft))
 	{
-		ULARGE_INTEGER current = { cft.dwLowDateTime, cft.dwHighDateTime };
-		CurrentTime = current.QuadPart;
+		CurrentTime = FileTimeToUI64(cft);
 	}
 }
 

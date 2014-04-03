@@ -42,37 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileViewer;
 class KeyBar;
-
-struct ViewerString
-{
-	string Data;
-	__int64 nFilePos;
-	__int64 nSelStart;
-	__int64 nSelEnd;
-	int  linesize;
-	int  have_eol;
-	bool bSelection;
-};
-
-struct ViewerUndoData
-{
-	ViewerUndoData(__int64 UndoAddr, __int64 UndoLeft):
-		UndoAddr(UndoAddr),
-		UndoLeft(UndoLeft)
-	{
-	}
-	__int64 UndoAddr;
-	__int64 UndoLeft;
-};
-
-struct ViewerModeInternal: NonCopyable
-{
- 	uintptr_t CodePage;
-	int Wrap;
-	int WordWrap;
-	int Hex;
-};
-
 class Dialog;
 
 class Viewer:public ScreenObject
@@ -122,6 +91,8 @@ public:
 	void SearchTextTransform(string& to, const wchar_t *from, bool hex2text, intptr_t &pos);
 
 private:
+	struct ViewerString;
+
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);
@@ -196,7 +167,14 @@ private:
 	int LastSearchDirection;
 	__int64 StartSearchPos;
 
-	ViewerModeInternal VM;
+	struct ViewerModeInternal: ::NonCopyable
+	{
+		uintptr_t CodePage;
+		int Wrap;
+		int WordWrap;
+		int Hex;
+	}
+	VM;
 
 	MultibyteCodepageDecoder MB;
 
@@ -219,6 +197,8 @@ private:
 	int InternalKey;
 
 	Bookmarks<viewer_bookmark> BMSavePos;
+
+	struct ViewerUndoData;
 	std::list<ViewerUndoData> UndoData;
 
 	int LastKeyUndo;
@@ -253,7 +233,17 @@ private:
 
 	std::vector<wchar_t> Search_buffer;
 
-	ViewerString vString;
+	struct ViewerString
+	{
+		string Data;
+		__int64 nFilePos;
+		__int64 nSelStart;
+		__int64 nSelEnd;
+		int  linesize;
+		int  have_eol;
+		bool bSelection;
+	}
+	vString;
 
 	unsigned char vgetc_buffer[32];
 	bool vgetc_ready;

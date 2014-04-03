@@ -161,8 +161,8 @@ private:
 
 	struct
 	{
-		ULARGE_INTEGER DateAfter;
-		ULARGE_INTEGER DateBefore;
+		uint64_t DateAfter;
+		uint64_t DateBefore;
 		enumFDateType DateType;
 		bool Used;
 		bool bRelative;

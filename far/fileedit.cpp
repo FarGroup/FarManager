@@ -1672,9 +1672,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			if (api::GetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
 			{
-				__int64 RetCompare=FileTimeDifference(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime);
-
-				if (RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
+				if (FileInfo.ftLastWriteTime != FInfo.ftLastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
 				{
 					const wchar_t* const Items[] = {MSG(MEditAskSaveExt), MSG(MHYes), MSG(MEditBtnSaveAs), MSG(MHCancel)};
 					switch (Message(MSG_WARNING, 3, MSG(MEditTitle), Items, ARRAYSIZE(Items), L"WarnEditorSavedEx", nullptr, &EditAskSaveExtId))

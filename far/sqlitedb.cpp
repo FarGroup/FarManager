@@ -53,13 +53,18 @@ static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 	}
 }
 
-SQLiteStmt::SQLiteStmt():
+SQLiteDb::SQLiteStmt::SQLiteStmt():
 	param(1),
 	pStmt(nullptr)
 {
 }
 
-bool SQLiteStmt::Finalize()
+SQLiteDb::SQLiteStmt::~SQLiteStmt()
+{
+	Finalize();
+}
+
+bool SQLiteDb::SQLiteStmt::Finalize()
 {
 	if (pStmt)
 		return sqlite::sqlite3_finalize(pStmt) == SQLITE_OK;
@@ -67,12 +72,7 @@ bool SQLiteStmt::Finalize()
 		return true;
 }
 
-SQLiteStmt::~SQLiteStmt()
-{
-	Finalize();
-}
-
-SQLiteStmt& SQLiteStmt::Reset()
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
 	param=1;
 	sqlite::sqlite3_clear_bindings(pStmt);
@@ -80,73 +80,75 @@ SQLiteStmt& SQLiteStmt::Reset()
 	return *this;
 }
 
-bool SQLiteStmt::Step()
+bool SQLiteDb::SQLiteStmt::Step()
 {
 	return sqlite::sqlite3_step(pStmt) == SQLITE_ROW;
 }
 
-bool SQLiteStmt::StepAndReset()
+bool SQLiteDb::SQLiteStmt::StepAndReset()
 {
 	bool b = sqlite::sqlite3_step(pStmt) == SQLITE_DONE;
 	Reset();
 	return b;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(int Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(int Value)
 {
 	sqlite::sqlite3_bind_int(pStmt,param++,Value);
 	return *this;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(__int64 Value)
 {
 	sqlite::sqlite3_bind_int64(pStmt,param++,Value);
 	return *this;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(const string& Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(const string& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(pStmt,param++,Value.data(),-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
+	sqlite::sqlite3_bind_text16(pStmt,param++,Value.data(),-1,bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
 {
-	sqlite::sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
+	using sqlite::sqlite3_destructor_type; // for SQLITE_* macros
+	sqlite::sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic ? SQLITE_STATIC : SQLITE_TRANSIENT);
 	return *this;
 }
 
-const wchar_t* SQLiteStmt::GetColText(int Col)
+const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col)
 {
 	return (const wchar_t *)sqlite::sqlite3_column_text16(pStmt,Col);
 }
 
-const char* SQLiteStmt::GetColTextUTF8(int Col)
+const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col)
 {
 	return (const char *)sqlite::sqlite3_column_text(pStmt,Col);
 }
 
-int SQLiteStmt::GetColBytes(int Col)
+int SQLiteDb::SQLiteStmt::GetColBytes(int Col)
 {
 	return sqlite::sqlite3_column_bytes(pStmt,Col);
 }
 
-int SQLiteStmt::GetColInt(int Col)
+int SQLiteDb::SQLiteStmt::GetColInt(int Col)
 {
 	return sqlite::sqlite3_column_int(pStmt,Col);
 }
 
-unsigned __int64 SQLiteStmt::GetColInt64(int Col)
+unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col)
 {
 	return sqlite::sqlite3_column_int64(pStmt,Col);
 }
 
-const char* SQLiteStmt::GetColBlob(int Col)
+const char* SQLiteDb::SQLiteStmt::GetColBlob(int Col)
 {
 	return (const char *)sqlite::sqlite3_column_blob(pStmt,Col);
 }
 
-SQLiteStmt::ColumnType SQLiteStmt::GetColType(int Col)
+SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col)
 {
 	switch (sqlite::sqlite3_column_type(pStmt,Col))
 	{

@@ -623,15 +623,14 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	// преобразование в "удобоваримый" формат
 	if (bRelative)
 	{
-		ULARGE_INTEGER time;
-		time.QuadPart = st.wMilliseconds;
-		time.QuadPart += (UINT64)st.wSecond * 1000;
-		time.QuadPart += (UINT64)st.wMinute * 1000 * 60;
-		time.QuadPart += (UINT64)st.wHour   * 1000 * 60 * 60;
-		time.QuadPart += (UINT64)st.wDay    * 1000 * 60 * 60 * 24;
-		time.QuadPart *= 10000;
-		ft.dwLowDateTime  = time.LowPart;
-		ft.dwHighDateTime = time.HighPart;
+		uint64_t time;
+		time = st.wMilliseconds;
+		time += (UINT64)st.wSecond * 1000;
+		time += (UINT64)st.wMinute * 1000 * 60;
+		time += (UINT64)st.wHour   * 1000 * 60 * 60;
+		time += (UINT64)st.wDay    * 1000 * 60 * 60 * 24;
+		time *= 10000;
+		ft = UI64ToFileTime(time);
 	}
 	else
 	{
@@ -764,13 +763,13 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
 {
-	ULARGE_INTEGER time={ft.dwLowDateTime,ft.dwHighDateTime};
+	auto time = FileTimeToUI64(ft);
 
-	UINT64 ms = (time.QuadPart/=10000)%1000;
-	UINT64 s = (time.QuadPart/=1000)%60;
-	UINT64 m = (time.QuadPart/=60)%60;
-	UINT64 h = (time.QuadPart/=60)%24;
-	UINT64 d = time.QuadPart/=24;
+	UINT64 ms = (time/=10000)%1000;
+	UINT64 s = (time/=1000)%60;
+	UINT64 m = (time/=60)%60;
+	UINT64 h = (time/=60)%24;
+	UINT64 d = time/=24;
 
 	strDaysText = std::to_wstring(d);
 	strTimeText = FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::MinWidth(3)<<fmt::FillChar(L'0')<<ms;

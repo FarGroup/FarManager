@@ -234,9 +234,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							strRecord += strHFile + L":";
 					}
 				}
-				FILETIME FTTime;
+				auto FTTime = UI64ToFileTime(Time);
 				SYSTEMTIME SavedTime;
-				UI64ToFileTime(Time, &FTTime);
 				Utc2Local(FTTime, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
 				{

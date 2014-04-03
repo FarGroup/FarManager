@@ -1769,12 +1769,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassNumber(GetCurrentProcessId(), Data);
 
 		case MCODE_V_FAR_UPTIME:
-		{
-			LARGE_INTEGER Frequency, Counter;
-			QueryPerformanceFrequency(&Frequency);
-			QueryPerformanceCounter(&Counter);
-			return PassNumber(((Counter.QuadPart-Global->FarUpTime().QuadPart)*1000)/Frequency.QuadPart, Data);
-		}
+			return PassNumber(Global->FarUpTime(), Data);
 
 		case MCODE_V_MACRO_AREA:
 			return PassNumber(GetMode(), Data);
@@ -5034,13 +5029,13 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber(filelistItem->Position, Data);
 				return false;
 			case 15:  // CreationTime (FILETIME)
-				PassInteger(FileTimeToUI64(&filelistItem->CreationTime), Data);
+				PassInteger(FileTimeToUI64(filelistItem->CreationTime), Data);
 				return false;
 			case 16:  // AccessTime (FILETIME)
-				PassInteger(FileTimeToUI64(&filelistItem->AccessTime), Data);
+				PassInteger(FileTimeToUI64(filelistItem->AccessTime), Data);
 				return false;
 			case 17:  // WriteTime (FILETIME)
-				PassInteger(FileTimeToUI64(&filelistItem->WriteTime), Data);
+				PassInteger(FileTimeToUI64(filelistItem->WriteTime), Data);
 				return false;
 			case 18: // NumberOfStreams
 				PassNumber(filelistItem->NumberOfStreams, Data);
@@ -5055,7 +5050,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(strDate);
 				break;
 			case 21:  // ChangeTime (FILETIME)
-				PassInteger(FileTimeToUI64(&filelistItem->ChangeTime), Data);
+				PassInteger(FileTimeToUI64(filelistItem->ChangeTime), Data);
 				return false;
 			case 22:  // CustomData
 				Ret=TVar(filelistItem->strCustomData);

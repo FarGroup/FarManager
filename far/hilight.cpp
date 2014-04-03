@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "filefilterparams.hpp"
 #include "language.hpp"
+#include "datetime.hpp"
 
 static const struct
 {
@@ -167,16 +168,24 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 				cfg->SetValue(key,HLS.IgnoreMask,i.IgnoreMask);
 				cfg->SetValue(key,HLS.IncludeAttributes,i.IncludeAttr);
 
-				cfg->SetValue(key,HLS.NormalColor, &i.NormalColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.CursorColor, &i.CursorColor, sizeof(FarColor));
+				cfg->SetValue(key, HLS.NormalColor, &i.NormalColor, sizeof(i.NormalColor));
+				cfg->SetValue(key, HLS.CursorColor, &i.CursorColor, sizeof(i.CursorColor));
 
-				const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
-				cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.SelectedCursorColor, &DefaultColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.MarkCharNormalColor, &DefaultColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.MarkCharSelectedColor, &DefaultColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.MarkCharCursorColor, &DefaultColor, sizeof(FarColor));
-				cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &DefaultColor, sizeof(FarColor));
+				static const wchar_t* Names[] =
+				{
+					HLS.SelectedColor,
+					HLS.SelectedCursorColor,
+					HLS.MarkCharNormalColor,
+					HLS.MarkCharSelectedColor,
+					HLS.MarkCharCursorColor,
+					HLS.MarkCharSelectedCursorColor,
+				};
+
+				FOR(const auto& i, Names)
+				{
+					static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
+					cfg->SetValue(key, i, &DefaultColor, sizeof(DefaultColor));
+				}
 			}
 		}
 	}
@@ -284,7 +293,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
-	const struct group_item
+	static const struct group_item
 	{
 		int Delta;
 		const wchar_t* KeyName;
@@ -460,8 +469,7 @@ void HighlightFiles::UpdateCurrentTime()
 	FILETIME cft;
 	if (SystemTimeToFileTime(&cst, &cft))
 	{
-		ULARGE_INTEGER current = { cft.dwLowDateTime, cft.dwHighDateTime };
-		CurrentTime = current.QuadPart;
+		CurrentTime = FileTimeToUI64(cft);
 	}
 }
 
@@ -876,7 +884,7 @@ void HighlightFiles::Save(bool always)
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	const struct
+	static const struct
 	{
 		bool IsSort;
 		const wchar_t* KeyName;

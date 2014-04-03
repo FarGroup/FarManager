@@ -38,15 +38,11 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class SQLiteStmt: NonCopyable
+class SQLiteDb: NonCopyable
 {
-	int param;
-
-protected:
-	sqlite::sqlite3_stmt* pStmt;
-
 public:
-	friend class SQLiteDb;
+	SQLiteDb();
+	virtual ~SQLiteDb();
 
 	enum ColumnType
 	{
@@ -56,37 +52,41 @@ public:
 		TYPE_UNKNOWN
 	};
 
-	SQLiteStmt();
-	~SQLiteStmt();
-	bool Finalize();
-	SQLiteStmt& Reset();
-	bool Step();
-	bool StepAndReset();
-	SQLiteStmt& Bind(int Value);
-	SQLiteStmt& Bind(unsigned int Value) {return Bind(static_cast<int>(Value));}
-	SQLiteStmt& Bind(__int64 Value);
-	SQLiteStmt& Bind(unsigned __int64 Value) {return Bind(static_cast<__int64>(Value));}
-	SQLiteStmt& Bind(const string& Value, bool bStatic=true);
-	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true);
-	const wchar_t *GetColText(int Col);
-	const char *GetColTextUTF8(int Col);
-	int GetColBytes(int Col);
-	int GetColInt(int Col);
-	unsigned __int64 GetColInt64(int Col);
-	const char *GetColBlob(int Col);
-	ColumnType GetColType(int Col);
-};
-
-class SQLiteDb: NonCopyable
-{
-public:
-	SQLiteDb();
-	virtual ~SQLiteDb();
-
 	bool IsNew() const { return db_exists <= 0; }
 	int InitStatus(string& name, bool full_name);
 
 protected:
+	class SQLiteStmt: NonCopyable
+	{
+	public:
+
+		SQLiteStmt();
+		~SQLiteStmt();
+
+		bool Finalize();
+		SQLiteStmt& Reset();
+		bool Step();
+		bool StepAndReset();
+		SQLiteStmt& Bind(int Value);
+		SQLiteStmt& Bind(unsigned int Value) { return Bind(static_cast<int>(Value)); }
+		SQLiteStmt& Bind(__int64 Value);
+		SQLiteStmt& Bind(unsigned __int64 Value) { return Bind(static_cast<__int64>(Value)); }
+		SQLiteStmt& Bind(const string& Value, bool bStatic = true);
+		SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic = true);
+		const wchar_t *GetColText(int Col);
+		const char *GetColTextUTF8(int Col);
+		int GetColBytes(int Col);
+		int GetColInt(int Col);
+		unsigned __int64 GetColInt64(int Col);
+		const char *GetColBlob(int Col);
+		ColumnType GetColType(int Col);
+
+	private:
+		friend class SQLiteDb;
+
+		int param;
+		sqlite::sqlite3_stmt* pStmt;
+	};
 
 	bool Open(const string& DbName, bool Local, bool WAL=false);
 	bool Close();

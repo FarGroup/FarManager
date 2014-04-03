@@ -215,15 +215,15 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			item.Type=FST_UNKNOWN;
 			switch (Type)
 			{
-				case SQLiteStmt::TYPE_INTEGER:
-					item.Type=FST_QWORD;
-					break;
-				case SQLiteStmt::TYPE_STRING:
-					item.Type=FST_STRING;
-					break;
-				case SQLiteStmt::TYPE_BLOB:
-					item.Type=FST_DATA;
-					break;
+			case SQLiteDb::TYPE_INTEGER:
+				item.Type = FST_QWORD;
+				break;
+			case SQLiteDb::TYPE_STRING:
+				item.Type = FST_STRING;
+				break;
+			case SQLiteDb::TYPE_BLOB:
+				item.Type = FST_DATA;
+				break;
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
@@ -396,7 +396,7 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 	{
 		if(Filter(HType))
 		{
-			UI64ToFileTime(Time,&item.Time);
+			item.Time = UI64ToFileTime(Time);
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;

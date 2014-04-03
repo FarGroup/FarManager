@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "manager.hpp"
 #include "language.hpp"
+#include "datetime.hpp"
 
 enum SHOW_MODES
 {
@@ -220,6 +221,18 @@ Viewer::~Viewer()
 	if (this == Global->CtrlObject->Plugins->GetCurViewer())
 		Global->CtrlObject->Plugins->SetCurViewer(nullptr);
 }
+
+
+struct Viewer::ViewerUndoData
+{
+	ViewerUndoData(__int64 UndoAddr, __int64 UndoLeft):
+		UndoAddr(UndoAddr),
+		UndoLeft(UndoLeft)
+	{
+	}
+	__int64 UndoAddr;
+	__int64 UndoLeft;
+};
 
 void Viewer::SavePosition()
 {
@@ -1462,11 +1475,7 @@ int Viewer::ProcessKey(int Key)
 
 				// Smart file change check -- thanks Dzirt2005
 				//
-				bool changed = (
-					ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
-					ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
-					ViewFindData.nFileSize != NewViewFindData.nFileSize
-				);
+				bool changed = ViewFindData.ftLastWriteTime != NewViewFindData.ftLastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
 				if ( changed )
 					ViewFindData = NewViewFindData;
 				else {

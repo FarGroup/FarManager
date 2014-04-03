@@ -42,7 +42,7 @@ public:
 
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
 	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
-	const LARGE_INTEGER& FarUpTime() const {return m_FarUpTime;}
+	uint64_t FarUpTime() const;
 	static bool IsPtr(const void* Address);
 	static bool IsUserAdmin();
 	static const wchar_t* Version();

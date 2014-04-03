@@ -38,9 +38,4 @@ namespace sqlite
 #include "thirdparty/sqlite/sqlite3.h"
 }
 
-#undef SQLITE_STATIC
-#define SQLITE_STATIC ((sqlite::sqlite3_destructor_type)0)
-#undef SQLITE_TRANSIENT
-#define SQLITE_TRANSIENT ((sqlite::sqlite3_destructor_type)-1)
-
 #pragma warning(pop)

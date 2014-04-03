@@ -123,10 +123,8 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 	if (DateType>=FDATE_COUNT)
 		FDate.DateType=FDATE_MODIFIED;
 
-	FDate.DateAfter.LowPart=DateAfter.dwLowDateTime;
-	FDate.DateAfter.HighPart=DateAfter.dwHighDateTime;
-	FDate.DateBefore.LowPart=DateBefore.dwLowDateTime;
-	FDate.DateBefore.HighPart=DateBefore.dwHighDateTime;
+	FDate.DateAfter = FileTimeToUI64(DateAfter);
+	FDate.DateBefore = FileTimeToUI64(DateBefore);
 	FDate.bRelative=bRelative;
 }
 
@@ -178,14 +176,12 @@ bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *D
 
 	if (DateAfter)
 	{
-		DateAfter->dwLowDateTime=FDate.DateAfter.LowPart;
-		DateAfter->dwHighDateTime=FDate.DateAfter.HighPart;
+		*DateAfter = UI64ToFileTime(FDate.DateAfter);
 	}
 
 	if (DateBefore)
 	{
-		DateBefore->dwLowDateTime=FDate.DateBefore.LowPart;
-		DateBefore->dwHighDateTime=FDate.DateBefore.HighPart;
+		*DateBefore = UI64ToFileTime(FDate.DateBefore);
 	}
 
 	if (bRelative)
@@ -288,9 +284,8 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 	// Режим проверки времени файла включен?
 	if (FDate.Used)
 	{
-		// Преобразуем FILETIME в беззнаковый __int64
-		unsigned __int64 after  = FDate.DateAfter.QuadPart;
-		unsigned __int64 before = FDate.DateBefore.QuadPart;
+		auto after  = FDate.DateAfter;
+		auto before = FDate.DateBefore;
 
 		if (after || before)
 		{
@@ -311,8 +306,6 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 					ft=&fde.ftLastWriteTime;
 			}
 
-			ULARGE_INTEGER ftime = {ft->dwLowDateTime, ft->dwHighDateTime};
-
 			if (FDate.bRelative)
 			{
 				if (after)
@@ -322,11 +315,13 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 					before = CurrentTime - before;
 			}
 
+			auto ftime = FileTimeToUI64(*ft);
+
 			// Есть введённая пользователем начальная дата?
 			if (after)
 			{
 				// Дата файла меньше начальной даты по фильтру?
-				if (ftime.QuadPart<after)
+				if (ftime < after)
 					// Не пропускаем этот файл
 					return false;
 			}
@@ -335,7 +330,7 @@ bool FileFilterParams::FileInFilter(const api::FAR_FIND_DATA& fde, unsigned __in
 			if (before)
 			{
 				// Дата файла больше конечной даты по фильтру?
-				if (ftime.QuadPart>before)
+				if (ftime > before)
 					return false;
 			}
 		}

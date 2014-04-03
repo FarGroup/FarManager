@@ -253,7 +253,7 @@ unsigned int CRC32(unsigned int crc, const void* buffer, size_t size)
 		}
 	}
 
-	crc = crc ^ 0u;
+	crc = crc ^ ~0u;
 
 	auto buf = reinterpret_cast<const unsigned char*>(buffer);
 

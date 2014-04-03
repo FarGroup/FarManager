@@ -60,3 +60,5 @@ private:
 	names_list::const_iterator CurrentName;
 	string strCurrentDir;
 };
+
+STD_SWAP_SPEC(NamesList);

@@ -409,7 +409,7 @@ void TreeListCache::remove(const wchar_t* Name)
 		if (i->size() < Length)
 			continue;
 
-		if (!StrCmpNI(Name, i->data(), static_cast<int>(Length)) && (i->size() == Length || IsSlash(i->at(Length))))
+		if (!StrCmpNI(Name, i->data(), Length) && (i->size() == Length || IsSlash(i->at(Length))))
 		{
 			i = m_Names.erase(i);
 			if (i == m_Names.end())
@@ -425,7 +425,7 @@ void TreeListCache::rename(const wchar_t* OldName, const wchar_t* NewName)
 	FOR_RANGE(m_Names, i)
 	{
 		size_t iLen = i->size();
-		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), static_cast<int>(SrcLength)))
+		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), SrcLength))
 		{
 			string newName = string(NewName) + (i->data() + SrcLength);
 			i = m_Names.erase(i);
@@ -716,7 +716,7 @@ struct TreePreRedrawItem: public PreRedrawItem
 	size_t TreeCount;
 };
 
-static int MsgReadTree(size_t TreeCount, int &FirstCall)
+static int MsgReadTree(size_t TreeCount, int FirstCall)
 {
 	/* $ 24.09.2001 VVM
 	! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */

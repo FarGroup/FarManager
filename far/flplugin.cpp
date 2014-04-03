@@ -346,8 +346,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	fi->WriteTime=pi->LastWriteTime;
 	fi->CreationTime=pi->CreationTime;
 	fi->AccessTime=pi->LastAccessTime;
-	fi->ChangeTime.dwHighDateTime = 0;
-	fi->ChangeTime.dwLowDateTime = 0;
+	fi->ChangeTime = pi->ChangeTime;
 	fi->NumberOfLinks=pi->NumberOfLinks;
 	fi->NumberOfStreams=1;
 	fi->UserFlags=pi->Flags;
@@ -769,7 +768,7 @@ void FileList::PluginPutFilesToNew()
 				{
 					if (PtrLastPos)
 					{
-						if (FileTimeDifference(&i.CreationTime, &PtrLastPos->CreationTime) > 0)
+						if (PtrLastPos->CreationTime < i.CreationTime)
 						{
 							LastPos = n;
 							PtrLastPos = &i;

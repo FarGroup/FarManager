@@ -49,32 +49,48 @@ void PrepareStrFTime();
 size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t);
 size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);
 
-inline __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
+inline uint64_t FileTimeToUI64(const FILETIME& ft)
 {
-	LARGE_INTEGER A={a->dwLowDateTime,(LONG)a->dwHighDateTime},B={b->dwLowDateTime,(LONG)b->dwHighDateTime};
-	return A.QuadPart - B.QuadPart;
+	ULARGE_INTEGER t = {ft.dwLowDateTime, ft.dwHighDateTime};
+	return t.QuadPart;
 }
 
-inline unsigned __int64 FileTimeToUI64(const FILETIME *ft)
-{
-	ULARGE_INTEGER A={ft->dwLowDateTime,ft->dwHighDateTime};
-	return A.QuadPart;
-}
-
-inline void UI64ToFileTime(unsigned __int64 time, FILETIME *ft)
+inline FILETIME UI64ToFileTime(uint64_t time)
 {
 	ULARGE_INTEGER i;
 	i.QuadPart = time;
-	ft->dwLowDateTime = i.LowPart;
-	ft->dwHighDateTime = i.HighPart;
+	FILETIME ft;
+	ft.dwLowDateTime = i.LowPart;
+	ft.dwHighDateTime = i.HighPart;
+	return ft;
 }
 
-inline unsigned __int64 GetCurrentUTCTimeInUI64()
+inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
+{
+	auto Result = FileTimeToUI64(a) - FileTimeToUI64(b);
+	return Result ? (Result > 0 ? 1 : -1) : 0;
+}
+
+inline bool operator==(const FILETIME& a, const FILETIME& b)
+{
+	return a.dwLowDateTime == b.dwLowDateTime && a.dwHighDateTime == b.dwHighDateTime;
+}
+
+inline bool operator!=(const FILETIME& a, const FILETIME& b)
+{
+	return !(a == b);
+}
+
+inline bool operator<(const FILETIME& a, const FILETIME& b)
+{
+	return CompareFileTime(a, b) < 0;
+}
+
+inline uint64_t GetCurrentUTCTimeInUI64()
 {
 	FILETIME Timestamp;
 	GetSystemTimeAsFileTime(&Timestamp); // in UTC
-	ULARGE_INTEGER i = {Timestamp.dwLowDateTime, Timestamp.dwHighDateTime};
-	return i.QuadPart;
+	return FileTimeToUI64(Timestamp);
 }
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst);

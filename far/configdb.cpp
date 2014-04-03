@@ -174,26 +174,24 @@ class xml_enum: NonCopyable, public enumerator<xml_iterator>
 public:
 	xml_enum(const tinyxml::TiXmlHandle& base, const std::string& name):
 		m_name(name),
-		m_hbase(&base),
-		m_ebase()
+		m_base(base.ToNode())
 	{}
-	xml_enum(const tinyxml::TiXmlElement* base, const std::string& name):
+
+	xml_enum(const tinyxml::TiXmlNode* base, const std::string& name):
 		m_name(name),
-		m_hbase(),
-		m_ebase(base)
+		m_base(base)
 	{}
 
 	virtual bool get(size_t index, xml_iterator& value) override
 	{
 		return index?
 			value = value->NextSiblingElement(m_name.data()) :
-			value = m_hbase? m_hbase->FirstChildElement(m_name.data()).Element() : m_ebase->FirstChildElement(m_name.data());
+			value = m_base? m_base->FirstChildElement(m_name.data()) : nullptr;
 	}
 
 private:
 	std::string m_name;
-	const tinyxml::TiXmlHandle* m_hbase;
-	const tinyxml::TiXmlElement* m_ebase;
+	const tinyxml::TiXmlNode* m_base;
 };
 
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
@@ -395,11 +393,11 @@ public:
 
 			switch (stmtEnumAllValues.GetColType(2))
 			{
-				case SQLiteStmt::TYPE_INTEGER:
+				case TYPE_INTEGER:
 					e->SetAttribute("type", "qword");
 					e->SetAttribute("value", Int64ToHexString(stmtEnumAllValues.GetColInt64(2)));
 					break;
-				case SQLiteStmt::TYPE_STRING:
+				case TYPE_STRING:
 					e->SetAttribute("type", "text");
 					e->SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
 					break;
@@ -741,11 +739,11 @@ public:
 
 			switch (stmtEnumValues.GetColType(1))
 			{
-				case SQLiteStmt::TYPE_INTEGER:
+				case TYPE_INTEGER:
 					e->SetAttribute("type", "qword");
 					e->SetAttribute("value", Int64ToHexString(stmtEnumValues.GetColInt64(1)));
 					break;
-				case SQLiteStmt::TYPE_STRING:
+				case TYPE_STRING:
 					e->SetAttribute("type", "text");
 					e->SetAttribute("value", stmtEnumValues.GetColTextUTF8(1));
 					break;

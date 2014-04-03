@@ -378,7 +378,7 @@ static struct list_less
 
 		auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
 		{
-			return FileTimeDifference(&(a.*time), &(b.*time));
+			return CompareFileTime(a.*time, b.*time);
 		};
 
 		switch (ListSortMode)
@@ -4212,8 +4212,7 @@ void FileList::CompareDir()
 				}
 				else
 				{
-					__int64 RetCompare=FileTimeDifference(&i.WriteTime,&j.WriteTime);
-					Cmp=!RetCompare?0:(RetCompare > 0?1:-1);
+					Cmp = CompareFileTime(i.WriteTime, j.WriteTime);
 				}
 
 				if (!Cmp && (i.FileSize != j.FileSize))
