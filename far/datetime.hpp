@@ -67,7 +67,7 @@ inline FILETIME UI64ToFileTime(uint64_t time)
 
 inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
 {
-	auto Result = FileTimeToUI64(a) - FileTimeToUI64(b);
+	__int64 Result = FileTimeToUI64(a) - FileTimeToUI64(b);
 	return Result ? (Result > 0 ? 1 : -1) : 0;
 }
 
