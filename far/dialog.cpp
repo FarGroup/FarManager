@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "DlgGuid.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
@@ -4101,6 +4102,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		HistoryMenu.SetModeMoving(false);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
+		HistoryMenu.SetId(SelectFromEditHistoryId);
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
 //		CurItem->ListPtr=&HistoryMenu;
