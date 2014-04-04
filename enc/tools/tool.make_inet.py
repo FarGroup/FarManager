@@ -58,9 +58,9 @@ def make_inet_lang(lang):
   for root, dirs, files in walk(inet_meta_dir):
     for f in files:
       relpath = normpath(join(root, "..", "xxx")) # ".." because we need to get rid of 1 level because of "meta""
-      plen = len(commonprefix([ join(inet_html_dir, "notfound.html"), relpath ]))
+      plen = len(commonprefix([ join(inet_html_dir, "msdn.html"), relpath ]))
       relpath = relpath[plen:].replace('\\','/')
-      notfound = "../" * relpath.count('/') + "notfound.html"
+      notfound = "../" * relpath.count('/') + "msdn.html"
       infile  = open(join(root, f))
       outfile = open(join(root.replace(inet_meta_dir, inet_html_dir), f), "w")
       for line in infile:

@@ -55,9 +55,9 @@
 
 
 <li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Интернета (например, для функции GetLastError):<br><br>
-<code>&lt;a href="notfound.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
+<code>&lt;a href="msdn.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
 
-Предполагается, что "notfound.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
+Предполагается, что "msdn.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
 Содержимое файла:
 <pre class=code>
 &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"&gt;
@@ -67,33 +67,31 @@
 &lt;title&gt;Внешняя ссылка&lt;/title&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=Windows-1251"&gt;
 &lt;link rel="stylesheet" type="text/css" href="../styles/styles.css"&gt;
-&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
-function DrawNotFound()
-{
-  if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
-  {
-    f=document.location.href.indexOf("?")
-    if(f > 0)
-    {
-      qu=document.location.href.substring(f+1)
-      inf.innerHTML=" по &lt;a href='http://social.msdn.microsoft.com/Search/?query=" +
-          qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
-    }
-  }
-};
-//--&gt;&lt;/script&gt;
 &lt;/head&gt;
 
-&lt;body onload="DrawNotFound()"&gt;
+&lt;body&gt;
 
-&lt;h1&gt;404 - Информация недоступна&lt;/h1&gt;
+&lt;h1&gt;Внешняя ссылка&lt;/h1&gt;
 &lt;div class="navbar"&gt;
   &lt;a href="index.html"&gt;главная&lt;/a&gt;
 &lt;/div&gt;
 
 &lt;div class="descr"&gt;
-Запрашиваемая информация &lt;span id="inf"&gt;&lt;/span&gt; находится где-то в дебрях
+Запрашиваемая информация &lt;span id="msdn"&gt;&lt;/span&gt; находится где-то в дебрях
 &lt;b&gt;&lt;a href="http://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
+
+&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
+if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
+{
+  var f=document.location.href.indexOf("?");
+  if(f > 0)
+  {
+    var qu=document.location.href.substring(f+1);
+    msdn.innerHTML=" по &lt;a href='http://social.msdn.microsoft.com/Search/?query=" +
+        qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
+  }
+}
+//--&gt;&lt;/script&gt;
 
 &lt;/body&gt;
 

@@ -47,7 +47,7 @@ def make_chm_lang(lang):
   chm_meta_dir = join(chm_lang_dir, "meta")
   chm_html_dir = join(chm_lang_dir, "html")
   for root, dirs, files in walk(chm_meta_dir):
-    for d in dirs: 
+    for d in dirs:
       #print join(root.replace(chm_meta_dir, chm_html_dir), d)
       makedirs(join(root.replace(chm_meta_dir, chm_html_dir), d))
 
@@ -83,7 +83,7 @@ href=JavaScript:link$id.Click()>\g<linkend>
   log("-- cleaning meta")
   shutil.rmtree(chm_meta_dir)
 
-  
+
   log("-- creating CHM indexes")
   # indexes are extracted from <h1> and <a name="">..</a>
   # articles are not included in index
@@ -99,7 +99,7 @@ href=JavaScript:link$id.Click()>\g<linkend>
       continue
     macro_flag = "macro" in root
     for fn in files:
-      if not fn.endswith(".html") or fn in ["faq.html", "notfound.html"]:
+      if not fn.endswith(".html") or fn in ["faq.html", "msdn.html"]:
         continue
       relflink = join(root[root.find("html"):], fn).replace('\\', '/')
       f = open(join(root, fn))
@@ -115,7 +115,7 @@ href=JavaScript:link$id.Click()>\g<linkend>
           target_list.append([relflink+"#"+ra[1], strip_re.sub("", ra[2])])
       f.close()
   print
-  
+
   titles = [t[1] for t in title_list]
   for ix, iv in enumerate(macro_list):
     if iv[1] in titles:
