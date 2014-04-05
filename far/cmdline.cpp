@@ -922,7 +922,10 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 		SetString(CmdLine);
 	}
 
-	ProcessOSAliases(CmdLine);
+	if (!FromPanel)
+	{
+		ProcessOSAliases(CmdLine);
+	}
 
 	LastCmdPartLength=-1;
 

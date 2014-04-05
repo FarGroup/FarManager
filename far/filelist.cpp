@@ -283,10 +283,16 @@ void FileList::ToEnd()
 	ShowFileList(TRUE);
 }
 
-void FileList::Scroll(int offset)
+void FileList::MoveCursor(int offset)
 {
 	CurFile = std::min(std::max(0, CurFile + offset), static_cast<int>(ListData.size() - 1));
 	ShowFileList(TRUE);
+}
+
+void FileList::Scroll(int offset)
+{
+	CurTopFile += offset;
+	MoveCursor(offset);
 }
 
 void FileList::CorrectPosition()
@@ -2103,20 +2109,20 @@ int FileList::ProcessKey(int Key)
 			ToEnd();
 			return TRUE;
 		case KEY_UP:           case KEY_NUMPAD8:
-			Scroll(-1);
+			MoveCursor(-1);
 			return TRUE;
 		case KEY_DOWN:         case KEY_NUMPAD2:
-			Scroll(1);
+			MoveCursor(1);
 			return TRUE;
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=Columns*Height-1;
 			CurTopFile-=N;
-			Scroll(-N);
+			MoveCursor(-N);
 			return TRUE;
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=Columns*Height-1;
 			CurTopFile+=N;
-			Scroll(N);
+			MoveCursor(N);
 			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
@@ -2125,7 +2131,7 @@ int FileList::ProcessKey(int Key)
 				if (CurTopFile>=Height && CurFile-CurTopFile<Height)
 					CurTopFile-=Height;
 
-				Scroll(-Height);
+				MoveCursor(-Height);
 				return TRUE;
 			}
 
@@ -2137,7 +2143,7 @@ int FileList::ProcessKey(int Key)
 				if (CurFile+Height < static_cast<int>(ListData.size()) && CurFile-CurTopFile>=(Columns-1)*(Height))
 					CurTopFile+=Height;
 
-				Scroll(Height);
+				MoveCursor(Height);
 				return TRUE;
 			}
 
@@ -2255,9 +2261,9 @@ int FileList::ProcessKey(int Key)
 			Select(*CurPtr, ShiftSelection);
 
 			if (Key==KEY_SHIFTUP || Key == KEY_SHIFTNUMPAD8)
-				Scroll(-1);
+				MoveCursor(-1);
 			else
-				Scroll(1);
+				MoveCursor(1);
 
 			if (SelectedFirst && !InternalProcessKey)
 				SortFileList(TRUE);
@@ -2274,7 +2280,7 @@ int FileList::ProcessKey(int Key)
 			CurPtr = &ListData[CurFile];
 			Select(*CurPtr,!CurPtr->Selected);
 			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == static_cast<int>(ListData.size())) && CurPtr->Selected;
-			Scroll(1);
+			MoveCursor(1);
 
 			if (SelectedFirst)
 			{
@@ -2559,7 +2565,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, strCurDir.data());
 
 
-			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs);
+			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, RunAs, false, true);
 
 			if (PluginMode)
 				DeleteFileWithFolder(strFileName);
@@ -3047,7 +3053,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<=Y1+1)
 		{
-			Scroll(-1);
+			MoveCursor(-1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
@@ -3071,7 +3077,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2-2)
 		{
-			Scroll(1);
+			MoveCursor(1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{

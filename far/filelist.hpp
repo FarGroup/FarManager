@@ -366,6 +366,7 @@ private:
 	void DeleteListData(std::vector<FileListItem>& ListData);
 	void ToBegin();
 	void ToEnd();
+	void MoveCursor(int offset);
 	void Scroll(int offset);
 	void CorrectPosition();
 	void ShowFileList(int Fast);
