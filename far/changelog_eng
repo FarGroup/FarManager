@@ -3,6 +3,45 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.04.2014 12:56:05 +0200 - build 3852
+
+1. M#2639:  When starting smth from a panel (with the empty command line), command aliases must not apply
+
+2. In 3819 mouse wheel control of the panel cursor was broken.
+
+svs 04.04.2014 16:50:40 +0400 - build 3851
+
+1. Mantis#0002615: A method of identification of drop-down history lists is needed
+
+   One GUID for all histories in edit fields:
+
+    SelectFromEditHistoryId  = {4406C688-209F-4378-8B7B-465BF16205FF}  --> Dlg.Id
+
+w17 04.04.2014 16:07:24 +0400 - build 3850
+
+1. M#2637: broken sorting by file creation date in panels
+
+svs 04.04.2014 11:39:31 +0400 - build 3849
+
+1. SQLite 3.8.4.3
+
+drkns 04.04.2014 00:30:15 +0200 - build 3848
+
+1. Refactoring.
+
+svs 03.04.2014 21:49:06 +0400 - build 3847
+
+1. Mantis#0001301: Errors in processing DM_LISTUPDATE, DN_LISTCHANGE
+
+   Processing of position changes in lists moved to VMenu class (DN_LISTHOTKEY and DN_LISTCHANGE)
+
+   This is how it looks for hotkeys now:
+   if(DN_LISTHOTKEY)
+    if(DN_LISTCHANGE)
+      changing the position
+
+   Catching bugs :-)
+
 drkns 30.03.2014 12:21:55 +0200 - build 3846
 
 1. 0002628: Warning with incomprehensible choices
