@@ -1818,7 +1818,6 @@ static void register_lib(lua_State *L, int mode, const char *name)
 	lua_newtable(L);
 	lua_pushinteger(L, mode);
 	lua_setfield(L, -2, "mode");
-	lua_pushvalue(L, -1);
 	lua_replace(L, LUA_ENVIRONINDEX);
 	luaL_register(L, name, uniclib);
 #elif LUA_VERSION_NUM == 502
