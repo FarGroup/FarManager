@@ -1529,6 +1529,12 @@ void Dialog::ShowDialog(size_t ID)
 	DialogMode.Set(DMODE_DRAWING);  // диалог рисуется!!!
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
+	if (DialogMode.Check(DMODE_NEEDUPDATE))
+	{
+		DialogMode.Clear(DMODE_NEEDUPDATE);
+		ID = (size_t)-1;
+	}
+
 	if (ID == (size_t)-1) // рисуем все?
 	{
 		DrawFullDialog = true;
@@ -4825,30 +4831,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (DialogMode.Check(DMODE_OBJECTS_INITED))
 				{
 					ShowDialog();
-//          Show();
 					Global->ScrBuf->Flush();
 				}
 
 			return Prev;
 		}
-		/*
-		    case DM_ENABLEREDRAW:
-		    {
-		      if(Param1)
-		        IsEnableRedraw++;
-		      else
-		        IsEnableRedraw--;
-
-		      if(!IsEnableRedraw)
-		        if(DialogMode.Check(DMODE_INITOBJECTS))
-		        {
-		          ShowDialog();
-		          Global->ScrBuf->Flush();
-		//          Show();
-		        }
-		      return 0;
-		    }
-		*/
 		/*****************************************************************/
 		case DM_SHOWDIALOG:
 		{
@@ -5694,7 +5681,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (FocusPos == (size_t)Param1)
 			{
-				ShowDialog();
+				if (DialogMode.Check(DMODE_DRAWING))
+					DialogMode.Set(DMODE_NEEDUPDATE);
+				else
+					ShowDialog();
 				return TRUE;
 			}
 

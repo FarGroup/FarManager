@@ -1974,6 +1974,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 
 				rect.Top += IncY;
+				rect.Bottom += IncY;
 				Dlg->SendMessage( DM_SETITEMPOSITION, i, &rect);
 			}
 
