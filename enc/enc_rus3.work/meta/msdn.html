@@ -16,16 +16,25 @@
 
 <div class="descr">
 Запрашиваемая информация <span id="msdn"></span> находится где-то в дебрях
-<b><a href="http://msdn.microsoft.com/library/" target="_blank">MSDN Library</a></b>.
+<b><span id="msdn2"><a href="http://msdn.microsoft.com/library/" target="_blank">MSDN Library</a></span></b>.
 
 <script language="javascript" type="text/javascript"><!--
 if (document.images != null && navigator.userAgent.indexOf("Mozilla", 0) != -1)
 {
-	var f=document.location.href.indexOf("?")
+	var f=document.location.href.indexOf("?");
 	if(f > 0)
 	{
-		var qu=document.location.href.substring(f+1)
-		msdn.innerHTML=" по <a href='http://social.msdn.microsoft.com/Search/?query=" + qu + "' target='_blank' style='font-weight:bold;'>" +qu+ "</a> "
+		var qu=document.location.href.substring(f+1);
+		if (qu.length > 0)
+		{
+			var quv=qu;
+			qu=qu.replace(/&/g, " ");
+			qu=qu.replace(/%3[CE]+/gi, " ");
+			qu=qu.replace(/</g, " ");
+			qu=qu.replace(/\>/g, " ");
+			msdn.innerHTML=" по <a href='http://social.msdn.microsoft.com/Search/?query=" + qu + "' target='_blank' style='font-weight:bold;'>" +quv+ "</a> ";
+			msdn2.innerHTML="MSDN Library";
+		}
 	}
 }
 //--></script>
