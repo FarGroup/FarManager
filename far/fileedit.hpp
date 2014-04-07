@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "editor.hpp"
 #include "keybar.hpp"
+#include "plugin.hpp"
 
 class NamesList;
 
@@ -45,16 +46,6 @@ enum
 	SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
 	SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
 	SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
-};
-
-// как открывать
-enum FEOPMODEEXISTFILE
-{
-	FEOPMODE_QUERY        =0x00000000,
-	FEOPMODE_NEWIFOPEN    =0x10000000,
-	FEOPMODE_USEEXISTING  =0x20000000,
-	FEOPMODE_BREAKIFOPEN  =0x30000000,
-	FEOPMODE_RELOAD       =0x40000000,
 };
 
 enum FFILEEDIT_FLAGS
@@ -82,8 +73,8 @@ enum FFILEEDIT_FLAGS
 class FileEditor : public Frame
 {
 	public:
-		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
-		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,EDITOR_FLAGS OpenModeExstFile=EF_OPENMODE_QUERY);
+		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,EDITOR_FLAGS OpenModeExstFile=EF_OPENMODE_QUERY);
 		virtual ~FileEditor();
 
 		void ShowStatus();
@@ -142,7 +133,7 @@ class FileEditor : public Frame
 		void SetDeleteOnClose(int NewMode);
 		int ReProcessKey(int Key,int CalledFromControl=TRUE);
 		bool AskOverwrite(const string& FileName);
-		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
+		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, EDITOR_FLAGS OpenModeExstFile);
 		virtual void InitKeyBar() override;
 		virtual int ProcessKey(int Key) override;
 		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

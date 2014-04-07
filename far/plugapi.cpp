@@ -1559,7 +1559,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 	else if (Flags & EF_DELETEONLYFILEONCLOSE)
 		DeleteOnClose = 2;
 
-	int OpMode=FEOPMODE_QUERY;
+	int OpMode=EF_OPENMODE_QUERY;
 
 	if ((Flags&EF_OPENMODE_MASK) )
 		OpMode=Flags&EF_OPENMODE_MASK;
@@ -1653,7 +1653,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			{
 #if 0
 
-				if (OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
+				if (OpMode==EF_OPENMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
 					ExitCode = XC_OPEN_ERROR;
 				else
 #endif

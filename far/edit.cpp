@@ -513,6 +513,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_EDITOR_SEL:
 		{
 			int Action=(int)((intptr_t)vParam);
+			if (Action) SetClearFlag(0);
 
 			switch (Action)
 			{

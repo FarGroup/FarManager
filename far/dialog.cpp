@@ -5374,6 +5374,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr);
 				EditPtr->SetCurPos(((COORD*)Param2)->X);
 				//EditPtr->Show();
+				EditPtr->SetClearFlag(0);
 				ShowDialog(Param1);
 				return TRUE;
 			}
@@ -6231,6 +6232,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						EditLine->Select(-1,0);
 					else
 						EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
+
+					EditLine->SetClearFlag(0);
 
 					if (DialogMode.Check(DMODE_SHOW)) //???
 					{

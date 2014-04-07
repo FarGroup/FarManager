@@ -285,7 +285,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 
 const FileEditor *FileEditor::CurrentEditor = nullptr;
 
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
 	ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
@@ -295,7 +295,7 @@ FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, 
 }
 
 
-FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, int OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, EDITOR_FLAGS OpenModeExstFile):
 	BadConversion(false)
 {
 	Flags.Set(InitFlags);
@@ -395,7 +395,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-    int OpenModeExstFile
+    EDITOR_FLAGS OpenModeExstFile
 )
 {
 	class SmartLock: ::NonCopyable
@@ -464,16 +464,16 @@ void FileEditor::Init(
 			        Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
-				if (OpenModeExstFile == FEOPMODE_QUERY)
+				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
 					const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
 					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
 				}
 				else
 				{
-					MsgCode=(OpenModeExstFile==FEOPMODE_USEEXISTING)?0:
-					        (OpenModeExstFile==FEOPMODE_NEWIFOPEN?1:
-					         (OpenModeExstFile==FEOPMODE_RELOAD?2:-100)
+					MsgCode=(OpenModeExstFile==EF_OPENMODE_USEEXISTING)?0:
+					        (OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:
+					         (OpenModeExstFile==EF_OPENMODE_RELOADIFOPEN?2:-100)
 					        );
 				}
 
@@ -514,7 +514,7 @@ void FileEditor::Init(
 			{
 				Global->FrameManager->ActivateFrame(FramePos);
 				//FrameManager->PluginCommit();
-				SetExitCode((OpenModeExstFile != FEOPMODE_QUERY)?XC_EXISTS:TRUE);
+				SetExitCode((OpenModeExstFile != EF_OPENMODE_QUERY)?XC_EXISTS:TRUE);
 				return ;
 			}
 		}
