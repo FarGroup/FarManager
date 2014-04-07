@@ -3317,18 +3317,9 @@ static int far_SendDlgMessage(lua_State *L)
 
 int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 {
-	if (! ((Msg>DN_FIRST && Msg<=DN_DRAWDLGITEMDONE) || Msg==DN_ACTIVATEAPP) )
-		return 0;
-
-	lua_pushinteger(L, Msg);             //+1
-
 	// Param1
-	switch(Msg)                          //+2
+	switch(Msg)
 	{
-		case DN_CLOSE:
-		case DN_CONTROLINPUT:
-			lua_pushinteger(L, Param1<0 ? Param1 : Param1+1);
-			break;
 		case DN_ACTIVATEAPP:
 		case DN_CTLCOLORDIALOG:
 		case DN_DRAGGED:
@@ -3337,12 +3328,38 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_ENTERIDLE:
 		case DN_INPUT:
 		case DN_RESIZECONSOLE:
-			lua_pushinteger(L, Param1);
 			break;
-		default: // dialog element position
-			lua_pushinteger(L, Param1+1);
+
+		case DN_CLOSE:
+		case DN_CONTROLINPUT:
+			if (Param1 >= 0)
+				++Param1;
 			break;
+
+		case DN_BTNCLICK:
+		case DN_CTLCOLORDLGITEM:
+		case DN_CTLCOLORDLGLIST:
+		case DN_DRAWDLGITEM:
+		case DN_DRAWDLGITEMDONE:
+		case DN_DROPDOWNOPENED:
+		case DN_EDITCHANGE:
+		case DN_GETVALUE:
+		case DN_GOTFOCUS:
+		case DN_HELP:
+		case DN_HOTKEY:
+		case DN_INITDIALOG:
+		case DN_KILLFOCUS:
+		case DN_LISTCHANGE:
+		case DN_LISTHOTKEY:
+			++Param1; // dialog element position
+			break;
+
+		default:
+			return FALSE;
 	}
+
+	lua_pushinteger(L, Msg);             //+1
+	lua_pushinteger(L, Param1);          //+2
 
 	if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
 	{
@@ -3392,7 +3409,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 	else
 		lua_pushinteger(L, (intptr_t)Param2);  //+3
 
-	return 1;
+	return TRUE;
 }
 
 intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
