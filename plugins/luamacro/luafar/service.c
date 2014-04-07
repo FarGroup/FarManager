@@ -3317,7 +3317,7 @@ static int far_SendDlgMessage(lua_State *L)
 
 int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 {
-	if (! (Msg>DN_FIRST && Msg<=DN_DRAWDLGITEMDONE))
+	if (! ((Msg>DN_FIRST && Msg<=DN_DRAWDLGITEMDONE) || Msg==DN_ACTIVATEAPP) )
 		return 0;
 
 	lua_pushinteger(L, Msg);             //+1
@@ -3329,6 +3329,7 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_CONTROLINPUT:
 			lua_pushinteger(L, Param1<0 ? Param1 : Param1+1);
 			break;
+		case DN_ACTIVATEAPP:
 		case DN_CTLCOLORDIALOG:
 		case DN_DRAGGED:
 		case DN_DRAWDIALOG:

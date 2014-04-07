@@ -1,3 +1,7 @@
+shmuel 07.04.2014 21:08:04 +0200 - build 302
+
+1. LuaFAR: добавилась поддержка DN_ACTIVATEAPP.
+
 shmuel 06.04.2014 18:45:15 +0200 - build 301
 
 1. LuaFAR fix: require 'unicode' возвращало не ту таблицу.

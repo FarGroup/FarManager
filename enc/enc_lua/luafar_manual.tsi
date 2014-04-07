@@ -2911,6 +2911,31 @@ mtime=3603273205
 </article>
 </node>
 <node>
+id=494
+lv=2
+dt=Text
+nm=DN_ACTIVATEAPP
+ctime=3606066637
+mtime=3606066773
+<article>
+#_**Param1**
+#_    integer; according to Far API 
+#_
+#_**Param2**
+#_    integer; according to Far API 
+#_
+#_**Return**
+#_    default processing of the return value, see `description`.
+#_
+#_**Far API used:**
+#_  DlgProc, DN_ACTIVATEAPP
+#_
+#_@@@
+#_[description]: 285.html
+#_
+</article>
+</node>
+<node>
 id=297
 lv=2
 dt=Text
