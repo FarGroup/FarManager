@@ -3402,13 +3402,13 @@ lv=2
 dt=Text
 nm=DN_INITDIALOG
 ctime=3477111575
-mtime=3602352610
+mtime=3606114863
 <article>
 #_**Param1**
 #_    integer; according to Far API 
 #_
 #_**Param2**
-#_    nil
+#_    integer; according to Far API 
 #_
 #_**Return**
 #_    default processing of the return value, see `description`.

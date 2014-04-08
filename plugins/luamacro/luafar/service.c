@@ -3361,53 +3361,71 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 	lua_pushinteger(L, Msg);             //+1
 	lua_pushinteger(L, Param1);          //+2
 
-	if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
+	// Param2
+	switch(Msg)
 	{
-		int i;
-		struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
-		lua_createtable(L, (int)fdic->ColorsCount, 1);
-		PutFlagsToTable(L, "Flags", fdic->Flags);
+		case DN_CONTROLINPUT:   // TODO
+		case DN_INPUT:          // TODO was: (Msg == DN_MOUSEEVENT)
+			pushInputRecord(L, (const INPUT_RECORD*)Param2);
+			break;
 
-		for(i=0; i < (int)fdic->ColorsCount; i++)
+		case DN_CTLCOLORDIALOG:
+			PushFarColor(L, (struct FarColor*) Param2);
+			break;
+
+		case DN_CTLCOLORDLGITEM:
+		case DN_CTLCOLORDLGLIST:
 		{
-			PushFarColor(L, &fdic->Colors[i]);
-			lua_rawseti(L, -2, i+1);
+			int i;
+			struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
+			lua_createtable(L, (int)fdic->ColorsCount, 1);
+			PutFlagsToTable(L, "Flags", fdic->Flags);
+			for(i=0; i < (int)fdic->ColorsCount; i++)
+			{
+				PushFarColor(L, &fdic->Colors[i]);
+				lua_rawseti(L, -2, i+1);
+			}
+			break;
 		}
+
+		case DN_DRAWDLGITEM:
+		case DN_EDITCHANGE:
+			PushDlgItem(L, (struct FarDialogItem*)Param2, FALSE);
+			break;
+
+		case DN_GETVALUE:
+		{
+			struct FarGetValue *fgv = (struct FarGetValue*) Param2;
+			lua_newtable(L);
+			PutIntToTable(L, "GetType", fgv->Type);
+			PutIntToTable(L, "ValType", fgv->Value.Type);
+			PushFarMacroValue(L, &fgv->Value);
+			lua_setfield(L, -2, "Value");
+			break;
+		}
+
+		case DN_HELP:
+			push_utf8_string(L, Param2 ? (wchar_t*)Param2 : L"", -1);
+			break;
+
+		case DN_LISTCHANGE:
+		case DN_LISTHOTKEY:
+			lua_pushinteger(L, (intptr_t)Param2+1);  // make list positions 1-based
+			break;
+
+		case DN_RESIZECONSOLE:
+		{
+			COORD* coord = (COORD*)Param2;
+			lua_createtable(L, 0, 2);
+			PutIntToTable(L, "X", coord->X);
+			PutIntToTable(L, "Y", coord->Y);
+			break;
+		}
+
+		default:
+			lua_pushinteger(L, (intptr_t)Param2);  //+3
+			break;
 	}
-	else if(Msg == DN_CTLCOLORDIALOG)
-		PushFarColor(L, (struct FarColor*) Param2);
-	else if(Msg == DN_DRAWDLGITEM)
-		PushDlgItem(L, (struct FarDialogItem*)Param2, FALSE);
-	else if(Msg == DN_EDITCHANGE)
-		PushDlgItem(L, (struct FarDialogItem*)Param2, FALSE);
-	else if(Msg == DN_HELP)
-		push_utf8_string(L, Param2 ? (wchar_t*)Param2 : L"", -1);
-	else if(Msg == DN_INITDIALOG)
-		lua_pushnil(L);
-	else if(Msg == DN_INPUT)  // TODO was: (Msg == DN_MOUSEEVENT)
-		pushInputRecord(L, (const INPUT_RECORD*)Param2);
-	else if(Msg == DN_CONTROLINPUT)   // TODO
-		pushInputRecord(L, (const INPUT_RECORD*)Param2);
-	else if(Msg == DN_LISTCHANGE || Msg == DN_LISTHOTKEY)
-		lua_pushinteger(L, (intptr_t)Param2+1);  // make list positions 1-based
-	else if(Msg == DN_RESIZECONSOLE)
-	{
-		COORD* coord = (COORD*)Param2;
-		lua_createtable(L, 0, 2);
-		PutIntToTable(L, "X", coord->X);
-		PutIntToTable(L, "Y", coord->Y);
-	}
-	else if(Msg == DN_GETVALUE)
-	{
-		struct FarGetValue *fgv = (struct FarGetValue*) Param2;
-		lua_newtable(L);
-		PutIntToTable(L, "GetType", fgv->Type);
-		PutIntToTable(L, "ValType", fgv->Value.Type);
-		PushFarMacroValue(L, &fgv->Value);
-		lua_setfield(L, -2, "Value");
-	}
-	else
-		lua_pushinteger(L, (intptr_t)Param2);  //+3
 
 	return TRUE;
 }
