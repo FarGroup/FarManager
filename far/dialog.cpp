@@ -2445,7 +2445,6 @@ int Dialog::ProcessKey(int Key)
 			DlgProc(DN_INPUT,0,&rec);
 		}
 
-		DlgProc(DN_ACTIVATEAPP,Key == KEY_GOTFOCUS,0);
 		return FALSE;
 	}
 

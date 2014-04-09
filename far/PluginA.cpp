@@ -2364,7 +2364,6 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 		case DN_DRAWDLGITEMDONE:Msg=oldfar::DN_DRAWDIALOGDONE; break;
 		case DM_KILLSAVESCREEN: Msg=oldfar::DM_KILLSAVESCREEN; break;
 		case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
-		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
 		case DN_INPUT:
 			{
 				INPUT_RECORD* record=(INPUT_RECORD *)Param2;
@@ -2373,6 +2372,13 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 					Msg=oldfar::DN_MOUSEEVENT;
 					Param1=0;
 					Param2=&record->Event.MouseEvent;
+					break;
+				}
+				else if (record->EventType==FOCUS_EVENT)
+				{
+					Msg=oldfar::DN_ACTIVATEAPP;
+					Param1=record->Event.FocusEvent.bSetFocus?1:0;
+					Param2=0;
 					break;
 				}
 			}

@@ -363,7 +363,6 @@ enum FARMESSAGE
 	DN_DROPDOWNOPENED               = 4119,
 	DN_DRAWDLGITEMDONE              = 4120,
 
-	DN_ACTIVATEAPP                  = 0x3FFF,
 	DM_USER                         = 0x4000,
 
 #ifdef FAR_USE_INTERNALS
