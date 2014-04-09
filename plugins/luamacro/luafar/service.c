@@ -3320,7 +3320,6 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 	// Param1
 	switch(Msg)
 	{
-		case DN_ACTIVATEAPP:
 		case DN_CTLCOLORDIALOG:
 		case DN_DRAGGED:
 		case DN_DRAWDIALOG:

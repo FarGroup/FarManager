@@ -1,4 +1,8 @@
-﻿shmuel 08.04.2014 10:39:15 +0200 - build 304
+﻿zg 09.04.2014 18:05:25 +0200 - build 305
+
+1. LuaFAR: удалена поддержка DN_ACTIVATEAPP.
+
+shmuel 08.04.2014 10:39:15 +0200 - build 304
 
 1. LuaFAR: refactoring.
 
