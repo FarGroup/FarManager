@@ -36,29 +36,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class NamesList: NonCopyable
 {
 public:
-	NamesList(): CurrentName(Names.end()) {};
-	NamesList(NamesList&& rhs): CurrentName(Names.end()) { *this = std::move(rhs); }
+	NamesList(): CurPos(Names.end()) {};
+	NamesList(NamesList&& rhs): CurPos(Names.end()) { *this = std::move(rhs); }
 	MOVE_OPERATOR_BY_SWAP(NamesList);
 
 	void swap(NamesList& rhs) noexcept
 	{
 		Names.swap(rhs.Names);
-		std::swap(CurrentName, rhs.CurrentName);
-		strCurrentDir.swap(rhs.strCurrentDir);
+		std::swap(CurPos, rhs.CurPos);
 	}
 
-	void AddName(const string& Name,const string& ShortName);
-	bool GetNextName(string &strName, string &strShortName);
-	bool GetPrevName(string &strName, string &strShortName);
-	void SetCurName(const string& Name);
-	string GetCurDir() const { return strCurrentDir; }
-	void SetCurDir(const string& Dir);
+	void AddName(const string& Name);
+	bool GetNextName(string& strName);
+	bool GetPrevName(string& strName);
 
 private:
-	typedef std::list<std::pair<string, string>> names_list;
+	typedef std::vector<string> names_list;
 	names_list Names;
-	names_list::const_iterator CurrentName;
-	string strCurrentDir;
+	names_list::const_iterator CurPos;
 };
 
 STD_SWAP_SPEC(NamesList);

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "strmix.hpp"
+#include "colors.hpp"
 
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];

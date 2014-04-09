@@ -5077,7 +5077,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
 						{
-							FarListFind* lf=reinterpret_cast<FarListFind*>(Param2);
+							auto lf = reinterpret_cast<FarListFind*>(Param2);
 							return CheckStructSize(lf)?ListBox->FindItem(lf->StartIndex,lf->Pattern,lf->Flags):-1;
 						}
 						case DM_LISTADDSTR: // Param1=ID Param2=String

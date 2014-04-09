@@ -905,7 +905,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 		case DN_EDITCHANGE:
 		{
-			FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
+			auto& Item=*reinterpret_cast<FarDialogItem*>(Param2);
 
 			switch (Param1)
 			{
@@ -1614,7 +1614,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						return TRUE;
 					}
 
-					FindListItem* FindItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr,0));
+					auto FindItem = *reinterpret_cast<FindListItem**>(ListBox->GetUserData(nullptr,0));
 					bool RemoveTemp=false;
 					string strSearchFileName;
 					string strTempDir;
@@ -1720,13 +1720,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 										if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 										{
 											++list_count;
-											ViewList.AddName(i.FindData.strFileName, i.FindData.strAlternateFileName);
+											ViewList.AddName(i.FindData.strFileName);
 										}
 									}
 								});
 								itd->Unlock();
-								string strCurDir = FindItem->FindData.strFileName;
-								ViewList.SetCurName(strCurDir);
 							}
 
 							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);
@@ -1925,7 +1923,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_RESIZECONSOLE:
 		{
-			PCOORD pCoord = static_cast<PCOORD>(Param2);
+			auto pCoord = static_cast<PCOORD>(Param2);
 			SMALL_RECT DlgRect;
 			Dlg->SendMessage( DM_GETDLGRECT, 0, &DlgRect);
 			int DlgWidth=DlgRect.Right-DlgRect.Left+1;
@@ -2675,7 +2673,7 @@ unsigned int FindFiles::ThreadRoutine(LPVOID Param)
 	try
 	{
 		InitInFileSearch();
-		THREADPARAM* tParam=static_cast<THREADPARAM*>(Param);
+		auto tParam = static_cast<THREADPARAM*>(Param);
 		tParam->PluginMode?DoPreparePluginList(tParam->Dlg, false):DoPrepareFileList(tParam->Dlg);
 		ReleaseInFileSearch();
 	}

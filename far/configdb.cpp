@@ -937,7 +937,7 @@ private:
 
 		if (std::any_of(CONST_RANGE(ColorKeys, i) { return !strcmp(Name, i); }))
 		{
-			const FarColor* Color = reinterpret_cast<const FarColor*>(Blob);
+			auto Color = reinterpret_cast<const FarColor*>(Blob);
 			e->SetAttribute("type", "color");
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
@@ -1063,7 +1063,7 @@ public:
 			auto e = new tinyxml::TiXmlElement("object");
 
 			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
-			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
+			auto Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
 			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
 			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
 			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)).data());

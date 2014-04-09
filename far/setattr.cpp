@@ -145,7 +145,7 @@ enum
 
 intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
+	auto DlgParam=reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
 
 	switch (Msg)
 	{
@@ -159,9 +159,9 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
 				}
 				int FocusPos=static_cast<int>(Dlg->SendMessage(DM_GETFOCUS,0,0));
-				FARCHECKEDSTATE CompressState=static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK,SA_CHECKBOX_COMPRESSED,0));
-				FARCHECKEDSTATE EncryptState=static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK,SA_CHECKBOX_ENCRYPTED,0));
-				FARCHECKEDSTATE SubfoldersState=static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK,SA_CHECKBOX_SUBFOLDERS,0));
+				auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, 0));
+				auto EncryptState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_ENCRYPTED, 0));
+				auto SubfoldersState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_SUBFOLDERS, 0));
 
 				if (DlgParam->DialogMode==MODE_FILE)
 				{
@@ -226,7 +226,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
 							{
-								LPCWSTR Owner=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+								auto Owner=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)
@@ -300,7 +300,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 							// Состояние изменилось?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
-								LPCWSTR Owner=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+								auto Owner = reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, SA_EDIT_OWNER, 0));
 								if(*Owner)
 								{
 									if(!DlgParam->OwnerChanged)

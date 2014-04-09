@@ -97,7 +97,7 @@ void ShowProcessList()
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
+					auto ProcWnd = *static_cast<HWND*>(ProcList.GetUserData(nullptr, 0));
 
 					if (ProcWnd)
 					{
@@ -164,7 +164,7 @@ void ShowProcessList()
 
 		if (ProcList.GetExitCode()>=0)
 		{
-			HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
+			auto ProcWnd = *static_cast<HWND*>(ProcList.GetUserData(nullptr, 0));
 
 			if (ProcWnd)
 			{

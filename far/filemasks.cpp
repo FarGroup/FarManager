@@ -257,7 +257,7 @@ bool filemasks::masks::Set(const string& masks)
 	{
 		re = std::make_unique<RegExp>();
 
-		if (re && re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
+		if (re->Compile(expmasks.data(), OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			m.resize(re->GetBracketsCount());
 			return true;

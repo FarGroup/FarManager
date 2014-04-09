@@ -3760,6 +3760,8 @@ BOOL Editor::Search(int Next)
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
+		auto SavedCurPos = CurPos;
+
 		while (CurPtr != Lines.end())
 		{
 			DWORD CurTime=GetTickCount();
@@ -3789,9 +3791,11 @@ BOOL Editor::Search(int Next)
 			int SearchLength = 0;
 			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
 
-			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
+			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength) &&
+				!(ReverseSearch && CurLine == CurPtr && CurPtr->GetCurPos() + SearchLength == CurPos)
+			)
 			{
-				Match=1;
+				Match = true;
 				auto FoundPtr = CurPtr;
 				int iFoundPos = CurPtr->GetCurPos();
 
@@ -4049,6 +4053,10 @@ BOOL Editor::Search(int Next)
 				}
 			}
 		}
+
+		// for 'cursor at the end' mode
+		if (!Match)
+			CurLine->SetCurPos(SavedCurPos);
 	}
 	Show();
 
@@ -4081,7 +4089,7 @@ BOOL Editor::Search(int Next)
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
 					{
-						FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
+						auto coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
 						GoToLine(coord->Line);
 						CurLine->SetCurPos(coord->Pos);
 						if (EdOpt.SearchSelFound)
@@ -4137,7 +4145,7 @@ BOOL Editor::Search(int Next)
 
 		if(ExitCode >= 0)
 		{
-			FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
+			auto coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
 			GoToLine(coord->Line);
 			CurLine->SetCurPos(coord->Pos);
 			if (EdOpt.SearchSelFound)

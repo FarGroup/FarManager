@@ -96,37 +96,21 @@ static PluginHandle* hSortPlugin;
 
 enum SELECT_MODES
 {
-	SELECT_INVERT          =  0,
-	SELECT_INVERTALL       =  1,
-	SELECT_ADD             =  2,
-	SELECT_REMOVE          =  3,
-	SELECT_ADDEXT          =  4,
-	SELECT_REMOVEEXT       =  5,
-	SELECT_ADDNAME         =  6,
-	SELECT_REMOVENAME      =  7,
-	SELECT_ADDMASK         =  8,
-	SELECT_REMOVEMASK      =  9,
-	SELECT_INVERTMASK      = 10,
+	SELECT_INVERT,
+	SELECT_INVERTALL,
+	SELECT_ADD,
+	SELECT_REMOVE,
+	SELECT_ADDEXT,
+	SELECT_REMOVEEXT,
+	SELECT_ADDNAME,
+	SELECT_REMOVENAME,
+	SELECT_ADDMASK,
+	SELECT_REMOVEMASK,
+	SELECT_INVERTMASK,
 };
 
 namespace custom_sort
 {
-
-struct CustomSort
-{
-	const FileListItem  *Items;
-	size_t               ItemsCount;
-	size_t               ItemSize;
-	void               (*FileListToPluginItem)(const FileListItem*, SortingPanelItem*);
-	int                  ListSortGroups;
-	int                  ListSelectedFirst;
-	int                  ListDirectoriesFirst;
-	int                  ListSortMode;
-	int                  RevertSorting;
-	int                  ListNumericSort;
-	int                  ListCaseSensitiveSort;
-	HANDLE               hSortPlugin;
-};
 
 static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem *pi)
 {
@@ -159,6 +143,22 @@ static void FileListToSortingPanelItem(const FileListItem *fi, SortingPanelItem 
 	pi->NumberOfStreams=fi->NumberOfStreams;
 	pi->StreamsSize=fi->StreamsSize;
 }
+
+struct CustomSort
+{
+	const FileListItem  *Items;
+	size_t               ItemsCount;
+	size_t               ItemSize;
+	decltype(FileListToSortingPanelItem)* FileListToPluginItem;
+	int                  ListSortGroups;
+	int                  ListSelectedFirst;
+	int                  ListDirectoriesFirst;
+	int                  ListSortMode;
+	int                  RevertSorting;
+	int                  ListNumericSort;
+	int                  ListCaseSensitiveSort;
+	HANDLE               hSortPlugin;
+};
 
 };
 
@@ -1768,10 +1768,8 @@ int FileList::ProcessKey(int Key)
 											std::for_each(CONST_RANGE(ListData, i)
 											{
 												if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-													EditList.AddName(i.strName, i.strShortName);
+													EditList.AddName(i.strName);
 											});
-											EditList.SetCurDir(strCurDir);
-											EditList.SetCurName(strFileName);
 											ShellEditor->SetNamesList(EditList);
 										}
 
@@ -1841,10 +1839,8 @@ int FileList::ProcessKey(int Key)
 									std::for_each(CONST_RANGE(ListData, i)
 									{
 										if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-											ViewList.AddName(i.strName, i.strShortName);
+											ViewList.AddName(i.strName);
 									});
-									ViewList.SetCurDir(strCurDir);
-									ViewList.SetCurName(strFileName);
 								}
 
 								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.data(),&ViewList);

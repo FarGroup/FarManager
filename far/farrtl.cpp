@@ -264,7 +264,7 @@ inline static size_t GetRequiredSize(size_t RequestedSize)
 static void* DebugAllocator(size_t size, bool Noexcept, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
 {
 	size_t realSize = GetRequiredSize(size);
-	MEMINFO* Info = static_cast<MEMINFO*>(malloc(realSize));
+	auto Info = static_cast<MEMINFO*>(malloc(realSize));
 
 	if (!Info)
 	{
@@ -291,7 +291,7 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 	void* realBlock = block? ToReal(block) : nullptr;
 	if (realBlock)
 	{
-		MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+		auto Info = static_cast<MEMINFO*>(realBlock);
 		assert(Info->AllocationType == type);
 		assert(GetMarker(Info) == EndMarker);
 		UnregisterBlock(Info);

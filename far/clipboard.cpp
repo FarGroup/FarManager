@@ -305,7 +305,7 @@ bool Clipboard::SetHDROP(const void* NamesArray, size_t NamesArraySize, bool bMo
 		HGLOBAL hMemory=GlobalAlloc(GMEM_MOVEABLE, sizeof(DROPFILES)+NamesArraySize);
 		if (hMemory)
 		{
-			LPDROPFILES Drop = static_cast<LPDROPFILES>(GlobalLock(hMemory));
+			auto Drop = static_cast<LPDROPFILES>(GlobalLock(hMemory));
 			if(Drop)
 			{
 				Drop->pFiles=sizeof(DROPFILES);
@@ -384,7 +384,7 @@ bool Clipboard::Get(string& data)
 		hClipData=GetData(CF_HDROP);
 		if (hClipData)
 		{
-			LPDROPFILES Files=static_cast<LPDROPFILES>(GlobalLock(hClipData));
+			auto Files = static_cast<LPDROPFILES>(GlobalLock(hClipData));
 			if (Files)
 			{
 				LPCSTR StartA=reinterpret_cast<LPCSTR>(Files)+Files->pFiles;

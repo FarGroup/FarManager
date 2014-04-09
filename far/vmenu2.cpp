@@ -114,7 +114,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		{
 			if (Msg==DN_CONTROLINPUT)
 			{
-				INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(Param2);
+				auto ir = static_cast<INPUT_RECORD*>(Param2);
 				int key=InputRecordToKey(ir);
 
 				if(ListBox().ProcessFilterKey(key))
@@ -566,7 +566,7 @@ intptr_t VMenu2::Run(const std::function<int(int Key)>& fn)
 		int key=KEY_NONE;
 		if(Msg==DN_INPUT)
 		{
-			INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(param);
+			auto ir = static_cast<INPUT_RECORD*>(param);
 			key=ir->EventType==WINDOW_BUFFER_SIZE_EVENT ? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(ir);
 		}
 		return fn(key);

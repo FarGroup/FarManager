@@ -425,7 +425,7 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 		if(Msg!=DN_INPUT)
 			return 0;
 
-		INPUT_RECORD &rec=*static_cast<INPUT_RECORD*>(param);
+		auto& rec = *static_cast<INPUT_RECORD*>(param);
 		int Key=InputRecordToKey(&rec);
 
 		if (Key==KEY_CONSOLE_BUFFER_RESIZE)

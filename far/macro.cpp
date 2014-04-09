@@ -4097,7 +4097,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 	if (Global->CtrlObject->Macro.GetMode()==MACROAREA_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
-		Dialog* Dlg = static_cast<Dialog*>(CurFrame);
+		auto Dlg = static_cast<Dialog*>(CurFrame);
 		TVarType typeIndex=Params[0].type();
 		size_t Index=(unsigned)Params[0].getInteger()-1;
 		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))

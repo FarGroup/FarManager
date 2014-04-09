@@ -53,16 +53,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
 #include <cassert>
 #include <cctype>
-#include <ctime>
-#include <cstdint>
-
-#ifdef __GNUC__
-#include <climits>
 #include <cfloat>
-#include <malloc.h>
-#endif //__GNUC__
+#include <climits>
+#include <cstdint>
+#include <ctime>
 
 #include <process.h>
 
@@ -152,9 +149,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #  include <ddk/ntddscsi.h>
 #  include <ntdef.h>
 # endif
-# ifndef offsetof
-#  define offsetof(Type, Field) __builtin_offsetof(Type, Field)
-# endif
 #endif // __GNUC__
 
 #include "SDK/sdk.common.h"
@@ -179,6 +173,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 
 #include "plugin.hpp"
-#include "colors.hpp"
 
 #include "global.hpp"

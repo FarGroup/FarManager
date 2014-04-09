@@ -715,6 +715,14 @@ BOOL DeleteFile(const string& FileName)
 	{
 		Result = Global->Elevation->fDeleteFile(strNtName);
 	}
+
+	if (!Result && api::GetFileAttributes(strNtName) == INVALID_FILE_ATTRIBUTES)
+	{
+		// Someone deleted it already,
+		// but job is done, no need to report error.
+		Result = true;
+	}
+
 	return Result;
 }
 
@@ -726,6 +734,14 @@ BOOL RemoveDirectory(const string& DirName)
 	{
 		Result = Global->Elevation->fRemoveDirectory(strNtName);
 	}
+
+	if (!Result && api::GetFileAttributes(strNtName) == INVALID_FILE_ATTRIBUTES)
+	{
+		// Someone deleted it already,
+		// but job is done, no need to report error.
+		Result = true;
+	}
+
 	return Result;
 }
 
@@ -1618,7 +1634,7 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	bool Result = false;
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
-	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
 	::SetLastError(Imports().RtlNtStatusToDosError(Status));
@@ -1654,7 +1670,7 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 	bool Result = false;
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
-	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	auto fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	if(CreationTime)
 	{
 		fbi->CreationTime.HighPart = CreationTime->dwHighDateTime;

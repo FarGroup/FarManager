@@ -554,6 +554,10 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 						for (size_t i = 0; i < nProcInfo; i++)
 						{
 							string tmp = rgpi[i].strAppName;
+							if (*rgpi[i].strServiceShortName)
+							{
+								tmp.append(L" [").append(rgpi[i].strServiceShortName).append(L"]");
+							}
 							tmp += L" (PID: " + std::to_wstring(rgpi[i].Process.dwProcessId);
 							HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
 							if (hProcess)

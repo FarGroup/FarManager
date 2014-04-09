@@ -87,7 +87,7 @@ public:
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
-		UINT cp = static_cast<UINT>(_wtoi(cpNum));
+		auto cp = static_cast<UINT>(_wtoi(cpNum));
 		if (cp == CP_UTF8)
 			return TRUE; // skip standard unicode
 
@@ -931,7 +931,7 @@ bool MultibyteCodepageDecoder::SetCP(UINT cp)
 	for (unsigned w=0x0000; w <= 0xffff; ++w) // only UCS2 range
 	{
 		DefUsed = FALSE;
-		wchar_t wc = static_cast<wchar_t>(w); 
+		auto wc = static_cast<wchar_t>(w);
 		int len = WideCharToMultiByte(cp, flags, &wc,1, (LPSTR)u.bf,(int)sizeof(u.bf), nullptr, pDefUsed);
 		if (len <= 0 || DefUsed)
 			continue;

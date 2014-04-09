@@ -344,7 +344,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(api::File& Device)
 		std::vector<char> Buffer(hdr.Size);
 		if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		{
-			PSTORAGE_DEVICE_DESCRIPTOR devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+			auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
 			if (devDesc->ProductIdOffset && Buffer[devDesc->ProductIdOffset])
 			{

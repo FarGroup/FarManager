@@ -548,20 +548,20 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (Param1 >= 2 && Param1 <= 17) // Fore
 			{
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
 			}
 
 			if (Param1 >= 19 && Param1 <= 34) // Back
 			{
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
 			}
 
 			if (Param1 >= 37 && Param1 <= 39)
 			{
-				FarColor* CurColor=reinterpret_cast<FarColor*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
+				auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = *CurColor;
 			}
 			break;
@@ -571,7 +571,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (Param1 >= 2 && Param1 <= 34)
 			{
 				FarColor NewColor;
-				FarColor *CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
+				auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, 0));
 				FarDialogItem DlgItem = {};
 				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				NewColor=*CurColor;

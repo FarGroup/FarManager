@@ -217,7 +217,7 @@ static int WINAPI qsortCmp(const void *one, const void *two,void *user)
 
 static int WINAPI qsortexCmp(const void *one, const void *two,void *user)
 {
-	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
+	auto helper = static_cast<QsortexHelper*>(user);
 	return helper->fcmp(one,two,helper->user);
 }
 
@@ -1256,7 +1256,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 
 static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
 {
-	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
+	auto pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 	WIN32_FIND_DATAA FindData={};
 	FindData.dwFileAttributes = FData->FileAttributes;
 	FindData.ftCreationTime = FData->CreationTime;
@@ -2258,7 +2258,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 		case DN_CTLCOLORDIALOG:
 			{
-				FarColor* Color = static_cast<FarColor*>(Param2);
+				auto Color = static_cast<FarColor*>(Param2);
 				*Color = Colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
 				ToPtr(Colors::FarColorToConsoleColor(*Color)))));
 			}
@@ -2270,9 +2270,9 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 		case DN_CTLCOLORDLGITEM:
 			{
-				FarDialogItemColors* lc = reinterpret_cast<FarDialogItemColors*>(Param2);
+				auto lc = reinterpret_cast<FarDialogItemColors*>(Param2);
 
-				oldfar::FarDialogItem* diA = CurrentDialogItemA(hDlg, Param1);
+				auto diA = CurrentDialogItemA(hDlg, Param1);
 
 				// first, emulate DIF_SETCOLOR
 				if(diA->Flags&oldfar::DIF_SETCOLOR)
@@ -3604,7 +3604,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 				{
 					std::vector<FarColor> Color(PaletteSize);
 					NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
-					LPBYTE OldColors = static_cast<LPBYTE>(Param);
+					auto OldColors = static_cast<LPBYTE>(Param);
 					std::transform(ALL_CONST_RANGE(Color), OldColors, [](const FarColor& i)
 					{
 						return static_cast<BYTE>(Colors::FarColorToConsoleColor(i));
@@ -3992,7 +3992,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,v
 		case oldfar::ECTL_ADDCOLOR:
 			if(Param)
 			{
-				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
+				auto ecA = static_cast<oldfar::EditorColor*>(Param);
 				EditorColor ec={sizeof(ec)};
 				ec.StringNumber = ecA->StringNumber;
 				ec.StartPos = ecA->StartPos;

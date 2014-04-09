@@ -138,8 +138,8 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	NTPath strName(Name);
-	static char sddata[64 * 1024];
-	PSECURITY_DESCRIPTOR sd = reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
+	static thread_local char sddata[64 * 1024];
+	auto sd = reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
 	if (GetFileSecurity(strName.data(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{

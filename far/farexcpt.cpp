@@ -85,8 +85,8 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (di.Type==DI_EDIT)
 			{
-				FarColor Color=ColorIndexToColor(COL_WARNDIALOGTEXT);
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				auto Color = ColorIndexToColor(COL_WARNDIALOGTEXT);
+				auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
 			}

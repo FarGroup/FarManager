@@ -65,12 +65,12 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			case DBT_DEVICEREMOVECOMPLETE:
 				{
 
-					PDEV_BROADCAST_HDR Pbh=reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+					auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
 					if(Pbh->dbch_devicetype==DBT_DEVTYP_VOLUME)
 					{
 						// currently we don't care what actually happened, "just a notification" is OK
 
-						//PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
+						//auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
 						Notifier().at(devices_notify).notify(std::make_unique<payload>());
 					}

@@ -1300,7 +1300,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 {
 	if (ModalType == MODALTYPE_DIALOG || ModalType == MODALTYPE_VMENU)
 	{
-		Dialog *dlg=static_cast<Dialog*>(Global->FrameManager->GetCurrentFrame());
+		auto dlg = static_cast<Dialog*>(Global->FrameManager->GetCurrentFrame());
 		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
 		{
 			return 0;
@@ -1664,7 +1664,7 @@ char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	size_t Count = (Str.size() + 1) * sizeof(wchar_t);
-	wchar_t* Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
+	auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
 		wcscpy(Res, Str.data());
@@ -1681,8 +1681,8 @@ void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArray, con
 
 	if (Menu.Count)
 	{
-		wchar_t** Items = reinterpret_cast<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
-		GUID* Guids = reinterpret_cast<GUID*>(BufReserve(Buf, Menu.Count * sizeof(GUID), Rest, Size));
+		auto Items = reinterpret_cast<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
+		auto Guids = reinterpret_cast<GUID*>(BufReserve(Buf, Menu.Count * sizeof(GUID), Rest, Size));
 		Menu.Strings = Items;
 		Menu.Guids = Guids;
 

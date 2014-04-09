@@ -2306,7 +2306,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType() == FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
 			{
 				PanelInfo Info;
-				FileList* DestPanel = static_cast<FileList*>(this);
+				auto DestPanel = static_cast<FileList*>(this);
 				DestPanel->PluginGetPanelInfo(Info);
 				Result = static_cast<int>(DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem), static_cast<FarGetPluginPanelItem*>(Param2)));
 			}

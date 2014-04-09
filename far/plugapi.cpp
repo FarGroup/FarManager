@@ -258,7 +258,7 @@ BOOL WINAPI apiShowHelp(
 		}
 		else
 		{
-			Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName));
+			auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName));
 			if (plugin)
 			{
 				Flags|=FHELP_CUSTOMPATH;
@@ -617,7 +617,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETPROGRESSVALUE:
 		{
 			BOOL Result=FALSE;
-			ProgressValue* PV=static_cast<ProgressValue*>(Param2);
+			auto PV = static_cast<ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
 				Taskbar().SetProgressValue(PV->Completed,PV->Total);
@@ -638,7 +638,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				BOOL Result=FALSE;
 				if(Param2)
 				{
-					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param2);
+					auto& Rect = *static_cast<PSMALL_RECT>(Param2);
 					if(Global->Opt->WindowMode)
 					{
 						Result=Console().GetWorkingRect(Rect);
@@ -665,7 +665,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				BOOL Result=FALSE;
 				if(Param2)
 				{
-					COORD& Pos=*static_cast<PCOORD>(Param2);
+					auto& Pos = *static_cast<PCOORD>(Param2);
 					Result=Console().GetCursorPosition(Pos);
 				}
 				return Result;
@@ -677,7 +677,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				BOOL Result=FALSE;
 				if(Param2)
 				{
-					COORD& Pos=*static_cast<PCOORD>(Param2);
+					auto& Pos = *static_cast<PCOORD>(Param2);
 					Result=Console().SetCursorPosition(Pos);
 				}
 				return Result;
@@ -859,7 +859,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 	{
-		Dialog* dialog=static_cast<Dialog*>(hDlg);
+		auto dialog = static_cast<Dialog*>(hDlg);
 		if (Dialog::IsValid(dialog)) return dialog->SendMessage(Msg,Param1,Param2);
 	}
 	switch (Msg)
@@ -1911,8 +1911,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 
 size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name)
 {
-	string strName(Name);
-	return GetNumberOfLinks(strName);
+	return GetNumberOfLinks(Name);
 }
 
 size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize)
@@ -2167,14 +2166,10 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 		case PCTL_GETPLUGININFORMATION:
 			{
-				FarGetPluginInformation* Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
-				if (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation)))
+				auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
 				{
-					Plugin* plugin = reinterpret_cast<Plugin*>(Handle);
-					if(plugin)
-					{
-						return Global->CtrlObject->Plugins->GetPluginInformation(plugin, Info, Param1);
-					}
+					return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
 				}
 			}
 			break;
@@ -2184,7 +2179,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				size_t PluginsCount = Global->CtrlObject->Plugins->GetPluginsCount();
 				if(Param1 && Param2)
 				{
-					HANDLE* Plugins = static_cast<HANDLE*>(Param2);
+					auto Plugins = static_cast<HANDLE*>(Param2);
 					size_t Count = std::min(static_cast<size_t>(Param1), PluginsCount);
 					size_t index = 0;
 					FOR(const auto& i, *Global->CtrlObject->Plugins)
@@ -2676,12 +2671,7 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpS
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
-	if (Global->CtrlObject)
-	{
-		KeyMacro& Macro=Global->CtrlObject->Macro;
-		return Macro.CallFar(CheckCode, Data);
-	}
-	return 0;
+	return Global->CtrlObject? Global->CtrlObject->Macro.CallFar(CheckCode, Data) : 0;
 }
 
 void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *Boolean)
@@ -2692,212 +2682,37 @@ void WINAPI apiCallPlugin(MacroPluginReturn* Data, FarMacroCall** Target, int *B
 
 namespace cfunctions
 {
-	void* bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
+	typedef int(WINAPI* comparer)(const void*, const void*, void*);
+
+	static thread_local comparer bsearch_comparer;
+	static thread_local void* bsearch_param;
+
+	static int bsearch_comparer_wrapper(const void* a, const void* b)
 	{
-		if(width)
-		{
-			size_t low=0,high=nelem;
-			while(low<high)
-			{
-				size_t curr=(low+high)/2;
-				const void* ptr = (((const char*)base)+curr*width);
-				int cmp=fcmp(key,ptr,userparam);
-				if(0==cmp)
-				{
-					return const_cast<void*>(ptr);
-				}
-				else if(cmp<0)
-				{
-					high=curr;
-				}
-				else
-				{
-					low=curr+1;
-				}
-			}
-		}
-		return nullptr;
+		return bsearch_comparer(a, b, bsearch_param);
 	}
 
-	/* start qsortex */
-
-	/*
-	Copyright Prototronics, 1987
-	Totem Lake P.O. 8117
-	Kirkland, Washington 98034
-
-	(206) 820-1972
-
-	Licensed to Zortech. */
-	/*
-	Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
-	(Denver, Colorado) public domain version. */
-
-	/*    qsortex()  --  Quicksort function
-	**
-	**    Usage:   qsortex(base, nbr_elements, width_bytes, compare_function);
-	**                char *base;
-	**                unsigned int nbr_elements, width_bytes;
-	**                int (*compare_function)();
-	**
-	**    Sorts an array starting at base, of length nbr_elements, each
-	**    element of size width_bytes, ordered via compare_function; which
-	**    is called as  (*compare_function)(ptr_to_element1, ptr_to_element2)
-	**    and returns < 0 if element1 < element2, 0 if element1 = element2,
-	**    > 0 if element1 > element2.  Most of the refinements are due to
-	**    R. Sedgewick.  See "Implementing Quicksort Programs", Comm. ACM,
-	**    Oct. 1978, and Corrigendum, Comm. ACM, June 1979.
-	*/
-
-	static void iswap(int *a, int *b, size_t n_to_swap);       /* swap ints */
-	static void cswap(char *a, char *b, size_t n_to_swap);     /* swap chars */
-
-	//static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
-	int _maxspan = 7;               /* subfiles of _maxspan or fewer elements */
-	/* will be sorted by a simple insertion sort */
-
-	/* Adjust _maxspan according to relative cost of a swap and a compare.  Reduce
-	_maxspan (not less than 1) if a swap is very expensive such as when you have
-	an array of large structures to be sorted, rather than an array of pointers to
-	structures.  The default value is optimized for a high cost for compares. */
-
-#define SWAP(a,b) (*swap_fp)(a,b,n_to_swap)
-#define COMPEX(a,b,u) (*comp_fp)(a,b,u)
-#define COMP(a,b) (*comp_fp)(a,b)
-
-	typedef void (__cdecl *SWAP_FP)(void *, void *, size_t);
-
-	void __cdecl qsortex(char *base, size_t nel, size_t width,
-		int (WINAPI *comp_fp)(const void *, const void *,void*), void *user)
+	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param)
 	{
-		char *stack[40], **sp;                 /* stack and stack pointer        */
-		char *i, *j, *limit;                   /* scan and limit pointers        */
-		size_t thresh;                         /* size of _maxspan elements in   */
-		void (__cdecl  *swap_fp)(void *, void *, size_t);               /* bytes */
-		size_t n_to_swap;
-
-		if ((width % sizeof(int)) )
-		{
-			swap_fp = (SWAP_FP)cswap;
-			n_to_swap = width;
-		}
-		else
-		{
-			swap_fp = (SWAP_FP)iswap;
-			n_to_swap = width / sizeof(int);
-		}
-
-		thresh = _maxspan * width;             /* init threshold                 */
-		sp = stack;                            /* init stack pointer             */
-		limit = base + nel * width;            /* pointer past end of array      */
-
-		for (;;)                               /* repeat until done then return  */
-		{
-			while ((size_t)(limit - base) > thresh) /* if more than _maxspan elements */
-			{
-				/*swap middle, base*/
-				SWAP(((size_t)(limit - base) >> 1) -
-					((((size_t)(limit - base) >> 1)) % width) + base, base);
-				i = base + width;                /* i scans from left to right     */
-				j = limit - width;               /* j scans from right to left     */
-
-				if (COMPEX(i, j,user) > 0)              /* Sedgewick's                    */
-					SWAP(i, j);                    /*    three-element sort          */
-
-				if (COMPEX(base, j,user) > 0)           /*        sets things up          */
-					SWAP(base, j);                 /*            so that             */
-
-				if (COMPEX(i, base,user) > 0)           /*              *i <= *base <= *j */
-					SWAP(i, base);                 /* *base is the pivot element     */
-
-				for (;;)
-				{
-					do                            /* move i right until *i >= pivot */
-					i += width;
-
-					while (COMPEX(i, base,user) < 0);
-
-					do                            /* move j left until *j <= pivot  */
-					j -= width;
-
-					while (COMPEX(j, base,user) > 0);
-
-					if (i > j)                    /* break loop if pointers crossed */
-						break;
-
-					SWAP(i, j);                   /* else swap elements, keep scanning */
-				}
-
-				SWAP(base, j);                   /* move pivot into correct place  */
-
-				if (j - base > limit - i)        /* if left subfile is larger...   */
-				{
-					sp[0] = base;                 /* stack left subfile base        */
-					sp[1] = j;                    /*    and limit                   */
-					base = i;                     /* sort the right subfile         */
-				}
-				else                             /* else right subfile is larger   */
-				{
-					sp[0] = i;                    /* stack right subfile base       */
-					sp[1] = limit;                /*    and limit                   */
-					limit = j;                    /* sort the left subfile          */
-				}
-
-				sp += 2;                        /* increment stack pointer        */
-			}
-
-			/* Insertion sort on remaining subfile. */
-			i = base + width;
-
-			while (i < limit)
-			{
-				j = i;
-
-				while (j > base && COMPEX(j - width, j,user) > 0)
-				{
-					SWAP(j - width, j);
-					j -= width;
-				}
-
-				i += width;
-			}
-
-			if (sp > stack)    /* if any entries on stack...     */
-			{
-				sp -= 2;         /* pop the base and limit         */
-				base = sp[0];
-				limit = sp[1];
-			}
-			else              /* else stack empty, all done     */
-				break;          /* Return. */
-		}
+		bsearch_comparer = user_comparer;
+		bsearch_param = user_param;
+		return std::bsearch(key, base, nelem, width, bsearch_comparer_wrapper);
 	}
 
-	static void iswap(int *a, int *b, size_t n_to_swap)   /* swap ints */
+	static thread_local comparer qsort_comparer;
+	static thread_local void* qsort_param;
+
+	static int qsort_comparer_wrapper(const void* a, const void* b)
 	{
-		do
-		{
-			int tmp = *a;
-			*a = *b;
-			*b = tmp;
-			a++; b++;
-		}
-		while (--n_to_swap);
+		return qsort_comparer(a, b, bsearch_param);
 	}
 
-	static void cswap(char *a, char *b, size_t n_to_swap)  /* swap chars */
+	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param)
 	{
-		do
-		{
-			char tmp = *a;
-			*a = *b;
-			*b = tmp;
-			a++; b++;
-		}
-		while (--n_to_swap);
+		qsort_comparer = user_comparer;
+		qsort_param = user_param;
+		return std::qsort(base, nel, width, qsort_comparer_wrapper);
 	}
-
-	/* end qsortex */
 };
 
 };

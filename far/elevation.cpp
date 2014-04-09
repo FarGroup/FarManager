@@ -458,7 +458,7 @@ struct EAData: NonCopyable
 
 void ElevationApproveDlgSync(LPVOID Param)
 {
-	EAData* Data=static_cast<EAData*>(Param);
+	auto Data = static_cast<EAData*>(Param);
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{

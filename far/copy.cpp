@@ -807,9 +807,9 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 			if (Dlg->SendMessage(DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
 			{
-				MOUSE_EVENT_RECORD *mer=&reinterpret_cast<INPUT_RECORD*>(Param2)->Event.MouseEvent;
+				auto& mer = reinterpret_cast<INPUT_RECORD*>(Param2)->Event.MouseEvent;
 
-				if (Dlg->SendMessage(DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO && mer->dwButtonState && !(mer->dwEventFlags&MOUSE_MOVED))
+				if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, 0) == CM_ASKRO && mer.dwButtonState && !(mer.dwEventFlags & MOUSE_MOVED))
 				{
 					Dlg->SendMessage(DM_SWITCHRO,0,0);
 					return FALSE;
@@ -3550,10 +3550,13 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						break;
 				}
 
-				FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,nullptr,nullptr, false);
+				NamesList List;
+				List.AddName(*WFN[0]);
+				List.AddName(*WFN[1]);
+
+				FileViewer Viewer(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Viewer.SetDynamicallyBorn(false);
-				// а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
-				Viewer.SetTempViewName(L"nul",FALSE);
+
 				Global->FrameManager->EnterModalEV();
 				Global->FrameManager->ExecuteModal();
 				Global->FrameManager->ExitModalEV();
@@ -3616,7 +3619,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		break;
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
@@ -4037,7 +4040,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 	bool Abort = false;
-	CopyProgress* CP = static_cast<CopyProgress*>(lpData);
+	auto CP = static_cast<CopyProgress*>(lpData);
 	if (CP->Cancelled())
 	{
 		// // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));

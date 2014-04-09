@@ -219,11 +219,11 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 {
 	try
 	{
-		const IMAGE_DOS_HEADER* pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
+		auto pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
 		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
 			return false;
 
-		const IMAGE_NT_HEADERS* pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
+		auto pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
 
 		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
 			return false;
@@ -246,7 +246,7 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 		if (!dwExportAddr)
 			return false;
 
-		PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pPEHeader);
+		auto pSection = IMAGE_FIRST_SECTION(pPEHeader);
 
 		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
 		{
@@ -254,8 +254,8 @@ bool NativePluginModel::IsPlugin2(const void* Module)
 				((pSection[i].VirtualAddress <= dwExportAddr) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)))
 			{
 				int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
-				const IMAGE_EXPORT_DIRECTORY* pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(reinterpret_cast<const char*>(Module) + dwExportAddr - nDiff);
-				const DWORD* pNames = reinterpret_cast<const DWORD*>(reinterpret_cast<const char*>(Module) + pExportDir->AddressOfNames-nDiff);
+				auto pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(reinterpret_cast<const char*>(Module) + dwExportAddr - nDiff);
+				auto pNames = reinterpret_cast<const DWORD*>(reinterpret_cast<const char*>(Module) + pExportDir->AddressOfNames-nDiff);
 				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
 				{
 					if (FindExport(reinterpret_cast<const char *>(Module) + pNames[n]-nDiff))

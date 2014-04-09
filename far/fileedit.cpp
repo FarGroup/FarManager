@@ -193,7 +193,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			{
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				UINT cp = *reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
+				auto cp = *reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
 				if (cp != codepage)
 				{
@@ -2456,7 +2456,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			EditorBookmarks *ebm = static_cast<EditorBookmarks*>(Param2);
+			auto ebm = static_cast<EditorBookmarks*>(Param2);
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
 				size_t size;

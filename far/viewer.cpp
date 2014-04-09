@@ -1038,16 +1038,7 @@ const string& Viewer::GetTitle(string &strName)
 	}
 	else
 	{
-		if (!IsAbsolutePath(strFileName))
-		{
-			string strPath(ViewNamesList.GetCurDir());
-			AddEndSlash(strPath);
-			strName = strPath+strFileName;
-		}
-		else
-		{
-			strName = strFileName;
-		}
+		strName = strFileName;
 	}
 
 	return strName;
@@ -1535,26 +1526,18 @@ int Viewer::ProcessKey(int Key)
 			if (strTempViewName.empty())
 			{
 				string strName;
-				string strShortName;
+
 				bool NextFileFound;
 
-				if (Key==KEY_ADD)
-					NextFileFound=ViewNamesList.GetNextName(strName, strShortName);
+				if (Key == KEY_ADD)
+					NextFileFound = ViewNamesList.GetNextName(strName);
 				else
-					NextFileFound=ViewNamesList.GetPrevName(strName, strShortName);
+					NextFileFound=ViewNamesList.GetPrevName(strName);
 
 				if (NextFileFound)
 				{
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading
-
-					if (PointToName(strName) == strName.data())
-					{
-						string strViewDir(ViewNamesList.GetCurDir());
-
-						if (!strViewDir.empty())
-							FarChDir(strViewDir);
-					}
 
 					if (OpenFile(strName, TRUE))
 					{

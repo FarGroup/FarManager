@@ -451,7 +451,7 @@ void Options::MaskGroupsSettings()
 			}
 			int ItemPos = MasksMenu.GetSelectPos();
 			void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
-			const wchar_t* Item = static_cast<const wchar_t*>(Data);
+			auto Item = static_cast<const wchar_t*>(Data);
 			int KeyProcessed = 1;
 			switch (Key)
 			{
@@ -1396,12 +1396,12 @@ const string IntOption::ExInfo() const
 {
 	std::wostringstream oss;
 	auto v = Get();
-	wchar_t w1 = static_cast<wchar_t>(v);
+	auto w1 = static_cast<wchar_t>(v);
 	oss << L" = 0x" << std::hex << v;
 	if (w1 > 0x001f && w1 < 0x8000)
 	{
 		oss << L" = '" << w1;
-		wchar_t w2 = static_cast<wchar_t>(v >> 16); //???
+		auto w2 = static_cast<wchar_t>(v >> 16); //???
 		if (w2 > 0x001f && w2 < 0x8000)
 			oss << w2;
 		oss << L"'";
@@ -2155,7 +2155,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 	case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record= reinterpret_cast<const INPUT_RECORD*>(Param2);
+			auto record= reinterpret_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
