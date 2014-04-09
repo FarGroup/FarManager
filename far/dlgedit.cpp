@@ -739,6 +739,8 @@ __int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 void DlgEdit::EditChange(void* aParam)
 {
+	_DIALOG(CleverSysLog CL(L"DlgEdit::EditChange()"));
+	_DIALOG(SysLog(L"aParam=%p, GetClearFlag=%d",aParam, static_cast<DlgEdit*>(aParam)->GetClearFlag()));
 	static_cast<DlgEdit*>(aParam)->DoEditChange();
 }
 

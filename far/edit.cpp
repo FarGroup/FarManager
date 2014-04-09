@@ -709,7 +709,9 @@ int Edit::ProcessKey(int Key)
 	        Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_RCTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
 	{
 		LeftPos=0;
-		SetString(L"");
+		DisableCallback();
+		SetString(L""); // mantis#0001722
+		RevertCallback();
 		Show();
 	}
 
