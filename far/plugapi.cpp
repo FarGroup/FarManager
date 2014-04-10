@@ -2704,7 +2704,7 @@ namespace cfunctions
 
 	static int qsort_comparer_wrapper(const void* a, const void* b)
 	{
-		return qsort_comparer(a, b, bsearch_param);
+		return qsort_comparer(a, b, qsort_param);
 	}
 
 	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param)
