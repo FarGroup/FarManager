@@ -15,6 +15,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <stack>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>

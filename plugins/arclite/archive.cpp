@@ -426,17 +426,30 @@ void Archive::make_index() {
 
     // split path into individual directories and put them into DirList
     dir_info.parent = c_root_index;
+    stack<UInt32> dir_parents;
     size_t begin_pos = 0;
     while (begin_pos < name_pos) {
       dir_info.index = dir_index;
       size_t end_pos = begin_pos;
       while (end_pos < name_pos && !is_slash(path[end_pos])) end_pos++;
       if (end_pos != begin_pos) {
-        dir_info.name.assign(path.data() + begin_pos, end_pos - begin_pos);
-        pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
-        if (ins_pos.second)
-          dir_index++;
-        dir_info.parent = ins_pos.first->index;
+        dir_info.name=path.substr(begin_pos, end_pos - begin_pos);
+        if(dir_info.name == L"..")
+        {
+          if(!dir_parents.empty())
+          {
+          	dir_info.parent = dir_parents.top();
+            dir_parents.pop();
+          }
+        }
+        else if(dir_info.name != L".")
+        {
+          pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
+          if (ins_pos.second)
+            dir_index++;
+          dir_parents.push(dir_info.parent);
+          dir_info.parent = ins_pos.first->index;
+        }
       }
       begin_pos = end_pos + 1;
     }
