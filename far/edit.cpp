@@ -1536,20 +1536,21 @@ int Edit::InsertKey(int Key)
 	}
 	else
 	{
-		if (GetMaxLength() == -1 || StrSize < GetMaxLength())
+		if (GetMaxLength() == -1 || StrSize + 1 <= GetMaxLength())
 		{
-			if (CurPos>=StrSize)
+			if (CurPos>StrSize)
 			{
-				if (!(NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof(wchar_t))))
+				if (!(NewStr=(wchar_t *)xf_realloc(Str,(CurPos+1)*sizeof(wchar_t))))
 					return FALSE;
 
 				Str=NewStr;
 				wmemset(Str + StrSize, L' ', CurPos - StrSize);
-				Str[CurPos + 1] = 0;
-				StrSize=CurPos+1;
+				Str[CurPos] = 0;
+				StrSize=CurPos;
 			}
-			else if (!Flags.Check(FEDITLINE_OVERTYPE))
-				StrSize++;
+
+			if (!Flags.Check(FEDITLINE_OVERTYPE) || CurPos >= StrSize)
+				++StrSize;
 
 			if (Key==KEY_TAB && (GetTabExpandMode()==EXPAND_NEWTABS || GetTabExpandMode()==EXPAND_ALLTABS))
 			{
@@ -1559,7 +1560,7 @@ int Edit::InsertKey(int Key)
 			}
 
 			if (!(NewStr=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t))))
-				return TRUE;
+				return FALSE;
 
 			Str=NewStr;
 
@@ -1913,7 +1914,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			}
 		}
 
-		if (GetMaxLength() == -1 || StrSize+Length <= GetMaxLength())
+		if (GetMaxLength() == -1 || StrSize + Length <= GetMaxLength())
 		{
 			if (CurPos>StrSize)
 			{
@@ -1922,7 +1923,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 
 				this->Str=NewStr;
 				wmemset(this->Str + StrSize, L' ', CurPos - StrSize);
-				this->Str[CurPos + 1] = 0;
+				this->Str[CurPos] = 0;
 				StrSize=CurPos;
 			}
 

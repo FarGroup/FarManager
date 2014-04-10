@@ -491,25 +491,33 @@ int SubstFileName(const wchar_t *DlgTitle,
 
 int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstData)
 {
-	const size_t MaxSize=20;
 	const wchar_t *Str=strStr.data();
 	const wchar_t * const StartStr=Str;
 
-	std::vector<DialogItemEx> DlgData(MaxSize + 2);
-	FormatString HistoryName[MaxSize];
-	int StrPos[128],StrEndPos[128],StrPosSize=0;
+	// TODO: use DialogBuilder
 
-	// BUGBUG
-	size_t DlgSize = 0;
+	std::vector<DialogItemEx> DlgData;
+	DlgData.reserve(30);
 
-	DlgData[DlgSize].Type=DI_DOUBLEBOX;
-	DlgData[DlgSize].X1=3;
-	DlgData[DlgSize].Y1=1;
-	DlgData[DlgSize].X2=72;
-	DlgData[DlgSize].strData = DlgTitle?DlgTitle:L"";
-	DlgSize++;
+	struct pos_item
+	{
+		size_t StrPos;
+		size_t StrEndPos;
+	};
+	std::vector<pos_item> Positions;
+	Positions.reserve(128);
 
-	while (*Str && DlgSize<MaxSize)
+	{
+		DialogItemEx Item;
+		Item.Type = DI_DOUBLEBOX;
+		Item.X1 = 3;
+		Item.Y1 = 1;
+		Item.X2 = 72;
+		Item.strData = NullToEmpty(DlgTitle);
+		DlgData.emplace_back(Item);
+	}
+
+	while (*Str)
 	{
 		if (*(Str++)!=L'!')
 			continue;
@@ -536,30 +544,34 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 			return 0;
 		}
 
-		StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
-		StrPos[StrPosSize++]=(int)(Str-StartStr-2);
-		DlgData[DlgSize].Type=DI_TEXT;
-		DlgData[DlgSize].X1=5;
-		DlgData[DlgSize].Y1=DlgData[DlgSize].Y2=DlgSize+1;
-		DlgData[DlgSize+1].Type=DI_EDIT;
-		DlgData[DlgSize+1].X1=5;
-		DlgData[DlgSize+1].X2=70;
-		DlgData[DlgSize+1].Y1=DlgData[DlgSize+1].Y2=DlgSize+2;
-		DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
-		size_t HistoryNumber=(DlgSize-1)/2;
-		HistoryName[HistoryNumber] << L"UserVar" << HistoryNumber;
-		DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
-
-		if (!DlgSize)
 		{
-			DlgData[DlgSize+1].Flags|=DIF_DEFAULTBUTTON;
-			DlgData[DlgSize+1].Flags|=DIF_FOCUS;
+			pos_item Item = {Str - StartStr - 2, Str - StartStr - 2 + ii};
+			Positions.emplace_back(Item);
+		}
+
+		{
+			DialogItemEx Item;
+			Item.Type = DI_TEXT;
+			Item.X1 = 5;
+			Item.Y1 = Item.Y2 = DlgData.size() + 1;
+			DlgData.emplace_back(Item);
+		}
+
+		{
+			DialogItemEx Item;
+			Item.Type = DI_EDIT;
+			Item.X1 = 5;
+			Item.X2 = 70;
+			Item.Y1 = Item.Y2 = DlgData.size() + 1;
+			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
+			Item.strHistory = L"UserVar" + std::to_wstring((DlgData.size() - 1) / 2);
+			DlgData.emplace_back(Item);
 		}
 
 		string strTitle;
 
 		if (scr > 2)          // if between !? and ? exist some
-			strTitle.append(Str,scr-2);
+			strTitle.assign(Str,scr-2);
 
 		size_t hist_correct = 0;
 
@@ -572,8 +584,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 				if (p1)
 				{
-					HistoryName[HistoryNumber].assign(p,p1-p);
-					DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
+					DlgData.back().strHistory.assign(p,p1-p);
 					strTitle = ++p1;
 					hist_correct = p1 - p + 1;
 				}
@@ -586,14 +597,18 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 		else if ((end_t - beg_t) > 1) //if between ( and ) exist some
 		{
-			string strTitle2;
-			string strTitle3;
-			strTitle2.append(strTitle.data()+(end_t-2)+1-hist_correct,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
+			// !?$zz$xxxx(fffff)ddddd
 			//                  ^   ^
-			strTitle3.append(strTitle.data()+(beg_t-2)+1-hist_correct,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
+			string strTitle2 = strTitle.substr(end_t - 2 + 1 - hist_correct, scr - end_t - 1);
+
+			// !?$zz$xxxx(ffffff)ddddd
 			//            ^    ^
-			strTitle.resize(beg_t-2-hist_correct);    // !?$zz$xxxx(fffff)ddddd
+			string strTitle3 = strTitle.substr(beg_t - 2 + 1 - hist_correct, end_t - beg_t - 1);
+
+			// !?$zz$xxxx(fffff)ddddd
 			//       ^  ^
+			strTitle.resize(beg_t - 2 - hist_correct);
+
 			string strTmp;
 			const wchar_t *CurStr = strTitle3.data();
 
@@ -615,7 +630,8 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		//do it - типа здесь все уже раскрыто и преобразовано
-		DlgData[DlgSize].strData = strTitle;
+		DlgData[DlgData.size() - 2].strData = api::env::expand_strings(strTitle);
+
 		// «аполн€ем поле ввода заданным шаблоном - если есть
 		string strTxt;
 
@@ -628,14 +644,18 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 		else if ((end_s - beg_s) > 1) //if between ( and ) exist some
 		{
-			string strTxt2;
-			string strTxt3;
-			strTxt2.assign(strTxt.data()+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+			// !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                                  ^   ^
-			strTxt3.assign(strTxt.data()+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
+			string strTxt2 = strTxt.substr(end_s - scr, end - end_s - 1);
+
+			// !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
 			//                              ^  ^
-			strTxt.resize(beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+			string strTxt3 = strTxt.substr(beg_s - scr, end_s - beg_s - 1);
+
+			// !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                        ^  ^
+			strTxt.resize(beg_s - scr - 1);
+
 			string strTmp;
 			const wchar_t *CurStr = strTxt3.data();
 
@@ -647,7 +667,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 				}
 				else
 				{
-					strTmp.append(CurStr,1);
+					strTmp.push_back(*CurStr);
 					CurStr++;
 				}
 			}
@@ -656,30 +676,47 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 			strTxt += strTxt2;
 		}
 
-		DlgData[DlgSize+1].strData = strTxt;
-		DlgData[DlgSize].strData = api::env::expand_strings(DlgData[DlgSize].strData);
-		DlgSize+=2;
+		DlgData.back().strData = strTxt;
 	}
 
-	if (DlgSize <= 1)
+	if (DlgData.empty())
 	{
 		return 0;
 	}
 
+	{
+		DialogItemEx Item;
+		Item.Type = DI_TEXT;
+		Item.Flags = DIF_SEPARATOR;
+		Item.Y1 = Item.Y2 = DlgData.size() + 1;
+		DlgData.emplace_back(Item);
+	}
+
+	{
+		DialogItemEx Item;
+		Item.Type = DI_BUTTON;
+		Item.Flags = DIF_DEFAULTBUTTON|DIF_CENTERGROUP;
+		Item.Y1 = Item.Y2 = DlgData.size() + 1;
+		Item.strData = MSG(MOk);
+		DlgData.emplace_back(Item);
+
+		Item.strData = MSG(MCancel);
+		Item.Flags &= ~DIF_DEFAULTBUTTON;
+		DlgData.emplace_back(Item);
+	}
+
 	// correct Dlg Title
-	DlgData[0].Y2=DlgSize+1;
-	// BUGBUG
-	DlgData.resize(DlgSize);
+	DlgData[0].Y2 = DlgData.size();
 
 	int ExitCode;
 	{
 		Dialog Dlg(DlgData);
-		Dlg.SetPosition(-1,-1,76, static_cast<int>(DlgSize+3));
+		Dlg.SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 	}
 
-	if (ExitCode==-1)
+	if (ExitCode < 0 || ExitCode == static_cast<int>(DlgData.size() - 1))
 	{
 		strStr.clear();
 		return 0;
@@ -689,23 +726,11 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	for (Str=StartStr; *Str; Str++)
 	{
-		int Replace=-1;
-		int end_pos=0;
-
-		for (int I=0; I<StrPosSize; I++)
+		auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.StrPos == static_cast<size_t>(Str - StartStr); });
+		if (ItemIterator != Positions.cend())
 		{
-			if (Str-StartStr==StrPos[I])
-			{
-				Replace=I;
-				end_pos = StrEndPos[I];
-				break;
-			}
-		}
-
-		if (Replace!=-1)
-		{
-			strTmpStr += DlgData[Replace*2+2].strData;
-			Str = StartStr+end_pos;
+			strTmpStr += DlgData[(ItemIterator - Positions.cbegin()) * 2 + 2].strData;
+			Str = StartStr + ItemIterator->StrEndPos;
 		}
 		else
 		{
