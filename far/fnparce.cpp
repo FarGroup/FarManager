@@ -679,7 +679,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		DlgData.back().strData = strTxt;
 	}
 
-	if (DlgData.empty())
+	if (DlgData.size() <= 1)
 	{
 		return 0;
 	}
