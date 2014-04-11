@@ -3021,8 +3021,8 @@ MEditConfigSelFound
 "Vy&brať nájdené"
 
 MEditConfigCursorAtEnd
-"Курсор в конце"
-"Cursor at end"
+"Курсор в ко&нце"
+"Cu&rsor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
 upd:"Cursor at end"
