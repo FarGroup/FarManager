@@ -234,9 +234,9 @@ local function AddMacro (srctable)
   local key = type(srctable.key)=="string" and srctable.key:lower()
   if not key then return end
 
-  local keyregex = key:find("^/.+/$")
+  local keyregex = srctable.key:match("^/(.+)/$")
   if keyregex then
-    ok, keyregex = pcall(regex.new, "(" .. key:sub(2,-2) .. ")", "i")
+    ok, keyregex = pcall(regex.new, "(" .. keyregex .. ")", "i")
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
