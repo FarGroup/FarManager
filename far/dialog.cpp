@@ -3137,8 +3137,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		        MsX >= X1+Items[I].X1 && MsX <= X1+Items[I].X2)
 		{
 			VMenu *List=Items[I].ListPtr;
-			int Pos=List->GetSelectPos();
-
 			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
 				if (PrevMouseRecord.dwMousePosition.X==MsX && PrevMouseRecord.dwMousePosition.Y==MsY)
@@ -3161,9 +3159,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				if (MouseRecord.dwEventFlags!=DOUBLE_CLICK && !(Items[I].Flags&(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS)))
 				{
 					List->ProcessMouse(&MouseRecord);
-					int NewListPos=List->GetSelectPos();
-					if (List->GetLastSelectPosResult() >= 0)
-						Pos=NewListPos;
 				}
 				else
 				{
@@ -3172,26 +3167,10 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						return TRUE;
 					}
 					List->ProcessMouse(&MouseRecord);
-					int NewListPos=List->GetSelectPos();
 					int InScroolBar=(MsX==X1+Items[I].X2 && MsY >= Y1+Items[I].Y1 && MsY <= Y1+Items[I].Y2) &&
 					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar);
-#if 0
-					if (!InScroolBar       &&                                                                // вне скроллбара и
-					        NewListPos != Pos &&                                                                 // позиция изменилась и
-					        !SendMessage(DN_LISTCHANGE,I,ToPtr(NewListPos)))                      // и плагин сказал в морг
-					{
-						List->SetCheck(CheckedListItem,Pos);
-
-						if (DialogMode.Check(DMODE_SHOW) && !(Items[I].Flags&DIF_HIDDEN))
-							ShowDialog(I); // FocusPos
-					}
-					else
-#else
 					if (List->GetLastSelectPosResult() >= 0)
-#endif
 					{
-						Pos=NewListPos;
-
 						if (List->CheckFlags(VMENU_SHOWNOBOX) ||  (MsY > Y1+Items[I].Y1 && MsY < Y1+Items[I].Y2))
 						{
 							if (!InScroolBar && !(Items[I].Flags&DIF_LISTNOCLOSE))
@@ -3218,9 +3197,6 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					if ((I == FocusPos && (Items[I].Flags&DIF_LISTTRACKMOUSEINFOCUS)) || (Items[I].Flags&DIF_LISTTRACKMOUSE))
 					{
 						List->ProcessMouse(&mouse.Event.MouseEvent);
-						int NewListPos=List->GetSelectPos();
-						if (List->GetLastSelectPosResult() >= 0)
-							Pos=NewListPos;
 					}
 				}
 			}

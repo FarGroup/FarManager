@@ -545,7 +545,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		{
-			pos_item Item = {Str - StartStr - 2, Str - StartStr - 2 + ii};
+			pos_item Item = {Str - StartStr - 2U, Str - StartStr - 2U + ii};
 			Positions.emplace_back(Item);
 		}
 
