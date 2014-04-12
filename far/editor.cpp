@@ -3717,8 +3717,27 @@ BOOL Editor::Search(int Next)
 		Match=0;
 		UserBreak=0;
 		int CurPos=CurLine->GetCurPos();
-		if (!ReverseSearch && (Next || (EdOpt.F7Rules && !ReplaceMode)))
-			CurPos++;
+
+		static int iFoundPos = 0;
+
+		if (Next)
+		{
+			if (ReverseSearch)
+			{
+				if (EdOpt.SearchCursorAtEnd)
+					CurPos = iFoundPos;
+			}
+			else
+			{
+				if (!EdOpt.SearchCursorAtEnd)
+					CurPos = iFoundPos + 1;
+			}
+		}
+		else
+		{
+			if (EdOpt.F7Rules && !ReplaceMode)
+				++CurPos;
+		}
 
 		int NewNumLine;
 		if(FindAllReferences)
@@ -3760,8 +3779,6 @@ BOOL Editor::Search(int Next)
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
-		auto SavedCurPos = CurPos;
-
 		while (CurPtr != Lines.end())
 		{
 			DWORD CurTime=GetTickCount();
@@ -3791,13 +3808,11 @@ BOOL Editor::Search(int Next)
 			int SearchLength = 0;
 			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
 
-			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength) &&
-				!(ReverseSearch && CurLine == CurPtr && CurPtr->GetCurPos() + SearchLength == CurPos)
-			)
+			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
 				Match = true;
 				auto FoundPtr = CurPtr;
-				int iFoundPos = CurPtr->GetCurPos();
+				iFoundPos = CurPtr->GetCurPos();
 
 				if(FindAllReferences)
 				{
@@ -4053,10 +4068,6 @@ BOOL Editor::Search(int Next)
 				}
 			}
 		}
-
-		// for 'cursor at the end' mode
-		if (!Match)
-			CurLine->SetCurPos(SavedCurPos);
 	}
 	Show();
 
