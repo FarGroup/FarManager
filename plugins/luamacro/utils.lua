@@ -236,7 +236,7 @@ local function AddMacro (srctable)
 
   local keyregex = srctable.key:match("^/(.+)/$")
   if keyregex then
-    ok, keyregex = pcall(regex.new, "(" .. keyregex .. ")", "i")
+    ok, keyregex = pcall(regex.new, "^(" .. keyregex .. ")$", "i")
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
@@ -623,7 +623,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
       local macros_regex = areatable[1]
       if macros_regex then
         for _,m in ipairs(macros_regex) do
-          if not m.disabled and m.keyregex:match(key) == key then
+          if not m.disabled and m.keyregex:match(key) then
             if argCheckOnly then return m, areaname end
             ExamineMacro(m, areaname)
           end
