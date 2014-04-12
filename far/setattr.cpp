@@ -131,11 +131,15 @@ struct SetAttrDlgParam
 	string strOwner;
 	bool OwnerChanged;
 	// значения CheckBox`ов на момент старта диалога
-	int OriginalCBAttr[SA_ATTR_LAST-SA_ATTR_FIRST+1];
-	int OriginalCBAttr2[SA_ATTR_LAST-SA_ATTR_FIRST+1];
-	FARDIALOGITEMFLAGS OriginalCBFlag[SA_ATTR_LAST-SA_ATTR_FIRST+1];
-	FARCHECKEDSTATE OSubfoldersState, OCompressState, OEncryptState;
-	bool OLastWriteTime, OCreationTime, OLastAccessTime, OChangeTime;
+	struct cb_data
+	{
+		FARDIALOGITEMFLAGS Flags;
+		int Value;
+		bool Changed;
+	}
+	cb[SA_ATTR_LAST - SA_ATTR_FIRST + 1];
+
+	FARCHECKEDSTATE OSubfoldersState;
 };
 
 enum
@@ -155,8 +159,8 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				if(Param1!=SA_CHECKBOX_SUBFOLDERS)
 				{
-					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(reinterpret_cast<intptr_t>(Param2));
-					DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
+					DlgParam->cb[Param1 - SA_ATTR_FIRST].Value = static_cast<int>(reinterpret_cast<intptr_t>(Param2));
+					DlgParam->cb[Param1 - SA_ATTR_FIRST].Changed = true;
 				}
 				int FocusPos=static_cast<int>(Dlg->SendMessage(DM_GETFOCUS,0,0));
 				auto CompressState = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_COMPRESSED, 0));
@@ -184,14 +188,14 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					        (FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION)) &&
 					        (FocusPos == SA_CHECKBOX_COMPRESSED || FocusPos == SA_CHECKBOX_ENCRYPTED))
 					{
-						if (FocusPos == SA_CHECKBOX_COMPRESSED && DlgParam->OCompressState != CompressState) // Состояние изменилось?
+						if (FocusPos == SA_CHECKBOX_COMPRESSED)
 						{
 							if (CompressState == BSTATE_CHECKED && EncryptState)
 								Dlg->SendMessage(DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_UNCHECKED));
 							else if (CompressState == BSTATE_3STATE)
 								Dlg->SendMessage(DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_3STATE));
 						}
-						else if (FocusPos == SA_CHECKBOX_ENCRYPTED && DlgParam->OEncryptState != EncryptState) // Состояние изменилось?
+						else if (FocusPos == SA_CHECKBOX_ENCRYPTED)
 						{
 							if (EncryptState == BSTATE_CHECKED && CompressState)
 								Dlg->SendMessage(DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_UNCHECKED));
@@ -212,9 +216,6 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								Dlg->SendMessage(DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_UNCHECKED));
 							}
 						}
-
-						DlgParam->OEncryptState=EncryptState;
-						DlgParam->OCompressState=CompressState;
 					}
 
 					// если снимаем атрибуты для SubFolders
@@ -241,7 +242,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
 										Dlg->SendMessage(DM_SET3STATE,i,ToPtr(TRUE));
-										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
+										if (!DlgParam->cb[i - SA_ATTR_FIRST].Changed)
 										{
 											Dlg->SendMessage(DM_SETCHECK,i,ToPtr(BSTATE_3STATE));
 										}
@@ -257,7 +258,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
 										Dlg->SendMessage(DM_SET3STATE, i, ToPtr(FALSE));
-										Dlg->SendMessage(DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
+										Dlg->SendMessage(DM_SETCHECK, i, ToPtr(DlgParam->cb[i - SA_ATTR_FIRST].Value));
 									}
 									if(!DlgParam->OwnerChanged)
 									{
@@ -269,27 +270,17 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								api::FAR_FIND_DATA FindData;
 								if (api::GetFindDataEx(DlgParam->strSelName, FindData))
 								{
-									const struct ItemTime
+									const simple_pair<SETATTRDLG, PFILETIME> Items[] =
 									{
-										SETATTRDLG ItemId;
-										PFILETIME TimeValue;
-										bool* ParamTime;
-									}
-									Items[] =
-									{
-										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime, &DlgParam->OLastWriteTime},
-										{SA_TEXT_CREATION, &FindData.ftCreationTime, &DlgParam->OCreationTime},
-										{SA_TEXT_LASTACCESS, &FindData.ftLastAccessTime, &DlgParam->OLastAccessTime},
-										{SA_TEXT_CHANGE, &FindData.ftChangeTime, &DlgParam->OChangeTime},
+										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime},
+										{SA_TEXT_CREATION, &FindData.ftCreationTime},
+										{SA_TEXT_LASTACCESS, &FindData.ftLastAccessTime},
+										{SA_TEXT_CHANGE, &FindData.ftChangeTime},
 									};
 
 									std::for_each(CONST_RANGE(Items, i)
 									{
-										if (!*i.ParamTime)
-										{
-											Dlg->SendMessage(DM_SETATTR, i.ItemId, SubfoldersState? 0 : i.TimeValue);
-											*i.ParamTime=false;
-										}
+										Dlg->SendMessage(DM_SETATTR, i.first, SubfoldersState? 0 : i.second);
 									});
 								}
 							}
@@ -314,7 +305,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 									{
-										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
+										if (!DlgParam->cb[i - SA_ATTR_FIRST].Changed)
 										{
 											Dlg->SendMessage(DM_SET3STATE,i,ToPtr(TRUE));
 											Dlg->SendMessage(DM_SETCHECK,i,ToPtr(BSTATE_3STATE));
@@ -330,8 +321,8 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 									{
-										Dlg->SendMessage(DM_SET3STATE,i,ToPtr((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE) != 0));
-										Dlg->SendMessage(DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
+										Dlg->SendMessage(DM_SET3STATE, i, ToPtr((DlgParam->cb[i - SA_ATTR_FIRST].Flags & DIF_3STATE) != 0));
+										Dlg->SendMessage(DM_SETCHECK, i, ToPtr(DlgParam->cb[i - SA_ATTR_FIRST].Value));
 									}
 									if(!DlgParam->OwnerChanged)
 									{
@@ -363,7 +354,6 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CREATION,&FindData.ftCreationTime);
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_LASTACCESS,&FindData.ftLastAccessTime);
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CHANGE,&FindData.ftChangeTime);
-					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime=false;
 				}
 
 				Dlg->SendMessage(DM_SETFOCUS,SA_EDIT_WDATE,0);
@@ -382,7 +372,6 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_CREATION, Value);
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_LASTACCESS, Value);
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_CHANGE, Value);
-				DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime==true;
 				Dlg->SendMessage(DM_SETFOCUS,SA_EDIT_WDATE,0);
 				return TRUE;
 			}
@@ -427,24 +416,8 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(MSG(m)) + L" (" + std::to_wstring(li.ItemsNumber) + L")"));
 				}
 				break;
-				case SA_EDIT_WDATE:
-				case SA_EDIT_WTIME:
-					DlgParam->OLastWriteTime=true;
-					break;
-				case SA_EDIT_CDATE:
-				case SA_EDIT_CTIME:
-					DlgParam->OCreationTime=true;
-					break;
-				case SA_EDIT_ADATE:
-				case SA_EDIT_ATIME:
-					DlgParam->OLastAccessTime=true;
-					break;
-				case SA_EDIT_XDATE:
-				case SA_EDIT_XTIME:
-					DlgParam->OChangeTime=true;
-					break;
-				default:
-					break;
+			default:
+				break;
 			}
 
 			break;
@@ -500,22 +473,18 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				case SA_TEXT_LASTWRITE:
 					Set1=SA_EDIT_WDATE;
 					Set2=SA_EDIT_WTIME;
-					DlgParam->OLastWriteTime=true;
 					break;
 				case SA_TEXT_CREATION:
 					Set1=SA_EDIT_CDATE;
 					Set2=SA_EDIT_CTIME;
-					DlgParam->OCreationTime=true;
 					break;
 				case SA_TEXT_LASTACCESS:
 					Set1=SA_EDIT_ADATE;
 					Set2=SA_EDIT_ATIME;
-					DlgParam->OLastAccessTime=true;
 					break;
 				case SA_TEXT_CHANGE:
 					Set1=SA_EDIT_XDATE;
 					Set2=SA_EDIT_XTIME;
-					DlgParam->OChangeTime=true;
 					break;
 				case SA_EDIT_WDATE:
 				case SA_EDIT_CDATE:
@@ -1215,9 +1184,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		// запомним состояние переключателей.
 		for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 		{
-			DlgParam.OriginalCBAttr[i-SA_ATTR_FIRST]=AttrDlg[i].Selected;
-			DlgParam.OriginalCBAttr2[i-SA_ATTR_FIRST]=-1;
-			DlgParam.OriginalCBFlag[i-SA_ATTR_FIRST]=AttrDlg[i].Flags;
+			DlgParam.cb[i - SA_ATTR_FIRST].Flags = AttrDlg[i].Flags;
+			DlgParam.cb[i - SA_ATTR_FIRST].Value = AttrDlg[i].Selected;
+			DlgParam.cb[i - SA_ATTR_FIRST].Changed = false;
 		}
 		DlgParam.strOwner=AttrDlg[SA_EDIT_OWNER].strData;
 		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
@@ -1246,8 +1215,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.DialogMode=((SelCount==1&&!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount==1?MODE_FOLDER:MODE_MULTIPLE));
 		DlgParam.strSelName=strSelName;
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
-		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
-		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
 
 		Dialog Dlg(AttrDlg, SetAttrDlgProc, &DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
@@ -1313,10 +1280,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 
 					FILETIME LastWriteTime={},CreationTime={},LastAccessTime={}, ChangeTime={};
-					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-					int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-					int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-					int SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+					int SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
+					int SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+					int SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+					int SetChangeTime = ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
 					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
 
 					if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
@@ -1464,10 +1431,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 
 						FILETIME LastWriteTime,CreationTime,LastAccessTime, ChangeTime;
-						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						int SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+						bool SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
+						bool SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+						bool SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+						bool SetChangeTime = ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
 						int RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode);
 
 						if (RetCode == SETATTR_RET_ERROR)
@@ -1604,10 +1571,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-									SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-									SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-									SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strFullName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+									SetWriteTime = ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
+									SetCreationTime = ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+									SetLastAccessTime = ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+									SetChangeTime = ReadFileTime(3,strFullName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
 
 									if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 									{
