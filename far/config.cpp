@@ -1545,7 +1545,6 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", &EdOpt.DelRemovesBlocks, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", &EdOpt.EditOpenedForWrite, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", &EdOpt.CursorBeyondEOL, true},
-		{FSSF_PRIVATE,       NKeyEditor,L"EditorF7Rules", &EdOpt.F7Rules, false},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExpandTabs", &EdOpt.ExpandTabs, 0},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", &strExternalEditor, L""},
 		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", &EdOpt.FileSizeLimitLo, 0},

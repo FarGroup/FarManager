@@ -95,8 +95,6 @@ public:
 	void SetSearchCursorAtEnd(bool NewMode) { EdOpt.SearchCursorAtEnd = NewMode; }
 	void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
 	const string& GetWordDiv() const { return EdOpt.strWordDiv; }
-	void SetF7Rules(bool NewMode) { EdOpt.F7Rules = NewMode; }
-	bool GetF7Rules() const { return EdOpt.F7Rules; }
 	void SetAllowEmptySpaceAfterEof(bool NewMode) { EdOpt.AllowEmptySpaceAfterEof = NewMode; }
 	bool GetAllowEmptySpaceAfterEof() const { return EdOpt.AllowEmptySpaceAfterEof; }
 	void SetSearchSelFound(bool NewMode) { EdOpt.SearchSelFound = NewMode; }

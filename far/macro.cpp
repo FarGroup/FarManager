@@ -4436,8 +4436,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 				Ret=(__int64)EdOpt.SaveShortPos; break;
 			case 12: // char WordDiv[256];
 				Ret=TVar(EdOpt.strWordDiv); break;
-			case 13: // F7Rules;
-				Ret=(__int64)EdOpt.F7Rules; break;
 			case 14: // AllowEmptySpaceAfterEof;
 				Ret=(__int64)EdOpt.AllowEmptySpaceAfterEof; break;
 			case 15: // ShowScrollBar;
@@ -4484,8 +4482,6 @@ static bool editorsetFunc(FarMacroCall* Data)
 					EdOpt.SaveShortPos=(longState != 0); break;
 				case 12: // char WordDiv[256];
 					EdOpt.strWordDiv = Value.toString(); break;
-				case 13: // F7Rules;
-					EdOpt.F7Rules=longState != 0; break;
 				case 14: // AllowEmptySpaceAfterEof;
 					EdOpt.AllowEmptySpaceAfterEof=longState != 0; break;
 				case 15: // ShowScrollBar;

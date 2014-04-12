@@ -355,7 +355,6 @@ public:
 		IntOption CharCodeBase;
 		BoolOption SavePos;
 		BoolOption SaveShortPos;
-		BoolOption F7Rules;
 		BoolOption AllowEmptySpaceAfterEof;
 		IntOption ReadOnlyLock;
 		IntOption UndoSize;
