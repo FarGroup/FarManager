@@ -3719,7 +3719,7 @@ BOOL Editor::Search(int Next)
 		int CurPos=CurLine->GetCurPos();
 
 		static int iFoundPos = 0;
-		static int SearchLength = 0;
+		static int LastFoundLength = 0;
 
 		if (Next)
 		{
@@ -3727,8 +3727,8 @@ BOOL Editor::Search(int Next)
 			{
 				if (EdOpt.SearchCursorAtEnd)
 				{
-					if (CurPos == iFoundPos + SearchLength)
-						CurPos -= SearchLength;
+					if (CurPos == iFoundPos + LastFoundLength)
+						CurPos -= LastFoundLength;
 				}
 			}
 			else
@@ -3811,8 +3811,10 @@ BOOL Editor::Search(int Next)
 
 			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
 
+			int SearchLength;
 			if (CurPtr->Search(strSearchStr,strSearchStrUpper,strSearchStrLower,re,m.data(),strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,&SearchLength))
 			{
+				LastFoundLength = SearchLength;
 				Match = true;
 				auto FoundPtr = CurPtr;
 				iFoundPos = CurPtr->GetCurPos();
@@ -4070,12 +4072,6 @@ BOOL Editor::Search(int Next)
 					NewNumLine++;
 				}
 			}
-		}
-
-		if (!Match)
-		{
-			iFoundPos = -1;
-			SearchLength = -1;
 		}
 	}
 	Show();
