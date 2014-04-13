@@ -3,6 +3,121 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.04.2014 12:41:13 +0200 - build 3865
+
+1. Continuation of 0002645.
+
+drkns 12.04.2014 19:15:45 +0200 - build 3864
+
+1. Continuation of 0002645.
+
+2. EditorF7Rules option is removed for consistency.
+
+drkns 12.04.2014 14:26:37 +0200 - build 3863
+
+1. 0002591: Time is not set in file attribures dialog.
+
+drkns 12.04.2014 13:29:05 +0200 - build 3862
+
+1. 0002645: Repeated search (ShiftF7) works incorrectly with "Cursor at end" option
+
+2. 0002646: Repeated search (ShiftF7) moves the cursor if nothing is found
+
+zg 11.04.2014 16:02:53 +0200 - build 3861
+
+1. gcc warnings.
+
+drkns 11.04.2014 08:32:40 +0200 - build 3860
+
+1. Correction of 3859.1.
+
+drkns 10.04.2014 22:20:10 +0200 - build 3859
+
+1. The number of !?<title>?<init>! constructions in user menu is now unlimited.
+
+2. Also, Ok and Cancel buttons have been added.
+
+3. In some cases data were written beyond the bounds of a buffer in input fields.
+
+drkns 10.04.2014 09:18:34 +0200 - build 3858
+
+1. A typo in 3857.
+
+drkns 09.04.2014 22:19:59 +0200 - build 3857
+
+1. If during file/directory deletion process someone had deleted it earlier, do not show errors like "file not found", consider the job done.
+
+2. In viewer opened from the rewrite dialog, transition on Add/Subtract works.
+
+3. In editor, reverse search did not work for "Cursor at end".
+ 
+4. Debug target did not build - DN_ACTIVATEAPP was not removed completely in 3856.
+
+5. Refactoring.
+
+zg 09.04.2014 17:49:08 +0200 - build 3856
+
+1. DN_ACTIVATEAPP is removed. use DN_INPUT+FOCUS_EVENT instead.
+
+svs 09.04.2014 09:11:50 +0400 - build 3855
+
+1. Mantis#0001722: excessive DN_EDITCHANGE with false information
+
+   Details:
+
+   1. On dialog start "this" editor line has FEDITLINE_CLEARFLAG flag set (gray characters).
+      At the moment of a character entered (insertion of clearing of an input field) FEDITLINE_CLEARFLAG is reset and
+      the line is cleared. The dialog procedure coniders it as "PtrData point to an empty line".
+      Next DN_EDITCHANGE is passed with the same data that have been entered.
+
+
+   2. unchanged _technically_ is like a selected text, the difference is that information (DN_EDITCHANGE)
+      on a deleted block for the selected text is not sent to the dialog procedure.
+
+
+svs 07.04.2014 16:26:57 +0400 - build 3854
+
+1. Mantis#0001470: Edit-box: "Unchanged" state appears after it has been reset already
+
+2. Mantis#0001464: Edit-controls - reset 'unchanged', if the plugin changes the cursor position
+   'Unchanged' state is now reset also for DM_SETSELECTION and DM_SETCURSORPOS.
+
+3. DN_ACTIVATEAPP "publishing".
+   DN_ACTIVATEAPP event (0x3FFF/16383) is passed to the dialog procedure when Far Manager console window becomes active ot inactive.
+   Param1 = 1 - the window got input focus
+            0 - the window became inactive
+   Param2 = 0
+   Return = 0
+
+4. Publishing some "ancient" flags from EDITOR_FLAGS (EF_OPENMODE_*)
+    EF_OPENMODE_MASK         = 0x00000000F0000000ULL,
+      Mask for EF_OPENMODE_*
+    EF_OPENMODE_QUERY        = 0x0000000000000000ULL,
+      Query user in case of the file open in editor
+    EF_OPENMODE_NEWIFOPEN    = 0x0000000010000000ULL,
+      Open the file in a new editor if it is already open
+    EF_OPENMODE_USEEXISTING  = 0x0000000020000000ULL,
+      Switch to a file opened in the editor
+    EF_OPENMODE_BREAKIFOPEN  = 0x0000000030000000ULL,
+      Cancel the file opening operation if it is opened in an editor
+    EF_OPENMODE_RELOADIFOPEN = 0x0000000040000000ULL,
+      Reopen the file if it is already opened in an editor.
+
+   fileedit.hpp::FEOPMODEEXISTFILE are removed, EDITOR_FLAGS are used instead.
+
+
+svs 07.04.2014 11:56:50 +0400 - build 3853
+
+1. Mantis#0002641: Panel with buttons is not updated during search
+   DMODE_NEEDUPDATE flag is added - "update the whole dialog instead of a specific item when it is possible".
+
+   The solution closes the ticket.
+   To get rid of the kludge the core has to be "slightly" changed...
+   ...to introduce a message queue (for example, Frame: std::vector<Message*> MsgQueue) with consequences.
+
+2. Bug: Incorrect drawing of search results dialog (Alt-F7) on console size change.
+   'Bottom' coordinate of dialog items did not change.
+
 drkns 05.04.2014 12:56:05 +0200 - build 3852
 
 1. M#2639:  When starting smth from a panel (with the empty command line), command aliases must not apply
