@@ -2628,7 +2628,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3604690946
+mtime=3606644008
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_
@@ -2697,7 +2697,12 @@ mtime=3604690946
 #_    Result:  string
 #_
 #_DM_KEY:
-#_    Param2:  table (array of integers)
+#_    Param1:  ignored, specify *nil* for clarity.
+#_    Param2:  table (array), or string
+#_             - If it is an array then each array element should be a `tInputRecord`.
+#_             - If it is a string, then it is treated as a sequence of keys separated
+#_               by whitespaces, e.g., "a b CtrlC ShiftHome D". The syntax of keys is
+#_               the same as in Far Manager macros.
 #_    Result:  integer
 #_
 #_DM_LISTADD,
@@ -2828,6 +2833,7 @@ mtime=3604690946
 #_[far.GetDlgItem]: 54.html
 #_[far.SetDlgItem]: 72.html
 #_[editor.Select]: 42.html
+#_[tInputRecord]: 187.html
 #_
 </article>
 </node>

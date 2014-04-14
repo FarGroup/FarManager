@@ -1439,13 +1439,14 @@ void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir)
 	// determine event type
 	lua_getfield(L, pos, "EventType");
 	ir->EventType = CAST(WORD, check_env_flag(L, -1));
+	if (ir->EventType==0) ir->EventType=KEY_EVENT;
 	lua_pop(L, 1);
 	lua_pushvalue(L, pos);
 
 	switch(ir->EventType)
 	{
 		case KEY_EVENT:
-			ir->Event.KeyEvent.bKeyDown = GetOptBoolFromTable(L, "KeyDown", FALSE);
+			ir->Event.KeyEvent.bKeyDown = GetOptBoolFromTable(L, "KeyDown", TRUE);
 			ir->Event.KeyEvent.wRepeatCount = GetOptIntFromTable(L, "RepeatCount", 1);
 			ir->Event.KeyEvent.wVirtualKeyCode = GetOptIntFromTable(L, "VirtualKeyCode", 0);
 			ir->Event.KeyEvent.wVirtualScanCode = GetOptIntFromTable(L, "VirtualScanCode", 0);
@@ -3049,24 +3050,53 @@ static int far_SendDlgMessage(lua_State *L)
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid));
 			return 1;
 		}
-		case DM_KEY:   //TODO
+		case DM_KEY:
 		{
-			DWORD *arr;
-			int i;
-			luaL_checktype(L, 4, LUA_TTABLE);
-			res = lua_objlen(L, 4);
-			arr = (DWORD*)lua_newuserdata(L, res * sizeof(DWORD));
-
-			for(i=0; i<res; i++)
+			size_t i, count;
+			INPUT_RECORD *arr;
+			if (lua_istable(L,4))
 			{
-				lua_pushinteger(L,i+1);
-				lua_gettable(L,4);
-				arr[i] = (DWORD)lua_tointeger(L,-1);
-				lua_pop(L,1);
+				count = lua_objlen(L, 4);
+				arr = (INPUT_RECORD*)lua_newuserdata(L, count * sizeof(INPUT_RECORD));
+				for(i=0; i<count; i++)
+				{
+					lua_pushinteger(L,i+1);
+					lua_gettable(L,4);
+					if (!lua_istable(L,-1))
+					{
+						luaL_error(L, "element #%d in argument #4 is not a table", i+1);
+					}
+					FillInputRecord(L, -1, arr+i);
+					lua_pop(L,1);
+				}
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, count, arr));
 			}
+			else if (lua_isstring(L,4))
+			{
+				wchar_t *str = check_utf8_string(L,4,NULL);
+				wchar_t *p, *q;
+				for (p=str,count=0; *p; count++)
+				{
+					while(iswspace(*p)) p++;
+					if (*p == 0) break;
+					while(*p && !iswspace(*p)) p++;
+				}
+				arr = (INPUT_RECORD*)lua_newuserdata(L, count * sizeof(INPUT_RECORD));
+				for(i=0,p=str; i<count; i++)
+				{
+					while(iswspace(*p)) p++;
+					q = p;
+					while(!iswspace(*p)) p++;
+					*p++ = 0;
+					if(!pluginData->FSF->FarNameToInputRecord(q, arr+i))
+						luaL_argerror(L, 4, "invalid key");
+				}
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, count, arr));
+			}
+			else
+				luaL_typerror(L, 4, "table or string expected");
 
-			res = Info->SendDlgMessage(hDlg, Msg, res, arr);
-			return lua_pushinteger(L, res), 1;
+			return 1;
 		}
 		case DM_LISTADD:
 		case DM_LISTSET:
