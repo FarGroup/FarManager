@@ -3094,7 +3094,7 @@ static int far_SendDlgMessage(lua_State *L)
 				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, count, arr));
 			}
 			else
-				luaL_typerror(L, 4, "table or string expected");
+				luaL_typerror(L, 4, "table or string");
 
 			return 1;
 		}
