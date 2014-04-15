@@ -1770,6 +1770,7 @@ int FileList::ProcessKey(int Key)
 												if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 													EditList.AddName(i.strName);
 											});
+											EditList.SetCurName(strFileName);
 											ShellEditor->SetNamesList(EditList);
 										}
 
@@ -1841,6 +1842,7 @@ int FileList::ProcessKey(int Key)
 										if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 											ViewList.AddName(i.strName);
 									});
+									ViewList.SetCurName(strFileName);
 								}
 
 								FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData.data(),&ViewList);

@@ -65,3 +65,16 @@ bool NamesList::GetPrevName(string &strName)
 	strName = *CurPos;
 	return true;
 }
+
+bool NamesList::SetCurName(const string& Name)
+{
+	bool Result = false;
+	auto ItemIterator = std::find(ALL_CONST_RANGE(Names), Name);
+
+	if (ItemIterator != Names.cend())
+	{
+		CurPos = ItemIterator;
+		Result = true;
+	}
+	return Result;
+}

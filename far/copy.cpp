@@ -3553,6 +3553,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				NamesList List;
 				List.AddName(*WFN[0]);
 				List.AddName(*WFN[1]);
+				List.SetCurName(Param1 == WDLG_SRCFILEBTN? *WFN[0] : *WFN[1]);
 
 				FileViewer Viewer(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
 				Viewer.SetDynamicallyBorn(false);

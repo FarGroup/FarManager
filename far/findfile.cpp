@@ -1725,6 +1725,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									}
 								});
 								itd->Unlock();
+								ViewList.SetCurName(FindItem->FindData.strFileName);
 							}
 
 							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);

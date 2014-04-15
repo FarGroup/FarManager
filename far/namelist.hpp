@@ -49,6 +49,7 @@ public:
 	void AddName(const string& Name);
 	bool GetNextName(string& strName);
 	bool GetPrevName(string& strName);
+	bool SetCurName(const string& Name);
 
 private:
 	typedef std::vector<string> names_list;
