@@ -449,32 +449,42 @@ void FileEditor::Init(
 		return;
 	}
 
-	//int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
-	//if (FramePos!=-1)
-	if (Flags.Check(FFILEEDIT_ENABLEF6))
 	{
-		//if (Flags.Check(FFILEEDIT_ENABLEF6))
 		int FramePos = Global->FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
 
 		if (FramePos!=-1)
 		{
 			int SwitchTo=FALSE;
 
-			if (!Global->FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) ||
-			        Global->Opt->Confirm.AllowReedit)
+			if (!Global->FrameManager->GetFrame(FramePos)->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
-					const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
-					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
+					if (Flags.Check(FFILEEDIT_ENABLEF6))
+					{
+						const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
+						MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
+					}
+					else
+					{
+						const wchar_t* const Items[] = {strFullFileName.data(), MSG(MAskReload), MSG(MNewOpen), MSG(MCancel)};
+						MsgCode=Message(0, 2, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadModalId);
+						if (MsgCode == 0)
+							MsgCode=1;
+						else
+							MsgCode=-100;
+					}
 				}
 				else
 				{
-					MsgCode=(OpenModeExstFile==EF_OPENMODE_USEEXISTING)?0:
+					if (Flags.Check(FFILEEDIT_ENABLEF6))
+						MsgCode=(OpenModeExstFile==EF_OPENMODE_USEEXISTING)?0:
 					        (OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:
 					         (OpenModeExstFile==EF_OPENMODE_RELOADIFOPEN?2:-100)
 					        );
+					else
+						MsgCode=(OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:-100);
 				}
 
 				switch (MsgCode)
@@ -537,7 +547,8 @@ void FileEditor::Init(
 	*/
 	if (FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
 	{
-		Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),MSG(MOk));
+		const wchar_t* const Items[] = {MSG(MEditCanNotEditDirectory),MSG(MOk)};
+		Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorCanNotEditDirectoryId);
 		ExitCode=XC_OPEN_ERROR;
 		return;
 	}
@@ -1450,11 +1461,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				FileSizeToStr(strTempStr1, FileSize, 8);
 				FileSizeToStr(strTempStr2, MaxSize, 8);
 
-				if (Message(MSG_WARNING,2,MSG(MEditTitle),
-					Name.data(),
+				const wchar_t* const Items[] = {Name.data(),
 					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).data(),
 					(LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2)).data(),
-					MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
+					MSG(MEditROOpen), MSG(MYes),MSG(MNo)};
+
+				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorFileLongId))
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1466,7 +1478,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		else
 		{
-			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name.data(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+			const wchar_t* const Items[] = {Name.data(),MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
+			if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorFileGetSizeErrorId))
 			{
 				EditFile.Close();
 				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????

@@ -1,4 +1,33 @@
-﻿drkns 13.04.2014 12:41:13 +0200 - build 3865
+﻿svs 15.04.2014 12:37:20 +0400 - build 3866
+
+1. Mantis#0002647: DM_SETFOCUS работает неправильно в присутствии элемента с DIF_NOFOCUS
+    Перед сменой фокуса принудительно очистим флаг DIF_FOCUS у всех элементов.
+
+2. Mantis#0002608: функция Editor: не всегда учитывается что заданный файл уже может быть загружен
+
+    Если файл уже открыт, то повторное открытие в модальном режиме сопровождается сообщением 
+    "already loaded. How to open this file?" и две кнопки "{ New instance }" и "[ Cancel ]".
+    В АПИ: из режимов EF_OPENMODE_* поддерживать только EF_OPENMODE_QUERY, EF_OPENMODE_NEWIFOPEN и 
+    EF_OPENMODE_BREAKIFOPEN (т.е. те самые кнопки "New instance" и "Cancel").
+
+    (пока частичное решение)
+
+3. GUID`ы
+    EditorReloadModalId         = {D6F557E8-7E89-4895-BD75-4D3F2C30E382}  --> Dlg.Id
+    Редактор. Диалог-предупреждение переоткрытия открытого файла в модальном редакторе 
+    (у не модальных - GUID==EditorReloadId)
+
+    EditorCanNotEditDirectoryId = {CCA2C4D0-8705-4FA1-9B10-C9E3C8F37A65}  --> Dlg.Id
+    Редактор. Предупреждение о попытке редактировать каталог
+
+    EditorFileLongId            = {E3AFCD2D-BDE5-4E92-82B6-87C6A7B78FB6}  --> Dlg.Id
+    Редактор. Предупреждение о превышении размера редактируемого файла (см. настройку Editor.FileSizeLimit и Editor.FileSizeLimitHi)
+
+    EditorFileGetSizeErrorId    = {6AD4B317-C1ED-44C8-A76A-9146CA8AF984}  --> Dlg.Id
+    Редактор. Невозможно получить размер редактируемого файла (если заданы Editor.FileSizeLimit и Editor.FileSizeLimitHi)
+
+
+drkns 13.04.2014 12:41:13 +0200 - build 3865
 
 1. Продолжение 0002645.
 

@@ -3808,7 +3808,10 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		if (FocusPosNeed != -1 && CanGetFocus(Items[FocusPosNeed].Type))
 			SetFocusPos=FocusPosNeed;
 
-		Items[FocusPos].Flags&=~DIF_FOCUS;
+		std::for_each(RANGE(Items, i)
+		{
+			i.Flags&=~DIF_FOCUS;
+		});
 
 		// "снимать выделение при потере фокуса?"
 		if (IsEdit(Items[FocusPos].Type) &&
