@@ -4778,7 +4778,7 @@ external plugins and for overloading Far actions.
     ~Recording and playing-back macro commands~@KeyMacroRecPlay@
     ~Deleting a macro command~@KeyMacroDelete@
     ~Macro command settings~@KeyMacroSetting@
-    ~Установленные макросы~@KeyMacroList@
+    ~The list of installed macros~@KeyMacroList@
 
 
 @KeyMacroArea
@@ -4993,213 +4993,213 @@ to one of those key combinations, select it from the drop-down list.
 
 
 @KeyMacroList
-$ #Макросы: Список установленных макросов#
+$ #Macros: The list of installed macros#
     Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@
 действуют в текущей сессии Far Manager.
 
-  ~Общие макросы#~@KeyMacroCommonList@
+  ~Common macros#~@KeyMacroCommonList@
 
-  ~Панели~@KeyMacroShellList@
-  ~Панель быстрого просмотра~@KeyMacroQViewList@
-  ~Панель папок~@KeyMacroTreeList@
-  ~Информационная панель~@KeyMacroInfoList@
-  ~Автодополнение в панелях~@KeyMacroShellAutoCompletionList@
+  ~File panels~@KeyMacroShellList@
+  ~Quick View panel~@KeyMacroQViewList@
+  ~Tree panel~@KeyMacroTreeList@
+  ~Info panel~@KeyMacroInfoList@
+  ~Autocompletion in panels~@KeyMacroShellAutoCompletionList@
 
-  ~Быстрый поиск в панелях~@KeyMacroSearchList@
-  ~Поиск папки~@KeyMacroFindFolderList@
+  ~Fast Find in panels~@KeyMacroSearchList@
+  ~Find Folder~@KeyMacroFindFolderList@
 
-  ~Диалоги~@KeyMacroDialogList@
-  ~Автодополнение в диалогах~@KeyMacroDialogAutoCompletionList@
+  ~Dialogs~@KeyMacroDialogList@
+  ~Autocompletion in dialogs~@KeyMacroDialogAutoCompletionList@
 
-  ~Главное меню~@KeyMacroMainMenuList@
-  ~Меню выбора дисков~@KeyMacroDisksList@
-  ~Меню пользователя~@KeyMacroUserMenuList@
-  ~Прочие меню~@KeyMacroMenuList@
+  ~Main menu~@KeyMacroMainMenuList@
+  ~Change drive menu~@KeyMacroDisksList@
+  ~User menu~@KeyMacroUserMenuList@
+  ~Other menus~@KeyMacroMenuList@
 
-  ~Программа просмотра~@KeyMacroViewerList@
-  ~Редактор~@KeyMacroEditList@
+  ~Viewer~@KeyMacroViewerList@
+  ~Editor~@KeyMacroEditList@
 
-  ~Файл помощи#~@KeyMacroHelpList@
+  ~Help window#~@KeyMacroHelpList@
 
-  ~Остальные области~@KeyMacroOtherList@
+  ~Other areas~@KeyMacroOtherList@
 
 @KeyMacroCommonList
-$ #Макросы: Общие#
+$ #Macros: Common macros#
     Ниже приведены комбинации макроклавиш, действующих везде.
 
 <!Macro:Common!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroQViewList
-$ #Макросы: Панель быстрого просмотра#
+$ #Macros: Quick View panel#
     Ниже приведены комбинации макроклавиш, действующих в панели быстрого просмотра.
 
 <!Macro:Common!>
 
 <!Macro:Qview!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroMainMenuList
-$ #Макросы: Главное меню#
+$ #Macros: Main Menu#
     Ниже приведены комбинации макроклавиш, действующих в главном меню.
 
 <!Macro:Common!>
 
 <!Macro:MainMenu!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroTreeList
-$ #Макросы: Панель папок#
+$ #Macros: Tree Panel#
     Ниже приведены комбинации макроклавиш, действующих в панели папок.
 
 <!Macro:Common!>
 
 <!Macro:Tree!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroDialogList
-$ #Макросы: Диалоги#
+$ #Macros: Dialogs#
     Ниже приведены комбинации макроклавиш, действующих в диалогах.
 
 <!Macro:Common!>
 
 <!Macro:Dialog!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroInfoList
-$ #Макросы: Информационная панель#
+$ #Macros: Info Panel#
     Ниже приведены комбинации макроклавиш, действующих в информационной панели.
 
 <!Macro:Common!>
 
 <!Macro:Info!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroDisksList
-$ #Макросы: Меню выбора дисков#
+$ #Macros: Change Drive menu#
     Ниже приведены комбинации макроклавиш, действующих в меню выбора дисков.
 
 <!Macro:Common!>
 
 <!Macro:Disks!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroUserMenuList
-$ #Макросы: Меню пользователя#
+$ #Macros: User Menu#
     Ниже приведены комбинации макроклавиш, действующих в пользовательском меню.
 
 <!Macro:Common!>
 
 <!Macro:UserMenu!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroShellList
-$ #Макросы: Панели#
+$ #Macros: File panels#
     Ниже приведены комбинации макроклавиш, действующих в файловых панелях.
 
 <!Macro:Common!>
 
 <!Macro:Shell!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroSearchList
-$ #Макросы: Быстрый поиск в панелях#
+$ #Macros: Fast Find in panels#
     Ниже приведены комбинации макроклавиш, действующих в быстром поиске файловых панелей.
 
 <!Macro:Common!>
 
 <!Macro:Search!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroFindFolderList
-$ #Макросы: Поиск папки#
+$ #Macros: Find Folder#
     Ниже приведены комбинации макроклавиш, действующих в поиске папки.
 
 <!Macro:Common!>
 
 <!Macro:FindFolder!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroEditList
-$ #Макросы: Редактор#
+$ #Macros: Editor#
     Macro-commands available in the editor are listed below.
 
 <!Macro:Common!>
 
 <!Macro:Editor!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroViewerList
-$ #Макросы: Программа просмотра#
+$ #Macros: Viewer#
     Macro-commands available in the viewer are listed below.
 
 <!Macro:Common!>
 
 <!Macro:Viewer!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroMenuList
-$ #Макросы: Прочие меню#
+$ #Macros: Other menus#
     Ниже приведены комбинации макроклавиш, действующих в прочих меню.
 
 <!Macro:Common!>
 
 <!Macro:Menu!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroHelpList
-$ #Макросы: Файл помощи#
+$ #Macros: Help window#
     Ниже приведены комбинации макроклавиш, действующих в файле помощи.
 
 <!Macro:Common!>
 
 <!Macro:Help!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroOtherList
-$ #Макросы: Остальные области#
+$ #Macros: Other areas#
     Ниже приведены комбинации макроклавиш, действующих в других областях: копировании текста с экрана, вертикальных меню.
 
 <!Macro:Common!>
 
 <!Macro:Other!>
 
-    См. также ~"Список установленных макросов"~@KeyMacroList@
+    See also ~"The list of installed macros"~@KeyMacroList@
 
 @KeyMacroShellAutoCompletionList
-$ #Макросы: Автодополнение в панелях#
+$ #Macros: Autocompletion in panels#
     Ниже приведены комбинации макроклавиш, действующих в автодополнении в панелях.
 
 <!Macro:Common!>
 
 <!Macro:ShellAutoCompletion!>
 
-    См. также ~«Список установленных макросов»~@KeyMacroList@
+    See also ~«The list of installed macros»~@KeyMacroList@
 
 @KeyMacroDialogAutoCompletionList
-$ #Макросы: Автодополнение в диалогах#
+$ #Macros: Autocompletion in dialogs#
     Ниже приведены комбинации макроклавиш, действующих в автодополнении в диалогах.
 
 <!Macro:Common!>
 
 <!Macro:DialogAutoCompletion!>
 
-    См. также ~«Список установленных макросов»~@KeyMacroList@
+    See also ~«The list of installed macros»~@KeyMacroList@
 
 
 @FarConfig
@@ -5292,7 +5292,7 @@ $ #far:config System.AllCtrlAltShiftRule#
 
     По умолчанию разрешено гашение всех объектов.
 
-    См. также ~System.CASRule~@System.CASRule@
+    See also ~System.CASRule~@System.CASRule@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
@@ -5309,7 +5309,7 @@ $ #far:config System.CASRule#
 
     По умолчанию разрешены обе комбинации.
 
-    См. также ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@
+    See also ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
@@ -5515,7 +5515,7 @@ $ #far:config System.Executor.ComSpecParams#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-    См. также ~System.Executor.NotQuotedShell~@System.Executor.NotQuotedShell@, 
+    See also ~System.Executor.NotQuotedShell~@System.Executor.NotQuotedShell@, 
 ~System.Executor.ExcludeCmds~@System.Executor.ExcludeCmds@
 
 @System.Executor.BatchType
@@ -5585,7 +5585,7 @@ $ #far:config System.QuotedSymbols#
 
     По умолчанию значение = " &()[]{}^=;!'+,`" и символ с кодом 0xA0.
 
-    См. также ~System.QuotedName~@System.QuotedName@
+    See also ~System.QuotedName~@System.QuotedName@
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
