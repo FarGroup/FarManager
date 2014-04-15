@@ -4994,8 +4994,8 @@ to one of those key combinations, select it from the drop-down list.
 
 @KeyMacroList
 $ #Macros: The list of installed macros#
-    Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@
-действуют в текущей сессии Far Manager.
+    The following is a list of topics where you can find out which ~macros~@KeyMacro@
+are available in the current Far Manager session.
 
   ~Common macros#~@KeyMacroCommonList@
 
@@ -5025,7 +5025,7 @@ $ #Macros: The list of installed macros#
 
 @KeyMacroCommonList
 $ #Macros: Common macros#
-    Ниже приведены комбинации макроклавиш, действующих везде.
+    The following macro keys are available in all areas.
 
 <!Macro:Common!>
 
@@ -5033,7 +5033,7 @@ $ #Macros: Common macros#
 
 @KeyMacroQViewList
 $ #Macros: Quick View panel#
-    Ниже приведены комбинации макроклавиш, действующих в панели быстрого просмотра.
+    The following macro keys are available in Quick View panel.
 
 <!Macro:Common!>
 
@@ -5043,7 +5043,7 @@ $ #Macros: Quick View panel#
 
 @KeyMacroMainMenuList
 $ #Macros: Main Menu#
-    Ниже приведены комбинации макроклавиш, действующих в главном меню.
+    The following macro keys are available in Main Menu.
 
 <!Macro:Common!>
 
@@ -5053,7 +5053,7 @@ $ #Macros: Main Menu#
 
 @KeyMacroTreeList
 $ #Macros: Tree Panel#
-    Ниже приведены комбинации макроклавиш, действующих в панели папок.
+    The following macro keys are available in Tree Panel.
 
 <!Macro:Common!>
 
@@ -5063,7 +5063,7 @@ $ #Macros: Tree Panel#
 
 @KeyMacroDialogList
 $ #Macros: Dialogs#
-    Ниже приведены комбинации макроклавиш, действующих в диалогах.
+    The following macro keys are available in dialogs.
 
 <!Macro:Common!>
 
@@ -5073,7 +5073,7 @@ $ #Macros: Dialogs#
 
 @KeyMacroInfoList
 $ #Macros: Info Panel#
-    Ниже приведены комбинации макроклавиш, действующих в информационной панели.
+    The following macro keys are available in Info Panel.
 
 <!Macro:Common!>
 
@@ -5083,7 +5083,7 @@ $ #Macros: Info Panel#
 
 @KeyMacroDisksList
 $ #Macros: Change Drive menu#
-    Ниже приведены комбинации макроклавиш, действующих в меню выбора дисков.
+    The following macro keys are available in Change Drive menu.
 
 <!Macro:Common!>
 
@@ -5093,7 +5093,7 @@ $ #Macros: Change Drive menu#
 
 @KeyMacroUserMenuList
 $ #Macros: User Menu#
-    Ниже приведены комбинации макроклавиш, действующих в пользовательском меню.
+    The following macro keys are available in User Menu.
 
 <!Macro:Common!>
 
@@ -5103,7 +5103,7 @@ $ #Macros: User Menu#
 
 @KeyMacroShellList
 $ #Macros: File panels#
-    Ниже приведены комбинации макроклавиш, действующих в файловых панелях.
+    The following macro keys are available in file panels.
 
 <!Macro:Common!>
 
@@ -5113,7 +5113,7 @@ $ #Macros: File panels#
 
 @KeyMacroSearchList
 $ #Macros: Fast Find in panels#
-    Ниже приведены комбинации макроклавиш, действующих в быстром поиске файловых панелей.
+    The following macro keys are available in Fast Find dialog.
 
 <!Macro:Common!>
 
@@ -5123,7 +5123,7 @@ $ #Macros: Fast Find in panels#
 
 @KeyMacroFindFolderList
 $ #Macros: Find Folder#
-    Ниже приведены комбинации макроклавиш, действующих в поиске папки.
+    The following macro keys are available in Find Folder window.
 
 <!Macro:Common!>
 
@@ -5153,7 +5153,7 @@ $ #Macros: Viewer#
 
 @KeyMacroMenuList
 $ #Macros: Other menus#
-    Ниже приведены комбинации макроклавиш, действующих в прочих меню.
+    The following macro keys are available in other menus.
 
 <!Macro:Common!>
 
@@ -5163,7 +5163,7 @@ $ #Macros: Other menus#
 
 @KeyMacroHelpList
 $ #Macros: Help window#
-    Ниже приведены комбинации макроклавиш, действующих в файле помощи.
+    The following macro keys are available in Help window.
 
 <!Macro:Common!>
 
@@ -5173,7 +5173,7 @@ $ #Macros: Help window#
 
 @KeyMacroOtherList
 $ #Macros: Other areas#
-    Ниже приведены комбинации макроклавиш, действующих в других областях: копировании текста с экрана, вертикальных меню.
+    The following macro keys are available in other areas: screen grabber, vertical menus.
 
 <!Macro:Common!>
 
@@ -5183,7 +5183,7 @@ $ #Macros: Other areas#
 
 @KeyMacroShellAutoCompletionList
 $ #Macros: Autocompletion in panels#
-    Ниже приведены комбинации макроклавиш, действующих в автодополнении в панелях.
+    The following macro keys are available in Autocompletion in panels.
 
 <!Macro:Common!>
 
@@ -5193,7 +5193,7 @@ $ #Macros: Autocompletion in panels#
 
 @KeyMacroDialogAutoCompletionList
 $ #Macros: Autocompletion in dialogs#
-    Ниже приведены комбинации макроклавиш, действующих в автодополнении в диалогах.
+    The following macro keys are available in Autocompletion in dialogs.
 
 <!Macro:Common!>
 
