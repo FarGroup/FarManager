@@ -102,19 +102,44 @@ local function writeTopicFooter(fp_out, fp_template)
   end
 end
 
-local function postprocess_article (part1, part2)
+local searchPattern = rex.new( [[
+  \<a\s.*?\</a\>  |
+  \w+(?:\.\w+)+   |
+  &quot;\w+&quot; |
+  "\w+"           |
+  (\w+)
+]], "ix")
+
+local function postprocess_article (part1, part2, is_markdown)
   if part2 then
-    local links = {}
+    local links, links2 = {}, {}
     for line in part2:gmatch("[^\n]+") do
-      local name, url = line:match("^%s*%[([^%]]+)%]%s*:%s*(%S+)")
-      if name then links[name] = url end
+      local name, url
+      if not is_markdown then
+        name, url = line:match("^%s*%[([^%]]+)%]%s*:%s*(%S+)")
+      end
+      if name then
+        links[name] = url
+      else
+        name, url = line:match("^%s*{([^}]+)}%s*:%s*(%S+)")
+        if name then links2[name] = url end
+      end
     end
+
     part1 = part1:gsub("`([^`\n]+)`",
       function(c)
         return links[c] and ('<a href="%s">%s</a>'):format(links[c], c)
       end)
+
+    part1 = rex.gsub(part1, searchPattern,
+      function(c)
+        if c then
+          local url = links2[c:lower()]
+          if url then return '<a href="'..url..'">'..c..'</a>' end
+        end
+      end)
   end
-  return "\n<pre>"..part1.."</pre>\n"
+  return is_markdown and part1 or "\n<pre>"..part1.."</pre>\n"
 end
 
 -- For long subjects, this function is _much_ faster than subj:match("(.-)delim(.*)")
@@ -136,9 +161,12 @@ local function process_article (article)
   local line, start = article:match "^([^\n]*)\n()"
   if line == "<!--HTML-->" then
     return article, true
-  elseif line == "<markdown>" then
-    article = article:sub(start)
-    article = article:gsub("```(.-)```",
+  end
+  local is_markdown = (line == "<markdown>")
+  local part1, part2 = split1(article, "@@@")
+  if is_markdown then
+    part1 = part1:sub(start)
+    part1 = part1:gsub("```(.-)```",
       function(c)
         return lxsh.highlighters.lua(c,
           { formatter=lxsh.formatters.html,
@@ -146,10 +174,8 @@ local function process_article (article)
             colors=lxsh.colors.earendel })
       end
     )
-    article = discount(article)
-    return article, false
+    part1 = discount(part1)
   else
-    local part1, part2 = split1(article, "@@@")
     part1 = HTML_convert(part1 or article)
     part1 = rex.gsub(part1, [[ \*\*(.*?)\*\* | \*(.*?)\* | `(\*+)` ]],
       function(c1,c2,c3)
@@ -157,8 +183,8 @@ local function process_article (article)
                c2 and "<em>"     ..c2.. "</em>" or     -- make italic
                c3                                      -- literal asterisks
       end, nil, "x")
-    return postprocess_article(part1, part2), false
   end
+  return postprocess_article(part1, part2, is_markdown), false
 end
 
 -- generate: files, project, TOC and FileIndex
