@@ -63,6 +63,8 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 {
 	bool Ascii=true;
 	size_t Octets=0;
+	size_t LastOctetsPos = 0;
+	const size_t MaxCharSize = 4;
 
 	for (size_t i=0; i<Length; i++)
 	{
@@ -80,11 +82,13 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 		}
 		else
 		{
+			LastOctetsPos = i;
+
 			if (c&0x80)
 			{
 				while (c&0x80)
 				{
-					c<<=1;
+					c *= 2;
 					Octets++;
 				}
 
@@ -96,7 +100,7 @@ bool IsTextUTF8(const char* Buffer,size_t Length)
 		}
 	}
 
-	return !Octets && !Ascii;
+	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
 }
 
 GetFileString::GetFileString(api::File& SrcFile, uintptr_t CodePage) :
@@ -393,7 +397,7 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 	else if (bUseHeuristics)
 	{
 		file.SetPointer(0, nullptr, FILE_BEGIN);
-		DWORD Size=0x8000; // BUGBUG. TODO: configurable
+		DWORD Size = 0x8000; // BUGBUG. TODO: configurable
 		char_ptr Buffer(Size);
 		DWORD ReadSize = 0;
 		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
@@ -401,35 +405,25 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 
 		if (ReadResult && ReadSize)
 		{
-			int test=
-				IS_TEXT_UNICODE_STATISTICS|
-				IS_TEXT_UNICODE_REVERSE_STATISTICS|
-				IS_TEXT_UNICODE_CONTROLS|
-				IS_TEXT_UNICODE_REVERSE_CONTROLS|
-				IS_TEXT_UNICODE_ILLEGAL_CHARS|
-				IS_TEXT_UNICODE_ODD_LENGTH|
-				IS_TEXT_UNICODE_NULL_BYTES;
+			int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK;
 
-			if (IsTextUnicode(Buffer.get(), ReadSize, &test))
+			IsTextUnicode(Buffer.get(), ReadSize, &test); // return value is ignored, it's ok.
+
+			if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK))
 			{
-				if (!(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS))
+				if (test & IS_TEXT_UNICODE_UNICODE_MASK)
 				{
-					if ((test&IS_TEXT_UNICODE_NULL_BYTES) || (test&IS_TEXT_UNICODE_CONTROLS) || (test&IS_TEXT_UNICODE_REVERSE_CONTROLS))
-					{
-						if ((test&IS_TEXT_UNICODE_CONTROLS) || (test&IS_TEXT_UNICODE_STATISTICS))
-						{
-							nCodePage=CP_UNICODE;
-							bDetect=true;
-						}
-						else if ((test&IS_TEXT_UNICODE_REVERSE_CONTROLS) || (test&IS_TEXT_UNICODE_REVERSE_STATISTICS))
-						{
-							nCodePage=CP_REVERSEBOM;
-							bDetect=true;
-						}
-					}
+					nCodePage = CP_UNICODE;
+					bDetect = true;
+				}
+				else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
+				{
+					nCodePage = CP_REVERSEBOM;
+					bDetect = true;
 				}
 			}
-			else if (IsTextUTF8(Buffer.get(), ReadSize))
+
+			if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
