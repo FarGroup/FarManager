@@ -6545,7 +6545,7 @@ lv=2
 dt=Text
 nm=far.MacroExecute
 ctime=3580326848
-mtime=3580545597
+mtime=3606887981
 <article>
 #_result = far.MacroExecute (SequenceText, Flags, ...)
 #_
@@ -6572,7 +6572,7 @@ mtime=3580545597
 #_
 #_**Definitions:**
 #_  **"int64"**
-#_    Type of userdata, produced by bit64 library.
+#_    Type of userdata, produced by `bit64` library.
 #_  **"binary"**
 #_    By convention, it is a string enclosed in a table as its first element.
 #_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
@@ -6581,6 +6581,8 @@ mtime=3580545597
 #_  MacroControl(MCTL_EXECSTRING)
 #_
 #_@@@
+#_[bit64]: 405.html
+#_
 #_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
 #_{mctl_execstring}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_EXECSTRING
 #_
