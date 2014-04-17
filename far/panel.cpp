@@ -1118,8 +1118,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 		{
 			if (Global->Opt->Confirm.RemoveSUBST)
 			{
-				const wchar_t* const Items[] = {MSG(MChangeSUBSTDisconnectDriveTitle),(LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter).data(),MSG(MYes),MSG(MNo)};
-				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &SUBSTDisconnectDriveId))
+				LangString Question(MChangeSUBSTDisconnectDriveQuestion);
+				Question << DiskLetter;
+				const wchar_t* const Items[] = { Question.data(), MSG(MYes), MSG(MNo) };
+				if (Message(MSG_WARNING, 2, MSG(MChangeSUBSTDisconnectDriveTitle), Items, ARRAYSIZE(Items), nullptr, nullptr, &SUBSTDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -1219,8 +1221,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 		{
 			if (Global->Opt->Confirm.DetachVHD)
 			{
-				const wchar_t* const Items[] = {MSG(MChangeVHDDisconnectDriveTitle),(LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter).data(),MSG(MYes),MSG(MNo)};
-				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &VHDDisconnectDriveId))
+				LangString Question(MChangeVHDDisconnectDriveQuestion);
+				Question << DiskLetter;
+				const wchar_t* const Items[] = { Question.data(), MSG(MYes), MSG(MNo) };
+				if (Message(MSG_WARNING, 2, MSG(MChangeVHDDisconnectDriveTitle), Items, ARRAYSIZE(Items), nullptr, nullptr, &VHDDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}
