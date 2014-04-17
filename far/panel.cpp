@@ -313,6 +313,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 static void ConfigureChangeDriveMode()
 {
 	DialogBuilder Builder(MChangeDriveConfigure, L"ChangeDriveMode");
+	Builder.SetId(ChangeDriveModeId);
 	Builder.AddCheckbox(MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
 	Builder.AddCheckbox(MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
 	Builder.AddCheckbox(MChangeDriveShowFileSystem, Global->Opt->ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
@@ -1117,10 +1118,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 		{
 			if (Global->Opt->Confirm.RemoveSUBST)
 			{
-				if (Message(MSG_WARNING,2,
-					MSG(MChangeSUBSTDisconnectDriveTitle),
-					(LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter).data(),
-					MSG(MYes),MSG(MNo)))
+				const wchar_t* const Items[] = {MSG(MChangeSUBSTDisconnectDriveTitle),(LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter).data(),MSG(MYes),MSG(MNo)};
+				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &SUBSTDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -1220,10 +1219,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 		{
 			if (Global->Opt->Confirm.DetachVHD)
 			{
-				if (Message(MSG_WARNING, 2,
-					MSG(MChangeVHDDisconnectDriveTitle),
-					(LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter).data(),
-					MSG(MYes),MSG(MNo)))
+				const wchar_t* const Items[] = {MSG(MChangeVHDDisconnectDriveTitle),(LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter).data(),MSG(MYes),MSG(MNo)};
+				if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &VHDDisconnectDriveId))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -2503,6 +2500,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		Dialog Dlg(DCDlg);
 		Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
 		Dlg.SetHelp(L"DisconnectDrive");
+		Dlg.SetId(DisconnectDriveId);
 		Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();

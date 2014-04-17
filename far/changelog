@@ -1,4 +1,21 @@
-﻿drkns 15.04.2014 22:31:59 +0200 - build 3867
+﻿svs 17.04.2014 11:00:21 +0400 - build 3868
+
+1. GUID`ы
+
+    DisconnectDriveId           = {A1BDBEB1-2911-41FF-BC08-EEBC44040B50}  --> Dlg.Id
+    Диалог "Отключение сетевого устройства" (Del на сетевом диске в мен выбора дисков).
+
+    SUBSTDisconnectDriveId      = {75554EEB-A3A7-45FD-9795-4A85887A75A0}  --> Dlg.Id
+    Диалог "Отключение SUBST-диска"
+
+    VHDDisconnectDriveId        = {629A8CA6-25C6-498C-B3DD-0E18D1CC0BCD}  --> Dlg.Id
+    Диалог "Отключение VHD-диска"
+
+    ChangeDriveModeId           = {F87F9351-6A80-4872-BEEE-96EF80C809FB}  --> Dlg.Id
+    Диалог "Настройка меню выбора диска"
+
+
+drkns 15.04.2014 22:31:59 +0200 - build 3867
 
 1. В 3857 немного погнулся переход по +/- во вьювере.
 
