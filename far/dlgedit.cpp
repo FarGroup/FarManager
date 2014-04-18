@@ -393,7 +393,10 @@ void DlgEdit::SetCurPos(int NewCol, int NewRow) // Row==-1 - current line
 		multiEdit->SetCurPos(NewCol,NewRow);
 	else
 #endif
+	{
 		lineEdit->SetCurPos(NewCol);
+		//lineEdit->AdjustMarkBlock();
+	}
 }
 
 int DlgEdit::GetCurPos() const
@@ -401,7 +404,7 @@ int DlgEdit::GetCurPos() const
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		return multiEdit->GetCurPos(); // GetCurCol???
+		return multiEdit->GetCurPos();
 	else
 #endif
 		return lineEdit->GetCurPos();
@@ -423,7 +426,7 @@ int DlgEdit::GetTabCurPos() const
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		return multiEdit->GetCurPos(); // GetCurCol???
+		return multiEdit->GetCurPos();
 	else
 #endif
 		return lineEdit->GetTabCurPos();
@@ -580,7 +583,10 @@ void DlgEdit::Select(int Start,int End)
 		;//multiEdit->Select(Start,End);
 	else
 #endif
+	{
 		lineEdit->Select(Start,End);
+		lineEdit->AdjustMarkBlock();
+	}
 }
 
 void DlgEdit::GetSelection(intptr_t &Start,intptr_t &End) const

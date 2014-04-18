@@ -128,21 +128,20 @@ void CommandLine::DisplayObject()
 	});
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-
 	CmdStr.SetPosition(X1+(int)CurLength,Y1,X2,Y2);
-
 	CmdStr.Show();
 
 	GotoXY(X2+1,Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
-	Text(L'\x2191');
+	Text(L'\x2191'); // up arrow
 }
-
 
 void CommandLine::SetCurPos(int Pos, int LeftPos, bool Redraw)
 {
 	CmdStr.SetLeftPos(LeftPos);
 	CmdStr.SetCurPos(Pos);
+	//CmdStr.AdjustMarkBlock();
+
 	if (Redraw)
 		CmdStr.Redraw();
 }

@@ -159,6 +159,7 @@ public:
 	void SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 	int GetClearFlag() const {return Flags.Check(FEDITLINE_CLEARFLAG);}
 	void SetCurPos(int NewPos) {CurPos=NewPos; SetPrevCurPos(NewPos);}
+	void AdjustMarkBlock();
 	int GetCurPos() const { return CurPos; }
 	int GetTabCurPos() const;
 	void SetTabCurPos(int NewPos);

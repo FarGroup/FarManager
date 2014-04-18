@@ -639,13 +639,6 @@ int Edit::ProcessKey(int Key)
 		Flags.Swap(FEDITLINE_READONLY);
 	}
 
-	/* $ 26.07.2000 SVS
-	   Bugs #??
-	     В строках ввода при выделенном блоке нажимаем BS и вместо
-	     ожидаемого удаления блока (как в редакторе) получаем:
-	       - символ перед курсором удален
-	       - выделение блока снято
-	*/
 	if ((((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || Key==KEY_CTRLD || Key==KEY_RCTRLD) &&
 	        !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
 	{
@@ -656,7 +649,6 @@ int Edit::ProcessKey(int Key)
 
 	int _Macro_IsExecuting=Global->CtrlObject->Macro.IsExecuting();
 
-	// $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
 	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
 	        !IsShiftKey(Key) && !Recurse &&
 	        Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
@@ -666,16 +658,13 @@ int Edit::ProcessKey(int Key)
 	        ((Key&(~KEY_CTRLMASK)) != KEY_LWIN && (Key&(~KEY_CTRLMASK)) != KEY_RWIN && (Key&(~KEY_CTRLMASK)) != KEY_APPS)
 	   )
 	{
-		Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
+		Flags.Clear(FEDITLINE_MARKINGBLOCK);
 
 		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_RCTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLNUMPAD0) &&
 		        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) &&
 		        (Key != KEY_CTRLQ && Key != KEY_RCTRLQ) &&
-		        !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
+		        !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0))
 		{
-			/* $ 12.11.2002 DJ
-			   зачем рисоваться, если ничего не изменилось?
-			*/
 			if (SelStart != -1 || SelEnd )
 			{
 				PrevSelStart=SelStart;
@@ -686,18 +675,10 @@ int Edit::ProcessKey(int Key)
 		}
 	}
 
-	/* $ 11.09.2000 SVS
-	   если Global->Opt->DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
-	   удаляет такую строку также, как и Del
-	*/
 	if (((Global->Opt->Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
 	        Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
 		Key=KEY_CTRLY;
 
-	/* $ 15.09.2000 SVS
-	   Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
-	         Так должно быть только для UnChanged состояния
-	*/
 	if ((Key == KEY_SHIFTDEL || Key == KEY_SHIFTNUMDEL || Key == KEY_SHIFTDECIMAL) && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
 	{
 		SelStart=0;
@@ -1720,7 +1701,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 		RefreshStrByMask(TRUE);
 		int maskLen = static_cast<int>(Mask.size());
 
-		for (int i=0,j=0; j<maskLen && j<Length;)
+		for (int i=0,j=0; i < maskLen && j<maskLen && j<Length;)
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -2213,10 +2194,6 @@ void Edit::Select(int Start,int End)
 	SelStart=Start;
 	SelEnd=End;
 
-	/* $ 24.06.2002 SKV
-	   Если начало выделения за концом строки, надо выделение снять.
-	   17.09.2002 возвращаю обратно. Глюкодром.
-	*/
 	if (SelEnd<SelStart && SelEnd!=-1)
 	{
 		SelStart=-1;
@@ -2228,9 +2205,6 @@ void Edit::Select(int Start,int End)
 		SelStart=-1;
 		SelEnd=0;
 	}
-
-//  if (SelEnd>StrSize)
-//    SelEnd=StrSize;
 }
 
 void Edit::AddSelect(int Start,int End)
@@ -2253,23 +2227,25 @@ void Edit::AddSelect(int Start,int End)
 
 void Edit::GetSelection(intptr_t &Start,intptr_t &End) const
 {
-	/* $ 17.09.2002 SKV
-	  Мало того, что это нарушение правил OO design'а,
-	  так это еще и источние багов.
-	*/
-	/*  if (SelEnd>StrSize+1)
-	    SelEnd=StrSize+1;
-	  if (SelStart>StrSize+1)
-	    SelStart=StrSize+1;*/
-	/* SKV $ */
-	Start=SelStart;
-	End=SelEnd;
+	Start = SelStart;
+	End = SelEnd;
 
-	if (End>StrSize)
-		End=-1;//StrSize;
+	if (End > StrSize)
+		End = -1;
 
-	if (Start>StrSize)
-		Start=StrSize;
+	if (Start > StrSize)
+		Start = StrSize;
+}
+
+void Edit::AdjustMarkBlock()
+{
+	bool mark = false;
+	if (SelStart >= 0)
+	{
+		int end = SelEnd > StrSize || SelEnd == -1 ? StrSize : SelEnd;
+		mark = end > SelStart && (CurPos==SelStart || CurPos==end);
+	}
+	Flags.Change(FEDITLINE_MARKINGBLOCK, mark);
 }
 
 void Edit::GetRealSelection(intptr_t &Start,intptr_t &End) const

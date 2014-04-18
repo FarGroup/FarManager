@@ -62,7 +62,7 @@ public:
 	void SetDelRemovesBlocks(bool Mode);
 	void SetAutoComplete(int Mode);
 	void GetSelection(intptr_t &Start,intptr_t &End) const { CmdStr.GetSelection(Start,End); }
-	void Select(int Start, int End) { CmdStr.Select(Start,End); }
+	void Select(int Start, int End) { CmdStr.Select(Start,End); CmdStr.AdjustMarkBlock(); }
 	void SaveBackground(int X1,int Y1,int X2,int Y2);
 	void SaveBackground();
 	void ShowBackground();
