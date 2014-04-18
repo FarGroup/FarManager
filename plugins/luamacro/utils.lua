@@ -227,17 +227,19 @@ local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 8
 end
 
 local function AddMacro (srctable)
-  local ok
-  local area = type(srctable)=="table" and type(srctable.area)=="string" and srctable.area:lower()
-  if not area then return end
-
-  local key = type(srctable.key)=="string" and srctable.key:lower()
-  if not key then return end
+  if type(srctable)~="table"
+    or type(srctable.area)~="string"
+    or type(srctable.key)~="string" then return
+  end
 
   local keyregex = srctable.key:match("^/(.+)/$")
   if keyregex then
-    ok, keyregex = pcall(regex.new, "^(" .. keyregex .. ")$", "i")
-    if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
+    if pcall(regex.new, keyregex) then
+      keyregex = regex.new("^("..keyregex..")$", "i")
+    else
+      ErrMsg("Invalid regex: "..srctable.key)
+      return
+    end
   end
 
   if type(srctable.code)=="string" then
@@ -249,9 +251,9 @@ local function AddMacro (srctable)
     return
   end
 
-  local macro={}
+  local macro = {}
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
-  for a in area:gmatch("%S+") do
+  for a in srctable.area:lower():gmatch("%S+") do
     local arTable = Areas[a]
     if arTable and not arFound[a] then
       if keyregex then
@@ -260,7 +262,7 @@ local function AddMacro (srctable)
         macro.keyregex = keyregex
       else
         local keyFound = {} -- prevent multiple inclusions
-        for k in key:gmatch("%S+") do
+        for k in srctable.key:lower():gmatch("%S+") do
           local t,n = ExpandKey(k)
           for i=1,n do
             local normkey = t[i]
