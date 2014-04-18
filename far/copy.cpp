@@ -3648,7 +3648,7 @@ int ShellCopy::AskOverwrite(const api::FAR_FIND_DATA &SrcData,
 	enum
 	{
 		WARN_DLG_HEIGHT=13,
-		WARN_DLG_WIDTH=72,
+		WARN_DLG_WIDTH=76,
 	};
 	string qDst(DestName);
 	QuoteLeadingSpace(qDst);
