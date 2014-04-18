@@ -179,7 +179,7 @@ inline bool codepages::IsPositionStandard(UINT position)
 	return position<=(UINT)CodePagesMenu->GetItemCount()-favoriteCodePages-(favoriteCodePages?1:0)-normalCodePages-(normalCodePages?1:0);
 }
 
-// Проверяем попадает или нет позиция в диапазон любимых кодовых страниц (правильность работы для разделителей не гарантируется)
+// Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
 inline bool codepages::IsPositionFavorite(UINT position)
 {
 	return position>=(UINT)CodePagesMenu->GetItemCount()-normalCodePages;
@@ -844,7 +844,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 		}
 	}
 
-	// Возвращаем число любимых таблиц символов
+	// Возвращаем число избранных таблиц символов
 	return favoriteCodePages;
 }
 

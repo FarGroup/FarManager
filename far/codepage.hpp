@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
-	CPST_FAVORITE = 1, // "Любимая" таблица символов
+	CPST_FAVORITE = 1, // Избранная таблица символов
 	CPST_FIND     = 2  // Таблица символов участвующая в поиске по всем таблицам символов
 };
 

@@ -403,7 +403,7 @@ void FindFiles::InitInFileSearch()
 					codePages.insert(codePages.end(), ALL_CONST_RANGE(Predefined));
 				}
 
-				// Добавляем любимые таблицы символов
+				// Добавляем избранные таблицы символов
 				std::for_each(CONST_RANGE(CpEnum, i)
 				{
 					if (i.second & (hasSelected?CPST_FIND:CPST_FAVORITE))
@@ -825,7 +825,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						case KEY_NUMPAD0:
 						case KEY_SPACE:
 						{
-							// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
+							// Обработка установки/снятия флажков для стандартных и избранных таблиц символов
 							// Получаем текущую позицию в выпадающем списке таблиц символов
 							FarListPos Position={sizeof(FarListPos)};
 							Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
@@ -833,7 +833,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
 							UINT SelectedCodePage = *(UINT*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
-							// Разрешаем отмечать только стандартные и любимые таблицы символов
+							// Разрешаем отмечать только стандартные и избранные таблицы символов
 							int FavoritesIndex = 2 + StandardCPCount + 2;
 
 							if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
@@ -845,7 +845,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								if (Item.Item.Flags & LIF_CHECKED)
 								{
 									// Для стандартных таблиц символов просто удаляем значение из рееста, для
-									// любимых же оставляем в реестре флаг, что таблица символов любимая
+									// избранных же оставляем в реестре флаг, что таблица символов избранная
 									if (SelectType & CPST_FAVORITE)
 										Codepages().SetFavorite(SelectedCodePage, CPST_FAVORITE);
 									else
@@ -868,7 +868,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
 								}
 
-								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в любимых,
+								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в избранных,
 								// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
 								bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
 

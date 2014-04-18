@@ -10969,7 +10969,7 @@ upd:"Unicode"
 "Unicode"
 
 MGetCodePageFavorites
-"Любимые"
+"Избранные"
 "Favorites"
 "Oblíbené"
 upd:"Favorites"
