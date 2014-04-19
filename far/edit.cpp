@@ -726,6 +726,8 @@ int Edit::ProcessKey(int Key)
 		{
 			if (CurPos>0)
 			{
+				AdjustPersistentMark();
+
 				RecurseProcessKey(KEY_LEFT);
 
 				if (!Flags.Check(FEDITLINE_MARKINGBLOCK))
@@ -757,6 +759,8 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
 		{
+			AdjustPersistentMark();
+
 			if (!Flags.Check(FEDITLINE_MARKINGBLOCK))
 			{
 				Select(-1,0);
@@ -2246,6 +2250,27 @@ void Edit::AdjustMarkBlock()
 		mark = end > SelStart && (CurPos==SelStart || CurPos==end);
 	}
 	Flags.Change(FEDITLINE_MARKINGBLOCK, mark);
+}
+
+void Edit::AdjustPersistentMark()
+{
+	if (SelStart < 0 || Flags.Check(FEDITLINE_MARKINGBLOCK | FEDITLINE_PARENT_EDITOR))
+		return;
+
+	bool persistent;
+	if (Flags.Check(FEDITLINE_PARENT_SINGLELINE))
+		persistent = Flags.Check(FEDITLINE_PERSISTENTBLOCKS); // dlgedit
+	else if (!Flags.Check(FEDITLINE_PARENT_MULTILINE))
+		persistent = Global->Opt->CmdLine.EditBlock;				// cmdline
+	else
+		persistent = false;
+
+	if (!persistent)
+		return;
+
+	int end = SelEnd > StrSize || SelEnd == -1 ? StrSize : SelEnd;
+	if (end > SelStart && (CurPos==SelStart || CurPos==end))
+		Flags.Set(FEDITLINE_MARKINGBLOCK);
 }
 
 void Edit::GetRealSelection(intptr_t &Start,intptr_t &End) const
