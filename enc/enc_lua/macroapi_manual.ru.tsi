@@ -34,6 +34,9 @@ mtime=3602513778
 #_[1]: http://www.lua.org/
 #_[2]: 42.html
 #_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_
 </article>
 </node>
 <node>
@@ -62,16 +65,16 @@ lv=2
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3601577669
+mtime=3607085026
 <article>
 #_<markdown>
 #_
 #_1. Все идентификаторы чувствительны к регистру символов.
 #_1. Вместо прямого указания клавиш используется функция [`Keys`][Keys].
-#_1. `$AKey -> Keys("AKey")`
-#_1. `$SelWord -> Keys("SelWord")`
-#_1. `$XLat -> Keys("XLat")`
-#_1. `$Exit ->` ` `[`exit()`][exit]
+#_1. [`$AKey`][$akey] -> `Keys("AKey")`
+#_1. [`$SelWord`][$selword] -> `Keys("SelWord")`
+#_1. [`$XLat`][$xlat] -> `Keys("XLat")`
+#_1. [`$Exit`][$exit] -> [`exit()`][exit]
 #_1. Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
 #_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
@@ -88,7 +91,7 @@ mtime=3601577669
 #_1. `Macro.Area -> Area.Current`.
 #_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
-#_1. `CallPlugin -> Plugin.Call`. Этот вызов - всегда асинхронный. Для синхронного вызова следует использовать [`Plugin.SyncCall`][SyncCall].
+#_1. `CallPlugin` -> [`Plugin.Call`][Call]. Этот вызов - всегда асинхронный. Для синхронного вызова следует использовать [`Plugin.SyncCall`][SyncCall].
 #_1. `mmode(3,x)` больше не влияет на синхронность/асинхронность вызовов плагинов из макроса; ничего не делает; возвращает `0`.
 #_1. `Dlg.Info.Id -> Dlg.Id`
 #_1. `Dlg.Info.Owner -> Dlg.Owner`
@@ -117,7 +120,40 @@ mtime=3601577669
 #_[Object]: 45.html
 #_[Mouse]: 59.html
 #_[SyncCall]: 83.html
+#_[Call]: 65.html
 #_
+#_[$akey]: http://api.farmanager.com/ru/macro/macrocmd/akey.html
+#_[$exit]: http://api.farmanager.com/ru/macro/macrocmd/exit.html
+#_[$selword]: http://api.farmanager.com/ru/macro/macrocmd/selword.html
+#_[$xlat]: http://api.farmanager.com/ru/macro/macrocmd/xlat.html
+#_
+#_@@@
+#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{dlg.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_{far.cfg.err}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
+#_{far.cfg.get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#far.cfg.get
+#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{history.disable}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
+#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar.show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
+#_{macro.area}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Macro.Area
+#_{macro.const}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.const
+#_{macro.func}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.func
+#_{macro.keyword}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.keyword
+#_{macro.var}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.var
+#_{menu.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{msbutton}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
+#_{msctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{mseventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
+#_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{rcounter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#RCounter
+#_{window.scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
 </article>
 </node>
@@ -161,6 +197,13 @@ mtime=3602578114
 #_[mf]: 44.html
 #_[Keys]: 4.html
 #_
+#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
+#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_
 </article>
 </node>
 <node>
@@ -190,7 +233,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3561880602
+mtime=3607090414
 <article>
 #_Keys (...)
 #_
@@ -244,6 +287,9 @@ mtime=3554233809
 #_@@@
 #_[мануале Lua]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
 #_
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_
+#_
 </article>
 </node>
 <node>
@@ -252,7 +298,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3602656135
+mtime=3607083299
 <article>
 #_**Свойства:** нет.
 #_
@@ -301,6 +347,49 @@ mtime=3602656135
 #_[usermenu]: 69.html
 #_
 #_
+#_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
+#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
+#_{asc}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
+#_{atoi}: http://api.farmanager.com/ru/fsf/atoi.html
+#_{beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
+#_{chr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
+#_{clip}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
+#_{date}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#date
+#_{env}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#env
+#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fattr
+#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
+#_{float}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#float
+#_{flock}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#flock
+#_{fmatch}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fmatch
+#_{fsplit}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fsplit
+#_{iif}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
+#_{index}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
+#_{int}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
+#_{itoa}: http://api.farmanager.com/ru/fsf/itoa.html
+#_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
+#_{lcase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
+#_{len}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
+#_{max}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#max
+#_{min}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#min
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{mod}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mod
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{replace}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#replace
+#_{rindex}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#rindex
+#_{size2str}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#size2str
+#_{sleep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#sleep
+#_{string}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#string
+#_{strpad}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strpad
+#_{strwrap}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strwrap
+#_{substr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#substr
+#_{testfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#testfolder
+#_{trim}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#trim
+#_{ucase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#ucase
+#_{waitkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#waitkey
+#_{xlat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
+#_
 </article>
 </node>
 <node>
@@ -328,6 +417,8 @@ mtime=3582019799
 #_
 #_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
+#_@@@
+#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
 </article>
 </node>
@@ -337,7 +428,7 @@ lv=3
 dt=Text
 nm=GetMacroCopy
 ctime=3578176338
-mtime=3578179212
+mtime=3607090697
 <article>
 #_macro = mf.GetMacroCopy (index)
 #_
@@ -357,6 +448,7 @@ mtime=3578179212
 #_  * Отличить таблицу макроса от таблицы события можно по полю "area" типа string,
 #_    которое присутствует только у макросов.
 #_
+#_
 </article>
 </node>
 <node>
@@ -365,7 +457,7 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3604498904
+mtime=3607090733
 <article>
 #_mf.mdelete (key, name)
 #_
@@ -380,6 +472,7 @@ mtime=3604498904
 #_  Функция *mdelete* удаляет значение или ключ из базы данных.
 #_  Для удаления ключа следует указать параметр *name* == "`*`" (звёздочку).
 #_
+#_
 </article>
 </node>
 <node>
@@ -388,7 +481,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3553243630
+mtime=3607090772
 <article>
 #_ret = mf.mload (key, name)
 #_
@@ -411,7 +504,7 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3574088210
+mtime=3607090809
 <article>
 #_mf.msave (key, name, value)
 #_
@@ -429,6 +522,7 @@ mtime=3574088210
 #_     ключи типов:    number, string, boolean.
 #_     значения типов: number, string, boolean, table.
 #_  Сохраняются и вложенные таблицы, при этом рекурсивные вложения пропускаются.
+#_
 #_
 </article>
 </node>
@@ -461,7 +555,7 @@ lv=3
 dt=Text
 nm=usermenu
 ctime=3571243204
-mtime=3571397693
+mtime=3607090882
 <article>
 #_mf.usermenu (mode, filename)
 #_
@@ -488,6 +582,7 @@ mtime=3571397693
 #_    3: файл *filename* открывается в %farprofile%\Menus (папка создаётся
 #_       автоматически).
 #_
+#_
 </article>
 </node>
 <node>
@@ -496,7 +591,7 @@ lv=2
 dt=Text
 nm=Area
 ctime=3552736839
-mtime=3553252985
+mtime=3607091200
 <article>
 #_**Area** - таблица со следующими полями:
 #_
@@ -525,6 +620,23 @@ mtime=3553252985
 #_
 #_  Нет.
 #_
+#_@@@
+#_{dialog}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Dialog
+#_{disks}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Disks
+#_{editor}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Editor
+#_{findfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#FindFolder
+#_{help}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Help
+#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
+#_{mainmenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MainMenu
+#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu
+#_{other}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Other
+#_{qview}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#QView
+#_{search}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Search
+#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_{usermenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#UserMenu
+#_{viewer}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Viewer
+#_
 </article>
 </node>
 <node>
@@ -533,7 +645,7 @@ lv=2
 dt=Text
 nm=APanel, PPanel
 ctime=3553252677
-mtime=3553260679
+mtime=3607094310
 <article>
 #_**APanel**, **PPanel** - таблицы со следующими полями:
 #_
@@ -572,6 +684,36 @@ mtime=3553260679
 #_
 #_  Нет.
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Bof
+#_{columncount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ColumnCount
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.CurPos
+#_{current}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Current
+#_{drivetype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.DriveType
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Eof
+#_{filepanel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.FilePanel
+#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Filter
+#_{folder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Folder
+#_{format}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Format
+#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Height
+#_{hostfile}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.HostFile
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{lfn}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.LFN
+#_{opiflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.OPIFlags
+#_{path}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path
+#_{path0}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path0
+#_{plugin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Plugin
+#_{prefix}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Prefix
+#_{root}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Root
+#_{selcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.SelCount
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Selected
+#_{type}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Type
+#_{uncpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.UNCPath
+#_{visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Visible
+#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Width
+#_
 </article>
 </node>
 <node>
@@ -580,7 +722,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3586234479
+mtime=3607096939
 <article>
 #_**Panel** - таблица со следующими полями:
 #_
@@ -609,6 +751,14 @@ mtime=3586234479
 #_[CustomSortMenu]: 82.html
 #_[SetCustomSortMode]: 81.html
 #_[LoadCustomSortMode]: 80.html
+#_
+#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fattr
+#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_{item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
+#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
+#_{setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
+#_{setpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpos
+#_{setposidx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setposidx
 #_
 </article>
 </node>
@@ -641,7 +791,7 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3598188837
+mtime=3607097138
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
@@ -746,7 +896,7 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3585600342
+mtime=3607097185
 <article>
 #_Panel.SetCustomSortMode (Mode, whatpanel)
 #_
@@ -783,7 +933,7 @@ lv=2
 dt=Text
 nm=BM
 ctime=3553686730
-mtime=3553686801
+mtime=3607097496
 <article>
 #_**BM** - таблица со следующими полями:
 #_
@@ -805,6 +955,19 @@ mtime=3553686801
 #_  Push
 #_  Stat
 #_
+#_@@@
+#_{add}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.add
+#_{back}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.back
+#_{clear}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.clear
+#_{del}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.del
+#_{get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.get
+#_{goto}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.goto
+#_{next}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.next
+#_{pop}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.pop
+#_{prev}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.prev
+#_{push}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.push
+#_{stat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.stat
+#_
 </article>
 </node>
 <node>
@@ -813,7 +976,7 @@ lv=2
 dt=Text
 nm=CmdLine
 ctime=3553252699
-mtime=3553260697
+mtime=3607097860
 <article>
 #_**CmdLine** - таблица со следующими полями:
 #_
@@ -831,6 +994,15 @@ mtime=3553260697
 #_
 #_  Нет.
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Bof
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Eof
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Selected
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.CurPos
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.ItemCount
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Value
+#_
 </article>
 </node>
 <node>
@@ -839,7 +1011,7 @@ lv=2
 dt=Text
 nm=Dlg
 ctime=3553252729
-mtime=3553260711
+mtime=3607098940
 <article>
 #_**Dlg** - таблица со следующими полями:
 #_
@@ -857,6 +1029,16 @@ mtime=3553260711
 #_  GetValue
 #_  SetFocus
 #_
+#_@@@
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.CurPos
+#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_--{owner}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Owner
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemCount
+#_{itemtype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemType
+#_{prevpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.PrevPos
+#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.GetValue
+#_{setfocus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.SetFocus
+#_
 #_
 </article>
 </node>
@@ -866,7 +1048,7 @@ lv=2
 dt=Text
 nm=Drv
 ctime=3553252704
-mtime=3553260726
+mtime=3607099165
 <article>
 #_**Drv** - таблица со следующими полями:
 #_
@@ -879,6 +1061,10 @@ mtime=3553260726
 #_
 #_  Нет.
 #_
+#_@@@
+#_{showmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
+#_{showpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
+#_
 </article>
 </node>
 <node>
@@ -887,7 +1073,7 @@ lv=2
 dt=Text
 nm=Editor
 ctime=3553252733
-mtime=3553260742
+mtime=3607106411
 <article>
 #_**Editor** - таблица со следующими полями:
 #_
@@ -914,6 +1100,25 @@ mtime=3553260742
 #_  SetTitle
 #_  Undo
 #_
+#_@@@
+#_{curline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurLine
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurPos
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.FileName
+#_{lines}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Lines
+#_{realpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.RealPos
+#_{selvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.SelValue
+#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.State
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Value
+#_{delline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.delline
+#_{getstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.getstr
+#_{insstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.insstr
+#_{pos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.pos
+#_{sel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.sel
+#_{set}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.set
+#_{setstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.setstr
+#_{settitle}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.settitle
+#_{undo}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.undo
+#_
 </article>
 </node>
 <node>
@@ -922,7 +1127,7 @@ lv=2
 dt=Text
 nm=Far
 ctime=3553252749
-mtime=3555391522
+mtime=3607109851
 <article>
 #_**Far** - таблица со следующими полями:
 #_
@@ -944,6 +1149,21 @@ mtime=3555391522
 #_  KeyBar_Show
 #_  Window_Scroll
 #_
+#_@@@
+#_{cfg_get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Get
+#_{disablehistory}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
+#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
+#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar_show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
+#_{pid}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.PID
+#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Title
+#_{uptime}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.UpTime
+#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Width
+#_{window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
+#_
+#_
 </article>
 </node>
 <node>
@@ -952,7 +1172,7 @@ lv=2
 dt=Text
 nm=Help
 ctime=3553252714
-mtime=3553260782
+mtime=3607108730
 <article>
 #_**Help** - таблица со следующими полями:
 #_
@@ -966,6 +1186,12 @@ mtime=3553260782
 #_
 #_  Нет.
 #_
+#_@@@
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.FileName
+#_{seltopic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.SelTopic
+#_{topic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.Topic
+#_
+#_
 </article>
 </node>
 <node>
@@ -974,7 +1200,7 @@ lv=2
 dt=Text
 nm=Menu
 ctime=3553252746
-mtime=3553678755
+mtime=3607109106
 <article>
 #_**Menu** - таблица со следующими полями:
 #_
@@ -992,6 +1218,17 @@ mtime=3553678755
 #_  Select
 #_  Show
 #_
+#_@@@
+#_{filterstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
+#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Filter
+#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.GetValue
+#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{itemstatus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
+#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Select
+#_{show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu.Show
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Value
+#_
+#_
 </article>
 </node>
 <node>
@@ -1000,7 +1237,7 @@ lv=2
 dt=Text
 nm=Mouse
 ctime=3553790262
-mtime=3563004403
+mtime=3607109438
 <article>
 #_**Mouse** - таблица со следующими полями:
 #_
@@ -1022,6 +1259,14 @@ mtime=3563004403
 #_  *Mouse.LastCtrlState* отличается от *Mouse.CtrlState* тем, что обновляется
 #_  как по событиям от мыши, так и по клавиатурным событиям.
 #_
+#_@@@
+#_{button}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
+#_{ctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{eventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{x}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
+#_{y}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_
+#_
 </article>
 </node>
 <node>
@@ -1030,7 +1275,7 @@ lv=2
 dt=Text
 nm=Object
 ctime=3553245384
-mtime=3563291684
+mtime=3607109929
 <article>
 #_**Свойства, зависящие от контекста исполнения.**
 #_
@@ -1053,6 +1298,17 @@ mtime=3563291684
 #_  CheckHotkey
 #_  GetHotkey
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#bof
+#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#CurPos
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#eof
+#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#ItemCount
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#selected
+#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Title
+#_
 #_
 </article>
 </node>
@@ -1062,7 +1318,7 @@ lv=2
 dt=Text
 nm=Plugin
 ctime=3553252766
-mtime=3602539387
+mtime=3607110357
 <article>
 #_**Plugin** - таблица со следующими полями:
 #_
@@ -1084,6 +1340,14 @@ mtime=3602539387
 #_@@@
 #_[SyncCall]: 83.html
 #_[Call]: 65.html
+#_
+#_{command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Command
+#_{config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Config
+#_{exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Exist
+#_{load}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Load
+#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Menu
+#_{unload}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Unload
+#_
 #_
 </article>
 </node>
@@ -1139,6 +1403,18 @@ mtime=3589046098
 #_                              ["type"] = "array", и
 #_                              ["n"] = количество элементов массива)
 #_
+#_@@@
+#_{farmacrocall}: http://api.farmanager.com/ru/structures/farmacrocall.html
+#_{fmvt_array}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_ARRAY
+#_{fmvt_binary}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BINARY
+#_{fmvt_boolean}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BOOLEAN
+#_{fmvt_double}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_DOUBLE
+#_{fmvt_integer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_INTEGER
+#_{fmvt_nil}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_NIL
+#_{fmvt_string}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_STRING
+#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_
+#_
 </article>
 </node>
 <node>
@@ -1161,6 +1437,8 @@ mtime=3588709114
 #_[ограничений]: 62.html
 #_[Plugin.Call]: 65.html
 #_
+#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_
 </article>
 </node>
 <node>
@@ -1169,7 +1447,7 @@ lv=2
 dt=Text
 nm=Viewer
 ctime=3553252718
-mtime=3553260812
+mtime=3607110556
 <article>
 #_**Viewer** - таблица со следующими полями:
 #_
@@ -1181,6 +1459,10 @@ mtime=3553260812
 #_**Функции:**
 #_
 #_  Нет.
+#_
+#_@@@
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
+#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.State
 #_
 #_
 </article>
@@ -1204,7 +1486,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3597397889
+mtime=3607110889
 <article>
 #_<markdown>
 #_
@@ -1277,6 +1559,14 @@ mtime=3597397889
 #_[LuaMacro]: 7.html
 #_[events]: 78.html
 #_
+#_@@@
+#_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
+#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_
 </article>
 </node>
 <node>
@@ -1285,7 +1575,7 @@ lv=2
 dt=Text
 nm=Клавиатурные макросы
 ctime=3580139029
-mtime=3580139289
+mtime=3607111008
 <article>
 #_<markdown>
 #_
@@ -1315,6 +1605,11 @@ mtime=3580139289
 #_* Клавиатурные макросы имеют более высокий приоритет, чем все прочие макросы.
 #_  Это сделано для того, чтобы не надо было заниматься разрешением конфликтов
 #_  при временном создании клавиатурных макросов (типичный сценарий их использования).
+#_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_
 #_
 </article>
 </node>
@@ -1355,6 +1650,9 @@ mtime=3597397865
 #_(b) выгрузка плагина LuaMacro, \(c) выгрузка либо перезагрузка макросов.
 #_
 #_[1]: 75.html
+#_
+#_@@@
+#_
 #_
 </article>
 </node>
@@ -1406,7 +1704,9 @@ mtime=3605509814
 #_   Параметры являются списком Lua-выражений, разделённых запятыми.
 #_1. `lm:unload` - выгружает все макросы, за исключением созданных операцией `MCTL_ADDMACRO`.
 #_
-#_
+#_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
 #_
 </article>
 </node>
@@ -1486,6 +1786,10 @@ mtime=3564676943
 #_        function inc_var() var = var+1 end
 #_        function dec_var() var = var-1 end
 #_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_
 </article>
 </node>
 <node>
@@ -1531,6 +1835,12 @@ mtime=3599474960
 #_[keys]: 4.html
 #_[printf]: 60.html
 #_
+#_@@@
+#_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command
+#_{plugin.config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.config
+#_{plugin.menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.menu
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_
 </article>
 </node>
 <node>
@@ -1539,7 +1849,7 @@ lv=2
 dt=Text
 nm=Интроспекция
 ctime=3558901787
-mtime=3558902462
+mtime=3607111396
 <article>
 #_<markdown>
 #_Содержимое глобальных таблиц API макроязыка можно просмотреть с помощью
@@ -1550,6 +1860,8 @@ mtime=3558902462
 #_        for k,v in pairs(Editor) do .... end -- для функций
 #_
 #_        for k,v in pairs(Editor.properties) do .... end -- для свойств
+#_
+#_@@@
 #_
 </article>
 </node>
@@ -1588,6 +1900,10 @@ mtime=3589531649
 #_
 #_[LuaMacro]: 7.html
 #_[events]: 78.html
+#_
+#_@@@
+#_{ee_change}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html#EE_CHANGE
+#_
 </article>
 </node>
 <node>
@@ -1612,6 +1928,8 @@ mtime=3578408569
 #_то модуль `mylib` не будет удалён их `package.loaded` при операциях выгрузки или перезагрузки 
 #_макросов.
 #_
+#_@@@
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>
@@ -1631,7 +1949,7 @@ lv=2
 dt=Text
 nm=Выделить слово под курсором
 ctime=3553195063
-mtime=3568784026
+mtime=3607111506
 <article>
 #_<markdown>
 #_```
@@ -1654,7 +1972,7 @@ lv=2
 dt=Text
 nm=Переход в меню выбора дисков
 ctime=3553195940
-mtime=3568784018
+mtime=3607111577
 <article>
 #_<markdown>
 #_```
@@ -1674,6 +1992,10 @@ mtime=3568784018
 #_}
 #_```
 #_
+#_@@@
+#_{apanel.left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{ppanel.visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#PPanel.Visible
+#_
 </article>
 </node>
 <node>
@@ -1682,7 +2004,7 @@ lv=2
 dt=Text
 nm=Выделить файлы новее текущего
 ctime=3552222560
-mtime=3568784169
+mtime=3607111666
 <article>
 #_<markdown>
 #_```
@@ -1722,6 +2044,11 @@ mtime=3568784169
 #_}
 #_```
 #_
+#_@@@
+#_{apanel.itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{panel.item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
+#_{panel.select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
+#_
 </article>
 </node>
 <node>
@@ -1730,7 +2057,7 @@ lv=2
 dt=Text
 nm=Cоздание папки с именем = текущей дате
 ctime=3553206604
-mtime=3578456092
+mtime=3607111753
 <article>
 #_<markdown>
 #_```
@@ -1748,6 +2075,9 @@ mtime=3578456092
 #_}
 #_```
 #_
+#_@@@
+#_{panel.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_
 </article>
 </node>
 <node>
@@ -1756,7 +2086,7 @@ lv=2
 dt=Text
 nm=Запуск скрипта из редактора
 ctime=3578455778
-mtime=3603569933
+mtime=3607111821
 <article>
 #_<markdown>
 #_```
@@ -1796,7 +2126,7 @@ lv=2
 dt=Text
 nm=FAR Manager. Macros and whatnot.
 ctime=3578043305
-mtime=3578065765
+mtime=3607111902
 <article>
 #_<markdown>
 #_<font face="Tahoma">
@@ -2068,6 +2398,7 @@ mtime=3578065765
 #_[this link]: http://translate.google.com/translate?hl=en&sl=ru&tl=en&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2Fmacro%2Fmacrocmd%2Fprop_func%2Findex.html
 #_[lua explorer]: http://forum.farmanager.com/download/file.php?id=5553
 #_[thread]: http://forum.farmanager.com/viewtopic.php?f=60&t=7521
+#_
 #_
 </article>
 </node>

@@ -104,10 +104,9 @@ end
 
 local searchPattern = rex.new( [[
   \<a\s.*?\</a\>  |
-  \w+(?:\.\w+)+   |
   &quot;\w+&quot; |
   "\w+"           |
-  (\w+)
+  (\w+(?:\.\w+)*)
 ]], "ix")
 
 local function postprocess_article (part1, part2, is_markdown)
@@ -126,10 +125,12 @@ local function postprocess_article (part1, part2, is_markdown)
       end
     end
 
-    part1 = part1:gsub("`([^`\n]+)`",
-      function(c)
-        return links[c] and ('<a href="%s">%s</a>'):format(links[c], c)
-      end)
+    if not is_markdown then
+      part1 = part1:gsub("`([^`\n]+)`",
+        function(c)
+          return links[c] and ('<a href="%s">%s</a>'):format(links[c], c)
+        end)
+    end
 
     part1 = rex.gsub(part1, searchPattern,
       function(c)

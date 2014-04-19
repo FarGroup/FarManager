@@ -34,6 +34,9 @@ mtime=3602513805
 #_[1]: http://www.lua.org/
 #_[2]: 42.html
 #_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_
 </article>
 </node>
 <node>
@@ -62,16 +65,16 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3601577705
+mtime=3607085316
 <article>
 #_<markdown>
 #_
 #_1. All identifiers are case sensitive.
 #_1. Instead of directly specifying the keys you use function [`Keys`][Keys].
-#_1. `$AKey -> Keys("AKey")`
-#_1. `$SelWord -> Keys("SelWord")`
-#_1. `$XLat -> Keys("XLat")`
-#_1. `$Exit ->` ` `[`exit()`][exit]
+#_1. [`$AKey`][$akey] -> `Keys("AKey")`
+#_1. [`$SelWord`][$selword] -> `Keys("SelWord")`
+#_1. [`$XLat`][$xlat] -> `Keys("XLat")`
+#_1. [`$Exit`][$exit] -> [`exit()`][exit]
 #_1. Logical properties have type *boolean* (so it does not make sense to compare them
 #_   with the number `0`).
 #_1. Function `prompt` can return either a string or a `false` (but never a number `0`).
@@ -89,7 +92,7 @@ mtime=3601577705
 #_1. `Macro.Area -> Area.Current`.
 #_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
-#_1. `CallPlugin -> Plugin.Call`. This call is always asynchronous.
+#_1. `CallPlugin` -> [`Plugin.Call`][Call]. This call is always asynchronous.
 #_   For synchronous calls use [`Plugin.SyncCall`][SyncCall].
 #_1. `mmode(3,x)` no more affects synchronicity/asynchronicity of calls to plugins;
 #_   it does nothing and returns `0`.
@@ -123,7 +126,40 @@ mtime=3601577705
 #_[Object]: 45.html
 #_[Mouse]: 59.html
 #_[SyncCall]: 83.html
+#_[Call]: 65.html
 #_
+#_[$akey]: http://api.farmanager.com/ru/macro/macrocmd/akey.html
+#_[$exit]: http://api.farmanager.com/ru/macro/macrocmd/exit.html
+#_[$selword]: http://api.farmanager.com/ru/macro/macrocmd/selword.html
+#_[$xlat]: http://api.farmanager.com/ru/macro/macrocmd/xlat.html
+#_
+#_@@@
+#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{dlg.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_{far.cfg.err}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
+#_{far.cfg.get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#far.cfg.get
+#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{history.disable}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
+#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar.show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
+#_{macro.area}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Macro.Area
+#_{macro.const}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.const
+#_{macro.func}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.func
+#_{macro.keyword}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.keyword
+#_{macro.var}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.var
+#_{menu.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{msbutton}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
+#_{msctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{mseventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
+#_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{rcounter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#RCounter
+#_{window.scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
 </article>
 </node>
@@ -168,6 +204,13 @@ mtime=3602539540
 #_[mf]: 44.html
 #_[Keys]: 4.html
 #_
+#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
+#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_
 </article>
 </node>
 <node>
@@ -197,7 +240,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3600460117
+mtime=3607090399
 <article>
 #_Keys (...)
 #_
@@ -250,6 +293,9 @@ mtime=3600460574
 #_@@@
 #_[Lua manual]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
 #_
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_
+#_
 </article>
 </node>
 <node>
@@ -258,7 +304,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3602692784
+mtime=3607083279
 <article>
 #_**Properties:** none.
 #_
@@ -307,6 +353,49 @@ mtime=3602692784
 #_[usermenu]: 69.html
 #_
 #_
+#_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
+#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
+#_{asc}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
+#_{atoi}: http://api.farmanager.com/ru/fsf/atoi.html
+#_{beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
+#_{chr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
+#_{clip}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
+#_{date}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#date
+#_{env}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#env
+#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fattr
+#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
+#_{float}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#float
+#_{flock}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#flock
+#_{fmatch}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fmatch
+#_{fsplit}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fsplit
+#_{iif}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
+#_{index}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
+#_{int}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
+#_{itoa}: http://api.farmanager.com/ru/fsf/itoa.html
+#_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
+#_{lcase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
+#_{len}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
+#_{max}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#max
+#_{min}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#min
+#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{mod}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mod
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{replace}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#replace
+#_{rindex}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#rindex
+#_{size2str}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#size2str
+#_{sleep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#sleep
+#_{string}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#string
+#_{strpad}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strpad
+#_{strwrap}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strwrap
+#_{substr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#substr
+#_{testfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#testfolder
+#_{trim}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#trim
+#_{ucase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#ucase
+#_{waitkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#waitkey
+#_{xlat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
+#_
 </article>
 </node>
 <node>
@@ -336,6 +425,9 @@ mtime=3600463667
 #_
 #_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
+#_@@@
+#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_
 </article>
 </node>
 <node>
@@ -344,7 +436,7 @@ lv=3
 dt=Text
 nm=GetMacroCopy
 ctime=3578176338
-mtime=3600463398
+mtime=3607090687
 <article>
 #_macro = mf.GetMacroCopy (index)
 #_
@@ -365,6 +457,7 @@ mtime=3600463398
 #_  * To distinguish between macro table from event handler table: there is the field
 #_    "area" of type string that is present only in macro tables.
 #_
+#_
 </article>
 </node>
 <node>
@@ -373,7 +466,7 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3604499459
+mtime=3607090721
 <article>
 #_mf.mdelete (key, name)
 #_
@@ -388,6 +481,7 @@ mtime=3604499459
 #_  Function *mdelete* deletes a value or key from the database.
 #_  To delete a key, specify *name* == "`*`" (asterisk).
 #_
+#_
 </article>
 </node>
 <node>
@@ -396,7 +490,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3600493907
+mtime=3607090762
 <article>
 #_ret = mf.mload (key, name)
 #_
@@ -410,6 +504,7 @@ mtime=3600493907
 #_**Description:**
 #_  Function *mload* reads a value from the database.
 #_
+#_
 </article>
 </node>
 <node>
@@ -418,7 +513,7 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3600499927
+mtime=3607090798
 <article>
 #_mf.msave (key, name, value)
 #_
@@ -436,6 +531,7 @@ mtime=3600499927
 #_     keys of types:    number, string, boolean.
 #_     values of types:  number, string, boolean, table.
 #_  Nested tables are also saved but recursive references are skipped.
+#_
 #_
 </article>
 </node>
@@ -468,7 +564,7 @@ lv=3
 dt=Text
 nm=usermenu
 ctime=3571243204
-mtime=3600499998
+mtime=3607090852
 <article>
 #_mf.usermenu (mode, filename)
 #_
@@ -494,6 +590,7 @@ mtime=3600499998
 #_  the menu (synchronous call). If that bit is cleared the function will return
 #_  immediately when the menu is opened (asynchronous call).
 #_
+#_
 </article>
 </node>
 <node>
@@ -502,7 +599,7 @@ lv=2
 dt=Text
 nm=Area
 ctime=3552736839
-mtime=3600500948
+mtime=3607091184
 <article>
 #_**Area** - a table with the following fields:
 #_
@@ -531,6 +628,23 @@ mtime=3600500948
 #_
 #_  None.
 #_
+#_@@@
+#_{dialog}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Dialog
+#_{disks}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Disks
+#_{editor}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Editor
+#_{findfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#FindFolder
+#_{help}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Help
+#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
+#_{mainmenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MainMenu
+#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu
+#_{other}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Other
+#_{qview}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#QView
+#_{search}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Search
+#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_{usermenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#UserMenu
+#_{viewer}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Viewer
+#_
 </article>
 </node>
 <node>
@@ -539,7 +653,7 @@ lv=2
 dt=Text
 nm=APanel, PPanel
 ctime=3553252677
-mtime=3600500988
+mtime=3607094244
 <article>
 #_**APanel**, **PPanel** - tables with the following fields:
 #_
@@ -578,6 +692,36 @@ mtime=3600500988
 #_
 #_  None.
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Bof
+#_{columncount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ColumnCount
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.CurPos
+#_{current}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Current
+#_{drivetype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.DriveType
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Eof
+#_{filepanel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.FilePanel
+#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Filter
+#_{folder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Folder
+#_{format}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Format
+#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Height
+#_{hostfile}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.HostFile
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{lfn}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.LFN
+#_{opiflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.OPIFlags
+#_{path}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path
+#_{path0}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path0
+#_{plugin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Plugin
+#_{prefix}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Prefix
+#_{root}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Root
+#_{selcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.SelCount
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Selected
+#_{type}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Type
+#_{uncpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.UNCPath
+#_{visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Visible
+#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Width
+#_
 </article>
 </node>
 <node>
@@ -586,7 +730,7 @@ lv=2
 dt=Text
 nm=Panel
 ctime=3553252776
-mtime=3600501236
+mtime=3607096893
 <article>
 #_**Panel** - a table with the following fields:
 #_
@@ -616,6 +760,14 @@ mtime=3600501236
 #_[SetCustomSortMode]: 81.html
 #_[LoadCustomSortMode]: 80.html
 #_
+#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fattr
+#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_{item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
+#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
+#_{setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
+#_{setpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpos
+#_{setposidx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setposidx
+#_
 </article>
 </node>
 <node>
@@ -624,7 +776,7 @@ lv=3
 dt=Text
 nm=CustomSortMenu
 ctime=3585577926
-mtime=3600501590
+mtime=3607097005
 <article>
 #_Panel.CustomSortMenu ()
 #_
@@ -639,6 +791,7 @@ mtime=3600501590
 #_  Pressing **Enter** will set the selected sort mode in the active panel,
 #_  pressing **CtrlEnter** - in the passive panel, **CtrlShiftEnter** - in both panels.
 #_
+#_
 </article>
 </node>
 <node>
@@ -647,7 +800,7 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3600506614
+mtime=3607097121
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
@@ -742,6 +895,7 @@ mtime=3600506614
 #_[Panel.SetCustomSortMode]: 81.html
 #_[SortingPanelItem]: http://api.farmanager.com/ru/structures/sortingpanelitem.html
 #_
+#_
 </article>
 </node>
 <node>
@@ -750,7 +904,7 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3600507018
+mtime=3607097174
 <article>
 #_Panel.SetCustomSortMode (Mode, whatpanel)
 #_
@@ -784,7 +938,7 @@ lv=2
 dt=Text
 nm=BM
 ctime=3553686730
-mtime=3600507080
+mtime=3607097440
 <article>
 #_**BM** - a table with the following fields:
 #_
@@ -806,6 +960,20 @@ mtime=3600507080
 #_  Push
 #_  Stat
 #_
+#_@@@
+#_
+#_{add}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.add
+#_{back}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.back
+#_{clear}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.clear
+#_{del}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.del
+#_{get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.get
+#_{goto}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.goto
+#_{next}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.next
+#_{pop}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.pop
+#_{prev}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.prev
+#_{push}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.push
+#_{stat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.stat
+#_
 </article>
 </node>
 <node>
@@ -814,7 +982,7 @@ lv=2
 dt=Text
 nm=CmdLine
 ctime=3553252699
-mtime=3600507119
+mtime=3607097790
 <article>
 #_**CmdLine** - a table with the following fields:
 #_
@@ -832,6 +1000,15 @@ mtime=3600507119
 #_
 #_  None.
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Bof
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Eof
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Selected
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.CurPos
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.ItemCount
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Value
+#_
 </article>
 </node>
 <node>
@@ -840,7 +1017,7 @@ lv=2
 dt=Text
 nm=Dlg
 ctime=3553252729
-mtime=3600507135
+mtime=3607098922
 <article>
 #_**Dlg** - a table with the following fields:
 #_
@@ -858,6 +1035,16 @@ mtime=3600507135
 #_  GetValue
 #_  SetFocus
 #_
+#_@@@
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.CurPos
+#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_--{owner}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Owner
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemCount
+#_{itemtype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemType
+#_{prevpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.PrevPos
+#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.GetValue
+#_{setfocus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.SetFocus
+#_
 #_
 </article>
 </node>
@@ -867,7 +1054,7 @@ lv=2
 dt=Text
 nm=Drv
 ctime=3553252704
-mtime=3600507154
+mtime=3607099119
 <article>
 #_**Drv** - a table with the following fields:
 #_
@@ -880,6 +1067,10 @@ mtime=3600507154
 #_
 #_  None.
 #_
+#_@@@
+#_{showmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
+#_{showpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
+#_
 </article>
 </node>
 <node>
@@ -888,7 +1079,7 @@ lv=2
 dt=Text
 nm=Editor
 ctime=3553252733
-mtime=3600507163
+mtime=3607106345
 <article>
 #_**Editor** - a table with the following fields:
 #_
@@ -915,6 +1106,25 @@ mtime=3600507163
 #_  SetTitle
 #_  Undo
 #_
+#_@@@
+#_{curline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurLine
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurPos
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.FileName
+#_{lines}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Lines
+#_{realpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.RealPos
+#_{selvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.SelValue
+#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.State
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Value
+#_{delline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.delline
+#_{getstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.getstr
+#_{insstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.insstr
+#_{pos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.pos
+#_{sel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.sel
+#_{set}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.set
+#_{setstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.setstr
+#_{settitle}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.settitle
+#_{undo}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.undo
+#_
 </article>
 </node>
 <node>
@@ -923,7 +1133,7 @@ lv=2
 dt=Text
 nm=Far
 ctime=3553252749
-mtime=3600507173
+mtime=3607109825
 <article>
 #_**Far** - a table with the following fields:
 #_
@@ -945,6 +1155,21 @@ mtime=3600507173
 #_  KeyBar_Show
 #_  Window_Scroll
 #_
+#_@@@
+#_{cfg_get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Get
+#_{disablehistory}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
+#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
+#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar_show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
+#_{pid}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.PID
+#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Title
+#_{uptime}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.UpTime
+#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Width
+#_{window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
+#_
+#_
 </article>
 </node>
 <node>
@@ -953,7 +1178,7 @@ lv=2
 dt=Text
 nm=Help
 ctime=3553252714
-mtime=3600507187
+mtime=3607108713
 <article>
 #_**Help** - a table with the following fields:
 #_
@@ -967,6 +1192,12 @@ mtime=3600507187
 #_
 #_  None.
 #_
+#_@@@
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.FileName
+#_{seltopic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.SelTopic
+#_{topic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.Topic
+#_
+#_
 </article>
 </node>
 <node>
@@ -975,7 +1206,7 @@ lv=2
 dt=Text
 nm=Menu
 ctime=3553252746
-mtime=3600507198
+mtime=3607109038
 <article>
 #_**Menu** - a table with the following fields:
 #_
@@ -993,6 +1224,17 @@ mtime=3600507198
 #_  Select
 #_  Show
 #_
+#_@@@
+#_{filterstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
+#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Filter
+#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.GetValue
+#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{itemstatus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
+#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Select
+#_{show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu.Show
+#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Value
+#_
+#_
 </article>
 </node>
 <node>
@@ -1001,7 +1243,7 @@ lv=2
 dt=Text
 nm=Mouse
 ctime=3553790262
-mtime=3600507905
+mtime=3607109427
 <article>
 #_**Mouse** - a table with the following fields:
 #_
@@ -1023,6 +1265,14 @@ mtime=3600507905
 #_  *Mouse.LastCtrlState* differs from *Mouse.CtrlState* by that its value updates
 #_  on both mouse events and keyboard events.
 #_
+#_@@@
+#_{button}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
+#_{ctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{eventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{x}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
+#_{y}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_
+#_
 </article>
 </node>
 <node>
@@ -1031,7 +1281,7 @@ lv=2
 dt=Text
 nm=Object
 ctime=3553245384
-mtime=3600508051
+mtime=3607109913
 <article>
 #_**Context-dependent values.**
 #_
@@ -1054,6 +1304,17 @@ mtime=3600508051
 #_  CheckHotkey
 #_  GetHotkey
 #_
+#_@@@
+#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#bof
+#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#CurPos
+#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#empty
+#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#eof
+#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#ItemCount
+#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#selected
+#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Title
+#_
 #_
 </article>
 </node>
@@ -1063,7 +1324,7 @@ lv=2
 dt=Text
 nm=Plugin
 ctime=3553252766
-mtime=3602539580
+mtime=3607110286
 <article>
 #_**Plugin** - a table with the following fields:
 #_
@@ -1085,6 +1346,14 @@ mtime=3602539580
 #_@@@
 #_[SyncCall]: 83.html
 #_[Call]: 65.html
+#_
+#_{command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Command
+#_{config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Config
+#_{exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Exist
+#_{load}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Load
+#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Menu
+#_{unload}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Unload
+#_
 #_
 </article>
 </node>
@@ -1140,6 +1409,20 @@ mtime=3600511225
 #_                              ["type"] = "array", and
 #_                              ["n"] = number of array elements)
 #_
+#_@@@
+#_{dialog}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Dialog
+#_{farmacrocall}: http://api.farmanager.com/ru/structures/farmacrocall.html
+#_{fmvt_array}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_ARRAY
+#_{fmvt_binary}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BINARY
+#_{fmvt_boolean}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BOOLEAN
+#_{fmvt_double}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_DOUBLE
+#_{fmvt_integer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_INTEGER
+#_{fmvt_nil}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_NIL
+#_{fmvt_string}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_STRING
+#_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
+#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_
+#_
 </article>
 </node>
 <node>
@@ -1162,6 +1445,8 @@ mtime=3600516727
 #_[limitations]: 62.html
 #_[Plugin.Call]: 65.html
 #_
+#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_
 </article>
 </node>
 <node>
@@ -1170,7 +1455,7 @@ lv=2
 dt=Text
 nm=Viewer
 ctime=3553252718
-mtime=3600516840
+mtime=3607110549
 <article>
 #_**Viewer** - a table with the following fields:
 #_
@@ -1182,6 +1467,11 @@ mtime=3600516840
 #_**Functions:**
 #_
 #_  None.
+#_
+#_@@@
+#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
+#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.State
+#_
 #_
 </article>
 </node>
@@ -1204,7 +1494,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3600523160
+mtime=3607110878
 <article>
 #_<markdown>
 #_
@@ -1278,6 +1568,14 @@ mtime=3600523160
 #_[LuaMacro]: 7.html
 #_[events]: 78.html
 #_
+#_@@@
+#_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
+#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_
 </article>
 </node>
 <node>
@@ -1286,7 +1584,7 @@ lv=2
 dt=Text
 nm=Keyboard macros
 ctime=3580139029
-mtime=3600530574
+mtime=3607111000
 <article>
 #_<markdown>
 #_
@@ -1315,6 +1613,11 @@ mtime=3600530574
 #_* Keyboard macros have higher priority than all other macros.
 #_  This avoids the need of resolving conflicts when one creates a temporary macro
 #_  (the typical use case of keyboard macros).
+#_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_
 #_
 </article>
 </node>
@@ -1356,6 +1659,9 @@ mtime=3600533342
 #_
 #_[1]: 75.html
 #_
+#_@@@
+#_
+#_
 </article>
 </node>
 <node>
@@ -1382,7 +1688,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3605509845
+mtime=3607111115
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
@@ -1407,6 +1713,9 @@ mtime=3605509845
 #_   with whitespace. Parameters are the sequence of Lua expressions delimited with commas.
 #_1. `lm:unload` - unloads all macros, except those created with `MCTL_ADDMACRO` operation.
 #_
+#_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
 #_
 #_
 </article>
@@ -1489,6 +1798,10 @@ mtime=3600542728
 #_        function inc_var() var = var+1 end
 #_        function dec_var() var = var-1 end
 #_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_
 </article>
 </node>
 <node>
@@ -1497,7 +1810,7 @@ lv=2
 dt=Text
 nm=Restrictions in the use of some functions
 ctime=3557323094
-mtime=3600544639
+mtime=3607111249
 <article>
 #_<markdown>
 #_The following functions have certain restrictions on their use in macros: 
@@ -1533,6 +1846,13 @@ mtime=3600544639
 #_[keys]: 4.html
 #_[printf]: 60.html
 #_
+#_@@@
+#_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command
+#_{plugin.config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.config
+#_{plugin.menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.menu
+#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_
+#_
 </article>
 </node>
 <node>
@@ -1541,7 +1861,7 @@ lv=2
 dt=Text
 nm=Introspection
 ctime=3558901787
-mtime=3600587996
+mtime=3607111386
 <article>
 #_<markdown>
 #_The global tables of macro API can be examined with `pairs()`,
@@ -1554,6 +1874,8 @@ mtime=3600587996
 #_
 #_    for k,v in pairs(Editor.properties) do .... end -- for properties
 #_```
+#_
+#_@@@
 #_
 </article>
 </node>
@@ -1577,7 +1899,7 @@ lv=2
 dt=Text
 nm=editor.SubscribeChangeEvent
 ctime=3589525063
-mtime=3600593081
+mtime=3607111437
 <article>
 #_<markdown>
 #_LuaFAR library contains the function `editor.SubscribeChangeEvent`. This function is redefined by [LuaMacro][LuaMacro] plugin for use by [event handlers][events]:
@@ -1590,6 +1912,10 @@ mtime=3600593081
 #_
 #_[LuaMacro]: 7.html
 #_[events]: 78.html
+#_
+#_@@@
+#_{ee_change}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html#EE_CHANGE
+#_
 </article>
 </node>
 <node>
@@ -1615,6 +1941,9 @@ mtime=3600594181
 #_
 #_[1]: 7.html
 #_
+#_@@@
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_
 </article>
 </node>
 <node>
@@ -1633,7 +1962,7 @@ lv=2
 dt=Text
 nm=Select the word under cursor
 ctime=3553195063
-mtime=3600595127
+mtime=3607111490
 <article>
 #_<markdown>
 #_```
@@ -1656,7 +1985,7 @@ lv=2
 dt=Text
 nm=Invoke the "change drive" menu
 ctime=3553195940
-mtime=3600601551
+mtime=3607111560
 <article>
 #_<markdown>
 #_```
@@ -1675,6 +2004,10 @@ mtime=3600601551
 #_}
 #_```
 #_
+#_@@@
+#_{apanel.left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{ppanel.visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#PPanel.Visible
+#_
 </article>
 </node>
 <node>
@@ -1683,7 +2016,7 @@ lv=2
 dt=Text
 nm=Select files newer than current one
 ctime=3552222560
-mtime=3600607440
+mtime=3607111650
 <article>
 #_<markdown>
 #_```
@@ -1723,6 +2056,11 @@ mtime=3600607440
 #_}
 #_```
 #_
+#_@@@
+#_{apanel.itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{panel.item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
+#_{panel.select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
+#_
 </article>
 </node>
 <node>
@@ -1731,7 +2069,7 @@ lv=2
 dt=Text
 nm=Create a directory with name = current date
 ctime=3553206604
-mtime=3600607611
+mtime=3607111743
 <article>
 #_<markdown>
 #_```
@@ -1749,6 +2087,9 @@ mtime=3600607611
 #_}
 #_```
 #_
+#_@@@
+#_{panel.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_
 </article>
 </node>
 <node>
@@ -1757,7 +2098,7 @@ lv=2
 dt=Text
 nm=Running script from within the editor
 ctime=3578455778
-mtime=3603569991
+mtime=3607111812
 <article>
 #_<markdown>
 #_```
@@ -1797,7 +2138,7 @@ lv=2
 dt=Text
 nm=FAR Manager. Macros and whatnot.
 ctime=3578043305
-mtime=3578065765
+mtime=3607111919
 <article>
 #_<markdown>
 #_<font face="Tahoma">
@@ -2069,6 +2410,7 @@ mtime=3578065765
 #_[this link]: http://translate.google.com/translate?hl=en&sl=ru&tl=en&u=http%3A%2F%2Fapi.farmanager.com%2Fru%2Fmacro%2Fmacrocmd%2Fprop_func%2Findex.html
 #_[lua explorer]: http://forum.farmanager.com/download/file.php?id=5553
 #_[thread]: http://forum.farmanager.com/viewtopic.php?f=60&t=7521
+#_
 #_
 </article>
 </node>
