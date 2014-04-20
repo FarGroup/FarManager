@@ -3,6 +3,80 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.04.2014 17:14:22 +0200 - build 3874
+
+1. Refactoring.
+
+w17 19.04.2014 22:47:13 +0400 - build 3873
+
+1. A bit more persistent persistent blocks in command line and dialog edit fields.
+
+w17 18.04.2014 13:07:22 +0400 - build 3872
+
+1. M#1465: Command line/dialog editors do not take plugin-made selection into account
+
+drkns 18.04.2014 10:43:09 +0200 - build 3871
+
+1. "Любимые кодовые страницы" -> "Избранные кодовые страницы".
+
+drkns 17.04.2014 20:06:46 +0200 - build 3870
+
+1. In 3868, virtual and subst drives detach confirmations were broken.
+
+drkns 17.04.2014 19:24:04 +0200 - build 3869
+
+1. More correct recognition of UTF8 / UTF16LE / UTF16BE.
+
+svs 17.04.2014 11:00:21 +0400 - build 3868
+
+1. GUIDs
+
+    DisconnectDriveId           = {A1BDBEB1-2911-41FF-BC08-EEBC44040B50}  --> Dlg.Id
+    Dialog "Disconnect network drive" (Del on a network drive in drive selection menu).
+
+    SUBSTDisconnectDriveId      = {75554EEB-A3A7-45FD-9795-4A85887A75A0}  --> Dlg.Id
+    Dialog "Substituted disk deletion"
+
+    VHDDisconnectDriveId        = {629A8CA6-25C6-498C-B3DD-0E18D1CC0BCD}  --> Dlg.Id
+    Dialog "Virtual disk detaching"
+
+    ChangeDriveModeId           = {F87F9351-6A80-4872-BEEE-96EF80C809FB}  --> Dlg.Id
+    Dialog "Change Drive Menu Options"
+
+
+drkns 15.04.2014 22:31:59 +0200 - build 3867
+
+1. Transition with +/- in viewer was broken in 3857.
+
+svs 15.04.2014 12:37:20 +0400 - build 3866
+
+1. Mantis#0002647: DM_SETFOCUS works incorrectly with presence of an item with DIF_NOFOCUS
+    Before focus change, force DIF_FOCUS flag cleared for all items.
+
+2. Mantis#0002608: Editor function: possiblility of the already loaded file is not always taken into account
+
+    If the file is already opened, then repeated modal opening shows a message 
+    "already loaded. How to open this file?" with two buttons "{ New instance }" and "[ Cancel ]".
+    API: from EF_OPENMODE_* modes, support only EF_OPENMODE_QUERY, EF_OPENMODE_NEWIFOPEN and 
+    EF_OPENMODE_BREAKIFOPEN (i.e. the buttons "New instance" and "Cancel").
+
+    (partial solution so far)
+
+3. GUIDs
+    EditorReloadModalId         = {D6F557E8-7E89-4895-BD75-4D3F2C30E382}  --> Dlg.Id
+    Editor. Warning dialog about repeated opening of already opened file in modal editor
+    (for non-modal ones - GUID==EditorReloadId)
+
+    EditorCanNotEditDirectoryId = {CCA2C4D0-8705-4FA1-9B10-C9E3C8F37A65}  --> Dlg.Id
+    Editor. Warning on attempt of directory editing 
+
+    EditorFileLongId            = {E3AFCD2D-BDE5-4E92-82B6-87C6A7B78FB6}  --> Dlg.Id
+    Editor. Warning on exceeding the size of the edited file (see Editor.FileSizeLimit and Editor.FileSizeLimitHi settings)
+
+    EditorFileGetSizeErrorId    = {6AD4B317-C1ED-44C8-A76A-9146CA8AF984}  --> Dlg.Id
+    Editor. Cannot get the size of the edited file (if Editor.FileSizeLimit and Editor.FileSizeLimitHi are set)
+
+
 drkns 13.04.2014 12:41:13 +0200 - build 3865
 
 1. Continuation of 0002645.
