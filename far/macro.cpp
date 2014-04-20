@@ -358,12 +358,130 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
+
+class KeyMacro::MacroRecord: NonCopyable
+{
+public:
+	MacroRecord():
+		m_flags(),
+		m_key(-1),
+		m_macroId(),
+		m_macrovalue(),
+		m_handle(0)
+	{
+	}
+
+	MacroRecord(MACROFLAGS_MFLAGS Flags, int MacroId, int Key, const wchar_t* Code):
+		m_flags(Flags),
+		m_key(Key),
+		m_code(Code),
+		m_macroId(MacroId),
+		m_macrovalue(),
+		m_handle(0)
+	{
+	}
+
+	MacroRecord(MacroRecord&& rhs):
+		m_flags(),
+		m_key(-1),
+		m_macroId(),
+		m_macrovalue(),
+		m_handle(0)
+	{
+		*this = std::move(rhs);
+	}
+
+	MOVE_OPERATOR_BY_SWAP(MacroRecord);
+
+	void swap(MacroRecord& rhs) noexcept
+	{
+		std::swap(m_flags, rhs.m_flags);
+		std::swap(m_key, rhs.m_key);
+		m_code.swap(rhs.m_code);
+		std::swap(m_macroId, rhs.m_macroId);
+		std::swap(m_macrovalue, rhs.m_macrovalue);
+		std::swap(m_handle, rhs.m_handle);
+	}
+
+	MACROFLAGS_MFLAGS Flags() const { return m_flags; }
+	int Key() const { return m_key; }
+	const string& Code() const { return m_code; }
+
+	intptr_t GetHandle() const { return m_handle; }
+	void SetHandle(intptr_t handle) { m_handle = handle; }
+	void SetBooleanValue(int val) { m_macrovalue.Type = FMVT_BOOLEAN; m_macrovalue.Boolean = val; }
+	FarMacroValue* GetValue() { return &m_macrovalue; }
+
+private:
+	friend class KeyMacro;
+
+	MACROFLAGS_MFLAGS m_flags;     // Флаги макропоследовательности
+	int m_key;                     // Назначенная клавиша
+	string m_code;                 // оригинальный "текст" макроса
+	int m_macroId;                 // Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
+	FarMacroValue m_macrovalue;    // Значение, хранимое исполняющимся макросом
+	intptr_t m_handle;             // Хэндл исполняющегося макроса
+};
+
+STD_SWAP_SPEC(KeyMacro::MacroRecord);
+
+
+class KeyMacro::MacroState: NonCopyable
+{
+public:
+	MacroState():
+		IntKey(0),
+		Executing(),
+		KeyProcess(),
+		HistoryDisable(),
+		UseInternalClipboard()
+	{
+	}
+
+	MacroState(MacroState&& rhs):
+		IntKey(0),
+		Executing(),
+		KeyProcess(),
+		HistoryDisable(),
+		UseInternalClipboard()
+	{
+		*this = std::move(rhs);
+	}
+
+	MOVE_OPERATOR_BY_SWAP(MacroState);
+
+	void swap(MacroState& rhs) noexcept
+	{
+		std::swap(IntKey, rhs.IntKey);
+		std::swap(Executing, rhs.Executing);
+		m_MacroQueue.swap(rhs.m_MacroQueue);
+		std::swap(KeyProcess, rhs.KeyProcess);
+		std::swap(HistoryDisable, rhs.HistoryDisable);
+		std::swap(UseInternalClipboard, rhs.UseInternalClipboard);
+	}
+
+	MacroRecord* GetCurMacro() { return m_MacroQueue.empty() ? nullptr : &m_MacroQueue.front(); }
+	const MacroRecord* GetCurMacro() const { return m_MacroQueue.empty() ? nullptr : &m_MacroQueue.front(); }
+	void RemoveCurMacro() { m_MacroQueue.pop_front(); }
+
+public:
+	DWORD IntKey; // "описание реально нажатой клавиши"
+	int Executing;
+	std::list<MacroRecord> m_MacroQueue;
+	int KeyProcess;
+	DWORD HistoryDisable;
+	bool UseInternalClipboard;
+};
+
+STD_SWAP_SPEC(KeyMacro::MacroState);
+
+
 void KeyMacro::PushState(bool withClip)
 {
 	if (withClip)
-		m_CurState.UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+		m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
 
-	m_StateStack.push(std::move(m_CurState));
+	m_StateStack.push(std::move(*m_CurState));
 }
 
 void KeyMacro::PopState(bool withClip)
@@ -371,20 +489,21 @@ void KeyMacro::PopState(bool withClip)
 	if (!m_StateStack.empty())
 	{
 		MacroState& dst = m_StateStack.top();
-		if(!m_CurState.m_MacroQueue.empty())
+		if(!m_CurState->m_MacroQueue.empty())
 		{
-			dst.m_MacroQueue.splice(dst.m_MacroQueue.end(), m_CurState.m_MacroQueue);
+			dst.m_MacroQueue.splice(dst.m_MacroQueue.end(), m_CurState->m_MacroQueue);
 		}
-		m_CurState = std::move(dst);
+		*m_CurState = std::move(dst);
 		m_StateStack.pop();
 
 		if (withClip)
-			Clipboard::SetUseInternalClipboardState(m_CurState.UseInternalClipboard);
+			Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
 	}
 }
 
 KeyMacro::KeyMacro():
 	m_Mode(MACROAREA_SHELL),
+	m_CurState(std::make_unique<MacroState>()),
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACROAREA_OTHER),
 	StartMode(MACROAREA_OTHER),
@@ -408,10 +527,10 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 {
 	if (InitedRAM)
 	{
-		m_CurState.m_MacroQueue.clear();
-		m_CurState.Executing=MACROMODE_NOMACRO;
+		m_CurState->m_MacroQueue.clear();
+		m_CurState->Executing=MACROMODE_NOMACRO;
 	}
-	m_CurState.HistoryDisable=0;
+	m_CurState->HistoryDisable=0;
 	m_Recording=MACROMODE_NOMACRO;
 	m_InternalInput=0;
 }
@@ -433,19 +552,19 @@ int KeyMacro::IsDisableOutput() const
 
 DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
 {
-	DWORD OldHistoryDisable=m_CurState.HistoryDisable;
-	m_CurState.HistoryDisable=Mask;
+	DWORD OldHistoryDisable=m_CurState->HistoryDisable;
+	m_CurState->HistoryDisable=Mask;
 	return OldHistoryDisable;
 }
 
 DWORD KeyMacro::GetHistoryDisableMask() const
 {
-	return m_CurState.HistoryDisable;
+	return m_CurState->HistoryDisable;
 }
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory) const
 {
-	return !m_CurState.m_MacroQueue.empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
+	return !m_CurState->m_MacroQueue.empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
 }
 
 bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
@@ -506,7 +625,7 @@ bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	return result && ptr;
 }
 
-MacroRecord* KeyMacro::CheckCurMacro()
+KeyMacro::MacroRecord* KeyMacro::CheckCurMacro()
 {
 	//_SHMUEL(SysLog(L"+CheckCurMacro"));
 	MacroRecord *macro = GetCurMacro();
@@ -535,6 +654,26 @@ MacroRecord* KeyMacro::CheckCurMacro()
 		RestoreMacroChar();
 	}
 	return nullptr;
+}
+
+KeyMacro::MacroRecord* KeyMacro::GetCurMacro()
+{
+	return m_CurState->GetCurMacro();
+}
+
+const KeyMacro::MacroRecord* KeyMacro::GetCurMacro() const
+{
+	return m_CurState->GetCurMacro();
+}
+
+KeyMacro::MacroRecord* KeyMacro::GetTopMacro()
+{
+	return m_StateStack.empty() ? nullptr : m_StateStack.top().GetCurMacro();
+}
+
+void KeyMacro::RemoveCurMacro()
+{
+	m_CurState->RemoveCurMacro();
 }
 
 void KeyMacro::RestoreMacroChar() const
@@ -680,7 +819,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting()||(m_CurState.m_MacroQueue.empty()&&!m_DisableNested))
+				if (!IsExecuting()||(m_CurState->m_MacroQueue.empty()&&!m_DisableNested))
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
@@ -698,8 +837,8 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					{
 						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey))
 						{
-							m_CurState.HistoryDisable = 0;
-							m_CurState.IntKey = Rec->IntKey;
+							m_CurState->HistoryDisable = 0;
+							m_CurState->IntKey = Rec->IntKey;
 						}
 						return true;
 					}
@@ -865,7 +1004,7 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
-	if (m_CurState.m_MacroQueue.empty() && !m_MacroPluginIsRunning)
+	if (m_CurState->m_MacroQueue.empty() && !m_MacroPluginIsRunning)
 	{
 		if (!m_StateStack.empty())
 		{
@@ -919,7 +1058,7 @@ int KeyMacro::GetKey()
 					Global->ScrBuf->Unlock();
 
 				RemoveCurMacro();
-				if (m_CurState.m_MacroQueue.empty())
+				if (m_CurState->m_MacroQueue.empty())
 				{
 					RestoreMacroChar();
 					return 0;
@@ -936,7 +1075,7 @@ int KeyMacro::GetKey()
 				{
 					DWORD aKey=KEY_NONE;
 					if (!(macro->Flags()&MFLAGS_POSTFROMPLUGIN))
-						aKey=m_CurState.IntKey;
+						aKey=m_CurState->IntKey;
 					else
 						aKey=macro->Key();
 					//_SHMUEL(SysLog(L"-KeyMacro::GetKey, returned 0x%X", aKey));
@@ -973,7 +1112,7 @@ int KeyMacro::GetKey()
 				const wchar_t *Arg = nullptr;
 				const wchar_t *Guid = nullptr;
 				GUID guid, menuGuid;
-				CallPluginInfo cpInfo={CPT_CHECKONLY};
+				PluginManager::CallPluginInfo cpInfo = { CPT_CHECKONLY };
 				bool ItemFailed=false;
 
 				macro->SetBooleanValue(0);
@@ -1127,7 +1266,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* PlainText,UINT64 Flags,DW
 {
 	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
 	{
-		m_CurState.m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText));
+		m_CurState->m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText));
 		return true;
 	}
 	return false;
@@ -2927,7 +3066,7 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 	};
 	const wchar_t *s = lpFullName; //start of sub-string
 	const wchar_t *p = s; //current string pointer
-	const wchar_t *es = s+StrLength(s); //end of string
+	const wchar_t *es = s + wcslen(s); //end of string
 	const wchar_t *e; //end of sub-string
 
 	if (!*p)
@@ -3015,7 +3154,7 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 
 	if (nFlags & FLAG_NAME)
 	{
-		const wchar_t *ptr=wcspbrk(s,L":");
+		const wchar_t *ptr = wcschr(s, L':');
 
 		if (ptr)
 			s=ptr+1;
@@ -4868,7 +5007,7 @@ static bool replaceFunc(FarMacroCall* Data)
 	// TODO: Здесь нужно проверить в соответствии с УНИХОДОМ!
 	string strStr;
 	//int lenS=(int)StrLength(Src.s());
-	int lenF = StrLength(Find.s());
+	size_t lenF = wcslen(Find.s());
 	//int lenR=(int)StrLength(Repl.s());
 	int cnt=0;
 
@@ -5116,8 +5255,8 @@ static bool strpadFunc(FarMacroCall* Data)
 	DWORD Op=(DWORD)Params[3].getInteger();
 
 	strDest=Src.s();
-	int LengthFill = StrLength(Fill.s());
-	if (Cnt > 0 && LengthFill > 0)
+	size_t LengthFill = wcslen(Fill.s());
+	if (Cnt > 0 && LengthFill)
 	{
 		int LengthSrc  = StrLength(Src.s());
 		int FineLength = Cnt-LengthSrc;

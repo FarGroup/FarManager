@@ -117,22 +117,7 @@ private:
 	bool PluginMode;
 	class IndeterminateTaskBar *TB;
 
-	struct CodePageInfo
-	{
-		CodePageInfo(uintptr_t CodePage):
-			CodePage(CodePage),
-			MaxCharSize(0),
-			LastSymbol(0),
-			WordFound(false)
-		{
-		}
-
-		uintptr_t CodePage;
-		UINT MaxCharSize;
-		wchar_t LastSymbol;
-		bool WordFound;
-	};
-
+	struct CodePageInfo;
 	std::list<CodePageInfo> codePages;
 
 	CriticalSection PluginCS;

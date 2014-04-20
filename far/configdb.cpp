@@ -2636,10 +2636,10 @@ public:
 void Database::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
-	int rc = pDb->InitStatus(pname, !!m_ImportExportMode);
+	int rc = pDb->InitStatus(pname, m_Mode != default_mode);
 	if ( rc > 0 )
 	{
-		if (m_ImportExportMode)
+		if (m_Mode != default_mode)
 		{
 			Console().Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
 			Console().Commit();
@@ -2700,7 +2700,7 @@ std::unique_ptr<T> Database::CreateDatabase(const char *son)
 {
 	auto cfg = std::make_unique<T>();
 	CheckDatabase(cfg.get());
-	if ('i' != m_ImportExportMode && cfg->IsNew())
+	if (m_Mode != import_mode && cfg->IsNew())
 	{
 		TryImportDatabase(cfg.get(), son);
 	}
@@ -2716,7 +2716,7 @@ HierarchicalConfigUniquePtr Database::CreateHierarchicalConfig(dbcheck DbId, con
 	if (first)
 		CheckDatabase(cfg);
 
-	if ('i' != m_ImportExportMode && cfg->IsNew() && first)
+	if (m_Mode != import_mode && cfg->IsNew() && first)
 		TryImportDatabase(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
@@ -2757,11 +2757,11 @@ HierarchicalConfigUniquePtr Database::CreatePanelModeConfig()
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
 
-Database::Database(char ImportExportMode):
+Database::Database(mode Mode):
 	m_TemplateDoc(nullptr),
 	m_TemplateRoot(nullptr),
 	m_TemplateLoadState(-1),
-	m_ImportExportMode(ImportExportMode),
+	m_Mode(Mode),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
 	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),

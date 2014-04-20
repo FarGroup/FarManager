@@ -193,23 +193,6 @@ std::vector<DialogItemEx> MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 	return Items;
 }
 
-// proxy class to pass raw arrays to Dialog ctor
-template<class T>
-class pass_as_container_t
-{
-public:
-	pass_as_container_t(T* items, size_t size):m_items(items), m_size(size){}
-	T* data() const {return m_items;}
-	size_t size() const {return m_size;}
-private:
-	T* m_items;
-	size_t m_size;
-};
-
-template<class T>
-const pass_as_container_t<T> pass_as_container(T* items, size_t size) {return pass_as_container_t<T>(items, size);}
-
-
 class DlgEdit;
 class ConsoleTitle;
 class Plugin;
@@ -222,7 +205,7 @@ public:
 	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
 
 	template<class T, class O>
-	Dialog(T& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
+	Dialog(T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam = nullptr):
 		bInitOK(false),
 		DataDialog(InitParam),
 		m_handler((object && function)? std::bind(function, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) : dialog_handler())
@@ -233,7 +216,7 @@ public:
 	}
 
 	template<class T>
-	Dialog(T& Src, dialog_handler handler = nullptr, void* InitParam = nullptr):
+	Dialog(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr):
 		bInitOK(false),
 		DataDialog(InitParam),
 		m_handler(handler)
@@ -379,21 +362,3 @@ private:
 
 bool IsKeyHighlighted(const string& Str,int Key,int Translate,int AmpPos=-1);
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
-
-class PluginDialog: public Dialog
-{
-public:
-	template<class T>
-	PluginDialog(const T& Src, FARWINDOWPROC DlgProc, void* InitParam):
-		Dialog(Src, DlgProc? this : nullptr, DlgProc? &PluginDialog::Proc : nullptr, InitParam),
-		m_Proc(DlgProc)
-	{}
-
-	intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
-	{
-		return m_Proc(hDlg, Msg, Param1, Param2);
-	}
-
-private:
-	FARWINDOWPROC m_Proc;
-};

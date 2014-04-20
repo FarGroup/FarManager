@@ -76,8 +76,59 @@ static inline const wchar_t* SkipRE(const wchar_t* masks)
 	return masks;
 }
 
-filemasks::masks::~masks()
+class filemasks::masks: NonCopyable
 {
+public:
+	masks(): bRE(false) {}
+	masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
+	~masks() {};
+	MOVE_OPERATOR_BY_SWAP(masks);
+
+	void swap(masks& rhs) noexcept
+	{
+		Masks.swap(rhs.Masks);
+		re.swap(rhs.re);
+		m.swap(rhs.m);
+		std::swap(bRE, rhs.bRE);
+	}
+
+	bool Set(const string& Masks);
+	bool operator ==(const string& Name) const;
+	void Free();
+	bool empty() const;
+
+private:
+	std::list<string> Masks;
+	std::unique_ptr<RegExp> re;
+	std::vector<RegExpMatch> m;
+	bool bRE;
+};
+
+STD_SWAP_SPEC(filemasks::masks);
+
+filemasks::filemasks()
+{
+}
+
+filemasks::~filemasks()
+{
+}
+
+filemasks::filemasks(filemasks&& rhs)
+{
+	*this = std::move(rhs);
+}
+
+filemasks& filemasks::operator=(filemasks&& rhs) noexcept
+{
+	swap(rhs);
+	return *this;
+}
+
+void filemasks::swap(filemasks& rhs) noexcept
+{
+	Include.swap(rhs.Include);
+	Exclude.swap(rhs.Exclude);
 }
 
 bool filemasks::Set(const string& masks, DWORD Flags)
@@ -86,7 +137,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 
 	if (!masks.empty())
 	{
-		Free();
+		clear();
 
 		string expmasks(masks);
 		std::list<string> UsedGroups;
@@ -192,7 +243,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			{
 				ErrorMessage();
 			}
-			Free();
+			clear();
 		}
 
 	}
@@ -200,7 +251,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 	return Result;
 }
 
-void filemasks::Free()
+void filemasks::clear()
 {
 	Include.clear();
 	Exclude.clear();

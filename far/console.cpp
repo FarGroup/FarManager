@@ -397,7 +397,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 
 virtual bool Write(LPCWSTR Buffer) const override
 {
-	return Write(Buffer, StrLength(Buffer));
+	return Write(Buffer, wcslen(Buffer));
 }
 
 virtual bool Write(const string& Buffer) const override

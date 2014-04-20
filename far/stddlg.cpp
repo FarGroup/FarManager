@@ -334,7 +334,7 @@ int GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		Dialog Dlg(pass_as_container(StrDlg.data(), StrDlg.size() - Substract));
+		Dialog Dlg(make_range(StrDlg.data(), StrDlg.data() + StrDlg.size() - Substract));
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg.SetId(*Id);
 

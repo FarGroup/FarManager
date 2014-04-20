@@ -871,6 +871,24 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 	return 0;
 }
 
+class PluginDialog: public Dialog
+{
+public:
+	template<class T>
+	PluginDialog(const T& Src, FARWINDOWPROC DlgProc, void* InitParam):
+		Dialog(Src, DlgProc ? this : nullptr, DlgProc ? &PluginDialog::Proc : nullptr, InitParam),
+		m_Proc(DlgProc)
+	{}
+
+	intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	{
+		return m_Proc(hDlg, Msg, Param1, Param2);
+	}
+
+private:
+	FARWINDOWPROC m_Proc;
+};
+
 HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
                             size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags,
@@ -889,7 +907,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		return hDlg;
 
 	{
-		Dialog *FarDialog = new PluginDialog(pass_as_container(Item, ItemsNumber), DlgProc, Param);
+		Dialog *FarDialog = new PluginDialog(make_range(Item, Item + ItemsNumber), DlgProc, Param);
 
 		if (FarDialog->InitOK())
 		{

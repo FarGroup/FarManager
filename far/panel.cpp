@@ -1252,16 +1252,16 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const string& Src,string &strLastName,string &strName)
 {
-	wchar_t_ptr Buffer(Src.size()+StrLength(FindEdit->GetStringAddr()) + 1);
+	wchar_t_ptr Buffer(Src.size() + wcslen(FindEdit->GetStringAddr()) + 1);
 
 	if (Buffer)
 	{
 		auto Ptr = Buffer.get();
 		wcscpy(Ptr,FindEdit->GetStringAddr());
-		wchar_t *EndPtr=Ptr+StrLength(Ptr);
+		wchar_t *EndPtr = Ptr + wcslen(Ptr);
 		wcscat(Ptr,Src.data());
 		Unquote(EndPtr);
-		EndPtr=Ptr+StrLength(Ptr);
+		EndPtr = Ptr + wcslen(Ptr);
 		for (;;)
 		{
 			if (EndPtr == Ptr)
@@ -2557,14 +2557,8 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 	ShortcutInfo Info;
 	if(GetShortcutInfo(Info))
 	{
-		if(Add)
-		{
-			Shortcuts().Add(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
-		}
-		else
-		{
-			Shortcuts().Set(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
-		}
+		auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
+		(Shortcuts().*Function)(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		return true;
 	}
 	return false;

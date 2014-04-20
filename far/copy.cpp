@@ -872,7 +872,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					if (MultiCopy) // мультикопирование
 					{
 						// Добавим кавычки, если имя каталога содержит символы-разделители
-						if (wcspbrk(strNewFolder.data(),L";,"))
+						if (strNewFolder.find_first_of(L";,") != string::npos)
 							InsertQuote(strNewFolder);
 
 						if (strOldFolder.size())
@@ -995,11 +995,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	CopyDlg[ID_SC_MULTITARGET].Selected=Global->Opt->CMOpt.MultiCopy;
 	{
 		const wchar_t *Str = MSG(MCopySecurity);
-		CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 1;
+		CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + wcslen(Str) - (wcschr(Str, L'&')?1:0) + 1;
 		Str = MSG(MCopySecurityLeave);
-		CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 5;
+		CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + wcslen(Str) - (wcschr(Str, L'&') ? 1 : 0) + 5;
 		Str = MSG(MCopySecurityCopy);
-		CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 5;
+		CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + wcslen(Str) - (wcschr(Str, L'&') ? 1 : 0) + 5;
 	}
 
 	if (Link)
@@ -1160,7 +1160,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		//   При копировании только элемента под курсором берем его имя в кавычки, если оно содержит разделители.
 		CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
 
-		if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData.data(),L",;"))
+		if (!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
 		{
 			// уберем все лишние кавычки
 			// возьмем в кавычки, т.к. могут быть разделители
@@ -1185,7 +1185,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				   Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
 				   ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
 				*/
-				if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData.data(),L",;"))
+				if (!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
 				{
 					// уберем все лишние кавычки
 					// возьмем в кавычки, т.к. могут быть разделители
@@ -1352,7 +1352,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					Global->Opt->CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
 				}
 
-				if (!CopyDlg[ID_SC_MULTITARGET].Selected || !wcspbrk(strCopyDlgValue.data(),L",;")) // отключено multi*
+				if (!CopyDlg[ID_SC_MULTITARGET].Selected || strCopyDlgValue.find_first_of(L",;") == string::npos) // отключено multi*
 				{
 					// уберем лишние кавычки
 					// добавим кавычки, чтобы "список" удачно скомпилировался вне
@@ -1580,7 +1580,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				// Если выделенных элементов больше 1 и среди них есть каталог, то всегда
 				// делаем так, чтобы на конце был '\\'
 				// деламем так не всегда, а только когда NameTmp не является маской.
-				if (AddSlash && !wcspbrk(strNameTmp.data(),L"*?"))
+				if (AddSlash && strNameTmp.find_first_of(L"*?") == string::npos)
 					AddEndSlash(strNameTmp);
 
 				if (SelCount==1 && !FolderPresent)
@@ -1767,7 +1767,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	DWORD Flags0 = Flags;
 
 	bool first = true;
-	bool UseWildCards = (wcspbrk(Dest.data(), L"*?") != nullptr);
+	bool UseWildCards = Dest.find_first_of(L"*?") != string::npos;
 	bool copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
 	bool move_rename = (0 != (Flags & FCOPY_MOVE));
 	bool SameDisk = false;

@@ -63,6 +63,8 @@ public:
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
 	static string MakeLink(const string& path, const string& topic);
 
+	struct StackHelpData;
+
 private:
 	virtual void DisplayObject() override;
 	virtual const string& GetTitle(string& Title) override {return Title;}
@@ -83,66 +85,9 @@ private:
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
 
-	struct StackHelpData: ::NonCopyable
-	{
-		StackHelpData():
-			Flags(),
-			TopStr(),
-			CurX(),
-			CurY()
-		{}
-
-		StackHelpData(const StackHelpData& rhs):
-			strHelpMask(rhs.strHelpMask),
-			strHelpPath(rhs.strHelpPath),
-			strHelpTopic(rhs.strHelpTopic),
-			strSelTopic(rhs.strSelTopic),
-			Flags(rhs.Flags),
-			TopStr(rhs.TopStr),
-			CurX(rhs.CurX),
-			CurY(rhs.CurY)
-		{}
-
-
-		StackHelpData(StackHelpData&& rhs):
-			Flags(),
-			TopStr(),
-			CurX(),
-			CurY()
-		{
-			*this = std::move(rhs);
-		}
-
-		COPY_OPERATOR_BY_SWAP(StackHelpData);
-		MOVE_OPERATOR_BY_SWAP(StackHelpData);
-
-		void swap(StackHelpData& rhs) noexcept
-		{
-			strHelpMask.swap(rhs.strHelpMask);
-			strHelpPath.swap(rhs.strHelpPath);
-			strHelpTopic.swap(rhs.strHelpTopic);
-			strSelTopic.swap(rhs.strSelTopic);
-			std::swap(Flags, rhs.Flags);
-			std::swap(TopStr, rhs.TopStr);
-			std::swap(CurX, rhs.CurX);
-			std::swap(CurY, rhs.CurY);
-		}
-
-		string strHelpMask;           // значение маски
-		string strHelpPath;           // путь к хелпам
-		string strHelpTopic;         // текущий топик
-		string strSelTopic;          // выделенный топик (???)
-
-		UINT64 Flags;                  // флаги
-		int   TopStr;                 // номер верхней видимой строки темы
-		int   CurX,CurY;              // координаты (???)
-	}
-	StackData;
-
-	ALLOW_SWAP_ACCESS(StackHelpData);
-
+	std::unique_ptr<StackHelpData> StackData;
 	KeyBar      HelpKeyBar;     // кейбар
-	std::stack<StackHelpData> Stack; // стек возврата
+	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
 	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
 	string  strFullHelpPathName;
 	string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
@@ -172,5 +117,3 @@ private:
 	bool ErrorHelp;
 	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };
-
-STD_SWAP_SPEC(Help::StackHelpData);

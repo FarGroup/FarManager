@@ -204,37 +204,40 @@ void LocalUpperInit()
 	}
 }
 
-struct QsortexHelper
+typedef int(*comparer)(const void*, const void*);
+typedef int(*comparer_ex)(const void*, const void*, void*);
+
+struct comparer_helper
 {
-	int (__cdecl *fcmp)(const void *, const void *,void *userparam);
+	comparer_ex cmp;
 	void* user;
 };
 
-static int WINAPI qsortCmp(const void *one, const void *two,void *user)
+static int WINAPI comparer_wrapper(const void *one, const void *two, void *user)
 {
-	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
+	return reinterpret_cast<comparer>(user)(one, two);
 }
 
-static int WINAPI qsortexCmp(const void *one, const void *two,void *user)
+static int WINAPI comparer_ex_wrapper(const void *one, const void *two, void *user)
 {
-	auto helper = static_cast<QsortexHelper*>(user);
-	return helper->fcmp(one,two,helper->user);
+	auto helper = static_cast<comparer_helper*>(user);
+	return helper->cmp(one,two,helper->user);
 }
 
-static void WINAPI qsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+static void WINAPI qsort(void *base, size_t nelem, size_t width, comparer cmp)
 {
-	NativeFSF.qsort(base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
+	NativeFSF.qsort(base, nelem, width, comparer_wrapper, reinterpret_cast<void*>(cmp));
 }
 
-static void WINAPI qsortex(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam)
+static void WINAPI qsortex(void *base, size_t nelem, size_t width, comparer_ex cmp, void *userparam)
 {
-	QsortexHelper helper={fcmp,userparam};
-	NativeFSF.qsort(base,nelem,width,qsortexCmp,&helper);
+	comparer_helper helper = {cmp, userparam};
+	NativeFSF.qsort(base, nelem, width, comparer_ex_wrapper, &helper);
 }
 
-static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, size_t width, comparer cmp)
 {
-	return NativeFSF.bsearch(key,base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
+	return NativeFSF.bsearch(key, base, nelem, width, comparer_wrapper, reinterpret_cast<void*>(cmp));
 }
 
 static int WINAPI LocalIslower(unsigned Ch)
@@ -301,7 +304,7 @@ static void WINAPI LocalStrlwr(char *s1)
 	std::for_each(RANGE(str, i) { i = UpperToLower[as_index(i)]; });
 }
 
-static int __cdecl LocalStricmp(const char *s1,const char *s2)
+static int LocalStricmp(const char *s1,const char *s2)
 {
 	while (1)
 	{
@@ -317,7 +320,7 @@ static int __cdecl LocalStricmp(const char *s1,const char *s2)
 	return 0;
 }
 
-static int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
+static int LocalStrnicmp(const char *s1,const char *s2,int n)
 {
 	while (n-- > 0)
 	{
@@ -2320,7 +2323,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 		{
 			Msg=oldfar::DN_DRAWDLGITEM;
 			auto di = static_cast<FarDialogItem*>(Param2);
-			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
+			auto FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 			intptr_t ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
 			if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 			{
@@ -2434,7 +2437,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (gdi.Item)
 				{
 					NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
-					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
+					auto FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
 					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
 					return TRUE;
 				}
@@ -4940,7 +4943,10 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 
 		_info.RootKey = static_cast<OEMPluginModel*>(m_model)->getUserName().data();
 
-		api::env::set_variable(L"FARUSER", Global->strRegUser);
+		if (Global->strRegUser.empty())
+			api::env::delete_variable(L"FARUSER");
+		else
+			api::env::set_variable(L"FARUSER", Global->strRegUser);
 
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info));
 

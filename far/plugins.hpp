@@ -3,7 +3,7 @@
 /*
 plugins.hpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в flplugin.cpp)
+Работа с плагинами (низкий уровень, кое-что повыше в filelist.cpp)
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -132,20 +132,6 @@ static const CALLPLUGINFLAGS
 	CPT_MASK        = 0x0000000FL,
 	CPT_CHECKONLY   = 0x10000000L;
 
-struct CallPluginInfo
-{
-	CALLPLUGINFLAGS CallFlags;
-	int OpenFrom;
-	union
-	{
-		GUID *ItemGuid;
-		const wchar_t *Command;
-	};
-	// Используется в функции CallPluginItem для внутренних нужд
-	Plugin *pPlugin;
-	GUID FoundGuid;
-};
-
 struct PluginHandle
 {
 	HANDLE hPlugin;
@@ -205,6 +191,20 @@ public:
 	iterator end() const { return SortedPlugins.cend(); }
 	iterator cbegin() const { return begin(); }
 	iterator cend() const { return end(); }
+
+	struct CallPluginInfo
+	{
+		CALLPLUGINFLAGS CallFlags;
+		int OpenFrom;
+		union
+		{
+			GUID *ItemGuid;
+			const wchar_t *Command;
+		};
+		// Используется в функции CallPluginItem для внутренних нужд
+		Plugin *pPlugin;
+		GUID FoundGuid;
+	};
 
 	Plugin *GetPlugin(const string& ModuleName);
 	size_t GetPluginsCount() const { return SortedPlugins.size(); }

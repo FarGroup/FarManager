@@ -366,30 +366,33 @@ template<class T>
 size_t as_index(T t) { return static_cast<typename std::make_unsigned<T>::type>(t); }
 
 template<class iterator_type>
-class subrange
+class range
 {
 public:
 	typedef iterator_type iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef typename std::iterator_traits<iterator>::reference reference;
+	typedef typename std::iterator_traits<iterator>::pointer pointer;
+	typedef typename std::iterator_traits<iterator>::value_type value_type;
 
-	subrange(iterator i_begin, iterator i_end):
+	range(iterator i_begin, iterator i_end):
 		m_begin(i_begin),
 		m_end(i_end)
 	{}
 
 	iterator begin() const { return m_begin; }
 	iterator end() const { return m_end; }
-
 	reverse_iterator rbegin() const { return reverse_iterator(m_end); }
 	reverse_iterator rend() const { return reverse_iterator(m_begin); }
-
 
 	reference operator[](size_t n) { return *(m_begin + n); }
 	const reference operator[](size_t n) const { return *(m_begin + n); }
 
 	reference front() { return *m_begin; }
 	reference back() { return *std::prev(m_end); }
+
+	pointer data() { return &*m_begin; }
+	pointer data() const { return &*m_begin; }
 
 	bool empty() const { return m_begin == m_end; }
 	size_t size() const { return m_end - m_begin; }
@@ -400,9 +403,9 @@ private:
 };
 
 template<class iterator_type>
-inline subrange<iterator_type> make_subrange(iterator_type i_begin, iterator_type i_end)
+inline range<iterator_type> make_range(iterator_type i_begin, iterator_type i_end)
 {
-	return subrange<iterator_type>(i_begin, i_end);
+	return range<iterator_type>(i_begin, i_end);
 }
 
 template<typename T>
@@ -461,6 +464,7 @@ template <class R, class... A> struct return_type<R(*)(A...)> DEFINE_R_TYPE
 #endif
 #undef DEFINE_R_TYPE
 #define FN_RETURN_TYPE(function_name) return_type<decltype(&function_name)>::type
+
 
 #ifdef _DEBUG
 #define SELF_TEST(code) \

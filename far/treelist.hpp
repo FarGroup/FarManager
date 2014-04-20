@@ -42,55 +42,6 @@ enum
 	MODALTREE_FREE    =3
 };
 
-class TreeListCache: NonCopyable
-{
-public:
-	TreeListCache() {}
-	TreeListCache(TreeListCache&& rhs) { *this = std::move(rhs); }
-
-	MOVE_OPERATOR_BY_SWAP(TreeListCache);
-
-	void swap(TreeListCache& rhs) noexcept
-	{
-		m_TreeName.swap(rhs.m_TreeName);
-		m_Names.swap(rhs.m_Names);
-	}
-
-	void clear()
-	{
-		m_Names.clear();
-		m_TreeName.clear();
-	}
-
-	bool empty() const { return m_Names.empty(); }
-
-	void add(const wchar_t* Name);
-	void add(string&& Name);
-	void remove(const wchar_t* Name);
-	void rename(const wchar_t* OldName, const wchar_t* NewName);
-
-	const string& GetTreeName() const { return m_TreeName; }
-	void SetTreeName(const string& Name) { m_TreeName = Name; }
-
-private:
-	struct cache_less
-	{
-		bool operator()(const string& a, const string& b) const;
-	};
-
-	typedef std::set<string, cache_less> cache_set;
-
-public:
-	typedef cache_set::const_iterator const_iterator;
-	const_iterator begin() const { return m_Names.cbegin(); }
-	const_iterator end() const { return m_Names.cend(); }
-
-private:
-	cache_set m_Names;
-	string m_TreeName;
-};
-
-STD_SWAP_SPEC(TreeListCache);
 
 class TreeList: public Panel
 {

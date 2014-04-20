@@ -333,7 +333,7 @@ public:
 	bool GetFocus() const { return Focus; }
 	int GetType() const {return Type;}
 	void SetUpdateMode(int Mode) {EnableUpdate=Mode;}
-	bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
+	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
 	int SetCurPath();
 	BOOL NeedUpdatePanel(const Panel *AnotherPanel);
 	bool IsFullScreen() const { return (ViewSettings.Flags & PVS_FULLSCREEN) != 0; }

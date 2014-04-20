@@ -321,32 +321,6 @@ private:
 	int MacroSelectionStart;
 	int CursorPos;
 
-	/* $ 04.11.2003 SKV
-	на любом выходе если была нажата кнопка выделения,
-	и она его "сняла" (сделала 0-й ширины), то его надо убрать.
-	*/
-	class EditorBlockGuard : ::NonCopyable
-	{
-	public:
-		EditorBlockGuard(Editor& ed, void (Editor::*method)()):
-			ed(ed),
-			method(method),
-			needCheckUnmark(false)
-		{}
-
-		~EditorBlockGuard()
-		{
-			if (needCheckUnmark)(ed.*method)();
-		}
-
-		void SetNeedCheckUnmark(bool State) { needCheckUnmark = State; }
-
-	private:
-		Editor& ed;
-		void (Editor::*method)();
-		bool needCheckUnmark;
-	};
-
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{
 		EditorPreRedrawItem():

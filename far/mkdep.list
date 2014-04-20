@@ -102,9 +102,7 @@ findfile.cpp
 findfile.hpp
 flink.cpp
 flink.hpp
-flplugin.cpp
 flshow.cpp
-flupdate.cpp
 fnparce.cpp
 fnparce.hpp
 foldtree.cpp

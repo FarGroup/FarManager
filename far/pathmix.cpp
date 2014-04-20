@@ -356,7 +356,7 @@ void AddEndSlash(string &strPath)
 
 void DeleteEndSlash(wchar_t *Path)
 {
-	size_t len = StrLength(Path);
+	size_t len = wcslen(Path);
 
 	while (len && IsSlash(Path[--len]))
 	{

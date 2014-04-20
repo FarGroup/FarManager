@@ -89,7 +89,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 
 static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 {
-	size_t l = StrLength(Str);
+	size_t l = wcslen(Str);
 
 	if (*Str != QuoteChar)
 	{
@@ -157,7 +157,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr.data(), Global->Opt->strQuotedSymbols.data()) )
+	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
 		InsertQuote(strStr);
 
 	return strStr;
@@ -375,7 +375,7 @@ wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 		;
 
 	if (ChPtr!=Str)
-		wmemmove(Str,ChPtr,StrLength(ChPtr)+1);
+		wmemmove(Str, ChPtr, wcslen(ChPtr) + 1);
 
 	return Str;
 }
@@ -402,7 +402,7 @@ wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 	if (!*Str)
 		return Str;
 
-	for (wchar_t *ChPtr=Str+StrLength(Str)-1; ChPtr >= Str; ChPtr--)
+	for (wchar_t *ChPtr = Str + wcslen(Str) - 1; ChPtr >= Str; ChPtr--)
 	{
 		if (IsSpace(*ChPtr) || IsEol(*ChPtr))
 			*ChPtr=0;
@@ -626,21 +626,21 @@ void UnquoteExternal(string &strStr)
 enum
 {
 	UNIT_COUNT = 7, // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
-	MAX_UNITSTR_SIZE = 16,
 };
 
-static wchar_t UnitStr[UNIT_COUNT][2][MAX_UNITSTR_SIZE]={};
-
+static string& UnitStr(size_t B, size_t Div)
+{
+	static string Data[UNIT_COUNT][2];
+	return Data[B][Div];
+}
 
 void PrepareUnitStr()
 {
-
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		xwcsncpy(UnitStr[i][0],MSG(MListBytes+i),MAX_UNITSTR_SIZE);
-		wcscpy(UnitStr[i][1],UnitStr[i][0]);
-		CharLower(UnitStr[i][0]);
-		CharUpper(UnitStr[i][1]);
+		UnitStr(i, 0) = UnitStr(i, 1) = MSG(MListBytes + i);
+		Lower(UnitStr(i, 0));
+		Upper(UnitStr(i, 1));
 	}
 }
 
@@ -651,7 +651,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 	size_t IndexDiv, IndexB;
 
 	// подготовительные мероприятия
-	if (!UnitStr[0][0][0])
+	if (UnitStr(0, 0).empty())
 	{
 		PrepareUnitStr();
 	}
@@ -718,10 +718,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 			if (Width<0)
 				Width=0;
 
-			if (Economic)
-				strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
-			else
-				strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+			strDestStr = str_printf(Economic ? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
 		}
 		else
 			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
@@ -743,10 +740,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 			if (Width<0)
 				Width=0;
 
-			if (Economic)
-				strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
-			else
-				strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[0][IndexDiv]);
+			strDestStr = str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(0, IndexDiv).data());
 		}
 		else
 			strDestStr = str_printf(L"%*.*s",Width,Width,strStr.data());
@@ -778,10 +772,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 		}
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
 
-		if (Economic)
-			strDestStr = str_printf(L"%*.*s%1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
-		else
-			strDestStr = str_printf(L"%*.*s %1.1s",Width,Width,strStr.data(),UnitStr[IndexB][IndexDiv]);
+		strDestStr = str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
 	}
 
 	return strDestStr;
@@ -884,7 +875,7 @@ string& FarFormatText(const string& SrcText,      // источник
 
 	string strSrc = SrcText; //copy string in case of SrcText == strDestText
 
-	if (!wcspbrk(strSrc.data(),breakchar) && strSrc.size() <= static_cast<size_t>(Width))
+	if (strSrc.find_first_of(breakchar) == string::npos && strSrc.size() <= static_cast<size_t>(Width))
 	{
 		strDestText = strSrc;
 		return strDestText;
@@ -894,7 +885,7 @@ string& FarFormatText(const string& SrcText,      // источник
 	string newtext;
 	const wchar_t *text= strSrc.data();
 	long linelength = Width;
-	int breakcharlen = StrLength(breakchar);
+	size_t breakcharlen = wcslen(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 	/* Special case for a single-character break as it needs no
 	   additional storage space */

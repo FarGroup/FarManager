@@ -74,6 +74,32 @@ static int EditorID=0;
 // EditorUndoData
 enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 
+/* $ 04.11.2003 SKV
+на любом выходе если была нажата кнопка выделения,
+и она его "сняла" (сделала 0-й ширины), то его надо убрать.
+*/
+class EditorBlockGuard: NonCopyable
+{
+public:
+	EditorBlockGuard(Editor& ed, void (Editor::*method)()):
+		ed(ed),
+		method(method),
+		needCheckUnmark(false)
+	{}
+
+	~EditorBlockGuard()
+	{
+		if (needCheckUnmark)(ed.*method)();
+	}
+
+	void SetNeedCheckUnmark(bool State) { needCheckUnmark = State; }
+
+private:
+	Editor& ed;
+	void (Editor::*method)();
+	bool needCheckUnmark;
+};
+
 Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	FirstLine(Lines.end()),
 	LastLine(Lines.end()),
@@ -4360,7 +4386,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 {
 	size_t TotalChars = size;
 
-	FOR(const auto& i, make_subrange(BlockStart, Lines.end()))
+	FOR(const auto& i, make_range(BlockStart, Lines.end()))
 	{
 		intptr_t StartSel, EndSel;
 		i.GetSelection(StartSel, EndSel);
@@ -4386,7 +4412,7 @@ string Editor::Block2Text(const wchar_t* InitData, size_t size)
 		CopyData.assign(InitData, size);
 	}
 
-	FOR (const auto& i, make_subrange(BlockStart, Lines.end()))
+	FOR(const auto& i, make_range(BlockStart, Lines.end()))
 	{
 		intptr_t StartSel, EndSel;
 		i.GetSelection(StartSel, EndSel);

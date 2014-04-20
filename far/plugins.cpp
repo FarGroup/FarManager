@@ -1,7 +1,7 @@
 /*
 plugins.cpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в flplugin.cpp)
+Работа с плагинами (низкий уровень, кое-что повыше в filelist.cpp)
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -1970,7 +1970,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam,Panel *Target)
 		for (;;)
 		{
 			const wchar_t *PrEnd = wcschr(PrStart, L':');
-			size_t Len=PrEnd ? (PrEnd-PrStart):StrLength(PrStart);
+			size_t Len = PrEnd? (PrEnd - PrStart) : wcslen(PrStart);
 
 			if (Len<PrefixLength)Len=PrefixLength;
 

@@ -35,46 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FarGuid.hpp"
 
-struct ShortcutItem: NonCopyable
-{
-	ShortcutItem(): PluginGuid(FarGuid) {}
-	ShortcutItem(const string& Name, const string& Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
-		strName(Name),
-		strFolder(Folder),
-		strPluginFile(PluginFile),
-		strPluginData(PluginData),
-		PluginGuid(PluginGuid)
-	{
-	}
-
-	ShortcutItem(ShortcutItem&& rhs): PluginGuid(FarGuid) { *this = std::move(rhs); }
-
-	MOVE_OPERATOR_BY_SWAP(ShortcutItem);
-	bool operator==(const ShortcutItem& Item) const;
-	bool operator!=(const ShortcutItem& Item) const { return !(*this == Item); }
-	void swap(ShortcutItem& rhs) noexcept
-	{
-		strName.swap(rhs.strName);
-		strFolder.swap(rhs.strFolder);
-		strPluginFile.swap(rhs.strPluginFile);
-		strPluginData.swap(rhs.strPluginData);
-		std::swap(PluginGuid, rhs.PluginGuid);
-	}
-
-	ShortcutItem clone()
-	{
-		return ShortcutItem(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
-	}
-
-	string strName;
-	string strFolder;
-	string strPluginFile;
-	string strPluginData;
-	GUID PluginGuid;
-};
-
-STD_SWAP_SPEC(ShortcutItem);
-
 class VMenu2;
 struct MenuItemEx;
 
@@ -90,11 +50,12 @@ public:
 	void Configure();
 	void Save();
 
-private:
-	std::array<std::list<ShortcutItem>, 10> Items;
-	bool Changed;
-	void MakeItemName(size_t Pos, MenuItemEx* str);
-	void EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw=false);
+	struct shortcut;
 
-	static bool Accept();
+private:
+	void MakeItemName(size_t Pos, MenuItemEx& str);
+	void EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw = false);
+
+	std::array<std::list<shortcut>, 10> Items;
+	bool Changed;
 };

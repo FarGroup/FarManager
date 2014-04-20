@@ -351,6 +351,8 @@ public:
 	static bool IsModeFullScreen(int Mode);
 	static string &AddPluginPrefix(const FileList *SrcPanel,string &strPrefix);
 
+	struct PrevDataItem;
+
 protected:
 	virtual void ClearAllItem() override;
 
@@ -416,32 +418,6 @@ private:
 
 	static void AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times=nullptr, const string& Owner = string());
 
-	struct PrevDataItem
-	{
-		PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
-			strPrevName(rhsPrevName),
-			PrevTopFile(rhsPrevTopFile)
-		{
-			PrevListData.swap(rhsPrevListData);
-		}
-
-		PrevDataItem(PrevDataItem&& rhs): PrevTopFile() { *this = std::move(rhs); }
-
-		MOVE_OPERATOR_BY_SWAP(PrevDataItem);
-
-		void swap(PrevDataItem& rhs) noexcept
-		{
-			strPrevName.swap(rhs.strPrevName);
-			PrevListData.swap(rhs.PrevListData);
-			std::swap(PrevTopFile, rhs.PrevTopFile);
-		}
-
-		string strPrevName;
-		std::vector<FileListItem> PrevListData;
-		int PrevTopFile;
-	};
-	ALLOW_SWAP_ACCESS(PrevDataItem);
-
 	std::unique_ptr<FileFilter> Filter;
 	DizList Diz;
 	int DizRead;
@@ -487,5 +463,3 @@ private:
 
 	wchar_t CustomSortIndicator[2];
 };
-
-STD_SWAP_SPEC(FileList::PrevDataItem);

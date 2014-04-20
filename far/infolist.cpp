@@ -737,7 +737,7 @@ int InfoList::ProcessKey(int Key)
 
 				while ((p = GetCommaWord(p,strArgName)) )
 				{
-					if (!wcspbrk(strArgName.data(), L"*?"))
+					if (strArgName.find_first_of(L"*?") == string::npos)
 					{
 						new FileEditor(strArgName,CP_DEFAULT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
 						break;

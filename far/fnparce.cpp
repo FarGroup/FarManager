@@ -230,12 +230,11 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		{
 			if (Ptr[1] != L'?')
 			{
-				wchar_t Modifers[32]={};
-				xwcsncpy(Modifers,CurStr+2,std::min(ARRAYSIZE(Modifers),static_cast<size_t>(Ptr-(CurStr+2)+1)));
+				const string Modifers(CurStr+2, static_cast<size_t>(Ptr-(CurStr+2)));
 
 				if (pListName)
 				{
-					if (PSubstData->PassivePanel && (!pAnotherListName->empty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName,ShortN0,Modifers)))
+					if (PSubstData->PassivePanel && (!pAnotherListName->empty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							ConvertNameToShort(*pAnotherListName, *pAnotherListName);
@@ -243,7 +242,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 						strOut += *pAnotherListName;
 					}
 
-					if (!PSubstData->PassivePanel && (!pListName->empty() || PSubstData->ActivePanel->MakeListFile(*pListName,ShortN0,Modifers)))
+					if (!PSubstData->PassivePanel && (!pListName->empty() || PSubstData->ActivePanel->MakeListFile(*pListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							ConvertNameToShort(*pListName,*pListName);
@@ -501,8 +500,8 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	struct pos_item
 	{
-		size_t StrPos;
-		size_t StrEndPos;
+		ptrdiff_t Pos;
+		ptrdiff_t EndPos;
 	};
 	std::vector<pos_item> Positions;
 	Positions.reserve(128);
@@ -545,7 +544,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 		}
 
 		{
-			pos_item Item = {Str - StartStr - 2U, Str - StartStr - 2U + ii};
+			pos_item Item = {Str - StartStr - 2, Str - StartStr - 2 + ii};
 			Positions.emplace_back(Item);
 		}
 
@@ -726,11 +725,11 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 
 	for (Str=StartStr; *Str; Str++)
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.StrPos == static_cast<size_t>(Str - StartStr); });
+		auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.Pos == Str - StartStr; });
 		if (ItemIterator != Positions.cend())
 		{
 			strTmpStr += DlgData[(ItemIterator - Positions.cbegin()) * 2 + 2].strData;
-			Str = StartStr + ItemIterator->StrEndPos;
+			Str = StartStr + ItemIterator->EndPos;
 		}
 		else
 		{
@@ -742,7 +741,7 @@ int ReplaceVariables(const wchar_t *DlgTitle,string &strStr,TSubstData *PSubstDa
 	return 1;
 }
 
-bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers)
+bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers)
 {
 	bool Ret=false;
 
@@ -755,9 +754,9 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 			LPCVOID Eol="\r\n";
 			DWORD EolSize=2;
 
-			if (Modifers && *Modifers)
+			if (!Modifers.empty())
 			{
-				if (wcschr(Modifers,L'A')) // ANSI
+				if (Modifers.find(L'A') != string::npos) // ANSI
 				{
 					CodePage=CP_ACP;
 				}
@@ -766,7 +765,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					DWORD Signature=0;
 					int SignatureSize=0;
 
-					if (wcschr(Modifers,L'W')) // UTF16LE
+					if (Modifers.find(L'W') != string::npos) // UTF16LE
 					{
 						CodePage=CP_UNICODE;
 						Signature=SIGN_UNICODE;
@@ -776,7 +775,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					}
 					else
 					{
-						if (wcschr(Modifers,L'U')) // UTF8
+						if (Modifers.find(L'U') != string::npos) // UTF8
 						{
 							CodePage=CP_UTF8;
 							Signature=SIGN_UTF8;
@@ -801,9 +800,9 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				if (ShortNames)
 					strFileName = strShortName;
 
-				if (Modifers && *Modifers)
+				if (!Modifers.empty())
 				{
-					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
+					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
 						string strTempFileName(strCurDir);
 
@@ -815,10 +814,10 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 						strFileName=strTempFileName;
 					}
 
-					if (wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+					if (Modifers.find(L'Q') != string::npos) // 'Q' - заключать имена с пробелами в кавычки;
 						QuoteSpaceOnly(strFileName);
 
-					if (wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+					if (Modifers.find(L'S') != string::npos) // 'S' - использовать '/' вместо '\' в путях файлов;
 					{
 						std::replace(ALL_RANGE(strFileName), L'\\', L'/');
 					}

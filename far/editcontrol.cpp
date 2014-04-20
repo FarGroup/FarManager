@@ -248,8 +248,7 @@ bool EnumModules(const string& Module, VMenu2* DestMenu)
 				{
 					std::for_each(CONST_RANGE(PathExtList, Ext)
 					{
-						LPCWSTR ModuleExt=wcsrchr(i.strFileName.data(),L'.');
-						if(!StrCmpI(ModuleExt, Ext.data()))
+						if (!StrCmpI(Ext.data(), PointToExt(i.strFileName)))
 						{
 							Modules.emplace(i.strFileName);
 							Result=true;

@@ -115,7 +115,17 @@ static int PrepareHotKey(string &strHotKey)
 
 const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
-static void MenuListToFile(const std::list<UserMenu::UserMenuItem>& Menu, CachedWrite& CW)
+struct UserMenu::UserMenuItem
+{
+	UserMenuItem():Submenu(false) {}
+	string strHotKey;
+	string strLabel;
+	std::list<string> Commands;
+	bool Submenu;
+	menu_container Menu;
+};
+
+static void MenuListToFile(const UserMenu::menu_container& Menu, CachedWrite& CW)
 {
 	std::for_each(CONST_RANGE(Menu, i)
 	{
@@ -142,9 +152,9 @@ static void MenuListToFile(const std::list<UserMenu::UserMenuItem>& Menu, Cached
 	});
 }
 
-static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void MenuFileToList(UserMenu::menu_container& Menu, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
-	UserMenu::UserMenuItem *MenuItem = nullptr;
+	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
 	string MenuStr;
 	while (GetStr.GetString(MenuStr))
@@ -203,13 +213,13 @@ static void MenuFileToList(std::list<UserMenu::UserMenuItem>& Menu, GetFileStrin
 	}
 }
 
-UserMenu::UserMenu(bool ChoiceMenuType):
+UserMenu::UserMenu(bool MenuType):
 	MenuMode(MM_LOCAL),
 	MenuModified(false),
 	MenuNeedRefresh(false),
 	ItemChanged(false)
 {
-	ProcessUserMenu(ChoiceMenuType, L"");
+	ProcessUserMenu(MenuType, string());
 }
 
 UserMenu::UserMenu(const string& MenuFileName):
@@ -219,6 +229,10 @@ UserMenu::UserMenu(const string& MenuFileName):
 	ItemChanged(false)
 {
 	ProcessUserMenu(false, MenuFileName);
+}
+
+UserMenu::~UserMenu()
+{
 }
 
 void UserMenu::SaveMenu(const string& MenuFileName)
@@ -268,7 +282,33 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 	}
 }
 
-void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
+static string GetMenuTitle(MENUMODE MenuMode)
+{
+	string strMenuTitle;
+
+	switch (MenuMode)
+	{
+	case MM_LOCAL:
+		strMenuTitle = MSG(MLocalMenuTitle);
+		break;
+
+	case MM_GLOBAL:
+		strMenuTitle = MSG(MMainMenuTitle);
+		strMenuTitle += L" (";
+		strMenuTitle += MSG(MMainMenuGlobal);
+		strMenuTitle += L")";
+		break;
+
+	default:
+		strMenuTitle = MSG(MMainMenuTitle);
+		strMenuTitle += L" (";
+		strMenuTitle += MSG(MMainMenuUser);
+		strMenuTitle += L")";
+	}
+	return strMenuTitle;
+}
+
+void UserMenu::ProcessUserMenu(bool MenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
@@ -277,7 +317,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 	MenuMode = MM_LOCAL;
 	MenuModified = false;
 
-	if (ChoiceMenuType)
+	if (MenuType)
 	{
 		int EditChoice=Message(0,3,MSG(MUserMenuTitle),MSG(MChooseMenuType),MSG(MChooseMenuMain),MSG(MChooseMenuLocal),MSG(MCancel));
 
@@ -333,7 +373,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 				strMenuFilePath = Global->Opt->ProfilePath;
 				continue;
 			}
-			else if (!ChoiceMenuType)
+			else if (!MenuType)
 			{
 				if (!FirstRun)
 				{
@@ -360,7 +400,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 		int _CurrentFrame = Global->FrameManager->GetCurrentFrame()->GetType();
 		Global->CtrlObject->Macro.SetMode(MACROAREA_USERMENU);
 		// вызываем меню
-		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath);
+		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath, GetMenuTitle(MenuMode));
 
 		if (_CurrentFrame == Global->FrameManager->GetCurrentFrame()->GetType()) //???
 			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
@@ -428,7 +468,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName)
 }
 
 // заполнение меню
-static void FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+static void FillUserMenu(VMenu2& FarUserMenu, const UserMenu::menu_container& Menu, int MenuPos, int *FuncPos, const string& Name, const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	int NumLines = -1;
@@ -482,7 +522,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, const std::list<UserMenu::UserMenu
 }
 
 // обработка единичного меню
-int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title)
+int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const string& Title)
 {
 	for (;;)
 	{
@@ -494,36 +534,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		string strName,strShortName;
 		Global->CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
-		string strMenuTitle;
 
-		if (Title && *Title)
-		{
-			strMenuTitle = Title;
-		}
-		else
-		{
-			switch (MenuMode)
-			{
-				case MM_LOCAL:
-					strMenuTitle = MSG(MLocalMenuTitle);
-					break;
-
-				case MM_GLOBAL:
-					strMenuTitle = MSG(MMainMenuTitle);
-					strMenuTitle += L" (";
-					strMenuTitle += MSG(MMainMenuGlobal);
-					strMenuTitle += L")";
-					break;
-
-				default:
-					strMenuTitle = MSG(MMainMenuTitle);
-					strMenuTitle += L" (";
-					strMenuTitle += MSG(MMainMenuUser);
-					strMenuTitle += L")";
-			}
-		}
-
-		VMenu2 UserMenu(strMenuTitle,nullptr,0,ScrY-4);
+		VMenu2 UserMenu(Title, nullptr, 0, ScrY - 4);
 		UserMenu.SetFlags(VMENU_WRAPMODE);
 		UserMenu.SetHelp(L"UserMenu");
 		UserMenu.SetPosition(-1,-1,0,0);
@@ -578,7 +590,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_LEFT:
 				case KEY_NUMPAD4:
 				case KEY_MSWHEEL_LEFT:
-					if (Title && *Title)
+					if (&Menu != &MenuRoot)
 						UserMenu.Close(-1);
 					break;
 
@@ -586,7 +598,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_DEL:
 					if (CurrentMenuItem)
 					{
-						DeleteMenuRecord(Menu,(*CurrentMenuItem));
+						DeleteMenuRecord(Menu, *CurrentMenuItem);
 						FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					}
 					break;
@@ -734,20 +746,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			if (pos != string::npos)
 				strSubMenuLabel.erase(pos, 1);
 
-			string strSubMenuTitle;
-			if (Title && *Title)
-			{
-				strSubMenuTitle = Title;
-				strSubMenuTitle += L" -> ";
-				strSubMenuTitle += strSubMenuLabel;
-			}
-			else
-			{
-				strSubMenuTitle = strSubMenuLabel;
-			}
-
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
-			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle.data());
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, Title + L" \xbb " + strSubMenuLabel);
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -798,8 +798,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 					*/
 					//;
-					string strTempStr;
-					strTempStr = (*CurrentMenuItem)->strLabel;
+					string strTempStr = (*CurrentMenuItem)->strLabel;
 					ReplaceStrings(strTempStr,L"&",L"",-1);
 
 					int PreserveLFN=SubstFileName(strTempStr.data(),strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.data());
@@ -818,17 +817,13 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				}
 			} // strCommand != "REM"
 
-			if (!strListName.empty())
-				api::DeleteFile(strListName);
+			const string* Names[] = { &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName };
 
-			if (!strAnotherListName.empty())
-				api::DeleteFile(strAnotherListName);
-
-			if (!strShortListName.empty())
-				api::DeleteFile(strShortListName);
-
-			if (!strAnotherShortListName.empty())
-				api::DeleteFile(strAnotherShortListName);
+			FOR(auto& i, Names)
+			{
+				if (!i->empty())
+					api::DeleteFile(*i);
+			}
 		});
 
 		Global->CtrlObject->CmdLine->LockUpdatePanel(false);
@@ -909,7 +904,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					{
 						FocusPos=EM_LABEL_EDIT;
 					}
-					else if (StrLength(HotKey)>1)
+					else if (wcslen(HotKey)>1)
 					{
 						FocusPos=EM_HOTKEY_EDIT;
 
@@ -1037,10 +1032,11 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 			int CommandNumber=0;
-			for (auto str = (*MenuItem)->Commands.begin(); str != (*MenuItem)->Commands.end() && CommandNumber < DI_EDIT_COUNT; ++str)
+			FOR(const auto& i, (*MenuItem)->Commands)
 			{
-				EditDlg[EM_EDITLINE_0+CommandNumber].strData = *str;
-				CommandNumber++;
+				EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
+				if (++CommandNumber == DI_EDIT_COUNT)
+					break;
 			}
 #endif
 		}

@@ -43,57 +43,25 @@ class RegExp;
 class filemasks: NonCopyable
 {
 public:
-	filemasks() {}
-	~filemasks() {};
-	filemasks(filemasks&& rhs) { *this = std::move(rhs); }
-	MOVE_OPERATOR_BY_SWAP(filemasks);
-	
-	void swap(filemasks& rhs) noexcept
-	{
-		Include.swap(rhs.Include);
-		Exclude.swap(rhs.Exclude);
-	}
+	filemasks();
+	~filemasks();
+	filemasks(filemasks&& rhs);
 
+	filemasks& operator=(filemasks&& rhs) noexcept;
+
+	void swap(filemasks& rhs) noexcept;
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;
 	bool empty() const;
 
 	static void ErrorMessage();
 
+	class masks;
+
 private:
-	void Free();
-
-	class masks:NonCopyable
-	{
-	public:
-		masks(): bRE(false) {}
-		masks(masks&& rhs): bRE(false) { *this = std::move(rhs); }
-		~masks();
-		MOVE_OPERATOR_BY_SWAP(masks);
-
-		void swap(masks& rhs) noexcept
-		{
-			Masks.swap(rhs.Masks);
-			re.swap(rhs.re);
-			m.swap(rhs.m);
-			std::swap(bRE, rhs.bRE);
-		}
-
-		bool Set(const string& Masks);
-		bool operator ==(const string& Name) const;
-		void Free();
-		bool empty() const;
-
-	private:
-		std::list<string> Masks;
-		std::unique_ptr<RegExp> re;
-		std::vector<RegExpMatch> m;
-		bool bRE;
-	};
-	ALLOW_SWAP_ACCESS(masks);
+	void clear();
 
 	std::list<masks> Include, Exclude;
 };
 
 STD_SWAP_SPEC(filemasks);
-STD_SWAP_SPEC(filemasks::masks);

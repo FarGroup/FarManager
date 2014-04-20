@@ -37,25 +37,20 @@ ENUM(MENUMODE);
 
 class UserMenu: NonCopyable
 {
-public:
-	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-	UserMenu(const string& MenuFileName);
+	struct UserMenuItem;
 
-	struct UserMenuItem
-	{
-		UserMenuItem():Submenu(false) {}
-		string strHotKey;
-		string strLabel;
-		std::list<string> Commands;
-		bool Submenu;
-		std::list<UserMenuItem> Menu;
-	};
+public:
+	UserMenu(bool MenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	UserMenu(const string& MenuFileName);
+	~UserMenu();
+
+	typedef std::list<UserMenuItem> menu_container;
 
 private:
-	void ProcessUserMenu(bool ChoiceMenuType,const string& MenuFileName);
-	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem);
-	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create);
-	int ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
+	void ProcessUserMenu(bool MenuType, const string& MenuFileName);
+	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem);
+	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
+	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, const string& MenuFileName, const string& Title);
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
@@ -63,5 +58,5 @@ private:
 	bool MenuModified;
 	bool MenuNeedRefresh;
 	bool ItemChanged;
-	std::list<UserMenuItem> Menu;
+	menu_container Menu;
 };

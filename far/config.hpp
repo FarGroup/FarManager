@@ -249,6 +249,7 @@ public:
 	struct EditorOptions;
 
 	Options();
+	~Options();
 	void ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load();
 	void Save(bool Manual);
@@ -821,6 +822,8 @@ public:
 
 	const std::vector<struct PanelViewSettings>& ViewSettings;
 
+	class farconfig;
+
 private:
 	void InitConfig();
 	void InitRoamingCFG();
@@ -849,60 +852,11 @@ private:
 	void ReadPanelModes();
 	void SavePanelModes(bool always);
 
-	class farconfig:NonCopyable
-	{
-	public:
-		typedef FARConfigItem* iterator;
-		typedef const FARConfigItem* const_iterator;
-		typedef FARConfigItem value_type;
-
-		farconfig(FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
-			m_items(Items),
-			m_size(Size),
-			m_cfg(cfg)
-		{
-		}
-
-		farconfig(farconfig&& rhs):
-			m_items(),
-			m_size(),
-			m_cfg()
-		{
-			*this = std::move(rhs);
-		}
-
-		MOVE_OPERATOR_BY_SWAP(farconfig);
-
-		void swap(farconfig& rhs) noexcept
-		{
-			std::swap(m_items, rhs.m_items);
-			std::swap(m_size, rhs.m_size);
-			std::swap(m_cfg, rhs.m_cfg);
-		}
-
-		iterator begin() const;
-		iterator end() const;
-		const_iterator cbegin() const;
-		const_iterator cend() const;
-		size_t size() const {return m_size;}
-		value_type& operator[](size_t i) const;
-
-		GeneralConfig* GetConfig() const { return m_cfg; }
-
-	private:
-		value_type* m_items;
-		size_t m_size;
-		GeneralConfig* m_cfg;
-	};
-	ALLOW_SWAP_ACCESS(farconfig);
-
 	std::vector<farconfig> Config;
 	farconfig_mode CurrentConfig;
 	std::vector<struct PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };
-
-STD_SWAP_SPEC(Options::farconfig);
 
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default);

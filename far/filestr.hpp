@@ -35,33 +35,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class GetFileString: NonCopyable
 {
-	public:
-		GetFileString(api::File& SrcFile, uintptr_t CodePage);
-		bool PeekString(LPWSTR* DestStr, size_t& Length);
-		bool GetString(LPWSTR* DestStr, size_t& Length);
-		bool GetString(string& str);
-		bool IsConversionValid() const { return !SomeDataLost; }
+public:
+	GetFileString(api::File& SrcFile, uintptr_t CodePage);
+	bool PeekString(LPWSTR* DestStr, size_t& Length);
+	bool GetString(LPWSTR* DestStr, size_t& Length);
+	bool GetString(string& str);
+	bool IsConversionValid() const { return !SomeDataLost; }
 
-	private:
-		api::File& SrcFile;
-		uintptr_t m_CodePage;
-		DWORD ReadPos, ReadSize;
+private:
+	template<class T>
+	bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
 
-		bool Peek;
-		size_t LastLength;
-		LPWSTR LastString;
-		bool LastResult;
+	api::File& SrcFile;
+	uintptr_t m_CodePage;
+	DWORD ReadPos, ReadSize;
 
-		std::vector<char> m_ReadBuf;
-		std::vector<wchar_t> m_wReadBuf;
+	bool Peek;
+	size_t LastLength;
+	LPWSTR LastString;
+	bool LastResult;
 
-		std::vector<wchar_t> m_wStr;
+	std::vector<char> m_ReadBuf;
+	std::vector<wchar_t> m_wReadBuf;
+	std::vector<wchar_t> m_wStr;
 
-		bool SomeDataLost;
-		bool bCrCr;
-
-		template<class T>
-		bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
+	bool SomeDataLost;
+	bool bCrCr;
 };
 
 bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);

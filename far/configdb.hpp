@@ -291,7 +291,8 @@ protected:
 class Database: NonCopyable
 {
 public:
-	Database(char ImportExportMode='\0');
+	enum mode { default_mode, import_mode, export_mode };
+	Database(mode Mode = default_mode);
 	~Database();
 	bool Import(const string& File);
 	bool Export(const string& File);
@@ -328,7 +329,7 @@ private:
 	std::unique_ptr<tinyxml::TiXmlDocument> m_TemplateDoc;
 	tinyxml::TiXmlElement *m_TemplateRoot;
 	int m_TemplateLoadState;
-	char m_ImportExportMode;
+	mode m_Mode;
 	MultiWaiter ThreadWaiter;
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;

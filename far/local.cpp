@@ -95,8 +95,8 @@ const wchar_t * StrStr(const wchar_t *str1, const wchar_t *str2)
 
 const wchar_t * RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 {
-	int len1 = StrLength(str1);
-	int len2 = StrLength(str2);
+	size_t len1 = wcslen(str1);
+	size_t len2 = wcslen(str2);
 
 	if (len2 > len1)
 		return nullptr;
@@ -128,8 +128,8 @@ const wchar_t * RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 
 const wchar_t * RevStrStr(const wchar_t *str1, const wchar_t *str2)
 {
-	int len1 = StrLength(str1);
-	int len2 = StrLength(str2);
+	size_t len1 = wcslen(str1);
+	size_t len2 = wcslen(str2);
 
 	if (len2 > len1)
 		return nullptr;

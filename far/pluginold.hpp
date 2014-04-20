@@ -1396,9 +1396,9 @@ namespace oldfar
 	typedef int (WINAPIV *FARSTDSNPRINTF)(char *Buffer,size_t Sizebuf,const char *Format,...);
 	typedef int (WINAPIV *FARSTDSSCANF)(const char *Buffer, const char *Format,...);
 // </C&C++>
-	typedef void (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-	typedef void (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
-	typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+	typedef void (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (*fcmp)(const void *, const void *));
+	typedef void (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (*fcmp)(const void *, const void *,void *userparam),void *userparam);
+	typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (*fcmp)(const void *, const void *));
 	typedef int (WINAPI *FARSTDGETFILEOWNER)(const char *Computer,const char *Name,char *Owner);
 	typedef int (WINAPI *FARSTDGETNUMBEROFLINKS)(const char *Name);
 	typedef int (WINAPI *FARSTDATOI)(const char *s);

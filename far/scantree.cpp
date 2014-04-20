@@ -40,6 +40,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
+struct ScanTree::scantree_item: NonCopyable
+{
+public:
+	scantree_item() {}
+
+	scantree_item(scantree_item&& rhs) { *this = std::move(rhs); }
+
+	MOVE_OPERATOR_BY_SWAP(scantree_item);
+
+	void swap(scantree_item& rhs) noexcept
+	{
+		std::swap(Flags, rhs.Flags);
+		Find.swap(rhs.Find);
+		std::swap(Iterator, rhs.Iterator);
+		RealPath.swap(rhs.RealPath);
+	}
+
+	BitFlags Flags;
+	std::unique_ptr<api::enum_file> Find;
+	api::enum_file::iterator Iterator;
+	string RealPath;
+};
+
+STD_SWAP_SPEC(ScanTree::scantree_item);
+
+
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
@@ -47,10 +73,14 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Global->Opt->ScanJunction:ScanJunction!=0));
 }
 
+ScanTree::~ScanTree()
+{
+}
+
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
-	ScanItems.emplace_back(ScanTreeData());
+	ScanItems.emplace_back(scantree_item());
 	Flags.Clear(FSCANTREE_FILESFIRST);
 	strFindMask = Mask;
 	strFindPath = Path;
@@ -73,7 +103,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 	Flags.Clear(FSCANTREE_SECONDDIRNAME);
 
 	{
-		ScanTreeData& LastItem = ScanItems.back();
+		scantree_item& LastItem = ScanItems.back();
 		for (;;)
 		{
 			if (!LastItem.Find)
@@ -179,7 +209,7 @@ bool ScanTree::GetNextName(api::FAR_FIND_DATA *fdata,string &strFullName)
 				AddEndSlash(strFindPathOriginal);
 				strFindPath += L"\\";
 				strFindPath += strFindMask;
-				ScanTreeData Data;
+				scantree_item Data;
 				Data.Flags = ScanItems.back().Flags; // наследуем флаг
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;

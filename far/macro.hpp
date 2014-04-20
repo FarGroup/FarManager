@@ -103,121 +103,6 @@ struct MacroPanelSelect
 	int     Mode;
 };
 
-class MacroRecord: NonCopyable
-{
-public:
-	MacroRecord():
-		m_flags(),
-		m_key(-1),
-		m_macroId(),
-		m_macrovalue(),
-		m_handle(0)
-	{
-	}
-
-	MacroRecord(MACROFLAGS_MFLAGS Flags, int MacroId, int Key, const wchar_t* Code):
-		m_flags(Flags),
-		m_key(Key),
-		m_code(Code),
-		m_macroId(MacroId),
-		m_macrovalue(),
-		m_handle(0)
-	{
-	}
-
-	MacroRecord(MacroRecord&& rhs):
-		m_flags(),
-		m_key(-1),
-		m_macroId(),
-		m_macrovalue(),
-		m_handle(0)
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(MacroRecord);
-
-	void swap(MacroRecord& rhs) noexcept
-	{
-		std::swap(m_flags, rhs.m_flags);
-		std::swap(m_key, rhs.m_key);
-		m_code.swap(rhs.m_code);
-		std::swap(m_macroId, rhs.m_macroId);
-		std::swap(m_macrovalue, rhs.m_macrovalue);
-		std::swap(m_handle, rhs.m_handle);
-	}
-
-	MACROFLAGS_MFLAGS Flags() const {return m_flags;}
-	int Key() const { return m_key; }
-	const string& Code() const {return m_code;}
-
-	intptr_t GetHandle() const { return m_handle; }
-	void SetHandle(intptr_t handle) { m_handle = handle; }
-	void SetBooleanValue(int val) { m_macrovalue.Type=FMVT_BOOLEAN; m_macrovalue.Boolean=val; }
-	FarMacroValue* GetValue() { return &m_macrovalue; }
-
-private:
-	friend class KeyMacro;
-
-	MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
-	int m_key;                     // Ќазначенна€ клавиша
-	string m_code;                 // оригинальный "текст" макроса
-	int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
-	FarMacroValue m_macrovalue;    // «начение, хранимое исполн€ющимс€ макросом
-	intptr_t m_handle;             // ’эндл исполн€ющегос€ макроса
-};
-
-STD_SWAP_SPEC(MacroRecord);
-
-class MacroState: NonCopyable
-{
-public:
-	MacroState():
-		IntKey(0),
-		Executing(),
-		KeyProcess(),
-		HistoryDisable(),
-		UseInternalClipboard()
-	{
-	}
-
-	MacroState(MacroState&& rhs):
-		IntKey(0),
-		Executing(),
-		KeyProcess(),
-		HistoryDisable(),
-		UseInternalClipboard()
-	{
-		*this = std::move(rhs);
-	}
-
-	MOVE_OPERATOR_BY_SWAP(MacroState);
-
-	void swap(MacroState& rhs) noexcept
-	{
-		std::swap(IntKey, rhs.IntKey);
-		std::swap(Executing, rhs.Executing);
-		m_MacroQueue.swap(rhs.m_MacroQueue);
-		std::swap(KeyProcess, rhs.KeyProcess);
-		std::swap(HistoryDisable, rhs.HistoryDisable);
-		std::swap(UseInternalClipboard, rhs.UseInternalClipboard);
-	}
-
-	MacroRecord* GetCurMacro() { return m_MacroQueue.empty()? nullptr : &m_MacroQueue.front(); }
-	const MacroRecord* GetCurMacro() const { return m_MacroQueue.empty()? nullptr : &m_MacroQueue.front(); }
-	void RemoveCurMacro() { m_MacroQueue.pop_front(); }
-
-public:
-	DWORD IntKey; // "описание реально нажатой клавиши"
-	int Executing;
-	std::list<MacroRecord> m_MacroQueue;
-	int KeyProcess;
-	DWORD HistoryDisable;
-	bool UseInternalClipboard;
-};
-
-STD_SWAP_SPEC(MacroState);
-
 class Dialog;
 
 class KeyMacro: NonCopyable
@@ -260,6 +145,9 @@ public:
 	const wchar_t *eStackAsString() const { return varTextDate; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
+	class MacroState;
+	class MacroRecord;
+
 private:
 	bool CallMacroPlugin(OpenMacroPluginInfo* Info);
 	int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
@@ -268,10 +156,10 @@ private:
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void InitInternalVars(bool InitedRAM=true);
 	MacroRecord* CheckCurMacro();
-	MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
-	const MacroRecord* GetCurMacro() const { return m_CurState.GetCurMacro(); }
-	MacroRecord* GetTopMacro() { return m_StateStack.empty()? nullptr: m_StateStack.top().GetCurMacro(); }
-	void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
+	MacroRecord* GetCurMacro();
+	const MacroRecord* GetCurMacro() const;
+	MacroRecord* GetTopMacro();
+	void RemoveCurMacro();
 	void RestoreMacroChar() const;
 	bool PostNewMacro(int macroId,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
 	void PushState(bool withClip);
@@ -281,8 +169,8 @@ private:
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 
 	FARMACROAREA m_Mode;
-	MacroState m_CurState;
-	std::stack<MacroState> m_StateStack;
+	std::unique_ptr<MacroState> m_CurState;
+	std::stack<MacroState, std::vector<MacroState>> m_StateStack;
 	MACRORECORDANDEXECUTETYPE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;

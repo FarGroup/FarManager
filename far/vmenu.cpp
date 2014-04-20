@@ -880,7 +880,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // end compare
 							p = RevStrStrI(strTemp.data(),str);
-							Res = p && !*(p+StrLength(str));
+							Res = p && !*(p + wcslen(str));
 							break;
 						case 3: // in str
 							Res = StrStrI(strTemp.data(),str)!=nullptr;
@@ -2936,7 +2936,7 @@ size_t VMenu::_SetUserData(MenuItemEx *PItem,
 		// ≈сли Size==0, то подразумеваетс€, что в Data находитс€ zero-terminated wide string
 		if (!PItem->UserDataSize)
 		{
-			PItem->UserDataSize = (StrLength(static_cast<const wchar_t *>(Data))+1)*sizeof(wchar_t);
+			PItem->UserDataSize = (wcslen(static_cast<const wchar_t *>(Data)) + 1)*sizeof(wchar_t);
 		}
 
 		PItem->UserData = xf_malloc(PItem->UserDataSize);

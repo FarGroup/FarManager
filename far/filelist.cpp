@@ -1,7 +1,7 @@
 /*
 filelist.cpp
 
-Файловая панель - общие функции
+Файловая панель
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -87,6 +87,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "TaskBar.hpp"
+#include "fileowner.hpp"
+#include "colormix.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListSortMode;
@@ -162,6 +165,33 @@ struct CustomSort
 
 };
 
+struct FileList::PrevDataItem
+{
+	PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
+		strPrevName(rhsPrevName),
+		PrevTopFile(rhsPrevTopFile)
+	{
+		PrevListData.swap(rhsPrevListData);
+	}
+
+	PrevDataItem(PrevDataItem&& rhs): PrevTopFile() { *this = std::move(rhs); }
+
+	MOVE_OPERATOR_BY_SWAP(PrevDataItem);
+
+	void swap(PrevDataItem& rhs) noexcept
+	{
+		strPrevName.swap(rhs.strPrevName);
+		PrevListData.swap(rhs.PrevListData);
+		std::swap(PrevTopFile, rhs.PrevTopFile);
+	}
+
+	string strPrevName;
+	std::vector<FileListItem> PrevListData;
+	int PrevTopFile;
+};
+
+STD_SWAP_SPEC(FileList::PrevDataItem);
+
 FileListItem::~FileListItem()
 {
 	if (CustomColumnNumber && CustomColumnData)
@@ -210,7 +240,7 @@ FileList::FileList():
 	{
 		const wchar_t *data=MSG(MPanelBracketsForLongName);
 
-		if (StrLength(data)>1)
+		if (wcslen(data) > 1)
 		{
 			*openBracket=data[0];
 			*closeBracket=data[1];
@@ -4911,7 +4941,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			DoubleDotDir->FileSize     = 0;
 			DoubleDotDir->AllocationSize    = 0;
 
-			FOR (const auto& i, make_subrange(ListData.begin() + 1, ListData.end()))
+			FOR(const auto& i, make_range(ListData.begin() + 1, ListData.end()))
 			{
 				if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				{
@@ -5271,4 +5301,3440 @@ void FileList::ClearAllItem()
 		DeleteListData(i.PrevListData);
 	});
 	PrevDataList.clear();
+}
+
+// flplugin
+// Файловая панель - работа с плагинами
+
+/*
+   В стеке ФАРова панель не хранится - только плагиновые!
+*/
+
+void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
+{
+	PluginsList.emplace_back(VALUE_TYPE(PluginsList)(hPlugin, HostFile, strOriginalCurDir, FALSE, ViewMode, SortMode, ReverseSortOrder, NumericSort, CaseSensitiveSort, DirectoriesFirst, ViewSettings));
+	++Global->PluginPanelsCount;
+}
+
+int FileList::PopPlugin(int EnableRestoreViewMode)
+{
+	DeleteListData(ListData);
+
+	OpenPanelInfo Info={};
+
+	if (PluginsList.empty())
+	{
+		PanelMode=NORMAL_PANEL;
+		return FALSE;
+	}
+
+	const PluginsListItem CurPlugin = std::move(PluginsList.back());
+
+	PluginsList.pop_back();
+	--Global->PluginPanelsCount;
+
+	Global->CtrlObject->Plugins->ClosePanel(hPlugin);
+
+	if (!PluginsList.empty())
+	{
+		hPlugin = PluginsList.back().m_Plugin;
+		strOriginalCurDir=CurPlugin.m_PrevOriginalCurDir;
+
+		if (EnableRestoreViewMode)
+		{
+			SetViewMode(CurPlugin.m_PrevViewMode);
+			SortMode = CurPlugin.m_PrevSortMode;
+			NumericSort = CurPlugin.m_PrevNumericSort;
+			CaseSensitiveSort = CurPlugin.m_PrevCaseSensitiveSort;
+			ReverseSortOrder = CurPlugin.m_PrevSortOrder;
+			DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
+		}
+
+		if (CurPlugin.m_Modified)
+		{
+			PluginPanelItem PanelItem={};
+			string strSaveDir;
+			api::GetCurrentDirectory(strSaveDir);
+
+			if (FileNameToPluginItem(CurPlugin.m_HostFile,&PanelItem))
+			{
+				Global->CtrlObject->Plugins->PutFiles(hPlugin, &PanelItem, 1, false, 0);
+			}
+			else
+			{
+				PanelItem.FileName = DuplicateString(PointToName(CurPlugin.m_HostFile));
+				Global->CtrlObject->Plugins->DeleteFiles(hPlugin,&PanelItem,1,0);
+				delete[] PanelItem.FileName;
+			}
+
+			FarChDir(strSaveDir);
+		}
+
+
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+
+		if (!(Info.Flags & OPIF_REALNAMES))
+		{
+			DeleteFileWithFolder(CurPlugin.m_HostFile);  // удаление файла от предыдущего плагина
+		}
+	}
+	else
+	{
+		PanelMode=NORMAL_PANEL;
+		hPlugin = nullptr;
+
+		if (EnableRestoreViewMode)
+		{
+			SetViewMode(CurPlugin.m_PrevViewMode);
+			SortMode = CurPlugin.m_PrevSortMode;
+			NumericSort = CurPlugin.m_PrevNumericSort;
+			CaseSensitiveSort = CurPlugin.m_PrevCaseSensitiveSort;
+			ReverseSortOrder = CurPlugin.m_PrevSortOrder;
+			DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
+		}
+	}
+
+	if (EnableRestoreViewMode)
+		Global->CtrlObject->Cp()->RedrawKeyBar();
+
+	return TRUE;
+}
+
+/*
+	DefaultName - имя элемента на которое позиционируемся.
+	Closed - панель закрывается, если в PrevDataList что-то есть - восстанавливаемчся оттуда.
+	UsePrev - если востанавливаемся из PrevDataList, элемент для позиционирования брать оттуда же.
+	Position - надо ли вообще устанавливать текущий элемент.
+*/
+void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess)
+{
+	string strName(DefaultName);
+	if (Closed && !PrevDataList.empty())
+	{
+		PrevDataItem& Item = PrevDataList.back();
+		if (Item.PrevListData.size() > 1)
+		{
+			MoveSelection(Item.PrevListData, ListData);
+			UpperFolderTopFile = Item.PrevTopFile;
+
+			if (UsePrev)
+				strName = Item.strPrevName;
+
+			DeleteListData(Item.PrevListData);
+
+			if (SelectedFirst)
+				SortFileList(FALSE);
+			else if (!ListData.empty())
+				SortFileList(TRUE);
+		}
+		PrevDataList.pop_back();
+	}
+	if (Position)
+	{
+		long Pos=FindFile(PointToName(strName));
+
+		if (Pos!=-1)
+			CurFile=Pos;
+		else
+			GoToFile(strName);
+
+		CurTopFile=UpperFolderTopFile;
+		UpperFolderTopFile=0;
+		CorrectPosition();
+	}
+	/* $ 26.04.2001 DJ
+	   доделка про несброс выделения при неудаче SetDirectory
+	*/
+	else if (SetDirectorySuccess)
+		CurFile=CurTopFile=0;
+}
+
+int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
+{
+	string strTempDir = Name;
+
+	if (!CutToSlash(strTempDir,true))
+		return FALSE;
+
+	FarChDir(strTempDir);
+	ClearStruct(*pi);
+	api::FAR_FIND_DATA fdata;
+
+	if (api::GetFindDataEx(Name, fdata))
+	{
+		FindDataExToPluginPanelItem(&fdata, pi);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem *pi)
+{
+	pi->FileName = DuplicateString(fi.strName.data());
+	pi->AlternateFileName = DuplicateString(fi.strShortName.data());
+	pi->FileSize=fi.FileSize;
+	pi->AllocationSize=fi.AllocationSize;
+	pi->FileAttributes=fi.FileAttr;
+	pi->LastWriteTime=fi.WriteTime;
+	pi->CreationTime=fi.CreationTime;
+	pi->LastAccessTime=fi.AccessTime;
+	pi->ChangeTime=fi.ChangeTime;
+	pi->NumberOfLinks=fi.NumberOfLinks;
+	pi->Flags=fi.UserFlags;
+
+	if (fi.Selected)
+		pi->Flags|=PPIF_SELECTED;
+
+	pi->CustomColumnData=fi.CustomColumnData;
+	pi->CustomColumnNumber=fi.CustomColumnNumber;
+	pi->Description=fi.DizText; //BUGBUG???
+
+	pi->UserData.Data=fi.UserData;
+	pi->UserData.FreeData=fi.Callback;
+
+	pi->CRC32=fi.CRC32;
+	pi->Reserved[0]=pi->Reserved[1]=0;
+	pi->Owner = EmptyToNull(fi.strOwner.data());
+}
+
+size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *gpi)
+{
+	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
+	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
+	size+=sizeof(wchar_t)*(fi->strName.size()+1);
+	size+=sizeof(wchar_t)*(fi->strShortName.size()+1);
+	for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
+	{
+		size+=fi->CustomColumnData[ii]?sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1):0;
+	}
+	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
+	size+=fi->strOwner.empty()?0:sizeof(wchar_t)*(fi->strOwner.size()+1);
+
+	if (gpi)
+	{
+		if(gpi->Item && gpi->Size >= size)
+		{
+			char* data=(char*)(gpi->Item)+offset;
+
+			gpi->Item->FileSize=fi->FileSize;
+			gpi->Item->AllocationSize=fi->AllocationSize;
+			gpi->Item->FileAttributes=fi->FileAttr;
+			gpi->Item->LastWriteTime=fi->WriteTime;
+			gpi->Item->CreationTime=fi->CreationTime;
+			gpi->Item->LastAccessTime=fi->AccessTime;
+			gpi->Item->ChangeTime=fi->ChangeTime;
+			gpi->Item->NumberOfLinks=fi->NumberOfLinks;
+			gpi->Item->Flags=fi->UserFlags;
+			if (fi->Selected)
+				gpi->Item->Flags|=PPIF_SELECTED;
+			gpi->Item->CustomColumnNumber=fi->CustomColumnNumber;
+			gpi->Item->CRC32=fi->CRC32;
+			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
+
+			gpi->Item->CustomColumnData=(wchar_t**)data;
+			data+=fi->CustomColumnNumber*sizeof(wchar_t*);
+
+			gpi->Item->UserData.Data=fi->UserData;
+			gpi->Item->UserData.FreeData=fi->Callback;
+
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName.data());
+			data+=sizeof(wchar_t)*(fi->strName.size()+1);
+
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName.data());
+			data+=sizeof(wchar_t)*(fi->strShortName.size()+1);
+
+			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
+			{
+				if (!fi->CustomColumnData[ii])
+				{
+					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = nullptr;
+				}
+				else
+				{
+					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = wcscpy(reinterpret_cast<wchar_t*>(data), fi->CustomColumnData[ii]);
+					data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+				}
+			}
+
+			if (!fi->DizText)
+			{
+				gpi->Item->Description=nullptr;
+			}
+			else
+			{
+				gpi->Item->Description=wcscpy((wchar_t*)data,fi->DizText);
+				data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+			}
+
+
+			if (fi->strOwner.empty())
+			{
+				gpi->Item->Owner=nullptr;
+			}
+			else
+			{
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner.data());
+			}
+		}
+	}
+	return size;
+}
+
+void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
+{
+	fi->strName = NullToEmpty(pi->FileName);
+	fi->strShortName = NullToEmpty(pi->AlternateFileName);
+	fi->strOwner = NullToEmpty(pi->Owner);
+
+	if (pi->Description)
+	{
+		fi->DizText=new wchar_t[StrLength(pi->Description)+1];
+		wcscpy(fi->DizText, pi->Description);
+		fi->DeleteDiz=true;
+	}
+	else
+		fi->DizText=nullptr;
+
+	fi->FileSize=pi->FileSize;
+	fi->AllocationSize=pi->AllocationSize;
+	fi->FileAttr=pi->FileAttributes;
+	fi->WriteTime=pi->LastWriteTime;
+	fi->CreationTime=pi->CreationTime;
+	fi->AccessTime=pi->LastAccessTime;
+	fi->ChangeTime = pi->ChangeTime;
+	fi->NumberOfLinks=pi->NumberOfLinks;
+	fi->NumberOfStreams=1;
+	fi->UserFlags=pi->Flags;
+
+	fi->UserData=pi->UserData.Data;
+	fi->Callback=pi->UserData.FreeData;
+
+	if (pi->CustomColumnNumber>0)
+	{
+		fi->CustomColumnData=new wchar_t*[pi->CustomColumnNumber];
+
+		for (size_t I=0; I<pi->CustomColumnNumber; I++)
+			if (pi->CustomColumnData && pi->CustomColumnData[I])
+			{
+				fi->CustomColumnData[I]=new wchar_t[StrLength(pi->CustomColumnData[I])+1];
+				wcscpy(fi->CustomColumnData[I],pi->CustomColumnData[I]);
+			}
+			else
+			{
+				fi->CustomColumnData[I]=new wchar_t[1];
+				fi->CustomColumnData[I][0]=0;
+			}
+	}
+
+	fi->CustomColumnNumber=pi->CustomColumnNumber;
+	fi->CRC32=pi->CRC32;
+}
+
+
+PluginHandle* FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+{
+	PluginHandle* Result = nullptr;
+	if(!FileName->empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	{
+		SetCurPath();
+		_ALGO(SysLog(L"close AnotherPanel file"));
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
+		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
+		Result = Global->CtrlObject->Plugins->OpenFilePlugin(FileName, 0, Type);
+		_ALGO(SysLog(L"}"));
+	}
+	return Result;
+}
+
+
+std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
+{
+	std::vector<PluginPanelItem> ItemList;
+
+	if (ListData.empty())
+		return ItemList;
+
+	long SaveSelPosition=GetSelPosition;
+	long OldLastSelPosition=LastSelPosition;
+	string strSelName;
+
+	ItemList.reserve(SelFileCount+1);
+
+	DWORD FileAttr;
+	GetSelName(nullptr,FileAttr);
+
+	while (GetSelName(&strSelName,FileAttr))
+	{
+		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < ListData.size())
+		{
+			ItemList.emplace_back(VALUE_TYPE(ItemList)());
+			FileListToPluginItem(ListData[LastSelPosition], &ItemList.back());
+		}
+	}
+
+	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
+	{
+		FileListToPluginItem(ListData[0], &ItemList.front());
+		//ItemList->FindData.lpwszFileName = DuplicateString(ListData[0]->strName);
+		//ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
+	}
+
+	LastSelPosition=OldLastSelPosition;
+	GetSelPosition=SaveSelPosition;
+	return ItemList;
+}
+
+
+void FileList::DeletePluginItemList(std::vector<PluginPanelItem> &ItemList)
+{
+	std::for_each(ALL_RANGE(ItemList), FreePluginPanelItem);
+	ItemList.clear();
+}
+
+
+void FileList::PluginDelete()
+{
+	_ALGO(CleverSysLog clv(L"FileList::PluginDelete()"));
+	SaveSelection();
+	auto ItemList = CreatePluginItemList();
+
+	if (!ItemList.empty())
+	{
+		if (Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), 0))
+		{
+			SetPluginModified();
+			PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
+		}
+
+		DeletePluginItemList(ItemList);
+		Update(UPDATE_KEEP_SELECTION);
+		Redraw();
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		AnotherPanel->Redraw();
+	}
+}
+
+
+void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz)
+{
+	_ALGO(CleverSysLog clv(L"FileList::PutDizToPlugin()"));
+	OpenPanelInfo Info;
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(DestPanel->hPlugin,&Info);
+
+	if (DestPanel->strPluginDizName.empty() && Info.DescrFilesNumber>0)
+		DestPanel->strPluginDizName = Info.DescrFiles[0];
+
+	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
+	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.empty() &&
+	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
+	         api::GetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
+	{
+		Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
+		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
+
+		if (DestPanel->GetModalMode())
+			DestPanel->ReadDiz();
+
+		bool DizPresent = false;
+
+		std::for_each(CONST_RANGE(ItemList, i)
+		{
+			if (i.Flags & PPIF_PROCESSDESCR)
+			{
+				int Code;
+
+				if (Delete)
+					Code = DestPanel->Diz.DeleteDiz(i.FileName, i.AlternateFileName);
+				else
+				{
+					Code = SrcDiz->CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.AlternateFileName, &DestPanel->Diz);
+
+					if (Code && Move)
+						SrcDiz->DeleteDiz(i.FileName, i.AlternateFileName);
+				}
+
+				if (Code)
+					DizPresent = true;
+			}
+		});
+
+		if (DizPresent)
+		{
+			string strTempDir;
+
+			if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
+			{
+				string strSaveDir;
+				api::GetCurrentDirectory(strSaveDir);
+				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
+				DestPanel->Diz.Flush(L"", &strDizName);
+
+				if (Move)
+					SrcDiz->Flush(L"");
+
+				PluginPanelItem PanelItem;
+
+				if (FileNameToPluginItem(strDizName,&PanelItem))
+					Global->CtrlObject->Plugins->PutFiles(DestPanel->hPlugin, &PanelItem, 1, false, OPM_SILENT | OPM_DESCR);
+				else if (Delete)
+				{
+					PluginPanelItem pi={};
+					pi.FileName = DestPanel->strPluginDizName.data();
+					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
+				}
+
+				FarChDir(strSaveDir);
+				DeleteFileWithFolder(strDizName);
+			}
+		}
+	}
+}
+
+
+void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
+{
+	_ALGO(CleverSysLog clv(L"FileList::PluginGetFiles()"));
+	SaveSelection();
+	auto ItemList = CreatePluginItemList();
+	if (!ItemList.empty())
+	{
+		int GetCode=Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), Move!=0, DestPath, 0);
+
+		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
+		        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
+		{
+			DizList DestDiz;
+			int DizFound=FALSE;
+
+			std::for_each(RANGE(ItemList, i)
+			{
+				if (i.Flags & PPIF_PROCESSDESCR)
+				{
+					if (!DizFound)
+					{
+						Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
+						Global->CtrlObject->Cp()->RightPanel->ReadDiz();
+						DestDiz.Read(*DestPath);
+						DizFound=TRUE;
+					}
+					CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
+				}
+			});
+			DestDiz.Flush(*DestPath);
+		}
+
+		if (GetCode==1)
+		{
+			if (!ReturnCurrentFile)
+				ClearSelection();
+
+			if (Move)
+			{
+				SetPluginModified();
+				PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
+			}
+		}
+		else if (!ReturnCurrentFile)
+			PluginClearSelection(ItemList);
+
+		DeletePluginItemList(ItemList);
+		Update(UPDATE_KEEP_SELECTION);
+		Redraw();
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		AnotherPanel->Redraw();
+	}
+}
+
+
+void FileList::PluginToPluginFiles(int Move)
+{
+	_ALGO(CleverSysLog clv(L"FileList::PluginToPluginFiles()"));
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	string strTempDir;
+
+	if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
+		return;
+
+	FileList *AnotherFilePanel=(FileList *)AnotherPanel;
+
+	if (!FarMkTempEx(strTempDir))
+		return;
+
+	SaveSelection();
+	api::CreateDirectory(strTempDir,nullptr);
+	auto ItemList = CreatePluginItemList();
+
+	if (!ItemList.empty())
+	{
+		const wchar_t *lpwszTempDir=strTempDir.data();
+		int PutCode = Global->CtrlObject->Plugins->GetFiles(hPlugin, ItemList.data(), ItemList.size(), false, &lpwszTempDir, OPM_SILENT);
+		strTempDir=lpwszTempDir;
+
+		if (PutCode==1 || PutCode==2)
+		{
+			string strSaveDir;
+			api::GetCurrentDirectory(strSaveDir);
+			FarChDir(strTempDir);
+			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), false, 0);
+
+			if (PutCode==1 || PutCode==2)
+			{
+				if (!ReturnCurrentFile)
+					ClearSelection();
+
+				AnotherPanel->SetPluginModified();
+				PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, FALSE, &Diz);
+
+				if (Move && Global->CtrlObject->Plugins->DeleteFiles(hPlugin, ItemList.data(), ItemList.size(), OPM_SILENT))
+				{
+					SetPluginModified();
+					PutDizToPlugin(this, ItemList, TRUE, FALSE, nullptr);
+				}
+			}
+			else if (!ReturnCurrentFile)
+				PluginClearSelection(ItemList);
+
+			FarChDir(strSaveDir);
+		}
+
+		DeleteDirTree(strTempDir);
+		DeletePluginItemList(ItemList);
+		Update(UPDATE_KEEP_SELECTION);
+		Redraw();
+
+		if (PanelMode==PLUGIN_PANEL)
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		else
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+
+		AnotherPanel->Redraw();
+	}
+}
+
+void FileList::PluginHostGetFiles()
+{
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	string strDestPath;
+	string strSelName;
+	DWORD FileAttr;
+	SaveSelection();
+	GetSelName(nullptr,FileAttr);
+
+	if (!GetSelName(&strSelName,FileAttr))
+		return;
+
+	strDestPath = AnotherPanel->GetCurDir();
+
+	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
+	        !SelFileCount) || strDestPath.empty())
+	{
+		strDestPath = PointToName(strSelName);
+		// SVS: А зачем здесь велся поиск точки с начала?
+		size_t pos = strDestPath.rfind(L'.');
+		if (pos != string::npos)
+			strDestPath.resize(pos);
+	}
+
+	int ExitLoop=FALSE;
+	GetSelName(nullptr,FileAttr);
+	std::unordered_set<Plugin*> UsedPlugins;
+
+	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
+	{
+		PluginHandle* hCurPlugin;
+
+		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
+		        hCurPlugin!=PANEL_STOP)
+		{
+			int OpMode=OPM_TOPLEVEL;
+			if(UsedPlugins.find(hCurPlugin->pPlugin) != UsedPlugins.cend())
+				OpMode|=OPM_SILENT;
+
+			PluginPanelItem *ItemList;
+			size_t ItemNumber;
+			_ALGO(SysLog(L"call Plugins.GetFindData()"));
+
+			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin,&ItemList,&ItemNumber,OpMode))
+			{
+				_ALGO(SysLog(L"call Plugins.GetFiles()"));
+				const wchar_t *lpwszDestPath=strDestPath.data();
+				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin, ItemList, ItemNumber, false, &lpwszDestPath, OpMode) != 1;
+				strDestPath=lpwszDestPath;
+
+				if (!ExitLoop)
+				{
+					_ALGO(SysLog(L"call ClearLastGetSelection()"));
+					ClearLastGetSelection();
+				}
+
+				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
+				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber,true);
+				UsedPlugins.emplace(hCurPlugin->pPlugin);
+			}
+
+			_ALGO(SysLog(L"call Plugins.ClosePanel"));
+			Global->CtrlObject->Plugins->ClosePanel(hCurPlugin);
+		}
+	}
+
+	Update(UPDATE_KEEP_SELECTION);
+	Redraw();
+	AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+	AnotherPanel->Redraw();
+}
+
+
+void FileList::PluginPutFilesToNew()
+{
+	_ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
+	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
+	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
+	auto hNewPlugin=Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, 0, OFP_CREATE);
+
+	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
+	{
+		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
+		FileList *TmpPanel=new FileList;
+		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
+		TmpPanel->SetModalMode(TRUE);
+		auto PrevFileCount = ListData.size();
+		/* $ 12.04.2002 IS
+		   Если PluginPutFilesToAnother вернула число, отличное от 2, то нужно
+		   попробовать установить курсор на созданный файл.
+		*/
+		int rc=PluginPutFilesToAnother(FALSE,TmpPanel);
+
+		if (rc != 2 && ListData.size() == PrevFileCount+1)
+		{
+			int LastPos = 0;
+			/* Место, где вычисляются координаты вновь созданного файла
+			   Позиционирование происходит на файл с максимальной датой
+			   создания файла. Посему, если какой-то злобный буратино поимел
+			   в текущем каталоге файло с датой создания поболее текущей,
+			   то корректного позиционирования не произойдет!
+			*/
+			const FileListItem *PtrLastPos = nullptr;
+			int n = 0;
+			std::for_each(CONST_RANGE(ListData, i)
+			{
+				if ((i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+				{
+					if (PtrLastPos)
+					{
+						if (PtrLastPos->CreationTime < i.CreationTime)
+						{
+							LastPos = n;
+							PtrLastPos = &i;
+						}
+					}
+					else
+					{
+						LastPos = n;
+						PtrLastPos = &i;
+					}
+				}
+				++n;
+			});
+
+			if (PtrLastPos)
+			{
+				CurFile = LastPos;
+				Redraw();
+			}
+		}
+		TmpPanel->Destroy();
+	}
+}
+
+
+/* $ 12.04.2002 IS
+     PluginPutFilesToAnother теперь int - возвращает то, что возвращает
+     PutFiles:
+     -1 - прервано пользовтелем
+      0 - неудача
+      1 - удача
+      2 - удача, курсор принудительно установлен на файл и заново его
+          устанавливать не нужно (см. PluginPutFilesToNew)
+*/
+int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
+{
+	if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
+		return 0;
+
+	FileList *AnotherFilePanel=(FileList *)AnotherPanel;
+	int PutCode=0;
+	SaveSelection();
+	auto ItemList = CreatePluginItemList();
+
+	if (!ItemList.empty())
+	{
+		SetCurPath();
+		_ALGO(SysLog(L"call Plugins.PutFiles"));
+		PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->hPlugin, ItemList.data(), ItemList.size(), Move!=0, 0);
+
+		if (PutCode==1 || PutCode==2)
+		{
+			if (!ReturnCurrentFile)
+			{
+				_ALGO(SysLog(L"call ClearSelection()"));
+				ClearSelection();
+			}
+
+			_ALGO(SysLog(L"call PutDizToPlugin"));
+			PutDizToPlugin(AnotherFilePanel, ItemList, FALSE, Move, &Diz);
+			AnotherPanel->SetPluginModified();
+		}
+		else if (!ReturnCurrentFile)
+			PluginClearSelection(ItemList);
+
+		_ALGO(SysLog(L"call DeletePluginItemList"));
+		DeletePluginItemList(ItemList);
+		Update(UPDATE_KEEP_SELECTION);
+		Redraw();
+
+		if (AnotherPanel==Global->CtrlObject->Cp()->GetAnotherPanel(this))
+		{
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+			AnotherPanel->Redraw();
+		}
+	}
+
+	return PutCode;
+}
+
+
+void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
+{
+	_ALGO(CleverSysLog clv(L"FileList::GetOpenPanelInfo()"));
+	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
+	ClearStruct(*Info);
+
+	if (PanelMode==PLUGIN_PANEL)
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,Info);
+}
+
+
+/*
+   Функция для вызова команды "Архивные команды" (Shift-F3)
+*/
+void FileList::ProcessHostFile()
+{
+	_ALGO(CleverSysLog clv(L"FileList::ProcessHostFile()"));
+
+	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
+	if (!ListData.empty() && SetCurPath())
+	{
+		int Done=FALSE;
+		SaveSelection();
+
+		if (PanelMode==PLUGIN_PANEL && !PluginsList.back().m_HostFile.empty())
+		{
+			_ALGO(SysLog(L"call CreatePluginItemList"));
+			auto ItemList = CreatePluginItemList();
+			_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
+			Done=Global->CtrlObject->Plugins->ProcessHostFile(hPlugin, ItemList.data(), ItemList.size(), 0);
+
+			if (Done)
+				SetPluginModified();
+			else
+			{
+				if (!ReturnCurrentFile)
+					PluginClearSelection(ItemList);
+
+				Redraw();
+			}
+
+			_ALGO(SysLog(L"call DeletePluginItemList"));
+			DeletePluginItemList(ItemList);
+
+			if (Done)
+				ClearSelection();
+		}
+		else
+		{
+			size_t SCount=GetRealSelCount();
+
+			if (SCount > 0)
+			{
+				FOR(auto& i, ListData)
+				{
+					if (i.Selected)
+					{
+						Done=ProcessOneHostFile(&i);
+
+						if (Done == 1)
+							Select(i, FALSE);
+						else if (Done == -1)
+							continue;
+						else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
+							break;   //
+					}
+				}
+
+				if (SelectedFirst)
+					SortFileList(TRUE);
+			}
+			else
+			{
+				if ((Done=ProcessOneHostFile(&*(ListData.begin() + CurFile))) == 1)
+					ClearSelection();
+			}
+		}
+
+		if (Done)
+		{
+			Update(UPDATE_KEEP_SELECTION);
+			Redraw();
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+			AnotherPanel->Redraw();
+		}
+	}
+}
+
+/*
+  Обработка одного хост-файла.
+  Return:
+    -1 - Этот файл никаким плагином не поддержан
+     0 - Плагин вернул FALSE
+     1 - Плагин вернул TRUE
+*/
+int FileList::ProcessOneHostFile(const FileListItem* Item)
+{
+	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
+	int Done=-1;
+	auto hNewPlugin=OpenPluginForFile(&Item->strName, Item->FileAttr, OFP_COMMANDS);
+
+	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
+	{
+		PluginPanelItem *ItemList;
+		size_t ItemNumber;
+		_ALGO(SysLog(L"call Plugins.GetFindData"));
+
+		if (Global->CtrlObject->Plugins->GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
+		{
+			_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
+			Done=Global->CtrlObject->Plugins->ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
+			_ALGO(SysLog(L"call Plugins.FreeFindData"));
+			Global->CtrlObject->Plugins->FreeFindData(hNewPlugin,ItemList,ItemNumber,true);
+		}
+
+		_ALGO(SysLog(L"call Plugins.ClosePanel"));
+		Global->CtrlObject->Plugins->ClosePanel(hNewPlugin);
+	}
+
+	return Done;
+}
+
+
+
+void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus)
+{
+	if (PanelMode!=PLUGIN_PANEL)
+	{
+		Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
+	}
+
+	PushPlugin(hPlugin,PluginFile);
+	FileList::hPlugin=hPlugin;
+	PanelMode=PLUGIN_PANEL;
+
+	if (SendOnFocus)
+		SetFocus();
+
+	OpenPanelInfo Info;
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+
+	if (Info.StartPanelMode)
+		SetViewMode(VIEW_0+Info.StartPanelMode-L'0');
+
+	Global->CtrlObject->Cp()->RedrawKeyBar();
+
+	if (Info.StartSortMode)
+	{
+		SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
+		ReverseSortOrder = Info.StartSortOrder != 0;
+	}
+
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+
+	if (AnotherPanel->GetType()!=FILE_PANEL)
+	{
+		AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+		AnotherPanel->Redraw();
+	}
+}
+
+void FileList::PluginGetPanelInfo(PanelInfo &Info)
+{
+	CorrectPosition();
+	Info.CurrentItem=CurFile;
+	Info.TopPanelItem=CurTopFile;
+	if(ShowShortNames)
+		Info.Flags|=PFLAGS_ALTERNATIVENAMES;
+	Info.ItemsNumber = ListData.size();
+	Info.SelectedItemsNumber=ListData.empty()? 0 : GetSelCount();
+}
+
+size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
+{
+	size_t result=0;
+
+	if (static_cast<size_t>(ItemNumber) < ListData.size())
+	{
+		result=FileListToPluginItem2(&ListData[ItemNumber], Item);
+	}
+
+	return result;
+}
+
+size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
+{
+	size_t result=0;
+
+	if (static_cast<size_t>(ItemNumber) < ListData.size())
+	{
+		if (ItemNumber==CacheSelIndex)
+		{
+			result=FileListToPluginItem2(&ListData[CacheSelPos], Item);
+		}
+		else
+		{
+			if (ItemNumber<CacheSelIndex) CacheSelIndex=-1;
+
+			int CurSel=CacheSelIndex,StartValue=CacheSelIndex>=0?CacheSelPos+1:0;
+
+			for (size_t i=StartValue; i<ListData.size(); i++)
+			{
+				if (ListData[i].Selected)
+					CurSel++;
+
+				if (CurSel==ItemNumber)
+				{
+					result=FileListToPluginItem2(&ListData[i], Item);
+					CacheSelIndex=ItemNumber;
+					CacheSelPos=static_cast<int>(i);
+					break;
+				}
+			}
+
+			if (CurSel==-1 && !ItemNumber)
+			{
+				result=FileListToPluginItem2(&ListData[CurFile], Item);
+				CacheSelIndex=-1;
+			}
+		}
+	}
+
+	return result;
+}
+
+void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths)
+{
+	ViewSettingsToText(ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
+}
+
+void FileList::PluginBeginSelection()
+{
+	SaveSelection();
+}
+
+void FileList::PluginSetSelection(int ItemNumber,bool Selection)
+{
+	Select(ListData[ItemNumber], Selection);
+}
+
+void FileList::PluginClearSelection(int SelectedItemNumber)
+{
+	if (static_cast<size_t>(SelectedItemNumber) < ListData.size())
+	{
+		if (SelectedItemNumber<=CacheSelClearIndex)
+		{
+			CacheSelClearIndex=-1;
+		}
+
+		int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
+
+		for (size_t i=StartValue; i < ListData.size(); i++)
+		{
+			if (ListData[i].Selected)
+			{
+				CurSel++;
+			}
+
+			if (CurSel==SelectedItemNumber)
+			{
+				Select(ListData[i], FALSE);
+				CacheSelClearIndex=SelectedItemNumber;
+				CacheSelClearPos=static_cast<int>(i);
+				break;
+			}
+		}
+	}
+}
+
+void FileList::PluginEndSelection()
+{
+	if (SelectedFirst)
+	{
+		SortFileList(TRUE);
+	}
+}
+
+void FileList::ProcessPluginCommand()
+{
+	_ALGO(CleverSysLog clv(L"FileList::ProcessPluginCommand"));
+	_ALGO(SysLog(L"PanelMode=%s",(PanelMode==PLUGIN_PANEL?"PLUGIN_PANEL":"NORMAL_PANEL")));
+	int Command=PluginCommand;
+	PluginCommand=-1;
+
+	if (PanelMode==PLUGIN_PANEL)
+		switch (Command)
+		{
+			case FCTL_CLOSEPANEL:
+				_ALGO(SysLog(L"Command=FCTL_CLOSEPANEL"));
+				SetCurDir(strPluginParam,true);
+
+				if (strPluginParam.empty())
+					Update(UPDATE_KEEP_SELECTION);
+
+				Redraw();
+				break;
+		}
+}
+
+void FileList::SetPluginModified()
+{
+	if(!PluginsList.empty())
+	{
+		PluginsList.back().m_Modified = TRUE;
+	}
+}
+
+
+PluginHandle* FileList::GetPluginHandle() const
+{
+	return hPlugin;
+}
+
+
+int FileList::ProcessPluginEvent(int Event,void *Param)
+{
+	if (PanelMode==PLUGIN_PANEL)
+		return Global->CtrlObject->Plugins->ProcessEvent(hPlugin,Event,Param);
+
+	return FALSE;
+}
+
+
+void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList)
+{
+	SaveSelection();
+	size_t FileNumber=0,PluginNumber=0;
+
+	while (PluginNumber < ItemList.size())
+	{
+		const auto& CurPlugin = ItemList[PluginNumber];
+
+		if (!(CurPlugin.Flags & PPIF_SELECTED))
+		{
+			while (StrCmpI(CurPlugin.FileName, ListData[FileNumber].strName.data()))
+				if (++FileNumber >= ListData.size())
+					return;
+
+			Select(ListData[FileNumber++], FALSE);
+		}
+
+		PluginNumber++;
+	}
+}
+
+// flupdate
+// Файловая панель - чтение имен файлов
+
+// Флаги для ReadDiz()
+enum ReadDizFlags
+{
+	RDF_NO_UPDATE         = 0x00000001UL,
+};
+
+void FileList::Update(int Mode)
+{
+	_ALGO(CleverSysLog clv(L"FileList::Update"));
+	_ALGO(SysLog(L"(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?L"UPDATE_KEEP_SELECTION":L"")));
+
+	if (EnableUpdate)
+		switch (PanelMode)
+		{
+			case NORMAL_PANEL:
+				ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
+				break;
+			case PLUGIN_PANEL:
+			{
+				OpenPanelInfo Info;
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+				ProcessPluginCommand();
+
+				if (PanelMode!=PLUGIN_PANEL)
+					ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
+				else if ((Info.Flags & OPIF_REALNAMES) ||
+				         Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
+				         !(Mode & UPDATE_SECONDARY))
+					UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
+			}
+			ProcessPluginCommand();
+			break;
+		}
+
+	LastUpdateTime=clock();
+}
+
+void FileList::UpdateIfRequired()
+{
+	if (UpdateRequired && !UpdateDisabled)
+	{
+		UpdateRequired = FALSE;
+		Update(UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
+	}
+}
+
+static void PR_ReadFileNamesMsg();
+
+struct FileListPreRedrawItem : PreRedrawItem
+{
+	FileListPreRedrawItem() : PreRedrawItem(PR_ReadFileNamesMsg){}
+
+	string Msg;
+};
+
+void ReadFileNamesMsg(const string& Msg)
+{
+	Message(0,0,MSG(MReadingTitleFiles),Msg.data());
+
+	if (!PreRedrawStack().empty())
+	{
+		auto item = dynamic_cast<FileListPreRedrawItem*>(PreRedrawStack().top());
+		item->Msg = Msg;
+	}
+}
+
+static void PR_ReadFileNamesMsg()
+{
+	if (!PreRedrawStack().empty())
+	{
+		auto item = dynamic_cast<const FileListPreRedrawItem*>(PreRedrawStack().top());
+		ReadFileNamesMsg(item->Msg);
+	}
+}
+
+void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
+{
+	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<FileListPreRedrawItem>());
+	SCOPED_ACTION(IndeterminateTaskBar)(false);
+
+	strOriginalCurDir = strCurDir;
+
+	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
+	{
+		UpdateRequired=TRUE;
+		UpdateRequiredMode=KeepSelection;
+		return;
+	}
+
+	UpdateRequired=FALSE;
+	AccessTimeUpdateRequired=FALSE;
+	DizRead=FALSE;
+	api::FAR_FIND_DATA fdata;
+	decltype(ListData) OldData;
+	string strCurName, strNextCurName;
+	StopFSWatcher();
+
+	if (this!=Global->CtrlObject->Cp()->LeftPanel && this!=Global->CtrlObject->Cp()->RightPanel)
+		return;
+
+	string strSaveDir;
+	api::GetCurrentDirectory(strSaveDir);
+	{
+		string strOldCurDir(strCurDir);
+
+		if (!SetCurPath())
+		{
+			FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
+
+			if (strCurDir == strOldCurDir) //?? i??
+			{
+				GetPathRoot(strOldCurDir,strOldCurDir);
+
+				if (!api::IsDiskInDrive(strOldCurDir))
+					IfGoHome(strOldCurDir.front());
+
+				/* При смене каталога путь не изменился */
+			}
+
+			return;
+		}
+	}
+	SortGroupsRead=FALSE;
+
+	if (GetFocus())
+		Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+
+	LastCurFile=-1;
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+	AnotherPanel->QViewDelTempName();
+	size_t PrevSelFileCount=SelFileCount;
+	SelFileCount=0;
+	SelFileSize=0;
+	TotalFileCount=0;
+	TotalFileSize=0;
+	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
+	FreeDiskSize = -1;
+	if (Global->Opt->ShowPanelFree)
+	{
+		api::GetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
+	}
+
+	if (!ListData.empty())
+	{
+		strCurName = ListData[CurFile].strName;
+
+		if (ListData[CurFile].Selected && !ReturnCurrentFile)
+		{
+			for (size_t i=CurFile+1; i < ListData.size(); i++)
+			{
+				if (!ListData[i].Selected)
+				{
+					strNextCurName = ListData[i].strName;
+					break;
+				}
+			}
+		}
+	}
+
+	if (KeepSelection || PrevSelFileCount>0)
+	{
+		OldData.swap(ListData);
+	}
+	else
+		DeleteListData(ListData);
+
+	DWORD FileSystemFlags = 0;
+	string PathRoot;
+	GetPathRoot(strCurDir, PathRoot);
+	api::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, nullptr);
+
+	ListData.clear();
+
+	bool ReadOwners = IsColumnDisplayed(OWNER_COLUMN);
+	bool ReadNumLinks = IsColumnDisplayed(NUMLINK_COLUMN);
+	bool ReadNumStreams = IsColumnDisplayed(NUMSTREAMS_COLUMN);
+	bool ReadStreamsSize = IsColumnDisplayed(STREAMSSIZE_COLUMN);
+
+	if (!(FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) && IsWindows7OrGreater())
+	{
+		ReadNumLinks = false;
+	}
+
+	if(!(FileSystemFlags&FILE_NAMED_STREAMS))
+	{
+		ReadNumStreams = false;
+		ReadStreamsSize = false;
+	}
+
+	string strComputerName;
+
+	if (ReadOwners)
+	{
+		string strTemp;
+		CurPath2ComputerName(strCurDir, strComputerName, strTemp);
+	}
+
+	SetLastError(ERROR_SUCCESS);
+	// сформируем заголовок вне цикла
+	string Title = MakeSeparator(X2-X1-1, 9, nullptr);
+	BOOL IsShowTitle=FALSE;
+	BOOL NeedHighlight=Global->Opt->Highlight && PanelMode != PLUGIN_PANEL;
+
+	if (!Filter)
+		Filter = std::make_unique<FileFilter>(this,FFT_PANEL);
+
+	//Рефреш текущему времени для фильтра перед началом операции
+	Filter->UpdateCurrentTime();
+	Global->CtrlObject->HiFiles->UpdateCurrentTime();
+	bool bCurDirRoot = false;
+	ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	bool NetRoot = bCurDirRoot && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
+
+	string strFind(strCurDir);
+	AddEndSlash(strFind);
+	strFind+=L'*';
+	api::enum_file Find(strFind, true);
+	DWORD FindErrorCode = ERROR_SUCCESS;
+	bool UseFilter=Filter->IsEnabledOnPanel();
+	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
+
+	DWORD StartTime = GetTickCount();
+
+	std::all_of(CONST_RANGE(Find, fdata) -> bool
+	{
+		Global->CatchError();
+		FindErrorCode = Global->CaughtError();
+
+		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
+		{
+			if (ListData.size() == ListData.capacity())
+				ListData.reserve(ListData.size() + 4096);
+
+			ListData.emplace_back(VALUE_TYPE(ListData)());
+			auto& NewItem = ListData.back();
+
+			NewItem.FileAttr = fdata.dwFileAttributes;
+			NewItem.CreationTime = fdata.ftCreationTime;
+			NewItem.AccessTime = fdata.ftLastAccessTime;
+			NewItem.WriteTime = fdata.ftLastWriteTime;
+			NewItem.ChangeTime = fdata.ftChangeTime;
+			NewItem.FileSize = fdata.nFileSize;
+			NewItem.AllocationSize = fdata.nAllocationSize;
+			NewItem.strName = fdata.strFileName;
+			NewItem.strShortName = fdata.strAlternateFileName;
+			NewItem.Position = ListData.size() - 1;
+			NewItem.NumberOfLinks=1;
+
+			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+			{
+				NewItem.ReparseTag=fdata.dwReserved0; //MSDN
+			}
+			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				TotalFileSize += NewItem.FileSize;
+
+				if (ReadNumLinks)
+					NewItem.NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
+			}
+			else
+			{
+				NewItem.AllocationSize = 0;
+			}
+
+			NewItem.SortGroup=DEFAULT_SORT_GROUP;
+
+			if (ReadOwners)
+			{
+				string strOwner;
+				GetFileOwner(strComputerName, NewItem.strName,strOwner);
+				NewItem.strOwner = strOwner;
+			}
+
+			NewItem.NumberOfStreams=NewItem.FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
+			NewItem.StreamsSize=NewItem.FileSize;
+
+			if (ReadNumStreams||ReadStreamsSize)
+			{
+				EnumStreams(TestParentFolderName(fdata.strFileName)? strCurDir : fdata.strFileName, NewItem.StreamsSize, NewItem.NumberOfStreams);
+			}
+
+			if (ReadCustomData)
+				NewItem.strCustomData = Global->CtrlObject->Plugins->GetCustomData(NewItem.strName);
+
+			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				TotalFileCount++;
+
+			DWORD CurTime = GetTickCount();
+			if (CurTime - StartTime > (DWORD)Global->Opt->RedrawTimeout)
+			{
+				StartTime = CurTime;
+				if (IsVisible())
+				{
+					if (!IsShowTitle)
+					{
+						if (!DrawMessage)
+						{
+							Text(X1+1,Y1,ColorIndexToColor(COL_PANELBOX),Title);
+							IsShowTitle=TRUE;
+							SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+						}
+					}
+
+					LangString strReadMsg(MReadingFiles);
+					strReadMsg << ListData.size();
+
+					if (DrawMessage)
+					{
+						ReadFileNamesMsg(strReadMsg);
+					}
+					else
+					{
+						TruncStr(strReadMsg,static_cast<int>(Title.size())-2);
+						int MsgLength=(int)strReadMsg.size();
+						GotoXY(X1+1+(static_cast<int>(Title.size())-MsgLength-1)/2,Y1);
+						Global->FS << L" "<<strReadMsg<<L" ";
+					}
+				}
+
+				Global->CtrlObject->Macro.SuspendMacros(true);
+				bool check = CheckForEsc();
+				Global->CtrlObject->Macro.SuspendMacros(false);
+				if (check)
+				{
+					// break loop
+					return false;
+				}
+			}
+		}
+		return true;
+	});
+
+	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
+
+	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
+	{
+		ListData.emplace_back(VALUE_TYPE(ListData)());
+		auto& NewItem = ListData.back();
+
+		string TwoDotsOwner;
+		if (ReadOwners)
+		{
+			GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
+		}
+
+		FILETIME TwoDotsTimes[4]={};
+		api::GetFileTimeSimple(strCurDir,&TwoDotsTimes[0],&TwoDotsTimes[1],&TwoDotsTimes[2],&TwoDotsTimes[3]);
+
+		AddParentPoint(&NewItem, ListData.size(), TwoDotsTimes, TwoDotsOwner);
+	}
+
+	if (IsColumnDisplayed(DIZ_COLUMN))
+		ReadDiz();
+
+	if (NeedHighlight)
+	{
+		std::for_each(RANGE(ListData, i)
+		{
+			Global->CtrlObject->HiFiles->GetHiColor(&i);
+		});
+	}
+
+	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
+	{
+		auto hAnotherPlugin=AnotherPanel->GetPluginHandle();
+		PluginPanelItem *PanelData=nullptr;
+		string strPath(strCurDir);
+		AddEndSlash(strPath);
+		size_t PanelCount=0;
+
+		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
+		{
+			auto OldSize = ListData.size(), Position = OldSize - 1;
+			ListData.resize(ListData.size() + PanelCount);
+
+			auto PluginPtr = PanelData;
+			FOR(auto& i, make_range(ListData.begin() + OldSize, ListData.end()))
+			{
+				PluginToFileListItem(PluginPtr, &i);
+				i.Position = Position;
+				TotalFileSize += PluginPtr->FileSize;
+				i.PrevSelected = i.Selected=0;
+				i.ShowFolderSize = 0;
+				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i);
+
+				if (!TestParentFolderName(PluginPtr->FileName) && !(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					TotalFileCount++;
+
+				++PluginPtr;
+				++Position;
+			}
+
+			// цветовую боевую раскраску в самом конце, за один раз
+			FOR(auto& i, make_range(ListData.begin() + OldSize, ListData.begin() + OldSize + PanelCount))
+			{
+				Global->CtrlObject->HiFiles->GetHiColor(&i);
+			}
+			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
+		}
+	}
+
+	InitFSWatcher(false);
+	CorrectPosition();
+
+	string strLastSel, strGetSel;
+
+	if (KeepSelection || PrevSelFileCount>0)
+	{
+		if (LastSelPosition >= 0 && static_cast<size_t>(LastSelPosition) < OldData.size())
+			strLastSel = OldData[LastSelPosition].strName;
+		if (GetSelPosition >= 0 && static_cast<size_t>(GetSelPosition) < OldData.size())
+			strGetSel = OldData[GetSelPosition].strName;
+
+		MoveSelection(OldData, ListData);
+		DeleteListData(OldData);
+	}
+
+	if (SortGroups)
+		ReadSortGroups(false);
+
+	if (!KeepSelection && PrevSelFileCount>0)
+	{
+		SaveSelection();
+		ClearSelection();
+	}
+
+	SortFileList(FALSE);
+
+	if (!strLastSel.empty())
+		LastSelPosition = FindFile(strLastSel, FALSE);
+	if (!strGetSel.empty())
+		GetSelPosition = FindFile(strGetSel, FALSE);
+
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile].strName, strCurName))
+		if (!GoToFile(strCurName) && !strNextCurName.empty())
+			GoToFile(strNextCurName);
+
+	/* $ 13.02.2002 DJ
+		SetTitle() - только если мы текущий фрейм!
+	*/
+	if (Global->CtrlObject->Cp() == Global->FrameManager->GetCurrentFrame())
+		SetTitle();
+
+	FarChDir(strSaveDir); //???
+}
+
+/*$ 22.06.2001 SKV
+  Добавлен параметр для вызова после исполнения команды.
+*/
+int FileList::UpdateIfChanged(panel_update_mode UpdateMode)
+{
+	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
+	if (!Global->Opt->AutoUpdateLimit || ListData.size() <= static_cast<size_t>(Global->Opt->AutoUpdateLimit))
+	{
+		/* $ 19.12.2001 VVM
+		  ! Сменим приоритеты. При Force обновление всегда! */
+		if ((IsVisible() && (clock()-LastUpdateTime>2000)) || (UpdateMode != UIC_UPDATE_NORMAL))
+		{
+			if (UpdateMode == UIC_UPDATE_NORMAL)
+				ProcessPluginEvent(FE_IDLE,nullptr);
+
+			/* $ 24.12.2002 VVM
+			  ! Поменяем логику обновления панелей. */
+			if (// Нормальная панель, на ней установлено уведомление и есть сигнал
+			    (PanelMode==NORMAL_PANEL && FSWatcher.Signaled()) ||
+			    // Или Нормальная панель, но нет уведомления и мы попросили обновить через UPDATE_FORCE
+			    (PanelMode==NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE) ||
+			    // Или плагинная панель и обновляем через UPDATE_FORCE
+			    (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
+			)
+			{
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
+
+				if (AnotherPanel->GetType()==INFO_PANEL)
+				{
+					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+
+					if (UpdateMode==UIC_UPDATE_NORMAL)
+						AnotherPanel->Redraw();
+				}
+
+				Update(UPDATE_KEEP_SELECTION);
+
+				if (UpdateMode==UIC_UPDATE_NORMAL)
+					Show();
+
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+void FileList::InitFSWatcher(bool CheckTree)
+{
+	DWORD DriveType=DRIVE_REMOTE;
+	StopFSWatcher();
+	PATH_TYPE Type = ParsePath(strCurDir);
+
+	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
+	{
+		wchar_t RootDir[4]=L" :\\";
+		RootDir[0] = strCurDir[(Type == PATH_DRIVELETTER)? 0 : 4];
+		DriveType=FAR_GetDriveType(RootDir);
+	}
+
+	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
+	{
+		FSWatcher.Set(strCurDir, CheckTree);
+		StartFSWatcher(false, false); //check_time=false, prevent reading file time twice (slow on network)
+	}
+}
+
+void FileList::StartFSWatcher(bool got_focus, bool check_time)
+{
+	FSWatcher.Watch(got_focus, check_time);
+}
+
+void FileList::StopFSWatcher()
+{
+	FSWatcher.Release();
+}
+
+struct search_list_less
+{
+	bool operator()(const FileListItem& a, const FileListItem& b) const
+	{
+		return a.strName < b.strName;
+	}
+}
+SearchListLess;
+
+void FileList::MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To)
+{
+	SelFileCount=0;
+	SelFileSize=0;
+	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
+
+	std::sort(From.begin(), From.end(), SearchListLess);
+
+	std::for_each(RANGE(To, i)
+	{
+		auto OldItem = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
+		if (OldItem != From.end())
+		{
+			if (OldItem->strName == i.strName)
+			{
+				if (OldItem->ShowFolderSize)
+				{
+					i.ShowFolderSize = 2;
+					i.FileSize = OldItem->FileSize;
+					i.AllocationSize = OldItem->AllocationSize;
+				}
+
+				this->Select(i, OldItem->Selected);
+				i.PrevSelected = OldItem->PrevSelected;
+			}
+		}
+	});
+}
+
+void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
+{
+	_ALGO(CleverSysLog clv(L"FileList::UpdatePlugin"));
+	_ALGO(SysLog(L"(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,UpdateEvenIfPanelInvisible));
+
+	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
+	{
+		UpdateRequired=TRUE;
+		UpdateRequiredMode=KeepSelection;
+		return;
+	}
+
+	DizRead=FALSE;
+	std::vector<FileListItem> OldData;
+	string strCurName, strNextCurName;
+	StopFSWatcher();
+	LastCurFile=-1;
+	OpenPanelInfo Info;
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+
+	FreeDiskSize=-1;
+	if (Global->Opt->ShowPanelFree)
+	{
+		if (Info.Flags & OPIF_REALNAMES)
+		{
+			api::GetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
+		}
+		else if (Info.Flags & OPIF_USEFREESIZE)
+			FreeDiskSize=Info.FreeSize;
+	}
+
+	PluginPanelItem *PanelData=nullptr;
+	size_t PluginFileCount;
+
+	if (!Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
+	{
+		PopPlugin(TRUE);
+		Update(KeepSelection);
+
+		// WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
+		if (!PrevDataList.empty())
+			GoToFile(PrevDataList.back().strPrevName);
+
+		return;
+	}
+
+	size_t PrevSelFileCount=SelFileCount;
+	SelFileCount=0;
+	SelFileSize=0;
+	TotalFileCount=0;
+	TotalFileSize=0;
+	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
+	strPluginDizName.clear();
+
+	if (!ListData.empty())
+	{
+		strCurName = ListData[CurFile].strName;
+
+		if (ListData[CurFile].Selected)
+		{
+			for (size_t i = CurFile + 1; i < ListData.size(); ++i)
+			{
+				if (!ListData[i].Selected)
+				{
+					strNextCurName = ListData[i].strName;
+					break;
+				}
+			}
+		}
+	}
+	else if (Info.Flags & OPIF_ADDDOTS)
+	{
+		strCurName = L"..";
+	}
+
+	if (KeepSelection || PrevSelFileCount>0)
+	{
+		OldData.swap(ListData);
+	}
+	else
+	{
+		DeleteListData(ListData);
+	}
+
+	if (!Filter)
+		Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
+
+	//Рефреш текущему времени для фильтра перед началом операции
+	Filter->UpdateCurrentTime();
+	Global->CtrlObject->HiFiles->UpdateCurrentTime();
+	int DotsPresent=FALSE;
+	bool UseFilter=Filter->IsEnabledOnPanel();
+
+	ListData.reserve(PluginFileCount);
+
+	for (size_t i = 0; i < PluginFileCount; i++)
+	{
+		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
+		{
+			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			if (!Filter->FileInFilter(PanelData[i]))
+				continue;
+		}
+
+		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+			continue;
+
+		ListData.emplace_back(VALUE_TYPE(ListData)());
+		auto& CurListData = ListData.back();
+
+		PluginToFileListItem(&PanelData[i], &CurListData);
+		CurListData.Position=i;
+
+		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
+			CurListData.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&CurListData);
+		else
+			CurListData.SortGroup=DEFAULT_SORT_GROUP;
+
+		if (!CurListData.DizText)
+		{
+			CurListData.DeleteDiz=false;
+			//CurListData.DizText=nullptr;
+		}
+
+		if (TestParentFolderName(CurListData.strName))
+		{
+			DotsPresent=TRUE;
+			CurListData.FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
+		}
+		else if (!(CurListData.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			TotalFileCount++;
+		}
+
+		TotalFileSize += CurListData.FileSize;
+	}
+
+	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+	{
+		std::for_each(RANGE(ListData, i)
+		{
+			Global->CtrlObject->HiFiles->GetHiColor(&i, (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+		});
+	}
+
+	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
+	{
+		ListData.emplace_back(VALUE_TYPE(ListData)());
+		auto& NewItem = ListData.back();
+		AddParentPoint(&NewItem, ListData.size());
+
+		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+			Global->CtrlObject->HiFiles->GetHiColor(&ListData.back(), (Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+
+		if (Info.HostFile && *Info.HostFile)
+		{
+			api::FAR_FIND_DATA FindData;
+
+			if (api::GetFindDataEx(Info.HostFile, FindData))
+			{
+				NewItem.WriteTime=FindData.ftLastWriteTime;
+				NewItem.CreationTime=FindData.ftCreationTime;
+				NewItem.AccessTime=FindData.ftLastAccessTime;
+				NewItem.ChangeTime=FindData.ftChangeTime;
+			}
+		}
+	}
+
+	if (CurFile >= static_cast<int>(ListData.size()))
+		CurFile = ListData.size() ? static_cast<int>(ListData.size() - 1) : 0;
+
+	/* $ 25.02.2001 VVM
+	    ! Не считывать повторно список файлов с панели плагина */
+	if (IsColumnDisplayed(DIZ_COLUMN))
+		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
+
+	CorrectPosition();
+	Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,false);
+
+	string strLastSel, strGetSel;
+
+	if (KeepSelection || PrevSelFileCount>0)
+	{
+		if (LastSelPosition >= 0 && LastSelPosition < static_cast<long>(OldData.size()))
+			strLastSel = OldData[LastSelPosition].strName;
+		if (GetSelPosition >= 0 && GetSelPosition < static_cast<long>(OldData.size()))
+			strGetSel = OldData[GetSelPosition].strName;
+
+		MoveSelection(OldData, ListData);
+		DeleteListData(OldData);
+	}
+
+	if (!KeepSelection && PrevSelFileCount>0)
+	{
+		SaveSelection();
+		ClearSelection();
+	}
+
+	SortFileList(FALSE);
+
+	if (!strLastSel.empty())
+		LastSelPosition = FindFile(strLastSel, FALSE);
+	if (!strGetSel.empty())
+		GetSelPosition = FindFile(strGetSel, FALSE);
+
+	if (CurFile >= static_cast<int>(ListData.size()) || StrCmpI(ListData[CurFile].strName,strCurName))
+		if (!GoToFile(strCurName) && !strNextCurName.empty())
+			GoToFile(strNextCurName);
+
+	SetTitle();
+}
+
+
+void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
+{
+	if (DizRead)
+		return;
+
+	DizRead=TRUE;
+	Diz.Reset();
+
+	if (PanelMode==NORMAL_PANEL)
+	{
+		Diz.Read(strCurDir);
+	}
+	else
+	{
+		PluginPanelItem *PanelData=nullptr;
+		size_t PluginFileCount=0;
+		OpenPanelInfo Info;
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+
+		if (!Info.DescrFilesNumber)
+			return;
+
+		int GetCode=TRUE;
+
+		/* $ 25.02.2001 VVM
+		    + Обработка флага RDF_NO_UPDATE */
+		if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
+		{
+			GetCode=Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
+		}
+		else
+		{
+			PanelData=ItemList;
+			PluginFileCount=ItemLength;
+		}
+
+		if (GetCode)
+		{
+			for (size_t I=0; I<Info.DescrFilesNumber; I++)
+			{
+				PluginPanelItem *CurPanelData=PanelData;
+
+				for (size_t J=0; J < PluginFileCount; J++, CurPanelData++)
+				{
+					string strFileName = CurPanelData->FileName;
+
+					if (!StrCmpI(strFileName.data(),Info.DescrFiles[I]))
+					{
+						string strTempDir, strDizName;
+
+						if (FarMkTempEx(strTempDir) && api::CreateDirectory(strTempDir,nullptr))
+						{
+							if (Global->CtrlObject->Plugins->GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
+							{
+								strPluginDizName = Info.DescrFiles[I];
+								Diz.Read(L"", &strDizName);
+								DeleteFileWithFolder(strDizName);
+								I=Info.DescrFilesNumber;
+								break;
+							}
+
+							api::RemoveDirectory(strTempDir);
+							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
+						}
+					}
+				}
+			}
+
+			/* $ 25.02.2001 VVM
+			    + Обработка флага RDF_NO_UPDATE */
+			if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
+				Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,true);
+		}
+	}
+
+	std::for_each(RANGE(ListData, i)
+	{
+		if (!i.DizText)
+		{
+			i.DeleteDiz = false;
+			i.DizText = const_cast<wchar_t*>(Diz.GetDizTextAddr(i.strName, i.strShortName, i.FileSize));
+		}
+	});
+}
+
+
+void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
+{
+	if (!SortGroupsRead)
+	{
+		if (UpdateFilterCurrentTime)
+		{
+			Global->CtrlObject->HiFiles->UpdateCurrentTime();
+		}
+
+		SortGroupsRead=TRUE;
+
+		std::for_each(RANGE(ListData, i)
+		{
+			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&i);
+		});
+	}
+}
+
+// занести предопределенные данные для каталога "..". Ожидается, что CurPtr пуст.
+void FileList::AddParentPoint(FileListItem *CurPtr, size_t CurFilePos, const FILETIME* Times, const string& Owner)
+{
+	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
+	CurPtr->strName = L"..";
+	CurPtr->strShortName = L"..";
+
+	if (Times)
+	{
+		CurPtr->CreationTime = Times[0];
+		CurPtr->AccessTime = Times[1];
+		CurPtr->WriteTime = Times[2];
+		CurPtr->ChangeTime = Times[3];
+	}
+
+	CurPtr->strOwner = Owner;
+	CurPtr->Position = CurFilePos;
+}
+
+// flshow.cpp
+// Файловая панель - вывод на экран
+
+extern int ColumnTypeWidth[];
+
+static wchar_t OutCharacter[8]={};
+
+static LNGID __FormatEndSelectedPhrase(size_t Count)
+{
+	LNGID M_Fmt=MListFileSize;
+
+	if (Count != 1)
+	{
+		FormatString StrItems;
+		StrItems << Count;
+		size_t LenItems= StrItems.size();
+
+		if (StrItems[LenItems-1] == '1' && Count != 11)
+			M_Fmt=MListFilesSize1;
+		else
+			M_Fmt=MListFilesSize2;
+	}
+
+	return M_Fmt;
+}
+
+
+void FileList::DisplayObject()
+{
+	Height=Y2-Y1-4+!Global->Opt->ShowColumnTitles+(Global->Opt->ShowPanelStatus ? 0:2);
+	_OT(SysLog(L"[%p] FileList::DisplayObject()",this));
+
+	if (UpdateRequired)
+	{
+		UpdateRequired=FALSE;
+		Update(UpdateRequiredMode);
+	}
+
+	ProcessPluginCommand();
+	ShowFileList(FALSE);
+}
+
+
+void FileList::ShowFileList(int Fast)
+{
+	if (Locked())
+	{
+		CorrectPosition();
+		return;
+	}
+
+	string strTitle;
+	string strInfoCurDir;
+	OpenPanelInfo Info;
+
+	if (PanelMode==PLUGIN_PANEL)
+	{
+		if (ProcessPluginEvent(FE_REDRAW,nullptr))
+			return;
+
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		strInfoCurDir = NullToEmpty(Info.CurDir);
+	}
+
+	bool CurFullScreen=IsFullScreen();
+	PrepareViewSettings(ViewMode,&Info);
+	CorrectPosition();
+
+	if (CurFullScreen!=IsFullScreen())
+	{
+		Global->CtrlObject->Cp()->SetScreenPosition();
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+	}
+
+	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+
+	if (Global->Opt->ShowColumnTitles)
+	{
+//    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
+		SetColor(COL_PANELTEXT); //???
+		//GotoXY(X1+1,Y1+1);
+		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+	}
+
+	for (size_t I=0,ColumnPos=X1+1; I < ViewSettings.PanelColumns.size(); I++)
+	{
+		if (ViewSettings.PanelColumns[I].width < 0)
+			continue;
+
+		if (Global->Opt->ShowColumnTitles)
+		{
+			LNGID IDMessage=MColumnUnknown;
+
+			switch (ViewSettings.PanelColumns[I].type & 0xff)
+			{
+				case NAME_COLUMN:
+					IDMessage=MColumnName;
+					break;
+				case EXTENSION_COLUMN:
+					IDMessage=MColumnExtension;
+					break;
+				case SIZE_COLUMN:
+					IDMessage=MColumnSize;
+					break;
+				case PACKED_COLUMN:
+					IDMessage=MColumnAlocatedSize;
+					break;
+				case DATE_COLUMN:
+					IDMessage=MColumnDate;
+					break;
+				case TIME_COLUMN:
+					IDMessage=MColumnTime;
+					break;
+				case WDATE_COLUMN:
+					IDMessage=MColumnWrited;
+					break;
+				case CDATE_COLUMN:
+					IDMessage=MColumnCreated;
+					break;
+				case ADATE_COLUMN:
+					IDMessage=MColumnAccessed;
+					break;
+				case CHDATE_COLUMN:
+					IDMessage=MColumnChanged;
+					break;
+				case ATTR_COLUMN:
+					IDMessage=MColumnAttr;
+					break;
+				case DIZ_COLUMN:
+					IDMessage=MColumnDescription;
+					break;
+				case OWNER_COLUMN:
+					IDMessage=MColumnOwner;
+					break;
+				case NUMLINK_COLUMN:
+					IDMessage=MColumnMumLinks;
+					break;
+				case NUMSTREAMS_COLUMN:
+					IDMessage=MColumnNumStreams;
+					break;
+				case STREAMSSIZE_COLUMN:
+					IDMessage=MColumnStreamsSize;
+					break;
+			}
+
+			strTitle=MSG(IDMessage);
+
+			if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray &&
+			        ViewMode<static_cast<int>(Info.PanelModesNumber) &&
+			        Info.PanelModesArray[ViewMode].ColumnTitles)
+			{
+				const wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
+
+				if (NewTitle)
+					strTitle=NewTitle;
+			}
+
+			string strTitleMsg;
+			CenterStr(strTitle,strTitleMsg,ViewSettings.PanelColumns[I].width);
+			SetColor(COL_PANELCOLUMNTITLE);
+			GotoXY(static_cast<int>(ColumnPos),Y1+1);
+			Global->FS << fmt::MaxWidth(ViewSettings.PanelColumns[I].width) << strTitleMsg;
+		}
+
+		if (I == ViewSettings.PanelColumns.size() - 1)
+			break;
+
+		if (ViewSettings.PanelColumns[I + 1].width < 0)
+			continue;
+
+		SetColor(COL_PANELBOX);
+		ColumnPos += ViewSettings.PanelColumns[I].width;
+		GotoXY(static_cast<int>(ColumnPos),Y1);
+
+		bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%ColumnsInGlobal));
+
+		BoxText(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
+
+		if (Global->Opt->ShowColumnTitles)
+		{
+			FarColor c = ColorIndexToColor(COL_PANELBOX);
+			c.BackgroundColor = ColorIndexToColor(COL_PANELCOLUMNTITLE).BackgroundColor;
+			SetColor(c);
+
+			GotoXY(static_cast<int>(ColumnPos),Y1+1);
+			BoxText(BoxSymbols[DoubleLine?BS_V2:BS_V1]);
+		}
+
+		if (!Global->Opt->ShowPanelStatus)
+		{
+			GotoXY(static_cast<int>(ColumnPos),Y2);
+			BoxText(BoxSymbols[DoubleLine?BS_B_H2V2:BS_B_H2V1]);
+		}
+
+		ColumnPos++;
+	}
+
+	int NextX1=X1+1;
+
+	if (Global->Opt->ShowSortMode)
+	{
+		const wchar_t *Ch = nullptr;
+		if (SortMode < SORTMODE_COUNT)
+		{
+			static const simple_pair<int, LNGID> ModeNames[] =
+			{
+				{UNSORTED, MMenuUnsorted},
+				{BY_NAME, MMenuSortByName},
+				{BY_EXT, MMenuSortByExt},
+				{BY_MTIME, MMenuSortByWrite},
+				{BY_CTIME, MMenuSortByCreation},
+				{BY_ATIME, MMenuSortByAccess},
+				{BY_CHTIME, MMenuSortByChange},
+				{BY_SIZE, MMenuSortBySize},
+				{BY_DIZ, MMenuSortByDiz},
+				{BY_OWNER, MMenuSortByOwner},
+				{BY_COMPRESSEDSIZE, MMenuSortByAllocatedSize},
+				{BY_NUMLINKS, MMenuSortByNumLinks},
+				{BY_NUMSTREAMS, MMenuSortByNumStreams},
+				{BY_STREAMSSIZE, MMenuSortByStreamsSize},
+				{BY_FULLNAME, MMenuSortByFullName},
+				{BY_CUSTOMDATA, MMenuSortByCustomData},
+			};
+			static_assert(ARRAYSIZE(ModeNames) == SORTMODE_COUNT, "Incomplete ModeNames array");
+
+			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == SortMode; })->second), L'&');
+		}
+
+		if (Ch || SortMode >= SORTMODE_COUNT)
+		{
+			if (Global->Opt->ShowColumnTitles)
+				GotoXY(NextX1,Y1+1);
+			else
+				GotoXY(NextX1,Y1);
+
+			SetColor(COL_PANELCOLUMNTITLE);
+			if (Ch)
+				OutCharacter[0] = ReverseSortOrder? Upper(Ch[1]) : Lower(Ch[1]);
+			else
+				OutCharacter[0] = ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
+
+			Text(OutCharacter);
+			NextX1++;
+
+			if (Filter && Filter->IsEnabledOnPanel())
+			{
+				OutCharacter[0]=L'*';
+				Text(OutCharacter);
+				NextX1++;
+			}
+		}
+	}
+
+	/* <режимы сортировки> */
+	if (/*GetNumericSort() || GetCaseSensitiveSort() || GetSortGroups() || */GetSelectedFirstMode())
+	{
+		if (Global->Opt->ShowColumnTitles)
+			GotoXY(NextX1,Y1+1);
+		else
+			GotoXY(NextX1,Y1);
+
+		SetColor(COL_PANELCOLUMNTITLE);
+		wchar_t *PtrOutCharacter=OutCharacter;
+		*PtrOutCharacter=0;
+
+		//if (GetSelectedFirstMode())
+			*PtrOutCharacter++=L'^';
+
+		/*
+		    if(GetNumericSort())
+		      *PtrOutCharacter++=L'#';
+		    if(GetSortGroups())
+		      *PtrOutCharacter++=L'@';
+		*/
+		/*
+		if(GetCaseSensitiveSort())
+		{
+
+		}
+		*/
+		*PtrOutCharacter=0;
+		Text(OutCharacter);
+		PtrOutCharacter[1]=0;
+	}
+
+	/* </режимы сортировки> */
+
+	if (!Fast && GetFocus())
+	{
+		if (PanelMode==PLUGIN_PANEL)
+			Global->CtrlObject->CmdLine->SetCurDir(NullToEmpty(Info.CurDir));
+		else
+			Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+
+		Global->CtrlObject->CmdLine->Show();
+	}
+
+	GetTitle(strTitle);
+	int TitleX2 = X2 == ScrX? X2 - 1 : X2;
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && X1 + strTitle.size() + 2 >= static_cast<size_t>(ScrX-5))
+		TitleX2 = std::min(ScrX-5,(int)X2);
+
+	int MaxSize=TitleX2-X1-1;
+	int XShift = 0;
+	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode)
+	{
+		++XShift;
+		if (Filter && Filter->IsEnabledOnPanel())
+			++XShift;
+	}
+	MaxSize -= XShift;
+	TruncPathStr(strTitle, MaxSize - 2);
+	strTitle.insert(0, 1, L' ');
+	strTitle.push_back(L' ');
+
+	size_t TitleX=X1+1+XShift+(TitleX2-X1-XShift-strTitle.size())/2;
+
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + strTitle.size() > static_cast<size_t>(ScrX-5))
+		TitleX = ScrX - 5 - strTitle.size();
+
+	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	GotoXY(static_cast<int>(TitleX),Y1);
+	Text(strTitle);
+
+	if (ListData.empty())
+	{
+		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+		SetColor(COL_PANELTEXT); //???
+		//GotoXY(X1+1,Y2-1);
+		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+	}
+
+	if (PanelMode==PLUGIN_PANEL && !ListData.empty() && (Info.Flags & OPIF_REALNAMES))
+	{
+		if (!strInfoCurDir.empty())
+		{
+			strCurDir = strInfoCurDir;
+		}
+		else
+		{
+			if (!TestParentFolderName(ListData[CurFile].strName))
+			{
+				strCurDir=ListData[CurFile].strName;
+				size_t pos;
+
+				if (FindLastSlash(pos,strCurDir))
+				{
+					if (pos)
+					{
+						if (strCurDir[pos-1] != L':')
+							strCurDir.resize(pos);
+						else
+							strCurDir.resize(pos+1);
+					}
+				}
+			}
+			else
+			{
+				strCurDir = strOriginalCurDir;
+			}
+		}
+
+		if (GetFocus())
+		{
+			Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+			Global->CtrlObject->CmdLine->Show();
+		}
+	}
+
+	if ((Global->Opt->ShowPanelTotals || Global->Opt->ShowPanelFree) &&
+	        (Global->Opt->ShowPanelStatus || !SelFileCount))
+	{
+		ShowTotalSize(Info);
+	}
+
+	ShowList(FALSE,0);
+	ShowSelectedSize();
+
+	if (Global->Opt->ShowPanelScrollbar)
+	{
+		SetColor(COL_PANELSCROLLBAR);
+		ScrollBarEx(X2,Y1+1+Global->Opt->ShowColumnTitles,Height,Round(CurTopFile,Columns),Round(static_cast<int>(ListData.size()), Columns));
+	}
+
+	ShowScreensCount();
+
+	if (!ProcessingPluginCommand && LastCurFile!=CurFile)
+	{
+		LastCurFile=CurFile;
+		UpdateViewPanel();
+	}
+
+	if (PanelMode==PLUGIN_PANEL)
+		Global->CtrlObject->Cp()->RedrawKeyBar();
+}
+
+
+const FarColor FileList::GetShowColor(int Position, bool FileColor) const
+{
+	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
+
+	if (static_cast<size_t>(Position) < ListData.size())
+	{
+		int Pos = HighlightFiles::NORMAL_COLOR;
+
+		if (CurFile==Position && Focus && !ListData.empty())
+		{
+			Pos=ListData[Position].Selected? HighlightFiles::SELECTEDUNDERCURSOR_COLOR : HighlightFiles::UNDERCURSOR_COLOR;
+		}
+		else if (ListData[Position].Selected)
+			Pos = HighlightFiles::SELECTED_COLOR;
+
+		if (Global->Opt->Highlight)
+		{
+			if (ListData[Position].Colors)
+				ColorAttr = FileColor ? ListData[Position].Colors->Color[Pos].FileColor : ListData[Position].Colors->Color[Pos].MarkColor;
+			else
+				ColorAttr.ForegroundColor = ColorAttr.BackgroundColor = 0; // black on black, default
+		}
+
+		if (!Global->Opt->Highlight || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
+		{
+			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
+			ColorAttr=ColorIndexToColor(PalColor[Pos]);
+		}
+	}
+
+	return ColorAttr;
+}
+
+void FileList::SetShowColor(int Position, bool FileColor) const
+{
+	SetColor(GetShowColor(Position,FileColor));
+}
+
+void FileList::ShowSelectedSize()
+{
+
+	if (Global->Opt->ShowPanelStatus)
+	{
+		SetColor(COL_PANELBOX);
+		DrawSeparator(Y2-2);
+		for (size_t I=0,ColumnPos=X1+1; I<ViewSettings.PanelColumns.size() - 1; I++)
+		{
+			if (ViewSettings.PanelColumns[I].width < 0 || (I == ViewSettings.PanelColumns.size() - 2 && ViewSettings.PanelColumns[I+1].width < 0))
+				continue;
+
+			ColumnPos += ViewSettings.PanelColumns[I].width;
+			GotoXY(static_cast<int>(ColumnPos),Y2-2);
+
+			bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%ColumnsInGlobal));
+			BoxText(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
+			ColumnPos++;
+		}
+	}
+
+	if (SelFileCount)
+	{
+		string strFormStr;
+		InsertCommas(SelFileSize,strFormStr);
+		LangString strSelStr(__FormatEndSelectedPhrase(SelFileCount));
+		strSelStr << strFormStr << SelFileCount;
+		TruncStr(strSelStr,X2-X1-1);
+		int Length=(int)strSelStr.size();
+		SetColor(COL_PANELSELECTEDINFO);
+		GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Global->Opt->ShowPanelStatus);
+		Text(strSelStr);
+	}
+}
+
+
+void FileList::ShowTotalSize(const OpenPanelInfo &Info)
+{
+	if (!Global->Opt->ShowPanelTotals && PanelMode==PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
+		return;
+
+	string strFormSize, strFreeSize, strTotalStr;
+	int Length;
+	InsertCommas(TotalFileSize,strFormSize);
+
+	if (Global->Opt->ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
+	{
+		if(FreeDiskSize != static_cast<unsigned __int64>(-1))
+		{
+			InsertCommas(FreeDiskSize,strFreeSize);
+		}
+		else
+		{
+			strFreeSize = L"?";
+		}
+	}
+
+	if (Global->Opt->ShowPanelTotals)
+	{
+		if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
+		{
+			strTotalStr = LangString(__FormatEndSelectedPhrase(TotalFileCount)) << strFormSize << TotalFileCount;
+		}
+		else
+		{
+			wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
+ 			FormatString str;
+			str << L" " << strFormSize << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" ";
+
+			if ((int)str.size() > X2-X1-1)
+			{
+				if(FreeDiskSize != static_cast<unsigned __int64>(-1))
+				{
+					InsertCommas(FreeDiskSize>>20,strFreeSize);
+				}
+				else
+				{
+					strFreeSize = L"?";
+				}
+				InsertCommas(TotalFileSize>>20,strFormSize);
+				str.clear();
+				str << L" " << strFormSize << L" " << MSG(MListMb) << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" " << MSG(MListMb) << L" ";
+			}
+			strTotalStr = str;
+		}
+	}
+	else
+	{
+		strTotalStr = LangString(MListFreeSize) << (!strFreeSize.empty()? strFreeSize : L"?");
+	}
+	SetColor(COL_PANELTOTALINFO);
+	/* $ 01.08.2001 VVM
+	  + Обрезаем строчку справа, а не слева */
+	TruncStrFromEnd(strTotalStr, std::max(0, X2-X1-1));
+	Length=(int)strTotalStr.size();
+	GotoXY(X1+(X2-X1+1-Length)/2,Y2);
+	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
+	int BoxLength=0;
+	if (BoxPos != string::npos)
+		for (int I=0; strTotalStr[BoxPos+I] == BoxSymbols[BS_H2]; I++)
+			BoxLength++;
+
+	if (BoxPos == string::npos || !BoxLength)
+		Text(strTotalStr);
+	else
+	{
+		Global->FS << fmt::MaxWidth(BoxPos)<<strTotalStr;
+		SetColor(COL_PANELBOX);
+		Global->FS << fmt::MaxWidth(BoxLength)<<strTotalStr.data()+BoxPos;
+		SetColor(COL_PANELTOTALINFO);
+		Text(strTotalStr.data()+BoxPos+BoxLength);
+	}
+}
+
+int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr) const
+{
+	strDest.reserve(MaxLength);
+
+	int SrcLength=StrLength(SrcName);
+
+	if ((RightAlign & COLUMN_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
+	{
+		if (SrcLength>MaxLength)
+		{
+			strDest.assign(SrcName + SrcLength - MaxLength, MaxLength);
+		}
+		else
+		{
+			strDest.assign(MaxLength - SrcLength, L' ');
+			strDest.append(SrcName, SrcLength);
+		}
+		return SrcLength > MaxLength;
+	}
+
+	const wchar_t *DotPtr;
+
+	if (!ShowStatus &&
+	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (ViewSettings.Flags&PVS_ALIGNEXTENSIONS))
+	         || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)))
+	        && SrcLength<=MaxLength &&
+	        (DotPtr=wcsrchr(SrcName,L'.')) && DotPtr!=SrcName &&
+	        (SrcName[0]!=L'.' || SrcName[2]) && !wcschr(DotPtr+1,L' '))
+	{
+		int DotLength=StrLength(DotPtr+1);
+		int NameLength=DotLength?(int)(DotPtr-SrcName):SrcLength;
+		int DotPos = std::max(MaxLength - std::max(DotLength,3), NameLength + 1);
+
+		strDest.assign(SrcName, NameLength);
+
+		if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==L' ')
+			strDest += L'.';
+
+		strDest.resize(DotPos, L' ');
+		strDest.append(DotPtr + 1, DotLength);
+		strDest.resize(MaxLength, L' ');
+	}
+	else
+	{
+		strDest.assign(SrcName, std::min(SrcLength, MaxLength));
+		strDest.resize(MaxLength, L' ');
+	}
+
+	return SrcLength > MaxLength;
+}
+
+
+void FileList::PrepareViewSettings(int ViewMode, const OpenPanelInfo *PlugInfo)
+{
+	OpenPanelInfo Info={};
+
+	if (PanelMode==PLUGIN_PANEL)
+	{
+		if (!PlugInfo)
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		else
+			Info=*PlugInfo;
+	}
+
+	ViewSettings = Global->Opt->ViewSettings[ViewMode].clone();
+
+	if (PanelMode==PLUGIN_PANEL)
+	{
+		if (Info.PanelModesArray && ViewMode<static_cast<int>(Info.PanelModesNumber) &&
+		        Info.PanelModesArray[ViewMode].ColumnTypes &&
+		        Info.PanelModesArray[ViewMode].ColumnWidths)
+		{
+			TextToViewSettings(Info.PanelModesArray[ViewMode].ColumnTypes, Info.PanelModesArray[ViewMode].ColumnWidths, ViewSettings.PanelColumns);
+
+			if (Info.PanelModesArray[ViewMode].StatusColumnTypes &&
+			        Info.PanelModesArray[ViewMode].StatusColumnWidths)
+			{
+				TextToViewSettings(Info.PanelModesArray[ViewMode].StatusColumnTypes, Info.PanelModesArray[ViewMode].StatusColumnWidths, ViewSettings.StatusColumns);
+			}
+			else if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
+			{
+				ViewSettings.StatusColumns.resize(4);
+				ViewSettings.StatusColumns[0].type = COLUMN_RIGHTALIGN|NAME_COLUMN;
+				ViewSettings.StatusColumns[1].type = SIZE_COLUMN;
+				ViewSettings.StatusColumns[2].type = DATE_COLUMN;
+				ViewSettings.StatusColumns[3].type = TIME_COLUMN;
+				ViewSettings.StatusColumns[0].width = 0;
+				ViewSettings.StatusColumns[1].width = 8;
+				ViewSettings.StatusColumns[2].width = 0;
+				ViewSettings.StatusColumns[3].width = 5;
+			}
+			else
+			{
+				ViewSettings.StatusColumns.resize(1);
+				ViewSettings.StatusColumns[0].type = COLUMN_RIGHTALIGN|NAME_COLUMN;
+				ViewSettings.StatusColumns[0].width = 0;
+			}
+
+			if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN)
+				ViewSettings.Flags|=PVS_FULLSCREEN;
+			else
+				ViewSettings.Flags&=~PVS_FULLSCREEN;
+
+			if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS)
+				ViewSettings.Flags|=PVS_ALIGNEXTENSIONS;
+			else
+				ViewSettings.Flags&=~PVS_ALIGNEXTENSIONS;
+
+			if (!(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_CASECONVERSION))
+				ViewSettings.Flags&=~(PVS_FOLDERUPPERCASE|PVS_FILELOWERCASE|PVS_FILEUPPERTOLOWERCASE);
+		}
+		else
+		{
+			std::for_each(RANGE(ViewSettings.PanelColumns, i)
+			{
+				if ((i.type & 0xff) == NAME_COLUMN)
+				{
+					if (Info.Flags & OPIF_SHOWNAMESONLY)
+						i.type |= COLUMN_NAMEONLY;
+
+					if (Info.Flags & OPIF_SHOWRIGHTALIGNNAMES)
+						i.type |= COLUMN_RIGHTALIGN;
+				}
+			});
+			if (Info.Flags & OPIF_SHOWPRESERVECASE)
+				ViewSettings.Flags&=~(PVS_FOLDERUPPERCASE|PVS_FILELOWERCASE|PVS_FILEUPPERTOLOWERCASE);
+		}
+	}
+
+	Columns=PreparePanelView(&ViewSettings);
+	Height=Y2-Y1-4;
+
+	if (!Global->Opt->ShowColumnTitles)
+		Height++;
+
+	if (!Global->Opt->ShowPanelStatus)
+		Height+=2;
+}
+
+
+int FileList::PreparePanelView(PanelViewSettings *PanelView)
+{
+	PrepareColumnWidths(PanelView->StatusColumns, (PanelView->Flags&PVS_FULLSCREEN) != 0, true);
+	return PrepareColumnWidths(PanelView->PanelColumns, (PanelView->Flags&PVS_FULLSCREEN) != 0, false);
+}
+
+
+int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine)
+{
+	int TotalPercentWidth,TotalPercentCount,ZeroLengthCount,EmptyColumns;
+	ZeroLengthCount=EmptyColumns=0;
+	int TotalWidth = static_cast<int>(Columns.size()-1);
+	TotalPercentCount=TotalPercentWidth=0;
+
+	FOR(auto& i, Columns)
+	{
+		if (i.width < 0)
+		{
+			EmptyColumns++;
+			continue;
+		}
+
+		int ColumnType = i.type & 0xff;
+
+		if (!i.width)
+		{
+			i.width_type = COUNT_WIDTH; //manage all zero-width columns in same way
+			i.width = ColumnTypeWidth[ColumnType];
+
+			if (ColumnType==WDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CHDATE_COLUMN)
+			{
+				if (i.type & COLUMN_BRIEF)
+					i.width -= 3;
+
+				if (i.type & COLUMN_MONTH)
+					++i.width;
+			}
+		}
+
+		if (!i.width)
+			ZeroLengthCount++;
+
+		switch (i.width_type)
+		{
+			case COUNT_WIDTH:
+				TotalWidth += i.width;
+				break;
+			case PERCENT_WIDTH:
+				TotalPercentWidth += i.width;
+				TotalPercentCount++;
+				break;
+		}
+	}
+
+	TotalWidth-=EmptyColumns;
+	int PanelTextWidth=X2-X1-1;
+
+	if (FullScreen)
+		PanelTextWidth=ScrX-1;
+
+	int ExtraWidth=PanelTextWidth-TotalWidth;
+
+	if (TotalPercentCount>0)
+	{
+		int ExtraPercentWidth=(TotalPercentWidth>100 || !ZeroLengthCount)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
+		int TempWidth=0;
+
+		FOR(auto& i, Columns)
+		{
+			if (!TotalPercentCount)
+				break;
+
+			if (i.width_type == PERCENT_WIDTH)
+			{
+				int PercentWidth = (TotalPercentCount > 1)? (ExtraPercentWidth * i.width / TotalPercentWidth) : (ExtraPercentWidth - TempWidth);
+
+				if (PercentWidth<1)
+					PercentWidth=1;
+
+				TempWidth+=PercentWidth;
+				i.width = PercentWidth;
+				i.width_type = COUNT_WIDTH;
+				TotalPercentCount--;
+			}
+		}
+		ExtraWidth-=TempWidth;
+	}
+
+	FOR(auto& i, Columns)
+	{
+		if (!ZeroLengthCount)
+			break;
+
+		if (!i.width)
+		{
+			int AutoWidth=ExtraWidth/ZeroLengthCount;
+
+			if (AutoWidth<1)
+				AutoWidth=1;
+
+			i.width = AutoWidth;
+			ExtraWidth-=AutoWidth;
+			ZeroLengthCount--;
+		}
+	}
+
+	while (1)
+	{
+		int LastColumn = static_cast<int>(Columns.size() - 1);
+		TotalWidth=LastColumn-EmptyColumns;
+
+		std::for_each(CONST_RANGE(Columns, i)
+		{
+			if (i.width > 0)
+				TotalWidth += i.width;
+		});
+
+		if (TotalWidth<=PanelTextWidth)
+			break;
+
+		if (Columns.size() <= 1)
+		{
+			Columns.front().width = PanelTextWidth;
+			break;
+		}
+		else if (PanelTextWidth >= TotalWidth - Columns[LastColumn].width)
+		{
+			Columns[LastColumn].width = PanelTextWidth - (TotalWidth - Columns[LastColumn].width);
+			break;
+		}
+		else
+			Columns.pop_back();
+	}
+
+	ColumnsInGlobal = 1;
+	int GlobalColumns=0;
+
+	FOR_CONST_RANGE(ViewSettings.PanelColumns, i)
+	{
+		int Remainder = ViewSettings.PanelColumns.size() % ColumnsInGlobal;
+		GlobalColumns = static_cast<int>(ViewSettings.PanelColumns.size() / ColumnsInGlobal);
+
+		if (!Remainder)
+		{
+			bool UnEqual = false;
+			for (int k = 0; k < GlobalColumns-1 && !UnEqual; k++)
+			{
+				for (int j = 0; j < ColumnsInGlobal && !UnEqual; j++)
+				{
+					if ((ViewSettings.PanelColumns[k*ColumnsInGlobal+j].type & 0xFF) !=
+					        (ViewSettings.PanelColumns[(k+1)*ColumnsInGlobal+j].type & 0xFF))
+						UnEqual = true;
+				}
+			}
+
+			if (!UnEqual)
+				break;
+		}
+
+		ColumnsInGlobal++;
+	}
+
+	return GlobalColumns;
+}
+
+
+void FileList::HighlightBorder(int Level, int ListPos) const
+{
+	if (Level == ColumnsInGlobal)
+	{
+		SetColor(COL_PANELBOX);
+	}
+	else
+	{
+		FarColor FileColor = GetShowColor(ListPos, true);
+		if (Global->Opt->HighlightColumnSeparator)
+		{
+			SetColor(FileColor);
+		}
+		else
+		{
+			FarColor Color = ColorIndexToColor(COL_PANELBOX);
+			Color.BackgroundColor = FileColor.BackgroundColor;
+			FileColor.Flags&FCF_BG_4BIT? Color.Flags|=FCF_BG_4BIT : Color.Flags&=~FCF_BG_4BIT;
+			SetColor(Color);
+		}
+	}
+}
+
+void FileList::ShowList(int ShowStatus,int StartColumn)
+{
+	int StatusShown=FALSE;
+	int MaxLeftPos=0,MinLeftPos=FALSE;
+	size_t ColumnCount=ShowStatus ? ViewSettings.StatusColumns.size() : ViewSettings.PanelColumns.size();
+	const auto& Columns = ShowStatus ? ViewSettings.StatusColumns : ViewSettings.PanelColumns;
+
+	for (int I=Y1+1+Global->Opt->ShowColumnTitles,J=CurTopFile; I<Y2-2*Global->Opt->ShowPanelStatus; I++,J++)
+	{
+		int CurColumn=StartColumn;
+
+		if (ShowStatus)
+		{
+			SetColor(COL_PANELTEXT);
+			GotoXY(X1+1,Y2-1);
+		}
+		else
+		{
+			SetShowColor(J);
+			GotoXY(X1+1,I);
+		}
+
+		int StatusLine=FALSE;
+		int Level = 1;
+
+		for (size_t K=0; K<ColumnCount; K++)
+		{
+			int ListPos=J+CurColumn*Height;
+
+			if (ShowStatus)
+			{
+				if (CurFile!=ListPos)
+				{
+					CurColumn++;
+					continue;
+				}
+				else
+					StatusLine=TRUE;
+			}
+
+			int CurX=WhereX();
+			int CurY=WhereY();
+			int ShowDivider=TRUE;
+			int ColumnType=static_cast<int>(Columns[K].type & 0xff);
+			int ColumnWidth=Columns[K].width;
+
+			if (ColumnWidth<0)
+			{
+				if (!ShowStatus && K==ColumnCount-1)
+				{
+					SetColor(COL_PANELBOX);
+					GotoXY(CurX-1,CurY);
+					BoxText(CurX-1==X2 ? BoxSymbols[BS_V2]:L' ');
+				}
+
+				continue;
+			}
+
+			if (ListPos < static_cast<int>(ListData.size()))
+			{
+				if (!ShowStatus && !StatusShown && CurFile==ListPos && Global->Opt->ShowPanelStatus)
+				{
+					ShowList(TRUE,CurColumn);
+					GotoXY(CurX,CurY);
+					StatusShown=TRUE;
+					SetShowColor(ListPos);
+				}
+
+				if (!ShowStatus)
+					SetShowColor(ListPos);
+
+				if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
+				{
+					size_t ColumnNumber=ColumnType-CUSTOM_COLUMN0;
+					const wchar_t *ColumnData=nullptr;
+
+					if (ColumnNumber<ListData[ListPos].CustomColumnNumber)
+						ColumnData=ListData[ListPos].CustomColumnData[ColumnNumber];
+
+					if (!ColumnData)
+					{
+						ColumnData=ListData[ListPos].strCustomData.data();//L"";
+					}
+
+					int CurLeftPos=0;
+
+					if (!ShowStatus && LeftPos>0)
+					{
+						int Length=StrLength(ColumnData);
+						if (Length>ColumnWidth)
+						{
+							CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+							MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
+						}
+					}
+
+					Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ColumnData+CurLeftPos;
+				}
+				else
+				{
+					switch (ColumnType)
+					{
+						case NAME_COLUMN:
+						{
+							int Width=ColumnWidth;
+							unsigned __int64 ViewFlags=Columns[K].type;
+
+							if ((ViewFlags & COLUMN_MARK) && Width>2)
+							{
+								Text(ListData[ListPos].Selected?L"\x221A ":L"  ");
+								Width-=2;
+							}
+
+							if (Global->Opt->Highlight && ListData[ListPos].Colors && ListData[ListPos].Colors->Mark.Char && Width>1)
+							{
+								Width--;
+								OutCharacter[0] = ListData[ListPos].Colors->Mark.Char;
+								FarColor OldColor=GetColor();
+
+								if (!ShowStatus)
+									SetShowColor(ListPos, false);
+
+								Text(OutCharacter);
+								SetColor(OldColor);
+							}
+
+							const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos].strShortName.empty() && !ShowStatus ? ListData[ListPos].strShortName.data():ListData[ListPos].strName.data();
+
+							string strNameCopy;
+							if (!(ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+							{
+								const wchar_t *ExtPtr = PointToExt(NamePtr);
+								if (ExtPtr)
+								{
+									strNameCopy.assign(NamePtr, ExtPtr-NamePtr);
+									NamePtr = strNameCopy.data();
+								}
+							}
+
+							const wchar_t *NameCopy = NamePtr;
+
+							if (ViewFlags & COLUMN_NAMEONLY)
+							{
+								//BUGBUG!!!
+								// !!! НЕ УВЕРЕН, но то, что отображается пустое
+								// пространство вместо названия - бага
+								NamePtr=PointToFolderNameIfFolder(NamePtr);
+							}
+
+							int CurLeftPos=0;
+							unsigned __int64 RightAlign=(ViewFlags & (COLUMN_RIGHTALIGN|COLUMN_RIGHTALIGNFORCE));
+							int LeftBracket=FALSE,RightBracket=FALSE;
+
+							if (!ShowStatus && LeftPos)
+							{
+								int Length = StrLength(NamePtr);
+
+								if (Length>Width)
+								{
+									if (LeftPos>0)
+									{
+										if (!RightAlign)
+										{
+											CurLeftPos = std::min(LeftPos, Length-Width);
+											MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
+											NamePtr += CurLeftPos;
+										}
+									}
+									else if (RightAlign)
+									{
+										int CurRightPos=LeftPos;
+
+										if (Length+CurRightPos<Width)
+										{
+											CurRightPos=Width-Length;
+										}
+										else
+										{
+											RightBracket=TRUE;
+											LeftBracket=(ViewFlags & COLUMN_RIGHTALIGNFORCE)==COLUMN_RIGHTALIGNFORCE;
+										}
+
+										NamePtr += Length+CurRightPos-Width;
+										RightAlign=FALSE;
+
+										MinLeftPos = std::min(MinLeftPos, CurRightPos);
+									}
+								}
+							}
+
+							string strName;
+							int TooLong=ConvertName(NamePtr, strName, Width, RightAlign,ShowStatus,ListData[ListPos].FileAttr);
+
+							if (CurLeftPos)
+								LeftBracket=TRUE;
+
+							if (TooLong)
+							{
+								if (RightAlign)
+									LeftBracket=TRUE;
+
+								if (!RightAlign && StrLength(NamePtr)>Width)
+									RightBracket=TRUE;
+							}
+
+							if (!ShowStatus)
+							{
+								if (ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
+									if (!(ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
+										Lower(strName);
+
+								if ((ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+									Upper(strName);
+
+								if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+									Lower(strName);
+							}
+
+							Text(strName);
+
+
+							if (!ShowStatus)
+							{
+								int NameX=WhereX();
+
+								if (LeftBracket)
+								{
+									GotoXY(CurX-1,CurY);
+
+									if (Level == 1)
+										SetColor(COL_PANELBOX);
+
+									Text(openBracket);
+									SetShowColor(J);
+								}
+
+								if (RightBracket)
+								{
+									HighlightBorder(Level, ListPos);
+									GotoXY(NameX,CurY);
+									Text(closeBracket);
+									ShowDivider=FALSE;
+
+									if (Level == ColumnsInGlobal)
+										SetColor(COL_PANELTEXT);
+									else
+										SetShowColor(J);
+								}
+							}
+						}
+						break;
+						case EXTENSION_COLUMN:
+						{
+							const wchar_t *ExtPtr = nullptr;
+							if (!(ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+							{
+								const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos].strShortName.empty() && !ShowStatus ? ListData[ListPos].strShortName.data():ListData[ListPos].strName.data();
+								ExtPtr = PointToExt(NamePtr);
+							}
+							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
+
+							unsigned __int64 ViewFlags=Columns[K].type;
+							if (ViewFlags&COLUMN_RIGHTALIGN)
+								Global->FS << fmt::RightAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
+							else
+								Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
+
+							if (!ShowStatus && StrLength(ExtPtr) > ColumnWidth)
+							{
+								int NameX=WhereX();
+
+								HighlightBorder(Level, ListPos);
+
+								GotoXY(NameX,CurY);
+								Text(closeBracket);
+								ShowDivider=FALSE;
+
+								if (Level == ColumnsInGlobal)
+									SetColor(COL_PANELTEXT);
+								else
+									SetShowColor(J);
+							}
+							break;
+						}
+						break;
+						case SIZE_COLUMN:
+						case PACKED_COLUMN:
+						case STREAMSSIZE_COLUMN:
+						{
+							Text(FormatStr_Size(
+								ListData[ListPos].FileSize,
+								ListData[ListPos].AllocationSize,
+								ListData[ListPos].StreamsSize,
+								ListData[ListPos].strName,
+								ListData[ListPos].FileAttr,
+								ListData[ListPos].ShowFolderSize,
+								ListData[ListPos].ReparseTag,
+								ColumnType,
+								Columns[K].type,
+								ColumnWidth,
+								strCurDir.data()));
+							break;
+						}
+
+						case DATE_COLUMN:
+						case TIME_COLUMN:
+						case WDATE_COLUMN:
+						case CDATE_COLUMN:
+						case ADATE_COLUMN:
+						case CHDATE_COLUMN:
+						{
+							FILETIME *FileTime;
+
+							switch (ColumnType)
+							{
+								case CDATE_COLUMN:
+									FileTime=&ListData[ListPos].CreationTime;
+									break;
+								case ADATE_COLUMN:
+									FileTime=&ListData[ListPos].AccessTime;
+									break;
+								case CHDATE_COLUMN:
+									FileTime=&ListData[ListPos].ChangeTime;
+									break;
+								case DATE_COLUMN:
+								case TIME_COLUMN:
+								case WDATE_COLUMN:
+								default:
+									FileTime=&ListData[ListPos].WriteTime;
+									break;
+							}
+
+							Global->FS << FormatStr_DateTime(FileTime,ColumnType,Columns[K].type,ColumnWidth);
+							break;
+						}
+
+						case ATTR_COLUMN:
+						{
+							Global->FS << FormatStr_Attribute(ListData[ListPos].FileAttr,ColumnWidth);
+							break;
+						}
+
+						case DIZ_COLUMN:
+						{
+							int CurLeftPos=0;
+
+							if (!ShowStatus && LeftPos>0)
+							{
+								int Length=ListData[ListPos].DizText ? StrLength(ListData[ListPos].DizText):0;
+								if (Length>ColumnWidth)
+								{
+									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
+								}
+							}
+
+							string strDizText=ListData[ListPos].DizText ? ListData[ListPos].DizText+CurLeftPos:L"";
+							size_t pos = strDizText.find(L'\4');
+							if (pos != string::npos)
+								strDizText.resize(pos);
+
+							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<strDizText;
+							break;
+						}
+
+						case OWNER_COLUMN:
+						{
+							const wchar_t* Owner=ListData[ListPos].strOwner.data();
+
+							if (!(Columns[K].type & COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
+							{
+								const wchar_t* SlashPos=FirstSlash(Owner);
+
+								if (SlashPos)
+									Owner=SlashPos+1;
+							}
+							else if(IsSlash(*Owner))
+							{
+								Owner++;
+							}
+
+							int CurLeftPos=0;
+
+							if (!ShowStatus && LeftPos>0)
+							{
+								int Length=StrLength(Owner);
+								if (Length>ColumnWidth)
+								{
+									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
+								}
+							}
+
+							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<Owner+CurLeftPos;
+							break;
+						}
+
+						case NUMLINK_COLUMN:
+						{
+							int nlink = ListData[ListPos].NumberOfLinks;
+							if (nlink >= 0)
+								Global->FS << fmt::ExactWidth(ColumnWidth) << nlink;
+							else
+								Global->FS << fmt::ExactWidth(ColumnWidth) << L"?";
+							break;
+						}
+
+						case NUMSTREAMS_COLUMN:
+						{
+							Global->FS << fmt::ExactWidth(ColumnWidth)<<ListData[ListPos].NumberOfStreams;
+							break;
+						}
+
+					}
+				}
+			}
+			else
+			{
+				Global->FS << fmt::MinWidth(ColumnWidth)<<L"";
+			}
+
+			if (ShowDivider==FALSE)
+				GotoXY(CurX+ColumnWidth+1,CurY);
+			else
+			{
+				if (!ShowStatus)
+				{
+					HighlightBorder(Level, ListPos);
+				}
+
+				if (K == ColumnCount-1)
+					SetColor(COL_PANELBOX);
+
+				GotoXY(CurX+ColumnWidth,CurY);
+
+				if (K==ColumnCount-1)
+					BoxText(CurX+ColumnWidth==X2 ? BoxSymbols[BS_V2]:L' ');
+				else
+					BoxText(ShowStatus ? L' ':BoxSymbols[(Global->Opt->DoubleGlobalColumnSeparator && Level == ColumnsInGlobal)?BS_V2:BS_V1]);
+
+				if (!ShowStatus)
+					SetColor(COL_PANELTEXT);
+			}
+
+			if (!ShowStatus)
+			{
+				if (Level == ColumnsInGlobal)
+				{
+					Level = 0;
+					CurColumn++;
+				}
+
+				Level++;
+			}
+		}
+
+		if ((!ShowStatus || StatusLine) && WhereX()<X2)
+		{
+			SetColor(COL_PANELTEXT);
+			Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
+		}
+	}
+
+	if (!ShowStatus && !StatusShown && Global->Opt->ShowPanelStatus)
+	{
+		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+		SetColor(COL_PANELTEXT); //???
+		//GotoXY(X1+1,Y2-1);
+		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+	}
+
+	if (!ShowStatus)
+	{
+		if (LeftPos<0)
+			LeftPos=MinLeftPos;
+
+		if (LeftPos>0)
+			LeftPos=MaxLeftPos;
+	}
+}
+
+bool FileList::IsModeFullScreen(int Mode)
+{
+	return (Global->Opt->ViewSettings[Mode].Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
+}
+
+
+bool FileList::IsDizDisplayed()
+{
+	return IsColumnDisplayed(DIZ_COLUMN);
+}
+
+
+bool FileList::IsColumnDisplayed(int Type)
+{
+	auto is_same_type = [&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;};
+
+	return std::any_of(ALL_CONST_RANGE(ViewSettings.PanelColumns), is_same_type) ||
+		std::any_of(ALL_CONST_RANGE(ViewSettings.StatusColumns), is_same_type);
 }

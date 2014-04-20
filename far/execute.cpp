@@ -876,7 +876,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 		auto NotQuotedShellList(StringToList(strNotQuotedShell, STLF_UNIQUE));
 		bool bQuotedShell = !(std::any_of(CONST_RANGE(NotQuotedShellList, i) { return !StrCmpI(i,PointToName(strComspec.data())); }));
 		QuoteSpace(strNewCmdStr);
-		bool bDoubleQ = wcspbrk(strNewCmdStr.data(), L"&<>()@^|=;, ") != nullptr;
+		bool bDoubleQ = strNewCmdStr.find_first_of(L"&<>()@^|=;, ") != string::npos;
 		if ((!strNewCmdPar.empty() || bDoubleQ) && bQuotedShell)
 		{
 			ComSpecParams += L"\"";
@@ -1269,7 +1269,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				size_t DirOffset = 0;
 				ParsePath(strExpandedStr, &DirOffset);
-				if (wcspbrk(strExpandedStr.data() + DirOffset, L"*?")) // это маска?
+				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
 				{
 					api::FAR_FIND_DATA wfd;
 

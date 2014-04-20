@@ -158,15 +158,6 @@
     <ClCompile Include="flink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="flplugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="flshow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="flupdate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="fnparce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

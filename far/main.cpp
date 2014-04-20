@@ -391,7 +391,82 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static int mainImpl(int Argc, wchar_t *Argv[])
+static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult)
+{
+	auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
+	{
+		return (*Arg == L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
+	};
+
+	// no isArg here - used by Far internally
+	if (Args.size() == 5 && !StrCmp(Args[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
+	{
+		ServiceResult = ElevationMain(Args[2], _wtoi(Args[3]), *Args[4] == L'1');
+		return true;
+	}
+	else if (Args.size() <= 6 && Args.size() >= 3 && (isArg(Args[1], L"export") || isArg(Args[1], L"import")))
+	{
+		bool Export = isArg(Args[1], L"export");
+		string strProfilePath(Args.size() > 3 ? Args[3] : L""), strLocalProfilePath(Args.size() > 4 ? Args[4] : L""), strTemplatePath(Args.size() > 5 ? Args[5] : L"");
+		InitTemplateProfile(strTemplatePath);
+		InitProfile(strProfilePath, strLocalProfilePath);
+		Global->Db = new Database(Export ? Database::export_mode : Database::import_mode);
+		ServiceResult = !(Export ? Global->Db->Export(Args[2]) : Global->Db->Import(Args[2]));
+		return true;
+	}
+	else if (InRange(size_t(2), Args.size(), size_t(4)) && isArg(Args[1], L"clearcache"))
+	{
+		string strProfilePath(Args.size() > 2 ? Args[2] : L"");
+		string strLocalProfilePath(Args.size() > 3 ? Args[3] : L"");
+		InitProfile(strProfilePath, strLocalProfilePath);
+		Database::ClearPluginsCache();
+		ServiceResult = 0;
+		return true;
+	}
+	return false;
+}
+
+static void UpdateErrorMode()
+{
+	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
+	long long IgnoreDataAlignmentFaults = 0;
+	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	if (IgnoreDataAlignmentFaults)
+	{
+		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
+	}
+	SetErrorMode(Global->ErrorMode);
+}
+
+static void SetDriveMenuHotkeys()
+{
+	long long InitDriveMenuHotkeys = 1;
+	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+
+	if (InitDriveMenuHotkeys)
+	{
+		static const struct
+		{
+			const wchar_t *PluginId, *MenuId, *Hotkey;
+		}
+		DriveMenuHotkeys[] =
+		{
+			{ L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", L"0" }, // ProcList
+			{ L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", L"1" }, // TmpPanel
+			{ L"42E4AEB1-A230-44F4-B33C-F195BB654931", L"C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2", L"2" }, // NetBox
+			{ L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", L"3" }, // Network
+		};
+
+		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
+		{
+			Global->Db->PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
+		});
+
+		Global->Db->GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
+	}
+}
+
+static int mainImpl(const range<wchar_t**>& Args)
 {
 	SCOPED_ACTION(global);
 
@@ -428,43 +503,15 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	api::env::set_variable(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
-#ifndef NO_WRAPPER
-	// don't inherit from parent process in any case
-	// for OEM plugins only!
-	api::env::delete_variable(L"FARUSER");
-#endif // NO_WRAPPER
-
 	if (Global->IsUserAdmin())
 		api::env::set_variable(L"FARADMINMODE", L"1");
 	else
 		api::env::delete_variable(L"FARADMINMODE");
 
-	auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
-		return (*Arg==L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
-	};
-
-	// no isArg here - used by Far internally
-	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
-	{
-		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
-	}
-	else if (Argc <= 6 && Argc >= 3 && (isArg(Argv[1], L"export") || isArg(Argv[1], L"import")))
-	{
-		bool Export = isArg(Argv[1], L"export");
-		string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
-		InitTemplateProfile(strTemplatePath);
-		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->Db = new Database(Export ? 'e' : 'i');
-		return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
-	}
-	else if (Argc>=2 && Argc<=4 && isArg(Argv[1], L"clearcache"))
-	{
-		string strProfilePath(Argc>2 ? Argv[2] : L"");
-		string strLocalProfilePath(Argc>3 ? Argv[3] : L"");
-		InitProfile(strProfilePath, strLocalProfilePath);
-		Database::ClearPluginsCache();
-		return 0;
+		int ServiceResult;
+		if (ProcessServiceModes(Args, ServiceResult))
+			return ServiceResult;
 	}
 
 	listener EnvironmentListener(L"environment", &ReloadEnvironment);
@@ -480,22 +527,22 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
-	for (int I=1; I<Argc; I++)
+	for (size_t I = 1; I < Args.size(); ++I)
 	{
-		if ((Argv[I][0]==L'/' || Argv[I][0]==L'-') && Argv[I][1])
+		if ((Args[I][0]==L'/' || Args[I][0]==L'-') && Args[I][1])
 		{
-			switch (Upper(Argv[I][1]))
+			switch (Upper(Args[I][1]))
 			{
 				case L'A':
 
-					switch (Upper(Argv[I][2]))
+					switch (Upper(Args[I][2]))
 					{
 						case 0:
 							Global->Opt->CleanAscii = true;
 							break;
 						case L'G':
 
-							if (!Argv[I][3])
+							if (!Args[I][3])
 								Global->Opt->NoGraphics = true;
 
 							break;
@@ -504,41 +551,41 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					break;
 				case L'E':
 
-					if (iswdigit(Argv[I][2]))
+					if (iswdigit(Args[I][2]))
 					{
-						StartLine=_wtoi(&Argv[I][2]);
-						const wchar_t *ChPtr=wcschr(&Argv[I][2],L':');
+						StartLine=_wtoi(&Args[I][2]);
+						const wchar_t *ChPtr=wcschr(&Args[I][2],L':');
 
 						if (ChPtr)
 							StartChar=_wtoi(ChPtr+1);
 					}
 
-					if (I+1<Argc)
+					if (I + 1 < Args.size())
 					{
-						strEditName = Argv[I+1];
+						strEditName = Args[I+1];
 						I++;
 					}
 
 					break;
 				case L'V':
 
-					if (I+1<Argc)
+					if (I + 1 < Args.size())
 					{
-						strViewName = Argv[I+1];
+						strViewName = Args[I+1];
 						I++;
 					}
 
 					break;
 				case L'M':
 
-					switch (Upper(Argv[I][2]))
+					switch (Upper(Args[I][2]))
 					{
 						case 0:
 							Global->Opt->Macro.DisableMacro|=MDOL_ALL;
 							break;
 						case L'A':
 
-							if (!Argv[I][3])
+							if (!Args[I][3])
 								Global->Opt->Macro.DisableMacro|=MDOL_AUTOSTART;
 
 							break;
@@ -548,10 +595,10 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 #ifndef NO_WRAPPER
 				case L'U':
 
-					if (I+1<Argc)
+					if (I + 1 < Args.size())
 					{
 						//Affects OEM plugins only!
-						Global->strRegUser = Argv[I+1];
+						Global->strRegUser = Args[I+1];
 						I++;
 					}
 					break;
@@ -559,22 +606,22 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 				case L'S':
 
-					if (I+1<Argc)
+					if (I + 1 < Args.size())
 					{
-						strProfilePath = Argv[I+1];
+						strProfilePath = Args[I+1];
 						I++;
-						if (I+1<Argc && Argv[I+1][0] != L'-'  && Argv[I+1][0] != L'/')
+						if (I + 1 < Args.size() && Args[I + 1][0] != L'-'  && Args[I + 1][0] != L'/')
 						{
-							strLocalProfilePath = Argv[I+1];
+							strLocalProfilePath = Args[I+1];
 							I++;
 						}
 					}
 					break;
 
 				case L'T':
-					if (I+1<Argc)
+					if (I + 1 < Args.size())
 					{
-						strTemplatePath = Argv[++I];
+						strTemplatePath = Args[++I];
 					}
 					break;
 
@@ -583,9 +630,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					Global->Opt->LoadPlug.PluginsPersonal = false;
 					Global->Opt->LoadPlug.MainPluginDir = false;
 
-					if (Argv[I][2])
+					if (Args[I][2])
 					{
-						ConvertNameToFull(Unquote(api::env::expand_strings(&Argv[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
+						ConvertNameToFull(Unquote(api::env::expand_strings(&Args[I][2])), Global->Opt->LoadPlug.strCustomPluginsPath);
 					}
 					else
 					{
@@ -598,7 +645,7 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 				}
 				case L'C':
 
-					if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
+					if (Upper(Args[I][2])==L'O' && !Args[I][3])
 					{
 						Global->Opt->LoadPlug.PluginsCacheOnly = true;
 						Global->Opt->LoadPlug.PluginsPersonal = false;
@@ -613,27 +660,27 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 #ifdef DIRECT_RT
 				case L'D':
 
-					if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
+					if (Upper(Args[I][2])==L'O' && !Args[I][3])
 						Global->DirectRT=true;
 
 					break;
 #endif
 				case L'W':
 					{
-						if(Argv[I][2] == L'-')
+						if(Args[I][2] == L'-')
 						{
 							Global->Opt->WindowMode= false;
 						}
-						else if(!Argv[I][2])
+						else if(!Args[I][2])
 						{
 							Global->Opt->WindowMode= true;
 						}
 					}
 					break;
 				case L'R':
-					if (Upper(Argv[I][2]) == L'O') // -ro
+					if (Upper(Args[I][2]) == L'O') // -ro
 						Global->Opt->ReadOnlyConfig = TRUE;
-					if (Upper(Argv[I][2]) == L'W') // -rw
+					if (Upper(Args[I][2]) == L'W') // -rw
 						Global->Opt->ReadOnlyConfig = FALSE;
 					break;
 			}
@@ -642,15 +689,14 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		{
 			if (CntDestName < 2)
 			{
-				string ArgvI(Argv[I]);
-				if (IsPluginPrefixPath(ArgvI))
+				if (IsPluginPrefixPath(Args[I]))
 				{
-					DestNames[CntDestName++] = ArgvI;
+					DestNames[CntDestName++] = Args[I];
 				}
 				else
 				{
-					ArgvI = api::env::expand_strings(ArgvI);
-					ConvertNameToFull(Unquote(ArgvI), ArgvI);
+					string ArgvI = Unquote(api::env::expand_strings(Args[I]));
+					ConvertNameToFull(ArgvI, ArgvI);
 
 					if (api::GetFileAttributes(ArgvI) != INVALID_FILE_ATTRIBUTES)
 					{
@@ -669,7 +715,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	//Инициализация массива клавиш.
 	InitKeysArray();
-	WaitForInputIdle(GetCurrentProcess(),0);
 
 	if (!Global->Opt->LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
 		Global->Opt->LoadPlug.PluginsCacheOnly=false;
@@ -688,38 +733,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	api::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 
-	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX;
-	long long IgnoreDataAlignmentFaults = 0;
-	Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", &IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
-	if (IgnoreDataAlignmentFaults)
-	{
-		Global->ErrorMode|=SEM_NOALIGNMENTFAULTEXCEPT;
-	}
-	SetErrorMode(Global->ErrorMode);
+	UpdateErrorMode();
 
-	long long InitDriveMenuHotkeys = 1;
-	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
-	if(InitDriveMenuHotkeys)
-	{
-		static const struct
-		{
-			const wchar_t *PluginId, *MenuId, *Hotkey;
-		}
-		DriveMenuHotkeys[] =
-		{
-			{L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", L"0"}, // ProcList
-			{L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", L"1"}, // TmpPanel
-			{L"42E4AEB1-A230-44F4-B33C-F195BB654931", L"C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2", L"2"}, // NetBox
-			{L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", L"3"}, // Network
-		};
-
-		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
-		{
-			Global->Db->PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
-		});
-
-		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
-	}
+	SetDriveMenuHotkeys();
 
 	Global->CtrlObject = new ControlObject;
 
@@ -766,7 +782,7 @@ int wmain(int Argc, wchar_t *Argv[])
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 #endif
 
-		return mainImpl(Argc, Argv);
+		return mainImpl(make_range(Argv, Argv + Argc));
 	}
 	catch (const SException& e)
 	{

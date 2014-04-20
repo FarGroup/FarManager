@@ -385,56 +385,91 @@ static struct list_less
 }
 ListLess;
 
-bool TreeListCache::cache_less::operator()(const string& a, const string& b) const
+class TreeListCache: NonCopyable
 {
-	return TreeLess(a, b);
-}
+public:
+	TreeListCache() {}
+	TreeListCache(TreeListCache&& rhs) { *this = std::move(rhs); }
 
-void TreeListCache::add(const wchar_t* Name)
-{
-	m_Names.emplace(Name);
-}
+	MOVE_OPERATOR_BY_SWAP(TreeListCache);
 
-void TreeListCache::add(string&& Name)
-{
-	m_Names.emplace(std::move(Name));
-}
-
-void TreeListCache::remove(const wchar_t* Name)
-{
-	size_t Length = StrLength(Name);
-
-	FOR_RANGE(m_Names, i)
+	void swap(TreeListCache& rhs) noexcept
 	{
-		if (i->size() < Length)
-			continue;
+		m_TreeName.swap(rhs.m_TreeName);
+		m_Names.swap(rhs.m_Names);
+	}
 
-		if (!StrCmpNI(Name, i->data(), Length) && (i->size() == Length || IsSlash(i->at(Length))))
+		void clear()
+	{
+			m_Names.clear();
+			m_TreeName.clear();
+	}
+
+	bool empty() const { return m_Names.empty(); }
+
+	void add(const wchar_t* Name) { m_Names.emplace(Name); }
+
+	void add(string&& Name) { m_Names.emplace(std::move(Name)); }
+
+	void remove(const wchar_t* Name)
+	{
+		size_t Length = wcslen(Name);
+
+		FOR_RANGE(m_Names, i)
 		{
-			i = m_Names.erase(i);
-			if (i == m_Names.end())
-				break;
+			if (i->size() < Length)
+				continue;
+
+			if (!StrCmpNI(Name, i->data(), Length) && (i->size() == Length || IsSlash(i->at(Length))))
+			{
+				i = m_Names.erase(i);
+				if (i == m_Names.end())
+					break;
+			}
 		}
 	}
-}
 
-void TreeListCache::rename(const wchar_t* OldName, const wchar_t* NewName)
-{
-	size_t SrcLength = StrLength(OldName);
-
-	FOR_RANGE(m_Names, i)
+	void rename(const wchar_t* OldName, const wchar_t* NewName)
 	{
-		size_t iLen = i->size();
-		if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), SrcLength))
+		size_t SrcLength = wcslen(OldName);
+		FOR_RANGE(m_Names, i)
 		{
-			string newName = string(NewName) + (i->data() + SrcLength);
-			i = m_Names.erase(i);
-			m_Names.insert(std::move(newName));
-			if (i == m_Names.end())
-				break;
+			size_t iLen = i->size();
+			if ((iLen == SrcLength || (iLen > SrcLength && IsSlash((*i)[SrcLength]))) && !StrCmpNI(OldName, i->data(), SrcLength))
+			{
+				string newName = string(NewName) + (i->data() + SrcLength);
+				i = m_Names.erase(i);
+				m_Names.insert(std::move(newName));
+				if (i == m_Names.end())
+					break;
+			}
 		}
 	}
-}
+
+	const string& GetTreeName() const { return m_TreeName; }
+
+	void SetTreeName(const string& Name) { m_TreeName = Name; }
+
+private:
+	struct cache_less
+	{
+		bool operator()(const string& a, const string& b) const { return TreeLess(a, b); }
+	};
+
+	typedef std::set<string, cache_less> cache_set;
+
+public:
+	typedef cache_set::const_iterator const_iterator;
+	const_iterator begin() const { return m_Names.cbegin(); }
+	const_iterator end() const { return m_Names.cend(); }
+
+private:
+	cache_set m_Names;
+	string m_TreeName;
+};
+
+STD_SWAP_SPEC(TreeListCache);
+
 
 TreeListCache& TreeCache()
 {
@@ -1025,7 +1060,7 @@ bool TreeList::FillLastData()
 	};
 
 	size_t RootLength = strRoot.empty()? 0 : strRoot.size()-1;
-	auto Range = make_subrange(ListData.begin() + 1, ListData.end());
+	auto Range = make_range(ListData.begin() + 1, ListData.end());
 	FOR_RANGE(Range, i)
 	{
 		size_t Pos = i->strName.rfind(L'\\');
@@ -1039,7 +1074,7 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		auto SubRange = make_subrange(i + 1, Range.end());
+		auto SubRange = make_range(i + 1, Range.end());
 		FOR_RANGE(SubRange, j)
 		{
 			if (CountSlash(j->strName.data()+RootLength)>Depth)

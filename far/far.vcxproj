@@ -390,9 +390,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="fileview.cpp" />
     <ClCompile Include="findfile.cpp" />
     <ClCompile Include="flink.cpp" />
-    <ClCompile Include="flplugin.cpp" />
-    <ClCompile Include="flshow.cpp" />
-    <ClCompile Include="flupdate.cpp" />
     <ClCompile Include="fnparce.cpp" />
     <ClCompile Include="foldtree.cpp" />
     <ClCompile Include="format.cpp" />

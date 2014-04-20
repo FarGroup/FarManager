@@ -143,9 +143,6 @@ LINK_OBJS = \
 	"$(INTDIR)\fileview.obj" \
 	"$(INTDIR)\findfile.obj" \
 	"$(INTDIR)\flink.obj" \
-	"$(INTDIR)\flplugin.obj" \
-	"$(INTDIR)\flshow.obj" \
-	"$(INTDIR)\flupdate.obj" \
 	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\format.obj" \
 	"$(INTDIR)\foldtree.obj" \

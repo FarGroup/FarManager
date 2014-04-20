@@ -57,6 +57,7 @@ class PluginSettings: public AbstractSettings
 {
 public:
 	PluginSettings(const GUID& Guid, bool Local);
+	virtual ~PluginSettings();
 	virtual bool IsValid() const override;
 	virtual int Set(const FarSettingsItem& Item) override;
 	virtual int Get(FarSettingsItem& Item) override;
@@ -64,50 +65,20 @@ public:
 	virtual int Delete(const FarSettingsValue& Value) override;
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
+	class FarSettingsNameItems;
+
 private:
-	class FarSettingsNameItems: ::NonCopyable
-	{
-	public:
-		FarSettingsNameItems() {}
-		FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
-		~FarSettingsNameItems()
-		{
-			std::for_each(CONST_RANGE(Items, i)
-			{
-				delete [] i.Name;
-			});
-		}
-
-		MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
-
-		void swap(FarSettingsNameItems& rhs) noexcept
-		{
-			Items.swap(rhs.Items);
-		}
-
-		void add(FarSettingsName& Item, const string& String);
-
-		void get(FarSettingsEnum& e) const
-		{
-			e.Count = Items.size();
-			e.Items = e.Count? Items.data() : nullptr;
-		}
-
-	private:
-		std::vector<FarSettingsName> Items;
-	};
-	ALLOW_SWAP_ACCESS(FarSettingsNameItems);
-
 	std::vector<FarSettingsNameItems> m_Enum;
-	std::vector<unsigned __int64> m_Keys;
+	std::vector<uint64_t> m_Keys;
 	HierarchicalConfigUniquePtr PluginsCfg;
 };
 
-STD_SWAP_SPEC(PluginSettings::FarSettingsNameItems);
 
 class FarSettings: public AbstractSettings
 {
 public:
+	FarSettings();
+	virtual ~FarSettings();
 	virtual bool IsValid() const override { return true; }
 	virtual int Set(const FarSettingsItem& Item) override;
 	virtual int Get(FarSettingsItem& Item) override;
@@ -115,45 +86,10 @@ public:
 	virtual int Delete(const FarSettingsValue& Value) override;
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
+	class FarSettingsHistoryItems;
+
 private:
-	class FarSettingsHistoryItems: ::NonCopyable
-	{
-	public:
-		FarSettingsHistoryItems() {}
-		FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
-		~FarSettingsHistoryItems()
-		{
-			std::for_each(CONST_RANGE(Items, i)
-			{
-				delete [] i.Name;
-				delete [] i.Param;
-				delete [] i.File;
-			});
-		}
-
-		MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
-
-		void swap(FarSettingsHistoryItems& rhs) noexcept
-		{
-			Items.swap(rhs.Items);
-		}
-
-		void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
-
-		void get(FarSettingsEnum& e) const
-		{
-			e.Count = Items.size();
-			e.Histories = e.Count? Items.data() : nullptr;
-		}
-			
-	private:
-		std::vector<FarSettingsHistory> Items;
-	};
-	ALLOW_SWAP_ACCESS(FarSettingsHistoryItems);
-
 	int FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
 	std::vector<FarSettingsHistoryItems> m_Enum;
 	std::vector<string> m_Keys;
 };
-
-STD_SWAP_SPEC(FarSettings::FarSettingsHistoryItems);

@@ -1065,7 +1065,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 	{
 		size_t DirOffset = 0;
 		ParsePath(FileName, &DirOffset);
-		if (!wcspbrk(FileName.data() + DirOffset,L"*?"))
+		if (FileName.find_first_of(L"*?", DirOffset) == string::npos)
 		{
 			DWORD dwAttr=GetFileAttributes(FileName);
 

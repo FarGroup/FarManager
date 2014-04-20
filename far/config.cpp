@@ -1451,6 +1451,55 @@ bool StringOption::StoreValue(GeneralConfig* Storage, const string& KeyName, con
 }
 
 
+class Options::farconfig:NonCopyable
+{
+public:
+	typedef FARConfigItem* iterator;
+	typedef const FARConfigItem* const_iterator;
+	typedef FARConfigItem value_type;
+
+	farconfig(FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
+		m_items(Items),
+		m_size(Size),
+		m_cfg(cfg)
+	{
+	}
+
+	farconfig(farconfig&& rhs):
+		m_items(),
+		m_size(),
+		m_cfg()
+	{
+		*this = std::move(rhs);
+	}
+
+	MOVE_OPERATOR_BY_SWAP(farconfig);
+
+	void swap(farconfig& rhs) noexcept
+	{
+		std::swap(m_items, rhs.m_items);
+		std::swap(m_size, rhs.m_size);
+		std::swap(m_cfg, rhs.m_cfg);
+	}
+
+	iterator begin() const { return m_items; }
+	iterator end() const { return m_items + m_size; }
+	const_iterator cbegin() const { return m_items; }
+	const_iterator cend() const { return m_items + m_size; }
+	size_t size() const { return m_size; }
+	value_type& operator[](size_t i) const { return m_items[i]; }
+
+	GeneralConfig* GetConfig() const { return m_cfg; }
+
+private:
+	value_type* m_items;
+	size_t m_size;
+	GeneralConfig* m_cfg;
+};
+
+STD_SWAP_SPEC(Options::farconfig);
+
+
 Options::Options():
 	ReadOnlyConfig(-1),
 	UseExceptionHandler(0),
@@ -1471,11 +1520,9 @@ Options::Options():
 	ResetViewModes(m_ViewSettings.data());
 }
 
-Options::farconfig::iterator Options::farconfig::begin() const {return m_items;}
-Options::farconfig::iterator Options::farconfig::end() const {return m_items + m_size;}
-Options::farconfig::const_iterator Options::farconfig::cbegin() const {return m_items;}
-Options::farconfig::const_iterator Options::farconfig::cend() const {return m_items + m_size;}
-Options::farconfig::value_type& Options::farconfig::operator[](size_t i) const {return m_items[i];}
+Options::~Options()
+{
+}
 
 void Options::InitRoamingCFG()
 {

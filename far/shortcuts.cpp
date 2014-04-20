@@ -76,15 +76,57 @@ static const wchar_t* FolderShortcutsKey = L"Shortcuts";
 static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
 
-bool ShortcutItem::operator==(const ShortcutItem& Item) const
+struct Shortcuts::shortcut: NonCopyable
 {
-	return
-	  strName == Item.strName &&
-	  strFolder == Item.strFolder &&
-	  PluginGuid == Item.PluginGuid &&
-	  strPluginFile == Item.strPluginFile &&
-	  strPluginData == Item.strPluginData;
-}
+	shortcut(): PluginGuid(FarGuid) {}
+
+	shortcut(const string& Name, const string& Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
+		strName(Name),
+		strFolder(Folder),
+		strPluginFile(PluginFile),
+		strPluginData(PluginData),
+		PluginGuid(PluginGuid)
+	{
+	}
+
+	shortcut(shortcut&& rhs): PluginGuid(FarGuid) { *this = std::move(rhs); }
+
+	MOVE_OPERATOR_BY_SWAP(shortcut);
+
+	bool operator==(const shortcut& Item) const
+	{
+		return
+			strName == Item.strName &&
+			strFolder == Item.strFolder &&
+			PluginGuid == Item.PluginGuid &&
+			strPluginFile == Item.strPluginFile &&
+			strPluginData == Item.strPluginData;
+	}
+	bool operator!=(const shortcut& Item) const { return !(*this == Item); }
+
+	void swap(shortcut& rhs) noexcept
+	{
+		strName.swap(rhs.strName);
+		strFolder.swap(rhs.strFolder);
+		strPluginFile.swap(rhs.strPluginFile);
+		strPluginData.swap(rhs.strPluginData);
+		std::swap(PluginGuid, rhs.PluginGuid);
+	}
+
+		shortcut clone()
+	{
+			return shortcut(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
+	}
+
+	string strName;
+	string strFolder;
+	string strPluginFile;
+	string strPluginData;
+	GUID PluginGuid;
+};
+
+STD_SWAP_SPEC(Shortcuts::shortcut);
+
 
 Shortcuts::Shortcuts()
 {
@@ -104,7 +146,7 @@ Shortcuts::Shortcuts()
 				{
 					const auto sIndex = std::to_wstring(j);
 
-					ShortcutItem Item;
+					shortcut Item;
 					if (!cfg->GetValue(key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, Item.strFolder))
 						break;
 
@@ -176,7 +218,7 @@ void Shortcuts::Save()
 	}
 }
 
-static void Fill(const ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
+static void Fill(const Shortcuts::shortcut& RetItem, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
 {
 	if(Folder)
 	{
@@ -196,7 +238,7 @@ static void Fill(const ShortcutItem& RetItem, string* Folder, GUID* PluginGuid, 
 	}
 }
 
-static string MakeName(const ShortcutItem& Item)
+static string MakeName(const Shortcuts::shortcut& Item)
 {
 	Plugin* plugin = nullptr;
 	string result(MSG(MShortcutNone));
@@ -252,7 +294,7 @@ static string MakeName(const ShortcutItem& Item)
 	return result;
 }
 
-static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw_mode=false)
+static void FillMenu(VMenu2& Menu, const std::list<Shortcuts::shortcut>& List, bool raw_mode = false)
 {
 	Menu.DeleteItems();
 	FOR_CONST_RANGE(List, i)
@@ -278,6 +320,19 @@ static void FillMenu(VMenu2& Menu, const std::list<ShortcutItem>& List, bool raw
 		}
 		Menu.AddItem(ListItem);
 	}
+}
+
+static bool Accept()
+{
+	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
+	if (ActivePanel->GetMode() == PLUGIN_PANEL)
+	{
+		OpenPanelInfo Info;
+		ActivePanel->GetOpenPanelInfo(&Info);
+		if (!(Info.Flags&OPIF_SHORTCUT))
+			return false;
+	}
+	return true;
 }
 
 bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData, bool raw)
@@ -311,7 +366,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						Changed = true;
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
 						{
-							ShortcutItem NewItem;
+							shortcut NewItem;
 							Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 							Global->CtrlObject->CmdLine->GetCurDir(NewItem.strFolder);
 							if (ActivePanel->GetMode() == PLUGIN_PANEL)
@@ -350,7 +405,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 
 				case KEY_F4:
 					{
-						EditItem(&FolderList, **Item, false, raw);
+						EditItem(FolderList, **Item, false, raw);
 					}
 					break;
 
@@ -417,25 +472,25 @@ bool Shortcuts::Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, 
 
 void Shortcuts::Set(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
-	Changed = true;
 	if(Items[Pos].empty())
 	{
-		Items[Pos].resize(1);
+		return Add(Pos, Folder, PluginGuid, PluginFile, PluginData);
 	}
-	auto ItemIterator = Items[Pos].begin();
-	ItemIterator->strFolder = Folder;
-	ItemIterator->PluginGuid = PluginGuid;
-	ItemIterator->strPluginFile = PluginFile;
-	ItemIterator->strPluginData = PluginData;
+	auto& Item = Items[Pos].front();
+	Item.strFolder = Folder;
+	Item.PluginGuid = PluginGuid;
+	Item.strPluginFile = PluginFile;
+	Item.strPluginData = PluginData;
+	Changed = true;
 }
 
 void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
 {
-	Changed = true;
 	Items[Pos].emplace_back(VALUE_TYPE(Items[Pos])(string(), Folder, PluginFile, PluginData, PluginGuid));
+	Changed = true;
 }
 
-void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
+void Shortcuts::MakeItemName(size_t Pos, MenuItemEx& MenuItem)
 {
 	string ItemName(MSG(MShortcutNone));
 
@@ -444,18 +499,18 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 		ItemName = MakeName(Items[Pos].front());
 	}
 
-	MenuItem->strName = string(MSG(MRightCtrl)) + L"+&" + std::to_wstring(Pos) + L" \x2502 " + ItemName;
+	MenuItem.strName = string(MSG(MRightCtrl)) + L"+&" + std::to_wstring(Pos) + L" \x2502 " + ItemName;
 	if(Items[Pos].size() > 1)
 	{
-		MenuItem->Flags|=MIF_SUBMENU;
+		MenuItem.Flags |= MIF_SUBMENU;
 	}
 	else
 	{
-		MenuItem->Flags&=~MIF_SUBMENU;
+		MenuItem.Flags &= ~MIF_SUBMENU;
 	}
 }
 
-void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
+void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 {
 	auto NewItem(Item.clone());
 
@@ -501,13 +556,13 @@ void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root, bool raw)
 			Changed = true;
 			Item = std::move(NewItem);
 
-			MenuItemEx* MenuItem = Menu->GetItemPtr();
+			auto& MenuItem = *Menu.GetItemPtr();
 			if(Root)
 			{
-				MakeItemName(Menu->GetSelectPos(), MenuItem);
+				MakeItemName(Menu.GetSelectPos(), MenuItem);
 			}
 			else
-				MenuItem->strName = MakeName(Item);
+				MenuItem.strName = MakeName(Item);
 		}
 	}
 }
@@ -523,7 +578,7 @@ void Shortcuts::Configure()
 	for (size_t i = 0; i < Items.size(); ++i)
 	{
 		MenuItemEx ListItem;
-		MakeItemName(i, &ListItem);
+		MakeItemName(i, ListItem);
 		FolderList.AddItem(ListItem);
 	}
 
@@ -571,14 +626,14 @@ void Shortcuts::Configure()
 						ItemIterator->strPluginFile.clear();
 						ItemIterator->strPluginData.clear();
 					}
-					MakeItemName(Pos, MenuItem);
+					MakeItemName(Pos, *MenuItem);
 				}
 				else
 				{
 					if(ItemIterator != Items[Pos].end())
 					{
 						Items[Pos].erase(ItemIterator);
-						MakeItemName(Pos, MenuItem);
+						MakeItemName(Pos, *MenuItem);
 					}
 				}
 				INT64 Flags = MenuItem->Flags;
@@ -603,7 +658,7 @@ void Shortcuts::Configure()
 				}
 				else
 				{
-					EditItem(&FolderList, *ItemIterator, true);
+					EditItem(FolderList, *ItemIterator, true);
 				}
 				Changed = true;
 			}
@@ -620,17 +675,4 @@ void Shortcuts::Configure()
 		Save();
 		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode, raw_mode);
 	}
-}
-
-bool Shortcuts::Accept()
-{
-	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
-	if (ActivePanel->GetMode() == PLUGIN_PANEL)
-	{
-		OpenPanelInfo Info;
-		ActivePanel->GetOpenPanelInfo(&Info);
-		if(!(Info.Flags&OPIF_SHORTCUT))
-			return false;
-	}
-	return true;
 }

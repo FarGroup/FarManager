@@ -5721,7 +5721,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
 					case DI_BUTTON:
-						Len=StrLength(Ptr);
+						Len = wcslen(Ptr);
 
 						if (Type == DI_BUTTON)
 						{
@@ -5765,7 +5765,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			switch (Type)
 			{
 				case DI_BUTTON:
-					Len=StrLength(Ptr)+1;
+					Len = wcslen(Ptr) + 1;
 
 					if (!(CurItem->Flags & DIF_NOBRACKETS))
 						Len-=4;
@@ -5780,7 +5780,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_DOUBLEBOX:
 				case DI_CHECKBOX:
 				case DI_RADIOBUTTON:
-					Len=StrLength(Ptr)+1;
+					Len = wcslen(Ptr) + 1;
 					break;
 				case DI_COMBOBOX:
 				case DI_EDIT:
@@ -5817,7 +5817,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_SETTEXTPTR:
 		{
 			wchar_t* Text = Param2?static_cast<wchar_t*>(Param2):const_cast<wchar_t*>(L"");
-			FarDialogItemData IData={sizeof(FarDialogItemData),(size_t)StrLength(Text),Text};
+			FarDialogItemData IData = { sizeof(FarDialogItemData), wcslen(Text), Text };
 			return SendMessage(DM_SETTEXT,Param1,&IData);
 		}
 		/*****************************************************************/

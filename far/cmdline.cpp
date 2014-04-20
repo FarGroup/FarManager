@@ -1342,7 +1342,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	size_t DirOffset = 0;
 	ParsePath(strExpandedDir, &DirOffset);
-	if (wcspbrk(strExpandedDir.data() + DirOffset, L"?*")) // это маска?
+	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // это маска?
 	{
 		api::FAR_FIND_DATA wfd;
 

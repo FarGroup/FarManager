@@ -543,7 +543,7 @@ void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, int Separat
 	string strDigit;
 	const wchar_t *Ptr=Src.data();
 
-	for (size_t i=0; i<Count; i++)
+	FOR(auto& i, make_range(Dst, Dst + Count))
 	{
 		Ptr=GetCommaWord(Ptr,strDigit,Separator);
 
@@ -558,7 +558,7 @@ void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, int Separat
 
 			if (*PtrDigit)
 			{
-				Dst[i]=static_cast<WORD>(_wtoi(PtrDigit));
+				i = static_cast<WORD>(_wtoi(PtrDigit));
 			}
 		}
 		else

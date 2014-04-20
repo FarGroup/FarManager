@@ -95,7 +95,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
 	{
-		if (!wcspbrk(DestPath.data(),L"\\:"))
+		if (DestPath.find_first_of(L"\\:") == string::npos)
 			return TRUE;
 
 		if (((strSrcRoot[0]==L'\\' && strSrcRoot[1]==L'\\') || (strDestRoot[0]==L'\\' && strDestRoot[1]==L'\\')) &&

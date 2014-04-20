@@ -88,6 +88,10 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	}
 }
 
+PluginSettings::~PluginSettings()
+{
+}
+
 bool PluginSettings::IsValid() const
 {
 	return !m_Keys.empty();
@@ -178,11 +182,82 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
+class PluginSettings::FarSettingsNameItems: ::NonCopyable
+{
+public:
+	FarSettingsNameItems() {}
+	FarSettingsNameItems(FarSettingsNameItems&& rhs) { *this = std::move(rhs); }
+	~FarSettingsNameItems()
+	{
+		std::for_each(CONST_RANGE(Items, i)
+		{
+			delete[] i.Name;
+		});
+	}
+
+	MOVE_OPERATOR_BY_SWAP(FarSettingsNameItems);
+
+	void swap(FarSettingsNameItems& rhs) noexcept
+	{
+		Items.swap(rhs.Items);
+	}
+
+	void add(FarSettingsName& Item, const string& String);
+
+	void get(FarSettingsEnum& e) const
+	{
+		e.Count = Items.size();
+		e.Items = e.Count ? Items.data() : nullptr;
+	}
+
+private:
+	std::vector<FarSettingsName> Items;
+};
+
+STD_SWAP_SPEC(PluginSettings::FarSettingsNameItems);
+
 void PluginSettings::FarSettingsNameItems::add(FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
 	Items.emplace_back(Item);
 }
+
+
+class FarSettings::FarSettingsHistoryItems: ::NonCopyable
+{
+public:
+	FarSettingsHistoryItems() {}
+	FarSettingsHistoryItems(FarSettingsHistoryItems&& rhs) { *this = std::move(rhs); }
+	~FarSettingsHistoryItems()
+	{
+		std::for_each(CONST_RANGE(Items, i)
+		{
+			delete[] i.Name;
+			delete[] i.Param;
+			delete[] i.File;
+		});
+	}
+
+	MOVE_OPERATOR_BY_SWAP(FarSettingsHistoryItems);
+
+	void swap(FarSettingsHistoryItems& rhs) noexcept
+	{
+		Items.swap(rhs.Items);
+	}
+
+	void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
+
+	void get(FarSettingsEnum& e) const
+	{
+		e.Count = Items.size();
+		e.Histories = e.Count ? Items.data() : nullptr;
+	}
+
+private:
+	std::vector<FarSettingsHistory> Items;
+};
+
+STD_SWAP_SPEC(FarSettings::FarSettingsHistoryItems);
 
 void FarSettings::FarSettingsHistoryItems::add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
@@ -273,6 +348,14 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 		}
 	}
 	return result;
+}
+
+FarSettings::FarSettings()
+{
+}
+
+FarSettings::~FarSettings()
+{
 }
 
 int FarSettings::Set(const FarSettingsItem& Item)

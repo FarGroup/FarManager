@@ -1595,7 +1595,7 @@ void Manager::ImmediateHide()
 
 			if (ModalFrames.size() > 1)
 			{
-				FOR(const auto& i, make_subrange(ModalFrames.cbegin(), ModalFrames.cend() - 1))
+				FOR(const auto& i, make_range(ModalFrames.cbegin(), ModalFrames.cend() - 1))
 				{
 					if (!(i->FastHide() & CASR_HELP))
 					{
