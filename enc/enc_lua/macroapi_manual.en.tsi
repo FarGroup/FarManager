@@ -1363,7 +1363,7 @@ lv=3
 dt=Text
 nm=Call
 ctime=3560706460
-mtime=3600511225
+mtime=3607175169
 <article>
 #_... = Plugin.Call (PluginId [, ...])
 #_
@@ -1410,7 +1410,6 @@ mtime=3600511225
 #_                              ["n"] = number of array elements)
 #_
 #_@@@
-#_{dialog}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Dialog
 #_{farmacrocall}: http://api.farmanager.com/ru/structures/farmacrocall.html
 #_{fmvt_array}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_ARRAY
 #_{fmvt_binary}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BINARY
@@ -1419,7 +1418,6 @@ mtime=3600511225
 #_{fmvt_integer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_INTEGER
 #_{fmvt_nil}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_NIL
 #_{fmvt_string}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_STRING
-#_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
 #_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
 #_
 #_
