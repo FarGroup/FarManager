@@ -6,7 +6,7 @@ LUA_PROXY=lua5.1.dll
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
 
-DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY)
+DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) luasdk\$(DIRBIT)\moonscript.dll
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1

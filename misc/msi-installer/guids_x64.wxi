@@ -378,6 +378,7 @@
 <?define Guid.lm_spa.lng = "3E6287BD-2455-4924-B26D-663E7EEBB89D" ?>
 <?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>
 <?define Guid.lua51.dll = "31F36739-E199-4FA9-BD95-E08D99C54F27" ?>
+<?define Guid.moonscript.dll = "8959CACF-F952-4146-828E-73B753835D3D" ?>
 <?define Guid.luafar3.dll = "51D92B8C-EFB1-47A7-98FA-AD3BB73BBDD8" ?>
 <?define Guid.luafar3.map = "931D33C2-2675-4DC7-8A57-DF8A12B263ED" ?>
 <?define Guid.DlgBuilder.hpp = "8E572810-F31E-476C-A67E-3679CFDDF510" ?>

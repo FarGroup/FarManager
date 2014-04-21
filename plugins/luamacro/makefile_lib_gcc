@@ -5,7 +5,7 @@ LUAVER=51
 LUA_PROXY=lua5.1.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
-DOCS = luasdk/$(DIRBIT)/lua$(LUAVER).dll luasdk/$(DIRBIT)/$(LUA_PROXY)
+DOCS = luasdk/$(DIRBIT)/lua$(LUAVER).dll luasdk/$(DIRBIT)/$(LUA_PROXY) luasdk\$(DIRBIT)\moonscript.dll
 SRCS = \
 luafar/bit64.c \
 luafar/exported.c \
