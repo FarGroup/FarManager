@@ -28,12 +28,13 @@ int Config()
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MConfigLocalNetwork, &Opt.LocalNetwork);
 	Builder.AddCheckbox(MHiddenShares, &Opt.HiddenShares);
+	Builder.AddCheckbox(MHiddenSharesAsHidden, &Opt.HiddenSharesAsHidden);
 	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MFullPathShares, &Opt.FullPathShares);
 	Builder.AddSeparator(MFavorites);
 	Builder.AddCheckbox(MUpbrowseToFavorites, &Opt.FavoritesFlags, FAVORITES_UPBROWSE_TO_FAVORITES);
-	Builder.AddCheckbox(MCheckResource, &Opt.FavoritesFlags, FAVORITES_CHECK_RESOURCES);
+//	Builder.AddCheckbox(MCheckResource, &Opt.FavoritesFlags, FAVORITES_CHECK_RESOURCES);
 	Builder.AddOKCancel(MOk, MCancel);
 
 	if (Builder.ShowDialog())
@@ -44,6 +45,7 @@ int Config()
 		settings.Set(0,StrLocalNetwork,Opt.LocalNetwork);
 		settings.Set(0,StrHiddenShares,Opt.HiddenShares);
 		settings.Set(0,StrShowPrinters,Opt.ShowPrinters);
+		settings.Set(0,StrHiddenSharesAsHidden,Opt.HiddenSharesAsHidden);
 		settings.Set(0,StrFullPathShares,Opt.FullPathShares);
 		settings.Set(0,StrFavoritesFlags,Opt.FavoritesFlags);
 		settings.Set(0,StrNoRootDoublePoint,Opt.RootDoublePoint);
