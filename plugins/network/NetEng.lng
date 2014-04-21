@@ -49,7 +49,7 @@
 "Disks menu &hotkey ('1'-'9'). Leave empty to autoassign"
 "&Show local network"
 "Show h&idden shares"
-"Show hidden &admin shares"
+"Set the Hidden &attribute for hidden shares"
 "Show pri&nters"
 "Show share &full name"
 "Show \"..\" in the providers"
