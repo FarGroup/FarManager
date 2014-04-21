@@ -45,16 +45,6 @@ I. Far Manager: дополнительные настройки.
    профили пользователей. Изменения настроек для "<username>" следует
    проводить относительно ветки [HKCU\Software\Far Manager\Users\<username>]
 
-1.1.5.(TechInfo #35)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\Network]
-   "HiddenSharesAsHidden":REG_DWORD
-   Параметр "Plugins/Network/HiddenSharesAsHidden" с типом  DWORD  включает
-   режим показа  скрытых  (административных)  общих  ресурсов  с  атрибутом
-   Hidden.
-   По умолчанию значение = 1 - ставить атрибут  Hidden  для  скрытых  общих
-   ресурсов.
-
 1.1.8.(TechInfo #52)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\SavedDialogHistory]
