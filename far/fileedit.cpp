@@ -1452,7 +1452,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		UINT64 FileSize=0;
 		if (EditFile.GetSize(FileSize))
 		{
-			if (FileSize > Global->Opt->EdOpt.FileSizeLimit)
+			if (FileSize > static_cast<UINT64>(Global->Opt->EdOpt.FileSizeLimit))
 			{
 				string strTempStr1, strTempStr2;
 				// Ўирина = 8 - это будет... в Kb и выше...
