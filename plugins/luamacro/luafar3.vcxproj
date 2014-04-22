@@ -164,12 +164,8 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@copy /y luasdk\32\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\32\moonscript.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy moonscript.dll</Message>
+      <Command>@for %%s in (lua51 lua5.1 moonscript) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -204,12 +200,8 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@copy /y luasdk\64\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\64\moonscript.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy moonscript.dll</Message>
+      <Command>@for %%s in (lua51 lua5.1 moonscript) do @copy /y luasdk\64\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
@@ -281,12 +273,8 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@copy /y luasdk\32\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\32\moonscript.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy moonscript.dll</Message>
+      <Command>@for %%s in (lua51 lua5.1 moonscript) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -324,12 +312,8 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@copy /y luasdk\64\lua51.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy lua51.dll</Message>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command>@copy /y luasdk\64\moonscript.dll $(OutDir) 1&gt;nul</Command>
-      <Message>copy moonscript.dll</Message>
+      <Command>@for %%s in (lua51 lua5.1 moonscript) do @copy /y luasdk\64\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
