@@ -29,6 +29,14 @@
 @XLat.Rules3=XLat.Tables
 @XLat.Table1=XLat.Tables
 @XLat.Table2=XLat.Tables
+@History.CommandHistory.Count=History.Config
+@History.CommandHistory.Lifetime=History.Config
+@History.DialogHistory.Count=History.Config
+@History.DialogHistory.Lifetime=History.Config
+@History.FolderHistory.Count=History.Config
+@History.FolderHistory.Lifetime=History.Config
+@History.ViewEditHistory.Count=History.Config
+@History.ViewEditHistory.Lifetime=History.Config
 
 @Contents
 $^#Программа управления файлами и архивами#
@@ -6227,6 +6235,32 @@ $ #far:config XLat.Tables#
     Rules2=?,&?/.,б.ю^::Ж;ж$;@@""Э
     Rules3=^::ЖЖ^$;;жж$@""ЭЭ@@&??,,бб&/..юю/
 
+
+    Изменить эти параметры возможно через ~far:config~@FarConfig@
+
+@History.Config
+$ #far:config History.*#
+    Данный блок параметров позволяет ограничить размеры списков и время жизни элементов следующих историй:
+  
+    - история ~команд~@History@ в командной строке:
+      #History.CommandHistory.Count#
+      #History.CommandHistory.Lifetime#
+
+    - история строк ввода в диалогах:
+      #History.DialogHistory.Count#
+      #History.DialogHistory.Lifetime#
+    
+    - история ~посещения папок~@HistoryFolders@:
+      #History.FolderHistory.Count#
+      #History.FolderHistory.Lifetime#
+
+    - история ~просмотра и редактирования~@HistoryViews@:
+      #History.ViewEditHistory.Count#
+      #History.ViewEditHistory.Lifetime#
+
+    По умолчанию:
+      максимальный размер списка (.Count) = 1000 элементов
+      время жизни элемента (.Lifetime) = 90 дней
 
     Изменить эти параметры возможно через ~far:config~@FarConfig@
 

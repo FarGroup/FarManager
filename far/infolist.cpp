@@ -104,9 +104,10 @@ InfoList::InfoList():
 	}
 	else
 	{
+		size_t strShowStatusInfoLen = Global->Opt->InfoPanel.strShowStatusInfo.size();
 		for_each_cnt(RANGE(SectionState, i, size_t index)
 		{
-			i.Show = Global->Opt->InfoPanel.strShowStatusInfo[index] == L'1';
+			i.Show = index < strShowStatusInfoLen?Global->Opt->InfoPanel.strShowStatusInfo[index] == L'1':true;
 		});
 	}
 

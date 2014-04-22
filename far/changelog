@@ -1,4 +1,10 @@
-﻿drkns 20.04.2014 17:14:22 +0200 - build 3874
+﻿svs 22.04.2014 18:52:29 +0400 - build 3875
+
+1. Mantis#0002651: TechInfo #52: Saved???/HistoryCount
+
+2. Падение, если размер строки настройки System.ShowStatusInfo был меньше числа секций в InfoPanel
+
+drkns 20.04.2014 17:14:22 +0200 - build 3874
 
 1. Рефакторинг.
 
