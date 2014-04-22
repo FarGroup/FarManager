@@ -447,12 +447,14 @@ local function LoadMacros (allAreas, unload)
 
     local macroinit_name, macroinit_done = dir.."\\scripts\\_macroinit.lua", false
     local isStationary = true
+    local moonscript = require "moonscript"
 
     local function LoadOneFile (FindData, FullPath)
       if macroinit_done and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
         return
       end
-      local f, msg = loadfile(FullPath)
+      local loadfunc = string.sub(FullPath,-4):lower()==".lua" and loadfile or moonscript.loadfile
+      local f, msg = loadfunc(FullPath)
       if not f then
         numerrors=numerrors+1; ErrMsg(msg); return
       end
@@ -477,7 +479,7 @@ local function LoadMacros (allAreas, unload)
       LoadOneFile(info, macroinit_name)
       macroinit_done = true
     end
-    far.RecursiveSearch (dir.."\\scripts", "*.lua", LoadOneFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
+    far.RecursiveSearch (dir.."\\scripts", "*.lua,*.moon", LoadOneFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
 
     isStationary = false
     far.RecursiveSearch (dir.."\\internal", "*.lua", LoadOneFile, 0)
