@@ -25,13 +25,12 @@ int Config()
 	Builder.AddCheckbox(MConfigAddToDisksMenu, &Opt.AddToDisksMenu);
 	Builder.AddCheckbox(MConfigAddToPluginMenu, &Opt.AddToPluginsMenu);
 	Builder.AddCheckbox(MNoRootDoublePoint, &Opt.RootDoublePoint);
-	Builder.AddSeparator();
 	Builder.AddCheckbox(MConfigLocalNetwork, &Opt.LocalNetwork);
+	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
+	Builder.AddSeparator(MShares);
+	Builder.AddCheckbox(MFullPathShares, &Opt.FullPathShares);
 	Builder.AddCheckbox(MHiddenShares, &Opt.HiddenShares);
 	Builder.AddCheckbox(MHiddenSharesAsHidden, &Opt.HiddenSharesAsHidden);
-	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
-	Builder.AddSeparator();
-	Builder.AddCheckbox(MFullPathShares, &Opt.FullPathShares);
 	Builder.AddSeparator(MFavorites);
 	Builder.AddCheckbox(MUpbrowseToFavorites, &Opt.FavoritesFlags, FAVORITES_UPBROWSE_TO_FAVORITES);
 //	Builder.AddCheckbox(MCheckResource, &Opt.FavoritesFlags, FAVORITES_CHECK_RESOURCES);

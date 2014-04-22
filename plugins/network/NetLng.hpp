@@ -55,6 +55,7 @@ enum
 	MNoRootDoublePoint,
 	MUpbrowseToFavorites,
 	MCheckResource,
+	MShares,
 
 	MConfirmDisconnectTitle,
 	MConfirmDisconnectQuestion,
