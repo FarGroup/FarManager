@@ -617,6 +617,9 @@
     <ClInclude Include="keyboard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KnownGuids.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="lang.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

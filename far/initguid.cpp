@@ -35,3 +35,4 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
+#include "KnownGuids.hpp"

@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
 #include "configdb.hpp"
-#include "FarGuid.hpp"
+#include "KnownGuids.hpp"
 #include "vmenu2.hpp"
 #include "codepage.hpp"
 #include "DlgGuid.hpp"
@@ -1594,8 +1594,7 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"EditorCursorBeyondEOL", &EdOpt.CursorBeyondEOL, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExpandTabs", &EdOpt.ExpandTabs, 0},
 		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", &strExternalEditor, L""},
-		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", &EdOpt.FileSizeLimitLo, 0},
-		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimitHi", &EdOpt.FileSizeLimitHi, 0},
+		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", &EdOpt.FileSizeLimit, 0},
 		{FSSF_PRIVATE,       NKeyEditor,L"KeepEditorEOL", &EdOpt.KeepEOL, true},
 		{FSSF_PRIVATE,       NKeyEditor,L"PersistentBlocks", &EdOpt.PersistentBlocks, false},
 		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", &EdOpt.ReadOnlyLock, 0},
@@ -1668,7 +1667,6 @@ void Options::InitRoamingCFG()
 
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"CONVFMT", &Macro.strMacroCONVFMT, L"%.6g"},
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"DateFormat", &Macro.strDateFormat, L"%a %b %d %H:%M:%S %Z %Y"},
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"MacroReuseRules", &Macro.MacroReuseRules, false},
 
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlDot", &Macro.strKeyMacroCtrlDot, L"Ctrl."},
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordRCtrlDot", &Macro.strKeyMacroRCtrlDot, L"RCtrl."},
@@ -1832,8 +1830,11 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", &StoredWindowMode, false},
 		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", &WipeSymbol, 0},
 
-		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"EMenu", &KnownIDs.EmenuGuidStr, L"742910F1-02ED-4542-851F-DEE37C2E13B2"},
-		{FSSF_PRIVATE,       NKeySystemKnownIDs,L"Network", &KnownIDs.NetworkGuidStr, L"773B5051-7C5F-4920-A201-68051C4176A4"},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"EMenu", &KnownIDs.Emenu.StrId, KnownIDs.Emenu.Default},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Network", &KnownIDs.Network.StrId, KnownIDs.Network.Default},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Arclite", &KnownIDs.Arclite.StrId, KnownIDs.Arclite.Default},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Luamacro", &KnownIDs.Luamacro.StrId, KnownIDs.Luamacro.Default},
+		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Netbox", &KnownIDs.Netbox.StrId, KnownIDs.Netbox.Default},
 
 		{FSSF_PRIVATE,       NKeySystemNowell,L"MoveRO", &Nowell.MoveRO, true},
 
@@ -1949,6 +1950,22 @@ void Options::InitConfig()
 
 void Options::Load()
 {
+	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
+	static simple_pair<GUID, string> DefaultKnownGuids[] = { { EMenuGuid }, { NetworkGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };
+	static_assert(ARRAYSIZE(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
+
+	KnownModulesIDs::GuidOption* GuidOptions[] = { &KnownIDs.Network, &KnownIDs.Emenu, &KnownIDs.Arclite, &KnownIDs.Luamacro, &KnownIDs.Netbox };
+	static_assert(ARRAYSIZE(GuidOptions) == ARRAYSIZE(DefaultKnownGuids), "incomplete GuidOptions array");
+
+	for_each_2(ALL_RANGE(DefaultKnownGuids), GuidOptions, [](VALUE_TYPE(DefaultKnownGuids)& a, VALUE_TYPE(GuidOptions)& b)
+	{
+		a.second = GuidToStr(a.first);
+		b->Default = a.second.data();
+		b->Id = a.first;
+		b->StrId = a.second;
+	});
+
+
 	InitConfig();
 
 	/* <опеопнжеяяш> *************************************************** */
@@ -2114,8 +2131,17 @@ void Options::Load()
 		ApplyDefaultMaskGroups();
 	}
 
-	StrToGuid(KnownIDs.EmenuGuidStr, KnownIDs.Emenu);
-	StrToGuid(KnownIDs.NetworkGuidStr, KnownIDs.Network);
+	FOR(auto& i, GuidOptions)
+	{
+		if (i->StrId.empty())
+		{
+			i->Id = GUID_NULL;
+		}
+		else
+		{
+			StrToGuid(i->StrId, i->Id);
+		}
+	}
 
 /* *************************************************** </оняропнжеяяш> */
 

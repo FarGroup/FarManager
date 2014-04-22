@@ -667,7 +667,7 @@ void FileList::SortFileList(int KeepPosition)
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={MCT_PANELSORT,0,&fmc};
 			void *ptr;
-			if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,&info,&ptr) && ptr)
+			if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
 			{
 				CustomSortIndicator[0] = info.Ret.Values[0].String[0];
 				CustomSortIndicator[1] = info.Ret.Values[0].String[1];
@@ -2409,9 +2409,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 			{
-				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
+				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -2817,7 +2817,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 				if (NetPath)
 				{
 					string tmp = strCurDir;	// strCurDir can be altered during next call
-					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL, UNSAFE_CSTR(tmp))) // NetWork Plugin :-)
+					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id,OPEN_FILEPANEL, UNSAFE_CSTR(tmp))) // NetWork Plugin :-)
 					{
 						return false;
 					}
@@ -2827,7 +2827,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.front(), RemoteName))
 					{
-						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network, OPEN_FILEPANEL, UNSAFE_CSTR(RemoteName))) // NetWork Plugin :-)
+						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id, OPEN_FILEPANEL, UNSAFE_CSTR(RemoteName))) // NetWork Plugin :-)
 						{
 							return false;
 						}
@@ -3051,10 +3051,10 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
-				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control == 0 || control == SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 				{
 					ShowFileList(TRUE);
-					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr); // EMenu Plugin :-)
 					return TRUE;
 				}
 
@@ -4542,7 +4542,7 @@ void FileList::SelectSortMode()
 	size_t extra = 0; // number of additional menu items due to custom sort modes
 	{
 		void *ptr;
-		if (Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid, OPEN_LUAMACRO, &ompInfo, &ptr) && ptr)
+		if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &ompInfo, &ptr) && ptr)
 		{
 			mpr = &ompInfo.Ret;
 			if (mpr->Count >= 3)
@@ -6793,7 +6793,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
-	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
+	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
 		ListData.emplace_back(VALUE_TYPE(ListData)());
 		auto& NewItem = ListData.back();

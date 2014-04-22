@@ -1,4 +1,10 @@
-﻿svs 22.04.2014 18:52:29 +0400 - build 3875
+﻿drkns 22.04.2014 22:16:51 +0200 - build 3876
+
+1. Параметр Editor.FileSizeLimitHi удалён.
+
+2. GUID'ы luamacro, arclite, netbox вынесены в конфиг.
+
+svs 22.04.2014 18:52:29 +0400 - build 3875
 
 1. Mantis#0002651: TechInfo #52: Saved???/HistoryCount
 

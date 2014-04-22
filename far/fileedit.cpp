@@ -1447,19 +1447,17 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		return FALSE;
 	}*/
 
-	if (Global->Opt->EdOpt.FileSizeLimitLo || Global->Opt->EdOpt.FileSizeLimitHi)
+	if (Global->Opt->EdOpt.FileSizeLimit)
 	{
 		UINT64 FileSize=0;
 		if (EditFile.GetSize(FileSize))
 		{
-			UINT64 MaxSize = static_cast<DWORD>(Global->Opt->EdOpt.FileSizeLimitHi) * 0x100000000ull + static_cast<DWORD>(Global->Opt->EdOpt.FileSizeLimitLo);
-
-			if (FileSize > MaxSize)
+			if (FileSize > Global->Opt->EdOpt.FileSizeLimit)
 			{
 				string strTempStr1, strTempStr2;
 				// Ўирина = 8 - это будет... в Kb и выше...
 				FileSizeToStr(strTempStr1, FileSize, 8);
-				FileSizeToStr(strTempStr2, MaxSize, 8);
+				FileSizeToStr(strTempStr2, Global->Opt->EdOpt.FileSizeLimit, 8);
 
 				const wchar_t* const Items[] = {Name.data(),
 					(LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1)).data(),

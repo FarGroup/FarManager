@@ -420,15 +420,15 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 	if (pPlugin)
 	{
 		PSI->ModuleName = pPlugin->GetModuleName().data();
-		if(pPlugin->GetGUID() == ArcliteGuid)
+		if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
 		{
 			PSI->Private = &ArcliteInfo;
 		}
-		else if(pPlugin->GetGUID() == NetBoxGuid)
+		else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Netbox.Id)
 		{
 			PSI->Private = &NetBoxInfo;
 		}
-		else if(pPlugin->GetGUID() == LuamacroGuid)
+		else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
 		{
 			PSI->Private = &MacroInfo;
 		}

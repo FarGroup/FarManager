@@ -360,8 +360,7 @@ public:
 		IntOption ReadOnlyLock;
 		IntOption UndoSize;
 		BoolOption UseExternalEditor;
-		IntOption FileSizeLimitLo;
-		IntOption FileSizeLimitHi;
+		IntOption FileSizeLimit;
 		BoolOption ShowKeyBar;
 		BoolOption ShowTitleBar;
 		BoolOption ShowScrollBar;
@@ -542,7 +541,6 @@ public:
 
 	struct MacroOptions
 	{
-		BoolOption MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
 		int DisableMacro; // параметры /m или /ma или /m....
 		// config
 		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
@@ -557,10 +555,18 @@ public:
 
 	struct KnownModulesIDs
 	{
-		GUID Network;
-		StringOption NetworkGuidStr;
-		GUID Emenu;
-		StringOption EmenuGuidStr;
+		struct GuidOption
+		{
+			GUID Id;
+			StringOption StrId;
+			const wchar_t* Default;
+		};
+
+		GuidOption Network;
+		GuidOption Emenu;
+		GuidOption Arclite;
+		GuidOption Luamacro;
+		GuidOption Netbox;
 	};
 
 	struct ExecuteOptions

@@ -727,11 +727,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_MSRCLICK:
 				{
 					//вызовем EMenu если он есть
-					if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+					if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
+						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}

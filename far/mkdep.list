@@ -140,6 +140,7 @@ keybar.hpp
 keyboard.cpp
 keyboard.hpp
 keys.hpp
+KnownGuids.hpp
 lang.hpp
 language.cpp
 language.hpp

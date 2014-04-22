@@ -612,7 +612,7 @@ bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		++m_MacroPluginIsRunning;
 		PushState(false);
 	}
-	bool result=Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
+	bool result = Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info, &ptr) != 0;
 	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
 	{
 		PopState(false);
@@ -794,7 +794,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
-				if (!Global->CtrlObject->Plugins->FindPlugin(LuamacroGuid))
+				if (!Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id))
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					   MSG(MMacroPluginLuamacroNotLoaded),

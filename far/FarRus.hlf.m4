@@ -17,7 +17,6 @@
 @Interface.CursorSize2=Interface.CursorSize
 @Interface.CursorSize3=Interface.CursorSize
 @Interface.CursorSize4=Interface.CursorSize
-@Editor.FileSizeLimitHi=Editor.FileSizeLimit
 @System.MsWheelDeltaView=System.MsWheelDelta
 @System.MsWheelDeltaEdit=System.MsWheelDelta
 @System.MsWheelDeltaHelp=System.MsWheelDelta
@@ -6034,23 +6033,10 @@ $ #far:config Editor.ReadOnlyLock#
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
 @Editor.FileSizeLimit
-$ #far:config Editor.FileSizeLimit & Editor.FileSizeLimitHi#
-    Параметры "Editor.FileSizeLimit" и "Editor.FileSizeLimitHi" задают максимальный размер редактируемого файла в байтах. 
+$ #far:config Editor.FileSizeLimit#
+    Параметр "Editor.FileSizeLimit" задаёт максимальный размер редактируемого файла в байтах. 
 Если размер редактируемого файла превышает максимально допустимый, то будет показано предупреждающее сообщение перед 
 открытием такого файла.
-
-    "Editor.FileSizeLimit"   - младшее слово максимального значения.
-    "Editor.FileSizeLimitHi" - старшее слово максимального значения.
-
-    Например:
-    
-     1. чтобы выдавать предупреждение для файлов больше 4294967300 байт, необходимо установить:
-        Editor.FileSizeLimit   = 4
-        Editor.FileSizeLimitHi = 1
-
-     2. чтобы выдавать предупреждение для файлов больше 10Mb, необходимо установить:
-        Editor.FileSizeLimit   = 10485760
-        Editor.FileSizeLimitHi = 0
 
     По умолчанию значение = 0 (отключает проверку и вывод сообщения)
 

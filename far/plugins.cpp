@@ -90,7 +90,7 @@ PluginManager::~PluginManager()
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
-		if (i->GetGUID() == LuamacroGuid)
+		if (i->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
 		{
 			Luamacro=i;
 		}
