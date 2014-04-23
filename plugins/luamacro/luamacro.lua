@@ -362,6 +362,8 @@ do
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
   if not macrobrowser then return end
 
+  if not RunPluginFile("moonscript.lua", Shared) then return end
+
   if bit and jit then
     if not RunPluginFile("winapi.lua") then return end
     if not RunPluginFile("farapi.lua") then return end

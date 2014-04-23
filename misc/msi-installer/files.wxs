@@ -25,9 +25,6 @@
       <Component Id="lua51.dll" Guid="$(var.Guid.lua51.dll)" Win64="$(var.Win64)">
         <File Id="lua51.dll" KeyPath="yes" Source="$(var.SourceDir)\lua51.dll" />
       </Component>
-      <Component Id="moonscript.dll" Guid="$(var.Guid.moonscript.dll)" Win64="$(var.Win64)">
-        <File Id="moonscript.dll" KeyPath="yes" Source="$(var.SourceDir)\moonscript.dll" />
-      </Component>
       <Component Id="lpeg.dll" Guid="$(var.Guid.lpeg.dll)" Win64="$(var.Win64)">
         <File Id="lpeg.dll" KeyPath="yes" Source="$(var.SourceDir)\lpeg.dll" />
       </Component>
@@ -1120,6 +1117,9 @@
           </Component>
           <Component Id="farapi.lua" Guid="$(var.Guid.farapi.lua)" Win64="$(var.Win64)">
             <File Id="farapi.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\farapi.lua" />
+          </Component>
+          <Component Id="moonscript.lua" Guid="$(var.Guid.moonscript.lua)" Win64="$(var.Win64)">
+            <File Id="moonscript.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\moonscript.lua" />
           </Component>
           <Component Id="lm_eng.lng" Guid="$(var.Guid.lm_eng.lng)" Win64="$(var.Win64)">
             <File Id="lm_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_eng.lng" />

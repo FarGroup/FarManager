@@ -566,7 +566,6 @@
           <ComponentRef Id="luafar3.dll" />
           <ComponentRef Id="lua5.1.dll" />
           <ComponentRef Id="lua51.dll" />
-          <ComponentRef Id="moonscript.dll" />
           <ComponentRef Id="lpeg.dll" />
           <ComponentRef Id="_globalinfo.lua" />
           <ComponentRef Id="api.lua" />
@@ -578,6 +577,7 @@
           <ComponentRef Id="panelsort.lua" />
           <ComponentRef Id="winapi.lua" />
           <ComponentRef Id="farapi.lua" />
+          <ComponentRef Id="moonscript.lua" />
           <ComponentRef Id="lm_eng.lng" />
           <ComponentRef Id="lm_sky.lng" />
           <ComponentRef Id="lm_spa.lng" />

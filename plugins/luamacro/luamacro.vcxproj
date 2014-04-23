@@ -161,7 +161,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
@@ -196,7 +196,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
@@ -231,7 +231,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
@@ -269,7 +269,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
@@ -307,7 +307,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
@@ -345,7 +345,7 @@
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (_globalinfo api farapi lang luamacro macrotest mbrowser panelsort utils winapi moonscript lm_eng lm_rus) do @copy /y %%s.l?? $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
