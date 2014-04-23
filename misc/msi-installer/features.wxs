@@ -567,6 +567,7 @@
           <ComponentRef Id="lua5.1.dll" />
           <ComponentRef Id="lua51.dll" />
           <ComponentRef Id="moonscript.dll" />
+          <ComponentRef Id="lpeg.dll" />
           <ComponentRef Id="_globalinfo.lua" />
           <ComponentRef Id="api.lua" />
           <ComponentRef Id="utils.lua" />

@@ -28,6 +28,9 @@
       <Component Id="moonscript.dll" Guid="$(var.Guid.moonscript.dll)" Win64="$(var.Win64)">
         <File Id="moonscript.dll" KeyPath="yes" Source="$(var.SourceDir)\moonscript.dll" />
       </Component>
+      <Component Id="lpeg.dll" Guid="$(var.Guid.lpeg.dll)" Win64="$(var.Win64)">
+        <File Id="lpeg.dll" KeyPath="yes" Source="$(var.SourceDir)\lpeg.dll" />
+      </Component>
 <?if $(var.Platform) = x86 ?>
       <Component Id="Far.map" Guid="$(var.Guid.Far.map)" Win64="$(var.Win64)">
         <File Id="Far.map" KeyPath="yes" Source="$(var.SourceDir)\Far.map" />

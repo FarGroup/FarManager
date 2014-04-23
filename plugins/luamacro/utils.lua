@@ -49,7 +49,7 @@ local AddMacro_fields = {"area","key","code","action","description","priority","
 local AddMacro_fields2 = {"guid","callback","callbackId"}
 
 package.nounload = {}
-local initial_modules = { lpeg=true } -- MoonScript requires LPeg
+local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
 local function CheckFileName (mask, name)
