@@ -11475,48 +11475,6 @@ mtime=3520022380
 </article>
 </node>
 <node>
-id=195
-lv=1
-dt=Text
-nm=Far Manager 3.0 Plugin SDK
-mtime=3524282308
-<article>
-#_<markdown>
-#_    Copyright © 1996 Eugene Roshal
-#_    Copyright © 2000 Far Group
-#_    All rights reserved.
-#_
-#_    Redistribution and use in source and binary forms, with or without
-#_    modification, are permitted provided that the following conditions
-#_    are met:
-#_    1. Redistributions of source code must retain the above copyright
-#_       notice, this list of conditions and the following disclaimer.
-#_    2. Redistributions in binary form must reproduce the above copyright
-#_       notice, this list of conditions and the following disclaimer in the
-#_       documentation and/or other materials provided with the distribution.
-#_    3. The name of the authors may not be used to endorse or promote products
-#_       derived from this software without specific prior written permission.
-#_
-#_    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-#_    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-#_    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-#_    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-#_    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-#_    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-#_    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-#_    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#_    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-#_    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#_
-#_    EXCEPTION:
-#_    Far Manager plugins that use only the following header files from this
-#_    distribution (none or any): farcolor.hpp, plugin.hpp, farcolorW.pas and
-#_    pluginW.pas; can be distributed under any other possible license with no
-#_    implications from the above license on them.
-#_
-</article>
-</node>
-<node>
 id=196
 lv=1
 dt=Text
@@ -11555,36 +11513,15 @@ nm=Lua 5.1
 </article>
 </node>
 <node>
-id=476
-lv=1
-dt=Text
-nm=Lua 5.2
-ctime=3542521667
-mtime=3542521877
-<article>
-#_<markdown>
-#_Lua is free software distributed under the terms of the MIT license reproduced below; it may be used for any purpose, including commercial purposes, at absolutely no cost without having to ask us. The only requirement is that if you do use Lua, then you should give us credit by including the appropriate copyright notice somewhere in your product or its documentation. For details, see this.
-#_
-#_<HR>
-#_
-#_Copyright © 1994–2011 Lua.org, PUC-Rio.
-#_
-#_Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-#_
-#_The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#_
-#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-</article>
-</node>
-<node>
 id=251
 lv=1
 dt=Text
 nm=Selene Unicode
+mtime=3607435737
 <article>
 #_<markdown>
 #_    /*
-#_      Porting to Lua 5.2 and bug fixes: (C) Shmuel Zeigerman, 2010.
+#_      Porting to Lua 5.2 and bug fixes: (C) Shmuel Zeigerman, 2010-2014.
 #_      MIT license.
 #_    */
 #_
