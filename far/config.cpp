@@ -1951,7 +1951,7 @@ void Options::InitConfig()
 void Options::Load()
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
-	static simple_pair<GUID, string> DefaultKnownGuids[] = { { EMenuGuid }, { NetworkGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };
+	static simple_pair<GUID, string> DefaultKnownGuids[] = { { NetworkGuid }, { EMenuGuid }, { ArcliteGuid }, { LuamacroGuid }, { NetBoxGuid } };
 	static_assert(ARRAYSIZE(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
 
 	KnownModulesIDs::GuidOption* GuidOptions[] = { &KnownIDs.Network, &KnownIDs.Emenu, &KnownIDs.Arclite, &KnownIDs.Luamacro, &KnownIDs.Netbox };
