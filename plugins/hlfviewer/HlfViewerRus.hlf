@@ -15,9 +15,9 @@ $ #HlfViewer#
 @cmd
 $ #HlfViewer: синтаксис командной строки
 
-   #hlf:GUID# [#topic#]
-   #hlf:filename# [#topic#]
-   #hlf:topic#
+   #hlf:GUID# [[#@#]#topic#]
+   #hlf:filename# [[#@#]#topic#]
+   #hlf:[@]topic#
 
    #GUID#     - ^<wrap>GUID плагина в текущей сессии Far Manager, тему справки которого
               необходимо показать.

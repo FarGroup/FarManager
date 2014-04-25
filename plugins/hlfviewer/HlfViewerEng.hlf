@@ -15,9 +15,9 @@ HLF files or just want to view some HLF files.
 @cmd
 $ #HlfViewer: command line syntax
 
-   #hlf:GUID# [#topic#]
-   #hlf:filename# [#topic#]
-   #hlf:topic#
+   #hlf:GUID# [[#@#]#topic#]
+   #hlf:filename# [[#@#]#topic#]
+   #hlf:[@]topic#
 
    #GUID#     - ^<wrap>GUID плагина в текущей сессии Far Manager, тему справки которого
               необходимо показать.

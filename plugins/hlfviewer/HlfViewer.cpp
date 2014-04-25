@@ -176,7 +176,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 			else
 			{
-				ptrTopic = NULL;
+				if (*ptrName == L'@')
+				{
+					ptrTopic=ptrName+1;
+					FSF.Trim(ptrTopic);
+					ptrName=NULL;
+				}
+				else
+					ptrTopic = NULL;
 			}
 
 			wchar_t *ptrCurDir=NULL;
