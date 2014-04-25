@@ -6,6 +6,18 @@ local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
 
+local TmpFileName = assert(win.GetEnv"tmp" or win.GetEnv"temp").."\\tmp.tmp"
+
+local function WriteTmpFile(...)
+  local fp = assert(io.open(TmpFileName,"w"))
+  fp:write(...)
+  fp:close()
+end
+
+local function DeleteTmpFile()
+  assert(win.DeleteFile(TmpFileName))
+end
+
 local function TestArea (area, msg)
   assert(Area[area]==true and Area.Current==area, msg or "assertion failed")
 end
@@ -133,19 +145,17 @@ local function test_env()
 end
 
 local function test_fattr()
-  local fname=assert(win.GetEnv"tmp" or win.GetEnv"temp").."\\tmp.tmp"
-  assert(io.open(fname,"w")):close()
-  local attr = mf.fattr(fname)
-  assert(win.DeleteFile(fname))
+  WriteTmpFile("")
+  local attr = mf.fattr(TmpFileName)
+  DeleteTmpFile()
   assert(type(attr)=="number")
 end
 
 local function test_fexist()
-  local fname=assert(win.GetEnv"tmp" or win.GetEnv"temp").."\\tmp.tmp"
-  assert(io.open(fname,"w")):close()
-  assert(mf.fexist(fname))
-  assert(win.DeleteFile(fname))
-  assert(not mf.fexist(fname))
+  WriteTmpFile("")
+  assert(mf.fexist(TmpFileName))
+  DeleteTmpFile()
+  assert(not mf.fexist(TmpFileName))
 end
 
 local function test_msgbox()
@@ -715,6 +725,59 @@ local function test_far_MacroExecute()
     type(t[6])=="table" and t[6][1]=="bar")
 end
 
+local function test_far_MacroAdd()
+  local area, key, descr = "MACROAREA_SHELL", "CtrlA", "Test MacroAdd"
+
+  local Id = far.MacroAdd(area, nil, key, [[A = { b=5 }]], descr)
+  assert(type(Id)=="userdata" and far.MacroDelete(Id))
+
+  Id = far.MacroAdd(-1, nil, key, [[A = { b=5 }]], descr)
+  assert(not Id) -- bad area
+
+  Id = far.MacroAdd(area, nil, key, [[A = { b:5 }]], descr)
+  assert(not Id) -- bad code
+
+  Id = far.MacroAdd(area, "KMFLAGS_MOONSCRIPT", key, [[A = { b:5 }]], descr)
+  assert(type(Id)=="userdata" and far.MacroDelete(Id))
+
+  Id = far.MacroAdd(area, "KMFLAGS_MOONSCRIPT", key, [[A = { b=5 }]], descr)
+  assert(not Id) -- bad code
+
+  Id = far.MacroAdd(area, nil, key, [[@c:\myscript 5+6,"foo"]], descr)
+  assert(type(Id)=="userdata" and far.MacroDelete(Id))
+
+  Id = far.MacroAdd(area, nil, key, [[@c:\myscript 5***6,"foo"]], descr)
+  assert(type(Id)=="userdata" and far.MacroDelete(Id)) -- with @ there is no syntax check till the macro runs
+
+  Id = far.MacroAdd(nil, nil, key, [[@c:\myscript]])
+  assert(type(Id)=="userdata" and far.MacroDelete(Id)) -- check default area (MACROAREA_COMMON)
+end
+
+local function test_far_MacroCheck()
+  assert(far.MacroCheck([[A = { b=5 }]]))
+  assert(far.MacroCheck([[A = { b=5 }]], "KMFLAGS_LUA"))
+
+  assert(not far.MacroCheck([[A = { b:5 }]], "KMFLAGS_SILENTCHECK"))
+
+  assert(far.MacroCheck([[A = { b:5 }]], "KMFLAGS_MOONSCRIPT"))
+
+  assert(not far.MacroCheck([[A = { b=5 }]], {KMFLAGS_MOONSCRIPT=1,KMFLAGS_SILENTCHECK=1} ))
+
+  WriteTmpFile [[A = { b=5 }]] -- valid Lua, invalid MoonScript
+  assert(far.MacroCheck("@"..TmpFileName, "KMFLAGS_LUA"))
+  assert(far.MacroCheck("@"..TmpFileName.." 5+6,'foo'", "KMFLAGS_LUA")) -- valid file arguments
+  assert(not far.MacroCheck("@"..TmpFileName.." 5***6,'foo'", "KMFLAGS_SILENTCHECK")) -- invalid file arguments
+  assert(not far.MacroCheck("@"..TmpFileName, {KMFLAGS_MOONSCRIPT=1,KMFLAGS_SILENTCHECK=1}))
+
+  WriteTmpFile [[A = { b:5 }]] -- invalid Lua, valid MoonScript
+  assert(not far.MacroCheck("@"..TmpFileName, "KMFLAGS_SILENTCHECK"))
+  assert(far.MacroCheck("@"..TmpFileName, "KMFLAGS_MOONSCRIPT"))
+
+  DeleteTmpFile()
+
+  assert(not far.MacroCheck([[@//////]], "KMFLAGS_SILENTCHECK"))
+end
+
 do
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
@@ -733,6 +796,8 @@ do
   test_XPanel(APanel)
   test_XPanel(PPanel)
   test_far_MacroExecute()
+  test_far_MacroAdd()
+  test_far_MacroCheck()
 
   far.Message("All tests OK", "LuaMacro")
 end

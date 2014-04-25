@@ -363,6 +363,7 @@ class KeyMacro::MacroRecord: NonCopyable
 {
 public:
 	MacroRecord():
+		m_lang(L"lua"),
 		m_flags(),
 		m_key(-1),
 		m_macroId(),
@@ -371,7 +372,8 @@ public:
 	{
 	}
 
-	MacroRecord(MACROFLAGS_MFLAGS Flags, int MacroId, int Key, const wchar_t* Code):
+	MacroRecord(const wchar_t* Lang, MACROFLAGS_MFLAGS Flags, int MacroId, int Key, const wchar_t* Code):
+		m_lang(Lang),
 		m_flags(Flags),
 		m_key(Key),
 		m_code(Code),
@@ -395,6 +397,7 @@ public:
 
 	void swap(MacroRecord& rhs) noexcept
 	{
+		std::swap(m_lang, rhs.m_lang);
 		std::swap(m_flags, rhs.m_flags);
 		std::swap(m_key, rhs.m_key);
 		m_code.swap(rhs.m_code);
@@ -415,6 +418,7 @@ public:
 private:
 	friend class KeyMacro;
 
+	const wchar_t* m_lang;         // Язык макропоследовательности
 	MACROFLAGS_MFLAGS m_flags;     // Флаги макропоследовательности
 	int m_key;                     // Назначенная клавиша
 	string m_code;                 // оригинальный "текст" макроса
@@ -634,15 +638,16 @@ KeyMacro::MacroRecord* KeyMacro::CheckCurMacro()
 		if (macro->GetHandle())
 			return macro;
 
-		FarMacroValue values[2] = {{FMVT_DOUBLE,{}},{FMVT_STRING,{}}};
-		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
+		FarMacroValue values[3] = {{FMVT_DOUBLE,{}},{FMVT_STRING,{}},{FMVT_STRING,{}}};
+		FarMacroCall fmc = {sizeof(FarMacroCall),2,values,nullptr,nullptr};
 		OpenMacroPluginInfo info = {MCT_MACROINIT,0,&fmc};
 
 		values[0].Double = macro->m_macroId;
+		values[1].String = macro->m_lang;
 		if (macro->m_macroId == 0)
 		{
-			fmc.Count = 2;
-			values[1].String = macro->Code().data();
+			fmc.Count = 3;
+			values[2].String = macro->Code().data();
 		}
 
 		if (CallMacroPlugin(&info))
@@ -749,31 +754,19 @@ bool KeyMacro::MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon)
 	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon,true);
 }
 
-void KeyMacro::LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags,
-	const string& Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
+void KeyMacro::LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code,
+	MACROFLAGS_MFLAGS Flags, const string& Description)
 {
-	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_INTEGER},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
+	FarMacroValue values[5]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_INTEGER},{FMVT_STRING}};
 
 	values[0].Double=Mode;
 	values[1].String=TextKey.data();
 	values[2].String=Code.data();
 	values[3].Integer=Flags;
 	values[4].String=Description.data();
-	if (Guid)
-	{
-		values[5].Binary.Data=const_cast<GUID*>(Guid);
-		values[5].Binary.Size=sizeof(GUID);
-	}
-	else
-	{
-		values[5].Type=FMVT_BOOLEAN;
-		values[5].Boolean=0;
-	}
-	values[6].Pointer=(void*)Callback;
-	values[7].Pointer=CallbackId;
 
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_PROCESSMACRO,0,&fmc};
+	OpenMacroPluginInfo info={MCT_RECORDEDMACRO,0,&fmc};
 	CallMacroPlugin(&info);
 }
 
@@ -835,7 +828,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
-						if (Data.MacroId && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey))
+						if (Data.MacroId && PostNewMacro(Data.MacroId, L"lua", Data.Code, Data.Flags, Rec->IntKey))
 						{
 							m_CurState->HistoryDisable = 0;
 							m_CurState->IntKey = Rec->IntKey;
@@ -883,7 +876,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					string strKey;
 					KeyToText(MacroKey, strKey);
 					Flags |= (m_Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
-					LM_ProcessMacro(StartMode,strKey,m_RecCode,Flags,m_RecDescription);
+					LM_ProcessRecordedMacro(StartMode,strKey,m_RecCode,Flags,m_RecDescription);
 				}
 
 				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_RecCode.data()); fclose(log);}}
@@ -1237,17 +1230,38 @@ void KeyMacro::RunStartMacro()
 	}
 }
 
-int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
+bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 {
+	FARMACROAREA Area = Data->Area==MACROAREA_COMMON ? MACROAREA_COMMON_INTERNAL : Data->Area;
 	if (Area < 0 || Area >= MACROAREA_LAST)
-		return FALSE;
+		return false;
 
 	string strKeyText;
-	if (!(InputRecordToText(&AKey, strKeyText) && ParseMacroString(PlainText,true,true)))
-		return FALSE;
+	const wchar_t* Lang = GetMacroLanguage(Data->Flags);
+	if (!InputRecordToText(&Data->AKey, strKeyText))
+		return false;
 
-	LM_ProcessMacro(Area,strKeyText,PlainText,Flags,Description,&PluginId,Callback,Id);
-	return TRUE;
+	MACROFLAGS_MFLAGS Flags = 0;
+	if (Data->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
+	if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
+
+	FarMacroValue values[9] = {{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},
+		{FMVT_INTEGER},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
+
+	values[0].Double = Area;
+	values[1].String = strKeyText.data();
+	values[2].String = Lang;
+	values[3].String = Data->SequenceText;
+	values[4].Integer = Flags;
+	values[5].String = Data->Description;
+	values[6].Binary.Data = const_cast<GUID*>(&PluginId);
+	values[6].Binary.Size = sizeof(GUID);
+	values[7].Pointer = (void*)Data->Callback;
+	values[8].Pointer = Data->Id;
+
+	FarMacroCall fmc = {sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info = {MCT_ADDMACRO,0,&fmc};
+	return CallMacroPlugin(&info);
 }
 
 int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
@@ -1262,11 +1276,11 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return CallMacroPlugin(&info) ? 1:0;
 }
 
-bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)
+bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)
 {
-	if (MacroId != 0 || ParseMacroString(PlainText, false, true))
+	if (MacroId != 0 || ParseMacroString(Lang, PlainText, false, true))
 	{
-		m_CurState->m_MacroQueue.emplace_back(MacroRecord(Flags, MacroId, AKey, PlainText));
+		m_CurState->m_MacroQueue.emplace_back(MacroRecord(Lang, Flags, MacroId, AKey, PlainText));
 		return true;
 	}
 	return false;
@@ -1458,7 +1472,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				LPCWSTR Sequence=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 				if (*Sequence)
 				{
-					if (ParseMacroString(Sequence,false,true))
+					if (ParseMacroString(L"lua",Sequence,false,true))
 					{
 						m_RecCode=Sequence;
 						m_RecDescription=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
@@ -1606,16 +1620,17 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	return TRUE;
 }
 
-bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool skipFile)
+bool KeyMacro::ParseMacroString(const wchar_t* lang, const wchar_t* Sequence, bool onlyCheck, bool skipFile)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[5]={{FMVT_STRING,{}},{FMVT_BOOLEAN,{}},{FMVT_BOOLEAN,{}},{FMVT_STRING,{}},{FMVT_STRING,{}}};
-	values[0].String=Sequence;
-	values[1].Boolean=onlyCheck?1:0;
-	values[2].Boolean=skipFile?1:0;
-	values[3].String=MSG(MMacroPErrorTitle);
-	values[4].String=MSG(MOk);
+	FarMacroValue values[6]={{FMVT_STRING,{}},{FMVT_STRING,{}},{FMVT_BOOLEAN,{}},{FMVT_BOOLEAN,{}},{FMVT_STRING,{}},{FMVT_STRING,{}}};
+	values[0].String=lang;
+	values[1].String=Sequence;
+	values[2].Boolean=onlyCheck?1:0;
+	values[3].Boolean=skipFile?1:0;
+	values[4].String=MSG(MMacroPErrorTitle);
+	values[5].String=MSG(MOk);
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_MACROPARSE,0,&fmc};
 
@@ -1643,9 +1658,9 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, bool onlyCheck, bool sk
 
 bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 {
-	FarMacroValue values[3]={{FMVT_STRING,{}},{FMVT_INTEGER,{}},{FMVT_ARRAY,{}}};
-	values[0].String = Data->SequenceText;
-	values[1].Integer = Data->Flags;
+	FarMacroValue values[3]={{FMVT_STRING,{}},{FMVT_STRING,{}},{FMVT_ARRAY,{}}};
+	values[0].String = GetMacroLanguage(Data->Flags);
+	values[1].String = Data->SequenceText;
 	values[2].Array.Count = Data->InCount;
 	values[2].Array.Values = Data->InValues;
 
@@ -2612,7 +2627,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					if (key != -1)
 						AKey = key;
 				}
-				Result = PostNewMacro(macroId, code, flags, AKey);
+				Result = PostNewMacro(macroId, L"lua", code, flags, AKey);
 			}
 			PassBoolean(Result?1:0, Data);
 			return 0;

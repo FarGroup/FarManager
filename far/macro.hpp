@@ -94,6 +94,16 @@ enum MACRORECORDANDEXECUTETYPE
 	MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
 };
 
+inline const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
+{
+	switch(Flags & KMFLAGS_LANGMASK)
+	{
+		default:
+		case KMFLAGS_LUA:        return L"lua";
+		case KMFLAGS_MOONSCRIPT: return L"moonscript";
+	}
+}
+
 struct MacroPanelSelect
 {
 	__int64 Index;
@@ -134,10 +144,10 @@ public:
 
 	bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 	void RunStartMacro();
-	int AddMacro(const wchar_t *PlainText,const wchar_t *Description, FARMACROAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
+	bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
 	int DelMacro(const GUID& PluginId,void* Id);
-	bool PostNewMacro(const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,PlainText,Flags,AKey); }
-	bool ParseMacroString(const wchar_t* Sequence,bool onlyCheck,bool skipFile);
+	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
+	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
 	bool ExecuteString(MacroExecuteString *Data);
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
@@ -161,11 +171,11 @@ private:
 	MacroRecord* GetTopMacro();
 	void RemoveCurMacro();
 	void RestoreMacroChar() const;
-	bool PostNewMacro(int macroId,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
+	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
 	void PushState(bool withClip);
 	void PopState(bool withClip);
 	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
-	void LM_ProcessMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
+	void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description);
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 
 	FARMACROAREA m_Mode;

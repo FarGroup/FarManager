@@ -3728,7 +3728,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CON
 			}
 			strSequence += L"\")";
 
-			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
+			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(L"lua", strSequence.data(), Flags);
 
 			return ret;
 		}

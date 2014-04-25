@@ -2031,17 +2031,18 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				MacroSendMacroText *Data=(MacroSendMacroText*)Param2;
 				if (CheckStructSize(Data) && Data->SequenceText)
 				{
+					const wchar_t* Lang = GetMacroLanguage(Data->Flags);
 					if (Param1==MSSC_POST)
 					{
 						UINT64 Flags = MFLAGS_POSTFROMPLUGIN;
 						if (Data->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
 						if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-						return Macro.PostNewMacro(Data->SequenceText,Flags,InputRecordToKey(&Data->AKey));
+						return Macro.PostNewMacro(Lang,Data->SequenceText,Flags,InputRecordToKey(&Data->AKey));
 					}
 					else if (Param1==MSSC_CHECK)
 					{
-						return Macro.ParseMacroString(Data->SequenceText,(Data->Flags&KMFLAGS_SILENTCHECK)!=0,false);
+						return Macro.ParseMacroString(Lang,Data->SequenceText,(Data->Flags&KMFLAGS_SILENTCHECK)!=0,false);
 					}
 				}
 				break;
@@ -2068,24 +2069,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 			case MCTL_ADDMACRO:
 			{
-				if (!Param2)
-					break;
-
-				MacroAddMacro *Data=(MacroAddMacro*)Param2;
-				MACROFLAGS_MFLAGS Flags = 0;
-
-				if (Data->Flags & KMFLAGS_ENABLEOUTPUT)
-					Flags |= MFLAGS_ENABLEOUTPUT;
-
-				if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS)
-					Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
-
+				MacroAddMacro *Data = (MacroAddMacro*)Param2;
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
-					if (Data->Area == MACROAREA_COMMON)
-						Data->Area=MACROAREA_COMMON_INTERNAL;
-
-					return Macro.AddMacro(Data->SequenceText,Data->Description,Data->Area,Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
+					return Macro.AddMacro(*PluginId,Data) ? 1:0;
 				}
 				break;
 			}

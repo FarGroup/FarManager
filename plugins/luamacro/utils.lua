@@ -43,12 +43,9 @@ local LoadMacrosDone
 local EnumState = {}
 local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
-
 local AddMacro_filename
-local AddMacro_fields = {"area","key","code","action","description","priority","condition","filemask"}
-local AddMacro_fields2 = {"guid","callback","callbackId"}
 
-package.nounload = {}
+package.nounload = { moonscript=true }
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
@@ -227,39 +224,49 @@ local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 8
 end
 
 local function AddMacro (srctable)
-  if type(srctable)~="table"
-    or type(srctable.area)~="string"
-    or type(srctable.key)~="string" then return
+  local macro = {}
+  if type(srctable)=="table" and type(srctable.area)=="string" and type(srctable.key)=="string" then
+    macro.area, macro.key = srctable.area, srctable.key
+  else
+    return
   end
 
   local keyregex = srctable.key:match("^/(.+)/$")
   if keyregex then
     if pcall(regex.new, keyregex) then
-      keyregex = regex.new("^("..keyregex..")$", "i")
+      macro.keyregex = regex.new("^("..keyregex..")$", "i")
     else
       ErrMsg("Invalid regex: "..srctable.key)
       return
     end
   end
 
-  if type(srctable.code)=="string" then
-    if srctable.code:sub(1,1) ~= "@" then
-      local f, msg = loadstring(srctable.code)
-      if not f then ErrMsg(msg) return end
+  if type(srctable.action)=="function" then
+    macro.action = srctable.action
+  elseif type(srctable.code)=="string" then
+    if srctable.code:sub(1,1) == "@" then
+      macro.code = srctable.code
+    else
+      local mscript = srctable.language=="moonscript"
+      local f, msg = (mscript and require("moonscript").loadstring or loadstring)(srctable.code)
+      if f then
+        macro.action = f
+      else
+        if AddMacro_filename then ErrMsg(msg, mscript and "MoonScript") end
+        return
+      end
     end
-  elseif type(srctable.action)~="function" then
+  else
     return
   end
 
-  local macro = {}
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
   for a in srctable.area:lower():gmatch("%S+") do
     local arTable = Areas[a]
     if arTable and not arFound[a] then
-      if keyregex then
+      if macro.keyregex then
         arTable[1] = arTable[1] or {}
         table.insert(arTable[1], macro)
-        macro.keyregex = keyregex
       else
         local keyFound = {} -- prevent multiple inclusions
         for k in srctable.key:lower():gmatch("%S+") do
@@ -279,20 +286,24 @@ local function AddMacro (srctable)
   end
 
   if next(arFound) then
-    for _,v in ipairs(AddMacro_fields) do macro[v]=srctable[v] end
+    macro.flags = StringToFlags(srctable.flags)
+
+    if type(srctable.description)=="string" then macro.description=srctable.description end
+    if type(srctable.condition)=="function" then macro.condition=srctable.condition end
+    if type(srctable.filemask)=="string" then macro.filemask=srctable.filemask end
+
+    local priority = srctable.priority
+    if type(priority)=="number" then
+      macro.priority = priority>100 and 100 or priority<0 and 0 or priority
+    end
+
     if AddMacro_filename then
       macro.FileName = AddMacro_filename
     else
-      for _,v in ipairs(AddMacro_fields2) do macro[v]=srctable[v] end
-    end
-
-    macro.flags = StringToFlags(srctable.flags)
-    if type(macro.description)~="string" then macro.description=nil end
-    if type(macro.condition)~="function" then macro.condition=nil end
-    if type(macro.filemask)~="string" then macro.filemask=nil end
-
-    if type(macro.priority)~="number" then macro.priority=nil
-    elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
+      macro.guid = srctable.guid
+      macro.callback = srctable.callback
+      macro.callbackId = srctable.callbackId
+      macro.language = srctable.language
     end
 
     macro.id = #LoadedMacros+1
@@ -453,10 +464,10 @@ local function LoadMacros (allAreas, unload)
       if macroinit_done and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
         return
       end
-      local loadfunc = string.sub(FullPath,-4):lower()==".lua" and loadfile or moonscript.loadfile
-      local f, msg = loadfunc(FullPath)
+      local isMoonScript = string.find(FullPath, "[nN]", -1)
+      local f, msg = (isMoonScript and moonscript.loadfile or loadfile)(FullPath)
       if not f then
-        numerrors=numerrors+1; ErrMsg(msg); return
+        numerrors=numerrors+1; ErrMsg(msg,isMoonScript and "MoonScript"); return
       end
       local env = isStationary and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
       if isStationary then setmetatable(env,gmeta) end
@@ -693,8 +704,9 @@ local function GetMacroWrapper (...)
   end
 end
 
-local function ProcessRecordedMacro (Area, Key, code, flags, description)
-  local area, key = Area:lower(), Key:lower()
+local function ProcessRecordedMacro (Mode, Key, code, flags, description)
+  local area = GetTrueAreaName(Mode):lower()
+  local key = Key:lower()
 
   local keys,numkeys = ExpandKey(Key)
 
@@ -726,18 +738,15 @@ local function ProcessRecordedMacro (Area, Key, code, flags, description)
   end
 end
 
-local function ProcessMacroFromFAR (mode, key, code, flags, description, guid, callback, callbackId)
+local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid, callback, callbackId)
   local area = GetTrueAreaName(mode)
-  if guid then -- MCTL_ADDMACRO
-     -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
-    local fname = AddMacro_filename
-    AddMacro_filename = nil
-    AddMacro { area=area, key=key, code=code, flags=flags, description=description,
-               guid=guid, callback=callback, callbackId=callbackId }
-    AddMacro_filename = fname
-  else
-    ProcessRecordedMacro(area, key, code, flags, description)
-  end
+  -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
+  local fname = AddMacro_filename
+  AddMacro_filename = nil
+  local res = AddMacro { area=area, key=key, code=code, flags=flags, description=description,
+                         guid=guid, callback=callback, callbackId=callbackId, language=lang }
+  AddMacro_filename = fname
+  return not not res
 end
 
 local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
@@ -806,7 +815,8 @@ return {
   GetMacroWrapper = GetMacroWrapper,
   GetTrueAreaName = GetTrueAreaName,
   LoadMacros = LoadMacros,
-  ProcessMacroFromFAR = ProcessMacroFromFAR,
+  ProcessRecordedMacro = ProcessRecordedMacro,
+  AddMacroFromFAR = AddMacroFromFAR,
   RunStartMacro = RunStartMacro,
   UnloadMacros = InitMacroSystem,
   WriteMacros = WriteMacros,

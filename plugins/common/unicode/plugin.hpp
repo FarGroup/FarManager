@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3856
+  Plugin API for Far Manager 3.0 build 3877
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3856
+#define FARMANAGERVERSION_BUILD 3877
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1029,9 +1029,11 @@ enum FAR_MACRO_CONTROL_COMMANDS
 typedef unsigned __int64 FARKEYMACROFLAGS;
 static const FARKEYMACROFLAGS
 	KMFLAGS_SILENTCHECK         = 0x0000000000000001,
-	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001, // this flag is ignored, don't use it in new projects.
 	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
 	KMFLAGS_ENABLEOUTPUT        = 0x0000000000000004,
+	KMFLAGS_LANGMASK            = 0x0000000000000070, // 3 bits reserved for 8 languages
+	KMFLAGS_LUA                 = 0x0000000000000000,
+	KMFLAGS_MOONSCRIPT          = 0x0000000000000010,
 	KMFLAGS_NONE                = 0;
 
 enum FARMACROSENDSTRINGCOMMAND
@@ -2473,12 +2475,13 @@ enum MACROCALLTYPE
 	MCT_ENUMMACROS         = 5,
 	MCT_WRITEMACROS        = 6,
 	MCT_GETMACRO           = 7,
-	MCT_PROCESSMACRO       = 8,
+	MCT_RECORDEDMACRO      = 8,
 	MCT_DELMACRO           = 9,
 	MCT_RUNSTARTMACRO      = 10,
 	MCT_EXECSTRING         = 11,
 	MCT_PANELSORT          = 12,
 	MCT_GETCUSTOMSORTMODES = 13,
+	MCT_ADDMACRO           = 14,
 };
 
 enum MACROPLUGINRETURNTYPE

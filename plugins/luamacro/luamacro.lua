@@ -39,7 +39,7 @@ function coroutine.resume(co, ...)
   return unpack(t, 1, t.n)
 end
 
-local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "wl") end
+local ErrMsg = function(msg,title) far.Message(msg,title or "LuaMacro",nil,"wl") end
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -109,19 +109,24 @@ local function SplitMacroString (Text)
   assert(not c4, "Invalid macrosequence specification")
 end
 
-local function loadmacro (Text, Env)
+local function loadmacro (Lang, Text, Env)
   local f1,f2,msg
   local fname,params = SplitMacroString(Text)
+  local _loadstring, _loadfile = loadstring, loadfile
+  if Lang == "moonscript" then
+    local ms = require "moonscript"
+    _loadstring, _loadfile = ms.loadstring, ms.loadfile
+  end
 
   if fname then
     fname = ExpandEnv(fname)
     if params then
-      f2,msg = loadstring("return "..params)
+      f2,msg = _loadstring("return "..params)
       if not f2 then return nil,msg end
     end
-    f1,msg = loadfile(fname)
+    f1,msg = _loadfile(fname)
   else
-    f1,msg = loadstring(Text)
+    f1,msg = _loadstring(Text)
   end
 
   if f1 then
@@ -143,10 +148,10 @@ local function postmacro (f, ...)
   return false
 end
 
-local function MacroInit (Id, Text)
+local function MacroInit (Id, Lang, Text)
   local chunk, params
   if Id == 0 then -- Id==0 может быть только для "одноразовых" макросов, запускаемых посредством MSSC_POST.
-    chunk, params = loadmacro(Text)
+    chunk, params = loadmacro(Lang, Text)
   elseif Id < 0 then -- Id<0 может быть только для макросов, запускаемых посредством mf.postmacro.
     local mtable = PostedMacros[-Id]
     PostedMacros[-Id] = false
@@ -156,7 +161,7 @@ local function MacroInit (Id, Text)
     local mtable = utils.GetMacroById(Id)
     if mtable then
       chunk = mtable.action
-      if not chunk then chunk, params = loadmacro(mtable.code) end
+      if not chunk then chunk, params = loadmacro(Lang, mtable.code) end
     end
   end
   if chunk then
@@ -224,10 +229,10 @@ local function MacroFinal (handle)
   end
 end
 
-local function MacroParse (text, onlyCheck, skipFile, title, buttons)
+local function MacroParse (lang, text, onlyCheck, skipFile, title, buttons)
   local isFile = string.sub(text,1,1) == "@"
   if not (isFile and skipFile) then
-    local chunk, msg = loadmacro(text)
+    local chunk, msg = loadmacro(lang, text)
     if not chunk then
       if not onlyCheck then
         far.Message(msg, title, buttons, "lw")
@@ -242,9 +247,9 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
   return F.MPRT_NORMALFINISH
 end
 
-local function ExecString (text, flags, params)
+local function ExecString (lang, text, params)
   if type(text)=="string" then
-    local chunk, msg = loadmacro(text)
+    local chunk, msg = loadmacro(lang, text)
     if chunk then
       TableExecString = pack(chunk(unpack(params,1,params.n)))
       return F.MPRT_NORMALFINISH, TableExecString
@@ -289,10 +294,11 @@ function export.Open (OpenFrom, arg1, arg2, ...)
     elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
     elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
     elseif calltype==F.MCT_LOADMACROS     then return utils.LoadMacros(...)
-    elseif calltype==F.MCT_PROCESSMACRO   then return utils.ProcessMacroFromFAR(...)
+    elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
     elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
+    elseif calltype==F.MCT_ADDMACRO       then return utils.AddMacroFromFAR(...)
     elseif calltype==F.MCT_PANELSORT      then
       if panelsort then
         TablePanelSort = { panelsort.SortPanelItems(...) }
