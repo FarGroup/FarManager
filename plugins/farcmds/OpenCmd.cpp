@@ -795,7 +795,7 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 
 								if (SequenceText)
 								{
-									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, {0}, SequenceText};
+									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_NONE, {0}, SequenceText};
 
 									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, &mcmd))
 									{
