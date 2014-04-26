@@ -1492,11 +1492,11 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3607110878
+mtime=3607713609
 <article>
 #_<markdown>
 #_
-#_* Regular macros and [event handlers][events] are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. (Further we will call these files *macrofiles*). The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
+#_* Regular macros and [event handlers][events] are loaded from Lua-files (extension `*.lua`) and/or MoonScript files (extension `*.moon`), residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories. (Further we will call these files *macrofiles*). The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
 #_
 #_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
 #_
