@@ -828,7 +828,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
-						if (Data.MacroId && PostNewMacro(Data.MacroId, L"lua", Data.Code, Data.Flags, Rec->IntKey))
+						if (Data.MacroId && PostNewMacro(Data.MacroId, L"unknown", Data.Code, Data.Flags, Rec->IntKey))
 						{
 							m_CurState->HistoryDisable = 0;
 							m_CurState->IntKey = Rec->IntKey;

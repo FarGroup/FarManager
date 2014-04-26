@@ -30,6 +30,9 @@ local list = {
   -- custom panel sort
   "PSDefaultMenuItemText",
   "PSMenuTitle",
+
+  -- command line
+  "CL_UnsupportedCommand",
 }
 
 local GetMsg = far.GetMsg

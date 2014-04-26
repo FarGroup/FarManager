@@ -707,22 +707,26 @@ local function test_Plugin() -- Plugin.Call, Plugin.SyncCall: test arguments and
 end
 
 local function test_far_MacroExecute()
-  local t = far.MacroExecute("return ...", nil,
-    "foo",
-    false,
-    5,
-    nil,
-    bit64.new("0x8765876587658765"),
-    {"bar"})
-  assert(
-    type(t) == "table"  and
-    t.n  == 6           and
-    t[1] == "foo"       and
-    t[2] == false       and
-    t[3] == 5           and
-    t[4] == nil         and
-    t[5] == bit64.new("0x8765876587658765") and
-    type(t[6])=="table" and t[6][1]=="bar")
+  local function test(code, flags)
+    local t = far.MacroExecute(code, flags,
+      "foo",
+      false,
+      5,
+      nil,
+      bit64.new("0x8765876587658765"),
+      {"bar"})
+    assert(type(t) == "table")
+    assert(t.n  == 6)
+    assert(t[1] == "foo")
+    assert(t[2] == false)
+    assert(t[3] == 5)
+    assert(t[4] == nil)
+    assert(t[5] == bit64.new("0x8765876587658765"))
+    assert(type(t[6])=="table" and t[6][1]=="bar")
+  end
+  test("return ...", nil)
+  test("return ...", "KMFLAGS_LUA")
+  test("...", "KMFLAGS_MOONSCRIPT")
 end
 
 local function test_far_MacroAdd()
@@ -772,7 +776,6 @@ local function test_far_MacroCheck()
   WriteTmpFile [[A = { b:5 }]] -- invalid Lua, valid MoonScript
   assert(not far.MacroCheck("@"..TmpFileName, "KMFLAGS_SILENTCHECK"))
   assert(far.MacroCheck("@"..TmpFileName, "KMFLAGS_MOONSCRIPT"))
-
   DeleteTmpFile()
 
   assert(not far.MacroCheck([[@//////]], "KMFLAGS_SILENTCHECK"))
@@ -799,5 +802,6 @@ do
   test_far_MacroAdd()
   test_far_MacroCheck()
 
-  far.Message("All tests OK", "LuaMacro")
+  --far.Message("All tests OK", "LuaMacro")
+  far.MacroPost([[far.Message "All tests OK", "LuaMacro"]], "KMFLAGS_MOONSCRIPT")
 end

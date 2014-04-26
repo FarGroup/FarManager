@@ -37,7 +37,24 @@ struct MacroExecuteString
   <div class=dfn>StructSize</div>
     <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroExecuteString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (на данный момент флагов нет, установите в ноль).</div>
+    <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>, используются только KMFLAGS_LUA и KMFLAGS_MOONSCRIPT):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_ENABLEOUTPUT">KMFLAGS_ENABLEOUTPUT</a></td>
+    <td class="cont" width="60%">Отображать на экране результат работы каждой клавиши.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NOSENDKEYSTOPLUGINS">KMFLAGS_NOSENDKEYSTOPLUGINS</a></td>
+    <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
+    <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_LANGMASK">KMFLAGS_LANGMASK</a></td>
+    <td class="cont" width="60%">Трёхбитовая область, в которой задаётся язык макропоследовательности.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_LUA">KMFLAGS_LUA</a></td>
+    <td class="cont" width="60%">Язык макропоследовательности - Lua (значение по умолчанию).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_MOONSCRIPT">KMFLAGS_MOONSCRIPT</a></td>
+    <td class="cont" width="60%">Язык макропоследовательности - MoonScript.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
   <div class=dfn>SequenceText</div>
     <div class=dfndescr>Скрипт в текстовом виде. Если начинается символом <code>@</code>, то последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
   <div class=dfn>InCount</div>

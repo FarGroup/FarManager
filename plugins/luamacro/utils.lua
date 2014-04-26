@@ -244,15 +244,16 @@ local function AddMacro (srctable)
   if type(srctable.action)=="function" then
     macro.action = srctable.action
   elseif type(srctable.code)=="string" then
+    local isMoonScript = srctable.language=="moonscript"
     if srctable.code:sub(1,1) == "@" then
       macro.code = srctable.code
+      macro.language = isMoonScript and "moonscript" or "lua"
     else
-      local mscript = srctable.language=="moonscript"
-      local f, msg = (mscript and require("moonscript").loadstring or loadstring)(srctable.code)
+      local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
       if f then
         macro.action = f
       else
-        if AddMacro_filename then ErrMsg(msg, mscript and "MoonScript") end
+        if AddMacro_filename then ErrMsg(msg, isMoonScript and "MoonScript") end
         return
       end
     end
@@ -705,8 +706,8 @@ local function GetMacroWrapper (...)
 end
 
 local function ProcessRecordedMacro (Mode, Key, code, flags, description)
-  local area = GetTrueAreaName(Mode):lower()
-  local key = Key:lower()
+  local Area = GetTrueAreaName(Mode)
+  local area, key = Area:lower(), Key:lower()
 
   local keys,numkeys = ExpandKey(Key)
 

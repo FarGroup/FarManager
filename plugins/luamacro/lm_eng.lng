@@ -31,3 +31,6 @@
 // custom panel sort
 "Sort mode "
 "Custom panel sort"
+
+// command line
+"Unsupported command: "

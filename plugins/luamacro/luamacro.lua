@@ -161,7 +161,9 @@ local function MacroInit (Id, Lang, Text)
     local mtable = utils.GetMacroById(Id)
     if mtable then
       chunk = mtable.action
-      if not chunk then chunk, params = loadmacro(Lang, mtable.code) end
+      if not chunk then
+        chunk, params = loadmacro(mtable.language or Lang, mtable.code)
+      end
     end
   end
   if chunk then
@@ -264,21 +266,27 @@ end
 local function ProcessCommandLine (CmdLine)
   local op, text = CmdLine:match("(%S+)%s*(.-)%s*$")
   if op then
-    local op = op:lower()
-    if op=="post" and text~="" then
-      local fname, params = SplitMacroString(text)
-      if fname then
-        fname = ExpandEnv(fname)
-        fname = far.ConvertPath(fname, F.CPM_NATIVE)
-        if fname:find("%s") then fname = '"'..fname..'"' end
-        text = "@"..fname
-        if params then text = text.." "..params end
+    op = op:lower()
+    if op=="post" or op=="post2" then
+      if text~="" then
+        local fname, params = SplitMacroString(text)
+        if fname then
+          fname = ExpandEnv(fname)
+          fname = far.ConvertPath(fname, F.CPM_NATIVE)
+          if fname:find("%s") then fname = '"'..fname..'"' end
+          text = "@"..fname
+          if params then text = text.." "..params end
+        end
+        far.MacroPost(text, op=="post" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
       end
-      far.MacroPost(text)
-    elseif op=="check" and text~="" then far.MacroCheck(text)
+    elseif op=="check" or op=="check2" then
+      if text~="" then
+        far.MacroCheck(text, op=="check" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
+      end
     elseif op=="load" then far.MacroLoadAll()
     elseif op=="save" then utils.WriteMacros()
     elseif op=="unload" then utils.UnloadMacros()
+    else ErrMsg(M.CL_UnsupportedCommand .. op)
     end
   end
 end

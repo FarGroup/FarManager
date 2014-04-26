@@ -1282,7 +1282,7 @@ struct FarGetValue
 struct MacroExecuteString
 {
 	size_t StructSize;
-	unsigned __int64 Flags;
+	FARKEYMACROFLAGS Flags;
 	const wchar_t *SequenceText;
 	size_t InCount;
 	struct FarMacroValue *InValues;

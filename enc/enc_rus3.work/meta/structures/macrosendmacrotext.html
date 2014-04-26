@@ -43,6 +43,12 @@ struct MacroSendMacroText
     <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
     <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_LANGMASK">KMFLAGS_LANGMASK</a></td>
+    <td class="cont" width="60%">Трёхбитовая область, в которой задаётся язык макропоследовательности.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_LUA">KMFLAGS_LUA</a></td>
+    <td class="cont" width="60%">Язык макропоследовательности - Lua (значение по умолчанию).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_MOONSCRIPT">KMFLAGS_MOONSCRIPT</a></td>
+    <td class="cont" width="60%">Язык макропоследовательности - MoonScript.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
     <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table></div>
@@ -55,7 +61,7 @@ struct MacroSendMacroText
           <code>@&lt;имя файла-скрипта&gt; [&lt;параметры скрипта&gt;]</code>
       <ul>
       <li>В имени файла допустимо использование переменных окружения.
-      <li>Опциональные параметры скрипта представляют список Lua-выражений, разделённых запятыми.
+      <li>Опциональные параметры скрипта представляют список выражений, разделённых запятыми. Выражения должны использовать тот же язык программирования, что и скрипт.
       <li>Пример: <code>@%MyFarScripts%\calc.lua 'factorial', 3+5</code>
       </ul>
     </div>

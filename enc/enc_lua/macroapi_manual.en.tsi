@@ -1686,7 +1686,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607111115
+mtime=3607694593
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
@@ -1698,17 +1698,22 @@ mtime=3607111115
 #_### Command line operations (prefix LM)
 #_        lm: load
 #_        lm: save
-#_        lm: post  <sequence> | @<filename> [<params>]
-#_        lm: check <sequence> | @<filename> [<params>]
+#_        lm: post   <sequence> | @<filename> [<params>]
+#_        lm: post2  <sequence> | @<filename> [<params>]
+#_        lm: check  <sequence> | @<filename> [<params>]
+#_        lm: check2 <sequence> | @<filename> [<params>]
 #_        lm: unload
 #_
 #_These operations are the same as operations `macro:` of `FarCmds` plugin, with the following differences:
 #_
+#_1. Commands `post2` and `check2` assume use of MoonScript rather than Lua.
 #_1. File name should be specified immediately after the `@` character; the `<` character
 #_   is not supported.
-#_1. The global (within the environment of the script) variable `_filename` contains the file name.
+#_1. The global (within the environment of the script) variable `_filename` contains
+#_   the file name.
 #_1. For passing parameters to the script they should be specified after file name separated
-#_   with whitespace. Parameters are the sequence of Lua expressions delimited with commas.
+#_   with whitespace. Parameters are the sequence of expressions delimited with commas.
+#_   The expressions must be in the same programming language as the script.
 #_1. `lm:unload` - unloads all macros, except those created with `MCTL_ADDMACRO` operation.
 #_
 #_@@@
