@@ -84,8 +84,8 @@ end
 -------------------------------------------------------------------------------
 
 local PluginInfo = {
-  Flags = bor(F.PF_PRELOAD,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-  CommandPrefix = "lm",
+  Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
+  CommandPrefix = "lm:lua:moon:luacheck:mooncheck",
   PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
   PluginMenuStrings = { "Macro Browser" },
 }
@@ -264,31 +264,32 @@ local function ExecString (lang, text, params)
 end
 
 local function ProcessCommandLine (CmdLine)
-  local op, text = CmdLine:match("(%S+)%s*(.-)%s*$")
-  if op then
-    op = op:lower()
-    if op=="post" or op=="post2" then
-      if text~="" then
-        local fname, params = SplitMacroString(text)
-        if fname then
-          fname = ExpandEnv(fname)
-          fname = far.ConvertPath(fname, F.CPM_NATIVE)
-          if fname:find("%s") then fname = '"'..fname..'"' end
-          text = "@"..fname
-          if params then text = text.." "..params end
-        end
-        far.MacroPost(text, op=="post" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
+  local op, text = CmdLine:match("%s*(%w+:)%s*(.-)%s*$")
+  op = op:lower()
+  if op == "lm:" then
+    text = regex.match(text:lower(), "^(\\w+)(?:\\s|$)")
+    if text == "load" then far.MacroLoadAll()
+    elseif text == "save" then utils.WriteMacros()
+    elseif text == "unload" then utils.UnloadMacros()
+    end
+  elseif op == "lua:" or op == "moon:" then
+    if text~="" then
+      local fname, params = SplitMacroString(text)
+      if fname then
+        fname = ExpandEnv(fname)
+        fname = far.ConvertPath(fname, F.CPM_NATIVE)
+        if fname:find("%s") then fname = '"'..fname..'"' end
+        text = "@"..fname
+        if params then text = text.." "..params end
       end
-    elseif op=="check" or op=="check2" then
-      if text~="" then
-        far.MacroCheck(text, op=="check" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
-      end
-    elseif op=="load" then far.MacroLoadAll()
-    elseif op=="save" then utils.WriteMacros()
-    elseif op=="unload" then utils.UnloadMacros()
-    else ErrMsg(M.CL_UnsupportedCommand .. op)
+      far.MacroPost(text, op=="lua:" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
+    end
+  elseif op == "luacheck:" or op=="mooncheck:" then
+    if text~="" then
+      far.MacroCheck(text, op=="luacheck:" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
     end
   end
+--    else ErrMsg(M.CL_UnsupportedCommand .. op)
 end
 
 function export.Open (OpenFrom, arg1, arg2, ...)

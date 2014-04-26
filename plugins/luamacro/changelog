@@ -1,4 +1,16 @@
-﻿shmuel 26.04.2014 17:56:39 +0200 - build 315
+﻿shmuel 27.04.2014 01:33:41 +0200 - build 316
+
+1. Новый синтаксис командной строки плагина:
+       lm:        load
+       lm:        save
+       lm:        unload
+       lua:       <sequence> | @<filename> [<params>]
+       moon:      <sequence> | @<filename> [<params>]
+       luacheck:  <sequence> | @<filename> [<params>]
+       mooncheck: <sequence> | @<filename> [<params>]
+   Документация ещё не обновлена.
+
+shmuel 26.04.2014 17:56:39 +0200 - build 315
 
 1. Продолжение 314, документация обновлена:
    -- команды lm:post2 и lm:check2 в плагине LuaMacro.
