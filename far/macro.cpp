@@ -639,14 +639,14 @@ KeyMacro::MacroRecord* KeyMacro::CheckCurMacro()
 			return macro;
 
 		FarMacroValue values[3] = {{FMVT_DOUBLE,{}},{FMVT_STRING,{}},{FMVT_STRING,{}}};
-		FarMacroCall fmc = {sizeof(FarMacroCall),2,values,nullptr,nullptr};
+		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
 		OpenMacroPluginInfo info = {MCT_MACROINIT,0,&fmc};
 
 		values[0].Double = macro->m_macroId;
-		values[1].String = macro->m_lang;
 		if (macro->m_macroId == 0)
 		{
 			fmc.Count = 3;
+			values[1].String = macro->m_lang;
 			values[2].String = macro->Code().data();
 		}
 
@@ -1028,12 +1028,14 @@ int KeyMacro::GetKey()
 	while ((macro=CheckCurMacro()) != nullptr)
 	{
 		FarMacroCall fmc = { sizeof(FarMacroCall),1,macro->GetValue(),nullptr,nullptr };
-		OpenMacroPluginInfo ompInfo = { MCT_MACROSTEP,macro->GetHandle(),&fmc };
+		OpenMacroPluginInfo ompInfo = { MCT_MACROSTEP,macro->GetHandle(),nullptr };
 		if (macro->GetValue()->Type == FMVT_POINTER)
 			ompInfo.Data = (FarMacroCall*)macro->GetValue()->Pointer;
+		else if (macro->GetValue()->Type == FMVT_BOOLEAN)
+			ompInfo.Data = &fmc;
 
 		MacroPluginReturn* mpr = CallMacroPlugin(&ompInfo) ? &ompInfo.Ret : nullptr;
-		macro->SetBooleanValue(0);
+		macro->GetValue()->Type = FMVT_UNKNOWN;
 
 		switch (mpr ? mpr->ReturnType : MPRT_ERRORFINISH)
 		{
@@ -1237,7 +1239,6 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 		return false;
 
 	string strKeyText;
-	const wchar_t* Lang = GetMacroLanguage(Data->Flags);
 	if (!InputRecordToText(&Data->AKey, strKeyText))
 		return false;
 
@@ -1250,7 +1251,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 
 	values[0].Double = Area;
 	values[1].String = strKeyText.data();
-	values[2].String = Lang;
+	values[2].String = GetMacroLanguage(Data->Flags);
 	values[3].String = Data->SequenceText;
 	values[4].Integer = Flags;
 	values[5].String = Data->Description;
@@ -1264,7 +1265,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 	return CallMacroPlugin(&info);
 }
 
-int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
+bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 {
 	FarMacroValue values[2]={{FMVT_BINARY},{FMVT_POINTER}};
 	values[0].Binary.Data=const_cast<GUID*>(&PluginId);
@@ -1273,7 +1274,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_DELMACRO,0,&fmc};
-	return CallMacroPlugin(&info) ? 1:0;
+	return CallMacroPlugin(&info);
 }
 
 bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)

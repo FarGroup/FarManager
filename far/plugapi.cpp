@@ -2079,7 +2079,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 			case MCTL_DELMACRO:
 			{
-				return Macro.DelMacro(*PluginId,Param2);
+				return Macro.DelMacro(*PluginId,Param2) ? 1:0;
 			}
 
 			//Param1=size of buffer, Param2 - MacroParseResult*

@@ -145,7 +145,7 @@ public:
 	bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
 	void RunStartMacro();
 	bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
-	int DelMacro(const GUID& PluginId,void* Id);
+	bool DelMacro(const GUID& PluginId,void* Id);
 	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
 	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
 	bool ExecuteString(MacroExecuteString *Data);
