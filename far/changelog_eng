@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 26.04.2014 17:43:33 +0200 - build 3879
+
+1. Continuation of 3878, docs updated:
+   -- "language" flags in FARKEYMACROFLAGS (MacroSendMacroText, MacroAddMacro, MacroExecuteString structures).
+   -- commands lm:post2 and lm:check2 in LuaMacro plugin.
+
+shmuel 25.04.2014 21:32:52 +0200 - build 3878
+
+1. Support for MoonScript in plugins API (docs are not updated yet).
+
+svs 23.04.2014 14:14:46 +0400 - build 3877
+
+1. Attempt to leave a network share with .. to servers level invokes Emenu's context menu.
+   http://forum.farmanager.com/viewtopic.php?p=118299#p118299
+
+drkns 22.04.2014 22:16:51 +0200 - build 3876
+
+1. Editor.FileSizeLimitHi parameter is removed.
+
+2. GUIDs of luamacro, arclite, netbox moved to config.
+
+svs 22.04.2014 18:52:29 +0400 - build 3875
+
+1. Mantis#0002651: TechInfo #52: Saved???/HistoryCount
+
+2. Crash if the size of System.ShowStatusInfo configuration string is less than the number of sections in InfoPanel
+
 drkns 20.04.2014 17:14:22 +0200 - build 3874
 
 1. Refactoring.
