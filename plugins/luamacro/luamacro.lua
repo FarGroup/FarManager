@@ -267,10 +267,13 @@ local function ProcessCommandLine (CmdLine)
   local op, text = CmdLine:match("%s*(%w+:)%s*(.-)%s*$")
   op = op:lower()
   if op == "lm:" then
-    text = regex.match(text:lower(), "^(\\w+)(?:\\s|$)")
-    if text == "load" then far.MacroLoadAll()
-    elseif text == "save" then utils.WriteMacros()
-    elseif text == "unload" then utils.UnloadMacros()
+    if text ~= "" then
+      text = regex.match(text:lower(), "^(\\w+)(?:\\s|$)")
+      if text == "load" then far.MacroLoadAll()
+      elseif text == "save" then utils.WriteMacros()
+      elseif text == "unload" then utils.UnloadMacros()
+      else ErrMsg(M.CL_UnsupportedCommand .. text)
+      end
     end
   elseif op == "lua:" or op == "moon:" then
     if text~="" then
@@ -289,7 +292,6 @@ local function ProcessCommandLine (CmdLine)
       far.MacroCheck(text, op=="luacheck:" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
     end
   end
---    else ErrMsg(M.CL_UnsupportedCommand .. op)
 end
 
 function export.Open (OpenFrom, arg1, arg2, ...)
