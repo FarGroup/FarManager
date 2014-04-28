@@ -1696,7 +1696,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607861549
+mtime=3607876199
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
@@ -1707,8 +1707,11 @@ mtime=3607861549
 #_
 #_### Command line operations
 #_
+#_* `lm: load`
 #_* `macro: load`<br> (Re)load macros and event handlers.
+#_* `lm: save`
 #_* `macro: save`<br> Save the created or modified [keyboard][1] macros.
+#_* `lm: unload`
 #_* `macro: unload`<br> Unload macros (except those created with operation `MCTL_ADDMACRO`)
 #_   and event handlers.
 #_* `lua: <code>`
