@@ -1649,7 +1649,7 @@ void Dialog::ShowDialog(size_t ID)
 					    (Items[I].Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
 				}
 
-				if (!Items[I].strData.empty() && IsDrawTitle)
+				if (!Items[I].strData.empty() && IsDrawTitle && CW > 2)
 				{
 					//  ! Пусть диалог сам заботится о ширине собственного заголовка.
 					strStr = Items[I].strData;

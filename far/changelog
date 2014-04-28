@@ -1,4 +1,21 @@
-﻿shmuel 28.04.2014 00:58:52 +0200 - build 3880
+﻿svs 28.04.2014 15:11:54 +0400 - build 3881
+
+1. Mantis#0002663: Far падает, если показать модальный диалог из обработчика события viewer'а VE_Read
+     FileViewer::Init(...NamesList *ViewNamesList,..)
+     {
+     ...
+     (1) if (!View.OpenFile(strName,TRUE))
+     ...
+         if (ViewNamesList)
+     (2)    View.SetNamesList(*ViewNamesList);
+
+     В (1) ViewNamesList еще живой. В (2) уже мертвяк.
+     После чего идет трап.
+
+2. Трап, если в DI_*BOX указан X1==X2==0 и есть заголовок.
+
+
+shmuel 28.04.2014 00:58:52 +0200 - build 3880
 
 1. Уточнение build 3770:
    lua:far.Show(...) показывал один аргумент (nil), а должен показывать отсутствие аргументов.

@@ -139,6 +139,12 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 	SaveToSaveAs=ToSaveAs;
 	InitKeyBar();
 
+	if (ViewStartPos != -1)
+		View.SetFilePos(ViewStartPos);
+
+	if (ViewNamesList)
+		View.SetNamesList(*ViewNamesList);
+
 	if (!View.OpenFile(strName,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
 	{
 		DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
@@ -147,12 +153,6 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 		Global->CtrlObject->Macro.SetMode(OldMacroMode);
 		return;
 	}
-
-	if (ViewStartPos!=-1)
-		View.SetFilePos(ViewStartPos);
-
-	if (ViewNamesList)
-		View.SetNamesList(*ViewNamesList);
 
 	ExitCode=TRUE;
 	ViewKeyBar.Show();
