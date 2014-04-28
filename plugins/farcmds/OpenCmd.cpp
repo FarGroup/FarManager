@@ -441,7 +441,7 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 {
 	if (!_farcmd) return FALSE;
 
-	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, Load=0,Unload=0;
+	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Link=0,Run=0, Load=0,Unload=0;
 	size_t PrefIdx=static_cast<size_t>(-1);
 	struct
 	{
@@ -467,9 +467,6 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 		// goto:[<separator>]<object>
 		// goto<separator><object>
 		{Goto,L"GOTO",L"Goto"},
-		// macro:[<separator>]<object>
-		// macro<separator><object>
-		{Macro,L"MACRO",L"Macro"},
 		// link:[<separator>][<op>]<separator><source><separator><dest>
 		// link<separator>[<op>]<separator><source><separator><dest>
 		{Link,L"LINK",L"Link"},
@@ -522,7 +519,7 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 
 		// farcmd = [[<options>]<separator>]<object>
 		// farcmd = [<separator>]<object>
-		if (View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||Load||Unload)
+		if (View||Edit||Goto||Clip||WhereIs||Link||Run||Load||Unload)
 		{
 			int SeparatorLen=lstrlen(Opt.Separator);
 			wchar_t *cBracket=NULL, runFile[MAX_PATH]=L"";
@@ -721,93 +718,6 @@ int OpenFromCommandLine(const wchar_t *_farcmd)
 									RegCloseKey(hKey);
 									break;
 								}
-							}
-						}
-					}
-					else if (Macro)
-					{
-						int command=-1;
-						int subcommand=0;
-
-						if (!FSF.LStrnicmp(pCmd,L"LOAD",lstrlen(pCmd)))
-						{
-							command=MCTL_LOADALL;
-						}
-						else if (!FSF.LStrnicmp(pCmd,L"SAVE",lstrlen(pCmd)))
-						{
-							command=MCTL_SAVEALL;
-						}
-						else if (!FSF.LStrnicmp(pCmd,L"CHECK",5))
-						{
-							command=MCTL_SENDSTRING;
-							subcommand=MSSC_CHECK;
-							pCmd+=5;
-						}
-						else if (!FSF.LStrnicmp(pCmd,L"POST",4))
-						{
-							command=MCTL_SENDSTRING;
-							subcommand=MSSC_POST;
-							pCmd+=4;
-						}
-
-						switch(command)
-						{
-							case MCTL_SAVEALL:
-							case MCTL_LOADALL:
-								Info.MacroControl(NULL,(FAR_MACRO_CONTROL_COMMANDS)command,0,0);
-								break;
-							case MCTL_SENDSTRING:
-							{
-								wchar_t *SequenceText=NULL;
-								wchar_t *Ptr=NULL;
-								bool fromFile=false;
-
-								FSF.LTrim(pCmd);
-								if (*pCmd==L'<')
-								{
-									wchar_t *oldCmd=pCmd;
-									pCmd++;
-									while (*pCmd && IsSpace(*pCmd))
-										pCmd++;
-									size_t shift;
-									bool foundFile;
-									Ptr = loadFile(pCmd, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
-									if (Ptr)
-									{
-										SequenceText=Ptr+shift;
-										fromFile=true;
-									}
-									else
-									{
-										if (foundFile) // файл есть, но была ошибка чтения: все равно из файла
-											fromFile=true;
-										else
-											pCmd=oldCmd;
-									}
-								}
-
-								if (!fromFile)
-								{
-									SequenceText=(wchar_t *)malloc((lstrlen(pCmd)+1)*sizeof(wchar_t));
-									if (SequenceText)
-										lstrcpy((wchar_t*)SequenceText,pCmd);
-								}
-
-								if (SequenceText)
-								{
-									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_NONE, {0}, SequenceText};
-
-									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, &mcmd))
-									{
-										;
-									}
-
-									if (Ptr)
-										free((void*)Ptr);
-									else
-										free((void*)SequenceText);
-								}
-								break;
 							}
 						}
 					}

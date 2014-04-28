@@ -23,7 +23,6 @@ in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:Apply
              ~goto~@Goto@     - jump to a file or folder
              ~clip~@Clip@     - put data in the clipboard
              ~whereis~@WhereIs@  - locate and jump to an object
-             ~macro~@Macro@    - macros
              ~link~@Link@     - create links
              ~run~@Run@      - execute commands
              ~load~@Load@     - load plugin
@@ -217,48 +216,6 @@ only the switching to the required folder occurs.
 
    See also: ~goto~@Goto@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
-@Macro
-$ #The Macro command#
-   The #macro# command loads macros from the registry or saves macros in the
-registry. Also it can post the key sequence to FAR Manager as if they were
-typed from the keyboard.
-
-   1. Load macros from the registry:
-
-      #macro:load#
-
-   2. Save macros to the registry:
-
-      #macro:save#
-
-   3. Post a key sequence:
-
-      #macro:post sequence#
-
-      "sequence" is a sequence of key names as they are stored in
-      the registry by FAR Manager. For example:
-
-      macro:post F4 F12 0 Tab F4 F12 0
-
-      The sequence is executed only after return the FAR Manager receives control.
-
-   4. Check macrosequence syntax
-
-      #macro:check sequence#
-
-      In case of error in the "sequence" you receive a message
-      indicating the error type and its position in the sequence.
-
-   Команды #post# и #check# так же могут брать последовательность из #имяфайла#:
-
-      #macro:post <имяфайла#
-      #macro:check <имяфайла#
-
-   Command #check# is only available in Unicode-version (in FAR 2.x)
-
-
-   See also: ~Macro~@:KeyMacro@, ~Notes~@Remark@ | ~Contents~@Contents@
-
 @Direction
 $ #Output Redirection#
    The plugin can redirect the output of the specified #"<command"# or #"<<command"#.
@@ -415,8 +372,7 @@ $^#Configuring FAR Commands#
                                existing files.
 
  #The size of read data#         ^<wrap>Позволяет задавать максимальный размер
-считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@, ~whereis~@whereis@,
-~macro:post~@macro@ и ~macro:check~@macro@.
+считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.
                                По умолчанию - 1048576 (1 MB).
                                Максимальное значение - 4294967295 (4 GB-1).
                                Пустое значение или 0 заменяется на 1048576 (1 MB).
