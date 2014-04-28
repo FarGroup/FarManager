@@ -1579,7 +1579,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 	int OpMode=EF_OPENMODE_QUERY;
 
-	if ((Flags&EF_OPENMODE_MASK) )
+	if ( (Flags&EF_OPENMODE_MASK) )
 		OpMode=Flags&EF_OPENMODE_MASK;
 
 	/*$ 15.05.2002 SKV
@@ -1616,16 +1616,33 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			{
 				delete Editor;
 				Editor=nullptr;
-				return editorExitCode;
+				return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 			}
 
-			Editor->SetEnableF6((Flags & EF_ENABLE_F6)!=0);
+			if (editorExitCode == XC_EXISTS)
+			{
+				if (Global->GlobalSaveScrPtr)
+					Global->GlobalSaveScrPtr->Discard();
+
+				Global->FrameManager->PluginCommit();
+				#if defined(MANTIS_0002562)
+				return EEC_OPENED_EXISTING;
+				#else
+				return EEC_MODIFIED;
+				#endif
+			}
+
+			Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
 			Editor->SetPluginTitle(&strTitle);
 
 			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
 			if (!(Flags&EF_IMMEDIATERETURN))
 			{
 				Global->FrameManager->ExecuteNonModal();
+				if (Global->FrameManager->IndexOf(Editor) != -1)
+					ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+				else
+					ExitCode = EEC_NOT_MODIFIED;//??? editorExitCode
 			}
 			else
 			{
@@ -1633,9 +1650,12 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					Global->GlobalSaveScrPtr->Discard();
 
 				Global->FrameManager->PluginCommit();
+				#if defined(MANTIS_0002562)
+				ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+				#else
+				ExitCode = EEC_MODIFIED;
+				#endif
 			}
-
-			ExitCode=XC_MODIFIED;
 		}
 	}
 	else
@@ -1653,7 +1673,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 		// выполним предпроверку (ошибки разные могут быть)
 		if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
-			ExitCode=editorExitCode;
+			return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 		else
 		{
 			Editor.SetDynamicallyBorn(false);
@@ -1665,9 +1685,9 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			Global->FrameManager->EnterModalEV();
 			Global->FrameManager->ExecuteModal();
 			Global->FrameManager->ExitModalEV();
-			ExitCode = Editor.GetExitCode();
+			editorExitCode = Editor.GetExitCode();
 
-			if (ExitCode)
+			if (editorExitCode)
 			{
 #if 0
 
@@ -1675,7 +1695,11 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					ExitCode = XC_OPEN_ERROR;
 				else
 #endif
-					ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
+					ExitCode = Editor.IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+			}
+			else
+			{
+				ExitCode = EEC_OPEN_ERROR;
 			}
 		}
 	}

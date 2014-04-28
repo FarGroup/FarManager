@@ -434,7 +434,7 @@ void FileEditor::Init(
 
 	if (BlankFileName && !Flags.Check(FFILEEDIT_CANNEWFILE))
 	{
-		ExitCode=XC_OPEN_ERROR;
+		SetExitCode(XC_OPEN_ERROR);
 		return;
 	}
 
@@ -445,7 +445,7 @@ void FileEditor::Init(
 
 	if (!SetFileName(Name))
 	{
-		ExitCode=XC_OPEN_ERROR;
+		SetExitCode(XC_OPEN_ERROR);
 		return;
 	}
 
@@ -473,7 +473,7 @@ void FileEditor::Init(
 						if (MsgCode == 0)
 							MsgCode=1;
 						else
-							MsgCode=-100;
+							MsgCode=-200;
 					}
 				}
 				else
@@ -492,9 +492,11 @@ void FileEditor::Init(
 					case 0:         // Current
 						SwitchTo=TRUE;
 						Global->FrameManager->DeleteFrame(this); //???
+						SetExitCode(XC_EXISTS); // ???
 						break;
 					case 1:         // NewOpen
 						SwitchTo=FALSE;
+						SetExitCode(XC_OPEN_NEWINSTANCE); // ???
 						break;
 					case 2:         // Reload
 					{
@@ -502,29 +504,33 @@ void FileEditor::Init(
 						Frame *deleted_frame = Global->FrameManager->GetFrame(FramePos);
 						if ( deleted_frame )
 							deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
-						SetExitCode(-2);
+						SetExitCode(XC_RELOAD); // -2 ???
 						break;
 					}
+					case -200:
+						SetExitCode(XC_LOADING_INTERRUPTED);
+						return;
 					case -100:
 						//FrameManager->DeleteFrame(this);  //???
 						SetExitCode(XC_EXISTS);
 						return;
 					default:
 						Global->FrameManager->DeleteFrame(this);  //???
-						SetExitCode(MsgCode == -100?XC_EXISTS:XC_QUIT);
+						SetExitCode(XC_QUIT);
 						return;
 				}
 			}
 			else
 			{
 				SwitchTo=TRUE;
+				SetExitCode((OpenModeExstFile != EF_OPENMODE_QUERY) ? XC_EXISTS : XC_MODIFIED); // TRUE???
 			}
 
 			if (SwitchTo)
 			{
 				Global->FrameManager->ActivateFrame(FramePos);
 				//FrameManager->PluginCommit();
-				SetExitCode((OpenModeExstFile != EF_OPENMODE_QUERY)?XC_EXISTS:TRUE);
+				//SetExitCode((OpenModeExstFile != EF_OPENMODE_QUERY) ? XC_EXISTS : XC_MODIFIED); // TRUE???
 				return ;
 			}
 		}
@@ -549,7 +555,7 @@ void FileEditor::Init(
 	{
 		const wchar_t* const Items[] = {MSG(MEditCanNotEditDirectory),MSG(MOk)};
 		Message(MSG_WARNING,1,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorCanNotEditDirectoryId);
-		ExitCode=XC_OPEN_ERROR;
+		SetExitCode(XC_OPEN_ERROR);
 		return;
 	}
 
@@ -569,7 +575,7 @@ void FileEditor::Init(
 		const wchar_t* const Items[] = {Name.data(),MSG(MEditRSH),MSG(MEditROOpen),MSG(MYes),MSG(MNo)};
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Items, ARRAYSIZE(Items), nullptr, nullptr, &EditorOpenRSHId))
 		{
-			ExitCode=XC_OPEN_ERROR;
+			SetExitCode(XC_OPEN_ERROR);
 			return;
 		}
 	}
@@ -612,11 +618,11 @@ void FileEditor::Init(
 				if(!OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false))
 					continue;
 				else
-					ExitCode=XC_OPEN_ERROR;
+					SetExitCode(XC_OPEN_ERROR);
 			}
 			else
 			{
-				ExitCode=XC_LOADING_INTERRUPTED;
+				SetExitCode(XC_LOADING_INTERRUPTED);
 			}
 
 			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
@@ -624,7 +630,7 @@ void FileEditor::Init(
 			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
 			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
-			if (!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED)
+			if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
 				Global->FrameManager->RefreshFrame();
 
 			return;
@@ -641,7 +647,7 @@ void FileEditor::Init(
 	Global->CtrlObject->Plugins->SetCurEditor(this); //&FEdit;
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
-	if (ExitCode == XC_LOADING_INTERRUPTED || ExitCode == XC_OPEN_ERROR)
+	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
 	ShowConsoleTitle();
@@ -1105,7 +1111,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								int UserBreak;
 								LoadFile(strFullSaveAsName, UserBreak);
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
-								//if(!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && FrameManager)
 								//  FrameManager->RefreshFrame();
 							}
 
@@ -2626,7 +2632,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			else
 			{
 				Global->FrameManager->DeleteFrame(this);
-				SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
+				SetExitCode(XC_OPEN_ERROR); // что-то меня терзают смутные сомнения ...??? SAVEFILE_ERROR ???
 			}
 			return TRUE;
 		}

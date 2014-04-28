@@ -41,4 +41,7 @@ enum
 	XC_NOT_MODIFIED        = 2,
 	XC_LOADING_INTERRUPTED = 3,
 	XC_EXISTS              = 4,
+	XC_ALREADY_EXISTS      = 5,
+	XC_OPEN_NEWINSTANCE    = 6,
+	XC_RELOAD              = 7,
 };
