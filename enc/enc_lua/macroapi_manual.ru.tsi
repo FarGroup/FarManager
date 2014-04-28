@@ -163,7 +163,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3602578114
+mtime=3607865481
 <article>
 #_**Свойства:** нет.
 #_
@@ -188,7 +188,7 @@ mtime=3602578114
 #_
 #_2. Функции *akey* и *mmode*, будучи вызваны из функции *condition* макроса, возвращают *false*.
 #_
-#_3. Для единообразия, все данные функции продублированы в таблице `mf`,
+#_3. Для единообразия, все данные функции, кроме битовых, продублированы в таблице `mf`,
 #_   например: *eval* и *mf.eval* - это одна и та же функция.
 #_
 #_@@@
@@ -298,41 +298,38 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3607083299
+mtime=3607865300
 <article>
 #_**Свойства:** нет.
 #_
 #_**Функции:**
 #_
-#_  abs              len
-#_  akey             lshift
-#_  asc              max
-#_  atoi             `mdelete`
-#_  band             min
-#_  beep             `mload`
-#_  bnot             mmode
-#_  bor              mod
-#_  bxor             `msave`
-#_  chr              msgbox
-#_  clip             `postmacro`
-#_  date             print
-#_  env              `printf`
-#_  `eval`             prompt
-#_  `exit`             replace
-#_  fattr            rindex
-#_  fexist           rshift
-#_  float            size2str
-#_  flock            sleep
-#_  fmatch           string
-#_  fsplit           strpad
-#_  `GetMacroCopy`     strwrap
-#_  iif              substr
-#_  index            testfolder
-#_  int              trim
-#_  itoa             ucase
-#_  key              `usermenu`
-#_  `Keys`             waitkey
-#_  lcase            xlat
+#_  abs              max
+#_  akey             `mdelete`
+#_  asc              min
+#_  atoi             `mload`
+#_  beep             mmode
+#_  chr              mod
+#_  clip             `msave`
+#_  date             msgbox
+#_  env              `postmacro`
+#_  `eval`             print
+#_  `exit`             `printf`
+#_  fattr            prompt
+#_  fexist           replace
+#_  float            rindex
+#_  flock            size2str
+#_  fmatch           sleep
+#_  fsplit           string
+#_  `GetMacroCopy`     strpad
+#_  iif              strwrap
+#_  index            substr
+#_  int              testfolder
+#_  itoa             trim
+#_  key              ucase
+#_  `Keys`             `usermenu`
+#_  lcase            waitkey
+#_  len              xlat
 #_
 #_@@@
 #_[eval]: 79.html
@@ -1692,7 +1689,7 @@ lv=1
 dt=Text
 nm=Плагин LuaMacro
 ctime=3551991405
-mtime=3607848661
+mtime=3607861517
 <article>
 #_<markdown>
 #_Данный плагин необходим для работы макросов, поэтому должен быть установлен.
@@ -1703,9 +1700,9 @@ mtime=3607848661
 #_
 #_### Работа с командной строки
 #_
-#_* `lm: load`<br> (Пере)загрузить макросы и обработчики событий.
-#_* `lm: save`<br> Сохранить созданные или модифицированные [клавиатурные][1] макросы.
-#_* `lm: unload`<br> Выгрузить макросы (кроме созданных операцией `MCTL_ADDMACRO`)
+#_* `macro: load`<br> (Пере)загрузить макросы и обработчики событий.
+#_* `macro: save`<br> Сохранить созданные или модифицированные [клавиатурные][1] макросы.
+#_* `macro: unload`<br> Выгрузить макросы (кроме созданных операцией `MCTL_ADDMACRO`)
 #_   и обработчики событий.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>

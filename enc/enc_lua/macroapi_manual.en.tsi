@@ -169,7 +169,7 @@ lv=2
 dt=Text
 nm=Global properties and functions
 ctime=3552221109
-mtime=3602539540
+mtime=3607865667
 <article>
 #_**Properties:** none.
 #_
@@ -195,8 +195,9 @@ mtime=3602539540
 #_2. Functions *akey* and *mmode*, when called from within function *condition* of a macro,
 #_   return *false*.
 #_
-#_3. For uniformity sake, all the above functions are duplicated in table `mf`,
-#_   for example: *eval* è *mf.eval* reference the same function.
+#_3. For uniformity sake, all the above functions (except the bitwise ones)
+#_   are duplicated in table `mf`, for example: *eval* è *mf.eval* reference
+#_   the same function.
 #_
 #_@@@
 #_[exit]: 61.html
@@ -304,41 +305,38 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3607083279
+mtime=3607865525
 <article>
 #_**Properties:** none.
 #_
 #_**Functions:**
 #_
-#_  abs              len
-#_  akey             lshift
-#_  asc              max
-#_  atoi             `mdelete`
-#_  band             min
-#_  beep             `mload`
-#_  bnot             mmode
-#_  bor              mod
-#_  bxor             `msave`
-#_  chr              msgbox
-#_  clip             `postmacro`
-#_  date             print
-#_  env              `printf`
-#_  `eval`             prompt
-#_  `exit`             replace
-#_  fattr            rindex
-#_  fexist           rshift
-#_  float            size2str
-#_  flock            sleep
-#_  fmatch           string
-#_  fsplit           strpad
-#_  `GetMacroCopy`     strwrap
-#_  iif              substr
-#_  index            testfolder
-#_  int              trim
-#_  itoa             ucase
-#_  key              `usermenu`
-#_  `Keys`             waitkey
-#_  lcase            xlat
+#_  abs              max
+#_  akey             `mdelete`
+#_  asc              min
+#_  atoi             `mload`
+#_  beep             mmode
+#_  chr              mod
+#_  clip             `msave`
+#_  date             msgbox
+#_  env              `postmacro`
+#_  `eval`             print
+#_  `exit`             `printf`
+#_  fattr            prompt
+#_  fexist           replace
+#_  float            rindex
+#_  flock            size2str
+#_  fmatch           sleep
+#_  fsplit           string
+#_  `GetMacroCopy`     strpad
+#_  iif              strwrap
+#_  index            substr
+#_  int              testfolder
+#_  itoa             trim
+#_  key              ucase
+#_  `Keys`             `usermenu`
+#_  lcase            waitkey
+#_  len              xlat
 #_
 #_@@@
 #_[eval]: 79.html
@@ -1698,7 +1696,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607848706
+mtime=3607861549
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
@@ -1709,9 +1707,9 @@ mtime=3607848706
 #_
 #_### Command line operations
 #_
-#_* `lm: load`<br> (Re)load macros and event handlers.
-#_* `lm: save`<br> Save the created or modified [keyboard][1] macros.
-#_* `lm: unload`<br> Unload macros (except those created with operation `MCTL_ADDMACRO`)
+#_* `macro: load`<br> (Re)load macros and event handlers.
+#_* `macro: save`<br> Save the created or modified [keyboard][1] macros.
+#_* `macro: unload`<br> Unload macros (except those created with operation `MCTL_ADDMACRO`)
 #_   and event handlers.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>

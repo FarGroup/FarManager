@@ -67,12 +67,12 @@ local function test_akey()
 end
 
 local function test_bit64()
-  assert(band==mf.band)
-  assert(bnot==mf.bnot)
-  assert(bor==mf.bor)
-  assert(bxor==mf.bxor)
-  assert(lshift==mf.lshift)
-  assert(rshift==mf.rshift)
+  assert(band==bit64.band)
+  assert(bnot==bit64.bnot)
+  assert(bor==bit64.bor)
+  assert(bxor==bit64.bxor)
+  assert(lshift==bit64.lshift)
+  assert(rshift==bit64.rshift)
 
   assert(band(0xFF,0xFE,0xFD) == 0xFC)
   assert(bor(1,2,4) == 7)

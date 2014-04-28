@@ -500,9 +500,6 @@ _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
 _G.akey, _G.eval, _G.mmode, _G.msgbox, _G.prompt =
   mf.akey, mf.eval, mf.mmode, mf.msgbox, mf.prompt
 
-mf.band, mf.bnot, mf.bor, mf.bxor, mf.lshift, mf.rshift =
-  bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift
-
 mf.Keys, mf.exit, mf.print, mf.printf =
   _G.Keys, _G.exit, _G.print, _G.printf
 --------------------------------------------------------------------------------

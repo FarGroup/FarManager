@@ -85,7 +85,7 @@ end
 
 local PluginInfo = {
   Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-  CommandPrefix = "lm:lua:moon",
+  CommandPrefix = "macro:lua:moon",
   PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
   PluginMenuStrings = { "Macro Browser" },
 }
@@ -266,7 +266,7 @@ end
 local function ProcessCommandLine (CmdLine)
   local op, text = CmdLine:match("%s*(%w+:)%s*(.-)%s*$")
   op = op:lower()
-  if op == "lm:" then
+  if op == "macro:" then
     if text ~= "" then
       text = regex.match(text:lower(), "^(\\w+)(?:\\s|$)")
       if text == "load" then far.MacroLoadAll()
