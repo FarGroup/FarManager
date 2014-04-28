@@ -380,6 +380,8 @@ function mf.eval (str, mode, lang)
   if type(str) ~= "string" then return -1 end
   mode = mode or 0
   if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
+  lang = lang or "lua"
+  if not (lang=="lua" or lang=="moonscript") then return -1 end
 
   if mode == 2 then
     local area,key,usecommon = GetEvalData(str)
@@ -393,11 +395,12 @@ function mf.eval (str, mode, lang)
       macro.action()
       return 0
     else
+      lang = macro.language or lang
       str = macro.code
     end
   end
 
-  local chunk, params = args.loadmacro(lang or "lua", str, getfenv(2))
+  local chunk, params = args.loadmacro(lang, str, getfenv(2))
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end
@@ -407,7 +410,7 @@ function mf.eval (str, mode, lang)
     return 0
   else
     local msg = params
-    args.ErrMsg(msg)
+    if mode==0 or mode==2 then args.ErrMsg(msg) end
     return mode==3 and msg or 11
   end
 end

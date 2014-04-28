@@ -85,7 +85,7 @@ end
 
 local PluginInfo = {
   Flags = bor(F.PF_PRELOAD,F.PF_FULLCMDLINE,F.PF_EDITOR,F.PF_VIEWER,F.PF_DIALOG),
-  CommandPrefix = "lm:lua:moon:luacheck:mooncheck",
+  CommandPrefix = "lm:lua:moon",
   PluginMenuGuids = win.Uuid("EF6D67A2-59F7-4DF3-952E-F9049877B492"),
   PluginMenuStrings = { "Macro Browser" },
 }
@@ -286,10 +286,6 @@ local function ProcessCommandLine (CmdLine)
         if params then text = text.." "..params end
       end
       far.MacroPost(text, op=="lua:" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
-    end
-  elseif op == "luacheck:" or op=="mooncheck:" then
-    if text~="" then
-      far.MacroCheck(text, op=="luacheck:" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
     end
   end
 end

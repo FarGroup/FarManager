@@ -404,29 +404,41 @@ lv=3
 dt=Text
 nm=eval
 ctime=3581755102
-mtime=3600463667
+mtime=3607852698
 <article>
 #_<markdown>
-#_This function corresponds to [description][1] in Far Manager Encyclopedia, but additionally,
-#_in modes 0, 1, 3 parameter `S` can refer to a script-file, if this parameter begins with the
-#_`@` character.
+#_`ret = eval(S[,Mode[,Lang]])`
 #_
-#_In this case the `S` parameter must be in the following format:
+#_This function corresponds to the [description][1] in Far Manager Encyclopedia,
+#_with the following extensions:
+#_
+#_### 1. `eval` can execute either Lua or MoonScript code
+#_
+#_Added an optional 3-rd parameter `Lang` specifying the programming language
+#_of the parameter `S` in modes 1, 2 and 3. Acceptable values are `"lua"` and
+#_`"moonscript"`. The default value is `"lua"`.
+#_
+#_### 2. Parameter `S` can specify a script-file
+#_
+#_In modes 0, 1 and 3 parameter `S` can refer to a script-file, if this parameter
+#_begins with a `@` character. In this case the `S` parameter must be in the
+#_following format:
 #_
 #_        @<script-file name> [<script parameters>]
 #_
 #_- The file name can contain environment variables, they will be expanded.
-#_- Optional script parameters are a list of Lua expressions separated by commas.
+#_- Optional script parameters are a list of expressions separated by commas.
+#_- The expression should use the same programming language as the script.
 #_
 #_###Example:###
 #_```
-#_    eval("@%MyFarScripts%\\calc.lua 'factorial', 3+5")
+#_    eval("@%MyFarScripts%\\calc.moon 'factorial', 3+5", 0, "moonscript")
 #_```
 #_
 #_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
 #_@@@
-#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_--{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
 </article>
 </node>
@@ -1686,7 +1698,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607766977
+mtime=3607848706
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed.
@@ -1713,11 +1725,6 @@ mtime=3607766977
 #_   - The expressions must be in the same programming language as the script.
 #_   - The global (within the environment of the script) variable `_filename` contains
 #_     the file name.
-#_* `luacheck: <code>`
-#_* `mooncheck: <code>`
-#_* `luacheck: @<filename> [<params>]`
-#_* `mooncheck: @<filename> [<params>]`<br>
-#_  Check syntax of the field `<code>`, the contents of `<filename>` and the field `<params>`.
 #_
 #_[1]: 76.html
 #_
