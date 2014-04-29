@@ -1696,24 +1696,21 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607876199
+mtime=3607960178
 <article>
 #_<markdown>
-#_This plugin is necessary for macros to work, therefore it should be installed.
-#_The same is true regarding the runtime (files *lua51.dll* and *luafar3.dll*) that is necessary
-#_for plugin's work.
+#_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
 #_
 #_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
 #_
 #_### Command line operations
 #_
-#_* `lm: load`
-#_* `macro: load`<br> (Re)load macros and event handlers.
-#_* `lm: save`
-#_* `macro: save`<br> Save the created or modified [keyboard][1] macros.
-#_* `lm: unload`
-#_* `macro: unload`<br> Unload macros (except those created with operation `MCTL_ADDMACRO`)
-#_   and event handlers.
+#_* `macro: load`<br>
+#_  (Re)load macros and event handlers.
+#_* `macro: save`<br>
+#_   Save the created or modified [keyboard][1] macros.
+#_* `macro: unload`<br>
+#_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>
 #_   Execute the code `<code>` written correspondingly in Lua or MoonScript.
@@ -1726,6 +1723,9 @@ mtime=3607876199
 #_   - The expressions must be in the same programming language as the script.
 #_   - The global (within the environment of the script) variable `_filename` contains
 #_     the file name.
+#_
+#_**Note:**<br>
+#_Prefix `lm:` can be used instead of prefix `macro:` - they are equivalent.
 #_
 #_[1]: 76.html
 #_
@@ -1752,20 +1752,20 @@ lv=2
 dt=Text
 nm=Macros beginning with @
 ctime=3551901528
-mtime=3600535533
+mtime=3607959291
 <article>
 #_<markdown>
 #_If a macrosequence begins with the `@` character, then the rest of the sequence is treated as name of the file containing Lua script.
 #_
 #_* Environment variables in the file name are automatically expanded.
-#_
 #_* The global (within the environment of the script) variable `_filename` contains the file name.
-#_
 #_* Such scripts are easier for debugging and modifications, as they are automatically reloaded at each macro invocation.
 #_
-#_**Example 1:** `lm:post @%FARHOME%\test\test.lua 123, "hello"`
+#_**Example 1:**
+#_        lua: @%FARHOME%\test\test.lua 123, "hello"
 #_
-#_**Example 2:** [running script from within the editor][example].
+#_**Example 2:**<br>
+#_[running script from within the editor][example].
 #_
 #_[example]: 74.html
 #_
