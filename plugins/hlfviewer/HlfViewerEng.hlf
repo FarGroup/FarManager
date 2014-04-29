@@ -79,11 +79,6 @@ the plugins menu (F11), because it is no longer needed.
 
    Опция #Check by file mask# предназначена для ограничения работы
 плагина с файлами отличными от перечисленных. По умолчанию опция включена.
-Плагин, вызванный в редакторе, кроме маски также проверяет содержимое файла на
-наличие ключевых компонентов hlf-формата:
-
-   - ^<wrap>в начале файла ищется строка, начинающаяся с ".Language="
-   - ^<wrap>далее производится поиск на наличие любого вхождения последовательности "@@буква-цифры", не содержащее символ "=".
 
    To control whether the help file is saved before showing the help
 topic, the option "#Show the help file opened in the editor:#" can be
