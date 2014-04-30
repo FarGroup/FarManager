@@ -7906,7 +7906,7 @@ lv=2
 dt=Text
 nm=far.XLat
 ctime=3480362672
-mtime=3602448075
+mtime=3608020836
 <article>
 #_result = far.XLat (Line, StartPos, EndPos, Flags)
 #_
@@ -7923,7 +7923,7 @@ mtime=3602448075
 #_  XLat
 #_
 #_@@@
-#_{xlat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
+#_{xlat}: http://api.farmanager.com/ru/fsf/xlat.html
 #_
 </article>
 </node>

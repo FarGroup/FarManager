@@ -298,7 +298,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3607865300
+mtime=3608015304
 <article>
 #_**Свойства:** нет.
 #_
@@ -347,7 +347,7 @@ mtime=3607865300
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
 #_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
 #_{asc}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
-#_{atoi}: http://api.farmanager.com/ru/fsf/atoi.html
+#_{atoi}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#atoi
 #_{beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
 #_{chr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
 #_{clip}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
@@ -362,7 +362,7 @@ mtime=3607865300
 #_{iif}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
 #_{index}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
 #_{int}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
-#_{itoa}: http://api.farmanager.com/ru/fsf/itoa.html
+#_{itoa}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#itoa
 #_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
 #_{lcase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
 #_{len}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len

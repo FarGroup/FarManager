@@ -94,7 +94,7 @@ local function test_eval()
   assert(eval("temp=5+7",1,"moonscript")==0)
   assert(eval("temp=5+7",3,"moonscript")=="")
   assert(temp==3)
-  assert(eval("Env=getfenv(1)\nEnv.temp=12",0,"moonscript")==0)
+  assert(eval("getfenv(1).temp=12",0,"moonscript")==0)
   assert(temp==12)
 
   assert(eval("5",0,"moonscript")==0)

@@ -305,7 +305,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3607865525
+mtime=3608015223
 <article>
 #_**Properties:** none.
 #_
@@ -354,7 +354,7 @@ mtime=3607865525
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
 #_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
 #_{asc}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
-#_{atoi}: http://api.farmanager.com/ru/fsf/atoi.html
+#_{atoi}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#atoi
 #_{beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
 #_{chr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
 #_{clip}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
@@ -369,7 +369,7 @@ mtime=3607865525
 #_{iif}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
 #_{index}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
 #_{int}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
-#_{itoa}: http://api.farmanager.com/ru/fsf/itoa.html
+#_{itoa}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#itoa
 #_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
 #_{lcase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
 #_{len}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
@@ -1696,7 +1696,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3607960178
+mtime=3608005495
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
@@ -1719,8 +1719,8 @@ mtime=3607960178
 #_   Execute the script `<filename>` written correspondingly in Lua or MoonScript.<br>
 #_   - For passing parameters to the script they should be specified after the file name,
 #_     separated with whitespace.
-#_   - Parameters are the sequence of expressions delimited with commas.
-#_   - The expressions must be in the same programming language as the script.
+#_   - Parameters are a sequence of expressions delimited with commas.
+#_   - The expressions must be written in the same programming language as the script.
 #_   - The global (within the environment of the script) variable `_filename` contains
 #_     the file name.
 #_
