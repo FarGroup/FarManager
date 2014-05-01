@@ -350,39 +350,33 @@ local function AddCfindFunction()
   end
 end
 
-do
+local function Init()
   local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)
-    local func,msg = loadfile(ModuleDir..fname)
-    if func then return func(param) or true
-    else export=nil; ErrMsg(msg)
-    end
+    local func,msg = assert(loadfile(ModuleDir..fname))
+    return func(param)
   end
 
   M = RunPluginFile("lang.lua");
-  if not M then return end
   Shared.M = M
 
   utils = RunPluginFile("utils.lua", Shared)
-  if not utils then return end
   Shared.utils = utils
 
-  if not RunPluginFile("api.lua", Shared) then return end
+  RunPluginFile("api.lua", Shared)
   mf.postmacro = postmacro
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
-  if not macrobrowser then return end
 
-  if not RunPluginFile("moonscript.lua", Shared) then return end
+  RunPluginFile("moonscript.lua")
 
   if bit and jit then
-    if not RunPluginFile("winapi.lua") then return end
-    if not RunPluginFile("farapi.lua") then return end
+    RunPluginFile("winapi.lua")
+    RunPluginFile("farapi.lua")
 
     panelsort = RunPluginFile("panelsort.lua", Shared)
-    if not panelsort then return end
     Shared.panelsort = panelsort
     Panel.LoadCustomSortMode = panelsort.LoadCustomSortMode
     Panel.SetCustomSortMode = panelsort.SetCustomSortMode
@@ -392,4 +386,9 @@ do
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules"
   package.path = ("%s\\?.lua;%s\\?\\init.lua;%s"):format(modules,modules,package.path)
+end
+
+local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only
+if not ok then
+  export=nil; ErrMsg(msg)
 end
