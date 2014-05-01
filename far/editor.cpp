@@ -5861,10 +5861,18 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				string NewStr(SetString->StringText, Length);
 				NewStr.append(EOL);
 
+				AddUndoData(UNDO_BEGIN);
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),DestLine,CurPtr->GetCurPos(),CurPtr->GetLength());
 				int CurPos=CurPtr->GetCurPos();
+				bool HadEol=CurPtr->HasEOL();
 				CurPtr->SetBinaryString(NewStr.data(), static_cast<int>(NewStr.size()));
 				CurPtr->SetCurPos(CurPos);
+				if(CurPtr == LastLine && !HadEol && CurPtr->HasEOL())
+				{
+					AddUndoData(UNDO_INSSTR, nullptr, nullptr, NumLastLine, 0, 0);
+					InsertString(nullptr, 0, CurPtr);
+				}
+				AddUndoData(UNDO_END);
 				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
 			}
