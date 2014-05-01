@@ -27,10 +27,15 @@ int Config()
 	Builder.AddCheckbox(MNoRootDoublePoint, &Opt.RootDoublePoint);
 	Builder.AddCheckbox(MConfigLocalNetwork, &Opt.LocalNetwork);
 	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
-	Builder.AddSeparator(MShares);
-	Builder.AddCheckbox(MFullPathShares, &Opt.FullPathShares);
-	Builder.AddCheckbox(MHiddenShares, &Opt.HiddenShares);
-	Builder.AddCheckbox(MHiddenSharesAsHidden, &Opt.HiddenSharesAsHidden);
+	Builder.AddSeparator(MConfigShares);
+	Builder.AddCheckbox(MConfigSharesFullPath, &Opt.FullPathShares);
+
+	Builder.StartSingleBox(MConfigHiddenShares);
+	int HiddenSharesState = Opt.HiddenShares? (Opt.HiddenSharesAsHidden? 1 : 2) : 0;
+	int HiddenSharesMsgs[] = { MConfigHiddenSharesNeverShow, MConfigHiddenSharesMakeHidden, MConfigHiddenSharesAlwaysShow };
+	Builder.AddRadioButtons(&HiddenSharesState, 3, HiddenSharesMsgs);
+	Builder.EndSingleBox();
+
 	Builder.AddSeparator(MFavorites);
 	Builder.AddCheckbox(MUpbrowseToFavorites, &Opt.FavoritesFlags, FAVORITES_UPBROWSE_TO_FAVORITES);
 //	Builder.AddCheckbox(MCheckResource, &Opt.FavoritesFlags, FAVORITES_CHECK_RESOURCES);
@@ -48,6 +53,22 @@ int Config()
 		settings.Set(0,StrFullPathShares,Opt.FullPathShares);
 		settings.Set(0,StrFavoritesFlags,Opt.FavoritesFlags);
 		settings.Set(0,StrNoRootDoublePoint,Opt.RootDoublePoint);
+
+		switch (HiddenSharesState)
+		{
+		case 0: // never show
+			Opt.HiddenShares = FALSE;
+			Opt.HiddenSharesAsHidden = FALSE;
+			break;
+		case 1: // make hidden
+			Opt.HiddenShares = TRUE;
+			Opt.HiddenSharesAsHidden = TRUE;
+			break;
+		case 2: // always show
+			Opt.HiddenShares = TRUE;
+			Opt.HiddenSharesAsHidden = FALSE;
+			break;
+		}
 		return TRUE;
 	}
 
