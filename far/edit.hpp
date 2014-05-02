@@ -149,7 +149,6 @@ public:
 	void GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length);
 	void SetEOL(const wchar_t *EOL);
 	const wchar_t *GetEOL() const;
-	bool HasEOL(void) const;
 	int GetSelString(wchar_t *Str,int MaxSize);
 	int GetSelString(string &strStr, size_t MaxSize = string::npos) const;
 	int GetLength() const;

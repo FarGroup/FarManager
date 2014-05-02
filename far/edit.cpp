@@ -1648,11 +1648,6 @@ const wchar_t *Edit::GetEOL() const
 	return EOL_TYPE_CHARS[EndType];
 }
 
-bool Edit::HasEOL(void) const
-{
-	return EndType!=EOL_NONE;
-}
-
 /* $ 25.07.2000 tran
    примечание:
    в этом методе DropDownBox не обрабатывается
