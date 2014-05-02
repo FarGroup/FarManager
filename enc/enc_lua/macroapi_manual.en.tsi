@@ -1696,7 +1696,7 @@ lv=1
 dt=Text
 nm=LuaMacro plugin
 ctime=3551991405
-mtime=3608005495
+mtime=3608233031
 <article>
 #_<markdown>
 #_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
@@ -1713,7 +1713,9 @@ mtime=3608005495
 #_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
 #_* `lua: <code>`
 #_* `moon: <code>`<br>
-#_   Execute the code `<code>` written correspondingly in Lua or MoonScript.
+#_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
+#_   If `<code>` begins with a character `=` then `far.Show()` is called, e.g.:<br>
+#_   `lua:=5+2,6,"foo"` is equivalent to `lua:far.Show(5+2,6,"foo")`.
 #_* `lua: @<filename> [<params>]`
 #_* `moon: @<filename> [<params>]`<br>
 #_   Execute the script `<filename>` written correspondingly in Lua or MoonScript.<br>

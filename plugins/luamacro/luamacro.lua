@@ -277,13 +277,17 @@ local function ProcessCommandLine (CmdLine)
   end
   if prefix == "lua" or prefix == "moon" then
     if text~="" then
-      local fname, params = SplitMacroString(text)
-      if fname then
-        fname = ExpandEnv(fname)
-        fname = far.ConvertPath(fname, F.CPM_NATIVE)
-        if fname:find("%s") then fname = '"'..fname..'"' end
-        text = "@"..fname
-        if params then text = text.." "..params end
+      if text:find("^=") then
+        text = "far.Show(" .. text:sub(2) .. ")"
+      else
+        local fname, params = SplitMacroString(text)
+        if fname then
+          fname = ExpandEnv(fname)
+          fname = far.ConvertPath(fname, F.CPM_NATIVE)
+          if fname:find("%s") then fname = '"'..fname..'"' end
+          text = "@"..fname
+          if params then text = text.." "..params end
+        end
       end
       far.MacroPost(text, prefix=="lua" and "KMFLAGS_LUA" or "KMFLAGS_MOONSCRIPT")
     end
