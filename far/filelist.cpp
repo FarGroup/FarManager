@@ -666,7 +666,7 @@ void FileList::SortFileList(int KeepPosition)
 			values[0].Pointer = &cs;
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={MCT_PANELSORT,0,&fmc};
-			void *ptr=nullptr;
+			void *ptr;
 			if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
 			{
 				CustomSortIndicator[0] = info.Ret.Values[0].String[0];

@@ -908,21 +908,6 @@ int CommandLine::ExecString(const string& InputCmdLine, bool AlwaysWaitFinish, b
 
 	string CmdLine(InputCmdLine);
 
-	{ // LuaMacro hook
-		FarMacroValue values[]={{FMVT_STRING}};
-		values[0].String = CmdLine.data();
-		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-		OpenMacroPluginInfo info={MCT_FARCOMMANDLINE,0,&fmc};
-		void *ptr=nullptr;
-		if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr)
-		{
-			if (info.Ret.Count>0 && info.Ret.Values[0].Type==FMVT_STRING)
-				CmdLine = info.Ret.Values[0].String;
-			else
-				return 0;
-		}
-	}
-
 	bool Silent=false;
 
 	if (!FromPanel && !CmdLine.empty() && CmdLine[0] == L'@')
