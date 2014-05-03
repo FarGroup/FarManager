@@ -474,7 +474,6 @@ public:
 		IntOption FileSearchMode;
 		BoolOption FindFolders;
 		BoolOption FindSymLinks;
-		BoolOption CollectFiles;
 		BoolOption UseFilter;
 		BoolOption FindAlternateStreams;
 		StringOption strSearchInFirstSize;

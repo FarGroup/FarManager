@@ -92,6 +92,7 @@ private:
 	bool WholeWords;
 	bool SearchInArchives;
 	bool SearchHex;
+	bool NotContaining;
 	int SearchMode;
 	string strLastDirName;
 	string strPluginSearchPath;
@@ -118,7 +119,7 @@ private:
 	class IndeterminateTaskBar *TB;
 
 	struct CodePageInfo;
-	std::list<CodePageInfo> codePages;
+	std::list<CodePageInfo> m_CodePages;
 
 	CriticalSection PluginCS;
 	Event PauseEvent;

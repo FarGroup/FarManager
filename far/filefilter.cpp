@@ -137,7 +137,7 @@ bool FileFilter::FilterEdit()
 
 		{
 			MenuItemEx ListItem;
-			ListItem.Flags|=LIF_SEPARATOR;
+			ListItem.Flags = LIF_SEPARATOR;
 			FilterList.AddItem(ListItem);
 		}
 

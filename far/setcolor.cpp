@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "manager.hpp"
 
-static void SetItemColors(const MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
+static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t Size, int TypeSub = 0);
 
 void GetColor(int PaletteIndex)
 {
@@ -81,76 +81,82 @@ void GetColor(int PaletteIndex)
 	}
 }
 
+#define CheckSize(a, b) static_assert(ARRAYSIZE(a) == ARRAYSIZE(b), "wrong array size");
+
+enum list_mode
+{
+	lm_list_normal,
+	lm_list_warning,
+	lm_combo_normal,
+	lm_combo_warning,
+
+	list_modes_count
+};
 
 void SetColors()
 {
-	MenuDataEx Groups[]=
+	static const LNGID PanelItems[] =
 	{
-		MSG(MSetColorPanel),LIF_SELECTED,0,
-		MSG(MSetColorDialog),0,0,
-		MSG(MSetColorWarning),0,0,
-		MSG(MSetColorMenu),0,0,
-		MSG(MSetColorHMenu),0,0,
-		MSG(MSetColorKeyBar),0,0,
-		MSG(MSetColorCommandLine),0,0,
-		MSG(MSetColorClock),0,0,
-		MSG(MSetColorViewer),0,0,
-		MSG(MSetColorEditor),0,0,
-		MSG(MSetColorHelp),0,0,
-		L"",LIF_SEPARATOR,0,
-		MSG(MSetDefaultColors),0,0,
-		MSG(MSetBW),0,0,
+		MSetColorPanelNormal,
+		MSetColorPanelSelected,
+		MSetColorPanelHighlightedText,
+		MSetColorPanelHighlightedInfo,
+		MSetColorPanelDragging,
+		MSetColorPanelBox,
+		MSetColorPanelNormalCursor,
+		MSetColorPanelSelectedCursor,
+		MSetColorPanelNormalTitle,
+		MSetColorPanelSelectedTitle,
+		MSetColorPanelColumnTitle,
+		MSetColorPanelTotalInfo,
+		MSetColorPanelSelectedInfo,
+		MSetColorPanelScrollbar,
+		MSetColorPanelScreensNumber,
 	};
-	MenuDataEx PanelItems[]=
+	static const int PanelPaletteItems[]=
 	{
-		MSG(MSetColorPanelNormal),LIF_SELECTED,0,
-		MSG(MSetColorPanelSelected),0,0,
-		MSG(MSetColorPanelHighlightedText),0,0,
-		MSG(MSetColorPanelHighlightedInfo),0,0,
-		MSG(MSetColorPanelDragging),0,0,
-		MSG(MSetColorPanelBox),0,0,
-		MSG(MSetColorPanelNormalCursor),0,0,
-		MSG(MSetColorPanelSelectedCursor),0,0,
-		MSG(MSetColorPanelNormalTitle),0,0,
-		MSG(MSetColorPanelSelectedTitle),0,0,
-		MSG(MSetColorPanelColumnTitle),0,0,
-		MSG(MSetColorPanelTotalInfo),0,0,
-		MSG(MSetColorPanelSelectedInfo),0,0,
-		MSG(MSetColorPanelScrollbar),0,0,
-		MSG(MSetColorPanelScreensNumber),0,0,
+		COL_PANELTEXT,
+		COL_PANELSELECTEDTEXT,
+		COL_PANELHIGHLIGHTTEXT,
+		COL_PANELINFOTEXT,
+		COL_PANELDRAGTEXT,
+		COL_PANELBOX,
+		COL_PANELCURSOR,
+		COL_PANELSELECTEDCURSOR,
+		COL_PANELTITLE,
+		COL_PANELSELECTEDTITLE,
+		COL_PANELCOLUMNTITLE,
+		COL_PANELTOTALINFO,
+		COL_PANELSELECTEDINFO,
+		COL_PANELSCROLLBAR,
+		COL_PANELSCREENSNUMBER,
 	};
-	int PanelPaletteItems[]=
+	CheckSize(PanelItems, PanelPaletteItems);
+
+	static const LNGID DialogItems[] =
 	{
-		COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELHIGHLIGHTTEXT,COL_PANELINFOTEXT,
-		COL_PANELDRAGTEXT,COL_PANELBOX,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR,
-		COL_PANELTITLE,COL_PANELSELECTEDTITLE,COL_PANELCOLUMNTITLE,
-		COL_PANELTOTALINFO,COL_PANELSELECTEDINFO,COL_PANELSCROLLBAR,
-		COL_PANELSCREENSNUMBER
+		MSetColorDialogNormal,
+		MSetColorDialogHighlighted,
+		MSetColorDialogDisabled,
+		MSetColorDialogBox,
+		MSetColorDialogBoxTitle,
+		MSetColorDialogHighlightedBoxTitle,
+		MSetColorDialogTextInput,
+		MSetColorDialogUnchangedTextInput,
+		MSetColorDialogSelectedTextInput,
+		MSetColorDialogEditDisabled,
+		MSetColorDialogButtons,
+		MSetColorDialogSelectedButtons,
+		MSetColorDialogHighlightedButtons,
+		MSetColorDialogSelectedHighlightedButtons,
+		MSetColorDialogDefaultButton,
+		MSetColorDialogSelectedDefaultButton,
+		MSetColorDialogHighlightedDefaultButton,
+		MSetColorDialogSelectedHighlightedDefaultButton,
+		MSetColorDialogListBoxControl,
+		MSetColorDialogComboBoxControl,
 	};
-	MenuDataEx DialogItems[]=
-	{
-		MSG(MSetColorDialogNormal),LIF_SELECTED,0,
-		MSG(MSetColorDialogHighlighted),0,0,
-		MSG(MSetColorDialogDisabled),0,0,
-		MSG(MSetColorDialogBox),0,0,
-		MSG(MSetColorDialogBoxTitle),0,0,
-		MSG(MSetColorDialogHighlightedBoxTitle),0,0,
-		MSG(MSetColorDialogTextInput),0,0,
-		MSG(MSetColorDialogUnchangedTextInput),0,0,
-		MSG(MSetColorDialogSelectedTextInput),0,0,
-		MSG(MSetColorDialogEditDisabled),0,0,
-		MSG(MSetColorDialogButtons),0,0,
-		MSG(MSetColorDialogSelectedButtons),0,0,
-		MSG(MSetColorDialogHighlightedButtons),0,0,
-		MSG(MSetColorDialogSelectedHighlightedButtons),0,0,
-		MSG(MSetColorDialogDefaultButton),0,0,
-		MSG(MSetColorDialogSelectedDefaultButton),0,0,
-		MSG(MSetColorDialogHighlightedDefaultButton),0,0,
-		MSG(MSetColorDialogSelectedHighlightedDefaultButton),0,0,
-		MSG(MSetColorDialogListBoxControl),0,0,
-		MSG(MSetColorDialogComboBoxControl),0,0,
-	};
-	int DialogPaletteItems[]=
+	static const int DialogPaletteItems[] =
 	{
 		COL_DIALOGTEXT,
 		COL_DIALOGHIGHLIGHTTEXT,
@@ -170,33 +176,11 @@ void SetColors()
 		COL_DIALOGSELECTEDDEFAULTBUTTON,
 		COL_DIALOGHIGHLIGHTDEFAULTBUTTON,
 		COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
-		0,
-		2,
+		lm_list_normal,
+		lm_combo_normal,
 	};
-	MenuDataEx WarnDialogItems[]=
-	{
-		MSG(MSetColorDialogNormal),LIF_SELECTED,0,
-		MSG(MSetColorDialogHighlighted),0,0,
-		MSG(MSetColorDialogDisabled),0,0,
-		MSG(MSetColorDialogBox),0,0,
-		MSG(MSetColorDialogBoxTitle),0,0,
-		MSG(MSetColorDialogHighlightedBoxTitle),0,0,
-		MSG(MSetColorDialogTextInput),0,0,
-		MSG(MSetColorDialogUnchangedTextInput),0,0,
-		MSG(MSetColorDialogSelectedTextInput),0,0,
-		MSG(MSetColorDialogEditDisabled),0,0,
-		MSG(MSetColorDialogButtons),0,0,
-		MSG(MSetColorDialogSelectedButtons),0,0,
-		MSG(MSetColorDialogHighlightedButtons),0,0,
-		MSG(MSetColorDialogSelectedHighlightedButtons),0,0,
-		MSG(MSetColorDialogDefaultButton),0,0,
-		MSG(MSetColorDialogSelectedDefaultButton),0,0,
-		MSG(MSetColorDialogHighlightedDefaultButton),0,0,
-		MSG(MSetColorDialogSelectedHighlightedDefaultButton),0,0,
-		MSG(MSetColorDialogListBoxControl),0,0,
-		MSG(MSetColorDialogComboBoxControl),0,0,
-	};
-	int WarnDialogPaletteItems[]=
+	CheckSize(DialogItems, DialogPaletteItems);
+	static const int WarnDialogPaletteItems[] =
 	{
 		COL_WARNDIALOGTEXT,
 		COL_WARNDIALOGHIGHLIGHTTEXT,
@@ -216,26 +200,28 @@ void SetColors()
 		COL_WARNDIALOGSELECTEDDEFAULTBUTTON,
 		COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON,
 		COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
-		1,
-		3,
+		lm_list_warning,
+		lm_combo_warning,
 	};
-	MenuDataEx MenuItems[]=
+	CheckSize(DialogItems, WarnDialogPaletteItems);
+
+	static const LNGID MenuItems[] =
 	{
-		MSG(MSetColorMenuNormal),LIF_SELECTED,0,
-		MSG(MSetColorMenuSelected),0,0,
-		MSG(MSetColorMenuHighlighted),0,0,
-		MSG(MSetColorMenuSelectedHighlighted),0,0,
-		MSG(MSetColorMenuDisabled),0,0,
-		MSG(MSetColorMenuBox),0,0,
-		MSG(MSetColorMenuTitle),0,0,
-		MSG(MSetColorMenuScrollBar),0,0,
-		MSG(MSetColorMenuArrows),0,0,
-		MSG(MSetColorMenuArrowsSelected),0,0,
-		MSG(MSetColorMenuArrowsDisabled),0,0,
-		MSG(MSetColorMenuGrayed),0,0,
-		MSG(MSetColorMenuSelectedGrayed),0,0,
+		MSetColorMenuNormal,
+		MSetColorMenuSelected,
+		MSetColorMenuHighlighted,
+		MSetColorMenuSelectedHighlighted,
+		MSetColorMenuDisabled,
+		MSetColorMenuBox,
+		MSetColorMenuTitle,
+		MSetColorMenuScrollBar,
+		MSetColorMenuArrows,
+		MSetColorMenuArrowsSelected,
+		MSetColorMenuArrowsDisabled,
+		MSetColorMenuGrayed,
+		MSetColorMenuSelectedGrayed,
 	};
-	int MenuPaletteItems[]=
+	static const int MenuPaletteItems[] =
 	{
 		COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
 		COL_MENUSELECTEDHIGHLIGHT,COL_MENUDISABLEDTEXT,
@@ -246,90 +232,166 @@ void SetColors()
 		COL_MENUGRAYTEXT,                          // "серый"
 		COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
 	};
-	MenuDataEx HMenuItems[]=
+	CheckSize(MenuItems, MenuPaletteItems);
+
+	static const LNGID HMenuItems[] =
 	{
-		MSG(MSetColorHMenuNormal),LIF_SELECTED,0,
-		MSG(MSetColorHMenuSelected),0,0,
-		MSG(MSetColorHMenuHighlighted),0,0,
-		MSG(MSetColorHMenuSelectedHighlighted),0,0,
+		MSetColorHMenuNormal,
+		MSetColorHMenuSelected,
+		MSetColorHMenuHighlighted,
+		MSetColorHMenuSelectedHighlighted,
 	};
-	int HMenuPaletteItems[]=
+	static const int HMenuPaletteItems[] =
 	{
-		COL_HMENUTEXT,COL_HMENUSELECTEDTEXT,COL_HMENUHIGHLIGHT,
-		COL_HMENUSELECTEDHIGHLIGHT
+		COL_HMENUTEXT,
+		COL_HMENUSELECTEDTEXT,
+		COL_HMENUHIGHLIGHT,
+		COL_HMENUSELECTEDHIGHLIGHT,
 	};
-	MenuDataEx KeyBarItems[]=
+	CheckSize(HMenuItems, HMenuPaletteItems);
+
+	static const LNGID KeyBarItems[] =
 	{
-		MSG(MSetColorKeyBarNumbers),LIF_SELECTED,0,
-		MSG(MSetColorKeyBarNames),0,0,
-		MSG(MSetColorKeyBarBackground),0,0,
+		MSetColorKeyBarNumbers,
+		MSetColorKeyBarNames,
+		MSetColorKeyBarBackground,
 	};
-	int KeyBarPaletteItems[]=
+	static const int KeyBarPaletteItems[] =
 	{
-		COL_KEYBARNUM,COL_KEYBARTEXT,COL_KEYBARBACKGROUND
+		COL_KEYBARNUM,
+		COL_KEYBARTEXT,
+		COL_KEYBARBACKGROUND,
 	};
-	MenuDataEx CommandLineItems[]=
+	CheckSize(KeyBarItems, KeyBarPaletteItems);
+
+	static const LNGID CommandLineItems[] =
 	{
-		MSG(MSetColorCommandLineNormal),LIF_SELECTED,0,
-		MSG(MSetColorCommandLineSelected),0,0,
-		MSG(MSetColorCommandLinePrefix),0,0,
-		MSG(MSetColorCommandLineUserScreen),0,0,
+		MSetColorCommandLineNormal,
+		MSetColorCommandLineSelected,
+		MSetColorCommandLinePrefix,
+		MSetColorCommandLineUserScreen,
 	};
-	int CommandLinePaletteItems[]=
+	static const int CommandLinePaletteItems[] =
 	{
-		COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX,COL_COMMANDLINEUSERSCREEN
+		COL_COMMANDLINE,
+		COL_COMMANDLINESELECTED,
+		COL_COMMANDLINEPREFIX,
+		COL_COMMANDLINEUSERSCREEN,
 	};
-	MenuDataEx ClockItems[]=
+	CheckSize(CommandLineItems, CommandLinePaletteItems);
+
+	static const LNGID ClockItems[] =
 	{
-		MSG(MSetColorClockNormal),LIF_SELECTED,0,
-		MSG(MSetColorClockNormalEditor),0,0,
-		MSG(MSetColorClockNormalViewer),0,0,
+		MSetColorClockNormal,
+		MSetColorClockNormalEditor,
+		MSetColorClockNormalViewer,
 	};
-	int ClockPaletteItems[]=
+	static const int ClockPaletteItems[] =
 	{
 		COL_CLOCK,
-		COL_EDITORCLOCK,COL_VIEWERCLOCK,
+		COL_EDITORCLOCK,
+		COL_VIEWERCLOCK,
 	};
-	MenuDataEx ViewerItems[]=
+	CheckSize(ClockItems, ClockPaletteItems);
+
+	static const LNGID ViewerItems[] =
 	{
-		MSG(MSetColorViewerNormal),LIF_SELECTED,0,
-		MSG(MSetColorViewerSelected),0,0,
-		MSG(MSetColorViewerStatus),0,0,
-		MSG(MSetColorViewerArrows),0,0,
-		MSG(MSetColorViewerScrollbar),0,0
+		MSetColorViewerNormal,
+		MSetColorViewerSelected,
+		MSetColorViewerStatus,
+		MSetColorViewerArrows,
+		MSetColorViewerScrollbar,
 	};
-	int ViewerPaletteItems[]=
+	static const int ViewerPaletteItems[] =
 	{
-		COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
+		COL_VIEWERTEXT,
+		COL_VIEWERSELECTEDTEXT,
+		COL_VIEWERSTATUS,
+		COL_VIEWERARROWS,
+		COL_VIEWERSCROLLBAR,
 	};
-	MenuDataEx EditorItems[]=
+	CheckSize(ViewerItems, ViewerPaletteItems);
+
+	static const LNGID EditorItems[] =
 	{
-		MSG(MSetColorEditorNormal),LIF_SELECTED,0,
-		MSG(MSetColorEditorSelected),0,0,
-		MSG(MSetColorEditorStatus),0,0,
-		MSG(MSetColorEditorScrollbar),0,0,
+		MSetColorEditorNormal,
+		MSetColorEditorSelected,
+		MSetColorEditorStatus,
+		MSetColorEditorScrollbar,
 	};
-	int EditorPaletteItems[]=
+	static const int EditorPaletteItems[] =
 	{
-		COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS,COL_EDITORSCROLLBAR
+		COL_EDITORTEXT,
+		COL_EDITORSELECTEDTEXT,
+		COL_EDITORSTATUS,
+		COL_EDITORSCROLLBAR,
 	};
-	MenuDataEx HelpItems[]=
+	CheckSize(EditorItems, EditorPaletteItems);
+
+	static const LNGID HelpItems[] =
 	{
-		MSG(MSetColorHelpNormal),LIF_SELECTED,0,
-		MSG(MSetColorHelpHighlighted),0,0,
-		MSG(MSetColorHelpReference),0,0,
-		MSG(MSetColorHelpSelectedReference),0,0,
-		MSG(MSetColorHelpBox),0,0,
-		MSG(MSetColorHelpBoxTitle),0,0,
-		MSG(MSetColorHelpScrollbar),0,0,
+		MSetColorHelpNormal,
+		MSetColorHelpHighlighted,
+		MSetColorHelpReference,
+		MSetColorHelpSelectedReference,
+		MSetColorHelpBox,
+		MSetColorHelpBoxTitle,
+		MSetColorHelpScrollbar,
 	};
-	int HelpPaletteItems[]=
+	static const int HelpPaletteItems[] =
 	{
-		COL_HELPTEXT,COL_HELPHIGHLIGHTTEXT,COL_HELPTOPIC,COL_HELPSELECTEDTOPIC,
-		COL_HELPBOX,COL_HELPBOXTITLE,COL_HELPSCROLLBAR
+		COL_HELPTEXT,
+		COL_HELPHIGHLIGHTTEXT,
+		COL_HELPTOPIC,
+		COL_HELPSELECTEDTOPIC,
+		COL_HELPBOX,
+		COL_HELPBOXTITLE,
+		COL_HELPSCROLLBAR,
 	};
+	CheckSize(HelpItems, HelpPaletteItems);
+
 	{
-		VMenu2 GroupsMenu(MSG(MSetColorGroupsTitle),Groups,ARRAYSIZE(Groups),0);
+		static const struct group_item
+		{
+			LNGID MenuId;
+			const LNGID* SubiemIds;
+			const int* SubitemPalette;
+			size_t SubItemsSize;
+			int TypeSub;
+		}
+		Groups[] =
+		{
+			{ MSetColorPanel, PanelItems, PanelPaletteItems, ARRAYSIZE(PanelItems) },
+			{ MSetColorDialog, DialogItems, DialogPaletteItems, ARRAYSIZE(DialogItems), 1 },
+			{ MSetColorWarning, DialogItems, WarnDialogPaletteItems, ARRAYSIZE(DialogItems), 1 },
+			{ MSetColorMenu, MenuItems, MenuPaletteItems, ARRAYSIZE(MenuItems) },
+			{ MSetColorHMenu, HMenuItems, HMenuPaletteItems, ARRAYSIZE(HMenuItems) },
+			{ MSetColorKeyBar, KeyBarItems, KeyBarPaletteItems, ARRAYSIZE(KeyBarItems) },
+			{ MSetColorCommandLine, CommandLineItems, CommandLinePaletteItems, ARRAYSIZE(CommandLineItems) },
+			{ MSetColorClock, ClockItems, ClockPaletteItems, ARRAYSIZE(ClockItems) },
+			{ MSetColorViewer, ViewerItems, ViewerPaletteItems, ARRAYSIZE(ViewerItems) },
+			{ MSetColorEditor, EditorItems, EditorPaletteItems, ARRAYSIZE(EditorItems) },
+			{ MSetColorHelp, HelpItems, HelpPaletteItems, ARRAYSIZE(HelpItems) },
+		};
+
+		VMenu2 GroupsMenu(MSG(MSetColorGroupsTitle), nullptr, 0);
+
+		FOR(const auto& i, Groups)
+		{
+			GroupsMenu.AddItem(MSG(i.MenuId));
+		}
+
+		{
+			MenuItemEx tmp;
+			tmp.Flags = LIF_SEPARATOR;
+			GroupsMenu.AddItem(tmp);
+		}
+
+		const int DefaultId = GroupsMenu.GetItemCount();
+		GroupsMenu.AddItem(MSG(MSetDefaultColors));
+		const int BlackWhiteId = GroupsMenu.GetItemCount();
+		GroupsMenu.AddItem(MSG(MSetBW));
+
 		for (;;)
 		{
 			GroupsMenu.SetPosition(2,1,0,0);
@@ -340,57 +402,20 @@ void SetColors()
 				if (Msg!=DN_CLOSE || ItemsCode<0)
 					return 0;
 				GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-				switch (ItemsCode)
-				{
-					case 0:
-						SetItemColors(PanelItems,PanelPaletteItems,ARRAYSIZE(PanelItems),0);
-						break;
-					case 1:
-						SetItemColors(DialogItems,DialogPaletteItems,ARRAYSIZE(DialogItems),1);
-						break;
-					case 2:
-						SetItemColors(WarnDialogItems,WarnDialogPaletteItems,ARRAYSIZE(WarnDialogItems),1);
-						break;
-					case 3:
-						SetItemColors(MenuItems,MenuPaletteItems,ARRAYSIZE(MenuItems),0);
-						break;
-					case 4:
-						SetItemColors(HMenuItems,HMenuPaletteItems,ARRAYSIZE(HMenuItems),0);
-						break;
-					case 5:
-						SetItemColors(KeyBarItems,KeyBarPaletteItems,ARRAYSIZE(KeyBarItems),0);
-						break;
-					case 6:
-						SetItemColors(CommandLineItems,CommandLinePaletteItems,ARRAYSIZE(CommandLineItems),0);
-						break;
-					case 7:
-						SetItemColors(ClockItems,ClockPaletteItems,ARRAYSIZE(ClockItems),0);
-						break;
-					case 8:
-						SetItemColors(ViewerItems,ViewerPaletteItems,ARRAYSIZE(ViewerItems),0);
-						break;
-					case 9:
-						SetItemColors(EditorItems,EditorPaletteItems,ARRAYSIZE(EditorItems),0);
-						break;
-					case 10:
-						SetItemColors(HelpItems,HelpPaletteItems,ARRAYSIZE(HelpItems),0);
-						break;
-					default:
-						return 0;
-				}
+				SetItemColors(Groups[ItemsCode].SubiemIds, Groups[ItemsCode].SubitemPalette, Groups[ItemsCode].SubItemsSize, Groups[ItemsCode].TypeSub);
 				return 1;
 			});
 
 			if (GroupsCode<0)
 				break;
 
-			if (GroupsCode==12)
+			if (GroupsCode == DefaultId)
 			{
 				Global->Opt->Palette.ResetToDefault();
 				break;
 			}
 
-			if (GroupsCode==13)
+			if (GroupsCode == BlackWhiteId)
 			{
 				Global->Opt->Palette.ResetToBlack();
 				break;
@@ -406,9 +431,14 @@ void SetColors()
 }
 
 
-static void SetItemColors(const MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
+static void SetItemColors(const LNGID* ItemIds, const int* PaletteItems, size_t Size, int TypeSub)
 {
-	VMenu2 ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
+	VMenu2 ItemsMenu(MSG(MSetColorItemsTitle), nullptr, 0);
+
+	FOR(const auto& i, make_range(ItemIds, ItemIds + Size))
+	{
+		ItemsMenu.AddItem(MSG(i));
+	}
 
 	ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
 	ItemsMenu.SetFlags(VMENU_WRAPMODE);
@@ -418,104 +448,113 @@ static void SetItemColors(const MenuDataEx *Items,int *PaletteItems,int Size,int
 		if (Msg!=DN_CLOSE || ItemsCode<0)
 			return 0;
 
-// 0,1 - dialog,warn List
-// 2,3 - dialog,warn Combobox
-		ItemsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-		if (TypeSub == 1 && PaletteItems[ItemsCode] < 4)
+		static const LNGID ListItems[] =
 		{
-			MenuDataEx ListItems[]=
-			{
-				MSG(MSetColorDialogListText),LIF_SELECTED,0,
-				MSG(MSetColorDialogListHighLight),0,0,
-				MSG(MSetColorDialogListSelectedText),0,0,
-				MSG(MSetColorDialogListSelectedHighLight),0,0,
-				MSG(MSetColorDialogListDisabled),0,0,
-				MSG(MSetColorDialogListBox),0,0,
-				MSG(MSetColorDialogListTitle),0,0,
-				MSG(MSetColorDialogListScrollBar),0,0,
-				MSG(MSetColorDialogListArrows),0,0,
-				MSG(MSetColorDialogListArrowsSelected),0,0,
-				MSG(MSetColorDialogListArrowsDisabled),0,0,
-				MSG(MSetColorDialogListGrayed),0,0,
-				MSG(MSetColorDialogSelectedListGrayed),0,0,
-			};
+			MSetColorDialogListText,
+			MSetColorDialogListHighLight,
+			MSetColorDialogListSelectedText,
+			MSetColorDialogListSelectedHighLight,
+			MSetColorDialogListDisabled,
+			MSetColorDialogListBox,
+			MSetColorDialogListTitle,
+			MSetColorDialogListScrollBar,
+			MSetColorDialogListArrows,
+			MSetColorDialogListArrowsSelected,
+			MSetColorDialogListArrowsDisabled,
+			MSetColorDialogListGrayed,
+			MSetColorDialogSelectedListGrayed,
+		};
 
-			// 0,1 - dialog,warn List
-			// 2,3 - dialog,warn Combobox
-			int ListPaletteItems[4][13]=
-			{
-				// Listbox
-				{
-					// normal
-					COL_DIALOGLISTTEXT,
-					COL_DIALOGLISTHIGHLIGHT,
-					COL_DIALOGLISTSELECTEDTEXT,
-					COL_DIALOGLISTSELECTEDHIGHLIGHT,
-					COL_DIALOGLISTDISABLED,
-					COL_DIALOGLISTBOX,
-					COL_DIALOGLISTTITLE,
-					COL_DIALOGLISTSCROLLBAR,
-					COL_DIALOGLISTARROWS,             // Arrow
-					COL_DIALOGLISTARROWSSELECTED,     // ¬ыбранный - Arrow
-					COL_DIALOGLISTARROWSDISABLED,     // Arrow disabled
-					COL_DIALOGLISTGRAY,               // "серый"
-					COL_DIALOGLISTSELECTEDGRAYTEXT,   // выбранный "серый"
-				},
-				{
-					// warn
-					COL_WARNDIALOGLISTTEXT,
-					COL_WARNDIALOGLISTHIGHLIGHT,
-					COL_WARNDIALOGLISTSELECTEDTEXT,
-					COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
-					COL_WARNDIALOGLISTDISABLED,
-					COL_WARNDIALOGLISTBOX,
-					COL_WARNDIALOGLISTTITLE,
-					COL_WARNDIALOGLISTSCROLLBAR,
-					COL_WARNDIALOGLISTARROWS,            // Arrow
-					COL_WARNDIALOGLISTARROWSSELECTED,    // ¬ыбранный - Arrow
-					COL_WARNDIALOGLISTARROWSDISABLED,    // Arrow disabled
-					COL_WARNDIALOGLISTGRAY,              // "серый"
-					COL_WARNDIALOGLISTSELECTEDGRAYTEXT,  // выбранный "серый"
-				},
-				// Combobox
-				{
-					// normal
-					COL_DIALOGCOMBOTEXT,
-					COL_DIALOGCOMBOHIGHLIGHT,
-					COL_DIALOGCOMBOSELECTEDTEXT,
-					COL_DIALOGCOMBOSELECTEDHIGHLIGHT,
-					COL_DIALOGCOMBODISABLED,
-					COL_DIALOGCOMBOBOX,
-					COL_DIALOGCOMBOTITLE,
-					COL_DIALOGCOMBOSCROLLBAR,
-					COL_DIALOGCOMBOARROWS,               // Arrow
-					COL_DIALOGCOMBOARROWSSELECTED,       // ¬ыбранный - Arrow
-					COL_DIALOGCOMBOARROWSDISABLED,       // Arrow disabled
-					COL_DIALOGCOMBOGRAY,                 // "серый"
-					COL_DIALOGCOMBOSELECTEDGRAYTEXT,     // выбранный "серый"
-				},
-				{
-					// warn
-					COL_WARNDIALOGCOMBOTEXT,
-					COL_WARNDIALOGCOMBOHIGHLIGHT,
-					COL_WARNDIALOGCOMBOSELECTEDTEXT,
-					COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT,
-					COL_WARNDIALOGCOMBODISABLED,
-					COL_WARNDIALOGCOMBOBOX,
-					COL_WARNDIALOGCOMBOTITLE,
-					COL_WARNDIALOGCOMBOSCROLLBAR,
-					COL_WARNDIALOGCOMBOARROWS,            // Arrow
-					COL_WARNDIALOGCOMBOARROWSSELECTED,    // ¬ыбранный - Arrow
-					COL_WARNDIALOGCOMBOARROWSDISABLED,    // Arrow disabled
-					COL_WARNDIALOGCOMBOGRAY,              // "серый"
-					COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,  // выбранный "серый"
-				},
-			};
+		static const int ListPaletteItemsNormal[] =
+		{
+			COL_DIALOGLISTTEXT,
+			COL_DIALOGLISTHIGHLIGHT,
+			COL_DIALOGLISTSELECTEDTEXT,
+			COL_DIALOGLISTSELECTEDHIGHLIGHT,
+			COL_DIALOGLISTDISABLED,
+			COL_DIALOGLISTBOX,
+			COL_DIALOGLISTTITLE,
+			COL_DIALOGLISTSCROLLBAR,
+			COL_DIALOGLISTARROWS,             // Arrow
+			COL_DIALOGLISTARROWSSELECTED,     // ¬ыбранный - Arrow
+			COL_DIALOGLISTARROWSDISABLED,     // Arrow disabled
+			COL_DIALOGLISTGRAY,               // "серый"
+			COL_DIALOGLISTSELECTEDGRAYTEXT,   // выбранный "серый"
+		};
+		CheckSize(ListItems, ListPaletteItemsNormal);
 
+		static const int ListPaletteItemsWarn[] =
+		{
+			COL_WARNDIALOGLISTTEXT,
+			COL_WARNDIALOGLISTHIGHLIGHT,
+			COL_WARNDIALOGLISTSELECTEDTEXT,
+			COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
+			COL_WARNDIALOGLISTDISABLED,
+			COL_WARNDIALOGLISTBOX,
+			COL_WARNDIALOGLISTTITLE,
+			COL_WARNDIALOGLISTSCROLLBAR,
+			COL_WARNDIALOGLISTARROWS,            // Arrow
+			COL_WARNDIALOGLISTARROWSSELECTED,    // ¬ыбранный - Arrow
+			COL_WARNDIALOGLISTARROWSDISABLED,    // Arrow disabled
+			COL_WARNDIALOGLISTGRAY,              // "серый"
+			COL_WARNDIALOGLISTSELECTEDGRAYTEXT,  // выбранный "серый"
+		};
+		CheckSize(ListItems, ListPaletteItemsWarn);
+
+		static const int ComboPaletteItemsNormal[] =
+		{
+			COL_DIALOGCOMBOTEXT,
+			COL_DIALOGCOMBOHIGHLIGHT,
+			COL_DIALOGCOMBOSELECTEDTEXT,
+			COL_DIALOGCOMBOSELECTEDHIGHLIGHT,
+			COL_DIALOGCOMBODISABLED,
+			COL_DIALOGCOMBOBOX,
+			COL_DIALOGCOMBOTITLE,
+			COL_DIALOGCOMBOSCROLLBAR,
+			COL_DIALOGCOMBOARROWS,               // Arrow
+			COL_DIALOGCOMBOARROWSSELECTED,       // ¬ыбранный - Arrow
+			COL_DIALOGCOMBOARROWSDISABLED,       // Arrow disabled
+			COL_DIALOGCOMBOGRAY,                 // "серый"
+			COL_DIALOGCOMBOSELECTEDGRAYTEXT,     // выбранный "серый"
+		};
+		CheckSize(ListItems, ComboPaletteItemsNormal);
+
+		static const int ComboPaletteItemsWarn[] =
+		{
+			// warn
+			COL_WARNDIALOGCOMBOTEXT,
+			COL_WARNDIALOGCOMBOHIGHLIGHT,
+			COL_WARNDIALOGCOMBOSELECTEDTEXT,
+			COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT,
+			COL_WARNDIALOGCOMBODISABLED,
+			COL_WARNDIALOGCOMBOBOX,
+			COL_WARNDIALOGCOMBOTITLE,
+			COL_WARNDIALOGCOMBOSCROLLBAR,
+			COL_WARNDIALOGCOMBOARROWS,            // Arrow
+			COL_WARNDIALOGCOMBOARROWSSELECTED,    // ¬ыбранный - Arrow
+			COL_WARNDIALOGCOMBOARROWSDISABLED,    // Arrow disabled
+			COL_WARNDIALOGCOMBOGRAY,              // "серый"
+			COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,  // выбранный "серый"
+		};
+		CheckSize(ListItems, ComboPaletteItemsNormal);
+
+		static const int* ListPaletteItems[] =
+		{
+			ListPaletteItemsNormal,
+			ListPaletteItemsWarn,
+			ComboPaletteItemsNormal,
+			ComboPaletteItemsWarn,
+		};
+		static_assert(ARRAYSIZE(ListPaletteItems) == list_modes_count, "wrong array size");
+
+		ItemsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+		if (TypeSub == 1 && PaletteItems[ItemsCode] < list_modes_count)
+		{
 			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2);
 		}
 		else
 			GetColor(PaletteItems[ItemsCode]);
+
 		return 1;
 	});
 }

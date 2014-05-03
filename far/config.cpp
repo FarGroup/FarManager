@@ -1772,7 +1772,6 @@ void Options::InitRoamingCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"CASRule", &CASRule, -1},
 		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", &CloseCDGate, true},
 		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", &CmdHistoryRule, false},
-		{FSSF_PRIVATE,       NKeySystem,L"CollectFiles", &FindOpt.CollectFiles, true},
 		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", &ConsoleDetachKey, L"CtrlShiftTab"},
 		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", &CMOpt.BufferSize, 0},
 		{FSSF_SYSTEM,        NKeySystem,L"CopyOpened", &CMOpt.CopyOpened, true},

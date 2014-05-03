@@ -476,7 +476,7 @@ void codepages::AddCodePages(DWORD codePages)
 			AddCodePage(
 				CodepageName, cp,
 				GetCodePageInsertPosition(cp, GetItemsCount()-normalCodePages, normalCodePages	),
-				true,	false, IsCodePageNameCustom
+				true, (selectType & CPST_FIND) != 0, IsCodePageNameCustom
 			);
 			// Увеличиваем счётчик выбранных таблиц символов
 			normalCodePages++;

@@ -10552,6 +10552,16 @@ upd:"Wszystkie zainstalowane"
 "Todas las páginas de códigos estándar"
 upd:"Všetky tabuľky znakov"
 
+MFindFileSelectedCodePages
+"Отмеченные кодовые страницы"
+"Selected code pages"
+upd:"Selected code pages"
+upd:"Selected code pages"
+upd:"Selected code pages"
+upd:"Selected code pages"
+upd:"Selected code pages"
+upd:"Selected code pages"
+
 MFindArchives
 "Искать в а&рхивах"
 "Search in arch&ives"
@@ -10582,6 +10592,16 @@ MFindSymLinks
 "Buscar en enlaces &simbólicos"
 "Hľadať v s&ymbol. prepoj."
 
+MFindAlternateStreams
+"Искать в альтернативных потоках"
+"Search in alternate streams"
+upd:"Search in alternate streams"
+upd:"Search in alternate streams"
+upd:"Search in alternate streams"
+upd:"Search in alternate streams"
+upd:"Search in alternate streams"
+upd:"Search in alternate streams"
+
 MSearchForHex
 "Искать 16-ричн&ый код"
 "Search for &hex"
@@ -10591,6 +10611,16 @@ MSearchForHex
 "Szukaj wartości &szesnastkowej"
 "Buscar cadena &hexadecimal"
 "Hľadať &hex"
+
+MSearchNotContaining
+"Не содержащих"
+"Not containing"
+upd:"Not containing"
+upd:"Not containing"
+upd:"Not containing"
+upd:"Not containing"
+upd:"Not containing"
+upd:"Not containing"
 
 MSearchWhere
 "Выберите &область поиска:"
@@ -10895,16 +10925,6 @@ upd:"&Output format:"
 upd:"&Output format:"
 "F&ormato de salida:"
 "Vý&stupný formát:"
-
-MFindAlternateStreams
-"Обрабатывать &альтернативные потоки данных"
-"Process &alternate data streams"
-"Zpracovat stříd&avé datové toky"
-upd:"Process &alternate data streams"
-"&Alternatív adatsávok (stream) feldolgozása"
-upd:"Process &alternate data streams"
-"Procesar flujo &alternativo de datos"
-"Spracovať stried&avé dátové toky"
 
 MFindAlternateModeTypes
 "&Типы колонок"

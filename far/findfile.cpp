@@ -281,7 +281,6 @@ enum ADVANCEDDLG
 	AD_DOUBLEBOX,
 	AD_TEXT_SEARCHFIRST,
 	AD_EDIT_SEARCHFIRST,
-	AD_CHECKBOX_FINDALTERNATESTREAMS,
 	AD_SEPARATOR1,
 	AD_TEXT_COLUMNSFORMAT,
 	AD_EDIT_COLUMNSFORMAT,
@@ -307,9 +306,11 @@ enum FINDASKDLG
 	FAD_CHECKBOX_CASE,
 	FAD_CHECKBOX_WHOLEWORDS,
 	FAD_CHECKBOX_HEX,
+	FAD_CHECKBOX_NOTCONTAINING,
 	FAD_CHECKBOX_ARC,
 	FAD_CHECKBOX_DIRS,
 	FAD_CHECKBOX_LINKS,
+	FAD_CHECKBOX_STREAMS,
 	FAD_SEPARATOR_2,
 	FAD_SEPARATOR_3,
 	FAD_TEXT_WHERE,
@@ -410,13 +411,13 @@ void FindFiles::InitInFileSearch()
 
 				if (hasSelected)
 				{
-					codePages.clear();
+					m_CodePages.clear();
 				}
 				else
 				{
 					// Добавляем стандартные таблицы символов
 					const uintptr_t Predefined[] = { GetOEMCP(), GetACP(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
-					codePages.insert(codePages.end(), ALL_CONST_RANGE(Predefined));
+					m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
 				}
 
 				// Добавляем избранные таблицы символов
@@ -427,17 +428,17 @@ void FindFiles::InitInFileSearch()
 						uintptr_t codePage = std::stoi(i.first);
 
 						// Проверяем дубли
-						if (hasSelected || !std::any_of(CONST_RANGE(codePages, i) {return i.CodePage == CodePage;}))
-							codePages.emplace_back(codePage);
+						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, i) { return i.CodePage == CodePage; }))
+							m_CodePages.emplace_back(codePage);
 					}
 				});
 			}
 			else
 			{
-				codePages.emplace_back(CodePage);
+				m_CodePages.emplace_back(CodePage);
 			}
 
-			std::for_each(RANGE(codePages, i)
+			std::for_each(RANGE(m_CodePages, i)
 			{
 				if (IsUnicodeCodePage(i.CodePage))
 					i.MaxCharSize = 2;
@@ -515,7 +516,7 @@ void FindFiles::ReleaseInFileSearch()
 		delete[] skipCharsTable;
 		skipCharsTable=nullptr;
 
-		codePages.clear();
+		m_CodePages.clear();
 
 		delete[] hexFindString;
 		hexFindString=nullptr;
@@ -648,23 +649,22 @@ void FindFiles::AdvancedDialog()
 {
 	FarDialogItem AdvancedDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,52,12,0,nullptr,nullptr,0,MSG(MFindFileAdvancedTitle)},
+		{DI_DOUBLEBOX,3,1,52,11,0,nullptr,nullptr,0,MSG(MFindFileAdvancedTitle)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MFindFileSearchFirst)},
 		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize.data()},
-		{DI_CHECKBOX,5,4,0,4,Global->Opt->FindOpt.FindAlternateStreams,nullptr,nullptr,0,MSG(MFindAlternateStreams)},
-		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,6, 0, 6,0,nullptr,nullptr,0,MSG(MFindAlternateModeTypes)},
-		{DI_EDIT,5,7,35, 7,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.data()},
-		{DI_TEXT,5,8, 0, 8,0,nullptr,nullptr,0,MSG(MFindAlternateModeWidths)},
-		{DI_EDIT,5,9,35, 9,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.data()},
-		{DI_TEXT,-1,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_TEXT,5,5, 0, 5,0,nullptr,nullptr,0,MSG(MFindAlternateModeTypes)},
+		{DI_EDIT,5,6,50, 6,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.data()},
+		{DI_TEXT,5,7, 0, 7,0,nullptr,nullptr,0,MSG(MFindAlternateModeWidths)},
+		{DI_EDIT,5,8,50, 8,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.data()},
+		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
 	Dialog Dlg(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg.SetHelp(L"FindFileAdvanced");
-	Dlg.SetPosition(-1,-1,52+4,7+7);
+	Dlg.SetPosition(-1,-1,52+4,13);
 	Dlg.Process();
 	int ExitCode=Dlg.GetExitCode();
 
@@ -685,13 +685,22 @@ void FindFiles::AdvancedDialog()
 
 			TextToViewSettings(Global->Opt->FindOpt.strSearchOutFormat, Global->Opt->FindOpt.strSearchOutFormatWidth, Global->Opt->FindOpt.OutColumns);
         }
-
-		Global->Opt->FindOpt.FindAlternateStreams=(AdvancedDlg[AD_CHECKBOX_FINDALTERNATESTREAMS].Selected==BSTATE_CHECKED);
 	}
 }
 
 intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
+	auto SetAllCpTitle = [&]()
+	{
+		const auto CpEnum = Codepages().GetFavoritesEnumerator();
+		auto Title = MSG(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; }) ? MFindFileSelectedCodePages : MFindFileAllCodePages);
+		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->GetItemPtr(0)->strName = Title;
+		FarListPos Position = { sizeof(FarListPos) };
+		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
+		if (Position.SelectPos == 0)
+			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, const_cast<wchar_t*>(Title));
+	};
+
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
@@ -714,6 +723,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
 			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true, false, false);
+			SetAllCpTitle();
+
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
@@ -848,11 +859,11 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							// Получаем номер выбранной таблицы симолов
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-							UINT SelectedCodePage = *(UINT*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
+							uintptr_t SelectedCodePage = *(uintptr_t*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
 							// Разрешаем отмечать только стандартные и избранные таблицы символов
 							int FavoritesIndex = 2 + StandardCPCount + 2;
 
-							if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
+							if (Position.SelectPos > 1)
 							{
 								// Получаем текущее состояние флага в реестре
 								long long SelectType = Codepages().GetFavorite(SelectedCodePage);
@@ -875,14 +886,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 
+								SetAllCpTitle();
+
 								// Обновляем текущий элемент в выпадающем списке
 								Dlg->SendMessage( DM_LISTUPDATE, FAD_COMBOBOX_CP, &Item);
 
-								if (Position.SelectPos<FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0)-2)
-								{
-									FarListPos Pos={sizeof(FarListPos),Position.SelectPos+1,Position.TopPos};
-									Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
-								}
+								FarListPos Pos={sizeof(FarListPos),Position.SelectPos+1,Position.TopPos};
+								Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
 
 								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в избранных,
 								// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
@@ -941,7 +951,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_COMBOBOX_CP:
 				{
 					// Получаем выбранную в выпадающем списке таблицу символов
-					CodePage = *(UINT*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, 0)));
+					CodePage = *(uintptr_t*)Dlg->SendMessage( DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, 0)));
 				}
 				return TRUE;
 				case FAD_COMBOBOX_WHERE:
@@ -951,15 +961,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					return TRUE;
 			}
 		}
-		case DN_HOTKEY:
-		{
-			if (Param1==FAD_TEXT_TEXTHEX)
-			{
-				bool Hex=(Dlg->SendMessage(DM_GETCHECK,FAD_CHECKBOX_HEX,0)==BSTATE_CHECKED);
-				Dlg->SendMessage(DM_SETFOCUS,Hex?FAD_EDIT_HEX:FAD_EDIT_TEXT,0);
-				return FALSE;
-			}
-		}
+
 		default:
 			break;
 	}
@@ -1111,7 +1113,7 @@ bool FindFiles::LookForString(const string& Name)
 		else
 		{
 			bool ErrorState = false;
-			FOR(auto& i, codePages)
+			FOR(auto& i, m_CodePages)
 			{
 				ErrorState = false;
 				// Пропускаем ошибочные кодовые страницы
@@ -1304,7 +1306,7 @@ bool FindFiles::LookForString(const string& Name)
 				return false;
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((CodePage==CP_DEFAULT?sizeof(wchar_t):codePages.begin()->MaxCharSize)*(findStringCount-1));
+			offset = (int)((CodePage == CP_DEFAULT? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1));
 		}
 
 		// Если мы потенциально прочитали не весь файл
@@ -1379,8 +1381,12 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName
 					strSearchFileName = FullName;
 				}
 
-				if (!strSearchFileName.empty() && LookForString(strSearchFileName))
-					FileFound=true;
+				if (!strSearchFileName.empty())
+				{
+					bool StringFound = LookForString(strSearchFileName);
+					if ((StringFound && !NotContaining) || (!StringFound && NotContaining))
+						FileFound=true;
+				}
 
 				if (RemoveTemp)
 				{
@@ -1718,31 +1724,28 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							int list_count = 0;
 
 							// Возьмем все файлы, которые имеют реальные имена...
-							if (Global->Opt->FindOpt.CollectFiles)
+							itd->Lock();
+							std::for_each(CONST_RANGE(itd->GetFindList(), i)
 							{
-								itd->Lock();
-								std::for_each(CONST_RANGE(itd->GetFindList(), i)
+								bool RealNames=true;
+								if(i.Arc)
 								{
-									bool RealNames=true;
-									if(i.Arc)
+									if(!(i.Arc->Flags & OPIF_REALNAMES))
 									{
-										if(!(i.Arc->Flags & OPIF_REALNAMES))
-										{
-											RealNames=false;
-										}
+										RealNames=false;
 									}
-									if (RealNames)
+								}
+								if (RealNames)
+								{
+									if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 									{
-										if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-										{
-											++list_count;
-											ViewList.AddName(i.FindData.strFileName);
-										}
+										++list_count;
+										ViewList.AddName(i.FindData.strFileName);
 									}
-								});
-								itd->Unlock();
-								ViewList.SetCurName(FindItem->FindData.strFileName);
-							}
+								}
+							});
+							itd->Unlock();
+							ViewList.SetCurName(FindItem->FindData.strFileName);
 
 							Dlg->SendMessage(DM_SHOWDIALOG,FALSE,0);
 							Dlg->SendMessage(DM_ENABLEREDRAW,FALSE,0);
@@ -3010,6 +3013,7 @@ FindFiles::FindFiles():
 	WholeWords = false;
 	SearchInArchives = false;
 	SearchHex = false;
+	NotContaining = false;
 	SearchMode = 0;
 	UseFilter = false;
 	CodePage=CP_DEFAULT;
@@ -3027,13 +3031,14 @@ FindFiles::FindFiles():
 	static string strLastFindMask=L"*.*", strLastFindStr;
 	// Статической структуре и статические переменные
 	static string strSearchFromRoot;
-	static bool LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
+	static bool LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0, LastNotContaining = 0;
 	// Создадим объект фильтра
 	Filter=new FileFilter(Global->CtrlObject->Cp()->ActivePanel,FFT_FINDFILE);
 	CmpCase=LastCmpCase;
 	WholeWords=LastWholeWords;
 	SearchInArchives=LastSearchInArchives;
 	SearchHex=LastSearchHex;
+	NotContaining = LastNotContaining;
 	SearchMode=Global->Opt->FindOpt.FileSearchMode;
 	UseFilter=Global->Opt->FindOpt.UseFilter!=0;
 	strFindMask = strLastFindMask;
@@ -3057,36 +3062,38 @@ FindFiles::FindFiles():
 		PrepareDriveNameStr(strSearchFromRoot);
 		const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
 		const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
-		const wchar_t VSeparator[]={BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
+		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
 		FarDialogItem FindAskDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,74,18,0,nullptr,nullptr,0,MSG(MFindFileTitle)},
+			{DI_DOUBLEBOX,3,1,76,19,0,nullptr,nullptr,0,MSG(MFindFileTitle)},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MFindFileMasks)},
-			{DI_EDIT,5,3,72,3,0,MasksHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
+			{DI_EDIT,5,3,74,3,0,MasksHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,L""},
-			{DI_EDIT,5,6,72,6,0,TextHistoryName,nullptr,DIF_HISTORY,L""},
-			{DI_FIXEDIT,5,6,72,6,0,nullptr,HexMask,DIF_MASKEDIT,L""},
+			{DI_EDIT,5,6,74,6,0,TextHistoryName,nullptr,DIF_HISTORY,L""},
+			{DI_FIXEDIT,5,6,74,6,0,nullptr,HexMask,DIF_MASKEDIT,L""},
 			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,0,L""},
-			{DI_COMBOBOX,5,8,72,8,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
+			{DI_COMBOBOX,5,8,74,8,0,nullptr,nullptr,DIF_DROPDOWNLIST,L""},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,MSG(MFindFileCase)},
 			{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,0,MSG(MFindFileWholeWords)},
 			{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,0,MSG(MSearchForHex)},
-			{DI_CHECKBOX,40,10,0,10,0,nullptr,nullptr,0,MSG(MFindArchives)},
-			{DI_CHECKBOX,40,11,0,11,0,nullptr,nullptr,0,MSG(MFindFolders)},
-			{DI_CHECKBOX,40,12,0,12,0,nullptr,nullptr,0,MSG(MFindSymLinks)},
-			{DI_TEXT,-1,13,0,13,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_VTEXT,38,9,0,9,0,nullptr,nullptr,DIF_BOXCOLOR,VSeparator},
-			{DI_TEXT,5,14,0,14,0,nullptr,nullptr,0,MSG(MSearchWhere)},
-			{DI_COMBOBOX,5,15,36,15,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-			{DI_CHECKBOX,40,15,0,15,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,MSG(MFindUseFilter)},
-			{DI_TEXT,-1,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MFindFileFind)},
-			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileDrive)},
-			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MFindFileSetFilter)},
-			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileAdvanced)},
-			{DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+			{DI_CHECKBOX,5,13,0,13,NotContaining,nullptr,nullptr,0,MSG(MSearchNotContaining)},
+			{DI_CHECKBOX,41,10,0,10,0,nullptr,nullptr,0,MSG(MFindArchives)},
+			{DI_CHECKBOX,41,11,0,11,0,nullptr,nullptr,0,MSG(MFindFolders)},
+			{DI_CHECKBOX,41,12,0,12,0,nullptr,nullptr,0,MSG(MFindSymLinks)},
+			{DI_CHECKBOX,41,13,0,13,0,nullptr,nullptr,0,MSG(MFindAlternateStreams)},
+			{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+			{DI_VTEXT,39,9,0,9,0,nullptr,nullptr,DIF_BOXCOLOR,VSeparator},
+			{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,MSG(MSearchWhere)},
+			{DI_COMBOBOX,5,16,36,16,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
+			{DI_CHECKBOX,41,16,0,16,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,MSG(MFindUseFilter)},
+			{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MFindFileFind)},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileDrive)},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MFindFileSetFilter)},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileAdvanced)},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
 		auto FindAskDlg = MakeDialogItemsEx(FindAskDlgData);
 
@@ -3126,10 +3133,14 @@ FindFiles::FindFiles():
 			li[FADC_ALLBUTNET].Flags|=LIF_GRAYED;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=0;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Flags|=DIF_DISABLE;
+			FindAskDlg[FAD_CHECKBOX_STREAMS].Selected = 0;
+			FindAskDlg[FAD_CHECKBOX_STREAMS].Flags |= DIF_DISABLE;
 		}
 		else
-			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=Global->Opt->FindOpt.FindSymLinks;
-
+		{
+			FindAskDlg[FAD_CHECKBOX_LINKS].Selected = Global->Opt->FindOpt.FindSymLinks;
+			FindAskDlg[FAD_CHECKBOX_STREAMS].Selected = Global->Opt->FindOpt.FindAlternateStreams;
+		}
 		if (!(FindAskDlg[FAD_CHECKBOX_ARC].Flags & DIF_DISABLE))
 			FindAskDlg[FAD_CHECKBOX_ARC].Selected=SearchInArchives;
 
@@ -3148,7 +3159,7 @@ FindFiles::FindFiles():
 		Dlg.SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);
-		Dlg.SetPosition(-1,-1,78,20);
+		Dlg.SetPosition(-1,-1,80,21);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога
@@ -3164,6 +3175,7 @@ FindFiles::FindFiles():
 		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
 		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
 		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
+		NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
 
 		if (FindFoldersChanged)
 		{
@@ -3173,6 +3185,7 @@ FindFiles::FindFiles():
 		if (!PluginMode)
 		{
 			Global->Opt->FindOpt.FindSymLinks=(FindAskDlg[FAD_CHECKBOX_LINKS].Selected==BSTATE_CHECKED);
+			Global->Opt->FindOpt.FindAlternateStreams = (FindAskDlg[FAD_CHECKBOX_STREAMS].Selected == BSTATE_CHECKED);
 		}
 
 		UseFilter=(FindAskDlg[FAD_CHECKBOX_FILTER].Selected==BSTATE_CHECKED);
@@ -3229,6 +3242,7 @@ FindFiles::FindFiles():
 		LastWholeWords=WholeWords;
 		LastSearchHex=SearchHex;
 		LastSearchInArchives=SearchInArchives;
+		LastNotContaining = NotContaining;
 		strLastFindMask = strFindMask;
 		strLastFindStr = strFindStr;
 
