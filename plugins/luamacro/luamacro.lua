@@ -21,6 +21,7 @@ local PostedMacros = {}
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
+local TableFarCommandLine
 local utils, macrobrowser, panelsort
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
@@ -266,6 +267,9 @@ end
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   prefix = prefix:lower()
+--  if type(LuaMacroCommandLine)=="function" and LuaMacroCommandLine(prefix,text) then
+--    return
+--  end
   if prefix == "lm" or prefix == "macro" then
     local cmd = text:match("%S*"):lower()
     if cmd == "load" then far.MacroLoadAll()
@@ -319,6 +323,19 @@ function export.Open (OpenFrom, arg1, arg2, ...)
       if panelsort then
         TablePanelSort = panelsort.GetSortModes()
         return F.MPRT_NORMALFINISH, TablePanelSort
+      end
+    elseif calltype==F.MCT_FARCOMMANDLINE then
+      if type(ProcessFarCommandLine)=="function" then
+        local res = ProcessFarCommandLine(...)
+        if res then
+          if type(res)=="string" then
+            TableFarCommandLine = pack(res)
+            return F.MPRT_NORMALFINISH, TableFarCommandLine
+          else
+            panel.SetCmdLine(nil,"")
+            return true
+          end
+        end
       end
     end
 
