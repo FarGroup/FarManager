@@ -744,7 +744,7 @@ static int _EditorGetString(lua_State *L, int is_wide)
 		return 1;
 	}
 
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 static int editor_GetString(lua_State *L) { return _EditorGetString(L, 0); }
@@ -1020,32 +1020,29 @@ static int PushBookmarks(lua_State *L, int command)
 	memset(&ebm, 0, sizeof(ebm));
 	ebm.StructSize = sizeof(ebm);
 	ebm.Size = GetPluginData(L)->Info->EditorControl(EditorId, command, 0, &ebm);
-
-	if(ebm.Size == 0)
-		return 0;
-
-	ebm.Line = (intptr_t*)lua_newuserdata(L, ebm.Size);
-	ebm.Cursor     = ebm.Line + ebm.Count;
-	ebm.ScreenLine = ebm.Cursor + ebm.Count;
-	ebm.LeftPos    = ebm.ScreenLine + ebm.Count;
-
-	if(!GetPluginData(L)->Info->EditorControl(EditorId, command, 0, &ebm))
-		return 0;
-
-	lua_createtable(L, (int)ebm.Count, 0);
-
-	for(i=0; i < (int)ebm.Count; i++)
+	if(ebm.Size)
 	{
-		lua_pushinteger(L, i+1);
-		lua_createtable(L, 0, 4);
-		PutNumToTable(L, "Line", (double) ebm.Line[i] + 1);
-		PutNumToTable(L, "Cursor", (double) ebm.Cursor[i] + 1);
-		PutNumToTable(L, "ScreenLine", (double) ebm.ScreenLine[i] + 1);
-		PutNumToTable(L, "LeftPos", (double) ebm.LeftPos[i] + 1);
-		lua_rawset(L, -3);
+		ebm.Line = (intptr_t*)lua_newuserdata(L, ebm.Size);
+		ebm.Cursor     = ebm.Line + ebm.Count;
+		ebm.ScreenLine = ebm.Cursor + ebm.Count;
+		ebm.LeftPos    = ebm.ScreenLine + ebm.Count;
+		if(GetPluginData(L)->Info->EditorControl(EditorId, command, 0, &ebm))
+		{
+			lua_createtable(L, (int)ebm.Count, 0);
+			for(i=0; i < (int)ebm.Count; i++)
+			{
+				lua_pushinteger(L, i+1);
+				lua_createtable(L, 0, 4);
+				PutNumToTable(L, "Line", (double) ebm.Line[i] + 1);
+				PutNumToTable(L, "Cursor", (double) ebm.Cursor[i] + 1);
+				PutNumToTable(L, "ScreenLine", (double) ebm.ScreenLine[i] + 1);
+				PutNumToTable(L, "LeftPos", (double) ebm.LeftPos[i] + 1);
+				lua_rawset(L, -3);
+			}
+			return 1;
+		}
 	}
-
-	return 1;
+	return lua_pushnil(L), 1;
 }
 
 static int editor_GetBookmarks(lua_State *L)
@@ -1139,31 +1136,27 @@ static int FillEditorSelect(lua_State *L, int pos_table, struct EditorSelect *es
 
 static int editor_Select(lua_State *L)
 {
+	int success = 0;
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	struct EditorSelect es;
 	es.StructSize = sizeof(es);
 
 	if(lua_istable(L, 2))
-	{
-		if(!FillEditorSelect(L, 2, &es))
-			return 0;
-	}
+		success = FillEditorSelect(L, 2, &es);
 	else
 	{
-		int success;
 		es.BlockType = CAST(int, get_env_flag(L, 2, &success));
-
-		if(!success)
-			return 0;
-
-		es.BlockStartLine = luaL_optinteger(L, 3, 0) - 1;
-		es.BlockStartPos  = luaL_optinteger(L, 4, 0) - 1;
-		es.BlockWidth     = luaL_optinteger(L, 5, -1);
-		es.BlockHeight    = luaL_optinteger(L, 6, -1);
+		if(success)
+		{
+			es.BlockStartLine = luaL_optinteger(L, 3, 0) - 1;
+			es.BlockStartPos  = luaL_optinteger(L, 4, 0) - 1;
+			es.BlockWidth     = luaL_optinteger(L, 5, -1);
+			es.BlockHeight    = luaL_optinteger(L, 6, -1);
+		}
 	}
 
-	lua_pushboolean(L, (int)Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
+	lua_pushboolean(L, success && Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
 	return 1;
 }
 
@@ -1253,9 +1246,11 @@ static int _EditorTabConvert(lua_State *L, int Operation)
 	ecp.SrcPos = luaL_checkinteger(L,3) - 1;
 
 	if(Info->EditorControl(EditorId, Operation, 0, &ecp))
-		return lua_pushinteger(L, ecp.DestPos+1), 1;
+		lua_pushinteger(L, ecp.DestPos+1);
+	else
+		lua_pushnil(L);
 
-	return 0;
+	return 1;
 }
 
 static int editor_TabToReal(lua_State *L)
@@ -1383,7 +1378,7 @@ static int editor_SaveFile(lua_State *L)
 	return 1;
 }
 
-int pushInputRecord(lua_State *L, const INPUT_RECORD* ir)
+void pushInputRecord(lua_State *L, const INPUT_RECORD* ir)
 {
 	lua_newtable(L);
 	PutIntToTable(L, "EventType", ir->EventType);
@@ -1413,10 +1408,8 @@ int pushInputRecord(lua_State *L, const INPUT_RECORD* ir)
 			PutBoolToTable(L,"SetFocus", ir->Event.FocusEvent.bSetFocus);
 			break;
 		default:
-			return 0;
+			break;
 	}
-
-	return 1;
 }
 
 static int editor_ReadInput(lua_State *L)
@@ -1425,10 +1418,12 @@ static int editor_ReadInput(lua_State *L)
 	PSInfo *Info = GetPluginData(L)->Info;
 	INPUT_RECORD ir;
 
-	if(!Info->EditorControl(EditorId, ECTL_READINPUT, 0, &ir))
-		return 0;
+	if(Info->EditorControl(EditorId, ECTL_READINPUT, 0, &ir))
+		pushInputRecord(L, &ir);
+	else
+		lua_pushnil(L);
 
-	return pushInputRecord(L, &ir);
+	return 1;
 }
 
 void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir)
@@ -1722,7 +1717,7 @@ static int far_Menu(lua_State *L)
 		lua_gettable(L, 3);
 	}
 	else if(ret == -1)
-		return 0;
+		return lua_pushnil(L), 1;
 	else
 	{
 		lua_pushinteger(L, ret+1);
@@ -2342,7 +2337,7 @@ static int ChangePanelSelection(lua_State *L, BOOL op_set)
 
 	if(!Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi) ||
 	        (pi.PanelType != PTYPE_FILEPANEL))
-		return 0;
+		return lua_pushboolean(L,0), 1;
 
 	//---------------------------------------------------------------------------
 	numItems = op_set ? pi.ItemsNumber : pi.SelectedItemsNumber;
@@ -2446,10 +2441,11 @@ static int far_GetDirList(lua_State *L)
 		}
 
 		Info->FreeDirList(PanelItems, ItemsNumber);
-		return 1;
 	}
+	else
+		lua_pushnil(L);
 
-	return 0;
+	return 1;
 }
 
 // GetPluginDirList (hPanel, Dir) //TODO: update manual
@@ -2467,24 +2463,24 @@ static int far_GetPluginDirList(lua_State *L)
 	{
 		PushPanelItems(L, PanelItems, ItemsNumber);
 		pd->Info->FreePluginDirList(handle, PanelItems, ItemsNumber);
-		return 1;
 	}
+	else
+		lua_pushnil(L);
 
-	return 0;
+	return 1;
 }
 
 // RestoreScreen (handle)
 //   handle:    handle of saved screen.
 static int far_RestoreScreen(lua_State *L)
 {
-	if(lua_type(L,1) == LUA_TLIGHTUSERDATA)
+	int res = (lua_type(L,1) == LUA_TLIGHTUSERDATA);
+	if (res)
 	{
 		PSInfo *Info = GetPluginData(L)->Info;
 		Info->RestoreScreen((HANDLE)lua_touserdata(L, 1));
-		return lua_pushboolean(L, 1), 1;
 	}
-
-	return 0;
+	return lua_pushboolean(L, res), 1;
 }
 
 // handle = SaveScreen (X1,Y1,X2,Y2)
@@ -2496,14 +2492,8 @@ static int far_SaveScreen(lua_State *L)
 	intptr_t Y1 = luaL_optinteger(L,2,0);
 	intptr_t X2 = luaL_optinteger(L,3,-1);
 	intptr_t Y2 = luaL_optinteger(L,4,-1);
-	void* handle = Info->SaveScreen(X1,Y1,X2,Y2);
-
-	if(handle)
-	{
-		return lua_pushlightuserdata(L, handle), 1;
-	}
-
-	return 0;
+	lua_pushlightuserdata(L, Info->SaveScreen(X1,Y1,X2,Y2));
+	return 1;
 }
 
 static UINT64 GetDialogItemType(lua_State* L, int key, int item)
@@ -3770,27 +3760,30 @@ static int viewer_GetInfo(lua_State *L)
 	struct ViewerInfo vi;
 	vi.StructSize = sizeof(vi);
 
-	if(!Info->ViewerControl(ViewerId, VCTL_GETINFO, 0, &vi))
-		return 0;
+	if(Info->ViewerControl(ViewerId, VCTL_GETINFO, 0, &vi))
+	{
+		lua_createtable(L, 0, 10);
+		PutNumToTable(L, "ViewerID", (double) vi.ViewerID);
 
-	lua_createtable(L, 0, 10);
-	PutNumToTable(L, "ViewerID", (double) vi.ViewerID);
+		if(push_ev_filename(L, 0, ViewerId))
+			lua_setfield(L, -2, "FileName");
 
-	if(push_ev_filename(L, 0, ViewerId))
-		lua_setfield(L, -2, "FileName");
+		PutNumToTable(L,  "FileSize", (double) vi.FileSize);
+		PutNumToTable(L,  "FilePos", (double) vi.FilePos);
+		PutNumToTable(L,  "WindowSizeX", (double) vi.WindowSizeX);
+		PutNumToTable(L,  "WindowSizeY", (double) vi.WindowSizeY);
+		PutNumToTable(L,  "Options", (double) vi.Options);
+		PutNumToTable(L,  "TabSize", (double) vi.TabSize);
+		PutNumToTable(L,  "LeftPos", (double) vi.LeftPos + 1);
+		lua_createtable(L, 0, 3);
+		PutNumToTable(L, "CodePage", (double) vi.CurMode.CodePage);
+		PutFlagsToTable(L, "Flags",    vi.CurMode.Flags);
+		PutNumToTable(L, "ViewMode", (double) vi.CurMode.ViewMode);
+		lua_setfield(L, -2, "CurMode");
+	}
+	else
+		lua_pushnil(L);
 
-	PutNumToTable(L,  "FileSize", (double) vi.FileSize);
-	PutNumToTable(L,  "FilePos", (double) vi.FilePos);
-	PutNumToTable(L,  "WindowSizeX", (double) vi.WindowSizeX);
-	PutNumToTable(L,  "WindowSizeY", (double) vi.WindowSizeY);
-	PutNumToTable(L,  "Options", (double) vi.Options);
-	PutNumToTable(L,  "TabSize", (double) vi.TabSize);
-	PutNumToTable(L,  "LeftPos", (double) vi.LeftPos + 1);
-	lua_createtable(L, 0, 3);
-	PutNumToTable(L, "CodePage", (double) vi.CurMode.CodePage);
-	PutFlagsToTable(L, "Flags",    vi.CurMode.Flags);
-	PutNumToTable(L, "ViewMode", (double) vi.CurMode.ViewMode);
-	lua_setfield(L, -2, "CurMode");
 	return 1;
 }
 
@@ -4472,27 +4465,31 @@ static int far_AdvControl(lua_State *L)
 		case ACTL_GETFARRECT:
 		{
 			SMALL_RECT sr;
+			if(Info->AdvControl(PluginId, Command, 0, &sr))
+			{
+				lua_createtable(L, 0, 4);
+				PutIntToTable(L, "Left",   sr.Left);
+				PutIntToTable(L, "Top",    sr.Top);
+				PutIntToTable(L, "Right",  sr.Right);
+				PutIntToTable(L, "Bottom", sr.Bottom);
+			}
+			else
+				lua_pushnil(L);
 
-			if(!Info->AdvControl(PluginId, Command, 0, &sr))
-				return 0;
-
-			lua_createtable(L, 0, 4);
-			PutIntToTable(L, "Left",   sr.Left);
-			PutIntToTable(L, "Top",    sr.Top);
-			PutIntToTable(L, "Right",  sr.Right);
-			PutIntToTable(L, "Bottom", sr.Bottom);
 			return 1;
 		}
 		case ACTL_GETCURSORPOS:
 		{
 			COORD coord;
+			if(Info->AdvControl(PluginId, Command, 0, &coord))
+			{
+				lua_createtable(L, 0, 2);
+				PutIntToTable(L, "X", coord.X);
+				PutIntToTable(L, "Y", coord.Y);
+			}
+			else
+				lua_pushnil(L);
 
-			if(!Info->AdvControl(PluginId, Command, 0, &coord))
-				return 0;
-
-			lua_createtable(L, 0, 2);
-			PutIntToTable(L, "X", coord.X);
-			PutIntToTable(L, "Y", coord.Y);
 			return 1;
 		}
 		case ACTL_SETCURSORPOS:

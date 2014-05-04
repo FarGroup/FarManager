@@ -2373,7 +2373,7 @@ id=60
 lv=2
 dt=Text
 nm=far.GetPluginDirList
-mtime=3602278886
+mtime=3608362125
 <article>
 #_list = far.GetPluginDirList (handle, Dir)
 #_
@@ -2382,7 +2382,7 @@ mtime=3602278886
 #_  Dir:          string
 #_
 #_**Returns:**
-#_  list:         array of `tPluginPanelItem`
+#_  list:         array of `tPluginPanelItem` tables, or nil
 #_
 #_**Far API used:**
 #_  GetPluginDirList, FreePluginDirList
@@ -9978,7 +9978,7 @@ id=73
 lv=2
 dt=Text
 nm=win.SetRegKey
-mtime=3540381988
+mtime=3608364149
 <article>
 #_win.SetRegKey (RootKey, Key, ValueName, DataType, ValueData)
 #_
@@ -9991,7 +9991,7 @@ mtime=3540381988
 #_  ValueData: string or number
 #_
 #_**Returns:**
-#_  none
+#_  nothing
 #_
 #_**Description:**
 #_  This function sets a value in a registry key.

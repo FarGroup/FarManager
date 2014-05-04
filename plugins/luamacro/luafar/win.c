@@ -15,22 +15,23 @@ extern BOOL dir_exist(const wchar_t* path);
 static int win_GetEnv(lua_State *L)
 {
 	const wchar_t* name = check_utf8_string(L, 1, NULL);
-	wchar_t buf[256], *p;
-	DWORD res, size;
-	res = GetEnvironmentVariableW(name, buf, DIM(buf));
-
-	if(res == 0) return 0;
-
-	if(res < DIM(buf)) return push_utf8_string(L, buf, -1), 1;
-
-	size = res + 1;
-	p = (wchar_t*)lua_newuserdata(L, size * sizeof(wchar_t));
-	res = GetEnvironmentVariableW(name, p, size);
-
-	if(res > 0 && res < size)
-		return push_utf8_string(L, p, -1), 1;
-
-	return 0;
+	wchar_t buf[256];
+	DWORD res = GetEnvironmentVariableW(name, buf, DIM(buf));
+	lua_pushnil(L);
+	if(res)
+	{
+		if(res < DIM(buf))
+			push_utf8_string(L, buf, -1);
+		else
+		{
+			DWORD size = res + 1;
+			wchar_t *p = (wchar_t*)lua_newuserdata(L, size * sizeof(wchar_t));
+			res = GetEnvironmentVariableW(name, p, size);
+			if(res > 0 && res < size)
+				push_utf8_string(L, p, -1);
+		}
+	}
+	return 1;
 }
 
 static int win_SetEnv(lua_State *L)

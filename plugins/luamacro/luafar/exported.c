@@ -23,7 +23,7 @@ extern UINT64 GetFlagsFromTable(lua_State *L, int pos, const char* key);
 
 extern const char* VirtualKeyStrings[256];
 extern void LF_Error(lua_State *L, const wchar_t* aMsg);
-extern int pushInputRecord(lua_State *L, const INPUT_RECORD* ir);
+extern void pushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
 extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
 extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
