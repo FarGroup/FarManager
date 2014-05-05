@@ -1273,11 +1273,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	}
 	else if (IsCommand(L"TITLE", false))
 	{
-		auto Title = strCmdLine.data() + 6; // wcslen(L"title ")
+		auto Title = strCmdLine.data() + 5; // wcslen(L"title")
 		if (CheckCmdLineForHelp(Title))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		SetUserTitle(Title);
+		SetUserTitle(*Title? Title + 1 : Title);
 
 		if (!(Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible()))
 		{
