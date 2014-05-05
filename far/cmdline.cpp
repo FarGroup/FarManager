@@ -1277,6 +1277,12 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
 		SetUserTitle(strCmdLine.data() + 5);
+
+		if (!(Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible()))
+		{
+			string Title=L"";
+			ConsoleTitle::SetFarTitle(Title);
+		}
 		return TRUE;
 	}
 	else if (IsCommand(L"EXIT",false))
