@@ -39,7 +39,13 @@ function coroutine.resume(co, ...)
   return unpack(t, 1, t.n)
 end
 
-local ErrMsg = function(msg,title) far.Message(msg,title or "LuaMacro",nil,"wl") end
+local ErrMsg = function(msg,title)
+  if type(msg)=="string" and not msg:utf8valid() then
+    local wstr = win.MultiByteToWideChar(msg, win.GetACP(), "e")
+    msg = wstr and win.Utf16ToUtf8(wstr) or msg
+  end
+  far.Message(msg,title or "LuaMacro",nil,"wl")
+end
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -266,6 +272,9 @@ end
 local function ProcessCommandLine (CmdLine)
   local prefix, text = CmdLine:match("^%s*(%w+):%s*(.-)%s*$")
   prefix = prefix:lower()
+--  if type(LuaMacroCommandLine)=="function" and LuaMacroCommandLine(prefix,text) then
+--    return
+--  end
   if prefix == "lm" or prefix == "macro" then
     local cmd = text:match("%S*"):lower()
     if cmd == "load" then far.MacroLoadAll()
@@ -374,7 +383,12 @@ local function Init()
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 
-  RunPluginFile("moonscript.lua")
+  do -- force MoonScript to load lpeg.dll residing in %farhome%
+    local path, cpath = package.path, package.cpath
+    package.path, package.cpath = "", win.GetEnv("farhome").."\\?.dll"
+    RunPluginFile("moonscript.lua")
+    package.path, package.cpath = path, cpath
+  end
 
   if bit and jit then
     RunPluginFile("winapi.lua")
@@ -389,7 +403,7 @@ local function Init()
 
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules"
-  package.path = ("%s\\?.lua;%s\\?\\init.lua;%s"):format(modules,modules,package.path)
+  package.path = modules.."\\?.lua;"..modules.."\\?\\init.lua;"..package.path
 end
 
 local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only
