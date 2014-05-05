@@ -1280,8 +1280,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (!(Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible()))
 		{
-			string Title=L"";
-			ConsoleTitle::SetFarTitle(Title);
+			Global->CtrlObject->Cp()->ActivePanel->SetTitle();
 		}
 		return TRUE;
 	}
