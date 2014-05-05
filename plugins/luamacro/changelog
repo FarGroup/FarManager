@@ -1,4 +1,8 @@
-﻿shmuel 05.05.2014 15:24:35 +0200 - build 328
+﻿shmuel 05.05.2014 22:50:22 +0200 - build 329
+
+1. Рефакторинг.
+
+shmuel 05.05.2014 15:24:35 +0200 - build 328
 
 1. Force MoonScript to load lpeg.dll residing in %farhome%.
 

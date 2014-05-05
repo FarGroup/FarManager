@@ -223,7 +223,7 @@ local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 8
   end
 end
 
-local function AddMacro (srctable)
+local function AddRegularMacro (srctable)
   local macro = {}
   if type(srctable)=="table" and type(srctable.area)=="string" and type(srctable.key)=="string" then
     macro.area, macro.key = srctable.area, srctable.key
@@ -316,7 +316,7 @@ end
 local CharNames = { ["."]="Dot", ["<"]="Less", [">"]="More", ["|"]="Pipe", ["/"]="Slash",
                     [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
 
-local function AddRecordedMacro (srctable)
+local function AddRecordedMacro (srctable, filename)
   local area = type(srctable)=="table" and type(srctable.area)=="string" and srctable.area:lower()
   if not (area and Areas[area]) then return end
   local arTable = Areas[area]
@@ -325,7 +325,7 @@ local function AddRecordedMacro (srctable)
   if type(key) ~= "string" or
         -- check correspondence between (a) filename and (b) area_key
         ("%s_%s"):format(area, (key:gsub(".",CharNames))):lower() ~=
-        AddMacro_filename:gsub("^.*\\",""):sub(1,-5):lower() then
+        filename:gsub("^.*\\",""):sub(1,-5):lower() then
     return
   end
 
@@ -335,7 +335,7 @@ local function AddRecordedMacro (srctable)
     if not f then ErrMsg(msg) return end
   end
 
-  local macro = { FileName=AddMacro_filename }
+  local macro = { FileName=filename }
   local t,n = ExpandKey(key)
   for i=1,n do
     local normkey = t[i]
@@ -457,12 +457,12 @@ local function LoadMacros (allAreas, unload)
       win.CreateDir(win.GetEnv("farprofile").."\\Menus", true)
     end
 
-    local macroinit_name, macroinit_done = dir.."\\scripts\\_macroinit.lua", false
-    local isStationary = true
+    local macroinit_name, macroinit_exist = dir.."\\scripts\\_macroinit.lua", false
     local moonscript = require "moonscript"
 
-    local function LoadOneFile (FindData, FullPath)
-      if macroinit_done and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
+    local function LoadRegularFile (FindData, FullPath)
+      if FindData.FileAttributes:find("d") then return end
+      if macroinit_exist and #FullPath==#macroinit_name and far.LStricmp(FullPath,macroinit_name)==0 then
         return
       end
       local isMoonScript = string.find(FullPath, "[nN]", -1)
@@ -470,32 +470,41 @@ local function LoadMacros (allAreas, unload)
       if not f then
         numerrors=numerrors+1; ErrMsg(msg,isMoonScript and "MoonScript"); return
       end
-      local env = isStationary and {Macro=AddMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc} or {}
-      if isStationary then setmetatable(env,gmeta) end
+      local env = {Macro=AddRegularMacro,Event=AddEvent,NoMacro=DummyFunc,NoEvent=DummyFunc}
+      setmetatable(env,gmeta)
       setfenv(f, env)
       AddMacro_filename = FullPath
       local ok, msg = pcall(f, FullPath)
       if ok then
-        if isStationary then
-          env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
-        else
-          AddRecordedMacro(env)
-        end
+        env.Macro,env.Event,env.NoMacro,env.NoEvent = nil,nil,nil,nil
+      else
+        numerrors=numerrors+1; ErrMsg(msg)
+      end
+    end
+
+    local function LoadRecordedFile (FindData, FullPath)
+      if FindData.FileAttributes:find("d") then return end
+      local f, msg = loadfile(FullPath)
+      if not f then
+        numerrors=numerrors+1; ErrMsg(msg); return
+      end
+      local env = {}
+      setfenv(f, env)
+      local ok, msg = pcall(f)
+      if ok then
+        AddRecordedMacro(env, FullPath)
       else
         numerrors=numerrors+1; ErrMsg(msg)
       end
     end
 
     local info = win.GetFileInfo(macroinit_name)
-    if info then
-      LoadOneFile(info, macroinit_name)
-      macroinit_done = true
+    if info and not info.FileAttributes:find("d") then
+      LoadRegularFile(info, macroinit_name)
+      macroinit_exist = true
     end
-    far.RecursiveSearch (dir.."\\scripts", "*.lua,*.moon", LoadOneFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
-
-    isStationary = false
-    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadOneFile, 0)
-
+    far.RecursiveSearch (dir.."\\scripts", "*.lua,*.moon", LoadRegularFile, bor(F.FRS_RECUR,F.FRS_SCANSYMLINK))
+    far.RecursiveSearch (dir.."\\internal", "*.lua", LoadRecordedFile, 0)
     LoadMacrosDone = true
   end
 
@@ -744,8 +753,8 @@ local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid,
   -- MCTL_ADDMACRO may be called during LoadMacros execution, hence AddMacro_filename should be restored.
   local fname = AddMacro_filename
   AddMacro_filename = nil
-  local res = AddMacro { area=area, key=key, code=code, flags=flags, description=description,
-                         guid=guid, callback=callback, callbackId=callbackId, language=lang }
+  local res = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
+                                guid=guid, callback=callback, callbackId=callbackId, language=lang }
   AddMacro_filename = fname
   return not not res
 end
