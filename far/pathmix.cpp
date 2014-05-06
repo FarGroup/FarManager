@@ -269,17 +269,22 @@ const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 
 	const wchar_t *lpwszExtPtr = lpwszEndPtr;
 
+	auto IsPath = [&lpwszPath](const wchar_t* Ptr)
+	{
+		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - lpwszPath == 1); // ':' only in c:
+	};
+
 	while (lpwszExtPtr != lpwszPath)
 	{
 		if (*lpwszExtPtr==L'.')
 		{
-			if (IsSlash(*(lpwszExtPtr-1)) || *(lpwszExtPtr-1)==L':')
+			if (IsPath(lpwszExtPtr - 1))
 				return lpwszEndPtr;
 			else
 				return lpwszExtPtr;
 		}
 
-		if (IsSlash(*lpwszExtPtr) || *lpwszExtPtr==L':')
+		if (IsPath(lpwszExtPtr))
 			return lpwszEndPtr;
 
 		lpwszExtPtr--;
