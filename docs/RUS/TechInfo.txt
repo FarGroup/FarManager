@@ -45,18 +45,6 @@ I. Far Manager: дополнительные настройки.
    профили пользователей. Изменения настроек для "<username>" следует
    проводить относительно ветки [HKCU\Software\Far Manager\Users\<username>]
 
-1.1.8.(TechInfo #52)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\SavedDialogHistory]
-   [HKEY_CURRENT_USER\Software\Far Manager\SavedFolderHistory]
-   [HKEY_CURRENT_USER\Software\Far Manager\SavedHistory]
-   [HKEY_CURRENT_USER\Software\Far Manager\SavedViewHistory]
-   "HistoryCount":REG_DWORD
-   Параметр "Saved???/HistoryCount" с типом DWORD задаёт размеры истории  в
-   позициях для  строк  ввода:  в  диалогах,  посещаемых  папок,  введённых
-   команд, просмотренных и отредактированных файлов.
-   По умолчанию значение = 64 позиции.
-
 1.1.10.(TechInfo #70)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
@@ -64,25 +52,6 @@ I. Far Manager: дополнительные настройки.
    Параметр "Plugins/AdvCompare/CompareBufferSize" с типом DWORD  позволяет
    изменить размер буфера сравнения (в байтах)  плагина  Advanced  Compare.
    По умолчанию размер равен 32768 байтов.
-
-1.1.11.(TechInfo #71)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\MultiArc\TryIfNoOther]
-   "fmt-module-name":REG_DWORD
-   Параметр  с  именем,  соответствующим  имени fmt-модуля  и  типом  DWORD
-   позволяет  понижать  приоритет  указанного  модуля по отношению к другим
-   модулям, претендующим на этот тип архива.
-   Целесообразно применять для custom.fmt, wcx.fmt и upx.fmt.
-   Может принимать следующие значения:
-     0 - не снижать приоритет (значение по умолчанию);
-     1 - снизить приоритет, использовать модуль в последнюю очередь, если в
-         этом есть надобность.
-   Пример использования:
-   Заголовки некоторых SFX rar-архивов сжаты с  помощью  UPX.  При  наличии
-   модуля upx.fmt архив приходится распаковывать дважды - сперва как сжатый
-   exe, затем как rar-sfx.  При  "upx.fmt"=dword:1  архив  будет  обработан
-   сразу  как  rar-sfx.  Для  обработки  сжатого  исполняемого  файла,   не
-   являющегося sfx-архивом, будет использован, как и прежде, upx.fmt.
 
 II. Windows: настройки влияющие на работу Far Manager.
 ===============================================================================
