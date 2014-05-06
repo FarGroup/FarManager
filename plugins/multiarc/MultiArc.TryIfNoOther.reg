@@ -1,0 +1,47 @@
+﻿Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\TryIfNoOther]
+"upx.fmt"=dword:00000001
+
+[HKEY_CURRENT_USER\SOFTWARE\Far2\Plugins\MultiArc\TryIfNoOther]
+"upx.fmt"=dword:00000001
+
+[HKEY_CURRENT_USER\SOFTWARE\Far Manager\Plugins\MultiArc\TryIfNoOther]
+"upx.fmt"=dword:00000001
+
+;1.1.11.(TechInfo #71)
+;~~~~~~~~~~~~~~~~~~~~~
+;   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\MultiArc\TryIfNoOther]
+;   "fmt-module-name":REG_DWORD
+;   Параметр  с  именем,  соответствующим  имени fmt-модуля  и  типом  DWORD
+;   позволяет  понижать  приоритет  указанного  модуля по отношению к другим
+;   модулям, претендующим на этот тип архива.
+;   Целесообразно применять для custom.fmt, wcx.fmt и upx.fmt.
+;   Может принимать следующие значения:
+;     0 - не снижать приоритет (значение по умолчанию);
+;     1 - снизить приоритет, использовать модуль в последнюю очередь, если в
+;         этом есть надобность.
+;   Пример использования:
+;   Заголовки некоторых SFX rar-архивов сжаты с  помощью  UPX.  При  наличии
+;   модуля upx.fmt архив приходится распаковывать дважды - сперва как сжатый
+;   exe, затем как rar-sfx.  При  "upx.fmt"=dword:1  архив  будет  обработан
+;   сразу  как  rar-sfx.  Для  обработки  сжатого  исполняемого  файла,   не
+;   являющегося sfx-архивом, будет использован, как и прежде, upx.fmt.
+;
+;   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\MultiArc\TryIfNoOther]
+;   "fmt-module-name":REG_DWORD
+;   This parameter of DWORD type decreases the priority of the corresponding
+;   fmt-module in the  process  of  selecting  the  appropriate  module  for
+;   handling the archive.
+;   Usually it should be applied to custom.fmt, wcx.fmt and upx.fmt.
+;   Possible values:
+;     0  - normal priority (default);
+;     1  - lower priority.
+;   The search order is  all  normal-priority  modules,  then  the  rest  if
+;   needed.
+;   Example:
+;   Headers of some SFX rar-archives are compressed with UPX. If the upx.fmt
+;   is present the archive is first opened as a compressed exe-file and then
+;   as rar-sfx. If "upx.fmt"=dword:1 such an archive will be treated  as  an
+;   usual rar-sfx. Compressed exe-files that are not rar SFX will  still  be
+;   handled by upx.fmt.
