@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <pluginsconfig>
+        <plugin guid="4F6BDE22-3F56-496B-B1DD-7991199D2043">
+            <hierarchicalconfig>
+                <key name="4F6BDE22-3F56-496B-B1DD-7991199D2043" description="AdvCompare">
+                    <value name="CompareBufferSize" type="qword" value="32768" />
+                </key>
+            </hierarchicalconfig>
+        </plugin>
+    </pluginsconfig>
+</farconfig>
+
+<!--
+1.1.10.(TechInfo #70)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
+   "CompareBufferSize":REG_DWORD
+   Параметр "Plugins/AdvCompare/CompareBufferSize" с типом DWORD  позволяет
+   изменить размер буфера сравнения (в байтах)  плагина  Advanced  Compare.
+   По умолчанию размер равен 32768 байтов.
+
+
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
+   "CompareBufferSize":REG_DWORD
+   The key "Plugins/AdvCompare/CompareBufferSize" of DWORD type  allows  to
+   change the size of the compare buffer (in bytes) of the Advanced Compare
+   plugin.
+   The default value is 32768 bytes.
+-->
