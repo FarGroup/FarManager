@@ -45,14 +45,6 @@ I. Far Manager: дополнительные настройки.
    профили пользователей. Изменения настроек для "<username>" следует
    проводить относительно ветки [HKCU\Software\Far Manager\Users\<username>]
 
-1.1.10.(TechInfo #70)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
-   "CompareBufferSize":REG_DWORD
-   Параметр "Plugins/AdvCompare/CompareBufferSize" с типом DWORD  позволяет
-   изменить размер буфера сравнения (в байтах)  плагина  Advanced  Compare.
-   По умолчанию размер равен 32768 байтов.
-
 II. Windows: настройки влияющие на работу Far Manager.
 ===============================================================================
    В этом разделе описаны дополнительные технические подробности, так или иначе
