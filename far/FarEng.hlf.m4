@@ -1682,6 +1682,11 @@ folders.
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-folders.
 
+    #Search in alternate streams# - помимо основного потока данных
+(представляющего собой непосредственно содержимое файла)
+производить поиск также в альтернативных именованных потоках, поддерживаемых некоторыми
+файловыми системами (например, #NTFS#).
+
     Search may be performed:
 
     - in all non-removable drives;
@@ -1725,13 +1730,6 @@ file will be ignored even if the required sequence exists there.
     T - for terabytes;
     P - for petabytes;
     E - for exabytes.
-
-
-    #Обрабатывать альтернативные потоки данных# - помимо основного потока данных
-(представляющего собой непосредственно содержимое файла)
-производить поиск также в альтернативных именованных потоках, поддерживаемых некоторыми
-файловыми системами (например, #NTFS#).
-
 
   - #Column types# - позволяет задавать формат вывода результатов поиска.
 Column types are encoded as one or several characters, delimited with commas.
