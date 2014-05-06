@@ -1,3 +1,8 @@
+svs 06.05.2014 10:33:13 +0400 - build 
+
+1. Mantis#0002653: TechInfo #70: AdvCompare/CompareBufferSize
+   Добавлен AdvCompare.CompareBufferSize.farconfig
+
 w17 03.03.2013 14:56:46 +0400 - build 54
 
 1. Косметика - изменение отображения сравниваемых объектов.
