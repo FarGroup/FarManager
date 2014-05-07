@@ -2705,9 +2705,9 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3603272525
+mtime=3608641410
 <article>
-#_handle = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
+#_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
 #_
 #_**Parameters:**
 #_  Guid:      string
@@ -2721,7 +2721,18 @@ mtime=3603272525
 #_  fDlgProc:  function (`dialog event handler`), or nil
 #_
 #_**Returns:**
-#_  handle: userdata
+#_  hDlg:      userdata
+#_
+#_**Return value**
+#_  The dialog handle returned by this function has the following methods:
+#_  *__tostring*, *__gc*, *rawhandle* and *send*.
+#_
+#_  **hDlg:rawhandle()**
+#_    returns the original value of handle received from Far Manager
+#_    that is suitable for using with LuaJIT FFI and as a table key.
+#_
+#_  **hDlg:send(...)**
+#_    is equivalent to `far.SendDlgMessage`(hDlg, ...)
 #_
 #_**Far API used:**
 #_  DialogInit, DlgProc
@@ -2729,6 +2740,7 @@ mtime=3603272525
 #_@@@
 #_[tFarDialogItem]: 295.html
 #_[dialog event handler]: 285.html
+#_[far.SendDlgMessage]: 71.html
 #_{dialoginit}: http://api.farmanager.com/ru/service_functions/dialoginit.html
 #_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
 #_
@@ -3199,31 +3211,31 @@ lv=1
 dt=Text
 nm=Dialog Events
 ctime=3477040474
-mtime=3603273205
+mtime=3608642242
 <article>
 #_<markdown>
 #_
 #_### Common information about dialog event handler
 #_
-#_When the 9-th argument in the [`far.DialogInit`](378.html) or [`far.Dialog`](20.html)
+#_When the 9-th argument in the [`far.DialogInit`][1] or [`far.Dialog`][2]
 #_call is function (*event handler*), that function will be called by Far
 #_whenever any of the numerous dialog events occur.
 #_
 #_        ret = fDlgProc (hDlg, Msg, Param1, Param2)
+#_
 #_**Parameters:**
 #_        hDlg   : userdata
 #_        Msg    : integer
 #_        Param1 : integer
 #_        Param2 : depends on Msg
+#_
 #_**Returns:**
 #_        ret    : depends on Msg
 #_
 #_### Parameters passed to event handler
 #_
-#_1. `hDlg`: dialog handle. It has the following methods:
-#_   `__tostring`, `__gc` and `rawhandle`.<br>
-#_   `hDlg:rawhandle()` returns the original value of handle received from Far Manager
-#_   that is suitable for using with LuaJIT FFI and as a table key.
+#_1. `hDlg`: dialog handle. It is the same userdata kind that [`far.DialogInit`][1] returns.<br>
+#_   See description of its methods on [`far.DialogInit`][1] page.
 #_1. `Msg`: integer, any `DN_*` value, e.g. `DN_BTNCLICK`, `DN_CLOSE`, etc.
 #_1. `Param1`: integer (1-based if it is ID of a dialog element, 0-based otherwise).
 #_1. `Param2`: integer for most event types, in accordance to Far API.<br>
@@ -3239,6 +3251,9 @@ mtime=3603273205
 #_1. If the return value is **number**, then that number is returned to Far.
 #_1. Otherwise, the boolean equivalent of the return value (that is, either
 #_   0 or 1) is returned to Far.
+#_
+#_[1]: 378.html
+#_[2]: 20.html
 #_
 #_@@@
 #_{defdlgproc}: http://api.farmanager.com/ru/service_functions/defdlgproc.html

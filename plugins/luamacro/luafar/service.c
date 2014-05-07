@@ -5654,6 +5654,7 @@ const luaL_Reg dialog_methods[] =
 	{"__gc",                far_DialogFree},
 	{"__tostring",          dialog_tostring},
 	{"rawhandle",           dialog_rawhandle},
+	{"send",                far_SendDlgMessage},
 	{NULL, NULL},
 };
 
