@@ -556,7 +556,7 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 
 	for (i=0; i<srclength; i++,length++)
 	{
-		if (inquote && src[i]!=backslashChar && src[i+1]!='E')
+		if (inquote && src[i]!=backslashChar && src[i+1] != L'E')
 		{
 			continue;
 		}
@@ -565,11 +565,11 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 		{
 			i++;
 
-			if (src[i]=='Q')inquote=1;
+			if (src[i] == L'Q')inquote=1;
 
-			if (src[i]=='E')inquote=0;
+			if (src[i] == L'E')inquote=0;
 
-			if (src[i]=='x')
+			if (src[i] == L'x')
 			{
 				i++;
 				if(isxdigit(src[i]))
@@ -593,14 +593,14 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 
 		switch (src[i])
 		{
-			case '(':
+			case L'(':
 			{
 				brackets[count]=i;
 				count++;
 
 				if (count==MAXDEPTH)return SetError(errMaxDepth,i);
 
-				if (src[i+1]=='?')
+				if (src[i+1]==L'?')
 				{
 					i+=2;
 				}
@@ -611,41 +611,47 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 
 				break;
 			}
-			case ')':
+			case L')':
 			{
 				count--;
 
-				if (count<0)return SetError(errBrackets,i);
+				if (count < 0)
+					return SetError(errBrackets,i);
 
 				break;
 			}
-			case '{':
-			case '*':
-			case '+':
-			case '?':
+			case L'{':
+			case L'*':
+			case L'+':
+			case L'?':
 			{
 				length--;
 
-				if (src[i]=='{')
+				if (src[i] == L'{')
 				{
 					save=i;
 
-					while (i<srclength && src[i]!='}')i++;
+					while (i < srclength && src[i] != L'}')
+						++i;
 
-					if (i>=srclength)return SetError(errBrackets,save);
+					if (i >= srclength)
+						return SetError(errBrackets,save);
 				}
 
-				if (src[i+1]=='?')i++;
+				if (src[i+1] == '?')
+					++i;
 
 				break;
 			}
-			case '[':
+			case L'[':
 			{
 				save=i;
 
-				while (i<srclength && src[i]!=']')i++;
+				while (i < srclength && src[i] != L']')
+					i += (backslashChar == src[i] && src[i+1] ? 2 : 1);
 
-				if (i>=srclength)return SetError(errBrackets,save);
+				if (i >= srclength)
+					return SetError(errBrackets,save);
 
 				break;
 			}
