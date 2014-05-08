@@ -4109,6 +4109,7 @@ BOOL Editor::Search(int Next)
 		FindAllList.SetTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
 		FindAllList.SetBottomTitle(LangString(MEditFindAllMenuFooter));
 		FindAllList.SetHelp(L"FindAllMenu");
+		FindAllList.SetId(EditorFindAllListId);
 
 		bool MenuZoomed=true;
 
