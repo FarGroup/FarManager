@@ -633,10 +633,10 @@ static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 	switch (MenuClick)
 	{
 	case  VMENUCLICK_APPLY:
-		Menu->ProcessKey(KEY_ENTER);
+		Menu->ProcessKey(Manager::Key(KEY_ENTER));
 		break;
 	case VMENUCLICK_CANCEL:
-		Menu->ProcessKey(KEY_ESC);
+		Menu->ProcessKey(Manager::Key(KEY_ESC));
 		break;
 	case VMENUCLICK_IGNORE:
 		break;

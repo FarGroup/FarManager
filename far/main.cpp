@@ -244,7 +244,7 @@ static int MainProcess(
 						if (!strPath.empty())
 						{
 							if (AnotherPanel->GoToFile(strPath))
-								AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+								AnotherPanel->ProcessKey(Manager::Key(KEY_CTRLPGDN));
 						}
 					}
 				}
@@ -262,7 +262,7 @@ static int MainProcess(
 					if (!strPath.empty())
 					{
 						if (ActivePanel->GoToFile(strPath))
-							ActivePanel->ProcessKey(KEY_CTRLPGDN);
+							ActivePanel->ProcessKey(Manager::Key(KEY_CTRLPGDN));
 					}
 				}
 

@@ -38,6 +38,16 @@ class Frame;
 class Manager: NonCopyable
 {
 public:
+	struct Key
+	{
+		INPUT_RECORD Event;
+		int FarKey;
+		bool EventFilled;
+		Key(): Event(), FarKey(0), EventFilled(false) {}
+		explicit Key(int Key): Event(), FarKey(Key), EventFilled(false) {}
+		//Key(INPUT_RECORD Key): EventFilled(true), Event(Key) {FarKey=0; /*FIXME*/ }
+	};
+public:
 	Manager();
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
@@ -79,7 +89,7 @@ public:
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
-	int ProcessKey(DWORD key);
+	int ProcessKey(Key key);
 	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();

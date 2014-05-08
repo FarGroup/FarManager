@@ -108,7 +108,7 @@ void Modal::ProcessInput()
 	if (ReadRec.EventType==MOUSE_EVENT && !(ReadKey==KEY_MSWHEEL_UP || ReadKey==KEY_MSWHEEL_DOWN || ReadKey==KEY_MSWHEEL_RIGHT || ReadKey==KEY_MSWHEEL_LEFT))
 		ProcessMouse(&ReadRec.Event.MouseEvent);
 	else
-		ProcessKey(ReadKey);
+		ProcessKey(Manager::Key(ReadKey));
 }
 
 

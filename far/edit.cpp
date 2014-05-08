@@ -448,7 +448,7 @@ void Edit::FastShow()
 int Edit::RecurseProcessKey(int Key)
 {
 	Recurse++;
-	int RetCode=ProcessKey(Key);
+	int RetCode=ProcessKey(Manager::Key(Key));
 	Recurse--;
 	return RetCode;
 }
@@ -598,48 +598,49 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int Edit::ProcessKey(int Key)
+int Edit::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	auto Mask = GetInputMask();
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_ADD:
-			Key=L'+';
+			LocalKey=L'+';
 			break;
 		case KEY_SUBTRACT:
-			Key=L'-';
+			LocalKey=L'-';
 			break;
 		case KEY_MULTIPLY:
-			Key=L'*';
+			LocalKey=L'*';
 			break;
 		case KEY_DIVIDE:
-			Key=L'/';
+			LocalKey=L'/';
 			break;
 		case KEY_DECIMAL:
-			Key=L'.';
+			LocalKey=L'.';
 			break;
 		case KEY_CTRLC:
 		case KEY_RCTRLC:
-			Key=KEY_CTRLINS;
+			LocalKey=KEY_CTRLINS;
 			break;
 		case KEY_CTRLV:
 		case KEY_RCTRLV:
-			Key=KEY_SHIFTINS;
+			LocalKey=KEY_SHIFTINS;
 			break;
 		case KEY_CTRLX:
 		case KEY_RCTRLX:
-			Key=KEY_SHIFTDEL;
+			LocalKey=KEY_SHIFTDEL;
 			break;
 	}
 
 	int PrevSelStart=-1,PrevSelEnd=0;
 
-	if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && (Key==KEY_CTRLL || Key==KEY_RCTRLL))
+	if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL))
 	{
 		Flags.Swap(FEDITLINE_READONLY);
 	}
 
-	if ((((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || Key==KEY_CTRLD || Key==KEY_RCTRLD) &&
+	if ((((LocalKey==KEY_BS || LocalKey==KEY_DEL || LocalKey==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || LocalKey==KEY_CTRLD || LocalKey==KEY_RCTRLD) &&
 	        !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
 	{
 		DeleteBlock();
@@ -649,21 +650,21 @@ int Edit::ProcessKey(int Key)
 
 	int _Macro_IsExecuting=Global->CtrlObject->Macro.IsExecuting();
 
-	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
-	        !IsShiftKey(Key) && !Recurse &&
-	        Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
-	        Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
-	        Key!=KEY_INS &&
-	        Key!=KEY_KILLFOCUS && Key != KEY_GOTFOCUS &&
-	        ((Key&(~KEY_CTRLMASK)) != KEY_LWIN && (Key&(~KEY_CTRLMASK)) != KEY_RWIN && (Key&(~KEY_CTRLMASK)) != KEY_APPS)
+	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(LocalKey) && _Macro_IsExecuting)) &&
+	        !IsShiftKey(LocalKey) && !Recurse &&
+	        LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRL && LocalKey!=KEY_ALT &&
+	        LocalKey!=KEY_RCTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_NONE &&
+	        LocalKey!=KEY_INS &&
+	        LocalKey!=KEY_KILLFOCUS && LocalKey != KEY_GOTFOCUS &&
+	        ((LocalKey&(~KEY_CTRLMASK)) != KEY_LWIN && (LocalKey&(~KEY_CTRLMASK)) != KEY_RWIN && (LocalKey&(~KEY_CTRLMASK)) != KEY_APPS)
 	   )
 	{
 		Flags.Clear(FEDITLINE_MARKINGBLOCK);
 
-		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_RCTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLNUMPAD0) &&
-		        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) &&
-		        (Key != KEY_CTRLQ && Key != KEY_RCTRLQ) &&
-		        !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0))
+		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(LocalKey==KEY_CTRLINS || LocalKey==KEY_RCTRLINS || LocalKey==KEY_CTRLNUMPAD0 || LocalKey==KEY_RCTRLNUMPAD0) &&
+		        !(LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) &&
+		        (LocalKey != KEY_CTRLQ && LocalKey != KEY_RCTRLQ) &&
+		        !(LocalKey == KEY_SHIFTINS || LocalKey == KEY_SHIFTNUMPAD0))
 		{
 			if (SelStart != -1 || SelEnd )
 			{
@@ -675,19 +676,19 @@ int Edit::ProcessKey(int Key)
 		}
 	}
 
-	if (((Global->Opt->Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
+	if (((Global->Opt->Dialogs.EULBsClear && LocalKey==KEY_BS) || LocalKey==KEY_DEL || LocalKey==KEY_NUMDEL) &&
 	        Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
-		Key=KEY_CTRLY;
+		LocalKey=KEY_CTRLY;
 
-	if ((Key == KEY_SHIFTDEL || Key == KEY_SHIFTNUMDEL || Key == KEY_SHIFTDECIMAL) && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
+	if ((LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL) && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
 	{
 		SelStart=0;
 		SelEnd=StrSize;
 	}
 
-	if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key <= 0xFFFF && Key!=KEY_BS) || Key==KEY_CTRLBRACKET || Key==KEY_RCTRLBRACKET ||
-	        Key==KEY_CTRLBACKBRACKET || Key==KEY_RCTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET || Key==KEY_RCTRLSHIFTBRACKET ||
-	        Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_RCTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
+	if (Flags.Check(FEDITLINE_CLEARFLAG) && ((LocalKey <= 0xFFFF && LocalKey!=KEY_BS) || LocalKey==KEY_CTRLBRACKET || LocalKey==KEY_RCTRLBRACKET ||
+	        LocalKey==KEY_CTRLBACKBRACKET || LocalKey==KEY_RCTRLBACKBRACKET || LocalKey==KEY_CTRLSHIFTBRACKET || LocalKey==KEY_RCTRLSHIFTBRACKET ||
+	        LocalKey==KEY_CTRLSHIFTBACKBRACKET || LocalKey==KEY_RCTRLSHIFTBACKBRACKET || LocalKey==KEY_SHIFTENTER || LocalKey==KEY_SHIFTNUMENTER))
 	{
 		LeftPos=0;
 		DisableCallback();
@@ -697,24 +698,24 @@ int Edit::ProcessKey(int Key)
 	}
 
 	// Здесь - вызов функции вставки путей/файлов
-	if (ProcessInsPath(Key,PrevSelStart,PrevSelEnd))
+	if (ProcessInsPath(LocalKey,PrevSelStart,PrevSelEnd))
 	{
 		Show();
 		return TRUE;
 	}
 
-	if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_SHIFTNUMPAD0 && (Key!=KEY_CTRLINS && Key!=KEY_RCTRLINS) &&
-	        ((unsigned int)Key<KEY_F1 || (unsigned int)Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
-	        Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-	        !((Key>=KEY_ALT_BASE && Key <= KEY_ALT_BASE+0xFFFF) || (Key>=KEY_RALT_BASE && Key <= KEY_RALT_BASE+0xFFFF)) && // ???? 256 ???
-	        !(((unsigned int)Key>=KEY_MACRO_BASE && (unsigned int)Key<=KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) &&
-	        (Key!=KEY_CTRLQ && Key!=KEY_RCTRLQ))
+	if (LocalKey!=KEY_NONE && LocalKey!=KEY_IDLE && LocalKey!=KEY_SHIFTINS && LocalKey!=KEY_SHIFTNUMPAD0 && (LocalKey!=KEY_CTRLINS && LocalKey!=KEY_RCTRLINS) &&
+	        ((unsigned int)LocalKey<KEY_F1 || (unsigned int)LocalKey>KEY_F12) && LocalKey!=KEY_ALT && LocalKey!=KEY_SHIFT &&
+	        LocalKey!=KEY_CTRL && LocalKey!=KEY_RALT && LocalKey!=KEY_RCTRL &&
+	        !((LocalKey>=KEY_ALT_BASE && LocalKey <= KEY_ALT_BASE+0xFFFF) || (LocalKey>=KEY_RALT_BASE && LocalKey <= KEY_RALT_BASE+0xFFFF)) && // ???? 256 ???
+	        !(((unsigned int)LocalKey>=KEY_MACRO_BASE && (unsigned int)LocalKey<=KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) &&
+	        (LocalKey!=KEY_CTRLQ && LocalKey!=KEY_RCTRLQ))
 	{
 		Flags.Clear(FEDITLINE_CLEARFLAG);
 		Show();
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_CTRLA: case KEY_RCTRLA:
 			{
@@ -1373,11 +1374,11 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_SHIFTSPACE:
-			Key = KEY_SPACE;
+			LocalKey = KEY_SPACE;
 		default:
 		{
-//      _D(SysLog(L"Key=0x%08X",Key));
-			if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key==KEY_NUMENTER || Key>=65536)
+//      _D(SysLog(L"Key=0x%08X",LocalKey));
+			if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE || LocalKey==KEY_ENTER || LocalKey==KEY_NUMENTER || LocalKey>=65536)
 				break;
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -1392,7 +1393,7 @@ int Edit::ProcessKey(int Key)
 				RevertCallback();
 			}
 
-			if (InsertKey(Key))
+			if (InsertKey(LocalKey))
 			{
 				int CurWindowType = Global->FrameManager->GetCurrentFrame()->GetType();
 				if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)
@@ -1974,7 +1975,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 		{
-			ProcessKey(KEY_OP_SELWORD);
+			ProcessKey(Manager::Key(KEY_OP_SELWORD));
 			PrevDoubleClick=GetTickCount();
 			PrevPosition=MouseEvent->dwMousePosition;
 		}

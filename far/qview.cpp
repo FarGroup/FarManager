@@ -321,54 +321,55 @@ __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int QuickView::ProcessKey(int Key)
+int QuickView::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	if (!IsVisible())
 		return FALSE;
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
-		ExecShortcutFolder(Key-KEY_RCTRL0);
+		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return TRUE;
 	}
 
-	if (Key == KEY_F1)
+	if (LocalKey == KEY_F1)
 	{
 		Help Hlp(L"QViewPanel");
 		return TRUE;
 	}
 
-	if (Key==KEY_F3 || Key==KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
+	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
 	{
 		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
-			AnotherPanel->ProcessKey(KEY_F3);
+			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
 
 		return TRUE;
 	}
 
-	if (Key==KEY_ADD || Key==KEY_SUBTRACT)
+	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
 	{
 		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
-			AnotherPanel->ProcessKey(Key==KEY_ADD?KEY_DOWN:KEY_UP);
+			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
 
 		return TRUE;
 	}
 
-	if (QView && !Directory && Key>=256)
+	if (QView && !Directory && LocalKey>=256)
 	{
-		int ret = QView->ProcessKey(Key);
+		int ret = QView->ProcessKey(Manager::Key(LocalKey));
 
-		if (Key == KEY_F4 || Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+		if (LocalKey == KEY_F4 || LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 		{
 			DynamicUpdateKeyBar();
 			Global->CtrlObject->MainKeyBar->Redraw();
 		}
 
-		if (Key == KEY_F7 || Key == KEY_SHIFTF7)
+		if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
 		{
 			//__int64 Pos;
 			//int Length;

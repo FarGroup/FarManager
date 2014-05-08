@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bitflags.hpp"
+#include "manager.hpp" //Manager::Key
 
 class SaveScreen;
 
@@ -70,7 +71,7 @@ public:
 	int ObjWidth() const {return X2 - X1 + 1;}
 	int ObjHeight() const {return Y2 - Y1 + 1;}
 
-	virtual int ProcessKey(int Key) { return 0; }
+	virtual int ProcessKey(const Manager::Key& Key) { return 0; }
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
 
 	virtual void Hide();

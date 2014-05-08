@@ -295,9 +295,10 @@ void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 }
 
 
-int KeyBar::ProcessKey(int Key)
+int KeyBar::ProcessKey(const Manager::Key& Key)
 {
-	switch (Key)
+	int LocalKey=Key.FarKey;
+	switch (LocalKey)
 	{
 		case KEY_KILLFOCUS:
 		case KEY_GOTFOCUS:
@@ -385,7 +386,7 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	//if (Owner)
 	//Owner->ProcessKey(Key);
-	Global->FrameManager->ProcessKey(Key);
+	Global->FrameManager->ProcessKey(Manager::Key(Key));
 	return TRUE;
 }
 

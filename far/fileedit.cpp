@@ -795,7 +795,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 3:
-				ProcessKey(KEY_CTRLB);
+				ProcessKey(Manager::Key(KEY_CTRLB));
 				break;
 			default:
 				PrevMode=0;
@@ -808,9 +808,9 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 }
 
 
-int FileEditor::ProcessKey(int Key)
+int FileEditor::ProcessKey(const Manager::Key& Key)
 {
-	return ReProcessKey(Key,FALSE);
+	return ReProcessKey(Key.FarKey,FALSE);
 }
 
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
@@ -852,7 +852,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					{
 						case 0:
 
-							if (ProcessKey(KEY_F2))
+							if (ProcessKey(Manager::Key(KEY_F2)))
 							{
 								FirstSave=0;
 								break;
@@ -1137,7 +1137,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				{
 					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && (m_editor->EdOpt.SavePos || m_editor->EdOpt.SaveShortPos)) // save position/codepage before reload
 						SaveToCache();
-					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(Key));
 				}
 				return TRUE;
 			}
@@ -1200,7 +1200,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 			case KEY_SHIFTF10:
 
-				if (!ProcessKey(KEY_F2)) // учтем факт того, что могли отказаться от сохранения
+				if (!ProcessKey(Manager::Key(KEY_F2))) // учтем факт того, что могли отказаться от сохранения
 					return FALSE;
 
 			case KEY_F4:
@@ -1236,7 +1236,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						{
 							case 0:
 
-								if (!ProcessKey(KEY_F2)) // попытка сначала сохранить
+								if (!ProcessKey(Manager::Key(KEY_F2))) // попытка сначала сохранить
 									NeedQuestion=0;
 
 								FirstSave=0;
@@ -1352,8 +1352,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						EditKeyBar.Show();
 
-				if (!EditKeyBar.ProcessKey(Key))
-					return m_editor->ProcessKey(Key);
+				if (!EditKeyBar.ProcessKey(Manager::Key(Key)))
+					return m_editor->ProcessKey(Manager::Key(Key));
 			}
 		}
 	}
@@ -1398,7 +1398,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 
 		if (strFileName == MSG(MNewFileName))
 		{
-			if (!ProcessKey(KEY_SHIFTF2))
+			if (!ProcessKey(Manager::Key(KEY_SHIFTF2)))
 			{
 				FarChDir(strOldCurDir);
 				return FALSE;
@@ -1700,7 +1700,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							return SAVEFILE_CANCEL;
 						case 1:  // Save as
 
-							if (ProcessKey(KEY_SHIFTF2))
+							if (ProcessKey(Manager::Key(KEY_SHIFTF2)))
 								return SAVEFILE_SUCCESS;
 							else
 								return SAVEFILE_CANCEL;

@@ -53,7 +53,7 @@ public:
 
 private:
 	virtual void DisplayObject() override;
-	virtual int ProcessKey(int Key) override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual const string& GetTitle(string& Title) override { return Title; }
 

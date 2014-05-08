@@ -178,8 +178,9 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int HMenu::ProcessKey(int Key)
+int HMenu::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	SelectPos=0;
 	for (int i=0; i<ItemCount; i++)
 	{
@@ -190,11 +191,11 @@ int HMenu::ProcessKey(int Key)
 		}
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_ALTF9:
 		case KEY_RALTF9:
-			Global->FrameManager->ProcessKey(KEY_ALTF9);
+			Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
 			break;
 		case KEY_OP_PLAINTEXT:
 		{
@@ -203,7 +204,7 @@ int HMenu::ProcessKey(int Key)
 			if (!*str)
 				return FALSE;
 
-			Key=*str;
+			LocalKey=*str;
 			break;
 		}
 		case KEY_NONE:
@@ -319,26 +320,26 @@ int HMenu::ProcessKey(int Key)
 		{
 			for (int i=0; i<ItemCount; i++)
 			{
-				if (IsKeyHighlighted(Item[i].Name,Key,FALSE))
+				if (IsKeyHighlighted(Item[i].Name,LocalKey,FALSE))
 				{
 					Item[SelectPos].Selected=0;
 					Item[i].Selected=1;
 					SelectPos = i;
 					ShowMenu();
-					ProcessKey(KEY_ENTER);
+					ProcessKey(Manager::Key(KEY_ENTER));
 					return TRUE;
 				}
 			}
 
 			for (int i=0; i<ItemCount; i++)
 			{
-				if (IsKeyHighlighted(Item[i].Name,Key,TRUE))
+				if (IsKeyHighlighted(Item[i].Name,LocalKey,TRUE))
 				{
 					Item[SelectPos].Selected=0;
 					Item[i].Selected=1;
 					SelectPos = i;
 					ShowMenu();
-					ProcessKey(KEY_ENTER);
+					ProcessKey(Manager::Key(KEY_ENTER));
 					return TRUE;
 				}
 			}
@@ -388,11 +389,11 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				Item[i].Selected=1;
 				SelectPos=i;
 				ShowMenu();
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 			}
 	}
 	else if (!(MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
-		ProcessKey(KEY_ESC);
+		ProcessKey(Manager::Key(KEY_ESC));
 
 	return TRUE;
 }
@@ -468,8 +469,8 @@ void HMenu::ProcessSubMenu(const MenuDataEx *Data,int DataCount,
 		ProcessMouse(&MouseEvent);
 	if(SendKey)
 	{
-		ProcessKey(SendKey);
-		ProcessKey(KEY_ENTER);
+		ProcessKey(Manager::Key(SendKey));
+		ProcessKey(Manager::Key(KEY_ENTER));
 	}
 }
 

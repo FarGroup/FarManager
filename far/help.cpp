@@ -809,7 +809,7 @@ void Help::DisplayObject()
 				Message(MSG_WARNING, 1, MSG(MHelpTitle), MSG(MHelpTopicNotFound), StackData->strHelpTopic.data(), MSG(MOk));
 			}
 
-			ProcessKey(KEY_ALTF1);
+			ProcessKey(Manager::Key(KEY_ALTF1));
 		}
 
 		return;
@@ -1197,12 +1197,13 @@ __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 1;
 }
 
-int Help::ProcessKey(int Key)
+int Help::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	if (StackData->strSelTopic.empty())
 		StackData->CurX=StackData->CurY=0;
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_NONE:
 		case KEY_IDLE:
@@ -1274,7 +1275,7 @@ int Help::ProcessKey(int Key)
 					MoveToReference(0,1);
 			}
 			else
-				ProcessKey(KEY_SHIFTTAB);
+				ProcessKey(Manager::Key(KEY_SHIFTTAB));
 
 			return TRUE;
 		}
@@ -1294,7 +1295,7 @@ int Help::ProcessKey(int Key)
 					MoveToReference(1,1);
 			}
 			else
-				ProcessKey(KEY_TAB);
+				ProcessKey(Manager::Key(KEY_TAB));
 
 			return TRUE;
 		}
@@ -1304,9 +1305,9 @@ int Help::ProcessKey(int Key)
 		case KEY_MSWHEEL_UP | KEY_ALT:
 		case KEY_MSWHEEL_UP | KEY_RALT:
 		{
-			int n = (Key == KEY_MSWHEEL_UP ? (int)Global->Opt->MsWheelDeltaHelp : 1);
+			int n = (LocalKey == KEY_MSWHEEL_UP ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
-				ProcessKey(KEY_UP);
+				ProcessKey(Manager::Key(KEY_UP));
 
 			return TRUE;
 		}
@@ -1314,9 +1315,9 @@ int Help::ProcessKey(int Key)
 		case KEY_MSWHEEL_DOWN | KEY_ALT:
 		case KEY_MSWHEEL_DOWN | KEY_RALT:
 		{
-			int n = (Key == KEY_MSWHEEL_DOWN ? (int)Global->Opt->MsWheelDeltaHelp : 1);
+			int n = (LocalKey == KEY_MSWHEEL_DOWN ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
-				ProcessKey(KEY_DOWN);
+				ProcessKey(Manager::Key(KEY_DOWN));
 
 			return TRUE;
 		}
@@ -1343,7 +1344,7 @@ int Help::ProcessKey(int Key)
 
 				if (StackData->TopStr==PrevTopStr)
 				{
-					ProcessKey(KEY_CTRLPGDN);
+					ProcessKey(Manager::Key(KEY_CTRLPGDN));
 					return TRUE;
 				}
 				else
@@ -1453,7 +1454,7 @@ int Help::ProcessKey(int Key)
 				return TRUE;
 			}
 
-			return ProcessKey(KEY_ESC);
+			return ProcessKey(Manager::Key(KEY_ESC));
 		}
 		case KEY_NUMENTER:
 		case KEY_ENTER:
@@ -1657,7 +1658,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 	{
-		ProcessKey(KEY_ENTER);
+		ProcessKey(Manager::Key(KEY_ENTER));
 		return TRUE;
 	}
 
@@ -1675,7 +1676,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			// Вываливаем если предыдущий эвент не был двойным кликом
 			if (IntKeyState.PreMouseEventFlags != DOUBLE_CLICK)
-				ProcessKey(KEY_ESC);
+				ProcessKey(Manager::Key(KEY_ESC));
 		}
 
 		if (MouseEvent->dwButtonState)
@@ -1692,7 +1693,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY==ScrollY)
 		{
 			while (IsMouseButtonPressed())
-				ProcessKey(KEY_UP);
+				ProcessKey(Manager::Key(KEY_UP));
 
 			return TRUE;
 		}
@@ -1700,7 +1701,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY==ScrollY+Height-1)
 		{
 			while (IsMouseButtonPressed())
-				ProcessKey(KEY_DOWN);
+				ProcessKey(Manager::Key(KEY_DOWN));
 
 			return TRUE;
 		}
@@ -1737,14 +1738,14 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 	        MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
 	{
-		ProcessKey(KEY_F5);
+		ProcessKey(Manager::Key(KEY_F5));
 		return TRUE;
 	}
 
 	if (MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
 	{
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+1+FixSize)
-			ProcessKey(KEY_UP);
+			ProcessKey(Manager::Key(KEY_UP));
 
 		return TRUE;
 	}
@@ -1752,7 +1753,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwMousePosition.Y>=Y2)
 	{
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2)
-			ProcessKey(KEY_DOWN);
+			ProcessKey(Manager::Key(KEY_DOWN));
 
 		return TRUE;
 	}
@@ -1779,7 +1780,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (!StackData->strSelTopic.empty())
 		{
 			if (StackData->CurX == MouseDownX && StackData->CurY == MouseDownY)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 		}
 		else
 		{

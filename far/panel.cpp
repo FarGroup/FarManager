@@ -1375,7 +1375,7 @@ void Panel::FastFind(int FirstKey)
 					else if (Key == KEY_OP_PLAINTEXT)
 					{
 						string strTempName;
-						FindEdit.ProcessKey(Key);
+						FindEdit.ProcessKey(Manager::Key(Key));
 						FindEdit.GetString(strTempName);
 						FindEdit.SetString(L"");
 						FastFindProcessName(&FindEdit,strTempName,strLastName,strName);
@@ -1447,7 +1447,7 @@ void Panel::FastFind(int FirstKey)
 						break;
 					}
 
-					if (FindEdit.ProcessKey(Key))
+					if (FindEdit.ProcessKey(Manager::Key(Key)))
 					{
 						FindEdit.GetString(strName);
 
@@ -1506,7 +1506,7 @@ void Panel::FastFind(int FirstKey)
 	if ((KeyToProcess==KEY_ENTER||KeyToProcess==KEY_NUMENTER) && ActivePanel->GetType()==TREE_PANEL)
 		((TreeList *)ActivePanel)->ProcessEnter();
 	else
-		Global->CtrlObject->Cp()->ProcessKey(KeyToProcess);
+		Global->CtrlObject->Cp()->ProcessKey(Manager::Key(KeyToProcess));
 }
 
 
@@ -1574,7 +1574,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				EndDrag();
 
 				if (!MouseEvent->dwMousePosition.X)
-					Global->CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
+					Global->CtrlObject->Cp()->ProcessKey(Manager::Key(KEY_CTRLO));
 				else
 					Global->Opt->ShellOptions(0,MouseEvent);
 
@@ -1601,7 +1601,7 @@ int  Panel::PanelProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			{
 				MoveToMouse(MouseEvent);
 				Redraw();
-				SrcDragPanel->ProcessKey(DragMove ? KEY_DRAGMOVE:KEY_DRAGCOPY);
+				SrcDragPanel->ProcessKey(Manager::Key(DragMove ? KEY_DRAGMOVE:KEY_DRAGCOPY));
 			}
 
 			return TRUE;

@@ -239,7 +239,7 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
 			case 3:
-				ProcessKey(KEY_CTRLB);
+				ProcessKey(Manager::Key(KEY_CTRLB));
 				break;
 			default:
 				PrevMode=0;
@@ -250,15 +250,16 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return View.VMProcess(OpCode,vParam,iParam);
 }
 
-int FileViewer::ProcessKey(int Key)
+int FileViewer::ProcessKey(const Manager::Key& Key)
 {
-	if (RedrawTitle && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
+	int LocalKey=Key.FarKey;
+	if (RedrawTitle && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
-	if (Key!=KEY_F3 && Key!=KEY_IDLE)
+	if (LocalKey!=KEY_F3 && LocalKey!=KEY_IDLE)
 		F3KeyOnly=false;
 
-	switch (Key)
+	switch (LocalKey)
 	{
 #if 0
 			/* $ 30.05.2003 SVS

@@ -165,7 +165,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 				case BS_H2:
 					Chr = L'=';
 					break;
-				
+
 				default:
 					Chr=L'+';
 					break;
@@ -248,11 +248,12 @@ void Grabber::DisplayObject()
 }
 
 
-int Grabber::ProcessKey(int Key)
+int Grabber::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	if(Global->CloseFAR)
 	{
-		Key = KEY_ESC;
+		LocalKey = KEY_ESC;
 	}
 
 	/* $ 14.03.2001 SVS
@@ -265,20 +266,20 @@ int Grabber::ProcessKey(int Key)
 
 	if (Global->CtrlObject->Macro.IsExecuting())
 	{
-		if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
+		if ((LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && ResetArea)
 			Reset();
-		else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT) && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed)
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed)
 			ResetArea = true;
 	}
 	else
 	{
-		if ((IntKeyState.ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && Key!=KEY_CTRLA && Key!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
+		if ((IntKeyState.ShiftPressed || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
 			Reset();
-		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && Key!=KEY_CTRLA && Key!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(Key&KEY_SHIFT))
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT))
 			ResetArea = true;
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
@@ -294,7 +295,7 @@ int Grabber::ProcessKey(int Key)
 		case KEY_RCTRLINS:  case KEY_RCTRLNUMPAD0:
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
-			CopyGrabbedArea(Key == KEY_CTRLADD || Key == KEY_RCTRLADD,VerticalBlock);
+			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,VerticalBlock);
 			SetExitCode(1);
 			break;
 		case KEY_LEFT:      case KEY_NUMPAD4:   case L'4':
@@ -350,7 +351,7 @@ int Grabber::ProcessKey(int Key)
 			if ((GArea.CurX-=10)<0)
 				GArea.CurX=0;
 
-			if (Key == KEY_CTRLSHIFTLEFT || Key == KEY_RCTRLSHIFTLEFT || Key == KEY_CTRLSHIFTNUMPAD4 || Key == KEY_RCTRLSHIFTNUMPAD4)
+			if (LocalKey == KEY_CTRLSHIFTLEFT || LocalKey == KEY_RCTRLSHIFTLEFT || LocalKey == KEY_CTRLSHIFTNUMPAD4 || LocalKey == KEY_RCTRLSHIFTNUMPAD4)
 				GArea.X1=GArea.CurX;
 
 			break;
@@ -362,7 +363,7 @@ int Grabber::ProcessKey(int Key)
 			if ((GArea.CurX+=10)>ScrX)
 				GArea.CurX=ScrX;
 
-			if (Key == KEY_CTRLSHIFTRIGHT || Key == KEY_RCTRLSHIFTRIGHT || Key == KEY_CTRLSHIFTNUMPAD6 || Key == KEY_RCTRLSHIFTNUMPAD6)
+			if (LocalKey == KEY_CTRLSHIFTRIGHT || LocalKey == KEY_RCTRLSHIFTRIGHT || LocalKey == KEY_CTRLSHIFTNUMPAD6 || LocalKey == KEY_RCTRLSHIFTNUMPAD6)
 				GArea.X1=GArea.CurX;
 
 			break;
@@ -374,7 +375,7 @@ int Grabber::ProcessKey(int Key)
 			if ((GArea.CurY-=5)<0)
 				GArea.CurY=0;
 
-			if (Key == KEY_CTRLSHIFTUP || Key == KEY_RCTRLSHIFTUP || Key == KEY_CTRLSHIFTNUMPAD8 || Key == KEY_RCTRLSHIFTNUMPAD8)
+			if (LocalKey == KEY_CTRLSHIFTUP || LocalKey == KEY_RCTRLSHIFTUP || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
 				GArea.Y1=GArea.CurY;
 
 			break;
@@ -386,7 +387,7 @@ int Grabber::ProcessKey(int Key)
 			if ((GArea.CurY+=5)>ScrY)
 				GArea.CurY=ScrY;
 
-			if (Key == KEY_CTRLSHIFTDOWN || Key == KEY_RCTRLSHIFTDOWN || Key == KEY_CTRLSHIFTNUMPAD8 || Key == KEY_RCTRLSHIFTNUMPAD8)
+			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
 				GArea.Y1=GArea.CurY;
 
 			break;
@@ -555,7 +556,7 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
 	        (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
 	{
-		ProcessKey(KEY_ENTER);
+		ProcessKey(Manager::Key(KEY_ENTER));
 		return TRUE;
 	}
 

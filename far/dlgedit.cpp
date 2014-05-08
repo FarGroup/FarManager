@@ -115,7 +115,7 @@ void DlgEdit::SetHistory(const string& Name)
 	iHistory=new History(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory);
 }
 
-int DlgEdit::ProcessKey(int Key)
+int DlgEdit::ProcessKey(const Manager::Key& Key)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

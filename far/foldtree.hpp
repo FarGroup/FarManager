@@ -48,7 +48,7 @@ public:
 	FolderTree(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);
 	virtual ~FolderTree();
 
-	virtual int ProcessKey(int Key) override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void OnChangeFocus(int focus) override; // вызывается при смене фокуса
@@ -65,7 +65,7 @@ private:
 	virtual void DisplayObject() override;
 	void DrawEdit();
 	void SetCoords();
-	
+
 	TreeList *Tree;
 	EditControl *FindEdit;
 	// кейбар

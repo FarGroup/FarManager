@@ -166,12 +166,13 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int CommandLine::ProcessKey(int Key)
+int CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	const wchar_t *PStr;
 	string strStr;
+	int LocalKey=Key.FarKey;
 
-	if ((Key==KEY_CTRLEND || Key==KEY_RCTRLEND || Key==KEY_CTRLNUMPAD1 || Key==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
+	if ((LocalKey==KEY_CTRLEND || LocalKey==KEY_RCTRLEND || LocalKey==KEY_CTRLNUMPAD1 || LocalKey==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
 		if (LastCmdPartLength==-1)
 			strLastCmdStr = CmdStr.GetStringAddr();
@@ -196,41 +197,41 @@ int CommandLine::ProcessKey(int Key)
 		return TRUE;
 	}
 
-	if (Key == KEY_UP || Key == KEY_NUMPAD8)
+	if (LocalKey == KEY_UP || LocalKey == KEY_NUMPAD8)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
 
-		Key=KEY_CTRLE;
+		LocalKey=KEY_CTRLE;
 	}
-	else if (Key == KEY_DOWN || Key == KEY_NUMPAD2)
+	else if (LocalKey == KEY_DOWN || LocalKey == KEY_NUMPAD2)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
 
-		Key=KEY_CTRLX;
+		LocalKey=KEY_CTRLX;
 	}
 
 	// $ 25.03.2002 VVM + ѕри погашенных панел€х колесом крутим историю
 	if (!Global->CtrlObject->Cp()->LeftPanel->IsVisible() && !Global->CtrlObject->Cp()->RightPanel->IsVisible())
 	{
-		switch (Key)
+		switch (LocalKey)
 		{
-			case KEY_MSWHEEL_UP:    Key = KEY_CTRLE; break;
-			case KEY_MSWHEEL_DOWN:  Key = KEY_CTRLX; break;
-			case KEY_MSWHEEL_LEFT:  Key = KEY_CTRLS; break;
-			case KEY_MSWHEEL_RIGHT: Key = KEY_CTRLD; break;
+			case KEY_MSWHEEL_UP:    LocalKey = KEY_CTRLE; break;
+			case KEY_MSWHEEL_DOWN:  LocalKey = KEY_CTRLX; break;
+			case KEY_MSWHEEL_LEFT:  LocalKey = KEY_CTRLS; break;
+			case KEY_MSWHEEL_RIGHT: LocalKey = KEY_CTRLD; break;
 		}
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_CTRLE:
 		case KEY_RCTRLE:
 		case KEY_CTRLX:
 		case KEY_RCTRLX:
 			{
-				if (Key == KEY_CTRLE || Key == KEY_RCTRLE)
+				if (LocalKey == KEY_CTRLE || LocalKey == KEY_RCTRLE)
 				{
 					Global->CtrlObject->CmdHistory->GetPrev(strStr);
 				}
@@ -249,7 +250,7 @@ int CommandLine::ProcessKey(int Key)
 
 		case KEY_ESC:
 
-			if (Key == KEY_ESC)
+			if (LocalKey == KEY_ESC)
 			{
 				// $ 24.09.2000 SVS - ≈сли задано поведение по "Ќесохранению при Esc", то позицию в хистори не мен€ем и ставим в первое положение.
 				if (Global->Opt->CmdHistoryRule)
@@ -283,7 +284,7 @@ int CommandLine::ProcessKey(int Key)
 
 				if (SelectType != HRT_CTRLENTER)
 				{
-					ProcessKey(SelectType == HRT_CTRLALTENTER? static_cast<int>(KEY_CTRLALTENTER) : (SelectType == HRT_ENTER? static_cast<int>(KEY_ENTER) : static_cast<int>(KEY_SHIFTENTER)));
+					ProcessKey(SelectType == HRT_CTRLALTENTER? Manager::Key(KEY_CTRLALTENTER) : (SelectType == HRT_ENTER? Manager::Key(KEY_ENTER) : Manager::Key(KEY_SHIFTENTER)));
 				}
 			}
 		}
@@ -310,7 +311,7 @@ int CommandLine::ProcessKey(int Key)
 				ActivePanel->Show();
 
 				if (ActivePanel->GetType()==TREE_PANEL)
-					ActivePanel->ProcessKey(KEY_ENTER);
+					ActivePanel->ProcessKey(Manager::Key(KEY_ENTER));
 			}
 			else
 			{
@@ -415,9 +416,9 @@ int CommandLine::ProcessKey(int Key)
 
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr.data())))
-				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false,
-						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
-						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
+				ExecString(strStr, false, LocalKey==KEY_SHIFTENTER||LocalKey==KEY_SHIFTNUMENTER, false, false,
+						LocalKey == KEY_CTRLALTENTER || LocalKey == KEY_RCTRLRALTENTER || LocalKey == KEY_CTRLRALTENTER || LocalKey == KEY_RCTRLALTENTER ||
+						LocalKey == KEY_CTRLALTNUMENTER || LocalKey == KEY_RCTRLRALTNUMENTER || LocalKey == KEY_CTRLRALTNUMENTER || LocalKey == KEY_RCTRLALTNUMENTER);
 		}
 		return TRUE;
 		case KEY_CTRLU:
@@ -448,7 +449,7 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_RALTSHIFTEND:   case KEY_RALTSHIFTNUMPAD1:
 		case KEY_ALTSHIFTHOME:   case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME:  case KEY_RALTSHIFTNUMPAD7:
-			Key&=~(KEY_ALT|KEY_RALT);
+			LocalKey&=~(KEY_ALT|KEY_RALT);
 		default:
 
 			//   —брасываем выделение на некоторых клавишах
@@ -472,16 +473,16 @@ int CommandLine::ProcessKey(int Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				if (std::find(ALL_CONST_RANGE(UnmarkKeys), Key) != std::cend(UnmarkKeys))
+				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey) != std::cend(UnmarkKeys))
 				{
 					CmdStr.Select(-1,0);
 				}
 			}
 
-			if (Key == KEY_CTRLD || Key == KEY_RCTRLD)
-				Key=KEY_RIGHT;
+			if (LocalKey == KEY_CTRLD || LocalKey == KEY_RCTRLD)
+				LocalKey=KEY_RIGHT;
 
-			if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
+			if(LocalKey == KEY_CTRLSPACE || LocalKey == KEY_RCTRLSPACE)
 			{
 				SCOPED_ACTION(SetAutocomplete)(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);
@@ -542,7 +543,7 @@ int CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==X2+1)
 	{
-		return ProcessKey(KEY_ALTF8);
+		return ProcessKey(Manager::Key(KEY_ALTF8));
 	}
 	return CmdStr.ProcessMouse(MouseEvent);
 }

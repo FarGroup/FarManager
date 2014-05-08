@@ -47,7 +47,7 @@ public:
 	virtual ~Help();
 
 	virtual void Hide() override;
-	virtual int  ProcessKey(int Key) override;
+	virtual int  ProcessKey(const Manager::Key& Key) override;
 	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;

@@ -228,7 +228,7 @@ public:
 
 	virtual ~Dialog();
 
-	virtual int ProcessKey(int Key) override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
 	virtual void Show() override;

@@ -682,18 +682,19 @@ void InfoList::SelectShowMode()
 	}
 }
 
-int InfoList::ProcessKey(int Key)
+int InfoList::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	if (!IsVisible())
 		return FALSE;
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
-		ExecShortcutFolder(Key-KEY_RCTRL0);
+		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return TRUE;
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F1:
 		{
@@ -760,7 +761,7 @@ int InfoList::ProcessKey(int Key)
 		}
 	}
 
-	if (DizView && Key >= 256)
+	if (DizView && LocalKey >= 256)
 	{
 		int DVX1,DVX2,DVY1,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
@@ -769,13 +770,13 @@ int InfoList::ProcessKey(int Key)
 		{
 			int ret = DizView->ProcessKey(Key);
 
-			if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+			if (LocalKey == KEY_F8 || LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2)
 			{
 				DynamicUpdateKeyBar();
 				Global->CtrlObject->MainKeyBar->Redraw();
 			}
 
-			if (Key == KEY_F7 || Key == KEY_SHIFTF7)
+			if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
 			{
 				__int64 Pos, Length;
 				DWORD Flags;
@@ -852,13 +853,13 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				        MouseEvent->dwMousePosition.Y < DVY2-1
 				   )
 				{
-					ProcessKey(KEY_F3);
+					ProcessKey(Manager::Key(KEY_F3));
 					return TRUE;
 				}
 
 				if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
 				{
-					ProcessKey(KEY_F4);
+					ProcessKey(Manager::Key(KEY_F4));
 					return TRUE;
 				}
 			}

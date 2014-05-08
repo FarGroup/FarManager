@@ -432,7 +432,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				Global->FrameManager->RefreshFrame();
 				break;
 			case 3:
-				ProcessKey(KEY_CTRLB);
+				ProcessKey(Manager::Key(KEY_CTRLB));
 				break;
 			default:
 				PrevMode=0;
@@ -443,14 +443,15 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return ActivePanel->VMProcess(OpCode,vParam,iParam);
 }
 
-int FilePanels::ProcessKey(int Key)
+int FilePanels::ProcessKey(const Manager::Key& Key)
 {
-	if (!Key)
+	int LocalKey=Key.FarKey;
+	if (!LocalKey)
 		return TRUE;
 
-	if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
-		|| Key==KEY_RCTRLLEFT || Key==KEY_RCTRLRIGHT || Key==KEY_RCTRLNUMPAD4 || Key==KEY_RCTRLNUMPAD6
-	        /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
+	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
+		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
+	        /* || LocalKey==KEY_CTRLUP   || LocalKey==KEY_CTRLDOWN || LocalKey==KEY_CTRLNUMPAD8 || LocalKey==KEY_CTRLNUMPAD2 */) &&
 	        (Global->CtrlObject->CmdLine->GetLength()>0 ||
 	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
 	{
@@ -458,11 +459,11 @@ int FilePanels::ProcessKey(int Key)
 		return TRUE;
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F1:
 		{
-			if (!ActivePanel->ProcessKey(KEY_F1))
+			if (!ActivePanel->ProcessKey(Manager::Key(KEY_F1)))
 			{
 				Help Hlp(L"Contents");
 			}
@@ -538,9 +539,9 @@ int FilePanels::ProcessKey(int Key)
 				Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
 				int NewType;
 
-				if (Key==KEY_CTRLL || Key==KEY_RCTRLL)
+				if (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL)
 					NewType=INFO_PANEL;
-				else if (Key==KEY_CTRLQ || Key==KEY_RCTRLQ)
+				else if (LocalKey==KEY_CTRLQ || LocalKey==KEY_RCTRLQ)
 					NewType=QVIEW_PANEL;
 				else
 					NewType=TREE_PANEL;
@@ -826,8 +827,8 @@ int FilePanels::ProcessKey(int Key)
 		}
 		default:
 		{
-			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
-				ChangePanelViewMode(ActivePanel,Key-KEY_CTRL0,TRUE);
+			if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
+				ChangePanelViewMode(ActivePanel,LocalKey-KEY_CTRL0,TRUE);
 			if (!ActivePanel->ProcessKey(Key))
 				Global->CtrlObject->CmdLine->ProcessKey(Key);
 
@@ -1233,7 +1234,7 @@ void FilePanels::GoToFile(const string& FileName)
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)
-			ProcessKey(KEY_TAB);
+			ProcessKey(Manager::Key(KEY_TAB));
 
 		if (!AExist && !PExist)
 			ActivePanel->SetCurDir(strNameDir,true);

@@ -1358,12 +1358,13 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int Viewer::ProcessKey(int Key)
+int Viewer::ProcessKey(const Manager::Key& Key)
 {
+	int LocalKey=Key.FarKey;
 	if ( !ViOpt.PersistentBlocks &&
-			Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
-			Key!=KEY_CTRLC && Key!=KEY_RCTRLC &&
-			Key != KEY_SHIFTF7 && Key != KEY_SPACE && Key != KEY_ALTF7 && Key != KEY_RALTF7 )
+			LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
+			LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&
+			LocalKey != KEY_SHIFTF7 && LocalKey != KEY_SPACE && LocalKey != KEY_ALTF7 && LocalKey != KEY_RALTF7 )
 		SelectSize = -1;
 
 	if (!InternalKey && !LastKeyUndo && (UndoData.empty() || FilePos!=UndoData.back().UndoAddr || LeftPos!=UndoData.back().UndoLeft))
@@ -1375,12 +1376,12 @@ int Viewer::ProcessKey(int Key)
 		UndoData.emplace_back(VALUE_TYPE(UndoData)(FilePos, LeftPos));
 	}
 
-	if (Key!=KEY_ALTBS && Key!=KEY_RALTBS && Key!=KEY_CTRLZ && Key!=KEY_RCTRLZ && Key!=KEY_NONE && Key!=KEY_IDLE)
+	if (LocalKey!=KEY_ALTBS && LocalKey!=KEY_RALTBS && LocalKey!=KEY_CTRLZ && LocalKey!=KEY_RCTRLZ && LocalKey!=KEY_NONE && LocalKey!=KEY_IDLE)
 		LastKeyUndo=FALSE;
 
-	if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
+	if (LocalKey>=KEY_CTRL0 && LocalKey<=KEY_CTRL9)
 	{
-		int Pos=Key-KEY_CTRL0;
+		int Pos=LocalKey-KEY_CTRL0;
 
 		if (BMSavePos[Pos].FilePos != POS_NONE)
 		{
@@ -1392,20 +1393,20 @@ int Viewer::ProcessKey(int Key)
 		return TRUE;
 	}
 
-	if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
-		Key=Key-KEY_CTRLSHIFT0+KEY_RCTRL0;
-	else if (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9)
-		Key&=~KEY_SHIFT;
+	if (LocalKey>=KEY_CTRLSHIFT0 && LocalKey<=KEY_CTRLSHIFT9)
+		LocalKey=LocalKey-KEY_CTRLSHIFT0+KEY_RCTRL0;
+	else if (LocalKey>=KEY_RCTRLSHIFT0 && LocalKey<=KEY_RCTRLSHIFT9)
+		LocalKey&=~KEY_SHIFT;
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
-		int Pos=Key-KEY_RCTRL0;
+		int Pos=LocalKey-KEY_RCTRL0;
 		BMSavePos[Pos].FilePos = FilePos;
 		BMSavePos[Pos].LeftPos = LeftPos;
 		return TRUE;
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F1:
 		{
@@ -1486,7 +1487,7 @@ int Viewer::ProcessKey(int Key)
 
 				if (FilePos > FileSize)
 				{
-					ProcessKey(KEY_CTRLEND);
+					ProcessKey(Manager::Key(KEY_CTRLEND));
 				}
 				else
 				{
@@ -1496,7 +1497,7 @@ int Viewer::ProcessKey(int Key)
 
 					if (PrevLastPage && !LastPage)
 					{
-						ProcessKey(KEY_CTRLEND);
+						ProcessKey(Manager::Key(KEY_CTRLEND));
 						LastPage=TRUE;
 					}
 				}
@@ -1529,7 +1530,7 @@ int Viewer::ProcessKey(int Key)
 
 				bool NextFileFound;
 
-				if (Key == KEY_ADD)
+				if (LocalKey == KEY_ADD)
 					NextFileFound = ViewNamesList.GetNextName(strName);
 				else
 					NextFileFound=ViewNamesList.GetPrevName(strName);
@@ -1663,10 +1664,10 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
+			int Roll = (LocalKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_UP);
+				ProcessKey(Manager::Key(KEY_UP));
 
 			return TRUE;
 		}
@@ -1674,10 +1675,10 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
+			int Roll = (LocalKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_DOWN);
+				ProcessKey(Manager::Key(KEY_DOWN));
 
 			return TRUE;
 		}
@@ -1685,10 +1686,10 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
+			int Roll = (LocalKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_LEFT);
+				ProcessKey(Manager::Key(KEY_LEFT));
 
 			return TRUE;
 		}
@@ -1696,10 +1697,10 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
+			int Roll = (LocalKey & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_RIGHT);
+				ProcessKey(Manager::Key(KEY_RIGHT));
 
 			return TRUE;
 		}
@@ -1756,7 +1757,7 @@ int Viewer::ProcessKey(int Key)
 
 			FilePos = EndOfScreen(-1); // start of last screen line
 
-			if (Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN)
+			if (LocalKey == KEY_CTRLDOWN || LocalKey == KEY_RCTRLDOWN)
 			{
 				vseek(vString.nFilePos = FilePos, SEEK_SET);
 				for (int i=Y1; i<=Y2; i++)
@@ -1768,7 +1769,7 @@ int Viewer::ProcessKey(int Key)
 				if (LastPage)
 				{
 					InternalKey++;
-					ProcessKey(KEY_CTRLPGDN);
+					ProcessKey(Manager::Key(KEY_CTRLPGDN));
 					InternalKey--;
 					return TRUE;
 				}
@@ -1940,9 +1941,9 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		default:
 
-			if (IsCharKey(Key))
+			if (IsCharKey(LocalKey))
 			{
-				Search(0,Key);
+				Search(0,LocalKey);
 				return TRUE;
 			}
 	}
@@ -1959,18 +1960,18 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		if (IntKeyState.MouseY == Y1)
 			while (IsMouseButtonPressed())
-				ProcessKey(KEY_UP);
+				ProcessKey(Manager::Key(KEY_UP));
 		else if (IntKeyState.MouseY==Y2)
 		{
 			while (IsMouseButtonPressed())
 			{
-				ProcessKey(KEY_DOWN);
+				ProcessKey(Manager::Key(KEY_DOWN));
 			}
 		}
 		else if (IntKeyState.MouseY == Y1+1)
-			ProcessKey(KEY_CTRLHOME);
+			ProcessKey(Manager::Key(KEY_CTRLHOME));
 		else if (IntKeyState.MouseY == Y2-1)
-			ProcessKey(KEY_CTRLEND);
+			ProcessKey(Manager::Key(KEY_CTRLEND));
 		else
 		{
 			while (IsMouseButtonPressed())
@@ -1992,9 +1993,9 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					Perc=ToPercent(FilePos,FileSize);
 
 				if (Perc == 100)
-					ProcessKey(KEY_CTRLEND);
+					ProcessKey(Manager::Key(KEY_CTRLEND));
 				else if (!Perc)
-					ProcessKey(KEY_CTRLHOME);
+					ProcessKey(Manager::Key(KEY_CTRLHOME));
 				else
 				{
 					AdjustFilePos();
@@ -2023,7 +2024,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			if (IntKeyState.MouseX >= xpos[i] && IntKeyState.MouseX < xpos[i]+xlen[i])
 			{
-				ProcessKey(keys[i]);
+				ProcessKey(Manager::Key(keys[i]));
 				return TRUE;
 			}
 		}
@@ -2034,16 +2035,16 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (IntKeyState.MouseX<X1+7)
 		while (IsMouseButtonPressed() && IntKeyState.MouseX<X1+7)
-			ProcessKey(KEY_LEFT);
+			ProcessKey(Manager::Key(KEY_LEFT));
 	else if (IntKeyState.MouseX>X2-7)
 		while (IsMouseButtonPressed() && IntKeyState.MouseX>X2-7)
-			ProcessKey(KEY_RIGHT);
+			ProcessKey(Manager::Key(KEY_RIGHT));
 	else if (IntKeyState.MouseY<Y1+(Y2-Y1)/2)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+(Y2-Y1)/2)
-			ProcessKey(KEY_UP);
+			ProcessKey(Manager::Key(KEY_UP));
 	else
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y1+(Y2-Y1)/2)
-			ProcessKey(KEY_DOWN);
+			ProcessKey(Manager::Key(KEY_DOWN));
 
 	return TRUE;
 }
@@ -3255,7 +3256,7 @@ void Viewer::Search(int Next,int FirstChar)
 		{
 			Dlg.InitDialog();
 			Dlg.Show();
-			Dlg.ProcessKey(FirstChar);
+			Dlg.ProcessKey(Manager::Key(FirstChar));
 		}
 
 		Dlg.Process();

@@ -82,7 +82,7 @@ public:
 public:
 	TreeList(bool IsPanel = true);
 
-	virtual int ProcessKey(int Key) override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual int GoToFile(const string& Name, BOOL OnlyPartName = FALSE) override;
 	virtual int FindPartName(const string& Name, int Next, int Direct = 1, int ExcludeSets = 0) override;

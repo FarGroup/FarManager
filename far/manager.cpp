@@ -100,7 +100,7 @@ BOOL Manager::ExitAll()
 		if (!CurFrame->GetCanLoseFocus(TRUE))
 		{
 			auto PrevFrameCount = ModalFrames.size();
-			CurFrame->ProcessKey(KEY_ESC);
+			CurFrame->ProcessKey(Manager::Key(KEY_ESC));
 			Commit();
 
 			if (PrevFrameCount == ModalFrames.size())
@@ -121,7 +121,7 @@ BOOL Manager::ExitAll()
 			ActivateFrame(CurFrame);
 			Commit();
 			auto PrevFrameCount = Frames.size();
-			CurFrame->ProcessKey(KEY_ESC);
+			CurFrame->ProcessKey(Manager::Key(KEY_ESC));
 			Commit();
 
 			if (PrevFrameCount == Frames.size())
@@ -596,7 +596,7 @@ void Manager::ProcessMainLoop()
 
 	if ( CurrentFrame && !CurrentFrame->ProcessEvents() )
 	{
-		ProcessKey(KEY_IDLE);
+		ProcessKey(Manager::Key(KEY_IDLE));
 	}
 	else
 	{
@@ -617,7 +617,7 @@ void Manager::ProcessMainLoop()
 				ProcessMouse(&mer);
 		}
 		else
-			ProcessKey(Key);
+			ProcessKey(Manager::Key(Key));
 	}
 
 	if(IsPanelsActive())
@@ -684,13 +684,13 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 #endif
 
 
-int Manager::ProcessKey(DWORD Key)
+int Manager::ProcessKey(Key key)
 {
 	int ret=FALSE;
 
 	if (CurrentFrame)
 	{
-		DWORD KeyM=(Key&(~KEY_CTRLMASK));
+		DWORD KeyM=(key.FarKey&(~KEY_CTRLMASK));
 
 		if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
 		{
@@ -699,13 +699,13 @@ int Manager::ProcessKey(DWORD Key)
 				case MODALTYPE_PANELS:
 				{
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
-					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
+					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(key.FarKey)));
 #ifndef NO_WRAPPER
 					if (Global->CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						auto ph= Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
 						if (ph && ph->pPlugin->IsOemPlugin())
-							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key, true))
+							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(key.FarKey, true))
 								return TRUE;
 					}
 #endif // NO_WRAPPER
@@ -737,7 +737,7 @@ int Manager::ProcessKey(DWORD Key)
 #if defined(FAR_ALPHA_VERSION)
 
 // сей код для проверки исключатор, просьба не трогать :-)
-		if (Key == KEY_CTRLALTAPPS || Key == KEY_RCTRLRALTAPPS || Key == KEY_CTRLRALTAPPS || Key == KEY_RCTRLALTAPPS)
+		if (key.FarKey == KEY_CTRLALTAPPS || key.FarKey == KEY_RCTRLRALTAPPS || key.FarKey == KEY_CTRLRALTAPPS || key.FarKey == KEY_RCTRLALTAPPS)
 		{
 			struct __ECODE
 			{
@@ -844,7 +844,7 @@ int Manager::ProcessKey(DWORD Key)
 		/*** БЛОК ПРИВЕЛЕГИРОВАННЫХ КЛАВИШ ! ***/
 
 		/***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
-		switch (Key)
+		switch (key.FarKey)
 		{
 			case KEY_ALT|KEY_NUMPAD0:
 			case KEY_RALT|KEY_NUMPAD0:
@@ -871,7 +871,7 @@ int Manager::ProcessKey(DWORD Key)
 				scrollable = frame_type != MODALTYPE_EDITOR && frame_type != MODALTYPE_VIEWER;
 			};
 
-			switch (Key)
+			switch (key.FarKey)
 			{
 				// <Удалить после появления макрофункции Scroll>
 				case KEY_CTRLALTUP:
@@ -953,7 +953,7 @@ int Manager::ProcessKey(DWORD Key)
 					if(!reentry && (TypeFrame == MODALTYPE_DIALOG || TypeFrame == MODALTYPE_VMENU))
 					{
 						++reentry;
-						int r=CurrentFrame->ProcessKey(Key);
+						int r=CurrentFrame->ProcessKey(key);
 						--reentry;
 						return r;
 					}
@@ -995,7 +995,7 @@ int Manager::ProcessKey(DWORD Key)
 							PrevScrY=PScrY;
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
 							Sleep(1);
-							return ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+							return ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 						}
 					}
 
@@ -1019,10 +1019,10 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_CTRLALTSHIFTPRESS:
 				case KEY_RCTRLALTSHIFTPRESS:
 				{
-					if (!(Global->Opt->CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&1) && key.FarKey == KEY_CTRLALTSHIFTPRESS)
 						break;
 
-					if (!(Global->Opt->CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&2) && key.FarKey == KEY_RCTRLALTSHIFTPRESS)
 						break;
 
 					if (!Global->Opt->OnlyEditorViewerUsed)
@@ -1052,7 +1052,7 @@ int Manager::ProcessKey(DWORD Key)
 										break;
 								}
 
-								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+								WaitKey(key.FarKey==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 
 								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
 
@@ -1065,7 +1065,7 @@ int Manager::ProcessKey(DWORD Key)
 							else
 							{
 								ImmediateHide();
-								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+								WaitKey(key.FarKey==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 							}
 
 							Global->FrameManager->RefreshFrame();
@@ -1083,7 +1083,7 @@ int Manager::ProcessKey(DWORD Key)
 
 					if (CurrentFrame->GetCanLoseFocus())
 					{
-						DeactivateFrame(CurrentFrame,(Key==KEY_CTRLTAB||Key==KEY_RCTRLTAB)?1:-1);
+						DeactivateFrame(CurrentFrame,(key.FarKey==KEY_CTRLTAB||key.FarKey==KEY_RCTRLTAB)?1:-1);
 					}
 					else
 						break;
@@ -1094,7 +1094,7 @@ int Manager::ProcessKey(DWORD Key)
 		}
 
 		CurrentFrame->UpdateKeyBar();
-		CurrentFrame->ProcessKey(Key);
+		CurrentFrame->ProcessKey(key);
 	}
 
 	_MANAGER(SysLog(-1));

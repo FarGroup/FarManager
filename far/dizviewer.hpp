@@ -44,7 +44,7 @@ class DizViewer: public Viewer
 		virtual ~DizViewer() {}
 
 	public:
-		virtual int ProcessKey(int Key)
+		virtual int ProcessKey(const Manager::Key& Key)
 		{
 			InRecursion++;
 			int res=Viewer::ProcessKey(Key);

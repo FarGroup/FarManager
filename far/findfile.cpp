@@ -1526,7 +1526,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_CTRLW:
 			case KEY_RCTRLW:
 				{
-					Global->FrameManager->ProcessKey((DWORD)key);
+					Global->FrameManager->ProcessKey(Manager::Key(key));
 					return TRUE;
 				}
 				break;
@@ -1598,7 +1598,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_ALT|KEY_NUMPAD1:
 			case KEY_RALT|KEY_NUMPAD1:
 				{
-					ListBox->ProcessKey((unsigned)key);
+					ListBox->ProcessKey(Manager::Key(key));
 					return TRUE;
 				}
 				break;
@@ -1765,7 +1765,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								Global->FrameManager->ExecuteModal();
 								Global->FrameManager->ExitModalEV();
 								// заставляем рефрешится экран
-								Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+								Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
 							Dlg->SendMessage(DM_SHOWDIALOG,TRUE,0);
@@ -1841,7 +1841,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									Global->FrameManager->ExecuteModal();
 									Global->FrameManager->ExitModalEV();
 									// заставляем рефрешится экран
-									Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+									Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 								}
 							}
 							Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);

@@ -104,5 +104,5 @@ RedrawDesktop::~RedrawDesktop()
 
 	// Временное решение!
 	// Иначе траблы при пересчете...
-	Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+	Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 }

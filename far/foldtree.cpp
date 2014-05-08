@@ -186,14 +186,15 @@ int FolderTree::GetTypeAndName(string &strType, string &strName)
 }
 
 
-int FolderTree::ProcessKey(int Key)
+int FolderTree::ProcessKey(const Manager::Key& Key)
 {
-	if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535)
-		Key=Lower(Key-KEY_ALT_BASE);
-	else if (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535)
-		Key=Lower(Key-KEY_RALT_BASE);
+	int LocalKey=Key.FarKey;
+	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
+		LocalKey=Lower(LocalKey-KEY_ALT_BASE);
+	else if (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535)
+		LocalKey=Lower(LocalKey-KEY_RALT_BASE);
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F1:
 		{
@@ -216,7 +217,7 @@ int FolderTree::ProcessKey(int Key)
 			}
 			else
 			{
-				Tree->ProcessKey(KEY_ENTER);
+				Tree->ProcessKey(Manager::Key(KEY_ENTER));
 				DrawEdit();
 			}
 
@@ -227,7 +228,7 @@ int FolderTree::ProcessKey(int Key)
 			return TRUE;
 		case KEY_CTRLR:		case KEY_RCTRLR:
 		case KEY_F2:
-			Tree->ProcessKey(KEY_CTRLR);
+			Tree->ProcessKey(Manager::Key(KEY_CTRLR));
 			DrawEdit();
 			break;
 		case KEY_CTRLNUMENTER:       case KEY_RCTRLNUMENTER:
@@ -237,7 +238,7 @@ int FolderTree::ProcessKey(int Key)
 		{
 			string strName;
 			FindEdit->GetString(strName);
-			Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER||Key==KEY_RCTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER||Key == KEY_RCTRLSHIFTNUMENTER?-1:1,1);
+			Tree->FindPartName(strName,TRUE,LocalKey==KEY_CTRLSHIFTENTER||LocalKey==KEY_RCTRLSHIFTENTER||LocalKey == KEY_CTRLSHIFTNUMENTER||LocalKey == KEY_RCTRLSHIFTNUMENTER?-1:1,1);
 			DrawEdit();
 		}
 		break;
@@ -265,7 +266,7 @@ int FolderTree::ProcessKey(int Key)
 			break;
 		default:
 
-			if (Key == KEY_ADD || Key == KEY_SUBTRACT) // OFM: Gray+/Gray- navigation
+			if (LocalKey == KEY_ADD || LocalKey == KEY_SUBTRACT) // OFM: Gray+/Gray- navigation
 			{
 				Tree->ProcessKey(Key);
 				DrawEdit();
@@ -311,7 +312,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 	{
-		ProcessKey(KEY_ENTER);
+		ProcessKey(Manager::Key(KEY_ENTER));
 		return TRUE;
 	}
 
@@ -321,9 +322,9 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
 		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
-			ProcessKey(KEY_ESC);
+			ProcessKey(Manager::Key(KEY_ESC));
 		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
-			ProcessKey(KEY_ENTER);
+			ProcessKey(Manager::Key(KEY_ENTER));
 
 		return TRUE;
 	}

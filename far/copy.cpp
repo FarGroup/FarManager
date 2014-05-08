@@ -3561,7 +3561,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				Global->FrameManager->EnterModalEV();
 				Global->FrameManager->ExecuteModal();
 				Global->FrameManager->ExitModalEV();
-				Global->FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_CONSOLE_BUFFER_RESIZE));
 			}
 		}
 		break;

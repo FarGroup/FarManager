@@ -1123,28 +1123,29 @@ __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
-int TreeList::ProcessKey(int Key)
+int TreeList::ProcessKey(const Manager::Key& Key)
 {
+    int LocalKey=Key.FarKey;
 	if (!IsVisible())
 		return FALSE;
 
-	if (ListData.empty() && Key!=KEY_CTRLR && Key!=KEY_RCTRLR)
+	if (ListData.empty() && LocalKey!=KEY_CTRLR && LocalKey!=KEY_RCTRLR)
 		return FALSE;
 
-	if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9))
+	if ((LocalKey>=KEY_CTRLSHIFT0 && LocalKey<=KEY_CTRLSHIFT9) || (LocalKey>=KEY_CTRLALT0 && LocalKey<=KEY_CTRLALT9))
 	{
-		bool Add = (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9);
-		SaveShortcutFolder(Key-(Add?KEY_CTRLALT0:KEY_CTRLSHIFT0), Add);
+		bool Add = (LocalKey>=KEY_CTRLALT0 && LocalKey<=KEY_CTRLALT9);
+		SaveShortcutFolder(LocalKey-(Add?KEY_CTRLALT0:KEY_CTRLSHIFT0), Add);
 		return TRUE;
 	}
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
-		ExecShortcutFolder(Key-KEY_RCTRL0);
+		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return TRUE;
 	}
 
-	switch (Key)
+	switch (LocalKey)
 	{
 		case KEY_F1:
 		{
@@ -1171,14 +1172,14 @@ int TreeList::ProcessKey(int Key)
 			string strQuotedName=ListData[CurFile].strName;
 			QuoteSpace(strQuotedName);
 
-			if (Key==KEY_CTRLALTINS||Key==KEY_RCTRLRALTINS||Key==KEY_CTRLRALTINS||Key==KEY_RCTRLALTINS||
-				Key==KEY_CTRLALTNUMPAD0||Key==KEY_RCTRLRALTNUMPAD0||Key==KEY_CTRLRALTNUMPAD0||Key==KEY_RCTRLALTNUMPAD0)
+			if (LocalKey==KEY_CTRLALTINS||LocalKey==KEY_RCTRLRALTINS||LocalKey==KEY_CTRLRALTINS||LocalKey==KEY_RCTRLALTINS||
+				LocalKey==KEY_CTRLALTNUMPAD0||LocalKey==KEY_RCTRLRALTNUMPAD0||LocalKey==KEY_CTRLRALTNUMPAD0||LocalKey==KEY_RCTRLALTNUMPAD0)
 			{
 				SetClipboard(strQuotedName);
 			}
 			else
 			{
-				if (Key == KEY_SHIFTENTER||Key == KEY_SHIFTNUMENTER)
+				if (LocalKey == KEY_SHIFTENTER||LocalKey == KEY_SHIFTNUMENTER)
 				{
 					Execute(strQuotedName, false, true, true, true);
 				}
@@ -1233,7 +1234,7 @@ int TreeList::ProcessKey(int Key)
 			if (SetCurPath())
 			{
 				int ToPlugin=0;
-				ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
+				ShellCopy ShCopy(this,LocalKey==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
 			}
 
 			return TRUE;
@@ -1248,14 +1249,14 @@ int TreeList::ProcessKey(int Key)
 			if (!ListData.empty() && SetCurPath())
 			{
 				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
-				int Ask=((Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
-				int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
+				int Ask=((LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
+				int Move=(LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
 				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-				int Link=((Key==KEY_ALTF6||Key==KEY_RALTF6) && !ToPlugin);
+				int Link=((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin);
 
-				if ((Key==KEY_ALTF6||Key==KEY_RALTF6) && !Link) // молча отвалим :-)
+				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // молча отвалим :-)
 					return TRUE;
 
 				{
@@ -1317,10 +1318,10 @@ int TreeList::ProcessKey(int Key)
 			{
 				bool SaveOpt=Global->Opt->DeleteToRecycleBin;
 
-				if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL)
+				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
 					Global->Opt->DeleteToRecycleBin=0;
 
-				ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
+				ShellDelete(this,LocalKey==KEY_ALTDEL||LocalKey==KEY_RALTDEL||LocalKey==KEY_ALTNUMDEL||LocalKey==KEY_RALTNUMDEL||LocalKey==KEY_ALTDECIMAL||LocalKey==KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
 				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1328,7 +1329,7 @@ int TreeList::ProcessKey(int Key)
 				Global->Opt->DeleteToRecycleBin=SaveOpt;
 
 				if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-					ProcessKey(KEY_ENTER);
+					ProcessKey(Manager::Key(KEY_ENTER));
 			}
 
 			return TRUE;
@@ -1337,24 +1338,24 @@ int TreeList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
+			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
+			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_LEFT);
+				ProcessKey(Manager::Key(KEY_LEFT));
 
 			return TRUE;
 		}
@@ -1362,10 +1363,10 @@ int TreeList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_RIGHT);
+				ProcessKey(Manager::Key(KEY_RIGHT));
 
 			return TRUE;
 		}
@@ -1374,7 +1375,7 @@ int TreeList::ProcessKey(int Key)
 			Up(0x7fffff);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1383,7 +1384,7 @@ int TreeList::ProcessKey(int Key)
 			CurFile=GetNextNavPos();
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 			else
 				DisplayTree(TRUE);
 
@@ -1394,7 +1395,7 @@ int TreeList::ProcessKey(int Key)
 			CurFile=GetPrevNavPos();
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 			else
 				DisplayTree(TRUE);
 
@@ -1405,7 +1406,7 @@ int TreeList::ProcessKey(int Key)
 			Down(0x7fffff);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1414,7 +1415,7 @@ int TreeList::ProcessKey(int Key)
 			Up(1);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1423,7 +1424,7 @@ int TreeList::ProcessKey(int Key)
 			Down(1);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1434,7 +1435,7 @@ int TreeList::ProcessKey(int Key)
 			DisplayTree(TRUE);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1445,7 +1446,7 @@ int TreeList::ProcessKey(int Key)
 			DisplayTree(TRUE);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-				ProcessKey(KEY_ENTER);
+				ProcessKey(Manager::Key(KEY_ENTER));
 
 			return TRUE;
 		}
@@ -1462,13 +1463,13 @@ int TreeList::ProcessKey(int Key)
 		}
 
 		default:
-			if ((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) || (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535) ||
-			        (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535) || (Key>=KEY_RALTSHIFT_BASE+0x01 && Key<=KEY_RALTSHIFT_BASE+65535))
+			if ((LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535) || (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535) ||
+			        (LocalKey>=KEY_ALTSHIFT_BASE+0x01 && LocalKey<=KEY_ALTSHIFT_BASE+65535) || (LocalKey>=KEY_RALTSHIFT_BASE+0x01 && LocalKey<=KEY_RALTSHIFT_BASE+65535))
 			{
-				FastFind(Key);
+				FastFind(LocalKey);
 
 				if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-					ProcessKey(KEY_ENTER);
+					ProcessKey(Manager::Key(KEY_ENTER));
 			}
 			else
 				break;
@@ -1632,7 +1633,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY==ScrollY)
 		{
 			while (IsMouseButtonPressed())
-				ProcessKey(KEY_UP);
+				ProcessKey(Manager::Key(KEY_UP));
 
 			if (!ModalMode)
 				SetFocus();
@@ -1643,7 +1644,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY==ScrollY+Height-1)
 		{
 			while (IsMouseButtonPressed())
-				ProcessKey(KEY_DOWN);
+				ProcessKey(Manager::Key(KEY_DOWN));
 
 			if (!ModalMode)
 				SetFocus();
@@ -1711,7 +1712,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Up(1);
 
 		if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-			ProcessKey(KEY_ENTER);
+			ProcessKey(Manager::Key(KEY_ENTER));
 
 		return TRUE;
 	}
@@ -1728,7 +1729,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Down(1);
 
 		if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
-			ProcessKey(KEY_ENTER);
+			ProcessKey(Manager::Key(KEY_ENTER));
 
 		return TRUE;
 	}

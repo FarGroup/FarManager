@@ -459,7 +459,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 							string strPrev;
 							DeleteBlock();
 							GetString(strPrev);
-							ProcessKey(MenuKey);
+							ProcessKey(Manager::Key(MenuKey));
 							GetString(strTemp);
 							if(strPrev != strTemp)
 							{
@@ -584,7 +584,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, FARMAC
 									{
 										MenuKey = KEY_CTRLD;
 									}
-									pOwner->ProcessKey(MenuKey);
+									pOwner->ProcessKey(Manager::Key(MenuKey));
 									Show();
 									return 1;
 								}
@@ -685,7 +685,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		Global->WaitInMainLoop=1;
 		struct FAR_INPUT_RECORD irec={(DWORD)Key,*Global->FrameManager->GetLastInputRecord()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
-			pOwner->ProcessKey(Key);
+			pOwner->ProcessKey(Manager::Key(Key));
 		Global->WaitInMainLoop=Wait;
 		int CurWindowType = Global->FrameManager->GetCurrentFrame()->GetType();
 		if (CurWindowType == MODALTYPE_DIALOG || CurWindowType == MODALTYPE_PANELS)

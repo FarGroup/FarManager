@@ -71,7 +71,7 @@ public:
 	KeyBar();
 	virtual ~KeyBar(){}
 
-	virtual int ProcessKey(int Key) override;
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	void SetLabels(LNGID StartIndex);

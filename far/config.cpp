@@ -2822,7 +2822,7 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			HOptMenu.Show();
 			{
 				SCOPED_ACTION(ChangeMacroMode)(MACROAREA_MAINMENU);
-				HOptMenu.ProcessKey(KEY_DOWN);
+				HOptMenu.ProcessKey(Manager::Key(KEY_DOWN));
 			}
 		}
 		else
@@ -2878,16 +2878,16 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
 					break;
 				case MENU_LEFT_SORTMODES: // Sort modes
-					pPanel->ProcessKey(KEY_CTRLF12);
+					pPanel->ProcessKey(Manager::Key(KEY_CTRLF12));
 					break;
 				case MENU_LEFT_LONGNAMES: // Show long names
-					pPanel->ProcessKey(KEY_CTRLN);
+					pPanel->ProcessKey(Manager::Key(KEY_CTRLN));
 					break;
 				case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
-					Global->FrameManager->ProcessKey((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2);
+					Global->FrameManager->ProcessKey(Manager::Key((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2));
 					break;
 				case MENU_LEFT_REREAD: // Re-read
-					pPanel->ProcessKey(KEY_CTRLR);
+					pPanel->ProcessKey(Manager::Key(KEY_CTRLR));
 					break;
 				case MENU_LEFT_CHANGEDRIVE: // Change drive
 					pPanel->ChangeDisk();
@@ -2902,55 +2902,55 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			switch (VItem)
 			{
 			case MENU_FILES_VIEW:  // View
-				Global->FrameManager->ProcessKey(KEY_F3);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F3));
 				break;
 			case MENU_FILES_EDIT:  // Edit
-				Global->FrameManager->ProcessKey(KEY_F4);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F4));
 				break;
 			case MENU_FILES_COPY:  // Copy
-				Global->FrameManager->ProcessKey(KEY_F5);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F5));
 				break;
 			case MENU_FILES_MOVE:  // Rename or move
-				Global->FrameManager->ProcessKey(KEY_F6);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F6));
 				break;
 			case MENU_FILES_LINK:  // Create link
-				Global->FrameManager->ProcessKey(KEY_ALTF6);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF6));
 				break;
 			case MENU_FILES_CREATEFOLDER:  // Make folder
-				Global->FrameManager->ProcessKey(KEY_F7);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F7));
 				break;
 			case MENU_FILES_DELETE:  // Delete
-				Global->FrameManager->ProcessKey(KEY_F8);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F8));
 				break;
 			case MENU_FILES_WIPE:  // Wipe
-				Global->FrameManager->ProcessKey(KEY_ALTDEL);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTDEL));
 				break;
 			case MENU_FILES_ADD:  // Add to archive
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF1));
 				break;
 			case MENU_FILES_EXTRACT:  // Extract files
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF2));
 				break;
 			case MENU_FILES_ARCHIVECOMMANDS:  // Archive commands
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SHIFTF3));
 				break;
 			case MENU_FILES_ATTRIBUTES: // File attributes
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLA));
 				break;
 			case MENU_FILES_APPLYCOMMAND: // Apply command
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLG));
 				break;
 			case MENU_FILES_DESCRIBE: // Describe files
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_CTRLZ));
 				break;
 			case MENU_FILES_SELECTGROUP: // Select group
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_ADD));
 				break;
 			case MENU_FILES_UNSELECTGROUP: // Unselect group
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_SUBTRACT));
 				break;
 			case MENU_FILES_INVERTSELECTION: // Invert selection
-				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Manager::Key(KEY_MULTIPLY));
 				break;
 			case MENU_FILES_RESTORESELECTION: // Restore selection
 				Global->CtrlObject->Cp()->ActivePanel->RestoreSelection();
@@ -2964,28 +2964,28 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 			switch (VItem)
 			{
 			case MENU_COMMANDS_FINDFILE: // Find file
-				Global->FrameManager->ProcessKey(KEY_ALTF7);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF7));
 				break;
 			case MENU_COMMANDS_HISTORY: // History
-				Global->FrameManager->ProcessKey(KEY_ALTF8);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF8));
 				break;
 			case MENU_COMMANDS_VIDEOMODE: // Video mode
-				Global->FrameManager->ProcessKey(KEY_ALTF9);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
 				break;
 			case MENU_COMMANDS_FINDFOLDER: // Find folder
-				Global->FrameManager->ProcessKey(KEY_ALTF10);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF10));
 				break;
 			case MENU_COMMANDS_VIEWHISTORY: // File view history
-				Global->FrameManager->ProcessKey(KEY_ALTF11);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF11));
 				break;
 			case MENU_COMMANDS_FOLDERHISTORY: // Folders history
-				Global->FrameManager->ProcessKey(KEY_ALTF12);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF12));
 				break;
 			case MENU_COMMANDS_SWAPPANELS: // Swap panels
-				Global->FrameManager->ProcessKey(KEY_CTRLU);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_CTRLU));
 				break;
 			case MENU_COMMANDS_TOGGLEPANELS: // Panels On/Off
-				Global->FrameManager->ProcessKey(KEY_CTRLO);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_CTRLO));
 				break;
 			case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
 				Global->CtrlObject->Cp()->ActivePanel->CompareDir();
@@ -3005,10 +3005,10 @@ void Options::ShellOptions(int LastCommand, const MOUSE_EVENT_RECORD *MouseEvent
 				Global->CtrlObject->Cp()->ActivePanel->EditFilter();
 				break;
 			case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
-				Global->FrameManager->ProcessKey(KEY_F11);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F11));
 				break;
 			case MENU_COMMANDS_WINDOWSLIST: // Screens list
-				Global->FrameManager->ProcessKey(KEY_F12);
+				Global->FrameManager->ProcessKey(Manager::Key(KEY_F12));
 				break;
 			case MENU_COMMANDS_PROCESSLIST: // Task list
 				ShowProcessList();

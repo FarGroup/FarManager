@@ -1526,7 +1526,7 @@ bool CheckForEscSilent()
 			return true;
 		}
 		else if (Key==KEY_ALTF9 || Key==KEY_RALTF9)
-			Global->FrameManager->ProcessKey(KEY_ALTF9);
+			Global->FrameManager->ProcessKey(Manager::Key(KEY_ALTF9));
 	}
 
 	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)

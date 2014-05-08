@@ -135,7 +135,7 @@ class FileEditor : public Frame
 		bool AskOverwrite(const string& FileName);
 		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, EDITOR_FLAGS OpenModeExstFile);
 		virtual void InitKeyBar() override;
-		virtual int ProcessKey(int Key) override;
+		virtual int ProcessKey(const Manager::Key& Key) override;
 		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 		virtual void ShowConsoleTitle() override;
 		virtual void OnChangeFocus(int focus) override;
