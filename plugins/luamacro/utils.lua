@@ -45,7 +45,7 @@ local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent"}
 local AddMacro_filename
 
-package.nounload = { moonscript=true }
+package.nounload = {}
 local initial_modules = {}
 for k in pairs(package.loaded) do initial_modules[k]=true end
 
