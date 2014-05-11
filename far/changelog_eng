@@ -3,6 +3,110 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 09.05.2014 00:19:23 +0200 - build 3895
+
+1. refactoring of ProcessKey.
+
+svs 08.05.2014 20:34:04 +0400 - build 3894
+
+1. Mantis#0002669: GUID for the menu of all occurrences
+
+    EditorFindAllListId         = {9BD3E306-EFB8-4113-8405-E7BADE8F0A59}  --> Dlg.Id
+    Editor. List of all known occurrences (F7 <All>).
+
+w17 08.05.2014 16:17:06 +0400 - build 3893
+
+1. M#2667: FAR crash on "[A-Z\\]+" regexp
+
+drkns 07.05.2014 00:00:37 +0200 - build 3892
+
+1. Incorrect work of sorting by file extensions for files with ':' in names.
+
+drkns 05.05.2014 19:03:55 +0200 - build 3891
+
+1. Correction of 3890.
+
+drkns 05.05.2014 18:52:24 +0200 - build 3890
+
+1. "title" command added an excessive space to the caption.
+
+svs 05.05.2014 16:48:11 +0400 - build 3889
+
+1. Correction of build 3888
+   1. Hide the panels.
+   2. title[Enter] --> watch " - Far 3.0.3888 x86 Administrator" in caption, i.e. panel folder is not shown.
+
+svs 05.05.2014 12:38:16 +0400 - build 3888
+
+1. Mantis#0002523: 'title' command does not work with hodden panels
+
+shmuel 04.05.2014 02:08:54 +0200 - build 3887
+
+1. Rollback of 3885.
+
+drkns 03.05.2014 19:13:31 +0200 - build 3886
+
+1. Search by all codepages did not work in x64.
+
+2. Codepages for search can be selected from the whole list.
+
+3. Capability for search in files NOT containing the given text is added.
+
+4. ADS search option moved to the main dialog.
+
+5. CollectFiles hidden option is removed.
+
+6. Refactoring.
+
+shmuel 03.05.2014 17:51:18 +0200 - build 3885
+
+1. Experimental:
+   Before command line processing FAR passes it to LuaMacro plugin which calls global function
+   ProcessFarCommandLine(CmdLine) if it exists. If it does not exist or if it returns
+   false/nil/nothing then FAR continues command line processing. If a string is returned then FAR processes
+   it as the new value of command line. If true is returned then further processing of command line by FAR is cancelled.
+
+zg 02.05.2014 03:16:49 +0200 - build 3884
+
+1. rollback of 3883.
+
+zg 01.05.2014 12:28:01 +0200 - build 3883
+
+1. 0002657: Incorrect functioning on change of the last line of a file from a plugin.
+
+svs 28.04.2014 16:43:42 +0400 - build 3882
+
+1. For Mantis#2562.
+   - mixture of ECC_* and XC_* is removed
+   - XC_ALREADY_EXISTS, XC_OPEN_NEWINSTANCE and XC_RELOAD are added.
+   - in FileEditor, correction of return codes depending on EF_OPENMODE_*
+   - in API::Editor, new return codes have not been introduced yet (the MANTIS_0002562 macro is the limitation);
+     there is probability of broken plugins ("archive" ones) which accept only EEC_OPEN_ERROR, EEC_MODIFIED and EEC_NOT_MODIFIED.
+     (although... EEC_LOADING_INTERRUPTED is already "functioning" :-))
+
+svs 28.04.2014 15:11:54 +0400 - build 3881
+
+1. Mantis#0002663: Far crash when a modal dialog is shown from VE_Read viewer event handler
+     FileViewer::Init(...NamesList *ViewNamesList,..)
+     {
+     ...
+     (1) if (!View.OpenFile(strName,TRUE))
+     ...
+         if (ViewNamesList)
+     (2)    View.SetNamesList(*ViewNamesList);
+
+     At (1), ViewNamesList is still alive. At (2) it is already dead.
+     Crash follows (that's natural, because "Editor" object is already destroyed)
+
+2. Crash for DI_*BOX with X1==X2==0 and existing caption.
+   Information for console caption is taken from the corresponding dialog item, as usual,
+   but the text of such an item is not shown.
+
+shmuel 28.04.2014 00:58:52 +0200 - build 3880
+
+1. Correction of build 3770:
+   lua:far.Show(...) showed one argument (nil) instead of none.
+
 shmuel 26.04.2014 17:43:33 +0200 - build 3879
 
 1. Continuation of 3878, docs updated:
