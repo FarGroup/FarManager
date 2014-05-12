@@ -1683,7 +1683,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 			Paste();
 			// MarkingBlock=!VBlockStart;
-			Flags.Change(FEDITOR_MARKINGBLOCK, VBlockStart == Lines.end());
+			Flags.Change(FEDITOR_MARKINGBLOCK, BlockStart != Lines.end() && VBlockStart == Lines.end());
 			Flags.Clear(FEDITOR_MARKINGVBLOCK);
 
 			if (!EdOpt.PersistentBlocks)
