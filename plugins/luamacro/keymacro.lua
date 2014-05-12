@@ -5,14 +5,12 @@ local pack = Shared.pack
 
 local F = far.Flags
 local bit = bit or bit64
-local band, lshift = bit.band, bit.lshift
+local band,bor,bxor,lshift = bit.band,bit.bor,bit.bxor,bit.lshift
 local LastMessage = {}
 
 local MACROMODE_NOMACRO          =0  -- не в режиме макро
 local MACROMODE_EXECUTING        =1  -- исполнение: без передачи плагину пимп
 local MACROMODE_EXECUTING_COMMON =2  -- исполнение: с передачей плагину пимп
-local MACROMODE_RECORDING        =3  -- запись: без передачи плагину пимп
-local MACROMODE_RECORDING_COMMON =4  -- запись: с передачей плагину пимп
 
 local MFLAGS_ENABLEOUTPUT        = 0x00000001 -- не подавлять обновление экрана во время выполнения макроса
 local MFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002 -- не передавать плагинам клавиши во время записи/воспроизведения макроса
@@ -150,7 +148,27 @@ function KeyMacro:SetHandle (handle)
   if macro then macro:SetHandle(handle) end
 end
 
+function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
+  local TopMacro = self:GetTopMacro()
+  if not TopMacro then return false end
+
+  if Action==1 then -- DisableOutput
+    local Result = band(TopMacro:Flags(),MFLAGS_ENABLEOUTPUT)==1 and 0 or 1
+    nValue = type(nValue)=="number" and math.floor(nValue)
+    if nValue and nValue>=0 and nValue<=2 and nValue~=Result then
+      TopMacro.m_flags = bxor(TopMacro.m_flags, MFLAGS_ENABLEOUTPUT)
+    end
+    return Result
+
+  elseif Action==2 then -- Get MacroRecord Flags
+    return bor(lshift(TopMacro:Flags(),8), 0xFF)
+  end
+
+  return 0
+end
+
 function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
+--LOG(tostring(opcode))
   if     opcode==1  then self:PushState(p1)
   elseif opcode==2  then self:PopState(p1)
   elseif opcode==3  then self:InitInternalVars(p1)
@@ -159,11 +177,16 @@ function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
   elseif opcode==6  then return self:SetHistoryDisableMask(p1)
   elseif opcode==7  then return self:GetHistoryDisableMask()
   elseif opcode==8  then return self:IsHistoryDisable(p1) and 1 or 0
-  elseif opcode==9 or opcode==10 then
-    local mr
-    if opcode==9 then mr=self:GetCurMacro() else mr=self:GetTopMacro() end
+  elseif opcode==9  then
+    local mr=self:GetCurMacro()
     if mr then
       LastMessage = pack(mr.m_lang, mr.m_flags, mr.m_key, mr.m_code, mr.m_macroId, mr.m_macrovalue, mr.m_handle)
+      return F.MPRT_NORMALFINISH, LastMessage
+    end
+  elseif opcode==10 then
+    local mr=self:GetTopMacro()
+    if mr then
+      local LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
   elseif opcode==11 then self:RemoveCurMacro()

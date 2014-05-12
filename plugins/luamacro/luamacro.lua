@@ -1,6 +1,6 @@
 -- started: 2012-04-20
 
---[[local]] function LOG (fmt, ...)
+local function LOG (fmt, ...)
   local log = io.open("c:\\lua.log",--[["at"]]"a")
   if log then
     log:write("LUA: ", fmt:format(...), "\n")
@@ -379,10 +379,12 @@ local function Init()
   utils = RunPluginFile("utils.lua", Shared)
   Shared.utils = utils
 
-  keymacro = RunPluginFile("keymacro.lua", Shared)
-
   RunPluginFile("api.lua", Shared)
   mf.postmacro = postmacro
+
+  keymacro = RunPluginFile("keymacro.lua", Shared)
+  mf.mmode = function(...) return keymacro:mmode(...) end
+  _G.mmode = mf.mmode
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 

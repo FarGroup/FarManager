@@ -165,9 +165,8 @@ private:
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void InitInternalVars(bool InitedRAM=true) const;
 	bool CheckCurMacro(MacroRecord*);
-	bool GetMacro(MacroRecord* macro, bool topmacro) const;
-	bool GetCurMacro(MacroRecord* macro) const { return GetMacro(macro,false); }
-	bool GetTopMacro(MacroRecord* macro) const { return GetMacro(macro,true); }
+	bool GetCurMacro(MacroRecord* macro) const;
+	bool GetTopMacro(MacroRecord* macro) const;
 	bool IsMacroQueueEmpty() const;
 	void SetIntKey(DWORD key) const;
 	DWORD GetIntKey() const;

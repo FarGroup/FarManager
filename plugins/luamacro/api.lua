@@ -45,7 +45,7 @@ mf = {
   len             = function(...) return MacroCallFar(0x80C17, ...) end,
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
-  mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
+--mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
   msgbox          = function(...) return MacroCallFar(0x80C21, ...) end,
   prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
@@ -497,9 +497,7 @@ end
 _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
   bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift
 
-_G.akey, _G.eval, _G.mmode, _G.msgbox, _G.prompt =
-  mf.akey, mf.eval, mf.mmode, mf.msgbox, mf.prompt
+_G.akey, _G.eval, _G.msgbox, _G.prompt = mf.akey, mf.eval, mf.msgbox, mf.prompt
 
-mf.Keys, mf.exit, mf.print, mf.printf =
-  _G.Keys, _G.exit, _G.print, _G.printf
+mf.Keys, mf.exit, mf.print, mf.printf = _G.Keys, _G.exit, _G.print, _G.printf
 --------------------------------------------------------------------------------

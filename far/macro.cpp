@@ -563,9 +563,9 @@ bool KeyMacro::CheckCurMacro(MacroRecord* macro)
 	return false;
 }
 
-bool KeyMacro::GetMacro(MacroRecord* macro, bool topmacro) const
+bool KeyMacro::GetCurMacro(MacroRecord* macro) const
 {
-	FarMacroValue values[]={topmacro ? 10.0 : 9.0};
+	FarMacroValue values[]={9.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	if (CallMacroPluginSimple(&info) && info.Ret.ReturnType==MPRT_NORMALFINISH)
@@ -590,6 +590,20 @@ bool KeyMacro::GetMacro(MacroRecord* macro, bool topmacro) const
 			macro->m_macrovalue.Type = FMVT_UNKNOWN;
 
 		macro->m_handle = (intptr_t)info.Ret.Values[6].Double;
+		return true;
+	}
+	return false;
+}
+
+bool KeyMacro::GetTopMacro(MacroRecord* macro) const
+{
+	FarMacroValue values[]={10.0};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	if (CallMacroPluginSimple(&info) && info.Ret.ReturnType==MPRT_NORMALFINISH)
+	{
+		macro->m_flags = (MACROFLAGS_MFLAGS)info.Ret.Values[0].Double;
+		macro->m_key = (int)info.Ret.Values[1].Double;
 		return true;
 	}
 	return false;
@@ -1810,10 +1824,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
-	MacroRecord TopMacro;
-	bool hasTopMacro = GetTopMacro(&TopMacro);
-	bool IsOutputDisabled = hasTopMacro && !(TopMacro.Flags()&MFLAGS_ENABLEOUTPUT);
-
 	// проверка на область
 	if (CheckCode == 0)
 	{
@@ -2479,7 +2489,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(Data);
 		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(Data);
 		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
-		case MCODE_F_EDITOR_POS:      { LockOutput Lock(IsOutputDisabled); return editorposFunc(Data); }
+		case MCODE_F_EDITOR_POS:
+		{
+			MacroRecord TopMacro;
+			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags()&MFLAGS_ENABLEOUTPUT));
+			return editorposFunc(Data);
+		}
 		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
 		case MCODE_F_EDITOR_SET:      return editorsetFunc(Data);
 		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(Data);
@@ -2529,7 +2544,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
 		case MCODE_F_WAITKEY:
 		{
-			LockOutput Lock(IsOutputDisabled);
+			MacroRecord TopMacro;
+			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags()&MFLAGS_ENABLEOUTPUT));
 
 			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
@@ -2825,18 +2841,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			int tmpType=(int)Params[1].getInteger();
 			int tmpMode=(int)Params[0].getInteger();
 
-			if (!hasTopMacro)
+			MacroRecord TopMacro;
+			if (!GetTopMacro(&TopMacro))
 			{
 				PassBoolean(0,Data);
 				return 1;
 			}
 
-			MacroRecord* MR=&TopMacro;
-			DWORD aKey=MR->Key();
+			DWORD aKey=TopMacro.Key();
 
 			if (!tmpType)
 			{
-				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
+				if (!(TopMacro.Flags()&MFLAGS_POSTFROMPLUGIN))
 					aKey=GetTopIntKey();
 				else if (!aKey)
 					aKey=KEY_NONE;
@@ -2866,37 +2882,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 			return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
-		}
-
-		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
-		{
-			auto Params = parseParams<2>(Data);
-			__int64 nValue = Params[1].getInteger();
-			TVar& Action(Params[0]);
-
-			if (!hasTopMacro)
-			{
-				PassBoolean(0,Data);
-				return 1;
-			}
-
-			MacroRecord* MR=&TopMacro;
-			switch (Action.getInteger())
-			{
-				case 1: // DisableOutput
-				{
-					__int64 Result = (MR->Flags()&MFLAGS_ENABLEOUTPUT) ? 0:1;
-					if (nValue>=0 && nValue<=2 && nValue!=Result)
-						MR->m_flags ^= MFLAGS_ENABLEOUTPUT;
-
-					return PassNumber(Result, Data);
-				}
-
-				case 2: // Get MacroRecord Flags
-				{
-					return PassNumber((MR->Flags()<<8) | MACROAREA_COMMON, Data);
-				}
-			}
 		}
 	}
 
