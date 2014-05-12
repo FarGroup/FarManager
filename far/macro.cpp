@@ -374,7 +374,6 @@ struct MacroRecord
 
 	intptr_t GetHandle() const { return m_handle; }
 	void SetHandle(intptr_t handle) { m_handle = handle; }
-	void SetBooleanValue(bool val) { m_macrovalue = val; }
 	FarMacroValue* GetValue() { return &m_macrovalue; }
 };
 
@@ -1058,8 +1057,7 @@ int KeyMacro::GetKey()
 				GUID guid, menuGuid;
 				PluginManager::CallPluginInfo cpInfo = { CPT_CHECKONLY };
 				bool ItemFailed=false;
-
-				macro.SetBooleanValue(false);
+				FarMacroValue fmvalue=false;
 
 				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
 					Guid = mpr->Values[0].String;
@@ -1108,7 +1106,8 @@ int KeyMacro::GetKey()
 					if (Ret)
 					{
 						// ≈сли нашли успешно - то теперь выполнение
-						macro.SetBooleanValue(true);
+						fmvalue=true;
+						SetMacroValue(&fmvalue);
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
