@@ -1261,6 +1261,22 @@ struct FarMacroValue
 	Value
 #endif
 	;
+#ifdef __cplusplus
+	FarMacroValue()                   { Type=FMVT_NIL; }
+	FarMacroValue(int v)              { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(unsigned int v)     { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(__int64 v)          { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(unsigned __int64 v) { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v?1:0; }
+	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
+	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
+	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }
+	FarMacroValue(const GUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<GUID&>(v); Binary.Size=sizeof(GUID); }
+	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
+#ifdef FAR_USE_INTERNALS
+	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.data(); }
+#endif // END FAR_USE_INTERNALS
+#endif
 };
 
 struct FarMacroCall
@@ -2627,6 +2643,7 @@ enum MACROCALLTYPE
 	MCT_PANELSORT          = 12,
 	MCT_GETCUSTOMSORTMODES = 13,
 	MCT_ADDMACRO           = 14,
+	MCT_KEYMACRO           = 15,
 };
 
 enum MACROPLUGINRETURNTYPE

@@ -662,8 +662,7 @@ void FileList::SortFileList(int KeepPosition)
 			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
 
-			FarMacroValue values[]={{FMVT_POINTER}};
-			values[0].Pointer = &cs;
+			FarMacroValue values[]={&cs};
 			FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 			OpenMacroPluginInfo info={MCT_PANELSORT,0,&fmc};
 			void *ptr;

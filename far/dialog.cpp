@@ -2378,8 +2378,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					return 0;
 			}
 
-			FarGetValue fgv={sizeof(FarGetValue),OpCode==MCODE_V_ITEMCOUNT?11:7,{FMVT_INTEGER}};
-			fgv.Value.Integer=Ret;
+			FarGetValue fgv={sizeof(FarGetValue),OpCode==MCODE_V_ITEMCOUNT?11:7,Ret};
 
 			if (SendMessage(DN_GETVALUE,FocusPos,&fgv))
 			{
@@ -2459,8 +2458,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		{
 			int n = -1;
 
-			FarGetValue fgv = {sizeof(FarGetValue),11, {FMVT_INTEGER}}; // Item Count
-			fgv.Value.Integer = -1;
+			FarGetValue fgv = {sizeof(FarGetValue),11, -1}; // Item Count
 			if (SendMessage(DN_GETVALUE,FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 				n = static_cast<int>(fgv.Value.Integer);
 

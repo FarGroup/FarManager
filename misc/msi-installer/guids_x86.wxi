@@ -373,6 +373,7 @@
 <?define Guid.winapi.lua = "64DF46EE-5F99-47F2-9F97-2A063FB0700E" ?>
 <?define Guid.farapi.lua = "E1635B47-5D61-4874-94CB-6F05AB04C089" ?>
 <?define Guid.moonscript.lua = "48A6128D-A71D-425D-AE94-45ECD6C71337" ?>
+<?define Guid.keymacro.lua = "710B1645-8135-43B1-9A9B-435126964746" ?>
 <?define Guid.lm_eng.lng = "399E5A27-56F7-4C13-9D1A-9AC153950F75" ?>
 <?define Guid.lm_rus.lng = "77516C3A-46FC-4709-A21C-77C13F4DCDFB" ?>
 <?define Guid.lm_sky.lng = "CA4E6E77-0A9B-4AB1-9546-582622BECD97" ?>

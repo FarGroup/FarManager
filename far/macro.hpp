@@ -114,6 +114,7 @@ struct MacroPanelSelect
 };
 
 class Dialog;
+struct MacroRecord;
 
 class KeyMacro: NonCopyable
 {
@@ -155,37 +156,40 @@ public:
 	const wchar_t *eStackAsString() const { return varTextDate; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
-	class MacroState;
-	class MacroRecord;
-
 private:
+	bool CallMacroPluginSimple(OpenMacroPluginInfo* Info) const;
 	bool CallMacroPlugin(OpenMacroPluginInfo* Info);
 	int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
-	void InitInternalVars(bool InitedRAM=true);
-	MacroRecord* CheckCurMacro();
-	MacroRecord* GetCurMacro();
-	const MacroRecord* GetCurMacro() const;
-	MacroRecord* GetTopMacro();
-	void RemoveCurMacro();
+	void InitInternalVars(bool InitedRAM=true) const;
+	bool CheckCurMacro(MacroRecord*);
+	bool GetMacro(MacroRecord* macro, bool topmacro) const;
+	bool GetCurMacro(MacroRecord* macro) const { return GetMacro(macro,false); }
+	bool GetTopMacro(MacroRecord* macro) const { return GetMacro(macro,true); }
+	bool IsMacroQueueEmpty() const;
+	void SetIntKey(DWORD key) const;
+	DWORD GetIntKey() const;
+	DWORD GetTopIntKey() const;
+	size_t GetStateStackSize() const;
+	void SetMacroHandle(intptr_t Handle) const;
+	void SetMacroValue(FarMacroValue* Value) const;
+	void RemoveCurMacro() const;
 	void RestoreMacroChar() const;
 	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
-	void PushState(bool withClip);
-	void PopState(bool withClip);
+	void PushState(bool withClip) const;
+	void PopState(bool withClip) const;
 	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
 	void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description);
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 
 	FARMACROAREA m_Mode;
-	std::unique_ptr<MacroState> m_CurState;
-	std::stack<MacroState, std::vector<MacroState>> m_StateStack;
 	MACRORECORDANDEXECUTETYPE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;
 	FARMACROAREA m_RecMode;
-	FARMACROAREA StartMode; //FIXME
+	FARMACROAREA m_StartMode;
 	string m_LastErrorStr;
 	int m_LastErrorLine;
 	int m_InternalInput;

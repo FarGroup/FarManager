@@ -578,6 +578,7 @@
           <ComponentRef Id="winapi.lua" />
           <ComponentRef Id="farapi.lua" />
           <ComponentRef Id="moonscript.lua" />
+          <ComponentRef Id="keymacro.lua" />
           <ComponentRef Id="lm_eng.lng" />
           <ComponentRef Id="lm_sky.lng" />
           <ComponentRef Id="lm_spa.lng" />

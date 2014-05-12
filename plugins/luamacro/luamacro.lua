@@ -1,7 +1,7 @@
 -- started: 2012-04-20
 
-local function LOG (fmt, ...)
-  local log = io.open("c:\\lua.log","at")
+--[[local]] function LOG (fmt, ...)
+  local log = io.open("c:\\lua.log",--[["at"]]"a")
   if log then
     log:write("LUA: ", fmt:format(...), "\n")
     log:close()
@@ -21,7 +21,7 @@ local PostedMacros = {}
 local LastMessage = {}
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
-local utils, macrobrowser, panelsort
+local utils, macrobrowser, panelsort, keymacro
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -306,7 +306,8 @@ end
 function export.Open (OpenFrom, arg1, arg2, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle = arg1, arg2
-    if     calltype==F.MCT_MACROINIT      then return MacroInit (...)
+    if     calltype==F.MCT_KEYMACRO       then return keymacro:Dispatch(...)
+    elseif calltype==F.MCT_MACROINIT      then return MacroInit (...)
     elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, ...)
     elseif calltype==F.MCT_MACROFINAL     then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
@@ -378,6 +379,8 @@ local function Init()
   utils = RunPluginFile("utils.lua", Shared)
   Shared.utils = utils
 
+  keymacro = RunPluginFile("keymacro.lua", Shared)
+
   RunPluginFile("api.lua", Shared)
   mf.postmacro = postmacro
 
@@ -401,6 +404,7 @@ local function Init()
     Panel.CustomSortMenu = panelsort.CustomSortMenu
   end
 
+  utils.InitMacroSystem()
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules"
   package.path = modules.."\\?.lua;"..modules.."\\?\\init.lua;"..package.path

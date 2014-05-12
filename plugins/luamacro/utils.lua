@@ -814,8 +814,6 @@ local function GetMacroCopy (id)
   return nil
 end
 
-InitMacroSystem()
-
 return {
   DelMacro = DelMacro,
   EnumMacros = EnumMacros,
@@ -829,6 +827,7 @@ return {
   AddMacroFromFAR = AddMacroFromFAR,
   RunStartMacro = RunStartMacro,
   UnloadMacros = InitMacroSystem,
+  InitMacroSystem = InitMacroSystem,
   WriteMacros = WriteMacros,
   GetMacroCopy = GetMacroCopy,
   CheckFileName = CheckFileName,

@@ -2900,9 +2900,11 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3606822629
+mtime=3608646560
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
 #_
 #_**Parameters:**
 #_  hDlg:   userdata

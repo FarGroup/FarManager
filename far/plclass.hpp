@@ -181,6 +181,7 @@ public:
 
 	virtual bool InitLang(const string& Path);
 	void CloseLang();
+	void* GetOpen() const { return Exports[iOpen]; }
 
 	#define HAS_FUNCTION(Name) bool Has##Name() const { return Exports[i##Name] != nullptr; }
 
