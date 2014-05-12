@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3879
+  Plugin API for Far Manager 3.0 build 3896
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3879
+#define FARMANAGERVERSION_BUILD 3896
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1153,6 +1153,19 @@ struct FarMacroValue
 	Value
 #endif
 	;
+#ifdef __cplusplus
+	FarMacroValue()                   { Type=FMVT_NIL; }
+	FarMacroValue(int v)              { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(unsigned int v)     { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(__int64 v)          { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(unsigned __int64 v) { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v?1:0; }
+	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
+	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
+	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }
+	FarMacroValue(const GUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<GUID&>(v); Binary.Size=sizeof(GUID); }
+	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
+#endif
 };
 
 struct FarMacroCall
@@ -2482,6 +2495,7 @@ enum MACROCALLTYPE
 	MCT_PANELSORT          = 12,
 	MCT_GETCUSTOMSORTMODES = 13,
 	MCT_ADDMACRO           = 14,
+	MCT_KEYMACRO           = 15,
 };
 
 enum MACROPLUGINRETURNTYPE
