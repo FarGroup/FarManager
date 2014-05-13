@@ -168,7 +168,6 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
 end
 
 function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
---LOG(tostring(opcode))
   if     opcode==1  then self:PushState(p1)
   elseif opcode==2  then self:PopState(p1)
   elseif opcode==3  then self:InitInternalVars(p1)
@@ -186,7 +185,7 @@ function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
   elseif opcode==10 then
     local mr=self:GetTopMacro()
     if mr then
-      local LastMessage = pack(mr.m_flags, mr.m_key)
+      LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
   elseif opcode==11 then self:RemoveCurMacro()

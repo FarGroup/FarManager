@@ -594,6 +594,8 @@ end
 local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
 
 local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
+  if not LoadMacrosDone then return end
+
   local area = GetAreaName(argMode)
   if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
 

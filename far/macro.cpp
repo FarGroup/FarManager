@@ -899,8 +899,9 @@ void KeyMacro::CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmvalue, bool C
 
 			if (CallPluginRules)
 			{
-				PushState(true);
 				fmvalue->Boolean=1;
+				SetMacroValue(fmvalue);
+				PushState(true);
 			}
 			else
 				m_InternalInput++;

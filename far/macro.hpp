@@ -58,7 +58,7 @@ enum MACRODISABLEONLOAD
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
 	// public flags, read from/saved to config
-	MFLAGS_PUBLIC_MASK             =0x00000000FFFFFFFF,
+	MFLAGS_PUBLIC_MASK             =0x000000000FFFFFFF,
 	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
 	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
 	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
@@ -80,8 +80,8 @@ static const MACROFLAGS_MFLAGS
 	MFLAGS_PNOFILES                =0x0000000000080000, // пассивная: запускать, если текущий объект "папка"
 
 	// private flags, for runtime purposes only
-	MFLAGS_PRIVATE_MASK            =0xFFFFFFFF00000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000; // последовательность пришла от АПИ
+	MFLAGS_PRIVATE_MASK            =0xFFFFFFFFF0000000,
+	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000; // последовательность пришла от АПИ
 
 
 // коды возврата для KeyMacro::GetCurRecord()

@@ -1,4 +1,8 @@
-﻿zg 13.05.2014 04:31:07 +0200 - build 334
+﻿shmuel 13.05.2014 17:22:27 +0200 - build 335
+
+1. Из-за 328.1 не инициализировался package.moonpath.
+
+zg 13.05.2014 04:31:07 +0200 - build 334
 
 1. %farprofile%\Macros\modules добавлен в package.cpath.
 

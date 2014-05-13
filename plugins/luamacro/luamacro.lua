@@ -389,10 +389,10 @@ local function Init()
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 
   do -- force MoonScript to load lpeg.dll residing in %farhome%
-    local path, cpath = package.path, package.cpath
-    package.path, package.cpath = "", win.GetEnv("farhome").."\\?.dll"
+    local cpath = package.cpath
+    package.cpath = win.GetEnv("farhome").."\\?.dll"
     RunPluginFile("moonscript.lua")
-    package.path, package.cpath = path, cpath
+    package.cpath = cpath
   end
 
   if bit and jit then
@@ -408,9 +408,9 @@ local function Init()
 
   utils.InitMacroSystem()
   AddCfindFunction()
-  local modules = win.GetEnv("farprofile").."\\Macros\\modules"
-  package.path = modules.."\\?.lua;"..modules.."\\?\\init.lua;"..package.path
-  package.cpath = modules.."\\?.dll;"..package.cpath
+  local modules = win.GetEnv("farprofile").."\\Macros\\modules\\"
+  package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
+  package.cpath = modules.."?.dll;"..package.cpath
 end
 
 local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only
