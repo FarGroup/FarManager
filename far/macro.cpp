@@ -523,7 +523,7 @@ bool KeyMacro::CallMacroPluginSimple(OpenMacroPluginInfo* Info) const
 {
 	typedef HANDLE (WINAPI *FuncOpen)(const OpenInfo*);
 	Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
-	if (pPlugin && pPlugin->HasOpen() && !Global->ProcessException)
+	if (pPlugin && pPlugin->Load() && pPlugin->HasOpen() && !Global->ProcessException)
 	{
 		FuncOpen Open = reinterpret_cast<FuncOpen>(pPlugin->GetOpen());
 		OpenInfo oInfo = {sizeof(OpenInfo), OPEN_LUAMACRO, &FarGuid, (intptr_t)Info, nullptr};
