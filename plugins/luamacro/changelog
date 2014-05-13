@@ -1,4 +1,8 @@
-﻿shmuel 13.05.2014 00:35:01 +0200 - build 333
+﻿zg 13.05.2014 04:31:07 +0200 - build 334
+
+1. %farprofile%\Macros\modules добавлен в package.cpath.
+
+shmuel 13.05.2014 00:35:01 +0200 - build 333
 
 1. Продолжение 332.
 
