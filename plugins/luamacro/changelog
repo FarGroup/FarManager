@@ -1,4 +1,8 @@
-﻿shmuel 13.05.2014 17:22:27 +0200 - build 335
+﻿zg 13.05.2014 20:18:30 +0200 - build 336
+
+1. %farprofile%\Macros\modules добавлен в package.moonpath.
+
+shmuel 13.05.2014 17:22:27 +0200 - build 335
 
 1. Из-за 328.1 не инициализировался package.moonpath.
 

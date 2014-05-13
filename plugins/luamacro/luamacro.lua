@@ -409,7 +409,8 @@ local function Init()
   utils.InitMacroSystem()
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules\\"
-  package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
+  local paths = {{"path", "lua"}, {"moonpath", "moon"}}
+  for i,v in ipairs(paths) do package[v[1]] = modules.."?."..v[2]..";"..modules.."?\\init."..v[2]..";"..package[v[1]] end
   package.cpath = modules.."?.dll;"..package.cpath
 end
 
