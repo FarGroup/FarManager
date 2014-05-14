@@ -405,21 +405,25 @@ bool GetFileFormat(api::File& file, uintptr_t& nCodePage, bool* pSignatureFound,
 
 		if (ReadResult && ReadSize)
 		{
-			int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK;
-
-			IsTextUnicode(Buffer.get(), ReadSize, &test); // return value is ignored, it's ok.
-
-			if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK))
+			// BUGBUG MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
+			if (ReadSize > 1)
 			{
-				if (test & IS_TEXT_UNICODE_UNICODE_MASK)
+				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK;
+
+				IsTextUnicode(Buffer.get(), ReadSize, &test); // return value is ignored, it's ok.
+
+				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK))
 				{
-					nCodePage = CP_UNICODE;
-					bDetect = true;
-				}
-				else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
-				{
-					nCodePage = CP_REVERSEBOM;
-					bDetect = true;
+					if (test & IS_TEXT_UNICODE_UNICODE_MASK)
+					{
+						nCodePage = CP_UNICODE;
+						bDetect = true;
+					}
+					else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
+					{
+						nCodePage = CP_REVERSEBOM;
+						bDetect = true;
+					}
 				}
 			}
 
