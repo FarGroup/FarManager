@@ -8425,13 +8425,14 @@ lv=2
 dt=Text
 nm=far.Timer
 ctime=3482124061
-mtime=3602539284
+mtime=3609249361
 <article>
-#_timer = far.Timer (interval, handler)
+#_timer = far.Timer (interval, handler [, ...])
 #_
 #_**Parameters:**
 #_  interval : integer (milliseconds)
 #_  handler  : function
+#_  ...      : additional arguments (any Lua types)
 #_
 #_**Returns:**
 #_  timer    : userdata (timer object), or nil
@@ -8439,7 +8440,8 @@ mtime=3602539284
 #_**Description:**
 #_  The function creates a periodic timer. Every time the next
 #_  *interval* milliseconds are elapsed, the *handler* is called
-#_  with the timer object as its argument.
+#_  with the timer object as its first argument following by all
+#_  the additional arguments (if any) passed to far.Timer.
 #_
 #_  The returned "timer object" can be used to query or modify
 #_  the timer parameters. The object has an API similar to Delphi

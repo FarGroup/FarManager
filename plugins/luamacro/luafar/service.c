@@ -5185,20 +5185,38 @@ static int far_Timer(lua_State *L)
 	TPluginData *pd;
 	TTimerData *td;
 	FILETIME ft;
+	int interval, index, tabSize;
+
 	GetSystemTimeAsFileTime(&ft); // do this immediately, for greater accuracy
-	pd = GetPluginData(L);
+
+	interval = (int)luaL_checkinteger(L, 1);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+
+	tabSize = lua_gettop(L);
+
+	lua_createtable(L, tabSize, 1);         // place the function at [1]
+	lua_pushinteger(L, tabSize);
+	lua_setfield(L, -2, "n");
+	lua_pushvalue(L, 2);
+	lua_rawseti(L, -2, 1);
+
 	td = (TTimerData*)lua_newuserdata(L, sizeof(TTimerData));
+	lua_pushvalue(L, -1);
+	lua_rawseti(L, -3, 2);                  // place the userdata at [2]
+
+	for (index=3; index<=tabSize; index++)  // place the arguments, if any
+	{
+		lua_pushvalue(L, index);
+		lua_rawseti(L, -3, index);
+	}
+
+	pd = GetPluginData(L);
 	td->Info = pd->Info;
 	td->PluginGuid = pd->PluginId;
-	td->interval = (int)luaL_checkinteger(L, 1);
+	td->interval = interval < 0 ? 0 : interval;
 
-	if(td->interval < 0) td->interval = 0;
-
-	lua_pushvalue(L, -1);
-	td->objRef = luaL_ref(L, LUA_REGISTRYINDEX);
-	luaL_checktype(L, 2, LUA_TFUNCTION);
-	lua_pushvalue(L, 2);
-	td->funcRef = luaL_ref(L, LUA_REGISTRYINDEX);
+	lua_pushvalue(L, -2);
+	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX);
 	td->tStart = ft;
 	td->interval_changed = 1;
 	td->needClose = 0;
@@ -5211,8 +5229,7 @@ static int far_Timer(lua_State *L)
 		return 1;
 	}
 
-	luaL_unref(L, LUA_REGISTRYINDEX, td->objRef);
-	luaL_unref(L, LUA_REGISTRYINDEX, td->funcRef);
+	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
 	return lua_pushnil(L), 1;
 }
 
@@ -5252,8 +5269,10 @@ static int timer_index(lua_State *L)
 	TTimerData* td = CheckTimer(L, 1);
 	const char* method = luaL_checkstring(L, 2);
 
-	if(!strcmp(method, "Close"))       lua_pushcfunction(L, timer_Close);
-	else if(!strcmp(method, "Enabled"))     lua_pushboolean(L, td->enabled);
+	if(!strcmp(method, "Close"))
+		lua_pushcfunction(L, timer_Close);
+	else if(!strcmp(method, "Enabled"))
+		lua_pushboolean(L, td->enabled);
 	else if(!strcmp(method, "Interval"))
 	{
 		while(td->interval_changed)
@@ -5261,9 +5280,15 @@ static int timer_index(lua_State *L)
 
 		lua_pushinteger(L, td->interval);
 	}
-	else if(!strcmp(method, "OnTimer"))     lua_rawgeti(L, LUA_REGISTRYINDEX, td->funcRef);
-	else if(!strcmp(method, "Closed"))      lua_pushboolean(L, td->needClose);
-	else                                    luaL_error(L, "attempt to call non-existent method");
+	else if(!strcmp(method, "OnTimer"))
+	{
+		lua_rawgeti(L, LUA_REGISTRYINDEX, td->tabRef);
+		lua_rawgeti(L, -1, 1);
+	}
+	else if(!strcmp(method, "Closed"))
+		lua_pushboolean(L, td->needClose);
+	else
+		luaL_error(L, "attempt to call non-existent method");
 
 	return 1;
 }
@@ -5282,19 +5307,18 @@ static int timer_newindex(lua_State *L)
 	{
 		int interval = (int)luaL_checkinteger(L, 3);
 
-		if(interval < 0) interval = 0;
-
 		while(td->interval_changed)
 			SwitchToThread();
 
-		td->interval = interval;
+		td->interval = interval < 0 ? 0 : interval;
 		td->interval_changed = 1;
 	}
 	else if(!strcmp(method, "OnTimer"))
 	{
 		luaL_checktype(L, 3, LUA_TFUNCTION);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, td->tabRef);
 		lua_pushvalue(L, 3);
-		lua_rawseti(L, LUA_REGISTRYINDEX, td->funcRef);
+		lua_rawseti(L, -2, 1);
 	}
 	else luaL_error(L, "attempt to call non-existent method");
 

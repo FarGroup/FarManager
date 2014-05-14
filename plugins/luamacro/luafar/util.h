@@ -18,7 +18,7 @@ typedef struct
 	GUID* PluginGuid;
 	struct PluginStartupInfo *Info;
 	int interval, interval_changed;
-	int funcRef, objRef;
+	int tabRef;
 	FILETIME tStart;
 	int needClose;
 	int enabled;

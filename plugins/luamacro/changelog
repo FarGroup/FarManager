@@ -1,4 +1,8 @@
-﻿zg 13.05.2014 20:18:30 +0200 - build 336
+﻿shmuel 14.05.2014 17:11:46 +0200 - build 337
+
+1. M#2673: LuaFAR: дополнительные параметры для far.Timer.
+
+zg 13.05.2014 20:18:30 +0200 - build 336
 
 1. %farprofile%\Macros\modules добавлен в package.moonpath.
 
