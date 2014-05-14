@@ -360,22 +360,38 @@ static bool ToDouble(__int64 v, double *d)
 
 struct MacroRecord
 {
-	string m_lang;              // язык макропоследовательности
 	MACROFLAGS_MFLAGS m_flags;  // ‘лаги макропоследовательности
 	int m_key;                  // Ќазначенна€ клавиша
-	string m_code;              // оригинальный "текст" макроса
-	int m_macroId;              // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
-	FarMacroValue m_macrovalue;           // «начение, хранимое исполн€ющимс€ макросом
+	FarMacroValue m_macrovalue; // «начение, хранимое исполн€ющимс€ макросом
 	intptr_t m_handle;          // ’эндл исполн€ющегос€ макроса
 
 	MACROFLAGS_MFLAGS Flags() const { return m_flags; }
 	int Key() const { return m_key; }
-	const string& Code() const { return m_code; }
-
 	intptr_t GetHandle() const { return m_handle; }
 	void SetHandle(intptr_t handle) { m_handle = handle; }
 	FarMacroValue* GetValue() { return &m_macrovalue; }
 };
+
+static void InitMacroRecord(MacroRecord* macro, const MacroPluginReturn& Ret)
+{
+	macro->m_flags = (MACROFLAGS_MFLAGS)Ret.Values[0].Double;
+	macro->m_key = (int)Ret.Values[1].Double;
+
+	if (Ret.Values[2].Type==FMVT_BOOLEAN)
+	{
+		macro->m_macrovalue.Type = FMVT_BOOLEAN;
+		macro->m_macrovalue.Boolean = Ret.Values[2].Boolean;
+	}
+	else if (Ret.Values[2].Type==FMVT_POINTER)
+	{
+		macro->m_macrovalue.Type = FMVT_POINTER;
+		macro->m_macrovalue.Pointer = Ret.Values[2].Pointer;
+	}
+	else
+		macro->m_macrovalue.Type = FMVT_UNKNOWN;
+
+	macro->m_handle = (intptr_t)Ret.Values[3].Double;
+}
 
 void KeyMacro::PushState(bool withClip) const
 {
@@ -495,19 +511,19 @@ int KeyMacro::GetCurRecord() const
 bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 {
 	void* ptr;
-	MacroRecord macro;
+	MacroRecord macro = {};
 	bool hasMacro = GetCurMacro(&macro);
 
 	if (hasMacro)
 		Global->ScrBuf->ResetLockCount();
 
-	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
+	if (Info->CallType==MCT_MACROSTEP)
 	{
 		++m_MacroPluginIsRunning;
 		PushState(false);
 	}
 	bool result = Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info, &ptr) != 0;
-	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
+	if (Info->CallType==MCT_MACROSTEP)
 	{
 		PopState(false);
 		--m_MacroPluginIsRunning;
@@ -534,31 +550,18 @@ bool KeyMacro::CallMacroPluginSimple(OpenMacroPluginInfo* Info) const
 
 bool KeyMacro::CheckCurMacro(MacroRecord* macro)
 {
-	bool hasMacro = GetCurMacro(macro);
-	if (hasMacro)
+	FarMacroValue values[]={21.0};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	if (CallMacroPluginSimple(&info))
 	{
-		if (macro->m_handle)
-			return true;
-
-		FarMacroValue values[3] = {(double)macro->m_macroId,false,false};
-		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
-		OpenMacroPluginInfo info = {MCT_MACROINIT,0,&fmc};
-
-		if (macro->m_macroId == 0)
+		if (info.Ret.ReturnType==MPRT_NORMALFINISH)
 		{
-			fmc.Count = 3;
-			values[1] = macro->m_lang;
-			values[2] = macro->m_code;
-		}
-
-		if (CallMacroPlugin(&info))
-		{
-			SetMacroHandle(info.Ret.ReturnType);
-			macro->m_handle = info.Ret.ReturnType;
+			InitMacroRecord(macro, info.Ret);
 			return true;
 		}
-		RemoveCurMacro();
-		RestoreMacroChar();
+		else if (info.Ret.ReturnType==-1)
+			RestoreMacroChar();
 	}
 	return false;
 }
@@ -570,26 +573,7 @@ bool KeyMacro::GetCurMacro(MacroRecord* macro) const
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	if (CallMacroPluginSimple(&info) && info.Ret.ReturnType==MPRT_NORMALFINISH)
 	{
-		macro->m_lang = info.Ret.Values[0].String;
-		macro->m_flags = (MACROFLAGS_MFLAGS)info.Ret.Values[1].Double;
-		macro->m_key = (int)info.Ret.Values[2].Double;
-		macro->m_code = info.Ret.Values[3].String;
-		macro->m_macroId = (int)info.Ret.Values[4].Double;
-
-		if (info.Ret.Values[5].Type==FMVT_BOOLEAN)
-		{
-			macro->m_macrovalue.Type = FMVT_BOOLEAN;
-			macro->m_macrovalue.Boolean = info.Ret.Values[5].Boolean;
-		}
-		else if (info.Ret.Values[5].Type==FMVT_POINTER)
-		{
-			macro->m_macrovalue.Type = FMVT_POINTER;
-			macro->m_macrovalue.Pointer = info.Ret.Values[5].Pointer;
-		}
-		else
-			macro->m_macrovalue.Type = FMVT_UNKNOWN;
-
-		macro->m_handle = (intptr_t)info.Ret.Values[6].Double;
+		InitMacroRecord(macro, info.Ret);
 		return true;
 	}
 	return false;
@@ -602,8 +586,7 @@ bool KeyMacro::GetTopMacro(MacroRecord* macro) const
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	if (CallMacroPluginSimple(&info) && info.Ret.ReturnType==MPRT_NORMALFINISH)
 	{
-		macro->m_flags = (MACROFLAGS_MFLAGS)info.Ret.Values[0].Double;
-		macro->m_key = (int)info.Ret.Values[1].Double;
+		InitMacroRecord(macro, info.Ret);
 		return true;
 	}
 	return false;

@@ -164,7 +164,7 @@ private:
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void InitInternalVars(bool InitedRAM=true) const;
-	bool CheckCurMacro(MacroRecord*);
+	bool CheckCurMacro(MacroRecord* macro);
 	bool GetCurMacro(MacroRecord* macro) const;
 	bool GetTopMacro(MacroRecord* macro) const;
 	bool IsMacroQueueEmpty() const;

@@ -1,7 +1,7 @@
 -- coding: utf-8
 
 local Shared = ...
-local pack = Shared.pack
+local pack, MacroInit = Shared.pack, Shared.MacroInit
 
 local F = far.Flags
 local bit = bit or bit64
@@ -73,13 +73,11 @@ function stack:empty() return self[1]==nil end
 local KeyMacro = {
   m_StateStack = NewStack(),
   m_CurState = NewMacroState(),
-  m_InternalInput = 0,
 }
 
 function KeyMacro:GetCurMacro() return self.m_CurState:GetCurMacro() end
 function KeyMacro:GetTopMacro() return self.m_StateStack[1] and self.m_StateStack:top():GetCurMacro() end
 function KeyMacro:RemoveCurMacro() self.m_CurState:RemoveCurMacro() end
-function KeyMacro:GetHistoryDisableMask() return self.m_CurState.HistoryDisable end
 
 function KeyMacro:GetCurRecord()
   return self.m_Recording ~= MACROMODE_NOMACRO and self.m_Recording or self:IsExecuting()
@@ -94,19 +92,24 @@ function KeyMacro:IsExecuting()
   end
 end
 
+function KeyMacro:GetHistoryDisableMask()
+  return self.m_CurState.HistoryDisable
+end
+
 function KeyMacro:SetHistoryDisableMask (Mask)
   local OldHistoryDisable = self.m_CurState.HistoryDisable
   self.m_CurState.HistoryDisable = Mask
   return OldHistoryDisable
 end
 
+function KeyMacro:IsHistoryDisable (TypeHistory)
+  return self.m_CurState.m_MacroQueue[1] and
+    band(self.m_CurState.HistoryDisable, lshift(1,TypeHistory))~=0 and 1 or 0
+end
+
 function KeyMacro:IsDisableOutput()
   local m = self:GetCurMacro()
   return m and band(m:Flags(),MFLAGS_ENABLEOUTPUT)==0 and 1 or 0
-end
-
-function KeyMacro:IsHistoryDisable (TypeHistory)
-  return self.m_CurState.m_MacroQueue[1] and band(self.m_CurState.HistoryDisable, lshift(1,TypeHistory)) ~= 0
 end
 
 function KeyMacro:PushState (withClip)
@@ -140,7 +143,6 @@ function KeyMacro:InitInternalVars (InitedRAM)
   end
   self.m_CurState.HistoryDisable = 0
   self.m_Recording = MACROMODE_NOMACRO
-  self.m_InternalInput = 0
 end
 
 function KeyMacro:SetHandle (handle)
@@ -167,6 +169,24 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
   return 0
 end
 
+function KeyMacro:CheckCurMacro()
+  local mr = self:GetCurMacro()
+  if mr then
+    local handle = mr:GetHandle()
+    if handle == 0 then
+      handle = MacroInit(mr.m_macroId, mr.m_lang, mr.m_code)
+      if handle then mr:SetHandle(handle) end
+    end
+    if handle and handle ~= 0 then
+      LastMessage = pack(mr.m_flags, mr.m_key, mr.m_macrovalue, mr.m_handle)
+      return F.MPRT_NORMALFINISH, LastMessage
+    else
+      self:RemoveCurMacro()
+      return -1 -- RestoreMacroChar()
+    end
+  end
+end
+
 function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
   if     opcode==1  then self:PushState(p1)
   elseif opcode==2  then self:PopState(p1)
@@ -175,17 +195,12 @@ function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
   elseif opcode==5  then return self:IsDisableOutput()
   elseif opcode==6  then return self:SetHistoryDisableMask(p1)
   elseif opcode==7  then return self:GetHistoryDisableMask()
-  elseif opcode==8  then return self:IsHistoryDisable(p1) and 1 or 0
-  elseif opcode==9  then
-    local mr=self:GetCurMacro()
+  elseif opcode==8  then return self:IsHistoryDisable(p1)
+  elseif opcode==9 or opcode==10 then
+    local mr
+    if opcode==9 then mr=self:GetCurMacro() else mr=self:GetTopMacro() end
     if mr then
-      LastMessage = pack(mr.m_lang, mr.m_flags, mr.m_key, mr.m_code, mr.m_macroId, mr.m_macrovalue, mr.m_handle)
-      return F.MPRT_NORMALFINISH, LastMessage
-    end
-  elseif opcode==10 then
-    local mr=self:GetTopMacro()
-    if mr then
-      LastMessage = pack(mr.m_flags, mr.m_key)
+      LastMessage = pack(mr.m_flags, mr.m_key, mr.m_macrovalue, mr.m_handle)
       return F.MPRT_NORMALFINISH, LastMessage
     end
   elseif opcode==11 then self:RemoveCurMacro()
@@ -206,6 +221,7 @@ function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
   elseif opcode==20 then
     local m=self:GetCurMacro()
     if m then m:SetValue(p1) end
+  elseif opcode==21 then return self:CheckCurMacro()
   end
 end
 

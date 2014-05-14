@@ -307,7 +307,7 @@ function export.Open (OpenFrom, arg1, arg2, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle = arg1, arg2
     if     calltype==F.MCT_KEYMACRO       then return keymacro:Dispatch(...)
-    elseif calltype==F.MCT_MACROINIT      then return MacroInit (...)
+  --elseif calltype==F.MCT_MACROINIT      then return MacroInit (...)
     elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, ...)
     elseif calltype==F.MCT_MACROFINAL     then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
@@ -365,7 +365,8 @@ local function AddCfindFunction()
 end
 
 local function Init()
-  local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall }
+  local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
+                   MacroInit=MacroInit }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)
@@ -409,8 +410,8 @@ local function Init()
   utils.InitMacroSystem()
   AddCfindFunction()
   local modules = win.GetEnv("farprofile").."\\Macros\\modules\\"
-  local paths = {{"path", "lua"}, {"moonpath", "moon"}}
-  for i,v in ipairs(paths) do package[v[1]] = modules.."?."..v[2]..";"..modules.."?\\init."..v[2]..";"..package[v[1]] end
+  package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
+  package.moonpath = modules.."?.moon;"..modules.."?\\init.moon;"..package.moonpath
   package.cpath = modules.."?.dll;"..package.cpath
 end
 
