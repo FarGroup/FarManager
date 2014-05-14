@@ -87,6 +87,9 @@
     <CustomBuild Include="arcrus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="arcspa.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="arceng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

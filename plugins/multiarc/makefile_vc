@@ -13,7 +13,7 @@ $(OBJDIR)\ArcPut.obj \
 $(OBJDIR)\ArcRead.obj \
 $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
-DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg
+DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng
 
 CPP_UNALIGN=1
 
