@@ -32,7 +32,7 @@ PLDIR=MultiArc
 
 pushd $PLUGIN || return 1
 
-FILES="MultiArc.dll arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.map"
+FILES="MultiArc.dll arceng.hlf arcrus.hlf arceng.lng arcrus.lng arcspa.lng MultiArc.map"
 ADDFILES="Ace.fmt Arc.fmt Arj.fmt Cab.fmt Custom.fmt Ha.fmt Lzh.fmt Rar.fmt TarGz.fmt Zip.fmt custom.ini Ace.map Arc.map Arj.map Cab.map Custom.map Ha.map Lzh.map Rar.map TarGz.map Zip.map"
 ADDBUILDDIRS="Formats"
 ADDOUTDIR="Formats"
