@@ -10559,7 +10559,7 @@ upd:"Selected code pages"
 upd:"Selected code pages"
 upd:"Selected code pages"
 upd:"Selected code pages"
-upd:"Selected code pages"
+"Páginas de códigos seleccionadas"
 upd:"Selected code pages"
 
 MFindArchives
@@ -10599,7 +10599,7 @@ upd:"Search in alternate streams"
 upd:"Search in alternate streams"
 upd:"Search in alternate streams"
 upd:"Search in alternate streams"
-upd:"Search in alternate streams"
+"Buscar en cadenas alternativas"
 upd:"Search in alternate streams"
 
 MSearchForHex
@@ -10619,7 +10619,7 @@ upd:"Not containing"
 upd:"Not containing"
 upd:"Not containing"
 upd:"Not containing"
-upd:"Not containing"
+"No conteniendo"
 upd:"Not containing"
 
 MSearchWhere
