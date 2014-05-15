@@ -1307,7 +1307,7 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 
 intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventInfo *Info)
 {
-	intptr_t ret=0, size, index;
+	intptr_t ret=0;
 
 	FP_PROTECT();
 	if(Info->Event == SE_COMMONSYNCHRO)
@@ -1323,10 +1323,11 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 
 				if(lua_istable(L, -1))
 				{
+					int size, index;
 					lua_getfield(L, -1, "n"); //+2: table size
-					size = lua_tointeger(L, -1);
-					for (index=0; index<size; index++)
-						lua_rawgeti(L, -2-index, index+1);
+					size = (int)lua_tointeger(L, -1);
+					for (index=1; index<=size; index++)
+						lua_rawgeti(L, -1-index, index);
 
 					if(pcall_msg(L, size-1, 1) == 0)     //+3
 					{

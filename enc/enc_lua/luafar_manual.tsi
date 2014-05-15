@@ -8522,7 +8522,7 @@ lv=4
 dt=Text
 nm=Interval
 ctime=3482328655
-mtime=3482344791
+mtime=3609334745
 <article>
 #_value = timer.Interval
 #_    or
@@ -8531,6 +8531,9 @@ mtime=3482344791
 #_**Description:**
 #_  Query or set the interval (in milliseconds) of the timer.
 #_  This is a read/write integer property.
+#_
+#_  When the interval is set, the time already accumulated by the timer
+#_  is discarded, and the new accumulation is started from 0.
 #_
 </article>
 </node>
@@ -8586,16 +8589,19 @@ lv=4
 dt=Text
 nm=OnTimer
 ctime=3482328777
-mtime=3482450614
+mtime=3609322312
 <article>
 #_handler = timer.OnTimer
 #_    or
 #_timer.OnTimer = handler
 #_
 #_**Description:**
-#_  Query or set the timer handler function. The handler function
-#_  is called with one argument: the timer object.
+#_  Query or set the timer handler function.
+#_  The handler function is called with the timer object as its first argument
+#_  following by all the additional arguments (if any) passed to `far.Timer`.
 #_
+#_@@@
+#_[far.Timer]: 346.html
 #_
 </article>
 </node>
