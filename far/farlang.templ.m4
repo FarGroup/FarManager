@@ -5211,13 +5211,13 @@ MEditOpenCreateLabel
 "Otvoriť/vytvoriť súbor:"
 
 MEditOpenAutoDetect
-"&Автоматическое определение"
-"&Automatic detection"
-"&Automatická detekce"
+"Автоматическое определение"
+"Automatic detection"
+"Automatická detekce"
 upd:"Automatic detection"
-"&Automatikus felismerés"
-"&Wykryj automatycznie"
-"Detección &automática"
+"Automatikus felismerés"
+"Wykryj automatycznie"
+"Detección automática"
 "Automatické zistenie"
 
 MDefaultCP

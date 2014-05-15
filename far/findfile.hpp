@@ -120,6 +120,7 @@ private:
 
 	struct CodePageInfo;
 	std::list<CodePageInfo> m_CodePages;
+	bool m_Autodetection;
 
 	CriticalSection PluginCS;
 	Event PauseEvent;

@@ -413,14 +413,19 @@ void codepages::AddCodePages(DWORD codePages)
 		AddStandardCodePage(MSG(MDefaultCP), CP_DEFAULT, -1, true);
 		cp_auto = CP_REDETECT;
 	}
-	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & (::SearchAll | ::AutoCP)) != 0);
+
+	AddStandardCodePage(MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & AutoCP) != 0);
+
+	if (codePages & SearchAll)
+		AddStandardCodePage(MSG(MFindFileAllCodePages), CP_SET, -1, true);
 
 	// system codepages
 	//
 	AddSeparator(MSG(MGetCodePageSystem));
-	AddStandardCodePage(L"OEM", GetOEMCP(), -1, (codePages & ::OEM) != 0);
-	if (GetACP() != GetOEMCP())
-		AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI) != 0);
+	AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI) != 0);
+
+	if (GetOEMCP() != GetACP())
+		AddStandardCodePage(L"OEM", GetOEMCP(), -1, (codePages & ::OEM) != 0);
 
 	// unicode codepages
 	//

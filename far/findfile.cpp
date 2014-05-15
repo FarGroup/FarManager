@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
+#include "filestr.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 
@@ -364,6 +365,24 @@ struct FindFiles::CodePageInfo
 	UINT MaxCharSize;
 	wchar_t LastSymbol;
 	bool WordFound;
+
+	void initialize()
+	{
+		if (IsUnicodeCodePage(CodePage))
+			MaxCharSize = 2;
+		else
+		{
+			CPINFO cpi;
+
+			if (!GetCPInfo(CodePage, &cpi))
+				cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
+
+			MaxCharSize = cpi.MaxCharSize;
+		}
+
+		LastSymbol = 0;
+		WordFound = false;
+	}
 };
 
 void FindFiles::InitInFileSearch()
@@ -403,7 +422,7 @@ void FindFiles::InitInFileSearch()
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
 			// Формируем список кодовых страниц
-			if (CodePage == CP_DEFAULT)
+			if (CodePage == CP_SET)
 			{
 				// Проверяем наличие выбранных страниц символов
 				const auto CpEnum = Codepages().GetFavoritesEnumerator();
@@ -436,24 +455,12 @@ void FindFiles::InitInFileSearch()
 			else
 			{
 				m_CodePages.emplace_back(CodePage);
+				m_Autodetection = CodePage == CP_DEFAULT;
 			}
 
 			std::for_each(RANGE(m_CodePages, i)
 			{
-				if (IsUnicodeCodePage(i.CodePage))
-					i.MaxCharSize = 2;
-				else
-				{
-					CPINFO cpi;
-
-					if (!GetCPInfo(i.CodePage, &cpi))
-						cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
-
-					i.MaxCharSize = cpi.MaxCharSize;
-				}
-
-				i.LastSymbol = 0;
-				i.WordFound = false;
+				i.initialize();
 			});
 		}
 		else
@@ -692,12 +699,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 {
 	auto SetAllCpTitle = [&]()
 	{
+		const int TitlePosition = 1;
 		const auto CpEnum = Codepages().GetFavoritesEnumerator();
 		auto Title = MSG(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; }) ? MFindFileSelectedCodePages : MFindFileAllCodePages);
-		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->GetItemPtr(0)->strName = Title;
+		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->GetItemPtr(TitlePosition)->strName = Title;
 		FarListPos Position = { sizeof(FarListPos) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
-		if (Position.SelectPos == 0)
+		if (Position.SelectPos == TitlePosition)
 			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, const_cast<wchar_t*>(Title));
 	};
 
@@ -722,7 +730,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, false, true, false, false);
+			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, false);
 			SetAllCpTitle();
 
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
@@ -1065,6 +1073,17 @@ bool FindFiles::LookForString(const string& Name)
 	{
 		return false;
 	}
+
+	if (m_Autodetection)
+	{
+		if (!GetFileFormat(file, m_CodePages.front().CodePage))
+		{
+			// TODO diagnostic message
+			m_CodePages.front().CodePage = GetACP();
+		}
+		m_CodePages.front().initialize();
+	}
+
 	// Количество считанных из файла байт
 	DWORD readBlockSize = 0;
 	// Количество прочитанных из файла байт
@@ -1306,7 +1325,7 @@ bool FindFiles::LookForString(const string& Name)
 				return false;
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((CodePage == CP_DEFAULT? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1));
+			offset = (int)((CodePage == CP_SET? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1));
 		}
 
 		// Если мы потенциально прочитали не весь файл
@@ -3000,7 +3019,8 @@ bool FindFiles::FindFilesProcess()
 }
 
 FindFiles::FindFiles():
-	TB(nullptr)
+	TB(nullptr),
+	m_Autodetection(false)
 {
 
 	PauseEvent.Open(true, true);
