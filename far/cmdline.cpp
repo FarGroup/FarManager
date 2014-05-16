@@ -489,7 +489,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
-			if (!CmdStr.ProcessKey(Key))
+			if (!CmdStr.ProcessKey(Manager::Key(LocalKey)))
 				break;
 
 			LastCmdPartLength=-1;
