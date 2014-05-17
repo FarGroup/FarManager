@@ -392,35 +392,25 @@ void SetColors()
 		const int BlackWhiteId = GroupsMenu.GetItemCount();
 		GroupsMenu.AddItem(MSG(MSetBW));
 
-		for (;;)
+		GroupsMenu.SetPosition(2,1,0,0);
+		GroupsMenu.SetFlags(VMENU_WRAPMODE);
+		int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
 		{
-			GroupsMenu.SetPosition(2,1,0,0);
-			GroupsMenu.SetFlags(VMENU_WRAPMODE);
-			int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
-			{
-				intptr_t ItemsCode=(intptr_t)param;
-				if (Msg!=DN_CLOSE || ItemsCode<0)
-					return 0;
-				GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-				SetItemColors(Groups[ItemsCode].SubiemIds, Groups[ItemsCode].SubitemPalette, Groups[ItemsCode].SubItemsSize, Groups[ItemsCode].TypeSub);
-				return 1;
-			});
+			intptr_t ItemsCode=(intptr_t)param;
+			if (Msg != DN_CLOSE || ItemsCode < 0 || ItemsCode >= ARRAYSIZE(Groups))
+				return 0;
+			GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+			SetItemColors(Groups[ItemsCode].SubiemIds, Groups[ItemsCode].SubitemPalette, Groups[ItemsCode].SubItemsSize, Groups[ItemsCode].TypeSub);
+			return 1;
+		});
 
-			if (GroupsCode<0)
-				break;
-
-			if (GroupsCode == DefaultId)
-			{
-				Global->Opt->Palette.ResetToDefault();
-				break;
-			}
-
-			if (GroupsCode == BlackWhiteId)
-			{
-				Global->Opt->Palette.ResetToBlack();
-				break;
-			}
-
+		if (GroupsCode == DefaultId)
+		{
+			Global->Opt->Palette.ResetToDefault();
+		}
+		else if (GroupsCode == BlackWhiteId)
+		{
+			Global->Opt->Palette.ResetToBlack();
 		}
 	}
 	Global->CtrlObject->Cp()->SetScreenPosition();
