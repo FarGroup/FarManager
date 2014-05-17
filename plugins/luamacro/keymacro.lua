@@ -1,11 +1,13 @@
 -- coding: utf-8
 
 local Shared = ...
-local pack, MacroInit = Shared.pack, Shared.MacroInit
+local pack, MacroInit, MacroStep = Shared.pack, Shared.MacroInit, Shared.MacroStep
 
 local F = far.Flags
 local bit = bit or bit64
 local band,bor,bxor,lshift = bit.band,bit.bor,bit.bxor,bit.lshift
+local FarMacroCallToLua = far.FarMacroCallToLua
+far.FarMacroCallToLua = nil
 local LastMessage = {}
 
 local MACROMODE_NOMACRO          =0  -- не в режиме макро
@@ -74,6 +76,12 @@ local KeyMacro = {
   m_StateStack = NewStack(),
   m_CurState = NewMacroState(),
 }
+
+local MCODE_F_SCREENBUF = 0x80C69
+function KeyMacro:RestoreMacroChar()     far.MacroCallFar(MCODE_F_SCREENBUF, 1) end
+function KeyMacro:ScrBufLock()           far.MacroCallFar(MCODE_F_SCREENBUF, 2) end
+function KeyMacro:ScrBufUnlock()         far.MacroCallFar(MCODE_F_SCREENBUF, 3) end
+function KeyMacro:ScrBufResetLockCount() far.MacroCallFar(MCODE_F_SCREENBUF, 4) end
 
 function KeyMacro:GetCurMacro() return self.m_CurState:GetCurMacro() end
 function KeyMacro:GetTopMacro() return self.m_StateStack[1] and self.m_StateStack:top():GetCurMacro() end
@@ -145,11 +153,6 @@ function KeyMacro:InitInternalVars (InitedRAM)
   self.m_Recording = MACROMODE_NOMACRO
 end
 
-function KeyMacro:SetHandle (handle)
-  local macro = self:GetCurMacro()
-  if macro then macro:SetHandle(handle) end
-end
-
 function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
   local TopMacro = self:GetTopMacro()
   if not TopMacro then return false end
@@ -170,24 +173,56 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
 end
 
 function KeyMacro:CheckCurMacro()
-  local mr = self:GetCurMacro()
-  if mr then
-    local handle = mr:GetHandle()
+  local macro = self:GetCurMacro()
+  if macro then
+    local handle = macro:GetHandle()
     if handle == 0 then
-      handle = MacroInit(mr.m_macroId, mr.m_lang, mr.m_code)
-      if handle then mr:SetHandle(handle) end
+      handle = MacroInit(macro.m_macroId, macro.m_lang, macro.m_code)
+      if handle then macro:SetHandle(handle) end
     end
     if handle and handle ~= 0 then
-      LastMessage = pack(mr.m_flags, mr.m_key, mr.m_macrovalue, mr.m_handle)
-      return F.MPRT_NORMALFINISH, LastMessage
+      return macro
+    end
+    self:RemoveCurMacro()
+    self:RestoreMacroChar()
+  end
+end
+
+function KeyMacro:CallStep()
+  while true do
+    local macro = self:CheckCurMacro()
+    if not macro then return end
+
+    self:ScrBufResetLockCount()
+
+    self:PushState(false)
+    local r1,r2
+    local value = macro:GetValue()
+    if type(value) == "userdata" then
+      r1,r2 = MacroStep(macro:GetHandle(), FarMacroCallToLua(macro:GetValue()))
+    elseif value ~= nil then
+      r1,r2 = MacroStep(macro:GetHandle(), value)
     else
-      self:RemoveCurMacro()
-      return -1 -- RestoreMacroChar()
+      r1,r2 = MacroStep(macro:GetHandle())
+    end
+    self:PopState(false)
+    macro:SetValue(nil)
+
+    if not (r1==F.MPRT_NORMALFINISH or r1==F.MPRT_ERRORFINISH) then
+      if band(macro:Flags(),MFLAGS_ENABLEOUTPUT)==0 then self:ScrBufLock() end
+      return r1, r2
+    end
+
+    self:RemoveCurMacro()
+
+    if #self.m_CurState.m_MacroQueue == 0 then
+      self:RestoreMacroChar()
     end
   end
 end
 
-function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
+function KeyMacro:Dispatch (opcode, ...)
+  local p1 = (...)
   if     opcode==1  then self:PushState(p1)
   elseif opcode==2  then self:PopState(p1)
   elseif opcode==3  then self:InitInternalVars(p1)
@@ -200,28 +235,26 @@ function KeyMacro:Dispatch (opcode,p1,p2,p3,p4,p5)
     local mr
     if opcode==9 then mr=self:GetCurMacro() else mr=self:GetTopMacro() end
     if mr then
-      LastMessage = pack(mr.m_flags, mr.m_key, mr.m_macrovalue, mr.m_handle)
+      LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
-  elseif opcode==11 then self:RemoveCurMacro()
-  elseif opcode==12 then return #self.m_CurState.m_MacroQueue
-  elseif opcode==13 then self.m_CurState.IntKey = p1
-  elseif opcode==14 then return #self.m_StateStack
-  elseif opcode==15 then return self.m_CurState.IntKey
-  elseif opcode==16 then
-    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord(p1,p2,p3,p4,p5))
+  elseif opcode==11 then return #self.m_CurState.m_MacroQueue
+  elseif opcode==12 then self.m_CurState.IntKey = p1
+  elseif opcode==13 then return #self.m_StateStack
+  elseif opcode==14 then return self.m_CurState.IntKey
+  elseif opcode==15 then
+    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord(...))
     return true
-  elseif opcode==17 then local t=self.m_StateStack:top() return t and t.IntKey or 0
-  elseif opcode==18 then
+  elseif opcode==16 then local t=self.m_StateStack:top() return t and t.IntKey or 0
+  elseif opcode==17 then
     local t = self.m_StateStack:top()
     local oldHistoryDisable = t and t.HistoryDisable or 0
     if t and p1 then t.HistoryDisable = p1 end
     return oldHistoryDisable
-  elseif opcode==19 then self:SetHandle(p1)
-  elseif opcode==20 then
+  elseif opcode==18 then
     local m=self:GetCurMacro()
     if m then m:SetValue(p1) end
-  elseif opcode==21 then return self:CheckCurMacro()
+  elseif opcode==19 then return self:CallStep()
   end
 end
 

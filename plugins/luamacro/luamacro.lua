@@ -366,7 +366,7 @@ end
 
 local function Init()
   local Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-                   MacroInit=MacroInit }
+                   MacroInit=MacroInit, MacroStep=MacroStep }
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

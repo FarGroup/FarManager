@@ -182,11 +182,13 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_GETSTR=0x%X // S=Editor.GetStr([Line])\n", MCODE_F_EDITOR_GETSTR);
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
+	/* ************************************************************************* */
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Запостить макрос с заданными MacroId и Code\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
 	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Установить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
+	fprintf(fp, "MCODE_F_SCREENBUF=0x%X // Операции над буфером зкрана\n", MCODE_F_SCREENBUF);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -360,37 +362,14 @@ static bool ToDouble(__int64 v, double *d)
 
 struct MacroRecord
 {
-	MACROFLAGS_MFLAGS m_flags;  // Флаги макропоследовательности
-	int m_key;                  // Назначенная клавиша
-	FarMacroValue m_macrovalue; // Значение, хранимое исполняющимся макросом
-	intptr_t m_handle;          // Хэндл исполняющегося макроса
-
-	MACROFLAGS_MFLAGS Flags() const { return m_flags; }
-	int Key() const { return m_key; }
-	intptr_t GetHandle() const { return m_handle; }
-	void SetHandle(intptr_t handle) { m_handle = handle; }
-	FarMacroValue* GetValue() { return &m_macrovalue; }
+	MACROFLAGS_MFLAGS Flags;  // Флаги макропоследовательности
+	int Key;                  // Назначенная клавиша
 };
 
 static void InitMacroRecord(MacroRecord* macro, const MacroPluginReturn& Ret)
 {
-	macro->m_flags = (MACROFLAGS_MFLAGS)Ret.Values[0].Double;
-	macro->m_key = (int)Ret.Values[1].Double;
-
-	if (Ret.Values[2].Type==FMVT_BOOLEAN)
-	{
-		macro->m_macrovalue.Type = FMVT_BOOLEAN;
-		macro->m_macrovalue.Boolean = Ret.Values[2].Boolean;
-	}
-	else if (Ret.Values[2].Type==FMVT_POINTER)
-	{
-		macro->m_macrovalue.Type = FMVT_POINTER;
-		macro->m_macrovalue.Pointer = Ret.Values[2].Pointer;
-	}
-	else
-		macro->m_macrovalue.Type = FMVT_UNKNOWN;
-
-	macro->m_handle = (intptr_t)Ret.Values[3].Double;
+	macro->Flags = (MACROFLAGS_MFLAGS)Ret.Values[0].Double;
+	macro->Key = (int)Ret.Values[1].Double;
 }
 
 void KeyMacro::PushState(bool withClip) const
@@ -411,9 +390,9 @@ void KeyMacro::PopState(bool withClip) const
 
 KeyMacro::KeyMacro():
 	m_Mode(MACROAREA_SHELL),
-	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACROAREA_OTHER),
 	m_StartMode(MACROAREA_OTHER),
+	m_Recording(MACROMODE_NOMACRO),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
 	m_MacroPluginIsRunning(0),
@@ -422,10 +401,6 @@ KeyMacro::KeyMacro():
 	varTextDate()
 {
 	//print_opcodes();
-}
-
-KeyMacro::~KeyMacro()
-{
 }
 
 // инициализация всех переменных
@@ -453,7 +428,7 @@ int KeyMacro::IsDisableOutput() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
+DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask) const
 {
 	FarMacroValue values[]={6.0,(double)Mask};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -477,7 +452,7 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory) const
 	return CallMacroPluginSimple(&info) ? !!info.Ret.ReturnType : false;
 }
 
-bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
+bool KeyMacro::Load(bool InitedRAM, bool LoadAll) const
 {
 	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
@@ -490,7 +465,7 @@ bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::Save(bool /*always*/)
+bool KeyMacro::Save(bool /*always*/) const
 {
 	OpenMacroPluginInfo info={MCT_WRITEMACROS,0,nullptr};
 	return CallMacroPlugin(&info);
@@ -508,30 +483,10 @@ int KeyMacro::GetCurRecord() const
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
+bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info) const
 {
 	void* ptr;
-	MacroRecord macro = {};
-	bool hasMacro = GetCurMacro(&macro);
-
-	if (hasMacro)
-		Global->ScrBuf->ResetLockCount();
-
-	if (Info->CallType==MCT_MACROSTEP)
-	{
-		++m_MacroPluginIsRunning;
-		PushState(false);
-	}
 	bool result = Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info, &ptr) != 0;
-	if (Info->CallType==MCT_MACROSTEP)
-	{
-		PopState(false);
-		--m_MacroPluginIsRunning;
-	}
-
-	if (result && hasMacro && !(macro.Flags()&MFLAGS_ENABLEOUTPUT) && Info->CallType==MCT_MACROSTEP)
-		Global->ScrBuf->Lock();
-
 	return result && ptr;
 }
 
@@ -548,20 +503,20 @@ bool KeyMacro::CallMacroPluginSimple(OpenMacroPluginInfo* Info) const
 	return false;
 }
 
-bool KeyMacro::CheckCurMacro(MacroRecord* macro)
+bool KeyMacro::GetInputFromMacro(MacroPluginReturn *mpr)
 {
-	FarMacroValue values[]={21.0};
+	FarMacroValue values[]={19.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
-	if (CallMacroPluginSimple(&info))
+
+	++m_MacroPluginIsRunning;
+	bool Result = CallMacroPlugin(&info);
+	--m_MacroPluginIsRunning;
+
+	if (Result)
 	{
-		if (info.Ret.ReturnType==MPRT_NORMALFINISH)
-		{
-			InitMacroRecord(macro, info.Ret);
-			return true;
-		}
-		else if (info.Ret.ReturnType==-1)
-			RestoreMacroChar();
+		*mpr = info.Ret;
+		return true;
 	}
 	return false;
 }
@@ -592,17 +547,9 @@ bool KeyMacro::GetTopMacro(MacroRecord* macro) const
 	return false;
 }
 
-void KeyMacro::RemoveCurMacro() const
-{
-	FarMacroValue values[]={11.0};
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
-	CallMacroPluginSimple(&info);
-}
-
 bool KeyMacro::IsMacroQueueEmpty() const
 {
-	FarMacroValue values[]={12.0};
+	FarMacroValue values[]={11.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	return !CallMacroPluginSimple(&info) || info.Ret.ReturnType==0;
@@ -610,7 +557,7 @@ bool KeyMacro::IsMacroQueueEmpty() const
 
 size_t KeyMacro::GetStateStackSize() const
 {
-	FarMacroValue values[]={14.0};
+	FarMacroValue values[]={13.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
@@ -618,7 +565,7 @@ size_t KeyMacro::GetStateStackSize() const
 
 void KeyMacro::SetIntKey(DWORD key) const
 {
-	FarMacroValue values[]={13.0,(double)key};
+	FarMacroValue values[]={12.0,(double)key};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	CallMacroPluginSimple(&info);
@@ -626,7 +573,7 @@ void KeyMacro::SetIntKey(DWORD key) const
 
 DWORD KeyMacro::GetIntKey() const
 {
-	FarMacroValue values[]={15.0};
+	FarMacroValue values[]={14.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
@@ -634,7 +581,7 @@ DWORD KeyMacro::GetIntKey() const
 
 DWORD KeyMacro::GetTopIntKey() const
 {
-	FarMacroValue values[]={17.0};
+	FarMacroValue values[]={16.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
@@ -970,55 +917,28 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
-	MacroRecord macro;
-	while (CheckCurMacro(&macro))
+	MacroPluginReturn mpr;
+	while (GetInputFromMacro(&mpr))
 	{
-		FarMacroCall fmc = { sizeof(FarMacroCall),1,macro.GetValue(),nullptr,nullptr };
-		OpenMacroPluginInfo ompInfo = { MCT_MACROSTEP,macro.GetHandle(),nullptr };
-		if (macro.GetValue()->Type == FMVT_POINTER)
-			ompInfo.Data = (FarMacroCall*)macro.GetValue()->Pointer;
-		else if (macro.GetValue()->Type == FMVT_BOOLEAN)
-			ompInfo.Data = &fmc;
-
-		MacroPluginReturn* mpr = CallMacroPlugin(&ompInfo) ? &ompInfo.Ret : nullptr;
-		SetMacroValue(nullptr);
-
-		switch (mpr ? mpr->ReturnType : MPRT_ERRORFINISH)
+		switch (mpr.ReturnType)
 		{
 			default:
-			case MPRT_NORMALFINISH:
-			case MPRT_ERRORFINISH:
-			{
-				if (mpr == nullptr)
-				{
-					OpenMacroPluginInfo info = { MCT_MACROFINAL,macro.m_handle,nullptr };
-					CallMacroPlugin(&info);
-				}
-
-				if (!(macro.Flags() & MFLAGS_ENABLEOUTPUT))
-					Global->ScrBuf->Unlock();
-
-				RemoveCurMacro();
-				if (IsMacroQueueEmpty())
-				{
-					RestoreMacroChar();
-					return 0;
-				}
-
-				continue;
-			}
+				return 0;
 
 			case MPRT_KEYS:
 			{
-				const wchar_t* key = mpr->Values[0].String;
+				const wchar_t* key = mpr.Values[0].String;
 
 				if (!StrCmpI(key, L"AKey"))
 				{
 					DWORD aKey=KEY_NONE;
-					if (!(macro.Flags()&MFLAGS_POSTFROMPLUGIN))
+					MacroRecord macro;
+					GetCurMacro(&macro);
+
+					if (!(macro.Flags&MFLAGS_POSTFROMPLUGIN))
 						aKey=GetIntKey();
 					else
-						aKey=macro.Key();
+						aKey=macro.Key;
 					return aKey;
 				}
 
@@ -1034,14 +954,14 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				varTextDate = mpr->Values[0].String;
+				varTextDate = mpr.Values[0].String;
 				return KEY_OP_PLAINTEXT;
 			}
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(Guid[,param])
 			{
 				FarMacroValue fmvalue;
-				CallPlugin(mpr, &fmvalue, true);
+				CallPlugin(&mpr, &fmvalue, true);
 				SetMacroValue(&fmvalue);
 				break;
 			}
@@ -1057,15 +977,15 @@ int KeyMacro::GetKey()
 				bool ItemFailed=false;
 				FarMacroValue fmvalue=false;
 
-				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
-					Guid = mpr->Values[0].String;
+				if (mpr.Count>0 && mpr.Values[0].Type==FMVT_STRING)
+					Guid = mpr.Values[0].String;
 				else
 					break;
 
-				if (mpr->Count>1 && mpr->Values[1].Type==FMVT_STRING)
-					Arg=mpr->Values[1].String;
+				if (mpr.Count>1 && mpr.Values[1].Type==FMVT_STRING)
+					Arg=mpr.Values[1].String;
 
-				switch (mpr->ReturnType)
+				switch (mpr.ReturnType)
 				{
 					default:
 					case MPRT_PLUGINMENU:
@@ -1117,7 +1037,7 @@ int KeyMacro::GetKey()
 			}
 
 			case MPRT_USERMENU:
-				ShowUserMenu(mpr->Count,mpr->Values);
+				ShowUserMenu(mpr.Count,mpr.Values);
 				break;
 		}
 	}
@@ -1130,7 +1050,7 @@ int KeyMacro::PeekKey() const
 	return !m_InternalInput && IsExecuting();
 }
 
-bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription)
+bool KeyMacro::GetMacroKeyInfo(const string& strMode, int Pos, string &strKeyName, string &strDescription) const
 {
 	FarMacroValue values[]={strMode,!Pos};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -1216,7 +1136,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* Plain
 {
 	if (MacroId != 0 || ParseMacroString(Lang, PlainText, false, true))
 	{
-		FarMacroValue values[]={16.0,Lang,(double)Flags,(double)MacroId,(double)AKey,PlainText};
+		FarMacroValue values[]={15.0,Lang,(double)Flags,(double)MacroId,(double)AKey,PlainText};
 		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 		OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 		return CallMacroPluginSimple(&info);
@@ -1224,17 +1144,9 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* Plain
 	return false;
 }
 
-void KeyMacro::SetMacroHandle(intptr_t Handle) const
-{
-	FarMacroValue values[] = {19.0,(double)Handle};
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
-	CallMacroPluginSimple(&info);
-}
-
 void KeyMacro::SetMacroValue(FarMacroValue* Value) const
 {
-	FarMacroValue values[2]={20.0};
+	FarMacroValue values[2]={18.0};
 	if (Value)
 		values[1]=*Value;
 
@@ -1607,7 +1519,7 @@ bool KeyMacro::ParseMacroString(const wchar_t* lang, const wchar_t* Sequence, bo
 	return false;
 }
 
-bool KeyMacro::ExecuteString(MacroExecuteString *Data)
+bool KeyMacro::ExecuteString(MacroExecuteString *Data) const
 {
 	FarMacroValue values[]={GetMacroLanguage(Data->Flags), Data->SequenceText, FarMacroValue(Data->InValues,Data->InCount)};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -2476,7 +2388,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_EDITOR_POS:
 		{
 			MacroRecord TopMacro;
-			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags()&MFLAGS_ENABLEOUTPUT));
+			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags&MFLAGS_ENABLEOUTPUT));
 			return editorposFunc(Data);
 		}
 		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
@@ -2529,7 +2441,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_WAITKEY:
 		{
 			MacroRecord TopMacro;
-			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags()&MFLAGS_ENABLEOUTPUT));
+			LockOutput Lock(GetTopMacro(&TopMacro) && !(TopMacro.Flags&MFLAGS_ENABLEOUTPUT));
 
 			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
@@ -2607,6 +2519,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					bool InvertByDefault = Data->Values[2].Boolean != 0;
 					panel->SetCustomSortMode(SortMode, false, InvertByDefault);
 				}
+			}
+			break;
+
+		case MCODE_F_SCREENBUF:
+			if (Data->Count && Data->Values[0].Type==FMVT_DOUBLE)
+			{
+				double op = Data->Values[0].Double;
+				if (op == 1)      RestoreMacroChar();
+				else if (op == 2) Global->ScrBuf->Lock();
+				else if (op == 3) Global->ScrBuf->Unlock();
+				else if (op == 4) Global->ScrBuf->ResetLockCount();
 			}
 			break;
 
@@ -2832,11 +2755,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				return 1;
 			}
 
-			DWORD aKey=TopMacro.Key();
+			DWORD aKey=TopMacro.Key;
 
 			if (!tmpType)
 			{
-				if (!(TopMacro.Flags()&MFLAGS_POSTFROMPLUGIN))
+				if (!(TopMacro.Flags&MFLAGS_POSTFROMPLUGIN))
 					aKey=GetTopIntKey();
 				else if (!aKey)
 					aKey=KEY_NONE;
@@ -2858,7 +2781,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			auto Params = parseParams<1>(Data);
 			TVar State(Params[0]);
 
-			FarMacroValue values[2]={18.0};
+			FarMacroValue values[2]={17.0};
 			if (!State.isUnknown())
 			{
 				values[1] = (double)State.getInteger();
