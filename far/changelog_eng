@@ -3,6 +3,65 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.05.2014 17:19:57 +0200 - build 3909
+
+1. Rollback of 3908.1 until better times.
+
+drkns 18.05.2014 16:22:09 +0200 - build 3908
+
+1. Refactoring. Move out of macro.hpp everything that we can get by without.
+
+2. GCC warning.
+
+shmuel 17.05.2014 23:58:06 +0200 - build 3907
+
+1. Continuation of 3896.
+
+drkns 17.05.2014 14:43:09 +0200 - build 3906
+
+1. Crash after selection of black&white color scheme.
+
+zg 16.05.2014 14:27:13 +0200 - build 3905
+
+1. after 3895 selection keys did not work in the command line.
+
+drkns 15.05.2014 23:57:23 +0200 - build 3904
+
+1. The search can now figure out the appropriate codepage.
+
+drkns 15.05.2014 01:45:08 +0200 - build 3903
+
+1. Correction of unicode text detection.
+
+shmuel 15.05.2014 00:13:09 +0200 - build 3902
+
+1. Continuation of 3896.
+
+shmuel 14.05.2014 01:10:59 +0200 - build 3901
+
+1. Correction of 3896 (FAR crash under some circumstances).
+
+shmuel 13.05.2014 17:28:47 +0200 - build 3900
+
+1. In 3896 the Plugin.Call return value was broken.
+
+shmuel 13.05.2014 00:33:38 +0200 - build 3899
+
+1. Continuation of 3896.
+
+shmuel 12.05.2014 16:14:04 +0200 - build 3898
+
+1. In 3896 the Plugin.Menu return value was broken.
+
+zg 12.05.2014 13:39:44 +0200 - build 3897
+
+1. 0002672: Incorrect processing of the clipboard.
+   if an empty string was inserted, the selection flag was set, meanwhile the selection itself wasn't.
+
+shmuel 12.05.2014 13:05:51 +0200 - build 3896
+
+1. Refactoring of macro system.
+
 zg 09.05.2014 00:19:23 +0200 - build 3895
 
 1. refactoring of ProcessKey.
