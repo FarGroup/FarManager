@@ -121,63 +121,48 @@ class KeyMacro: NonCopyable
 public:
 	KeyMacro();
 
-	int  IsRecording() const { return m_Recording; }
-	int  IsExecuting() const;
-	int  IsDisableOutput() const;
-	bool IsHistoryDisable(int TypeHistory) const;
-	DWORD SetHistoryDisableMask(DWORD Mask) const;
-	DWORD GetHistoryDisableMask() const;
+	int IsRecording() const { return m_Recording; }
+	static int IsExecuting();
+	static int IsDisableOutput();
+	static bool IsHistoryDisable(int TypeHistory);
+	static DWORD SetHistoryDisableMask(DWORD Mask);
+	static DWORD GetHistoryDisableMask();
 	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	FARMACROAREA GetMode() const { return m_Mode; }
-	bool Load(bool InitedRAM=true,bool LoadAll=true) const;
-	bool Save(bool always) const;
+	static bool Load(bool InitedRAM=true,bool LoadAll=true);
+	static bool Save(bool always);
 	// получить данные о макросе (возвращает статус)
 	int GetCurRecord() const;
 	int ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	int GetKey();
 	int PeekKey() const;
-	bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription) const;
+	static bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription);
 	static void SetMacroConst(int ConstIndex, __int64 Value);
 	// послать сигнал на прерывание макроса
 	void SendDropProcess();
-	bool CheckWaitKeyFunc() const;
+	bool CheckWaitKeyFunc() const { return m_WaitKey != 0; }
 
-	bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
-	void RunStartMacro();
-	bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
-	bool DelMacro(const GUID& PluginId,void* Id);
+	static bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
+	static void RunStartMacro();
+	static bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
+	static bool DelMacro(const GUID& PluginId, void* Id);
 	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
 	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
-	bool ExecuteString(MacroExecuteString *Data) const;
+	static bool ExecuteString(MacroExecuteString *Data);
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
-	const wchar_t *eStackAsString() const { return varTextDate; }
+	const wchar_t *eStackAsString() const { return m_VarTextDate; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
-	bool CallMacroPlugin(OpenMacroPluginInfo* Info) const;
-	bool CallMacroPluginSimple(OpenMacroPluginInfo* Info) const;
 	int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
-	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t AssignMacroDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
-	void InitInternalVars(bool InitedRAM=true) const;
 	bool GetInputFromMacro(MacroPluginReturn* mpr);
-	bool GetCurMacro(MacroRecord* macro) const;
-	bool GetTopMacro(MacroRecord* macro) const;
-	bool IsMacroQueueEmpty() const;
-	void SetIntKey(DWORD key) const;
-	DWORD GetIntKey() const;
-	DWORD GetTopIntKey() const;
-	size_t GetStateStackSize() const;
-	void SetMacroValue(FarMacroValue* Value) const;
 	void RestoreMacroChar() const;
-	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
-	void PushState(bool withClip) const;
-	void PopState(bool withClip) const;
-	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
-	void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description);
+	bool PostNewMacro(int macroId, const wchar_t* lang, const wchar_t* PlainText, UINT64 Flags, DWORD AKey);
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 
 	FARMACROAREA m_Mode;
@@ -192,7 +177,7 @@ private:
 	int m_MacroPluginIsRunning;
 	int m_DisableNested;
 	int m_WaitKey;
-	const wchar_t* varTextDate;
+	const wchar_t* m_VarTextDate;
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}

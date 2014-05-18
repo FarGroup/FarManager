@@ -397,7 +397,7 @@ void SetColors()
 		int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
 		{
 			intptr_t ItemsCode=(intptr_t)param;
-			if (Msg != DN_CLOSE || ItemsCode < 0 || ItemsCode >= ARRAYSIZE(Groups))
+			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= ARRAYSIZE(Groups))
 				return 0;
 			GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 			SetItemColors(Groups[ItemsCode].SubiemIds, Groups[ItemsCode].SubitemPalette, Groups[ItemsCode].SubItemsSize, Groups[ItemsCode].TypeSub);
