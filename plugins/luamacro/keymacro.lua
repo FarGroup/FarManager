@@ -17,6 +17,16 @@ local MACROMODE_EXECUTING_COMMON =2  -- исполнение: с передач�
 local MFLAGS_ENABLEOUTPUT        = 0x00000001 -- не подавлять обновление экрана во время выполнения макроса
 local MFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002 -- не передавать плагинам клавиши во время записи/воспроизведения макроса
 
+local MCODE_F_KEYMACRO = 0x80C69
+local Import = {
+  RestoreMacroChar        = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 1) end,
+  ScrBufLock              = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 2) end,
+  ScrBufUnlock            = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 3) end,
+  ScrBufResetLockCount    = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 4) end,
+  GetUseInternalClipboard = function()  return far.MacroCallFar(MCODE_F_KEYMACRO, 5) end,
+  SetUseInternalClipboard = function(v) far.MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+}
+
 local MacroRecord = {
   m_lang="lua",     -- Язык макропоследовательности
   m_flags=0,        -- Флаги макропоследовательности
@@ -77,19 +87,9 @@ local KeyMacro = {
   m_CurState = NewMacroState(),
 }
 
-local MCODE_F_SCREENBUF = 0x80C69
-function KeyMacro:RestoreMacroChar()     far.MacroCallFar(MCODE_F_SCREENBUF, 1) end
-function KeyMacro:ScrBufLock()           far.MacroCallFar(MCODE_F_SCREENBUF, 2) end
-function KeyMacro:ScrBufUnlock()         far.MacroCallFar(MCODE_F_SCREENBUF, 3) end
-function KeyMacro:ScrBufResetLockCount() far.MacroCallFar(MCODE_F_SCREENBUF, 4) end
-
 function KeyMacro:GetCurMacro() return self.m_CurState:GetCurMacro() end
 function KeyMacro:GetTopMacro() return self.m_StateStack[1] and self.m_StateStack:top():GetCurMacro() end
 function KeyMacro:RemoveCurMacro() self.m_CurState:RemoveCurMacro() end
-
-function KeyMacro:GetCurRecord()
-  return self.m_Recording ~= MACROMODE_NOMACRO and self.m_Recording or self:IsExecuting()
-end
 
 function KeyMacro:IsExecuting()
   local m = self:GetCurMacro()
@@ -111,7 +111,7 @@ function KeyMacro:SetHistoryDisableMask (Mask)
 end
 
 function KeyMacro:IsHistoryDisable (TypeHistory)
-  return self.m_CurState.m_MacroQueue[1] and
+  return self:GetCurMacro() and
     band(self.m_CurState.HistoryDisable, lshift(1,TypeHistory))~=0 and 1 or 0
 end
 
@@ -122,8 +122,7 @@ end
 
 function KeyMacro:PushState (withClip)
   if withClip then
-    --self.m_CurState.UseInternalClipboard = Clipboard:GetUseInternalClipboardState()
-    self.m_CurState.UseInternalClipboard = mf.clip(5,-1)==2 --TODO
+    self.m_CurState.UseInternalClipboard = Import.GetUseInternalClipboard()
   end
   self.m_StateStack:push(self.m_CurState)
   self.m_CurState = NewMacroState()
@@ -137,8 +136,7 @@ function KeyMacro:PopState (withClip)
     end
     self.m_CurState = self.m_StateStack:pop()
     if withClip then
-      --Clipboard:SetUseInternalClipboardState(self.m_CurState.UseInternalClipboard)
-      mf.clip(5, self.m_CurState.UseInternalClipboard and 2 or 1) --TODO
+      Import.SetUseInternalClipboard(self.m_CurState.UseInternalClipboard)
     end
   end
 end
@@ -150,7 +148,6 @@ function KeyMacro:InitInternalVars (InitedRAM)
     self.m_CurState.Executing = MACROMODE_NOMACRO
   end
   self.m_CurState.HistoryDisable = 0
-  self.m_Recording = MACROMODE_NOMACRO
 end
 
 function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
@@ -172,6 +169,17 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
   return 0
 end
 
+function KeyMacro:HasMacro()
+  if self:GetCurMacro() then
+    return true
+  elseif self.m_StateStack[1] then
+    self:PopState(true)
+    return true
+  else
+    return false
+  end
+end
+
 function KeyMacro:CheckCurMacro()
   local macro = self:GetCurMacro()
   if macro then
@@ -184,7 +192,7 @@ function KeyMacro:CheckCurMacro()
       return macro
     end
     self:RemoveCurMacro()
-    self:RestoreMacroChar()
+    Import.RestoreMacroChar()
   end
 end
 
@@ -193,30 +201,32 @@ function KeyMacro:CallStep()
     local macro = self:CheckCurMacro()
     if not macro then return end
 
-    self:ScrBufResetLockCount()
+    Import.ScrBufResetLockCount()
 
     self:PushState(false)
     local r1,r2
-    local value = macro:GetValue()
+    local value, handle = macro:GetValue(), macro:GetHandle()
     if type(value) == "userdata" then
-      r1,r2 = MacroStep(macro:GetHandle(), FarMacroCallToLua(macro:GetValue()))
+      r1,r2 = MacroStep(handle, FarMacroCallToLua(value))
     elseif value ~= nil then
-      r1,r2 = MacroStep(macro:GetHandle(), value)
+      r1,r2 = MacroStep(handle, value)
     else
-      r1,r2 = MacroStep(macro:GetHandle())
+      r1,r2 = MacroStep(handle)
     end
     self:PopState(false)
     macro:SetValue(nil)
 
     if not (r1==F.MPRT_NORMALFINISH or r1==F.MPRT_ERRORFINISH) then
-      if band(macro:Flags(),MFLAGS_ENABLEOUTPUT)==0 then self:ScrBufLock() end
+      if band(macro:Flags(),MFLAGS_ENABLEOUTPUT)==0 then Import.ScrBufLock() end
       return r1, r2
     end
 
+    if band(macro:Flags(),MFLAGS_ENABLEOUTPUT)==0 then Import.ScrBufUnlock() end
+
     self:RemoveCurMacro()
 
-    if #self.m_CurState.m_MacroQueue == 0 then
-      self:RestoreMacroChar()
+    if not self:GetCurMacro() then
+      Import.RestoreMacroChar()
     end
   end
 end
@@ -238,7 +248,7 @@ function KeyMacro:Dispatch (opcode, ...)
       LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
-  elseif opcode==11 then return #self.m_CurState.m_MacroQueue
+  elseif opcode==11 then return self:GetCurMacro()==nil
   elseif opcode==12 then self.m_CurState.IntKey = p1
   elseif opcode==13 then return #self.m_StateStack
   elseif opcode==14 then return self.m_CurState.IntKey
@@ -255,6 +265,7 @@ function KeyMacro:Dispatch (opcode, ...)
     local m=self:GetCurMacro()
     if m then m:SetValue(p1) end
   elseif opcode==19 then return self:CallStep()
+  elseif opcode==20 then return self:HasMacro()
   end
 end
 

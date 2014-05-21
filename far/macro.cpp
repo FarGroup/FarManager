@@ -188,7 +188,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
 	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Установить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
-	fprintf(fp, "MCODE_F_SCREENBUF=0x%X // Операции над буфером зкрана\n", MCODE_F_SCREENBUF);
+	fprintf(fp, "MCODE_F_KEYMACRO=0x%X // Набор простых операций\n", MCODE_F_KEYMACRO);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -372,7 +372,7 @@ static void InitMacroRecord(MacroRecord* macro, const MacroPluginReturn& Ret)
 	macro->Key = (int)Ret.Values[1].Double;
 }
 
-void KeyMacro::PushState(bool withClip) const
+void KeyMacro::PushState(bool withClip)
 {
 	FarMacroValue values[]={1.0,withClip};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -380,7 +380,7 @@ void KeyMacro::PushState(bool withClip) const
 	CallMacroPluginSimple(&info);
 }
 
-void KeyMacro::PopState(bool withClip) const
+void KeyMacro::PopState(bool withClip)
 {
 	FarMacroValue values[]={2.0,withClip};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -398,21 +398,23 @@ KeyMacro::KeyMacro():
 	m_MacroPluginIsRunning(0),
 	m_DisableNested(0),
 	m_WaitKey(0),
-	varTextDate()
+	m_VarTextDate()
 {
 	//print_opcodes();
 }
 
 // инициализация всех переменных
-void KeyMacro::InitInternalVars(bool InitedRAM) const
+void KeyMacro::InitInternalVars(bool InitedRAM)
 {
+	m_Recording = MACROMODE_NOMACRO;
+
 	FarMacroValue values[]={3.0,InitedRAM};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	CallMacroPluginSimple(&info);
 }
 
-int KeyMacro::IsExecuting() const
+int KeyMacro::IsExecuting()
 {
 	FarMacroValue values[]={4.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -420,7 +422,7 @@ int KeyMacro::IsExecuting() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : MACROMODE_NOMACRO;
 }
 
-int KeyMacro::IsDisableOutput() const
+int KeyMacro::IsDisableOutput()
 {
 	FarMacroValue values[]={5.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -428,7 +430,7 @@ int KeyMacro::IsDisableOutput() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask) const
+DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
 {
 	FarMacroValue values[]={6.0,(double)Mask};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -436,7 +438,7 @@ DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask) const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-DWORD KeyMacro::GetHistoryDisableMask() const
+DWORD KeyMacro::GetHistoryDisableMask()
 {
 	FarMacroValue values[]={7.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -444,7 +446,7 @@ DWORD KeyMacro::GetHistoryDisableMask() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-bool KeyMacro::IsHistoryDisable(int TypeHistory) const
+bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
 	FarMacroValue values[]={8.0,(double)TypeHistory};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -452,7 +454,7 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory) const
 	return CallMacroPluginSimple(&info) ? !!info.Ret.ReturnType : false;
 }
 
-bool KeyMacro::Load(bool InitedRAM, bool LoadAll) const
+bool KeyMacro::Load(bool InitedRAM, bool LoadAll)
 {
 	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
@@ -465,7 +467,7 @@ bool KeyMacro::Load(bool InitedRAM, bool LoadAll) const
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::Save(bool /*always*/) const
+bool KeyMacro::Save(bool /*always*/)
 {
 	OpenMacroPluginInfo info={MCT_WRITEMACROS,0,nullptr};
 	return CallMacroPlugin(&info);
@@ -483,14 +485,14 @@ int KeyMacro::GetCurRecord() const
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info) const
+bool KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 {
 	void* ptr;
 	bool result = Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info, &ptr) != 0;
 	return result && ptr;
 }
 
-bool KeyMacro::CallMacroPluginSimple(OpenMacroPluginInfo* Info) const
+bool KeyMacro::CallMacroPluginSimple(OpenMacroPluginInfo* Info)
 {
 	typedef HANDLE (WINAPI *FuncOpen)(const OpenInfo*);
 	Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
@@ -521,7 +523,7 @@ bool KeyMacro::GetInputFromMacro(MacroPluginReturn *mpr)
 	return false;
 }
 
-bool KeyMacro::GetCurMacro(MacroRecord* macro) const
+bool KeyMacro::GetCurMacro(MacroRecord* macro)
 {
 	FarMacroValue values[]={9.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -534,7 +536,7 @@ bool KeyMacro::GetCurMacro(MacroRecord* macro) const
 	return false;
 }
 
-bool KeyMacro::GetTopMacro(MacroRecord* macro) const
+bool KeyMacro::GetTopMacro(MacroRecord* macro)
 {
 	FarMacroValue values[]={10.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -547,7 +549,7 @@ bool KeyMacro::GetTopMacro(MacroRecord* macro) const
 	return false;
 }
 
-bool KeyMacro::IsMacroQueueEmpty() const
+bool KeyMacro::IsMacroQueueEmpty()
 {
 	FarMacroValue values[]={11.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -555,7 +557,7 @@ bool KeyMacro::IsMacroQueueEmpty() const
 	return !CallMacroPluginSimple(&info) || info.Ret.ReturnType==0;
 }
 
-size_t KeyMacro::GetStateStackSize() const
+size_t KeyMacro::GetStateStackSize()
 {
 	FarMacroValue values[]={13.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -563,7 +565,7 @@ size_t KeyMacro::GetStateStackSize() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-void KeyMacro::SetIntKey(DWORD key) const
+void KeyMacro::SetIntKey(DWORD key)
 {
 	FarMacroValue values[]={12.0,(double)key};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -571,7 +573,7 @@ void KeyMacro::SetIntKey(DWORD key) const
 	CallMacroPluginSimple(&info);
 }
 
-DWORD KeyMacro::GetIntKey() const
+DWORD KeyMacro::GetIntKey()
 {
 	FarMacroValue values[]={14.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -579,7 +581,7 @@ DWORD KeyMacro::GetIntKey() const
 	return CallMacroPluginSimple(&info) ? info.Ret.ReturnType : 0;
 }
 
-DWORD KeyMacro::GetTopIntKey() const
+DWORD KeyMacro::GetTopIntKey()
 {
 	FarMacroValue values[]={16.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -883,6 +885,14 @@ void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Targe
 	}
 }
 
+bool KeyMacro::HasMacro()
+{
+	FarMacroValue values[]={20.0};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	return CallMacroPluginSimple(&info);
+}
+
 int KeyMacro::GetKey()
 {
 	if (m_InternalInput || !Global->FrameManager->GetCurrentFrame())
@@ -890,14 +900,8 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
-	if (IsMacroQueueEmpty() && !m_MacroPluginIsRunning)
+	if (!m_MacroPluginIsRunning && !HasMacro())
 	{
-		if (GetStateStackSize() !=0 )
-		{
-			PopState(true);
-			return 0;
-		}
-
 		if (m_Mode==MACROAREA_EDITOR &&
 						Global->CtrlObject->Plugins->GetCurEditor() &&
 						Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
@@ -907,8 +911,7 @@ int KeyMacro::GetKey()
 			Global->CtrlObject->Plugins->GetCurEditor()->Show();
 		}
 
-		if (GetStateStackSize() == 0)
-			Global->ScrBuf->Unlock();
+		Global->ScrBuf->Unlock();
 
 		if (ConsoleTitle::WasTitleModified())
 			ConsoleTitle::RestoreTitle();
@@ -954,7 +957,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				varTextDate = mpr.Values[0].String;
+				m_VarTextDate = mpr.Values[0].String;
 				return KEY_OP_PLAINTEXT;
 			}
 
@@ -1144,7 +1147,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* Plain
 	return false;
 }
 
-void KeyMacro::SetMacroValue(FarMacroValue* Value) const
+void KeyMacro::SetMacroValue(FarMacroValue* Value)
 {
 	FarMacroValue values[2]={18.0};
 	if (Value)
@@ -2522,7 +2525,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			break;
 
-		case MCODE_F_SCREENBUF:
+		case MCODE_F_KEYMACRO:
 			if (Data->Count && Data->Values[0].Type==FMVT_DOUBLE)
 			{
 				double op = Data->Values[0].Double;
@@ -2530,6 +2533,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				else if (op == 2) Global->ScrBuf->Lock();
 				else if (op == 3) Global->ScrBuf->Unlock();
 				else if (op == 4) Global->ScrBuf->ResetLockCount();
+				else if (op == 5) PassBoolean(Clipboard::GetUseInternalClipboardState(), Data);
+				else if (op == 6 && Data->Count > 1) Clipboard::SetUseInternalClipboardState(Data->Values[1].Boolean != 0);
 			}
 			break;
 

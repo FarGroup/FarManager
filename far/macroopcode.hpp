@@ -152,7 +152,7 @@ enum MACRO_OP_CODE
 	MCODE_F_GETOPTIONS,               // N=GetOptions()
 	MCODE_F_USERMENU,                 // UserMenu([Param])
 	MCODE_F_SETCUSTOMSORTMODE,        //
-	MCODE_F_SCREENBUF,                //
+	MCODE_F_KEYMACRO,                 //
 
 	MCODE_F_LAST,                     // marker
 

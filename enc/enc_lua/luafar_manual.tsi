@@ -4266,14 +4266,14 @@ id=28
 lv=2
 dt=Text
 nm=editor.GetColor
-mtime=3602277830
+mtime=3609591333
 <article>
 #_colordata = editor.GetColor(EditorId, StringNumber, ColorItem)
 #_
 #_**Parameters:**
 #_  EditorId:     integer, or nil
-#_  StringNumber: integer, or nil
-#_  ColorItem:    integer
+#_  StringNumber: integer (1-based), or nil
+#_  ColorItem:    integer (0-based)
 #_
 #_**Returns:**
 #_  colordata:    table (or nil)
