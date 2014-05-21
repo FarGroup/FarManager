@@ -985,7 +985,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					RecurseProcessKey(KEY_DEL);
 			}
 
-			ProcessInsPlainText(Global->CtrlObject->Macro.eStackAsString());
+			ProcessInsPlainText(Global->CtrlObject->Macro.GetStringToPrint());
 
 			Show();
 			return TRUE;

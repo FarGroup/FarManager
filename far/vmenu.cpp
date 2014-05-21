@@ -1163,7 +1163,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_OP_PLAINTEXT)
 	{
-		const wchar_t *str = Global->CtrlObject->Macro.eStackAsString();
+		const wchar_t *str = Global->CtrlObject->Macro.GetStringToPrint();
 
 		if (!*str)
 			return FALSE;

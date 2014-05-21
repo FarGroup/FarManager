@@ -124,8 +124,6 @@ public:
 	static int IsExecuting();
 	static int IsDisableOutput();
 	static bool IsHistoryDisable(int TypeHistory);
-	static DWORD SetHistoryDisableMask(DWORD Mask);
-	static DWORD GetHistoryDisableMask();
 	static bool Save(bool always);
 	static void SetMacroConst(int ConstIndex, __int64 Value);
 	static void SendDropProcess();
@@ -150,24 +148,10 @@ public:
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
-	const wchar_t *eStackAsString() const { return m_VarTextDate; }
+	const wchar_t *GetStringToPrint() const { return m_StringToPrint; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
-	static bool CallMacroPlugin(OpenMacroPluginInfo* Info);
-	static bool CallMacroPluginSimple(OpenMacroPluginInfo* Info);
-	static bool GetCurMacro(MacroRecord* macro);
-	static bool GetTopMacro(MacroRecord* macro);
-	static bool IsMacroQueueEmpty();
-	static void SetIntKey(DWORD key);
-	static DWORD GetIntKey();
-	static DWORD GetTopIntKey();
-	static size_t GetStateStackSize();
-	static void SetMacroValue(FarMacroValue* Value);
-	static bool HasMacro();
-	static void PushState(bool withClip);
-	static void PopState(bool withClip);
-
 	int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
@@ -192,7 +176,7 @@ private:
 	int m_MacroPluginIsRunning;
 	int m_DisableNested;
 	int m_WaitKey;
-	const wchar_t* m_VarTextDate;
+	const wchar_t* m_StringToPrint;
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}

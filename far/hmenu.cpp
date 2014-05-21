@@ -199,7 +199,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 			break;
 		case KEY_OP_PLAINTEXT:
 		{
-			const wchar_t *str = Global->CtrlObject->Macro.eStackAsString();
+			const wchar_t *str = Global->CtrlObject->Macro.GetStringToPrint();
 
 			if (!*str)
 				return FALSE;
