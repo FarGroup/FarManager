@@ -514,9 +514,15 @@ static void SetMacroValue(FarMacroValue* Value)
 	CallMacroPluginSimple(&info);
 }
 
-inline bool HasMacro()
+enum
 {
-	return MacroPluginOp(20.0,false);
+	HAS_NOMACRO=0, HAS_ONSTACK=1, HAS_ONQUEUE=2
+};
+
+inline int HasMacro()
+{
+	MacroPluginReturn Ret;
+	return MacroPluginOp(20.0,false,&Ret) ? (int)Ret.ReturnType : HAS_NOMACRO;
 }
 
 KeyMacro::KeyMacro():
@@ -882,28 +888,33 @@ void KeyMacro::CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Targe
 int KeyMacro::GetKey()
 {
 	if (m_InternalInput || !Global->FrameManager->GetCurrentFrame())
-	{
 		return 0;
-	}
 
-	if (!m_MacroPluginIsRunning && !HasMacro())
+	if (!m_MacroPluginIsRunning)
 	{
-		if (m_Mode==MACROAREA_EDITOR &&
-						Global->CtrlObject->Plugins->GetCurEditor() &&
-						Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
-						Global->ScrBuf->GetLockCount())
+		int status = HasMacro();
+		if (status == HAS_ONSTACK)
+			return 0;
+
+		if (status == HAS_NOMACRO)
 		{
-			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->GetCurEditor()->GetId());
-			Global->CtrlObject->Plugins->GetCurEditor()->Show();
+			if (m_Mode==MACROAREA_EDITOR &&
+							Global->CtrlObject->Plugins->GetCurEditor() &&
+							Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
+							Global->ScrBuf->GetLockCount())
+			{
+				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->GetCurEditor()->GetId());
+				Global->CtrlObject->Plugins->GetCurEditor()->Show();
+			}
+
+			Global->ScrBuf->Unlock();
+
+			if (ConsoleTitle::WasTitleModified())
+				ConsoleTitle::RestoreTitle();
+
+			Clipboard::SetUseInternalClipboardState(false);
+			return 0;
 		}
-
-		Global->ScrBuf->Unlock();
-
-		if (ConsoleTitle::WasTitleModified())
-			ConsoleTitle::RestoreTitle();
-
-		Clipboard::SetUseInternalClipboardState(false);
-		return 0;
 	}
 
 	MacroPluginReturn mpr;

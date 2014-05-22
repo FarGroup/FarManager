@@ -68,8 +68,10 @@ function _G.Keys (...)
   end
 end
 
-function _G.print (str)
-  co_yield(PROPAGATE, F.MPRT_PRINT, tostring(str))
+function _G.print (...)
+  local param = ""
+  if select("#", ...)>0 then param = (...) end
+  co_yield(PROPAGATE, F.MPRT_PRINT, tostring(param))
 end
 
 function _G.printf (fmt, ...)

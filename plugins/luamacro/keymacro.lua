@@ -171,12 +171,12 @@ end
 
 function KeyMacro:HasMacro()
   if self:GetCurMacro() then
-    return true
+    return 2
   elseif self.m_StateStack[1] then
     self:PopState(true)
-    return true
+    return 1
   else
-    return false
+    return 0
   end
 end
 
