@@ -183,7 +183,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	/* ************************************************************************* */
-	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Запостить макрос с заданными MacroId и Code\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_USERMENU=0x%X // Вывести меню пользователя\n", MCODE_F_USERMENU);
@@ -480,32 +479,27 @@ inline bool IsMacroQueueEmpty()
 	return !MacroPluginOp(11.0,false,&Ret) || Ret.ReturnType==0;
 }
 
-inline void SetIntKey(DWORD key)
-{
-	MacroPluginOp(12.0,(double)key);
-}
-
 inline size_t GetStateStackSize()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(13.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(12.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 inline DWORD GetIntKey()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(14.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(13.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 inline DWORD GetTopIntKey()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(16.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(15.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 static void SetMacroValue(FarMacroValue* Value)
 {
-	FarMacroValue values[2]={18.0};
+	FarMacroValue values[2]={17.0};
 	if (Value)
 		values[1]=*Value;
 
@@ -516,13 +510,23 @@ static void SetMacroValue(FarMacroValue* Value)
 
 enum
 {
-	HAS_NOMACRO=0, HAS_ONSTACK=1, HAS_ONQUEUE=2
+	HAS_NOMACRO=0,
+	HAS_ONSTACK=1,
+	HAS_ONQUEUE=2
 };
 
 inline int HasMacro()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(20.0,false,&Ret) ? (int)Ret.ReturnType : HAS_NOMACRO;
+	return MacroPluginOp(19.0,false,&Ret) ? (int)Ret.ReturnType : HAS_NOMACRO;
+}
+
+static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
+{
+	FarMacroValue values[] = {20.0,(double)Mode,TextKey.data(),(double)IntKey};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
+	return CallMacroPluginSimple(&info);
 }
 
 KeyMacro::KeyMacro():
@@ -573,7 +577,7 @@ int KeyMacro::GetCurRecord() const
 
 bool KeyMacro::GetInputFromMacro(MacroPluginReturn *mpr)
 {
-	FarMacroValue values[]={19.0};
+	FarMacroValue values[]={18.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 
@@ -719,16 +723,9 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						KeyToText(key,textKey);
 
 					INPUT_RECORD RecCopy = Rec->Rec;
-					GetMacroData Data;
-					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
-					{
-						if (Data.MacroId && PostNewMacro(Data.MacroId, L"unknown", Data.Code, Data.Flags, Rec->IntKey))
-						{
-							SetHistoryDisableMask(0);
-							SetIntKey(Rec->IntKey);
-						}
+
+					if (TryToPostMacro(m_Mode, textKey, Rec->IntKey))
 						return true;
-					}
 
 					// Mantis 0002307: При вызове msgbox из condition(), ключ закрытия msgbox передаётся дальше (не съедается)
 					Global->FrameManager->SetLastInputRecord(&RecCopy);
@@ -1136,7 +1133,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* Plain
 {
 	if (MacroId != 0 || ParseMacroString(Lang, PlainText, false, true))
 	{
-		FarMacroValue values[]={15.0,Lang,(double)Flags,(double)MacroId,(double)AKey,PlainText};
+		FarMacroValue values[]={14.0,Lang,(double)Flags,(double)MacroId,(double)AKey,PlainText};
 		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 		OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 		return CallMacroPluginSimple(&info);
@@ -2442,27 +2439,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
 
-		case MCODE_F_POSTNEWMACRO:
-		{
-			bool Result = false;
-			if (Data->Count>=3 && Data->Values[0].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_DOUBLE)
-			{
-				DWORD AKey = 0;
-				int macroId = (int)Data->Values[0].Double;
-				const wchar_t* code = Data->Values[1].Type==FMVT_STRING ? Data->Values[1].String : L"";
-				MACROFLAGS_MFLAGS flags = MFLAGS_POSTFROMPLUGIN | (UINT64)Data->Values[2].Double;
-				if (Data->Count >= 4 && Data->Values[3].Type == FMVT_STRING)
-				{
-					int key = KeyNameToKey(Data->Values[3].String);
-					if (key != -1)
-						AKey = key;
-				}
-				Result = PostNewMacro(macroId, L"lua", code, flags, AKey);
-			}
-			PassBoolean(Result?1:0, Data);
-			return 0;
-		}
-
 		case MCODE_F_CHECKALL:
 		{
 			BOOL Result = 0;
@@ -2521,6 +2497,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				else if (op == 4) Global->ScrBuf->ResetLockCount();
 				else if (op == 5) PassBoolean(Clipboard::GetUseInternalClipboardState(), Data);
 				else if (op == 6 && Data->Count > 1) Clipboard::SetUseInternalClipboardState(Data->Values[1].Boolean != 0);
+				else if (op == 7 && Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data);
 			}
 			break;
 
@@ -2774,9 +2751,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			MacroPluginReturn Ret;
 			if (!State.isUnknown())
 			{
-				return MacroPluginOp(17,(double)State.getInteger(),&Ret) ? Ret.ReturnType : 0;
+				return MacroPluginOp(16.0,(double)State.getInteger(),&Ret) ? Ret.ReturnType : 0;
 			}
-			return MacroPluginOp(17,false,&Ret) ? Ret.ReturnType : 0;
+			return MacroPluginOp(16.0,false,&Ret) ? Ret.ReturnType : 0;
 		}
 	}
 
@@ -3132,9 +3109,9 @@ static bool keyFunc(FarMacroCall* Data)
 	else
 	{
 		// Проверим...
-		DWORD Key=(DWORD)KeyNameToKey(Params[0].s());
+		int Key=KeyNameToKey(Params[0].s());
 
-		if (Key != (DWORD)-1)
+		if (Key != -1)
 			strKeyText=Params[0].s();
 	}
 

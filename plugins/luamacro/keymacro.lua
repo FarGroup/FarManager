@@ -1,7 +1,8 @@
 -- coding: utf-8
 
 local Shared = ...
-local pack, MacroInit, MacroStep = Shared.pack, Shared.MacroInit, Shared.MacroStep
+local pack, utils = Shared.pack, Shared.utils
+local MacroInit, MacroStep = Shared.MacroInit, Shared.MacroStep
 
 local F = far.Flags
 local bit = bit or bit64
@@ -16,15 +17,17 @@ local MACROMODE_EXECUTING_COMMON =2  -- исполнение: с передач�
 
 local MFLAGS_ENABLEOUTPUT        = 0x00000001 -- не подавлять обновление экрана во время выполнения макроса
 local MFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002 -- не передавать плагинам клавиши во время записи/воспроизведения макроса
+local MFLAGS_POSTFROMPLUGIN      = 0x10000000 -- последовательность пришла от АПИ
 
-local MCODE_F_KEYMACRO = 0x80C69
+local MCODE_F_KEYMACRO = 0x80C68
 local Import = {
-  RestoreMacroChar        = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 1) end,
-  ScrBufLock              = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 2) end,
-  ScrBufUnlock            = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 3) end,
-  ScrBufResetLockCount    = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 4) end,
-  GetUseInternalClipboard = function()  return far.MacroCallFar(MCODE_F_KEYMACRO, 5) end,
-  SetUseInternalClipboard = function(v) far.MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+  RestoreMacroChar        = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 1) end,
+  ScrBufLock              = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 2) end,
+  ScrBufUnlock            = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 3) end,
+  ScrBufResetLockCount    = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 4) end,
+  GetUseInternalClipboard = function()    return far.MacroCallFar(MCODE_F_KEYMACRO, 5) end,
+  SetUseInternalClipboard = function(v)   far.MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+  KeyNameToKey            = function(v)   return far.MacroCallFar(MCODE_F_KEYMACRO, 7, v) end,
 }
 
 local MacroRecord = {
@@ -231,6 +234,35 @@ function KeyMacro:CallStep()
   end
 end
 
+function KeyMacro:PostNewMacro (macroId, code, flags, key, postFromPlugin)
+  if macroId and macroId~=0 then
+    flags = flags or 0
+    flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
+    local AKey = 0
+    if key then
+      local dKey = Import.KeyNameToKey(key)
+      if dKey ~= -1 then
+        AKey = dKey
+      end
+    end
+    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord("lua",flags,macroId,key,code))
+    return true
+  end
+  return false
+end
+
+function KeyMacro:TryToPostMacro (Mode, TextKey, IntKey)
+  local m = utils.GetMacro(Mode, TextKey, true, false)
+  if m then
+    if m.id ~= 0  then
+      self:PostNewMacro(m.id, m.code, m.flags, m.key, false)
+      self:SetHistoryDisableMask(0)
+      self.m_CurState.IntKey = IntKey
+    end
+    return true
+  end
+end
+
 function KeyMacro:Dispatch (opcode, ...)
   local p1 = (...)
   if     opcode==1  then self:PushState(p1)
@@ -249,23 +281,23 @@ function KeyMacro:Dispatch (opcode, ...)
       return F.MPRT_NORMALFINISH, LastMessage
     end
   elseif opcode==11 then return self:GetCurMacro()==nil
-  elseif opcode==12 then self.m_CurState.IntKey = p1
-  elseif opcode==13 then return #self.m_StateStack
-  elseif opcode==14 then return self.m_CurState.IntKey
-  elseif opcode==15 then
+  elseif opcode==12 then return #self.m_StateStack
+  elseif opcode==13 then return self.m_CurState.IntKey
+  elseif opcode==14 then
     table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord(...))
     return true
-  elseif opcode==16 then local t=self.m_StateStack:top() return t and t.IntKey or 0
-  elseif opcode==17 then
+  elseif opcode==15 then local t=self.m_StateStack:top() return t and t.IntKey or 0
+  elseif opcode==16 then
     local t = self.m_StateStack:top()
     local oldHistoryDisable = t and t.HistoryDisable or 0
     if t and p1 then t.HistoryDisable = p1 end
     return oldHistoryDisable
-  elseif opcode==18 then
+  elseif opcode==17 then
     local m=self:GetCurMacro()
     if m then m:SetValue(p1) end
-  elseif opcode==19 then return self:CallStep()
-  elseif opcode==20 then return self:HasMacro()
+  elseif opcode==18 then return self:CallStep()
+  elseif opcode==19 then return self:HasMacro()
+  elseif opcode==20 then return self:TryToPostMacro(...)
   end
 end
 

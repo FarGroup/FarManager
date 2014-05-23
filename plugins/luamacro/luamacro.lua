@@ -8,7 +8,6 @@ local function LOG (fmt, ...)
   end
 end
 
-local MCODE_F_POSTNEWMACRO = 0x80C64
 local F, M = far.Flags, nil
 local bor = bit64.bor
 local co_yield, co_resume, co_status, co_wrap =
@@ -151,7 +150,7 @@ local function postmacro (f, ...)
   if type(f) == "function" then
     local Id = #PostedMacros+1
     PostedMacros[Id] = pack(f, ...)
-    return far.MacroCallFar(MCODE_F_POSTNEWMACRO, -Id, "", 0)
+    return keymacro:PostNewMacro(-Id, "", 0, nil, true)
   end
   return false
 end
@@ -386,6 +385,7 @@ local function Init()
   mf.postmacro = postmacro
 
   keymacro = RunPluginFile("keymacro.lua", Shared)
+  Shared.keymacro = keymacro
   mf.mmode = function(...) return keymacro:mmode(...) end
   _G.mmode = mf.mmode
 

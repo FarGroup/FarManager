@@ -4,8 +4,7 @@ local args = ...
 local M, utils = args.M, args.utils
 
 local F = far.Flags
-local MCODE_F_POSTNEWMACRO = 0x80C64
-local MCODE_F_CHECKALL     = 0x80C65
+local MCODE_F_CHECKALL     = 0x80C64
 local ceil, max = math.ceil, math.max
 local LStricmp = far.LStricmp -- consider win.CompareString ?
 local Title = "Macro Browser"
@@ -219,7 +218,7 @@ local function MenuLoop()
               if not m.keyregex then
                 local key1 = m.key:match("%S+")
                 if (not m.condition or m.condition(key1)) then
-                  far.MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags, key1)
+                  args.keymacro:PostNewMacro(m.id, m.code, m.flags, key1, true)
                   break
                 else Message("condition() check failed")
                 end

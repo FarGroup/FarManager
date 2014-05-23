@@ -147,7 +147,6 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_INSSTR,            // N=Editor.InsStr([S[,Line]])
 	MCODE_F_EDITOR_SETSTR,            // N=Editor.SetStr([S[,Line]])
 	//----------------------------------------------------------------------------
-	MCODE_F_POSTNEWMACRO,             // B=PostNewMacro(MacroId,Code,Flags[,AKey])
 	MCODE_F_CHECKALL,                 // B=CheckAll(Area,Flags[,Callback[,CallbackId]])
 	MCODE_F_GETOPTIONS,               // N=GetOptions()
 	MCODE_F_USERMENU,                 // UserMenu([Param])

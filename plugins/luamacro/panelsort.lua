@@ -5,7 +5,7 @@ local C = ffi.C
 local F = far.Flags
 local PPIF_SELECTED = F.PPIF_SELECTED
 local FILE_ATTRIBUTE_DIRECTORY = 0x00000010
-local MCODE_F_SETCUSTOMSORTMODE = 0x80C68
+local MCODE_F_SETCUSTOMSORTMODE = 0x80C67
 local band, bor = bit.band, bit.bor -- 32 bits, be careful
 local tonumber = tonumber
 

@@ -33,9 +33,8 @@ local function GetAreaCode(Area)
 end
 --------------------------------------------------------------------------------
 
-local MCODE_F_POSTNEWMACRO = 0x80C64
-local MCODE_F_CHECKALL     = 0x80C65
-local MCODE_F_GETOPTIONS   = 0x80C66
+local MCODE_F_CHECKALL     = 0x80C64
+local MCODE_F_GETOPTIONS   = 0x80C65
 
 local Areas
 local LoadedMacros
@@ -137,7 +136,6 @@ local function EV_Handler (macros, filename, ...)
     if ret and (macros==Events.dialogevent or macros==Events.editorinput) then
       return ret
     end
-    --MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
   end
 end
 
@@ -786,7 +784,7 @@ local function RunStartMacro()
     if m and not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
       m.autostartdone=true
       if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
-        MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+        Shared.keymacro:PostNewMacro(m.id, m.code, m.flags, nil, true)
       end
     end
     for _,m in ipairs(macros) do
@@ -794,7 +792,7 @@ local function RunStartMacro()
         m.autostartdone=true
         if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
           if not m.condition or m.condition() then
-            MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
+            Shared.keymacro:PostNewMacro(m.id, m.code, m.flags, nil, true)
           end
         end
       end
