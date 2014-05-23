@@ -503,7 +503,6 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			return Dlg->DefProc(Msg, Param1, Param2);
 		});
 
-
 		if (tText.empty())
 			tText = MSG(mDText);
 

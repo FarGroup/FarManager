@@ -997,12 +997,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTNUMPAD4:   case KEY_SHIFTNUMPAD6:
 		case KEY_SHIFTNUMPAD8:   case KEY_SHIFTNUMPAD2:
 		case KEY_SHIFTNUMPAD7:   case KEY_SHIFTNUMPAD1:
-		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
+		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
 			_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey(KEY_SHIFT*)"));
 			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
-			UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
+			UnmarkEmptyBlock();
 			_bg.SetNeedCheckUnmark(true);
 			CurLine->GetRealSelection(SelStart,SelEnd);
 
@@ -4677,7 +4677,7 @@ void Editor::UnmarkEmptyBlock()
 
 				++Block;
 			}
-}
+		}
 		if (!nLines)            // если выделено ноль символов в ширину, то
 			UnmarkBlock();       // перестанем морочить голову и снимем выделение
 	}
