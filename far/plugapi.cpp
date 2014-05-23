@@ -2603,21 +2603,22 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey)
 	return Key > 0? KeyToInputRecord(Key,RecKey) != 0 : FALSE;
 }
 
-BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags)
+BOOL WINAPI apiMkLink(const wchar_t *Target,const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags)
 {
 	int Result=0;
 
-	if (Src && *Src && Dest && *Dest)
+	if (Target && *Target && LinkName && *LinkName)
 	{
 		switch (Type)
 		{
 		case LINK_HARDLINK:
-			Result=MkHardLink(Src, Dest, (Flags&MLF_SHOWERRMSG) == 0);
+			Result=MkHardLink(Target, LinkName, (Flags&MLF_SHOWERRMSG) == 0);
 			break;
 		case LINK_JUNCTION:
 		case LINK_VOLMOUNT:
 		case LINK_SYMLINKFILE:
 		case LINK_SYMLINKDIR:
+		case LINK_SYMLINK:
 			{
 				ReparsePointTypes LinkType=RP_JUNCTION;
 
@@ -2639,7 +2640,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MK
 					break;
 				}
 
-				Result=MkSymLink(Src,Dest, LinkType, (Flags&MLF_SHOWERRMSG) == 0);
+				Result=MkSymLink(Target,LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0);
 			}
 			break;
 		default:

@@ -73,4 +73,4 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkType, bool Silent = false);
+int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent = false);

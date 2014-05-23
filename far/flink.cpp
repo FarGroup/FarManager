@@ -593,13 +593,13 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkType, bool Silent)
+int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes LinkType, bool Silent)
 {
-	if (!SelName.empty() && !Dest.empty())
+	if (!Target.empty() && !LinkName.empty())
 	{
-		string strSrcFullName, strDestFullName, strSelOnlyName;
+		string strFullTarget, strFullLink, strSelOnlyName;
 		// выделим имя
-		strSelOnlyName = SelName;
+		strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const wchar_t *PtrSelName=LastSlash(strSelOnlyName.data());
 
@@ -608,12 +608,14 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 		else
 			++PtrSelName;
 
-		if (SelName[1] == L':' && (!SelName[2] || (IsSlash(SelName[2]) && !SelName[3]))) // C: или C:/
+		bool symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
+
+		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
 		{
 //      if(Flags&FCOPY_VOLMOUNT)
 			{
-				strSrcFullName = SelName;
-				AddEndSlash(strSrcFullName);
+				strFullTarget = Target;
+				AddEndSlash(strFullTarget);
 			}
 			/*
 			  Вот здесь - ну очень умное поведение!
@@ -623,28 +625,28 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 			LinkType=RP_VOLMOUNT;
 		}
 		else
-			ConvertNameToFull(SelName,strSrcFullName);
+			ConvertNameToFull(Target, strFullTarget);
 
-		ConvertNameToFull(Dest,strDestFullName);
+		ConvertNameToFull(LinkName, strFullLink);
 
-		if (IsSlash(strDestFullName.back()))
+		if (IsSlash(strFullLink.back()))
 		{
 			if (LinkType!=RP_VOLMOUNT)
-				strDestFullName += PtrSelName;
+				strFullLink += PtrSelName;
 			else
 			{
-				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',SelName[0],L'\0'};
-				strDestFullName+=Tmp;
+				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',Target[0],L'\0'};
+				strFullLink+=Tmp;
 			}
 		}
 
 		if (LinkType==RP_VOLMOUNT)
 		{
-			AddEndSlash(strSrcFullName);
-			AddEndSlash(strDestFullName);
+			AddEndSlash(strFullTarget);
+			AddEndSlash(strFullLink);
 		}
 
-		DWORD JSAttr=api::GetFileAttributes(strDestFullName);
+		DWORD JSAttr=api::GetFileAttributes(strFullLink);
 
 		if (JSAttr != INVALID_FILE_ATTRIBUTES) // Существует такой?
 		{
@@ -654,46 +656,46 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					        MSG(MCopyCannotCreateJunctionToFile),
-					        strDestFullName.data(),MSG(MOk));
+					        strFullLink.data(),MSG(MOk));
 				}
 
 				return 0;
 			}
 
-			if (TestFolder(strDestFullName) == TSTFLD_NOTEMPTY) // а пустой?
+			if (TestFolder(strFullLink) == TSTFLD_NOTEMPTY) // а пустой?
 			{
 				// не пустой, ну что же, тогда пробуем сделать dest\srcname
-				AddEndSlash(strDestFullName);
+				AddEndSlash(strFullLink);
 
 				if (LinkType==RP_VOLMOUNT)
 				{
 					string strTmpName(MSG(MCopyMountName));
-					strTmpName += SelName[0];
-					strDestFullName += strTmpName;
-					AddEndSlash(strDestFullName);
+					strTmpName += Target[0];
+					strFullLink += strTmpName;
+					AddEndSlash(strFullLink);
 				}
 				else
-					strDestFullName += PtrSelName;
+					strFullLink += PtrSelName;
 
-				JSAttr=api::GetFileAttributes(strDestFullName);
+				JSAttr=api::GetFileAttributes(strFullLink);
 
 				if (JSAttr != INVALID_FILE_ATTRIBUTES) // И такой тоже есть???
 				{
-					if (TestFolder(strDestFullName) == TSTFLD_NOTEMPTY) // а пустой?
+					if (TestFolder(strFullLink) == TSTFLD_NOTEMPTY) // а пустой?
 					{
 						if (!Silent)
 						{
 							if (LinkType==RP_VOLMOUNT)
 							{
 								Message(MSG_WARNING,1,MSG(MError),
-								        (LangString(MCopyMountVolFailed) << SelName).data(),
-								        (LangString(MCopyMountVolFailed2) << strDestFullName).data(),
+								        (LangString(MCopyMountVolFailed) << Target).data(),
+								        (LangString(MCopyMountVolFailed2) << strFullLink).data(),
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
 							else
 								Message(MSG_WARNING,1,MSG(MError),
-								        MSG(MCopyCannotCreateLink),strDestFullName.data(),
+								        MSG(MCopyCannotCreateLink),strFullLink.data(),
 								        MSG(MCopyFolderNotEmpty),MSG(MOk));
 						}
 
@@ -702,20 +704,20 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				}
 				else // создаем.
 				{
-					if (api::CreateDirectory(strDestFullName,nullptr))
-						TreeList::AddTreeName(strDestFullName);
+					if (api::CreateDirectory(strFullLink,nullptr))
+						TreeList::AddTreeName(strFullLink);
 					else
-						CreatePath(strDestFullName);
+						CreatePath(strFullLink);
 				}
 
-				if (api::GetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
+				if (api::GetFileAttributes(strFullLink) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
 				{
 					if (!Silent)
 					{
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
-						        strDestFullName.data(),MSG(MOk));
+						        strFullLink.data(),MSG(MOk));
 					}
 
 					return 0;
@@ -724,10 +726,10 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 		}
 		else
 		{
-			if (LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
+			if (symlink)
 			{
 				// в этом случае создается путь, но не сам каталог
-				string strPath=strDestFullName;
+				string strPath=strFullLink;
 
 				if (CutToSlash(strPath))
 				{
@@ -742,7 +744,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				if (LinkType==RP_EXACTCOPY)
 				{
 					// в этом случае создается или каталог, или пустой файл
-					DWORD dwSrcAttr=api::GetFileAttributes(strSrcFullName);
+					DWORD dwSrcAttr=api::GetFileAttributes(strFullTarget);
 
 					if (dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
 						CreateDir=false;
@@ -750,14 +752,14 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 
 				if (CreateDir)
 				{
-					if (api::CreateDirectory(strDestFullName,nullptr))
-						TreeList::AddTreeName(strDestFullName);
+					if (api::CreateDirectory(strFullLink,nullptr))
+						TreeList::AddTreeName(strFullLink);
 					else
-						CreatePath(strDestFullName);
+						CreatePath(strFullLink);
 				}
 				else
 				{
-					string strPath=strDestFullName;
+					string strPath=strFullLink;
 
 					if (CutToSlash(strPath))
 					{
@@ -766,20 +768,20 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 							CreatePath(strPath);
 
 						api::File file;
-						if(file.Open(strDestFullName, 0, 0, 0, CREATE_NEW, api::GetFileAttributes(strSrcFullName)))
+						if(file.Open(strFullLink, 0, 0, 0, CREATE_NEW, api::GetFileAttributes(strFullTarget)))
 						{
 							file.Close();
 						}
 					}
 				}
 
-				if (api::GetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				if (api::GetFileAttributes(strFullLink) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
 				{
 					if (!Silent)
 					{
 						Global->CatchError();
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
+						        MSG(MCopyCannotCreateLink),strFullLink.data(),MSG(MOk));
 					}
 
 					return 0;
@@ -789,7 +791,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 
 		if (LinkType!=RP_VOLMOUNT)
 		{
-			if (CreateReparsePoint(strSrcFullName,strDestFullName,LinkType))
+			if (CreateReparsePoint(symlink ? Target : strFullTarget, strFullLink, LinkType))
 			{
 				return 1;
 			}
@@ -799,7 +801,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 				{
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-					        MSG(MCopyCannotCreateLink),strDestFullName.data(),MSG(MOk));
+					        MSG(MCopyCannotCreateLink),strFullLink.data(),MSG(MOk));
 				}
 
 				return 0;
@@ -807,7 +809,7 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 		}
 		else
 		{
-			if (CreateVolumeMountPoint(strSrcFullName,strDestFullName))
+			if (CreateVolumeMountPoint(strFullTarget,strFullLink))
 			{
 				return 1;
 			}
@@ -818,8 +820,8 @@ int MkSymLink(const string& SelName,const string& Dest,ReparsePointTypes LinkTyp
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
-						(LangString(MCopyMountVolFailed) << SelName).data(),
-						(LangString(MCopyMountVolFailed2) << strDestFullName).data(),
+						(LangString(MCopyMountVolFailed) << Target).data(),
+						(LangString(MCopyMountVolFailed2) << strFullLink).data(),
 						MSG(MOk));
 				}
 
