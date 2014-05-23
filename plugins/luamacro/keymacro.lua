@@ -245,7 +245,7 @@ function KeyMacro:PostNewMacro (macroId, code, flags, key, postFromPlugin)
         AKey = dKey
       end
     end
-    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord("lua",flags,macroId,key,code))
+    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord("lua",flags,macroId,AKey,code))
     return true
   end
   return false
@@ -255,7 +255,7 @@ function KeyMacro:TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
     if m.id ~= 0  then
-      self:PostNewMacro(m.id, m.code, m.flags, m.key, false)
+      self:PostNewMacro(m.id, m.code, m.flags, TextKey, false)
       self:SetHistoryDisableMask(0)
       self.m_CurState.IntKey = IntKey
     end
