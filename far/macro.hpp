@@ -158,7 +158,6 @@ private:
 	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	void RestoreMacroChar() const;
 	void InitInternalVars(bool InitedRAM=true);
-	bool GetInputFromMacro(MacroPluginReturn* mpr);
 	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
 	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
 	void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description);
@@ -173,7 +172,6 @@ private:
 	string m_LastErrorStr;
 	int m_LastErrorLine;
 	int m_InternalInput;
-	int m_MacroPluginIsRunning;
 	int m_DisableNested;
 	int m_WaitKey;
 	const wchar_t* m_StringToPrint;

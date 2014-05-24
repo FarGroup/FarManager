@@ -2631,22 +2631,19 @@ enum OPENFROM
 
 enum MACROCALLTYPE
 {
-	MCT_MACROINIT          = 0,
-	MCT_MACROSTEP          = 1,
-	MCT_MACROFINAL         = 2,
-	MCT_MACROPARSE         = 3,
-	MCT_LOADMACROS         = 4,
-	MCT_ENUMMACROS         = 5,
-	MCT_WRITEMACROS        = 6,
-	MCT_GETMACRO           = 7,
-	MCT_RECORDEDMACRO      = 8,
-	MCT_DELMACRO           = 9,
-	MCT_RUNSTARTMACRO      = 10,
-	MCT_EXECSTRING         = 11,
-	MCT_PANELSORT          = 12,
-	MCT_GETCUSTOMSORTMODES = 13,
-	MCT_ADDMACRO           = 14,
-	MCT_KEYMACRO           = 15,
+	MCT_MACROPARSE         = 0,
+	MCT_LOADMACROS         = 1,
+	MCT_ENUMMACROS         = 2,
+	MCT_WRITEMACROS        = 3,
+	MCT_GETMACRO           = 4,
+	MCT_RECORDEDMACRO      = 5,
+	MCT_DELMACRO           = 6,
+	MCT_RUNSTARTMACRO      = 7,
+	MCT_EXECSTRING         = 8,
+	MCT_PANELSORT          = 9,
+	MCT_GETCUSTOMSORTMODES = 10,
+	MCT_ADDMACRO           = 11,
+	MCT_KEYMACRO           = 12,
 };
 
 enum MACROPLUGINRETURNTYPE
@@ -2661,6 +2658,7 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINCONFIG  = 7,
 	MPRT_PLUGINCOMMAND = 8,
 	MPRT_USERMENU      = 9,
+	MPRT_HASNOMACRO    = 10,
 };
 
 struct OpenMacroPluginInfo

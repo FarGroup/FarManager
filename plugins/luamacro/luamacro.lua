@@ -227,17 +227,6 @@ local function MacroStep (handle, ...)
   end
 end
 
-local function MacroFinal (handle)
-  if RunningMacros[handle] then
-    RunningMacros[handle] = false -- false, not nil!
-    --LOG("Final: closed handle "..handle)
-    return 1
-  else
-    -- Far debug only: should not be here
-    ErrMsg(("Final: handle %d does not exist"):format(handle))
-  end
-end
-
 local function MacroParse (lang, text, onlyCheck, skipFile, title, buttons)
   local isFile = string.sub(text,1,1) == "@"
   if not (isFile and skipFile) then
@@ -308,9 +297,6 @@ function export.Open (OpenFrom, arg1, arg2, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle = arg1, arg2
     if     calltype==F.MCT_KEYMACRO       then return keymacro:Dispatch(...)
-  --elseif calltype==F.MCT_MACROINIT      then return MacroInit (...)
-    elseif calltype==F.MCT_MACROSTEP      then return MacroStep (handle, ...)
-    elseif calltype==F.MCT_MACROFINAL     then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
     elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
     elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)

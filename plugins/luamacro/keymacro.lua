@@ -10,6 +10,7 @@ local band,bor,bxor,lshift = bit.band,bit.bor,bit.bxor,bit.lshift
 local FarMacroCallToLua = far.FarMacroCallToLua
 far.FarMacroCallToLua = nil
 local LastMessage = {}
+local MacroPluginIsRunning = 0
 
 local MACROMODE_NOMACRO          =0  -- не в режиме макро
 local MACROMODE_EXECUTING        =1  -- исполнение: без передачи плагину пимп
@@ -172,17 +173,6 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
   return 0
 end
 
-function KeyMacro:HasMacro()
-  if self:GetCurMacro() then
-    return 2
-  elseif self.m_StateStack[1] then
-    self:PopState(true)
-    return 1
-  else
-    return 0
-  end
-end
-
 function KeyMacro:CheckCurMacro()
   local macro = self:GetCurMacro()
   if macro then
@@ -295,9 +285,22 @@ function KeyMacro:Dispatch (opcode, ...)
   elseif opcode==17 then
     local m=self:GetCurMacro()
     if m then m:SetValue(p1) end
-  elseif opcode==18 then return self:CallStep()
-  elseif opcode==19 then return self:HasMacro()
-  elseif opcode==20 then return self:TryToPostMacro(...)
+
+  elseif opcode==18 then
+    if MacroPluginIsRunning==0 and not self:GetCurMacro() then
+      if self.m_StateStack[1] then
+        self:PopState(true)
+        return false
+      else
+        return F.MPRT_HASNOMACRO
+      end
+    end
+    MacroPluginIsRunning = MacroPluginIsRunning + 1
+    local r1,r2 = self:CallStep()
+    MacroPluginIsRunning = MacroPluginIsRunning - 1
+    return r1,r2
+
+  elseif opcode==19 then return self:TryToPostMacro(...)
   end
 end
 

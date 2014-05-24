@@ -508,22 +508,9 @@ static void SetMacroValue(FarMacroValue* Value)
 	CallMacroPluginSimple(&info);
 }
 
-enum
-{
-	HAS_NOMACRO=0,
-	HAS_ONSTACK=1,
-	HAS_ONQUEUE=2
-};
-
-inline int HasMacro()
-{
-	MacroPluginReturn Ret;
-	return MacroPluginOp(19.0,false,&Ret) ? (int)Ret.ReturnType : HAS_NOMACRO;
-}
-
 static bool TryToPostMacro(FARMACROAREA Mode,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[] = {20.0,(double)Mode,TextKey.data(),(double)IntKey};
+	FarMacroValue values[] = {19.0,(double)Mode,TextKey.data(),(double)IntKey};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 	return CallMacroPluginSimple(&info);
@@ -536,7 +523,6 @@ KeyMacro::KeyMacro():
 	m_Recording(MACROMODE_NOMACRO),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
-	m_MacroPluginIsRunning(0),
 	m_DisableNested(0),
 	m_WaitKey(0),
 	m_StringToPrint()
@@ -575,17 +561,13 @@ int KeyMacro::GetCurRecord() const
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-bool KeyMacro::GetInputFromMacro(MacroPluginReturn *mpr)
+static bool GetInputFromMacro(MacroPluginReturn *mpr)
 {
 	FarMacroValue values[]={18.0};
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 
-	++m_MacroPluginIsRunning;
-	bool Result = CallMacroPlugin(&info);
-	--m_MacroPluginIsRunning;
-
-	if (Result)
+	if (CallMacroPlugin(&info))
 	{
 		*mpr = info.Ret;
 		return true;
@@ -887,39 +869,30 @@ int KeyMacro::GetKey()
 	if (m_InternalInput || !Global->FrameManager->GetCurrentFrame())
 		return 0;
 
-	if (!m_MacroPluginIsRunning)
-	{
-		int status = HasMacro();
-		if (status == HAS_ONSTACK)
-			return 0;
-
-		if (status == HAS_NOMACRO)
-		{
-			if (m_Mode==MACROAREA_EDITOR &&
-							Global->CtrlObject->Plugins->GetCurEditor() &&
-							Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
-							Global->ScrBuf->GetLockCount())
-			{
-				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->GetCurEditor()->GetId());
-				Global->CtrlObject->Plugins->GetCurEditor()->Show();
-			}
-
-			Global->ScrBuf->Unlock();
-
-			if (ConsoleTitle::WasTitleModified())
-				ConsoleTitle::RestoreTitle();
-
-			Clipboard::SetUseInternalClipboardState(false);
-			return 0;
-		}
-	}
-
 	MacroPluginReturn mpr;
 	while (GetInputFromMacro(&mpr))
 	{
 		switch (mpr.ReturnType)
 		{
 			default:
+				return 0;
+
+			case MPRT_HASNOMACRO:
+				if (m_Mode==MACROAREA_EDITOR &&
+								Global->CtrlObject->Plugins->GetCurEditor() &&
+								Global->CtrlObject->Plugins->GetCurEditor()->IsVisible() &&
+								Global->ScrBuf->GetLockCount())
+				{
+					Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->GetCurEditor()->GetId());
+					Global->CtrlObject->Plugins->GetCurEditor()->Show();
+				}
+
+				Global->ScrBuf->Unlock();
+
+				if (ConsoleTitle::WasTitleModified())
+					ConsoleTitle::RestoreTitle();
+
+				Clipboard::SetUseInternalClipboardState(false);
 				return 0;
 
 			case MPRT_KEYS:
