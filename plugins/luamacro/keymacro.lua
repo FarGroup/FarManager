@@ -270,7 +270,7 @@ function KeyMacro:Dispatch (opcode, ...)
       LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
-  elseif opcode==11 then return self:GetCurMacro()==nil
+  elseif opcode==11 then return self:GetCurMacro() and 0 or 1
   elseif opcode==12 then return #self.m_StateStack
   elseif opcode==13 then return self.m_CurState.IntKey
   elseif opcode==14 then

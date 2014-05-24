@@ -476,7 +476,7 @@ static bool GetTopMacro(MacroRecord* macro)
 inline bool IsMacroQueueEmpty()
 {
 	MacroPluginReturn Ret;
-	return !MacroPluginOp(11.0,false,&Ret) || Ret.ReturnType==0;
+	return !MacroPluginOp(11.0,false,&Ret) || Ret.ReturnType==1;
 }
 
 inline size_t GetStateStackSize()
