@@ -182,7 +182,7 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 	UndoSavePos = UndoPos = UndoData.end();
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
-	FirstLine = LastLine = CurLine = Lines.end();
+	BlockStart = VBlockStart = LastGetLine = FirstLine = LastLine = CurLine = Lines.end();
 	NumLastLine = 0;
 }
 
@@ -1196,9 +1196,9 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (!CurPos && CurLine == FirstLine)
 				return TRUE;
 
-			auto PrevLine = std::prev(CurLine);
 			if (!CurPos) //курсор в начале строки
 			{
+				auto PrevLine = std::prev(CurLine);
 				if (SelAtBeginning) //курсор в начале блока
 				{
 					BlockStart = PrevLine;
