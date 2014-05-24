@@ -593,7 +593,7 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes LinkType, bool Silent)
+int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes LinkType, bool Silent, bool AllowRel)
 {
 	if (!Target.empty() && !LinkName.empty())
 	{
@@ -791,7 +791,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 		if (LinkType!=RP_VOLMOUNT)
 		{
-			if (CreateReparsePoint(strFullTarget, strFullLink, LinkType))
+			if (CreateReparsePoint(AllowRel && symlink ? Target : strFullTarget, strFullLink, LinkType))
 			{
 				return 1;
 			}
