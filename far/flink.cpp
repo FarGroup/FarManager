@@ -791,7 +791,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 		if (LinkType!=RP_VOLMOUNT)
 		{
-			if (CreateReparsePoint(symlink ? Target : strFullTarget, strFullLink, LinkType))
+			if (CreateReparsePoint(strFullTarget, strFullLink, LinkType))
 			{
 				return 1;
 			}
