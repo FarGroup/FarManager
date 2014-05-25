@@ -1094,11 +1094,11 @@ bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::PostNewMacro(int MacroId,const wchar_t* Lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)
+bool KeyMacro::PostNewMacro(const wchar_t* Lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey)
 {
-	if (MacroId != 0 || ParseMacroString(Lang, PlainText, false, true))
+	if (ParseMacroString(Lang, PlainText, false, true))
 	{
-		FarMacroValue values[]={12.0,Lang,(double)Flags,(double)MacroId,(double)AKey,PlainText};
+		FarMacroValue values[]={12.0,Lang,(double)Flags,(double)AKey,PlainText};
 		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 		OpenMacroPluginInfo info={MCT_KEYMACRO,0,&fmc};
 		return CallMacroPluginSimple(&info);

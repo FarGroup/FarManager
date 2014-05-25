@@ -48,9 +48,9 @@ local NewMacroRecord do
   function MacroRecord:GetValue() return self.m_macrovalue end
   function MacroRecord:SetValue(val) self.m_macrovalue=val end
 
-  NewMacroRecord = function (Lang, Flags, MacroId, Key, Code)
+  NewMacroRecord = function (MacroId, Lang, Flags, Key, Code)
     local mr = {
-      m_lang=Lang, m_flags=Flags, m_macroId=MacroId, m_key=Key, m_code=Code,
+      m_macroId=MacroId, m_lang=Lang, m_flags=Flags, m_key=Key, m_code=Code,
       m_macrovalue=nil,
       m_handle=0
     }
@@ -240,7 +240,7 @@ local function GetInputFromMacro()
 end
 
 function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
-  if macroId and macroId~=0 then
+  if macroId then
     flags = flags or 0
     flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
     local AKey = 0
@@ -250,7 +250,7 @@ function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
         AKey = dKey
       end
     end
-    table.insert(CurState.MacroQueue, NewMacroRecord("lua",flags,macroId,AKey,code))
+    table.insert(CurState.MacroQueue, NewMacroRecord(macroId,"lua",flags,AKey,code))
     return true
   end
   return false
@@ -259,11 +259,9 @@ end
 local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
-    if m.id ~= 0  then
-      KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
-      SetHistoryDisableMask(0)
-      CurState.IntKey = IntKey
-    end
+    KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
+    SetHistoryDisableMask(0)
+    CurState.IntKey = IntKey
     return true
   end
 end
@@ -295,7 +293,7 @@ function KeyMacro.Dispatch (opcode, ...)
   elseif opcode==10 then return #StateStack
   elseif opcode==11 then return CurState.IntKey
   elseif opcode==12 then
-    table.insert(CurState.MacroQueue, NewMacroRecord(...))
+    table.insert(CurState.MacroQueue, NewMacroRecord(0, ...))
     return true
   elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
   elseif opcode==14 then

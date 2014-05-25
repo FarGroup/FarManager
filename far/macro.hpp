@@ -114,7 +114,6 @@ struct MacroPanelSelect
 };
 
 class Dialog;
-struct MacroRecord;
 
 class KeyMacro: NonCopyable
 {
@@ -146,7 +145,7 @@ public:
 	bool Load(bool InitedRAM=true,bool LoadAll=true);
 	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
 	int  PeekKey() const;
-	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
+	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0);
 	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
@@ -157,7 +156,6 @@ private:
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
 	int  GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
 	void RestoreMacroChar() const;
 
 	FARMACROAREA m_Mode;
