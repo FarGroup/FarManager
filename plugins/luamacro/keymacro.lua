@@ -9,8 +9,6 @@ local bit = bit or bit64
 local band,bor,bxor,lshift = bit.band,bit.bor,bit.bxor,bit.lshift
 local FarMacroCallToLua = far.FarMacroCallToLua
 far.FarMacroCallToLua = nil
-local LastMessage = {}
-local MacroPluginIsRunning = 0
 
 local MACROMODE_NOMACRO          =0  -- не в режиме макро
 local MACROMODE_EXECUTING        =1  -- исполнение: без передачи плагину пимп
@@ -22,140 +20,142 @@ local MFLAGS_POSTFROMPLUGIN      = 0x10000000 -- последовательно�
 
 local MCODE_F_KEYMACRO = 0x80C68
 local Import = {
-  RestoreMacroChar        = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 1) end,
-  ScrBufLock              = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 2) end,
-  ScrBufUnlock            = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 3) end,
-  ScrBufResetLockCount    = function()    far.MacroCallFar(MCODE_F_KEYMACRO, 4) end,
-  GetUseInternalClipboard = function()    return far.MacroCallFar(MCODE_F_KEYMACRO, 5) end,
-  SetUseInternalClipboard = function(v)   far.MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
-  KeyNameToKey            = function(v)   return far.MacroCallFar(MCODE_F_KEYMACRO, 7, v) end,
+  RestoreMacroChar        = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 1) end,
+  ScrBufLock              = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 2) end,
+  ScrBufUnlock            = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 3) end,
+  ScrBufResetLockCount    = function()  far.MacroCallFar(MCODE_F_KEYMACRO, 4) end,
+  GetUseInternalClipboard = function()  return far.MacroCallFar(MCODE_F_KEYMACRO, 5) end,
+  SetUseInternalClipboard = function(v) far.MacroCallFar(MCODE_F_KEYMACRO, 6, v) end,
+  KeyNameToKey            = function(v) return far.MacroCallFar(MCODE_F_KEYMACRO, 7, v) end,
 }
+--------------------------------------------------------------------------------
 
-local MacroRecord = {
-  m_lang="lua",     -- Язык макропоследовательности
-  m_flags=0,        -- Флаги макропоследовательности
-  m_key=-1,         -- Назначенная клавиша
-  m_code="",        -- оригинальный "текст" макроса
-  m_macroId=0,      -- Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
-  m_macrovalue=nil, -- Значение, хранимое исполняющимся макросом
-  m_handle=0        -- Хэндл исполняющегося макроса
-}
-local meta_MacroRecord = { __index=MacroRecord }
-
-local function NewMacroRecord(Lang, Flags, MacroId, Key, Code)
-  local mr = {
-    m_lang=Lang,
-    m_flags=Flags,
-    m_key=Key,
-    m_code=Code,
-    m_macroId=MacroId,
-    m_macrovalue=nil,
-    m_handle=0
+local NewMacroRecord do
+  local MacroRecord = {
+    m_lang="lua",     -- Язык макропоследовательности
+    m_flags=0,        -- Флаги макропоследовательности
+    m_key=-1,         -- Назначенная клавиша
+    m_code="",        -- оригинальный "текст" макроса
+    m_macroId=0,      -- Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
+    m_macrovalue=nil, -- Значение, хранимое исполняющимся макросом
+    m_handle=0        -- Хэндл исполняющегося макроса
   }
-  return setmetatable(mr, meta_MacroRecord)
+  local meta = { __index=MacroRecord }
+
+  function MacroRecord:Flags() return self.m_flags end
+  function MacroRecord:GetHandle() return self.m_handle end
+  function MacroRecord:SetHandle(handle) self.m_handle=handle end
+  function MacroRecord:GetValue() return self.m_macrovalue end
+  function MacroRecord:SetValue(val) self.m_macrovalue=val end
+
+  NewMacroRecord = function (Lang, Flags, MacroId, Key, Code)
+    local mr = {
+      m_lang=Lang, m_flags=Flags, m_macroId=MacroId, m_key=Key, m_code=Code,
+      m_macrovalue=nil,
+      m_handle=0
+    }
+    return setmetatable(mr, meta)
+  end
 end
-
-function MacroRecord:Flags() return self.m_flags end
-function MacroRecord:GetHandle() return self.m_handle end
-function MacroRecord:SetHandle(handle) self.m_handle=handle end
-function MacroRecord:GetValue() return self.m_macrovalue end
-function MacroRecord:SetValue(val) self.m_macrovalue=val end
 --------------------------------------------------------------------------------
 
-local MacroState = {
-  IntKey=0, -- "описание реально нажатой клавиши"
-  Executing=0,
-  m_MacroQueue=nil,
-  HistoryDisable=0,
-  UseInternalClipboard=false
-}
-local meta_MacroState = { __index=MacroState }
-local function NewMacroState()
-  return setmetatable({ m_MacroQueue={} }, meta_MacroState)
+local NewMacroState do
+  local MacroState = {
+    IntKey=0, -- "описание реально нажатой клавиши"
+    Executing=0,
+    MacroQueue=nil,
+    HistoryDisable=0,
+    UseInternalClipboard=false
+  }
+  local meta = { __index=MacroState }
+  function MacroState:GetCurMacro() return self.MacroQueue[1] end
+  function MacroState:RemoveCurMacro() table.remove(self.MacroQueue, 1) end
+  NewMacroState = function() return setmetatable({ MacroQueue={} }, meta) end
 end
-function MacroState:GetCurMacro() return self.m_MacroQueue[1] end
-function MacroState:RemoveCurMacro() table.remove(self.m_MacroQueue, 1) end
 --------------------------------------------------------------------------------
 
-local stack = {}
-local meta_stack = { __index=stack }
-local function NewStack() return setmetatable({}, meta_stack) end
-function stack:top() return self[#self] end
-function stack:pop() local v=self[#self]; self[#self]=nil; return v; end
-function stack:push(v) self[#self+1]=v end
-function stack:empty() return self[1]==nil end
+local NewStack do
+  local stack = {}
+  local meta = { __index=stack }
+  function stack:top() return self[#self] end
+  function stack:pop() local v=self[#self]; self[#self]=nil; return v; end
+  function stack:push(v) self[#self+1]=v end
+  function stack:empty() return self[1]==nil end
+  NewStack = function() return setmetatable({}, meta) end
+end
 --------------------------------------------------------------------------------
 
-local KeyMacro = {
-  m_StateStack = NewStack(),
-  m_CurState = NewMacroState(),
-}
+local KeyMacro = {}
+local CurState = NewMacroState()
+local StateStack = NewStack()
+local LastMessage = {}
+local MacroPluginIsRunning = 0
+--------------------------------------------------------------------------------
 
-function KeyMacro:GetCurMacro() return self.m_CurState:GetCurMacro() end
-function KeyMacro:GetTopMacro() return self.m_StateStack[1] and self.m_StateStack:top():GetCurMacro() end
-function KeyMacro:RemoveCurMacro() self.m_CurState:RemoveCurMacro() end
+local function GetCurMacro() return CurState:GetCurMacro() end
+local function GetTopMacro() return StateStack[1] and StateStack:top():GetCurMacro() end
+local function RemoveCurMacro() CurState:RemoveCurMacro() end
 
-function KeyMacro:IsExecuting()
-  local m = self:GetCurMacro()
+local function IsExecuting()
+  local m = GetCurMacro()
   if m and m:GetHandle()~=0 then
     return band(m:Flags(),MFLAGS_NOSENDKEYSTOPLUGINS)~=0 and MACROMODE_EXECUTING or MACROMODE_EXECUTING_COMMON
   else
-    return self.m_StateStack[1] and MACROMODE_EXECUTING_COMMON or MACROMODE_NOMACRO
+    return StateStack[1] and MACROMODE_EXECUTING_COMMON or MACROMODE_NOMACRO
   end
 end
 
-function KeyMacro:GetHistoryDisableMask()
-  return self.m_CurState.HistoryDisable
+local function GetHistoryDisableMask()
+  return CurState.HistoryDisable
 end
 
-function KeyMacro:SetHistoryDisableMask (Mask)
-  local OldHistoryDisable = self.m_CurState.HistoryDisable
-  self.m_CurState.HistoryDisable = Mask
+local function SetHistoryDisableMask (Mask)
+  local OldHistoryDisable = CurState.HistoryDisable
+  CurState.HistoryDisable = Mask
   return OldHistoryDisable
 end
 
-function KeyMacro:IsHistoryDisable (TypeHistory)
-  return self:GetCurMacro() and
-    band(self.m_CurState.HistoryDisable, lshift(1,TypeHistory))~=0 and 1 or 0
+local function IsHistoryDisable (TypeHistory)
+  return GetCurMacro() and band(CurState.HistoryDisable, lshift(1,TypeHistory))~=0 and 1 or 0
 end
 
-function KeyMacro:IsDisableOutput()
-  local m = self:GetCurMacro()
+local function IsDisableOutput()
+  local m = GetCurMacro()
   return m and band(m:Flags(),MFLAGS_ENABLEOUTPUT)==0 and 1 or 0
 end
 
-function KeyMacro:PushState (withClip)
+local function PushState (withClip)
   if withClip then
-    self.m_CurState.UseInternalClipboard = Import.GetUseInternalClipboard()
+    CurState.UseInternalClipboard = Import.GetUseInternalClipboard()
   end
-  self.m_StateStack:push(self.m_CurState)
-  self.m_CurState = NewMacroState()
+  StateStack:push(CurState)
+  CurState = NewMacroState()
 end
 
-function KeyMacro:PopState (withClip)
-  if self.m_StateStack[1] then
-    local q = self.m_StateStack:top().m_MacroQueue
-    for i,v in ipairs(self.m_CurState.m_MacroQueue) do
+local function PopState (withClip)
+  if StateStack[1] then
+    local q = StateStack:top().MacroQueue
+    for i,v in ipairs(CurState.MacroQueue) do
       q[#q+1] = v
     end
-    self.m_CurState = self.m_StateStack:pop()
+    CurState = StateStack:pop()
     if withClip then
-      Import.SetUseInternalClipboard(self.m_CurState.UseInternalClipboard)
+      Import.SetUseInternalClipboard(CurState.UseInternalClipboard)
     end
   end
 end
 
 -- инициализация всех переменных
-function KeyMacro:InitInternalVars (InitedRAM)
+function KeyMacro.InitInternalVars (InitedRAM)
   if InitedRAM then
-    self.m_CurState.m_MacroQueue = {}
-    self.m_CurState.Executing = MACROMODE_NOMACRO
+    CurState.MacroQueue = {}
+    CurState.Executing = MACROMODE_NOMACRO
   end
-  self.m_CurState.HistoryDisable = 0
+  CurState.HistoryDisable = 0
 end
 
-function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
-  local TopMacro = self:GetTopMacro()
+function KeyMacro.mmode (Action, nValue)     -- N=MMode(Action[,Value])
+  local TopMacro = GetTopMacro()
   if not TopMacro then return false end
 
   if Action==1 then -- DisableOutput
@@ -173,8 +173,8 @@ function KeyMacro:mmode (Action, nValue)     -- N=MMode(Action[,Value])
   return 0
 end
 
-function KeyMacro:CheckCurMacro()
-  local macro = self:GetCurMacro()
+local function CheckCurMacro()
+  local macro = GetCurMacro()
   if macro then
     local handle = macro:GetHandle()
     if handle == 0 then
@@ -184,19 +184,19 @@ function KeyMacro:CheckCurMacro()
     if handle and handle ~= 0 then
       return macro
     end
-    self:RemoveCurMacro()
+    RemoveCurMacro()
     Import.RestoreMacroChar()
   end
 end
 
-function KeyMacro:CallStep()
+local function CallStep()
   while true do
-    local macro = self:CheckCurMacro()
+    local macro = CheckCurMacro()
     if not macro then return end
 
     Import.ScrBufResetLockCount()
 
-    self:PushState(false)
+    PushState(false)
     local r1,r2
     local value, handle = macro:GetValue(), macro:GetHandle()
     if type(value) == "userdata" then
@@ -206,7 +206,7 @@ function KeyMacro:CallStep()
     else
       r1,r2 = MacroStep(handle)
     end
-    self:PopState(false)
+    PopState(false)
     macro:SetValue(nil)
 
     if not (r1==F.MPRT_NORMALFINISH or r1==F.MPRT_ERRORFINISH) then
@@ -216,15 +216,30 @@ function KeyMacro:CallStep()
 
     if band(macro:Flags(),MFLAGS_ENABLEOUTPUT)==0 then Import.ScrBufUnlock() end
 
-    self:RemoveCurMacro()
+    RemoveCurMacro()
 
-    if not self:GetCurMacro() then
+    if not GetCurMacro() then
       Import.RestoreMacroChar()
     end
   end
 end
 
-function KeyMacro:PostNewMacro (macroId, code, flags, key, postFromPlugin)
+local function GetInputFromMacro()
+  if MacroPluginIsRunning==0 and not GetCurMacro() then
+    if StateStack[1] then
+      PopState(true)
+      return false
+    else
+      return F.MPRT_HASNOMACRO
+    end
+  end
+  MacroPluginIsRunning = MacroPluginIsRunning + 1
+  local r1,r2 = CallStep()
+  MacroPluginIsRunning = MacroPluginIsRunning - 1
+  return r1,r2
+end
+
+function KeyMacro.PostNewMacro (macroId, code, flags, key, postFromPlugin)
   if macroId and macroId~=0 then
     flags = flags or 0
     flags = postFromPlugin and bor(flags,MFLAGS_POSTFROMPLUGIN) or flags
@@ -235,72 +250,59 @@ function KeyMacro:PostNewMacro (macroId, code, flags, key, postFromPlugin)
         AKey = dKey
       end
     end
-    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord("lua",flags,macroId,AKey,code))
+    table.insert(CurState.MacroQueue, NewMacroRecord("lua",flags,macroId,AKey,code))
     return true
   end
   return false
 end
 
-function KeyMacro:TryToPostMacro (Mode, TextKey, IntKey)
+local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
     if m.id ~= 0  then
-      self:PostNewMacro(m.id, m.code, m.flags, TextKey, false)
-      self:SetHistoryDisableMask(0)
-      self.m_CurState.IntKey = IntKey
+      KeyMacro.PostNewMacro(m.id, m.code, m.flags, TextKey, false)
+      SetHistoryDisableMask(0)
+      CurState.IntKey = IntKey
     end
     return true
   end
 end
 
-function KeyMacro:Dispatch (opcode, ...)
+function KeyMacro.DisableHistory (State)
+  State = type(State)=="number" and math.floor(State)
+  local t = StateStack:top()
+  local oldHistoryDisable = t and t.HistoryDisable or 0
+  if t and State then t.HistoryDisable = State end
+  return oldHistoryDisable
+end
+
+function KeyMacro.Dispatch (opcode, ...)
   local p1 = (...)
-  if     opcode==1  then self:PushState(p1)
-  elseif opcode==2  then self:PopState(p1)
-  elseif opcode==3  then self:InitInternalVars(p1)
-  elseif opcode==4  then return self:IsExecuting()
-  elseif opcode==5  then return self:IsDisableOutput()
-  elseif opcode==6  then return self:SetHistoryDisableMask(p1)
-  elseif opcode==7  then return self:GetHistoryDisableMask()
-  elseif opcode==8  then return self:IsHistoryDisable(p1)
-  elseif opcode==9 or opcode==10 then
+  if     opcode==1 then PushState(p1)
+  elseif opcode==2 then PopState(p1)
+  elseif opcode==3 then return IsExecuting()
+  elseif opcode==4 then return IsDisableOutput()
+  elseif opcode==5 then return p1 and SetHistoryDisableMask(p1) or GetHistoryDisableMask()
+  elseif opcode==6 then return IsHistoryDisable(p1)
+  elseif opcode==7 or opcode==8 then
     local mr
-    if opcode==9 then mr=self:GetCurMacro() else mr=self:GetTopMacro() end
+    if opcode==7 then mr=GetCurMacro() else mr=GetTopMacro() end
     if mr then
       LastMessage = pack(mr.m_flags, mr.m_key)
       return F.MPRT_NORMALFINISH, LastMessage
     end
-  elseif opcode==11 then return self:GetCurMacro() and 0 or 1
-  elseif opcode==12 then return #self.m_StateStack
-  elseif opcode==13 then return self.m_CurState.IntKey
-  elseif opcode==14 then
-    table.insert(self.m_CurState.m_MacroQueue, NewMacroRecord(...))
+  elseif opcode==9  then return GetCurMacro() and 0 or 1
+  elseif opcode==10 then return #StateStack
+  elseif opcode==11 then return CurState.IntKey
+  elseif opcode==12 then
+    table.insert(CurState.MacroQueue, NewMacroRecord(...))
     return true
-  elseif opcode==15 then local t=self.m_StateStack:top() return t and t.IntKey or 0
-  elseif opcode==16 then
-    local t = self.m_StateStack:top()
-    local oldHistoryDisable = t and t.HistoryDisable or 0
-    if t and p1 then t.HistoryDisable = p1 end
-    return oldHistoryDisable
-  elseif opcode==17 then
-    local m=self:GetCurMacro()
+  elseif opcode==13 then local t=StateStack:top() return t and t.IntKey or 0
+  elseif opcode==14 then
+    local m = GetCurMacro()
     if m then m:SetValue(p1) end
-
-  elseif opcode==18 then
-    if MacroPluginIsRunning==0 and not self:GetCurMacro() then
-      if self.m_StateStack[1] then
-        self:PopState(true)
-        return false
-      else
-        return F.MPRT_HASNOMACRO
-      end
-    end
-    MacroPluginIsRunning = MacroPluginIsRunning + 1
-    local r1,r2 = self:CallStep()
-    MacroPluginIsRunning = MacroPluginIsRunning - 1
-    return r1,r2
-
-  elseif opcode==19 then return self:TryToPostMacro(...)
+  elseif opcode==15 then return GetInputFromMacro()
+  elseif opcode==16 then return TryToPostMacro(...)
   end
 end
 

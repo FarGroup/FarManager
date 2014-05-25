@@ -150,7 +150,7 @@ local function postmacro (f, ...)
   if type(f) == "function" then
     local Id = #PostedMacros+1
     PostedMacros[Id] = pack(f, ...)
-    return keymacro:PostNewMacro(-Id, "", 0, nil, true)
+    return keymacro.PostNewMacro(-Id, "", 0, nil, true)
   end
   return false
 end
@@ -296,12 +296,15 @@ end
 function export.Open (OpenFrom, arg1, arg2, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle = arg1, arg2
-    if     calltype==F.MCT_KEYMACRO       then return keymacro:Dispatch(...)
+    if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
     elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
     elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
     elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
     elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
-    elseif calltype==F.MCT_LOADMACROS     then return utils.LoadMacros(...)
+    elseif calltype==F.MCT_LOADMACROS     then
+      local InitedRAM, LoadAll = ...
+      keymacro.InitInternalVars(InitedRAM)
+      return utils.LoadMacros(LoadAll)
     elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
     elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
     elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
@@ -372,8 +375,7 @@ local function Init()
 
   keymacro = RunPluginFile("keymacro.lua", Shared)
   Shared.keymacro = keymacro
-  mf.mmode = function(...) return keymacro:mmode(...) end
-  _G.mmode = mf.mmode
+  mf.mmode, _G.mmode = keymacro.mmode, keymacro.mmode
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 

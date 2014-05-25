@@ -121,47 +121,44 @@ class KeyMacro: NonCopyable
 public:
 	KeyMacro();
 
-	static int IsExecuting();
-	static int IsDisableOutput();
+	static bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
+	static bool DelMacro(const GUID& PluginId,void* Id);
+	static bool ExecuteString(MacroExecuteString *Data);
+	static bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription);
+	static int  IsDisableOutput();
+	static int  IsExecuting();
 	static bool IsHistoryDisable(int TypeHistory);
+	static bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
+	static void RunStartMacro();
 	static bool Save(bool always);
-	static void SetMacroConst(int ConstIndex, __int64 Value);
 	static void SendDropProcess();
+	static void SetMacroConst(int ConstIndex, __int64 Value);
 
-	int IsRecording() const { return m_Recording; }
-	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
-	FARMACROAREA GetMode() const { return m_Mode; }
-	bool Load(bool InitedRAM=true,bool LoadAll=true);
-	int GetCurRecord() const;
-	int ProcessEvent(const FAR_INPUT_RECORD *Rec);
-	int GetKey();
-	int PeekKey() const;
-	bool GetMacroKeyInfo(const string& strMode,int Pos,string &strKeyName,string &strDescription) const;
-	bool CheckWaitKeyFunc() const;
-	bool MacroExists(int Key, FARMACROAREA CheckMode, bool UseCommon);
-	void RunStartMacro();
-	bool AddMacro(const GUID& PluginId,const MacroAddMacro* Data);
-	bool DelMacro(const GUID& PluginId,void* Id);
-	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
-	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
-	bool ExecuteString(MacroExecuteString *Data) const;
-	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 	void CallPluginSynchro(MacroPluginReturn *Params, FarMacroCall **Target, int *Boolean);
-	const wchar_t *GetStringToPrint() const { return m_StringToPrint; }
+	bool CheckWaitKeyFunc() const;
+	int  GetCurRecord() const;
+	int  GetKey();
+	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
+	FARMACROAREA GetMode() const { return m_Mode; }
+	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
+	int  IsRecording() const { return m_Recording; }
+	bool Load(bool InitedRAM=true,bool LoadAll=true);
+	bool ParseMacroString(const wchar_t* lang,const wchar_t* Sequence,bool onlyCheck,bool skipFile);
+	int  PeekKey() const;
+	bool PostNewMacro(const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags=0,DWORD AKey=0) { return PostNewMacro(0,lang,PlainText,Flags,AKey); }
+	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
+	void SetMode(FARMACROAREA Mode) { m_Mode=Mode; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
-	int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
-	void RestoreMacroChar() const;
-	void InitInternalVars(bool InitedRAM=true);
-	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
-	bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Mode, const string& TextKey, bool UseCommon, bool CheckOnly);
-	void LM_ProcessRecordedMacro(FARMACROAREA Mode, const string& TextKey, const string& Code, MACROFLAGS_MFLAGS Flags, const string& Description);
+	int  AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 	void CallPlugin(MacroPluginReturn *mpr, FarMacroValue *fmv, bool CallPluginRules);
+	int  GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
+	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	bool PostNewMacro(int macroId,const wchar_t* lang,const wchar_t* PlainText,UINT64 Flags,DWORD AKey);
+	void RestoreMacroChar() const;
 
 	FARMACROAREA m_Mode;
 	FARMACROAREA m_RecMode;

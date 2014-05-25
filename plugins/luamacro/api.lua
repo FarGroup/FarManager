@@ -45,7 +45,6 @@ mf = {
   len             = function(...) return MacroCallFar(0x80C17, ...) end,
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
---mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
   msgbox          = function(...) return MacroCallFar(0x80C21, ...) end,
   prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
@@ -286,7 +285,7 @@ SetProperties(Menu, {
 
 Far = {
   Cfg_Get        = function(...) return MacroCallFar(0x80C58, ...) end,
-  DisableHistory = function(...) return MacroCallFar(0x80C4C, ...) end,
+  DisableHistory = function(...) return args.keymacro.DisableHistory(...) end,
   KbdLayout      = function(...) return MacroCallFar(0x80C49, ...) end,
   KeyBar_Show    = function(...) return MacroCallFar(0x80C4B, ...) end,
   Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
