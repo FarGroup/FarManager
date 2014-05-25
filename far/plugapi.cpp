@@ -2640,7 +2640,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target,const wchar_t *LinkName, LINK_TYPE T
 					break;
 				}
 
-				Result=MkSymLink(Target,LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0);
+				Result=MkSymLink(Target,LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0, (Flags&MLF_HOLDTARGET) != 0);
 			}
 			break;
 		default:

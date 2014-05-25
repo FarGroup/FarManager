@@ -44,13 +44,13 @@ ENUM(ReparsePointTypes)
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-int   MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
+int MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
 
-int   GetNumberOfLinks(const string& Name, bool negative_if_error=false);
+int GetNumberOfLinks(const string& Name, bool negative_if_error=false);
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
 
-bool  CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
-bool  DeleteReparsePoint(const string& Object);
+bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
+bool DeleteReparsePoint(const string& Object);
 bool ModifyReparsePoint(const string& Object,const string& NewData);
 
 bool GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
@@ -73,4 +73,4 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent=false, bool AllowRel=false);
+int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent=false, bool HoldTarget=false);
