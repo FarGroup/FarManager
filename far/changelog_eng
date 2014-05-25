@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 25.05.2014 21:13:55 +0200 - build 3922
+
+1. Continuation of 3896.
+
+shmuel 25.05.2014 18:15:52 +0200 - build 3921
+
+1. Continuation of 3896.
+
+w17 25.05.2014 10:20:35 +0400 - build 3920
+
+1. Another correction of 3913
+   MLF_HOLDTARGET flag is added to plugin.h
+
+shmuel 24.05.2014 20:04:56 +0200 - build 3919
+
+1. Fix for nested macros.
+
+shmuel 24.05.2014 17:25:47 +0200 - build 3918
+
+1. Continuation of 3896.
+
+w17 24.05.2014 14:16:12 +0400 - build 3917
+
+1. Correction of 3913
+
+drkns 24.05.2014 12:11:56 +0200 - build 3916
+
+1. "Fix" symlinks back so far.
+
+drkns 24.05.2014 10:03:45 +0200 - build 3915
+
+1. 0002686: Debug build crashes in editor
+
+shmuel 23.05.2014 19:52:03 +0200 - build 3914
+
+1. Continuation of 3896.
+
+w17 23.05.2014 15:50:39 +0400 - build 3913
+
+1. M#2675: Symlink is created only with an absolute path. There is no possibility of specifying a relative path
+
+shmuel 23.05.2014 01:44:13 +0200 - build 3912
+
+1. Continuation of 3896.
+
+shmuel 21.05.2014 23:35:44 +0200 - build 3911
+
+1. Continuation of 3896.
+
+shmuel 21.05.2014 18:07:34 +0200 - build 3910
+
+1. Continuation of 3896.
+
 drkns 18.05.2014 17:19:57 +0200 - build 3909
 
 1. Rollback of 3908.1 until better times.
